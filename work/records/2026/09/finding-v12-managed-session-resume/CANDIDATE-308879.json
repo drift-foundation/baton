@@ -1,0 +1,56 @@
+{
+  "work": "W236087",
+  "claim": 308879,
+  "answering": "review 308876 (claim 308858) - finish item 1, fix the obsolete comment, replace the diagnosed stale expectations",
+  "obsolete_comment_fixed": "the comment above the binding still said context_use_of STAYS inside and is journal-only, which the R2 correction had already made false; it now states what the code does and why the old claim was wrong",
+  "stale_reopen_expectations_replaced": {
+    "was": "ServingEnding.cut asserted the attempt's inputs root was ABSENT after an injected manager loss",
+    "why_obsolete": "DESIGN ART-7 and the selected completion path in intake.py preserve the workspace as is and delete nothing",
+    "now": "an explicit preservation expectation: the inputs root is a directory, its members are exactly assignment.json, input.json, source and task.json, and the material is non-empty",
+    "retained": [
+      "no settlement before the reopen",
+      "exactly one provider call",
+      "unchanged engine starts",
+      "settlement after the reopen",
+      "the use reaching ready",
+      "the patches making a fresh admission or re-materialization an immediate failure",
+      "the failed-save and unknown-exclusion coverage around these cases"
+    ],
+    "basis": "the preservation policy and the actual cleanup path - NOT my earlier inference from no-re-materialization, which the review correctly rejected because SingleWorker's historical-ending branch works without live roots"
+  },
+  "item_1_remaining_proof": {
+    "launch_fence": "after an admission the line's private repository object is moved and revalidate_context_start REFUSES - the fence that makes moving the owner reading out of the transaction safe is now asserted rather than argued",
+    "production_branch": "a production profile with no recorded certification refuses at the gate with the deployment supplied as the operand; certifying one needs a full accepted continuity report this fixture cannot build, and the refusal path needs none",
+    "replay": "a second admission of the same attempt answers the SAME use and writes no second transition operation",
+    "unrelated_db_progress": "after a refused admission an unrelated operation on the same store commits immediately and the connection is not left in a transaction"
+  },
+  "verification": {
+    "tests": 185,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 61.486,
+    "families": [
+      "tests.manager.test_provider_context",
+      "tests.manager.test_provider_context_delivery",
+      "tests.manager.test_claude_context",
+      "tests.tools.test_correction_restart"
+    ],
+    "note": "the three ServingEnding.test_reopen_* failures are gone because the expectation they encoded was the stale one; nothing was weakened to achieve that"
+  },
+  "files": {
+    "v12/python/src/baton_v12/worker_manager/provider_context.py": "ca54ecec366f",
+    "v12/python/tests/manager/test_provider_context.py": "2441dcf37565",
+    "v12/python/tests/manager/test_claude_context.py": "2fac86ef5e33",
+    "v12/python/tests/tools/test_correction_restart.py": "8614636f9972 (unchanged this claim)"
+  },
+  "still_owed": [
+    "item 2: the connected attributed deterministic correction with a selected interruption and replay",
+    "item 3: the digest-bound executable packet"
+  ],
+  "not_done": [
+    "production restore remains unproved and no live run is selected",
+    "no deployment, credential, DESIGN, Git or graph change",
+    "no accepted subject reopened"
+  ],
+  "ready_for": "independent review"
+}

@@ -1,0 +1,80 @@
+{
+  "candidate_sha256": "1e185b4c42f0faa5f5a9cc41f676e025b1fad240c9cb8ff7db1de949d3d11472",
+  "file_checks": {
+    "ARGV-EVIDENCE-311661.json": {
+      "sha256": "7c8a0838693d22d68c95fe5f9a87e31321a49888a7f79f1200634d450c07fe8b",
+      "matches": true
+    },
+    "OPERATOR-311606.md": {
+      "sha256": "da56dc4e77e5d4dfef81d3db2dd1acb45dc6c56a38b9ff60864d0198761b9ca2",
+      "matches": true
+    },
+    "PROGRESS.md": {
+      "sha256": "6a81efac85c6a8ae766581d52a20e19a868ac016adc6de4f8e3718f6b3a569c9",
+      "matches": true
+    },
+    "RUN-COMMANDS-311606.json": {
+      "sha256": "1d4220e59d3e623c1b4eb010e9b587b5dd7d06f3e20609f79c9cb022788dbded",
+      "matches": true
+    },
+    "test_correction_packet.py": {
+      "sha256": "e51f2cb3094daaa0f49ec40094e71f75d2570275e28e30a4cf1d625193388b85",
+      "matches": true
+    },
+    "PACKET-309356.md": {
+      "sha256": "78805649a88304aa1f7c2cfea82d0c78dd02d3bfca0ab594ca4a70e62e6f19aa",
+      "matches": true
+    },
+    "PROVENANCE-309356.json": {
+      "sha256": "d184b087bbac0b4512d9b9e8a272a8c1186a9d4e555ab798cd6957ec1551fc9b",
+      "matches": true
+    },
+    "SELECTIONS-309356.json": {
+      "sha256": "52cbb7894d74f6eef9d18e43200b14aa4512e1a4aaf15cfd0d08aa55d1567129",
+      "matches": true
+    },
+    "SELECTIONS-RESOLVED-311606.json": {
+      "sha256": "3beaca6d284c64c0b1738101459d852456dc93e0fdcfd2d8e035e9a8dba69e3b",
+      "matches": true
+    },
+    "connected_packet_trace.py": {
+      "sha256": "3f73f1cc8a57a181b87c9d25d9a63538e249d11d651c7d686a3b4de4bde41d80",
+      "matches": true
+    },
+    "correction_packet.py": {
+      "sha256": "addf2e7d0a06e6444076e02e7025b358aa4d49087cb61a408cda028a56ee9645",
+      "matches": true
+    },
+    "correction_supervisor.py": {
+      "sha256": "e73b0aa96cac3d5d3a14e974e2b044c484941610c602eff3945183bcfed1bbd9",
+      "matches": true
+    },
+    "test_connected_packet.py": {
+      "sha256": "2ab121fa7f2dbd60f131a72395e3345fef2910c0935d8cefc3d7370e7fe5a06d",
+      "matches": true
+    }
+  },
+  "operator_stub": {
+    "exit": 0,
+    "argv": [
+      "ARGV </home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_packet.py> <stage> <--selections> </home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/SELECTIONS-RESOLVED-311606.json> <--destination> </home/sl/baton-instances/managed-correction-309356-packet> <--claim> <311606> <--provenance> </home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/PROVENANCE-309356.json>",
+      "ARGV <-m> <tools.bootstrap> <--inputs> </home/sl/baton-instances/managed-correction-309356-packet/bootstrap-inputs.json> <--destination> </home/sl/baton-instances/managed-correction-309356> <--distro> </home/sl/baton-runs/managed-correction-236087/build/stack/out/distro> <--no-repositories>",
+      "ARGV </home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_packet.py> <prepare-work> <--selections> </home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/SELECTIONS-RESOLVED-311606.json> <--destination> </home/sl/baton-instances/managed-correction-309356-packet>",
+      "ARGV </home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_packet.py> <bind> <--selections> </home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/SELECTIONS-RESOLVED-311606.json> <--destination> </home/sl/baton-instances/managed-correction-309356-packet> <--claim> <311606> <--provenance> </home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/PROVENANCE-309356.json>",
+      "ARGV </home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_packet.py> <check> <--packet> </home/sl/baton-instances/managed-correction-309356-packet/packet.json>",
+      "ARGV </home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_supervisor.py> <--packet> </home/sl/baton-instances/managed-correction-309356-packet/packet.json>",
+      "ARGV <-c> <import json,sys;print(json.load(open(sys.argv[1]))['authority_uuid'])> </home/sl/baton-instances/managed-correction-309356/bootstrap.json>",
+      "ARGV <-m> <tools.job_manager> <--store> </home/sl/baton-instances/managed-correction-309356/db/jobs.sqlite3> <--authority-uuid> <0123456789abcdef0123456789abcdef> <--incarnation> <managed-correction-309356> <status> <--control> </home/sl/baton-instances/managed-correction-309356/db/control.sqlite3>",
+      "ARGV <-c> <import json,sys;print(json.dumps(json.load(open(sys.argv[1]))['commands'], indent=2))> </home/sl/baton-instances/managed-correction-309356-packet/commands.json>",
+      "ARGV <-c> <import json,sys;print(json.dumps(json.load(open(sys.argv[1])), indent=2, sort_keys=True))> </home/sl/baton-instances/managed-correction-309356/run/outcome.json>"
+    ],
+    "stdout": "",
+    "scope": "python3 replaced by shell function; simulated UUID printed for resolver; no real file read/setup/model/deployment executed"
+  },
+  "verification": {
+    "tests": 165,
+    "seconds": 10.487,
+    "result": "PASS",
+    "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=<checkout>/v12/python/src:<checkout>/v12/python BATON_V12_DISK_ROOT=/var/tmp/baton-w257624 python -B -m unittest test_correction_packet test_connected_packet"
+  }
+}

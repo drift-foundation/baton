@@ -1,0 +1,242 @@
+{
+  "outcome": {
+    "schema": "baton.managed-correction-outcome/1",
+    "run_id": "a",
+    "work": "0000000a-W1",
+    "claim": 309871,
+    "outcome": "failed-or-unknown",
+    "state": "held",
+    "held_because": [
+      "the run stopped 'serving-failed' rather than completing its stages",
+      "this manager cannot prove positive cleanup for attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571, attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+      "the reviewer's disposition could not be read, so this run has no verdict; an unread verdict is never an acceptance",
+      "the cleanup window's own wait did not complete: AssertionError: the scenario did not converge",
+      "the admission gate refused: admission is closed for this run"
+    ],
+    "retry": false,
+    "finished_at": "2026-09-29T22:35:19.379Z",
+    "uncertainty": [
+      "the cleanup window's own wait did not complete: AssertionError: the scenario did not converge"
+    ],
+    "submitted_at": "2026-09-29T22:35:18.835Z",
+    "job_id": "job-a",
+    "serving_seconds": 840,
+    "reserved_seconds": 60,
+    "preexisting_jobs": [],
+    "accounting_scope": "this run accounts for Job 'job-a' and for nothing else. Attempt discovery, cancellation and cleanup all read the status projection filtered to that Job, so a runtime belonging to another Job in this store is NOT covered by this outcome and its absence is NOT established by it.",
+    "submission_id": "submission-a",
+    "provider_turn": {
+      "seconds": 180,
+      "origin": "job",
+      "setting": "provider_turn_seconds",
+      "default_seconds": 3600
+    },
+    "stopped": "serving-failed",
+    "serving_seconds_spent": 92.0,
+    "stage_states": {
+      "implementation": "queued",
+      "review": "blocked"
+    },
+    "admissions": {
+      "implementation": 0,
+      "review": 0
+    },
+    "cancellation": {
+      "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {
+        "requested": true,
+        "runtime_id": null,
+        "execution_runtime": null,
+        "why": "this manager answers that it holds no attempt row for this identity and this run never launched it, so no runtime was allocated for it. That is not a claim that nothing is running anywhere."
+      },
+      "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c": {
+        "requested": true,
+        "runtime_id": null,
+        "execution_runtime": null,
+        "why": "this manager answers that it holds no attempt row for this identity and this run never launched it, so no runtime was allocated for it. That is not a claim that nothing is running anywhere."
+      }
+    },
+    "cleanup_sweeps": 1,
+    "final_canonical_read": true,
+    "intruders": [],
+    "implementation_attempts": [
+      "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"
+    ],
+    "review_attempts": [
+      "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c"
+    ],
+    "episode_chronology": {
+      "implementation": [
+        "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"
+      ],
+      "review": [
+        "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c"
+      ]
+    },
+    "cleanup": {
+      "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {
+        "cleanup": null,
+        "why": "no runtime attempt 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be1\u2026"
+      },
+      "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c": {
+        "cleanup": null,
+        "why": "no runtime attempt 'attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb\u2026"
+      }
+    },
+    "observed_attempts": [
+      "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c"
+    ],
+    "review_disposition": null,
+    "context_continuity": {
+      "continued": false,
+      "why": "no correction round happened"
+    },
+    "interrupted": null,
+    "interruptions": []
+  },
+  "status": {
+    "schema": "baton.v12.job-status/6",
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "incarnation": "connected-packet",
+    "canonical": true,
+    "jobs": [
+      {
+        "job_id": "job-a",
+        "submission_id": "submission-a",
+        "input_digest": "sha256:551eb1a79bede3c4326941a3efcb68d4cadd159f8c7a26212e6cb51633e64781",
+        "policy_digest": "sha256:d398f8585dc7118d76836fdee00dcc0aae9882250e88e79cdd4ff7de19574795",
+        "test_scope": [
+          "docs/v12-context-correction.md"
+        ],
+        "terminal_policy": "report-and-hold",
+        "execution_limits": {
+          "units": "seconds",
+          "scope": "per-invocation",
+          "compatibility_generation": 1,
+          "requested": {
+            "provider_turn_seconds": 180,
+            "verification_command_seconds": 180
+          },
+          "boundaries": {
+            "host_verification": {
+              "seconds": 180,
+              "origin": "job",
+              "setting": "verification_command_seconds",
+              "default_seconds": 300
+            },
+            "integration_verification": {
+              "seconds": 180,
+              "origin": "job",
+              "setting": "verification_command_seconds",
+              "default_seconds": 1800
+            },
+            "ordinary_verification": {
+              "seconds": 180,
+              "origin": "job",
+              "setting": "verification_command_seconds",
+              "default_seconds": 900
+            },
+            "provider_turn": {
+              "seconds": 180,
+              "origin": "job",
+              "setting": "provider_turn_seconds",
+              "default_seconds": 3600
+            }
+          }
+        },
+        "stages": [
+          {
+            "stage_id": "job-a/implementation",
+            "job_id": "job-a",
+            "kind": "implementation",
+            "state": "queued",
+            "work_id": "0000000a-W1",
+            "profile_name": "claude-fresh-implementation",
+            "profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+            "episode": 1,
+            "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+            "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+            "episodes": [
+              {
+                "stage_id": "job-a/implementation",
+                "episode": 1,
+                "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                "opened_at": "2026-09-02T00:00:00.000Z",
+                "incarnation": "connected-packet",
+                "ended_state": null,
+                "ended_revision": null,
+                "ended_at": null
+              }
+            ],
+            "corrections": 0,
+            "allocation": null,
+            "allocations": [],
+            "gates": [],
+            "receipts": [],
+            "deferral": [
+              {
+                "act": "admit",
+                "episode": 1,
+                "outstanding": true,
+                "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                "operation_id": "offer.issue:offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                "category": "refused",
+                "code": "precondition",
+                "message": "the single-implementation supervisor refuses to admit: admission is closed for this run",
+                "since": "2026-09-02T00:00:00.000Z",
+                "observed": "2026-09-02T00:00:00.000Z",
+                "incarnation": "connected-packet",
+                "why_retained": null
+              }
+            ],
+            "runtime": null,
+            "exchange": null,
+            "artifacts": null
+          },
+          {
+            "stage_id": "job-a/review",
+            "job_id": "job-a",
+            "kind": "review",
+            "state": "blocked",
+            "work_id": "0000000a-W1",
+            "profile_name": "claude-fresh-implementation",
+            "profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+            "episode": 1,
+            "offer_id": "offer-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+            "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+            "episodes": [
+              {
+                "stage_id": "job-a/review",
+                "episode": 1,
+                "offer_id": "offer-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+                "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+                "opened_at": "2026-09-02T00:00:00.000Z",
+                "incarnation": "connected-packet",
+                "ended_state": null,
+                "ended_revision": null,
+                "ended_at": null
+              }
+            ],
+            "corrections": 0,
+            "allocation": null,
+            "allocations": [],
+            "gates": [
+              {
+                "stage_id": "job-a/implementation",
+                "state": "queued",
+                "open": false
+              }
+            ],
+            "receipts": [],
+            "deferral": null,
+            "runtime": null,
+            "exchange": null,
+            "artifacts": null
+          }
+        ]
+      }
+    ]
+  },
+  "seconds": 0.6876781990285963
+}

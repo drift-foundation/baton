@@ -1,0 +1,67 @@
+{
+  "work": "W236087",
+  "claim": 308784,
+  "answering": "review 308781 (claim 308745) - R1 and R2",
+  "r1_qualified_is_not_journal_only": {
+    "my_claim_was_false": "I wrote that _qualified reads only local journals; the candidate branch calls qualification_deployment, which opens the configured context storage and walks the workspace ancestry - two _open_absolute walks - and the production branch reaches the same call",
+    "why_my_test_missed_it": "a deterministic profile returns from _qualified before that branch, so a passing deterministic admission proved nothing about it",
+    "correction": "the deployment is resolved outside the transaction by _owner_facts and passed in as an operand; the grant selection and consumption, the certification journal validation and the revision compare-and-swap stay inside",
+    "counter_check": "dropping the operand so _qualified resolves the deployment itself makes the new candidate case fail with ['_open_absolute', '_open_absolute']"
+  },
+  "r2_context_use_of_is_not_journal_only": {
+    "defect": "on a FINALIZED head context_use_of calls validate_generation, which opens the private generation files, so the binding's commit could perform filesystem validation under the write lock before refusing",
+    "correction": "_journal_use is the journal half and the commit asks only that; context_use_of keeps the validation and is called before the transaction, so a damaged generation is still refused",
+    "counter_check": "the finalized case asserts both halves - _journal_use answers ready and opens nothing, context_use_of still opens files - so a split that dropped the validation fails"
+  },
+  "new_cases": [
+    "a CANDIDATE qualification admission holds the boundary and really consumes its grant",
+    "the deployment comparison survives becoming an operand: a disagreeing operand must still refuse",
+    "a FINALIZED use is judged from the journal without the filesystem, and context_use_of still validates"
+  ],
+  "production_branch_not_driven": "it reaches the same qualification_deployment call, now fed by the same operand; certifying a production profile needs a full accepted continuity report with a retained provider result, which this disposable fixture does not build. The case says so rather than pretending",
+  "own_mistakes_measured_and_fixed": [
+    "a test stub for _qualified took six positional arguments and the new operand made seven",
+    "reconfiguring the workspace store to create a deployment disagreement is refused outright: a changed store is a fresh store rather than a reconfiguration",
+    "authorizing a grant against a foreign storage path is refused at authorization: qualification storage differs from configured deployment"
+  ],
+  "the_three_reopen_failures_diagnosed": {
+    "which": "ServingEnding.cut's assertFalse(Path(roots['inputs']).exists()), failing on the PINNED bytes too",
+    "measured": [
+      "after the injected manager loss the attempt's inputs root still exists, holding assignment.json, input.json, source, task.json",
+      "it is not the harness root: the three fail identically with BATON_V12_DISK_ROOT set to a disk-backed root outside the checkout",
+      "the expectation contradicts the same helper two lines later, which reopens and asserts the ending settles WITHOUT re-materialization (launch.materialize patched to raise)",
+      "with only that one expectation skipped the rest of the case PASSES: the ending settles, the use reaches ready, the provider is not called again and no new engine start happens"
+    ],
+    "diagnosis": "the expectation is stale rather than the manager leaking a mount: retention after a failed finalization is what makes the reopen work and is consistent with preserving evidence on failure",
+    "action_taken": "NONE. The review says not to remove assertions merely to pass and this one guards real coverage; the reviewer should confirm the reading before I edit it"
+  },
+  "verification": {
+    "tests": 181,
+    "failures": 3,
+    "seconds": 61.166,
+    "which_failures": "the three pre-existing ServingEnding.test_reopen_* only",
+    "families": [
+      "tests.manager.test_provider_context",
+      "tests.manager.test_provider_context_delivery",
+      "tests.manager.test_claude_context",
+      "tests.tools.test_correction_restart"
+    ]
+  },
+  "files": {
+    "v12/python/src/baton_v12/worker_manager/provider_context.py": "9657702ffc00",
+    "v12/python/tests/manager/test_provider_context.py": "e555f14036bc",
+    "v12/python/tests/tools/test_correction_restart.py": "8614636f9972 (unchanged this claim)"
+  },
+  "still_owed": [
+    "item 1's remaining freshness/replay/refusal and unrelated-progress proof",
+    "item 2's connected attributed correction with a selected interruption",
+    "item 3's digest-bound packet"
+  ],
+  "not_done": [
+    "no live execution, deployment change or credential operation",
+    "no DESIGN edit and no specification decision",
+    "no accepted subject reopened",
+    "no graph or Git mutation"
+  ],
+  "ready_for": "independent review"
+}

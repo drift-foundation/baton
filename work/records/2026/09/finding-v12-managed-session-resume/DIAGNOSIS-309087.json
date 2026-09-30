@@ -1,0 +1,23 @@
+{
+  "diagnosis": "ContextCase.end_runtime hardcodes mode=open; receipt_changes mode=restore reaches restored finalization without product edit",
+  "outcomes": [
+    {
+      "injected": false,
+      "result": {
+        "context_id": "context-67936bf0fec1265ecfc2fdda3342eef25aad02642c16181faef5de89a873cb42",
+        "use_id": "context-use-b12be087867a0cb92fe36ba6b508f188d1141d8f8b9fec64ea6a0c40c75d7966",
+        "attempt_id": "attempt-6fe31fab3468aaca5ca8bed911aab15331ee79a580f6c8ec773c038261ab3077",
+        "status": "ready",
+        "generation": 1,
+        "revision": 6,
+        "reason": null
+      }
+    },
+    {
+      "injected": true,
+      "error": "review-later-save-failure",
+      "seal_calls": 1
+    }
+  ],
+  "seconds": 0.20781719288788736
+}

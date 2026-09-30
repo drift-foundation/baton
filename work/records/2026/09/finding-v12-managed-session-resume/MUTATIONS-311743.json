@@ -1,0 +1,62 @@
+{
+  "cases": [
+    "test_the_staged_source_carries_the_FROZEN_ASSETS_it_will_import",
+    "test_a_MODULE_ONLY_origin_is_refused_by_the_NAME_of_what_is_absent",
+    "test_ONE_absent_asset_is_enough_to_refuse",
+    "test_a_BOUND_packet_whose_source_lost_an_asset_is_refused",
+    "test_BUILD_OUTPUT_and_SCRATCH_RUN_TREES_are_NOT_staged",
+    "test_a_staging_root_holding_an_EARLIER_STAGING_is_refused_not_tidied",
+    "test_STAGING_THE_SAME_TREE_AGAIN_is_not_drift",
+    "test_an_INSTANCE_INSIDE_THE_STAGED_CODES_CHECKOUT_is_refused",
+    "test_the_DELIVERED_LAYOUT_keeps_the_instance_outside_the_checkout"
+  ],
+  "claim": 311743,
+  "measured": {
+    "M1": {
+      "caught_by": [
+        "test_BUILD_OUTPUT_and_SCRATCH_RUN_TREES_are_NOT_staged",
+        "test_ONE_absent_asset_is_enough_to_refuse",
+        "test_STAGING_THE_SAME_TREE_AGAIN_is_not_drift",
+        "test_a_BOUND_packet_whose_source_lost_an_asset_is_refused",
+        "test_a_staging_root_holding_an_EARLIER_STAGING_is_refused_not_tidied",
+        "test_an_INSTANCE_INSIDE_THE_STAGED_CODES_CHECKOUT_is_refused",
+        "test_the_DELIVERED_LAYOUT_keeps_the_instance_outside_the_checkout",
+        "test_the_staged_source_carries_the_FROZEN_ASSETS_it_will_import"
+      ],
+      "mutation": "stage only `.py`, as the reported defect did"
+    },
+    "M2": {
+      "caught_by": [
+        "test_ONE_absent_asset_is_enough_to_refuse",
+        "test_a_MODULE_ONLY_origin_is_refused_by_the_NAME_of_what_is_absent",
+        "test_an_INSTANCE_INSIDE_THE_STAGED_CODES_CHECKOUT_is_refused",
+        "test_the_DELIVERED_LAYOUT_keeps_the_instance_outside_the_checkout"
+      ],
+      "mutation": "verify NOTHING: do not ask the staged tree to import and do not check the resource files, which is the state the reported failure was found in"
+    },
+    "M3": {
+      "caught_by": [
+        "test_BUILD_OUTPUT_and_SCRATCH_RUN_TREES_are_NOT_staged",
+        "test_a_staging_root_holding_an_EARLIER_STAGING_is_refused_not_tidied"
+      ],
+      "mutation": "stage EVERYTHING but derived, including build output and scratch run trees"
+    },
+    "M4": {
+      "caught_by": [
+        "test_a_staging_root_holding_an_EARLIER_STAGING_is_refused_not_tidied"
+      ],
+      "mutation": "accept a staging root holding files no digest binds"
+    },
+    "M5": {
+      "caught_by": [
+        "test_an_INSTANCE_INSIDE_THE_STAGED_CODES_CHECKOUT_is_refused"
+      ],
+      "mutation": "accept an instance inside the tree the staged code calls its checkout, as the delivered plan did"
+    },
+    "clean_again": [],
+    "unmutated_failures": []
+  },
+  "schema": "baton.mutation-evidence/2",
+  "uncaught_mutations": [],
+  "what": "each corrected behaviour mutated one at a time; a case must catch each, and the unmutated and restored runs must be clean"
+}

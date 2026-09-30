@@ -1,0 +1,64 @@
+{
+  "candidate": "CANDIDATE-310491.json",
+  "candidate_sha256": "f6799bd5d89e79882fcc7a89ef36dd85f333afd72e6cd38bfe4e8928ff4ae4e7",
+  "bound_files": {
+    "PACKET-309356.md": {
+      "expected": "78805649a88304aa1f7c2cfea82d0c78dd02d3bfca0ab594ca4a70e62e6f19aa",
+      "actual": "78805649a88304aa1f7c2cfea82d0c78dd02d3bfca0ab594ca4a70e62e6f19aa"
+    },
+    "PROGRESS.md": {
+      "expected": "ec07605b2a396723e629bc7de1c6592042fc3bc2e9ab86131604bc8995a052ea",
+      "actual": "ec07605b2a396723e629bc7de1c6592042fc3bc2e9ab86131604bc8995a052ea"
+    },
+    "connected_packet_trace.py": {
+      "expected": "3f73f1cc8a57a181b87c9d25d9a63538e249d11d651c7d686a3b4de4bde41d80",
+      "actual": "3f73f1cc8a57a181b87c9d25d9a63538e249d11d651c7d686a3b4de4bde41d80"
+    },
+    "correction_packet.py": {
+      "expected": "addf2e7d0a06e6444076e02e7025b358aa4d49087cb61a408cda028a56ee9645",
+      "actual": "addf2e7d0a06e6444076e02e7025b358aa4d49087cb61a408cda028a56ee9645"
+    },
+    "test_correction_packet.py": {
+      "expected": "7a3d38c51c38c3d6256d222e696ef0b6b7d5596f52324523dfe9d881d660c082",
+      "actual": "7a3d38c51c38c3d6256d222e696ef0b6b7d5596f52324523dfe9d881d660c082"
+    },
+    "SELECTIONS-309356.json": {
+      "expected": "52cbb7894d74f6eef9d18e43200b14aa4512e1a4aaf15cfd0d08aa55d1567129",
+      "actual": "52cbb7894d74f6eef9d18e43200b14aa4512e1a4aaf15cfd0d08aa55d1567129"
+    },
+    "correction_supervisor.py": {
+      "expected": "e73b0aa96cac3d5d3a14e974e2b044c484941610c602eff3945183bcfed1bbd9",
+      "actual": "e73b0aa96cac3d5d3a14e974e2b044c484941610c602eff3945183bcfed1bbd9"
+    },
+    "test_connected_packet.py": {
+      "expected": "2ab121fa7f2dbd60f131a72395e3345fef2910c0935d8cefc3d7370e7fe5a06d",
+      "actual": "2ab121fa7f2dbd60f131a72395e3345fef2910c0935d8cefc3d7370e7fe5a06d"
+    }
+  },
+  "verification": {
+    "tests": 155,
+    "seconds": 10.452,
+    "result": "PASS",
+    "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=<checkout>/v12/python/src:<checkout>/v12/python BATON_V12_DISK_ROOT=/var/tmp/baton-w257624 python -B -m unittest test_correction_packet test_connected_packet"
+  },
+  "limits": [
+    "tools.bootstrap installation not executed",
+    "fake engine and scripted provider/reviewer",
+    "no live provider restore or production comparison proved",
+    "historical transaction-boundary failure cause remains unknown"
+  ],
+  "prior_accepted_bytes": {
+    "v12/python/src/baton_v12/worker_manager/provider_context.py": {
+      "expected": "ca54ecec366fde97390a873537d9fb430db90bfe21e39448450d79d6fa4d7835",
+      "actual": "ca54ecec366fde97390a873537d9fb430db90bfe21e39448450d79d6fa4d7835"
+    },
+    "v12/python/tests/tools/correction_restart_trace.py": {
+      "expected": "5ae933a501e340570c633afcf9b30923040151bfed71e3d48153bb0fa82c885e",
+      "actual": "5ae933a501e340570c633afcf9b30923040151bfed71e3d48153bb0fa82c885e"
+    },
+    "v12/python/tests/tools/test_correction_restart.py": {
+      "expected": "0c9fd476779a3d3cc81420296d5a2bc00cf88b344f117671bdf68930892d2158",
+      "actual": "0c9fd476779a3d3cc81420296d5a2bc00cf88b344f117671bdf68930892d2158"
+    }
+  }
+}

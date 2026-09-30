@@ -1,0 +1,23 @@
+{
+  "claim": 308745,
+  "candidate": 308641,
+  "sha256": {
+    "v12/python/src/baton_v12/worker_manager/provider_context.py": "774ce77e789ffba5947ad5e3d052842b44e8ce815a5025a37f814d324c6d16c7",
+    "v12/python/tests/manager/test_provider_context.py": "a86981ce02644caccddb5ba1209bd0f33b6d764d2c6eb62c43ad31201a5fc7b5",
+    "v12/python/tests/tools/test_correction_restart.py": "8614636f99723d3c737ad20edb8f58480c1f4ffe91512816c8701a7381d1ee94",
+    "work/records/2026/09/finding-v12-managed-session-resume/CANDIDATE-308641.json": "e9c20eae911bb41021380cbed0ce025723725c8d55edb63fd7ab55fedc475de5"
+  },
+  "focused_verification": {
+    "tests": 20,
+    "result": "PASS",
+    "unittest_seconds": 3.624,
+    "selection": [
+      "tests.manager.test_provider_context.TransactionBoundaryRegression",
+      "tests.manager.test_provider_context.QualificationAdmissionRegression",
+      "tests.manager.test_provider_context.Admission",
+      "tests.manager.test_provider_context.Restoration",
+      "tests.tools.test_correction_restart.TransactionBoundaryThroughTheConnectedPath"
+    ]
+  },
+  "counterexamples": "RESEARCH-308745-followup.json"
+}

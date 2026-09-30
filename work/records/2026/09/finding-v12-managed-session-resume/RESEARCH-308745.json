@@ -1,0 +1,6 @@
+{
+  "scope": "Real finalized fixture; execute the status-check expression used by bind_context_invocation.commit in a real ControlStore transaction. This isolates the refused-state branch; not a full concurrent public binding run.",
+  "observations": [],
+  "refusal": "an operation signature is the canonical text this manager builds from a kind and its operands",
+  "seconds_including_cleanup": 0.0749170440249145
+}

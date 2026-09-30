@@ -1,0 +1,18 @@
+{
+  "claim": 310149,
+  "candidate": 310127,
+  "review": "review-2026-09-29T23-04-18Z.md",
+  "digests": {
+    "CONNECTED-EVIDENCE-310127.json": true,
+    "CONNECTED-NEXT-310127.md": true,
+    "PROGRESS.md": true,
+    "connected_packet_trace.py": true
+  },
+  "research": [
+    "RESEARCH-310149.json",
+    "CUSTODY-RESEARCH-310149.json",
+    "RETENTION-RESEARCH-310149.json"
+  ],
+  "disposition": "continue-implementation",
+  "live_execution": false
+}

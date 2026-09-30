@@ -1,3 +1,693 @@
+# Current checkpoint — recovery/operator proposal ACCEPTED, review312052
+
+Candidate311994 digest
+dfee54edb3d71da3764f82172b22630580ea7a3c8af315483d2f430b0c5bc66e;
+all file hashes match. Independent focused19 PASS0.767s incl real parser/disposable
+status reader. Independent shell stubs:10 valid invocations; injected1/2/3 failures
+stop with no later call. Author183 PASS labelled author evidence. Prior independent
+180 PASS28.456s + actual disposable bootstrap/check proof retained, not repeated.
+Latest review: review-2026-09-30T03-42-32Z.md
+Evidence REVIEW-EVIDENCE-312052.json; REVIEW-BOOTSTRAP-311971.json.
+Read E312044/events312052/T236087239616. Status/stop checkpoint explicitly superseded
+as resolved. Prior setup failure remains recorded; no implicit lifecycle reopen.
+
+Next baton.decide: select recovery/run using SELECTIONS-RESOLVED-311743.json,
+RUN-COMMANDS-311743.json and corrected OPERATOR-311743.md. New staging/destination
+preserve failed partial preparation; no manual cleanup/copy. Credential currency
+unverified; final roots/selection owner. No live recovery/run performed here.
+One author evidence header duplicates interpreter; actual operator/generated/tested
+argv correct, independent evidence governs (review notes exact artifact).
+
+Live restore/production comparison unproved; historical boundary UNKNOWN. No forced
+rerun for accepted-without-correction. No deployed/Git/graph/product/helper/sibling/
+DESIGN/W306614 changes. No remaining candidate correction. Reviewer records only.
+
+---
+
+# Current checkpoint — staging accepted; operator status/stop corrections
+
+Owner E311736 reports missing frozen JSON setup failure. Prior executable-setup
+assurance superseded by observed failure; historical evidence/lifecycle preserved.
+Candidate311743 hashes match. Independent180 PASS28.456s and ACTUAL disposable
+stage/bootstrap/prepare-work/bind/check all exit0,108 files incl both assets.
+Latest review: review-2026-09-30T03-32-07Z.md
+Evidence REVIEW-EVIDENCE-311971.json + REVIEW-BOOTSTRAP-311971.json.
+Read E311736/E311969/events311971/T236087239616. Partial docs hashes unchanged;
+instance absent. New staging/destination preserve failed setup. No deployed writes.
+
+Next Claude/baton.impl: only OPERATOR-311743 status/stop regressions. Restore
+supported --store/--incarnation status --control (not --job-store/--job). Section5
+must actually explain one-Ctrl-C managed stop; outcome read is ROOT/run/outcome.json,
+not DEST/outcome.json. Validate human command against real parser/disposable reader
+and unchanged generated/supervisor behavior. Keep resource/layout/step0 fixes and
+accepted disposable proof; no repeated bootstrap unless code changes.
+
+Return review then owner with executable recovery/run proposal. No live provider,
+Docker/deployed setup/cleanup/credential/Git/graph/product/sibling/DESIGN/W306614.
+Credential currency unverified; live restore/production comparison unproved;
+historical boundary UNKNOWN, no forced rerun. Bootstrap simulation limitation now
+resolved for disposable setup ONLY. Reviewer records, author docs/tests/PROGRESS.
+
+---
+
+# Current checkpoint — concrete proposal ACCEPTED, review311696
+
+Owner E311598 request fulfilled; prior bounded implementation acceptance preserved.
+Candidate311661 sha256
+1e185b4c42f0faa5f5a9cc41f676e025b1fad240c9cb8ff7db1de949d3d11472.
+All file hashes match; independent165 PASS10.487s; independent ten-invocation shell
+stub verifies argv incl simulated resolved UUID. Latest review: review-2026-09-30T02-51-33Z.md
+Evidence REVIEW-EVIDENCE-311696.json. Read E311693/events311696/T236087239616.
+Prior command correction checkpoint explicitly superseded: continuations fixed,
+status pending until bootstrap/bind, exact generated-data checks pass.
+
+Next baton.decide: select/decline live experiment using delivered resolved selections,
+operator commands and named roots; credential session currency still unverified.
+Any root change requires coherent path regeneration/validation, not isolated edit.
+No remaining candidate correction. No live setup/run authorized or performed here.
+Accepted-without-correction remains valid, proves no restore, never forces rerun.
+Historical boundary UNKNOWN and production/live limitations retained. No new graph,
+Git/product/helper/sibling/DESIGN/W306614 work. Reviewer records only.
+
+---
+
+# Current checkpoint — concrete proposal command corrections, review311644
+
+Owner E311598 accepted bounded milestone; requests filled proposal for review then
+live selection, with NO live execution/deployment/credential copying/Git mutation.
+Candidate311606 hashes match; independent161 PASS10.404s. Filled selections accepted
+as proposal; configured credential session currency unverified. Prior implementation
+acceptance remains valid. Read E311598/E311641/events311644/T236087239616.
+Latest review: review-2026-09-30T02-44-57Z.md
+Evidence REVIEW-EVIDENCE-311644.json.
+
+Next Claude/baton.impl: R1 fix doubled shell continuation backslashes in OPERATOR;
+stub argv proof shows literal backslash and separate option commands. R2 status
+UUID placeholder in delivered JSON must be explicitly pending until bind-generated
+commands.json or resolved read-only; operator claim of already substituted UUID is
+false. Validate exact delivery, not verb fragments; regenerate dependent paths if
+roots change. Only operator/command artifacts + focused checks/PROGRESS, no product
+or accepted helper edits needed. Return review then baton.decide for live selection.
+
+No live/deployed/credential/engine/Git/graph/sibling/DESIGN/W306614 activity.
+Historical boundary UNKNOWN, production/live restore unproved. No forced rerun on
+accepted-without-correction. Prior acceptance checkpoint stays historical acceptance;
+this is owner-requested concrete proposal, not reopening the accepted milestone.
+
+---
+
+# Current checkpoint — bounded preparation ACCEPTED, review310521
+
+Items1/2 prior acceptance preserved and product/trace bytes rechecked. Item3 packet
+candidate310491 accepted; all bound hashes match, independent155 PASS10.452s.
+Latest review: review-2026-09-29T23-55-32Z.md
+Evidence REVIEW-EVIDENCE-310521.json; candidate digest
+f6799bd5d89e79882fcc7a89ef36dd85f333afd72e6cd38bfe4e8928ff4ae4e7.
+Read E310519/events310521/T236087239616. No remaining candidate correction.
+This explicitly supersedes operation-id bypass checkpoint: helper derives identity,
+CLI override removed; collision/changed-input refusal and exact/partial replay pass.
+
+Next baton.decide: accept prepared delivery and select/decline the separate live
+provider question; ten named operator operands remain choices, not implementation
+defects. PACKET-309356.md + SELECTIONS-309356.json describe the bounded proposal.
+No live execution/deployment/grant/credential/engine or Git action selected here.
+Fake engine/provider/reviewer and simulated bootstrap installation stay labelled;
+actual live restore/production comparison unproved, historical boundary failure
+UNKNOWN retained. Acceptance without correction never authorizes forced restore.
+
+Reviewer records only; implementation/progress history preserved. No implicit
+reopen, new graph/sibling/DESIGN/W306614 or broad verification scope.
+
+---
+
+# Current checkpoint — explicit operation-id bypass, review310476
+
+Candidate310425 hashes match; independent152 PASS10.453s. Default derived identity,
+collision refusal/partial recovery/fresh fixture accepted. Prior items1/2 and
+connected evidence preserved. Latest review: review-2026-09-29T23-49-58Z.md
+Evidence REVIEW-EVIDENCE-310476.json. Read E310474/events310476/T236087239616.
+
+Next Claude/baton.impl: close supported --operation-id bypass and direct helper
+boundary. Fixed caller ID with changed base still succeeds as replay and changes
+canonical_target (a*40 -> b*40). Enforce operand binding regardless of override;
+prove fixed-ID changed base/participants refuse without effects, exact/partial
+replay succeeds. Then final audit. Prior default-path collision checkpoint is
+satisfied; only override bypass remains. Same ownership and exclusions, historical
+unknown and production/live limits. Routine impl -> bug; accepted delivery decide.
+
+---
+
+# Current checkpoint — preparation identity, review310404
+
+Candidate310345 hashes match; independent147 PASS10.425s. Fresh ID/template
+corrections accepted; prior items1/2, preparation entry and connected evidence kept.
+Latest review: review-2026-09-29T23-40-17Z.md
+Evidence REVIEW-EVIDENCE-310404.json. Read E310402/events310404/T236087239616.
+
+Next Claude/baton.impl: one blocker, prepare_work accepts unrelated same-contract
+Work and changed inputs as replay, then mutates grants/canonical target. Bind exact
+preparation operation/operands; reject collisions and changed replay before effects;
+preserve partial exact recovery. Test unrelated same-contract scope and changed
+base/participant refusal without mutation. Align connected fixture preparation
+identity rather than silently adopting preexisting World Work. Final audit after
+bounded correction; accepted fresh-ID/template checkpoint superseded as satisfied.
+
+Same packet/harness/tests/docs/PROGRESS ownership; reviewer records only. No product,
+live/deployed/credential/real-engine/Git/graph/DESIGN/sibling/W306614/broad scope.
+Historical boundary unknown and production/live limits retained. Routine impl -> bug;
+accepted delivery decide.
+
+---
+
+# Current checkpoint — fresh CLI identity and operator template, review310326
+
+Candidate310263 hashes match; independent139 PASS10.403s. Supported Work acts,
+baseline.prepare and path/environment fixes accepted with existing connected
+endings and prior items1/2 preserved. Latest review: review-2026-09-29T23-28-53Z.md
+Evidence REVIEW-EVIDENCE-310326.json. Read E310319/events310326/T236087239616.
+
+Next Claude/baton.impl: R1 prepared_work_id uses textual run name after W; real
+Authority demands positive integer. Correct valid fresh identity and exercise actual
+prepare-work CLI creation plus replay, not preexisting self.work fixture. R2 align
+SELECTIONS-309356.json with required receipts/stores/participants schema; prove owner
+placeholder replacement alone suffices, update packet digest/commands and accurate
+no-deployed-store wording. Then finite entry-to-connected final audit. Supersedes
+previous missing-prepare-step checkpoint; that step now exists but its CLI ID fails.
+
+Same packet/harness/tests/docs/PROGRESS author ownership; reviewer records only.
+No live/deployed/credential/real-engine/Git/graph/DESIGN/sibling/W306614 or broad
+scope. Accepted fake-provider evidence stays labelled. Historical boundary unknown
+and production/live limitations preserved. Routine baton.impl -> baton.bug;
+accepted delivery baton.decide.
+
+---
+
+# Current checkpoint — executable packet entry, review310221
+
+Candidate310169 hashes match; independent133 PASS9.812s. Connected four endings,
+restore/canonical verdict and retention/session-path fixes accepted as deterministic
+fake-provider evidence. Prior items1/2 remain accepted; no implicit reopen.
+Latest review: review-2026-09-29T23-17-24Z.md
+Evidence: REVIEW-EVIDENCE-310221.json. Read E310219/events310221/T236087239616.
+
+Next baton.impl/Claude: R1 connect fresh installation output to supported Work/Job
+preparation before bind; empty bootstrap has no Work binding and its emitted config
+path differs from bind. R2 align check PYTHONPATH/status stores with selected staged
+source and actual installation. Prove disposable entry through bind/check and real
+baseline.prepare, retain connected endings, then final candidate audit. No early
+execution submission or fixture-invented binding. This supersedes earlier current
+retention/session-path correction checkpoint, now satisfied.
+
+Same owned packet/harness/tests/docs/PROGRESS; reviewer FINDING/PLAN/review/evidence.
+No live/deployed/credential/real-engine/Git/graph/DESIGN/sibling/W306614 changes or
+broad tests. Historical boundary unknown and production/live limitations preserved.
+Routine correction baton.impl -> baton.bug; accepted delivery baton.decide.
+
+---
+
+# Current checkpoint — retention and session-path coherence, review310149
+
+Prior acceptance retained; candidate310127 digests match. Provider frozen output
+completed, runtime destroyed/retained, context held custody-invalid. First refusal
+old runtime exclusion unproved; profile/worker retention5555 != composition0f4c.
+Latest review: review-2026-09-29T23-04-18Z.md
+Evidence: REVIEW-EVIDENCE-310149.json, RESEARCH-310149.json,
+CUSTODY-RESEARCH-310149.json, RETENTION-RESEARCH-310149.json.
+
+Next baton.impl/Claude: unify retention across profile/worker/composition/packet
+preparation with cross-document checks; fresh disposable run, never bypass held
+state/exclusion. Also inherited PROVIDER hardcodes output/session.json while
+selected session profile uses -output/{conversation_id}.jsonl; align owned fake
+provider state/restore path. Continue through four asserted endings/canonical
+verdicts/positive cleanup then final audit. No missing-exchange scheduling guess.
+Same ownership and no live/deployed/credential/real-engine/Git/graph/DESIGN/sibling/
+W306614 or broad rerun scope. Preparation simulation and historical unknown limits
+remain explicit. Read E310147/events310149/thread239616; baton.impl -> baton.bug.
+
+---
+
+# Current checkpoint — scripted child missing docs directory, review310105
+
+Prior acceptance preserved; candidate310076 digests match. Child stderr confirms
+FileNotFoundError writing docs/v12-context-correction.md, before terminal JSON.
+Active World.provider is process-backed, not generic stub. Item3 incomplete.
+Latest review: review-2026-09-29T22-58-46Z.md
+Evidence: REVIEW-EVIDENCE-310105.json, PROVIDER-RESEARCH-310105.json,
+CAPTURE-RESEARCH-310105.json (diagnostic PIPE override, not acceptance).
+
+Next baton.impl/Claude: correct owned simulated provider edit boundary to create
+parent directories or supply coherent declared-base source fixture; do not write
+proposed output outside provider. Keep real identity/receipt checks. Retain child
+stderr/status and nested-output regression. Continue through successful provider,
+canonical review/correction and four asserted endings/positive cleanup, not
+another speculative helper milestone. Actual preparation simulation limits stay.
+
+Same ownership; no live/deployed/credential/real-engine/Git/graph/DESIGN/sibling/
+W306614 or broad rerun scope. Unknown boundary failure and production/live limits
+retained. Read E310103/events310105/thread239616. Routine baton.impl -> baton.bug;
+accepted delivery baton.decide.
+
+---
+
+# Current checkpoint — provider terminal identity diagnosis, review310055
+
+Prior acceptance preserved. Candidate310021 digests match; fixture path fix reaches
+runtime destruction/retained cleanup with no serving crash. Frozen output unable
+maps to exceptional. Proposal provider-failed/start-error/status1: provider context
+terminal identity is unproved. NO verification attempted; no verdict/save/restore.
+Latest review: review-2026-09-29T22-51-42Z.md
+Evidence: REVIEW-EVIDENCE-310055.json, RESEARCH-310055.json,
+PROPOSAL-RESEARCH-310055.json.
+
+Next baton.impl/Claude: capture scripted provider subprocess status/stdout/stderr,
+trace adapter terminal-identity refusal against fixture session/profile/argv/model
+operands; resolve fixture/packet mismatch without weakening identity checks. Then
+continue connected proof through four asserted endings/canonical verdicts/positive
+cleanup. Read actual result diagnostics rather than speculate on projection state.
+Actual preparation/installation simulation limits stay explicit. Final audit after
+connected milestone, not each helper. Same ownership and no live/deployed/credential/
+real-engine/Git/graph/DESIGN/sibling/W306614 or broad rerun scope. Unknown boundary
+failure and production/live limits retained. External inputs later owner selection.
+Read E310053/events310055/thread239616. Routine baton.impl -> baton.bug.
+
+---
+
+# Current checkpoint — align inherited turn with generated launch, review310001
+
+Prior acceptance preserved. Candidate309960 profile correction admits/launches
+runtime-single-1 in real disposable fixture. No provider proof yet. Digests match.
+Latest review: review-2026-09-29T22-44-32Z.md
+Evidence: REVIEW-EVIDENCE-310001.json, RESEARCH-310001.json, TRACEBACK-310001.txt.
+
+Next baton.impl/Claude: inherited turn uses self.config launch_home whereas
+packet worker uses generated launch_home. mounted succeeds; failure is subsequent
+launch.adopt/delivered.document in test_stage_execution.py:4160. Adapt owned
+harness to exact generated worker launch operands and inspect other stale helper
+assumptions. No scheduling changes, forged/copy delivery, or extra sweeps.
+Continue connected run through four asserted endings and positive cleanup, real
+canonical readers, labelled simulated provider/engine/reviewer. Preserve failures
+with full traceback/status; finish actual preparation coverage or explicit seam.
+Final audit after connected proof, not after each helper correction.
+
+Same ownership and no live/deployed/credentials/engine/Git/graph/DESIGN/sibling/
+W306614 scope. No broad rerun merely handoff. Unknown boundary failure and
+production/live limits remain; external operands later owner selection.
+Read E309994/events310001/thread239616. Routine baton.impl -> baton.bug.
+
+---
+
+# Current checkpoint — fix measured profile mismatch, review309944
+
+Prior product/item2/incremental evidence preserved. Connected harness exists but
+fails before runtime admission. Candidate309871 digests match. Canonical first
+sleep deferral: workload profile AND digest mismatch; zero admissions/runtime.
+Latest review: review-2026-09-29T22-36-24Z.md
+Evidence: REVIEW-EVIDENCE-309944.json, RESEARCH-309944.json,
+ADMISSION-RESEARCH-309944.json.
+
+Next baton.impl/Claude: unify submission_document accepted fresh profile with
+worker_deployments selected context profile/manifest digest; derive coherent
+operands, add cross-document check, then resume connected harness to four asserted
+endings. Read canonical deferrals before shutdown overwrites them; do not guess
+sweep timing or add scheduler changes. Preserve attempt episode vs admitted
+runtime distinction in counts/cleanup. Use actual packet preparation and fixture
+cleanup; current serving reproduces owner calls, not baseline.prepare itself.
+Continue ordinary corrections to completed proof then final independent audit.
+
+Same ownership, no live setup/provider/engine, deployed stores/grants, credentials,
+Git/graph/DESIGN, sibling/W306614 edits or broad suite reruns merely for handoff.
+Unknown boundary failure and production/live limits preserved. External operands
+later owner selection. Read E309942/events309944/thread239616.
+Routine baton.impl -> baton.bug; accepted delivery baton.decide.
+
+---
+
+# Current checkpoint — implement connected packet proof, review309857
+
+Prior product/item2 and packet incremental evidence preserved. Candidate309811
+closes enclosing /1 composition duplication/check gap: independent2 tests PASS
+0.153s, digests match. Item3 connected proof has NOT run.
+Latest review: review-2026-09-29T22-23-10Z.md
+Evidence: REVIEW-EVIDENCE-309857.json.
+
+Next baton.impl/Claude: start connected harness using existing World fixtures;
+consume THIS packet preparation, two-stage submission, generated composition and
+supervisor. Exercise real disposable stores/attachments/verdicts/cleanup with
+labelled fake provider/engine scenarios for all four endings. Candidate grant APIs
+in disposable tests are authorized; no deployed grant or live selection needed.
+Continue through routine fixes; final packet audit after milestone. If interrupted,
+retain actual partial harness and exact next command, not another helper-only
+handoff. Author budget claim is unverified, not an owner gate.
+
+Same ownership; no live setup/run, credentials, real engine, Git/graph/DESIGN,
+sibling/W306614 edits or broad196 rerun. External operands remain later selection.
+Unknown boundary failure and production/live limits preserved. Read E309849,
+events309857, thread239616. Routine baton.impl -> baton.bug; accepted baton.decide.
+
+---
+
+# Current checkpoint — connected packet proof next, review309796
+
+Prior product/item2 accepted. Candidate309722 focused124 tests PASS0.757s;
+digests match. Worker validation, latest-review generation and supplier drift
+checks retained as incremental evidence. Packet item3 remains incomplete.
+Latest review: review-2026-09-29T22-15-01Z.md
+Evidence: REVIEW-EVIDENCE-309796.json.
+
+Next baton.impl/Claude: finish ONE connected deterministic packet proof from
+generated inputs through enclosing stage_execution.held_configuration and worker
+validation, supported preparation into disposable stores, canonical review
+attachments/verdicts, actual packet supervisor and positive cleanup. Fake/replay
+provider and engine boundary scripts are authorized; clearly label simulation.
+Cover acceptance without correction, correction/restore, rejection and failure/
+interrupt. Do not substitute canonical reader/state/accounting answers or merely
+rerun an older trace that never consumes this packet. Continue through routine
+in-scope fixes before next handoff; final audit after this milestone.
+
+Same packet/PROGRESS author and FINDING/PLAN/review reviewer ownership. No live
+setup/run, credentials, real engine, Git/graph/DESIGN, sibling or W306614 edits.
+No broad196 rerun. External operands remain later owner selection. Unknown
+boundary failure and production/live limits preserved. Read E309794/events309796,
+T239616. Ordinary baton.impl -> baton.bug; accepted delivery baton.decide.
+
+---
+
+# Current checkpoint — complete deployment and connected packet proof, review309705
+
+Prior product/item2 acceptance preserved. Partial candidate309572: independent104
+packet tests PASS0.381s; candidate digests match. Item3 remains incomplete.
+Latest review: review-2026-09-29T22-02-59Z.md
+Evidence: REVIEW-EVIDENCE-309705.json.
+
+Next baton.impl/Claude (same packet/PROGRESS ownership):
+1. Finish generated producer/reviewer single-worker deployments and supported
+   instance-to-Job commands; validate real source/profile/context/credential-reference/
+   workspace/task wiring with single_worker._held and composition readers.
+2. One deterministic connected packet proof through supervision/cleanup and real
+   canonical verdict readers. Derive assignment generation; preserve latest-result
+   attribution and positive shutdown evidence. No mocked reader acceptance claim.
+3. Bind reused prepare_two_jobs executable descriptor supplier to its digest;
+   keep sibling bytes unchanged. Make incomplete packet status clear at entry.
+Then final candidate audit. No new scope, owner permission, live setup/run,
+credentials/engine, Git/graph/DESIGN or W306614-owned edits. No broad196 rerun.
+Unknown boundary failure and live/production limits remain recorded.
+Read events through309705/thread239616. Ordinary baton.impl -> baton.bug;
+accepted delivery baton.decide. Reviewer FINDING/PLAN/review ownership unchanged.
+
+---
+
+# Current checkpoint — real-boundary packet correction, review309547
+
+Prior product/item2 acceptance stands. Candidate309356 packet tests75 PASS0.176s,
+but real pure input validators refuse generated documents. Item3 remains open.
+Latest review: review-2026-09-29T21-41-08Z.md
+Evidence: REVIEW-EVIDENCE-309547.json and REVIEW-PROBES-309547.json.
+
+Next baton.impl/Claude, same packet-file ownership:
+1. Generate complete supported bootstrap/submission/deployment/task inputs and
+   valid argv; validate at real parser boundaries, including worker/profile wiring.
+2. Restore baseline shutdown semantics: discover/union admitted attempts, cancel
+   active execution, collect positive cleanup, defer repeated interrupts.
+3. Consume actual attributed review results and canonical episode chronology.
+4. Bind reviewed source/helper bytes across stage/bind; refuse intermediate drift.
+Then one connected deterministic packet-boundary proof. No broad source-suite
+rerun or reopening accepted slices. No live setup/run, engine, credentials, Git,
+graph or W306614-owned edits selected. External operands await later owner choice.
+Unknown historical boundary failure and production/live coverage limits retained.
+Read events through309547, thread239616. Corrections baton.impl -> baton.bug;
+accepted delivery baton.decide. Reviewer FINDING/PLAN/review; author packet/PROGRESS.
+
+---
+
+# Current checkpoint — complete executable packet, review309336
+
+Prior implementation/deterministic proof accepted. PACKET-309306 is an outline;
+item3-delivered claim superseded. Machinery digests match; no execution performed.
+Latest review: review-2026-09-29T21-08-40Z.md
+Evidence: REVIEW-EVIDENCE-309336.json.
+
+Next baton.impl/Claude under PREPARATION-307667 packet-file ownership:
+1. Supply executable preparation and complete bootstrap/context-profile/grant/Job
+   inputs, useful docs/v12-context-correction.md task and SAME reviewer criteria.
+   Include exact status commands and module environment. Parameterize only genuine
+   external selection; derive minted UUID and generated inputs in preparation code.
+2. Supply bounded supervisor/accepted machinery with exact digest/command and
+   deterministic timeout/interrupt/failure/completion/count/cleanup evidence.
+   Text limits plus manual Ctrl-C do not enforce the selected run.
+3. Bind actual runtime source/imports and deployment/image/context profile with
+   canonical provenance and drift refusal. Reuse compatible accepted artifacts;
+   neither mandatory rebuild nor fresh-profile compatibility can be assumed.
+4. Carry unexplained boundary-failure limitation in packet. Validate packet itself,
+   not another broad source suite. Complete independent content before escalating
+   exact remaining source/base/credential-reference selection if genuinely needed.
+
+No live setup/run, credentials, deployment, Git, graph, DESIGN or accepted-subject
+change. Do not edit W306614-owned files. Existing source/base may avoid any new
+owner commit; no invented requirement. Production comparison/restore unproved.
+Read events through309336/thread239616. Routine baton.impl -> baton.bug review,
+accepted delivery baton.decide; same ownership and prior evidence preserved.
+
+---
+
+# Current checkpoint — executable packet next, review309290
+
+Accepted candidate309218 token-oracle corrections and simulation labels; prior
+saved0, continuity, replay and token-order slices stand. Item2 deterministic proof
+corrections accepted. Independent16 focused tests PASS9.809s, diff check clean.
+Latest review: review-2026-09-29T21-02-11Z.md
+Evidence: REVIEW-EVIDENCE-309290.json.
+
+Next baton.impl/Claude: deliver item3 concrete digest-bound executable packet per
+PREPARATION-307667 using accepted machinery, supported commands, exact candidate/
+source/runtime/artifact bindings, fresh roots and finite limits. Separate accepted/
+no-correction, correction, rejected and failed/unknown outcomes. No live setup/run
+or deployment/credential mutation selected; preserve old consumed grants/roots.
+Complete independent packet content; identify exact unresolved input/owner choice
+only if actually needed. No further oracle-only handoff absent a new defect.
+
+Unresolved: author reported one boundary-test failure without assertion text;
+not reproduced in subsequent author runs or this independent focused run. Cause
+unknown, no fix claimed. Retain full diagnostics/digests if it recurs; no speculative
+change or broad rerun solely for a new claim. Carry limitation into packet/review.
+Production qualification comparison and actual live restore remain unproved.
+
+Same ownership/scope; preserve accepted evidence, no new Git/graph/DESIGN or
+accepted-subject change. Read events through309290 and thread239616.
+Routine baton.impl -> baton.bug review -> accepted baton.decide.
+
+---
+
+# Current checkpoint — exact token matching correction, review309198
+
+Accepted positive token-order observation/export, saved0 preservation and prior
+slices stand. Independent12 focused tests PASS6.534s, but two oracle gaps remain.
+Latest review: review-2026-09-29T20-49-45Z.md
+Evidence: REVIEW-EVIDENCE-309198.json, ORACLE-CHECK-309198.json.
+
+Next baton.impl/Claude, existing PREPARATION-307667 ownership:
+1. Select opening/restored reservations by exact execution; match observations by
+   domain/generation/execution/operation, requiring uniqueness. Generation-only
+   dictionary aliases unrelated resources: opening-only unreturned mutation passes.
+   Reject missing/conflicting matches; negative must leave unrelated generation1 alone.
+2. Bind state.container to each attempt runtime_id and restored boundary.container,
+   state.launch to acquired operation, and boundary identity to restored reservation.
+   Wrong container/launch currently passes; add focused negative.
+3. Label scripted simulation and deliver item3 exact digest-bound executable packet.
+   Continue through packet preparation; no new permission or framework needed.
+
+No product defect inferred from oracle counterexamples. Preserve accepted evidence,
+no live/deployment/credential/DESIGN/Git/graph/accepted-subject change. Production
+comparison/restore unproved. Read events through309198 and thread239616.
+Routine baton.impl -> baton.bug review -> accepted baton.decide. Same ownership.
+
+---
+
+# Current checkpoint — accepted preservation and token observation, review309137
+
+Accepted: R2 saved0 survives later failed save, first-save visibility, prior slices.
+Independent2 tests PASS0.141s. Reviewer also positively observed old token returned
+BEFORE restored token activation using real owner readers in counted trace.
+Latest review: review-2026-09-29T20-42-20Z.md
+Evidence: REVIEW-EVIDENCE-309137.json, TOKEN-RESEARCH-309137-followup.json.
+
+Next baton.impl/Claude under PREPARATION-307667 ownership:
+1. Retain token observation in existing trace export; use actual tokens.acquire
+   result for domain/generation/operation/execution and read token_of immediately
+   before tokens.admit_activation. These seams are independently proved; don't
+   infer operation from Docker name. Complete wrong/stale/unreturned token negatives
+   and attribution to connected runtime/attempt records. Reuse accepted positive proof.
+2. Label scripted simulated candidate/verdicts accurately.
+3. Deliver item3 exact digest-bound executable packet with fresh roots/limits and
+   separate accepted/no-correction/correction/failure outcomes. No live run selected.
+
+No new permission gate or lookup-only handoff needed. Preserve accepted history;
+production comparison and actual restore unproved. Same ownership; no graph,
+deployment/credential/DESIGN/Git/accepted-subject change. Read events through309137,
+thread239616. Routine continuation baton.impl -> baton.bug, accepted baton.decide.
+
+---
+
+# Current checkpoint — token proof and saved0 test continuation, review309087
+
+Accepted: prior slices plus candidate309041 runtime destruction/distinctness and
+failed-first-save relabelling. Independent4 tests PASS6.456s. R1 remains open:
+runtime/attempt/assignment identities do not establish actual resource tokens.
+Latest review: review-2026-09-29T20-34-52Z.md
+Evidence: REVIEW-EVIDENCE-309087.json, DIAGNOSIS-309087.json.
+
+Next baton.impl/Claude under existing scope:
+1. Export actual token state using tokens.py domain_of/generation_of/token_of,
+   derived from real governed execution. Assert exact resource/container binding
+   and opening return/cessation BEFORE restored fresh-token activation. Preserve
+   runtime checks; reject wrong/stale/unreturned token, not merely reused runtime id.
+2. Finish saved0 identity/byte preservation across LATER failed save. Fixture blocker
+   resolved: end_runtime(first, receipt_changes={"mode": "restore"}); reviewer proved
+   restored finalize succeeds and injected later failure reaches seal_generation.
+   Add preservation/no-new-success assertions; no new permission required.
+3. Label simulated candidate/verdicts and deliver item3 digest-bound exact packet.
+
+Do not stop at fixture diagnosis; continue bounded authorized milestone. Production
+comparison/actual restore unproved; no live run, new scope, graph, deployment,
+credentials, DESIGN, Git or accepted-subject change. Same file ownership.
+Read events through309087 and thread239616. Routine baton.impl -> baton.bug review,
+accepted delivery baton.decide. Historical evidence and accepted slices preserved.
+
+---
+
+# Current checkpoint — connected proof gaps, review309023
+
+Preserve accepted item1 and connected continuity/changed-output/attribution/
+reviewer-isolation/recomposition slices. Candidate308991 item2-complete claim is
+superseded; independent3 tests PASS3.304s and CONNECTED-309023.json retained.
+Latest review: review-2026-09-29T20-25-55Z.md
+Evidence: REVIEW-EVIDENCE-309023.json, ORACLE-CHECK-309023.json.
+
+Next baton.impl/Claude, existing PREPARATION-307667 scope/paths:
+1. Extend current connected trace export/validator with exact opening/restored
+   resource-token/runtime identities and predecessor cessation/settlement before
+   fresh token/start. Reject synthetic running predecessor and wrong/stale token.
+   Current C2 equality accepts matching running observations; no live defect inferred.
+2. Prove saved generation0 identity/bytes survive a LATER failed save after restore.
+   Existing failed-first-save test remains useful but does not prove preservation.
+   Label scripted deterministic candidate/verdicts clearly; negatives are not live review.
+3. Deliver exact digest-bound packet with fresh roots and limits (item3).
+
+No second trace framework/broad campaign or new permission gate. Preserve prior
+accepted evidence, unknown/exclusion and recovery coverage. Production qualification
+comparison remains explicit coverage limit; production restore unproved, no live run.
+Same ownership; no graph/deployment/credential/DESIGN/Git/accepted-subject change.
+Read events through309023, thread239616. Routine baton.impl -> baton.bug review,
+accepted delivery baton.decide. Reviewer owns FINDING/PLAN/reviews; Claude product/tests/PROGRESS.
+
+---
+
+# Current checkpoint — connected milestone next, review308976
+
+Accept candidate308929 evidence corrections; supersedes outstanding corrections
+in review308912. Prior R1/R2 code, binding comment and preservation expectations
+remain accepted. Independent33 focused tests PASS10.371s.
+Latest review: review-2026-09-29T20-19-13Z.md
+Evidence: REVIEW-EVIDENCE-308976.json.
+
+Next baton.impl/Claude under PREPARATION-307667 ownership:
+1. Deliver item2 connected deterministic correction with exact runtime/token/use/
+   generation/workspace attribution, useful changed output, independent verdicts
+   and selected interruption/replay without duplicate dispatch. Reuse existing
+   trace/ServingBinding machinery and accepted item1 evidence. Production
+   qualification deployment-comparison execution remains a specific coverage
+   limit to address/identify honestly in the connected acceptance matrix.
+2. Deliver item3 exact digest-bound executable packet with fresh roots and limits.
+   No live execution selected; actual production restore remains unproved.
+
+No new owner permission or repeated item1-only handoff needed. Keep unknown,
+failed-save, wrong-profile, competing-use and credential-exclusion obligations.
+Preserve historical evidence/candidates and accepted subjects. Reviewer owns
+FINDING/PLAN/reviews; Claude bounded implementation/tests and PROGRESS.
+No graph/deployment/credential/DESIGN/Git change. Read events through308976,
+thread239616; no pending obligations. Routine baton.impl -> baton.bug review,
+accepted delivery baton.decide.
+
+---
+
+# Current checkpoint — evidence correction, review308912
+
+Accepted: prior R1/R2 code corrections, binding-comment correction and updated
+restart-preservation expectations. Independent30 focused tests PASS4.967s.
+Candidate308879 item1-complete claim is superseded by specific proof gaps below.
+Latest review: review-2026-09-29T20-10-41Z.md
+Evidence: REVIEW-EVIDENCE-308912.json, COUNTERCHECK-308912.json.
+
+Next baton.impl/Claude under PREPARATION-307667 ownership:
+1. Correct vacuous launch-fence test (binding is absent, facts never read).
+   Reuse ServingBinding actual bound prelaunch authority-fence proof; use that
+   fixture for changed repository coverage if retained. Prove second-connection
+   unrelated progress while external validation is pending, with bounded timeout.
+   Label completed replay and missing-certification refusal honestly; cite existing
+   qualification request/reopen proof and cover or retain precise production limit.
+2. Deliver connected attributed deterministic correction with selected interruption.
+3. Deliver digest-bound exact packet. No live run or production-restore claim.
+
+No new product defect asserted; preserve accepted slices and historical evidence.
+Standing test authority applies, no permission gate. Same bounded ownership,
+no graph/deployment/credential/DESIGN/Git changes or accepted-subject reopening.
+Read events through308912 and thread239616. Routine continuation baton.impl,
+independent review baton.bug, accepted delivery baton.decide.
+
+---
+
+# Current checkpoint — correction slice accepted, review308858
+
+Supersedes outstanding R1/R2 code-defect status in review308745; does not close
+item1 or this Work. Candidate308784 supplies external deployment operands and
+journal-only binding eligibility. Independent23 focused tests PASS3.680s.
+Latest review: review-2026-09-29T20-04-01Z.md
+Evidence: REVIEW-EVIDENCE-308858.json, DIAGNOSIS-308858.json.
+
+Next baton.impl/Claude, within existing PREPARATION-307667 ownership:
+1. Finish item1 production qualification/refusal/interleaving, freshness/replay
+   and unrelated-progress evidence. Correct obsolete binding comment. Replace
+   stale ServingEnding input-absence expectations with preservation assertions
+   under standing test authority; retain cessation, settlement, context readiness,
+   no-new-admission/materialization and no duplicate provider/engine execution.
+   No per-test permission needed. Three reviewer in-memory diagnostic cases pass.
+2. Deliver connected attributed deterministic correction and selected interruption.
+3. Deliver exact digest-bound executable packet; no live execution selected.
+
+Preserve prior candidates and accepted slices; production restore unproved.
+Reviewer owns FINDING/PLAN/reviews; Claude bounded product/tests and PROGRESS.
+Routine continuation baton.impl -> independent baton.bug -> accepted baton.decide.
+No new scope, graph, deployment, credentials, Git or accepted-subject reopening.
+Read events through308858 and complete T236087 through239616; no obligation.
+
+---
+
+# Current checkpoint — changes requested, review308745
+
+Owner E308630 assigns Claude/baton.impl; this supersedes earlier Tuner routing
+and the item1-complete claim in CANDIDATE-308641, not historical evidence.
+Reviewer owns FINDING/PLAN/reviews; Claude retains the bounded product/test
+ownership in PREPARATION-307667 and the appended308630 ownership pin.
+
+Next finite milestones:
+1. Fix R1 qualification filesystem reads and R2 finalized binding status I/O
+   under transactions; preserve grant/revision CAS, durable replay and launch
+   freshness. Cover candidate/production and refusal/interleaving cases plus
+   unrelated DB progress. Independent20 tests pass but counterprobes expose gaps.
+2. Deliver the connected deterministic correction proof with exact attribution,
+   selected interruption and no duplicate dispatch. Diagnose the author's three
+   baseline reopen-materialization failures; no implicit coverage waiver.
+3. Deliver exact digest-bound executable packet under existing selected scope.
+   Actual provider restore remains unproved; no live execution selected.
+
+Latest review: review-2026-09-29T19-50-38Z.md
+Evidence: REVIEW-EVIDENCE-308745.json, RESEARCH-308745-followup.json.
+Preserve CANDIDATE-308641, historical acceptance and PREPARATION-307667.
+No new scope, graph, deployment, Git or specification change. Routine correction
+passes baton.impl, independent review baton.bug, accepted delivery baton.decide.
+Read events through308745, complete T236087 through239616. No pending obligation.
+
+---
+
 # Current checkpoint — Tuner implementation selected, 2026-09-29
 
 Owner E307633/E307644/E307645; reviewer claim307667. This supersedes parked and
@@ -600,3 +1290,32 @@ Additional owned documentation: `v12/python/DEPLOYMENT.md`, context-profile/rece
 ## Current status — prepared for independent review
 
 Steps 1–3 implemented and verified. Exact candidate is CANDIDATE.json plus candidate.diff; measured results in verification-1/2/3 and PROGRESS. Next baton.bug independently reviews these bytes, then baton.decide selects promotion/preparation. LIVE-CORRECTION-PROPOSAL.md pins one managed correction and its evidence; the final image/deployment/supervisor-bound executable packet follows accepted implementation, without any live call during this handoff. Work remains open; no production enabling or satisfying closure is claimed.
+
+## 2026-09-29 — implementation ownership reassigned to baton.claude, PINNED BEFORE EDITS
+
+Owner reroute 308630 (baton.prompt, on the owner's authority) reassigns the implementation of this
+bounded managed context-reuse work from baton.tuner to baton.claude, on the canonical snapshot 308629
+showing the Work queued with no handler. IT SUPERSEDES THE TUNER IMPLEMENTATION ASSIGNMENT ONLY.
+
+WHAT IS PRESERVED EXACTLY AS IT STANDS: the reviewer's preparation `PREPARATION-307667.md`, the
+E307708 scope, `RESEARCH-307667.json`, `SOURCE-307667.json`, the latest review, and every historical
+author artifact in this dossier. The reviewer keeps FINDING, current PLAN, the preparation and the
+review journals; this section is the ownership pin the reroute requires before any edit, and nothing
+else in these two documents is altered by me.
+
+IMPLEMENTATION OWNERSHIP NOW HELD BY baton.claude, exactly the set `PREPARATION-307667.md` names:
+
+    v12/python/src/baton_v12/worker_manager/provider_context.py
+    v12/python/src/baton_v12/worker_manager/context_delivery.py
+    v12/python/tests/manager/test_provider_context.py
+    v12/python/tests/manager/test_provider_context_delivery.py
+    v12/python/tests/manager/test_claude_context.py
+
+and, for the connected seam only and with baseline digests recorded before editing,
+`v12/python/tools/stage_execution.py` and `v12/python/tools/single_worker.py`.
+
+UNCHANGED LIMITS, carried forward rather than re-decided: no edits to W306614-owned
+supervisor/tests/diagnostics, no edits to the W247941 accepted packet, frozen manager snapshots,
+installed images or DESIGN; no new live execution, deployment change, credential operation or Git
+mutation; a specification change goes to the owner. Routine corrections return to baton.impl under
+this reassignment (the reroute says so, superseding the preparation's baton.tune routing).

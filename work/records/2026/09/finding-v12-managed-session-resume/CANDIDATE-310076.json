@@ -1,0 +1,88 @@
+{
+  "answering": "review-2026-09-29T22-51-42Z.md (pass 310068)",
+  "changed_files": {
+    "CONNECTED-EVIDENCE-310076.json": "13cbb8d1d9e17597e20933c31db513cf286ae0da323333dea9f1c4956ab6c00d",
+    "CONNECTED-NEXT-310076.md": "423962d29147cd6f4d99ba4202de7c5977634e9cc593809427bf9bf560e314d4",
+    "PROGRESS.md": "8a6a912acab6a57d9f8ffd2d14bacff59f95740daf2b306177c7985ce566b993",
+    "connected_packet_trace.py": "b267d9234b35cc343bb8cbf72e2e2108eaa5f0b0a8c07c212ed858ad7759ed07"
+  },
+  "claim": 310076,
+  "connected_run_state": {
+    "admissions": {
+      "implementation": 1,
+      "review": 0
+    },
+    "context_receipt": {
+      "complete": false,
+      "mode": "open",
+      "observed_conversation_id": null,
+      "observed_model": null,
+      "provider_result_digest": "the digest of nothing",
+      "schema": "baton.provider-context-receipt/3",
+      "status": 1,
+      "terminal": "unproved"
+    },
+    "evidence_file": "CONNECTED-EVIDENCE-310076.json",
+    "frozen_output_disposition": "unable",
+    "is_not_a_passing_proof": true,
+    "next_read": "capture the scripted provider child's own argv, status, stdout and stderr by wrapping the callable this fixture passes into the turn. Hypothesis to TEST, not assume: test_stage_execution.provider returns CompletedProcess(argv, status, None, None) -- stdout None -- while the managed-context cases override provider to return real JSON. If so the correction belongs in this owned harness's own provider override.",
+    "not_reached": [
+      "successful provider completion",
+      "review invocation",
+      "canonical verdict",
+      "context save",
+      "restore"
+    ],
+    "proposal": {
+      "changed_paths": [],
+      "disposition": "provider-failed",
+      "failure_reason": "start-error",
+      "status": 1,
+      "verification": null,
+      "why": "provider context terminal identity is unproved"
+    },
+    "receipts": {
+      "admit": "performed",
+      "claim": "performed",
+      "refusal": null
+    },
+    "runtime": {
+      "cleanup": "retained",
+      "execution_runtime": "destroyed",
+      "runtime_id": "runtime-single-1"
+    },
+    "stage_states": {
+      "implementation": "exceptional",
+      "review": "blocked"
+    }
+  },
+  "fixed": {
+    "substitution_seam": "ServingContextCase patches oci.OciAdapter._context_execution to return None for its /1 fixed-state-path profile. This packet requires the SESSION profile whose allowlist names {conversation_id}.jsonl, so the stub made the terminal identity unprovable. Restored exactly as the accepted ManagedSessionResume case restores it. No identity or receipt check weakened, no provider output fabricated."
+  },
+  "participant": "baton.claude",
+  "product_files_changed": [],
+  "remaining": "the provider-completion question above, then review, correction/restore and the four asserted endings",
+  "schema": "baton.candidate/1",
+  "simulated_boundaries_recorded": {
+    "engine_provider_reviewer": "accepted in-process engine, scripted provider child, scripted reviewer dispositions through the real review_cycles owner API",
+    "installation": "tools.bootstrap not run; the two instance facts bind reads are written by the fixture",
+    "preparation": "individual real owner API calls rather than baseline.prepare itself"
+  },
+  "subject": "the session-profile substitution seam was the blocker and is restored as the accepted ManagedSessionResume case does it; the full adapter and canonical evidence is retained. The provider still fails to complete; item 3 remains incomplete.",
+  "unresolved": {
+    "actual_restore": "unproved; no live run selected",
+    "boundary_failure": "UNKNOWN, no cause claimed, not waived",
+    "production_comparison": "unproved"
+  },
+  "verification": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=<checkout>/v12/python/src:<checkout>/v12/python python -B -m unittest test_correction_packet",
+    "cwd": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume",
+    "errors": 0,
+    "failures": 0,
+    "reproduction_includes_cleanup": true,
+    "tests": 126,
+    "touched_nothing_live": "no deployed store or grant, no credential, no real engine or provider, no version-control act, no graph change"
+  },
+  "withdrawn_speculation": "I guessed the ending concerned the declared test scope or the verification command. The retained proposal says no verification was attempted, changed_paths is empty, and the disposition is provider-failed / start-error / status 1 / 'provider context terminal identity is unproved'.",
+  "work": "W236087"
+}

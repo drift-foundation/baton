@@ -1,0 +1,21 @@
+Traceback (most recent call last):
+  File "<stdin>", line 7, in sleep
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/connected_packet_trace.py", line 327, in advance
+    self.turn(held.control, "implementation", attempt,
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              self.mounted(held.composed, "implementation",
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                           attempt),
+                           ^^^^^^^^^
+              edits=edits, status=self.provider_status)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/correction_restart_trace.py", line 275, in turn
+    return super().turn(control, role, attempt_id, roots, **operands)
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_claude_context.py", line 117, in turn
+    return super().turn(control, role, attempt_id, roots, **operands)
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 4160, in turn
+    delivered.document, delivered.document["session"],
+    ^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'document'

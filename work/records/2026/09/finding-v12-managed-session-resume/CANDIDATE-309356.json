@@ -1,0 +1,69 @@
+{
+  "answering": "review-2026-09-29T21-08-40Z.md (pass 309349)",
+  "claim": 309356,
+  "claims_of_mine_corrected": [
+    "PACKET-309306 said NO IMAGE BUILD IS REQUIRED. Prior fresh-Job acceptance does not establish that; the claim is narrowed to the checked composition and the rebuild decision is the owner's.",
+    "PACKET-309306 section 3 asserted the run root must be under /home/sl/baton-instances rather than /home/sl/baton-runs. Wrong rule -- the accepted single Job ran under baton-runs. The real rule is the three-parent code-boundary walk, now checked in both directions.",
+    "PACKET-309306 listed the Authority uuid and the bootstrap input document as missing external input. Both are preparation OUTPUTS.",
+    "PACKET-309306 treated the declared base as needing an owner commit. Checked instead: an existing nominated immutable source suffices at its current head, so no version-control act is needed.",
+    "bind first computed the context profile digest as the profile FILE's sha256. certify_context_profile keys on digest(_profile(profile)); the run would have refused after the instance was installed and the one-run grant minted. Fixed and covered end to end with nothing mocked.",
+    "should_continue first used _guarded, which catches BaseException and would have swallowed a Ctrl-C into resumed serving -- the exact fault the accepted baseline records a reviewer's SIGINT probe catching. Only Exception is caught now.",
+    "the stall rule first counted an unchanged projection with no admitted attempt as a stall. It now requires a non-empty accountable set."
+  ],
+  "new_files": {
+    "../finding-v12-single-implementation-proof/baseline.py": "248e570d8f9d459550b0aa5e92d1674c3226fe540ba987cae916a4a334606771",
+    "PACKET-309356.md": "4f6205cf82166c0fe3bcd6a97df5d32159a5c32a524c965efb1c70f56fbd6bc8",
+    "PROGRESS.md": "84597510fd991bec97cabda8a1d62c26ff1d358aeed5feb9fb3a8bbb7aa5ce18",
+    "PROVENANCE-309356.json": "d184b087bbac0b4512d9b9e8a272a8c1186a9d4e555ab798cd6957ec1551fc9b",
+    "SELECTIONS-309356.json": "0119907f55cb3909dc6a25c6c81972ac0b7498f0e993c37bbc338da78d72e504",
+    "correction_packet.py": "d75e4162e17dff3f07f378ad02df1ec34ebd185c7993bf7a4c7c7f98e55ce8df",
+    "correction_supervisor.py": "8e10cdb0ecfd2739bd5b9253bb17be3243d55bbe9d1d69bd498be7b7258efa9c",
+    "test_correction_packet.py": "cfeb5c79d2ec1ae2112dfe271b59d6b82983de84d05004f05457b5e8ebe72104"
+  },
+  "owner_operands_still_open": [
+    "source.root",
+    "source.declared_base",
+    "participants.implementation",
+    "participants.review",
+    "participants.verification",
+    "participants.approval",
+    "participants.integration",
+    "credential_reference"
+  ],
+  "participant": "baton.claude",
+  "product_files_changed": [],
+  "reused_unmodified_and_pinned": {
+    "baseline.py": "248e570d8f9d459550b0aa5e92d1674c3226fe540ba987cae916a4a334606771",
+    "why": "the accepted single-implementation supervisor supplies the termination handling, admission gate, guarded shutdown, cleanup read, provider-turn check and atomic publication. It is imported, never modified, and its digest is verified before a store opens. It refuses implementer_invocations != 1 by name, which is why the packet, caps, restore accounting and outcomes are this Job's own."
+  },
+  "review_findings_answered": {
+    "R1": "correction_packet.py stage/bind/check: bootstrap input document, context profile, sealed two-stage submission with the selected docs task and ONE complete criteria list reaching both parties, six argument-vector commands with a reproducible import environment set BEFORE the bootstrap, and a read-only status command. The owner acts are step 4's first half through the accepted journalled preparation.",
+    "R2": "correction_supervisor.py enforces 900s total with 60s reserved inside it, per-kind caps of 2 implementer and 2 review invocations at the admission gate, the Job's own 180s provider turn, five stop conditions, the closed-gate cleanup window and outcome publication before an interrupt is re-raised. Bounds and caps are measured by TheBoundsAreEnforced and TheInvocationCapsAreTheGate, and both were mutation-checked.",
+    "R3": "imports pinned by COPYING the two roots outside the run root and measuring the copy, with drift refused; the profile/image/adapter/allowlist composition checked three ways before a store opens; canonical provenance records pinned by digest; the no-build claim narrowed to the measured statement that these image bytes are already composed into an accepted CANDIDATE managed-context profile."
+  },
+  "schema": "baton.candidate/1",
+  "subject": "item 3 delivered as executable preparation, a bounded supervisor and deterministic checks",
+  "unresolved": {
+    "actual_restore": "unproved. No live run is selected by this claim.",
+    "boundary_failure": "one earlier combined run of the 196-test set failed at TransactionBoundaryThroughTheConnectedPath.test_no_external_reader_runs_inside_a_control_transaction. UNKNOWN: no cause claimed, not waived, did not recur. Now carried in PACKET-309356.md section 8 as the review required, not only in PROGRESS.",
+    "production_comparison": "unproved; the packet selects a candidate qualification and refuses production by name"
+  },
+  "verification": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=<checkout>/v12/python/src:<checkout>/v12/python python -B -m unittest test_correction_packet",
+    "cwd": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume",
+    "errors": 0,
+    "failures": 0,
+    "mutation_checked": [
+      "dropping the 60s cleanup reserve from serving_seconds fails test_the_RESERVE_is_inside_the_total_and_serving_gets_the_rest",
+      "removing the gate.refusals stop fails test_a_SPENT_INVOCATION_CAP_ends_the_run_instead_of_waiting_it_out"
+    ],
+    "scope": "packet generation, the emitted commands and the enforced bounds -- the focus review 309349 directed. No broad 196-test rerun: no product or existing test file changed.",
+    "seconds": [
+      0.184,
+      0.179
+    ],
+    "tests": 75,
+    "touched_nothing_live": "no store opened, no instance installed, no credential read, no container or engine reached, no image built, no version-control act, no graph change"
+  },
+  "work": "W236087"
+}

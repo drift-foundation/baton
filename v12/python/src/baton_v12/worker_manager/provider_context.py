@@ -209,8 +209,20 @@ def _grant_consumer(control, run_id):
     return None
 
 
-def _qualified(control, jobs, facts, profile, generation, context_id):
+def _qualified(control, jobs, facts, profile, generation, context_id, deployment=None):
     """The vocabulary gate, at the admission -- the one store-side place.
+
+    `deployment` IS AN OPERAND BECAUSE RESOLVING IT IS FILESYSTEM WORK. W236087
+    review 2026-09-29T19-50-38Z R1: I claimed this function read only local
+    journals and that was FALSE -- `qualification_deployment` opens the configured
+    context storage and walks the workspace ancestry, two `_open_absolute` walks,
+    and the reviewer observed both under BEGIN IMMEDIATE on a candidate admission.
+    The production branch reaches the same call. So the caller resolves the
+    deployment OUTSIDE the transaction and hands it here; what stays inside is the
+    grant selection and consumption, the certification journal validation and the
+    revision compare-and-swap, which are this store's own rows.
+
+    A caller that passes none is outside a transaction and gets the old behaviour.
 
     `deterministic` answers None (unchanged world). `candidate` requires
     the live grant and enforces review232154 [R1]'s cap: the grant covers
@@ -233,7 +245,9 @@ def _qualified(control, jobs, facts, profile, generation, context_id):
         if certified["profile"] != profile or certified["profile_digest"] != facts["profile_digest"] or record["signature"] != manager_signature(CERTIFICATION_KIND, operands):
             _refuse("production certification journal disagrees")
         grant = qualification_grant_of(control, certified["evidence"]["run_id"])
-        if grant is None or grant.get("deployment") != qualification_deployment(control, facts["identity"]["authority_uuid"]):
+        held = deployment if deployment is not None else qualification_deployment(
+            control, facts["identity"]["authority_uuid"])
+        if grant is None or grant.get("deployment") != held:
             _refuse("production certification belongs to another deployment")
         return None
     # candidate
@@ -241,7 +255,8 @@ def _qualified(control, jobs, facts, profile, generation, context_id):
         _refuse("a qualification grant covers the open and one correction "
                 "restore; a third generation is not a qualification run")
     identity = facts["identity"]
-    deployment = qualification_deployment(control, identity["authority_uuid"])
+    if deployment is None:
+        deployment = qualification_deployment(control, identity["authority_uuid"])
     granted = None
     for context_id_held, chain in _history(control).items():
         first = next((one for one in chain if one["action"] == "admit"),
@@ -613,6 +628,28 @@ def _legal(previous, action, use_id, payload, chain):
 
 
 def _transition(control, *, action, context_id, use_id, expected_revision, payload, check=None):
+    """One journalled transition, with NO EXTERNAL READ INSIDE ITS TRANSACTION.
+
+    W236087, DESIGN DB-1/2/4. `check` used to re-derive the admission's owner
+    facts from inside `control.transact`'s `BEGIN IMMEDIATE`: Job-store rows, an
+    Authority reader and two filesystem `_open_absolute` walks. A cross-store read
+    and an I/O wait while holding a write lock is what DB-1 forbids, and
+    RESEARCH-307667.json observed two of those filesystem calls in one public
+    admission.
+
+    WHAT `check` MAY STILL DO IS THE SAME-STORE CONDITIONAL COMPARISON, which is
+    what DB-3/5 asks for rather than forbids: a read of THIS store inside THIS
+    transaction is a compare-and-swap. So the qualification grant -- entirely a
+    control-store journal family -- is still selected and compared here, and the
+    regressions that hold a grant consumed between selection and commit still
+    refuse. What moved out is only what was never this store's to read.
+
+    AND FRESHNESS IS NOT LOST for what moved: the durable reservation is the
+    journalled request, the same-store compare-and-swap is the revision check
+    below, and the launch fence is `revalidate_context_start`, which re-derives
+    the same facts OUTSIDE any transaction before a runtime may start. A change
+    landing between the reading and the commit is refused there.
+    """
     _payload(action, payload)
     chain = _history(control, context_id)
     previous = next((one for one in chain if one["revision"] == expected_revision), None)
@@ -637,10 +674,24 @@ def _use(control, attempt_id):
     return found[0]
 
 
-def context_use_of(control, attempt_id):
+def _journal_use(control, attempt_id):
+    """This use, from the TRANSITION JOURNAL ALONE. No filesystem, no other store.
+
+    W236087 review 2026-09-29T19-50-38Z R2: `context_use_of` looks like a journal
+    read and is not one -- on a FINALIZED head it calls `validate_generation`,
+    which opens the private generation files. A commit that used it for its
+    eligibility check therefore performed filesystem validation under BEGIN
+    IMMEDIATE before refusing, and the reviewer observed exactly that. This is the
+    journal half, shared by both callers so the status vocabulary has one
+    definition; the generation validation is the other half and stays outside.
+    """
     chain, admitted = _use(control, attempt_id)
     owned = [one for one in chain if one["use_id"] == admitted["use_id"]]
-    result = {"context_id": admitted["context_id"], "use_id": admitted["use_id"], "attempt_id": attempt_id, "status": {"admit": "admitted", "deliver": "admitted", "finalize": "ready", "hold": "held", "retire": "retired"}[owned[-1]["action"]], "generation": admitted["payload"]["generation"], "revision": owned[-1]["revision"], "reason": owned[-1]["payload"].get("reason")}
+    return {"context_id": admitted["context_id"], "use_id": admitted["use_id"], "attempt_id": attempt_id, "status": {"admit": "admitted", "deliver": "admitted", "finalize": "ready", "hold": "held", "retire": "retired"}[owned[-1]["action"]], "generation": admitted["payload"]["generation"], "revision": owned[-1]["revision"], "reason": owned[-1]["payload"].get("reason")}, admitted, owned
+
+
+def context_use_of(control, attempt_id):
+    result, admitted, owned = _journal_use(control, attempt_id)
     if owned[-1]["action"] == "finalize":
         from .context_delivery import configured_context_storage, validate_generation
         try:
@@ -724,7 +775,8 @@ def admit_context_use(control, jobs, authority, *, attempt_id, writer_id, profil
         facts = _facts(control, jobs, authority, attempt_id, writer_id, profile_digest, live=True)
         if any(facts[key] != request["payload"][key] for key in facts):
             _refuse("admission request owner facts changed")
-        _transition(control, action="admit", context_id=request["context_id"], use_id=request["use_id"], expected_revision=request["revision"], payload=request["payload"], check=lambda: _check_admission(control, jobs, authority, request["context_id"], request["payload"]))
+        admitting = _owner_facts(control, jobs, authority, request["payload"])
+        _transition(control, action="admit", context_id=request["context_id"], use_id=request["use_id"], expected_revision=request["revision"], payload=request["payload"], check=lambda: _check_admission(control, jobs, authority, request["context_id"], request["payload"], facts=admitting))
         return context_use_of(control, attempt_id)
     existing = [row for chain in _history(control).values() for row in chain if row["action"] == "admit" and row["payload"]["attempt_id"] == attempt_id]
     if existing:
@@ -771,7 +823,8 @@ def admit_context_use(control, jobs, authority, *, attempt_id, writer_id, profil
     # not at all (review232154 R1/R2 semantics live in `_qualified`).
     qualification_run = _qualified(
         control, jobs, facts, context_profile_of(
-            control, facts["profile_digest"]), generation, context_id)
+            control, facts["profile_digest"]), generation, context_id,
+        qualification_deployment(control, facts["identity"]["authority_uuid"]))
     payload = dict(facts, generation=generation, mode="restore" if generation else "open", predecessor=digest(predecessor) if predecessor else None, conversation_id=str(uuid.uuid5(uuid.NAMESPACE_OID, context_id)), qualification_run=qualification_run)
     use_id = _id("context-use", [context_id, attempt_id, generation])
     request = control.transact(request_id, request_kind, request_signature, lambda connection: {"context_id": context_id, "use_id": use_id, "revision": len(chain), "payload": payload})
@@ -779,18 +832,44 @@ def admit_context_use(control, jobs, authority, *, attempt_id, writer_id, profil
         # Another caller already pinned this attempt's exact request. Re-enter
         # its replay branch rather than compute a new operation identity.
         return admit_context_use(control, jobs, authority, attempt_id=attempt_id, writer_id=writer_id, profile_digest=profile_digest)
-    def check():
-        _check_admission(control, jobs, authority, context_id, payload)
-    _transition(control, action="admit", context_id=context_id, use_id=use_id, expected_revision=len(chain), payload=payload, check=check)
+    admitting = _owner_facts(control, jobs, authority, payload)
+    _transition(control, action="admit", context_id=context_id, use_id=use_id, expected_revision=len(chain), payload=payload, check=lambda: _check_admission(control, jobs, authority, context_id, payload, facts=admitting))
     return context_use_of(control, attempt_id)
 
 
-def _check_admission(control, jobs, authority, context_id, payload):
-    """Called under the transition's BEGIN IMMEDIATE, including crash replay."""
+def _owner_facts(control, jobs, authority, payload):
+    """The EXTERNAL half of the admission check, taken OUTSIDE the transaction.
+
+    W236087: `_facts` reads the Job store, asks the Authority and walks two
+    filesystem ancestries. None of that is this store's, and none of it belongs
+    under its write lock. It raises exactly the refusals it always raised, from
+    exactly the same readings, one moment earlier.
+    """
     facts = _facts(control, jobs, authority, payload["attempt_id"], payload["writer_id"], payload["profile_digest"], live=True)
+    # AND THE DEPLOYMENT OBJECTS, which are two filesystem ancestry walks. R1: the
+    # qualification gate needs them, and needing them is not a reason to open a
+    # directory under a write lock.
+    return {"facts": facts,
+            "deployment": qualification_deployment(control, facts["identity"]["authority_uuid"])}
+
+
+def _check_admission(control, jobs, authority, context_id, payload, *, facts=None):
+    """The in-transaction half: a local comparison, plus the SAME-STORE grant.
+
+    `facts` is what `_owner_facts` read before the transaction opened, so
+    comparing it is pure in-memory work. The qualification selection stays here on
+    purpose: it reads only the control store's own journal families, so inside
+    this transaction it IS the compare-and-swap that makes a grant consumed
+    between selection and commit refuse. Both refusals keep `durable=True`.
+
+    A caller that passes no `facts` is outside a transaction and gets the whole
+    check, which is what this function has always done.
+    """
+    outside = facts if facts is not None else _owner_facts(control, jobs, authority, payload)
+    facts, deployment = outside["facts"], outside["deployment"]
     if any(facts[key] != payload[key] for key in facts):
         _refuse("admission owner facts changed", durable=True)
-    selected = _qualified(control, jobs, facts, context_profile_of(control, facts["profile_digest"]), payload["generation"], context_id)
+    selected = _qualified(control, jobs, facts, context_profile_of(control, facts["profile_digest"]), payload["generation"], context_id, deployment)
     if selected != payload.get("qualification_run"):
         _refuse("qualification grant changed before admission commit", durable=True)
 
@@ -1168,9 +1247,33 @@ def bind_context_invocation(control, jobs, authority, *, attempt_id, writer_id, 
         if facts["mode"] == "restore" else None
     prompt = context_prompt(task, feedback)
     value = dict(_invocation_base(control, admitted), task_digest=digest_of_bytes(task_bytes), prompt_digest=digest_of_bytes(prompt.encode()), argv_digest=digest(serving_argv(profile, facts, prompt)))
+    # W236087, DESIGN DB-1/2/4: THE OWNER READING HAPPENS HERE, not in `commit`.
+    # `commit` called `_facts` -- other stores, the Authority and two filesystem
+    # walks -- from inside `BEGIN IMMEDIATE`. It is read before the transaction
+    # opens now.
+    #
+    # AND `context_use_of` NO LONGER STAYS INSIDE, which an earlier version of this
+    # comment claimed while calling it there. Review 2026-09-29T19-50-38Z R2: on a
+    # FINALIZED head that reader calls `validate_generation`, which opens the private
+    # generation files, so it was never the journal-only check the comment asserted.
+    # The full reader runs HERE, keeping the generation validation; `commit` asks
+    # `_journal_use`, which is the journal half and nothing else.
+    #
+    # `revalidate_context_start` re-derives the same facts outside any transaction
+    # before a runtime may start, so a change landing in this window is refused at
+    # the launch fence rather than missed.
+    current = _facts(control, jobs, authority, attempt_id, writer_id, profile_digest, live=True)
+    # AND THE FULL STATUS, WITH ITS GENERATION VALIDATION, IS TAKEN HERE. R2: a
+    # finalized use makes `context_use_of` open the private generation files, so
+    # asking it inside `commit` performed filesystem validation under the write
+    # lock before refusing. The commit now asks the JOURNAL ONLY; this keeps the
+    # validation, one moment earlier and outside the transaction, so a damaged
+    # generation is still refused rather than ignored.
+    if context_use_of(control, attempt_id)["status"] != "admitted":
+        _refuse("serving invocation owner changed")
+
     def commit(connection):
-        current = _facts(control, jobs, authority, attempt_id, writer_id, profile_digest, live=True)
-        if context_use_of(control, attempt_id)["status"] != "admitted" or any(current[key] != facts[key] for key in current):
+        if _journal_use(control, attempt_id)[0]["status"] != "admitted" or any(current[key] != facts[key] for key in current):
             _refuse("serving invocation owner changed", durable=True)
         return dict(value, invocation_binding_digest=digest(value))
     bound = control.transact(_id("context-serving-invocation", attempt_id), INVOCATION_KIND, manager_signature(INVOCATION_KIND, value), commit)

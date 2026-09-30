@@ -1,0 +1,75 @@
+{
+  "answering": "review-2026-09-29T22-58-46Z.md (pass 310123)",
+  "captured_cause": "FileNotFoundError writing docs/v12-context-correction.md because the docs parent did not exist in the candidate; the child exited 1 before emitting terminal JSON and the adapter then correctly reported the context terminal identity as unproved",
+  "changed_files": {
+    "CONNECTED-EVIDENCE-310127.json": "2d9734904ecf2fe4f5bc1b6fc0a1e73aac6857d82b1e181f135095fe7d3d2902",
+    "CONNECTED-NEXT-310127.md": "ef973882398554546f7d24e9622861ef3ab98d55bcba968d1b45e74e14d36c8d",
+    "PROGRESS.md": "d5b7953c7e50bd01cb04bf55bf5a3451fd811389c7ea3e05590e99a5558da1bb",
+    "connected_packet_trace.py": "521956861db581f211cbf25fb7402bc269147699cd22d734378fddf209efeff7"
+  },
+  "claim": 310127,
+  "connected_run_state": {
+    "before": {
+      "frozen_output": "unable",
+      "implementation": "exceptional",
+      "proposal": "provider-failed / start-error / status 1"
+    },
+    "evidence_file": "CONNECTED-EVIDENCE-310127.json",
+    "exchange": null,
+    "explicitly_not_to_do": [
+      "raise the scenario guard to see if it converges later",
+      "add sweeps",
+      "change the manager"
+    ],
+    "is_not_a_passing_proof": true,
+    "next_read": "read exchange.observation for the attempt directly before the shutdown; compare the event and command roots the adopted delivery names against the ones serve_exchange was given; check whether the accepted World's own tick does anything functional that serve's sweep does not (it wraps exchange.observation to remember terminals before ordinary cleanup discards delivery files)",
+    "not_reached": [
+      "stage completion",
+      "review invocation",
+      "canonical verdict",
+      "context save",
+      "restore"
+    ],
+    "now": {
+      "implementation": "answering",
+      "provider_turn": "SUCCEEDS"
+    },
+    "progression": [
+      "offered",
+      "waiting",
+      "answering"
+    ],
+    "receipts": {
+      "admit": "performed",
+      "claim": "performed"
+    },
+    "stopped": "serving-failed -- the fixture's own scenario guard after 90 steps with the state unchanged"
+  },
+  "corrections_to_my_record": [
+    "my stdout-None hypothesis was wrong: the active provider is correction_restart_trace.World.provider, a real subprocess",
+    "the _context_execution restoration did NOT fix the child error and I am not claiming it did; it remains the right seam for a SESSION profile but was not the cause of this failure"
+  ],
+  "fixed": {
+    "provider_edit_boundary": "ConnectedPacket.provider creates the parents of the edits it is scripted to write and changes nothing else. The proposal is still authored by the provider writing into the candidate, the real version-control child still runs, the task's verification command still runs, and no identity or receipt check is touched."
+  },
+  "participant": "baton.claude",
+  "product_files_changed": [],
+  "remaining": "the answering/exchange question above, then review, correction/restore and the four asserted endings",
+  "schema": "baton.candidate/1",
+  "subject": "the simulated provider's edit boundary is fixed and the provider turn now SUCCEEDS; the stage advanced from exceptional to answering. Two of my own readings are corrected. Item 3 remains incomplete.",
+  "unresolved": {
+    "actual_restore": "unproved; no live run selected",
+    "boundary_failure": "UNKNOWN, no cause claimed, not waived",
+    "production_comparison": "unproved"
+  },
+  "verification": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=<checkout>/v12/python/src:<checkout>/v12/python python -B -m unittest test_correction_packet",
+    "cwd": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume",
+    "errors": 0,
+    "failures": 0,
+    "reproduction_includes_cleanup": true,
+    "tests": 126,
+    "touched_nothing_live": "no deployed store or grant, no credential, no real engine or provider, no version-control act, no graph change"
+  },
+  "work": "W236087"
+}

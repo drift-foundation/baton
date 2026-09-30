@@ -1,0 +1,121 @@
+{
+  "commands": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "tools.bootstrap",
+        "--inputs",
+        "/home/sl/baton-instances/managed-correction-309356-packet/bootstrap-inputs.json",
+        "--destination",
+        "/home/sl/baton-instances/managed-correction-309356",
+        "--distro",
+        "/home/sl/baton-runs/managed-correction-236087/build/stack/out/distro",
+        "--no-repositories"
+      ],
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/home/sl/baton-instances/managed-correction-309356-source/manager-source/src:/home/sl/baton-instances/managed-correction-309356-source/manager-source"
+      },
+      "step": 1,
+      "what": "the instance, from the accepted runtime. Installs; starts nothing."
+    },
+    {
+      "command": [
+        "python3",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_packet.py",
+        "prepare-work",
+        "--selections",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/SELECTIONS-RESOLVED-311606.json",
+        "--destination",
+        "/home/sl/baton-instances/managed-correction-309356-packet"
+      ],
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/home/sl/baton-instances/managed-correction-309356-source/manager-source/src:/home/sl/baton-instances/managed-correction-309356-source/manager-source"
+      },
+      "step": 2,
+      "what": "the Authority acts this Job needs: create the Work under the assignment contract, register the impl, rview and integration route handlers, grant the four receipt capabilities in the Work's own scope, and set the canonical target. Journalled under a derived identity, so a repeat replays."
+    },
+    {
+      "command": [
+        "python3",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_packet.py",
+        "bind",
+        "--selections",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/SELECTIONS-RESOLVED-311606.json",
+        "--destination",
+        "/home/sl/baton-instances/managed-correction-309356-packet",
+        "--claim",
+        "311606",
+        "--provenance",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/PROVENANCE-309356.json"
+      ],
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/home/sl/baton-instances/managed-correction-309356-source/manager-source/src:/home/sl/baton-instances/managed-correction-309356-source/manager-source"
+      },
+      "step": 3,
+      "what": "bind the packet to what the instance ACTUALLY holds: the emitted deployment configuration, the Authority identity the bootstrap minted and the staged modules as copied. Opens no store."
+    },
+    {
+      "command": [
+        "python3",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_packet.py",
+        "check",
+        "--packet",
+        "/home/sl/baton-instances/managed-correction-309356-packet/packet.json"
+      ],
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/home/sl/baton-instances/managed-correction-309356-source/manager-source/src:/home/sl/baton-instances/managed-correction-309356-source/manager-source"
+      },
+      "step": 4,
+      "what": "prove the packet against the tree, with the real product validators over the STAGED imports. Opens no store; refuses on any drift."
+    },
+    {
+      "command": [
+        "python3",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_supervisor.py",
+        "--packet",
+        "/home/sl/baton-instances/managed-correction-309356-packet/packet.json"
+      ],
+      "environment": {
+        "BATON_V12_STAGE_EXECUTION_CONFIG": "/home/sl/baton-instances/managed-correction-309356-packet/deployment.json",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/home/sl/baton-instances/managed-correction-309356-source/manager-source/src:/home/sl/baton-instances/managed-correction-309356-source/manager-source"
+      },
+      "step": 5,
+      "what": "serve it, BOUNDED, in the foreground. This one command performs the owner acts first -- the workspace and private context storage, the candidate profile's certification and ONE qualification grant, each journalled under an identity derived from its own operands, so repeating it replays rather than composing a second grant -- and then serves. It holds the 900s total with 60s reserved INSIDE it, caps the invocations at the gate, stops on the first terminal state and retains the outcome even when interrupted."
+    },
+    {
+      "command": [
+        "python3",
+        "-c",
+        "import json,sys;print(json.dumps(json.load(open(sys.argv[1])), indent=2, sort_keys=True))",
+        "/home/sl/baton-instances/managed-correction-309356/run/outcome.json"
+      ],
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "step": 7,
+      "what": "the result, after the supervisor returns. The outcome document is the run's own answer."
+    }
+  ],
+  "commands_pending": [
+    {
+      "resolver": [
+        "python3",
+        "-c",
+        "import json,sys;print(json.load(open(sys.argv[1]))['authority_uuid'])",
+        "/home/sl/baton-instances/managed-correction-309356/bootstrap.json"
+      ],
+      "step": 6,
+      "why": "the status command names the Authority identity `tools.bootstrap` mints at step 1. It is NOT written here: a placeholder in an argv element would be passed to the manager verbatim, which review 2026-09-30T02-44-57Z R2 found in the previous delivery. `bind` writes the complete seven-step list to <destination>/commands.json once it has read the real identity from <root>/bootstrap.json; read it from there, or resolve the identity yourself with the read-only command below."
+    }
+  ],
+  "destination": "/home/sl/baton-instances/managed-correction-309356-packet",
+  "job_id": "job-managed-correction-309356",
+  "run_id": "managed-correction-309356",
+  "selections": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/SELECTIONS-RESOLVED-311606.json"
+}

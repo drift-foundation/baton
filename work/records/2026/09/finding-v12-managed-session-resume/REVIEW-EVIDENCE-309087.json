@@ -1,0 +1,22 @@
+{
+  "claim": 309087,
+  "candidate": 309041,
+  "hashes": {
+    "v12/python/src/baton_v12/worker_manager/provider_context.py": "ca54ecec366fde97390a873537d9fb430db90bfe21e39448450d79d6fa4d7835",
+    "v12/python/tests/manager/test_provider_context.py": "c23c7c4dfa4df5fb62d3ba77464b23e7335cc19ef5373e7d196ee9cc36a70560",
+    "v12/python/tests/tools/correction_restart_trace.py": "e143000bfc2f3f73488c85f9d1e8a8b12f723b5ec63c92f48f86f9fef1f06e01",
+    "v12/python/tests/tools/test_correction_restart.py": "28c1510cbf4cb286228a9af746f03efcfdb11a93cf018f8f14a4177ed3754db1",
+    "work/records/2026/09/finding-v12-managed-session-resume/CANDIDATE-309041.json": "e73a7b2e6e99572ed35bd9bf9879f7f0d0c0fbe7898a04565e17629c61528e6d"
+  },
+  "verification": {
+    "count": 4,
+    "result": "PASS",
+    "seconds": 6.456,
+    "selection": [
+      "CountedReopen",
+      "UsefulCorrectionInvalidEvidence.test_a_RUNNING_predecessor_is_rejected",
+      "UsefulCorrectionInvalidEvidence.test_a_STALE_runtime_token_on_the_restored_use_is_rejected"
+    ]
+  },
+  "diagnosis": "DIAGNOSIS-309087.json"
+}

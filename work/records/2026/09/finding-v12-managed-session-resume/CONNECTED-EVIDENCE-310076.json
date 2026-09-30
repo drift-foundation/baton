@@ -1,0 +1,63 @@
+{
+ "stage_states": {
+  "implementation": "exceptional",
+  "review": "blocked"
+ },
+ "stopped": "exceptional",
+ "admissions": {
+  "implementation": 1,
+  "review": 0
+ },
+ "cleanup": {
+  "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {
+   "cleanup": "retained",
+   "state": "absent",
+   "why": "the engine answered that this exact identity does not exist"
+  },
+  "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c": {
+   "cleanup": null,
+   "why": "no runtime attempt 'attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb\u2026"
+  }
+ },
+ "disposition": "unable",
+ "artifacts": [
+  {
+   "files": {
+    "change.patch": "",
+    "result.json": "{\n \"base\": \"8f75c69ded18d8481dc6cb562bce7961c6739b55\",\n \"changed_paths\": [],\n \"collection\": null,\n \"disposition\": \"provider-failed\",\n \"entry_head\": \"8f75c69ded18d8481dc6cb562bce7961c6739b55\",\n \"head\": null,\n \"provider\": {\n  \"failure_reason\": \"start-error\",\n  \"seconds_bound\": 3600,\n  \"status\": 1\n },\n \"schema\": \"baton.dogfood-proposal/2\",\n \"task_id\": \"a-job-a\",\n \"verification\": null,\n \"why\": \"provider context terminal identity is unproved\"\n}\n",
+    "verification.txt": "no verification was attempted\n"
+   }
+  },
+  {
+   "files": {
+    "receipt.json": "{\"argv_digest\":\"sha256:650a4753c386b91cba95026f1a811de3d7969a73d561529e6470f8c93bc7bfbb\",\"attempt_id\":\"attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571\",\"cli_build\":\"deterministic-claude-layout\",\"complete\":false,\"context_id\":\"context-d312cf11193bf552cecf1998eb5be23c03efc11a70e72f4b19883a2369a8e36a\",\"conversation_id\":\"2fdb09ab-8452-575a-a293-0726abeac436\",\"delivery_digest\":\"sha256:405a629c725966b71317ee587d3ca2e62609c62c3e26245d0ff8c6a334a8f498\",\"input_digest\":\"sha256:c34d2dd6743d8eac2a5a30d0cbc1a666cdf86e87728014b98af74375c24e2610\",\"invocation_binding_digest\":\"sha256:6d9c0a331d7f9b7b6c3d592b622ee3cb4dde4e421b9e5c7b6fc0438a3a277d99\",\"invocation_id\":\"context-invocation-6650908154d1b4eaa56b70c5e3242b30858a9b32f233c627a4a18232e70102b7\",\"mode\":\"open\",\"model\":\"deterministic-model\",\"model_diagnostics_digest\":\"sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a\",\"observed_conversation_id\":null,\"observed_model\":null,\"policy_digest\":\"sha256:d398f8585dc7118d76836fdee00dcc0aae9882250e88e79cdd4ff7de19574795\",\"profile_digest\":\"sha256:cd896b7916c0a65f0fe9a888f844d5ac557515b07df5dac4194181dd22b6a55b\",\"prompt_digest\":\"sha256:6b888097156bcee8ea5a6671c203d9056a3cc92d276d09b452bf41db09e70760\",\"provider_result_digest\":\"sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"schema\":\"baton.provider-context-receipt/3\",\"status\":1,\"task_digest\":\"sha256:728ed7a91455523c906aa21446d5e7050787136c370437095c7c11e0fb9814f4\",\"terminal\":\"unproved\",\"use_id\":\"context-use-7e49d92100a2d406e8f9b3600c400d6bc81009a2433d2928a5148fae3b947103\"}"
+   }
+  }
+ ],
+ "provider_events": [
+  {
+   "argv": [
+    "claude",
+    "--print",
+    "--dangerously-skip-permissions",
+    "--output-format",
+    "json",
+    "--model",
+    "deterministic-model",
+    "--session-id",
+    "2fdb09ab-8452-575a-a293-0726abeac436",
+    "Write docs/v12-context-correction.md -- an operator guide for the managed context-correction workflow: how a qualified producer's conversation is retained, when it may be restored, and what an operator does at each step. Write it for an operator who has the supported CLI in front of them and has not read the implementation.\n\n`docs/v12-context-correction.md` is the only file this Job may add or alter.\n\nTHE COMPLETE ACCEPTANCE REQUIREMENTS, given to the implementer and the reviewer in these same words:\nThe document is accepted only if ALL of the following hold. They are the complete requirements: there is no further hidden criterion, and nothing here is withheld from either party.\n1. It states which context and checkpoint are ELIGIBLE for a restore, and that actual independent review feedback is required -- a restore is not a retry an operator may ask for.\n2. It distinguishes the FRESH execution identity from the RETAINED conversation: the successor runs in a new container under a new execution, and what travels is the conversation and checkpoint, not the predecessor's runtime.\n3. It gives the supported command sequence, in order, with each command exactly as the pinned CLI accepts it.\n4. It handles all four endings separately and honestly: ACCEPTED WITH NO CORRECTION (a complete result that makes no restore claim), CHANGES-REQUESTED then corrected, REJECTED, and FAILED SAVE OR UNKNOWN.\n5. It states the exact cessation rule -- the predecessor's runtime is positively excluded before the successor activates -- and that a failed context save is NOT successful reuse and is not evidence a stopped runtime still runs.\n6. It never instructs an operator to read, copy or print private context state or credential bytes.\n7. Every claim it makes about behaviour is true of the CURRENT implementation and DESIGN, not of an intended one.\n\nJUDGING IS NOT THIS STAGE. An independent reviewer, a different principal, checks this document against the requirements above and against the supported CLI and the current implementation. Do not grade your own work and do not assume a verdict.\n\nYou are working in a private copy of the source tree, which is the current working directory. Edit files here directly.\nWhen you are done, the following command will be run from this directory and must pass:\n  python3 -c import pathlib,sys;p=pathlib.Path('docs/v12-context-correction.md');sys.exit(0 if p.is_file() and p.read_text() else 1)\n"
+   ],
+   "argv_digest": "sha256:650a4753c386b91cba95026f1a811de3d7969a73d561529e6470f8c93bc7bfbb",
+   "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+   "conversation_id": "2fdb09ab-8452-575a-a293-0726abeac436",
+   "invocation_id": "context-invocation-6650908154d1b4eaa56b70c5e3242b30858a9b32f233c627a4a18232e70102b7",
+   "pid": 1384661,
+   "restored": false,
+   "role": "implementation",
+   "selector": "--session-id",
+   "use_id": "context-use-7e49d92100a2d406e8f9b3600c400d6bc81009a2433d2928a5148fae3b947103"
+  }
+ ],
+ "child_diagnostics": []
+}

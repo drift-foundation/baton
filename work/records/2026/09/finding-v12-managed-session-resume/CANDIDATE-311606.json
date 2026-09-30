@@ -1,0 +1,77 @@
+{
+  "accepted_without_correction": "a complete, honest result that proves NOTHING about restore and must not be rerun to obtain one -- written into the operator document",
+  "admitted": {
+    "held_selections": "ADMITTED with zero unresolved operands",
+    "work_identity": "<8 hex>-W236087, accepted by authority.identity.check_work_id"
+  },
+  "answering": "owner reroute 311598 (after accepted review 310533)",
+  "changed_files": {
+    "OPERATOR-311606.md": "2639c0307630f875aa95fba680fade70cff9141a1260cd3ddbc1c6a6dfc7a486",
+    "PROGRESS.md": "70dcf93c32bd0fdb742c9a8429a8befb65544faf1c10fc24da1848459fcb34a7",
+    "RUN-COMMANDS-311606.json": "8ad37808b8ed5c1c86da075520b9ccccc286e79ec7df5c796c33865ce76a36a2",
+    "SELECTIONS-RESOLVED-311606.json": "3beaca6d284c64c0b1738101459d852456dc93e0fdcfd2d8e035e9a8dba69e3b",
+    "test_correction_packet.py": "9ab424359bb769afcc9dc5aadef5e320d34020e530683eb490c83e8fe04aa88c"
+  },
+  "claim": 311606,
+  "delivered": {
+    "OPERATOR-311606.md": "setup, run, status and STOP, plus what each ending means so the result is not over-read",
+    "RUN-COMMANDS-311606.json": "steps 1-7 as argument vectors with their environments, produced by the SAME commands() function the tests check, so it cannot drift from the generator",
+    "SELECTIONS-RESOLVED-311606.json": "the filled selection"
+  },
+  "genuinely_unresolved": "whether the configured credential reference still resolves to a CURRENT session. The name is the accepted one; the session's currency is only checkable by the owner and is not checkable from here without reading the registry this packet deliberately does not touch. W247941's run 01 failed on an expired session. An expired one fails with a provider start error and is HELD -- a correct outcome, not a reason to rerun.",
+  "owner_selections_not_operands": [
+    "whether to run this at all",
+    "whether the named instance root is the one to use"
+  ],
+  "participant": "baton.claude",
+  "preserved_untouched": {
+    "PACKET-309356.md": "78805649a88304aa1f7c2cfea82d0c78dd02d3bfca0ab594ca4a70e62e6f19aa",
+    "PROVENANCE-309356.json": "d184b087bbac0b4512d9b9e8a272a8c1186a9d4e555ab798cd6957ec1551fc9b",
+    "SELECTIONS-309356.json": "52cbb7894d74f6eef9d18e43200b14aa4512e1a4aaf15cfd0d08aa55d1567129",
+    "connected_packet_trace.py": "3f73f1cc8a57a181b87c9d25d9a63538e249d11d651c7d686a3b4de4bde41d80",
+    "correction_packet.py": "addf2e7d0a06e6444076e02e7025b358aa4d49087cb61a408cda028a56ee9645",
+    "correction_supervisor.py": "e73b0aa96cac3d5d3a14e974e2b044c484941610c602eff3945183bcfed1bbd9",
+    "test_connected_packet.py": "2ab121fa7f2dbd60f131a72395e3345fef2910c0935d8cefc3d7370e7fe5a06d"
+  },
+  "product_files_changed": [],
+  "resolved_operands": {
+    "context_storage.excluded[0]": "the selected source root",
+    "credential_reference": "w202663-development",
+    "participants": {
+      "implementation": "baton.impl",
+      "integration": "baton.merge",
+      "review": "baton.review"
+    },
+    "receipts": {
+      "approval": "baton.approver",
+      "review": "baton.approver-review",
+      "verification": "baton.verifier"
+    },
+    "revalidated_this_turn": "that head, a clean working tree, and docs/v12-context-correction.md ABSENT -- so this Job produces it and no new commit is needed",
+    "source.declared_base": "346a809bf0e4c47e52d881bd46d6d62a611c9816",
+    "source.root": "/home/sl/baton-runs/two-jobs-247941-01-inputs",
+    "source_of_all_six_principals_and_the_reference": "/home/sl/baton-runs/single-implementation-244216/run/deployment.json -- the two workers' participant values, the integration profile's integrator, its receipt_participants, and the credential_profile's reference"
+  },
+  "schema": "baton.candidate/1",
+  "stop_procedure": "ONE Ctrl-C. The supervisor defers the signal, closes admission, asks the composition to stop what is still executing, runs the cleanup window inside the 60s reserve, publishes the outcome ATOMICALLY and only then re-raises, exiting 130. A second Ctrl-C during cleanup ends the window and is reported. SIGKILL cannot be caught and nothing claims otherwise.",
+  "subject": "the ten operands resolved from accepted records, the one genuinely unresolved choice explained, and the exact setup/run/status/stop commands delivered for independent review before returning to baton.decide for live selection.",
+  "unresolved": {
+    "actual_live_restore": "unproved -- which is what the owner would be selecting",
+    "boundary_failure": "UNKNOWN, no cause claimed, not waived",
+    "production_comparison": "unproved"
+  },
+  "verification": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=<checkout>/v12/python/src:<checkout>/v12/python python -B -m unittest test_correction_packet test_connected_packet",
+    "cwd": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume",
+    "errors": 0,
+    "failures": 0,
+    "new_cases": 6,
+    "seconds": [
+      10.488,
+      10.594
+    ],
+    "tests": 161,
+    "touched_nothing_live": "no instance installed, no deployed store or grant opened, no credential byte read or copied, no container, no image build, no version-control or graph act"
+  },
+  "work": "W236087"
+}

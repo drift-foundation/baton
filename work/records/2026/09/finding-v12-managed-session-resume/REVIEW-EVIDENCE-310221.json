@@ -1,0 +1,56 @@
+{
+  "candidate_hashes_match": {
+    "PACKET-309356.md": true,
+    "PROGRESS.md": true,
+    "connected_packet_trace.py": true,
+    "correction_packet.py": true,
+    "correction_supervisor.py": true,
+    "test_connected_packet.py": true,
+    "test_correction_packet.py": true
+  },
+  "independent_tests": {
+    "count": 133,
+    "seconds": 9.812,
+    "result": "PASS"
+  },
+  "pure_bootstrap_configuration": {
+    "schema": "baton.v12.stage-execution-deployment/2",
+    "authority_store": "/tmp/correction-packet-vx238g0p/instances/managed-correction-test/run/deployment-state/db/authority.sqlite3",
+    "authority_uuid": "7ea319da-0000-0000-0000-000000000001",
+    "integration_store": "/tmp/correction-packet-vx238g0p/instances/managed-correction-test/run/deployment-state/db/integration.sqlite3",
+    "state_root": "/tmp/correction-packet-vx238g0p/instances/managed-correction-test/run/deployment-state/deployment-state",
+    "pool_generation": 1,
+    "policy_generation": 1,
+    "checkpoint_profile": "git",
+    "integration_profile": {
+      "instructions_digest": "sha256:fafc35958002db5284b54f4d22cf59a7dccfb5ac05e15baa69db73fcff06d6f2",
+      "integrator_participant": "baton.integrator",
+      "profile_kind": "git",
+      "profile_version": 1
+    },
+    "retention_policy_digest": "sha256:0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f",
+    "retention_disposition": "retain",
+    "receipt_participants": {
+      "approval": "baton.approver",
+      "review": "baton.approver-review",
+      "verification": "baton.verifier"
+    },
+    "workers": [],
+    "job_bindings": []
+  },
+  "qualified_work_refusal": "'/tmp/tmpq39x2avv.json' records no qualified Work id for Job 'job-managed-correction-test'; the stages cannot name a Work this instance does not bind",
+  "bootstrap_layout": {
+    "state_root": "/tmp/correction-packet-vx238g0p/instances/managed-correction-test/run/deployment-state",
+    "identity": "/tmp/correction-packet-vx238g0p/instances/managed-correction-test/run/deployment-state/authority-identity.json",
+    "authority_store": "/tmp/correction-packet-vx238g0p/instances/managed-correction-test/run/deployment-state/db/authority.sqlite3",
+    "job_store": "/tmp/correction-packet-vx238g0p/instances/managed-correction-test/run/deployment-state/db/jobs.sqlite3",
+    "control_store": "/tmp/correction-packet-vx238g0p/instances/managed-correction-test/run/deployment-state/db/control.sqlite3",
+    "integration_store": "/tmp/correction-packet-vx238g0p/instances/managed-correction-test/run/deployment-state/db/integration.sqlite3",
+    "deployment_state": "/tmp/correction-packet-vx238g0p/instances/managed-correction-test/run/deployment-state/deployment-state",
+    "record": "/tmp/correction-packet-vx238g0p/instances/managed-correction-test/run/deployment-state/bootstrap.json",
+    "configuration": "/tmp/correction-packet-vx238g0p/instances/managed-correction-test/run/deployment-state/deployment.json"
+  },
+  "bind_expected_configuration": "/tmp/correction-packet-vx238g0p/instances/managed-correction-test/run/deployment.json",
+  "scope": "pure document builder and disposable JSON; no installation, store or provider opened",
+  "diagnostic_note": "Initial probe passed selections filename instead of loaded JSON; corrected before results."
+}

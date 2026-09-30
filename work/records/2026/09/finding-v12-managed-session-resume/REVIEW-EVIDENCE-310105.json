@@ -1,0 +1,18 @@
+{
+  "claim": 310105,
+  "candidate": 310076,
+  "review": "review-2026-09-29T22-58-46Z.md",
+  "digest_checks": {
+    "CONNECTED-EVIDENCE-310076.json": true,
+    "CONNECTED-NEXT-310076.md": true,
+    "PROGRESS.md": true,
+    "connected_packet_trace.py": true
+  },
+  "research": [
+    "PROVIDER-RESEARCH-310105.json",
+    "CAPTURE-RESEARCH-310105.json"
+  ],
+  "result": "scripted-child-missing-docs-parent",
+  "disposition": "continue-implementation",
+  "live_execution": false
+}

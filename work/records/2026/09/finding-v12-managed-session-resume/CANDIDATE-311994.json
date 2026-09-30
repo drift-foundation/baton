@@ -1,0 +1,85 @@
+{
+  "R1": {
+    "cause": "typed from memory while regenerating the document; the generator's step 6 and OPERATOR-311606.md were both right.",
+    "defect": "section 4 displayed --job-store and `status --job`, with no --incarnation and no --control. tools.job_manager requires --store, --incarnation and --authority-uuid and takes --control on status, so the shape is refused AT THE PARSER with exit 2 before a store is opened.",
+    "fixed": "section 4 is commands() step 6 argv for argv",
+    "verified_against_the_real_parser": {
+      "evidence": "STATUS-PARSER-EVIDENCE-311994.json",
+      "generated_shape_absent_stores": "past the parser; fails only on opening the store",
+      "generated_shape_disposable_empty_stores": "exit 0, answers a status document with jobs empty",
+      "nothing_deployed_read": true,
+      "regressed_shape": "exit 2 at the parser"
+    }
+  },
+  "R2": {
+    "defect": "the section labelled Stop printed $DEST/outcome.json and called that stopping. The outcome is bound at $ROOT/run/outcome.json, which is what generated step 7 reads.",
+    "fixed": "ONE Ctrl-C in the serving terminal, with the accepted semantics restored: deferred signal, admission closed, composition asked to stop, cleanup window inside the reserve, outcome published atomically, re-raise exiting 130, a stopped run reported INTERRUPTED, a second Ctrl-C ends the window and is reported, SIGKILL cannot be caught. Reading the result is a separate act from the bound path."
+  },
+  "answering": "review 2026-09-30T03-32-07Z (pass 311986), R1 and R2",
+  "changed_files": {
+    "ARGV-EVIDENCE-311994.json": "e7345428d8049b0db73c5472c6b2c1b394b62f09351799396ac4aa41f69bbb43",
+    "OPERATOR-311743.md": "fa919c946f59b8dc5094eeadf95668c76f3d675a97ab8674985e16a8364897e0",
+    "OPERATOR-MUTATIONS-311994.json": "2062bc75cc26490107e5a08315d270431fbe7b117b7d28ba976d93830802b088",
+    "STATUS-PARSER-EVIDENCE-311994.json": "878e0f4b8fc7d1045f9176dfa3141a2b0cdc3d9a0d20ddea1ae61ae943b9912c",
+    "STOP-ON-ERROR-EVIDENCE-311994.json": "039095cba602dc77f3ac575ca4b2b70d0b361d793a3b39c9f9b9270cfc19251e",
+    "test_correction_packet.py": "2c1796c7c8f89e299a18a173fe7a9afe7f5b24f04198e6106b85d622634aa56e"
+  },
+  "claim": 311994,
+  "my_own_defect_found_by_rerunning_the_check": "the stop action was written as an indented line, which in this document means a COMMAND BLOCK, so `(SIGINT)` reached sh -n and the argv check failed. It is prose now.",
+  "participant": "baton.claude",
+  "preserved_untouched": {
+    "MUTATIONS-311743.json": "bda2e44b1f59d9aef44638353de12753df9e1aef556a396644318b3cf8ab979b",
+    "OPERATOR-311606.md": "da56dc4e77e5d4dfef81d3db2dd1acb45dc6c56a38b9ff60864d0198761b9ca2",
+    "PACKET-309356.md": "78805649a88304aa1f7c2cfea82d0c78dd02d3bfca0ab594ca4a70e62e6f19aa",
+    "PROVENANCE-309356.json": "d184b087bbac0b4512d9b9e8a272a8c1186a9d4e555ab798cd6957ec1551fc9b",
+    "RECOVERY-311743.json": "87175317f01090177e97f36b331fd089e6df34c44a7924437f409d5e70bbea2e",
+    "RUN-COMMANDS-311606.json": "1d4220e59d3e623c1b4eb010e9b587b5dd7d06f3e20609f79c9cb022788dbded",
+    "RUN-COMMANDS-311743.json": "9d58f45d7c767473b83ffa02e878c36d36046dfafdbb9420a66004385d286f5d",
+    "SELECTIONS-RESOLVED-311606.json": "3beaca6d284c64c0b1738101459d852456dc93e0fdcfd2d8e035e9a8dba69e3b",
+    "SELECTIONS-RESOLVED-311743.json": "104bd56722aa158f2d1d9f211e99493c1f64f1c6e112883b963cdb2c0efb577d",
+    "STAGE-BOOTSTRAP-EVIDENCE-311743.json": "642bb0a952f7c8406f6b7d9a8f4f458c10106a478fc6df5036f941fe13bf6f4c",
+    "connected_packet_trace.py": "3f73f1cc8a57a181b87c9d25d9a63538e249d11d651c7d686a3b4de4bde41d80",
+    "correction_packet.py": "7e8d33b06b84c40fb24176553fbef35682bc2cf2f59dbd56fc2d3dbfad8e7fef",
+    "correction_supervisor.py": "e73b0aa96cac3d5d3a14e974e2b044c484941610c602eff3945183bcfed1bbd9",
+    "staged_bootstrap_trace.py": "4927da64bab3a68cb1ccf73039c67125b49633f82dcf6efe52f82fc7f8448b46",
+    "test_connected_packet.py": "2ab121fa7f2dbd60f131a72395e3345fef2910c0935d8cefc3d7370e7fe5a06d"
+  },
+  "product_files_changed": [],
+  "schema": "baton.candidate/1",
+  "subject": "both operator regressions were real and are fixed: the status command was refused at the parser with exit 2, and the section labelled Stop contained no stop action and read the wrong path. Document, focused cases and evidence only.",
+  "superseded_but_retained": {
+    "ARGV-EVIDENCE-311743.json": "the earlier document's argv record",
+    "STOP-ON-ERROR-EVIDENCE-311743.json": "the earlier document's stop record"
+  },
+  "unresolved": {
+    "actual_live_restore": "unproved",
+    "boundary_failure": "UNKNOWN, no cause claimed, not waived",
+    "credential_currency": "unverified and unverifiable from here",
+    "deployed_instance": "NOT installed; the corrected sequence has not been run against /home/sl/baton-instances",
+    "no_forced_rerun": "accepted-without-correction must not trigger one",
+    "production_comparison": "unproved"
+  },
+  "verification": {
+    "bootstrap_repeated": false,
+    "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=<checkout>/v12/python/src:<checkout>/v12/python python -B -m unittest test_correction_packet test_connected_packet",
+    "cwd": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume",
+    "errors": 0,
+    "failures": 0,
+    "operator_argv": {
+      "faults": 0,
+      "invocations": 10,
+      "sh_n": "OK"
+    },
+    "operator_mutations": {
+      "count": 3,
+      "uncaught": []
+    },
+    "stop_on_first_error": {
+      "cases": 3,
+      "invocations_after_the_failure": 0
+    },
+    "tests": 183,
+    "touched_nothing_live": "no deployed setup, store, grant or credential, no Docker or provider, no version-control or graph act"
+  },
+  "work": "W236087"
+}

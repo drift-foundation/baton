@@ -1,0 +1,55 @@
+{
+  "answering": "review-2026-09-29T23-49-58Z.md (pass 310488)",
+  "cases": {
+    "cli_option_gone": "the argument parser answers 'unrecognized arguments: --operation-id'",
+    "helper_takes_no_identity": "inspect.signature(prepare_work) is exactly (authority, chosen, work_id)",
+    "reviewers_reproduction_replayed": "two runs with different bases; the second refused and the canonical target measured UNCHANGED at a*40"
+  },
+  "changed_files": {
+    "PACKET-309356.md": "78805649a88304aa1f7c2cfea82d0c78dd02d3bfca0ab594ca4a70e62e6f19aa",
+    "PROGRESS.md": "ec07605b2a396723e629bc7de1c6592042fc3bc2e9ab86131604bc8995a052ea",
+    "connected_packet_trace.py": "3f73f1cc8a57a181b87c9d25d9a63538e249d11d651c7d686a3b4de4bde41d80",
+    "correction_packet.py": "addf2e7d0a06e6444076e02e7025b358aa4d49087cb61a408cda028a56ee9645",
+    "test_correction_packet.py": "7a3d38c51c38c3d6256d222e696ef0b6b7d5596f52324523dfe9d881d660c082"
+  },
+  "claim": 310491,
+  "participant": "baton.claude",
+  "product_files_changed": [],
+  "schema": "baton.candidate/1",
+  "subject": "the operation-identity override is removed, so the preparation binding cannot be bypassed by the CLI or by any direct helper caller. 155 cases pass.",
+  "the_bypass": "main passed `taken.operation_id or preparation_identity(...)` and prepare_work trusted a caller-supplied id, so --operation-id fixed-operator-id with the base changed from a*40 to b*40 succeeded twice, reported a replay and really moved the canonical target. The binding was optional.",
+  "the_correction": "prepare_work DERIVES the identity itself; operation_id is no longer a parameter and the --operation-id option is REMOVED rather than left with stale help. The mutation boundary is closed for the CLI and every direct caller at once rather than validated at one of them. The connected fixture stopped passing one too.",
+  "unchanged_this_claim": {
+    "SELECTIONS-309356.json": "52cbb7894d74f6eef9d18e43200b14aa4512e1a4aaf15cfd0d08aa55d1567129",
+    "correction_supervisor.py": "e73b0aa96cac3d5d3a14e974e2b044c484941610c602eff3945183bcfed1bbd9",
+    "test_connected_packet.py": "2ab121fa7f2dbd60f131a72395e3345fef2910c0935d8cefc3d7370e7fe5a06d"
+  },
+  "unresolved": {
+    "actual_live_restore": "unproved",
+    "boundary_failure": "UNKNOWN, no cause claimed, not waived",
+    "production_comparison": "unproved",
+    "still_simulated": "tools.bootstrap itself is not run; the engine, provider and reviewer dispositions are simulated and labelled"
+  },
+  "verification": {
+    "breakdown": {
+      "connected": 11,
+      "packet_bounds_template_cli": 144
+    },
+    "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=<checkout>/v12/python/src:<checkout>/v12/python python -B -m unittest test_correction_packet test_connected_packet",
+    "cwd": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume",
+    "errors": 0,
+    "failures": 0,
+    "mutations_checked": {
+      "caught": 16,
+      "missed": 0,
+      "total": 16
+    },
+    "seconds": [
+      10.55,
+      10.449
+    ],
+    "tests": 155,
+    "touched_nothing_deployed": "no live bootstrap, provider or engine; no DEPLOYED store, grant or credential; no version-control or graph act"
+  },
+  "work": "W236087"
+}

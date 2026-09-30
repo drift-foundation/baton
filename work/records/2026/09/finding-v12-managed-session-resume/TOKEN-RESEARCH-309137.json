@@ -1,0 +1,5 @@
+{
+  "scope": "Read-only observation wrapper around real Governance.reserve in deterministic counted trace; snapshot is reservation time, not return-order acceptance",
+  "reservations": [],
+  "seconds": 3.265265013091266
+}

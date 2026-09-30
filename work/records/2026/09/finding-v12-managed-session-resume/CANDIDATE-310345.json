@@ -1,0 +1,63 @@
+{
+  "R1": {
+    "cli_path_now_tested": "ThePREPARE_WORK_CLI creates a DISPOSABLE Authority under its own temporary root, drives main(['prepare-work', ...]) against an ABSENT Work (created True, three route handlers, four capabilities, canonical target), then runs the same command again and asserts the same Work, the same scope and created False.",
+    "harness_no_longer_bypasses": "the connected fixture composes its Work id through prepared_work_id, so it exercises the replay branch",
+    "invalid_identity_fixed": "prepared_work_id composed the name from the run id and produced 7ea319da-Wmanaged-correction-309356, which check_work_id refuses. The name now comes from the selected local W<positive> selector and the PRODUCT'S checker validates it; held_selections refuses an unusable selector where it is selected.",
+    "my_own_defects_found_by_these_cases": [
+      "the `created` flag was set from 'create_work did not refuse', but create_work replays silently under the same journalled operation identity -- so a replay reported `created`. The projection is read BEFORE the act now.",
+      "a blind `except` in the probe called every failure 'absent', turning a real refusal into a duplicate creation attempt. Only authority.errors.Refusal is caught now.",
+      "a route check was wrong: the projection answers `impl` for a new Work and `baton.impl` once a handler is registered, so it refused a legitimate replay. The CONTRACT is the identity check."
+    ]
+  },
+  "R2": {
+    "documentation": "the packet said three subcommands (prepare-work makes four) and said no store was opened, which the connected proof's own disposable stores contradict -- it says no DEPLOYED store now. Command list, digests and counts refreshed.",
+    "proved_fillable": "TheSUPPLIED_OPERATOR_TEMPLATE asserts it refuses ONLY for the ten operands it names (exact list), that replacing exactly those is ADMITTED and yields a valid Work identity, that its membership equals the generator's tuple, that its stores are the installed layout's, and that no credential-looking member appears in it.",
+    "template_regenerated": "held_selections refused the supplied template for a missing `receipts` block before reaching the owner placeholders; `stores` was absent and `participants` carried the receipt principals in the old shape. Regenerated from the current schema with every measured value read from the accepted records."
+  },
+  "answering": "review-2026-09-29T23-28-53Z.md (pass 310339)",
+  "changed_files": {
+    "PACKET-309356.md": "df735c105328633ad9c135aeb563c3cf74f43af88d2f79aff7db3323a7720658",
+    "PROGRESS.md": "b7f4d4917df45a9201af39409de293f6895cb90b900fdb13331407774a55cbc8",
+    "SELECTIONS-309356.json": "52cbb7894d74f6eef9d18e43200b14aa4512e1a4aaf15cfd0d08aa55d1567129",
+    "connected_packet_trace.py": "16eac79706153e271ba7d3ade8dbcaf7360388c9685b4203c39b802892531e1b",
+    "correction_packet.py": "8731f5be9166bdc12f47717088128b75d05e1205c46d03fb972475c4e4efc24a",
+    "test_correction_packet.py": "b9f3234a70588129162925de267f80a29c302b90208fd97b201fb9073308a70c"
+  },
+  "claim": 310345,
+  "participant": "baton.claude",
+  "product_files_changed": [],
+  "schema": "baton.candidate/1",
+  "subject": "the fresh Work identity is valid and exercised through the ACTUAL prepare-work CLI against an absent Work plus its exact replay; the operator template is regenerated to the current schema and proved fillable from its named operands alone. 147 cases pass.",
+  "unchanged_this_claim": {
+    "correction_supervisor.py": "e73b0aa96cac3d5d3a14e974e2b044c484941610c602eff3945183bcfed1bbd9",
+    "test_connected_packet.py": "9a93de2576b5182fa21678dffba120871631ec7a2fbe922bad1f025746a03e3c"
+  },
+  "unresolved": {
+    "actual_live_restore": "unproved",
+    "boundary_failure": "UNKNOWN, no cause claimed, not waived",
+    "production_comparison": "unproved",
+    "still_simulated": "tools.bootstrap itself is not run; the engine, provider and reviewer dispositions are simulated and labelled"
+  },
+  "verification": {
+    "breakdown": {
+      "connected": 11,
+      "packet_bounds_template_cli": 136
+    },
+    "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=<checkout>/v12/python/src:<checkout>/v12/python python -B -m unittest test_correction_packet test_connected_packet",
+    "cwd": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume",
+    "errors": 0,
+    "failures": 0,
+    "mutations_checked": {
+      "caught": 16,
+      "missed": 0,
+      "total": 16
+    },
+    "seconds": [
+      10.463,
+      10.474
+    ],
+    "tests": 147,
+    "touched_nothing_deployed": "no live bootstrap, provider or engine; no DEPLOYED store, grant or credential; no version-control or graph act. The connected proof opens its OWN disposable stores."
+  },
+  "work": "W236087"
+}

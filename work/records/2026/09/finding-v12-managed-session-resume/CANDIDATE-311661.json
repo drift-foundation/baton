@@ -1,0 +1,63 @@
+{
+  "R1": {
+    "defect": "OPERATOR-311606.md had TWO trailing backslashes on 15 lines, so a literal backslash reached python3 and --selections/--provenance became separate commands. It came from writing the document through a Python string literal.",
+    "evidence": "ARGV-EVIDENCE-311661.json",
+    "fixed": "every one is a single continuation",
+    "honest_limit": "the status command's $(...) resolver expands to EMPTY under stubs because no bootstrap.json exists to read. That is the stub's limit, not a document defect, and it is recorded rather than glossed.",
+    "verified_with_stubs": "a stub python3 records argv and exits 0; sh -n passes, the block runs to completion, and all TEN invocations are checked -- no literal backslash reaches python3 and each packet subcommand carries its own operands in ONE invocation"
+  },
+  "R2": {
+    "defect": "step 6 carried `<the uuid tools.bootstrap minted, in <root>/bootstrap.json>` AS AN ARGV ELEMENT -- passed to the manager verbatim -- while the operator document claimed the identity was already substituted. The claim was false.",
+    "equality_now_checked": "the previous case checked only FRAGMENTS, which a delivered list could satisfy while differing from the generator. It compares the ACTUAL DELIVERED DATA member for member against commands() re-run over the delivered selection and paths, and asserts no delivered argv element is a placeholder or shell expression",
+    "fixed": "step 6 is listed as PENDING with the read-only resolver and a pointer to the complete seven-step list `bind` writes to <destination>/commands.json; the false sentence is gone"
+  },
+  "answering": "review-2026-09-30T02-44-57Z.md (pass 311659)",
+  "changed_files": {
+    "ARGV-EVIDENCE-311661.json": "7c8a0838693d22d68c95fe5f9a87e31321a49888a7f79f1200634d450c07fe8b",
+    "OPERATOR-311606.md": "da56dc4e77e5d4dfef81d3db2dd1acb45dc6c56a38b9ff60864d0198761b9ca2",
+    "PROGRESS.md": "6a81efac85c6a8ae766581d52a20e19a868ac016adc6de4f8e3718f6b3a569c9",
+    "RUN-COMMANDS-311606.json": "1d4220e59d3e623c1b4eb010e9b587b5dd7d06f3e20609f79c9cb022788dbded",
+    "test_correction_packet.py": "e51f2cb3094daaa0f49ec40094e71f75d2570275e28e30a4cf1d625193388b85"
+  },
+  "claim": 311661,
+  "defect_in_my_own_test": "the continuation check was written as a Python literal and asserted against the SINGLE backslash a legitimate continuation uses, so it failed on a CORRECT document. Built from chr(92)*2 now, and it also asserts a single continuation IS present so it cannot pass by their absence.",
+  "participant": "baton.claude",
+  "preserved_untouched": {
+    "PACKET-309356.md": "78805649a88304aa1f7c2cfea82d0c78dd02d3bfca0ab594ca4a70e62e6f19aa",
+    "PROVENANCE-309356.json": "d184b087bbac0b4512d9b9e8a272a8c1186a9d4e555ab798cd6957ec1551fc9b",
+    "SELECTIONS-309356.json": "52cbb7894d74f6eef9d18e43200b14aa4512e1a4aaf15cfd0d08aa55d1567129",
+    "SELECTIONS-RESOLVED-311606.json": "3beaca6d284c64c0b1738101459d852456dc93e0fdcfd2d8e035e9a8dba69e3b",
+    "connected_packet_trace.py": "3f73f1cc8a57a181b87c9d25d9a63538e249d11d651c7d686a3b4de4bde41d80",
+    "correction_packet.py": "addf2e7d0a06e6444076e02e7025b358aa4d49087cb61a408cda028a56ee9645",
+    "correction_supervisor.py": "e73b0aa96cac3d5d3a14e974e2b044c484941610c602eff3945183bcfed1bbd9",
+    "test_connected_packet.py": "2ab121fa7f2dbd60f131a72395e3345fef2910c0935d8cefc3d7370e7fe5a06d"
+  },
+  "product_files_changed": [],
+  "schema": "baton.candidate/1",
+  "subject": "the two command-delivery defects are fixed and verified with stubs: fifteen broken shell continuations, and an executable placeholder that the operator document falsely called already substituted. 165 cases pass.",
+  "unresolved": {
+    "actual_live_restore": "unproved",
+    "boundary_failure": "UNKNOWN, no cause claimed, not waived",
+    "credential_currency": "unverified and unverifiable from here",
+    "no_forced_rerun": "accepted-without-correction must not trigger one",
+    "production_comparison": "unproved"
+  },
+  "verification": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=<checkout>/v12/python/src:<checkout>/v12/python python -B -m unittest test_correction_packet test_connected_packet",
+    "cwd": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume",
+    "errors": 0,
+    "failures": 0,
+    "seconds": [
+      10.527,
+      10.606
+    ],
+    "stub_argv_verification": {
+      "faults": 0,
+      "invocations": 10,
+      "sh_n": "OK"
+    },
+    "tests": 165,
+    "touched_nothing_live": "no live setup or run, no deployed store, grant or credential, no version-control or graph act"
+  },
+  "work": "W236087"
+}

@@ -1,0 +1,290 @@
+[
+  {
+    "schema": "baton.v12.job-status/6",
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "incarnation": "connected-packet",
+    "canonical": true,
+    "jobs": [
+      {
+        "job_id": "job-a",
+        "submission_id": "submission-a",
+        "input_digest": "sha256:11a04c36a1a4220a8c809218fc16c46d6427c2eb7f123b3d4344d49c5db6a812",
+        "policy_digest": "sha256:d398f8585dc7118d76836fdee00dcc0aae9882250e88e79cdd4ff7de19574795",
+        "test_scope": [
+          "docs/v12-context-correction.md"
+        ],
+        "terminal_policy": "report-and-hold",
+        "execution_limits": {
+          "units": "seconds",
+          "scope": "per-invocation",
+          "compatibility_generation": 1,
+          "requested": {
+            "provider_turn_seconds": 180,
+            "verification_command_seconds": 180
+          },
+          "boundaries": {
+            "host_verification": {
+              "seconds": 180,
+              "origin": "job",
+              "setting": "verification_command_seconds",
+              "default_seconds": 300
+            },
+            "integration_verification": {
+              "seconds": 180,
+              "origin": "job",
+              "setting": "verification_command_seconds",
+              "default_seconds": 1800
+            },
+            "ordinary_verification": {
+              "seconds": 180,
+              "origin": "job",
+              "setting": "verification_command_seconds",
+              "default_seconds": 900
+            },
+            "provider_turn": {
+              "seconds": 180,
+              "origin": "job",
+              "setting": "provider_turn_seconds",
+              "default_seconds": 3600
+            }
+          }
+        },
+        "stages": [
+          {
+            "stage_id": "job-a/implementation",
+            "job_id": "job-a",
+            "kind": "implementation",
+            "state": "queued",
+            "work_id": "0000000a-W1",
+            "profile_name": "claude-fresh-implementation",
+            "profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+            "episode": 1,
+            "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+            "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+            "episodes": [
+              {
+                "stage_id": "job-a/implementation",
+                "episode": 1,
+                "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                "opened_at": "2026-09-02T00:00:00.000Z",
+                "incarnation": "connected-packet",
+                "ended_state": null,
+                "ended_revision": null,
+                "ended_at": null
+              }
+            ],
+            "corrections": 0,
+            "allocation": null,
+            "allocations": [],
+            "gates": [],
+            "receipts": [],
+            "deferral": [
+              {
+                "act": "admit",
+                "episode": 1,
+                "outstanding": true,
+                "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                "operation_id": "offer.issue:offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                "category": "refused",
+                "code": "precondition",
+                "message": "no worker this deployment configures for the 'implementation' stage can serve Job 'job-a': {'implementation-worker': ['the workload profile', 'the workload profile digest']}. Assembly supplies coherent operands rather than reserving a worker that must then refuse them, which would hold that worker's capacity for a stage nobody can serve",
+                "since": "2026-09-02T00:00:00.000Z",
+                "observed": "2026-09-02T00:00:00.000Z",
+                "incarnation": "connected-packet",
+                "why_retained": null
+              }
+            ],
+            "runtime": null,
+            "exchange": null,
+            "artifacts": null
+          },
+          {
+            "stage_id": "job-a/review",
+            "job_id": "job-a",
+            "kind": "review",
+            "state": "blocked",
+            "work_id": "0000000a-W1",
+            "profile_name": "claude-fresh-implementation",
+            "profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+            "episode": 1,
+            "offer_id": "offer-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+            "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+            "episodes": [
+              {
+                "stage_id": "job-a/review",
+                "episode": 1,
+                "offer_id": "offer-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+                "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+                "opened_at": "2026-09-02T00:00:00.000Z",
+                "incarnation": "connected-packet",
+                "ended_state": null,
+                "ended_revision": null,
+                "ended_at": null
+              }
+            ],
+            "corrections": 0,
+            "allocation": null,
+            "allocations": [],
+            "gates": [
+              {
+                "stage_id": "job-a/implementation",
+                "state": "queued",
+                "open": false
+              }
+            ],
+            "receipts": [],
+            "deferral": null,
+            "runtime": null,
+            "exchange": null,
+            "artifacts": null
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "schema": "baton.v12.job-status/6",
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "incarnation": "connected-packet",
+    "canonical": true,
+    "jobs": [
+      {
+        "job_id": "job-a",
+        "submission_id": "submission-a",
+        "input_digest": "sha256:11a04c36a1a4220a8c809218fc16c46d6427c2eb7f123b3d4344d49c5db6a812",
+        "policy_digest": "sha256:d398f8585dc7118d76836fdee00dcc0aae9882250e88e79cdd4ff7de19574795",
+        "test_scope": [
+          "docs/v12-context-correction.md"
+        ],
+        "terminal_policy": "report-and-hold",
+        "execution_limits": {
+          "units": "seconds",
+          "scope": "per-invocation",
+          "compatibility_generation": 1,
+          "requested": {
+            "provider_turn_seconds": 180,
+            "verification_command_seconds": 180
+          },
+          "boundaries": {
+            "host_verification": {
+              "seconds": 180,
+              "origin": "job",
+              "setting": "verification_command_seconds",
+              "default_seconds": 300
+            },
+            "integration_verification": {
+              "seconds": 180,
+              "origin": "job",
+              "setting": "verification_command_seconds",
+              "default_seconds": 1800
+            },
+            "ordinary_verification": {
+              "seconds": 180,
+              "origin": "job",
+              "setting": "verification_command_seconds",
+              "default_seconds": 900
+            },
+            "provider_turn": {
+              "seconds": 180,
+              "origin": "job",
+              "setting": "provider_turn_seconds",
+              "default_seconds": 3600
+            }
+          }
+        },
+        "stages": [
+          {
+            "stage_id": "job-a/implementation",
+            "job_id": "job-a",
+            "kind": "implementation",
+            "state": "queued",
+            "work_id": "0000000a-W1",
+            "profile_name": "claude-fresh-implementation",
+            "profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+            "episode": 1,
+            "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+            "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+            "episodes": [
+              {
+                "stage_id": "job-a/implementation",
+                "episode": 1,
+                "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                "opened_at": "2026-09-02T00:00:00.000Z",
+                "incarnation": "connected-packet",
+                "ended_state": null,
+                "ended_revision": null,
+                "ended_at": null
+              }
+            ],
+            "corrections": 0,
+            "allocation": null,
+            "allocations": [],
+            "gates": [],
+            "receipts": [],
+            "deferral": [
+              {
+                "act": "admit",
+                "episode": 1,
+                "outstanding": true,
+                "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                "operation_id": "offer.issue:offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                "category": "refused",
+                "code": "precondition",
+                "message": "no worker this deployment configures for the 'implementation' stage can serve Job 'job-a': {'implementation-worker': ['the workload profile', 'the workload profile digest']}. Assembly supplies coherent operands rather than reserving a worker that must then refuse them, which would hold that worker's capacity for a stage nobody can serve",
+                "since": "2026-09-02T00:00:00.000Z",
+                "observed": "2026-09-02T00:00:00.000Z",
+                "incarnation": "connected-packet",
+                "why_retained": null
+              }
+            ],
+            "runtime": null,
+            "exchange": null,
+            "artifacts": null
+          },
+          {
+            "stage_id": "job-a/review",
+            "job_id": "job-a",
+            "kind": "review",
+            "state": "blocked",
+            "work_id": "0000000a-W1",
+            "profile_name": "claude-fresh-implementation",
+            "profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+            "episode": 1,
+            "offer_id": "offer-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+            "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+            "episodes": [
+              {
+                "stage_id": "job-a/review",
+                "episode": 1,
+                "offer_id": "offer-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+                "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+                "opened_at": "2026-09-02T00:00:00.000Z",
+                "incarnation": "connected-packet",
+                "ended_state": null,
+                "ended_revision": null,
+                "ended_at": null
+              }
+            ],
+            "corrections": 0,
+            "allocation": null,
+            "allocations": [],
+            "gates": [
+              {
+                "stage_id": "job-a/implementation",
+                "state": "queued",
+                "open": false
+              }
+            ],
+            "receipts": [],
+            "deferral": null,
+            "runtime": null,
+            "exchange": null,
+            "artifacts": null
+          }
+        ]
+      }
+    ]
+  }
+]

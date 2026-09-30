@@ -1,0 +1,116 @@
+{
+  "hash_matches": {
+    "PACKET-309356.md": true,
+    "PROGRESS.md": true,
+    "connected_packet_trace.py": true,
+    "correction_packet.py": true,
+    "test_connected_packet.py": true,
+    "test_correction_packet.py": true,
+    "SELECTIONS-309356.json": true,
+    "correction_supervisor.py": true
+  },
+  "tests": {
+    "count": 152,
+    "seconds": 10.453,
+    "result": "PASS"
+  },
+  "first": {
+    "authority_store": "/tmp/correction-packet-j0yxj9t1/instances/managed-correction-test/db/authority.sqlite3",
+    "authority_uuid": "58005e1d926d4360b9b998083a97443c",
+    "canonical_target": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "created": true,
+    "granted": [
+      {
+        "capability": "verify",
+        "participant": "baton.verifier"
+      },
+      {
+        "capability": "review",
+        "participant": "baton.approver-review"
+      },
+      {
+        "capability": "approve",
+        "participant": "baton.approver"
+      },
+      {
+        "capability": "integrate",
+        "participant": "baton.integrator"
+      }
+    ],
+    "operands": {
+      "canonical_target": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "contract": "v12-assignment-1",
+      "receipts": {
+        "approval": "baton.approver",
+        "review": "baton.approver-review",
+        "verification": "baton.verifier"
+      },
+      "route_handlers": {
+        "impl": "baton.claude",
+        "integration": "baton.integrator",
+        "rview": "baton.codxpc"
+      },
+      "work_id": "58005e1d-W236087"
+    },
+    "operation_id": "fixed-operator-id",
+    "record": "/tmp/correction-packet-j0yxj9t1/packet/prepared-work.json",
+    "route_handlers": {
+      "impl": "baton.claude",
+      "integration": "baton.integrator",
+      "rview": "baton.codxpc"
+    },
+    "scope": "scope:deployment",
+    "work_id": "58005e1d-W236087"
+  },
+  "changed_replay": {
+    "authority_store": "/tmp/correction-packet-j0yxj9t1/instances/managed-correction-test/db/authority.sqlite3",
+    "authority_uuid": "58005e1d926d4360b9b998083a97443c",
+    "canonical_target": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "created": false,
+    "granted": [
+      {
+        "capability": "verify",
+        "participant": "baton.verifier"
+      },
+      {
+        "capability": "review",
+        "participant": "baton.approver-review"
+      },
+      {
+        "capability": "approve",
+        "participant": "baton.approver"
+      },
+      {
+        "capability": "integrate",
+        "participant": "baton.integrator"
+      }
+    ],
+    "operands": {
+      "canonical_target": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "contract": "v12-assignment-1",
+      "receipts": {
+        "approval": "baton.approver",
+        "review": "baton.approver-review",
+        "verification": "baton.verifier"
+      },
+      "route_handlers": {
+        "impl": "baton.claude",
+        "integration": "baton.integrator",
+        "rview": "baton.codxpc"
+      },
+      "work_id": "58005e1d-W236087"
+    },
+    "operation_id": "fixed-operator-id",
+    "record": "/tmp/correction-packet-j0yxj9t1/packet/prepared-work.json",
+    "route_handlers": {
+      "impl": "baton.claude",
+      "integration": "baton.integrator",
+      "rview": "baton.codxpc"
+    },
+    "scope": "scope:deployment",
+    "work_id": "58005e1d-W236087"
+  },
+  "policy_before": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "policy_after": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "scope": "Actual prepare-work CLI with supported --operation-id, disposable Authority only."
+}

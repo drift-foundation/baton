@@ -1,0 +1,28 @@
+{
+  "compatibility": {
+    "adapter_source_sha256": "18c34ff52faa150237df0c8d0206b805801ee71cb9e7a4ec6e84e4379d7f9d8d",
+    "context_capable": true,
+    "established": [
+      "The reused image config digest sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2 is the image an ACCEPTED CANDIDATE managed-context profile is composed against: that profile's image_digest and adapter_digest are exactly these bytes, and correction_packet.held_packet compares all three before a store opens.",
+      "The profile's positive state allowlist names .claude/projects/-output/{conversation_id}.jsonl, the conversation file a restore consumes, so it is a managed-context profile rather than a fresh-run one.",
+      "The adapter inside the image is 18c34ff52faa150237df0c8d0206b805801ee71cb9e7a4ec6e84e4379d7f9d8d, accepted by review-2026-09-23T03-19-21Z.md.",
+      "The manager runtime distro, build commit and executable are the accepted single Job's own, named by PACKET.json."
+    ],
+    "not_established": [
+      "NO BUILD IS REQUIRED is not established by prior fresh-Job acceptance and is not claimed here. What is claimed is narrower and checked: these exact bytes are already composed into an accepted candidate managed-context profile. Whether a rebuild would be preferable is the owner's decision.",
+      "No live run has exercised this image under THIS packet's profile, grant and two-stage submission. The composition is checked; the behaviour is not.",
+      "The production deployment comparison branch of provider_context._qualified remains unproved, which is why this packet selects a candidate qualification and refuses a production one by name.",
+      "The provider's own conduct -- whether the restored CLI consumes its conversation and improves against real feedback -- is the question the run exists to answer and is not evidence this packet carries."
+    ]
+  },
+  "provenance": {
+    "manager_runtime_and_profile_composition": {
+      "path": "/home/sl/src/baton/work/records/2026/09/finding-v12-single-implementation-proof/live-success-244216/PACKET.json",
+      "sha256": "f436774494e6cafae3a62f05aa7125225f43bc57f896e11051b89ad035f3f851"
+    },
+    "worker_image": {
+      "path": "/home/sl/src/baton/work/records/2026/09/finding-v12-single-implementation-proof/IMAGE-ARTIFACT-244216.json",
+      "sha256": "8cf90edcabc39150b47f3e59a5a2378941d237c0a86ad1b99dffc079f3c2e374"
+    }
+  }
+}

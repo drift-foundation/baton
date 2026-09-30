@@ -1,0 +1,35 @@
+{
+  "probes": [
+    {
+      "probe": "public candidate-qualified admission",
+      "status": "admitted",
+      "observations": [
+        {
+          "reader": "_open_absolute",
+          "path": "/tmp/v12-context-50x211ag/contexts",
+          "in_transaction": true
+        },
+        {
+          "reader": "_open_absolute",
+          "path": "/var/tmp/baton-w257624/v12-w71917-3lhgfdqj/workspaces",
+          "in_transaction": true
+        }
+      ]
+    },
+    {
+      "probe": "Real finalized fixture; exact status expression used by bind_context_invocation.commit inside real transaction. Isolated refusal branch, not full concurrent public binding run.",
+      "observations": [
+        {
+          "reader": "validate_generation",
+          "in_transaction": true
+        }
+      ],
+      "refusal": "provider context: serving invocation owner changed"
+    }
+  ],
+  "seconds_including_cleanup": 0.09132921299897134,
+  "earlier_probes": [
+    "RESEARCH-308745.json: malformed signature refused before callback,0.074917044s, no boundary evidence",
+    "second command: probe reached callback then incorrect ContractRefusal construction raised TypeError; command wall0.111094501s; no saved result"
+  ]
+}

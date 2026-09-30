@@ -1,0 +1,91 @@
+{
+  "absent_and_why": {
+    "bootstrap.json": "`tools.bootstrap` never wrote its record: it failed at IMPORT, because the staged source carried no frozen schema resources. Steps 2-4 then failed for want of it.",
+    "packet.json": "`bind` needs the minted Authority identity from bootstrap.json, so it could not run.",
+    "submission.json": "`bind` writes it, for the same reason: its `input_digest` names the Authority the bootstrap had not minted."
+  },
+  "claim": 311743,
+  "how_measured": "read-only: os.walk, os.path.getsize and sha256 over files. No store was opened, nothing was deleted, moved or written outside this dossier, and no file was copied by hand.",
+  "instance": {
+    "path": "/home/sl/baton-instances/managed-correction-309356",
+    "state": "ABSENT"
+  },
+  "partial_packet_documents": {
+    "bootstrap-inputs.json": "25f00e8bc2386fce696fba413b1b03490619e81a8fa7e8e1488ff8556b3930be",
+    "context-profile.json": "b516e0408e42e7d0dc634099f2d54092d78a6032a97dc48b62dc9554ad1eda03",
+    "prepared.json": "f75d6d78897e477f40a5521bb76971cc15c7a1560bdb8bc251fa223d1c70e743",
+    "task.json": "c9f8ada20c305ff314e611d21fdbc86f0193f63c13203c1bf77b5e3aa55f725f"
+  },
+  "partial_prepared_manifest": {
+    "commands_it_carried": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      7
+    ],
+    "documents_written": [
+      "/home/sl/baton-instances/managed-correction-309356-packet/bootstrap-inputs.json",
+      "/home/sl/baton-instances/managed-correction-309356-packet/context-profile.json",
+      "/home/sl/baton-instances/managed-correction-309356-packet/task.json"
+    ],
+    "records_frozen_assets": false,
+    "staged_source_file_count": 376,
+    "staged_source_members": [
+      "file_count",
+      "packages",
+      "path"
+    ]
+  },
+  "partial_staged_source": {
+    "bytes": 17764973,
+    "modules": 376,
+    "path": "/home/sl/baton-instances/managed-correction-309356-source",
+    "resources": 0,
+    "state": "PRESENT",
+    "top_level_entries": [
+      "build",
+      "src",
+      "tests",
+      "tools",
+      "v12-w71917-1s6fw85g",
+      "v12-w71917-4mbv0wsv",
+      "v12-w71917-4u4o051z",
+      "v12-w71917-5i463ts6",
+      "v12-w71917-60swm3g5",
+      "v12-w71917-6ugkw0rt",
+      "v12-w71917-7l7pghox",
+      "v12-w71917-8vomllta",
+      "v12-w71917-a02ebtf4",
+      "v12-w71917-cf5g7uto",
+      "v12-w71917-dgqh2kfg",
+      "v12-w71917-dnsg6zb1",
+      "v12-w71917-fb6dysck",
+      "v12-w71917-i5c22h2w",
+      "v12-w71917-ikbu9s28",
+      "v12-w71917-ipo3b5iw",
+      "v12-w71917-j29wvr34",
+      "v12-w71917-mvvbtvhf",
+      "v12-w71917-n388ezir",
+      "v12-w71917-o23iwd2n",
+      "v12-w71917-pcn3au3f",
+      "v12-w71917-pdgqhqkd",
+      "v12-w71917-u8n21ljg",
+      "v12-w71917-ybobas2j"
+    ]
+  },
+  "recovery": {
+    "commands": "RUN-COMMANDS-311743.json (steps 0-5 and 7; step 6 pending on the minted identity)",
+    "document": "OPERATOR-311743.md section 2",
+    "no_manual_copying": "no step copies, moves or deletes a file; the staged tree is written only by `stage`, which measures every byte it copies",
+    "proved_in_a_disposable_installation": "STAGE-BOOTSTRAP-EVIDENCE-311743.json -- stage, tools.bootstrap, prepare-work, bind and check, all exit 0, no Docker, no provider",
+    "stops_on_first_error": "set -e and set -o pipefail; proved in STOP-ON-ERROR-EVIDENCE-311743.json"
+  },
+  "schema": "baton.partial-preparation-inventory/1",
+  "what_the_recovery_preserves": [
+    "/home/sl/baton-instances/managed-correction-309356-source -- untouched; the corrected staging root is /home/sl/baton-staging/managed-correction-309356-source",
+    "/home/sl/baton-instances/managed-correction-309356-packet -- untouched; the corrected destination is /home/sl/baton-instances/managed-correction-309356-packet-311743"
+  ],
+  "work": "W236087"
+}

@@ -1,0 +1,66 @@
+{
+  "answering": "review-2026-09-29T22-23-10Z.md (pass 309863)",
+  "changed_files": {
+    "CONNECTED-NEXT-309871.md": "d304f75b2e20afadfd95a3b2aaede86db8bffcb082a3f09cd4ced76ee4b12d5b",
+    "PROGRESS.md": "4d8b149c78e88343f7f89cda6a93c8cd485afb74fbc82732cce729973a5be822",
+    "SELECTIONS-309356.json": "5a5f8815ab0ba75bc87dfafa7be611f7b3c6502d539b0c96cfbc37b907be9718",
+    "connected_packet_trace.py": "fc533ce3c47d601754e6d5776d44a73b04a8174143faabc561a97e94b3c3857d",
+    "correction_packet.py": "6de1cb44be2ac3a1d01ac6efb4d97d33db09eea60392fa422e03688c8b41c084",
+    "test_correction_packet.py": "a915d68b0c77d07b36be9e15df023b2df86dd3cf14dc0e1b1b8fcded2a1b4502"
+  },
+  "claim": 309871,
+  "connected_harness": {
+    "consumed_path": "this packet's generated submission (two stages) and generated composition (two workers)",
+    "exact_next_step": "CONNECTED-NEXT-309871.md",
+    "file": "connected_packet_trace.py",
+    "real": [
+      "disposable Job/control stores and Authority",
+      "configure_workspace_storage",
+      "context_delivery.configure_context_storage",
+      "provider_context.certify_context_profile",
+      "provider_context.authorize_qualification_run (CANDIDATE, in disposable stores only)",
+      "stage_execution.operations_from over the generated deployment",
+      "single_worker._held and stage_execution.held_configuration over the generated documents",
+      "the manager's own serving and sweeping; a real attempt is admitted and appears in the outcome's cleanup accounting",
+      "correction_supervisor.supervise itself"
+    ],
+    "simulated_and_labelled": [
+      "the OCI engine (the accepted fixture's in-process one)",
+      "the provider (a real child process running a scripted script)",
+      "the reviewer's dispositions, committed through the real review_cycles owner API"
+    ],
+    "state": "runs to a recorded stopping point; NOT yet a passing proof and no test asserts it",
+    "vehicle": "subclasses the accepted correction_restart_trace.World"
+  },
+  "faults_found_by_the_connected_run": [
+    "required context configuration disagrees with its preconfigured owner: the worker's adapter/image/retention digests must equal the certified profile's -- now derived from it, and the input manifest too",
+    "the private context storage and workspace storage must be the CONFIGURED ones -- now operands",
+    "the stores are deployment facts -- now operands",
+    "the review RECEIPT writer is not the review worker -- now its own `receipts` block",
+    "the integrator is a selection, not the accepted instance's",
+    "PACKET: deployment.config_path named the instance record rather than the generated composition, so the cleanup identity had no retention policy digest. The generated composition IS the configuration now and the duplicate composition.path member is gone"
+  ],
+  "participant": "baton.claude",
+  "product_files_changed": [],
+  "remaining": "the four endings over this harness, each deciding its observation from canonical attachments, verdicts and positive cleanup; run_packet already takes dispositions, interrupt_at and provider_status for them",
+  "schema": "baton.candidate/1",
+  "subject": "the connected harness RUNS: the packet's generated composition composes and serves over real disposable stores through the packet's own supervisor. Five generator faults and one packet fault found by real refusals and fixed. The four endings are NOT yet asserted; item 3 stays incomplete.",
+  "unresolved": {
+    "actual_restore": "unproved; no live run selected",
+    "boundary_failure": "UNKNOWN, no cause claimed, not waived",
+    "production_comparison": "unproved"
+  },
+  "verification": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=<checkout>/v12/python/src:<checkout>/v12/python python -B -m unittest test_correction_packet",
+    "connected_harness_status": "runs; stops at the recorded point; not asserted by any test yet",
+    "cwd": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume",
+    "errors": 0,
+    "failures": 0,
+    "seconds": [
+      1.124
+    ],
+    "tests": 126,
+    "touched_nothing_live": "no deployed store or grant, no credential, no real engine or provider, no image build, no version-control act, no graph change"
+  },
+  "work": "W236087"
+}

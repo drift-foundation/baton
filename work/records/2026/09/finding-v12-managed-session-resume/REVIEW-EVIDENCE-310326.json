@@ -1,0 +1,20 @@
+{
+  "hash_matches": {
+    "PACKET-309356.md": true,
+    "PROGRESS.md": true,
+    "connected_packet_trace.py": true,
+    "correction_packet.py": true,
+    "test_connected_packet.py": true,
+    "test_correction_packet.py": true,
+    "correction_supervisor.py": true
+  },
+  "tests": {
+    "count": 139,
+    "seconds": 10.403,
+    "result": "PASS"
+  },
+  "scope": "pure identity validator and selections reader; no store opened",
+  "generated_work_id": "7ea319da-Wmanaged-correction-309356",
+  "identity_refusal": "work_id is '7ea319da-Wmanaged-correction-309356'; a Work id is the full canonical <8 hex>-W<positive> identity and a local selector is not one",
+  "selection_refusal": "the selections at 'work/records/2026/09/finding-v12-managed-session-resume/SELECTIONS-309356.json' names no receipts"
+}

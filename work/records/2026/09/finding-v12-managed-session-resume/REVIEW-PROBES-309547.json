@@ -1,0 +1,10 @@
+{
+  "submission": {
+    "error": "ContractRefusal",
+    "message": "a job submission needs submission_id"
+  },
+  "bootstrap": {
+    "error": "BootstrapRefusal",
+    "message": "this deployment cannot be prepared: the following are not named and cannot be derived -- schema (this reads baton.v12.stack-bootstrap/1 and this document is 'baton.v12.bootstrap-input/1'). These are production selections; nothing here invents one, and a fixture digest, proof task or disposable credential is not a production selection. See v12/STACK.md."
+  }
+}

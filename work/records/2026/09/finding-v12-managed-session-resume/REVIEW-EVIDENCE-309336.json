@@ -1,0 +1,11 @@
+{
+  "claim": 309336,
+  "candidate": 309306,
+  "machinery_mismatches": [],
+  "sha256": {
+    "PACKET-309306.md": "b09bfec8fb3e8b3d856aebfc9f3954b3145a6f1e83d086e7c0e0ac465c814382",
+    "PACKET-BINDINGS-309306.json": "96cd5566a024e835e1e4f44e7da30d43d5d3eedfe64e28a8d7edd60dd8b11b85",
+    "CANDIDATE-309306.json": "0fc7e3eec9cfad9ef3610bc64219b7c38fcf830c458113a29707a4fd44e47784"
+  },
+  "verification": "Static packet, source-parser and full machinery digest review only; no live command, bootstrap, store, credential or engine operation executed; no source tests rerun for documentation-only candidate"
+}

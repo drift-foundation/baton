@@ -17,6 +17,8 @@ from baton_v12.job_manager import episodes, submission
 from baton_v12.worker_manager import (AuthorityPort, ControlStore, accept_offer, activate_assignment, certify_profile, create_line, grant_writer, issue_offer, record_attempt, submit_claim)
 from baton_v12.worker_manager import provider_context as context
 from baton_v12.worker_manager import context_delivery as delivery
+from baton_v12.worker_manager import review_cycles
+from baton_v12.worker_manager.store import manager_signature
 from baton_v12.worker_manager.source_boundary import nominate_source
 from baton_v12.worker_manager.workspaces import configure_workspace_storage
 from tests.manager import input_roots
@@ -816,6 +818,515 @@ class GenerationIdentity(ContextCase):
             delivery.materialize_context_use(self.control, self.custody, attempt_id=self.attempt_id)
 
 
+class TransactionBoundaryRegression(ContextCase):
+    """W236087: NO EXTERNAL READ inside a ControlStore transaction. DESIGN DB-1/2/4.
+
+    `PREPARATION-307667.md` and `RESEARCH-307667.json` localised the defect: the
+    admission's `check` and the invocation's `commit` called `_facts`, which reads the
+    Job store, asks the Authority and walks two filesystem ancestries with
+    `context_delivery._open_absolute` -- all while `store.transact` held
+    `BEGIN IMMEDIATE`. These observe the boundary rather than describe it.
+
+    WHAT IS NOT FORBIDDEN, and these hold that too: a read of the CONTROL store inside
+    its own transaction is the compare-and-swap DB-3/5 asks for, so the qualification
+    grant and the transition chain are still read there.
+
+    THE SERVING INVOCATION IS COVERED ELSEWHERE, deliberately. `bind_context_invocation`
+    needs a submitted manifest and task bytes, which this disposable fixture does not
+    build and which no unit test here drives; the same boundary over the whole connected
+    scenario -- admission, binding and launch revalidation -- is
+    `tests/tools/test_correction_restart.py`
+    `TransactionBoundaryThroughTheConnectedPath`. A case asserting nothing because its
+    subject never ran would be worse than no case.
+    """
+
+    def observed(self):
+        """Wrap the transaction and the external readers, and record the nesting."""
+        import contextlib
+        from baton_v12.worker_manager import attempts, context_delivery, store
+
+        seen = {"external": [], "depth": [0]}
+
+        def watching(name, original):
+            def wrapper(*arguments, **keywords):
+                if seen["depth"][0]:
+                    seen["external"].append(name)
+                return original(*arguments, **keywords)
+            return wrapper
+
+        stack = contextlib.ExitStack()
+        original_transact = store.ControlStore.transact
+
+        def transact(this, operation_id, kind, signature, action):
+            def counted(connection):
+                seen["depth"][0] += 1
+                try:
+                    return action(connection)
+                finally:
+                    seen["depth"][0] -= 1
+            return original_transact(this, operation_id, kind, signature, counted)
+
+        stack.enter_context(mock.patch.object(store.ControlStore, "transact",
+                                             transact))
+        stack.enter_context(mock.patch.object(
+            context_delivery, "_open_absolute",
+            watching("_open_absolute", context_delivery._open_absolute)))
+        stack.enter_context(mock.patch.object(
+            context, "_job_attempt", watching("_job_attempt",
+                                              context._job_attempt)))
+        stack.enter_context(mock.patch.object(
+            attempts, "assignment_of", watching("attempts.assignment_of",
+                                                attempts.assignment_of)))
+        stack.enter_context(mock.patch.object(
+            self.port, "assignment_of",
+            watching("authority.assignment_of", self.port.assignment_of)))
+        self.addCleanup(stack.close)
+        return seen
+
+    def test_a_public_admission_reaches_nothing_external_under_the_lock(self):
+        seen = self.observed()
+        self.admit()
+        self.assertEqual(seen["external"], [], seen["external"])
+        # AND THE ADMISSION REALLY HAPPENED, so this is not an empty observation.
+        self.assertEqual(context.context_use_of(self.control,
+                                                self.attempt_id)["status"],
+                         "admitted")
+
+    def test_a_CANDIDATE_qualification_admission_holds_the_boundary(self):
+        """The case my first boundary test MISSED, and the reviewer found.
+
+        W236087 review 2026-09-29T19-50-38Z R1: a deterministic profile returns from
+        `_qualified` before it reaches `qualification_deployment`, so a successful
+        deterministic admission never exercised the two filesystem ancestry walks that
+        function performs. A candidate profile does reach them, and the reviewer observed
+        both under BEGIN IMMEDIATE. This drives that profile.
+
+        THE PRODUCTION BRANCH IS NOT DRIVEN HERE, and saying so is better than a case
+        that pretends to: it reaches the SAME `qualification_deployment(...)` call, now
+        fed by the same operand, and certifying a production profile needs a full accepted
+        continuity report with a retained provider result -- which this disposable fixture
+        does not build. The split is one call site and the candidate path proves it; a
+        production case belongs with the connected work, where a real report exists.
+        """
+        self.profile_digest = context.certify_context_profile(
+            self.control, profile(qualification="candidate"))["profile_digest"]
+        context.authorize_qualification_run(
+            self.control, run_id="boundary-candidate",
+            profile_digest=self.profile_digest, storage_path=str(self.private),
+            authority_uuid=UUID, job_id="context-job", note="boundary regression")
+        seen = self.observed()
+        self.admit()
+        self.assertEqual(seen["external"], [], seen["external"])
+        # AND THE GRANT REALLY WAS CONSUMED, so this is a qualified admission.
+        chain = context._history(self.control)
+        consumed = [one for chain_held in chain.values() for one in chain_held
+                    if one["action"] == "admit"]
+        self.assertEqual([one["payload"]["qualification_run"] for one in consumed],
+                         ["boundary-candidate"])
+
+    def test_the_DEPLOYMENT_COMPARISON_survives_becoming_an_operand(self):
+        """Moving the resolution out must not lose the comparison it feeds.
+
+        TWO ATTEMPTS AT THIS FAILED FIRST, and both failed because the system is tighter
+        than I assumed. Reconfiguring the workspace store is refused outright -- "a changed
+        store is a fresh store rather than a reconfiguration" -- and authorizing a grant
+        against a foreign storage path is refused at authorization: "qualification storage
+        differs from configured deployment". So no legitimate route from this fixture can
+        present `_qualified` with a deployment that disagrees.
+
+        WHAT IS ACTUALLY AT RISK is therefore the operand itself: a later change that drops
+        it would silently skip the comparison. This drives `_qualified` with a deployment
+        that disagrees and requires the refusal, which is the assertion that protects the
+        split.
+        """
+        self.profile_digest = context.certify_context_profile(
+            self.control, profile(qualification="candidate"))["profile_digest"]
+        context.authorize_qualification_run(
+            self.control, run_id="boundary-operand",
+            profile_digest=self.profile_digest, storage_path=str(self.private),
+            authority_uuid=UUID, job_id="context-job", note="boundary regression")
+        facts = context._facts(self.control, self.jobs, self.port, self.attempt_id,
+                               self.writer["writer_id"], self.profile_digest,
+                               live=True)
+        resolved = context.qualification_deployment(self.control, UUID)
+        held = context.context_profile_of(self.control, self.profile_digest)
+        owner = context._id("context", facts["identity"])
+        # THE HONEST OPERAND SELECTS THE GRANT.
+        self.assertEqual(context._qualified(self.control, self.jobs, facts, held, 0,
+                                            owner, resolved),
+                         "boundary-operand")
+        # A DISAGREEING ONE REFUSES, so the comparison is still made.
+        with self.assertRaises(ContractRefusal):
+            context._qualified(self.control, self.jobs, facts, held, 0, owner,
+                               dict(resolved, workspace_path="/somewhere/else"))
+
+    def test_a_REFUSING_admission_also_holds_the_boundary(self):
+        """The exception path, because that is where a lock is held longest."""
+        seen = self.observed()
+        with self.assertRaises(ContractRefusal):
+            self.admit(writer_id="writer-nobody-owns")
+        self.assertEqual(seen["external"], [], seen["external"])
+
+    def test_a_FINALIZED_use_is_judged_from_the_JOURNAL_without_the_filesystem(self):
+        """Review R2, at the split it created.
+
+        `context_use_of` is not a journal read: on a FINALIZED head it calls
+        `validate_generation`, which opens the private generation files. The binding's
+        commit used it for eligibility, so a finalized use seen at commit performed
+        filesystem validation under BEGIN IMMEDIATE before refusing -- the reviewer
+        observed exactly that with an isolated finalized probe.
+
+        `_journal_use` is the half the commit may ask. This holds both sides: the journal
+        answer is `ready` and touches nothing, and `context_use_of` still validates, so the
+        check was split rather than dropped.
+        """
+        from baton_v12.worker_manager import context_delivery
+
+        # THE RUNTIME MUST BE EXCLUDED BEFORE A GENERATION CAN FINALIZE -- "old runtime
+        # exclusion is unproved" is what my first version got, and `correction` is the
+        # existing helper that ends the runtime before finalizing. Reusing it is also how
+        # this case reaches a genuinely finalized use rather than a contrived one.
+        first, _state = self.state()
+        self.end_runtime(first)
+        self.finalize()
+
+        opened = []
+        original = context_delivery._open_absolute
+
+        def watching(*arguments, **keywords):
+            opened.append(arguments[0] if arguments else None)
+            return original(*arguments, **keywords)
+
+        with mock.patch.object(context_delivery, "_open_absolute", watching):
+            journal, _admitted, _owned = context._journal_use(self.control,
+                                                              self.attempt_id)
+        self.assertEqual(journal["status"], "ready")
+        self.assertEqual(opened, [], opened)
+
+        # AND THE VALIDATION IS STILL PERFORMED by the reader that always did it.
+        with mock.patch.object(context_delivery, "_open_absolute", watching):
+            self.assertEqual(context.context_use_of(self.control,
+                                                    self.attempt_id)["status"],
+                             "ready")
+        self.assertNotEqual(opened, [])
+
+    # THE LAUNCH FENCE IS NOT COVERED FROM HERE, and the case I wrote for it was
+    # VACUOUS. W236087 review 2026-09-29T20-10-41Z: it called
+    # `revalidate_context_start` without binding an invocation, so the refusal came
+    # from "serving use cannot start" -- binding `null`, ZERO `_facts` calls -- and it
+    # would have passed with an unchanged repository too. Removed rather than
+    # patched over.
+    #
+    # THE REAL PRELAUNCH FENCE EVIDENCE is
+    # `tests/manager/test_claude_context.py` `ServingBinding`, which has an actually
+    # bound invocation:
+    # `test_current_authority_change_between_preparation_and_start_refuses` changes the
+    # Authority assignment between preparation and start and observes the refusal with
+    # zero provider calls and zero engine starts, and
+    # `test_private_repository_change_between_preparation_and_start_refuses` does the
+    # same for the repository object this split moved out of the transaction.
+
+    def test_a_PRODUCTION_profile_without_certification_refuses_at_the_JOURNAL(self):
+        """The production branch's FIRST refusal, and nothing further. Named exactly.
+
+        Review 2026-09-29T20-10-41Z is right about what this does and does not reach: it
+        refuses at the certification journal, which is BEFORE the deployment comparison, and
+        it is driven OUTSIDE a transaction. So it covers the journal refusal and the operand
+        being accepted by that branch's signature -- NOT the production deployment
+        comparison, and not that branch under the lock.
+
+        THAT REMAINS AN HONEST LIMIT: reaching the comparison needs a recorded certification,
+        which needs a full accepted continuity report with a retained provider result, and
+        this disposable fixture builds none. It belongs with the connected work, where a real
+        report exists.
+        """
+        facts = context._facts(self.control, self.jobs, self.port, self.attempt_id,
+                               self.writer["writer_id"], self.profile_digest,
+                               live=True)
+        resolved = context.qualification_deployment(self.control, UUID)
+        held = dict(context.context_profile_of(self.control, self.profile_digest),
+                    qualification="production")
+        owner = context._id("context", facts["identity"])
+        with self.assertRaisesRegex(ContractRefusal, "lacks recorded certification"):
+            context._qualified(self.control, self.jobs, facts, held, 0, owner,
+                               resolved)
+
+    def test_a_REPEATED_admission_REPLAYS_onto_the_same_use(self):
+        """Replay is unchanged by the split: the durable reservation still decides.
+
+        NAMED FOR WHAT IT DRIVES. Review 2026-09-29T20-10-41Z: I called this an INTERRUPTED
+        request and it is a COMPLETED one replayed, which is a different property. The
+        interrupted-request path -- a crash between the journalled request and the
+        transition -- is covered by
+        `QualificationAdmissionRegression.test_grant_is_rechecked_inside_commit_and_request_restart`,
+        which refuses inside the commit and then reopens the store to replay the request,
+        and by `test_historical_admission_survives_restart_without_rewriting`.
+
+        What THIS holds is that a second admission of the same attempt answers the SAME use
+        rather than minting another, and writes no second admit operation.
+        """
+        first = self.admit()
+        operations = self.control._connection.execute(
+            "SELECT COUNT(*) AS held FROM operations WHERE kind = ?",
+            (context.TRANSITION_KIND,)).fetchone()["held"]
+        again = self.admit()
+        self.assertEqual(again, first)
+        self.assertEqual(
+            self.control._connection.execute(
+                "SELECT COUNT(*) AS held FROM operations WHERE kind = ?",
+                (context.TRANSITION_KIND,)).fetchone()["held"],
+            operations)
+
+    def test_UNRELATED_DB_PROGRESS_happens_WHILE_the_external_validation_runs(self):
+        """The point of moving the external reads out, proved CONCURRENTLY.
+
+        MY FIRST VERSION PROVED NOTHING. Review 2026-09-29T20-10-41Z: it used the SAME
+        connection after a wrong-writer refusal that happens BEFORE any transaction, so
+        there was never a lock to be blocked by.
+
+        THIS BLOCKS INSIDE THE REAL EXTERNAL VALIDATION -- `_facts`, the reading that used
+        to run under `BEGIN IMMEDIATE` -- and requires a SECOND ControlStore connection to
+        commit its own operation while that validation is pending. Under the old placement
+        this window was inside the write lock and the second connection could not commit.
+        Bounded by a timeout, so a regression fails rather than hanging.
+
+        AND IT IS NOT READ AS A GENERAL CLAIM. Review 2026-09-29T20-19-13Z: a positive
+        progress probe at ONE point does not prove where every later read sits. The
+        placement of the readings themselves is what the NESTING cases above measure --
+        `test_a_public_admission_reaches_nothing_external_under_the_lock`, the candidate
+        one, the refusing one and the connected
+        `TransactionBoundaryThroughTheConnectedPath`. This adds that the window it opens is
+        genuinely outside the lock, and no more.
+        """
+        import threading
+
+        holding = threading.Event()
+        release = threading.Event()
+        committed = []
+        original = context._facts
+
+        def blocking(*arguments, **keywords):
+            held = original(*arguments, **keywords)
+            holding.set()
+            # BOUNDED: a regression that never lets the other connection commit fails
+            # here rather than hanging the suite.
+            release.wait(timeout=10)
+            return held
+
+        def unrelated():
+            if not holding.wait(timeout=10):
+                return
+            other = ControlStore.open(self.path, incarnation="unrelated-progress",
+                                      clock=lambda: NOW)
+            try:
+                committed.append(other.transact(
+                    "operation-unrelated-progress",
+                    "provider-context.regression-probe",
+                    manager_signature("provider-context.regression-probe",
+                                      {"held": 1}),
+                    lambda connection: {"held": 1}))
+            finally:
+                other.close()
+                release.set()
+
+        worker = threading.Thread(target=unrelated)
+        worker.start()
+        try:
+            # THE BLOCKING READER IS ACTUALLY INSTALLED -- my first run defined it and
+            # never patched it in, so the admission never paused and the other
+            # connection had nothing to race.
+            with mock.patch.object(context, "_facts", blocking):
+                self.admit()
+        finally:
+            release.set()
+            worker.join(timeout=15)
+        self.assertFalse(worker.is_alive(), "the unrelated writer did not finish")
+        self.assertEqual(committed, [{"held": 1}],
+                         "an unrelated connection could not commit while the external "
+                         "validation was pending")
+        self.assertEqual(context.context_use_of(self.control,
+                                                self.attempt_id)["status"],
+                         "admitted")
+
+    def test_the_UNRELATED_PROGRESS_PROBE_can_detect_a_held_lock(self):
+        """The counter-check for the case above: the probe has teeth.
+
+        A concurrency case that would pass under the OLD placement proves nothing. This
+        blocks inside `control.transact`'s action -- where the external reading used to run
+        -- and requires that a second connection CANNOT commit while it is held. So the
+        previous case's success is evidence about the placement rather than about the probe.
+        """
+        import threading
+
+        from baton_v12.worker_manager import store
+
+        holding = threading.Event()
+        release = threading.Event()
+        blocked = []
+
+        def unrelated():
+            if not holding.wait(timeout=10):
+                return
+            other = ControlStore.open(self.path, incarnation="probe-teeth",
+                                      clock=lambda: NOW)
+            try:
+                other._connection.execute("BEGIN IMMEDIATE")
+                other._connection.rollback()
+                blocked.append(False)
+            except Exception:                                # noqa: BLE001
+                # ANY failure to begin, not a specific error class. Review
+                # 2026-09-29T20-19-13Z: describing this as a sqlite busy condition would
+                # claim more than the probe observes.
+                blocked.append(True)
+            finally:
+                other.close()
+                release.set()
+
+        worker = threading.Thread(target=unrelated)
+        worker.start()
+        original = store.ControlStore.transact
+
+        def holding_transact(this, operation_id, kind, signature, action):
+            def held(connection):
+                answer = action(connection)
+                holding.set()
+                release.wait(timeout=10)
+                return answer
+            return original(this, operation_id, kind, signature, held)
+
+        try:
+            with mock.patch.object(store.ControlStore, "transact", holding_transact):
+                self.admit()
+        finally:
+            release.set()
+            worker.join(timeout=15)
+        self.assertFalse(worker.is_alive())
+        self.assertEqual(blocked, [True],
+                         "a second connection committed while this store held "
+                         "BEGIN IMMEDIATE, so the probe above cannot detect the "
+                         "old placement")
+
+    def test_a_FAILED_FIRST_SAVE_claims_nothing_at_all(self):
+        """INITIAL-SAVE VISIBILITY, which is what this actually drives.
+
+        W236087 review 2026-09-29T20-25-55Z R2: I offered this as "preserve generation 0 on
+        failed save" and it fails the FIRST-EVER save, so there is no saved generation 0 to
+        preserve -- it holds that a failed opening save claims nothing, which is worth
+        having and is not the same property. The real one is
+        `test_a_SAVED_generation_0_SURVIVES_a_later_failed_save` below.
+        """
+        first, _state = self.state()
+        self.end_runtime(first)
+        with mock.patch.object(delivery, "seal_generation",
+                              side_effect=RuntimeError("injected save failure")):
+            with self.assertRaises(RuntimeError):
+                self.finalize()
+        held = context.context_use_of(self.control, self.attempt_id)
+        # NOT READY, and still the OPENING generation: a failed save is not reuse.
+        self.assertNotEqual(held["status"], "ready")
+        self.assertEqual(held["generation"], 0)
+        # AND NO FINALIZE TRANSITION WAS JOURNALLED.
+        chain = context._history(self.control, held["context_id"])
+        self.assertEqual([one["action"] for one in chain
+                          if one["action"] == "finalize"], [])
+
+    def test_a_SAVED_generation_0_SURVIVES_a_later_failed_save(self):
+        """The property item 2 names, on the fixture the review pointed at.
+
+        THE FIXTURE BLOCKER WAS RESOLVED BY THE REVIEWER, and it is worth recording what it
+        was: `ContextCase.end_runtime` hardcodes `mode: open` in the receipt it rebuilds, so
+        finalizing a RESTORED use refused at `_receipt` -- "receipt does not prove this
+        healthy invocation". The restored use needs
+        `end_runtime(first, receipt_changes={"mode": "restore"})`.
+
+        Generation 0 is SAVED and its identity and bytes captured; a fresh restored use then
+        fails its own save; and the saved generation 0 must still be there, unchanged and
+        valid, with NO successful new generation.
+        """
+        from baton_v12.worker_manager import context_delivery as custody
+
+        # THE OPENING GENERATION IS SAVED, through the existing correction helper.
+        self.correction()
+        opening = [one for chain in context._history(self.control).values()
+                   for one in chain if one["action"] == "finalize"]
+        self.assertEqual(len(opening), 1, "the opening generation was not saved")
+        saved, context_id = opening[0]["payload"], opening[0]["context_id"]
+        storage = custody.configured_context_storage(self.control)
+        # ITS IDENTITY AND ITS BYTES, captured before anything else happens.
+        custody.validate_generation(self.control, storage, context_id, saved)
+        # THE BYTES WHERE THEY ACTUALLY ARE. My first version guessed
+        # `<storage>/<context>/<generation>` and found an empty directory; the generation's
+        # own state lives under the profile's state path inside it, so this walks the whole
+        # context subtree rather than one level of it.
+        owner = pathlib.Path(storage.path) / context_id
+        before = {str(one.relative_to(owner)): one.read_bytes()
+                  for one in sorted(owner.rglob("*")) if one.is_file()}
+        self.assertTrue(before, owner)
+
+        # THE RESTORED USE'S OWN SAVE FAILS.
+        restored, _state = self.state()
+        self.end_runtime(restored, receipt_changes={"mode": "restore"})
+        with mock.patch.object(delivery, "seal_generation",
+                              side_effect=RuntimeError("injected later save failure")):
+            with self.assertRaises(RuntimeError):
+                self.finalize()
+
+        # NO NEW SUCCESSFUL GENERATION, and the saved one is byte-for-byte intact.
+        after = [one for chain in context._history(self.control).values()
+                 for one in chain if one["action"] == "finalize"]
+        self.assertEqual([one["payload"] for one in after], [saved])
+        custody.validate_generation(self.control, storage, context_id, saved)
+        now = {str(one.relative_to(owner)): one.read_bytes()
+               for one in sorted(owner.rglob("*")) if one.is_file()}
+        # THE SAVED GENERATION'S OWN BYTES ARE UNCHANGED, member for member.
+        self.assertEqual({name: now.get(name) for name in before}, before)
+        # THE FAILED USE'S OWN MATERIAL MAY STAND BESIDE IT, and does: the restored use's
+        # `uses/...` state is still there. That is the preservation policy rather than a
+        # regression -- a failed save deletes nothing -- and it is NOT a new generation,
+        # which the journal assertion above is what rules out.
+        appeared = sorted(set(now) - set(before))
+        self.assertTrue(all(one.startswith("uses/") for one in appeared), appeared)
+
+    def test_the_SAME_STORE_comparison_is_still_made_inside(self):
+        """`_qualified` and the transition chain are this store's own rows.
+
+        Moving them out would lose the compare-and-swap, so this asserts they are
+        still read under the lock -- the opposite of the assertion above, on purpose.
+        """
+        import contextlib
+        from baton_v12.worker_manager import store
+
+        inside = {"qualified": 0, "history": 0, "depth": [0]}
+        original_transact = store.ControlStore.transact
+
+        def transact(this, operation_id, kind, signature, action):
+            def counted(connection):
+                inside["depth"][0] += 1
+                try:
+                    return action(connection)
+                finally:
+                    inside["depth"][0] -= 1
+            return original_transact(this, operation_id, kind, signature, counted)
+
+        def watching(name, original):
+            def wrapper(*arguments, **keywords):
+                if inside["depth"][0]:
+                    inside[name] += 1
+                return original(*arguments, **keywords)
+            return wrapper
+
+        with contextlib.ExitStack() as stack:
+            stack.enter_context(mock.patch.object(store.ControlStore, "transact",
+                                                  transact))
+            stack.enter_context(mock.patch.object(
+                context, "_qualified", watching("qualified",
+                                                context._qualified)))
+            stack.enter_context(mock.patch.object(
+                context, "_history", watching("history", context._history)))
+            self.admit()
+        self.assertGreaterEqual(inside["qualified"], 1)
+        self.assertGreaterEqual(inside["history"], 1)
+
 class QualificationAdmissionRegression(ContextCase):
     def candidate(self):
         self.profile_digest = context.certify_context_profile(self.control, profile(qualification="candidate"))["profile_digest"]
@@ -841,11 +1352,15 @@ class QualificationAdmissionRegression(ContextCase):
         self.candidate()
         original = context._qualified
         seen = []
-        def consumed(control, jobs, facts, held, generation, owner):
+        # `deployment` IS NOW AN OPERAND. W236087 review 2026-09-29T19-50-38Z R1:
+        # `_qualified` reached `qualification_deployment`, which walks two filesystem
+        # ancestries, from inside the transaction. The caller resolves it outside and
+        # passes it; this stub takes it and forwards it unchanged.
+        def consumed(control, jobs, facts, held, generation, owner, deployment=None):
             seen.append(control._connection.in_transaction)
             if control._connection.in_transaction:
                 context._refuse("candidate profile has no live qualification grant for this deployment and Job")
-            return original(control, jobs, facts, held, generation, owner)
+            return original(control, jobs, facts, held, generation, owner, deployment)
         with mock.patch.object(context, "_qualified", side_effect=consumed):
             with self.assertRaisesRegex(ContractRefusal, "no live qualification grant"):
                 self.admit()

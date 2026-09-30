@@ -1,0 +1,11 @@
+{
+  "child_results": [
+    {
+      "returncode": 1,
+      "stdout": "None",
+      "stderr": "None"
+    }
+  ],
+  "outcome": "failed-or-unknown",
+  "stopped": "exceptional"
+}

@@ -1,0 +1,150 @@
+{
+  "claim": 311743,
+  "commands": [
+    {
+      "command": [
+        "python3",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_packet.py",
+        "stage",
+        "--selections",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/SELECTIONS-RESOLVED-311743.json",
+        "--destination",
+        "/home/sl/baton-instances/managed-correction-309356-packet-311743",
+        "--claim",
+        "311743",
+        "--provenance",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/PROVENANCE-309356.json"
+      ],
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/home/sl/src/baton/v12/python/src:/home/sl/src/baton/v12/python"
+      },
+      "step": 0,
+      "what": "STAGE: write the input documents and COPY the modules and frozen resources this run will import, measuring every one. Refuses before it writes, refuses a staged tree that does not import, and refuses a staging root whose parent holds the instance."
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "tools.bootstrap",
+        "--inputs",
+        "/home/sl/baton-instances/managed-correction-309356-packet-311743/bootstrap-inputs.json",
+        "--destination",
+        "/home/sl/baton-instances/managed-correction-309356",
+        "--distro",
+        "/home/sl/baton-runs/managed-correction-236087/build/stack/out/distro",
+        "--no-repositories"
+      ],
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/home/sl/baton-staging/managed-correction-309356-source/manager-source/src:/home/sl/baton-staging/managed-correction-309356-source/manager-source"
+      },
+      "step": 1,
+      "what": "the instance, from the accepted runtime. Installs; starts nothing."
+    },
+    {
+      "command": [
+        "python3",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_packet.py",
+        "prepare-work",
+        "--selections",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/SELECTIONS-RESOLVED-311743.json",
+        "--destination",
+        "/home/sl/baton-instances/managed-correction-309356-packet-311743"
+      ],
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/home/sl/baton-staging/managed-correction-309356-source/manager-source/src:/home/sl/baton-staging/managed-correction-309356-source/manager-source"
+      },
+      "step": 2,
+      "what": "the Authority acts this Job needs: create the Work under the assignment contract, register the impl, rview and integration route handlers, grant the four receipt capabilities in the Work's own scope, and set the canonical target. Journalled under a derived identity, so a repeat replays."
+    },
+    {
+      "command": [
+        "python3",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_packet.py",
+        "bind",
+        "--selections",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/SELECTIONS-RESOLVED-311743.json",
+        "--destination",
+        "/home/sl/baton-instances/managed-correction-309356-packet-311743",
+        "--claim",
+        "311743",
+        "--provenance",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/PROVENANCE-309356.json"
+      ],
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/home/sl/baton-staging/managed-correction-309356-source/manager-source/src:/home/sl/baton-staging/managed-correction-309356-source/manager-source"
+      },
+      "step": 3,
+      "what": "bind the packet to what the instance ACTUALLY holds: the emitted deployment configuration, the Authority identity the bootstrap minted and the staged modules as copied. Opens no store."
+    },
+    {
+      "command": [
+        "python3",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_packet.py",
+        "check",
+        "--packet",
+        "/home/sl/baton-instances/managed-correction-309356-packet-311743/packet.json"
+      ],
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/home/sl/baton-staging/managed-correction-309356-source/manager-source/src:/home/sl/baton-staging/managed-correction-309356-source/manager-source"
+      },
+      "step": 4,
+      "what": "prove the packet against the tree, with the real product validators over the STAGED imports. Opens no store; refuses on any drift."
+    },
+    {
+      "command": [
+        "python3",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_supervisor.py",
+        "--packet",
+        "/home/sl/baton-instances/managed-correction-309356-packet-311743/packet.json"
+      ],
+      "environment": {
+        "BATON_V12_STAGE_EXECUTION_CONFIG": "/home/sl/baton-instances/managed-correction-309356-packet-311743/deployment.json",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/home/sl/baton-staging/managed-correction-309356-source/manager-source/src:/home/sl/baton-staging/managed-correction-309356-source/manager-source"
+      },
+      "step": 5,
+      "what": "serve it, BOUNDED, in the foreground. This one command performs the owner acts first -- the workspace and private context storage, the candidate profile's certification and ONE qualification grant, each journalled under an identity derived from its own operands, so repeating it replays rather than composing a second grant -- and then serves. It holds the 900s total with 60s reserved INSIDE it, caps the invocations at the gate, stops on the first terminal state and retains the outcome even when interrupted."
+    },
+    {
+      "command": [
+        "python3",
+        "-c",
+        "import json,sys;print(json.dumps(json.load(open(sys.argv[1])), indent=2, sort_keys=True))",
+        "/home/sl/baton-instances/managed-correction-309356/run/outcome.json"
+      ],
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "step": 7,
+      "what": "the result, after the supervisor returns. The outcome document is the run's own answer."
+    }
+  ],
+  "commands_pending": [
+    {
+      "resolver": [
+        "python3",
+        "-c",
+        "import json,sys;print(json.load(open(sys.argv[1]))['authority_uuid'])",
+        "/home/sl/baton-instances/managed-correction-309356/bootstrap.json"
+      ],
+      "step": 6,
+      "why": "needs the Authority identity `tools.bootstrap` mints at step 1. `bind` writes the complete command into commands.json once it has read it."
+    }
+  ],
+  "destination": "/home/sl/baton-instances/managed-correction-309356-packet-311743",
+  "schema": "baton.managed-correction-run-commands/2",
+  "selections": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/SELECTIONS-RESOLVED-311743.json",
+  "stop_on_first_error": "every step's exit status is checked; the sequence stops at the first non-zero. The shell form in OPERATOR-311743.md uses `set -e` and `set -o pipefail`.",
+  "supersedes": "RUN-COMMANDS-311606.json",
+  "why_superseded": [
+    "the staged source lacked the frozen schema assets `baton_v12.contracts.frozen` reads at import time, so step 1 failed and steps 2-4 then failed for want of what it never wrote (owner report 311736)",
+    "the staging root was a SIBLING of the instance under /home/sl/baton-instances, so the tree the staged code answers as its checkout CONTAINED the instance and `bootstrap.admit` refuses that destination -- step 1 could not have succeeded whatever the assets did (measured under claim 311743 by running the real bootstrap)",
+    "`stage` itself was not in the sequence, and it ran with no PYTHONPATH"
+  ],
+  "work": "W236087"
+}

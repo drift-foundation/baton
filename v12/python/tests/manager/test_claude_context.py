@@ -227,6 +227,65 @@ class ServingBinding(ServingContextCase):
         self.assertEqual(context.context_invocation_of(control, fenced[0]), binding)
         self.assertEqual(len(self.engine.starts), 0)
 
+    def test_private_repository_change_between_preparation_and_start_refuses(self):
+        """The prelaunch fence for the fact W236087 moved OUT of the admission transaction.
+
+        The owner reading -- `_facts`, which walks the line's private repository ancestry --
+        is taken before `control.transact` opens now, and that is only safe because a change
+        landing afterwards is refused BEFORE a runtime starts. This is the authority-change
+        case above, applied to the repository object instead: it moves the line's private
+        object between preparation and start and requires the refusal, with a REAL bound
+        invocation (the case I first wrote in `test_provider_context.py` never bound one and
+        refused for that reason instead, proving nothing).
+        """
+        from baton_v12.worker_manager import review_cycles
+
+        job, control, composed = self.serving()
+        submit(job, self.submission)
+        original = stage_execution.StageComposition.revalidate_context
+        fenced = []
+        moved = []
+        refusals = []
+
+        def changed(stage, worker, held):
+            if not moved:
+                writer = review_cycles.writer_for_attempt(
+                    control, attempt_id=held["attempt_id"], generation=1)
+                line = review_cycles.line_of(control, writer["line_id"])
+                place = Path(line["line_path"])
+                aside = place.with_name(place.name + "-moved")
+                place.rename(aside)
+                moved.append((aside, place))
+            fenced.append(held["attempt_id"])
+            # THE REFUSAL IS ATTRIBUTED, not inferred from nothing starting: the reason
+            # is recorded here and asserted below, so a fence that refused for some
+            # other cause would not satisfy this case.
+            try:
+                return original(stage, worker, held)
+            except ContractRefusal as refused:
+                refusals.append(str(refused))
+                raise
+
+        self.addCleanup(lambda: [aside.rename(place) for aside, place in moved
+                                 if aside.exists()])
+        with mock.patch.object(stage_execution.StageComposition,
+                               "revalidate_context", changed):
+            for unused in range(5):
+                sweep(job, composed, now=fixtures.NOW)
+                if fenced:
+                    break
+        self.assertEqual(len(fenced), 1)
+        # NOTHING STARTED, and the binding this run had already committed stands.
+        self.assertEqual(self.calls_count(), 0)
+        self.assertEqual(len(self.engine.starts), 0)
+        self.assertIsNotNone(context.context_invocation_of(control, fenced[0]))
+        # AND IT REFUSED FOR THE REASON THIS CASE MOVED.
+        self.assertTrue(refusals, "the prelaunch fence did not refuse")
+        # THE MEASURED REASON, not the one I guessed. Renaming the object away makes its
+        # ancestry unopenable, so the fence reports that before it can compare the pin --
+        # an earlier refusal on the same axis, and the one this move actually produces.
+        self.assertIn("directory ancestry is inaccessible or replaced", refusals[0])
+
     def test_real_composition_binds_exact_task_prompt_argv_and_adoption(self):
         import claude_agent
         job, control, composed, attempt, roots = self.started()
@@ -477,7 +536,23 @@ class ServingEnding(ServingContextCase):
         with patch:
             self.fault_tick(job, composed)
         self.assertIsNone(self.record(job, attempt)["settlement"])
-        self.assertFalse(Path(roots["inputs"]).exists())
+        # THE WORKSPACE IS PRESERVED, WHICH IS WHAT THIS PATH PROMISES. W236087 review
+        # 2026-09-29T20-04-01Z: this asserted the inputs root was ABSENT, and that
+        # expectation is obsolete against DESIGN ART-7 and the selected completion path in
+        # `intake.py` -- "the workspace is preserved as is", "no container is created or
+        # started, no permission is changed and NOTHING IS DELETED". An injected manager
+        # loss is exactly a failure, and a failure preserves.
+        #
+        # SO THE EXPECTATION IS EXPLICIT PRESERVATION rather than absence, and it is NOT
+        # inferred from the no-re-materialization assertion below: the review is right that
+        # `SingleWorker`'s historical-ending branch deliberately works without live roots,
+        # so that assertion could hold either way. The basis is the preservation policy.
+        preserved = Path(roots["inputs"])
+        self.assertTrue(preserved.is_dir(), preserved)
+        self.assertEqual(sorted(one.name for one in preserved.iterdir()),
+                         ["assignment.json", "input.json", "source", "task.json"])
+        # AND THE MATERIAL IS THE MATERIAL, not an empty shell left behind.
+        self.assertTrue((preserved / "task.json").read_bytes())
         self.assertEqual(self.calls_count(), 1)
         starts = len(self.engine.starts)
         job, control, composed = self.reopen(job, control, composed)

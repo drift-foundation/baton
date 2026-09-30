@@ -1,0 +1,5 @@
+{
+  "verification.txt": "no verification was attempted\n",
+  "result.json": "{\n \"base\": \"efc3e0f0b6eeb895eb338e79613171f5bc837949\",\n \"changed_paths\": [],\n \"collection\": null,\n \"disposition\": \"provider-failed\",\n \"entry_head\": \"efc3e0f0b6eeb895eb338e79613171f5bc837949\",\n \"head\": null,\n \"provider\": {\n  \"failure_reason\": \"start-error\",\n  \"seconds_bound\": 3600,\n  \"status\": 1\n },\n \"schema\": \"baton.dogfood-proposal/2\",\n \"task_id\": \"a-job-a\",\n \"verification\": null,\n \"why\": \"provider context terminal identity is unproved\"\n}\n",
+  "change.patch": ""
+}

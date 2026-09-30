@@ -1,0 +1,83 @@
+{
+  "hash_matches": {
+    "PACKET-309356.md": true,
+    "PROGRESS.md": true,
+    "SELECTIONS-309356.json": true,
+    "connected_packet_trace.py": true,
+    "correction_packet.py": true,
+    "test_correction_packet.py": true,
+    "correction_supervisor.py": true,
+    "test_connected_packet.py": true
+  },
+  "tests": {
+    "count": 147,
+    "seconds": 10.425,
+    "result": "PASS"
+  },
+  "unrelated_same_contract_work_accepted": {
+    "authority_store": "/tmp/correction-packet-p_dl_222/instances/managed-correction-test/db/authority.sqlite3",
+    "authority_uuid": "cf36ac2dc0f6414f9bcccff1cf4ef9a1",
+    "canonical_target": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "created": false,
+    "granted": [
+      {
+        "capability": "verify",
+        "participant": "baton.verifier"
+      },
+      {
+        "capability": "review",
+        "participant": "baton.approver-review"
+      },
+      {
+        "capability": "approve",
+        "participant": "baton.approver"
+      },
+      {
+        "capability": "integrate",
+        "participant": "baton.integrator"
+      }
+    ],
+    "record": "/tmp/correction-packet-p_dl_222/packet/prepared-work.json",
+    "route_handlers": {
+      "impl": "baton.claude",
+      "integration": "baton.integrator",
+      "rview": "baton.codxpc"
+    },
+    "scope": "scope:unrelated",
+    "work_id": "cf36ac2d-W236087"
+  },
+  "changed_base_accepted_as_replay": {
+    "authority_store": "/tmp/correction-packet-p_dl_222/instances/managed-correction-test/db/authority.sqlite3",
+    "authority_uuid": "cf36ac2dc0f6414f9bcccff1cf4ef9a1",
+    "canonical_target": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "created": false,
+    "granted": [
+      {
+        "capability": "verify",
+        "participant": "baton.verifier"
+      },
+      {
+        "capability": "review",
+        "participant": "baton.approver-review"
+      },
+      {
+        "capability": "approve",
+        "participant": "baton.approver"
+      },
+      {
+        "capability": "integrate",
+        "participant": "baton.integrator"
+      }
+    ],
+    "record": "/tmp/correction-packet-p_dl_222/packet/prepared-work.json",
+    "route_handlers": {
+      "impl": "baton.claude",
+      "integration": "baton.integrator",
+      "rview": "baton.codxpc"
+    },
+    "scope": "scope:unrelated",
+    "work_id": "cf36ac2d-W236087"
+  },
+  "scope": "Disposable Authority only; no deployed resources. Existing same-contract Work with unrelated creation identity/scope was absorbed; changed base accepted.",
+  "probe_note": "Initial unrelated-scope spelling refused before creation; corrected to valid scope:unrelated."
+}

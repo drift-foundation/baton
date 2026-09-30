@@ -1,0 +1,82 @@
+{
+  "work": "W236087",
+  "claim": 308641,
+  "participant": "baton.claude",
+  "answering": "owner reroute 308630 - implementation reassigned from baton.tuner to baton.claude",
+  "ownership_pinned_before_edits": {
+    "where": [
+      "FINDING.md (075ef493186d)",
+      "PLAN.md (bdc26342d56f)"
+    ],
+    "preserved_untouched": [
+      "PREPARATION-307667.md",
+      "the E307708 scope",
+      "RESEARCH-307667.json",
+      "SOURCE-307667.json",
+      "the review journals",
+      "every historical author artifact"
+    ]
+  },
+  "pinned_decisions_revalidated": {
+    "how": "every digest in SOURCE-307667.json compared against the current tree",
+    "result": "all match byte for byte",
+    "digests": {
+      "provider_context.py": "f7df4ff84813 (before this change)",
+      "context_delivery.py": "f17ce3c53e52",
+      "store.py": "3d44991274f7",
+      "tools/single_worker.py": "12a9e6a54b25",
+      "tools/stage_execution.py": "38c4cf74db02"
+    }
+  },
+  "acceptance_item_1_the_defect": "_transition's check and bind_context_invocation's commit both called _facts from inside control.transact's BEGIN IMMEDIATE; _facts reads Job-store rows, asks the Authority and walks two filesystem ancestries with context_delivery._open_absolute. DESIGN DB-1 forbids the cross-store read and DB-2/4 forbid holding for the I/O",
+  "the_correction": {
+    "moved_out": "_facts only, as _owner_facts, read before the transaction opens; the in-transaction check compares the gathered values in memory",
+    "stayed_in": "the qualification selection and the transition chain - _qualified and _history read only the control store's own journal families, so inside their own transaction they ARE the compare-and-swap DB-3/5 asks for",
+    "freshness": "the durable journalled request, the revision compare-and-swap, and revalidate_context_start which re-derives the same facts outside any transaction before a runtime may start",
+    "my_first_attempt_was_wrong": "it moved _qualified out too, and two QualificationAdmissionRegression cases failed - they protect exactly that same-store comparison. I reverted to the pinned bytes to measure the baseline before deciding, then re-applied with the narrower split"
+  },
+  "evidence": {
+    "baseline_on_the_pinned_bytes": {
+      "tests": 158,
+      "failures": 3,
+      "which": "ServingEnding.test_reopen_* in test_claude_context.py, all three at assertFalse(Path(roots['inputs']).exists()) answering True is not false",
+      "attribution": "PRE-EXISTING and not caused by this change; recorded as an observation, not fixed here"
+    },
+    "after_the_correction": {
+      "tests": 178,
+      "failures": 3,
+      "seconds": 61.494,
+      "which": "the same three, and nothing else"
+    },
+    "counter_check": "with the new cases in place and provider_context.py reverted to the pinned bytes, both boundary cases FAIL and name the readers: ['_job_attempt', '_open_absolute', 'attempts.assignment_of'] inside the transaction",
+    "new_cases": {
+      "tests/manager/test_provider_context.py TransactionBoundaryRegression": [
+        "a public admission reaches nothing external under the lock, and really admits",
+        "a REFUSING admission holds the same boundary",
+        "the same-store comparison is still made inside - the opposite assertion, on purpose, so a future simplification that moves _qualified out fails here"
+      ],
+      "tests/tools/test_correction_restart.py TransactionBoundaryThroughTheConnectedPath": "the same rule over the whole scenario that trace drives - open, save, exact stop, changes-requested correction, restore - where bind_context_invocation and revalidate_context_start actually run, validating the scenario artifact so an empty observation cannot come from an empty run"
+    },
+    "a_case_i_wrote_and_removed": "a unit binding case in test_provider_context.py: bind_context_invocation needs a submitted manifest and task bytes that fixture does not build, so it errored rather than asserted. The connected case covers that path and the class docstring says so"
+  },
+  "not_delivered_in_this_claim": [
+    "acceptance item 2: the connected open/save/stop/review/correction sequence as a delivered proof with attribution",
+    "acceptance item 3: the digest-bound executable packet"
+  ],
+  "files": {
+    "v12/python/src/baton_v12/worker_manager/provider_context.py": "774ce77e789f",
+    "v12/python/tests/manager/test_provider_context.py": "a86981ce0264",
+    "v12/python/tests/tools/test_correction_restart.py": "8614636f9972",
+    "work/records/2026/09/finding-v12-managed-session-resume/FINDING.md": "075ef493186d",
+    "work/records/2026/09/finding-v12-managed-session-resume/PLAN.md": "bdc26342d56f",
+    "v12/python/src/baton_v12/worker_manager/context_delivery.py": "f17ce3c53e52 (unchanged)"
+  },
+  "not_done": [
+    "no live execution, deployment change or credential operation",
+    "no DESIGN edit and no specification decision taken",
+    "no edit to W306614-owned files or the W247941 accepted packet",
+    "no frozen snapshot or installed image touched",
+    "no graph or Git mutation"
+  ],
+  "ready_for": "independent review"
+}

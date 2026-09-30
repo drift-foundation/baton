@@ -1,0 +1,41 @@
+{
+  "work": "W236087",
+  "claim": 309162,
+  "answering": "review 309159 (claim 309137) - retain the proven token boundaries in the trace and complete the negatives",
+  "no_product_change": true,
+  "the_blocker_was_resolved_by_the_reviewer": {
+    "what_i_could_not_derive": "generation_of's execution/operation pair",
+    "the_answer": "they come straight out of acquire - not from a container name and not from an assignment generation",
+    "their_evidence": "TOKEN-RESEARCH-309137-followup.json: wrappers around the real tokens.acquire capture the reservation as the acquisition answers it (domain workspace:66306:19041257, generation 1 with operation runtime.start:50f34424, generation 2 with runtime.start:7bd829df), and a wrapper around admit_activation reads token_of for every captured reservation immediately BEFORE the activation is admitted"
+  },
+  "now_in_the_trace": {
+    "instrumentation": "setUp installs both read-only wrappers; the artifact carries tokens.reservations and tokens.boundaries",
+    "validate_requires_at_the_restored_activation_boundary": [
+      "C1-token-returned-before-activation: the opening token is returned - the ORDERING the runtime checks never made",
+      "C1-token-new-not-returned and C1-token-new-not-activated: the restored token is neither",
+      "C1-token-distinct: one domain, distinct generations and distinct reserving operations",
+      "C1-token-attribution: each reservation attributed to its own execution"
+    ]
+  },
+  "three_negatives": [
+    "an UNRETURNED opening token at the restored activation",
+    "an ALREADY-ACTIVATED new token",
+    "a restored reservation reusing the opening generation and operation"
+  ],
+  "my_own_slip": "one negative failed first because I assumed reservations[1] was the restored one; the list is whatever the run acquired in order, so it now selects by execution",
+  "verification": {
+    "tests": 193,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 66.989
+  },
+  "still_owed": [
+    "the simulated-candidate/verdict labelling pass",
+    "item 3: the digest-bound executable packet"
+  ],
+  "unproved": [
+    "the production deployment comparison",
+    "actual production restore"
+  ],
+  "ready_for": "independent review"
+}

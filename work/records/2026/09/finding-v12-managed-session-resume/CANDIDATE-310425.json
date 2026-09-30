@@ -1,0 +1,65 @@
+{
+  "answering": "review-2026-09-29T23-40-17Z.md (pass 310422)",
+  "cases": {
+    "changed_base": "refused; the first preparation's target and grants stand",
+    "changed_participant": "refused; same measurement",
+    "exact_replay": true,
+    "fresh_creation": true,
+    "identity_changes_with_each_operand": true,
+    "partial_preparation_recovered": "the Work created under this preparation's own identity and nothing else done, then the same command completes it",
+    "unrelated_same_contract_work": "refused; target and all four participants' capabilities read back before and after and asserted identical"
+  },
+  "changed_files": {
+    "PACKET-309356.md": "51b4f6bc5335a6004a715c737cd8c5c7a13d95f08e22a055cd3ddeda8ee6b83b",
+    "PROGRESS.md": "f393765c826603675517b85ece8b3700a252af7bcf6febac7239f795ae6f1745",
+    "connected_packet_trace.py": "659a070a01d3a950e69df5f23bf28d53562922556b1f929943718592b4149337",
+    "correction_packet.py": "8eff31f5ba6fd707ba95ad1ba37af9342ec80a12fc02e29572cbdde69ca51cb6",
+    "test_connected_packet.py": "2ab121fa7f2dbd60f131a72395e3345fef2910c0935d8cefc3d7370e7fe5a06d",
+    "test_correction_packet.py": "b29e35dd6f6af110cfc1876006426668dfbbf7da49264cb0eb2a322b1d6a0511"
+  },
+  "claim": 310425,
+  "connected_fixture": "no longer adopts the World's W1. It prepares W236087, ABSENT from that Authority until prepare_work creates it, under the derived identity -- so the connected proof exercises the FRESH path and the CLI cases exercise replay and collision separately.",
+  "participant": "baton.claude",
+  "product_files_changed": [],
+  "schema": "baton.candidate/1",
+  "subject": "the preparation is bound to its OPERAND identity through the product's own journalled gate: an unrelated same-contract Work and a changed replay are refused before any grant or policy change, exact replay still finishes a partial preparation, and the connected fixture no longer adopts the World's Work. 152 cases pass.",
+  "the_correction": {
+    "durable_record": "the record carries operation_id and the exact operands so a replay can be verified rather than trusted",
+    "gate_decides": "create_work is called UNCONDITIONALLY; it replays this act under its journalled operation_id and refuses a name reached under any other",
+    "identity_derived_from_operands": "preparation_identity digests the Work id, contract, canonical target, three route handlers and three receipt writers with the product's own contracts.digest, so changed inputs are a different act",
+    "refusal_first": "nothing is granted and no policy is set until the gate admits the act"
+  },
+  "the_defect": "prepare_work SKIPPED create_work for ANY existing same-contract Work, then granted four capabilities in that Work's scope and set the global canonical target. The reviewer's reproduction created W236087 under unrelated-original-creation with scope:unrelated and the preparation adopted it; a changed declared base was also accepted as a replay. Skipping creation bypassed the product's collision gate, and my test covered only a different CONTRACT.",
+  "unchanged_this_claim": {
+    "SELECTIONS-309356.json": "52cbb7894d74f6eef9d18e43200b14aa4512e1a4aaf15cfd0d08aa55d1567129",
+    "correction_supervisor.py": "e73b0aa96cac3d5d3a14e974e2b044c484941610c602eff3945183bcfed1bbd9"
+  },
+  "unresolved": {
+    "actual_live_restore": "unproved",
+    "boundary_failure": "UNKNOWN, no cause claimed, not waived",
+    "production_comparison": "unproved",
+    "still_simulated": "tools.bootstrap itself is not run; the engine, provider and reviewer dispositions are simulated and labelled"
+  },
+  "verification": {
+    "breakdown": {
+      "connected": 11,
+      "packet_bounds_template_cli": 141
+    },
+    "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=<checkout>/v12/python/src:<checkout>/v12/python python -B -m unittest test_correction_packet test_connected_packet",
+    "cwd": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume",
+    "errors": 0,
+    "failures": 0,
+    "mutations_checked": {
+      "caught": 16,
+      "missed": 0,
+      "total": 16
+    },
+    "seconds": [
+      10.47,
+      10.514
+    ],
+    "tests": 152,
+    "touched_nothing_deployed": "no live bootstrap, provider or engine; no DEPLOYED store, grant or credential; no version-control or graph act"
+  },
+  "work": "W236087"
+}

@@ -1,0 +1,74 @@
+{
+  "answering": "review-2026-09-29T22-15-01Z.md (pass 309802)",
+  "changed_files": {
+    "PACKET-309356.md": "485d0111d9b9cbc7146e6374c3b68c0f803a82397fe38947907c83d5aadb89d5",
+    "PROGRESS.md": "bf0b79232bbdd9965c772f242557f73e3d775de86bbb4007e75b29503ab41079",
+    "correction_packet.py": "80120665be5f5696cef19ed54a39e5aeb41c7e6b91275341572f7a8ff6002011",
+    "test_correction_packet.py": "b75138ea3a0f73f72e64c443c9eedd437ce3a499a5c4f9ad21c4ab8eaf399b36"
+  },
+  "claim": 309811,
+  "connected_proof_operands_measured_this_claim": {
+    "1_qualification": "the World's context profile is `deterministic`; this packet requires `candidate`, admissible only under the live one-run authorization baseline.prepare mints. The connected case must run the packet's own preparation.",
+    "2_stages": "the World's submission has three stages (implementation, review, integration); this packet submits two. Submit the packet's submission; the integration/judgment machinery is outside this workload.",
+    "3_paths": "point the selections at the World's root, source, storage, private-contexts and checkout rather than inventing a second world; the generator is parameterized for exactly this.",
+    "vehicle": "tests/tools/correction_restart_trace.World -- real disposable stores, real provider child, simulated OCI engine at the normal boundary, real stage_execution.operations_from, and review(held, disposition) recording canonical attachments/verdicts through review_cycles"
+  },
+  "delivered": {
+    "enclosing_composition_reading": "stage_execution.held_configuration is driven at the generated deployment in bind and in held_packet. It refused the first composition: a /1 deployment binds one Job through its own members and names no job_bindings. Fixed, and proved to be the packet's own check by an after-bind negative that re-pins the bytes."
+  },
+  "not_delivered": {
+    "connected_proof": "no case yet submits this packet's submission into real disposable stores, composes the generated deployment through operations_from, drives this packet's supervisor, and asserts accepted-without-correction / correction+restore / rejected / failure-interrupt against canonical attachments, verdicts and positive cleanup accounting",
+    "reason": "turn budget, not a blocker. The vehicle and the operands are established below."
+  },
+  "participant": "baton.claude",
+  "product_files_changed": [],
+  "reused_unmodified_and_pinned": {
+    "baseline.py": "248e570d8f9d459550b0aa5e92d1674c3226fe540ba987cae916a4a334606771",
+    "prepare_two_jobs.py": "2c54a5d85e1d999d051e52b5c793c9a9578b241161fa73e9a577a61a60abdc82"
+  },
+  "schema": "baton.candidate/1",
+  "subject": "the enclosing composition reading is driven at the generated deployment and found a real fault; the connected deterministic proof is scoped with three measured operands but NOT run. Item 3 remains incomplete.",
+  "unchanged_this_claim": {
+    "correction_supervisor.py": "9ba32576c245522c5e39186bd4bb39d97ed1b3d1ff6092264334641be56cfab0"
+  },
+  "unresolved": {
+    "actual_restore": "unproved; no live run selected",
+    "boundary_failure": "UNKNOWN, no cause claimed, not waived",
+    "connected_proof": "the one remaining milestone",
+    "production_comparison": "unproved"
+  },
+  "verification": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=<checkout>/v12/python/src:<checkout>/v12/python python -B -m unittest test_correction_packet",
+    "cwd": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume",
+    "errors": 0,
+    "failures": 0,
+    "mutations_checked": {
+      "caught": 17,
+      "missed": 0,
+      "note": "the new 'no enclosing composition check' was MISSED until an after-bind negative was added; bind had already validated, so the packet's own check was untested",
+      "total": 17
+    },
+    "real_boundaries_driven": [
+      "tools.stage_execution.held_configuration over the whole generated composition",
+      "tools.single_worker._held over both generated workers",
+      "tools.bootstrap.held",
+      "documents.read_submission",
+      "contracts.job_input_identity",
+      "contracts.digest",
+      "provider_context._profile",
+      "tools.job_manager.main over the emitted status argv",
+      "attempts.assignment_of"
+    ],
+    "seconds": [
+      1.127,
+      1.132
+    ],
+    "still_not_connected": [
+      "the verdict-reader cases substitute review_for_attempt / verdict_of / control.operation_record",
+      "the bounds and shutdown cases script the serving loop"
+    ],
+    "tests": 126,
+    "touched_nothing_live": "no store opened, no instance installed, no credential read, no container or engine reached, no image built, no version-control act, no graph change"
+  },
+  "work": "W236087"
+}

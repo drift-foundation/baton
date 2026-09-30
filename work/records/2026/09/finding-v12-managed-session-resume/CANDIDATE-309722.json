@@ -1,0 +1,67 @@
+{
+  "answering": "review-2026-09-29T22-02-59Z.md (pass 309719)",
+  "changed_files": {
+    "PACKET-309356.md": "490a4d5bcda0932121770907722db26c9cf590bdc13293f318db852730263efc",
+    "PROGRESS.md": "c9b786bd33c1216726f7c888362caab84ceacdfa36ed206288ab09e06135ce49",
+    "correction_packet.py": "78bd94db6a2e7f6cac4f92e9db3dc5a2eafacf4b1928c86c08c998dc5c1e5a16",
+    "correction_supervisor.py": "9ba32576c245522c5e39186bd4bb39d97ed1b3d1ff6092264334641be56cfab0",
+    "test_correction_packet.py": "4f6765c17f2fe2b37a5e103babb191e059bbb576bca9fbaaf55cd925fbd64249"
+  },
+  "claim": 309722,
+  "item_status": {
+    "1_worker_deployments": "delivered -- producer /5 with required provider context, reviewer /4 without, both proved by single_worker._held in bind and in held_packet; credential reference without bytes; nominated source; one Job input identity across both manifests",
+    "2_connected_proof": "PARTLY -- the review assignment generation is derived from attempts.assignment_of and the latest unread review no longer borrows an earlier verdict. The connected proof over a real store, with actual attachments and verdicts and positive cleanup, is NOT done.",
+    "3_real_endings": "NOT done -- depends on the connected proof harness",
+    "4_bound_dependencies": "delivered -- prepare_two_jobs.py is bound with the preparation modules and drift is refused; the sibling file is unmodified"
+  },
+  "participant": "baton.claude",
+  "product_files_changed": [],
+  "reused_unmodified_and_pinned": {
+    "baseline.py": "248e570d8f9d459550b0aa5e92d1674c3226fe540ba987cae916a4a334606771",
+    "bound_as_execution_check": true,
+    "prepare_two_jobs.py": "2c54a5d85e1d999d051e52b5c793c9a9578b241161fa73e9a577a61a60abdc82"
+  },
+  "schema": "baton.candidate/1",
+  "subject": "both worker deployments generated and proved by the real single_worker._held; review generation derived from canonical assignment facts; every executable dependency bound. The connected deterministic proof is NOT done and item 3 is marked incomplete.",
+  "unresolved": {
+    "actual_restore": "unproved; no live run selected",
+    "boundary_failure": "UNKNOWN, no cause claimed, not waived; carried in PACKET-309356.md",
+    "connected_proof": "one real-boundary deterministic proof from valid generation through bounded supervision, actual canonical verdicts and positive cleanup accounting",
+    "production_comparison": "unproved"
+  },
+  "verification": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=<checkout>/v12/python/src:<checkout>/v12/python python -B -m unittest test_correction_packet",
+    "cwd": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume",
+    "errors": 0,
+    "failures": 0,
+    "mutations_checked": {
+      "caught": 16,
+      "missed": 0,
+      "total": 16
+    },
+    "preflight_found_and_corrected": [
+      "worker profile_digest must be the manifest's runtime_profile_digest",
+      "worker image_digest must be the manifest's worker_image_digest",
+      "a context implementation worker must declare the reserved provider-context-receipt output in an exact shape"
+    ],
+    "real_boundaries_driven": [
+      "tools.single_worker._held over BOTH generated worker configurations, with the role each serves",
+      "tools.bootstrap.held over the generated bootstrap input",
+      "baton_v12.job_manager.documents.read_submission over the generated submission",
+      "baton_v12.contracts.job_input_identity over both manifests",
+      "baton_v12.contracts.digest for the manifest reseal and the certified profile digest",
+      "tools.job_manager.main over the emitted status argv",
+      "baton_v12.worker_manager.attempts.assignment_of for the review generation"
+    ],
+    "seconds": [
+      0.806
+    ],
+    "still_mocked_not_connected": [
+      "review_cycles.review_for_attempt / verdict_of / control.operation_record in the verdict-reader cases",
+      "the serving loop in the bounds and shutdown cases"
+    ],
+    "tests": 124,
+    "touched_nothing_live": "no store opened, no instance installed, no credential read, no container or engine reached, no image built, no version-control act, no graph change"
+  },
+  "work": "W236087"
+}

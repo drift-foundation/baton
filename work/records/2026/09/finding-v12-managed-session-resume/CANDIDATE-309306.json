@@ -1,0 +1,61 @@
+{
+  "work": "W236087",
+  "claim": 309306,
+  "answering": "review 309302 (claim 309290) - deliver item 3, the digest-bound executable packet",
+  "delivered": [
+    "PACKET-309306.md",
+    "PACKET-BINDINGS-309306.json"
+  ],
+  "executed": false,
+  "nothing_performed": "no store opened, no credential read, no container started, no image built, no version-control act",
+  "machinery_digests": "every one measured for this claim: DESIGN, the corrected provider_context.py (ca54ecec366f), context_delivery.py, store.py, tokens.py, stage_execution.py, single_worker.py, job_manager.py, and the four test/trace files, plus LIVE-CORRECTION-PROPOSAL.md and PREPARATION-307667.md",
+  "reused_accepted_bindings": "runtime distro, build commit 1e576ff2, executable 04aa459a, image baton-v12-claude-worker:w239528-244216 with config digest sha256:c862c055, the image's own claude_agent.py at 18c34ff5, and the adapter/policy/profile descriptors with profile_name claude-fresh-implementation - each measured from the accepted single Job's own records rather than from a label",
+  "no_image_build_required": "LIVE-CORRECTION-PROPOSAL.md required the owner to bind an actual built image because those bytes were then unbuilt; they are built and accepted now, and rebuilding would replace accepted provenance for no gain",
+  "fresh_roots": "one root under /home/sl/baton-instances/<run id>, NOT under /home/sl/baton-runs, with the reason stated: the pinned validator refuses mutable deployment state inside what it treats as the checkout, tools.bootstrap --destination overrides state_root, and W247941's owner setup failed on exactly that",
+  "limits": {
+    "provider_turn_seconds": 180,
+    "verification_command_seconds": 180,
+    "implementer_invocations": 2,
+    "review_invocations": 2,
+    "total_seconds": 900,
+    "cleanup_reserve_inside_total": 60,
+    "restores": 1,
+    "retry": false
+  },
+  "four_outcomes_stated_separately": [
+    "accepted with no correction: ends the run honestly and does NOT answer the restore question; not a failure and not to be rerun to obtain one",
+    "changes-requested then corrected and accepted: the only outcome that answers the provider question, and acceptance requires the restored conversation, improvement against the ACTUAL feedback, exact attribution, the predecessor's token returned before the restored activation, and a second independent acceptance",
+    "rejected: valid at either stage, and no correction is manufactured from it",
+    "failed or unknown: the run is held, every failure preserved with its attribution, a failed context save is not reuse, and no retry follows"
+  ],
+  "no_scripted_reviewer_disposition": true,
+  "missing_external_input": [
+    "line_declared_base - a commit object in the nominated source; creating it is a version-control act this implementer must not perform, so it is an operand",
+    "the Authority uuid the bootstrap mints, read from <run root>/bootstrap.json",
+    "the bootstrap inputs document, derived at setup time",
+    "current provider credentials, resolved at launch through /home/sl/.baton/credential-sources.json; W247941's run 01 failed on an expired session, so a current one should be confirmed before selection"
+  ],
+  "verification": {
+    "tests": 37,
+    "failures": 0,
+    "seconds": 23.242,
+    "scope": "the whole correction-restart family plus TransactionBoundaryRegression",
+    "note": "no broad 196-test rerun, as the review directed"
+  },
+  "flake": "the unexplained boundary failure remains UNKNOWN, neither fixed nor waived; it did not recur here, and on recurrence I will capture the full command, output, traceback and digests rather than theorise",
+  "files": {
+    "PACKET-309306.md": "b09bfec8fb3e",
+    "PACKET-BINDINGS-309306.json": "96cd5566a024"
+  },
+  "unproved": [
+    "production restore",
+    "the production deployment-comparison branch of _qualified"
+  ],
+  "not_selected": [
+    "any live run",
+    "deployment change",
+    "credential operation",
+    "integration"
+  ],
+  "ready_for": "independent review"
+}

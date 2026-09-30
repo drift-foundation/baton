@@ -1,0 +1,23 @@
+{
+  "claim": 309547,
+  "candidate": 309356,
+  "review": "review-2026-09-29T21-41-08Z.md",
+  "digest_checks": {
+    "../finding-v12-single-implementation-proof/baseline.py": true,
+    "PACKET-309356.md": true,
+    "PROGRESS.md": true,
+    "PROVENANCE-309356.json": true,
+    "SELECTIONS-309356.json": true,
+    "correction_packet.py": true,
+    "correction_supervisor.py": true,
+    "test_correction_packet.py": true
+  },
+  "tests": {
+    "count": 75,
+    "seconds": 0.176,
+    "result": "PASS"
+  },
+  "probes": "REVIEW-PROBES-309547.json",
+  "verdict": "changes-requested",
+  "live_execution": false
+}

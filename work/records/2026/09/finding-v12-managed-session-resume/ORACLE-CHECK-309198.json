@@ -1,0 +1,8 @@
+{
+  "scope": "Synthetic invalid copies of exported valid_observation, not owner receipts; C1 validator",
+  "baseline": [],
+  "opening_only_unreturned_matches": 1,
+  "opening_only_unreturned": [],
+  "wrong_container_and_launch": [],
+  "earlier_probe": "KeyError initial: test class export wraps valid_observation; no product error"
+}

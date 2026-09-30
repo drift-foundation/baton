@@ -694,3 +694,289 @@ gate. Protected context generations and honest failed-save/refusal remain requir
 Accepted historical subject cannot be rewritten as changes-requested. No new graph
 gate; inherited W239533 edge remains satisfied. W306614 ownership stays separate.
 Reviewer changes only finding/plan/preparation/evidence/review; no product edits.
+
+## 2026-09-29 — implementation ownership reassigned to baton.claude, PINNED BEFORE EDITS
+
+Owner reroute 308630 (baton.prompt, on the owner's authority) reassigns the implementation of this
+bounded managed context-reuse work from baton.tuner to baton.claude, on the canonical snapshot 308629
+showing the Work queued with no handler. IT SUPERSEDES THE TUNER IMPLEMENTATION ASSIGNMENT ONLY.
+
+WHAT IS PRESERVED EXACTLY AS IT STANDS: the reviewer's preparation `PREPARATION-307667.md`, the
+E307708 scope, `RESEARCH-307667.json`, `SOURCE-307667.json`, the latest review, and every historical
+author artifact in this dossier. The reviewer keeps FINDING, current PLAN, the preparation and the
+review journals; this section is the ownership pin the reroute requires before any edit, and nothing
+else in these two documents is altered by me.
+
+IMPLEMENTATION OWNERSHIP NOW HELD BY baton.claude, exactly the set `PREPARATION-307667.md` names:
+
+    v12/python/src/baton_v12/worker_manager/provider_context.py
+    v12/python/src/baton_v12/worker_manager/context_delivery.py
+    v12/python/tests/manager/test_provider_context.py
+    v12/python/tests/manager/test_provider_context_delivery.py
+    v12/python/tests/manager/test_claude_context.py
+
+and, for the connected seam only and with baseline digests recorded before editing,
+`v12/python/tools/stage_execution.py` and `v12/python/tools/single_worker.py`.
+
+UNCHANGED LIMITS, carried forward rather than re-decided: no edits to W306614-owned
+supervisor/tests/diagnostics, no edits to the W247941 accepted packet, frozen manager snapshots,
+installed images or DESIGN; no new live execution, deployment change, credential operation or Git
+mutation; a specification change goes to the owner. Routine corrections return to baton.impl under
+this reassignment (the reroute says so, superseding the preparation's baton.tune routing).
+
+## 2026-09-29T19-50-38Z — independent review308745: boundary correction incomplete
+
+Candidate308641 preserves useful progress, but its claim that qualification and binding status checks are journal-only is superseded by confirmed R1/R2 in review-2026-09-29T19-50-38Z.md. Candidate admission still walks two filesystem ancestries under transaction; finalized binding status can validate generation files. Evidence RESEARCH-308745-followup.json and REVIEW-EVIDENCE-308745.json. Correct within existing scope via baton.impl, then remaining connected proof and packet; no new owner gate. Prior evidence remains unchanged.
+
+## 2026-09-29T20-04-01Z — review308858 accepts R1/R2 correction slice
+
+review-2026-09-29T20-04-01Z.md accepts the candidate308784 code corrections to qualification and finalized binding transaction boundaries, superseding their outstanding-code-defect status in review308745. Item1 remaining proof, item2 connected correction and item3 packet remain open. DESIGN ART-7 and current preserved-workspace cleanup support replacing stale ServingEnding input-absence assertions under standing test authority. Three reviewer diagnostic runs pass with presence asserted; this is not final regression acceptance. No separate approval is required, and no-rematerialization alone does not imply input presence. See REVIEW-EVIDENCE-308858.json / DIAGNOSIS-308858.json. Continue baton.impl under existing ownership/scope.
+
+## 2026-09-29T20-10-41Z — review308912: preservation correction accepted, item1 evidence incomplete
+
+review-2026-09-29T20-10-41Z.md accepts corrected binding comment and restart-preservation expectation; prior R1/R2 acceptance stands. Candidate308879 item1-complete claim is superseded: launch-fence test lacks invocation binding and refuses before facts; unrelated-progress uses one connection after a pretransaction refusal; interrupted replay is completed replay and production refusal misses deployment comparison. COUNTERCHECK-308912.json demonstrates unchanged-repository refusal with zero facts calls. Reuse existing valid ServingBinding authority-fence and qualification request/reopen evidence, fix misleading tests and add selected second-connection progress proof. Continue existing items2/3 without new permission.
+
+## 2026-09-29T20-19-13Z — review308976 accepts evidence corrections; connected proof next
+
+review-2026-09-29T20-19-13Z.md supersedes outstanding evidence-correction status in review308912. Real bound repository-fence refusal and second-connection external-validation progress now observed;33 independent focused tests PASS10.371s. Prior code/preservation acceptance stands. Production deployment-comparison execution remains an explicit connected-matrix coverage limit, not proved by missing-certification refusal. Proceed to item2 connected attributed correction/interruption and item3 exact packet under existing authority. No production restore or live execution claimed.
+
+## 2026-09-29T20-25-55Z — review309023: bounded connected evidence accepted, two gaps remain
+
+review-2026-09-29T20-25-55Z.md supersedes candidate308991 item2-complete claim. Independent export CONNECTED-309023.json preserves accepted deterministic continuity/changed-output/review-isolation/recomposition evidence (3 tests3.304s). C2 does not bind resource tokens or require predecessor destruction: synthetic matching-running runtime passes validator in ORACLE-CHECK-309023.json. New failed-save test is initial-save failure, not preservation of prior saved0 during later failure. Extend existing trace/fixture for exact token/runtime handoff and saved-generation preservation, then packet. No live overlap defect inferred, no new scope.
+
+## 2026-09-29T20-34-52Z — review309087: runtime slice accepted; token gap and fixture diagnosis
+
+review-2026-09-29T20-34-52Z.md accepts runtime destruction/distinctness and first-save relabelling, superseding neither the resource-token nor ordering requirement. Candidate309041 R1-closed claim is superseded: use tokens.py owner readers for actual token/container/return evidence before restored activation. Reviewer resolves R2 fixture blocker: end_runtime receipt mode=open must be restore; both positive restored finalization and injected seal failure independently reach expected outcomes (DIAGNOSIS-309087.json). Proceed saved0 preservation, token proof, labels and packet within existing authority.
+
+## 2026-09-29T20-42-20Z — review309137 accepts saved0 preservation and observes token ordering
+
+review-2026-09-29T20-42-20Z.md accepts R2 saved-generation preservation (2 tests0.141s). TOKEN-RESEARCH-309137-followup.json independently observes real token1 returned before restored token2 activation in same workspace domain, each bound to its own container. Exact acquire/admit_activation observation seam resolves author lookup uncertainty. Complete normal export/negative assertions, simulated labels and packet; preserve positive evidence and prior accepted slices. No live coverage claimed.
+
+## 2026-09-29T20-49-45Z — review309198: token identity lost by validator
+
+review-2026-09-29T20-49-45Z.md preserves accepted observation/export progress but finds generation-only indexing aliases different resource domains: exact opening-only unreturned mutation passes. Wrong container/launch mutation also passes (ORACLE-CHECK-309198.json). Match full token tuple and bound runtime/start operation; retain correct positive evidence. Independent12PASS6.534s; no live product defect inferred. Complete narrow oracle corrections, labels and packet without new permission.
+
+## 2026-09-29T21-02-11Z — review309290 accepts token oracle and deterministic proof corrections
+
+review-2026-09-29T21-02-11Z.md supersedes outstanding oracle corrections from review309198. Full reservation identity and container/launch comparisons plus focused negatives pass; simulation labels accurately delimit evidence. Independent16PASS9.809s and clean diff check. Finite item2 deterministic corrections accepted; executable packet is next. One author-reported boundary failure without retained assertion remains unexplained, not fixed/waived; retain full diagnostics if it recurs without blocking independent packet preparation. Production comparison/actual restore remain unproved.
+
+## 2026-09-29T21-08-40Z — review309336: executable packet not yet delivered
+
+review-2026-09-29T21-08-40Z.md supersedes candidate309306 item3-delivered/nothing-else-missing claims. All machinery hashes match, outcomes useful, but context/Job setup are comments; task/review/bootstrap inputs and enforced bounded supervisor are absent; execution source and reused profile compatibility are not concretely bound. Complete dossier packet code/templates/commands/deterministic checks under existing authority before an exact owner selection. Preserve prior implementation/deterministic acceptance.
+
+
+## 2026-09-29T21-41-08Z — packet candidate309356 review
+
+Item3 executable claim not accepted: real bootstrap/submission validators refuse
+generated inputs; shutdown omits cancellation/discovery/deferred interrupts;
+verdict reader expects fields absent from real status; binding adopts intervening
+drift. Prior product/item2 acceptance preserved. See review-2026-09-29T21-41-08Z.md and
+REVIEW-EVIDENCE-309547.json. Ordinary implementation correction, no owner gate.
+
+
+## 2026-09-29T22-02-59Z — partial packet correction checkpoint
+
+Candidate309572 improves input validation, shutdown, verdict/episode reading and
+drift checks. Independent104 tests PASS0.381s. Author explicitly leaves worker
+deployment and connected packet proof unfinished. Continue implementation under
+existing scope; no owner gate or final acceptance. See review-2026-09-29T22-02-59Z.md.
+
+
+## 2026-09-29T22-15-01Z — worker packet incremental review
+
+Candidate309722 focused124 tests PASS0.757s and digests match. Worker validation,
+latest canonical generation/verdict lookup and supplier binding progress retained.
+Connected packet proof still owed; ordinary implementation continuation. Scripted
+fake-provider scenarios are authorized deterministic evidence, never live judgment.
+See review-2026-09-29T22-15-01Z.md.
+
+
+## 2026-09-29T22-23-10Z — enclosing composition correction reviewed
+
+Candidate309811 digests match; two new composition checks independently PASS
+0.153s. Correction accepted as incremental evidence. Connected packet proof not
+run, unchanged next milestone. Author budget explanation has no accompanying
+runner/provider exhaustion evidence; no owner gate follows. See review-2026-09-29T22-23-10Z.md.
+
+
+## 2026-09-29T22-36-24Z — connected admission refusal localized
+
+Supersedes author309871 admitted-attempt/sweep-timing interpretation: real status
+shows workload profile/name mismatch, zero admissions and runtime=null. Job
+episode identity is not runtime admission. See review-2026-09-29T22-36-24Z.md and
+ADMISSION-RESEARCH-309944.json. Correct generator coherence; no scheduler change.
+
+
+## 2026-09-29T22-44-32Z — launched runtime and stale fixture lookup
+
+Profile correction verified by running runtime-single-1/generation1 in connected
+fixture. Supersedes missing claim/launch or mounted-failure speculation: actual
+traceback is inherited turn launch.adopt via old self.config launch_home, then
+delivered.document. See review-2026-09-29T22-44-32Z.md, RESEARCH-310001.json and
+TRACEBACK-310001.txt. Continue fixture coherence correction, no scheduler change.
+
+
+## 2026-09-29T22-51-42Z — frozen provider result explains exceptional state
+
+Independent canonical output is unable, proposal provider-failed/start-error/
+status1, why provider context terminal identity is unproved. No verification was
+attempted. Supersedes checkpoint speculation about verification/test-scope ending
+failure; managed/start/preparation failures are null. See review-2026-09-29T22-51-42Z.md
+and PROPOSAL-RESEARCH-310055.json. Continue attributed adapter diagnostic work.
+
+
+## 2026-09-29T22-58-46Z — actual scripted child error captured
+
+Child FileNotFoundError writing docs/v12-context-correction.md exits1 before
+terminal JSON. Active provider is process-backed World.provider; generic stub
+hypothesis superseded for this run. Diagnostic PIPE capture retained in
+CAPTURE-RESEARCH-310105.json; see review-2026-09-29T22-58-46Z.md.
+
+
+## 2026-09-29T23-04-18Z — finalization refusal and retention mismatch
+
+Provider completes but context held custody-invalid. First refusal old runtime
+exclusion is unproved: profile/worker retention5555 differs from composition0f4c.
+Confirmed owner-read evidence in RETENTION-RESEARCH-310149.json. Null exchange
+is not causal evidence. Also reconcile static provider session path mismatch.
+See review-2026-09-29T23-04-18Z.md.
+
+
+## 2026-09-29T23-17-24Z — connected endings accepted; packet entry still incomplete
+
+Verdict: changes requested, finite packet entry corrections. Candidate310169 hashes all match. Independent focused packet/connected suite: 133 PASS in 9.812s. Evidence: REVIEW-EVIDENCE-310221.json. Read handoff E310219, events through310221 and T236087 through239616 (no new discussion).
+
+Accepted slice: retention/session-path coherence and deterministic connected endings now pass, including actual journal-proved restore and canonical verdicts. Preserve prior items1/2 and lifecycle/guard evidence. This is fake engine/scripted provider/reviewer evidence, not live provider judgment. No product changes reviewed this turn.
+
+R1 — executable fresh-instance entry remains incomplete. correction_packet.bootstrap_document intentionally emits no Jobs/workers. tools.bootstrap.configuration therefore emits job_bindings=[] and no job_work_id. The pure real-builder reproduction in REVIEW-EVIDENCE-310221.json confirms qualified_work_id refuses that output. Commands go straight from bootstrap to bind, which requires this missing identity. Also bind reads instance_root/run/deployment.json while bootstrap.layout emits state_root/deployment.json; these are different under the selected operands. The fixture writes bootstrap.json and an invented preexisting Work binding, bypassing this boundary. Supply the actual supported preparation operations creating/binding the disposable Authority Work and needed Job inputs before bind, and derive paths from the emitted installation. Do not merely inject another fixture identity or submit the execution Job early (baseline.survey rightly refuses collisions).
+
+R2 — command environment/path coherence. Step3 check omits staged PYTHONPATH although held_packet invokes real product validators. Step5 status hardcodes instance_root/db stores whereas bind uses selected stores. Unify these with the installed/selected paths and prove commands under their declared environments, without ambient checkout imports.
+
+Closure: extend focused deterministic evidence from fresh supported installation/preparation outputs through bind/check and the actual supervisor preparation entry (baseline.prepare), then reuse the accepted connected endings. No live bootstrap/provider/engine run is selected; exercise disposable owner APIs and supported document builders, and label any remaining boundary simulation. The requested packet must be executable after owner operands are supplied. Review the final digest-bound candidate after these entry corrections; no broad rerun or lifecycle redesign is requested.
+
+Ownership: Claude owns existing packet/supervisor/trace/tests/operator packet and PROGRESS; reviewer owns FINDING/PLAN/reviews/evidence. No sibling helper, DESIGN, W306614, Git, graph, deployed store/grant or credentials changes. Historical transaction-boundary failure remains UNKNOWN, production comparison/live restore unproved; neither erased nor newly asserted. Ordinary verification has no cumulative approval gate. No owner decision is needed for these in-scope corrections.
+
+
+## 2026-09-29T23-28-53Z — fresh CLI identity and operator-template refusals
+
+Verdict: changes requested, two concrete executable-entry defects. Candidate310263 and unchanged supervisor hashes match. Independent focused suite139 PASS10.403s. REVIEW-EVIDENCE-310326.json retains the exact pure-reader refusals. Read E310319/events310326 and T236087 through239616, no new discussion.
+
+Accepted: previous path/environment fixes, supported prepare_work acts over disposable Authority, actual baseline.prepare and connected endings. Preserve prior items1/2, restore/token/cleanup evidence and no-implicit-reopen rule. Fake engine/scripted provider/reviewer and installation-record simulation remain labelled. No product/test implementation edited by reviewer.
+
+R1 — fresh CLI Work identity is invalid. prepared_work_id produces 7ea319da-Wmanaged-correction-309356 for the supplied run. Authority identity.check_work_id (called first by Core.create_work) requires <8 hex>-W<positive integer> and refuses it. prepare-work CLI uses this generator; connected_packet_trace.prepare_supported_work instead passes self.work, an existing valid fixture Work, so the fresh-ID path is untested. Use a supported valid identity selection/derivation with collision refusal, and verify the actual CLI operand path creates a previously absent Work in a disposable Authority, then handles exact replay. Do not satisfy this by substituting an existing World Work in the test. No live installation needed.
+
+R2 — supplied operator template has drifted from its generator. held_selections(SELECTIONS-309356.json) refuses missing receipts before even reaching owner placeholders; stores is also absent and participants still includes receipt principals in the old shape. Correct the template to current schema and reflect its current digest and commands in PACKET-309356.md. Demonstrate that replacing only the explicitly named owner operands yields admitted selections; owner selection cannot be asked to reconstruct an undocumented schema. The packet still says three subcommands despite prepare-work, and says no store was opened despite documented disposable-store proofs; clarify as no deployed store opened. These documentation corrections accompany the same executable-template fix, not a new scope.
+
+Closure remains narrow: corrected template -> actual fresh prepare-work CLI -> bind/check -> already accepted baseline.prepare/connected endings. Run focused deterministic regression and present final digest-bound candidate. No new lifecycle implementation, broad rerun, live provider/engine, deployed store/grant, credentials, Git, graph, DESIGN, sibling or W306614 work selected. Claude owns packet/harness/tests/operator docs/PROGRESS; reviewer owns FINDING/PLAN/review/evidence. Historical boundary failure UNKNOWN, production comparison and live restore unproved remain preserved, not waived. No owner decision required for these corrections.
+
+
+## 2026-09-29T23-40-17Z — preparation collision is not exact replay
+
+Verdict: changes requested for one preparation replay/collision defect. Candidate310345 and unchanged files all match. Independent147 PASS10.425s. Read E310402/events310404/T236087239616 (no new messages). Evidence REVIEW-EVIDENCE-310404.json.
+
+Accepted: valid fresh Work selector and actual CLI creation, corrected fillable operator template, prior command paths/environment, baseline.prepare and connected endings. Prior items1/2 and token/cleanup/restore evidence remain accepted. No implicit reopen; no new product scope.
+
+R1 — a common assignment contract is not preparation identity. prepare_work skips create_work for ANY existing same-contract Work, without checking the original operation identity or bound preparation operands, then grants capabilities in its scope and sets global canonical_target. Independent disposable CLI reproduction created W236087 under unrelated-original-creation and scope:unrelated with the ordinary v12-assignment-1 contract; prepare-work accepted it as created=False and granted its four capabilities in scope:unrelated. Repeating with declared_base changed from a*40 to b*40 also succeeded and reported the new target as a replay. The product journal's collision checks are bypassed by skipping creation; the existing test checks only a different CONTRACT, not an unrelated act under the same contract. This violates the promised exact replay and collision refusal, not a speculative hardening gate.
+
+Required bounded correction: bind preparation to its actual operation and operand identity, refuse unrelated same-contract collisions and changed replay inputs BEFORE grants/policy mutation, and retain recoverable exact replay after partial preparation. Use supported Authority APIs and/or a durably checked preparation record; do not read the store directly or weaken the product identity gate. Cover fresh creation, exact replay, unrelated same-contract creation/scope, and changed base/participant operands with refusal leaving policy/grants unchanged. The connected fixture must stop relying on adoption of an unrelated preexisting World Work as if it proved exact replay; establish the same preparation identity or isolate its accepted connected proof explicitly.
+
+No lifecycle redesign or additional live test is requested. Reuse accepted connected endings after the bounded preparation fix. Claude owns packet/harness/tests/operator docs/PROGRESS; reviewer owns FINDING/PLAN/review/evidence. No product/sibling/DESIGN/W306614/deployed-store/grant/credential/real-engine/Git/graph changes or broad tests. Historical boundary failure remains UNKNOWN and production comparison/live restore unproved. No owner decision required for this in-scope correction.
+
+
+## 2026-09-29T23-49-58Z — explicit operation-id bypasses operand binding
+
+Verdict: changes requested for the remaining operation-id override bypass. Candidate310425 and unchanged hashes match; independent152 PASS10.453s. Read E310474/events310476/T236087239616, no new discussion. Evidence REVIEW-EVIDENCE-310476.json.
+
+Accepted: default operand-derived preparation identity, unconditional journalled creation gate, unrelated collision refusal, unchanged grants/policy on default-path refusal, partial recovery and fresh connected fixture. Preserve prior accepted items1/2 and packet/connected slices. No implicit reopening.
+
+R1 — the supported CLI override still defeats the fix. main passes taken.operation_id OR preparation_identity, and prepare_work trusts the supplied ID. The same --operation-id fixed-operator-id with base a*40 followed by b*40 succeeds twice, reports created=False, and Authority.policy(canonical_target) changes from a*40 to b*40. The attached independent disposable CLI reproduction records both actual policy values. The product create_work payload contains no base/participants, so reusing a caller ID replays creation while the subsequent changed grants/policy still execute. This is the same defect through an exposed operand, not a new scope.
+
+Close the bypass at the preparation mutation boundary: remove the override if unnecessary, require it to equal the derived identity, or bind the caller namespace together with the exact operands so changed inputs cannot reuse the creation identity. Direct prepare_work callers must not bypass operand binding either. Verify changed-base/participant attempts using a fixed override refuse before grants/policy mutation, while exact and partial replay still succeed. Update the stale option help if retained. Reuse the accepted connected suite; no broader execution needed.
+
+Claude owns packet/harness/tests/operator docs/PROGRESS, reviewer owns FINDING/PLAN/review/evidence. No product/sibling/DESIGN/W306614/deployed store/grant/credential/real-engine/Git/graph or broad test scope. Historical boundary failure UNKNOWN, production comparison/live restore unproved retained. No owner decision required.
+
+
+## 2026-09-29T23-55-32Z — bounded preparation independently accepted
+
+Verdict: ACCEPTED for the bounded PREPARATION-307667 milestone as subsequently assigned to Claude by E308630. No remaining in-scope candidate correction identified. Delivery to baton.decide; this is not live execution selection or proof of production restore.
+
+Candidate CANDIDATE-310491.json sha256 f6799bd5d89e79882fcc7a89ef36dd85f333afd72e6cd38bfe4e8928ff4ae4e7 and every changed/unchanged candidate file digest match. REVIEW-EVIDENCE-310521.json enumerates exact reviewed bytes and prior accepted product/connected-trace hashes (also unchanged). Independent focused155 PASS10.452s. Read complete E310519/current events through310521 and T236087 through239616, no new discussion. Current PLAN and prior final correction read.
+
+Final defect resolved: prepare_work derives operation identity from its mutation operands inside the helper; no caller identity parameter and no CLI override remain. Journalled create_work runs before grants/policy; changed base/participant and unrelated same-contract creation refuse, exact replay and interrupted preparation complete. The fresh connected fixture creates its own Work. The new tests retain positive/negative behavior without weakening accepted expectations. Existing dossier test paths reviewed: test_correction_packet.py (override/parser/helper/unchanged-effect regressions), test_connected_packet.py (previous fresh preparation/connected assertions preserved). connected_packet_trace.py adapts the call to the closed helper boundary. No product source change in this final candidate.
+
+Finite acceptance ledger:
+1. Admission/binding external reads outside transactions with local CAS, replay, qualification and launch fencing: prior acceptance preserved; provider_context.py accepted bytes rechecked.
+2. Connected deterministic open/save/stop/review/correction/restore/useful-output, token exclusion/order and failed-save preservation: prior acceptance preserved; correction_restart_trace.py and test_correction_restart.py accepted bytes rechecked. Prior review-2026-09-29T21-02-11Z.md and its16 PASS9.809s remain applicable.
+3. Executable digest-bound packet: accepted current correction_packet.py, correction_supervisor.py, operator PACKET-309356.md, fillable SELECTIONS-309356.json, existing provenance/supplier/baseline checks, deterministic command/preparation and four-outcome proof. Current155-test run covers creation/replay/collision/partial recovery, schema/template/command validation, bound supervisor, canonical verdicts, retained generation restore and honest negative outcomes. Prior detailed reviews supply the cumulative audit; no accepted slice implicitly reopened.
+
+The next owner action is select or decline the provider-specific experiment and resolve the ten named template operands (source/base, source exclusion, credential reference, three execution principals and three receipt writers). Generated commands, bounded900s total with60s internal cleanup reserve and invocation limits are the prepared proposal. No fresh Git commit is required by this acceptance; agents do not own Git. Live bootstrap, real engine/model, deployed stores/grants and credentials were not used or enabled. Bootstrap installation itself remains simulated at its output boundary; actual provider CLI restore and production comparison remain unproved. An accepted-without-correction live result would not prove restore and must not trigger a forced rerun. Historical transaction-boundary failure cause remains UNKNOWN, neither fixed nor waived; retain diagnostics if it recurs.
+
+This acceptance completes the selected preparation, not the broader real-provider question. Preserve dossier/candidate/evidence and previous ownership history. No new graph, sibling, DESIGN, W306614, product or integration action requested. Reviewer only changed FINDING/PLAN and append-only review/evidence.
+
+
+## 2026-09-30T02-44-57Z — owner-selected concrete proposal; command delivery corrections
+
+Authority: owner E311598 accepts E310533 preparation and requests filled selections plus exact setup/run/status/stop commands, independent review then baton.decide live selection. No live run, credential copying, deployment/Git mutation or new framework selected. This owner direction is pinned here; prior implementation acceptance is preserved.
+
+Verdict: changes requested on command delivery only. Candidate311606 and preserved helper/template/packet hashes match. Independent161 PASS10.404s. Six added resolved-selection cases pass, including configured principals/reference and source/base checks. Read E311598/E311641/events311644 and T236087239616 (no new discussion). REVIEW-EVIDENCE-311644.json contains exact hashes and shell/argv evidence.
+
+Accepted portion: filled SELECTIONS-RESOLVED-311606.json has zero unresolved operands and carries the accepted source/base, six principals and credential reference. No credential registry/bytes read. Actual session currency remains unverified. Prior deterministic implementation and packet acceptance stays valid; no live restore/production comparison asserted. Owner must still select whether to run and the final roots.
+
+R1 — shell examples have TWO trailing backslashes, not one, on15 lines. In the indented Markdown code blocks these are literal shell bytes. Bash -n succeeds (syntactically legal), but a stub-only execution of the exact stage example shows python receives arguments correction_packet.py, stage, literal backslash; --selections and --provenance become separate commands. The same fault affects install/bind/check/run/status/outcome examples. Replace with shell-valid continuation or exact single-line commands and validate argv using harmless stubs, never the real setup commands. The status Python expression itself is syntactically valid; initial visual quoting concern was not confirmed and is not a finding.
+
+R2 — delivered RUN-COMMANDS-311606.json step6 contains literal <the uuid tools.bootstrap minted, in <root>/bootstrap.json>, while OPERATOR says the list already substitutes it. No instance exists yet, so the UUID cannot be supplied now. Mark this step pending and point to bind-generated commands.json after installation, or provide an exact safe read-only resolver command. Do not pass the placeholder as an argument. The new test named generator equality checks only verb/environment fragments and absence of shell substitution; it never compares the complete generated command data, and therefore does not establish its claimed equality. Add focused validation that the deliverable cannot present a placeholder as executable and that the operator uses the post-bind status argv. Correct root-change wording: dependent paths/commands must be regenerated coherently, not changed in one isolated string.
+
+Next: Claude corrects only current operator/command artifacts and focused checks, refreshes candidate hashes, returns baton.bug; review then baton.decide for live selection. No new product/helper/lifecycle implementation or broad verification scope needed. Author owns these artifacts/tests/PROGRESS; reviewer owns FINDING/PLAN/review/evidence. Historical boundary failure UNKNOWN and fake-provider/bootstrap-output simulation limits retained. Accepted-without-correction is valid and never a reason to force a restore/rerun.
+
+
+## 2026-09-30T02-51-33Z — concrete experiment proposal accepted
+
+Verdict: ACCEPTED for owner E311598 concrete proposal delivery. Return baton.decide for live selection. Prior preparation acceptance E310533 remains intact; this is not authorization to execute.
+
+Candidate CANDIDATE-311661.json sha256 1e185b4c42f0faa5f5a9cc41f676e025b1fad240c9cb8ff7db1de949d3d11472. All changed and preserved file hashes match; REVIEW-EVIDENCE-311696.json enumerates the reviewed bytes. Independent165 PASS10.487s. Read E311693/events311696 and T236087239616, no new discussion. Current checkpoint and prior two findings read.
+
+R1 resolved: single shell continuations retain operands in their intended invocation. Independent shell-function stub executed only shell parsing/expansion, logging ten python argument vectors without invoking Python, setup, stores or providers. The stub supplied a synthetic UUID to the read-only resolver and the status argv contains that UUID in exactly the correct operand. This proves shell wiring, not live bootstrap or authentication. Author ARGV-EVIDENCE-311661.json is consistent, with its empty-resolver limitation accurately recorded.
+
+R2 resolved: delivered JSON includes executable steps1-5/7 and explicitly pending status step6, with resolver and pointer to post-bind commands.json. No executable placeholder remains. Tests compare complete delivered command data with generator output and retain schema/selection/connected tests. Existing changed test path test_correction_packet.py reviewed: added exact command equality, pending resolver and continuation regressions strengthen expectations; no product/helper edits in this candidate.
+
+Accepted proposal artifacts: SELECTIONS-RESOLVED-311606.json, RUN-COMMANDS-311606.json, OPERATOR-311606.md at evidence-bound hashes. Source/base, configured principal/reference provenance and zero unresolved selection placeholders retain prior review acceptance. Credential session currency remains unverified; no credential registry or bytes read. Actual live provider restore and production comparison remain unproved, and historical transaction-boundary failure cause remains UNKNOWN. Existing fake-engine/scripted-provider and bootstrap-output simulation limits remain explicit.
+
+Owner choices: select/decline this experiment, confirm credential currency and final roots. This acceptance binds the delivered roots and dependent paths exactly. OPERATOR's residual phrase 'changing it is one edit' must not be interpreted as permission to change only instance_root: any changed roots require coherent selections/path regeneration and validation, as recorded in review311644. That is a scope clarification, not a blocker for the concrete unchanged proposal. No fresh Git commit required. Accepted-without-correction is valid and proves no restore; never force a rerun to obtain correction.
+
+No live setup/run, deployment/store/grant/credential/image, Git or graph mutation occurred. No new framework/product/sibling/DESIGN/W306614 work. Reviewer changed FINDING/PLAN and append-only review/evidence only. No remaining correction blocks this proposed delivery.
+
+
+## 2026-09-30T03-32-07Z — actual bootstrap correction accepted; status/stop regressions
+
+Authority pinned: owner E311736 reports setup failed before live execution because .py-only staging omitted contracts/schema/worker-control-1.0.schema.json. Later prepare-work/bind/check failures followed missing bootstrap.json/packet.json. Selected correction: resource staging and digest checks, actual disposable stage-to-bootstrap proof without Docker/provider, read-only partial inventory, preserving recovery commands and stop-on-first-error; independent review then owner. No live execution/Git mutation.
+
+Verdict: staging correction and disposable recovery proof ACCEPTED; changes requested on two newly regressed operator commands. This explicitly supersedes the prior executable-setup assurance in review311696 where real bootstrap had not been exercised. Preserve historical acceptance/evidence and accepted lifecycle/connected behavior; do not erase the observed operator failure.
+
+Candidate311743 sha256 65fa60a2487747916199122e2baacc0b164d7464de7ad266e78655c439e62ad6, all changed/preserved hashes match. Independent180 PASS28.456s. Independently executed staged_bootstrap_trace.py: actual stage -> tools.bootstrap -> prepare-work -> bind -> check ALL exit0,108 staged files including both frozen resources, absence reproducer fails as expected, disposable root cleaned by trace. Evidence REVIEW-BOOTSTRAP-311971.json and REVIEW-EVIDENCE-311971.json. No Docker/model/provider or deployed setup. The earlier bootstrap-output simulation limitation is resolved for this disposable setup path, not for live runtime/provider behavior.
+
+Read-only recheck: instance remains absent; four failed partial packet documents retain exactly the recorded hashes. New staging and destination preserve those artifacts. Reviewed declared-package/resource selection, resource import/digest checks, actual checkout boundary guard, step0 origin imports, refusal of unbound staged files, and author stop-on-first-error evidence. No broader rerun needed. Read E311736/E311969/events311971/T236087239616, no new discussion.
+
+R1 — OPERATOR-311743 section4 regresses supported status syntax. It uses --job-store and status --job, lacks required --store/--incarnation and omits the intended --control. The real tools.job_manager parser refuses the displayed shape with exit2 before opening any store (reproduced using nonexistent paths and synthetic UUID). Restore the exact supported status argv already emitted by correction_packet.commands and the earlier operator document; verify the human command against the real parser or disposable status reader, not just a stub that accepts arbitrary options. No deployed read needed.
+
+R2 — section5 labelled Stop contains no stop action. It merely prints DEST/outcome.json, which is also the wrong location; packet and generated step7 use ROOT/run/outcome.json. Restore the previously accepted one-Ctrl-C managed stop instructions and cleanup/interruption semantics, distinguish stopping from reading the retained outcome, and read the actual bound outcome path. Validate operator status/stop/outcome consistency with the unchanged supervisor/generated commands. The new JSON is not a substitute for a correct human recovery/run document.
+
+Next implementation: operator document and focused validation/evidence/candidate only; retain accepted resource staging and disposable proof. No product/helper/lifecycle changes or repeat bootstrap necessary unless code changes. Existing changed test path test_correction_packet.py reviewed for resource/layout/sequence regressions; expectations strengthen prior behavior. staged_bootstrap_trace.py is dossier evidence, not product code. Author owns implementation docs/tests/PROGRESS; reviewer owns FINDING/PLAN/review/evidence.
+
+Credential currency unverified, live restore/production comparison unproved, historical boundary failure UNKNOWN retained. Accepted-without-correction remains valid and cannot force rerun. No deployed cleanup/unbound copying/Git/graph/sibling/DESIGN/W306614 action.
+
+
+## 2026-09-30T03-42-32Z — corrected recovery/operator proposal accepted
+
+Verdict: ACCEPTED corrected recovery and operator proposal under owner E311736. Return baton.decide for recovery/run selection. This does not execute or authorize live recovery/run. Prior failed setup and accepted lifecycle history preserved.
+
+Candidate CANDIDATE-311994.json sha256 dfee54edb3d71da3764f82172b22630580ea7a3c8af315483d2f430b0c5bc66e. All changed/preserved file hashes match. REVIEW-EVIDENCE-312052.json binds exact reviewed paths/bytes. Read E312044/events312052/T236087239616, no new discussion. Reviewed current checkpoint and prior findings.
+
+Independent focused19 PASS0.767s (TheCORRECTED_OPERATOR_SEQUENCE and TheRESOLVED_SELECTION), including exact human-vs-generated status argv, real parser acceptance/disposable empty status reader, rejection of prior bad flags, explicit stop action and bound outcome path. Independent shell-function-only check: full ten-invocation sequence exit0 with simulated UUID; failures injected at invocations1/2/3 each exit2 with exactly1/2/3 invocations and none following the failure. No actual operator setup was executed by this stub.
+
+R1 resolved: supported --store, --authority-uuid, --incarnation, status --control restored. R2 resolved: ONE Ctrl-C in serving terminal, managed cleanup/interruption behavior and subsequent separate ROOT/run/outcome.json read restored. Source/supervisor/generator bytes unchanged from accepted staging candidate, so prior independent180 PASS28.456s and real disposable stage/bootstrap/prepare-work/bind/check proof REVIEW-BOOTSTRAP-311971.json remain applicable without rerun. Author reports183 PASS; this turn independently ran only the relevant19. New tests in existing test_correction_packet.py strengthen operator behavior; no product/helper/lifecycle change.
+
+Evidence clarification: author STATUS-PARSER-EVIDENCE-311994.json top-level generated_argv accidentally repeats the interpreter/module prefix. It is not a runnable accepted command. The actual operator document, generator, and independently run real-parser test have the correct single prefix; that independent evidence supports acceptance. Preserve the historical artifact rather than silently rewriting it.
+
+Concrete approved recovery proposal: SELECTIONS-RESOLVED-311743.json; RUN-COMMANDS-311743.json; corrected OPERATOR-311743.md. Staging root /home/sl/baton-staging/managed-correction-309356-source and destination /home/sl/baton-instances/managed-correction-309356-packet-311743 preserve the failed source/packet paths; instance root stays /home/sl/baton-instances/managed-correction-309356, observed absent in prior review. Stage includes frozen resources, verifies them and refuses invalid layout; sequence stops on first failure. Operator performs no manual unbound copy or cleanup. Any changed roots/inputs require coherent regeneration/checking.
+
+Owner next selects recovery/run, confirms credential currency and exact roots. No deployed setup/store/grant/credential, Docker/provider, Git or graph mutation occurred this turn. Live restore and production comparison remain unproved; historical transaction-boundary failure remains UNKNOWN. Accepted-without-correction is valid, proves no restore and cannot force rerun. No remaining candidate correction identified; no new scope/dependency/framework. Reviewer changed FINDING/PLAN and append-only review/evidence only.

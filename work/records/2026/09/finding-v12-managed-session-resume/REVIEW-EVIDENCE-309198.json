@@ -1,0 +1,21 @@
+{
+  "claim": 309198,
+  "candidate": 309162,
+  "hashes": {
+    "v12/python/tests/tools/correction_restart_trace.py": "54f5d29e4fab73321cca986700b7810ce70a5d0f1fdd3ee0cac41608d30064f7",
+    "v12/python/tests/tools/test_correction_restart.py": "c76e7f55236b7ac4c97d1a46e8456828c203b5539a8a3200582ac975cb168417",
+    "work/records/2026/09/finding-v12-managed-session-resume/CANDIDATE-309162.json": "faa097ec6392b435c9428d6bf22c12e9e922135632aa8aad33997ed07c56b382",
+    "work/records/2026/09/finding-v12-managed-session-resume/CONNECTED-309198.json": "490f619e409301eb5d671f9c756ba47dea4cc3e691073bf20376d050db94d3ae"
+  },
+  "verification": {
+    "count": 12,
+    "result": "PASS",
+    "seconds": 6.534,
+    "selection": [
+      "CountedReopen",
+      "UsefulCorrectionInvalidEvidence"
+    ]
+  },
+  "counterexamples": "ORACLE-CHECK-309198.json",
+  "export_note": "negative class tearDownClass overwrote the shared export destination with valid_observation and rejections; counted test passed but its earlier export was replaced"
+}

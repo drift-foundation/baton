@@ -1,0 +1,33 @@
+{
+  "answering": "review 311971 R1 and R2",
+  "cases": [
+    "test_THE_STATUS_COMMAND_IS_THE_GENERATED_ONE_AND_THE_PARSER_TAKES_IT",
+    "test_THE_STOP_SECTION_IS_AN_ACTION_AND_READS_THE_BOUND_OUTCOME"
+  ],
+  "claim": 311994,
+  "measured": {
+    "OM1": {
+      "caught_by": [
+        "test_THE_STATUS_COMMAND_IS_THE_GENERATED_ONE_AND_THE_PARSER_TAKES_IT"
+      ],
+      "mutation": "restore the regressed status argv (--job-store, status --job, no --incarnation, no --control), which the real parser refuses with exit 2"
+    },
+    "OM2": {
+      "caught_by": [
+        "test_THE_STOP_SECTION_IS_AN_ACTION_AND_READS_THE_BOUND_OUTCOME"
+      ],
+      "mutation": "remove the stop ACTION and leave only a read, as the regressed section did"
+    },
+    "OM3": {
+      "caught_by": [
+        "test_THE_STOP_SECTION_IS_AN_ACTION_AND_READS_THE_BOUND_OUTCOME"
+      ],
+      "mutation": "read the outcome from $DEST instead of the bound $ROOT/run/outcome.json"
+    },
+    "clean_again": [],
+    "unmutated_failures": []
+  },
+  "schema": "baton.operator-mutation-evidence/1",
+  "uncaught_mutations": [],
+  "what": "each regression re-introduced in a COPY of the delivered document; the new cases must catch each, and the unmutated and restored runs must be clean. The delivered document is never modified."
+}

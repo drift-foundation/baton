@@ -1,0 +1,1109 @@
+{
+  "ticks": [
+    {
+      "schema": "baton.v12.job-status/6",
+      "observed_at": "2026-09-02T00:00:00.000Z",
+      "incarnation": "connected-packet",
+      "canonical": true,
+      "jobs": [
+        {
+          "job_id": "job-a",
+          "submission_id": "submission-a",
+          "input_digest": "sha256:121dffc30385a97158c149832c806882e596501cc50546b0b6671ea8da78302b",
+          "policy_digest": "sha256:d398f8585dc7118d76836fdee00dcc0aae9882250e88e79cdd4ff7de19574795",
+          "test_scope": [
+            "docs/v12-context-correction.md"
+          ],
+          "terminal_policy": "report-and-hold",
+          "execution_limits": {
+            "units": "seconds",
+            "scope": "per-invocation",
+            "compatibility_generation": 1,
+            "requested": {
+              "provider_turn_seconds": 180,
+              "verification_command_seconds": 180
+            },
+            "boundaries": {
+              "host_verification": {
+                "seconds": 180,
+                "origin": "job",
+                "setting": "verification_command_seconds",
+                "default_seconds": 300
+              },
+              "integration_verification": {
+                "seconds": 180,
+                "origin": "job",
+                "setting": "verification_command_seconds",
+                "default_seconds": 1800
+              },
+              "ordinary_verification": {
+                "seconds": 180,
+                "origin": "job",
+                "setting": "verification_command_seconds",
+                "default_seconds": 900
+              },
+              "provider_turn": {
+                "seconds": 180,
+                "origin": "job",
+                "setting": "provider_turn_seconds",
+                "default_seconds": 3600
+              }
+            }
+          },
+          "stages": [
+            {
+              "stage_id": "job-a/implementation",
+              "job_id": "job-a",
+              "kind": "implementation",
+              "state": "offered",
+              "work_id": "0000000a-W1",
+              "profile_name": "claude-context-implementation",
+              "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "episode": 1,
+              "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+              "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+              "episodes": [
+                {
+                  "stage_id": "job-a/implementation",
+                  "episode": 1,
+                  "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                  "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                  "opened_at": "2026-09-02T00:00:00.000Z",
+                  "incarnation": "connected-packet",
+                  "ended_state": null,
+                  "ended_revision": null,
+                  "ended_at": null
+                }
+              ],
+              "corrections": 0,
+              "allocation": {
+                "assignment_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                "stage_id": "job-a/implementation",
+                "episode": 1,
+                "generation": 1,
+                "worker_id": "implementation-worker",
+                "lane": "implementation",
+                "participant": "baton.claude",
+                "canonical_principal": "principal:baton.claude",
+                "preferred_worker_id": null,
+                "selection_outcome": "initial",
+                "allocation_state": "reserved",
+                "reserved_at": "2026-09-02T00:00:00.000Z",
+                "recovery_required_at": null,
+                "released_at": null,
+                "release_reason": null,
+                "variant": "baton.v12.stage-execution-deployment/1",
+                "separation_class": "provider-diverse",
+                "generation_digest": "sha256:31df87bdac79afa9c114b29dd3323bc887cbec630c2eb35365b1effa611519e4",
+                "worker_profile_name": "claude-context-implementation",
+                "worker_profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+              },
+              "allocations": [
+                {
+                  "assignment_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                  "stage_id": "job-a/implementation",
+                  "episode": 1,
+                  "generation": 1,
+                  "worker_id": "implementation-worker",
+                  "lane": "implementation",
+                  "participant": "baton.claude",
+                  "canonical_principal": "principal:baton.claude",
+                  "preferred_worker_id": null,
+                  "selection_outcome": "initial",
+                  "allocation_state": "reserved",
+                  "reserved_at": "2026-09-02T00:00:00.000Z",
+                  "recovery_required_at": null,
+                  "released_at": null,
+                  "release_reason": null,
+                  "variant": "baton.v12.stage-execution-deployment/1",
+                  "separation_class": "provider-diverse",
+                  "generation_digest": "sha256:31df87bdac79afa9c114b29dd3323bc887cbec630c2eb35365b1effa611519e4",
+                  "worker_profile_name": "claude-context-implementation",
+                  "worker_profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+                }
+              ],
+              "gates": [],
+              "receipts": [
+                {
+                  "stage_id": "job-a/implementation",
+                  "episode": 1,
+                  "act": "admit",
+                  "operation_id": "offer.issue:offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                  "state": "performed",
+                  "recorded_at": "2026-09-02T00:00:00.000Z",
+                  "detail": {
+                    "canonical_state": "committed",
+                    "refusal": null,
+                    "result": {
+                      "expires_at": "2026-09-02T00:02:00.000Z",
+                      "issued_at": "2026-09-02T00:00:00.000Z",
+                      "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                      "participant": "baton.claude",
+                      "runtime_attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                      "verifier": "sha256:e4be2f73a24da935028e87b590d073d95640d8a484394bac4a188e3d8c099a55",
+                      "work_id": "0000000a-W1"
+                    },
+                    "settled_at": "2026-09-02T00:00:00.000Z"
+                  }
+                }
+              ],
+              "deferral": null,
+              "runtime": null,
+              "exchange": null,
+              "artifacts": null
+            },
+            {
+              "stage_id": "job-a/review",
+              "job_id": "job-a",
+              "kind": "review",
+              "state": "blocked",
+              "work_id": "0000000a-W1",
+              "profile_name": "claude-context-implementation",
+              "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "episode": 1,
+              "offer_id": "offer-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+              "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+              "episodes": [
+                {
+                  "stage_id": "job-a/review",
+                  "episode": 1,
+                  "offer_id": "offer-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+                  "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+                  "opened_at": "2026-09-02T00:00:00.000Z",
+                  "incarnation": "connected-packet",
+                  "ended_state": null,
+                  "ended_revision": null,
+                  "ended_at": null
+                }
+              ],
+              "corrections": 0,
+              "allocation": null,
+              "allocations": [],
+              "gates": [
+                {
+                  "stage_id": "job-a/implementation",
+                  "state": "offered",
+                  "open": false
+                }
+              ],
+              "receipts": [],
+              "deferral": null,
+              "runtime": null,
+              "exchange": null,
+              "artifacts": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "schema": "baton.v12.job-status/6",
+      "observed_at": "2026-09-02T00:00:00.000Z",
+      "incarnation": "connected-packet",
+      "canonical": true,
+      "jobs": [
+        {
+          "job_id": "job-a",
+          "submission_id": "submission-a",
+          "input_digest": "sha256:121dffc30385a97158c149832c806882e596501cc50546b0b6671ea8da78302b",
+          "policy_digest": "sha256:d398f8585dc7118d76836fdee00dcc0aae9882250e88e79cdd4ff7de19574795",
+          "test_scope": [
+            "docs/v12-context-correction.md"
+          ],
+          "terminal_policy": "report-and-hold",
+          "execution_limits": {
+            "units": "seconds",
+            "scope": "per-invocation",
+            "compatibility_generation": 1,
+            "requested": {
+              "provider_turn_seconds": 180,
+              "verification_command_seconds": 180
+            },
+            "boundaries": {
+              "host_verification": {
+                "seconds": 180,
+                "origin": "job",
+                "setting": "verification_command_seconds",
+                "default_seconds": 300
+              },
+              "integration_verification": {
+                "seconds": 180,
+                "origin": "job",
+                "setting": "verification_command_seconds",
+                "default_seconds": 1800
+              },
+              "ordinary_verification": {
+                "seconds": 180,
+                "origin": "job",
+                "setting": "verification_command_seconds",
+                "default_seconds": 900
+              },
+              "provider_turn": {
+                "seconds": 180,
+                "origin": "job",
+                "setting": "provider_turn_seconds",
+                "default_seconds": 3600
+              }
+            }
+          },
+          "stages": [
+            {
+              "stage_id": "job-a/implementation",
+              "job_id": "job-a",
+              "kind": "implementation",
+              "state": "waiting",
+              "work_id": "0000000a-W1",
+              "profile_name": "claude-context-implementation",
+              "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "episode": 1,
+              "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+              "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+              "episodes": [
+                {
+                  "stage_id": "job-a/implementation",
+                  "episode": 1,
+                  "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                  "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                  "opened_at": "2026-09-02T00:00:00.000Z",
+                  "incarnation": "connected-packet",
+                  "ended_state": null,
+                  "ended_revision": null,
+                  "ended_at": null
+                }
+              ],
+              "corrections": 0,
+              "allocation": {
+                "assignment_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                "stage_id": "job-a/implementation",
+                "episode": 1,
+                "generation": 1,
+                "worker_id": "implementation-worker",
+                "lane": "implementation",
+                "participant": "baton.claude",
+                "canonical_principal": "principal:baton.claude",
+                "preferred_worker_id": null,
+                "selection_outcome": "initial",
+                "allocation_state": "reserved",
+                "reserved_at": "2026-09-02T00:00:00.000Z",
+                "recovery_required_at": null,
+                "released_at": null,
+                "release_reason": null,
+                "variant": "baton.v12.stage-execution-deployment/1",
+                "separation_class": "provider-diverse",
+                "generation_digest": "sha256:31df87bdac79afa9c114b29dd3323bc887cbec630c2eb35365b1effa611519e4",
+                "worker_profile_name": "claude-context-implementation",
+                "worker_profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+              },
+              "allocations": [
+                {
+                  "assignment_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                  "stage_id": "job-a/implementation",
+                  "episode": 1,
+                  "generation": 1,
+                  "worker_id": "implementation-worker",
+                  "lane": "implementation",
+                  "participant": "baton.claude",
+                  "canonical_principal": "principal:baton.claude",
+                  "preferred_worker_id": null,
+                  "selection_outcome": "initial",
+                  "allocation_state": "reserved",
+                  "reserved_at": "2026-09-02T00:00:00.000Z",
+                  "recovery_required_at": null,
+                  "released_at": null,
+                  "release_reason": null,
+                  "variant": "baton.v12.stage-execution-deployment/1",
+                  "separation_class": "provider-diverse",
+                  "generation_digest": "sha256:31df87bdac79afa9c114b29dd3323bc887cbec630c2eb35365b1effa611519e4",
+                  "worker_profile_name": "claude-context-implementation",
+                  "worker_profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+                }
+              ],
+              "gates": [],
+              "receipts": [
+                {
+                  "stage_id": "job-a/implementation",
+                  "episode": 1,
+                  "act": "admit",
+                  "operation_id": "offer.issue:offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                  "state": "performed",
+                  "recorded_at": "2026-09-02T00:00:00.000Z",
+                  "detail": {
+                    "canonical_state": "committed",
+                    "refusal": null,
+                    "result": {
+                      "expires_at": "2026-09-02T00:02:00.000Z",
+                      "issued_at": "2026-09-02T00:00:00.000Z",
+                      "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                      "participant": "baton.claude",
+                      "runtime_attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                      "verifier": "sha256:e4be2f73a24da935028e87b590d073d95640d8a484394bac4a188e3d8c099a55",
+                      "work_id": "0000000a-W1"
+                    },
+                    "settled_at": "2026-09-02T00:00:00.000Z"
+                  }
+                },
+                {
+                  "stage_id": "job-a/implementation",
+                  "episode": 1,
+                  "act": "claim",
+                  "operation_id": "offer.settle:offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                  "state": "performed",
+                  "recorded_at": "2026-09-02T00:00:00.000Z",
+                  "detail": {
+                    "canonical_state": "committed",
+                    "refusal": null,
+                    "result": {
+                      "assignment": {
+                        "generation": 1,
+                        "participant": "baton.claude",
+                        "work_ref": {
+                          "authority_uuid": "0000000a000000000000000000000000",
+                          "work_id": "0000000a-W1"
+                        }
+                      },
+                      "claim_event": 1,
+                      "decision": {
+                        "effective_scope": "scope:deployment",
+                        "endpoint": "baton.claude",
+                        "grant": "direct",
+                        "policy_generation": 13,
+                        "principal": "principal:baton.claude",
+                        "role": "baton.impl"
+                      },
+                      "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                      "state": "claimed"
+                    },
+                    "settled_at": "2026-09-02T00:00:00.000Z"
+                  }
+                }
+              ],
+              "deferral": null,
+              "runtime": {
+                "runtime_id": "runtime-single-1",
+                "execution_runtime": "running",
+                "assignment": {
+                  "work_ref": {
+                    "authority_uuid": "0000000a000000000000000000000000",
+                    "work_id": "0000000a-W1"
+                  },
+                  "participant": "baton.claude",
+                  "generation": 1
+                },
+                "activity": {
+                  "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                  "bytes_observed": null,
+                  "observed_at": null
+                }
+              },
+              "exchange": {
+                "transport": "baton.worker-exchange/1",
+                "sequence_id": "sequence-95aa25f4e27f51829412b94bd027302a",
+                "command": {
+                  "sequence_id": "sequence-95aa25f4e27f51829412b94bd027302a",
+                  "command_digest": "sha256:73318ee459261269e9279e554b74dcebbec21ebdce537a4d35e37669a2045c41",
+                  "operations": [
+                    "describe",
+                    "work"
+                  ]
+                },
+                "receipt": null,
+                "states": [],
+                "terminal": null,
+                "foreign": [],
+                "unreadable": null,
+                "state": "waiting"
+              },
+              "artifacts": null
+            },
+            {
+              "stage_id": "job-a/review",
+              "job_id": "job-a",
+              "kind": "review",
+              "state": "blocked",
+              "work_id": "0000000a-W1",
+              "profile_name": "claude-context-implementation",
+              "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "episode": 1,
+              "offer_id": "offer-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+              "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+              "episodes": [
+                {
+                  "stage_id": "job-a/review",
+                  "episode": 1,
+                  "offer_id": "offer-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+                  "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+                  "opened_at": "2026-09-02T00:00:00.000Z",
+                  "incarnation": "connected-packet",
+                  "ended_state": null,
+                  "ended_revision": null,
+                  "ended_at": null
+                }
+              ],
+              "corrections": 0,
+              "allocation": null,
+              "allocations": [],
+              "gates": [
+                {
+                  "stage_id": "job-a/implementation",
+                  "state": "waiting",
+                  "open": false
+                }
+              ],
+              "receipts": [],
+              "deferral": null,
+              "runtime": null,
+              "exchange": null,
+              "artifacts": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "schema": "baton.v12.job-status/6",
+      "observed_at": "2026-09-02T00:00:00.000Z",
+      "incarnation": "connected-packet",
+      "canonical": true,
+      "jobs": [
+        {
+          "job_id": "job-a",
+          "submission_id": "submission-a",
+          "input_digest": "sha256:121dffc30385a97158c149832c806882e596501cc50546b0b6671ea8da78302b",
+          "policy_digest": "sha256:d398f8585dc7118d76836fdee00dcc0aae9882250e88e79cdd4ff7de19574795",
+          "test_scope": [
+            "docs/v12-context-correction.md"
+          ],
+          "terminal_policy": "report-and-hold",
+          "execution_limits": {
+            "units": "seconds",
+            "scope": "per-invocation",
+            "compatibility_generation": 1,
+            "requested": {
+              "provider_turn_seconds": 180,
+              "verification_command_seconds": 180
+            },
+            "boundaries": {
+              "host_verification": {
+                "seconds": 180,
+                "origin": "job",
+                "setting": "verification_command_seconds",
+                "default_seconds": 300
+              },
+              "integration_verification": {
+                "seconds": 180,
+                "origin": "job",
+                "setting": "verification_command_seconds",
+                "default_seconds": 1800
+              },
+              "ordinary_verification": {
+                "seconds": 180,
+                "origin": "job",
+                "setting": "verification_command_seconds",
+                "default_seconds": 900
+              },
+              "provider_turn": {
+                "seconds": 180,
+                "origin": "job",
+                "setting": "provider_turn_seconds",
+                "default_seconds": 3600
+              }
+            }
+          },
+          "stages": [
+            {
+              "stage_id": "job-a/implementation",
+              "job_id": "job-a",
+              "kind": "implementation",
+              "state": "exceptional",
+              "work_id": "0000000a-W1",
+              "profile_name": "claude-context-implementation",
+              "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "episode": 1,
+              "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+              "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+              "episodes": [
+                {
+                  "stage_id": "job-a/implementation",
+                  "episode": 1,
+                  "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                  "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                  "opened_at": "2026-09-02T00:00:00.000Z",
+                  "incarnation": "connected-packet",
+                  "ended_state": null,
+                  "ended_revision": null,
+                  "ended_at": null
+                }
+              ],
+              "corrections": 0,
+              "allocation": {
+                "assignment_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                "stage_id": "job-a/implementation",
+                "episode": 1,
+                "generation": 1,
+                "worker_id": "implementation-worker",
+                "lane": "implementation",
+                "participant": "baton.claude",
+                "canonical_principal": "principal:baton.claude",
+                "preferred_worker_id": null,
+                "selection_outcome": "initial",
+                "allocation_state": "reserved",
+                "reserved_at": "2026-09-02T00:00:00.000Z",
+                "recovery_required_at": null,
+                "released_at": null,
+                "release_reason": null,
+                "variant": "baton.v12.stage-execution-deployment/1",
+                "separation_class": "provider-diverse",
+                "generation_digest": "sha256:31df87bdac79afa9c114b29dd3323bc887cbec630c2eb35365b1effa611519e4",
+                "worker_profile_name": "claude-context-implementation",
+                "worker_profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+              },
+              "allocations": [
+                {
+                  "assignment_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                  "stage_id": "job-a/implementation",
+                  "episode": 1,
+                  "generation": 1,
+                  "worker_id": "implementation-worker",
+                  "lane": "implementation",
+                  "participant": "baton.claude",
+                  "canonical_principal": "principal:baton.claude",
+                  "preferred_worker_id": null,
+                  "selection_outcome": "initial",
+                  "allocation_state": "reserved",
+                  "reserved_at": "2026-09-02T00:00:00.000Z",
+                  "recovery_required_at": null,
+                  "released_at": null,
+                  "release_reason": null,
+                  "variant": "baton.v12.stage-execution-deployment/1",
+                  "separation_class": "provider-diverse",
+                  "generation_digest": "sha256:31df87bdac79afa9c114b29dd3323bc887cbec630c2eb35365b1effa611519e4",
+                  "worker_profile_name": "claude-context-implementation",
+                  "worker_profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+                }
+              ],
+              "gates": [],
+              "receipts": [
+                {
+                  "stage_id": "job-a/implementation",
+                  "episode": 1,
+                  "act": "admit",
+                  "operation_id": "offer.issue:offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                  "state": "performed",
+                  "recorded_at": "2026-09-02T00:00:00.000Z",
+                  "detail": {
+                    "canonical_state": "committed",
+                    "refusal": null,
+                    "result": {
+                      "expires_at": "2026-09-02T00:02:00.000Z",
+                      "issued_at": "2026-09-02T00:00:00.000Z",
+                      "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                      "participant": "baton.claude",
+                      "runtime_attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                      "verifier": "sha256:e4be2f73a24da935028e87b590d073d95640d8a484394bac4a188e3d8c099a55",
+                      "work_id": "0000000a-W1"
+                    },
+                    "settled_at": "2026-09-02T00:00:00.000Z"
+                  }
+                },
+                {
+                  "stage_id": "job-a/implementation",
+                  "episode": 1,
+                  "act": "claim",
+                  "operation_id": "offer.settle:offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                  "state": "performed",
+                  "recorded_at": "2026-09-02T00:00:00.000Z",
+                  "detail": {
+                    "canonical_state": "committed",
+                    "refusal": null,
+                    "result": {
+                      "assignment": {
+                        "generation": 1,
+                        "participant": "baton.claude",
+                        "work_ref": {
+                          "authority_uuid": "0000000a000000000000000000000000",
+                          "work_id": "0000000a-W1"
+                        }
+                      },
+                      "claim_event": 1,
+                      "decision": {
+                        "effective_scope": "scope:deployment",
+                        "endpoint": "baton.claude",
+                        "grant": "direct",
+                        "policy_generation": 13,
+                        "principal": "principal:baton.claude",
+                        "role": "baton.impl"
+                      },
+                      "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                      "state": "claimed"
+                    },
+                    "settled_at": "2026-09-02T00:00:00.000Z"
+                  }
+                }
+              ],
+              "deferral": null,
+              "runtime": {
+                "runtime_id": "runtime-single-1",
+                "execution_runtime": "quiescent",
+                "assignment": {
+                  "work_ref": {
+                    "authority_uuid": "0000000a000000000000000000000000",
+                    "work_id": "0000000a-W1"
+                  },
+                  "participant": "baton.claude",
+                  "generation": 1
+                },
+                "activity": {
+                  "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                  "bytes_observed": null,
+                  "observed_at": null
+                }
+              },
+              "exchange": {
+                "transport": "baton.worker-exchange/1",
+                "sequence_id": "sequence-95aa25f4e27f51829412b94bd027302a",
+                "command": {
+                  "sequence_id": "sequence-95aa25f4e27f51829412b94bd027302a",
+                  "command_digest": "sha256:73318ee459261269e9279e554b74dcebbec21ebdce537a4d35e37669a2045c41",
+                  "operations": [
+                    "describe",
+                    "work"
+                  ]
+                },
+                "receipt": null,
+                "states": [],
+                "terminal": null,
+                "foreign": [],
+                "unreadable": null,
+                "state": "waiting"
+              },
+              "artifacts": null
+            },
+            {
+              "stage_id": "job-a/review",
+              "job_id": "job-a",
+              "kind": "review",
+              "state": "blocked",
+              "work_id": "0000000a-W1",
+              "profile_name": "claude-context-implementation",
+              "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "episode": 1,
+              "offer_id": "offer-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+              "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+              "episodes": [
+                {
+                  "stage_id": "job-a/review",
+                  "episode": 1,
+                  "offer_id": "offer-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+                  "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+                  "opened_at": "2026-09-02T00:00:00.000Z",
+                  "incarnation": "connected-packet",
+                  "ended_state": null,
+                  "ended_revision": null,
+                  "ended_at": null
+                }
+              ],
+              "corrections": 0,
+              "allocation": null,
+              "allocations": [],
+              "gates": [
+                {
+                  "stage_id": "job-a/implementation",
+                  "state": "exceptional",
+                  "open": false
+                }
+              ],
+              "receipts": [],
+              "deferral": null,
+              "runtime": null,
+              "exchange": null,
+              "artifacts": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "schema": "baton.v12.job-status/6",
+      "observed_at": "2026-09-02T00:00:00.000Z",
+      "incarnation": "connected-packet",
+      "canonical": true,
+      "jobs": [
+        {
+          "job_id": "job-a",
+          "submission_id": "submission-a",
+          "input_digest": "sha256:121dffc30385a97158c149832c806882e596501cc50546b0b6671ea8da78302b",
+          "policy_digest": "sha256:d398f8585dc7118d76836fdee00dcc0aae9882250e88e79cdd4ff7de19574795",
+          "test_scope": [
+            "docs/v12-context-correction.md"
+          ],
+          "terminal_policy": "report-and-hold",
+          "execution_limits": {
+            "units": "seconds",
+            "scope": "per-invocation",
+            "compatibility_generation": 1,
+            "requested": {
+              "provider_turn_seconds": 180,
+              "verification_command_seconds": 180
+            },
+            "boundaries": {
+              "host_verification": {
+                "seconds": 180,
+                "origin": "job",
+                "setting": "verification_command_seconds",
+                "default_seconds": 300
+              },
+              "integration_verification": {
+                "seconds": 180,
+                "origin": "job",
+                "setting": "verification_command_seconds",
+                "default_seconds": 1800
+              },
+              "ordinary_verification": {
+                "seconds": 180,
+                "origin": "job",
+                "setting": "verification_command_seconds",
+                "default_seconds": 900
+              },
+              "provider_turn": {
+                "seconds": 180,
+                "origin": "job",
+                "setting": "provider_turn_seconds",
+                "default_seconds": 3600
+              }
+            }
+          },
+          "stages": [
+            {
+              "stage_id": "job-a/implementation",
+              "job_id": "job-a",
+              "kind": "implementation",
+              "state": "exceptional",
+              "work_id": "0000000a-W1",
+              "profile_name": "claude-context-implementation",
+              "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "episode": 1,
+              "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+              "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+              "episodes": [
+                {
+                  "stage_id": "job-a/implementation",
+                  "episode": 1,
+                  "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                  "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                  "opened_at": "2026-09-02T00:00:00.000Z",
+                  "incarnation": "connected-packet",
+                  "ended_state": null,
+                  "ended_revision": null,
+                  "ended_at": null
+                }
+              ],
+              "corrections": 0,
+              "allocation": {
+                "assignment_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                "stage_id": "job-a/implementation",
+                "episode": 1,
+                "generation": 1,
+                "worker_id": "implementation-worker",
+                "lane": "implementation",
+                "participant": "baton.claude",
+                "canonical_principal": "principal:baton.claude",
+                "preferred_worker_id": null,
+                "selection_outcome": "initial",
+                "allocation_state": "reserved",
+                "reserved_at": "2026-09-02T00:00:00.000Z",
+                "recovery_required_at": null,
+                "released_at": null,
+                "release_reason": null,
+                "variant": "baton.v12.stage-execution-deployment/1",
+                "separation_class": "provider-diverse",
+                "generation_digest": "sha256:31df87bdac79afa9c114b29dd3323bc887cbec630c2eb35365b1effa611519e4",
+                "worker_profile_name": "claude-context-implementation",
+                "worker_profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+              },
+              "allocations": [
+                {
+                  "assignment_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                  "stage_id": "job-a/implementation",
+                  "episode": 1,
+                  "generation": 1,
+                  "worker_id": "implementation-worker",
+                  "lane": "implementation",
+                  "participant": "baton.claude",
+                  "canonical_principal": "principal:baton.claude",
+                  "preferred_worker_id": null,
+                  "selection_outcome": "initial",
+                  "allocation_state": "reserved",
+                  "reserved_at": "2026-09-02T00:00:00.000Z",
+                  "recovery_required_at": null,
+                  "released_at": null,
+                  "release_reason": null,
+                  "variant": "baton.v12.stage-execution-deployment/1",
+                  "separation_class": "provider-diverse",
+                  "generation_digest": "sha256:31df87bdac79afa9c114b29dd3323bc887cbec630c2eb35365b1effa611519e4",
+                  "worker_profile_name": "claude-context-implementation",
+                  "worker_profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+                }
+              ],
+              "gates": [],
+              "receipts": [
+                {
+                  "stage_id": "job-a/implementation",
+                  "episode": 1,
+                  "act": "admit",
+                  "operation_id": "offer.issue:offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                  "state": "performed",
+                  "recorded_at": "2026-09-02T00:00:00.000Z",
+                  "detail": {
+                    "canonical_state": "committed",
+                    "refusal": null,
+                    "result": {
+                      "expires_at": "2026-09-02T00:02:00.000Z",
+                      "issued_at": "2026-09-02T00:00:00.000Z",
+                      "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                      "participant": "baton.claude",
+                      "runtime_attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                      "verifier": "sha256:e4be2f73a24da935028e87b590d073d95640d8a484394bac4a188e3d8c099a55",
+                      "work_id": "0000000a-W1"
+                    },
+                    "settled_at": "2026-09-02T00:00:00.000Z"
+                  }
+                },
+                {
+                  "stage_id": "job-a/implementation",
+                  "episode": 1,
+                  "act": "claim",
+                  "operation_id": "offer.settle:offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                  "state": "performed",
+                  "recorded_at": "2026-09-02T00:00:00.000Z",
+                  "detail": {
+                    "canonical_state": "committed",
+                    "refusal": null,
+                    "result": {
+                      "assignment": {
+                        "generation": 1,
+                        "participant": "baton.claude",
+                        "work_ref": {
+                          "authority_uuid": "0000000a000000000000000000000000",
+                          "work_id": "0000000a-W1"
+                        }
+                      },
+                      "claim_event": 1,
+                      "decision": {
+                        "effective_scope": "scope:deployment",
+                        "endpoint": "baton.claude",
+                        "grant": "direct",
+                        "policy_generation": 13,
+                        "principal": "principal:baton.claude",
+                        "role": "baton.impl"
+                      },
+                      "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                      "state": "claimed"
+                    },
+                    "settled_at": "2026-09-02T00:00:00.000Z"
+                  }
+                }
+              ],
+              "deferral": null,
+              "runtime": {
+                "runtime_id": "runtime-single-1",
+                "execution_runtime": "quiescent",
+                "assignment": {
+                  "work_ref": {
+                    "authority_uuid": "0000000a000000000000000000000000",
+                    "work_id": "0000000a-W1"
+                  },
+                  "participant": "baton.claude",
+                  "generation": 1
+                },
+                "activity": {
+                  "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                  "bytes_observed": null,
+                  "observed_at": null
+                }
+              },
+              "exchange": {
+                "transport": "baton.worker-exchange/1",
+                "sequence_id": "sequence-95aa25f4e27f51829412b94bd027302a",
+                "command": {
+                  "sequence_id": "sequence-95aa25f4e27f51829412b94bd027302a",
+                  "command_digest": "sha256:73318ee459261269e9279e554b74dcebbec21ebdce537a4d35e37669a2045c41",
+                  "operations": [
+                    "describe",
+                    "work"
+                  ]
+                },
+                "receipt": null,
+                "states": [],
+                "terminal": null,
+                "foreign": [],
+                "unreadable": null,
+                "state": "waiting"
+              },
+              "artifacts": null
+            },
+            {
+              "stage_id": "job-a/review",
+              "job_id": "job-a",
+              "kind": "review",
+              "state": "blocked",
+              "work_id": "0000000a-W1",
+              "profile_name": "claude-context-implementation",
+              "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "episode": 1,
+              "offer_id": "offer-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+              "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+              "episodes": [
+                {
+                  "stage_id": "job-a/review",
+                  "episode": 1,
+                  "offer_id": "offer-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+                  "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+                  "opened_at": "2026-09-02T00:00:00.000Z",
+                  "incarnation": "connected-packet",
+                  "ended_state": null,
+                  "ended_revision": null,
+                  "ended_at": null
+                }
+              ],
+              "corrections": 0,
+              "allocation": null,
+              "allocations": [],
+              "gates": [
+                {
+                  "stage_id": "job-a/implementation",
+                  "state": "exceptional",
+                  "open": false
+                }
+              ],
+              "receipts": [],
+              "deferral": null,
+              "runtime": null,
+              "exchange": null,
+              "artifacts": null
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "outcome": {
+    "schema": "baton.managed-correction-outcome/1",
+    "run_id": "a",
+    "work": "0000000a-W1",
+    "claim": 309871,
+    "outcome": "failed-or-unknown",
+    "state": "held",
+    "held_because": [
+      "the run stopped 'serving-failed' rather than completing its stages",
+      "this manager cannot prove positive cleanup for attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571, attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+      "the reviewer's disposition could not be read, so this run has no verdict; an unread verdict is never an acceptance",
+      "the serving loop did not end cleanly: AttributeError: 'NoneType' object has no attribute 'document'"
+    ],
+    "retry": false,
+    "finished_at": "2026-09-29T22:42:37.800Z",
+    "uncertainty": [],
+    "submitted_at": "2026-09-29T22:42:36.759Z",
+    "job_id": "job-a",
+    "serving_seconds": 840,
+    "reserved_seconds": 60,
+    "preexisting_jobs": [],
+    "accounting_scope": "this run accounts for Job 'job-a' and for nothing else. Attempt discovery, cancellation and cleanup all read the status projection filtered to that Job, so a runtime belonging to another Job in this store is NOT covered by this outcome and its absence is NOT established by it.",
+    "submission_id": "submission-a",
+    "provider_turn": {
+      "seconds": 180,
+      "origin": "job",
+      "setting": "provider_turn_seconds",
+      "default_seconds": 3600
+    },
+    "serving_failure": "AttributeError: 'NoneType' object has no attribute 'document'",
+    "stopped": "serving-failed",
+    "serving_seconds_spent": 3.0,
+    "stage_states": {
+      "implementation": "exceptional",
+      "review": "blocked"
+    },
+    "admissions": {
+      "implementation": 1,
+      "review": 0
+    },
+    "cancellation": {
+      "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {
+        "runtime_id": "runtime-single-1",
+        "execution_runtime": "running",
+        "stage_state": "waiting",
+        "requested": true,
+        "answer": {
+          "fenced": {
+            "assignment": "{'work_ref': {'authority_uuid': '0000000a000000000000000000000000', 'work_id': '0000000a-W1'}, 'participant': 'baton.claude', 'generation': 1}",
+            "cause": "cancelled",
+            "fenced": true,
+            "gate": "runtime-quiescence:1",
+            "phase": "block"
+          },
+          "intent": {
+            "assignment": "{'work_ref': {'authority_uuid': '0000000a000000000000000000000000', 'work_id': '0000000a-W1'}, 'participant': 'baton.claude', 'generation': 1}",
+            "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+            "authority_operation_id": "authority.attempt.cancel:5216d33ac31b80877f9d9633afccdfea6c91568f5337c9fae4ea7aba14e000c1",
+            "reason": "serving-failed"
+          },
+          "quiescence": {
+            "agent_settlement": "{'cooperative': False, 'participant': 'baton.claude', 'attempt_id': 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571', 'operation_id': 'attempt.cancel:5216d33ac31b80877f9d9633afccdfea6c91568f5337c9fae4ea7aba14e000c1', 'why': \"this deployment's worker is driven through a durable file exchange and carries no cooperative cancellation channel; the runtime stop below is the whole of the order this attempt receives\"}",
+            "ordered": true,
+            "runtime_id": "runtime-single-1",
+            "runtime_settlement": "{'runtime_id': 'runtime-single-1', 'ordered': True, 'state': 'quiescent', 'why': 'the engine reports it not running'}"
+          },
+          "session_quiescence": {
+            "agent_session_ref": null,
+            "requested": false,
+            "state": null,
+            "why": "no execution session holds the posture of attempt 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be1\u2026; there is no conversation to interrupt"
+          }
+        }
+      },
+      "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c": {
+        "requested": true,
+        "runtime_id": null,
+        "execution_runtime": null,
+        "why": "this manager answers that it holds no attempt row for this identity and this run never launched it, so no runtime was allocated for it. That is not a claim that nothing is running anywhere."
+      }
+    },
+    "cleanup_sweeps": 59,
+    "final_canonical_read": true,
+    "intruders": [],
+    "implementation_attempts": [
+      "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"
+    ],
+    "review_attempts": [
+      "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c"
+    ],
+    "episode_chronology": {
+      "implementation": [
+        "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"
+      ],
+      "review": [
+        "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c"
+      ]
+    },
+    "cleanup": {
+      "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {
+        "cleanup": null,
+        "why": "no committed cleanup"
+      },
+      "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c": {
+        "cleanup": null,
+        "why": "no runtime attempt 'attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb\u2026"
+      }
+    },
+    "observed_attempts": [
+      "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c"
+    ],
+    "review_disposition": null,
+    "context_continuity": {
+      "continued": false,
+      "why": "no correction round happened"
+    },
+    "interrupted": null,
+    "interruptions": []
+  }
+}

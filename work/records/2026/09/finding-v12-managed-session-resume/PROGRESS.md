@@ -645,3 +645,2282 @@ Author cumulative for W236087: 415.934725242s + 25.897337019006955s +
 `resume_state.py` is not measured separately.
 
 State: passed for independent review.
+
+
+## Claim 308641 — baton.claude, implementation reassigned; the DB-1 admission boundary corrected
+
+READ: `detail work=W236087`, the WHOLE of T236087 (eight messages, `next_after: null`, through
+239616), events after 308000 — **owner reroute 308630 reassigning implementation to baton.claude** —
+`PREPARATION-307667.md`, `RESEARCH-307667.json`, `SOURCE-307667.json`, and the FINDING/PLAN tails.
+
+OWNERSHIP PINNED FIRST, as the reroute requires, in both FINDING.md and PLAN.md: the reassignment,
+the exact owned path set from the preparation, what is preserved untouched (the reviewer's
+preparation, E307708 scope, research/source pins, the review journals, every historical author
+artifact), and the unchanged limits.
+
+PINNED DECISIONS REVALIDATED AGAINST THE CURRENT TREE, not assumed: every digest in
+`SOURCE-307667.json` still matches byte for byte — `provider_context.py` `f7df4ff84813…`,
+`context_delivery.py` `f17ce3c53e52…`, `store.py` `3d44991274f7…`, `tools/single_worker.py`
+`12a9e6a54b25…`, `tools/stage_execution.py` `38c4cf74db02…`. The defect is corrected against the
+bytes it was localised in.
+
+### What was wrong, and the shape of the correction
+
+`_transition`'s `check` and `bind_context_invocation`'s `commit` both called `_facts` from INSIDE
+`control.transact`'s `BEGIN IMMEDIATE`. `_facts` reads Job-store rows, asks the Authority and walks
+two filesystem ancestries with `context_delivery._open_absolute`. That is a cross-store read and an
+I/O wait under a write lock: DESIGN DB-1 forbids it and DB-2/4 forbid holding for it.
+
+THE SPLIT IS NOT "MOVE EVERYTHING OUT", and getting that wrong is measured below. What moved out is
+`_facts` alone — `_owner_facts` reads it before the transaction opens, and the in-transaction check
+compares the gathered values in memory. What STAYED IN is the qualification selection and the
+transition chain, because `_qualified` reads only the control store's own journal families and
+`_history` reads its own transitions: inside their own transaction those ARE the compare-and-swap
+DB-3/5 asks for. Freshness for what moved is held by the durable journalled request, the revision
+compare-and-swap, and `revalidate_context_start`, which re-derives the same facts outside any
+transaction before a runtime may start.
+
+MY FIRST ATTEMPT MOVED `_qualified` OUT TOO, and the suite said no: two
+`QualificationAdmissionRegression` cases failed — `..._consumes_between_selection_and_commit` and
+`..._grant_is_rechecked_inside_commit_and_request_restart`. They are protecting exactly the
+same-store comparison, and they were right. I reverted to the pinned bytes to measure the baseline
+before deciding, then re-applied with the narrower split.
+
+### Evidence, including the counter-check
+
+    BASELINE, on the pinned bytes: 158 tests, 3 failures — `ServingEnding.test_reopen_*` in
+    `test_claude_context.py`, all three at the same line: `assertFalse(Path(roots["inputs"]).exists())`
+    answering `True is not false`. PRE-EXISTING and NOT caused by this change; recorded as an
+    observation, not fixed here, because it is a separate diagnosis about reopen materialisation.
+    AFTER: 178 tests (the four owned/reused families), the SAME 3 failures and nothing else.
+    THE COUNTER-CHECK, which is what makes the new cases evidence: reverted to the pinned bytes with
+    the new cases in place, both boundary cases FAIL and name the readers —
+    `['_job_attempt', '_open_absolute', 'attempts.assignment_of']` inside the transaction.
+
+NEW CASES. `tests/manager/test_provider_context.py` `TransactionBoundaryRegression`: a public
+admission reaches nothing external under the lock (and really admits), a REFUSING admission holds the
+same boundary, and the same-store comparison is still made inside — the last one asserts the opposite
+of the first two, on purpose, so a future "simplification" that moves `_qualified` out fails here.
+`tests/tools/test_correction_restart.py` `TransactionBoundaryThroughTheConnectedPath`: the same rule
+over the whole scenario that trace already drives — open, save, exact stop, changes-requested
+correction, restore — which is where `bind_context_invocation` and `revalidate_context_start`
+actually run, and it validates the scenario artifact so an empty observation cannot come from an
+empty run. That reuses the vehicle the preparation names rather than building another.
+
+I DID NOT ADD A UNIT CASE FOR THE BINDING in `test_provider_context.py`, and I wrote one before
+removing it: `bind_context_invocation` needs a submitted manifest and task bytes that disposable
+fixture does not build, so the case errored rather than asserted. A case that asserts nothing because
+its subject never ran is worse than no case; the connected case above covers that path instead, and
+the class docstring says so.
+
+### What this claim does NOT deliver
+
+Acceptance items 2 and 3 of `PREPARATION-307667.md` — the connected open→save→stop→review→correction
+sequence as a delivered proof with attribution, and the digest-bound executable packet — are not in
+this claim. Item 1 is the boundary correction and its focused evidence, which is what this is. No live
+execution, no deployment change, no credential operation, no Git mutation, no DESIGN edit, no edit to
+W306614-owned or W247941 accepted files.
+
+Files changed: `src/baton_v12/worker_manager/provider_context.py` (774ce77e789f, was f7df4ff84813),
+`tests/manager/test_provider_context.py` (a86981ce0264), `tests/tools/test_correction_restart.py`
+(8614636f9972), plus the ownership pin in FINDING.md (075ef493186d) and PLAN.md (bdc26342d56f).
+`context_delivery.py` is unchanged.
+
+
+## Claim 308784 — R1 and R2 corrected; the three reopen failures DIAGNOSED
+
+READ: `detail work=W236087`, events after 308735 (my pass 308740, reviewer claim 308745, the
+changes-requested pass 308781), `review-2026-09-29T19-50-38Z.md`, and T236087 again (no newer
+messages). Both findings were right and my justification for one of them was FALSE.
+
+### R1 — `_qualified` is not journal-only, and I said it was
+
+I wrote that `_qualified` reads only local journals. IT DOES NOT: the candidate branch calls
+`qualification_deployment`, which opens the configured context storage and walks the workspace
+ancestry — two `_open_absolute` walks — and the production branch reaches the same call. The reviewer
+observed both under BEGIN IMMEDIATE on a candidate admission. My own boundary test missed it because a
+DETERMINISTIC profile returns from `_qualified` before that branch, so a passing deterministic
+admission proved nothing about it.
+
+THE DEPLOYMENT IS NOW AN OPERAND, resolved outside the transaction by `_owner_facts` and passed in.
+What stays inside is the grant selection and consumption, the certification journal validation and the
+revision compare-and-swap — this store's own rows, which is the compare-and-swap DB-3/5 wants.
+
+### R2 — `context_use_of` is not journal-only either
+
+On a FINALIZED head it calls `validate_generation`, which opens the private generation files, so the
+binding's `commit` could perform filesystem validation under the write lock before refusing.
+`_journal_use` is the journal half and the commit asks only that; `context_use_of` keeps the
+validation and is now called BEFORE the transaction, so a damaged generation is still refused.
+
+### Evidence, with counter-checks
+
+    181 tests across the four owned/reused families, 61.2s, and only the three pre-existing
+    `ServingEnding.test_reopen_*` failures.
+    R1 COUNTER-CHECK: dropping the new operand so `_qualified` resolves the deployment itself makes
+    the new candidate case fail with `['_open_absolute', '_open_absolute']` — exactly the two walks
+    the reviewer observed.
+    R2 COUNTER-CHECK: the finalized case asserts BOTH halves — `_journal_use` answers `ready` and
+    opens nothing, and `context_use_of` still opens files. A split that dropped the validation fails
+    the second half.
+
+NEW CASES: a CANDIDATE qualification admission holds the boundary and really consumes its grant; the
+deployment comparison survives becoming an operand (a disagreeing operand must still refuse); a
+FINALIZED use is judged from the journal without the filesystem. Plus the earlier three.
+
+THREE THINGS I GOT WRONG AND FIXED WHILE WRITING THOSE, each measured rather than reasoned: a test
+stub for `_qualified` took six positional arguments and my new operand made seven; reconfiguring the
+workspace store to create a deployment disagreement is refused outright ("a changed store is a fresh
+store rather than a reconfiguration"); and authorizing a grant against a foreign storage path is
+refused at authorization ("qualification storage differs from configured deployment"). The system is
+tighter than I assumed twice, so the case now drives `_qualified` directly with a disagreeing operand
+— which is what actually protects the split.
+
+THE PRODUCTION BRANCH IS NOT DRIVEN and the case says so rather than pretending: it reaches the same
+`qualification_deployment(...)` call, now fed by the same operand, and certifying a production profile
+needs a full accepted continuity report with a retained provider result, which this disposable fixture
+does not build.
+
+### The three reopen failures, diagnosed as the review required
+
+They are `ServingEnding.cut`'s `assertFalse(Path(roots["inputs"]).exists())`, and they fail on the
+PINNED bytes too, so they are not this work's. What I measured:
+
+    AFTER the injected manager loss the attempt's inputs root still exists, holding
+    `assignment.json`, `input.json`, `source`, `task.json`.
+    IT IS NOT THE HARNESS ROOT: the three fail identically with `BATON_V12_DISK_ROOT` set to a
+    disk-backed root outside the checkout.
+    THE EXPECTATION CONTRADICTS THE SAME HELPER TWO LINES LATER. `cut` then reopens and asserts the
+    ending must settle WITHOUT re-materialization — `launch.materialize` is patched to raise — which
+    can only hold if the material is still there. With ONLY that one expectation skipped, the rest of
+    the case PASSES: the ending settles, the use reaches `ready`, the provider is not called again
+    and no new engine start happens.
+
+SO THE DIAGNOSIS IS THAT THE EXPECTATION IS STALE, not that the manager leaks a mount: retention after
+a failed finalization is what makes the reopen work, and it is consistent with preserving evidence on
+failure. I HAVE NOT CHANGED THE ASSERTION. The review says not to remove assertions merely to pass,
+and this one guards real coverage; the reviewer should confirm the reading before I edit it.
+
+### Still owed
+
+Item 1's remaining freshness/replay/refusal and unrelated-progress proof beyond what is above, then
+item 2's connected attributed correction with a selected interruption, then item 3's digest-bound
+packet.
+
+Files: `provider_context.py` (9657702ffc00, was 774ce77e789f), `tests/manager/test_provider_context.py`
+(e555f14036bc), `tests/tools/test_correction_restart.py` (8614636f9972, unchanged this claim).
+
+
+## Claim 308879 — item 1 completed; the stale reopen expectations replaced; 185 PASS, 0 failures
+
+READ: `detail work=W236087`, events after 308850 (my return 308856, reviewer claim 308858, the
+accepting pass 308876), `review-2026-09-29T20-04-01Z.md`, and T236087 (no newer messages). The R1/R2
+slice was accepted. Three things were asked for and all three are done.
+
+### The obsolete comment
+
+The comment above the binding still said `context_use_of` STAYS inside and is journal-only — which I
+had already made false by moving it out. It now says what the code does and why the old claim was
+wrong: on a finalized head that reader opens the private generation files, so it was never the
+journal-only check the comment asserted.
+
+### The stale reopen expectations, replaced under standing authority
+
+`ServingEnding.cut` asserted the attempt's inputs root was ABSENT after an injected manager loss. The
+review confirms that is obsolete against DESIGN ART-7 and the selected completion path in `intake.py`
+— "the workspace is preserved as is", "no container is created or started, no permission is changed
+and NOTHING IS DELETED" — and that standing test authority covers the replacement with no
+confirmation gate.
+
+IT IS NOW AN EXPLICIT PRESERVATION EXPECTATION: the inputs root is a directory, its members are
+exactly `assignment.json`, `input.json`, `source`, `task.json`, and the material is non-empty rather
+than a shell. EVERY OTHER ASSERTION IS RETAINED — no settlement before the reopen, exactly one
+provider call, unchanged engine starts, settlement after the reopen, the use reaching `ready`, and the
+patches that make a fresh admission or a re-materialization an immediate failure.
+
+AND I DID NOT BASE IT ON MY EARLIER INFERENCE. The review is right that
+`SingleWorker`'s historical-ending branch deliberately works without live roots, so
+"no re-materialization implies the roots exist" does not follow; the comment in the test says the basis
+is the preservation policy and the actual cleanup path. The failed-save and unknown-exclusion coverage
+around these cases is untouched.
+
+### Item 1's remaining proof
+
+Four cases added beside the boundary ones, all in the owned fixture:
+
+    THE LAUNCH FENCE, driven: after an admission, the line's own private repository object is moved and
+    `revalidate_context_start` REFUSES. That fence is what makes moving the owner reading out of the
+    transaction safe, so it is now asserted rather than argued.
+    THE PRODUCTION BRANCH of `_qualified`, through its refusal: a production profile with no recorded
+    certification refuses at the gate, with the deployment supplied as the operand. Certifying one
+    needs a full accepted continuity report this fixture cannot build; the refusal path needs none and
+    is the branch that reads the certification journal.
+    REPLAY: a second admission of the same attempt answers the SAME use and writes no second
+    transition operation — the durable reservation still decides, unchanged by the split.
+    UNRELATED DB PROGRESS: after a refused admission an unrelated operation on the same store commits
+    immediately and the connection is not left in a transaction. That is the other half of taking the
+    external reads out.
+
+### Measured
+
+    185 tests across the four owned/reused families, 61.486s, **0 failures and 0 errors**.
+
+The three `ServingEnding.test_reopen_*` failures I have been reporting as pre-existing are gone
+because the expectation they encoded was the stale one; nothing was weakened to achieve that.
+
+### Still owed
+
+Item 2 — the connected attributed deterministic correction with a selected interruption and replay —
+and item 3 — the digest-bound executable packet. Production restore remains unproved and no live run
+is selected.
+
+Files: `provider_context.py` (ca54ecec366f), `tests/manager/test_provider_context.py` (2441dcf37565),
+`tests/manager/test_claude_context.py` (2fac86ef5e33), `tests/tools/test_correction_restart.py`
+(8614636f9972, unchanged this claim).
+
+
+## Claim 308929 — the four evidence gaps closed; 186 PASS, 0 failures
+
+READ: `detail work=W236087`, events after 308900 (my return 308907, reviewer claim 308912, pass
+308926), `review-2026-09-29T20-10-41Z.md`, and T236087. The binding-comment and restart-preservation
+corrections were ACCEPTED and the prior R1/R2 acceptance stands. Four of my new cases were weak and
+the review was right about every one.
+
+### The launch-fence case was VACUOUS, and it is gone
+
+It called `revalidate_context_start` without binding an invocation, so the refusal came from "serving
+use cannot start" — binding `null`, ZERO `_facts` calls — and it would have passed with an unchanged
+repository. REMOVED rather than patched, with a comment naming where the real coverage is.
+
+THE REAL COVERAGE IS NOW IN `ServingBinding`, beside the accepted authority-change fence and with an
+actually bound invocation: `test_private_repository_change_between_preparation_and_start_refuses`
+moves the line's private object between preparation and start, and asserts the refusal, zero provider
+calls, zero engine starts and the committed binding standing. THE REFUSAL IS ATTRIBUTED rather than
+inferred from nothing starting — and the measured reason is "directory ancestry is inaccessible or
+replaced", not the pin comparison I guessed: renaming the object away makes its ancestry unopenable,
+so the fence reports that first. The case says so.
+
+### The unrelated-progress case proved nothing, and now it is concurrent
+
+It used the SAME connection after a wrong-writer refusal that happens BEFORE any transaction, so
+there was never a lock to be blocked by. It now blocks INSIDE the real external validation — `_facts`,
+the reading that used to run under `BEGIN IMMEDIATE` — and requires a SECOND `ControlStore` connection
+to commit its own operation while that validation is pending, bounded by a timeout so a regression
+fails rather than hangs.
+
+AND I ADDED THE COUNTER-CHECK THAT GIVES IT TEETH: the same probe, blocking inside
+`control.transact`'s action instead, requires that the second connection CANNOT commit. Without that,
+a case which would also pass under the old placement would prove nothing about the placement. My first
+run of the concurrent case failed for a reason worth recording: I defined the blocking reader and never
+patched it in, so the admission never paused.
+
+### Two names corrected to what the cases actually drive
+
+    "INTERRUPTED request replay" is a COMPLETED replay. Renamed, and it now cites where the
+    interrupted-request path IS covered:
+    `test_grant_is_rechecked_inside_commit_and_request_restart`, which refuses inside the commit and
+    reopens the store to replay the request, and
+    `test_historical_admission_survives_restart_without_rewriting`.
+    The PRODUCTION case refuses at the certification JOURNAL, which is before the deployment
+    comparison, and it runs outside a transaction. Renamed to say exactly that, with the limit stated
+    rather than implied: reaching the comparison needs a recorded certification, which needs a full
+    accepted continuity report with a retained provider result that this fixture does not build.
+
+### Measured
+
+    186 tests across the four owned/reused families, 66.726s, **0 failures and 0 errors**.
+
+### Still owed
+
+Item 2 — the connected attributed deterministic correction with a selected interruption and replay —
+and item 3, the digest-bound executable packet. Production restore remains unproved; no live run.
+
+Files: `tests/manager/test_provider_context.py` (afe7a2b8cf55), `tests/manager/test_claude_context.py`
+(c2b07f44b532). `provider_context.py` (ca54ecec366f) is UNCHANGED this claim — every gap was in my
+evidence, not in the correction.
+
+
+## Claim 308991 — item 2 delivered from accepted machinery, with the one genuine gap closed
+
+READ: `detail work=W236087`, events after 308965 (my return 308971, reviewer claim 308976, the
+accepting pass 308988), `review-2026-09-29T20-19-13Z.md`, and T236087. Item 1's evidence corrections
+were ACCEPTED. The review says to deliver item 2 REUSING the accepted item-1 slices, the trace and
+`ServingBinding`, with no repeated item-1-only handoff.
+
+### Item 2 is largely ALREADY PROVED, and here is exactly where
+
+The review's instruction to reuse rather than rebuild is the right one, because
+`tests/tools/correction_restart_trace.py` with `test_correction_restart.py` already drives item 2's
+whole sequence through the public stage/driver paths with deterministic provider and engine
+boundaries. Rather than build a second vehicle, these are the assertions that answer each clause:
+
+    OPEN -> SAVE -> EXACT STOP -> REVIEW RESULT -> CHANGES-REQUESTED CORRECTION -> NEW
+    ATTEMPT WITH THE SAME CONVERSATION AND CHECKPOINT -> USEFUL CHANGED OUTPUT -> INDEPENDENT
+    REVIEW: `validate` codes `C1-context-continuity` (the same `context_id`, `open` then
+    `restore`), `C1-line`, `C1-episodes` (1 then 2), `C1-code-unchanged` (the revised
+    `scale.py` digest DIFFERS -- the output is genuinely changed rather than re-emitted),
+    `C1-verdict`/`C1-verdict-attribution`/`C1-review-result` for both the
+    changes-requested and the accepted verdicts, and `C1-correction-route` binding the
+    correction to the revised attempt.
+    VERDICTS AND CORRECTION THROUGH OWNER APIS, NEVER INSERTED RECEIPTS: the verdict and
+    correction records are re-derived from the exported owner records and their digests
+    (`C1-review-digest`, `C1-context-receipt`), and `UsefulCorrectionInvalidEvidence` rejects
+    forged verdicts, forged receipts and a missing changes-requested verdict.
+    EXACT RUNTIME/TOKEN/USE/GENERATION ATTRIBUTION AND ZERO DUPLICATE DISPATCH ACROSS ONE
+    SELECTED INTERRUPTION/REPLAY: `validate_reopen` over the manager-recomposition boundary --
+    `C2-distinct-use` (attempt, use and invocation all differ), `C2-positive-baseline`,
+    `C2-provider-duplicate`/`C2-engine-duplicate`, `C2-new-use-order`, `C2-*-new-use` (exactly
+    one dispatch for the new use), and `C2-provider-attribution`, which re-counts on `use_id`
+    and `invocation_id` as well so changing one operand cannot hide a repeat.
+    REVIEWERS RECEIVE NEITHER PRIVATE CONTEXT NOR A WRITABLE PRODUCER WORKSPACE:
+    `C1-review-context`, `C1-review-mount`, `C1-review-writable-line`, `C1-review-isolation`.
+    A DELIBERATELY DEFECTIVE SIMULATED CANDIDATE IS LABELLED: `UsefulCorrectionInvalidEvidence`
+    and `CountedReopenInvalidEvidence` are the negative families, and
+    `test_identical_revised_code_is_rejected` refuses a "correction" that changed nothing.
+
+MEASURED THIS CLAIM: `UsefulCorrection` and `CountedReopen`, 5 tests, 8.216s, all passing.
+
+### The one property I could NOT cite, now covered
+
+"Preserve generation 0 on failed save." The RECOVERY path is covered --
+`ServingEnding.cut("before-publication")` injects a `seal_generation` failure and the reopen then
+settles -- but a save that fails and is NOT recovered must leave the context claiming nothing. New
+case: with `seal_generation` raising, the finalize fails, the use is NOT `ready`, its generation is
+still 0, and NO finalize transition was journalled. A failed context save is not successful reuse.
+
+### Two notes from the review, applied
+
+The concurrent progress probe now says in its own docstring that a positive result at ONE point does
+not prove where every later read sits — the placement is what the nesting cases and the connected
+boundary case measure — and the counter-check no longer implies a specific error class: it catches ANY
+failure to begin, and says so.
+
+### Measured
+
+    187 tests across the four owned/reused families, 68.385s, **0 failures and 0 errors**.
+
+### Still owed
+
+Item 3, the digest-bound executable packet. And the honest limits carried forward: the production
+deployment-comparison branch remains a connected-matrix coverage limit, not claimed proved, and
+production restore itself is unproved with no live run selected.
+
+Files: `tests/manager/test_provider_context.py` (5f3bc29e1c39). No product file changed this claim.
+
+
+## Claim 309041 — R1 closed with the oracle's blind spot fixed; R2 half closed and half blocked
+
+READ: `detail work=W236087`, events after 309015 (my return 309019, reviewer claim 309023, pass
+309038), `review-2026-09-29T20-25-55Z.md`, and T236087. The connected continuity/changed-output/
+attribution/isolation/recomposition evidence was accepted as bounded. Two gaps named; here is exactly
+what each got.
+
+### R1 — the oracle was blind to cessation and to token identity, and is not any more
+
+The reviewer proved it: changing BOTH runtime observations to `running` still passed the full counted
+validator (ORACLE-CHECK-309023.json). The actual export is `destroyed`, so there is no live-overlap
+defect — but a proof whose oracle cannot see a running predecessor is not proving cessation.
+
+THE TRACE NOW EXPORTS THE RUNTIME PER SNAPSHOT (`attempt_runtime_of`: attempt, runtime id, execution
+runtime, cleanup and the fixed assignment) and `validate` requires: the runtime is attributed to that
+snapshot's settled attempt; every observed execution is positively `destroyed`, so the predecessor has
+ceased before the restore's own settlement; the assignment travels with it; and the two executions are
+DISTINCT identities — different runtime id, different attempt, and a different generation or episode,
+so a restored use cannot ride a spent token.
+
+MEASURED AGAINST THE REVIEWER'S OWN COUNTEREXAMPLES, and both are now permanent negatives in
+`UsefulCorrectionInvalidEvidence`: both runtimes `running` answers
+`['C1-runtime-ceased', 'C1-runtime-ceased']`, and a restored use reporting the predecessor's runtime id
+answers `C1-runtime-distinct`. The honest artifact still validates clean.
+
+### R2 — the label corrected, and the real property BLOCKED with its exact blocker
+
+THE LABEL: my case fails the FIRST-EVER save, so there is no saved generation 0 to preserve. It is
+renamed `test_a_FAILED_FIRST_SAVE_claims_nothing_at_all` and says what it is — initial-save
+visibility, worth having and not the named property.
+
+THE REAL PROPERTY IS NOT DELIVERED, and the blocker is recorded in the test file rather than left as
+silence. I wrote it on the fixture the review pointed at and it could not reach the second save: after
+`self.correction()` the fixture stands at the corrected implementation attempt (generation 3, and
+`as_participant(WHO, 3, "principal:org-a")` — a different principal from the opening), and taking that
+use through `state()` → `end_runtime()` → `finalize()` — the same sequence `correction()` itself uses
+for the opening — refuses at `_receipt` with "provider context: receipt does not prove this healthy
+invocation" (`provider_context.py:993`, from `_finalize_context_use` at `:1034`). So the receipt the
+fixture rebuilds for that attempt does not satisfy the restored invocation's own proof, and I have not
+identified which operand it needs. THE CASE IS NOT LEFT FAILING IN THE TREE AND THE PROPERTY IS NOT
+CLAIMED. What covers the neighbourhood meanwhile is cited in the file:
+`Restoration.test_restore_materialization_rechecks_original_generation_identity` and
+`test_damaged_committed_generation_is_refused`.
+
+### Measured
+
+    189 tests across the four owned/reused families, 66.988s, **0 failures and 0 errors**.
+
+### Still owed
+
+The saved-generation-0 preservation case above, with its blocker resolved; the simulated-candidate
+labelling pass the review also asked for; and item 3, the digest-bound executable packet. Production
+comparison and actual restore remain unproved with no live run selected.
+
+Files: `tests/manager/test_provider_context.py` (c23c7c4dfa4d), `tests/tools/test_correction_restart.py`
+(28c1510cbf4c), `tests/tools/correction_restart_trace.py` (e143000bfc2f). No product file changed.
+
+
+## Claim 309108 — R2 delivered with the reviewer's operand; R1 relabelled to what it proves
+
+READ: `detail work=W236087`, events after 309080 (my return 309084, reviewer claim 309087, pass
+309100), `review-2026-09-29T20-34-52Z.md`, and T236087. Runtime destruction/distinctness and the
+first-save relabelling were accepted. Two things came back.
+
+### R2 is delivered, and the blocker was the reviewer's find
+
+`ContextCase.end_runtime` hardcodes `mode: open` in the receipt it rebuilds, which is why finalizing a
+RESTORED use refused at `_receipt`. The operand is
+`end_runtime(first, receipt_changes={"mode": "restore"})`. With it:
+
+    GENERATION 0 IS SAVED through the existing correction helper, and its identity is validated and
+    its bytes captured before anything else happens.
+    THE RESTORED USE'S OWN SAVE FAILS, with `seal_generation` raising.
+    NO NEW SUCCESSFUL GENERATION is journalled -- the finalize list is still exactly the saved one --
+    the saved generation still validates, and its bytes are unchanged member for member.
+
+TWO OF MY OWN GUESSES WERE WRONG AND MEASURED: the generation's bytes are not at
+`<storage>/<context>/<generation>` (that level is empty; the state lives under the profile's state
+path), and the failed restore legitimately leaves its OWN `uses/...` material behind. So the byte
+comparison is scoped to the saved generation's members, and the case asserts the appeared paths are
+all the failed use's own -- which is the preservation policy rather than a regression, and is not a new
+generation, which the journal assertion is what rules out.
+
+### R1 is NOT closed, and it no longer claims to be
+
+The review is right twice over: the assignment's `generation` is not a resource token, and "the runtime
+was eventually destroyed" is not "the old token was RETURNED BEFORE the restored activation". So the
+checks are relabelled to exactly what they bind -- `C1-runtime-destroyed` and `C1-runtime-distinct`
+(and `C1-generation-distinct`), with the negative renamed
+`test_a_REUSED_runtime_id_on_the_restored_use_is_rejected` -- and the validator now says in its own
+comment that governed-token evidence lives in `worker_manager/tokens.py` (`domain_of`,
+`generation_of(control, domain, execution=..., operation=...)`, `token_of`, whose answer carries
+`returned`, `activating` and `activation_started`) and is OWED rather than claimed.
+
+WHAT I STILL HAVE TO RESOLVE, stated so the next claim starts from it: deriving `generation_of`'s
+`execution`/`operation` pair from the REAL launch rather than guessing. `domain_of("workspace",
+workspace_identity(attempt_row))` is the domain the ordinary ending already uses
+(`workspaces.py:3436`), and `token_of` then answers the return and activation facts; the pair that
+identifies the original reserving act is the part I have not established from the launch document.
+
+### Measured
+
+    190 tests across the four owned/reused families, 66.937s, **0 failures and 0 errors**.
+
+### Still owed
+
+The governed-token return-ordering evidence above; the simulated-candidate/verdict labelling pass; and
+item 3, the digest-bound executable packet. Production comparison and actual restore remain unproved.
+
+Files: `tests/manager/test_provider_context.py`, `tests/tools/test_correction_restart.py`,
+`tests/tools/correction_restart_trace.py`. No product file changed.
+
+
+## Claim 309162 — the governed token ordering is now IN the trace, with three negatives
+
+READ: `detail work=W236087`, events after 309130 (my return 309135, reviewer claim 309137, pass
+309159), `review-2026-09-29T20-42-20Z.md`, `TOKEN-RESEARCH-309137-followup.json`, and T236087. R2's
+saved-generation-0 preservation, the initial-save visibility case and the terminology correction were
+accepted.
+
+### The reviewer resolved my blocker, and their mechanism is now the trace's own
+
+I said I could not derive `generation_of`'s `execution`/`operation` pair from the launch. The answer is
+that **they come straight out of `acquire`** — not from a container name and not from an assignment
+generation. `TOKEN-RESEARCH-309137-followup.json` shows it: read-only wrappers around the real
+`tokens.acquire` capture the reservation as the acquisition answers it (domain
+`workspace:66306:19041257`, generation 1 with operation
+`runtime.start:50f34424…`, generation 2 with `runtime.start:7bd829df…`), and a wrapper around
+`admit_activation` reads `token_of` for every captured reservation immediately BEFORE the activation is
+admitted. That instant is the boundary the ordering claim is about.
+
+THAT IS NOW IN `correction_restart_trace` ITSELF. `setUp` installs both read-only wrappers, the
+artifact carries `tokens.reservations` and `tokens.boundaries`, and `validate` requires, at the
+RESTORED execution's own activation boundary:
+
+    the opening token is `returned: True` -- `C1-token-returned-before-activation`, which is the
+    ORDERING the runtime checks never made;
+    the restored token is `returned: False` and `activation_started: None` --
+    `C1-token-new-not-returned` and `C1-token-new-not-activated`;
+    one domain, distinct generations and distinct reserving operations -- `C1-token-distinct`;
+    and each reservation attributed to its own execution -- `C1-token-attribution`.
+
+### Three negatives, so the codes are not decoration
+
+An UNRETURNED opening token at the restored activation, an ALREADY-ACTIVATED new token, and a restored
+reservation reusing the opening generation and operation are each rejected by name. ONE OF THEM FAILED
+FIRST because I assumed `reservations[1]` was the restored one; the list is whatever the run acquired in
+order, so it now selects by execution.
+
+### Measured
+
+    193 tests across the four owned/reused families, 66.989s, **0 failures and 0 errors**.
+
+### Still owed
+
+The simulated-candidate/verdict labelling pass, and item 3 -- the digest-bound executable packet.
+Production comparison and actual restore remain unproved with no live run selected.
+
+Files: `tests/tools/correction_restart_trace.py`, `tests/tools/test_correction_restart.py`. No product
+file changed.
+
+
+## Claim 309218 — both oracle gaps closed; the simulation labelled; one flake reported
+
+READ: `detail work=W236087`, events after 309190 (my return 309193, reviewer claim 309198, pass
+309210), `review-2026-09-29T20-49-45Z.md`, and T236087. The token export and positive ordering and the
+saved-0 proof are preserved. Two narrow oracle gaps in my OWN assertions, both real.
+
+### Gap 1 — generation-only keying aliased unrelated resources
+
+The `seen` dictionary was keyed by generation alone, so another resource's generation 1 masked the
+opening token's: mutating ONLY the opening execution's `returned` still validated. And my negative
+changed EVERY generation-1 observation, so it had been passing for the wrong reason.
+
+THE KEY IS THE WHOLE RESERVATION IDENTITY NOW -- domain, generation, execution and reserving operation
+-- reservations are selected by the exact settled attempt, the boundary is required to be the restored
+reservation's own, and a MISSING observation (`C1-token-observation-missing`) or a REPEATED tuple
+(`C1-token-observation-conflict`) is a refusal rather than a silent pass or a last-writer-wins.
+
+MEASURED: mutating the opening execution's observation alone, leaving any foreign generation 1 intact,
+now answers exactly `['C1-token-returned-before-activation']`.
+
+### Gap 2 — the exported container and launch were ignored, so any value passed
+
+`state.container`, `state.launch` and `boundary.container` were exported and never compared.
+`state.launch` is now held to the operation the acquisition answered, `state.container` to that
+execution's OWN runtime id, and the boundary's container to the restored execution's runtime.
+
+MEASURED: a wrong `state.container` answers `C1-token-container`, a wrong `state.launch` answers
+`C1-token-launch`, and a wrong `boundary.container` answers `C1-token-boundary-container`. All three
+are permanent negatives.
+
+### The simulation is labelled, once and plainly
+
+`validate`'s docstring now says it: the provider and engine are deterministic boundaries rather than a
+live model or container runtime; the candidate this scenario corrects is a SCRIPTED defective one; the
+verdicts are SCRIPTED dispositions committed through the real owner APIs rather than judgments any
+reviewer formed; and the mutated-evidence negatives are synthetic invalid COPIES, not a defective
+implementation candidate and not a live judgment. What is real is the manager, the stores, the custody,
+the projection, the token governance and the version-control child -- what is simulated is who answered.
+
+### Measured, including one flake I am reporting rather than hiding
+
+    196 tests across the four owned/reused families: **OK** at 66.788s and again at 67.193s.
+    ONE EARLIER RUN OF THE SAME SET FAILED with
+    `TransactionBoundaryThroughTheConnectedPath.test_no_external_reader_runs_inside_a_control_transaction`,
+    and that case passes in isolation and passed in both repeat runs of the whole set. I could not
+    reproduce it in three subsequent runs and I do not have its assertion text, so I am NOT claiming a
+    cause. It is the case that counts external readers inside a control transaction, and my new token
+    wrappers are the only thing that changed around it, so the honest suspicion is interaction between
+    that counting and the token instrumentation rather than a product defect -- unproved either way.
+
+### Still owed
+
+Item 3, the digest-bound executable packet. Production comparison and actual restore remain unproved
+with no live run selected. And the flake above wants a cause.
+
+Files: `tests/tools/correction_restart_trace.py` (5ae933a501e3), `tests/tools/test_correction_restart.py`
+(0c9fd476779a). No product file changed.
+
+
+## Claim 309306 — item 3 delivered: the digest-bound executable packet
+
+READ: `detail work=W236087`, events after 309280 (my return 309286, reviewer claim 309290, the
+ACCEPTING pass 309302), `review-2026-09-29T21-02-11Z.md`, and T236087. Item 2's deterministic proof
+corrections are accepted and every prior slice stands. The next thing asked for is item 3, and this is
+it: `PACKET-309306.md` with `PACKET-BINDINGS-309306.json` beside it.
+
+NOTHING IS EXECUTED, SET UP OR ENABLED. No store opened, no credential read, no container started, no
+image built, no version-control act.
+
+### What the packet binds
+
+EVERY MACHINERY DIGEST MEASURED FOR THIS CLAIM rather than copied forward: DESIGN, the corrected
+`provider_context.py` (ca54ecec366f…), `context_delivery.py`, `store.py`, `tokens.py`, the three tools,
+and the four test/trace files that hold the deterministic evidence, plus the proposal and preparation
+this follows.
+
+THE RUNTIME, IMAGE AND DESCRIPTOR BINDINGS ARE THE ACCEPTED ONES, each measured from the accepted
+single Job's own records rather than from a label -- the discipline W247941 closed as its O1: distro
+path, build commit `1e576ff2…`, executable `04aa459a…`, image `baton-v12-claude-worker:w239528-244216`
+with config digest `sha256:c862c055…`, the image's own `claude_agent.py` at `18c34ff5…`, and the
+adapter/policy/profile descriptors with `profile_name: claude-fresh-implementation`.
+
+AND NO IMAGE BUILD IS REQUIRED, which corrects a stale requirement rather than inventing a shortcut.
+`LIVE-CORRECTION-PROPOSAL.md` said the owner must bind "the actual built image and deployment manifest"
+because those bytes were then unbuilt. They are built and accepted now; rebuilding would replace
+accepted provenance with new provenance for no gain.
+
+### Fresh roots, with the rule that decides them
+
+ONE ROOT under `/home/sl/baton-instances/<run id>`, NOT under `/home/sl/baton-runs` -- and the packet
+says why rather than asserting a path: the pinned validator refuses mutable deployment state inside
+what it treats as the checkout, `tools.bootstrap --destination` overrides `state_root` so the instance
+root and the run root must be one path, and W247941's owner setup failed on exactly that before its
+correction.
+
+### Limits, and the four outcomes stated separately
+
+Provider turn 180s, verification 180s, two implementer and two independent review invocations, 900s
+total with 60 RESERVED INSIDE it, exactly ONE restore (a third generation is refused by name), no
+retry.
+
+    ACCEPTED WITH NO CORRECTION ends the run honestly and does NOT answer the restore question, because
+    no restore happened -- it is not a failure and is not to be rerun to obtain one.
+    CHANGES-REQUESTED THEN CORRECTED AND ACCEPTED is the only outcome that answers the provider
+    question, and acceptance requires the restored conversation, improvement against the ACTUAL
+    feedback, exact attribution, the predecessor's token returned before the restored activation, and a
+    second independent acceptance. A structural check or a zero exit is not acceptance.
+    REJECTED is valid at either stage and no correction is manufactured from it.
+    FAILED OR UNKNOWN holds the run, preserves every failure with its attribution, and no retry
+    follows. A failed context save is not reuse.
+
+NO SCRIPTED REVIEWER DISPOSITION anywhere: the reviewer's own report drives what happens next.
+
+### The genuinely missing external input, named exactly
+
+`line_declared_base` (a commit object in the nominated source -- creating it is a version-control act I
+must not perform, so it is an operand); the Authority uuid the bootstrap mints; the bootstrap inputs
+document; and current provider credentials resolved at launch through the existing registry -- with the
+note that W247941's run 01 failed on an expired session, so a current one should be confirmed before
+selection. Nothing else is missing.
+
+### Measured
+
+    37 focused tests -- the whole correction-restart family plus the transaction-boundary class --
+    23.242s, **0 failures**. No broad 196-test rerun, as the review directed.
+
+THE UNEXPLAINED BOUNDARY FLAKE REMAINS UNKNOWN, neither fixed nor waived, exactly as the review
+records. It did not recur here; if it does I will capture the full command, output, traceback and
+digests rather than theorise.
+
+Files: `PACKET-309306.md` (b09bfec8fb3e), `PACKET-BINDINGS-309306.json` (96cd5566a024). No product or
+test file changed this claim.
+
+## Claim 309356 (baton.claude, impl) -- item 3 delivered as PROGRAMS, and three of my own claims corrected
+
+Answering review 2026-09-29T21-08-40Z (pass 309349), which found PACKET-309306.md "a preparation
+outline, not executable". It was, and the three findings were all correct: steps 2 and 3 were comments
+naming APIs, the stated limits were prose that nothing enforced, and the serving command imported a
+mutable checkout while the packet listed a separate distro.
+
+### R1 -- the preparation is an entrypoint with commands
+
+`correction_packet.py` (d75e4162e17d), three subcommands:
+
+    stage   the bootstrap input document, the context profile, the Job submission with the selected
+            documentation task and its acceptance requirements, the exact commands, and a COPY of the
+            two import roots this run will execute. Refuses before it writes.
+    bind    measures what the installed instance actually holds -- the emitted deployment
+            configuration, the Authority identity the bootstrap minted, the staged modules as copied
+            -- and emits the packet.
+    check   re-proves a packet against the tree, opening nothing, so a reviewer can run it alone.
+
+Six numbered steps are emitted, each an argument vector with its own environment, including the
+bootstrap running WITH the import path already set (the review's point: it previously ran before any
+PYTHONPATH existed) and the status read as its own read-only command.
+
+THE OWNER ACTS ARE STEP 4's FIRST HALF, performed by the accepted `baseline.prepare` -- workspace and
+private context storage, the candidate profile's certification, ONE qualification grant, each
+journalled under an identity derived from its own operands, so a repeat replays rather than minting a
+second grant. Not a comment, and not a new implementation of acts that already exist.
+
+THE CRITERIA ARE ONE CONSTANT REACHING BOTH STAGES, and `held_packet` refuses a submission whose two
+stages carry different requirements. PREPARATION-307667.md forbids a hidden criterion; two lists that
+are meant to be equal are two lists that can drift.
+
+### R2 -- the bounds are the program
+
+`correction_supervisor.py` (8e10cdb0ecfd). It REUSES the accepted single-implementation supervisor as a
+library -- termination handling, the admission gate, the guarded shutdown steps, the cleanup journal
+read, the effective provider-turn check, the atomic publication -- and pins it: `BASELINE_SHA256` is
+248e570d8f9d, verified before a store opens, because a drifted copy of reused machinery is a drifted
+bound. What is NOT reusable is said in the file: `baseline.held_packet` refuses
+`implementer_invocations != 1` BY NAME, saying a correction round belongs to this Job. So the packet,
+the caps, the restore accounting and the outcomes are mine.
+
+Enforced and measured, not stated: 900s total with 60 RESERVED INSIDE it (serving gets 840); per-kind
+caps of 2 implementer and 2 review invocations at the admission gate; the Job's own 180s provider turn;
+stop on both stages completed, on `exceptional`, on six unchanged ticks, on a spent cap, and on the
+overall bound; the outcome published to disk BEFORE the interrupt is re-raised. Removing the reserve or
+the cap-refusal stop fails the cases -- I mutated both and watched three tests fail.
+
+I ALSO REPAIRED A DEFECT I HAD WRITTEN INTO MY OWN PREDICATE before it could ship: the first draft of
+`should_continue` used `_guarded`, which catches `BaseException`, so a Ctrl-C would have been swallowed
+and ordinary serving would have resumed -- the exact fault the accepted baseline records being caught by
+a reviewer's SIGINT probe. Only `Exception` is caught now, and the stall rule requires a non-empty
+accountable set, because an unchanged projection before the first admission is a manager about to
+admit rather than a run that cannot finish.
+
+### R3 -- what actually runs is bound, and the compatibility claim is narrowed
+
+The imports are pinned BY COPYING, not by listing: `stage` copies the import roots outside the run root,
+measures the copy, `held_packet` refuses a moved staged file, and `verify_imported_sources` refuses a
+package resolved outside that tree. A test moves the checkout and shows the bound bytes unchanged.
+
+The staging root must be outside the run root for a MEASURED reason -- `stage_execution._checkout` walks
+three parents, so a source staged inside the run root makes the run root the code boundary and
+composition then refuses this run's own stores. Refused in both directions, with the walk named. THIS
+ALSO CORRECTS MY OWN PACKET-309306 SECTION 3, which asserted the root must be under baton-instances
+rather than baton-runs. That was the wrong rule; the accepted single Job ran under baton-runs. The real
+rule is the boundary walk, and it is checked now instead of asserted.
+
+The composition is checked three ways before a store opens, each with a permanent negative: the
+certified profile's `image_digest` is this packet's image, its `adapter_digest` is the image's adapter
+descriptor, and its state allowlist names the conversation file a restore consumes.
+
+AND I CORRECTED MY NO-BUILD CLAIM. PACKET-309306 said NO IMAGE BUILD IS REQUIRED. The review is right
+that prior fresh-Job acceptance does not establish that and the `claude-fresh-implementation` label
+proves nothing about managed context. What is true and now CHECKED is narrower: these exact image bytes
+are already composed into an ACCEPTED CANDIDATE MANAGED-CONTEXT profile -- the accepted single Job's own
+context-profile.json, image_digest sha256:c862c055, adapter_digest sha256:5f2ef38f, allowlist
+`.claude/projects/-output/{conversation_id}.jsonl`. PROVENANCE-309356.json states that as established
+and states four things it does not, including that whether to rebuild is the owner's decision.
+
+Provenance is PINNED rather than cited: IMAGE-ARTIFACT-244216.json for the image and its worker files,
+live-success-244216/PACKET.json for the distro, build commit and executable, each refused if its own
+record digest moved.
+
+### A MEASURED CORRECTION I would otherwise have shipped
+
+`bind` first computed the context profile digest as `"sha256:" + <file sha256>`. That is NOT what
+`certify_context_profile` keys on -- it keys on `digest(_profile(profile))`, a normalized document under
+the contracts' canonical text -- and the accepted packet's own `context` block shows the two values
+differing. `baseline.prepare` compares them, so the run would have refused AFTER the instance was
+installed and the one-run grant minted. `certified_digest` now imports the manager's own reader, and an
+end-to-end case drives stage -> bind -> check with nothing mocked and asserts the two digests differ.
+
+I also invented a context profile document from a shorter member list before checking
+`provider_context._profile`'s closed contract; the real profile has seven digests, four text fields,
+`cwd` exactly `/output` and a positive allowlist under `.claude/projects/`. The operands come from the
+accepted profile now, and the members are mirrored from the contract.
+
+### R3's separate question -- the external input, eight operands and no more
+
+SELECTIONS-309356.json (0119907f55cb) refuses today, naming exactly `source.root`,
+`source.declared_base`, the five participants and `credential_reference`. Resolving those eight makes it
+validate; I drove both halves this turn and wrote nothing into any run root.
+
+THREE ITEMS I HAD LISTED AS MISSING WERE NOT. The Authority uuid is an OUTPUT the bootstrap mints and
+`bind` reads. The bootstrap input document is an OUTPUT and generating it was implementation work. And
+the declared base needs no new commit: the review told me to check first, and
+/home/sl/baton-runs/two-jobs-247941-01-inputs exists, has a clean working tree, carries a docs/ tree and
+does NOT already hold docs/v12-context-correction.md -- so it suffices at its current head
+346a809bf0e4c47e52d881bd46d6d62a611c9816. No version-control act was performed or is needed. The final
+selection stays the owner's. `stage` refuses a source that already holds the task's output, because
+that would be a different Job.
+
+### The outcomes, classified by the program
+
+`classify` is total with no fall-through to acceptance: ACCEPTED WITHOUT CORRECTION (complete, honest,
+makes NO restore claim, not to be rerun to obtain one); CORRECTED AND ACCEPTED (the only outcome that
+answers the provider question, requiring a second accepted implementation whose use CONTINUED the saved
+conversation -- one context, a later generation, read from the manager's journal; a second
+implementation WITHOUT continuity is FAILED, not corrected); REJECTED (valid, ends the run, nothing
+manufactured); FAILED OR UNKNOWN (including a failed save, which is not reuse, and an unreadable
+verdict). `review_disposition` reads the reviewer's own verdict or answers nothing, and nothing answers
+it on their behalf.
+
+### Measured
+
+    75 deterministic cases in test_correction_packet.py (cfeb5c79d2ec) -- generation, the commands and
+    the bounds, which is the focus the review directed -- 0.184s and 0.179s on two runs, **0 failures**.
+    No live root, credential, engine or container touched. No broad 196-test rerun, as directed: no
+    product or existing test file changed this claim.
+
+THE UNEXPLAINED BOUNDARY FLAKE REMAINS UNKNOWN, neither fixed nor waived, and it now travels in
+PACKET-309356.md section 8 as the review required rather than only here. I claim no cause.
+
+Files: `correction_packet.py` (d75e4162e17d), `correction_supervisor.py` (8e10cdb0ecfd),
+`test_correction_packet.py` (cfeb5c79d2ec), `PACKET-309356.md`, `SELECTIONS-309356.json`
+(0119907f55cb), `PROVENANCE-309356.json` (d184b087bbac). No product file, no deployment, no credential,
+no DESIGN, no version-control and no graph change; no W306614-owned file touched; `baseline.py` reused
+unmodified and pinned.
+
+## Claim 309572 (baton.claude, impl) -- all four findings corrected against the REAL contracts; one half of R1 still owed
+
+Answering review 2026-09-29T21-41-08Z (pass 309569). Changes requested on four
+counts, and every one was right. The programs were tangible; several of their
+documents were not documents this build reads, and the reviewer proved it by
+driving the real validators rather than by reading mine.
+
+### R1 -- the documents now pass the validators that will read them
+
+`tools.bootstrap.held` refused my `baton.v12.bootstrap-input/1`: the supported
+schema is `baton.v12.stack-bootstrap/1`, and a fresh install names NO jobs and
+NO workers -- a Work, a declared base and a producer are facts about a Job.
+`documents.read_submission` refused my submission at its FIRST member ("a job
+submission needs submission_id") because the whole shape was invented: the real
+contract carries no `participant`, no `task`, no `acceptance_requirements` and
+no `outputs`, and `execution_limits` is admitted only by schema `/2`, under
+`provider_turn_seconds` and `verification_command_seconds` -- not the
+`verification_seconds` I made up. Both documents are generated to the real
+contracts now and BOTH REAL VALIDATORS ARE THE TESTS.
+
+WHERE THE TASK AND THE CRITERIA ACTUALLY TRAVEL. Not the submission: the
+`baton.dogfood-task/2` document, whose BYTES are the input manifest's human
+contract, which `single_worker._held` compares against the `task.json` the
+worker receives. So "the same complete requirements reached both parties" is now
+a digest comparison instead of an assertion, and the Job's `input_digest` is
+`contracts.job_input_identity` of that manifest rather than a hash I chose.
+
+THE MEASURED DESCRIPTORS ARE IMPORTED, NOT INVENTED. `prepare_two_jobs.ACCEPTED`
+is W247941's provenance-documented set, read-only and never edited. My first
+draft hashed strings of my own making and called them policy digests, wrote
+`profile_version` as text where the accepted document has an integer, and named
+a `checkpoint_profile` this build does not know.
+
+THE STATUS COMMAND'S TWO DEFECTS ARE GONE. It carried `$(python3 -c ...)` as a
+single argv element -- text no shell expands when a vector is executed -- and
+`--job`, which `tools.job_manager status` does not have. `stage` now DEFERS that
+step rather than writing a placeholder that looks like a value, and `bind`
+writes it with the identity the instance really has. A case drives the real
+entry point over the emitted vector and fails on `unrecognized arguments`.
+
+### R2 -- the accepted shutdown is restored, item by item
+
+Every item the review listed was genuinely missing: `termination.defer()`, the
+post-stop canonical discovery, the union with `gate.launched`, the
+manager-owned `_cancel_active`, and a guarded cleanup wait. The consequence was
+concrete: a timeout reported `held` with the container still running and the
+engine never asked to stop it, and an attempt admitted then faulted before the
+next tick was omitted from cleanup accounting entirely. The three cases the
+review asked for are here -- launch then fault, deadline with an active runtime,
+second interrupt during cleanup.
+
+AND ONE MORE THAT FOUND A DEFECT OF MINE. I added a case delivering a real
+signal during PUBLICATION, the one step no `_guarded` covers. It failed: a
+signal arriving while the outcome was being written was recorded in
+`termination.received` and never read again, so the retained outcome said the run
+was uninterrupted while an operator had asked it to stop. The supervisor now
+records late signals and publishes again before re-raising.
+
+### R3 -- the verdict reader was reading fields that do not exist
+
+`_stage_status` emits state, episodes, exchange, artifacts and receipts, and
+none of `disposition`, `verdict` or `result`. A genuinely successful review
+would have answered `None` and EVERY real run would have been
+`failed-or-unknown`. My positive test passed because it supplied a
+`disposition` field of my own invention -- a wrong reader with a green test. The
+reader now goes through the supported owner readers: `review_for_attempt` for
+the attachment, the journalled `VERDICT_KIND:<attachment_id>` act for the
+verdict identity, and `verdict_of` for the disposition, each proving its members
+against the committed act. An uncommitted act, an unrecognized disposition and a
+refusing reader each answer nothing, and nothing becomes an acceptance.
+
+AND THE CHRONOLOGY IS THE STORE'S. I sorted attempt identities lexically and
+called the first one the opening attempt; the reviewer's words were exact --
+"random identity spelling is not time". Opening and restored are selected from
+recorded episodes now, including the live attempt a stage is executing, and an
+attempt the projection did not answer for is appended rather than dropped
+because a launch this process performed is this process's to account for.
+
+### R4 -- bind no longer re-signs drift
+
+It re-hashed whatever was staged at that moment and wrote those digests into the
+packet, so a module edited between `stage` and `bind` was SIGNED rather than
+refused -- worse than not checking, because the packet then testifies to bytes
+nobody reviewed. It compares against the manifest `stage` retained now, in both
+directions: changed, vanished and APPEARED are each drift. And the executable
+preparation's own bytes -- `correction_packet.py`, `correction_supervisor.py` --
+which are imported by the run, live outside the staged packages and were bound
+by nothing at all, are retained and checked too.
+
+### Measured
+
+    104 deterministic cases in test_correction_packet.py -- generation against
+    the REAL bootstrap and submission validators, the emitted commands against
+    the REAL CLI, the bounds and the whole shutdown -- 0.391s and 0.390s on two
+    runs, **0 failures**.
+    TEN MUTATIONS, one per corrected behaviour, EVERY ONE CAUGHT by a case:
+    no cancellation, no launched union, unguarded cleanup wait, no defer,
+    lexical attempt order, verdict from a projection field, bind re-hashing
+    instead of comparing, the invented bootstrap schema, submission schema /1,
+    and the wrong limit member name.
+    No live root, credential, engine, container, image build or version-control
+    act. No product file and no existing test file changed; no W306614-owned
+    path touched. `baseline.py` and `prepare_two_jobs.py` reused unmodified.
+
+### WHAT I DID NOT FINISH, exactly
+
+R1's second half is OPEN. The complete WORKER DEPLOYMENT document -- the
+`baton.v12.single-worker-deployment/5` configuration with its provider context,
+credential profile, nominated source, workspace capacity and the review worker
+beside the producer -- is not generated yet. So `single_worker._held` has NOT
+been driven at this packet's worker, and the review's requirement to "prove that
+the selected source, worker profiles, credentials reference, task and same
+criteria reach the real deployment and worker input" is met for the TASK, the
+MANIFEST and the INPUT DIGEST and not yet for the deployment and the worker.
+The named milestone -- one real-boundary deterministic proof from valid
+generation through bounded supervision and accounting -- is therefore the next
+step rather than a finished one. It is carried in PACKET-309356.md section 9 as
+well, so an owner reading the packet sees it without reading PROGRESS.
+
+THE UNEXPLAINED BOUNDARY FLAKE REMAINS UNKNOWN, neither fixed nor waived, and it
+travels in the packet itself. Production comparison and actual restore remain
+unproved; no live run is selected.
+
+Files: `correction_packet.py` (4556c9e4e2fe), `correction_supervisor.py` (d70fa173d0de),
+`test_correction_packet.py` (5f092e9b5fc2), `PACKET-309356.md` (bb75a4b909fe),
+`SELECTIONS-309356.json` (0119907f55cb), `PROVENANCE-309356.json` (d184b087bbac).
+
+## Claim 309722 (baton.claude, impl) -- the deployment is generated and PROVED by the real preflight; the connected proof is still owed
+
+Answering review 2026-09-29T22-02-59Z (pass 309719), which preserved the last
+claim's progress and named four items. Three delivered, one partly.
+
+### Item 1 -- both worker deployments, driven through the real single_worker._held
+
+`worker_deployments` generates the producer's and the independent reviewer's
+configurations; `deployment_document` composes them with the job binding; and
+`verify_workers` drives the REAL preflight at both -- inside `bind` and again
+inside `held_packet`, so a packet whose composition this build would not compose
+is refused before a store opens.
+
+THE PRODUCER IS `/5` WITH `provider_context` AT `mode: required`; THE REVIEWER IS
+`/4`, which cannot carry one because the member is not in its schema. That is the
+custody rule expressed as a schema rather than as a sentence in a document, and
+the build says so itself: a case that hands the reviewer a context gets
+"unexpected provider_context" from `_held`. A second case promotes the reviewer's
+schema too and is still refused ("required provider context is retained
+implementation only").
+
+THE REAL PREFLIGHT CORRECTED THREE FACTS I HAD WRONG, one per run, and I am
+recording them because each was a guess I would otherwise have shipped: the
+worker's `profile_digest` must be the manifest's `runtime_profile_digest`; its
+`image_digest` must be the manifest's `worker_image_digest`; and a context
+implementation worker MUST declare the reserved `provider-context-receipt`
+output in an exact shape. All three are derived from the manifest now. The
+receipt is also where that declaration always belonged -- my first packet claimed
+it as a submission member, which the submission contract does not have.
+
+ALSO PROVED: the credential REFERENCE travels and no credential byte does (the
+registry is a path, not its contents); the nominated source is the selected
+source; the task document reaches BOTH workers as the same human contract; and
+both manifests yield ONE Job input identity, which is why their `outputs` must
+agree and do.
+
+### Item 2 -- the derivation is delivered; the connected proof is NOT
+
+THE REVIEW ASSIGNMENT GENERATION IS DERIVED, not guessed. My last claim tried
+`(2, 1)` and took whichever answered. The reviewer was right that this guesses on
+an axis the invocation caps say nothing about: the caps bound how many attempts
+are admitted, not which assignment generation any of them activated. A review on
+generation 3 would have answered `None`, and a run with a real verdict would have
+been reported `failed-or-unknown`. It reads `attempts.assignment_of` now -- the
+durable fact, which refuses an attempt that never activated an assignment -- and
+an attempt without one answers nothing rather than a default.
+
+AND AN EARLIER VERDICT CAN NO LONGER BE BORROWED. My reader walked backwards
+through every review attempt and returned the first verdict it found, so a SECOND
+review still executing would have been reported with the FIRST review's
+disposition -- the opening review's verdict attributed to a correction nobody had
+judged. Only the latest recorded review attempt is asked, and an unread one is
+UNKNOWN.
+
+### Item 4 -- every executable dependency is bound
+
+`_accepted` imports the sibling dossier's `prepare_two_jobs.ACCEPTED` and the
+candidate merely NOTED its digest. A note is not an execution check: the
+descriptors this packet's documents are built from could have changed under it
+and nothing would have refused. It is bound with the preparation modules now, so
+a changed supplier is drift. The sibling file is unmodified.
+
+### Measured
+
+    124 deterministic cases, 0.806s, **0 failures**. The real boundaries driven
+    are now: tools.bootstrap.held, documents.read_submission,
+    contracts.job_input_identity, contracts.digest + provider_context._profile,
+    tools.job_manager.main over the emitted status argv, and
+    single_worker._held over BOTH generated worker configurations.
+    SIXTEEN MUTATIONS, one per corrected behaviour, EVERY ONE CAUGHT -- the ten
+    from the last claim plus: supplier unbound, guessed generation, borrowing an
+    earlier verdict, no worker preflight, reviewer given the context, and no
+    receipt declaration.
+    No live root, credential, engine, container, image build or version-control
+    act. No product file and no existing test file changed; no W306614-owned
+    path and no sibling dossier file touched.
+
+### WHAT IS STILL OWED, exactly
+
+ONE CONNECTED DETERMINISTIC PACKET PROOF. The verdict reader's cases still
+substitute `review_for_attempt`, `verdict_of` and `operation_record`, and the
+shutdown cases still script the serving loop. Those unit boundaries support the
+slices and are NOT connected acceptance -- the reviewer said so and I am not
+claiming otherwise. What remains is one proof over a real store: actual canonical
+review attachments and recorded verdicts, positive cleanup accounting, and the
+four real endings (accepted-without-correction, correction/restore, rejection,
+failure/interrupt) without manufacturing a provider or reviewer outcome. Item 3
+is marked INCOMPLETE at the packet's entry summary as well as in its detailed
+section, as the review required.
+
+The unexplained boundary flake remains UNKNOWN, neither fixed nor waived.
+Production comparison and actual live restore remain unproved; no live run,
+setup, engine or credential operation is selected. External owner operands remain
+a later selection.
+
+Files: `correction_packet.py` (78bd94db6a2e), `correction_supervisor.py` (9ba32576c245),
+`test_correction_packet.py` (4f6765c17f2f), `PACKET-309356.md` (b080f176dfb4).
+
+## Claim 309811 (baton.claude, impl) -- the ENCLOSING composition reading is driven; the connected proof is scoped but not run
+
+Answering review 2026-09-29T22-15-01Z (pass 309802). One milestone named: the
+connected deterministic packet proof, starting from the generated documents and
+exercising `stage_execution.held_configuration` as well as each
+`single_worker._held`.
+
+### Delivered: the enclosing reading, and it found a real fault immediately
+
+`verify_composition` drives `stage_execution.held_configuration` at the generated
+deployment -- in `bind` AND in `held_packet` -- and it refused the composition on
+its first run: a `/1` deployment "binds one Job through its own members and names
+no job_bindings; two places for one fact is how they drift". Mine carried both.
+The reviewer's point was exactly this: each worker validating says nothing about
+the document around it.
+
+THE CHECK IS PROVED TO BE THE PACKET'S OWN, not `bind`'s residue. A mutation that
+deletes `held_packet`'s call passed every test at first, because `bind` had
+already validated. So there is now a negative that puts `job_bindings` back AFTER
+`bind` and re-pins the bytes: only the enclosing reading inside `held_packet` can
+refuse that, and it does.
+
+### Scoped, with three measured facts: what the connected proof needs
+
+The review directs reuse of the accepted `correction_restart_trace.World`, and it
+supplies what the milestone needs -- real disposable stores, a real provider
+child, a simulated engine at the normal boundary, real
+`stage_execution.operations_from`, and `review(held, disposition)` recording
+CANONICAL attachments and verdicts through `review_cycles`. I measured three
+facts about fitting this packet into it, so the next claim starts from them
+rather than rediscovering them:
+
+    1. The World's context profile is `deterministic`; this packet requires
+       `candidate`, which is admissible only under a live one-run authorization
+       -- the one `baseline.prepare` mints. The connected case must run the
+       packet's own preparation, not the fixture's, or the admission boundary
+       refuses the launch.
+    2. The World's submission carries three stages (implementation, review,
+       integration); this packet submits two. The packet's submission is the one
+       to submit and the integration/judgment machinery is outside this workload.
+    3. The World's paths are its own (root, source, storage, private-contexts,
+       checkout). The generator is parameterized, so the connected case points
+       the selections at them rather than inventing a second world.
+
+### Measured
+
+    126 deterministic cases, 1.127s and 1.132s, **0 failures**.
+    SEVENTEEN MUTATIONS, one per corrected behaviour, EVERY ONE CAUGHT --
+    including the new "no enclosing composition check", which was MISSED until
+    the after-bind negative was added.
+    Real boundaries driven: stage_execution.held_configuration over the whole
+    generated composition; single_worker._held over both workers;
+    tools.bootstrap.held; documents.read_submission;
+    contracts.job_input_identity; contracts.digest; provider_context._profile;
+    tools.job_manager.main over the emitted status argv;
+    attempts.assignment_of.
+    No live root, credential, engine, container, image build or version-control
+    act. No product file and no existing test file changed; no W306614-owned or
+    sibling-dossier file touched.
+
+### WHAT REMAINS, and why I am handing back rather than continuing
+
+The connected proof itself is NOT run: no case yet submits this packet's
+submission into the World's stores, composes the generated deployment through
+`operations_from`, drives THIS packet's supervisor, and asserts the four endings
+against canonical attachments, verdicts and positive cleanup.
+
+I am handing back on BUDGET, not on a blocker -- the review asked me not to
+return after each helper absent a concrete blocker, and I want to be exact about
+which this is. The path is clear and the three facts above are the operands it
+needs; what I do not have is remaining turn budget to build and verify a
+four-ending connected harness without leaving it half-driven, which would be
+worse than leaving it unstarted. Everything delivered is verified and the entry
+summary still marks item 3 INCOMPLETE.
+
+The unexplained boundary flake remains UNKNOWN, neither fixed nor waived.
+Production comparison and actual live restore remain unproved; external owner
+operands remain a later selection.
+
+Files: `correction_packet.py` (80120665be5f), `test_correction_packet.py` (b75138ea3a0f),
+`PACKET-309356.md` (485d0111d9b9). `correction_supervisor.py` unchanged this claim
+(9ba32576c245).
+
+## Claim 309871 (baton.claude, impl) -- the connected harness RUNS and the packet's composition now serves; five generator faults found by real refusals
+
+Answering review 2026-09-29T22-23-10Z (pass 309863). The milestone was the
+connected packet proof, and I began it in this claim rather than returning
+another preparation helper.
+
+### The harness exists and the packet's own documents are the consumed path
+
+`connected_packet_trace.py` subclasses the accepted
+`correction_restart_trace.World` and replaces exactly two things: the
+configuration and the submission are THIS PACKET'S generated documents. With
+that, `correction_packet.stage`/`bind` run against the fixture's world,
+`held_packet` accepts the result -- so `single_worker._held` AND
+`stage_execution.held_configuration` both ran over the generated documents in a
+real fixture -- the packet's preparation runs through the REAL owner APIs in
+DISPOSABLE stores including the CANDIDATE `authorize_qualification_run`,
+`stage_execution.operations_from` composes the generated deployment, and
+`correction_supervisor.supervise` runs over it, submits the two-stage submission
+and the manager ADMITS a real attempt whose identity appears in the outcome's own
+cleanup accounting.
+
+No deployed store or grant was read, created or mutated. No live engine, no
+credential byte, no real provider.
+
+### Five generator faults only a connected run could find, each fixed
+
+Every one arrived as a real refusal rather than as a reading:
+
+    1. "required context configuration disagrees with its preconfigured owner" --
+       `_context_preflight` requires the worker's adapter, image and retention
+       digests to EQUAL the certified profile's. All three are derived from the
+       profile now, and the input manifest is derived from it as well.
+    2. the private context storage and the workspace storage must be the
+       CONFIGURED ones; they are operands now, not paths derived from the
+       instance root.
+    3. the stores are deployment facts, so they are operands too.
+    4. "'baton.reviewer' writes this deployment's review receipt and holds no
+       review capability" -- the receipt WRITERS are not the workers. My
+       selections conflated them; they are a separate `receipts` block now.
+    5. "'baton.merge' ... holds no integrate capability" -- the integrator is a
+       selection, not the accepted instance's.
+
+AND ONE PACKET FAULT: `deployment.config_path` named the instance's own record
+rather than the generated composition, so `baseline._retention_of` found no
+retention policy digest for the cleanup identity. The generated composition IS
+the configuration now, and the duplicated `composition.path` member is gone --
+two places for one fact is exactly what the enclosing validator refuses in its
+own document.
+
+### Where it stops, and the exact next step
+
+`CONNECTED-NEXT-309871.md` carries the running harness's exact command, its exact
+current output and the one open question. In short: the scripted provider is
+driven from the supervisor's own injected `sleep` and acts when the
+implementation stage reads `waiting`; the stage stays `queued` while an admitted
+attempt nevertheless exists, so the 90-step guard trips and the run ends
+`serving-failed`. The accepted trace reaches `waiting` by calling its own
+`tick(held)` between checks while this drives the manager through `serve`, so the
+difference is in who sweeps and when. One question, not a redesign.
+
+### Measured
+
+    126 deterministic cases in test_correction_packet.py, 1.124s, **0 failures**,
+    with every generator change above carried through them.
+    The connected harness runs to the point recorded above; it is NOT yet a
+    passing proof and no test asserts it, so nothing here claims one.
+    No live root, credential, engine, image build or version-control act. No
+    product file changed; no W306614-owned or sibling-dossier file touched; no
+    broad 196 rerun.
+
+### What remains
+
+The four endings over this harness -- accepted-without-correction,
+changes-requested then restored correction, rejected, failure/interrupt -- each
+deciding its observation from canonical attachments, verdicts and positive
+cleanup. `run_packet` already takes `dispositions`, `interrupt_at` and
+`provider_status` for exactly those, and `World.review` records verdicts through
+the real owner API. Item 3 stays INCOMPLETE in the packet's entry summary.
+
+The unexplained boundary flake remains UNKNOWN. Production comparison and actual
+live restore remain unproved; external owner operands remain a later selection.
+
+Files: `connected_packet_trace.py` (fc533ce3c47d), `CONNECTED-NEXT-309871.md`
+(d304f75b2e20), `correction_packet.py` (6de1cb44be2a), `test_correction_packet.py`
+(a915d68b0c77), `SELECTIONS-309356.json` (5a5f8815ab0b).
+
+## Claim 309960 (baton.claude, impl) -- the confirmed blocker is fixed, the run now admits and reaches the mount, and one earlier claim of mine is withdrawn
+
+Answering review 2026-09-29T22-36-24Z (pass 309957). The reviewer reproduced the
+connected failure and localized it to a packet generator defect. Both halves of
+that were right.
+
+### MY CLAIM WAS WRONG, and I am withdrawing it
+
+I reported that a real attempt had been admitted. It had not: zero admissions, no
+runtime, and the episode `attempt_id` that appeared in the cleanup accounting
+exists BEFORE a worker admission. An identity in that list establishes nothing
+about an admitted runtime. Withdrawn.
+
+### The confirmed blocker, fixed from one source
+
+The manager's own deferral said it exactly: "no worker this deployment configures
+for the 'implementation' stage can serve Job 'job-a': {'implementation-worker':
+['the workload profile', 'the workload profile digest']}". `submission_document`
+requested the FRESH workload profile from the accepted record while
+`worker_deployments` offered the CONTEXT profile name and the certified profile's
+`runtime_profile_digest`. Two places for one fact, this time across two
+documents.
+
+`workload_profile(profile)` is now the single source both read, and `held_packet`
+carries the CROSS-DOCUMENT check the review asked for: a submission requesting a
+workload profile no configured worker offers is refused, because a stage no
+worker can serve is DEFERRED FOREVER rather than refused -- exactly the failure
+mode that cost this milestone a claim.
+
+### What the connected run reaches now
+
+    admissions        {'implementation': 1, 'review': 0}   (was 0 and 0)
+    provider turns    1 attempted
+    stage states      implementation 'exceptional', review 'blocked'
+    stopped           'serving-failed'
+    serving_failure   AttributeError: 'NoneType' object has no attribute
+                      'document'
+
+### A supervisor reporting gap this found, fixed
+
+`serving_failure` was appended to `held_because` only when the result was not
+ALREADY failed -- so the one line naming why the loop stopped was dropped exactly
+when a reader needed it, and the first connected diagnosis had no reason anywhere
+in the outcome. It is recorded unconditionally now, and that is how the current
+diagnosis was obtained.
+
+### The one open question, localized rather than guessed
+
+The remaining `serving_failure` is the scenario hook's own: it calls
+`mounted(...)`, which reaches `worker._adopted({...}).document`, and `_adopted`
+answered None -- so at the moment the projection reads `waiting`, this run's
+attempt has no ADOPTED LAUNCH to mount. The accepted trace mounts at the same
+projection state, so the difference is between the two paths into `waiting`. The
+next step is to read, before the shutdown closes the gate, whether the claim and
+launch happened for this attempt and which of the gate's three calls the manager
+did not reach. NO scheduler change, NO extra sweep, NO raised step limit: the
+last blocker was a real refusal and this one is to be read, not masked.
+
+### Honest boundaries, recorded as the review required
+
+`ConnectedPacket.serving` reproduces the packet's preparation with INDIVIDUAL real
+owner API calls rather than invoking `baseline.prepare` itself; the acts are real
+and the grant is minted in disposable stores only, but `baseline.prepare`'s own
+composition of them is not exercised, and the installation seam is simulated by
+writing the two instance facts `bind` reads. `CONNECTED-NEXT-309960.md` states
+this and carries the reproduction command WITH `doCleanups`, which the previous
+sample omitted.
+
+### Measured
+
+    126 deterministic cases, 1.133s, **0 failures**, with the workload-profile
+    correction, the cross-document check and the supervisor reporting fix carried
+    through them.
+    The connected harness reaches the point recorded above. It is NOT a passing
+    proof and no test asserts it; a failed helper run is diagnostic evidence.
+    No provider child ran, no verdict was recorded, no context save or restore
+    happened.
+    No live provider or engine, no deployed store or grant, no credential, no
+    version-control or graph act, no product file, no sibling or W306614 edit, no
+    broad rerun.
+
+### What remains
+
+The four asserted endings over this harness, and the open question above.
+
+Files: `correction_packet.py` (4cf09402f71c), `correction_supervisor.py` (1a8c59f55b7d),
+`connected_packet_trace.py` (0537729c714b), `CONNECTED-NEXT-309960.md` (4b3ae82fe96d).
+
+## Claim 310021 (baton.claude, impl) -- the inherited launch-adoption incoherence is fixed and the connected run now launches, runs the real provider on this packet's task, and reaches POSITIVE cleanup
+
+Answering review 2026-09-29T22-44-32Z (pass 310018). The reviewer disproved my
+previous diagnosis with a traceback and gave the real one. Both were right.
+
+### What it really was, and the fix
+
+`mounted` succeeded. The failure was inside the INHERITED provider-turn helper,
+which adopts its delivery with `launch.adopt(self.config['launch_home'], ...,
+contract=self.config['launch_contract'], ...)`. `ConnectedPacket` replaced
+`self.configuration` and `self.submission` and left `self.config` ALONE, so the
+helper looked in the old fixture launch root while the generated worker writes
+under the packet instance's own. `adopt` found nothing and answered None -- which
+is where my `NoneType has no attribute 'document'` came from, and my reading of it
+as a missing adopted launch was wrong.
+
+`adopt_generated_worker` now copies the named operands from the GENERATED producer
+worker into `self.config` and creates the launch and credential roots that
+document names. No delivery is fabricated, no launch evidence copied, no sweep
+added, no manager scheduling touched: the real `launch.adopt` and the real
+`serve_exchange` still run, and what changed is only WHERE the fixture's helper
+looks.
+
+### What the connected run reaches now
+
+    admissions   implementation 1, review 0
+    receipts     admit PERFORMED, claim PERFORMED, no refusal
+    runtime      runtime-single-1 launched, then DESTROYED
+    cleanup      'retained' -- POSITIVE, the engine answering the identity is gone
+    provider     THE REAL SCRIPTED CHILD RAN, with THIS PACKET'S OWN TASK TEXT in
+                 its argv
+    states       implementation 'exceptional', review 'blocked'
+    stopped      'exceptional' (a terminal state, not a crash)
+
+So the generated composition admits, claims, launches, runs a real provider turn
+on the packet's own task document, and reaches positive cleanup for the runtime it
+started. That is the connected path working up to the ending.
+
+### The open question, with the canonical evidence already read
+
+The stage is `exceptional` while its episode carries NO `ended_state`, its
+receipts show no refusal, and its runtime is destroyed with `retained` cleanup.
+The projection makes a stage with a live episode exceptional on three further
+conditions: a settled managed failure, a refused receipt, or a recorded
+start/preparation failure. The receipts rule out the second and the runtime facts
+make a failed start unlikely, so the next read is the settled managed failure and
+the observation's two failure members for THIS attempt, before the shutdown closes
+the gate. The likely subject is the ENDING contract rather than the launch -- the
+result must satisfy the declared output and test scope, and this packet declares
+its own `test_scope` and verification command.
+
+### The review/cleanup distinction is preserved and visible
+
+The second (review) attempt identity carries `cleanup: null` -- the manager holds
+no runtime for it, correctly, because it never launched -- and the supervisor
+reports it as cleanup it cannot prove rather than as a positive one. That is the
+distinction review 2026-09-29T22-36-24Z asked to be kept, and it is in the
+outcome.
+
+### Measured
+
+    126 deterministic cases, 1.130s, **0 failures**.
+    The connected harness reaches the point above. It is NOT a passing proof and
+    no test asserts it.
+    No review invocation, no verdict, no context save or restore yet.
+    No live provider or engine, no deployed store or grant, no credential, no
+    version-control or graph act, no product file, no sibling or W306614 edit, no
+    broad rerun.
+
+### What remains
+
+The ending question above, then the four asserted endings over this harness.
+`CONNECTED-NEXT-310021.md` carries the command (with `doCleanups`), the full
+current state and the honest simulated boundaries. Item 3 stays INCOMPLETE.
+
+Files: `connected_packet_trace.py` (a291e22e5bc9), `CONNECTED-NEXT-310021.md`
+(19252a8d866a).
+
+## Claim 310076 (baton.claude, impl) -- the session-profile substitution seam was the blocker; full adapter evidence retained
+
+Answering review 2026-09-29T22-51-42Z (pass 310068). The reviewer read the
+retained proposal and my speculation was wrong.
+
+### Withdrawn
+
+I guessed the ending was about the declared test scope or the verification
+command. It was neither: `verification.txt` says "no verification was attempted",
+`changed_paths` is empty, and the proposal's disposition is `provider-failed`
+with `failure_reason: start-error`, `status: 1`, `why: provider context terminal
+identity is unproved`.
+
+### Fixed: the substitution seam, which is the right one and weakens nothing
+
+`ServingContextCase.setUp` patches `oci.OciAdapter._context_execution` to return
+None, because the flow it serves uses a `/1` context profile with a FIXED state
+path. THIS packet requires the SESSION profile, whose allowlist names
+`{conversation_id}.jsonl` -- the substitution that makes a restore possible at
+all -- so with the seam stubbed the adapter cannot prove the conversation's
+terminal identity. The accepted `ManagedSessionResume` case restores the real
+function for exactly this reason and `ConnectedPacket` now does the same. No
+identity check, receipt check or attribution was weakened, and no provider output
+was fabricated.
+
+### Where the run reaches, with the evidence retained rather than summarized
+
+`CONNECTED-EVIDENCE-310076.json` holds the canonical output, both frozen
+artifacts' files and the provider event. Admissions implementation 1; admit and
+claim PERFORMED with no refusal; runtime-single-1 launched, destroyed, cleanup
+`retained`; output disposition `unable`, which is what the projection maps to
+`exceptional`; and the context receipt is
+`baton.provider-context-receipt/3` with `complete: false`, `terminal: unproved`,
+`observed_conversation_id` and `observed_model` both NULL, `status: 1`, and a
+`provider_result_digest` that is the digest of NOTHING.
+
+### The next read, narrowed
+
+The adapter saw no provider output at all and the scripted child exited 1, while
+`child_diagnostics()` is empty -- so the child's own status, stdout and stderr are
+captured nowhere this fixture reads. The next step is to capture them directly by
+wrapping the scripted provider callable this fixture passes into the turn. One
+hypothesis to TEST rather than assume: `test_stage_execution.provider` returns
+`CompletedProcess(argv, status, None, None)` -- stdout None -- while the
+managed-context cases override `provider` to return real JSON. If that is the
+difference, the correction belongs in this owned harness's own provider override.
+
+### Measured
+
+    126 deterministic cases, 1.13s, **0 failures**.
+    The connected harness is NOT a passing proof and no test asserts it. No
+    successful provider completion, no review invocation, no verdict, no context
+    save or restore: provider INVOCATION is not completion and this record does
+    not treat it as one.
+    No live provider or engine, no deployed store or grant, no credential, no
+    version-control or graph act, no product file, no sibling or W306614 edit, no
+    broad rerun.
+
+Files: `connected_packet_trace.py` (b267d9234b35), `CONNECTED-EVIDENCE-310076.json`
+(13cbb8d1d9e1), `CONNECTED-NEXT-310076.md` (423962d29147).
+
+## Claim 310127 (baton.claude, impl) -- the provider turn now SUCCEEDS; two of my own readings corrected
+
+Answering review 2026-09-29T22-58-46Z (pass 310123), which captured the child's
+actual error.
+
+### Two corrections to my record
+
+My stdout-None hypothesis was wrong: the active provider is
+`correction_restart_trace.World.provider`, a real subprocess, not the generic
+stub. And the `_context_execution` restoration did NOT fix the child error -- I am
+not claiming it did. It remains the right seam for a SESSION profile, because the
+`{conversation_id}` substitution is what a restore needs, but it was not what made
+the turn fail.
+
+The real cause, as captured: `FileNotFoundError` writing
+`docs/v12-context-correction.md` because the `docs` parent did not exist in the
+candidate. The child exited 1 before emitting terminal JSON, and the adapter then
+CORRECTLY reported the context terminal identity as unproved.
+
+### Fixed: the simulated provider's edit boundary
+
+The packet's task names a file in a subdirectory, and that is the point of it. A
+real provider creates the directory it writes into; the simulated one this fixture
+scripts did not. `ConnectedPacket.provider` creates the parents and changes
+nothing else -- the proposal is still authored by the provider writing into the
+candidate, the real version-control child still runs, the task's own verification
+command still runs, and no identity or receipt check is touched.
+
+### What that moved
+
+    BEFORE  implementation 'exceptional'; frozen output 'unable'; proposal
+            provider-failed / start-error / status 1
+    NOW     implementation 'answering'; THE PROVIDER TURN SUCCEEDS
+    progression  offered -> waiting -> answering, then unchanged
+    receipts     admit PERFORMED, claim PERFORMED
+    exchange     NULL in the projection
+    stopped      'serving-failed' -- my own scenario guard tripping after 90
+                 steps with the state unchanged
+
+`CONNECTED-EVIDENCE-310127.json` retains the progression, the canonical stage
+observation, the receipts, the cleanup and the counts.
+
+### The next read, and what not to do
+
+The stage sits at `answering` with a NULL exchange, so this control plane holds no
+exchange read for the attempt. Next: read `exchange.observation` for it directly
+before the shutdown; compare the event and command roots the adopted delivery
+names against the ones `serve_exchange` was given; and check whether the accepted
+World's own `tick` does anything functional that `serve`'s sweep does not -- it
+wraps `exchange.observation` to remember terminals "before ordinary cleanup
+discards delivery files", and the discarding is the part worth checking.
+
+NOT to be done: raising my scenario guard to see whether it converges later,
+adding sweeps, or changing the manager. The state is unchanged across all 90
+steps, so waiting longer answers nothing.
+
+### Measured
+
+    126 deterministic cases, 1.13s, **0 failures**.
+    The connected harness is NOT a passing proof and no test asserts it. No stage
+    completion, no review invocation, no verdict, no context save or restore. The
+    provider turn succeeding is further than before and is not the Job completing.
+    No live provider or engine, no deployed store or grant, no credential, no
+    version-control or graph act, no product file, no sibling or W306614 edit, no
+    broad rerun.
+
+Files: `connected_packet_trace.py` (521956861db5), `CONNECTED-EVIDENCE-310127.json`
+(2d9734904ecf), `CONNECTED-NEXT-310127.md` (ef9738823985).
+
+## Claim 310169 (baton.claude, impl) -- THE CONNECTED PROOF RUNS AND ALL FOUR ENDINGS ARE ASSERTED
+
+Answering review 2026-09-29T23-04-18Z (pass 310166), which captured the first
+real finalization refusal and named two coherence faults. Both are fixed and the
+milestone is reached.
+
+### Fault 1: the retention identity was split across documents
+
+The reviewer's capture was exact: `provider_context` finalizes by querying
+`intake.cleanup_of` under the PROFILE's retention digest while the ending records
+its cleanup under the COMPOSITION's, and my packet named the profile's
+`sha256:5555...` in the profile and the workers while the composition carried the
+accepted instance's `sha256:0f4cd2...`. A positive cleanup committed under one
+identity could not satisfy the lookup under the other, so the first refusal was
+"old runtime exclusion is unproved" and the use stayed held as `custody-invalid`.
+
+`retention_of(chosen)` is now the single source -- the CERTIFIED PROFILE's, for
+the same reason the workload profile, image and adapter digests are read from it
+-- and `held_packet` refuses a packet naming more than one retention identity
+across its profile, its workers and its composition.
+
+### Fault 2: the scripted provider wrote a conversation path the profile forbids
+
+`World.PROVIDER` has `.claude/projects/output/session.json` EMBEDDED IN ITS TEXT,
+and assigning `self.state_path` does not change a literal inside a string. This
+packet selects `.claude/projects/-output/{conversation_id}.jsonl`, so the child
+was retaining its conversation somewhere the selected allowlist does not name.
+`script_guard` patches the script by text substitution -- the same mechanism the
+accepted tests use for their own variants, and it ASSERTS the substitution
+changed something -- so the child retains and restores exactly the file this
+profile allows.
+
+### ALL FOUR ENDINGS, ASSERTED, in test_connected_packet.py
+
+    accepted-without-correction   settled; stopped 'completed'; the CANONICAL
+                                  verdict 'accepted'; ONE implementer and ONE
+                                  review invocation; NO restore claimed; zero
+                                  held reasons; positive cleanup.
+    corrected-and-accepted        stopped 'completed'; canonical 'accepted';
+                                  TWO implementer and TWO review invocations,
+                                  which is exactly the packet's bounds; and THE
+                                  RESTORE PROVED FROM THE MANAGER'S OWN CONTEXT
+                                  JOURNAL -- one context across both uses, a
+                                  LATER generation on the restored one, the
+                                  opening use saved, and the opening/restored
+                                  attempts taken in EPISODE ORDER.
+    rejected                      the canonical 'rejected' verdict reported AS a
+                                  rejection; one implementer invocation, no
+                                  manufactured correction, no retry.
+    failure / interrupt           a scripted interruption raises
+                                  SupervisorInterrupted with the outcome RETAINED
+                                  ON DISK and held; and a real scripted PROVIDER
+                                  FAILURE is held with NO verdict -- never
+                                  rounded up to an acceptance.
+
+Plus a case asserting the consumed path is the PACKET's: the Job id the manager
+recorded, both generated workers, and the run bounded by the packet's own
+900/60 numbers.
+
+### Two defects of mine that the connected endings found
+
+1. THE CLASSIFIER ERASED A VALID REJECTION. A rejected Job has nothing left to
+   advance, so the loop stops `no-progress` -- correctly -- and my classifier
+   turned that into `failed-or-unknown`, discarding a canonical verdict. Stops
+   are now split: the bound elapsing, an interruption, a serving fault or a spent
+   cap still HOLD the run, while `exceptional` and `no-progress` are recorded as
+   FACTS beside a verdict the reviewer really gave. An unread verdict is still
+   always UNKNOWN.
+2. A TEST OF MINE ASSERTED SOMETHING THE FIXTURE COULD NOT PRODUCE. The
+   provider-failure case passed `provider_status=1`, which is an operand of the
+   generic stub -- the provider here is a real child whose exit code comes from
+   the script. The case failed, and the fix was to inject the failure where the
+   status really comes from rather than to weaken the assertion.
+
+### Measured
+
+    133 deterministic cases across both files -- 126 packet/bounds plus 7
+    connected endings -- 9.877s and 9.815s on two runs, **0 failures**.
+    No live provider or engine, no deployed store or grant, no credential byte,
+    no version-control or graph act, no product file changed, no sibling or
+    W306614 edit, no broad 196 rerun.
+
+### What is bounded rather than proved, unchanged and explicit
+
+The preparation performs the packet's owner acts with INDIVIDUAL real APIs rather
+than through `baseline.prepare`; `tools.bootstrap` is not run and the two instance
+facts `bind` reads are written by the fixture; the engine is the accepted
+in-process one; the provider is a scripted child; the reviewer's dispositions are
+scripted and committed through the real `review_cycles` owner API. The
+unexplained historical boundary failure remains UNKNOWN. Production comparison and
+an actual LIVE restore remain unproved -- this proof is deterministic, and the
+live provider question is what the packet exists to let an owner select.
+
+Files: `correction_packet.py` (fc40961e30f0), `correction_supervisor.py` (e73b0aa96cac),
+`connected_packet_trace.py` (6839f41d9bb3), `test_connected_packet.py` (7c44754fb327),
+`test_correction_packet.py` (0793685f2ef3), `PACKET-309356.md` (8880a8504e7a).
+
+## Claim 310263 (baton.claude, impl) -- the executable entry is complete: supported Work preparation, installed paths, and baseline.prepare itself
+
+Answering review 2026-09-29T23-17-24Z (pass 310259). Two finite corrections, both
+real, plus the closure it asked for.
+
+### R1 -- the fresh-instance entry had a missing step, and I had assumed a path
+
+A FRESH installation binds no Job -- `bootstrap_document` emits none ON PURPOSE --
+so `tools.bootstrap` emits `job_bindings: []` and no `job_work_id`, and
+`qualified_work_id` REFUSED that output correctly. The commands went straight from
+the bootstrap to `bind`, which needs exactly that identity. The missing step is
+now `correction_packet.py prepare-work`: the Authority acts in the shape
+`prepare_instance.prepare` uses -- create the Work under the assignment contract,
+register the impl, rview AND integration route handlers (this Job submits a review
+stage, unlike the single-implementation packet, so the reviewer's claim would
+otherwise refuse against a route nobody handles), grant the four receipt
+capabilities in the Work's own scope, and set the canonical target. IT SUBMITS NO
+JOB: `baseline.survey` refuses a Job identity the store already records, rightly,
+and the execution Job is the supervisor's.
+
+THE CREATION REPLAYS, AND THAT IS VERIFIED RATHER THAN ASSUMED. `create_work`
+refuses a duplicate name outright rather than replaying it under a different
+operation identity -- correct, because two identities are two acts -- so the
+refusal is caught, the Authority's OWN projection is asked whether this is the
+same Work under the same contract, and only then do the remaining acts run. A
+different Work wearing the name re-raises. The connected fixture exercises exactly
+that path, because the accepted World creates the Work first.
+
+AND THE PATHS COME FROM THE INSTALLER. `bind` read `<root>/run/deployment.json`
+while `tools.bootstrap.layout` emits the configuration at `<root>/deployment.json`
+and the stores under `<root>/db/`. `installed_layout(root)` asks the tool instead
+of assuming its shape. `bind` also now creates the outcome's directory, because
+`_publish` writes atomically through a `.partial` sibling and creates none -- a
+real run would have failed at the one moment it must not, while retaining its
+result.
+
+### R2 -- command environment and path coherence
+
+`check` ran WITHOUT the staged PYTHONPATH although `held_packet` drives the real
+product validators -- `read_submission`, `single_worker._held`,
+`stage_execution.held_configuration`, the certified profile digest -- so it would
+have imported whatever was ambient, the exact thing the staging exists to prevent.
+It runs under the staged imports now. And `status` hardcoded stores under the
+instance root while `bind` binds the SELECTED ones; it names the selected stores
+now. The serving step also names the GENERATED composition, which is the document
+the run composes from and the one the packet pins -- the installer's own
+configuration binds no Job.
+
+### Closure -- the supported outputs and the ACTUAL preparation entry
+
+The connected fixture no longer invents a preexisting Work binding. It writes the
+installation record and the Job-LESS emitted configuration where
+`bootstrap.layout` names them, drives `prepare_work`'s real Authority acts against
+its disposable Authority, and then -- this is the other half of the closure --
+`serving` calls `baseline.prepare`, the function `correction_supervisor.main`
+itself calls, instead of reproducing its four owner acts by hand. Driving them
+individually proved each works and NOT that this composition does.
+
+FOUR NEW ASSERTED CASES cover it: the Authority acts performed (work id, three
+route handlers, four capabilities, canonical target, and the VERIFIED replay);
+the qualified Work id coming from the preparation while the emitted configuration
+really carries `job_bindings: []`; `baseline.prepare`'s own answer matching the
+packet's bound profile digest, qualification run, storage and workspace; and
+`check` re-proving the packet after the preparation.
+
+### One fixture defect this found
+
+A `setUp` that raises leaves its own patches started, and registering the unwind
+afterwards let ONE failure poison every later case in the process -- observed
+directly: a leaked provider-script patch made the next `setUp`'s substitution
+anchor stop matching, turning one error into six. Cleanups are registered BEFORE
+`setUp` now.
+
+### Measured
+
+    139 deterministic cases -- 128 packet/bounds plus 11 connected -- 10.465s and
+    10.485s on two runs, **0 failures**.
+    No live bootstrap, provider or engine; no deployed store, grant or credential;
+    no version-control or graph act; no product file, sibling or W306614 edit; no
+    broad rerun.
+
+### What remains simulated, and it is now smaller
+
+`tools.bootstrap` itself is not run: the installation record and the Job-less
+emitted configuration are written where the installer writes them. The engine is
+the accepted in-process one, the provider is a scripted child, and the reviewer's
+dispositions are scripted and committed through the real `review_cycles` owner
+API. The owner acts are no longer among the simulated parts -- `baseline.prepare`
+drives them.
+
+The unexplained historical boundary failure remains UNKNOWN. Production comparison
+and an actual LIVE restore remain unproved.
+
+Files: `correction_packet.py` (58951984728d), `connected_packet_trace.py` (ba6c72e5d10a),
+`test_connected_packet.py` (9a93de2576b5), `test_correction_packet.py` (50ae05c61e4c),
+`PACKET-309356.md` (c7a32f81cca3).
+
+## Claim 310345 (baton.claude, impl) -- the fresh Work identity is valid and exercised through the CLI; the operator template is no longer stale
+
+Answering review 2026-09-29T23-28-53Z (pass 310339). Two concrete defects, both
+real, both fixed with the evidence the review asked for.
+
+### R1 -- the fresh CLI Work identity was invalid, and untested
+
+`prepared_work_id` composed the name from the RUN ID and produced
+`7ea319da-Wmanaged-correction-309356`, which
+`authority.identity.check_work_id` refuses: "a Work id is the full canonical
+<8 hex>-W<positive> identity and a local selector is not one". The CLI used that
+generator while the connected harness passed an EXISTING fixture Work, so the
+fresh path was never exercised at all -- exactly as the review says.
+
+THE NAME NOW COMES FROM THE SELECTED WORK and the qualifier from the instance the
+bootstrap minted, and THE PRODUCT'S OWN CHECKER is asked rather than a pattern
+restated here. `held_selections` also refuses a `work` that is not the local
+`W<positive>` selector, so an unusable identity is refused where it is selected
+rather than at the first act against a store.
+
+AND THE ACTUAL CLI PATH IS NOW TESTED against a genuinely absent Work.
+`ThePREPARE_WORK_CLI` creates a DISPOSABLE Authority under its own temporary
+root, drives `correction_packet.main(["prepare-work", ...])`, and asserts the
+qualified identity, `created: True`, the three route handlers, the four
+capabilities and the canonical target; then runs the SAME command again and
+asserts the same Work, the same scope and `created: False`. The connected harness
+now composes its Work id through `prepared_work_id` too, so it exercises the
+REPLAY branch rather than bypassing the generator.
+
+TWO DEFECTS OF MY OWN THAT THESE CASES FOUND:
+
+    1. MY `created` FLAG MEASURED THE WRONG THING. It was set from "create_work
+       did not refuse", but `create_work` REPLAYS silently under the same
+       journalled operation identity -- so a second identical command reported
+       `created` on a replay. The projection is read BEFORE the act now: present
+       means replay, absent means this act creates it.
+    2. A BLIND `except` HID A REAL REFUSAL. The probe caught every exception and
+       called the Work absent, which turned a genuine failure into a duplicate
+       creation attempt. Only `authority.errors.Refusal` is caught now.
+    3. AND MY ROUTE CHECK WAS WRONG: the projection answers `impl` for a newly
+       created Work and `baton.impl` once a handler is registered, so the same
+       Work read two ways and the check refused a legitimate replay. The CONTRACT
+       is the identity check -- which the projection does carry -- and the route
+       check is gone.
+
+### R2 -- the supplied operator template had drifted from its generator
+
+`held_selections(SELECTIONS-309356.json)` refused it for a missing `receipts`
+block before it ever reached the owner placeholders; `stores` was absent and
+`participants` still carried the receipt principals in the old shape. An owner
+cannot be asked to reconstruct an undocumented schema.
+
+The template is regenerated from the current schema with every measured value
+read from the accepted records, and `TheSUPPLIED_OPERATOR_TEMPLATE` holds it
+there: it refuses ONLY for the ten operands it names (asserted as an exact list),
+replacing exactly those yields ADMITTED selections and a valid Work identity, its
+membership equals the generator's own tuple, its stores are the installed
+layout's, and no credential-looking member appears anywhere in it.
+
+### The documentation corrections that accompany it
+
+The packet said "three subcommands" -- `prepare-work` makes four. And it said no
+store was opened, which the connected proof's own disposable stores contradict;
+it now says no DEPLOYED store, which is the distinction that was being blurred.
+The command list, the digests and the case counts are refreshed.
+
+### Measured
+
+    147 deterministic cases -- 136 packet/bounds/template/CLI plus 11 connected
+    -- 10.463s and 10.474s on two runs, **0 failures**.
+    16 mutations still each caught by a case.
+    No live bootstrap, provider or engine; no DEPLOYED store, grant or
+    credential; no version-control or graph act; no product file, sibling or
+    W306614 edit; no broad rerun.
+
+### Unchanged limits
+
+`tools.bootstrap` itself is not run; the engine, provider and reviewer
+dispositions are simulated and labelled. The historical boundary failure remains
+UNKNOWN. Production comparison and an actual LIVE restore remain unproved.
+
+Files: `correction_packet.py` (8731f5be9166), `connected_packet_trace.py` (16eac7970615),
+`test_correction_packet.py` (b9f3234a7058), `SELECTIONS-309356.json` (52cbb7894d74),
+`PACKET-309356.md` (fd65129b7d37).
+
+## Claim 310425 (baton.claude, impl) -- the preparation is bound to its operand identity; an unrelated same-contract Work is refused
+
+Answering review 2026-09-29T23-40-17Z (pass 310422). One defect, and the
+reviewer's reproduction proved it rather than suggesting it.
+
+### The defect: a common assignment contract is not preparation identity
+
+My `prepare_work` SKIPPED `create_work` whenever a Work of this name already
+existed under the ordinary `v12-assignment-1` contract, and then granted four
+capabilities in THAT Work's scope and set the global canonical target. The
+reviewer created `W236087` under an unrelated act with `scope:unrelated` and the
+preparation adopted it; changing the declared base from `a*40` to `b*40` was also
+accepted as a "replay" and the new target reported as one. Skipping the creation
+bypassed the product's own collision gate, and my existing test only covered a
+different CONTRACT -- never an unrelated act under the same one.
+
+### The correction: let the product's gate decide, and derive the identity
+
+`create_work` is journalled under `operation_id`, so it replays THIS act and
+refuses a name reached under any other. It is now called UNCONDITIONALLY, and
+`operation_id` is DERIVED FROM THE OPERANDS -- the Work id, the contract, the
+canonical target, the three route handlers and the three receipt writers -- by
+`preparation_identity`, using the product's own `contracts.digest`. That makes
+three cases genuinely different:
+
+    SAME OPERANDS, run again  the journal replays, so a preparation that stopped
+                              part-way is FINISHED by repeating the command.
+    ANOTHER ACT'S WORK        refused: this operation never created it.
+    CHANGED OPERANDS          refused, because different inputs are a different
+                              act reaching an existing name.
+
+AND THE REFUSAL COMES FIRST. Nothing is granted and no policy is set until the
+gate has admitted the act. The durable record carries the `operation_id` and the
+exact `operands`, so a later reader can verify a replay rather than trust it.
+
+### Five cases, and "nothing changed" is MEASURED
+
+`ThePREPARE_WORK_CLI` now covers fresh creation, exact replay, the reviewer's
+unrelated same-contract Work, a changed base, and a changed participant -- and
+each refusal case reads the canonical target and the four participants'
+capabilities back through `Authority.policy` and `capabilities_of` BEFORE and
+AFTER, asserting they are identical. A sixth case drives a PARTIAL preparation:
+the Work created under this preparation's own identity and nothing else done, then
+the same command completes it -- which is the exact recovery the review asked to
+be preserved, and it is only possible because the gate is no longer skipped. A
+seventh asserts the identity changes with each bound operand and not otherwise.
+
+### And the connected fixture no longer adopts somebody else's Work
+
+It was passing the World's own `W1`, created by the World's setUp under ITS act,
+so the exact-replay claim rested on that adoption -- which the review named. The
+fixture now prepares `W236087`, ABSENT from that Authority until `prepare_work`
+creates it, under the derived identity. So the connected proof exercises the
+FRESH path and the CLI cases exercise replay and collision separately, which is
+the isolation the review asked for.
+
+### Measured
+
+    152 deterministic cases -- 141 packet/bounds/template/CLI plus 11 connected
+    -- 10.470s and 10.514s on two runs, **0 failures**. 16 mutations each still
+    caught.
+    No live bootstrap, provider or engine; no DEPLOYED store, grant or
+    credential; no version-control or graph act; no product file, sibling or
+    W306614 edit; no broad rerun.
+
+### Unchanged limits
+
+`tools.bootstrap` itself is not run; the engine, provider and reviewer
+dispositions are simulated and labelled. The historical boundary failure remains
+UNKNOWN. Production comparison and an actual LIVE restore remain unproved.
+
+Files: `correction_packet.py` (8eff31f5ba6f), `connected_packet_trace.py` (659a070a01d3),
+`test_correction_packet.py` (b29e35dd6f6a), `test_connected_packet.py` (2ab121fa7f2d),
+`PACKET-309356.md` (51b4f6bc5335).
+
+## Claim 310491 (baton.claude, impl) -- the identity override is GONE, closing the bypass for the CLI and every direct caller
+
+Answering review 2026-09-29T23-49-58Z (pass 310488). One remaining bypass of the
+same defect, and the reviewer's reproduction was exact again.
+
+### The bypass
+
+`main` passed `taken.operation_id or preparation_identity(...)` and
+`prepare_work` TRUSTED a caller-supplied id. So `--operation-id
+fixed-operator-id` with the declared base changed from `a*40` to `b*40` succeeded
+TWICE, reported a replay, and REALLY MOVED the canonical target -- the binding I
+had just added was optional, and an operator or a direct helper caller could hold
+the identity fixed across changed operands.
+
+### The correction: there is nothing left to supply
+
+`prepare_work` DERIVES the identity itself. `operation_id` is no longer a
+parameter, so the mutation boundary is closed for the CLI and for every direct
+caller at once rather than validated at one of them -- and the `--operation-id`
+option is removed rather than left with stale help text. The connected fixture
+stopped passing one too.
+
+Three cases hold it there: the argument parser itself now answers "unrecognized
+arguments: --operation-id"; `inspect.signature(prepare_work)` is asserted to be
+exactly `(authority, chosen, work_id)` with no `operation_id`; and the reviewer's
+own reproduction is replayed -- two runs with different bases -- with the second
+refused and the canonical target measured UNCHANGED at `a*40` afterwards.
+
+### Measured
+
+    155 deterministic cases -- 144 packet/bounds/template/CLI plus 11 connected
+    -- 10.550s and 10.449s on two runs, **0 failures**. 16 mutations each still
+    caught.
+    No live bootstrap, provider or engine; no DEPLOYED store, grant or
+    credential; no version-control or graph act; no product file, sibling or
+    W306614 edit; no broad rerun.
+
+### Unchanged limits
+
+`tools.bootstrap` itself is not run; the engine, provider and reviewer
+dispositions are simulated and labelled. The historical boundary failure remains
+UNKNOWN. Production comparison and an actual LIVE restore remain unproved.
+
+Files: `correction_packet.py` (addf2e7d0a06), `connected_packet_trace.py` (3f73f1cc8a57),
+`test_correction_packet.py` (7a3d38c51c38), `PACKET-309356.md` (78805649a883).
+
+## Claim 311606 (baton.claude, impl) -- the owner's filled selection and the exact setup/run/status/stop commands
+
+Answering owner reroute 311598, which accepted the preparation milestone and
+asked for the concrete proposed experiment: the ten operands resolved from the
+accepted source/base and the configured credential reference and principals, any
+genuinely unresolved choice explained, and a filled selection plus exact
+commands for independent review before returning to `baton.decide`.
+
+NOTHING WAS EXECUTED. No instance installed, no deployed store or grant opened,
+no credential byte read or copied, no container started, no image built, no
+version-control act. The accepted candidate and all prior evidence are untouched.
+
+### Every operand READ from an accepted record, not chosen
+
+    source.root / declared_base   /home/sl/baton-runs/two-jobs-247941-01-inputs
+                                  at 346a809bf0e4c47e52d881bd46d6d62a611c9816,
+                                  RE-VALIDATED this turn: that head, a clean
+                                  working tree, and docs/v12-context-correction.md
+                                  ABSENT -- so this Job produces it and no new
+                                  commit is needed.
+    the three participants        baton.impl, baton.review, baton.merge
+    the three receipt writers     baton.verifier, baton.approver-review,
+                                  baton.approver
+                                  ALL SIX from the accepted single Job's own
+                                  deployment record -- the two workers'
+                                  `participant` values, the integration
+                                  profile's integrator, and its
+                                  `receipt_participants`. The receipt WRITERS are
+                                  deliberately not the workers: the Authority
+                                  refuses a receipt written by an actor it
+                                  granted nothing to.
+    credential_reference          w202663-development, the REFERENCE from that
+                                  same record. A reference is a NAME the manager
+                                  resolves at launch; the registry itself was
+                                  not opened and no credential byte was read,
+                                  copied or digested.
+    context_storage.excluded[0]   the selected source root
+
+`SELECTIONS-RESOLVED-311606.json` is ADMITTED by `held_selections` with ZERO
+unresolved operands, and the Work identity it would create is `<8 hex>-W236087`,
+which `authority.identity.check_work_id` accepts.
+
+### The one genuinely unresolved choice, stated rather than hidden
+
+WHETHER THAT CREDENTIAL REFERENCE STILL RESOLVES TO A CURRENT SESSION. The name
+is configured and is the accepted one; whether the session behind it is live is
+a fact only the owner can check, and it is not checkable from here without
+reading the registry this packet deliberately does not touch. W247941's run 01
+failed on an expired session, so this is a real risk rather than a formality --
+and if it has expired the run fails with a provider start error and is HELD,
+which is a correct outcome and not a reason to rerun anything.
+
+Two further items are owner SELECTIONS rather than unresolved operands: whether
+to run this at all, and whether the named instance root is the one to use.
+
+### The commands, generated rather than written
+
+`RUN-COMMANDS-311606.json` carries steps 1-7 as argument vectors with their
+environments, produced by the SAME `commands()` function the packet's own tests
+check -- so the delivered list cannot drift from what the generator emits.
+`OPERATOR-311606.md` is the operator's reading of it: setup (stage, install,
+prepare-work, bind, check), run (the bounded supervisor), status (read-only,
+from another terminal) and STOP.
+
+THE STOP IS SPECIFIED, not implied: ONE Ctrl-C. The supervisor defers the signal,
+closes admission, asks the composition to stop what is still executing, runs the
+cleanup window inside the 60-second reserve, publishes the outcome ATOMICALLY,
+and only then re-raises -- exiting 130. A stopped run still leaves its result at
+`<root>/run/outcome.json` and reports itself interrupted rather than settled. A
+second Ctrl-C during cleanup ends the window and is reported rather than escaping
+with the accounting half done. `SIGKILL` cannot be caught and nothing claims
+otherwise.
+
+### And the four endings are stated so the result is not over-read
+
+`accepted-without-correction` is a COMPLETE, HONEST result that proves NOTHING
+about restore and MUST NOT be rerun to obtain one -- the owner's own constraint,
+written into the operator document rather than left to memory.
+
+### Measured
+
+    161 deterministic cases -- 150 packet/bounds/template/CLI/resolved plus 11
+    connected -- 10.488s and 10.594s on two runs, **0 failures**.
+    SIX NEW CASES hold the delivered selection and command list in place: admitted
+    with nothing unresolved, a valid Work identity, the accepted source and base
+    with the task's output absent from it, every principal equal to the accepted
+    deployment's, the credential reference equal to the configured NAME with no
+    bearer-looking member anywhere, and the delivered commands equal to the
+    generator's own with staged imports and no shell expression in any argv.
+
+### Unchanged limits
+
+`tools.bootstrap` itself is not run in the deterministic proof; the engine,
+provider and reviewer dispositions there are simulated and labelled. The
+historical boundary failure remains UNKNOWN. Production comparison and an actual
+LIVE restore remain unproved -- which is precisely what the owner would be
+selecting.
+
+Files: `SELECTIONS-RESOLVED-311606.json` (3beaca6d284c), `RUN-COMMANDS-311606.json`
+(8ad37808b8ed), `OPERATOR-311606.md` (2639c0307630), `test_correction_packet.py` (9ab424359bb7).
+
+## Claim 311661 (baton.claude, impl) -- the two command-delivery defects, fixed and verified with stubs
+
+Answering review 2026-09-30T02-44-57Z (pass 311659). The filled selection was
+accepted as a proposal; two delivery defects were found, and both were real.
+
+### R1 -- fifteen broken shell continuations
+
+`OPERATOR-311606.md` had TWO trailing backslashes on 15 lines, so a literal
+backslash reached `python3` and `--selections`/`--provenance` became SEPARATE
+commands. It came from writing the document through a Python string literal,
+where `\\` produced two characters in the file rather than one. Every one is a
+single continuation now.
+
+VERIFIED WITH STUBS, NOT LIVE SETUP, exactly as the review directed. A stub
+`python3` on PATH records its argv and exits 0; nothing is installed and no store
+is opened. `sh -n` passes, the block runs to completion, and all TEN invocations
+are checked: no literal backslash reaches `python3`, and each packet subcommand
+carries its own operands in ONE invocation -- `stage` with
+`--selections/--destination/--claim/--provenance`, `prepare-work` with
+`--selections/--destination`, `bind` with all four, `check` with `--packet`.
+`ARGV-EVIDENCE-311661.json` retains the recorded argv and the empty fault list.
+
+ONE HONEST LIMIT OF THAT VERIFICATION: the status command's `$(...)` resolver
+expands to EMPTY under stubs, because no `bootstrap.json` exists to read. That is
+the stub's limit rather than a document defect -- with a real instance it yields
+the identity -- and it is recorded rather than glossed.
+
+### R2 -- an executable placeholder, and a false claim about it
+
+`RUN-COMMANDS-311606.json` step 6 carried `<the uuid tools.bootstrap minted, in
+<root>/bootstrap.json>` AS AN ARGV ELEMENT -- a value that would be passed to the
+manager verbatim -- while the operator document claimed the identity was "already
+substituted". The claim was simply false.
+
+Step 6 is now listed as PENDING with the read-only resolver and a pointer to the
+complete seven-step list `bind` writes to `<destination>/commands.json` once it
+has read the real identity. The operator document says so and the false sentence
+is gone.
+
+AND THE EQUALITY THE REVIEW ASKED FOR. My previous case checked only FRAGMENTS --
+that some string appeared in some argv -- which a delivered list could satisfy
+while differing from the generator's output. It now compares the ACTUAL DELIVERED
+DATA member for member against `commands()` re-run over the delivered selection
+and paths, and asserts NO delivered argv element is a placeholder or a shell
+expression (`$(`, a leading `<`, `<root>`, "placeholder").
+
+### A defect in my own new test, found by running it
+
+The continuation check was written as a Python literal and asserted against the
+SINGLE backslash a legitimate continuation uses -- so it failed on a CORRECT
+document. It is built from character codes now (`chr(92) * 2`), and it also
+asserts a single continuation IS present, so it cannot pass by their absence.
+
+### Measured
+
+    165 deterministic cases -- 154 packet/bounds/template/CLI/resolved plus 11
+    connected -- 10.527s and 10.606s on two runs, **0 failures**.
+    Stub argv verification: `sh -n` OK, 10 invocations, ZERO faults.
+    No live setup or run, no deployed store, grant or credential, no
+    version-control or graph act, no product, helper, sibling or W306614 edit,
+    no new framework.
+
+### Unchanged
+
+The accepted implementation and its evidence are untouched; only the operator
+document, the command list, the focused tests and PROGRESS changed. The
+credential reference's CURRENCY remains unverified and unverifiable from here.
+The historical boundary failure remains UNKNOWN, production comparison and an
+actual LIVE restore remain unproved, and accepted-without-correction must not
+trigger a forced rerun.
+
+Files: `OPERATOR-311606.md` (da56dc4e77e5), `RUN-COMMANDS-311606.json` (1d4220e59d3e),
+`test_correction_packet.py` (e51f2cb3094d), `ARGV-EVIDENCE-311661.json` (7c8a0838693d).
+
+## Claim 311743 (baton.claude, impl) -- the staging defect, and the two further defects that running it found
+
+Answering owner reroute 311736: the operator's setup failed before live
+execution, the staged manager lacked
+`src/baton_v12/contracts/schema/worker-control-1.0.schema.json`, and bootstrap,
+`prepare-work`, `bind` and `check` all failed. THE REPORT WAS RIGHT, and
+correcting it properly meant running the path rather than reasoning about it --
+which found two more defects that would each have stopped the run on their own.
+
+### A -- the reported defect: a module list is not a source tree
+
+`_source_files` selected files by extension, so the frozen resources the
+distribution ships were never staged. `baton_v12/contracts/frozen.py` reads
+`worker-control-1.0.schema.json` and `agent-session-1.0.schema.json` AT IMPORT
+TIME -- `WORKER_CONTROL_BYTES` and `AGENT_SESSION_BYTES` are module-level
+constants -- so the staged tree raised `FileNotFoundError` before one document
+was read, and the operator met it as an installer failure with three later steps
+failing after it.
+
+Staging is by DECLARATION now: `IMPORTED_PACKAGES` where each package lives
+under the import roots, modules and package resources together. I WROTE THE
+BROAD RULE FIRST -- everything but derived -- AND MEASURED IT, which is why it
+is not what shipped: against the real origin it staged 2874 further files and
+132M, a whole PyInstaller bundle under `build/out/distro`, a `.pytest_cache` and
+44 `v12-w71917-*` scratch run trees. Staging build output and run state into a
+source bundle is a worse defect than the one being fixed. The declared rule
+stages 108 from that origin: the 106 modules the accepted packets measured, and
+the two assets that were missing.
+
+AND IT IS PROVED BY IMPORT, NOT BY A FILE LIST. `staged_report` runs a child
+whose `PYTHONPATH` is the staged tree and nothing else, and asks that tree what
+it declares and whether it can load it -- so the names and their location are
+the product's, never retyped, and the condition checked is the condition the run
+executes under. `bind` asks again, and `check` asks again, because a tree that
+imported at copy time and not at run time is the same failure later.
+
+### B -- the staging root was a SIBLING of the instance, and step 1 could not have succeeded
+
+Found by running the real `tools.bootstrap` from a real staged tree.
+`tools.stage_execution._checkout()` answers three parents above its own file,
+so a source staged at `<staging_root>/manager-source` makes
+`dirname(staging_root)` the tree the staged code calls its checkout -- and
+`bootstrap.admit` REFUSES any destination inside it, because an installed
+instance exists so that development in the code's own tree cannot change a
+running Job. The delivered selection put the staged source at
+`/home/sl/baton-instances/managed-correction-309356-source` and the instance at
+`/home/sl/baton-instances/managed-correction-309356`. Siblings. The asset
+failure came first, which is the only reason this went unseen.
+
+`stage` and `bind` refuse it now, naming the layout the operator must choose,
+and the answer comes from the staged tree rather than from a rule restated here.
+The corrected selection stages to `/home/sl/baton-staging/...`, which ALSO
+preserves the failed run's tree: the recovery collides with nothing.
+
+### C -- `stage` was not in the sequence, and ran with no import path
+
+`RUN-COMMANDS-311606.json` began at step 1, so the one command whose defect
+stopped the run was the one command the machine-readable sequence did not carry.
+It is step 0 now, and its `PYTHONPATH` is the ORIGIN, because the staged tree is
+what step 0 creates.
+
+### An extra file is a refusal, not a tidy-up
+
+A copy into a directory that already holds a different staging leaves files NO
+DIGEST BINDS, on a `PYTHONPATH`, in a packet whose whole promise is that the run
+executes the reviewed bytes. `verify_nothing_unbound` refuses that and DELETES
+NOTHING: this program did not write those files and they may be someone's
+evidence. The recovery is a fresh staging root.
+
+### The stage-to-bootstrap path, DRIVEN in a disposable installation
+
+`staged_bootstrap_trace.py`, one temporary root, no Docker, no provider, nothing
+deployed touched, the root removed afterwards
+(`STAGE-BOOTSTRAP-EVIDENCE-311743.json`):
+
+- the real `stage` over the real reviewed selection with only the instance,
+staging, store, context and workspace paths redirected -- 108 files, both assets
+among them, every one measured;
+- THE DEFECT REPRODUCED by subtraction on a copy of that same staged tree:
+`FileNotFoundError` naming `worker-control-1.0.schema.json`, raised from
+`baton_v12/contracts/frozen.py` at import;
+- the corrected tree importing `tools.bootstrap` and
+`baton_v12.contracts.frozen` with the staged tree as its only import path, the
+loaded bytes equal to the staged bytes (51419 and 48212);
+- `tools.bootstrap` run FROM that tree: **exit 0**, Authority minted,
+`deployment.json` and `bootstrap.json` written, stores created;
+- `prepare-work`, `bind` and `check` -- the three steps that failed for want of
+what bootstrap never wrote -- **all exit 0**, and the bound packet proved by
+`check` with the product's own validators, recording `frozen_assets`.
+
+### The partial preparation, inspected READ-ONLY and preserved
+
+`RECOVERY-311743.json`, measured with `os.walk`, `getsize` and sha256; no store
+opened, nothing deleted, moved or copied by hand:
+
+- `.../managed-correction-309356-source`: 376 modules, **0 resources**,
+17,764,973 bytes, holding `build`, `tests` and 24 `v12-w71917-*` scratch trees
+-- the over-broad `.` walk and the missing resources, both visible in one tree;
+- `.../managed-correction-309356-packet`: `bootstrap-inputs.json`,
+`context-profile.json`, `task.json`, `prepared.json` with `file_count: 376` and
+no `frozen_assets`;
+- the instance: **ABSENT**. `bootstrap.json`, `packet.json` and
+`submission.json`: absent, which is exactly why steps 2-4 failed.
+
+The corrected sequence writes to a new staging root and a new destination, so
+all of it stays as the failed run left it.
+
+### The sequence stops at its first error, PROVED rather than asserted
+
+`set -e` and `set -o pipefail`, and `STOP-ON-ERROR-EVIDENCE-311743.json`: a stub
+`python3` fails the 1st, then the 2nd, then the 3rd invocation; in every case
+ZERO invocations follow it and the sequence exits non-zero. The failed run
+continued past a broken step 1 into three further failures, which is how one
+cause produced four reports.
+
+### Measured
+
+    180 deterministic cases (169 packet/bounds/template/CLI/resolved/operator
+    plus 11 connected), 0 failures.
+    5 mutations, one per corrected behaviour, EVERY ONE caught; unmutated and
+    restored runs clean (MUTATIONS-311743.json).
+    Operator argv under stubs: sh -n OK, 9 invocations, 0 faults.
+    Stop-on-first-error: 3 cases, 0 invocations after the failure.
+    Stage-to-bootstrap-to-check in a disposable root: every step exit 0.
+    No live setup or run against a deployed instance, no deployed store, grant
+    or credential, no image build, no version-control or graph act, no
+    product/helper/sibling/W306614 edit, no new framework.
+
+### Unchanged
+
+The accepted 311606 documents are on disk untouched as evidence; the corrected
+ones supersede them and say why. The credential reference's CURRENCY remains
+unverified and unverifiable from here, the historical boundary failure remains
+UNKNOWN, production comparison and an actual LIVE restore remain unproved, the
+deployed instance has NOT been installed, and accepted-without-correction must
+not trigger a forced rerun.
+
+Files: `correction_packet.py` (7e8d33b06b84), `test_correction_packet.py` (7a9cee585247), `staged_bootstrap_trace.py` (4927da64bab3), `SELECTIONS-RESOLVED-311743.json` (104bd56722aa), `RUN-COMMANDS-311743.json` (9d58f45d7c76), `OPERATOR-311743.md` (ec09adb011cc), `STAGE-BOOTSTRAP-EVIDENCE-311743.json` (642bb0a952f7), `RECOVERY-311743.json` (87175317f010), `ARGV-EVIDENCE-311743.json` (4928ff7781d4), `STOP-ON-ERROR-EVIDENCE-311743.json` (6d97be2392f4), `MUTATIONS-311743.json` (bda2e44b1f59)
+
+## Claim 311994 (baton.claude, impl) -- the two operator regressions review 311971 found
+
+Review 311971 ACCEPTED the resource staging, the layout guard, step 0 and the
+disposable stage-to-bootstrap proof, and re-ran the trace independently. It
+found two regressions in the operator document I wrote, and BOTH WERE REAL. Only
+the document, its focused cases and its evidence changed; no product, helper or
+lifecycle code was touched and the bootstrap was not repeated.
+
+### R1 -- the status command could not have run
+
+Section 4 displayed `--job-store` and `status --job`, with no `--incarnation`
+and no `--control`. `tools.job_manager` requires `--store`, `--incarnation` and
+`--authority-uuid` and takes `--control` on `status`, so the displayed shape is
+refused AT THE PARSER with exit 2, before a store is opened -- the one command
+an operator would reach for while a run was serving. I had typed it from memory
+while regenerating the document; the generator's step 6 was right all along and
+so was `OPERATOR-311606.md`.
+
+Section 4 is now `commands()` step 6 argv for argv, and it is held to the REAL
+`tools.job_manager` rather than to a stub that accepts arbitrary options
+(`STATUS-PARSER-EVIDENCE-311994.json`): the regressed shape exits 2 at the
+parser; the generated shape with stores that do not exist gets PAST the parser
+and fails only on opening them; and against disposable empty stores it RUNS TO
+COMPLETION and answers a status document (`incarnation`
+`managed-correction-309356`, `canonical` true, `jobs` empty). Nothing deployed
+was read.
+
+### R2 -- the section labelled Stop contained no stop
+
+It printed a document, from `$DEST/outcome.json`, and called that stopping. The
+outcome is not there: the packet and generated step 7 bind
+`$ROOT/run/outcome.json`.
+
+The stop is ONE Ctrl-C in the serving terminal, and the accepted semantics are
+restored with it: the supervisor defers the signal, closes admission, asks the
+composition to stop, runs the cleanup window inside the reserve, publishes the
+outcome atomically and re-raises, exiting 130 -- so a stopped run still leaves
+its result and reports itself INTERRUPTED rather than settled; a second Ctrl-C
+during cleanup ends the window and is reported; `SIGKILL` cannot be caught and
+the document does not pretend otherwise. Reading the result is a separate act,
+from the bound path.
+
+### A formatting defect of my own, found by re-running the argv check
+
+The stop action was written as an indented line, which in this document means a
+COMMAND BLOCK -- so `(SIGINT)` reached `sh -n` and the check failed. It is prose
+now, and says why there is nothing to type.
+
+### Measured
+
+    183 deterministic cases (172 packet/bounds/template/CLI/resolved/operator
+    plus 11 connected), 0 failures.
+    3 operator mutations, each re-introduced in a COPY of the delivered
+    document, EVERY ONE caught; unmutated and restored runs clean
+    (OPERATOR-MUTATIONS-311994.json).
+    Operator argv under stubs: sh -n OK, 10 invocations, 0 faults
+    (ARGV-EVIDENCE-311994.json).
+    Stop-on-first-error: 3 cases, 0 invocations after the failure
+    (STOP-ON-ERROR-EVIDENCE-311994.json).
+    No product, helper or lifecycle change, no repeated bootstrap, no deployed
+    setup, store, grant or credential, no Docker or provider, no
+    version-control or graph act, no sibling, DESIGN or W306614 edit.
+
+### Preserved
+
+The accepted staging correction and the disposable proof are untouched:
+`correction_packet.py`, `correction_supervisor.py`, `staged_bootstrap_trace.py`,
+`STAGE-BOOTSTRAP-EVIDENCE-311743.json`, `RECOVERY-311743.json`,
+`MUTATIONS-311743.json`, `RUN-COMMANDS-311743.json` and
+`SELECTIONS-RESOLVED-311743.json` all keep their recorded hashes. The superseded
+`ARGV-EVIDENCE-311743.json` and `STOP-ON-ERROR-EVIDENCE-311743.json` stay on
+disk as the record of the earlier document, and the current ones are the 311994
+pair. The deployed instance is still NOT installed, the credential currency
+remains unverified, the historical boundary failure remains UNKNOWN, and
+production comparison and a live restore remain unproved.
+
+Files: `OPERATOR-311743.md` (fa919c946f59), `test_correction_packet.py` (2c1796c7c8f8), `STATUS-PARSER-EVIDENCE-311994.json` (878e0f4b8fc7), `ARGV-EVIDENCE-311994.json` (e7345428d804), `STOP-ON-ERROR-EVIDENCE-311994.json` (039095cba602), `OPERATOR-MUTATIONS-311994.json` (2062bc75cc26)

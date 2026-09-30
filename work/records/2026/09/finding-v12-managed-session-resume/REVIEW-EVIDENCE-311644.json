@@ -1,0 +1,63 @@
+{
+  "hash_matches": {
+    "OPERATOR-311606.md": true,
+    "PROGRESS.md": true,
+    "RUN-COMMANDS-311606.json": true,
+    "SELECTIONS-RESOLVED-311606.json": true,
+    "test_correction_packet.py": true,
+    "PACKET-309356.md": true,
+    "PROVENANCE-309356.json": true,
+    "SELECTIONS-309356.json": true,
+    "connected_packet_trace.py": true,
+    "correction_packet.py": true,
+    "correction_supervisor.py": true,
+    "test_connected_packet.py": true
+  },
+  "tests": {
+    "count": 161,
+    "seconds": 10.404,
+    "result": "PASS"
+  },
+  "status_shell_syntax": {
+    "text": "PYTHONPATH=$IMPORT python3 -m tools.job_manager \\\\\n    --store $ROOT/db/jobs.sqlite3 \\\\\n    --authority-uuid $(python3 -c \"import json,sys;print(json.load(open(sys.argv[1]))['authority_uuid'])\" $ROOT/bootstrap.json) \\\\\n    --incarnation managed-correction-309356 \\\\\n    status --control $ROOT/db/control.sqlite3\n",
+    "exit": 0,
+    "stderr": ""
+  },
+  "double_backslash_line_numbers": [
+    79,
+    80,
+    84,
+    85,
+    86,
+    95,
+    99,
+    100,
+    105,
+    115,
+    125,
+    126,
+    127,
+    128,
+    151
+  ],
+  "status_argv": [
+    "python3",
+    "-m",
+    "tools.job_manager",
+    "--store",
+    "/home/sl/baton-instances/managed-correction-309356/db/jobs.sqlite3",
+    "--authority-uuid",
+    "<the uuid tools.bootstrap minted, in <root>/bootstrap.json>",
+    "--incarnation",
+    "managed-correction-309356",
+    "status",
+    "--control",
+    "/home/sl/baton-instances/managed-correction-309356/db/control.sqlite3"
+  ],
+  "scope": "bash -n syntax only; no operator commands executed",
+  "stage_shell_stub": {
+    "stdout": "python argv:</nonexistent/dossier/correction_packet.py>\npython argv:<stage>\npython argv:<\\>\nseparate command:<--selections>\nseparate command:</nonexistent/selection>\nseparate command:<--destination>\nseparate command:</nonexistent/destination>\nseparate command:<--claim>\nseparate command:<311606>\nseparate command:<\\>\nseparate command:<--provenance>\nseparate command:</nonexistent/dossier/PROVENANCE-309356.json>\n",
+    "stderr": "",
+    "scope": "python3 and unknown commands replaced by shell printing functions; nonexistent operands; no setup execution"
+  }
+}

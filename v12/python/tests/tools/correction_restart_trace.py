@@ -14,6 +14,7 @@ import subprocess
 import sys
 import time
 from types import MethodType, SimpleNamespace
+from unittest import mock
 
 from baton_v12.contracts import digest, digest_of_bytes
 from baton_v12.authority import Authority
@@ -175,6 +176,46 @@ class World(ServingContextCase):
 
     def setUp(self):
         super().setUp()
+        # W236087 review 2026-09-29T20-42-20Z: THE GOVERNED TOKEN, OBSERVED WHERE THE
+        # REVIEWER OBSERVED IT. Read-only wrappers around the real `tokens.acquire` and
+        # `tokens.admit_activation`: the first captures the reservation exactly as the
+        # acquisition answers it -- domain, generation, and the `execution` and original
+        # `runtime.start` operation, which come from `acquire` itself rather than from a
+        # container name or an assignment generation -- and the second reads `token_of` for
+        # every captured reservation immediately BEFORE the activation is admitted. That
+        # instant is the boundary the ordering claim is about.
+        from baton_v12.worker_manager import tokens as _tokens
+
+        self.token_reservations = []
+        self.token_boundaries = []
+        acquired = _tokens.acquire
+        admitting = _tokens.admit_activation
+
+        def watching_acquire(control, domain, *arguments, **keywords):
+            answer = acquired(control, domain, *arguments, **keywords)
+            if isinstance(answer, dict):
+                self.token_reservations.append(dict(answer, domain=domain))
+            return answer
+
+        def watching_activation(control, token, **keywords):
+            observed = []
+            for held in self.token_reservations:
+                state = _tokens.token_of(control, held["domain"], held["generation"])
+                observed.append(dict(held, state=None if state is None else {
+                    name: state.get(name) for name in
+                    ("returned", "activating", "activation_started", "container",
+                     "launch")}))
+            self.token_boundaries.append({
+                "domain": token.get("domain") if isinstance(token, dict) else None,
+                "generation": token.get("generation") if isinstance(token, dict) else None,
+                "execution": token.get("execution") if isinstance(token, dict) else None,
+                "container": keywords.get("container"), "observed": observed})
+            return admitting(control, token, **keywords)
+
+        patched = mock.patch.multiple(_tokens, acquire=watching_acquire,
+                                      admit_activation=watching_activation)
+        patched.start()
+        self.addCleanup(patched.stop)
         self.tick_count = 0
         self.reports = []
         self.preparation_terminals = {}
@@ -264,6 +305,8 @@ class World(ServingContextCase):
         return [json.loads(line) for line in self.provider_log.read_text().splitlines()] if self.provider_log.exists() else []
 
     def snapshot(self, held, attempt):
+        from baton_v12.worker_manager.attempts import attempt_runtime_of
+
         binding = context.context_invocation_of(held.control, attempt)
         frozen = frozen_output_of(held.control, attempt)
         result = load_manifest(held.control, frozen["manifest_digest"], "resultManifest")
@@ -277,7 +320,13 @@ class World(ServingContextCase):
             answer = stage_execution._git_run(["git", "-C", workspace, "show", checkpoint["head_object"] + ":" + name])
             self.assertEqual(answer["returncode"], 0)
             content[name] = {"text": answer["stdout"], "digest": digest_of_bytes(answer["stdout"].encode())}
-        return {"content": content, "binding": binding, "receipt_bytes": body.decode(), "receipt": json.loads(body), "receipt_digest": digest_of_bytes(body), "receipt_entry": receipt["content_manifest"]["entries"][0], "assignment": assignment_of(held.control, attempt), "settlement": settlement, "checkpoint": review_cycles.checkpoint_of(held.control, settlement["evidence"]["checkpoint_id"])}
+        return {"content": content, "binding": binding, "receipt_bytes": body.decode(), "receipt": json.loads(body), "receipt_digest": digest_of_bytes(body), "receipt_entry": receipt["content_manifest"]["entries"][0], "assignment": assignment_of(held.control, attempt), "settlement": settlement, "checkpoint": review_cycles.checkpoint_of(held.control, settlement["evidence"]["checkpoint_id"]),
+                # W236087 review 2026-09-29T20-25-55Z R1: THE RUNTIME AND TOKEN IDENTITY
+                # PER SNAPSHOT. The oracle bound neither, so changing BOTH runtime
+                # observations to `running` still passed the full counted validator -- the
+                # reviewer measured exactly that. `validate` now requires the predecessor
+                # CEASED and the identities distinct, and it can only do so from this.
+                "runtime": attempt_runtime_of(held.control, attempt)}
 
     def mounts_for(self, attempt):
         vectors = [argv for argv in self.engine.starts if "--entrypoint" not in argv and "baton.v12.runtime_attempt_id=" + attempt in argv]
@@ -462,7 +511,11 @@ class World(ServingContextCase):
         publication = reconciliation.publication_of(deployment.integration, result_ids[0], "apply")
         publication_receipt = deployment.reconciliation_profile.publication_receipt(self.target, publication_id=publication["publication_id"])
         judgments = {kind: deployment.authority.receipt(result["derived_proposal_id"], kind) for kind in ("verification", "review", "approval")}
-        artifact = {"accepted": accepted, "accepted_verdict": accepted_verdict, "reviews": self.review_evidence, "final": final, "apply": {"launch": apply_launch, "mounts": apply_mounts, "manifest": apply_manifest, "receipt_path_exists": False}, "publication": publication, "publication_receipt": publication_receipt, "judgments": judgments, "schema": SCHEMA, "scheduler": self.trace.artifact(), "initial": initial, "revised": revised, "correction": correction, "verdict": verdict, "review_assignment": assignment_of(held.control, reviewer), "final_counters": {"provider": self.provider_events(), "engine": self.engine.events}, "verifications": self.verifications, "managed": result, "capacity": integration_capacity_of(held.job, result_ids[0]), "target": {"revision": deployment.reconciliation_profile.revision(self.target, "refs/heads/main"), "code_digest": digest_of_bytes(target["stdout"].encode()), "authority_revision": deployment.authority.canonical_target(), "receipt": deployment.authority.receipt(result["derived_proposal_id"], "integration")}, "ticks": self.tick_count}
+        artifact = {"accepted": accepted, "accepted_verdict": accepted_verdict, "reviews": self.review_evidence, "final": final, "apply": {"launch": apply_launch, "mounts": apply_mounts, "manifest": apply_manifest, "receipt_path_exists": False}, "publication": publication, "publication_receipt": publication_receipt, "judgments": judgments, "schema": SCHEMA, "scheduler": self.trace.artifact(), "initial": initial, "revised": revised, "correction": correction, "verdict": verdict, "review_assignment": assignment_of(held.control, reviewer), "final_counters": {"provider": self.provider_events(), "engine": self.engine.events}, "verifications": self.verifications,
+                # W236087: THE GOVERNED TOKEN RESERVATIONS AND THE ACTIVATION BOUNDARIES,
+                # as the acquisition and `token_of` answered them.
+                "tokens": {"reservations": self.token_reservations,
+                           "boundaries": self.token_boundaries}, "managed": result, "capacity": integration_capacity_of(held.job, result_ids[0]), "target": {"revision": deployment.reconciliation_profile.revision(self.target, "refs/heads/main"), "code_digest": digest_of_bytes(target["stdout"].encode()), "authority_revision": deployment.authority.canonical_target(), "receipt": deployment.authority.receipt(result["derived_proposal_id"], "integration")}, "ticks": self.tick_count}
         if counted_reopen:
             artifact["reopen"] = boundary
         return artifact
@@ -470,6 +523,17 @@ class World(ServingContextCase):
 
 def validate(artifact, *, counted_reopen=False):
     """Re-derive C1 relationships from exported records, without live owners.
+
+    THE SCENARIO IS SIMULATED AND THIS SAYS SO ONCE, PLAINLY. W236087 reviews asked for the
+    label rather than an implication. The provider and the engine are deterministic
+    boundaries, not a live model or a live container runtime; the candidate this scenario
+    corrects is a SCRIPTED defective one, written by the fixture to be worth correcting; and
+    the verdicts it routes are SCRIPTED dispositions committed through the real owner APIs
+    rather than judgments any reviewer formed. The mutated-evidence negatives in
+    `test_correction_restart.py` are synthetic invalid COPIES -- they are not a defective
+    implementation candidate and not a live judgment either. What is real here is the
+    manager, the stores, the custody, the projection, the token governance and the
+    version-control child; what is simulated is who answered.
 
     This is a consistency oracle, not a signature scheme. Provenance is bound
     separately by the supervised export and candidate hashes. C2 callers must
@@ -511,6 +575,107 @@ def validate(artifact, *, counted_reopen=False):
             for key in ("attempt_id", "use_id", "invocation_id", "conversation_id", "invocation_binding_digest", "delivery_digest", "argv_digest", "mode"):
                 require(receipt[key] == binding[key], "C1-context-binding")
         require(initial["binding"]["mode"] == "open" and revised["binding"]["mode"] == "restore" and initial["binding"]["context_id"] == revised["binding"]["context_id"], "C1-context-continuity")
+
+        # W236087 review 2026-09-29T20-25-55Z R1, and LABELLED FOR WHAT IT IS after review
+        # 2026-09-29T20-34-52Z. These bind the RUNTIME observation -- `attempt_runtime_of`'s
+        # `execution_runtime`, runtime id and fixed assignment -- and nothing more. The
+        # oracle bound none of it, so setting BOTH runtime observations to `running` passed
+        # everything, which is the gap these close.
+        #
+        # THEY ARE NOT GOVERNED-TOKEN EVIDENCE, and the second review is right that I
+        # implied otherwise. The assignment's `generation` is not a resource token, and
+        # "the runtime was eventually destroyed" is not "the old token was RETURNED BEFORE
+        # the restored activation". That evidence lives in `worker_manager/tokens.py` --
+        # `domain_of`, `generation_of(control, domain, execution=..., operation=...)` and
+        # `token_of`, whose answer carries `returned`, `activating` and
+        # `activation_started` -- and it is OWED rather than claimed here. What I still have
+        # to resolve is deriving `generation_of`'s `execution`/`operation` pair from the
+        # real launch rather than guessing it.
+        for name, snapshot in (("initial", initial), ("revised", revised)):
+            runtime = snapshot.get("runtime")
+            require(type(runtime) is dict, "C1-runtime-missing")
+            if type(runtime) is not dict:
+                continue
+            require(runtime["attempt_id"] == snapshot["settlement"]["attempt_id"], "C1-runtime-attribution")
+            # EVERY observed execution in this scenario is positively destroyed at the
+            # moment this snapshot was taken. That is a RUNTIME fact, not a statement about
+            # when a governed token was returned relative to the next activation.
+            require(runtime["execution_runtime"] == "destroyed", "C1-runtime-destroyed")
+            require(runtime["assignment"] is not None and runtime["assignment"]["participant"] == snapshot["assignment"]["participant"], "C1-runtime-assignment")
+            del name
+        # W236087 reviews 2026-09-29T20-42-20Z and 20-49-45Z: THE GOVERNED TOKEN WAS
+        # RETURNED BEFORE THE RESTORED ACTIVATION, matched on the FULL RESERVATION IDENTITY.
+        #
+        # MY FIRST VERSION KEYED THE OBSERVATIONS BY GENERATION ALONE, and the reviewer
+        # showed what that costs: another resource's generation 1 masks the opening token's,
+        # so mutating ONLY the opening execution's `returned` still validated. The key is the
+        # whole tuple now -- domain, generation, execution and reserving operation -- and a
+        # missing or conflicting observation is a refusal rather than a silent pass.
+        #
+        # AND THE EXPORTED CONTAINER AND LAUNCH ARE COMPARED, which they were not: every
+        # wrong value validated. `state.container` is held to the snapshot's own runtime id
+        # and to the restored boundary's container, and `state.launch` to the operation the
+        # acquisition answered.
+        governed = artifact.get("tokens") or {}
+        reservations = governed.get("reservations") or []
+
+        def reserved_for(attempt):
+            found = [one for one in reservations if one.get("execution") == attempt]
+            return found[0] if len(found) == 1 else None
+
+        opening = reserved_for(initial["settlement"]["attempt_id"])
+        restored = reserved_for(revised["settlement"]["attempt_id"])
+        require(opening is not None and restored is not None, "C1-token-attribution")
+        boundaries = [one for one in governed.get("boundaries") or ()
+                      if one.get("execution") == revised["settlement"]["attempt_id"]]
+        require(len(boundaries) == 1, "C1-token-boundary")
+        if opening is not None and restored is not None and len(boundaries) == 1:
+            # ONE DOMAIN, DISTINCT GENERATIONS AND DISTINCT RESERVING OPERATIONS.
+            require(opening["domain"] == restored["domain"], "C1-token-domain")
+            require(opening["generation"] != restored["generation"]
+                    and opening["operation"] != restored["operation"], "C1-token-distinct")
+
+            def identity(one):
+                return (one.get("domain"), one.get("generation"),
+                        one.get("execution"), one.get("operation"))
+
+            boundary = boundaries[0]
+            # THE BOUNDARY IS THE RESTORED RESERVATION'S OWN.
+            require(boundary.get("domain") == restored["domain"]
+                    and boundary.get("generation") == restored["generation"], "C1-token-boundary-attribution")
+            observed = {}
+            for one in boundary["observed"]:
+                key = identity(one)
+                # A REPEATED TUPLE IS A CONFLICT, not a last-writer-wins.
+                require(key not in observed, "C1-token-observation-conflict")
+                observed[key] = one.get("state") or {}
+            for name, held, runtime in (("opening", opening, initial["runtime"]),
+                                        ("restored", restored, revised["runtime"])):
+                state = observed.get(identity(held))
+                require(state is not None, "C1-token-observation-missing")
+                if state is None:
+                    continue
+                # THE LAUNCH IS THE OPERATION THE ACQUISITION ANSWERED.
+                require(state.get("launch") == held["operation"], "C1-token-launch")
+                # AND THE CONTAINER IS THIS EXECUTION'S OWN RUNTIME.
+                if type(runtime) is dict:
+                    require(state.get("container") == runtime["runtime_id"], "C1-token-container")
+                del name
+            require(observed[identity(opening)].get("returned") is True, "C1-token-returned-before-activation")
+            require(observed[identity(restored)].get("returned") is False, "C1-token-new-not-returned")
+            require(observed[identity(restored)].get("activation_started") is None, "C1-token-new-not-activated")
+            # AND THE BOUNDARY'S OWN CONTAINER IS THE RESTORED EXECUTION'S.
+            if type(revised["runtime"]) is dict:
+                require(boundary.get("container") == revised["runtime"]["runtime_id"], "C1-token-boundary-container")
+
+        first_runtime, second_runtime = initial["runtime"], revised["runtime"]
+        if type(first_runtime) is dict and type(second_runtime) is dict:
+            # ONE RUNTIME PER EXECUTION. A restored use reporting the predecessor's runtime
+            # id would be naming an execution that is not its own. This is identity
+            # distinctness, and it is not the governed token's return ordering.
+            require(first_runtime["runtime_id"] != second_runtime["runtime_id"], "C1-runtime-distinct")
+            require(first_runtime["attempt_id"] != second_runtime["attempt_id"], "C1-runtime-distinct")
+            require(first_runtime["assignment"]["generation"] != second_runtime["assignment"]["generation"] or initial["settlement"]["episode"] != revised["settlement"]["episode"], "C1-generation-distinct")
 
         def verdict_matches(verdict, settlement, snapshot, disposition):
             checkpoint = snapshot["checkpoint"]

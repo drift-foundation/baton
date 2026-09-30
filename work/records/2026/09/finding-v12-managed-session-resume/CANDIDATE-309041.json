@@ -1,0 +1,64 @@
+{
+  "work": "W236087",
+  "claim": 309041,
+  "answering": "review 309038 (claim 309023) - R1 oracle blind spot, R2 failed-save property",
+  "no_product_change": "no product file changed this claim",
+  "r1_closed": {
+    "the_blind_spot": "changing BOTH runtime observations to running still passed the full counted validator; the actual export is destroyed so there is no live-overlap defect, but the oracle could not see cessation or token identity",
+    "trace_now_exports": "the runtime per snapshot via attempt_runtime_of: attempt, runtime id, execution runtime, cleanup and the fixed assignment",
+    "validate_now_requires": [
+      "the runtime is attributed to that snapshot's settled attempt",
+      "every observed execution is positively destroyed, so the predecessor ceased before the restore's own settlement",
+      "the assignment travels with it",
+      "the two executions are DISTINCT: different runtime id, different attempt, and a different generation or episode, so a restored use cannot ride a spent token"
+    ],
+    "measured_against_the_counterexamples": {
+      "both_running": [
+        "C1-runtime-ceased",
+        "C1-runtime-ceased"
+      ],
+      "stale_token": [
+        "C1-runtime-distinct"
+      ],
+      "honest_artifact": "still validates clean"
+    },
+    "now_permanent_negatives": [
+      "test_a_RUNNING_predecessor_is_rejected",
+      "test_a_STALE_runtime_token_on_the_restored_use_is_rejected"
+    ]
+  },
+  "r2_half_closed": {
+    "label_corrected": "renamed to test_a_FAILED_FIRST_SAVE_claims_nothing_at_all, which is initial-save visibility and says so",
+    "real_property_blocked": {
+      "attempted": "save generation 0 via the existing correction fixture, restore a fresh use, fail the LATER save, prove the saved 0 unchanged",
+      "blocker": "after self.correction() the fixture stands at the corrected implementation attempt (generation 3, as_participant(WHO, 3, 'principal:org-a')), and state() -> end_runtime() -> finalize() refuses at _receipt: 'provider context: receipt does not prove this healthy invocation' (provider_context.py:993 from _finalize_context_use at :1034)",
+      "what_i_do_not_know": "which operand the restored invocation's receipt proof needs",
+      "action": "the case is NOT left failing in the tree and the property is NOT claimed; the blocker is recorded in the test file",
+      "neighbouring_coverage_cited": [
+        "Restoration.test_restore_materialization_rechecks_original_generation_identity",
+        "test_damaged_committed_generation_is_refused"
+      ]
+    }
+  },
+  "verification": {
+    "tests": 189,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 66.988
+  },
+  "files": {
+    "v12/python/tests/manager/test_provider_context.py": "c23c7c4dfa4d",
+    "v12/python/tests/tools/test_correction_restart.py": "28c1510cbf4c",
+    "v12/python/tests/tools/correction_restart_trace.py": "e143000bfc2f"
+  },
+  "still_owed": [
+    "the saved-generation-0 preservation case, with its blocker resolved",
+    "the simulated-candidate labelling pass the review asked for",
+    "item 3: the digest-bound executable packet"
+  ],
+  "unproved": [
+    "the production deployment comparison",
+    "actual production restore"
+  ],
+  "ready_for": "independent review"
+}

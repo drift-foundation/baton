@@ -1,0 +1,70 @@
+{
+  "answering": "review-2026-09-29T22-36-24Z.md (pass 309957)",
+  "changed_files": {
+    "CONNECTED-NEXT-309960.md": "4b3ae82fe96d48d8a63d1dcf8b45eadafaed7921c93381df0ce1bef8616ab461",
+    "PROGRESS.md": "ff8739e95fcd9cae510565a95fbd2da11a66e4e88ec15ec6dd9af55a1dd780f3",
+    "connected_packet_trace.py": "0537729c714b64e91e152f5f2be53047239c2c93ca9d1dfd78480e99f74d9229",
+    "correction_packet.py": "4cf09402f71c026f84cfda178a69a112a947df20fd62b5ff59011e0fba2a58b5",
+    "correction_supervisor.py": "1a8c59f55b7d2233841bf34926b0043a76f4db690da03d3e4e7fda9c6c43c518"
+  },
+  "claim": 309960,
+  "connected_run_state": {
+    "admissions": {
+      "implementation": 1,
+      "review": 0
+    },
+    "is_not_a_passing_proof": true,
+    "localized_to": "the scenario hook's mounted(...) reaches worker._adopted({...}).document and _adopted answered None, so at projection state 'waiting' this run's attempt has no adopted launch to mount",
+    "next_step": "read, before the shutdown closes the gate, whether the claim and launch happened for this attempt and which of the gate's three calls the manager did not reach. No scheduler change, no extra sweep, no raised step limit.",
+    "not_reached": [
+      "no provider child ran (child_diagnostics is empty)",
+      "no verdict recorded",
+      "no context save or restore"
+    ],
+    "provider_turns_attempted": 1,
+    "serving_failure": "AttributeError: 'NoneType' object has no attribute 'document'",
+    "stage_states": {
+      "implementation": "exceptional",
+      "review": "blocked"
+    },
+    "stopped": "serving-failed",
+    "was": {
+      "implementation": 0,
+      "review": 0
+    }
+  },
+  "fixed": {
+    "cross_document_check": "held_packet refuses a submission requesting a workload profile no configured worker offers -- a stage no worker can serve is deferred forever rather than refused.",
+    "supervisor_reporting_gap": "serving_failure was appended to held_because only when the result was not already FAILED, so the reason the loop stopped was dropped exactly when a reader needed it. Recorded unconditionally now.",
+    "workload_profile_coherence": "submission_document requested the accepted FRESH profile while worker_deployments offered the CONTEXT profile and the certified runtime_profile_digest. workload_profile(profile) is the single source both read now."
+  },
+  "participant": "baton.claude",
+  "product_files_changed": [],
+  "remaining": "the four asserted endings over this harness, and the open adopted-launch question above",
+  "schema": "baton.candidate/1",
+  "simulated_boundaries_recorded": {
+    "engine_provider_reviewer": "the accepted fixture's in-process engine, a scripted provider child, and scripted reviewer dispositions committed through the real review_cycles owner API",
+    "installation": "tools.bootstrap is not run; the two instance facts `bind` reads are written by the fixture",
+    "preparation": "ConnectedPacket.serving reproduces the packet's preparation with individual real owner API calls rather than invoking baseline.prepare itself; the acts are real and the grant is minted in disposable stores only"
+  },
+  "subject": "the confirmed workload-profile blocker is fixed from one source with a cross-document check; the connected run now admits and reaches the mount; my earlier admitted-attempt claim is withdrawn. Item 3 remains incomplete.",
+  "unresolved": {
+    "actual_restore": "unproved; no live run selected",
+    "boundary_failure": "UNKNOWN, no cause claimed, not waived",
+    "production_comparison": "unproved"
+  },
+  "verification": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=<checkout>/v12/python/src:<checkout>/v12/python python -B -m unittest test_correction_packet",
+    "cwd": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume",
+    "errors": 0,
+    "failures": 0,
+    "reproduction_includes_cleanup": true,
+    "seconds": [
+      1.133
+    ],
+    "tests": 126,
+    "touched_nothing_live": "no deployed store or grant, no credential, no real engine or provider, no version-control act, no graph change"
+  },
+  "withdrawn_claim": "candidate 309871 said a real attempt had been admitted. It had not: zero admissions, no runtime, and an episode attempt_id exists BEFORE worker admission, so its presence in cleanup accounting established nothing.",
+  "work": "W236087"
+}

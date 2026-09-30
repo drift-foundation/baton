@@ -1,0 +1,97 @@
+{
+  "answering": "review-2026-09-29T21-41-08Z.md (pass 309569)",
+  "changed_files": {
+    "PACKET-309356.md": "bb75a4b909fe918cd8cb1e22d12c4a3f9f0d93d4dfe8f7596fb86f6a2e578924",
+    "PROGRESS.md": "d86599db2c31ebb15b98b386cf748207e337630bc71a689926fff6d353122ee1",
+    "PROVENANCE-309356.json": "d184b087bbac0b4512d9b9e8a272a8c1186a9d4e555ab798cd6957ec1551fc9b",
+    "SELECTIONS-309356.json": "0119907f55cb3909dc6a25c6c81972ac0b7498f0e993c37bbc338da78d72e504",
+    "correction_packet.py": "4556c9e4e2feca425c997e36a5dd374c7bfca4e78bc925b2fa03a3d3243cc252",
+    "correction_supervisor.py": "d70fa173d0def5669d3dc6c24b48b04580fc2c2a12299fa64494caa5293f758f",
+    "test_correction_packet.py": "5f092e9b5fc2055a916a93d798c4611d2d2e1c94c240251d0b4afdbb86043e2f"
+  },
+  "claim": 309572,
+  "next_milestone": "one real-boundary deterministic proof from valid generation through bounded supervision and accounting, which needs the worker deployment above first",
+  "owner_operands_still_open": [
+    "source.root",
+    "source.declared_base",
+    "participants.implementation",
+    "participants.review",
+    "participants.verification",
+    "participants.approval",
+    "participants.integration",
+    "credential_reference"
+  ],
+  "participant": "baton.claude",
+  "product_files_changed": [],
+  "reused_unmodified_and_pinned": {
+    "baseline.py": "248e570d8f9d459550b0aa5e92d1674c3226fe540ba987cae916a4a334606771",
+    "prepare_two_jobs.py": "2c54a5d85e1d999d051e52b5c793c9a9578b241161fa73e9a577a61a60abdc82",
+    "why": "baseline.py supplies the termination handling, admission gate, guarded shutdown steps, discovery, cancellation, cleanup read and atomic publication, and its digest is verified before a store opens. prepare_two_jobs.ACCEPTED supplies the measured descriptor set for the accepted instance -- imported read-only so the packet stops inventing policy digests. Neither file was edited."
+  },
+  "review_findings": {
+    "R1": {
+      "done": "the bootstrap input, the submission, the task document and the input manifest are generated to the real contracts and proved by the real validators; the task bytes ARE the manifest's human contract, so the complete criteria reaching the worker is a digest comparison; the status argv's shell substitution and unsupported --job are gone and the real CLI accepts the emitted option set; the measured descriptors are imported from the accepted record",
+      "owed": "the complete baton.v12.single-worker-deployment/5 worker document (provider context, credential profile, nominated source, workspace capacity, the review worker beside the producer) and single_worker._held driven at it. Until then the claim that the selected source, worker profiles and credential reference reach the real deployment is NOT established.",
+      "state": "partly delivered"
+    },
+    "R2": {
+      "defect_found_by_the_new_case": "a signal delivered while the outcome was being written was recorded and never read, so the retained outcome said the run was uninterrupted. Late signals are now recorded and the outcome republished before re-raising.",
+      "done": "termination.defer, post-stop canonical discovery, the union with gate.launched, manager-owned _cancel_active, a guarded cleanup wait and retroactive accounting for an intruder. Cases: launch-then-fault, deadline with an active runtime, second interrupt during cleanup, and a signal at publication.",
+      "state": "delivered"
+    },
+    "R3": {
+      "done": "the verdict comes from review_cycles' supported readers bound to the committed act; an uncommitted act, an unrecognized disposition and a refusing reader each answer nothing. Opening and restored attempts come from recorded episodes, including the live attempt, and an attempt the projection did not answer for is not dropped.",
+      "state": "delivered"
+    },
+    "R4": {
+      "done": "bind compares against stage's retained manifest in both directions and refuses drift instead of re-signing it; the preparation modules themselves are bound. Negatives: changed, appeared, vanished, helper drift, missing manifest, plus the unchanged positive.",
+      "state": "delivered"
+    }
+  },
+  "schema": "baton.candidate/1",
+  "subject": "item 3's generation, commands, shutdown and binding corrected against the real contracts; R1's worker-deployment half still owed",
+  "unresolved": {
+    "actual_restore": "unproved. No live run is selected by this claim.",
+    "boundary_failure": "one earlier combined run of the 196-test set failed at TransactionBoundaryThroughTheConnectedPath.test_no_external_reader_runs_inside_a_control_transaction. UNKNOWN: no cause claimed, not waived, did not recur. Carried in PACKET-309356.md section 8.",
+    "production_comparison": "unproved; the packet selects a candidate qualification and refuses production by name"
+  },
+  "verification": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=<checkout>/v12/python/src:<checkout>/v12/python python -B -m unittest test_correction_packet",
+    "cwd": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume",
+    "errors": 0,
+    "failures": 0,
+    "mutations_checked": {
+      "caught": 10,
+      "list": [
+        "R2 no cancellation",
+        "R2 no gate.launched union",
+        "R2 unguarded cleanup wait",
+        "R2 no termination.defer",
+        "R3 lexical attempt order",
+        "R3 verdict from a projection field",
+        "R4 bind re-hashing instead of comparing",
+        "R1 invented bootstrap schema",
+        "R1 submission schema /1",
+        "R1 wrong execution-limit member name"
+      ],
+      "missed": 0,
+      "total": 10
+    },
+    "real_boundaries_driven": [
+      "tools.bootstrap.held over the generated bootstrap input",
+      "baton_v12.job_manager.documents.read_submission over the generated submission bytes, including the surviving execution_limits and the review stage's depends_on",
+      "baton_v12.contracts.job_input_identity for the Job's input digest",
+      "tools.job_manager.main over the emitted status argv, asserting the real parser reports no unrecognized argument",
+      "baton_v12.worker_manager.review_cycles.review_for_attempt / verdict_of / DISPOSITIONS for the verdict reader",
+      "baton_v12.job_manager.status projection shape for the episode chronology",
+      "baton_v12.contracts.digest + provider_context._profile for the certified profile digest"
+    ],
+    "seconds": [
+      0.391,
+      0.39
+    ],
+    "tests": 104,
+    "touched_nothing_live": "no store opened, no instance installed, no credential read, no container or engine reached, no image built, no version-control act, no graph change"
+  },
+  "work": "W236087"
+}

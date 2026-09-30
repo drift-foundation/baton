@@ -1,0 +1,20 @@
+{
+  "claim": 309944,
+  "candidate": 309871,
+  "review": "review-2026-09-29T22-36-24Z.md",
+  "digests": {
+    "CONNECTED-NEXT-309871.md": true,
+    "PROGRESS.md": true,
+    "SELECTIONS-309356.json": true,
+    "connected_packet_trace.py": true,
+    "correction_packet.py": true,
+    "test_correction_packet.py": true
+  },
+  "research": [
+    "RESEARCH-309944.json",
+    "ADMISSION-RESEARCH-309944.json"
+  ],
+  "result": "reproduced-admission-profile-mismatch",
+  "disposition": "continue-implementation",
+  "live_execution": false
+}

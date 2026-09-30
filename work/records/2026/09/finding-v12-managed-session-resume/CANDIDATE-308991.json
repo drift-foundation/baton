@@ -1,0 +1,55 @@
+{
+  "work": "W236087",
+  "claim": 308991,
+  "answering": "review 308988 (claim 308976) - deliver item 2 reusing the accepted slices, trace and ServingBinding",
+  "no_product_change": "no product file changed this claim",
+  "item_2_delivered_by_citation": {
+    "why": "the review's instruction to reuse rather than rebuild is right: correction_restart_trace.py with test_correction_restart.py already drives item 2's whole sequence through the public stage/driver paths with deterministic provider and engine boundaries",
+    "sequence": "validate codes C1-context-continuity (same context_id, open then restore), C1-line, C1-episodes (1 then 2), C1-code-unchanged (the revised scale.py digest DIFFERS, so the output is genuinely changed), C1-verdict/C1-verdict-attribution/C1-review-result for both the changes-requested and accepted verdicts, and C1-correction-route binding the correction to the revised attempt",
+    "owner_apis_not_inserted_receipts": "the verdict and correction records are re-derived from exported owner records and their digests (C1-review-digest, C1-context-receipt); UsefulCorrectionInvalidEvidence rejects forged verdicts, forged receipts and a missing changes-requested verdict",
+    "attribution_and_zero_duplicate_dispatch": "validate_reopen over the manager-recomposition boundary: C2-distinct-use, C2-positive-baseline, C2-provider-duplicate, C2-engine-duplicate, C2-new-use-order, C2-*-new-use, and C2-provider-attribution which re-counts on use_id and invocation_id so changing one operand cannot hide a repeat",
+    "reviewer_isolation": "C1-review-context, C1-review-mount, C1-review-writable-line, C1-review-isolation",
+    "defective_candidate_labelled": "UsefulCorrectionInvalidEvidence and CountedReopenInvalidEvidence are the negative families; test_identical_revised_code_is_rejected refuses a correction that changed nothing",
+    "measured": {
+      "cases": 5,
+      "seconds": 8.216,
+      "families": [
+        "UsefulCorrection",
+        "CountedReopen"
+      ]
+    }
+  },
+  "the_one_gap_closed": {
+    "property": "preserve generation 0 on failed save",
+    "already_covered": "the RECOVERY path, by ServingEnding.cut('before-publication')",
+    "was_not_covered": "a save that fails and is NOT recovered",
+    "new_case": "with seal_generation raising, the finalize fails, the use is NOT ready, its generation is still 0, and no finalize transition was journalled"
+  },
+  "review_notes_applied": [
+    "the concurrent progress probe now states that a positive result at one point does not prove where every later read sits; the placement is what the nesting cases and the connected boundary case measure",
+    "the counter-check no longer implies a specific error class: it catches ANY failure to begin and says so"
+  ],
+  "verification": {
+    "tests": 187,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 68.385,
+    "families": [
+      "tests.manager.test_provider_context",
+      "tests.manager.test_provider_context_delivery",
+      "tests.manager.test_claude_context",
+      "tests.tools.test_correction_restart"
+    ]
+  },
+  "files": {
+    "v12/python/tests/manager/test_provider_context.py": "5f3bc29e1c39"
+  },
+  "still_owed": [
+    "item 3: the digest-bound executable packet"
+  ],
+  "honest_limits_carried_forward": [
+    "the production deployment-comparison branch remains a connected-matrix coverage limit, not claimed proved",
+    "production restore is unproved and no live run is selected"
+  ],
+  "ready_for": "independent review"
+}

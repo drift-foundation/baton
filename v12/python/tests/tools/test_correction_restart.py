@@ -58,6 +58,67 @@ class UsefulCorrection(unittest.TestCase):
             self.assertEqual(proof.scheduler_trace.validate(schedule["artifact"]), [])
 
 
+class TransactionBoundaryThroughTheConnectedPath(unittest.TestCase):
+    """W236087: no external read inside a ControlStore transaction, measured CONNECTED.
+
+    `tests/manager/test_provider_context.py` holds the admission boundary on a
+    disposable fixture. This holds the SAME rule over the whole scenario the correction
+    trace already drives -- open, save, exact stop, changes-requested correction, restore
+    -- which is where `bind_context_invocation` and `revalidate_context_start` actually
+    run. `PREPARATION-307667.md` directs reuse of this vehicle rather than a new one.
+
+    THE OBSERVATION IS THE RESEARCH PROBE, generalised: wrap `ControlStore.transact`'s
+    action to count depth, wrap the readers that are NOT this store's -- the filesystem
+    walk, the Job-store attempt lookup, the attempt assignment and the Authority reader --
+    and require that none of them is entered while the depth is non-zero.
+    """
+
+    def test_no_external_reader_runs_inside_a_control_transaction(self):
+        import contextlib
+        from unittest import mock
+
+        from baton_v12.worker_manager import attempts, context_delivery, store
+        from baton_v12.worker_manager import provider_context as context
+
+        seen = []
+        depth = [0]
+        original_transact = store.ControlStore.transact
+
+        def transact(this, operation_id, kind, signature, action):
+            def counted(connection):
+                depth[0] += 1
+                try:
+                    return action(connection)
+                finally:
+                    depth[0] -= 1
+            return original_transact(this, operation_id, kind, signature, counted)
+
+        def watching(name, original):
+            def wrapper(*arguments, **keywords):
+                if depth[0]:
+                    seen.append(name)
+                return original(*arguments, **keywords)
+            return wrapper
+
+        with contextlib.ExitStack() as stack:
+            stack.enter_context(mock.patch.object(store.ControlStore, "transact",
+                                                  transact))
+            stack.enter_context(mock.patch.object(
+                context_delivery, "_open_absolute",
+                watching("_open_absolute", context_delivery._open_absolute)))
+            stack.enter_context(mock.patch.object(
+                context, "_job_attempt",
+                watching("_job_attempt", context._job_attempt)))
+            stack.enter_context(mock.patch.object(
+                attempts, "assignment_of",
+                watching("attempts.assignment_of", attempts.assignment_of)))
+            observed = artifact()
+
+        # THE SCENARIO REALLY RAN, so an empty observation is not an empty run.
+        self.assertEqual(proof.validate(observed), [])
+        self.assertEqual(sorted(set(seen)), [], sorted(set(seen)))
+
+
 class UsefulCorrectionInvalidEvidence(unittest.TestCase):
     """Every mutation is a synthetic invalid copy, never an owner receipt."""
 
@@ -79,6 +140,119 @@ class UsefulCorrectionInvalidEvidence(unittest.TestCase):
         self.assertIn(expected, {one["code"] for one in failures}, failures)
         self.rejections.append({"kind": "synthetic invalid evidence", "case": name, "expected": expected, "violations": failures})
         self.assertEqual(proof.validate(self.observed), [])
+
+    def test_a_RUNNING_predecessor_is_rejected(self):
+        """W236087 review 2026-09-29T20-25-55Z R1, the reviewer's own counterexample.
+
+        The oracle bound no runtime identity, so changing BOTH runtime observations to
+        `running` passed the whole counted validator. A restore riding a predecessor that is
+        still executing is exactly what this proof must not admit, so it is now a refusal.
+        """
+        mutated = copy.deepcopy(self.observed)
+        for name in ("initial", "revised"):
+            mutated[name]["runtime"]["execution_runtime"] = "running"
+        self.assertEqual([one["code"] for one in proof.validate(mutated)],
+                         ["C1-runtime-destroyed", "C1-runtime-destroyed"])
+
+    def test_a_REUSED_runtime_id_on_the_restored_use_is_rejected(self):
+        """The other half of R1: one RUNTIME per execution.
+
+        A restored use reporting the PREDECESSOR's runtime id would be naming an execution
+        that is not its own, and the oracle could not see it. This is identity
+        distinctness; the governed token's return ordering is still owed, and
+        `correction_restart_trace.validate` says where that evidence lives.
+        """
+        mutated = copy.deepcopy(self.observed)
+        mutated["revised"]["runtime"]["runtime_id"] = \
+            mutated["initial"]["runtime"]["runtime_id"]
+        self.assertIn("C1-runtime-distinct",
+                      [one["code"] for one in proof.validate(mutated)])
+
+    def opening_attempt(self):
+        return self.observed["initial"]["settlement"]["attempt_id"]
+
+    def restored_attempt(self):
+        return self.observed["revised"]["settlement"]["attempt_id"]
+
+    def restored_boundary(self, held):
+        return [one for one in held["tokens"]["boundaries"]
+                if one.get("execution") == self.restored_attempt()][0]
+
+    def test_an_UNRETURNED_opening_token_at_the_restored_activation_is_rejected(self):
+        """The ORDERING, mutated on the OPENING EXECUTION ALONE.
+
+        W236087 review 2026-09-29T20-49-45Z: my first negative changed every generation-1
+        observation, and the oracle keyed on generation alone -- so it passed for the wrong
+        reason, and mutating only the opening execution still validated because another
+        resource's generation 1 masked it. This mutates that one execution's observation and
+        leaves any foreign generation 1 intact, which is what the tuple match now catches.
+        """
+        mutated = copy.deepcopy(self.observed)
+        for one in self.restored_boundary(mutated)["observed"]:
+            if one.get("execution") == self.opening_attempt():
+                one["state"]["returned"] = False
+        self.assertEqual([one["code"] for one in proof.validate(mutated)],
+                         ["C1-token-returned-before-activation"])
+
+    def test_an_ALREADY_ACTIVATED_new_token_is_rejected(self):
+        """The other side of the boundary: the restored token is not yet activated there."""
+        mutated = copy.deepcopy(self.observed)
+        for one in self.restored_boundary(mutated)["observed"]:
+            if one.get("execution") == self.restored_attempt():
+                one["state"]["activation_started"] = "2026-09-02T00:00:00.000Z"
+        self.assertIn("C1-token-new-not-activated",
+                      [one["code"] for one in proof.validate(mutated)])
+
+    def test_a_STALE_token_generation_on_the_restored_use_is_rejected(self):
+        """A restored reservation reusing the opening generation is not a new token."""
+        mutated = copy.deepcopy(self.observed)
+        opening = [one for one in mutated["tokens"]["reservations"]
+                   if one["execution"] == self.opening_attempt()][0]
+        restored = [one for one in mutated["tokens"]["reservations"]
+                    if one["execution"] == self.restored_attempt()][0]
+        restored["generation"] = opening["generation"]
+        restored["operation"] = opening["operation"]
+        self.assertIn("C1-token-distinct",
+                      [one["code"] for one in proof.validate(mutated)])
+
+    def test_a_WRONG_token_CONTAINER_is_rejected(self):
+        """Review R2 of 20-49-45Z: the exported container was ignored, so any value passed.
+
+        `state.container` must be the execution's OWN runtime, and the boundary's container
+        must be the restored execution's.
+        """
+        mutated = copy.deepcopy(self.observed)
+        for one in self.restored_boundary(mutated)["observed"]:
+            one["state"]["container"] = "runtime-somebody-else"
+        self.assertEqual(sorted(set(one["code"] for one in proof.validate(mutated))),
+                         ["C1-token-container"])
+        moved = copy.deepcopy(self.observed)
+        for one in moved["tokens"]["boundaries"]:
+            one["container"] = "runtime-not-ours"
+        self.assertIn("C1-token-boundary-container",
+                      [one["code"] for one in proof.validate(moved)])
+
+    def test_a_WRONG_token_LAUNCH_operation_is_rejected(self):
+        """`state.launch` must be the operation the acquisition answered."""
+        mutated = copy.deepcopy(self.observed)
+        for one in self.restored_boundary(mutated)["observed"]:
+            one["state"]["launch"] = "runtime.start:" + "0" * 64
+        self.assertEqual(sorted(set(one["code"] for one in proof.validate(mutated))),
+                         ["C1-token-launch"])
+
+    def test_a_MISSING_or_DUPLICATED_token_observation_is_rejected(self):
+        """Absence and a repeated tuple are both refusals, not silent passes."""
+        absent = copy.deepcopy(self.observed)
+        boundary = self.restored_boundary(absent)
+        boundary["observed"] = [one for one in boundary["observed"]
+                                if one.get("execution") != self.opening_attempt()]
+        self.assertIn("C1-token-observation-missing",
+                      [one["code"] for one in proof.validate(absent)])
+        doubled = copy.deepcopy(self.observed)
+        boundary = self.restored_boundary(doubled)
+        boundary["observed"] = boundary["observed"] + [copy.deepcopy(boundary["observed"][0])]
+        self.assertIn("C1-token-observation-conflict",
+                      [one["code"] for one in proof.validate(doubled)])
 
     def test_identical_revised_code_is_rejected(self):
         self.rejects("revised code replaced by original", lambda x: x["revised"]["content"].__setitem__("scale.py", copy.deepcopy(x["initial"]["content"]["scale.py"])), "C1-code-unchanged")

@@ -1,0 +1,47 @@
+{
+  "work": "W236087",
+  "claim": 309218,
+  "answering": "review 309210 (claim 309198) - two narrow oracle gaps, plus the simulation label",
+  "no_product_change": true,
+  "gap_1_generation_only_keying": {
+    "the_defect": "the observation dictionary was keyed by generation alone, so another resource's generation 1 masked the opening token's; mutating ONLY the opening execution's returned still validated, and my negative changed EVERY generation-1 observation so it passed for the wrong reason",
+    "now": "the key is the whole reservation identity - domain, generation, execution and reserving operation; reservations are selected by the exact settled attempt; the boundary must be the restored reservation's own; a MISSING observation and a REPEATED tuple are both refusals",
+    "measured": "mutating the opening execution's observation alone, leaving any foreign generation 1 intact, answers exactly ['C1-token-returned-before-activation']"
+  },
+  "gap_2_ignored_container_and_launch": {
+    "the_defect": "state.container, state.launch and boundary.container were exported and never compared, so any value passed",
+    "now": "state.launch is held to the operation the acquisition answered, state.container to that execution's own runtime id, and the boundary's container to the restored execution's runtime",
+    "measured": {
+      "wrong state.container": "C1-token-container",
+      "wrong state.launch": "C1-token-launch",
+      "wrong boundary.container": "C1-token-boundary-container"
+    }
+  },
+  "simulation_labelled": "validate's docstring states it once: the provider and engine are deterministic boundaries rather than a live model or container runtime; the corrected candidate is SCRIPTED defective; the verdicts are SCRIPTED dispositions committed through the real owner APIs rather than judgments any reviewer formed; the mutated-evidence negatives are synthetic invalid copies. What is real is the manager, stores, custody, projection, token governance and version-control child - what is simulated is who answered",
+  "verification": {
+    "tests": 196,
+    "runs": [
+      "OK 66.788s",
+      "OK 67.193s"
+    ],
+    "flake_reported": {
+      "case": "TransactionBoundaryThroughTheConnectedPath.test_no_external_reader_runs_inside_a_control_transaction",
+      "observed": "failed once in a combined run of the four families",
+      "since": "passes in isolation and passed in both repeat runs of the whole set; not reproduced in three subsequent runs",
+      "claim": "NO cause claimed. It is the case that counts external readers inside a control transaction, and the new token wrappers are the only thing that changed around it, so the honest suspicion is interaction between that counting and the token instrumentation rather than a product defect - unproved either way"
+    }
+  },
+  "files": {
+    "v12/python/tests/tools/correction_restart_trace.py": "5ae933a501e3",
+    "v12/python/tests/tools/test_correction_restart.py": "0c9fd476779a"
+  },
+  "still_owed": [
+    "item 3: the digest-bound executable packet",
+    "a cause for the reported flake"
+  ],
+  "unproved": [
+    "the production deployment comparison",
+    "actual production restore"
+  ],
+  "ready_for": "independent review"
+}

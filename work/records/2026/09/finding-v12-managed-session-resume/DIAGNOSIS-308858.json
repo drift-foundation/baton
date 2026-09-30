@@ -1,0 +1,6 @@
+{
+  "scope": "Diagnostic only: replace one inputs-absent assertion with inputs-present in memory; no repository test edit. All other original assertions retained. Not acceptance of final proposed regression expectations.",
+  "tests": 3,
+  "success": true,
+  "seconds": 1.2975404789904132
+}

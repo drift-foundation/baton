@@ -1,0 +1,24 @@
+{
+  "claim": 309290,
+  "candidate": 309218,
+  "hashes": {
+    "v12/python/src/baton_v12/worker_manager/provider_context.py": "ca54ecec366fde97390a873537d9fb430db90bfe21e39448450d79d6fa4d7835",
+    "v12/python/tests/manager/test_provider_context.py": "796aaf9c07c65e0c9061a8dd842e7e93eae3811cece870d8a43fdf3bb0be501e",
+    "v12/python/tests/manager/test_claude_context.py": "c2b07f44b532f57b666ab3063a448c6bd764bbd9e90f2f7692a30f6fa03eedea",
+    "v12/python/tests/tools/correction_restart_trace.py": "5ae933a501e340570c633afcf9b30923040151bfed71e3d48153bb0fa82c885e",
+    "v12/python/tests/tools/test_correction_restart.py": "0c9fd476779a3d3cc81420296d5a2bc00cf88b344f117671bdf68930892d2158",
+    "work/records/2026/09/finding-v12-managed-session-resume/CANDIDATE-309218.json": "671d0e191416d3dda3acc52a4e266c8a2a98601896ed88a946af40f18bd3ecba"
+  },
+  "verification": {
+    "count": 16,
+    "result": "PASS",
+    "seconds": 9.809,
+    "selection": [
+      "CountedReopen",
+      "UsefulCorrectionInvalidEvidence",
+      "TransactionBoundaryThroughTheConnectedPath"
+    ],
+    "diff_check": "PASS"
+  },
+  "unresolved": "Author reports one earlier boundary-test failure with no retained assertion text; not reproduced in this focused run; cause unknown"
+}

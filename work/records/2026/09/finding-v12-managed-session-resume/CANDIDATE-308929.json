@@ -1,0 +1,51 @@
+{
+  "work": "W236087",
+  "claim": 308929,
+  "answering": "review 308926 (claim 308912) - four evidence gaps in my new cases",
+  "no_product_change": "provider_context.py is unchanged this claim (ca54ecec366f); every gap was in my evidence, not in the correction",
+  "gap_1_vacuous_launch_fence": {
+    "was": "the case called revalidate_context_start without binding an invocation, so it refused at 'serving use cannot start' with zero _facts calls and would have passed with an unchanged repository",
+    "action": "REMOVED, with a comment naming where the real coverage is",
+    "real_coverage": "ServingBinding.test_private_repository_change_between_preparation_and_start_refuses, beside the accepted authority-change fence and with an actually bound invocation: the line's private object is moved between preparation and start; the refusal is ATTRIBUTED, and the measured reason is 'directory ancestry is inaccessible or replaced' rather than the pin comparison I guessed"
+  },
+  "gap_2_unrelated_progress": {
+    "was": "the same connection after a wrong-writer refusal that happens before any transaction, so there was never a lock to be blocked by",
+    "now": "blocks INSIDE the real external validation (_facts) and requires a SECOND ControlStore connection to commit while it is pending, bounded by a timeout",
+    "counter_check_added": "the same probe blocking inside control.transact's action instead requires that the second connection CANNOT commit, so the concurrent case is evidence about the placement rather than about the probe",
+    "my_own_slip": "the first run failed because I defined the blocking reader and never patched it in, so the admission never paused"
+  },
+  "gap_3_replay_name": {
+    "was": "called an INTERRUPTED request and it is a COMPLETED one replayed",
+    "now": "renamed, and it cites where the interrupted-request path IS covered: test_grant_is_rechecked_inside_commit_and_request_restart and test_historical_admission_survives_restart_without_rewriting"
+  },
+  "gap_4_production_limit": {
+    "was": "presented as covering the production branch",
+    "now": "renamed to say it refuses at the certification JOURNAL, before the deployment comparison, outside a transaction; the limit is stated - reaching the comparison needs a recorded certification, which needs a full accepted continuity report with a retained provider result that this fixture does not build"
+  },
+  "verification": {
+    "tests": 186,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 66.726,
+    "families": [
+      "tests.manager.test_provider_context",
+      "tests.manager.test_provider_context_delivery",
+      "tests.manager.test_claude_context",
+      "tests.tools.test_correction_restart"
+    ]
+  },
+  "files": {
+    "v12/python/tests/manager/test_provider_context.py": "afe7a2b8cf55",
+    "v12/python/tests/manager/test_claude_context.py": "c2b07f44b532",
+    "v12/python/src/baton_v12/worker_manager/provider_context.py": "ca54ecec366f (unchanged this claim)"
+  },
+  "still_owed": [
+    "item 2: the connected attributed deterministic correction with a selected interruption and replay",
+    "item 3: the digest-bound executable packet"
+  ],
+  "not_done": [
+    "production restore remains unproved and no live run is selected",
+    "no deployment, credential, DESIGN, Git or graph change"
+  ],
+  "ready_for": "independent review"
+}

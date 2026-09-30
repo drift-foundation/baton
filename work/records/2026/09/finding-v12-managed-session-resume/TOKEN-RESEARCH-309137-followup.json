@@ -1,0 +1,130 @@
+{
+  "scope": "Read-only observation wrappers around real acquire/admit_activation during counted deterministic trace; no inserted owner state",
+  "reservations": [
+    {
+      "version": 1,
+      "domain": "workspace:66306:19041257",
+      "generation": 1,
+      "operation": "runtime.start:50f34424d07465b28176ecba7eb295be455a6a6763fffd0f3402ffb12aeb823b",
+      "execution": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "attempt": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "seconds": 900,
+      "owner": "c86da438ae891bf150871e706da4b1984e44505dd26471aede3351721d5dcadf",
+      "renewals": 0,
+      "acquired_at": "2026-09-02T00:00:00.000Z",
+      "expires_at": "2026-09-02T00:15:00.000Z"
+    },
+    {
+      "version": 1,
+      "domain": "workspace:66306:19041257",
+      "generation": 2,
+      "operation": "runtime.start:7bd829dfb7f03c454b6299a557d21f52dfd7c95254b010b24339b30b2b9e203d",
+      "execution": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+      "attempt": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+      "seconds": 900,
+      "owner": "5cba205edb697d395dad565d9516e2177c0d2d49fa452e51596100f3e3ab7938",
+      "renewals": 0,
+      "acquired_at": "2026-09-02T00:00:00.000Z",
+      "expires_at": "2026-09-02T00:15:00.000Z"
+    }
+  ],
+  "activation_boundaries": [
+    {
+      "execution": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "container": "runtime-single-1",
+      "tokens": [
+        {
+          "acquired_at": "2026-09-02T00:00:00.000Z",
+          "attempt": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "domain": "workspace:66306:19041257",
+          "execution": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "expires_at": "2026-09-02T00:15:00.000Z",
+          "generation": 1,
+          "operation": "runtime.start:50f34424d07465b28176ecba7eb295be455a6a6763fffd0f3402ffb12aeb823b",
+          "owner": "c86da438ae891bf150871e706da4b1984e44505dd26471aede3351721d5dcadf",
+          "renewals": 0,
+          "seconds": 900,
+          "version": 1,
+          "launch": "runtime.start:50f34424d07465b28176ecba7eb295be455a6a6763fffd0f3402ffb12aeb823b",
+          "container": "runtime-single-1",
+          "returned": false,
+          "activating": false,
+          "activation_started": null,
+          "acquired_expires_at": "2026-09-02T00:15:00.000Z",
+          "revision": 0,
+          "renewed_at": null,
+          "renewals_remaining": 4,
+          "expiry_judged_at": null,
+          "expired": false,
+          "timing_ambiguous": false,
+          "timing_observed_at": null,
+          "timing_decided_at": null,
+          "revoked": false
+        }
+      ]
+    },
+    {
+      "execution": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+      "container": "runtime-single-3",
+      "tokens": [
+        {
+          "acquired_at": "2026-09-02T00:00:00.000Z",
+          "attempt": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "domain": "workspace:66306:19041257",
+          "execution": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "expires_at": "2026-09-02T00:15:00.000Z",
+          "generation": 1,
+          "operation": "runtime.start:50f34424d07465b28176ecba7eb295be455a6a6763fffd0f3402ffb12aeb823b",
+          "owner": "c86da438ae891bf150871e706da4b1984e44505dd26471aede3351721d5dcadf",
+          "renewals": 0,
+          "seconds": 900,
+          "version": 1,
+          "launch": "runtime.start:50f34424d07465b28176ecba7eb295be455a6a6763fffd0f3402ffb12aeb823b",
+          "container": "runtime-single-1",
+          "returned": true,
+          "activating": false,
+          "activation_started": true,
+          "acquired_expires_at": "2026-09-02T00:15:00.000Z",
+          "revision": 0,
+          "renewed_at": null,
+          "renewals_remaining": 4,
+          "expiry_judged_at": null,
+          "expired": false,
+          "timing_ambiguous": false,
+          "timing_observed_at": null,
+          "timing_decided_at": null,
+          "revoked": false
+        },
+        {
+          "acquired_at": "2026-09-02T00:00:00.000Z",
+          "attempt": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+          "domain": "workspace:66306:19041257",
+          "execution": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+          "expires_at": "2026-09-02T00:15:00.000Z",
+          "generation": 2,
+          "operation": "runtime.start:7bd829dfb7f03c454b6299a557d21f52dfd7c95254b010b24339b30b2b9e203d",
+          "owner": "5cba205edb697d395dad565d9516e2177c0d2d49fa452e51596100f3e3ab7938",
+          "renewals": 0,
+          "seconds": 900,
+          "version": 1,
+          "launch": "runtime.start:7bd829dfb7f03c454b6299a557d21f52dfd7c95254b010b24339b30b2b9e203d",
+          "container": "runtime-single-3",
+          "returned": false,
+          "activating": false,
+          "activation_started": null,
+          "acquired_expires_at": "2026-09-02T00:15:00.000Z",
+          "revision": 0,
+          "renewed_at": null,
+          "renewals_remaining": 4,
+          "expiry_judged_at": null,
+          "expired": false,
+          "timing_ambiguous": false,
+          "timing_observed_at": null,
+          "timing_decided_at": null,
+          "revoked": false
+        }
+      ]
+    }
+  ],
+  "seconds": 3.311575143947266
+}

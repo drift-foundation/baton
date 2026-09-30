@@ -1,0 +1,117 @@
+{
+  "bootstrap": {
+    "argv": [
+      "python",
+      "-m",
+      "tools.bootstrap",
+      "--inputs",
+      "/tmp/stage-bootstrap-brfz09vp/packet/bootstrap-inputs.json",
+      "--destination",
+      "/tmp/stage-bootstrap-brfz09vp/instances/managed-correction-309356",
+      "--distro",
+      "/home/sl/baton-runs/managed-correction-236087/build/stack/out/distro",
+      "--no-repositories"
+    ],
+    "inputs": "/tmp/stage-bootstrap-brfz09vp/packet/bootstrap-inputs.json",
+    "last_line": "    /tmp/stage-bootstrap-brfz09vp/instances/managed-correction-309356/distro/baton-v12-stack status --instance /tmp/stage-bootstrap-brfz09vp/instances/managed-correction-309356/instance.json",
+    "output": "repositories  not prepared: no source checkout was found or named, so the deployment has no target, workspace or worker sources yet and will schedule without reconciling\nauthority 4fb03241...    generated for this instance\njob   none; no Work, grant or placeholder was created\nconfiguration /tmp/stage-bootstrap-brfz09vp/instances/managed-correction-309356/deployment.json\ncapacity      {\"job_affinity\": {}, \"jobs\": 0, \"note\": \"this instance binds no Job and configures no execution capacity; it serves a real idle scheduler and publisher over empty stores, and a worker, a Work, a declared base, a canonical target and a producer are supplied together when a Job is created\", \"schema\": \"baton.v12.stage-execution-deployment/2\", \"targets\": [], \"workers_by_role\": {\"implementation\": [], \"integration\": [], \"review\": []}}\nno Job was submitted and nothing was executed\ninstance      /tmp/stage-bootstrap-brfz09vp/instances/managed-correction-309356/instance.json\nruntime       81 files, digest c1ef3d23394916c8...\nstores        /tmp/stage-bootstrap-brfz09vp/instances/managed-correction-309356/db\nrepository    /tmp/stage-bootstrap-brfz09vp/instances/managed-correction-309356/repo\njustfile      /tmp/stage-bootstrap-brfz09vp/instances/managed-correction-309356/justfile\n\nThe deployment is operated from the destination, and needs nothing else:\n\n    cd /tmp/stage-bootstrap-brfz09vp/instances/managed-correction-309356 && just status\n    just --justfile /tmp/stage-bootstrap-brfz09vp/instances/managed-correction-309356/justfile start        # from anywhere\n\nor the command directly, which is the same program:\n\n    /tmp/stage-bootstrap-brfz09vp/instances/managed-correction-309356/distro/baton-v12-stack status --instance /tmp/stage-bootstrap-brfz09vp/instances/managed-correction-309356/instance.json",
+    "reached_the_module": true,
+    "read_its_input": true,
+    "record": {
+      "authority_uuid": "4fb03241a371480ca6fa97b45814866f",
+      "bindings": {},
+      "schema": "baton.v12.stack-bootstrap-record/1"
+    },
+    "record_written": true,
+    "returncode": 0
+  },
+  "defect_reproduced": {
+    "failure": "FileNotFoundError: [Errno 2] No such file or directory: '/tmp/stage-bootstrap-brfz09vp/modules-only/src/baton_v12/contracts/schema/worker-control-1.0.schema.json'",
+    "read_at": "baton_v12.contracts.frozen, at import time",
+    "removed": [
+      "src/baton_v12/contracts/schema/agent-session-1.0.schema.json",
+      "src/baton_v12/contracts/schema/worker-control-1.0.schema.json"
+    ],
+    "returncode": 1,
+    "tree": "/tmp/stage-bootstrap-brfz09vp/modules-only"
+  },
+  "disposable_root": "/tmp/stage-bootstrap-brfz09vp",
+  "disposable_root_removed": true,
+  "docker": "not used",
+  "interpreter": "/home/sl/.local/state/baton-v12-venv/bin/python",
+  "packet": {
+    "checked": "`check` proved this packet with the product validators",
+    "code_boundary": "/tmp/stage-bootstrap-brfz09vp/staging/managed-correction-309356-source/manager-source",
+    "file_count": 108,
+    "frozen_assets": [
+      "agent-session-1.0",
+      "worker-control-1.0"
+    ],
+    "input_digest": "sha256:5a67d20a146c8bc1e22ee7a00a7bef89c6ba2715a99611d957d06b498eef32dd",
+    "job_id": "job-managed-correction-309356",
+    "schema": "baton.managed-correction-packet/1",
+    "submission_id": "submission-managed-correction-309356",
+    "work": "W236087",
+    "work_id": "4fb03241-W236087"
+  },
+  "providers": "not run",
+  "recovery": [
+    {
+      "last_line": "}",
+      "output": "{\n  \"authority_store\": \"/tmp/stage-bootstrap-brfz09vp/instances/managed-correction-309356/db/authority.sqlite3\",\n  \"authority_uuid\": \"4fb03241a371480ca6fa97b45814866f\",\n  \"canonical_target\": \"346a809bf0e4c47e52d881bd46d6d62a611c9816\",\n  \"created\": true,\n  \"granted\": [\n    {\n      \"capability\": \"verify\",\n      \"participant\": \"baton.verifier\"\n    },\n    {\n      \"capability\": \"review\",\n      \"participant\": \"baton.approver-review\"\n    },\n    {\n      \"capability\": \"approve\",\n      \"participant\": \"baton.approver\"\n    },\n    {\n      \"capability\": \"integrate\",\n      \"participant\": \"baton.merge\"\n    }\n  ],\n  \"operands\": {\n    \"canonical_target\": \"346a809bf0e4c47e52d881bd46d6d62a611c9816\",\n    \"contract\": \"v12-assignment-1\",\n    \"receipts\": {\n      \"approval\": \"baton.approver\",\n      \"review\": \"baton.approver-review\",\n      \"verification\": \"baton.verifier\"\n    },\n    \"route_handlers\": {\n      \"impl\": \"baton.impl\",\n      \"integration\": \"baton.merge\",\n      \"rview\": \"baton.review\"\n    },\n    \"work_id\": \"4fb03241-W236087\"\n  },\n  \"operation_id\": \"w236087-prepare:fcd6a96e802ed9e5f6a915a36102136e\",\n  \"record\": \"/tmp/stage-bootstrap-brfz09vp/packet/prepared-work.json\",\n  \"route_handlers\": {\n    \"impl\": \"baton.impl\",\n    \"integration\": \"baton.merge\",\n    \"rview\": \"baton.review\"\n  },\n  \"scope\": \"scope:deployment\",\n  \"work_id\": \"4fb03241-W236087\"\n}",
+      "returncode": 0,
+      "step": "prepare-work"
+    },
+    {
+      "last_line": "}",
+      "output": "{\n  \"packet\": \"/tmp/stage-bootstrap-brfz09vp/packet/packet.json\",\n  \"proved\": true\n}",
+      "returncode": 0,
+      "step": "bind"
+    },
+    {
+      "last_line": "}",
+      "output": "{\n  \"bounds\": {\n    \"cleanup_seconds\": 60,\n    \"corrections\": 1,\n    \"implementer_invocations\": 2,\n    \"restores\": 1,\n    \"retry\": false,\n    \"review_invocations\": 2,\n    \"total_seconds\": 900,\n    \"turn_seconds\": 180,\n    \"verification_seconds\": 180\n  },\n  \"job_id\": \"job-managed-correction-309356\",\n  \"manager_source_files\": 108,\n  \"packet\": \"/tmp/stage-bootstrap-brfz09vp/packet/packet.json\",\n  \"proved\": true,\n  \"run_id\": \"managed-correction-309356\"\n}",
+      "returncode": 0,
+      "step": "check"
+    }
+  ],
+  "schema": "baton.stage-bootstrap-trace/1",
+  "stage": {
+    "documents": [
+      "bootstrap-inputs.json",
+      "context-profile.json",
+      "prepared.json",
+      "task.json"
+    ],
+    "file_count": 108,
+    "frozen_assets": [
+      "agent-session-1.0",
+      "worker-control-1.0"
+    ],
+    "returncode": 0,
+    "staged_root": "/tmp/stage-bootstrap-brfz09vp/staging/managed-correction-309356-source/manager-source"
+  },
+  "staged_source_imports": {
+    "agent_session_bytes": 48212,
+    "assets": [
+      "agent-session-1.0",
+      "worker-control-1.0"
+    ],
+    "schema": "baton.v12.stack-bootstrap/1",
+    "worker_control_bytes": 51419
+  },
+  "staged_source_report": {
+    "assets": [
+      "agent-session-1.0",
+      "worker-control-1.0"
+    ],
+    "bootstrap_schema": "baton.v12.stack-bootstrap/1",
+    "checkout": "/tmp/stage-bootstrap-brfz09vp/staging",
+    "loaded": {
+      "agent-session-1.0": 48212,
+      "worker-control-1.0": 51419
+    },
+    "package": "baton_v12",
+    "schema_directory": "contracts/schema"
+  }
+}

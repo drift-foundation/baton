@@ -1,0 +1,19 @@
+{
+  "claim": 310001,
+  "candidate": 309960,
+  "review": "review-2026-09-29T22-44-32Z.md",
+  "digest_checks": {
+    "CONNECTED-NEXT-309960.md": true,
+    "PROGRESS.md": true,
+    "connected_packet_trace.py": true,
+    "correction_packet.py": true,
+    "correction_supervisor.py": true
+  },
+  "research": [
+    "RESEARCH-310001.json",
+    "TRACEBACK-310001.txt"
+  ],
+  "result": "profile-fixed-runtime-launched-inherited-turn-uses-old-launch-home",
+  "disposition": "continue-implementation",
+  "live_execution": false
+}

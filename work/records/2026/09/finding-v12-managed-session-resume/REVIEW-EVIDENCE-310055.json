@@ -1,0 +1,17 @@
+{
+  "claim": 310055,
+  "candidate": 310021,
+  "review": "review-2026-09-29T22-51-42Z.md",
+  "digest_checks": {
+    "CONNECTED-NEXT-310021.md": true,
+    "PROGRESS.md": true,
+    "connected_packet_trace.py": true
+  },
+  "research": [
+    "RESEARCH-310055.json",
+    "PROPOSAL-RESEARCH-310055.json"
+  ],
+  "result": "provider-failed-terminal-identity-unproved",
+  "disposition": "continue-implementation",
+  "live_execution": false
+}

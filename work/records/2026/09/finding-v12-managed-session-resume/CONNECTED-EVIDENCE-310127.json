@@ -1,0 +1,69 @@
+{
+ "progression": [
+  {
+   "implementation": "offered",
+   "review": "blocked"
+  },
+  {
+   "implementation": "waiting",
+   "review": "blocked"
+  },
+  {
+   "implementation": "answering",
+   "review": "blocked"
+  }
+ ],
+ "stopped": "serving-failed",
+ "serving_failure": "AssertionError: the scenario did not converge",
+ "admissions": {
+  "implementation": 1,
+  "review": 0
+ },
+ "turns": 1,
+ "reviews": 0,
+ "implementation": {
+  "state": "answering",
+  "deferral": null,
+  "exchange": null,
+  "artifacts": [
+   {
+    "output_name": "proposal",
+    "artifact_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571:proposal",
+    "media_type": "application/octet-stream",
+    "bytes": 2144,
+    "content_digest": "sha256:81fae3c27e554cfe76bcfb99b64a4ea0efa6df4611f5acda055e685024da4ba0",
+    "locator": "file:///home/sl/src/baton/v12/python/v12-w71917-yzldt79i/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/custody/attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571/proposal"
+   },
+   {
+    "output_name": "provider-context-receipt",
+    "artifact_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571:provider-context-receipt",
+    "media_type": "application/octet-stream",
+    "bytes": 1637,
+    "content_digest": "sha256:f4e01dc39f276e3a284a17da5ddf1f6d802b8d0b4242c74d3ad3086f90a5d757",
+    "locator": "file:///home/sl/src/baton/v12/python/v12-w71917-yzldt79i/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/custody/attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571/provider-context-receipt"
+   }
+  ],
+  "receipts": [
+   {
+    "act": "admit",
+    "state": "performed"
+   },
+   {
+    "act": "claim",
+    "state": "performed"
+   }
+  ]
+ },
+ "cleanup": {
+  "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {
+   "cleanup": "retained",
+   "state": "absent",
+   "why": "the engine answered that this exact identity does not exist"
+  },
+  "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c": {
+   "cleanup": null,
+   "why": "no runtime attempt 'attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb\u2026"
+  }
+ },
+ "provider_events": 1
+}

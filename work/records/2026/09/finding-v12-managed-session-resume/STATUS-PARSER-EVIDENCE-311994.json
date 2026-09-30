@@ -1,0 +1,73 @@
+{
+  "answering": "review 311971 R1",
+  "claim": 311994,
+  "generated_argv": [
+    "python3",
+    "-m",
+    "tools.job_manager",
+    "python3",
+    "-m",
+    "tools.job_manager",
+    "--store",
+    "/home/sl/baton-instances/managed-correction-309356/db/jobs.sqlite3",
+    "--authority-uuid",
+    "7ea319da93384b77bc3ddea38602d7a3",
+    "--incarnation",
+    "managed-correction-309356",
+    "status",
+    "--control",
+    "/home/sl/baton-instances/managed-correction-309356/db/control.sqlite3"
+  ],
+  "measured": {
+    "1_regressed_shape_as_previously_delivered": {
+      "argv": [
+        "python3",
+        "-m",
+        "tools.job_manager",
+        "--job-store",
+        "<root>/db/jobs.sqlite3",
+        "--authority-uuid",
+        "7ea319da93384b77bc3ddea38602d7a3",
+        "status",
+        "--job",
+        "job-managed-correction-309356"
+      ],
+      "result": {
+        "exit": 2,
+        "stderr_tail": "job_manager: error: argument command: invalid choice: '/tmp/status-evidence-yf5ap5e8/db/jobs.sqlite3' (choose from submit, status, serve)",
+        "stdout": "",
+        "what_happened": "REFUSED BY THE PARSER, before any store was opened"
+      }
+    },
+    "2_generated_shape_with_stores_that_do_not_exist": {
+      "result": {
+        "exit": "raised OperationalError",
+        "stderr_tail": "",
+        "stdout": "",
+        "what_happened": "unable to open database file"
+      },
+      "why": "isolates the PARSER: it accepts the shape and fails only when it tries to open the store"
+    },
+    "3_generated_shape_against_disposable_empty_stores": {
+      "result": {
+        "exit": 0,
+        "stderr_tail": "",
+        "stdout": "{\n  \"schema\": \"baton.v12.job-status/6\",\n  \"observed_at\": \"2026-09-30T03:37:26.670Z\",\n  \"incarnation\": \"managed-correction-309356\",\n  \"canonical\": true,\n  \"jobs\": []\n}\n",
+        "what_happened": "ran to completion"
+      },
+      "why": "the reader itself runs and answers a status document"
+    }
+  },
+  "required_options": [
+    "--store",
+    "--incarnation",
+    "--authority-uuid"
+  ],
+  "schema": "baton.operator-status-parser-evidence/1",
+  "status_document": {
+    "canonical": true,
+    "incarnation": "managed-correction-309356",
+    "jobs": []
+  },
+  "what": "the operator document's human status command held to the REAL `tools.job_manager` -- its parser and then its reader -- rather than to a stub that accepts arbitrary options. Nothing deployed is read: the stores are empty files in a temporary directory, removed afterwards."
+}

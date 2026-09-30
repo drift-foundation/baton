@@ -1,0 +1,46 @@
+{
+  "work": "W236087",
+  "claim": 309108,
+  "answering": "review 309100 (claim 309087) - R1 token evidence, R2 with the fixture blocker resolved",
+  "no_product_change": true,
+  "r2_delivered": {
+    "the_blocker_was_yours_to_find": "ContextCase.end_runtime hardcodes mode: open in the receipt it rebuilds, so finalizing a RESTORED use refused at _receipt; the operand is end_runtime(first, receipt_changes={'mode': 'restore'})",
+    "what_the_case_holds": [
+      "generation 0 is saved through the existing correction helper, its identity validated and its bytes captured",
+      "the restored use's own save fails with seal_generation raising",
+      "no new successful generation is journalled - the finalize list is still exactly the saved one",
+      "the saved generation still validates and its bytes are unchanged member for member"
+    ],
+    "two_of_my_guesses_measured_wrong": [
+      "the generation's bytes are not at <storage>/<context>/<generation>; that level is empty and the state lives under the profile's state path",
+      "the failed restore legitimately leaves its OWN uses/... material behind, so the comparison is scoped to the saved generation's members and the appeared paths are asserted to be the failed use's own"
+    ]
+  },
+  "r1_not_closed_and_no_longer_claiming_to_be": {
+    "why_you_are_right": "the assignment's generation is not a resource token, and 'the runtime was eventually destroyed' is not 'the old token was RETURNED BEFORE the restored activation'",
+    "relabelled": [
+      "C1-runtime-destroyed",
+      "C1-runtime-distinct",
+      "C1-generation-distinct",
+      "the negative is now test_a_REUSED_runtime_id_on_the_restored_use_is_rejected"
+    ],
+    "where_the_real_evidence_lives": "worker_manager/tokens.py: domain_of, generation_of(control, domain, execution=..., operation=...), token_of - whose answer carries returned, activating and activation_started",
+    "what_i_still_have_to_resolve": "deriving generation_of's execution/operation pair from the REAL launch rather than guessing. domain_of('workspace', workspace_identity(attempt_row)) is the domain the ordinary ending already uses (workspaces.py:3436); the pair identifying the original reserving act is the part I have not established from the launch document"
+  },
+  "verification": {
+    "tests": 190,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 66.937
+  },
+  "still_owed": [
+    "the governed-token return-ordering evidence",
+    "the simulated-candidate/verdict labelling pass",
+    "item 3: the digest-bound executable packet"
+  ],
+  "unproved": [
+    "the production deployment comparison",
+    "actual production restore"
+  ],
+  "ready_for": "independent review"
+}

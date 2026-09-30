@@ -1,0 +1,74 @@
+{
+  "schema": "baton.w236087.managed-correction-packet/1",
+  "work": "W236087",
+  "claim": 309306,
+  "executed": false,
+  "note": "Nothing here is executed, set up or enabled. No store opened, no credential read, no container started, no image built, no version-control act.",
+  "provider_question": "does the actual qualified CLI, restored into a FRESH container after the predecessor's positive exclusion, consume its own conversation JSONL and use REAL independent-review feedback to improve its retained candidate? Deterministic evidence cannot answer it",
+  "machinery": {
+    "v12/DESIGN.md": "ea224a281d320077e0cc906ba91672930c8975660a453c49804dea888b92cbff",
+    "v12/python/src/baton_v12/worker_manager/provider_context.py": "ca54ecec366fde97390a873537d9fb430db90bfe21e39448450d79d6fa4d7835",
+    "v12/python/src/baton_v12/worker_manager/context_delivery.py": "f17ce3c53e52e152e18da8c2900f9697bd3df67d3b9363d999c9a4215518def4",
+    "v12/python/src/baton_v12/worker_manager/store.py": "3d44991274f75e2260dc12a5b8012650256b8400a771e93dc8e4d50c5b48dbc6",
+    "v12/python/src/baton_v12/worker_manager/tokens.py": "c59c5d92352cbb2b225455b0c02cb625f1b4da6e9a4cc8cd65b0bc644e1fd5b4",
+    "v12/python/tools/stage_execution.py": "38c4cf74db023733603ea88f02b0246c0b16a62afecb743b77cf502ffc5e19e6",
+    "v12/python/tools/single_worker.py": "12a9e6a54b25f69ef1c2970affc11c458990cd633fbec1e927514e07decff289",
+    "v12/python/tools/job_manager.py": "83cbf5ee56b52e2696644046c7aa28c2211e9cd7db8b8c521f416f8abf3ae1ed",
+    "v12/python/tests/manager/test_provider_context.py": "796aaf9c07c65e0c9061a8dd842e7e93eae3811cece870d8a43fdf3bb0be501e",
+    "v12/python/tests/manager/test_claude_context.py": "c2b07f44b532f57b666ab3063a448c6bd764bbd9e90f2f7692a30f6fa03eedea",
+    "v12/python/tests/tools/correction_restart_trace.py": "5ae933a501e340570c633afcf9b30923040151bfed71e3d48153bb0fa82c885e",
+    "v12/python/tests/tools/test_correction_restart.py": "0c9fd476779a3d3cc81420296d5a2bc00cf88b344f117671bdf68930892d2158",
+    "work/records/2026/09/finding-v12-managed-session-resume/LIVE-CORRECTION-PROPOSAL.md": "291a02e6a820f1c3c278dedea181170da1a8079a95987069753b29b41223e472",
+    "work/records/2026/09/finding-v12-managed-session-resume/PREPARATION-307667.md": "89582705f0568fa28a64d547ec5178949d7634b19f918e571e888d7d0289fecc"
+  },
+  "reused_accepted_bindings": {
+    "provenance": "measured from the accepted single Job's own records, not from labels",
+    "runtime_distro": "/home/sl/baton-runs/managed-correction-236087/build/stack/out/distro",
+    "runtime_build_commit": "1e576ff2186db69e8b44da9d38874ff7e99ebbe3",
+    "runtime_executable_sha256": "04aa459aed61704971e98b9260929b19953c41caad906e28551aae0ba457a58a",
+    "image_reference": "baton-v12-claude-worker:w239528-244216",
+    "image_config_digest": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2",
+    "adapter_source_sha256": "18c34ff52faa150237df0c8d0206b805801ee71cb9e7a4ec6e84e4379d7f9d8d",
+    "adapter_descriptor": "sha256:5f2ef38f05ed7a9aecd11dd7e23e9cfbe1f0243fe27bd2c9aa1b004580fcdef1",
+    "policy_descriptor": "sha256:d398f8585dc7118d76836fdee00dcc0aae9882250e88e79cdd4ff7de19574795",
+    "profile_descriptor": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+    "profile_name": "claude-fresh-implementation",
+    "no_build_required": "LIVE-CORRECTION-PROPOSAL.md required the owner to bind an actual built image because those bytes were then unbuilt; they are built and accepted now, and a rebuild would replace accepted provenance for no gain"
+  },
+  "fresh_roots": {
+    "rule": "one root under /home/sl/baton-instances/<run id>, NOT under /home/sl/baton-runs: the pinned validator refuses mutable deployment state inside what it treats as the checkout, and tools.bootstrap --destination overrides state_root so the instance root and run root must be one path",
+    "run_root": "/home/sl/baton-instances/managed-correction-<run id>",
+    "stores": "<run root>/db/{authority,jobs,control,integration}.sqlite3",
+    "state_root": "<run root>/deployment-state",
+    "private_context": "<run root>/contexts",
+    "workspaces": "<run root>/run/workspaces",
+    "source_clone": "<run root>/source, read-only to the reviewer"
+  },
+  "limits": {
+    "provider_turn_seconds": 180,
+    "verification_command_seconds": 180,
+    "implementer_invocations": 2,
+    "review_invocations": 2,
+    "total_seconds": 900,
+    "cleanup_reserve_seconds_inside_total": 60,
+    "restores": 1,
+    "retry": false
+  },
+  "missing_external_input": [
+    "line_declared_base: a commit object in the nominated source; creating it is a version-control act this implementer must not perform, so the packet takes the object name as an operand",
+    "the Authority uuid, minted by tools.bootstrap and read from <run root>/bootstrap.json",
+    "the bootstrap inputs document, derived at setup time from the selected root",
+    "current provider credentials, resolved at launch through /home/sl/.baton/credential-sources.json; no credential bytes pass through this packet. W247941's run 01 failed on an expired session, so a current one should be confirmed before selection"
+  ],
+  "outcomes": {
+    "accepted_no_correction": "the first independent review accepts the opening proposal. A complete honest result that ENDS the run and does NOT answer the restore question, because no restore happened. Not a failure and not to be rerun to obtain one",
+    "changes_requested_then_corrected_and_accepted": "the only outcome that answers the provider question. Requires the restored conversation, the candidate improved against the ACTUAL feedback, exact attribution, the predecessor's token returned before the restored activation, and a second independent acceptance. A structural check or a zero exit is not acceptance",
+    "rejected": "valid at either stage, ends the run, and no correction is manufactured from it",
+    "failed_or_unknown": "provider failure including an expired session, a failed context save, an unknown predecessor or launch, a competing use, a wrong profile, or unresolved cleanup. The run is HELD, every failure preserved with its attribution, a failed context save is NOT reuse, and no retry follows"
+  },
+  "not_claimed": [
+    "production restore is unproved",
+    "the production deployment-comparison branch of _qualified remains a coverage limit",
+    "no live run, deployment change, credential operation or integration is selected"
+  ]
+}
