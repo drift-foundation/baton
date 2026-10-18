@@ -1,0 +1,20 @@
+{
+  "count": 406,
+  "failures": 0,
+  "errors": 0,
+  "seconds": 3.2300888060017314,
+  "modules": [
+    "tests.job_manager.test_status",
+    "tests.job_manager.test_store_readonly",
+    "tests.job_manager.test_sweep",
+    "tests.job_manager.test_scheduling",
+    "tests.job_manager.test_restart",
+    "tests.job_manager.test_recovery",
+    "tests.job_manager.test_exchange",
+    "tests.job_manager.test_ending",
+    "tests.job_manager.test_final_allocation_release"
+  ],
+  "source": "/home/sl/src/baton",
+  "disk_root": "/tmp/wi-dcsl6bpn",
+  "timeout_seconds": 60
+}

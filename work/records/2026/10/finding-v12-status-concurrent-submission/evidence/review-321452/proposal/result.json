@@ -1,0 +1,43 @@
+{
+ "base": "aa637298bac292058b659df5d147fbddd82c49a6",
+ "changed_paths": [
+  "v12/python/src/baton_v12/job_manager/projection.py",
+  "v12/python/src/baton_v12/job_manager/store.py",
+  "v12/python/tests/job_manager/test_status.py"
+ ],
+ "collection": {
+  "excluded_ignored": [
+   "v12/python/src/baton_v12/__pycache__/",
+   "v12/python/src/baton_v12/authority/__pycache__/",
+   "v12/python/src/baton_v12/contracts/__pycache__/",
+   "v12/python/src/baton_v12/integration/__pycache__/",
+   "v12/python/src/baton_v12/job_manager/__pycache__/",
+   "v12/python/src/baton_v12/source_profiles/__pycache__/",
+   "v12/python/src/baton_v12/worker_manager/__pycache__/",
+   "v12/python/tools/__pycache__/",
+   "v12/python/v12-w71917-1gl6uw5f/",
+   "v12/python/v12-w71917-5naa05x9/",
+   "v12/python/v12-w71917-5x7gwi2e/",
+   "v12/python/v12-w71917-60hid3dh/",
+   "v12/python/v12-w71917-q_gso000/",
+   "v12/python/v12-w71917-rlqgn5q1/",
+   "v12/python/v12-w71917-xz50dxv_/"
+  ],
+  "excluded_ignored_count": 15,
+  "excluded_special": [],
+  "excluded_special_count": 0,
+  "note": "these worktree paths were present while the task's verification ran and are NOT part of the delivered proposal; whether the verification relied on any of them is the integrator's question, disclosed rather than adjudicated here"
+ },
+ "disposition": "provider-failed",
+ "entry_head": "aa637298bac292058b659df5d147fbddd82c49a6",
+ "head": "14a8934ec891f24e468b1b00e0adb90c95179f03",
+ "provider": {
+  "failure_reason": "timeout",
+  "seconds_bound": 3600,
+  "status": null
+ },
+ "schema": "baton.dogfood-proposal/2",
+ "task_id": "status-race-r1-w319114-319624",
+ "verification": null,
+ "why": "the provider did not finish within 900s"
+}

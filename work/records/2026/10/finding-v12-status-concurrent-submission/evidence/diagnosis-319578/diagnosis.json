@@ -1,0 +1,22 @@
+{
+  "base": "9055843b5d258f5bfbb523815d034ee0c14075d6",
+  "candidate_checkout": "/home/sl/baton-instances/status-race-w319114-319417/packet/workspaces/.baton-review-lines/line-172a6abb6d872d27d42833ed6f89e5f74c385fdd81432e3ebd900c8a17f4e340/checkout",
+  "claim": 319578,
+  "engine_inspect": "no such object: bbc48f37732800b1cc83c1a67dfce094538c02e8f91740aaaa4772c79ff44024",
+  "files": {
+    "completion.json": "1daec503e69411255ea31137c79c2fc28fad3fe78c4337136343fbb4577b4c62",
+    "outcome.json": "a89f9104d0c7bb6f6b97a5eeef90f95536f2fd8cb017ebf7a6ebb64e0d427d17",
+    "proposal/change.patch": "c4cd8321e9262eacb1ecebc1a593176644adb7b5646cf9d243d66572d4132de8",
+    "proposal/objects.bundle": "c99a5b49b6ce9d7d1dbbe2d5cbfaa8b5ffe636c7bcfe5297d22dce5622a3f93a",
+    "proposal/result.json": "499f1629f32e02504518413c8c19d1aa8b05d9ebc3f8bc095dcddbb7141a3f63",
+    "proposal/verification.txt": "4825c3ea707b3ab41b2d72a0443ea35d3dd518252a6a673fac3fea418df9a133",
+    "sealed.json": "43e64abd06a33ba367681611e97fd30245176e0a7203143ebbf09d025644fb0e"
+  },
+  "focused_result": "pass",
+  "focused_seconds": 0.18939687199963373,
+  "focused_tests": 83,
+  "head": "aa637298bac292058b659df5d147fbddd82c49a6",
+  "sealed_patch_equals_git_diff": true,
+  "source_custody": "/home/sl/baton-instances/status-race-w319114-319417/packet/workspaces/.baton-review-lines/line-172a6abb6d872d27d42833ed6f89e5f74c385fdd81432e3ebd900c8a17f4e340/custody/attempt-0021d83e38d187a3e7ae71b04b68f4b8b340cbbd1694c9cc74f014997d24c6e1",
+  "tree": "57f5d49cc89fd543345eddf84cb2a95f03eecfd0"
+}

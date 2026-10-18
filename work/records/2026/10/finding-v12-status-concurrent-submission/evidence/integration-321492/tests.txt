@@ -1,0 +1,43 @@
+.................................................................E................................................E.......................E..................................................................................................................
+======================================================================
+ERROR: test_store_readonly (unittest.loader._FailedTest.test_store_readonly)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_store_readonly
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 137, in loadTestsFromName
+    module = __import__(module_name)
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_store_readonly.py", line 34, in <module>
+    from .fixtures import UUID, JobManagerCase
+ImportError: attempted relative import with no known parent package
+
+
+======================================================================
+ERROR: test_scheduling (unittest.loader._FailedTest.test_scheduling)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_scheduling
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 137, in loadTestsFromName
+    module = __import__(module_name)
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_scheduling.py", line 17, in <module>
+    from .fixtures import (NOW, PROFILE, UUID, FakeSession, JobManagerCase,
+                           _unobserved, fake_claim_signature, job, stage,
+                           submission)
+ImportError: attempted relative import with no known parent package
+
+
+======================================================================
+ERROR: test_recovery (unittest.loader._FailedTest.test_recovery)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_recovery
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 137, in loadTestsFromName
+    module = __import__(module_name)
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_recovery.py", line 64, in <module>
+    from .test_review_driver import WRITER, DriverCase
+ImportError: attempted relative import with no known parent package
+
+
+----------------------------------------------------------------------
+Ran 253 tests in 2.026s
+
+FAILED (errors=3)

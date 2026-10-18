@@ -1,0 +1,19 @@
+{
+  "count": 406,
+  "failures": 0,
+  "errors": 0,
+  "seconds": 3.2337744280011975,
+  "source": "/tmp/w319114-final-q44ln4lb",
+  "disk_root": "/home/sl/src/baton/.w319114-final-eo5hh863",
+  "modules": [
+    "test_status",
+    "test_store_readonly",
+    "test_sweep",
+    "test_scheduling",
+    "test_restart",
+    "test_recovery",
+    "test_exchange",
+    "test_ending",
+    "test_final_allocation_release"
+  ]
+}

@@ -1,0 +1,750 @@
+diff --git a/v12/python/src/baton_v12/job_manager/projection.py b/v12/python/src/baton_v12/job_manager/projection.py
+index fe2d7c71..a67f36c5 100644
+--- a/v12/python/src/baton_v12/job_manager/projection.py
++++ b/v12/python/src/baton_v12/job_manager/projection.py
+@@ -39,7 +39,8 @@ from . import (delegation, documents, ending, episodes, execution_limits,
+                scheduler, schema,
+                submission)
+ 
+-__all__ = ["ACT_OUTCOMES", "EXCHANGE_OWED", "gates_of", "owed_acts",
++__all__ = ["ACT_OUTCOMES", "EXCHANGE_OWED", "gates_of", "materialized",
++           "owed_acts",
+            "deferral_of", "owed_exchange", "receipt_rows", "receipts_of",
+            "replaceable",
+            "stage_states", "status"]
+@@ -428,7 +429,131 @@ def _ending_owed(entry):
+     return type(observed.get("output")) is dict
+ 
+ 
+-def stage_states(store, operations, stages=None):
++def materialized(store, stages=None):
++    """Every JOB-OWNED row a derivation composes, read at ONE moment.
++
++    W319114. WHY THIS IS A SEPARATE FUNCTION AND WHY IT TAKES NO
++    `operations`. The projection joins eight of this store's tables and then
++    one other store's observations, and it used to read all nine in
++    autocommit statements one after another -- so a concurrent writer could
++    commit between any two of them and the composed answer described a state
++    the store never held. The measured defect is `status`: `stage_states` read
++    the stage rows, a public `submit` committed a new Job, and the Job and
++    stage rows read afterwards named a stage the projection had no entry for,
++    which raised `KeyError`. The same seam mixes an episode read before an
++    advancement with the receipts, ending, deferral and allocation of the
++    episode that replaced it.
++
++    SO THE JOB-OWNED HALF IS TAKEN UNDER ONE READ VIEW and the external half
++    is not taken here at all. The absent `operations` parameter is the
++    enforcement: DB-1 forbids external I/O under a transaction and DB-4
++    forbids calling another store while retaining this one's, and a function
++    that has no handle on the Worker Manager cannot reach it however it is
++    edited later. `stage_states` acquires the observations AFTER this returns.
++
++    WHAT IS INSIDE IS THIS DATABASE AND BOUNDED VALIDATION, which is what
++    DB-1 permits: `submission`, `episodes`, `ending`, `scheduler` and
++    `integration_capacity` reads of the store already given, each still
++    through its own owner's public reader, plus the `boundaries` row checks
++    those readers perform in memory. No filesystem, no engine, no callback.
++
++    AN EARLIER COHERENT MOMENT IS NOT AN OMISSION. A submission that commits
++    after this view is taken is absent from it WHOLE -- its Job, its stages
++    and its episodes together -- and the document it is absent from carries
++    the instant it was observed. What is excluded is a Job reported without
++    its stages, a stage reported without its Job, or an episode reported
++    beside another episode's receipts.
++
++    `stages` is the caller's own row set, unchanged in meaning: it is still
++    whatever rows were handed in, and only the remaining tables are read.
++    """
++    from .integration_capacity import failed_integration_of
++
++    with store.read_snapshot():
++        rows = stages if stages is not None else submission.stage_rows(store)
++        jobs = submission.job_rows(store)
++        owned = {}
++        for stage in rows:
++            stage_id = stage["stage_id"]
++            # NOTHING CANONICAL IS READ FOR A STAGE THAT HAS NO LIVE EPISODE,
++            # and that is not an optimization. Its identities belong to an
++            # attempt that is over; asking the manager about them would answer
++            # with the ended offer's own facts and project a finished attempt
++            # as this stage's current one.
++            live = episodes.live_of(store, stage_id)
++            owned[stage_id] = {
++                "stage": stage, "episode": live,
++                "attempt": (episodes.attempting(stage, live)
++                            if live is not None else None),
++                "history": episodes.episodes_of(store, stage_id),
++                # THE JOB THIS STAGE NAMES, read here rather than beside the
++                # observation it is handed to. It is a row of this store, so
++                # it belongs in this store's one read view; reading it later
++                # is how a stage could be described against a Job another
++                # moment held.
++                "job": submission.job_of(store, stage["job_id"]),
++                # W197661: AND NULL FOR A STAGE WITH NO LIVE EPISODE, on the
++                # same rule the receipts beneath follow -- a deferral belongs
++                # to the episode that owed the act, and a stage between an
++                # ending and its replacement owes nothing.
++                # ASKED WHETHER OR NOT THERE IS A LIVE EPISODE, because an
++                # unfinished ending outlives the attempt that owed it -- and
++                # the earlier note here saying it is null without a live
++                # episode is superseded by exactly that.
++                #
++                # `_settled_acts` is what tells an outstanding reason from a
++                # retained one; see `deferral_of`.
++                "deferral": deferral_of(store, stage_id,
++                                        _settled_acts(store, stage_id, live)),
++                "receipts": (receipts_of(store, stage_id, live["episode"])
++                             if live is not None else {}),
++                # W119733: THE OBLIGATION THIS STORE REGISTERED FOR THE LIVE
++                # EPISODE, and `None` for a stage that registered none. It is
++                # read here with the rest so `_ending_owed` decides from one
++                # moment's state, and it is read for the LIVE episode only --
++                # a prior episode's unsettled obligation is a stage that has
++                # moved on, and answering for it here would project a finished
++                # attempt as this stage's current one. Resuming those is the
++                # sweep's own pass.
++                # THE READER IS GIVEN NOTHING AND PROVES EVERYTHING. Review
++                # 2026-09-08T16-00-28Z [P2]: this handed down the stage row it
++                # already held, and a public reader that accepts a row cannot
++                # tell a pass that read it from a caller that invented one.
++                # The saving was one row lookup per stage; the cost was that
++                # the ownership proof depended on who was asking.
++                "ending": (ending.ending_of(store, stage_id, live["episode"])
++                           if live is not None else None),
++                "managed_failure": (
++                    failed_integration_of(store, stage_id, live["episode"])
++                    if live is not None and stage["kind"] == "integration"
++                    else None),
++                # THE ALLOCATION AXIS, IN THE SAME VIEW AS THE EPISODE THAT
++                # OWNS IT. `_stage_status` used to read these after the
++                # projection had been composed, which is how a status could
++                # name one episode's attempt beside a reservation made for
++                # the next one.
++                "allocation_refusal": (
++                    scheduler.allocation_refusal_of(store, live["attempt_id"])
++                    if live is not None else None),
++                "allocations": scheduler.allocation_rows(store, stage_id),
++                "allocation": (scheduler.allocation_of(store,
++                                                       live["attempt_id"])
++                               if live is not None else None)}
++        # THE JOBS AND THEIR STAGES, GROUPED FROM THE ONE ROW SET the states
++        # are derived from. `stages_of` would be a second read at a second
++        # moment, and that second moment is the defect: `stage_rows` orders by
++        # (job_id, ordinal) and `stages_of` by ordinal, so grouping here is
++        # the same answer taken from the view that already decided.
++        grouped = {job["job_id"]: [] for job in jobs}
++        for stage in rows:
++            grouped.setdefault(stage["job_id"], []).append(stage)
++        return {"jobs": jobs, "stages": rows, "owned": owned,
++                "stages_by_job": grouped,
++                "limits": {job["job_id"]: submission.execution_limits_of(
++                    store, job["job_id"]) for job in jobs}}
++
++
++def stage_states(store, operations, stages=None, snapshot=None):
+     """Every stage's state and its canonical observation, in one pass.
+ 
+     The observation is kept beside the state because the status document
+@@ -450,64 +575,33 @@ def stage_states(store, operations, stages=None):
+     attempt's claim was projected here as this Job's. `observation_of` acquires
+     and binds in one operation, and there is no unqualified attempt read left
+     for this pass to make.
++
++    AND THE TWO HALVES ARE TAKEN IN TWO PHASES, which is W319114's effect
++    here. Every row this store owns comes from `materialized` -- ONE read view
++    of this database, already released by the time the loop below runs -- and
++    the canonical observations are acquired afterwards, outside it. So a
++    concurrent `submit` or correction can no longer commit between two of this
++    pass's reads, and no observation, failed or otherwise, is ever attempted
++    while this store holds a transaction. `snapshot` lets a caller that needs
++    MORE of that same view -- `status` needs the Job rows and the ceilings --
++    take it once and derive everything from it rather than taking a second.
+     """
+-    rows = stages if stages is not None else submission.stage_rows(store)
++    snapshot = (snapshot if snapshot is not None
++                else materialized(store, stages))
+     held = {}
+-    for stage in rows:
+-        stage_id = stage["stage_id"]
+-        history = episodes.episodes_of(store, stage_id)
+-        live = episodes.live_of(store, stage_id)
+-        # NOTHING CANONICAL IS READ FOR A STAGE THAT HAS NO LIVE EPISODE, and
+-        # that is not an optimization. Its identities belong to an attempt that
+-        # is over; asking the manager about them would answer with the ended
+-        # offer's own facts and project a finished attempt as this stage's
+-        # current one.
+-        held[stage_id] = {
+-            "stage": stage, "episode": live,
+-            "attempt": (episodes.attempting(stage, live)
+-                        if live is not None else None),
+-            "history": history,
+-            "observed": (delegation.observation_of(
+-                operations, episodes.attempting(stage, live),
+-                submission.job_of(store, stage["job_id"]))
+-                if live is not None else delegation.unobserved()),
+-            # W197661: AND NULL FOR A STAGE WITH NO LIVE EPISODE, on the same
+-            # rule the receipts beneath follow -- a deferral belongs to the
+-            # episode that owed the act, and a stage between an ending and its
+-            # replacement owes nothing.
+-            # ASKED WHETHER OR NOT THERE IS A LIVE EPISODE, because an
+-            # unfinished ending outlives the attempt that owed it -- and the
+-            # earlier note here saying it is null without a live episode is
+-            # superseded by exactly that.
+-            #
+-            # `_settled_acts` is what tells an outstanding reason from a
+-            # retained one; see `deferral_of`.
+-            "deferral": deferral_of(store, stage_id,
+-                                    _settled_acts(store, stage_id, live)),
+-            "receipts": (receipts_of(store, stage_id, live["episode"])
+-                         if live is not None else {}),
+-            # W119733: THE OBLIGATION THIS STORE REGISTERED FOR THE LIVE
+-            # EPISODE, and `None` for a stage that registered none. It is read
+-            # here with the rest so `_ending_owed` decides from one moment's
+-            # state, and it is read for the LIVE episode only -- a prior
+-            # episode's unsettled obligation is a stage that has moved on, and
+-            # answering for it here would project a finished attempt as this
+-            # stage's current one. Resuming those is the sweep's own pass.
+-            # THE READER IS GIVEN NOTHING AND PROVES EVERYTHING. Review
+-            # 2026-09-08T16-00-28Z [P2]: this handed down the stage row it
+-            # already held, and a public reader that accepts a row cannot tell
+-            # a pass that read it from a caller that invented one. The saving
+-            # was one row lookup per stage; the cost was that the ownership
+-            # proof depended on who was asking.
+-            "ending": (ending.ending_of(store, stage_id, live["episode"])
+-                       if live is not None else None)}
+-        from .integration_capacity import failed_integration_of
+-        held[stage_id]["managed_failure"] = (failed_integration_of(store, stage_id, live["episode"])
+-                                             if live is not None and stage["kind"] == "integration" else None)
++    for stage_id, owned in snapshot["owned"].items():
++        live = owned["episode"]
++        # THE OBSERVATION IS THE ONLY THING ASKED FOR HERE, and it is asked of
++        # the OTHER store -- so it is asked with no transaction of this one
++        # open. Everything it is composed from was materialized above.
++        held[stage_id] = dict(
++            owned,
++            observed=(delegation.observation_of(
++                operations, owned["attempt"], owned["job"])
++                if live is not None else delegation.unobserved()))
+         held[stage_id]["state"] = _observed_state(held[stage_id])
+         if held[stage_id]["state"] is None and live is not None \
+-                and scheduler.allocation_refusal_of(
+-                    store, live["attempt_id"]) is not None:
++                and owned["allocation_refusal"] is not None:
+             held[stage_id]["state"] = "exceptional"
+     for entry in held.values():
+         if entry["state"] is not None:
+@@ -741,13 +835,21 @@ def status(store, operations, *, observed_at):
+     applies it. One tick, in a serving deployment; in a store nobody is
+     advancing, exactly as stale as that store is.
+     """
+-    held = stage_states(store, operations)
++    # W319114: ONE MATERIALIZATION, AND EVERY ROW IN THIS DOCUMENT COMES FROM
++    # IT. The Job rows, their stage rows and their ceilings used to be read
++    # after `stage_states` had already derived from its own reads, so a
++    # submission committing in between gave this loop a stage the projection
++    # had no entry for -- `held[row["stage_id"]]`, `KeyError`. Both halves now
++    # come from the same read view; see `materialized` for why that view is
++    # released before a single observation is acquired.
++    snapshot = materialized(store)
++    held = stage_states(store, operations, snapshot=snapshot)
+     jobs = []
+-    for job in submission.job_rows(store):
++    for job in snapshot["jobs"]:
+         stages = []
+-        for row in submission.stages_of(store, job["job_id"]):
++        for row in snapshot["stages_by_job"][job["job_id"]]:
+             entry = held[row["stage_id"]]
+-            stages.append(_stage_status(store, entry, held))
++            stages.append(_stage_status(entry, held))
+         jobs.append(documents.job_status(
+             job_id=job["job_id"], submission_id=job["submission_id"],
+             input_digest=job["input_digest"],
+@@ -760,7 +862,7 @@ def status(store, operations, *, observed_at):
+             # compatibility defaults and writes nothing, and it reports what is
+             # CONFIGURED rather than what any command observed -- configuration
+             # alone is not evidence that a provider turn ever ran.
+-            execution_limits=_job_limits(store, job["job_id"]),
++            execution_limits=_job_limits(snapshot, job["job_id"]),
+             stages=stages))
+     return documents.status(
+         schema=documents.STATUS_SCHEMA, observed_at=observed_at,
+@@ -772,23 +874,35 @@ def status(store, operations, *, observed_at):
+         canonical=operations.canonical, jobs=jobs)
+ 
+ 
+-def _job_limits(store, job_id):
++def _job_limits(snapshot, job_id):
+     """One Job's effective ceilings, resolved through the generation it was
+-    ADMITTED under rather than through this build's current constants."""
+-    held = submission.execution_limits_of(store, job_id)
++    ADMITTED under rather than through this build's current constants.
++
++    The admitted row comes from the materialized view rather than from a fresh
++    read: a Job's ceilings are immutable once recorded, but reading them at a
++    second moment is how a Job could be reported whose row the first moment
++    did not have.
++    """
++    held = snapshot["limits"][job_id]
+     return execution_limits.resolved(held["requested"],
+                                      held["compatibility_generation"])
+ 
+ 
+-def _stage_status(store, entry, held):
++def _stage_status(entry, held):
++    """One stage's reported document, composed from already-read rows.
++
++    W319114: IT READS NOTHING. The allocation axis used to be fetched here,
++    after the projection had been derived and the Job rows read, so a status
++    could name one episode's attempt beside a reservation belonging to the
++    next one. Both now travel on the entry `materialized` built.
++    """
+     stage = entry["stage"]
+     live = entry["episode"]
+     observed = entry["observed"]
+     frozen = observed.get("output")
+     runtime = observed.get("runtime")
+-    allocations = scheduler.allocation_rows(store, stage["stage_id"])
+-    allocation = (scheduler.allocation_of(store, live["attempt_id"])
+-                  if live is not None else None)
++    allocations = entry["allocations"]
++    allocation = entry["allocation"]
+     return documents.stage_status(
+         stage_id=stage["stage_id"], job_id=stage["job_id"],
+         kind=stage["kind"], state=entry["state"], work_id=stage["work_id"],
+diff --git a/v12/python/src/baton_v12/job_manager/store.py b/v12/python/src/baton_v12/job_manager/store.py
+index 624c82b0..6898e2ba 100644
+--- a/v12/python/src/baton_v12/job_manager/store.py
++++ b/v12/python/src/baton_v12/job_manager/store.py
+@@ -25,6 +25,7 @@ answers the same question about a scheduler's acts. One store's identity is
+ not another store's, however identical the serialization looks.
+ """
+ 
++import contextlib
+ import json
+ import os
+ import re
+@@ -813,6 +814,93 @@ class JobStore:
+         return boundaries.instant(self._clock(),
+                                   "the configured clock's answer")
+ 
++    # -- the coherent read boundary ------------------------------------------
++
++    @contextlib.contextmanager
++    def read_snapshot(self):
++        """One coherent read of THIS STORE's own rows, and nothing else.
++
++        W319114. WHY A READ BOUNDARY EXISTS AT ALL when nothing here writes.
++        A derivation that needs several of this store's tables used to read
++        each one in its own autocommit statement, so a concurrent `submit` or
++        `advance_correction` could commit BETWEEN two of them -- and the
++        composed answer then described a store state that never existed. The
++        measured case is a status whose stage set was read before a submission
++        and whose Job set was read after it, which raised `KeyError` on the new
++        stage; the same seam mixes an episode read before an advancement with
++        the receipts of the one that replaced it.
++
++        SQLite gives a read transaction a consistent view of the database for
++        its whole life, so the fix is to take ONE such view rather than to
++        compare timestamps or retry. `BEGIN DEFERRED` acquires nothing by
++        itself, so the snapshot is taken here with one read of the schema
++        page: contention then surfaces at this single point with a sentence an
++        operator can act on, instead of inside whichever table happened to be
++        read first.
++
++        IT IS RELEASED BY `finally`, AND THAT IS THE POINT. DB-1 forbids
++        external I/O under a transaction and DB-4 forbids calling another
++        store while retaining this one's, so the only thing permitted inside
++        is this database's own reads and bounded in-memory validation. Every
++        caller is structured as "materialize under the boundary, release it,
++        THEN observe" -- including when the observation fails, because the
++        boundary is already gone by the time it is attempted.
++
++        A CALLER ALREADY HOLDING THIS STORE'S BOUNDARY KEEPS IT. SQLite has no
++        nested transactions, so beginning one here would fail and ending one
++        would commit or discard somebody else's decision. Their boundary is
++        already coherent, which is all this asks for.
++
++        NOT A WRITE, AND USABLE ON A READ-ONLY HANDLE. The body only SELECTs
++        and the boundary is ended with `ROLLBACK`, so `open_readonly`'s
++        `mode=ro` connection runs it exactly as a serving manager's does.
++        """
++        connection = self._connection
++        if connection.in_transaction:
++            yield self
++            return
++        try:
++            connection.execute("BEGIN DEFERRED")
++            # The statement that actually TAKES the snapshot. See above.
++            connection.execute("SELECT 1 FROM sqlite_master LIMIT 1").fetchall()
++        except sqlite3.Error as failure:
++            try:
++                connection.execute("ROLLBACK")
++            except sqlite3.Error:
++                pass
++            if _is_contention(failure):
++                # THE CLOSED PAIR, and `unavailable` is the honest category: a
++                # held lock is a transient fact about the file, nothing was
++                # read and nothing was changed, so asking again later is safe.
++                # `transport` is §9's code for a carrier that could not be
++                # reached, which is what a database this process cannot get a
++                # read view of is.
++                raise ContractRefusal(
++                    "unavailable", "transport",
++                    f"the Job store at "
++                    f"{name_value(self._path_of(connection))} could not be "
++                    f"read coherently within "
++                    f"{_BUSY_TIMEOUT_MS} ms because another connection holds "
++                    f"the lock a single read view needs; nothing was changed "
++                    f"and reading again later is safe") from None
++            raise ContractRefusal(
++                "integrity", "schema",
++                f"the Job store at {name_value(self._path_of(connection))} "
++                f"would not open a read view "
++                f"({name_value(type(failure).__name__)}); a derivation reads "
++                f"every table it composes at one moment and will not compose "
++                f"one from several") from None
++        try:
++            yield self
++        finally:
++            # A READ BOUNDARY IS DISCARDED RATHER THAN COMMITTED. There is
++            # nothing to keep, and `ROLLBACK` is what a `mode=ro` connection
++            # can always do.
++            try:
++                connection.execute("ROLLBACK")
++            except sqlite3.Error:
++                pass
++
+     # -- the atomic boundary -------------------------------------------------
+ 
+     def transact(self, operation_id, kind, signature, action):
+diff --git a/v12/python/tests/job_manager/test_status.py b/v12/python/tests/job_manager/test_status.py
+index e86ee7b6..4eaf44e7 100644
+--- a/v12/python/tests/job_manager/test_status.py
++++ b/v12/python/tests/job_manager/test_status.py
+@@ -16,9 +16,14 @@ import unittest
+ 
+ from baton_v12.contracts import ContractRefusal
+ 
+-from baton_v12.job_manager import (STAGE_STATES, STATUS_SCHEMA, Unobserved,
++from baton_v12.job_manager import (JobStore, STAGE_STATES, STATUS_SCHEMA,
++                                   Unobserved,
+                                    receipt_rows, status, submit, sweep)
+-from baton_v12.job_manager.episodes import identities
++from baton_v12.job_manager import delegation, projection
++from baton_v12.job_manager import submission as submission_reads
++from baton_v12.job_manager.episodes import (end_episode, identities, live_of,
++                                            open_next)
++from baton_v12.job_manager.projection import receipts_of
+ 
+ if __package__:
+     from .fixtures import (LATER, NOW, UUID, FakeOperations, JobManagerCase, job,
+@@ -495,3 +500,309 @@ class AnIntegrationStageIsProjectedFromItsOwnObservation(StatusCase):
+                            completion=self.completion(),
+                            start_failure={"reason": "no image"}),
+             "exceptional")
++
++
++class ConcurrentSubmission(StatusCase):
++    """W319114 — one status describes ONE moment of the Job store.
++
++    THE MEASURED DEFECT. `status` derived the stage states, and only then read
++    the Job rows and each Job's stage rows. A public `submit` committing in
++    between put a stage in the second read that the first had no entry for, and
++    the composed document raised `KeyError` on `held[row["stage_id"]]` --
++    reported to an operator as an unexplained crash of the read-only surface,
++    on a store that was behaving exactly as designed.
++
++    THESE USE TWO REAL CONNECTIONS, which is what makes them about the
++    boundary. `self.jobs` is the serving manager's write-capable handle and
++    `self.reader` is the read-only one a monitor opens, both over one store
++    file. The interleaving is DETERMINISTIC: the writer's act runs inside a
++    wedge placed at the exact seam, so nothing here depends on thread timing.
++
++    WHAT THE FIX IS. `projection.materialized` reads every Job-owned row under
++    one read view of this database and releases it; the canonical observations
++    are acquired afterwards. So the document reports an earlier coherent
++    moment -- never a Job without its stages, a stage without its Job, or an
++    episode beside the receipts of the one that replaced it -- and no
++    observation is ever attempted while a Job-store transaction is open.
++    """
++
++    def setUp(self):
++        super().setUp()
++        self.reader = JobStore.open_readonly(
++            self.job_path, authority_uuid=UUID, incarnation="jobs-monitor",
++            clock=self.clock)
++        self.addCleanup(self.reader.close)
++
++    # -- the deterministic interleaving ---------------------------------------
++
++    def wedge(self, holder, name, act):
++        """Run `act` ONCE, immediately after `holder.name` has answered.
++
++        Returns the list the wedge appends to, so a case can prove the
++        interleaving actually happened rather than passing because it did not.
++        """
++        real = getattr(holder, name)
++        fired = []
++
++        def wedged(*operands, **supplied):
++            answer = real(*operands, **supplied)
++            if not fired:
++                fired.append(True)
++                act()
++            return answer
++
++        setattr(holder, name, wedged)
++        self.addCleanup(setattr, holder, name, real)
++        return fired
++
++    def dump(self):
++        """Every row of every table, as the WRITER sees it.
++
++        The projection must change nothing, and a read-only connection cannot
++        be trusted to prove that about itself.
++        """
++        tables = [row[0] for row in self.jobs._connection.execute(
++            "SELECT name FROM sqlite_master WHERE type = 'table' "
++            "ORDER BY name")]
++        return {name: [tuple(row) for row in self.jobs._connection.execute(
++            f"SELECT * FROM {name}").fetchall()] for name in tables}
++
++    # -- the original race ----------------------------------------------------
++
++    def test_a_submission_committed_between_the_two_reads_no_longer_raises(self):
++        """The minimal baseline from the finding, end to end.
++
++        An empty store, the state derivation answering its real empty result, a
++        public `submit` on the writer, and then the rest of `status`. This is
++        the case that raised `KeyError: 'job-a/implementation'`.
++        """
++        fired = self.wedge(projection, "stage_states",
++                           lambda: submit(self.jobs, submission()))
++        document = status(self.reader, self.acts, observed_at=NOW)
++        self.assertEqual(fired, [True])
++        # THE EARLIER MOMENT, WHOLE. The submission is absent with its Jobs
++        # AND its stages rather than half-present.
++        self.assertEqual(document["jobs"], [])
++        self.assertEqual(document["observed_at"], NOW)
++
++    def test_a_submission_committed_INSIDE_the_materialization_is_coherent(self):
++        """The same race one layer in: the writer commits between the stage
++        read and the Job read, which is where the two moments actually met."""
++        fired = self.wedge(submission_reads, "stage_rows",
++                           lambda: submit(self.jobs, submission()))
++        document = status(self.reader, self.acts, observed_at=NOW)
++        self.assertEqual(fired, [True])
++        self.assertEqual(document["jobs"], [])
++
++    def test_the_new_stages_are_reported_by_the_NEXT_read_and_not_lost(self):
++        """An earlier coherent moment is not a silent omission. The submission
++        the racing status could not include is in the one after it, in full."""
++        self.wedge(projection, "stage_states",
++                   lambda: submit(self.jobs, submission()))
++        self.assertEqual(status(self.reader, self.acts,
++                                observed_at=NOW)["jobs"], [])
++        self.assertEqual(
++            sorted(self.states(status(self.reader, self.acts,
++                                      observed_at=LATER))),
++            ["job-a/implementation", "job-a/review", "job-b/implementation"])
++
++    def test_every_reported_stage_has_its_Job_and_every_Job_its_stages(self):
++        """The invariant the `KeyError` was the symptom of, asserted directly
++        under the same interleaving."""
++        self.wedge(projection, "stage_states",
++                   lambda: submit(self.jobs, submission(
++                       submission_id="sub-2",
++                       jobs=[job("job-late")])))
++        submit(self.jobs, submission())
++        document = status(self.reader, self.acts, observed_at=NOW)
++        for entry in document["jobs"]:
++            self.assertTrue(entry["stages"], entry["job_id"])
++            for one in entry["stages"]:
++                self.assertEqual(one["job_id"], entry["job_id"])
++        self.assertEqual(sorted(one["job_id"] for one in document["jobs"]),
++                         ["job-a", "job-b"])
++
++    # -- a concurrent ADVANCEMENT, which is the other half of the rule --------
++
++    def test_an_episode_advancing_mid_status_is_not_mixed_with_the_next_one(self):
++        """A stage whose live episode ends and is replaced WHILE the status is
++        composing its observations is reported as the moment it materialized:
++        episode one, unended, with episode one's receipts. A pass that read the
++        episode early and the rest late would name episode two beside the
++        receipts of the episode it replaced.
++        """
++        submit(self.jobs, submission(jobs=[job("job-a")]))
++        sweep(self.jobs, self.acts, now=NOW)
++        before = receipts_of(self.jobs, "job-a/implementation", 1)
++        self.assertIn("admit", before)
++
++        def advance():
++            live = live_of(self.jobs, "job-a/implementation")
++            ended = end_episode(self.jobs, live, "abandoned-after-restart", 1)
++            open_next(self.jobs, "job-a/implementation", ended)
++
++        fired = self.wedge(delegation, "observation_of", advance)
++        one = self.stage_of(status(self.reader, self.acts, observed_at=LATER),
++                            "job-a/implementation")
++        self.assertEqual(fired, [True])
++        self.assertEqual(one["episode"], 1)
++        self.assertEqual([record["episode"] for record in one["episodes"]], [1])
++        self.assertIsNone(one["episodes"][0]["ended_state"])
++        self.assertEqual(sorted(record["episode"]
++                                for record in one["receipts"]), [1])
++        # AND THE ADVANCEMENT IS NOT LOST EITHER -- the next read has it.
++        after = self.stage_of(status(self.reader, self.acts, observed_at=LATER),
++                             "job-a/implementation")
++        self.assertEqual(after["episode"], 2)
++        self.assertEqual([record["episode"] for record in after["episodes"]],
++                         [1, 2])
++
++    def test_a_concurrent_advancement_leaves_the_derivation_coherent_too(self):
++        """`stage_states` on its own -- the pass the sweep and the owed-act
++        derivation both come through -- holds the same line."""
++        submit(self.jobs, submission(jobs=[job("job-a")]))
++        sweep(self.jobs, self.acts, now=NOW)
++
++        def advance():
++            live = live_of(self.jobs, "job-a/implementation")
++            ended = end_episode(self.jobs, live, "abandoned-after-restart", 1)
++            open_next(self.jobs, "job-a/implementation", ended)
++
++        fired = self.wedge(delegation, "observation_of", advance)
++        entry = projection.stage_states(
++            self.reader, self.acts)["job-a/implementation"]
++        self.assertEqual(fired, [True])
++        self.assertEqual(entry["episode"]["episode"], 1)
++        self.assertEqual([record["episode"] for record in entry["history"]],
++                         [1])
++        self.assertEqual(entry["attempt"]["attempt_id"],
++                         entry["episode"]["attempt_id"])
++
++    # -- DB-1 and DB-4: nothing external happens under this store's boundary --
++
++    def test_the_other_store_is_read_with_no_Job_transaction_open(self):
++        submit(self.jobs, submission())
++        sweep(self.jobs, self.acts, now=NOW)
++        seen = []
++        real = delegation.observation_of
++
++        def watched(operations, stage, held):
++            seen.append((self.reader._connection.in_transaction,
++                         self.jobs._connection.in_transaction))
++            return real(operations, stage, held)
++
++        delegation.observation_of = watched
++        self.addCleanup(setattr, delegation, "observation_of", real)
++        status(self.reader, self.acts, observed_at=LATER)
++        self.assertTrue(seen)
++        self.assertEqual(set(seen), {(False, False)})
++
++    def test_a_FAILING_observation_also_leaves_no_boundary_behind(self):
++        """DB-1 is not satisfied by the happy path. An observation that raises
++        must do so with the read view already released, or the refusal would
++        propagate out of a store still holding a transaction."""
++        submit(self.jobs, submission())
++        sweep(self.jobs, self.acts, now=NOW)
++        broken = ContractRefusal("unavailable", "transport",
++                                 "the canonical store could not be read")
++
++        real = delegation.observation_of
++        seen = []
++
++        def failing(operations, stage, held):
++            seen.append(self.reader._connection.in_transaction)
++            raise broken
++
++        delegation.observation_of = failing
++        self.addCleanup(setattr, delegation, "observation_of", real)
++        with self.assertRaises(ContractRefusal) as caught:
++            status(self.reader, self.acts, observed_at=LATER)
++        self.assertEqual(caught.exception.code, "transport")
++        self.assertEqual(seen, [False])
++        self.assertFalse(self.reader._connection.in_transaction)
++        # AND THE READER IS STILL USABLE afterwards, which a leaked boundary
++        # on a `mode=ro` connection would not leave it.
++        self.assertFalse(self.jobs._connection.in_transaction)
++
++    def test_the_materialization_cannot_reach_another_store_at_all(self):
++        """The enforcement is structural rather than a comment: the function
++        that holds the read view is handed no `operations`."""
++        import inspect
++
++        self.assertEqual(
++            list(inspect.signature(projection.materialized).parameters),
++            ["store", "stages"])
++
++    def test_the_read_view_is_released_even_when_the_body_raises(self):
++        submit(self.jobs, submission())
++        with self.assertRaises(KeyError):
++            with self.reader.read_snapshot():
++                self.assertTrue(self.reader._connection.in_transaction)
++                raise KeyError("the body's own failure")
++        self.assertFalse(self.reader._connection.in_transaction)
++
++    def test_a_caller_s_own_boundary_is_neither_nested_nor_ended(self):
++        """SQLite has no nested transactions, and ending one here would commit
++        or discard a decision this read had nothing to do with."""
++        self.jobs._connection.execute("BEGIN IMMEDIATE")
++        self.addCleanup(lambda: self.jobs._connection.in_transaction
++                        and self.jobs._connection.execute("ROLLBACK"))
++        with self.jobs.read_snapshot():
++            self.assertTrue(self.jobs._connection.in_transaction)
++        self.assertTrue(self.jobs._connection.in_transaction)
++
++    # -- and the ordinary readings, unchanged ---------------------------------
++
++    def test_an_empty_store_still_reads_empty_through_the_reader(self):
++        self.assertEqual(status(self.reader, self.acts,
++                                observed_at=NOW)["jobs"], [])
++
++    def test_a_populated_store_reads_the_same_through_both_handles(self):
++        submit(self.jobs, submission())
++        sweep(self.jobs, self.acts, now=NOW)
++        # EVERY MEMBER BUT THE INCARNATION, which names the handle that did
++        # the reading and is legitimately different.
++        self.assertEqual(status(self.reader, self.acts,
++                                observed_at=LATER)["jobs"],
++                         status(self.jobs, self.acts,
++                                observed_at=LATER)["jobs"])
++        self.assertEqual(self.states(status(self.reader, self.acts,
++                                            observed_at=LATER)),
++                         {"job-a/implementation": "offered",
++                          "job-a/review": "blocked",
++                          "job-b/implementation": "offered"})
++
++    def test_reading_through_the_read_only_handle_changes_no_row(self):
++        submit(self.jobs, submission())
++        sweep(self.jobs, self.acts, now=NOW)
++        before = self.dump()
++        for _ in range(3):
++            status(self.reader, self.acts, observed_at=LATER)
++            projection.stage_states(self.reader, self.acts)
++        self.assertEqual(self.dump(), before)
++
++    def test_the_whole_status_shape_survives_the_new_boundary(self):
++        """The document's contract is closed, so the composition is compared
++        member by member against the one the serving handle produces."""
++        submit(self.jobs, submission())
++        sweep(self.jobs, self.acts, now=NOW)
++        document = status(self.reader, self.acts, observed_at=LATER)
++        self.assertEqual(document["schema"], STATUS_SCHEMA)
++        one = self.stage_of(document, "job-a/implementation")
++        self.assertEqual(
++            sorted(one),
++            sorted(self.stage_of(status(self.jobs, self.acts,
++                                        observed_at=LATER),
++                                 "job-a/implementation")))
++        self.assertEqual(one["allocations"], [])
++        self.assertIsNone(one["allocation"])
++        self.assertEqual([record["act"] for record in one["receipts"]],
++                         ["admit"])
++
++    def test_the_authority_and_schema_checks_still_guard_the_reader(self):
++        """The new boundary is not a way around the opener's proofs."""
++        with self.assertRaises(ContractRefusal) as caught:
++            JobStore.open_readonly(self.job_path, authority_uuid="f" * 32,
++                                   incarnation="jobs-monitor",
++                                   clock=self.clock)
++        self.assertEqual(caught.exception.category, "refused")

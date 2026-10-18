@@ -25,6 +25,7 @@ answers the same question about a scheduler's acts. One store's identity is
 not another store's, however identical the serialization looks.
 """
 
+import contextlib
 import json
 import os
 import re
@@ -812,6 +813,141 @@ class JobStore:
         """
         return boundaries.instant(self._clock(),
                                   "the configured clock's answer")
+
+    # -- the coherent read boundary ------------------------------------------
+
+    def holds_transaction(self):
+        """Whether a transaction of THIS handle's is already open.
+
+        W319114 (correction). PUBLIC because a derivation that goes on to read
+        ANOTHER store has to be able to ask before it does. `read_snapshot`
+        preserves a caller's own boundary rather than nesting or ending it,
+        which is right -- but it means "the boundary is released by the time
+        this returns" is true of the owning caller only. A pass that observes
+        the Worker Manager therefore cannot infer from its own structure that
+        no transaction is held; it has to ASK THE STORE, and DB-6 says that
+        question belongs to the owner's public API rather than to a reader
+        reaching into `_connection`.
+
+        A READ TRANSACTION COUNTS. `in_transaction` is true of `BEGIN
+        DEFERRED` that has read a page, and DB-1 says read transactions are
+        not an escape from the rule -- so this answers the question DB-1 asks,
+        not the narrower "is a write pending".
+
+        A CLOSED HANDLE IS A TYPED REFUSAL, which is DB-6's own words. The
+        driver raises `sqlite3.ProgrammingError` for this, and a caller that
+        asked this distribution a question is owed this distribution's answer;
+        the handle is named by its incarnation because every other name for it
+        would have to be read from the connection that is gone.
+        """
+        try:
+            return self._connection.in_transaction
+        except sqlite3.ProgrammingError:
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"the Job store handle {name_value(self.incarnation)} is "
+                f"closed, so it can neither be read nor say whether a "
+                f"transaction is open on it; open the store again before "
+                f"reading it. Nothing was read and nothing was "
+                f"changed") from None
+
+    @contextlib.contextmanager
+    def read_snapshot(self):
+        """One coherent read of THIS STORE's own rows, and nothing else.
+
+        W319114. WHY A READ BOUNDARY EXISTS AT ALL when nothing here writes.
+        A derivation that needs several of this store's tables used to read
+        each one in its own autocommit statement, so a concurrent `submit` or
+        `advance_correction` could commit BETWEEN two of them -- and the
+        composed answer then described a store state that never existed. The
+        measured case is a status whose stage set was read before a submission
+        and whose Job set was read after it, which raised `KeyError` on the new
+        stage; the same seam mixes an episode read before an advancement with
+        the receipts of the one that replaced it.
+
+        SQLite gives a read transaction a consistent view of the database for
+        its whole life, so the fix is to take ONE such view rather than to
+        compare timestamps or retry. `BEGIN DEFERRED` acquires nothing by
+        itself, so the snapshot is taken here with one read of the schema
+        page: contention then surfaces at this single point with a sentence an
+        operator can act on, instead of inside whichever table happened to be
+        read first.
+
+        IT IS RELEASED BY `finally`, AND THAT IS THE POINT. DB-1 forbids
+        external I/O under a transaction and DB-4 forbids calling another
+        store while retaining this one's, so the only thing permitted inside
+        is this database's own reads and bounded in-memory validation. Every
+        caller is structured as "materialize under the boundary, release it,
+        THEN observe" -- including when the observation fails, because the
+        boundary is already gone by the time it is attempted.
+
+        A CALLER ALREADY HOLDING THIS STORE'S BOUNDARY KEEPS IT. SQLite has no
+        nested transactions, so beginning one here would fail and ending one
+        would commit or discard somebody else's decision. Their boundary is
+        already coherent, which is all this asks for.
+
+        AND THAT IS WHY IT IS NOT ON ITS OWN AN ANSWER TO DB-1. What this
+        yields under a caller's boundary is a coherent read of this database,
+        and nothing more: the boundary is still open when the body returns, so
+        a derivation that goes on to OBSERVE another store would observe under
+        it. `projection.status` and `projection.stage_states` therefore ask
+        `holds_transaction` and refuse BEFORE the first observation rather
+        than relying on this contextmanager to have released anything.
+
+        NOT A WRITE, AND USABLE ON A READ-ONLY HANDLE. The body only SELECTs
+        and the boundary is ended with `ROLLBACK`, so `open_readonly`'s
+        `mode=ro` connection runs it exactly as a serving manager's does.
+        """
+        # THE CLOSED-HANDLE CASE COMES THROUGH THE SAME QUESTION. Asking the
+        # driver directly raised a raw `sqlite3.ProgrammingError` here, ahead
+        # of everything below, so a caller got the driver's vocabulary for a
+        # condition DB-6 names a typed refusal. `holds_transaction` is the one
+        # place that answers it.
+        if self.holds_transaction():
+            yield self
+            return
+        connection = self._connection
+        try:
+            connection.execute("BEGIN DEFERRED")
+            # The statement that actually TAKES the snapshot. See above.
+            connection.execute("SELECT 1 FROM sqlite_master LIMIT 1").fetchall()
+        except sqlite3.Error as failure:
+            try:
+                connection.execute("ROLLBACK")
+            except sqlite3.Error:
+                pass
+            if _is_contention(failure):
+                # THE CLOSED PAIR, and `unavailable` is the honest category: a
+                # held lock is a transient fact about the file, nothing was
+                # read and nothing was changed, so asking again later is safe.
+                # `transport` is §9's code for a carrier that could not be
+                # reached, which is what a database this process cannot get a
+                # read view of is.
+                raise ContractRefusal(
+                    "unavailable", "transport",
+                    f"the Job store at "
+                    f"{name_value(self._path_of(connection))} could not be "
+                    f"read coherently within "
+                    f"{_BUSY_TIMEOUT_MS} ms because another connection holds "
+                    f"the lock a single read view needs; nothing was changed "
+                    f"and reading again later is safe") from None
+            raise ContractRefusal(
+                "integrity", "schema",
+                f"the Job store at {name_value(self._path_of(connection))} "
+                f"would not open a read view "
+                f"({name_value(type(failure).__name__)}); a derivation reads "
+                f"every table it composes at one moment and will not compose "
+                f"one from several") from None
+        try:
+            yield self
+        finally:
+            # A READ BOUNDARY IS DISCARDED RATHER THAN COMMITTED. There is
+            # nothing to keep, and `ROLLBACK` is what a `mode=ro` connection
+            # can always do.
+            try:
+                connection.execute("ROLLBACK")
+            except sqlite3.Error:
+                pass
 
     # -- the atomic boundary -------------------------------------------------
 

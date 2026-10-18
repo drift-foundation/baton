@@ -1,0 +1,15 @@
+..................................................................F...................................................................................................................................................................................................................................................................................................................................................
+======================================================================
+FAIL: test_a_failed_read_reports_SQLITES_WORDS_and_the_MEASURED_condition (tests.job_manager.test_store_readonly.EveryFailurePathRELEASESItsHandle.test_a_failed_read_reports_SQLITES_WORDS_and_the_MEASURED_condition)
+W316915. The refusal used to carry the exception CLASS and no more.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_store_readonly.py", line 365, in test_a_failed_read_reports_SQLITES_WORDS_and_the_MEASURED_condition
+    self.assertIn("jobs.sqlite3", said)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'jobs.sqlite3' not found in "the Job store at '/home/sl/src/baton/.wi-nn7ol1wi/v12-job-manager-zi7akbwk/jo… could not be read through its non-writing opener (DatabaseError/SQLITE_NOTADB: 'file is not a database'); no write-capable fallback was attempted and nothing was changed. This process may read and may write the store, and may write its directory '/home/sl/src/baton/.wi-nn7ol1wi/v12-job-manager-zi7akbwk'; the SQLite sidecars beside it are none."
+
+----------------------------------------------------------------------
+Ran 406 tests in 5.367s
+
+FAILED (failures=1)

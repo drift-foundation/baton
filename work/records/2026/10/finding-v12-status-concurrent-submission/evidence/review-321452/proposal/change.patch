@@ -1,0 +1,508 @@
+diff --git a/v12/python/src/baton_v12/job_manager/projection.py b/v12/python/src/baton_v12/job_manager/projection.py
+index a67f36c5..c280e8cb 100644
+--- a/v12/python/src/baton_v12/job_manager/projection.py
++++ b/v12/python/src/baton_v12/job_manager/projection.py
+@@ -34,6 +34,8 @@ nothing produced.
+ 
+ import json
+ 
++from ..contracts import ContractRefusal
++from ..contracts.errors import name_value
+ from ..worker_manager import boundaries
+ from . import (delegation, documents, ending, episodes, execution_limits,
+                scheduler, schema,
+@@ -553,6 +555,60 @@ def materialized(store, stages=None):
+                     store, job["job_id"]) for job in jobs}}
+ 
+ 
++def _observing_outside_a_boundary(store, what):
++    """Refuse a derivation that would OBSERVE under this store's transaction.
++
++    W319114 (correction). THE HOLE THE FIRST PASS LEFT. `materialized` takes
++    one read view and releases it, so the two-phase shape holds for a caller
++    that owns no transaction of its own. A caller that ALREADY holds one is
++    the case `read_snapshot` deliberately does not touch -- SQLite has no
++    nested transactions and ending somebody else's boundary would commit or
++    discard their decision -- so the view it yields is theirs and is STILL
++    OPEN when `materialized` returns. The loop below then asked the Worker
++    Manager for an observation per live stage with this store's transaction
++    held, which is exactly what DB-1 forbids and, because the observation is
++    another store's, what DB-4 forbids as well. Reachable with no raw SQL:
++
++        with store.read_snapshot():
++            projection.status(store, operations, observed_at=NOW)
++
++    SO THE DERIVATION REFUSES, AND REFUSES FIRST. The answer is not to end
++    the caller's boundary and not to observe under it; both of those are the
++    defect wearing different clothes. It is to say, before anything external
++    is attempted, that this composition cannot be made from inside a
++    transaction -- the caller is holding the one thing that makes it illegal,
++    and only the caller can release it.
++
++    BEFORE, NOT AFTER, AND UNCONDITIONALLY. The check is the first statement
++    of each observing entry point rather than a test inside the per-stage
++    loop, so an empty store refuses identically to a populated one and no
++    partial set of observations is ever acquired. `refused`/`precondition` is
++    §9's pair for a caller-side condition that was never met: nothing was
++    read from the other store, nothing was changed, and asking again after
++    the boundary is released succeeds.
++
++    `materialized` ITSELF IS STILL LEGITIMATE HERE and is deliberately not
++    guarded. It reads only this store's own rows and takes no `operations`
++    handle, which is precisely what DB-1 permits inside a transaction.
++    """
++    if not store.holds_transaction():
++        return
++    raise ContractRefusal(
++        "refused", "precondition",
++        f"{what} was asked of the Job store while the caller still holds "
++        f"that store's own transaction (handle "
++        f"{name_value(store.incarnation)}); composing it reads the Worker "
++        f"Manager's canonical observation of every live stage, and DB-1 "
++        f"forbids external I/O while a transaction is held, as DB-4 forbids "
++        f"calling another store while retaining this one's. Leave "
++        f"the `read_snapshot` block -- or commit or roll back the "
++        f"transaction you began -- and ask again; to read only this store's "
++        f"own rows from inside your boundary, use "
++        f"`projection.materialized`, which takes no operations handle. No "
++        f"observation was attempted, nothing was changed, and your "
++        f"transaction is untouched and still open")
++
++
+ def stage_states(store, operations, stages=None, snapshot=None):
+     """Every stage's state and its canonical observation, in one pass.
+ 
+@@ -582,10 +638,23 @@ def stage_states(store, operations, stages=None, snapshot=None):
+     the canonical observations are acquired afterwards, outside it. So a
+     concurrent `submit` or correction can no longer commit between two of this
+     pass's reads, and no observation, failed or otherwise, is ever attempted
+-    while this store holds a transaction. `snapshot` lets a caller that needs
++    while this store holds a transaction.
++
++    AND A CALLER THAT ALREADY HELD ONE IS REFUSED RATHER THAN SERVED. Two
++    phases are only two phases when the first one's boundary was this pass's
++    to release; inside a caller's own `read_snapshot` it is not, and the loop
++    below would observe under it. `_observing_outside_a_boundary` says so
++    before the materialization, which is where that correction lives.
++
++    `snapshot` lets a caller that needs
+     MORE of that same view -- `status` needs the Job rows and the ceilings --
+     take it once and derive everything from it rather than taking a second.
+     """
++    # W319114 (correction): BEFORE THE MATERIALIZATION AND BEFORE EVERY
++    # OBSERVATION. A caller that holds this store's own transaction gets a
++    # refusal rather than three external reads taken under it; see
++    # `_observing_outside_a_boundary`.
++    _observing_outside_a_boundary(store, "a stage-state derivation")
+     snapshot = (snapshot if snapshot is not None
+                 else materialized(store, stages))
+     held = {}
+@@ -842,6 +911,11 @@ def status(store, operations, *, observed_at):
+     # had no entry for -- `held[row["stage_id"]]`, `KeyError`. Both halves now
+     # come from the same read view; see `materialized` for why that view is
+     # released before a single observation is acquired.
++    # W319114 (correction): AND NOT FROM INSIDE A CALLER'S OWN BOUNDARY AT
++    # ALL. `stage_states` asks the same question a line later; asking it here
++    # too is what makes the refusal precede the materialization rather than
++    # follow a read whose answer would be thrown away.
++    _observing_outside_a_boundary(store, "a status document")
+     snapshot = materialized(store)
+     held = stage_states(store, operations, snapshot=snapshot)
+     jobs = []
+diff --git a/v12/python/src/baton_v12/job_manager/store.py b/v12/python/src/baton_v12/job_manager/store.py
+index 6898e2ba..7f86c61b 100644
+--- a/v12/python/src/baton_v12/job_manager/store.py
++++ b/v12/python/src/baton_v12/job_manager/store.py
+@@ -816,6 +816,41 @@ class JobStore:
+ 
+     # -- the coherent read boundary ------------------------------------------
+ 
++    def holds_transaction(self):
++        """Whether a transaction of THIS handle's is already open.
++
++        W319114 (correction). PUBLIC because a derivation that goes on to read
++        ANOTHER store has to be able to ask before it does. `read_snapshot`
++        preserves a caller's own boundary rather than nesting or ending it,
++        which is right -- but it means "the boundary is released by the time
++        this returns" is true of the owning caller only. A pass that observes
++        the Worker Manager therefore cannot infer from its own structure that
++        no transaction is held; it has to ASK THE STORE, and DB-6 says that
++        question belongs to the owner's public API rather than to a reader
++        reaching into `_connection`.
++
++        A READ TRANSACTION COUNTS. `in_transaction` is true of `BEGIN
++        DEFERRED` that has read a page, and DB-1 says read transactions are
++        not an escape from the rule -- so this answers the question DB-1 asks,
++        not the narrower "is a write pending".
++
++        A CLOSED HANDLE IS A TYPED REFUSAL, which is DB-6's own words. The
++        driver raises `sqlite3.ProgrammingError` for this, and a caller that
++        asked this distribution a question is owed this distribution's answer;
++        the handle is named by its incarnation because every other name for it
++        would have to be read from the connection that is gone.
++        """
++        try:
++            return self._connection.in_transaction
++        except sqlite3.ProgrammingError:
++            raise ContractRefusal(
++                "refused", "precondition",
++                f"the Job store handle {name_value(self.incarnation)} is "
++                f"closed, so it can neither be read nor say whether a "
++                f"transaction is open on it; open the store again before "
++                f"reading it. Nothing was read and nothing was "
++                f"changed") from None
++
+     @contextlib.contextmanager
+     def read_snapshot(self):
+         """One coherent read of THIS STORE's own rows, and nothing else.
+@@ -851,14 +886,27 @@ class JobStore:
+         would commit or discard somebody else's decision. Their boundary is
+         already coherent, which is all this asks for.
+ 
++        AND THAT IS WHY IT IS NOT ON ITS OWN AN ANSWER TO DB-1. What this
++        yields under a caller's boundary is a coherent read of this database,
++        and nothing more: the boundary is still open when the body returns, so
++        a derivation that goes on to OBSERVE another store would observe under
++        it. `projection.status` and `projection.stage_states` therefore ask
++        `holds_transaction` and refuse BEFORE the first observation rather
++        than relying on this contextmanager to have released anything.
++
+         NOT A WRITE, AND USABLE ON A READ-ONLY HANDLE. The body only SELECTs
+         and the boundary is ended with `ROLLBACK`, so `open_readonly`'s
+         `mode=ro` connection runs it exactly as a serving manager's does.
+         """
+-        connection = self._connection
+-        if connection.in_transaction:
++        # THE CLOSED-HANDLE CASE COMES THROUGH THE SAME QUESTION. Asking the
++        # driver directly raised a raw `sqlite3.ProgrammingError` here, ahead
++        # of everything below, so a caller got the driver's vocabulary for a
++        # condition DB-6 names a typed refusal. `holds_transaction` is the one
++        # place that answers it.
++        if self.holds_transaction():
+             yield self
+             return
++        connection = self._connection
+         try:
+             connection.execute("BEGIN DEFERRED")
+             # The statement that actually TAKES the snapshot. See above.
+diff --git a/v12/python/tests/job_manager/test_status.py b/v12/python/tests/job_manager/test_status.py
+index 4eaf44e7..2289f80f 100644
+--- a/v12/python/tests/job_manager/test_status.py
++++ b/v12/python/tests/job_manager/test_status.py
+@@ -806,3 +806,316 @@ class ConcurrentSubmission(StatusCase):
+                                    incarnation="jobs-monitor",
+                                    clock=self.clock)
+         self.assertEqual(caught.exception.category, "refused")
++
++
++class ObservingInsideACallersBoundary(StatusCase):
++    """W319114 (correction) -- a derivation that would OBSERVE refuses.
++
++    WHAT THE FIRST PASS LEFT OPEN. `materialized` takes one read view of this
++    database and releases it before a single observation, which is the whole
++    two-phase shape -- for a caller that owns no transaction of its own.
++    `read_snapshot` deliberately does NOT touch a caller's existing boundary:
++    SQLite has no nested transactions and ending somebody else's would commit
++    or discard a decision this read had nothing to do with. So inside
++
++        with store.read_snapshot():
++            projection.status(store, operations, observed_at=NOW)
++
++    the view is the caller's, it is still open when `materialized` returns,
++    and `stage_states` then asked the Worker Manager for an observation per
++    live stage with a Job-store transaction HELD. Measured: three external
++    observations with `in_transaction` true, through the public API, with no
++    raw SQL and no hostile store. DB-1 forbids external I/O under a
++    transaction and DB-4 forbids calling another store while retaining this
++    one's, so that is the accepted outcome violated from the one direction
++    the boundary could not close by itself.
++
++    WHAT THESE CASES ESTABLISH, AND WHY THEY RECORD STATES. A case that only
++    asserts "a refusal was raised" would pass just as well against a build
++    that observed three times and then refused, which is the thing being
++    excluded. So each one wraps `delegation.observation_of`, records
++    `in_transaction` AT EVERY CALL, and asserts the recorded list contains no
++    `True` -- the exclusion itself, not a proxy for it.
++
++    AND THE CALLER'S TRANSACTION IS NOT THE PRICE. Refusing by committing or
++    rolling back somebody else's boundary would be the same defect with a
++    tidier symptom: their work would be decided by a read-only derivation
++    that was never asked to decide it. It is left exactly as it was found,
++    open and pending.
++    """
++
++    def setUp(self):
++        super().setUp()
++        self.reader = JobStore.open_readonly(
++            self.job_path, authority_uuid=UUID, incarnation="jobs-monitor",
++            clock=self.clock)
++        self.addCleanup(self.reader.close)
++
++    def watched(self, store):
++        """Record `in_transaction` at EVERY observation, and keep observing.
++
++        The real `observation_of` still runs, so a build that does not refuse
++        reaches its ordinary answer and the recorded states are what it
++        actually did rather than what a stub made it do.
++        """
++        seen = []
++        real = delegation.observation_of
++
++        def recording(operations, stage, held):
++            seen.append(store._connection.in_transaction)
++            return real(operations, stage, held)
++
++        delegation.observation_of = recording
++        self.addCleanup(setattr, delegation, "observation_of", real)
++        return seen
++
++    def populated(self):
++        submit(self.jobs, submission())
++        sweep(self.jobs, self.acts, now=NOW)
++
++    def held(self, store):
++        """Open the caller's OWN boundary and guarantee it is ended here."""
++        self.addCleanup(lambda: store._connection.in_transaction
++                        and store._connection.execute("ROLLBACK"))
++
++    # -- 1. the behavioural exclusion -----------------------------------------
++
++    def test_a_status_inside_the_callers_own_read_view_observes_NOTHING(self):
++        """The measured case, asserted by what the other store was asked."""
++        self.populated()
++        seen = self.watched(self.reader)
++        self.held(self.reader)
++        with self.reader.read_snapshot():
++            with self.assertRaises(ContractRefusal) as caught:
++                status(self.reader, self.acts, observed_at=LATER)
++            # AND THE CALLER'S VIEW IS UNTOUCHED, still open around the
++            # refusal that was raised inside it.
++            self.assertTrue(self.reader._connection.in_transaction)
++        # NO OBSERVATION RAN AT ALL, and none ran under a transaction. The
++        # second assertion is the rule; the first is how this build keeps it.
++        self.assertEqual(seen, [])
++        self.assertNotIn(True, seen)
++        self.assertEqual((caught.exception.category, caught.exception.code),
++                         ("refused", "precondition"))
++
++    def test_the_refusal_names_what_was_done_and_what_to_do_instead(self):
++        self.populated()
++        self.held(self.jobs)
++        with self.jobs.read_snapshot():
++            with self.assertRaises(ContractRefusal) as caught:
++                status(self.jobs, self.acts, observed_at=LATER)
++        said = str(caught.exception)
++        self.assertIn("a status document", said)
++        self.assertIn("still holds that store's own transaction", said)
++        self.assertIn("'jobs-1'", said)
++        self.assertIn("DB-1", said)
++        self.assertIn("DB-4", said)
++        self.assertIn("read_snapshot", said)
++        self.assertIn("projection.materialized", said)
++        self.assertIn("No observation was attempted", said)
++        self.assertIn("nothing was changed", said)
++
++    def test_the_SAME_status_succeeds_once_the_boundary_is_released(self):
++        """The refusal is about WHEN it was asked, and says so by being
++        transient: the identical call one line later answers in full."""
++        self.populated()
++        self.held(self.reader)
++        with self.reader.read_snapshot():
++            with self.assertRaises(ContractRefusal):
++                status(self.reader, self.acts, observed_at=LATER)
++        seen = self.watched(self.reader)
++        document = status(self.reader, self.acts, observed_at=LATER)
++        self.assertEqual(self.states(document),
++                         {"job-a/implementation": "offered",
++                          "job-a/review": "blocked",
++                          "job-b/implementation": "offered"})
++        self.assertNotIn(True, seen)
++        self.assertEqual(set(seen), {False})
++
++    # -- 2. the caller's work survives ----------------------------------------
++
++    def test_the_callers_transaction_is_still_open_and_still_PENDING(self):
++        """Neither committed nor discarded. The refusal decides nothing about
++        a boundary it did not open."""
++        self.populated()
++        seen = self.watched(self.jobs)
++        self.held(self.jobs)
++        self.jobs._connection.execute("BEGIN IMMEDIATE")
++        self.jobs._connection.execute(
++            "INSERT INTO meta (key, value) VALUES (?, ?)",
++            ("w319114-pending", "the caller's own uncommitted change"))
++        with self.assertRaises(ContractRefusal):
++            status(self.jobs, self.acts, observed_at=LATER)
++        self.assertEqual(seen, [])
++        # STILL OPEN.
++        self.assertTrue(self.jobs._connection.in_transaction)
++        # STILL PENDING, WHICH IS TWO FACTS. The caller's own connection can
++        # still see its change -- so nothing discarded it -- and no other
++        # connection can -- so nothing committed it.
++        self.assertEqual(self.pending_rows(self.jobs), 1)
++        self.assertEqual(self.pending_rows(self.reader), 0)
++        # AND THE CALLER STILL DECIDES. Rolling back is the caller's act, and
++        # it leaves the store exactly as a discarded change should.
++        self.jobs._connection.execute("ROLLBACK")
++        self.assertEqual(self.pending_rows(self.jobs), 0)
++
++    def test_the_callers_transaction_can_still_be_COMMITTED_afterwards(self):
++        """The other half: a caller that meant to keep its change keeps it."""
++        self.held(self.jobs)
++        self.jobs._connection.execute("BEGIN IMMEDIATE")
++        self.jobs._connection.execute(
++            "INSERT INTO meta (key, value) VALUES (?, ?)",
++            ("w319114-pending", "kept"))
++        with self.assertRaises(ContractRefusal):
++            status(self.jobs, self.acts, observed_at=LATER)
++        self.jobs._connection.execute("COMMIT")
++        self.assertEqual(self.pending_rows(self.reader), 1)
++
++    def pending_rows(self, store):
++        return store._connection.execute(
++            "SELECT count(*) FROM meta WHERE key = ?",
++            ("w319114-pending",)).fetchone()[0]
++
++    # -- 3. the standalone derivation holds the same line ---------------------
++
++    def test_stage_states_called_from_inside_a_boundary_refuses_too(self):
++        """`stage_states` is the pass the sweep and the owed-act derivation
++        come through, and it observes whether or not a status asked it to."""
++        self.populated()
++        seen = self.watched(self.reader)
++        self.held(self.reader)
++        with self.reader.read_snapshot():
++            with self.assertRaises(ContractRefusal) as caught:
++                projection.stage_states(self.reader, self.acts)
++            # STILL INSIDE THE CALLER'S OWN BOUNDARY: the refusal did not end
++            # the read view it was raised under.
++            self.assertTrue(self.reader._connection.in_transaction)
++        self.assertEqual(seen, [])
++        self.assertNotIn(True, seen)
++        self.assertEqual((caught.exception.category, caught.exception.code),
++                         ("refused", "precondition"))
++        self.assertIn("a stage-state derivation", str(caught.exception))
++        self.assertFalse(self.reader._connection.in_transaction)
++
++    def test_stage_states_leaves_the_writers_pending_change_alone_too(self):
++        self.populated()
++        self.held(self.jobs)
++        self.jobs._connection.execute("BEGIN IMMEDIATE")
++        self.jobs._connection.execute(
++            "INSERT INTO meta (key, value) VALUES (?, ?)",
++            ("w319114-pending", "the caller's own uncommitted change"))
++        with self.assertRaises(ContractRefusal):
++            projection.stage_states(self.jobs, self.acts)
++        self.assertTrue(self.jobs._connection.in_transaction)
++        self.assertEqual(self.pending_rows(self.jobs), 1)
++        self.assertEqual(self.pending_rows(self.reader), 0)
++
++    # -- 4. the failure paths -------------------------------------------------
++
++    def test_an_EMPTY_store_refuses_identically(self):
++        """Nothing to observe is not the same as nothing to refuse. A check
++        placed inside the per-stage loop would pass this case by doing
++        nothing, and the next populated caller would observe under the
++        boundary again."""
++        seen = self.watched(self.reader)
++        self.held(self.reader)
++        with self.reader.read_snapshot():
++            with self.assertRaises(ContractRefusal) as caught:
++                status(self.reader, self.acts, observed_at=NOW)
++            with self.assertRaises(ContractRefusal):
++                projection.stage_states(self.reader, self.acts)
++        self.assertEqual(seen, [])
++        self.assertEqual((caught.exception.category, caught.exception.code),
++                         ("refused", "precondition"))
++
++    def test_an_observation_that_would_itself_FAIL_is_never_attempted(self):
++        """The point is not which refusal wins. It is that the external read
++        does not happen: a build that observed and then reported the
++        observation's own failure would have performed exactly the I/O DB-1
++        forbids, and would look like a transport problem while doing it."""
++        self.populated()
++        attempts = []
++        real = delegation.observation_of
++
++        def exploding(operations, stage, held):
++            attempts.append(self.reader._connection.in_transaction)
++            raise ContractRefusal("unavailable", "transport",
++                                  "the canonical store could not be read")
++
++        delegation.observation_of = exploding
++        self.addCleanup(setattr, delegation, "observation_of", real)
++        self.held(self.reader)
++        with self.reader.read_snapshot():
++            with self.assertRaises(ContractRefusal) as caught:
++                status(self.reader, self.acts, observed_at=LATER)
++        self.assertEqual(attempts, [])
++        self.assertEqual(caught.exception.code, "precondition")
++        self.assertNotIn("could not be read", str(caught.exception))
++
++    def test_an_UNOBSERVED_derivation_refuses_on_the_same_rule(self):
++        """`Unobserved` performs no I/O, so this one is about the rule rather
++        than the measured harm: the derivation refuses on WHAT IT WOULD DO,
++        decided before the handle it would do it through is consulted. A
++        check that asked the operations handle first would be a second place
++        for the boundary rule to be got wrong."""
++        self.populated()
++        self.held(self.reader)
++        with self.reader.read_snapshot():
++            with self.assertRaises(ContractRefusal) as caught:
++                status(self.reader, Unobserved(), observed_at=LATER)
++        self.assertEqual(caught.exception.code, "precondition")
++
++    # -- what stays legitimate inside a caller's boundary ----------------------
++
++    def test_materialized_is_STILL_served_inside_the_callers_boundary(self):
++        """The refusal is scoped to the passes that go on to observe.
++        `materialized` reads only this store's own rows and takes no
++        `operations` handle, which is exactly what DB-1 permits under a
++        transaction -- so narrowing it here too would have cost a legitimate
++        read to fix an illegitimate one."""
++        self.populated()
++        self.held(self.reader)
++        with self.reader.read_snapshot():
++            snapshot = projection.materialized(self.reader)
++        self.assertEqual(sorted(snapshot["owned"]),
++                         ["job-a/implementation", "job-a/review",
++                          "job-b/implementation"])
++        self.assertEqual(sorted(one["job_id"] for one in snapshot["jobs"]),
++                         ["job-a", "job-b"])
++
++    def test_the_question_itself_is_the_stores_own_and_is_public(self):
++        """`holds_transaction` is asked of the owner rather than read off its
++        connection: DB-6 makes the public owner API the boundary, and a
++        reader reaching into `_connection` would be a second account of a
++        fact this store already owns."""
++        self.assertFalse(self.jobs.holds_transaction())
++        self.held(self.jobs)
++        self.jobs._connection.execute("BEGIN IMMEDIATE")
++        self.assertTrue(self.jobs.holds_transaction())
++        self.jobs._connection.execute("ROLLBACK")
++        self.assertFalse(self.jobs.holds_transaction())
++        # AND A READ TRANSACTION COUNTS, which is the case DB-1 says is not an
++        # escape from the rule.
++        with self.reader.read_snapshot():
++            self.assertTrue(self.reader.holds_transaction())
++        self.assertFalse(self.reader.holds_transaction())
++
++    # -- the bounded secondary item -------------------------------------------
++
++    def test_a_CLOSED_handle_reports_this_distributions_refusal(self):
++        """`read_snapshot` asked `in_transaction` ahead of its own `try`, so a
++        closed handle raised a raw `sqlite3.ProgrammingError` and a caller got
++        the driver's vocabulary for a condition DB-6 names a typed refusal.
++        The same guard that asks the boundary question answers this one."""
++        closed = JobStore.open_readonly(
++            self.job_path, authority_uuid=UUID, incarnation="jobs-closed",
++            clock=self.clock)
++        closed.close()
++        with self.assertRaises(ContractRefusal) as caught:
++            with closed.read_snapshot():
++                raise AssertionError("the body must not run")
++        self.assertEqual((caught.exception.category, caught.exception.code),
++                         ("refused", "precondition"))
++        self.assertIn("'jobs-closed'", str(caught.exception))
++        self.assertIn("is closed", str(caught.exception))
++        self.assertIn("nothing was changed", str(caught.exception))

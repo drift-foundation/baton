@@ -1,0 +1,109 @@
+{
+  "base": "aa637298bac292058b659df5d147fbddd82c49a6",
+  "base_parent": "9055843b5d258f5bfbb523815d034ee0c14075d6",
+  "base_tree": "57f5d49cc89fd543345eddf84cb2a95f03eecfd0",
+  "bundle_verification": {
+    "command": "git bundle verify (read-only, against the host repository)",
+    "result": "okay; contains aa637298bac292058b659df5d147fbddd82c49a6, requires 9055843b5d258f5bfbb523815d034ee0c14075d6 which is host HEAD"
+  },
+  "claim": 319624,
+  "composed": {
+    "cleanup_seconds": 60,
+    "deployment_line_declared_base": "aa637298bac292058b659df5d147fbddd82c49a6",
+    "fixture_files_pinned_at": "candidate bytes, verified under the nominated source at bind",
+    "implementer_invocations": 1,
+    "provider_turn_seconds": 900,
+    "retry": false,
+    "task_declared_base": "aa637298bac292058b659df5d147fbddd82c49a6",
+    "task_instruction_bytes": 7398,
+    "total_seconds": 1500,
+    "verification_command_seconds": 30
+  },
+  "excluded": [
+    "no Job submitted",
+    "no provider or engine invoked",
+    "no container started",
+    "no credential contents read",
+    "no host product or test edit",
+    "no Git operation that writes, anywhere, by this agent",
+    "no reuse of the consumed run identity or authority",
+    "no canonical store access except through the v11 CLI"
+  ],
+  "host_repository": {
+    "head": "9055843b5d258f5bfbb523815d034ee0c14075d6",
+    "preparation_pins": "PREPARATION-PINS.json files+manager_files verified, no drift",
+    "product_tree": "clean; no product or test file is modified by this claim"
+  },
+  "measurements_on_the_pinned_base": [
+    {
+      "result": "83 tests PASS",
+      "seconds": 0.187,
+      "what": "frozen verification argv (tests.job_manager.test_status + test_store_readonly)",
+      "why": "the 30s verification bound is ample"
+    },
+    {
+      "result": "observation_transaction_states [true,true,true], released_after true",
+      "what": "R1 still reproduces (reviewer's retained evidence/review-319604/boundary_probe.py)",
+      "why": "the task describes a live blocker, not a historical one"
+    },
+    {
+      "result": "CONFIRMED KeyError 'job-a/implementation'",
+      "what": "original race at the repository baseline 9055843b (reproduce.py)"
+    },
+    {
+      "result": "no longer reproduces",
+      "what": "original race at the candidate aa637298b (same reproducer, retargeted imports)",
+      "why": "the accepted coherence work is genuinely in the base, so the task is right to forbid redoing it"
+    }
+  ],
+  "packet_script_sha256": "6647615dda05e599bfa847b475cf698f3483babf8e32d038bdfbf42ad6ff0fdd",
+  "packet_sha256": "11fdbf42da49b6b3a8d0bd781898bfed417d4dbd891ef84950ab62cdbf19fe9e",
+  "participant": "baton.claude",
+  "preflight_artifacts": {
+    "PACKET.json": "11fdbf42da49b6b3a8d0bd781898bfed417d4dbd891ef84950ab62cdbf19fe9e",
+    "adapter.json": "cbe3bb4ade990eb5411c64a40be74a10e46a79f48343c499b5f1a8453fabc9c7",
+    "commands.json": "5e8aa3e67d88bdfbde031f489bbec85837b1e904025520c5fbec93b197336f4c",
+    "deployment.json": "cfc1b5a141f28154a379ad6b215cc0f6d6f29fcf2dc90144e965054b3e072bba",
+    "policy.json": "d067a1a6fedc701501280564772c356f3cb8320de55460caf46e5fdfd5f40cd4",
+    "runtime-profile.json": "70ca07c494c9660bfaf747772f2233ccaf77b4ef3a4da90c26121b7b59ff1d34",
+    "submission.json": "becd331bbf26fcb0b7ed7a5aa0beec25c1ec194e86cbbbbaa5fa2500b0eb9e38",
+    "task.json": "24915457b44083f42b1104f84638b59f90f13768defd3c25969821e2c7a95b1a"
+  },
+  "preflight_authority_note": "disposable; the selected run mints its own at bootstrap and never reuses this",
+  "preflight_authority_uuid": "7e91b0038e8f4436976c5505c5377e8c",
+  "preflight_root": "/home/sl/baton-instances/preflight-r1-319624-c",
+  "preflight_source": "/home/sl/baton-instances/status-race-w319114-319417/packet/workspaces/.baton-review-lines/line-172a6abb6d872d27d42833ed6f89e5f74c385fdd81432e3ebd900c8a17f4e340/checkout",
+  "preflight_source_note": "the RETAINED candidate checkout from the consumed run, used read-only so the preparing agent performed no Git operation that writes. The owner's run uses --source reconstruct, which rebuilds the same commit from the host repository plus this dossier's bundle into <root>/source. Both routes pass the identical verified() gate.",
+  "residual_limits": [
+    "--source reconstruct is UNEXERCISED by this agent and runs first for the owner; it is the one step whose mechanics the preflight did not execute. Its output is gated by the same verified() checks, and the bundle was independently verified read-only, but the clone and fetch themselves are unproved until the operator runs them.",
+    "provider credentials and current authentication remain unproved",
+    "the selected durable destination has not been created",
+    "worker toolchain applicability rests on the selected image's history until a run verifies it"
+  ],
+  "role": "impl",
+  "schema": "baton.w319114-r1-preparation-preflight/1",
+  "state": "prepared-not-executed; PREFLIGHT ONLY in a disposable root",
+  "steps": [
+    {
+      "checks": "host+manager+evidence+review pins; candidate head/tree/parent/clean/4 file digests",
+      "outcome": "pass",
+      "step": "stage --source <retained checkout>"
+    },
+    {
+      "outcome": "pass",
+      "seconds": 0.624,
+      "step": "tools.bootstrap --no-repositories"
+    },
+    {
+      "checks": "staged manager digests, source re-verified, held_packet, verify_imported_sources",
+      "outcome": "pass",
+      "seconds": 0.427,
+      "step": "bind"
+    }
+  ],
+  "superseded_preflight_roots": [
+    "/home/sl/baton-instances/preflight-r1-319624-a (first full chain; same outcomes)",
+    "/home/sl/baton-instances/preflight-r1-319624-b (stage only, removed)"
+  ],
+  "work": "W319114"
+}

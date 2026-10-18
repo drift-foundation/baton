@@ -34,12 +34,15 @@ nothing produced.
 
 import json
 
+from ..contracts import ContractRefusal
+from ..contracts.errors import name_value
 from ..worker_manager import boundaries
 from . import (delegation, documents, ending, episodes, execution_limits,
                scheduler, schema,
                submission)
 
-__all__ = ["ACT_OUTCOMES", "EXCHANGE_OWED", "gates_of", "owed_acts",
+__all__ = ["ACT_OUTCOMES", "EXCHANGE_OWED", "gates_of", "materialized",
+           "owed_acts",
            "deferral_of", "owed_exchange", "receipt_rows", "receipts_of",
            "replaceable",
            "stage_states", "status"]
@@ -428,7 +431,185 @@ def _ending_owed(entry):
     return type(observed.get("output")) is dict
 
 
-def stage_states(store, operations, stages=None):
+def materialized(store, stages=None):
+    """Every JOB-OWNED row a derivation composes, read at ONE moment.
+
+    W319114. WHY THIS IS A SEPARATE FUNCTION AND WHY IT TAKES NO
+    `operations`. The projection joins eight of this store's tables and then
+    one other store's observations, and it used to read all nine in
+    autocommit statements one after another -- so a concurrent writer could
+    commit between any two of them and the composed answer described a state
+    the store never held. The measured defect is `status`: `stage_states` read
+    the stage rows, a public `submit` committed a new Job, and the Job and
+    stage rows read afterwards named a stage the projection had no entry for,
+    which raised `KeyError`. The same seam mixes an episode read before an
+    advancement with the receipts, ending, deferral and allocation of the
+    episode that replaced it.
+
+    SO THE JOB-OWNED HALF IS TAKEN UNDER ONE READ VIEW and the external half
+    is not taken here at all. The absent `operations` parameter is the
+    enforcement: DB-1 forbids external I/O under a transaction and DB-4
+    forbids calling another store while retaining this one's, and a function
+    that has no handle on the Worker Manager cannot reach it however it is
+    edited later. `stage_states` acquires the observations AFTER this returns.
+
+    WHAT IS INSIDE IS THIS DATABASE AND BOUNDED VALIDATION, which is what
+    DB-1 permits: `submission`, `episodes`, `ending`, `scheduler` and
+    `integration_capacity` reads of the store already given, each still
+    through its own owner's public reader, plus the `boundaries` row checks
+    those readers perform in memory. No filesystem, no engine, no callback.
+
+    AN EARLIER COHERENT MOMENT IS NOT AN OMISSION. A submission that commits
+    after this view is taken is absent from it WHOLE -- its Job, its stages
+    and its episodes together -- and the document it is absent from carries
+    the instant it was observed. What is excluded is a Job reported without
+    its stages, a stage reported without its Job, or an episode reported
+    beside another episode's receipts.
+
+    `stages` is the caller's own row set, unchanged in meaning: it is still
+    whatever rows were handed in, and only the remaining tables are read.
+    """
+    from .integration_capacity import failed_integration_of
+
+    with store.read_snapshot():
+        rows = stages if stages is not None else submission.stage_rows(store)
+        jobs = submission.job_rows(store)
+        owned = {}
+        for stage in rows:
+            stage_id = stage["stage_id"]
+            # NOTHING CANONICAL IS READ FOR A STAGE THAT HAS NO LIVE EPISODE,
+            # and that is not an optimization. Its identities belong to an
+            # attempt that is over; asking the manager about them would answer
+            # with the ended offer's own facts and project a finished attempt
+            # as this stage's current one.
+            live = episodes.live_of(store, stage_id)
+            owned[stage_id] = {
+                "stage": stage, "episode": live,
+                "attempt": (episodes.attempting(stage, live)
+                            if live is not None else None),
+                "history": episodes.episodes_of(store, stage_id),
+                # THE JOB THIS STAGE NAMES, read here rather than beside the
+                # observation it is handed to. It is a row of this store, so
+                # it belongs in this store's one read view; reading it later
+                # is how a stage could be described against a Job another
+                # moment held.
+                "job": submission.job_of(store, stage["job_id"]),
+                # W197661: AND NULL FOR A STAGE WITH NO LIVE EPISODE, on the
+                # same rule the receipts beneath follow -- a deferral belongs
+                # to the episode that owed the act, and a stage between an
+                # ending and its replacement owes nothing.
+                # ASKED WHETHER OR NOT THERE IS A LIVE EPISODE, because an
+                # unfinished ending outlives the attempt that owed it -- and
+                # the earlier note here saying it is null without a live
+                # episode is superseded by exactly that.
+                #
+                # `_settled_acts` is what tells an outstanding reason from a
+                # retained one; see `deferral_of`.
+                "deferral": deferral_of(store, stage_id,
+                                        _settled_acts(store, stage_id, live)),
+                "receipts": (receipts_of(store, stage_id, live["episode"])
+                             if live is not None else {}),
+                # W119733: THE OBLIGATION THIS STORE REGISTERED FOR THE LIVE
+                # EPISODE, and `None` for a stage that registered none. It is
+                # read here with the rest so `_ending_owed` decides from one
+                # moment's state, and it is read for the LIVE episode only --
+                # a prior episode's unsettled obligation is a stage that has
+                # moved on, and answering for it here would project a finished
+                # attempt as this stage's current one. Resuming those is the
+                # sweep's own pass.
+                # THE READER IS GIVEN NOTHING AND PROVES EVERYTHING. Review
+                # 2026-09-08T16-00-28Z [P2]: this handed down the stage row it
+                # already held, and a public reader that accepts a row cannot
+                # tell a pass that read it from a caller that invented one.
+                # The saving was one row lookup per stage; the cost was that
+                # the ownership proof depended on who was asking.
+                "ending": (ending.ending_of(store, stage_id, live["episode"])
+                           if live is not None else None),
+                "managed_failure": (
+                    failed_integration_of(store, stage_id, live["episode"])
+                    if live is not None and stage["kind"] == "integration"
+                    else None),
+                # THE ALLOCATION AXIS, IN THE SAME VIEW AS THE EPISODE THAT
+                # OWNS IT. `_stage_status` used to read these after the
+                # projection had been composed, which is how a status could
+                # name one episode's attempt beside a reservation made for
+                # the next one.
+                "allocation_refusal": (
+                    scheduler.allocation_refusal_of(store, live["attempt_id"])
+                    if live is not None else None),
+                "allocations": scheduler.allocation_rows(store, stage_id),
+                "allocation": (scheduler.allocation_of(store,
+                                                       live["attempt_id"])
+                               if live is not None else None)}
+        # THE JOBS AND THEIR STAGES, GROUPED FROM THE ONE ROW SET the states
+        # are derived from. `stages_of` would be a second read at a second
+        # moment, and that second moment is the defect: `stage_rows` orders by
+        # (job_id, ordinal) and `stages_of` by ordinal, so grouping here is
+        # the same answer taken from the view that already decided.
+        grouped = {job["job_id"]: [] for job in jobs}
+        for stage in rows:
+            grouped.setdefault(stage["job_id"], []).append(stage)
+        return {"jobs": jobs, "stages": rows, "owned": owned,
+                "stages_by_job": grouped,
+                "limits": {job["job_id"]: submission.execution_limits_of(
+                    store, job["job_id"]) for job in jobs}}
+
+
+def _observing_outside_a_boundary(store, what):
+    """Refuse a derivation that would OBSERVE under this store's transaction.
+
+    W319114 (correction). THE HOLE THE FIRST PASS LEFT. `materialized` takes
+    one read view and releases it, so the two-phase shape holds for a caller
+    that owns no transaction of its own. A caller that ALREADY holds one is
+    the case `read_snapshot` deliberately does not touch -- SQLite has no
+    nested transactions and ending somebody else's boundary would commit or
+    discard their decision -- so the view it yields is theirs and is STILL
+    OPEN when `materialized` returns. The loop below then asked the Worker
+    Manager for an observation per live stage with this store's transaction
+    held, which is exactly what DB-1 forbids and, because the observation is
+    another store's, what DB-4 forbids as well. Reachable with no raw SQL:
+
+        with store.read_snapshot():
+            projection.status(store, operations, observed_at=NOW)
+
+    SO THE DERIVATION REFUSES, AND REFUSES FIRST. The answer is not to end
+    the caller's boundary and not to observe under it; both of those are the
+    defect wearing different clothes. It is to say, before anything external
+    is attempted, that this composition cannot be made from inside a
+    transaction -- the caller is holding the one thing that makes it illegal,
+    and only the caller can release it.
+
+    BEFORE, NOT AFTER, AND UNCONDITIONALLY. The check is the first statement
+    of each observing entry point rather than a test inside the per-stage
+    loop, so an empty store refuses identically to a populated one and no
+    partial set of observations is ever acquired. `refused`/`precondition` is
+    §9's pair for a caller-side condition that was never met: nothing was
+    read from the other store, nothing was changed, and asking again after
+    the boundary is released succeeds.
+
+    `materialized` ITSELF IS STILL LEGITIMATE HERE and is deliberately not
+    guarded. It reads only this store's own rows and takes no `operations`
+    handle, which is precisely what DB-1 permits inside a transaction.
+    """
+    if not store.holds_transaction():
+        return
+    raise ContractRefusal(
+        "refused", "precondition",
+        f"{what} was asked of the Job store while the caller still holds "
+        f"that store's own transaction (handle "
+        f"{name_value(store.incarnation)}); composing it reads the Worker "
+        f"Manager's canonical observation of every live stage, and DB-1 "
+        f"forbids external I/O while a transaction is held, as DB-4 forbids "
+        f"calling another store while retaining this one's. Leave "
+        f"the `read_snapshot` block -- or commit or roll back the "
+        f"transaction you began -- and ask again; to read only this store's "
+        f"own rows from inside your boundary, use "
+        f"`projection.materialized`, which takes no operations handle. No "
+        f"observation was attempted, nothing was changed, and your "
+        f"transaction is untouched and still open")
+
+
+def stage_states(store, operations, stages=None, snapshot=None):
     """Every stage's state and its canonical observation, in one pass.
 
     The observation is kept beside the state because the status document
@@ -450,64 +631,46 @@ def stage_states(store, operations, stages=None):
     attempt's claim was projected here as this Job's. `observation_of` acquires
     and binds in one operation, and there is no unqualified attempt read left
     for this pass to make.
+
+    AND THE TWO HALVES ARE TAKEN IN TWO PHASES, which is W319114's effect
+    here. Every row this store owns comes from `materialized` -- ONE read view
+    of this database, already released by the time the loop below runs -- and
+    the canonical observations are acquired afterwards, outside it. So a
+    concurrent `submit` or correction can no longer commit between two of this
+    pass's reads, and no observation, failed or otherwise, is ever attempted
+    while this store holds a transaction.
+
+    AND A CALLER THAT ALREADY HELD ONE IS REFUSED RATHER THAN SERVED. Two
+    phases are only two phases when the first one's boundary was this pass's
+    to release; inside a caller's own `read_snapshot` it is not, and the loop
+    below would observe under it. `_observing_outside_a_boundary` says so
+    before the materialization, which is where that correction lives.
+
+    `snapshot` lets a caller that needs
+    MORE of that same view -- `status` needs the Job rows and the ceilings --
+    take it once and derive everything from it rather than taking a second.
     """
-    rows = stages if stages is not None else submission.stage_rows(store)
+    # W319114 (correction): BEFORE THE MATERIALIZATION AND BEFORE EVERY
+    # OBSERVATION. A caller that holds this store's own transaction gets a
+    # refusal rather than three external reads taken under it; see
+    # `_observing_outside_a_boundary`.
+    _observing_outside_a_boundary(store, "a stage-state derivation")
+    snapshot = (snapshot if snapshot is not None
+                else materialized(store, stages))
     held = {}
-    for stage in rows:
-        stage_id = stage["stage_id"]
-        history = episodes.episodes_of(store, stage_id)
-        live = episodes.live_of(store, stage_id)
-        # NOTHING CANONICAL IS READ FOR A STAGE THAT HAS NO LIVE EPISODE, and
-        # that is not an optimization. Its identities belong to an attempt that
-        # is over; asking the manager about them would answer with the ended
-        # offer's own facts and project a finished attempt as this stage's
-        # current one.
-        held[stage_id] = {
-            "stage": stage, "episode": live,
-            "attempt": (episodes.attempting(stage, live)
-                        if live is not None else None),
-            "history": history,
-            "observed": (delegation.observation_of(
-                operations, episodes.attempting(stage, live),
-                submission.job_of(store, stage["job_id"]))
-                if live is not None else delegation.unobserved()),
-            # W197661: AND NULL FOR A STAGE WITH NO LIVE EPISODE, on the same
-            # rule the receipts beneath follow -- a deferral belongs to the
-            # episode that owed the act, and a stage between an ending and its
-            # replacement owes nothing.
-            # ASKED WHETHER OR NOT THERE IS A LIVE EPISODE, because an
-            # unfinished ending outlives the attempt that owed it -- and the
-            # earlier note here saying it is null without a live episode is
-            # superseded by exactly that.
-            #
-            # `_settled_acts` is what tells an outstanding reason from a
-            # retained one; see `deferral_of`.
-            "deferral": deferral_of(store, stage_id,
-                                    _settled_acts(store, stage_id, live)),
-            "receipts": (receipts_of(store, stage_id, live["episode"])
-                         if live is not None else {}),
-            # W119733: THE OBLIGATION THIS STORE REGISTERED FOR THE LIVE
-            # EPISODE, and `None` for a stage that registered none. It is read
-            # here with the rest so `_ending_owed` decides from one moment's
-            # state, and it is read for the LIVE episode only -- a prior
-            # episode's unsettled obligation is a stage that has moved on, and
-            # answering for it here would project a finished attempt as this
-            # stage's current one. Resuming those is the sweep's own pass.
-            # THE READER IS GIVEN NOTHING AND PROVES EVERYTHING. Review
-            # 2026-09-08T16-00-28Z [P2]: this handed down the stage row it
-            # already held, and a public reader that accepts a row cannot tell
-            # a pass that read it from a caller that invented one. The saving
-            # was one row lookup per stage; the cost was that the ownership
-            # proof depended on who was asking.
-            "ending": (ending.ending_of(store, stage_id, live["episode"])
-                       if live is not None else None)}
-        from .integration_capacity import failed_integration_of
-        held[stage_id]["managed_failure"] = (failed_integration_of(store, stage_id, live["episode"])
-                                             if live is not None and stage["kind"] == "integration" else None)
+    for stage_id, owned in snapshot["owned"].items():
+        live = owned["episode"]
+        # THE OBSERVATION IS THE ONLY THING ASKED FOR HERE, and it is asked of
+        # the OTHER store -- so it is asked with no transaction of this one
+        # open. Everything it is composed from was materialized above.
+        held[stage_id] = dict(
+            owned,
+            observed=(delegation.observation_of(
+                operations, owned["attempt"], owned["job"])
+                if live is not None else delegation.unobserved()))
         held[stage_id]["state"] = _observed_state(held[stage_id])
         if held[stage_id]["state"] is None and live is not None \
-                and scheduler.allocation_refusal_of(
-                    store, live["attempt_id"]) is not None:
+                and owned["allocation_refusal"] is not None:
             held[stage_id]["state"] = "exceptional"
     for entry in held.values():
         if entry["state"] is not None:
@@ -741,13 +904,26 @@ def status(store, operations, *, observed_at):
     applies it. One tick, in a serving deployment; in a store nobody is
     advancing, exactly as stale as that store is.
     """
-    held = stage_states(store, operations)
+    # W319114: ONE MATERIALIZATION, AND EVERY ROW IN THIS DOCUMENT COMES FROM
+    # IT. The Job rows, their stage rows and their ceilings used to be read
+    # after `stage_states` had already derived from its own reads, so a
+    # submission committing in between gave this loop a stage the projection
+    # had no entry for -- `held[row["stage_id"]]`, `KeyError`. Both halves now
+    # come from the same read view; see `materialized` for why that view is
+    # released before a single observation is acquired.
+    # W319114 (correction): AND NOT FROM INSIDE A CALLER'S OWN BOUNDARY AT
+    # ALL. `stage_states` asks the same question a line later; asking it here
+    # too is what makes the refusal precede the materialization rather than
+    # follow a read whose answer would be thrown away.
+    _observing_outside_a_boundary(store, "a status document")
+    snapshot = materialized(store)
+    held = stage_states(store, operations, snapshot=snapshot)
     jobs = []
-    for job in submission.job_rows(store):
+    for job in snapshot["jobs"]:
         stages = []
-        for row in submission.stages_of(store, job["job_id"]):
+        for row in snapshot["stages_by_job"][job["job_id"]]:
             entry = held[row["stage_id"]]
-            stages.append(_stage_status(store, entry, held))
+            stages.append(_stage_status(entry, held))
         jobs.append(documents.job_status(
             job_id=job["job_id"], submission_id=job["submission_id"],
             input_digest=job["input_digest"],
@@ -760,7 +936,7 @@ def status(store, operations, *, observed_at):
             # compatibility defaults and writes nothing, and it reports what is
             # CONFIGURED rather than what any command observed -- configuration
             # alone is not evidence that a provider turn ever ran.
-            execution_limits=_job_limits(store, job["job_id"]),
+            execution_limits=_job_limits(snapshot, job["job_id"]),
             stages=stages))
     return documents.status(
         schema=documents.STATUS_SCHEMA, observed_at=observed_at,
@@ -772,23 +948,35 @@ def status(store, operations, *, observed_at):
         canonical=operations.canonical, jobs=jobs)
 
 
-def _job_limits(store, job_id):
+def _job_limits(snapshot, job_id):
     """One Job's effective ceilings, resolved through the generation it was
-    ADMITTED under rather than through this build's current constants."""
-    held = submission.execution_limits_of(store, job_id)
+    ADMITTED under rather than through this build's current constants.
+
+    The admitted row comes from the materialized view rather than from a fresh
+    read: a Job's ceilings are immutable once recorded, but reading them at a
+    second moment is how a Job could be reported whose row the first moment
+    did not have.
+    """
+    held = snapshot["limits"][job_id]
     return execution_limits.resolved(held["requested"],
                                      held["compatibility_generation"])
 
 
-def _stage_status(store, entry, held):
+def _stage_status(entry, held):
+    """One stage's reported document, composed from already-read rows.
+
+    W319114: IT READS NOTHING. The allocation axis used to be fetched here,
+    after the projection had been derived and the Job rows read, so a status
+    could name one episode's attempt beside a reservation belonging to the
+    next one. Both now travel on the entry `materialized` built.
+    """
     stage = entry["stage"]
     live = entry["episode"]
     observed = entry["observed"]
     frozen = observed.get("output")
     runtime = observed.get("runtime")
-    allocations = scheduler.allocation_rows(store, stage["stage_id"])
-    allocation = (scheduler.allocation_of(store, live["attempt_id"])
-                  if live is not None else None)
+    allocations = entry["allocations"]
+    allocation = entry["allocation"]
     return documents.stage_status(
         stage_id=stage["stage_id"], job_id=stage["job_id"],
         kind=stage["kind"], state=entry["state"], work_id=stage["work_id"],

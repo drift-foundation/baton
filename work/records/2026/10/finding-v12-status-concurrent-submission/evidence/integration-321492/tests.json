@@ -1,0 +1,20 @@
+{
+  "count": 253,
+  "failures": 0,
+  "errors": 3,
+  "seconds": 2.0260735529991507,
+  "modules": [
+    "test_status",
+    "test_store_readonly",
+    "test_sweep",
+    "test_scheduling",
+    "test_restart",
+    "test_recovery",
+    "test_exchange",
+    "test_ending",
+    "test_final_allocation_release"
+  ],
+  "source": "/home/sl/src/baton",
+  "disk_root": "/home/sl/src/baton/.wi-lirvrnwg",
+  "timeout_seconds": 60
+}

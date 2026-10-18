@@ -1,0 +1,1036 @@
+"""What a stage IS, derived rather than stored.
+
+W71875. THE ACCEPTANCE VOCABULARY IS A PROJECTION AND NOT A COLUMN. `queued`,
+`offered`, `claimed`, `running`, `reviewing`, `changes-requested`,
+`integrating`, `completed` and `exceptional` are computed here from two
+sources -- this store's receipts of the acts it delegated, and the Worker
+Manager's own public reads -- and written nowhere. A column saying "running"
+would be a second account of the runtime axis the manager owns, and the moment
+the two disagreed a restart would have to choose which to believe.
+
+DEPENDENCIES GATE ON `completed` AND NOTHING ELSE. A predecessor that ended in
+`exceptional` leaves its successors blocked, and this leaf does not reopen it:
+the first slice's terminal policy is to report and contain. So a gate that
+will never open is REPORTED as closed rather than quietly treated as satisfied.
+
+AND `changes-requested` IS NO LONGER ONE OF THOSE, which is W103076's whole
+effect here. It was terminal because nothing could open the next round; now
+`episodes.advance_correction` ends both of a Job's episodes and opens both
+successors in one act, and this projection needs NO new rule to describe the
+result. The implementation stage's fresh episode has no receipts, so it falls
+back to `queued` exactly as an unstarted one does; the review stage's gate
+reads its dependency as `queued` rather than `completed`, so it closes again
+by itself. A `changes-requested` state is therefore what a Job looks like
+between a verdict and its correction act, rather than where a Job stops.
+
+WHAT THE RUNTIME PROJECTION CARRIES, and what it deliberately does not. The
+manager's durable runtime facts are the runtime id, the execution runtime and
+the fixed assignment, so those are what a status document names. W71830's
+worker-pool ruling separates `worker_id`, `incarnation_id` and `assignment_id`
+as three identities; the first two are W71877's to introduce, and inventing
+placeholder values for them here would put a fact in an operator's hands that
+nothing produced.
+"""
+
+import json
+
+from ..contracts import ContractRefusal
+from ..contracts.errors import name_value
+from ..worker_manager import boundaries
+from . import (delegation, documents, ending, episodes, execution_limits,
+               scheduler, schema,
+               submission)
+
+__all__ = ["ACT_OUTCOMES", "EXCHANGE_OWED", "gates_of", "materialized",
+           "owed_acts",
+           "deferral_of", "owed_exchange", "receipt_rows", "receipts_of",
+           "replaceable",
+           "stage_states", "status"]
+
+# What one sweep can answer about one owed act.
+ACT_OUTCOMES = ("performed", "adopted", "deferred", "refused")
+
+# How a frozen result's disposition -- the manager's own closed vocabulary --
+# reaches the vocabulary an operator reads. `plan-rejected` is a REVIEW's
+# verdict, so it means changes were requested; on any other stage the same
+# disposition is an ending nobody planned for, which is exceptional and is
+# reported as such rather than rounded to the nearest happy state.
+_DISPOSITIONS = {"completed": "completed", "unable": "exceptional",
+                 "cancelled": "exceptional"}
+
+# Which state a claimed stage with a live runtime is IN, by what the stage is
+# for. One vocabulary, three kinds, written down rather than inferred.
+_RUNNING = {"implementation": "running", "review": "reviewing",
+            "integration": "integrating"}
+
+
+def receipt_rows(store):
+    return [boundaries.row(record, "a persisted receipt",
+                           schema.RECEIPT_COLUMNS)
+            for record in store._connection.execute(
+                "SELECT * FROM receipts ORDER BY stage_id, episode, act"
+            ).fetchall()]
+
+
+def receipts_of(store, stage_id, episode):
+    """Every receipt for ONE EPISODE of one stage, keyed by the act.
+
+    W73629 put the episode in the key. A replacement legitimately performs its
+    own `admit`, and a reader that gathered a stage's receipts across every
+    episode would see the abandoned attempt's `admit` and conclude the fresh
+    episode had already been offered -- which is the wedge, one layer up.
+    """
+    boundaries.identity(stage_id, "a stage id")
+    return {record["act"]: record for record in
+            [boundaries.row(entry, "a persisted receipt",
+                            schema.RECEIPT_COLUMNS)
+             for entry in store._connection.execute(
+                 "SELECT * FROM receipts WHERE stage_id = ? AND episode = ? "
+                 "ORDER BY act", (stage_id, episode)).fetchall()]}
+
+
+def replaceable(entry):
+    """Whether this stage owes a FRESH episode because its last one ended.
+
+    Only an ending in the closed replaceable set answers yes. An episode that
+    ended any other way is a stage that stopped, and it is projected as such
+    rather than re-offered on this leaf's own authority.
+    """
+    if entry["episode"] is not None or not entry["history"]:
+        return False
+    return (entry["history"][-1]["ended_state"]
+            in documents.REPLACEABLE_ENDINGS)
+
+
+def _observed_state(entry):
+    """One stage's state from evidence, before dependencies are considered.
+
+    Returns `None` when nothing has happened to this stage's CURRENT episode
+    yet, which is the only case where the gates decide between `blocked` and
+    `queued`.
+
+    NO LIVE EPISODE IS TWO DIFFERENT ANSWERS, and W73629 exists because they
+    were one. A stage whose episode ended in a replaceable way owes a fresh
+    one and is back where an unstarted stage is -- `None` here, so the gates
+    decide. A stage whose episode ended any other way is over: an operator has
+    to see that, so it is `exceptional` rather than a stage that will quietly
+    be offered again.
+    """
+    stage = entry["stage"]
+    receipts = entry["receipts"]
+    observed = entry["observed"]
+    if entry["episode"] is None:
+        return None if replaceable(entry) else "exceptional"
+    if (entry.get("managed_failure") or {}).get("settled"):
+        return "exceptional"
+    # A DURABLY REFUSED ACT IS THE FIRST ANSWER. Whatever else is true of the
+    # stage, an act this control plane delegated and the manager refused for
+    # good is a condition an operator has to see rather than a state to keep
+    # sweeping past.
+    if any(record["state"] == "refused" for record in receipts.values()):
+        return "exceptional"
+    # AND SO IS A START THIS MANAGER RECORDED AS FAILED. W76207: the runtime
+    # axis alone could not say this. A failed start is journalled as the
+    # manager's own act and reconciliation may ATTACH a runtime id afterwards,
+    # so a projection reading only `runtime` reported a stage as `running` on
+    # the strength of an identity its start never earned. The owner's record
+    # decides, and it is read before the runtime is looked at rather than
+    # after, so the attached identity never gets to answer first.
+    # ...AND SO IS A PREPARATION THIS MANAGER RECORDED AS FAILED. Re-review
+    # [P1]: the two are one answer to this projection and two facts to the
+    # manager, which is why they are asked as two members and joined here. A
+    # preparation that refused never reached an adapter, so it carries no
+    # runtime the axis could have reported either.
+    if observed.get("start_failure") is not None \
+            or observed.get("preparation_failure") is not None:
+        return "exceptional"
+    # W126558: AND THEN AN INTEGRATION STAGE'S OWN OBSERVATION, before the
+    # generic worker rules and after every named earlier failure guard.
+    #
+    # Review 2026-09-09T09:13Z [2] and [3]. This branch used to sit below
+    # `_ending_owed`, the frozen output and the uncertain-runtime test, and
+    # each of those three answered first about evidence that was never an
+    # integration attempt's: a `held` document beside somebody's frozen output
+    # projected `answering` and owed a conclude the pinned held outcome does
+    # not, and a validated `completed` account projected `exceptional` after a
+    # later uncertain refresh -- although a completed integration is
+    # HISTORICAL evidence of the fixed assignment, and a mutable axis read
+    # afterwards is not a fact about it.
+    #
+    # THE UNCERTAINTY HOLD IS NOT LOST, it is placed where OBSERVATION.md puts
+    # it: on `unstarted`, `pending` and `answered`, inside `_integrating`,
+    # where it suppresses the automatic act those three would otherwise earn.
+    integrated = observed.get("integration")
+    if type(integrated) is dict:
+        return _integrating(integrated, observed.get("runtime"))
+    # W81857 review 2026-09-04T03-43-45Z [P1]: THE ENDING IS OWED UNTIL ITS
+    # LAST SUBSTEP IS SETTLED, AND A FROZEN OUTPUT IS NOT THAT SUBSTEP.
+    #
+    # This used to give any frozen output precedence, and `EXCHANGE_OWED` asks
+    # `conclude` only for `answering` -- so a process death after
+    # `request_freeze` and before intake, retention, the Authority pass and
+    # cleanup left durable frozen output that every later sweep read as
+    # `completed`. The remaining owed acts were never replayed: the Work was
+    # reported finished while its assignment was still live and its result had
+    # never reached the review Route.
+    #
+    # The freeze is the THIRD of seven steps. What says the ending finished is
+    # the manager's own cleanup axis, which `authorize_cleanup` is the last
+    # step to move, so an answered exchange keeps owing `conclude` until that
+    # axis is terminal however much of the middle already committed.
+    if _ending_owed(entry):
+        return "answering"
+    frozen = observed.get("output")
+    if type(frozen) is dict:
+        disposition = frozen.get("disposition")
+        if disposition == "plan-rejected":
+            return ("changes-requested" if stage["kind"] == "review"
+                    else "exceptional")
+        if disposition in _DISPOSITIONS:
+            return _DISPOSITIONS[disposition]
+        # A disposition this build does not recognise is not read as the least
+        # alarming one. The manager's vocabulary is closed, so an unknown
+        # member means this build and that store disagree about what a
+        # disposition is.
+        return "exceptional"
+    if observed.get("claimed_by") is not None or "claim" in receipts:
+        runtime = observed.get("runtime")
+        if type(runtime) is dict \
+                and runtime.get("execution_runtime") == "uncertain":
+            return "exceptional"
+        if type(runtime) is dict and runtime.get("runtime_id") is not None:
+            return _conversing(entry)
+        return "claimed"
+    if "admit" in receipts:
+        return "offered"
+    return None
+
+
+# W126558: WHAT AN INTEGRATION STAGE'S OWN OBSERVATION MEANS.
+#
+# `work/records/2026/09/finding-v12-composed-ending-consumer/findings/
+# finding-integration-stage-observation/OBSERVATION.md` revision 1.
+#
+# AN INTEGRATION ATTEMPT WRITES NO EXCHANGE AND FREEZES NO OUTPUT, so every
+# member `_conversing` and the frozen-output branch read is honestly absent for
+# it -- and absence there is `starting`, which selects `dispatch`, which is a
+# worker exchange act nothing on this path can perform. The stage sat at
+# `starting` forever and the sweep asked for a dispatch nobody could answer.
+_INTEGRATION_STATES = {"pending": "integrating", "answered": "answering",
+                       "completed": "completed", "held": "exceptional"}
+
+# WHICH RUNTIME AXIS VALUES EACH OBSERVATION IS CONSISTENT WITH. A pending or
+# answered integration names a runtime this manager started; a document that
+# reports one without an attached identity is describing a stage that cannot
+# be in the state it claims, and it fails closed rather than being projected.
+_INTEGRATION_QUIET = ("quiescent", "destroyed")
+
+
+def _integrating(integrated, runtime):
+    """One stage's state from its own integration observation.
+
+    `unstarted` IS THE ONE THAT MUST AGREE WITH THE RUNTIME. It says the
+    launch is still owed, so a runtime this manager has already started
+    contradicts it -- and a contradiction between a supplied document and this
+    manager's own axis is not something to resolve in the document's favour.
+
+    `pending` SPLITS ON THE AXIS rather than on the document. A running
+    integration is `integrating` and owes nothing but the ordinary refresh; a
+    quiescent or destroyed one is `answering`, so `conclude` reaches the
+    driver and the driver decides what a missing or lost result means. That
+    decision is not this projection's to make.
+
+    `answered` IS `answering` WHATEVER THE RUNTIME IS DOING, deliberately.
+    Concluding changes no Job state by itself: it delegates to the driver,
+    which keeps its own quiescence checks and may answer that the runtime is
+    still running. The next observation is what proves the result.
+
+    AND `completed` IS NOT SOMETHING THIS PROJECTION EARNS. It is reported
+    because the consumer proved the committed account behind it; what is owned
+    here is that a document saying so is shaped, bound and consistent.
+    """
+    state = integrated["state"]
+    # COMPLETED AND HELD ARE ANSWERED FIRST AND FROM THE DOCUMENT ALONE.
+    # A completed account is historical evidence about the fixed assignment,
+    # proved by the consumer before it was written; a later runtime reading
+    # cannot unmake it, and `held` owes no act whatever the axis says. Neither
+    # earns an automatic act, so neither needs the uncertainty hold below.
+    if state in ("completed", "held"):
+        return _INTEGRATION_STATES[state]
+    axis = runtime.get("execution_runtime") if type(runtime) is dict else None
+    attached = type(runtime) is dict and runtime.get("runtime_id") is not None
+    # AND THE THREE THAT DO EARN ONE ARE HELD BY AN UNCERTAIN RUNTIME. This is
+    # where OBSERVATION.md puts that suppression, and it is the only place it
+    # belongs: an uncertain container is not grounds for concluding, and it is
+    # not evidence against something already proved.
+    if axis == "uncertain":
+        return "exceptional"
+    if state == "unstarted":
+        if attached or (axis is not None and axis != "not-started"):
+            return "exceptional"
+        return "claimed"
+    if not attached:
+        return "exceptional"
+    if state == "pending":
+        return ("answering" if axis in _INTEGRATION_QUIET else "integrating")
+    return _INTEGRATION_STATES[state]
+
+
+# W81857: WHAT AN ATTACHED RUNTIME ACTUALLY MEANS, keyed by the exchange this
+# manager can read rather than by the identity it was handed.
+#
+# The left column is the file exchange's own closed vocabulary and the right is
+# this leaf's. `working` becomes the stage-specific active word because the
+# worker has published its pre-dispatch receipt, which is the first moment
+# anything durable says a provider turn was begun. Everything before that is a
+# container that is up.
+_EXCHANGE_STATES = {"not-requested": "starting", "waiting": "waiting",
+                    "working": None, "answered": "answering",
+                    "faulted": "exceptional", "lost": "exceptional",
+                    "unreadable": "exceptional"}
+
+# W81857 review [P1]: AND THE RUNTIME AXIS DECIDES WHETHER THE EXCHANGE STATE
+# IS STILL TRUE.
+#
+# `working` says the worker published its pre-dispatch receipt. It does not say
+# the worker is still there, and it cannot: a receipt is durable and a process
+# is not. A container that died mid-turn keeps a receipt and never publishes a
+# terminal, so reading `working` alone recreated the exact defect this Work
+# exists to remove -- silence interpreted as progress, one layer down.
+#
+# So the active word requires BOTH: a receipt, and a runtime this manager
+# observes as actually running. Every other axis value with a receipt and no
+# terminal is the pinned incomplete/lost outcome -- reported, contained, and
+# authorizing no replay, because only a named recovery act with positive
+# evidence may turn it into an ending.
+_LIVE = "running"
+
+# Which axis values still permit each pre-answer exchange state. An answered
+# terminal is deliberately absent from this table: the ending quiesces the
+# runtime on purpose, so `answering` is the one state whose correctness does
+# not depend on the container still being up.
+_REQUIRES_LIVE_RUNTIME = ("not-requested", "waiting", "working")
+
+
+def _conversing(entry):
+    """Which state a claimed stage with an ATTACHED RUNTIME is actually in.
+
+    THE DEFECT THIS FUNCTION IS, spelled out because the one-line version it
+    replaced looked correct for a month. `_observed_state` mapped an attached
+    runtime identity straight onto the stage-specific running word, so a
+    container that started, read no command, spawned no provider and idled at
+    zero CPU was projected `running` -- and elapsed time and process health
+    cannot tell that apart from useful execution. A projection whose most
+    reassuring answer is also its default is not reporting anything.
+
+    ABSENCE IS `starting`, NOT AN INFERRED FAILURE AND NOT AN INFERRED
+    SUCCESS. A control plane holding no exchange read has not looked; a
+    deployment that composes no exchange has nothing to look at. Both are
+    honestly "the container is up and this control plane cannot see a turn in
+    it", and neither is grounds for reporting work in progress or for reporting
+    that something went wrong.
+
+    AN UNKNOWN EXCHANGE STATE IS `exceptional` rather than the least alarming
+    member of the set. The exchange's vocabulary is closed, so a value outside
+    it means this build and that reader disagree about what a state is.
+
+    AND THE TWO AXES ARE READ TOGETHER. Review [P1]: a quiescent or destroyed
+    runtime with a receipt and no terminal was projected as the active word,
+    because only `uncertain` was treated as exceptional and everything else was
+    handed to the exchange mapping alone. A worker that died mid-turn is not
+    working, whatever its durable receipt says.
+    """
+    found = entry["observed"].get("exchange")
+    if type(found) is not dict:
+        return "starting"
+    state = found.get("state")
+    held = _EXCHANGE_STATES.get(state, "exceptional")
+    if state in _REQUIRES_LIVE_RUNTIME:
+        runtime = entry["observed"].get("runtime")
+        alive = (type(runtime) is dict
+                 and runtime.get("execution_runtime") == _LIVE)
+        if not alive:
+            # INCOMPLETE, AND REPORTED AS SUCH. The turn may have been begun
+            # and cannot still be running; nothing here decides whether it was
+            # lost, because deciding that is a recovery act with its own
+            # positive evidence and its own record.
+            return "exceptional"
+    return _RUNNING[entry["stage"]["kind"]] if held is None else held
+
+
+# The cleanup axis values that mean the ending REACHED ITS LAST STEP. Anything
+# else -- `pending`, `blocked-on-intake` -- is an ending that has not finished,
+# whatever committed before it.
+_CLEANUP_SETTLED = ("complete", "retained", "failed")
+
+
+def _ending_owed(entry):
+    """Whether a worker's ending still has owed steps, from CANONICAL state.
+
+    LEVEL-TRIGGERED FROM THE LAST SUBSTEP'S OWN AXIS, which is what makes every
+    crash boundary in the middle of the ending replayable. The ordered owners
+    each journal their own act, so asking again after a partial ending replays
+    what committed and performs what did not; what this decides is only whether
+    to ask.
+
+    IT TAKES PRECEDENCE OVER THE FROZEN OUTPUT because the freeze is the third
+    of seven steps. A stage whose output is frozen and whose assignment has not
+    been passed is not `completed`, and reporting it as such is how a result
+    that never reached review looked finished.
+
+    W81857 review 2026-09-04T07-00-54Z [P1]: AND IT NO LONGER DEPENDS ON THE
+    EXCHANGE BEING READABLE. This used to require an exchange whose state was
+    `answered`, which the read-only `job_manager status` surface never has --
+    it is given no deployment factory and honestly reports `exchange: null`.
+    So the very same durable state that a serving manager called `answering`
+    read back as `completed` there, which is the freeze-window defect wearing
+    the one disguise the pass-2 correction did not cover: a reader that cannot
+    see the exchange was inventing the end of an ending it could not see.
+    `exchange: null` says nobody looked; it does not make a false terminal
+    state truthful, and a dependent gate must not open on one.
+
+    THE FROZEN OUTPUT IS THE MANAGER'S OWN EVIDENCE THAT A WORKER ANSWERED,
+    which is what makes the exchange unnecessary here. Nothing but the ending
+    freezes an output, so a frozen result with an unsettled cleanup axis is an
+    ending in progress however the reader learned about it -- and both facts
+    are the Worker Manager's own, available to every reader that holds its
+    control store.
+
+    THE CLEANUP AXIS IS ASKED FIRST, so a settled ending is settled for every
+    reader and the answer does not depend on which evidence happened to be
+    available.
+
+    W119733: AND A REGISTERED COMPOSED ENDING IS ASKED BEFORE THAT AXIS,
+    because the axis is not the last step of one. `authorize_cleanup` is the
+    SECOND-TO-LAST act of a composed ending -- the gate discharge and the
+    routing that follow it are separate owners' acts -- so a cleanup that
+    settled says only that the runtime is gone. A stage whose obligation this
+    store registered and never settled is still owed however terminal that
+    axis is, and however little of the exchange a reader can see: `exchange:
+    null` and `cleanup: retained` together are exactly what a crashed composed
+    ending looks like, and reporting it `completed` is what left a Work
+    blocked at a gate nobody was going to discharge.
+
+    AN UNREGISTERED STAGE IS UNAFFECTED. A generic ending registers no
+    obligation, so the rules below decide it exactly as they did; nothing here
+    invents an obligation for a deployment that composes none. And a SETTLED
+    obligation does not answer for the axis either -- it falls through to the
+    same rules, so a settlement can never make an unfinished cleanup look done.
+    """
+    registered = entry.get("ending")
+    if registered is not None and registered["settlement"] is None:
+        return True
+    observed = entry["observed"]
+    runtime = observed.get("runtime")
+    cleanup = runtime.get("cleanup") if type(runtime) is dict else None
+    if cleanup in _CLEANUP_SETTLED:
+        return False
+    found = observed.get("exchange")
+    if type(found) is dict and found.get("state") == "answered":
+        return True
+    return type(observed.get("output")) is dict
+
+
+def materialized(store, stages=None):
+    """Every JOB-OWNED row a derivation composes, read at ONE moment.
+
+    W319114. WHY THIS IS A SEPARATE FUNCTION AND WHY IT TAKES NO
+    `operations`. The projection joins eight of this store's tables and then
+    one other store's observations, and it used to read all nine in
+    autocommit statements one after another -- so a concurrent writer could
+    commit between any two of them and the composed answer described a state
+    the store never held. The measured defect is `status`: `stage_states` read
+    the stage rows, a public `submit` committed a new Job, and the Job and
+    stage rows read afterwards named a stage the projection had no entry for,
+    which raised `KeyError`. The same seam mixes an episode read before an
+    advancement with the receipts, ending, deferral and allocation of the
+    episode that replaced it.
+
+    SO THE JOB-OWNED HALF IS TAKEN UNDER ONE READ VIEW and the external half
+    is not taken here at all. The absent `operations` parameter is the
+    enforcement: DB-1 forbids external I/O under a transaction and DB-4
+    forbids calling another store while retaining this one's, and a function
+    that has no handle on the Worker Manager cannot reach it however it is
+    edited later. `stage_states` acquires the observations AFTER this returns.
+
+    WHAT IS INSIDE IS THIS DATABASE AND BOUNDED VALIDATION, which is what
+    DB-1 permits: `submission`, `episodes`, `ending`, `scheduler` and
+    `integration_capacity` reads of the store already given, each still
+    through its own owner's public reader, plus the `boundaries` row checks
+    those readers perform in memory. No filesystem, no engine, no callback.
+
+    AN EARLIER COHERENT MOMENT IS NOT AN OMISSION. A submission that commits
+    after this view is taken is absent from it WHOLE -- its Job, its stages
+    and its episodes together -- and the document it is absent from carries
+    the instant it was observed. What is excluded is a Job reported without
+    its stages, a stage reported without its Job, or an episode reported
+    beside another episode's receipts.
+
+    `stages` is the caller's own row set, unchanged in meaning: it is still
+    whatever rows were handed in, and only the remaining tables are read.
+    """
+    from .integration_capacity import failed_integration_of
+
+    with store.read_snapshot():
+        rows = stages if stages is not None else submission.stage_rows(store)
+        jobs = submission.job_rows(store)
+        owned = {}
+        for stage in rows:
+            stage_id = stage["stage_id"]
+            # NOTHING CANONICAL IS READ FOR A STAGE THAT HAS NO LIVE EPISODE,
+            # and that is not an optimization. Its identities belong to an
+            # attempt that is over; asking the manager about them would answer
+            # with the ended offer's own facts and project a finished attempt
+            # as this stage's current one.
+            live = episodes.live_of(store, stage_id)
+            owned[stage_id] = {
+                "stage": stage, "episode": live,
+                "attempt": (episodes.attempting(stage, live)
+                            if live is not None else None),
+                "history": episodes.episodes_of(store, stage_id),
+                # THE JOB THIS STAGE NAMES, read here rather than beside the
+                # observation it is handed to. It is a row of this store, so
+                # it belongs in this store's one read view; reading it later
+                # is how a stage could be described against a Job another
+                # moment held.
+                "job": submission.job_of(store, stage["job_id"]),
+                # W197661: AND NULL FOR A STAGE WITH NO LIVE EPISODE, on the
+                # same rule the receipts beneath follow -- a deferral belongs
+                # to the episode that owed the act, and a stage between an
+                # ending and its replacement owes nothing.
+                # ASKED WHETHER OR NOT THERE IS A LIVE EPISODE, because an
+                # unfinished ending outlives the attempt that owed it -- and
+                # the earlier note here saying it is null without a live
+                # episode is superseded by exactly that.
+                #
+                # `_settled_acts` is what tells an outstanding reason from a
+                # retained one; see `deferral_of`.
+                "deferral": deferral_of(store, stage_id,
+                                        _settled_acts(store, stage_id, live)),
+                "receipts": (receipts_of(store, stage_id, live["episode"])
+                             if live is not None else {}),
+                # W119733: THE OBLIGATION THIS STORE REGISTERED FOR THE LIVE
+                # EPISODE, and `None` for a stage that registered none. It is
+                # read here with the rest so `_ending_owed` decides from one
+                # moment's state, and it is read for the LIVE episode only --
+                # a prior episode's unsettled obligation is a stage that has
+                # moved on, and answering for it here would project a finished
+                # attempt as this stage's current one. Resuming those is the
+                # sweep's own pass.
+                # THE READER IS GIVEN NOTHING AND PROVES EVERYTHING. Review
+                # 2026-09-08T16-00-28Z [P2]: this handed down the stage row it
+                # already held, and a public reader that accepts a row cannot
+                # tell a pass that read it from a caller that invented one.
+                # The saving was one row lookup per stage; the cost was that
+                # the ownership proof depended on who was asking.
+                "ending": (ending.ending_of(store, stage_id, live["episode"])
+                           if live is not None else None),
+                "managed_failure": (
+                    failed_integration_of(store, stage_id, live["episode"])
+                    if live is not None and stage["kind"] == "integration"
+                    else None),
+                # THE ALLOCATION AXIS, IN THE SAME VIEW AS THE EPISODE THAT
+                # OWNS IT. `_stage_status` used to read these after the
+                # projection had been composed, which is how a status could
+                # name one episode's attempt beside a reservation made for
+                # the next one.
+                "allocation_refusal": (
+                    scheduler.allocation_refusal_of(store, live["attempt_id"])
+                    if live is not None else None),
+                "allocations": scheduler.allocation_rows(store, stage_id),
+                "allocation": (scheduler.allocation_of(store,
+                                                       live["attempt_id"])
+                               if live is not None else None)}
+        # THE JOBS AND THEIR STAGES, GROUPED FROM THE ONE ROW SET the states
+        # are derived from. `stages_of` would be a second read at a second
+        # moment, and that second moment is the defect: `stage_rows` orders by
+        # (job_id, ordinal) and `stages_of` by ordinal, so grouping here is
+        # the same answer taken from the view that already decided.
+        grouped = {job["job_id"]: [] for job in jobs}
+        for stage in rows:
+            grouped.setdefault(stage["job_id"], []).append(stage)
+        return {"jobs": jobs, "stages": rows, "owned": owned,
+                "stages_by_job": grouped,
+                "limits": {job["job_id"]: submission.execution_limits_of(
+                    store, job["job_id"]) for job in jobs}}
+
+
+def _observing_outside_a_boundary(store, what):
+    """Refuse a derivation that would OBSERVE under this store's transaction.
+
+    W319114 (correction). THE HOLE THE FIRST PASS LEFT. `materialized` takes
+    one read view and releases it, so the two-phase shape holds for a caller
+    that owns no transaction of its own. A caller that ALREADY holds one is
+    the case `read_snapshot` deliberately does not touch -- SQLite has no
+    nested transactions and ending somebody else's boundary would commit or
+    discard their decision -- so the view it yields is theirs and is STILL
+    OPEN when `materialized` returns. The loop below then asked the Worker
+    Manager for an observation per live stage with this store's transaction
+    held, which is exactly what DB-1 forbids and, because the observation is
+    another store's, what DB-4 forbids as well. Reachable with no raw SQL:
+
+        with store.read_snapshot():
+            projection.status(store, operations, observed_at=NOW)
+
+    SO THE DERIVATION REFUSES, AND REFUSES FIRST. The answer is not to end
+    the caller's boundary and not to observe under it; both of those are the
+    defect wearing different clothes. It is to say, before anything external
+    is attempted, that this composition cannot be made from inside a
+    transaction -- the caller is holding the one thing that makes it illegal,
+    and only the caller can release it.
+
+    BEFORE, NOT AFTER, AND UNCONDITIONALLY. The check is the first statement
+    of each observing entry point rather than a test inside the per-stage
+    loop, so an empty store refuses identically to a populated one and no
+    partial set of observations is ever acquired. `refused`/`precondition` is
+    §9's pair for a caller-side condition that was never met: nothing was
+    read from the other store, nothing was changed, and asking again after
+    the boundary is released succeeds.
+
+    `materialized` ITSELF IS STILL LEGITIMATE HERE and is deliberately not
+    guarded. It reads only this store's own rows and takes no `operations`
+    handle, which is precisely what DB-1 permits inside a transaction.
+    """
+    if not store.holds_transaction():
+        return
+    raise ContractRefusal(
+        "refused", "precondition",
+        f"{what} was asked of the Job store while the caller still holds "
+        f"that store's own transaction (handle "
+        f"{name_value(store.incarnation)}); composing it reads the Worker "
+        f"Manager's canonical observation of every live stage, and DB-1 "
+        f"forbids external I/O while a transaction is held, as DB-4 forbids "
+        f"calling another store while retaining this one's. Leave "
+        f"the `read_snapshot` block -- or commit or roll back the "
+        f"transaction you began -- and ask again; to read only this store's "
+        f"own rows from inside your boundary, use "
+        f"`projection.materialized`, which takes no operations handle. No "
+        f"observation was attempted, nothing was changed, and your "
+        f"transaction is untouched and still open")
+
+
+def stage_states(store, operations, stages=None, snapshot=None):
+    """Every stage's state and its canonical observation, in one pass.
+
+    The observation is kept beside the state because the status document
+    reports both and re-reading the manager a second time would be two
+    moments -- a caller comparing one against the other would be comparing a
+    stage with itself at two times.
+
+    THE CANONICAL BINDING IS PROVED AS THE OBSERVATION IS ACQUIRED, and this
+    is the one pass that makes that true everywhere: the sweep's adoption, the
+    derivation of what is owed and the status document all come through here.
+    So a control store holding somebody else's offer under this stage's derived
+    identity refuses -- it is not adopted as a receipt, and it is not projected
+    beside this store's Job either.
+
+    IT IS ONE CALL, NOT TWO, and re-review [P1, 2026-09-03] is why. This pass
+    used to prove the offer and then ask for the observation, which read the
+    claim, the runtime and the frozen result under a derived ATTEMPT id the
+    proof had said nothing about -- so another Job store's offer holding that
+    attempt's claim was projected here as this Job's. `observation_of` acquires
+    and binds in one operation, and there is no unqualified attempt read left
+    for this pass to make.
+
+    AND THE TWO HALVES ARE TAKEN IN TWO PHASES, which is W319114's effect
+    here. Every row this store owns comes from `materialized` -- ONE read view
+    of this database, already released by the time the loop below runs -- and
+    the canonical observations are acquired afterwards, outside it. So a
+    concurrent `submit` or correction can no longer commit between two of this
+    pass's reads, and no observation, failed or otherwise, is ever attempted
+    while this store holds a transaction.
+
+    AND A CALLER THAT ALREADY HELD ONE IS REFUSED RATHER THAN SERVED. Two
+    phases are only two phases when the first one's boundary was this pass's
+    to release; inside a caller's own `read_snapshot` it is not, and the loop
+    below would observe under it. `_observing_outside_a_boundary` says so
+    before the materialization, which is where that correction lives.
+
+    `snapshot` lets a caller that needs
+    MORE of that same view -- `status` needs the Job rows and the ceilings --
+    take it once and derive everything from it rather than taking a second.
+    """
+    # W319114 (correction): BEFORE THE MATERIALIZATION AND BEFORE EVERY
+    # OBSERVATION. A caller that holds this store's own transaction gets a
+    # refusal rather than three external reads taken under it; see
+    # `_observing_outside_a_boundary`.
+    _observing_outside_a_boundary(store, "a stage-state derivation")
+    snapshot = (snapshot if snapshot is not None
+                else materialized(store, stages))
+    held = {}
+    for stage_id, owned in snapshot["owned"].items():
+        live = owned["episode"]
+        # THE OBSERVATION IS THE ONLY THING ASKED FOR HERE, and it is asked of
+        # the OTHER store -- so it is asked with no transaction of this one
+        # open. Everything it is composed from was materialized above.
+        held[stage_id] = dict(
+            owned,
+            observed=(delegation.observation_of(
+                operations, owned["attempt"], owned["job"])
+                if live is not None else delegation.unobserved()))
+        held[stage_id]["state"] = _observed_state(held[stage_id])
+        if held[stage_id]["state"] is None and live is not None \
+                and owned["allocation_refusal"] is not None:
+            held[stage_id]["state"] = "exceptional"
+    for entry in held.values():
+        if entry["state"] is not None:
+            continue
+        gates = gates_of(entry["stage"], held)
+        entry["state"] = ("queued" if all(gate["open"] for gate in gates)
+                          else "blocked")
+    return held
+
+
+def gates_of(stage, held):
+    """This stage's dependency gates, each with the state that decides it."""
+    gates = []
+    for gate in json.loads(stage["depends_on"]):
+        stage_id = documents.stage_id(gate["job_id"], gate["kind"])
+        found = held.get(stage_id)
+        # A gate naming a stage this store does not carry cannot be open. The
+        # submission boundary refuses an unresolvable dependency, so reaching
+        # here means the row set changed underneath us -- and answering `open`
+        # would admit a stage whose predecessor nobody can find.
+        state = found["state"] if found is not None else None
+        gates.append(documents.dependency_gate(
+            stage_id=stage_id, state=state, open=state == "completed"))
+    return gates
+
+
+def owed_acts(store, operations, held=None):
+    """Every act this control plane owes right now, in a stable order.
+
+    DERIVED FROM PERSISTED STATE, which is the whole point: a restarted
+    process answers this from the two stores rather than from an operator's
+    memory or a shell transcript.
+    """
+    held = held if held is not None else stage_states(store, operations)
+    owed = []
+    for stage_id in sorted(held):
+        entry = held[stage_id]
+        act = _owed(entry)
+        if act is None:
+            continue
+        # An act is owed BY AN EPISODE, so a stage with none owes nothing here
+        # -- what it owes is a replacement, which the sweep opens before it
+        # derives anything.
+        attempt = entry["attempt"]
+        owed.append(documents.act(
+            stage_id=stage_id, job_id=attempt["job_id"],
+            kind=attempt["kind"], episode=attempt["episode"], act=act,
+            operation_id=operations.canonical_operation(
+                act, attempt["offer_id"]),
+            offer_id=attempt["offer_id"], attempt_id=attempt["attempt_id"],
+            work_id=attempt["work_id"]))
+    return owed
+
+
+def _owed(entry):
+    if entry["episode"] is None:
+        return None
+    if entry["state"] == "queued":
+        return "admit"
+    # `offered` is the only state a claim is owed from. A claimed, running or
+    # terminal stage owes nothing here -- what happens after the claim is the
+    # other leaves' work, and a sweep that kept acting would be this one
+    # taking it over.
+    if entry["state"] == "offered" and "claim" not in entry["receipts"]:
+        return "claim"
+    return None
+
+
+# W81857: which stage state owes which exchange act. Both are derived from
+# canonical state alone, so an ordinary tick and the first tick after a restart
+# ask the same question and get the same answer -- which is what makes the
+# crash window between an act and anything recording it cost latency instead of
+# a lost turn.
+EXCHANGE_OWED = {"starting": "dispatch", "answering": "conclude"}
+
+
+def owed_exchange(held):
+    """Every exchange act this control plane owes right now, in stable order.
+
+    `waiting` AND THE ACTIVE WORD OWE NOTHING, deliberately. A published
+    command that the worker has not accepted is the manager having done
+    everything it owes, and a worker that has published its receipt is a
+    provider turn nobody may interrupt -- asking again in either state would be
+    this leaf deciding that silence means something.
+    """
+    owed = []
+    for stage_id in sorted(held):
+        entry = held[stage_id]
+        act = EXCHANGE_OWED.get(entry["state"])
+        if act is None or entry["attempt"] is None:
+            continue
+        owed.append((act, entry["attempt"]))
+    return owed
+
+
+
+
+def _settled_acts(store, stage_id, live):
+    """Every (episode, act) this stage has SETTLED, from their own owners.
+
+    W197661 review 2026-09-18T03-18-24Z [3]. A deferral is deleted when its act
+    settles; a DELETE that failed leaves the row, and a reader that called
+    every stored row outstanding would present a settled act's retained reason
+    as a live condition. So the question "has this act settled" is asked of the
+    records that own it rather than of the deferral table:
+
+      `admit` and `claim` settle by writing a RECEIPT, which `receipts_of`
+      already reads for the live episode.
+
+      `conclude` writes no receipt -- the substeps are journalled by their own
+      owners -- so what settles it is that the ending is no longer REGISTERED
+      as pending. `pending_endings` enumerates every unsettled one including
+      prior episodes, which is precisely the set this needs.
+    """
+    settled = set()
+    if live is not None:
+        for act in receipts_of(store, stage_id, live["episode"]):
+            settled.add((live["episode"], act))
+    outstanding = {(one["stage_id"], one["episode"])
+                   for one in ending.pending_endings(store)}
+    # AND AN UNREADABLE TABLE ANSWERS NOTHING RATHER THAN RAISING, for the
+    # reason `deferral_of` gives: an evidence surface must not take the
+    # projection down with it.
+    try:
+        held = store._connection.execute(
+            "SELECT DISTINCT episode FROM deferrals WHERE stage_id = ? "
+            "AND act = 'conclude'", (stage_id,)).fetchall()
+    except Exception:                                        # noqa: BLE001
+        return settled
+    for row in held:
+        episode = row["episode"]
+        # REGISTERED **AND** NO LONGER PENDING. Absence of a pending record is
+        # not settlement: an ending that was never registered has nothing that
+        # settled it, and reading its reason as retained would be this function
+        # quietly deciding an outstanding condition is over. A first cut did
+        # exactly that, and the safe direction is the other one -- an
+        # unregistered `conclude` reason stays OUTSTANDING.
+        try:
+            registered = ending.ending_of(store, stage_id, episode)
+        except Exception:                                    # noqa: BLE001
+            continue
+        if registered is not None and (stage_id, episode) not in outstanding:
+            settled.add((episode, "conclude"))
+    return settled
+
+
+def deferral_of(store, stage_id, settled=()):
+    """Any outstanding reason one of this stage's owed acts did not happen.
+
+    W197661. EXPLICITLY NOT A RECEIPT, and explicitly not a state. `state_of`
+    above does not read this and must not: a deferral is a RE-ENTERABLE
+    condition -- an ending that will finish on the next tick, a worker that has
+    not accepted its offer yet -- and turning one into `exceptional` would
+    report a recoverable stage as a dead one. What it adds is the sentence an
+    operator could not get before without reading a store or an engine: which
+    act, for which attempt, why, since when, and whether it is still happening.
+
+    `since` AND `observed` TOGETHER are what make staleness readable. A reason
+    whose `observed` stopped advancing is one whose manager is no longer
+    running, which is a different fact from a condition that is still recurring.
+    """
+    # EVERY OUTSTANDING REASON FOR THIS STAGE, not only the live episode's.
+    # Review 2026-09-18T02-59-56Z [R1]: `_recover_endings` explicitly services
+    # endings registered by a PRIOR episode -- a stage can have a live episode
+    # owing nothing and an older one holding an unfinished ending -- so a
+    # reader that selected the live episode alone would hide exactly the case
+    # that pass exists for. The episode travels on each entry, so an operator
+    # can still tell which attempt a reason belongs to.
+    try:
+        found = store._connection.execute(
+            "SELECT * FROM deferrals WHERE stage_id = ?",
+            (stage_id,)).fetchall()
+    except Exception as failure:                             # noqa: BLE001
+        # AN EVIDENCE SURFACE MUST NOT TAKE THE PROJECTION DOWN. This is the
+        # reason an act has not happened; a reader that raised because it could
+        # not find that out would replace an operator's whole picture with the
+        # failure of its footnote. It is REPORTED, the way a corrupt capture
+        # declaration is, and every other axis still answers.
+        return [{"act": None, "episode": None, "attempt_id": None,
+                 "operation_id": None, "category": "unavailable",
+                 "code": "unreadable",
+                 "message": f"this stage's outstanding reasons could not be "
+                            f"read ({type(failure).__name__}); this says "
+                            f"nothing about the stage itself",
+                 "since": None, "observed": None, "incarnation": None}]
+    if not found:
+        return None
+    held = [boundaries.row(one, "a persisted deferral", schema.DEFERRAL_COLUMNS)
+            for one in found]
+    # A ROW WHOSE ACT HAS SINCE SETTLED IS STALE, AND SAYS SO. Review
+    # 2026-09-18T03-18-24Z [3]: `_resolve` deletes the row when the act
+    # settles, and a DELETE that FAILED left it behind -- after which this
+    # reader labelled every stored row outstanding, so a settled act's retained
+    # reason was presented as a live one. The failure is reported to the
+    # reconcile report, but a transient report is not the operator surface.
+    #
+    # WHAT DECIDES IS SOMEBODY ELSE'S RECORD rather than this table's. `settled`
+    # is the (episode, act) pairs the caller already read from the receipts and
+    # the ending register, so a stale row is identified by the act's own
+    # settlement rather than by anything the deferral says about itself.
+    stale = set(settled)
+    return [{"act": one["act"], "episode": one["episode"],
+             "outstanding": (one["episode"], one["act"]) not in stale,
+             "attempt_id": one["attempt_id"],
+             "operation_id": one["operation_id"],
+             "category": one["category"], "code": one["code"],
+             "message": one["message"],
+             "since": one["first_seen_at"], "observed": one["last_seen_at"],
+             "incarnation": one["incarnation"],
+             "why_retained": (None if (one["episode"], one["act"]) not in stale
+                              else "this act has since settled and its reason "
+                                   "could not be cleared; it is retained "
+                                   "evidence rather than an outstanding "
+                                   "condition")}
+            for one in sorted(held, key=lambda one: (one["episode"],
+                                                       one["act"]))]
+
+def status(store, operations, *, observed_at):
+    """The read-only status document, versioned and whole.
+
+    ONE DOCUMENT FOR EVERY SUBMISSION IN THE STORE, because an operator asking
+    "what is running" is not asking about one submission and would otherwise
+    have to know what to ask for.
+
+    IT READS AND RECORDS NOTHING, which bounds what it can say. Review [P2,
+    2026-09-03]: applying a canonical ending is a durable act, so this pass
+    does not attach to the publisher and does not apply one. What it reports is
+    what this store has RECORDED, plus the canonical observation of each
+    stage's current episode -- so an offer that ended since the last sweep is
+    over canonically and still `offered` here until a serving reconciler
+    applies it. One tick, in a serving deployment; in a store nobody is
+    advancing, exactly as stale as that store is.
+    """
+    # W319114: ONE MATERIALIZATION, AND EVERY ROW IN THIS DOCUMENT COMES FROM
+    # IT. The Job rows, their stage rows and their ceilings used to be read
+    # after `stage_states` had already derived from its own reads, so a
+    # submission committing in between gave this loop a stage the projection
+    # had no entry for -- `held[row["stage_id"]]`, `KeyError`. Both halves now
+    # come from the same read view; see `materialized` for why that view is
+    # released before a single observation is acquired.
+    # W319114 (correction): AND NOT FROM INSIDE A CALLER'S OWN BOUNDARY AT
+    # ALL. `stage_states` asks the same question a line later; asking it here
+    # too is what makes the refusal precede the materialization rather than
+    # follow a read whose answer would be thrown away.
+    _observing_outside_a_boundary(store, "a status document")
+    snapshot = materialized(store)
+    held = stage_states(store, operations, snapshot=snapshot)
+    jobs = []
+    for job in snapshot["jobs"]:
+        stages = []
+        for row in snapshot["stages_by_job"][job["job_id"]]:
+            entry = held[row["stage_id"]]
+            stages.append(_stage_status(entry, held))
+        jobs.append(documents.job_status(
+            job_id=job["job_id"], submission_id=job["submission_id"],
+            input_digest=job["input_digest"],
+            policy_digest=job["policy_digest"],
+            test_scope=json.loads(job["test_scope"]),
+            terminal_policy=job["terminal_policy"],
+            # W156162: THE CEILINGS, REQUESTED AND EFFECTIVE, with their units,
+            # their scope and where each effective value came from. This is a
+            # READ: it resolves the Job's stored intent against this build's
+            # compatibility defaults and writes nothing, and it reports what is
+            # CONFIGURED rather than what any command observed -- configuration
+            # alone is not evidence that a provider turn ever ran.
+            execution_limits=_job_limits(snapshot, job["job_id"]),
+            stages=stages))
+    return documents.status(
+        schema=documents.STATUS_SCHEMA, observed_at=observed_at,
+        incarnation=store.incarnation,
+        # WHETHER THE CANONICAL STORE WAS READ AT ALL. A status assembled
+        # without the manager can still report what was submitted and what
+        # this store received receipts for, and saying so is the difference
+        # between "nothing is running" and "nobody looked".
+        canonical=operations.canonical, jobs=jobs)
+
+
+def _job_limits(snapshot, job_id):
+    """One Job's effective ceilings, resolved through the generation it was
+    ADMITTED under rather than through this build's current constants.
+
+    The admitted row comes from the materialized view rather than from a fresh
+    read: a Job's ceilings are immutable once recorded, but reading them at a
+    second moment is how a Job could be reported whose row the first moment
+    did not have.
+    """
+    held = snapshot["limits"][job_id]
+    return execution_limits.resolved(held["requested"],
+                                     held["compatibility_generation"])
+
+
+def _stage_status(entry, held):
+    """One stage's reported document, composed from already-read rows.
+
+    W319114: IT READS NOTHING. The allocation axis used to be fetched here,
+    after the projection had been derived and the Job rows read, so a status
+    could name one episode's attempt beside a reservation belonging to the
+    next one. Both now travel on the entry `materialized` built.
+    """
+    stage = entry["stage"]
+    live = entry["episode"]
+    observed = entry["observed"]
+    frozen = observed.get("output")
+    runtime = observed.get("runtime")
+    allocations = entry["allocations"]
+    allocation = entry["allocation"]
+    return documents.stage_status(
+        stage_id=stage["stage_id"], job_id=stage["job_id"],
+        kind=stage["kind"], state=entry["state"], work_id=stage["work_id"],
+        profile_name=stage["profile_name"],
+        profile_digest=stage["profile_digest"],
+        # THE CURRENT ATTEMPT, AND NULL WHEN THERE IS NONE. A stage between an
+        # ending and its replacement genuinely has no offer, and naming the
+        # ended one here would report a finished attempt as the live one --
+        # which is the projection half of the defect this Work corrects.
+        episode=live["episode"] if live is not None else None,
+        offer_id=live["offer_id"] if live is not None else None,
+        attempt_id=live["attempt_id"] if live is not None else None,
+        # AND THE WHOLE HISTORY BESIDE IT. The abandoned episode keeps its
+        # identities and its ending here, so a recovered stage shows what
+        # happened to it rather than only where it got to.
+        episodes=[documents.stage_episode(**record)
+                  for record in entry["history"]],
+        # W103076: HOW MANY ROUNDS THIS STAGE HAS ALREADY GIVEN BACK, counted
+        # from the history rather than stored. An operator reading a stage that
+        # is `queued` on episode three needs to see that two rounds were
+        # reviewed and returned; the episodes are all there, but a count of the
+        # correction endings is the one number the question actually asks for.
+        corrections=len([record for record in entry["history"]
+                         if record["ended_state"]
+                         in documents.CORRECTION_ENDINGS]),
+        allocation=allocation, allocations=allocations,
+        gates=gates_of(stage, held),
+        receipts=[documents.receipt(
+            stage_id=record["stage_id"], episode=record["episode"],
+            act=record["act"],
+            operation_id=record["operation_id"], state=record["state"],
+            recorded_at=record["recorded_at"],
+            detail=json.loads(record["detail"]))
+            for _, record in sorted(entry["receipts"].items())],
+        # W197661: WHY AN OWED ACT DID NOT HAPPEN, beside the state and never
+        # deciding it. `null` is "nothing is outstanding", which is a different
+        # answer from a stage that has never been asked to do anything.
+        deferral=entry.get("deferral"),
+        # W81857: THE EXCHANGE, REPORTED AS THE DEPLOYMENT ANSWERED IT and
+        # never resolved, opened or walked here. `null` says this control plane
+        # holds no exchange read, which is a different answer from an exchange
+        # that has been read and carries no command yet.
+        exchange=(observed.get("exchange")
+                  if type(observed.get("exchange")) is dict else None),
+        runtime={"runtime_id": runtime.get("runtime_id"),
+                 "execution_runtime": runtime.get("execution_runtime"),
+                 "assignment": runtime.get("assignment"),
+                 # SAFE LOCATORS AND NOTHING ELSE. The activity projection is
+                 # a count of observed bytes and the instant they were
+                 # received; approver ruling M61707 makes it diagnostic, so
+                 # nothing here branches on it.
+                 "activity": observed.get("activity")}
+        if type(runtime) is dict else None,
+        # The frozen result's artifacts carry the manager's own locators. They
+        # are reported as the manager recorded them and are not resolved,
+        # opened or walked here.
+        artifacts=frozen.get("artifacts") if type(frozen) is dict else None)

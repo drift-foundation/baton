@@ -1,0 +1,22 @@
+{
+  "base": "9055843b5d258f5bfbb523815d034ee0c14075d6",
+  "cumulative_patch_sha256": "83dd800908bb32cb1c7f254b4345f8417b67d281141a6059107dda91f91d4a1c",
+  "files": {
+    "v12/python/src/baton_v12/job_manager/projection.py": {
+      "base_sha256": "595008b9ddb06d947c3720eb5bd8928a53b65f2e7458bbd151f4a77d52fc6742",
+      "final_sha256": "335a63070d4f69c1c067fb9f94b54c2c48a975821bea1a08d61d8d2a19d80efb"
+    },
+    "v12/python/src/baton_v12/job_manager/store.py": {
+      "base_sha256": "593bcee78c103995f2f865f4ce4b569bd926fb314b785ffe88280be39bc28c32",
+      "final_sha256": "78386f8bb45e09ed0f1c7cb208ac98cbf4784d3a011f6709c071b072dbbd7ae7"
+    },
+    "v12/python/tests/job_manager/test_status.py": {
+      "base_sha256": "5a996d94580054f587763cd184278f39065b8bf03e60a1e5a681c986a763e4cf",
+      "final_sha256": "74a669cd8c0869e17069752aef62dc8afa000890162360b1793aa9990b60aaaf"
+    }
+  },
+  "head": "14a8934ec891f24e468b1b00e0adb90c95179f03",
+  "intermediate": "aa637298bac292058b659df5d147fbddd82c49a6",
+  "r1_patch_sha256": "b7cd896f893a350c360467829ce448e59d79e25ed202673c6e4e8db9809c0355",
+  "tree": "6e603d4d3215f95f5190f39d1a1b3bf1b23fb495"
+}
