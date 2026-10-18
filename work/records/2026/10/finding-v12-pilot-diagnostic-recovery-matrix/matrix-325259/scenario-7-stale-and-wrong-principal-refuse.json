@@ -1,0 +1,189 @@
+{
+  "checks": [
+    {
+      "check": "an assignment is LIVE, which is the only point at which either question is meaningful",
+      "detail": {
+        "generation": 1,
+        "participant": "baton.claude",
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        }
+      },
+      "passed": true
+    },
+    {
+      "check": "a stale episode is REFUSED",
+      "detail": "Refusal: stale assignment",
+      "passed": true
+    },
+    {
+      "check": "and nothing moved: the Work is unchanged after a stale episode",
+      "detail": {
+        "assignment": {
+          "generation": 1,
+          "participant": "baton.claude",
+          "work_ref": {
+            "authority_uuid": "0000000a000000000000000000000000",
+            "work_id": "0000000a-W1"
+          }
+        },
+        "authority_uuid": "0000000a000000000000000000000000",
+        "close_decision": null,
+        "contract": "v12-assignment-1",
+        "creation": {
+          "at": "2026-09-02T00:00:00.000Z",
+          "kind": "trusted-bootstrap",
+          "operation_id": "create-single-worker",
+          "scope": "scope:deployment",
+          "work_id": "0000000a-W1"
+        },
+        "fenced_generations": [],
+        "gate": null,
+        "generation_counter": 1,
+        "handler": "baton.claude",
+        "labels": [],
+        "live_generation": 1,
+        "outcome": null,
+        "phase": "active",
+        "rationale": null,
+        "ready": false,
+        "route": "baton.impl",
+        "scope": "scope:deployment",
+        "status": "open",
+        "work_id": "0000000a-W1"
+      },
+      "passed": true
+    },
+    {
+      "check": "the live assignment is still the same one after a stale episode",
+      "detail": {
+        "generation": 1,
+        "participant": "baton.claude",
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        }
+      },
+      "passed": true
+    },
+    {
+      "check": "and no assignment event was written by a stale episode",
+      "detail": 1,
+      "passed": true
+    },
+    {
+      "check": "a wrong principal is REFUSED",
+      "detail": "Refusal: this session acts for 'baton.gemini'; the assignment names 'baton.claude'",
+      "passed": true
+    },
+    {
+      "check": "and nothing moved: the Work is unchanged after a wrong principal",
+      "detail": {
+        "assignment": {
+          "generation": 1,
+          "participant": "baton.claude",
+          "work_ref": {
+            "authority_uuid": "0000000a000000000000000000000000",
+            "work_id": "0000000a-W1"
+          }
+        },
+        "authority_uuid": "0000000a000000000000000000000000",
+        "close_decision": null,
+        "contract": "v12-assignment-1",
+        "creation": {
+          "at": "2026-09-02T00:00:00.000Z",
+          "kind": "trusted-bootstrap",
+          "operation_id": "create-single-worker",
+          "scope": "scope:deployment",
+          "work_id": "0000000a-W1"
+        },
+        "fenced_generations": [],
+        "gate": null,
+        "generation_counter": 1,
+        "handler": "baton.claude",
+        "labels": [],
+        "live_generation": 1,
+        "outcome": null,
+        "phase": "active",
+        "rationale": null,
+        "ready": false,
+        "route": "baton.impl",
+        "scope": "scope:deployment",
+        "status": "open",
+        "work_id": "0000000a-W1"
+      },
+      "passed": true
+    },
+    {
+      "check": "the live assignment is still the same one after a wrong principal",
+      "detail": {
+        "generation": 1,
+        "participant": "baton.claude",
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        }
+      },
+      "passed": true
+    },
+    {
+      "check": "and no assignment event was written by a wrong principal",
+      "detail": 1,
+      "passed": true
+    },
+    {
+      "check": "the stale refusal names the staleness",
+      "detail": "Refusal: stale assignment",
+      "passed": true
+    },
+    {
+      "check": "the wrong-principal refusal names BOTH identities",
+      "detail": "Refusal: this session acts for 'baton.gemini'; the assignment names 'baton.claude'",
+      "passed": true
+    }
+  ],
+  "checks_passed": 11,
+  "expected_failure": false,
+  "identities": {
+    "authority_uuid": "0000000a000000000000000000000000",
+    "job_id": "job-a",
+    "submission_id": "sub-1",
+    "work_id": "0000000a-W1"
+  },
+  "injected": "a stale episode and a wrong principal, both driven against a live assignment, with the state checked after each refusal",
+  "intended_failed_check": null,
+  "live_assignment": {
+    "generation": 1,
+    "participant": "baton.claude",
+    "work_ref": {
+      "authority_uuid": "0000000a000000000000000000000000",
+      "work_id": "0000000a-W1"
+    }
+  },
+  "not_called": [
+    "_accepted_receipts",
+    "admit_accepted",
+    "continue_accepted",
+    "raw SQL",
+    "any product-source edit"
+  ],
+  "outcome": "observed",
+  "refusals": {
+    "a stale episode": "Refusal: stale assignment",
+    "a wrong principal": "Refusal: this session acts for 'baton.gemini'; the assignment names 'baton.claude'"
+  },
+  "scenario": "7-stale-and-wrong-principal-refuse",
+  "seconds": 0.112,
+  "simulated": [
+    "engine: no daemon; its answers, including absence and confusion, injected at the engine_run boundary",
+    "provider: injected at the adapter's own process seam"
+  ],
+  "work_unchanged": {
+    "handler": "baton.claude",
+    "outcome": null,
+    "phase": "active",
+    "route": "baton.impl",
+    "status": "open"
+  }
+}

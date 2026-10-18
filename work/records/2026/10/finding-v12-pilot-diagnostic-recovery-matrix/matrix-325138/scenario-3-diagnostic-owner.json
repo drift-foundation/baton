@@ -1,0 +1,249 @@
+{
+  "checks": [
+    {
+      "check": "the stage is exceptional",
+      "detail": "exceptional",
+      "passed": true
+    },
+    {
+      "check": "no candidate was published",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "observation": "every member the status projection gives this stage",
+      "value": [
+        "allocation",
+        "allocations",
+        "artifacts",
+        "attempt_id",
+        "corrections",
+        "deferral",
+        "episode",
+        "episodes",
+        "exchange",
+        "gates",
+        "job_id",
+        "kind",
+        "offer_id",
+        "profile_digest",
+        "profile_name",
+        "receipts",
+        "runtime",
+        "stage_id",
+        "state",
+        "work_id"
+      ]
+    },
+    {
+      "check": "the projection names NO diagnostic owner member for an exceptional stage",
+      "detail": [],
+      "passed": true
+    },
+    {
+      "check": "pending_endings offers no diagnostic assignment either",
+      "detail": [],
+      "passed": true
+    }
+  ],
+  "expected_failure": false,
+  "finding": "An exceptional stage is an operator-facing TERMINAL STATE, not an assignment routed to a diagnostic principal. projection.py's own words: 'an operator has to see that, so it is exceptional rather than a stage that will quietly be offered again.' The precise missing supported operation is therefore: nothing creates an eligible diagnostic assignment or names a diagnostic principal for an exceptional stage. The only supported surfaces are this status projection and the installed `logs` verb over the attempt's retained output. If the pilot requires a diagnostic OWNER rather than a state an operator must notice, that operation does not exist and is a bounded product gap with this spec basis: W325035's FINDING asks that these outcomes 'reach explicit diagnostic owner'.",
+  "identities": {
+    "authority_uuid": "0000000a000000000000000000000000",
+    "implementation_attempt": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+    "job_id": "job-a",
+    "submission_id": "sub-1",
+    "work_id": "0000000a-W1"
+  },
+  "injected": "a provider turn exiting 1, then every supported surface asked who owns the diagnosis",
+  "outcome": "observed",
+  "pending_endings": [],
+  "scenario": "3-diagnostic-owner",
+  "seconds": 0.317,
+  "simulated": [
+    "engine: run/inspect/ps with no daemon",
+    "provider: injected at the adapter's process seam"
+  ],
+  "stage": {
+    "allocation": {
+      "allocation_state": "released",
+      "assignment_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "canonical_principal": "principal:baton.claude",
+      "episode": 1,
+      "generation": 1,
+      "generation_digest": "sha256:faaa7f1f3260a8dfc0bd123ce95247ad92ac334da641ff4f6d14e9a20f73245d",
+      "lane": "implementation",
+      "participant": "baton.claude",
+      "preferred_worker_id": null,
+      "recovery_required_at": null,
+      "release_reason": "cleanup-retained",
+      "released_at": "2026-09-02T00:00:00.000Z",
+      "reserved_at": "2026-09-02T00:00:00.000Z",
+      "selection_outcome": "initial",
+      "separation_class": "provider-diverse",
+      "stage_id": "job-a/implementation",
+      "variant": "baton.v12.stage-execution-deployment/1",
+      "worker_id": "implementation-worker",
+      "worker_profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "worker_profile_name": "reference"
+    },
+    "allocations": [
+      {
+        "allocation_state": "released",
+        "assignment_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "canonical_principal": "principal:baton.claude",
+        "episode": 1,
+        "generation": 1,
+        "generation_digest": "sha256:faaa7f1f3260a8dfc0bd123ce95247ad92ac334da641ff4f6d14e9a20f73245d",
+        "lane": "implementation",
+        "participant": "baton.claude",
+        "preferred_worker_id": null,
+        "recovery_required_at": null,
+        "release_reason": "cleanup-retained",
+        "released_at": "2026-09-02T00:00:00.000Z",
+        "reserved_at": "2026-09-02T00:00:00.000Z",
+        "selection_outcome": "initial",
+        "separation_class": "provider-diverse",
+        "stage_id": "job-a/implementation",
+        "variant": "baton.v12.stage-execution-deployment/1",
+        "worker_id": "implementation-worker",
+        "worker_profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "worker_profile_name": "reference"
+      }
+    ],
+    "artifacts": [
+      {
+        "artifact_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571:proposal",
+        "bytes": 831,
+        "content_digest": "sha256:fa2e5d58c660e9480f9986c730ee2f5d48c3f9a4a28a33f164e4dafab4603cd6",
+        "locator": "file:///home/sl/src/baton/v12/python/v12-w71917-tdukkq9n/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/custody/attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571/proposal",
+        "media_type": "application/octet-stream",
+        "output_name": "proposal"
+      }
+    ],
+    "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+    "corrections": 0,
+    "deferral": null,
+    "episode": 1,
+    "episodes": [
+      {
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "ended_at": null,
+        "ended_revision": null,
+        "ended_state": null,
+        "episode": 1,
+        "incarnation": "stage-composed",
+        "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "opened_at": "2026-09-02T00:00:00.000Z",
+        "stage_id": "job-a/implementation"
+      }
+    ],
+    "exchange": null,
+    "gates": [],
+    "job_id": "job-a",
+    "kind": "implementation",
+    "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+    "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "profile_name": "reference",
+    "receipts": [
+      {
+        "act": "admit",
+        "detail": {
+          "canonical_state": "committed",
+          "refusal": null,
+          "result": {
+            "expires_at": "2026-09-02T00:02:00.000Z",
+            "issued_at": "2026-09-02T00:00:00.000Z",
+            "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+            "participant": "baton.claude",
+            "runtime_attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+            "verifier": "sha256:b50e1a66d3f4c2caabb871b1c0d85600a0386890d3233a97fcf1ab69acd35b3b",
+            "work_id": "0000000a-W1"
+          },
+          "settled_at": "2026-09-02T00:00:00.000Z"
+        },
+        "episode": 1,
+        "operation_id": "offer.issue:offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "recorded_at": "2026-09-02T00:00:00.000Z",
+        "stage_id": "job-a/implementation",
+        "state": "performed"
+      },
+      {
+        "act": "claim",
+        "detail": {
+          "canonical_state": "committed",
+          "refusal": null,
+          "result": {
+            "assignment": {
+              "generation": 1,
+              "participant": "baton.claude",
+              "work_ref": {
+                "authority_uuid": "0000000a000000000000000000000000",
+                "work_id": "0000000a-W1"
+              }
+            },
+            "claim_event": 1,
+            "decision": {
+              "effective_scope": "scope:deployment",
+              "endpoint": "baton.claude",
+              "grant": "direct",
+              "policy_generation": 9,
+              "principal": "principal:baton.claude",
+              "role": "baton.impl"
+            },
+            "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+            "state": "claimed"
+          },
+          "settled_at": "2026-09-02T00:00:00.000Z"
+        },
+        "episode": 1,
+        "operation_id": "offer.settle:offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "recorded_at": "2026-09-02T00:00:00.000Z",
+        "stage_id": "job-a/implementation",
+        "state": "performed"
+      }
+    ],
+    "runtime": {
+      "activity": {
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "bytes_observed": null,
+        "observed_at": null
+      },
+      "assignment": {
+        "generation": 1,
+        "participant": "baton.claude",
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        }
+      },
+      "execution_runtime": "destroyed",
+      "runtime_id": "runtime-single-1"
+    },
+    "stage_id": "job-a/implementation",
+    "state": "exceptional",
+    "work_id": "0000000a-W1"
+  },
+  "stage_members": [
+    "allocation",
+    "allocations",
+    "artifacts",
+    "attempt_id",
+    "corrections",
+    "deferral",
+    "episode",
+    "episodes",
+    "exchange",
+    "gates",
+    "job_id",
+    "kind",
+    "offer_id",
+    "profile_digest",
+    "profile_name",
+    "receipts",
+    "runtime",
+    "stage_id",
+    "state",
+    "work_id"
+  ]
+}

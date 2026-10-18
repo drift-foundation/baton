@@ -1,0 +1,41 @@
+{
+  "checks": [
+    {
+      "observation": "actual stage states",
+      "value": {
+        "implementation": "queued",
+        "integration": "blocked",
+        "review": "blocked"
+      }
+    },
+    {
+      "check": "implementation is completed immediately after submission (INTENTIONALLY FALSE)",
+      "detail": {
+        "implementation": "queued",
+        "integration": "blocked",
+        "review": "blocked"
+      },
+      "passed": false
+    }
+  ],
+  "checks_passed": 0,
+  "expected_failure": true,
+  "failed_check": "implementation is completed immediately after submission (INTENTIONALLY FALSE)",
+  "failed_for_intended_reason": true,
+  "injected": "a deliberately false expectation; this scenario MUST fail, and it must fail with THIS check's own CheckFailed",
+  "intended_failed_check": "implementation is completed immediately after submission (INTENTIONALLY FALSE)",
+  "not_called": [
+    "_accepted_receipts",
+    "admit_accepted",
+    "continue_accepted",
+    "raw SQL",
+    "any product-source edit"
+  ],
+  "outcome": "failed",
+  "scenario": "0-harness-self-check",
+  "seconds": 0.207,
+  "simulated": [
+    "engine: no daemon; its answers, including absence and confusion, injected at the engine_run boundary",
+    "provider: injected at the adapter's own process seam"
+  ]
+}

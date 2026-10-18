@@ -1,0 +1,56 @@
+{
+  "directory": "matrix-325259",
+  "members": {
+    "MATRIX3.json": {
+      "bytes": 80613,
+      "sha256": "a6f75a07e27752e046cf08d09fc57aa3197032b614318a916d3f04e5598daf8c"
+    },
+    "MATRIX3.md": {
+      "bytes": 8290,
+      "sha256": "24d6959ab1a0fe5ead9724dac7fbb6c8442686150dcccc7d628a28f174142303"
+    },
+    "matrix3.py": {
+      "bytes": 68152,
+      "sha256": "743e667a60a25bc1189315f9fa59a96aefec64acbf2738c989acd706fa9031fc"
+    },
+    "scenario-0-harness-self-check.json": {
+      "bytes": 1293,
+      "sha256": "855567243d978368488198b204e5af36b4231ad89dbc9945e5ed87e402fd9774"
+    },
+    "scenario-1-lost-launch-reply-across-restart.json": {
+      "bytes": 5992,
+      "sha256": "d5f43bc1b27acb53d580b65a1473553902e7991efd05958d501f09165a5d4c79"
+    },
+    "scenario-2-unknown-runtime-then-positive-absence.json": {
+      "bytes": 5850,
+      "sha256": "418293ab1f4551de6dfa7c4ae82659cbb98a634ba6da88a072a173f2d3caf8e3"
+    },
+    "scenario-3-same-authority-recovery-retains-ownership.json": {
+      "bytes": 6483,
+      "sha256": "9be105ec4eceee31bc3e23b2b4592c4725baae7f8710c2460fbc760bcfcdd414"
+    },
+    "scenario-4-correction-lineage-through-public-readers.json": {
+      "bytes": 15387,
+      "sha256": "7b83cd6211817e8a07d2a76bd235f2982df3479bff5d118529258cebb67296b6"
+    },
+    "scenario-5-explicit-diagnostic-ownership.json": {
+      "bytes": 17148,
+      "sha256": "876f833fe6d6e1760e5718cfa93ae345590f641a2b318c631e4a942c14dc03b7"
+    },
+    "scenario-6-an-empty-turn-cannot-falsely-complete.json": {
+      "bytes": 4265,
+      "sha256": "ab9c457e6deab061c8014b6937b9e1618677b10e83af7a082d6ea2f88a1deb15"
+    },
+    "scenario-7-stale-and-wrong-principal-refuse.json": {
+      "bytes": 5633,
+      "sha256": "fa09623ad1d804b25951be9a2c488ac5351b6d2f011de974599e687c05652f1a"
+    },
+    "scenario-8-cancellation-closure-and-claim-exclusivity.json": {
+      "bytes": 8875,
+      "sha256": "356ce56f81d3eac627b633a24311d9e72665c93398f1bd1af573e08f87b36d6f"
+    }
+  },
+  "note": "the complete asserting matrix: 117 checks passed, 8 observed, self-check failed as intended, 0 unexpected",
+  "schema": "baton.w325035.matrix-evidence/3",
+  "source_base": "372281f4a473300efb474d5a6573954c15ade367"
+}

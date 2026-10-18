@@ -1,0 +1,20 @@
+{
+  "manifest_members_verified": 10,
+  "rerun": false,
+  "cancellation_live_assignment": null,
+  "cancellation_act_recorded": false,
+  "matrix_success_policy": "body returns => observed; main returns0 regardless of failed scenarios",
+  "missing": [
+    "explicit diagnostic handler/eligible assignment",
+    "lost reply injection",
+    "held-unknown runtime",
+    "disposable recovery binding"
+  ],
+  "retained_observations": [
+    "provider failed/empty => exceptional, no proposal",
+    "restart one review attempt",
+    "stale/wrong-principal cancellation refusals",
+    "correction second attempt retains first",
+    "non-satisfying closure"
+  ]
+}

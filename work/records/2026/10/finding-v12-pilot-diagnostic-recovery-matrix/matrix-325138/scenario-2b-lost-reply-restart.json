@@ -1,0 +1,77 @@
+{
+  "checks": [
+    {
+      "check": "the worker turn committed",
+      "detail": 0,
+      "passed": true
+    },
+    {
+      "observation": "states with the reply committed and unprocessed",
+      "value": {
+        "implementation": "answering",
+        "integration": "blocked",
+        "review": "blocked"
+      }
+    },
+    {
+      "check": "the engine now reports the runtime absent",
+      "detail": false,
+      "passed": true
+    },
+    {
+      "observation": "states after the absence was observable",
+      "value": {
+        "implementation": "completed",
+        "integration": "blocked",
+        "review": "waiting"
+      }
+    },
+    {
+      "check": "the implementation stage completed",
+      "detail": {
+        "implementation": "completed",
+        "integration": "blocked",
+        "review": "waiting"
+      },
+      "passed": true
+    },
+    {
+      "check": "no duplicate implementation attempt was prepared",
+      "detail": [
+        "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"
+      ],
+      "passed": true
+    },
+    {
+      "check": "exactly one review attempt exists",
+      "detail": [
+        "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c"
+      ],
+      "passed": true
+    }
+  ],
+  "expected_failure": false,
+  "identities": {
+    "authority_uuid": "0000000a000000000000000000000000",
+    "implementation_attempt": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+    "job_id": "job-a",
+    "submission_id": "sub-1",
+    "work_id": "0000000a-W1"
+  },
+  "injected": "the same committed reply with the engine reporting the runtime absent",
+  "outcome": "observed",
+  "review_attempts": [
+    "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c"
+  ],
+  "scenario": "2b-lost-reply-restart",
+  "seconds": 0.512,
+  "simulated": [
+    "engine: run/inspect/ps with no daemon",
+    "provider: injected at the adapter's process seam"
+  ],
+  "states_after_absence": {
+    "implementation": "completed",
+    "integration": "blocked",
+    "review": "waiting"
+  }
+}

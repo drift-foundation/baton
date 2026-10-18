@@ -1,0 +1,66 @@
+{
+  "asserted": "the implementation attempt is unchanged and exactly one review attempt exists after the restart",
+  "identities": {
+    "authority_uuid": "0000000a000000000000000000000000",
+    "implementation_attempt": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+    "job_id": "job-a",
+    "review_attempt": null,
+    "review_attempt_after_restart": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+    "submission_id": "sub-1",
+    "work_id": "0000000a-W1"
+  },
+  "implementation_attempt_unchanged": true,
+  "injected": "a fresh serving composition over the same stores",
+  "one_review_attempt": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+  "outcome": "observed",
+  "proposals": [
+    {
+      "assignment_ref": {
+        "generation": 1,
+        "participant": "baton.claude",
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        }
+      },
+      "candidate_digest": "41569a4140ef5cf3a416b0b579eca79d1e46b5a9",
+      "decision": {
+        "effective_scope": "scope:deployment",
+        "endpoint": "baton.claude",
+        "grant": "direct",
+        "policy_generation": 9,
+        "principal": "principal:baton.claude",
+        "role": "baton.impl"
+      },
+      "input_digest": "sha256:31633cc2c45d557ff2048084cbafa5091e71df0b92391dc9e16fbb55814b4b5e",
+      "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "proposal_id": "integration-driver.proposal:0777b1ec0693d04be166838d9f8f6836aa3cd5687146ec6f1c90885df21f5e37",
+      "published_at": "2026-10-18T18:02:26.673Z",
+      "receipts": {
+        "approval": null,
+        "integration": null,
+        "review": null,
+        "verification": null
+      },
+      "result_digest": "sha256:38c4154fe6c26c3fd0ae0e6a49d28dc7dd97fa0c505a4b06db77c48be461d882",
+      "result_id": "result-attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "target": "b48ce03098656e0fa1568c286acd8b96a19c1a26"
+    }
+  ],
+  "scenario": "2-restart-no-duplicate",
+  "seconds": 0.309,
+  "simulated": [
+    "engine: answers run/inspect/ps with no daemon",
+    "provider: injected at the adapter's process seam"
+  ],
+  "stage_states_after_restart": {
+    "implementation": "completed",
+    "integration": "blocked",
+    "review": "waiting"
+  },
+  "stage_states_before_restart": {
+    "implementation": "completed",
+    "integration": "blocked",
+    "review": "queued"
+  }
+}

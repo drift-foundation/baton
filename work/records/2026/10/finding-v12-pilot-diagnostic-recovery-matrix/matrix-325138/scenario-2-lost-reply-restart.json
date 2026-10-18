@@ -1,0 +1,60 @@
+{
+  "checks": [
+    {
+      "check": "the worker turn committed",
+      "detail": 0,
+      "passed": true
+    },
+    {
+      "observation": "states with the reply committed and unprocessed",
+      "value": {
+        "implementation": "answering",
+        "integration": "blocked",
+        "review": "blocked"
+      }
+    },
+    {
+      "observation": "states after a fresh composition SWEPT only",
+      "value": {
+        "implementation": "answering",
+        "integration": "blocked",
+        "review": "blocked"
+      }
+    },
+    {
+      "observation": "the supported recover operation answered",
+      "value": {
+        "abandoned": [],
+        "recoverable": []
+      }
+    },
+    {
+      "observation": "states after recover() and ordinary sweeps",
+      "value": {
+        "implementation": "answering",
+        "integration": "blocked",
+        "review": "blocked"
+      }
+    },
+    {
+      "check": "the implementation stage completed exactly once",
+      "detail": {
+        "implementation": "answering",
+        "integration": "blocked",
+        "review": "blocked"
+      },
+      "passed": false
+    }
+  ],
+  "expected_failure": false,
+  "failed_check": "the implementation stage completed exactly once (detail: {'implementation': 'answering', 'review': 'blocked', 'integration': 'blocked'})",
+  "injected": "a committed worker turn whose reply the manager never processed, then a fresh composition over the same stores",
+  "outcome": "failed",
+  "scenario": "2-lost-reply-restart",
+  "seconds": 0.645,
+  "simulated": [
+    "engine: run/inspect/ps with no daemon",
+    "provider: injected at the adapter's process seam"
+  ],
+  "unexpected": true
+}

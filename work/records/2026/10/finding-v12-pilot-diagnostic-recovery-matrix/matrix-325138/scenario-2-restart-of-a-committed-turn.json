@@ -1,0 +1,93 @@
+{
+  "checks": [
+    {
+      "check": "the worker turn committed",
+      "detail": 0,
+      "passed": true
+    },
+    {
+      "observation": "states with the reply committed and unprocessed",
+      "value": {
+        "implementation": "answering",
+        "integration": "blocked",
+        "review": "blocked"
+      }
+    },
+    {
+      "observation": "the supported recover verb's answer for a fresh composition",
+      "value": {
+        "abandoned": [],
+        "recoverable": []
+      }
+    },
+    {
+      "observation": "states after recover() and ordinary sweeps",
+      "value": {
+        "implementation": "answering",
+        "integration": "blocked",
+        "review": "blocked"
+      }
+    },
+    {
+      "check": "the stage did not falsely finish",
+      "detail": {
+        "implementation": "answering",
+        "integration": "blocked",
+        "review": "blocked"
+      },
+      "passed": true
+    },
+    {
+      "check": "the successors stay blocked",
+      "detail": {
+        "implementation": "answering",
+        "integration": "blocked",
+        "review": "blocked"
+      },
+      "passed": true
+    },
+    {
+      "check": "the fresh composition re-adopted the original attempt and prepared no other",
+      "detail": [
+        "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"
+      ],
+      "passed": true
+    },
+    {
+      "check": "the original attempt identity is unchanged",
+      "detail": [
+        "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"
+      ],
+      "passed": true
+    }
+  ],
+  "expected_failure": false,
+  "identities": {
+    "authority_uuid": "0000000a000000000000000000000000",
+    "implementation_attempt": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+    "job_id": "job-a",
+    "submission_id": "sub-1",
+    "work_id": "0000000a-W1"
+  },
+  "injected": "a committed worker turn, then a fresh composition and the supported recover verb; asserts only no-false-finish and no-duplicate",
+  "not_demonstrated": "A committed reply is NOT adopted across a restart by `recover()` plus ordinary sweeps in this world: recover answers {'abandoned': [], 'recoverable': []} and the stage stays `answering`. That is consistent with \u00a710.8 -- this world's engine keeps answering that the runtime is present, and an unreachable or running runtime is not a dead one -- but it means the lost-reply-across-restart vector is NOT demonstrated here. Demonstrating it needs an engine seam that reports positive absence for this composition, which this fixture does not expose; the integration-worker world's `running` flag is a different world's seam. Named as remaining scope rather than asserted either way.",
+  "outcome": "observed",
+  "prepared_in_fresh_composition": [
+    "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"
+  ],
+  "recover_answer": {
+    "abandoned": [],
+    "recoverable": []
+  },
+  "scenario": "2-restart-of-a-committed-turn",
+  "seconds": 0.408,
+  "settled": {
+    "implementation": "answering",
+    "integration": "blocked",
+    "review": "blocked"
+  },
+  "simulated": [
+    "engine: run/inspect/ps with no daemon",
+    "provider: injected at the adapter's process seam"
+  ]
+}

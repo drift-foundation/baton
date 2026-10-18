@@ -1,0 +1,554 @@
+{
+  "boundary": "composed native Job world imported from tests.tools.test_stage_execution and not modified; engine and provider simulated at their own boundaries and labelled; no product edit, forged receipt, live model, live credential, deployment or Git mutation",
+  "failed_as_expected": 1,
+  "harness_self_check_proves_checks_are_checks": true,
+  "observed": 3,
+  "scenarios": [
+    {
+      "checks": [
+        {
+          "observation": "actual stage states",
+          "value": {
+            "implementation": "queued",
+            "integration": "blocked",
+            "review": "blocked"
+          }
+        },
+        {
+          "check": "implementation is completed immediately after submission (INTENTIONALLY FALSE)",
+          "detail": {
+            "implementation": "queued",
+            "integration": "blocked",
+            "review": "blocked"
+          },
+          "passed": false
+        }
+      ],
+      "expected_failure": true,
+      "failed_check": "implementation is completed immediately after submission (INTENTIONALLY FALSE) (detail: {'implementation': 'queued', 'review': 'blocked', 'integration': 'blocked'})",
+      "injected": "a deliberately false expectation; this scenario MUST fail",
+      "outcome": "failed",
+      "scenario": "0-harness-self-check",
+      "seconds": 0.197,
+      "simulated": [
+        "engine: run/inspect/ps with no daemon",
+        "provider: injected at the adapter's process seam"
+      ]
+    },
+    {
+      "assignment_events": [
+        {
+          "assignment_ref": {
+            "generation": 1,
+            "participant": "baton.claude",
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W1"
+            }
+          },
+          "at": "2026-10-18T18:14:40.355Z",
+          "cause": "claimed",
+          "decision": {
+            "effective_scope": "scope:deployment",
+            "endpoint": "baton.claude",
+            "grant": "direct",
+            "policy_generation": 9,
+            "principal": "principal:baton.claude",
+            "role": "baton.impl"
+          },
+          "fenced": false,
+          "gate": null,
+          "phase": "active",
+          "reason": null,
+          "seq": 1
+        },
+        {
+          "assignment_ref": {
+            "generation": 1,
+            "participant": "baton.claude",
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W1"
+            }
+          },
+          "at": "2026-10-18T18:14:40.412Z",
+          "cause": "cancelled",
+          "decision": null,
+          "fenced": true,
+          "gate": "runtime-quiescence:1",
+          "phase": "block",
+          "reason": "W325035 matrix: live cancellation",
+          "seq": 2
+        }
+      ],
+      "cancelled": {
+        "assignment": {
+          "generation": 1,
+          "participant": "baton.claude",
+          "work_ref": {
+            "authority_uuid": "0000000a000000000000000000000000",
+            "work_id": "0000000a-W1"
+          }
+        },
+        "cause": "cancelled",
+        "fenced": true,
+        "gate": "runtime-quiescence:1",
+        "phase": "block"
+      },
+      "checks": [
+        {
+          "check": "an assignment is live before the cancellation",
+          "detail": {
+            "generation": 1,
+            "participant": "baton.claude",
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W1"
+            }
+          },
+          "passed": true
+        },
+        {
+          "check": "the cancellation answered a result",
+          "detail": {
+            "assignment": {
+              "generation": 1,
+              "participant": "baton.claude",
+              "work_ref": {
+                "authority_uuid": "0000000a000000000000000000000000",
+                "work_id": "0000000a-W1"
+              }
+            },
+            "cause": "cancelled",
+            "fenced": true,
+            "gate": "runtime-quiescence:1",
+            "phase": "block"
+          },
+          "passed": true
+        },
+        {
+          "check": "the Work no longer has a handler",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "the Work is still open (a cancelled assignment is not a cancelled Work)",
+          "detail": "open",
+          "passed": true
+        },
+        {
+          "check": "no outcome was recorded by the cancellation",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "the cancellation is in the assignment events",
+          "detail": {
+            "assignment_ref": {
+              "generation": 1,
+              "participant": "baton.claude",
+              "work_ref": {
+                "authority_uuid": "0000000a000000000000000000000000",
+                "work_id": "0000000a-W1"
+              }
+            },
+            "at": "2026-10-18T18:14:40.412Z",
+            "cause": "cancelled",
+            "decision": null,
+            "fenced": true,
+            "gate": "runtime-quiescence:1",
+            "phase": "block",
+            "reason": "W325035 matrix: live cancellation",
+            "seq": 2
+          },
+          "passed": true
+        },
+        {
+          "check": "the live assignment is gone",
+          "detail": null,
+          "passed": true
+        }
+      ],
+      "expected_failure": false,
+      "identities": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "job_id": "job-a",
+        "submission_id": "sub-1",
+        "work_id": "0000000a-W1"
+      },
+      "injected": "a cancellation driven while the assignment is live",
+      "live_before_cancel": {
+        "generation": 1,
+        "participant": "baton.claude",
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        }
+      },
+      "outcome": "observed",
+      "scenario": "1-live-cancellation",
+      "seconds": 0.112,
+      "simulated": [
+        "engine: run/inspect/ps with no daemon",
+        "provider: injected at the adapter's process seam"
+      ],
+      "work_after_cancel": {
+        "gate": {
+          "detail": "1",
+          "kind": "runtime-quiescence",
+          "token": "runtime-quiescence:1"
+        },
+        "handler": null,
+        "outcome": null,
+        "phase": "block",
+        "status": "open"
+      }
+    },
+    {
+      "checks": [
+        {
+          "check": "the worker turn committed",
+          "detail": 0,
+          "passed": true
+        },
+        {
+          "observation": "states with the reply committed and unprocessed",
+          "value": {
+            "implementation": "answering",
+            "integration": "blocked",
+            "review": "blocked"
+          }
+        },
+        {
+          "observation": "the supported recover verb's answer for a fresh composition",
+          "value": {
+            "abandoned": [],
+            "recoverable": []
+          }
+        },
+        {
+          "observation": "states after recover() and ordinary sweeps",
+          "value": {
+            "implementation": "answering",
+            "integration": "blocked",
+            "review": "blocked"
+          }
+        },
+        {
+          "check": "the stage did not falsely finish",
+          "detail": {
+            "implementation": "answering",
+            "integration": "blocked",
+            "review": "blocked"
+          },
+          "passed": true
+        },
+        {
+          "check": "the successors stay blocked",
+          "detail": {
+            "implementation": "answering",
+            "integration": "blocked",
+            "review": "blocked"
+          },
+          "passed": true
+        },
+        {
+          "check": "the fresh composition re-adopted the original attempt and prepared no other",
+          "detail": [
+            "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"
+          ],
+          "passed": true
+        },
+        {
+          "check": "the original attempt identity is unchanged",
+          "detail": [
+            "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"
+          ],
+          "passed": true
+        }
+      ],
+      "expected_failure": false,
+      "identities": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "implementation_attempt": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "job_id": "job-a",
+        "submission_id": "sub-1",
+        "work_id": "0000000a-W1"
+      },
+      "injected": "a committed worker turn, then a fresh composition and the supported recover verb; asserts only no-false-finish and no-duplicate",
+      "not_demonstrated": "A committed reply is NOT adopted across a restart by `recover()` plus ordinary sweeps in this world: recover answers {'abandoned': [], 'recoverable': []} and the stage stays `answering`. That is consistent with \u00a710.8 -- this world's engine keeps answering that the runtime is present, and an unreachable or running runtime is not a dead one -- but it means the lost-reply-across-restart vector is NOT demonstrated here. Demonstrating it needs an engine seam that reports positive absence for this composition, which this fixture does not expose; the integration-worker world's `running` flag is a different world's seam. Named as remaining scope rather than asserted either way.",
+      "outcome": "observed",
+      "prepared_in_fresh_composition": [
+        "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"
+      ],
+      "recover_answer": {
+        "abandoned": [],
+        "recoverable": []
+      },
+      "scenario": "2-restart-of-a-committed-turn",
+      "seconds": 0.408,
+      "settled": {
+        "implementation": "answering",
+        "integration": "blocked",
+        "review": "blocked"
+      },
+      "simulated": [
+        "engine: run/inspect/ps with no daemon",
+        "provider: injected at the adapter's process seam"
+      ]
+    },
+    {
+      "checks": [
+        {
+          "check": "the stage is exceptional",
+          "detail": "exceptional",
+          "passed": true
+        },
+        {
+          "check": "no candidate was published",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "observation": "every member the status projection gives this stage",
+          "value": [
+            "allocation",
+            "allocations",
+            "artifacts",
+            "attempt_id",
+            "corrections",
+            "deferral",
+            "episode",
+            "episodes",
+            "exchange",
+            "gates",
+            "job_id",
+            "kind",
+            "offer_id",
+            "profile_digest",
+            "profile_name",
+            "receipts",
+            "runtime",
+            "stage_id",
+            "state",
+            "work_id"
+          ]
+        },
+        {
+          "check": "the projection names NO diagnostic owner member for an exceptional stage",
+          "detail": [],
+          "passed": true
+        },
+        {
+          "check": "pending_endings offers no diagnostic assignment either",
+          "detail": [],
+          "passed": true
+        }
+      ],
+      "expected_failure": false,
+      "finding": "An exceptional stage is an operator-facing TERMINAL STATE, not an assignment routed to a diagnostic principal. projection.py's own words: 'an operator has to see that, so it is exceptional rather than a stage that will quietly be offered again.' The precise missing supported operation is therefore: nothing creates an eligible diagnostic assignment or names a diagnostic principal for an exceptional stage. The only supported surfaces are this status projection and the installed `logs` verb over the attempt's retained output. If the pilot requires a diagnostic OWNER rather than a state an operator must notice, that operation does not exist and is a bounded product gap with this spec basis: W325035's FINDING asks that these outcomes 'reach explicit diagnostic owner'.",
+      "identities": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "implementation_attempt": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "job_id": "job-a",
+        "submission_id": "sub-1",
+        "work_id": "0000000a-W1"
+      },
+      "injected": "a provider turn exiting 1, then every supported surface asked who owns the diagnosis",
+      "outcome": "observed",
+      "pending_endings": [],
+      "scenario": "3-diagnostic-owner",
+      "seconds": 0.317,
+      "simulated": [
+        "engine: run/inspect/ps with no daemon",
+        "provider: injected at the adapter's process seam"
+      ],
+      "stage": {
+        "allocation": {
+          "allocation_state": "released",
+          "assignment_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "canonical_principal": "principal:baton.claude",
+          "episode": 1,
+          "generation": 1,
+          "generation_digest": "sha256:faaa7f1f3260a8dfc0bd123ce95247ad92ac334da641ff4f6d14e9a20f73245d",
+          "lane": "implementation",
+          "participant": "baton.claude",
+          "preferred_worker_id": null,
+          "recovery_required_at": null,
+          "release_reason": "cleanup-retained",
+          "released_at": "2026-09-02T00:00:00.000Z",
+          "reserved_at": "2026-09-02T00:00:00.000Z",
+          "selection_outcome": "initial",
+          "separation_class": "provider-diverse",
+          "stage_id": "job-a/implementation",
+          "variant": "baton.v12.stage-execution-deployment/1",
+          "worker_id": "implementation-worker",
+          "worker_profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "worker_profile_name": "reference"
+        },
+        "allocations": [
+          {
+            "allocation_state": "released",
+            "assignment_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+            "canonical_principal": "principal:baton.claude",
+            "episode": 1,
+            "generation": 1,
+            "generation_digest": "sha256:faaa7f1f3260a8dfc0bd123ce95247ad92ac334da641ff4f6d14e9a20f73245d",
+            "lane": "implementation",
+            "participant": "baton.claude",
+            "preferred_worker_id": null,
+            "recovery_required_at": null,
+            "release_reason": "cleanup-retained",
+            "released_at": "2026-09-02T00:00:00.000Z",
+            "reserved_at": "2026-09-02T00:00:00.000Z",
+            "selection_outcome": "initial",
+            "separation_class": "provider-diverse",
+            "stage_id": "job-a/implementation",
+            "variant": "baton.v12.stage-execution-deployment/1",
+            "worker_id": "implementation-worker",
+            "worker_profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "worker_profile_name": "reference"
+          }
+        ],
+        "artifacts": [
+          {
+            "artifact_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571:proposal",
+            "bytes": 831,
+            "content_digest": "sha256:fa2e5d58c660e9480f9986c730ee2f5d48c3f9a4a28a33f164e4dafab4603cd6",
+            "locator": "file:///home/sl/src/baton/v12/python/v12-w71917-tdukkq9n/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/custody/attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571/proposal",
+            "media_type": "application/octet-stream",
+            "output_name": "proposal"
+          }
+        ],
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "corrections": 0,
+        "deferral": null,
+        "episode": 1,
+        "episodes": [
+          {
+            "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+            "ended_at": null,
+            "ended_revision": null,
+            "ended_state": null,
+            "episode": 1,
+            "incarnation": "stage-composed",
+            "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+            "opened_at": "2026-09-02T00:00:00.000Z",
+            "stage_id": "job-a/implementation"
+          }
+        ],
+        "exchange": null,
+        "gates": [],
+        "job_id": "job-a",
+        "kind": "implementation",
+        "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "profile_name": "reference",
+        "receipts": [
+          {
+            "act": "admit",
+            "detail": {
+              "canonical_state": "committed",
+              "refusal": null,
+              "result": {
+                "expires_at": "2026-09-02T00:02:00.000Z",
+                "issued_at": "2026-09-02T00:00:00.000Z",
+                "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                "participant": "baton.claude",
+                "runtime_attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                "verifier": "sha256:b50e1a66d3f4c2caabb871b1c0d85600a0386890d3233a97fcf1ab69acd35b3b",
+                "work_id": "0000000a-W1"
+              },
+              "settled_at": "2026-09-02T00:00:00.000Z"
+            },
+            "episode": 1,
+            "operation_id": "offer.issue:offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+            "recorded_at": "2026-09-02T00:00:00.000Z",
+            "stage_id": "job-a/implementation",
+            "state": "performed"
+          },
+          {
+            "act": "claim",
+            "detail": {
+              "canonical_state": "committed",
+              "refusal": null,
+              "result": {
+                "assignment": {
+                  "generation": 1,
+                  "participant": "baton.claude",
+                  "work_ref": {
+                    "authority_uuid": "0000000a000000000000000000000000",
+                    "work_id": "0000000a-W1"
+                  }
+                },
+                "claim_event": 1,
+                "decision": {
+                  "effective_scope": "scope:deployment",
+                  "endpoint": "baton.claude",
+                  "grant": "direct",
+                  "policy_generation": 9,
+                  "principal": "principal:baton.claude",
+                  "role": "baton.impl"
+                },
+                "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                "state": "claimed"
+              },
+              "settled_at": "2026-09-02T00:00:00.000Z"
+            },
+            "episode": 1,
+            "operation_id": "offer.settle:offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+            "recorded_at": "2026-09-02T00:00:00.000Z",
+            "stage_id": "job-a/implementation",
+            "state": "performed"
+          }
+        ],
+        "runtime": {
+          "activity": {
+            "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+            "bytes_observed": null,
+            "observed_at": null
+          },
+          "assignment": {
+            "generation": 1,
+            "participant": "baton.claude",
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W1"
+            }
+          },
+          "execution_runtime": "destroyed",
+          "runtime_id": "runtime-single-1"
+        },
+        "stage_id": "job-a/implementation",
+        "state": "exceptional",
+        "work_id": "0000000a-W1"
+      },
+      "stage_members": [
+        "allocation",
+        "allocations",
+        "artifacts",
+        "attempt_id",
+        "corrections",
+        "deferral",
+        "episode",
+        "episodes",
+        "exchange",
+        "gates",
+        "job_id",
+        "kind",
+        "offer_id",
+        "profile_digest",
+        "profile_name",
+        "receipts",
+        "runtime",
+        "stage_id",
+        "state",
+        "work_id"
+      ]
+    }
+  ],
+  "schema": "baton.w325035.matrix/2",
+  "seconds": 1.036,
+  "supersedes": "matrix-325037 (its observations are preserved; its cancellation prose is corrected by scenario 1 here and by SUPERSESSION.md)",
+  "unexpected": 0
+}

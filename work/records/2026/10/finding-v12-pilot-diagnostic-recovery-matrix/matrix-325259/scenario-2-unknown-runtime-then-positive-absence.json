@@ -1,0 +1,201 @@
+{
+  "absence": {
+    "axis": {
+      "assignment": {
+        "generation": 1,
+        "participant": "baton.claude",
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        }
+      },
+      "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "cleanup": "pending",
+      "execution_runtime": "destroyed",
+      "runtime_id": "runtime-single-1"
+    },
+    "states": {
+      "implementation": "exceptional",
+      "integration": "blocked",
+      "review": "blocked"
+    }
+  },
+  "checks": [
+    {
+      "check": "a runtime is attached and running before either answer",
+      "detail": {
+        "assignment": {
+          "generation": 1,
+          "participant": "baton.claude",
+          "work_ref": {
+            "authority_uuid": "0000000a000000000000000000000000",
+            "work_id": "0000000a-W1"
+          }
+        },
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "cleanup": "pending",
+        "execution_runtime": "running",
+        "runtime_id": "runtime-single-1"
+      },
+      "passed": true
+    },
+    {
+      "check": "an UNKNOWN runtime does not advance the axis",
+      "detail": "running",
+      "passed": true
+    },
+    {
+      "check": "and does not erase the identity",
+      "detail": "runtime-single-1",
+      "passed": true
+    },
+    {
+      "check": "the stage stays gated rather than finishing",
+      "detail": {
+        "implementation": "waiting",
+        "integration": "blocked",
+        "review": "blocked"
+      },
+      "passed": true
+    },
+    {
+      "check": "no second container was started on the strength of confusion",
+      "detail": 1,
+      "passed": true
+    },
+    {
+      "check": "and still no candidate",
+      "detail": [],
+      "passed": true
+    },
+    {
+      "check": "POSITIVE ABSENCE reaches the end of the runtime axis",
+      "detail": "destroyed",
+      "passed": true
+    },
+    {
+      "check": "attributed to the EXACT runtime identity, which is not erased",
+      "detail": {
+        "assignment": {
+          "generation": 1,
+          "participant": "baton.claude",
+          "work_ref": {
+            "authority_uuid": "0000000a000000000000000000000000",
+            "work_id": "0000000a-W1"
+          }
+        },
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "cleanup": "pending",
+        "execution_runtime": "destroyed",
+        "runtime_id": "runtime-single-1"
+      },
+      "passed": true
+    },
+    {
+      "check": "and to the exact attempt",
+      "detail": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "passed": true
+    },
+    {
+      "check": "the assignment is still this attempt's own",
+      "detail": {
+        "generation": 1,
+        "participant": "baton.claude",
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        }
+      },
+      "passed": true
+    },
+    {
+      "check": "the stage cannot falsely complete: it is exceptional",
+      "detail": {
+        "implementation": "exceptional",
+        "integration": "blocked",
+        "review": "blocked"
+      },
+      "passed": true
+    },
+    {
+      "check": "the successors stay blocked",
+      "detail": {
+        "implementation": "exceptional",
+        "integration": "blocked",
+        "review": "blocked"
+      },
+      "passed": true
+    },
+    {
+      "check": "no replacement container was started for the dead one",
+      "detail": 1,
+      "passed": true
+    },
+    {
+      "check": "and the authoritative proposal inventory is still empty",
+      "detail": [],
+      "passed": true
+    }
+  ],
+  "checks_passed": 14,
+  "expected_failure": false,
+  "identities": {
+    "authority_uuid": "0000000a000000000000000000000000",
+    "implementation_attempt": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+    "job_id": "job-a",
+    "runtime_id": "runtime-single-1",
+    "submission_id": "sub-1",
+    "work_id": "0000000a-W1"
+  },
+  "injected": "one engine, two answers: `status 1` with prose that names no container (unknown), then the engine's own `No such container: <id>` for this exact identity (absence), both at the `engine_run` boundary",
+  "intended_failed_check": null,
+  "live_before": {
+    "assignment": {
+      "generation": 1,
+      "participant": "baton.claude",
+      "work_ref": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "work_id": "0000000a-W1"
+      }
+    },
+    "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+    "cleanup": "pending",
+    "execution_runtime": "running",
+    "runtime_id": "runtime-single-1"
+  },
+  "not_called": [
+    "_accepted_receipts",
+    "admit_accepted",
+    "continue_accepted",
+    "raw SQL",
+    "any product-source edit"
+  ],
+  "outcome": "observed",
+  "scenario": "2-unknown-runtime-then-positive-absence",
+  "seconds": 0.252,
+  "simulated": [
+    "engine: no daemon; its answers, including absence and confusion, injected at the engine_run boundary",
+    "provider: injected at the adapter's own process seam"
+  ],
+  "unknown": {
+    "axis": {
+      "assignment": {
+        "generation": 1,
+        "participant": "baton.claude",
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        }
+      },
+      "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "cleanup": "pending",
+      "execution_runtime": "running",
+      "runtime_id": "runtime-single-1"
+    },
+    "states": {
+      "implementation": "waiting",
+      "integration": "blocked",
+      "review": "blocked"
+    }
+  }
+}

@@ -1,0 +1,512 @@
+{
+  "checks": [
+    {
+      "check": "the worker turn itself completed its exchange",
+      "detail": 0,
+      "passed": true
+    },
+    {
+      "check": "the stage is exceptional and cannot falsely complete",
+      "detail": "exceptional",
+      "passed": true
+    },
+    {
+      "check": "the AUTHORITATIVE proposal inventory is empty, which is the inventory and not a missing projection member",
+      "detail": [],
+      "passed": true
+    },
+    {
+      "check": "the successors stay blocked",
+      "detail": {
+        "implementation": "exceptional",
+        "integration": "blocked",
+        "review": "blocked"
+      },
+      "passed": true
+    },
+    {
+      "check": "pending_endings offers nothing for it either",
+      "detail": [],
+      "passed": true
+    },
+    {
+      "observation": "every member the status projection gives this stage",
+      "value": [
+        "allocation",
+        "allocations",
+        "artifacts",
+        "attempt_id",
+        "corrections",
+        "deferral",
+        "episode",
+        "episodes",
+        "exchange",
+        "gates",
+        "job_id",
+        "kind",
+        "offer_id",
+        "profile_digest",
+        "profile_name",
+        "receipts",
+        "runtime",
+        "stage_id",
+        "state",
+        "work_id"
+      ]
+    },
+    {
+      "check": "the projection itself names no diagnostic owner -- which is a fact about the PROJECTION and proves nothing about the Authority's surfaces",
+      "detail": [
+        "allocation",
+        "allocations",
+        "artifacts",
+        "attempt_id",
+        "corrections",
+        "deferral",
+        "episode",
+        "episodes",
+        "exchange",
+        "gates",
+        "job_id",
+        "kind",
+        "offer_id",
+        "profile_digest",
+        "profile_name",
+        "receipts",
+        "runtime",
+        "stage_id",
+        "state",
+        "work_id"
+      ],
+      "passed": true
+    },
+    {
+      "check": "the Work is open with no handler after the failed turn",
+      "detail": {
+        "gate": null,
+        "handler": null,
+        "outcome": null,
+        "phase": "queued",
+        "route": "rview",
+        "scope": "scope:deployment",
+        "status": "open"
+      },
+      "passed": true
+    },
+    {
+      "check": "no outcome was invented for it",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "and no live assignment is left behind",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "an ELIGIBLE DIAGNOSTIC ASSIGNMENT exists and names the diagnostic participant",
+      "detail": {
+        "generation": 2,
+        "participant": "baton.diagnostician",
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        }
+      },
+      "passed": true
+    },
+    {
+      "check": "the assignment is this Work's own",
+      "detail": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "work_id": "0000000a-W1"
+      },
+      "passed": true
+    },
+    {
+      "check": "the decision names the diagnostic PRINCIPAL",
+      "detail": {
+        "effective_scope": "scope:deployment",
+        "endpoint": "baton.diagnostician",
+        "grant": "direct",
+        "policy_generation": 10,
+        "principal": "principal:baton.diagnostician",
+        "role": "rview"
+      },
+      "passed": true
+    },
+    {
+      "check": "and the Work is now actively held by the diagnostic owner",
+      "detail": {
+        "handler": "baton.diagnostician",
+        "phase": "active",
+        "route": "rview",
+        "status": "open"
+      },
+      "passed": true
+    },
+    {
+      "check": "an identical claim replays rather than taking a second one",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "labelling the Work without the capability is refused",
+      "detail": "Refusal: 'baton.diagnostician' does not hold the manage-work-labels capability; a Work label addition is written by the configured actor, not by whoever holds the object",
+      "passed": true
+    },
+    {
+      "check": "and accepted once the capability is granted",
+      "detail": [
+        "diagnosis-needed"
+      ],
+      "passed": true
+    },
+    {
+      "check": "so the failed Work is DISCOVERABLE by label",
+      "detail": [
+        "0000000a-W1"
+      ],
+      "passed": true
+    },
+    {
+      "check": "its creation is attributable",
+      "detail": {
+        "at": "2026-10-18T18:39:31.277Z",
+        "kind": "trusted-bootstrap",
+        "operation_id": "w325035-diagnostic-work",
+        "scope": "scope:deployment",
+        "work_id": "0000000a-W2"
+      },
+      "passed": true
+    },
+    {
+      "check": "one principal still holds ONE active claim",
+      "detail": "Refusal: 'principal:baton.diagnostician' already holds '0000000a-W1'; a principal holds ONE active claim at a time, across every endpoint address it acts through",
+      "passed": true
+    },
+    {
+      "check": "a dedicated diagnostic Work on its own route is created and claimed by its own diagnostic owner",
+      "detail": {
+        "generation": null,
+        "participant": "baton.diagnostician-standby",
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W2"
+        }
+      },
+      "passed": true
+    },
+    {
+      "check": "while the failed Work stays with the first diagnostic owner",
+      "detail": {
+        "generation": 2,
+        "participant": "baton.diagnostician",
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        }
+      },
+      "passed": true
+    }
+  ],
+  "checks_passed": 21,
+  "diagnostic_assignment": {
+    "generation": 2,
+    "participant": "baton.diagnostician",
+    "work_ref": {
+      "authority_uuid": "0000000a000000000000000000000000",
+      "work_id": "0000000a-W1"
+    }
+  },
+  "diagnostic_claim": {
+    "assignment": {
+      "generation": 2,
+      "participant": "baton.diagnostician",
+      "work_ref": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "work_id": "0000000a-W1"
+      }
+    },
+    "claim_event": 3,
+    "decision": {
+      "effective_scope": "scope:deployment",
+      "endpoint": "baton.diagnostician",
+      "grant": "direct",
+      "policy_generation": 10,
+      "principal": "principal:baton.diagnostician",
+      "role": "rview"
+    }
+  },
+  "diagnostic_work": {
+    "assignment": null,
+    "authority_uuid": "0000000a000000000000000000000000",
+    "close_decision": null,
+    "contract": "v11",
+    "creation": {
+      "at": "2026-10-18T18:39:31.277Z",
+      "kind": "trusted-bootstrap",
+      "operation_id": "w325035-diagnostic-work",
+      "scope": "scope:deployment",
+      "work_id": "0000000a-W2"
+    },
+    "fenced_generations": [],
+    "gate": null,
+    "generation_counter": 0,
+    "handler": null,
+    "labels": [
+      "diagnosis-needed"
+    ],
+    "live_generation": null,
+    "outcome": null,
+    "phase": "queued",
+    "rationale": null,
+    "ready": true,
+    "route": "diagnosis",
+    "scope": "scope:deployment",
+    "status": "open",
+    "work_id": "0000000a-W2"
+  },
+  "diagnostic_work_assignment": {
+    "generation": null,
+    "participant": "baton.diagnostician-standby",
+    "work_ref": {
+      "authority_uuid": "0000000a000000000000000000000000",
+      "work_id": "0000000a-W2"
+    }
+  },
+  "established": "An explicit diagnostic owner is reached by supported native coordination: the operator names a diagnostic handler for the Work's route (or creates a diagnostic Work on its own route), the diagnostic participant CLAIMS it, and the resulting assignment names that participant and its principal. Capability-bounded labelling makes the failure discoverable.",
+  "expected_failure": false,
+  "identities": {
+    "authority_uuid": "0000000a000000000000000000000000",
+    "implementation_attempt": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+    "job_id": "job-a",
+    "submission_id": "sub-1",
+    "work_id": "0000000a-W1"
+  },
+  "injected": "a provider turn exiting 1, then the Authority's own route, claim, label and creation surfaces asked who may own the diagnosis",
+  "intended_failed_check": null,
+  "label_without_capability": "Refusal: 'baton.diagnostician' does not hold the manage-work-labels capability; a Work label addition is written by the configured actor, not by whoever holds the object",
+  "labels": [
+    "diagnosis-needed"
+  ],
+  "not_called": [
+    "_accepted_receipts",
+    "admit_accepted",
+    "continue_accepted",
+    "raw SQL",
+    "any product-source edit"
+  ],
+  "outcome": "observed",
+  "remains_true": "What the projection does NOT do is route this automatically: an exceptional stage is a terminal state an operator must notice, and nothing offers it to a diagnostician on its own. That is the selected owner policy -- a deployment act -- and NOT a missing product operation. No product defect is claimed from this scenario.",
+  "scenario": "5-explicit-diagnostic-ownership",
+  "second_claim_by_one_principal": "Refusal: 'principal:baton.diagnostician' already holds '0000000a-W1'; a principal holds ONE active claim at a time, across every endpoint address it acts through",
+  "seconds": 0.32,
+  "simulated": [
+    "engine: no daemon; its answers, including absence and confusion, injected at the engine_run boundary",
+    "provider: injected at the adapter's own process seam"
+  ],
+  "stage": {
+    "allocation": {
+      "allocation_state": "released",
+      "assignment_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "canonical_principal": "principal:baton.claude",
+      "episode": 1,
+      "generation": 1,
+      "generation_digest": "sha256:faaa7f1f3260a8dfc0bd123ce95247ad92ac334da641ff4f6d14e9a20f73245d",
+      "lane": "implementation",
+      "participant": "baton.claude",
+      "preferred_worker_id": null,
+      "recovery_required_at": null,
+      "release_reason": "cleanup-retained",
+      "released_at": "2026-09-02T00:00:00.000Z",
+      "reserved_at": "2026-09-02T00:00:00.000Z",
+      "selection_outcome": "initial",
+      "separation_class": "provider-diverse",
+      "stage_id": "job-a/implementation",
+      "variant": "baton.v12.stage-execution-deployment/1",
+      "worker_id": "implementation-worker",
+      "worker_profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "worker_profile_name": "reference"
+    },
+    "allocations": [
+      {
+        "allocation_state": "released",
+        "assignment_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "canonical_principal": "principal:baton.claude",
+        "episode": 1,
+        "generation": 1,
+        "generation_digest": "sha256:faaa7f1f3260a8dfc0bd123ce95247ad92ac334da641ff4f6d14e9a20f73245d",
+        "lane": "implementation",
+        "participant": "baton.claude",
+        "preferred_worker_id": null,
+        "recovery_required_at": null,
+        "release_reason": "cleanup-retained",
+        "released_at": "2026-09-02T00:00:00.000Z",
+        "reserved_at": "2026-09-02T00:00:00.000Z",
+        "selection_outcome": "initial",
+        "separation_class": "provider-diverse",
+        "stage_id": "job-a/implementation",
+        "variant": "baton.v12.stage-execution-deployment/1",
+        "worker_id": "implementation-worker",
+        "worker_profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "worker_profile_name": "reference"
+      }
+    ],
+    "artifacts": [
+      {
+        "artifact_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571:proposal",
+        "bytes": 831,
+        "content_digest": "sha256:9fa90f9328232832b2b323ba0ae8d24974b87de951b557a75847720fe39e7cc3",
+        "locator": "file:///home/sl/src/baton/v12/python/v12-w71917-giqe8xhs/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/custody/attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571/proposal",
+        "media_type": "application/octet-stream",
+        "output_name": "proposal"
+      }
+    ],
+    "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+    "corrections": 0,
+    "deferral": null,
+    "episode": 1,
+    "episodes": [
+      {
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "ended_at": null,
+        "ended_revision": null,
+        "ended_state": null,
+        "episode": 1,
+        "incarnation": "stage-diag",
+        "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "opened_at": "2026-09-02T00:00:00.000Z",
+        "stage_id": "job-a/implementation"
+      }
+    ],
+    "exchange": null,
+    "gates": [],
+    "job_id": "job-a",
+    "kind": "implementation",
+    "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+    "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "profile_name": "reference",
+    "receipts": [
+      {
+        "act": "admit",
+        "detail": {
+          "canonical_state": "committed",
+          "refusal": null,
+          "result": {
+            "expires_at": "2026-09-02T00:02:00.000Z",
+            "issued_at": "2026-09-02T00:00:00.000Z",
+            "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+            "participant": "baton.claude",
+            "runtime_attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+            "verifier": "sha256:ed423a3851a17056ac5ae70650c89727db557a20cd2a044c63136a9a3cc210a4",
+            "work_id": "0000000a-W1"
+          },
+          "settled_at": "2026-09-02T00:00:00.000Z"
+        },
+        "episode": 1,
+        "operation_id": "offer.issue:offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "recorded_at": "2026-09-02T00:00:00.000Z",
+        "stage_id": "job-a/implementation",
+        "state": "performed"
+      },
+      {
+        "act": "claim",
+        "detail": {
+          "canonical_state": "committed",
+          "refusal": null,
+          "result": {
+            "assignment": {
+              "generation": 1,
+              "participant": "baton.claude",
+              "work_ref": {
+                "authority_uuid": "0000000a000000000000000000000000",
+                "work_id": "0000000a-W1"
+              }
+            },
+            "claim_event": 1,
+            "decision": {
+              "effective_scope": "scope:deployment",
+              "endpoint": "baton.claude",
+              "grant": "direct",
+              "policy_generation": 9,
+              "principal": "principal:baton.claude",
+              "role": "baton.impl"
+            },
+            "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+            "state": "claimed"
+          },
+          "settled_at": "2026-09-02T00:00:00.000Z"
+        },
+        "episode": 1,
+        "operation_id": "offer.settle:offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "recorded_at": "2026-09-02T00:00:00.000Z",
+        "stage_id": "job-a/implementation",
+        "state": "performed"
+      }
+    ],
+    "runtime": {
+      "activity": {
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "bytes_observed": null,
+        "observed_at": null
+      },
+      "assignment": {
+        "generation": 1,
+        "participant": "baton.claude",
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        }
+      },
+      "execution_runtime": "destroyed",
+      "runtime_id": "runtime-single-1"
+    },
+    "stage_id": "job-a/implementation",
+    "state": "exceptional",
+    "work_id": "0000000a-W1"
+  },
+  "stage_members": [
+    "allocation",
+    "allocations",
+    "artifacts",
+    "attempt_id",
+    "corrections",
+    "deferral",
+    "episode",
+    "episodes",
+    "exchange",
+    "gates",
+    "job_id",
+    "kind",
+    "offer_id",
+    "profile_digest",
+    "profile_name",
+    "receipts",
+    "runtime",
+    "stage_id",
+    "state",
+    "work_id"
+  ],
+  "states": {
+    "implementation": "exceptional",
+    "integration": "blocked",
+    "review": "blocked"
+  },
+  "withdrawn": "The claim in ../matrix-325138/scenario-2 and in my 18:16 handoff -- that nothing creates an eligible diagnostic assignment or names a diagnostic principal, and that this is a bounded product gap -- is WITHDRAWN. It was inferred from missing projection keys, which the review correctly refused as a basis. Asked of the Authority's own surfaces, the path exists and is driven above.",
+  "work_after_diagnostic_claim": {
+    "handler": "baton.diagnostician",
+    "phase": "active",
+    "route": "rview",
+    "status": "open"
+  },
+  "work_after_failure": {
+    "gate": null,
+    "handler": null,
+    "outcome": null,
+    "phase": "queued",
+    "route": "rview",
+    "scope": "scope:deployment",
+    "status": "open"
+  }
+}

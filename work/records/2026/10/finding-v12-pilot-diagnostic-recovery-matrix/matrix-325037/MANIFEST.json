@@ -1,0 +1,52 @@
+{
+  "directory": "matrix-325037",
+  "members": {
+    "MATRIX.json": {
+      "bytes": 15896,
+      "sha256": "e3d1b06d9c37ea8d5c06fd873835efb9220be6fea5ceabcadaf7ff15891b7432"
+    },
+    "MATRIX.md": {
+      "bytes": 5005,
+      "sha256": "e244eae07352f1e8ce4717c14126098e193d8f64b5267b5806c7adbafd78453b"
+    },
+    "SUPERSESSION.md": {
+      "bytes": 3584,
+      "sha256": "9a03821494a32832d2f24baa407fd1d60cb97e8dbc715fbe1992fc48ab96bef7"
+    },
+    "matrix.py": {
+      "bytes": 24265,
+      "sha256": "33e8894a8f848ebead41f2913d9a01928751f829c74231b21b6c1765df33968e"
+    },
+    "scenario-1a-provider-failed.json": {
+      "bytes": 1168,
+      "sha256": "108f3beb48dc6fd0dbabe302f78ecdd4c172711b8a65dcd846f8854d2eadd597"
+    },
+    "scenario-1b-no-candidate.json": {
+      "bytes": 1112,
+      "sha256": "cc25f5ec3f42902273e43bf217bace3f452c88886fa2fecd99ffae41a0353e3f"
+    },
+    "scenario-2-restart-no-duplicate.json": {
+      "bytes": 2545,
+      "sha256": "f69c1815473a0eeca5f79cd6442259824dfac85d8857d0626878b5c15d107618"
+    },
+    "scenario-3-stale-and-wrong-principal.json": {
+      "bytes": 867,
+      "sha256": "476a1274c18475d91ee7bcbbc22667eafef8e9bc8198331de6220a7b17bff856"
+    },
+    "scenario-4-correction-binding.json": {
+      "bytes": 3444,
+      "sha256": "0146d9fe0e4d17faa784ec21c31400c0fff9dd5361e9f2c28a8b88a0f369891a"
+    },
+    "scenario-5-cancellation-and-non-satisfying.json": {
+      "bytes": 2984,
+      "sha256": "3968c99be667990a4bdcd52502b68f2f761fdd38e9edeb80b71b043a47ef9097"
+    },
+    "scenario-6-one-writable-authority.json": {
+      "bytes": 1411,
+      "sha256": "c8658e47c028f88184ceeffb6eb72cf02e9c9c2406e38a8357e0e6036d5ca7da"
+    }
+  },
+  "note": "first run, observations only; superseded in part, see SUPERSESSION.md",
+  "schema": "baton.w325035.matrix-evidence/3",
+  "source_base": "372281f4a473300efb474d5a6573954c15ade367"
+}

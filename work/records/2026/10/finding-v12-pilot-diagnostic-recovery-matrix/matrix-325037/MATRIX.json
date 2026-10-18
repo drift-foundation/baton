@@ -1,0 +1,430 @@
+{
+  "boundary": "real coordination on disposable stores; engine and provider simulated at their own boundary and labelled per scenario; no daemon, container, image, network, live model, live credential, deployment, raw SQL or Git mutation",
+  "failed": 0,
+  "observed": 7,
+  "provenance": {
+    "fixture_lineage": "tests.tools.test_stage_execution ComposedOneJobCase and TheComposedJobTraversesReviewAndAcceptance",
+    "parent_driver": "work/records/2026/10/finding-v12-pilot-workflow-rehearsal/rehearsal-324890/joined_rehearsal.py",
+    "reuse": "imported, not modified; the parent's evidence is untouched"
+  },
+  "scenarios": [
+    {
+      "after_ordinary_ticks": {
+        "progression": [
+          {
+            "implementation": "exceptional",
+            "integration": "blocked",
+            "review": "blocked"
+          }
+        ],
+        "settled": {
+          "implementation": "exceptional",
+          "integration": "blocked",
+          "review": "blocked"
+        },
+        "ticks": 12
+      },
+      "asserted": "no candidate is published, the stage does not complete, and an ending is pending for a diagnostic owner",
+      "identities": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "implementation_attempt": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "job_id": "job-a",
+        "submission_id": "sub-1",
+        "work_id": "0000000a-W1"
+      },
+      "injected": "provider exits 1 and writes nothing",
+      "outcome": "observed",
+      "pending_endings": [],
+      "proposals": [],
+      "scenario": "1a-provider-failed",
+      "seconds": 0.515,
+      "simulated": [
+        "engine: answers run/inspect/ps with no daemon",
+        "provider: injected at the adapter's process seam"
+      ],
+      "stage_states_after_turn": {
+        "implementation": "answering",
+        "integration": "blocked",
+        "review": "blocked"
+      },
+      "worker_turn_exit": 0
+    },
+    {
+      "after_ordinary_ticks": {
+        "progression": [
+          {
+            "implementation": "exceptional",
+            "integration": "blocked",
+            "review": "blocked"
+          }
+        ],
+        "settled": {
+          "implementation": "exceptional",
+          "integration": "blocked",
+          "review": "blocked"
+        },
+        "ticks": 12
+      },
+      "asserted": "an empty turn does not become an accepted proposal",
+      "identities": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "implementation_attempt": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "job_id": "job-a",
+        "submission_id": "sub-1",
+        "work_id": "0000000a-W1"
+      },
+      "injected": "provider exits 0 and writes nothing",
+      "outcome": "observed",
+      "pending_endings": [],
+      "proposals": [],
+      "scenario": "1b-no-candidate",
+      "seconds": 0.336,
+      "simulated": [
+        "engine: answers run/inspect/ps with no daemon",
+        "provider: injected at the adapter's process seam"
+      ],
+      "stage_states_after_turn": {
+        "implementation": "answering",
+        "integration": "blocked",
+        "review": "blocked"
+      },
+      "worker_turn_exit": 0
+    },
+    {
+      "asserted": "the implementation attempt is unchanged and exactly one review attempt exists after the restart",
+      "identities": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "implementation_attempt": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "job_id": "job-a",
+        "review_attempt": null,
+        "review_attempt_after_restart": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "submission_id": "sub-1",
+        "work_id": "0000000a-W1"
+      },
+      "implementation_attempt_unchanged": true,
+      "injected": "a fresh serving composition over the same stores",
+      "one_review_attempt": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+      "outcome": "observed",
+      "proposals": [
+        {
+          "assignment_ref": {
+            "generation": 1,
+            "participant": "baton.claude",
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W1"
+            }
+          },
+          "candidate_digest": "41569a4140ef5cf3a416b0b579eca79d1e46b5a9",
+          "decision": {
+            "effective_scope": "scope:deployment",
+            "endpoint": "baton.claude",
+            "grant": "direct",
+            "policy_generation": 9,
+            "principal": "principal:baton.claude",
+            "role": "baton.impl"
+          },
+          "input_digest": "sha256:31633cc2c45d557ff2048084cbafa5091e71df0b92391dc9e16fbb55814b4b5e",
+          "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "proposal_id": "integration-driver.proposal:0777b1ec0693d04be166838d9f8f6836aa3cd5687146ec6f1c90885df21f5e37",
+          "published_at": "2026-10-18T18:02:26.673Z",
+          "receipts": {
+            "approval": null,
+            "integration": null,
+            "review": null,
+            "verification": null
+          },
+          "result_digest": "sha256:38c4154fe6c26c3fd0ae0e6a49d28dc7dd97fa0c505a4b06db77c48be461d882",
+          "result_id": "result-attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "target": "b48ce03098656e0fa1568c286acd8b96a19c1a26"
+        }
+      ],
+      "scenario": "2-restart-no-duplicate",
+      "seconds": 0.309,
+      "simulated": [
+        "engine: answers run/inspect/ps with no daemon",
+        "provider: injected at the adapter's process seam"
+      ],
+      "stage_states_after_restart": {
+        "implementation": "completed",
+        "integration": "blocked",
+        "review": "waiting"
+      },
+      "stage_states_before_restart": {
+        "implementation": "completed",
+        "integration": "blocked",
+        "review": "queued"
+      }
+    },
+    {
+      "asserted": "both are refused by the authority",
+      "identities": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "job_id": "job-a",
+        "submission_id": "sub-1",
+        "work_id": "0000000a-W1"
+      },
+      "injected": "a stale generation, and another participant's session",
+      "live_assignment": {
+        "generation": 1,
+        "participant": "baton.claude",
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        }
+      },
+      "outcome": "observed",
+      "refusals": {
+        "stale episode": "stale assignment",
+        "wrong principal": "this session acts for 'baton.gemini'; the assignment names 'baton.claude'"
+      },
+      "scenario": "3-stale-and-wrong-principal",
+      "seconds": 0.11,
+      "simulated": [
+        "engine: answers run/inspect/ps with no daemon",
+        "provider: injected at the adapter's process seam"
+      ]
+    },
+    {
+      "after_ordinary_ticks": {
+        "progression": [
+          {
+            "implementation": "completed",
+            "integration": "blocked",
+            "review": "answering"
+          },
+          {
+            "implementation": "queued",
+            "integration": "blocked",
+            "review": "blocked"
+          },
+          {
+            "implementation": "offered",
+            "integration": "blocked",
+            "review": "blocked"
+          },
+          {
+            "implementation": "waiting",
+            "integration": "blocked",
+            "review": "blocked"
+          }
+        ],
+        "settled": {
+          "implementation": "waiting",
+          "integration": "blocked",
+          "review": "blocked"
+        },
+        "ticks": 12
+      },
+      "asserted": "the correction round stays bound to the same candidate and attempt",
+      "correction_round": {
+        "correction_attempt": [
+          "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa"
+        ],
+        "first_attempt": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "first_attempt_retained": true,
+        "implementation_attempts": [
+          "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa"
+        ],
+        "states": {
+          "implementation": "waiting",
+          "integration": "blocked",
+          "review": "blocked"
+        }
+      },
+      "identities": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "implementation_attempt": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "job_id": "job-a",
+        "review_attempt": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "submission_id": "sub-1",
+        "work_id": "0000000a-W1"
+      },
+      "injected": "a changes-requested review verdict",
+      "outcome": "observed",
+      "proposals": [
+        {
+          "assignment_ref": {
+            "generation": 1,
+            "participant": "baton.claude",
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W1"
+            }
+          },
+          "candidate_digest": "e25c3e98e815a632a1d19f83397251d98470d567",
+          "decision": {
+            "effective_scope": "scope:deployment",
+            "endpoint": "baton.claude",
+            "grant": "direct",
+            "policy_generation": 9,
+            "principal": "principal:baton.claude",
+            "role": "baton.impl"
+          },
+          "input_digest": "sha256:31633cc2c45d557ff2048084cbafa5091e71df0b92391dc9e16fbb55814b4b5e",
+          "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "proposal_id": "integration-driver.proposal:1dbbb7b7e9200da84ddf8f1aba03bd9daba9e687e0ee6e850d1ae6f644d73792",
+          "published_at": "2026-10-18T18:02:27.091Z",
+          "receipts": {
+            "approval": null,
+            "integration": null,
+            "review": null,
+            "verification": null
+          },
+          "result_digest": "sha256:c90f46533d9b52364d02bf1b10ca818224edb19e67151108a19bac180cd4d0de",
+          "result_id": "result-attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "target": "b48ce03098656e0fa1568c286acd8b96a19c1a26"
+        }
+      ],
+      "scenario": "4-correction-binding",
+      "seconds": 0.687,
+      "simulated": [
+        "engine: answers run/inspect/ps with no daemon",
+        "provider: injected at the adapter's process seam"
+      ],
+      "stage_states_after_verdict": {
+        "implementation": "completed",
+        "integration": "blocked",
+        "review": "answering"
+      }
+    },
+    {
+      "asserted": "the Work ends honestly and its evidence is preserved",
+      "close": {
+        "answer": {
+          "acceptance": {
+            "outcome": "non-satisfying",
+            "required": false
+          },
+          "actor": "baton.slaw",
+          "authority_uuid": "0000000a000000000000000000000000",
+          "closed": {
+            "actor": "baton.slaw",
+            "assignment": null,
+            "decision": {
+              "effective_scope": "scope:deployment",
+              "endpoint": "baton.slaw",
+              "grant": "direct",
+              "policy_generation": 10,
+              "principal": "principal:baton.slaw",
+              "role": "close"
+            },
+            "outcome": "non-satisfying"
+          },
+          "preserved": {
+            "dossier": null,
+            "evidence": [],
+            "proposals": [
+              {
+                "candidate_digest": "cb2ad50b87260a7c83cdfe199a42bfe48912e313",
+                "proposal_id": "integration-driver.proposal:0016a64a5803939f445c74cbfd59b4cb936e4061f2445d132332a440f4f3c0bc",
+                "receipts": {
+                  "approval": null,
+                  "integration": null,
+                  "review": null,
+                  "verification": null
+                }
+              }
+            ]
+          },
+          "replayed": false,
+          "request": {
+            "bound_at": "2026-10-18T18:02:27.811Z",
+            "kind": "command-request",
+            "request": {
+              "candidate_digest": null,
+              "expect_assignment": null,
+              "outcome": "non-satisfying",
+              "participant": "baton.slaw",
+              "proposal": null,
+              "rationale": "W325035 matrix: honest non-satisfying ending",
+              "verb": "close",
+              "work": "0000000a-W1"
+            },
+            "verb": "close",
+            "work_id": "0000000a-W1"
+          },
+          "work_at_invocation": {
+            "outcome": null,
+            "phase": "queued",
+            "status": "open"
+          },
+          "work_id": "0000000a-W1"
+        },
+        "exit": 0,
+        "stderr": ""
+      },
+      "evidence_preserved": {
+        "dossier": null,
+        "proposals": [
+          "integration-driver.proposal:0016a64a5803939f445c74cbfd59b4cb936e4061f2445d132332a440f4f3c0bc"
+        ]
+      },
+      "identities": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "implementation_attempt": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "job_id": "job-a",
+        "review_attempt": null,
+        "submission_id": "sub-1",
+        "work_id": "0000000a-W1"
+      },
+      "injected": "a cancellation of the live assignment",
+      "live_before_cancel": null,
+      "outcome": "observed",
+      "scenario": "5-cancellation-and-non-satisfying",
+      "seconds": 0.217,
+      "simulated": [
+        "engine: answers run/inspect/ps with no daemon",
+        "provider: injected at the adapter's process seam"
+      ],
+      "work_after_cancel": {
+        "gate": null,
+        "handler": null,
+        "outcome": null,
+        "phase": "queued",
+        "status": "open"
+      },
+      "work_after_close": {
+        "outcome": "non-satisfying",
+        "phase": null,
+        "rationale": "W325035 matrix: honest non-satisfying ending",
+        "status": "closed"
+      }
+    },
+    {
+      "asserted": "one writer, a reader that performs nothing, and an exact identity check",
+      "identities": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "job_id": "job-a",
+        "submission_id": "sub-1",
+        "work_id": "0000000a-W1"
+      },
+      "injected": "a second writable open, a read-only open, and a wrong authority uuid",
+      "outcome": "observed",
+      "read_only_open": "accepted, and it performs nothing",
+      "read_only_transition": "refused: this authority store was opened for reading and cannot open a write transaction; a read-only handle answers the committed record and performs no transition",
+      "scenario": "6-one-writable-authority",
+      "second_writable_open": "ACCEPTED",
+      "seconds": 0.023,
+      "simulated": [
+        "engine: answers run/inspect/ps with no daemon",
+        "provider: injected at the adapter's process seam"
+      ],
+      "two_handles_racing_one_claim": {
+        "first_claim": {
+          "generation": 1,
+          "participant": "baton.claude",
+          "work_ref": {
+            "authority_uuid": "0000000a000000000000000000000000",
+            "work_id": "0000000a-W1"
+          }
+        },
+        "second_claim": "refused: Work is already claimed"
+      },
+      "wrong_authority_uuid": "refused: the authority at '/home/sl/src/baton/v12/python/v12-w71917-d1kbdgys/authority.\\u2026' is '0000000a000000000000000000000000', not 'ffffffffffffffffffffffffffffffff'; an authority UUID is durable and is never reassigned"
+    }
+  ],
+  "schema": "baton.w325035.matrix/1",
+  "seconds": 2.197
+}

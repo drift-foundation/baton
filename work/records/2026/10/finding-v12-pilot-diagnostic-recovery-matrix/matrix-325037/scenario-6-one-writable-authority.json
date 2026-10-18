@@ -1,0 +1,32 @@
+{
+  "asserted": "one writer, a reader that performs nothing, and an exact identity check",
+  "identities": {
+    "authority_uuid": "0000000a000000000000000000000000",
+    "job_id": "job-a",
+    "submission_id": "sub-1",
+    "work_id": "0000000a-W1"
+  },
+  "injected": "a second writable open, a read-only open, and a wrong authority uuid",
+  "outcome": "observed",
+  "read_only_open": "accepted, and it performs nothing",
+  "read_only_transition": "refused: this authority store was opened for reading and cannot open a write transaction; a read-only handle answers the committed record and performs no transition",
+  "scenario": "6-one-writable-authority",
+  "second_writable_open": "ACCEPTED",
+  "seconds": 0.023,
+  "simulated": [
+    "engine: answers run/inspect/ps with no daemon",
+    "provider: injected at the adapter's process seam"
+  ],
+  "two_handles_racing_one_claim": {
+    "first_claim": {
+      "generation": 1,
+      "participant": "baton.claude",
+      "work_ref": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "work_id": "0000000a-W1"
+      }
+    },
+    "second_claim": "refused: Work is already claimed"
+  },
+  "wrong_authority_uuid": "refused: the authority at '/home/sl/src/baton/v12/python/v12-w71917-d1kbdgys/authority.\\u2026' is '0000000a000000000000000000000000', not 'ffffffffffffffffffffffffffffffff'; an authority UUID is durable and is never reassigned"
+}

@@ -1,0 +1,212 @@
+{
+  "adopted": {
+    "assignment": {
+      "generation": 1,
+      "participant": "baton.claude",
+      "work_ref": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "work_id": "0000000a-W1"
+      }
+    },
+    "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+    "cleanup": "pending",
+    "execution_runtime": "running",
+    "runtime_id": "runtime-single-1"
+  },
+  "checks": [
+    {
+      "check": "the manager process stopped inside the launch reply",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "the start is COMMITTED",
+      "detail": "start-requested",
+      "passed": true
+    },
+    {
+      "check": "and its reply is LOST: no runtime is attached",
+      "detail": {
+        "assignment": {
+          "generation": 1,
+          "participant": "baton.claude",
+          "work_ref": {
+            "authority_uuid": "0000000a000000000000000000000000",
+            "work_id": "0000000a-W1"
+          }
+        },
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "cleanup": "pending",
+        "execution_runtime": "start-requested",
+        "runtime_id": null
+      },
+      "passed": true
+    },
+    {
+      "check": "the engine nevertheless really started one container",
+      "detail": {
+        "engine_runtime": "runtime-single-1",
+        "launches": 1
+      },
+      "passed": true
+    },
+    {
+      "check": "so the stage is still the control plane's to drive",
+      "detail": "claimed",
+      "passed": true
+    },
+    {
+      "observation": "the manager's own restart recovery",
+      "value": {
+        "abandoned": [],
+        "recoverable": []
+      }
+    },
+    {
+      "check": "the restart ASKED the engine",
+      "detail": [
+        "inspect",
+        "ps"
+      ],
+      "passed": true
+    },
+    {
+      "check": "the restart adopted the EXACT runtime the lost reply named",
+      "detail": {
+        "assignment": {
+          "generation": 1,
+          "participant": "baton.claude",
+          "work_ref": {
+            "authority_uuid": "0000000a000000000000000000000000",
+            "work_id": "0000000a-W1"
+          }
+        },
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "cleanup": "pending",
+        "execution_runtime": "running",
+        "runtime_id": "runtime-single-1"
+      },
+      "passed": true
+    },
+    {
+      "check": "on the same attempt identity",
+      "detail": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "passed": true
+    },
+    {
+      "check": "the assignment is unchanged by the recovery",
+      "detail": {
+        "generation": 1,
+        "participant": "baton.claude",
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        }
+      },
+      "passed": true
+    },
+    {
+      "check": "NO second container was started",
+      "detail": 1,
+      "passed": true
+    },
+    {
+      "check": "no duplicate attempt was prepared",
+      "detail": [
+        "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"
+      ],
+      "passed": true
+    },
+    {
+      "check": "nothing falsely finished",
+      "detail": {
+        "implementation": "waiting",
+        "integration": "blocked",
+        "review": "blocked"
+      },
+      "passed": true
+    },
+    {
+      "check": "the successors stay blocked",
+      "detail": {
+        "implementation": "waiting",
+        "integration": "blocked",
+        "review": "blocked"
+      },
+      "passed": true
+    },
+    {
+      "check": "no start failure and no preparation failure were invented",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "and the recovered stage is serving again",
+      "detail": {
+        "implementation": "waiting",
+        "integration": "blocked",
+        "review": "blocked"
+      },
+      "passed": true
+    },
+    {
+      "check": "no candidate was published by any of it",
+      "detail": [],
+      "passed": true
+    }
+  ],
+  "checks_passed": 16,
+  "corrects": "../matrix-325138/ said this fixture exposes no engine-absence seam and that the lost-reply vector could not be demonstrated here. Both are withdrawn: the seam is the `engine_run` boundary, and the vector is driven above.",
+  "engine_verbs_after_restart": [
+    "inspect",
+    "ps"
+  ],
+  "expected_failure": false,
+  "identities": {
+    "authority_uuid": "0000000a000000000000000000000000",
+    "implementation_attempt": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+    "job_id": "job-a",
+    "submission_id": "sub-1",
+    "work_id": "0000000a-W1"
+  },
+  "injected": "a committed start whose reply is dropped after the engine really started the container, then a restart over the SAME engine state",
+  "intended_failed_check": null,
+  "lost_reply_window": {
+    "assignment": {
+      "generation": 1,
+      "participant": "baton.claude",
+      "work_ref": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "work_id": "0000000a-W1"
+      }
+    },
+    "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+    "cleanup": "pending",
+    "execution_runtime": "start-requested",
+    "runtime_id": null
+  },
+  "not_called": [
+    "_accepted_receipts",
+    "admit_accepted",
+    "continue_accepted",
+    "raw SQL",
+    "any product-source edit"
+  ],
+  "orphan_runtime": "runtime-single-1",
+  "outcome": "observed",
+  "recover_answer": {
+    "abandoned": [],
+    "recoverable": []
+  },
+  "scenario": "1-lost-launch-reply-across-restart",
+  "seconds": 0.209,
+  "settled": {
+    "implementation": "waiting",
+    "integration": "blocked",
+    "review": "blocked"
+  },
+  "simulated": [
+    "engine: no daemon; its answers, including absence and confusion, injected at the engine_run boundary",
+    "provider: injected at the adapter's own process seam"
+  ]
+}

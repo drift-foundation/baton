@@ -1,0 +1,10 @@
+{
+  "manifest_sha256": "970a1a22f209069a7db1595d8d02f34ad40584258ab8d550a31a3d239dd26309",
+  "members_verified": 12,
+  "checks_passed": 117,
+  "observed": 8,
+  "selfcheck_exact": true,
+  "no_setup_cleanup_errors": true,
+  "native_rerun": false,
+  "scope": "same retained authority manager recovery, not backup restore or OS exclusion"
+}

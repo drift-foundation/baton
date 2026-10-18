@@ -1,0 +1,111 @@
+{
+  "checks": [
+    {
+      "check": "the worker turn itself completed its exchange",
+      "detail": 0,
+      "passed": true
+    },
+    {
+      "check": "the stage is exceptional rather than completed",
+      "detail": {
+        "implementation": "exceptional",
+        "integration": "blocked",
+        "review": "blocked"
+      },
+      "passed": true
+    },
+    {
+      "check": "the successors stay blocked",
+      "detail": {
+        "implementation": "exceptional",
+        "integration": "blocked",
+        "review": "blocked"
+      },
+      "passed": true
+    },
+    {
+      "check": "the AUTHORITATIVE proposal inventory holds no candidate",
+      "detail": [],
+      "passed": true
+    },
+    {
+      "observation": "the frozen output of the empty turn",
+      "value": "unable"
+    },
+    {
+      "check": "no completed result was frozen for it",
+      "detail": {
+        "artifacts": [
+          {
+            "artifact_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571:proposal",
+            "bytes": 503,
+            "content_digest": "sha256:6e32607e8630ae8facabac108f5e1160ffe0ebd9c118311f376ffc451842c919",
+            "locator": "file:///home/sl/src/baton/v12/python/v12-w71917-cvxeiqut/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/custody/attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571/proposal",
+            "media_type": "application/octet-stream",
+            "output_name": "proposal"
+          }
+        ],
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "disposition": "unable",
+        "freeze_operation_id": "output.freeze:5216d33ac31b80877f9d9633afccdfea6c91568f5337c9fae4ea7aba14e000c1",
+        "frozen_at": "2026-09-02T00:00:00.000Z",
+        "manifest_digest": "sha256:198ac39c35d8ce142bbf4aba914a6dc9698b41a5669b46aec8c4e03a4bff9f58",
+        "result_id": "result-attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"
+      },
+      "passed": true
+    },
+    {
+      "check": "and no second attempt was offered",
+      "detail": null,
+      "passed": true
+    }
+  ],
+  "checks_passed": 6,
+  "expected_failure": false,
+  "frozen_output": {
+    "artifacts": [
+      {
+        "artifact_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571:proposal",
+        "bytes": 503,
+        "content_digest": "sha256:6e32607e8630ae8facabac108f5e1160ffe0ebd9c118311f376ffc451842c919",
+        "locator": "file:///home/sl/src/baton/v12/python/v12-w71917-cvxeiqut/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/custody/attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571/proposal",
+        "media_type": "application/octet-stream",
+        "output_name": "proposal"
+      }
+    ],
+    "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+    "disposition": "unable",
+    "freeze_operation_id": "output.freeze:5216d33ac31b80877f9d9633afccdfea6c91568f5337c9fae4ea7aba14e000c1",
+    "frozen_at": "2026-09-02T00:00:00.000Z",
+    "manifest_digest": "sha256:198ac39c35d8ce142bbf4aba914a6dc9698b41a5669b46aec8c4e03a4bff9f58",
+    "result_id": "result-attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"
+  },
+  "identities": {
+    "authority_uuid": "0000000a000000000000000000000000",
+    "implementation_attempt": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+    "job_id": "job-a",
+    "submission_id": "sub-1",
+    "work_id": "0000000a-W1"
+  },
+  "injected": "the provider exits 0 and writes no edit",
+  "intended_failed_check": null,
+  "not_called": [
+    "_accepted_receipts",
+    "admit_accepted",
+    "continue_accepted",
+    "raw SQL",
+    "any product-source edit"
+  ],
+  "outcome": "observed",
+  "scenario": "6-an-empty-turn-cannot-falsely-complete",
+  "seconds": 0.316,
+  "simulated": [
+    "engine: no daemon; its answers, including absence and confusion, injected at the engine_run boundary",
+    "provider: injected at the adapter's own process seam"
+  ],
+  "states": {
+    "implementation": "exceptional",
+    "integration": "blocked",
+    "review": "blocked"
+  }
+}

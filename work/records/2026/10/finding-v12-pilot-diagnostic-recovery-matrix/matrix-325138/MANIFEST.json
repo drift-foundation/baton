@@ -1,0 +1,48 @@
+{
+  "directory": "matrix-325138",
+  "members": {
+    "MATRIX2.json": {
+      "bytes": 20602,
+      "sha256": "faa6478eb7e8832a3ab4710ad109ecf4728976d8f39cc317dc23ca240a8b1dd7"
+    },
+    "SUPERSESSION.md": {
+      "bytes": 2428,
+      "sha256": "4725d1e892bdb9be1f52b25b92dbf06971696553b9bb8c7346e69411597cec18"
+    },
+    "matrix2.py": {
+      "bytes": 18669,
+      "sha256": "dde0e24b127db7a2c747f23d7f7527d9c58cccb90dbab291523a77c522e3c440"
+    },
+    "scenario-0-harness-self-check.json": {
+      "bytes": 950,
+      "sha256": "167f02f88b2f1ee3c5b5bfb90c63bb380d6661972344033f9c763756ffcb99be"
+    },
+    "scenario-1-live-cancellation.json": {
+      "bytes": 4330,
+      "sha256": "6a696fa2d9aa0ca5bab828b1b7448be922b01d134f24b152f90116c2459bb22d"
+    },
+    "scenario-2-lost-reply-restart.json": {
+      "bytes": 1665,
+      "sha256": "9aabe21a63abf35b0719e100eaf5826f9fc1c07de3a900343647c42fdef44cda"
+    },
+    "scenario-2-restart-of-a-committed-turn.json": {
+      "bytes": 3238,
+      "sha256": "f212beee754fdc7ee7c0f0230d2440b6db0a7c8e48f5e81562b87bf78dab6308"
+    },
+    "scenario-2a-held-unknown-runtime.json": {
+      "bytes": 1325,
+      "sha256": "ec4490dcda52f163d359dfc7a0021c16b3303a49a7af4b86883707c2a5b7423c"
+    },
+    "scenario-2b-lost-reply-restart.json": {
+      "bytes": 2091,
+      "sha256": "28dffd6cde91811e4efa6408bbc3fadec81e01e5cdecf637b60ba591548fbed3"
+    },
+    "scenario-3-diagnostic-owner.json": {
+      "bytes": 9302,
+      "sha256": "2cd4491bd3af9b08f66bda4a214753d4ed49196fa3854fe9c6dc48d47239a2a4"
+    }
+  },
+  "note": "asserting partial run; two conclusions withdrawn, see SUPERSESSION.md",
+  "schema": "baton.w325035.matrix-evidence/3",
+  "source_base": "372281f4a473300efb474d5a6573954c15ade367"
+}

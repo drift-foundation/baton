@@ -1,0 +1,103 @@
+{
+  "asserted": "the Work ends honestly and its evidence is preserved",
+  "close": {
+    "answer": {
+      "acceptance": {
+        "outcome": "non-satisfying",
+        "required": false
+      },
+      "actor": "baton.slaw",
+      "authority_uuid": "0000000a000000000000000000000000",
+      "closed": {
+        "actor": "baton.slaw",
+        "assignment": null,
+        "decision": {
+          "effective_scope": "scope:deployment",
+          "endpoint": "baton.slaw",
+          "grant": "direct",
+          "policy_generation": 10,
+          "principal": "principal:baton.slaw",
+          "role": "close"
+        },
+        "outcome": "non-satisfying"
+      },
+      "preserved": {
+        "dossier": null,
+        "evidence": [],
+        "proposals": [
+          {
+            "candidate_digest": "cb2ad50b87260a7c83cdfe199a42bfe48912e313",
+            "proposal_id": "integration-driver.proposal:0016a64a5803939f445c74cbfd59b4cb936e4061f2445d132332a440f4f3c0bc",
+            "receipts": {
+              "approval": null,
+              "integration": null,
+              "review": null,
+              "verification": null
+            }
+          }
+        ]
+      },
+      "replayed": false,
+      "request": {
+        "bound_at": "2026-10-18T18:02:27.811Z",
+        "kind": "command-request",
+        "request": {
+          "candidate_digest": null,
+          "expect_assignment": null,
+          "outcome": "non-satisfying",
+          "participant": "baton.slaw",
+          "proposal": null,
+          "rationale": "W325035 matrix: honest non-satisfying ending",
+          "verb": "close",
+          "work": "0000000a-W1"
+        },
+        "verb": "close",
+        "work_id": "0000000a-W1"
+      },
+      "work_at_invocation": {
+        "outcome": null,
+        "phase": "queued",
+        "status": "open"
+      },
+      "work_id": "0000000a-W1"
+    },
+    "exit": 0,
+    "stderr": ""
+  },
+  "evidence_preserved": {
+    "dossier": null,
+    "proposals": [
+      "integration-driver.proposal:0016a64a5803939f445c74cbfd59b4cb936e4061f2445d132332a440f4f3c0bc"
+    ]
+  },
+  "identities": {
+    "authority_uuid": "0000000a000000000000000000000000",
+    "implementation_attempt": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+    "job_id": "job-a",
+    "review_attempt": null,
+    "submission_id": "sub-1",
+    "work_id": "0000000a-W1"
+  },
+  "injected": "a cancellation of the live assignment",
+  "live_before_cancel": null,
+  "outcome": "observed",
+  "scenario": "5-cancellation-and-non-satisfying",
+  "seconds": 0.217,
+  "simulated": [
+    "engine: answers run/inspect/ps with no daemon",
+    "provider: injected at the adapter's process seam"
+  ],
+  "work_after_cancel": {
+    "gate": null,
+    "handler": null,
+    "outcome": null,
+    "phase": "queued",
+    "status": "open"
+  },
+  "work_after_close": {
+    "outcome": "non-satisfying",
+    "phase": null,
+    "rationale": "W325035 matrix: honest non-satisfying ending",
+    "status": "closed"
+  }
+}

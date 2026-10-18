@@ -1,0 +1,31 @@
+{
+  "checks": [
+    {
+      "observation": "actual stage states",
+      "value": {
+        "implementation": "queued",
+        "integration": "blocked",
+        "review": "blocked"
+      }
+    },
+    {
+      "check": "implementation is completed immediately after submission (INTENTIONALLY FALSE)",
+      "detail": {
+        "implementation": "queued",
+        "integration": "blocked",
+        "review": "blocked"
+      },
+      "passed": false
+    }
+  ],
+  "expected_failure": true,
+  "failed_check": "implementation is completed immediately after submission (INTENTIONALLY FALSE) (detail: {'implementation': 'queued', 'review': 'blocked', 'integration': 'blocked'})",
+  "injected": "a deliberately false expectation; this scenario MUST fail",
+  "outcome": "failed",
+  "scenario": "0-harness-self-check",
+  "seconds": 0.197,
+  "simulated": [
+    "engine: run/inspect/ps with no daemon",
+    "provider: injected at the adapter's process seam"
+  ]
+}

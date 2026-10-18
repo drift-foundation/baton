@@ -1,0 +1,28 @@
+{
+  "checks": [
+    {
+      "check": "the worker turn committed",
+      "detail": 0,
+      "passed": true
+    },
+    {
+      "observation": "states with the reply committed and unprocessed",
+      "value": {
+        "implementation": "answering",
+        "integration": "blocked",
+        "review": "blocked"
+      }
+    }
+  ],
+  "expected_failure": false,
+  "failure": "Traceback (most recent call last):\n  File \"/home/sl/src/baton/work/records/2026/10/finding-v12-pilot-diagnostic-recovery-matrix/matrix-325138/matrix2.py\", line 342, in main\n    record.update(body(case, checks) or {})\n                  ~~~~^^^^^^^^^^^^^^\n  File \"/home/sl/src/baton/work/records/2026/10/finding-v12-pilot-diagnostic-recovery-matrix/matrix-325138/matrix2.py\", line 192, in held_unknown_runtime\n    case.running is True, case.running)\n    ^^^^^^^^^^^^\nAttributeError: 'TheComposedJobTraversesReviewAndAcceptance' object has no attribute 'running'\n",
+  "injected": "a committed worker turn with the engine still reporting the runtime running, then a fresh composition and the supported recover verb",
+  "outcome": "failed",
+  "scenario": "2a-held-unknown-runtime",
+  "seconds": 0.153,
+  "simulated": [
+    "engine: run/inspect/ps with no daemon",
+    "provider: injected at the adapter's process seam"
+  ],
+  "unexpected": true
+}

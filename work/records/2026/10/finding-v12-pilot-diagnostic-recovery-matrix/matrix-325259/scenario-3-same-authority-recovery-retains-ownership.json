@@ -1,0 +1,205 @@
+{
+  "assignment_events": 1,
+  "checks": [
+    {
+      "check": "one live assignment is held before the recovery",
+      "detail": {
+        "generation": 1,
+        "participant": "baton.claude",
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        }
+      },
+      "passed": true
+    },
+    {
+      "check": "a composition naming another authority is refused",
+      "detail": "Refusal: the authority at '/home/sl/src/baton/v12/python/v12-w71917-2zahnyao/authority.\\u2026' is '0000000a000000000000000000000000', not 'ffffffffffffffffffffffffffffffff'; an authority UUID is durable and is never reassigned",
+      "passed": true
+    },
+    {
+      "check": "the recovery kept the EXACT assignment",
+      "detail": {
+        "after": {
+          "generation": 1,
+          "participant": "baton.claude",
+          "work_ref": {
+            "authority_uuid": "0000000a000000000000000000000000",
+            "work_id": "0000000a-W1"
+          }
+        },
+        "before": {
+          "generation": 1,
+          "participant": "baton.claude",
+          "work_ref": {
+            "authority_uuid": "0000000a000000000000000000000000",
+            "work_id": "0000000a-W1"
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "check": "including the participant and generation",
+      "detail": {
+        "generation": 1,
+        "participant": "baton.claude",
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        }
+      },
+      "passed": true
+    },
+    {
+      "check": "the committed assignment history is not extended by the recovery",
+      "detail": {
+        "after": 1,
+        "before": 1
+      },
+      "passed": true
+    },
+    {
+      "check": "the Work's route and handler are unchanged",
+      "detail": {
+        "after": "baton.impl",
+        "before": "baton.impl"
+      },
+      "passed": true
+    },
+    {
+      "check": "the runtime ownership is unchanged",
+      "detail": {
+        "assignment": {
+          "generation": 1,
+          "participant": "baton.claude",
+          "work_ref": {
+            "authority_uuid": "0000000a000000000000000000000000",
+            "work_id": "0000000a-W1"
+          }
+        },
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "cleanup": "pending",
+        "execution_runtime": "running",
+        "runtime_id": "runtime-single-1"
+      },
+      "passed": true
+    },
+    {
+      "observation": "the manager's own restart recovery",
+      "value": {
+        "abandoned": [],
+        "recoverable": []
+      }
+    },
+    {
+      "check": "sweeping the OLD composition after the restart starts no second container",
+      "detail": 1,
+      "passed": true
+    },
+    {
+      "check": "and prepares no second attempt",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "both compositions agree on the stage state",
+      "detail": {
+        "fresh": {
+          "implementation": "waiting",
+          "integration": "blocked",
+          "review": "blocked"
+        },
+        "old": {
+          "implementation": "waiting",
+          "integration": "blocked",
+          "review": "blocked"
+        }
+      },
+      "passed": true
+    },
+    {
+      "check": "and the ownership is STILL the same one assignment",
+      "detail": {
+        "generation": 1,
+        "participant": "baton.claude",
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        }
+      },
+      "passed": true
+    },
+    {
+      "check": "this instance's store answers the kind the accepted recovery check requires",
+      "detail": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "schema_version": "6",
+        "store_kind": "baton.v12.python.authority"
+      },
+      "passed": true
+    },
+    {
+      "check": "and this deployment's own authority UUID",
+      "detail": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "schema_version": "6",
+        "store_kind": "baton.v12.python.authority"
+      },
+      "passed": true
+    }
+  ],
+  "checks_passed": 13,
+  "expected_failure": false,
+  "identities": {
+    "authority_uuid": "0000000a000000000000000000000000",
+    "implementation_attempt": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+    "job_id": "job-a",
+    "submission_id": "sub-1",
+    "work_id": "0000000a-W1"
+  },
+  "injected": "a restart on the same disposable instance, a wrong authority UUID, and the old composition swept again afterwards",
+  "intended_failed_check": null,
+  "not_called": [
+    "_accepted_receipts",
+    "admit_accepted",
+    "continue_accepted",
+    "raw SQL",
+    "any product-source edit"
+  ],
+  "not_claimed": "This is not a proof that the operating system or SQLite prevents a second writer. The enforcement measured here is the authority identity gate, the owner-derived operation identities that make a second live composition idempotent, and the claim compare-and-swap recorded in matrix-325037 scenario 6. Accounting positively for a previous instance's runtimes remains an operator act, as W321688's own recovery check says.",
+  "outcome": "observed",
+  "ownership_after": {
+    "generation": 1,
+    "participant": "baton.claude",
+    "work_ref": {
+      "authority_uuid": "0000000a000000000000000000000000",
+      "work_id": "0000000a-W1"
+    }
+  },
+  "ownership_before": {
+    "generation": 1,
+    "participant": "baton.claude",
+    "work_ref": {
+      "authority_uuid": "0000000a000000000000000000000000",
+      "work_id": "0000000a-W1"
+    }
+  },
+  "recover_answer": {
+    "abandoned": [],
+    "recoverable": []
+  },
+  "scenario": "3-same-authority-recovery-retains-ownership",
+  "seconds": 0.231,
+  "simulated": [
+    "engine: no daemon; its answers, including absence and confusion, injected at the engine_run boundary",
+    "provider: injected at the adapter's own process seam"
+  ],
+  "stored_identity": {
+    "authority_uuid": "0000000a000000000000000000000000",
+    "schema_version": "6",
+    "store_kind": "baton.v12.python.authority"
+  },
+  "wrong_authority_refusal": "Refusal: the authority at '/home/sl/src/baton/v12/python/v12-w71917-2zahnyao/authority.\\u2026' is '0000000a000000000000000000000000', not 'ffffffffffffffffffffffffffffffff'; an authority UUID is durable and is never reassigned"
+}

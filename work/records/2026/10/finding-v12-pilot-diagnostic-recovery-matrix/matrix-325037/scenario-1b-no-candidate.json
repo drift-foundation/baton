@@ -1,0 +1,41 @@
+{
+  "after_ordinary_ticks": {
+    "progression": [
+      {
+        "implementation": "exceptional",
+        "integration": "blocked",
+        "review": "blocked"
+      }
+    ],
+    "settled": {
+      "implementation": "exceptional",
+      "integration": "blocked",
+      "review": "blocked"
+    },
+    "ticks": 12
+  },
+  "asserted": "an empty turn does not become an accepted proposal",
+  "identities": {
+    "authority_uuid": "0000000a000000000000000000000000",
+    "implementation_attempt": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+    "job_id": "job-a",
+    "submission_id": "sub-1",
+    "work_id": "0000000a-W1"
+  },
+  "injected": "provider exits 0 and writes nothing",
+  "outcome": "observed",
+  "pending_endings": [],
+  "proposals": [],
+  "scenario": "1b-no-candidate",
+  "seconds": 0.336,
+  "simulated": [
+    "engine: answers run/inspect/ps with no daemon",
+    "provider: injected at the adapter's process seam"
+  ],
+  "stage_states_after_turn": {
+    "implementation": "answering",
+    "integration": "blocked",
+    "review": "blocked"
+  },
+  "worker_turn_exit": 0
+}

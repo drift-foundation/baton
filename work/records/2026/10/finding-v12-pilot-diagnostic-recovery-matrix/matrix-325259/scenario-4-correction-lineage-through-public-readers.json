@@ -1,0 +1,375 @@
+{
+  "checks": [
+    {
+      "check": "the correction round prepared exactly one successor attempt and retained the first",
+      "detail": [
+        "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa"
+      ],
+      "passed": true
+    },
+    {
+      "observation": "the three assignment generations",
+      "value": {
+        "first": 1,
+        "review": 2,
+        "successor": 3
+      }
+    },
+    {
+      "check": "each round is its own generation of the SAME Work",
+      "detail": {
+        "first": 1,
+        "review": 2,
+        "successor": 3
+      },
+      "passed": true
+    },
+    {
+      "check": "the reviewer is not the implementer",
+      "detail": {
+        "first": "baton.claude",
+        "review": "baton.reviewer"
+      },
+      "passed": true
+    },
+    {
+      "check": "the first attempt's line writer is readable from the attempt alone",
+      "detail": {
+        "assignment_generation": 1,
+        "based_checkpoint_id": null,
+        "granted_at": "2026-09-02T00:00:00.000Z",
+        "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+        "participant": "baton.claude",
+        "principal": "principal:baton.claude",
+        "revocation_reason": "checkpoint",
+        "revoked_at": "2026-09-02T00:00:00.000Z",
+        "runtime_attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "state": "revoked",
+        "worker_id": "implementation-worker",
+        "writer_id": "writer-17f33e9b55a0b3c3d32134879cbcdc27db4623b30e8e06267b5724be155cbe44"
+      },
+      "passed": true
+    },
+    {
+      "check": "the review attachment is readable from the review attempt alone",
+      "detail": {
+        "assignment_generation": 2,
+        "attached_at": "2026-09-02T00:00:00.000Z",
+        "attachment_id": "review-06d28a3ea36366cee8a7ef93cae0f30df4b296ad257c818d60631020004ee84b",
+        "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+        "ended_at": "2026-09-02T00:00:00.000Z",
+        "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+        "reviewer_participant": "baton.reviewer",
+        "reviewer_principal": "principal:baton.reviewer",
+        "reviewer_worker_id": "review-worker",
+        "runtime_attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "state": "ended"
+      },
+      "passed": true
+    },
+    {
+      "check": "the successor's writer is readable too",
+      "detail": {
+        "assignment_generation": 3,
+        "based_checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+        "granted_at": "2026-09-02T00:00:00.000Z",
+        "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+        "participant": "baton.claude",
+        "principal": "principal:baton.claude",
+        "revocation_reason": null,
+        "revoked_at": null,
+        "runtime_attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+        "state": "active",
+        "worker_id": "implementation-worker",
+        "writer_id": "writer-bd646428cb9b289c405472b6cd59d8031cfe7708ecf4082c875bd6c01aff7534"
+      },
+      "passed": true
+    },
+    {
+      "check": "all three are on the deployment's own ONE line",
+      "detail": {
+        "line": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+        "review": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+        "successor": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+        "writer": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a"
+      },
+      "passed": true
+    },
+    {
+      "check": "the line is bound to this Work",
+      "detail": "0000000a-W1",
+      "passed": true
+    },
+    {
+      "check": "the REVIEWED candidate was written by the FIRST attempt's writer",
+      "detail": {
+        "checkpoint_writer": "writer-17f33e9b55a0b3c3d32134879cbcdc27db4623b30e8e06267b5724be155cbe44",
+        "first_writer": "writer-17f33e9b55a0b3c3d32134879cbcdc27db4623b30e8e06267b5724be155cbe44"
+      },
+      "passed": true
+    },
+    {
+      "check": "it is frozen",
+      "detail": "frozen",
+      "passed": true
+    },
+    {
+      "check": "and it is the first revision of this line",
+      "detail": {
+        "base_object": "d3ea1c5e11c3ff0c4a147db75bbeb89d5e814b81",
+        "checkpoint_digest": "sha256:e12ca675dc1809084bbc58dfb8ff2ee2dea504fe785521005750de8efef0d88c",
+        "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+        "evidence": {
+          "base": "d3ea1c5e11c3ff0c4a147db75bbeb89d5e814b81",
+          "head": "625e06fed9b418d5fb9790e46daf953a15417961",
+          "path_set_digest": "sha256:695b752f1c98185f394d3a09fb0ff7f04a61fa1129402d714268a66c4fb16289",
+          "paths": [
+            "harness.py"
+          ],
+          "profile": "git",
+          "reference": "refs/baton/checkpoints/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/1",
+          "tree": "a401a9deb1811f5b4b1ce83a1cb29564e923a220"
+        },
+        "fence": {
+          "fenced": {
+            "assignment": {
+              "generation": 1,
+              "participant": "baton.claude",
+              "work_ref": {
+                "authority_uuid": "0000000a000000000000000000000000",
+                "work_id": "0000000a-W1"
+              }
+            },
+            "cause": "cancelled",
+            "fenced": true,
+            "gate": "runtime-quiescence:1",
+            "phase": "block"
+          },
+          "intent": {
+            "assignment": {
+              "generation": 1,
+              "participant": "baton.claude",
+              "work_ref": {
+                "authority_uuid": "0000000a000000000000000000000000",
+                "work_id": "0000000a-W1"
+              }
+            },
+            "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+            "authority_operation_id": "authority.finalize-quiescent:5216d33ac31b80877f9d9633afccdfea6c91568f5337c9fae4ea7aba14e000c1",
+            "decision": "finalized",
+            "reason": "review checkpoint writer completed",
+            "runtime_id": "runtime-single-1",
+            "worker_disposition": "completed"
+          }
+        },
+        "fence_digest": "sha256:8424ff63e6239681629226cfa56e84c9c519b14489da36f571375ae64d454fe9",
+        "frozen_at": "2026-09-02T00:00:00.000Z",
+        "head_object": "625e06fed9b418d5fb9790e46daf953a15417961",
+        "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+        "path_set_digest": "sha256:695b752f1c98185f394d3a09fb0ff7f04a61fa1129402d714268a66c4fb16289",
+        "prepared_at": "2026-09-02T00:00:00.000Z",
+        "profile_name": "git",
+        "reference_name": "refs/baton/checkpoints/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/1",
+        "revision": 1,
+        "state": "frozen",
+        "tree_object": "a401a9deb1811f5b4b1ce83a1cb29564e923a220",
+        "writer_id": "writer-17f33e9b55a0b3c3d32134879cbcdc27db4623b30e8e06267b5724be155cbe44"
+      },
+      "passed": true
+    },
+    {
+      "check": "the SUCCESSOR attempt is based on exactly that reviewed candidate",
+      "detail": {
+        "reviewed": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+        "successor_base": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a"
+      },
+      "passed": true
+    },
+    {
+      "check": "the review attachment is ENDED by the verdict rather than still open",
+      "detail": "ended",
+      "passed": true
+    },
+    {
+      "check": "the reviewer's own identity is on the attachment",
+      "detail": "baton.reviewer",
+      "passed": true
+    },
+    {
+      "check": "the first writer was revoked when its round ended",
+      "detail": "revoked",
+      "passed": true
+    },
+    {
+      "check": "and the successor's writer is the active one",
+      "detail": "active",
+      "passed": true
+    },
+    {
+      "check": "the first round's candidate still stands in the AUTHORITATIVE inventory, and no second one was published",
+      "detail": [
+        "integration-driver.proposal:4ccfc375e86ff5499a21cfce3228d9fa598b95a0666b52741f86c42fe264ebab"
+      ],
+      "passed": true
+    },
+    {
+      "check": "the correction reopened the implementation stage and blocked the review rather than completing it",
+      "detail": {
+        "implementation": "waiting",
+        "integration": "blocked",
+        "review": "blocked"
+      },
+      "passed": true
+    }
+  ],
+  "checks_passed": 18,
+  "expected_failure": false,
+  "generations": {
+    "first": 1,
+    "review": 2,
+    "successor": 3
+  },
+  "identities": {
+    "authority_uuid": "0000000a000000000000000000000000",
+    "first_attempt": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+    "job_id": "job-a",
+    "review_attempt": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+    "submission_id": "sub-1",
+    "successor_attempt": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+    "work_id": "0000000a-W1"
+  },
+  "injected": "a changes-requested verdict, resolved through writer_for_attempt / review_for_attempt / checkpoint_of / line_of",
+  "intended_failed_check": null,
+  "lineage": {
+    "first_writer": {
+      "assignment_generation": 1,
+      "based_checkpoint_id": null,
+      "granted_at": "2026-09-02T00:00:00.000Z",
+      "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+      "participant": "baton.claude",
+      "principal": "principal:baton.claude",
+      "revocation_reason": "checkpoint",
+      "revoked_at": "2026-09-02T00:00:00.000Z",
+      "runtime_attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "state": "revoked",
+      "worker_id": "implementation-worker",
+      "writer_id": "writer-17f33e9b55a0b3c3d32134879cbcdc27db4623b30e8e06267b5724be155cbe44"
+    },
+    "line": {
+      "declared_base": "d3ea1c5e11c3ff0c4a147db75bbeb89d5e814b81",
+      "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+      "profile_name": "git",
+      "work_id": "0000000a-W1"
+    },
+    "review_attachment": {
+      "assignment_generation": 2,
+      "attached_at": "2026-09-02T00:00:00.000Z",
+      "attachment_id": "review-06d28a3ea36366cee8a7ef93cae0f30df4b296ad257c818d60631020004ee84b",
+      "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+      "ended_at": "2026-09-02T00:00:00.000Z",
+      "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+      "reviewer_participant": "baton.reviewer",
+      "reviewer_principal": "principal:baton.reviewer",
+      "reviewer_worker_id": "review-worker",
+      "runtime_attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+      "state": "ended"
+    },
+    "reviewed_checkpoint": {
+      "base_object": "d3ea1c5e11c3ff0c4a147db75bbeb89d5e814b81",
+      "checkpoint_digest": "sha256:e12ca675dc1809084bbc58dfb8ff2ee2dea504fe785521005750de8efef0d88c",
+      "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+      "evidence": {
+        "base": "d3ea1c5e11c3ff0c4a147db75bbeb89d5e814b81",
+        "head": "625e06fed9b418d5fb9790e46daf953a15417961",
+        "path_set_digest": "sha256:695b752f1c98185f394d3a09fb0ff7f04a61fa1129402d714268a66c4fb16289",
+        "paths": [
+          "harness.py"
+        ],
+        "profile": "git",
+        "reference": "refs/baton/checkpoints/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/1",
+        "tree": "a401a9deb1811f5b4b1ce83a1cb29564e923a220"
+      },
+      "fence": {
+        "fenced": {
+          "assignment": {
+            "generation": 1,
+            "participant": "baton.claude",
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W1"
+            }
+          },
+          "cause": "cancelled",
+          "fenced": true,
+          "gate": "runtime-quiescence:1",
+          "phase": "block"
+        },
+        "intent": {
+          "assignment": {
+            "generation": 1,
+            "participant": "baton.claude",
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W1"
+            }
+          },
+          "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "authority_operation_id": "authority.finalize-quiescent:5216d33ac31b80877f9d9633afccdfea6c91568f5337c9fae4ea7aba14e000c1",
+          "decision": "finalized",
+          "reason": "review checkpoint writer completed",
+          "runtime_id": "runtime-single-1",
+          "worker_disposition": "completed"
+        }
+      },
+      "fence_digest": "sha256:8424ff63e6239681629226cfa56e84c9c519b14489da36f571375ae64d454fe9",
+      "frozen_at": "2026-09-02T00:00:00.000Z",
+      "head_object": "625e06fed9b418d5fb9790e46daf953a15417961",
+      "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+      "path_set_digest": "sha256:695b752f1c98185f394d3a09fb0ff7f04a61fa1129402d714268a66c4fb16289",
+      "prepared_at": "2026-09-02T00:00:00.000Z",
+      "profile_name": "git",
+      "reference_name": "refs/baton/checkpoints/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/1",
+      "revision": 1,
+      "state": "frozen",
+      "tree_object": "a401a9deb1811f5b4b1ce83a1cb29564e923a220",
+      "writer_id": "writer-17f33e9b55a0b3c3d32134879cbcdc27db4623b30e8e06267b5724be155cbe44"
+    },
+    "successor_writer": {
+      "assignment_generation": 3,
+      "based_checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+      "granted_at": "2026-09-02T00:00:00.000Z",
+      "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+      "participant": "baton.claude",
+      "principal": "principal:baton.claude",
+      "revocation_reason": null,
+      "revoked_at": null,
+      "runtime_attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+      "state": "active",
+      "worker_id": "implementation-worker",
+      "writer_id": "writer-bd646428cb9b289c405472b6cd59d8031cfe7708ecf4082c875bd6c01aff7534"
+    }
+  },
+  "not_called": [
+    "_accepted_receipts",
+    "admit_accepted",
+    "continue_accepted",
+    "raw SQL",
+    "any product-source edit"
+  ],
+  "outcome": "observed",
+  "proposals": [
+    "integration-driver.proposal:4ccfc375e86ff5499a21cfce3228d9fa598b95a0666b52741f86c42fe264ebab"
+  ],
+  "scenario": "4-correction-lineage-through-public-readers",
+  "seconds": 0.495,
+  "simulated": [
+    "engine: no daemon; its answers, including absence and confusion, injected at the engine_run boundary",
+    "provider: injected at the adapter's own process seam"
+  ],
+  "states": {
+    "implementation": "waiting",
+    "integration": "blocked",
+    "review": "blocked"
+  }
+}

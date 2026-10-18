@@ -1,0 +1,308 @@
+{
+  "cancelled": {
+    "assignment": {
+      "generation": 1,
+      "participant": "baton.claude",
+      "work_ref": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "work_id": "0000000a-W1"
+      }
+    },
+    "cause": "cancelled",
+    "fenced": true,
+    "gate": "runtime-quiescence:1",
+    "phase": "block"
+  },
+  "checks": [
+    {
+      "check": "an assignment is LIVE for all of this",
+      "detail": {
+        "generation": 1,
+        "participant": "baton.claude",
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        }
+      },
+      "passed": true
+    },
+    {
+      "check": "a second live claim through a second WRITABLE handle is refused",
+      "detail": "Refusal: Work is already claimed",
+      "passed": true
+    },
+    {
+      "check": "and the holder is unchanged",
+      "detail": {
+        "generation": 1,
+        "participant": "baton.claude",
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        }
+      },
+      "passed": true
+    },
+    {
+      "check": "a read-only handle refuses every transition",
+      "detail": "Refusal: this authority store was opened for reading and cannot open a write transaction; a read-only handle answers the committed record and performs no transition",
+      "passed": true
+    },
+    {
+      "check": "and the Work is untouched by the attempt",
+      "detail": {
+        "generation": 1,
+        "participant": "baton.claude",
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        }
+      },
+      "passed": true
+    },
+    {
+      "check": "the cancellation answered a result",
+      "detail": {
+        "assignment": {
+          "generation": 1,
+          "participant": "baton.claude",
+          "work_ref": {
+            "authority_uuid": "0000000a000000000000000000000000",
+            "work_id": "0000000a-W1"
+          }
+        },
+        "cause": "cancelled",
+        "fenced": true,
+        "gate": "runtime-quiescence:1",
+        "phase": "block"
+      },
+      "passed": true
+    },
+    {
+      "check": "the handler is gone",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "a cancelled ASSIGNMENT is not a cancelled WORK: it is still open",
+      "detail": "open",
+      "passed": true
+    },
+    {
+      "check": "and no outcome was recorded by the cancellation",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "no live assignment remains",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "the cancellation is in the assignment events",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "a re-claim after the cancellation is refused while the runtime-quiescence gate stands",
+      "detail": "Refusal: Work is blocked by 'runtime-quiescence:1'; blocked work cannot be claimed",
+      "passed": true
+    },
+    {
+      "check": "and the gate the refusal names is the runtime one",
+      "detail": {
+        "detail": "1",
+        "kind": "runtime-quiescence",
+        "token": "runtime-quiescence:1"
+      },
+      "passed": true
+    },
+    {
+      "check": "the owner's installed non-satisfying closure is accepted",
+      "detail": {
+        "answer": {
+          "acceptance": {
+            "outcome": "non-satisfying",
+            "required": false
+          },
+          "actor": "baton.slaw",
+          "authority_uuid": "0000000a000000000000000000000000",
+          "closed": {
+            "actor": "baton.slaw",
+            "assignment": null,
+            "decision": {
+              "effective_scope": "scope:deployment",
+              "endpoint": "baton.slaw",
+              "grant": "direct",
+              "policy_generation": 10,
+              "principal": "principal:baton.slaw",
+              "role": "close"
+            },
+            "outcome": "non-satisfying"
+          },
+          "preserved": {
+            "dossier": null,
+            "evidence": [],
+            "proposals": []
+          },
+          "replayed": false,
+          "request": {
+            "bound_at": "2026-10-18T18:39:31.824Z",
+            "kind": "command-request",
+            "request": {
+              "candidate_digest": null,
+              "expect_assignment": null,
+              "outcome": "non-satisfying",
+              "participant": "baton.slaw",
+              "proposal": null,
+              "rationale": "W325035 matrix: honest non-satisfying ending",
+              "verb": "close",
+              "work": "0000000a-W1"
+            },
+            "verb": "close",
+            "work_id": "0000000a-W1"
+          },
+          "work_at_invocation": {
+            "outcome": null,
+            "phase": "block",
+            "status": "open"
+          },
+          "work_id": "0000000a-W1"
+        },
+        "exit": 0,
+        "stderr": ""
+      },
+      "passed": true
+    },
+    {
+      "check": "the Work is closed",
+      "detail": "closed",
+      "passed": true
+    },
+    {
+      "check": "its outcome is non-satisfying, which is not an acceptance",
+      "detail": "non-satisfying",
+      "passed": true
+    },
+    {
+      "check": "and the operator's own rationale is what was recorded",
+      "detail": "W325035 matrix: honest non-satisfying ending",
+      "passed": true
+    },
+    {
+      "check": "no receipt was written by any of it",
+      "detail": [],
+      "passed": true
+    }
+  ],
+  "checks_passed": 18,
+  "close": {
+    "answer": {
+      "acceptance": {
+        "outcome": "non-satisfying",
+        "required": false
+      },
+      "actor": "baton.slaw",
+      "authority_uuid": "0000000a000000000000000000000000",
+      "closed": {
+        "actor": "baton.slaw",
+        "assignment": null,
+        "decision": {
+          "effective_scope": "scope:deployment",
+          "endpoint": "baton.slaw",
+          "grant": "direct",
+          "policy_generation": 10,
+          "principal": "principal:baton.slaw",
+          "role": "close"
+        },
+        "outcome": "non-satisfying"
+      },
+      "preserved": {
+        "dossier": null,
+        "evidence": [],
+        "proposals": []
+      },
+      "replayed": false,
+      "request": {
+        "bound_at": "2026-10-18T18:39:31.824Z",
+        "kind": "command-request",
+        "request": {
+          "candidate_digest": null,
+          "expect_assignment": null,
+          "outcome": "non-satisfying",
+          "participant": "baton.slaw",
+          "proposal": null,
+          "rationale": "W325035 matrix: honest non-satisfying ending",
+          "verb": "close",
+          "work": "0000000a-W1"
+        },
+        "verb": "close",
+        "work_id": "0000000a-W1"
+      },
+      "work_at_invocation": {
+        "outcome": null,
+        "phase": "block",
+        "status": "open"
+      },
+      "work_id": "0000000a-W1"
+    },
+    "exit": 0,
+    "stderr": ""
+  },
+  "expected_failure": false,
+  "gate_after_cancel": {
+    "detail": "1",
+    "kind": "runtime-quiescence",
+    "token": "runtime-quiescence:1"
+  },
+  "identities": {
+    "authority_uuid": "0000000a000000000000000000000000",
+    "job_id": "job-a",
+    "submission_id": "sub-1",
+    "work_id": "0000000a-W1"
+  },
+  "injected": "a live cancellation, two writable handles racing one claim, a read-only handle, and the owner's installed non-satisfying closure",
+  "intended_failed_check": null,
+  "live_before_cancel": {
+    "generation": 1,
+    "participant": "baton.claude",
+    "work_ref": {
+      "authority_uuid": "0000000a000000000000000000000000",
+      "work_id": "0000000a-W1"
+    }
+  },
+  "not_called": [
+    "_accepted_receipts",
+    "admit_accepted",
+    "continue_accepted",
+    "raw SQL",
+    "any product-source edit"
+  ],
+  "outcome": "observed",
+  "read_only_transition": "Refusal: this authority store was opened for reading and cannot open a write transaction; a read-only handle answers the committed record and performs no transition",
+  "reclaim_after_cancel": "Refusal: Work is blocked by 'runtime-quiescence:1'; blocked work cannot be claimed",
+  "scenario": "8-cancellation-closure-and-claim-exclusivity",
+  "second_claim_through_a_second_writable_handle": "Refusal: Work is already claimed",
+  "seconds": 0.118,
+  "simulated": [
+    "engine: no daemon; its answers, including absence and confusion, injected at the engine_run boundary",
+    "provider: injected at the adapter's own process seam"
+  ],
+  "work_after_cancel": {
+    "gate": {
+      "detail": "1",
+      "kind": "runtime-quiescence",
+      "token": "runtime-quiescence:1"
+    },
+    "handler": null,
+    "outcome": null,
+    "phase": "block",
+    "status": "open"
+  },
+  "work_after_close": {
+    "outcome": "non-satisfying",
+    "phase": null,
+    "rationale": "W325035 matrix: honest non-satisfying ending",
+    "status": "closed"
+  }
+}

@@ -1,0 +1,169 @@
+{
+  "assignment_events": [
+    {
+      "assignment_ref": {
+        "generation": 1,
+        "participant": "baton.claude",
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        }
+      },
+      "at": "2026-10-18T18:14:40.355Z",
+      "cause": "claimed",
+      "decision": {
+        "effective_scope": "scope:deployment",
+        "endpoint": "baton.claude",
+        "grant": "direct",
+        "policy_generation": 9,
+        "principal": "principal:baton.claude",
+        "role": "baton.impl"
+      },
+      "fenced": false,
+      "gate": null,
+      "phase": "active",
+      "reason": null,
+      "seq": 1
+    },
+    {
+      "assignment_ref": {
+        "generation": 1,
+        "participant": "baton.claude",
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        }
+      },
+      "at": "2026-10-18T18:14:40.412Z",
+      "cause": "cancelled",
+      "decision": null,
+      "fenced": true,
+      "gate": "runtime-quiescence:1",
+      "phase": "block",
+      "reason": "W325035 matrix: live cancellation",
+      "seq": 2
+    }
+  ],
+  "cancelled": {
+    "assignment": {
+      "generation": 1,
+      "participant": "baton.claude",
+      "work_ref": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "work_id": "0000000a-W1"
+      }
+    },
+    "cause": "cancelled",
+    "fenced": true,
+    "gate": "runtime-quiescence:1",
+    "phase": "block"
+  },
+  "checks": [
+    {
+      "check": "an assignment is live before the cancellation",
+      "detail": {
+        "generation": 1,
+        "participant": "baton.claude",
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        }
+      },
+      "passed": true
+    },
+    {
+      "check": "the cancellation answered a result",
+      "detail": {
+        "assignment": {
+          "generation": 1,
+          "participant": "baton.claude",
+          "work_ref": {
+            "authority_uuid": "0000000a000000000000000000000000",
+            "work_id": "0000000a-W1"
+          }
+        },
+        "cause": "cancelled",
+        "fenced": true,
+        "gate": "runtime-quiescence:1",
+        "phase": "block"
+      },
+      "passed": true
+    },
+    {
+      "check": "the Work no longer has a handler",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "the Work is still open (a cancelled assignment is not a cancelled Work)",
+      "detail": "open",
+      "passed": true
+    },
+    {
+      "check": "no outcome was recorded by the cancellation",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "the cancellation is in the assignment events",
+      "detail": {
+        "assignment_ref": {
+          "generation": 1,
+          "participant": "baton.claude",
+          "work_ref": {
+            "authority_uuid": "0000000a000000000000000000000000",
+            "work_id": "0000000a-W1"
+          }
+        },
+        "at": "2026-10-18T18:14:40.412Z",
+        "cause": "cancelled",
+        "decision": null,
+        "fenced": true,
+        "gate": "runtime-quiescence:1",
+        "phase": "block",
+        "reason": "W325035 matrix: live cancellation",
+        "seq": 2
+      },
+      "passed": true
+    },
+    {
+      "check": "the live assignment is gone",
+      "detail": null,
+      "passed": true
+    }
+  ],
+  "expected_failure": false,
+  "identities": {
+    "authority_uuid": "0000000a000000000000000000000000",
+    "job_id": "job-a",
+    "submission_id": "sub-1",
+    "work_id": "0000000a-W1"
+  },
+  "injected": "a cancellation driven while the assignment is live",
+  "live_before_cancel": {
+    "generation": 1,
+    "participant": "baton.claude",
+    "work_ref": {
+      "authority_uuid": "0000000a000000000000000000000000",
+      "work_id": "0000000a-W1"
+    }
+  },
+  "outcome": "observed",
+  "scenario": "1-live-cancellation",
+  "seconds": 0.112,
+  "simulated": [
+    "engine: run/inspect/ps with no daemon",
+    "provider: injected at the adapter's process seam"
+  ],
+  "work_after_cancel": {
+    "gate": {
+      "detail": "1",
+      "kind": "runtime-quiescence",
+      "token": "runtime-quiescence:1"
+    },
+    "handler": null,
+    "outcome": null,
+    "phase": "block",
+    "status": "open"
+  }
+}

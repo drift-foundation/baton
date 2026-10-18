@@ -1,0 +1,104 @@
+{
+  "after_ordinary_ticks": {
+    "progression": [
+      {
+        "implementation": "completed",
+        "integration": "blocked",
+        "review": "answering"
+      },
+      {
+        "implementation": "queued",
+        "integration": "blocked",
+        "review": "blocked"
+      },
+      {
+        "implementation": "offered",
+        "integration": "blocked",
+        "review": "blocked"
+      },
+      {
+        "implementation": "waiting",
+        "integration": "blocked",
+        "review": "blocked"
+      }
+    ],
+    "settled": {
+      "implementation": "waiting",
+      "integration": "blocked",
+      "review": "blocked"
+    },
+    "ticks": 12
+  },
+  "asserted": "the correction round stays bound to the same candidate and attempt",
+  "correction_round": {
+    "correction_attempt": [
+      "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa"
+    ],
+    "first_attempt": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+    "first_attempt_retained": true,
+    "implementation_attempts": [
+      "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa"
+    ],
+    "states": {
+      "implementation": "waiting",
+      "integration": "blocked",
+      "review": "blocked"
+    }
+  },
+  "identities": {
+    "authority_uuid": "0000000a000000000000000000000000",
+    "implementation_attempt": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+    "job_id": "job-a",
+    "review_attempt": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+    "submission_id": "sub-1",
+    "work_id": "0000000a-W1"
+  },
+  "injected": "a changes-requested review verdict",
+  "outcome": "observed",
+  "proposals": [
+    {
+      "assignment_ref": {
+        "generation": 1,
+        "participant": "baton.claude",
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        }
+      },
+      "candidate_digest": "e25c3e98e815a632a1d19f83397251d98470d567",
+      "decision": {
+        "effective_scope": "scope:deployment",
+        "endpoint": "baton.claude",
+        "grant": "direct",
+        "policy_generation": 9,
+        "principal": "principal:baton.claude",
+        "role": "baton.impl"
+      },
+      "input_digest": "sha256:31633cc2c45d557ff2048084cbafa5091e71df0b92391dc9e16fbb55814b4b5e",
+      "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "proposal_id": "integration-driver.proposal:1dbbb7b7e9200da84ddf8f1aba03bd9daba9e687e0ee6e850d1ae6f644d73792",
+      "published_at": "2026-10-18T18:02:27.091Z",
+      "receipts": {
+        "approval": null,
+        "integration": null,
+        "review": null,
+        "verification": null
+      },
+      "result_digest": "sha256:c90f46533d9b52364d02bf1b10ca818224edb19e67151108a19bac180cd4d0de",
+      "result_id": "result-attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "target": "b48ce03098656e0fa1568c286acd8b96a19c1a26"
+    }
+  ],
+  "scenario": "4-correction-binding",
+  "seconds": 0.687,
+  "simulated": [
+    "engine: answers run/inspect/ps with no daemon",
+    "provider: injected at the adapter's process seam"
+  ],
+  "stage_states_after_verdict": {
+    "implementation": "completed",
+    "integration": "blocked",
+    "review": "answering"
+  }
+}

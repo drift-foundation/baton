@@ -1,0 +1,29 @@
+{
+  "asserted": "both are refused by the authority",
+  "identities": {
+    "authority_uuid": "0000000a000000000000000000000000",
+    "job_id": "job-a",
+    "submission_id": "sub-1",
+    "work_id": "0000000a-W1"
+  },
+  "injected": "a stale generation, and another participant's session",
+  "live_assignment": {
+    "generation": 1,
+    "participant": "baton.claude",
+    "work_ref": {
+      "authority_uuid": "0000000a000000000000000000000000",
+      "work_id": "0000000a-W1"
+    }
+  },
+  "outcome": "observed",
+  "refusals": {
+    "stale episode": "stale assignment",
+    "wrong principal": "this session acts for 'baton.gemini'; the assignment names 'baton.claude'"
+  },
+  "scenario": "3-stale-and-wrong-principal",
+  "seconds": 0.11,
+  "simulated": [
+    "engine: answers run/inspect/ps with no daemon",
+    "provider: injected at the adapter's process seam"
+  ]
+}
