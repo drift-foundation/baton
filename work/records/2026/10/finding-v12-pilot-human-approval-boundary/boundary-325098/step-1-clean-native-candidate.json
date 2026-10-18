@@ -1,0 +1,95 @@
+{
+  "accepted_checkpoint": {
+    "checkpoint_digest": "sha256:cff2cd88b6821630046c976d0ef17c6345de6c4a14c25ca2787872338b296676",
+    "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+    "evidence": {
+      "base": "4dde4f6c1448bb7e49b957fd7bc84da6653ae3bd",
+      "head": "4fa449fe2ef4a609ca889ed2cd4da297f312f76d",
+      "path_set_digest": "sha256:695b752f1c98185f394d3a09fb0ff7f04a61fa1129402d714268a66c4fb16289",
+      "paths": [
+        "harness.py"
+      ],
+      "profile": "git",
+      "reference": "refs/baton/checkpoints/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/1",
+      "tree": "a401a9deb1811f5b4b1ce83a1cb29564e923a220"
+    },
+    "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+    "verdict_id": "verdict-7bbcf60ea2c26dcd77b5b40addf4307365c4109ecd60a75b9543ca67ada90fe5"
+  },
+  "assignment_ref": {
+    "generation": 1,
+    "participant": "baton.claude",
+    "work_ref": {
+      "authority_uuid": "0000000a000000000000000000000000",
+      "work_id": "0000000a-W1"
+    }
+  },
+  "candidate_digest": "4fa449fe2ef4a609ca889ed2cd4da297f312f76d",
+  "dispositions": {
+    "approval": null,
+    "integration": null,
+    "review": null,
+    "verification": null
+  },
+  "implementation_attempt": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+  "input_digest": "sha256:9ffd9e862e6749eb5e2a589c8390ba7e18ccfc9ef5e1d8961c4504b0b5748ee0",
+  "job_id": "job-a",
+  "line": [
+    {
+      "declared_base": "4dde4f6c1448bb7e49b957fd7bc84da6653ae3bd",
+      "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+      "work_id": "0000000a-W1"
+    }
+  ],
+  "not_called": [
+    "_accepted_receipts",
+    "admit_accepted",
+    "continue_accepted"
+  ],
+  "ordinary_test_evidence": {
+    "assignment_ref": {
+      "generation": 1,
+      "participant": "baton.claude",
+      "work_ref": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "work_id": "0000000a-W1"
+      }
+    },
+    "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+    "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+    "input_manifest_digest": "sha256:9ffd9e862e6749eb5e2a589c8390ba7e18ccfc9ef5e1d8961c4504b0b5748ee0",
+    "observation": {
+      "argv": [
+        "python3",
+        "harness.py"
+      ],
+      "base": "4dde4f6c1448bb7e49b957fd7bc84da6653ae3bd",
+      "head": "4fa449fe2ef4a609ca889ed2cd4da297f312f76d",
+      "status": 0,
+      "task_digest": "sha256:bf36ac4dce3aea36a2d719834be3fb8113b57d0c84a1e832d7c331811c4e7817",
+      "task_id": "w119114-composed-lifecycle"
+    },
+    "result_digest": "sha256:a275800312c436d5e897c80cb1c47745020916691a1cbfe2d3ca19ebd420a8b6",
+    "result_id": "result-attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"
+  },
+  "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+  "proposal_id": "integration-driver.proposal:3f3bcd3b499f4ef4e09e14b72f6644f6b67f08fe8de013aefd67dc03aaff53d3",
+  "receipts": {
+    "approval": null,
+    "integration": null,
+    "review": null,
+    "verification": null
+  },
+  "review_attempt": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+  "simulated": [
+    "engine (no daemon)",
+    "provider (injected)"
+  ],
+  "stage_states": {
+    "implementation": "completed",
+    "integration": "queued",
+    "review": "completed"
+  },
+  "step": "1. clean native reviewed candidate, receipts absent",
+  "work_id": "0000000a-W1"
+}

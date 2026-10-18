@@ -1,0 +1,12 @@
+{
+  "answer": {
+    "bound_at": "2026-10-18T18:08:02.978Z",
+    "locator": "pilot-human-boundary-0000000a",
+    "operation_id": "w325034-bind",
+    "work_id": "0000000a-W1"
+  },
+  "exit": 0,
+  "locator": "pilot-human-boundary-0000000a",
+  "stderr": "",
+  "step": "4b. the canonical dossier binding"
+}

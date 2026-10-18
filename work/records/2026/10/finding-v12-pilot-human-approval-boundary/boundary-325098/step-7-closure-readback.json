@@ -1,0 +1,391 @@
+{
+  "close": {
+    "answer": {
+      "acceptance": {
+        "approval": "w325034-approval",
+        "candidate_digest": "4fa449fe2ef4a609ca889ed2cd4da297f312f76d",
+        "commit": "0000000000000000000000000000000000000000",
+        "evidence_digest": "sha256:0a7ba180df9d770fa6a1f6f2e39422f09ef827ea82fa71fcf196f0dc7a4bec27",
+        "evidence_reference": "INTEGRATION.json",
+        "human_integration": {
+          "commit": "0000000000000000000000000000000000000000",
+          "digest": "sha256:0a7ba180df9d770fa6a1f6f2e39422f09ef827ea82fa71fcf196f0dc7a4bec27",
+          "integrated_at": "2026-10-18T18:10:00Z",
+          "integrated_by": "SIMULATED (W325034 rehearsal; no human act, no live provider)",
+          "reference": "INTEGRATION.json"
+        },
+        "integration": "w325034-integration",
+        "outcome": "satisfying",
+        "proposal_id": "integration-driver.proposal:3f3bcd3b499f4ef4e09e14b72f6644f6b67f08fe8de013aefd67dc03aaff53d3",
+        "required": true,
+        "review": "w325034-review",
+        "schema": "baton.v12.owner-closure-acceptance/1",
+        "verification": "w325034-verification"
+      },
+      "actor": "baton.slaw",
+      "authority_uuid": "0000000a000000000000000000000000",
+      "closed": {
+        "actor": "baton.slaw",
+        "assignment": null,
+        "decision": {
+          "effective_scope": "scope:deployment",
+          "endpoint": "baton.slaw",
+          "grant": "direct",
+          "policy_generation": 15,
+          "principal": "principal:baton.slaw",
+          "role": "close"
+        },
+        "outcome": "satisfying"
+      },
+      "evidence_now": {
+        "cited_digest": "sha256:0a7ba180df9d770fa6a1f6f2e39422f09ef827ea82fa71fcf196f0dc7a4bec27",
+        "commit": "0000000000000000000000000000000000000000",
+        "integrated_at": "2026-10-18T18:10:00Z",
+        "integrated_by": "SIMULATED (W325034 rehearsal; no human act, no live provider)",
+        "reference": "INTEGRATION.json",
+        "state": "intact"
+      },
+      "preserved": {
+        "dossier": {
+          "bound_at": "2026-10-18T18:08:02.978Z",
+          "locator": "pilot-human-boundary-0000000a",
+          "operation_id": "w325034-bind",
+          "work_id": "0000000a-W1"
+        },
+        "evidence": [
+          {
+            "act_id": "w325034-citation",
+            "digest": "sha256:0a7ba180df9d770fa6a1f6f2e39422f09ef827ea82fa71fcf196f0dc7a4bec27",
+            "recorded_at": "2026-10-18T18:08:02.992Z",
+            "reference": "INTEGRATION.json",
+            "work_id": "0000000a-W1"
+          }
+        ],
+        "proposals": [
+          {
+            "candidate_digest": "4fa449fe2ef4a609ca889ed2cd4da297f312f76d",
+            "proposal_id": "integration-driver.proposal:3f3bcd3b499f4ef4e09e14b72f6644f6b67f08fe8de013aefd67dc03aaff53d3",
+            "receipts": {
+              "approval": {
+                "actor": "baton.slaw",
+                "candidate_digest": "4fa449fe2ef4a609ca889ed2cd4da297f312f76d",
+                "decision": {
+                  "effective_scope": "scope:deployment",
+                  "endpoint": "baton.slaw",
+                  "grant": "direct",
+                  "policy_generation": 14,
+                  "principal": "principal:baton.slaw",
+                  "role": "approve"
+                },
+                "disposition": "approved",
+                "kind": "approval",
+                "policy_generation": 14,
+                "proposal_id": "integration-driver.proposal:3f3bcd3b499f4ef4e09e14b72f6644f6b67f08fe8de013aefd67dc03aaff53d3",
+                "receipt_id": "w325034-approval",
+                "recorded_at": "2026-10-18T18:08:02.988Z",
+                "target": "4dde4f6c1448bb7e49b957fd7bc84da6653ae3bd"
+              },
+              "integration": {
+                "actor": "baton.slaw",
+                "candidate_digest": "4fa449fe2ef4a609ca889ed2cd4da297f312f76d",
+                "decision": {
+                  "effective_scope": "scope:deployment",
+                  "endpoint": "baton.slaw",
+                  "grant": "direct",
+                  "policy_generation": 14,
+                  "principal": "principal:baton.slaw",
+                  "role": "integrate"
+                },
+                "disposition": "integrated",
+                "kind": "integration",
+                "policy_generation": null,
+                "proposal_id": "integration-driver.proposal:3f3bcd3b499f4ef4e09e14b72f6644f6b67f08fe8de013aefd67dc03aaff53d3",
+                "receipt_id": "w325034-integration",
+                "recorded_at": "2026-10-18T18:08:02.993Z",
+                "target": "4dde4f6c1448bb7e49b957fd7bc84da6653ae3bd"
+              },
+              "review": {
+                "actor": "baton.reviewer-325034",
+                "candidate_digest": "4fa449fe2ef4a609ca889ed2cd4da297f312f76d",
+                "decision": {
+                  "effective_scope": "scope:deployment",
+                  "endpoint": "baton.reviewer-325034",
+                  "grant": "direct",
+                  "policy_generation": 14,
+                  "principal": "principal:baton.reviewer-325034",
+                  "role": "review"
+                },
+                "disposition": "accepted",
+                "kind": "review",
+                "policy_generation": null,
+                "proposal_id": "integration-driver.proposal:3f3bcd3b499f4ef4e09e14b72f6644f6b67f08fe8de013aefd67dc03aaff53d3",
+                "receipt_id": "w325034-review",
+                "recorded_at": "2026-10-18T18:08:02.974Z",
+                "target": "4dde4f6c1448bb7e49b957fd7bc84da6653ae3bd"
+              },
+              "verification": {
+                "actor": "baton.verifier-325034",
+                "candidate_digest": "4fa449fe2ef4a609ca889ed2cd4da297f312f76d",
+                "decision": {
+                  "effective_scope": "scope:deployment",
+                  "endpoint": "baton.verifier-325034",
+                  "grant": "direct",
+                  "policy_generation": 14,
+                  "principal": "principal:baton.verifier-325034",
+                  "role": "verify"
+                },
+                "disposition": "passed",
+                "kind": "verification",
+                "policy_generation": null,
+                "proposal_id": "integration-driver.proposal:3f3bcd3b499f4ef4e09e14b72f6644f6b67f08fe8de013aefd67dc03aaff53d3",
+                "receipt_id": "w325034-verification",
+                "recorded_at": "2026-10-18T18:08:02.973Z",
+                "target": "4dde4f6c1448bb7e49b957fd7bc84da6653ae3bd"
+              }
+            }
+          }
+        ]
+      },
+      "replayed": false,
+      "request": {
+        "bound_at": "2026-10-18T18:08:02.995Z",
+        "kind": "command-request",
+        "request": {
+          "candidate_digest": "4fa449fe2ef4a609ca889ed2cd4da297f312f76d",
+          "expect_assignment": null,
+          "outcome": "satisfying",
+          "participant": "baton.slaw",
+          "proposal": "integration-driver.proposal:3f3bcd3b499f4ef4e09e14b72f6644f6b67f08fe8de013aefd67dc03aaff53d3",
+          "rationale": "W325034 rehearsal closure (simulated owner)",
+          "verb": "close",
+          "work": "0000000a-W1"
+        },
+        "verb": "close",
+        "work_id": "0000000a-W1"
+      },
+      "work_at_invocation": {
+        "outcome": null,
+        "phase": "queued",
+        "status": "open"
+      },
+      "work_id": "0000000a-W1"
+    },
+    "exit": 0,
+    "stderr": ""
+  },
+  "final_receipts": {
+    "approval": {
+      "actor": "baton.slaw",
+      "disposition": "approved",
+      "receipt_id": "w325034-approval"
+    },
+    "integration": {
+      "actor": "baton.slaw",
+      "disposition": "integrated",
+      "receipt_id": "w325034-integration"
+    },
+    "review": {
+      "actor": "baton.reviewer-325034",
+      "disposition": "accepted",
+      "receipt_id": "w325034-review"
+    },
+    "verification": {
+      "actor": "baton.verifier-325034",
+      "disposition": "passed",
+      "receipt_id": "w325034-verification"
+    }
+  },
+  "readback": {
+    "answer": {
+      "authority_uuid": "0000000a000000000000000000000000",
+      "canonical_target": "4fa449fe2ef4a609ca889ed2cd4da297f312f76d",
+      "close_decision": {
+        "effective_scope": "scope:deployment",
+        "endpoint": "baton.slaw",
+        "grant": "direct",
+        "policy_generation": 15,
+        "principal": "principal:baton.slaw",
+        "role": "close"
+      },
+      "closure_acceptance": {
+        "approval": "w325034-approval",
+        "candidate_digest": "4fa449fe2ef4a609ca889ed2cd4da297f312f76d",
+        "commit": "0000000000000000000000000000000000000000",
+        "evidence_digest": "sha256:0a7ba180df9d770fa6a1f6f2e39422f09ef827ea82fa71fcf196f0dc7a4bec27",
+        "evidence_reference": "INTEGRATION.json",
+        "integration": "w325034-integration",
+        "proposal_id": "integration-driver.proposal:3f3bcd3b499f4ef4e09e14b72f6644f6b67f08fe8de013aefd67dc03aaff53d3",
+        "review": "w325034-review",
+        "schema": "baton.v12.owner-closure-acceptance/1",
+        "verification": "w325034-verification"
+      },
+      "dossier": {
+        "bound_at": "2026-10-18T18:08:02.978Z",
+        "locator": "pilot-human-boundary-0000000a",
+        "operation_id": "w325034-bind",
+        "work_id": "0000000a-W1"
+      },
+      "due": "this Work is terminal and its outcome is recorded; no further disposition is due",
+      "evidence": [
+        {
+          "act_id": "w325034-citation",
+          "digest": "sha256:0a7ba180df9d770fa6a1f6f2e39422f09ef827ea82fa71fcf196f0dc7a4bec27",
+          "recorded_at": "2026-10-18T18:08:02.992Z",
+          "reference": "INTEGRATION.json",
+          "work_id": "0000000a-W1"
+        }
+      ],
+      "evidence_now": {
+        "cited_digest": "sha256:0a7ba180df9d770fa6a1f6f2e39422f09ef827ea82fa71fcf196f0dc7a4bec27",
+        "commit": "0000000000000000000000000000000000000000",
+        "integrated_at": "2026-10-18T18:10:00Z",
+        "integrated_by": "SIMULATED (W325034 rehearsal; no human act, no live provider)",
+        "reference": "INTEGRATION.json",
+        "state": "intact"
+      },
+      "holds": {
+        "approve": true,
+        "close": true,
+        "integrate": true
+      },
+      "latest_proposal": "integration-driver.proposal:3f3bcd3b499f4ef4e09e14b72f6644f6b67f08fe8de013aefd67dc03aaff53d3",
+      "owner_action": "closed",
+      "participant": "baton.slaw",
+      "policy_generation": 15,
+      "proposals": [
+        {
+          "assignment_ref": {
+            "generation": 1,
+            "participant": "baton.claude",
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W1"
+            }
+          },
+          "candidate_digest": "4fa449fe2ef4a609ca889ed2cd4da297f312f76d",
+          "decision": {
+            "effective_scope": "scope:deployment",
+            "endpoint": "baton.claude",
+            "grant": "direct",
+            "policy_generation": 9,
+            "principal": "principal:baton.claude",
+            "role": "baton.impl"
+          },
+          "input_digest": "sha256:9ffd9e862e6749eb5e2a589c8390ba7e18ccfc9ef5e1d8961c4504b0b5748ee0",
+          "owner_action": "closure-due",
+          "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "proposal_id": "integration-driver.proposal:3f3bcd3b499f4ef4e09e14b72f6644f6b67f08fe8de013aefd67dc03aaff53d3",
+          "published_at": "2026-10-18T18:08:02.763Z",
+          "receipts": {
+            "approval": {
+              "actor": "baton.slaw",
+              "candidate_digest": "4fa449fe2ef4a609ca889ed2cd4da297f312f76d",
+              "decision": {
+                "effective_scope": "scope:deployment",
+                "endpoint": "baton.slaw",
+                "grant": "direct",
+                "policy_generation": 14,
+                "principal": "principal:baton.slaw",
+                "role": "approve"
+              },
+              "disposition": "approved",
+              "kind": "approval",
+              "policy_generation": 14,
+              "proposal_id": "integration-driver.proposal:3f3bcd3b499f4ef4e09e14b72f6644f6b67f08fe8de013aefd67dc03aaff53d3",
+              "receipt_id": "w325034-approval",
+              "recorded_at": "2026-10-18T18:08:02.988Z",
+              "target": "4dde4f6c1448bb7e49b957fd7bc84da6653ae3bd"
+            },
+            "integration": {
+              "actor": "baton.slaw",
+              "candidate_digest": "4fa449fe2ef4a609ca889ed2cd4da297f312f76d",
+              "decision": {
+                "effective_scope": "scope:deployment",
+                "endpoint": "baton.slaw",
+                "grant": "direct",
+                "policy_generation": 14,
+                "principal": "principal:baton.slaw",
+                "role": "integrate"
+              },
+              "disposition": "integrated",
+              "kind": "integration",
+              "policy_generation": null,
+              "proposal_id": "integration-driver.proposal:3f3bcd3b499f4ef4e09e14b72f6644f6b67f08fe8de013aefd67dc03aaff53d3",
+              "receipt_id": "w325034-integration",
+              "recorded_at": "2026-10-18T18:08:02.993Z",
+              "target": "4dde4f6c1448bb7e49b957fd7bc84da6653ae3bd"
+            },
+            "review": {
+              "actor": "baton.reviewer-325034",
+              "candidate_digest": "4fa449fe2ef4a609ca889ed2cd4da297f312f76d",
+              "decision": {
+                "effective_scope": "scope:deployment",
+                "endpoint": "baton.reviewer-325034",
+                "grant": "direct",
+                "policy_generation": 14,
+                "principal": "principal:baton.reviewer-325034",
+                "role": "review"
+              },
+              "disposition": "accepted",
+              "kind": "review",
+              "policy_generation": null,
+              "proposal_id": "integration-driver.proposal:3f3bcd3b499f4ef4e09e14b72f6644f6b67f08fe8de013aefd67dc03aaff53d3",
+              "receipt_id": "w325034-review",
+              "recorded_at": "2026-10-18T18:08:02.974Z",
+              "target": "4dde4f6c1448bb7e49b957fd7bc84da6653ae3bd"
+            },
+            "verification": {
+              "actor": "baton.verifier-325034",
+              "candidate_digest": "4fa449fe2ef4a609ca889ed2cd4da297f312f76d",
+              "decision": {
+                "effective_scope": "scope:deployment",
+                "endpoint": "baton.verifier-325034",
+                "grant": "direct",
+                "policy_generation": 14,
+                "principal": "principal:baton.verifier-325034",
+                "role": "verify"
+              },
+              "disposition": "passed",
+              "kind": "verification",
+              "policy_generation": null,
+              "proposal_id": "integration-driver.proposal:3f3bcd3b499f4ef4e09e14b72f6644f6b67f08fe8de013aefd67dc03aaff53d3",
+              "receipt_id": "w325034-verification",
+              "recorded_at": "2026-10-18T18:08:02.973Z",
+              "target": "4dde4f6c1448bb7e49b957fd7bc84da6653ae3bd"
+            }
+          },
+          "result_digest": "sha256:a275800312c436d5e897c80cb1c47745020916691a1cbfe2d3ca19ebd420a8b6",
+          "result_id": "result-attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "target": "4dde4f6c1448bb7e49b957fd7bc84da6653ae3bd"
+        }
+      ],
+      "rationale": "W325034 rehearsal closure (simulated owner)",
+      "work": {
+        "assignment": null,
+        "handler": null,
+        "outcome": "satisfying",
+        "phase": null,
+        "route": "integration",
+        "scope": "scope:deployment",
+        "status": "closed",
+        "work_id": "0000000a-W1"
+      }
+    },
+    "exit": 0,
+    "stderr": ""
+  },
+  "step": "7. closure and readback",
+  "work": {
+    "close_decision": {
+      "effective_scope": "scope:deployment",
+      "endpoint": "baton.slaw",
+      "grant": "direct",
+      "policy_generation": 15,
+      "principal": "principal:baton.slaw",
+      "role": "close"
+    },
+    "outcome": "satisfying",
+    "phase": null,
+    "status": "closed"
+  }
+}

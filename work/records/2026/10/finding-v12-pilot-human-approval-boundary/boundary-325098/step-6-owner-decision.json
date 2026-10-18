@@ -1,0 +1,126 @@
+{
+  "approve": {
+    "answer": {
+      "approval": {
+        "actor": "baton.slaw",
+        "candidate_digest": "4fa449fe2ef4a609ca889ed2cd4da297f312f76d",
+        "disposition": "approved",
+        "kind": "approval",
+        "policy_generation": 14,
+        "proposal_id": "integration-driver.proposal:3f3bcd3b499f4ef4e09e14b72f6644f6b67f08fe8de013aefd67dc03aaff53d3",
+        "receipt_id": "w325034-approval",
+        "target": "4dde4f6c1448bb7e49b957fd7bc84da6653ae3bd"
+      },
+      "authority_uuid": "0000000a000000000000000000000000",
+      "bound": {
+        "actor": "baton.slaw",
+        "candidate_digest": "4fa449fe2ef4a609ca889ed2cd4da297f312f76d",
+        "policy_generation": 14,
+        "review_receipt": "w325034-review"
+      },
+      "evidence_preserved": true,
+      "integration_due": true,
+      "work_id": "0000000a-W1"
+    },
+    "exit": 0,
+    "stderr": ""
+  },
+  "approve_replay": {
+    "answer": {
+      "approval": {
+        "actor": "baton.slaw",
+        "candidate_digest": "4fa449fe2ef4a609ca889ed2cd4da297f312f76d",
+        "disposition": "approved",
+        "kind": "approval",
+        "policy_generation": 14,
+        "proposal_id": "integration-driver.proposal:3f3bcd3b499f4ef4e09e14b72f6644f6b67f08fe8de013aefd67dc03aaff53d3",
+        "receipt_id": "w325034-approval",
+        "target": "4dde4f6c1448bb7e49b957fd7bc84da6653ae3bd"
+      },
+      "authority_uuid": "0000000a000000000000000000000000",
+      "bound": {
+        "actor": "baton.slaw",
+        "candidate_digest": "4fa449fe2ef4a609ca889ed2cd4da297f312f76d",
+        "policy_generation": 14,
+        "review_receipt": "w325034-review"
+      },
+      "evidence_preserved": true,
+      "integration_due": true,
+      "work_id": "0000000a-W1"
+    },
+    "exit": 0,
+    "stderr": ""
+  },
+  "integrated": {
+    "answer": {
+      "authority_uuid": "0000000a000000000000000000000000",
+      "bound": {
+        "actor": "baton.slaw",
+        "candidate_digest": "4fa449fe2ef4a609ca889ed2cd4da297f312f76d",
+        "commit": "0000000000000000000000000000000000000000"
+      },
+      "cited": {
+        "act_id": "w325034-citation",
+        "digest": "sha256:0a7ba180df9d770fa6a1f6f2e39422f09ef827ea82fa71fcf196f0dc7a4bec27",
+        "recorded_at": "2026-10-18T18:08:02.992Z",
+        "reference": "INTEGRATION.json",
+        "work_id": "0000000a-W1"
+      },
+      "closure_due": true,
+      "evidence_now": {
+        "cited_digest": "sha256:0a7ba180df9d770fa6a1f6f2e39422f09ef827ea82fa71fcf196f0dc7a4bec27",
+        "commit": "0000000000000000000000000000000000000000",
+        "integrated_at": "2026-10-18T18:10:00Z",
+        "integrated_by": "SIMULATED (W325034 rehearsal; no human act, no live provider)",
+        "reference": "INTEGRATION.json",
+        "state": "intact"
+      },
+      "integration": {
+        "actor": "baton.slaw",
+        "disposition": "integrated",
+        "kind": "integration",
+        "proposal_id": "integration-driver.proposal:3f3bcd3b499f4ef4e09e14b72f6644f6b67f08fe8de013aefd67dc03aaff53d3",
+        "receipt_id": "w325034-integration"
+      },
+      "replayed": false,
+      "request": {
+        "bound_at": "2026-10-18T18:08:02.992Z",
+        "kind": "command-request",
+        "request": {
+          "candidate_digest": "4fa449fe2ef4a609ca889ed2cd4da297f312f76d",
+          "commit": "0000000000000000000000000000000000000000",
+          "evidence_digest": "sha256:0a7ba180df9d770fa6a1f6f2e39422f09ef827ea82fa71fcf196f0dc7a4bec27",
+          "evidence_operation": "w325034-citation",
+          "integration_id": "w325034-integration",
+          "participant": "baton.slaw",
+          "proposal": "integration-driver.proposal:3f3bcd3b499f4ef4e09e14b72f6644f6b67f08fe8de013aefd67dc03aaff53d3",
+          "reference": "INTEGRATION.json",
+          "verb": "integrated",
+          "work": "0000000a-W1"
+        },
+        "verb": "integrated",
+        "work_id": "0000000a-W1"
+      },
+      "work_id": "0000000a-W1"
+    },
+    "exit": 0,
+    "stderr": ""
+  },
+  "labelled": "SIMULATED (W325034 rehearsal; no human act, no live provider)",
+  "refused: stale candidate digest": {
+    "answer": null,
+    "exit": 2,
+    "stderr": "refused: proposal 'integration-driver.proposal:3f3bcd3b499f4ef4e09e14b72f6644f6b67f08fe8de013aefd67dc03aaff53d3' holds candidate '4fa449fe2ef4a609ca889ed2cd4da297f312f76d' and this disposition expects 'sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'; the bytes under review are what is being decided, so a changed candidate refuses rather than inheriting a decision made about other bytes"
+  },
+  "refused: wrong principal": {
+    "answer": null,
+    "exit": 2,
+    "stderr": "refused: 'baton.reviewer-325034' does not hold the approve capability; a approval is written by the configured actor, not by whoever holds the object"
+  },
+  "refused: wrong review receipt": {
+    "answer": null,
+    "exit": 2,
+    "stderr": "refused: the accepted review of proposal 'integration-driver.proposal:3f3bcd3b499f4ef4e09e14b72f6644f6b67f08fe8de013aefd67dc03aaff53d3' is 'w325034-review' and this disposition expects 'not-the-one'; the owner decides on the review they actually read"
+  },
+  "step": "6. the owner's own decision"
+}

@@ -1,0 +1,60 @@
+{
+  "directory": "boundary-325098",
+  "members": {
+    "BOUNDARY.md": {
+      "bytes": 3973,
+      "sha256": "887de73a7625a8f8b883b8b57d4bcf7a52d2b2b03476a652307e6ca79674480e"
+    },
+    "HUMAN-BOUNDARY.json": {
+      "bytes": 32059,
+      "sha256": "3442b249080c7018511625b78c499e0f037b20fb4898512ce3c8ea88a019f011"
+    },
+    "SUPERSESSION.md": {
+      "bytes": 2303,
+      "sha256": "48189831b81f2e721ca2fa3f7c19bbbf95177b2078966a2ae841076906b317fb"
+    },
+    "human_boundary.py": {
+      "bytes": 18856,
+      "sha256": "491acd65fc91c27b08bf5b24c64df95a7538f2e3c7ee41f7e0e9243a862da192"
+    },
+    "integration-root/INTEGRATION.json": {
+      "bytes": 654,
+      "sha256": "0a7ba180df9d770fa6a1f6f2e39422f09ef827ea82fa71fcf196f0dc7a4bec27"
+    },
+    "step-1-clean-native-candidate.json": {
+      "bytes": 3623,
+      "sha256": "faa8ae4d527bce35c2d5a545cdecfc5aecfcb3be900f300e0d8cbe840c57b156"
+    },
+    "step-2-deployment-grants.json": {
+      "bytes": 453,
+      "sha256": "5693d23af775ac46c9db0a011f340ba724bfd6c003850a24e2ba11393745877a"
+    },
+    "step-3-independent-judgments.json": {
+      "bytes": 1544,
+      "sha256": "9d3c2b99e148532ae2bae5d241c2dbac2cdffceb69fbd192edd28863c9cc10e6"
+    },
+    "step-4-owner-pending.json": {
+      "bytes": 354,
+      "sha256": "9a7405215a7e659b710d21040a75968092b30d7ebc794493f0232f437b3eb875"
+    },
+    "step-4b-dossier-binding.json": {
+      "bytes": 301,
+      "sha256": "a87b7dd238fc0e7d9197dea2b00df33467c9cf3e8dc61bc65982dc6bce3019fe"
+    },
+    "step-5-withheld-approval.json": {
+      "bytes": 1146,
+      "sha256": "a024b1fc3e9fedf7b8f8f52ce55c23e9be6588858be02d894c7912ce844e0467"
+    },
+    "step-6-owner-decision.json": {
+      "bytes": 5195,
+      "sha256": "2dfe0268e8730a7af299b8927e7d129d8e9dcedd5e5141d5f13c47e5b3d1fed5"
+    },
+    "step-7-closure-readback.json": {
+      "bytes": 16114,
+      "sha256": "14ca35977f510e346f9c38ba485ad9000b0913f329643ab6abb37ad584502832"
+    }
+  },
+  "note": "original, corrected in part: see SUPERSESSION.md",
+  "schema": "baton.w325034.boundary-evidence/2",
+  "source_base": "372281f4a473300efb474d5a6573954c15ade367"
+}

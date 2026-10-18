@@ -1,0 +1,14 @@
+{
+  "approval_receipt": [
+    null
+  ],
+  "due": "independent review accepted the latest candidate and no approval receipt exists; the owner's approve or deny is due on these exact bytes",
+  "exit": 0,
+  "holds": {
+    "approve": true,
+    "close": true,
+    "integrate": true
+  },
+  "owner_action": "approval-due",
+  "step": "4. owner pending action"
+}

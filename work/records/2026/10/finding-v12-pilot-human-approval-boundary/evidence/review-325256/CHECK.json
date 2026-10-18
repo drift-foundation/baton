@@ -1,0 +1,22 @@
+{
+  "manifest_sha256": "dd2d071a1669fe861a7a4e3eaea80ed4f2310ad9fe7aafd593f56a0c1a907a4f",
+  "members_verified": 6,
+  "checks_passed": 49,
+  "observed_scenarios": 2,
+  "selfcheck_exact_named_failure": true,
+  "no_setup_cleanup_errors": true,
+  "independent_unrun_nonzero_evaluation_refusals": [
+    null,
+    1,
+    -1
+  ],
+  "native_rerun": false,
+  "identities": {
+    "candidate_digest": "60102b2e6ff33689f9c37f9008ae2e4154a7f45f",
+    "implementation_attempt": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+    "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+    "proposal_id": "integration-driver.proposal:389e6f1e8d13d0afbf1dcdb66209d2bced7ce265ec48bab23f110bb3c4602767",
+    "review_attempt": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+    "work_id": "0000000a-W1"
+  }
+}

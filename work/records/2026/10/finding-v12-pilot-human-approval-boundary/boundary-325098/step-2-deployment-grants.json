@@ -1,0 +1,19 @@
+{
+  "grants": {
+    "baton.reviewer-325034": [
+      "review"
+    ],
+    "baton.slaw": [
+      "approve",
+      "close",
+      "integrate"
+    ],
+    "baton.verifier-325034": [
+      "verify"
+    ]
+  },
+  "note": "an independently selected verifier and reviewer, distinct from the owner; the owner holds no verify or review grant",
+  "policy_generation": 14,
+  "scope": "scope:deployment",
+  "step": "2. deployment grants, then the pinned generation"
+}

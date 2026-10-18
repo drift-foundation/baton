@@ -1,0 +1,228 @@
+{
+  "checks": [
+    {
+      "check": "the deployment names its own line",
+      "detail": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "created_at": "2026-09-02T00:00:00.000Z",
+        "current_checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+        "declared_base": "6a308dab7eb59c2e6675e2fd08e6b917e6b9ad6e",
+        "line_device": 66306,
+        "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+        "line_inode": 956593,
+        "line_path": "/home/sl/src/baton/v12/python/v12-w71917-i759bq2o/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout",
+        "profile_name": "git",
+        "revision": 1,
+        "source_device": 66306,
+        "source_inode": 50501803,
+        "source_path": "/home/sl/src/baton/v12/python/v12-w71917-i759bq2o/source",
+        "state": "accepted",
+        "work_id": "0000000a-W1"
+      },
+      "passed": true
+    },
+    {
+      "check": "the line owner resolves that exact line",
+      "detail": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "created_at": "2026-09-02T00:00:00.000Z",
+        "current_checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+        "declared_base": "6a308dab7eb59c2e6675e2fd08e6b917e6b9ad6e",
+        "line_device": 66306,
+        "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+        "line_inode": 956593,
+        "line_path": "/home/sl/src/baton/v12/python/v12-w71917-i759bq2o/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout",
+        "profile_name": "git",
+        "revision": 1,
+        "source_device": 66306,
+        "source_inode": 50501803,
+        "source_path": "/home/sl/src/baton/v12/python/v12-w71917-i759bq2o/source",
+        "state": "accepted",
+        "work_id": "0000000a-W1"
+      },
+      "passed": true
+    },
+    {
+      "check": "the line is bound to this Work",
+      "detail": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "created_at": "2026-09-02T00:00:00.000Z",
+        "current_checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+        "declared_base": "6a308dab7eb59c2e6675e2fd08e6b917e6b9ad6e",
+        "line_device": 66306,
+        "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+        "line_inode": 956593,
+        "line_path": "/home/sl/src/baton/v12/python/v12-w71917-i759bq2o/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout",
+        "profile_name": "git",
+        "revision": 1,
+        "source_device": 66306,
+        "source_inode": 50501803,
+        "source_path": "/home/sl/src/baton/v12/python/v12-w71917-i759bq2o/source",
+        "state": "accepted",
+        "work_id": "0000000a-W1"
+      },
+      "passed": true
+    },
+    {
+      "check": "exactly one candidate was published",
+      "detail": [
+        "integration-driver.proposal:7731eb70e21fea8a44f63317791740888cdedadf105eab5521adde6ec707f0fd"
+      ],
+      "passed": true
+    },
+    {
+      "check": "all four receipts are absent before any judgment",
+      "detail": {
+        "approval": null,
+        "integration": null,
+        "review": null,
+        "verification": null
+      },
+      "passed": true
+    },
+    {
+      "check": "an accepted checkpoint exists",
+      "detail": {
+        "checkpoint_digest": "sha256:462cd0fa8253b8a7336e78f29eb2544d993aff0b289a8cf2763262a0a2d82ded",
+        "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+        "evidence": {
+          "base": "6a308dab7eb59c2e6675e2fd08e6b917e6b9ad6e",
+          "head": "60102b2e6ff33689f9c37f9008ae2e4154a7f45f",
+          "path_set_digest": "sha256:695b752f1c98185f394d3a09fb0ff7f04a61fa1129402d714268a66c4fb16289",
+          "paths": [
+            "harness.py"
+          ],
+          "profile": "git",
+          "reference": "refs/baton/checkpoints/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/1",
+          "tree": "a401a9deb1811f5b4b1ce83a1cb29564e923a220"
+        },
+        "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+        "verdict_id": "verdict-7bbcf60ea2c26dcd77b5b40addf4307365c4109ecd60a75b9543ca67ada90fe5"
+      },
+      "passed": true
+    },
+    {
+      "observation": "the deployment's derived required tests",
+      "value": {
+        "argv": [
+          "python3",
+          "harness.py"
+        ],
+        "input_manifest_digest": "sha256:76d530a91c45563161fc7ea5a9a4a800f6f8c52f243c37156c73da9f795f6c1d",
+        "job_input_identity": "sha256:3b3e19f2f713d4e65abef80e5df561e2640b48911177e5ad695373e5c2209459",
+        "task_digest": "sha256:5d9f80e287d9f1843aeb2aadb5dd71d2b3ae3089614d4602aa6dcb0cebeaedb9",
+        "task_id": "w119114-composed-lifecycle"
+      }
+    },
+    {
+      "check": "the evidence names this proposal's result identity",
+      "detail": [
+        "result-attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "result-attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"
+      ],
+      "passed": true
+    },
+    {
+      "check": "the evidence names the producer attempt this Job ran",
+      "detail": [
+        "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"
+      ],
+      "passed": true
+    },
+    {
+      "check": "the evidence names the accepted checkpoint",
+      "detail": [
+        "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+        "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a"
+      ],
+      "passed": true
+    },
+    {
+      "check": "the owner holds no verify or review grant",
+      "detail": [
+        "approve",
+        "close",
+        "integrate"
+      ],
+      "passed": true
+    },
+    {
+      "check": "the evaluation refuses another task id",
+      "detail": [
+        "task_id: required 'not-this-task', observed 'w119114-composed-lifecycle'"
+      ],
+      "passed": true
+    },
+    {
+      "check": "the evaluation refuses another task digest",
+      "detail": [
+        "task_digest: required 'sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', observed 'sha256:5d9f80e287d9f1843aeb2aadb5dd71d2b3ae3089614d4602aa6dcb0cebeaedb9'"
+      ],
+      "passed": true
+    },
+    {
+      "check": "the evaluation refuses another command",
+      "detail": [
+        "argv: required ['python3', 'other.py'], observed ['python3', 'harness.py']"
+      ],
+      "passed": true
+    },
+    {
+      "check": "the evaluation refuses another input manifest",
+      "detail": [
+        "input_manifest_digest: the required tests were selected for another attempt's input manifest"
+      ],
+      "passed": true
+    },
+    {
+      "check": "no receipt exists after the refused evaluations",
+      "detail": {
+        "approval": null,
+        "integration": null,
+        "review": null,
+        "verification": null
+      },
+      "passed": true
+    }
+  ],
+  "expected_failure": false,
+  "injected": "four mutated requirement selections, each of which must withhold the judgment and write nothing",
+  "not_called": [
+    "_accepted_receipts",
+    "admit_accepted",
+    "continue_accepted",
+    "raw SQL"
+  ],
+  "observation": {
+    "argv": [
+      "python3",
+      "harness.py"
+    ],
+    "base": "6a308dab7eb59c2e6675e2fd08e6b917e6b9ad6e",
+    "head": "60102b2e6ff33689f9c37f9008ae2e4154a7f45f",
+    "status": 0,
+    "task_digest": "sha256:5d9f80e287d9f1843aeb2aadb5dd71d2b3ae3089614d4602aa6dcb0cebeaedb9",
+    "task_id": "w119114-composed-lifecycle"
+  },
+  "outcome": "observed",
+  "proposal_id": "integration-driver.proposal:7731eb70e21fea8a44f63317791740888cdedadf105eab5521adde6ec707f0fd",
+  "requirements": {
+    "argv": [
+      "python3",
+      "harness.py"
+    ],
+    "input_manifest_digest": "sha256:76d530a91c45563161fc7ea5a9a4a800f6f8c52f243c37156c73da9f795f6c1d",
+    "job_input_identity": "sha256:3b3e19f2f713d4e65abef80e5df561e2640b48911177e5ad695373e5c2209459",
+    "task_digest": "sha256:5d9f80e287d9f1843aeb2aadb5dd71d2b3ae3089614d4602aa6dcb0cebeaedb9",
+    "task_id": "w119114-composed-lifecycle"
+  },
+  "scenario": "1-stale-task-withholds-judgment",
+  "seconds": 0.399,
+  "simulated": [
+    "engine: no daemon",
+    "provider: injected at the adapter's seam",
+    "verifier/reviewer/owner judgments"
+  ],
+  "work_id": "0000000a-W1"
+}

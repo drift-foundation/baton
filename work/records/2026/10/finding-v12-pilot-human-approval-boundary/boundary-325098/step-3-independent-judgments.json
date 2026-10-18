@@ -1,0 +1,34 @@
+{
+  "accepted_verdict_id": "verdict-7bbcf60ea2c26dcd77b5b40addf4307365c4109ecd60a75b9543ca67ada90fe5",
+  "evidence_observation_digest": "sha256:e0438dd35719cadc026a8982cb53064079aa3f0718cc6323077106f832cfb9e7",
+  "judgement": "SIMULATED (W325034 rehearsal; no human act, no live provider)",
+  "producer_attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+  "receipts_now": {
+    "approval": null,
+    "integration": null,
+    "review": "accepted",
+    "verification": "passed"
+  },
+  "result_digest": "sha256:a275800312c436d5e897c80cb1c47745020916691a1cbfe2d3ca19ebd420a8b6",
+  "review": {
+    "actor": "baton.reviewer-325034",
+    "candidate_digest": "4fa449fe2ef4a609ca889ed2cd4da297f312f76d",
+    "disposition": "accepted",
+    "kind": "review",
+    "policy_generation": null,
+    "proposal_id": "integration-driver.proposal:3f3bcd3b499f4ef4e09e14b72f6644f6b67f08fe8de013aefd67dc03aaff53d3",
+    "receipt_id": "w325034-review",
+    "target": "4dde4f6c1448bb7e49b957fd7bc84da6653ae3bd"
+  },
+  "step": "3. independent verifier and reviewer judgments, approval untouched",
+  "verification": {
+    "actor": "baton.verifier-325034",
+    "candidate_digest": "4fa449fe2ef4a609ca889ed2cd4da297f312f76d",
+    "disposition": "passed",
+    "kind": "verification",
+    "policy_generation": null,
+    "proposal_id": "integration-driver.proposal:3f3bcd3b499f4ef4e09e14b72f6644f6b67f08fe8de013aefd67dc03aaff53d3",
+    "receipt_id": "w325034-verification",
+    "target": "4dde4f6c1448bb7e49b957fd7bc84da6653ae3bd"
+  }
+}

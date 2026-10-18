@@ -1,0 +1,13 @@
+{
+  "label": "Synthetic Authority contract probe only; no native Job, real independent acceptance or human approval claimed",
+  "initial_approve_exit": 2,
+  "verify_only_approve_exit": 2,
+  "after_independent_review_action": "approval-due",
+  "withheld_integration_exit": 2,
+  "explicit_owner_approve_exit": 0,
+  "approval_actor": "baton.slaw",
+  "replay_exit": 0,
+  "replay_unchanged": true,
+  "tool_wall_seconds": 0.046206693,
+  "invocation": "cd v12/python; env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:. python3 <dossier>/evidence/claim-325052/probe.py"
+}

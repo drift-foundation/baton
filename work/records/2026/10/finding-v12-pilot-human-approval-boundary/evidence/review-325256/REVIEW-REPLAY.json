@@ -1,0 +1,7 @@
+{
+  "label": "Supplemental synthetic Authority receipt-replay proof, not native execution or real approval",
+  "review_replay_exact": true,
+  "different_review_refused": true,
+  "receipt_unchanged": true,
+  "approval_absent": true
+}

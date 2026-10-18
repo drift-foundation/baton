@@ -1,0 +1,20 @@
+{
+  "authority_integrate": "refused: integration requires explicit approval",
+  "human_integration_with_approval_withheld": {
+    "answer": null,
+    "exit": 2,
+    "stderr": "refused: proposal 'integration-driver.proposal:3f3bcd3b499f4ef4e09e14b72f6644f6b67f08fe8de013aefd67dc03aaff53d3' is not approved (None), so there is no approved candidate for a human to have integrated; a passed verification or a finished Job is not an approval"
+  },
+  "receipts_unchanged": {
+    "approval": null,
+    "integration": null,
+    "review": "accepted",
+    "verification": "passed"
+  },
+  "satisfying_closure_with_approval_withheld": {
+    "answer": null,
+    "exit": 2,
+    "stderr": "refused: a satisfying closure of '0000000a-W1' is refused: the owner action due on proposal 'integration-driver.proposal:3f3bcd3b499f4ef4e09e14b72f6644f6b67f08fe8de013aefd67dc03aaff53d3' is 'approval-due' -- independent review accepted the latest candidate and no approval receipt exists; the owner's approve or deny is due on these exact bytes. A capability to close is not an acceptance, and nothing was changed"
+  },
+  "step": "5. approval withheld: the negatives"
+}

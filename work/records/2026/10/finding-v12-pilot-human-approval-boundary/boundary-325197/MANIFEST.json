@@ -1,0 +1,32 @@
+{
+  "directory": "boundary-325197",
+  "members": {
+    "BOUNDARY2.json": {
+      "bytes": 34560,
+      "sha256": "a03321287237bbe620d7cfba220b8a92bee382e060b284293157aa2bcc019762"
+    },
+    "BOUNDARY2.md": {
+      "bytes": 5193,
+      "sha256": "90ed22fc6679542b2292b8006c1add5afe604b9f3270a1ca6e80ba6125fa7394"
+    },
+    "boundary2.py": {
+      "bytes": 30247,
+      "sha256": "34ba64be50cc920a66452358e28b9042553a70bad953da39d66ebd5700ed733a"
+    },
+    "scenario-0-harness-self-check.json": {
+      "bytes": 1077,
+      "sha256": "b23ae5a89b01d54e8fde65b75bb84d88634dc297bff5c2d1d01e31e2df16497b"
+    },
+    "scenario-1-stale-task-withholds-judgment.json": {
+      "bytes": 8716,
+      "sha256": "8d48a4ca4f89ab4237edd60a5bec5889cab0a718428a626c37f7b26336a2a636"
+    },
+    "scenario-2-evidence-based-judgments-and-owner-chain.json": {
+      "bytes": 21095,
+      "sha256": "e831f461cf0d063e380338d37ff750c00fcfdefab3b5e7a46d62335274ac6350"
+    }
+  },
+  "note": "corrected run: supported lookups, evidence-based judgments, 49 passing checks, self-check fails as it must",
+  "schema": "baton.w325034.boundary-evidence/2",
+  "source_base": "372281f4a473300efb474d5a6573954c15ade367"
+}

@@ -1,0 +1,11 @@
+{
+  "authority_uuid": "0000000a000000000000000000000000",
+  "candidate_digest": "4fa449fe2ef4a609ca889ed2cd4da297f312f76d",
+  "commit": "0000000000000000000000000000000000000000",
+  "integrated_at": "2026-10-18T18:10:00Z",
+  "integrated_by": "SIMULATED (W325034 rehearsal; no human act, no live provider)",
+  "notes": "W325034 rehearsal fixture. No human integrated anything and no commit exists; the commit is forty zeroes so it cannot be mistaken for one.",
+  "proposal_id": "integration-driver.proposal:3f3bcd3b499f4ef4e09e14b72f6644f6b67f08fe8de013aefd67dc03aaff53d3",
+  "schema": "baton.v12.human-integration-record/1",
+  "work_id": "0000000a-W1"
+}

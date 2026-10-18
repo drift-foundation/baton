@@ -1,0 +1,562 @@
+{
+  "checks": [
+    {
+      "check": "the deployment names its own line",
+      "detail": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "created_at": "2026-09-02T00:00:00.000Z",
+        "current_checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+        "declared_base": "6a308dab7eb59c2e6675e2fd08e6b917e6b9ad6e",
+        "line_device": 66306,
+        "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+        "line_inode": 956594,
+        "line_path": "/home/sl/src/baton/v12/python/v12-w71917-zldm623c/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout",
+        "profile_name": "git",
+        "revision": 1,
+        "source_device": 66306,
+        "source_inode": 50501805,
+        "source_path": "/home/sl/src/baton/v12/python/v12-w71917-zldm623c/source",
+        "state": "accepted",
+        "work_id": "0000000a-W1"
+      },
+      "passed": true
+    },
+    {
+      "check": "the line owner resolves that exact line",
+      "detail": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "created_at": "2026-09-02T00:00:00.000Z",
+        "current_checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+        "declared_base": "6a308dab7eb59c2e6675e2fd08e6b917e6b9ad6e",
+        "line_device": 66306,
+        "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+        "line_inode": 956594,
+        "line_path": "/home/sl/src/baton/v12/python/v12-w71917-zldm623c/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout",
+        "profile_name": "git",
+        "revision": 1,
+        "source_device": 66306,
+        "source_inode": 50501805,
+        "source_path": "/home/sl/src/baton/v12/python/v12-w71917-zldm623c/source",
+        "state": "accepted",
+        "work_id": "0000000a-W1"
+      },
+      "passed": true
+    },
+    {
+      "check": "the line is bound to this Work",
+      "detail": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "created_at": "2026-09-02T00:00:00.000Z",
+        "current_checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+        "declared_base": "6a308dab7eb59c2e6675e2fd08e6b917e6b9ad6e",
+        "line_device": 66306,
+        "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+        "line_inode": 956594,
+        "line_path": "/home/sl/src/baton/v12/python/v12-w71917-zldm623c/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout",
+        "profile_name": "git",
+        "revision": 1,
+        "source_device": 66306,
+        "source_inode": 50501805,
+        "source_path": "/home/sl/src/baton/v12/python/v12-w71917-zldm623c/source",
+        "state": "accepted",
+        "work_id": "0000000a-W1"
+      },
+      "passed": true
+    },
+    {
+      "check": "exactly one candidate was published",
+      "detail": [
+        "integration-driver.proposal:389e6f1e8d13d0afbf1dcdb66209d2bced7ce265ec48bab23f110bb3c4602767"
+      ],
+      "passed": true
+    },
+    {
+      "check": "all four receipts are absent before any judgment",
+      "detail": {
+        "approval": null,
+        "integration": null,
+        "review": null,
+        "verification": null
+      },
+      "passed": true
+    },
+    {
+      "check": "an accepted checkpoint exists",
+      "detail": {
+        "checkpoint_digest": "sha256:462cd0fa8253b8a7336e78f29eb2544d993aff0b289a8cf2763262a0a2d82ded",
+        "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+        "evidence": {
+          "base": "6a308dab7eb59c2e6675e2fd08e6b917e6b9ad6e",
+          "head": "60102b2e6ff33689f9c37f9008ae2e4154a7f45f",
+          "path_set_digest": "sha256:695b752f1c98185f394d3a09fb0ff7f04a61fa1129402d714268a66c4fb16289",
+          "paths": [
+            "harness.py"
+          ],
+          "profile": "git",
+          "reference": "refs/baton/checkpoints/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/1",
+          "tree": "a401a9deb1811f5b4b1ce83a1cb29564e923a220"
+        },
+        "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+        "verdict_id": "verdict-7bbcf60ea2c26dcd77b5b40addf4307365c4109ecd60a75b9543ca67ada90fe5"
+      },
+      "passed": true
+    },
+    {
+      "observation": "the deployment's derived required tests",
+      "value": {
+        "argv": [
+          "python3",
+          "harness.py"
+        ],
+        "input_manifest_digest": "sha256:76d530a91c45563161fc7ea5a9a4a800f6f8c52f243c37156c73da9f795f6c1d",
+        "job_input_identity": "sha256:3b3e19f2f713d4e65abef80e5df561e2640b48911177e5ad695373e5c2209459",
+        "task_digest": "sha256:5d9f80e287d9f1843aeb2aadb5dd71d2b3ae3089614d4602aa6dcb0cebeaedb9",
+        "task_id": "w119114-composed-lifecycle"
+      }
+    },
+    {
+      "check": "the evidence names this proposal's result identity",
+      "detail": [
+        "result-attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "result-attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"
+      ],
+      "passed": true
+    },
+    {
+      "check": "the evidence names the producer attempt this Job ran",
+      "detail": [
+        "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"
+      ],
+      "passed": true
+    },
+    {
+      "check": "the evidence names the accepted checkpoint",
+      "detail": [
+        "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+        "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a"
+      ],
+      "passed": true
+    },
+    {
+      "check": "the owner holds no verify or review grant",
+      "detail": [
+        "approve",
+        "close",
+        "integrate"
+      ],
+      "passed": true
+    },
+    {
+      "check": "the selected required tests actually ran and exited zero for THIS producer, task, command and input manifest",
+      "detail": [],
+      "passed": true
+    },
+    {
+      "check": "an identical verification replays its exact receipt",
+      "detail": [
+        {
+          "actor": "baton.verifier-325034",
+          "candidate_digest": "60102b2e6ff33689f9c37f9008ae2e4154a7f45f",
+          "disposition": "passed",
+          "kind": "verification",
+          "policy_generation": null,
+          "proposal_id": "integration-driver.proposal:389e6f1e8d13d0afbf1dcdb66209d2bced7ce265ec48bab23f110bb3c4602767",
+          "receipt_id": "w325034-verification",
+          "target": "6a308dab7eb59c2e6675e2fd08e6b917e6b9ad6e"
+        },
+        {
+          "actor": "baton.verifier-325034",
+          "candidate_digest": "60102b2e6ff33689f9c37f9008ae2e4154a7f45f",
+          "disposition": "passed",
+          "kind": "verification",
+          "policy_generation": null,
+          "proposal_id": "integration-driver.proposal:389e6f1e8d13d0afbf1dcdb66209d2bced7ce265ec48bab23f110bb3c4602767",
+          "receipt_id": "w325034-verification",
+          "target": "6a308dab7eb59c2e6675e2fd08e6b917e6b9ad6e"
+        }
+      ],
+      "passed": true
+    },
+    {
+      "check": "a second verification receipt is refused as immutable",
+      "detail": "refused: verification receipt is immutable",
+      "passed": true
+    },
+    {
+      "check": "verification is passed and review accepted",
+      "detail": {
+        "approval": null,
+        "integration": null,
+        "review": "accepted",
+        "verification": "passed"
+      },
+      "passed": true
+    },
+    {
+      "check": "THE APPROVAL IS STILL ABSENT after both judgments",
+      "detail": {
+        "approval": null,
+        "integration": null,
+        "review": "accepted",
+        "verification": "passed"
+      },
+      "passed": true
+    },
+    {
+      "check": "the judgments are attributed to the independent participants",
+      "detail": {
+        "approval": null,
+        "integration": null,
+        "review": "baton.reviewer-325034",
+        "verification": "baton.verifier-325034"
+      },
+      "passed": true
+    },
+    {
+      "check": "pending answers",
+      "detail": "",
+      "passed": true
+    },
+    {
+      "check": "the owner action is approval-due",
+      "detail": "approval-due",
+      "passed": true
+    },
+    {
+      "check": "integration with approval withheld is refused",
+      "detail": {
+        "answer": null,
+        "exit": 2,
+        "stderr": "refused: proposal 'integration-driver.proposal:389e6f1e8d13d0afbf1dcdb66209d2bced7ce265ec48bab23f110bb3c4602767' is not approved (None), so there is no approved candidate for a human to have integrated; a passed verification or a finished Job is not an approval"
+      },
+      "passed": true
+    },
+    {
+      "check": "satisfying closure with approval withheld is refused",
+      "detail": {
+        "answer": null,
+        "exit": 2,
+        "stderr": "refused: a satisfying closure of '0000000a-W1' is refused: the owner action due on proposal 'integration-driver.proposal:389e6f1e8d13d0afbf1dcdb66209d2bced7ce265ec48bab23f110bb3c4602767' is 'approval-due' -- independent review accepted the latest candidate and no approval receipt exists; the owner's approve or deny is due on these exact bytes. A capability to close is not an acceptance, and nothing was changed"
+      },
+      "passed": true
+    },
+    {
+      "check": "stale candidate digest is refused",
+      "detail": {
+        "answer": null,
+        "exit": 2,
+        "stderr": "refused: proposal 'integration-driver.proposal:389e6f1e8d13d0afbf1dcdb66209d2bced7ce265ec48bab23f110bb3c4602767' holds candidate '60102b2e6ff33689f9c37f9008ae2e4154a7f45f' and this disposition expects 'sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'; the bytes under review are what is being decided, so a changed candidate refuses rather than inheriting a decision made about other bytes"
+      },
+      "passed": true
+    },
+    {
+      "check": "wrong review receipt is refused",
+      "detail": {
+        "answer": null,
+        "exit": 2,
+        "stderr": "refused: the accepted review of proposal 'integration-driver.proposal:389e6f1e8d13d0afbf1dcdb66209d2bced7ce265ec48bab23f110bb3c4602767' is 'w325034-review' and this disposition expects 'not-the-review'; the owner decides on the review they actually read"
+      },
+      "passed": true
+    },
+    {
+      "check": "wrong principal is refused",
+      "detail": {
+        "answer": null,
+        "exit": 2,
+        "stderr": "refused: 'baton.reviewer-325034' does not hold the approve capability; a approval is written by the configured actor, not by whoever holds the object"
+      },
+      "passed": true
+    },
+    {
+      "check": "no receipt changed across every refusal",
+      "detail": [
+        {
+          "approval": null,
+          "integration": null,
+          "review": "accepted",
+          "verification": "passed"
+        },
+        {
+          "approval": null,
+          "integration": null,
+          "review": "accepted",
+          "verification": "passed"
+        }
+      ],
+      "passed": true
+    },
+    {
+      "check": "the canonical dossier binds",
+      "detail": "",
+      "passed": true
+    },
+    {
+      "check": "the owner's approval is accepted",
+      "detail": "",
+      "passed": true
+    },
+    {
+      "check": "an identical owner approval replays",
+      "detail": "",
+      "passed": true
+    },
+    {
+      "check": "the replay preserves the exact receipt identity",
+      "detail": {
+        "approval": {
+          "actor": "baton.slaw",
+          "candidate_digest": "60102b2e6ff33689f9c37f9008ae2e4154a7f45f",
+          "disposition": "approved",
+          "kind": "approval",
+          "policy_generation": 14,
+          "proposal_id": "integration-driver.proposal:389e6f1e8d13d0afbf1dcdb66209d2bced7ce265ec48bab23f110bb3c4602767",
+          "receipt_id": "w325034-approval",
+          "target": "6a308dab7eb59c2e6675e2fd08e6b917e6b9ad6e"
+        },
+        "authority_uuid": "0000000a000000000000000000000000",
+        "bound": {
+          "actor": "baton.slaw",
+          "candidate_digest": "60102b2e6ff33689f9c37f9008ae2e4154a7f45f",
+          "policy_generation": 14,
+          "review_receipt": "w325034-review"
+        },
+        "evidence_preserved": true,
+        "integration_due": true,
+        "work_id": "0000000a-W1"
+      },
+      "passed": true
+    },
+    {
+      "check": "the human integration is recorded",
+      "detail": "",
+      "passed": true
+    },
+    {
+      "check": "the satisfying closure is accepted",
+      "detail": "",
+      "passed": true
+    },
+    {
+      "check": "the readback answers closed",
+      "detail": "closed",
+      "passed": true
+    },
+    {
+      "check": "the readback carries the selected acceptance",
+      "detail": {
+        "approval": "w325034-approval",
+        "candidate_digest": "60102b2e6ff33689f9c37f9008ae2e4154a7f45f",
+        "commit": "0000000000000000000000000000000000000000",
+        "evidence_digest": "sha256:b2684783ca2db4edd420c10a67b19b300b068c1dc0728c9093ba4fbe4822f050",
+        "evidence_reference": "INTEGRATION.json",
+        "integration": "w325034-integration",
+        "proposal_id": "integration-driver.proposal:389e6f1e8d13d0afbf1dcdb66209d2bced7ce265ec48bab23f110bb3c4602767",
+        "review": "w325034-review",
+        "schema": "baton.v12.owner-closure-acceptance/1",
+        "verification": "w325034-verification"
+      },
+      "passed": true
+    },
+    {
+      "check": "the cited human record is intact at readback",
+      "detail": {
+        "cited_digest": "sha256:b2684783ca2db4edd420c10a67b19b300b068c1dc0728c9093ba4fbe4822f050",
+        "commit": "0000000000000000000000000000000000000000",
+        "integrated_at": "2026-10-18T18:20:00Z",
+        "integrated_by": "SIMULATED (W325034 rehearsal; no human act, no live provider)",
+        "reference": "INTEGRATION.json",
+        "state": "intact"
+      },
+      "passed": true
+    },
+    {
+      "check": "the four receipts carry their own distinct actors",
+      "detail": {
+        "approval": {
+          "actor": "baton.slaw",
+          "disposition": "approved",
+          "receipt_id": "w325034-approval"
+        },
+        "integration": {
+          "actor": "baton.slaw",
+          "disposition": "integrated",
+          "receipt_id": "w325034-integration"
+        },
+        "review": {
+          "actor": "baton.reviewer-325034",
+          "disposition": "accepted",
+          "receipt_id": "w325034-review"
+        },
+        "verification": {
+          "actor": "baton.verifier-325034",
+          "disposition": "passed",
+          "receipt_id": "w325034-verification"
+        }
+      },
+      "passed": true
+    }
+  ],
+  "expected_failure": false,
+  "final_receipts": {
+    "approval": {
+      "actor": "baton.slaw",
+      "disposition": "approved",
+      "receipt_id": "w325034-approval"
+    },
+    "integration": {
+      "actor": "baton.slaw",
+      "disposition": "integrated",
+      "receipt_id": "w325034-integration"
+    },
+    "review": {
+      "actor": "baton.reviewer-325034",
+      "disposition": "accepted",
+      "receipt_id": "w325034-review"
+    },
+    "verification": {
+      "actor": "baton.verifier-325034",
+      "disposition": "passed",
+      "receipt_id": "w325034-verification"
+    }
+  },
+  "grants": {
+    "grants": {
+      "baton.reviewer-325034": [
+        "review"
+      ],
+      "baton.slaw": [
+        "approve",
+        "close",
+        "integrate"
+      ],
+      "baton.verifier-325034": [
+        "verify"
+      ]
+    },
+    "policy_generation": 14,
+    "scope": "scope:deployment"
+  },
+  "identities": {
+    "candidate_digest": "60102b2e6ff33689f9c37f9008ae2e4154a7f45f",
+    "implementation_attempt": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+    "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+    "proposal_id": "integration-driver.proposal:389e6f1e8d13d0afbf1dcdb66209d2bced7ce265ec48bab23f110bb3c4602767",
+    "review_attempt": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+    "work_id": "0000000a-W1"
+  },
+  "injected": "the five requirement clauses evaluated, then independent judgments, the withheld-approval negatives, and the owner's own decision through to readback",
+  "labelled": "SIMULATED (W325034 rehearsal; no human act, no live provider)",
+  "negatives": {
+    "integration with approval withheld": {
+      "exit": 2,
+      "stderr": "refused: proposal 'integration-driver.proposal:389e6f1e8d13d0afbf1dcdb66209d2bced7ce265ec48bab23f110bb3c4602767' is not approved (None), so there is no approved candidate for a human to have integrate"
+    },
+    "satisfying closure with approval withheld": {
+      "exit": 2,
+      "stderr": "refused: a satisfying closure of '0000000a-W1' is refused: the owner action due on proposal 'integration-driver.proposal:389e6f1e8d13d0afbf1dcdb66209d2bced7ce265ec48bab23f110bb3c4602767' is 'approval-"
+    },
+    "stale candidate digest": {
+      "exit": 2,
+      "stderr": "refused: proposal 'integration-driver.proposal:389e6f1e8d13d0afbf1dcdb66209d2bced7ce265ec48bab23f110bb3c4602767' holds candidate '60102b2e6ff33689f9c37f9008ae2e4154a7f45f' and this disposition expects"
+    },
+    "wrong principal": {
+      "exit": 2,
+      "stderr": "refused: 'baton.reviewer-325034' does not hold the approve capability; a approval is written by the configured actor, not by whoever holds the object"
+    },
+    "wrong review receipt": {
+      "exit": 2,
+      "stderr": "refused: the accepted review of proposal 'integration-driver.proposal:389e6f1e8d13d0afbf1dcdb66209d2bced7ce265ec48bab23f110bb3c4602767' is 'w325034-review' and this disposition expects 'not-the-review"
+    }
+  },
+  "not_called": [
+    "_accepted_receipts",
+    "admit_accepted",
+    "continue_accepted",
+    "raw SQL"
+  ],
+  "outcome": "observed",
+  "pending": {
+    "holds": {
+      "approve": true,
+      "close": true,
+      "integrate": true
+    },
+    "owner_action": "approval-due"
+  },
+  "receipt_actors": {
+    "approval": null,
+    "integration": null,
+    "review": "baton.reviewer-325034",
+    "verification": "baton.verifier-325034"
+  },
+  "receipts_after_judgments": {
+    "approval": null,
+    "integration": null,
+    "review": "accepted",
+    "verification": "passed"
+  },
+  "requirement_evaluation": {
+    "faults": [],
+    "judgement": "SIMULATED (W325034 rehearsal; no human act, no live provider)",
+    "observation": {
+      "argv": [
+        "python3",
+        "harness.py"
+      ],
+      "base": "6a308dab7eb59c2e6675e2fd08e6b917e6b9ad6e",
+      "head": "60102b2e6ff33689f9c37f9008ae2e4154a7f45f",
+      "status": 0,
+      "task_digest": "sha256:5d9f80e287d9f1843aeb2aadb5dd71d2b3ae3089614d4602aa6dcb0cebeaedb9",
+      "task_id": "w119114-composed-lifecycle"
+    },
+    "requirements": {
+      "argv": [
+        "python3",
+        "harness.py"
+      ],
+      "input_manifest_digest": "sha256:76d530a91c45563161fc7ea5a9a4a800f6f8c52f243c37156c73da9f795f6c1d",
+      "job_input_identity": "sha256:3b3e19f2f713d4e65abef80e5df561e2640b48911177e5ad695373e5c2209459",
+      "task_digest": "sha256:5d9f80e287d9f1843aeb2aadb5dd71d2b3ae3089614d4602aa6dcb0cebeaedb9",
+      "task_id": "w119114-composed-lifecycle"
+    }
+  },
+  "review": {
+    "actor": "baton.reviewer-325034",
+    "candidate_digest": "60102b2e6ff33689f9c37f9008ae2e4154a7f45f",
+    "disposition": "accepted",
+    "kind": "review",
+    "policy_generation": null,
+    "proposal_id": "integration-driver.proposal:389e6f1e8d13d0afbf1dcdb66209d2bced7ce265ec48bab23f110bb3c4602767",
+    "receipt_id": "w325034-review",
+    "target": "6a308dab7eb59c2e6675e2fd08e6b917e6b9ad6e"
+  },
+  "scenario": "2-evidence-based-judgments-and-owner-chain",
+  "second_verification": "refused: verification receipt is immutable",
+  "seconds": 0.417,
+  "simulated": [
+    "engine: no daemon",
+    "provider: injected at the adapter's seam",
+    "verifier/reviewer/owner judgments"
+  ],
+  "verification": {
+    "actor": "baton.verifier-325034",
+    "candidate_digest": "60102b2e6ff33689f9c37f9008ae2e4154a7f45f",
+    "disposition": "passed",
+    "kind": "verification",
+    "policy_generation": null,
+    "proposal_id": "integration-driver.proposal:389e6f1e8d13d0afbf1dcdb66209d2bced7ce265ec48bab23f110bb3c4602767",
+    "receipt_id": "w325034-verification",
+    "target": "6a308dab7eb59c2e6675e2fd08e6b917e6b9ad6e"
+  },
+  "verify_replay": {
+    "actor": "baton.verifier-325034",
+    "candidate_digest": "60102b2e6ff33689f9c37f9008ae2e4154a7f45f",
+    "disposition": "passed",
+    "kind": "verification",
+    "policy_generation": null,
+    "proposal_id": "integration-driver.proposal:389e6f1e8d13d0afbf1dcdb66209d2bced7ce265ec48bab23f110bb3c4602767",
+    "receipt_id": "w325034-verification",
+    "target": "6a308dab7eb59c2e6675e2fd08e6b917e6b9ad6e"
+  }
+}
