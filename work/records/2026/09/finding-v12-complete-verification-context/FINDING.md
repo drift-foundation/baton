@@ -274,3 +274,77 @@ No existing failed verification is relabelled passing and no broad rerun is sele
 Coordination-only update by baton.tuner under claim285648/handoff285645;
 current execution remains in PLAN and canonical Baton state. Historical evidence
 and independent reviews are unchanged. No product/test/live execution selected.
+
+
+## 2026-10-18 — owner advances bounded reassessment
+
+Owner selects advancing W61981 while W321528 executes. First milestone is
+reassessment against current v12 code and retained W319114 evidence, not wholesale
+implementation of the September01 recipe. This supersedes remain-parked scheduling
+instructions, subject to actual canonical unparking. Preserve all prior acceptance
+obligations and September27 specification corrections.
+
+Reconcile declared cwd/imports, complete immutable fixtures, worker versus
+independent-review context and distinct context/test outcomes. W319114's successful
+provider tests and406-test independent acceptance establish useful task-specific
+evidence, not universal verification completeness. Formal adapter verification was
+skipped on timeout; long TMPDIR exposed a truncated-path assertion, and integration
+initially had import-context errors. Use exact reviews/evidence in
+baton:work/records/2026/10/finding-v12-status-concurrent-submission/, especially
+review-2026-10-18T07-32-54Z.md and INTEGRATION-321492.md.
+
+Deliver a finite obligation mapping: satisfied with exact evidence, still missing,
+or explicitly superseded. Recommend closure only if every accepted obligation is
+discharged; otherwise prepare the smallest useful v12 correction. Focused
+deterministic probes only where needed. No live provider run, broad suite,
+shared-checkout product change, weakened acceptance or new specification selected.
+Reviewer owns this dossier and new evidence; no edits to W321528's active packet
+or its pinned inputs. Any later overlapping implementation needs explicit serial
+ownership and a fresh source binding. V11 remains coordination authority.
+
+
+## 2026-10-18 — bounded reassessment under E321589
+
+Confirmed: the approved verification-context contract remains incomplete. See
+`REASSESSMENT-321589.md` for every obligation and W319114 evidence reconciliation.
+Do not close W61981 on the strength of W319114's task-specific 406-test acceptance.
+
+The September current-code description of task /1 and HOME/PATH-only worker
+environment is superseded as a description of today's tree: current task /2 adds
+source_profile/declared_base, and verifier ephemera are isolated. Neither implements
+declared verification layout/imports or distinct durable context/command axes.
+The historical observations and approved behavioral obligations remain intact.
+
+The /2 version name is now occupied by a different frozen shape. Proposed owner
+clarification is a fresh version, suggested /3, preserving the approved semantics
+and current source provenance. No new contract is selected here. The September27
+manager-copy prohibition remains; any reading that requires a maintenance container
+for preparation is superseded by current DESIGN TOK-7 governed host preparation.
+No product edits, tests or live execution occurred. W321528 packet/pins untouched.
+
+
+## 2026-10-18 — owner /3 selection and bounded decomposition, E321769
+
+Owner M321686 selects task /3 and matching fresh result versions, preserving
+frozen /2 source-profile/base semantics. This explicitly supersedes September01
+/2 naming and the reassessment pending-version-decision gate; approved contained
+Python imports/layout and two outcome axes remain unchanged. DESIGN VER-1..5 now
+pins that behavior before dependent implementation. Exact closed result shapes
+and fresh version tags must be enumerated in the preparation packet and agreement
+tests, never silently added to an existing version.
+
+M321711 selects concurrent disjoint preparation, serializing actual overlapping
+worker changes after W321528. W321528 review now requests collector correction;
+its2c89d3aa candidate is not accepted and cannot become an assumed accepted base.
+Two finite slices improve delivery: W321780 owns packet/contract representation
+preparation only; W321776 owns coupled isolated worker/operator implementation
+and joined acceptance after both preparation and W321528 delivery. Parent W61981
+consumes the joined acceptance and remains open. This supersedes earlier no-child
+planning. Actual Baton dependency edges enforce this order.
+
+Ownership: reviewer owns parent FINDING/PLAN and this bounded DESIGN insertion;
+preparation implementer owns only child packet/dossier artifacts; delivery
+implementer owns its isolated candidate and own PROGRESS after gates clear.
+Shared worker edits remain serial; no allocation takeover, host product edits,
+new live grant, broad suite or integration is selected. Original paired102 gate
+and all negative cases remain required.

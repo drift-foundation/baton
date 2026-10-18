@@ -1,0 +1,14 @@
+{
+  "CONTEXT-CONTRACTS.md": true,
+  "PACKET.md": true,
+  "TASK-INSTRUCTIONS.md": true,
+  "VERIFICATION.md": true,
+  "v12/python/src/baton_v12/source_profiles/checkout.py": true,
+  "v12/python/src/baton_v12/worker_manager/workspaces.py": true,
+  "v12/python/tests/manager/input_roots.py": true,
+  "v12/python/tools/accepted_base.py": true,
+  "v12/python/tools/dogfood_operator.py": true,
+  "v12/worker/claude_agent.py": true,
+  "fixture": true,
+  "DESIGN": true
+}

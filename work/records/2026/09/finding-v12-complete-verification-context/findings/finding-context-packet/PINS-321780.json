@@ -1,0 +1,149 @@
+{
+ "candidate_identity": {
+  "byte_transport": "objects.bundle for base..HEAD, declared in CLAIM_NAMESPACE as transport beside base and head",
+  "in_the_published_result": [
+   "base",
+   "entry_head",
+   "head",
+   "changed_paths",
+   "removed",
+   "collection"
+  ],
+  "in_the_sealed_task": [
+   "profile",
+   "declared_base",
+   "pins"
+  ],
+  "new_bounded_work": "building the operator's second worktree from that transport; _publish_line deliberately retains no candidate tree. W321776's to implement",
+  "no_whole_tree_digest": "retired by owner ruling 2026-09-21T12:47:17Z, recorded at claude_agent._line_status:2759"
+ },
+ "claim": 322535,
+ "corrections_applied": [
+  "NEITHER VERIFICATION VIEW IS THE EDITED CANDIDATE. The previous draft said the worker view was 'the worktree itself' with 'nothing transported, because the edits are already here', and gave Stage B an exception for it. That renames the edited candidate a view and isolates nothing. DESIGN VER-3 requires a FRESH PRIVATE view at each holder, and the reassessment this Work descends from identified direct-in-candidate verification as the missing behaviour -- so I had reinstated the finding inside its own correction. The exception is REMOVED from PACKET stage 6, CONTEXT-CONTRACTS Stage B and VERIFICATION's paired row",
+  "the WORKER's disposable view is named as NEW BOUNDED MATERIALIZER WORK, symmetric with the operator's: _verify's own first line is 'the task's OWN command, in the candidate copy', and for a line the candidate IS the retained worktree, so nothing today builds a worker view",
+  "the preservation and cleanup obligations are stated as outcomes: a command that writes or deletes a source path in EACH view leaves the retained candidate and every sealed input byte-unchanged; cleanup removes the holder's own view and nothing else; the candidate and seal survive success, test failure, timeout, failed start and partial materialization alike",
+  "THE OBJECT TRANSPORT IS INCREMENTAL and its prerequisites are now named. claude_agent.py:3016-3018 creates objects.bundle for base..HEAD, which carries no base history. The operator view is seeded from the accepted-base object source -- the deployment's OWN retained repository, whose refs/heads/main only tools/accepted_base.py advances as a receipted transition -- and refuses a missing prerequisite (missing-input), an unsatisfied bundle or a transport resolving some other head (materialization), with no fallback to an ambient host checkout and no inference that a digest supplies a missing object",
+  "the result/head association is bound: the result record the evidence names must be the one whose head was resolved, so result_digest cannot drift from result_head"
+ ],
+ "declared_immutable_input": {
+  "bytes": 19351,
+  "content_digest": "sha256:fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903",
+  "destination": "sealed/worker-control-api-manifest-vectors/vectors.json",
+  "matching_candidate_pin": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json",
+  "name": "worker-control-api-manifest-vectors",
+  "why_two_holders_of_one_fact": "the pin is the bytes the gate reads, inside the candidate at the only path input_roots.py resolves; the seal is the independent reference outside the candidate. Same digest, so a drifted fixture makes them disagree and Stage B refuses"
+ },
+ "deferred_placeholders": {
+  "<BASE>": "the commit of accepted W321528 delivery",
+  "<RUN>": "allocated when the owner selects execution"
+ },
+ "design": {
+  "sections": "VER-1 through VER-5, and ART-3",
+  "v12/DESIGN.md": "a103e054dba664c0441ce74c69ba5be6366eb716f8bcd111eadd142f7c9b1e3b"
+ },
+ "episode": 322532,
+ "excluded": [
+  "no product edit",
+  "no live model, engine or container",
+  "no deployment",
+  "no Git operation",
+  "no whole-suite expansion",
+  "no edit to W321528's packet or to claude_agent.py -- gated in W321776",
+  "no source base bound to an unaccepted candidate",
+  "no whole-tree rehash guarantee reinstated; if one were ever required for acceptance that is an owner decision with a stated unmet requirement, not something this packet may assert"
+ ],
+ "gate_measured_this_claim": {
+  "carried_forward": "102 PASS 0.222s on the current tree, measured at claim 322179 -- AUTHOR EVIDENCE OF THE CURRENT TREE, not paired-context acceptance",
+  "rerun": false,
+  "why_not": "documents only; the review states a document correction needs no product execution"
+ },
+ "governing": {
+  "FINDING.md": "c430b3285d0de20291cef1e8995c37ba9206a84f8dfac5ea78ffcfb955330e99",
+  "PLAN.md": "6f55cc4ccbefd58c5ee088445a0c8e1fc07070265a586f5078dbf1118311f4a4",
+  "REASSESSMENT-321589.md": "ac46029130d291f7ee65a222ea51edcb99d0f5327777e384536048eb394298f5",
+  "review-2026-10-18T09-49-00Z.md": "413fdf516836f2f637f5a1a8027c8f5ff59c535cafec03f3992186b10a48e37f"
+ },
+ "launch_envelope": {
+  "deferred": [
+   "<BASE>",
+   "<RUN>",
+   "the image digest"
+  ],
+  "launch_input": "TASK-INSTRUCTIONS.md, as the /2 task's instructions member",
+  "not_deferred": "the schema the launch speaks",
+  "schema": "baton.dogfood-task/2",
+  "test_data": "CONTEXT-CONTRACTS.md, which defines /3 and is the acceptance surface for what the turn produces",
+  "why": "both selected holders check it by closed equality -- claude_agent.py:117 TASK_SCHEMA and dogfood_operator.py:768 _TASK_SCHEMA -- so a /3 launch would refuse before the implementation agent could act"
+ },
+ "packet_artifacts": {
+  "CONTEXT-CONTRACTS.md": "682171c7e7496a8da91b3f7e0f3b8dc052bb71957afa0b40b4cb98ad453d7cda",
+  "PACKET.md": "677f9f666bfb4536a18be73f550c40923591c1b0927b99cdf3f75132903df270",
+  "TASK-INSTRUCTIONS.md": "3a8bf68b172144b3b3339004a98c96369a56d581cbfffa6982ee527153b652e9",
+  "VERIFICATION.md": "30ee6608265b60d75436fd863948ae8b55cab9a2c59ec8b6f8f2e8aef6eda665"
+ },
+ "paired_views": {
+  "new_bounded_work": [
+   "the worker's disposable view (PACKET stage 6)",
+   "the operator's view (PACKET stage 8)"
+  ],
+  "operator_object_prerequisites": {
+   "base_object_source": "the deployment's own retained repository (the instance layout's `repository` root), at the accepted base on refs/heads/main, advanced only by tools/accepted_base.py",
+   "forbidden": "resolving from an ambient host checkout, or inferring that a digest supplies missing objects",
+   "refusals": [
+    "missing base in the object source -> missing-input",
+    "unsatisfied bundle prerequisite -> materialization",
+    "transport resolves another head -> materialization",
+    "result record is not the one whose head resolved -> materialization"
+   ],
+   "transport": "objects.bundle, base..HEAD, claude_agent.py:3016-3018"
+  },
+  "requirement": "DESIGN VER-3: worker AND independent operator each materialize a fresh private verification view; verification may not modify retained candidate bytes or add fixtures to the proposal output",
+  "what_the_code_does_today": "claude_agent._verify runs the command in the candidate copy, which for a line is the retained worktree"
+ },
+ "participant": "baton.claude",
+ "proposed_bounds": {
+  "cleanup_seconds": 60,
+  "implementer_invocations": 1,
+  "provider": "deterministic replay by default; no live question named",
+  "retry": false,
+  "total_seconds": 1500,
+  "turn_seconds": 900,
+  "verification_command_seconds": 30
+ },
+ "role": "impl",
+ "schema": "baton.w321780-context-packet-pins/1",
+ "source_base": {
+  "bound": false,
+  "why": "W321528's candidate 2c89d3aa is UNACCEPTED and the handoff forbids binding it as an accepted base. The binding procedure is in PACKET.md: accepted W321528 delivery, Slawomir's commit, then that commit as declared_base with these pins re-measured."
+ },
+ "source_truth_read_this_claim": {
+  "v12/python/src/baton_v12/source_profiles/checkout.py": {
+   "digest": "037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7",
+   "read_for": "PROFILES at :82 and the profile/base pairing at :206-265"
+  },
+  "v12/python/src/baton_v12/worker_manager/workspaces.py": {
+   "digest": "d4fea18eab1d0f0e1ee8e197a006dc97274c021ed4dd6c548660a2e17ff08a03",
+   "read_for": "compose_input_root at :5779, which writes and binds input.json/assignment.json"
+  },
+  "v12/python/tests/manager/input_roots.py": {
+   "digest": "6d6fae239a3b01c72fefc01650ca198d2c46c24f14eb04528123c45210403590",
+   "read_for": "VECTORS at :29-33"
+  },
+  "v12/python/tools/accepted_base.py": {
+   "digest": "4aad8afd093f522bbc931415cd769fbb1fe304446d4ec80e73cf0b7790583d7e",
+   "read_for": "the accepted base recorded as a supported receipted transition, advancing refs/heads/main at :288-348"
+  },
+  "v12/python/tools/dogfood_operator.py": {
+   "digest": "a3722e436cf559d8b602259baed9ed8413b8945f4a168485b6efa184740548b1",
+   "read_for": "the pairing delegated to checkout_plan at :744-750; _TASK_SCHEMA at :768; the independent verification's own ephemeral root at :3255-3290"
+  },
+  "v12/worker/claude_agent.py": {
+   "digest": "18c34ff52faa150237df0c8d0206b805801ee71cb9e7a4ec6e84e4379d7f9d8d",
+   "read_for": "TASK_SCHEMA at :117; BUNDLE at :362; the candidate is the mounted worktree at :2011-2021; _entered at :2452-2521; _verify's 'in the candidate copy' at :2530-2545; _line_status's retirement note at :2759-2775; _line_delta at :2803-2826; _publish_line at :2972-3020 with the base..HEAD bundle at :3016-3018; the CLAIM_NAMESPACE transport at :4524-4529"
+  }
+ },
+ "state": "prepared-not-executed; no source base bound",
+ "supersedes": "the claim-322472 pins; corrected per review-2026-10-18T09-49-00Z",
+ "upstream_observed_this_claim": "W321688 has passed independent review and is with its owner; integration and the separate human checkpoint W322125, and final W321528 acceptance and base selection, must still be observed through canonical state before any launch. None is observed as complete here.",
+ "work": "2b077949-W321780"
+}

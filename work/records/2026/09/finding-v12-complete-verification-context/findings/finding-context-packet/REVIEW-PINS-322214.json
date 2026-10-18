@@ -1,0 +1,8 @@
+{
+  "CONTEXT-CONTRACTS.md": true,
+  "PACKET.md": true,
+  "VERIFICATION.md": true,
+  "fixture_digest": true,
+  "fixture_size": true,
+  "design": true
+}

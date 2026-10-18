@@ -1,0 +1,22 @@
+{
+  "CONTEXT-CONTRACTS.md": {
+    "sha256": "295fe2078d338f065e42a50565b0458b2327f338c76c357148a2bbee0249251a",
+    "matches": true
+  },
+  "PACKET.md": {
+    "sha256": "50395e025ac057fdbed87c1e2857459244c685d6ace99a4c52d56d1800fa2dae",
+    "matches": true
+  },
+  "VERIFICATION.md": {
+    "sha256": "89a297dfff96580fcd093ce6cdb423adcae55e5d042dec296f5c47f7dc80fa94",
+    "matches": true
+  },
+  "v12/DESIGN.md": {
+    "sha256": "a103e054dba664c0441ce74c69ba5be6366eb716f8bcd111eadd142f7c9b1e3b",
+    "matches": true
+  },
+  "fixture": {
+    "matches": true,
+    "bytes": 19351
+  }
+}

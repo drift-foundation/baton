@@ -887,6 +887,50 @@ restoration; old candidate hashes do not prove current code. Pin exact candidate
 commands, environment, results and limitations in the owning Work. Keep ordinary
 verification focused, with sensible per-run termination and cleanup boundaries.
 
+
+### Declared verification context
+
+**VER-1.** The selected dogfood verification-context contract is task `/3`;
+previous task `/2` remains frozen with its source-profile/base semantics. New
+context and command outcomes use fresh, explicitly versioned proposal/evidence
+contracts rather than widening old result shapes. Both holders agree on closed
+members, types and path grammar; unsupported/new semantics refuse under older
+versions. Preserve source provenance and declared-base checks.
+
+**VER-2.** The task declares verification argv, repository-relative working
+directory, candidate destination, named immutable inputs and their destinations,
+required paths and Python import roots. Paths are canonical, contained and
+relative; absolute/escaping paths, duplicate destinations and candidate/input
+overlap refuse before materialization or provider work. Python import roots
+derive the same closed PYTHONPATH at both holders; no arbitrary environment map
+or ambient import inheritance is admitted.
+
+**VER-3.** Worker and independent operator each materialize a fresh private
+verification view from the exact candidate and sealed declared inputs. Candidate
+changes and deletions are reflected exactly. Verification cannot modify retained
+candidate bytes or sealed inputs, nor add fixtures to proposal output. Governed
+source-driver preparation follows ART/TOK requirements; this adds no generic
+manager recursive copier or mandatory maintenance container. Preflight declared
+inputs, paths, cwd and import roots before running the command.
+
+**VER-4.** Durable context outcome is `ready` or `refused`; refusal carries one
+closed cause: `missing-input`, `invalid-layout`, `materialization` or
+`start-failure`. Command outcome is `not-run`, `passed`, `failed` or `timed-out`.
+An exit status exists only when supplied by the child. Only `passed` or `failed`
+from a command started in a ready context supplies a candidate verdict. Refused,
+not-run and timed-out preserve the candidate without asserting correctness.
+Durable results contain safe structural facts, never child output, credentials,
+absolute host paths or arbitrary exception prose. Timeout, start failure and
+partial materialization clean up owned derived views while retaining source and
+candidate evidence.
+
+**VER-5.** Acceptance proves paired worker/operator context construction, version
+agreement and refusal, path/overlap and missing-input refusal, independence from
+ambient imports, exact candidate mutation/deletion handling, preservation and
+cleanup, and safe durable outcomes. The selected historical 102-test credential
+gate must pass in both independently materialized views with no skips or context
+errors; a different passing subset does not substitute for that obligation.
+
 ## 18. Delivery boundary and change discipline
 
 V12 must deliver reliable parallel useful Jobs, Docker confinement and enforced
