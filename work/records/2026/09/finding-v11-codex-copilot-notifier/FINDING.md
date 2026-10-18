@@ -85,3 +85,26 @@ Dry-run at snapshot226968 includes work:2b077949-W202663; reviewer claimed at 04
 Owner supplied conversation `01a0c245-7084-7450-aa08-18c41190d3ee` and requested restoration of app-server notifications such as W202663. The pre-reattachment dispatcher backup confirms this is the prompt created by the latest full stack start. This selection supersedes the earlier recovery's selection of `01a0c23a-8904-73d3-a571-a5b9ed965404`; that earlier context remains quarantined.
 
 Revalidated live: one notifier is running, dry-run includes W202663, and dispatcher status still names the old quarantined prompt with `deliverable: false`. All other dispatcher targets are idle with empty queues. Bounded operational recovery restores the original fresh prompt mapping under the infrastructure lock, checks tracked process identity, backs up rendered config/state, and restarts only the dispatcher. Preserve all other mappings, the existing notifier/cursor, and every quarantine marker. Refuse if other targets become busy or the selected context has a fence. This is a deployment stopgap for the already-recorded attachment/approval defects, not their product fix. UI delivery remains unproved until an advisory actually appears after the human turn ends.
+
+
+## 2026-10-18 — interactive approval again quarantines prompt notifications
+
+Observed while owner reported missed W316915 handoff: dispatcher log records
+01:19:45.926Z approval request on interactive turn01a14c97-62db-7560-951f-c05d08757f44,
+no matching dispatcher delivery, then quarantine of baton-prompt. Prompt caused
+this request while attempting a read-only notifier socket status check. This
+repeats the September21 boundary failure; interactive turns continue but automatic
+advisories are fenced. Current configured thread is01a14c7f-7bf9-7201-9379-8f5a09e8a47a.
+
+Evidence: /home/sl/baton-v11.14aecfb/log/codex-dispatcher.log; no operator-attention
+event since this stack start in its current log tail. Notifier cursor at
+/home/sl/baton-v11.14aecfb/run/codex-copilot-notifier.json has empty seen/paired maps
+and mtime2026-10-18T01:20:02Z. Current watcher process health remains unverified;
+quarantine alone is a confirmed delivery blocker. W316915 returned accepted to
+baton.decide at01:57:10Z, event319207; owner manually woke prompt afterward.
+
+No fence deletion, bridge restart, new context or deployment repair performed.
+Do not repeat a notifier start as though it clears this context fence. Preserve
+existing evidence and require supported recovery and actual visible advisory
+before claiming notifications restored. Owner preference remains no v11 feature
+work; this records an operational finding, not new implementation selection.

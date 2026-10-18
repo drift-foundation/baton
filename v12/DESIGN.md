@@ -803,6 +803,15 @@ is read-only and shows Jobs, stages, workers, attempts, tokens/expiry, gates,
 activity, results, diagnostics and outstanding cleanup. Merely viewing status
 must not claim, renew, reconcile, acknowledge, retry or delete anything.
 
+Owner clarification 2026-10-18 (W316915, 01:24:52Z) supersedes the earlier
+filesystem-no-writes clarification: status opens existing databases through
+validated SQLite read-only connections and does not change application data or
+schema, initialize or migrate stores, or fall back to writable access. SQLite's
+normal sidecar and locking behavior is acceptable. If read-only access fails,
+report the failure clearly; successful reading of every filesystem permission or
+WAL/sidecar configuration is not required. No custom snapshot reader is required
+merely to avoid SQLite-managed filesystem effects.
+
 **OBS-2.** Separate configured/reported activity from manager-observed evidence.
 Show reserved, starting, command-published, receipted, running, answering and
 retained-result states with observation time and freshness. A live container or

@@ -1327,6 +1327,32 @@ class ReadonlyAcquisition(StoreCase):
             held.close()
         self.assertEqual(before, self.bytes_at(self.path))
 
+    def test_a_failed_read_NAMES_THE_STORE_and_reports_sqlites_own_words(self):
+        """W316915. This refusal used to name no store at all.
+
+        A status opens TWO stores, so "the existing manager store could not be
+        read through its non-writing opener (OperationalError)" did not even
+        say which file an operator should look at. OBS-1 as the owner narrowed
+        it on 2026-10-18T01:24:52Z accepts that a read-only open can fail and
+        requires the failure to be reported clearly; this is the control
+        store's half of that, shared with the Job store's opener rather than
+        spelled a second time.
+        """
+        garbage = os.path.join(self.root, 'garbage.sqlite3')
+        with open(garbage, 'wb') as output:
+            output.write(b'not a database')
+        with self.assertRaises(ContractRefusal) as caught:
+            self.read(garbage)
+        said = str(caught.exception)
+        self.assertIn('the existing manager store at', said)
+        self.assertIn('garbage.sqlite3', said)
+        self.assertIn('DatabaseError', said)
+        self.assertIn('SQLITE_NOTADB', said)
+        self.assertIn('file is not a database', said)
+        self.assertIn('may read and may write the store', said)
+        self.assertIn('no write-capable fallback was attempted', said)
+        self.assertNotIn('SQLITE REPORTS THE DIRECTORY AS THE OBSTACLE', said)
+
     def test_missing_empty_foreign_version_and_unreadable_stores_refuse(self):
         missing = os.path.join(self.root, 'missing.sqlite3')
         with self.assertRaises(ContractRefusal): self.read(missing)

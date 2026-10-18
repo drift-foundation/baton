@@ -1,0 +1,74 @@
+{
+  "claim": 319137,
+  "corrects": "review-2026-10-18T01-45-33Z.md R1 and R2",
+  "episode": 319127,
+  "excluded": [
+    "no live provider or engine run",
+    "no deployed store read, repair or cleanup",
+    "no integration act",
+    "no credential change",
+    "no Git mutation",
+    "no expansion into W319114",
+    "no graph act beyond this Work's claim and handoff"
+  ],
+  "mutations": "MUTATIONS-319137.json -- 6 mutations, 6 caught, including R1 itself reinstated as a regression (_readonly_directory forced true); unmutated and restored runs clean",
+  "not_rerun_this_claim": {
+    "vector": "tests.tools.test_stage_execution",
+    "why": "product change is confined to one refusal message's prose; passed 477 in 201.6s on claim318857 against these same openers; its vector does not reach reading_refusal"
+  },
+  "participant": "baton.claude",
+  "product": {
+    "v12/python/src/baton_v12/job_manager/store.py": "593bcee78c103995f2f865f4ce4b569bd926fb314b785ffe88280be39bc28c32",
+    "v12/python/src/baton_v12/worker_manager/store.py": "587552eb2699c732814033f1752fa4a1264e8ec3b192d76e89d10c6991b36116"
+  },
+  "product_tests": {
+    "v12/python/tests/job_manager/test_store_readonly.py": "330aa45e66c7f5990cb7b6ae1d5f62d9359d85239035d2cd78ea5949680e926d",
+    "v12/python/tests/job_manager/test_tool.py": "e2cf65ee280448714b479c4ed5a5450e49a6387c055c6f3cc31f1bab8709de57",
+    "v12/python/tests/manager/test_store.py": "a92d2167236b4aa013f4430e49a6a1eb37d39fcf8e6c32236d5dea39ed7bbe2e"
+  },
+  "r1_restored_progress_digest_prefix": "83e96b576f85",
+  "records": {
+    "work/records/2026/09/finding-v12-status-readonly-opener/MUTATIONS-319137.json": "c2812d0db7bedb82e1587288021b85b2b62aff278bc7286d4874ea683343ad0f",
+    "work/records/2026/09/finding-v12-status-readonly-opener/PROGRESS.md": "166083749580023cec87f0e23d1a46928e0daaba74246d4c66bf3aaaad38d071",
+    "work/records/2026/09/finding-v12-status-readonly-opener/mutate-319137.py": "0cdcd932d0e1f5e7af18b384edb7b5ef2cdf8bac6de763d9a17b1e138b7b3870"
+  },
+  "role": "impl",
+  "selected_contract": "owner 2026-10-18T01:24:52Z; v12/DESIGN.md OBS-1; reviewer checkpoint 01:45:33Z",
+  "sqlite_codes_measured": {
+    "120 bytes of 'x' with byte19=2, directory 0500": "SQLITE_NOTADB (26) -- no hint",
+    "cleanly closed WAL store, containing directory 0500": "SQLITE_READONLY_DIRECTORY (1544) -- hint offered",
+    "store file chmod 0, directory writable": "SQLITE_CANTOPEN (14) -- no hint"
+  },
+  "supersedes": "CANDIDATE-318857.json",
+  "unchanged_from_candidate_318857": [
+    "v12/python/src/baton_v12/job_manager/store.py"
+  ],
+  "unchanged_from_head": [
+    "v12/python/tools/job_manager.py"
+  ],
+  "verification": [
+    {
+      "cases": 167,
+      "outcome": "PASS",
+      "seconds": 0.86,
+      "vector": "tests.job_manager.test_tool + test_store_readonly + tests.manager.test_store"
+    },
+    {
+      "cases": 943,
+      "outcome": "PASS",
+      "seconds": 9.3,
+      "vector": "that vector + tests.job_manager.test_store + test_status + test_recovery + tests.manager.test_workspaces + test_w197661_verifier + tests.tools.test_stage_execution_status_hardening + tests.authority.test_store + tests.integration.test_managed_storage + test_coordinator"
+    },
+    {
+      "cases": 244,
+      "outcome": "PASS",
+      "seconds": 71.9,
+      "vector": "tests.tools.test_execution_limits + tests.job_manager.test_sweep + test_ending"
+    },
+    {
+      "check": "diff whitespace check",
+      "outcome": "clean"
+    }
+  ],
+  "work": "2b077949-W316915"
+}

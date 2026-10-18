@@ -35,7 +35,8 @@ from ..contracts import (ContractRefusal, canonical_text,
                          check_no_durable_secret, own)
 from ..contracts.errors import name_value, sample_of
 from ..worker_manager import boundaries
-from ..worker_manager.store import revive_refusal, seal_refusal
+from ..worker_manager.store import (reading_refusal, revive_refusal,
+                                    seal_refusal)
 from . import schema
 from .schema import (MIGRATIONS, SCHEMA, SCHEMA_VERSION, STORE_KIND,
                      check_authority)
@@ -348,6 +349,17 @@ class JobStore:
         THE AUTHORITY IS STILL PROVED, for `open`'s own reason: a store belongs
         to one Authority for its whole life, and reading one under another
         Authority's name would report somebody else's pipeline as this one's.
+
+        W316915: AND WHAT `mode=ro` DOES NOT WITHHOLD IS SQLITE'S OWN SIDECARS.
+        A read-only connection to a database in WAL mode maps the wal-index and
+        CREATES the `-shm` when it is absent, so this opener is read-only over
+        the DATABASE and not over the directory holding it. The owner settled
+        that boundary on 2026-10-18T01:24:52Z and `v12/DESIGN.md` OBS-1 now
+        carries it: SQLite's ordinary sidecar and locking behaviour is
+        acceptable, a status is not required to read every permission and
+        WAL/sidecar configuration, and no custom snapshot reader is wanted
+        merely to avoid those effects. The requirement that remains is that a
+        refusal REPORT ITSELF CLEARLY -- `reading_refusal`, below.
         """
         check_authority(authority_uuid,
                         what="the Job store's Authority binding")
@@ -405,12 +417,11 @@ class JobStore:
                 except BaseException:
                     pass
             if isinstance(failure, sqlite3.Error):
-                raise ContractRefusal(
-                    "refused", "precondition",
-                    f"the Job store at {name_value(path)} could not be read "
-                    f"through its non-writing opener "
-                    f"({name_value(type(failure).__name__)}); no write-capable "
-                    f"fallback was attempted") from None
+                # W316915: THE MANAGER'S OWN PUBLIC DIAGNOSTIC, imported for
+                # the reason `seal_refusal` is. This used to report the
+                # exception CLASS and nothing else, which is how the discovery
+                # evidence's "OperationalError" had to be diagnosed by hand.
+                raise reading_refusal("the Job store", path, failure) from None
             raise
 
     @classmethod

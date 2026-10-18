@@ -1,0 +1,47 @@
+{
+  "vector": [
+    "tests.job_manager.test_tool",
+    "tests.job_manager.test_store_readonly",
+    "tests.manager.test_store"
+  ],
+  "mutations": [
+    {
+      "mutation": "sqlite's own words are dropped, leaving the exception class alone",
+      "caught": true,
+      "tail": "FAILED (failures=5)"
+    },
+    {
+      "mutation": "sqlite's own NAME for the condition is dropped",
+      "caught": true,
+      "tail": "FAILED (failures=7)"
+    },
+    {
+      "mutation": "the directory hint is never reached",
+      "caught": true,
+      "tail": "FAILED (failures=2)"
+    },
+    {
+      "mutation": "R1 REGRESSION: the hint is opened by the old byte-19 guess instead of sqlite's extended code",
+      "caught": true,
+      "tail": "FAILED (failures=5)"
+    },
+    {
+      "mutation": "the refusal stops naming the store it could not read",
+      "caught": true,
+      "tail": "FAILED (failures=5)"
+    },
+    {
+      "mutation": "the measured read/write/directory facts are withheld",
+      "caught": true,
+      "tail": "FAILED (failures=5)"
+    }
+  ],
+  "unmutated": {
+    "exit": 0,
+    "tail": "OK"
+  },
+  "restored": {
+    "exit": 0,
+    "tail": "OK"
+  }
+}

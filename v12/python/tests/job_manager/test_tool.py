@@ -12,6 +12,7 @@ until told to stop -- rather than waiting for wall time to pass.
 """
 
 import io
+import shutil
 import stat
 import hashlib
 import json
@@ -358,9 +359,23 @@ class TheStatusSurfaceOpensBothStoresReadOnly(ToolCase):
     pipeline was a command that could initialize or carry forward the thing it
     was looking at.
 
-    These hold the corrected surface to the openers' own contracts, and one of
-    them records a limit that is SQLite's rather than the opener's -- see
-    `test_a_cleanly_closed_WAL_store_in_a_read_only_DIRECTORY_is_refused`.
+    These hold the corrected surface to the openers' own contracts.
+
+    AND TO THE BOUNDARY THE OWNER SELECTED, 2026-10-18T01:24:52Z, now carried
+    by `v12/DESIGN.md` OBS-1. The question these cases were first written
+    against -- whether a status must also write NOTHING to the filesystem,
+    SQLite's own sidecars included -- was settled the other way: status opens
+    through a validated SQLite read-only connection, changes no application
+    data or schema, initializes and migrates nothing and never retries with
+    write access, and SQLite's ordinary sidecar and locking behaviour is
+    acceptable. A status is NOT required to read every permission and
+    WAL/sidecar configuration, and no custom snapshot reader is wanted merely
+    to avoid those effects.
+
+    So the two cases at the bottom of this class are the SELECTED CONTRACT
+    rather than an unresolved limit: the closed-WAL/no-sidecar store under an
+    unwritable directory is refused, the refusal has to say clearly why, and
+    the documented remedy -- a stable copy -- reads.
     """
 
     SIDECARS = ("-wal", "-shm", "-journal")
@@ -380,12 +395,13 @@ class TheStatusSurfaceOpensBothStoresReadOnly(ToolCase):
         """Every file that existed still holds its bytes, and anything NEW is
         a SQLite sidecar.
 
-        The distinction is the finding: a read-only connection to a WAL
-        database creates `-shm`/`-wal` when the directory allows it, which is
-        SQLite's own act and changes no store byte. Asserting "nothing at all
-        appeared" would be asserting something untrue about SQLite; asserting
-        "no store byte moved, and only sidecars appeared" is the claim this
-        correction can actually make.
+        The distinction is the finding, and it is the boundary the owner then
+        selected: a read-only connection to a WAL database creates
+        `-shm`/`-wal` when the directory allows it, which is SQLite's own act
+        and changes no store byte. Asserting "nothing at all appeared" would be
+        asserting something untrue about SQLite; "no store byte moved, and only
+        SQLite's own sidecars appeared" is both what this correction can claim
+        and what OBS-1 now asks of it.
         """
         after = self.files()
         for name, digest in sorted(before.items()):
@@ -474,7 +490,7 @@ class TheStatusSurfaceOpensBothStoresReadOnly(ToolCase):
         # write-ahead sidecars when the directory allows it. That is a
         # directory write attributable to status, it is SQLite's and not this
         # opener's, and it changes no store byte -- which is what the digests
-        # above establish.
+        # above establish, and what the owner accepted on 2026-10-18.
         gained = sorted(set(after) - set(before))
         self.assertTrue(all(one.endswith(self.SIDECARS) for one in gained),
                         gained)
@@ -574,11 +590,38 @@ class TheStatusSurfaceOpensBothStoresReadOnly(ToolCase):
         for name, digest in sorted(before.items()):
             self.assertEqual(after[name], digest, name)
 
-    # -- the limit that is SQLite's, measured -------------------------------
+    # -- the boundary SQLite draws and the owner selected --------------------
+
+    def denied(self, directory=None):
+        """Make a directory unwritable AND prove the denial took effect.
+
+        The FINDING is explicit that `chmod` is a CONDITION and never the
+        proof, and review 2026-09-30T15-46-18Z asked for the denied write
+        capability to be ESTABLISHED rather than assumed. So the probe runs: a
+        directory this process could still write fails the case here rather
+        than passing it later for the wrong reason.
+        """
+        whole = self.root if directory is None else directory
+        os.chmod(whole, stat.S_IRUSR | stat.S_IXUSR)
+        self.addCleanup(os.chmod, whole, 0o700)
+        with self.assertRaises(PermissionError):
+            open(os.path.join(whole, "probe"), "wb").close()
+        return whole
+
+    def declared_journal_mode(self, path):
+        """What the store's own header says, read without opening it.
+
+        Offsets 18 and 19 are the write and read format versions, and 2 means
+        WAL. Asked of the bytes rather than through `PRAGMA journal_mode`,
+        because opening a connection to ask is the thing this case is about.
+        """
+        with open(path, "rb") as handle:
+            header = handle.read(20)
+        return {1: "rollback", 2: "wal"}.get(header[19], header[19])
 
     def test_a_cleanly_closed_WAL_store_in_a_read_only_DIRECTORY_is_refused(
             self):
-        """AND THIS IS THE HONEST BOUNDARY OF THIS CORRECTION.
+        """AND THIS IS THE BOUNDARY THE OWNER SELECTED, measured.
 
         The writable openers put these stores in WAL mode, and a clean close
         removes the `-wal`/`-shm` sidecars. A read-only connection to a WAL
@@ -586,22 +629,30 @@ class TheStatusSurfaceOpensBothStoresReadOnly(ToolCase):
         to the DIRECTORY -- so on a directory this process cannot write,
         SQLite refuses before any of this opener's own checks are reached.
 
-        THAT IS NOT FIXED BY CHOOSING A NON-WRITING OPENER, and this case
-        exists so nobody reads the correction as claiming it is. What the
-        opener does guarantee is the part that was actually wrong: the refusal
-        is HONEST -- no creation, no initialization, no migration, no WAL
-        request and explicitly NO WRITE-CAPABLE FALLBACK -- so a status that
-        cannot read says so instead of quietly opening for writing.
+        THAT IS NOT FIXED BY CHOOSING A NON-WRITING OPENER, and 2026-10-18's
+        ruling is that it does not have to be: SQLite's own sidecar and locking
+        behaviour is acceptable and a status need not read every permission and
+        WAL/sidecar configuration. What the opener guarantees is the part that
+        was actually wrong -- no creation, no initialization, no migration, no
+        WAL request and explicitly NO WRITE-CAPABLE FALLBACK -- so a status
+        that cannot read says so instead of quietly opening for writing.
 
-        The measured remedy for an unwritable directory is the one the W236087
-        evidence used: read a stable COPY of the store.
+        AND NOW IT SAYS SO CLEARLY, which is the requirement that survived the
+        narrowing. The refusal used to carry the exception CLASS and nothing
+        else: an operator meeting "OperationalError" on the one command they
+        run to LOOK at a pipeline had no way to tell this shape from an
+        unreadable file. The asserted facts below are the ones that separate
+        them, and the documented remedy is named in the refusal itself.
         """
         self.submitted()
         self.assertEqual(sorted(os.listdir(self.root)),
                          ["jobs.sqlite3", "submission.json"])
+        # The precondition is the one that matters, asserted rather than
+        # assumed: a WAL store with no sidecars. A rollback-mode store would
+        # have read all along and would prove nothing.
+        self.assertEqual(self.declared_journal_mode(self.job_path), "wal")
         before = self.files()
-        os.chmod(self.root, stat.S_IRUSR | stat.S_IXUSR)
-        self.addCleanup(os.chmod, self.root, 0o700)
+        self.denied()
         with self.assertRaises(ContractRefusal) as caught:
             main(["--store", self.job_path, "--authority-uuid", UUID,
                   "--incarnation", "jobs-1", "status"], clock=self.clock,
@@ -609,17 +660,191 @@ class TheStatusSurfaceOpensBothStoresReadOnly(ToolCase):
         said = str(caught.exception)
         self.assertIn("non-writing opener", said)
         self.assertIn("no write-capable fallback was attempted", said)
+        # SQLITE'S OWN ANSWER, not just the class of its exception: the
+        # driver's NAME for the condition and the driver's words.
+        self.assertIn("OperationalError", said)
+        self.assertIn("SQLITE_READONLY_DIRECTORY", said)
+        self.assertIn("attempt to write a readonly database", said)
+        # THE MEASURED FACTS, so the report is diagnosable without a second
+        # investigation. Absent sidecars are reported as absent and NOT as
+        # evidence of how the store came to be closed.
+        self.assertIn("may not write its directory", said)
+        self.assertIn("sidecars beside it are none", said)
+        self.assertNotIn("clean close", said)
+        # AND THE HINT, which is SQLite's finding offered as a condition.
+        self.assertIn("SQLITE REPORTS THE DIRECTORY AS THE OBSTACLE", said)
+        self.assertIn("reading a stable copy of it", said)
         os.chmod(self.root, 0o700)
         # NOTHING WAS CREATED AND NOTHING CHANGED.
         self.assertEqual(self.files(), before)
 
+    def test_an_UNREADABLE_store_is_refused_with_a_DIFFERENT_report(self):
+        """The other half of "clearly": the same exception class, a different
+        condition, and a report that distinguishes them.
+
+        SQLite answers `OperationalError` for both this and the case above. A
+        refusal that named only that class told an operator nothing, and the
+        two remedies are not the same -- so the facts are measured and the
+        known-shape paragraph is withheld where its conditions do not hold.
+        """
+        self.submitted()
+        closed = os.path.join(self.root, "unreadable.sqlite3")
+        shutil.copyfile(self.job_path, closed)
+        os.chmod(closed, 0)
+        self.addCleanup(os.chmod, closed, 0o600)
+        with self.assertRaises(PermissionError):
+            open(closed, "rb").close()
+        with self.assertRaises(ContractRefusal) as caught:
+            main(["--store", closed, "--authority-uuid", UUID,
+                  "--incarnation", "jobs-1", "status"], clock=self.clock,
+                 stream=io.StringIO())
+        said = str(caught.exception)
+        self.assertIn("SQLITE_CANTOPEN", said)
+        self.assertIn("may not read and may not write the store", said)
+        self.assertIn("unable to open database file", said)
+        self.assertNotIn("SQLITE REPORTS THE DIRECTORY AS THE OBSTACLE", said)
+
+    def test_a_TWO_STORE_status_refusal_says_WHICH_store_it_could_not_read(
+            self):
+        """A status names two stores, and the refusal used to name neither.
+
+        The Job store is reached first, so this is the one refused here -- and
+        a report that said only "could not be read through its non-writing
+        opener" left an operator holding two paths and no answer.
+        """
+        self.control().close()
+        self.submitted()
+        self.denied()
+        with self.assertRaises(ContractRefusal) as caught:
+            main(["--store", self.job_path, "--authority-uuid", UUID,
+                  "--incarnation", "jobs-1", "status",
+                  "--control", self.control_path], clock=self.clock,
+                 stream=io.StringIO())
+        said = str(caught.exception)
+        # The Job store is refused first, so this names it and not the control
+        # store -- which is itself the point: the report says WHICH.
+        self.assertIn("the Job store at", said)
+        self.assertIn("jobs.sqlite3", said)
+        self.assertNotIn("control.sqlite3", said)
+
+    def malformed(self, name="malformed.sqlite3"):
+        """Review R1's exact fixture: NOT a database, but byte 19 says WAL.
+
+        120 bytes of `x` with the read-format-version byte set to 2. The first
+        version of this report read that byte out of a file with no SQLite
+        signature at all and concluded "WAL store", so this is the input that
+        separates SQLite's finding from this build's guess.
+        """
+        held = bytearray(b"x" * 120)
+        held[19] = 2
+        whole = os.path.join(self.root, name)
+        with open(whole, "wb") as handle:
+            handle.write(bytes(held))
+        # The precondition that makes this a regression guard: the heuristic
+        # that used to decide the diagnosis WOULD have fired on this file.
+        self.assertEqual(self.declared_journal_mode(whole), "wal")
+        return whole
+
+    def test_a_MALFORMED_file_is_NOT_diagnosed_as_a_WAL_permission_failure(
+            self):
+        """Review 2026-10-18T01-45-33Z R1, reproduced and then held closed.
+
+        The first version of this report decided the WAL/permission shape
+        ITSELF, from the store's header byte 19 and the absence of sidecars.
+        Under a directory this process cannot write, review R1's fixture
+        therefore made SQLite say `file is not a database` while the report
+        asserted a clean close and recommended directory write access -- a
+        diagnosis contradicting the very error it existed to clarify.
+
+        The hint is now opened ONLY by SQLite's own extended result code, so
+        this input gets `SQLITE_NOTADB` and no remediation that does not fit
+        it. The measured facts are still reported, because they are
+        observations rather than inferences.
+        """
+        broken = self.malformed()
+        self.denied()
+        with self.assertRaises(ContractRefusal) as caught:
+            main(["--store", broken, "--authority-uuid", UUID,
+                  "--incarnation", "jobs-1", "status"], clock=self.clock,
+                 stream=io.StringIO())
+        said = str(caught.exception)
+        self.assertIn("SQLITE_NOTADB", said)
+        self.assertIn("file is not a database", said)
+        self.assertIn("may not write its directory", said)
+        # AND NOT ONE WORD OF WAL/PERMISSION REMEDIATION.
+        self.assertNotIn("SQLITE REPORTS THE DIRECTORY AS THE OBSTACLE", said)
+        self.assertNotIn("wal-index", said)
+        self.assertNotIn("stable copy", said)
+        self.assertNotIn("clean close", said)
+
+    def test_the_control_store_opener_shares_that_corrected_behaviour(self):
+        """The same negative at the other opener, because the helper is shared
+        and a correction that held for one store only would be half a fix."""
+        broken = self.malformed("malformed-control.sqlite3")
+        self.denied()
+        with self.assertRaises(ContractRefusal) as caught:
+            job_manager.ControlStore.open_readonly(
+                broken, incarnation="manager-1", clock=self.clock)
+        said = str(caught.exception)
+        self.assertIn("the existing manager store at", said)
+        self.assertIn("SQLITE_NOTADB", said)
+        self.assertNotIn("SQLITE REPORTS THE DIRECTORY AS THE OBSTACLE", said)
+
+    def test_the_CONTROL_STORE_refusal_also_names_its_own_store(self):
+        """And the control store's own refusal named NO path whatever.
+
+        Driven at the store rather than through the tool, because the tool
+        refuses on the Job store first and this is the control store's own
+        prose -- which is now the Job store's, shared rather than spelled
+        twice.
+        """
+        self.control().close()
+        self.assertEqual(self.declared_journal_mode(self.control_path), "wal")
+        self.denied()
+        with self.assertRaises(ContractRefusal) as caught:
+            job_manager.ControlStore.open_readonly(
+                self.control_path, incarnation="manager-1", clock=self.clock)
+        said = str(caught.exception)
+        self.assertIn("the existing manager store at", said)
+        self.assertIn("control.sqlite3", said)
+        self.assertIn("no write-capable fallback was attempted", said)
+        self.assertIn("SQLITE_READONLY_DIRECTORY", said)
+        self.assertIn("SQLITE REPORTS THE DIRECTORY AS THE OBSTACLE", said)
+
+    def test_a_FAILED_read_is_never_retried_with_write_access(self):
+        """The rule the narrowed contract keeps verbatim: no writable fallback.
+
+        Asserted by denying the writable openers for the duration -- if any
+        failure path reached for one, this fails -- and by measuring that the
+        refused read left the directory exactly as it found it.
+        """
+        self.control().close()
+        self.submitted()
+        before = self.files()
+        self.denied()
+
+        def refuse(*arguments, **named):
+            raise AssertionError("a refused read retried with write access")
+
+        with mock.patch.object(job_manager.JobStore, "open", refuse), \
+                mock.patch.object(job_manager.ControlStore, "open", refuse):
+            with self.assertRaises(ContractRefusal):
+                main(["--store", self.job_path, "--authority-uuid", UUID,
+                      "--incarnation", "jobs-1", "status",
+                      "--control", self.control_path], clock=self.clock,
+                     stream=io.StringIO())
+        self.assertEqual(self.files(), before)
+
     def test_a_STABLE_COPY_of_the_same_store_reads_in_a_read_only_directory(
             self):
-        """The other half of that boundary, and the remedy the evidence used:
-        a copy whose sidecars are present reads under a read-only directory.
-        """
-        import shutil
+        """The other half of that boundary, and the remedy the refusal above
+        now names: a copy whose sidecars are present reads under a read-only
+        directory.
 
+        Review 2026-09-30T15-46-18Z is explicit that this prepares a QUIESCENT
+        fixture and proves that case only -- copying an arbitrary active store
+        and its sidecars is not advice this case gives.
+        """
         self.submitted()
         # THE SIDECARS COME FROM ONE ORDINARY READ, taken while the directory
         # is still writable -- which is exactly what copying a live store's

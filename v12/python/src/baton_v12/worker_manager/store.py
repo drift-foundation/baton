@@ -46,7 +46,7 @@ from . import boundaries, schema
 from .schema import SCHEMA, SCHEMA_VERSION, STORE_KIND
 
 __all__ = ["ControlStore", "manager_signature", "seal_refusal",
-           "revive_refusal"]
+           "revive_refusal", "reading_refusal"]
 
 _BUSY_TIMEOUT_MS = 5000
 _SQLITE_BUSY = 5
@@ -243,6 +243,192 @@ def _revived(record):
                            record["message"], durable=True)
 
 
+# -- W316915: WHAT A FAILED NON-WRITING OPEN HAS TO SAY ----------------------
+#
+# The owner narrowed OBS-1 on 2026-10-18T01:24:52Z: a status surface opens an
+# existing database through a validated SQLite READ-ONLY connection, changes no
+# application data or schema, initializes and migrates nothing and never falls
+# back to writable access -- and SQLite's own sidecar and locking behaviour is
+# acceptable, so reading every filesystem permission and WAL/sidecar
+# configuration is NOT required and no custom snapshot reader is wanted.
+#
+# THAT MAKES THIS REFUSAL A SUPPORTED OUTCOME RATHER THAN A DEFECT, and the
+# ruling asks for exactly one thing of it: report the failure CLEARLY. OBS-3
+# says what that means -- a bounded typed cause, the exact operation, the
+# originating component and a safe diagnostic locator, rather than an
+# unexplained "failed".
+#
+# THE PROSE SHAPE IS THE AUTHORITY AND COORDINATOR OPENERS' OWN, reused rather
+# than invented: both already report `type(failure).__name__: failure` and both
+# already say the refusal is a refusal to reopen writably. What these two
+# stores did instead was drop SQLite's own words and keep only the exception
+# CLASS, and the control store did not even name the store. "OperationalError"
+# alone is the shape the discovery evidence had to be diagnosed by hand.
+#
+# REVIEW 2026-10-18T01-45-33Z R1, AND THE CORRECTION IS THE POINT OF THIS BLOCK.
+# The first version of this helper decided "this is the known WAL/permission
+# shape" ITSELF, from the store's header byte 19 and the absence of sidecars,
+# and then said so in prose that CONTRADICTED the error it was meant to
+# clarify: 120 bytes of `x` with byte 19 set to 2 under an unwritable directory
+# made SQLite report `file is not a database` and made this helper recommend
+# directory write access for a cleanly closed WAL store. Three mistakes in one
+# -- a format version read out of a file with no SQLite signature at all, a
+# CLEAN CLOSE asserted as history from the mere absence of two files, and a
+# root cause inferred where the driver had already given a different one.
+#
+# SO THE DIAGNOSIS IS SQLITE'S AND NOT THIS FILE'S. SQLite distinguishes these
+# conditions itself, in the EXTENDED RESULT CODE this distribution already
+# reads for contention one screen up -- `SQLITE_READONLY_DIRECTORY` is what it
+# reports when the obstacle is the directory it must create the wal-index in,
+# where a malformed file is `SQLITE_NOTADB` and an unreadable one is
+# `SQLITE_CANTOPEN`. That code is the ONLY thing that may open the hint, the
+# hint is offered as a condition rather than asserted as a finding, and
+# everything else this helper says is either the driver's own words or a fact
+# it measured. Nothing here infers the store's history, and a failure carrying
+# no structured code gets no hint at all -- which is this file's existing rule
+# that free-form prose does not decide storage questions.
+_SIDECARS = ("-wal", "-shm", "-journal")
+
+# SQLITE_READONLY (8) with extended reason 6: the DIRECTORY is what could not
+# be written. The low byte is the primary code and the high bits the reason,
+# exactly as `_is_contention` reads them.
+_SQLITE_READONLY_DIRECTORY = 1544
+
+
+def _permitted(path, mode):
+    """Whether this process has `mode` on `path`; `None` when unknowable.
+
+    A DIAGNOSTIC AND NEVER A DECISION. Nothing branches on this to choose a
+    different open; it is read after SQLite has already refused, so that the
+    report names the condition instead of leaving an operator to find it.
+    """
+    try:
+        return os.access(path, mode)
+    except OSError:
+        return None
+
+
+def _beside(path):
+    """Which of SQLite's sidecars are present beside a store."""
+    held = []
+    for suffix in _SIDECARS:
+        try:
+            if os.path.exists(path + suffix):
+                held.append(suffix)
+        except OSError:
+            pass
+    return held
+
+
+def _named(failure):
+    """SQLite's OWN NAME for the condition, or `None` if it gave none.
+
+    `sqlite_errorname` is the driver's answer and not a classification this
+    file invents, which is why it may be quoted: `SQLITE_READONLY_DIRECTORY`,
+    `SQLITE_NOTADB` and `SQLITE_CANTOPEN` are three different answers that all
+    arrive as one exception class.
+    """
+    name = getattr(failure, "sqlite_errorname", None)
+    return name if type(name) is str else None
+
+
+def _readonly_directory(failure):
+    """Whether SQLITE ITSELF says the obstacle was the DIRECTORY.
+
+    THE ONLY THING ALLOWED TO OPEN THE HINT BELOW. A structured code is the
+    driver's own finding; a header byte and two absent files were this file
+    guessing, and review R1 caught that guess contradicting the driver. A
+    failure with no structured code keeps its original identity and earns no
+    hint, which is `_is_contention`'s rule at the other end of this module.
+    """
+    return getattr(failure, "sqlite_errorcode", None) == \
+        _SQLITE_READONLY_DIRECTORY
+
+
+def _said(failure):
+    """SQLite's own words for a failure, bounded.
+
+    `str` on a `sqlite3.Error` runs the DRIVER's formatting and not a caller's,
+    which is why this file's usual rule against `str()` on a rejected value
+    does not reach it -- the same reading the Authority and coordinator openers
+    already take. `name_value` still renders it inertly, and the length is
+    bounded because a refusal is stored, journalled and logged.
+    """
+    return name_value(str(failure)[:200])
+
+
+def reading_refusal(what, path, failure):
+    """PUBLIC: the clear refusal a failed NON-WRITING open reports.
+
+    Shared by the control store and the Job store for this file's stated
+    reason: `seal_refusal` and `revive_refusal` are here because a second
+    implementation would be a second chance to get one wrong, and a diagnostic
+    an operator depends on is no different.
+
+    WHAT IT SAYS, IN ORDER OF AUTHORITY. SQLite's own answer first -- the
+    exception class, the driver's name for the condition and the driver's words
+    -- then the facts this helper MEASURED, and only then, and only sometimes,
+    a hint. The order is the correction review R1 asked for: the error the
+    opener actually got is authoritative, and nothing further may contradict it.
+
+    WHAT IT MEASURES, and why each fact earns its place. "attempt to write a
+    readonly database" is what SQLite says when a read-only connection to a
+    database in WAL mode cannot create the `-shm` file it coordinates through,
+    and it is ALSO what an operator sees for conditions with completely
+    different remedies. So the facts that separate them are reported: whether
+    this process may read and write the store, whether it may write the
+    DIRECTORY -- which is what creating a sidecar needs -- and which sidecars
+    are there. These are OBSERVATIONS AND NEVER INFERENCES: absent sidecars are
+    reported as absent, not as evidence of a clean close.
+
+    AND THE HINT IS SQLITE'S FINDING, OFFERED AS A CONDITION. It appears only
+    when the driver's own extended code is `SQLITE_READONLY_DIRECTORY` -- the
+    code that says the DIRECTORY was the obstacle -- so a malformed file
+    (`SQLITE_NOTADB`) or an unreadable one (`SQLITE_CANTOPEN`) cannot receive
+    WAL-permission remediation as its diagnosis. It is phrased as what SQLite
+    reported and what follows from it, with no claim about how the store came
+    to be in that state.
+
+    RETURNED RATHER THAN RAISED, so the caller raises it `from None` at the
+    site that already owns closing its handle.
+    """
+    whole = os.path.abspath(path) if type(path) is str and path else path
+    directory = (os.path.dirname(whole) or ".") if type(whole) is str else whole
+    sidecars = _beside(whole) if type(whole) is str else []
+    # The exception CLASS bare and SQLite's words rendered inertly, which is
+    # the Authority and coordinator openers' own spelling of this pair, plus
+    # the driver's own NAME for the condition where it gave one.
+    named = _named(failure)
+    said = [f"{what} at {name_value(path)} could not be read through its "
+            f"non-writing opener ({type(failure).__name__}"
+            f"{'/' + named if named else ''}: {_said(failure)}); no "
+            f"write-capable fallback was attempted and nothing was changed."]
+    if type(whole) is str:
+        said.append(
+            f" This process {_phrase(_permitted(whole, os.R_OK), 'read')} and "
+            f"{_phrase(_permitted(whole, os.W_OK), 'write')} the store, and "
+            f"{_phrase(_permitted(directory, os.W_OK), 'write')} its "
+            f"directory {name_value(directory)}; the SQLite sidecars beside "
+            f"it are {sample_of(sidecars) if sidecars else 'none'}.")
+    if _readonly_directory(failure):
+        said.append(
+            " SQLITE REPORTS THE DIRECTORY AS THE OBSTACLE: a read-only "
+            "connection to a database in WAL mode must create the wal-index "
+            "shared-memory file beside the store, and it could not. If that "
+            "is this store's condition, reading a stable copy of it, or "
+            "granting this process write access to the directory, is what "
+            "makes it readable; neither is something a status will do for "
+            "itself, and it will not open the store writably instead.")
+    return ContractRefusal("refused", "precondition", "".join(said))
+
+
+def _phrase(permitted, verb):
+    """"may write" / "may not write" / "cannot tell whether it may write"."""
+    if permitted is None:
+        return f"cannot tell whether it may {verb}"
+    return f"may {verb}" if permitted else f"may not {verb}"
+
+
 class ControlStore:
     """One manager's handle on one control store."""
 
@@ -337,6 +523,14 @@ class ControlStore:
         SQLite owns its WAL/SHM coordination files, as for the Authority and
         coordinator read-only openers. The database connection is mode=ro,
         never immutable and never reopened with write access on a refusal.
+
+        W316915, owner clarification 2026-10-18T01:24:52Z and `v12/DESIGN.md`
+        OBS-1 as it now reads: SQLite's ordinary sidecar and locking behaviour
+        IS the accepted boundary of this opener, and a status reached through it
+        is not required to read every filesystem permission or WAL/sidecar
+        configuration. What is required when it cannot is that the refusal say
+        so clearly, which is `reading_refusal` -- this used to report the
+        exception CLASS alone, and not even the store's path.
         """
         boundaries.text(path, "a read-only control store path")
         boundaries.text(incarnation, "a manager incarnation")
@@ -365,7 +559,8 @@ class ControlStore:
                 except BaseException:
                     pass
             if isinstance(failure, sqlite3.Error):
-                raise ContractRefusal("refused", "precondition", "the existing manager store could not be read through its non-writing opener (" + type(failure).__name__ + "); no write-capable fallback was attempted") from None
+                raise reading_refusal("the existing manager store", path,
+                                      failure) from None
             raise
 
     @contextmanager

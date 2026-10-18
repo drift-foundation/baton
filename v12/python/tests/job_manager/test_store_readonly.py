@@ -338,6 +338,42 @@ class EveryFailurePathRELEASESItsHandle(ReadOnlyCase):
             self.reading()
         self.assertIn("no write-capable fallback", str(caught.exception))
 
+    def test_a_failed_read_reports_SQLITES_WORDS_and_the_MEASURED_condition(
+            self):
+        """W316915. The refusal used to carry the exception CLASS and no more.
+
+        OBS-1 as the owner narrowed it on 2026-10-18T01:24:52Z ACCEPTS that a
+        read-only open can fail: SQLite's sidecar and locking behaviour is its
+        own, and a status is not required to read every filesystem permission
+        or WAL/sidecar configuration. What it requires is that the failure be
+        reported CLEARLY -- and "(OperationalError)" was not, which is why the
+        discovery evidence had to be diagnosed by hand from exactly that
+        string.
+
+        So: the store that was read, the exception class, SQLITE'S OWN WORDS,
+        and the three facts that distinguish the conditions SQLite reports the
+        same way -- whether this process may read the store, whether it may
+        write it, and whether it may write the directory a sidecar would have
+        to be created in.
+        """
+        with open(self.job_path, "wb") as handle:
+            handle.write(b"NOT A DATABASE AT ALL\n")
+        with self.assertRaises(ContractRefusal) as caught:
+            self.reading()
+        said = str(caught.exception)
+        self.assertIn("the Job store at", said)
+        self.assertIn("jobs.sqlite3", said)
+        self.assertIn("DatabaseError", said)
+        self.assertIn("SQLITE_NOTADB", said)
+        self.assertIn("file is not a database", said)
+        self.assertIn("may read and may write the store", said)
+        self.assertIn("may write its directory", said)
+        self.assertIn("sidecars beside it are none", said)
+        self.assertIn("nothing was changed", said)
+        # AND NO WAL/PERMISSION REMEDIATION: SQLite said NOTADB, so the
+        # directory hint has no business appearing. Review R1.
+        self.assertNotIn("SQLITE REPORTS THE DIRECTORY AS THE OBSTACLE", said)
+
 
 class SQLiteManagedSidecarsAreNOTDatabaseMutation(ReadOnlyCase):
     """The distinction review201931 asked for, pinned rather than assumed.
