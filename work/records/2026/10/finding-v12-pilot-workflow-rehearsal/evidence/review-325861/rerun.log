@@ -1,0 +1,6 @@
+W321690 composition boundary:
+  0-harness-self-check: failed (0 checks passed, as intended) 0.171s
+  1-the-two-stage-shape-cannot-admit: observed (15 checks passed) 1.918s
+  2-the-human-path-on-that-shape: observed (11 checks passed) 0.654s
+  3-the-three-stage-contrast: observed (6 checks passed) 0.956s
+checks passed 32, observed 3, failed-as-intended 1, unexpected 0, 3.699s

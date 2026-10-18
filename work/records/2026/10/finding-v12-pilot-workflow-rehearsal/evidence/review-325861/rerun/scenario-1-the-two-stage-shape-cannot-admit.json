@@ -1,0 +1,217 @@
+{
+  "checks": [
+    {
+      "check": "the implementation worker turn ran",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "the review worker turn ran",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "both declared stages are completed",
+      "detail": {
+        "implementation": "completed",
+        "review": "completed"
+      },
+      "passed": true
+    },
+    {
+      "check": "and there is NO integration stage to be falsely complete",
+      "detail": [
+        "implementation",
+        "review"
+      ],
+      "passed": true
+    },
+    {
+      "check": "the candidate IS published by the implementation ending, so the receipt actors have something exact to judge",
+      "detail": [
+        "integration-driver.proposal:e790f6bda31650d07036f5f50fcef4e8ecddd0a2b5f381eec3c797dcf1d29000"
+      ],
+      "passed": true
+    },
+    {
+      "check": "ALL FOUR RECEIPTS ARE ABSENT: nothing admitted",
+      "detail": {
+        "approval": null,
+        "integration": null,
+        "review": null,
+        "verification": null
+      },
+      "passed": true
+    },
+    {
+      "check": "the Work is open with no handler, handed on to the configured outgoing route",
+      "detail": {
+        "handler": null,
+        "phase": "queued",
+        "route": "integration",
+        "status": "open"
+      },
+      "passed": true
+    },
+    {
+      "check": "and no outcome was invented",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "the review attachment and the line agree",
+      "detail": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+      "passed": true
+    },
+    {
+      "check": "the reviewed checkpoint is frozen on this Work's line",
+      "detail": {
+        "base_object": "42a7f78d3e728280c2674f8bf1417de4b3826821",
+        "checkpoint_digest": "sha256:15c09cf71e14f867296a8181b0e410613c011e07f76836da9f4099b59a683e73",
+        "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+        "evidence": {
+          "base": "42a7f78d3e728280c2674f8bf1417de4b3826821",
+          "head": "e3880a5aabf0a7d4db65b3b4e7a02040ac07329f",
+          "path_set_digest": "sha256:695b752f1c98185f394d3a09fb0ff7f04a61fa1129402d714268a66c4fb16289",
+          "paths": [
+            "harness.py"
+          ],
+          "profile": "git",
+          "reference": "refs/baton/checkpoints/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/1",
+          "tree": "c47d395077111953dbf7b31751d404f5589946bf"
+        },
+        "fence": {
+          "fenced": {
+            "assignment": {
+              "generation": 1,
+              "participant": "baton.claude",
+              "work_ref": {
+                "authority_uuid": "0000000a000000000000000000000000",
+                "work_id": "0000000a-W1"
+              }
+            },
+            "cause": "cancelled",
+            "fenced": true,
+            "gate": "runtime-quiescence:1",
+            "phase": "block"
+          },
+          "intent": {
+            "assignment": {
+              "generation": 1,
+              "participant": "baton.claude",
+              "work_ref": {
+                "authority_uuid": "0000000a000000000000000000000000",
+                "work_id": "0000000a-W1"
+              }
+            },
+            "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+            "authority_operation_id": "authority.finalize-quiescent:5216d33ac31b80877f9d9633afccdfea6c91568f5337c9fae4ea7aba14e000c1",
+            "decision": "finalized",
+            "reason": "review checkpoint writer completed",
+            "runtime_id": "runtime-single-1",
+            "worker_disposition": "completed"
+          }
+        },
+        "fence_digest": "sha256:8424ff63e6239681629226cfa56e84c9c519b14489da36f571375ae64d454fe9",
+        "frozen_at": "2026-09-02T00:00:00.000Z",
+        "head_object": "e3880a5aabf0a7d4db65b3b4e7a02040ac07329f",
+        "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+        "path_set_digest": "sha256:695b752f1c98185f394d3a09fb0ff7f04a61fa1129402d714268a66c4fb16289",
+        "prepared_at": "2026-09-02T00:00:00.000Z",
+        "profile_name": "git",
+        "reference_name": "refs/baton/checkpoints/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/1",
+        "revision": 1,
+        "state": "frozen",
+        "tree_object": "c47d395077111953dbf7b31751d404f5589946bf",
+        "writer_id": "writer-17f33e9b55a0b3c3d32134879cbcdc27db4623b30e8e06267b5724be155cbe44"
+      },
+      "passed": true
+    },
+    {
+      "check": "the published candidate digest is that checkpoint's own head",
+      "detail": {
+        "checkpoint_head": "e3880a5aabf0a7d4db65b3b4e7a02040ac07329f",
+        "published": "e3880a5aabf0a7d4db65b3b4e7a02040ac07329f"
+      },
+      "passed": true
+    },
+    {
+      "check": "40 further ticks admit nothing",
+      "detail": {
+        "implementation": "completed",
+        "review": "completed"
+      },
+      "passed": true
+    },
+    {
+      "check": "a fresh serving composition over the same stores admits nothing either",
+      "detail": {
+        "implementation": "completed",
+        "review": "completed"
+      },
+      "passed": true
+    },
+    {
+      "check": "no second candidate was published",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "and the restarted composition still shows two stages only",
+      "detail": [
+        "implementation",
+        "review"
+      ],
+      "passed": true
+    }
+  ],
+  "checks_passed": 15,
+  "establishes": "The enforcing control is the submitted Job's own stage set. With no integration stage there is no integration driver call site in this Job at all, so `admit_accepted`/`continue_accepted` cannot be reached by serving, by further ticks or by a restart -- while pickup, the ending, the independent review and the candidate publication all happen normally.",
+  "expected_failure": false,
+  "identities": {
+    "authority_uuid": "0000000a000000000000000000000000",
+    "candidate_digest": "e3880a5aabf0a7d4db65b3b4e7a02040ac07329f",
+    "implementation_attempt": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+    "job_id": "job-a",
+    "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+    "proposal_id": "integration-driver.proposal:e790f6bda31650d07036f5f50fcef4e8ecddd0a2b5f381eec3c797dcf1d29000",
+    "review_attempt": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+    "reviewed_checkpoint": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+    "work_id": "0000000a-W1"
+  },
+  "injected": "one Job submitted with implementation and review only, served to a published candidate, then 40 further ticks and a fresh composition",
+  "intended_failed_check": null,
+  "last_sweep_report_outcomes": [],
+  "not_called": [
+    "_accepted_receipts",
+    "admit_accepted",
+    "continue_accepted",
+    "raw SQL",
+    "any product-source edit"
+  ],
+  "outcome": "observed",
+  "outgoing_route": "integration",
+  "recover_answer": {
+    "abandoned": [],
+    "recoverable": []
+  },
+  "scenario": "1-the-two-stage-shape-cannot-admit",
+  "seconds": 1.918,
+  "simulated": [
+    "engine: no daemon",
+    "provider: injected at the adapter's own process seam",
+    "verifier, reviewer and owner judgments"
+  ],
+  "stage_kinds_submitted": [
+    "implementation",
+    "review"
+  ],
+  "states": {
+    "implementation": "completed",
+    "review": "completed"
+  },
+  "states_after_restart": {
+    "implementation": "completed",
+    "review": "completed"
+  }
+}

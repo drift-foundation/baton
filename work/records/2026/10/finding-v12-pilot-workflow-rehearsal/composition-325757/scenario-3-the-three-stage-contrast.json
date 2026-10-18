@@ -1,0 +1,125 @@
+{
+  "checks": [
+    {
+      "check": "the implementation and review stages completed",
+      "detail": {
+        "implementation": "completed",
+        "integration": "claimed",
+        "review": "completed"
+      },
+      "passed": true
+    },
+    {
+      "check": "the integration stage is composed and HOLDS rather than completing",
+      "detail": {
+        "implementation": "completed",
+        "integration": "claimed",
+        "review": "completed"
+      },
+      "passed": true
+    },
+    {
+      "observation": "the sweep's own account of the integration stage",
+      "value": [
+        {
+          "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "detail": {
+            "category": "refused",
+            "code": "capability",
+            "message": "this deployment configures no integration_instructions; the integrator's instruction bytes are sealed into the bundle it runs and where they live is deployment wiring"
+          },
+          "episode": 1,
+          "outcome": "deferred",
+          "stage_id": "job-a/integration"
+        }
+      ]
+    },
+    {
+      "check": "the sweep defers it with the deployment's own contained refusal",
+      "detail": [
+        {
+          "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "detail": {
+            "category": "refused",
+            "code": "capability",
+            "message": "this deployment configures no integration_instructions; the integrator's instruction bytes are sealed into the bundle it runs and where they live is deployment wiring"
+          },
+          "episode": 1,
+          "outcome": "deferred",
+          "stage_id": "job-a/integration"
+        }
+      ],
+      "passed": true
+    },
+    {
+      "check": "a candidate is published here too",
+      "detail": [
+        "integration-driver.proposal:751841c5d8dd2ebf96333873662076b10ec233d0d1d840d8e9af1f0bd365f5d3"
+      ],
+      "passed": true
+    },
+    {
+      "check": "and this configuration wrote no receipt either",
+      "detail": {
+        "approval": null,
+        "integration": null,
+        "review": null,
+        "verification": null
+      },
+      "passed": true
+    },
+    {
+      "check": "but the Work did NOT reach the owner: it is held by the integration participant",
+      "detail": {
+        "handler": "baton.integrator",
+        "phase": "active",
+        "route": "integration",
+        "status": "open"
+      },
+      "passed": true
+    }
+  ],
+  "checks_passed": 6,
+  "expected_failure": false,
+  "identities": {
+    "implementation_attempt": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+    "review_attempt": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+    "work_id": "0000000a-W1"
+  },
+  "injected": "the same fixture with the integration stage composed",
+  "integration_stage_account": [
+    {
+      "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "detail": {
+        "category": "refused",
+        "code": "capability",
+        "message": "this deployment configures no integration_instructions; the integrator's instruction bytes are sealed into the bundle it runs and where they live is deployment wiring"
+      },
+      "episode": 1,
+      "outcome": "deferred",
+      "stage_id": "job-a/integration"
+    }
+  ],
+  "intended_failed_check": null,
+  "not_called": [
+    "_accepted_receipts",
+    "admit_accepted",
+    "continue_accepted",
+    "raw SQL",
+    "any product-source edit"
+  ],
+  "not_claimed": "This scenario does NOT show automatic admission happening, because this fixture's deployment configures no integration instructions and the refusal is contained per stage. The source call sites are tools/stage_execution.py 3118 and 3153 (admit_accepted) and 3149 (continue_accepted), reached during ordinary manager progress with the deployment's own verification, review and approval sessions; ../rehearsal-324985/RECEIPT-BOUNDARY.md is the retained evidence that all three receipts are written at that boundary before any runtime. The conclusion carried into the packet is therefore about COMPOSITION: a Job whose stage set includes integration has a call site a serving manager can reach, and a Job without one does not.",
+  "outcome": "observed",
+  "scenario": "3-the-three-stage-contrast",
+  "seconds": 0.955,
+  "simulated": [
+    "engine: no daemon",
+    "provider: injected at the adapter's own process seam",
+    "verifier, reviewer and owner judgments"
+  ],
+  "states": {
+    "implementation": "completed",
+    "integration": "claimed",
+    "review": "completed"
+  }
+}

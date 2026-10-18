@@ -1,0 +1,17 @@
+{
+  "receipts": {
+    "integration-driver.proposal:0eb2794d03c5431584691848d497fed294d53b10aa62b4f8b35bbeae1fdd2f8e": {
+      "approval": null,
+      "integration": null,
+      "review": null,
+      "verification": null
+    }
+  },
+  "stage_states": {
+    "implementation": "completed",
+    "integration": "queued",
+    "review": "completed"
+  },
+  "step": "3. the review ending and its receipts",
+  "work_route_now": "integration"
+}

@@ -1,0 +1,17 @@
+{
+  "drove_to": "claimed",
+  "receipts": {
+    "integration-driver.proposal:0eb2794d03c5431584691848d497fed294d53b10aa62b4f8b35bbeae1fdd2f8e": {
+      "approval": null,
+      "integration": null,
+      "review": null,
+      "verification": null
+    }
+  },
+  "stage_states": {
+    "implementation": "completed",
+    "integration": "claimed",
+    "review": "completed"
+  },
+  "step": "3b. the integration stage and the receipts it publishes"
+}

@@ -1,0 +1,286 @@
+{
+  "authority_uuid": "0000000a000000000000000000000000",
+  "boundary": "real coordination, Authority/Job/Control/Integration stores, accepted checkpoint profile and real version-controlled line; engine and provider simulated at their own boundary and labelled; no daemon, container, image, network, live model, live credential, deployment or Git mutation",
+  "schema": "baton.w321690.joined-rehearsal/1",
+  "seconds": 0.619,
+  "steps": [
+    {
+      "canonical_target": "c49c6d82c0b68acaffea5592e672c74338884f14",
+      "implementation_attempt": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "policy_generation": 9,
+      "private_output_roots": "AllocatedRoots(mappingproxy({'inputs': '/home/sl/src/baton/v12/python/v12-w71917-89ixjcgj/storage/attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571/inputs', 'workspace': '/home/sl/src/baton/v12/python/v12-w71917-89ixjcgj/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout'}))",
+      "proposals": [
+        {
+          "assignment_ref": {
+            "generation": 1,
+            "participant": "baton.claude",
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W1"
+            }
+          },
+          "candidate_digest": "1f23870af4ac9b6397e6e86510d9300261885c39",
+          "input_digest": "sha256:9ed4b30eb12320c22c64f1e85af580316e475ed537b0291d5dc686fc0c0f4b97",
+          "proposal_id": "integration-driver.proposal:0eb2794d03c5431584691848d497fed294d53b10aa62b4f8b35bbeae1fdd2f8e",
+          "result_id": "result-attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"
+        }
+      ],
+      "receipts": {
+        "integration-driver.proposal:0eb2794d03c5431584691848d497fed294d53b10aa62b4f8b35bbeae1fdd2f8e": {
+          "approval": null,
+          "integration": null,
+          "review": null,
+          "verification": null
+        }
+      },
+      "review_attempt": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+      "simulated": [
+        "engine (no daemon)",
+        "provider (injected)"
+      ],
+      "stage_states": {
+        "implementation": "completed",
+        "integration": "blocked",
+        "review": "answering"
+      },
+      "step": "1. admitted attempt, terminal candidate, review stage",
+      "work_id": "0000000a-W1",
+      "work_route_now": "rview"
+    },
+    {
+      "dossier": {
+        "answer": {
+          "bound_at": "2026-10-18T17:46:15.848Z",
+          "locator": "operator-quickstart-0000000a",
+          "operation_id": "w321690-bind",
+          "work_id": "0000000a-W1"
+        },
+        "exit": 0,
+        "stderr": ""
+      },
+      "pending": {
+        "answer": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "canonical_target": "c49c6d82c0b68acaffea5592e672c74338884f14",
+          "close_decision": null,
+          "closure_acceptance": null,
+          "dossier": {
+            "bound_at": "2026-10-18T17:46:15.848Z",
+            "locator": "operator-quickstart-0000000a",
+            "operation_id": "w321690-bind",
+            "work_id": "0000000a-W1"
+          },
+          "due": "the latest candidate has no passed verification, so execution has not produced a checkable result yet",
+          "evidence": [],
+          "holds": {
+            "approve": false,
+            "close": false,
+            "integrate": false
+          },
+          "latest_proposal": "integration-driver.proposal:0eb2794d03c5431584691848d497fed294d53b10aa62b4f8b35bbeae1fdd2f8e",
+          "owner_action": "awaiting-verification",
+          "participant": "baton.claude",
+          "policy_generation": 9,
+          "proposals": [
+            {
+              "assignment_ref": {
+                "generation": 1,
+                "participant": "baton.claude",
+                "work_ref": {
+                  "authority_uuid": "0000000a000000000000000000000000",
+                  "work_id": "0000000a-W1"
+                }
+              },
+              "candidate_digest": "1f23870af4ac9b6397e6e86510d9300261885c39",
+              "decision": {
+                "effective_scope": "scope:deployment",
+                "endpoint": "baton.claude",
+                "grant": "direct",
+                "policy_generation": 9,
+                "principal": "principal:baton.claude",
+                "role": "baton.impl"
+              },
+              "input_digest": "sha256:9ed4b30eb12320c22c64f1e85af580316e475ed537b0291d5dc686fc0c0f4b97",
+              "owner_action": "awaiting-verification",
+              "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+              "proposal_id": "integration-driver.proposal:0eb2794d03c5431584691848d497fed294d53b10aa62b4f8b35bbeae1fdd2f8e",
+              "published_at": "2026-10-18T17:46:15.718Z",
+              "receipts": {
+                "approval": null,
+                "integration": null,
+                "review": null,
+                "verification": null
+              },
+              "result_digest": "sha256:3fbdfaf821efe138fe8a024260cd7ab0e0018f6a2b2b64e254c1e98b76e6408e",
+              "result_id": "result-attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+              "target": "c49c6d82c0b68acaffea5592e672c74338884f14"
+            }
+          ],
+          "rationale": null,
+          "work": {
+            "assignment": {
+              "generation": 2,
+              "participant": "baton.reviewer",
+              "work_ref": {
+                "authority_uuid": "0000000a000000000000000000000000",
+                "work_id": "0000000a-W1"
+              }
+            },
+            "handler": "baton.reviewer",
+            "outcome": null,
+            "phase": "active",
+            "route": "rview",
+            "scope": "scope:deployment",
+            "status": "open",
+            "work_id": "0000000a-W1"
+          }
+        },
+        "exit": 0,
+        "stderr": ""
+      },
+      "step": "2. owner pending action on the same authority"
+    },
+    {
+      "receipts": {
+        "integration-driver.proposal:0eb2794d03c5431584691848d497fed294d53b10aa62b4f8b35bbeae1fdd2f8e": {
+          "approval": null,
+          "integration": null,
+          "review": null,
+          "verification": null
+        }
+      },
+      "stage_states": {
+        "implementation": "completed",
+        "integration": "queued",
+        "review": "completed"
+      },
+      "step": "3. the review ending and its receipts",
+      "work_route_now": "integration"
+    },
+    {
+      "drove_to": "claimed",
+      "receipts": {
+        "integration-driver.proposal:0eb2794d03c5431584691848d497fed294d53b10aa62b4f8b35bbeae1fdd2f8e": {
+          "approval": null,
+          "integration": null,
+          "review": null,
+          "verification": null
+        }
+      },
+      "stage_states": {
+        "implementation": "completed",
+        "integration": "claimed",
+        "review": "completed"
+      },
+      "step": "3b. the integration stage and the receipts it publishes"
+    },
+    {
+      "capabilities": [
+        "approve",
+        "close",
+        "integrate"
+      ],
+      "equivalent_selection": "bootstrap input member owner_participant (W321689)",
+      "owner_participant": "baton.slaw",
+      "policy_generation": 12,
+      "scope": "scope:deployment",
+      "step": "4. owner grants (deployment act, labelled)"
+    },
+    {
+      "acts": {
+        "pending": {
+          "answer": {
+            "authority_uuid": "0000000a000000000000000000000000",
+            "canonical_target": "c49c6d82c0b68acaffea5592e672c74338884f14",
+            "close_decision": null,
+            "closure_acceptance": null,
+            "dossier": {
+              "bound_at": "2026-10-18T17:46:15.848Z",
+              "locator": "operator-quickstart-0000000a",
+              "operation_id": "w321690-bind",
+              "work_id": "0000000a-W1"
+            },
+            "due": "the latest candidate has no passed verification, so execution has not produced a checkable result yet",
+            "evidence": [],
+            "holds": {
+              "approve": true,
+              "close": true,
+              "integrate": true
+            },
+            "latest_proposal": "integration-driver.proposal:0eb2794d03c5431584691848d497fed294d53b10aa62b4f8b35bbeae1fdd2f8e",
+            "owner_action": "awaiting-verification",
+            "participant": "baton.slaw",
+            "policy_generation": 12,
+            "proposals": [
+              {
+                "assignment_ref": {
+                  "generation": 1,
+                  "participant": "baton.claude",
+                  "work_ref": {
+                    "authority_uuid": "0000000a000000000000000000000000",
+                    "work_id": "0000000a-W1"
+                  }
+                },
+                "candidate_digest": "1f23870af4ac9b6397e6e86510d9300261885c39",
+                "decision": {
+                  "effective_scope": "scope:deployment",
+                  "endpoint": "baton.claude",
+                  "grant": "direct",
+                  "policy_generation": 9,
+                  "principal": "principal:baton.claude",
+                  "role": "baton.impl"
+                },
+                "input_digest": "sha256:9ed4b30eb12320c22c64f1e85af580316e475ed537b0291d5dc686fc0c0f4b97",
+                "owner_action": "awaiting-verification",
+                "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+                "proposal_id": "integration-driver.proposal:0eb2794d03c5431584691848d497fed294d53b10aa62b4f8b35bbeae1fdd2f8e",
+                "published_at": "2026-10-18T17:46:15.718Z",
+                "receipts": {
+                  "approval": null,
+                  "integration": null,
+                  "review": null,
+                  "verification": null
+                },
+                "result_digest": "sha256:3fbdfaf821efe138fe8a024260cd7ab0e0018f6a2b2b64e254c1e98b76e6408e",
+                "result_id": "result-attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                "target": "c49c6d82c0b68acaffea5592e672c74338884f14"
+              }
+            ],
+            "rationale": null,
+            "work": {
+              "assignment": {
+                "generation": 3,
+                "participant": "baton.integrator",
+                "work_ref": {
+                  "authority_uuid": "0000000a000000000000000000000000",
+                  "work_id": "0000000a-W1"
+                }
+              },
+              "handler": "baton.integrator",
+              "outcome": null,
+              "phase": "active",
+              "route": "integration",
+              "scope": "scope:deployment",
+              "status": "open",
+              "work_id": "0000000a-W1"
+            }
+          },
+          "exit": 0,
+          "stderr": ""
+        },
+        "read_for_decision": {
+          "candidate_digest": "1f23870af4ac9b6397e6e86510d9300261885c39",
+          "holds": {
+            "approve": true,
+            "close": true,
+            "integrate": true
+          },
+          "owner_action": "awaiting-verification",
+          "proposal": "integration-driver.proposal:0eb2794d03c5431584691848d497fed294d53b10aa62b4f8b35bbeae1fdd2f8e",
+          "review_receipt": null
+        }
+      },
+      "step": "5. owner disposition on the same authority"
+    }
+  ]
+}

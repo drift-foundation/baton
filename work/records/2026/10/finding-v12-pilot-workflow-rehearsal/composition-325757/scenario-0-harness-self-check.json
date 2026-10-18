@@ -1,0 +1,40 @@
+{
+  "checks": [
+    {
+      "observation": "the stage kinds actually submitted",
+      "value": [
+        "implementation",
+        "review"
+      ]
+    },
+    {
+      "check": "a two-stage Job carries an integration stage (INTENTIONALLY FALSE)",
+      "detail": [
+        "implementation",
+        "review"
+      ],
+      "passed": false
+    }
+  ],
+  "checks_passed": 0,
+  "expected_failure": true,
+  "failed_check": "a two-stage Job carries an integration stage (INTENTIONALLY FALSE)",
+  "failed_for_intended_reason": true,
+  "injected": "a deliberately false expectation about the submitted stage set",
+  "intended_failed_check": "a two-stage Job carries an integration stage (INTENTIONALLY FALSE)",
+  "not_called": [
+    "_accepted_receipts",
+    "admit_accepted",
+    "continue_accepted",
+    "raw SQL",
+    "any product-source edit"
+  ],
+  "outcome": "failed",
+  "scenario": "0-harness-self-check",
+  "seconds": 0.171,
+  "simulated": [
+    "engine: no daemon",
+    "provider: injected at the adapter's own process seam",
+    "verifier, reviewer and owner judgments"
+  ]
+}

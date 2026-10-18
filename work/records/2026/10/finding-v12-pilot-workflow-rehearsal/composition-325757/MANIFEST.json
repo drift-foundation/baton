@@ -1,0 +1,78 @@
+{
+  "also_revised_this_claim": {
+    "PACKET.md": {
+      "bytes": 24542,
+      "change": "new 3b pins the two-stage submitted Job as the control; 9B's instruction replaced by that control; canonical locators; nine owner selections (the owner's route added)",
+      "sha256": "20fcdfff6d126ab4e5634cf98c523395132bb66c9b2740af595ea09e22892a2f"
+    },
+    "PROGRESS.md": {
+      "bytes": 29434,
+      "change": "the claim-325757 entry",
+      "digest_recorded_in_reconciliation_325675_manifest": "6ec05d408fc3153802c39cbe27d315ef3af5083556a7609ffb38bb23d73a4469",
+      "sha256": "18a926584264d233bddbb8b7fb913e339abfda401ef6dcb19e82c1b07c01c77f"
+    },
+    "reconciliation-325675/COVERAGE.md": {
+      "bytes": 14143,
+      "change": "appended the composition-boundary section; corrected the receipt-actor count to four receipts from three distinct actors; canonical locators",
+      "digest_recorded_in_reconciliation_325675_manifest": "4f08e66b2faac72098bdffeb8f55cfdf3c903c1709a1cfabdca98481eefc51fc",
+      "sha256": "1d40bf69649c5d674be7a53de8fdc011b78ebd51c43ad184d202a2fdad5a8072"
+    }
+  },
+  "claim": 325757,
+  "members": {
+    "COMPOSITION.json": {
+      "bytes": 34819,
+      "sha256": "b85732d78fd2f99af732c441127aa991ff652471d4a8340ad2001b08d7163c7b"
+    },
+    "COMPOSITION.md": {
+      "bytes": 6187,
+      "sha256": "374b3e3ca933b5a1cda97a64e60948b37df7b6a2c7767ed57981207f1efa0b79"
+    },
+    "composition.py": {
+      "bytes": 31950,
+      "sha256": "26104988b407b3b2215ebd385efe7838e413fb3343f00b116674a8eff4129d32"
+    },
+    "handoffs/README.md": {
+      "bytes": 1407,
+      "sha256": "fa4214a240d85713e7ba6da9b643e985630982db63ea724519925716f6d00044"
+    },
+    "handoffs/W321690-E325725.txt": {
+      "bytes": 7379,
+      "sha256": "415f078530800504cf3d42845f55c5c7627b917a283cfdb356e85c627cd41760"
+    },
+    "handoffs/W325034-E325252.txt": {
+      "bytes": 5728,
+      "sha256": "b31c337c0a756acb465b250a7f9caf62445e14ed712dbcdbee9c9cb371177a6a"
+    },
+    "handoffs/W325035-E325378.txt": {
+      "bytes": 7720,
+      "sha256": "ba453c917225c13e8131f4ccafbd48dc2b8a13da47c70c0859bdf1872b68812d"
+    },
+    "scenario-0-harness-self-check.json": {
+      "bytes": 1078,
+      "sha256": "0ffb71e8aeecb84a211685c8effb3676744b7a6dbfd192c7763464827f2f582c"
+    },
+    "scenario-1-the-two-stage-shape-cannot-admit.json": {
+      "bytes": 7698,
+      "sha256": "525406bcabc3fe4deedd2a32a078ddc7622ab1a92e886cc532201add2ba03d5a"
+    },
+    "scenario-2-the-human-path-on-that-shape.json": {
+      "bytes": 17215,
+      "sha256": "f121f3b1dab05c4f63fa663f5a7bfa55f4a95df72a4a3797d4746fd54b535599"
+    },
+    "scenario-3-the-three-stage-contrast.json": {
+      "bytes": 4670,
+      "sha256": "4eef0c58d7af176c1fda7e28f5e9146435f40c8181825f986703e9629b2b70cf"
+    }
+  },
+  "note": "the supported composition that enforces the human approval boundary: 32 checks passed, 3 scenarios observed, the self-check failed for its own named reason, 0 unexpected",
+  "reconciliation_325675_manifest_left_unmodified": true,
+  "schema": "baton.w321690.composition-evidence/1",
+  "source_base": "372281f4a473300efb474d5a6573954c15ade367",
+  "verified_child_manifests": {
+    "W321688": "e8f3f8d96aea26dccbb231310e6e05e33be5cbe23f7464548e32db435e532e25",
+    "W321689": "dbc163c7dc3f08fcf17030b78923029431c2f615c9bf9c797c5c9223a62b1c77",
+    "W325034": "dd2d071a1669fe861a7a4e3eaea80ed4f2310ad9fe7aafd593f56a0c1a907a4f",
+    "W325035": "970a1a22f209069a7db1595d8d02f34ad40584258ab8d550a31a3d239dd26309"
+  }
+}

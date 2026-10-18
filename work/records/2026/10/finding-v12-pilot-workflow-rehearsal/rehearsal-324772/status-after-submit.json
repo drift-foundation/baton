@@ -1,0 +1,126 @@
+{
+  "schema": "baton.v12.job-status/6",
+  "observed_at": "2026-10-18T17:39:53.045Z",
+  "incarnation": "inc-1",
+  "canonical": false,
+  "jobs": [
+    {
+      "job_id": "quickstart-a",
+      "submission_id": "w321690-rehearsal-1",
+      "input_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "policy_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "test_scope": [
+        "v12/python/tests/tools/test_disposition_command.py"
+      ],
+      "terminal_policy": "report-and-hold",
+      "execution_limits": {
+        "units": "seconds",
+        "scope": "per-invocation",
+        "compatibility_generation": 1,
+        "requested": {},
+        "boundaries": {
+          "host_verification": {
+            "seconds": 300,
+            "origin": "compatibility",
+            "setting": "verification_command_seconds",
+            "default_seconds": 300
+          },
+          "integration_verification": {
+            "seconds": 1800,
+            "origin": "compatibility",
+            "setting": "verification_command_seconds",
+            "default_seconds": 1800
+          },
+          "ordinary_verification": {
+            "seconds": 900,
+            "origin": "compatibility",
+            "setting": "verification_command_seconds",
+            "default_seconds": 900
+          },
+          "provider_turn": {
+            "seconds": 3600,
+            "origin": "compatibility",
+            "setting": "provider_turn_seconds",
+            "default_seconds": 3600
+          }
+        }
+      },
+      "stages": [
+        {
+          "stage_id": "quickstart-a/implementation",
+          "job_id": "quickstart-a",
+          "kind": "implementation",
+          "state": "queued",
+          "work_id": "01234567-W1",
+          "profile_name": "reference",
+          "profile_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "episode": 1,
+          "offer_id": "offer-599b15210001da959a75703ab7502c0de9bbd14357fc190e0cfab02535fdf8ea",
+          "attempt_id": "attempt-599b15210001da959a75703ab7502c0de9bbd14357fc190e0cfab02535fdf8ea",
+          "episodes": [
+            {
+              "stage_id": "quickstart-a/implementation",
+              "episode": 1,
+              "offer_id": "offer-599b15210001da959a75703ab7502c0de9bbd14357fc190e0cfab02535fdf8ea",
+              "attempt_id": "attempt-599b15210001da959a75703ab7502c0de9bbd14357fc190e0cfab02535fdf8ea",
+              "opened_at": "2026-10-18T17:39:40.744Z",
+              "incarnation": "inc-1",
+              "ended_state": null,
+              "ended_revision": null,
+              "ended_at": null
+            }
+          ],
+          "corrections": 0,
+          "allocation": null,
+          "allocations": [],
+          "gates": [],
+          "receipts": [],
+          "deferral": null,
+          "runtime": null,
+          "exchange": null,
+          "artifacts": null
+        },
+        {
+          "stage_id": "quickstart-a/review",
+          "job_id": "quickstart-a",
+          "kind": "review",
+          "state": "blocked",
+          "work_id": "01234567-W1",
+          "profile_name": "reviewer",
+          "profile_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "episode": 1,
+          "offer_id": "offer-5e2d52d251d03e3e7a95bbab08181eacb8c3e51399939d9a952184848848dc31",
+          "attempt_id": "attempt-5e2d52d251d03e3e7a95bbab08181eacb8c3e51399939d9a952184848848dc31",
+          "episodes": [
+            {
+              "stage_id": "quickstart-a/review",
+              "episode": 1,
+              "offer_id": "offer-5e2d52d251d03e3e7a95bbab08181eacb8c3e51399939d9a952184848848dc31",
+              "attempt_id": "attempt-5e2d52d251d03e3e7a95bbab08181eacb8c3e51399939d9a952184848848dc31",
+              "opened_at": "2026-10-18T17:39:40.744Z",
+              "incarnation": "inc-1",
+              "ended_state": null,
+              "ended_revision": null,
+              "ended_at": null
+            }
+          ],
+          "corrections": 0,
+          "allocation": null,
+          "allocations": [],
+          "gates": [
+            {
+              "stage_id": "quickstart-a/implementation",
+              "state": "queued",
+              "open": false
+            }
+          ],
+          "receipts": [],
+          "deferral": null,
+          "runtime": null,
+          "exchange": null,
+          "artifacts": null
+        }
+      ]
+    }
+  ]
+}

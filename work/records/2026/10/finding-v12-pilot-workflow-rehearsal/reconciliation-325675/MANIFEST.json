@@ -1,0 +1,43 @@
+{
+  "agrees_with_reviewer": true,
+  "authored": {
+    "PACKET.md": {
+      "bytes": 20726,
+      "sha256": "a92901cb646d99e68498059e74ed1aa36d3d63f300f57865b6c0e6ff6776153d"
+    },
+    "PROGRESS.md": {
+      "bytes": 23101,
+      "sha256": "6ec05d408fc3153802c39cbe27d315ef3af5083556a7609ffb38bb23d73a4469"
+    },
+    "reconciliation-325675/COVERAGE.md": {
+      "bytes": 12488,
+      "sha256": "4f08e66b2faac72098bdffeb8f55cfdf3c903c1709a1cfabdca98481eefc51fc"
+    }
+  },
+  "claim": 325675,
+  "note": "the joined evidence map and the reconciled packet. No child evidence is modified or rerun; the child manifests are re-verified by digest below.",
+  "reviewer_published": {
+    "W325034": "dd2d071a1669fe861a7a4e3eaea80ed4f2310ad9fe7aafd593f56a0c1a907a4f",
+    "W325035": "970a1a22f209069a7db1595d8d02f34ad40584258ab8d550a31a3d239dd26309"
+  },
+  "schema": "baton.w321690.joined-reconciliation/1",
+  "source_base": "372281f4a473300efb474d5a6573954c15ade367",
+  "verified_child_manifests": {
+    "W321688": {
+      "path": "../finding-v12-pilot-dossier-binding/correction-322441/DIGESTS.json",
+      "sha256": "e8f3f8d96aea26dccbb231310e6e05e33be5cbe23f7464548e32db435e532e25"
+    },
+    "W321689": {
+      "path": "../finding-v12-pilot-owner-disposition/candidate-321689/DIGESTS.json",
+      "sha256": "dbc163c7dc3f08fcf17030b78923029431c2f615c9bf9c797c5c9223a62b1c77"
+    },
+    "W325034": {
+      "path": "../finding-v12-pilot-human-approval-boundary/boundary-325197/MANIFEST.json",
+      "sha256": "dd2d071a1669fe861a7a4e3eaea80ed4f2310ad9fe7aafd593f56a0c1a907a4f"
+    },
+    "W325035": {
+      "path": "../finding-v12-pilot-diagnostic-recovery-matrix/matrix-325259/MANIFEST.json",
+      "sha256": "970a1a22f209069a7db1595d8d02f34ad40584258ab8d550a31a3d239dd26309"
+    }
+  }
+}

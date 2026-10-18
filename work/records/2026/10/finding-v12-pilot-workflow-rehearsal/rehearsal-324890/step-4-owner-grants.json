@@ -1,0 +1,12 @@
+{
+  "capabilities": [
+    "approve",
+    "close",
+    "integrate"
+  ],
+  "equivalent_selection": "bootstrap input member owner_participant (W321689)",
+  "owner_participant": "baton.slaw",
+  "policy_generation": 12,
+  "scope": "scope:deployment",
+  "step": "4. owner grants (deployment act, labelled)"
+}

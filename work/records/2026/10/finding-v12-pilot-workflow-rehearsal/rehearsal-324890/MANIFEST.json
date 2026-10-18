@@ -1,0 +1,53 @@
+{
+  "directory": "rehearsal-324890",
+  "members": {
+    "JOINED-GAP.md": {
+      "bytes": 5014,
+      "sha256": "894c5ac19743307120c087c0fb841add1e4edb528d5ccd34ea6b4344413f1c7e"
+    },
+    "JOINED-REHEARSAL.json": {
+      "bytes": 11501,
+      "sha256": "0e81d12de5679abe280c2d90b61e0a291c7934bca5fbe745fd1568cb545b6343"
+    },
+    "joined_rehearsal.py": {
+      "bytes": 16659,
+      "sha256": "fbc708f7ddf283ba4da742e370384f39df29554f0577b0bba41bb06ec4803ca2"
+    },
+    "step-1-native-lifecycle.json": {
+      "bytes": 1871,
+      "sha256": "1ec9298a6efccb67e9123a483a4bc359592166653c3edea66d0aa1c5531706d6"
+    },
+    "step-2-owner-pending.json": {
+      "bytes": 3278,
+      "sha256": "7e4495b5d6f64eb7359996dc6a4eb08720444746ba8bf9e4f7159e6ac282562a"
+    },
+    "step-3-review-ending.json": {
+      "bytes": 433,
+      "sha256": "4b92bea6fe44cfdf02c2fbbb0bd00512654d5b527fdbad0b36c05ff7ba7840d8"
+    },
+    "step-3b-integration-stage.json": {
+      "bytes": 442,
+      "sha256": "b064907b0c72c5d755ab5fdacc390b2a107b2f30be34217f065328a81080bcc6"
+    },
+    "step-4-owner-grants.json": {
+      "bytes": 303,
+      "sha256": "5b083653f2bf3e143d23f7771027403f31fe0f99abb3675927ceff0855eaae9e"
+    },
+    "step-5-owner-disposition.json": {
+      "bytes": 3612,
+      "sha256": "c39c140d6f3c782b920b68adcb9349b4bef10399115d922a174753e648bf3e03"
+    }
+  },
+  "not_reached": [
+    "live model",
+    "live credential",
+    "deployment",
+    "Git mutation"
+  ],
+  "schema": "baton.w321690.rehearsal-evidence/1",
+  "simulated_and_labelled": [
+    "engine (no daemon)",
+    "provider (injected or a real child process over reviewed bytes)"
+  ],
+  "source_base": "372281f4a473300efb474d5a6573954c15ade367"
+}

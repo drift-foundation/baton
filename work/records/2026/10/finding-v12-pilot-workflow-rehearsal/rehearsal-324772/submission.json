@@ -1,0 +1,36 @@
+{
+  "schema": "baton.v12.job-submission/1",
+  "submission_id": "w321690-rehearsal-1",
+  "jobs": [
+    {
+      "job_id": "quickstart-a",
+      "input_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "policy_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "test_scope": [
+        "v12/python/tests/tools/test_disposition_command.py"
+      ],
+      "terminal_policy": "report-and-hold",
+      "stages": [
+        {
+          "kind": "implementation",
+          "work_id": "01234567-W1",
+          "profile_name": "reference",
+          "profile_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "depends_on": []
+        },
+        {
+          "kind": "review",
+          "work_id": "01234567-W1",
+          "profile_name": "reviewer",
+          "profile_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "depends_on": [
+            {
+              "job_id": "quickstart-a",
+              "kind": "implementation"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,383 @@
+{
+  "checks": [
+    {
+      "check": "the implementation worker turn ran",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "the review worker turn ran",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "the owner holds no verify or review grant",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "verification is passed and review accepted",
+      "detail": {
+        "approval": null,
+        "integration": null,
+        "review": "accepted",
+        "verification": "passed"
+      },
+      "passed": true
+    },
+    {
+      "check": "THE APPROVAL IS STILL ABSENT on the enforcing shape",
+      "detail": {
+        "approval": null,
+        "integration": null,
+        "review": "accepted",
+        "verification": "passed"
+      },
+      "passed": true
+    },
+    {
+      "check": "and so is the integration receipt",
+      "detail": {
+        "approval": null,
+        "integration": null,
+        "review": "accepted",
+        "verification": "passed"
+      },
+      "passed": true
+    },
+    {
+      "check": "the judgments are attributed to the independent participants",
+      "detail": {
+        "review": "baton.reviewer-321690",
+        "verification": "baton.verifier-321690"
+      },
+      "passed": true
+    },
+    {
+      "check": "the owner's pending answers approval-due",
+      "detail": {
+        "answer": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "canonical_target": "a4c5374d45a9ac546abd5a52a06b0b7abacd087e",
+          "close_decision": null,
+          "closure_acceptance": null,
+          "dossier": null,
+          "due": "independent review accepted the latest candidate and no approval receipt exists; the owner's approve or deny is due on these exact bytes",
+          "evidence": [],
+          "holds": {
+            "approve": true,
+            "close": true,
+            "integrate": true
+          },
+          "latest_proposal": "integration-driver.proposal:d2a4a9001df1575fa2a1de05a6700fe85067690ea24ba43744462e178cedbf99",
+          "owner_action": "approval-due",
+          "participant": "baton.slaw",
+          "policy_generation": 14,
+          "proposals": [
+            {
+              "assignment_ref": {
+                "generation": 1,
+                "participant": "baton.claude",
+                "work_ref": {
+                  "authority_uuid": "0000000a000000000000000000000000",
+                  "work_id": "0000000a-W1"
+                }
+              },
+              "candidate_digest": "f98d3abbaef89f388cd253712198289e3f9d20e6",
+              "decision": {
+                "effective_scope": "scope:deployment",
+                "endpoint": "baton.claude",
+                "grant": "direct",
+                "policy_generation": 9,
+                "principal": "principal:baton.claude",
+                "role": "baton.impl"
+              },
+              "input_digest": "sha256:c6c919bc695302566dbf11e85d21b8537cbdf78a293a09a196cee9c6fc47d525",
+              "owner_action": "approval-due",
+              "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+              "proposal_id": "integration-driver.proposal:d2a4a9001df1575fa2a1de05a6700fe85067690ea24ba43744462e178cedbf99",
+              "published_at": "2026-10-18T19:40:13.818Z",
+              "receipts": {
+                "approval": null,
+                "integration": null,
+                "review": {
+                  "actor": "baton.reviewer-321690",
+                  "candidate_digest": "f98d3abbaef89f388cd253712198289e3f9d20e6",
+                  "decision": {
+                    "effective_scope": "scope:deployment",
+                    "endpoint": "baton.reviewer-321690",
+                    "grant": "direct",
+                    "policy_generation": 14,
+                    "principal": "principal:baton.reviewer-321690",
+                    "role": "review"
+                  },
+                  "disposition": "accepted",
+                  "kind": "review",
+                  "policy_generation": null,
+                  "proposal_id": "integration-driver.proposal:d2a4a9001df1575fa2a1de05a6700fe85067690ea24ba43744462e178cedbf99",
+                  "receipt_id": "w321690-review",
+                  "recorded_at": "2026-10-18T19:40:14.283Z",
+                  "target": "a4c5374d45a9ac546abd5a52a06b0b7abacd087e"
+                },
+                "verification": {
+                  "actor": "baton.verifier-321690",
+                  "candidate_digest": "f98d3abbaef89f388cd253712198289e3f9d20e6",
+                  "decision": {
+                    "effective_scope": "scope:deployment",
+                    "endpoint": "baton.verifier-321690",
+                    "grant": "direct",
+                    "policy_generation": 14,
+                    "principal": "principal:baton.verifier-321690",
+                    "role": "verify"
+                  },
+                  "disposition": "passed",
+                  "kind": "verification",
+                  "policy_generation": null,
+                  "proposal_id": "integration-driver.proposal:d2a4a9001df1575fa2a1de05a6700fe85067690ea24ba43744462e178cedbf99",
+                  "receipt_id": "w321690-verification",
+                  "recorded_at": "2026-10-18T19:40:14.282Z",
+                  "target": "a4c5374d45a9ac546abd5a52a06b0b7abacd087e"
+                }
+              },
+              "result_digest": "sha256:f3444a0316ef7171570139cd8a9e6229d16e22ff476d2fa4efeae6d562754863",
+              "result_id": "result-attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+              "target": "a4c5374d45a9ac546abd5a52a06b0b7abacd087e"
+            }
+          ],
+          "rationale": null,
+          "work": {
+            "assignment": null,
+            "handler": null,
+            "outcome": null,
+            "phase": "queued",
+            "route": "integration",
+            "scope": "scope:deployment",
+            "status": "open",
+            "work_id": "0000000a-W1"
+          }
+        },
+        "exit": 0,
+        "stderr": ""
+      },
+      "passed": true
+    },
+    {
+      "check": "integration with approval withheld is refused",
+      "detail": {
+        "answer": null,
+        "exit": 2,
+        "stderr": "usage: baton-v12-stack disposition integrated [-h]\n                                              --authority-store AUTHORITY_STORE\n                                              --authority-uuid AUTHORITY_UUID\n                                              --participant PARTICIPANT\n                                              --work WORK\n                                              --operation-id OPERATION_ID\n                                              --proposal PROPOSAL\n                                              --expect-candidate-digest EXPECT_CANDIDATE_DIGEST\n                                              --root ROOT\n                                              --reference REFERENCE\n                                              --commit COMMIT\n                                              --integration-id INTEGRATION_ID\n                                              --evidence-operation-id EVIDENCE_OPERATION_ID\nbaton-v12-stack disposition integrated: error: the following arguments are required: --expect-candidate-digest, --root, --reference, --commit, --integration-id, --evidence-operation-id"
+      },
+      "passed": true
+    },
+    {
+      "check": "satisfying closure with approval withheld is refused",
+      "detail": {
+        "answer": null,
+        "exit": 2,
+        "stderr": "refused: a satisfying closure names the candidate it accepts: --proposal, --expect-candidate-digest and --root are required, because the claim being recorded is that THOSE bytes were approved and integrated"
+      },
+      "passed": true
+    },
+    {
+      "check": "no receipt changed across the refusals",
+      "detail": {
+        "approval": null,
+        "integration": null,
+        "review": "accepted",
+        "verification": "passed"
+      },
+      "passed": true
+    }
+  ],
+  "checks_passed": 11,
+  "establishes": "On the enforcing two-stage shape the independent receipt path works exactly as W325034 proved it on a clean candidate: separate verify and review actors publish their judgments, the approval stays absent, the owner's pending answers approval-due, and delivery is refused while the approval is withheld. The owner's own approve/integrated/close chain and its readback are the accepted W325034 proof (boundary-325197 scenario 2) and are not repeated here.",
+  "expected_failure": false,
+  "grants": {
+    "owner": "baton.slaw",
+    "policy_generation": 14,
+    "review": "baton.reviewer-321690",
+    "scope": "scope:deployment",
+    "verification": "baton.verifier-321690"
+  },
+  "identities": {
+    "candidate_digest": "f98d3abbaef89f388cd253712198289e3f9d20e6",
+    "implementation_attempt": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+    "proposal_id": "integration-driver.proposal:d2a4a9001df1575fa2a1de05a6700fe85067690ea24ba43744462e178cedbf99",
+    "review_attempt": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+    "work_id": "0000000a-W1"
+  },
+  "injected": "independent verify and review on the published candidate, then the owner's pending and the two refusals while approval is withheld",
+  "intended_failed_check": null,
+  "judgment_actors": {
+    "review": "baton.reviewer-321690",
+    "verification": "baton.verifier-321690"
+  },
+  "labelled": [
+    "SIMULATED (W321690 composition rehearsal; no human act, no live provider)",
+    "engine: no daemon",
+    "provider: injected at the adapter's process seam",
+    "the human integration record's commit is forty zeroes: a labelled fixture, not delivery"
+  ],
+  "negatives": {
+    "integration with approval withheld": {
+      "answer": null,
+      "exit": 2,
+      "stderr": "usage: baton-v12-stack disposition integrated [-h]\n                                              --authority-store AUTHORITY_STORE\n                                              --authority-uuid AUTHORITY_UUID\n                                              --participant PARTICIPANT\n                                              --work WORK\n                                              --operation-id OPERATION_ID\n                                              --proposal PROPOSAL\n                                              --expect-candidate-digest EXPECT_CANDIDATE_DIGEST\n                                              --root ROOT\n                                              --reference REFERENCE\n                                              --commit COMMIT\n                                              --integration-id INTEGRATION_ID\n                                              --evidence-operation-id EVIDENCE_OPERATION_ID\nbaton-v12-stack disposition integrated: error: the following arguments are required: --expect-candidate-digest, --root, --reference, --commit, --integration-id, --evidence-operation-id"
+    },
+    "satisfying closure with approval withheld": {
+      "answer": null,
+      "exit": 2,
+      "stderr": "refused: a satisfying closure names the candidate it accepts: --proposal, --expect-candidate-digest and --root are required, because the claim being recorded is that THOSE bytes were approved and integrated"
+    }
+  },
+  "not_called": [
+    "_accepted_receipts",
+    "admit_accepted",
+    "continue_accepted",
+    "raw SQL",
+    "any product-source edit"
+  ],
+  "outcome": "observed",
+  "pending": {
+    "answer": {
+      "authority_uuid": "0000000a000000000000000000000000",
+      "canonical_target": "a4c5374d45a9ac546abd5a52a06b0b7abacd087e",
+      "close_decision": null,
+      "closure_acceptance": null,
+      "dossier": null,
+      "due": "independent review accepted the latest candidate and no approval receipt exists; the owner's approve or deny is due on these exact bytes",
+      "evidence": [],
+      "holds": {
+        "approve": true,
+        "close": true,
+        "integrate": true
+      },
+      "latest_proposal": "integration-driver.proposal:d2a4a9001df1575fa2a1de05a6700fe85067690ea24ba43744462e178cedbf99",
+      "owner_action": "approval-due",
+      "participant": "baton.slaw",
+      "policy_generation": 14,
+      "proposals": [
+        {
+          "assignment_ref": {
+            "generation": 1,
+            "participant": "baton.claude",
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W1"
+            }
+          },
+          "candidate_digest": "f98d3abbaef89f388cd253712198289e3f9d20e6",
+          "decision": {
+            "effective_scope": "scope:deployment",
+            "endpoint": "baton.claude",
+            "grant": "direct",
+            "policy_generation": 9,
+            "principal": "principal:baton.claude",
+            "role": "baton.impl"
+          },
+          "input_digest": "sha256:c6c919bc695302566dbf11e85d21b8537cbdf78a293a09a196cee9c6fc47d525",
+          "owner_action": "approval-due",
+          "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "proposal_id": "integration-driver.proposal:d2a4a9001df1575fa2a1de05a6700fe85067690ea24ba43744462e178cedbf99",
+          "published_at": "2026-10-18T19:40:13.818Z",
+          "receipts": {
+            "approval": null,
+            "integration": null,
+            "review": {
+              "actor": "baton.reviewer-321690",
+              "candidate_digest": "f98d3abbaef89f388cd253712198289e3f9d20e6",
+              "decision": {
+                "effective_scope": "scope:deployment",
+                "endpoint": "baton.reviewer-321690",
+                "grant": "direct",
+                "policy_generation": 14,
+                "principal": "principal:baton.reviewer-321690",
+                "role": "review"
+              },
+              "disposition": "accepted",
+              "kind": "review",
+              "policy_generation": null,
+              "proposal_id": "integration-driver.proposal:d2a4a9001df1575fa2a1de05a6700fe85067690ea24ba43744462e178cedbf99",
+              "receipt_id": "w321690-review",
+              "recorded_at": "2026-10-18T19:40:14.283Z",
+              "target": "a4c5374d45a9ac546abd5a52a06b0b7abacd087e"
+            },
+            "verification": {
+              "actor": "baton.verifier-321690",
+              "candidate_digest": "f98d3abbaef89f388cd253712198289e3f9d20e6",
+              "decision": {
+                "effective_scope": "scope:deployment",
+                "endpoint": "baton.verifier-321690",
+                "grant": "direct",
+                "policy_generation": 14,
+                "principal": "principal:baton.verifier-321690",
+                "role": "verify"
+              },
+              "disposition": "passed",
+              "kind": "verification",
+              "policy_generation": null,
+              "proposal_id": "integration-driver.proposal:d2a4a9001df1575fa2a1de05a6700fe85067690ea24ba43744462e178cedbf99",
+              "receipt_id": "w321690-verification",
+              "recorded_at": "2026-10-18T19:40:14.282Z",
+              "target": "a4c5374d45a9ac546abd5a52a06b0b7abacd087e"
+            }
+          },
+          "result_digest": "sha256:f3444a0316ef7171570139cd8a9e6229d16e22ff476d2fa4efeae6d562754863",
+          "result_id": "result-attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "target": "a4c5374d45a9ac546abd5a52a06b0b7abacd087e"
+        }
+      ],
+      "rationale": null,
+      "work": {
+        "assignment": null,
+        "handler": null,
+        "outcome": null,
+        "phase": "queued",
+        "route": "integration",
+        "scope": "scope:deployment",
+        "status": "open",
+        "work_id": "0000000a-W1"
+      }
+    },
+    "exit": 0,
+    "stderr": ""
+  },
+  "receipts_after_judgments": {
+    "approval": null,
+    "integration": null,
+    "review": "accepted",
+    "verification": "passed"
+  },
+  "review": {
+    "actor": "baton.reviewer-321690",
+    "candidate_digest": "f98d3abbaef89f388cd253712198289e3f9d20e6",
+    "disposition": "accepted",
+    "kind": "review",
+    "policy_generation": null,
+    "proposal_id": "integration-driver.proposal:d2a4a9001df1575fa2a1de05a6700fe85067690ea24ba43744462e178cedbf99",
+    "receipt_id": "w321690-review",
+    "target": "a4c5374d45a9ac546abd5a52a06b0b7abacd087e"
+  },
+  "scenario": "2-the-human-path-on-that-shape",
+  "seconds": 0.648,
+  "simulated": [
+    "engine: no daemon",
+    "provider: injected at the adapter's own process seam",
+    "verifier, reviewer and owner judgments"
+  ],
+  "states": {
+    "implementation": "completed",
+    "review": "completed"
+  },
+  "verification": {
+    "actor": "baton.verifier-321690",
+    "candidate_digest": "f98d3abbaef89f388cd253712198289e3f9d20e6",
+    "disposition": "passed",
+    "kind": "verification",
+    "policy_generation": null,
+    "proposal_id": "integration-driver.proposal:d2a4a9001df1575fa2a1de05a6700fe85067690ea24ba43744462e178cedbf99",
+    "receipt_id": "w321690-verification",
+    "target": "a4c5374d45a9ac546abd5a52a06b0b7abacd087e"
+  }
+}

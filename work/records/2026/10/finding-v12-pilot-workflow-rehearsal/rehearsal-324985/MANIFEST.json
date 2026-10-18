@@ -1,0 +1,33 @@
+{
+  "directory": "rehearsal-324985",
+  "members": {
+    "RECEIPT-BOUNDARY.json": {
+      "bytes": 15069,
+      "sha256": "a720526f44021989f947a2de96a66c357d563c920508a6f28e0101a0f65758f6"
+    },
+    "RECEIPT-BOUNDARY.md": {
+      "bytes": 3516,
+      "sha256": "ffa969029847bb38caffd0e914dac724b64c1575f5c71f8ae53ab45bfbcdfd0c"
+    },
+    "receipt_boundary.py": {
+      "bytes": 7005,
+      "sha256": "8dab49107db04dd326b5bfd5acfc33e7f5187699a377b3381cfa6cfe005aacd1"
+    },
+    "step-6-receipt-boundary.json": {
+      "bytes": 8267,
+      "sha256": "b8b67640f024aecd8f5da4b86cc46d08c193bfedf0963e2632a5476dc2e139ea"
+    }
+  },
+  "not_reached": [
+    "live model",
+    "live credential",
+    "deployment",
+    "Git mutation"
+  ],
+  "schema": "baton.w321690.rehearsal-evidence/1",
+  "simulated_and_labelled": [
+    "engine (no daemon)",
+    "provider (injected or a real child process over reviewed bytes)"
+  ],
+  "source_base": "372281f4a473300efb474d5a6573954c15ade367"
+}

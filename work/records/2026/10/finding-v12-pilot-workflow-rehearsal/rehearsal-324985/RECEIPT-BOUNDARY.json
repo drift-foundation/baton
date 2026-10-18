@@ -1,0 +1,344 @@
+{
+  "boundary": "accepted integration-worker world: real coordinator, admission driver, Authority and worker entry; engine and provider simulated and labelled; no live model, live credential, deployment or Git mutation",
+  "owner": {
+    "holds": {
+      "approve": true,
+      "close": true,
+      "integrate": true
+    },
+    "owner_action": "integration-due",
+    "owner_approve": {
+      "answer": null,
+      "exit": 2,
+      "stderr": "refused: approval receipt is immutable\n"
+    },
+    "pending": {
+      "answer": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "canonical_target": "5dcc538db0017d67099fafb72c2f6c5b62b3bcc6",
+        "close_decision": null,
+        "closure_acceptance": null,
+        "dossier": null,
+        "due": "the owner approved this candidate and no integration receipt exists; a human imports the approved bytes, commits them, and records that here",
+        "evidence": [],
+        "holds": {
+          "approve": true,
+          "close": true,
+          "integrate": true
+        },
+        "latest_proposal": "integration-driver.proposal:a3d2b8f20f5af7bf3e3a6717f9d2393dec209d9de9e19e6588b6becc579325ce",
+        "owner_action": "integration-due",
+        "participant": "baton.slaw",
+        "policy_generation": 10,
+        "proposals": [
+          {
+            "assignment_ref": {
+              "generation": 1,
+              "participant": "baton.impl",
+              "work_ref": {
+                "authority_uuid": "0000000a000000000000000000000000",
+                "work_id": "0000000a-W1"
+              }
+            },
+            "candidate_digest": "e42d763125c208eaeb081f451185b007c30aee77",
+            "decision": {
+              "effective_scope": "scope:deployment",
+              "endpoint": "baton.impl",
+              "grant": "direct",
+              "policy_generation": 3,
+              "principal": "principal:baton.impl",
+              "role": "implementation"
+            },
+            "input_digest": "sha256:4ebe2b651be8c31a2bec3d559185d744811d321e95d890656bb4b500516fbb2e",
+            "owner_action": "integration-due",
+            "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+            "proposal_id": "integration-driver.proposal:a3d2b8f20f5af7bf3e3a6717f9d2393dec209d9de9e19e6588b6becc579325ce",
+            "published_at": "2026-09-02T00:00:00.000Z",
+            "receipts": {
+              "approval": {
+                "actor": "baton.approve",
+                "candidate_digest": "e42d763125c208eaeb081f451185b007c30aee77",
+                "decision": {
+                  "effective_scope": "scope:deployment",
+                  "endpoint": "baton.approve",
+                  "grant": "direct",
+                  "policy_generation": 7,
+                  "principal": "principal:baton.approve",
+                  "role": "approve"
+                },
+                "disposition": "approved",
+                "kind": "approval",
+                "policy_generation": 7,
+                "proposal_id": "integration-driver.proposal:a3d2b8f20f5af7bf3e3a6717f9d2393dec209d9de9e19e6588b6becc579325ce",
+                "receipt_id": "integration-driver.approval-receipt:aaae85f05614b2b7b3688bb6cd06364ca8107e925292d468351ac5b30b8b5198",
+                "recorded_at": "2026-09-02T00:00:00.000Z",
+                "target": "5dcc538db0017d67099fafb72c2f6c5b62b3bcc6"
+              },
+              "integration": null,
+              "review": {
+                "actor": "baton.review",
+                "candidate_digest": "e42d763125c208eaeb081f451185b007c30aee77",
+                "decision": {
+                  "effective_scope": "scope:deployment",
+                  "endpoint": "baton.review",
+                  "grant": "direct",
+                  "policy_generation": 7,
+                  "principal": "principal:baton.review",
+                  "role": "review"
+                },
+                "disposition": "accepted",
+                "kind": "review",
+                "policy_generation": null,
+                "proposal_id": "integration-driver.proposal:a3d2b8f20f5af7bf3e3a6717f9d2393dec209d9de9e19e6588b6becc579325ce",
+                "receipt_id": "integration-driver.review-receipt:85f52994c9b79564f4799e51e5c92065996bc189e0689bd9a0b78ddca5e57c15",
+                "recorded_at": "2026-09-02T00:00:00.000Z",
+                "target": "5dcc538db0017d67099fafb72c2f6c5b62b3bcc6"
+              },
+              "verification": {
+                "actor": "baton.verify",
+                "candidate_digest": "e42d763125c208eaeb081f451185b007c30aee77",
+                "decision": {
+                  "effective_scope": "scope:deployment",
+                  "endpoint": "baton.verify",
+                  "grant": "direct",
+                  "policy_generation": 7,
+                  "principal": "principal:baton.verify",
+                  "role": "verify"
+                },
+                "disposition": "passed",
+                "kind": "verification",
+                "policy_generation": null,
+                "proposal_id": "integration-driver.proposal:a3d2b8f20f5af7bf3e3a6717f9d2393dec209d9de9e19e6588b6becc579325ce",
+                "receipt_id": "integration-driver.ordinary-tests-verification-receipt:dd616485cab4b9c667b860997efd8a5b1582a4e6e936f6165d2057d29b481e54",
+                "recorded_at": "2026-09-02T00:00:00.000Z",
+                "target": "5dcc538db0017d67099fafb72c2f6c5b62b3bcc6"
+              }
+            },
+            "result_digest": "sha256:f43fcb5498adf01e14ad0e702030b2c6c47dca15c8bb8fde83abd837af3af40b",
+            "result_id": "result-public-writer",
+            "target": "5dcc538db0017d67099fafb72c2f6c5b62b3bcc6"
+          }
+        ],
+        "rationale": null,
+        "work": {
+          "assignment": {
+            "generation": 1,
+            "participant": "baton.impl",
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W1"
+            }
+          },
+          "handler": "baton.impl",
+          "outcome": null,
+          "phase": "active",
+          "route": "implementation",
+          "scope": "scope:deployment",
+          "status": "open",
+          "work_id": "0000000a-W1"
+        }
+      },
+      "exit": 0,
+      "stderr": ""
+    }
+  },
+  "schema": "baton.w321690.receipt-boundary/1",
+  "seconds": 0.422,
+  "step": {
+    "actors_after": {
+      "approval": "baton.approve",
+      "integration": null,
+      "review": "baton.review",
+      "verification": "baton.verify"
+    },
+    "admitted": {
+      "assignment": {
+        "attempt_id": "integrator-attempt",
+        "canonical_target_id": "target:ordinary-admission",
+        "entry_id": "integration-driver.entry:14046ba72e5210d256ee1862c05f83d3d489be58b7a2613264362d8d014f2dd3",
+        "fence": 1,
+        "instructions_digest": "sha256:44372b91d7ba4b0569a2b47789642904b4dae52f00b230b2d4ec7ff08406c407",
+        "integrator_participant": "baton.merge",
+        "lease_id": "integration-driver.lease:3b65dee638088a40a79f5c2bece1fad52327548508b775fdbf235d5601b7e918",
+        "profile_kind": "git",
+        "profile_version": 1,
+        "schema": "baton.v12.integration-assignment/1",
+        "target_access": "writable"
+      },
+      "authority_receipt": null,
+      "entry": "integration-driver.entry:14046ba72e5210d256ee1862c05f83d3d489be58b7a2613264362d8d014f2dd3",
+      "observed": {
+        "hold": null,
+        "result": null,
+        "state": "waiting"
+      },
+      "outcome": "running",
+      "receipts": {
+        "approval": {
+          "actor": "baton.approve",
+          "candidate_digest": "e42d763125c208eaeb081f451185b007c30aee77",
+          "disposition": "approved",
+          "kind": "approval",
+          "policy_generation": 7,
+          "proposal_id": "integration-driver.proposal:a3d2b8f20f5af7bf3e3a6717f9d2393dec209d9de9e19e6588b6becc579325ce",
+          "receipt_id": "integration-driver.approval-receipt:aaae85f05614b2b7b3688bb6cd06364ca8107e925292d468351ac5b30b8b5198",
+          "target": "5dcc538db0017d67099fafb72c2f6c5b62b3bcc6"
+        },
+        "review": {
+          "actor": "baton.review",
+          "candidate_digest": "e42d763125c208eaeb081f451185b007c30aee77",
+          "disposition": "accepted",
+          "kind": "review",
+          "policy_generation": null,
+          "proposal_id": "integration-driver.proposal:a3d2b8f20f5af7bf3e3a6717f9d2393dec209d9de9e19e6588b6becc579325ce",
+          "receipt_id": "integration-driver.review-receipt:85f52994c9b79564f4799e51e5c92065996bc189e0689bd9a0b78ddca5e57c15",
+          "target": "5dcc538db0017d67099fafb72c2f6c5b62b3bcc6"
+        },
+        "verification": {
+          "actor": "baton.verify",
+          "candidate_digest": "e42d763125c208eaeb081f451185b007c30aee77",
+          "disposition": "passed",
+          "kind": "verification",
+          "policy_generation": null,
+          "proposal_id": "integration-driver.proposal:a3d2b8f20f5af7bf3e3a6717f9d2393dec209d9de9e19e6588b6becc579325ce",
+          "receipt_id": "integration-driver.ordinary-tests-verification-receipt:dd616485cab4b9c667b860997efd8a5b1582a4e6e936f6165d2057d29b481e54",
+          "target": "5dcc538db0017d67099fafb72c2f6c5b62b3bcc6"
+        }
+      }
+    },
+    "authority_uuid": "0000000a000000000000000000000000",
+    "dispositions_after": {
+      "approval": "approved",
+      "integration": null,
+      "review": "accepted",
+      "verification": "passed"
+    },
+    "proposal_id": "integration-driver.proposal:a3d2b8f20f5af7bf3e3a6717f9d2393dec209d9de9e19e6588b6becc579325ce",
+    "receipts_after_admission": {
+      "approval": {
+        "actor": "baton.approve",
+        "candidate_digest": "e42d763125c208eaeb081f451185b007c30aee77",
+        "decision": {
+          "effective_scope": "scope:deployment",
+          "endpoint": "baton.approve",
+          "grant": "direct",
+          "policy_generation": 7,
+          "principal": "principal:baton.approve",
+          "role": "approve"
+        },
+        "disposition": "approved",
+        "kind": "approval",
+        "policy_generation": 7,
+        "proposal_id": "integration-driver.proposal:a3d2b8f20f5af7bf3e3a6717f9d2393dec209d9de9e19e6588b6becc579325ce",
+        "receipt_id": "integration-driver.approval-receipt:aaae85f05614b2b7b3688bb6cd06364ca8107e925292d468351ac5b30b8b5198",
+        "recorded_at": "2026-09-02T00:00:00.000Z",
+        "target": "5dcc538db0017d67099fafb72c2f6c5b62b3bcc6"
+      },
+      "integration": null,
+      "review": {
+        "actor": "baton.review",
+        "candidate_digest": "e42d763125c208eaeb081f451185b007c30aee77",
+        "decision": {
+          "effective_scope": "scope:deployment",
+          "endpoint": "baton.review",
+          "grant": "direct",
+          "policy_generation": 7,
+          "principal": "principal:baton.review",
+          "role": "review"
+        },
+        "disposition": "accepted",
+        "kind": "review",
+        "policy_generation": null,
+        "proposal_id": "integration-driver.proposal:a3d2b8f20f5af7bf3e3a6717f9d2393dec209d9de9e19e6588b6becc579325ce",
+        "receipt_id": "integration-driver.review-receipt:85f52994c9b79564f4799e51e5c92065996bc189e0689bd9a0b78ddca5e57c15",
+        "recorded_at": "2026-09-02T00:00:00.000Z",
+        "target": "5dcc538db0017d67099fafb72c2f6c5b62b3bcc6"
+      },
+      "verification": {
+        "actor": "baton.verify",
+        "candidate_digest": "e42d763125c208eaeb081f451185b007c30aee77",
+        "decision": {
+          "effective_scope": "scope:deployment",
+          "endpoint": "baton.verify",
+          "grant": "direct",
+          "policy_generation": 7,
+          "principal": "principal:baton.verify",
+          "role": "verify"
+        },
+        "disposition": "passed",
+        "kind": "verification",
+        "policy_generation": null,
+        "proposal_id": "integration-driver.proposal:a3d2b8f20f5af7bf3e3a6717f9d2393dec209d9de9e19e6588b6becc579325ce",
+        "receipt_id": "integration-driver.ordinary-tests-verification-receipt:dd616485cab4b9c667b860997efd8a5b1582a4e6e936f6165d2057d29b481e54",
+        "recorded_at": "2026-09-02T00:00:00.000Z",
+        "target": "5dcc538db0017d67099fafb72c2f6c5b62b3bcc6"
+      }
+    },
+    "receipts_before_admission": {
+      "approval": {
+        "actor": "baton.approve",
+        "candidate_digest": "e42d763125c208eaeb081f451185b007c30aee77",
+        "decision": {
+          "effective_scope": "scope:deployment",
+          "endpoint": "baton.approve",
+          "grant": "direct",
+          "policy_generation": 7,
+          "principal": "principal:baton.approve",
+          "role": "approve"
+        },
+        "disposition": "approved",
+        "kind": "approval",
+        "policy_generation": 7,
+        "proposal_id": "integration-driver.proposal:a3d2b8f20f5af7bf3e3a6717f9d2393dec209d9de9e19e6588b6becc579325ce",
+        "receipt_id": "integration-driver.approval-receipt:aaae85f05614b2b7b3688bb6cd06364ca8107e925292d468351ac5b30b8b5198",
+        "recorded_at": "2026-09-02T00:00:00.000Z",
+        "target": "5dcc538db0017d67099fafb72c2f6c5b62b3bcc6"
+      },
+      "integration": null,
+      "review": {
+        "actor": "baton.review",
+        "candidate_digest": "e42d763125c208eaeb081f451185b007c30aee77",
+        "decision": {
+          "effective_scope": "scope:deployment",
+          "endpoint": "baton.review",
+          "grant": "direct",
+          "policy_generation": 7,
+          "principal": "principal:baton.review",
+          "role": "review"
+        },
+        "disposition": "accepted",
+        "kind": "review",
+        "policy_generation": null,
+        "proposal_id": "integration-driver.proposal:a3d2b8f20f5af7bf3e3a6717f9d2393dec209d9de9e19e6588b6becc579325ce",
+        "receipt_id": "integration-driver.review-receipt:85f52994c9b79564f4799e51e5c92065996bc189e0689bd9a0b78ddca5e57c15",
+        "recorded_at": "2026-09-02T00:00:00.000Z",
+        "target": "5dcc538db0017d67099fafb72c2f6c5b62b3bcc6"
+      },
+      "verification": {
+        "actor": "baton.verify",
+        "candidate_digest": "e42d763125c208eaeb081f451185b007c30aee77",
+        "decision": {
+          "effective_scope": "scope:deployment",
+          "endpoint": "baton.verify",
+          "grant": "direct",
+          "policy_generation": 7,
+          "principal": "principal:baton.verify",
+          "role": "verify"
+        },
+        "disposition": "passed",
+        "kind": "verification",
+        "policy_generation": null,
+        "proposal_id": "integration-driver.proposal:a3d2b8f20f5af7bf3e3a6717f9d2393dec209d9de9e19e6588b6becc579325ce",
+        "receipt_id": "integration-driver.ordinary-tests-verification-receipt:dd616485cab4b9c667b860997efd8a5b1582a4e6e936f6165d2057d29b481e54",
+        "recorded_at": "2026-09-02T00:00:00.000Z",
+        "target": "5dcc538db0017d67099fafb72c2f6c5b62b3bcc6"
+      }
+    },
+    "simulated": [
+      "engine (run/inspect/ps, no daemon)",
+      "provider (real child process over reviewed bytes)"
+    ],
+    "step": "the receipt/admission boundary",
+    "work_id": "0000000a-W1"
+  }
+}
