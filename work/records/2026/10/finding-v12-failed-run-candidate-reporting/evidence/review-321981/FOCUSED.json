@@ -1,0 +1,12 @@
+{
+  "command": [
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-B",
+    "-m",
+    "unittest",
+    "test_candidates",
+    "test_baseline"
+  ],
+  "exit": 1,
+  "wall_seconds": 0.2076126209976792
+}

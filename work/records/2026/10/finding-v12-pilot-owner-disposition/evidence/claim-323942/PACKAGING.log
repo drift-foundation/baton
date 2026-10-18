@@ -1,0 +1,7 @@
+# W321689 packaging gate, against the bundle frozen from the final bytes
+# BATON_V12_STACK_DISTRO=build/w321689/out/distro BATON_V12_STACK_PACKAGING_REQUIRED=1
+...........
+----------------------------------------------------------------------
+Ran 11 tests in 2.251s
+
+OK

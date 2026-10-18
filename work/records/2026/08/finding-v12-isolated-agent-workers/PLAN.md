@@ -1,3 +1,23 @@
+# Current action — adoption reconciliation, owner 2026-10-18
+
+Owner confirms: reach safe adoption, then use v12 to finish improving itself.
+Do not require the pending v12 backlog to finish through v11 first. See the
+2026-10-18T02:18:19Z FINDING entry.
+
+Reconciliation recorded in [ADOPTION-RECONCILIATION-20261018.md](ADOPTION-RECONCILIATION-20261018.md): all63 open Work at snapshot319364, with inherited deferred classifications distinguished from current acceptance. Recommended next executable preparation: existing W319114 as a useful v12 status-race correction, checking its contained code/test inputs and complete proposal handback. W61981/W62098 supply the relevant preparation concerns; no broad certification Job is selected. Owner has now accepted W270664 deferral; its owning record preserves the residual defects. Priority is preparing useful W319114 execution through v12. Reuse accepted parallel fresh-context and serial-restoration evidence; select verification only for a concrete remaining adoption question. This supersedes
+the September30 sequence below as the next scheduling instruction; historical
+evidence and outstanding obligations remain preserved.
+
+W316915 is now independently accepted and owner-committed as 9055843b; owner
+reports closure. Its earlier parked/capability-decision entries below are
+historical, superseded by its October18 contract and accepted review.
+
+V11 remains the initial coordination authority; selected execution moves to
+v12. Reuse remains required for v12 delivery but does not block initial adoption.
+No new execution Work, graph change, live run or deployment is selected here.
+
+---
+
 # Current delivery checkpoint — 2026-09-30, server relocation
 
 Owner selects a documentation checkpoint and shutdown for relocation, without

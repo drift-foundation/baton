@@ -1,0 +1,931 @@
+.........................FFFFFFFFFFFFFF......FFFFF...........FFFFFFFF.....
+======================================================================
+FAIL: test_it_settles_after_one_turn_and_proves_the_cleanup (test_baseline.TheBaselineDrivesOneBoundedImplementation.test_it_settles_after_one_turn_and_proves_the_cleanup)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w321981-review/test_baseline.py", line 63, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 1033, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 34, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 4295, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 105, in disk_backed_under
+    place = tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root())
+                                                       ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /home/sl/baton-instances/w321528-321893-candidate/v12/python (not writable), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_one_context_was_opened_and_none_restored (test_baseline.TheBaselineDrivesOneBoundedImplementation.test_one_context_was_opened_and_none_restored)
+`restore` is the resume Job's mode; a baseline that resumed
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w321981-review/test_baseline.py", line 63, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 1033, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 34, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 4295, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 105, in disk_backed_under
+    place = tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root())
+                                                       ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /home/sl/baton-instances/w321528-321893-candidate/v12/python (not writable), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_quiescence_is_not_counted_as_cleanup (test_baseline.TheBaselineDrivesOneBoundedImplementation.test_quiescence_is_not_counted_as_cleanup)
+The FINDING's own words: "do not count ... quiescence as cleanup".
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w321981-review/test_baseline.py", line 63, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 1033, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 34, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 4295, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 105, in disk_backed_under
+    place = tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root())
+                                                       ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /home/sl/baton-instances/w321528-321893-candidate/v12/python (not writable), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_the_declared_per_turn_ceiling_is_the_jobs_own (test_baseline.TheBaselineDrivesOneBoundedImplementation.test_the_declared_per_turn_ceiling_is_the_jobs_own)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w321981-review/test_baseline.py", line 63, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 1033, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 34, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 4295, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 105, in disk_backed_under
+    place = tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root())
+                                                       ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /home/sl/baton-instances/w321528-321893-candidate/v12/python (not writable), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_the_gate_counted_exactly_one_invocation (test_baseline.TheBaselineDrivesOneBoundedImplementation.test_the_gate_counted_exactly_one_invocation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w321981-review/test_baseline.py", line 63, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 1033, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 34, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 4295, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 105, in disk_backed_under
+    place = tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root())
+                                                       ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /home/sl/baton-instances/w321528-321893-candidate/v12/python (not writable), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_the_outcome_carries_no_review_vocabulary (test_baseline.TheBaselineDrivesOneBoundedImplementation.test_the_outcome_carries_no_review_vocabulary)
+A member this run does not carry is a decision, not an omission.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w321981-review/test_baseline.py", line 63, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 1033, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 34, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 4295, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 105, in disk_backed_under
+    place = tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root())
+                                                       ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /home/sl/baton-instances/w321528-321893-candidate/v12/python (not writable), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_the_outcome_is_retained_where_the_packet_says (test_baseline.TheBaselineDrivesOneBoundedImplementation.test_the_outcome_is_retained_where_the_packet_says)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w321981-review/test_baseline.py", line 63, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 1033, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 34, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 4295, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 105, in disk_backed_under
+    place = tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root())
+                                                       ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /home/sl/baton-instances/w321528-321893-candidate/v12/python (not writable), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_the_provider_was_called_exactly_once (test_baseline.TheBaselineDrivesOneBoundedImplementation.test_the_provider_was_called_exactly_once)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w321981-review/test_baseline.py", line 63, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 1033, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 34, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 4295, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 105, in disk_backed_under
+    place = tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root())
+                                                       ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /home/sl/baton-instances/w321528-321893-candidate/v12/python (not writable), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_a_commit_with_a_foreign_parent_is_a_shortfall (test_baseline.TheProposalIsTheAdaptersOwnAccount.test_a_commit_with_a_foreign_parent_is_a_shortfall)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w321981-review/test_baseline.py", line 63, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 1033, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 34, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 4295, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 105, in disk_backed_under
+    place = tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root())
+                                                       ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /home/sl/baton-instances/w321528-321893-candidate/v12/python (not writable), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_a_provider_that_commits_is_reported_and_never_settles (test_baseline.TheProposalIsTheAdaptersOwnAccount.test_a_provider_that_commits_is_reported_and_never_settles)
+W236087's live failure, reproduced through this same real code.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w321981-review/test_baseline.py", line 63, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 1033, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 34, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 4295, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 105, in disk_backed_under
+    place = tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root())
+                                                       ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /home/sl/baton-instances/w321528-321893-candidate/v12/python (not writable), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_an_attribution_naming_anybody_else_is_a_shortfall (test_baseline.TheProposalIsTheAdaptersOwnAccount.test_an_attribution_naming_anybody_else_is_a_shortfall)
+The check has to be able to FAIL on a real answer, not only on an
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w321981-review/test_baseline.py", line 63, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 1033, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 34, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 4295, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 105, in disk_backed_under
+    place = tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root())
+                                                       ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /home/sl/baton-instances/w321528-321893-candidate/v12/python (not writable), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_the_adapters_commit_identity_is_the_one_this_program_checks (test_baseline.TheProposalIsTheAdaptersOwnAccount.test_the_adapters_commit_identity_is_the_one_this_program_checks)
+Two copies of a constant that disagree would make the attribution
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w321981-review/test_baseline.py", line 63, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 1033, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 34, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 4295, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 105, in disk_backed_under
+    place = tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root())
+                                                       ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /home/sl/baton-instances/w321528-321893-candidate/v12/python (not writable), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_the_proposal_is_offered_against_the_deployments_own_target (test_baseline.TheProposalIsTheAdaptersOwnAccount.test_the_proposal_is_offered_against_the_deployments_own_target)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w321981-review/test_baseline.py", line 63, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 1033, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 34, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 4295, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 105, in disk_backed_under
+    place = tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root())
+                                                       ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /home/sl/baton-instances/w321528-321893-candidate/v12/python (not writable), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_the_retained_commit_is_authored_and_committed_by_the_adapter (test_baseline.TheProposalIsTheAdaptersOwnAccount.test_the_retained_commit_is_authored_and_committed_by_the_adapter)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w321981-review/test_baseline.py", line 63, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 1033, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 34, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 4295, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 105, in disk_backed_under
+    place = tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root())
+                                                       ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /home/sl/baton-instances/w321528-321893-candidate/v12/python (not writable), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_a_job_identity_this_store_already_records_is_refused (test_baseline.OneRunAccountsForOneJobAndSaysSo.test_a_job_identity_this_store_already_records_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w321981-review/test_baseline.py", line 63, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 1033, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 34, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 4295, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 105, in disk_backed_under
+    place = tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root())
+                                                       ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /home/sl/baton-instances/w321528-321893-candidate/v12/python (not writable), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_an_empty_store_surveys_clean (test_baseline.OneRunAccountsForOneJobAndSaysSo.test_an_empty_store_surveys_clean)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w321981-review/test_baseline.py", line 63, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 1033, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 34, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 4295, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 105, in disk_backed_under
+    place = tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root())
+                                                       ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /home/sl/baton-instances/w321528-321893-candidate/v12/python (not writable), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_another_jobs_stage_never_spends_this_runs_invocation (test_baseline.OneRunAccountsForOneJobAndSaysSo.test_another_jobs_stage_never_spends_this_runs_invocation)
+The defect this closes: `serve` sweeps the STORE. Without the Job
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w321981-review/test_baseline.py", line 63, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 1033, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 34, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 4295, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 105, in disk_backed_under
+    place = tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root())
+                                                       ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /home/sl/baton-instances/w321528-321893-candidate/v12/python (not writable), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_the_outcome_names_the_job_it_accounts_for (test_baseline.OneRunAccountsForOneJobAndSaysSo.test_the_outcome_names_the_job_it_accounts_for)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w321981-review/test_baseline.py", line 63, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 1033, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 34, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 4295, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 105, in disk_backed_under
+    place = tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root())
+                                                       ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /home/sl/baton-instances/w321528-321893-candidate/v12/python (not writable), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_the_survey_names_every_other_job_and_disclaims_them (test_baseline.OneRunAccountsForOneJobAndSaysSo.test_the_survey_names_every_other_job_and_disclaims_them)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w321981-review/test_baseline.py", line 63, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 1033, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 34, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 4295, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 105, in disk_backed_under
+    place = tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root())
+                                                       ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /home/sl/baton-instances/w321528-321893-candidate/v12/python (not writable), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_a_moved_fixture_byte_refuses_before_a_store_opens (test_baseline.ThePacketIsProvedBeforeAnythingOpens.test_a_moved_fixture_byte_refuses_before_a_store_opens)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w321981-review/test_baseline.py", line 63, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 1033, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 34, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 4295, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 105, in disk_backed_under
+    place = tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root())
+                                                       ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /home/sl/baton-instances/w321528-321893-candidate/v12/python (not writable), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_a_retry_the_packet_did_not_forbid_is_refused (test_baseline.ThePacketIsProvedBeforeAnythingOpens.test_a_retry_the_packet_did_not_forbid_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w321981-review/test_baseline.py", line 63, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 1033, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 34, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 4295, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 105, in disk_backed_under
+    place = tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root())
+                                                       ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /home/sl/baton-instances/w321528-321893-candidate/v12/python (not writable), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_a_second_implementer_invocation_is_refused_by_name (test_baseline.ThePacketIsProvedBeforeAnythingOpens.test_a_second_implementer_invocation_is_refused_by_name)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w321981-review/test_baseline.py", line 63, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 1033, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 34, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 4295, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 105, in disk_backed_under
+    place = tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root())
+                                                       ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /home/sl/baton-instances/w321528-321893-candidate/v12/python (not writable), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_an_image_the_engine_does_not_hold_is_refused (test_baseline.ThePacketIsProvedBeforeAnythingOpens.test_an_image_the_engine_does_not_hold_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w321981-review/test_baseline.py", line 63, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 1033, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 34, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 4295, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 105, in disk_backed_under
+    place = tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root())
+                                                       ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /home/sl/baton-instances/w321528-321893-candidate/v12/python (not writable), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_bounds_carrying_the_other_jobs_members_are_refused (test_baseline.ThePacketIsProvedBeforeAnythingOpens.test_bounds_carrying_the_other_jobs_members_are_refused)
+`_BOUNDS` is exact: a zeroed review count is still that Job's
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w321981-review/test_baseline.py", line 63, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 1033, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 34, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 4295, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 105, in disk_backed_under
+    place = tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root())
+                                                       ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /home/sl/baton-instances/w321528-321893-candidate/v12/python (not writable), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_mutable_state_inside_the_code_boundary_is_refused (test_baseline.ThePacketIsProvedBeforeAnythingOpens.test_mutable_state_inside_the_code_boundary_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w321981-review/test_baseline.py", line 63, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 1033, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 34, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 4295, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 105, in disk_backed_under
+    place = tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root())
+                                                       ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /home/sl/baton-instances/w321528-321893-candidate/v12/python (not writable), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_the_imported_packages_must_resolve_inside_the_bound_source (test_baseline.ThePacketIsProvedBeforeAnythingOpens.test_the_imported_packages_must_resolve_inside_the_bound_source)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w321981-review/test_baseline.py", line 63, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 1033, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 34, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 4295, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 105, in disk_backed_under
+    place = tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root())
+                                                       ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /home/sl/baton-instances/w321528-321893-candidate/v12/python (not writable), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_the_reviewed_packet_is_held_whole (test_baseline.ThePacketIsProvedBeforeAnythingOpens.test_the_reviewed_packet_is_held_whole)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w321981-review/test_baseline.py", line 63, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 1033, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/test_claude_context.py", line 34, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 4295, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 105, in disk_backed_under
+    place = tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root())
+                                                       ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/baton-instances/w321528-321893-candidate/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /home/sl/baton-instances/w321528-321893-candidate/v12/python (not writable), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+----------------------------------------------------------------------
+Ran 74 tests in 0.018s
+
+FAILED (failures=27)

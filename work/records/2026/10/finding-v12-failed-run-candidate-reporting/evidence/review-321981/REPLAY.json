@@ -1,0 +1,7 @@
+{
+  "producer_shape_status0": "unreported",
+  "nonexistent_locator": "file:/retained/proposal.bundle",
+  "nonexistent_locator_state": "valid",
+  "acceptance_without_owner_read": "none",
+  "invented_top_level_status0": "not-run"
+}

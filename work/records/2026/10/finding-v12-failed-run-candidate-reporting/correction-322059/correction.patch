@@ -1,0 +1,389 @@
+--- a/work/records/2026/09/finding-v12-single-implementation-proof/baseline.py
++++ b/work/records/2026/09/finding-v12-single-implementation-proof/baseline.py
+@@ -136,6 +136,21 @@
+ VERIFICATION_NOT_RUN = "not-run"
+ VERIFICATION_UNREPORTED = "unreported"
+ 
++# W321528 review 2026-10-18T08-39-00Z P2: AND THE PRODUCER'S NULL IS AMBIGUOUS,
++# so it gets its own answer rather than being folded into `not-run`.
++# `claude_agent._ordinary_tests` says so itself: a skipped command, a timeout
++# and a failed start ALL emit `status: None`, and "all three are 'this command
++# did not produce a status'". Reporting that as `not-run` would be inventing
++# proof of the one of the three that happens to sound harmless.
++VERIFICATION_NO_STATUS = "no-status"
++
++# AND ACCEPTANCE THAT WAS NEVER READ SAYS SO. Review P2: the collector set
++# `none` -- "an answer that was READ" -- for every valid record while
++# performing no acceptance read at all. This Job admits no reviewer and this
++# supervisor has no exact-candidate acceptance evidence to consult, so the
++# honest value is that nobody looked.
++ACCEPTANCE_UNOBSERVED = "unobserved"
++
+ # WHETHER ANYTHING HAS ACCEPTED THE CANDIDATE, read from the line owner and
+ # never from the worker. This Job has no reviewer in it, so `none` is the
+ # expected answer and is still an answer that was READ; `no-candidate` is the
+@@ -1727,8 +1742,8 @@
+     implementation = named("implementation")
+     evidence = {"implementation_attempts": implementation,
+                 "generations": [], "conversations": [], "modes": [],
+-                "proposals": [], "dispositions": [], "attribution": [],
+-                "shortfalls": []}
++                "proposals": [], "dispositions": [], "candidates": [],
++                "attribution": [], "shortfalls": []}
+ 
+     want = packet["bounds"]
+     if len(implementation) != want["implementer_invocations"]:
+@@ -1764,6 +1779,11 @@
+     # proposal. A failed run's outcome says `unable` where an operator can
+     # find it rather than only inside a shortfall sentence.
+     evidence["dispositions"] = retained["dispositions"]
++    # W321528: WHAT EACH TURN RETAINED, decided independently of what it
++    # published. A failed turn's surviving candidate is reported here or an
++    # operator never learns it exists.
++    evidence["candidates"] = _candidates(control, implementation, packet,
++                                         shortfalls, inspect=inspect)
+     evidence["attribution"] = _attributions(control, implementation,
+                                             evidence["proposals"], shortfalls,
+                                             inspect=inspect)
+@@ -1867,7 +1887,9 @@
+                 f"'completed', so it published no proposal. An implementation "
+                 f"turn that could not do its work is an ANSWER -- the "
+                 f"attempt's retained provider log carries what the provider "
+-                f"reported -- and it is not a proposal this run may count.")
++                f"reported -- and it is not a proposal this run may count. "
++                f"WHETHER IT RETAINED A CANDIDATE ANYWAY is a separate "
++                f"question and `candidates` answers it.")
+             continue
+         try:
+             manifest = load_manifest(control, frozen["manifest_digest"],
+@@ -1892,11 +1914,309 @@
+                               f"head is its base, so it proposed nothing")
+         found.append(held)
+     if not found:
+-        shortfalls.append("this run retained no proposal at all, so it "
+-                          "established nothing about the implementation path")
++        shortfalls.append("this run published no proposal at all. Whether any "
++                          "turn nevertheless RETAINED a candidate is answered "
++                          "by `candidates`, and a retained candidate is not a "
++                          "published proposal, a verification or an acceptance")
+     return {"proposals": found, "dispositions": dispositions}
+ 
+ 
++def _candidates(control, implementation, packet, shortfalls, *, inspect=None):
++    """EVERY turn's retained candidate, decided INDEPENDENTLY of its disposition.
++
++    W321528. THE DEFECT THIS CLOSES. `_proposals` above answers "what did this
++    run PUBLISH", and it is right to skip a turn that did not complete: a turn
++    that ended `unable` published no proposal by contract. It was the only
++    question anybody asked, and the selected live run of this very Work timed
++    out at 900s with a real three-file candidate retained on its private line
++    while the report said it retained nothing at all.
++
++    So this asks the OTHER question, for every attempt, whatever it ended as.
++
++    AND IT READS THE RETAINED LINE RATHER THAN TWO DESCRIPTIONS OF IT, which is
++    review 2026-10-18T08-39-00Z P1. The first correction compared the sealed
++    reference with the manager's indexed row and called the result `valid`:
++    agreement between two stored descriptions of an artifact establishes that
++    nobody disagrees, NOT that the bytes are still there. Its own fixture named
++    a locator that did not exist and got `valid` with no shortfall. So custody
++    is now established at the SUPPORTED BOUNDARY this file already owns --
++    `line_attribution` reads the commit object out of the durable line the
++    manager named, through the closed read-only verb list -- and a candidate
++    whose head cannot be read there is never promoted to `valid`.
++
++    THE FOUR ANSWERS ARE NOT DEGREES OF ONE:
++
++      `absent` is a turn that retained nothing. An ANSWER, and the ordinary
++      shape of a failure.
++
++      `unreadable` is a read that DID NOT ANSWER. Never evidence of absence --
++      conflating the two is how "I could not look" becomes "there is nothing
++      there", and this Work exists because that already happened once.
++
++      `refused` is evidence that EXISTS and did not survive a check. A much
++      louder fact than absence: something is on disk and this program will not
++      vouch for it.
++
++      `valid` is the only one countable, and it now means the retained head was
++      READ in the manager's own line, not merely described twice.
++
++    USEFUL EVIDENCE SURVIVES A FAILED CHECK, which the review also required:
++    the locator, base, head and attribution recorded before the failing check
++    stay in the record, because an operator looking for the bytes needs them
++    most when something is wrong.
++
++    AND IT IS NOT A VERDICT. `verification` reports what the turn's own
++    verification command did and `acceptance` whether anybody has accepted the
++    candidate; this run performs no formal verification, invents none, and
++    reports an acceptance it did not read as `unobserved`.
++    """
++    from baton_v12.contracts import ContractRefusal
++    from baton_v12.worker_manager import (attempts as attempt_rows,
++                                          frozen_output_of, load_manifest)
++
++    inspect = line_attribution if inspect is None else inspect
++    try:
++        base = _declared_base(packet)
++    except (SupervisorRefusal, KeyError, OSError, TypeError, ValueError):
++        # ALREADY REPORTED BY `_proposals`; what matters here is that an
++        # unknown target makes the base check unanswerable rather than passed.
++        # The read is bounded wider than one refusal because `_declared_base`
++        # opens and parses the deployment configuration, and a collector whose
++        # purpose is reporting what survived a FAILED run must not itself die
++        # on an unreadable config and lose the candidate it exists to name.
++        base = None
++    found = []
++    for attempt in implementation:
++        held = {"attempt_id": attempt, "state": CANDIDATE_UNREADABLE,
++                "disposition": None, "locator": None, "base": None,
++                "head": None, "transport": None, "content_digest": None,
++                "bytes": None, "verification": VERIFICATION_UNREPORTED,
++                "acceptance": ACCEPTANCE_UNOBSERVED, "attribution": None,
++                "assignment": None, "why": None}
++
++        def unreadable(why):
++            held["state"] = CANDIDATE_UNREADABLE
++            held["why"] = why
++            found.append(dict(held))
++            shortfalls.append(
++                f"attempt {attempt} has an UNREADABLE retained candidate: "
++                f"{why}. A read that did not answer is not evidence that "
++                f"nothing is retained")
++
++        def refused(why):
++            held["state"] = CANDIDATE_REFUSED
++            held["why"] = why
++            found.append(dict(held))
++            shortfalls.append(f"attempt {attempt} has a REFUSED retained "
++                              f"candidate: {why}")
++
++        try:
++            frozen = frozen_output_of(control, attempt)
++        except (ContractRefusal, KeyError, TypeError) as why:
++            unreadable(f"the frozen result did not read: "
++                       f"{type(why).__name__}: {why}")
++            continue
++        if frozen is None:
++            held.update(state=CANDIDATE_ABSENT,
++                        acceptance=ACCEPTANCE_NO_CANDIDATE,
++                        verification=VERIFICATION_NOT_RUN,
++                        why="the turn froze no result at all")
++            found.append(dict(held))
++            continue
++        held["disposition"] = frozen.get("disposition")
++        indexed = {one["output_name"]: one
++                   for one in (frozen.get("artifacts") or [])}
++        row = indexed.get(PROPOSAL_OUTPUT)
++        try:
++            manifest = load_manifest(control, frozen["manifest_digest"],
++                                     "resultManifest")
++        except (ContractRefusal, KeyError, TypeError) as why:
++            unreadable(f"the sealed result manifest did not read: "
++                       f"{type(why).__name__}: {why}")
++            continue
++        if manifest is None:
++            unreadable("the frozen result names a manifest this store does "
++                       "not hold, so its account cannot be read")
++            continue
++        sealed = next((one for one in manifest.get("outputs") or []
++                       if one.get("name") == PROPOSAL_OUTPUT), None)
++        if sealed is None or sealed.get("status") != "present" \
++                or sealed.get("artifact") is None:
++            if row is None:
++                held.update(state=CANDIDATE_ABSENT,
++                            acceptance=ACCEPTANCE_NO_CANDIDATE,
++                            verification=_candidate_verification(sealed),
++                            why="the turn declared no retained candidate")
++                found.append(dict(held))
++                continue
++            refused(f"the manager indexed a {PROPOSAL_OUTPUT!r} artifact and "
++                    f"the sealed result declares none, so the two accounts of "
++                    f"this turn disagree about whether a candidate exists")
++            continue
++        reference = sealed["artifact"]
++        held.update(locator=reference.get("locator"),
++                    content_digest=reference.get("content_digest"),
++                    bytes=reference.get("bytes"))
++        claim = (sealed.get("result_metadata") or {}).get(CLAIM_NAMESPACE)
++        if not isinstance(claim, dict) or not all(
++                isinstance(claim.get(one), str) and claim.get(one)
++                for one in ("base", "head", "transport")):
++            refused(f"the sealed candidate carries no readable "
++                    f"{CLAIM_NAMESPACE} claim, so what it was built on is "
++                    f"unstated")
++            continue
++        held.update(base=claim["base"], head=claim["head"],
++                    transport=claim["transport"])
++        # THE TURN'S OWN OBSERVATION, read from the OUTPUT the producer puts it
++        # on and validated against this candidate -- see
++        # `_candidate_verification`.
++        held["verification"] = _candidate_verification(sealed, claim=claim,
++                                                       packet=packet)
++        faults = []
++        if row is None:
++            faults.append(f"the sealed result declares a {PROPOSAL_OUTPUT!r} "
++                          f"artifact and the manager indexed none, so these "
++                          f"bytes are not in its custody")
++        else:
++            for name in ("artifact_id", "content_digest", "bytes", "locator"):
++                if row[name] != reference.get(name):
++                    faults.append(
++                        f"the sealed reference and the manager's indexed row "
++                        f"disagree about {name}: {reference.get(name)!r} "
++                        f"against {row[name]!r}, so nobody knows which bytes "
++                        f"this candidate is")
++        try:
++            assignment = attempt_rows.assignment_of(control, attempt)
++        except (ContractRefusal, KeyError, TypeError) as why:
++            unreadable(f"this attempt's assignment did not read, so the "
++                       f"retained candidate cannot be bound to it: "
++                       f"{type(why).__name__}: {why}")
++            continue
++        # THE WHOLE ATTRIBUTION, not just the generation. Review P1: a record
++        # that named only the generation could not say which authority, Work or
++        # participant the retained bytes belong to.
++        held["assignment"] = {
++            "authority_uuid": assignment.get("authority_uuid"),
++            "work_id": assignment.get("work_id"),
++            "participant": assignment.get("participant"),
++            "principal": assignment.get("principal"),
++            "generation": assignment.get("generation"),
++            "effective_scope": assignment.get("effective_scope")}
++        held["generation"] = assignment.get("generation")
++        if base is None:
++            faults.append("this deployment's declared base is unreadable, so "
++                          "the candidate's target cannot be confirmed")
++        elif claim["base"] != base:
++            faults.append(f"the candidate is built on {claim['base']} and "
++                          f"this deployment's canonical target is {base}")
++        if claim["head"] == claim["base"]:
++            faults.append("the candidate's head is its base, so it holds no "
++                          "change")
++        if faults:
++            refused("; ".join(faults))
++            continue
++        # CUSTODY, AT THE SUPPORTED BOUNDARY. Review P1: everything above is
++        # two stored descriptions agreeing. This reads the retained line the
++        # manager named and the commit object in it, so a candidate whose
++        # bytes are gone, damaged or substituted cannot be called `valid`.
++        # OUTSIDE ANY STORE TRANSACTION, which is why it is here and not
++        # folded into a read boundary.
++        try:
++            said = inspect(control, attempt_id=attempt,
++                           generation=assignment.get("generation"),
++                           head=claim["head"], base=claim["base"])
++        except (ContractRefusal, SupervisorRefusal, KeyError, OSError,
++                TypeError, ValueError) as why:
++            unreadable(f"the retained candidate's own line did not answer for "
++                       f"head {claim['head']}, so its bytes could not be "
++                       f"established: {type(why).__name__}: {why}")
++            continue
++        held["attribution"] = said
++        custody = []
++        if said.get("head") != claim["head"]:
++            custody.append(f"the retained line answers head "
++                           f"{said.get('head')!r} where the sealed claim says "
++                           f"{claim['head']!r}")
++        if said.get("parents") != [claim["base"]]:
++            custody.append(f"the retained commit's parents are "
++                           f"{said.get('parents')} rather than exactly its "
++                           f"declared base {claim['base']}")
++        if said.get("author") != said.get("committer"):
++            custody.append(f"the retained commit is authored by "
++                           f"{said.get('author')!r} and committed by "
++                           f"{said.get('committer')!r}")
++        if said.get("author") != f"{COMMIT_NAME} <{COMMIT_EMAIL}>":
++            custody.append(f"the retained commit is attributed to "
++                           f"{said.get('author')!r} rather than to the worker "
++                           f"adapter {COMMIT_NAME} <{COMMIT_EMAIL}>")
++        if custody:
++            refused("; ".join(custody))
++            continue
++        held.update(state=CANDIDATE_VALID, why=None)
++        found.append(dict(held))
++        # NOT A SHORTFALL. A retained candidate from a failed turn is the
++        # useful fact this Work exists to report, and reporting it as a
++        # deficiency would be the same mistake in the other direction.
++    return found
++
++
++def _candidate_verification(sealed, *, claim=None, packet=None):
++    """What the TURN's own verification command did, from the PRODUCER's shape.
++
++    W321528 review 2026-10-18T08-39-00Z P2. THE FIRST READER LOOKED IN THE
++    WRONG PLACE FOR THE WRONG KEY. It read manifest-level `result_metadata` and
++    an `outcome` member; `claude_agent` puts its ordinary-test observation on
++    the PROPOSAL OUTPUT beside the claim, and `_ordinary_tests` emits
++    `task_id`, `task_digest`, `argv`, `status`, `base` and `head` -- with
++    `status` an INTEGER or `None`, and no `outcome` anywhere. So a real
++    producer's passing turn read as `unreported`, and the unit tests invented
++    an outcome-bearing shape and passed while missing the integration.
++
++    THE FOUR HONEST ANSWERS, and the third is the one that matters most:
++
++      an integer 0 is `passed`; a nonzero integer is `failed`.
++
++      an explicit `status: None` is `no-status` AND NOT `not-run`. The producer
++      says so itself: a skipped command, a timeout and a failed start all emit
++      `None`, and "all three are 'this command did not produce a status'".
++      Calling that `not-run` would be inventing proof of whichever of the three
++      sounds most harmless.
++
++      a missing, malformed or UNASSOCIATED observation is `unreported` -- this
++      program declining to read something it cannot validate.
++
++    AND THE ASSOCIATION IS CHECKED. An observation whose `base`/`head` are not
++    this candidate's, or whose `task_id` is not this packet's, is an
++    observation of something else; reporting it as this candidate's would be
++    the same class of error as the custody one above. NONE of these four is a
++    formal verification of the candidate by anybody: this run performs none and
++    invents none.
++    """
++    if not isinstance(sealed, dict):
++        return VERIFICATION_UNREPORTED
++    observed = (sealed.get("result_metadata") or {}).get(
++        ORDINARY_TESTS_NAMESPACE)
++    if not isinstance(observed, dict) or "status" not in observed:
++        return VERIFICATION_UNREPORTED
++    if claim is not None:
++        for name in ("base", "head"):
++            if observed.get(name) != claim.get(name):
++                return VERIFICATION_UNREPORTED
++    if packet is not None:
++        wanted = ((packet.get("task") or {}).get("task_id")
++                  if isinstance(packet.get("task"), dict)
++                  else packet.get("run_id"))
++        if wanted is not None and observed.get("task_id") not in (None,
++                                                                  wanted):
++            return VERIFICATION_UNREPORTED
++    status = observed["status"]
++    if status is None:
++        return VERIFICATION_NO_STATUS
++    if type(status) is not int:
++        return VERIFICATION_UNREPORTED
++    return VERIFICATION_PASSED if status == 0 else VERIFICATION_FAILED
++
++
+ def _attributions(control, implementation, proposals, shortfalls, *,
+                   inspect=None):
+     """WHO AUTHORED the retained commit, read out of the manager's own line.
+--- a/work/records/2026/09/finding-v12-single-implementation-proof/test_baseline.py
++++ b/work/records/2026/09/finding-v12-single-implementation-proof/test_baseline.py
+@@ -580,6 +580,7 @@
+                                return_value={"modes": ["open"],
+                                              "conversations": ["c"],
+                                              "generations": [0]}), \
++                mock.patch.object(baseline, "_candidates", return_value=[]), \
+                 mock.patch.object(baseline, "_proposals",
+                                   return_value={"proposals": [],
+                                                 "dispositions": []}), \
+@@ -910,7 +911,7 @@
+     def evidence(self, binding=None, failure=None):
+         from baton_v12.worker_manager import provider_context
+         packet = {"schema": baseline.FRESH_PACKET_SCHEMA, "bounds": {"implementer_invocations": 1}}
+-        with mock.patch.object(provider_context, "context_invocation_of", return_value=binding, side_effect=failure), mock.patch.object(baseline, "_context_evidence", side_effect=AssertionError("context qualification")), mock.patch.object(baseline, "_proposals", return_value={"proposals": [], "dispositions": []}), mock.patch.object(baseline, "_attributions", return_value=[]):
++        with mock.patch.object(provider_context, "context_invocation_of", return_value=binding, side_effect=failure), mock.patch.object(baseline, "_context_evidence", side_effect=AssertionError("context qualification")), mock.patch.object(baseline, "_proposals", return_value={"proposals": [], "dispositions": []}), mock.patch.object(baseline, "_candidates", return_value=[]), mock.patch.object(baseline, "_attributions", return_value=[]):
+             return baseline._workload_evidence(None, object(), packet, {"attempt": "implementation"}, {})
+ 
+     def test_fresh_absence_is_not_context_qualification(self):

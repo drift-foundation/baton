@@ -1,0 +1,309 @@
+--- a/work/records/2026/09/finding-v12-single-implementation-proof/baseline.py
++++ b/work/records/2026/09/finding-v12-single-implementation-proof/baseline.py
+@@ -1727,8 +1727,8 @@
+     implementation = named("implementation")
+     evidence = {"implementation_attempts": implementation,
+                 "generations": [], "conversations": [], "modes": [],
+-                "proposals": [], "dispositions": [], "attribution": [],
+-                "shortfalls": []}
++                "proposals": [], "dispositions": [], "candidates": [],
++                "attribution": [], "shortfalls": []}
+ 
+     want = packet["bounds"]
+     if len(implementation) != want["implementer_invocations"]:
+@@ -1764,6 +1764,11 @@
+     # proposal. A failed run's outcome says `unable` where an operator can
+     # find it rather than only inside a shortfall sentence.
+     evidence["dispositions"] = retained["dispositions"]
++    # W321528: WHAT EACH TURN RETAINED, decided independently of what it
++    # published. A failed turn's surviving candidate is reported here or an
++    # operator never learns it exists.
++    evidence["candidates"] = _candidates(control, implementation, packet,
++                                         shortfalls)
+     evidence["attribution"] = _attributions(control, implementation,
+                                             evidence["proposals"], shortfalls,
+                                             inspect=inspect)
+@@ -1867,7 +1872,9 @@
+                 f"'completed', so it published no proposal. An implementation "
+                 f"turn that could not do its work is an ANSWER -- the "
+                 f"attempt's retained provider log carries what the provider "
+-                f"reported -- and it is not a proposal this run may count.")
++                f"reported -- and it is not a proposal this run may count. "
++                f"WHETHER IT RETAINED A CANDIDATE ANYWAY is a separate "
++                f"question and `candidates` answers it.")
+             continue
+         try:
+             manifest = load_manifest(control, frozen["manifest_digest"],
+@@ -1892,11 +1899,251 @@
+                               f"head is its base, so it proposed nothing")
+         found.append(held)
+     if not found:
+-        shortfalls.append("this run retained no proposal at all, so it "
+-                          "established nothing about the implementation path")
++        shortfalls.append("this run published no proposal at all. Whether any "
++                          "turn nevertheless RETAINED a candidate is answered "
++                          "by `candidates`, and a retained candidate is not a "
++                          "published proposal, a verification or an acceptance")
+     return {"proposals": found, "dispositions": dispositions}
+ 
+ 
++def _candidates(control, implementation, packet, shortfalls):
++    """EVERY turn's retained candidate, decided INDEPENDENTLY of its disposition.
++
++    W321528. THE DEFECT THIS CLOSES. `_proposals` above answers "what did this
++    run PUBLISH", and it is right to skip a turn that did not complete: a turn
++    that ended `unable` published no proposal by contract. But the selected live
++    run of this very Work timed out at 900s with a real three-file candidate
++    committed on its private line, and the report said it retained nothing at
++    all -- because the only question anybody asked was the publishing one. An
++    operator reading that would have deleted a workspace holding the work.
++
++    So this asks the OTHER question, for every attempt, whatever it ended as:
++    is there a retained candidate, and does its custody hold up?
++
++    THE FOUR ANSWERS ARE NOT DEGREES OF ONE, which is what the constants say
++    and what this function is careful to preserve:
++
++      `absent` is a turn that retained nothing. An ANSWER, and the ordinary
++      shape of a failure.
++
++      `unreadable` is a read that DID NOT ANSWER. Never evidence of absence --
++      conflating the two is how "I could not look" becomes "there is nothing
++      there", and this Work exists because that already happened once.
++
++      `refused` is evidence that EXISTS and did not survive a custody check. A
++      much louder fact than absence, and deliberately not silently dropped:
++      something is on disk and this program will not vouch for it.
++
++      `valid` is the only one that may be counted as a candidate, and only
++      after all three checks below agree.
++
++    WHAT `valid` REQUIRES, and none of it is taken on the worker's word:
++
++      THE SEALED RESULT BELONGS TO THIS ATTEMPT'S ASSIGNMENT. The manager
++      established that when it recorded the result -- `record_frozen_result`
++      validates the sealed manifest against the attempt's own fixed assignment
++      -- and this re-reads the row by attempt id, so a result that reached the
++      store at all is this attempt's. The assignment is read back as well, so
++      an attempt whose assignment cannot be read is `unreadable` rather than
++      assumed sound.
++
++      THE SEALED REFERENCE AND THE INDEXED ROW NAME THE SAME BYTES. The
++      manifest is the worker's sealed account; `output_artifacts` is the
++      manager's own index of what it received. Two records of one artifact that
++      disagree on digest, size, id or locator mean nobody knows which bytes the
++      candidate is, so that is `refused` and not a candidate.
++
++      THE CLAIM IS OFFERED AGAINST THIS DEPLOYMENT'S DECLARED BASE. A candidate
++      built on some other base is not a candidate for this target.
++
++    AND IT IS NOT A VERDICT. `verification` reports what the TURN's own
++    verification command did and `acceptance` what the line owner records;
++    neither is a formal verification or an acceptance of the candidate by
++    anybody. This run performs none and invents none. A `valid` candidate is
++    exactly "these bytes are retained here and their custody holds" -- nothing
++    about whether they are correct, reviewed or wanted.
++    """
++    from baton_v12.contracts import ContractRefusal
++    from baton_v12.worker_manager import (attempts as attempt_rows,
++                                          frozen_output_of, load_manifest)
++
++    try:
++        base = _declared_base(packet)
++    except (SupervisorRefusal, KeyError, OSError, TypeError, ValueError):
++        # ALREADY REPORTED BY `_proposals`; what matters here is that an
++        # unknown target makes the base check unanswerable rather than passed.
++        #
++        # AND THE READ IS BOUNDED WIDER THAN ONE REFUSAL, deliberately.
++        # `_declared_base` opens and parses the deployment's configuration, so
++        # a malformed or absent document reaches here as the driver's own
++        # exception. This collector's whole purpose is to report what survived
++        # a FAILED run; a report that itself died on an unreadable config
++        # would lose the retained candidate it exists to name.
++        base = None
++    found = []
++    for attempt in implementation:
++        held = {"attempt_id": attempt, "state": CANDIDATE_UNREADABLE,
++                "disposition": None, "locator": None, "base": None,
++                "head": None, "transport": None, "content_digest": None,
++                "bytes": None, "verification": VERIFICATION_UNREPORTED,
++                "acceptance": ACCEPTANCE_UNREADABLE, "why": None}
++        try:
++            frozen = frozen_output_of(control, attempt)
++        except (ContractRefusal, KeyError, TypeError) as why:
++            held["why"] = (f"the frozen result did not read: "
++                           f"{type(why).__name__}: {why}")
++            found.append(held)
++            shortfalls.append(
++                f"attempt {attempt} has an UNREADABLE retained candidate: "
++                f"{held['why']}. A read that did not answer is not evidence "
++                f"that nothing is retained")
++            continue
++        if frozen is None:
++            held.update(state=CANDIDATE_ABSENT,
++                        acceptance=ACCEPTANCE_NO_CANDIDATE,
++                        verification=VERIFICATION_NOT_RUN,
++                        why="the turn froze no result at all")
++            found.append(held)
++            continue
++        held["disposition"] = frozen.get("disposition")
++        # THE ARTIFACT THE MANAGER INDEXED, by the declared output name. Its
++        # absence is absence; its presence is what the manifest is checked
++        # against.
++        indexed = {one["output_name"]: one
++                   for one in (frozen.get("artifacts") or [])}
++        row = indexed.get(PROPOSAL_OUTPUT)
++        try:
++            manifest = load_manifest(control, frozen["manifest_digest"],
++                                     "resultManifest")
++        except (ContractRefusal, KeyError, TypeError) as why:
++            held["why"] = (f"the sealed result manifest did not read: "
++                           f"{type(why).__name__}: {why}")
++            found.append(held)
++            shortfalls.append(
++                f"attempt {attempt} has an UNREADABLE retained candidate: "
++                f"{held['why']}")
++            continue
++        if manifest is None:
++            held["why"] = ("the frozen result names a manifest this store "
++                           "does not hold, so its account cannot be read")
++            found.append(held)
++            shortfalls.append(
++                f"attempt {attempt} has an UNREADABLE retained candidate: "
++                f"{held['why']}")
++            continue
++        held["verification"] = _candidate_verification(manifest)
++        sealed = next((one for one in manifest.get("outputs") or []
++                       if one.get("name") == PROPOSAL_OUTPUT), None)
++        if sealed is None or sealed.get("status") != "present" \
++                or sealed.get("artifact") is None:
++            if row is None:
++                held.update(state=CANDIDATE_ABSENT,
++                            acceptance=ACCEPTANCE_NO_CANDIDATE,
++                            why="the turn declared no retained candidate")
++                found.append(held)
++                continue
++            # THE INDEX HOLDS ONE AND THE SEAL DOES NOT. Louder than absence:
++            # the manager received bytes the worker's own account omits.
++            held.update(state=CANDIDATE_REFUSED,
++                        why=(f"the manager indexed a "
++                             f"{PROPOSAL_OUTPUT!r} artifact and the sealed "
++                             f"result declares none, so the two accounts of "
++                             f"this turn disagree about whether a candidate "
++                             f"exists"))
++            found.append(held)
++            shortfalls.append(f"attempt {attempt} has a REFUSED retained "
++                              f"candidate: {held['why']}")
++            continue
++        reference = sealed["artifact"]
++        held.update(locator=reference.get("locator"),
++                    content_digest=reference.get("content_digest"),
++                    bytes=reference.get("bytes"))
++        claim = (sealed.get("result_metadata") or {}).get(CLAIM_NAMESPACE)
++        if not isinstance(claim, dict) or not all(
++                isinstance(claim.get(one), str) and claim.get(one)
++                for one in ("base", "head", "transport")):
++            held.update(state=CANDIDATE_REFUSED,
++                        why=(f"the sealed candidate carries no readable "
++                             f"{CLAIM_NAMESPACE} claim, so what it was built "
++                             f"on is unstated"))
++            found.append(held)
++            shortfalls.append(f"attempt {attempt} has a REFUSED retained "
++                              f"candidate: {held['why']}")
++            continue
++        held.update(base=claim["base"], head=claim["head"],
++                    transport=claim["transport"])
++        faults = []
++        if row is None:
++            faults.append(f"the sealed result declares a {PROPOSAL_OUTPUT!r} "
++                          f"artifact and the manager indexed none, so these "
++                          f"bytes are not in its custody")
++        else:
++            for name in ("artifact_id", "content_digest", "bytes", "locator"):
++                if row[name] != reference.get(name):
++                    faults.append(
++                        f"the sealed reference and the manager's indexed row "
++                        f"disagree about {name}: {reference.get(name)!r} "
++                        f"against {row[name]!r}, so nobody knows which bytes "
++                        f"this candidate is")
++        try:
++            assignment = attempt_rows.assignment_of(control, attempt)
++        except (ContractRefusal, KeyError, TypeError) as why:
++            held["why"] = (f"this attempt's assignment did not read, so the "
++                           f"retained candidate cannot be bound to it: "
++                           f"{type(why).__name__}: {why}")
++            found.append(held)
++            shortfalls.append(
++                f"attempt {attempt} has an UNREADABLE retained candidate: "
++                f"{held['why']}")
++            continue
++        held["generation"] = assignment.get("generation")
++        if base is None:
++            faults.append("this deployment's declared base is unreadable, so "
++                          "the candidate's target cannot be confirmed")
++        elif claim["base"] != base:
++            faults.append(f"the candidate is built on {claim['base']} and "
++                          f"this deployment's canonical target is {base}")
++        if claim["head"] == claim["base"]:
++            faults.append("the candidate's head is its base, so it holds no "
++                          "change")
++        if faults:
++            held.update(state=CANDIDATE_REFUSED, why="; ".join(faults))
++            found.append(held)
++            shortfalls.append(f"attempt {attempt} has a REFUSED retained "
++                              f"candidate: {held['why']}")
++            continue
++        held.update(state=CANDIDATE_VALID, acceptance=ACCEPTANCE_NONE,
++                    why=None)
++        found.append(held)
++        # NOT A SHORTFALL. A retained candidate from a failed turn is the
++        # useful fact this Work exists to report, and reporting it as a
++        # deficiency would be the same mistake in the other direction.
++    return found
++
++
++def _candidate_verification(manifest):
++    """What the TURN's own verification command did, re-read from the seal.
++
++    NOT A VERDICT ABOUT THE CANDIDATE, and the vocabulary is chosen so it
++    cannot be read as one. `not-run` is the adapter's explicit null -- it skips
++    verification when the provider failed or changed nothing -- and
++    `unreported` is this program declining to read an observation it could not
++    validate. Neither is a pass, and none of the four is a formal verification
++    by anybody.
++    """
++    observed = (manifest.get("result_metadata") or {}).get(
++        ORDINARY_TESTS_NAMESPACE)
++    if not isinstance(observed, dict):
++        return VERIFICATION_UNREPORTED
++    outcome = observed.get("outcome")
++    if outcome is None:
++        return VERIFICATION_NOT_RUN
++    if outcome in (VERIFICATION_PASSED, VERIFICATION_FAILED,
++                   VERIFICATION_NOT_RUN):
++        return outcome
++    return VERIFICATION_UNREPORTED
++
++
+ def _attributions(control, implementation, proposals, shortfalls, *,
+                   inspect=None):
+     """WHO AUTHORED the retained commit, read out of the manager's own line.
+--- a/work/records/2026/09/finding-v12-single-implementation-proof/test_baseline.py
++++ b/work/records/2026/09/finding-v12-single-implementation-proof/test_baseline.py
+@@ -580,6 +580,7 @@
+                                return_value={"modes": ["open"],
+                                              "conversations": ["c"],
+                                              "generations": [0]}), \
++                mock.patch.object(baseline, "_candidates", return_value=[]), \
+                 mock.patch.object(baseline, "_proposals",
+                                   return_value={"proposals": [],
+                                                 "dispositions": []}), \
+@@ -910,7 +911,7 @@
+     def evidence(self, binding=None, failure=None):
+         from baton_v12.worker_manager import provider_context
+         packet = {"schema": baseline.FRESH_PACKET_SCHEMA, "bounds": {"implementer_invocations": 1}}
+-        with mock.patch.object(provider_context, "context_invocation_of", return_value=binding, side_effect=failure), mock.patch.object(baseline, "_context_evidence", side_effect=AssertionError("context qualification")), mock.patch.object(baseline, "_proposals", return_value={"proposals": [], "dispositions": []}), mock.patch.object(baseline, "_attributions", return_value=[]):
++        with mock.patch.object(provider_context, "context_invocation_of", return_value=binding, side_effect=failure), mock.patch.object(baseline, "_context_evidence", side_effect=AssertionError("context qualification")), mock.patch.object(baseline, "_proposals", return_value={"proposals": [], "dispositions": []}), mock.patch.object(baseline, "_candidates", return_value=[]), mock.patch.object(baseline, "_attributions", return_value=[]):
+             return baseline._workload_evidence(None, object(), packet, {"attempt": "implementation"}, {})
+ 
+     def test_fresh_absence_is_not_context_qualification(self):

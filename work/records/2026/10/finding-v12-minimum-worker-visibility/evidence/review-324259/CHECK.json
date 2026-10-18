@@ -1,0 +1,10 @@
+{
+  "manifest_sha256": "ac6a77a06b6a311a6a7b7b87523baf8dbfd5b6e7c2ec6a7d9f2813b99e118aed",
+  "inputs": 5,
+  "manager_files": 110,
+  "supervisor_files": 3,
+  "preflight_artifacts": 8,
+  "base": "6348161e608187393e45454db63c192a93f6deb3",
+  "job_launched": false,
+  "product_tests_run": false
+}

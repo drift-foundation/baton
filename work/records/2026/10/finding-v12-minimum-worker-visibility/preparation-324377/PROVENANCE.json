@@ -1,0 +1,15 @@
+{
+  "previous_manifest_sha256": "ac6a77a06b6a311a6a7b7b87523baf8dbfd5b6e7c2ec6a7d9f2813b99e118aed",
+  "previous_run": "worker-visibility-w324214-324217",
+  "previous_job": "job-worker-visibility-w324214-324217",
+  "previous_attempt": "attempt-af94020b411e17f33edbed32004267a80c789de8d949224e39a3a47fc5648a51",
+  "previous_outcome": "authentication_failed; exact runtime absent; no candidate or verification",
+  "previous_invocation_spent": true,
+  "new_run": "worker-visibility-w324214-324377",
+  "base": "6348161e608187393e45454db63c192a93f6deb3",
+  "task_unchanged_sha256": "533b5320805dfc0601e95606b8f0e8200006c68366cf3020130d504524485be3",
+  "runtime_files_unchanged": 110,
+  "supervisor_files_unchanged": 3,
+  "credential_repair": "owner-reported refresh only; operator must confirm selected source/profile before separately selected launch",
+  "new_execution_authorized": false
+}

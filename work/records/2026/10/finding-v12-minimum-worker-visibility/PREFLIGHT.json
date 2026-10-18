@@ -1,0 +1,70 @@
+{
+  "state": "prepared-not-executed",
+  "preflight_root": "/tmp/w324214-preflight-324217",
+  "prepared": {
+    "artifacts": {
+      "PACKET.json": "600312325c7c18f5959d28e6afe60da0b253bab3a85ad8c031579d5c359b89db",
+      "adapter.json": "cbe3bb4ade990eb5411c64a40be74a10e46a79f48343c499b5f1a8453fabc9c7",
+      "commands.json": "868769793fb85da9de733afb1046ed8265b33e9183e11ebf13c2e3e55ece8928",
+      "deployment.json": "9efc600381976a93a2096ceb0cb4d0d8f294fcc086a2f14f45a4cf350b80a9d2",
+      "policy.json": "d067a1a6fedc701501280564772c356f3cb8320de55460caf46e5fdfd5f40cd4",
+      "runtime-profile.json": "70ca07c494c9660bfaf747772f2233ccaf77b4ef3a4da90c26121b7b59ff1d34",
+      "submission.json": "1a096ee6368975a099f7e167db1ad97e0df0cbe9f661c5cf1933280da02143ae",
+      "task.json": "68c14d065641870b4a409c0571a43869975446bef9af523bf5f8a48254352eaf"
+    },
+    "authority_uuid": "1c4fcce72cef4399a460aa6dcbf733f2",
+    "independent_review": "baton.rvpc consumes immutable retained proposal through v11 after exact runtime cessation; no automatic acceptance",
+    "packet_sha256": "600312325c7c18f5959d28e6afe60da0b253bab3a85ad8c031579d5c359b89db",
+    "state": "prepared-not-executed",
+    "work": "W324214"
+  },
+  "commands": {
+    "environment": {
+      "BATON_V12_STAGE_EXECUTION_CONFIG": "/tmp/w324214-preflight-324217/packet/deployment.json",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "/tmp/w324214-preflight-324217/code/v12/python/src:/tmp/w324214-preflight-324217/code/v12/python"
+    },
+    "outcome": "/tmp/w324214-preflight-324217/packet/outcome.json",
+    "schema": "baton.single-implementation-commands/1",
+    "start": [
+      "/usr/bin/python3",
+      "-B",
+      "/tmp/w324214-preflight-324217/supervisor/baseline.py",
+      "--packet",
+      "/tmp/w324214-preflight-324217/packet/PACKET.json",
+      "--incarnation",
+      "worker-visibility-w324214-324217"
+    ],
+    "status": [
+      "/usr/bin/python3",
+      "-B",
+      "-m",
+      "tools.stack_command",
+      "manager",
+      "--store",
+      "/tmp/w324214-preflight-324217/instance/db/jobs.sqlite3",
+      "--incarnation",
+      "worker-visibility-w324214-324217-read",
+      "--authority-uuid",
+      "1c4fcce72cef4399a460aa6dcbf733f2",
+      "status",
+      "--control",
+      "/tmp/w324214-preflight-324217/instance/db/control.sqlite3",
+      "--observe",
+      "tools.stage_execution:observing_factory"
+    ],
+    "submission_owner": "start; do not also submit manually",
+    "termination": "SIGINT/SIGTERM requests this supervisor's bounded cancellation/accounting; a held outcome is not cessation proof"
+  },
+  "task_bytes": 5971,
+  "task_matches": true,
+  "artifact_hashes_match": true,
+  "job_id": null,
+  "attempt_id": null,
+  "product_tests_run": false,
+  "preparation_seconds": {
+    "stage_approximate": 0.2,
+    "bootstrap_observed": 0.477653944,
+    "bind_observed": 0.214680564
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "base": "d0b211b42f724c6747ebdcd8fc71885388579761",
+  "previous_base": "3dcf6dc4bcee97e932d17c93ac13c5811b3af188",
+  "previous_head": "2c89d3aa1c3ccf190a47417f3147593b694948dd",
+  "correction_record": "baton:work/records/2026/10/finding-v12-failed-run-candidate-reporting/correction-322059/CORRECTION.json",
+  "correction_record_sha256": "cdfe8bbf4bcd1695993a07f797885fc0254c43cd2cb56cca793d7a2962de3263",
+  "compatibility": {
+    "v12/python/tests/manager/test_claude_agent.py": {
+      "base_sha256": "61a6b765e4f5871bd486a3593a00bd50d74ee9b30421761c86092eb244612da9",
+      "retained_sha256": "42191d077e411f9e0a08b82b69c7e2b06e8583a6a0acd6c8da6a4fa8b703492d"
+    },
+    "v12/worker/claude_agent.py": {
+      "base_sha256": "18c34ff52faa150237df0c8d0206b805801ee71cb9e7a4ec6e84e4379d7f9d8d",
+      "retained_sha256": "b014ea3f5f58af573a0cbaa4b8838a270953806a89ef274682d5cca6627efe7c"
+    },
+    "work/records/2026/09/finding-v12-single-implementation-proof/baseline.py": {
+      "base_sha256": "248e570d8f9d459550b0aa5e92d1674c3226fe540ba987cae916a4a334606771",
+      "retained_sha256": "652e91b05ebd14a93697aaa6c3646aff158bfcb2060f1b4823fcbb3dd8373049"
+    },
+    "work/records/2026/09/finding-v12-single-implementation-proof/test_baseline.py": {
+      "base_sha256": "9eca44b81715b83a2771d9ef66934586778a6626055f78a1a2d2c6d6b79409e7",
+      "retained_sha256": "b10898c52a169975a3a2e5c5367e3b8e7cce63656d950e189e412103d84c05fb"
+    },
+    "work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py": {
+      "base_sha256": null,
+      "retained_sha256": "3ff58ec3e3e33dbf45326423d15a8a6b448947b66f8fe3319968fd4a6ed5b1f6"
+    }
+  },
+  "retained_patch_sha256": "187d7ac09c285da95b107603a01b91bb02911cdd51dd6bce150681d8fe6a4dd6",
+  "accepted": false
+}

@@ -1,0 +1,26 @@
+{
+ "base": "6348161e608187393e45454db63c192a93f6deb3",
+ "changed_paths": [],
+ "collection": null,
+ "disposition": "provider-failed",
+ "entry_head": "6348161e608187393e45454db63c192a93f6deb3",
+ "head": null,
+ "provider": {
+  "diagnostic": {
+   "classification": "authentication_failed",
+   "explanation": "Failed to authenticate: OAuth session expired and could not be refreshed",
+   "explanation_status": "supported-constant",
+   "http_status": null,
+   "request_id": null,
+   "request_id_status": "unavailable",
+   "schema": "baton.provider-diagnostic/1"
+  },
+  "failure_reason": "api-error",
+  "seconds_bound": 3600,
+  "status": 1
+ },
+ "schema": "baton.dogfood-proposal/2",
+ "task_id": "worker-visibility-w324214-324217",
+ "verification": null,
+ "why": "the provider exited 1 (api-error); its own unrestricted diagnostic is withheld; supported nonsecret detail is in provider.diagnostic"
+}

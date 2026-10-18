@@ -1,0 +1,88 @@
+{
+  "binary": "/home/sl/src/baton/v12/python/build/w321689/out/distro/baton-v12-stack",
+  "binary_sha256": "2b1caa50fa1af5f7d0182b71fa65ee8ce52b1d4a4096d4164ac08a423e72b09a",
+  "boundary": "frozen one-folder bundle; PYTHONPATH removed from the command's environment; disposable store, root and integration record; no deployment, engine, provider or Git command",
+  "identity": {
+    "build_stamp": {
+      "changed_entries": 29,
+      "commit": "6348161e608187393e45454db63c192a93f6deb3",
+      "detail": null,
+      "dirty": true,
+      "excused_build_output": 0,
+      "schema": "baton.v12.build-stamp/1",
+      "source": "/home/sl/src/baton"
+    },
+    "command": "baton-v12-stack",
+    "executable": "/home/sl/src/baton/v12/python/build/w321689/out/distro/baton-v12-stack",
+    "frozen": true,
+    "machine": "x86_64",
+    "native_rpds": "/home/sl/src/baton/v12/python/build/w321689/out/distro/_internal/rpds/rpds.cpython-313-x86_64-linux-gnu.so",
+    "platform": "Linux-6.17.0-41-generic-x86_64-with-glibc2.42",
+    "python": "3.13.7",
+    "resources": "/home/sl/src/baton/v12/python/build/w321689/out/distro/_internal",
+    "schema_assets": {
+      "agent-session-1.0": 48212,
+      "worker-control-1.0": 51419
+    },
+    "sha256": "2b1caa50fa1af5f7d0182b71fa65ee8ce52b1d4a4096d4164ac08a423e72b09a",
+    "version": "12.0.0"
+  },
+  "results": [
+    {
+      "holds": {
+        "approve": true,
+        "close": true,
+        "integrate": true
+      },
+      "locator": "operator-quickstart-7f3a91c2",
+      "owner_action": "approval-due",
+      "what": "pending says approval is due"
+    },
+    {
+      "exit": 2,
+      "says": "refused: a satisfying closure of '0123abcd-W1' is refused: the owner action due on proposal 'proposal-1' is 'approval-du",
+      "what": "satisfying closure before approval refuses"
+    },
+    {
+      "exit": 0,
+      "what": "the owner approves"
+    },
+    {
+      "actor": "baton.slaw",
+      "cited": "work/records/2026/10/finding-pilot/INTEGRATION.json",
+      "commit": "433b09d6963ca9789700849b640e242e772b9867",
+      "what": "the human integration is recorded"
+    },
+    {
+      "exit": 2,
+      "says": "refused: a satisfying closure of '0123abcd-W1' is refused: the dossier cites no intact human integration record for cand",
+      "what": "a rewritten integration record refuses"
+    },
+    {
+      "acceptance": {
+        "approval": "app-1",
+        "candidate_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+        "human_integration": {
+          "commit": "433b09d6963ca9789700849b640e242e772b9867",
+          "digest": "sha256:b29882f3aa2d3a9c4036c174ad94c2c6c05b190d6d2a825ffa10aaf7e42bf1df",
+          "integrated_at": "2026-10-18T13:00:00Z",
+          "integrated_by": "Slawomir",
+          "reference": "work/records/2026/10/finding-pilot/INTEGRATION.json"
+        },
+        "integration": "int-1",
+        "outcome": "satisfying",
+        "proposal_id": "proposal-1",
+        "required": true,
+        "review": "rev-1",
+        "verification": "ver-1"
+      },
+      "outcome": "satisfying",
+      "what": "the selected acceptance closes it"
+    },
+    {
+      "owner_action": "closed",
+      "what": "a closed Work owes nothing"
+    }
+  ],
+  "seconds": 0.836551
+}

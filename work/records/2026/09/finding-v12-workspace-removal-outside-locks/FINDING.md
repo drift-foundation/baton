@@ -567,3 +567,15 @@ and independent reviews are unchanged. No product/test/live execution selected.
 ## 2026-09-28T21-53-13Z — current lifecycle supersedes removal restoration
 
 Reviewer baton.rvpc under claim299597, owner299593. The September27 current-plan instruction to consume G2 for automatic intake removal is explicitly superseded by current DESIGN ordinary preservation and this owner revalidation assignment. W275633 completion does not reactivate historical removal authority. Both standalone lock-boundary paths pass focused checks; three historical private-token defects still fail. No workspace-deletion call remains in selected initial completion. Recommend explicit owner deferral of residual standalone removal scope, not whole-candidate acceptance or an adoption blocker. No graph/state disposition is implied by this record. Full evidence, limitations, measured durations and remaining obligations: review-2026-09-28T21-53-13Z.md. Discussion read through T270664/274873, work events299597.
+
+
+## 2026-10-18 — owner selects deferral for initial adoption
+
+Slawomir accepts deferring W270664: priority is attempting real work on v12.
+Keep this Work open for standalone deletion safety/modernization, including
+unaccepted private-token defects. This supersedes the prior awaiting-owner
+recommendation, not its defect evidence. Initial selected completion preserves
+workspace and does not select these standalone deletion operations. No satisfying
+closure, automatic cleanup, removal repair or broader safety waiver is authorized.
+Record parking through canonical Baton permissions; documentation alone is not
+an operational phase change.

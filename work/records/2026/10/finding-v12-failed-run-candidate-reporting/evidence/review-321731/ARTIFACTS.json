@@ -1,0 +1,23 @@
+{
+  "head": "2c89d3aa1c3ccf190a47417f3147593b694948dd",
+  "base": "3dcf6dc4bcee97e932d17c93ac13c5811b3af188",
+  "tree": "fa426e29d569536461565aa440069661e7a5febe",
+  "artifact_digest": "sha256:f7d52f362841eec445b08e4b7f8f0a9ad98c8b80c31c1b71462a04528c4650a9",
+  "manifest_digest": "sha256:6c7aa600c1e5b849332aecf92fcce565e1a5491f04c9e33544b0c5fa5a74aa6b",
+  "artifact_entries_verified": 4,
+  "patch_matches_git": true,
+  "changed_paths": [
+    "v12/python/tests/manager/test_claude_agent.py",
+    "v12/worker/claude_agent.py",
+    "work/records/2026/09/finding-v12-single-implementation-proof/baseline.py"
+  ],
+  "changed_sha256": {
+    "v12/python/tests/manager/test_claude_agent.py": "42191d077e411f9e0a08b82b69c7e2b06e8583a6a0acd6c8da6a4fa8b703492d",
+    "v12/worker/claude_agent.py": "b014ea3f5f58af573a0cbaa4b8838a270953806a89ef274682d5cca6627efe7c",
+    "work/records/2026/09/finding-v12-single-implementation-proof/baseline.py": "015e394318b657134d186af27602559771667f20d6c43ae8df91284fe4a1d9a4"
+  },
+  "review_copy": "/tmp/w321731-source",
+  "tracked_files_materialized": 455,
+  "provider_failed": true,
+  "formal_verification": null
+}

@@ -197,3 +197,21 @@ explicitly; these measurements remain non-authoritative observations.
 - Focused conformance covers replay, restart, stale updates, unsupported
   capabilities, sparse-update merge/refetch, redaction, version drift, and
   provider loss.
+
+## 2026-10-18 — selected minimum visibility preparation
+
+Owner poke324196 selects one bounded next independent v12 Job: minimum useful
+worker/activity/last-contact/context visibility with explicit unknowns. This
+supersedes parked scheduling only for child W324214, bound to
+`baton:work/records/2026/10/finding-v12-minimum-worker-visibility/`.
+Broader telemetry/provider mappings remain parked; no specification change.
+
+Reviewer claim324211 revalidated existing status allocation/runtime/exchange and
+activity byte/timestamp reads. The child records exact code evidence, missing
+contact/context knowledge, acceptance and ownership. Smallest useful outcome is
+a read-only view of existing facts with honest unknowns, not new collectors.
+Separate child permits independent packet preparation while reviewer remains
+available for incoming review. W39649 retains joined acceptance. W321528 and
+W321689 paths/claims stay independent; no false sibling dependency is installed.
+Packet preparation goes to baton.codx, then independent packet review; executable
+implementation through v12 only. No launch before reviewed concrete packet.

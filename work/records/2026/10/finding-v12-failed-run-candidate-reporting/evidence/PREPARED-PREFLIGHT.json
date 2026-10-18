@@ -1,0 +1,17 @@
+{
+  "artifacts": {
+    "PACKET.json": "ef491303d8a2d118db14386852b157604bbadca4598a1ba3129ce7361063ef1c",
+    "adapter.json": "cbe3bb4ade990eb5411c64a40be74a10e46a79f48343c499b5f1a8453fabc9c7",
+    "commands.json": "326638261d9bcf60687224417d79b9745faac206c5a151c0ce4a8119a60c2999",
+    "deployment.json": "23d44d1afda87c76ec9f800d5ae4cedd3ee13ceb5c728f8fc5faa1c2c6ff06b5",
+    "policy.json": "d067a1a6fedc701501280564772c356f3cb8320de55460caf46e5fdfd5f40cd4",
+    "runtime-profile.json": "70ca07c494c9660bfaf747772f2233ccaf77b4ef3a4da90c26121b7b59ff1d34",
+    "submission.json": "d4840145cc5c8a205d0c8bcae7930af081c81a1500bbce0a3c4bce74ccbdb903",
+    "task.json": "b166ca85342d936c275d2a536d6664f76d5261d187338a058a2f5013c50958d4"
+  },
+  "authority_uuid": "e3316595447c4787a16ed1b30efcdb12",
+  "independent_review": "baton.rvpc consumes immutable retained proposal through v11 after exact runtime cessation; no automatic acceptance",
+  "packet_sha256": "ef491303d8a2d118db14386852b157604bbadca4598a1ba3129ce7361063ef1c",
+  "state": "prepared-not-executed",
+  "work": "W321528"
+}

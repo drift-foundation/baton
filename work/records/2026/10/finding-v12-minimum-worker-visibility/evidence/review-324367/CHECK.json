@@ -1,0 +1,39 @@
+{
+  "files": [
+    {
+      "locator": "/home/sl/baton-instances/worker-visibility-w324214-324217/packet/outcome.json",
+      "bytes": 3860,
+      "sha256": "629bd1d6ea5f3b214b3eacce70137a26036278fe15bc011cc9a4f38b5b0ecfab"
+    },
+    {
+      "locator": "/home/sl/baton-instances/worker-visibility-w324214-324217/packet/workspaces/.baton-review-lines/line-a0f65318d2b1b423b2d7d93c00c975b43665f86699e7ba40a37abbcc3735802b/custody/attempt-af94020b411e17f33edbed32004267a80c789de8d949224e39a3a47fc5648a51/proposal/result.json",
+      "bytes": 892,
+      "sha256": "7da9a7372b196df01dbb1445e67716618af8b5b7a2ac10d9cfc3679e5d7fbaea"
+    },
+    {
+      "locator": "/home/sl/baton-instances/worker-visibility-w324214-324217/packet/workspaces/.baton-review-lines/line-a0f65318d2b1b423b2d7d93c00c975b43665f86699e7ba40a37abbcc3735802b/custody/attempt-af94020b411e17f33edbed32004267a80c789de8d949224e39a3a47fc5648a51/proposal/verification.txt",
+      "bytes": 30,
+      "sha256": "4825c3ea707b3ab41b2d72a0443ea35d3dd518252a6a673fac3fea418df9a133"
+    },
+    {
+      "locator": "/home/sl/baton-instances/worker-visibility-w324214-324217/packet/workspaces/.baton-review-lines/line-a0f65318d2b1b423b2d7d93c00c975b43665f86699e7ba40a37abbcc3735802b/custody/attempt-af94020b411e17f33edbed32004267a80c789de8d949224e39a3a47fc5648a51/proposal/change.patch",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "docker_inspect": {
+    "runtime": "ec7e1bd162d9f2c156ed477007fe7753953a0727144baa188dfae7f7d516b38b",
+    "exit_code": 1,
+    "stderr": "error: no such object: ec7e1bd162d9f2c156ed477007fe7753953a0727144baa188dfae7f7d516b38b",
+    "observation": "exact container absent at review; retained outcome additionally records destroyed"
+  },
+  "provider_result": {
+    "is_error": true,
+    "duration_api_ms": 0,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "safe_diagnostic": "authentication_failed: OAuth session expired and could not be refreshed"
+  },
+  "new_provider_invocations": 0,
+  "product_tests_run": 0
+}

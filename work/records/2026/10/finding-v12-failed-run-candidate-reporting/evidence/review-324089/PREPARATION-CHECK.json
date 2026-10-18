@@ -1,0 +1,14 @@
+{
+  "packet_inputs": "all seven match",
+  "runtime_files": 110,
+  "supervisor_files": 3,
+  "patch": "five reconstructed hashes match retained provenance",
+  "preflight_artifacts": "all eight match",
+  "task_bytes": 89170,
+  "context": {
+    "mode": "fresh"
+  },
+  "reconstruction_root": "/tmp/w321528-review324089-f_qe61br",
+  "job_launched": false,
+  "product_tests_run": false
+}

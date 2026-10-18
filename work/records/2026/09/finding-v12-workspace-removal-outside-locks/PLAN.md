@@ -1,3 +1,12 @@
+# Current checkpoint — owner deferred, 2026-10-18
+
+Owner accepts deferral to prioritize useful work through v12. Keep W270664 open
+for standalone deletion safety/modernization; preserve all known failures.
+Earlier awaiting-owner/next-implementation directions below are superseded.
+Canonical parking confirmed2026-10-18 by baton.prompt detail read after owner action: phase=parked, route=baton.decide. No execution selected.
+
+---
+
 # Current checkpoint — owner disposition: explicit deferral recommended
 
 2026-09-28T21-53-13Z, baton.rvpc claim299597; owner299593; detail299621; events through299597; T270664 through274873. Latest independent review: review-2026-09-28T21-53-13Z.md.

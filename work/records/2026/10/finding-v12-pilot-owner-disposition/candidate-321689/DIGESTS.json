@@ -1,0 +1,108 @@
+{
+  "base_commit": "6348161e608187393e45454db63c192a93f6deb3",
+  "base_note": "v12/python is unchanged between 433b09d6 (the W321688 checkpoint) and this base; the two intervening commits are documentation only",
+  "changed_paths": [
+    "v12/python/src/baton_v12/authority/api.py",
+    "v12/python/src/baton_v12/authority/core.py",
+    "v12/python/tests/authority/test_boundary.py",
+    "v12/python/tests/authority/test_session.py",
+    "v12/python/tests/tools/test_bootstrap.py",
+    "v12/python/tests/tools/test_disposition_command.py",
+    "v12/python/tools/bootstrap.py",
+    "v12/python/tools/disposition_command.py",
+    "v12/python/tools/dossier_command.py",
+    "v12/python/tools/stack_command.py"
+  ],
+  "execution_provenance": "direct shared-checkout implementation under the owner's W321689-only completion exception, 2026-10-18; no v12 Job provenance is claimed",
+  "frozen_bundle": {
+    "built_from": "packaging/stack.spec through the prepared v12 interpreter at /home/sl/.local/state/baton-v12-venv/bin/python (PyInstaller 6.16.0)",
+    "distpath": "v12/python/build/w321689/out/distro (an ignored build artifact, not candidate bytes)"
+  },
+  "members": {
+    "v12/python/src/baton_v12/authority/api.py": {
+      "base_blob": "a1cb6388bbec67bf0cf951a5d3774edaf9e0fc1b",
+      "bytes": 16763,
+      "digest": "sha256:d49405e4b2d29fc860440c6618acafaf32849293e2802b7e23c60bd5b0de03c5",
+      "kind": "product",
+      "mode": "0o664",
+      "state": "modified"
+    },
+    "v12/python/src/baton_v12/authority/core.py": {
+      "base_blob": "03e2219ceca9a77da66b20c4282f06614d996e78",
+      "bytes": 151079,
+      "digest": "sha256:0212bf28c6aa16ad3975b6f26c3a6f4463fa497853d51f538929ebf3c13d4d13",
+      "kind": "product",
+      "mode": "0o664",
+      "state": "modified"
+    },
+    "v12/python/tests/authority/test_boundary.py": {
+      "base_blob": "f1bbe8e98262a9647362d0a9242bdc71b8ceef37",
+      "bytes": 74579,
+      "digest": "sha256:07ef98c31ac1082b714c65608102c32952fb9e4e052cfb2ada0dcfb5c481e9a7",
+      "kind": "test",
+      "mode": "0o664",
+      "state": "modified"
+    },
+    "v12/python/tests/authority/test_session.py": {
+      "base_blob": "3c2db44aa2b8c41d61c04a407f08247d6347605a",
+      "bytes": 36899,
+      "digest": "sha256:50d795e4654e2413ff0e03509b5058a96ddaa494c5204807b02438967e57d30d",
+      "kind": "test",
+      "mode": "0o664",
+      "state": "modified"
+    },
+    "v12/python/tests/tools/test_bootstrap.py": {
+      "base_blob": "6de88e148cfc713f187ef846e81a82557d970410",
+      "bytes": 128098,
+      "digest": "sha256:1aae719e468f66d821e9dcdb8763e413d5ec6f3cd03f86fba30c662dd660a99b",
+      "kind": "test",
+      "mode": "0o664",
+      "state": "modified"
+    },
+    "v12/python/tests/tools/test_disposition_command.py": {
+      "base_blob": null,
+      "bytes": 49473,
+      "digest": "sha256:31c255af7a00b8d388651b7d24201f70f78857239fbe6732385e370d41898282",
+      "kind": "test",
+      "mode": "0o664",
+      "state": "new"
+    },
+    "v12/python/tools/bootstrap.py": {
+      "base_blob": "468ac3e579df6c97e40e070e3c975d74140bd082",
+      "bytes": 120326,
+      "digest": "sha256:a429914792f98d18a7b14b06a378a683746c3f32de0dbfb99053fcde8e07cec7",
+      "kind": "product",
+      "mode": "0o664",
+      "state": "modified"
+    },
+    "v12/python/tools/disposition_command.py": {
+      "base_blob": null,
+      "bytes": 42261,
+      "digest": "sha256:cc36e7ce466e5d3c2564957d044e36394ae5e9426519e7d27bc20ac2c153e322",
+      "kind": "product",
+      "mode": "0o664",
+      "state": "new"
+    },
+    "v12/python/tools/dossier_command.py": {
+      "base_blob": "aa24de396a918f93df2ffa3ee8475716b2f051ae",
+      "bytes": 56136,
+      "digest": "sha256:43b25a6725594e0890c686135af1026a8739ec6081bddf29080aa6c7ed415c95",
+      "kind": "product",
+      "mode": "0o664",
+      "state": "modified"
+    },
+    "v12/python/tools/stack_command.py": {
+      "base_blob": "441dd679be9b489a68f5bee55f2f8073f92bacd8",
+      "bytes": 12725,
+      "digest": "sha256:5e060ad65248c41b5e9f6c93b192bf925b88d288e511086c82354b9d59114b2a",
+      "kind": "product",
+      "mode": "0o664",
+      "state": "modified"
+    }
+  },
+  "not_in_this_candidate": [
+    "src/baton_v12/authority/store.py -- the two pre-existing bounded-diagnostic failures in tests/authority/test_boundary.py are reported, not fixed: that file is outside this Work's scope and weakening the sweep to pass would remove defect coverage"
+  ],
+  "schema": "baton.w321689.candidate/1",
+  "work": "2b077949-W321689"
+}

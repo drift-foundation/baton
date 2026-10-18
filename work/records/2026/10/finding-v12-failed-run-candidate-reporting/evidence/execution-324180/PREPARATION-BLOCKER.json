@@ -1,0 +1,16 @@
+{
+  "claim": 324180,
+  "owner_selection_message": 324176,
+  "packet_manifest_sha256": "c56d0605201b1b76be0d7292e959f17435dfc76cfa91657287d54395f9adceb0",
+  "operation": "python3 -B work/records/2026/10/finding-v12-failed-run-candidate-reporting/preparation-324054/prepare.py stage --root /home/sl/baton-instances/failed-reporting-w321528-324054",
+  "exit_status": 1,
+  "error": "OSError: [Errno 30] Read-only file system",
+  "location": "preparation-324054/prepare.py:55 root.mkdir(mode=0o700)",
+  "target": "/home/sl/baton-instances/failed-reporting-w321528-324054",
+  "target_after_failure": "absent",
+  "job_id": null,
+  "attempt_id": null,
+  "provider_invocations": 0,
+  "verification_seconds_this_claim": 0,
+  "required_resolution": "Make exact reviewed preparation command executable under installed managed filesystem policy, or perform it through an authorized operator; preserve packet and selection. No alternate-root substitution or direct implementation fallback."
+}

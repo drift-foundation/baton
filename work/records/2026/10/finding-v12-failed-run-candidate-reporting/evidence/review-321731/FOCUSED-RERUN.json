@@ -1,0 +1,19 @@
+{
+  "command": [
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-B",
+    "-m",
+    "unittest",
+    "-v",
+    "test_baseline",
+    "tests.manager.test_claude_agent.FailureIsHonest",
+    "tests.manager.test_claude_agent.ThePositiveTurnWritesTheDeclaredProposal",
+    "tests.manager.test_claude_agent.ThePreparedLineTurnCommitsAndDeclaresItsObjects",
+    "tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll",
+    "tests.manager.test_claude_agent.TheReviewTurnAuthorsAVerdictItDidNotDecide"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 8.163028304999898,
+  "fixture_restored": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json",
+  "source": "/tmp/w321731-source"
+}

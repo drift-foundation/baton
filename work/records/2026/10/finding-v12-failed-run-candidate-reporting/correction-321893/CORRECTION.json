@@ -1,0 +1,89 @@
+{
+  "artifacts": {
+    "correction.patch": "f218e23f03bd1dcacd8d7e546e08b77c818f31f3298f9871eaacdeb49cef904f",
+    "test_candidates.py": "716c9c46f50f16b6002453914e38aa4811ffc86df376a1d63a8fe281970b6e1f"
+  },
+  "claim": 321893,
+  "corrected_files": {
+    "work/records/2026/09/finding-v12-single-implementation-proof/baseline.py": "d5d1ec5150b34afe5d05ea964c21e8d1a3e4cb8d3839394da34d888a81caa195",
+    "work/records/2026/09/finding-v12-single-implementation-proof/test_baseline.py": "b10898c52a169975a3a2e5c5367e3b8e7cce63656d950e189e412103d84c05fb",
+    "work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py": "716c9c46f50f16b6002453914e38aa4811ffc86df376a1d63a8fe281970b6e1f"
+  },
+  "corrects": "review-2026-10-18T08-07-31Z.md P1",
+  "episode": 321766,
+  "excluded": [
+    "no live provider, engine or container",
+    "no new live run or retry",
+    "no host product edit",
+    "no Git operation of any kind",
+    "no integration",
+    "formal run verification remains null",
+    "the failed run and its evidence are preserved untouched",
+    "no W61981 claude_agent.py edit -- those bytes are unchanged from the sealed candidate"
+  ],
+  "isolated_tree": "/home/sl/baton-instances/w321528-321893-candidate",
+  "isolated_tree_note": "a plain directory copy of the retained candidate checkout with .git removed. NO host product file was edited and NO Git operation was performed: the correction is delivered as digest-bound bytes plus correction.patch, which an independent reviewer applies to the sealed candidate to reproduce it exactly.",
+  "participant": "baton.claude",
+  "preexisting_failures": {
+    "cases": [
+      "test_successor_packet.test_the_supervisor_is_this_dossiers_current_one",
+      "test_successor_packet.test_the_delivered_selections_compose_and_hold",
+      "test_successor_snapshot.test_a_successor_records_its_own_creation_and_the_shared_recipe",
+      "test_successor_snapshot.test_an_existing_manifest_is_refused_even_for_a_new_tree",
+      "test_successor_snapshot.test_the_bound_manifest_is_not_replaced_by_a_successor",
+      "test_successor_snapshot.test_verify_uses_the_selected_pair"
+    ],
+    "measured_on_sealed_candidate": "44 run, the same 6 failures, 2.195s",
+    "why": "these pin baseline.py's own SHA256 as 'this dossier's current supervisor'. The SEALED candidate 2c89d3aa already fails the identical six, measured directly in its own retained checkout -- so they are an inherent consequence of the accepted scope (this Work requires editing a digest-pinned supervisor), not of this correction."
+  },
+  "role": "impl",
+  "schema": "baton.w321528-collector-correction/1",
+  "sealed_candidate_corrected": {
+    "base": "3dcf6dc4bcee97e932d17c93ac13c5811b3af188",
+    "head": "2c89d3aa1c3ccf190a47417f3147593b694948dd",
+    "tree": "fa426e29d569536461565aa440069661e7a5febe"
+  },
+  "unchanged_from_sealed_candidate": {
+    "v12/python/tests/manager/test_claude_agent.py": "42191d077e411f9e0a08b82b69c7e2b06e8583a6a0acd6c8da6a4fa8b703492d",
+    "v12/worker/claude_agent.py": "b014ea3f5f58af573a0cbaa4b8838a270953806a89ef274682d5cca6627efe7c"
+  },
+  "valid_requires": [
+    "the sealed result is this attempt's (record_frozen_result bound it; re-read by attempt id) and the attempt's assignment reads back",
+    "the sealed artifact reference and the manager's indexed output_artifacts row agree on artifact_id, content_digest, bytes and locator",
+    "the worker's claim is offered against the deployment's declared base and its head is not its base"
+  ],
+  "verification": [
+    {
+      "cases": 25,
+      "outcome": "PASS",
+      "seconds": 0.001,
+      "vector": "test_candidates (new)"
+    },
+    {
+      "cases": 241,
+      "outcome": "PASS",
+      "seconds": 15.8,
+      "vector": "tests.manager.test_claude_agent (the timeout portion, preserved)"
+    },
+    {
+      "cases": 49,
+      "outcome": "PASS",
+      "seconds": 7.0,
+      "vector": "test_baseline"
+    },
+    {
+      "cases": 222,
+      "outcome": "6 failures, ALL PRE-EXISTING",
+      "seconds": 75.2,
+      "vector": "test_candidates + test_baseline + test_failure_path + test_no_progress + test_entrypoints + test_baseline_bindings + test_preparation + test_successor_packet + test_successor_snapshot"
+    }
+  ],
+  "what_changed": [
+    "_candidates(): the collector the review found missing -- reads the sealed manifest for EVERY attempt regardless of disposition and classifies valid/absent/refused/unreadable",
+    "_candidate_verification(): reports the turn's own verification outcome without judging it",
+    "_proposals(): the two false absence messages corrected to point at the candidate question",
+    "the workload evidence gains a 'candidates' member",
+    "test_baseline.py: two existing _proposals doubles extended to double _candidates as well"
+  ],
+  "work": "2b077949-W321528"
+}

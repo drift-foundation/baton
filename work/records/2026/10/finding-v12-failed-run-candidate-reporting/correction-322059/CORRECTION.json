@@ -1,0 +1,80 @@
+{
+  "artifacts": {
+    "correction.patch": "2f33b3b2408ec43ecbf000403b4c77f47977dbf5ccfa2a0090ee7dd369d6f402",
+    "test_candidates.py": "3ff58ec3e3e33dbf45326423d15a8a6b448947b66f8fe3319968fd4a6ed5b1f6"
+  },
+  "claim": 322059,
+  "corrected_files": {
+    "work/records/2026/09/finding-v12-single-implementation-proof/baseline.py": "652e91b05ebd14a93697aaa6c3646aff158bfcb2060f1b4823fcbb3dd8373049",
+    "work/records/2026/09/finding-v12-single-implementation-proof/test_baseline.py": "b10898c52a169975a3a2e5c5367e3b8e7cce63656d950e189e412103d84c05fb",
+    "work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py": "3ff58ec3e3e33dbf45326423d15a8a6b448947b66f8fe3319968fd4a6ed5b1f6"
+  },
+  "corrects": "review-2026-10-18T08-39-00Z.md P1 (custody asserted without validating), P2 (verification shape), P2 (acceptance assumed)",
+  "episode": 321996,
+  "excluded": [
+    "no live provider, engine or container",
+    "no new live run or retry",
+    "no host product edit",
+    "no Git operation of any kind",
+    "no integration",
+    "formal run verification remains null; the failed run's evidence is preserved untouched",
+    "no W61981 claude_agent.py edit -- those bytes are unchanged"
+  ],
+  "isolated_tree": "/home/sl/baton-instances/w321528-321893-candidate",
+  "new_vocabulary": {
+    "ACCEPTANCE_UNOBSERVED": "nobody looked",
+    "VERIFICATION_NO_STATUS": "the producer's null, which is ambiguous by its own docstring"
+  },
+  "not_rerun": {
+    "vectors": [
+      "test_successor_packet",
+      "test_successor_snapshot",
+      "tests.manager.test_claude_agent"
+    ],
+    "why": "the first two pin baseline.py's own SHA256 as the historical supervisor identity and fail identically in the UNACCEPTED sealed candidate (44 run, same 6 failures, measured last claim); the review directs that historical packet pins be preserved and historical supervisor identity be distinguished from corrected identity, and a fresh packet needs fresh pins -- that pinning decision is the reviewer's or owner's, not mine to make unilaterally. tests.manager.test_claude_agent was 241 PASS last claim and its bytes are byte-identical here, so the review's own 'no redundant timeout suite rerun' applies."
+  },
+  "p1_custody_fixed": [
+    "_candidates now READS the retained line through line_attribution's supported boundary, outside any store transaction, before any candidate may be called valid",
+    "a line that does not answer is unreadable, never valid; a substituted head, damaged parents or foreign authorship is refused",
+    "useful evidence survives a failed check: locator, base, head, digest and assignment stay in the record",
+    "the WHOLE assignment attribution is reported -- authority_uuid, work_id, participant, principal, generation, effective_scope -- not only generation"
+  ],
+  "p2_acceptance_fixed": [
+    "ACCEPTANCE_UNOBSERVED added and used: this Job admits no reviewer and this supervisor consults no exact-candidate acceptance evidence, so a read nobody performed is no longer reported as an observed `none`"
+  ],
+  "p2_verification_fixed": [
+    "reads the PROPOSAL OUTPUT's result_metadata, which is where claude_agent puts it, not manifest level",
+    "reads the producer's real integer/null `status`, not an invented `outcome` key",
+    "status 0 -> passed; nonzero -> failed; explicit None -> NO-STATUS, deliberately NOT not-run, because the producer emits None for a skipped command, a timeout AND a failed start alike",
+    "missing, malformed or UNASSOCIATED observation -> unreported; base/head/task_id association is checked"
+  ],
+  "participant": "baton.claude",
+  "role": "impl",
+  "schema": "baton.w321528-collector-correction/2",
+  "sealed_candidate_corrected": {
+    "base": "3dcf6dc4bcee97e932d17c93ac13c5811b3af188",
+    "head": "2c89d3aa1c3ccf190a47417f3147593b694948dd",
+    "tree": "fa426e29d569536461565aa440069661e7a5febe"
+  },
+  "supersedes": "correction-321893",
+  "unchanged_from_sealed_candidate": {
+    "v12/python/tests/manager/test_claude_agent.py": "42191d077e411f9e0a08b82b69c7e2b06e8583a6a0acd6c8da6a4fa8b703492d",
+    "v12/worker/claude_agent.py": "b014ea3f5f58af573a0cbaa4b8838a270953806a89ef274682d5cca6627efe7c"
+  },
+  "verification": [
+    {
+      "cases": 35,
+      "outcome": "PASS",
+      "seconds": 0.002,
+      "vector": "test_candidates"
+    },
+    {
+      "cases": 188,
+      "note": "run with BATON_V12_DISK_ROOT as the reviewer established is required",
+      "outcome": "PASS",
+      "seconds": 72.9,
+      "vector": "test_candidates + test_baseline + test_failure_path + test_no_progress + test_entrypoints + test_baseline_bindings + test_preparation"
+    }
+  ],
+  "work": "2b077949-W321528"
+}

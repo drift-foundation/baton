@@ -1,0 +1,19 @@
+{
+  "question": "Do existing participant-bound claim/receipt/closure and durable operation replay APIs work in focused disposable-store tests? Not installed workflow or runtime certification.",
+  "argv": [
+    "python3",
+    "-B",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.authority.test_session.TheBindingIsTheIdentity",
+    "tests.authority.test_operations.Restart"
+  ],
+  "cwd": "v12/python",
+  "PYTHONPATH": "v12/python/src",
+  "timeout_seconds": 60,
+  "elapsed_seconds": 0.179266,
+  "exit_status": 0,
+  "stdout": "",
+  "stderr": "test_a_session_acts_only_on_its_own_assignments (tests.authority.test_session.TheBindingIsTheIdentity.test_a_session_acts_only_on_its_own_assignments) ... ok\ntest_a_supplied_identity_is_refused_and_never_dropped (tests.authority.test_session.TheBindingIsTheIdentity.test_a_supplied_identity_is_refused_and_never_dropped) ... ok\ntest_close_is_authorized_by_capability_and_not_by_authorship (tests.authority.test_session.TheBindingIsTheIdentity.test_close_is_authorized_by_capability_and_not_by_authorship) ... ok\ntest_the_claimant_is_the_binding (tests.authority.test_session.TheBindingIsTheIdentity.test_the_claimant_is_the_binding) ... ok\ntest_the_receipt_actor_is_the_binding (tests.authority.test_session.TheBindingIsTheIdentity.test_the_receipt_actor_is_the_binding) ... ok\ntest_a_restart_after_the_claim_replays_it_rather_than_repeating (tests.authority.test_operations.Restart.test_a_restart_after_the_claim_replays_it_rather_than_repeating) ... ok\ntest_a_restart_before_the_claim_leaves_it_claimable (tests.authority.test_operations.Restart.test_a_restart_before_the_claim_leaves_it_claimable) ... ok\ntest_everything_the_journal_holds_survives_a_restart (tests.authority.test_operations.Restart.test_everything_the_journal_holds_survives_a_restart) ... ok\ntest_two_works_keep_separate_journals_and_separate_state (tests.authority.test_operations.Restart.test_two_works_keep_separate_journals_and_separate_state) ... ok\n\n----------------------------------------------------------------------\nRan 9 tests in 0.017s\n\nOK\n"
+}

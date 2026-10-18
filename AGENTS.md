@@ -583,14 +583,56 @@ The owner clarifies that `baton.merge` is not the standard integration process. 
 Owner selects coder `codx-pc`, canonical `baton.codxpc` (six-cell member limit), role `impl`, backed by `/home/sl/.codex-pushcoin` in its own supervised context. After configuration acceptance, endpoint `baton.codx` routes through `implpc` exclusively to this implementer. Existing Claude and reviewer routes remain unchanged; `baton.rvpc` remains the independent reviewer. This supersedes any assumption that only Claude may implement: each implementer uses its exact launcher identity and a successful exclusive claim, preserves prior changes, and hands off for independent review. Adding this participant does not release Claude's failed claim or authorize concurrent edits to W177936. Decision and installation packet: `work/records/2026/09/finding-codx-pc-implementer/` (W232334).
 
 
-## V12 execution default reaffirmed — owner 2026-10-18
+## V11 preparation and v12 execution — owner 2026-10-18
 
-All future product implementation must execute through isolated v12 Jobs unless
-a concrete blocker is recorded in the owning Work. V11 may remain the coordination
-authority; a v11 claim or an isolated candidate directory alone is not evidence
-of v12 execution. Convenience, existing routing or packet preparation overhead
-is not an execution blocker. Identify the exact failed or unavailable operation
-and bounded fallback before using direct shared-checkout implementation. Preserve
-independent review, exact candidate provenance, file ownership and human Git control.
-This does not prohibit coordination records, planning or reviewed-byte integration
-under their existing authority.
+For now, prepare Work packets and dossiers and coordinate scope, ownership,
+acceptance and handoffs in v11. Run executable work through isolated v12 Jobs.
+Record actual v12 Job/attempt identities and retained execution evidence in the
+owning v11 dossier. A v11 claim, model session or isolated candidate directory
+alone is not evidence of v12 execution.
+
+If v12 execution is blocked, record the exact failed or unavailable operation
+and resolve it; the blocker does not authorize direct execution outside v12.
+This supersedes the earlier concrete-blocker fallback wording. There is no general
+direct-execution fallback. Convenience, existing routing and packet
+preparation overhead do not change this boundary.
+
+Preserve independent review, exact candidate provenance, file ownership and human
+Git control. Coordination records, planning and reviewed-byte integration remain
+under their existing authority. Existing live-provider and deployment selection
+requirements still apply. This does not move the current backlog to a second
+coordination authority or select a production deployment.
+
+Decision history:
+[Owner execution boundary](work/records/2026/10/finding-v12-development-coordination-pilot/FINDING.md#2026-10-18--owner-clarifies-v11-preparation--v12-execution-boundary).
+
+### Temporary W321689 completion exception — owner 2026-10-18
+
+Owner permits W321689 alone to finish its already-started direct implementation,
+focused verification and independent review without reimplementation solely to
+change execution provenance. Preserve and report the actual direct provenance;
+this does not accept the candidate or waive review, defects or human Git ownership.
+The exception expires when W321689 closes and does not extend to successor Work.
+All other executable work follows the v12 requirement above. Exact ruling:
+[W321689 continuation exception](work/records/2026/10/finding-v12-pilot-owner-disposition/FINDING.md#2026-10-18--owner-permits-w321689-only-completion-exception).
+
+### Parallel delivery priority — owner 2026-10-18
+
+Maximize useful parallel v12 execution: prepare independent bounded Work packets
+in v11 and run ready independent Jobs concurrently through v12. Do not reproduce
+a serial v11 implementation queue merely because coordination remains in v11.
+Coordinate actual file/output ownership and accepted inputs; preserve dependency
+gates, isolation, independent review and serial integration of overlapping changes.
+Record actual Job/attempt evidence rather than inferring parallel execution from
+multiple claims or model sessions. Decompose within accepted scope where it enables
+independent delivery; do not expand scope or bypass execution selection boundaries.
+
+### Native v12 coordination priority — owner 2026-10-18
+
+The target is to leave v11 for coordination as well as execution. Current v11
+packet preparation is temporary. Prioritize the independently accepted native
+v12 coordination workflow and concrete cutover path over durable v12-to-v11
+bridge investment. W324316's reporter proposal is not selected for implementation;
+manual result collection remains a temporary measure. Preserve one coordination
+authority, existing Work/evidence and independent acceptance until an explicit
+supported cutover; this priority does not itself migrate backlog or deploy.

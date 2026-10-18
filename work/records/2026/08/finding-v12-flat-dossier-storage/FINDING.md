@@ -43,3 +43,55 @@ relations.
   ancestry.
 - Existing canonical records are not bulk-moved to simulate adoption.
 - Generated navigation indexes are replaceable and non-authoritative.
+
+
+## 2026-10-18 — minimal coordination-pilot provider selected
+
+Owner M321677 on W321608 explicitly reuses W39435 ownership for minimal stable
+dossier binding/retention. Reviewer claim321708 read events through321708 and
+T39435 through39435. Child W321688 owns this bounded provider at
+`baton:work/records/2026/10/finding-v12-pilot-dossier-binding/`. This supersedes
+parked scheduling only for the selected child; broader audit/navigation and
+relationship coverage are preserved and must be reconciled before parent closure.
+No historical locator moves, bulk migration or live deployment is selected.
+
+W321689 consumes the child's binding contract serially for owner disposition;
+W321690 consumes both for a deterministic joined packet. Slawomir owns production
+backup/restore and Git; implementer prepares disposable rehearsal, reviewer checks
+exact recovery identity/evidence. Existing Work remains in v11. Reviewer owns
+parent findings/plan; child implementer owns its isolated candidate and PROGRESS.
+
+## 2026-10-18T15:55Z — child acceptance reconciled; broader scope stays parked
+
+Confirmed under baton.rvpc claim323943: W321688 closed satisfying at E323936.
+Its exact independent review is
+`baton:work/records/2026/10/finding-v12-pilot-dossier-binding/review-2026-10-18T09-42-00Z.md`;
+owner closure records integration and human commit
+`433b09d6963ca9789700849b640e242e772b9867`, all twelve accepted hashes and 102 focused passes.
+The child's integration evidence and current PLAN preserve that provenance.
+
+This supersedes the parent checkpoint saying it awaits child delivery. It does
+not supersede the original broader acceptance or the explicit selection of only
+the minimal provider. The accepted provider supplies stable one-to-one flat
+locator binding, readback, collision/rebinding refusal, evidence resolution and
+bounded retained-instance recovery. The grammar is now implemented: at most 96
+characters, lowercase letters/digits/single hyphens with an eight-hex suffix.
+The earlier statement that grammar remains unselected is superseded for this
+provider. Caller-supplied suffix syntax does not itself prove random allocation.
+
+Review reconciliation is in `review-2026-10-18T15-55-24Z.md`. Broader allocation,
+relationship mutation/projection coverage and navigation remain unaccepted and
+parked, as selected before the pilot. In particular, the test named
+`test_ROUTING_changes_do_not_rename_the_record` adds route handlers; it does not
+reroute the bound Work. Its name is not proof of reparenting, promotion, folding
+or dependency changes. This limits the parent roll-up, not the already accepted
+minimal child contract.
+
+Decomposition assessment: the selected provider was already independently
+implemented/reviewed as W321688. No second executable slice is selected by this
+wake. On resumption, first audit materialization/relationship consumers against
+OBS-4, then split concrete independent gaps with actual dependency edges; W39435
+retains joined acceptance. Do not enlarge the active W321689 implementation or
+duplicate W321690's joined pilot rehearsal. Reviewer owns only this parent
+FINDING/PLAN and append-only review; no product or child PROGRESS edits occur.
+Future product implementation follows the isolated-v12-Job standing default.

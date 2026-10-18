@@ -1,5 +1,19 @@
 # Plan: normalize worker telemetry and introspection
 
+## Current selected slice — 2026-10-18
+
+Owner poke324196 selects W324214 minimum read-only visibility preparation at
+`baton:work/records/2026/10/finding-v12-minimum-worker-visibility/`.
+Child owns one packet then isolated-v12 implementation and independent review;
+parent retains joined acceptance. Existing worker/activity evidence plus explicit
+unknown last-contact/context is sufficient for this slice. Broader items below
+remain parked. No new native adapter/collector or launch is selected.
+Reviewer read parent events through324211 and T39649 through39649. Child packet
+author owns its artifacts/PROGRESS; reviewer owns parent and child FINDING/PLAN.
+Disjoint sibling ownership and exact acceptance are in child FINDING.
+
+## Preserved broader backlog (parked)
+
 1. [done 2026-08-29] Record the confirmed provider-neutral telemetry boundary,
    ACP and Codex native mappings, explicit unknown semantics, and the
    non-authoritative relationship to workflow state.

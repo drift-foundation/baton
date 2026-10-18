@@ -2944,3 +2944,48 @@ existing machinery and fresh identities. Existing deterministic-first policy and
 specific live-run selection apply. This update changes no product specification,
 dependency graph, assignment, deployment, credential, retained evidence or Git
 state. It does not authorize cleanup, profile promotion or automatic integration.
+
+
+## 2026-10-18T02:18:19Z — owner confirms adoption before backlog completion
+
+Slawomir confirms the objective is to reach safe v12 adoption, then use v12
+to improve itself; finishing all pending v12 Work through v11 is not the goal.
+Remaining development may be termed v13, but naming does not waive required
+v12 behavior or known execution correctness defects. This clarifies and
+reaffirms the September23 initial-adoption distinction.
+
+Next coordination action: reconcile pending Work against concrete adoption
+requirements, separating adoption blockers, suitable first Jobs on v12, and
+deferred hardening. Accepted W247941 parallel fresh-context and W236087 serial
+restoration proofs are reusable within their limits. Do not presume an additional
+combined qualification or post-relocation E2E Job is a prerequisite without
+identifying the specific missing evidence. The September30 next-action sequence
+and prompt's proposed new verification Jobs are superseded as automatic
+scheduling instructions by this reconciliation-first direction.
+
+Move selected execution to v12 when the supported workflow is established;
+v11 remains the coordination authority initially. Context reuse remains a v12
+deliverable, not an initial-adoption gate. No pending Work is silently closed,
+parked, rerouted or migrated; record individual classifications and install any
+selected scheduling relationships in Baton. No specific live run, deployment
+change or product-specification adjustment is selected by this clarification.
+
+
+## 2026-10-18 — adoption backlog reconciliation recommendation
+
+ADOPTION-RECONCILIATION-20261018.md records all63 open Work at canonical snapshot319364. Prior deferred scope is retained with explicit evidence limits; later accepted fresh-parallel and serial-restore milestones supersede the September27 global NOT READY status. Recommend preparing existing W319114 as a useful first v12 code correction, with task-specific verification context and exact proposal handback checked before launch. This is a recommendation, not owner selection of a live run or fresh production certification. W270664 remains an owner deferral decision; no existing Work, graph, claim or assignment changed.
+
+
+## 2026-10-18 — owner prioritizes real v12 work and defers W270664
+
+Owner accepts W270664 deferral and states priority is attempting to use v12 for real work. Its owning FINDING/PLAN record the decision and preserve defects. Proceed toward the recommended useful W319114 preparation on the accepted fresh-context workflow; no general certification detour or implied live-provider execution grant. Reuse remains a v12 deliverable without blocking initial adoption.
+
+
+## 2026-10-18 — owner selects coordination-cutover assessment
+
+Owner assigns bounded planning to the configured reviewer. W321608, routed through baton.rsrch, owns capability/gap mapping and the smallest one-workflow pilot for replacing v11 coordination with v12. W10 remains its existing rollout umbrella behind W9; this independent assessment does not remove that gate or authorize migration. Execution adoption remains separate from coordination authority cutover. No new role, live execution, product/specification change or backlog migration selected.
+
+
+## 2026-10-18 — owner confirms parallel advancement
+
+Owner selects concurrent progress: W321608 pilot preparation and W61981 contract/design/packet preparation may proceed alongside W321528. Do not serialize whole Jobs merely for a partial overlap. Preserve actual shared-file ownership and integration ordering; W61981 overlapping worker implementation remains serial per owner M321686, while disjoint preparation can proceed. This is not new live-run authority or permission to mutate another active packet. Reviewer establishes actual bounded dependency edges when execution slices are selected.

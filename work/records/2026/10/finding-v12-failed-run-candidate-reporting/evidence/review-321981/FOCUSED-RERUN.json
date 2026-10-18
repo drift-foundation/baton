@@ -1,0 +1,13 @@
+{
+  "command": [
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-B",
+    "-m",
+    "unittest",
+    "test_candidates",
+    "test_baseline"
+  ],
+  "exit": 0,
+  "wall_seconds": 7.189588206998451,
+  "disk_root": "/home/sl/src/baton/.scratch/w321981"
+}

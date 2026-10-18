@@ -1,0 +1,17 @@
+{
+  "kind": "deterministic control-flow replay; not live custody validation",
+  "result": {
+    "proposals": [],
+    "dispositions": [
+      {
+        "attempt_id": "simulated-failed-attempt",
+        "disposition": "unable"
+      }
+    ]
+  },
+  "manifest_load_calls": 0,
+  "shortfalls": [
+    "attempt simulated-failed-attempt ended 'unable' rather than 'completed', so it published no proposal. An implementation turn that could not do its work is an ANSWER -- the attempt's retained provider log carries what the provider reported -- and it is not a proposal this run may count.",
+    "this run retained no proposal at all, so it established nothing about the implementation path"
+  ]
+}

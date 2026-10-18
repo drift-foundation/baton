@@ -1,0 +1,39 @@
+{
+  "state": "prepared-not-executed",
+  "preflight_root": "/tmp/w321528-preflight-324054",
+  "prepared": {
+    "artifacts": {
+      "PACKET.json": "37d6ea6bb15c72c33bdd57efedc0c83b8559e6454410df927601ad096fd6a757",
+      "adapter.json": "cbe3bb4ade990eb5411c64a40be74a10e46a79f48343c499b5f1a8453fabc9c7",
+      "commands.json": "adc3b2100d1f99c8c6c05329fa39cc3dfbed810a19e249a776796a43a1bd74ba",
+      "deployment.json": "97d37e544c03ef74d626995e8699b600cbef6817504004e391fb642a1816f9b5",
+      "policy.json": "d067a1a6fedc701501280564772c356f3cb8320de55460caf46e5fdfd5f40cd4",
+      "runtime-profile.json": "70ca07c494c9660bfaf747772f2233ccaf77b4ef3a4da90c26121b7b59ff1d34",
+      "submission.json": "265704236dcd440ec0492c8abe843c4a3018ba24e11c3e15956d0bfae8592d07",
+      "task.json": "bd6cf98bca77bf303874396e39a5a9157452d9dddc4415a3f2e4726ca9a89e51"
+    },
+    "authority_uuid": "f25bb88b54944a5e97518dca897bbae5",
+    "independent_review": "baton.rvpc consumes immutable retained proposal through v11 after exact runtime cessation; no automatic acceptance",
+    "packet_sha256": "37d6ea6bb15c72c33bdd57efedc0c83b8559e6454410df927601ad096fd6a757",
+    "state": "prepared-not-executed",
+    "work": "W321528"
+  },
+  "patch_dry_run": {
+    "exit_status": 0,
+    "seconds": 0.004317354000249907,
+    "stdout": "checking file v12/python/tests/manager/test_claude_agent.py\nchecking file v12/worker/claude_agent.py\nchecking file work/records/2026/09/finding-v12-single-implementation-proof/baseline.py\nchecking file work/records/2026/09/finding-v12-single-implementation-proof/test_baseline.py\nchecking file work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py\n"
+  },
+  "job_id": null,
+  "attempt_id": null,
+  "product_tests_run": false,
+  "preparation_observed_wall_seconds": {
+    "stage": 0.2,
+    "bootstrap": 0.503,
+    "bind": 0.252
+  },
+  "limitations": [
+    "Disposable authority is not selected for live execution",
+    "No authentication or Docker/provider execution",
+    "No new product correctness evidence; independent review still required"
+  ]
+}

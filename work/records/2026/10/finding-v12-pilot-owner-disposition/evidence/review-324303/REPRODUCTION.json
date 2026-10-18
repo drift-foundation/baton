@@ -1,0 +1,200 @@
+{
+  "changed_integration_retry": {
+    "answer": {
+      "authority_uuid": "0123456789abcdef0123456789abcdef",
+      "bound": {
+        "actor": "baton.slaw",
+        "candidate_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+        "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "integrated_by": "Slawomir"
+      },
+      "cited": {
+        "act_id": "op-cite-other",
+        "digest": "sha256:efdd94e79bc71a774784c997b759c736aa6b3f77d67f3ea09a34b56d6739b114",
+        "recorded_at": "2026-10-18T16:37:55.938Z",
+        "reference": "work/records/2026/10/finding-pilot/OTHER.json",
+        "work_id": "0123abcd-W1"
+      },
+      "closure_due": true,
+      "integration": {
+        "actor": "baton.slaw",
+        "disposition": "integrated",
+        "kind": "integration",
+        "proposal_id": "proposal-1",
+        "receipt_id": "int-1"
+      },
+      "work_id": "0123abcd-W1"
+    },
+    "citation_count": 2,
+    "exit": 0,
+    "original_commit": "433b09d6963ca9789700849b640e242e772b9867",
+    "stderr": ""
+  },
+  "closed_readback": {
+    "close_acceptance": {
+      "approval": "app-1",
+      "candidate_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "human_integration": {
+        "commit": "433b09d6963ca9789700849b640e242e772b9867",
+        "digest": "sha256:700a2aec074701e07634d1557e2aa472aa1821cd8f0a17c407219eeefdf2d7b0",
+        "integrated_at": "2026-10-18T12:30:00Z",
+        "integrated_by": "Slawomir",
+        "reference": "work/records/2026/10/finding-pilot/INTEGRATION.json"
+      },
+      "integration": "int-1",
+      "outcome": "satisfying",
+      "proposal_id": "proposal-1",
+      "required": true,
+      "review": "rev-proposal-1",
+      "verification": "ver-proposal-1"
+    },
+    "pending": {
+      "authority_uuid": "0123456789abcdef0123456789abcdef",
+      "canonical_target": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "dossier": {
+        "bound_at": "2026-10-18T12:00:00.000Z",
+        "locator": "operator-quickstart-7f3a91c2",
+        "operation_id": "op-bind",
+        "work_id": "0123abcd-W1"
+      },
+      "due": "this Work is terminal and its outcome is recorded; no further disposition is due",
+      "evidence": [
+        {
+          "act_id": "op-cite-1",
+          "digest": "sha256:700a2aec074701e07634d1557e2aa472aa1821cd8f0a17c407219eeefdf2d7b0",
+          "recorded_at": "2026-10-18T16:37:55.947Z",
+          "reference": "work/records/2026/10/finding-pilot/INTEGRATION.json",
+          "work_id": "0123abcd-W1"
+        }
+      ],
+      "latest_proposal": "proposal-1",
+      "owner_action": "closed",
+      "policy_generation": 8,
+      "proposals": [
+        {
+          "assignment_ref": {
+            "generation": 1,
+            "participant": "baton.claude",
+            "work_ref": {
+              "authority_uuid": "0123456789abcdef0123456789abcdef",
+              "work_id": "0123abcd-W1"
+            }
+          },
+          "candidate_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "decision": {
+            "effective_scope": "scope:deployment",
+            "endpoint": "baton.claude",
+            "grant": "direct",
+            "policy_generation": 7,
+            "principal": "principal:baton.claude",
+            "role": "impl"
+          },
+          "input_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+          "owner_action": "closure-due",
+          "policy_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+          "proposal_id": "proposal-1",
+          "published_at": "2026-10-18T12:00:00.000Z",
+          "receipts": {
+            "approval": {
+              "actor": "baton.slaw",
+              "candidate_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+              "decision": {
+                "effective_scope": "scope:deployment",
+                "endpoint": "baton.slaw",
+                "grant": "direct",
+                "policy_generation": 7,
+                "principal": "principal:baton.slaw",
+                "role": "approve"
+              },
+              "disposition": "approved",
+              "kind": "approval",
+              "policy_generation": 7,
+              "proposal_id": "proposal-1",
+              "receipt_id": "app-1",
+              "recorded_at": "2026-10-18T16:37:55.945Z",
+              "target": "base-1"
+            },
+            "integration": {
+              "actor": "baton.slaw",
+              "candidate_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+              "decision": {
+                "effective_scope": "scope:deployment",
+                "endpoint": "baton.slaw",
+                "grant": "direct",
+                "policy_generation": 7,
+                "principal": "principal:baton.slaw",
+                "role": "integrate"
+              },
+              "disposition": "integrated",
+              "kind": "integration",
+              "policy_generation": null,
+              "proposal_id": "proposal-1",
+              "receipt_id": "int-1",
+              "recorded_at": "2026-10-18T16:37:55.947Z",
+              "target": "base-1"
+            },
+            "review": {
+              "actor": "baton.rvpc",
+              "candidate_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+              "decision": {
+                "effective_scope": "scope:deployment",
+                "endpoint": "baton.rvpc",
+                "grant": "direct",
+                "policy_generation": 7,
+                "principal": "principal:baton.rvpc",
+                "role": "review"
+              },
+              "disposition": "accepted",
+              "kind": "review",
+              "policy_generation": null,
+              "proposal_id": "proposal-1",
+              "receipt_id": "rev-proposal-1",
+              "recorded_at": "2026-10-18T12:00:00.000Z",
+              "target": "base-1"
+            },
+            "verification": {
+              "actor": "baton.rvpc",
+              "candidate_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+              "decision": {
+                "effective_scope": "scope:deployment",
+                "endpoint": "baton.rvpc",
+                "grant": "direct",
+                "policy_generation": 7,
+                "principal": "principal:baton.rvpc",
+                "role": "verify"
+              },
+              "disposition": "passed",
+              "kind": "verification",
+              "policy_generation": null,
+              "proposal_id": "proposal-1",
+              "receipt_id": "ver-proposal-1",
+              "recorded_at": "2026-10-18T12:00:00.000Z",
+              "target": "base-1"
+            }
+          },
+          "result_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+          "result_id": "result-proposal-1",
+          "target": "base-1"
+        }
+      ],
+      "work": {
+        "assignment": null,
+        "handler": null,
+        "outcome": "satisfying",
+        "phase": null,
+        "rationale": "pilot delivered",
+        "route": "impl",
+        "scope": "scope:deployment",
+        "status": "closed",
+        "work_id": "0123abcd-W1"
+      }
+    },
+    "pending_exit": 0
+  },
+  "exact_close_retry_after_evidence_change": {
+    "exit": 2,
+    "stderr": "refused: a satisfying closure of '0123abcd-W1' is refused: the dossier cites no intact human integration record for candidate 'sha256:2222222222222222222222222222222222222222222222222222222222222222' under '/tmp/v12-disposition-x4hyhp_v/repo'; the states above say what was examined and why each was rejected. Nothing was changed\n",
+    "stdout": "{\n  \"citations_examined\": [\n    {\n      \"actual\": \"sha256:a41228d58b6ea7c8abe04f4fcd9aff9ed22d1f71d5eac8a9ff9e1106f90e3d24\",\n      \"cited_digest\": \"sha256:700a2aec074701e07634d1557e2aa472aa1821cd8f0a17c407219eeefdf2d7b0\",\n      \"reference\": \"work/records/2026/10/finding-pilot/INTEGRATION.json\",\n      \"state\": \"changed\"\n    }\n  ],\n  \"proposal\": \"proposal-1\",\n  \"work_id\": \"0123abcd-W1\"\n}\n",
+    "stored_status": "closed"
+  }
+}
