@@ -1,0 +1,77 @@
+{
+  "artifacts": {
+    "correction.patch": "a9f3475d0a48db9cd545becde9f5d4fd235d5d33096c60b34b61171982025139",
+    "test_dossier_recovery.py": "857dfdd7dda319556b7356f79eea10916c1c36e226818e879c9876ac46964aec"
+  },
+  "base": "3dcf6dc4bcee97e932d17c93ac13c5811b3af188",
+  "claim": 321989,
+  "corrected": {
+    "v12/python/tests/tools/test_dossier_command.py": "fbb88efcbe7f059d51ddb1cb770328787430fdd0d1e2192f4aa2243f987be0bb",
+    "v12/python/tests/tools/test_dossier_recovery.py": "857dfdd7dda319556b7356f79eea10916c1c36e226818e879c9876ac46964aec",
+    "v12/python/tools/dossier_command.py": "fd42cb87391e0976760d238c44fe05ba23187956d8588fa7357e19157804e5e7"
+  },
+  "corrects": "review-2026-10-18T08-25-00Z.md P1 (recovery completeness) and P1 (evidence root escape)",
+  "episode": 321905,
+  "excluded": [
+    "no live engine or provider",
+    "no production restore or live instance access",
+    "no host product edit this claim",
+    "no Git operation of any kind",
+    "no deployment -- the bundle build is local preparation into an isolated output",
+    "W61981/W321528 and other Work bytes untouched"
+  ],
+  "isolated_candidate": "/home/sl/baton-instances/w321688-321989-candidate",
+  "isolated_candidate_note": "a directory copy of the reviewed working-tree bytes. The reviewed source-tree bytes are PRESERVED unchanged as the review directed; this correction is delivered as digest-bound bytes plus correction.patch, applied to those bytes. No Git operation was performed.",
+  "one_defect_of_my_own_found_by_driving_it": "the manifest's read-only identity read CREATES a -shm beside a WAL store (W316915's own measurement), so reading identity after digesting members produced a manifest that omitted a sidecar its own read had just made -- and _check then correctly flagged it as a writer signal. Identity is now read FIRST so whatever the read creates is part of what the manifest describes.",
+  "owner_schema_ruling": "M321965/M321966 approve authority schema 6 for the pilot, explicit refusal of schema 5, no migration -- the ruling the candidate marked OWED is now granted",
+  "p1a_fixed": [
+    "the instance document is validated first: schema, authority_uuid and destination, else refused",
+    "the member set is CLOSED -- every required store and every required provenance entry, else refused",
+    "provenance bound BY VALUE: deployment.json digested; identity and runtime bound by canonical bytes",
+    "sidecar BYTES digested, not names",
+    "retained state/logs/repository bound by content manifest (sorted path:digest, count, bytes)",
+    "_check requires the closed set, honours missing_members, validates provenance and retained trees",
+    "compatibility and identity read from the RESTORED store's own meta, not the emitting build's constant",
+    "--root is ALWAYS honoured: as-recorded relative to the manifest's destination, or --flat",
+    "a clean report never claims the old runtime stopped; operator_must_account_for_writers is always true"
+  ],
+  "p1b_fixed": [
+    "reference grammar validated before any filesystem access",
+    "_contained_read refuses a symlink at EVERY depth, not just the leaf",
+    "a symlink pointing inside is refused too -- a target can be replaced after the answer",
+    "the race is closed: O_NOFOLLOW open, fstat the descriptor, digest that same descriptor",
+    "five distinct states: present, absent, unreadable, escapes-root, not-a-regular-file"
+  ],
+  "participant": "baton.claude",
+  "recovery_schema": "baton.v12.instance-recovery-set/1 -> /2 (the /1 document shape could not express a closed set)",
+  "role": "impl",
+  "schema": "baton.w321688-record-recovery-correction/1",
+  "unchanged_from_reviewed_candidate": {
+    "v12/python/src/baton_v12/authority/api.py": "df6d90dd6d15589fb457c45d2acaff59f67428dc85478c3b7a2c98edaa60da15",
+    "v12/python/src/baton_v12/authority/core.py": "e6569eca43986af8ce3190472820549038a8c2b17c87d892ca66b06e3bf5de6a",
+    "v12/python/src/baton_v12/authority/dossier.py": "4508ff3577f0258018ce68503a92c68ce438550881ffb3b9ca7ef9b17738e66c",
+    "v12/python/src/baton_v12/authority/schema.py": "e96f702484a8f1e720f9785aeb1c51790e4362766f11620d260e2a3671bcfaf4",
+    "v12/python/tools/stack_command.py": "c86c0a4a536c8ce4a4d83f464e7a6522a1f946bdff29500da88ad401e181d297"
+  },
+  "verification": [
+    {
+      "cases": 81,
+      "outcome": "PASS",
+      "seconds": 0.216,
+      "vector": "tests.tools.test_dossier_recovery (new) + test_dossier_command + tests.authority.test_dossier"
+    },
+    {
+      "distro": "/home/sl/baton-instances/w321688-321989-candidate/build-321989/out/distro",
+      "outcome": "built",
+      "vector": "isolated PyInstaller bundle build"
+    },
+    {
+      "cases": 11,
+      "detail": "test_every_subcommand_this_command_serves_is_offered now PASSES -- the record verb is offered by a real bundle, which was the failure reported last claim. The one failure is test_it_says_its_version_with_NO_checkout_and_NO_repository_tool: the build stamp says 'source commit unknown' because the bundle was built from a non-repository isolated copy. That is an artefact of building outside a checkout, not about the record verb; a build from the repository records its commit.",
+      "outcome": "10 PASS, 1 FAIL",
+      "seconds": 2.26,
+      "vector": "tests.tools.test_packaging against that isolated build"
+    }
+  ],
+  "work": "2b077949-W321688"
+}

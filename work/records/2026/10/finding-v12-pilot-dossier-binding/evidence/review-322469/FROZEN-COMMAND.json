@@ -1,0 +1,112 @@
+{
+  "boundary": "new frozen binary; PYTHONPATH removed; disposable real-instance fixtures",
+  "entry_script": null,
+  "frozen_bundle_built": true,
+  "results": [
+    {
+      "exit": 0,
+      "records_selector_document": true,
+      "schema": "baton.v12.instance-recovery-set/3",
+      "what": "recovery-manifest on the live instance"
+    },
+    {
+      "exit": 0,
+      "faults": [],
+      "schema_compatible": true,
+      "selector": "present",
+      "what": "complete unchanged restore"
+    },
+    {
+      "exit": 2,
+      "faults": [
+        "restored-instance-selector"
+      ],
+      "selector": "absent",
+      "what": "restored selector removed"
+    },
+    {
+      "exit": 2,
+      "faults": [
+        "restored-instance-selector"
+      ],
+      "selector": "another-authority",
+      "what": "restored selector names another authority"
+    },
+    {
+      "exit": 0,
+      "faults": [],
+      "selector": "relocated",
+      "what": "selector relocated to the restored root"
+    },
+    {
+      "exit": 2,
+      "faults": [
+        "restored-instance-selector"
+      ],
+      "selector": "changed",
+      "what": "selector relocated to a third path"
+    },
+    {
+      "exit": 2,
+      "faults": [
+        "restored-instance-selector"
+      ],
+      "no_traceback": true,
+      "selector": "malformed",
+      "validator_named_the_type": true,
+      "what": "restored selector holding JSON null"
+    },
+    {
+      "exit": 2,
+      "faults": [
+        "restored-instance-selector"
+      ],
+      "no_traceback": true,
+      "selector": "malformed",
+      "validator_named_the_type": true,
+      "what": "restored selector holding JSON []"
+    },
+    {
+      "exit": 2,
+      "faults": [
+        "restored-instance-selector"
+      ],
+      "no_traceback": true,
+      "selector": "malformed",
+      "validator_named_the_type": true,
+      "what": "restored selector holding JSON \"instance\""
+    },
+    {
+      "exit": 2,
+      "faults": [
+        "restored-instance-selector"
+      ],
+      "no_traceback": true,
+      "selector": "malformed",
+      "validator_named_the_type": true,
+      "what": "restored selector holding JSON 3"
+    },
+    {
+      "exit": 2,
+      "faults": [
+        "restored-instance-selector"
+      ],
+      "no_traceback": true,
+      "selector": "malformed",
+      "validator_named_the_type": true,
+      "what": "restored selector holding JSON true"
+    },
+    {
+      "exit": 2,
+      "faults": [
+        "restored-instance-selector"
+      ],
+      "selector": "not-in-manifest",
+      "what": "manifest lacking the /3 selector document"
+    }
+  ],
+  "schema": "baton.w321688.packaged-command-evidence/1",
+  "binary": "/tmp/w321688-review322469-26ea58rx/out/distro/baton-v12-stack",
+  "binary_sha256": "e5af930847977c65194baaef941bb38cff45b0ff5d9f03c8510156afb7c26952",
+  "seconds": 1.1785730400006287
+}

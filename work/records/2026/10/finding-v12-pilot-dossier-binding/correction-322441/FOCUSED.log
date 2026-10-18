@@ -1,0 +1,159 @@
+test_an_exact_authority_and_work_resolve_to_one_dossier (tests.authority.test_dossier.ItBindsOneRecordToOneWork.test_an_exact_authority_and_work_resolve_to_one_dossier)
+The read the acceptance asks for. The authority is the store's own ... ok
+test_an_unbound_work_reads_as_NONE_rather_than_failing (tests.authority.test_dossier.ItBindsOneRecordToOneWork.test_an_unbound_work_reads_as_NONE_rather_than_failing)
+"This Work has no canonical record yet" is an answer. ... ok
+test_the_binding_names_the_act_that_made_it (tests.authority.test_dossier.ItBindsOneRecordToOneWork.test_the_binding_names_the_act_that_made_it)
+Attribution, on `work_creation`'s own rule: from the record a reader ... ok
+test_the_locator_resolves_BACK_to_its_work (tests.authority.test_dossier.ItBindsOneRecordToOneWork.test_the_locator_resolves_BACK_to_its_work)
+A human holding a directory name needs the authority, and a ... ok
+test_a_MALFORMED_DIGEST_is_refused (tests.authority.test_dossier.ItCitesEvidenceAndRefusesRewriting.test_a_MALFORMED_DIGEST_is_refused) ... ok
+test_a_citation_records_the_reference_its_digest_and_its_act (tests.authority.test_dossier.ItCitesEvidenceAndRefusesRewriting.test_a_citation_records_the_reference_its_digest_and_its_act) ... ok
+test_an_ABSOLUTE_or_ESCAPING_reference_is_refused_before_storage (tests.authority.test_dossier.ItCitesEvidenceAndRefusesRewriting.test_an_ABSOLUTE_or_ESCAPING_reference_is_refused_before_storage) ... ok
+test_an_exact_recitation_replays (tests.authority.test_dossier.ItCitesEvidenceAndRefusesRewriting.test_an_exact_recitation_replays) ... ok
+test_citations_read_back_SORTED_rather_than_insertion_ordered (tests.authority.test_dossier.ItCitesEvidenceAndRefusesRewriting.test_citations_read_back_SORTED_rather_than_insertion_ordered)
+Two authorities given the same citations in different orders read ... ok
+test_evidence_for_an_UNBOUND_work_is_refused (tests.authority.test_dossier.ItCitesEvidenceAndRefusesRewriting.test_evidence_for_an_UNBOUND_work_is_refused) ... ok
+test_the_SAME_reference_at_a_DIFFERENT_digest_is_refused (tests.authority.test_dossier.ItCitesEvidenceAndRefusesRewriting.test_the_SAME_reference_at_a_DIFFERENT_digest_is_refused)
+A durable citation is not rewritten in place: accepting it would let ... ok
+test_the_citation_limit_is_enforced_and_stated (tests.authority.test_dossier.ItCitesEvidenceAndRefusesRewriting.test_the_citation_limit_is_enforced_and_stated) ... ok
+test_ANOTHER_AUTHORITYS_work_id_is_not_in_this_store (tests.authority.test_dossier.ItReplaysAndRefusesExactly.test_ANOTHER_AUTHORITYS_work_id_is_not_in_this_store)
+The wrong-authority refusal is the store's own doing: this Core holds ... ok
+test_REBINDING_under_a_new_operation_is_refused (tests.authority.test_dossier.ItReplaysAndRefusesExactly.test_REBINDING_under_a_new_operation_is_refused)
+One canonical address for the record's whole life: rebinding would ... ok
+test_a_CHANGED_RETRY_is_refused_as_reused_operands (tests.authority.test_dossier.ItReplaysAndRefusesExactly.test_a_CHANGED_RETRY_is_refused_as_reused_operands)
+The journal decides this on the full effective operands, so one ... ok
+test_a_COLLISION_is_refused_and_names_the_holder (tests.authority.test_dossier.ItReplaysAndRefusesExactly.test_a_COLLISION_is_refused_and_names_the_holder)
+In a flat set no parent disambiguates two records with one name. ... ok
+test_a_store_opened_under_the_WRONG_EXPECTED_UUID_refuses (tests.authority.test_dossier.ItReplaysAndRefusesExactly.test_a_store_opened_under_the_WRONG_EXPECTED_UUID_refuses) ... ok
+test_a_work_this_authority_does_not_have_is_refused (tests.authority.test_dossier.ItReplaysAndRefusesExactly.test_a_work_this_authority_does_not_have_is_refused) ... ok
+test_an_EXACT_RETRY_replays_the_first_answer (tests.authority.test_dossier.ItReplaysAndRefusesExactly.test_an_EXACT_RETRY_replays_the_first_answer) ... ok
+test_rebinding_to_the_SAME_locator_is_convergent (tests.authority.test_dossier.ItReplaysAndRefusesExactly.test_rebinding_to_the_SAME_locator_is_convergent)
+A different operation id asking for the binding that already exists ... ok
+test_LABELLING_the_work_does_not_rename_its_record (tests.authority.test_dossier.RelationshipChangesMoveNothing.test_LABELLING_the_work_does_not_rename_its_record)
+Labels in particular. The assessment is explicit that a label is not ... ok
+test_ROUTING_changes_do_not_rename_the_record (tests.authority.test_dossier.RelationshipChangesMoveNothing.test_ROUTING_changes_do_not_rename_the_record)
+Routing is the other thing the v11 layout encoded in a path. ... ok
+test_a_second_work_in_the_same_authority_keeps_its_own_record (tests.authority.test_dossier.RelationshipChangesMoveNothing.test_a_second_work_in_the_same_authority_keeps_its_own_record) ... ok
+test_the_record_survives_CLOSING_the_store_AND_REOPENING_it (tests.authority.test_dossier.RelationshipChangesMoveNothing.test_the_record_survives_CLOSING_the_store_AND_REOPENING_it)
+Readback is acceptance: identity, record and citation survive a ... ok
+test_UPPERCASE_and_underscores_are_refused (tests.authority.test_dossier.TheLocatorGrammarRefusesPathsAndEscapes.test_UPPERCASE_and_underscores_are_refused) ... ok
+test_a_LEADING_HYPHEN_is_refused_as_an_option_escape (tests.authority.test_dossier.TheLocatorGrammarRefusesPathsAndEscapes.test_a_LEADING_HYPHEN_is_refused_as_an_option_escape) ... ok
+test_a_MISSING_COLLISION_SUFFIX_is_refused (tests.authority.test_dossier.TheLocatorGrammarRefusesPathsAndEscapes.test_a_MISSING_COLLISION_SUFFIX_is_refused)
+The suffix is what makes two deployments choosing one deliverable ... ok
+test_a_RELATIVE_ESCAPE_is_refused (tests.authority.test_dossier.TheLocatorGrammarRefusesPathsAndEscapes.test_a_RELATIVE_ESCAPE_is_refused) ... ok
+test_a_SEPARATOR_is_refused_as_not_one_flat_segment (tests.authority.test_dossier.TheLocatorGrammarRefusesPathsAndEscapes.test_a_SEPARATOR_is_refused_as_not_one_flat_segment) ... ok
+test_a_non_text_locator_is_refused (tests.authority.test_dossier.TheLocatorGrammarRefusesPathsAndEscapes.test_a_non_text_locator_is_refused) ... ok
+test_an_OVERLONG_locator_is_refused (tests.authority.test_dossier.TheLocatorGrammarRefusesPathsAndEscapes.test_an_OVERLONG_locator_is_refused) ... ok
+test_a_NEWER_store_is_refused_in_the_same_direction (tests.authority.test_dossier.TheSchemaBoundaryIsClosedAndExplicit.test_a_NEWER_store_is_refused_in_the_same_direction) ... ok
+test_an_OLDER_store_is_refused_READ_ONLY_and_not_one_byte_changes (tests.authority.test_dossier.TheSchemaBoundaryIsClosedAndExplicit.test_an_OLDER_store_is_refused_READ_ONLY_and_not_one_byte_changes)
+A retained authority written before the binding existed has no ... ok
+test_this_build_speaks_the_version_that_carries_the_binding (tests.authority.test_dossier.TheSchemaBoundaryIsClosedAndExplicit.test_this_build_speaks_the_version_that_carries_the_binding) ... ok
+test_a_MALFORMED_locator_refuses_through_the_command_too (tests.tools.test_dossier_command.ItBindsAndReadsThroughTheCommand.test_a_MALFORMED_locator_refuses_through_the_command_too) ... ok
+test_an_AUTHORITY_REFUSAL_arrives_as_its_own_sentence (tests.tools.test_dossier_command.ItBindsAndReadsThroughTheCommand.test_an_AUTHORITY_REFUSAL_arrives_as_its_own_sentence)
+Not a traceback: every refusal reachable here is a contract answer ... ok
+test_bind_then_read_resolves_authority_and_work_to_one_dossier (tests.tools.test_dossier_command.ItBindsAndReadsThroughTheCommand.test_bind_then_read_resolves_authority_and_work_to_one_dossier) ... ok
+test_read_names_EXACTLY_ONE_selector (tests.tools.test_dossier_command.ItBindsAndReadsThroughTheCommand.test_read_names_EXACTLY_ONE_selector) ... ok
+test_read_of_an_unbound_work_answers_null_rather_than_failing (tests.tools.test_dossier_command.ItBindsAndReadsThroughTheCommand.test_read_of_an_unbound_work_answers_null_rather_than_failing) ... ok
+test_read_resolves_a_LOCATOR_back_to_its_work (tests.tools.test_dossier_command.ItBindsAndReadsThroughTheCommand.test_read_resolves_a_LOCATOR_back_to_its_work) ... ok
+test_an_exact_recitation_replays_through_the_command (tests.tools.test_dossier_command.ItCitesEvidenceByDigestingIt.test_an_exact_recitation_replays_through_the_command) ... ok
+test_cite_digests_the_real_file_and_records_that_digest (tests.tools.test_dossier_command.ItCitesEvidenceByDigestingIt.test_cite_digests_the_real_file_and_records_that_digest) ... ok
+test_citing_a_file_that_is_not_there_is_refused (tests.tools.test_dossier_command.ItCitesEvidenceByDigestingIt.test_citing_a_file_that_is_not_there_is_refused) ... ok
+test_it_is_reachable_the_same_way_from_a_frozen_build (tests.tools.test_dossier_command.TheRecordVerbIsPartOfTheInstalledCommand.test_it_is_reachable_the_same_way_from_a_frozen_build)
+`bundled_argv` is how the supervisor starts a child in either form; ... ok
+test_record_is_a_subcommand_of_the_deployed_command (tests.tools.test_dossier_command.TheRecordVerbIsPartOfTheInstalledCommand.test_record_is_a_subcommand_of_the_deployed_command)
+The finding was that it was not. ... ok
+test_the_help_lists_it (tests.tools.test_dossier_command.TheRecordVerbIsPartOfTheInstalledCommand.test_the_help_lists_it) ... ok
+test_ABSENT_evidence_is_refused_and_named_as_absent (tests.tools.test_dossier_command.VerifyResolvesCitationsHonestly.test_ABSENT_evidence_is_refused_and_named_as_absent) ... ok
+test_CHANGED_evidence_is_refused_and_distinguished_from_absent (tests.tools.test_dossier_command.VerifyResolvesCitationsHonestly.test_CHANGED_evidence_is_refused_and_distinguished_from_absent)
+A citation whose bytes moved underneath it is a different fact from ... ok
+test_UNREADABLE_evidence_is_NOT_reported_as_absent (tests.tools.test_dossier_command.VerifyResolvesCitationsHonestly.test_UNREADABLE_evidence_is_NOT_reported_as_absent)
+Reporting a permission problem as a missing file would send an ... ok
+test_a_DIRECTORY_at_the_reference_is_its_own_state (tests.tools.test_dossier_command.VerifyResolvesCitationsHonestly.test_a_DIRECTORY_at_the_reference_is_its_own_state) ... ok
+test_a_dossier_citing_NOTHING_is_refused_rather_than_called_intact (tests.tools.test_dossier_command.VerifyResolvesCitationsHonestly.test_a_dossier_citing_NOTHING_is_refused_rather_than_called_intact) ... ok
+test_intact_evidence_verifies (tests.tools.test_dossier_command.VerifyResolvesCitationsHonestly.test_intact_evidence_verifies) ... ok
+test_verifying_an_UNBOUND_work_is_refused (tests.tools.test_dossier_command.VerifyResolvesCitationsHonestly.test_verifying_an_UNBOUND_work_is_refused) ... ok
+test_a_DIRECTORY_at_the_reference_is_not_a_regular_file (tests.tools.test_dossier_recovery.ContainedEvidence.test_a_DIRECTORY_at_the_reference_is_not_a_regular_file) ... ok
+test_a_SYMLINK_to_a_file_outside_the_root_cannot_be_CITED (tests.tools.test_dossier_recovery.ContainedEvidence.test_a_SYMLINK_to_a_file_outside_the_root_cannot_be_CITED)
+The exact reproduction: exit 0 twice, before. ... ok
+test_a_contained_regular_file_cites_and_verifies (tests.tools.test_dossier_recovery.ContainedEvidence.test_a_contained_regular_file_cites_and_verifies) ... ok
+test_a_symlink_that_happens_to_point_INSIDE_is_still_refused (tests.tools.test_dossier_recovery.ContainedEvidence.test_a_symlink_that_happens_to_point_INSIDE_is_still_refused)
+A link's target can be replaced after the answer, so a contained ... ok
+test_absent_and_unreadable_stay_DIFFERENT_answers (tests.tools.test_dossier_recovery.ContainedEvidence.test_absent_and_unreadable_stay_DIFFERENT_answers) ... ok
+test_an_INTERMEDIATE_symlink_is_refused_at_its_own_depth (tests.tools.test_dossier_recovery.ContainedEvidence.test_an_INTERMEDIATE_symlink_is_refused_at_its_own_depth)
+`a -> /tmp` makes `a/b` out of root as surely as a final link does, ... ok
+test_evidence_REPLACED_BY_A_SYMLINK_verifies_as_an_escape (tests.tools.test_dossier_recovery.ContainedEvidence.test_evidence_REPLACED_BY_A_SYMLINK_verifies_as_an_escape)
+And the citation already recorded stays honest afterwards. ... ok
+test_the_GRAMMAR_is_checked_before_any_filesystem_access (tests.tools.test_dossier_recovery.ContainedEvidence.test_the_GRAMMAR_is_checked_before_any_filesystem_access)
+P1b's second half: malformed escape operands were read before the ... ok
+test_CHANGED_RETAINED_evidence_is_refused (tests.tools.test_dossier_recovery.TheClosedRecoverySet.test_CHANGED_RETAINED_evidence_is_refused) ... ok
+test_COMPATIBILITY_is_the_STORED_version_not_this_builds_constant (tests.tools.test_dossier_recovery.TheClosedRecoverySet.test_COMPATIBILITY_is_the_STORED_version_not_this_builds_constant)
+The correction review named: before, the manifest's recorded number ... ok
+test_REMOVED_RETAINED_evidence_is_refused (tests.tools.test_dossier_recovery.TheClosedRecoverySet.test_REMOVED_RETAINED_evidence_is_refused) ... ok
+test_a_CHANGED_PROVENANCE_document_is_refused (tests.tools.test_dossier_recovery.TheClosedRecoverySet.test_a_CHANGED_PROVENANCE_document_is_refused) ... ok
+test_a_CHANGED_SIDECAR_is_refused (tests.tools.test_dossier_recovery.TheClosedRecoverySet.test_a_CHANGED_SIDECAR_is_refused) ... ok
+test_a_CHANGED_store_is_refused (tests.tools.test_dossier_recovery.TheClosedRecoverySet.test_a_CHANGED_store_is_refused) ... ok
+test_a_COMPLETE_restore_passes_and_still_admits_NOTHING (tests.tools.test_dossier_recovery.TheClosedRecoverySet.test_a_COMPLETE_restore_passes_and_still_admits_NOTHING) ... ok
+test_a_DIRECTORY_SYMLINK_in_a_retained_tree_is_bound (tests.tools.test_dossier_recovery.TheClosedRecoverySet.test_a_DIRECTORY_SYMLINK_in_a_retained_tree_is_bound)
+It appears in `directories`, never in `names`, so the previous walk ... ok
+test_a_MISSING_PROVENANCE_member_refuses (tests.tools.test_dossier_recovery.TheClosedRecoverySet.test_a_MISSING_PROVENANCE_member_refuses) ... ok
+test_a_MISSING_STORE_refuses (tests.tools.test_dossier_recovery.TheClosedRecoverySet.test_a_MISSING_STORE_refuses) ... ok
+test_a_REMOVED_restored_selector_is_NOT_a_clean_set (tests.tools.test_dossier_recovery.TheClosedRecoverySet.test_a_REMOVED_restored_selector_is_NOT_a_clean_set)
+Review P1, half one: absence added no fault, so deleting the ... ok
+test_a_SYNTHETIC_one_member_manifest_is_refused (tests.tools.test_dossier_recovery.TheClosedRecoverySet.test_a_SYNTHETIC_one_member_manifest_is_refused)
+The reviewer's `one_member_recovery` reproduction, which returned 0 ... ok
+test_a_clean_report_NEVER_claims_the_old_runtime_STOPPED (tests.tools.test_dossier_recovery.TheClosedRecoverySet.test_a_clean_report_NEVER_claims_the_old_runtime_STOPPED)
+Review P1: a destination directory disappearing is not proof that ... ok
+test_a_document_that_is_not_a_recovery_set_is_refused (tests.tools.test_dossier_recovery.TheClosedRecoverySet.test_a_document_that_is_not_a_recovery_set_is_refused) ... ok
+test_a_document_the_REAL_VALIDATOR_rejects_is_refused (tests.tools.test_dossier_recovery.TheClosedRecoverySet.test_a_document_the_REAL_VALIDATOR_rejects_is_refused)
+And it is refused in the validator's own words, so the consumer and ... ok
+test_a_manifest_CREATED_over_a_missing_retained_root_refuses (tests.tools.test_dossier_recovery.TheClosedRecoverySet.test_a_manifest_CREATED_over_a_missing_retained_root_refuses)
+And the refusal starts at manifest creation: an absent configured ... ok
+test_a_manifest_WITHOUT_the_selector_document_cannot_be_checked (tests.tools.test_dossier_recovery.TheClosedRecoverySet.test_a_manifest_WITHOUT_the_selector_document_cannot_be_checked)
+The `/3` member exists so a relocation can be told from a rewrite; ... ok
+test_a_manifest_that_RECORDED_MISSING_MEMBERS_is_refused_for_that (tests.tools.test_dossier_recovery.TheClosedRecoverySet.test_a_manifest_that_RECORDED_MISSING_MEMBERS_is_refused_for_that) ... ok
+test_a_restored_selector_holding_JSON_null_refuses_STRUCTURALLY (tests.tools.test_dossier_recovery.TheClosedRecoverySet.test_a_restored_selector_holding_JSON_null_refuses_STRUCTURALLY)
+Review 2026-10-18T09-29-00Z P2, and the defect was mine. `state` ... ok
+test_a_restored_selector_naming_ANOTHER_AUTHORITY_is_refused (tests.tools.test_dossier_recovery.TheClosedRecoverySet.test_a_restored_selector_naming_ANOTHER_AUTHORITY_is_refused)
+Review P1, half two: `instance_digest` was recorded and never ... ok
+test_a_restored_store_of_ANOTHER_AUTHORITY_is_refused (tests.tools.test_dossier_recovery.TheClosedRecoverySet.test_a_restored_store_of_ANOTHER_AUTHORITY_is_refused) ... ok
+test_a_selector_DISAGREEING_WITH_ITS_OWN_DESTINATION_is_refused (tests.tools.test_dossier_recovery.TheClosedRecoverySet.test_a_selector_DISAGREEING_WITH_ITS_OWN_DESTINATION_is_refused)
+Every path an instance owns is derived from its destination. ... ok
+test_a_selector_RELOCATED_SOMEWHERE_ELSE_is_still_changed (tests.tools.test_dossier_recovery.TheClosedRecoverySet.test_a_selector_RELOCATED_SOMEWHERE_ELSE_is_still_changed)
+The supported rewrite is to the root the set actually landed ... ok
+test_a_selector_RELOCATED_TO_THIS_ROOT_is_the_supported_rewrite (tests.tools.test_dossier_recovery.TheClosedRecoverySet.test_a_selector_RELOCATED_TO_THIS_ROOT_is_the_supported_rewrite)
+A restore that moved must be able to rewrite the one path member ... ok
+test_a_sidecar_that_APPEARED_is_writer_uncertainty (tests.tools.test_dossier_recovery.TheClosedRecoverySet.test_a_sidecar_that_APPEARED_is_writer_uncertainty)
+`-journal` rather than `-wal`: the manifest legitimately records a ... ok
+test_a_store_that_is_NOT_THIS_INSTANCES_refuses (tests.tools.test_dossier_recovery.TheClosedRecoverySet.test_a_store_that_is_NOT_THIS_INSTANCES_refuses) ... ok
+test_an_OMITTED_retained_axis_is_refused_not_believed (tests.tools.test_dossier_recovery.TheClosedRecoverySet.test_an_OMITTED_retained_axis_is_refused_not_believed)
+Review P1's second reproduction: deleting `retained` from a /2 ... ok
+test_an_OTHERWISE_CHANGED_selector_is_refused_by_member (tests.tools.test_dossier_recovery.TheClosedRecoverySet.test_an_OTHERWISE_CHANGED_selector_is_refused_by_member)
+Not every rewrite is a relocation, and the one that is gets named ... ok
+test_an_UNREADABLE_retained_subtree_is_not_a_complete_tree (tests.tools.test_dossier_recovery.TheClosedRecoverySet.test_an_UNREADABLE_retained_subtree_is_not_a_complete_tree)
+`os.walk` without an error handler silently skips what it cannot ... ok
+test_representative_NON_OBJECT_selectors_each_refuse_the_same_way (tests.tools.test_dossier_recovery.TheClosedRecoverySet.test_representative_NON_OBJECT_selectors_each_refuse_the_same_way)
+A list, a bare string and a number are all "not one document", and ... ok
+test_the_REQUIRED_retained_roots_cannot_be_declared_unconfigured (tests.tools.test_dossier_recovery.TheClosedRecoverySet.test_the_REQUIRED_retained_roots_cannot_be_declared_unconfigured)
+Review P1: `not-configured` was a bypass. The contract requires ... ok
+test_the_RESTORED_authority_still_answers_record_and_history (tests.tools.test_dossier_recovery.TheClosedRecoverySet.test_the_RESTORED_authority_still_answers_record_and_history)
+Readback is acceptance. ... ok
+test_the_ROOT_is_honoured_WITHOUT_flat (tests.tools.test_dossier_recovery.TheClosedRecoverySet.test_the_ROOT_is_honoured_WITHOUT_flat)
+Before, `--root` was ignored unless `--flat` was given, so the ... ok
+test_the_identity_probe_uses_the_SUPPORTED_authority_surface (tests.tools.test_dossier_recovery.TheClosedRecoverySet.test_the_identity_probe_uses_the_SUPPORTED_authority_surface)
+Not raw SQL: `Authority.stored_identity` is the authority's own ... ok
+test_the_manifest_binds_the_WHOLE_set_with_real_provenance (tests.tools.test_dossier_recovery.TheClosedRecoverySet.test_the_manifest_binds_the_WHOLE_set_with_real_provenance) ... ok
+test_the_restored_set_is_RE_READ_after_the_identity_probe (tests.tools.test_dossier_recovery.TheClosedRecoverySet.test_the_restored_set_is_RE_READ_after_the_identity_probe)
+Review P1: the probe ran after the digests were reported, so a check ... ok
+test_a_FIFO_does_not_block_the_check (tests.tools.test_dossier_recovery.ThePARENTReplacementRaceIsClosed.test_a_FIFO_does_not_block_the_check)
+Opening a FIFO for reading waits for a writer unless `O_NONBLOCK` ... ok
+test_a_parent_replaced_MID_RESOLUTION_cannot_be_read_through (tests.tools.test_dossier_recovery.ThePARENTReplacementRaceIsClosed.test_a_parent_replaced_MID_RESOLUTION_cannot_be_read_through)
+The interleaving: the swap happens at the moment the old code was ... ok
+test_a_root_that_is_itself_a_symlink_is_refused (tests.tools.test_dossier_recovery.ThePARENTReplacementRaceIsClosed.test_a_root_that_is_itself_a_symlink_is_refused) ... ok
+test_an_empty_reference_is_not_the_root_itself (tests.tools.test_dossier_recovery.ThePARENTReplacementRaceIsClosed.test_an_empty_reference_is_not_the_root_itself) ... ok
+test_the_descriptor_ANCHOR_survives_a_rename_after_it_is_open (tests.tools.test_dossier_recovery.ThePARENTReplacementRaceIsClosed.test_the_descriptor_ANCHOR_survives_a_rename_after_it_is_open)
+Once `repo/a` is open, renaming it away cannot redirect the read: ... ok
+
+----------------------------------------------------------------------
+Ran 102 tests in 0.408s
+
+OK

@@ -1,0 +1,83 @@
+{
+ "answers": "review-2026-10-18T09-29-00Z.md P2 -- a selector file holding a valid JSON null parsed to None, skipped the contract validator, left the state at `present`, and then indexed None, raising TypeError out of the public command. THE DEFECT WAS MINE, introduced by the claim-322286 correction.",
+ "candidate": {
+  "src/baton_v12/authority/api.py": "sha256:9c8562b77d2064fcb5752bb996c81f0f4b4ce843eb5f3504a732962c48bed0b0",
+  "src/baton_v12/authority/core.py": "sha256:e6569eca43986af8ce3190472820549038a8c2b17c87d892ca66b06e3bf5de6a",
+  "src/baton_v12/authority/dossier.py": "sha256:4508ff3577f0258018ce68503a92c68ce438550881ffb3b9ca7ef9b17738e66c",
+  "src/baton_v12/authority/schema.py": "sha256:e96f702484a8f1e720f9785aeb1c51790e4362766f11620d260e2a3671bcfaf4",
+  "tests/authority/test_boundary.py": "sha256:e1748fc9e364f584dfcc5d114edfb208ded8ccdb78da6ca39f954e7f9582fd42",
+  "tests/authority/test_catalog.py": "sha256:7e70f111ed33482c6eeb4ef0fc989a5a335758ad8208874271ce894155e04bd2",
+  "tests/authority/test_dossier.py": "sha256:ab493c66d88ce147aa9530c12d08bb1f3ef8b18f97c6d713171db69e9d63d8ee",
+  "tests/authority/test_session.py": "sha256:4804ed2651d3f75150ac1e989c0a3611b5bd00cae62a7fd53bcfe1b8f2683a37",
+  "tests/tools/test_dossier_command.py": "sha256:fbb88efcbe7f059d51ddb1cb770328787430fdd0d1e2192f4aa2243f987be0bb",
+  "tests/tools/test_dossier_recovery.py": "sha256:8e10098799e0a473883bbcfef0bcbce3630af48bc2a443b898f125c5995bac61",
+  "tools/dossier_command.py": "sha256:32c3c4b7eef45a01b56c2b552b2238ec3510633826994a698ebdc4cf308f4967",
+  "tools/stack_command.py": "sha256:c86c0a4a536c8ce4a4d83f464e7a6522a1f946bdff29500da88ad401e181d297"
+ },
+ "candidate_root": "/home/sl/baton-instances/w321688-321989-candidate",
+ "changed_this_claim": {
+  "tests/tools/test_dossier_recovery.py": "two focused cases at the real public boundary: JSON null refusing structurally with the validator's own words and no traceback, and the four representative non-objects each refusing the same way with the original destination removed so the exit code is the selector's answer rather than writer uncertainty",
+  "tools/dossier_command.py": "parse SUCCESS and the parsed VALUE are two facts now: a `read` flag says whether JSON came back, and EVERY parsed value goes through instance_contract.malformed -- including null, [], a bare string, a number and a bool, each of which the real validator already names. No local isinstance check was added, because that would be a second definition of what a selector is"
+ },
+ "claim": 322441,
+ "documentation": {
+  "RECOVERY.md": "the schema paragraph now says what the code does: compatibility is read from the RESTORED STORE's own metadata through Authority.stored_identity, the manifest's recorded version is COMPARED against it rather than trusted in its place, the probe reads a SCRATCH COPY so a WAL -shm cannot touch the certified set, and unchanged_after_observation re-reads every member to prove it."
+ },
+ "evidence": {
+  "FOCUSED.log": "sha256:236d5e426f6f6db2dfc6d11cab4a2a213af244b9b6bd33206172ab2b95bbd924",
+  "PACKAGED-COMMAND.json": "sha256:67d8a8346a2abf163e62db21b2322867730bf30fee22447f7dfb6c83d44321ee",
+  "REGISTRY.log": "sha256:18a66bd23fff4da440314144d7f478f2bcfa5b2662425112a4d31fbded8461eb",
+  "correction.patch": "sha256:cf339de2819c63ac14ee073dcd79e12b57dfe8cdb76457da54355069768e3191",
+  "dossier_command.py": "sha256:32c3c4b7eef45a01b56c2b552b2238ec3510633826994a698ebdc4cf308f4967",
+  "packaged_command.py": "sha256:7ca3fbf106395811b38eb0d93e78a80dd5b465f197d008311613d1a1bdfb6cca",
+  "test_boundary.py": "sha256:e1748fc9e364f584dfcc5d114edfb208ded8ccdb78da6ca39f954e7f9582fd42",
+  "test_dossier_recovery.py": "sha256:8e10098799e0a473883bbcfef0bcbce3630af48bc2a443b898f125c5995bac61"
+ },
+ "frozen_bundle": {
+  "built": false,
+  "governed_route_exists": true,
+  "old_bundle_not_substituted": "the bundle at v12/python/build/out/distro was built 2026-09-21 from 446fa8f7 and contains none of this change; it was not used.",
+  "route": "v12/justfile:131-139, recipe `build`",
+  "what_the_evidence_is_instead": "the spec's own entry script, run as a subprocess with the spec's own import path. It measures argv parsing, verb dispatch, stdout and exit codes on the candidate's bytes. IT DOES NOT MEASURE FREEZING, and this is carried as a residual operational gap for final acceptance rather than relabelled.",
+  "why_it_cannot_be_taken_here": "the recipe's first step is `pip install --no-cache-dir --disable-pip-version-check --require-hashes --ignore-installed -r requirements.build.lock`, which must reach an index. Measured this claim: PyInstaller is absent from the system interpreter and from the repository .venv, and there is no local wheel or cached artifact anywhere on this host (`--no-cache-dir` forbids one anyway). This review authorizes no network install, so the route is NAMED and NOT TAKEN."
+ },
+ "host_tree_now": {
+  "src/baton_v12/authority/api.py": "sha256:9c8562b77d2064fcb5752bb996c81f0f4b4ce843eb5f3504a732962c48bed0b0",
+  "src/baton_v12/authority/core.py": "sha256:e6569eca43986af8ce3190472820549038a8c2b17c87d892ca66b06e3bf5de6a",
+  "src/baton_v12/authority/dossier.py": "sha256:4508ff3577f0258018ce68503a92c68ce438550881ffb3b9ca7ef9b17738e66c",
+  "src/baton_v12/authority/schema.py": "sha256:e96f702484a8f1e720f9785aeb1c51790e4362766f11620d260e2a3671bcfaf4",
+  "tests/authority/test_boundary.py": "sha256:b58d1ccee28a8c0260f4a991c814fb3f6305a54bbbbe291eda2da5104feeaf4f",
+  "tests/authority/test_catalog.py": "sha256:7e70f111ed33482c6eeb4ef0fc989a5a335758ad8208874271ce894155e04bd2",
+  "tests/authority/test_dossier.py": "sha256:ab493c66d88ce147aa9530c12d08bb1f3ef8b18f97c6d713171db69e9d63d8ee",
+  "tests/authority/test_session.py": "sha256:4804ed2651d3f75150ac1e989c0a3611b5bd00cae62a7fd53bcfe1b8f2683a37",
+  "tests/tools/test_dossier_command.py": "sha256:51d1c377af667cc07caebf456c47e596cca6635e0881d89b3f4e7698e81da080",
+  "tools/dossier_command.py": "sha256:1d6d6db806ea646c74c5d53da5b9f9aa2cc66a1bc709e95bf20c5190ba7e2021",
+  "tools/stack_command.py": "sha256:c86c0a4a536c8ce4a4d83f464e7a6522a1f946bdff29500da88ad401e181d297"
+ },
+ "known_failures_not_mine": {
+  "tests.authority.test_boundary EveryDiagnosticIsBoundedByTheRule": "two diagnostic-bounding failures, identical on the host tree",
+  "tests.authority.test_boundary ExportedSurface": "`open_readonly` has been on the authority bootstrap face since committed HEAD and never in that registry. Host fails with TWO extras, candidate with ONE. Not this Work's decision.",
+  "tests.authority.test_catalog TheMigrationChecklistIsRead": "two isolated-checkout artifacts: the case resolves frozen Node evidence at REPOSITORY/v12/test and the candidate root holds v12/python's contents directly. Both pass on the host tree."
+ },
+ "no_git": "no commit, branch, index or any other Git mutation; Slawomir alone owns the index and history",
+ "participant": "baton.claude",
+ "schema": "baton.w321688.candidate/1",
+ "unchanged_this_claim": [
+  "tools/stack_command.py",
+  "tests/tools/test_dossier_command.py",
+  "tests/authority/test_dossier.py",
+  "tests/authority/test_boundary.py",
+  "tests/authority/test_session.py",
+  "tests/authority/test_catalog.py",
+  "src/baton_v12/authority/dossier.py",
+  "src/baton_v12/authority/schema.py",
+  "src/baton_v12/authority/core.py",
+  "src/baton_v12/authority/api.py"
+ ],
+ "verification": {
+  "focused": "tests.authority.test_dossier + tests.tools.test_dossier_command + tests.tools.test_dossier_recovery: 102 tests, OK, 0.408s (FOCUSED.log), run with PYTHONPATH=src from the candidate root -- the import path the reviewer noted is required",
+  "packaged_command": "ELEVEN scenarios through packaging/stack.spec's own entry script on the exact candidate bytes (PACKAGED-COMMAND.json), now including null and the four non-objects: each exits 2 with state `malformed`, the validator's own type name in `why`, and NO traceback. Still NOT a frozen-bundle run.",
+  "registry": "tests.authority.test_boundary + test_session + test_catalog: 58 tests, 4 failures and 1 error, all pre-existing or isolated-checkout artifacts (REGISTRY.log)"
+ },
+ "work": "W321688"
+}

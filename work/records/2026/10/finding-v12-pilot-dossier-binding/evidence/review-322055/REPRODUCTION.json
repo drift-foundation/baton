@@ -1,0 +1,72 @@
+{
+  "intermediate_replacement": {
+    "state": "present",
+    "digest": "sha256:31207a2065f46a5b948fce6fe5c13e85abaf5631e2f894b47dcd4fce14f6c57b",
+    "outside_digest": "sha256:31207a2065f46a5b948fce6fe5c13e85abaf5631e2f894b47dcd4fce14f6c57b"
+  },
+  "missing_retained": {
+    "code": 0,
+    "answer": {
+      "build_speaks_schema_version": 6,
+      "faults": [],
+      "layout": "as-recorded",
+      "manifest": "/tmp/v12-recovery-47ost726/recovery-set.json",
+      "members": {
+        "authority_store": {
+          "actual": "sha256:0af8ff1aabb36f22a57271fbec5f7158eb6f79047569dd40a5274f9e7a68ad1d",
+          "path": "/tmp/v12-recovery-47ost726/restored/db/authority.sqlite3",
+          "recorded_digest": "sha256:0af8ff1aabb36f22a57271fbec5f7158eb6f79047569dd40a5274f9e7a68ad1d",
+          "sidecars": {
+            "-shm": "present",
+            "-wal": "present"
+          },
+          "state": "present"
+        },
+        "control_store": {
+          "actual": "sha256:c7dda0dc3428922d7d0a48f3470bfa916a16a819673e112080918bb7a2a21714",
+          "path": "/tmp/v12-recovery-47ost726/restored/db/control.sqlite3",
+          "recorded_digest": "sha256:c7dda0dc3428922d7d0a48f3470bfa916a16a819673e112080918bb7a2a21714",
+          "sidecars": {},
+          "state": "present"
+        },
+        "job_store": {
+          "actual": "sha256:c7dda0dc3428922d7d0a48f3470bfa916a16a819673e112080918bb7a2a21714",
+          "path": "/tmp/v12-recovery-47ost726/restored/db/jobs.sqlite3",
+          "recorded_digest": "sha256:c7dda0dc3428922d7d0a48f3470bfa916a16a819673e112080918bb7a2a21714",
+          "sidecars": {},
+          "state": "present"
+        }
+      },
+      "operator_must_account_for_writers": true,
+      "provenance": {
+        "deployment": {
+          "actual": "sha256:c51fd019ef9de5b93da91280b7d336b35fe635e1ce96063f54d0c231bc9fdc4b",
+          "path": "/tmp/v12-recovery-47ost726/restored/deployment.json",
+          "recorded_digest": "sha256:c51fd019ef9de5b93da91280b7d336b35fe635e1ce96063f54d0c231bc9fdc4b",
+          "state": "present"
+        },
+        "identity": {
+          "actual": "sha256:aa09311808ccecbedc607383cae8d7a09bd4889dcaa18d6d8d9b0a6149394e5d",
+          "recorded_digest": "sha256:aa09311808ccecbedc607383cae8d7a09bd4889dcaa18d6d8d9b0a6149394e5d",
+          "state": "present"
+        },
+        "runtime": {
+          "actual": "sha256:8d44ed2271a97faac808977a5c8a4a047ad96b81ae6cbc67ebdb204dcda69414",
+          "recorded_digest": "sha256:8d44ed2271a97faac808977a5c8a4a047ad96b81ae6cbc67ebdb204dcda69414",
+          "state": "present"
+        }
+      },
+      "retained": {},
+      "root": "/tmp/v12-recovery-47ost726/restored",
+      "schema_compatible": true,
+      "stored_identity": {
+        "authority_uuid": "0123456789abcdef0123456789abcdef",
+        "schema_version": "6",
+        "store_kind": "baton.v12.python.authority"
+      },
+      "writable_admission": "these checks found no fault in the restored set. They do NOT establish that the previous instance stopped: admitting this set writably requires the operator to positively account for every runtime and launch of it, and no absence of a directory proves that",
+      "writer_uncertainty": []
+    },
+    "error": ""
+  }
+}

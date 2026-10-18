@@ -1,0 +1,37 @@
+{
+  "missing-selector": {
+    "exit": 2,
+    "faults": [
+      "restored-instance-selector"
+    ],
+    "selector": {
+      "path": "/tmp/v12-recovery-g47rb4hh/restored/instance.json",
+      "recorded_digest": "sha256:18917153a9be875f1bf71e15bbc305c9b5f844c262f48cfcfa725ef501605e82",
+      "state": "absent"
+    }
+  },
+  "changed-selector-uuid": {
+    "exit": 2,
+    "faults": [
+      "restored-instance-selector"
+    ],
+    "selector": {
+      "path": "/tmp/v12-recovery-n_sz9avi/restored/instance.json",
+      "recorded_digest": "sha256:4765ffa468fdebe791fe22b48cf0efb3d3b714e6e8357b73620c7e09bd59ca3a",
+      "state": "another-authority",
+      "why": "the restored selector names authority 'ffffffffffffffffffffffffffffffff', not this set's '0123456789abcdef0123456789abcdef'"
+    }
+  },
+  "null-selector": {
+    "exit": 2,
+    "faults": [
+      "restored-instance-selector"
+    ],
+    "selector": {
+      "path": "/tmp/v12-recovery-drvyagir/restored/instance.json",
+      "recorded_digest": "sha256:e2cde96790238a2da7a427dcdeada2c4649c36b62a6e3d577d6cc16e10d1d8cb",
+      "state": "malformed",
+      "why": "an instance selector is one document, not NoneType"
+    }
+  }
+}

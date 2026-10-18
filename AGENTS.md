@@ -581,3 +581,25 @@ The owner clarifies that `baton.merge` is not the standard integration process. 
 ## Additional Codex implementer — owner 2026-09-21
 
 Owner selects coder `codx-pc`, canonical `baton.codxpc` (six-cell member limit), role `impl`, backed by `/home/sl/.codex-pushcoin` in its own supervised context. After configuration acceptance, endpoint `baton.codx` routes through `implpc` exclusively to this implementer. Existing Claude and reviewer routes remain unchanged; `baton.rvpc` remains the independent reviewer. This supersedes any assumption that only Claude may implement: each implementer uses its exact launcher identity and a successful exclusive claim, preserves prior changes, and hands off for independent review. Adding this participant does not release Claude's failed claim or authorize concurrent edits to W177936. Decision and installation packet: `work/records/2026/09/finding-codx-pc-implementer/` (W232334).
+
+
+## V12 execution default reaffirmed — owner 2026-10-18
+
+All future product implementation must execute through isolated v12 Jobs unless
+a concrete blocker is recorded in the owning Work. V11 may remain the coordination
+authority; a v11 claim or an isolated candidate directory alone is not evidence
+of v12 execution. Convenience, existing routing or packet preparation overhead
+is not an execution blocker. Identify the exact failed or unavailable operation
+and bounded fallback before using direct shared-checkout implementation. Preserve
+independent review, exact candidate provenance, file ownership and human Git control.
+This does not prohibit coordination records, planning or reviewed-byte integration
+under their existing authority.
+
+W321688 alone has a conditional near-completion exception: preserve its already
+authored shared-tree work and finish bounded existing corrections if nearly done,
+then obtain independent acceptance and a scoped owner checkpoint. Do not restart
+useful work solely to change its execution provenance, but report that provenance
+honestly. The exception neither accepts the current candidate nor waives recovery/
+containment defects, and does not extend to successor pilot Work. If substantial
+implementation remains, return to the v12 execution path. Exact ruling:
+[W321688 owner execution ruling](work/records/2026/10/finding-v12-pilot-dossier-binding/OWNER-EXECUTION-20261018.md).

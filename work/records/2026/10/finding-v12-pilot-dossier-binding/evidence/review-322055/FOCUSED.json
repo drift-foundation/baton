@@ -1,0 +1,13 @@
+{
+  "command": [
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-B",
+    "-m",
+    "unittest",
+    "tests.tools.test_dossier_recovery",
+    "tests.tools.test_dossier_command",
+    "tests.authority.test_dossier"
+  ],
+  "exit": 0,
+  "wall_seconds": 0.36155551000047126
+}

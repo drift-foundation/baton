@@ -1,0 +1,79 @@
+{
+  "participant": "baton.prompt",
+  "review": "review-2026-10-18T09-42-00Z.md",
+  "files": [
+    {
+      "path": "v12/python/src/baton_v12/authority/api.py",
+      "before": "sha256:9c8562b77d2064fcb5752bb996c81f0f4b4ce843eb5f3504a732962c48bed0b0",
+      "accepted": "sha256:9c8562b77d2064fcb5752bb996c81f0f4b4ce843eb5f3504a732962c48bed0b0",
+      "imported": false
+    },
+    {
+      "path": "v12/python/src/baton_v12/authority/core.py",
+      "before": "sha256:e6569eca43986af8ce3190472820549038a8c2b17c87d892ca66b06e3bf5de6a",
+      "accepted": "sha256:e6569eca43986af8ce3190472820549038a8c2b17c87d892ca66b06e3bf5de6a",
+      "imported": false
+    },
+    {
+      "path": "v12/python/src/baton_v12/authority/dossier.py",
+      "before": "sha256:4508ff3577f0258018ce68503a92c68ce438550881ffb3b9ca7ef9b17738e66c",
+      "accepted": "sha256:4508ff3577f0258018ce68503a92c68ce438550881ffb3b9ca7ef9b17738e66c",
+      "imported": false
+    },
+    {
+      "path": "v12/python/src/baton_v12/authority/schema.py",
+      "before": "sha256:e96f702484a8f1e720f9785aeb1c51790e4362766f11620d260e2a3671bcfaf4",
+      "accepted": "sha256:e96f702484a8f1e720f9785aeb1c51790e4362766f11620d260e2a3671bcfaf4",
+      "imported": false
+    },
+    {
+      "path": "v12/python/tests/authority/test_boundary.py",
+      "before": "sha256:b58d1ccee28a8c0260f4a991c814fb3f6305a54bbbbe291eda2da5104feeaf4f",
+      "accepted": "sha256:e1748fc9e364f584dfcc5d114edfb208ded8ccdb78da6ca39f954e7f9582fd42",
+      "imported": true
+    },
+    {
+      "path": "v12/python/tests/authority/test_catalog.py",
+      "before": "sha256:7e70f111ed33482c6eeb4ef0fc989a5a335758ad8208874271ce894155e04bd2",
+      "accepted": "sha256:7e70f111ed33482c6eeb4ef0fc989a5a335758ad8208874271ce894155e04bd2",
+      "imported": false
+    },
+    {
+      "path": "v12/python/tests/authority/test_dossier.py",
+      "before": "sha256:ab493c66d88ce147aa9530c12d08bb1f3ef8b18f97c6d713171db69e9d63d8ee",
+      "accepted": "sha256:ab493c66d88ce147aa9530c12d08bb1f3ef8b18f97c6d713171db69e9d63d8ee",
+      "imported": false
+    },
+    {
+      "path": "v12/python/tests/authority/test_session.py",
+      "before": "sha256:4804ed2651d3f75150ac1e989c0a3611b5bd00cae62a7fd53bcfe1b8f2683a37",
+      "accepted": "sha256:4804ed2651d3f75150ac1e989c0a3611b5bd00cae62a7fd53bcfe1b8f2683a37",
+      "imported": false
+    },
+    {
+      "path": "v12/python/tests/tools/test_dossier_command.py",
+      "before": "sha256:51d1c377af667cc07caebf456c47e596cca6635e0881d89b3f4e7698e81da080",
+      "accepted": "sha256:fbb88efcbe7f059d51ddb1cb770328787430fdd0d1e2192f4aa2243f987be0bb",
+      "imported": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_dossier_recovery.py",
+      "before": null,
+      "accepted": "sha256:8e10098799e0a473883bbcfef0bcbce3630af48bc2a443b898f125c5995bac61",
+      "imported": true
+    },
+    {
+      "path": "v12/python/tools/dossier_command.py",
+      "before": "sha256:1d6d6db806ea646c74c5d53da5b9f9aa2cc66a1bc709e95bf20c5190ba7e2021",
+      "accepted": "sha256:32c3c4b7eef45a01b56c2b552b2238ec3510633826994a698ebdc4cf308f4967",
+      "imported": true
+    },
+    {
+      "path": "v12/python/tools/stack_command.py",
+      "before": "sha256:c86c0a4a536c8ce4a4d83f464e7a6522a1f946bdff29500da88ad401e181d297",
+      "accepted": "sha256:c86c0a4a536c8ce4a4d83f464e7a6522a1f946bdff29500da88ad401e181d297",
+      "imported": false
+    }
+  ],
+  "git_mutated": false
+}

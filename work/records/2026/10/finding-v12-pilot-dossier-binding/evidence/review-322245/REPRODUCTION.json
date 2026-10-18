@@ -1,0 +1,12 @@
+{
+  "missing-selector": {
+    "exit": 0,
+    "faults": [],
+    "compatible": true
+  },
+  "changed-selector-uuid": {
+    "exit": 0,
+    "faults": [],
+    "compatible": true
+  }
+}

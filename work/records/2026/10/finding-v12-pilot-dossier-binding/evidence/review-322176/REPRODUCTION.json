@@ -1,0 +1,30 @@
+{
+  "missing_required_roots": {
+    "real_instance_validator": "/tmp/v12-recovery-gak5ctqz/instance/instance.json does not name command, logs, repository, state",
+    "manifest_retained": {
+      "logs": {
+        "state": "not-configured"
+      },
+      "repository": {
+        "state": "not-configured"
+      },
+      "state": {
+        "state": "not-configured"
+      }
+    },
+    "manifest_missing": []
+  },
+  "restore_without_required_roots": {
+    "code": 0,
+    "faults": []
+  },
+  "real_instance_document": {
+    "validator": null,
+    "has_authority_store": false,
+    "code": 2,
+    "missing_members": [
+      "authority_store"
+    ],
+    "error": "refused: this instance is missing recovery-set members authority_store; a partial set is not a recoverable deployment\n"
+  }
+}

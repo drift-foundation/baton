@@ -1,0 +1,5 @@
+Post-outage reviewed-byte integration by baton.prompt, 2026-10-18.
+Command (cwd v12/python): PYTHONPATH=src timeout 60 python3 -m unittest tests.authority.test_dossier tests.tools.test_dossier_command tests.tools.test_dossier_recovery
+Result: 102 tests passed in 0.385s; exit 0.
+All twelve final file hashes match independent acceptance. git diff --check passed.
+Prior independent frozen-bundle evidence reused; no new live execution, production restore or deployment.

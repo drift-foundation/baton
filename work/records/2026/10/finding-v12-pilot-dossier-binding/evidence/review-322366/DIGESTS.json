@@ -1,0 +1,14 @@
+{
+  "src/baton_v12/authority/api.py": true,
+  "src/baton_v12/authority/core.py": true,
+  "src/baton_v12/authority/dossier.py": true,
+  "src/baton_v12/authority/schema.py": true,
+  "tests/authority/test_boundary.py": true,
+  "tests/authority/test_catalog.py": true,
+  "tests/authority/test_dossier.py": true,
+  "tests/authority/test_session.py": true,
+  "tests/tools/test_dossier_command.py": true,
+  "tests/tools/test_dossier_recovery.py": true,
+  "tools/dossier_command.py": true,
+  "tools/stack_command.py": true
+}

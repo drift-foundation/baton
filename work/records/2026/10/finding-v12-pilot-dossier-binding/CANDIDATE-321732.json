@@ -1,0 +1,48 @@
+{
+  "authority_schema_version": {
+    "approver_ruling": "OWED -- every previous bump cites one (M33752/M35002/M35127); this one does not",
+    "disposition": "clean initialization; no migration in either direction",
+    "now": 6,
+    "was": 5
+  },
+  "base": "3dcf6dc4bcee97e932d17c93ac13c5811b3af188",
+  "base_revalidated": "HEAD at pickup; product tree clean",
+  "claim": 321732,
+  "episode": 321727,
+  "excluded": [
+    "no live provider or engine",
+    "no deployment or bundle build",
+    "no production backup/restore or live instance access",
+    "no v11 store adoption or migration",
+    "no Git mutation",
+    "no broad dossier migration or graph UI",
+    "W61981/W321528 packets and pins untouched"
+  ],
+  "new_files": [
+    "v12/python/src/baton_v12/authority/dossier.py",
+    "v12/python/tools/dossier_command.py",
+    "v12/python/tests/authority/test_dossier.py",
+    "v12/python/tests/tools/test_dossier_command.py"
+  ],
+  "participant": "baton.claude",
+  "product": {
+    "v12/python/src/baton_v12/authority/api.py": "df6d90dd6d15589fb457c45d2acaff59f67428dc85478c3b7a2c98edaa60da15",
+    "v12/python/src/baton_v12/authority/core.py": "e6569eca43986af8ce3190472820549038a8c2b17c87d892ca66b06e3bf5de6a",
+    "v12/python/src/baton_v12/authority/dossier.py": "4508ff3577f0258018ce68503a92c68ce438550881ffb3b9ca7ef9b17738e66c",
+    "v12/python/src/baton_v12/authority/schema.py": "e96f702484a8f1e720f9785aeb1c51790e4362766f11620d260e2a3671bcfaf4",
+    "v12/python/tools/dossier_command.py": "1d6d6db806ea646c74c5d53da5b9f9aa2cc66a1bc709e95bf20c5190ba7e2021",
+    "v12/python/tools/stack_command.py": "c86c0a4a536c8ce4a4d83f464e7a6522a1f946bdff29500da88ad401e181d297"
+  },
+  "product_tests": {
+    "v12/python/tests/authority/test_boundary.py": "b58d1ccee28a8c0260f4a991c814fb3f6305a54bbbbe291eda2da5104feeaf4f",
+    "v12/python/tests/authority/test_catalog.py": "7e70f111ed33482c6eeb4ef0fc989a5a335758ad8208874271ce894155e04bd2",
+    "v12/python/tests/authority/test_dossier.py": "ab493c66d88ce147aa9530c12d08bb1f3ef8b18f97c6d713171db69e9d63d8ee",
+    "v12/python/tests/authority/test_session.py": "4804ed2651d3f75150ac1e989c0a3611b5bd00cae62a7fd53bcfe1b8f2683a37",
+    "v12/python/tests/tools/test_dossier_command.py": "51d1c377af667cc07caebf456c47e596cca6635e0881d89b3f4e7698e81da080"
+  },
+  "records": {
+    "work/records/2026/10/finding-v12-pilot-dossier-binding/RECOVERY.md": "afbecfae60892e836ce1277666b99113e9873ca545cd388176cb7d0c8ca2491f"
+  },
+  "role": "impl",
+  "work": "2b077949-W321688"
+}

@@ -1,0 +1,14 @@
+{
+  "command": [
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-B",
+    "-m",
+    "unittest",
+    "tests.authority.test_dossier",
+    "tests.tools.test_dossier_command"
+  ],
+  "cwd": "v12/python",
+  "PYTHONPATH": "src",
+  "exit": 0,
+  "wall_seconds": 0.30522049899809645
+}

@@ -1,0 +1,10 @@
+{
+  "v12/python/src/baton_v12/authority/api.py": true,
+  "v12/python/tests/tools/test_dossier_command.py": true,
+  "v12/python/tests/tools/test_dossier_recovery.py": true,
+  "v12/python/tools/dossier_command.py": true,
+  "v12/python/src/baton_v12/authority/core.py": true,
+  "v12/python/src/baton_v12/authority/dossier.py": true,
+  "v12/python/src/baton_v12/authority/schema.py": true,
+  "v12/python/tools/stack_command.py": true
+}

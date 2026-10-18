@@ -1,0 +1,10 @@
+{
+  "reviewed_candidate": "/home/sl/baton-instances/w321688-321989-candidate",
+  "host_paths_different_from_reviewed_candidate": [
+    "v12/python/tests/authority/test_boundary.py",
+    "v12/python/tests/tools/test_dossier_command.py",
+    "v12/python/tests/tools/test_dossier_recovery.py",
+    "v12/python/tools/dossier_command.py"
+  ],
+  "integration_performed": false
+}

@@ -137,6 +137,20 @@ def _bootstrap(operands):
     return bootstrap.main(operands)
 
 
+def _record(operands):
+    """W321688: the canonical dossier binding and the recovery set.
+
+    READ-ONLY BY DEFAULT and part of the installed command for the reason
+    `logs` is: the question "where does this Work's record live, and is the
+    evidence it cites still intact" is asked OF A DEPLOYMENT, by an operator
+    holding the bundle rather than a checkout. The pilot assessment found no
+    such verb here at all, which is why standing a new v12 Work up had no
+    supported way to say where its record is.
+    """
+    from tools import dossier_command
+    return dossier_command.main(operands)
+
+
 def _identity(operands):
     """What this build IS, so an instance can record it rather than assume it.
 
@@ -207,6 +221,10 @@ COMMANDS = {
     # deployment, from wherever it is installed.
     "repository": _stack("repository"),
     "manager": _manager, "view": _view, "logs": _logs,
+    # THE CANONICAL RECORD SURFACE. W321688; read-only verbs take a read-only
+    # authority handle, so asking a serving deployment where a record lives
+    # takes no write lock on it.
+    "record": _record,
     "identity": _identity,
 }
 

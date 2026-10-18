@@ -1,0 +1,29 @@
+{
+  "missing-selector": {
+    "exit": 2,
+    "faults": [
+      "restored-instance-selector"
+    ],
+    "selector": {
+      "path": "/tmp/v12-recovery-kevyj21h/restored/instance.json",
+      "recorded_digest": "sha256:e72aa007275230a5a0ecf15697c57d42e97a162035572a66174fcb3d59370489",
+      "state": "absent"
+    }
+  },
+  "changed-selector-uuid": {
+    "exit": 2,
+    "faults": [
+      "restored-instance-selector"
+    ],
+    "selector": {
+      "path": "/tmp/v12-recovery-lqmvvi7d/restored/instance.json",
+      "recorded_digest": "sha256:dad5e5a86f4c9abc5437c3268da29eb7b4b5b1ebb0c5f3c4ab780de067106ec1",
+      "state": "another-authority",
+      "why": "the restored selector names authority 'ffffffffffffffffffffffffffffffff', not this set's '0123456789abcdef0123456789abcdef'"
+    }
+  },
+  "null-selector": {
+    "exception": "TypeError",
+    "message": "'NoneType' object is not subscriptable"
+  }
+}

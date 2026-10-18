@@ -1,0 +1,116 @@
+======================================================================
+ERROR: test_the_frozen_catalog_is_measured_rather_than_remembered (tests.authority.test_catalog.TheMigrationChecklistIsRead.test_the_frozen_catalog_is_measured_rather_than_remembered)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/baton-instances/w321688-321989-candidate/tests/authority/test_catalog.py", line 117, in test_the_frozen_catalog_is_measured_rather_than_remembered
+    text = (NODE_AUTHORITY_TESTS / name).read_text(encoding="utf-8")
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/v12/test/authority_assignment.test.mjs'
+
+======================================================================
+FAIL: test_every_named_site_covers_the_paths_it_was_written_for (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_every_named_site_covers_the_paths_it_was_written_for)
+The unique LEXICAL identity, pinned.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/baton-instances/w321688-321989-candidate/tests/authority/test_boundary.py", line 815, in test_every_named_site_covers_the_paths_it_was_written_for
+    self.assertEqual(excused, [
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+        ("core.py", "_require_capability", "capability"),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<15 lines>...
+        ("store.py", "create", "failure.errno"),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ])
+    ^^
+AssertionError: Lists differ: [('co[642 chars]', '_connect_readonly', 'failure'), ('store.py[233 chars]no')] != [('co[642 chars]', '_describe_target', 'failure.errno'), ('sto[30 chars]no')]
+
+First differing element 14:
+('store.py', '_connect_readonly', 'failure')
+('store.py', '_describe_target', 'failure.errno')
+
+First list contains 4 additional elements.
+First extra element 16:
+('store.py', '_connect_readonly', 'type(failure).__name__')
+
+Diff is 991 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_no_refusal_renders_an_unbounded_value (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_no_refusal_renders_an_unbounded_value)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/baton-instances/w321688-321989-candidate/tests/authority/test_boundary.py", line 776, in test_no_refusal_renders_an_unbounded_value
+    self.assertEqual(self.offenders(self.interpolations()), [],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "unbounded refusal diagnostics")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('store.py', '_writable', 378, 'what'), ([176 chars]re')] != []
+
+First list contains 4 additional elements.
+First extra element 0:
+('store.py', '_writable', 378, 'what')
+
++ []
+- [('store.py', '_writable', 378, 'what'),
+-  ('store.py', '_connect_readonly', 649, 'type(failure).__name__'),
+-  ('store.py', '_connect_readonly', 662, 'type(failure).__name__'),
+-  ('store.py', '_connect_readonly', 662, 'failure')] : unbounded refusal diagnostics
+
+======================================================================
+FAIL: test_the_bootstrap_face_configures_and_reads_and_never_acts (tests.authority.test_boundary.ExportedSurface.test_the_bootstrap_face_configures_and_reads_and_never_acts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/baton-instances/w321688-321989-candidate/tests/authority/test_boundary.py", line 110, in test_the_bootstrap_face_configures_and_reads_and_never_acts
+    self.assertEqual(public, sorted([
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+        # identity
+        ^^^^^^^^^^
+    ...<66 lines>...
+        "stored_identity",
+        ^^^^^^^^^^^^^^^^^^
+    ]))
+    ^^^
+AssertionError: Lists differ: ['acc[503 chars] 'open_readonly', 'operation_record', 'operati[385 chars]els'] != ['acc[503 chars] 'operation_record', 'operation_result', 'perm[368 chars]els']
+
+First differing element 30:
+'open_readonly'
+'operation_record'
+
+First list contains 1 additional elements.
+First extra element 52:
+'works_with_labels'
+
+Diff is 1103 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_the_frozen_reference_is_present_and_readable (tests.authority.test_catalog.TheMigrationChecklistIsRead.test_the_frozen_reference_is_present_and_readable)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/baton-instances/w321688-321989-candidate/tests/authority/test_catalog.py", line 104, in test_the_frozen_reference_is_present_and_readable
+    self.assertEqual(missing, [], "frozen reference evidence is missing")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['authority_assignment.test.mjs', 'authori[138 chars]mjs'] != []
+
+First list contains 6 additional elements.
+First extra element 0:
+'authority_assignment.test.mjs'
+
++ []
+- ['authority_assignment.test.mjs',
+-  'authority_boundary.test.mjs',
+-  'authority_contract.test.mjs',
+-  'authority_operations.test.mjs',
+-  'authority_race.test.mjs',
+-  'authority_restart.test.mjs'] : frozen reference evidence is missing
+
+----------------------------------------------------------------------
+Ran 58 tests in 1.007s
+
+FAILED (failures=4, errors=1)

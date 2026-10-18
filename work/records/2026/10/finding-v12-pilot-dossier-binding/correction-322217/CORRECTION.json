@@ -1,0 +1,75 @@
+{
+  "SUBTREE_TO_REPOSITORY_PATH_MAPPING": {
+    "example": "repository v12/python/tools/dossier_command.py -> candidate tools/dossier_command.py",
+    "note": "the candidate root IS the Python subtree; repository paths map by stripping v12/python/"
+  },
+  "artifacts": {
+    "correction.patch": "a35c8536918e845f0892e6c4d63f565b0ea71ed20089b0600dc8e9ad4e5aaea0",
+    "test_dossier_recovery.py": "40c8f2bca02770863b8ed2a18ad6437e92bfa922365316018fecafb6f80192de"
+  },
+  "base": "3dcf6dc4bcee97e932d17c93ac13c5811b3af188",
+  "claim": 322217,
+  "corrected": {
+    "v12/python/tests/tools/test_dossier_recovery.py": "40c8f2bca02770863b8ed2a18ad6437e92bfa922365316018fecafb6f80192de",
+    "v12/python/tools/dossier_command.py": "ed5d8b5581b6e8270508eb368a3dc19826c3256037ea5d0ed11ed56f4797e17a"
+  },
+  "corrects": "review-2026-10-18T09-04-00Z.md P1 (recovery not wired to the supported instance contract) and the remaining _manifest probe-on-original",
+  "episode": 322190,
+  "excluded": [
+    "no live engine or provider",
+    "no production restore or live instance access",
+    "no host product edit this claim",
+    "no Git operation of any kind",
+    "no deployment",
+    "no broad suite",
+    "no instance-schema broadening or weakening",
+    "W61981/W321528 and other Work bytes untouched"
+  ],
+  "fixture_now_real": [
+    "tools.instance.layout + tools.instance.emit build the selector, and instance.malformed must ACCEPT it (asserted in setUp)",
+    "real Authority, JobStore and ControlStore through their own supported openers -- no dummy SQLite headers",
+    "every test path is DERIVED from the layout (stores is db, repository is repo), so no case asserts against a guessed directory name"
+  ],
+  "isolated_candidate": "/home/sl/baton-instances/w321688-321989-candidate",
+  "p1_instance_contract_fixed": [
+    "tools.instance.malformed is now the validator -- the real one -- instead of a hand-rolled schema/UUID/destination subset",
+    "the authority store is resolved through tools.instance.layout()['authority_store'], its actual supported declaration; emit() has no such member precisely because the layout owns it",
+    "job_store and control_store are cross-checked against what the destination derives, so a selector disagreeing with its own destination refuses",
+    "state, logs and repository are REQUIRED by instance._MEMBERS, so not-configured is no longer a bypass: a manifest claiming one was never configured is a fault (not-configured-but-required)",
+    "the restored instance selector is read, validated and its layout derived, so the restored binding is verified rather than taken from the manifest",
+    "_manifest now probes a COPY too -- previously only _check did, so manifest creation still ran mode=ro against the original"
+  ],
+  "packaging_stamp_limitation": "unchanged and still disclosed; no new package signoff claimed",
+  "participant": "baton.claude",
+  "role": "impl",
+  "schema": "baton.w321688-record-recovery-correction/3",
+  "supersedes": "correction-322124",
+  "unchanged_from_previous_correction": {
+    "v12/python/src/baton_v12/authority/api.py": "9c8562b77d2064fcb5752bb996c81f0f4b4ce843eb5f3504a732962c48bed0b0",
+    "v12/python/src/baton_v12/authority/core.py": "e6569eca43986af8ce3190472820549038a8c2b17c87d892ca66b06e3bf5de6a",
+    "v12/python/src/baton_v12/authority/dossier.py": "4508ff3577f0258018ce68503a92c68ce438550881ffb3b9ca7ef9b17738e66c",
+    "v12/python/src/baton_v12/authority/schema.py": "e96f702484a8f1e720f9785aeb1c51790e4362766f11620d260e2a3671bcfaf4",
+    "v12/python/tests/tools/test_dossier_command.py": "fbb88efcbe7f059d51ddb1cb770328787430fdd0d1e2192f4aa2243f987be0bb",
+    "v12/python/tools/stack_command.py": "c86c0a4a536c8ce4a4d83f464e7a6522a1f946bdff29500da88ad401e181d297"
+  },
+  "untouched_other_work": {
+    "note": "the instance contract is CONSUMED, not broadened or weakened to match a test double",
+    "v12/python/tools/instance.py": "1541bc46951aef07dfddae5584f20340088b9e626611d75858e2a66d6b2a7106"
+  },
+  "verification": [
+    {
+      "cases": 41,
+      "outcome": "PASS",
+      "seconds": 0.219,
+      "vector": "tests.tools.test_dossier_recovery"
+    },
+    {
+      "cases": 211,
+      "outcome": "210 PASS, 1 FAIL",
+      "seconds": 0.624,
+      "the_one_failure": "tests.tools.test_instance.TheBootstrapPreparesTheRepositories.test_the_source_is_INFERRED_from_this_distribution_s_checkout fails in the isolated candidate with 'no checkout containing v12/justfile was found'. It PASSES in the repository tree, measured this claim. Same class as the packaging build-stamp limitation: an artefact of running outside a checkout, not a defect, and not weakened.",
+      "vector": "+ test_dossier_command + tests.authority.test_dossier + tests.tools.test_instance"
+    }
+  ],
+  "work": "2b077949-W321688"
+}

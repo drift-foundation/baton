@@ -209,7 +209,18 @@ class Minting(SessionCase):
             # Work -- a trusted bootstrap, performed before any session could
             # exist -- so it is a configuration-side read like the two above
             # rather than something a session's own attributable acts reach.
-            "work_creation"})
+            "work_creation",
+            # W321688: the canonical dossier binding and its reads, on the
+            # CONFIGURATION side for the same reason `create_work` is there. A
+            # record's address is allocated once by whoever stands the Work up;
+            # a session holds a CLAIM, and a claimant able to rename its own
+            # durable record -- so that every review citing the old locator
+            # cited a record that had moved -- is exactly the shape this
+            # disjointness check exists to catch. The reads are configuration
+            # too because they answer about a Work whether or not the asker
+            # holds it: operators, materializers and reviewers hold no claim.
+            "bind_dossier", "dossier_of", "dossier_work",
+            "record_dossier_evidence", "dossier_evidence"})
         self.assertEqual(session_public & configuration, set())
         # And the session module's own public names match its `__all__`, so the
         # surface claim checks rather than merely being written down.

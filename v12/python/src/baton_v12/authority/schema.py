@@ -67,7 +67,31 @@ STORE_KIND = "baton.v12.python.authority"
 # The disposition is clean initialization rather than migration, on M33752's
 # still-current rule for this disposable proof store: 5 is not reused, not
 # lowered, and not reached by upgrading a 4.
-SCHEMA_VERSION = 5
+#
+# W321688 raises this from 5 to 6 for the CANONICAL DOSSIER BINDING: one record
+# address per Work, one Work per address, and the evidence a record cites with
+# the digests that make a later resolution able to refuse honestly. A schema-5
+# store holds none of those facts and nothing in it could supply them -- there is
+# no column, label or convention a build could read a canonical locator out of,
+# which is exactly the gap the pilot assessment recorded. So the disposition is
+# again CLEAN INITIALIZATION on M33752's standing rule for these disposable proof
+# stores, and `store._check_compatibility` refuses a 5 read-only and tells the
+# operator to initialize a fresh one rather than guessing a locator for it.
+#
+# ONE THING THE IMPLEMENTER DOES NOT GET TO DECIDE, said here rather than left
+# for a reader to notice: every previous bump cites an APPROVER RULING that
+# allocated the number -- M33752 for 2, M35002 for 4, M35127 for 5. This claim
+# allocates 6 because the binding cannot be stored without it, and the ruling for
+# it is OWED rather than cited. The W321688 handoff names it as an open owner
+# decision; treat a missing ruling as a reason to withhold acceptance of this
+# number, not as permission to renumber it later.
+#
+# AND THE RETENTION CONSEQUENCE IS NOT HIDDEN. Any retained v12 authority at 5
+# becomes unreadable by this build. That is the documented boundary and not a
+# silent loss -- the refusal names the file, changes no byte of it, and the
+# bounded recovery procedure in this Work's dossier is what an operator holding
+# one is meant to follow.
+SCHEMA_VERSION = 6
 
 META_STORE_KIND = "store_kind"
 META_SCHEMA_VERSION = "schema_version"
@@ -497,4 +521,63 @@ CREATE TABLE IF NOT EXISTS integration_attempt (
     target      TEXT NOT NULL,
     at          TEXT NOT NULL
 );
+
+-- W321688: THE CANONICAL DOSSIER BINDING, one per Work, and one Work per
+-- locator.
+--
+-- WHY IT IS A RELATION AND NOT A LABEL. The pilot assessment is explicit that
+-- labels are not a dossier binding: the label model is a mutable SET with
+-- add/remove evidence, so a record's canonical address would be something an
+-- ordinary labelling act could change or duplicate. A dossier address is
+-- neither mutable nor multiple.
+--
+-- BOTH DIRECTIONS ARE UNIQUE, and each uniqueness answers a different question.
+-- `work_id` as the primary key is "this Work has ONE canonical record", so a
+-- rebinding is refused by the store rather than by a check somebody could
+-- forget. `locator` UNIQUE is "this record belongs to ONE Work", which is the
+-- collision the flat set has to refuse now that names no longer nest under a
+-- parent to disambiguate them.
+--
+-- `operation_id` UNIQUE is the same rule `work_creation` carries: one act
+-- cannot be claimed by two bindings, so an exact retry replays and a reused
+-- identity with different operands is refused by the journal above it.
+--
+-- NO ROUTE, PHASE, PARENT OR CAMPAIGN COLUMN, deliberately. W39435's direction
+-- is that relationships live in authority state and never in the record's
+-- address; a column here naming one would be the beginning of deriving the
+-- address from it again.
+CREATE TABLE IF NOT EXISTS work_dossier (
+    work_id      TEXT PRIMARY KEY,
+    locator      TEXT NOT NULL UNIQUE,
+    operation_id TEXT NOT NULL UNIQUE,
+    bound_at     TEXT NOT NULL,
+    FOREIGN KEY (work_id) REFERENCES work (work_id)
+) STRICT;
+
+-- THE EVIDENCE A DOSSIER CITES, by relative reference and digest.
+--
+-- THE DIGEST IS NOT OPTIONAL, and that is what makes a later resolution able to
+-- refuse honestly. A reference alone can only establish that some file has that
+-- name; the acceptance asks for a refusal when cited evidence is ABSENT or has
+-- CHANGED, and only a recorded digest can tell those apart from a successful
+-- read.
+--
+-- APPEND-ONLY BY ITS KEY, per (work_id, reference). Recording the same
+-- reference with the same digest replays through the operation journal;
+-- recording the same reference with a DIFFERENT digest is a refusal, because an
+-- authority that silently accepted the second one would have let a record's
+-- evidence be rewritten without saying so.
+--
+-- THIS AUTHORITY NEVER OPENS THESE FILES. It stores what a record cites; a
+-- resolver outside the store joins them to a materialization root and compares
+-- digests, which keeps filesystem I/O out of every authority transaction.
+CREATE TABLE IF NOT EXISTS work_dossier_evidence (
+    work_id     TEXT NOT NULL,
+    reference   TEXT NOT NULL,
+    digest      TEXT NOT NULL,
+    act_id      TEXT NOT NULL,
+    recorded_at TEXT NOT NULL,
+    PRIMARY KEY (work_id, reference),
+    FOREIGN KEY (work_id) REFERENCES work_dossier (work_id)
+) STRICT;
 """

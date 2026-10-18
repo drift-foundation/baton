@@ -226,6 +226,65 @@ class Authority:
     def add_route_handler(self, route, participant):
         return self._core.add_route_handler(route, participant)
 
+    # -- W321688: the canonical dossier binding ------------------------------
+    #
+    # ON THE TRUSTED BOOTSTRAP FACE, not the session's, and that is the
+    # deliberate part. A dossier address is deployment configuration of the same
+    # kind as creating the Work it belongs to: it is allocated once by whoever
+    # stands the Work up, and it is not a runtime transition a participant
+    # performs against Work it holds. Putting `bind_dossier` on the session
+    # would have made a claimant able to rename its own record.
+    #
+    # THE READS ARE HERE TOO rather than only on the session, because the
+    # question "where does this Work's record live" is asked by operators,
+    # materializers and reviewers who hold no claim and should need none.
+
+    def bind_dossier(self, work_id, locator, *, operation_id):
+        return self._core.bind_dossier(work_id, locator,
+                                       operation_id=operation_id)
+
+    def dossier_of(self, work_id):
+        return self._core.dossier_of(work_id)
+
+    def dossier_work(self, locator):
+        return self._core.dossier_work(locator)
+
+    def record_dossier_evidence(self, work_id, reference, digest, *,
+                                operation_id):
+        return self._core.record_dossier_evidence(
+            work_id, reference, digest, operation_id=operation_id)
+
+    def dossier_evidence(self, work_id):
+        return self._core.dossier_evidence(work_id)
+
+    @staticmethod
+    def stored_identity(path):
+        """What a store says it IS, read-only, without opening it for use.
+
+        W321688 review 2026-10-18T08-48-00Z. THE SUPPORTED OBSERVATION THIS
+        BOUNDARY WAS MISSING. `open` REFUSES a store this build does not speak,
+        which is correct and is exactly why it cannot answer "which version is
+        that file" -- so a recovery check asking the compatibility question had
+        no public surface and reached for raw SQL instead. This is that surface:
+        the authority's OWN read-only probe, the one `open` itself uses before
+        it decides anything, exposed rather than reimplemented.
+
+        It answers a fresh mapping of the recorded metadata, or `None` when the
+        file is not a database this build can read at all -- which is an answer
+        and not an error. It opens nothing for use, writes no row, creates no
+        journal and performs no migration.
+
+        WHAT IT STILL DOES NOT PROMISE, said plainly: `mode=ro` is SQLite's
+        guarantee about the DATABASE, and owner M128249 accepted that reading a
+        WAL database may create or maintain its `-shm`/`-wal` coordination
+        files. A caller that must leave a byte-identical set behind reads a COPY
+        and verifies the original afterwards; this method does not pretend that
+        guarantee is SQLite's to give.
+        """
+        from .store import _probe
+
+        return _probe(path)
+
     # -- projections ---------------------------------------------------------
 
     def project_work(self, work_id):

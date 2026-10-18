@@ -1,0 +1,89 @@
+{
+  "SUBTREE_TO_REPOSITORY_PATH_MAPPING": {
+    "candidate_root_contains": [
+      "src",
+      "tools",
+      "tests",
+      "packaging",
+      "pyproject.toml",
+      "justfile",
+      "requirements.lock",
+      "requirements.build.lock"
+    ],
+    "example": "repository v12/python/tools/dossier_command.py -> candidate tools/dossier_command.py",
+    "note": "the review's operational finding, stated explicitly as required. The isolated candidate root IS the Python subtree, so repository paths map by STRIPPING the v12/python/ prefix."
+  },
+  "artifacts": {
+    "correction.patch": "55c82ac504916596a48ee9e94cad83b73313c1d5230b028c326b4714cd9ba4ad",
+    "test_dossier_recovery.py": "9dffaff5d0414cd121f8377b510f736fd5c731daf9fca74d699e085837ac0eb4"
+  },
+  "base": "3dcf6dc4bcee97e932d17c93ac13c5811b3af188",
+  "claim": 322124,
+  "corrected": {
+    "v12/python/src/baton_v12/authority/api.py": "9c8562b77d2064fcb5752bb996c81f0f4b4ce843eb5f3504a732962c48bed0b0",
+    "v12/python/tests/tools/test_dossier_command.py": "fbb88efcbe7f059d51ddb1cb770328787430fdd0d1e2192f4aa2243f987be0bb",
+    "v12/python/tests/tools/test_dossier_recovery.py": "9dffaff5d0414cd121f8377b510f736fd5c731daf9fca74d699e085837ac0eb4",
+    "v12/python/tools/dossier_command.py": "7b477aa813816ceabdfb61f3b733075aa77d80b70939d8c3f416c360bfb2e408"
+  },
+  "corrects": "review-2026-10-18T08-48-00Z.md P1 (parent-replacement race), P1 (retained omission), and the read-only compatibility boundary",
+  "episode": 322072,
+  "excluded": [
+    "no live engine or provider",
+    "no production restore or live instance access",
+    "no host product edit this claim",
+    "no Git operation of any kind",
+    "no deployment -- the bundle build is local preparation into an isolated output",
+    "no broad suite",
+    "W61981/W321528 and other Work bytes untouched"
+  ],
+  "isolated_candidate": "/home/sl/baton-instances/w321688-321989-candidate",
+  "owner_schema_ruling": "M321965/M321966 approve authority schema 6; resolved, not reopened",
+  "p1_race_fixed": [
+    "every component is OPENED relative to the previous component's descriptor with O_DIRECTORY|O_NOFOLLOW, so the path is never re-resolved by name and check and use are the same act",
+    "the final component opens relative to its parent's descriptor with O_NOFOLLOW|O_NONBLOCK; O_NONBLOCK so a FIFO cannot block the check, and fstat refuses anything but a regular file",
+    "a symlink at ANY depth, including the root itself, is named escapes-root (Linux answers ENOTDIR for O_DIRECTORY on a dirlink, so the naming lstat runs only after the open has already refused)"
+  ],
+  "p1_retained_fixed": [
+    "RETAINED is a closed required inventory in both _manifest and _check; required_retained is declared and compared",
+    "an omitted retained field, an absent configured root or an unreadable tree is a fault, not proof that nothing was retained",
+    "only a root the instance contract does not name is legitimate absence (not-configured)",
+    "os.walk now has an onerror handler, so a silently skipped unreadable subtree makes the walk incomplete instead of smaller",
+    "directory symlinks are recorded: they appear in dirnames, never filenames, so the previous walk bound none of them despite its comment"
+  ],
+  "participant": "baton.claude",
+  "readonly_boundary_fixed": [
+    "Authority.stored_identity added as the supported public read-only observation: the authority's own probe, the one open() itself uses, exposed because open() REFUSES an incompatible store and so cannot answer which version it is",
+    "_stored_identity no longer runs raw SQL and probes a COPY of the store and its sidecars, leaving the restored set untouched",
+    "unchanged_after_observation RE-READS every store and its sidecars after the probe, so byte identity is measured rather than asserted, on success and on refusal"
+  ],
+  "role": "impl",
+  "schema": "baton.w321688-record-recovery-correction/2",
+  "supersedes": "correction-321989",
+  "unchanged_from_previous_correction": {
+    "v12/python/src/baton_v12/authority/core.py": "e6569eca43986af8ce3190472820549038a8c2b17c87d892ca66b06e3bf5de6a",
+    "v12/python/src/baton_v12/authority/dossier.py": "4508ff3577f0258018ce68503a92c68ce438550881ffb3b9ca7ef9b17738e66c",
+    "v12/python/src/baton_v12/authority/schema.py": "e96f702484a8f1e720f9785aeb1c51790e4362766f11620d260e2a3671bcfaf4",
+    "v12/python/tools/stack_command.py": "c86c0a4a536c8ce4a4d83f464e7a6522a1f946bdff29500da88ad401e181d297"
+  },
+  "verification": [
+    {
+      "cases": 92,
+      "outcome": "PASS",
+      "seconds": 0.231,
+      "vector": "tests.tools.test_dossier_recovery + test_dossier_command + tests.authority.test_dossier"
+    },
+    {
+      "distro": "/home/sl/baton-instances/w321688-321989-candidate/build-322124/out/distro",
+      "outcome": "built; `record` offered and runs from the bundle",
+      "vector": "isolated PyInstaller bundle rebuilt"
+    },
+    {
+      "cases": 11,
+      "outcome": "10 PASS, 1 FAIL",
+      "packaging_stamp_limitation": "test_it_says_its_version_with_NO_checkout_and_NO_repository_tool fails because the bundle was built from a non-repository isolated copy, so its build stamp records 'source commit unknown'. Recorded honestly as the review asked: it is an artefact of building outside a checkout, not a defect in the record verb, and a build from the repository stamps its commit. The subcommand-offered case PASSES.",
+      "seconds": 2.2,
+      "vector": "tests.tools.test_packaging against that bundle"
+    }
+  ],
+  "work": "2b077949-W321688"
+}

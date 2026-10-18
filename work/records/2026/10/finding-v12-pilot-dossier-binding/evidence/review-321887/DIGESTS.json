@@ -1,0 +1,14 @@
+{
+  "v12/python/src/baton_v12/authority/api.py": true,
+  "v12/python/src/baton_v12/authority/core.py": true,
+  "v12/python/src/baton_v12/authority/dossier.py": true,
+  "v12/python/src/baton_v12/authority/schema.py": true,
+  "v12/python/tools/dossier_command.py": true,
+  "v12/python/tools/stack_command.py": true,
+  "v12/python/tests/authority/test_boundary.py": true,
+  "v12/python/tests/authority/test_catalog.py": true,
+  "v12/python/tests/authority/test_dossier.py": true,
+  "v12/python/tests/authority/test_session.py": true,
+  "v12/python/tests/tools/test_dossier_command.py": true,
+  "work/records/2026/10/finding-v12-pilot-dossier-binding/RECOVERY.md": true
+}

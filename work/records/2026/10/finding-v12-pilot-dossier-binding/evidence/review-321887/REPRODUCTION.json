@@ -1,0 +1,93 @@
+{
+  "missing_provenance_and_artifacts": {
+    "code": 0,
+    "output": {
+      "authority_uuid": null,
+      "destination": null,
+      "instance": "/tmp/w321887-4g56e2yu/instance.json",
+      "members": {
+        "authority_store": {
+          "bytes": 17,
+          "digest": "sha256:f7ed3b6b7be54fcb78a2f27c4bcb0cd0c4fad0bd01fc7101bcb38f7dabbc09eb",
+          "path": "/tmp/w321887-4g56e2yu/authority_store",
+          "sidecars": []
+        },
+        "control_store": {
+          "bytes": 17,
+          "digest": "sha256:f7ed3b6b7be54fcb78a2f27c4bcb0cd0c4fad0bd01fc7101bcb38f7dabbc09eb",
+          "path": "/tmp/w321887-4g56e2yu/control_store",
+          "sidecars": []
+        },
+        "job_store": {
+          "bytes": 17,
+          "digest": "sha256:f7ed3b6b7be54fcb78a2f27c4bcb0cd0c4fad0bd01fc7101bcb38f7dabbc09eb",
+          "path": "/tmp/w321887-4g56e2yu/job_store",
+          "sidecars": []
+        }
+      },
+      "missing_members": [],
+      "not_a_backup": "this manifest records what was present; taking the cut, stopping admissions and accounting for writers are operator acts, and Slawomir owns production backup and restore",
+      "provenance": {
+        "deployment": null,
+        "identity": null,
+        "runtime": null
+      },
+      "schema": "baton.v12.instance-recovery-set/1",
+      "schema_version_expected": 6
+    },
+    "error": ""
+  },
+  "one_member_recovery": {
+    "code": 0,
+    "output": {
+      "build_speaks_schema_version": 6,
+      "faults": [],
+      "manifest": "/tmp/w321887-4g56e2yu/set.json",
+      "manifest_schema_version": 6,
+      "members": {
+        "authority_store": {
+          "actual": "sha256:5a62d4db4ce377b04f588b21222bfc34327396698cddc75e09a4a9862b07a2a6",
+          "path": "/tmp/w321887-4g56e2yu/only-member",
+          "recorded_digest": "sha256:5a62d4db4ce377b04f588b21222bfc34327396698cddc75e09a4a9862b07a2a6",
+          "state": "present"
+        }
+      },
+      "root": "/tmp/w321887-4g56e2yu",
+      "schema_compatible": true,
+      "writable_admission": "not refused by these checks; admitting it is the operator's act and requires that every runtime and launch of the previous instance is positively accounted for",
+      "writer_uncertainty": []
+    },
+    "error": ""
+  },
+  "symlink_cite": {
+    "code": 0,
+    "output": {
+      "act_id": "cite",
+      "digest": "sha256:1f9d34bb7907e9ba50809aec9d3609dcb38e7237c59347acf98554c36272ee30",
+      "recorded_at": "2026-10-18T08:25:08.830Z",
+      "reference": "escape",
+      "work_id": "01234567-W1"
+    },
+    "error": ""
+  },
+  "symlink_verify": {
+    "code": 0,
+    "output": {
+      "authority_uuid": "0123456789abcdef0123456789abcdef",
+      "cited": 1,
+      "evidence": [
+        {
+          "actual": "sha256:1f9d34bb7907e9ba50809aec9d3609dcb38e7237c59347acf98554c36272ee30",
+          "cited_digest": "sha256:1f9d34bb7907e9ba50809aec9d3609dcb38e7237c59347acf98554c36272ee30",
+          "reference": "escape",
+          "state": "present"
+        }
+      ],
+      "intact": 1,
+      "locator": "example-12345678",
+      "root": "/tmp/w321887-4g56e2yu/repo",
+      "work_id": "01234567-W1"
+    },
+    "error": ""
+  }
+}

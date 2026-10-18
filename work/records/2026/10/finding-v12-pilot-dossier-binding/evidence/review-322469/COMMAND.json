@@ -1,0 +1,110 @@
+{
+ "boundary": "the spec's own frozen script, run as a subprocess with the spec's own import path",
+ "entry_script": "/home/sl/baton-instances/w321688-321989-candidate/tools/stack_command.py",
+ "frozen_bundle_built": false,
+ "results": [
+  {
+   "exit": 0,
+   "records_selector_document": true,
+   "schema": "baton.v12.instance-recovery-set/3",
+   "what": "recovery-manifest on the live instance"
+  },
+  {
+   "exit": 0,
+   "faults": [],
+   "schema_compatible": true,
+   "selector": "present",
+   "what": "complete unchanged restore"
+  },
+  {
+   "exit": 2,
+   "faults": [
+    "restored-instance-selector"
+   ],
+   "selector": "absent",
+   "what": "restored selector removed"
+  },
+  {
+   "exit": 2,
+   "faults": [
+    "restored-instance-selector"
+   ],
+   "selector": "another-authority",
+   "what": "restored selector names another authority"
+  },
+  {
+   "exit": 0,
+   "faults": [],
+   "selector": "relocated",
+   "what": "selector relocated to the restored root"
+  },
+  {
+   "exit": 2,
+   "faults": [
+    "restored-instance-selector"
+   ],
+   "selector": "changed",
+   "what": "selector relocated to a third path"
+  },
+  {
+   "exit": 2,
+   "faults": [
+    "restored-instance-selector"
+   ],
+   "no_traceback": true,
+   "selector": "malformed",
+   "validator_named_the_type": true,
+   "what": "restored selector holding JSON null"
+  },
+  {
+   "exit": 2,
+   "faults": [
+    "restored-instance-selector"
+   ],
+   "no_traceback": true,
+   "selector": "malformed",
+   "validator_named_the_type": true,
+   "what": "restored selector holding JSON []"
+  },
+  {
+   "exit": 2,
+   "faults": [
+    "restored-instance-selector"
+   ],
+   "no_traceback": true,
+   "selector": "malformed",
+   "validator_named_the_type": true,
+   "what": "restored selector holding JSON \"instance\""
+  },
+  {
+   "exit": 2,
+   "faults": [
+    "restored-instance-selector"
+   ],
+   "no_traceback": true,
+   "selector": "malformed",
+   "validator_named_the_type": true,
+   "what": "restored selector holding JSON 3"
+  },
+  {
+   "exit": 2,
+   "faults": [
+    "restored-instance-selector"
+   ],
+   "no_traceback": true,
+   "selector": "malformed",
+   "validator_named_the_type": true,
+   "what": "restored selector holding JSON true"
+  },
+  {
+   "exit": 2,
+   "faults": [
+    "restored-instance-selector"
+   ],
+   "selector": "not-in-manifest",
+   "what": "manifest lacking the /3 selector document"
+  }
+ ],
+ "schema": "baton.w321688.packaged-command-evidence/1",
+ "why_not": "PyInstaller is not installed in this environment and installing it would reach an external index"
+}

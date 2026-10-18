@@ -157,6 +157,25 @@ class ExportedSurface(unittest.TestCase):
                     # taken under, and the scope- and provenance-bearing grant
                     # projection `capabilities_of` deliberately flattens.
                     "decision_of", "grants_of",
+                    # W321688: the canonical dossier binding and its reads.
+                    # ON THE BOOTSTRAP FACE DELIBERATELY. A record's address is
+                    # allocated once by whoever stands the Work up, like the
+                    # creation it belongs to -- it is not a runtime transition
+                    # a participant performs against Work it holds, and putting
+                    # it on the session would have let a claimant rename its
+                    # own record. The reads are here because "where does this
+                    # Work's record live" is asked by operators, materializers
+                    # and reviewers who hold no claim.
+                    "bind_dossier", "dossier_of", "dossier_work",
+                    "record_dossier_evidence", "dossier_evidence",
+                    # W321688 review: what a store FILE says it is, read-only,
+                    # without opening it for use. A static probe of a path the
+                    # caller names -- a retained or restored file -- so it is
+                    # not this authority's own store surface and does not
+                    # reopen the forbidden names below: it holds no connection,
+                    # exposes neither this instance's path nor its schema, and
+                    # runs no statement a caller supplies.
+                    "stored_identity",
                 ]))
                 self.assertEqual(face.authority_uuid, UUID)
                 # And nothing about the STORE: not the path, not the
@@ -265,7 +284,18 @@ class Isolation(unittest.TestCase):
             "work", "route_handler", "capability", "fenced_generation",
             "claim_slot", "operation", "assignment_event", "contract_event",
             "gate_evidence", "activity", "proposal", "receipt",
-            "integration_attempt"})
+            "integration_attempt",
+            # W321688 schema 6: the canonical dossier binding and the evidence
+            # that record cites.  AUTHORITY FACTS, and the argument is the same
+            # one this list exists to make: which durable record a Work's
+            # history belongs to is a question about Work identity, and the
+            # citation digests are what let a later read refuse honestly.
+            # Neither is an offer, a runtime attempt, quarantined output or a
+            # runtime observation, so neither crosses into the control store.
+            # The FILES are not here either: this authority stores references
+            # and never opens one, which is what keeps filesystem I/O out of
+            # every authority transaction.
+            "work_dossier", "work_dossier_evidence"})
         # An authority that also stored these would be answering questions it
         # is not authoritative for.  They are the Worker Manager control
         # store's, and their absence is the boundary.

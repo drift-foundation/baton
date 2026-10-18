@@ -1,0 +1,7 @@
+# Current milestone — human Git checkpoint after reviewed integration
+
+Independent review review-2026-10-18T09-42-00Z.md accepts the twelve exact correction-322441 candidate files plus RECOVERY.md.102 focused tests pass0.400s; fresh frozen bundle passes the eleven recovery cases. evidence/review-322469 binds hashes, reproductions, frozen command and integration differences. Prepared v12 interpreter resolves the former packaging-tool gap; no install was needed. Verification build stamp lacks source commit because its copy has no Git metadata; no deployment claimed.
+
+Post-outage continuation 2026-10-18: baton.prompt imported the four reviewed differences after all twelve candidate pins and recorded host baselines matched. All twelve final hashes match acceptance; 102 focused tests pass in0.385s and git diff --check passes. Evidence: evidence/resume-20261018/INTEGRATION.json and VERIFICATION.txt. Next: human Git checkpoint W322125. Suggested commit: Add stable v12 dossier bindings and validated retained-instance recovery. Record actual commit identity when observed. Reviewer did not integrate; the later prompt integration above supersedes that pending step. Preserve other Work and all historical evidence.
+
+W321688 remains open for owner disposition. W321528 waits on W321688 and W322125; W321689/W321690/W39435 gates remain. Schema6/no migration approval and this Work-only near-completion exception remain. No production/live execution or deployment selected. Reviewer changed only dossier/evidence; implementation PROGRESS is untouched.

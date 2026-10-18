@@ -147,6 +147,11 @@ class TheMigrationChecklistIsRead(unittest.TestCase):
                                  # assignment and has no decision to carry.
                                  "test_claim_result.py",
                                  "test_contract.py",
+                                 # W321688's canonical dossier binding. No
+                                 # frozen Node counterpart either: the frozen
+                                 # host had no record binding at all, which is
+                                 # the gap the pilot assessment recorded.
+                                 "test_dossier.py",
                                  "test_identity.py", "test_operations.py",
                                  # W16821's correction: the principal/scope
                                  # seam and the schema-2 initialization

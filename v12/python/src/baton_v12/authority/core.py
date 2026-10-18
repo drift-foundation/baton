@@ -32,6 +32,8 @@ import json
 from datetime import datetime, timezone
 
 from .errors import Refusal, label_of, name_of
+from .dossier import (EVIDENCE_LIMIT, check_evidence_digest,
+                      check_evidence_reference, check_locator)
 from .labels import MAX_LABELS, canonical_label, canonical_label_set
 
 # THE TRUSTED BOOTSTRAP, named once. Creation is the act that brings into
@@ -792,6 +794,208 @@ class Core:
         return {"work_id": row["work_id"],
                 "operation_id": row["operation_id"],
                 "kind": row["kind"], "scope": row["scope"], "at": row["at"]}
+
+    # -- W321688: the canonical dossier binding ------------------------------
+
+    def bind_dossier(self, work_id, locator, *, operation_id):
+        """Bind ONE Work to ONE canonical flat dossier locator, for its life.
+
+        THE ACCEPTANCE THIS SATISFIES, clause by clause, because every one of
+        them is a refusal somebody could have left out:
+
+          EXACT RETRY REPLAYS. The journal above decides that, on the full
+          effective operands -- so binding the same Work to the same locator
+          under the same operation id returns the first committed answer and
+          writes nothing, and the SAME operation id with a different locator is
+          "reused for different operands" rather than a second binding.
+
+          A CHANGED BINDING IS REFUSED, NOT RESOLVED. One canonical address per
+          Work for its whole life is the point of the flat set: if rebinding
+          were allowed, every review that cited the old locator would be citing
+          a record that had moved. `work_dossier`'s primary key refuses it in
+          the store, and this refuses it with a sentence first.
+
+          A COLLISION IS REFUSED FROM BOTH SIDES. Two Works cannot share a
+          locator -- in a flat set nothing disambiguates them any more -- and
+          the refusal names the Work that already holds it so an operator can
+          see whose record it is rather than guessing a new suffix blindly.
+
+          AN ESCAPE OR MALFORMED NAME IS REFUSED BEFORE THE TRANSACTION. See
+          `dossier.check_locator`; a separator, a dot-prefix or a missing
+          collision suffix never reaches the store, so no partial effect is
+          possible for an operand fault.
+
+          THE WRONG AUTHORITY CANNOT REACH THIS AT ALL, and that is the store's
+          doing rather than a check here: this Core holds one opened store whose
+          kind, schema version and authority UUID were established at open, and
+          a Work id that is not in THIS authority refuses as "no such Work".
+
+        RELATIONSHIPS CANNOT RENAME IT. There is no route, phase, parent or
+        campaign operand, and no column for one. A later claim, pass, label,
+        gate or route-handler change mutates authority state and this row is not
+        among the rows they touch -- which is W39435's whole direction, enforced
+        by the absence rather than by a rule somebody has to remember.
+        """
+        check_work_id(work_id)
+        check_locator(locator)
+        at = self._now()
+
+        def body():
+            # THE WORK FIRST, so binding a record to a Work this authority does
+            # not have refuses before anything is written.
+            self._work(work_id)
+            held = self._store.get(
+                "SELECT * FROM work_dossier WHERE work_id = ?", work_id)
+            if held is not None:
+                if held["locator"] == locator:
+                    # Not a replay -- a DIFFERENT operation id asking for the
+                    # binding that already exists. Convergent, and saying so is
+                    # better than a collision message about the Work itself.
+                    return self._dossier_document(held)
+                raise Refusal(
+                    f"Work {name_of(work_id)} is already bound to dossier "
+                    f"{name_of(held['locator'])} and a canonical record keeps "
+                    f"one address for its whole life; rebinding it would break "
+                    f"every reference that cites the old one. Nothing was "
+                    f"changed")
+            taken = self._store.get(
+                "SELECT * FROM work_dossier WHERE locator = ?", locator)
+            if taken is not None:
+                raise Refusal(
+                    f"dossier {name_of(locator)} is already bound to Work "
+                    f"{name_of(taken['work_id'])}; in a flat record set no "
+                    f"parent disambiguates two records with one name, so this "
+                    f"is refused rather than resolved. Choose another "
+                    f"collision suffix. Nothing was changed")
+            self._store.run(
+                "INSERT INTO work_dossier (work_id, locator, operation_id, "
+                "bound_at) VALUES (?, ?, ?, ?)",
+                work_id, locator, operation_id, at)
+            return self._dossier_document(
+                self._store.get("SELECT * FROM work_dossier WHERE work_id = ?",
+                                work_id))
+
+        return self._replay(
+            operation_id,
+            signature_of("work-bind-dossier",
+                         {"work_id": work_id, "locator": locator}),
+            body, at=at)
+
+    @staticmethod
+    def _dossier_document(row):
+        return {"work_id": row["work_id"], "locator": row["locator"],
+                "operation_id": row["operation_id"],
+                "bound_at": row["bound_at"]}
+
+    def dossier_of(self, work_id):
+        """This Work's canonical record, or `None`.
+
+        THE READ THE ACCEPTANCE ASKS FOR: an exact authority plus an exact Work
+        resolves to one stable dossier. The authority is this store's own
+        identity, so the pair is complete without an operand naming it.
+        """
+        check_work_id(work_id)
+        row = self._store.get(
+            "SELECT * FROM work_dossier WHERE work_id = ?", work_id)
+        return None if row is None else self._dossier_document(row)
+
+    def dossier_work(self, locator):
+        """The other direction: which Work owns this record, or `None`.
+
+        Present because a human holding a directory name needs to get back to
+        the authority, and because a materializer must be able to ask before it
+        writes into a name somebody else owns.
+        """
+        check_locator(locator)
+        row = self._store.get(
+            "SELECT * FROM work_dossier WHERE locator = ?", locator)
+        return None if row is None else self._dossier_document(row)
+
+    def record_dossier_evidence(self, work_id, reference, digest, *,
+                                operation_id):
+        """Cite one piece of evidence from a bound dossier, with its digest.
+
+        THE DIGEST IS WHAT MAKES A LATER READ HONEST. This authority stores the
+        reference and NEVER OPENS IT -- filesystem I/O inside an authority
+        transaction is exactly what DB-1 forbids -- so the recorded digest is
+        the only thing a resolver can compare against. Without it, "the file is
+        there" would be the strongest claim available, and the acceptance asks
+        for a refusal when cited evidence has CHANGED as well as when it is
+        absent.
+
+        THE SAME REFERENCE WITH A DIFFERENT DIGEST IS A REFUSAL. Accepting it
+        would let a record's evidence be rewritten silently, which is the one
+        thing a durable citation exists to prevent. Re-citing it with the SAME
+        digest is convergent and writes nothing.
+        """
+        check_work_id(work_id)
+        check_evidence_reference(reference)
+        check_evidence_digest(digest)
+        at = self._now()
+
+        def body():
+            # A CITATION NEEDS A RECORD TO BELONG TO. The foreign key says so
+            # too, but a sentence is more use than a constraint violation.
+            if self._store.get(
+                    "SELECT 1 AS ok FROM work_dossier WHERE work_id = ?",
+                    work_id) is None:
+                raise Refusal(
+                    f"Work {name_of(work_id)} has no canonical dossier, so "
+                    f"there is nothing for this evidence to be cited from; "
+                    f"bind the dossier first. Nothing was changed")
+            held = self._store.get(
+                "SELECT * FROM work_dossier_evidence WHERE work_id = ? AND "
+                "reference = ?", work_id, reference)
+            if held is not None:
+                if held["digest"] == digest:
+                    return self._evidence_document(held)
+                raise Refusal(
+                    f"dossier evidence {name_of(reference)} is already cited "
+                    f"at {name_of(held['digest'])} and this names "
+                    f"{name_of(digest)}; a durable citation is not rewritten "
+                    f"in place. Cite the new bytes under their own reference. "
+                    f"Nothing was changed")
+            count = self._store.get(
+                "SELECT COUNT(*) AS held FROM work_dossier_evidence "
+                "WHERE work_id = ?", work_id)["held"]
+            if count >= EVIDENCE_LIMIT:
+                raise Refusal(
+                    f"this dossier already cites {name_of(count)} "
+                    f"pieces of evidence and the limit is "
+                    f"{EVIDENCE_LIMIT}; a canonical record is "
+                    f"a record and not an archive index")
+            self._store.run(
+                "INSERT INTO work_dossier_evidence (work_id, reference, "
+                "digest, act_id, recorded_at) VALUES (?, ?, ?, ?, ?)",
+                work_id, reference, digest, operation_id, at)
+            return self._evidence_document(self._store.get(
+                "SELECT * FROM work_dossier_evidence WHERE work_id = ? AND "
+                "reference = ?", work_id, reference))
+
+        return self._replay(
+            operation_id,
+            signature_of("work-dossier-evidence",
+                         {"work_id": work_id, "reference": reference,
+                          "digest": digest}),
+            body, at=at)
+
+    @staticmethod
+    def _evidence_document(row):
+        return {"work_id": row["work_id"], "reference": row["reference"],
+                "digest": row["digest"], "act_id": row["act_id"],
+                "recorded_at": row["recorded_at"]}
+
+    def dossier_evidence(self, work_id):
+        """Everything this dossier cites, ordered by reference.
+
+        SORTED RATHER THAN INSERTION-ORDERED, so two authorities that were given
+        the same citations in different orders read identically -- the same rule
+        the label projection follows.
+        """
+        check_work_id(work_id)
+        return [self._evidence_document(row) for row in self._store.all(
+            "SELECT * FROM work_dossier_evidence WHERE work_id = ? "
+            "ORDER BY reference", work_id)]
 
     def add_route_handler(self, route, participant):
         _text(route, "a route")
