@@ -215,3 +215,7 @@ available for incoming review. W39649 retains joined acceptance. W321528 and
 W321689 paths/claims stay independent; no false sibling dependency is installed.
 Packet preparation goes to baton.codx, then independent packet review; executable
 implementation through v12 only. No launch before reviewed concrete packet.
+
+## 2026-10-18T19-44-04Z — minimum slice delivered; broader scope remains parked
+
+W324214 closed satisfying E325838; W39649 wake E325839 consumed under claim325846. Independent child review, INTEGRATION-325810.md and human commit2aa8ca566512e5292f80e3c811404988246024d9 establish delivery of the three reviewed additions. All3 committed hashes independently match. See review-2026-10-18T19-44-04Z.md. Read-only existing-status projection with unknown contact/context/freshness is delivered; native telemetry mappings, new collectors and richer UI are not. This supersedes the child-pending scheduling checkpoint only. W39649 remains open/parked; no full backlog activation, graph rewrite, new launch or successful-worker-verification claim.

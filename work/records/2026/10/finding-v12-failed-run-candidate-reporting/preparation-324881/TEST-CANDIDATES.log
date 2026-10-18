@@ -1,0 +1,177 @@
+F.FF..FFFF...................FFFFFFF..
+======================================================================
+FAIL: test_a_FAILED_turn_still_reports_its_valid_retained_candidate (test_candidates.AFailedTurnWithARetainedCandidate.test_a_FAILED_turn_still_reports_its_valid_retained_candidate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-failed-run-candidate-reporting/evidence/review-324777/candidate/work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py", line 198, in test_a_FAILED_turn_still_reports_its_valid_retained_candidate
+    self.assertEqual(held["state"], baseline.CANDIDATE_VALID)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'refused' != 'valid'
+- refused
++ valid
+
+
+======================================================================
+FAIL: test_a_SUCCESSFUL_turn_is_collected_by_the_same_path (test_candidates.AFailedTurnWithARetainedCandidate.test_a_SUCCESSFUL_turn_is_collected_by_the_same_path)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-failed-run-candidate-reporting/evidence/review-324777/candidate/work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py", line 227, in test_a_SUCCESSFUL_turn_is_collected_by_the_same_path
+    self.assertEqual(held["state"], baseline.CANDIDATE_VALID)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'refused' != 'valid'
+- refused
++ valid
+
+
+======================================================================
+FAIL: test_a_valid_retained_candidate_is_NOT_a_shortfall (test_candidates.AFailedTurnWithARetainedCandidate.test_a_valid_retained_candidate_is_NOT_a_shortfall)
+Reporting the useful fact as a deficiency would be the same mistake
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-failed-run-candidate-reporting/evidence/review-324777/candidate/work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py", line 211, in test_a_valid_retained_candidate_is_NOT_a_shortfall
+    self.assertEqual(self.shortfalls, [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ["attempt attempt-aaaaaaaa has a REFUSED r[175 chars]tes"] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+"attempt attempt-aaaaaaaa has a REFUSED retained candidate: the sealed candidate names artifact 'artifact-bbbbbbbb' and this attempt's 'proposal' output is 'attempt-aaaaaaaa:proposal', so these are not this turn's bytes"
+
++ []
+- ['attempt attempt-aaaaaaaa has a REFUSED retained candidate: the sealed '
+-  "candidate names artifact 'artifact-bbbbbbbb' and this attempt's 'proposal' "
+-  "output is 'attempt-aaaaaaaa:proposal', so these are not this turn's bytes"]
+
+======================================================================
+FAIL: test_the_PRODUCERS_OWN_STATUS_is_interpreted_not_invented (test_candidates.AFailedTurnWithARetainedCandidate.test_the_PRODUCERS_OWN_STATUS_is_interpreted_not_invented) (status=0)
+Review P2: the first reader looked at manifest-level metadata for an
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-failed-run-candidate-reporting/evidence/review-324777/candidate/work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py", line 248, in test_the_PRODUCERS_OWN_STATUS_is_interpreted_not_invented
+    self.assertEqual(self.one()["verification"], expected)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'unreported' != 'passed'
+- unreported
++ passed
+
+
+======================================================================
+FAIL: test_the_PRODUCERS_OWN_STATUS_is_interpreted_not_invented (test_candidates.AFailedTurnWithARetainedCandidate.test_the_PRODUCERS_OWN_STATUS_is_interpreted_not_invented) (status=1)
+Review P2: the first reader looked at manifest-level metadata for an
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-failed-run-candidate-reporting/evidence/review-324777/candidate/work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py", line 248, in test_the_PRODUCERS_OWN_STATUS_is_interpreted_not_invented
+    self.assertEqual(self.one()["verification"], expected)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'unreported' != 'failed'
+- unreported
++ failed
+
+
+======================================================================
+FAIL: test_the_PRODUCERS_OWN_STATUS_is_interpreted_not_invented (test_candidates.AFailedTurnWithARetainedCandidate.test_the_PRODUCERS_OWN_STATUS_is_interpreted_not_invented) (status=137)
+Review P2: the first reader looked at manifest-level metadata for an
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-failed-run-candidate-reporting/evidence/review-324777/candidate/work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py", line 248, in test_the_PRODUCERS_OWN_STATUS_is_interpreted_not_invented
+    self.assertEqual(self.one()["verification"], expected)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'unreported' != 'failed'
+- unreported
++ failed
+
+
+======================================================================
+FAIL: test_the_PRODUCERS_OWN_STATUS_is_interpreted_not_invented (test_candidates.AFailedTurnWithARetainedCandidate.test_the_PRODUCERS_OWN_STATUS_is_interpreted_not_invented) (status=None)
+Review P2: the first reader looked at manifest-level metadata for an
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-failed-run-candidate-reporting/evidence/review-324777/candidate/work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py", line 248, in test_the_PRODUCERS_OWN_STATUS_is_interpreted_not_invented
+    self.assertEqual(self.one()["verification"], expected)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'unreported' != 'no-status'
+- unreported
++ no-status
+
+
+======================================================================
+FAIL: test_a_DAMAGED_history_is_refused (test_candidates.RetainedCUSTODYIsReadNotInferred.test_a_DAMAGED_history_is_refused)
+Parents that are not exactly the declared base: the adapter authors
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-failed-run-candidate-reporting/evidence/review-324777/candidate/work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py", line 415, in test_a_DAMAGED_history_is_refused
+    self.assertIn("parents", self.refused_why())
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'parents' not found in "the sealed candidate names artifact 'artifact-bbbbbbbb' and this attempt's 'proposal' output is 'attempt-aaaaaaaa:proposal', so these are not this turn's bytes"
+
+======================================================================
+FAIL: test_a_SUBSTITUTED_head_is_refused (test_candidates.RetainedCUSTODYIsReadNotInferred.test_a_SUBSTITUTED_head_is_refused)
+The line answers a different commit than the seal claims.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-failed-run-candidate-reporting/evidence/review-324777/candidate/work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py", line 409, in test_a_SUBSTITUTED_head_is_refused
+    self.assertIn("answers head", held["why"])
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'answers head' not found in "the sealed candidate names artifact 'artifact-bbbbbbbb' and this attempt's 'proposal' output is 'attempt-aaaaaaaa:proposal', so these are not this turn's bytes"
+
+======================================================================
+FAIL: test_a_candidate_the_ADAPTER_DID_NOT_AUTHOR_is_refused (test_candidates.RetainedCUSTODYIsReadNotInferred.test_a_candidate_the_ADAPTER_DID_NOT_AUTHOR_is_refused)
+W236087's live failure: the provider committed its own work.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-failed-run-candidate-reporting/evidence/review-324777/candidate/work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py", line 422, in test_a_candidate_the_ADAPTER_DID_NOT_AUTHOR_is_refused
+    self.assertIn("attributed to", self.refused_why())
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'attributed to' not found in "the sealed candidate names artifact 'artifact-bbbbbbbb' and this attempt's 'proposal' output is 'attempt-aaaaaaaa:proposal', so these are not this turn's bytes"
+
+======================================================================
+FAIL: test_a_candidate_whose_LINE_DOES_NOT_ANSWER_is_not_valid (test_candidates.RetainedCUSTODYIsReadNotInferred.test_a_candidate_whose_LINE_DOES_NOT_ANSWER_is_not_valid)
+Missing retained bytes. The metadata still agrees perfectly.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-failed-run-candidate-reporting/evidence/review-324777/candidate/work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py", line 384, in test_a_candidate_whose_LINE_DOES_NOT_ANSWER_is_not_valid
+    self.assertEqual(held["state"], baseline.CANDIDATE_UNREADABLE)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'refused' != 'unreadable'
+- refused
++ unreadable
+
+
+======================================================================
+FAIL: test_a_split_AUTHOR_and_COMMITTER_is_refused (test_candidates.RetainedCUSTODYIsReadNotInferred.test_a_split_AUTHOR_and_COMMITTER_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-failed-run-candidate-reporting/evidence/review-324777/candidate/work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py", line 427, in test_a_split_AUTHOR_and_COMMITTER_is_refused
+    self.assertIn("committed by", self.refused_why())
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'committed by' not found in "the sealed candidate names artifact 'artifact-bbbbbbbb' and this attempt's 'proposal' output is 'attempt-aaaaaaaa:proposal', so these are not this turn's bytes"
+
+======================================================================
+FAIL: test_a_valid_candidate_carries_its_WHOLE_attribution (test_candidates.RetainedCUSTODYIsReadNotInferred.test_a_valid_candidate_carries_its_WHOLE_attribution)
+Review P1: the record named only the generation, so it could not say
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-failed-run-candidate-reporting/evidence/review-324777/candidate/work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py", line 439, in test_a_valid_candidate_carries_its_WHOLE_attribution
+    self.assertEqual(held["state"], baseline.CANDIDATE_VALID)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'refused' != 'valid'
+- refused
++ valid
+
+
+======================================================================
+FAIL: test_an_OS_ERROR_reading_the_line_is_unreadable (test_candidates.RetainedCUSTODYIsReadNotInferred.test_an_OS_ERROR_reading_the_line_is_unreadable)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-failed-run-candidate-reporting/evidence/review-324777/candidate/work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py", line 391, in test_an_OS_ERROR_reading_the_line_is_unreadable
+    self.assertEqual(self.one()["state"], baseline.CANDIDATE_UNREADABLE)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'refused' != 'unreadable'
+- refused
++ unreadable
+
+
+----------------------------------------------------------------------
+Ran 35 tests in 0.003s
+
+FAILED (failures=14)

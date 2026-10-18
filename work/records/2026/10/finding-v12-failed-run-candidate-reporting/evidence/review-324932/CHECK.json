@@ -1,0 +1,12 @@
+{
+  "manifest": "f881a33e432e371be3919da192b9f3674edbdf7d128c076e5a6324b32b594bd4",
+  "inputs": 13,
+  "runtime": 111,
+  "supervisor": 3,
+  "generated_artifacts": 8,
+  "task_exact": true,
+  "retained_paths": 5,
+  "patch_reconstruction": "/tmp/w321528-review324932-oyx7ypms",
+  "base": "372281f4a473300efb474d5a6573954c15ade367",
+  "destination_absent": true
+}

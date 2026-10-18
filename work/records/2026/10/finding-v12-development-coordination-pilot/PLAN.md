@@ -1,3 +1,24 @@
+# Current checkpoint — owner M325952, claim325956
+
+Instance-specific preparation selected: W325959 owns exact packet for retained destination /home/sl/baton-instances/native-coordination-pilot-w321608-1 at full base14e52d80679de5e844f72324df632da5e01cf393. Owner delegates concrete input resolution; no repeat routine-choice approval round. Child returns to baton.bug for independent review, parent consumes accepted packet and retains continuation through native delivery. No launch/cutover or live instance initialization. Existing v11 Works remain unchanged.
+
+This supersedes operand-selection-pending checkpoint below; source/outcome/ownership and all execution/recovery boundaries remain. W325959 is preparation only, not shadow native deliverable. See its FINDING/PLAN for exact acceptance.
+
+# Current checkpoint — 2026-10-18T19-50-44Z
+
+Preparation readiness ACCEPTED. W321689 and W321690 closed satisfying; W321690 owner E325893 explicitly leaves deployment unselected. Latest review-2026-10-18T19-50-44Z.md; SELECTION-325909.md is the finite owner decision sheet.
+
+Next: owner pins actual instance/resources/identities/diagnostic route and execution choice, then prepare and review immutable instance-specific two-stage Job packet before admission. One new native-v12 operator-quickstart Work, single-human approval and integrated-documentation closure remain selected outcome. No pilot Job/attempt, deployment or migration exists by this checkpoint. Preserve existing Work/claims and W10/W7 gates; no broad backlog/new prerequisites. Supersedes prerequisite-pending milestones below, preserving historical evidence and exclusions.
+
+# Owner classification — poke324905
+
+Interrupted-provider-session recovery is deferred, not a gate for current
+continuations or native v12 cutover. Successful-turn context reuse remains in
+the v12 target. Proceed with reviewed3600s provider packets and preserved candidate
+checkpoints; exact launch still needs execution selection. Revisit only if longer
+runs demonstrate material interruption loss. Preserve existing evidence and real
+dependencies. Ruling: baton:work/records/2026/10/finding-v12-development-coordination-pilot/OWNER-INTERRUPTED-SESSION-RECOVERY-324905.md.
+
 # Immediate critical path — leave v11 coordination
 
 Owner 2026-10-18 selects fastest bounded path to native v12 coordination:

@@ -1,0 +1,10 @@
+{
+  "choice": "fresh",
+  "owner": "OWNER-INTERRUPTED-SESSION-RECOVERY-324905.md",
+  "prior_packet_context": {
+    "mode": "fresh"
+  },
+  "provider_context_present": false,
+  "reason": "Spent run configured fresh, no identity-bound managed predecessor supplied. Qualification contextual composer replaces product task; not selected production restore. No native session/transcript import.",
+  "successful_turn_reuse": "Still delivery target; this packet does not prove reuse."
+}

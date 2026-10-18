@@ -1,0 +1,31 @@
+{
+  "blocker": "These exact fresh-mode inputs do not configure managed context admission, receipt or finalized predecessor generation. Native activity logs are not a managed generation and cannot be imported as one. New authority/Job/line cannot silently inherit another context.",
+  "conclusion": "Preserve exact1bb8c162 and diagnostic checkpoint in explicit fresh-context task, not provider-session reuse.",
+  "decision_record": "baton:work/records/2026/10/finding-v12-failed-run-candidate-reporting/OWNER-CONTINUATION-324810.md",
+  "limits": "Configuration/source inspection only; no store-journal absence claim, transcript read/copy, credential read, provider probe or raw resume.",
+  "mode_proposed": "fresh",
+  "observed_workers": [
+    {
+      "provider_context_configured": false,
+      "role": "implementation",
+      "schema": "baton.v12.single-worker-deployment/4"
+    },
+    {
+      "provider_context_configured": false,
+      "role": "review",
+      "schema": "baton.v12.single-worker-deployment/4"
+    }
+  ],
+  "reuse_preferred": true,
+  "source_locations": [
+    "baseline_bindings.py:263,345,363,367,406,416,477",
+    "tools/stage_execution.py:1305,1652,1659",
+    "worker_manager/provider_context.py:_qualified,_facts,context_use_of"
+  ],
+  "spent_deployment": "/home/sl/baton-instances/failed-reporting-w321528-324477/packet/deployment.json",
+  "spent_packet": "/home/sl/baton-instances/failed-reporting-w321528-324477/packet/PACKET.json",
+  "spent_packet_context": {
+    "mode": "fresh"
+  },
+  "supported_path_assessment": "At current372281f4, baseline_bindings.compose contextual selects candidate qualification profile, TASK_INSTRUCTIONS and harness.py verification, so switching mode replaces this product task. Production reuse requires certified profile and identity-bound finalized custody/checkpoint; none is an applicable selected input here. stage_execution.prepare_context admits/materializes/binds; noncompleted context endings hold instead of finalize. No qualified arbitrary-task restore input was established."
+}

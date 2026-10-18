@@ -1,4 +1,77 @@
-# Current checkpoint — held execution requires retained-result diagnosis
+# Current checkpoint — 2026-10-18T19-36-47Z
+
+Preparation-325711 independently accepted for owner fresh execution selection. Review review-2026-10-18T19-36-47Z.md; packet manifest ec793a20eff935ee45873a46b96171776ed80f88d2f5b91e42e42e98b2c918fb. Retained0addd2af preserved exactly; bounded unreadable-ancestor correction and real permission regression remain. Provider3600/total4200/verification30/cleanup60, one invocation/no retry. Fresh destination failed-reporting-w321528-325711; no launch. W325695 separate environment diagnosis and W321776 delivery gate remain. Owner selection precedes operator preparation/start; independent result review follows cessation. Reviewer owns FINDING/PLAN/review, preparer packet/PROGRESS, v12 worker private candidate. Supersedes preparation-pending checkpoint below.
+
+# Current checkpoint — 2026-10-18T19-28-47Z
+
+Run324881 spent; candidate0addd2af retained. Provider0, formal verification1; exact runtime independently absent. Independent186 focused tests pass; descriptor TMPDIR reproduces formal40 failures/20 errors, separately tracked W325695. Reporting correction remains: inaccessible ancestor is falsely reported as missing tree by _retained_bytes isdir preflight. Latest review-2026-10-18T19-28-47Z.md and evidence/review-325674/ govern.
+
+Next baton.codx preparation only: preserve exact candidate, current-base packet for bounded unreadable-versus-missing correction, carrying independent verification and environment diagnosis. Return concrete packet for review before fresh execution selection; no launch/retry. W321776 gate unchanged. Prior awaiting-selection checkpoint below superseded by spent selected run and this diagnosis.
+
+## Current checkpoint — 2026-10-18T17-46-55Z
+
+Preparation324881 independently accepted for owner fresh execution selection; see review-2026-10-18T17-46-55Z.md. Provider3600/total4200/verification30/cleanup60, one invocation/no retry. No launch. Retained1bb8c162 and diagnostics preserved; interrupted-session recovery deferred under owner324905, no gate. Product proof and W321776 dependency remain.
+
+# Owner classification — poke324905
+
+Interrupted-provider-session recovery is deferred, not a gate for current
+continuations or native v12 cutover. Successful-turn context reuse remains in
+the v12 target. Proceed with reviewed3600s provider packets and preserved candidate
+checkpoints; exact launch still needs execution selection. Revisit only if longer
+runs demonstrate material interruption loss. Preserve existing evidence and real
+dependencies. Ruling: baton:work/records/2026/10/finding-v12-development-coordination-pilot/OWNER-INTERRUPTED-SESSION-RECOVERY-324905.md.
+
+# Packet review checkpoint
+
+review-2026-10-18T17-39-37Z.md requests revision of preparation324799 to
+incorporate owner poke324810. All11 existing packet hashes match, but provider900s/
+total1500s and missing explicit reuse assessment predate latest steering.
+Preparer updates concrete generated limits/reuse evidence and returns for review;
+preserve packet324799 and retained1bb8c162. No launch or product rework selected.
+
+# Latest owner steering — poke324810
+
+OWNER-CONTINUATION-324810.md supersedes unchanged900s/1500s continuation
+wording below for the next proposed packet:3600s provider, proposed4200s total,
+separate30s formal verification and60s cleanup, one invocation/no retry.
+Prefer proven supported provider-context reuse; spent fresh-mode runs have no
+managed predecessor generation, so record exact blocker if reuse cannot apply.
+Preserve retained candidate and diagnosis. Preparer returns concrete packet for
+independent review then owner execution selection. NO launch authorized.
+
+# Current checkpoint — retained continuation incomplete; diagnosed preparation
+
+Latest review: review-2026-10-18T17-35-03Z.md, evidence/review-324777/.
+Run324477 spent: timeout900s, held/unable, formal verification null; exact runtime
+independently absent. Native logs show active implementation/debugging near both
+run deadlines, not an evidenced provider hang. Retained candidate1bb8c162 advances
+only baseline.py;35 independent candidate tests yield14 failures. No acceptance.
+
+Next baton.codx preparation only: preserve exact1bb8c162 bytes and diagnostic
+checkpoint; revalidate current base and fresh identity/destination, task the worker
+with remaining real-custody/task-association fixture/proof correction, and return
+concrete packet for independent review. No launch/retry/timeout increase selected.
+Implementation must execute via v12 after fresh selection. Preserve old runs,
+sibling ownership and W321776 dependency; human checkpoint follows acceptance.
+Reviewer owns FINDING/PLAN/evidence, preparer owns packet and PROGRESS.
+
+## Previous preparation checkpoint
+
+Review review-2026-10-18T16-51-00Z.md and evidence/review-324431/ supersede the
+preliminary no-proposal diagnosis below. Structured producer result confirms
+timeout900s; underlying stall cause unknown. Exact container now absent.
+Candidate6132a4fb989c0518fa0f485cfc93071fadb9ef45 and bundle/patch retained;
+five changed files, only baseline.py differs from correction322059. No verification.
+
+Next baton.codx preparation only: preserve these exact unaccepted bytes as
+explicit continuation input, revalidate current committed base, fresh identity/
+destination and task. Finish original real-custody proof and exact task id/digest/
+argv association through v12 after reviewed packet and fresh selection. Original
+invocation spent; no retry/launch or timeout increase authorized. Return packet
+to baton.bug. W321776 gate and sibling ownership stay; manual result collection,
+no W324316 bridge implementation. Human checkpoint follows accepted delivery.
+
+## Preliminary diagnosis — superseded by retained-artifact inspection
 
 The selected operator run finished at 2026-10-18T16:46:26.810Z with exceptional/unable and no proposal. Outcome: `/home/sl/baton-instances/failed-reporting-w321528-324054/packet/outcome.json`. Supervisor reports exact runtime destroyed/absent and no outstanding cleanup. Provider stdout is empty; stderr only warns about absent stdin. Root cause remains unproved. The one selected invocation is consumed; do not rerun the spent packet.
 

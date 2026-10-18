@@ -1,0 +1,37 @@
+{
+  "checks": [
+    {
+      "observation": "the task document's unresolved values",
+      "value": []
+    },
+    {
+      "check": "the task document carries an unresolved sentinel (INTENTIONALLY FALSE)",
+      "detail": [],
+      "passed": false
+    }
+  ],
+  "checks_passed": 0,
+  "expected_failure": true,
+  "failed_check": "the task document carries an unresolved sentinel (INTENTIONALLY FALSE)",
+  "failed_for_intended_reason": true,
+  "injected": "a deliberately false expectation about the pinned task document",
+  "intended_failed_check": "the task document carries an unresolved sentinel (INTENTIONALLY FALSE)",
+  "not_performed": [
+    "bootstrap",
+    "install",
+    "submit",
+    "serve",
+    "any store write",
+    "any container",
+    "any provider call",
+    "any Git mutation"
+  ],
+  "outcome": "failed",
+  "performed": [
+    "read the authored documents",
+    "called the product's own validators",
+    "ran the pinned verification argv in a temporary directory"
+  ],
+  "scenario": "0-harness-self-check",
+  "seconds": 0.0
+}

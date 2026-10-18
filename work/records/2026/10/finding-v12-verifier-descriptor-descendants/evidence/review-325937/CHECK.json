@@ -1,0 +1,14 @@
+{
+  "manifest": "34f80cd19db542f479545285555a8b5844260e9729c33e1c2fe13018c73414fb",
+  "members": 17,
+  "manager_pins": 112,
+  "supervisor_pins": 3,
+  "input_pins": 9,
+  "generated_artifacts": 8,
+  "tests": 5,
+  "cases": 16,
+  "failures": 0,
+  "errors": 0,
+  "wall_seconds": 0.06036098700133152,
+  "engine_invoked": false
+}

@@ -1,0 +1,14 @@
+{
+  "scope": "inert OS process-path reproduction; no product implementation/provider/engine",
+  "result": {
+    "immediate_exists": true,
+    "lexical": "/proc/self/fd/3",
+    "resolved": "/tmp/verifier-descendant-uqjul705",
+    "grandchild": {
+      "exists": false
+    },
+    "grandchild_status": 0
+  },
+  "status": 0,
+  "worker_sha256": "18c34ff52faa150237df0c8d0206b805801ee71cb9e7a4ec6e84e4379d7f9d8d"
+}

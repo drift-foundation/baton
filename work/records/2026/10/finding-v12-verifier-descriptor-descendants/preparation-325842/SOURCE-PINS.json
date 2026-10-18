@@ -1,0 +1,8 @@
+{
+  "v12/worker/claude_agent.py": "18c34ff52faa150237df0c8d0206b805801ee71cb9e7a4ec6e84e4379d7f9d8d",
+  "v12/worker/Dockerfile.claude": "9f7e439babafabb5303aac0c17a2ac5179390c5a63fb74824b6c851ea4ab12ef",
+  "v12/python/src/baton_v12/worker_manager/oci.py": "a56d76c4fc1e4a7427fab7b56f79ec33e29fd0e52b56a1a8eca9da92f2de4d36",
+  "v12/python/src/baton_v12/worker_manager/source_boundary.py": "6a6b0f7ecd29ee260e55d5abb93ebcf8891641a9cd1866109a9d291bf44e918f",
+  "v12/python/src/baton_v12/worker_manager/launch.py": "e7503f09547fa28f181cac896c00a34bef484a24d2e0a4ba57def5771a83f4cc",
+  "v12/DESIGN.md": "a103e054dba664c0441ce74c69ba5be6366eb716f8bcd111eadd142f7c9b1e3b"
+}

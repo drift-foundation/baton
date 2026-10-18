@@ -1,3 +1,9 @@
+# Current checkpoint — 2026-10-18T19-44-04Z
+
+Selected minimum slice DONE: W324214 closed satisfying E325838, committed2aa8ca566512e5292f80e3c811404988246024d9; joined review review-2026-10-18T19-44-04Z.md. Exact three reviewed source/test/doc hashes match commit; integration226 tests pass. Existing-status visibility with explicit unknown contact/context/freshness delivered.
+
+W39649 remains OPEN and PARKED for preserved broader backlog. No next execution selected, no new child or dependency; existing satisfied child edge preserved. Revalidate native capabilities only when a bounded broader slice is selected. Historical failed worker outcome and unresolved formal verification failures remain in child evidence. This supersedes the child-pending checkpoint below, not the undelivered broader acceptance requirements.
+
 # Plan: normalize worker telemetry and introspection
 
 ## Current selected slice — 2026-10-18

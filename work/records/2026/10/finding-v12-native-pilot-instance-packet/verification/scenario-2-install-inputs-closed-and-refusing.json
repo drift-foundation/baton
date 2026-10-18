@@ -1,0 +1,134 @@
+{
+  "checks": [
+    {
+      "check": "the schema is this build's bootstrap input schema",
+      "detail": "baton.v12.stack-bootstrap/1",
+      "passed": true
+    },
+    {
+      "check": "every REQUIRED member is named",
+      "detail": [
+        "checkpoint_profile",
+        "integration_profile",
+        "owner_participant",
+        "policy_generation",
+        "pool_generation",
+        "receipt_participants",
+        "retention_disposition",
+        "retention_policy_digest",
+        "schema",
+        "state_root"
+      ],
+      "passed": true
+    },
+    {
+      "check": "no member this build cannot carry is named",
+      "detail": [],
+      "passed": true
+    },
+    {
+      "check": "the state root is the selected destination, absolute",
+      "detail": "/home/sl/baton-instances/native-coordination-pilot-w321608-1",
+      "passed": true
+    },
+    {
+      "check": "the three receipt actors are named and the review receipt actor is NOT the owner",
+      "detail": {
+        "approval": "baton.slaw",
+        "review": "baton.reviewer-receipt-pilot",
+        "verification": "baton.verifier-pilot"
+      },
+      "passed": true
+    },
+    {
+      "check": "the owner participant is the selected human",
+      "detail": "baton.slaw",
+      "passed": true
+    },
+    {
+      "check": "the owner is configured for approve, integrate and close and for neither verify nor review",
+      "detail": [
+        "approve",
+        "integrate",
+        "close"
+      ],
+      "passed": true
+    },
+    {
+      "check": "no worker and no Job is configured by the fresh install, which is what bootstrap defers",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "the integration role is OPTIONAL in this build, so a two-stage pool is a configured deployment rather than a workaround",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "the unresolved values are explicit and enumerable",
+      "detail": [
+        "$.integration_profile.instructions_digest",
+        "$.integration_profile.profile_kind",
+        "$.integration_profile.profile_version",
+        "$.policy_generation",
+        "$.pool_generation",
+        "$.retention_policy_digest"
+      ],
+      "passed": true
+    },
+    {
+      "check": "bootstrap.held ACCEPTS it, because it validates presence and relationships rather than value formats",
+      "detail": true,
+      "passed": true
+    },
+    {
+      "check": "and bootstrap.validated REFUSES the configuration this input would emit while the sentinels stand, before any durable effect -- which is what makes the packet non-executable today",
+      "detail": "BootstrapRefusal: the deployment this document describes is not one the manager would accept, so nothing was prepared: the retention policy digest is a sha256 digest. Each worker's `deployment` member is the single-worker launch document v12/python/DEPLOYMENT.md specifies; this helper fills in only participant, principal, authority_store, authority_uuid and launch_role, and names the rest as yours to select.",
+      "passed": true
+    }
+  ],
+  "checks_passed": 12,
+  "expected_failure": false,
+  "finding": "bootstrap.held validates presence and relationships, not value formats, so it accepts an opaque string where a digest or a generation belongs. The gate before any durable effect is bootstrap.validated, which holds the EMITTED configuration to the manager's own rules; its refusal here names the retention policy digest. An earlier cut of this scenario asserted the refusal came from `held` and the run said otherwise.",
+  "held_accepts": true,
+  "injected": "pass one against bootstrap's own input contract",
+  "intended_failed_check": null,
+  "member": {
+    "bytes": 1185,
+    "path": "configuration/install-inputs.json",
+    "sha256": "96ddcb00305bf3016529a10202238a41e076b14067995d4f66a8de9f21b116f5"
+  },
+  "not_performed": [
+    "bootstrap",
+    "install",
+    "submit",
+    "serve",
+    "any store write",
+    "any container",
+    "any provider call",
+    "any Git mutation"
+  ],
+  "outcome": "observed",
+  "owner_participant": "baton.slaw",
+  "performed": [
+    "read the authored documents",
+    "called the product's own validators",
+    "ran the pinned verification argv in a temporary directory"
+  ],
+  "receipt_participants": {
+    "approval": "baton.slaw",
+    "review": "baton.reviewer-receipt-pilot",
+    "verification": "baton.verifier-pilot"
+  },
+  "scenario": "2-install-inputs-closed-and-refusing",
+  "seconds": 0.007,
+  "unresolved": [
+    "$.integration_profile.instructions_digest",
+    "$.integration_profile.profile_kind",
+    "$.integration_profile.profile_version",
+    "$.policy_generation",
+    "$.pool_generation",
+    "$.retention_policy_digest"
+  ],
+  "validated_refusal": "BootstrapRefusal: the deployment this document describes is not one the manager would accept, so nothing was prepared: the retention policy digest is a sha256 digest. Each worker's `deployment` member is the single-worker launch document v12/python/DEPLOYMENT.md specifies; this helper fills in only participant, principal, authority_store, authority_uuid and launch_role, and names the rest as yours to select."
+}

@@ -1,0 +1,7 @@
+{
+  "v12/worker/claude_agent.py": "18c34ff52faa150237df0c8d0206b805801ee71cb9e7a4ec6e84e4379d7f9d8d",
+  "v12/python/src/baton_v12/worker_manager/oci.py": "a56d76c4fc1e4a7427fab7b56f79ec33e29fd0e52b56a1a8eca9da92f2de4d36",
+  "v12/python/tests/manager/test_claude_agent.py": "61a6b765e4f5871bd486a3593a00bd50d74ee9b30421761c86092eb244612da9",
+  "v12/DESIGN.md": "a103e054dba664c0441ce74c69ba5be6366eb716f8bcd111eadd142f7c9b1e3b",
+  "work/records/2026/09/finding-v12-single-implementation-proof/baseline_bindings.py": "09fbf3c59820231b7199e24aa1cf64eee93f6ea2e60f3477fed5ca909e5fc379"
+}

@@ -1,0 +1,63 @@
+{
+  "accepted": false,
+  "base": "372281f4a473300efb474d5a6573954c15ade367",
+  "candidate_record": "baton:work/records/2026/10/finding-v12-failed-run-candidate-reporting/evidence/review-324777/CANDIDATE.json",
+  "candidate_record_sha256": "14afc3be6a4bc804774ff6517dcf5144470ac76d3602df3ae9ceaaeaf168c316",
+  "compatibility": {
+    "v12/python/tests/manager/test_claude_agent.py": {
+      "base_sha256": "61a6b765e4f5871bd486a3593a00bd50d74ee9b30421761c86092eb244612da9",
+      "retained_sha256": "42191d077e411f9e0a08b82b69c7e2b06e8583a6a0acd6c8da6a4fa8b703492d"
+    },
+    "v12/worker/claude_agent.py": {
+      "base_sha256": "18c34ff52faa150237df0c8d0206b805801ee71cb9e7a4ec6e84e4379d7f9d8d",
+      "retained_sha256": "b014ea3f5f58af573a0cbaa4b8838a270953806a89ef274682d5cca6627efe7c"
+    },
+    "work/records/2026/09/finding-v12-single-implementation-proof/baseline.py": {
+      "base_sha256": "248e570d8f9d459550b0aa5e92d1674c3226fe540ba987cae916a4a334606771",
+      "retained_sha256": "7889302d423082cf172ed33ead42e98d8ce79708416c6d7e80ddae11ad1d0198"
+    },
+    "work/records/2026/09/finding-v12-single-implementation-proof/test_baseline.py": {
+      "base_sha256": "9eca44b81715b83a2771d9ef66934586778a6626055f78a1a2d2c6d6b79409e7",
+      "retained_sha256": "b10898c52a169975a3a2e5c5367e3b8e7cce63656d950e189e412103d84c05fb"
+    },
+    "work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py": {
+      "base_sha256": null,
+      "retained_sha256": "3ff58ec3e3e33dbf45326423d15a8a6b448947b66f8fe3319968fd4a6ed5b1f6"
+    }
+  },
+  "custody": {
+    "change.patch": {
+      "bytes": 99014,
+      "sha256": "8aefb56f691d385406cce423e3b88c98e03f67820eb1f106d3a5858c72ea3728"
+    },
+    "objects.bundle": {
+      "bytes": 26852,
+      "sha256": "7fd1a7f558f84628c8bdb24cea42db435a24e8f94222f52609f344d2177712b6"
+    },
+    "result.json": {
+      "bytes": 828,
+      "sha256": "22d0e46bf25f7cb83109d469b44af9bd87b09a95f2dcb82662c0110627914128"
+    },
+    "verification.txt": {
+      "bytes": 30,
+      "sha256": "4825c3ea707b3ab41b2d72a0443ea35d3dd518252a6a673fac3fea418df9a133"
+    }
+  },
+  "diagnostic_inputs": {
+    "CHECKPOINT.md": "e063608cb0e3dbad3802b94815d8e52d79755c921aecd1fc00b0b230bff03891",
+    "TEST-CANDIDATES.log": "cdf8d468700a7a9ba89f5ec4444abd44337e7a960aebbe056e33cdb6c31e538b",
+    "continuation.diff": "1f4e37c2140c5a82390a87fcff1d1e0f7b27cf095aef234a4e41d620650f269e"
+  },
+  "formal_verification": null,
+  "owner_ruling_sha256": "628ed1e3bf044e7318c7b437c066615d4312940e3c64728a79de11854bcc75ed",
+  "previous_attempt": "attempt-6ce507723132291ea1abb7a65f2e59e4402ffb00119c8d43596c9af68cab0e2b",
+  "previous_base": "fba1a7fc318028d0e97bdfd9598656c824f4c5c3",
+  "previous_head": "1bb8c162e12dbcf9bbd0f9023d867759fba5e00b",
+  "previous_job": "job-failed-reporting-w321528-324477",
+  "previous_run": "failed-reporting-w321528-324477",
+  "prior_packet": "baton:work/records/2026/10/finding-v12-failed-run-candidate-reporting/preparation-324799",
+  "prior_packet_manifest_sha256": "dc56b1e32ffaa3baa52a8888e21475778ad4ca901b64c7fbdfd27947219f7be0",
+  "retained_patch_sha256": "8aefb56f691d385406cce423e3b88c98e03f67820eb1f106d3a5858c72ea3728",
+  "review_record": "baton:work/records/2026/10/finding-v12-failed-run-candidate-reporting/review-2026-10-18T17-35-03Z.md",
+  "review_sha256": "53b898cc68f0c241ba3b4e1d3c7269eebb7f6b9eb7e1bf07c46566194d263d93"
+}

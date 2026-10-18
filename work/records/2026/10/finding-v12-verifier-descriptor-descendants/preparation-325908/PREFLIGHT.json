@@ -1,0 +1,73 @@
+{
+  "steps": [
+    {
+      "step": "stage",
+      "argv": [
+        "python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-verifier-descriptor-descendants/preparation-325908/prepare.py",
+        "stage",
+        "--root",
+        "/tmp/w325695-preflight-325908"
+      ],
+      "seconds": 0.12569757799974468,
+      "status": 0,
+      "stdout": "staged; bootstrap separately with --no-repositories, then bind\n",
+      "stderr": ""
+    },
+    {
+      "step": "bootstrap",
+      "argv": [
+        "python3",
+        "-B",
+        "-m",
+        "tools.bootstrap",
+        "--inputs",
+        "/tmp/w325695-preflight-325908/bootstrap-inputs.json",
+        "--destination",
+        "/tmp/w325695-preflight-325908/instance",
+        "--distro",
+        "/home/sl/baton-runs/managed-correction-236087/build/stack/out/distro",
+        "--no-repositories"
+      ],
+      "seconds": 0.5877486640001734,
+      "status": 0,
+      "stdout": "repositories  not prepared: no source checkout was found or named, so the deployment has no target, workspace or worker sources yet and will schedule without reconciling\nauthority f00facad...    generated for this instance\njob   none; no Work, grant or placeholder was created\nconfiguration /tmp/w325695-preflight-325908/instance/deployment.json\ncapacity      {\"job_affinity\": {}, \"jobs\": 0, \"note\": \"this instance binds no Job and configures no execution capacity; it serves a real idle scheduler and publisher over empty stores, and a worker, a Work, a declared base, a canonical target and a producer are supplied together when a Job is created\", \"schema\": \"baton.v12.stage-execution-deployment/2\", \"targets\": [], \"workers_by_role\": {\"implementation\": [], \"integration\": [], \"review\": []}}\nno Job was submitted and nothing was executed\ninstance      /tmp/w325695-preflight-325908/instance/instance.json\nruntime       81 files, digest c1ef3d23394916c8...\nstores        /tmp/w325695-preflight-325908/instance/db\nrepository    /tmp/w325695-preflight-325908/instance/repo\njustfile      /tmp/w325695-preflight-325908/instance/justfile\n\nThe deployment is operated from the destination, and needs nothing else:\n\n    cd /tmp/w325695-preflight-325908/instance && just status\n    just --justfile /tmp/w325695-preflight-325908/instance/justfile start        # from anywhere\n\nor the command directly, which is the same program:\n\n    /tmp/w325695-preflight-325908/instance/distro/baton-v12-stack status --instance /tmp/w325695-preflight-325908/instance/instance.json\n",
+      "stderr": ""
+    },
+    {
+      "step": "bind",
+      "argv": [
+        "python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-verifier-descriptor-descendants/preparation-325908/prepare.py",
+        "bind",
+        "--root",
+        "/tmp/w325695-preflight-325908"
+      ],
+      "seconds": 0.3509512040000118,
+      "status": 0,
+      "stdout": "prepared and validated; no job submitted, no engine/provider invoked\n",
+      "stderr": ""
+    }
+  ],
+  "prepared": {
+    "artifacts": {
+      "PACKET.json": "79c24f15ec24030085d29837e99731a65a586ba200828a616db94dd270ac80b4",
+      "adapter.json": "cbe3bb4ade990eb5411c64a40be74a10e46a79f48343c499b5f1a8453fabc9c7",
+      "commands.json": "9f076381e884b42c898e9974c38d348c38063a5074c56e1e3ca3b103ea975fc2",
+      "deployment.json": "06f87b9faaa9e72364d82fa90bd56b1026c1a2af77350877cf22518947ec4400",
+      "policy.json": "2b75b8208cd288418ea5a9af8ece0c443abdaa19fda80a1ea2725e43fdbc306c",
+      "runtime-profile.json": "70ca07c494c9660bfaf747772f2233ccaf77b4ef3a4da90c26121b7b59ff1d34",
+      "submission.json": "6d9e5b234ddae2d6c3a30884f9e2e39769fc43a6e693856721b5f622f2d09529",
+      "task.json": "9a55b24dba7ab21d48a72883f2332159d520d1104c43b035a7400684fff40648"
+    },
+    "authority_uuid": "f00facadaf3e4258a0a6e49e881bdddd",
+    "independent_review": "baton.rvpc consumes immutable retained proposal through v11 after exact runtime cessation; no automatic acceptance",
+    "packet_sha256": "79c24f15ec24030085d29837e99731a65a586ba200828a616db94dd270ac80b4",
+    "state": "prepared-not-executed",
+    "work": "W325695"
+  },
+  "product_tests": 0,
+  "provider_invoked": false
+}

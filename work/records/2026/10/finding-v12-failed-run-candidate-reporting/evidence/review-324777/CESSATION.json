@@ -1,0 +1,9 @@
+{
+  "runtime": "ba82b5c9a0d8fdd8cc044794693c7f23dae66fdcdd8beca985c1f62eb19fc1a2",
+  "observed_at": "2026-10-18T17-35-03Z",
+  "command": "docker inspect <exact-runtime-id>",
+  "exit": 1,
+  "stdout": "[]",
+  "stderr": "error: no such object",
+  "source": "independent reviewer exact-runtime read"
+}

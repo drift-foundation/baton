@@ -1,0 +1,21 @@
+{
+  "checkpoint_profile": "git",
+  "integration_profile": {
+    "instructions_digest": "SELECT: sha256 of the integrator instruction bytes sealed into the bundle (owner)",
+    "integrator_participant": "baton.integrator-pilot",
+    "profile_kind": "SELECT: the integration profile kind (owner). This two-stage Job submits no integration stage, but bootstrap REQUIRES the profile document",
+    "profile_version": "SELECT: the integration profile version (owner)"
+  },
+  "owner_participant": "baton.slaw",
+  "policy_generation": "SELECT: the policy generation this install pins (owner); read back after step 3 and compared before any dependent grant",
+  "pool_generation": "SELECT: the pool generation (owner); a positive whole number",
+  "receipt_participants": {
+    "approval": "baton.slaw",
+    "review": "baton.reviewer-receipt-pilot",
+    "verification": "baton.verifier-pilot"
+  },
+  "retention_disposition": "retain",
+  "retention_policy_digest": "SELECT: sha256 of the selected retention policy (owner); a fixture digest is not a production selection",
+  "schema": "baton.v12.stack-bootstrap/1",
+  "state_root": "/home/sl/baton-instances/native-coordination-pilot-w321608-1"
+}

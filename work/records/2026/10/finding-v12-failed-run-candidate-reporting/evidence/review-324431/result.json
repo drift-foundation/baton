@@ -1,0 +1,23 @@
+{
+ "base": "d0b211b42f724c6747ebdcd8fc71885388579761",
+ "changed_paths": [
+  "v12/python/tests/manager/test_claude_agent.py",
+  "v12/worker/claude_agent.py",
+  "work/records/2026/09/finding-v12-single-implementation-proof/baseline.py",
+  "work/records/2026/09/finding-v12-single-implementation-proof/test_baseline.py",
+  "work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py"
+ ],
+ "collection": null,
+ "disposition": "provider-failed",
+ "entry_head": "d0b211b42f724c6747ebdcd8fc71885388579761",
+ "head": "6132a4fb989c0518fa0f485cfc93071fadb9ef45",
+ "provider": {
+  "failure_reason": "timeout",
+  "seconds_bound": 3600,
+  "status": null
+ },
+ "schema": "baton.dogfood-proposal/2",
+ "task_id": "failed-reporting-w321528-324054",
+ "verification": null,
+ "why": "the provider did not finish within 900s"
+}

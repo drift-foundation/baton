@@ -1,0 +1,41 @@
+{
+  "W324214": {
+    "task_sha256": "e43454a2ca7ca7fe321e7505f09f63aca3e935006a8d8b3b2273648f873331dc",
+    "prompt_bytes": 195345,
+    "nul_inclusive": 195346,
+    "remaining_to_131072": -64274,
+    "inert_exec": {
+      "errno": 7,
+      "error": "Argument list too long"
+    }
+  },
+  "W321528": {
+    "task_sha256": "94d6027074da7bfea84261c6435a57ca591685a336b08a03d43b604a7d5e92e6",
+    "prompt_bytes": 117830,
+    "nul_inclusive": 117831,
+    "remaining_to_131072": 13241,
+    "inert_exec": {
+      "returncode": 0
+    }
+  },
+  "shared_launch_settings": {
+    "image_digest": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2",
+    "adapter_digest": "sha256:5f2ef38f05ed7a9aecd11dd7e23e9cfbe1f0243fe27bd2c9aa1b004580fcdef1",
+    "engine": "docker",
+    "network": "bridge",
+    "profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+    "profile_name": "claude-fresh-implementation",
+    "credential_profile": {
+      "claude": {
+        "provider": "operator-file",
+        "reference": "w202663-development"
+      }
+    },
+    "credential_sources": "/home/sl/.baton/credential-sources.json",
+    "workspace_capacity": {
+      "max_bytes": 83886081
+    },
+    "launch_contract": "v12-assignment-1"
+  },
+  "accepted_manifest_preserved": "f881a33e432e371be3919da192b9f3674edbdf7d128c076e5a6324b32b594bd4"
+}

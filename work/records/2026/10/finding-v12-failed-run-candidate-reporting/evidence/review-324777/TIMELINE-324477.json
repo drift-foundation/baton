@@ -1,0 +1,434 @@
+{
+  "run": "324477",
+  "native_files": [
+    {
+      "path": "/home/sl/baton-instances/failed-reporting-w321528-324477/packet/launch/implementation/logs/attempt-6ce507723132291ea1abb7a65f2e59e4402ffb00119c8d43596c9af68cab0e2b/native/projects%2F-output%2F6f34be05-fb95-4bb0-a8c9-9b91ce6fe763.jsonl",
+      "sha256": "2b53f99d755fed025427b9d7de31ea6dfd418798b3c4bc7bf08773a0aa218a03",
+      "bytes": 1270420
+    }
+  ],
+  "types": {
+    "queue-operation": 2,
+    "user": 67,
+    "attachment": 72,
+    "last-prompt": 22,
+    "atis-latch": 22,
+    "ai-title": 22,
+    "assistant": 107
+  },
+  "first": "2026-10-18T17:01:35.964Z",
+  "last": "2026-10-18T17:16:01.489Z",
+  "tool_and_test_timeline": [
+    {
+      "timestamp": "2026-10-18T17:01:39.640Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:01:40.273Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:01:52.299Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:07:01.954Z",
+      "kind": "tool_use",
+      "name": "Write",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:07:08.182Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:07:10.254Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:07:17.620Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": "timeout 900 python3 -c \"\nimport os,sys,unittest\nroot=os.getcwd(); os.chdir('v12/python'); sys.path[:0]=[os.getcwd(),os.path.join(os.getcwd(),'src'),os.path.join(root,'work/records/2026/09/finding-v12-single-implementation-proof')]\nnames=['test_candidates','test_baseline']+['tests.manager.test_claude_agent.'+n for n in ['FailureIsHonest','ThePositiveTurnWritesTheDeclaredProposal','ThePreparedLineTurnCommitsAndDeclaresItsObjects','NoUsableReportIsNoVerdictAtAll','TheReviewTurnAuthorsAVerdictItDidNotDecide']]\nr=unittest.TextTestRunner(verbosity=1).run(unittest.defaultTestLoader.loadTestsFromNames(names)); sys.exit(not r.wasSuccessful())\n\" 2>&1 | tail -60"
+    },
+    {
+      "timestamp": "2026-10-18T17:07:25.787Z",
+      "kind": "test_result",
+      "tail": "^^^^^^^\nAssertionError: Lists differ: ['the workload evidence could not be read'] != []\n\nFirst list contains 1 additional elements.\nFirst extra element 0:\n'the workload evidence could not be read'\n\n- ['the workload evidence could not be read']\n+ []\n\n======================================================================\nFAIL: test_another_jobs_stage_never_spends_this_runs_invocation (test_baseline.OneRunAccountsForOneJobAndSaysSo.test_another_jobs_stage_never_spends_this_runs_invocation)\nThe defect this closes: `serve` sweeps the STORE. Without the Job\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/output/work/records/2026/09/finding-v12-single-implementation-proof/test_baseline.py\", line 734, in test_another_jobs_stage_never_spends_this_runs_invocation\n    self.assertEqual(outcome[\"state\"], \"settled\", outcome[\"held_because\"])\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 'held' != 'settled'\n- held\n+ settled\n : [\"the workload evidence did not complete: NameError: name '_retained_bytes' is not defined\", 'the workload evidence could not be read']\n\n----------------------------------------------------------------------\nRan 145 tests in 7.401s\n\nFAILED (failures=6, errors=48)"
+    },
+    {
+      "timestamp": "2026-10-18T17:07:31.913Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": "timeout 900 python3 -c \"\nimport os,sys,unittest\nroot=os.getcwd(); os.chdir('v12/python'); sys.path[:0]=[os.getcwd(),os.path.join(os.getcwd(),'src'),os.path.join(root,'work/records/2026/09/finding-v12-single-implementation-proof')]\nnames=['test_candidates','test_baseline']+['tests.manager.test_claude_agent.'+n for n in ['FailureIsHonest','ThePositiveTurnWritesTheDeclaredProposal','ThePreparedLineTurnCommitsAndDeclaresItsObjects','NoUsableReportIsNoVerdictAtAll','TheReviewTurnAuthorsAVerdictItDidNotDecide']]\nr=unittest.TextTestRunner(verbosity=1).run(unittest.defaultTestLoader.loadTestsFromNames(names)); sys.exit(not r.wasSuccessful())\n\" 2>&1 | grep -E '^(ERROR|FAIL):' | sed 's/ (.*//' | sort | uniq -c | head -80"
+    },
+    {
+      "timestamp": "2026-10-18T17:07:43.569Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:07:45.841Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:07:48.120Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:07:53.113Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:07:55.202Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:07:59.762Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:08:02.311Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:08:06.562Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:08:08.643Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:08:15.414Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:08:18.219Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:08:21.392Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:08:39.035Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:08:42.809Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:08:57.225Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:09:00.300Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:09:05.392Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:09:10.116Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:09:13.336Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:09:17.392Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:09:20.363Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:09:23.140Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:09:28.019Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:09:32.127Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:09:34.884Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:09:37.119Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:09:41.256Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:09:43.822Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:09:47.010Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:09:49.242Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:09:55.690Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:09:59.532Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:10:02.115Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:10:06.708Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:10:09.192Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:10:34.886Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:10:36.895Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:10:43.211Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:10:46.237Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:11:22.155Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:11:40.051Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:11:43.182Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:11:50.606Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:12:13.829Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:12:16.489Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:12:19.125Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:12:25.402Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:12:29.698Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:12:32.654Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:12:39.395Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:12:42.047Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:13:20.822Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:13:32.372Z",
+      "kind": "tool_use",
+      "name": "Edit",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:14:51.368Z",
+      "kind": "tool_use",
+      "name": "Edit",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:15:04.256Z",
+      "kind": "tool_use",
+      "name": "Edit",
+      "command": null
+    },
+    {
+      "timestamp": "2026-10-18T17:15:09.477Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": "cd /output && timeout 900 python3 -c \"\nimport os,sys,unittest\nroot=os.getcwd(); os.chdir('v12/python'); sys.path[:0]=[os.getcwd(),os.path.join(os.getcwd(),'src'),os.path.join(root,'work/records/2026/09/finding-v12-single-implementation-proof')]\nr=unittest.TextTestRunner(verbosity=1).run(unittest.defaultTestLoader.loadTestsFromNames(['test_baseline'])); sys.exit(not r.wasSuccessful())\n\" 2>&1 | tail -40"
+    },
+    {
+      "timestamp": "2026-10-18T17:15:16.428Z",
+      "kind": "test_result",
+      "tail": ".................................................\n----------------------------------------------------------------------\nRan 49 tests in 6.741s\n\nOK"
+    },
+    {
+      "timestamp": "2026-10-18T17:15:26.440Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": "cat > /tmp/w321528/probe.py <<'EOF'\nimport json, os, sys, unittest\nimport test_baseline as T\nimport baseline\n\nclass Probe(T.BaselineCase):\n    def test_probe(self):\n        _c, outcome, _j, _ctl = self.supervised()\n        print(json.dumps(outcome[\"workload\"][\"candidates\"], indent=1, default=str))\n        print(\"SHORTFALLS\", outcome[\"workload\"][\"shortfalls\"])\n\nif __name__ == \"__main__\":\n    unittest.main()\nEOF\ntimeout 600 python3 -c \"\nimport os,sys,unittest\nroot=os.getcwd(); os.chdir('v12/python'); sys.path[:0]=[os.getcwd(),os.path.join(os.getcwd(),'src'),os.path.join(root,'work/records/2026/09/finding-v12-single-implementation-proof'),'/tmp/w321528']\nr=unittest.TextTestRunner(verbosity=1).run(unittest.defaultTestLoader.loadTestsFromNames(['probe'])); sys.exit(not r.wasSuccessful())\n\" 2>&1 | tail -50"
+    },
+    {
+      "timestamp": "2026-10-18T17:15:30.200Z",
+      "kind": "test_result",
+      "tail": "86b9a59376be12eda0e2451571/proposal\",\n  \"base\": \"2bce062db939ae67d2e30869e13a62009ab232b8\",\n  \"head\": \"dd4ff848108308f5f8ba5f1b29916f56f46630ac\",\n  \"transport\": \"objects.bundle\",\n  \"content_digest\": \"sha256:d8c3f68d0224db5acf5eb20712581ef0a8257fbe94823c539f32bc16ea4aac23\",\n  \"bytes\": 1771,\n  \"verification\": \"passed\",\n  \"acceptance\": \"unobserved\",\n  \"attribution\": {\n   \"attempt_id\": \"attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571\",\n   \"line_id\": \"line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a\",\n   \"line_path\": \"/output/v12/python/v12-w71917-3y9is6g_/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout\",\n   \"head\": \"dd4ff848108308f5f8ba5f1b29916f56f46630ac\",\n   \"base\": \"2bce062db939ae67d2e30869e13a62009ab232b8\",\n   \"author\": \"Baton worker <worker@baton.invalid>\",\n   \"committer\": \"Baton worker <worker@baton.invalid>\",\n   \"parents\": [\n    \"2bce062db939ae67d2e30869e13a62009ab232b8\"\n   ]\n  },\n  \"assignment\": {\n   \"authority_uuid\": \"0000000a000000000000000000000000\",\n   \"work_id\": \"0000000a-W1\",\n   \"participant\": \"baton.claude\",\n   \"principal\": \"principal:baton.claude\",\n   \"generation\": 1,\n   \"effective_scope\": \"scope:deployment\"\n  },\n  \"why\": null,\n  \"generation\": 1\n }\n]\nSHORTFALLS []"
+    },
+    {
+      "timestamp": "2026-10-18T17:16:01.467Z",
+      "kind": "tool_use",
+      "name": "Bash",
+      "command": null
+    }
+  ]
+}

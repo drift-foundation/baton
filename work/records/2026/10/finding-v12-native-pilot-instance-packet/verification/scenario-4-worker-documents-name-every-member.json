@@ -1,0 +1,180 @@
+{
+  "checks": [
+    {
+      "check": "the second pass names workers and jobs, which the fresh install deferred",
+      "detail": [
+        "_note",
+        "jobs",
+        "schema",
+        "workers"
+      ],
+      "passed": true
+    },
+    {
+      "check": "the pool is implementation and review ONLY",
+      "detail": [
+        "implementation",
+        "review"
+      ],
+      "passed": true
+    },
+    {
+      "check": "the producer and the reviewer are different participants, which bootstrap's independence rule requires",
+      "detail": {
+        "implementation": "baton.claude-pilot",
+        "review": "baton.reviewer-pilot"
+      },
+      "passed": true
+    },
+    {
+      "check": "worker implementation-pilot names every member bootstrap requires of one",
+      "detail": [
+        "deployment",
+        "participant",
+        "role",
+        "worker_id"
+      ],
+      "passed": true
+    },
+    {
+      "check": "and its deployment names all 29 members the worker contract closes over",
+      "detail": [],
+      "passed": true
+    },
+    {
+      "check": "implementation-pilot carries no secret member",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "worker review-pilot names every member bootstrap requires of one",
+      "detail": [
+        "deployment",
+        "participant",
+        "role",
+        "worker_id"
+      ],
+      "passed": true
+    },
+    {
+      "check": "and its deployment names all 29 members the worker contract closes over",
+      "detail": [],
+      "passed": true
+    },
+    {
+      "check": "review-pilot carries no secret member",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "the Job binding names every member bootstrap requires",
+      "detail": [
+        "canonical_target_id",
+        "job_id",
+        "line_declared_base",
+        "source_worker_id",
+        "work_id"
+      ],
+      "passed": true
+    },
+    {
+      "check": "its producer is the configured implementation worker",
+      "detail": "implementation-pilot",
+      "passed": true
+    },
+    {
+      "check": "the declared base and the canonical target are the selected source",
+      "detail": {
+        "canonical_target_id": "14e52d80679de5e844f72324df632da5e01cf393",
+        "job_id": "quickstart-a",
+        "line_declared_base": "14e52d80679de5e844f72324df632da5e01cf393",
+        "source_worker_id": "implementation-pilot",
+        "work_id": "READBACK: the canonical Work id created in step 4"
+      },
+      "passed": true
+    },
+    {
+      "check": "every value that cannot exist before the instance does is an explicit readback or selection",
+      "detail": 33,
+      "passed": true
+    },
+    {
+      "check": "and the second pass is REFUSED while they stand",
+      "detail": "BootstrapRefusal: this deployment cannot be prepared: nothing reads _note. A selection this helper cannot carry is refused rather than accepted and dropped, because the two are indistinguishable to an operator until the deployment behaves differently from what they asked for. The supported optional selections are integration_target, integration_target_reference, integration_workspace, integration_observer, integration_instructions, integration_preparation, result_judgment_workers, owner_participant.",
+      "passed": true
+    }
+  ],
+  "checks_passed": 14,
+  "expected_failure": false,
+  "injected": "pass two against the worker deployment contract's closed member set",
+  "intended_failed_check": null,
+  "member": {
+    "bytes": 6817,
+    "path": "configuration/job-inputs.json",
+    "sha256": "e534834d830a9a281cd7b9df5840b6c3dfbfed35513a184ab65703b45c859976"
+  },
+  "not_performed": [
+    "bootstrap",
+    "install",
+    "submit",
+    "serve",
+    "any store write",
+    "any container",
+    "any provider call",
+    "any Git mutation"
+  ],
+  "outcome": "observed",
+  "participants": {
+    "implementation": "baton.claude-pilot",
+    "review": "baton.reviewer-pilot"
+  },
+  "performed": [
+    "read the authored documents",
+    "called the product's own validators",
+    "ran the pinned verification argv in a temporary directory"
+  ],
+  "refusal_while_unresolved": "BootstrapRefusal: this deployment cannot be prepared: nothing reads _note. A selection this helper cannot carry is refused rather than accepted and dropped, because the two are indistinguishable to an operator until the deployment behaves differently from what they asked for. The supported optional selections are integration_target, integration_target_reference, integration_workspace, integration_observer, integration_instructions, integration_preparation, result_judgment_workers, owner_participant.",
+  "roles": [
+    "implementation",
+    "review"
+  ],
+  "scenario": "4-worker-documents-name-every-member",
+  "seconds": 0.0,
+  "unresolved": [
+    "$.jobs[0].work_id",
+    "$.workers[0].deployment.adapter_digest",
+    "$.workers[0].deployment.adapter_name",
+    "$.workers[0].deployment.authority_uuid",
+    "$.workers[0].deployment.credential_profile",
+    "$.workers[0].deployment.credential_slots",
+    "$.workers[0].deployment.credential_sources",
+    "$.workers[0].deployment.engine",
+    "$.workers[0].deployment.image_digest",
+    "$.workers[0].deployment.input_manifest",
+    "$.workers[0].deployment.policy_digest",
+    "$.workers[0].deployment.principal",
+    "$.workers[0].deployment.profile_digest",
+    "$.workers[0].deployment.profile_name",
+    "$.workers[0].deployment.retention_policy_digest",
+    "$.workers[0].deployment.workspace_capacity.max_bytes",
+    "$.workers[0].deployment.workspace_group",
+    "$.workers[1].deployment.adapter_digest",
+    "$.workers[1].deployment.adapter_name",
+    "$.workers[1].deployment.authority_uuid",
+    "$.workers[1].deployment.credential_profile",
+    "$.workers[1].deployment.credential_slots",
+    "$.workers[1].deployment.credential_sources",
+    "$.workers[1].deployment.engine",
+    "$.workers[1].deployment.image_digest",
+    "$.workers[1].deployment.input_manifest",
+    "$.workers[1].deployment.policy_digest",
+    "$.workers[1].deployment.principal",
+    "$.workers[1].deployment.profile_digest",
+    "$.workers[1].deployment.profile_name",
+    "$.workers[1].deployment.retention_policy_digest",
+    "$.workers[1].deployment.workspace_capacity.max_bytes",
+    "$.workers[1].deployment.workspace_group"
+  ],
+  "unresolved_count": 33,
+  "worker_member_count": 29
+}

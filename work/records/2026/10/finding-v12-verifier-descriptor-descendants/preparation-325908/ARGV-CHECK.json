@@ -1,0 +1,34 @@
+{
+  "worker_source_sha256": "18c34ff52faa150237df0c8d0206b805801ee71cb9e7a4ec6e84e4379d7f9d8d",
+  "prompt_composition": "Exact AST-extracted pinned worker _prompt(task), feedback=None; pinned PROVIDER_ARGUMENTS; only executable replaced with /bin/true",
+  "task_bytes": 6266,
+  "prompt_bytes": 7267,
+  "prompt_with_nul_bytes": 7268,
+  "observed_single_argument_limit_bytes": 131072,
+  "headroom_bytes": 123804,
+  "page_size": 4096,
+  "cases": [
+    {
+      "case": "composed-current",
+      "argument_bytes": 7267,
+      "with_nul_bytes": 7268,
+      "status": 0
+    },
+    {
+      "case": "prior-oversize",
+      "argument_bytes": 195345,
+      "with_nul_bytes": 195346,
+      "errno": 7
+    },
+    {
+      "case": "boundary-oversize",
+      "argument_bytes": 131072,
+      "with_nul_bytes": 131073,
+      "errno": 7
+    }
+  ],
+  "seconds": 0.0010125709995918442,
+  "provider_invoked": false,
+  "environment": "Closed structural five-variable inert environment; no credentials or provider HOME",
+  "limitation": "Host Linux inert exec proves argument transport at observed boundary, not provider authentication/completion."
+}

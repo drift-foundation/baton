@@ -1,0 +1,30 @@
+{
+ "base": "372281f4a473300efb474d5a6573954c15ade367",
+ "changed_paths": [
+  "v12/python/tests/manager/test_claude_agent.py",
+  "v12/worker/claude_agent.py",
+  "work/records/2026/09/finding-v12-single-implementation-proof/baseline.py",
+  "work/records/2026/09/finding-v12-single-implementation-proof/test_baseline.py",
+  "work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py"
+ ],
+ "collection": null,
+ "disposition": "verification-failed",
+ "entry_head": "372281f4a473300efb474d5a6573954c15ade367",
+ "head": "0addd2afca3c4ebe3a4cec9f2936791f58a6591d",
+ "provider": {
+  "failure_reason": null,
+  "seconds_bound": 3600,
+  "status": 0
+ },
+ "schema": "baton.dogfood-proposal/2",
+ "task_id": "failed-reporting-w321528-324881",
+ "verification": {
+  "argv": [
+   "python3",
+   "-c",
+   "import os,sys,unittest; root=os.getcwd(); os.chdir('v12/python'); sys.path[:0]=[os.getcwd(),os.path.join(os.getcwd(),'src'),os.path.join(root,'work/records/2026/09/finding-v12-single-implementation-proof')]; names=['test_candidates','test_baseline']+['tests.manager.test_claude_agent.'+n for n in ['FailureIsHonest','ThePositiveTurnWritesTheDeclaredProposal','ThePreparedLineTurnCommitsAndDeclaresItsObjects','NoUsableReportIsNoVerdictAtAll','TheReviewTurnAuthorsAVerdictItDidNotDecide']]; r=unittest.TextTestRunner(verbosity=1).run(unittest.defaultTestLoader.loadTestsFromNames(names)); sys.exit(not r.wasSuccessful())"
+  ],
+  "status": 1
+ },
+ "why": "the task's own command ended 1"
+}

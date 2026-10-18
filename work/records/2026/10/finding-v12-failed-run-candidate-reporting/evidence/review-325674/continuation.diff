@@ -1,0 +1,61 @@
+--- prior
++++ new
+@@ -2037,12 +2037,22 @@
+         task = None
+     found = []
+     for attempt in implementation:
++        # ONE CLOSED MEMBER SET FOR ALL FOUR ANSWERS. The states are different
++        # ANSWERS rather than different documents, so every member a reader
++        # may look for is seeded here and a record that failed early answers
++        # the same shape as one that failed late. `generation` was the one
++        # exception: it was written only after the assignment read succeeded,
++        # so an operator scanning these records for it had to already know
++        # which records could carry it -- and a member whose ABSENCE means
++        # "this program stopped before asking" is indistinguishable from a
++        # producer that forgot, which is the shape this file refuses
++        # everywhere else.
+         held = {"attempt_id": attempt, "state": CANDIDATE_UNREADABLE,
+                 "disposition": None, "locator": None, "base": None,
+                 "head": None, "transport": None, "content_digest": None,
+                 "bytes": None, "verification": VERIFICATION_UNREPORTED,
+                 "acceptance": ACCEPTANCE_UNOBSERVED, "attribution": None,
+-                "assignment": None, "why": None}
++                "assignment": None, "generation": None, "why": None}
+ 
+         def unreadable(why):
+             held["state"] = CANDIDATE_UNREADABLE
+@@ -2138,13 +2148,31 @@
+                           f"artifact and the manager indexed none, so these "
+                           f"bytes are not in its custody")
+         else:
++            # `get` ON BOTH SIDES. This subscripted the indexed row while
++            # reading the sealed reference with `get`, so the two accounts of
++            # one artifact were held to different standards: a seal missing
++            # `locator` was REPORTED as a disagreement and a row missing it
++            # raised `KeyError` out of the loop, taking the whole collection
++            # with it -- every attempt already recorded lost, by the one
++            # function whose purpose is reporting what a FAILED run left
++            # behind. `output.frozen_output_of` composes that row through
++            # `boundaries.row` against its own column set, so this is not a
++            # live crash the production reader can reach; it is the same
++            # exposure `_declared_base` and `_bound_task` above are already
++            # deliberately read wider than one refusal for, and the asymmetry
++            # was the defect either way.
++            #
++            # AND A MISSING MEMBER IS A DISAGREEMENT, not a read that failed.
++            # Something answered; what it answered does not describe the same
++            # artifact the seal does, and `None` against the sealed value is
++            # exactly that fact with the member named.
+             for name in ("artifact_id", "content_digest", "bytes", "locator"):
+-                if row[name] != reference.get(name):
++                if row.get(name) != reference.get(name):
+                     faults.append(
+                         f"the sealed reference and the manager's indexed row "
+                         f"disagree about {name}: {reference.get(name)!r} "
+-                        f"against {row[name]!r}, so nobody knows which bytes "
+-                        f"this candidate is")
++                        f"against {row.get(name)!r}, so nobody knows which "
++                        f"bytes this candidate is")
+         try:
+             assignment = attempt_rows.assignment_of(control, attempt)
+         except (ContractRefusal, KeyError, TypeError) as why:

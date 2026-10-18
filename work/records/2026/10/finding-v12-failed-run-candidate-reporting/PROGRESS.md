@@ -300,3 +300,154 @@ This claim product verification0s; preparation failed immediately (tool wall0s,
 not a measured product run). Preserve prior author approximately98s plus2.195s
 comparison and73s, packet preparation about0.955s plus patch check, reviewer
 preparation about0.2s; aggregate historical verification remains unknown.
+
+
+## 2026-10-18 — claim324477 (baton.codxpc): latest retained candidate packet
+
+Read canonical detail324475; standalone claim324477 succeeded. Read all events
+through324477 and all five T321528 messages through324231, pagination exhausted.
+Read current FINDING/PLAN, review-2026-10-18T16-51-00Z.md and retained evidence.
+Current milestone is PREPARATION ONLY; prior M324176 invocation is spent.
+
+Revalidated current committed base fba1a7fc318028d0e97bdfd9598656c824f4c5c3.
+All four existing source base files equal d0b211b4; test_candidates.py absent at
+both bases. Read-only Git object inspection of retained head6132a4fb verified
+all five reviewer-recorded hashes. Patch reconstruction in disposable plain
+directory exactly matches all five retained blobs; no candidate was edited.
+Current retained _candidate_verification still permits missing task_id and lacks
+exact digest/argv association; latest collector measurement still needs actual
+custody regressions. Task names these outcomes and preserves timeout changes.
+
+Delivered preparation-324477 with fresh identity/destination, current committed
+runtime110 files and supervisor3 files, exact retained.patch, PROVENANCE, TASK,
+OPERATOR, pins, PATCH-CHECK, PREFLIGHT and PACKET-INPUTS. Stage/bootstrap/bind and
+held_packet/imported-source validation pass in /tmp/w321528-preflight-324477;
+all generated artifact digests match. No Job/attempt submitted, provider/engine
+invoked, product tests run or host product edits. Dirty sibling bytes excluded.
+Preserve scratch /tmp/w321528-patch-check-324477. No Git mutation.
+
+Await independent packet review then fresh execution selection; do not reuse
+spent packet324054 or infer repaired managed access to /home/sl/baton-instances.
+Operator commands remain concrete under unchanged900s provider/30s verification/
+1500s total/60s cleanup, one invocation/no retry. Product correction and focused
+verification remain for v12, followed by exact-candidate independent review and
+human integration/checkpoint. No spec or scope change, no provider-stall diagnosis
+inferred. W321776 gate and sibling file ownership preserved. Reviewer-owned
+FINDING/PLAN/review history untouched; this entry is the implementer checkpoint.
+
+Accounting: product verification0s. Bootstrap0.459155593s, bind0.224034887s,
+patch reconstruction measured in PATCH-CHECK; stage exact duration unmeasured.
+Preserve prior author approximately98s plus2.195s comparison and73s, preparation
+approximately0.955s plus patch check and reviewer preparation0.2s. Prior selected
+run324054 served907.5756254049998s, timeout900s, formal verification null.
+Historical aggregate remains unknown; no budget reset.
+
+
+## 2026-10-18 — claim324799 (baton.codxpc): diagnosed continuation prepared
+
+Standalone claim324799 followed detail324796. Read complete new events through
+324799 (pagination exhausted), all six T321528 messages through324526, current
+FINDING/PLAN and review-2026-10-18T17-35-03Z.md plus exact candidate/failure/delta
+evidence. Latest run324477 is spent; this milestone is preparation only.
+
+Prepared preparation-324799 on current committed base 372281f4a473300efb474d5a6573954c15ade367.
+Retained head1bb8c162 five-file patch reconstructs exactly to all reviewer hashes.
+All four existing base files equal priorfba1a7fc; fifth absent at both bases.
+Included diagnostic checkpoint, exact35-test/14-failure log and continuation.diff;
+TASK embeds log and full patch. It directs fixture/proof correction against actual
+artifact/task boundaries, preserving new ownership checks and timeout slice.
+No new diagnosis, host product implementation or test changes performed.
+
+Runtime staging now includes111 committed modules/resources, including newly
+committed tools/disposition_command.py from the human W321689 checkpoint; all
+source hashes rederived at this base,3 supervisor helpers pinned independently.
+Disposable stage/bootstrap/bind and held_packet/imported-source validation passed.
+All generated artifact/input hashes checked; selected future destination absent.
+No actual Job/attempt submitted, engine/provider/auth probe or Git mutation.
+Preflight /tmp/w321528-preflight-324799 and reconstruction
+/tmp/w321528-patch-check-324799 retained.
+
+Await independent packet review then fresh execution selection; no launch
+recommendation, retry or timeout increase made. OPERATOR supplies concrete commands
+and existing access limitation. Remaining product milestone is real-custody and
+exact-task regression proof/necessary correction via v12, independent candidate
+review, integration and human checkpoint. W321776 dependency and sibling ownership
+preserved. Reviewer-owned FINDING/PLAN/evidence untouched.
+
+This turn product verification0s. Preparation measured seconds {'stage': 0.1264077460000408, 'bootstrap': 0.5988552099997833, 'bind': 0.35192812199966284}; patch
+measurement in PATCH-CHECK.json. Preserve prior author about98s+2.195s+73s, prior
+preparation0.955s plus patch/reviewer0.2s, claim324477 bootstrap0.459155593s and
+bind0.224034887s plus patch and unknown stage. Prior live runs324054/324477 served
+907.5756254049998s/906.974666s, each timeout900s and null formal verification.
+Retain reviewer35-test0.003s failure14 and worker145-test7.401s/49-test6.741s
+observations separately. Aggregate historical total unknown; no reset.
+
+Manifest SHA256 dc56b1e32ffaa3baa52a8888e21475778ad4ca901b64c7fbdfd27947219f7be0.
+
+
+## 2026-10-18 — claim324881 (baton.codxpc): owner-steered packet revision
+
+Read detail324880, standalone claim324881, all new events through324881 and all
+eight thread messages through324841. Read current FINDING/PLAN, owner ruling
+OWNER-CONTINUATION-324810.md and review-2026-10-18T17-39-37Z.md. W324214 claim
+already passed324872; no overlapping execution.
+
+Preserved preparation324799 unchanged and verified all11 hashes. New
+preparation324881 carries exact retained1bb8c162, diagnostics/failure log and
+unchanged product outcome. Base372281f4 remains current;111 runtime and3 supervisor
+files revalidated, exact five-file patch reconstruction passes. New proposal
+3600 provider/4200 total/30 verification/60 cleanup incorporates owner ruling,
+not product timeout semantics. LIMITS-CHECK confirms generated Job origins and
+4140 serving plus60 cleanup; no actual submission/admission.
+
+Exact spent packet/deployment inspection confirms fresh mode without provider_context.
+Supported source path requires identity-bound finalized generation; contextual
+composer substitutes qualification task/profile, not this arbitrary correction.
+No applicable predecessor/certified restore input supplied. CONTEXT-CHECK records
+concrete blocker and fresh candidate+diagnostic input choice without claiming
+provider-session reuse. No journal absence assertion or private transcript/session
+copy, direct resume, probe or credential read.
+
+Disposable stage/bootstrap/bind plus held_packet/imported-source checks pass; all8
+generated artifact hashes and exact task match. Final destination absent; no
+Job/attempt, engine/provider, product edit/test or Git mutation. Reviewer records
+untouched. Return revised packet for independent review then owner selection.
+Product proof/correction, exact-candidate review, integration/human checkpoint remain
+owed; W321776 gate and sibling ownership preserved.
+
+This claim product verification0s; preparation {'stage': 0.11428844300007768, 'bootstrap': 0.6013019980000536, 'bind': 0.35625110599994514}, patch in PATCH-CHECK,
+limits resolution tool wall0.100600636s. Preserve preceding claim324799 stage
+0.126407746s/bootstrap0.598855210s/bind0.351928122s plus patch and all cumulative
+prior author/preparation/review/live-serving figures recorded above; no historical
+total manufactured or reset. Scratch /tmp/w321528-preflight-324881 and
+/tmp/w321528-patch-check-324881 retained.
+Manifest SHA256 f881a33e432e371be3919da192b9f3674edbdf7d128c076e5a6324b32b594bd4.
+
+
+## 2026-10-18T19:33:07.863670+00:00 — baton.codxpc claim325711
+
+Read current canonical state; standalone claim325711 succeeded, complete current
+work-events through325711 and all10 thread messages through325175, current dossier
+and review19:28:47. Revalidated current committed9debba18 and exact retained0add.
+Prepared preparation-325711 only; reviewer FINDING/PLAN/evidence untouched.
+
+Five-file reconstruction matches all candidate hashes. Full134207-byte patch now
+exceeds one Linux argv member before instructions; lossless base64/zlib task input
+restores exact bytes, validates patch and all five results. No product/runtime
+transport redesign. Prompt50885 bytes; inert exec passes, two E2BIG controls pass.
+Fresh disposable stage/bootstrap/bind and8 artifact/task checks pass. Limits remain
+3600/4200/30/60 one invocation/no retry. No actual Job/attempt/provider/engine,
+product change/test, Git mutation or credential read. Live destination absent.
+
+Remaining: independent packet review then fresh owner selection, bounded ancestor
+permission correction through v12, independent exact-byte review and human
+checkpoint. W325695 environment defect separate, formal verification remains1;
+W321776 gate unchanged. Context fresh with concrete predecessor/configuration
+limitation; interrupted recovery deferred, successful reuse still target.
+
+Measured prep seconds {'stage': 0.1255691240003216, 'bootstrap': 0.5994199750002736, 'bind': 0.3505569649987592};
+patch/argv durations in respective JSON. This claim product verification0s.
+Preserve all earlier PROGRESS costs and latest run1457.303273567s, formal6.972s,
+review initial1.314968 wall, complete8.220848 wall, descriptor7.671801 wall and
+permission0.117399 tool wall. Historical aggregate unknown, no reset.
+Manifest SHA256 ec793a20eff935ee45873a46b96171776ed80f88d2f5b91e42e42e98b2c918fb.

@@ -1,0 +1,10 @@
+test_create_unobserved_retains_name_not_false_absence (__main__.Runner.test_create_unobserved_retains_name_not_false_absence) ... ok
+test_faults_preserve_durable_identity (__main__.Runner.test_faults_preserve_durable_identity) ... ok
+test_receipt_deadline_and_cleanup_reserve (__main__.Runner.test_receipt_deadline_and_cleanup_reserve) ... ok
+test_selection_refuses_mismatch_before_engine (__main__.Runner.test_selection_refuses_mismatch_before_engine) ... ok
+test_success_and_no_ambient_identity (__main__.Runner.test_success_and_no_ambient_identity) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.022s
+
+OK

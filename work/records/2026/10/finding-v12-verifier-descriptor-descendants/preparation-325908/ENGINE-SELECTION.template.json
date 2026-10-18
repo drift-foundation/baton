@@ -1,0 +1,10 @@
+{
+  "schema": "baton.verifier-engine-proof-selection/1",
+  "image": "REVIEWED_SHA256_IMAGE_REQUIRED",
+  "uid": null,
+  "gid": null,
+  "proof_id": "w325695-proof-325908",
+  "layout_sha256": "9be0d0c294200036ae4ad2cec87b4b4a1c36f50def0fb1b0944402f967d300c8",
+  "payload_sha256": "ece41798565b25c0cd767b22ae8021e161a6d8ce508ce805018414a2e4a3c38f",
+  "runner_sha256": "2633e52b8fe099912717f46b9f7f8d161caeb06e8c110115a27abcc50f66d709"
+}

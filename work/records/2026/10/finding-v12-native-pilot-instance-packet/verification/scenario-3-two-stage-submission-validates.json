@@ -1,0 +1,131 @@
+{
+  "checks": [
+    {
+      "check": "the schema is job-submission/2, which is the only one that carries execution_limits",
+      "detail": "baton.v12.job-submission/2",
+      "passed": true
+    },
+    {
+      "check": "the Job declares implementation and review ONLY",
+      "detail": [
+        "implementation",
+        "review"
+      ],
+      "passed": true
+    },
+    {
+      "check": "so no integration stage exists for a serving manager to admit",
+      "detail": [
+        "implementation",
+        "review"
+      ],
+      "passed": true
+    },
+    {
+      "check": "the review stage depends on the implementation stage of this Job",
+      "detail": [
+        {
+          "job_id": "quickstart-a",
+          "kind": "implementation"
+        }
+      ],
+      "passed": true
+    },
+    {
+      "check": "the selected provider turn and verification ceilings are carried by the Job",
+      "detail": {
+        "provider_turn_seconds": 3600,
+        "verification_command_seconds": 900
+      },
+      "passed": true
+    },
+    {
+      "check": "the terminal policy is this build's only one",
+      "detail": "report-and-hold",
+      "passed": true
+    },
+    {
+      "check": "the test scope names the artifact this Work authors",
+      "detail": [
+        "v12/QUICKSTART.md"
+      ],
+      "passed": true
+    },
+    {
+      "check": "the submission validator ACCEPTS opaque digest text, because digest syntax is the manifest owner's rule and not this layer's",
+      "detail": true,
+      "passed": true
+    },
+    {
+      "observation": "where those two values are actually proved",
+      "value": "single_worker._held cross-binds the input manifest against the worker's own profile, policy and image digests and its 32-character authority UUID; stage_execution's _DIGEST refuses anything but sha256:<64 hex> in the deployment document. A submission whose input_digest is not the manifest's job_input_identity is refused where the stage is matched, not here."
+    },
+    {
+      "check": "with the owner's values and the readbacks in place, the SAME document validates",
+      "detail": "sub-w321608-quickstart-1",
+      "passed": true
+    },
+    {
+      "check": "and the validator preserves the two-stage set",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "and the Job's own limits survive normalization",
+      "detail": null,
+      "passed": true
+    }
+  ],
+  "checks_passed": 11,
+  "expected_failure": false,
+  "injected": "pass three against the Job manager's own validator, authored and resolved-copy",
+  "intended_failed_check": null,
+  "member": {
+    "bytes": 1232,
+    "path": "configuration/submission.json",
+    "sha256": "ed13965241148c6be311300e87ef402b665524eb6b71379abc18c751bfbeb8eb"
+  },
+  "normalized_shape": {
+    "job_id": "quickstart-a",
+    "schema": "baton.v12.job-submission/2",
+    "stages": [
+      "implementation",
+      "review"
+    ]
+  },
+  "not_performed": [
+    "bootstrap",
+    "install",
+    "submit",
+    "serve",
+    "any store write",
+    "any container",
+    "any provider call",
+    "any Git mutation"
+  ],
+  "outcome": "observed",
+  "performed": [
+    "read the authored documents",
+    "called the product's own validators",
+    "ran the pinned verification argv in a temporary directory"
+  ],
+  "scenario": "3-two-stage-submission-validates",
+  "seconds": 0.0,
+  "stand_ins_used_only_here": {
+    "input_digest": "sha256:1\u2026",
+    "policy_digest": "sha256:2\u2026",
+    "profile_digest": "sha256:3\u2026",
+    "work_id": "0000000a-W1"
+  },
+  "unresolved": [
+    "$.jobs[0].input_digest",
+    "$.jobs[0].policy_digest",
+    "$.jobs[0].stages[0].profile_digest",
+    "$.jobs[0].stages[0].profile_name",
+    "$.jobs[0].stages[0].work_id",
+    "$.jobs[0].stages[1].profile_digest",
+    "$.jobs[0].stages[1].profile_name",
+    "$.jobs[0].stages[1].work_id"
+  ],
+  "validator_accepts_opaque_digests": true
+}

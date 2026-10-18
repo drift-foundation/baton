@@ -1,0 +1,76 @@
+{
+  "state": "prepared-not-executed",
+  "preflight_root": "/tmp/w321528-preflight-324799",
+  "steps": [
+    {
+      "step": "stage",
+      "argv": [
+        "python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-failed-run-candidate-reporting/preparation-324799/prepare.py",
+        "stage",
+        "--root",
+        "/tmp/w321528-preflight-324799"
+      ],
+      "seconds": 0.1264077460000408,
+      "status": 0,
+      "stdout": "staged; bootstrap separately with --no-repositories, then bind\n",
+      "stderr": ""
+    },
+    {
+      "step": "bootstrap",
+      "argv": [
+        "python3",
+        "-B",
+        "-m",
+        "tools.bootstrap",
+        "--inputs",
+        "/tmp/w321528-preflight-324799/bootstrap-inputs.json",
+        "--destination",
+        "/tmp/w321528-preflight-324799/instance",
+        "--distro",
+        "/home/sl/baton-runs/managed-correction-236087/build/stack/out/distro",
+        "--no-repositories"
+      ],
+      "seconds": 0.5988552099997833,
+      "status": 0,
+      "stdout": "repositories  not prepared: no source checkout was found or named, so the deployment has no target, workspace or worker sources yet and will schedule without reconciling\nauthority 47759fcf...    generated for this instance\njob   none; no Work, grant or placeholder was created\nconfiguration /tmp/w321528-preflight-324799/instance/deployment.json\ncapacity      {\"job_affinity\": {}, \"jobs\": 0, \"note\": \"this instance binds no Job and configures no execution capacity; it serves a real idle scheduler and publisher over empty stores, and a worker, a Work, a declared base, a canonical target and a producer are supplied together when a Job is created\", \"schema\": \"baton.v12.stage-execution-deployment/2\", \"targets\": [], \"workers_by_role\": {\"implementation\": [], \"integration\": [], \"review\": []}}\nno Job was submitted and nothing was executed\ninstance      /tmp/w321528-preflight-324799/instance/instance.json\nruntime       81 files, digest c1ef3d23394916c8...\nstores        /tmp/w321528-preflight-324799/instance/db\nrepository    /tmp/w321528-preflight-324799/instance/repo\njustfile      /tmp/w321528-preflight-324799/instance/justfile\n\nThe deployment is operated from the destination, and needs nothing else:\n\n    cd /tmp/w321528-preflight-324799/instance && just status\n    just --justfile /tmp/w321528-preflight-324799/instance/justfile start        # from anywhere\n\nor the command directly, which is the same program:\n\n    /tmp/w321528-preflight-324799/instance/distro/baton-v12-stack status --instance /tmp/w321528-preflight-324799/instance/instance.json\n",
+      "stderr": ""
+    },
+    {
+      "step": "bind",
+      "argv": [
+        "python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-failed-run-candidate-reporting/preparation-324799/prepare.py",
+        "bind",
+        "--root",
+        "/tmp/w321528-preflight-324799"
+      ],
+      "seconds": 0.35192812199966284,
+      "status": 0,
+      "stdout": "prepared and validated; no job submitted, no engine/provider invoked\n",
+      "stderr": ""
+    }
+  ],
+  "prepared": {
+    "artifacts": {
+      "PACKET.json": "6794087226938650703905f71bb40f8bf10031a7b645dbc5f189e24de1810491",
+      "adapter.json": "cbe3bb4ade990eb5411c64a40be74a10e46a79f48343c499b5f1a8453fabc9c7",
+      "commands.json": "28e93aa8c5000fb82d355df8d645e6b98ada9884343c75cb177d63e2e0930b7d",
+      "deployment.json": "8289f6559266bc5e68cff22d9bf3642f80521598035cb756e4fee7b2d301a072",
+      "policy.json": "d067a1a6fedc701501280564772c356f3cb8320de55460caf46e5fdfd5f40cd4",
+      "runtime-profile.json": "70ca07c494c9660bfaf747772f2233ccaf77b4ef3a4da90c26121b7b59ff1d34",
+      "submission.json": "f87e8887c1740cc611e31740bffd2edc8dda50fa7d2f2f994fee04f3fe618cc3",
+      "task.json": "1e6e8bc85e7dea962253775360118615c511657ae593454e1d7099e1c8732abf"
+    },
+    "authority_uuid": "47759fcfe2044295b10f7d422dc804dd",
+    "independent_review": "baton.rvpc consumes immutable retained proposal through v11 after exact runtime cessation; no automatic acceptance",
+    "packet_sha256": "6794087226938650703905f71bb40f8bf10031a7b645dbc5f189e24de1810491",
+    "state": "prepared-not-executed",
+    "work": "W321528"
+  },
+  "job_id": null,
+  "attempt_id": null,
+  "product_tests_run": false
+}

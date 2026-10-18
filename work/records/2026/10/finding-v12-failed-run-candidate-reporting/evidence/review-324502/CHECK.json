@@ -1,0 +1,21 @@
+{
+  "manifest": "7807bfe731322257c60bd8fdee4b96a50832f92fc0c7a54544baaad0d9e9e25a",
+  "input_hashes": true,
+  "pinned_files": true,
+  "manager_files": {
+    "count": 110,
+    "match": true
+  },
+  "supervisor_files": {
+    "count": 3,
+    "match": true
+  },
+  "generated_hashes": true,
+  "task_exact": true,
+  "retained_artifacts": true,
+  "destination_absent": true,
+  "scratch": "/tmp/w321528-review324502-zi_hsoyf",
+  "patch_exit": 0,
+  "reconstructed_match": true,
+  "embedded_patch": true
+}

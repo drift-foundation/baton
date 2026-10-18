@@ -1,0 +1,42 @@
+{
+  "all_tmpfs_total_bytes": 100663296,
+  "compatibility": "explicit new runtime layout profile; no auto-detection or legacy fallback",
+  "identity": "exact trusted execution uid and gid, never ambient/login group",
+  "legacy_decoy_bytes": 16777216,
+  "memory_limit_bytes": 2147483648,
+  "mount_options": [
+    "rw",
+    "noexec",
+    "nosuid",
+    "nodev"
+  ],
+  "parent": "/run/baton-verifier",
+  "parent_mode": "0755",
+  "parent_writable": false,
+  "root_mode": "0700",
+  "roots": {
+    "HOME": {
+      "bytes": 4194304,
+      "target": "/run/baton-verifier/home"
+    },
+    "PYTHONPYCACHEPREFIX": {
+      "bytes": 8388608,
+      "target": "/run/baton-verifier/pycache"
+    },
+    "TMPDIR": {
+      "bytes": 16777216,
+      "target": "/run/baton-verifier/tmp"
+    },
+    "XDG_CACHE_HOME": {
+      "bytes": 4194304,
+      "target": "/run/baton-verifier/cache"
+    }
+  },
+  "schema": "baton.verifier-root-layout/1",
+  "scratch_total_bytes": 83886080,
+  "shm_bytes": 16777216,
+  "status": "proposed-not-implemented",
+  "task_contract": "/2 unchanged; /3 remains W321776",
+  "tmp_bytes": 33554432,
+  "workspace_min_bytes": 83886081
+}

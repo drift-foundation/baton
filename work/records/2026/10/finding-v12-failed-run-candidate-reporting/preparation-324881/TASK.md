@@ -1,0 +1,2101 @@
+# W321528 bounded continuation: finish regression proof and necessary correction
+
+Work only in the private isolated checkout at committed base 372281f4a473300efb474d5a6573954c15ade367.
+Apply the EXACT full retained patch below first. Its four existing base files are
+byte-identical to prior base; the fifth path is absent in both. This is unaccepted
+prior work, not a specification or a passing candidate. Do not restart from scratch.
+
+# Diagnostic checkpoint for the next isolated v12 worker
+
+Continue retained unaccepted head1bb8c162e12dbcf9bbd0f9023d867759fba5e00b.
+Only baseline.py advanced from prior6132a4fb; all four other files remain identical.
+The exact full five-file patch is in TASK.md. Do not replay older input patches.
+
+Reviewer claim324777 ran35 candidate tests in0.003s:14 failures, exact log attached.
+Old doubles use artifact-bbbbbbbb; actual seal ownership is attempt-aaaaaaaa:proposal.
+Early refusal masks later attribution/unreadable assertions. Correct fixture identity
+and configure a real task document, then prove downstream behavior; do not weaken
+ownership checks to make old fixtures green. The latest baseline already implements
+_bound_task, _retained_bytes and exact ordinary-test members/task_id/digest/argv.
+Inspect and correct concrete defects with focused tests; do not restart the collector.
+
+Real disposable artifact measurement must cover valid/missing/damaged/substituted/
+unreadable bytes at the normal boundary. Metadata doubles alone cannot prove this.
+Exact actual bound task bytes, id and verification argv must match the observation;
+missing/malformed/mismatched provenance stays unreported. Preserve integer/null
+status semantics, no-status ambiguity, unobserved acceptance, full attribution,
+failed execution, absent/unreadable/refused distinctions and cleanup uncertainty.
+
+Observed: run324054 had79 native tool calls and run324477 had66, through near both
+900s cutoffs. The second worker reported145 tests with6 failures/48 errors (including
+then-missing _retained_bytes), later49 baseline passes in6.741s and further investigation.
+Those are retained worker observations; no formal verification or acceptance.
+Inference: active implementation/debugging remained incomplete at timeout; no
+credential failure or idle-hang diagnosis, and no timeout increase justified.
+
+Required milestone: complete real-custody/task-association regression proof and
+focused necessary correction using this checkpoint. Prioritize test_candidates
+fixture/proof gaps, then test_baseline and the five selected worker classes. Stop
+when required checks pass; no broad suite, provider probe, or rediscovery campaign.
+If unable, return exact remaining failures and partial bytes promptly.
+
+Evidence owner: baton:work/records/2026/10/finding-v12-failed-run-candidate-reporting/
+review-2026-10-18T17-35-03Z.md and evidence/review-324777/. Raw native transcripts are
+not task inputs. No host product changes, task /3 work, visibility work or integration.
+
+Verification: run test_candidates, test_baseline and these tests.manager.test_claude_agent
+classes: FailureIsHonest, ThePositiveTurnWritesTheDeclaredProposal,
+ThePreparedLineTurnCommitsAndDeclaresItsObjects, NoUsableReportIsNoVerdictAtAll,
+TheReviewTurnAuthorsAVerdictItDidNotDecide. The packet's verification argv supplies
+import roots. Use deterministic provider/engine fixtures and real disposable artifact
+fixtures. No live providers or Docker inside the task. Add/edit necessary tests under
+standing authority without weakening genuine defect coverage or skipping requirements.
+Choose necessary source files for this outcome; coordinate actual overlap. Preserve
+W321689 authority/disposition bytes, W324214 visibility and W321776 task /3 ownership.
+
+Revalidate v12/DESIGN.md REC-1, ART-7, OBS-2 and DB-1/DB-4. Keep filesystem I/O
+outside store transactions and use public owner boundaries. Preserve the effective
+timeout slice across all three publishers; do not change timeout policy. Do not
+modify historical packet pins. Future supervisor bytes do not update this run's
+pinned supervisor/image. Never infer successful execution, verification or acceptance
+from retained output. No secrets, raw native transcripts, host edits or integration.
+
+STOP after required focused checks pass; no whole-tree discovery or broad suite for
+reassurance. Return exact paths, tests/results and remaining limitations promptly.
+The adapter owns candidate publication; do not mutate canonical Git or self-approve.
+
+## Exact independent failure log (prior candidate, not this run)
+
+```text
+F.FF..FFFF...................FFFFFFF..
+======================================================================
+FAIL: test_a_FAILED_turn_still_reports_its_valid_retained_candidate (test_candidates.AFailedTurnWithARetainedCandidate.test_a_FAILED_turn_still_reports_its_valid_retained_candidate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-failed-run-candidate-reporting/evidence/review-324777/candidate/work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py", line 198, in test_a_FAILED_turn_still_reports_its_valid_retained_candidate
+    self.assertEqual(held["state"], baseline.CANDIDATE_VALID)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'refused' != 'valid'
+- refused
++ valid
+
+
+======================================================================
+FAIL: test_a_SUCCESSFUL_turn_is_collected_by_the_same_path (test_candidates.AFailedTurnWithARetainedCandidate.test_a_SUCCESSFUL_turn_is_collected_by_the_same_path)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-failed-run-candidate-reporting/evidence/review-324777/candidate/work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py", line 227, in test_a_SUCCESSFUL_turn_is_collected_by_the_same_path
+    self.assertEqual(held["state"], baseline.CANDIDATE_VALID)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'refused' != 'valid'
+- refused
++ valid
+
+
+======================================================================
+FAIL: test_a_valid_retained_candidate_is_NOT_a_shortfall (test_candidates.AFailedTurnWithARetainedCandidate.test_a_valid_retained_candidate_is_NOT_a_shortfall)
+Reporting the useful fact as a deficiency would be the same mistake
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-failed-run-candidate-reporting/evidence/review-324777/candidate/work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py", line 211, in test_a_valid_retained_candidate_is_NOT_a_shortfall
+    self.assertEqual(self.shortfalls, [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ["attempt attempt-aaaaaaaa has a REFUSED r[175 chars]tes"] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+"attempt attempt-aaaaaaaa has a REFUSED retained candidate: the sealed candidate names artifact 'artifact-bbbbbbbb' and this attempt's 'proposal' output is 'attempt-aaaaaaaa:proposal', so these are not this turn's bytes"
+
++ []
+- ['attempt attempt-aaaaaaaa has a REFUSED retained candidate: the sealed '
+-  "candidate names artifact 'artifact-bbbbbbbb' and this attempt's 'proposal' "
+-  "output is 'attempt-aaaaaaaa:proposal', so these are not this turn's bytes"]
+
+======================================================================
+FAIL: test_the_PRODUCERS_OWN_STATUS_is_interpreted_not_invented (test_candidates.AFailedTurnWithARetainedCandidate.test_the_PRODUCERS_OWN_STATUS_is_interpreted_not_invented) (status=0)
+Review P2: the first reader looked at manifest-level metadata for an
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-failed-run-candidate-reporting/evidence/review-324777/candidate/work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py", line 248, in test_the_PRODUCERS_OWN_STATUS_is_interpreted_not_invented
+    self.assertEqual(self.one()["verification"], expected)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'unreported' != 'passed'
+- unreported
++ passed
+
+
+======================================================================
+FAIL: test_the_PRODUCERS_OWN_STATUS_is_interpreted_not_invented (test_candidates.AFailedTurnWithARetainedCandidate.test_the_PRODUCERS_OWN_STATUS_is_interpreted_not_invented) (status=1)
+Review P2: the first reader looked at manifest-level metadata for an
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-failed-run-candidate-reporting/evidence/review-324777/candidate/work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py", line 248, in test_the_PRODUCERS_OWN_STATUS_is_interpreted_not_invented
+    self.assertEqual(self.one()["verification"], expected)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'unreported' != 'failed'
+- unreported
++ failed
+
+
+======================================================================
+FAIL: test_the_PRODUCERS_OWN_STATUS_is_interpreted_not_invented (test_candidates.AFailedTurnWithARetainedCandidate.test_the_PRODUCERS_OWN_STATUS_is_interpreted_not_invented) (status=137)
+Review P2: the first reader looked at manifest-level metadata for an
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-failed-run-candidate-reporting/evidence/review-324777/candidate/work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py", line 248, in test_the_PRODUCERS_OWN_STATUS_is_interpreted_not_invented
+    self.assertEqual(self.one()["verification"], expected)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'unreported' != 'failed'
+- unreported
++ failed
+
+
+======================================================================
+FAIL: test_the_PRODUCERS_OWN_STATUS_is_interpreted_not_invented (test_candidates.AFailedTurnWithARetainedCandidate.test_the_PRODUCERS_OWN_STATUS_is_interpreted_not_invented) (status=None)
+Review P2: the first reader looked at manifest-level metadata for an
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-failed-run-candidate-reporting/evidence/review-324777/candidate/work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py", line 248, in test_the_PRODUCERS_OWN_STATUS_is_interpreted_not_invented
+    self.assertEqual(self.one()["verification"], expected)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'unreported' != 'no-status'
+- unreported
++ no-status
+
+
+======================================================================
+FAIL: test_a_DAMAGED_history_is_refused (test_candidates.RetainedCUSTODYIsReadNotInferred.test_a_DAMAGED_history_is_refused)
+Parents that are not exactly the declared base: the adapter authors
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-failed-run-candidate-reporting/evidence/review-324777/candidate/work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py", line 415, in test_a_DAMAGED_history_is_refused
+    self.assertIn("parents", self.refused_why())
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'parents' not found in "the sealed candidate names artifact 'artifact-bbbbbbbb' and this attempt's 'proposal' output is 'attempt-aaaaaaaa:proposal', so these are not this turn's bytes"
+
+======================================================================
+FAIL: test_a_SUBSTITUTED_head_is_refused (test_candidates.RetainedCUSTODYIsReadNotInferred.test_a_SUBSTITUTED_head_is_refused)
+The line answers a different commit than the seal claims.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-failed-run-candidate-reporting/evidence/review-324777/candidate/work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py", line 409, in test_a_SUBSTITUTED_head_is_refused
+    self.assertIn("answers head", held["why"])
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'answers head' not found in "the sealed candidate names artifact 'artifact-bbbbbbbb' and this attempt's 'proposal' output is 'attempt-aaaaaaaa:proposal', so these are not this turn's bytes"
+
+======================================================================
+FAIL: test_a_candidate_the_ADAPTER_DID_NOT_AUTHOR_is_refused (test_candidates.RetainedCUSTODYIsReadNotInferred.test_a_candidate_the_ADAPTER_DID_NOT_AUTHOR_is_refused)
+W236087's live failure: the provider committed its own work.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-failed-run-candidate-reporting/evidence/review-324777/candidate/work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py", line 422, in test_a_candidate_the_ADAPTER_DID_NOT_AUTHOR_is_refused
+    self.assertIn("attributed to", self.refused_why())
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'attributed to' not found in "the sealed candidate names artifact 'artifact-bbbbbbbb' and this attempt's 'proposal' output is 'attempt-aaaaaaaa:proposal', so these are not this turn's bytes"
+
+======================================================================
+FAIL: test_a_candidate_whose_LINE_DOES_NOT_ANSWER_is_not_valid (test_candidates.RetainedCUSTODYIsReadNotInferred.test_a_candidate_whose_LINE_DOES_NOT_ANSWER_is_not_valid)
+Missing retained bytes. The metadata still agrees perfectly.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-failed-run-candidate-reporting/evidence/review-324777/candidate/work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py", line 384, in test_a_candidate_whose_LINE_DOES_NOT_ANSWER_is_not_valid
+    self.assertEqual(held["state"], baseline.CANDIDATE_UNREADABLE)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'refused' != 'unreadable'
+- refused
++ unreadable
+
+
+======================================================================
+FAIL: test_a_split_AUTHOR_and_COMMITTER_is_refused (test_candidates.RetainedCUSTODYIsReadNotInferred.test_a_split_AUTHOR_and_COMMITTER_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-failed-run-candidate-reporting/evidence/review-324777/candidate/work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py", line 427, in test_a_split_AUTHOR_and_COMMITTER_is_refused
+    self.assertIn("committed by", self.refused_why())
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'committed by' not found in "the sealed candidate names artifact 'artifact-bbbbbbbb' and this attempt's 'proposal' output is 'attempt-aaaaaaaa:proposal', so these are not this turn's bytes"
+
+======================================================================
+FAIL: test_a_valid_candidate_carries_its_WHOLE_attribution (test_candidates.RetainedCUSTODYIsReadNotInferred.test_a_valid_candidate_carries_its_WHOLE_attribution)
+Review P1: the record named only the generation, so it could not say
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-failed-run-candidate-reporting/evidence/review-324777/candidate/work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py", line 439, in test_a_valid_candidate_carries_its_WHOLE_attribution
+    self.assertEqual(held["state"], baseline.CANDIDATE_VALID)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'refused' != 'valid'
+- refused
++ valid
+
+
+======================================================================
+FAIL: test_an_OS_ERROR_reading_the_line_is_unreadable (test_candidates.RetainedCUSTODYIsReadNotInferred.test_an_OS_ERROR_reading_the_line_is_unreadable)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-failed-run-candidate-reporting/evidence/review-324777/candidate/work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py", line 391, in test_an_OS_ERROR_reading_the_line_is_unreadable
+    self.assertEqual(self.one()["state"], baseline.CANDIDATE_UNREADABLE)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'refused' != 'unreadable'
+- refused
++ unreadable
+
+
+----------------------------------------------------------------------
+Ran 35 tests in 0.003s
+
+FAILED (failures=14)
+```
+
+## Exact retained input patch
+
+SHA256: 8aefb56f691d385406cce423e3b88c98e03f67820eb1f106d3a5858c72ea3728
+
+```diff
+diff --git a/v12/python/tests/manager/test_claude_agent.py b/v12/python/tests/manager/test_claude_agent.py
+index 093ccc57..9e6f433a 100644
+--- a/v12/python/tests/manager/test_claude_agent.py
++++ b/v12/python/tests/manager/test_claude_agent.py
+@@ -197,10 +197,47 @@ class AdapterCase(unittest.TestCase):
+ 
+         return run
+ 
+-    def worked(self, **operands):
++    # -- W321528: the launch document a Job stands behind --------------------
++
++    # A SELECTED CEILING THAT IS NOT THE DEFAULT and is not either number the
++    # two historic runs happened to use. Those runs are the EVIDENCE that the
++    # publishers reported a constant; they are not the values under test, and
++    # a fixture built on them would pass against a publisher that had simply
++    # learned to spell 600.
++    SELECTED_SECONDS = 137
++
++    def launched(self, *, seconds=None, **members):
++        """The launch document the manager delivers for a Job-backed turn.
++
++        THE CONFIGURATION IS THE OWNER'S, RESOLVED BY THE OWNER. The whole
++        claim the `seconds_bound` member makes is that a result reports what
++        the operator actually configured, so this composes the execution
++        limits through `execution_limits.resolved` -- the same function
++        `launch._job_execution` re-resolves a delivery against -- rather than
++        writing a configuration document by hand. A hand-built one would only
++        ever prove the adapter agrees with this file.
++
++        `seconds=None` IS A JOB THAT CONFIGURED NOTHING, which is a different
++        document from no Job at all: it carries the boundary with the
++        preserved runner default and the `compatibility` origin, and it is
++        exactly the delivery whose number a reader must not mistake for an
++        operator's choice.
++        """
++        from baton_v12.job_manager import execution_limits
++
++        limits = execution_limits.resolved(
++            {} if seconds is None else {"provider_turn_seconds": seconds})
++        return dict({"contract": "the frozen task",
++                     "job_execution": {"job_id": "job-w321528",
++                                       "attempt_id": "attempt-w321528",
++                                       "execution_limits": limits}},
++                    **members)
++
++    def worked(self, *, seen=None, **operands):
+         agent = ClaudeAgent(run=self.provider(**operands),
+                             home=self.scratch)
+-        return agent.work({"contract": "the frozen task"}, list(DECLARED))
++        return agent.work({"contract": "the frozen task"} if seen is None
++                          else seen, list(DECLARED))
+ 
+     def proposal(self, *parts):
+         return os.path.join(self.outputs, "proposal", *parts)
+@@ -260,6 +297,70 @@ class ThePositiveTurnWritesTheDeclaredProposal(AdapterCase):
+         self.assertEqual(os.stat(self.proposal("result.json")).st_mode & 0o777,
+                          claude_agent.FILE_MODE)
+ 
++    # -- W321528: the bound a result reports is the bound the turn ran under
++
++    def test_the_reported_bound_is_this_workers_own_default_with_no_job(self):
++        """No Job behind the launch is the ONE case the constant is correct
++        for, and it is still reported as a resolution rather than asserted."""
++        self.worked(edits={"harness.py": "print('now covered')\n"})
++        self.assertEqual(self.result()["provider"]["seconds_bound"],
++                         claude_agent.PROVIDER_SECONDS)
++        self.assertEqual(self.result()["provider"]["seconds_bound_source"],
++                         claude_agent.WORKER_DEFAULT_BOUND)
++
++    def test_an_operator_selected_bound_is_what_the_result_publishes(self):
++        """THE DEFECT, in the directory publisher. The turn ran under the
++        Job's number and the record said 3600, so an operator reading a
++        retained proposal could not tell what had actually bounded it."""
++        self.worked(edits={"harness.py": "print('now covered')\n"},
++                    seen=self.launched(seconds=self.SELECTED_SECONDS))
++        self.assertNotEqual(self.SELECTED_SECONDS,
++                            claude_agent.PROVIDER_SECONDS)
++        self.assertEqual(self.result()["provider"]["seconds_bound"],
++                         self.SELECTED_SECONDS)
++        self.assertEqual(self.result()["provider"]["seconds_bound_source"],
++                         claude_agent.JOB_SELECTED_BOUND)
++
++    def test_a_job_that_configured_nothing_is_not_an_operator_choice(self):
++        """The same NUMBER as the no-Job case and a different FACT: this
++        delivery resolved the boundary's preserved default, and saying an
++        operator selected it would be this adapter inventing a decision."""
++        self.worked(edits={"harness.py": "print('now covered')\n"},
++                    seen=self.launched())
++        self.assertEqual(self.result()["provider"]["seconds_bound"],
++                         claude_agent.PROVIDER_SECONDS)
++        self.assertEqual(self.result()["provider"]["seconds_bound_source"],
++                         claude_agent.JOB_DEFAULT_BOUND)
++
++    def test_a_delivery_naming_no_origin_is_unstated_and_not_a_default(self):
++        """An origin this module does not know is reported as unread rather
++        than folded into either answer: a document that cannot be read is not
++        evidence that nobody configured anything."""
++        seen = self.launched(seconds=self.SELECTED_SECONDS)
++        seen["job_execution"]["execution_limits"]["boundaries"][
++            "provider_turn"].pop("origin")
++        self.worked(edits={"harness.py": "print('now covered')\n"}, seen=seen)
++        self.assertEqual(self.result()["provider"]["seconds_bound"],
++                         self.SELECTED_SECONDS)
++        self.assertEqual(self.result()["provider"]["seconds_bound_source"],
++                         claude_agent.UNSTATED_BOUND_SOURCE)
++
++    def test_the_origin_words_are_the_execution_limit_owners_own(self):
++        """The image carries no `baton_v12`, so the two mirrored words are
++        held against their owner here rather than imported across."""
++        from baton_v12.job_manager import execution_limits
++
++        self.assertEqual(
++            sorted(claude_agent._ORIGIN_SELECTION),
++            sorted((execution_limits.JOB, execution_limits.COMPATIBILITY)))
++        # AND THE DEFAULT THIS MODULE KEEPS IS THE ONE THAT OWNER PRESERVES
++        # FOR IT. Two copies of a number that disagreed would make the
++        # no-Job answer and the Job-that-configured-nothing answer differ for
++        # a reason neither document explains.
++        self.assertEqual(
++            execution_limits.boundary_default("provider_turn"),
++            claude_agent.PROVIDER_SECONDS)
++
+     def test_the_staged_source_is_never_written(self):
+         """The read-only input is the evidence the result is measured against.
+ 
+@@ -1761,6 +1862,54 @@ class FailureIsHonest(AdapterCase):
+         self.assertTrue(os.path.isdir(self.proposal()))
+         self.assertTrue(os.path.exists(self.proposal("result.json")))
+ 
++    # -- W321528: a failure reports the bound it actually failed under ------
++
++    def test_a_timed_out_turn_names_one_bound_in_its_sentence_and_record(self):
++        """What the two historic sealed results got wrong, reproduced in the
++        shape that produced them: the `why` named the effective bound, the
++        `seconds_bound` member named the constant, and the two were in the
++        same document. They are one resolution now."""
++        self.worked(timeout=True,
++                    seen=self.launched(seconds=self.SELECTED_SECONDS))
++        held = self.result()
++        self.assertEqual(held["disposition"], "provider-failed")
++        self.assertEqual(held["provider"]["failure_reason"],
++                         claude_agent.PROVIDER_TIMED_OUT)
++        self.assertEqual(held["provider"]["seconds_bound"],
++                         self.SELECTED_SECONDS)
++        self.assertEqual(held["provider"]["seconds_bound_source"],
++                         claude_agent.JOB_SELECTED_BOUND)
++        self.assertIn(f"within {self.SELECTED_SECONDS}s", held["why"])
++        self.assertNotIn(str(claude_agent.PROVIDER_SECONDS),
++                         json.dumps(held))
++
++    def test_a_provider_that_never_started_still_reports_its_bound(self):
++        """A turn with no child at all still ran under a ceiling, and the
++        record says which -- an absent member here would be the one shape a
++        reader cannot tell from a publisher that forgot."""
++        self.worked(missing=True,
++                    seen=self.launched(seconds=self.SELECTED_SECONDS))
++        self.assertEqual(self.result()["provider"]["failure_reason"],
++                         claude_agent.PROVIDER_START_ERROR)
++        self.assertEqual(self.result()["provider"]["seconds_bound"],
++                         self.SELECTED_SECONDS)
++        self.assertEqual(self.result()["provider"]["seconds_bound_source"],
++                         claude_agent.JOB_SELECTED_BOUND)
++
++    def test_a_failed_verification_reports_the_bound_and_stays_unable(self):
++        """A candidate WAS produced and the turn still failed. Reporting the
++        real ceiling beside it changes neither fact."""
++        answered = self.worked(edits={"harness.py": "raise SystemExit(1)\n"},
++                               verify=1,
++                               seen=self.launched(
++                                   seconds=self.SELECTED_SECONDS))
++        self.assertEqual(answered["disposition"], "unable")
++        self.assertEqual(self.result()["disposition"], "verification-failed")
++        self.assertEqual(self.result()["provider"]["seconds_bound"],
++                         self.SELECTED_SECONDS)
++        self.assertEqual(self.result()["provider"]["seconds_bound_source"],
++                         claude_agent.JOB_SELECTED_BOUND)
++
+     def test_the_verification_is_not_run_when_there_is_no_candidate(self):
+         """A verification against an unchanged tree would pass and mean
+         nothing; running it would manufacture evidence."""
+@@ -2240,10 +2389,11 @@ class LineCase(AdapterCase):
+         self.addCleanup(shutil.rmtree, place, True)
+         return place
+ 
+-    def worked(self, **operands):
++    def worked(self, *, seen=None, **operands):
+         agent = ClaudeAgent(run=self.runner(**operands),
+                             home=self.turn_scratch())
+-        return agent.work({"contract": "the frozen task"}, list(DECLARED))
++        return agent.work({"contract": "the frozen task"} if seen is None
++                          else seen, list(DECLARED))
+ 
+     # -- the worker's complete ending ---------------------------------------
+ 
+@@ -2324,6 +2474,57 @@ class ThePreparedLineTurnCommitsAndDeclaresItsObjects(LineCase):
+         self.assertEqual(self.git("rev-parse", evidence["reference"]).strip(),
+                          evidence["head"])
+ 
++    # -- W321528: the bound the Git-line publisher reports -------------------
++
++    def test_the_line_result_reports_this_workers_default_with_no_job(self):
++        self.worked(edits={"harness.py": "print('now covered')\n"})
++        self.assertEqual(self.result()["provider"]["seconds_bound"],
++                         claude_agent.PROVIDER_SECONDS)
++        self.assertEqual(self.result()["provider"]["seconds_bound_source"],
++                         claude_agent.WORKER_DEFAULT_BOUND)
++
++    def test_the_line_result_reports_the_operator_selected_bound(self):
++        """THE DEFECT, in the Git-line publisher -- the one the two historic
++        runs were sealed by. A proposal retained on a private line carried
++        `seconds_bound: 3600` beside a turn the Job had bounded far lower."""
++        self.worked(edits={"harness.py": "print('now covered')\n"},
++                    seen=self.launched(seconds=self.SELECTED_SECONDS))
++        self.assertNotEqual(self.SELECTED_SECONDS,
++                            claude_agent.PROVIDER_SECONDS)
++        self.assertEqual(self.result()["provider"]["seconds_bound"],
++                         self.SELECTED_SECONDS)
++        self.assertEqual(self.result()["provider"]["seconds_bound_source"],
++                         claude_agent.JOB_SELECTED_BOUND)
++
++    def test_the_line_result_separates_a_job_default_from_no_job_at_all(self):
++        self.worked(edits={"harness.py": "print('now covered')\n"},
++                    seen=self.launched())
++        self.assertEqual(self.result()["provider"]["seconds_bound"],
++                         claude_agent.PROVIDER_SECONDS)
++        self.assertEqual(self.result()["provider"]["seconds_bound_source"],
++                         claude_agent.JOB_DEFAULT_BOUND)
++
++    def test_a_timed_out_line_turn_reports_one_bound_in_both_places(self):
++        """The sentence and the member come from the same resolution now.
++
++        W319114's sealed evidence is the two disagreeing: a `why` naming the
++        real bound beside a `seconds_bound` naming the constant. A turn that
++        timed out also published no commit, which this asserts stays true --
++        the bound repair does not soften a failure."""
++        answered = self.worked(timeout=True,
++                               seen=self.launched(
++                                   seconds=self.SELECTED_SECONDS))
++        self.assertEqual(answered["disposition"], "unable")
++        self.assertEqual(self.result()["disposition"], "provider-failed")
++        self.assertEqual(self.result()["provider"]["seconds_bound"],
++                         self.SELECTED_SECONDS)
++        self.assertEqual(self.result()["provider"]["failure_reason"],
++                         claude_agent.PROVIDER_TIMED_OUT)
++        self.assertIn(f"within {self.SELECTED_SECONDS}s",
++                      self.result()["why"])
++        self.assertNotIn(str(claude_agent.PROVIDER_SECONDS),
++                         json.dumps(self.result()))
++
+     def test_the_reserved_names_are_this_workers_and_never_the_candidates(self):
+         self.assertEqual(claude_agent.COMPLETION_MANIFEST,
+                          baton_worker.OUTPUT_MANIFEST)
+@@ -2844,12 +3045,13 @@ class ReviewCase(AdapterCase):
+ 
+         return run
+ 
+-    def reviewed(self, declared=None, **operands):
++    def reviewed(self, declared=None, *, seen=None, **operands):
+         agent = ClaudeAgent(run=self.runner(**operands),
+                             home=tempfile.mkdtemp(prefix="v12-w110772-",
+                                                   dir=self.home))
+-        return agent.work({"contract": "the frozen task",
+-                           "role": claude_agent.REVIEW_ROLE},
++        return agent.work(dict({"contract": "the frozen task"}
++                               if seen is None else seen,
++                               role=claude_agent.REVIEW_ROLE),
+                           list(REVIEW_DECLARED if declared is None
+                                else declared))
+ 
+@@ -2917,6 +3119,41 @@ class TheReviewTurnAuthorsAVerdictItDidNotDecide(ReviewCase):
+                          ["provider", "report_bytes", "reviewed", "schema",
+                           "task_id", "verdict", "verification"])
+ 
++    # -- W321528: the bound the review log reports ---------------------------
++
++    def test_the_review_log_reports_this_workers_default_with_no_job(self):
++        self.reviewed()
++        held = json.loads(self.read(self.logs(claude_agent.REVIEW_LOG)))
++        self.assertEqual(held["provider"]["seconds_bound"],
++                         claude_agent.PROVIDER_SECONDS)
++        self.assertEqual(held["provider"]["seconds_bound_source"],
++                         claude_agent.WORKER_DEFAULT_BOUND)
++
++    def test_the_review_log_reports_the_operator_selected_bound(self):
++        """THE DEFECT, in the review publisher. A review turn runs under the
++        same Job ceiling an implementation turn does, and its log named the
++        constant -- so the one record an operator reads about a reviewer
++        container described a bound nobody had configured."""
++        self.reviewed(seen=self.launched(seconds=self.SELECTED_SECONDS))
++        held = json.loads(self.read(self.logs(claude_agent.REVIEW_LOG)))
++        self.assertNotEqual(self.SELECTED_SECONDS,
++                            claude_agent.PROVIDER_SECONDS)
++        self.assertEqual(held["provider"]["seconds_bound"],
++                         self.SELECTED_SECONDS)
++        self.assertEqual(held["provider"]["seconds_bound_source"],
++                         claude_agent.JOB_SELECTED_BOUND)
++        # AND THE VERDICT IS STILL THE REPORT'S. Reporting the real bound
++        # neither makes nor unmakes a decision.
++        self.assertEqual(self.claim(self.reviewed())["verdict"], "accepted")
++
++    def test_the_review_log_separates_a_job_default_from_no_job_at_all(self):
++        self.reviewed(seen=self.launched())
++        held = json.loads(self.read(self.logs(claude_agent.REVIEW_LOG)))
++        self.assertEqual(held["provider"]["seconds_bound"],
++                         claude_agent.PROVIDER_SECONDS)
++        self.assertEqual(held["provider"]["seconds_bound_source"],
++                         claude_agent.JOB_DEFAULT_BOUND)
++
+     def test_the_reviewed_source_is_never_written_to(self):
+         """The manager mounts it read-only; this proves the adapter does not
+         try, which is the half a fixture can actually observe."""
+@@ -2978,6 +3215,36 @@ class NoUsableReportIsNoVerdictAtAll(ReviewCase):
+         answered = self.unable(missing=True)
+         self.assertIn(claude_agent.PROVIDER_START_ERROR, answered["recap"])
+ 
++    # -- W321528: a turn that decided nothing still says what bounded it -----
++
++    def test_a_timed_out_review_names_its_effective_bound_and_no_verdict(self):
++        """The log is the only account an unanswered review leaves, so the
++        bound in it is the one the turn actually ran under. The absence of a
++        verdict is unchanged: a bound reported honestly is not a decision."""
++        answered = self.unable(timeout=True,
++                               seen=self.launched(
++                                   seconds=self.SELECTED_SECONDS))
++        held = json.loads(self.read(self.logs(claude_agent.REVIEW_LOG)))
++        self.assertIsNone(held["verdict"])
++        self.assertEqual(held["provider"]["seconds_bound"],
++                         self.SELECTED_SECONDS)
++        self.assertEqual(held["provider"]["seconds_bound_source"],
++                         claude_agent.JOB_SELECTED_BOUND)
++        self.assertEqual(held["provider"]["failure_reason"],
++                         claude_agent.PROVIDER_TIMED_OUT)
++        self.assertNotIn(str(claude_agent.PROVIDER_SECONDS),
++                         json.dumps(held))
++        self.assertIn(claude_agent.PROVIDER_TIMED_OUT, answered["recap"])
++
++    def test_a_review_that_wrote_nothing_still_reports_the_default_bound(self):
++        self.unable(report=None)
++        held = json.loads(self.read(self.logs(claude_agent.REVIEW_LOG)))
++        self.assertIsNone(held["verdict"])
++        self.assertEqual(held["provider"]["seconds_bound"],
++                         claude_agent.PROVIDER_SECONDS)
++        self.assertEqual(held["provider"]["seconds_bound_source"],
++                         claude_agent.WORKER_DEFAULT_BOUND)
++
+     def test_a_report_that_is_not_a_readable_document_decides_nothing(self):
+         self.unable(report="{not json at all")
+ 
+diff --git a/v12/worker/claude_agent.py b/v12/worker/claude_agent.py
+index 6c08cf21..ba157140 100644
+--- a/v12/worker/claude_agent.py
++++ b/v12/worker/claude_agent.py
+@@ -302,8 +302,47 @@ PROVIDER_START_ERROR = "start-error"
+ # How long one provider turn is given. A real turn is minutes; a bound that
+ # cannot be reached turns ordinary work into a failure, and a bound that does
+ # not exist turns a wedged provider into a wedged container.
++#
++# IT IS THIS MODULE'S DEFAULT AND NOT THE EFFECTIVE BOUND. `_bound` resolves
++# what a turn actually runs under from the launch document's Job execution
++# context, so the number below is what stands in when there is no Job behind
++# the launch -- never what a result may report about a turn that ran under a
++# different one. See `_resolved_bound` and `_bound_member`.
+ PROVIDER_SECONDS = 3600
+ 
++# WHO CHOSE THE BOUND A RESULT PUBLISHES, and this vocabulary is exactly as
++# wide as the delivered document can currently support -- no wider. W321528.
++#
++# WHY A SECOND MEMBER AT ALL. A bare `900` cannot say whether an operator
++# picked fifteen minutes or whether nobody picked anything and fifteen minutes
++# is simply what the boundary preserves; a reader deciding whether a timeout
++# was a configuration problem needs to know which. The number alone made the
++# two indistinguishable, and reporting the default constant for a turn that
++# ran under something else made them indistinguishable in the wrong direction.
++#
++# THE DISTINCTION IS READ, NOT INFERRED. The manager's execution-limit owner
++# already resolves each boundary with an ORIGIN beside its seconds, and that
++# origin travels inside the sealed `execution_limits` this container is handed
++# -- so the three answers below are what the delivery actually says rather
++# than this module's guess about it. `_ORIGIN_SELECTION` maps the two words
++# that owner uses; an origin it does not use is reported `unstated` rather
++# than squeezed into one of them, because a delivery this module cannot read
++# is not evidence that nobody configured anything.
++#
++# THE WORDS ARE SPELLED TWICE ON PURPOSE. The image carries no `baton_v12`, so
++# the mirror is held against its owner by a case rather than by an import --
++# the same arrangement `REVIEW_VERDICTS` has, and for the same reason.
++WORKER_DEFAULT_BOUND = "worker-default"
++JOB_SELECTED_BOUND = "job-selected"
++JOB_DEFAULT_BOUND = "job-default"
++UNSTATED_BOUND_SOURCE = "unstated"
++
++# The execution-limit owner's own origin words, mirrored. `job` is a setting
++# the Job stated; `compatibility` is the boundary's preserved runner default
++# resolved for a Job that stated nothing.
++_ORIGIN_SELECTION = {"job": JOB_SELECTED_BOUND,
++                     "compatibility": JOB_DEFAULT_BOUND}
++
+ # How long the task's own verification command is given. Bounded separately
+ # because it is the WORKLOAD's command rather than the provider's, and the two
+ # have nothing to do with each other.
+@@ -1937,6 +1976,43 @@ class ClaudeAgent:
+                 f"back to this worker's own default")
+         return seconds
+ 
++    # W321528: THE SAME NUMBER, WITH THE FACT A READER NEEDS BESIDE IT.
++    #
++    # WHAT WAS WRONG. Every result publisher below spelled `PROVIDER_SECONDS`
++    # into its `provider.seconds_bound` member while `_provider` ran the child
++    # under `_bound`'s answer, so a turn the operator had bounded at 600 or at
++    # 900 seconds published 3600 -- and did it next to a `why` that named the
++    # real bound, which is how the two historic runs were caught. The number
++    # was not stale by accident: it was a SECOND source for a fact that
++    # already had one.
++    #
++    # SO THERE IS ONE SOURCE. This resolves the bound once, `_provider` calls
++    # it once per turn, and what the child is given and what the result
++    # reports are the same value by construction. The publishers read it off
++    # the turn's own record through `_bound_member` and name no constant.
++    #
++    # AND NOT ONLY THE NUMBER. See `WORKER_DEFAULT_BOUND`: the delivered
++    # configuration already carries an ORIGIN beside each boundary's seconds,
++    # so which of the three answers applies is READ off the same operand
++    # `_bound` reads rather than inferred from the shape of the document.
++    #
++    # THE SEMANTICS ARE UNTOUCHED. `_bound` decides, including its refusal of
++    # a Job context that names no usable bound; this calls it first and then
++    # describes the operand it must have used. Nothing here changes what any
++    # turn runs under, and nothing here can make a turn run at all -- a
++    # launch `_bound` refuses still refuses, before any source is named.
++    def _resolved_bound(self, seen, boundary, default):
++        seconds = self._bound(seen, boundary, default)
++        held = (seen or {}).get("job_execution")
++        if not isinstance(held, dict):
++            source = WORKER_DEFAULT_BOUND
++        else:
++            limits = held.get("execution_limits") or {}
++            one = (limits.get("boundaries") or {}).get(boundary) or {}
++            source = _ORIGIN_SELECTION.get(one.get("origin"),
++                                           UNSTATED_BOUND_SOURCE)
++        return {"seconds_bound": seconds, "seconds_bound_source": source}
++
+     def work(self, seen, declared):
+         """Run the frozen task and author the declared proposal.
+ 
+@@ -2120,7 +2196,7 @@ class ClaudeAgent:
+                                           "status": provider["status"],
+                                           "failure_reason":
+                                               provider.get("failure_reason"),
+-                                          "seconds_bound": PROVIDER_SECONDS,
++                                          **_bound_member(provider),
+                                           **_diagnostic_member(provider)},
+                                       "verification": (
+                                           {"status": verification["status"],
+@@ -2145,7 +2221,7 @@ class ClaudeAgent:
+                                      "status": provider["status"],
+                                      "failure_reason":
+                                          provider.get("failure_reason"),
+-                                     "seconds_bound": PROVIDER_SECONDS,
++                                     **_bound_member(provider),
+                                      **_diagnostic_member(provider)},
+                                  "verification": (
+                                      {"status": verification["status"],
+@@ -2255,7 +2331,7 @@ class ClaudeAgent:
+                                  "status": provider["status"],
+                                  "failure_reason":
+                                      provider.get("failure_reason"),
+-                                 "seconds_bound": PROVIDER_SECONDS,
++                                 **_bound_member(provider),
+                                  **_diagnostic_member(provider)},
+                              "verification": None},
+                             indent=1, sort_keys=True) + "\n")
+@@ -3283,33 +3359,41 @@ class ClaudeAgent:
+         # `_bound_activity`: the baseline is proved by construction, so binding
+         # it costs the provider nothing.
+         self._bound_activity(scratch)
++        # W321528: RESOLVED ONCE, BEFORE THE CHILD, AND CARRIED ON EVERY
++        # ANSWER. The number below is what `_ran_provider` is given AND what
++        # the publishers report; there is no second resolution and no constant
++        # spelled at a publication site. The timeout branch reads it off this
++        # same mapping rather than asking `_bound` again, which is how its
++        # sentence and its `seconds_bound` member came to disagree with each
++        # other in the first place.
++        bound = self._resolved_bound(self._seen, "provider_turn",
++                                     PROVIDER_SECONDS)
++        seconds = bound["seconds_bound"]
+         try:
+-            seconds = self._bound(self._seen, "provider_turn",
+-                                  PROVIDER_SECONDS)
+             status, record, partial = self._ran_provider(
+                 argv, cwd=candidate, seconds=seconds, scratch=scratch,
+                 env=self._revalidated_environment(scratch, environment),
+                 umask=PROVIDER_UMASK)
+         except subprocess.TimeoutExpired:
+             return {"ok": False, "status": None,
+-                    "failure_reason": PROVIDER_TIMED_OUT,
++                    "failure_reason": PROVIDER_TIMED_OUT, **bound,
+                     "why": f"the provider did not finish within "
+-                           f"{self._bound(self._seen, 'provider_turn', PROVIDER_SECONDS)}s"}
++                           f"{seconds}s"}
+         except OSError as failed:
+             return {"ok": False, "status": None,
+-                    "failure_reason": PROVIDER_START_ERROR,
++                    "failure_reason": PROVIDER_START_ERROR, **bound,
+                     "why": f"the provider could not be started: "
+                            f"{type(failed).__name__}"}
+         if contextual is not None:
+             self._context_receipt = self._context_result(contextual, status=status, record=record, partial=partial)
+             if self._context_receipt["complete"] is not True:
+-                return {"ok": False, "status": status, "failure_reason": PROVIDER_START_ERROR, "why": "provider context terminal identity is unproved"}
++                return {"ok": False, "status": status, "failure_reason": PROVIDER_START_ERROR, **bound, "why": "provider context terminal identity is unproved"}
+         if status == 0:
+             # A CLEAN TURN PUBLISHES NO REASON. There is nothing to classify,
+             # and a `failure_reason` on a success would be a field readers
+             # learn to ignore.
+             return {"ok": True, "status": 0, "failure_reason": None,
+-                    "why": None}
++                    **bound, "why": None}
+         # THE DIAGNOSTIC IS STILL NOT THE PROVIDER'S PROSE. This read
+         # `f"...{status}: {errors}"`, and `errors` was the provider's own
+         # stderr -- the process that had just authenticated with the attempt's
+@@ -3325,6 +3409,7 @@ class ClaudeAgent:
+         reason = _failure_reason(record, partial=partial)
+         return {"ok": False, "status": status, "failure_reason": reason,
+                 "diagnostic": _provider_diagnostic(record, partial=partial),
++                **bound,
+                 "why": f"the provider exited {status} ({reason}); its own "
+                        f"unrestricted diagnostic is withheld; supported "
+                        f"nonsecret detail is in provider.diagnostic"}
+@@ -4069,11 +4154,14 @@ class ClaudeAgent:
+                 seconds=seconds,
+                 env=environment, pass_fds=pass_fds)
+         except subprocess.TimeoutExpired:
++            # W321528: THE BOUND THE CHILD WAS GIVEN, not a second resolution
++            # of it. `seconds` is bound before `_ran` can raise this, and
++            # re-deriving it here is how a sentence and the number beside it
++            # came to disagree one layer up.
+             return {"status": None,
+                     "text": _transcript(
+                         task,
+-                        f"did not finish within "
+-                        f"{self._bound(self._seen, 'ordinary_verification', VERIFICATION_SECONDS)}s")}
++                        f"did not finish within {seconds}s")}
+         except OSError as failed:
+             return {"status": None,
+                     "text": _transcript(task, f"could not be started "
+@@ -4227,6 +4315,24 @@ def _diagnostic_member(provider):
+     return {"diagnostic": diagnostic} if diagnostic is not None else {}
+ 
+ 
++def _bound_member(provider):
++    """WHAT ACTUALLY BOUNDED THIS TURN, for the record that reports it.
++
++    W321528, and the one place every result publisher gets these two members
++    from. Each of the three used to write `PROVIDER_SECONDS` itself, which is
++    three independent chances to report a number the turn never ran under --
++    and all three took it.
++
++    SUBSCRIPTED RATHER THAN `get`. `_provider` carries the resolved bound on
++    every one of its answers, including the two that never reached a child, so
++    a missing member is this module disagreeing with itself and a `KeyError`
++    is the correct noise. A default here would quietly restore exactly the
++    defect: a publisher inventing `3600` for a turn it knows nothing about.
++    """
++    return {"seconds_bound": provider["seconds_bound"],
++            "seconds_bound_source": provider["seconds_bound_source"]}
++
++
+ def _disposition(provider, patch, verification):
+     """What happened, and it can only be `candidate` when everything held.
+ 
+diff --git a/work/records/2026/09/finding-v12-single-implementation-proof/baseline.py b/work/records/2026/09/finding-v12-single-implementation-proof/baseline.py
+index 1400396e..77c22c9d 100644
+--- a/work/records/2026/09/finding-v12-single-implementation-proof/baseline.py
++++ b/work/records/2026/09/finding-v12-single-implementation-proof/baseline.py
+@@ -99,6 +99,95 @@ CLAIM_NAMESPACE = "baton.git-proposal/1"
+ COMMIT_NAME = "Baton worker"
+ COMMIT_EMAIL = "worker@baton.invalid"
+ 
++# W321528: AND THE WORKER'S OWN ORDINARY-TEST OBSERVATION, mirrored for the
++# same reason and read for a narrower one. What it carries is what the TURN's
++# verification command did, which is a fact about the turn and emphatically
++# not a verdict about the candidate -- see `_candidate_verification`.
++ORDINARY_TESTS_NAMESPACE = "baton.git-ordinary-tests/1"
++
++# AND ITS CLOSED MEMBER SET, mirrored from `claude_agent.ORDINARY_TESTS_MEMBERS`
++# for the reason every other mirror in this file exists: the image carries no
++# `baton_v12` and this supervisor is not in the image, so the agreement is held
++# by a case rather than by an import. Held by EQUALITY and not by containment:
++# an observation missing `task_id` is exactly the shape the first reader
++# admitted, and a document carrying a member this program does not read is one
++# whose producer is not the producer this program knows.
++ORDINARY_TESTS_MEMBERS = ("argv", "base", "head", "status", "task_digest",
++                          "task_id")
++
++# The declared output an implementation turn's candidate lives in.
++PROPOSAL_OUTPUT = "proposal"
++
++# W321528 review 2026-10-18T10-07-00Z: WHICH WORKER'S TASK DOCUMENT BINDS THE
++# OBSERVATION. One deployment configures an implementation, a review and an
++# integration worker, and an observation is only this candidate's if it names
++# the task the IMPLEMENTATION turn was launched under. The word is the
++# deployment configuration's own worker `role`, which is the member
++# `stage_execution` selects the producing worker by.
++IMPLEMENTATION_ROLE = "implementation"
++
++# How much of the configured task document this program will read before
++# refusing, and it is the CONSUMER's ceiling rather than one chosen here:
++# `claude_agent._read_task` reads at most this much at the other end, so a
++# document wider than it is not the document any turn consumed.
++MAX_TASK_BYTES = 1 << 20
++
++# W321528: WHAT A TURN'S RETAINED CANDIDATE IS, and these four are different
++# answers rather than degrees of one.
++#
++# `valid` is the only one that may be counted as a candidate at all, and it
++# is reached only after the manager's own owners agreed AND THE RETAINED BYTES
++# THEMSELVES WERE READ: the sealed result belongs to this attempt's
++# assignment, the sealed artifact reference and the manager's indexed artifact
++# row name the same bytes, the worker's claim is offered against the
++# deployment's declared base, the retained commit is the adapter's own, and
++# the artifact the locator names RE-MEASURES to the manifest and digest the
++# seal declares. `absent` is a turn that retained nothing -- an ANSWER, and
++# the ordinary shape of a failure. `refused` is evidence that EXISTS and did
++# not survive one of those checks, which is a different and much louder fact
++# than absence. `unreadable` is a read that did not answer, which is never
++# evidence of absence.
++CANDIDATE_VALID = "valid"
++CANDIDATE_ABSENT = "absent"
++CANDIDATE_REFUSED = "refused"
++CANDIDATE_UNREADABLE = "unreadable"
++
++# WHAT THE TURN'S OWN VERIFICATION COMMAND DID, re-read from the sealed
++# result. `not-run` is the adapter's explicit null -- it skips verification
++# when the provider failed or changed nothing -- and `unreported` is this
++# program declining to read an observation it could not validate. Neither is
++# a pass, and NONE of these four is a formal verification of the candidate by
++# anybody: this run performs none and invents none.
++VERIFICATION_PASSED = "passed"
++VERIFICATION_FAILED = "failed"
++VERIFICATION_NOT_RUN = "not-run"
++VERIFICATION_UNREPORTED = "unreported"
++
++# W321528 review 2026-10-18T08-39-00Z P2: AND THE PRODUCER'S NULL IS AMBIGUOUS,
++# so it gets its own answer rather than being folded into `not-run`.
++# `claude_agent._ordinary_tests` says so itself: a skipped command, a timeout
++# and a failed start ALL emit `status: None`, and "all three are 'this command
++# did not produce a status'". Reporting that as `not-run` would be inventing
++# proof of the one of the three that happens to sound harmless.
++VERIFICATION_NO_STATUS = "no-status"
++
++# AND ACCEPTANCE THAT WAS NEVER READ SAYS SO. Review P2: the collector set
++# `none` -- "an answer that was READ" -- for every valid record while
++# performing no acceptance read at all. This Job admits no reviewer and this
++# supervisor has no exact-candidate acceptance evidence to consult, so the
++# honest value is that nobody looked.
++ACCEPTANCE_UNOBSERVED = "unobserved"
++
++# WHETHER ANYTHING HAS ACCEPTED THE CANDIDATE, read from the line owner and
++# never from the worker. This Job has no reviewer in it, so `none` is the
++# expected answer and is still an answer that was READ; `no-candidate` is the
++# different statement that there is nothing to accept, and `unreadable` keeps
++# a failed read from being reported as either.
++ACCEPTANCE_ACCEPTED = "accepted"
++ACCEPTANCE_NONE = "none"
++ACCEPTANCE_NO_CANDIDATE = "no-candidate"
++ACCEPTANCE_UNREADABLE = "unreadable"
++
+ # THE ONLY GIT VERBS THIS PROGRAM MAY RUN, closed and checked before the child
+ # starts. Every one of them reads; none of them can move a reference, write an
+ # object or touch a worktree. AGENTS.md permits reviewing history and nothing
+@@ -1680,8 +1769,8 @@ def _workload_evidence(job, control, packet, admitted, kinds, *, inspect=None):
+     implementation = named("implementation")
+     evidence = {"implementation_attempts": implementation,
+                 "generations": [], "conversations": [], "modes": [],
+-                "proposals": [], "dispositions": [], "attribution": [],
+-                "shortfalls": []}
++                "proposals": [], "dispositions": [], "candidates": [],
++                "attribution": [], "shortfalls": []}
+ 
+     want = packet["bounds"]
+     if len(implementation) != want["implementer_invocations"]:
+@@ -1717,6 +1806,11 @@ def _workload_evidence(job, control, packet, admitted, kinds, *, inspect=None):
+     # proposal. A failed run's outcome says `unable` where an operator can
+     # find it rather than only inside a shortfall sentence.
+     evidence["dispositions"] = retained["dispositions"]
++    # W321528: WHAT EACH TURN RETAINED, decided independently of what it
++    # published. A failed turn's surviving candidate is reported here or an
++    # operator never learns it exists.
++    evidence["candidates"] = _candidates(control, implementation, packet,
++                                         shortfalls, inspect=inspect)
+     evidence["attribution"] = _attributions(control, implementation,
+                                             evidence["proposals"], shortfalls,
+                                             inspect=inspect)
+@@ -1820,7 +1914,9 @@ def _proposals(control, implementation, packet, shortfalls):
+                 f"'completed', so it published no proposal. An implementation "
+                 f"turn that could not do its work is an ANSWER -- the "
+                 f"attempt's retained provider log carries what the provider "
+-                f"reported -- and it is not a proposal this run may count.")
++                f"reported -- and it is not a proposal this run may count. "
++                f"WHETHER IT RETAINED A CANDIDATE ANYWAY is a separate "
++                f"question and `candidates` answers it.")
+             continue
+         try:
+             manifest = load_manifest(control, frozen["manifest_digest"],
+@@ -1845,11 +1941,603 @@ def _proposals(control, implementation, packet, shortfalls):
+                               f"head is its base, so it proposed nothing")
+         found.append(held)
+     if not found:
+-        shortfalls.append("this run retained no proposal at all, so it "
+-                          "established nothing about the implementation path")
++        shortfalls.append("this run published no proposal at all. Whether any "
++                          "turn nevertheless RETAINED a candidate is answered "
++                          "by `candidates`, and a retained candidate is not a "
++                          "published proposal, a verification or an acceptance")
+     return {"proposals": found, "dispositions": dispositions}
+ 
+ 
++def _candidates(control, implementation, packet, shortfalls, *, inspect=None,
++                measure=None):
++    """EVERY turn's retained candidate, decided INDEPENDENTLY of its disposition.
++
++    W321528. THE DEFECT THIS CLOSES. `_proposals` above answers "what did this
++    run PUBLISH", and it is right to skip a turn that did not complete: a turn
++    that ended `unable` published no proposal by contract. It was the only
++    question anybody asked, and the selected live run of this very Work timed
++    out at 900s with a real three-file candidate retained on its private line
++    while the report said it retained nothing at all.
++
++    So this asks the OTHER question, for every attempt, whatever it ended as.
++
++    AND IT READS THE RETAINED LINE RATHER THAN TWO DESCRIPTIONS OF IT, which is
++    review 2026-10-18T08-39-00Z P1. The first correction compared the sealed
++    reference with the manager's indexed row and called the result `valid`:
++    agreement between two stored descriptions of an artifact establishes that
++    nobody disagrees, NOT that the bytes are still there. Its own fixture named
++    a locator that did not exist and got `valid` with no shortfall. So custody
++    is now established at the SUPPORTED BOUNDARY this file already owns --
++    `line_attribution` reads the commit object out of the durable line the
++    manager named, through the closed read-only verb list -- and a candidate
++    whose head cannot be read there is never promoted to `valid`.
++
++    AND READING THAT COMMIT HEADER IS STILL NOT READING THE ARTIFACT, which is
++    review 2026-10-18T10-07-00Z. The commit object answers WHO WROTE the
++    history the claim names, in a repository that is not the retained artifact
++    and whose objects are not its bytes. An artifact that was never written,
++    was truncated, had one byte changed or was swapped for a different tree
++    passes every check above. So `_retained_bytes` re-MEASURES the tree the
++    locator names, through `workspaces.directory_manifest`, and holds the
++    measurement to the `contentManifest` and `content_digest` the seal
++    declares -- both of which are first held to their own owner's rules. A
++    candidate whose bytes are missing, damaged, substituted or unreadable is
++    never `valid`, and its locator and claims stay in the record anyway.
++
++    THE FOUR ANSWERS ARE NOT DEGREES OF ONE:
++
++      `absent` is a turn that retained nothing. An ANSWER, and the ordinary
++      shape of a failure.
++
++      `unreadable` is a read that DID NOT ANSWER. Never evidence of absence --
++      conflating the two is how "I could not look" becomes "there is nothing
++      there", and this Work exists because that already happened once.
++
++      `refused` is evidence that EXISTS and did not survive a check. A much
++      louder fact than absence: something is on disk and this program will not
++      vouch for it.
++
++      `valid` is the only one countable, and it now means the retained head
++      was READ in the manager's own line AND the retained artifact's own bytes
++      re-measured to what the seal declares -- not merely described twice.
++
++    USEFUL EVIDENCE SURVIVES A FAILED CHECK, which the review also required:
++    the locator, base, head and attribution recorded before the failing check
++    stay in the record, because an operator looking for the bytes needs them
++    most when something is wrong.
++
++    AND IT IS NOT A VERDICT. `verification` reports what the turn's own
++    verification command did and `acceptance` whether anybody has accepted the
++    candidate; this run performs no formal verification, invents none, and
++    reports an acceptance it did not read as `unobserved`.
++    """
++    from baton_v12.contracts import ContractRefusal
++    from baton_v12.worker_manager import (attempts as attempt_rows,
++                                          frozen_output_of, load_manifest)
++
++    inspect = line_attribution if inspect is None else inspect
++    measure = _retained_bytes if measure is None else measure
++    try:
++        base = _declared_base(packet)
++    except (SupervisorRefusal, KeyError, OSError, TypeError, ValueError):
++        # ALREADY REPORTED BY `_proposals`; what matters here is that an
++        # unknown target makes the base check unanswerable rather than passed.
++        # The read is bounded wider than one refusal because `_declared_base`
++        # opens and parses the deployment configuration, and a collector whose
++        # purpose is reporting what survived a FAILED run must not itself die
++        # on an unreadable config and lose the candidate it exists to name.
++        base = None
++    try:
++        task = _bound_task(packet)
++    except (SupervisorRefusal, KeyError, OSError, TypeError, ValueError):
++        # AND AN UNRESOLVED TASK MAKES THE OBSERVATION UNREPORTABLE rather
++        # than unvalidated. `_candidate_verification` refuses to read an
++        # observation it cannot bind to the task this turn actually ran; a
++        # `None` here is that refusal arriving one step earlier.
++        task = None
++    found = []
++    for attempt in implementation:
++        held = {"attempt_id": attempt, "state": CANDIDATE_UNREADABLE,
++                "disposition": None, "locator": None, "base": None,
++                "head": None, "transport": None, "content_digest": None,
++                "bytes": None, "verification": VERIFICATION_UNREPORTED,
++                "acceptance": ACCEPTANCE_UNOBSERVED, "attribution": None,
++                "assignment": None, "why": None}
++
++        def unreadable(why):
++            held["state"] = CANDIDATE_UNREADABLE
++            held["why"] = why
++            found.append(dict(held))
++            shortfalls.append(
++                f"attempt {attempt} has an UNREADABLE retained candidate: "
++                f"{why}. A read that did not answer is not evidence that "
++                f"nothing is retained")
++
++        def refused(why):
++            held["state"] = CANDIDATE_REFUSED
++            held["why"] = why
++            found.append(dict(held))
++            shortfalls.append(f"attempt {attempt} has a REFUSED retained "
++                              f"candidate: {why}")
++
++        try:
++            frozen = frozen_output_of(control, attempt)
++        except (ContractRefusal, KeyError, TypeError) as why:
++            unreadable(f"the frozen result did not read: "
++                       f"{type(why).__name__}: {why}")
++            continue
++        if frozen is None:
++            held.update(state=CANDIDATE_ABSENT,
++                        acceptance=ACCEPTANCE_NO_CANDIDATE,
++                        verification=VERIFICATION_NOT_RUN,
++                        why="the turn froze no result at all")
++            found.append(dict(held))
++            continue
++        held["disposition"] = frozen.get("disposition")
++        indexed = {one["output_name"]: one
++                   for one in (frozen.get("artifacts") or [])}
++        row = indexed.get(PROPOSAL_OUTPUT)
++        try:
++            manifest = load_manifest(control, frozen["manifest_digest"],
++                                     "resultManifest")
++        except (ContractRefusal, KeyError, TypeError) as why:
++            unreadable(f"the sealed result manifest did not read: "
++                       f"{type(why).__name__}: {why}")
++            continue
++        if manifest is None:
++            unreadable("the frozen result names a manifest this store does "
++                       "not hold, so its account cannot be read")
++            continue
++        sealed = next((one for one in manifest.get("outputs") or []
++                       if one.get("name") == PROPOSAL_OUTPUT), None)
++        if sealed is None or sealed.get("status") != "present" \
++                or sealed.get("artifact") is None:
++            if row is None:
++                held.update(state=CANDIDATE_ABSENT,
++                            acceptance=ACCEPTANCE_NO_CANDIDATE,
++                            verification=_candidate_verification(sealed),
++                            why="the turn declared no retained candidate")
++                found.append(dict(held))
++                continue
++            refused(f"the manager indexed a {PROPOSAL_OUTPUT!r} artifact and "
++                    f"the sealed result declares none, so the two accounts of "
++                    f"this turn disagree about whether a candidate exists")
++            continue
++        reference = sealed["artifact"]
++        held.update(locator=reference.get("locator"),
++                    content_digest=reference.get("content_digest"),
++                    bytes=reference.get("bytes"))
++        claim = (sealed.get("result_metadata") or {}).get(CLAIM_NAMESPACE)
++        if not isinstance(claim, dict) or not all(
++                isinstance(claim.get(one), str) and claim.get(one)
++                for one in ("base", "head", "transport")):
++            refused(f"the sealed candidate carries no readable "
++                    f"{CLAIM_NAMESPACE} claim, so what it was built on is "
++                    f"unstated")
++            continue
++        held.update(base=claim["base"], head=claim["head"],
++                    transport=claim["transport"])
++        # THE TURN'S OWN OBSERVATION, read from the OUTPUT the producer puts it
++        # on and bound to THE TASK THIS TURN ACTUALLY RAN -- see
++        # `_candidate_verification`.
++        held["verification"] = _candidate_verification(sealed, claim=claim,
++                                                       task=task)
++        faults = []
++        # WHOSE ARTIFACT IT IS, from the sealer's own identity rule. A result
++        # answers `"{attempt}:{output}"`, so an artifact reference naming
++        # another attempt or another output is FOREIGN evidence -- bytes this
++        # turn did not retain, offered under this turn's seal.
++        owned = f"{attempt}:{PROPOSAL_OUTPUT}"
++        if reference.get("artifact_id") != owned:
++            faults.append(f"the sealed candidate names artifact "
++                          f"{reference.get('artifact_id')!r} and this "
++                          f"attempt's {PROPOSAL_OUTPUT!r} output is "
++                          f"{owned!r}, so these are not this turn's bytes")
++        if row is None:
++            faults.append(f"the sealed result declares a {PROPOSAL_OUTPUT!r} "
++                          f"artifact and the manager indexed none, so these "
++                          f"bytes are not in its custody")
++        else:
++            for name in ("artifact_id", "content_digest", "bytes", "locator"):
++                if row[name] != reference.get(name):
++                    faults.append(
++                        f"the sealed reference and the manager's indexed row "
++                        f"disagree about {name}: {reference.get(name)!r} "
++                        f"against {row[name]!r}, so nobody knows which bytes "
++                        f"this candidate is")
++        try:
++            assignment = attempt_rows.assignment_of(control, attempt)
++        except (ContractRefusal, KeyError, TypeError) as why:
++            unreadable(f"this attempt's assignment did not read, so the "
++                       f"retained candidate cannot be bound to it: "
++                       f"{type(why).__name__}: {why}")
++            continue
++        # THE WHOLE ATTRIBUTION, not just the generation. Review P1: a record
++        # that named only the generation could not say which authority, Work or
++        # participant the retained bytes belong to.
++        held["assignment"] = {
++            "authority_uuid": assignment.get("authority_uuid"),
++            "work_id": assignment.get("work_id"),
++            "participant": assignment.get("participant"),
++            "principal": assignment.get("principal"),
++            "generation": assignment.get("generation"),
++            "effective_scope": assignment.get("effective_scope")}
++        held["generation"] = assignment.get("generation")
++        if base is None:
++            faults.append("this deployment's declared base is unreadable, so "
++                          "the candidate's target cannot be confirmed")
++        elif claim["base"] != base:
++            faults.append(f"the candidate is built on {claim['base']} and "
++                          f"this deployment's canonical target is {base}")
++        if claim["head"] == claim["base"]:
++            faults.append("the candidate's head is its base, so it holds no "
++                          "change")
++        if faults:
++            refused("; ".join(faults))
++            continue
++        # CUSTODY, AT THE SUPPORTED BOUNDARY. Review P1: everything above is
++        # two stored descriptions agreeing. This reads the retained line the
++        # manager named and the commit object in it, so a candidate whose
++        # bytes are gone, damaged or substituted cannot be called `valid`.
++        # OUTSIDE ANY STORE TRANSACTION, which is why it is here and not
++        # folded into a read boundary.
++        try:
++            said = inspect(control, attempt_id=attempt,
++                           generation=assignment.get("generation"),
++                           head=claim["head"], base=claim["base"])
++        except (ContractRefusal, SupervisorRefusal, KeyError, OSError,
++                TypeError, ValueError) as why:
++            unreadable(f"the retained candidate's own line did not answer for "
++                       f"head {claim['head']}, so its bytes could not be "
++                       f"established: {type(why).__name__}: {why}")
++            continue
++        held["attribution"] = said
++        custody = []
++        if said.get("head") != claim["head"]:
++            custody.append(f"the retained line answers head "
++                           f"{said.get('head')!r} where the sealed claim says "
++                           f"{claim['head']!r}")
++        if said.get("parents") != [claim["base"]]:
++            custody.append(f"the retained commit's parents are "
++                           f"{said.get('parents')} rather than exactly its "
++                           f"declared base {claim['base']}")
++        if said.get("author") != said.get("committer"):
++            custody.append(f"the retained commit is authored by "
++                           f"{said.get('author')!r} and committed by "
++                           f"{said.get('committer')!r}")
++        if said.get("author") != f"{COMMIT_NAME} <{COMMIT_EMAIL}>":
++            custody.append(f"the retained commit is attributed to "
++                           f"{said.get('author')!r} rather than to the worker "
++                           f"adapter {COMMIT_NAME} <{COMMIT_EMAIL}>")
++        if custody:
++            refused("; ".join(custody))
++            continue
++        # AND THE RETAINED ARTIFACT'S OWN BYTES, which is review
++        # 2026-10-18T10-07-00Z. The commit object above establishes WHO WROTE
++        # the history the claim names; it says nothing at all about the
++        # artifact the manager is holding, and reading a commit header alone
++        # is what let a candidate whose retained bytes were gone, damaged or
++        # replaced still be called `valid`. This re-MEASURES the tree the
++        # locator names through its own owner and holds it to the declared
++        # manifest and digest. OUTSIDE EVERY STORE TRANSACTION, by
++        # construction: the last store read closed above.
++        state, why = measure(reference, sealed.get("content_manifest"))
++        if state == CANDIDATE_UNREADABLE:
++            unreadable(why)
++            continue
++        if state == CANDIDATE_REFUSED:
++            refused(why)
++            continue
++        held.update(state=CANDIDATE_VALID, why=None)
++        found.append(dict(held))
++        # NOT A SHORTFALL. A retained candidate from a failed turn is the
++        # useful fact this Work exists to report, and reporting it as a
++        # deficiency would be the same mistake in the other direction.
++    return found
++
++
++def _candidate_verification(sealed, *, claim=None, task=None):
++    """What the TURN's own verification command did, from the PRODUCER's shape.
++
++    W321528 review 2026-10-18T08-39-00Z P2. THE FIRST READER LOOKED IN THE
++    WRONG PLACE FOR THE WRONG KEY. It read manifest-level `result_metadata` and
++    an `outcome` member; `claude_agent` puts its ordinary-test observation on
++    the PROPOSAL OUTPUT beside the claim, and `_ordinary_tests` emits
++    `task_id`, `task_digest`, `argv`, `status`, `base` and `head` -- with
++    `status` an INTEGER or `None`, and no `outcome` anywhere. So a real
++    producer's passing turn read as `unreported`, and the unit tests invented
++    an outcome-bearing shape and passed while missing the integration.
++
++    THE FOUR HONEST ANSWERS, and the third is the one that matters most:
++
++      an integer 0 is `passed`; a nonzero integer is `failed`.
++
++      an explicit `status: None` is `no-status` AND NOT `not-run`. The producer
++      says so itself: a skipped command, a timeout and a failed start all emit
++      `None`, and "all three are 'this command did not produce a status'".
++      Calling that `not-run` would be inventing proof of whichever of the three
++      sounds most harmless.
++
++      a missing, malformed or UNASSOCIATED observation is `unreported` -- this
++      program declining to read something it cannot validate.
++
++    AND THE ASSOCIATION IS NOW EXACT, which is the defect the latest review
++    left open. The first correction compared `base` and `head`, and asked
++    about `task_id` only `if packet is not None` and only `not in (None,
++    wanted)` -- so an observation carrying NO `task_id` at all passed, and
++    `task_digest` and `argv` were never looked at by anything. Those three are
++    the whole of what binds an observation to a RUN of a command: the digest
++    names the exact task bytes the turn consumed and the argv names what it
++    executed, and an observation that agrees about neither is an account of
++    some other command whose exit status this program would be republishing as
++    this candidate's.
++
++    So all five are required and every one is compared by equality against the
++    task `_bound_task` derived from the deployment's own configured producer
++    document -- never against anything the worker reported. A missing,
++    malformed or mismatched member is `unreported`, and so is an unresolved
++    task: an observation this program cannot bind is one it may not read.
++
++    NONE of these five answers is a formal verification of the candidate by
++    anybody: this run performs none and invents none.
++    """
++    if not isinstance(sealed, dict):
++        return VERIFICATION_UNREPORTED
++    observed = (sealed.get("result_metadata") or {}).get(
++        ORDINARY_TESTS_NAMESPACE)
++    # THE PRODUCER'S CLOSED SET, BY EQUALITY. `status` present is not enough:
++    # the shape this reads is one specific producer's, and a document missing
++    # a member it binds by -- or carrying one this program does not know --
++    # is not that producer's document.
++    if not isinstance(observed, dict) \
++            or sorted(observed) != sorted(ORDINARY_TESTS_MEMBERS):
++        return VERIFICATION_UNREPORTED
++    # THE CANDIDATE. An observation of another base or head is an observation
++    # of something else, and an absent claim is nothing to associate it with.
++    if not isinstance(claim, dict):
++        return VERIFICATION_UNREPORTED
++    for name in ("base", "head"):
++        if observed[name] != claim.get(name):
++            return VERIFICATION_UNREPORTED
++    # AND THE TASK THE TURN WAS ACTUALLY BOUND TO, all three members exactly.
++    if not isinstance(task, dict):
++        return VERIFICATION_UNREPORTED
++    for name in ("task_id", "task_digest", "argv"):
++        if observed[name] != task.get(name):
++            return VERIFICATION_UNREPORTED
++    status = observed["status"]
++    if status is None:
++        return VERIFICATION_NO_STATUS
++    # `bool` IS NOT A STATUS even though Python says it is an `int`. The
++    # producer is explicit that "a `True` verification status is a claim
++    # nobody measured", and `type(...) is not int` is what keeps one out.
++    if type(status) is not int:
++        return VERIFICATION_UNREPORTED
++    return VERIFICATION_PASSED if status == 0 else VERIFICATION_FAILED
++
++
++def _bound_task(packet):
++    """The task inputs this deployment BOUND the implementation turn to.
++
++    W321528. DERIVED FROM CONFIGURED MATERIAL, NEVER FROM WHAT THE WORKER
++    REPORTED, which is the same rule `stage_execution.required_tests` is
++    written under and the reason this reads the deployment's own producer
++    document rather than taking the three members off the observation it
++    exists to check. An expectation copied out of the thing being checked
++    agrees with it by construction.
++
++    THE SAME THREE MEMBERS THAT OWNER DERIVES, from the same place: the one
++    worker this deployment configures for the implementation role, its
++    configured `task_document`, and the task's own `task_id` and
++    `verification`. The digest is taken over the EXACT BYTES on disk, because
++    that is what the deployment delivers verbatim and what the worker digests
++    at the other end -- a re-serialization of the parsed object would be a
++    different document with the same meaning, which is precisely what a digest
++    is for refusing.
++
++    BOUNDED BY THE CONSUMER'S CEILING. `claude_agent._read_task` reads at most
++    `MAX_TASK_BYTES`, so a document wider than that is not the document any
++    turn consumed and is refused here rather than silently truncated into an
++    expectation nothing will ever match.
++
++    THE CONFIGURATION IS ALREADY PINNED. `held_packet` hashes `config_path`
++    before anything opens, so the file this re-reads is the reviewed one. The
++    task document itself is not pinned by the packet, which is why this
++    refuses rather than guesses when it cannot be read: `_candidates` turns
++    that refusal into `unreported`, never into a verification.
++    """
++    import hashlib
++
++    with open(packet["deployment"]["config_path"], "rb") as handle:
++        configuration = json.loads(handle.read().decode("utf-8"))
++    workers = configuration.get("workers")
++    if type(workers) is not list:
++        _refuse("the deployment configuration names no workers, so there is "
++                "no bound implementation task to read an observation against")
++    named = [one for one in workers
++             if type(one) is dict and one.get("role") == IMPLEMENTATION_ROLE]
++    if len(named) != 1:
++        _refuse(f"this deployment configures {len(named)} "
++                f"{IMPLEMENTATION_ROLE!r} workers; the bound task is derived "
++                f"from exactly one producer's configured document")
++    place = (named[0].get("deployment") or {}).get("task_document")
++    if type(place) is not str or not place:
++        _refuse("the configured implementation worker names no task document")
++    with open(place, "rb") as handle:
++        raw = handle.read(MAX_TASK_BYTES + 1)
++    if len(raw) > MAX_TASK_BYTES:
++        _refuse(f"the configured task document is wider than the "
++                f"{MAX_TASK_BYTES}-byte ceiling the workload reads, so it is "
++                f"not the document any turn consumed")
++    document = json.loads(raw.decode("utf-8"))
++    if type(document) is not dict:
++        _refuse("the configured task document is one JSON object")
++    identity = document.get("task_id")
++    argv = document.get("verification")
++    if type(identity) is not str or not identity:
++        _refuse("the configured task document carries no task identity")
++    if type(argv) is not list or not argv \
++            or any(type(one) is not str or not one for one in argv):
++        _refuse("the configured task document names no verification command; "
++                "an observation cannot be bound to a command nobody declared")
++    return {"task_id": identity,
++            "task_digest": "sha256:" + hashlib.sha256(raw).hexdigest(),
++            "argv": list(argv)}
++
++
++def _artifact_place(locator):
++    """The host directory a retained artifact's locator names, or a refusal.
++
++    THE GRAMMAR IS THE CONTRACT'S, not this program's. `check_uri` is the one
++    owner of what a durable locator may be, and a locator it refuses is not a
++    path this program resolves -- which matters because the only thing done
++    with the answer is opening a directory and reading every file under it.
++
++    `file://` AND NOTHING ELSE. A locator naming a host, a scheme or an opaque
++    form is evidence about bytes this process cannot measure, and reporting a
++    measurement it did not make is the whole class of error this Work closes.
++    """
++    from baton_v12.contracts import ContractRefusal, check_uri
++    from urllib.parse import unquote
++
++    try:
++        check_uri(locator, what="the retained candidate's locator")
++    except ContractRefusal as why:
++        return None, (f"the retained candidate's locator is not one this "
++                      f"contract admits: {type(why).__name__}: {why}")
++    scheme, _separator, rest = locator.partition("://")
++    if scheme != "file":
++        return None, (f"the retained candidate's locator names the "
++                      f"{scheme!r} scheme; this program measures only bytes "
++                      f"held in this filesystem")
++    place = unquote(rest)
++    if not os.path.isabs(place) or os.path.normpath(place) != place:
++        return None, (f"the retained candidate's locator resolves to "
++                      f"{place!r}, which is not one absolute canonical "
++                      f"directory")
++    return place, None
++
++
++def _retained_bytes(reference, declared):
++    """RE-MEASURE the retained artifact and hold it to what the seal declares.
++
++    W321528 review 2026-10-18T10-07-00Z. EVERY CHECK BEFORE THIS ONE IS ABOUT
++    DESCRIPTIONS. The sealed reference and the manager's indexed row are two
++    stored accounts of one artifact; the commit object `line_attribution`
++    reads is a header in a REPOSITORY, which is not the artifact and whose
++    objects are not its bytes. An artifact that was never written, was
++    truncated, had one byte changed or was swapped for a different tree
++    satisfies all of them. So this opens the tree the locator names and
++    measures it.
++
++    THROUGH ITS OWN OWNER, in both directions:
++
++      `check_content_manifest` holds the DECLARED manifest to §12 rule 6 --
++      sorted unique entries, aggregates that add up, a tree digest that
++      recomputes -- before it is used as an expectation. A declaration that
++      does not describe itself correctly cannot convict or acquit anything.
++
++      `workspaces.directory_manifest` performs the measurement, no-follow,
++      bounded, entry by entry. A second walker here would be a second opinion
++      about what a tree contains, and this file owns neither that question nor
++      those ceilings.
++
++    THE TWO ANSWERS IT GIVES BACK, and they are not degrees of one:
++
++      `refused` -- the measurement ANSWERED and disagrees, or the declaration
++      is malformed, or the locator names nothing. Something definite is wrong
++      and an operator should be told loudly.
++
++      `unreadable` -- the measurement DID NOT ANSWER: the tree is there and
++      this process could not walk it. Never reported as absence.
++
++    NO STORE TRANSACTION IS OPEN HERE, by construction: `_candidates` closes
++    its last store read before calling this, and this touches no store at all.
++    """
++    from baton_v12.contracts import ContractRefusal, check_content_manifest
++    from baton_v12.worker_manager import workspaces
++
++    if not isinstance(declared, dict):
++        return (CANDIDATE_REFUSED,
++                "the sealed candidate declares no content manifest, so its "
++                "retained bytes have nothing to be measured against")
++    try:
++        held = check_content_manifest(
++            declared, what="the sealed candidate's content manifest")
++    except ContractRefusal as why:
++        return (CANDIDATE_REFUSED,
++                f"the sealed candidate's content manifest is not one its own "
++                f"contract admits: {type(why).__name__}: {why}")
++    # THE SEAL'S TWO HALVES FIRST. The artifact reference restates the
++    # manifest's digest and width, and a seal that disagrees with itself is
++    # refused before any tree is opened -- there is no measurement that could
++    # settle which of its own two numbers it meant.
++    faults = []
++    if reference.get("content_digest") != held["tree_digest"]:
++        faults.append(f"the sealed reference names content digest "
++                      f"{reference.get('content_digest')!r} and its own "
++                      f"content manifest measures to {held['tree_digest']!r}")
++    if reference.get("bytes") != held["total_bytes"]:
++        faults.append(f"the sealed reference names {reference.get('bytes')!r} "
++                      f"bytes and its own content manifest totals "
++                      f"{held['total_bytes']!r}")
++    if faults:
++        return (CANDIDATE_REFUSED, "; ".join(faults))
++    place, why = _artifact_place(reference.get("locator"))
++    if place is None:
++        return (CANDIDATE_REFUSED, why)
++    # MISSING IS AN ANSWER AND IT IS A LOUD ONE. The seal declares retained
++    # bytes and there is nothing at the locator: that is two accounts
++    # disagreeing, not a read that failed, and calling it `unreadable` would
++    # soften the one finding an operator most needs.
++    if not os.path.isdir(place):
++        return (CANDIDATE_REFUSED,
++                f"the sealed candidate's locator names {place!r} and this "
++                f"process finds no retained tree there, so the bytes it "
++                f"declares are not where it says they are")
++    try:
++        measured = workspaces.directory_manifest(place)
++    except ContractRefusal as why:
++        return (CANDIDATE_UNREADABLE,
++                f"the retained tree at {place!r} could not be measured: "
++                f"{type(why).__name__}: {why}")
++    except OSError as why:
++        return (CANDIDATE_UNREADABLE,
++                f"the retained tree at {place!r} could not be measured: "
++                f"{type(why).__name__}: {why}")
++    if measured["tree_digest"] == held["tree_digest"]:
++        return (CANDIDATE_VALID, None)
++    return (CANDIDATE_REFUSED,
++            f"the retained tree at {place!r} measures to "
++            f"{measured['tree_digest']} and the seal declares "
++            f"{held['tree_digest']}: {_measured_difference(held, measured)}")
++
++
++def _measured_difference(declared, measured, limit=3):
++    """WHICH FILES DISAGREE, bounded, so a digest mismatch is actionable.
++
++    A tree digest answers "not the same bytes" and nothing else. An operator
++    deciding whether a retained candidate was truncated, edited or replaced
++    wholesale needs the shape of the difference, and three of each kind is
++    enough to tell those three apart without this sentence becoming a report.
++    """
++    held = {one["path"]: one for one in declared["entries"]}
++    found = {one["path"]: one for one in measured["entries"]}
++    gone = sorted(set(held) - set(found))
++    extra = sorted(set(found) - set(held))
++    changed = sorted(one for one in set(held) & set(found)
++                     if held[one]["content_digest"] != found[one]["content_digest"]
++                     or held[one]["bytes"] != found[one]["bytes"])
++    said = []
++    for what, names in (("absent", gone), ("unexpected", extra),
++                        ("changed", changed)):
++        if names:
++            said.append(f"{len(names)} {what} "
++                        f"({', '.join(repr(one) for one in names[:limit])}"
++                        f"{', ...' if len(names) > limit else ''})")
++    return "; ".join(said) if said else "the entries agree and the aggregates do not"
++
++
+ def _attributions(control, implementation, proposals, shortfalls, *,
+                   inspect=None):
+     """WHO AUTHORED the retained commit, read out of the manager's own line.
+diff --git a/work/records/2026/09/finding-v12-single-implementation-proof/test_baseline.py b/work/records/2026/09/finding-v12-single-implementation-proof/test_baseline.py
+index 7bd5d49f..36db4733 100644
+--- a/work/records/2026/09/finding-v12-single-implementation-proof/test_baseline.py
++++ b/work/records/2026/09/finding-v12-single-implementation-proof/test_baseline.py
+@@ -580,6 +580,7 @@ class TheBaselineRefusesTheOtherJobsWorkload(unittest.TestCase):
+                                return_value={"modes": ["open"],
+                                              "conversations": ["c"],
+                                              "generations": [0]}), \
++                mock.patch.object(baseline, "_candidates", return_value=[]), \
+                 mock.patch.object(baseline, "_proposals",
+                                   return_value={"proposals": [],
+                                                 "dispositions": []}), \
+@@ -910,7 +911,7 @@ class TheFreshModeEvidence(unittest.TestCase):
+     def evidence(self, binding=None, failure=None):
+         from baton_v12.worker_manager import provider_context
+         packet = {"schema": baseline.FRESH_PACKET_SCHEMA, "bounds": {"implementer_invocations": 1}}
+-        with mock.patch.object(provider_context, "context_invocation_of", return_value=binding, side_effect=failure), mock.patch.object(baseline, "_context_evidence", side_effect=AssertionError("context qualification")), mock.patch.object(baseline, "_proposals", return_value={"proposals": [], "dispositions": []}), mock.patch.object(baseline, "_attributions", return_value=[]):
++        with mock.patch.object(provider_context, "context_invocation_of", return_value=binding, side_effect=failure), mock.patch.object(baseline, "_context_evidence", side_effect=AssertionError("context qualification")), mock.patch.object(baseline, "_proposals", return_value={"proposals": [], "dispositions": []}), mock.patch.object(baseline, "_candidates", return_value=[]), mock.patch.object(baseline, "_attributions", return_value=[]):
+             return baseline._workload_evidence(None, object(), packet, {"attempt": "implementation"}, {})
+ 
+     def test_fresh_absence_is_not_context_qualification(self):
+diff --git a/work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py b/work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py
+new file mode 100644
+index 00000000..3b5ad6d0
+--- /dev/null
++++ b/work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py
+@@ -0,0 +1,508 @@
++"""W321528 — a failed turn's RETAINED candidate is reported, or honestly refused.
++
++The defect this closes, in one sentence: the selected live run of this Work
++timed out at 900s with a real three-file candidate retained on its private
++line, and the report said the run retained nothing at all -- because the only
++question anybody asked was "what did it PUBLISH", and a turn that did not
++complete publishes nothing by contract.
++
++So these drive `_candidates` at the boundary the review named, over the two
++records of one artifact that actually exist: the worker's SEALED result manifest
++and the manager's OWN INDEX of what it received. The four states are proved to
++be four different answers -- `valid`, `absent`, `refused`, `unreadable` -- and
++the last is proved NOT to be reported as absence, which is the conflation that
++produced the original false report.
++
++Nothing here runs a provider, an engine or a container. The manager boundary is
++supplied by exact doubles so a single custody disagreement can be introduced on
++purpose; what is NOT doubled is the collector, which is the code under test.
++"""
++
++import os
++import sys
++import types
++import unittest
++
++sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
++
++import baseline                                              # noqa: E402
++
++ATTEMPT = "attempt-" + "a" * 8
++BASE = "3dcf6dc4bcee97e932d17c93ac13c5811b3af188"
++HEAD = "2c89d3aa1c3ccf190a47417f3147593b694948dd"
++DIGEST = "sha256:" + "c" * 64
++LOCATOR = "file:/retained/proposal.bundle"
++TASK_ID = "failed-reporting-w321528-321530"
++
++
++class ContractRefusal(Exception):
++    """Stands in for the distribution's refusal at the doubled boundary."""
++
++
++def reference(**changed):
++    held = {"artifact_id": "artifact-" + "b" * 8,
++            "media_type": "application/x-git-bundle", "bytes": 11067,
++            "content_digest": DIGEST, "locator": LOCATOR}
++    held.update(changed)
++    return held
++
++
++def indexed(**changed):
++    held = dict(reference(), output_name=baseline.PROPOSAL_OUTPUT)
++    held.update(changed)
++    return held
++
++
++def ordinary_tests(**changed):
++    """THE PRODUCER'S OWN SHAPE, from `claude_agent._ordinary_tests`.
++
++    `task_id`, `task_digest`, `argv`, `status` -- an INTEGER OR `None` -- plus
++    `base` and `head`. There is no `outcome` member anywhere in it, which is
++    the schema the first reader invented and these cases now refuse to.
++    """
++    held = {"task_id": TASK_ID, "task_digest": "sha256:" + "9" * 64,
++            "argv": ["python3", "harness.py"], "status": 0,
++            "base": BASE, "head": HEAD}
++    held.update(changed)
++    return held
++
++
++def sealed_output(*, claim=True, status="present", artifact=True, tests=None,
++                  **changed):
++    held = {"name": baseline.PROPOSAL_OUTPUT, "type": "git-proposal",
++            "status": status, "content_manifest": None,
++            "artifact": reference(**changed) if artifact else None,
++            "result_metadata": {}}
++    if claim:
++        held["result_metadata"][baseline.CLAIM_NAMESPACE] = {
++            "base": BASE, "head": HEAD, "transport": "bundle"}
++    if tests is not None:
++        # ON THE OUTPUT, beside the claim, because that is where the real
++        # producer puts it -- not at manifest level, which is where the first
++        # reader looked and found nothing.
++        held["result_metadata"][baseline.ORDINARY_TESTS_NAMESPACE] = tests
++    return held
++
++
++def manifest(outputs=None):
++    return {"outputs": [sealed_output()] if outputs is None else outputs,
++            "result_metadata": {}}
++
++
++class Collector(unittest.TestCase):
++    """One attempt, one packet, and exact doubles at the manager boundary."""
++
++    def setUp(self):
++        # THE DECLARED BASE IS DOUBLED AT ITS OWN HELPER. `_declared_base`
++        # opens the deployment's config file; what these cases are about is
++        # what the collector does with the ANSWER, including when there is
++        # none, so the answer is supplied and the file read is not re-tested
++        # here -- `_proposals`' own cases already cover it.
++        self.declared = BASE
++        self.packet = {"deployment": {}, "run_id": TASK_ID}
++        self.frozen = {"disposition": "unable",
++                       "manifest_digest": "sha256:" + "d" * 64,
++                       "artifacts": [indexed()]}
++        self.manifest = manifest()
++        self.assignment = {"authority_uuid": "0" * 32,
++                           "work_id": "00000000-W1",
++                           "participant": "baton.impl",
++                           "principal": "principal:baton.impl",
++                           "generation": 1,
++                           "effective_scope": "scope:deployment"}
++        # THE RETAINED LINE'S OWN ANSWER. Review 2026-10-18T08-39-00Z P1:
++        # metadata agreement between the seal and the index is not custody, so
++        # `_candidates` reads the commit object through `line_attribution`'s
++        # supported boundary. This stands in for that read so a missing,
++        # damaged or substituted retained candidate can be driven on purpose.
++        self.custody = {
++            "author": f"{baseline.COMMIT_NAME} <{baseline.COMMIT_EMAIL}>",
++            "committer": f"{baseline.COMMIT_NAME} <{baseline.COMMIT_EMAIL}>",
++            "parents": [BASE], "head": HEAD, "base": BASE}
++        self.shortfalls = []
++
++    def collected(self):
++        """`_candidates` over this case's doubles, and nothing else doubled.
++
++        The collector imports its manager helpers INSIDE the function, so the
++        seam is `sys.modules` and the code under test is reached unmodified.
++        """
++        manager = types.ModuleType("manager_double")
++
++        def frozen_output_of(_control, _attempt):
++            if isinstance(self.frozen, Exception):
++                raise self.frozen
++            return self.frozen
++
++        def load_manifest(_control, _digest, definition):
++            assert definition == "resultManifest", definition
++            if isinstance(self.manifest, Exception):
++                raise self.manifest
++            return self.manifest
++
++        outer = self
++
++        class attempts:
++            @staticmethod
++            def assignment_of(_control, _attempt):
++                if isinstance(outer.assignment, Exception):
++                    raise outer.assignment
++                return outer.assignment
++
++        manager.frozen_output_of = frozen_output_of
++        manager.load_manifest = load_manifest
++        manager.attempts = attempts
++
++        def declared_base(_packet):
++            if self.declared is None:
++                raise baseline.SupervisorRefusal(
++                    "the deployment declares no canonical target")
++            return self.declared
++
++        held_base = baseline._declared_base
++        baseline._declared_base = declared_base
++        contracts = types.ModuleType("contracts_double")
++        contracts.ContractRefusal = ContractRefusal
++        held = dict(sys.modules)
++        sys.modules["baton_v12.worker_manager"] = manager
++        sys.modules["baton_v12.contracts"] = contracts
++
++        def inspect(_control, **named):
++            """The retained line's own answer, so a missing, damaged or
++            substituted candidate can be driven on purpose. `test_baseline`'s
++            own cases exercise the real git reads behind it."""
++            if isinstance(self.custody, Exception):
++                raise self.custody
++            return self.custody
++
++        try:
++            return baseline._candidates(object(), [ATTEMPT], self.packet,
++                                        self.shortfalls, inspect=inspect)
++        finally:
++            baseline._declared_base = held_base
++            sys.modules.clear()
++            sys.modules.update(held)
++
++    def one(self):
++        found = self.collected()
++        self.assertEqual(len(found), 1, found)
++        self.assertEqual(found[0]["attempt_id"], ATTEMPT)
++        return found[0]
++
++
++class AFailedTurnWithARetainedCandidate(Collector):
++    """THE CASE THE LIVE RUN GOT WRONG."""
++
++    def test_a_FAILED_turn_still_reports_its_valid_retained_candidate(self):
++        held = self.one()
++        self.assertEqual(held["state"], baseline.CANDIDATE_VALID)
++        self.assertEqual(held["disposition"], "unable")
++        self.assertEqual(held["head"], HEAD)
++        self.assertEqual(held["base"], BASE)
++        self.assertEqual(held["locator"], LOCATOR)
++        self.assertEqual(held["content_digest"], DIGEST)
++        self.assertEqual(held["transport"], "bundle")
++        self.assertIsNone(held["why"])
++
++    def test_a_valid_retained_candidate_is_NOT_a_shortfall(self):
++        """Reporting the useful fact as a deficiency would be the same mistake
++        in the other direction."""
++        self.one()
++        self.assertEqual(self.shortfalls, [])
++
++    def test_it_is_NOT_a_verification_and_NOT_an_acceptance(self):
++        """A valid candidate is "these bytes are retained and their custody
++        holds" and nothing about whether they are correct or wanted."""
++        held = self.one()
++        self.assertEqual(held["verification"],
++                         baseline.VERIFICATION_UNREPORTED)
++        # REVIEW P2: `none` would claim a read nobody performed. This Job
++        # admits no reviewer and this supervisor consults no exact-candidate
++        # acceptance evidence, so the honest value is that nobody looked.
++        self.assertEqual(held["acceptance"], baseline.ACCEPTANCE_UNOBSERVED)
++
++    def test_a_SUCCESSFUL_turn_is_collected_by_the_same_path(self):
++        self.frozen["disposition"] = "completed"
++        held = self.one()
++        self.assertEqual(held["state"], baseline.CANDIDATE_VALID)
++        self.assertEqual(held["disposition"], "completed")
++        self.assertEqual(self.shortfalls, [])
++
++    def test_the_PRODUCERS_OWN_STATUS_is_interpreted_not_invented(self):
++        """Review P2: the first reader looked at manifest-level metadata for an
++        `outcome` key that exists nowhere in the producer. These drive the real
++        shape -- the observation on the proposal OUTPUT, with an integer or
++        `None` `status`."""
++        for status, expected in (
++                (0, baseline.VERIFICATION_PASSED),
++                (1, baseline.VERIFICATION_FAILED),
++                (137, baseline.VERIFICATION_FAILED),
++                # NOT `not-run`: the producer emits None for a skipped
++                # command, a timeout AND a failed start alike.
++                (None, baseline.VERIFICATION_NO_STATUS)):
++            with self.subTest(status=status):
++                self.setUp()
++                self.manifest = manifest(
++                    outputs=[sealed_output(tests=ordinary_tests(
++                        status=status))])
++                self.assertEqual(self.one()["verification"], expected)
++
++    def test_a_MISSING_or_MALFORMED_observation_is_unreported(self):
++        for tests in (None, {}, {"status": "zero"}, {"outcome": "passed"}):
++            with self.subTest(tests=tests):
++                self.setUp()
++                self.manifest = manifest(
++                    outputs=[sealed_output(tests=tests)])
++                self.assertEqual(self.one()["verification"],
++                                 baseline.VERIFICATION_UNREPORTED)
++
++    def test_an_observation_of_ANOTHER_CANDIDATE_is_not_this_ones(self):
++        """An observation whose base/head are not this candidate's is an
++        observation of something else."""
++        for changed in ({"head": "f" * 40}, {"base": "e" * 40},
++                        {"task_id": "some-other-task"}):
++            with self.subTest(changed=changed):
++                self.setUp()
++                self.manifest = manifest(
++                    outputs=[sealed_output(tests=ordinary_tests(**changed))])
++                self.assertEqual(self.one()["verification"],
++                                 baseline.VERIFICATION_UNREPORTED)
++
++
++class AFailedTurnWithoutOne(Collector):
++
++    def test_a_turn_that_FROZE_NOTHING_is_absent_and_says_so(self):
++        """Absence is an ANSWER and the ordinary shape of a failure."""
++        self.frozen = None
++        held = self.one()
++        self.assertEqual(held["state"], baseline.CANDIDATE_ABSENT)
++        self.assertEqual(held["acceptance"], baseline.ACCEPTANCE_NO_CANDIDATE)
++        self.assertEqual(held["verification"], baseline.VERIFICATION_NOT_RUN)
++        self.assertIn("froze no result", held["why"])
++        self.assertEqual(self.shortfalls, [])
++
++    def test_a_turn_that_declared_no_candidate_is_absent(self):
++        self.manifest = manifest(outputs=[])
++        self.frozen["artifacts"] = []
++        held = self.one()
++        self.assertEqual(held["state"], baseline.CANDIDATE_ABSENT)
++        self.assertEqual(held["acceptance"], baseline.ACCEPTANCE_NO_CANDIDATE)
++        self.assertEqual(self.shortfalls, [])
++
++    def test_a_MISSING_OPTIONAL_output_with_no_indexed_row_is_absent(self):
++        self.manifest = manifest(
++            outputs=[sealed_output(status="missing-optional", artifact=False)])
++        self.frozen["artifacts"] = []
++        self.assertEqual(self.one()["state"], baseline.CANDIDATE_ABSENT)
++
++
++class InvalidCustodyIsRefusedAndNeverCounted(Collector):
++    """Evidence that EXISTS and did not survive a check is a much louder fact
++    than absence, and must not be quietly dropped either way."""
++
++    def refused(self):
++        held = self.one()
++        self.assertEqual(held["state"], baseline.CANDIDATE_REFUSED, held)
++        self.assertTrue(self.shortfalls)
++        self.assertIn("REFUSED retained candidate", self.shortfalls[0])
++        return held
++
++    def test_a_DIGEST_disagreement_between_the_two_records_is_refused(self):
++        """The worker's seal and the manager's index are two records of one
++        artifact; disagreeing means nobody knows which bytes it is."""
++        self.frozen["artifacts"] = [
++            indexed(content_digest="sha256:" + "e" * 64)]
++        self.assertIn("content_digest", self.refused()["why"])
++
++    def test_a_SIZE_disagreement_is_refused(self):
++        self.frozen["artifacts"] = [indexed(bytes=99)]
++        self.assertIn("bytes", self.refused()["why"])
++
++    def test_an_ARTIFACT_ID_disagreement_is_refused(self):
++        self.frozen["artifacts"] = [indexed(artifact_id="artifact-" + "f" * 8)]
++        self.assertIn("artifact_id", self.refused()["why"])
++
++    def test_a_LOCATOR_disagreement_is_refused(self):
++        self.frozen["artifacts"] = [indexed(locator="file:/elsewhere.bundle")]
++        self.assertIn("locator", self.refused()["why"])
++
++    def test_a_SEALED_candidate_the_manager_never_indexed_is_refused(self):
++        """Not absence: the worker's account declares bytes that are not in
++        the manager's custody."""
++        self.frozen["artifacts"] = []
++        self.assertIn("not in its custody", self.refused()["why"])
++
++    def test_an_INDEXED_artifact_the_seal_omits_is_refused(self):
++        """And the other direction, which is louder still."""
++        self.manifest = manifest(outputs=[])
++        self.assertIn("disagree about whether a candidate exists",
++                      self.refused()["why"])
++
++    def test_a_candidate_on_ANOTHER_BASE_is_refused(self):
++        self.manifest["outputs"][0]["result_metadata"][
++            baseline.CLAIM_NAMESPACE]["base"] = "0" * 40
++        self.assertIn("canonical target", self.refused()["why"])
++
++    def test_a_candidate_whose_HEAD_IS_ITS_BASE_is_refused(self):
++        self.manifest["outputs"][0]["result_metadata"][
++            baseline.CLAIM_NAMESPACE]["head"] = BASE
++        self.assertIn("holds no change", self.refused()["why"])
++
++    def test_an_UNSTATED_claim_is_refused_rather_than_guessed(self):
++        for claim in (None, {}, {"base": BASE}, {"base": BASE, "head": HEAD},
++                      {"base": BASE, "head": HEAD, "transport": ""}):
++            with self.subTest(claim=claim):
++                self.setUp()
++                held = sealed_output(claim=False)
++                if claim is not None:
++                    held["result_metadata"] = {
++                        baseline.CLAIM_NAMESPACE: claim}
++                self.manifest = manifest(outputs=[held])
++                self.assertIn("no readable", self.refused()["why"])
++
++    def test_an_UNREADABLE_declared_base_refuses_rather_than_passing(self):
++        self.declared = None
++        self.assertIn("declared base is unreadable", self.refused()["why"])
++
++
++class RetainedCUSTODYIsReadNotInferred(Collector):
++    """Review 2026-10-18T08-39-00Z P1, which is the finding that matters most.
++
++    The first correction compared the sealed reference with the manager's
++    indexed row and called agreement `valid`. Its own fixture named a locator
++    that did not exist and got `valid` with no shortfall: two stored
++    descriptions agreeing establishes that nobody disagrees, NOT that the bytes
++    are there. So custody is now READ at the supported boundary, and these
++    drive what happens when that read fails or disagrees.
++    """
++
++    def test_a_candidate_whose_LINE_DOES_NOT_ANSWER_is_not_valid(self):
++        """Missing retained bytes. The metadata still agrees perfectly."""
++        self.custody = ContractRefusal(
++            "this manager holds no line writer for that attempt")
++        held = self.one()
++        self.assertEqual(held["state"], baseline.CANDIDATE_UNREADABLE)
++        self.assertNotEqual(held["state"], baseline.CANDIDATE_VALID)
++        self.assertIn("own line did not answer", held["why"])
++        self.assertIn("UNREADABLE retained candidate", self.shortfalls[0])
++
++    def test_an_OS_ERROR_reading_the_line_is_unreadable(self):
++        self.custody = OSError("the retained workspace is gone")
++        self.assertEqual(self.one()["state"], baseline.CANDIDATE_UNREADABLE)
++
++    def test_USEFUL_EVIDENCE_SURVIVES_a_failed_custody_read(self):
++        """An operator looking for the bytes needs the locator most when
++        something is wrong, so it stays in the record."""
++        self.custody = OSError("gone")
++        held = self.one()
++        self.assertEqual(held["locator"], LOCATOR)
++        self.assertEqual(held["head"], HEAD)
++        self.assertEqual(held["base"], BASE)
++        self.assertEqual(held["content_digest"], DIGEST)
++        self.assertIsNotNone(held["assignment"])
++
++    def test_a_SUBSTITUTED_head_is_refused(self):
++        """The line answers a different commit than the seal claims."""
++        self.custody = dict(self.custody, head="f" * 40)
++        held = self.one()
++        self.assertEqual(held["state"], baseline.CANDIDATE_REFUSED)
++        self.assertIn("answers head", held["why"])
++
++    def test_a_DAMAGED_history_is_refused(self):
++        """Parents that are not exactly the declared base: the adapter authors
++        one commit per turn, so anything else is a history it did not write."""
++        self.custody = dict(self.custody, parents=[BASE, "e" * 40])
++        self.assertIn("parents", self.refused_why())
++
++    def test_a_candidate_the_ADAPTER_DID_NOT_AUTHOR_is_refused(self):
++        """W236087's live failure: the provider committed its own work."""
++        self.custody = dict(self.custody,
++                            author="Somebody Else <nobody@example.invalid>",
++                            committer="Somebody Else <nobody@example.invalid>")
++        self.assertIn("attributed to", self.refused_why())
++
++    def test_a_split_AUTHOR_and_COMMITTER_is_refused(self):
++        self.custody = dict(self.custody,
++                            committer="Other <other@example.invalid>")
++        self.assertIn("committed by", self.refused_why())
++
++    def refused_why(self):
++        held = self.one()
++        self.assertEqual(held["state"], baseline.CANDIDATE_REFUSED, held)
++        self.assertTrue(self.shortfalls)
++        return held["why"]
++
++    def test_a_valid_candidate_carries_its_WHOLE_attribution(self):
++        """Review P1: the record named only the generation, so it could not say
++        which authority, Work or participant the bytes belong to."""
++        held = self.one()
++        self.assertEqual(held["state"], baseline.CANDIDATE_VALID)
++        self.assertEqual(held["assignment"]["authority_uuid"], "0" * 32)
++        self.assertEqual(held["assignment"]["work_id"], "00000000-W1")
++        self.assertEqual(held["assignment"]["participant"], "baton.impl")
++        self.assertEqual(held["assignment"]["generation"], 1)
++        self.assertEqual(held["attribution"]["head"], HEAD)
++
++
++class AnUnreadableReadIsNeverReportedAsAbsence(Collector):
++    """The conflation that produced the original false report."""
++
++    def unreadable(self):
++        held = self.one()
++        self.assertEqual(held["state"], baseline.CANDIDATE_UNREADABLE, held)
++        self.assertNotEqual(held["state"], baseline.CANDIDATE_ABSENT)
++        self.assertTrue(self.shortfalls)
++        self.assertIn("UNREADABLE retained candidate", self.shortfalls[0])
++        return held
++
++    def test_a_frozen_result_that_does_not_read_is_unreadable(self):
++        self.frozen = ContractRefusal("the output table did not answer")
++        said = self.unreadable()
++        self.assertIn("did not read", said["why"])
++        self.assertIn("not evidence", self.shortfalls[0])
++
++    def test_a_manifest_that_does_not_read_is_unreadable(self):
++        self.manifest = ContractRefusal(
++            "the manifest digest did not recompute")
++        self.assertIn("did not read", self.unreadable()["why"])
++
++    def test_a_manifest_this_store_DOES_NOT_HOLD_is_unreadable(self):
++        self.manifest = None
++        self.assertIn("does not hold", self.unreadable()["why"])
++
++    def test_an_unreadable_ASSIGNMENT_is_unreadable_not_valid(self):
++        """The candidate cannot be bound to the attempt that produced it."""
++        self.assignment = KeyError("generation")
++        self.assertIn("assignment did not read", self.unreadable()["why"])
++
++    def test_an_unreadable_candidate_carries_no_acceptance_claim(self):
++        self.frozen = TypeError("row shape")
++        self.assertEqual(self.unreadable()["acceptance"],
++                         baseline.ACCEPTANCE_UNOBSERVED)
++
++
++class TheAbsenceMessagesNoLongerContradictTheRecord(unittest.TestCase):
++    """The two sentences the review found false, corrected in place."""
++
++    def test_the_noncompleted_message_points_at_the_candidate_question(self):
++        import inspect
++
++        said = inspect.getsource(baseline._proposals)
++        self.assertIn("`candidates` answers it", said)
++
++    def test_the_no_proposal_message_no_longer_claims_nothing_was_retained(
++            self):
++        import inspect
++
++        said = inspect.getsource(baseline._proposals)
++        self.assertNotIn("retained no proposal at all", said)
++        self.assertIn("published no proposal at all", said)
++        # Split across two source lines; both halves are asserted so the
++        # sentence cannot lose the distinction it exists to draw.
++        self.assertIn("a retained candidate is not a", said)
++        self.assertIn("published proposal, a verification or an acceptance",
++                      said)
++
++
++if __name__ == "__main__":
++    unittest.main()
+```
+
+Preparation update: owner poke324810 proposes3600s provider allowance for this continuation; preserve product timeout semantics and stop after required focused checks. No reuse claim is made: exact retained candidate and diagnostics are supplied to a fresh context.

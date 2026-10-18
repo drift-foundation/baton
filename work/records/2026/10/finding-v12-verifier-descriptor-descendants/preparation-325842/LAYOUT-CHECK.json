@@ -1,0 +1,54 @@
+{
+  "kind": "reference design arithmetic/composition/refusal, not product or kernel proof",
+  "positive": [
+    "/run/baton-verifier/home:rw,noexec,nosuid,nodev,size=4194304,mode=0700,uid=1000,gid=1000",
+    "/run/baton-verifier/tmp:rw,noexec,nosuid,nodev,size=16777216,mode=0700,uid=1000,gid=1000",
+    "/run/baton-verifier/cache:rw,noexec,nosuid,nodev,size=4194304,mode=0700,uid=1000,gid=1000",
+    "/run/baton-verifier/pycache:rw,noexec,nosuid,nodev,size=8388608,mode=0700,uid=1000,gid=1000"
+  ],
+  "negative": [
+    {
+      "case": "writable-parent",
+      "refused": "parent/mode"
+    },
+    {
+      "case": "wrong-mode",
+      "refused": "parent/mode"
+    },
+    {
+      "case": "escaping-target",
+      "refused": "target/size"
+    },
+    {
+      "case": "duplicate-target",
+      "refused": "target/size"
+    },
+    {
+      "case": "growth-unaccounted",
+      "refused": "scratch/floor"
+    },
+    {
+      "case": "floor-too-small",
+      "refused": "scratch/floor"
+    },
+    {
+      "case": "decoy-omitted",
+      "refused": "memory"
+    },
+    {
+      "case": "root-uid",
+      "refused": "identity"
+    },
+    {
+      "case": "invalid-gid",
+      "refused": "identity"
+    },
+    {
+      "case": "old-image",
+      "refused": "image/layout mismatch"
+    }
+  ],
+  "scratch_bytes": 83886080,
+  "including_decoy_bytes": 100663296,
+  "seconds": 0.00010053599908133037
+}
