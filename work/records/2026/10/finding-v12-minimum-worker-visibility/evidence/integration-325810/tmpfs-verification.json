@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "python3",
+    "-c",
+    "import os,sys,unittest; os.chdir('v12/python'); sys.path[:0]=[os.getcwd(),os.path.join(os.getcwd(),'src')]; names=['tests.tools.test_worker_visibility','tests.tools.test_job_viewer','tests.job_manager.test_status']; r=unittest.TextTestRunner(verbosity=1).run(unittest.defaultTestLoader.loadTestsFromNames(names)); sys.exit(not r.wasSuccessful())"
+  ],
+  "cwd": "/home/sl/src/baton",
+  "environment": {
+    "PATH": "/usr/local/bin:/usr/bin:/bin",
+    "HOME": "/tmp/w324214-integration-vcpbkojo",
+    "LANG": "C.UTF-8",
+    "BATON_V12_DISK_ROOT": "/tmp/w324214-integration-vcpbkojo",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "status": 1,
+  "seconds": 0.844681380000111,
+  "log": "/tmp/w324214-integration-vcpbkojo/verification.log"
+}

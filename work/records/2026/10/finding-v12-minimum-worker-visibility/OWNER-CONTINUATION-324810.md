@@ -1,0 +1,15 @@
+# Owner continuation planning ruling — poke324810
+
+Recorded 2026-10-18T17:38:47Z. Owner asks proposed3600s provider allowance for W321528 and W324214, adjusted supervisor total, supported provider-context reuse preferred, retained candidate preservation, separate focused verification, and reviewed packet returned for execution selection. This is preparation authority, not launch authority.
+
+This explicitly supersedes the latest PLAN/handoff unchanged900s/1500s continuation wording and earlier advice against increasing the allowance for the NEXT proposed packet. Historical spent selections and their limits remain facts. Proposed supervisor total4200s includes3600s provider, separate30s formal verification and60s cleanup, with510s additional supervisor/startup margin; the exact admission semantics and generated fields must be checked by packet preparation/review. Keep one invocation/no retry. Ordinary focused deterministic verification is not a cumulative3600s budget.
+
+## Reuse inspection
+
+The exact spent packet worker-visibility-w324214-324377 declares context.mode=fresh. Generated implementation/review deployments lack provider_context; preparation explicitly used context_mode=fresh. This is not a managed resumable predecessor. Retained JSONL proves activity but does not constitute a provider-context generation or authorize importing session homes.
+
+Current supported implementation: baseline_bindings.py compose supports fresh/contextual; baseline.py fresh packet setup only configures workspace storage. Its contextual branch is specifically candidate qualification, not a general arbitrary production restore switch. tools/stage_execution.py prepare_context uses provider_context admission, delivery and invocation binding; ending around1659 holds incomplete provider turns instead of finalizing a generation. provider_context._facts binds context identity to authority_uuid, job_id, work_id, line_id, participant/principal; finalized generation/custody/checkpoint and cleanup are required before restoration. Worker claude_agent invokes --resume only from such bound delivery.
+
+Therefore these spent fresh-mode timeout attempts cannot be directly resumed by changing a CLI flag or copying native logs. A new authority/Job/private line also cannot silently inherit another context identity. This is a concrete blocker to reusing THESE provider sessions, not a claim that v12 has no reuse support. Preparer must verify whether an applicable supported qualified/production path can establish reusable context for future continuation without changing scope, forging receipts or bypassing identity. Prefer that supported path when proved; otherwise record exact blocker and use preserved candidate plus diagnostic checkpoint as explicit fresh-context input. Do not replace the product task with the qualification toy workload.
+
+Reviewer FINDING/PLAN ownership retained; active preparer owns packet/PROGRESS. Canonical claim and dependencies unchanged. Return exact generated packet, limits, reuse disposition and hashes for independent review, then owner execution selection. No provider, model, engine or launch performed for this research.

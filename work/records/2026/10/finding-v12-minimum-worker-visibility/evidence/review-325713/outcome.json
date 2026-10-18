@@ -1,0 +1,94 @@
+{
+  "accounting_scope": "this run accounts for Job 'job-worker-visibility-w324214-324963' and for nothing else. Attempt discovery, cancellation and cleanup all read the status projection filtered to that Job, so a runtime belonging to another Job in this store is NOT covered by this outcome and its absence is NOT established by it.",
+  "admissions": {
+    "implementation": 1
+  },
+  "admitted_attempts": [
+    "attempt-a656133b19c94ada69a2b95cc97fac87e2d9831f2f9aac253c4c89146196abaf"
+  ],
+  "attempt_origins": {
+    "attempt-a656133b19c94ada69a2b95cc97fac87e2d9831f2f9aac253c4c89146196abaf": "started"
+  },
+  "cancellation": {
+    "attempt-a656133b19c94ada69a2b95cc97fac87e2d9831f2f9aac253c4c89146196abaf": {
+      "execution_runtime": "destroyed",
+      "requested": true,
+      "runtime_id": "9a66794da614b73ef85c996dc602725543c96853671ee97fc86005e92a7d56d6",
+      "why": "this manager observed the runtime destroyed"
+    }
+  },
+  "claim": 324963,
+  "cleanup": {
+    "attempt-a656133b19c94ada69a2b95cc97fac87e2d9831f2f9aac253c4c89146196abaf": {
+      "cleanup": "retained",
+      "state": "absent",
+      "why": "the engine answered that this exact identity does not exist"
+    }
+  },
+  "cleanup_sweeps": 0,
+  "final_canonical_read": true,
+  "finished_at": "2026-10-18T18:36:14.470Z",
+  "foreign_admissions": [],
+  "gate_refusals": [],
+  "held_because": [
+    "the run stopped 'exceptional' rather than completing its stages",
+    "attempt attempt-a656133b19c94ada69a2b95cc97fac87e2d9831f2f9aac253c4c89146196abaf ended 'unable' rather than 'completed', so it published no proposal. An implementation turn that could not do its work is an ANSWER -- the attempt's retained provider log carries what the provider reported -- and it is not a proposal this run may count.",
+    "this run retained no proposal at all, so it established nothing about the implementation path"
+  ],
+  "interrupted": null,
+  "interruptions": [],
+  "job_id": "job-worker-visibility-w324214-324963",
+  "observed_attempts": [
+    "attempt-a656133b19c94ada69a2b95cc97fac87e2d9831f2f9aac253c4c89146196abaf"
+  ],
+  "outstanding_cleanup": [],
+  "preexisting_jobs": [],
+  "preexisting_stages": {},
+  "provider_turn": {
+    "default_seconds": 3600,
+    "origin": "job",
+    "seconds": 3600,
+    "setting": "provider_turn_seconds"
+  },
+  "retry": false,
+  "run_id": "worker-visibility-w324214-324963",
+  "schema": "baton.single-implementation-outcome/1",
+  "served_seconds": 1448.150533039001,
+  "serving_failure": null,
+  "stage_states": {
+    "implementation": "exceptional"
+  },
+  "stalled_after": 6,
+  "stalled_ticks": 0,
+  "started_order": [
+    "attempt-a656133b19c94ada69a2b95cc97fac87e2d9831f2f9aac253c4c89146196abaf"
+  ],
+  "state": "held",
+  "stopped": "exceptional",
+  "submission_id": "worker-visibility-w324214-324963-submission",
+  "submitted_at": "2026-10-18T18:12:06.315Z",
+  "unallocated_attempts": [],
+  "uncertainty": [],
+  "unexpected_attempts": [],
+  "work": "W324214",
+  "workload": {
+    "attribution": [],
+    "conversations": [],
+    "dispositions": [
+      {
+        "attempt_id": "attempt-a656133b19c94ada69a2b95cc97fac87e2d9831f2f9aac253c4c89146196abaf",
+        "disposition": "unable"
+      }
+    ],
+    "generations": [],
+    "implementation_attempts": [
+      "attempt-a656133b19c94ada69a2b95cc97fac87e2d9831f2f9aac253c4c89146196abaf"
+    ],
+    "modes": [],
+    "proposals": [],
+    "shortfalls": [
+      "attempt attempt-a656133b19c94ada69a2b95cc97fac87e2d9831f2f9aac253c4c89146196abaf ended 'unable' rather than 'completed', so it published no proposal. An implementation turn that could not do its work is an ANSWER -- the attempt's retained provider log carries what the provider reported -- and it is not a proposal this run may count.",
+      "this run retained no proposal at all, so it established nothing about the implementation path"
+    ]
+  }
+}

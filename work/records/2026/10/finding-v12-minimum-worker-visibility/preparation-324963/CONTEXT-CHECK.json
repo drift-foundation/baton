@@ -1,0 +1,23 @@
+{
+  "blocker": "Spent run explicitly selected fresh context and declared no managed provider-context receipt/storage. No supported finalized predecessor is supplied for restoration. No journal absence claim is made after refused read.",
+  "conclusion": "Use exact retained candidate plus diagnostic checkpoint as explicit fresh-context input; no transcript/session copy or raw --resume fallback.",
+  "decision_record": "baton:work/records/2026/10/finding-v12-minimum-worker-visibility/OWNER-CONTINUATION-324810.md",
+  "future_context_path": "baseline_bindings.compose(context_mode=contextual) supplies a candidate qualification profile and replaces arbitrary task/verification with qualification workload. It is not an arbitrary production-context switch. Production profile certification and same-authority/Job/line generation are required; no applicable inputs are bound to this packet. Do not invent receipts or change qualification workload under this product scope.",
+  "mode_proposed": "fresh",
+  "observed": {
+    "implementation_schema": "baton.v12.single-worker-deployment/4",
+    "provider_context_configured": false
+  },
+  "public_read_attempt": {
+    "api": "ControlStore.open_readonly then provider_context.context_use_of",
+    "attempt_id": "attempt-285b27200a01c316ace8da48b2088ec3332884f826b5b33dd204b03cbb44f319",
+    "result": "opener refused OperationalError/SQLITE_CANTOPEN unable to open database file; no sidecars, no write-capable fallback; context_use_of was not reached"
+  },
+  "reuse_preferred": true,
+  "source_locations": [
+    "baseline_bindings.py:263,345,363,367,406,416,477",
+    "tools/stage_execution.py:1305,1652,1659",
+    "worker_manager/provider_context.py:_qualified,_facts,context_use_of"
+  ],
+  "spent_deployment": "/home/sl/baton-instances/worker-visibility-w324214-324377/packet/deployment.json"
+}

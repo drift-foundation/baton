@@ -1,0 +1,2878 @@
+[
+  {
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "recovered": null,
+    "observed": 0,
+    "replaced": [],
+    "acts": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "act": "admit",
+        "outcome": "performed",
+        "operation_id": "offer.issue:offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"
+      },
+      {
+        "stage_id": "job-b/implementation",
+        "episode": 1,
+        "act": "admit",
+        "outcome": "performed",
+        "operation_id": "offer.issue:offer-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e"
+      }
+    ],
+    "started": [],
+    "spoken": [],
+    "refreshed": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/review",
+        "episode": 1,
+        "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/integration",
+        "episode": 1,
+        "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+        "state": "not-asked"
+      }
+    ]
+  },
+  {
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "recovered": null,
+    "observed": 0,
+    "replaced": [],
+    "acts": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "act": "claim",
+        "outcome": "performed",
+        "operation_id": "offer.settle:offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"
+      },
+      {
+        "stage_id": "job-b/implementation",
+        "episode": 1,
+        "act": "claim",
+        "outcome": "performed",
+        "operation_id": "offer.settle:offer-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e"
+      }
+    ],
+    "started": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "outcome": "started",
+        "runtime_id": "runtime-single-1"
+      },
+      {
+        "stage_id": "job-b/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+        "outcome": "started",
+        "runtime_id": "runtime-single-2"
+      }
+    ],
+    "spoken": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "act": "dispatch",
+        "outcome": "performed",
+        "detail": {
+          "published": true,
+          "command_digest": "sha256:73318ee459261269e9279e554b74dcebbec21ebdce537a4d35e37669a2045c41"
+        }
+      },
+      {
+        "stage_id": "job-b/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+        "act": "dispatch",
+        "outcome": "performed",
+        "detail": {
+          "published": true,
+          "command_digest": "sha256:a7dbe484f035397d1391dac3e6eaa824512b07cee7f3c5344ea7df9f4216ce12"
+        }
+      }
+    ],
+    "refreshed": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/review",
+        "episode": 1,
+        "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/integration",
+        "episode": 1,
+        "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+        "state": "not-asked"
+      }
+    ]
+  },
+  {
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "recovered": null,
+    "observed": 0,
+    "replaced": [],
+    "acts": [],
+    "started": [],
+    "spoken": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "act": "conclude",
+        "outcome": "performed",
+        "detail": {
+          "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "disposition": "completed",
+          "result_id": "result-attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "manifest_digest": "sha256:a61aaf3606ae3ff302efdd8170a1c7981be6a8212da23f1b27dd5f2ace4c1500",
+          "receipt_digest": "sha256:222886679c7f6ca440c98fe54a4d16d876ad2f2273edce70799cd6f609b990b8",
+          "artifacts": [
+            "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571:proposal"
+          ],
+          "retention": "retain",
+          "published": {
+            "proposal_id": "integration-driver.proposal:5928a77c2b3f89f73db7dd5f438e8e8408459ddce1763d2ab905deeb58e9b014",
+            "assignment_ref": {
+              "work_ref": {
+                "authority_uuid": "0000000a000000000000000000000000",
+                "work_id": "0000000a-W1"
+              },
+              "participant": "baton.claude",
+              "generation": 1
+            },
+            "decision": {
+              "endpoint": "baton.claude",
+              "principal": "principal:baton.claude",
+              "effective_scope": "scope:deployment",
+              "role": "baton.impl",
+              "grant": "direct",
+              "policy_generation": 14
+            },
+            "result_id": "result-attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+            "result_digest": "sha256:a61aaf3606ae3ff302efdd8170a1c7981be6a8212da23f1b27dd5f2ace4c1500",
+            "candidate_digest": "6aa49e4dee28a151d47273908f2d6658f2363cf0",
+            "input_digest": "sha256:45723d34214b89ac0d6bdbf3d4e0561c7a2388bb418fb8b00792d418a35b836e",
+            "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+            "target": "0c45f3c41b86c618631dfbb7b7eb65942d173cdf",
+            "published_at": "2026-10-18T19:30:52.954Z"
+          },
+          "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+          "checkpoint": {
+            "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+            "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+            "revision": 1,
+            "checkpoint_digest": "sha256:77ac2e74f6f381240f71510a683845b1848fdfe30b221f2ad2b04250121de8fa",
+            "evidence": {
+              "profile": "git",
+              "base": "0c45f3c41b86c618631dfbb7b7eb65942d173cdf",
+              "head": "6aa49e4dee28a151d47273908f2d6658f2363cf0",
+              "tree": "b00566bb483d9f6181f5cb72f5cbca8fa8d16624",
+              "paths": [
+                "harness.py"
+              ],
+              "path_set_digest": "sha256:695b752f1c98185f394d3a09fb0ff7f04a61fa1129402d714268a66c4fb16289",
+              "reference": "refs/baton/checkpoints/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/1"
+            },
+            "fence": {
+              "fenced": {
+                "assignment": {
+                  "generation": 1,
+                  "participant": "baton.claude",
+                  "work_ref": {
+                    "authority_uuid": "0000000a000000000000000000000000",
+                    "work_id": "0000000a-W1"
+                  }
+                },
+                "cause": "cancelled",
+                "fenced": true,
+                "gate": "runtime-quiescence:1",
+                "phase": "block"
+              },
+              "intent": {
+                "assignment": {
+                  "generation": 1,
+                  "participant": "baton.claude",
+                  "work_ref": {
+                    "authority_uuid": "0000000a000000000000000000000000",
+                    "work_id": "0000000a-W1"
+                  }
+                },
+                "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                "authority_operation_id": "authority.finalize-quiescent:5216d33ac31b80877f9d9633afccdfea6c91568f5337c9fae4ea7aba14e000c1",
+                "decision": "finalized",
+                "reason": "review checkpoint writer completed",
+                "runtime_id": "runtime-single-1",
+                "worker_disposition": "completed"
+              }
+            }
+          }
+        }
+      }
+    ],
+    "refreshed": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "state": "running"
+      },
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+        "state": "running"
+      },
+      {
+        "stage_id": "job-b/review",
+        "episode": 1,
+        "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/integration",
+        "episode": 1,
+        "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+        "state": "not-asked"
+      }
+    ]
+  },
+  {
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "recovered": null,
+    "observed": 0,
+    "replaced": [],
+    "acts": [
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "act": "admit",
+        "outcome": "performed",
+        "operation_id": "offer.issue:offer-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c"
+      }
+    ],
+    "started": [],
+    "spoken": [],
+    "refreshed": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+        "state": "running"
+      },
+      {
+        "stage_id": "job-b/review",
+        "episode": 1,
+        "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/integration",
+        "episode": 1,
+        "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+        "state": "not-asked"
+      }
+    ]
+  },
+  {
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "recovered": null,
+    "observed": 0,
+    "replaced": [],
+    "acts": [
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "act": "claim",
+        "outcome": "performed",
+        "operation_id": "offer.settle:offer-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c"
+      }
+    ],
+    "started": [
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "outcome": "started",
+        "runtime_id": "runtime-single-3"
+      }
+    ],
+    "spoken": [
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "act": "dispatch",
+        "outcome": "performed",
+        "detail": {
+          "published": true,
+          "command_digest": "sha256:2d1cbad696ab784ba33ac4d028f157c3288b6b9e2734a4550775d558cccd0ee4"
+        }
+      }
+    ],
+    "refreshed": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+        "state": "running"
+      },
+      {
+        "stage_id": "job-b/review",
+        "episode": 1,
+        "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/integration",
+        "episode": 1,
+        "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+        "state": "not-asked"
+      }
+    ]
+  },
+  {
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "recovered": null,
+    "observed": 0,
+    "replaced": [],
+    "acts": [],
+    "started": [],
+    "spoken": [
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "act": "conclude",
+        "outcome": "performed",
+        "detail": {
+          "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+          "attachment_id": "review-06d28a3ea36366cee8a7ef93cae0f30df4b296ad257c818d60631020004ee84b",
+          "verdict": "accepted",
+          "verdict_id": "verdict-7bbcf60ea2c26dcd77b5b40addf4307365c4109ecd60a75b9543ca67ada90fe5",
+          "verdict_record": {
+            "verdict_id": "verdict-7bbcf60ea2c26dcd77b5b40addf4307365c4109ecd60a75b9543ca67ada90fe5",
+            "authority_uuid": "0000000a000000000000000000000000",
+            "work_id": "0000000a-W1",
+            "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+            "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+            "checkpoint_digest": "sha256:77ac2e74f6f381240f71510a683845b1848fdfe30b221f2ad2b04250121de8fa",
+            "revision": 1,
+            "base": "0c45f3c41b86c618631dfbb7b7eb65942d173cdf",
+            "head": "6aa49e4dee28a151d47273908f2d6658f2363cf0",
+            "tree": "b00566bb483d9f6181f5cb72f5cbca8fa8d16624",
+            "path_set_digest": "sha256:695b752f1c98185f394d3a09fb0ff7f04a61fa1129402d714268a66c4fb16289",
+            "attachment_id": "review-06d28a3ea36366cee8a7ef93cae0f30df4b296ad257c818d60631020004ee84b",
+            "review_generation": 2,
+            "reviewer_worker_id": "review-worker",
+            "reviewer_participant": "baton.reviewer",
+            "reviewer_principal": "principal:baton.reviewer",
+            "disposition": "accepted",
+            "review_result": {
+              "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+              "result_id": "result-attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+              "disposition": "completed",
+              "manifest_digest": "sha256:5d87d9c38f9b88dc63479c15313d2fd03a07caa76ad589416544fb5b5ba18d64",
+              "freeze_operation_id": "output.freeze:d1035e241fc97ed621f2aafcdc88b33c9e219fffbfb073ad4abcb2dc968be3da",
+              "frozen_at": "2026-09-02T00:00:00.000Z",
+              "artifacts": [
+                {
+                  "output_name": "findings",
+                  "artifact_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c:findings",
+                  "media_type": "application/octet-stream",
+                  "bytes": 147,
+                  "content_digest": "sha256:68f5c2d1488948333af26a9d67ac5699597abb25146cbb4e09106164df25afa8",
+                  "locator": "file:///var/tmp/baton-w257624/v12-w71917-7u8blhjp/storage/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/custody/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/findings"
+                },
+                {
+                  "output_name": "logs",
+                  "artifact_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c:logs",
+                  "media_type": "application/octet-stream",
+                  "bytes": 410,
+                  "content_digest": "sha256:9d05190837238f38b26cb4b7eb42d6adee882e52f69eee5ed72ae28a26d032a0",
+                  "locator": "file:///var/tmp/baton-w257624/v12-w71917-7u8blhjp/storage/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/custody/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/logs"
+                }
+              ]
+            },
+            "review_result_digest": "sha256:6229a9f1ad97cf0ded3f19dba5378687212f88712151a71878f57f104e81b216",
+            "review_fence": {
+              "intent": {
+                "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+                "assignment": {
+                  "work_ref": {
+                    "authority_uuid": "0000000a000000000000000000000000",
+                    "work_id": "0000000a-W1"
+                  },
+                  "participant": "baton.reviewer",
+                  "generation": 2
+                },
+                "runtime_id": "runtime-single-3",
+                "decision": "finalized",
+                "worker_disposition": "completed",
+                "authority_operation_id": "authority.finalize-quiescent:d1035e241fc97ed621f2aafcdc88b33c9e219fffbfb073ad4abcb2dc968be3da",
+                "reason": "independent checkpoint review completed"
+              },
+              "fenced": {
+                "cause": "cancelled",
+                "assignment": {
+                  "work_ref": {
+                    "authority_uuid": "0000000a000000000000000000000000",
+                    "work_id": "0000000a-W1"
+                  },
+                  "participant": "baton.reviewer",
+                  "generation": 2
+                },
+                "phase": "block",
+                "gate": "runtime-quiescence:2",
+                "fenced": true
+              }
+            },
+            "review_fence_digest": "sha256:096259b8a14254ad6ac36ea41f6474c6bd03687337fbf57cd0402a91631f9ade"
+          },
+          "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+          "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+          "cleaned_up": true,
+          "result_id": "result-attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+          "manifest_digest": "sha256:5d87d9c38f9b88dc63479c15313d2fd03a07caa76ad589416544fb5b5ba18d64",
+          "receipt_digest": "sha256:8a0d29c631f56bebd1ffc70a4ef7c344373393f773f4148b4d892ecf6597d67e",
+          "artifacts": [
+            "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c:findings",
+            "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c:logs"
+          ],
+          "retention": "retain",
+          "outcome": "accepted",
+          "held_reason": null
+        }
+      }
+    ],
+    "refreshed": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "state": "running"
+      },
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+        "state": "running"
+      },
+      {
+        "stage_id": "job-b/review",
+        "episode": 1,
+        "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/integration",
+        "episode": 1,
+        "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+        "state": "not-asked"
+      }
+    ]
+  },
+  {
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "recovered": null,
+    "observed": 0,
+    "replaced": [],
+    "acts": [
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "act": "admit",
+        "outcome": "performed",
+        "operation_id": "offer.issue:offer-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0"
+      }
+    ],
+    "started": [],
+    "spoken": [
+      {
+        "stage_id": "job-b/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+        "act": "conclude",
+        "outcome": "performed",
+        "detail": {
+          "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+          "disposition": "completed",
+          "result_id": "result-attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+          "manifest_digest": "sha256:450030d4fa2c84d64d6a4f113053e776c91bd0fcd46bc427618afd807e36d75a",
+          "receipt_digest": "sha256:6b7b05bcdd281172e4d8df9301c418047d540f6bba39a762d5d4cf9c429d85ba",
+          "artifacts": [
+            "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e:proposal"
+          ],
+          "retention": "retain",
+          "published": {
+            "proposal_id": "integration-driver.proposal:d784d47f873bc1c93b8ab80167473d9dddbeca69f7d4c575b5a26e6fb86a4e22",
+            "assignment_ref": {
+              "work_ref": {
+                "authority_uuid": "0000000a000000000000000000000000",
+                "work_id": "0000000a-W2"
+              },
+              "participant": "baton.second",
+              "generation": 1
+            },
+            "decision": {
+              "endpoint": "baton.second",
+              "principal": "principal:baton.second",
+              "effective_scope": "scope:deployment",
+              "role": "baton.impl",
+              "grant": "direct",
+              "policy_generation": 14
+            },
+            "result_id": "result-attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+            "result_digest": "sha256:450030d4fa2c84d64d6a4f113053e776c91bd0fcd46bc427618afd807e36d75a",
+            "candidate_digest": "2890c12e2895c24610d63c9501a228bcc7648ccd",
+            "input_digest": "sha256:d623cb9847d7cf7a549e2a13b3b5347844b9fb7bde5d35c4d08993132e336851",
+            "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+            "target": "0c45f3c41b86c618631dfbb7b7eb65942d173cdf",
+            "published_at": "2026-10-18T19:30:53.335Z"
+          },
+          "checkpoint_id": "checkpoint-71f9100d1d1545dfbc79b05d3778e689e9d8e9b47bc2eb9ded022bdb8968dadc",
+          "checkpoint": {
+            "checkpoint_id": "checkpoint-71f9100d1d1545dfbc79b05d3778e689e9d8e9b47bc2eb9ded022bdb8968dadc",
+            "line_id": "line-2138677f5ed9712ef486e17e2295ca696d06ca50fc7ebdc2cd580a8f5bc419af",
+            "revision": 1,
+            "checkpoint_digest": "sha256:f219f901e1aae2434741aa3d9b1562060e13cbdfe18dd3f5528c89bb3861a09c",
+            "evidence": {
+              "profile": "git",
+              "base": "0c45f3c41b86c618631dfbb7b7eb65942d173cdf",
+              "head": "2890c12e2895c24610d63c9501a228bcc7648ccd",
+              "tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384",
+              "paths": [
+                "feature.py",
+                "feature_check.py"
+              ],
+              "path_set_digest": "sha256:c5e64cbe3b463a7ec82e863d9b9303f9e0e505ef14a87ec0de11bff32e0165c4",
+              "reference": "refs/baton/checkpoints/line-2138677f5ed9712ef486e17e2295ca696d06ca50fc7ebdc2cd580a8f5bc419af/1"
+            },
+            "fence": {
+              "fenced": {
+                "assignment": {
+                  "generation": 1,
+                  "participant": "baton.second",
+                  "work_ref": {
+                    "authority_uuid": "0000000a000000000000000000000000",
+                    "work_id": "0000000a-W2"
+                  }
+                },
+                "cause": "cancelled",
+                "fenced": true,
+                "gate": "runtime-quiescence:1",
+                "phase": "block"
+              },
+              "intent": {
+                "assignment": {
+                  "generation": 1,
+                  "participant": "baton.second",
+                  "work_ref": {
+                    "authority_uuid": "0000000a000000000000000000000000",
+                    "work_id": "0000000a-W2"
+                  }
+                },
+                "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+                "authority_operation_id": "authority.finalize-quiescent:7cdd0a025c8e80aa5e2fce5ee62081cf96fb27029a4eb3d0ce9ae784771ee8a2",
+                "decision": "finalized",
+                "reason": "review checkpoint writer completed",
+                "runtime_id": "runtime-single-2",
+                "worker_disposition": "completed"
+              }
+            }
+          }
+        }
+      }
+    ],
+    "refreshed": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+        "state": "running"
+      },
+      {
+        "stage_id": "job-b/review",
+        "episode": 1,
+        "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/integration",
+        "episode": 1,
+        "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+        "state": "not-asked"
+      }
+    ]
+  },
+  {
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "recovered": null,
+    "observed": 0,
+    "replaced": [],
+    "acts": [
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "act": "claim",
+        "outcome": "performed",
+        "operation_id": "offer.settle:offer-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0"
+      },
+      {
+        "stage_id": "job-b/review",
+        "episode": 1,
+        "act": "admit",
+        "outcome": "performed",
+        "operation_id": "offer.issue:offer-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c"
+      }
+    ],
+    "started": [
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "outcome": "started",
+        "runtime_id": null
+      }
+    ],
+    "spoken": [],
+    "refreshed": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/review",
+        "episode": 1,
+        "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/integration",
+        "episode": 1,
+        "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+        "state": "not-asked"
+      }
+    ]
+  },
+  {
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "recovered": null,
+    "observed": 0,
+    "replaced": [],
+    "acts": [
+      {
+        "stage_id": "job-b/review",
+        "episode": 1,
+        "act": "claim",
+        "outcome": "performed",
+        "operation_id": "offer.settle:offer-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c"
+      }
+    ],
+    "started": [
+      {
+        "stage_id": "job-b/review",
+        "episode": 1,
+        "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+        "outcome": "started",
+        "runtime_id": "runtime-single-5"
+      }
+    ],
+    "spoken": [
+      {
+        "stage_id": "job-b/review",
+        "episode": 1,
+        "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+        "act": "dispatch",
+        "outcome": "performed",
+        "detail": {
+          "published": true,
+          "command_digest": "sha256:67d01da6769b092549d9096f7b493d6799233690162a321ec799d15a39b2d20b"
+        }
+      }
+    ],
+    "refreshed": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "state": "running"
+      },
+      {
+        "stage_id": "job-b/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/review",
+        "episode": 1,
+        "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/integration",
+        "episode": 1,
+        "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+        "state": "not-asked"
+      }
+    ]
+  },
+  {
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "recovered": null,
+    "observed": 0,
+    "replaced": [],
+    "acts": [],
+    "started": [],
+    "spoken": [
+      {
+        "stage_id": "job-b/review",
+        "episode": 1,
+        "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+        "act": "conclude",
+        "outcome": "performed",
+        "detail": {
+          "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+          "attachment_id": "review-5b37fb3891fd8bc46f9fb6adea8642f84325957d49af808050f1725278df2afc",
+          "verdict": "accepted",
+          "verdict_id": "verdict-c65cfac165b00a2961be3eaa3acb7e80a9a6fa318bbc4f7272a10274f2a7e5e9",
+          "verdict_record": {
+            "verdict_id": "verdict-c65cfac165b00a2961be3eaa3acb7e80a9a6fa318bbc4f7272a10274f2a7e5e9",
+            "authority_uuid": "0000000a000000000000000000000000",
+            "work_id": "0000000a-W2",
+            "line_id": "line-2138677f5ed9712ef486e17e2295ca696d06ca50fc7ebdc2cd580a8f5bc419af",
+            "checkpoint_id": "checkpoint-71f9100d1d1545dfbc79b05d3778e689e9d8e9b47bc2eb9ded022bdb8968dadc",
+            "checkpoint_digest": "sha256:f219f901e1aae2434741aa3d9b1562060e13cbdfe18dd3f5528c89bb3861a09c",
+            "revision": 1,
+            "base": "0c45f3c41b86c618631dfbb7b7eb65942d173cdf",
+            "head": "2890c12e2895c24610d63c9501a228bcc7648ccd",
+            "tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384",
+            "path_set_digest": "sha256:c5e64cbe3b463a7ec82e863d9b9303f9e0e505ef14a87ec0de11bff32e0165c4",
+            "attachment_id": "review-5b37fb3891fd8bc46f9fb6adea8642f84325957d49af808050f1725278df2afc",
+            "review_generation": 2,
+            "reviewer_worker_id": "review-worker-b",
+            "reviewer_participant": "baton.reviewer-2",
+            "reviewer_principal": "principal:baton.reviewer-2",
+            "disposition": "accepted",
+            "review_result": {
+              "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+              "result_id": "result-attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+              "disposition": "completed",
+              "manifest_digest": "sha256:8656292f678ef889463db054749d4bdfe3637785f2bcaf35f4e26a4d64e24133",
+              "freeze_operation_id": "output.freeze:1c28eaa816865ee612f9e8d44b106a6677deb90d59dcc78bdb5001834a54ff34",
+              "frozen_at": "2026-09-02T00:00:00.000Z",
+              "artifacts": [
+                {
+                  "output_name": "findings",
+                  "artifact_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c:findings",
+                  "media_type": "application/octet-stream",
+                  "bytes": 147,
+                  "content_digest": "sha256:68f5c2d1488948333af26a9d67ac5699597abb25146cbb4e09106164df25afa8",
+                  "locator": "file:///var/tmp/baton-w257624/v12-w71917-7u8blhjp/storage/attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c/custody/attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c/findings"
+                },
+                {
+                  "output_name": "logs",
+                  "artifact_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c:logs",
+                  "media_type": "application/octet-stream",
+                  "bytes": 417,
+                  "content_digest": "sha256:cab4a521da87d33c157a5f3cab8997afe22540ba5063ec1614b6e5687473beff",
+                  "locator": "file:///var/tmp/baton-w257624/v12-w71917-7u8blhjp/storage/attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c/custody/attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c/logs"
+                }
+              ]
+            },
+            "review_result_digest": "sha256:9ac4aebe489f8dbf6d3dd74793433bb8cbb632865f8dbb6dc26ea0e8b04a3213",
+            "review_fence": {
+              "intent": {
+                "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+                "assignment": {
+                  "work_ref": {
+                    "authority_uuid": "0000000a000000000000000000000000",
+                    "work_id": "0000000a-W2"
+                  },
+                  "participant": "baton.reviewer-2",
+                  "generation": 2
+                },
+                "runtime_id": "runtime-single-5",
+                "decision": "finalized",
+                "worker_disposition": "completed",
+                "authority_operation_id": "authority.finalize-quiescent:1c28eaa816865ee612f9e8d44b106a6677deb90d59dcc78bdb5001834a54ff34",
+                "reason": "independent checkpoint review completed"
+              },
+              "fenced": {
+                "cause": "cancelled",
+                "assignment": {
+                  "work_ref": {
+                    "authority_uuid": "0000000a000000000000000000000000",
+                    "work_id": "0000000a-W2"
+                  },
+                  "participant": "baton.reviewer-2",
+                  "generation": 2
+                },
+                "phase": "block",
+                "gate": "runtime-quiescence:2",
+                "fenced": true
+              }
+            },
+            "review_fence_digest": "sha256:9f4d8eac42b49672c57486c81af2245d45ece62b6e43dd548e4d68e95d4a9ebd"
+          },
+          "line_id": "line-2138677f5ed9712ef486e17e2295ca696d06ca50fc7ebdc2cd580a8f5bc419af",
+          "checkpoint_id": "checkpoint-71f9100d1d1545dfbc79b05d3778e689e9d8e9b47bc2eb9ded022bdb8968dadc",
+          "cleaned_up": true,
+          "result_id": "result-attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+          "manifest_digest": "sha256:8656292f678ef889463db054749d4bdfe3637785f2bcaf35f4e26a4d64e24133",
+          "receipt_digest": "sha256:fd5c46a5a5d9607a77da40b2173ba21610d564cd91b7edb9a2e3262a7a41b7bb",
+          "artifacts": [
+            "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c:findings",
+            "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c:logs"
+          ],
+          "retention": "retain",
+          "outcome": "accepted",
+          "held_reason": null
+        }
+      }
+    ],
+    "refreshed": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "state": "running"
+      },
+      {
+        "stage_id": "job-b/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/review",
+        "episode": 1,
+        "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+        "state": "running"
+      },
+      {
+        "stage_id": "job-b/integration",
+        "episode": 1,
+        "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+        "state": "not-asked"
+      }
+    ]
+  },
+  {
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "recovered": null,
+    "observed": 0,
+    "replaced": [],
+    "acts": [
+      {
+        "stage_id": "job-b/integration",
+        "episode": 1,
+        "act": "admit",
+        "outcome": "deferred",
+        "operation_id": "offer.issue:offer-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+        "detail": {
+          "category": "refused",
+          "code": "precondition",
+          "message": "stage 'job-b/integration' has eligible implementation workers but every effective worker/principal capacity is reserved or recovery-required"
+        }
+      }
+    ],
+    "started": [],
+    "spoken": [],
+    "refreshed": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "state": "running"
+      },
+      {
+        "stage_id": "job-b/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/review",
+        "episode": 1,
+        "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/integration",
+        "episode": 1,
+        "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+        "state": "not-asked"
+      }
+    ]
+  },
+  {
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "recovered": null,
+    "observed": 0,
+    "replaced": [],
+    "acts": [
+      {
+        "stage_id": "job-b/integration",
+        "episode": 1,
+        "act": "admit",
+        "outcome": "deferred",
+        "operation_id": "offer.issue:offer-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+        "detail": {
+          "category": "refused",
+          "code": "precondition",
+          "message": "stage 'job-b/integration' has eligible implementation workers but every effective worker/principal capacity is reserved or recovery-required"
+        }
+      }
+    ],
+    "started": [],
+    "spoken": [
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "act": "conclude",
+        "outcome": "performed",
+        "detail": {
+          "outcome": "integrated",
+          "entry": "integration-driver.entry:a8f96411a3b3f3f84677239022803bc0fb95479e09779cde148a7826ae26a577",
+          "assignment": {
+            "schema": "baton.v12.integration-assignment/1",
+            "canonical_target_id": "target-a",
+            "entry_id": "integration-driver.entry:a8f96411a3b3f3f84677239022803bc0fb95479e09779cde148a7826ae26a577",
+            "lease_id": "integration-driver.lease:95a14bb54d76a7411f72c4b39da273d44ff0529f357c864d2479c868e75595b5",
+            "fence": 1,
+            "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+            "integrator_participant": "baton.integrator",
+            "profile_kind": "git",
+            "profile_version": 1,
+            "instructions_digest": "sha256:97477292475144259f11d76c95b73311ac6e8d55d16cf527ccbbe158c996313b",
+            "target_access": "writable"
+          },
+          "observed": {
+            "state": "answered",
+            "result": {
+              "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+              "canonical_target_id": "target-a",
+              "detail": {
+                "imported_paths": [
+                  "harness.py"
+                ],
+                "verification": {
+                  "argv": [
+                    "python3",
+                    "harness.py"
+                  ],
+                  "status": 0
+                }
+              },
+              "entry_id": "integration-driver.entry:a8f96411a3b3f3f84677239022803bc0fb95479e09779cde148a7826ae26a577",
+              "fence": 1,
+              "lease_id": "integration-driver.lease:95a14bb54d76a7411f72c4b39da273d44ff0529f357c864d2479c868e75595b5",
+              "outcome": "integrated",
+              "schema": "baton.v12.integration-result/1"
+            },
+            "hold": null
+          },
+          "settlement": {
+            "imported_paths": [
+              "harness.py"
+            ],
+            "verification": {
+              "argv": [
+                "python3",
+                "harness.py"
+              ],
+              "status": 0
+            }
+          },
+          "authority_receipt": {
+            "receipt_id": "integration-driver.integration-receipt:56343a6fb98792917df4bd7d775c5e4ded4d86e6afd14176e0fa355c5874ffde",
+            "kind": "integration",
+            "proposal_id": "integration-driver.proposal:5928a77c2b3f89f73db7dd5f438e8e8408459ddce1763d2ab905deeb58e9b014",
+            "actor": "baton.integrator",
+            "disposition": "integrated",
+            "candidate_digest": "6aa49e4dee28a151d47273908f2d6658f2363cf0",
+            "target": "0c45f3c41b86c618631dfbb7b7eb65942d173cdf",
+            "policy_generation": null,
+            "recorded_at": "2026-10-18T19:30:54.108Z",
+            "decision": {
+              "endpoint": "baton.integrator",
+              "principal": "principal:baton.integrator",
+              "effective_scope": "scope:deployment",
+              "role": "integrate",
+              "grant": "direct",
+              "policy_generation": 14
+            }
+          },
+          "receipts": {
+            "verification": {
+              "kind": "verification",
+              "receipt_id": "integration-driver.ordinary-tests-verification-receipt:62a12a28c7ef0fba0b7465aef540f2e5c818da3fea03aa163abd915753c6aaf5",
+              "proposal_id": "integration-driver.proposal:5928a77c2b3f89f73db7dd5f438e8e8408459ddce1763d2ab905deeb58e9b014",
+              "actor": "baton.verifier",
+              "disposition": "passed",
+              "policy_generation": null,
+              "candidate_digest": "6aa49e4dee28a151d47273908f2d6658f2363cf0",
+              "target": "0c45f3c41b86c618631dfbb7b7eb65942d173cdf"
+            },
+            "review": {
+              "kind": "review",
+              "receipt_id": "integration-driver.review-receipt:25a1f09e8114c67dd6afce826ee57ef693219ad8d1db8e600976c2ba70480abc",
+              "proposal_id": "integration-driver.proposal:5928a77c2b3f89f73db7dd5f438e8e8408459ddce1763d2ab905deeb58e9b014",
+              "actor": "baton.approver-review",
+              "disposition": "accepted",
+              "policy_generation": null,
+              "candidate_digest": "6aa49e4dee28a151d47273908f2d6658f2363cf0",
+              "target": "0c45f3c41b86c618631dfbb7b7eb65942d173cdf"
+            },
+            "approval": {
+              "kind": "approval",
+              "receipt_id": "integration-driver.approval-receipt:0454bb69ca508f36550aaf95873f41e895264b2b379d18318e5ea5a87d3d6ed6",
+              "proposal_id": "integration-driver.proposal:5928a77c2b3f89f73db7dd5f438e8e8408459ddce1763d2ab905deeb58e9b014",
+              "actor": "baton.approver",
+              "disposition": "approved",
+              "policy_generation": 14,
+              "candidate_digest": "6aa49e4dee28a151d47273908f2d6658f2363cf0",
+              "target": "0c45f3c41b86c618631dfbb7b7eb65942d173cdf"
+            }
+          }
+        }
+      }
+    ],
+    "refreshed": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "state": "quiescent"
+      },
+      {
+        "stage_id": "job-b/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/review",
+        "episode": 1,
+        "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/integration",
+        "episode": 1,
+        "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+        "state": "not-asked"
+      }
+    ]
+  },
+  {
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "recovered": null,
+    "observed": 0,
+    "replaced": [],
+    "acts": [
+      {
+        "stage_id": "job-b/integration",
+        "episode": 1,
+        "act": "admit",
+        "outcome": "performed",
+        "operation_id": "offer.issue:offer-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e"
+      }
+    ],
+    "started": [],
+    "spoken": [],
+    "refreshed": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "state": "quiescent"
+      },
+      {
+        "stage_id": "job-b/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/review",
+        "episode": 1,
+        "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/integration",
+        "episode": 1,
+        "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+        "state": "not-asked"
+      }
+    ]
+  },
+  {
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "recovered": null,
+    "observed": 0,
+    "replaced": [],
+    "acts": [
+      {
+        "stage_id": "job-b/integration",
+        "episode": 1,
+        "act": "claim",
+        "outcome": "performed",
+        "operation_id": "offer.settle:offer-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e"
+      }
+    ],
+    "started": [
+      {
+        "stage_id": "job-b/integration",
+        "episode": 1,
+        "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+        "outcome": "started",
+        "runtime_id": null
+      }
+    ],
+    "spoken": [],
+    "refreshed": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "state": "quiescent"
+      },
+      {
+        "stage_id": "job-b/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/review",
+        "episode": 1,
+        "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/integration",
+        "episode": 1,
+        "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+        "state": "not-asked"
+      }
+    ]
+  },
+  {
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "recovered": null,
+    "observed": 0,
+    "replaced": [],
+    "acts": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "act": "admit",
+        "outcome": "performed",
+        "operation_id": "offer.issue:offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"
+      },
+      {
+        "stage_id": "job-b/implementation",
+        "episode": 1,
+        "act": "admit",
+        "outcome": "performed",
+        "operation_id": "offer.issue:offer-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e"
+      }
+    ],
+    "started": [],
+    "spoken": [],
+    "refreshed": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/review",
+        "episode": 1,
+        "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/integration",
+        "episode": 1,
+        "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+        "state": "not-asked"
+      }
+    ]
+  },
+  {
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "recovered": null,
+    "observed": 0,
+    "replaced": [],
+    "acts": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "act": "claim",
+        "outcome": "performed",
+        "operation_id": "offer.settle:offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"
+      },
+      {
+        "stage_id": "job-b/implementation",
+        "episode": 1,
+        "act": "claim",
+        "outcome": "performed",
+        "operation_id": "offer.settle:offer-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e"
+      }
+    ],
+    "started": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "outcome": "started",
+        "runtime_id": "runtime-single-1"
+      },
+      {
+        "stage_id": "job-b/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+        "outcome": "started",
+        "runtime_id": "runtime-single-2"
+      }
+    ],
+    "spoken": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "act": "dispatch",
+        "outcome": "performed",
+        "detail": {
+          "published": true,
+          "command_digest": "sha256:73318ee459261269e9279e554b74dcebbec21ebdce537a4d35e37669a2045c41"
+        }
+      },
+      {
+        "stage_id": "job-b/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+        "act": "dispatch",
+        "outcome": "performed",
+        "detail": {
+          "published": true,
+          "command_digest": "sha256:a7dbe484f035397d1391dac3e6eaa824512b07cee7f3c5344ea7df9f4216ce12"
+        }
+      }
+    ],
+    "refreshed": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/review",
+        "episode": 1,
+        "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/integration",
+        "episode": 1,
+        "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+        "state": "not-asked"
+      }
+    ]
+  },
+  {
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "recovered": null,
+    "observed": 0,
+    "replaced": [],
+    "acts": [],
+    "started": [],
+    "spoken": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "act": "conclude",
+        "outcome": "performed",
+        "detail": {
+          "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "disposition": "completed",
+          "result_id": "result-attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "manifest_digest": "sha256:c248247c36afb94f0c9223476a84ca6705dc13302dc0ab55fc6a8a34bee76741",
+          "receipt_digest": "sha256:807f497f16a4030a62f00f3a54ec746bf448ecca3644279d6a85d59f72a0ad92",
+          "artifacts": [
+            "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571:proposal"
+          ],
+          "retention": "retain",
+          "published": {
+            "proposal_id": "integration-driver.proposal:2372f961ce6b0336deb977a23676dc8e3e73c5b24edcc19d630b63228cb981ea",
+            "assignment_ref": {
+              "work_ref": {
+                "authority_uuid": "0000000a000000000000000000000000",
+                "work_id": "0000000a-W1"
+              },
+              "participant": "baton.claude",
+              "generation": 1
+            },
+            "decision": {
+              "endpoint": "baton.claude",
+              "principal": "principal:baton.claude",
+              "effective_scope": "scope:deployment",
+              "role": "baton.impl",
+              "grant": "direct",
+              "policy_generation": 14
+            },
+            "result_id": "result-attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+            "result_digest": "sha256:c248247c36afb94f0c9223476a84ca6705dc13302dc0ab55fc6a8a34bee76741",
+            "candidate_digest": "983f314814a904f9adf2ac5dcd50422fd1550df8",
+            "input_digest": "sha256:b069aeed0d27349792f67927462d0f1db1cdddef20f1f73f24296b2570a73148",
+            "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+            "target": "5cc729e61c3e075d976fed1bdf10769c805f0287",
+            "published_at": "2026-10-18T19:30:55.132Z"
+          },
+          "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+          "checkpoint": {
+            "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+            "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+            "revision": 1,
+            "checkpoint_digest": "sha256:e9c5cc65d435e4fb15a956f4ba0fc844f9402ab6e9294d1e5fdaeca2aaed5975",
+            "evidence": {
+              "profile": "git",
+              "base": "5cc729e61c3e075d976fed1bdf10769c805f0287",
+              "head": "983f314814a904f9adf2ac5dcd50422fd1550df8",
+              "tree": "b00566bb483d9f6181f5cb72f5cbca8fa8d16624",
+              "paths": [
+                "harness.py"
+              ],
+              "path_set_digest": "sha256:695b752f1c98185f394d3a09fb0ff7f04a61fa1129402d714268a66c4fb16289",
+              "reference": "refs/baton/checkpoints/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/1"
+            },
+            "fence": {
+              "fenced": {
+                "assignment": {
+                  "generation": 1,
+                  "participant": "baton.claude",
+                  "work_ref": {
+                    "authority_uuid": "0000000a000000000000000000000000",
+                    "work_id": "0000000a-W1"
+                  }
+                },
+                "cause": "cancelled",
+                "fenced": true,
+                "gate": "runtime-quiescence:1",
+                "phase": "block"
+              },
+              "intent": {
+                "assignment": {
+                  "generation": 1,
+                  "participant": "baton.claude",
+                  "work_ref": {
+                    "authority_uuid": "0000000a000000000000000000000000",
+                    "work_id": "0000000a-W1"
+                  }
+                },
+                "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                "authority_operation_id": "authority.finalize-quiescent:5216d33ac31b80877f9d9633afccdfea6c91568f5337c9fae4ea7aba14e000c1",
+                "decision": "finalized",
+                "reason": "review checkpoint writer completed",
+                "runtime_id": "runtime-single-1",
+                "worker_disposition": "completed"
+              }
+            }
+          }
+        }
+      }
+    ],
+    "refreshed": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "state": "running"
+      },
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+        "state": "running"
+      },
+      {
+        "stage_id": "job-b/review",
+        "episode": 1,
+        "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/integration",
+        "episode": 1,
+        "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+        "state": "not-asked"
+      }
+    ]
+  },
+  {
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "recovered": null,
+    "observed": 0,
+    "replaced": [],
+    "acts": [
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "act": "admit",
+        "outcome": "performed",
+        "operation_id": "offer.issue:offer-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c"
+      }
+    ],
+    "started": [],
+    "spoken": [],
+    "refreshed": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+        "state": "running"
+      },
+      {
+        "stage_id": "job-b/review",
+        "episode": 1,
+        "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/integration",
+        "episode": 1,
+        "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+        "state": "not-asked"
+      }
+    ]
+  },
+  {
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "recovered": null,
+    "observed": 0,
+    "replaced": [],
+    "acts": [
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "act": "claim",
+        "outcome": "performed",
+        "operation_id": "offer.settle:offer-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c"
+      }
+    ],
+    "started": [
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "outcome": "started",
+        "runtime_id": "runtime-single-3"
+      }
+    ],
+    "spoken": [
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "act": "dispatch",
+        "outcome": "performed",
+        "detail": {
+          "published": true,
+          "command_digest": "sha256:2d1cbad696ab784ba33ac4d028f157c3288b6b9e2734a4550775d558cccd0ee4"
+        }
+      }
+    ],
+    "refreshed": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+        "state": "running"
+      },
+      {
+        "stage_id": "job-b/review",
+        "episode": 1,
+        "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/integration",
+        "episode": 1,
+        "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+        "state": "not-asked"
+      }
+    ]
+  },
+  {
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "recovered": null,
+    "observed": 0,
+    "replaced": [],
+    "acts": [],
+    "started": [],
+    "spoken": [
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "act": "conclude",
+        "outcome": "performed",
+        "detail": {
+          "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+          "attachment_id": "review-06d28a3ea36366cee8a7ef93cae0f30df4b296ad257c818d60631020004ee84b",
+          "verdict": "accepted",
+          "verdict_id": "verdict-7bbcf60ea2c26dcd77b5b40addf4307365c4109ecd60a75b9543ca67ada90fe5",
+          "verdict_record": {
+            "verdict_id": "verdict-7bbcf60ea2c26dcd77b5b40addf4307365c4109ecd60a75b9543ca67ada90fe5",
+            "authority_uuid": "0000000a000000000000000000000000",
+            "work_id": "0000000a-W1",
+            "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+            "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+            "checkpoint_digest": "sha256:e9c5cc65d435e4fb15a956f4ba0fc844f9402ab6e9294d1e5fdaeca2aaed5975",
+            "revision": 1,
+            "base": "5cc729e61c3e075d976fed1bdf10769c805f0287",
+            "head": "983f314814a904f9adf2ac5dcd50422fd1550df8",
+            "tree": "b00566bb483d9f6181f5cb72f5cbca8fa8d16624",
+            "path_set_digest": "sha256:695b752f1c98185f394d3a09fb0ff7f04a61fa1129402d714268a66c4fb16289",
+            "attachment_id": "review-06d28a3ea36366cee8a7ef93cae0f30df4b296ad257c818d60631020004ee84b",
+            "review_generation": 2,
+            "reviewer_worker_id": "review-worker",
+            "reviewer_participant": "baton.reviewer",
+            "reviewer_principal": "principal:baton.reviewer",
+            "disposition": "accepted",
+            "review_result": {
+              "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+              "result_id": "result-attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+              "disposition": "completed",
+              "manifest_digest": "sha256:64d6448b6c79f55c974e1d4b476f578b879b5c129724be367313410de9ae3a37",
+              "freeze_operation_id": "output.freeze:d1035e241fc97ed621f2aafcdc88b33c9e219fffbfb073ad4abcb2dc968be3da",
+              "frozen_at": "2026-09-02T00:00:00.000Z",
+              "artifacts": [
+                {
+                  "output_name": "findings",
+                  "artifact_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c:findings",
+                  "media_type": "application/octet-stream",
+                  "bytes": 147,
+                  "content_digest": "sha256:68f5c2d1488948333af26a9d67ac5699597abb25146cbb4e09106164df25afa8",
+                  "locator": "file:///var/tmp/baton-w257624/v12-w71917-c7zitcxt/storage/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/custody/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/findings"
+                },
+                {
+                  "output_name": "logs",
+                  "artifact_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c:logs",
+                  "media_type": "application/octet-stream",
+                  "bytes": 410,
+                  "content_digest": "sha256:a0a43bdf1364850af1386b0802bc20ac93b6690e89f83e1a89ae8c6adf0fefe6",
+                  "locator": "file:///var/tmp/baton-w257624/v12-w71917-c7zitcxt/storage/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/custody/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/logs"
+                }
+              ]
+            },
+            "review_result_digest": "sha256:0fcfcc4d1905e87a5d2a7787e868ba365a1074b6060f7e96acaa59ead77f6003",
+            "review_fence": {
+              "intent": {
+                "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+                "assignment": {
+                  "work_ref": {
+                    "authority_uuid": "0000000a000000000000000000000000",
+                    "work_id": "0000000a-W1"
+                  },
+                  "participant": "baton.reviewer",
+                  "generation": 2
+                },
+                "runtime_id": "runtime-single-3",
+                "decision": "finalized",
+                "worker_disposition": "completed",
+                "authority_operation_id": "authority.finalize-quiescent:d1035e241fc97ed621f2aafcdc88b33c9e219fffbfb073ad4abcb2dc968be3da",
+                "reason": "independent checkpoint review completed"
+              },
+              "fenced": {
+                "cause": "cancelled",
+                "assignment": {
+                  "work_ref": {
+                    "authority_uuid": "0000000a000000000000000000000000",
+                    "work_id": "0000000a-W1"
+                  },
+                  "participant": "baton.reviewer",
+                  "generation": 2
+                },
+                "phase": "block",
+                "gate": "runtime-quiescence:2",
+                "fenced": true
+              }
+            },
+            "review_fence_digest": "sha256:096259b8a14254ad6ac36ea41f6474c6bd03687337fbf57cd0402a91631f9ade"
+          },
+          "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+          "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+          "cleaned_up": true,
+          "result_id": "result-attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+          "manifest_digest": "sha256:64d6448b6c79f55c974e1d4b476f578b879b5c129724be367313410de9ae3a37",
+          "receipt_digest": "sha256:5937c4f386e8c0cc3c114352116a451898228bf4c50fb579543b65876a6de014",
+          "artifacts": [
+            "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c:findings",
+            "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c:logs"
+          ],
+          "retention": "retain",
+          "outcome": "accepted",
+          "held_reason": null
+        }
+      }
+    ],
+    "refreshed": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "state": "running"
+      },
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+        "state": "running"
+      },
+      {
+        "stage_id": "job-b/review",
+        "episode": 1,
+        "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/integration",
+        "episode": 1,
+        "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+        "state": "not-asked"
+      }
+    ]
+  },
+  {
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "recovered": null,
+    "observed": 0,
+    "replaced": [],
+    "acts": [
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "act": "admit",
+        "outcome": "performed",
+        "operation_id": "offer.issue:offer-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0"
+      }
+    ],
+    "started": [],
+    "spoken": [
+      {
+        "stage_id": "job-b/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+        "act": "conclude",
+        "outcome": "performed",
+        "detail": {
+          "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+          "disposition": "completed",
+          "result_id": "result-attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+          "manifest_digest": "sha256:3f0a28663cdf703d31cf1f4e3e0804065e5522661daf845c775670cf885cc619",
+          "receipt_digest": "sha256:ed06b4d431e242c94ddb456435b87d27c301e4666158b62b2aefe8a92e4a4b95",
+          "artifacts": [
+            "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e:proposal"
+          ],
+          "retention": "retain",
+          "published": {
+            "proposal_id": "integration-driver.proposal:ec848c04804e571d12b89a4f3e4a9f201836a1843f554873f3d9301c09676722",
+            "assignment_ref": {
+              "work_ref": {
+                "authority_uuid": "0000000a000000000000000000000000",
+                "work_id": "0000000a-W2"
+              },
+              "participant": "baton.second",
+              "generation": 1
+            },
+            "decision": {
+              "endpoint": "baton.second",
+              "principal": "principal:baton.second",
+              "effective_scope": "scope:deployment",
+              "role": "baton.impl",
+              "grant": "direct",
+              "policy_generation": 14
+            },
+            "result_id": "result-attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+            "result_digest": "sha256:3f0a28663cdf703d31cf1f4e3e0804065e5522661daf845c775670cf885cc619",
+            "candidate_digest": "6cdaff73ada5c43abe60e2d2c3c3c446deda5625",
+            "input_digest": "sha256:1618fcb96b60251b885a63fcd0a8c505a46535cfcdfe37583e581bd681864015",
+            "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+            "target": "5cc729e61c3e075d976fed1bdf10769c805f0287",
+            "published_at": "2026-10-18T19:30:55.515Z"
+          },
+          "checkpoint_id": "checkpoint-71f9100d1d1545dfbc79b05d3778e689e9d8e9b47bc2eb9ded022bdb8968dadc",
+          "checkpoint": {
+            "checkpoint_id": "checkpoint-71f9100d1d1545dfbc79b05d3778e689e9d8e9b47bc2eb9ded022bdb8968dadc",
+            "line_id": "line-2138677f5ed9712ef486e17e2295ca696d06ca50fc7ebdc2cd580a8f5bc419af",
+            "revision": 1,
+            "checkpoint_digest": "sha256:a4acf53eb49b538b803a768bc2ac2d054fea73fcc9968348152fb2b9900f2a1e",
+            "evidence": {
+              "profile": "git",
+              "base": "5cc729e61c3e075d976fed1bdf10769c805f0287",
+              "head": "6cdaff73ada5c43abe60e2d2c3c3c446deda5625",
+              "tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384",
+              "paths": [
+                "feature.py",
+                "feature_check.py"
+              ],
+              "path_set_digest": "sha256:c5e64cbe3b463a7ec82e863d9b9303f9e0e505ef14a87ec0de11bff32e0165c4",
+              "reference": "refs/baton/checkpoints/line-2138677f5ed9712ef486e17e2295ca696d06ca50fc7ebdc2cd580a8f5bc419af/1"
+            },
+            "fence": {
+              "fenced": {
+                "assignment": {
+                  "generation": 1,
+                  "participant": "baton.second",
+                  "work_ref": {
+                    "authority_uuid": "0000000a000000000000000000000000",
+                    "work_id": "0000000a-W2"
+                  }
+                },
+                "cause": "cancelled",
+                "fenced": true,
+                "gate": "runtime-quiescence:1",
+                "phase": "block"
+              },
+              "intent": {
+                "assignment": {
+                  "generation": 1,
+                  "participant": "baton.second",
+                  "work_ref": {
+                    "authority_uuid": "0000000a000000000000000000000000",
+                    "work_id": "0000000a-W2"
+                  }
+                },
+                "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+                "authority_operation_id": "authority.finalize-quiescent:7cdd0a025c8e80aa5e2fce5ee62081cf96fb27029a4eb3d0ce9ae784771ee8a2",
+                "decision": "finalized",
+                "reason": "review checkpoint writer completed",
+                "runtime_id": "runtime-single-2",
+                "worker_disposition": "completed"
+              }
+            }
+          }
+        }
+      }
+    ],
+    "refreshed": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+        "state": "running"
+      },
+      {
+        "stage_id": "job-b/review",
+        "episode": 1,
+        "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/integration",
+        "episode": 1,
+        "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+        "state": "not-asked"
+      }
+    ]
+  },
+  {
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "recovered": null,
+    "observed": 0,
+    "replaced": [],
+    "acts": [
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "act": "claim",
+        "outcome": "performed",
+        "operation_id": "offer.settle:offer-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0"
+      },
+      {
+        "stage_id": "job-b/review",
+        "episode": 1,
+        "act": "admit",
+        "outcome": "performed",
+        "operation_id": "offer.issue:offer-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c"
+      }
+    ],
+    "started": [
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "outcome": "started",
+        "runtime_id": null
+      }
+    ],
+    "spoken": [],
+    "refreshed": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/review",
+        "episode": 1,
+        "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/integration",
+        "episode": 1,
+        "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+        "state": "not-asked"
+      }
+    ]
+  },
+  {
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "recovered": null,
+    "observed": 0,
+    "replaced": [],
+    "acts": [
+      {
+        "stage_id": "job-b/review",
+        "episode": 1,
+        "act": "claim",
+        "outcome": "performed",
+        "operation_id": "offer.settle:offer-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c"
+      }
+    ],
+    "started": [
+      {
+        "stage_id": "job-b/review",
+        "episode": 1,
+        "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+        "outcome": "started",
+        "runtime_id": "runtime-single-5"
+      }
+    ],
+    "spoken": [
+      {
+        "stage_id": "job-b/review",
+        "episode": 1,
+        "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+        "act": "dispatch",
+        "outcome": "performed",
+        "detail": {
+          "published": true,
+          "command_digest": "sha256:67d01da6769b092549d9096f7b493d6799233690162a321ec799d15a39b2d20b"
+        }
+      }
+    ],
+    "refreshed": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "state": "running"
+      },
+      {
+        "stage_id": "job-b/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/review",
+        "episode": 1,
+        "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/integration",
+        "episode": 1,
+        "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+        "state": "not-asked"
+      }
+    ]
+  },
+  {
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "recovered": null,
+    "observed": 0,
+    "replaced": [],
+    "acts": [],
+    "started": [],
+    "spoken": [
+      {
+        "stage_id": "job-b/review",
+        "episode": 1,
+        "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+        "act": "conclude",
+        "outcome": "performed",
+        "detail": {
+          "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+          "attachment_id": "review-5b37fb3891fd8bc46f9fb6adea8642f84325957d49af808050f1725278df2afc",
+          "verdict": "accepted",
+          "verdict_id": "verdict-c65cfac165b00a2961be3eaa3acb7e80a9a6fa318bbc4f7272a10274f2a7e5e9",
+          "verdict_record": {
+            "verdict_id": "verdict-c65cfac165b00a2961be3eaa3acb7e80a9a6fa318bbc4f7272a10274f2a7e5e9",
+            "authority_uuid": "0000000a000000000000000000000000",
+            "work_id": "0000000a-W2",
+            "line_id": "line-2138677f5ed9712ef486e17e2295ca696d06ca50fc7ebdc2cd580a8f5bc419af",
+            "checkpoint_id": "checkpoint-71f9100d1d1545dfbc79b05d3778e689e9d8e9b47bc2eb9ded022bdb8968dadc",
+            "checkpoint_digest": "sha256:a4acf53eb49b538b803a768bc2ac2d054fea73fcc9968348152fb2b9900f2a1e",
+            "revision": 1,
+            "base": "5cc729e61c3e075d976fed1bdf10769c805f0287",
+            "head": "6cdaff73ada5c43abe60e2d2c3c3c446deda5625",
+            "tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384",
+            "path_set_digest": "sha256:c5e64cbe3b463a7ec82e863d9b9303f9e0e505ef14a87ec0de11bff32e0165c4",
+            "attachment_id": "review-5b37fb3891fd8bc46f9fb6adea8642f84325957d49af808050f1725278df2afc",
+            "review_generation": 2,
+            "reviewer_worker_id": "review-worker-b",
+            "reviewer_participant": "baton.reviewer-2",
+            "reviewer_principal": "principal:baton.reviewer-2",
+            "disposition": "accepted",
+            "review_result": {
+              "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+              "result_id": "result-attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+              "disposition": "completed",
+              "manifest_digest": "sha256:1e50b7757f4a095800ea5b50b2d5b8b81c9ed75095f1fc472c095a701231a7ba",
+              "freeze_operation_id": "output.freeze:1c28eaa816865ee612f9e8d44b106a6677deb90d59dcc78bdb5001834a54ff34",
+              "frozen_at": "2026-09-02T00:00:00.000Z",
+              "artifacts": [
+                {
+                  "output_name": "findings",
+                  "artifact_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c:findings",
+                  "media_type": "application/octet-stream",
+                  "bytes": 147,
+                  "content_digest": "sha256:68f5c2d1488948333af26a9d67ac5699597abb25146cbb4e09106164df25afa8",
+                  "locator": "file:///var/tmp/baton-w257624/v12-w71917-c7zitcxt/storage/attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c/custody/attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c/findings"
+                },
+                {
+                  "output_name": "logs",
+                  "artifact_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c:logs",
+                  "media_type": "application/octet-stream",
+                  "bytes": 417,
+                  "content_digest": "sha256:fc4bd7c15d4b4c3b19da3da7aa3e7d9440f909fd86f694482963086bb5394fd7",
+                  "locator": "file:///var/tmp/baton-w257624/v12-w71917-c7zitcxt/storage/attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c/custody/attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c/logs"
+                }
+              ]
+            },
+            "review_result_digest": "sha256:ae76b8de6e0055801620c63b064a9f4b16a4e7af130862234a9b4cbdd5ca9daf",
+            "review_fence": {
+              "intent": {
+                "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+                "assignment": {
+                  "work_ref": {
+                    "authority_uuid": "0000000a000000000000000000000000",
+                    "work_id": "0000000a-W2"
+                  },
+                  "participant": "baton.reviewer-2",
+                  "generation": 2
+                },
+                "runtime_id": "runtime-single-5",
+                "decision": "finalized",
+                "worker_disposition": "completed",
+                "authority_operation_id": "authority.finalize-quiescent:1c28eaa816865ee612f9e8d44b106a6677deb90d59dcc78bdb5001834a54ff34",
+                "reason": "independent checkpoint review completed"
+              },
+              "fenced": {
+                "cause": "cancelled",
+                "assignment": {
+                  "work_ref": {
+                    "authority_uuid": "0000000a000000000000000000000000",
+                    "work_id": "0000000a-W2"
+                  },
+                  "participant": "baton.reviewer-2",
+                  "generation": 2
+                },
+                "phase": "block",
+                "gate": "runtime-quiescence:2",
+                "fenced": true
+              }
+            },
+            "review_fence_digest": "sha256:9f4d8eac42b49672c57486c81af2245d45ece62b6e43dd548e4d68e95d4a9ebd"
+          },
+          "line_id": "line-2138677f5ed9712ef486e17e2295ca696d06ca50fc7ebdc2cd580a8f5bc419af",
+          "checkpoint_id": "checkpoint-71f9100d1d1545dfbc79b05d3778e689e9d8e9b47bc2eb9ded022bdb8968dadc",
+          "cleaned_up": true,
+          "result_id": "result-attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+          "manifest_digest": "sha256:1e50b7757f4a095800ea5b50b2d5b8b81c9ed75095f1fc472c095a701231a7ba",
+          "receipt_digest": "sha256:a81a19de500ba1cb6d642073e7c9622dbd7dd4cc7807009f16d2d3a4889ccd69",
+          "artifacts": [
+            "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c:findings",
+            "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c:logs"
+          ],
+          "retention": "retain",
+          "outcome": "accepted",
+          "held_reason": null
+        }
+      }
+    ],
+    "refreshed": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "state": "running"
+      },
+      {
+        "stage_id": "job-b/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/review",
+        "episode": 1,
+        "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+        "state": "running"
+      },
+      {
+        "stage_id": "job-b/integration",
+        "episode": 1,
+        "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+        "state": "not-asked"
+      }
+    ]
+  },
+  {
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "recovered": null,
+    "observed": 0,
+    "replaced": [],
+    "acts": [
+      {
+        "stage_id": "job-b/integration",
+        "episode": 1,
+        "act": "admit",
+        "outcome": "deferred",
+        "operation_id": "offer.issue:offer-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+        "detail": {
+          "category": "refused",
+          "code": "precondition",
+          "message": "stage 'job-b/integration' has eligible implementation workers but every effective worker/principal capacity is reserved or recovery-required"
+        }
+      }
+    ],
+    "started": [],
+    "spoken": [],
+    "refreshed": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "state": "running"
+      },
+      {
+        "stage_id": "job-b/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/review",
+        "episode": 1,
+        "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/integration",
+        "episode": 1,
+        "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+        "state": "not-asked"
+      }
+    ]
+  },
+  {
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "recovered": null,
+    "observed": 0,
+    "replaced": [],
+    "acts": [
+      {
+        "stage_id": "job-b/integration",
+        "episode": 1,
+        "act": "admit",
+        "outcome": "deferred",
+        "operation_id": "offer.issue:offer-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+        "detail": {
+          "category": "refused",
+          "code": "precondition",
+          "message": "stage 'job-b/integration' has eligible implementation workers but every effective worker/principal capacity is reserved or recovery-required"
+        }
+      }
+    ],
+    "started": [],
+    "spoken": [
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "act": "conclude",
+        "outcome": "performed",
+        "detail": {
+          "outcome": "integrated",
+          "entry": "integration-driver.entry:3269ef98d498633ed949fedef955b6e896b8f591c53019313f02d39d9c4b3486",
+          "assignment": {
+            "schema": "baton.v12.integration-assignment/1",
+            "canonical_target_id": "target-a",
+            "entry_id": "integration-driver.entry:3269ef98d498633ed949fedef955b6e896b8f591c53019313f02d39d9c4b3486",
+            "lease_id": "integration-driver.lease:bdb300c03a8962b657ec58a6bf0412eae10adfb2745f7a7ae3720f2f701d2517",
+            "fence": 1,
+            "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+            "integrator_participant": "baton.integrator",
+            "profile_kind": "git",
+            "profile_version": 1,
+            "instructions_digest": "sha256:97477292475144259f11d76c95b73311ac6e8d55d16cf527ccbbe158c996313b",
+            "target_access": "writable"
+          },
+          "observed": {
+            "state": "answered",
+            "result": {
+              "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+              "canonical_target_id": "target-a",
+              "detail": {
+                "imported_paths": [
+                  "harness.py"
+                ],
+                "verification": {
+                  "argv": [
+                    "python3",
+                    "harness.py"
+                  ],
+                  "status": 0
+                }
+              },
+              "entry_id": "integration-driver.entry:3269ef98d498633ed949fedef955b6e896b8f591c53019313f02d39d9c4b3486",
+              "fence": 1,
+              "lease_id": "integration-driver.lease:bdb300c03a8962b657ec58a6bf0412eae10adfb2745f7a7ae3720f2f701d2517",
+              "outcome": "integrated",
+              "schema": "baton.v12.integration-result/1"
+            },
+            "hold": null
+          },
+          "settlement": {
+            "imported_paths": [
+              "harness.py"
+            ],
+            "verification": {
+              "argv": [
+                "python3",
+                "harness.py"
+              ],
+              "status": 0
+            }
+          },
+          "authority_receipt": {
+            "receipt_id": "integration-driver.integration-receipt:db1f053d952c27ac6498b89e933acfca85c3d794d170b40fd7c0e5e707c3988e",
+            "kind": "integration",
+            "proposal_id": "integration-driver.proposal:2372f961ce6b0336deb977a23676dc8e3e73c5b24edcc19d630b63228cb981ea",
+            "actor": "baton.integrator",
+            "disposition": "integrated",
+            "candidate_digest": "983f314814a904f9adf2ac5dcd50422fd1550df8",
+            "target": "5cc729e61c3e075d976fed1bdf10769c805f0287",
+            "policy_generation": null,
+            "recorded_at": "2026-10-18T19:30:56.272Z",
+            "decision": {
+              "endpoint": "baton.integrator",
+              "principal": "principal:baton.integrator",
+              "effective_scope": "scope:deployment",
+              "role": "integrate",
+              "grant": "direct",
+              "policy_generation": 14
+            }
+          },
+          "receipts": {
+            "verification": {
+              "kind": "verification",
+              "receipt_id": "integration-driver.ordinary-tests-verification-receipt:7a45dbb50e12b073f0ffb4f7c26e5b09dfb1bd4310ea5c2aa69e3819c0bc91e3",
+              "proposal_id": "integration-driver.proposal:2372f961ce6b0336deb977a23676dc8e3e73c5b24edcc19d630b63228cb981ea",
+              "actor": "baton.verifier",
+              "disposition": "passed",
+              "policy_generation": null,
+              "candidate_digest": "983f314814a904f9adf2ac5dcd50422fd1550df8",
+              "target": "5cc729e61c3e075d976fed1bdf10769c805f0287"
+            },
+            "review": {
+              "kind": "review",
+              "receipt_id": "integration-driver.review-receipt:4a482da28ab6ae8a82d1162f740ef25654970227473a80bef4e701a17a286048",
+              "proposal_id": "integration-driver.proposal:2372f961ce6b0336deb977a23676dc8e3e73c5b24edcc19d630b63228cb981ea",
+              "actor": "baton.approver-review",
+              "disposition": "accepted",
+              "policy_generation": null,
+              "candidate_digest": "983f314814a904f9adf2ac5dcd50422fd1550df8",
+              "target": "5cc729e61c3e075d976fed1bdf10769c805f0287"
+            },
+            "approval": {
+              "kind": "approval",
+              "receipt_id": "integration-driver.approval-receipt:0b37ec4b2caa0294b759a827cbc69a09d15d74d5f7bd3ca80691d3a9ed69b6d1",
+              "proposal_id": "integration-driver.proposal:2372f961ce6b0336deb977a23676dc8e3e73c5b24edcc19d630b63228cb981ea",
+              "actor": "baton.approver",
+              "disposition": "approved",
+              "policy_generation": 14,
+              "candidate_digest": "983f314814a904f9adf2ac5dcd50422fd1550df8",
+              "target": "5cc729e61c3e075d976fed1bdf10769c805f0287"
+            }
+          }
+        }
+      }
+    ],
+    "refreshed": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "state": "quiescent"
+      },
+      {
+        "stage_id": "job-b/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/review",
+        "episode": 1,
+        "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/integration",
+        "episode": 1,
+        "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+        "state": "not-asked"
+      }
+    ]
+  },
+  {
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "recovered": null,
+    "observed": 0,
+    "replaced": [],
+    "acts": [
+      {
+        "stage_id": "job-b/integration",
+        "episode": 1,
+        "act": "admit",
+        "outcome": "performed",
+        "operation_id": "offer.issue:offer-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e"
+      }
+    ],
+    "started": [],
+    "spoken": [],
+    "refreshed": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "state": "quiescent"
+      },
+      {
+        "stage_id": "job-b/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/review",
+        "episode": 1,
+        "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/integration",
+        "episode": 1,
+        "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+        "state": "not-asked"
+      }
+    ]
+  },
+  {
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "recovered": null,
+    "observed": 0,
+    "replaced": [],
+    "acts": [
+      {
+        "stage_id": "job-b/integration",
+        "episode": 1,
+        "act": "claim",
+        "outcome": "performed",
+        "operation_id": "offer.settle:offer-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e"
+      }
+    ],
+    "started": [
+      {
+        "stage_id": "job-b/integration",
+        "episode": 1,
+        "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+        "outcome": "started",
+        "runtime_id": null
+      }
+    ],
+    "spoken": [],
+    "refreshed": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "state": "quiescent"
+      },
+      {
+        "stage_id": "job-b/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/review",
+        "episode": 1,
+        "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/integration",
+        "episode": 1,
+        "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+        "state": "not-asked"
+      }
+    ]
+  },
+  {
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "recovered": null,
+    "observed": 0,
+    "replaced": [],
+    "acts": [],
+    "started": [
+      {
+        "stage_id": "job-b/integration",
+        "episode": 1,
+        "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+        "outcome": "started",
+        "runtime_id": null
+      }
+    ],
+    "spoken": [],
+    "refreshed": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "state": "quiescent"
+      },
+      {
+        "stage_id": "job-b/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/review",
+        "episode": 1,
+        "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/integration",
+        "episode": 1,
+        "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+        "state": "not-asked"
+      }
+    ]
+  },
+  {
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "recovered": null,
+    "observed": 0,
+    "replaced": [],
+    "acts": [],
+    "started": [],
+    "spoken": [],
+    "refreshed": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "state": "quiescent"
+      },
+      {
+        "stage_id": "job-b/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/review",
+        "episode": 1,
+        "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/integration",
+        "episode": 1,
+        "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+        "state": "not-asked"
+      }
+    ]
+  }
+]

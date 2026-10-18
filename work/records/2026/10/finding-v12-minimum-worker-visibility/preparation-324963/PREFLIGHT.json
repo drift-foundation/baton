@@ -1,0 +1,76 @@
+{
+  "state": "prepared-not-executed",
+  "steps": [
+    {
+      "step": "stage",
+      "argv": [
+        "python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-minimum-worker-visibility/preparation-324963/prepare.py",
+        "stage",
+        "--root",
+        "/tmp/w324214-preflight-324963"
+      ],
+      "seconds": 0.12484240699996008,
+      "status": 0,
+      "stdout": "staged; bootstrap separately with --no-repositories, then bind\n",
+      "stderr": ""
+    },
+    {
+      "step": "bootstrap",
+      "argv": [
+        "python3",
+        "-B",
+        "-m",
+        "tools.bootstrap",
+        "--inputs",
+        "/tmp/w324214-preflight-324963/bootstrap-inputs.json",
+        "--destination",
+        "/tmp/w324214-preflight-324963/instance",
+        "--distro",
+        "/home/sl/baton-runs/managed-correction-236087/build/stack/out/distro",
+        "--no-repositories"
+      ],
+      "seconds": 0.5872174249998352,
+      "status": 0,
+      "stdout": "repositories  not prepared: no source checkout was found or named, so the deployment has no target, workspace or worker sources yet and will schedule without reconciling\nauthority 5929424e...    generated for this instance\njob   none; no Work, grant or placeholder was created\nconfiguration /tmp/w324214-preflight-324963/instance/deployment.json\ncapacity      {\"job_affinity\": {}, \"jobs\": 0, \"note\": \"this instance binds no Job and configures no execution capacity; it serves a real idle scheduler and publisher over empty stores, and a worker, a Work, a declared base, a canonical target and a producer are supplied together when a Job is created\", \"schema\": \"baton.v12.stage-execution-deployment/2\", \"targets\": [], \"workers_by_role\": {\"implementation\": [], \"integration\": [], \"review\": []}}\nno Job was submitted and nothing was executed\ninstance      /tmp/w324214-preflight-324963/instance/instance.json\nruntime       81 files, digest c1ef3d23394916c8...\nstores        /tmp/w324214-preflight-324963/instance/db\nrepository    /tmp/w324214-preflight-324963/instance/repo\njustfile      /tmp/w324214-preflight-324963/instance/justfile\n\nThe deployment is operated from the destination, and needs nothing else:\n\n    cd /tmp/w324214-preflight-324963/instance && just status\n    just --justfile /tmp/w324214-preflight-324963/instance/justfile start        # from anywhere\n\nor the command directly, which is the same program:\n\n    /tmp/w324214-preflight-324963/instance/distro/baton-v12-stack status --instance /tmp/w324214-preflight-324963/instance/instance.json\n",
+      "stderr": ""
+    },
+    {
+      "step": "bind",
+      "argv": [
+        "python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-minimum-worker-visibility/preparation-324963/prepare.py",
+        "bind",
+        "--root",
+        "/tmp/w324214-preflight-324963"
+      ],
+      "seconds": 0.35182340899882547,
+      "status": 0,
+      "stdout": "prepared and validated; no job submitted, no engine/provider invoked\n",
+      "stderr": ""
+    }
+  ],
+  "preflight_root": "/tmp/w324214-preflight-324963",
+  "prepared": {
+    "artifacts": {
+      "PACKET.json": "daf941665a719a9233ed00e51d92c1a70e027aad095111cfdc08788992cd3b2c",
+      "adapter.json": "cbe3bb4ade990eb5411c64a40be74a10e46a79f48343c499b5f1a8453fabc9c7",
+      "commands.json": "5100926bcf4d608840318d93f5acf3da8b5d6afd3e1dce8249433614c7d714d9",
+      "deployment.json": "8dea19ca77e5ccbda3e1d038e725b4ac1ce47f5cd37bc5dfe5f708ef85c0f89f",
+      "policy.json": "2b75b8208cd288418ea5a9af8ece0c443abdaa19fda80a1ea2725e43fdbc306c",
+      "runtime-profile.json": "70ca07c494c9660bfaf747772f2233ccaf77b4ef3a4da90c26121b7b59ff1d34",
+      "submission.json": "37f253724d72e6b871b403baa61775c6f113a98f4447711a053ac478cc5670e5",
+      "task.json": "01b949b25de4e9d11fae0f28b80680f907afcff1a4cfed5bc37c24734a3dcb13"
+    },
+    "authority_uuid": "5929424eced64e00aa51ad87b2fc2ad2",
+    "independent_review": "baton.rvpc consumes immutable retained proposal through v11 after exact runtime cessation; no automatic acceptance",
+    "packet_sha256": "daf941665a719a9233ed00e51d92c1a70e027aad095111cfdc08788992cd3b2c",
+    "state": "prepared-not-executed",
+    "work": "W324214"
+  },
+  "job_id": null,
+  "attempt_id": null,
+  "product_tests_run": false
+}

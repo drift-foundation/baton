@@ -1,0 +1,11 @@
+{
+  "manifest": "d176f186fa7d89208d976296d0bd1a1be485721fa1d0b447bbaacebd505a4345",
+  "inputs": 13,
+  "runtime": 111,
+  "supervisor": 3,
+  "generated": 8,
+  "mismatches": [],
+  "scratch": "/tmp/w324214-review324888-cb0yr14u",
+  "target_absent": true,
+  "task_equal": true
+}

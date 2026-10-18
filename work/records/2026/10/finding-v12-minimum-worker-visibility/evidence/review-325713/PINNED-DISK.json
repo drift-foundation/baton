@@ -1,0 +1,14 @@
+{
+  "environment": {
+    "PATH": "/usr/local/bin:/usr/bin:/bin",
+    "BATON_V12_DISK_ROOT": "/var/tmp/baton-w257624",
+    "HOME": "/proc/self/fd/3",
+    "TMPDIR": "/proc/self/fd/4",
+    "XDG_CACHE_HOME": "/proc/self/fd/5",
+    "PYTHONPYCACHEPREFIX": "/proc/self/fd/6"
+  },
+  "script": "import os,sys,unittest,json\nos.chdir('v12/python');sys.path[:0]=[os.getcwd(),os.path.join(os.getcwd(),'src')]\nfrom baton_v12 import job_manager\noriginal=job_manager.sweep\nreports=[]\ndef observed(*a,**kw):\n r=original(*a,**kw);reports.append(r);return r\njob_manager.sweep=observed\nr=unittest.TextTestRunner(verbosity=2).run(unittest.defaultTestLoader.loadTestsFromName('tests.tools.test_job_viewer.TheRealObservationReaderReachesTheView'))\nwith open(sys.argv[1],'w') as f:json.dump(reports,f,indent=2,default=str)\nsys.exit(not r.wasSuccessful())\n",
+  "cwd": "/var/tmp/baton-w257624/w324214-review325713-u5kndxdb",
+  "status": 0,
+  "seconds": 5.669160528999782
+}

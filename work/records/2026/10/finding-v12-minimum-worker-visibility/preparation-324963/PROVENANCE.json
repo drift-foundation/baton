@@ -1,0 +1,45 @@
+{
+  "accepted": false,
+  "base": "372281f4a473300efb474d5a6573954c15ade367",
+  "candidate_files": {
+    "v12/python/tests/tools/test_worker_visibility.py": "f0ce84aef8f5cb2dedd41efb672e9e8a01223ffba96d3afdb99e27b16894cc8e",
+    "v12/python/tools/worker_visibility.py": "ba2a108d9b8be1e01bff9f697dcde88ca7bca515057e6c4614dcdc5d1b3dc708"
+  },
+  "candidate_record": "baton:work/records/2026/10/finding-v12-minimum-worker-visibility/evidence/review-324809/CANDIDATE.json",
+  "candidate_record_sha256": "dcd1bf2a8d47b131dacfc79c836405e19d5288e8aa071eef3997f2571c11995f",
+  "compatibility": "Both candidate paths absent in prior/current bases; exact full patch reconstructs both retained blobs.",
+  "custody": {
+    "change.patch": {
+      "bytes": 102391,
+      "sha256": "07d7bce06e4752a421922b07ee3bb4cd3dd0290d64e43aab5b645c9add04ac3c"
+    },
+    "objects.bundle": {
+      "bytes": 26117,
+      "sha256": "85d65d912ca95784f831459ec34afbb6455af970e938c385c64bfe014dc9cbc2"
+    },
+    "result.json": {
+      "bytes": 597,
+      "sha256": "120bc512b5442934bc83ffbda249f72b9884955e76ed2515f85d80ec04f5e1c2"
+    },
+    "verification.txt": {
+      "bytes": 30,
+      "sha256": "4825c3ea707b3ab41b2d72a0443ea35d3dd518252a6a673fac3fea418df9a133"
+    }
+  },
+  "deferred_recovery_ruling": "baton:work/records/2026/10/finding-v12-development-coordination-pilot/OWNER-INTERRUPTED-SESSION-RECOVERY-324905.md",
+  "deferred_recovery_ruling_sha256": "b1105a9a234266897c32636d6b99960f93a91e408f9f6f22c18f5b6472623b7e",
+  "diagnostics": "Complete original FOCUSED-DISK.log and PROBES.json retained in evidence/review-324809 and preparation-324832; task carries all failure classes and selected acceptance without duplicated serialized output.",
+  "formal_verification": null,
+  "owner_ruling_sha256": "204591a9e1aba84ea82725ab0f9ff12cc285722139118260cdac322fbc3a5051",
+  "previous_attempt": "attempt-285b27200a01c316ace8da48b2088ec3332884f826b5b33dd204b03cbb44f319",
+  "previous_base": "6348161e608187393e45454db63c192a93f6deb3",
+  "previous_head": "d35fb29cb3c12c7a50ce5f88f439fc304fa99118",
+  "previous_job": "job-worker-visibility-w324214-324377",
+  "previous_run": "worker-visibility-w324214-324377",
+  "prior_packet": "baton:work/records/2026/10/finding-v12-minimum-worker-visibility/preparation-324832",
+  "prior_packet_manifest_sha256": "d176f186fa7d89208d976296d0bd1a1be485721fa1d0b447bbaacebd505a4345",
+  "review_record": "baton:work/records/2026/10/finding-v12-minimum-worker-visibility/review-2026-10-18T17-37-19Z.md",
+  "review_sha256": "5f50363ca85c0e1c8c8aaeff6a4dfe5e17163f7c44085e2383e58065a5b2fee9",
+  "startup_review": "baton:work/records/2026/10/finding-v12-minimum-worker-visibility/review-2026-10-18T17-48-31Z.md",
+  "startup_review_sha256": "7757d8acb0b85e6cbb99193ca960eaaaa601ea0dbdeda8660de6420e5317ae14"
+}

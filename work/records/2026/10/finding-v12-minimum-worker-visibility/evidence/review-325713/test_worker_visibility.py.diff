@@ -1,0 +1,413 @@
+--- prior/v12/python/tests/tools/test_worker_visibility.py
++++ new/v12/python/tests/tools/test_worker_visibility.py
+@@ -102,6 +102,93 @@
+ 
+     walk(held)
+     return found
++
++
++# WHAT THIS VIEW REPORTS, AND WHAT IT EXPLAINS WITH. The two are separated
++# because REVIEW 2026-10-18T17-37-19Z caught three cases here searching the
++# whole serialized row for the words `fresh`, `healthy` and `transcript` -- and
++# finding them in the SENTENCES that promise their absence. A projection
++# forbidden the word `healthy` in its prose cannot say "this view publishes no
++# healthy verdict", which is the one sentence an operator most needs to read;
++# what must not carry an invented verdict is the set of VALUES and STATE words
++# a consumer branches on. So these walk that set instead.
++REPORTED = ("presence", "state", "unit")
++EXPLANATORY = ("reason", "note", "basis", "what", "unknown_reason", "source",
++               "query_time_note")
++
++
++def reported_words(held):
++    """Every word this view REPORTS: fact values, presences, states, units."""
++    found = []
++
++    def walk(node):
++        if isinstance(node, dict):
++            if "known" in node and "unknown_reason" in node:
++                found.append(node.get("value"))
++            for name, one in node.items():
++                if name in EXPLANATORY:
++                    continue
++                if name in REPORTED:
++                    found.append(one)
++                    continue
++                walk(one)
++        elif isinstance(node, list):
++            for one in node:
++                walk(one)
++
++    walk(held)
++    return [one for one in found if isinstance(one, str)]
++
++
++def keys_in(held):
++    """Every member name this view PUBLISHES, at any depth.
++
++    A member forwarded empty is still a member this surface republished, so
++    the allowlist is checked by name and not only by value.
++    """
++    found = set()
++
++    def walk(node):
++        if isinstance(node, dict):
++            found.update(node)
++            for one in node.values():
++                walk(one)
++        elif isinstance(node, list):
++            for one in node:
++                walk(one)
++
++    walk(held)
++    return found
++
++
++def freshness_in(held):
++    """Every freshness block in one projected document or row."""
++    found = []
++
++    def walk(node):
++        if isinstance(node, dict):
++            if "state" in node and "reason" in node and "note" in node:
++                found.append(node)
++            for one in node.values():
++                walk(one)
++        elif isinstance(node, list):
++            for one in node:
++                walk(one)
++
++    walk(held)
++    return found
++
++
++# A VERDICT NOBODY OBSERVED, in every spelling this view might have invented.
++INVENTED = ("healthy", "offline", "alive", "dead", "stuck", "wedged",
++            "degraded", "fresh", "stale", "recent", "idle")
++
++# A DERIVED MEMBER NOBODY ASKED FOR. These are names rather than words: a view
++# that computed an age or a freshness verdict would have to publish it under
++# one of them.
++DERIVED = ("age", "age_seconds", "elapsed", "current_as_of", "fresh",
++           "stale", "last_seen", "seconds_since", "progress",
++           "progress_percent", "percent", "tokens", "tokens_used")
+ 
+ 
+ class VisibilityCase(fixtures.JobManagerCase):
+@@ -384,14 +471,30 @@
+ 
+     def test_a_quiet_runtime_is_never_called_healthy_or_offline(self):
+         """The whole family of defect this view is bounded against: a word
+-        this view invented standing in for an observation nobody made."""
++        this view invented standing in for an observation nobody made.
++
++        ASSERTED OVER WHAT IS REPORTED, not over what is explained -- see
++        `reported_words`. The producer's own axis word comes through unmapped,
++        every freshness verdict stays `unknown`, and no value or state word in
++        the row is a diagnosis.
++        """
+         self.submitted(submission(jobs=[job("job-a")]))
+         self.running(execution_runtime="quiescent")
+         row = self.row(self.document(), "job-a/implementation")
+-        text = json.dumps(row).lower()
+-        for invented in ("healthy", "offline", "alive", "dead", "stuck",
+-                         "wedged", "degraded"):
+-            self.assertNotIn(invented, text, invented)
++        self.assertEqual(row["runtime"]["facts"]["execution_runtime"]["value"],
++                         "quiescent")
++        self.assertEqual(row["runtime"]["presence"], "reported")
++        reported = [one.lower() for one in reported_words(row)]
++        self.assertIn("quiescent", reported)
++        for invented in INVENTED:
++            self.assertNotIn(invented, reported, invented)
++        for name in DERIVED:
++            self.assertNotIn(name, keys_in(row), name)
++        held = freshness_in(row)
++        self.assertGreaterEqual(len(held), 3)
++        for found in held:
++            self.assertEqual(found["state"], "unknown")
++            self.assertEqual(found["reason"], "no freshness policy selected")
+ 
+     def test_the_runtime_association_is_declared_unverifiable_not_claimed(self):
+         self.submitted(submission(jobs=[job("job-a")]))
+@@ -531,6 +634,28 @@
+     """
+ 
+     def restarted(self):
++        """Episode one, observed for real; then episode two, observed for real.
++
++        THE OBSERVATION MOVES WITH THE EPISODE, and that correction is the
++        whole reason this fixture is shaped the way it is. REVIEW
++        2026-10-18T17-37-19Z: this used to open episode two and leave the fake
++        control plane holding EPISODE ONE's claim -- `observed(claimed_by=True)`
++        spells episode one's offer id and nothing moved it -- so
++        `delegation._bound` refused the projection outright and all four cases
++        below errored before the view was reached. That refusal is the
++        producer defending itself correctly, and a fixture that provokes it is
++        modelling a state the Worker Manager does not publish.
++
++        SO EPISODE TWO GETS ITS OWN CLAIM, ITS OWN RECORDED ATTEMPT AND ITS
++        OWN ACTIVITY, each through the producer that owns it, and the live
++        episode's own `offer_id` is read back rather than derived here.
++
++        AND THE ADVERSARIAL PAIRING IS KEPT -- it is now sharper than it was.
++        Episode one's REAL allocation and REAL activity are returned so the
++        cases below can graft them onto episode two's row, where they must
++        displace episode two's own genuine facts and still be refused. Before
++        this correction the row they were grafted onto had nothing of its own.
++        """
+         self.submitted(submission(jobs=[job("job-a")]))
+         first = self.attempt_of()
+         allocation = self.reserved()
+@@ -543,8 +668,18 @@
+         ended = episodes.end_episode(self.jobs, live,
+                                      "abandoned-after-restart", 1)
+         episodes.open_next(self.jobs, "job-a/implementation", ended)
+-        second = self.attempt_of()
++        opened = episodes.live_of(self.jobs, "job-a/implementation")
++        second = opened["attempt_id"]
+         self.assertNotEqual(first, second)
++        # EPISODE TWO'S OWN MATERIAL, through the same two producers, and a
++        # DIFFERENT count so no case can pass on episode one's number.
++        _control, restarted = self.observed_runtime(second, control=control)
++        fresh = self.observed_activity(control, second, 8192)
++        self.acts.observed("job-a/implementation",
++                           claimed_by=opened["offer_id"],
++                           runtime=dict(restarted, runtime_id="runtime-2",
++                                        execution_runtime="running"),
++                           activity=fresh)
+         after = self.document()
+         return first, second, allocation, activity, before, after
+ 
+@@ -554,6 +689,29 @@
+         self.assertEqual(held["attempt_id"]["value"], second)
+         self.assertEqual(held["episode"]["value"], 2)
+         self.assertNotEqual(held["attempt_id"]["value"], first)
++
++    def test_the_new_episodes_own_observation_is_the_one_reported(self):
++        """What the grafts below have to displace.
++
++        WITHOUT THIS THE REFUSALS PROVE LESS. A row carrying nothing of its
++        own would answer `unknown` to an old episode's activity and to no
++        activity at all, and the two cases could not be told apart. So the
++        restarted stage's OWN count is established first, and the cases that
++        graft episode one's facts on top are then refusing something in favour
++        of a real alternative.
++        """
++        first, second, _allocation, _activity, before, after = self.restarted()
++        was = self.row(before, "job-a/implementation")
++        now = self.row(after, "job-a/implementation")
++        self.assertEqual(was["activity"]["facts"]["bytes_observed"]["value"],
++                         4096)
++        self.assertEqual(now["activity"]["facts"]["bytes_observed"]["value"],
++                         8192)
++        self.assertTrue(now["activity"]["attempt_association"]["verified"])
++        self.assertEqual(now["runtime"]["facts"]["runtime_id"]["value"],
++                         "runtime-2")
++        self.assertEqual(was["stage"]["attempt_id"]["value"], first)
++        self.assertEqual(now["stage"]["attempt_id"]["value"], second)
+ 
+     def test_the_old_episodes_allocation_is_refused_on_the_new_one(self):
+         _first, _second, allocation, _activity, _before, after = \
+@@ -680,12 +838,28 @@
+         return document
+ 
+     def test_nothing_outside_the_allowlists_reaches_the_view(self):
++        """The planted material, by VALUE and by MEMBER NAME.
++
++        BY NAME AS WELL AS BY VALUE, because a member forwarded empty is still
++        one this surface republished. AND BY THE PLANTED NAMES RATHER THAN BY
++        WORD: `_context`'s note states that this view reads no transcript,
++        provider session or private context path, and the earlier assertion
++        here searched the whole document for `transcript` and so forbade the
++        sentence that states the guarantee.
++        """
+         document = self.spoiled()
+-        held = json.dumps(visibility(document))
+-        self.assertNotIn("SECRET", held)
+-        self.assertNotIn("api_key", held)
+-        self.assertNotIn("argv", held)
+-        self.assertNotIn("transcript", held)
++        projected = visibility(document)
++        held = json.dumps(projected)
++        # EVERY PLANTED VALUE, none of which is in any allowlist.
++        for planted in ("SECRET", "/private/", "bearer-", "docker",
++                        "--token", "raw log"):
++            self.assertNotIn(planted, held, planted)
++        # AND EVERY PLANTED MEMBER NAME.
++        reported = keys_in(projected)
++        for planted in ("argv", "credentials", "api_key", "transcript_path",
++                        "bearer", "release_reason", "payload", "context_path",
++                        "foreign"):
++            self.assertNotIn(planted, reported, planted)
+ 
+     def test_the_allowlisted_members_still_come_through(self):
+         """A filter that dropped everything would pass the case above."""
+@@ -804,16 +978,35 @@
+     def test_an_old_observation_cannot_become_fresh_by_being_read_again(self):
+         """The viewer's claim168071 defect, in this surface's terms: the same
+         unchanged source read many times answers the same instants and never a
+-        verdict about them."""
++        verdict about them.
++
++        THE CLAIM IS SEMANTIC AND SO IS THE ASSERTION. What must not change is
++        the reported instant; what must not appear is a freshness VERDICT or a
++        derived age -- not the words `fresh` and `stale` inside the sentence
++        that says this view publishes neither.
++        """
+         self.submitted(submission(jobs=[job("job-a")]))
+         self.running(total=4096)
+         document = self.document()
+         first = visibility(document)
+         for _ in range(3):
+             self.assertEqual(visibility(document), first)
+-        text = json.dumps(first)
+-        for invented in ("fresh", "stale", "recent", "current_as_of"):
+-            self.assertNotIn(invented, text.replace("freshness", ""))
++        # THE INSTANT IS STILL THE PRODUCER'S, UNMOVED.
++        row = first["stages"][0]
++        self.assertEqual(row["activity"]["facts"]["observed_at"]["value"], NOW)
++        self.assertEqual(
++            row["activity"]["facts"]["bytes_observed"]["observed_at"]["value"],
++            NOW)
++        held = freshness_in(first)
++        self.assertGreaterEqual(len(held), 4)
++        for found in held:
++            self.assertEqual(found["state"], "unknown")
++            self.assertEqual(found["reason"], "no freshness policy selected")
++        reported = [one.lower() for one in reported_words(first)]
++        for invented in INVENTED:
++            self.assertNotIn(invented, reported, invented)
++        for name in DERIVED:
++            self.assertNotIn(name, keys_in(first), name)
+ 
+     def test_a_local_read_time_is_named_separately_and_alters_nothing(self):
+         self.submitted(submission(jobs=[job("job-a")]))
+@@ -858,11 +1051,19 @@
+         self.assertLess(len(held), 400)
+ 
+     def test_a_malformed_envelope_refuses_rather_than_reporting_rows(self):
++        """Including the two near-instants REVIEW 2026-10-18T17-37-19Z found
++        accepted: a bare date, and a naive time in no zone."""
+         self.submitted()
+         for spoiled in ({"observed_at": None}, {"observed_at": "whenever"},
+                         {"observed_at": "2026-09-02T00:00:00.000Z" + "0" * 40},
++                        {"observed_at": "2026-10-18"},
++                        {"observed_at": "2026-10-18T12:00:00"},
++                        {"observed_at": "2026-10-18T12:00:00Z"},
++                        {"observed_at": "2026-10-18T12:00:00+00:00"},
++                        {"observed_at": "2026-9-02T00:00:00.0000Z"},
++                        {"observed_at": "2026-99-99T99:99:99.999Z"},
+                         {"canonical": "yes"}, {"jobs": {"job-a": {}}},
+-                        {"incarnation": 7}):
++                        {"jobs": None}, {"incarnation": 7}):
+             document = self.document()
+             document.update(spoiled)
+             with self.assertRaises(VisibilityRefusal):
+@@ -870,14 +1071,104 @@
+ 
+     def test_a_malformed_nested_structure_refuses(self):
+         """The viewer's claim168169 shape: a document with the right schema
+-        whose stages are not documents."""
++        whose stages are not documents.
++
++        `{"stages": null}` AND A JOB WITH NO STAGES AT ALL ARE IN THE LIST.
++        REVIEW 2026-10-18T17-37-19Z: both were accepted as a Job with zero
++        rows, so a malformed document answered a confident, machine-readable
++        "no stage is in any state". See `worker_visibility._enumerable` for why
++        this surface is deliberately stricter than the terminal viewer here.
++        """
+         self.submitted()
+         for spoiled in ([None], [{"stages": None}], [{"stages": [None]}],
+-                        [{"stages": [{"episodes": 7}]}]):
++                        [{"stages": [{"episodes": 7}]}], [{"job_id": "job-a"}],
++                        [{"stages": {"job-a/implementation": {}}}]):
+             document = self.document()
+             document["jobs"] = spoiled
+             with self.assertRaises(VisibilityRefusal):
+                 visibility(document)
++
++    def test_a_job_whose_stages_are_unreadable_publishes_no_row_at_all(self):
++        """NOT EVEN THE READABLE JOBS, which is the decision worth stating.
++
++        A document carrying one good Job and one whose stages cannot be read
++        is refused whole. Publishing the good Job's rows would answer a
++        consumer's "every current stage" with a subset it has no way to know
++        was a subset.
++        """
++        self.submitted()
++        document = self.document()
++        self.assertEqual(len(document["jobs"]), 2)
++        document["jobs"][1] = dict(document["jobs"][1], stages=None)
++        with self.assertRaises(VisibilityRefusal) as caught:
++            visibility(document)
++        self.assertIn("row set this document does not support",
++                      str(caught.exception))
++        self.assertNotIn("job-b", str(caught.exception))
++
++    def test_the_instant_grammar_is_the_producers_own(self):
++        """ACCEPTED EXACTLY WHEN THE PRODUCER'S BOUNDARY ACCEPTS.
++
++        `worker_visibility` restates `boundaries.GRAMMAR` rather than importing
++        it, because importing it would import the Worker Manager package --
++        the owner of the control store this view must not be able to open, and
++        a boundary `TheViewOpensNothingAndActsNotAtAll` traps. This is what
++        keeps the restatement from drifting: the same vector list through both.
++        """
++        from baton_v12.worker_manager import boundaries
++
++        vectors = (NOW, LATER, "2026-09-02T00:00:00.000Z",
++                   "2026-10-18", "2026-10-18T12:00:00",
++                   "2026-10-18T12:00:00Z", "2026-10-18T12:00:00+00:00",
++                   "2026-10-18T12:00:00.000000Z",
++                   "2026-9-02T00:00:00.0000Z",
++                   "2026-99-99T99:99:99.999Z",
++                   "2026-02-30T00:00:00.000Z",
++                   "2026-09-02t00:00:00.000z", "2026-09-02T00:00:00.000",
++                   " 2026-09-02T00:00:00.000Z", "", "whenever",
++                   "٢026-09-02T00:00:00.000Z")
++        agreed = 0
++        for text in vectors:
++            try:
++                boundaries.instant(text, "an instant")
++            except ContractRefusal:
++                owned = False
++            else:
++                owned = True
++            self.assertEqual(
++                worker_visibility._instant_text(text) is not None, owned,
++                repr(text))
++            agreed += 1
++        self.assertEqual(agreed, len(vectors))
++        self.assertTrue(worker_visibility._instant_text(NOW))
++
++    def test_a_near_instant_is_not_a_known_source_time(self):
++        """And the fact it would have timed keeps its own value.
++
++        THE TWO ARE SEPARATE FACTS. A malformed observation time does not
++        discard the count the producer really recorded; it makes the count's
++        TIME unknown with a bounded reason, which is a consumer being told
++        what it does not know rather than being handed a guess.
++        """
++        self.submitted(submission(jobs=[job("job-a")]))
++        self.running(total=4096)
++        for spoiled in ("2026-10-18", "2026-10-18T12:00:00",
++                        "2026-10-18T12:00:00Z", 1760000000, "", None):
++            document = self.document()
++            document["jobs"][0]["stages"][0]["runtime"]["activity"][
++                "observed_at"] = spoiled
++            held = self.row(document, "job-a/implementation")["activity"]
++            self.assertEqual(held["presence"], "observed", repr(spoiled))
++            self.assertEqual(held["facts"]["bytes_observed"]["value"], 4096)
++            when = held["facts"]["bytes_observed"]["observed_at"]
++            self.assertFalse(when["known"], repr(spoiled))
++            self.assertIsNone(when["value"])
++            self.assertTrue(when["unknown_reason"])
++            self.assertFalse(held["facts"]["observed_at"]["known"])
++            if isinstance(spoiled, str) and spoiled:
++                # AND THE REJECTED TEXT IS NOT REPUBLISHED as the value it was
++                # refused as being.
++                self.assertNotIn(spoiled, json.dumps(held))
+ 
+     def test_a_list_or_a_scalar_is_not_a_status_document(self):
+         for spoiled in ([], 7, "status", None):

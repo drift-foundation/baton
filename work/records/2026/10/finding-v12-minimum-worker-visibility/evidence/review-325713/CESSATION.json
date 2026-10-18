@@ -1,0 +1,6 @@
+{
+  "runtime_id": "9a66794da614b73ef85c996dc602725543c96853671ee97fc86005e92a7d56d6",
+  "command": "docker inspect exact runtime",
+  "exit_status": 1,
+  "answer": "no such object"
+}

@@ -1,0 +1,26 @@
+{
+  "head": "d35fb29cb3c12c7a50ce5f88f439fc304fa99118",
+  "base": "6348161e608187393e45454db63c192a93f6deb3",
+  "paths": {
+    "v12/python/tests/tools/test_worker_visibility.py": "f0ce84aef8f5cb2dedd41efb672e9e8a01223ffba96d3afdb99e27b16894cc8e",
+    "v12/python/tools/worker_visibility.py": "ba2a108d9b8be1e01bff9f697dcde88ca7bca515057e6c4614dcdc5d1b3dc708"
+  },
+  "custody": {
+    "objects.bundle": {
+      "bytes": 26117,
+      "sha256": "85d65d912ca95784f831459ec34afbb6455af970e938c385c64bfe014dc9cbc2"
+    },
+    "verification.txt": {
+      "bytes": 30,
+      "sha256": "4825c3ea707b3ab41b2d72a0443ea35d3dd518252a6a673fac3fea418df9a133"
+    },
+    "result.json": {
+      "bytes": 597,
+      "sha256": "120bc512b5442934bc83ffbda249f72b9884955e76ed2515f85d80ec04f5e1c2"
+    },
+    "change.patch": {
+      "bytes": 102391,
+      "sha256": "07d7bce06e4752a421922b07ee3bb4cd3dd0290d64e43aab5b645c9add04ac3c"
+    }
+  }
+}

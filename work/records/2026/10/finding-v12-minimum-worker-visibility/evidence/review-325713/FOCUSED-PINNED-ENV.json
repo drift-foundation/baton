@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "python3",
+    "-c",
+    "import os,sys,unittest;os.chdir('v12/python');sys.path[:0]=[os.getcwd(),os.path.join(os.getcwd(),'src')];r=unittest.TextTestRunner(verbosity=2).run(unittest.defaultTestLoader.loadTestsFromName('tests.tools.test_job_viewer.TheRealObservationReaderReachesTheView'));sys.exit(not r.wasSuccessful())"
+  ],
+  "cwd": "/var/tmp/baton-w257624/w324214-review325713-u5kndxdb",
+  "environment": {
+    "PATH": "/usr/local/bin:/usr/bin:/bin",
+    "HOME": "/proc/self/fd/3",
+    "TMPDIR": "/proc/self/fd/4",
+    "XDG_CACHE_HOME": "/proc/self/fd/5",
+    "PYTHONPYCACHEPREFIX": "/proc/self/fd/6"
+  },
+  "pass_fds": [
+    3,
+    4,
+    5,
+    6
+  ],
+  "status": 1,
+  "seconds": 0.8143184069995186
+}

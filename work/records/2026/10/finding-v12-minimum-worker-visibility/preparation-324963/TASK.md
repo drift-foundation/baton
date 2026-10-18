@@ -1,0 +1,2194 @@
+# Continue the exact retained candidate below before editing
+
+# Latest correction checkpoint — retained d35fb29c, unaccepted
+
+Preserve and continue the exact two-file candidate. Independent review ran222
+focused tests in5.252s with4 failures/4 errors, using the disk-backed fixture root.
+Prior initial0.654s check had additional environment failures; FOCUSED-DISK.log is
+the definitive failure log. It is included below, not a new test result.
+
+Required corrections from review-2026-10-18T17-37-19Z.md:
+1. _document accepts jobs=[{stages:null}] as zero rows. Refuse malformed used
+   envelope structure; the existing viewer tolerance is broader than this task.
+2. _instant_text accepts date-only2026-10-18 and naive2026-10-18T12:00:00 as known
+   source instants. Follow the actual producer timestamp contract; malformed query
+   time refuses safely, malformed optional time refuses or is explicitly unknown.
+3. restarted() fixture retains an old fake Worker Manager claim/offer observation;
+   projection refuses before four view tests run. Fix supported lifecycle/observation
+   setup, retaining adversarial old allocation/activity cases against the new episode.
+4. Three prose substring assertions match explanatory words fresh/healthy/transcript.
+   Assert semantic unknown/freshness values and planted-secret/payload exclusion,
+   preserving safety coverage instead of banning words in explanations. Review did
+   not establish a secret leak from those failures.
+5. Add the required practical v12/python/WORKER-VISIBILITY.md; it is currently absent.
+
+Revalidate these findings against retained files, make bounded corrections, run the
+selected visibility/viewer/status vector, then return promptly. Do not reimplement
+the view or rediscover completed work. Native evidence shows76 tool calls continuing
+through17:07:56 near the900s cutoff; no idle/authentication-hang diagnosis is justified.
+Formal verification was null. New3600s proposed provider allowance is owner-selected
+preparation policy, not a conclusion inferred from timeout or new launch permission.
+
+Packet324832 subsequently failed before provider start:194776-byte instructions
+composed to195345-byte prompt, beyond the131072-byte single-argv boundary. No new
+candidate resulted; this input remains exactd35fb29c. Full original logs/probes
+remain in evidence/review-324809 and preparation-324832, never discarded. This
+packet carries this complete failure-class summary instead of the huge serialized
+assertion output. Interrupted-session recovery is deferred by owner324905; fresh
+context carries exact candidate and diagnostics. No provider probe or launch.
+
+# W324214 — minimum read-only worker visibility
+
+Implement in the private v12 workspace at base372281f4a473300efb474d5a6573954c15ade367.
+Read v12/DESIGN.md OBS-1/2/3 and DB-1/4. This is a bounded view over existing
+baton.v12.job-status/6, not telemetry collection. No live provider/engine calls
+from the worker, no migrations, scheduler acts, probe/inquire, terminal scraping,
+CPU/network collectors, credentials, transcripts, or context restoration.
+
+Deliver a separate tools.worker_visibility module callable as
+python3 -m tools.worker_visibility --snapshot STATUS.json (JSON output). It reads
+an existing status file only; no DB, serving factory, command subprocess or
+provider. Offer an importable projection function for tests/consumers. Keep
+job-status/6 unchanged. New output uses baton.v12.worker-visibility/1, documented
+in v12/python/WORKER-VISIBILITY.md with a practical existing-status consumption
+example. No command registration in stack_command/bootstrap is needed.
+
+Output one row per current stage, including unassigned stages, with exact Job,
+Work, stage, kind, episode, attempt and allocation identities. Preserve configured
+profile identity separately from observed runtime ID/execution state and exchange
+state. Explicitly distinguish unallocated from unknown/malformed. Never attach an
+old episode/attempt's activity or allocation to a new one; no history fallback.
+Use explicit safe allowlists rather than forwarding entire nested objects.
+
+For each reported worker/allocation/runtime/exchange/activity/contact/context
+fact expose its source JSON field path, original observation time when present,
+and explicit unknown reason when unavailable. Preserve the snapshot observed_at
+as snapshot query time only; never present it as runtime contact or activity time.
+Do not invent per-field observation times when the source has none. Always report
+last_contact, context_used and context_limit unknown with reason unsupported by
+this status contract. Activity bytes are bytes, not tokens or model progress.
+Observed integer zero is a known zero; null/missing/malformed is unknown.
+Never render a missing count as zero or a quiet runtime as healthy/offline.
+
+No freshness threshold is selected: freshness is explicitly unknown with reason
+no freshness policy selected. Old timestamps remain historical observations and
+cannot acquire fresh/healthy status on repeated reads. Query/local read time, if
+included, must be named separately and never alter source facts. Validate schema,
+structure, used member types, timestamps and attempt association. Refuse unsupported
+versions and malformed envelope safely; malformed optional observation either
+refuses explicitly or becomes unknown with a bounded reason, never valid evidence.
+Do not echo arbitrary invalid input into errors. Bound file input size using the
+existing viewer conventions; do not follow/open locators within status. Expose no
+credentials, raw logs, command argv, private-context paths or arbitrary payloads.
+
+Relevant existing boundaries: tools/job_viewer.py read_snapshot validates status
+schema/structure; job_manager/projection.py status/_stage_status projects allocation,
+current episode/attempt, runtime.assignment and runtime.activity plus exchange.
+worker_manager activity owner emits bytes_observed/observed_at. Revalidate actual
+producer shape, especially runtime lacking a direct attempt field and activity
+carrying one. Use actual projection-produced fixtures rather than only invented
+JSON. Do not claim provider capability certification.
+
+Create focused tests in tests/tools/test_worker_visibility.py; drive actual status
+projection fixtures as tests/tools/test_job_viewer.py and tests/job_manager/test_status.py
+do. Required cases: assigned/unassigned; missing runtime; runtime without activity;
+zero versus unknown; timestamped activity; unsupported contact/context; stale,
+missing and malformed observations; restarted episode/attempt association; schema
+refusal; safe filtering; unchanged repeated-source timestamps; file/CLI input; no
+DB open/model/probe/scheduler/subprocess/writes by the view. Use traps at these
+boundaries, not a green test that merely asserts the implementation's own output.
+
+Focused verification: tests.tools.test_worker_visibility,
+tests.tools.test_job_viewer, tests.job_manager.test_status. Use fake/replay only,
+real disposable coordination fixtures as applicable. Required tests cannot be
+skipped or weakened for a pass. Stop once these and directly affected checks pass;
+no whole-tree discovery or broad reassurance suite. Missing fixtures are an honest
+failure, not permission to copy unrelated hidden inputs or discard coverage.
+
+Ownership: W321528 owns claude_agent.py and its tests, and the historical
+single-implementation-proof supervisor/tests. W321689 owns authority api/core,
+disposition/stack/bootstrap commands and its tests. Do not change those paths.
+This new view/test/doc can proceed independently. Other necessary paths are
+outcome-bound, but report a concrete overlapping edit before touching it.
+
+Return promptly with exact candidate base/head/tree, changed paths, focused test
+results and limitations. No self-acceptance, integration or retry. A successful
+execution is not independent acceptance. Retain partial output honestly on failure.
+
+## Exact retained input patch
+
+Apply only in the private workspace; both paths are absent at this base. SHA256 07d7bce06e4752a421922b07ee3bb4cd3dd0290d64e43aab5b645c9add04ac3c
+
+```diff
+diff --git a/v12/python/tests/tools/test_worker_visibility.py b/v12/python/tests/tools/test_worker_visibility.py
+new file mode 100644
+index 00000000..99eb9c83
+--- /dev/null
++++ b/v12/python/tests/tools/test_worker_visibility.py
+@@ -0,0 +1,1135 @@
++"""W324214 -- the minimum read-only worker visibility view, over REAL documents.
++
++EVERY SNAPSHOT HERE COMES FROM `projection.status`. A fact projection tested
++against a handwritten dictionary proves only that it agrees with the fixture
++beside it; what is worth proving is that it reads what the Job Manager
++actually publishes -- so these cases submit real Jobs into a real store, make
++real scheduler reservations, record real attempts and real activity
++observations in a real Worker Manager control store, and project the document
++that comes out.
++
++AND THE OWNERS ARE TRAPPED. "No database is opened, no model is reached, no
++probe or scheduler act is performed, no subprocess is spawned and nothing is
++written" is the acceptance, so every one of those boundaries raises while the
++view runs. A green test that merely asserts the implementation's own output
++would pass whatever the implementation did next.
++
++WHERE AN ADVERSARIAL PAIRING IS USED IT IS SAID SO. The restarted-episode case
++grafts episode one's REAL allocation and REAL activity onto episode two's REAL
++stage row. The producer does not do that -- `materialized` reads both from the
++live episode -- and that is exactly why the view must refuse the pairing on its
++own evidence rather than on the producer's good behaviour.
++"""
++
++import ast
++import copy
++import json
++import os
++import pathlib
++import sys
++import tempfile
++import unittest
++from unittest import mock
++
++sys.path.insert(0, os.path.dirname(os.path.dirname(
++    os.path.dirname(os.path.abspath(__file__)))))
++
++from baton_v12.contracts import ContractRefusal                 # noqa: E402
++from baton_v12.job_manager import Unobserved, submit, sweep      # noqa: E402
++from baton_v12.job_manager import episodes, scheduler            # noqa: E402
++from baton_v12.job_manager.projection import status              # noqa: E402
++from baton_v12.job_manager.store import JobStore                 # noqa: E402
++from baton_v12.job_manager.submission import stage_rows          # noqa: E402
++from baton_v12.worker_manager import (ControlStore,               # noqa: E402
++                                      attempt_activity_of,
++                                      attempt_runtime_of,
++                                      observe_activity,
++                                      record_attempt)
++
++from tools import worker_visibility                              # noqa: E402
++from tools.worker_visibility import (VisibilityRefusal, rows_of,  # noqa: E402
++                                     visibility)
++
++from tests.job_manager import fixtures                           # noqa: E402
++from tests.job_manager.fixtures import (LATER, NOW, PROFILE, UUID,  # noqa: E402
++                                        FakeOperations, job, stage,
++                                        submission)
++from tests.job_manager.test_scheduling import pool, principals    # noqa: E402
++
++ADAPTER = "sha256:" + "e" * 64
++
++# A SECOND INSTANT, so a case can tell the snapshot's query time apart from an
++# observation's own time. NOW is when the activity was observed; LATER is when
++# the manager queried its stores to assemble the document.
++QUERY_AT = LATER
++
++
++def resolved(document, path):
++    """The value one of this view's `source` paths actually names.
++
++    THE PROVENANCE IS CHECKED RATHER THAN TRUSTED. A view that labelled a
++    value with a path it did not come from would be worse than one that
++    published no provenance at all, so these cases walk the path back into the
++    source document and compare.
++    """
++    held = document
++    for step in path.split("."):
++        name, _, rest = step.partition("[")
++        if name:
++            held = held[name]
++        while rest:
++            index, _, rest = rest.partition("[")
++            held = held[int(index.rstrip("]"))]
++    return held
++
++
++def facts_in(held):
++    """Every (path, fact) in one projected row, at any depth."""
++    found = []
++
++    def walk(node):
++        if isinstance(node, dict):
++            if "known" in node and "unknown_reason" in node:
++                found.append(node)
++                if isinstance(node.get("observed_at"), dict):
++                    found.append(node["observed_at"])
++                return
++            for one in node.values():
++                walk(one)
++        elif isinstance(node, list):
++            for one in node:
++                walk(one)
++
++    walk(held)
++    return found
++
++
++class VisibilityCase(fixtures.JobManagerCase):
++    """One real Job store, one real control store, one real status document.
++
++    `JobManagerCase` is the Job Manager suite's own fixture -- the same one
++    `tests/job_manager/test_status.py` drives the projection with -- so the
++    documents here are the producer's, not this file's.
++    """
++
++    def setUp(self):
++        super().setUp()
++        self.jobs = self.store()
++        self.acts = FakeOperations()
++
++    def submitted(self, document=None):
++        submit(self.jobs, document if document is not None else submission())
++        return self.jobs
++
++    def document(self, *, observed_at=QUERY_AT, operations=None):
++        return status(self.jobs, operations if operations is not None
++                      else self.acts, observed_at=observed_at)
++
++    def unread(self, *, observed_at=QUERY_AT):
++        """The same projection through a reader holding no control store."""
++        return status(self.jobs, Unobserved(), observed_at=observed_at)
++
++    def row(self, document, stage_id):
++        for one in rows_of(document):
++            if one["stage"]["stage_id"]["value"] == stage_id:
++                return one
++        raise AssertionError(stage_id)
++
++    # -- real producer material ---------------------------------------------
++
++    def attempt_of(self, stage_id="job-a/implementation"):
++        return episodes.live_of(self.jobs, stage_id)["attempt_id"]
++
++    def reserved(self, stage_id="job-a/implementation"):
++        """A REAL scheduler reservation, through the scheduler's own act.
++
++        Not an invented allocation document: the members this view reports are
++        `stage_allocations`' own columns joined with the pool's, and a fixture
++        that wrote its own names would let the view miss the real shape.
++        """
++        document = pool()
++        scheduler.activate_pool(self.jobs, document, principals(document))
++        [row] = [one for one in stage_rows(self.jobs)
++                 if one["stage_id"] == stage_id]
++        live = episodes.live_of(self.jobs, stage_id)
++        return dict(scheduler.reserve(self.jobs,
++                                      episodes.attempting(dict(row), live)))
++
++    def runtime_control(self):
++        control = self.control()
++        return control
++
++    def observed_runtime(self, attempt_id, *, control=None):
++        """The Worker Manager's OWN runtime projection for a real attempt.
++
++        Recorded through `record_attempt` and read back through
++        `attempt_runtime_of`, so what reaches the status document is the
++        producer's document rather than this file's idea of one.
++        """
++        control = control if control is not None else self.control()
++        record_attempt(control, attempt_id=attempt_id, adapter_name="acp",
++                       adapter_digest=ADAPTER, profile_digest=PROFILE,
++                       policy_digest="sha256:" + "2" * 64)
++        return control, attempt_runtime_of(control, attempt_id)
++
++    def observed_activity(self, control, attempt_id, total):
++        """A REAL activity observation, written and read back.
++
++        `observe_activity` is the owner of the count and the instant; this
++        takes both from it rather than spelling a pair here.
++        """
++        observe_activity(control, attempt_id=attempt_id, bytes_observed=total)
++        return attempt_activity_of(control, attempt_id)
++
++    def running(self, stage_id="job-a/implementation", *, total=None,
++                execution_runtime="running", exchange_state=None):
++        """One stage carrying a real runtime, and optionally real activity.
++
++        The runtime axis word is moved onto the producer's own document rather
++        than replacing it: `record_attempt` leaves an attempt at
++        `not-started`, and advancing it to `running` through the manager's
++        activation would need an offer, a claim and an adapter this read-only
++        case has no business building.
++        """
++        attempt_id = self.attempt_of(stage_id)
++        control, runtime = self.observed_runtime(attempt_id)
++        runtime = dict(runtime, execution_runtime=execution_runtime,
++                       runtime_id="runtime-1",
++                       assignment={"work_ref": {"authority_uuid": UUID,
++                                                "work_id": fixtures.WORK_A},
++                                   "participant": fixtures.WHO,
++                                   "generation": 1})
++        activity = (None if total is None
++                    else self.observed_activity(control, attempt_id, total))
++        self.acts.observed(stage_id, claimed_by=True, runtime=runtime,
++                           activity=activity)
++        if exchange_state is not None:
++            self.acts.commanded(stage_id, state=exchange_state,
++                                receipt={"accepted_at": NOW})
++        return attempt_id, control
++
++
++class TheProducerShapeIsWhatThisViewWasBuiltAgainst(VisibilityCase):
++    """Revalidated rather than assumed, because the brief says so and because
++    a view built on the wrong shape passes against its own fixture."""
++
++    def test_the_runtime_carries_no_attempt_id_and_the_activity_does(self):
++        """The one asymmetry every association check in this view turns on."""
++        self.submitted(submission(jobs=[job("job-a")]))
++        attempt_id, _control = self.running(total=4096)
++        document = self.document()
++        runtime = document["jobs"][0]["stages"][0]["runtime"]
++        self.assertEqual(sorted(runtime),
++                         ["activity", "assignment", "execution_runtime",
++                          "runtime_id"])
++        self.assertNotIn("attempt_id", runtime)
++        self.assertEqual(runtime["activity"]["attempt_id"], attempt_id)
++
++    def test_the_worker_managers_own_runtime_reader_names_five_members(self):
++        """What `projection` narrows: the producer's reader carries the attempt
++        id and the cleanup axis, and the status document publishes neither."""
++        self.submitted(submission(jobs=[job("job-a")]))
++        attempt_id = self.attempt_of()
++        _control, runtime = self.observed_runtime(attempt_id)
++        self.assertEqual(sorted(runtime),
++                         ["assignment", "attempt_id", "cleanup",
++                          "execution_runtime", "runtime_id"])
++        self.assertEqual(runtime["attempt_id"], attempt_id)
++
++    def test_an_unobserved_recorded_attempt_answers_nulls_not_zero(self):
++        """The producer's own distinction, which this view has to carry."""
++        self.submitted(submission(jobs=[job("job-a")]))
++        attempt_id = self.attempt_of()
++        control, _runtime = self.observed_runtime(attempt_id)
++        self.assertEqual(attempt_activity_of(control, attempt_id),
++                         {"attempt_id": attempt_id, "bytes_observed": None,
++                          "observed_at": None})
++
++
++class EveryCurrentStageGetsARow(VisibilityCase):
++
++    def test_every_stage_including_an_unassigned_one_is_reported(self):
++        self.submitted()
++        rows = rows_of(self.document())
++        self.assertEqual([one["stage"]["stage_id"]["value"] for one in rows],
++                         ["job-a/implementation", "job-a/review",
++                          "job-b/implementation"])
++        for one in rows:
++            self.assertEqual(one["allocation"]["presence"], "unallocated")
++
++    def test_the_exact_identities_are_reported_rather_than_summarised(self):
++        self.submitted(submission(jobs=[job("job-a")]))
++        document = self.document()
++        stage = document["jobs"][0]["stages"][0]
++        held = self.row(document, "job-a/implementation")["stage"]
++        for member in ("stage_id", "job_id", "kind", "state", "work_id",
++                       "episode", "attempt_id", "offer_id"):
++            self.assertTrue(held[member]["known"], member)
++            self.assertEqual(held[member]["value"], stage[member], member)
++
++    def test_the_job_identities_travel_with_the_row(self):
++        self.submitted()
++        held = self.row(self.document(), "job-b/implementation")["job"]
++        self.assertEqual(held["job_id"]["value"], "job-b")
++        self.assertEqual(held["submission_id"]["value"], "sub-1")
++
++    def test_the_schema_is_this_views_own_and_names_the_one_it_read(self):
++        self.submitted()
++        held = visibility(self.document())
++        self.assertEqual(held["schema"], "baton.v12.worker-visibility/1")
++        self.assertEqual(held["source_schema"], "baton.v12.job-status/6")
++
++    def test_every_known_fact_resolves_to_the_path_it_claims(self):
++        """The provenance is walked back into the source document.
++
++        This is the case that makes every `source` in this view mean
++        something: a value labelled with a path it did not come from would
++        pass every other assertion here.
++        """
++        self.submitted(submission(jobs=[job("job-a")]))
++        self.running(total=4096, exchange_state="working")
++        self.reserved()
++        document = self.document()
++        checked = 0
++        for row in rows_of(document):
++            for fact in facts_in(row):
++                if not fact["known"] or fact["source"] is None:
++                    continue
++                self.assertEqual(fact["value"],
++                                 resolved(document, fact["source"]),
++                                 fact["source"])
++                checked += 1
++        self.assertGreater(checked, 20)
++
++
++class AnAssignedStageShowsItsWorker(VisibilityCase):
++
++    def test_a_real_reservation_is_reported_with_its_worker_identity(self):
++        self.submitted(submission(jobs=[job("job-a")]))
++        allocation = self.reserved()
++        held = self.row(self.document(), "job-a/implementation")["allocation"]
++        self.assertEqual(held["presence"], "allocated")
++        self.assertTrue(held["attempt_association"]["verified"])
++        for member in ("assignment_id", "worker_id", "participant", "lane",
++                       "generation", "allocation_state",
++                       "selection_outcome"):
++            self.assertTrue(held["facts"][member]["known"], member)
++            self.assertEqual(held["facts"][member]["value"],
++                             allocation[member], member)
++        self.assertEqual(held["facts"]["reserved_at"]["value"],
++                         allocation["reserved_at"])
++
++    def test_a_reservation_exists_before_any_runtime_does(self):
++        """Reserved, not yet started: the question an operator asks first."""
++        self.submitted(submission(jobs=[job("job-a")]))
++        self.reserved()
++        row = self.row(self.document(), "job-a/implementation")
++        self.assertEqual(row["allocation"]["presence"], "allocated")
++        self.assertEqual(row["runtime"]["presence"], "not-reported")
++        self.assertFalse(row["runtime"]["facts"]["runtime_id"]["known"])
++
++    def test_an_unallocated_stage_is_not_an_unknown_one(self):
++        """The distinction the brief names: nobody reserved a worker, which is
++        a fact, versus this document cannot be read, which is not."""
++        self.submitted(submission(jobs=[job("job-a")]))
++        held = self.row(self.document(), "job-a/implementation")["allocation"]
++        self.assertEqual(held["presence"], "unallocated")
++        self.assertIn("no worker reservation", held["reason"])
++        self.assertFalse(held["facts"]["worker_id"]["known"])
++
++    def test_a_malformed_allocation_is_unknown_and_says_which(self):
++        document = self.submitted(submission(jobs=[job("job-a")])) and \
++            self.document()
++        document["jobs"][0]["stages"][0]["allocation"] = ["not", "a", "doc"]
++        held = self.row(document, "job-a/implementation")["allocation"]
++        self.assertEqual(held["presence"], "unknown")
++        self.assertIn("other than a document", held["reason"])
++        self.assertNotEqual(held["presence"], "unallocated")
++
++    def test_the_reserved_workers_configured_profile_is_not_a_runtime_fact(self):
++        self.submitted(submission(jobs=[job("job-a")]))
++        allocation = self.reserved()
++        row = self.row(self.document(), "job-a/implementation")
++        self.assertEqual(
++            row["allocation"]["facts"]["worker_profile_digest"]["value"],
++            allocation["worker_profile_digest"])
++        # AND THE STAGE'S OWN CONFIGURED PROFILE IS ITS OWN BLOCK, apart from
++        # everything observed.
++        self.assertEqual(
++            row["configured_profile"]["facts"]["profile_digest"]["value"],
++            PROFILE)
++        self.assertEqual(row["runtime"]["presence"], "not-reported")
++
++
++class TheRuntimeIsReportedAndNeverDiagnosed(VisibilityCase):
++
++    def test_a_missing_runtime_is_an_absence_with_a_reason(self):
++        self.submitted(submission(jobs=[job("job-a")]))
++        held = self.row(self.document(), "job-a/implementation")["runtime"]
++        self.assertEqual(held["presence"], "not-reported")
++        self.assertIn("reports no runtime", held["reason"])
++        for name, fact in held["facts"].items():
++            self.assertFalse(fact["known"], name)
++            self.assertIsNone(fact["value"], name)
++        self.assertEqual(held["assignment"]["presence"], "not-reported")
++
++    def test_a_reported_runtime_forwards_the_identity_and_the_axis_word(self):
++        self.submitted(submission(jobs=[job("job-a")]))
++        self.running(execution_runtime="quiescent")
++        held = self.row(self.document(), "job-a/implementation")["runtime"]
++        self.assertEqual(held["presence"], "reported")
++        self.assertEqual(held["facts"]["runtime_id"]["value"], "runtime-1")
++        self.assertEqual(held["facts"]["execution_runtime"]["value"],
++                         "quiescent")
++
++    def test_a_quiet_runtime_is_never_called_healthy_or_offline(self):
++        """The whole family of defect this view is bounded against: a word
++        this view invented standing in for an observation nobody made."""
++        self.submitted(submission(jobs=[job("job-a")]))
++        self.running(execution_runtime="quiescent")
++        row = self.row(self.document(), "job-a/implementation")
++        text = json.dumps(row).lower()
++        for invented in ("healthy", "offline", "alive", "dead", "stuck",
++                         "wedged", "degraded"):
++            self.assertNotIn(invented, text, invented)
++
++    def test_the_runtime_association_is_declared_unverifiable_not_claimed(self):
++        self.submitted(submission(jobs=[job("job-a")]))
++        self.running()
++        held = self.row(self.document(), "job-a/implementation")["runtime"]
++        self.assertFalse(held["attempt_association"]["verified"])
++        self.assertIn("no attempt id on the runtime",
++                      held["attempt_association"]["basis"])
++
++    def test_the_fixed_assignment_is_reported_member_by_member(self):
++        self.submitted(submission(jobs=[job("job-a")]))
++        self.running()
++        held = self.row(self.document(),
++                        "job-a/implementation")["runtime"]["assignment"]
++        self.assertEqual(held["presence"], "reported")
++        self.assertEqual(held["facts"]["work_id"]["value"], fixtures.WORK_A)
++        self.assertEqual(held["facts"]["authority_uuid"]["value"], UUID)
++        self.assertEqual(held["facts"]["participant"]["value"], fixtures.WHO)
++        self.assertEqual(held["facts"]["generation"]["value"], 1)
++
++    def test_a_malformed_runtime_is_unknown_rather_than_half_read(self):
++        self.submitted(submission(jobs=[job("job-a")]))
++        document = self.document()
++        document["jobs"][0]["stages"][0]["runtime"] = "running"
++        held = self.row(document, "job-a/implementation")["runtime"]
++        self.assertEqual(held["presence"], "unknown")
++        self.assertFalse(held["facts"]["execution_runtime"]["known"])
++
++
++class TheActivityCountIsBytesAndNothingElse(VisibilityCase):
++
++    def test_a_real_observation_carries_the_count_and_its_own_instant(self):
++        self.submitted(submission(jobs=[job("job-a")]))
++        self.running(total=4096)
++        held = self.row(self.document(), "job-a/implementation")["activity"]
++        self.assertEqual(held["presence"], "observed")
++        self.assertEqual(held["unit"], "bytes")
++        self.assertEqual(held["facts"]["bytes_observed"]["value"], 4096)
++        # THE INSTANT IS THE PRODUCER'S, CARRIED ON THE COUNT.
++        self.assertEqual(
++            held["facts"]["bytes_observed"]["observed_at"]["value"], NOW)
++        self.assertEqual(held["facts"]["observed_at"]["value"], NOW)
++        self.assertTrue(held["attempt_association"]["verified"])
++
++    def test_the_count_is_bytes_and_is_not_offered_as_progress(self):
++        self.submitted(submission(jobs=[job("job-a")]))
++        self.running(total=4096)
++        held = self.row(self.document(), "job-a/implementation")["activity"]
++        self.assertIn("bytes", held["what"])
++        self.assertIn("not tokens", held["what"])
++        for invented in ("token", "percent", "progress_percent"):
++            self.assertNotIn(invented, json.dumps(held["facts"]))
++
++    def test_a_runtime_without_activity_reports_nothing_observed(self):
++        self.submitted(submission(jobs=[job("job-a")]))
++        self.running(total=None)
++        held = self.row(self.document(), "job-a/implementation")["activity"]
++        self.assertEqual(held["presence"], "not-observed")
++        self.assertFalse(held["facts"]["bytes_observed"]["known"])
++        self.assertIsNone(held["facts"]["bytes_observed"]["value"])
++
++    def test_a_recorded_attempt_nobody_observed_is_not_a_zero(self):
++        """The producer's own `{bytes_observed: null, observed_at: null}`."""
++        self.submitted(submission(jobs=[job("job-a")]))
++        attempt_id = self.attempt_of()
++        control, runtime = self.observed_runtime(attempt_id)
++        self.acts.observed("job-a/implementation", claimed_by=True,
++                           runtime=runtime,
++                           activity=attempt_activity_of(control, attempt_id))
++        held = self.row(self.document(), "job-a/implementation")["activity"]
++        self.assertEqual(held["presence"], "not-observed")
++        self.assertIn("observed none of its session stream", held["reason"])
++        self.assertIsNone(held["facts"]["bytes_observed"]["value"])
++        self.assertNotEqual(held["facts"]["bytes_observed"]["value"], 0)
++
++    def test_an_observed_zero_is_a_known_zero(self):
++        """Written through the real producer, which accepts a zero total and
++        stamps it. `known: false` here would discard an observation that was
++        actually made; `0` on the case above would invent one."""
++        self.submitted(submission(jobs=[job("job-a")]))
++        self.running(total=0)
++        held = self.row(self.document(), "job-a/implementation")["activity"]
++        self.assertEqual(held["presence"], "observed")
++        self.assertTrue(held["facts"]["bytes_observed"]["known"])
++        self.assertEqual(held["facts"]["bytes_observed"]["value"], 0)
++        self.assertEqual(
++            held["facts"]["bytes_observed"]["observed_at"]["value"], NOW)
++
++    def test_the_two_absences_and_the_zero_are_three_different_answers(self):
++        """Side by side in one document, so none of them can pass because
++        another one set the shape."""
++        self.submitted(submission(jobs=[job("job-zero"), job("job-quiet"),
++                                        job("job-bare")]))
++        self.running("job-zero/implementation", total=0)
++        self.running("job-quiet/implementation", total=None)
++        document = self.document()
++        zero = self.row(document, "job-zero/implementation")["activity"]
++        quiet = self.row(document, "job-quiet/implementation")["activity"]
++        bare = self.row(document, "job-bare/implementation")["activity"]
++        self.assertEqual(
++            [zero["presence"], quiet["presence"], bare["presence"]],
++            ["observed", "not-observed", "unknown"])
++        self.assertEqual(zero["facts"]["bytes_observed"]["value"], 0)
++        self.assertIsNone(quiet["facts"]["bytes_observed"]["value"])
++        self.assertIn("reports no runtime", bare["reason"])
++
++    def test_a_malformed_count_is_unknown_and_never_evidence(self):
++        self.submitted(submission(jobs=[job("job-a")]))
++        self.running(total=4096)
++        document = self.document()
++        for spoiled in ("4096", -1, True, 10 ** 400, {"bytes": 1}):
++            held = copy.deepcopy(document)
++            held["jobs"][0]["stages"][0]["runtime"]["activity"][
++                "bytes_observed"] = spoiled
++            found = self.row(held, "job-a/implementation")["activity"]
++            self.assertEqual(found["presence"], "unknown", repr(spoiled)[:20])
++            self.assertIsNone(found["facts"]["bytes_observed"]["value"])
++
++    def test_a_malformed_activity_document_is_unknown_not_a_count(self):
++        self.submitted(submission(jobs=[job("job-a")]))
++        document = self.document()
++        self.running(total=4096)
++        document = self.document()
++        document["jobs"][0]["stages"][0]["runtime"]["activity"] = 4096
++        held = self.row(document, "job-a/implementation")["activity"]
++        self.assertEqual(held["presence"], "unknown")
++        self.assertIn("other than a document", held["reason"])
++
++
++class NoObservationIsAttachedToAnAttemptThatDidNotEarnIt(VisibilityCase):
++    """The restarted-episode rule, driven over real material.
++
++    THE PAIRING IS ADVERSARIAL AND THE PARTS ARE NOT. Episode one's allocation
++    and activity are the scheduler's and the Worker Manager's own documents;
++    episode two's stage row is the projection's. The producer keeps them apart
++    and this view must not depend on that.
++    """
++
++    def restarted(self):
++        self.submitted(submission(jobs=[job("job-a")]))
++        first = self.attempt_of()
++        allocation = self.reserved()
++        control, runtime = self.observed_runtime(first)
++        activity = self.observed_activity(control, first, 4096)
++        self.acts.observed("job-a/implementation", claimed_by=True,
++                           runtime=runtime, activity=activity)
++        before = self.document()
++        live = episodes.live_of(self.jobs, "job-a/implementation")
++        ended = episodes.end_episode(self.jobs, live,
++                                     "abandoned-after-restart", 1)
++        episodes.open_next(self.jobs, "job-a/implementation", ended)
++        second = self.attempt_of()
++        self.assertNotEqual(first, second)
++        after = self.document()
++        return first, second, allocation, activity, before, after
++
++    def test_the_new_episode_is_the_one_reported(self):
++        first, second, _allocation, _activity, _before, after = self.restarted()
++        held = self.row(after, "job-a/implementation")["stage"]
++        self.assertEqual(held["attempt_id"]["value"], second)
++        self.assertEqual(held["episode"]["value"], 2)
++        self.assertNotEqual(held["attempt_id"]["value"], first)
++
++    def test_the_old_episodes_allocation_is_refused_on_the_new_one(self):
++        _first, _second, allocation, _activity, _before, after = \
++            self.restarted()
++        after["jobs"][0]["stages"][0]["allocation"] = allocation
++        held = self.row(after, "job-a/implementation")["allocation"]
++        self.assertEqual(held["presence"], "unknown")
++        self.assertIn("does not belong to this stage's current attempt",
++                      held["reason"])
++        self.assertFalse(held["attempt_association"]["verified"])
++        self.assertFalse(held["facts"]["worker_id"]["known"])
++        self.assertNotIn(allocation["worker_id"],
++                         json.dumps(self.row(after, "job-a/implementation")))
++
++    def test_the_old_episodes_activity_is_refused_on_the_new_one(self):
++        _first, _second, _allocation, activity, _before, after = \
++            self.restarted()
++        after["jobs"][0]["stages"][0]["runtime"] = {
++            "runtime_id": "runtime-1", "execution_runtime": "running",
++            "assignment": None, "activity": activity}
++        held = self.row(after, "job-a/implementation")["activity"]
++        self.assertEqual(held["presence"], "unknown")
++        self.assertIn("names another attempt", held["reason"])
++        self.assertIsNone(held["facts"]["bytes_observed"]["value"])
++        self.assertNotIn("4096", json.dumps(held))
++
++    def test_the_episode_instant_comes_from_the_live_record_only(self):
++        """No history fallback: the ended episode's `opened_at` is in the same
++        document and must not become the current episode's."""
++        _first, _second, _allocation, _activity, _before, after = \
++            self.restarted()
++        stage = after["jobs"][0]["stages"][0]
++        self.assertEqual([one["episode"] for one in stage["episodes"]], [1, 2])
++        held = self.row(after, "job-a/implementation")["stage"]
++        self.assertEqual(held["episode_opened_at"]["source"],
++                         "jobs[0].stages[0].episodes[1].opened_at")
++        self.assertEqual(held["episode_opened_at"]["value"],
++                         stage["episodes"][1]["opened_at"])
++
++    def test_an_ended_record_under_the_current_number_is_not_read(self):
++        """A document that contradicts itself answers unknown rather than
++        publishing the instant of an attempt that is over."""
++        self.submitted(submission(jobs=[job("job-a")]))
++        document = self.document()
++        stage = document["jobs"][0]["stages"][0]
++        stage["episodes"][0]["ended_state"] = "abandoned-after-restart"
++        stage["episodes"][0]["ended_at"] = NOW
++        held = self.row(document, "job-a/implementation")["stage"]
++        self.assertFalse(held["episode_opened_at"]["known"])
++        self.assertIn("no live record", held["episode_opened_at"][
++            "unknown_reason"])
++
++    def test_a_stage_between_episodes_reports_no_attempt_and_no_facts(self):
++        """`_observed_state`'s honest gap: an ended episode with no
++        replacement names no attempt, so nothing may be attached to one."""
++        self.submitted(submission(jobs=[job("job-a")]))
++        live = episodes.live_of(self.jobs, "job-a/implementation")
++        episodes.end_episode(self.jobs, live, "abandoned-after-restart", 1)
++        row = self.row(self.document(), "job-a/implementation")
++        self.assertFalse(row["stage"]["attempt_id"]["known"])
++        self.assertFalse(row["stage"]["episode"]["known"])
++        self.assertEqual(row["allocation"]["presence"], "unallocated")
++        self.assertEqual(row["activity"]["presence"], "unknown")
++
++
++class TheExchangeIsReportedAsItWasAnswered(VisibilityCase):
++
++    def test_an_unread_exchange_is_nobody_looked_rather_than_idle(self):
++        self.submitted(submission(jobs=[job("job-a")]))
++        held = self.row(self.document(), "job-a/implementation")["exchange"]
++        self.assertEqual(held["presence"], "not-read")
++        self.assertIn("nobody looked", held["reason"])
++
++    def test_a_read_exchange_reports_its_state_and_the_receipts_instant(self):
++        self.submitted(submission(jobs=[job("job-a")]))
++        self.running(exchange_state="working")
++        held = self.row(self.document(), "job-a/implementation")["exchange"]
++        self.assertEqual(held["presence"], "reported")
++        self.assertEqual(held["facts"]["state"]["value"], "working")
++        self.assertEqual(held["receipt"]["accepted_at"]["value"], NOW)
++        self.assertFalse(held["attempt_association"]["verified"])
++
++    def test_an_exchange_with_no_command_yet_is_not_a_malformed_one(self):
++        self.submitted(submission(jobs=[job("job-a")]))
++        self.running(exchange_state="not-requested")
++        document = self.document()
++        document["jobs"][0]["stages"][0]["exchange"]["command"] = None
++        held = self.row(document, "job-a/implementation")["exchange"]
++        self.assertFalse(held["command"]["command_digest"]["known"])
++        self.assertIn("as null",
++                      held["command"]["command_digest"]["unknown_reason"])
++
++    def test_worker_authored_entry_names_are_never_forwarded(self):
++        """`foreign` is bytes a container chose. Reporting them here would
++        make this view their publisher."""
++        self.submitted(submission(jobs=[job("job-a")]))
++        self.running(exchange_state="working")
++        document = self.document()
++        document["jobs"][0]["stages"][0]["exchange"]["foreign"] = [
++            "/etc/shadow", "secret-token.txt"]
++        held = json.dumps(self.row(document, "job-a/implementation"))
++        self.assertNotIn("shadow", held)
++        self.assertNotIn("secret-token", held)
++
++
++class TheSafeAllowlistIsTheWholeSurface(VisibilityCase):
++
++    def spoiled(self):
++        """A real document with untrusted material added everywhere this view
++        reads. Every one of these is a member the allowlists do not name."""
++        self.submitted(submission(jobs=[job("job-a")]))
++        self.running(total=4096, exchange_state="working")
++        allocation = self.reserved()
++        document = self.document()
++        stage = document["jobs"][0]["stages"][0]
++        stage["allocation"] = dict(allocation,
++                                   bearer="bearer-SECRET",
++                                   release_reason="raw log: SECRET")
++        stage["runtime"]["argv"] = ["docker", "run", "--token", "SECRET"]
++        stage["runtime"]["credentials"] = {"api_key": "SECRET"}
++        stage["runtime"]["activity"]["transcript_path"] = "/private/SECRET"
++        stage["exchange"]["payload"] = {"stdout": "SECRET"}
++        stage["context_path"] = "/private/context/SECRET"
++        return document
++
++    def test_nothing_outside_the_allowlists_reaches_the_view(self):
++        document = self.spoiled()
++        held = json.dumps(visibility(document))
++        self.assertNotIn("SECRET", held)
++        self.assertNotIn("api_key", held)
++        self.assertNotIn("argv", held)
++        self.assertNotIn("transcript", held)
++
++    def test_the_allowlisted_members_still_come_through(self):
++        """A filter that dropped everything would pass the case above."""
++        document = self.spoiled()
++        row = self.row(document, "job-a/implementation")
++        self.assertTrue(row["allocation"]["facts"]["worker_id"]["known"])
++        self.assertEqual(row["runtime"]["facts"]["runtime_id"]["value"],
++                         "runtime-1")
++        self.assertEqual(row["activity"]["facts"]["bytes_observed"]["value"],
++                         4096)
++
++    def test_the_source_document_is_not_mutated_by_being_viewed(self):
++        document = self.spoiled()
++        before = json.dumps(document, sort_keys=True)
++        visibility(document)
++        rows_of(document)
++        self.assertEqual(json.dumps(document, sort_keys=True), before)
++
++    def test_an_overlong_text_member_is_unknown_rather_than_republished(self):
++        self.submitted(submission(jobs=[job("job-a")]))
++        self.running()
++        document = self.document()
++        document["jobs"][0]["stages"][0]["runtime"]["runtime_id"] = "x" * 5000
++        held = self.row(document, "job-a/implementation")["runtime"]
++        self.assertFalse(held["facts"]["runtime_id"]["known"])
++        self.assertNotIn("x" * 300, json.dumps(held))
++
++    def test_no_locator_inside_the_document_is_followed(self):
++        """A visibility view that opened what a locator names would be reading
++        whatever that names rather than reporting this document."""
++        self.submitted(submission(jobs=[job("job-a")]))
++        self.acts.frozen("job-a/implementation", "completed", artifacts=[
++            {"output_name": "proposal", "artifact_id": "artifact-1",
++             "media_type": "application/x-patch", "bytes": 1024,
++             "content_digest": "sha256:" + "d" * 64,
++             "locator": "/private/never-opened.patch"}])
++        document = self.document()
++        opened = []
++        real = open
++
++        def watched(*args, **kwargs):
++            opened.append(args[0] if args else None)
++            return real(*args, **kwargs)
++
++        with mock.patch("builtins.open", watched):
++            held = json.dumps(visibility(document))
++        self.assertEqual(opened, [])
++        self.assertNotIn("never-opened", held)
++
++
++class TheSnapshotsOwnInstantIsOnlyEverTheQueryTime(VisibilityCase):
++
++    def test_the_query_time_is_named_as_such_and_not_as_contact(self):
++        self.submitted(submission(jobs=[job("job-a")]))
++        self.running(total=4096)
++        held = visibility(self.document(observed_at=QUERY_AT))
++        self.assertEqual(held["snapshot"]["query_time"]["value"], QUERY_AT)
++        self.assertIn("not a worker contact time",
++                      held["snapshot"]["query_time_note"])
++
++    def test_no_fact_borrows_the_query_time_as_its_own(self):
++        """The defect this guards: a view with one timestamp to hand reporting
++        it wherever an instant was wanted."""
++        self.submitted(submission(jobs=[job("job-a")]))
++        self.running(total=4096)
++        row = self.row(self.document(observed_at=QUERY_AT),
++                       "job-a/implementation")
++        self.assertNotEqual(NOW, QUERY_AT)
++        for fact in facts_in(row):
++            self.assertNotEqual(fact["value"], QUERY_AT,
++                                fact.get("source"))
++
++    def test_contact_and_context_are_unsupported_with_the_reason(self):
++        self.submitted(submission(jobs=[job("job-a")]))
++        self.running(total=4096)
++        row = self.row(self.document(), "job-a/implementation")
++        contact = row["contact"]["facts"]["last_contact"]
++        self.assertFalse(contact["known"])
++        self.assertEqual(contact["unknown_reason"],
++                         "unsupported by this status contract")
++        self.assertIn("snapshot query time is not one", row["contact"]["note"])
++        for name in ("context_used", "context_limit"):
++            fact = row["context"]["facts"][name]
++            self.assertFalse(fact["known"])
++            self.assertEqual(fact["unknown_reason"],
++                             "unsupported by this status contract")
++
++    def test_no_per_field_observation_time_is_invented(self):
++        """Only the members the contract gives an instant to have one."""
++        self.submitted(submission(jobs=[job("job-a")]))
++        self.running(total=4096)
++        row = self.row(self.document(), "job-a/implementation")
++        timed = [fact for fact in facts_in(row)
++                 if isinstance(fact.get("observed_at"), dict)
++                 and fact["observed_at"]["known"]]
++        self.assertEqual([fact["source"] for fact in timed],
++                         ["jobs[0].stages[0].runtime.activity.bytes_observed"])
++        for fact in facts_in(row):
++            if isinstance(fact.get("observed_at"), dict) \
++                    and not fact["observed_at"]["known"]:
++                self.assertTrue(fact["observed_at"]["unknown_reason"])
++
++
++class FreshnessIsNotDecidedHere(VisibilityCase):
++
++    def test_freshness_is_unknown_with_the_selected_reason(self):
++        self.submitted(submission(jobs=[job("job-a")]))
++        self.running(total=4096)
++        held = visibility(self.document())
++        row = held["stages"][0]
++        for found in (held["freshness"], row["freshness"],
++                      row["activity"]["freshness"], row["contact"]["freshness"]):
++            self.assertEqual(found["state"], "unknown")
++            self.assertEqual(found["reason"], "no freshness policy selected")
++
++    def test_an_old_observation_cannot_become_fresh_by_being_read_again(self):
++        """The viewer's claim168071 defect, in this surface's terms: the same
++        unchanged source read many times answers the same instants and never a
++        verdict about them."""
++        self.submitted(submission(jobs=[job("job-a")]))
++        self.running(total=4096)
++        document = self.document()
++        first = visibility(document)
++        for _ in range(3):
++            self.assertEqual(visibility(document), first)
++        text = json.dumps(first)
++        for invented in ("fresh", "stale", "recent", "current_as_of"):
++            self.assertNotIn(invented, text.replace("freshness", ""))
++
++    def test_a_local_read_time_is_named_separately_and_alters_nothing(self):
++        self.submitted(submission(jobs=[job("job-a")]))
++        self.running(total=4096)
++        document = self.document()
++        bare = visibility(document)
++        early = visibility(document, read_at="2026-09-02T01:00:00.000Z")
++        late = visibility(document, read_at="2027-01-01T00:00:00.000Z")
++        self.assertEqual(early["stages"], late["stages"])
++        self.assertEqual(early["stages"], bare["stages"])
++        self.assertEqual(early["snapshot"], late["snapshot"])
++        self.assertEqual(late["read"]["local_read_time"]["value"],
++                         "2027-01-01T00:00:00.000Z")
++        self.assertFalse(bare["read"]["local_read_time"]["known"])
++
++    def test_a_local_read_time_that_is_not_an_instant_refuses(self):
++        self.submitted(submission(jobs=[job("job-a")]))
++        with self.assertRaises(VisibilityRefusal):
++            visibility(self.document(), read_at="yesterday-ish")
++
++
++class TheDocumentIsValidatedBeforeAnythingIsReported(VisibilityCase):
++
++    def test_an_unsupported_schema_refuses(self):
++        self.submitted()
++        document = self.document()
++        document["schema"] = "baton.v12.job-status/99"
++        with self.assertRaises(VisibilityRefusal) as caught:
++            visibility(document)
++        self.assertIn("baton.v12.job-status/6", str(caught.exception))
++
++    def test_the_refusal_does_not_echo_the_rejected_input(self):
++        """A message assembled out of an untrusted document lets that document
++        choose what lands in a log."""
++        self.submitted()
++        document = self.document()
++        document["schema"] = "baton.v12.job-status/" + "A" * 4000
++        with self.assertRaises(VisibilityRefusal) as caught:
++            visibility(document)
++        held = str(caught.exception)
++        self.assertNotIn("A" * 40, held)
++        self.assertLess(len(held), 400)
++
++    def test_a_malformed_envelope_refuses_rather_than_reporting_rows(self):
++        self.submitted()
++        for spoiled in ({"observed_at": None}, {"observed_at": "whenever"},
++                        {"observed_at": "2026-09-02T00:00:00.000Z" + "0" * 40},
++                        {"canonical": "yes"}, {"jobs": {"job-a": {}}},
++                        {"incarnation": 7}):
++            document = self.document()
++            document.update(spoiled)
++            with self.assertRaises(VisibilityRefusal):
++                visibility(document)
++
++    def test_a_malformed_nested_structure_refuses(self):
++        """The viewer's claim168169 shape: a document with the right schema
++        whose stages are not documents."""
++        self.submitted()
++        for spoiled in ([None], [{"stages": None}], [{"stages": [None]}],
++                        [{"stages": [{"episodes": 7}]}]):
++            document = self.document()
++            document["jobs"] = spoiled
++            with self.assertRaises(VisibilityRefusal):
++                visibility(document)
++
++    def test_a_list_or_a_scalar_is_not_a_status_document(self):
++        for spoiled in ([], 7, "status", None):
++            with self.assertRaises(VisibilityRefusal):
++                visibility(spoiled)
++
++    def test_the_schema_this_view_reads_is_the_producers_own_constant(self):
++        from baton_v12.job_manager import documents
++
++        self.assertEqual(worker_visibility.SOURCE_SCHEMA,
++                         documents.STATUS_SCHEMA)
++        self.assertEqual(documents.STATUS_SCHEMA, "baton.v12.job-status/6")
++
++    def test_an_oversize_document_refuses_rather_than_truncating(self):
++        self.submitted()
++        body = json.dumps(self.document()).encode("utf-8")
++        body += b" " * (worker_visibility.MAX_SNAPSHOT_BYTES + 1 - len(body))
++        with self.assertRaises(VisibilityRefusal) as caught:
++            visibility(body)
++        self.assertIn("unknown subset", str(caught.exception))
++
++    def test_the_input_bound_is_the_existing_viewers_own(self):
++        from tools import job_viewer
++
++        self.assertEqual(worker_visibility.MAX_SNAPSHOT_BYTES,
++                         job_viewer.MAX_SNAPSHOT_BYTES)
++
++
++class TheCommandReadsAFileAndAnswersJSON(VisibilityCase):
++
++    def written(self, document=None, *, name="status.json"):
++        place = os.path.join(self.root, name)
++        with open(place, "w", encoding="utf-8") as handle:
++            json.dump(document if document is not None else self.document(),
++                      handle)
++        return place
++
++    def ran(self, argv):
++        import io
++
++        stream = io.StringIO()
++        code = worker_visibility.main(argv, stream=stream)
++        return code, stream.getvalue()
++
++    def test_it_reads_a_status_document_an_operator_already_has(self):
++        self.submitted()
++        self.running(total=4096)
++        code, output = self.ran(["--snapshot", self.written()])
++        self.assertEqual(code, 0)
++        held = json.loads(output)
++        self.assertEqual(held["schema"], "baton.v12.worker-visibility/1")
++        self.assertEqual([one["stage"]["stage_id"]["value"]
++                          for one in held["stages"]],
++                         ["job-a/implementation", "job-a/review",
++                          "job-b/implementation"])
++        self.assertEqual(
++            held["stages"][0]["activity"]["facts"]["bytes_observed"]["value"],
++            4096)
++
++    def test_the_command_answers_the_same_facts_the_function_does(self):
++        self.submitted(submission(jobs=[job("job-a")]))
++        self.running(total=4096)
++        document = self.document()
++        code, output = self.ran(["--snapshot", self.written(document)])
++        self.assertEqual(code, 0)
++        self.assertEqual(json.loads(output)["stages"], visibility(
++            document)["stages"])
++
++    def test_an_unreadable_file_refuses_in_JSON_with_status_two(self):
++        code, output = self.ran(["--snapshot",
++                                 os.path.join(self.root, "absent.json")])
++        self.assertEqual(code, 2)
++        self.assertIn("refused", json.loads(output))
++
++    def test_an_unsupported_version_refuses_in_JSON_with_status_two(self):
++        self.submitted()
++        document = self.document()
++        document["schema"] = "baton.v12.job-status/99"
++        code, output = self.ran(["--snapshot", self.written(document)])
++        self.assertEqual(code, 2)
++        self.assertIn("baton.v12.job-status/6", json.loads(output)["refused"])
++        self.assertNotIn("stages", json.loads(output))
++
++    def test_an_oversize_file_refuses_rather_than_reading_a_subset(self):
++        self.submitted()
++        place = self.written()
++        with open(place, "a", encoding="utf-8") as handle:
++            handle.write(" " * (worker_visibility.MAX_SNAPSHOT_BYTES + 1))
++        code, output = self.ran(["--snapshot", place])
++        self.assertEqual(code, 2)
++        self.assertIn("unknown subset", json.loads(output)["refused"])
++
++    def test_the_module_is_callable_as_a_module(self):
++        """`python3 -m tools.worker_visibility` is the named interface."""
++        self.assertTrue(hasattr(worker_visibility, "main"))
++        source = pathlib.Path(worker_visibility.__file__).read_text(
++            encoding="utf-8")
++        self.assertIn('if __name__ == "__main__":', source)
++
++
++class TheViewOpensNothingAndActsNotAtAll(VisibilityCase):
++    """THE BOUNDARIES ARE TRAPPED rather than described.
++
++    Every owner below raises if the view reaches it, so "no store, no model,
++    no probe, no scheduler act, no subprocess, no write" is the owners' own
++    refusal rather than this file's assurance.
++    """
++
++    def traps(self, guards):
++        import sqlite3
++        import subprocess
++
++        for owner, method in ((JobStore, "open"), (ControlStore, "open"),
++                              (scheduler, "reserve"),
++                              (scheduler, "activate_pool"),
++                              (subprocess, "run"), (subprocess, "Popen"),
++                              (sqlite3, "connect")):
++            guards.enter_context(mock.patch.object(
++                owner, method,
++                side_effect=AssertionError("the view acted: "
++                                           + getattr(owner, "__name__",
++                                                     str(owner))
++                                           + "." + method)))
++
++    def test_projecting_opens_no_store_and_performs_no_act(self):
++        from contextlib import ExitStack
++
++        self.submitted()
++        self.running(total=4096, exchange_state="working")
++        self.reserved()
++        document = self.document()
++        before = list(self.acts.calls)
++        with ExitStack() as guards:
++            self.traps(guards)
++            held = visibility(document)
++            rows_of(document)
++        self.assertEqual(len(held["stages"]), 3)
++        self.assertEqual(self.acts.calls, before)
++
++    def test_the_command_opens_no_store_and_performs_no_act(self):
++        from contextlib import ExitStack
++        import io
++
++        self.submitted()
++        place = os.path.join(self.root, "status.json")
++        with open(place, "w", encoding="utf-8") as handle:
++            json.dump(self.document(), handle)
++        before = list(self.acts.calls)
++        with ExitStack() as guards:
++            self.traps(guards)
++            stream = io.StringIO()
++            code = worker_visibility.main(["--snapshot", place],
++                                          stream=stream)
++        self.assertEqual(code, 0)
++        self.assertEqual(self.acts.calls, before)
++        self.assertEqual(json.loads(stream.getvalue())["source_schema"],
++                         "baton.v12.job-status/6")
++
++    def test_the_stores_are_unchanged_by_being_viewed(self):
++        """The disposable owner state is established before and compared
++        after, rather than assumed."""
++        self.submitted()
++        self.running(total=4096)
++        before = json.dumps(self.document(), sort_keys=True)
++        for _ in range(3):
++            visibility(self.document())
++        self.assertEqual(json.dumps(self.document(), sort_keys=True), before)
++
++    def test_the_module_imports_no_store_engine_or_subprocess(self):
++        """Read the imports rather than the paragraph promising the absence."""
++        source = pathlib.Path(worker_visibility.__file__).read_text(
++            encoding="utf-8")
++        names = set()
++        for node in ast.walk(ast.parse(source)):
++            if isinstance(node, ast.Import):
++                names.update(one.name for one in node.names)
++            elif isinstance(node, ast.ImportFrom) and node.module:
++                names.add(node.module)
++        self.assertEqual(names, {"argparse", "datetime", "json", "sys",
++                                 "baton_v12.job_manager", "tools"})
++
++    def test_the_module_names_no_act_and_no_reader_of_its_own(self):
++        """The identifiers, not the prose: this module's docstring promises
++        the absence of several of these words, so a text search would find the
++        promise rather than an act."""
++        source = pathlib.Path(worker_visibility.__file__).read_text(
++            encoding="utf-8")
++        used = set()
++        for node in ast.walk(ast.parse(source)):
++            if isinstance(node, ast.Name):
++                used.add(node.id)
++            elif isinstance(node, ast.Attribute):
++                used.add(node.attr)
++        for absent in ("serve", "submit", "claim", "cancel", "reconcile",
++                       "sweep", "reserve", "probe", "inquire", "scheduler",
++                       "JobStore", "ControlStore", "Deployment", "connect",
++                       "execute", "executemany", "commit", "cursor",
++                       "subprocess", "run", "Popen", "status",
++                       "observation_of", "operations_from"):
++            self.assertNotIn(absent, used, absent)
++
++    def test_job_status_six_is_unchanged_by_this_work(self):
++        """The contract this view reads is the producer's and stays theirs."""
++        from baton_v12.job_manager import documents
++
++        self.assertEqual(documents.STATUS_SCHEMA, "baton.v12.job-status/6")
++        self.assertEqual(
++            documents.CONTRACTS["stage.status"][0],
++            ("stage_id", "job_id", "kind", "state", "work_id", "profile_name",
++             "profile_digest", "episode", "offer_id", "attempt_id",
++             "episodes", "corrections", "allocation", "allocations", "gates",
++             "receipts", "deferral", "runtime", "exchange", "artifacts"))
++
++
++class TheUnreadManagerIsNotAQuietDeployment(VisibilityCase):
++
++    def test_a_projection_with_no_control_store_says_nobody_looked(self):
++        self.submitted()
++        held = visibility(self.unread())
++        self.assertFalse(held["snapshot"]["canonical"]["value"])
++        self.assertEqual(len(held["stages"]), 3)
++        for row in held["stages"]:
++            self.assertEqual(row["runtime"]["presence"], "not-reported")
++            self.assertEqual(row["activity"]["presence"], "unknown")
++
++    def test_a_canonical_read_says_so(self):
++        self.submitted()
++        held = visibility(self.document())
++        self.assertTrue(held["snapshot"]["canonical"]["value"])
++
++    def test_an_empty_store_reports_no_rows_rather_than_a_quiet_one(self):
++        held = visibility(self.document())
++        self.assertEqual(held["stages"], [])
++        self.assertTrue(held["snapshot"]["canonical"]["value"])
++
++
++class TheSweptPipelineIsReportedToo(VisibilityCase):
++    """One pass of the real sweep, so the view is exercised over a document
++    whose stages have actually been admitted rather than only submitted."""
++
++    def test_an_admitted_stage_reports_its_offer_and_attempt(self):
++        self.submitted(submission(jobs=[job("job-a")]))
++        sweep(self.jobs, self.acts, now=NOW)
++        document = self.document()
++        row = self.row(document, "job-a/implementation")
++        stage = document["jobs"][0]["stages"][0]
++        self.assertEqual(row["stage"]["state"]["value"], stage["state"])
++        self.assertEqual(row["stage"]["offer_id"]["value"], stage["offer_id"])
++        self.assertEqual(row["stage"]["attempt_id"]["value"],
++                         stage["attempt_id"])
++        self.assertEqual(row["allocation"]["presence"], "unallocated")
++
++
++if __name__ == "__main__":                                  # pragma: no cover
++    unittest.main()
+diff --git a/v12/python/tools/worker_visibility.py b/v12/python/tools/worker_visibility.py
+new file mode 100644
+index 00000000..f5097d22
+--- /dev/null
++++ b/v12/python/tools/worker_visibility.py
+@@ -0,0 +1,924 @@
++"""W324214 -- the minimum read-only worker visibility view.
++
++WHAT IT IS. A bounded PROJECTION over one status document the Job Manager
++already publishes (`baton.v12.job-status/6`): one row per current stage, with
++the worker, allocation, runtime, exchange and activity facts that document
++actually carries, each labelled with WHERE IT CAME FROM and -- when the source
++records one -- WHEN IT WAS OBSERVED. It answers "which worker is this stage
++on, and what has anybody actually seen of it".
++
++WHAT IT IS NOT, and each of these is a decision rather than an omission:
++
++  IT IS NOT TELEMETRY COLLECTION. There is no provider call, no engine call,
++  no CPU or network sampling, no terminal scraping, no transcript and no
++  context restoration here. The view reads a file an operator already has.
++  A collector would be a second source of truth about liveness, and the one
++  this deployment trusts is the manager's own observation.
++
++  IT HAS NO STORE AND NO CLOCK. No database is opened, no serving factory is
++  constructed, no command is spawned. It never asks what time it is, because
++  every age it could compute would be a statement about how long THIS PROGRAM
++  has been looking rather than about the worker. `--snapshot` names the one
++  input, and `observed_at` in that input is the SNAPSHOT QUERY TIME -- when
++  the manager looked at its own stores -- which is not when a worker was last
++  heard from and is never reported as if it were.
++
++  IT DECIDES NOTHING ABOUT FRESHNESS. No freshness threshold has been
++  selected for this Work, so freshness is reported as `unknown` with the
++  reason `no freshness policy selected`. That is deliberate: a view that
++  invented a window would be publishing a policy nobody chose, and an old
++  timestamp must not be able to acquire `fresh` or `healthy` merely because
++  somebody read the same file again. This projection is a pure function of
++  the document, so re-reading an unchanged source answers the same facts with
++  the same instants, every time.
++
++  IT INVENTS NO FACT AND NO INSTANT. Every member is either KNOWN, with its
++  source JSON field path, or UNKNOWN with a bounded reason. A missing count is
++  never a zero; an observed integer zero IS a known zero, because the producer
++  can really record one and "nobody has observed anything" and "this manager
++  observed zero bytes at 12:04" are different answers. A quiet runtime is
++  neither healthy nor offline -- the producer's own axis word is forwarded and
++  nothing here maps it onto a verdict.
++
++  IT FORWARDS NO NESTED OBJECT. Every block below is an explicit allowlist of
++  named members with a declared type. A view that forwarded whole nested
++  documents would publish whatever a future producer adds to them --
++  credentials, raw logs, a command argv, a private-context path -- and would
++  do it silently. The worker-authored entry names an exchange reports as
++  `foreign` are deliberately not among the members: they are bytes a container
++  chose, and naming them here would make this view their publisher.
++
++  AND IT ATTACHES NOTHING TO AN ATTEMPT THAT DID NOT EARN IT. Activity carries
++  an attempt id and is compared against the stage's CURRENT attempt; an
++  allocation carries an assignment id and episode and is compared against both.
++  An observation belonging to a previous episode is reported as unknown with
++  the reason, never silently re-attached and never filled in from history.
++  The runtime block carries no attempt id at all in this contract -- so this
++  view says the association is unverifiable here rather than claiming it.
++
++HOW IT RELATES TO THE EXISTING SURFACES. `tools/job_viewer.py` is the
++operator's terminal view of the same document and owns the reading of it:
++`read_snapshot` validates the schema and the nested structure and bounds the
++input, and this module calls it rather than growing a second reader. What is
++new here is the JSON PROJECTION -- per-fact provenance, per-fact unknown
++reasons and the explicit attempt-association checks -- published under its own
++version, `baton.v12.worker-visibility/1`. `baton.v12.job-status/6` is
++unchanged by this Work.
++
++ONE DELIBERATE DISAGREEMENT WITH THE VIEWER, stated out loud: the terminal
++view renders an observed `0` as `unknown`, which is a DISPLAY rule about a
++count an operator reads as "running and idle". This surface is a FACT
++projection for a consumer, so an observed zero is reported as a known zero
++with its observation time and its explicit `bytes` unit. Neither surface
++renders an absence as a count.
++"""
++
++import argparse
++import datetime
++import json
++import sys
++
++from baton_v12.job_manager import documents
++
++from tools import job_viewer
++
++__all__ = ["SCHEMA", "SOURCE_SCHEMA", "MAX_SNAPSHOT_BYTES", "MAX_TEXT",
++           "MAX_INSTANT_TEXT", "MAX_ACTIVITY_BYTES", "VisibilityRefusal",
++           "visibility", "rows_of", "read_status", "main"]
++
++# WHAT THIS VIEW PUBLISHES, versioned on its own. A consumer that must not
++# mistake this projection for the status document has to be able to tell which
++# one it is holding.
++SCHEMA = "baton.v12.worker-visibility/1"
++
++# AND THE ONE IT READS, taken from the producer's own constant rather than
++# spelled again here. A copy would be a second place to update.
++SOURCE_SCHEMA = documents.STATUS_SCHEMA
++
++# THE INPUT BOUNDS, which are the existing viewer's own. They bound what this
++# program holds; the manager's input rules are untouched by anything here.
++MAX_SNAPSHOT_BYTES = job_viewer.MAX_SNAPSHOT_BYTES
++MAX_INSTANT_TEXT = job_viewer.MAX_INSTANT_TEXT
++MAX_ACTIVITY_BYTES = job_viewer.MAX_ACTIVITY_BYTES
++
++# How much of a source TEXT member may become a reported value. Identities,
++# participants, lanes and digests are all far inside this; a longer one is a
++# document this view does not recognise rather than a value to republish.
++MAX_TEXT = 256
++
++
++class VisibilityRefusal(Exception):
++    """What this program answers with instead of reporting something untrue.
++
++    ITS MESSAGES CARRY NO INPUT. Every sentence below is a literal plus, at
++    most, a Python type name -- never a member of the document. An error
++    string assembled out of an untrusted document is a way for that document
++    to choose what lands in a log, and this view refuses rather than echoing.
++    """
++
++
++def _refuse(message):
++    raise VisibilityRefusal(message)
++
++
++# -- the vocabulary of absence ----------------------------------------------
++#
++# ONE CLOSED SET OF REASONS, because "unknown" alone is the answer this Work
++# exists to replace. A consumer branching on these needs them to be stable
++# strings rather than prose assembled at the call site.
++
++ABSENT = "the source document does not carry this member"
++NULL = "the source document carries this member as null"
++PARENT_NULL = ("the source document carries the observation this member would "
++               "be part of as null")
++MALFORMED = ("the source member is not the type this contract names, so it is "
++             "unknown rather than evidence")
++MALFORMED_BLOCK = ("the source document carries this observation as something "
++                   "other than a document, so none of its members is evidence")
++UNSUPPORTED = "unsupported by this status contract"
++NO_FACT = "this fact is unknown, so there is no observation of it to time"
++NO_OBSERVATION_TIME = ("this status contract records no observation time for "
++                       "this fact, and this view does not invent one")
++NO_RUNTIME = "this status document reports no runtime for this stage"
++NO_EXCHANGE = ("this status document reports no exchange read for this stage, "
++               "which is nobody looked rather than an idle worker")
++NO_ACTIVITY = ("this status document reports no activity projection for this "
++               "stage's attempt")
++NOTHING_OBSERVED = ("this attempt is recorded and this manager has observed "
++                    "none of its session stream yet")
++NO_ALLOCATION = ("this stage's current attempt holds no worker reservation in "
++                 "this document")
++NO_EPISODE = "this stage has no current episode"
++FOREIGN_ALLOCATION = ("the reported reservation does not belong to this "
++                      "stage's current attempt and episode, so it is not "
++                      "attached to it")
++FOREIGN_ACTIVITY = ("the reported activity names another attempt, so it is "
++                    "not attached to this one")
++NO_EPISODE_RECORD = ("this stage's episode history carries no live record for "
++                     "the current episode and attempt; an earlier episode's "
++                     "record is not read in its place")
++
++# WHY FRESHNESS IS NOT ANSWERED. Selected for this Work: no threshold.
++NO_FRESHNESS_POLICY = "no freshness policy selected"
++FRESHNESS_NOTE = ("an instant in this document is a historical observation; "
++                  "re-reading the same source cannot make it fresh, and this "
++                  "view reports no fresh, stale, healthy or offline verdict")
++
++# WHAT THE SNAPSHOT'S OWN INSTANT IS, and what it is not.
++QUERY_TIME_NOTE = ("the instant the manager queried its own stores to assemble "
++                   "this status document; it is not a worker contact time and "
++                   "not an activity observation time")
++
++# WHY AN ASSOCIATION IS OR IS NOT PROVED HERE.
++ACTIVITY_ASSOCIATED = ("the activity projection names an attempt id and it "
++                       "equals this stage's current attempt")
++ALLOCATION_ASSOCIATED = ("the reservation's assignment_id and episode equal "
++                         "this stage's current attempt and episode")
++RUNTIME_UNVERIFIABLE = ("this status contract carries no attempt id on the "
++                        "runtime, so this view cannot verify which attempt it "
++                        "belongs to and does not claim one")
++EXCHANGE_UNVERIFIABLE = ("this status contract carries no attempt id on the "
++                         "exchange, so this view cannot verify which attempt "
++                         "it belongs to and does not claim one")
++
++# -- the member types ------------------------------------------------------
++
++_TEXT = "text"
++_INTEGER = "integer"
++_INSTANT = "instant"
++_COUNT = "count"
++
++# THE ALLOWLISTS. Each is (member, type), and nothing outside them is read or
++# reported. See the module docstring for why a whole nested object is never
++# forwarded.
++
++# The scheduler's reservation, in `stage_allocations`' own spelling.
++ALLOCATION_MEMBERS = (("assignment_id", _TEXT), ("stage_id", _TEXT),
++                      ("episode", _INTEGER), ("worker_id", _TEXT),
++                      ("participant", _TEXT), ("lane", _TEXT),
++                      ("generation", _INTEGER),
++                      ("allocation_state", _TEXT),
++                      ("selection_outcome", _TEXT),
++                      ("preferred_worker_id", _TEXT),
++                      ("reserved_at", _INSTANT),
++                      ("recovery_required_at", _INSTANT),
++                      ("released_at", _INSTANT),
++                      # THE RESERVED WORKER'S CONFIGURED PROFILE IDENTITY,
++                      # which is a fact about the pool rather than about
++                      # anything observed of a running process.
++                      ("worker_profile_name", _TEXT),
++                      ("worker_profile_digest", _TEXT),
++                      ("variant", _TEXT), ("separation_class", _TEXT))
++
++# The runtime axis as the projection publishes it: four members, and the
++# attempt id is NOT one of them.
++RUNTIME_MEMBERS = (("runtime_id", _TEXT), ("execution_runtime", _TEXT))
++
++# The fixed assignment that travels with the runtime.
++ASSIGNMENT_MEMBERS = (("participant", _TEXT), ("generation", _INTEGER))
++WORK_REF_MEMBERS = (("work_id", _TEXT), ("authority_uuid", _TEXT))
++
++# The exchange, reported as the deployment answered it. `foreign` is
++# deliberately absent -- see the module docstring.
++EXCHANGE_MEMBERS = (("transport", _TEXT), ("sequence_id", _TEXT),
++                    ("state", _TEXT))
++EXCHANGE_COMMAND_MEMBERS = (("sequence_id", _TEXT),
++                            ("command_digest", _TEXT))
++EXCHANGE_TERMINAL_MEMBERS = (("ending", _TEXT), ("fault_code", _TEXT),
++                             ("manifest_digest", _TEXT))
++# A contained unreadability, as the producer reduced it: the KIND of
++# disagreement and never the prose, which is composed from bytes a worker
++# wrote.
++EXCHANGE_UNREADABLE_MEMBERS = (("category", _TEXT), ("code", _TEXT))
++
++# The stage's own identities, from the status document's stage document.
++STAGE_MEMBERS = (("stage_id", _TEXT), ("job_id", _TEXT), ("kind", _TEXT),
++                 ("state", _TEXT), ("work_id", _TEXT), ("episode", _INTEGER),
++                 ("attempt_id", _TEXT), ("offer_id", _TEXT))
++
++# The stage's CONFIGURED profile, which is what was asked for rather than
++# anything observed of a worker.
++PROFILE_MEMBERS = (("profile_name", _TEXT), ("profile_digest", _TEXT))
++
++JOB_MEMBERS = (("job_id", _TEXT), ("submission_id", _TEXT))
++
++# -- facts -----------------------------------------------------------------
++
++
++def _instant_text(value):
++    """One recorded instant, bounded and parsed, or None.
++
++    PARSED TO VALIDATE AND NEVER TO COMPUTE. This view reports the producer's
++    own text; parsing is how it refuses to republish something that is not an
++    instant at all. No age is derived from it, here or anywhere below -- that
++    would need a clock, and this program has none.
++    """
++    if type(value) is not str or len(value) > MAX_INSTANT_TEXT:
++        return None
++    text = value[:-1] + "+00:00" if value.endswith("Z") else value
++    try:
++        datetime.datetime.fromisoformat(text)
++    except (ValueError, TypeError):
++        return None
++    return value
++
++
++def _checked(value, kind):
++    """One source value held to its declared type, or None for malformed."""
++    if kind is _TEXT:
++        return value if type(value) is str and 0 < len(value) <= MAX_TEXT \
++            else None
++    if kind is _INTEGER:
++        # `bool` is an `int` in this language and is not a count or an
++        # episode number; a document carrying one is malformed rather than
++        # carrying zero or one.
++        return value if type(value) is int and type(value) is not bool \
++            and abs(value) <= MAX_ACTIVITY_BYTES else None
++    if kind is _COUNT:
++        # ZERO IS INSIDE THE DOMAIN, because the producer can really observe
++        # and record a zero total. Negative is not: the producer refuses one.
++        return value if type(value) is int and type(value) is not bool \
++            and 0 <= value <= MAX_ACTIVITY_BYTES else None
++    if kind is _INSTANT:
++        return _instant_text(value)
++    raise AssertionError("unknown member type")        # pragma: no cover
++
++
++def _no_time(reason=NO_OBSERVATION_TIME, source=None):
++    return {"known": False, "value": None, "source": source,
++            "unknown_reason": reason}
++
++
++def _at(value, source):
++    return {"known": True, "value": value, "source": source,
++            "unknown_reason": None}
++
++
++def _known(value, source, observed_at=None):
++    return {"known": True, "value": value, "source": source,
++            "unknown_reason": None,
++            "observed_at": observed_at if observed_at is not None
++            else _no_time()}
++
++
++def _unknown(source, reason):
++    return {"known": False, "value": None, "source": source,
++            "unknown_reason": reason, "observed_at": _no_time(NO_FACT)}
++
++
++def _member(held, name, kind, path, *, observed_at=None):
++    """One allowlisted member of one source document, with its field path.
++
++    ABSENT, NULL AND MALFORMED ARE THREE ANSWERS and they stay three. A
++    consumer asking "why do I not know this" gets a different sentence for a
++    member the producer never wrote, a member it wrote as null, and a member it
++    wrote as something this contract does not name.
++    """
++    source = (path + "." + name) if path else name
++    if held is None:
++        # THE PARENT IS ABSENT, NOT THIS MEMBER. `exchange.command: null` is
++        # "no command has been published", and reporting that as a malformed
++        # document would be this view calling an ordinary state a defect.
++        return _unknown(source, PARENT_NULL)
++    if type(held) is not dict:
++        return _unknown(source, MALFORMED_BLOCK)
++    if name not in held:
++        return _unknown(source, ABSENT)
++    value = held[name]
++    if value is None:
++        return _unknown(source, NULL)
++    checked = _checked(value, kind)
++    if checked is None:
++        return _unknown(source, MALFORMED)
++    return _known(checked, source, observed_at=observed_at)
++
++
++def _members(held, names, path, *, observed_at=None):
++    return {name: _member(held, name, kind, path, observed_at=observed_at)
++            for name, kind in names}
++
++
++def _absent_members(names, path, reason):
++    """Every allowlisted member, unknown for ONE stated reason.
++
++    THE SHAPE DOES NOT CHANGE WITH THE ANSWER. A consumer that had to handle
++    a missing key as well as an unknown fact has two ways to read an absence,
++    and one of them is `0`.
++    """
++    return {name: _unknown((path + "." + name) if path else name, reason)
++            for name, _kind in names}
++
++
++def _association(verified, basis):
++    """Whether THIS observation was proved to belong to THIS attempt."""
++    return {"verified": verified, "basis": basis}
++
++
++# -- the envelope ----------------------------------------------------------
++
++
++def _document(source):
++    """One status document, validated, from a mapping, text or bytes.
++
++    THE READING IS THE EXISTING VIEWER'S. `job_viewer.read_snapshot` owns the
++    schema check, the nested structural check and the input bound; a second
++    reader here would be a second answer to "is this document readable", and
++    the two would disagree on the day it mattered.
++
++    ITS REFUSALS ARE RESTATED RATHER THAN FORWARDED, and that is this Work's
++    own rule rather than a complaint about that reader: the viewer's sentences
++    name the offending value so an operator at a terminal can see it, and this
++    surface is a JSON answer that may be logged by something that is not a
++    person. So what crosses this boundary is a fixed sentence plus, at most, a
++    Python type name.
++    """
++    held = source
++    if isinstance(held, (bytes, bytearray, str)):
++        if isinstance(held, str):
++            held = held.encode("utf-8")
++        if len(held) > MAX_SNAPSHOT_BYTES:
++            _refuse("this status document is larger than the "
++                    + str(MAX_SNAPSHOT_BYTES) + " bytes this view holds; "
++                    "refusing rather than reporting an unknown subset of the "
++                    "stages")
++        try:
++            held = json.loads(bytes(held).decode("utf-8"))
++        except (ValueError, UnicodeDecodeError):
++            _refuse("this status document is not readable as one JSON "
++                    "document")
++    if type(held) is not dict:
++        _refuse("a status snapshot is one JSON document, not "
++                + type(held).__name__)
++    if held.get("schema") != SOURCE_SCHEMA:
++        # AN UNSUPPORTED VERSION IS NOT A DOCUMENT TO READ THE RECOGNISED
++        # PARTS OUT OF, and the rejected value is not echoed back.
++        _refuse("this view reads " + SOURCE_SCHEMA + " and this document "
++                "declares another schema (" + type(held.get("schema")).__name__
++                + "); an unsupported version is refused rather than partly "
++                "read")
++    _envelope(held)
++    try:
++        job_viewer.read_snapshot(held, received_at=None)
++    except job_viewer.ViewerRefusal:
++        _refuse("this document's nested structure is not the one "
++                + SOURCE_SCHEMA + " describes; the view refuses rather than "
++                "reporting an unknown subset of the stages")
++    return held
++
++
++def _envelope(held):
++    """The five envelope members this contract names, by type.
++
++    A MALFORMED ENVELOPE IS REFUSED RATHER THAN PARTLY REPORTED. `observed_at`
++    in particular: it is the only instant the document has about ITSELF, the
++    whole reason it can be read without a clock, and a document whose own
++    query time is not an instant is not one to publish rows out of.
++    """
++    if _instant_text(held.get("observed_at")) is None:
++        _refuse("this document's observed_at is not a bounded instant; the "
++                "snapshot query time is the one instant this view needs from "
++                "the envelope and it is not readable")
++    if type(held.get("canonical")) is not bool:
++        _refuse("this document's canonical member is not a boolean, so "
++                "whether the manager was read at all is not readable")
++    if held.get("incarnation") is not None \
++            and _checked(held.get("incarnation"), _TEXT) is None:
++        _refuse("this document's incarnation is neither absent nor a bounded "
++                "identity")
++    jobs = held.get("jobs")
++    if jobs is not None and type(jobs) is not list:
++        _refuse("this document's jobs are a list; refusing rather than "
++                "reporting an unknown subset of the stages")
++
++
++# -- the blocks ------------------------------------------------------------
++
++
++def _allocation(stage, path, attempt, episode):
++    """The scheduler's reservation for THIS stage's current attempt.
++
++    THREE ANSWERS, AND `unallocated` IS NOT ONE OF THE OTHER TWO. A stage with
++    no reservation is a real and ordinary state -- queued, or claimed before
++    the scheduler acted -- and it is a different answer from a document whose
++    allocation member is unreadable, which is a different answer again from a
++    reservation that belongs to another attempt. Folding any of those into
++    "unknown" alone is what makes an operator guess.
++
++    AND THE WORKER IS NOT THE RUNTIME. A stage can be reserved on a worker
++    before any runtime exists, so this block is reported beside the runtime
++    rather than folded into it.
++    """
++    source = path + ".allocation"
++    held = stage.get("allocation")
++    if held is None:
++        return {"presence": "unallocated", "reason": NO_ALLOCATION,
++                "source": source,
++                "attempt_association": _association(False, NO_ALLOCATION),
++                "facts": _absent_members(ALLOCATION_MEMBERS, source,
++                                         NO_ALLOCATION)}
++    if type(held) is not dict:
++        return {"presence": "unknown", "reason": MALFORMED_BLOCK,
++                "source": source,
++                "attempt_association": _association(False, MALFORMED_BLOCK),
++                "facts": _absent_members(ALLOCATION_MEMBERS, source,
++                                         MALFORMED_BLOCK)}
++    # THE ASSOCIATION IS PROVED BEFORE ANY MEMBER IS REPORTED. A reservation
++    # made for the episode that ended is not this episode's worker, and
++    # reporting its worker id here is exactly the "old attempt's allocation on
++    # a new one" this Work must not do.
++    if not attempt["known"] or not episode["known"] \
++            or _checked(held.get("assignment_id"), _TEXT) != attempt["value"] \
++            or _checked(held.get("episode"), _INTEGER) != episode["value"]:
++        return {"presence": "unknown", "reason": FOREIGN_ALLOCATION,
++                "source": source,
++                "attempt_association": _association(False, FOREIGN_ALLOCATION),
++                "facts": _absent_members(ALLOCATION_MEMBERS, source,
++                                         FOREIGN_ALLOCATION)}
++    return {"presence": "allocated", "reason": None, "source": source,
++            "attempt_association": _association(True, ALLOCATION_ASSOCIATED),
++            # THE RESERVATION'S OWN INSTANTS ARE REPORTED AS FACTS and are not
++            # bound to the state as its observation time. `reserved_at`,
++            # `recovery_required_at` and `released_at` are the moments this
++            # store recorded transitions; which of them explains the current
++            # state is the reader's inference and not a time this view
++            # attaches to a value the contract gave no time to.
++            "facts": _members(held, ALLOCATION_MEMBERS, source)}
++
++
++def _runtime(stage, path):
++    """The runtime identity and the producer's own execution axis word.
++
++    THE AXIS WORD IS FORWARDED AND NEVER MAPPED. `quiescent` is not "offline",
++    `running` is not "healthy", and `uncertain` is not "failed": those are the
++    manager's axis values and turning them into a verdict here would be this
++    view deciding something it cannot observe. A consumer that wants a verdict
++    has to say whose policy it is applying.
++
++    AND ABSENCE IS NOT A VERDICT EITHER. No runtime means no runtime has been
++    reported for this stage -- not that the worker is down.
++    """
++    source = path + ".runtime"
++    held = stage.get("runtime")
++    if held is None:
++        return {"presence": "not-reported", "reason": NO_RUNTIME,
++                "source": source,
++                "attempt_association": _association(False, NO_RUNTIME),
++                "facts": _absent_members(RUNTIME_MEMBERS, source, NO_RUNTIME),
++                "assignment": {
++                    "presence": "not-reported", "reason": NO_RUNTIME,
++                    "source": source + ".assignment",
++                    "facts": {
++                        **_absent_members(ASSIGNMENT_MEMBERS,
++                                          source + ".assignment", NO_RUNTIME),
++                        **_absent_members(WORK_REF_MEMBERS,
++                                          source + ".assignment.work_ref",
++                                          NO_RUNTIME)}}}
++    if type(held) is not dict:
++        return {"presence": "unknown", "reason": MALFORMED_BLOCK,
++                "source": source,
++                "attempt_association": _association(False, MALFORMED_BLOCK),
++                "facts": _absent_members(RUNTIME_MEMBERS, source,
++                                         MALFORMED_BLOCK),
++                "assignment": {
++                    "presence": "unknown", "reason": MALFORMED_BLOCK,
++                    "source": source + ".assignment",
++                    "facts": {
++                        **_absent_members(ASSIGNMENT_MEMBERS,
++                                          source + ".assignment",
++                                          MALFORMED_BLOCK),
++                        **_absent_members(WORK_REF_MEMBERS,
++                                          source + ".assignment.work_ref",
++                                          MALFORMED_BLOCK)}}}
++    return {"presence": "reported", "reason": None, "source": source,
++            # THE PRODUCER SHAPE, REVALIDATED: `projection._stage_status`
++            # publishes exactly runtime_id, execution_runtime, assignment and
++            # activity. The attempt id the Worker Manager's reader carries is
++            # NOT among them, so there is nothing here to compare against this
++            # stage's attempt and this view says so instead of assuming.
++            "attempt_association": _association(False, RUNTIME_UNVERIFIABLE),
++            "facts": _members(held, RUNTIME_MEMBERS, source),
++            "assignment": _assignment(held, source + ".assignment")}
++
++
++def _assignment(runtime, source):
++    """The four-part identity activation fixed, as the runtime carries it."""
++    held = runtime.get("assignment")
++    if held is None or type(held) is not dict:
++        reason = NULL if held is None else MALFORMED_BLOCK
++        return {"presence": "not-reported" if held is None else "unknown",
++                "reason": reason, "source": source,
++                "facts": {
++                    **_absent_members(ASSIGNMENT_MEMBERS, source, reason),
++                    **_absent_members(WORK_REF_MEMBERS,
++                                      source + ".work_ref", reason)}}
++    return {"presence": "reported", "reason": None, "source": source,
++            "facts": {**_members(held, ASSIGNMENT_MEMBERS, source),
++                      **_members(held.get("work_ref"), WORK_REF_MEMBERS,
++                                 source + ".work_ref")}}
++
++
++def _exchange(stage, path):
++    """Whether a turn is happening inside the container, as answered.
++
++    `null` IS "NOBODY LOOKED" AND IS NOT "IDLE". The producer is explicit that
++    a control plane holding no exchange read is a different answer from an
++    exchange that has been read and carries no command yet, and this view
++    keeps them apart.
++
++    THE RECEIPT'S INSTANT IS THE WORKER'S OWN `accepted_at` and is reported as
++    that fact's time -- not as the time of the exchange STATE, which this
++    contract gives no instant at all.
++    """
++    source = path + ".exchange"
++    held = stage.get("exchange")
++    if held is None or type(held) is not dict:
++        reason = NO_EXCHANGE if held is None else MALFORMED_BLOCK
++        return {"presence": "not-read" if held is None else "unknown",
++                "reason": reason, "source": source,
++                "attempt_association": _association(False, reason),
++                "facts": _absent_members(EXCHANGE_MEMBERS, source, reason),
++                "command": _absent_members(EXCHANGE_COMMAND_MEMBERS,
++                                           source + ".command", reason),
++                "receipt": {"accepted_at": _unknown(
++                    source + ".receipt.accepted_at", reason)},
++                "terminal": _absent_members(EXCHANGE_TERMINAL_MEMBERS,
++                                            source + ".terminal", reason),
++                "unreadable": _absent_members(EXCHANGE_UNREADABLE_MEMBERS,
++                                              source + ".unreadable", reason)}
++    accepted = _member(held.get("receipt"), "accepted_at", _INSTANT,
++                       source + ".receipt")
++    return {"presence": "reported", "reason": None, "source": source,
++            "attempt_association": _association(False, EXCHANGE_UNVERIFIABLE),
++            "facts": _members(held, EXCHANGE_MEMBERS, source),
++            "command": _members(held.get("command"),
++                                EXCHANGE_COMMAND_MEMBERS,
++                                source + ".command"),
++            # THE RECEIPT IS ITS OWN FACT WITH ITS OWN TIME, and that time is
++            # the instant it carries rather than a time this view chose.
++            "receipt": {"accepted_at": accepted},
++            "terminal": _members(held.get("terminal"),
++                                 EXCHANGE_TERMINAL_MEMBERS,
++                                 source + ".terminal"),
++            "unreadable": _members(held.get("unreadable"),
++                                   EXCHANGE_UNREADABLE_MEMBERS,
++                                   source + ".unreadable")}
++
++
++def _activity(stage, path, attempt):
++    """How much of the worker's session stream this manager has OBSERVED.
++
++    IT IS BYTES. Not tokens, not a percentage of anything, not model progress:
++    the producer's ruling is explicit that repeated noise grows the count, a
++    long quiet model call leaves it unchanged, and a provider may expose no
++    measurable stream at all. The unit is published beside the number so a
++    consumer cannot read it as the other thing.
++
++    A ZERO IS A ZERO AND AN ABSENCE IS NOT. The producer accepts an observed
++    total of zero, stamps it, and answers `{bytes_observed: null,
++    observed_at: null}` for a recorded attempt nobody has observed yet. Those
++    are two different facts and this block reports them as two.
++
++    AND THE ATTEMPT IS CHECKED, because the activity projection is the one
++    observation in this contract that names its own attempt. A count belonging
++    to the episode that ended is not this episode's progress.
++    """
++    runtime = stage.get("runtime")
++    source = path + ".runtime.activity"
++    if type(runtime) is not dict:
++        reason = NO_RUNTIME if runtime is None else MALFORMED_BLOCK
++        return _quiet_activity(source, "unknown", reason)
++    held = runtime.get("activity")
++    if held is None:
++        return _quiet_activity(source, "not-observed", NO_ACTIVITY)
++    if type(held) is not dict:
++        return _quiet_activity(source, "unknown", MALFORMED_BLOCK)
++    named = _checked(held.get("attempt_id"), _TEXT)
++    if not attempt["known"] or named is None or named != attempt["value"]:
++        return _quiet_activity(source, "unknown", FOREIGN_ACTIVITY)
++    # THE COUNT'S OBSERVATION TIME IS THE PRODUCER'S OWN INSTANT, carried ON
++    # the count rather than beside it, so a consumer cannot report the number
++    # without the moment -- and when the producer recorded no instant, the
++    # count's time is unknown WITH THE REASON rather than filled in from the
++    # snapshot's query time.
++    when = _member(held, "observed_at", _INSTANT, source)
++    count = _member(held, "bytes_observed", _COUNT, source,
++                    observed_at=(_at(when["value"], when["source"])
++                                 if when["known"]
++                                 else _no_time(when["unknown_reason"],
++                                               when["source"])))
++    if count["known"]:
++        presence, reason = "observed", None
++    elif count["unknown_reason"] in (NULL, ABSENT):
++        # A RECORDED ATTEMPT NOBODY HAS OBSERVED YET. The producer answers
++        # exactly this shape for one, and it is not a zero.
++        presence, reason = "not-observed", NOTHING_OBSERVED
++    else:
++        presence, reason = "unknown", count["unknown_reason"]
++    return {"presence": presence, "reason": reason, "source": source,
++            "unit": "bytes",
++            "what": ("bytes of the worker's native session stream this "
++                     "manager has observed; not tokens, not model progress, "
++                     "and not proof that useful work happened"),
++            "attempt_association": _association(True, ACTIVITY_ASSOCIATED),
++            "facts": {"bytes_observed": count, "observed_at": when},
++            "freshness": {"state": "unknown", "reason": NO_FRESHNESS_POLICY,
++                          "note": FRESHNESS_NOTE}}
++
++
++def _quiet_activity(source, presence, reason):
++    """An activity block with nothing in it, and the reason it is empty.
++
++    NEVER A ZERO HERE. A missing count rendered as `0` is the exact failure
++    this surface exists to prevent: it reads as "observed, and empty".
++    """
++    return {"presence": presence, "reason": reason, "source": source,
++            "unit": "bytes",
++            "what": ("bytes of the worker's native session stream this "
++                     "manager has observed; not tokens, not model progress, "
++                     "and not proof that useful work happened"),
++            "attempt_association": _association(False, reason),
++            "facts": {"bytes_observed": _unknown(source + ".bytes_observed",
++                                                 reason),
++                      "observed_at": _unknown(source + ".observed_at",
++                                              reason)},
++            "freshness": {"state": "unknown", "reason": NO_FRESHNESS_POLICY,
++                          "note": FRESHNESS_NOTE}}
++
++
++def _contact():
++    """WHEN THE WORKER WAS LAST HEARD FROM, which this contract does not say.
++
++    AND THE SNAPSHOT'S OWN INSTANT IS NOT IT. `observed_at` says when the
++    manager queried its stores; presenting that as a contact time would report
++    the READER'S behaviour as the WORKER'S, which is the whole family of defect
++    this Work is bounded against. So this is unknown, with the reason, always.
++    """
++    return {"presence": "unsupported", "reason": UNSUPPORTED,
++            "note": ("this status contract carries no worker contact instant; "
++                     "the snapshot query time is not one"),
++            "facts": {"last_contact": {
++                "known": False, "value": None, "source": None,
++                "unknown_reason": UNSUPPORTED,
++                "observed_at": _no_time(UNSUPPORTED)}},
++            "freshness": {"state": "unknown", "reason": NO_FRESHNESS_POLICY,
++                          "note": FRESHNESS_NOTE}}
++
++
++def _context():
++    """CONTEXT ACCOUNTING, which this contract does not carry either.
++
++    No part of this view reads a transcript, a private context path or a
++    provider session, so there is nothing here to report and nothing to
++    estimate. Unknown, with the reason.
++    """
++    return {"presence": "unsupported", "reason": UNSUPPORTED,
++            "note": ("this status contract carries no context accounting, and "
++                     "this view reads no transcript, provider session or "
++                     "private context path to obtain one"),
++            "facts": {name: {"known": False, "value": None, "source": None,
++                             "unknown_reason": UNSUPPORTED,
++                             "observed_at": _no_time(UNSUPPORTED)}
++                      for name in ("context_used", "context_limit")}}
++
++
++def _episode_opened(stage, path, episode, attempt):
++    """The CURRENT episode's own opening instant, from its own record.
++
++    MATCHED ON BOTH IDENTITIES AND ONLY WHILE LIVE. The episode history is
++    append-only and an abandoned episode keeps its record, so matching on the
++    episode number alone would hand a restarted stage the instant of the
++    attempt that ended. There is no fallback to the latest record: a stage
++    whose current episode has no live record answers unknown.
++    """
++    source = path + ".episodes"
++    if not episode["known"] or not attempt["known"]:
++        return _unknown(source, NO_EPISODE)
++    for index, one in enumerate(stage.get("episodes") or []):
++        if type(one) is not dict:
++            continue
++        if _checked(one.get("episode"), _INTEGER) != episode["value"] \
++                or _checked(one.get("attempt_id"), _TEXT) != attempt["value"]:
++            continue
++        if one.get("ended_state") is not None or one.get("ended_at") is not None:
++            # THE DOCUMENT CONTRADICTS ITSELF: this stage names an episode its
++            # own history reports as ended. That is unknown with a bounded
++            # reason rather than an instant to publish.
++            continue
++        return _member(one, "opened_at", _INSTANT,
++                       source + "[" + str(index) + "]")
++    return _unknown(source, NO_EPISODE_RECORD)
++
++
++# -- the rows --------------------------------------------------------------
++
++
++def _row(job, stage, path):
++    """One current stage, including one nobody has assigned to a worker.
++
++    EVERY STAGE GETS A ROW. A queued stage with no reservation, no runtime and
++    no activity is precisely the row an operator asking "why is nothing
++    moving" needs to see; omitting it would answer that question with silence.
++    """
++    identities = _members(stage, STAGE_MEMBERS, path)
++    attempt = identities["attempt_id"]
++    episode = identities["episode"]
++    return {
++        "source": path,
++        "job": _members(job, JOB_MEMBERS, _parent(path)),
++        "stage": {**identities,
++                  "episode_opened_at": _episode_opened(stage, path, episode,
++                                                       attempt)},
++        # CONFIGURED, AND KEPT APART FROM EVERYTHING OBSERVED. This is the
++        # profile the submission asked for; it is not evidence that any worker
++        # ever ran under it.
++        "configured_profile": {
++            "presence": "configured",
++            "note": ("the profile identity this stage was submitted with; a "
++                     "configured identity is not an observation of a runtime"),
++            "facts": _members(stage, PROFILE_MEMBERS, path)},
++        "allocation": _allocation(stage, path, attempt, episode),
++        "runtime": _runtime(stage, path),
++        "exchange": _exchange(stage, path),
++        "activity": _activity(stage, path, attempt),
++        "contact": _contact(),
++        "context": _context(),
++        "freshness": {"state": "unknown", "reason": NO_FRESHNESS_POLICY,
++                      "note": FRESHNESS_NOTE},
++    }
++
++
++def _parent(path):
++    return path.split(".stages[")[0]
++
++
++def rows_of(document):
++    """Every current stage's row, in the document's own order.
++
++    THE IMPORTABLE HALF, and the one a consumer that only wants the rows
++    should call. A test or a consumer that wants the projection rather than
++    the command calls this or `visibility`; neither opens anything, spawns
++    anything or asks what time it is.
++    """
++    return _rows(_document(document))
++
++
++def _rows(held):
++    """The rows of an ALREADY VALIDATED document, validated once.
++
++    Separate from `rows_of` so `visibility` does not read the same document
++    through the structural check twice -- the check is the same answer both
++    times, and running it twice would invite a reader to think the second one
++    meant something.
++    """
++    rows = []
++    for index, job in enumerate(held.get("jobs") or []):
++        prefix = "jobs[" + str(index) + "]"
++        for ordinal, stage in enumerate(job.get("stages") or []):
++            rows.append(_row(job, stage,
++                             prefix + ".stages[" + str(ordinal) + "]"))
++    return rows
++
++
++def visibility(document, *, read_at=None):
++    """The whole view: one envelope, and one row per current stage.
++
++    `read_at` IS THE CALLER'S OWN READ TIME AND CHANGES NOTHING. It is
++    reported under its own name, beside -- never instead of -- the snapshot's
++    query time, and no fact below is derived from it. Passing a different one
++    answers the same rows, which is the property that keeps an old observation
++    from becoming fresh by being read again.
++    """
++    held = _document(document)
++    return {
++        "schema": SCHEMA,
++        "source_schema": SOURCE_SCHEMA,
++        "snapshot": {
++            # THE SNAPSHOT'S OWN INSTANT, NAMED FOR WHAT IT IS.
++            "query_time": _at(held["observed_at"], "observed_at"),
++            "query_time_note": QUERY_TIME_NOTE,
++            # WHETHER THE MANAGER WAS READ AT ALL: `false` is the difference
++            # between "nothing is running" and "nobody looked", and a consumer
++            # must not read an empty view as a quiet deployment.
++            "canonical": _at(held["canonical"], "canonical"),
++            "incarnation": _member(held, "incarnation", _TEXT, ""),
++        },
++        # THE LOCAL READ TIME, SEPARATELY NAMED OR HONESTLY ABSENT.
++        "read": ({"local_read_time": _at(_read_time(read_at), None),
++                  "note": ("the caller's own read time; it is not a source "
++                           "fact and no fact in this view is derived from it")}
++                 if read_at is not None else
++                 {"local_read_time": _no_time(
++                     "the caller supplied no local read time"),
++                  "note": ("the caller's own read time; it is not a source "
++                           "fact and no fact in this view is derived from it")}),
++        "freshness": {"state": "unknown", "reason": NO_FRESHNESS_POLICY,
++                      "note": FRESHNESS_NOTE},
++        "stages": _rows(held),
++    }
++
++
++def _read_time(read_at):
++    """The caller's own instant, held to the same rule a source instant is.
++
++    IT IS REFUSED RATHER THAN REPUBLISHED UNCHECKED. This operand is the only
++    value in the whole view that does not come from the document, so it is the
++    one place something arbitrary could reach the output; bounding it here
++    keeps "no invented or unbounded value is published" true of every member.
++    """
++    held = _checked(read_at, _INSTANT)
++    if held is None:
++        _refuse("a local read time is a bounded instant, and it is reported "
++                "beside the snapshot query time rather than instead of it")
++    return held
++
++
++# -- the command -----------------------------------------------------------
++
++
++def read_status(place):
++    """A bounded read of ONE status file the operator names.
++
++    THE BOUND IS THE VIEWER'S, and the read is one `open` of the path the
++    operand gives. No locator inside the document is followed or opened: a
++    status document carries the manager's own artifact locators, and a
++    visibility view that went looking at them would be reading whatever those
++    name rather than reporting what this document says.
++    """
++    with open(place, "rb") as handle:
++        return handle.read(MAX_SNAPSHOT_BYTES + 1)
++
++
++def main(argv=None, *, stream=sys.stdout):
++    parser = argparse.ArgumentParser(
++        prog="worker_visibility",
++        description="Read-only JSON view of worker visibility facts in one "
++                    "status document. Performs no act.")
++    parser.add_argument("--snapshot", required=True,
++                        help="path to a status document written by "
++                             "`job_manager ... status`")
++    taken = parser.parse_args(argv)
++    try:
++        held = visibility(read_status(taken.snapshot))
++    except VisibilityRefusal as refusal:
++        # THE REFUSAL IS JSON TOO, so a consumer does not have to parse prose
++        # to find out it got nothing. The message is this module's own
++        # sentence; see `VisibilityRefusal`.
++        json.dump({"schema": SCHEMA, "refused": str(refusal)}, stream,
++                  indent=2, sort_keys=True)
++        print("", file=stream)
++        return 2
++    except OSError as failure:
++        json.dump({"schema": SCHEMA,
++                   "refused": "this status document could not be read ("
++                              + type(failure).__name__ + "); the view does "
++                              "not go looking elsewhere for it"},
++                  stream, indent=2, sort_keys=True)
++        print("", file=stream)
++        return 2
++    json.dump(held, stream, indent=2, sort_keys=True)
++    print("", file=stream)
++    return 0
++
++
++if __name__ == "__main__":                                  # pragma: no cover
++    sys.exit(main())
+```

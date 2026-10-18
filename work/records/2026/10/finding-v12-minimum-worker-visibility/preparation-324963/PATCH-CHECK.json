@@ -1,0 +1,12 @@
+{
+  "all_match": true,
+  "base": "372281f4a473300efb474d5a6573954c15ade367",
+  "candidate_files": {
+    "v12/python/tests/tools/test_worker_visibility.py": "f0ce84aef8f5cb2dedd41efb672e9e8a01223ffba96d3afdb99e27b16894cc8e",
+    "v12/python/tools/worker_visibility.py": "ba2a108d9b8be1e01bff9f697dcde88ca7bca515057e6c4614dcdc5d1b3dc708"
+  },
+  "scratch": "/tmp/w324214-patch-check-324963",
+  "seconds": 0.0006522620005853241,
+  "status": 0,
+  "stdout": "patching file v12/python/tests/tools/test_worker_visibility.py\npatching file v12/python/tools/worker_visibility.py\n"
+}

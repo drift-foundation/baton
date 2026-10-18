@@ -1,0 +1,700 @@
+{
+  "first": "2026-10-18T16:53:07.297Z",
+  "last": "2026-10-18T17:07:56.222Z",
+  "native": [
+    {
+      "path": "/home/sl/baton-instances/worker-visibility-w324214-324377/packet/launch/implementation/logs/attempt-285b27200a01c316ace8da48b2088ec3332884f826b5b33dd204b03cbb44f319/native/projects%2F-output%2F87fbbec6-5fa8-4689-b20f-a1b617aa6da1.jsonl",
+      "sha256": "b06d095878142c5abc50610b23a3b7872f676d08e1047effad1bacfd4adda1a7"
+    }
+  ],
+  "rows": [
+    {
+      "timestamp": "2026-10-18T16:53:10.420Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "git log --oneline -1 && git rev-parse HEAD && ls && ls v12 && ls v12/python",
+        "description": "Inspect repo root and v12 layout"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:53:11.295Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "ls v12/python/tools v12/python/src 2>/dev/null | head -60",
+        "description": "List tools and src"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:53:13.823Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "cd /output/v12 && grep -n \"OBS-1\\|OBS-2\\|OBS-3\\|DB-1\\b\\|DB-4\\b\" DESIGN.md | head -40",
+        "description": "Find OBS and DB sections in DESIGN.md"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:53:14.913Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "cd /output/v12/python && wc -l tools/job_viewer.py src/baton_v12/job_manager/projection.py JOB-VIEWER.md tests/tools/test_job_viewer.py tests/job_manager/test_status.py 2>/dev/null",
+        "description": "Size of key files"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:53:16.933Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "cd /output/v12 && sed -n '195,240p;795,835p' DESIGN.md",
+        "description": "Read DB-1/4 and OBS-1/2/3"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:53:19.236Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "cd /output/v12/python && sed -n '1,200p' tools/job_viewer.py",
+        "description": "Read job_viewer.py head"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:53:21.124Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '200,340p' tools/job_viewer.py",
+        "description": "Continue job_viewer.py"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:53:22.888Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '340,520p' tools/job_viewer.py",
+        "description": "Continue"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:53:25.285Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "grep -n \"def \\|STATUS_SCHEMA\" src/baton_v12/job_manager/projection.py | head -60",
+        "description": "List projection functions"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:53:26.984Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '880,1036p' src/baton_v12/job_manager/projection.py",
+        "description": "Read status and _stage_status"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:53:30.450Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "grep -n \"def stage_status\\|def status\\|def job_status\\|def stage_episode\\|def receipt\\|STATUS_SCHEMA\\s*=\\|TERMINAL_STAGE_STATES\\s*=\\|CORRECTION_ENDINGS\\s*=\" src/baton_v12/job_manager/documents.py",
+        "description": "Locate documents definitions"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:53:32.179Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '600,720p' src/baton_v12/job_manager/documents.py",
+        "description": "Read document shapes"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:53:33.957Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '520,600p' src/baton_v12/job_manager/documents.py",
+        "description": "Read stage.status contract"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:53:36.842Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '100,240p' src/baton_v12/job_manager/projection.py",
+        "description": "Read _observed_state"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:53:39.213Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '434,560p' src/baton_v12/job_manager/projection.py",
+        "description": "Read materialized"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:53:41.321Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '612,700p' src/baton_v12/job_manager/projection.py",
+        "description": "Read stage_states"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:53:44.028Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "ls src/baton_v12/job_manager/ && grep -n \"def observation_of\\|def unobserved\" -A 60 src/baton_v12/job_manager/delegation.py | head -140",
+        "description": "Read delegation observation_of"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:53:46.688Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "grep -rn \"OBSERVATION_MEMBERS\\|OBSERVATION_OPTIONAL\" src/baton_v12/ | head; echo ---; grep -n \"def observe\" -A 80 src/baton_v12/worker_manager/*.py | head -150",
+        "description": "Find observation members and observe()"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:53:49.908Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "grep -rn \"bytes_observed\" src/ tools/ | head -30",
+        "description": "Find bytes_observed producers"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:53:50.592Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "grep -rn \"def observe(\" src/ | head -20",
+        "description": "Find observe() implementations"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:53:52.956Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '380,440p' src/baton_v12/worker_manager/attempts.py; echo === ; sed -n '940,1050p' src/baton_v12/job_manager/delegation.py",
+        "description": "Read activity_of and delegation observe"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:53:55.639Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "grep -n \"def attempt_runtime_of\" -A 40 src/baton_v12/worker_manager/attempts.py",
+        "description": "Read attempt_runtime_of"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:54:02.070Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '232,270p' src/baton_v12/worker_manager/attempts.py; echo \"=== allocation_of ===\"; grep -n \"def allocation_of\\|def allocation_rows\\|def allocation_refusal_of\" -A 35 src/baton_v12/job_manager/scheduler.py | head -120",
+        "description": "Read assignment + allocation shapes"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:54:05.867Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "grep -n \"stage_allocations\" -A 30 src/baton_v12/job_manager/schema.py | head -60",
+        "description": "Read stage_allocations schema"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:54:09.502Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "grep -rn \"def _conversing\" -A 60 src/baton_v12/job_manager/projection.py | head -80",
+        "description": "Read _conversing for exchange shape"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:54:12.324Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "grep -n \"_EXCHANGE_STATES\\s*=\" -A 20 src/baton_v12/job_manager/projection.py; echo ===; grep -rn \"def exchange_projection\\|def projection_of\\|\\\"state\\\":\" src/baton_v12/worker_manager/exchange.py | head -20",
+        "description": "Exchange states and projection shape"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:54:14.359Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '900,1010p' src/baton_v12/worker_manager/exchange.py",
+        "description": "Read exchange projection"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:54:19.164Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '1,120p' tests/job_manager/test_status.py",
+        "description": "Read test_status.py head"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:54:21.112Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '1,160p' tests/job_manager/fixtures.py",
+        "description": "Read job_manager fixtures"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:54:23.055Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '160,420p' tests/job_manager/fixtures.py",
+        "description": "Read rest of fixtures"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:54:24.972Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '420,560p' tests/job_manager/fixtures.py",
+        "description": "Read observed() helper"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:54:27.360Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '560,640p' tests/job_manager/fixtures.py; echo ===; grep -n \"activity\" tests/job_manager/test_status.py | head -30",
+        "description": "Finish fixtures, find activity tests"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:54:29.093Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '125,270p' tests/job_manager/test_status.py",
+        "description": "Read status runtime/activity tests"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:54:31.648Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '1,110p' tests/tools/test_job_viewer.py; echo ===; ls tests/tools tests/",
+        "description": "Read test_job_viewer head"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:54:34.488Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "grep -n \"class \\|def test\" tests/tools/test_job_viewer.py | sed -n '1,200p'",
+        "description": "List test classes"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:54:36.393Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '653,800p' tests/tools/test_job_viewer.py",
+        "description": "Read identity/trap tests"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:54:38.679Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '800,860p;1139,1180p' tests/tools/test_job_viewer.py",
+        "description": "Read no-act tests and CLI tests"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:54:41.165Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '700,934p' tools/job_viewer.py",
+        "description": "Read job_viewer main + locator reads"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:54:46.361Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "cd /output && grep -rln \"W324214\" --include=*.md --include=*.json . 2>/dev/null | head -20",
+        "description": "Find W324214 references"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:54:47.396Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "cd /output/v12/python && sed -n '1,80p' JOB-VIEWER.md; echo ===; cat tests/tools/__init__.py; echo ===; cat tests/__init__.py",
+        "description": "Read JOB-VIEWER.md head and test package inits"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:56:30.497Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "grep -rn \"EXECUTION_RUNTIME\\|execution_runtime IN\\|RUNTIME_STATES\" src/baton_v12/worker_manager/schema.py src/baton_v12/worker_manager/documents.py | head -20",
+        "description": "Find execution_runtime vocabulary"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:56:33.233Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '475,500p' src/baton_v12/worker_manager/schema.py; echo ===; grep -rn \"EXCHANGE_TRANSPORT\\s*=\\|^STATES\\s*=\\|ENDINGS\\s*=\\|OPERATIONS\\s*=\" src/baton_v12/worker_manager/exchange.py | head",
+        "description": "Runtime axis + exchange vocab"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:56:42.540Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "grep -n \"^def _safe\" -A 25 src/baton_v12/worker_manager/exchange.py; echo ===; grep -n \"def _terminal\" -A 25 src/baton_v12/worker_manager/exchange.py | head -40",
+        "description": "Read _safe and _terminal"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:56:44.472Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '1249,1307p' src/baton_v12/worker_manager/exchange.py",
+        "description": "Terminal members"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:56:51.216Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '316,400p' src/baton_v12/job_manager/scheduler.py; echo === ; grep -n \"^def pool\\|^def principals\" -A 30 tests/job_manager/test_scheduling.py | head -70",
+        "description": "Read reserve + pool fixtures"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:57:31.093Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "grep -n \"def _fixed_assignment\" -A 20 src/baton_v12/worker_manager/attempts.py",
+        "description": "Read _fixed_assignment"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:57:38.487Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '855,1055p' tests/tools/test_job_viewer.py",
+        "description": "Read real-observation test classes"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:57:47.813Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "grep -rn \"observe_activity\" tests/ | head -20",
+        "description": "Find observe_activity tests"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:57:49.752Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '2650,2720p' tests/manager/test_attempts.py",
+        "description": "Read activity test setup"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:57:51.781Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "grep -n \"class AttemptCase\" -A 60 tests/manager/test_attempts.py | head -90",
+        "description": "Read AttemptCase"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:58:08.147Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "grep -n \"attempt_runtime_of\\|attempt_activity_of\\|observe_activity\\|record_attempt\\|certify_profile\" src/baton_v12/worker_manager/__init__.py | head",
+        "description": "Check worker_manager exports"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:58:08.971Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "grep -n \"def record_attempt\" -A 60 src/baton_v12/worker_manager/attempts.py | sed -n '1,75p'",
+        "description": "Read record_attempt"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:58:12.043Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '455,500p' src/baton_v12/worker_manager/attempts.py",
+        "description": "Read observe_activity body"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T16:59:14.736Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "grep -n \"def sequence_of\" -A 20 src/baton_v12/worker_manager/exchange.py",
+        "description": "Read sequence_of"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T17:02:11.761Z",
+      "kind": "tool",
+      "name": "Write",
+      "input": null
+    },
+    {
+      "timestamp": "2026-10-18T17:02:35.672Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "grep -n \"class Unobserved\" -A 25 src/baton_v12/job_manager/delegation.py | head -35",
+        "description": "Check Unobserved.canonical type"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T17:02:44.560Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "python3 - <<'PY'\nimport re, io\np = \"tools/worker_visibility.py\"\ns = open(p, encoding=\"utf-8\").read()\n\n# 1. datetime at the top, not inside the helper.\ns = s.replace(\"\"\"import argparse\nimport json\nimport sys\n\"\"\", \"\"\"import argparse\nimport datetime\nimport json\nimport sys\n\"\"\")\ns = s.replace(\"\"\"    text = value[:-1] + \"+00:00\" if value.endswith(\"Z\") else value\n    try:\n        import datetime\n\n        datetime.datetime.fromisoformat(text)\n\"\"\", \"\"\"    text = value[:-1] + \"+00:00\" if value.endswith(\"Z\") else value\n    try:\n        datetime.datetime.fromisoformat(text)\n\"\"\")\n\n# 2. a null parent block is not a malformed one.\ns = s.replace('''NULL = \"the source document carries this member as null\"''',\n'''NULL = \"the source document carries this member as null\"\nPARENT_NULL = (\"the source document carries the observation this member would \"\n               \"be part of as null\")''')\ns = s.replace(\"\"\"    source = path + \".\" + name\n    if type(held) is not dict:\n        return _unknown(source, MALFORMED_BLOCK)\n    if name not in held:\"\"\",\n\"\"\"    source = path + \".\" + name\n    if held is None:\n        # THE PARENT IS ABSENT, NOT THIS MEMBER. `exchange.command: null` is\n        # \"no command has been published\", and reporting that as a malformed\n        # document would be this view calling an ordinary state a defect.\n        return _unknown(source, PARENT_NULL)\n    if type(held) is not dict:\n        return _unknown(source, MALFORMED_BLOCK)\n    if name not in held:\"\"\")\n\n# 3. _contact/_context take no path.\ns = s.replace(\"def _contact(path):\", \"def _contact():\")\ns = s.replace(\"def _context(path):\", \"def _context():\")\ns = s.replace('\"contact\": _contact(path),', '\"contact\": _contact(),')\ns = s.replace('\"context\": _context(path),', '\"context\": _context(),')\n\nopen(p, \"w\", encoding=\"utf-8\").write(s)\nPY\ngrep -n \"import datetime\\|_contact()\\|PARENT_NULL\" tools/worker_visibility.py | head",
+        "description": "Apply first batch of fixes"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T17:02:47.948Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '600,680p' tools/worker_visibility.py",
+        "description": "View activity block"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T17:02:57.735Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "python3 - <<'PY'\np = \"tools/worker_visibility.py\"\ns = open(p, encoding=\"utf-8\").read()\n\nold = '''    runtime = stage.get(\"runtime\")\n    source = path + \".runtime.activity\"\n    members = ((\"bytes_observed\", _COUNT),)\n    if type(runtime) is not dict:'''\nnew = '''    runtime = stage.get(\"runtime\")\n    source = path + \".runtime.activity\"\n    if type(runtime) is not dict:'''\nassert old in s\ns = s.replace(old, new)\n\nold = '''    when = _member(held, \"observed_at\", _INSTANT, source)\n    count = _member(held, \"bytes_observed\", _COUNT, source,\n                    observed_at=(_at(when[\"value\"], when[\"source\"])\n                                 if when[\"known\"] else\n                                 _no_time(when[\"unknown_reason\"],\n                                          when[\"source\"])))\n    presence = \"observed\" if count[\"known\"] else \"not-observed\"\n    reason = None if count[\"known\"] else (\n        NOTHING_OBSERVED if count[\"unknown_reason\"] in (NULL, ABSENT)\n        else count[\"unknown_reason\"])\n    if not count[\"known\"] and count[\"unknown_reason\"] == MALFORMED:\n        presence = \"unknown\"\n    return {\"presence\": presence,'''\nnew = '''    # THE COUNT'S OBSERVATION TIME IS THE PRODUCER'S OWN INSTANT, carried ON\n    # the count rather than beside it, so a consumer cannot report the number\n    # without the moment -- and when the producer recorded no instant, the\n    # count's time is unknown WITH THE REASON rather than filled in from the\n    # snapshot's query time.\n    when = _member(held, \"observed_at\", _INSTANT, source)\n    count = _member(held, \"bytes_observed\", _COUNT, source,\n                    observed_at=(_at(when[\"value\"], when[\"source\"])\n                                 if when[\"known\"]\n                                 else _no_time(when[\"unknown_reason\"],\n                                               when[\"source\"])))\n    if count[\"known\"]:\n        presence, reason = \"observed\", None\n    elif count[\"unknown_reason\"] in (NULL, ABSENT):\n        # A RECORDED ATTEMPT NOBODY HAS OBSERVED YET. The producer answers\n        # exactly this shape for one, and it is not a zero.\n        presence, reason = \"not-observed\", NOTHING_OBSERVED\n    else:\n        presence, reason = \"unknown\", count[\"unknown_reason\"]\n    return {\"presence\": presence,'''\nassert old in s\ns = s.replace(old, new)\nopen(p, \"w\", encoding=\"utf-8\").write(s)\nPY\nsed -n '690,790p' tools/worker_visibility.py",
+        "description": "Fix activity presence, view rows section"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T17:03:13.303Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "python3 - <<'PY'\np = \"tools/worker_visibility.py\"\ns = open(p, encoding=\"utf-8\").read()\n\nold = '''def stage_rows(document):\n    \"\"\"Every current stage's row, in the document's own order.\n\n    THE IMPORTABLE HALF. A test or a consumer that wants the projection rather\n    than the command calls this or `visibility`; neither opens anything.\n    \"\"\"\n    held = _document(document)\n    rows = []\n    for index, job in enumerate(held.get(\"jobs\") or []):\n        prefix = \"jobs[\" + str(index) + \"]\"\n        for ordinal, stage in enumerate(job.get(\"stages\") or []):\n            rows.append(_row(job, stage,\n                             prefix + \".stages[\" + str(ordinal) + \"]\"))\n    return rows\n'''\nnew = '''def rows_of(document):\n    \"\"\"Every current stage's row, in the document's own order.\n\n    THE IMPORTABLE HALF, and the one a consumer that only wants the rows\n    should call. A test or a consumer that wants the projection rather than\n    the command calls this or `visibility`; neither opens anything, spawns\n    anything or asks what time it is.\n    \"\"\"\n    return _rows(_document(document))\n\n\ndef _rows(held):\n    \"\"\"The rows of an ALREADY VALIDATED document, validated once.\n\n    Separate from `rows_of` so `visibility` does not read the same document\n    through the structural check twice -- the check is the same answer both\n    times, and running it twice would invite a reader to think the second one\n    meant something.\n    \"\"\"\n    rows = []\n    for index, job in enumerate(held.get(\"jobs\") or []):\n        prefix = \"jobs[\" + str(index) + \"]\"\n        for ordinal, stage in enumerate(job.get(\"stages\") or []):\n            rows.append(_row(job, stage,\n                             prefix + \".stages[\" + str(ordinal) + \"]\"))\n    return rows\n'''\nassert old in s\ns = s.replace(old, new)\ns = s.replace('''           \"visibility\", \"stage_rows\", \"read_status\", \"main\"]''',\n              '''           \"visibility\", \"rows_of\", \"read_status\", \"main\"]''')\n\nold = '''    held = _document(document)\n    rows = stage_rows(held)\n    return {'''\nnew = '''    held = _document(document)\n    return {'''\nassert old in s\ns = s.replace(old, new)\n\nold = '''        # THE LOCAL READ TIME, SEPARATELY NAMED OR HONESTLY ABSENT.\n        \"read\": ({\"local_read_time\": _at(read_at, None),'''\nnew = '''        # THE LOCAL READ TIME, SEPARATELY NAMED OR HONESTLY ABSENT.\n        \"read\": ({\"local_read_time\": _at(_read_time(read_at), None),'''\nassert old in s\ns = s.replace(old, new)\ns = s.replace('''        \"stages\": rows,\n    }''', '''        \"stages\": _rows(held),\n    }''')\n\nold = '''# -- the command -----------------------------------------------------------'''\nnew = '''def _read_time(read_at):\n    \"\"\"The caller's own instant, held to the same rule a source instant is.\n\n    IT IS REFUSED RATHER THAN REPUBLISHED UNCHECKED. This operand is the only\n    value in the whole view that does not come from the document, so it is the\n    one place something arbitrary could reach the output; bounding it here\n    keeps \"no invented or unbounded value is published\" true of every member.\n    \"\"\"\n    held = _checked(read_at, _INSTANT)\n    if held is None:\n        _refuse(\"a local read time is a bounded instant, and it is reported \"\n                \"beside the snapshot query time rather than instead of it\")\n    return held\n\n\n# -- the command -----------------------------------------------------------'''\nassert old in s\ns = s.replace(old, new)\nopen(p, \"w\", encoding=\"utf-8\").write(s)\nprint(\"ok\")\nPY\npython3 -c \"import ast,sys; ast.parse(open('tools/worker_visibility.py').read())\" && echo parsed",
+        "description": "Rename rows_of, single validation, validate read_at"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T17:03:18.914Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "python3 - <<'PY'\nimport os, sys, json\nsys.path[:0] = [os.getcwd(), os.path.join(os.getcwd(), \"src\"),\n                os.path.join(os.getcwd(), \"tests\", \"job_manager\")]\nfrom baton_v12.job_manager import submit, Unobserved\nfrom baton_v12.job_manager.projection import status\nfrom baton_v12.job_manager.store import JobStore\nfrom tests.job_manager.fixtures import UUID, NOW, submission, FakeOperations\nimport tempfile\nroot = tempfile.mkdtemp()\nstore = JobStore.open(os.path.join(root, \"jobs.sqlite\"), authority_uuid=UUID,\n                      incarnation=\"v\", clock=lambda: NOW)\nsubmit(store, submission())\ndoc = status(store, Unobserved(), observed_at=NOW)\nfrom tools import worker_visibility as wv\nheld = wv.visibility(doc)\nprint(json.dumps(held[\"stages\"][0], indent=1, sort_keys=True)[:4000])\nprint(len(held[\"stages\"]))\nPY",
+        "description": "Smoke test projection"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T17:03:32.456Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "python3 - <<'PY'\nimport os, sys, json, tempfile\nsys.path[:0] = [os.getcwd(), os.path.join(os.getcwd(), \"src\"),\n                os.path.join(os.getcwd(), \"tests\", \"job_manager\")]\nfrom baton_v12.job_manager import submit, Unobserved\nfrom baton_v12.job_manager.projection import status\nfrom baton_v12.job_manager.store import JobStore\nfrom tests.job_manager.fixtures import UUID, NOW, submission\nroot = tempfile.mkdtemp()\nstore = JobStore.open(os.path.join(root, \"jobs.sqlite\"), authority_uuid=UUID,\n                      incarnation=\"v\", clock=lambda: NOW)\nsubmit(store, submission())\ndoc = status(store, Unobserved(), observed_at=NOW)\nfrom tools import worker_visibility as wv\nheld = wv.visibility(doc, read_at=\"2026-09-02T00:09:00.000Z\")\nrow = held[\"stages\"][0]\nprint(json.dumps({k: v for k, v in row[\"stage\"].items()}, indent=1, sort_keys=True))\nprint(json.dumps(held[\"snapshot\"], indent=1, sort_keys=True))\nprint(json.dumps(held[\"read\"], indent=1, sort_keys=True))\nprint(json.dumps(row[\"runtime\"][\"facts\"], indent=1, sort_keys=True))\nprint(\"bytes:\", len(json.dumps(held)))\nprint(json.dumps(doc[\"jobs\"][0][\"stages\"][0][\"episodes\"], indent=1)[:600])\nPY",
+        "description": "Inspect stage/snapshot blocks"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T17:03:38.625Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "python3 - <<'PY'\np = \"tools/worker_visibility.py\"\ns = open(p, encoding=\"utf-8\").read()\nold = '''    source = path + \".\" + name\n    if held is None:'''\nnew = '''    source = (path + \".\" + name) if path else name\n    if held is None:'''\nassert old in s\ns = s.replace(old, new)\nold = '''    return {name: _unknown(path + \".\" + name, reason) for name, _kind in names}'''\nnew = '''    return {name: _unknown((path + \".\" + name) if path else name, reason)\n            for name, _kind in names}'''\nassert old in s\ns = s.replace(old, new)\nopen(p, \"w\", encoding=\"utf-8\").write(s)\nprint(\"ok\")\nPY",
+        "description": "Fix empty-path source spelling"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T17:03:41.504Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "grep -n \"open_next\\|end_episode\" tests/job_manager/test_status.py | head -20",
+        "description": "Find restart episode usage"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T17:03:43.364Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '620,700p' tests/job_manager/test_status.py",
+        "description": "Read restarted-episode tests"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T17:04:10.440Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "grep -rn \"scheduler.reserve\\|reserve(\" src/baton_v12/job_manager/manager.py | head; echo ===; grep -n \"def end_episode\" -A 12 src/baton_v12/job_manager/episodes.py; grep -n \"def open_next\" -A 12 src/baton_v12/job_manager/episodes.py",
+        "description": "Check reserve in sweep + episode helpers"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T17:04:15.436Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '1,30p' tests/job_manager/test_scheduling.py",
+        "description": "Read test_scheduling head"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T17:07:22.464Z",
+      "kind": "tool",
+      "name": "Write",
+      "input": null
+    },
+    {
+      "timestamp": "2026-10-18T17:07:25.836Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "python3 -c \"\nimport os,sys,unittest\nsys.path[:0]=[os.getcwd(),os.path.join(os.getcwd(),'src')]\nr=unittest.TextTestRunner(verbosity=1).run(unittest.defaultTestLoader.loadTestsFromNames(['tests.tools.test_worker_visibility']))\nsys.exit(not r.wasSuccessful())\" 2>&1 | tail -60",
+        "description": "Run new test suite"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T17:07:29.099Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "grep -n \"^FAIL\\|^ERROR\\|^Ran \\|^OK\\|^FAILED\" /tmp/dogfood-rdyqyvpw/home/.claude/projects/-output/87fbbec6-5fa8-4689-b20f-a1b617aa6da1/tool-results/blpzklsti.txt",
+        "description": "Summarize failures"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T17:07:29.106Z",
+      "kind": "tests",
+      "tail": "19:FAIL: test_an_old_observation_cannot_become_fresh_by_being_read_again (tests.tools.test_worker_visibility.FreshnessIsNotDecidedHere.test_an_old_observation_cannot_become_fresh_by_being_read_again)\n29:FAIL: test_a_malformed_nested_structure_refuses (tests.tools.test_worker_visibility.TheDocumentIsValidatedBeforeAnythingIsReported.test_a_malformed_nested_structure_refuses)\n39:FAIL: test_a_quiet_runtime_is_never_called_healthy_or_offline (tests.tools.test_worker_visibility.TheRuntimeIsReportedAndNeverDiagnosed.test_a_quiet_runtime_is_never_called_healthy_or_offline)\n49:FAIL: test_nothing_outside_the_allowlists_reaches_the_view (tests.tools.test_worker_visibility.TheSafeAllowlistIsTheWholeSurface.test_nothing_outside_the_allowlists_reaches_the_view)\n58:Ran 74 tests in 0.262s\n60:FAILED (failures=4, errors=4)"
+    },
+    {
+      "timestamp": "2026-10-18T17:07:32.636Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '1,60p' /tmp/dogfood-rdyqyvpw/home/.claude/projects/-output/87fbbec6-5fa8-4689-b20f-a1b617aa6da1/tool-results/blpzklsti.txt | head -5; echo ...; grep -n \"^ERROR:\" -A 3 /tmp/dogfood-rdyqyvpw/home/.claude/projects/-output/87fbbec6-5fa8-4689-b20f-a1b617aa6da1/tool-results/blpzklsti.txt",
+        "description": "List errors"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T17:07:35.344Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "grep -n \"ERROR:\\|FAIL:\" -B2 /tmp/dogfood-rdyqyvpw/home/.claude/projects/-output/87fbbec6-5fa8-4689-b20f-a1b617aa6da1/tool-results/blpzklsti.txt | head -40",
+        "description": "Find error test names"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T17:07:38.876Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "f=/tmp/dogfood-rdyqyvpw/home/.claude/projects/-output/87fbbec6-5fa8-4689-b20f-a1b617aa6da1/tool-results/blpzklsti.txt; wc -l $f; sed -n '1,60p' $f",
+        "description": "Read failure detail"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T17:07:48.333Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "python3 -c \"\nimport os,sys,unittest\nsys.path[:0]=[os.getcwd(),os.path.join(os.getcwd(),'src')]\nr=unittest.TextTestRunner(verbosity=0).run(unittest.defaultTestLoader.loadTestsFromNames(['tests.tools.test_worker_visibility']))\nsys.exit(not r.wasSuccessful())\" > /tmp/wv1.txt 2>&1; grep -n \"ERROR:\\|FAIL:\\|AssertionError\\|Error:\" /tmp/wv1.txt | head -40",
+        "description": "Rerun capturing all output"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T17:07:50.719Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '111,200p' /tmp/wv1.txt",
+        "description": "Read the four failures"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T17:07:56.205Z",
+      "kind": "tool",
+      "name": "Bash",
+      "input": {
+        "command": "awk 'NR>=128 && NR<=300' /tmp/wv1.txt | grep -v \"^AssertionError: '\" | head -70",
+        "description": "Read remaining failures"
+      }
+    },
+    {
+      "timestamp": "2026-10-18T17:07:56.212Z",
+      "kind": "tests",
+      "tail": "AssertionError: VisibilityRefusal not raised\n\n======================================================================\nFAIL: test_a_quiet_runtime_is_never_called_healthy_or_offline (tests.tools.test_worker_visibility.TheRuntimeIsReportedAndNeverDiagnosed.test_a_quiet_runtime_is_never_called_healthy_or_offline)\nThe whole family of defect this view is bounded against: a word\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/output/v12/python/tests/tools/test_worker_visibility.py\", line 394, in test_a_quiet_runtime_is_never_called_healthy_or_offline\n    self.assertNotIn(invented, text, invented)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n======================================================================\nFAIL: test_nothing_outside_the_allowlists_reaches_the_view (tests.tools.test_worker_visibility.TheSafeAllowlistIsTheWholeSurface.test_nothing_outside_the_allowlists_reaches_the_view)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/output/v12/python/tests/tools/test_worker_visibility.py\", line 688, in test_nothing_outside_the_allowlists_reaches_the_view\n    self.assertNotIn(\"transcript\", held)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^\n\n----------------------------------------------------------------------\nRan 74 tests in 0.258s\n\nFAILED (failures=4, errors=4)"
+    }
+  ]
+}

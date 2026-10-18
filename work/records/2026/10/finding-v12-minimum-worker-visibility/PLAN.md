@@ -1,15 +1,64 @@
-# Current milestone — fresh packet reviewed; concrete owner selection
+# Current checkpoint — exact candidate accepted for owner delivery
 
-Review review-2026-10-18T16-47-25Z.md accepts preparation-324377 manifest
-930f1101a08eb8f6126eb4c1c1d16df01f32e74af5d45afc9df310b292ed2793.
-Select exact preparation-324377/OPERATOR.md commands for fresh run
-worker-visibility-w324214-324377 at its named absent destination,900s provider/
-30s verification/1500s total/60s cleanup,one invocation/no retry. No launch yet;
-M324283 was spent. Credential refresh remains owner-reported, not proven auth.
-After selected execution collect outcome manually and return retained bytes to
-baton.bug. W324316 is parked and its bridge is not selected; native coordination
-pilot remains separate. W39649 gate stays. Human checkpoint follows accepted
-product delivery, not packet acceptance.
+review-2026-10-18T19-32-03Z.md accepts4c1dcab6972cfff9a7f8d1964df65253533f10fd, three new visibility source/test/doc files at base372281f4. Independent selected226 tests pass5.174s; original worker formal2 integration-fixture failures remain historical and exact cause unresolved. Evidence/review-325713 manifest25d04fbaf39572c8cb4aa9c24a89a1389e8e72a7f1557cfb26dc5e6f258d45bb. No product blocker remains in bounded visibility scope.
+
+Next owner acceptance, reviewed-byte integration and human checkpoint; preserve base/mode drift checks. Original Job held/unable, runtime absent, invocation spent. No launch or automatic import. W39649 broader scope is not delivered by this slice. W325695 receives related verification-environment evidence with unknown cause explicit. Earlier selection-due checkpoint below is superseded by selected completed provider turn and this independent candidate acceptance.
+
+# Current checkpoint — corrected packet reviewed, fresh selection due
+
+review-2026-10-18T17-52-17Z.md accepts preparation324963 manifest a111cef07fef5c35a43acfda1f7897706d9a3251825fc61b455c48a1f35e03c8. Full candidate exact; composed prompt111074 bytes with NUL passes inert exec, oversize negative refuses. Owner selects fresh worker-visibility-w324214-324963 OPERATOR commands;3600/4200/30/60, one invocation/no retry. No launch. Spent324832 retained. Product correction, independent candidate acceptance and human checkpoint remain; W39649 gate retained. This supersedes preparation-needed checkpoint below only.
+
+# Current checkpoint — startup correction preparation
+
+Run324832 selected M324917 is spent: provider start-error after7.96s, no new candidate. review-2026-10-18T17-48-31Z.md establishes195345-byte prompt exceeding131072-byte exec argument boundary; exact errno not retained. Supersedes prior selection-due checkpoint and packet acceptance for reuse. Prepare fresh packet with exactd35fb29c patch and concise complete diagnostic summary, deterministic argv-size proof, unchanged3600/4200/30/60. No retry or launch. Return independent review then fresh selection. Preserve all spent evidence; no product edit or expanded transport scope.
+
+# Owner classification — poke324905
+
+Interrupted-provider-session recovery is deferred, not a gate for current
+continuations or native v12 cutover. Successful-turn context reuse remains in
+the v12 target. Proceed with reviewed3600s provider packets and preserved candidate
+checkpoints; exact launch still needs execution selection. Revisit only if longer
+runs demonstrate material interruption loss. Preserve existing evidence and real
+dependencies. Ruling: baton:work/records/2026/10/finding-v12-development-coordination-pilot/OWNER-INTERRUPTED-SESSION-RECOVERY-324905.md.
+
+# Current checkpoint — revised packet reviewed, execution selection due
+
+review-2026-10-18T17-43-27Z.md accepts preparation-324832 manifest
+d176f186fa7d89208d976296d0bd1a1be485721fa1d0b447bbaacebd505a4345.
+Next owner selects exact OPERATOR.md fresh commands for worker-visibility-w324214-324832;
+3600 provider/4200 total/30 verification/60 cleanup, one invocation/no retry.
+Supported reuse assessed; concrete predecessor/qualification-path blocker recorded,
+fresh context carries exact retainedd35fb29c plus diagnostic checkpoint. Failed
+read-only context query is an unknown, not absence. No new Job/attempt or launch.
+Product correction, independent candidate review and human checkpoint remain;
+W39649 gate and sibling ownership preserved. Earlier preparation-pending text
+below is historical, superseded by this acceptance only.
+
+# Latest owner steering — poke324810
+
+OWNER-CONTINUATION-324810.md supersedes unchanged900s/1500s continuation
+wording below for the next proposed packet:3600s provider, proposed4200s total,
+separate30s formal verification and60s cleanup, one invocation/no retry.
+Prefer proven supported provider-context reuse; spent fresh-mode runs have no
+managed predecessor generation, so record exact blocker if reuse cannot apply.
+Preserve retained candidate and diagnosis. Preparer returns concrete packet for
+independent review then owner execution selection. NO launch authorized.
+
+# Current milestone — partial candidate retained; bounded correction preparation
+
+Latest review: review-2026-10-18T17-37-19Z.md; evidence/review-324809/.
+Selected run324377 spent after900s with useful model activity through cutoff.
+Exact runtime absent; formal verification null. Candidate d35fb29cb3c12c7a50ce5f88f439fc304fa99118
+contains new view/test, missing selected operator doc.222 independent focused
+tests:4 failures/4 errors. Fix malformed stages/time handling, restart fixture and
+semantic safety assertions; preserve intended coverage, add document, verify.
+
+Next baton.codx prepares fresh current-base continuation using exact candidate
+and diagnostic checkpoint; queue behind its existing claim without takeover.
+No host product edit or launch/retry/timeout increase selected. Concrete packet
+returns to independent review, then fresh execution selection. V12 worker owns
+future product correction. W39649 gate and sibling ownership remain. Human
+checkpoint follows accepted delivery; no broad telemetry or bridge selected.
 
 ## Superseded preparation checkpoint — retained history
 

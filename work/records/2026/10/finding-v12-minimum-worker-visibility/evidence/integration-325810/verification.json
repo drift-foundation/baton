@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "python3",
+    "-c",
+    "import os,sys,unittest; os.chdir('v12/python'); sys.path[:0]=[os.getcwd(),os.path.join(os.getcwd(),'src')]; names=['tests.tools.test_worker_visibility','tests.tools.test_job_viewer','tests.job_manager.test_status']; r=unittest.TextTestRunner(verbosity=1).run(unittest.defaultTestLoader.loadTestsFromNames(names)); sys.exit(not r.wasSuccessful())"
+  ],
+  "cwd": "/home/sl/src/baton",
+  "environment": {
+    "PATH": "/usr/local/bin:/usr/bin:/bin",
+    "HOME": "/home/sl/src/baton/work/records/2026/10/finding-v12-minimum-worker-visibility/evidence/integration-325810/disk-gudno0i4",
+    "LANG": "C.UTF-8",
+    "BATON_V12_DISK_ROOT": "/home/sl/src/baton/work/records/2026/10/finding-v12-minimum-worker-visibility/evidence/integration-325810/disk-gudno0i4",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "status": 0,
+  "seconds": 5.342337957999916
+}

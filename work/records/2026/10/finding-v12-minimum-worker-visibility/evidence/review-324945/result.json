@@ -1,0 +1,17 @@
+{
+ "base": "372281f4a473300efb474d5a6573954c15ade367",
+ "changed_paths": [],
+ "collection": null,
+ "disposition": "provider-failed",
+ "entry_head": "372281f4a473300efb474d5a6573954c15ade367",
+ "head": null,
+ "provider": {
+  "failure_reason": "start-error",
+  "seconds_bound": 3600,
+  "status": null
+ },
+ "schema": "baton.dogfood-proposal/2",
+ "task_id": "worker-visibility-w324214-324832",
+ "verification": null,
+ "why": "the provider could not be started: OSError"
+}

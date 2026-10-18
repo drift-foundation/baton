@@ -1,0 +1,20 @@
+{
+ "base": "6348161e608187393e45454db63c192a93f6deb3",
+ "changed_paths": [
+  "v12/python/tests/tools/test_worker_visibility.py",
+  "v12/python/tools/worker_visibility.py"
+ ],
+ "collection": null,
+ "disposition": "provider-failed",
+ "entry_head": "6348161e608187393e45454db63c192a93f6deb3",
+ "head": "d35fb29cb3c12c7a50ce5f88f439fc304fa99118",
+ "provider": {
+  "failure_reason": "timeout",
+  "seconds_bound": 3600,
+  "status": null
+ },
+ "schema": "baton.dogfood-proposal/2",
+ "task_id": "worker-visibility-w324214-324377",
+ "verification": null,
+ "why": "the provider did not finish within 900s"
+}

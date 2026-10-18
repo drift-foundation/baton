@@ -1,0 +1,8 @@
+{
+  "observed_at": "2026-10-18T17-37-19Z",
+  "runtime": "406e1d6c5621727df098e61086cb79d6b3693da0ce0186e4666c31e3fd30ffe5",
+  "command": "docker inspect <exact-runtime-id>",
+  "exit": 1,
+  "stdout": "[]",
+  "stderr": "no such object"
+}

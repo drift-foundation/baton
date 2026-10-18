@@ -1,0 +1,60 @@
+{
+  "bounds": {
+    "cleanup_seconds": 60,
+    "implementer_invocations": 1,
+    "retry": false,
+    "total_seconds": 4200,
+    "turn_seconds": 3600
+  },
+  "requested": {
+    "provider_turn_seconds": 3600,
+    "verification_command_seconds": 30
+  },
+  "resolved": {
+    "units": "seconds",
+    "scope": "per-invocation",
+    "compatibility_generation": 1,
+    "requested": {
+      "provider_turn_seconds": 3600,
+      "verification_command_seconds": 30
+    },
+    "boundaries": {
+      "host_verification": {
+        "seconds": 30,
+        "origin": "job",
+        "setting": "verification_command_seconds",
+        "default_seconds": 300
+      },
+      "integration_verification": {
+        "seconds": 30,
+        "origin": "job",
+        "setting": "verification_command_seconds",
+        "default_seconds": 1800
+      },
+      "ordinary_verification": {
+        "seconds": 30,
+        "origin": "job",
+        "setting": "verification_command_seconds",
+        "default_seconds": 900
+      },
+      "provider_turn": {
+        "seconds": 3600,
+        "origin": "job",
+        "setting": "provider_turn_seconds",
+        "default_seconds": 3600
+      }
+    }
+  },
+  "policy": {
+    "automatic_retry": false,
+    "implementer_invocations": 1,
+    "note": "the caps the admission gate enforces; W239528",
+    "provider_turn_seconds": 3600,
+    "schema": "baton.single-implementation-execution-policy/1",
+    "verification_command_seconds": 30
+  },
+  "serving_seconds": 4140,
+  "cleanup_reserved_seconds": 60,
+  "additional_margin_after_provider_and_verification_seconds": 510,
+  "admission": "One implementation invocation; _turn_ceiling validates effective provider bound and Job origin before serving; fresh serving deadline total minus cleanup. No actual submission/admission executed."
+}

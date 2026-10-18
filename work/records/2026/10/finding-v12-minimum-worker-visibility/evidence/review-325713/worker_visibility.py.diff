@@ -1,0 +1,136 @@
+--- prior/v12/python/tools/worker_visibility.py
++++ new/v12/python/tools/worker_visibility.py
+@@ -105,6 +105,31 @@
+ # participants, lanes and digests are all far inside this; a longer one is a
+ # document this view does not recognise rather than a value to republish.
+ MAX_TEXT = 256
++
++# THE PRODUCER'S OWN FROZEN INSTANT GRAMMAR, and the shape of it.
++#
++# REVIEW 2026-10-18T17-37-19Z: this used `datetime.fromisoformat`, which
++# accepts a great deal this deployment never writes -- a date with no time at
++# all, a naive local time with no zone, a six-digit fraction, an offset other
++# than `Z`. Every one of those was reported as a KNOWN source instant, which
++# is this surface publishing a value whose meaning it had guessed. The
++# contract is `worker_manager.boundaries.GRAMMAR`: exactly
++# `0000-00-00T00:00:00.000Z`, and a real moment on the calendar.
++#
++# IT IS A COPY, DELIBERATELY, which is the opposite of what this module does
++# for `SOURCE_SCHEMA` -- and the reason is the boundary rather than taste.
++# Importing that grammar means importing the Worker Manager package, which is
++# the owner of the control store this view must not be able to open. So the
++# grammar is restated here and `tests/tools/test_worker_visibility.py` holds
++# the copy against `boundaries.instant` vector for vector, so it cannot drift
++# quietly.
++#
++# `0` MEANS ONE ASCII DIGIT and every other position is itself. `strptime`
++# alone is not the grammar: it accepts a one-digit month and a four-digit
++# fraction, and `2026-9-02T00:00:00.0000Z` is the same length as a durable
++# instant without being one.
++_INSTANT_SHAPE = "0000-00-00T00:00:00.000Z"
++_INSTANT_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ"
+ 
+ 
+ class VisibilityRefusal(Exception):
+@@ -246,19 +271,39 @@
+ 
+ 
+ def _instant_text(value):
+-    """One recorded instant, bounded and parsed, or None.
++    """One recorded instant in the PRODUCER'S grammar, or None.
++
++    BOTH HALVES, because the producer's own boundary is both: the shape, so
++    that two instants compare lexicographically the way every reader of this
++    deployment's documents assumes, and the calendar, because
++    `2026-99-99T99:99:99.999Z` has the shape and names no moment.
+ 
+     PARSED TO VALIDATE AND NEVER TO COMPUTE. This view reports the producer's
+     own text; parsing is how it refuses to republish something that is not an
+     instant at all. No age is derived from it, here or anywhere below -- that
+     would need a clock, and this program has none.
++
++    AND A NEAR MISS IS NOT AN INSTANT. A value this deployment never writes is
++    one whose meaning this view would be choosing -- which zone a naive time
++    is in, which moment of a bare date -- so it is unknown with a bounded
++    reason rather than a fact with an invented meaning.
+     """
+     if type(value) is not str or len(value) > MAX_INSTANT_TEXT:
+         return None
+-    text = value[:-1] + "+00:00" if value.endswith("Z") else value
++    if len(value) != len(_INSTANT_SHAPE):
++        return None
++    for held, want in zip(value, _INSTANT_SHAPE):
++        if want == "0":
++            # ASCII DIGITS ONLY, and spelled rather than asked: `str.isdigit`
++            # is true of digits in other scripts that no durable instant of
++            # this deployment is written in.
++            if not ("0" <= held <= "9"):
++                return None
++        elif held != want:
++            return None
+     try:
+-        datetime.datetime.fromisoformat(text)
+-    except (ValueError, TypeError):
++        datetime.datetime.strptime(value, _INSTANT_FORMAT)
++    except ValueError:
+         return None
+     return value
+ 
+@@ -403,7 +448,37 @@
+         _refuse("this document's nested structure is not the one "
+                 + SOURCE_SCHEMA + " describes; the view refuses rather than "
+                 "reporting an unknown subset of the stages")
++    _enumerable(held)
+     return held
++
++
++def _enumerable(held):
++    """EVERY STAGE THIS DOCUMENT HAS CAN BE FOUND, or no row is published.
++
++    DELIBERATELY STRICTER THAN THE VIEWER, and the asymmetry is this Work's
++    own decision rather than a complaint about that reader. `_shaped` treats a
++    Job whose `stages` member is null as a Job with nothing to draw, which is
++    right for a terminal list: it renders what it can read and an operator can
++    see for themselves that a Job's row is empty.
++
++    THIS SURFACE'S WHOLE OUTPUT IS ONE ROW PER CURRENT STAGE. Under the same
++    tolerance, `{"stages": null}` answered `stages: []` -- a confident,
++    well-formed, machine-readable "no stage is in any state", published to a
++    consumer with nothing to notice. That is the same defect as rendering a
++    missing count as zero, one level up: an absence dressed as an
++    observation.
++
++    REVIEW 2026-10-18T17-37-19Z found exactly that. `stages` is a REQUIRED
++    member of `job.status`, so absent and null are both malformed, and a row
++    set this view cannot enumerate is a refusal rather than a shorter answer.
++    """
++    for job in held["jobs"]:
++        stages = job.get("stages")
++        if type(stages) is not list:
++            _refuse("a Job in this document carries its stages as "
++                    + type(stages).__name__ + " where " + SOURCE_SCHEMA
++                    + " names a list; refusing rather than publishing a row "
++                    "set this document does not support")
+ 
+ 
+ def _envelope(held):
+@@ -425,10 +500,15 @@
+             and _checked(held.get("incarnation"), _TEXT) is None:
+         _refuse("this document's incarnation is neither absent nor a bounded "
+                 "identity")
+-    jobs = held.get("jobs")
+-    if jobs is not None and type(jobs) is not list:
+-        _refuse("this document's jobs are a list; refusing rather than "
+-                "reporting an unknown subset of the stages")
++    # `jobs` IS REQUIRED AND IS A LIST. The `status` contract names it among
++    # its required members, so a document without one is not a status document
++    # that happens to be quiet -- and answering `stages: []` for it would be
++    # this view reporting "nothing is running" about a document that said
++    # nothing at all.
++    if type(held.get("jobs")) is not list:
++        _refuse("this document carries no jobs list of the kind "
++                + SOURCE_SCHEMA + " requires; refusing rather than reporting "
++                "an unknown subset of the stages")
+ 
+ 
+ # -- the blocks ------------------------------------------------------------

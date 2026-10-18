@@ -1,0 +1,101 @@
+[
+  {
+    "jobs": [
+      null
+    ],
+    "refused": true
+  },
+  {
+    "jobs": [
+      {
+        "stages": null
+      }
+    ],
+    "refused": false,
+    "rows": 0
+  },
+  {
+    "jobs": [
+      {
+        "stages": [
+          null
+        ]
+      }
+    ],
+    "refused": true
+  },
+  {
+    "jobs": [
+      {
+        "stages": [
+          {
+            "episodes": 7
+          }
+        ]
+      }
+    ],
+    "refused": true
+  },
+  {
+    "instant": "2026-10-18",
+    "refused": false,
+    "snapshot": {
+      "query_time": {
+        "known": true,
+        "value": "2026-10-18",
+        "source": "observed_at",
+        "unknown_reason": null
+      },
+      "query_time_note": "the instant the manager queried its own stores to assemble this status document; it is not a worker contact time and not an activity observation time",
+      "canonical": {
+        "known": true,
+        "value": true,
+        "source": "canonical",
+        "unknown_reason": null
+      },
+      "incarnation": {
+        "known": true,
+        "value": "jobs-1",
+        "source": "incarnation",
+        "unknown_reason": null,
+        "observed_at": {
+          "known": false,
+          "value": null,
+          "source": null,
+          "unknown_reason": "this status contract records no observation time for this fact, and this view does not invent one"
+        }
+      }
+    }
+  },
+  {
+    "instant": "2026-10-18T12:00:00",
+    "refused": false,
+    "snapshot": {
+      "query_time": {
+        "known": true,
+        "value": "2026-10-18T12:00:00",
+        "source": "observed_at",
+        "unknown_reason": null
+      },
+      "query_time_note": "the instant the manager queried its own stores to assemble this status document; it is not a worker contact time and not an activity observation time",
+      "canonical": {
+        "known": true,
+        "value": true,
+        "source": "canonical",
+        "unknown_reason": null
+      },
+      "incarnation": {
+        "known": true,
+        "value": "jobs-1",
+        "source": "incarnation",
+        "unknown_reason": null,
+        "observed_at": {
+          "known": false,
+          "value": null,
+          "source": null,
+          "unknown_reason": "this status contract records no observation time for this fact, and this view does not invent one"
+        }
+      }
+    }
+  }
+]

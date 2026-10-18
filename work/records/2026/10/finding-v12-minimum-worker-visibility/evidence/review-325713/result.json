@@ -1,0 +1,28 @@
+{
+ "base": "372281f4a473300efb474d5a6573954c15ade367",
+ "changed_paths": [
+  "v12/python/WORKER-VISIBILITY.md",
+  "v12/python/tests/tools/test_worker_visibility.py",
+  "v12/python/tools/worker_visibility.py"
+ ],
+ "collection": null,
+ "disposition": "verification-failed",
+ "entry_head": "372281f4a473300efb474d5a6573954c15ade367",
+ "head": "4c1dcab6972cfff9a7f8d1964df65253533f10fd",
+ "provider": {
+  "failure_reason": null,
+  "seconds_bound": 3600,
+  "status": 0
+ },
+ "schema": "baton.dogfood-proposal/2",
+ "task_id": "worker-visibility-w324214-324963",
+ "verification": {
+  "argv": [
+   "python3",
+   "-c",
+   "import os,sys,unittest; os.chdir('v12/python'); sys.path[:0]=[os.getcwd(),os.path.join(os.getcwd(),'src')]; names=['tests.tools.test_worker_visibility','tests.tools.test_job_viewer','tests.job_manager.test_status']; r=unittest.TextTestRunner(verbosity=1).run(unittest.defaultTestLoader.loadTestsFromNames(names)); sys.exit(not r.wasSuccessful())"
+  ],
+  "status": 1
+ },
+ "why": "the task's own command ended 1"
+}

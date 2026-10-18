@@ -1,0 +1,23 @@
+{
+  "CANDIDATE.json": "6f5fed917afc00a2fe2bd19ce1a2c4f76978e7a78897aa5d8ea33c8f56095800",
+  "CESSATION.json": "51fd257fc71cbfc3b889ddd1090a5440eb7ff785566ab363faa0ce83a4d571d9",
+  "FOCUSED-DEFAULT-ROOT.json": "4dc5d5b30ac30d956a6bd70a02c6a131f1a858776f1b2e2a7aabadcd6bb0ca5f",
+  "FOCUSED-DEFAULT-ROOT.log": "7f8b2e0a52f84b9f60468701a8c623a9f15c83e23f5a08a90784f545671ca694",
+  "FOCUSED-PINNED-ENV.json": "23ff4bc8a74c19317f9167e802678dcf1f625715cf0eb65e8b21844734e17a0d",
+  "FOCUSED-PINNED-ENV.log": "ca1cf894ccf6c0731f6e7bc3deede8519e706de8e2335b459b1401f1aacc5185",
+  "FOCUSED.json": "b6761fbaae5b801186e935ea188000cda3eb563c25d259603e78f22933c31062",
+  "FOCUSED.log": "5ffe921a9d3519e71d3573514c55babeffe7233aad8c4f06a4e7be6f6e4fa3b8",
+  "PINNED-DISK.json": "c4fa74a074645df7ae4c024036f6cde87c38ce9bab1d36976f1782fa7d8274f0",
+  "PINNED-DISK.log": "c316259ae440a35ca607ef2b0d95b335c569343c91ccfc5a2a49eb915f23cd75",
+  "TICK-REPORTS.json": "c27471605fd3bbd5810a3a347c1ad72320c4d0e0c1391d78552436280b867fd3",
+  "VIEW.json": "a5af1786aeefef9b34f0cc5ccc80b83c34187c35f1ab3c5c325b896b339c96e5",
+  "WORKER-VERIFICATION.log": "b6c63e7a502aed7b5f9541478af780bc342e79d95d8b54de3d1346741d834eaa",
+  "candidate/v12/python/WORKER-VISIBILITY.md": "904d93f5c62680fc03b9c12d283d476e017305cb4ddbf18eeaeed826f2ff803e",
+  "candidate/v12/python/tests/tools/test_worker_visibility.py": "6d427a6cffde885d18a2aacead7164f61b705c262ec5cf4d54c59c15a205fa28",
+  "candidate/v12/python/tools/worker_visibility.py": "3e224adf84a7f5ba6839429f4023b69ec3c19cfff95f1b55de4cc43fabdafa7c",
+  "outcome.json": "dbe85d241d2a6443e4e64436acca95ba88a41312517b89c8d86f60f52524cd13",
+  "result.json": "4b27d57486a1ec204e3e2c9d01f4ff4f79c2d2c655f90260f1e3dd015122dc81",
+  "test_worker_visibility.py.diff": "44524071d42c9251a635e995bfe8e728e5538a8aa9e9abe70048f5edae3260f9",
+  "verification.txt": "2a598fd50949ad5ccdcc2bb94882c6f2e585270e283486353aebfd1ea2cbc2fc",
+  "worker_visibility.py.diff": "3161a6397fed9cba7d0d155e9e54115ce5dcc6db584847a7996b0a6344237a94"
+}

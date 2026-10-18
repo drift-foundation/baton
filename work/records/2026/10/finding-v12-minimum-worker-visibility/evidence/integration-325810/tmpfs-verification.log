@@ -1,0 +1,67 @@
+.........................................................................................................................................FF.......................................................................................
+======================================================================
+FAIL: test_a_foreign_job_still_refuses_against_the_real_reader (tests.tools.test_job_viewer.TheRealObservationReaderReachesTheView.test_a_foreign_job_still_refuses_against_the_real_reader)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 9435, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7920, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 4295, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/disk_roots.py", line 105, in disk_backed_under
+    place = tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root())
+                                                       ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/disk_roots.py", line 75, in disk_backed_root
+    raise AssertionError(
+    ...<3 lines>...
+        f"the delivery")
+AssertionError: BATON_V12_DISK_ROOT is '/tmp/w324214-integration-vcpbkojo', which is on a tmpfs filesystem; W71917 refuses a workspace on memory, so a run pointed at one would prove the refusal rather than the delivery
+
+======================================================================
+FAIL: test_the_view_renders_the_real_model_free_completion (tests.tools.test_job_viewer.TheRealObservationReaderReachesTheView.test_the_view_renders_the_real_model_free_completion)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 9435, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7920, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 4295, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/disk_roots.py", line 105, in disk_backed_under
+    place = tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root())
+                                                       ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/disk_roots.py", line 75, in disk_backed_root
+    raise AssertionError(
+    ...<3 lines>...
+        f"the delivery")
+AssertionError: BATON_V12_DISK_ROOT is '/tmp/w324214-integration-vcpbkojo', which is on a tmpfs filesystem; W71917 refuses a workspace on memory, so a run pointed at one would prove the refusal rather than the delivery
+
+----------------------------------------------------------------------
+Ran 226 tests in 0.654s
+
+FAILED (failures=2)

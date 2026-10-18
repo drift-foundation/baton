@@ -1,0 +1,31 @@
+{
+  "manifest": "a111cef07fef5c35a43acfda1f7897706d9a3251825fc61b455c48a1f35e03c8",
+  "inputs": 12,
+  "runtime": 111,
+  "supervisor": 3,
+  "generated_artifacts": 8,
+  "task_exact": true,
+  "retained_paths": 2,
+  "patch_reconstruction": "/tmp/w324214-review324987-7jjps97z",
+  "base": "372281f4a473300efb474d5a6573954c15ade367",
+  "destination_absent": true,
+  "bounds": {
+    "cleanup_seconds": 60,
+    "implementer_invocations": 1,
+    "retry": false,
+    "total_seconds": 4200,
+    "turn_seconds": 3600
+  },
+  "verification_seconds": 30,
+  "inert_exec": [
+    {
+      "bytes": 111073,
+      "returncode": 0
+    },
+    {
+      "bytes": 131072,
+      "errno": 7
+    }
+  ],
+  "prompt_nul_bytes": 111074
+}

@@ -1,0 +1,28 @@
+{
+  "head": "4c1dcab6972cfff9a7f8d1964df65253533f10fd",
+  "base": "372281f4a473300efb474d5a6573954c15ade367",
+  "repo": "/home/sl/baton-instances/worker-visibility-w324214-324963/packet/workspaces/.baton-review-lines/line-deb13eb93e0c8ceb048c6d8079c311f6c7a21621c1f76644288b5e53f2d66eb2/checkout",
+  "paths": {
+    "v12/python/WORKER-VISIBILITY.md": "904d93f5c62680fc03b9c12d283d476e017305cb4ddbf18eeaeed826f2ff803e",
+    "v12/python/tests/tools/test_worker_visibility.py": "6d427a6cffde885d18a2aacead7164f61b705c262ec5cf4d54c59c15a205fa28",
+    "v12/python/tools/worker_visibility.py": "3e224adf84a7f5ba6839429f4023b69ec3c19cfff95f1b55de4cc43fabdafa7c"
+  },
+  "custody": {
+    "result.json": {
+      "sha256": "4b27d57486a1ec204e3e2c9d01f4ff4f79c2d2c655f90260f1e3dd015122dc81",
+      "bytes": 1026
+    },
+    "objects.bundle": {
+      "sha256": "f0f45347f41151c0a90516bdeeae04f7e03f56fb4ac85981470bd051782f24ab",
+      "bytes": 37362
+    },
+    "change.patch": {
+      "sha256": "eaa9796a7b5682f2d7adc6009009469423fb83c2c02e687bc58aecb480ebb6b1",
+      "bytes": 136140
+    },
+    "verification.txt": {
+      "sha256": "2a598fd50949ad5ccdcc2bb94882c6f2e585270e283486353aebfd1ea2cbc2fc",
+      "bytes": 886
+    }
+  }
+}

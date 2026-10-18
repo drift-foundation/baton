@@ -1,0 +1,26 @@
+{
+  "instructions_bytes": 194776,
+  "prompt_bytes": 195345,
+  "page_size": 4096,
+  "deterministic_exec_probe": [
+    {
+      "argument_bytes": 1000,
+      "returncode": 0
+    },
+    {
+      "argument_bytes": 131071,
+      "returncode": 0
+    },
+    {
+      "argument_bytes": 131072,
+      "errno": 7,
+      "error": "Argument list too long"
+    },
+    {
+      "argument_bytes": 195345,
+      "errno": 7,
+      "error": "Argument list too long"
+    }
+  ],
+  "live_provider_invoked": false
+}

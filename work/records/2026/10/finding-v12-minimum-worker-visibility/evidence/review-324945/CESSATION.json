@@ -1,0 +1,6 @@
+{
+  "runtime": "62b3ce1a1449092e344f0eb964930fd9e12c7a77c947d56882ff1b83d2665149",
+  "returncode": 1,
+  "stdout": "[]\n",
+  "stderr": "permission denied while trying to connect to the docker API at unix:///var/run/docker.sock\n"
+}
