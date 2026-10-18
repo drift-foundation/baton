@@ -111,9 +111,33 @@ def _digest(path):
 
 
 def _contained_read(root, reference):
-    """Open ONE contained regular file under `root`, or say why not.
+    """Digest ONE contained regular file under `root`, or say why not.
 
     Returns `(state, digest, bytes)`; the digest is `None` unless `present`.
+
+    THE CONTAINMENT ITSELF IS `_contained_open`, and this is the digesting
+    caller of it. W321689 needed the same containment to hand back a file's
+    BYTES rather than its digest -- a human integration record has to be read
+    to be checked -- and a second descriptor-anchored walk written beside this
+    one is how two copies of a containment rule drift apart. So the walk moved
+    down one level and both callers share it.
+    """
+    state, descriptor = _contained_open(root, reference)
+    if state != EVIDENCE_PRESENT:
+        return state, None, None
+    try:
+        return state, _digest_fd(descriptor), os.fstat(descriptor).st_size
+    except OSError:
+        return EVIDENCE_UNREADABLE, None, None
+    finally:
+        os.close(descriptor)
+
+
+def _contained_open(root, reference):
+    """Open ONE contained regular file under `root`, or say why not.
+
+    Returns `(state, descriptor)`; the descriptor is `None` unless `present`,
+    and the CALLER owns it and closes it.
 
     WHY DESCRIPTOR ANCHORING AND NOT `lstat` PER COMPONENT. Review
     2026-10-18T08-48-00Z P1 closed the previous attempt with a real
@@ -148,24 +172,24 @@ def _contained_read(root, reference):
         # the one check distinguishes the two.
         try:
             if stat.S_ISLNK(os.lstat(root).st_mode):
-                return EVIDENCE_ESCAPES, None, None
+                return EVIDENCE_ESCAPES, None
         except OSError:
             pass
-        return EVIDENCE_NOT_REGULAR, None, None
+        return EVIDENCE_NOT_REGULAR, None
     except FileNotFoundError:
-        return EVIDENCE_UNREADABLE, None, None
+        return EVIDENCE_UNREADABLE, None
     except OSError:
-        return EVIDENCE_UNREADABLE, None, None
+        return EVIDENCE_UNREADABLE, None
     opened = [anchor]
     try:
         segments = [one for one in reference.split("/") if one]
         if not segments:
-            return EVIDENCE_NOT_REGULAR, None, None
+            return EVIDENCE_NOT_REGULAR, None
         for segment in segments[:-1]:
             try:
                 held = os.open(segment, directory_flags, dir_fd=opened[-1])
             except FileNotFoundError:
-                return EVIDENCE_ABSENT, None, None
+                return EVIDENCE_ABSENT, None
             except NotADirectoryError:
                 # LINUX ANSWERS ENOTDIR, NOT ELOOP, for `O_DIRECTORY` on a
                 # symlink to a directory. The open has ALREADY refused by this
@@ -176,10 +200,10 @@ def _contained_read(root, reference):
                 try:
                     if stat.S_ISLNK(os.lstat(segment,
                                              dir_fd=opened[-1]).st_mode):
-                        return EVIDENCE_ESCAPES, None, None
+                        return EVIDENCE_ESCAPES, None
                 except OSError:
                     pass
-                return EVIDENCE_NOT_REGULAR, None, None
+                return EVIDENCE_NOT_REGULAR, None
             except OSError as failure:
                 # ELOOP is the symlink refusal `O_NOFOLLOW` produces, and it is
                 # the one that matters: an intermediate link, whether it was
@@ -188,8 +212,8 @@ def _contained_read(root, reference):
                 import errno
 
                 if failure.errno in (errno.ELOOP, errno.EMLINK):
-                    return EVIDENCE_ESCAPES, None, None
-                return EVIDENCE_UNREADABLE, None, None
+                    return EVIDENCE_ESCAPES, None
+                return EVIDENCE_UNREADABLE, None
             opened.append(held)
         try:
             descriptor = os.open(segments[-1],
@@ -197,24 +221,26 @@ def _contained_read(root, reference):
                                  | getattr(os, "O_NONBLOCK", 0),
                                  dir_fd=opened[-1])
         except FileNotFoundError:
-            return EVIDENCE_ABSENT, None, None
+            return EVIDENCE_ABSENT, None
         except IsADirectoryError:
-            return EVIDENCE_NOT_REGULAR, None, None
+            return EVIDENCE_NOT_REGULAR, None
         except OSError as failure:
             import errno
 
             if failure.errno == errno.ELOOP:
-                return EVIDENCE_ESCAPES, None, None
-            return EVIDENCE_UNREADABLE, None, None
+                return EVIDENCE_ESCAPES, None
+            return EVIDENCE_UNREADABLE, None
         try:
-            about = os.fstat(descriptor)
-            if not stat.S_ISREG(about.st_mode):
-                return EVIDENCE_NOT_REGULAR, None, None
-            return EVIDENCE_PRESENT, _digest_fd(descriptor), about.st_size
+            if not stat.S_ISREG(os.fstat(descriptor).st_mode):
+                os.close(descriptor)
+                return EVIDENCE_NOT_REGULAR, None
         except OSError:
-            return EVIDENCE_UNREADABLE, None, None
-        finally:
             os.close(descriptor)
+            return EVIDENCE_UNREADABLE, None
+        # THE ONE DESCRIPTOR THAT OUTLIVES THIS CALL. Its parents are closed
+        # by the `finally` below and that cannot redirect it: what it refers
+        # to was fixed when it was opened.
+        return EVIDENCE_PRESENT, descriptor
     finally:
         for held in reversed(opened):
             try:

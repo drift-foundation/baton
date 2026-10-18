@@ -1,0 +1,76 @@
+[
+  {
+    "try": 1,
+    "exit": 2,
+    "answer": {
+      "already_recorded": {
+        "act_id": "op-cite-1",
+        "digest": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+        "recorded_at": "2026-10-18T12:00:00.000Z",
+        "reference": "work/records/2026/10/finding-pilot/INTEGRATION.json",
+        "work_id": "0123abcd-W1"
+      },
+      "citation_operation": "op-cite-1",
+      "cited": null,
+      "integration": null,
+      "performed": "nothing",
+      "read_digest": "sha256:700a2aec074701e07634d1557e2aa472aa1821cd8f0a17c407219eeefdf2d7b0",
+      "reference": "work/records/2026/10/finding-pilot/INTEGRATION.json",
+      "work_id": "0123abcd-W1"
+    },
+    "stderr": "refused: 'work/records/2026/10/finding-pilot/INTEGRATION.json' could not be cited as this integration's evidence: operation id was reused for different operands. The answer above shows the digest this command read and whatever that identity already holds; nothing was recorded\n"
+  },
+  {
+    "try": 2,
+    "exit": 0,
+    "answer": {
+      "authority_uuid": "0123456789abcdef0123456789abcdef",
+      "bound": {
+        "actor": "baton.slaw",
+        "candidate_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+        "commit": "433b09d6963ca9789700849b640e242e772b9867"
+      },
+      "cited": {
+        "act_id": "op-cite-1",
+        "digest": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+        "recorded_at": "2026-10-18T12:00:00.000Z",
+        "reference": "work/records/2026/10/finding-pilot/INTEGRATION.json",
+        "work_id": "0123abcd-W1"
+      },
+      "closure_due": true,
+      "evidence_now": {
+        "actual": "sha256:700a2aec074701e07634d1557e2aa472aa1821cd8f0a17c407219eeefdf2d7b0",
+        "cited_digest": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+        "reference": "work/records/2026/10/finding-pilot/INTEGRATION.json",
+        "state": "changed"
+      },
+      "integration": {
+        "actor": "baton.slaw",
+        "disposition": "integrated",
+        "kind": "integration",
+        "proposal_id": "proposal-1",
+        "receipt_id": "int-1"
+      },
+      "replayed": false,
+      "request": {
+        "bound_at": "2026-10-18T17:20:49.776Z",
+        "kind": "command-request",
+        "request": {
+          "candidate_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "commit": "433b09d6963ca9789700849b640e242e772b9867",
+          "evidence_operation": "op-cite-1",
+          "integration_id": "int-1",
+          "participant": "baton.slaw",
+          "proposal": "proposal-1",
+          "reference": "work/records/2026/10/finding-pilot/INTEGRATION.json",
+          "verb": "integrated",
+          "work": "0123abcd-W1"
+        },
+        "verb": "integrated",
+        "work_id": "0123abcd-W1"
+      },
+      "work_id": "0123abcd-W1"
+    },
+    "stderr": ""
+  }
+]

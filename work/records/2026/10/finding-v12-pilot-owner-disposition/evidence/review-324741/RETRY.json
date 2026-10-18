@@ -1,0 +1,42 @@
+[
+  {
+    "try": 1,
+    "exit": 2,
+    "answer": {
+      "already_recorded": {
+        "act_id": "op-cite-1",
+        "digest": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+        "recorded_at": "2026-10-18T12:00:00.000Z",
+        "reference": "work/records/2026/10/finding-pilot/INTEGRATION.json",
+        "work_id": "0123abcd-W1"
+      },
+      "citation_operation": "op-cite-1",
+      "integration": null,
+      "performed": "nothing",
+      "reference": "work/records/2026/10/finding-pilot/INTEGRATION.json",
+      "validated_digest": "sha256:700a2aec074701e07634d1557e2aa472aa1821cd8f0a17c407219eeefdf2d7b0",
+      "work_id": "0123abcd-W1"
+    },
+    "stderr": "refused: operation 'op-cite-1' cites 'work/records/2026/10/finding-pilot/INTEGRATION.json' at 'sha256:9999999999999999999999999999999999999999999999999999999999999999' and this integration validated 'sha256:700a2aec074701e07634d1557e2aa472aa1821cd8f0a17c407219eeefdf2d7b0'; a citation is this integration's evidence only if it cites the bytes this request validated. An integration records its own evidence under its own identities; nothing was cited, nothing was changed, and a fresh --operation-id with a fresh --evidence-operation-id is how a different act is performed\n"
+  },
+  {
+    "try": 2,
+    "exit": 2,
+    "answer": {
+      "already_recorded": {
+        "act_id": "op-cite-1",
+        "digest": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+        "recorded_at": "2026-10-18T12:00:00.000Z",
+        "reference": "work/records/2026/10/finding-pilot/INTEGRATION.json",
+        "work_id": "0123abcd-W1"
+      },
+      "citation_operation": "op-cite-1",
+      "integration": null,
+      "performed": "nothing",
+      "reference": "work/records/2026/10/finding-pilot/INTEGRATION.json",
+      "validated_digest": "sha256:700a2aec074701e07634d1557e2aa472aa1821cd8f0a17c407219eeefdf2d7b0",
+      "work_id": "0123abcd-W1"
+    },
+    "stderr": "refused: operation 'op-cite-1' cites 'work/records/2026/10/finding-pilot/INTEGRATION.json' at 'sha256:9999999999999999999999999999999999999999999999999999999999999999' and this integration validated 'sha256:700a2aec074701e07634d1557e2aa472aa1821cd8f0a17c407219eeefdf2d7b0'; a citation is this integration's evidence only if it cites the bytes this request validated. An integration records its own evidence under its own identities; nothing was cited, nothing was changed, and a fresh --operation-id with a fresh --evidence-operation-id is how a different act is performed\n"
+  }
+]

@@ -1,0 +1,89 @@
+{
+  "changed_commit_after_drift": {
+    "exit": 0,
+    "answer": {
+      "authority_uuid": "0123456789abcdef0123456789abcdef",
+      "cited": {
+        "act_id": "op-cite-1",
+        "digest": "sha256:700a2aec074701e07634d1557e2aa472aa1821cd8f0a17c407219eeefdf2d7b0",
+        "recorded_at": "2026-10-18T16:55:11.573Z",
+        "reference": "work/records/2026/10/finding-pilot/INTEGRATION.json",
+        "work_id": "0123abcd-W1"
+      },
+      "evidence_now": {
+        "actual": "sha256:de26b2295402d92a68fed762d16cd27d71ce8803e275b99a7c7d9fb389550ced",
+        "cited_digest": "sha256:700a2aec074701e07634d1557e2aa472aa1821cd8f0a17c407219eeefdf2d7b0",
+        "reference": "work/records/2026/10/finding-pilot/INTEGRATION.json",
+        "state": "changed"
+      },
+      "integration": {
+        "actor": "baton.slaw",
+        "disposition": "integrated",
+        "kind": "integration",
+        "proposal_id": "proposal-1",
+        "receipt_id": "int-1"
+      },
+      "replayed": true,
+      "work_id": "0123abcd-W1"
+    },
+    "stderr": "",
+    "citations": 1
+  },
+  "changed_close_assignment": {
+    "exit": 0,
+    "answer": {
+      "acceptance": {
+        "approval": "app-1",
+        "candidate_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+        "commit": "433b09d6963ca9789700849b640e242e772b9867",
+        "evidence_digest": "sha256:700a2aec074701e07634d1557e2aa472aa1821cd8f0a17c407219eeefdf2d7b0",
+        "evidence_reference": "work/records/2026/10/finding-pilot/INTEGRATION.json",
+        "integration": "int-1",
+        "proposal_id": "proposal-1",
+        "review": "rev-proposal-1",
+        "schema": "baton.v12.owner-closure-acceptance/1",
+        "verification": "ver-proposal-1"
+      },
+      "actor": "baton.slaw",
+      "authority_uuid": "0123456789abcdef0123456789abcdef",
+      "closed": {
+        "actor": "baton.slaw",
+        "assignment": null,
+        "decision": {
+          "effective_scope": "scope:deployment",
+          "endpoint": "baton.slaw",
+          "grant": "direct",
+          "policy_generation": 8,
+          "principal": "principal:baton.slaw",
+          "role": "close"
+        },
+        "outcome": "satisfying"
+      },
+      "evidence_now": {
+        "cited_digest": "sha256:700a2aec074701e07634d1557e2aa472aa1821cd8f0a17c407219eeefdf2d7b0",
+        "commit": "433b09d6963ca9789700849b640e242e772b9867",
+        "integrated_at": "2026-10-18T12:30:00Z",
+        "integrated_by": "Slawomir",
+        "reference": "work/records/2026/10/finding-pilot/INTEGRATION.json",
+        "state": "intact"
+      },
+      "rationale": "pilot delivered",
+      "replayed": true,
+      "work": {
+        "close_decision": {
+          "effective_scope": "scope:deployment",
+          "endpoint": "baton.slaw",
+          "grant": "direct",
+          "policy_generation": 8,
+          "principal": "principal:baton.slaw",
+          "role": "close"
+        },
+        "outcome": "satisfying",
+        "phase": null,
+        "status": "closed"
+      },
+      "work_id": "0123abcd-W1"
+    },
+    "stderr": ""
+  }
+}

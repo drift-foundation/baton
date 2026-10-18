@@ -134,6 +134,34 @@ SUPERSEDED = {
 GRANTS = {"verification": "verify", "review": "review", "approval": "approve"}
 INTEGRATOR_GRANT = "integrate"
 
+# W321689: the SELECTED human owner, and the grants a disposition needs.
+#
+# WHAT WAS MISSING AND WHY IT MATTERED. `GRANTS` above configures the three
+# actors a Job's own execution writes receipts as, and not one of them is a
+# CLOSE grant -- `core.close` authorizes by the close capability and a
+# deployment composed here granted it to nobody, so the owner-selected closure
+# had no actor at all. The pilot assessment recorded that gap exactly:
+# "Bootstrap GRANTS includes verify/review/approve/integrate, not close."
+#
+# ONE OPTIONAL PARTICIPANT. Supply it and the human disposition is configured
+# in each bound Work's own scope; omit it and nothing changes, because an
+# installation that binds no Job has no scope to grant anything in.
+#
+# AND IT IS NOT GRANTED `verify` OR `review`. Owner capability and human
+# integration are distinct from technical review -- an owner who could also
+# write the review receipt would be a deployment where one principal accepts
+# its own candidate, which is the conflation §10.12's four separate receipts
+# exist to prevent. The same address MAY be configured as the approval actor
+# as well; what a deployment cannot do here is acquire the reviewer's grant by
+# being named the owner.
+#
+# NOT IN `OPTIONAL`, deliberately. That tuple travels verbatim into the emitted
+# `stage_execution` document, whose member set is closed and whose consumers
+# serve EXECUTION. Who may approve, record an integration and close is a grant,
+# and a grant is made here, in the bound Work's own scope.
+DISPOSITION = ("owner_participant",)
+OWNER_GRANTS = ("approve", "integrate", "close")
+
 # The route each stage is served on. `review_route` on a worker names where its
 # own ending hands the Work on to, which is why the last one is not a stage.
 ROUTES = {"implementation": "impl", "review": "rview", "integration": "integration"}
@@ -335,7 +363,7 @@ def _unknown(document):
     the deployment behaves differently from what they asked for.
     """
     allowed = (set(REQUIRED) | set(OPTIONAL) | set(INSTALLER_ONLY)
-               | set(DEFERRED))
+               | set(DEFERRED) | set(DISPOSITION))
     found = [name + " -- " + SUPERSEDED[name] if name in SUPERSEDED else name
              for name in document if name not in allowed]
     for index, worker in enumerate(document.get("workers") or []):
@@ -404,7 +432,8 @@ def held(document):
             "carry is refused rather than accepted and dropped, because the "
             "two are indistinguishable to an operator until the deployment "
             "behaves differently from what they asked for. The supported "
-            "optional selections are " + ", ".join(OPTIONAL) + ".")
+            "optional selections are "
+            + ", ".join(OPTIONAL + DISPOSITION) + ".")
     absent = _missing(document)
     if absent:
         raise BootstrapRefusal(
@@ -732,6 +761,16 @@ def _compose(authority, document, *, stream):
         print("grant %-14s %s in its own scope"
               % (job["work_id"], "/".join(sorted(GRANTS.values())
                                           + [INTEGRATOR_GRANT])), file=stream)
+        # W321689: THE SELECTED OWNER, in the same Work's own scope and said
+        # out loud. A human disposition that was configured silently would be
+        # indistinguishable from one that was not configured at all -- which is
+        # how the close grant came to be missing without anybody noticing.
+        owner = document.get("owner_participant")
+        if owner:
+            for capability in OWNER_GRANTS:
+                authority.grant_capability(owner, capability, scope=scope)
+            print("owner %-14s %s in its own scope; no verify or review grant"
+                  % (job["work_id"], "/".join(OWNER_GRANTS)), file=stream)
     _canonical_target(authority, document, stream=stream)
     return created
 

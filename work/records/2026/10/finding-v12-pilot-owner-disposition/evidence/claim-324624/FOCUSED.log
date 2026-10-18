@@ -1,0 +1,97 @@
+# W321689 focused verification — correction for review 2026-10-18T17-12-52Z
+# base: 6348161e608187393e45454db63c192a93f6deb3
+# started 2026-10-18T17:18:06Z
+............................................................................................................................................................................................................................................................................................................................................status refused (returncode 1):
+boom
+.............................usage: stack [-h] [--instance INSTANCE] [--root ROOT]
+             {start,stop,status,publish,repository,monitor} ...
+stack: error: unrecognized arguments: --root /tmp/v12-stack-u_ectip4/state
+.....................................................................................................................................................................................refused: the runtime at /tmp/v12-instance-g071yuob/a/distro is not the one this instance was prepared with: it holds 2 files digesting aebd9f0a1e35c2ae... and the instance records 2 digesting 7293e8241ae0d98a... Nothing here upgrades a deployment in place; prepare a new destination.
+.refused: the runtime at /tmp/v12-instance-5yt071ka/a/distro is not the one this instance was prepared with: it holds 2 files digesting 30f3d827fd48dd11... and the instance records 2 digesting 7293e8241ae0d98a... Nothing here upgrades a deployment in place; prepare a new destination.
+.refused: /tmp/v12-instance-rkwwi8om/a/instance.json names state '/tmp/v12-instance-rkwwi8om/b/state' and this destination derives '/tmp/v12-instance-rkwwi8om/a/state'; every path an instance owns is DERIVED from its destination, so one that disagrees is describing a different deployment.
+.refused: the runtime at /tmp/v12-instance-8wq07gm2/a/distro is not the one this instance was prepared with: it holds 3 files digesting 70f6a156483a85bd... and the instance records 2 digesting 7293e8241ae0d98a... Nothing here upgrades a deployment in place; prepare a new destination.
+.refused: there is no instance at /tmp/v12-instance-0lr61fgz/nothing.json. `just bootstrap <inputs.json> <destination>` prepares one and writes it there.
+.................F.F................................................................................................................../usr/lib/python3.13/ast.py:50: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7f3d12689210>
+  return compile(source, filename, mode, flags,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/usr/lib/python3.13/ast.py:50: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7f3d12689d50>
+  return compile(source, filename, mode, flags,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/usr/lib/python3.13/ast.py:50: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7f3d12689f30>
+  return compile(source, filename, mode, flags,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/usr/lib/python3.13/ast.py:50: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7f3d12689e40>
+  return compile(source, filename, mode, flags,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/usr/lib/python3.13/ast.py:50: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7f3d1268a020>
+  return compile(source, filename, mode, flags,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/usr/lib/python3.13/ast.py:50: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7f3d1268a110>
+  return compile(source, filename, mode, flags,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/usr/lib/python3.13/ast.py:50: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7f3d1268a200>
+  return compile(source, filename, mode, flags,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/usr/lib/python3.13/ast.py:50: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7f3d1268a2f0>
+  return compile(source, filename, mode, flags,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/usr/lib/python3.13/ast.py:50: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7f3d1268a3e0>
+  return compile(source, filename, mode, flags,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/usr/lib/python3.13/ast.py:50: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7f3d1268a4d0>
+  return compile(source, filename, mode, flags,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+........................................................................................................................................................................................................................................................................................................
+======================================================================
+FAIL: test_every_named_site_covers_the_paths_it_was_written_for (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_every_named_site_covers_the_paths_it_was_written_for)
+The unique LEXICAL identity, pinned.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/authority/test_boundary.py", line 839, in test_every_named_site_covers_the_paths_it_was_written_for
+    self.assertEqual(excused, [
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+        ("core.py", "_require_capability", "capability"),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<15 lines>...
+        ("store.py", "create", "failure.errno"),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ])
+    ^^
+AssertionError: Lists differ: [('co[642 chars]', '_connect_readonly', 'failure'), ('store.py[233 chars]no')] != [('co[642 chars]', '_describe_target', 'failure.errno'), ('sto[30 chars]no')]
+
+First differing element 14:
+('store.py', '_connect_readonly', 'failure')
+('store.py', '_describe_target', 'failure.errno')
+
+First list contains 4 additional elements.
+First extra element 16:
+('store.py', '_connect_readonly', 'type(failure).__name__')
+
+Diff is 991 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_no_refusal_renders_an_unbounded_value (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_no_refusal_renders_an_unbounded_value)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/authority/test_boundary.py", line 800, in test_no_refusal_renders_an_unbounded_value
+    self.assertEqual(self.offenders(self.interpolations()), [],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "unbounded refusal diagnostics")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('store.py', '_writable', 378, 'what'), ([176 chars]re')] != []
+
+First list contains 4 additional elements.
+First extra element 0:
+('store.py', '_writable', 378, 'what')
+
++ []
+- [('store.py', '_writable', 378, 'what'),
+-  ('store.py', '_connect_readonly', 649, 'type(failure).__name__'),
+-  ('store.py', '_connect_readonly', 662, 'type(failure).__name__'),
+-  ('store.py', '_connect_readonly', 662, 'failure')] : unbounded refusal diagnostics
+
+----------------------------------------------------------------------
+Ran 976 tests in 46.863s
+
+FAILED (failures=2)
+/usr/lib/python3.13/subprocess.py:1140: ResourceWarning: subprocess 197656 is still running

@@ -151,6 +151,21 @@ def _record(operands):
     return dossier_command.main(operands)
 
 
+def _disposition(operands):
+    """W321689: the owner's disposition and the delivery's closure.
+
+    PART OF THE INSTALLED COMMAND for the reason `record` is, one step further
+    on. The question `record` answers is where a Work's record lives; this one
+    answers what the HUMAN owes on it -- is a reviewed candidate waiting for a
+    decision, was it approved, was the approved result actually integrated and
+    by whom -- and the pilot assessment found no such verb anywhere in this
+    table. An owner holding the deployed bundle could reach `Session.approve`
+    and `Session.close` only by writing Python against the package.
+    """
+    from tools import disposition_command
+    return disposition_command.main(operands)
+
+
 def _identity(operands):
     """What this build IS, so an instance can record it rather than assume it.
 
@@ -225,6 +240,10 @@ COMMANDS = {
     # authority handle, so asking a serving deployment where a record lives
     # takes no write lock on it.
     "record": _record,
+    # THE OWNER'S OWN SURFACE. W321689; `pending` is read-only like `record
+    # read`, and the three acts open the authority writably and perform every
+    # durable transition through a participant-bound session.
+    "disposition": _disposition,
     "identity": _identity,
 }
 

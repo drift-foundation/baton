@@ -105,14 +105,38 @@ reports `durable`: a stale canonical target journals its attempt, so that
 refusal is the committed outcome of those identities and the integration must
 be recorded under new ones once the cause is resolved.
 
-**Retrying it.** If `--operation-id` has already committed an integration, the
-command replays that committed outcome and writes nothing more: the answer
-carries `replayed: true`, the receipt, the citation, and `evidence_now` — the
-state of the cited record at this moment, reported separately, so a record
-edited or deleted after the integration does not turn a recovery into a
-reported failure. A retry under that identity that names a different record,
-commit, candidate, receipt identity, citation operation or actor is refused and
-cites nothing: one identity means one act.
+**Retrying it.** `--operation-id` is the COMMAND's operation identity. The
+command journals its complete canonical request under it — verb, participant,
+Work, proposal, candidate digest, reference, commit, integration identity,
+citation operation, and the DIGEST of the record it read and validated — and
+the authority decides what a retry is:
+
+- the same request replays. The answer carries `replayed: true`, the receipt,
+  the citation and `evidence_now`: the state of the cited record at this
+  moment, reported separately, so a record edited or deleted after the
+  integration does not turn a recovery into a reported failure.
+- a different request refuses, cites nothing and records nothing. The answer
+  shows both the request this identity already carries and the one just
+  supplied, so the operator can see whether to correct the call or use a new
+  identity. This holds whatever has happened to the files since: the
+  comparison is against the journalled request, never against bytes on disk.
+
+The two authority acts take operation identities derived from this one
+(`<operation-id>:integrate` for the receipt, `--evidence-operation-id` for the
+citation), so a partially completed act — bound but not cited, or cited but
+not receipted — continues from where it stopped on the next identical
+invocation. Because the validated digest is in the binding, that continuation
+cites exactly the bytes the first attempt validated and needs no file at all:
+a record edited or deleted in between cannot strand it, and the answer reports
+the drift as `evidence_now`.
+
+Each of those identities must also be this act's own. A citation at
+`--evidence-operation-id` that names another Work, another reference or OTHER
+BYTES than this request validated is refused — every time it is retried, and
+before anything is written — as is a derived receipt identity already carrying
+another integration. The honest recovery from a conflicting citation is the one
+the authority's own sentence names: cite the record under its own reference, as
+its own request with a fresh `--operation-id`.
 
 ## 3a. Reading an integration back
 
@@ -159,15 +183,26 @@ decision — and what `pending` reads back. A `--rationale` that itself contains
 that marker is refused: the command composes the clause from the receipts and
 evidence it verified, and a hand-written one would be a claim nothing checked.
 
-**Retrying it.** If `--operation-id` has already committed a close, the command
-replays the committed outcome from the journal instead of re-deriving the
-acceptance from the filesystem, and reports `replayed: true` with the stored
-acceptance and `evidence_now`. This is the lost-response case: the close
-committed, the answer never arrived, and the record may have changed in the
-meantime — the committed outcome is still the answer. A retry under that
-identity naming a different outcome, actor, rationale, proposal or candidate is
-refused. A close under a NEW operation identity against an already-closed Work
-is refused by the authority itself ("Work is already closed").
+**Retrying it.** As with `integrated`, the command journals its complete
+canonical request — verb, participant, Work, outcome, rationale, proposal,
+candidate digest and the exact assignment precondition (including its absence)
+— under `--operation-id`, and performs the close under the derived identity
+`<operation-id>:close`. The same request replays the committed closure and
+reports `replayed: true` with the stored acceptance and `evidence_now`; this is
+the lost-response case, where the close committed, the answer never arrived and
+the record may have changed since. On that path the acceptance is read from the
+Work's own rationale rather than re-derived from the filesystem.
+
+A request differing in any member — another outcome, actor, rationale,
+proposal, candidate, or an assignment precondition added or dropped — is
+refused, and the answer shows both requests. A close under a NEW operation
+identity against an already-closed Work is refused by the authority itself
+("Work is already closed").
+
+Two refusals come BEFORE the request is bound, so a correctable mistake does
+not consume the command identity: a participant holding no `close` capability,
+and a Work with a live assignment where `--expect-assignment` was omitted. Add
+the operand and rerun the same command.
 
 ## 5. Read it back
 

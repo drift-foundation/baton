@@ -1,0 +1,159 @@
+{
+  "binary": "/home/sl/src/baton/v12/python/build/w321689/out/distro/baton-v12-stack",
+  "binary_sha256": "8f6d6f2257aadc6c1e0e4aaafc7e04e7e9ab1b89798f1a6fe4b6464490cc09ae",
+  "boundary": "frozen one-folder bundle; PYTHONPATH removed from the command's environment; disposable store, root and integration record; no deployment, engine, provider or Git command",
+  "identity": {
+    "build_stamp": {
+      "changed_entries": 32,
+      "commit": "fba1a7fc318028d0e97bdfd9598656c824f4c5c3",
+      "detail": null,
+      "dirty": true,
+      "excused_build_output": 0,
+      "schema": "baton.v12.build-stamp/1",
+      "source": "/home/sl/src/baton"
+    },
+    "command": "baton-v12-stack",
+    "executable": "/home/sl/src/baton/v12/python/build/w321689/out/distro/baton-v12-stack",
+    "frozen": true,
+    "machine": "x86_64",
+    "native_rpds": "/home/sl/src/baton/v12/python/build/w321689/out/distro/_internal/rpds/rpds.cpython-313-x86_64-linux-gnu.so",
+    "platform": "Linux-6.17.0-41-generic-x86_64-with-glibc2.42",
+    "python": "3.13.7",
+    "resources": "/home/sl/src/baton/v12/python/build/w321689/out/distro/_internal",
+    "schema_assets": {
+      "agent-session-1.0": 48212,
+      "worker-control-1.0": 51419
+    },
+    "sha256": "8f6d6f2257aadc6c1e0e4aaafc7e04e7e9ab1b89798f1a6fe4b6464490cc09ae",
+    "version": "12.0.0"
+  },
+  "results": [
+    {
+      "holds": {
+        "approve": true,
+        "close": true,
+        "integrate": true
+      },
+      "locator": "operator-quickstart-7f3a91c2",
+      "owner_action": "approval-due",
+      "what": "pending says approval is due"
+    },
+    {
+      "exit": 2,
+      "says": "refused: a satisfying closure of '0123abcd-W1' is refused: the owner action due on proposal 'proposal-1' is 'approval-du",
+      "what": "satisfying closure before approval refuses"
+    },
+    {
+      "exit": 0,
+      "what": "the owner approves"
+    },
+    {
+      "actor": "baton.slaw",
+      "cited": "work/records/2026/10/finding-pilot/INTEGRATION.json",
+      "commit": "433b09d6963ca9789700849b640e242e772b9867",
+      "what": "the human integration is recorded"
+    },
+    {
+      "exit": 2,
+      "says": "refused: a satisfying closure of '0123abcd-W1' is refused: the dossier cites no intact human integration record for cand",
+      "what": "a rewritten integration record refuses"
+    },
+    {
+      "exit": 2,
+      "says": "refused: this integrated request is not the one operation 'op-int' already carries: operation id was reused for differen",
+      "what": "a changed integration retry refuses"
+    },
+    {
+      "acceptance": {
+        "approval": "app-1",
+        "candidate_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+        "commit": "433b09d6963ca9789700849b640e242e772b9867",
+        "evidence_digest": "sha256:b29882f3aa2d3a9c4036c174ad94c2c6c05b190d6d2a825ffa10aaf7e42bf1df",
+        "evidence_reference": "work/records/2026/10/finding-pilot/INTEGRATION.json",
+        "human_integration": {
+          "commit": "433b09d6963ca9789700849b640e242e772b9867",
+          "digest": "sha256:b29882f3aa2d3a9c4036c174ad94c2c6c05b190d6d2a825ffa10aaf7e42bf1df",
+          "integrated_at": "2026-10-18T13:00:00Z",
+          "integrated_by": "Slawomir",
+          "reference": "work/records/2026/10/finding-pilot/INTEGRATION.json"
+        },
+        "integration": "int-1",
+        "outcome": "satisfying",
+        "proposal_id": "proposal-1",
+        "required": true,
+        "review": "rev-1",
+        "schema": "baton.v12.owner-closure-acceptance/1",
+        "verification": "ver-1"
+      },
+      "outcome": "satisfying",
+      "what": "the selected acceptance closes it"
+    },
+    {
+      "close_decision": {
+        "effective_scope": "scope:deployment",
+        "endpoint": "baton.slaw",
+        "grant": "direct",
+        "policy_generation": 8,
+        "principal": "principal:baton.slaw",
+        "role": "close"
+      },
+      "closure_acceptance": {
+        "approval": "app-1",
+        "candidate_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+        "commit": "433b09d6963ca9789700849b640e242e772b9867",
+        "evidence_digest": "sha256:b29882f3aa2d3a9c4036c174ad94c2c6c05b190d6d2a825ffa10aaf7e42bf1df",
+        "evidence_reference": "work/records/2026/10/finding-pilot/INTEGRATION.json",
+        "integration": "int-1",
+        "proposal_id": "proposal-1",
+        "review": "rev-1",
+        "schema": "baton.v12.owner-closure-acceptance/1",
+        "verification": "ver-1"
+      },
+      "evidence_now": "intact",
+      "owner_action": "closed",
+      "rationale": "delivered",
+      "what": "a closed Work owes nothing and says what it was closed on"
+    },
+    {
+      "evidence_now": "changed",
+      "outcome": "satisfying",
+      "replayed": true,
+      "what": "an exact close retry after drift replays"
+    },
+    {
+      "exit": 2,
+      "says": "refused: this close request is not the one operation 'op-close' already carries: operation id was reused for different o",
+      "what": "a changed close retry refuses"
+    },
+    {
+      "already_carries": null,
+      "exit": 2,
+      "performed": "nothing",
+      "what": "an added assignment precondition refuses"
+    },
+    {
+      "exit": 2,
+      "says": "refused: 'work/records/2026/10/finding-pilot/INTEGRATION.json' resolves under '/tmp/w321689-frozen-_efrmlm3/second' as 'absent', so there is",
+      "what": "a standalone citation is not validated evidence"
+    },
+    {
+      "exits": [
+        2,
+        2
+      ],
+      "performed": [
+        "nothing",
+        "nothing"
+      ],
+      "says": "refused: operation 'op-standalone-cite' cites 'work/records/2026/10/finding-pilot/INTEGRATION-3.json' at 'sha256:547b17de08d6fb75c52642396b2",
+      "what": "a conflicting citation stays refused on retry"
+    },
+    {
+      "already_carries": "433b09d6963ca9789700849b640e242e772b9867",
+      "exit": 2,
+      "performed": "nothing",
+      "what": "a changed commit after drift refuses"
+    }
+  ],
+  "seconds": 1.557459
+}

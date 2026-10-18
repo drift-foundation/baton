@@ -1,0 +1,12 @@
+{
+  "v12/python/src/baton_v12/authority/api.py": true,
+  "v12/python/src/baton_v12/authority/core.py": true,
+  "v12/python/tests/authority/test_boundary.py": true,
+  "v12/python/tests/authority/test_session.py": true,
+  "v12/python/tests/tools/test_bootstrap.py": true,
+  "v12/python/tests/tools/test_disposition_command.py": true,
+  "v12/python/tools/bootstrap.py": true,
+  "v12/python/tools/disposition_command.py": true,
+  "v12/python/tools/dossier_command.py": true,
+  "v12/python/tools/stack_command.py": true
+}

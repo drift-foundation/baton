@@ -9,7 +9,18 @@ No scope expansion, deployment or candidate acceptance is implied. This exceptio
 expires on closure and does not apply to successor Work. Exact ruling: latest
 FINDING entry, "owner permits W321689-only completion exception".
 
-# W321689 current milestone — review correction 2026-10-18T16:39Z
+# W321689 current milestone — independently accepted, owner checkpoint due
+
+Latest review: review-2026-10-18T17-30-24Z.md. Exact manifest
+dbc163c7dc3f08fcf17030b78923029431c2f615c9bf9c797c5c9223a62b1c77
+accepted;91 focused command tests and14 frozen-command scenarios pass.
+Outstanding replay findings resolved. Next: owner approval and Git checkpoint,
+then authoritative W321689 closure. W321690 retains its dependency and owns the
+joined pilot rehearsal after closure. No deployment, bridge implementation or
+backlog migration selected. Existing direct exception expires on closure.
+Reviewer evidence: evidence/review-324741/. PROGRESS remains author-owned.
+
+## Prior correction checkpoint
 
 Changes requested in review-2026-10-18T16-39-10Z.md: durably bind owner-command
 integration and closure outcomes, refuse changed retries, replay committed exact

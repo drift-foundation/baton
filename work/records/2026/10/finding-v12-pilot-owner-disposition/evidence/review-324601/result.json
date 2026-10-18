@@ -1,0 +1,59 @@
+{
+  "prior_citation": {
+    "work_id": "0123abcd-W1",
+    "reference": "work/records/2026/10/finding-pilot/INTEGRATION.json",
+    "digest": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+    "act_id": "op-cite-1",
+    "recorded_at": "2026-10-18T12:00:00.000Z"
+  },
+  "exit": 0,
+  "answer": {
+    "authority_uuid": "0123456789abcdef0123456789abcdef",
+    "bound": {
+      "actor": "baton.slaw",
+      "candidate_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "cited": {
+      "act_id": "op-cite-1",
+      "digest": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+      "recorded_at": "2026-10-18T12:00:00.000Z",
+      "reference": "work/records/2026/10/finding-pilot/INTEGRATION.json",
+      "work_id": "0123abcd-W1"
+    },
+    "closure_due": true,
+    "evidence_now": {
+      "cited_digest": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+      "detail": "'work/records/2026/10/finding-pilot/INTEGRATION.json' resolves under '/tmp/v12-disposition-1ne12p3g/repo' as 'absent', so there is no integration record to read; bytes reached through a symbolic link are not under this root",
+      "reference": "work/records/2026/10/finding-pilot/INTEGRATION.json",
+      "state": "unusable"
+    },
+    "integration": {
+      "actor": "baton.slaw",
+      "disposition": "integrated",
+      "kind": "integration",
+      "proposal_id": "proposal-1",
+      "receipt_id": "int-1"
+    },
+    "replayed": false,
+    "request": {
+      "bound_at": "2026-10-18T17:12:25.466Z",
+      "kind": "command-request",
+      "request": {
+        "candidate_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+        "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "evidence_operation": "op-cite-1",
+        "integration_id": "int-1",
+        "participant": "baton.slaw",
+        "proposal": "proposal-1",
+        "reference": "work/records/2026/10/finding-pilot/INTEGRATION.json",
+        "verb": "integrated",
+        "work": "0123abcd-W1"
+      },
+      "verb": "integrated",
+      "work_id": "0123abcd-W1"
+    },
+    "work_id": "0123abcd-W1"
+  },
+  "stderr": ""
+}

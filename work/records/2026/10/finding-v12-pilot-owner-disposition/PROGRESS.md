@@ -56,9 +56,13 @@ Product:
   command: `pending`, `approve`, `deny`, `integrated`, `close`.
 - `v12/python/tools/stack_command.py` — register the `disposition` subcommand.
 - `v12/python/tools/bootstrap.py` — the selected owner grant.
-- `v12/python/src/baton_v12/authority/core.py` — `proposals_of` read.
-- `v12/python/src/baton_v12/authority/api.py` — `proposals_of` on the
-  configuration/read face.
+- `v12/python/src/baton_v12/authority/core.py` — the `proposals_of` read and,
+  after review 2026-10-18T16-55-00Z, the `bind_request` command-request
+  binding.
+- `v12/python/src/baton_v12/authority/api.py` — both of them on the
+  configuration/operator face.
+- `v12/python/tools/dossier_command.py` — the descriptor-anchored containment
+  walk split so both commands share one implementation.
 
 Tests (standing owner test-change authority 2026-09-13 applies; paths recorded
 here as that ruling requires, not as a new approval gate):
@@ -207,3 +211,326 @@ failures are reported, not fixed.
 **Pending after independent review:** a human Git checkpoint for this slice.
 Suggested message `v12: add the supported owner disposition and closure
 commands`. No commit is claimed and none was made.
+
+## 2026-10-18 — correction for review 2026-10-18T16-39-10Z (claim 324341)
+
+Both P1 findings are real, were reproduced with the reviewer's own script, and
+are the same defect one layer apart: the authority's operation signature covers
+the operands IT takes, and this command's semantic operands — which record,
+which commit, which acceptance — were not among them. So one identity could
+mean two different acts, and an identity that meant the SAME act could be
+refused because the filesystem had moved on under it. Corrected in one
+milestone as the review directed, with no new child and no core redesign.
+
+**P1 (a) — changed integration retry.** `integrated` now looks up its own
+committed outcome first, through §8's read-only `operation_result`, and
+compares every semantic operand against the DURABLE record before anything is
+written: the committed receipt's proposal, receipt identity and actor; the
+dossier's citation of the named reference and the operation that cited it; and,
+when the record is intact, the whole document including `--commit`. An exact
+retry replays and writes nothing; a changed retry refuses and — the part the
+review called out — cites nothing, because a citation added by a refused retry
+is new evidence attributed to an act that did not happen. Drift at the cited
+reference no longer refuses a recovery: the committed receipt is replayed and
+the drift is reported beside it as `evidence_now`.
+
+**P1 (b) — transient closure acceptance.** The selected acceptance is now
+composed into the close's own durable `rationale` as one canonical
+`owner-closure-acceptance: {...}` line (`ACCEPTANCE_SCHEMA`), so it survives in
+the canonical record, rides the close operation signature — a retry naming a
+different candidate collides instead of replaying somebody else's decision —
+and is read back by `pending`, which also now reports `close_decision` and the
+operator's own prose separately. §7's close takes a durable rationale and
+nothing else an owner command may write, and the review explicitly did not
+prescribe a generic close redesign, so a new authority column was not the
+answer; the rationale is also the right place on the merits, since "because
+candidate X with these four receipts was integrated by a human at commit C" is
+precisely why this Work is satisfying. A `--rationale` carrying the marker is
+refused: the command composes the clause from what it verified.
+
+`close` also looks up its committed outcome first and replays it instead of
+re-deriving the acceptance from disk — the lost-response case the review
+reproduced, where an edited record made an identical retry exit 2 while the
+Work was already closed and satisfying. A changed retry (other outcome, actor,
+prose, proposal or candidate) refuses; a close under a NEW identity against a
+closed Work is still refused by the authority's own sentence. `pending --root`
+reports the accepted record's current state.
+
+**Verification, all deterministic; no provider, engine, container, network,
+deployment or Git command.**
+
+- The reviewer's own `evidence/review-324303/reproduce.py`, re-run unchanged
+  against the corrected bytes: `changed_integration_retry` now exits 2 with
+  one citation and `replayed: false`;
+  `exact_close_retry_after_evidence_change` now exits 0 with `replayed: true`,
+  `evidence_now: changed` and the Work still closed; the closed readback
+  carries `closure_acceptance`, `close_decision` and `rationale`. Captured at
+  `evidence/claim-324341/REVIEWER-REPRODUCTION-AFTER.json`.
+- Focused suite — 959 tests, 46.458s, the same 2 pre-existing `store.py`
+  diagnostic-bounding failures and nothing else.
+  `evidence/claim-324341/FOCUSED.log`.
+- The command's own cases — 68 (16 new, in `WhatOneIdentityMEANS`), 0.636s,
+  covering first execution, exact retry, retry after drift and after deletion,
+  changed record/commit/candidate/receipt/actor/citation-operation retries,
+  changed outcome/actor/prose on close, the hand-written marker, the
+  non-satisfying replay, the operand-shape rules on both retry paths, and the
+  fresh terminal readback of the acceptance.
+- Frozen one-folder bundle rebuilt from the corrected bytes and driven with
+  `PYTHONPATH` removed: 10 scenarios, 1.061s, now including the changed
+  integration retry, the closed readback with acceptance and decision, the
+  exact close retry after drift, and the changed close retry.
+  `evidence/claim-324341/FROZEN-COMMAND.json`, binary SHA-256
+  `1ff7e22e87bf5429...`.
+- Packaging gate against that bundle — 11 tests, OK.
+  `evidence/claim-324341/PACKAGING.log`.
+
+Cumulative verification spending across both claims: about 215s of measured
+test runtime (155s recorded for claim 323942, plus 51.661s focused, 2.204s
+packaging and roughly a dozen runs of the new file at ~0.5s here), three
+PyInstaller builds at about 6s each, three frozen-command drives at 0.83-1.06s,
+and the 600s abandoned full-suite discover already disclosed above — still not
+evidence and still claimed for nothing.
+
+Changed paths and digests are unchanged in SET and refreshed in CONTENT:
+`candidate-321689/DIGESTS.json` now binds the corrected bytes. `PROCEDURE.md`
+documents the replay semantics and the new readback. No other Work's packet,
+pins or source was touched; W321528 (claude_agent/baseline paths) and W324214
+(its own record directory only) remain disjoint from everything here.
+
+## 2026-10-18 — correction for review 2026-10-18T16-55-00Z (claim 324497)
+
+Both findings are real and were reproduced with the reviewer's own script. They
+also share one root cause, which the review named precisely: the command was
+still comparing semantic operands BY HAND, and one of the things it compared
+against was the cited file's current bytes. Mutable bytes are not a request
+identity, so the comparison stopped holding the moment somebody edited the
+record — and the `close` comparison, written by hand, simply omitted
+`--expect-assignment` altogether. Both are now gone, replaced by one mechanism.
+
+**The mechanism: the authority journals the command's request.** New bounded
+API extension, which the review permitted and which needs no schema change
+because it uses the operation journal that already exists:
+`Authority.bind_request(work_id, request, *, operation_id)` on the operator
+face beside `accept_base`. It binds the whole request document into the
+operation signature, so the AUTHORITY decides what a retry is: an exact retry
+replays the committed binding, and a request differing in any member collides
+as "reused for different operands". It performs no transition, grants nothing,
+writes no Work state, and is bounded by `own` like every other document
+operand. `core.bind_request` carries the reasoning in full.
+
+`integrated` and `close` each bind their complete canonical request under
+`--operation-id` before any effect, and perform their authority acts under
+identities derived from it (`<op>:integrate`, `<op>:close`; the citation keeps
+`--evidence-operation-id`). Consequences, which are exactly the review's
+required behaviours:
+
+- A changed `--commit` refuses **regardless of later file availability** —
+  after the record drifts, and after it is deleted. Nothing on disk is read to
+  make that decision.
+- `--expect-assignment` is part of the request, by presence AND value, so a
+  close performed without an assignment precondition cannot be retried with
+  one, or the reverse.
+- An exact retry still replays after drift or deletion, with the drift
+  reported beside the committed outcome as `evidence_now`.
+- A collision answers JSON on stdout naming the request the identity already
+  carries and the one just supplied, because that is the one refusal an
+  operator cannot diagnose from their own command line.
+
+`approve` and `deny` deliberately bind nothing, and the module docstring says
+why: everything they record is already in the authority's approval signature,
+and their two extra operands are compared against immutable facts (a
+proposal's candidate digest, an accepted review's receipt identity), so a
+changed retry is refused by the comparison rather than replayed. A binding
+there would be ceremony that checks nothing.
+
+**Two refusals deliberately precede the binding** so a correctable mistake does
+not consume the command identity: a participant holding no `close` capability,
+and a Work with a live assignment where `--expect-assignment` was omitted. Add
+the operand and rerun the same command — which a case now proves.
+
+**Verification, all deterministic; no provider, engine, container, network,
+deployment or Git command.**
+
+- Both reviewer scripts, re-run unchanged:
+  `evidence/review-324482/reproduce.py` → `changed_commit_after_drift` exit 2
+  with `performed: nothing` and one citation; `changed_close_assignment` exit 2
+  with `performed: nothing`. `evidence/review-324303/reproduce.py` → still
+  exit 2 / one citation for the changed integration retry, and still exit 0
+  with `replayed: true`, `evidence_now: changed` and the Work closed for the
+  exact close retry after drift. Captured at
+  `evidence/claim-324497/REVIEWER-324482-REPRODUCTION-AFTER.json` and
+  `REVIEWER-324303-REPRODUCTION-AFTER.json`.
+- Focused suite — 966 tests, 46.701s, the same 2 pre-existing `store.py`
+  diagnostic-bounding failures and nothing else.
+  `evidence/claim-324497/FOCUSED.log`.
+- The command's own cases — 75 (7 new in `WhatTheREQUESTBindingDecides`),
+  0.721s: the reviewer's two scenarios, the changed commit after DELETION, the
+  dropped assignment precondition, the binding's own replay/collision/verb/
+  Work/document rules, and the derived-identity length bound.
+- Frozen one-folder bundle rebuilt from these bytes and driven with
+  `PYTHONPATH` removed — 12 scenarios, 1.261s, now including the added
+  assignment precondition and the changed commit after drift.
+  `evidence/claim-324497/FROZEN-COMMAND.json`, binary SHA-256
+  `1cee05f6aff1f3b9...`.
+- Packaging gate against that bundle — 11 tests, OK.
+
+Cumulative verification spending across all three claims: about 265s of
+measured test runtime (215s recorded through claim 324341, plus 46.701s
+focused, 2.204s packaging and roughly a dozen runs of the new file at ~0.7s
+here), four PyInstaller builds at about 6s each, four frozen-command drives at
+0.83–1.26s, and the already-disclosed 600s abandoned full-suite discover, which
+remains not evidence and is claimed for nothing.
+
+Changed-path SET is unchanged; `candidate-321689/DIGESTS.json` binds the
+corrected bytes. `PROCEDURE.md` documents the request binding, the derived
+identities and the two pre-binding refusals. The two pinned surface
+enumerations gain `bind_request` for the same reason they gained
+`proposals_of`. W321528 and W324214 remain untouched.
+
+## 2026-10-18 — correction for review 2026-10-18T17-12-52Z (claim 324624)
+
+The finding is real and the diagnosis is exact: I had let a journal result at
+an operator-supplied identity stand in for "this request was validated". The
+citation identity is an operand, so any result there — an ordinary
+`record cite`, or anything else that used it — made a *fresh* request skip
+first-execution validation and write an integration receipt for a commit
+nobody had read. A journal result is not a provenance.
+
+**The rule now.** Exactly one thing may justify skipping validation: THIS
+complete request having been validated and bound before. The request binding
+is the only durable record of that, because validation precedes it and the
+authority refuses to bind a different request under that identity. So both
+composite verbs read `operation_result(--operation-id)` — the binding, not the
+act — to decide whether anything may be assumed.
+
+**And a result at any act identity must be that act's own.** Each committed
+result is checked against its closed member set and its operands before it is
+used or reported: a citation must be a citation of this Work and reference
+recorded by that act (`_citation_fault`), the derived receipt identity must
+carry an integration receipt for this proposal, receipt identity and actor
+(`_integration_fault`), and the derived close identity must carry a close with
+this outcome and actor (`_closure_fault`). A foreign result refuses before any
+effect rather than being reported as this command's outcome.
+
+**The citation is always re-offered** unless this same request already made
+it. A pre-existing citation is convergent for the same reference and digest
+and refused for a different one, so offering it is what proves it is the
+evidence this request just read — rather than this command deciding that for
+itself, which was the defect. That refusal now also prints the digest the
+command read beside whatever the identity already holds, because "operation id
+was reused for different operands" alone leaves an operator comparing nothing.
+
+**Genuine partial recovery is preserved and now has its own cases.** A request
+bound with nothing cited yet revalidates (it needs the digest) and completes;
+if the record has drifted in the meantime it refuses honestly, having recorded
+nothing; and a fully committed integration still replays after drift or
+deletion with the drift reported separately.
+
+**Verification, all deterministic; no provider, engine, container, network,
+deployment or Git command.**
+
+- The reviewer's E324601 scenario: exit 2, no integration receipt, the
+  unrelated citation untouched, and the honest `'absent'` sentence because no
+  record ever existed. `evidence/claim-324624/REVIEWER-324601-REPRODUCTION-AFTER.json`
+  (their script verbatim except that it no longer assumes stdout is JSON — a
+  refusal's sentence is on stderr; their own assertions are kept).
+- Both earlier reviewer probes re-run unchanged and still correct:
+  `REVIEWER-324303-REPRODUCTION-AFTER.json`,
+  `REVIEWER-324482-REPRODUCTION-AFTER.json`.
+- Focused suite — 976 tests, 46.863s, the same 2 pre-existing `store.py`
+  diagnostic-bounding failures and nothing else. `FOCUSED.log`.
+- The command's own cases — 85 (10 new in `WhatJUSTIFIESSkippingValidation`):
+  the standalone citation with no record, with other bytes, and with the SAME
+  bytes (convergent and legitimate); an identity carrying something that is
+  not a citation; an identity carrying another reference's citation; a derived
+  receipt identity carrying another receipt; a derived close identity carrying
+  another act; a bound request whose citation never committed completing; the
+  same with a drifted record refusing; and a completed integration still
+  replaying after drift.
+- Frozen one-folder bundle rebuilt from these bytes and driven with
+  `PYTHONPATH` removed — 13 scenarios, 1.317s, now including the standalone
+  citation case. `FROZEN-COMMAND.json`, binary SHA-256 `dc80e42eb77876db...`.
+- Packaging gate against that bundle — 11 tests, OK. `PACKAGING.log`.
+
+Cumulative verification spending across all four claims: about 315s of
+measured test runtime (265s recorded through claim 324497, plus 46.863s
+focused, 2.192s packaging and roughly a dozen runs of the new file at ~0.8s
+here), five PyInstaller builds at about 6s each, five frozen-command drives at
+0.83–1.32s, and the already-disclosed 600s abandoned full-suite discover, which
+remains not evidence and is claimed for nothing.
+
+Changed-path SET is unchanged at ten; `candidate-321689/DIGESTS.json` binds
+the corrected bytes and its own SHA-256 is
+`917cdb207d92903f35ffd742d931cec8fa376e9b64b8519b0a0188a048c8794b`. W321528
+and W324214 remain untouched.
+
+## 2026-10-18 — correction for review 2026-10-18T17-21-14Z (claim 324685)
+
+Confirmed, and the cause is the ordering I chose last turn: the request was
+bound BEFORE the citation, so a refused citation left the binding behind, and
+the next identical call treated "this request was validated" as "its citation
+succeeded". `_citation_fault` compared the Work, the reference and the
+recording act — not the digest — so a citation of other bytes satisfied it and
+the receipt was written on evidence the command had never matched.
+
+**The correction is the one the review suggested: bind the validated evidence
+digest.** The request is no longer "integrate citing that reference" but
+"integrate citing THOSE BYTES, which I read and validated".
+
+- First execution validates the record and binds `evidence_digest` with the
+  rest of the request.
+- A recovery takes that digest out of the journal (`_bound_evidence_digest`)
+  instead of off the disk, so the citation step needs no filesystem at all.
+- `_citation_fault` now compares the digest too, so a citation of other bytes
+  can never satisfy this request — on the first call or the hundredth.
+- The identity-provenance checks moved BEFORE the binding, so a conflict
+  refuses identically every time and does not consume the command identity.
+
+One behaviour changed deliberately, and it is an improvement rather than a
+concession: a request bound with nothing cited yet now COMPLETES after the
+record drifts or is deleted, citing exactly the bytes it validated, with the
+drift reported as `evidence_now`. It previously refused, because it re-read
+the file to find something to cite — which was the same filesystem dependence
+these three reviews have been removing. A satisfying closure still refuses
+while the cited record is not intact, so nothing rests on stale evidence; a
+case asserts both halves.
+
+**The failure matrix the review asked for** is now a test class rather than
+another anecdote: `TheFailureMatrix` stops the command after validation, after
+the binding and after the citation — each state built through the public acts
+the command itself uses, in its own order — and reruns it, three times over:
+untouched, with the record edited, and with the record deleted. Plus a changed
+request after each interruption, a completed command replayed at every later
+invocation, and the closure's own two stages.
+
+**Verification, all deterministic; no provider, engine, container, network,
+deployment or Git command.**
+
+- The reviewer's E324673 two-call probe, re-run unchanged: both calls exit 2
+  with `performed: nothing`, naming the validated digest against the cited
+  one, and no integration receipt exists.
+  `evidence/claim-324685/REVIEWER-324673-REPRODUCTION-AFTER.json`.
+- The three earlier probes re-run: E324601 (its own variant that does not
+  assume stdout is JSON), E324482 and E324303, all still correct. Same
+  directory.
+- Focused suite — 982 tests, 47.031s, the same 2 pre-existing `store.py`
+  diagnostic-bounding failures and nothing else. `FOCUSED.log`.
+- The command's own cases — 91 (6 new in `TheFailureMatrix`, plus the
+  rewritten conflicting-citation and drift-recovery cases).
+- Frozen bundle rebuilt from these bytes and driven with `PYTHONPATH` removed
+  — 14 scenarios, 1.557s, now including the conflicting citation built through
+  the installed `record cite` verb and retried. `FROZEN-COMMAND.json`, binary
+  SHA-256 `8f6d6f2257aadc6c...`.
+- Packaging gate against that bundle — 11 tests, OK.
+
+Cumulative verification spending across all five claims: about 365s of measured
+test runtime (315s recorded through claim 324624, plus 47.031s focused, 2.196s
+packaging and roughly a dozen runs of the new file at ~0.9s here), six
+PyInstaller builds at about 6s each, six frozen-command drives at 0.83–1.56s,
+and the already-disclosed 600s abandoned full-suite discover, which remains not
+evidence and is claimed for nothing.
+
+Changed-path SET is unchanged at ten; `candidate-321689/DIGESTS.json` binds the
+corrected bytes and its own SHA-256 is
+`dbc163c7dc3f08fcf17030b78923029431c2f615c9bf9c797c5c9223a62b1c77`. W321528 and
+W324214 remain untouched.

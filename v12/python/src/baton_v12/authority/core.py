@@ -997,6 +997,76 @@ class Core:
             "SELECT * FROM work_dossier_evidence WHERE work_id = ? "
             "ORDER BY reference", work_id)]
 
+    def bind_request(self, work_id, request, *, operation_id):
+        """Journal ONE caller's complete canonical request under its own
+        identity, so that identity has one durable meaning.
+
+        W321689, review 2026-10-18T16-55-00Z. THE GAP THIS CLOSES, and it is a
+        gap in this authority rather than in the command that found it.
+
+        Every transition here binds the operands IT takes into its operation
+        signature, which is exactly right and is why a changed retry of a claim,
+        a publication or an approval collides. But a COMMAND may carry operands
+        no single transition takes: the owner disposition command's integration
+        act names a human's commit and the record that attests it, and
+        `integrate`'s signature is the proposal, the receipt identity and the
+        actor. So one command operation identity could be retried with a
+        different commit and replay somebody else's receipt, and the only thing
+        the command could compare against was a file on disk -- which is
+        mutable, which review found, and which is not a durable request
+        identity at all.
+
+        The mechanism was already here and simply had no door: the operation
+        journal compares a SIGNATURE, and this binds the whole request document
+        into one. An exact retry replays the committed binding. A retry whose
+        request differs in any member collides as "reused for different
+        operands" BEFORE the command performs anything -- which is the property
+        a composite command needs and could not express.
+
+        WHAT IT IS NOT. It is not an authorization: journalling a request grants
+        nothing, and each act the caller then performs is authorized on its own
+        terms by the transition that performs it. It changes no Work state, no
+        policy, no assignment and no receipt -- `project_work` reads the same
+        before and after. It is not a second place to keep Work state: the
+        document is opaque to this authority, which compares it and never
+        interprets it.
+
+        WHY `work_id` IS REQUIRED. A request belongs to the Work it is about,
+        so a binding for a Work this authority does not have refuses rather
+        than accumulating journal rows about nothing. It is also what makes the
+        binding readable as part of that Work's history.
+
+        BOUNDED BY `own`, like every other document operand: 512 members, eight
+        levels, exact built-ins only, and no behaviour-bearing container.
+        """
+        check_work_id(work_id)
+        document = own(request, what="a command request")
+        if type(document) is not dict or not document:
+            raise Refusal(
+                f"a command request is one non-empty document; this is "
+                f"{name_of(request)}")
+        # THE VERB IS REQUIRED, because a request that does not say what it is
+        # a request FOR would compare equal across two different commands that
+        # happened to share operand names.
+        if type(document.get("verb")) is not str or not document["verb"]:
+            raise Refusal(
+                "a command request names the verb it is a request for")
+        at = self._now()
+
+        def body():
+            # THE WORK FIRST, so a binding for a Work this authority does not
+            # have refuses before the journal keeps anything.
+            self._work(work_id)
+            return {"kind": "command-request", "work_id": work_id,
+                    "verb": document["verb"], "request": document,
+                    "bound_at": at}
+
+        return self._replay(
+            operation_id,
+            signature_of("bind-request", {"work_id": work_id,
+                                          "request": document}),
+            body, at=at)
+
     def add_route_handler(self, route, participant):
         _text(route, "a route")
         check_participant(participant)
@@ -2279,6 +2349,32 @@ class Core:
                 "policy_digest": row["policy_digest"],
                 "target": row["target"],
                 "published_at": row["published_at"]}
+
+    def proposals_of(self, work_id):
+        """Every candidate published for one Work, oldest first.
+
+        W321689.  THE READ A PENDING OWNER ACTION CANNOT BE DERIVED WITHOUT.
+        `proposal` answers from an identity the asker already holds, and the
+        pilot assessment's finding is that nothing told the human WHICH
+        identity: a deployment could not answer "is there a candidate waiting
+        for me on this Work", so the owner-facing question had to be answered
+        out of band, by somebody who already knew.  An approval reached that
+        way binds whatever proposal id the operator was handed.
+
+        It is a READ and it is the whole addition: no disposition is computed
+        here and no acceptance rule lives here.  Which act is due is the
+        operator command's judgement, over these documents and the receipts
+        that already hang off them.
+
+        ORDERED BY PUBLICATION rather than by identity, because "the latest
+        candidate" is the question an operator asks and a proposal id sorts
+        alphabetically.  `seq` breaks a tie within one clock instant, which the
+        injected test clock produces and a real one eventually will.
+        """
+        check_work_id(work_id)
+        return [self.proposal(row["proposal_id"]) for row in self._store.all(
+            "SELECT proposal_id FROM proposal WHERE work_id = ? "
+            "ORDER BY published_at, rowid", work_id)]
 
     def _receipt_document(self, row):
         """One receipt, with the decision it was written under beside it.

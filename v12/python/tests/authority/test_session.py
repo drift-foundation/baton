@@ -205,6 +205,16 @@ class Minting(SessionCase):
             # configuration side.  The two mutations and the two per-Work reads
             # are on the session, where an attributable act belongs.
             "works_with_labels",
+            # W321689: `proposals_of` is the same kind of answer -- which
+            # candidates a Work has published -- asked by the operator whose
+            # disposition is due rather than by a participant about its own
+            # assignment, so it lands on the configuration side beside it.
+            "proposals_of",
+            # W321689 review: `bind_request` journals a COMMAND's request, and
+            # the commands that need it are operator commands. A session that
+            # could bind one would be recording a request about an act it does
+            # not perform.
+            "bind_request",
             # W29400 review [P0]: `work_creation` answers the act that MADE a
             # Work -- a trusted bootstrap, performed before any session could
             # exist -- so it is a configuration-side read like the two above

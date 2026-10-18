@@ -114,6 +114,15 @@ class ExportedSurface(unittest.TestCase):
                     # Baton verb that TERMINALIZES a Work, and it now lives on
                     # the session.  One name for both invites the wrong one.
                     "create", "dispose", "open", "session",
+                    # W126880: the same face over a store this process cannot
+                    # write. A separate reader -- an operator command, a
+                    # monitor -- wants the committed record without taking the
+                    # write lock `open` takes, and it reaches every read here
+                    # and performs no transition. Pinned late: the classmethod
+                    # landed with W126880 and this enumeration was not
+                    # updated, so this case failed at `433b09d6` before
+                    # W321689 touched it.
+                    "open_readonly",
                     # configuration
                     "add_route_handler", "canonical_target",
                     "capabilities_of", "certify_contract", "create_work",
@@ -139,6 +148,13 @@ class ExportedSurface(unittest.TestCase):
                     "operation_result", "project_work", "slot_holder",
                     "activities", "contract_events", "integration_attempts",
                     "proposal", "receipt", "receipts",
+                    # W321689: which candidates one Work has published. An
+                    # INVENTORY read, like `works_with_labels` -- the asker is
+                    # the operator whose disposition is due, who holds no
+                    # claim, and before this the owner-facing question "is
+                    # there a candidate waiting for me" had no public answer at
+                    # all.
+                    "proposals_of",
                     # W16821 projections: which principal an address resolves
                     # to, which addresses one principal holds, which Work that
                     # principal is at capacity on, and the configuration
@@ -168,6 +184,14 @@ class ExportedSurface(unittest.TestCase):
                     # and reviewers who hold no claim.
                     "bind_dossier", "dossier_of", "dossier_work",
                     "record_dossier_evidence", "dossier_evidence",
+                    # W321689 review 2026-10-18T16-55-00Z: one COMMAND's
+                    # complete canonical request, journalled under its own
+                    # identity. On this face beside `accept_base` for the same
+                    # reason -- it is a composite operator command's own act,
+                    # it performs no transition, and a session that could bind
+                    # requests about Work it does not hold would be keeping a
+                    # record about somebody else's act.
+                    "bind_request",
                     # W321688 review: what a store FILE says it is, read-only,
                     # without opening it for use. A static probe of a path the
                     # caller names -- a retained or restored file -- so it is

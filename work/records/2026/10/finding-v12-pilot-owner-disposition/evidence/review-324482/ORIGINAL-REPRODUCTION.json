@@ -1,0 +1,216 @@
+{
+  "changed_integration_retry": {
+    "answer": {
+      "authority_uuid": "0123456789abcdef0123456789abcdef",
+      "cited": null,
+      "evidence_now": null,
+      "faults": [
+        "this dossier has no citation of 'work/records/2026/10/finding-pilot/OTHER.json', so that is not the record this integration bound"
+      ],
+      "integration": {
+        "actor": "baton.slaw",
+        "disposition": "integrated",
+        "kind": "integration",
+        "proposal_id": "proposal-1",
+        "receipt_id": "int-1"
+      },
+      "replayed": false,
+      "work_id": "0123abcd-W1"
+    },
+    "citation_count": 1,
+    "exit": 2,
+    "original_commit": "433b09d6963ca9789700849b640e242e772b9867",
+    "stderr": "refused: operation 'op-integrated-1' has already committed an integration and this retry is not that act: this dossier has no citation of 'work/records/2026/10/finding-pilot/OTHER.json', so that is not the record this integration bound. A retry under one identity replays its committed outcome or refuses; nothing was cited and nothing was changed\n"
+  },
+  "closed_readback": {
+    "close_acceptance": {
+      "approval": "app-1",
+      "candidate_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "commit": "433b09d6963ca9789700849b640e242e772b9867",
+      "evidence_digest": "sha256:700a2aec074701e07634d1557e2aa472aa1821cd8f0a17c407219eeefdf2d7b0",
+      "evidence_reference": "work/records/2026/10/finding-pilot/INTEGRATION.json",
+      "human_integration": {
+        "commit": "433b09d6963ca9789700849b640e242e772b9867",
+        "digest": "sha256:700a2aec074701e07634d1557e2aa472aa1821cd8f0a17c407219eeefdf2d7b0",
+        "integrated_at": "2026-10-18T12:30:00Z",
+        "integrated_by": "Slawomir",
+        "reference": "work/records/2026/10/finding-pilot/INTEGRATION.json"
+      },
+      "integration": "int-1",
+      "outcome": "satisfying",
+      "proposal_id": "proposal-1",
+      "required": true,
+      "review": "rev-proposal-1",
+      "schema": "baton.v12.owner-closure-acceptance/1",
+      "verification": "ver-proposal-1"
+    },
+    "pending": {
+      "authority_uuid": "0123456789abcdef0123456789abcdef",
+      "canonical_target": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "close_decision": {
+        "effective_scope": "scope:deployment",
+        "endpoint": "baton.slaw",
+        "grant": "direct",
+        "policy_generation": 8,
+        "principal": "principal:baton.slaw",
+        "role": "close"
+      },
+      "closure_acceptance": {
+        "approval": "app-1",
+        "candidate_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+        "commit": "433b09d6963ca9789700849b640e242e772b9867",
+        "evidence_digest": "sha256:700a2aec074701e07634d1557e2aa472aa1821cd8f0a17c407219eeefdf2d7b0",
+        "evidence_reference": "work/records/2026/10/finding-pilot/INTEGRATION.json",
+        "integration": "int-1",
+        "proposal_id": "proposal-1",
+        "review": "rev-proposal-1",
+        "schema": "baton.v12.owner-closure-acceptance/1",
+        "verification": "ver-proposal-1"
+      },
+      "dossier": {
+        "bound_at": "2026-10-18T12:00:00.000Z",
+        "locator": "operator-quickstart-7f3a91c2",
+        "operation_id": "op-bind",
+        "work_id": "0123abcd-W1"
+      },
+      "due": "this Work is terminal and its outcome is recorded; no further disposition is due",
+      "evidence": [
+        {
+          "act_id": "op-cite-1",
+          "digest": "sha256:700a2aec074701e07634d1557e2aa472aa1821cd8f0a17c407219eeefdf2d7b0",
+          "recorded_at": "2026-10-18T16:54:47.002Z",
+          "reference": "work/records/2026/10/finding-pilot/INTEGRATION.json",
+          "work_id": "0123abcd-W1"
+        }
+      ],
+      "latest_proposal": "proposal-1",
+      "owner_action": "closed",
+      "policy_generation": 8,
+      "proposals": [
+        {
+          "assignment_ref": {
+            "generation": 1,
+            "participant": "baton.claude",
+            "work_ref": {
+              "authority_uuid": "0123456789abcdef0123456789abcdef",
+              "work_id": "0123abcd-W1"
+            }
+          },
+          "candidate_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "decision": {
+            "effective_scope": "scope:deployment",
+            "endpoint": "baton.claude",
+            "grant": "direct",
+            "policy_generation": 7,
+            "principal": "principal:baton.claude",
+            "role": "impl"
+          },
+          "input_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+          "owner_action": "closure-due",
+          "policy_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+          "proposal_id": "proposal-1",
+          "published_at": "2026-10-18T12:00:00.000Z",
+          "receipts": {
+            "approval": {
+              "actor": "baton.slaw",
+              "candidate_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+              "decision": {
+                "effective_scope": "scope:deployment",
+                "endpoint": "baton.slaw",
+                "grant": "direct",
+                "policy_generation": 7,
+                "principal": "principal:baton.slaw",
+                "role": "approve"
+              },
+              "disposition": "approved",
+              "kind": "approval",
+              "policy_generation": 7,
+              "proposal_id": "proposal-1",
+              "receipt_id": "app-1",
+              "recorded_at": "2026-10-18T16:54:47.001Z",
+              "target": "base-1"
+            },
+            "integration": {
+              "actor": "baton.slaw",
+              "candidate_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+              "decision": {
+                "effective_scope": "scope:deployment",
+                "endpoint": "baton.slaw",
+                "grant": "direct",
+                "policy_generation": 7,
+                "principal": "principal:baton.slaw",
+                "role": "integrate"
+              },
+              "disposition": "integrated",
+              "kind": "integration",
+              "policy_generation": null,
+              "proposal_id": "proposal-1",
+              "receipt_id": "int-1",
+              "recorded_at": "2026-10-18T16:54:47.002Z",
+              "target": "base-1"
+            },
+            "review": {
+              "actor": "baton.rvpc",
+              "candidate_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+              "decision": {
+                "effective_scope": "scope:deployment",
+                "endpoint": "baton.rvpc",
+                "grant": "direct",
+                "policy_generation": 7,
+                "principal": "principal:baton.rvpc",
+                "role": "review"
+              },
+              "disposition": "accepted",
+              "kind": "review",
+              "policy_generation": null,
+              "proposal_id": "proposal-1",
+              "receipt_id": "rev-proposal-1",
+              "recorded_at": "2026-10-18T12:00:00.000Z",
+              "target": "base-1"
+            },
+            "verification": {
+              "actor": "baton.rvpc",
+              "candidate_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+              "decision": {
+                "effective_scope": "scope:deployment",
+                "endpoint": "baton.rvpc",
+                "grant": "direct",
+                "policy_generation": 7,
+                "principal": "principal:baton.rvpc",
+                "role": "verify"
+              },
+              "disposition": "passed",
+              "kind": "verification",
+              "policy_generation": null,
+              "proposal_id": "proposal-1",
+              "receipt_id": "ver-proposal-1",
+              "recorded_at": "2026-10-18T12:00:00.000Z",
+              "target": "base-1"
+            }
+          },
+          "result_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+          "result_id": "result-proposal-1",
+          "target": "base-1"
+        }
+      ],
+      "rationale": "pilot delivered",
+      "work": {
+        "assignment": null,
+        "handler": null,
+        "outcome": "satisfying",
+        "phase": null,
+        "route": "impl",
+        "scope": "scope:deployment",
+        "status": "closed",
+        "work_id": "0123abcd-W1"
+      }
+    },
+    "pending_exit": 0
+  },
+  "exact_close_retry_after_evidence_change": {
+    "exit": 0,
+    "stderr": "",
+    "stdout": "{\n  \"acceptance\": {\n    \"approval\": \"app-1\",\n    \"candidate_digest\": \"sha256:2222222222222222222222222222222222222222222222222222222222222222\",\n    \"commit\": \"433b09d6963ca9789700849b640e242e772b9867\",\n    \"evidence_digest\": \"sha256:700a2aec074701e07634d1557e2aa472aa1821cd8f0a17c407219eeefdf2d7b0\",\n    \"evidence_reference\": \"work/records/2026/10/finding-pilot/INTEGRATION.json\",\n    \"integration\": \"int-1\",\n    \"proposal_id\": \"proposal-1\",\n    \"review\": \"rev-proposal-1\",\n    \"schema\": \"baton.v12.owner-closure-acceptance/1\",\n    \"verification\": \"ver-proposal-1\"\n  },\n  \"actor\": \"baton.slaw\",\n  \"authority_uuid\": \"0123456789abcdef0123456789abcdef\",\n  \"closed\": {\n    \"actor\": \"baton.slaw\",\n    \"assignment\": null,\n    \"decision\": {\n      \"effective_scope\": \"scope:deployment\",\n      \"endpoint\": \"baton.slaw\",\n      \"grant\": \"direct\",\n      \"policy_generation\": 8,\n      \"principal\": \"principal:baton.slaw\",\n      \"role\": \"close\"\n    },\n    \"outcome\": \"satisfying\"\n  },\n  \"evidence_now\": {\n    \"actual\": \"sha256:a41228d58b6ea7c8abe04f4fcd9aff9ed22d1f71d5eac8a9ff9e1106f90e3d24\",\n    \"cited_digest\": \"sha256:700a2aec074701e07634d1557e2aa472aa1821cd8f0a17c407219eeefdf2d7b0\",\n    \"reference\": \"work/records/2026/10/finding-pilot/INTEGRATION.json\",\n    \"state\": \"changed\"\n  },\n  \"rationale\": \"pilot delivered\",\n  \"replayed\": true,\n  \"work\": {\n    \"close_decision\": {\n      \"effective_scope\": \"scope:deployment\",\n      \"endpoint\": \"baton.slaw\",\n      \"grant\": \"direct\",\n      \"policy_generation\": 8,\n      \"principal\": \"principal:baton.slaw\",\n      \"role\": \"close\"\n    },\n    \"outcome\": \"satisfying\",\n    \"phase\": null,\n    \"status\": \"closed\"\n  },\n  \"work_id\": \"0123abcd-W1\"\n}\n",
+    "stored_status": "closed"
+  }
+}

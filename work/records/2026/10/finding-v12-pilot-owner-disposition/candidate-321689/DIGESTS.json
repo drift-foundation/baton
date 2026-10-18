@@ -21,32 +21,32 @@
   "members": {
     "v12/python/src/baton_v12/authority/api.py": {
       "base_blob": "a1cb6388bbec67bf0cf951a5d3774edaf9e0fc1b",
-      "bytes": 16763,
-      "digest": "sha256:d49405e4b2d29fc860440c6618acafaf32849293e2802b7e23c60bd5b0de03c5",
+      "bytes": 17393,
+      "digest": "sha256:4b900310fbc54a1776f91e587253f92eb1ddfc0cc489ea8622f072af065e60d9",
       "kind": "product",
       "mode": "0o664",
       "state": "modified"
     },
     "v12/python/src/baton_v12/authority/core.py": {
       "base_blob": "03e2219ceca9a77da66b20c4282f06614d996e78",
-      "bytes": 151079,
-      "digest": "sha256:0212bf28c6aa16ad3975b6f26c3a6f4463fa497853d51f538929ebf3c13d4d13",
+      "bytes": 154867,
+      "digest": "sha256:3c39f78cb9b3226c5c2bcc964256dd663e65cdeb7fa7766ec72ab1a44fb9cea8",
       "kind": "product",
       "mode": "0o664",
       "state": "modified"
     },
     "v12/python/tests/authority/test_boundary.py": {
       "base_blob": "f1bbe8e98262a9647362d0a9242bdc71b8ceef37",
-      "bytes": 74579,
-      "digest": "sha256:07ef98c31ac1082b714c65608102c32952fb9e4e052cfb2ada0dcfb5c481e9a7",
+      "bytes": 75133,
+      "digest": "sha256:32006a1feed9e427654a673cc0ffb5fe725b12267dc2ba96fa85c3379e218057",
       "kind": "test",
       "mode": "0o664",
       "state": "modified"
     },
     "v12/python/tests/authority/test_session.py": {
       "base_blob": "3c2db44aa2b8c41d61c04a407f08247d6347605a",
-      "bytes": 36899,
-      "digest": "sha256:50d795e4654e2413ff0e03509b5058a96ddaa494c5204807b02438967e57d30d",
+      "bytes": 37190,
+      "digest": "sha256:a5b8adff2cac48f99f104f5566b367753c77ac141d8554af4f54120081ab3329",
       "kind": "test",
       "mode": "0o664",
       "state": "modified"
@@ -61,8 +61,8 @@
     },
     "v12/python/tests/tools/test_disposition_command.py": {
       "base_blob": null,
-      "bytes": 49473,
-      "digest": "sha256:31c255af7a00b8d388651b7d24201f70f78857239fbe6732385e370d41898282",
+      "bytes": 91860,
+      "digest": "sha256:6145fb985ba57c6bd52a47c53b48925cf2f900a9b893b8185c4a490779a82e4c",
       "kind": "test",
       "mode": "0o664",
       "state": "new"
@@ -77,8 +77,8 @@
     },
     "v12/python/tools/disposition_command.py": {
       "base_blob": null,
-      "bytes": 42261,
-      "digest": "sha256:cc36e7ce466e5d3c2564957d044e36394ae5e9426519e7d27bc20ac2c153e322",
+      "bytes": 69998,
+      "digest": "sha256:e78de139e5a64988a6be7a0a0e2f5a8b77f25b1b2213842b5135489f249aeaba",
       "kind": "product",
       "mode": "0o664",
       "state": "new"

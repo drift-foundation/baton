@@ -257,6 +257,18 @@ class Authority:
     def dossier_evidence(self, work_id):
         return self._core.dossier_evidence(work_id)
 
+    # -- W321689: one command request, one durable meaning -------------------
+    #
+    # ON THE OPERATOR FACE, beside `accept_base` and for the same reason: it is
+    # a composite COMMAND's own act, performed by whoever holds the deployment,
+    # and it journals a request rather than performing a transition. A session
+    # that could bind requests about Work it does not hold would be keeping a
+    # record about somebody else's act.
+
+    def bind_request(self, work_id, request, *, operation_id):
+        return self._core.bind_request(work_id, request,
+                                       operation_id=operation_id)
+
     @staticmethod
     def stored_identity(path):
         """What a store says it IS, read-only, without opening it for use.
@@ -331,6 +343,18 @@ class Authority:
 
     def proposal(self, proposal_id):
         return self._core.proposal(proposal_id)
+
+    def proposals_of(self, work_id):
+        """W321689: which candidates one Work has published.
+
+        ON THIS FACE and not the session's, for the reason `works_with_labels`
+        is here: it answers an INVENTORY question rather than a fact about the
+        asker's own assignment, and the asker is an operator -- the human whose
+        disposition is due -- who holds no claim and should need none.  A
+        session reading it would be reading the publication history of Work it
+        may have no part in.
+        """
+        return self._core.proposals_of(work_id)
 
     def receipts(self, proposal_id):
         return self._core.receipts(proposal_id)

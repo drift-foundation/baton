@@ -485,8 +485,16 @@ class TheInputContractIsClosed(Fixture):
 
     def test_the_refusal_names_what_IS_supported(self):
         said = self.refused(nonsense=1)
-        for name in bootstrap.OPTIONAL:
+        for name in bootstrap.OPTIONAL + bootstrap.DISPOSITION:
             self.assertIn(name, said, name)
+
+    def test_a_misspelled_owner_selection_is_refused_rather_than_ignored(self):
+        # W321689. The whole reason this member is validated: an operator who
+        # believes they configured the human disposition and did not would
+        # discover it when the owner's close was refused for holding no grant.
+        said = self.refused(owner_partcipant="baton.slaw")
+        self.assertIn("owner_partcipant", said)
+        self.assertIn("owner_participant", said)
 
 
 class WhatItRefusesBeforeItTouchesAnything(Fixture):
@@ -1019,6 +1027,64 @@ class WhatItComposesOnTheAuthority(ValidFixture):
                     who + "/" + capability)
         finally:
             authority.dispose()
+
+    def test_the_selected_owner_gets_approve_integrate_and_close(self):
+        """W321689. The grant the composition did not make.
+
+        The pilot assessment recorded it exactly: `GRANTS` configures
+        verify/review/approve and the integrator gets `integrate`, so
+        `core.close` -- which authorizes by the close CAPABILITY -- had no
+        actor at all in a deployment composed here. The owner-selected single
+        human closure was unreachable.
+        """
+        answer = self.prepared(owner_participant="baton.slaw")
+        authority = self.opened(answer)
+        try:
+            scope = authority.project_work(self.work)["scope"]
+            for capability in bootstrap.OWNER_GRANTS:
+                self.assertTrue(
+                    authority.holds_capability("baton.slaw", capability,
+                                               scope=scope), capability)
+            # AND NOT THE REVIEWER'S. Owner capability and human integration
+            # are distinct from technical review; an owner who could also write
+            # the review receipt would be a deployment where one principal
+            # accepts its own candidate.
+            for capability in ("verify", "review"):
+                self.assertFalse(
+                    authority.holds_capability("baton.slaw", capability,
+                                               scope=scope), capability)
+        finally:
+            authority.dispose()
+
+    def test_omitting_the_owner_grants_nothing_and_changes_nothing(self):
+        # An installation that selects no owner is unchanged, which is what
+        # makes this an optional selection rather than a new requirement.
+        answer = self.prepared()
+        authority = self.opened(answer)
+        try:
+            scope = authority.project_work(self.work)["scope"]
+            for capability in bootstrap.OWNER_GRANTS:
+                self.assertFalse(
+                    authority.holds_capability("baton.slaw", capability,
+                                               scope=scope), capability)
+            # And the close capability is held by NOBODY the composition
+            # configured, which is the gap this selection exists to fill.
+            for who in ("baton.verifier", "baton.approver",
+                        "baton.approver-review", "baton.integrator"):
+                self.assertFalse(
+                    authority.holds_capability(who, "close", scope=scope), who)
+        finally:
+            authority.dispose()
+
+    def test_the_owner_selection_never_reaches_the_emitted_configuration(self):
+        # `stage_execution`'s document is closed and its consumers serve
+        # EXECUTION. Who may approve, integrate and close is a grant made on
+        # the authority, so carrying it into that document would be a member
+        # nothing there reads.
+        answer = self.prepared(owner_participant="baton.slaw")
+        self.assertNotIn("owner_participant", answer["configuration"])
+        self.assertNotIn("baton.slaw",
+                         json.dumps(answer["configuration"]))
 
     def test_no_job_is_submitted_and_nothing_is_executed(self):
         import io

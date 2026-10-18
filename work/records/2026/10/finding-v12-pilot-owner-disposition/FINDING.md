@@ -52,3 +52,19 @@ Owner: "we can leave this one as-is so we don't waste time". Preserve the existi
 ## 2026-10-18T16:39Z — independent review requires durable command outcome binding
 
 Confirmed under reviewer claim324303: all ten current paths match candidate-321689/DIGESTS.json and 52 focused command tests pass, but disposable public-command probes reproduce changed integration retry success with a different human commit and an exact close retry refusing after already committed closure when cited evidence changes. Selected closure acceptance is printed but not bound into the durable close operation or returned by pending readback. See review-2026-10-18T16-39-10Z.md and evidence/review-324303/REPRODUCTION.json. This is a correction within original changed-retry/replay and restart/readback acceptance, not a specification change. Keep the coupled owner-command outcome binding correction together; no independently useful child split. Return directly to implementation under the existing W321689-only exception. W321690 remains gated; no candidate acceptance, v12 Job execution or human Git checkpoint is claimed.
+
+## 2026-10-18T16:55Z — replay correction partially effective
+
+Review review-2026-10-18T16-55-00Z.md under claim324482 confirms all ten revised hashes and68 passing command tests. Original changed-reference/close-drift/readback probes now pass. Combined drift+changed-commit still replays, and changed close assignment precondition is ignored by manual replay. These are confirmed incomplete request identity binding, within accepted changed-retry refusal. Evidence/review-324482/ records exact probes. Continue one bounded correction through implementation under W321689 exception, preserving improvements and W321690 gate; no acceptance or checkpoint claimed.
+
+## 2026-10-18T17-12-52Z — replay provenance correction required
+
+Observed under claim324601: both prior changed-request probes now refuse, but a standalone citation reused by a fresh integrated command bypasses first-execution record validation and creates an integrated receipt with no human integration file. Exact evidence and required outcome: review-2026-10-18T17-12-52Z.md and evidence/review-324601/. This is a correction within accepted evidence-validation scope, not a specification change. W321690 remains gated.
+
+## 2026-10-18T17-21-14Z — citation-refusal retry still bypasses evidence binding
+
+Confirmed under claim324673: initial missing-file refusal improved;85 command tests pass. However a mismatched standalone citation causes first-call refusal followed by identical-retry integration success. Request binding survives failed citation and is mistaken for evidence success. See review-2026-10-18T17-21-14Z.md and evidence/review-324673/. This supersedes the incoming claim that the evidence-validation bypass is fully closed; accepted scope is unchanged.
+
+## 2026-10-18T17-30-24Z — independent exact-byte acceptance
+
+Review review-2026-10-18T17-30-24Z.md accepts manifest dbc163c7dc3f08fcf17030b78923029431c2f615c9bf9c797c5c9223a62b1c77. Prior retry findings are resolved by binding validated evidence digest and checking citation provenance before effects.91 command tests and14 independent frozen scenarios pass. Bound partial recovery may cite originally validated bytes after drift, reports present evidence separately, and cannot satisfy closure without intact evidence. This is accepted recovery within existing scope, not a specification amendment. Owner approval/Git checkpoint remains next; W321690 gate is preserved until canonical closure.
