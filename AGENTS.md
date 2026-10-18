@@ -594,12 +594,3 @@ and bounded fallback before using direct shared-checkout implementation. Preserv
 independent review, exact candidate provenance, file ownership and human Git control.
 This does not prohibit coordination records, planning or reviewed-byte integration
 under their existing authority.
-
-W321688 alone has a conditional near-completion exception: preserve its already
-authored shared-tree work and finish bounded existing corrections if nearly done,
-then obtain independent acceptance and a scoped owner checkpoint. Do not restart
-useful work solely to change its execution provenance, but report that provenance
-honestly. The exception neither accepts the current candidate nor waives recovery/
-containment defects, and does not extend to successor pilot Work. If substantial
-implementation remains, return to the v12 execution path. Exact ruling:
-[W321688 owner execution ruling](work/records/2026/10/finding-v12-pilot-dossier-binding/OWNER-EXECUTION-20261018.md).

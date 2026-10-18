@@ -1,5 +1,10 @@
 # Owner ruling — 2026-10-18
 
+Historical ruling: the W321688-only near-completion exception below expired after
+W321688 and checkpoint W322125 closed satisfying on 2026-10-18. Owner explicitly
+retired it from active AGENTS.md policy. It grants no remaining execution authority;
+the standing v12 execution requirement remains in force.
+
 Owner: "if W321688 is nearly done we can accept it but this is why we need to
 make all future work go through v12 unless there is a blocker".
 
