@@ -1817,7 +1817,7 @@ class CancellationFencesBeforeItStops(AttemptCase):
         answer = request_cancellation(self.store, self.port, agent, adapter,
                                       attempt_id=ATTEMPT)
         self.assertIs(answer["quiescence"]["ordered"], False)
-        self.assertIn("nothing to stop", answer["quiescence"]["why"])
+        self.assertIn("unresolved launch is not proof of cessation", answer["quiescence"]["why"])
         self.assertEqual(agent.cancelled, [])
 
     def test_an_unactivated_attempt_has_no_generation_to_fence(self):

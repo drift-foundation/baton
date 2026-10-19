@@ -5646,7 +5646,11 @@ def reclaim_expired_resource(store, adapter, *, attempt_id, govern):
     overdue = govern.overdue(store, attempt, operation=operation_id)
     if overdue is None:
         return {"reclaimed": "not-overdue", "attempt_id": attempt_id}
-    if attempt["runtime_id"] is None:
+    runtime_id = overdue.get("container")
+    if attempt["runtime_id"] is not None and runtime_id != attempt["runtime_id"]:
+        raise ContractRefusal("runtime-observation", "identity-mismatch",
+                              "the token and attempt do not name the same runtime; expiry cannot choose a different execution")
+    if runtime_id is None:
         # W275774 review 17:09:10Z [P1]: NO ATTACHED IDENTITY IS NOT "NEVER LAUNCHED".
         #
         # I wrote that inference and it is wrong in the one direction that matters: a
@@ -5684,13 +5688,20 @@ def reclaim_expired_resource(store, adapter, *, attempt_id, govern):
     # The removal is a separate verb because stopping and removing are separate facts:
     # a container that stopped but could not be removed is still holding its mounts,
     # and reporting them together would lose exactly that distinction.
-    reclaim_id = reclaim_operation_id(attempt, overdue["generation"])
+    reclaim_id = reclaim_operation_id(dict(attempt, runtime_id=runtime_id), overdue["generation"])
     try:
-        adapter.stop_expired({"runtime_id": attempt["runtime_id"],
-                              "operation_id": reclaim_id})
+        # Replayed reclaim observes first: an exact absence needs no second
+        # stop/remove effect. Acknowledgement or an unknown observation never
+        # satisfies this test; the same correlated operation may retry then.
+        before = None
+        if overdue["revoked"]:
+            before, _value, _why = attempts._observed(adapter, runtime_id)
+        if before not in ("absent", "quiescent"):
+            adapter.stop_expired({"runtime_id": runtime_id,
+                                  "operation_id": reclaim_id})
         remove = getattr(adapter, "remove", None)
-        if remove is not None:
-            remove({"runtime_id": attempt["runtime_id"],
+        if before != "absent" and remove is not None:
+            remove({"runtime_id": runtime_id,
                     "operation_id": reclaim_id})
     except ContractRefusal as refusal:
         # A REFUSED STOP IS NOT A CESSATION. The revocation stands, the resource
@@ -5698,7 +5709,7 @@ def reclaim_expired_resource(store, adapter, *, attempt_id, govern):
         return {"reclaimed": "held", "attempt_id": attempt_id, "state": "uncertain",
                 "why": f"the stop was refused: {refusal.message}"}
     # 3. AND WHAT THAT EXACT IDENTITY NOW IS, asked of the adapter.
-    state, _value, why = attempts._observed(adapter, attempt["runtime_id"])
+    state, _value, why = attempts._observed(adapter, runtime_id)
     # THE OBSERVATION'S OWN VOCABULARY: `attempts.OBSERVED_RUNTIME` names the four
     # states an adapter may answer, and `absent` is the positive "this exact identity
     # does not exist". My first cut compared against the mapped VALUE `destroyed`
@@ -5707,6 +5718,13 @@ def reclaim_expired_resource(store, adapter, *, attempt_id, govern):
     if state not in ("absent", "quiescent"):
         return {"reclaimed": "held", "attempt_id": attempt_id, "state": state,
                 "why": f"cessation is not positively proved: {why}"}
+    if attempt["runtime_id"] is None:
+        # The token may bind a container before the attempt attaches it. It
+        # is still this generation's exact writer and must be stopped, but
+        # an absent/quiescent observation does not settle a delayed launch.
+        return {"reclaimed": "held", "attempt_id": attempt_id, "state": state,
+                "container": runtime_id,
+                "why": "the token-bound runtime ceased; attachment/activation remains unresolved and the resource stays held"}
     cessation = _resource_cessation(
         store,
         {"state": "absent",

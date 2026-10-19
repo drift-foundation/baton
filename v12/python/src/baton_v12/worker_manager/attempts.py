@@ -3505,15 +3505,32 @@ def _order_quiescence(store, agent, adapter, attempt_id, assignment,
     repeat one act rather than two.
     """
     attempt = _require_attempt(store, attempt_id)
+    # Cancellation has already fenced this exact assignment at the Authority.
+    # A governed launch binds its container before the attempt attaches it; that
+    # interval still has a known writer. Resolve it from the token owner's
+    # execution/start-operation binding, never from caller-supplied identity.
+    runtime_id = attempt["runtime_id"]
+    if attempt["workspace_device"] is not None and attempt["workspace_inode"] is not None:
+        from . import tokens
+        domain = tokens.domain_of("workspace", tokens.workspace_identity(attempt))
+        generation = tokens.generation_of(store, domain, execution=attempt_id, operation=_start_operation_id(attempt))
+        if generation is not None:
+            token = tokens.token_of(store, domain, generation)
+            bound = token["container"]
+            if runtime_id is not None and bound is not None and bound != runtime_id:
+                raise ContractRefusal("runtime-observation", "identity-mismatch",
+                                      "the attempt and its token name different runtimes; cancellation cannot choose another execution")
+            if runtime_id is None and not token["returned"]:
+                runtime_id = bound
     current = attempt["execution_runtime"]
     if "cancel-requested" in TRANSITIONS["execution_runtime"][current]:
         observe(store, attempt_id=attempt_id, axis="execution_runtime",
                 value="cancel-requested")
-    if attempt["runtime_id"] is None:
+    if runtime_id is None:
         return documents.quiescence_not_ordered(
             ordered=False,
-            why=f"no runtime is attached to attempt {name_value(attempt_id)}, "
-                f"so there is no agent inside one and nothing to stop")
+            why=f"attempt {name_value(attempt_id)} has no attached or token-bound runtime identity; "
+                f"the assignment is fenced but an unresolved launch is not proof of cessation")
     if current == "destroyed":
         return documents.quiescence_not_ordered(
             ordered=False,
@@ -3540,12 +3557,12 @@ def _order_quiescence(store, agent, adapter, attempt_id, assignment,
     try:
         agent_settlement = agent.cancel({
             "attempt_id": attempt_id, "assignment": assignment,
-            "runtime_id": attempt["runtime_id"], "operation_id": operation_id})
+            "runtime_id": runtime_id, "operation_id": operation_id})
     except BaseException as failure:
         agent_failure.append(failure)
     try:
         runtime_settlement = adapter.stop({
-            "runtime_id": attempt["runtime_id"], "operation_id": operation_id})
+            "runtime_id": runtime_id, "operation_id": operation_id})
     except BaseException as failure:
         # Both boundaries failed. Neither is allowed to hide the other, and
         # choosing between them would be this boundary deciding which failure
@@ -3563,7 +3580,7 @@ def _order_quiescence(store, agent, adapter, attempt_id, assignment,
     # about the world, and normalizing "returned nothing" into "returned null"
     # is a smaller version of the same mistake.
     return documents.quiescence_ordered(
-        ordered=True, runtime_id=attempt["runtime_id"],
+        ordered=True, runtime_id=runtime_id,
         agent_settlement=agent_settlement,
         runtime_settlement=runtime_settlement)
 

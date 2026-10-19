@@ -1426,14 +1426,13 @@ class TheStatusSurfaceMayReadIntegrationAndStillActOnNothing(unittest.TestCase):
             tokens.release = honest
         self.assertEqual(tokens.outstanding(control, case["domain"]), [],
                          "the retry returns the original generation")
-        # AND WHAT "WITHOUT REPEATING" MEANS HERE, measured rather than assumed. The retry DOES
-        # re-issue its removal -- `rm` appears twice -- and that is the accepted design this
-        # module states in its own words: a destroy is force-removal followed by an inspection
-        # of the exact identity, and an identity already gone answers absent, which is why a
-        # retry is safe. What must not repeat is a STATE CHANGE, so the assertion is that the
-        # retry performed no second start and the resource returned exactly ONCE.
-        self.assertEqual([one[1] for one, _ in vectors].count("rm"), 2,
-                         "the retry did not re-issue its idempotent removal")
+        # W333735: replay observes the already-revoked exact runtime before
+        # ordering another effect. Positive absence needs no repeated removal;
+        # an unknown/running observation still retries the correlated operation.
+        self.assertEqual([one[1] for one, _ in vectors].count("rm"), 1,
+                         "the retry repeated removal despite positive exact absence")
+        self.assertEqual([one[1] for one, _ in vectors].count("stop"), 1,
+                         "the retry repeated stop despite positive exact absence")
         self.assertNotIn("run", [one[1] for one, _ in vectors],
                          "the retry started something")
         # AND THE RETURN IS COUNTED, not asserted in prose. Review 2026-09-28T11-09-51Z is right
