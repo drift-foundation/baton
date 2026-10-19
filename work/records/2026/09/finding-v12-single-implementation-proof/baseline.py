@@ -63,6 +63,7 @@ import argparse
 import hashlib
 import json
 import os
+import stat
 import sys
 import time
 from datetime import datetime, timezone
@@ -98,6 +99,95 @@ KINDS = ("implementation",)
 CLAIM_NAMESPACE = "baton.git-proposal/1"
 COMMIT_NAME = "Baton worker"
 COMMIT_EMAIL = "worker@baton.invalid"
+
+# W321528: AND THE WORKER'S OWN ORDINARY-TEST OBSERVATION, mirrored for the
+# same reason and read for a narrower one. What it carries is what the TURN's
+# verification command did, which is a fact about the turn and emphatically
+# not a verdict about the candidate -- see `_candidate_verification`.
+ORDINARY_TESTS_NAMESPACE = "baton.git-ordinary-tests/1"
+
+# AND ITS CLOSED MEMBER SET, mirrored from `claude_agent.ORDINARY_TESTS_MEMBERS`
+# for the reason every other mirror in this file exists: the image carries no
+# `baton_v12` and this supervisor is not in the image, so the agreement is held
+# by a case rather than by an import. Held by EQUALITY and not by containment:
+# an observation missing `task_id` is exactly the shape the first reader
+# admitted, and a document carrying a member this program does not read is one
+# whose producer is not the producer this program knows.
+ORDINARY_TESTS_MEMBERS = ("argv", "base", "head", "status", "task_digest",
+                          "task_id")
+
+# The declared output an implementation turn's candidate lives in.
+PROPOSAL_OUTPUT = "proposal"
+
+# W321528 review 2026-10-18T10-07-00Z: WHICH WORKER'S TASK DOCUMENT BINDS THE
+# OBSERVATION. One deployment configures an implementation, a review and an
+# integration worker, and an observation is only this candidate's if it names
+# the task the IMPLEMENTATION turn was launched under. The word is the
+# deployment configuration's own worker `role`, which is the member
+# `stage_execution` selects the producing worker by.
+IMPLEMENTATION_ROLE = "implementation"
+
+# How much of the configured task document this program will read before
+# refusing, and it is the CONSUMER's ceiling rather than one chosen here:
+# `claude_agent._read_task` reads at most this much at the other end, so a
+# document wider than it is not the document any turn consumed.
+MAX_TASK_BYTES = 1 << 20
+
+# W321528: WHAT A TURN'S RETAINED CANDIDATE IS, and these four are different
+# answers rather than degrees of one.
+#
+# `valid` is the only one that may be counted as a candidate at all, and it
+# is reached only after the manager's own owners agreed AND THE RETAINED BYTES
+# THEMSELVES WERE READ: the sealed result belongs to this attempt's
+# assignment, the sealed artifact reference and the manager's indexed artifact
+# row name the same bytes, the worker's claim is offered against the
+# deployment's declared base, the retained commit is the adapter's own, and
+# the artifact the locator names RE-MEASURES to the manifest and digest the
+# seal declares. `absent` is a turn that retained nothing -- an ANSWER, and
+# the ordinary shape of a failure. `refused` is evidence that EXISTS and did
+# not survive one of those checks, which is a different and much louder fact
+# than absence. `unreadable` is a read that did not answer, which is never
+# evidence of absence.
+CANDIDATE_VALID = "valid"
+CANDIDATE_ABSENT = "absent"
+CANDIDATE_REFUSED = "refused"
+CANDIDATE_UNREADABLE = "unreadable"
+
+# WHAT THE TURN'S OWN VERIFICATION COMMAND DID, re-read from the sealed
+# result. `not-run` is the adapter's explicit null -- it skips verification
+# when the provider failed or changed nothing -- and `unreported` is this
+# program declining to read an observation it could not validate. Neither is
+# a pass, and NONE of these four is a formal verification of the candidate by
+# anybody: this run performs none and invents none.
+VERIFICATION_PASSED = "passed"
+VERIFICATION_FAILED = "failed"
+VERIFICATION_NOT_RUN = "not-run"
+VERIFICATION_UNREPORTED = "unreported"
+
+# W321528 review 2026-10-18T08-39-00Z P2: AND THE PRODUCER'S NULL IS AMBIGUOUS,
+# so it gets its own answer rather than being folded into `not-run`.
+# `claude_agent._ordinary_tests` says so itself: a skipped command, a timeout
+# and a failed start ALL emit `status: None`, and "all three are 'this command
+# did not produce a status'". Reporting that as `not-run` would be inventing
+# proof of the one of the three that happens to sound harmless.
+VERIFICATION_NO_STATUS = "no-status"
+
+# AND ACCEPTANCE THAT WAS NEVER READ SAYS SO. Review P2: the collector set
+# `none` -- "an answer that was READ" -- for every valid record while
+# performing no acceptance read at all. This Job admits no reviewer and this
+# supervisor has no exact-candidate acceptance evidence to consult, so the
+# honest value is that nobody looked.
+ACCEPTANCE_UNOBSERVED = "unobserved"
+
+# WHETHER ANYTHING HAS ACCEPTED THE CANDIDATE, read from the line owner and
+# never from the worker. This Job has no reviewer in it, so `none` is the
+# expected answer and is still an answer that was READ; `no-candidate` is the
+# different statement that there is nothing to accept, and `unreadable` keeps
+# a failed read from being reported as either.
+ACCEPTANCE_ACCEPTED = "accepted"
+ACCEPTANCE_NONE = "none"
+ACCEPTANCE_NO_CANDIDATE = "no-candidate"
+ACCEPTANCE_UNREADABLE = "unreadable"
 
 # THE ONLY GIT VERBS THIS PROGRAM MAY RUN, closed and checked before the child
 # starts. Every one of them reads; none of them can move a reference, write an
@@ -1680,8 +1770,8 @@ def _workload_evidence(job, control, packet, admitted, kinds, *, inspect=None):
     implementation = named("implementation")
     evidence = {"implementation_attempts": implementation,
                 "generations": [], "conversations": [], "modes": [],
-                "proposals": [], "dispositions": [], "attribution": [],
-                "shortfalls": []}
+                "proposals": [], "dispositions": [], "candidates": [],
+                "attribution": [], "shortfalls": []}
 
     want = packet["bounds"]
     if len(implementation) != want["implementer_invocations"]:
@@ -1717,6 +1807,11 @@ def _workload_evidence(job, control, packet, admitted, kinds, *, inspect=None):
     # proposal. A failed run's outcome says `unable` where an operator can
     # find it rather than only inside a shortfall sentence.
     evidence["dispositions"] = retained["dispositions"]
+    # W321528: WHAT EACH TURN RETAINED, decided independently of what it
+    # published. A failed turn's surviving candidate is reported here or an
+    # operator never learns it exists.
+    evidence["candidates"] = _candidates(control, implementation, packet,
+                                         shortfalls, inspect=inspect)
     evidence["attribution"] = _attributions(control, implementation,
                                             evidence["proposals"], shortfalls,
                                             inspect=inspect)
@@ -1820,7 +1915,9 @@ def _proposals(control, implementation, packet, shortfalls):
                 f"'completed', so it published no proposal. An implementation "
                 f"turn that could not do its work is an ANSWER -- the "
                 f"attempt's retained provider log carries what the provider "
-                f"reported -- and it is not a proposal this run may count.")
+                f"reported -- and it is not a proposal this run may count. "
+                f"WHETHER IT RETAINED A CANDIDATE ANYWAY is a separate "
+                f"question and `candidates` answers it.")
             continue
         try:
             manifest = load_manifest(control, frozen["manifest_digest"],
@@ -1845,9 +1942,678 @@ def _proposals(control, implementation, packet, shortfalls):
                               f"head is its base, so it proposed nothing")
         found.append(held)
     if not found:
-        shortfalls.append("this run retained no proposal at all, so it "
-                          "established nothing about the implementation path")
+        shortfalls.append("this run published no proposal at all. Whether any "
+                          "turn nevertheless RETAINED a candidate is answered "
+                          "by `candidates`, and a retained candidate is not a "
+                          "published proposal, a verification or an acceptance")
     return {"proposals": found, "dispositions": dispositions}
+
+
+def _candidates(control, implementation, packet, shortfalls, *, inspect=None,
+                measure=None):
+    """EVERY turn's retained candidate, decided INDEPENDENTLY of its disposition.
+
+    W321528. THE DEFECT THIS CLOSES. `_proposals` above answers "what did this
+    run PUBLISH", and it is right to skip a turn that did not complete: a turn
+    that ended `unable` published no proposal by contract. It was the only
+    question anybody asked, and the selected live run of this very Work timed
+    out at 900s with a real three-file candidate retained on its private line
+    while the report said it retained nothing at all.
+
+    So this asks the OTHER question, for every attempt, whatever it ended as.
+
+    AND IT READS THE RETAINED LINE RATHER THAN TWO DESCRIPTIONS OF IT, which is
+    review 2026-10-18T08-39-00Z P1. The first correction compared the sealed
+    reference with the manager's indexed row and called the result `valid`:
+    agreement between two stored descriptions of an artifact establishes that
+    nobody disagrees, NOT that the bytes are still there. Its own fixture named
+    a locator that did not exist and got `valid` with no shortfall. So custody
+    is now established at the SUPPORTED BOUNDARY this file already owns --
+    `line_attribution` reads the commit object out of the durable line the
+    manager named, through the closed read-only verb list -- and a candidate
+    whose head cannot be read there is never promoted to `valid`.
+
+    AND READING THAT COMMIT HEADER IS STILL NOT READING THE ARTIFACT, which is
+    review 2026-10-18T10-07-00Z. The commit object answers WHO WROTE the
+    history the claim names, in a repository that is not the retained artifact
+    and whose objects are not its bytes. An artifact that was never written,
+    was truncated, had one byte changed or was swapped for a different tree
+    passes every check above. So `_retained_bytes` re-MEASURES the tree the
+    locator names, through `workspaces.directory_manifest`, and holds the
+    measurement to the `contentManifest` and `content_digest` the seal
+    declares -- both of which are first held to their own owner's rules. A
+    candidate whose bytes are missing, damaged, substituted or unreadable is
+    never `valid`, and its locator and claims stay in the record anyway.
+
+    THE FOUR ANSWERS ARE NOT DEGREES OF ONE:
+
+      `absent` is a turn that retained nothing. An ANSWER, and the ordinary
+      shape of a failure.
+
+      `unreadable` is a read that DID NOT ANSWER. Never evidence of absence --
+      conflating the two is how "I could not look" becomes "there is nothing
+      there", and this Work exists because that already happened once.
+
+      `refused` is evidence that EXISTS and did not survive a check. A much
+      louder fact than absence: something is on disk and this program will not
+      vouch for it.
+
+      `valid` is the only one countable, and it now means the retained head
+      was READ in the manager's own line AND the retained artifact's own bytes
+      re-measured to what the seal declares -- not merely described twice.
+
+    USEFUL EVIDENCE SURVIVES A FAILED CHECK, which the review also required:
+    the locator, base, head and attribution recorded before the failing check
+    stay in the record, because an operator looking for the bytes needs them
+    most when something is wrong.
+
+    AND IT IS NOT A VERDICT. `verification` reports what the turn's own
+    verification command did and `acceptance` whether anybody has accepted the
+    candidate; this run performs no formal verification, invents none, and
+    reports an acceptance it did not read as `unobserved`.
+    """
+    from baton_v12.contracts import ContractRefusal
+    from baton_v12.worker_manager import (attempts as attempt_rows,
+                                          frozen_output_of, load_manifest)
+
+    inspect = line_attribution if inspect is None else inspect
+    measure = _retained_bytes if measure is None else measure
+    try:
+        base = _declared_base(packet)
+    except (SupervisorRefusal, KeyError, OSError, TypeError, ValueError):
+        # ALREADY REPORTED BY `_proposals`; what matters here is that an
+        # unknown target makes the base check unanswerable rather than passed.
+        # The read is bounded wider than one refusal because `_declared_base`
+        # opens and parses the deployment configuration, and a collector whose
+        # purpose is reporting what survived a FAILED run must not itself die
+        # on an unreadable config and lose the candidate it exists to name.
+        base = None
+    try:
+        task = _bound_task(packet)
+    except (SupervisorRefusal, KeyError, OSError, TypeError, ValueError):
+        # AND AN UNRESOLVED TASK MAKES THE OBSERVATION UNREPORTABLE rather
+        # than unvalidated. `_candidate_verification` refuses to read an
+        # observation it cannot bind to the task this turn actually ran; a
+        # `None` here is that refusal arriving one step earlier.
+        task = None
+    found = []
+    for attempt in implementation:
+        # ONE CLOSED MEMBER SET FOR ALL FOUR ANSWERS. The states are different
+        # ANSWERS rather than different documents, so every member a reader
+        # may look for is seeded here and a record that failed early answers
+        # the same shape as one that failed late. `generation` was the one
+        # exception: it was written only after the assignment read succeeded,
+        # so an operator scanning these records for it had to already know
+        # which records could carry it -- and a member whose ABSENCE means
+        # "this program stopped before asking" is indistinguishable from a
+        # producer that forgot, which is the shape this file refuses
+        # everywhere else.
+        held = {"attempt_id": attempt, "state": CANDIDATE_UNREADABLE,
+                "disposition": None, "locator": None, "base": None,
+                "head": None, "transport": None, "content_digest": None,
+                "bytes": None, "verification": VERIFICATION_UNREPORTED,
+                "acceptance": ACCEPTANCE_UNOBSERVED, "attribution": None,
+                "assignment": None, "generation": None, "why": None}
+
+        def unreadable(why):
+            held["state"] = CANDIDATE_UNREADABLE
+            held["why"] = why
+            found.append(dict(held))
+            shortfalls.append(
+                f"attempt {attempt} has an UNREADABLE retained candidate: "
+                f"{why}. A read that did not answer is not evidence that "
+                f"nothing is retained")
+
+        def refused(why):
+            held["state"] = CANDIDATE_REFUSED
+            held["why"] = why
+            found.append(dict(held))
+            shortfalls.append(f"attempt {attempt} has a REFUSED retained "
+                              f"candidate: {why}")
+
+        try:
+            frozen = frozen_output_of(control, attempt)
+        except (ContractRefusal, KeyError, TypeError) as why:
+            unreadable(f"the frozen result did not read: "
+                       f"{type(why).__name__}: {why}")
+            continue
+        if frozen is None:
+            held.update(state=CANDIDATE_ABSENT,
+                        acceptance=ACCEPTANCE_NO_CANDIDATE,
+                        verification=VERIFICATION_NOT_RUN,
+                        why="the turn froze no result at all")
+            found.append(dict(held))
+            continue
+        held["disposition"] = frozen.get("disposition")
+        indexed = {one["output_name"]: one
+                   for one in (frozen.get("artifacts") or [])}
+        row = indexed.get(PROPOSAL_OUTPUT)
+        try:
+            manifest = load_manifest(control, frozen["manifest_digest"],
+                                     "resultManifest")
+        except (ContractRefusal, KeyError, TypeError) as why:
+            unreadable(f"the sealed result manifest did not read: "
+                       f"{type(why).__name__}: {why}")
+            continue
+        if manifest is None:
+            unreadable("the frozen result names a manifest this store does "
+                       "not hold, so its account cannot be read")
+            continue
+        sealed = next((one for one in manifest.get("outputs") or []
+                       if one.get("name") == PROPOSAL_OUTPUT), None)
+        if sealed is None or sealed.get("status") != "present" \
+                or sealed.get("artifact") is None:
+            if row is None:
+                held.update(state=CANDIDATE_ABSENT,
+                            acceptance=ACCEPTANCE_NO_CANDIDATE,
+                            verification=_candidate_verification(sealed),
+                            why="the turn declared no retained candidate")
+                found.append(dict(held))
+                continue
+            refused(f"the manager indexed a {PROPOSAL_OUTPUT!r} artifact and "
+                    f"the sealed result declares none, so the two accounts of "
+                    f"this turn disagree about whether a candidate exists")
+            continue
+        reference = sealed["artifact"]
+        held.update(locator=reference.get("locator"),
+                    content_digest=reference.get("content_digest"),
+                    bytes=reference.get("bytes"))
+        claim = (sealed.get("result_metadata") or {}).get(CLAIM_NAMESPACE)
+        if not isinstance(claim, dict) or not all(
+                isinstance(claim.get(one), str) and claim.get(one)
+                for one in ("base", "head", "transport")):
+            refused(f"the sealed candidate carries no readable "
+                    f"{CLAIM_NAMESPACE} claim, so what it was built on is "
+                    f"unstated")
+            continue
+        held.update(base=claim["base"], head=claim["head"],
+                    transport=claim["transport"])
+        # THE TURN'S OWN OBSERVATION, read from the OUTPUT the producer puts it
+        # on and bound to THE TASK THIS TURN ACTUALLY RAN -- see
+        # `_candidate_verification`.
+        held["verification"] = _candidate_verification(sealed, claim=claim,
+                                                       task=task)
+        faults = []
+        # WHOSE ARTIFACT IT IS, from the sealer's own identity rule. A result
+        # answers `"{attempt}:{output}"`, so an artifact reference naming
+        # another attempt or another output is FOREIGN evidence -- bytes this
+        # turn did not retain, offered under this turn's seal.
+        owned = f"{attempt}:{PROPOSAL_OUTPUT}"
+        if reference.get("artifact_id") != owned:
+            faults.append(f"the sealed candidate names artifact "
+                          f"{reference.get('artifact_id')!r} and this "
+                          f"attempt's {PROPOSAL_OUTPUT!r} output is "
+                          f"{owned!r}, so these are not this turn's bytes")
+        if row is None:
+            faults.append(f"the sealed result declares a {PROPOSAL_OUTPUT!r} "
+                          f"artifact and the manager indexed none, so these "
+                          f"bytes are not in its custody")
+        else:
+            # `get` ON BOTH SIDES. This subscripted the indexed row while
+            # reading the sealed reference with `get`, so the two accounts of
+            # one artifact were held to different standards: a seal missing
+            # `locator` was REPORTED as a disagreement and a row missing it
+            # raised `KeyError` out of the loop, taking the whole collection
+            # with it -- every attempt already recorded lost, by the one
+            # function whose purpose is reporting what a FAILED run left
+            # behind. `output.frozen_output_of` composes that row through
+            # `boundaries.row` against its own column set, so this is not a
+            # live crash the production reader can reach; it is the same
+            # exposure `_declared_base` and `_bound_task` above are already
+            # deliberately read wider than one refusal for, and the asymmetry
+            # was the defect either way.
+            #
+            # AND A MISSING MEMBER IS A DISAGREEMENT, not a read that failed.
+            # Something answered; what it answered does not describe the same
+            # artifact the seal does, and `None` against the sealed value is
+            # exactly that fact with the member named.
+            for name in ("artifact_id", "content_digest", "bytes", "locator"):
+                if row.get(name) != reference.get(name):
+                    faults.append(
+                        f"the sealed reference and the manager's indexed row "
+                        f"disagree about {name}: {reference.get(name)!r} "
+                        f"against {row.get(name)!r}, so nobody knows which "
+                        f"bytes this candidate is")
+        try:
+            assignment = attempt_rows.assignment_of(control, attempt)
+        except (ContractRefusal, KeyError, TypeError) as why:
+            unreadable(f"this attempt's assignment did not read, so the "
+                       f"retained candidate cannot be bound to it: "
+                       f"{type(why).__name__}: {why}")
+            continue
+        # THE WHOLE ATTRIBUTION, not just the generation. Review P1: a record
+        # that named only the generation could not say which authority, Work or
+        # participant the retained bytes belong to.
+        held["assignment"] = {
+            "authority_uuid": assignment.get("authority_uuid"),
+            "work_id": assignment.get("work_id"),
+            "participant": assignment.get("participant"),
+            "principal": assignment.get("principal"),
+            "generation": assignment.get("generation"),
+            "effective_scope": assignment.get("effective_scope")}
+        held["generation"] = assignment.get("generation")
+        if base is None:
+            faults.append("this deployment's declared base is unreadable, so "
+                          "the candidate's target cannot be confirmed")
+        elif claim["base"] != base:
+            faults.append(f"the candidate is built on {claim['base']} and "
+                          f"this deployment's canonical target is {base}")
+        if claim["head"] == claim["base"]:
+            faults.append("the candidate's head is its base, so it holds no "
+                          "change")
+        if faults:
+            refused("; ".join(faults))
+            continue
+        # CUSTODY, AT THE SUPPORTED BOUNDARY. Review P1: everything above is
+        # two stored descriptions agreeing. This reads the retained line the
+        # manager named and the commit object in it, so a candidate whose
+        # bytes are gone, damaged or substituted cannot be called `valid`.
+        # OUTSIDE ANY STORE TRANSACTION, which is why it is here and not
+        # folded into a read boundary.
+        try:
+            said = inspect(control, attempt_id=attempt,
+                           generation=assignment.get("generation"),
+                           head=claim["head"], base=claim["base"])
+        except (ContractRefusal, SupervisorRefusal, KeyError, OSError,
+                TypeError, ValueError) as why:
+            unreadable(f"the retained candidate's own line did not answer for "
+                       f"head {claim['head']}, so its bytes could not be "
+                       f"established: {type(why).__name__}: {why}")
+            continue
+        held["attribution"] = said
+        custody = []
+        if said.get("head") != claim["head"]:
+            custody.append(f"the retained line answers head "
+                           f"{said.get('head')!r} where the sealed claim says "
+                           f"{claim['head']!r}")
+        if said.get("parents") != [claim["base"]]:
+            custody.append(f"the retained commit's parents are "
+                           f"{said.get('parents')} rather than exactly its "
+                           f"declared base {claim['base']}")
+        if said.get("author") != said.get("committer"):
+            custody.append(f"the retained commit is authored by "
+                           f"{said.get('author')!r} and committed by "
+                           f"{said.get('committer')!r}")
+        if said.get("author") != f"{COMMIT_NAME} <{COMMIT_EMAIL}>":
+            custody.append(f"the retained commit is attributed to "
+                           f"{said.get('author')!r} rather than to the worker "
+                           f"adapter {COMMIT_NAME} <{COMMIT_EMAIL}>")
+        if custody:
+            refused("; ".join(custody))
+            continue
+        # AND THE RETAINED ARTIFACT'S OWN BYTES, which is review
+        # 2026-10-18T10-07-00Z. The commit object above establishes WHO WROTE
+        # the history the claim names; it says nothing at all about the
+        # artifact the manager is holding, and reading a commit header alone
+        # is what let a candidate whose retained bytes were gone, damaged or
+        # replaced still be called `valid`. This re-MEASURES the tree the
+        # locator names through its own owner and holds it to the declared
+        # manifest and digest. OUTSIDE EVERY STORE TRANSACTION, by
+        # construction: the last store read closed above.
+        state, why = measure(reference, sealed.get("content_manifest"))
+        if state == CANDIDATE_UNREADABLE:
+            unreadable(why)
+            continue
+        if state == CANDIDATE_REFUSED:
+            refused(why)
+            continue
+        held.update(state=CANDIDATE_VALID, why=None)
+        found.append(dict(held))
+        # NOT A SHORTFALL. A retained candidate from a failed turn is the
+        # useful fact this Work exists to report, and reporting it as a
+        # deficiency would be the same mistake in the other direction.
+    return found
+
+
+def _candidate_verification(sealed, *, claim=None, task=None):
+    """What the TURN's own verification command did, from the PRODUCER's shape.
+
+    W321528 review 2026-10-18T08-39-00Z P2. THE FIRST READER LOOKED IN THE
+    WRONG PLACE FOR THE WRONG KEY. It read manifest-level `result_metadata` and
+    an `outcome` member; `claude_agent` puts its ordinary-test observation on
+    the PROPOSAL OUTPUT beside the claim, and `_ordinary_tests` emits
+    `task_id`, `task_digest`, `argv`, `status`, `base` and `head` -- with
+    `status` an INTEGER or `None`, and no `outcome` anywhere. So a real
+    producer's passing turn read as `unreported`, and the unit tests invented
+    an outcome-bearing shape and passed while missing the integration.
+
+    THE FOUR HONEST ANSWERS, and the third is the one that matters most:
+
+      an integer 0 is `passed`; a nonzero integer is `failed`.
+
+      an explicit `status: None` is `no-status` AND NOT `not-run`. The producer
+      says so itself: a skipped command, a timeout and a failed start all emit
+      `None`, and "all three are 'this command did not produce a status'".
+      Calling that `not-run` would be inventing proof of whichever of the three
+      sounds most harmless.
+
+      a missing, malformed or UNASSOCIATED observation is `unreported` -- this
+      program declining to read something it cannot validate.
+
+    AND THE ASSOCIATION IS NOW EXACT, which is the defect the latest review
+    left open. The first correction compared `base` and `head`, and asked
+    about `task_id` only `if packet is not None` and only `not in (None,
+    wanted)` -- so an observation carrying NO `task_id` at all passed, and
+    `task_digest` and `argv` were never looked at by anything. Those three are
+    the whole of what binds an observation to a RUN of a command: the digest
+    names the exact task bytes the turn consumed and the argv names what it
+    executed, and an observation that agrees about neither is an account of
+    some other command whose exit status this program would be republishing as
+    this candidate's.
+
+    So all five are required and every one is compared by equality against the
+    task `_bound_task` derived from the deployment's own configured producer
+    document -- never against anything the worker reported. A missing,
+    malformed or mismatched member is `unreported`, and so is an unresolved
+    task: an observation this program cannot bind is one it may not read.
+
+    NONE of these five answers is a formal verification of the candidate by
+    anybody: this run performs none and invents none.
+    """
+    if not isinstance(sealed, dict):
+        return VERIFICATION_UNREPORTED
+    observed = (sealed.get("result_metadata") or {}).get(
+        ORDINARY_TESTS_NAMESPACE)
+    # THE PRODUCER'S CLOSED SET, BY EQUALITY. `status` present is not enough:
+    # the shape this reads is one specific producer's, and a document missing
+    # a member it binds by -- or carrying one this program does not know --
+    # is not that producer's document.
+    if not isinstance(observed, dict) \
+            or sorted(observed) != sorted(ORDINARY_TESTS_MEMBERS):
+        return VERIFICATION_UNREPORTED
+    # THE CANDIDATE. An observation of another base or head is an observation
+    # of something else, and an absent claim is nothing to associate it with.
+    if not isinstance(claim, dict):
+        return VERIFICATION_UNREPORTED
+    for name in ("base", "head"):
+        if observed[name] != claim.get(name):
+            return VERIFICATION_UNREPORTED
+    # AND THE TASK THE TURN WAS ACTUALLY BOUND TO, all three members exactly.
+    if not isinstance(task, dict):
+        return VERIFICATION_UNREPORTED
+    for name in ("task_id", "task_digest", "argv"):
+        if observed[name] != task.get(name):
+            return VERIFICATION_UNREPORTED
+    status = observed["status"]
+    if status is None:
+        return VERIFICATION_NO_STATUS
+    # `bool` IS NOT A STATUS even though Python says it is an `int`. The
+    # producer is explicit that "a `True` verification status is a claim
+    # nobody measured", and `type(...) is not int` is what keeps one out.
+    if type(status) is not int:
+        return VERIFICATION_UNREPORTED
+    return VERIFICATION_PASSED if status == 0 else VERIFICATION_FAILED
+
+
+def _bound_task(packet):
+    """The task inputs this deployment BOUND the implementation turn to.
+
+    W321528. DERIVED FROM CONFIGURED MATERIAL, NEVER FROM WHAT THE WORKER
+    REPORTED, which is the same rule `stage_execution.required_tests` is
+    written under and the reason this reads the deployment's own producer
+    document rather than taking the three members off the observation it
+    exists to check. An expectation copied out of the thing being checked
+    agrees with it by construction.
+
+    THE SAME THREE MEMBERS THAT OWNER DERIVES, from the same place: the one
+    worker this deployment configures for the implementation role, its
+    configured `task_document`, and the task's own `task_id` and
+    `verification`. The digest is taken over the EXACT BYTES on disk, because
+    that is what the deployment delivers verbatim and what the worker digests
+    at the other end -- a re-serialization of the parsed object would be a
+    different document with the same meaning, which is precisely what a digest
+    is for refusing.
+
+    BOUNDED BY THE CONSUMER'S CEILING. `claude_agent._read_task` reads at most
+    `MAX_TASK_BYTES`, so a document wider than that is not the document any
+    turn consumed and is refused here rather than silently truncated into an
+    expectation nothing will ever match.
+
+    THE CONFIGURATION IS ALREADY PINNED. `held_packet` hashes `config_path`
+    before anything opens, so the file this re-reads is the reviewed one. The
+    task document itself is not pinned by the packet, which is why this
+    refuses rather than guesses when it cannot be read: `_candidates` turns
+    that refusal into `unreported`, never into a verification.
+    """
+    import hashlib
+
+    with open(packet["deployment"]["config_path"], "rb") as handle:
+        configuration = json.loads(handle.read().decode("utf-8"))
+    workers = configuration.get("workers")
+    if type(workers) is not list:
+        _refuse("the deployment configuration names no workers, so there is "
+                "no bound implementation task to read an observation against")
+    named = [one for one in workers
+             if type(one) is dict and one.get("role") == IMPLEMENTATION_ROLE]
+    if len(named) != 1:
+        _refuse(f"this deployment configures {len(named)} "
+                f"{IMPLEMENTATION_ROLE!r} workers; the bound task is derived "
+                f"from exactly one producer's configured document")
+    place = (named[0].get("deployment") or {}).get("task_document")
+    if type(place) is not str or not place:
+        _refuse("the configured implementation worker names no task document")
+    with open(place, "rb") as handle:
+        raw = handle.read(MAX_TASK_BYTES + 1)
+    if len(raw) > MAX_TASK_BYTES:
+        _refuse(f"the configured task document is wider than the "
+                f"{MAX_TASK_BYTES}-byte ceiling the workload reads, so it is "
+                f"not the document any turn consumed")
+    document = json.loads(raw.decode("utf-8"))
+    if type(document) is not dict:
+        _refuse("the configured task document is one JSON object")
+    identity = document.get("task_id")
+    argv = document.get("verification")
+    if type(identity) is not str or not identity:
+        _refuse("the configured task document carries no task identity")
+    if type(argv) is not list or not argv \
+            or any(type(one) is not str or not one for one in argv):
+        _refuse("the configured task document names no verification command; "
+                "an observation cannot be bound to a command nobody declared")
+    return {"task_id": identity,
+            "task_digest": "sha256:" + hashlib.sha256(raw).hexdigest(),
+            "argv": list(argv)}
+
+
+def _artifact_place(locator):
+    """The host directory a retained artifact's locator names, or a refusal.
+
+    THE GRAMMAR IS THE CONTRACT'S, not this program's. `check_uri` is the one
+    owner of what a durable locator may be, and a locator it refuses is not a
+    path this program resolves -- which matters because the only thing done
+    with the answer is opening a directory and reading every file under it.
+
+    `file://` AND NOTHING ELSE. A locator naming a host, a scheme or an opaque
+    form is evidence about bytes this process cannot measure, and reporting a
+    measurement it did not make is the whole class of error this Work closes.
+    """
+    from baton_v12.contracts import ContractRefusal, check_uri
+    from urllib.parse import unquote
+
+    try:
+        check_uri(locator, what="the retained candidate's locator")
+    except ContractRefusal as why:
+        return None, (f"the retained candidate's locator is not one this "
+                      f"contract admits: {type(why).__name__}: {why}")
+    scheme, _separator, rest = locator.partition("://")
+    if scheme != "file":
+        return None, (f"the retained candidate's locator names the "
+                      f"{scheme!r} scheme; this program measures only bytes "
+                      f"held in this filesystem")
+    place = unquote(rest)
+    if not os.path.isabs(place) or os.path.normpath(place) != place:
+        return None, (f"the retained candidate's locator resolves to "
+                      f"{place!r}, which is not one absolute canonical "
+                      f"directory")
+    return place, None
+
+
+def _retained_bytes(reference, declared):
+    """RE-MEASURE the retained artifact and hold it to what the seal declares.
+
+    W321528 review 2026-10-18T10-07-00Z. EVERY CHECK BEFORE THIS ONE IS ABOUT
+    DESCRIPTIONS. The sealed reference and the manager's indexed row are two
+    stored accounts of one artifact; the commit object `line_attribution`
+    reads is a header in a REPOSITORY, which is not the artifact and whose
+    objects are not its bytes. An artifact that was never written, was
+    truncated, had one byte changed or was swapped for a different tree
+    satisfies all of them. So this opens the tree the locator names and
+    measures it.
+
+    THROUGH ITS OWN OWNER, in both directions:
+
+      `check_content_manifest` holds the DECLARED manifest to §12 rule 6 --
+      sorted unique entries, aggregates that add up, a tree digest that
+      recomputes -- before it is used as an expectation. A declaration that
+      does not describe itself correctly cannot convict or acquit anything.
+
+      `workspaces.directory_manifest` performs the measurement, no-follow,
+      bounded, entry by entry. A second walker here would be a second opinion
+      about what a tree contains, and this file owns neither that question nor
+      those ceilings.
+
+    THE TWO ANSWERS IT GIVES BACK, and they are not degrees of one:
+
+      `refused` -- the measurement ANSWERED and disagrees, or the declaration
+      is malformed, or the locator names nothing. Something definite is wrong
+      and an operator should be told loudly.
+
+      `unreadable` -- the measurement DID NOT ANSWER: the tree, or an
+      ancestor on the way to it, could not be looked at or walked by this
+      process. Never reported as absence.
+
+    AND THE LOOKUP THAT CHOOSES BETWEEN THEM KEEPS ITS ERRNO. A boolean that
+    swallows OSError cannot tell "there is nothing there" from "this process
+    may not look", so there is none between the locator and the two answers
+    above; see the W325711 note at the `os.stat` below.
+
+    NO STORE TRANSACTION IS OPEN HERE, by construction: `_candidates` closes
+    its last store read before calling this, and this touches no store at all.
+    """
+    from baton_v12.contracts import ContractRefusal, check_content_manifest
+    from baton_v12.worker_manager import workspaces
+
+    if not isinstance(declared, dict):
+        return (CANDIDATE_REFUSED,
+                "the sealed candidate declares no content manifest, so its "
+                "retained bytes have nothing to be measured against")
+    try:
+        held = check_content_manifest(
+            declared, what="the sealed candidate's content manifest")
+    except ContractRefusal as why:
+        return (CANDIDATE_REFUSED,
+                f"the sealed candidate's content manifest is not one its own "
+                f"contract admits: {type(why).__name__}: {why}")
+    # THE SEAL'S TWO HALVES FIRST. The artifact reference restates the
+    # manifest's digest and width, and a seal that disagrees with itself is
+    # refused before any tree is opened -- there is no measurement that could
+    # settle which of its own two numbers it meant.
+    faults = []
+    if reference.get("content_digest") != held["tree_digest"]:
+        faults.append(f"the sealed reference names content digest "
+                      f"{reference.get('content_digest')!r} and its own "
+                      f"content manifest measures to {held['tree_digest']!r}")
+    if reference.get("bytes") != held["total_bytes"]:
+        faults.append(f"the sealed reference names {reference.get('bytes')!r} "
+                      f"bytes and its own content manifest totals "
+                      f"{held['total_bytes']!r}")
+    if faults:
+        return (CANDIDATE_REFUSED, "; ".join(faults))
+    place, why = _artifact_place(reference.get("locator"))
+    if place is None:
+        return (CANDIDATE_REFUSED, why)
+    # MISSING IS AN ANSWER AND IT IS A LOUD ONE -- WHEN THE FILESYSTEM
+    # ACTUALLY GAVE IT. The seal declares retained bytes and there is nothing
+    # at the locator: that is two accounts disagreeing, not a read that
+    # failed, and calling it `unreadable` would soften the one finding an
+    # operator most needs.
+    #
+    # W325711 review: `os.path.isdir` MAY NOT BE WHAT DECIDES THAT. It
+    # answers one boolean over `os.stat` and SWALLOWS EVERY OSError getting
+    # it, so "nothing is there" and "this process may not look at what is
+    # there" both come back `False`. An artifact whose own directory was
+    # intact under an ancestor that denied traversal was therefore reported
+    # as bytes that "are not where it says they are" -- a false absence
+    # claim, manufactured one line above the `except` clauses that exist to
+    # prevent exactly it, and the same conflation this whole Work closes.
+    #
+    # So the stat is taken directly and its errno is kept:
+    #
+    #   ENOENT, and ENOTDIR for a component above -- the filesystem ANSWERED
+    #   and nothing of that shape is at the locator. Refused, loudly.
+    #
+    #   EACCES, EPERM, ELOOP, EIO, anything else -- the lookup DID NOT
+    #   ANSWER. Unreadable, never absence, even though no byte was reached:
+    #   "could not look" is not "looked and found nothing".
+    try:
+        found = os.stat(place)
+    except FileNotFoundError:
+        return (CANDIDATE_REFUSED,
+                f"the sealed candidate's locator names {place!r} and this "
+                f"process finds no retained tree there, so the bytes it "
+                f"declares are not where it says they are")
+    except NotADirectoryError as why:
+        return (CANDIDATE_REFUSED,
+                f"the sealed candidate's locator names {place!r} and a path "
+                f"component above it is not a directory, so there is no "
+                f"retained tree there: {type(why).__name__}: {why}")
+    except PermissionError as why:
+        return (CANDIDATE_UNREADABLE,
+                f"this process may not look at the retained tree at "
+                f"{place!r}: {type(why).__name__}: {why}. Whether the bytes "
+                f"the seal declares are there is UNKNOWN to this run and is "
+                f"NOT reported as their absence; an operator who can read "
+                f"the locator and its ancestors must settle it")
+    except OSError as why:
+        return (CANDIDATE_UNREADABLE,
+                f"the retained tree at {place!r} could not be looked up: "
+                f"{type(why).__name__}: {why}. Whether the bytes the seal "
+                f"declares are there is UNKNOWN to this run and is NOT "
+                f"reported as their absence")
+    if not stat.S_ISDIR(found.st_mode):
+        return (CANDIDATE_REFUSED,
+                f"the sealed candidate's locator names {place!r}, which is "
+                f"not a directory, so there is no retained tree there")
+    try:
+        measured = workspaces.directory_manifest(place)
+    except ContractRefusal as why:
+        return (CANDIDATE_UNREADABLE,
+                f"the retained tree at {place!r} could not be measured: "
+                f"{type(why).__name__}: {why}")
+    except OSError as why:
+        return (CANDIDATE_UNREADABLE,
+                f"the retained tree at {place!r} could not be measured: "
+                f"{type(why).__name__}: {why}")
+    if measured["tree_digest"] == held["tree_digest"]:
+        return (CANDIDATE_VALID, None)
+    return (CANDIDATE_REFUSED,
+            f"the retained tree at {place!r} measures to "
+            f"{measured['tree_digest']} and the seal declares "
+            f"{held['tree_digest']}: {_measured_difference(held, measured)}")
+
+
+def _measured_difference(declared, measured, limit=3):
+    """WHICH FILES DISAGREE, bounded, so a digest mismatch is actionable.
+
+    A tree digest answers "not the same bytes" and nothing else. An operator
+    deciding whether a retained candidate was truncated, edited or replaced
+    wholesale needs the shape of the difference, and three of each kind is
+    enough to tell those three apart without this sentence becoming a report.
+    """
+    held = {one["path"]: one for one in declared["entries"]}
+    found = {one["path"]: one for one in measured["entries"]}
+    gone = sorted(set(held) - set(found))
+    extra = sorted(set(found) - set(held))
+    changed = sorted(one for one in set(held) & set(found)
+                     if held[one]["content_digest"] != found[one]["content_digest"]
+                     or held[one]["bytes"] != found[one]["bytes"])
+    said = []
+    for what, names in (("absent", gone), ("unexpected", extra),
+                        ("changed", changed)):
+        if names:
+            said.append(f"{len(names)} {what} "
+                        f"({', '.join(repr(one) for one in names[:limit])}"
+                        f"{', ...' if len(names) > limit else ''})")
+    return "; ".join(said) if said else "the entries agree and the aggregates do not"
 
 
 def _attributions(control, implementation, proposals, shortfalls, *,

@@ -1,0 +1,305 @@
+--- prior/work/records/2026/09/finding-v12-single-implementation-proof/baseline.py
++++ candidate/work/records/2026/09/finding-v12-single-implementation-proof/baseline.py
+@@ -63,6 +63,7 @@
+ import hashlib
+ import json
+ import os
++import stat
+ import sys
+ import time
+ from datetime import datetime, timezone
+@@ -2476,8 +2477,14 @@
+       is malformed, or the locator names nothing. Something definite is wrong
+       and an operator should be told loudly.
+ 
+-      `unreadable` -- the measurement DID NOT ANSWER: the tree is there and
+-      this process could not walk it. Never reported as absence.
++      `unreadable` -- the measurement DID NOT ANSWER: the tree, or an
++      ancestor on the way to it, could not be looked at or walked by this
++      process. Never reported as absence.
++
++    AND THE LOOKUP THAT CHOOSES BETWEEN THEM KEEPS ITS ERRNO. A boolean that
++    swallows OSError cannot tell "there is nothing there" from "this process
++    may not look", so there is none between the locator and the two answers
++    above; see the W325711 note at the `os.stat` below.
+ 
+     NO STORE TRANSACTION IS OPEN HERE, by construction: `_candidates` closes
+     its last store read before calling this, and this touches no store at all.
+@@ -2514,15 +2521,58 @@
+     place, why = _artifact_place(reference.get("locator"))
+     if place is None:
+         return (CANDIDATE_REFUSED, why)
+-    # MISSING IS AN ANSWER AND IT IS A LOUD ONE. The seal declares retained
+-    # bytes and there is nothing at the locator: that is two accounts
+-    # disagreeing, not a read that failed, and calling it `unreadable` would
+-    # soften the one finding an operator most needs.
+-    if not os.path.isdir(place):
++    # MISSING IS AN ANSWER AND IT IS A LOUD ONE -- WHEN THE FILESYSTEM
++    # ACTUALLY GAVE IT. The seal declares retained bytes and there is nothing
++    # at the locator: that is two accounts disagreeing, not a read that
++    # failed, and calling it `unreadable` would soften the one finding an
++    # operator most needs.
++    #
++    # W325711 review: `os.path.isdir` MAY NOT BE WHAT DECIDES THAT. It
++    # answers one boolean over `os.stat` and SWALLOWS EVERY OSError getting
++    # it, so "nothing is there" and "this process may not look at what is
++    # there" both come back `False`. An artifact whose own directory was
++    # intact under an ancestor that denied traversal was therefore reported
++    # as bytes that "are not where it says they are" -- a false absence
++    # claim, manufactured one line above the `except` clauses that exist to
++    # prevent exactly it, and the same conflation this whole Work closes.
++    #
++    # So the stat is taken directly and its errno is kept:
++    #
++    #   ENOENT, and ENOTDIR for a component above -- the filesystem ANSWERED
++    #   and nothing of that shape is at the locator. Refused, loudly.
++    #
++    #   EACCES, EPERM, ELOOP, EIO, anything else -- the lookup DID NOT
++    #   ANSWER. Unreadable, never absence, even though no byte was reached:
++    #   "could not look" is not "looked and found nothing".
++    try:
++        found = os.stat(place)
++    except FileNotFoundError:
+         return (CANDIDATE_REFUSED,
+                 f"the sealed candidate's locator names {place!r} and this "
+                 f"process finds no retained tree there, so the bytes it "
+                 f"declares are not where it says they are")
++    except NotADirectoryError as why:
++        return (CANDIDATE_REFUSED,
++                f"the sealed candidate's locator names {place!r} and a path "
++                f"component above it is not a directory, so there is no "
++                f"retained tree there: {type(why).__name__}: {why}")
++    except PermissionError as why:
++        return (CANDIDATE_UNREADABLE,
++                f"this process may not look at the retained tree at "
++                f"{place!r}: {type(why).__name__}: {why}. Whether the bytes "
++                f"the seal declares are there is UNKNOWN to this run and is "
++                f"NOT reported as their absence; an operator who can read "
++                f"the locator and its ancestors must settle it")
++    except OSError as why:
++        return (CANDIDATE_UNREADABLE,
++                f"the retained tree at {place!r} could not be looked up: "
++                f"{type(why).__name__}: {why}. Whether the bytes the seal "
++                f"declares are there is UNKNOWN to this run and is NOT "
++                f"reported as their absence")
++    if not stat.S_ISDIR(found.st_mode):
++        return (CANDIDATE_REFUSED,
++                f"the sealed candidate's locator names {place!r}, which is "
++                f"not a directory, so there is no retained tree there")
+     try:
+         measured = workspaces.directory_manifest(place)
+     except ContractRefusal as why:
+--- prior/work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py
++++ candidate/work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py
+@@ -46,10 +46,12 @@
+ the retained bytes.
+ """
+ 
++import errno
+ import hashlib
+ import json
+ import os
+ import shutil
++import stat
+ import sys
+ import tempfile
+ import unittest
+@@ -329,6 +331,40 @@
+         self.assertEqual(found[0]["attempt_id"], ATTEMPT)
+         return found[0]
+ 
++    def denied(self, place, probe):
++        """REALLY deny this process `place`, with the mode restored after.
++
++        W325711 review. The conflation being closed is between an errno and
++        an absence, so it cannot be driven by a double that raises
++        `PermissionError`: that would be this file asserting that the
++        collector classifies whatever this file decided to raise. The mode
++        bits are changed on a real directory in a real temporary tree and the
++        real kernel refuses the real syscall.
++
++        AND THE REFUSAL IS PROVED TO HAVE HAPPENED. A process that traverses
++        a `0o000` directory anyway -- uid 0, CAP_DAC_OVERRIDE, some mounts --
++        would run every assertion below over a read that was never denied,
++        which is a green test about nothing. `probe` is the syscall the
++        collector will itself reach, and a bypass SKIPS: a privilege that
++        defeats the setup is not evidence that the code under it is right.
++        The source-level case in this class holds while that skip is taken.
++
++        The restore is registered BEFORE the chmod could fail a case, so a
++        failing assertion still leaves a tree `shutil.rmtree` can remove.
++        """
++        held = stat.S_IMODE(os.stat(place).st_mode)
++        self.addCleanup(os.chmod, place, held)
++        os.chmod(place, 0o000)
++        try:
++            probe()
++        except PermissionError as why:
++            self.assertEqual(why.errno, errno.EACCES, why)
++            return
++        raise unittest.SkipTest(
++            f"this process reads {place!r} at mode 0o000, so a real "
++            f"permission denial cannot be staged here and the behaviour "
++            f"under one cannot be observed; it is NOT thereby proved")
++
+     def refused_why(self):
+         held = self.one()
+         self.assertEqual(held["state"], baseline.CANDIDATE_REFUSED, held)
+@@ -832,9 +868,15 @@
+ 
+     def test_UNREADABLE_bytes_are_unreadable_and_NEVER_absence(self):
+         """The tree is there and this process cannot walk it. Conflating that
+-        with absence is the exact error this Work exists to close."""
+-        os.chmod(self.place, 0o000)
+-        self.addCleanup(os.chmod, self.place, 0o755)
++        with absence is the exact error this Work exists to close.
++
++        W325711 review: the denial is staged through `denied`, which PROVES
++        the kernel refused this process before anything below is asserted. It
++        previously chmod'd and read on, so a privileged run would have passed
++        it over a walk that succeeded -- and restored mode `0o755` rather
++        than the mode the directory actually had.
++        """
++        self.denied(self.place, lambda: os.listdir(self.place))
+         self.assertIn("could not be measured", self.unreadable_why())
+ 
+     def test_a_seal_DECLARING_NO_MANIFEST_has_nothing_to_be_measured(self):
+@@ -963,6 +1005,138 @@
+         self.frozen = TypeError("row shape")
+         self.assertEqual(self.unreadable()["acceptance"],
+                          baseline.ACCEPTANCE_UNOBSERVED)
++
++
++class ADeniedLOOKUPIsUnreadableAndNotAFalseAbsence(Collector):
++    """W325711 review, over the REAL filesystem: the defect one line earlier.
++
++    `AnUnreadableReadIsNeverReportedAsAbsence` above drives the store reads
++    that do not answer, and `RetainedBYTESAreMeasuredNotDescribed` drives a
++    MEASUREMENT that does not answer. Between them sat the lookup that decides
++    whether there is anything to measure at all, and it was
++    `os.path.isdir(place)` -- one boolean over `os.stat` that swallows every
++    OSError on the way to it.
++
++    So a retained tree that was perfectly intact under an ancestor directory
++    this process could not traverse was reported as
++
++        "this process finds no retained tree there, so the bytes it declares
++        are not where it says they are"
++
++    which is the false absence claim this entire Work exists to close, stated
++    by the very function that closes it, with a seal and a custody line that
++    both agreed the bytes were written. An operator reading that sentence
++    would go looking for a worker that lost its candidate instead of for the
++    mode bits on one directory.
++
++    These stage the denial with real `chmod` on real directories and real
++    files, PROVE the kernel refused this process (`Collector.denied`), and
++    hold the three decisions apart: a lookup that was denied is `unreadable`,
++    a lookup that ANSWERED "nothing is there" stays `refused`, and neither
++    sentence is allowed to borrow the other's words.
++    """
++
++    def ancestor(self):
++        """The custody directory ABOVE the artifact: `.../custody/<attempt>`.
++
++        Denying this leaves the artifact itself untouched -- its bytes, its
++        mode and its digest are exactly what the seal declares -- so the only
++        thing wrong is this process's path to it. That is the case the
++        boolean could not express.
++        """
++        return os.path.dirname(self.place)
++
++    def test_an_inaccessible_ANCESTOR_is_unreadable_and_never_absence(self):
++        self.denied(self.ancestor(), lambda: os.stat(self.place))
++        said = self.unreadable_why()
++        self.assertIn(self.place, said)
++        self.assertIn("may not look", said)
++        self.assertIn("UNKNOWN", said)
++        # AND NOT IN THE WORDS OF THE FINDING IT IS NOT. These are the two
++        # sentences the review found false; neither may appear for a read
++        # that never happened.
++        self.assertNotIn("no retained tree there", said)
++        self.assertNotIn("not where it says they are", said)
++
++    def test_the_denied_record_still_carries_what_an_OPERATOR_acts_on(self):
++        """`unreadable` is a finding to be chased, so the record keeps the
++        locator to chase, the custody that says whose bytes they would be,
++        and the assignment that says which attempt retained them."""
++        self.denied(self.ancestor(), lambda: os.stat(self.place))
++        held = self.one()
++        self.assertEqual(held["state"], baseline.CANDIDATE_UNREADABLE, held)
++        self.assertEqual(held["locator"], f"file://{self.place}")
++        self.assertEqual(held["head"], HEAD)
++        self.assertEqual(held["base"], BASE)
++        self.assertEqual(held["transport"], TRANSPORT)
++        self.assertEqual(held["attribution"], self.custody)
++        self.assertEqual(held["assignment"]["generation"], 1)
++        self.assertEqual(held["assignment"]["participant"], "baton.impl")
++        # AND IT CLAIMS NOTHING IT DID NOT SEE. No verification was reported
++        # and no acceptance was observed; an unreadable candidate is not an
++        # accepted one, and bytes nobody could read are not a passing turn.
++        self.assertEqual(held["verification"], "unreported")
++        self.assertEqual(held["acceptance"], baseline.ACCEPTANCE_UNOBSERVED)
++
++    def test_an_unreadable_FILE_in_the_tree_is_not_reported_as_DAMAGE(self):
++        """The lookup and the walk both answer and one file will not open.
++
++        The seal still describes bytes that may be exactly right, so this is
++        neither absence nor the "1 changed" finding that `_measured_difference`
++        reports for bytes that were actually seen to differ.
++        """
++        held = os.path.join(self.place, "result.json")
++        self.denied(held, lambda: open(held, "rb"))
++        said = self.unreadable_why()
++        self.assertIn("could not be measured", said)
++        self.assertNotIn("changed", said)
++        self.assertNotIn("no retained tree there", said)
++
++    def test_a_MISSING_ancestor_is_still_the_loud_absence_it_was(self):
++        """The correction may not buy its honesty by softening the finding an
++        operator most needs: ENOENT through a parent that is gone is the
++        filesystem ANSWERING, and it stays `refused`."""
++        shutil.rmtree(self.ancestor())
++        said = self.refused_why()
++        self.assertIn("no retained tree there", said)
++        self.assertIn("not where it says they are", said)
++
++    def test_a_NON_DIRECTORY_component_above_the_locator_is_refused(self):
++        """ENOTDIR is an answer too, and a different one from both: there is
++        a file where a directory would have to be."""
++        place = os.path.join(self.home, "proposal.bundle")
++        self.wrote(place, "PACK\x00\n")
++        self.restated(locator=f"file://{place}/proposal")
++        said = self.refused_why()
++        self.assertIn("is not a directory", said)
++        self.assertIn("no retained tree there", said)
++
++    def test_the_decision_is_NOT_a_BOOLEAN_THAT_SWALLOWS_the_errno(self):
++        """The one case here that still holds when a privileged run skips the
++        rest.
++
++        `Collector.denied` skips where mode bits do not deny this process,
++        and a regression that reinstated the boolean would then be observed
++        by nothing at all. `os.path.isdir` cannot tell apart the two findings
++        this function's own docstring promises are different, so its absence
++        is the invariant.
++
++        ASSERTED OVER THE COMPILED NAMES rather than the source text, because
++        the source text NAMES it -- the comment above the lookup exists to
++        say why it is not used, and a test that forbade the word would forbid
++        the explanation with it.
++        """
++        import inspect
++
++        names = baseline._retained_bytes.__code__.co_names
++        self.assertNotIn("isdir", names)
++        self.assertIn("stat", names)
++        self.assertIn("S_ISDIR", names)
++        # And the errno-bearing clauses, each resolving to the answer it owns.
++        said = inspect.getsource(baseline._retained_bytes)
++        for clause in ("except FileNotFoundError", "except NotADirectoryError",
++                       "except PermissionError", "except OSError"):
++            self.assertIn(clause, said)
+ 
+ 
+ class EveryRecordCarriesTheSameMEMBERS(Collector):

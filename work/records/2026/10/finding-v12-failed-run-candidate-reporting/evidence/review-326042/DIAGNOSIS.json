@@ -1,0 +1,79 @@
+{
+  "run": "failed-reporting-w321528-325711",
+  "job": "job-failed-reporting-w321528-325711",
+  "attempt": "attempt-2eb739ae3f67309fb951ab5a014ad1a76ec98ab69a34188c177611fac555c2f5",
+  "runtime": "2356a9642c1788b5c1b4073e9e6ee0cb9285cb7d74aa97e6642bf27e9dafcf20",
+  "independent_runtime_inspect": "no such object",
+  "served_seconds": 1379.2615361560001,
+  "result": {
+    "base": "9debba188716d75ee7d6771b1781f037f79fd65c",
+    "changed_paths": [],
+    "collection": null,
+    "disposition": "provider-failed",
+    "entry_head": "9debba188716d75ee7d6771b1781f037f79fd65c",
+    "head": null,
+    "provider": {
+      "diagnostic": {
+        "classification": "unknown",
+        "explanation": null,
+        "explanation_status": "withheld",
+        "http_status": null,
+        "request_id": null,
+        "request_id_status": "unavailable",
+        "schema": "baton.provider-diagnostic/1"
+      },
+      "failure_reason": "api-error",
+      "seconds_bound": 3600,
+      "status": 1
+    },
+    "schema": "baton.dogfood-proposal/2",
+    "task_id": "failed-reporting-w321528-325711",
+    "verification": null,
+    "why": "the provider exited 1 (api-error); its own unrestricted diagnostic is withheld; supported nonsecret detail is in provider.diagnostic"
+  },
+  "native_terminal": {
+    "type": "result",
+    "subtype": "success",
+    "is_error": true,
+    "stop_reason": "refusal",
+    "terminal_reason": "api_error",
+    "num_turns": 11,
+    "duration_ms": 1368016
+  },
+  "provider_reported_reason": "reasoning_extraction refusal; underlying classifier rationale unknown",
+  "checkout_head": "9debba188716d75ee7d6771b1781f037f79fd65c",
+  "git_status": "",
+  "paths": {
+    "v12/python/tests/manager/test_claude_agent.py": {
+      "exists": true,
+      "sha256": "61a6b765e4f5871bd486a3593a00bd50d74ee9b30421761c86092eb244612da9",
+      "matches_prior_retained": false
+    },
+    "v12/worker/claude_agent.py": {
+      "exists": true,
+      "sha256": "18c34ff52faa150237df0c8d0206b805801ee71cb9e7a4ec6e84e4379d7f9d8d",
+      "matches_prior_retained": false
+    },
+    "work/records/2026/09/finding-v12-single-implementation-proof/baseline.py": {
+      "exists": true,
+      "sha256": "248e570d8f9d459550b0aa5e92d1674c3226fe540ba987cae916a4a334606771",
+      "matches_prior_retained": false
+    },
+    "work/records/2026/09/finding-v12-single-implementation-proof/test_baseline.py": {
+      "exists": true,
+      "sha256": "9eca44b81715b83a2771d9ef66934586778a6626055f78a1a2d2c6d6b79409e7",
+      "matches_prior_retained": false
+    },
+    "work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py": {
+      "exists": false,
+      "sha256": null,
+      "matches_prior_retained": false
+    }
+  },
+  "provenance": {
+    "outcome": "3bc5e1610800f59b587f07323eb895c3bc924a8929ea3b8f6c7ccda28c585037",
+    "custody_result": "156375b60e97c04195d5a5ddae6cac3137118909ea59dfc4943bde09f7f5caf6",
+    "provider_stdout": "9ea28967e4381a98fdcdb2e44438a3e3909ecaf2ef00c944ce277c51f3c6674b"
+  },
+  "diagnosis": "Retained native tool results show invalid base64 length, then corrupt zlib stream before any decoded patch bytes. No tracked/untracked checkout progress. Prior0add candidate remains intact; no new candidate or formal verification."
+}

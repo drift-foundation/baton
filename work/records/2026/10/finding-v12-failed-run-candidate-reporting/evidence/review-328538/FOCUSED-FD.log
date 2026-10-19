@@ -1,0 +1,1209 @@
+...................................................................................................................................EEEEEEEEEEEEEEE.EEEEEFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+======================================================================
+ERROR: test_a_candidate_whose_verification_failed_is_not_completed (tests.manager.test_claude_agent.FailureIsHonest.test_a_candidate_whose_verification_failed_is_not_completed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 1853, in test_a_candidate_whose_verification_failed_is_not_completed
+    self.ended(edits={"harness.py": "raise SystemExit(1)\n"},
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               verify=1),
+               ^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 1826, in ended
+    answered = self.worked(**operands)
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 239, in worked
+    return agent.work({"contract": "the frozen task"} if seen is None
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      else seen, list(DECLARED))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 2116, in work
+    environments = self._child_environments(scratch)
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3167, in _child_environments
+    "provider": self._closed_environment(
+                ~~~~~~~~~~~~~~~~~~~~~~~~^
+        home=provider_home, roots=provider_roots, scratch=scratch),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3245, in _closed_environment
+    composed = {"HOME": self._context_home() if self._context_bound() is not None and home == os.path.join(CONTEXT_ROOT, "home") else self._checked_directory(scratch, home),
+                                                                                                                                      ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3223, in _checked_directory
+    raise TaskRefusal(
+        f"the private child root {place} resolves outside scratch "
+        f"to {resolved}")
+claude_agent.TaskRefusal: the private child root /proc/self/fd/3/v12-w39357-5xml_qud/scratch/home resolves outside scratch to /var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/fd-root-h65nkffn/v12-w39357-5xml_qud/scratch/home
+
+======================================================================
+ERROR: test_a_clean_turn_that_changed_nothing_is_not_completed (tests.manager.test_claude_agent.FailureIsHonest.test_a_clean_turn_that_changed_nothing_is_not_completed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 1849, in test_a_clean_turn_that_changed_nothing_is_not_completed
+    self.assertEqual(self.ended(), ("unable", "no-candidate"))
+                     ~~~~~~~~~~^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 1826, in ended
+    answered = self.worked(**operands)
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 239, in worked
+    return agent.work({"contract": "the frozen task"} if seen is None
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      else seen, list(DECLARED))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 2116, in work
+    environments = self._child_environments(scratch)
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3167, in _child_environments
+    "provider": self._closed_environment(
+                ~~~~~~~~~~~~~~~~~~~~~~~~^
+        home=provider_home, roots=provider_roots, scratch=scratch),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3245, in _closed_environment
+    composed = {"HOME": self._context_home() if self._context_bound() is not None and home == os.path.join(CONTEXT_ROOT, "home") else self._checked_directory(scratch, home),
+                                                                                                                                      ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3223, in _checked_directory
+    raise TaskRefusal(
+        f"the private child root {place} resolves outside scratch "
+        f"to {resolved}")
+claude_agent.TaskRefusal: the private child root /proc/self/fd/3/v12-w39357-7iwmq619/scratch/home resolves outside scratch to /var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/fd-root-h65nkffn/v12-w39357-7iwmq619/scratch/home
+
+======================================================================
+ERROR: test_a_failed_turn_still_publishes_the_required_output (tests.manager.test_claude_agent.FailureIsHonest.test_a_failed_turn_still_publishes_the_required_output)
+The declaration says the proposal is required, and the worker
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 1861, in test_a_failed_turn_still_publishes_the_required_output
+    self.worked(status=3)
+    ~~~~~~~~~~~^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 239, in worked
+    return agent.work({"contract": "the frozen task"} if seen is None
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      else seen, list(DECLARED))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 2116, in work
+    environments = self._child_environments(scratch)
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3167, in _child_environments
+    "provider": self._closed_environment(
+                ~~~~~~~~~~~~~~~~~~~~~~~~^
+        home=provider_home, roots=provider_roots, scratch=scratch),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3245, in _closed_environment
+    composed = {"HOME": self._context_home() if self._context_bound() is not None and home == os.path.join(CONTEXT_ROOT, "home") else self._checked_directory(scratch, home),
+                                                                                                                                      ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3223, in _checked_directory
+    raise TaskRefusal(
+        f"the private child root {place} resolves outside scratch "
+        f"to {resolved}")
+claude_agent.TaskRefusal: the private child root /proc/self/fd/3/v12-w39357-9d21jmwx/scratch/home resolves outside scratch to /var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/fd-root-h65nkffn/v12-w39357-9d21jmwx/scratch/home
+
+======================================================================
+ERROR: test_a_failed_verification_reports_the_bound_and_stays_unable (tests.manager.test_claude_agent.FailureIsHonest.test_a_failed_verification_reports_the_bound_and_stays_unable)
+A candidate WAS produced and the turn still failed. Reporting the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 1902, in test_a_failed_verification_reports_the_bound_and_stays_unable
+    answered = self.worked(edits={"harness.py": "raise SystemExit(1)\n"},
+                           verify=1,
+                           seen=self.launched(
+                               seconds=self.SELECTED_SECONDS))
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 239, in worked
+    return agent.work({"contract": "the frozen task"} if seen is None
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      else seen, list(DECLARED))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 2116, in work
+    environments = self._child_environments(scratch)
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3167, in _child_environments
+    "provider": self._closed_environment(
+                ~~~~~~~~~~~~~~~~~~~~~~~~^
+        home=provider_home, roots=provider_roots, scratch=scratch),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3245, in _closed_environment
+    composed = {"HOME": self._context_home() if self._context_bound() is not None and home == os.path.join(CONTEXT_ROOT, "home") else self._checked_directory(scratch, home),
+                                                                                                                                      ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3223, in _checked_directory
+    raise TaskRefusal(
+        f"the private child root {place} resolves outside scratch "
+        f"to {resolved}")
+claude_agent.TaskRefusal: the private child root /proc/self/fd/3/v12-w39357-u_n_r1xg/scratch/home resolves outside scratch to /var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/fd-root-h65nkffn/v12-w39357-u_n_r1xg/scratch/home
+
+======================================================================
+ERROR: test_a_provider_that_did_not_finish_is_not_completed (tests.manager.test_claude_agent.FailureIsHonest.test_a_provider_that_did_not_finish_is_not_completed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 1845, in test_a_provider_that_did_not_finish_is_not_completed
+    self.assertEqual(self.ended(timeout=True),
+                     ~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 1826, in ended
+    answered = self.worked(**operands)
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 239, in worked
+    return agent.work({"contract": "the frozen task"} if seen is None
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      else seen, list(DECLARED))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 2116, in work
+    environments = self._child_environments(scratch)
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3167, in _child_environments
+    "provider": self._closed_environment(
+                ~~~~~~~~~~~~~~~~~~~~~~~~^
+        home=provider_home, roots=provider_roots, scratch=scratch),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3245, in _closed_environment
+    composed = {"HOME": self._context_home() if self._context_bound() is not None and home == os.path.join(CONTEXT_ROOT, "home") else self._checked_directory(scratch, home),
+                                                                                                                                      ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3223, in _checked_directory
+    raise TaskRefusal(
+        f"the private child root {place} resolves outside scratch "
+        f"to {resolved}")
+claude_agent.TaskRefusal: the private child root /proc/self/fd/3/v12-w39357-d4c6vtn0/scratch/home resolves outside scratch to /var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/fd-root-h65nkffn/v12-w39357-d4c6vtn0/scratch/home
+
+======================================================================
+ERROR: test_a_provider_that_exits_nonzero_is_not_completed (tests.manager.test_claude_agent.FailureIsHonest.test_a_provider_that_exits_nonzero_is_not_completed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 1830, in test_a_provider_that_exits_nonzero_is_not_completed
+    self.assertEqual(self.ended(status=3),
+                     ~~~~~~~~~~^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 1826, in ended
+    answered = self.worked(**operands)
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 239, in worked
+    return agent.work({"contract": "the frozen task"} if seen is None
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      else seen, list(DECLARED))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 2116, in work
+    environments = self._child_environments(scratch)
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3167, in _child_environments
+    "provider": self._closed_environment(
+                ~~~~~~~~~~~~~~~~~~~~~~~~^
+        home=provider_home, roots=provider_roots, scratch=scratch),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3245, in _closed_environment
+    composed = {"HOME": self._context_home() if self._context_bound() is not None and home == os.path.join(CONTEXT_ROOT, "home") else self._checked_directory(scratch, home),
+                                                                                                                                      ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3223, in _checked_directory
+    raise TaskRefusal(
+        f"the private child root {place} resolves outside scratch "
+        f"to {resolved}")
+claude_agent.TaskRefusal: the private child root /proc/self/fd/3/v12-w39357-4ud2fbjz/scratch/home resolves outside scratch to /var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/fd-root-h65nkffn/v12-w39357-4ud2fbjz/scratch/home
+
+======================================================================
+ERROR: test_a_provider_that_never_started_is_not_completed (tests.manager.test_claude_agent.FailureIsHonest.test_a_provider_that_never_started_is_not_completed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 1841, in test_a_provider_that_never_started_is_not_completed
+    self.assertEqual(self.ended(missing=True),
+                     ~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 1826, in ended
+    answered = self.worked(**operands)
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 239, in worked
+    return agent.work({"contract": "the frozen task"} if seen is None
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      else seen, list(DECLARED))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 2116, in work
+    environments = self._child_environments(scratch)
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3167, in _child_environments
+    "provider": self._closed_environment(
+                ~~~~~~~~~~~~~~~~~~~~~~~~^
+        home=provider_home, roots=provider_roots, scratch=scratch),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3245, in _closed_environment
+    composed = {"HOME": self._context_home() if self._context_bound() is not None and home == os.path.join(CONTEXT_ROOT, "home") else self._checked_directory(scratch, home),
+                                                                                                                                      ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3223, in _checked_directory
+    raise TaskRefusal(
+        f"the private child root {place} resolves outside scratch "
+        f"to {resolved}")
+claude_agent.TaskRefusal: the private child root /proc/self/fd/3/v12-w39357-xbv1ytmc/scratch/home resolves outside scratch to /var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/fd-root-h65nkffn/v12-w39357-xbv1ytmc/scratch/home
+
+======================================================================
+ERROR: test_a_provider_that_never_started_still_reports_its_bound (tests.manager.test_claude_agent.FailureIsHonest.test_a_provider_that_never_started_still_reports_its_bound)
+A turn with no child at all still ran under a ceiling, and the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 1890, in test_a_provider_that_never_started_still_reports_its_bound
+    self.worked(missing=True,
+    ~~~~~~~~~~~^^^^^^^^^^^^^^
+                seen=self.launched(seconds=self.SELECTED_SECONDS))
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 239, in worked
+    return agent.work({"contract": "the frozen task"} if seen is None
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      else seen, list(DECLARED))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 2116, in work
+    environments = self._child_environments(scratch)
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3167, in _child_environments
+    "provider": self._closed_environment(
+                ~~~~~~~~~~~~~~~~~~~~~~~~^
+        home=provider_home, roots=provider_roots, scratch=scratch),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3245, in _closed_environment
+    composed = {"HOME": self._context_home() if self._context_bound() is not None and home == os.path.join(CONTEXT_ROOT, "home") else self._checked_directory(scratch, home),
+                                                                                                                                      ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3223, in _checked_directory
+    raise TaskRefusal(
+        f"the private child root {place} resolves outside scratch "
+        f"to {resolved}")
+claude_agent.TaskRefusal: the private child root /proc/self/fd/3/v12-w39357-nnktt0yr/scratch/home resolves outside scratch to /var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/fd-root-h65nkffn/v12-w39357-nnktt0yr/scratch/home
+
+======================================================================
+ERROR: test_a_timed_out_turn_names_one_bound_in_its_sentence_and_record (tests.manager.test_claude_agent.FailureIsHonest.test_a_timed_out_turn_names_one_bound_in_its_sentence_and_record)
+What the two historic sealed results got wrong, reproduced in the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 1872, in test_a_timed_out_turn_names_one_bound_in_its_sentence_and_record
+    self.worked(timeout=True,
+    ~~~~~~~~~~~^^^^^^^^^^^^^^
+                seen=self.launched(seconds=self.SELECTED_SECONDS))
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 239, in worked
+    return agent.work({"contract": "the frozen task"} if seen is None
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      else seen, list(DECLARED))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 2116, in work
+    environments = self._child_environments(scratch)
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3167, in _child_environments
+    "provider": self._closed_environment(
+                ~~~~~~~~~~~~~~~~~~~~~~~~^
+        home=provider_home, roots=provider_roots, scratch=scratch),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3245, in _closed_environment
+    composed = {"HOME": self._context_home() if self._context_bound() is not None and home == os.path.join(CONTEXT_ROOT, "home") else self._checked_directory(scratch, home),
+                                                                                                                                      ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3223, in _checked_directory
+    raise TaskRefusal(
+        f"the private child root {place} resolves outside scratch "
+        f"to {resolved}")
+claude_agent.TaskRefusal: the private child root /proc/self/fd/3/v12-w39357-mopx7aqn/scratch/home resolves outside scratch to /var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/fd-root-h65nkffn/v12-w39357-mopx7aqn/scratch/home
+
+======================================================================
+ERROR: test_the_verification_is_not_run_when_there_is_no_candidate (tests.manager.test_claude_agent.FailureIsHonest.test_the_verification_is_not_run_when_there_is_no_candidate)
+A verification against an unchanged tree would pass and mean
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 1916, in test_the_verification_is_not_run_when_there_is_no_candidate
+    self.worked()
+    ~~~~~~~~~~~^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 239, in worked
+    return agent.work({"contract": "the frozen task"} if seen is None
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      else seen, list(DECLARED))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 2116, in work
+    environments = self._child_environments(scratch)
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3167, in _child_environments
+    "provider": self._closed_environment(
+                ~~~~~~~~~~~~~~~~~~~~~~~~^
+        home=provider_home, roots=provider_roots, scratch=scratch),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3245, in _closed_environment
+    composed = {"HOME": self._context_home() if self._context_bound() is not None and home == os.path.join(CONTEXT_ROOT, "home") else self._checked_directory(scratch, home),
+                                                                                                                                      ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3223, in _checked_directory
+    raise TaskRefusal(
+        f"the private child root {place} resolves outside scratch "
+        f"to {resolved}")
+claude_agent.TaskRefusal: the private child root /proc/self/fd/3/v12-w39357-zlv741_w/scratch/home resolves outside scratch to /var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/fd-root-h65nkffn/v12-w39357-zlv741_w/scratch/home
+
+======================================================================
+ERROR: test_a_changed_and_verified_candidate_is_completed (tests.manager.test_claude_agent.ThePositiveTurnWritesTheDeclaredProposal.test_a_changed_and_verified_candidate_is_completed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 253, in test_a_changed_and_verified_candidate_is_completed
+    answered = self.worked(edits={"harness.py": "print('now covered')\n"})
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 239, in worked
+    return agent.work({"contract": "the frozen task"} if seen is None
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      else seen, list(DECLARED))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 2116, in work
+    environments = self._child_environments(scratch)
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3167, in _child_environments
+    "provider": self._closed_environment(
+                ~~~~~~~~~~~~~~~~~~~~~~~~^
+        home=provider_home, roots=provider_roots, scratch=scratch),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3245, in _closed_environment
+    composed = {"HOME": self._context_home() if self._context_bound() is not None and home == os.path.join(CONTEXT_ROOT, "home") else self._checked_directory(scratch, home),
+                                                                                                                                      ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3223, in _checked_directory
+    raise TaskRefusal(
+        f"the private child root {place} resolves outside scratch "
+        f"to {resolved}")
+claude_agent.TaskRefusal: the private child root /proc/self/fd/3/v12-w39357-k4garc1e/scratch/home resolves outside scratch to /var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/fd-root-h65nkffn/v12-w39357-k4garc1e/scratch/home
+
+======================================================================
+ERROR: test_a_delivery_naming_no_origin_is_unstated_and_not_a_default (tests.manager.test_claude_agent.ThePositiveTurnWritesTheDeclaredProposal.test_a_delivery_naming_no_origin_is_unstated_and_not_a_default)
+An origin this module does not know is reported as unread rather
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 342, in test_a_delivery_naming_no_origin_is_unstated_and_not_a_default
+    self.worked(edits={"harness.py": "print('now covered')\n"}, seen=seen)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 239, in worked
+    return agent.work({"contract": "the frozen task"} if seen is None
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      else seen, list(DECLARED))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 2116, in work
+    environments = self._child_environments(scratch)
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3167, in _child_environments
+    "provider": self._closed_environment(
+                ~~~~~~~~~~~~~~~~~~~~~~~~^
+        home=provider_home, roots=provider_roots, scratch=scratch),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3245, in _closed_environment
+    composed = {"HOME": self._context_home() if self._context_bound() is not None and home == os.path.join(CONTEXT_ROOT, "home") else self._checked_directory(scratch, home),
+                                                                                                                                      ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3223, in _checked_directory
+    raise TaskRefusal(
+        f"the private child root {place} resolves outside scratch "
+        f"to {resolved}")
+claude_agent.TaskRefusal: the private child root /proc/self/fd/3/v12-w39357-ih43tnyy/scratch/home resolves outside scratch to /var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/fd-root-h65nkffn/v12-w39357-ih43tnyy/scratch/home
+
+======================================================================
+ERROR: test_a_job_that_configured_nothing_is_not_an_operator_choice (tests.manager.test_claude_agent.ThePositiveTurnWritesTheDeclaredProposal.test_a_job_that_configured_nothing_is_not_an_operator_choice)
+The same NUMBER as the no-Job case and a different FACT: this
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 328, in test_a_job_that_configured_nothing_is_not_an_operator_choice
+    self.worked(edits={"harness.py": "print('now covered')\n"},
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                seen=self.launched())
+                ^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 239, in worked
+    return agent.work({"contract": "the frozen task"} if seen is None
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      else seen, list(DECLARED))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 2116, in work
+    environments = self._child_environments(scratch)
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3167, in _child_environments
+    "provider": self._closed_environment(
+                ~~~~~~~~~~~~~~~~~~~~~~~~^
+        home=provider_home, roots=provider_roots, scratch=scratch),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3245, in _closed_environment
+    composed = {"HOME": self._context_home() if self._context_bound() is not None and home == os.path.join(CONTEXT_ROOT, "home") else self._checked_directory(scratch, home),
+                                                                                                                                      ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3223, in _checked_directory
+    raise TaskRefusal(
+        f"the private child root {place} resolves outside scratch "
+        f"to {resolved}")
+claude_agent.TaskRefusal: the private child root /proc/self/fd/3/v12-w39357-h22gyocf/scratch/home resolves outside scratch to /var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/fd-root-h65nkffn/v12-w39357-h22gyocf/scratch/home
+
+======================================================================
+ERROR: test_an_operator_selected_bound_is_what_the_result_publishes (tests.manager.test_claude_agent.ThePositiveTurnWritesTheDeclaredProposal.test_an_operator_selected_bound_is_what_the_result_publishes)
+THE DEFECT, in the directory publisher. The turn ran under the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 315, in test_an_operator_selected_bound_is_what_the_result_publishes
+    self.worked(edits={"harness.py": "print('now covered')\n"},
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                seen=self.launched(seconds=self.SELECTED_SECONDS))
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 239, in worked
+    return agent.work({"contract": "the frozen task"} if seen is None
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      else seen, list(DECLARED))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 2116, in work
+    environments = self._child_environments(scratch)
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3167, in _child_environments
+    "provider": self._closed_environment(
+                ~~~~~~~~~~~~~~~~~~~~~~~~^
+        home=provider_home, roots=provider_roots, scratch=scratch),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3245, in _closed_environment
+    composed = {"HOME": self._context_home() if self._context_bound() is not None and home == os.path.join(CONTEXT_ROOT, "home") else self._checked_directory(scratch, home),
+                                                                                                                                      ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3223, in _checked_directory
+    raise TaskRefusal(
+        f"the private child root {place} resolves outside scratch "
+        f"to {resolved}")
+claude_agent.TaskRefusal: the private child root /proc/self/fd/3/v12-w39357-zd8lf2c1/scratch/home resolves outside scratch to /var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/fd-root-h65nkffn/v12-w39357-zd8lf2c1/scratch/home
+
+======================================================================
+ERROR: test_the_four_declared_members_are_all_written (tests.manager.test_claude_agent.ThePositiveTurnWritesTheDeclaredProposal.test_the_four_declared_members_are_all_written)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 262, in test_the_four_declared_members_are_all_written
+    self.worked(edits={"harness.py": "print('now covered')\n"})
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 239, in worked
+    return agent.work({"contract": "the frozen task"} if seen is None
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      else seen, list(DECLARED))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 2116, in work
+    environments = self._child_environments(scratch)
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3167, in _child_environments
+    "provider": self._closed_environment(
+                ~~~~~~~~~~~~~~~~~~~~~~~~^
+        home=provider_home, roots=provider_roots, scratch=scratch),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3245, in _closed_environment
+    composed = {"HOME": self._context_home() if self._context_bound() is not None and home == os.path.join(CONTEXT_ROOT, "home") else self._checked_directory(scratch, home),
+                                                                                                                                      ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3223, in _checked_directory
+    raise TaskRefusal(
+        f"the private child root {place} resolves outside scratch "
+        f"to {resolved}")
+claude_agent.TaskRefusal: the private child root /proc/self/fd/3/v12-w39357-kskgfoyc/scratch/home resolves outside scratch to /var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/fd-root-h65nkffn/v12-w39357-kskgfoyc/scratch/home
+
+======================================================================
+ERROR: test_the_patch_is_a_unified_diff_of_the_changed_paths (tests.manager.test_claude_agent.ThePositiveTurnWritesTheDeclaredProposal.test_the_patch_is_a_unified_diff_of_the_changed_paths)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 272, in test_the_patch_is_a_unified_diff_of_the_changed_paths
+    self.worked(edits={"harness.py": "print('now covered')\n"})
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 239, in worked
+    return agent.work({"contract": "the frozen task"} if seen is None
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      else seen, list(DECLARED))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 2116, in work
+    environments = self._child_environments(scratch)
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3167, in _child_environments
+    "provider": self._closed_environment(
+                ~~~~~~~~~~~~~~~~~~~~~~~~^
+        home=provider_home, roots=provider_roots, scratch=scratch),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3245, in _closed_environment
+    composed = {"HOME": self._context_home() if self._context_bound() is not None and home == os.path.join(CONTEXT_ROOT, "home") else self._checked_directory(scratch, home),
+                                                                                                                                      ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3223, in _checked_directory
+    raise TaskRefusal(
+        f"the private child root {place} resolves outside scratch "
+        f"to {resolved}")
+claude_agent.TaskRefusal: the private child root /proc/self/fd/3/v12-w39357-p4jts6ld/scratch/home resolves outside scratch to /var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/fd-root-h65nkffn/v12-w39357-p4jts6ld/scratch/home
+
+======================================================================
+ERROR: test_the_reported_bound_is_this_workers_own_default_with_no_job (tests.manager.test_claude_agent.ThePositiveTurnWritesTheDeclaredProposal.test_the_reported_bound_is_this_workers_own_default_with_no_job)
+No Job behind the launch is the ONE case the constant is correct
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 305, in test_the_reported_bound_is_this_workers_own_default_with_no_job
+    self.worked(edits={"harness.py": "print('now covered')\n"})
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 239, in worked
+    return agent.work({"contract": "the frozen task"} if seen is None
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      else seen, list(DECLARED))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 2116, in work
+    environments = self._child_environments(scratch)
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3167, in _child_environments
+    "provider": self._closed_environment(
+                ~~~~~~~~~~~~~~~~~~~~~~~~^
+        home=provider_home, roots=provider_roots, scratch=scratch),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3245, in _closed_environment
+    composed = {"HOME": self._context_home() if self._context_bound() is not None and home == os.path.join(CONTEXT_ROOT, "home") else self._checked_directory(scratch, home),
+                                                                                                                                      ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3223, in _checked_directory
+    raise TaskRefusal(
+        f"the private child root {place} resolves outside scratch "
+        f"to {resolved}")
+claude_agent.TaskRefusal: the private child root /proc/self/fd/3/v12-w39357-ta4_h8ts/scratch/home resolves outside scratch to /var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/fd-root-h65nkffn/v12-w39357-ta4_h8ts/scratch/home
+
+======================================================================
+ERROR: test_the_staged_source_is_never_written (tests.manager.test_claude_agent.ThePositiveTurnWritesTheDeclaredProposal.test_the_staged_source_is_never_written)
+The read-only input is the evidence the result is measured against.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 380, in test_the_staged_source_is_never_written
+    self.worked(edits={"harness.py": "print('now covered')\n"})
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 239, in worked
+    return agent.work({"contract": "the frozen task"} if seen is None
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      else seen, list(DECLARED))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 2116, in work
+    environments = self._child_environments(scratch)
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3167, in _child_environments
+    "provider": self._closed_environment(
+                ~~~~~~~~~~~~~~~~~~~~~~~~^
+        home=provider_home, roots=provider_roots, scratch=scratch),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3245, in _closed_environment
+    composed = {"HOME": self._context_home() if self._context_bound() is not None and home == os.path.join(CONTEXT_ROOT, "home") else self._checked_directory(scratch, home),
+                                                                                                                                      ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3223, in _checked_directory
+    raise TaskRefusal(
+        f"the private child root {place} resolves outside scratch "
+        f"to {resolved}")
+claude_agent.TaskRefusal: the private child root /proc/self/fd/3/v12-w39357-y8_nw8v2/scratch/home resolves outside scratch to /var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/fd-root-h65nkffn/v12-w39357-y8_nw8v2/scratch/home
+
+======================================================================
+ERROR: test_the_verification_transcript_carries_the_command_and_status (tests.manager.test_claude_agent.ThePositiveTurnWritesTheDeclaredProposal.test_the_verification_transcript_carries_the_command_and_status)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 280, in test_the_verification_transcript_carries_the_command_and_status
+    self.worked(edits={"harness.py": "print('now covered')\n"})
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 239, in worked
+    return agent.work({"contract": "the frozen task"} if seen is None
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      else seen, list(DECLARED))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 2116, in work
+    environments = self._child_environments(scratch)
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3167, in _child_environments
+    "provider": self._closed_environment(
+                ~~~~~~~~~~~~~~~~~~~~~~~~^
+        home=provider_home, roots=provider_roots, scratch=scratch),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3245, in _closed_environment
+    composed = {"HOME": self._context_home() if self._context_bound() is not None and home == os.path.join(CONTEXT_ROOT, "home") else self._checked_directory(scratch, home),
+                                                                                                                                      ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3223, in _checked_directory
+    raise TaskRefusal(
+        f"the private child root {place} resolves outside scratch "
+        f"to {resolved}")
+claude_agent.TaskRefusal: the private child root /proc/self/fd/3/v12-w39357-9otti9bg/scratch/home resolves outside scratch to /var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/fd-root-h65nkffn/v12-w39357-9otti9bg/scratch/home
+
+======================================================================
+ERROR: test_the_written_tree_is_group_readable_for_collection (tests.manager.test_claude_agent.ThePositiveTurnWritesTheDeclaredProposal.test_the_written_tree_is_group_readable_for_collection)
+A STATED COOPERATION, not custody.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 294, in test_the_written_tree_is_group_readable_for_collection
+    self.worked(edits={"harness.py": "print('now covered')\n"})
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 239, in worked
+    return agent.work({"contract": "the frozen task"} if seen is None
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      else seen, list(DECLARED))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 2116, in work
+    environments = self._child_environments(scratch)
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3167, in _child_environments
+    "provider": self._closed_environment(
+                ~~~~~~~~~~~~~~~~~~~~~~~~^
+        home=provider_home, roots=provider_roots, scratch=scratch),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3245, in _closed_environment
+    composed = {"HOME": self._context_home() if self._context_bound() is not None and home == os.path.join(CONTEXT_ROOT, "home") else self._checked_directory(scratch, home),
+                                                                                                                                      ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/worker/claude_agent.py", line 3223, in _checked_directory
+    raise TaskRefusal(
+        f"the private child root {place} resolves outside scratch "
+        f"to {resolved}")
+claude_agent.TaskRefusal: the private child root /proc/self/fd/3/v12-w39357-vhlumcmw/scratch/home resolves outside scratch to /var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/fd-root-h65nkffn/v12-w39357-vhlumcmw/scratch/home
+
+======================================================================
+FAIL: test_a_manager_created_result_root_never_enters_the_candidate (tests.manager.test_claude_agent.ThePreparedLineTurnCommitsAndDeclaresItsObjects.test_a_manager_created_result_root_never_enters_the_candidate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2296, in setUp
+    self.git("init", "-q", "-b", "main", at=self.origin)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2356, in git
+    self.assertEqual(answer.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     f"{argv} failed: {answer.stderr}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 128 != 0 : ['git', '-C', '/proc/self/fd/3/v12-w39357-89xp3zma/origin', 'init', '-q', '-b', 'main'] failed: fatal: cannot change to '/proc/self/fd/3/v12-w39357-89xp3zma/origin': No such file or directory
+
+
+======================================================================
+FAIL: test_a_timed_out_line_turn_reports_one_bound_in_both_places (tests.manager.test_claude_agent.ThePreparedLineTurnCommitsAndDeclaresItsObjects.test_a_timed_out_line_turn_reports_one_bound_in_both_places)
+The sentence and the member come from the same resolution now.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2296, in setUp
+    self.git("init", "-q", "-b", "main", at=self.origin)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2356, in git
+    self.assertEqual(answer.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     f"{argv} failed: {answer.stderr}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 128 != 0 : ['git', '-C', '/proc/self/fd/3/v12-w39357-j8d_h7lk/origin', 'init', '-q', '-b', 'main'] failed: fatal: cannot change to '/proc/self/fd/3/v12-w39357-j8d_h7lk/origin': No such file or directory
+
+
+======================================================================
+FAIL: test_every_worker_vector_carries_its_ownership_override (tests.manager.test_claude_agent.ThePreparedLineTurnCommitsAndDeclaresItsObjects.test_every_worker_vector_carries_its_ownership_override)
+The runtime is uid 65532 and the line is the manager's.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2296, in setUp
+    self.git("init", "-q", "-b", "main", at=self.origin)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2356, in git
+    self.assertEqual(answer.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     f"{argv} failed: {answer.stderr}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 128 != 0 : ['git', '-C', '/proc/self/fd/3/v12-w39357-zoxsk8q4/origin', 'init', '-q', '-b', 'main'] failed: fatal: cannot change to '/proc/self/fd/3/v12-w39357-zoxsk8q4/origin': No such file or directory
+
+
+======================================================================
+FAIL: test_no_index_write_reaches_a_hook_either (tests.manager.test_claude_agent.ThePreparedLineTurnCommitsAndDeclaresItsObjects.test_no_index_write_reaches_a_hook_either)
+`post-index-change` runs on an INDEX WRITE, so a commit-only
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2296, in setUp
+    self.git("init", "-q", "-b", "main", at=self.origin)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2356, in git
+    self.assertEqual(answer.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     f"{argv} failed: {answer.stderr}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 128 != 0 : ['git', '-C', '/proc/self/fd/3/v12-w39357-6wecka_k/origin', 'init', '-q', '-b', 'main'] failed: fatal: cannot change to '/proc/self/fd/3/v12-w39357-6wecka_k/origin': No such file or directory
+
+
+======================================================================
+FAIL: test_one_worker_commit_continues_the_admitted_entry_head (tests.manager.test_claude_agent.ThePreparedLineTurnCommitsAndDeclaresItsObjects.test_one_worker_commit_continues_the_admitted_entry_head)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2296, in setUp
+    self.git("init", "-q", "-b", "main", at=self.origin)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2356, in git
+    self.assertEqual(answer.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     f"{argv} failed: {answer.stderr}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 128 != 0 : ['git', '-C', '/proc/self/fd/3/v12-w39357-mf4771f3/origin', 'init', '-q', '-b', 'main'] failed: fatal: cannot change to '/proc/self/fd/3/v12-w39357-mf4771f3/origin': No such file or directory
+
+
+======================================================================
+FAIL: test_the_commit_runs_no_hook_at_all (tests.manager.test_claude_agent.ThePreparedLineTurnCommitsAndDeclaresItsObjects.test_the_commit_runs_no_hook_at_all)
+`--no-verify` would leave `prepare-commit-msg` running, so the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2296, in setUp
+    self.git("init", "-q", "-b", "main", at=self.origin)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2356, in git
+    self.assertEqual(answer.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     f"{argv} failed: {answer.stderr}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 128 != 0 : ['git', '-C', '/proc/self/fd/3/v12-w39357-hmgce3pp/origin', 'init', '-q', '-b', 'main'] failed: fatal: cannot change to '/proc/self/fd/3/v12-w39357-hmgce3pp/origin': No such file or directory
+
+
+======================================================================
+FAIL: test_the_complete_worker_ending_leaves_a_freezable_line (tests.manager.test_claude_agent.ThePreparedLineTurnCommitsAndDeclaresItsObjects.test_the_complete_worker_ending_leaves_a_freezable_line)
+The whole point, and the step a `work`-only proof would miss.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2296, in setUp
+    self.git("init", "-q", "-b", "main", at=self.origin)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2356, in git
+    self.assertEqual(answer.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     f"{argv} failed: {answer.stderr}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 128 != 0 : ['git', '-C', '/proc/self/fd/3/v12-w39357-mkzr0csa/origin', 'init', '-q', '-b', 'main'] failed: fatal: cannot change to '/proc/self/fd/3/v12-w39357-mkzr0csa/origin': No such file or directory
+
+
+======================================================================
+FAIL: test_the_declared_output_carries_objects_and_no_candidate_tree (tests.manager.test_claude_agent.ThePreparedLineTurnCommitsAndDeclaresItsObjects.test_the_declared_output_carries_objects_and_no_candidate_tree)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2296, in setUp
+    self.git("init", "-q", "-b", "main", at=self.origin)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2356, in git
+    self.assertEqual(answer.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     f"{argv} failed: {answer.stderr}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 128 != 0 : ['git', '-C', '/proc/self/fd/3/v12-w39357-ne0ata53/origin', 'init', '-q', '-b', 'main'] failed: fatal: cannot change to '/proc/self/fd/3/v12-w39357-ne0ata53/origin': No such file or directory
+
+
+======================================================================
+FAIL: test_the_line_result_reports_the_operator_selected_bound (tests.manager.test_claude_agent.ThePreparedLineTurnCommitsAndDeclaresItsObjects.test_the_line_result_reports_the_operator_selected_bound)
+THE DEFECT, in the Git-line publisher -- the one the two historic
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2296, in setUp
+    self.git("init", "-q", "-b", "main", at=self.origin)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2356, in git
+    self.assertEqual(answer.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     f"{argv} failed: {answer.stderr}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 128 != 0 : ['git', '-C', '/proc/self/fd/3/v12-w39357-u0ampa8k/origin', 'init', '-q', '-b', 'main'] failed: fatal: cannot change to '/proc/self/fd/3/v12-w39357-u0ampa8k/origin': No such file or directory
+
+
+======================================================================
+FAIL: test_the_line_result_reports_this_workers_default_with_no_job (tests.manager.test_claude_agent.ThePreparedLineTurnCommitsAndDeclaresItsObjects.test_the_line_result_reports_this_workers_default_with_no_job)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2296, in setUp
+    self.git("init", "-q", "-b", "main", at=self.origin)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2356, in git
+    self.assertEqual(answer.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     f"{argv} failed: {answer.stderr}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 128 != 0 : ['git', '-C', '/proc/self/fd/3/v12-w39357-ln160zq3/origin', 'init', '-q', '-b', 'main'] failed: fatal: cannot change to '/proc/self/fd/3/v12-w39357-ln160zq3/origin': No such file or directory
+
+
+======================================================================
+FAIL: test_the_line_result_separates_a_job_default_from_no_job_at_all (tests.manager.test_claude_agent.ThePreparedLineTurnCommitsAndDeclaresItsObjects.test_the_line_result_separates_a_job_default_from_no_job_at_all)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2296, in setUp
+    self.git("init", "-q", "-b", "main", at=self.origin)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2356, in git
+    self.assertEqual(answer.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     f"{argv} failed: {answer.stderr}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 128 != 0 : ['git', '-C', '/proc/self/fd/3/v12-w39357-xeoe7qz4/origin', 'init', '-q', '-b', 'main'] failed: fatal: cannot change to '/proc/self/fd/3/v12-w39357-xeoe7qz4/origin': No such file or directory
+
+
+======================================================================
+FAIL: test_the_reserved_names_are_this_workers_and_never_the_candidates (tests.manager.test_claude_agent.ThePreparedLineTurnCommitsAndDeclaresItsObjects.test_the_reserved_names_are_this_workers_and_never_the_candidates)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2296, in setUp
+    self.git("init", "-q", "-b", "main", at=self.origin)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2356, in git
+    self.assertEqual(answer.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     f"{argv} failed: {answer.stderr}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 128 != 0 : ['git', '-C', '/proc/self/fd/3/v12-w39357-v2iys8zy/origin', 'init', '-q', '-b', 'main'] failed: fatal: cannot change to '/proc/self/fd/3/v12-w39357-v2iys8zy/origin': No such file or directory
+
+
+======================================================================
+FAIL: test_a_failed_provider_earns_no_verdict_even_with_a_report (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_failed_provider_earns_no_verdict_even_with_a_report)
+A turn that failed is a turn whose account is incomplete, and an
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2985, in setUp
+    self.git("init", "-q", "-b", "main")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 3012, in git
+    self.assertEqual(answer.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     f"git {arguments} failed: {answer.stderr}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 128 != 0 : git ('init', '-q', '-b', 'main') failed: fatal: cannot change to '/proc/self/fd/3/v12-w39357-kzkwq01h/input/source': No such file or directory
+
+
+======================================================================
+FAIL: test_a_provider_that_could_not_start_decides_nothing (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_provider_that_could_not_start_decides_nothing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2985, in setUp
+    self.git("init", "-q", "-b", "main")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 3012, in git
+    self.assertEqual(answer.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     f"git {arguments} failed: {answer.stderr}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 128 != 0 : git ('init', '-q', '-b', 'main') failed: fatal: cannot change to '/proc/self/fd/3/v12-w39357-389wtjih/input/source': No such file or directory
+
+
+======================================================================
+FAIL: test_a_provider_that_wrote_nothing_decided_nothing (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_provider_that_wrote_nothing_decided_nothing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2985, in setUp
+    self.git("init", "-q", "-b", "main")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 3012, in git
+    self.assertEqual(answer.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     f"git {arguments} failed: {answer.stderr}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 128 != 0 : git ('init', '-q', '-b', 'main') failed: fatal: cannot change to '/proc/self/fd/3/v12-w39357-8ayte8uf/input/source': No such file or directory
+
+
+======================================================================
+FAIL: test_a_report_answering_one_name_twice_decides_nothing (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_report_answering_one_name_twice_decides_nothing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2985, in setUp
+    self.git("init", "-q", "-b", "main")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 3012, in git
+    self.assertEqual(answer.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     f"git {arguments} failed: {answer.stderr}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 128 != 0 : git ('init', '-q', '-b', 'main') failed: fatal: cannot change to '/proc/self/fd/3/v12-w39357-as2oox6r/input/source': No such file or directory
+
+
+======================================================================
+FAIL: test_a_report_from_another_generation_decides_nothing (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_report_from_another_generation_decides_nothing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2985, in setUp
+    self.git("init", "-q", "-b", "main")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 3012, in git
+    self.assertEqual(answer.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     f"git {arguments} failed: {answer.stderr}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 128 != 0 : git ('init', '-q', '-b', 'main') failed: fatal: cannot change to '/proc/self/fd/3/v12-w39357-b3shamr9/input/source': No such file or directory
+
+
+======================================================================
+FAIL: test_a_report_naming_a_link_decides_nothing (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_report_naming_a_link_decides_nothing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2985, in setUp
+    self.git("init", "-q", "-b", "main")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 3012, in git
+    self.assertEqual(answer.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     f"git {arguments} failed: {answer.stderr}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 128 != 0 : git ('init', '-q', '-b', 'main') failed: fatal: cannot change to '/proc/self/fd/3/v12-w39357-251114yd/input/source': No such file or directory
+
+
+======================================================================
+FAIL: test_a_report_that_is_a_directory_decides_nothing (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_report_that_is_a_directory_decides_nothing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2985, in setUp
+    self.git("init", "-q", "-b", "main")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 3012, in git
+    self.assertEqual(answer.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     f"git {arguments} failed: {answer.stderr}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 128 != 0 : git ('init', '-q', '-b', 'main') failed: fatal: cannot change to '/proc/self/fd/3/v12-w39357-hzrzroro/input/source': No such file or directory
+
+
+======================================================================
+FAIL: test_a_report_that_is_a_fifo_decides_nothing_and_does_not_hang (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_report_that_is_a_fifo_decides_nothing_and_does_not_hang)
+REVIEW 2026-09-07T15-19-16Z [P1]: the report was opened blocking
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2985, in setUp
+    self.git("init", "-q", "-b", "main")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 3012, in git
+    self.assertEqual(answer.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     f"git {arguments} failed: {answer.stderr}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 128 != 0 : git ('init', '-q', '-b', 'main') failed: fatal: cannot change to '/proc/self/fd/3/v12-w39357-xepwhm4m/input/source': No such file or directory
+
+
+======================================================================
+FAIL: test_a_report_that_is_not_a_readable_document_decides_nothing (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_report_that_is_not_a_readable_document_decides_nothing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2985, in setUp
+    self.git("init", "-q", "-b", "main")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 3012, in git
+    self.assertEqual(answer.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     f"git {arguments} failed: {answer.stderr}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 128 != 0 : git ('init', '-q', '-b', 'main') failed: fatal: cannot change to '/proc/self/fd/3/v12-w39357-4fep1ez4/input/source': No such file or directory
+
+
+======================================================================
+FAIL: test_a_report_wider_than_the_ceiling_decides_nothing (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_report_wider_than_the_ceiling_decides_nothing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2985, in setUp
+    self.git("init", "-q", "-b", "main")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 3012, in git
+    self.assertEqual(answer.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     f"git {arguments} failed: {answer.stderr}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 128 != 0 : git ('init', '-q', '-b', 'main') failed: fatal: cannot change to '/proc/self/fd/3/v12-w39357-trr1jqvn/input/source': No such file or directory
+
+
+======================================================================
+FAIL: test_a_report_with_an_extra_member_decides_nothing (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_report_with_an_extra_member_decides_nothing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2985, in setUp
+    self.git("init", "-q", "-b", "main")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 3012, in git
+    self.assertEqual(answer.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     f"git {arguments} failed: {answer.stderr}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 128 != 0 : git ('init', '-q', '-b', 'main') failed: fatal: cannot change to '/proc/self/fd/3/v12-w39357-s2plte0n/input/source': No such file or directory
+
+
+======================================================================
+FAIL: test_a_report_with_an_unknown_verdict_decides_nothing (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_report_with_an_unknown_verdict_decides_nothing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2985, in setUp
+    self.git("init", "-q", "-b", "main")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 3012, in git
+    self.assertEqual(answer.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     f"git {arguments} failed: {answer.stderr}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 128 != 0 : git ('init', '-q', '-b', 'main') failed: fatal: cannot change to '/proc/self/fd/3/v12-w39357-c01k2evz/input/source': No such file or directory
+
+
+======================================================================
+FAIL: test_a_report_with_empty_findings_decides_nothing (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_report_with_empty_findings_decides_nothing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2985, in setUp
+    self.git("init", "-q", "-b", "main")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 3012, in git
+    self.assertEqual(answer.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     f"git {arguments} failed: {answer.stderr}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 128 != 0 : git ('init', '-q', '-b', 'main') failed: fatal: cannot change to '/proc/self/fd/3/v12-w39357-58g_nmy6/input/source': No such file or directory
+
+
+======================================================================
+FAIL: test_a_review_that_wrote_nothing_still_reports_the_default_bound (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_review_that_wrote_nothing_still_reports_the_default_bound)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2985, in setUp
+    self.git("init", "-q", "-b", "main")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 3012, in git
+    self.assertEqual(answer.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     f"git {arguments} failed: {answer.stderr}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 128 != 0 : git ('init', '-q', '-b', 'main') failed: fatal: cannot change to '/proc/self/fd/3/v12-w39357-2h5q1b5h/input/source': No such file or directory
+
+
+======================================================================
+FAIL: test_a_timed_out_provider_decides_nothing (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_timed_out_provider_decides_nothing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2985, in setUp
+    self.git("init", "-q", "-b", "main")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 3012, in git
+    self.assertEqual(answer.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     f"git {arguments} failed: {answer.stderr}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 128 != 0 : git ('init', '-q', '-b', 'main') failed: fatal: cannot change to '/proc/self/fd/3/v12-w39357-fe6roow9/input/source': No such file or directory
+
+
+======================================================================
+FAIL: test_a_timed_out_review_names_its_effective_bound_and_no_verdict (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_timed_out_review_names_its_effective_bound_and_no_verdict)
+The log is the only account an unanswered review leaves, so the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2985, in setUp
+    self.git("init", "-q", "-b", "main")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 3012, in git
+    self.assertEqual(answer.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     f"git {arguments} failed: {answer.stderr}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 128 != 0 : git ('init', '-q', '-b', 'main') failed: fatal: cannot change to '/proc/self/fd/3/v12-w39357-ba8tk2av/input/source': No such file or directory
+
+
+======================================================================
+FAIL: test_findings_no_encoder_will_accept_decide_nothing (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_findings_no_encoder_will_accept_decide_nothing)
+REVIEW [P1]: `json` decodes an escaped lone surrogate into a `str`
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2985, in setUp
+    self.git("init", "-q", "-b", "main")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 3012, in git
+    self.assertEqual(answer.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     f"git {arguments} failed: {answer.stderr}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 128 != 0 : git ('init', '-q', '-b', 'main') failed: fatal: cannot change to '/proc/self/fd/3/v12-w39357-jqbdirmh/input/source': No such file or directory
+
+
+======================================================================
+FAIL: test_a_valid_report_produces_findings_logs_and_one_claim (tests.manager.test_claude_agent.TheReviewTurnAuthorsAVerdictItDidNotDecide.test_a_valid_report_produces_findings_logs_and_one_claim)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2985, in setUp
+    self.git("init", "-q", "-b", "main")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 3012, in git
+    self.assertEqual(answer.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     f"git {arguments} failed: {answer.stderr}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 128 != 0 : git ('init', '-q', '-b', 'main') failed: fatal: cannot change to '/proc/self/fd/3/v12-w39357-6zb1reag/input/source': No such file or directory
+
+
+======================================================================
+FAIL: test_every_verdict_word_the_manager_records_is_carried (tests.manager.test_claude_agent.TheReviewTurnAuthorsAVerdictItDidNotDecide.test_every_verdict_word_the_manager_records_is_carried)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2985, in setUp
+    self.git("init", "-q", "-b", "main")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 3012, in git
+    self.assertEqual(answer.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     f"git {arguments} failed: {answer.stderr}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 128 != 0 : git ('init', '-q', '-b', 'main') failed: fatal: cannot change to '/proc/self/fd/3/v12-w39357-8nktt1bx/input/source': No such file or directory
+
+
+======================================================================
+FAIL: test_the_claim_is_closed_and_carries_no_manager_identity (tests.manager.test_claude_agent.TheReviewTurnAuthorsAVerdictItDidNotDecide.test_the_claim_is_closed_and_carries_no_manager_identity)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2985, in setUp
+    self.git("init", "-q", "-b", "main")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 3012, in git
+    self.assertEqual(answer.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     f"git {arguments} failed: {answer.stderr}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 128 != 0 : git ('init', '-q', '-b', 'main') failed: fatal: cannot change to '/proc/self/fd/3/v12-w39357-utiz8lo5/input/source': No such file or directory
+
+
+======================================================================
+FAIL: test_the_findings_output_carries_the_document_and_its_prose (tests.manager.test_claude_agent.TheReviewTurnAuthorsAVerdictItDidNotDecide.test_the_findings_output_carries_the_document_and_its_prose)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2985, in setUp
+    self.git("init", "-q", "-b", "main")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 3012, in git
+    self.assertEqual(answer.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     f"git {arguments} failed: {answer.stderr}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 128 != 0 : git ('init', '-q', '-b', 'main') failed: fatal: cannot change to '/proc/self/fd/3/v12-w39357-hzbcvxf_/input/source': No such file or directory
+
+
+======================================================================
+FAIL: test_the_logs_are_adapter_authored_and_name_no_child_stream (tests.manager.test_claude_agent.TheReviewTurnAuthorsAVerdictItDidNotDecide.test_the_logs_are_adapter_authored_and_name_no_child_stream)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2985, in setUp
+    self.git("init", "-q", "-b", "main")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 3012, in git
+    self.assertEqual(answer.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     f"git {arguments} failed: {answer.stderr}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 128 != 0 : git ('init', '-q', '-b', 'main') failed: fatal: cannot change to '/proc/self/fd/3/v12-w39357-0yvdisf7/input/source': No such file or directory
+
+
+======================================================================
+FAIL: test_the_prompt_asks_for_an_assessment_and_names_no_protocol (tests.manager.test_claude_agent.TheReviewTurnAuthorsAVerdictItDidNotDecide.test_the_prompt_asks_for_an_assessment_and_names_no_protocol)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2985, in setUp
+    self.git("init", "-q", "-b", "main")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 3012, in git
+    self.assertEqual(answer.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     f"git {arguments} failed: {answer.stderr}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 128 != 0 : git ('init', '-q', '-b', 'main') failed: fatal: cannot change to '/proc/self/fd/3/v12-w39357-t0u1ert_/input/source': No such file or directory
+
+
+======================================================================
+FAIL: test_the_provider_runs_outside_the_output_and_the_source (tests.manager.test_claude_agent.TheReviewTurnAuthorsAVerdictItDidNotDecide.test_the_provider_runs_outside_the_output_and_the_source)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2985, in setUp
+    self.git("init", "-q", "-b", "main")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 3012, in git
+    self.assertEqual(answer.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     f"git {arguments} failed: {answer.stderr}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 128 != 0 : git ('init', '-q', '-b', 'main') failed: fatal: cannot change to '/proc/self/fd/3/v12-w39357-zgs24hod/input/source': No such file or directory
+
+
+======================================================================
+FAIL: test_the_review_log_reports_the_operator_selected_bound (tests.manager.test_claude_agent.TheReviewTurnAuthorsAVerdictItDidNotDecide.test_the_review_log_reports_the_operator_selected_bound)
+THE DEFECT, in the review publisher. A review turn runs under the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2985, in setUp
+    self.git("init", "-q", "-b", "main")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 3012, in git
+    self.assertEqual(answer.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     f"git {arguments} failed: {answer.stderr}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 128 != 0 : git ('init', '-q', '-b', 'main') failed: fatal: cannot change to '/proc/self/fd/3/v12-w39357-4k94vjwe/input/source': No such file or directory
+
+
+======================================================================
+FAIL: test_the_review_log_reports_this_workers_default_with_no_job (tests.manager.test_claude_agent.TheReviewTurnAuthorsAVerdictItDidNotDecide.test_the_review_log_reports_this_workers_default_with_no_job)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2985, in setUp
+    self.git("init", "-q", "-b", "main")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 3012, in git
+    self.assertEqual(answer.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     f"git {arguments} failed: {answer.stderr}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 128 != 0 : git ('init', '-q', '-b', 'main') failed: fatal: cannot change to '/proc/self/fd/3/v12-w39357-49cbdelf/input/source': No such file or directory
+
+
+======================================================================
+FAIL: test_the_review_log_separates_a_job_default_from_no_job_at_all (tests.manager.test_claude_agent.TheReviewTurnAuthorsAVerdictItDidNotDecide.test_the_review_log_separates_a_job_default_from_no_job_at_all)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2985, in setUp
+    self.git("init", "-q", "-b", "main")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 3012, in git
+    self.assertEqual(answer.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     f"git {arguments} failed: {answer.stderr}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 128 != 0 : git ('init', '-q', '-b', 'main') failed: fatal: cannot change to '/proc/self/fd/3/v12-w39357-6gkdt42t/input/source': No such file or directory
+
+
+======================================================================
+FAIL: test_the_reviewed_source_is_never_written_to (tests.manager.test_claude_agent.TheReviewTurnAuthorsAVerdictItDidNotDecide.test_the_reviewed_source_is_never_written_to)
+The manager mounts it read-only; this proves the adapter does not
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 2985, in setUp
+    self.git("init", "-q", "-b", "main")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-w257624/w321528-review328538-1g5qnxr4/v12/python/tests/manager/test_claude_agent.py", line 3012, in git
+    self.assertEqual(answer.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     f"git {arguments} failed: {answer.stderr}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 128 != 0 : git ('init', '-q', '-b', 'main') failed: fatal: cannot change to '/proc/self/fd/3/v12-w39357-lf01hdc4/input/source': No such file or directory
+
+
+----------------------------------------------------------------------
+Ran 192 tests in 7.124s
+
+FAILED (failures=40, errors=20)

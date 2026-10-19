@@ -1,0 +1,38 @@
+{
+  "base": "03b94fc80744671150cca1997712ee95a6537df5",
+  "fixture_source_mount": "type=bind,source=/home/sl/src/baton/work/records/2026/10/finding-v12-failed-run-candidate-reporting/preparation-326050/v12-w71917-57bv5bmr/nominated,target=/input/source,readonly=true",
+  "production_source": "/home/sl/src/baton",
+  "container_paths": {
+    "restore.py": "/input/source/work/records/2026/10/finding-v12-failed-run-candidate-reporting/preparation-326050/restore.py",
+    "retained.patch": "/input/source/work/records/2026/10/finding-v12-failed-run-candidate-reporting/preparation-326050/retained.patch",
+    "candidate-input/v12/python/tests/manager/test_claude_agent.py": "/input/source/work/records/2026/10/finding-v12-failed-run-candidate-reporting/preparation-326050/candidate-input/v12/python/tests/manager/test_claude_agent.py",
+    "candidate-input/v12/worker/claude_agent.py": "/input/source/work/records/2026/10/finding-v12-failed-run-candidate-reporting/preparation-326050/candidate-input/v12/worker/claude_agent.py",
+    "candidate-input/work/records/2026/09/finding-v12-single-implementation-proof/baseline.py": "/input/source/work/records/2026/10/finding-v12-failed-run-candidate-reporting/preparation-326050/candidate-input/work/records/2026/09/finding-v12-single-implementation-proof/baseline.py",
+    "candidate-input/work/records/2026/09/finding-v12-single-implementation-proof/test_baseline.py": "/input/source/work/records/2026/10/finding-v12-failed-run-candidate-reporting/preparation-326050/candidate-input/work/records/2026/09/finding-v12-single-implementation-proof/test_baseline.py",
+    "candidate-input/work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py": "/input/source/work/records/2026/10/finding-v12-failed-run-candidate-reporting/preparation-326050/candidate-input/work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py"
+  },
+  "input_sha256": {
+    "restore.py": "1a258a9317d6a0633aad63dd90951a6e0454360e476d7e4cb5bc8efac5d803c5",
+    "retained.patch": "3be10e04afeb88a9eb54dde76f805c2f703419464f3e808cf0dcccdbb8d6ea80",
+    "candidate-input/v12/python/tests/manager/test_claude_agent.py": "42191d077e411f9e0a08b82b69c7e2b06e8583a6a0acd6c8da6a4fa8b703492d",
+    "candidate-input/v12/worker/claude_agent.py": "b014ea3f5f58af573a0cbaa4b8838a270953806a89ef274682d5cca6627efe7c",
+    "candidate-input/work/records/2026/09/finding-v12-single-implementation-proof/baseline.py": "47f77534ac67183bc9e804871c53a61ab82e27ed04caf1fd763ca4e2f312bd4f",
+    "candidate-input/work/records/2026/09/finding-v12-single-implementation-proof/test_baseline.py": "90162d46741bbab304e797490be6ec41fe999ccc91101454cd25dde2e0498a89",
+    "candidate-input/work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py": "5cb71fc92614c6949079c670a44acfda9d4c88f187333e132ac24ab8e1140b0a"
+  },
+  "restored_paths": {
+    "v12/python/tests/manager/test_claude_agent.py": "42191d077e411f9e0a08b82b69c7e2b06e8583a6a0acd6c8da6a4fa8b703492d",
+    "v12/worker/claude_agent.py": "b014ea3f5f58af573a0cbaa4b8838a270953806a89ef274682d5cca6627efe7c",
+    "work/records/2026/09/finding-v12-single-implementation-proof/baseline.py": "47f77534ac67183bc9e804871c53a61ab82e27ed04caf1fd763ca4e2f312bd4f",
+    "work/records/2026/09/finding-v12-single-implementation-proof/test_baseline.py": "90162d46741bbab304e797490be6ec41fe999ccc91101454cd25dde2e0498a89",
+    "work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py": "5cb71fc92614c6949079c670a44acfda9d4c88f187333e132ac24ab8e1140b0a"
+  },
+  "repeat_refusal": "base mismatch: v12/python/tests/manager/test_claude_agent.py",
+  "canonical_source_refusal": "destination is protected source",
+  "missing_input_refused": true,
+  "corrupt_input_refusal": "retained patch digest mismatch",
+  "seconds": 0.16890840999985812,
+  "engine_invoked": false,
+  "model_invoked": false,
+  "scope": "Real public nomination/boundary/OCI vector on disjoint disk fixture source containing exact input bytes; production source selected separately in packet. Plain-filesystem restoration. No engine mount inspection or provider execution claimed."
+}

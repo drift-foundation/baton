@@ -1,0 +1,71 @@
+{
+  "uid": 1000,
+  "before": {
+    "attempt_id": "attempt-aaaaaaaa",
+    "state": "valid",
+    "disposition": "unable",
+    "locator": "file:///tmp/v12-w321528-80upsmtw/custody/attempt-aaaaaaaa/proposal",
+    "base": "3dcf6dc4bcee97e932d17c93ac13c5811b3af188",
+    "head": "2c89d3aa1c3ccf190a47417f3147593b694948dd",
+    "transport": "objects.bundle",
+    "content_digest": "sha256:1cab6035d36795f8e823385cca52b3d1f0a590943e7ece7af5d2eb2917c0ca2e",
+    "bytes": 156,
+    "verification": "unreported",
+    "acceptance": "unobserved",
+    "attribution": {
+      "author": "Baton worker <worker@baton.invalid>",
+      "committer": "Baton worker <worker@baton.invalid>",
+      "parents": [
+        "3dcf6dc4bcee97e932d17c93ac13c5811b3af188"
+      ],
+      "head": "2c89d3aa1c3ccf190a47417f3147593b694948dd",
+      "base": "3dcf6dc4bcee97e932d17c93ac13c5811b3af188"
+    },
+    "assignment": {
+      "authority_uuid": "00000000000000000000000000000000",
+      "work_id": "00000000-W1",
+      "participant": "baton.impl",
+      "principal": "principal:baton.impl",
+      "generation": 1,
+      "effective_scope": "scope:deployment"
+    },
+    "generation": 1,
+    "why": null
+  },
+  "stat_error": {
+    "type": "PermissionError",
+    "errno": 13
+  },
+  "after": {
+    "attempt_id": "attempt-aaaaaaaa",
+    "state": "unreadable",
+    "disposition": "unable",
+    "locator": "file:///tmp/v12-w321528-80upsmtw/custody/attempt-aaaaaaaa/proposal",
+    "base": "3dcf6dc4bcee97e932d17c93ac13c5811b3af188",
+    "head": "2c89d3aa1c3ccf190a47417f3147593b694948dd",
+    "transport": "objects.bundle",
+    "content_digest": "sha256:1cab6035d36795f8e823385cca52b3d1f0a590943e7ece7af5d2eb2917c0ca2e",
+    "bytes": 156,
+    "verification": "unreported",
+    "acceptance": "unobserved",
+    "attribution": {
+      "author": "Baton worker <worker@baton.invalid>",
+      "committer": "Baton worker <worker@baton.invalid>",
+      "parents": [
+        "3dcf6dc4bcee97e932d17c93ac13c5811b3af188"
+      ],
+      "head": "2c89d3aa1c3ccf190a47417f3147593b694948dd",
+      "base": "3dcf6dc4bcee97e932d17c93ac13c5811b3af188"
+    },
+    "assignment": {
+      "authority_uuid": "00000000000000000000000000000000",
+      "work_id": "00000000-W1",
+      "participant": "baton.impl",
+      "principal": "principal:baton.impl",
+      "generation": 1,
+      "effective_scope": "scope:deployment"
+    },
+    "generation": 1,
+    "why": "this process may not look at the retained tree at '/tmp/v12-w321528-80upsmtw/custody/attempt-aaaaaaaa/proposal': PermissionError: [Errno 13] Permission denied: '/tmp/v12-w321528-80upsmtw/custody/attempt-aaaaaaaa/proposal'. Whether the bytes the seal declares are there is UNKNOWN to this run and is NOT reported as their absence; an operator who can read the locator and its ancestors must settle it"
+  }
+}

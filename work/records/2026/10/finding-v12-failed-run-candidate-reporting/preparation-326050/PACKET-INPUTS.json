@@ -1,0 +1,22 @@
+{
+  "ARGV-CHECK.json": "567bad966c62aa7d93cc9c5ec15097dd44ec5a480f0551dac5d29c1b8ae307f7",
+  "CHECKPOINT.md": "82e130c79fe527061d187630039f46fd86e8dfdc1402ccfea43d242855eda935",
+  "DELIVERY-CHECK.json": "4b7200c362dcd61fbe0ada421565b909c8215dd45bbb74ba85e047559dbf2d98",
+  "LIMITS-CHECK.json": "3562d6a3ca07d7cb0b33d6bc48b555d43feec3a568d41c5e6ea8f0dea42ebd45",
+  "LOAD-COMMAND.txt": "e3febcad4818986aa0647d343f86de55062d70f75e16b47eb867ca12fe908c65",
+  "OPERATOR.md": "d2be457bf5961462e2cdbcd8ae2d600b294f2c08b4bc98f3a3bc559378ca4340",
+  "PREFLIGHT.json": "58348f43c8eb6794a7e188db505159b1b35185c24f54aff03d80c746e03b8ce3",
+  "PREPARATION-PINS.json": "180ef1d51a170500aaae44aed768e39e7f3c6920efc63b92331ba5fcee3a800d",
+  "PROVENANCE.json": "87dcc65918b918f78171dc9d3001872b8a50c6396a59fe1aa24edaec3ba68aec",
+  "TASK.md": "4b7d4f5ed39f295087810ff3751711d2409a14f87b38939ba06983ac828c5f59",
+  "candidate-input/v12/python/tests/manager/test_claude_agent.py": "42191d077e411f9e0a08b82b69c7e2b06e8583a6a0acd6c8da6a4fa8b703492d",
+  "candidate-input/v12/worker/claude_agent.py": "b014ea3f5f58af573a0cbaa4b8838a270953806a89ef274682d5cca6627efe7c",
+  "candidate-input/work/records/2026/09/finding-v12-single-implementation-proof/baseline.py": "47f77534ac67183bc9e804871c53a61ab82e27ed04caf1fd763ca4e2f312bd4f",
+  "candidate-input/work/records/2026/09/finding-v12-single-implementation-proof/test_baseline.py": "90162d46741bbab304e797490be6ec41fe999ccc91101454cd25dde2e0498a89",
+  "candidate-input/work/records/2026/09/finding-v12-single-implementation-proof/test_candidates.py": "5cb71fc92614c6949079c670a44acfda9d4c88f187333e132ac24ab8e1140b0a",
+  "check_delivery.py": "e0ea8862f3ff3405d7a865fe1b4832fe5b0af20e4d179ec1a9b8a60446ce487e",
+  "prepare.py": "5df22636a8b7fab2cb40c65143fbbabb2fe3e557a56107e34101e1ecf1c89858",
+  "restore.py": "1a258a9317d6a0633aad63dd90951a6e0454360e476d7e4cb5bc8efac5d803c5",
+  "retained.patch": "3be10e04afeb88a9eb54dde76f805c2f703419464f3e808cf0dcccdbb8d6ea80",
+  "verify-inputs.py": "d53299ba2217b2c218624f479dc4ee8bba40fcc7da481ff4bf6207b0b614ca20"
+}

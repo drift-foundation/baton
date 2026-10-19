@@ -451,3 +451,43 @@ Preserve all earlier PROGRESS costs and latest run1457.303273567s, formal6.972s,
 review initial1.314968 wall, complete8.220848 wall, descriptor7.671801 wall and
 permission0.117399 tool wall. Historical aggregate unknown, no reset.
 Manifest SHA256 ec793a20eff935ee45873a46b96171776ed80f88d2f5b91e42e42e98b2c918fb.
+
+
+## 2026-10-18T20:11:30.079371+00:00 — baton.codxpc claim326050
+
+Read current state326048, claimed326050, complete new handoff events through326050
+and all12 thread messages through325801; current FINDING/PLAN/review20:07:01 and
+DIAGNOSIS. Preserve spent325711 refusal/no restored source and prior0add candidate.
+New preparation326050 uses existing nominated-source read-only bind /input/source
+to deliver restore.py/retained.patch as exact files. Short loader checks script,
+script checks patch buffer/base states and5 target hashes. No model transcription,
+source-driver change, canonical product import, safeguard workaround or retry.
+
+Current base03b94fc8 compatible at all5 retained paths. Public boundary/OCI vector
+on disjoint disk fixture carries exact input bytes; deterministic restore matches
+all5 hashes. Missing/corrupt/repeat/canonical-source attempts refuse. No kernel mount
+proof claimed. Initial disk helper path guessed under tests/support was absent;
+actual tests/manager/disk_roots.py read. Initial /tmp fixture refused memory filesystem;
+correct disk fixture under owned dossier cleaned. Negative-fixture depth corrected.
+
+Stage/bootstrap/bind and8 artifacts/task hashes pass. Production nominated_source
+and source_root mapping checked; read-only prelaunch pins checker supplied. Prompt
+4542 bytes passes inert exec. No product changes/tests, actual Job/attempt/provider/
+engine, credential read or Git mutation. Final target absent. W325695/W321776 scope
+and actual graph preserved; independent review then fresh selection still required.
+
+Spending: first delivery failure0.035495199 tool wall, first successful0.167489804s,
+negative-fixture error0.078802387 tool wall, final delivery0.168104417s; preparation
+{'stage': 0.12299412900028983, 'bootstrap': 0.6062682720003068, 'bind': 0.3644212510007492}; argv0.000917435s.
+Product verification0. Add latest spent3257111379.261536156s to all preserved
+previous costs; historical total unknown, no reset. Manifest SHA256 aad8c0fcc15754583593c9c973bee3b62f1cb8934d93fe36813cfb5d5e069670.
+
+Final same-claim compatibility correction: pinned image recipe guarantees Python/
+Git but not patch binary. Restoration now validates all5 retained file buffers
+and base states, then writes exact buffers with Python only; original patch kept
+as provenance. All5 nested candidate-input blobs are manifest/pin-bound. Prior
+in-turn patch-based preparation is superseded, not executable final guidance.
+Repeated exact delivery passes0.168908410s; new disposable preflight-final stage
+0.114340147/bootstrap0.611693965/bind0.357685563s; inert argv0.000707234s, prompt4546
+bytes. Prior in-turn costs above preserved. No product/engine/model execution.
+Final manifest supersedes prior in-turn digest: 37a0c9cdbd9ea221c63858120a0e9f66b5f5af1a60d5c0ae38a793f662744b6c.

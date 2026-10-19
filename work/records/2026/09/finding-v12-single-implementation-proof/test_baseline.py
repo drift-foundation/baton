@@ -417,6 +417,85 @@ class TheProposalIsTheAdaptersOwnAccount(BaselineCase):
         self.assertEqual(baseline.CLAIM_NAMESPACE,
                          claude_agent.CLAIM_NAMESPACE)
 
+    def test_the_observation_shape_this_program_reads_is_the_producers(self):
+        """W321528. `_candidate_verification` holds the ordinary-test
+        observation to a CLOSED member set by equality, so a mirror that
+        drifted would make every real producer's observation read
+        `unreported` -- silently, and in exactly the direction the last
+        review found: a passing turn reported as unread.
+
+        `baseline.py` says these are "held by a case rather than by an
+        import" because the image carries no `baton_v12` and this supervisor
+        is not in the image. This is that case.
+        """
+        import claude_agent
+
+        self.assertEqual(baseline.ORDINARY_TESTS_NAMESPACE,
+                         claude_agent.ORDINARY_TESTS_NAMESPACE)
+        self.assertEqual(baseline.ORDINARY_TESTS_MEMBERS,
+                         claude_agent.ORDINARY_TESTS_MEMBERS)
+
+    def test_the_candidates_declared_output_is_the_one_the_adapter_writes(
+            self):
+        """An implementation turn declares exactly one output and that name is
+        what `_candidates` selects the sealed candidate and the manager's
+        indexed row by. A disagreement here reads as absence."""
+        import claude_agent
+
+        self.assertEqual(claude_agent.IMPLEMENTATION_OUTPUTS,
+                         (baseline.PROPOSAL_OUTPUT,))
+
+    def written_task(self, width):
+        """One real task document of EXACTLY `width` bytes."""
+        import claude_agent
+
+        def body(padding):
+            return json.dumps({"schema": claude_agent.TASK_SCHEMA,
+                               "task_id": "w321528-ceiling",
+                               "instructions": "x" * padding,
+                               "verification": ["python3", "harness.py"],
+                               "source_root": claude_agent.SOURCE_ROOT,
+                               "source_profile": "generic",
+                               "declared_base": None})
+
+        text = body(width - len(body(1).encode("utf-8")) + 1)
+        self.assertEqual(len(text.encode("utf-8")), width)
+        place = self.packet_root / f"task-{width}.json"
+        place.write_text(text, encoding="utf-8")
+        return str(place)
+
+    def test_the_task_ceiling_this_program_refuses_at_is_the_consumers(self):
+        """W321528. `MAX_TASK_BYTES` is the CONSUMER's ceiling rather than one
+        chosen here, so it is proved against the consumer: a document of
+        exactly that width is read whole, and one byte more is a document the
+        workload cannot read at all.
+
+        That is why `_bound_task` refuses instead of truncating -- a digest
+        over a prefix nobody wrote is an expectation no observation can ever
+        match, which would report every real turn as unread.
+        """
+        import claude_agent
+
+        _document, raw = claude_agent._read_task(
+            self.written_task(baseline.MAX_TASK_BYTES))
+        self.assertEqual(len(raw), baseline.MAX_TASK_BYTES)
+        with self.assertRaises(claude_agent.TaskRefusal):
+            claude_agent._read_task(
+                self.written_task(baseline.MAX_TASK_BYTES + 1))
+
+    def test_a_task_document_over_the_ceiling_is_refused_not_truncated(self):
+        packet = {"deployment": {"config_path": str(
+            self.packet_root / "ceiling-deployment.json")}}
+        with open(packet["deployment"]["config_path"], "w",
+                  encoding="utf-8") as writing:
+            json.dump({"workers": [
+                {"worker_id": "impl", "role": baseline.IMPLEMENTATION_ROLE,
+                 "deployment": {"task_document": self.written_task(
+                     baseline.MAX_TASK_BYTES + 1)}}]}, writing)
+        with self.assertRaises(baseline.SupervisorRefusal) as held:
+            baseline._bound_task(packet)
+        self.assertIn("ceiling the workload reads", str(held.exception))
+
     def test_a_provider_that_commits_is_reported_and_never_settles(self):
         """W236087's live failure, reproduced through this same real code.
 
@@ -580,6 +659,7 @@ class TheBaselineRefusesTheOtherJobsWorkload(unittest.TestCase):
                                return_value={"modes": ["open"],
                                              "conversations": ["c"],
                                              "generations": [0]}), \
+                mock.patch.object(baseline, "_candidates", return_value=[]), \
                 mock.patch.object(baseline, "_proposals",
                                   return_value={"proposals": [],
                                                 "dispositions": []}), \
@@ -910,7 +990,7 @@ class TheFreshModeEvidence(unittest.TestCase):
     def evidence(self, binding=None, failure=None):
         from baton_v12.worker_manager import provider_context
         packet = {"schema": baseline.FRESH_PACKET_SCHEMA, "bounds": {"implementer_invocations": 1}}
-        with mock.patch.object(provider_context, "context_invocation_of", return_value=binding, side_effect=failure), mock.patch.object(baseline, "_context_evidence", side_effect=AssertionError("context qualification")), mock.patch.object(baseline, "_proposals", return_value={"proposals": [], "dispositions": []}), mock.patch.object(baseline, "_attributions", return_value=[]):
+        with mock.patch.object(provider_context, "context_invocation_of", return_value=binding, side_effect=failure), mock.patch.object(baseline, "_context_evidence", side_effect=AssertionError("context qualification")), mock.patch.object(baseline, "_proposals", return_value={"proposals": [], "dispositions": []}), mock.patch.object(baseline, "_candidates", return_value=[]), mock.patch.object(baseline, "_attributions", return_value=[]):
             return baseline._workload_evidence(None, object(), packet, {"attempt": "implementation"}, {})
 
     def test_fresh_absence_is_not_context_qualification(self):

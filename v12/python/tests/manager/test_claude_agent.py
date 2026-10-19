@@ -197,10 +197,47 @@ class AdapterCase(unittest.TestCase):
 
         return run
 
-    def worked(self, **operands):
+    # -- W321528: the launch document a Job stands behind --------------------
+
+    # A SELECTED CEILING THAT IS NOT THE DEFAULT and is not either number the
+    # two historic runs happened to use. Those runs are the EVIDENCE that the
+    # publishers reported a constant; they are not the values under test, and
+    # a fixture built on them would pass against a publisher that had simply
+    # learned to spell 600.
+    SELECTED_SECONDS = 137
+
+    def launched(self, *, seconds=None, **members):
+        """The launch document the manager delivers for a Job-backed turn.
+
+        THE CONFIGURATION IS THE OWNER'S, RESOLVED BY THE OWNER. The whole
+        claim the `seconds_bound` member makes is that a result reports what
+        the operator actually configured, so this composes the execution
+        limits through `execution_limits.resolved` -- the same function
+        `launch._job_execution` re-resolves a delivery against -- rather than
+        writing a configuration document by hand. A hand-built one would only
+        ever prove the adapter agrees with this file.
+
+        `seconds=None` IS A JOB THAT CONFIGURED NOTHING, which is a different
+        document from no Job at all: it carries the boundary with the
+        preserved runner default and the `compatibility` origin, and it is
+        exactly the delivery whose number a reader must not mistake for an
+        operator's choice.
+        """
+        from baton_v12.job_manager import execution_limits
+
+        limits = execution_limits.resolved(
+            {} if seconds is None else {"provider_turn_seconds": seconds})
+        return dict({"contract": "the frozen task",
+                     "job_execution": {"job_id": "job-w321528",
+                                       "attempt_id": "attempt-w321528",
+                                       "execution_limits": limits}},
+                    **members)
+
+    def worked(self, *, seen=None, **operands):
         agent = ClaudeAgent(run=self.provider(**operands),
                             home=self.scratch)
-        return agent.work({"contract": "the frozen task"}, list(DECLARED))
+        return agent.work({"contract": "the frozen task"} if seen is None
+                          else seen, list(DECLARED))
 
     def proposal(self, *parts):
         return os.path.join(self.outputs, "proposal", *parts)
@@ -259,6 +296,70 @@ class ThePositiveTurnWritesTheDeclaredProposal(AdapterCase):
                          claude_agent.DIRECTORY_MODE & 0o777)
         self.assertEqual(os.stat(self.proposal("result.json")).st_mode & 0o777,
                          claude_agent.FILE_MODE)
+
+    # -- W321528: the bound a result reports is the bound the turn ran under
+
+    def test_the_reported_bound_is_this_workers_own_default_with_no_job(self):
+        """No Job behind the launch is the ONE case the constant is correct
+        for, and it is still reported as a resolution rather than asserted."""
+        self.worked(edits={"harness.py": "print('now covered')\n"})
+        self.assertEqual(self.result()["provider"]["seconds_bound"],
+                         claude_agent.PROVIDER_SECONDS)
+        self.assertEqual(self.result()["provider"]["seconds_bound_source"],
+                         claude_agent.WORKER_DEFAULT_BOUND)
+
+    def test_an_operator_selected_bound_is_what_the_result_publishes(self):
+        """THE DEFECT, in the directory publisher. The turn ran under the
+        Job's number and the record said 3600, so an operator reading a
+        retained proposal could not tell what had actually bounded it."""
+        self.worked(edits={"harness.py": "print('now covered')\n"},
+                    seen=self.launched(seconds=self.SELECTED_SECONDS))
+        self.assertNotEqual(self.SELECTED_SECONDS,
+                            claude_agent.PROVIDER_SECONDS)
+        self.assertEqual(self.result()["provider"]["seconds_bound"],
+                         self.SELECTED_SECONDS)
+        self.assertEqual(self.result()["provider"]["seconds_bound_source"],
+                         claude_agent.JOB_SELECTED_BOUND)
+
+    def test_a_job_that_configured_nothing_is_not_an_operator_choice(self):
+        """The same NUMBER as the no-Job case and a different FACT: this
+        delivery resolved the boundary's preserved default, and saying an
+        operator selected it would be this adapter inventing a decision."""
+        self.worked(edits={"harness.py": "print('now covered')\n"},
+                    seen=self.launched())
+        self.assertEqual(self.result()["provider"]["seconds_bound"],
+                         claude_agent.PROVIDER_SECONDS)
+        self.assertEqual(self.result()["provider"]["seconds_bound_source"],
+                         claude_agent.JOB_DEFAULT_BOUND)
+
+    def test_a_delivery_naming_no_origin_is_unstated_and_not_a_default(self):
+        """An origin this module does not know is reported as unread rather
+        than folded into either answer: a document that cannot be read is not
+        evidence that nobody configured anything."""
+        seen = self.launched(seconds=self.SELECTED_SECONDS)
+        seen["job_execution"]["execution_limits"]["boundaries"][
+            "provider_turn"].pop("origin")
+        self.worked(edits={"harness.py": "print('now covered')\n"}, seen=seen)
+        self.assertEqual(self.result()["provider"]["seconds_bound"],
+                         self.SELECTED_SECONDS)
+        self.assertEqual(self.result()["provider"]["seconds_bound_source"],
+                         claude_agent.UNSTATED_BOUND_SOURCE)
+
+    def test_the_origin_words_are_the_execution_limit_owners_own(self):
+        """The image carries no `baton_v12`, so the two mirrored words are
+        held against their owner here rather than imported across."""
+        from baton_v12.job_manager import execution_limits
+
+        self.assertEqual(
+            sorted(claude_agent._ORIGIN_SELECTION),
+            sorted((execution_limits.JOB, execution_limits.COMPATIBILITY)))
+        # AND THE DEFAULT THIS MODULE KEEPS IS THE ONE THAT OWNER PRESERVES
+        # FOR IT. Two copies of a number that disagreed would make the
+        # no-Job answer and the Job-that-configured-nothing answer differ for
+        # a reason neither document explains.
+        self.assertEqual(
+            execution_limits.boundary_default("provider_turn"),
+            claude_agent.PROVIDER_SECONDS)
 
     def test_the_staged_source_is_never_written(self):
         """The read-only input is the evidence the result is measured against.
@@ -1761,6 +1862,54 @@ class FailureIsHonest(AdapterCase):
         self.assertTrue(os.path.isdir(self.proposal()))
         self.assertTrue(os.path.exists(self.proposal("result.json")))
 
+    # -- W321528: a failure reports the bound it actually failed under ------
+
+    def test_a_timed_out_turn_names_one_bound_in_its_sentence_and_record(self):
+        """What the two historic sealed results got wrong, reproduced in the
+        shape that produced them: the `why` named the effective bound, the
+        `seconds_bound` member named the constant, and the two were in the
+        same document. They are one resolution now."""
+        self.worked(timeout=True,
+                    seen=self.launched(seconds=self.SELECTED_SECONDS))
+        held = self.result()
+        self.assertEqual(held["disposition"], "provider-failed")
+        self.assertEqual(held["provider"]["failure_reason"],
+                         claude_agent.PROVIDER_TIMED_OUT)
+        self.assertEqual(held["provider"]["seconds_bound"],
+                         self.SELECTED_SECONDS)
+        self.assertEqual(held["provider"]["seconds_bound_source"],
+                         claude_agent.JOB_SELECTED_BOUND)
+        self.assertIn(f"within {self.SELECTED_SECONDS}s", held["why"])
+        self.assertNotIn(str(claude_agent.PROVIDER_SECONDS),
+                         json.dumps(held))
+
+    def test_a_provider_that_never_started_still_reports_its_bound(self):
+        """A turn with no child at all still ran under a ceiling, and the
+        record says which -- an absent member here would be the one shape a
+        reader cannot tell from a publisher that forgot."""
+        self.worked(missing=True,
+                    seen=self.launched(seconds=self.SELECTED_SECONDS))
+        self.assertEqual(self.result()["provider"]["failure_reason"],
+                         claude_agent.PROVIDER_START_ERROR)
+        self.assertEqual(self.result()["provider"]["seconds_bound"],
+                         self.SELECTED_SECONDS)
+        self.assertEqual(self.result()["provider"]["seconds_bound_source"],
+                         claude_agent.JOB_SELECTED_BOUND)
+
+    def test_a_failed_verification_reports_the_bound_and_stays_unable(self):
+        """A candidate WAS produced and the turn still failed. Reporting the
+        real ceiling beside it changes neither fact."""
+        answered = self.worked(edits={"harness.py": "raise SystemExit(1)\n"},
+                               verify=1,
+                               seen=self.launched(
+                                   seconds=self.SELECTED_SECONDS))
+        self.assertEqual(answered["disposition"], "unable")
+        self.assertEqual(self.result()["disposition"], "verification-failed")
+        self.assertEqual(self.result()["provider"]["seconds_bound"],
+                         self.SELECTED_SECONDS)
+        self.assertEqual(self.result()["provider"]["seconds_bound_source"],
+                         claude_agent.JOB_SELECTED_BOUND)
+
     def test_the_verification_is_not_run_when_there_is_no_candidate(self):
         """A verification against an unchanged tree would pass and mean
         nothing; running it would manufacture evidence."""
@@ -2240,10 +2389,11 @@ class LineCase(AdapterCase):
         self.addCleanup(shutil.rmtree, place, True)
         return place
 
-    def worked(self, **operands):
+    def worked(self, *, seen=None, **operands):
         agent = ClaudeAgent(run=self.runner(**operands),
                             home=self.turn_scratch())
-        return agent.work({"contract": "the frozen task"}, list(DECLARED))
+        return agent.work({"contract": "the frozen task"} if seen is None
+                          else seen, list(DECLARED))
 
     # -- the worker's complete ending ---------------------------------------
 
@@ -2323,6 +2473,57 @@ class ThePreparedLineTurnCommitsAndDeclaresItsObjects(LineCase):
         self.assertEqual(evidence["paths"], ["harness.py"])
         self.assertEqual(self.git("rev-parse", evidence["reference"]).strip(),
                          evidence["head"])
+
+    # -- W321528: the bound the Git-line publisher reports -------------------
+
+    def test_the_line_result_reports_this_workers_default_with_no_job(self):
+        self.worked(edits={"harness.py": "print('now covered')\n"})
+        self.assertEqual(self.result()["provider"]["seconds_bound"],
+                         claude_agent.PROVIDER_SECONDS)
+        self.assertEqual(self.result()["provider"]["seconds_bound_source"],
+                         claude_agent.WORKER_DEFAULT_BOUND)
+
+    def test_the_line_result_reports_the_operator_selected_bound(self):
+        """THE DEFECT, in the Git-line publisher -- the one the two historic
+        runs were sealed by. A proposal retained on a private line carried
+        `seconds_bound: 3600` beside a turn the Job had bounded far lower."""
+        self.worked(edits={"harness.py": "print('now covered')\n"},
+                    seen=self.launched(seconds=self.SELECTED_SECONDS))
+        self.assertNotEqual(self.SELECTED_SECONDS,
+                            claude_agent.PROVIDER_SECONDS)
+        self.assertEqual(self.result()["provider"]["seconds_bound"],
+                         self.SELECTED_SECONDS)
+        self.assertEqual(self.result()["provider"]["seconds_bound_source"],
+                         claude_agent.JOB_SELECTED_BOUND)
+
+    def test_the_line_result_separates_a_job_default_from_no_job_at_all(self):
+        self.worked(edits={"harness.py": "print('now covered')\n"},
+                    seen=self.launched())
+        self.assertEqual(self.result()["provider"]["seconds_bound"],
+                         claude_agent.PROVIDER_SECONDS)
+        self.assertEqual(self.result()["provider"]["seconds_bound_source"],
+                         claude_agent.JOB_DEFAULT_BOUND)
+
+    def test_a_timed_out_line_turn_reports_one_bound_in_both_places(self):
+        """The sentence and the member come from the same resolution now.
+
+        W319114's sealed evidence is the two disagreeing: a `why` naming the
+        real bound beside a `seconds_bound` naming the constant. A turn that
+        timed out also published no commit, which this asserts stays true --
+        the bound repair does not soften a failure."""
+        answered = self.worked(timeout=True,
+                               seen=self.launched(
+                                   seconds=self.SELECTED_SECONDS))
+        self.assertEqual(answered["disposition"], "unable")
+        self.assertEqual(self.result()["disposition"], "provider-failed")
+        self.assertEqual(self.result()["provider"]["seconds_bound"],
+                         self.SELECTED_SECONDS)
+        self.assertEqual(self.result()["provider"]["failure_reason"],
+                         claude_agent.PROVIDER_TIMED_OUT)
+        self.assertIn(f"within {self.SELECTED_SECONDS}s",
+                      self.result()["why"])
+        self.assertNotIn(str(claude_agent.PROVIDER_SECONDS),
+                         json.dumps(self.result()))
 
     def test_the_reserved_names_are_this_workers_and_never_the_candidates(self):
         self.assertEqual(claude_agent.COMPLETION_MANIFEST,
@@ -2844,12 +3045,13 @@ class ReviewCase(AdapterCase):
 
         return run
 
-    def reviewed(self, declared=None, **operands):
+    def reviewed(self, declared=None, *, seen=None, **operands):
         agent = ClaudeAgent(run=self.runner(**operands),
                             home=tempfile.mkdtemp(prefix="v12-w110772-",
                                                   dir=self.home))
-        return agent.work({"contract": "the frozen task",
-                           "role": claude_agent.REVIEW_ROLE},
+        return agent.work(dict({"contract": "the frozen task"}
+                               if seen is None else seen,
+                               role=claude_agent.REVIEW_ROLE),
                           list(REVIEW_DECLARED if declared is None
                                else declared))
 
@@ -2917,6 +3119,41 @@ class TheReviewTurnAuthorsAVerdictItDidNotDecide(ReviewCase):
                          ["provider", "report_bytes", "reviewed", "schema",
                           "task_id", "verdict", "verification"])
 
+    # -- W321528: the bound the review log reports ---------------------------
+
+    def test_the_review_log_reports_this_workers_default_with_no_job(self):
+        self.reviewed()
+        held = json.loads(self.read(self.logs(claude_agent.REVIEW_LOG)))
+        self.assertEqual(held["provider"]["seconds_bound"],
+                         claude_agent.PROVIDER_SECONDS)
+        self.assertEqual(held["provider"]["seconds_bound_source"],
+                         claude_agent.WORKER_DEFAULT_BOUND)
+
+    def test_the_review_log_reports_the_operator_selected_bound(self):
+        """THE DEFECT, in the review publisher. A review turn runs under the
+        same Job ceiling an implementation turn does, and its log named the
+        constant -- so the one record an operator reads about a reviewer
+        container described a bound nobody had configured."""
+        self.reviewed(seen=self.launched(seconds=self.SELECTED_SECONDS))
+        held = json.loads(self.read(self.logs(claude_agent.REVIEW_LOG)))
+        self.assertNotEqual(self.SELECTED_SECONDS,
+                            claude_agent.PROVIDER_SECONDS)
+        self.assertEqual(held["provider"]["seconds_bound"],
+                         self.SELECTED_SECONDS)
+        self.assertEqual(held["provider"]["seconds_bound_source"],
+                         claude_agent.JOB_SELECTED_BOUND)
+        # AND THE VERDICT IS STILL THE REPORT'S. Reporting the real bound
+        # neither makes nor unmakes a decision.
+        self.assertEqual(self.claim(self.reviewed())["verdict"], "accepted")
+
+    def test_the_review_log_separates_a_job_default_from_no_job_at_all(self):
+        self.reviewed(seen=self.launched())
+        held = json.loads(self.read(self.logs(claude_agent.REVIEW_LOG)))
+        self.assertEqual(held["provider"]["seconds_bound"],
+                         claude_agent.PROVIDER_SECONDS)
+        self.assertEqual(held["provider"]["seconds_bound_source"],
+                         claude_agent.JOB_DEFAULT_BOUND)
+
     def test_the_reviewed_source_is_never_written_to(self):
         """The manager mounts it read-only; this proves the adapter does not
         try, which is the half a fixture can actually observe."""
@@ -2977,6 +3214,36 @@ class NoUsableReportIsNoVerdictAtAll(ReviewCase):
     def test_a_provider_that_could_not_start_decides_nothing(self):
         answered = self.unable(missing=True)
         self.assertIn(claude_agent.PROVIDER_START_ERROR, answered["recap"])
+
+    # -- W321528: a turn that decided nothing still says what bounded it -----
+
+    def test_a_timed_out_review_names_its_effective_bound_and_no_verdict(self):
+        """The log is the only account an unanswered review leaves, so the
+        bound in it is the one the turn actually ran under. The absence of a
+        verdict is unchanged: a bound reported honestly is not a decision."""
+        answered = self.unable(timeout=True,
+                               seen=self.launched(
+                                   seconds=self.SELECTED_SECONDS))
+        held = json.loads(self.read(self.logs(claude_agent.REVIEW_LOG)))
+        self.assertIsNone(held["verdict"])
+        self.assertEqual(held["provider"]["seconds_bound"],
+                         self.SELECTED_SECONDS)
+        self.assertEqual(held["provider"]["seconds_bound_source"],
+                         claude_agent.JOB_SELECTED_BOUND)
+        self.assertEqual(held["provider"]["failure_reason"],
+                         claude_agent.PROVIDER_TIMED_OUT)
+        self.assertNotIn(str(claude_agent.PROVIDER_SECONDS),
+                         json.dumps(held))
+        self.assertIn(claude_agent.PROVIDER_TIMED_OUT, answered["recap"])
+
+    def test_a_review_that_wrote_nothing_still_reports_the_default_bound(self):
+        self.unable(report=None)
+        held = json.loads(self.read(self.logs(claude_agent.REVIEW_LOG)))
+        self.assertIsNone(held["verdict"])
+        self.assertEqual(held["provider"]["seconds_bound"],
+                         claude_agent.PROVIDER_SECONDS)
+        self.assertEqual(held["provider"]["seconds_bound_source"],
+                         claude_agent.WORKER_DEFAULT_BOUND)
 
     def test_a_report_that_is_not_a_readable_document_decides_nothing(self):
         self.unable(report="{not json at all")

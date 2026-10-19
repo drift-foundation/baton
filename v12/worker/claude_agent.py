@@ -302,7 +302,46 @@ PROVIDER_START_ERROR = "start-error"
 # How long one provider turn is given. A real turn is minutes; a bound that
 # cannot be reached turns ordinary work into a failure, and a bound that does
 # not exist turns a wedged provider into a wedged container.
+#
+# IT IS THIS MODULE'S DEFAULT AND NOT THE EFFECTIVE BOUND. `_bound` resolves
+# what a turn actually runs under from the launch document's Job execution
+# context, so the number below is what stands in when there is no Job behind
+# the launch -- never what a result may report about a turn that ran under a
+# different one. See `_resolved_bound` and `_bound_member`.
 PROVIDER_SECONDS = 3600
+
+# WHO CHOSE THE BOUND A RESULT PUBLISHES, and this vocabulary is exactly as
+# wide as the delivered document can currently support -- no wider. W321528.
+#
+# WHY A SECOND MEMBER AT ALL. A bare `900` cannot say whether an operator
+# picked fifteen minutes or whether nobody picked anything and fifteen minutes
+# is simply what the boundary preserves; a reader deciding whether a timeout
+# was a configuration problem needs to know which. The number alone made the
+# two indistinguishable, and reporting the default constant for a turn that
+# ran under something else made them indistinguishable in the wrong direction.
+#
+# THE DISTINCTION IS READ, NOT INFERRED. The manager's execution-limit owner
+# already resolves each boundary with an ORIGIN beside its seconds, and that
+# origin travels inside the sealed `execution_limits` this container is handed
+# -- so the three answers below are what the delivery actually says rather
+# than this module's guess about it. `_ORIGIN_SELECTION` maps the two words
+# that owner uses; an origin it does not use is reported `unstated` rather
+# than squeezed into one of them, because a delivery this module cannot read
+# is not evidence that nobody configured anything.
+#
+# THE WORDS ARE SPELLED TWICE ON PURPOSE. The image carries no `baton_v12`, so
+# the mirror is held against its owner by a case rather than by an import --
+# the same arrangement `REVIEW_VERDICTS` has, and for the same reason.
+WORKER_DEFAULT_BOUND = "worker-default"
+JOB_SELECTED_BOUND = "job-selected"
+JOB_DEFAULT_BOUND = "job-default"
+UNSTATED_BOUND_SOURCE = "unstated"
+
+# The execution-limit owner's own origin words, mirrored. `job` is a setting
+# the Job stated; `compatibility` is the boundary's preserved runner default
+# resolved for a Job that stated nothing.
+_ORIGIN_SELECTION = {"job": JOB_SELECTED_BOUND,
+                     "compatibility": JOB_DEFAULT_BOUND}
 
 # How long the task's own verification command is given. Bounded separately
 # because it is the WORKLOAD's command rather than the provider's, and the two
@@ -1937,6 +1976,43 @@ class ClaudeAgent:
                 f"back to this worker's own default")
         return seconds
 
+    # W321528: THE SAME NUMBER, WITH THE FACT A READER NEEDS BESIDE IT.
+    #
+    # WHAT WAS WRONG. Every result publisher below spelled `PROVIDER_SECONDS`
+    # into its `provider.seconds_bound` member while `_provider` ran the child
+    # under `_bound`'s answer, so a turn the operator had bounded at 600 or at
+    # 900 seconds published 3600 -- and did it next to a `why` that named the
+    # real bound, which is how the two historic runs were caught. The number
+    # was not stale by accident: it was a SECOND source for a fact that
+    # already had one.
+    #
+    # SO THERE IS ONE SOURCE. This resolves the bound once, `_provider` calls
+    # it once per turn, and what the child is given and what the result
+    # reports are the same value by construction. The publishers read it off
+    # the turn's own record through `_bound_member` and name no constant.
+    #
+    # AND NOT ONLY THE NUMBER. See `WORKER_DEFAULT_BOUND`: the delivered
+    # configuration already carries an ORIGIN beside each boundary's seconds,
+    # so which of the three answers applies is READ off the same operand
+    # `_bound` reads rather than inferred from the shape of the document.
+    #
+    # THE SEMANTICS ARE UNTOUCHED. `_bound` decides, including its refusal of
+    # a Job context that names no usable bound; this calls it first and then
+    # describes the operand it must have used. Nothing here changes what any
+    # turn runs under, and nothing here can make a turn run at all -- a
+    # launch `_bound` refuses still refuses, before any source is named.
+    def _resolved_bound(self, seen, boundary, default):
+        seconds = self._bound(seen, boundary, default)
+        held = (seen or {}).get("job_execution")
+        if not isinstance(held, dict):
+            source = WORKER_DEFAULT_BOUND
+        else:
+            limits = held.get("execution_limits") or {}
+            one = (limits.get("boundaries") or {}).get(boundary) or {}
+            source = _ORIGIN_SELECTION.get(one.get("origin"),
+                                           UNSTATED_BOUND_SOURCE)
+        return {"seconds_bound": seconds, "seconds_bound_source": source}
+
     def work(self, seen, declared):
         """Run the frozen task and author the declared proposal.
 
@@ -2120,7 +2196,7 @@ class ClaudeAgent:
                                           "status": provider["status"],
                                           "failure_reason":
                                               provider.get("failure_reason"),
-                                          "seconds_bound": PROVIDER_SECONDS,
+                                          **_bound_member(provider),
                                           **_diagnostic_member(provider)},
                                       "verification": (
                                           {"status": verification["status"],
@@ -2145,7 +2221,7 @@ class ClaudeAgent:
                                      "status": provider["status"],
                                      "failure_reason":
                                          provider.get("failure_reason"),
-                                     "seconds_bound": PROVIDER_SECONDS,
+                                     **_bound_member(provider),
                                      **_diagnostic_member(provider)},
                                  "verification": (
                                      {"status": verification["status"],
@@ -2255,7 +2331,7 @@ class ClaudeAgent:
                                  "status": provider["status"],
                                  "failure_reason":
                                      provider.get("failure_reason"),
-                                 "seconds_bound": PROVIDER_SECONDS,
+                                 **_bound_member(provider),
                                  **_diagnostic_member(provider)},
                              "verification": None},
                             indent=1, sort_keys=True) + "\n")
@@ -3283,33 +3359,41 @@ class ClaudeAgent:
         # `_bound_activity`: the baseline is proved by construction, so binding
         # it costs the provider nothing.
         self._bound_activity(scratch)
+        # W321528: RESOLVED ONCE, BEFORE THE CHILD, AND CARRIED ON EVERY
+        # ANSWER. The number below is what `_ran_provider` is given AND what
+        # the publishers report; there is no second resolution and no constant
+        # spelled at a publication site. The timeout branch reads it off this
+        # same mapping rather than asking `_bound` again, which is how its
+        # sentence and its `seconds_bound` member came to disagree with each
+        # other in the first place.
+        bound = self._resolved_bound(self._seen, "provider_turn",
+                                     PROVIDER_SECONDS)
+        seconds = bound["seconds_bound"]
         try:
-            seconds = self._bound(self._seen, "provider_turn",
-                                  PROVIDER_SECONDS)
             status, record, partial = self._ran_provider(
                 argv, cwd=candidate, seconds=seconds, scratch=scratch,
                 env=self._revalidated_environment(scratch, environment),
                 umask=PROVIDER_UMASK)
         except subprocess.TimeoutExpired:
             return {"ok": False, "status": None,
-                    "failure_reason": PROVIDER_TIMED_OUT,
+                    "failure_reason": PROVIDER_TIMED_OUT, **bound,
                     "why": f"the provider did not finish within "
-                           f"{self._bound(self._seen, 'provider_turn', PROVIDER_SECONDS)}s"}
+                           f"{seconds}s"}
         except OSError as failed:
             return {"ok": False, "status": None,
-                    "failure_reason": PROVIDER_START_ERROR,
+                    "failure_reason": PROVIDER_START_ERROR, **bound,
                     "why": f"the provider could not be started: "
                            f"{type(failed).__name__}"}
         if contextual is not None:
             self._context_receipt = self._context_result(contextual, status=status, record=record, partial=partial)
             if self._context_receipt["complete"] is not True:
-                return {"ok": False, "status": status, "failure_reason": PROVIDER_START_ERROR, "why": "provider context terminal identity is unproved"}
+                return {"ok": False, "status": status, "failure_reason": PROVIDER_START_ERROR, **bound, "why": "provider context terminal identity is unproved"}
         if status == 0:
             # A CLEAN TURN PUBLISHES NO REASON. There is nothing to classify,
             # and a `failure_reason` on a success would be a field readers
             # learn to ignore.
             return {"ok": True, "status": 0, "failure_reason": None,
-                    "why": None}
+                    **bound, "why": None}
         # THE DIAGNOSTIC IS STILL NOT THE PROVIDER'S PROSE. This read
         # `f"...{status}: {errors}"`, and `errors` was the provider's own
         # stderr -- the process that had just authenticated with the attempt's
@@ -3325,6 +3409,7 @@ class ClaudeAgent:
         reason = _failure_reason(record, partial=partial)
         return {"ok": False, "status": status, "failure_reason": reason,
                 "diagnostic": _provider_diagnostic(record, partial=partial),
+                **bound,
                 "why": f"the provider exited {status} ({reason}); its own "
                        f"unrestricted diagnostic is withheld; supported "
                        f"nonsecret detail is in provider.diagnostic"}
@@ -4069,11 +4154,14 @@ class ClaudeAgent:
                 seconds=seconds,
                 env=environment, pass_fds=pass_fds)
         except subprocess.TimeoutExpired:
+            # W321528: THE BOUND THE CHILD WAS GIVEN, not a second resolution
+            # of it. `seconds` is bound before `_ran` can raise this, and
+            # re-deriving it here is how a sentence and the number beside it
+            # came to disagree one layer up.
             return {"status": None,
                     "text": _transcript(
                         task,
-                        f"did not finish within "
-                        f"{self._bound(self._seen, 'ordinary_verification', VERIFICATION_SECONDS)}s")}
+                        f"did not finish within {seconds}s")}
         except OSError as failed:
             return {"status": None,
                     "text": _transcript(task, f"could not be started "
@@ -4225,6 +4313,24 @@ def _diagnostic_member(provider):
     """Older injected providers and clean turns retain their existing shape."""
     diagnostic = provider.get("diagnostic")
     return {"diagnostic": diagnostic} if diagnostic is not None else {}
+
+
+def _bound_member(provider):
+    """WHAT ACTUALLY BOUNDED THIS TURN, for the record that reports it.
+
+    W321528, and the one place every result publisher gets these two members
+    from. Each of the three used to write `PROVIDER_SECONDS` itself, which is
+    three independent chances to report a number the turn never ran under --
+    and all three took it.
+
+    SUBSCRIPTED RATHER THAN `get`. `_provider` carries the resolved bound on
+    every one of its answers, including the two that never reached a child, so
+    a missing member is this module disagreeing with itself and a `KeyError`
+    is the correct noise. A default here would quietly restore exactly the
+    defect: a publisher inventing `3600` for a turn it knows nothing about.
+    """
+    return {"seconds_bound": provider["seconds_bound"],
+            "seconds_bound_source": provider["seconds_bound_source"]}
 
 
 def _disposition(provider, patch, verification):

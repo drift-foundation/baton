@@ -252,3 +252,15 @@ Accounting: formal worker186 tests6.972s; reviewer initial1.314968 wall, complet
 ## 2026-10-18T19-36-47Z — continuation packet independently reviewed
 
 Preparation-325711 accepted for fresh owner execution selection; manifest ec793a20eff935ee45873a46b96171776ed80f88d2f5b91e42e42e98b2c918fb. See review-2026-10-18T19-36-47Z.md and evidence/review-325758/CHECK.json. Lossless reconstruction matches retained0addd2af all5 paths; composed50885-byte prompt passes inert exec, oversize control E2BIG. No launch or product acceptance. Unreadable-ancestor correction remains next; separate W325695 environment defect stays open. This supersedes the19:28 preparation-pending checkpoint only; spent-run evidence and W321776 gate remain.
+
+## 2026-10-18T20-07-01Z — continuation325711 failed before checkpoint restoration
+
+review-2026-10-18T20-07-01Z.md records provider refusal/API-error after11 turns, no candidate/verification, exact runtime absent. Retained checkout clean at9debba18; trace shows invalid base64 then corrupt zlib during model transcription. No recoverable source progress established. Prior0addd2af remains checkpoint. This supersedes launch-ready325711 status: spent packet, no retry. Next preparation must deliver exact retained bytes through supported source/input handling and independently prove them without model transcription. Preserve refusal and all old evidence; no bypass or timeout increase.
+
+## 2026-10-18T20-13-48Z — exact-file continuation packet accepted
+
+review-2026-10-18T20-13-48Z.md accepts preparation-326050 manifest37a0c9cdbd9ea221c63858120a0e9f66b5f5af1a60d5c0ae38a793f662744b6c for fresh execution selection. Independent restoration all5 retained hashes and source/artifact pins pass. Existing nominated-source file delivery replaces model blob transcription. This supersedes preparation-needed checkpoint only; provider refusal remains preserved/unresolved, no launch or product acceptance.
+
+## 2026-10-19T02-17-47Z — candidate602d7c14 independently accepted
+
+review-2026-10-19T02-17-47Z.md accepts exact5-path candidate602d7c1401bb0903bc38c72c1d0f210eb8a2c62f on base03b94fc8.192 focused tests pass outside worker; controlled descriptor TMPDIR reproduces formal40 failures20 errors with identical test names. Real EACCES ancestor probe now unreadable, not false absence. Runtime independently absent. Held/provider0/formal1 evidence preserved, W325695 separate. Current5 target states match reviewed base; human exact-byte integration/checkpoint still due. This supersedes preparation-awaiting-selection checkpoint; selected invocation326050 is spent, no retry.
