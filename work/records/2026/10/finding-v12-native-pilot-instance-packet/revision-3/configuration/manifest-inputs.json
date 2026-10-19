@@ -1,0 +1,51 @@
+{
+  "content_derived_and_recomputed_from_the_frozen_copies": {
+    "adapter_digest": "sha256:5f2ef38f05ed7a9aecd11dd7e23e9cfbe1f0243fe27bd2c9aa1b004580fcdef1",
+    "policy_digest": "sha256:3a532addb6b4a007ace31fa44d3d9e559be46e31fb4ce418c681ef8869172b6e",
+    "retention_policy_digest": "sha256:0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a",
+    "runtime_profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be"
+  },
+  "frozen_inputs": "inputs/deployment.json (copied and digested; the prior instance's live path is NOT read at preparation time)",
+  "inherited_verbatim": {
+    "assignment_contract": "v12-assignment-1",
+    "outputs": "the declared output set",
+    "sources": "the nominated-mount source descriptor, which declares baton.source-boundary/1",
+    "worker_image_digest": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2"
+  },
+  "job_input_identity_excluded_members": [
+    "worker_image_digest",
+    "toolchain_digest",
+    "runtime_profile_digest",
+    "credential_policy_digest",
+    "role_instructions_digest",
+    "manifest_id",
+    "created_at",
+    "manifest_digest"
+  ],
+  "schema": "baton.w325959.manifest-inputs/2",
+  "unresolved_deployment_accountability_documents": {
+    "consequence": "the four in the Job input identity change what the Job is admitted under, so they must be real documents before any launch; the three excluded ones do not affect the Job's admitted identity (see contracts.manifest.JOB_INPUT_EXCLUDED).",
+    "excluded_from_the_job_input_identity": [
+      "credential_policy_digest",
+      "role_instructions_digest",
+      "toolchain_digest"
+    ],
+    "in_the_job_input_identity": [
+      "resource_policy_digest",
+      "network_policy_digest",
+      "mount_policy_digest",
+      "tool_policy_digest"
+    ],
+    "members": [
+      "resource_policy_digest",
+      "network_policy_digest",
+      "mount_policy_digest",
+      "tool_policy_digest",
+      "credential_policy_digest",
+      "role_instructions_digest",
+      "toolchain_digest"
+    ],
+    "state": "repeated-hex placeholders in the frozen prior deployment",
+    "why_this_packet_does_not_fill_them": "dogfood_operator.input_manifest's own words: 'EVERY POLICY IDENTITY IS AN OPERAND ... each names something the deployment is accountable for. A tool that filled one in would be making a grant on an operator's behalf, which is the one thing' it may not do. No document for any of the seven exists in this tree or in the frozen inputs, and no product operation composes one. That is the concrete missing document, named rather than hashed on the owner's behalf."
+  }
+}

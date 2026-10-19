@@ -1,0 +1,9 @@
+{
+  "authority": "W325959 under W321608 selection325952; no live grant",
+  "kind": "network_policy",
+  "network": "bridge",
+  "purpose": "Author and independently review the selected operator quickstart through the Claude provider; no model-based verification.",
+  "schema": "baton.w325959.accountable-input/1",
+  "secret_material": "Never include in artifacts or logs.",
+  "status": "proposed, subject to independent review and execution selection"
+}

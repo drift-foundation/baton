@@ -1,0 +1,14 @@
+{
+  "automatic_retry": false,
+  "cleanup": "Proposed observation allowance, not cessation bound. Unknown runtime retains hold.",
+  "cleanup_observation_seconds": 120,
+  "provider_turn_seconds": 3600,
+  "schema": "baton.w325959.execution-policy/1",
+  "stages": [
+    "implementation",
+    "review"
+  ],
+  "status": "proposed; preparation only, no execution authority",
+  "total": "No product cumulative ceiling. Operator observes a proposed 9900s window; 9000s assumes one provider and one verification invocation per stage.",
+  "verification_command_seconds": 900
+}

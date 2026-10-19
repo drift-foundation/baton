@@ -81,9 +81,9 @@
   "injected": "pass three against the Job manager's own validator, authored and resolved-copy",
   "intended_failed_check": null,
   "member": {
-    "bytes": 1232,
+    "bytes": 1392,
     "path": "configuration/submission.json",
-    "sha256": "ed13965241148c6be311300e87ef402b665524eb6b71379abc18c751bfbeb8eb"
+    "sha256": "34443112b1a5d3b087411807c7bf2f6fa4cb9a8c635f09f00be9960e8f36e55a"
   },
   "normalized_shape": {
     "job_id": "quickstart-a",
@@ -121,10 +121,8 @@
     "$.jobs[0].input_digest",
     "$.jobs[0].policy_digest",
     "$.jobs[0].stages[0].profile_digest",
-    "$.jobs[0].stages[0].profile_name",
     "$.jobs[0].stages[0].work_id",
     "$.jobs[0].stages[1].profile_digest",
-    "$.jobs[0].stages[1].profile_name",
     "$.jobs[0].stages[1].work_id"
   ],
   "validator_accepts_opaque_digests": true

@@ -1,0 +1,75 @@
+{
+  "claim": 325968,
+  "destination": "/home/sl/baton-instances/native-coordination-pilot-w321608-1",
+  "members": {
+    "INSTANCE-PACKET.md": {
+      "bytes": 18240,
+      "sha256": "853873e0e826c07a9a0cbf810af9bb246f7fa895859f3d83803b20e410b84d78"
+    },
+    "PROGRESS.md": {
+      "bytes": 11673,
+      "sha256": "ccecbc3666c5ab0db7c4f51e641d49368d07f7f4cb775571774bf4c9a6a6f710"
+    },
+    "configuration/install-inputs.json": {
+      "bytes": 1021,
+      "sha256": "6600c5728fc342c9e060957e50a8199a6da0304ce19b643a28e2abc79c5dca26"
+    },
+    "configuration/job-inputs.json": {
+      "bytes": 8167,
+      "sha256": "95be9d3eacdda57613b9edb9797106955fdf5e7c45d1c98af44fb3af5aa44db0"
+    },
+    "configuration/submission.json": {
+      "bytes": 1392,
+      "sha256": "34443112b1a5d3b087411807c7bf2f6fa4cb9a8c635f09f00be9960e8f36e55a"
+    },
+    "configuration/task.json": {
+      "bytes": 1886,
+      "sha256": "631d025c6eb5e98d09cfef8ea3fff65bbf37661e3e062941fc1c9793c7bc4b73"
+    },
+    "verification/VALIDATION.json": {
+      "bytes": 36724,
+      "sha256": "93c018c0090f907111faf93fd195d38907af77e4c525acb4744e13fce24cb2d6"
+    },
+    "verification/scenario-0-harness-self-check.json": {
+      "bytes": 1040,
+      "sha256": "87fb685e97bde32330f04f2f77dd7b2317abd6d68f59bebe00e2f63dfb8b244c"
+    },
+    "verification/scenario-1-task-document-immutable-and-owned.json": {
+      "bytes": 3564,
+      "sha256": "9a6f0b3e735c0ba40da2fa8f11ce8d01bb44626c2aa8d359124e6df127d96d6c"
+    },
+    "verification/scenario-2-install-inputs-closed-and-refusing.json": {
+      "bytes": 5432,
+      "sha256": "89f48bd5427b7db4d4a56ae41e16166cf2973751735625a950ddf7cd28af0b89"
+    },
+    "verification/scenario-3-two-stage-submission-validates.json": {
+      "bytes": 3801,
+      "sha256": "22e39572e6cbc6969adae9c179ab401503dbb0bdb0867390a5953bb48bca46b3"
+    },
+    "verification/scenario-4-worker-documents-name-every-member.json": {
+      "bytes": 10189,
+      "sha256": "e72d281fa5eb442aafeb18f2d046f3f62b44f3b214248b12a758ae8de134e421"
+    },
+    "verification/scenario-5-destination-fresh-and-pins-hold.json": {
+      "bytes": 8211,
+      "sha256": "4d7caa47848dedf8ebb927013af2cf3b54d1174b71f49acbe4e34ff505a3ebe2"
+    },
+    "verification/validate.py": {
+      "bytes": 38438,
+      "sha256": "64d3e2a21ac1267cd333d92935a637f3965cb31c5fcbfa426c89133af9ffde0c"
+    }
+  },
+  "note": "instance-specific PREPARATION packet: configuration, submission, task and operator commands, with 70 structural checks passed, 5 scenarios observed, the self-check failed for its own named reason and 0 unexpected. Nothing installed, submitted, served or executed.",
+  "retention_policy_digest_basis": "sha256 of v12/instance-retention.md, recomputed this claim",
+  "reviewer_owned_and_excluded": [
+    "FINDING.md",
+    "PLAN.md"
+  ],
+  "schema": "baton.w325959.instance-packet/1",
+  "sealed_task_digest": "5ec48d4baf2020a8ef972237444c5989cf8490dea23cc285dbfd3bc0508dc1bb",
+  "source_base": "14e52d80679de5e844f72324df632da5e01cf393",
+  "unresolved": {
+    "BUILD": 5,
+    "READBACK": 6
+  }
+}

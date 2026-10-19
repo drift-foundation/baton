@@ -1,0 +1,11 @@
+{
+  "adapter_digest": "sha256:5f2ef38f05ed7a9aecd11dd7e23e9cfbe1f0243fe27bd2c9aa1b004580fcdef1",
+  "authority": "W325959 under W321608 selection325952; no live grant",
+  "engine": "docker",
+  "kind": "tool_policy",
+  "launch_contract": "v12-assignment-1",
+  "schema": "baton.w325959.accountable-input/1",
+  "scope": "Author v12/QUICKSTART.md and execute its frozen structural verification argv. Independent semantic review; no product edits or Git integration by workers.",
+  "status": "proposed, subject to independent review and execution selection",
+  "task": "configuration/task.json"
+}

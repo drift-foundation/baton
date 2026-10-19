@@ -1,0 +1,6 @@
+workspace      /tmp/w325959-preflight-328521-3/1-coherent-preparation/repo/workspace -- inside this instance -- a repository (bare) -- HEAD 14e52d80679de5e844f72324df632da5e01cf393
+target         /tmp/w325959-preflight-328521-3/1-coherent-preparation/repo/target.git -- inside this instance -- a repository (bare) -- HEAD 14e52d80679de5e844f72324df632da5e01cf393
+reference      not configured -- a reconciled result is imported at exactly one explicitly configured reference
+declared bases 14e52d80679de5e844f72324df632da5e01cf393
+
+nothing was run and nothing was written; preparing the target is the owner's, and the read-only commands to check it are in OPERATOR-INDEPENDENT-REPOSITORY.md

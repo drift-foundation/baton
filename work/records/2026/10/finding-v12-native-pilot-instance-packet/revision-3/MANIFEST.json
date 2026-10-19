@@ -1,0 +1,89 @@
+{
+  "claim": 326225,
+  "destination": "/home/sl/baton-instances/native-coordination-pilot-w321608-1",
+  "disposable_root": "/var/tmp/w325959-preflight-r3",
+  "frozen_inputs": "FROZEN-INPUTS.json",
+  "members": {
+    "FROZEN-INPUTS.json": {
+      "bytes": 1405,
+      "sha256": "7a096543d2d52738a45b993f4349b5139f57d0c0a4c4463d9a7bea8fc364f112"
+    },
+    "INSTANCE-PACKET.md": {
+      "bytes": 10556,
+      "sha256": "ae924bc884ad12f4c9f973e85e5e3a885677be75424c084dc66143c52a215cea"
+    },
+    "configuration/configure-inputs.json": {
+      "bytes": 6268,
+      "sha256": "5173ec21773a8f3346e6e395a3c543bc6f4554078587124c1d0ad0ad19a63d91"
+    },
+    "configuration/install-inputs.json": {
+      "bytes": 779,
+      "sha256": "151088597e5583bef768fb7b7518dac74cdae0b494e68ce57be4061f5f26a70b"
+    },
+    "configuration/manifest-inputs.json": {
+      "bytes": 2656,
+      "sha256": "a69b854db886bd265e9d4220b01839af861edd6cdddc2245b3bd668707b6c1da"
+    },
+    "configuration/submission.json": {
+      "bytes": 1394,
+      "sha256": "08ce983756ff1b65f5bd77b1418534baaaf2aef8a10224f2d924d42440b24ae1"
+    },
+    "configuration/task.json": {
+      "bytes": 1886,
+      "sha256": "631d025c6eb5e98d09cfef8ea3fff65bbf37661e3e062941fc1c9793c7bc4b73"
+    },
+    "evidence/PREPARATION.json": {
+      "bytes": 41764,
+      "sha256": "e509c24eb9bc2ab160f1aba2d0f0ea9dcc5d48e8d4a3435d37d681fa5aa1c2ae"
+    },
+    "evidence/scenario-0-harness-self-check.json": {
+      "bytes": 1197,
+      "sha256": "9b6217f9f367f3fb8e5ef8c667510b96e877aeee10edd4d468375e287ad1a71f"
+    },
+    "evidence/scenario-1-pass-one-composes-and-reads-back.json": {
+      "bytes": 8795,
+      "sha256": "4ab1b93b165e9f5225dada81c759a90d9df2882262287285497e7b5474349dac"
+    },
+    "evidence/scenario-2-owner-and-diagnosis-ownership.json": {
+      "bytes": 6105,
+      "sha256": "10d2cc45e4e48095267c583c734a422b306226c9fbfbedfaa885452b9d581a91"
+    },
+    "evidence/scenario-3-pass-two-binds-the-two-stage-job.json": {
+      "bytes": 13184,
+      "sha256": "4fbf155312d6a764e4ff87b7c70086e17fbd9ae6d8aae2c1c9f0eb5f2dc4b916"
+    },
+    "evidence/scenario-4-the-reused-inputs-are-verified.json": {
+      "bytes": 7971,
+      "sha256": "acb9a5b6d61500a5fddc4ac75225dc33b4370ef120a3a6201a54a36fe8c99ee7"
+    },
+    "inputs/adapter.json": {
+      "bytes": 682,
+      "sha256": "cbe3bb4ade990eb5411c64a40be74a10e46a79f48343c499b5f1a8453fabc9c7"
+    },
+    "inputs/deployment.json": {
+      "bytes": 13058,
+      "sha256": "6a675445d361a5208f82dfc43593595cd2d5d9bcbb3e893842c03b5cb8587a3e"
+    },
+    "inputs/instance-retention.md": {
+      "bytes": 365,
+      "sha256": "0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a"
+    },
+    "inputs/policy.json": {
+      "bytes": 254,
+      "sha256": "d067a1a6fedc701501280564772c356f3cb8320de55460caf46e5fdfd5f40cd4"
+    },
+    "inputs/runtime-profile.json": {
+      "bytes": 539,
+      "sha256": "70ca07c494c9660bfaf747772f2233ccaf77b4ef3a4da90c26121b7b59ff1d34"
+    },
+    "prepare.py": {
+      "bytes": 46128,
+      "sha256": "3c7380fcff154bbfb984bab16b0bd922acd6b3bda279bccf75778d125523df1d"
+    }
+  },
+  "note": "83 checks passed, 4 scenarios observed, the self-check failed for its own named reason, 0 unexpected, 0.207s; the selected destination is untouched and still does not exist. The documented sequence and the exercised one are the same operations.",
+  "revision": 3,
+  "schema": "baton.w325959.instance-packet/3",
+  "source_base": "14e52d80679de5e844f72324df632da5e01cf393",
+  "supersedes": "revisions 1 and 2, both preserved unedited; revision 2's manifest digest as the review published it: e6dadbbc2f8009b7ddc5ed49d8fda6755162a27f81d5f34214ca60e4ef99b6c9"
+}

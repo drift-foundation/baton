@@ -1,0 +1,130 @@
+{
+  "check_behaviour": {
+    "absent": {
+      "status": 1,
+      "stderr": "no v12/QUICKSTART.md"
+    },
+    "accepted": {
+      "status": 0,
+      "stderr": "",
+      "stdout": "quickstart structure ok: 2633 bytes, 4 sections"
+    },
+    "marker": {
+      "status": 1,
+      "stderr": "unresolved markers: TODO",
+      "stdout": ""
+    },
+    "missing_section": {
+      "status": 1,
+      "stderr": "missing sections: ## Reading a failed attempt",
+      "stdout": ""
+    },
+    "too_short": {
+      "status": 1,
+      "stderr": "quickstart is shorter than its own contract",
+      "stdout": ""
+    }
+  },
+  "checks": [
+    {
+      "check": "the task document carries NO unresolved value",
+      "detail": [],
+      "passed": true
+    },
+    {
+      "check": "it validates through dogfood_operator.held_task",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "its declared base is the selected source",
+      "detail": "14e52d80679de5e844f72324df632da5e01cf393",
+      "passed": true
+    },
+    {
+      "check": "its source profile is the git line profile",
+      "detail": "git-line",
+      "passed": true
+    },
+    {
+      "check": "the verification command is one closed argv",
+      "detail": [
+        "python3",
+        "-c"
+      ],
+      "passed": true
+    },
+    {
+      "check": "the pinned check ACCEPTS a complete quickstart",
+      "detail": {
+        "status": 0,
+        "stderr": "",
+        "stdout": "quickstart structure ok: 2633 bytes, 4 sections"
+      },
+      "passed": true
+    },
+    {
+      "check": "it refuses a missing required section",
+      "detail": {
+        "status": 1,
+        "stderr": "missing sections: ## Reading a failed attempt",
+        "stdout": ""
+      },
+      "passed": true
+    },
+    {
+      "check": "it refuses a quickstart shorter than its own contract",
+      "detail": {
+        "status": 1,
+        "stderr": "quickstart is shorter than its own contract",
+        "stdout": ""
+      },
+      "passed": true
+    },
+    {
+      "check": "and it refuses an unresolved marker",
+      "detail": {
+        "status": 1,
+        "stderr": "unresolved markers: TODO",
+        "stdout": ""
+      },
+      "passed": true
+    },
+    {
+      "check": "with the file absent it refuses rather than passing",
+      "detail": "no v12/QUICKSTART.md",
+      "passed": true
+    }
+  ],
+  "checks_passed": 10,
+  "expected_failure": false,
+  "injected": "the one fully pinned document, validated by the workload's own owner and its verification argv actually run against five candidates",
+  "intended_failed_check": null,
+  "member": {
+    "bytes": 1886,
+    "path": "configuration/task.json",
+    "sha256": "631d025c6eb5e98d09cfef8ea3fff65bbf37661e3e062941fc1c9793c7bc4b73"
+  },
+  "not_performed": [
+    "bootstrap",
+    "install",
+    "submit",
+    "serve",
+    "any store write",
+    "any container",
+    "any provider call",
+    "any Git mutation"
+  ],
+  "note": "the sealed digest is over the canonical form dogfood_operator._copied_task writes (sorted keys, no indentation), which is what the input manifest's human contract binds -- not over the pretty-printed file here.",
+  "outcome": "observed",
+  "performed": [
+    "read the authored documents",
+    "called the product's own validators",
+    "ran the pinned verification argv in a temporary directory"
+  ],
+  "scenario": "1-task-document-immutable-and-owned",
+  "sealed_bytes": 1853,
+  "sealed_sha256": "5ec48d4baf2020a8ef972237444c5989cf8490dea23cc285dbfd3bc0508dc1bb",
+  "seconds": 0.153,
+  "task_id": "w321608-native-operator-quickstart"
+}

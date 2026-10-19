@@ -1,0 +1,31 @@
+{
+  "members": {
+    "inputs/adapter.json": {
+      "bytes": 682,
+      "copied_from": "/home/sl/baton-instances/failed-reporting-w321528-324054/packet/adapter.json",
+      "sha256": "cbe3bb4ade990eb5411c64a40be74a10e46a79f48343c499b5f1a8453fabc9c7"
+    },
+    "inputs/deployment.json": {
+      "bytes": 13058,
+      "copied_from": "/home/sl/baton-instances/failed-reporting-w321528-324054/packet/deployment.json",
+      "sha256": "6a675445d361a5208f82dfc43593595cd2d5d9bcbb3e893842c03b5cb8587a3e"
+    },
+    "inputs/instance-retention.md": {
+      "bytes": 365,
+      "copied_from": "/home/sl/src/baton/v12/instance-retention.md",
+      "sha256": "0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a"
+    },
+    "inputs/policy.json": {
+      "bytes": 254,
+      "copied_from": "/home/sl/baton-instances/failed-reporting-w321528-324054/packet/policy.json",
+      "sha256": "d067a1a6fedc701501280564772c356f3cb8320de55460caf46e5fdfd5f40cd4"
+    },
+    "inputs/runtime-profile.json": {
+      "bytes": 539,
+      "copied_from": "/home/sl/baton-instances/failed-reporting-w321528-324054/packet/runtime-profile.json",
+      "sha256": "70ca07c494c9660bfaf747772f2233ccaf77b4ef3a4da90c26121b7b59ff1d34"
+    }
+  },
+  "note": "the documents this packet consumes, copied and digested so preparation reads an immutable boundary rather than a mutable path",
+  "schema": "baton.w325959.frozen-inputs/1"
+}

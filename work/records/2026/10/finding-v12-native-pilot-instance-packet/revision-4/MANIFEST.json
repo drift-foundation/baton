@@ -1,0 +1,322 @@
+{
+  "author": "baton.codxpc",
+  "claim": 328521,
+  "members": {
+    "FROZEN-INPUTS.json": {
+      "bytes": 2845,
+      "sha256": "0d50bbecf8462d98cf5d6c4f6720b4d02584aafff7acc426e46b9709d4a73582"
+    },
+    "INSTANCE-PACKET.md": {
+      "bytes": 11401,
+      "sha256": "7e0db0f43d50523118f30926adf347b42f2044542e515f1322bae3d91d87c4f3"
+    },
+    "configuration/configure-inputs.json": {
+      "bytes": 6512,
+      "sha256": "5bca7d158ecd1c5f89cfb1e121e6a29afd1b3b0b1165e0739087ac55b460789d"
+    },
+    "configuration/install-inputs.json": {
+      "bytes": 989,
+      "sha256": "02a6b566bf6396f4d0d49a008436882a0df8449b9d5ce204711b7d208d6560b5"
+    },
+    "configuration/manifest-inputs.json": {
+      "bytes": 2462,
+      "sha256": "4c924188e853cc457e57ae405bce4e7ab06ddbe9f3b461ba7eeafa00f7fb30ab"
+    },
+    "configuration/submission.json": {
+      "bytes": 1394,
+      "sha256": "7e16701b47a2871ecfd8e39f26c6e32ab05958e92c784172c85c8d45b04eb634"
+    },
+    "configuration/task.json": {
+      "bytes": 1886,
+      "sha256": "631d025c6eb5e98d09cfef8ea3fff65bbf37661e3e062941fc1c9793c7bc4b73"
+    },
+    "evidence/ARTIFACT-CHECK.json": {
+      "bytes": 107,
+      "sha256": "79b2028c5414be1845aff0bcef1fd73768a340d456431e608f913b5fe8834093"
+    },
+    "evidence/PIN-REFUSAL.json": {
+      "bytes": 106,
+      "sha256": "cc9c6e554e42b6a60565ca39969061450c83d155dcefbd306d4c5b895a3d5f06"
+    },
+    "evidence/run-328521-1/PREPARATION.json": {
+      "bytes": 25808,
+      "sha256": "af555c58a884d2b8549c040a515389541b9d28fde91ab916a7bdd0caa50e1b69"
+    },
+    "evidence/run-328521-1/generated/authority-readback.json": {
+      "bytes": 916,
+      "sha256": "a8fe3ce72ec80c0f91524ff17586f5d2509d3c8689e422b56e3eee116e043e9c"
+    },
+    "evidence/run-328521-1/generated/configuration.json": {
+      "bytes": 13683,
+      "sha256": "87f018bbe571b9abe40afb984b8b095b471e7d6f00b0deb687d2bcb3480365e3"
+    },
+    "evidence/run-328521-1/generated/configure-inputs.json": {
+      "bytes": 13265,
+      "sha256": "577693f6c9ba7d9f2c8bea7f0b3eb5b7c9a43efd01b1383b36b1b0bec8b45080"
+    },
+    "evidence/run-328521-1/generated/installer.json": {
+      "bytes": 11192,
+      "sha256": "0be32cb7f52ddaaeef1a10b7df6a8b8c5cae74f7196c10f4821d051ab05aab54"
+    },
+    "evidence/run-328521-1/generated/manifest.json": {
+      "bytes": 3097,
+      "sha256": "34d7e142be2febadd2e79ef980d4081815f13afe4c8c659cff9e44867fb52529"
+    },
+    "evidence/run-328521-1/generated/ownership.json": {
+      "bytes": 1469,
+      "sha256": "eef02c541954915f377762c70a2635716bc578c862543fe33f143e499adc16a9"
+    },
+    "evidence/run-328521-1/generated/repository.txt": {
+      "bytes": 691,
+      "sha256": "9c3145836ce2df1e1b905608c99266a21848642df44c3dcf8b49f17da330b5d6"
+    },
+    "evidence/run-328521-1/generated/submission.json": {
+      "bytes": 1266,
+      "sha256": "a246f7ccb5ecca123eb3c5161dfb27fe1f9809b3499454214cdee454814f4837"
+    },
+    "evidence/run-328521-1/generated/task.json": {
+      "bytes": 1886,
+      "sha256": "631d025c6eb5e98d09cfef8ea3fff65bbf37661e3e062941fc1c9793c7bc4b73"
+    },
+    "evidence/run-328521-1/scenario-0-harness-self-check.json": {
+      "bytes": 1160,
+      "sha256": "2ebb59928f04a369e9263715b15eeb3adf4e57e2ebca792953cc518895394028"
+    },
+    "evidence/run-328521-1/scenario-1-coherent-preparation.json": {
+      "bytes": 21685,
+      "sha256": "9e65436c29951df2e4e9451a864db2f55a0dbb9c63f93b5d4f43d0c2845f4ad9"
+    },
+    "evidence/run-328521-2/PREPARATION.json": {
+      "bytes": 25262,
+      "sha256": "a2a335b453da1faa665dbe82510a111962e753139d415996d537446168e4cf55"
+    },
+    "evidence/run-328521-2/generated/authority-readback.json": {
+      "bytes": 916,
+      "sha256": "dca47545a573f90ffeec433b52cd313548dcbf800a44b43c7f9f0aaf199f3c07"
+    },
+    "evidence/run-328521-2/generated/configuration.json": {
+      "bytes": 13683,
+      "sha256": "9ecca7d4cdeba48701e0c2cd824d4c7256b25838c85310575513c48b1a7902f2"
+    },
+    "evidence/run-328521-2/generated/configure-inputs.json": {
+      "bytes": 13265,
+      "sha256": "a4d680fa0db7646fae79955ca28204bbce6f25d14b24e28e24a933164a854cd6"
+    },
+    "evidence/run-328521-2/generated/installer.json": {
+      "bytes": 11192,
+      "sha256": "d374d15b09a3c1491266ab5c7a7790e7bc021994a0e8b39b2b85c32c56f018ca"
+    },
+    "evidence/run-328521-2/generated/manifest.json": {
+      "bytes": 3097,
+      "sha256": "7fe1c78d5fb1d53eb51f341058a5baf78c47a6f771d776138fb183b4868420b5"
+    },
+    "evidence/run-328521-2/generated/ownership.json": {
+      "bytes": 1469,
+      "sha256": "c8b8b1d895c5c539ad2bce14106244d935fea3ccd9684435ab09d5bfd2f2f2cb"
+    },
+    "evidence/run-328521-2/generated/repository.txt": {
+      "bytes": 691,
+      "sha256": "e9f4a843a7f89288529c3de12745c47b818d93708d15a862929e07297353db0b"
+    },
+    "evidence/run-328521-2/generated/submission.json": {
+      "bytes": 1266,
+      "sha256": "230c557edcd786178af2db168544796394fd080af895891b21371df7dfcd9dc3"
+    },
+    "evidence/run-328521-2/generated/task.json": {
+      "bytes": 1886,
+      "sha256": "631d025c6eb5e98d09cfef8ea3fff65bbf37661e3e062941fc1c9793c7bc4b73"
+    },
+    "evidence/run-328521-2/scenario-0-harness-self-check.json": {
+      "bytes": 1160,
+      "sha256": "e363d973f4736dfd90b641bc46a58594ff539eef8b978cfe3c64950807bec1da"
+    },
+    "evidence/run-328521-2/scenario-1-coherent-preparation.json": {
+      "bytes": 21168,
+      "sha256": "f2fdbbbc6c83c503bce2f7e43a15a6de68ccb5bdb4a632faf8d0fc8f3b3d04c6"
+    },
+    "evidence/run-328521-3/PREPARATION.json": {
+      "bytes": 25409,
+      "sha256": "9a3aab4fadf6f87e0176d5f5c479899407e0d648c7e29998693617fa3dd45f00"
+    },
+    "evidence/run-328521-3/generated/authority-readback.json": {
+      "bytes": 916,
+      "sha256": "787f5178debc62cd13d99c72a72f9b54e6f1fb36361d4e6450bb5e60b53cb414"
+    },
+    "evidence/run-328521-3/generated/configuration.json": {
+      "bytes": 13629,
+      "sha256": "b10785266ced9ede6cc79f880651cf5b2c4912d725feb640554fd2a17248a7b1"
+    },
+    "evidence/run-328521-3/generated/configure-inputs.json": {
+      "bytes": 13211,
+      "sha256": "393b1b71b6acee024fe6820df5798f6bf6caf7ce947030dab15e5b388512e77e"
+    },
+    "evidence/run-328521-3/generated/dossiers/native-pilot-quickstart-deb706e6/FINDING.md": {
+      "bytes": 424,
+      "sha256": "8e51f5ec4c0d8c1866412f1987e0b07f0a06c3c24969262c70ef4837f25b8947"
+    },
+    "evidence/run-328521-3/generated/dossiers/native-pilot-quickstart-deb706e6/PLAN.md": {
+      "bytes": 475,
+      "sha256": "39c50d05797f5ed0ea92ae27a44a6f18cbc95baf3210e361c3845a603c03d8ab"
+    },
+    "evidence/run-328521-3/generated/installer.json": {
+      "bytes": 11192,
+      "sha256": "b9ee0c2e32f38efe0814e7a02a500c6bfcdbf4616200116b1069fbf1ede0b22f"
+    },
+    "evidence/run-328521-3/generated/manifest.json": {
+      "bytes": 3070,
+      "sha256": "55b145936201c4abc733abd49db960fd9ec9cb3eecc7fb320c8e4099b11ea8d2"
+    },
+    "evidence/run-328521-3/generated/ownership.json": {
+      "bytes": 1469,
+      "sha256": "79395add12dfd51a0ee6a47b0a08c2a26da3b9e0c271341ac9a8335bc6a14d8c"
+    },
+    "evidence/run-328521-3/generated/repository.txt": {
+      "bytes": 691,
+      "sha256": "4c9905c2cae3da9f9a221cd0cf603218d3fce6c21db8627446ed6352bbde0b99"
+    },
+    "evidence/run-328521-3/generated/submission.json": {
+      "bytes": 1266,
+      "sha256": "9a72578289ae87a199490e241b298a7a91bdd2e47937937ecd0b1e6b54f372ad"
+    },
+    "evidence/run-328521-3/generated/task.json": {
+      "bytes": 1853,
+      "sha256": "5ec48d4baf2020a8ef972237444c5989cf8490dea23cc285dbfd3bc0508dc1bb"
+    },
+    "evidence/run-328521-3/scenario-0-harness-self-check.json": {
+      "bytes": 1160,
+      "sha256": "892b3622bd488a73bd8a86d4886453613f103776d88d86e8b9f348fae42717ee"
+    },
+    "evidence/run-328521-3/scenario-1-coherent-preparation.json": {
+      "bytes": 21294,
+      "sha256": "139fb0d430a6fe1459dc31a80b17a8eaf752882dac0e86acc7f07ff4ebf2d3df"
+    },
+    "evidence/run-328521-4/PREPARATION.json": {
+      "bytes": 25600,
+      "sha256": "c68309f31062de00d1af3acf7894caa3cc1cb28dc73cfdd9520b76f54a6392ec"
+    },
+    "evidence/run-328521-4/generated/authority-readback.json": {
+      "bytes": 1021,
+      "sha256": "fdd7f863106d2925ad6c7fea87901fe751732014d3f5a9f0fceef114e35685c8"
+    },
+    "evidence/run-328521-4/generated/configuration.json": {
+      "bytes": 13629,
+      "sha256": "7ee80f0d700174a135eaa8d404701370fd6ed10500d74d8fe743e7b17cb170a5"
+    },
+    "evidence/run-328521-4/generated/configure-inputs.json": {
+      "bytes": 13211,
+      "sha256": "9a8c60cdeefb440d5838df7a85db7ab658518b754b9b39b8aa49bef045b12d5d"
+    },
+    "evidence/run-328521-4/generated/dossiers/native-pilot-quickstart-84120e53/FINDING.md": {
+      "bytes": 424,
+      "sha256": "8e51f5ec4c0d8c1866412f1987e0b07f0a06c3c24969262c70ef4837f25b8947"
+    },
+    "evidence/run-328521-4/generated/dossiers/native-pilot-quickstart-84120e53/PLAN.md": {
+      "bytes": 475,
+      "sha256": "39c50d05797f5ed0ea92ae27a44a6f18cbc95baf3210e361c3845a603c03d8ab"
+    },
+    "evidence/run-328521-4/generated/installer.json": {
+      "bytes": 11192,
+      "sha256": "4d7cb9f2254398c8088b9df9a6d42190de9b2842da782f427c3e2f44a1d31d08"
+    },
+    "evidence/run-328521-4/generated/manifest.json": {
+      "bytes": 3070,
+      "sha256": "471dbac06278c7ddbcf2198565a71f949446e38b9b691405bc7830b998cb3ba0"
+    },
+    "evidence/run-328521-4/generated/ownership.json": {
+      "bytes": 1476,
+      "sha256": "138d020ca6ad362c68a82a510339089076556965915def99a99103841609e3fc"
+    },
+    "evidence/run-328521-4/generated/repository.txt": {
+      "bytes": 691,
+      "sha256": "50d49d9395a844819b7e7acfc99818f296bb8094919764cd6d51a02c1fc52588"
+    },
+    "evidence/run-328521-4/generated/submission.json": {
+      "bytes": 1266,
+      "sha256": "fd8cebaf1ec8ab3c2dd5fa488f1bb348d2731a9883cb486c2f00f877ac9cf198"
+    },
+    "evidence/run-328521-4/generated/task.json": {
+      "bytes": 1853,
+      "sha256": "5ec48d4baf2020a8ef972237444c5989cf8490dea23cc285dbfd3bc0508dc1bb"
+    },
+    "evidence/run-328521-4/scenario-0-harness-self-check.json": {
+      "bytes": 1160,
+      "sha256": "113eddf8ee2e18b4170396a0e22580a0c086af1723dae56c8748a6d07e54ac36"
+    },
+    "evidence/run-328521-4/scenario-1-coherent-preparation.json": {
+      "bytes": 21466,
+      "sha256": "90429aabe32bfd46d46095a7df13dc8513ea11fd2f44ef68bcbc16713b232ef5"
+    },
+    "inputs/adapter.json": {
+      "bytes": 682,
+      "sha256": "cbe3bb4ade990eb5411c64a40be74a10e46a79f48343c499b5f1a8453fabc9c7"
+    },
+    "inputs/credential_policy.json": {
+      "bytes": 536,
+      "sha256": "2a2028d7ed7d7ae4de8e39bb4c1eedc14d5d39aed1f1f832c91db0d79e5ba699"
+    },
+    "inputs/deployment.json": {
+      "bytes": 13058,
+      "sha256": "6a675445d361a5208f82dfc43593595cd2d5d9bcbb3e893842c03b5cb8587a3e"
+    },
+    "inputs/instance-retention.md": {
+      "bytes": 365,
+      "sha256": "0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a"
+    },
+    "inputs/mount_policy.json": {
+      "bytes": 504,
+      "sha256": "60d7ba5b6b7ed0882c8cdcf5c2d356084e893f5923cb332d2093aa881ab1ba5e"
+    },
+    "inputs/native-finding.md": {
+      "bytes": 424,
+      "sha256": "8e51f5ec4c0d8c1866412f1987e0b07f0a06c3c24969262c70ef4837f25b8947"
+    },
+    "inputs/native-plan.md": {
+      "bytes": 475,
+      "sha256": "39c50d05797f5ed0ea92ae27a44a6f18cbc95baf3210e361c3845a603c03d8ab"
+    },
+    "inputs/network_policy.json": {
+      "bytes": 452,
+      "sha256": "35e314615ee2eef72cb0102e1216ef0bee3d0915b559dc7111979fa748469228"
+    },
+    "inputs/policy.json": {
+      "bytes": 566,
+      "sha256": "1a620633876a56ba5f1ecc5d9177963169196d9eefca47ffb59a3224293279ef"
+    },
+    "inputs/resource_policy.json": {
+      "bytes": 488,
+      "sha256": "3951f76d236d3f82b8481114947abf2c4d7ae761691e259042996210586c0a48"
+    },
+    "inputs/role_instructions.json": {
+      "bytes": 622,
+      "sha256": "298e0b5f0705ce0d223ad516ab0336f31c51288e6b36ef5a1a924f1e0445f6c3"
+    },
+    "inputs/runtime-profile.json": {
+      "bytes": 539,
+      "sha256": "70ca07c494c9660bfaf747772f2233ccaf77b4ef3a4da90c26121b7b59ff1d34"
+    },
+    "inputs/tool_policy.json": {
+      "bytes": 591,
+      "sha256": "62c5929dcdc341b3de938a1361a6bbfcb3d437fdb1c0dde29961303da1ba5866"
+    },
+    "inputs/toolchain.json": {
+      "bytes": 757,
+      "sha256": "db615d6cf822ce7b343dcaa4cd91dfc9b2a6b5d9e9a5f5f7ac743d823b3e6bb2"
+    },
+    "owner_operations.py": {
+      "bytes": 2926,
+      "sha256": "bc9223c20616f9e9ec2cdcd32a4c555d96ca8e253fe0c53d7508c950fa8ba3e8"
+    },
+    "prepare.py": {
+      "bytes": 45148,
+      "sha256": "0697286b53c908437d158b0205a8808e5e513bae28ac29d669e189d308ecfe90"
+    },
+    "verify_pins.py": {
+      "bytes": 1461,
+      "sha256": "615f60fa2c45908213bde52b06ebde2a7e1a2c354aec10615ca0fa8a23c3e870"
+    }
+  },
+  "revision": 4,
+  "schema": "baton.w325959.packet-manifest/1",
+  "selected_base": "14e52d80679de5e844f72324df632da5e01cf393",
+  "status": "proposed for independent review; not launch authority"
+}

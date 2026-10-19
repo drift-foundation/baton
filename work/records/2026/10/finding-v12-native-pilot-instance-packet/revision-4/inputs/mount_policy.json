@@ -1,0 +1,10 @@
+{
+  "authority": "W325959 under W321608 selection325952; no live grant",
+  "credentials": "Only declared claude slot, per-attempt materialization",
+  "kind": "mount_policy",
+  "other_host_mounts": "No additional host paths selected",
+  "output": "Isolated managed writable /output",
+  "schema": "baton.w325959.accountable-input/1",
+  "source": "Per-worker nominated source-<worker_id>, read-only delivery at /input/source",
+  "status": "proposed, subject to independent review and execution selection"
+}

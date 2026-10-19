@@ -1,0 +1,81 @@
+{
+  "members": {
+    "configuration/configure-inputs.json": {
+      "bytes": 6512,
+      "sha256": "5bca7d158ecd1c5f89cfb1e121e6a29afd1b3b0b1165e0739087ac55b460789d"
+    },
+    "configuration/install-inputs.json": {
+      "bytes": 989,
+      "sha256": "02a6b566bf6396f4d0d49a008436882a0df8449b9d5ce204711b7d208d6560b5"
+    },
+    "configuration/manifest-inputs.json": {
+      "bytes": 2462,
+      "sha256": "4c924188e853cc457e57ae405bce4e7ab06ddbe9f3b461ba7eeafa00f7fb30ab"
+    },
+    "configuration/submission.json": {
+      "bytes": 1394,
+      "sha256": "7e16701b47a2871ecfd8e39f26c6e32ab05958e92c784172c85c8d45b04eb634"
+    },
+    "configuration/task.json": {
+      "bytes": 1886,
+      "sha256": "631d025c6eb5e98d09cfef8ea3fff65bbf37661e3e062941fc1c9793c7bc4b73"
+    },
+    "inputs/adapter.json": {
+      "bytes": 682,
+      "sha256": "cbe3bb4ade990eb5411c64a40be74a10e46a79f48343c499b5f1a8453fabc9c7"
+    },
+    "inputs/credential_policy.json": {
+      "bytes": 536,
+      "sha256": "2a2028d7ed7d7ae4de8e39bb4c1eedc14d5d39aed1f1f832c91db0d79e5ba699"
+    },
+    "inputs/deployment.json": {
+      "bytes": 13058,
+      "sha256": "6a675445d361a5208f82dfc43593595cd2d5d9bcbb3e893842c03b5cb8587a3e"
+    },
+    "inputs/instance-retention.md": {
+      "bytes": 365,
+      "sha256": "0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a"
+    },
+    "inputs/mount_policy.json": {
+      "bytes": 504,
+      "sha256": "60d7ba5b6b7ed0882c8cdcf5c2d356084e893f5923cb332d2093aa881ab1ba5e"
+    },
+    "inputs/native-finding.md": {
+      "bytes": 424,
+      "sha256": "8e51f5ec4c0d8c1866412f1987e0b07f0a06c3c24969262c70ef4837f25b8947"
+    },
+    "inputs/native-plan.md": {
+      "bytes": 475,
+      "sha256": "39c50d05797f5ed0ea92ae27a44a6f18cbc95baf3210e361c3845a603c03d8ab"
+    },
+    "inputs/network_policy.json": {
+      "bytes": 452,
+      "sha256": "35e314615ee2eef72cb0102e1216ef0bee3d0915b559dc7111979fa748469228"
+    },
+    "inputs/policy.json": {
+      "bytes": 566,
+      "sha256": "1a620633876a56ba5f1ecc5d9177963169196d9eefca47ffb59a3224293279ef"
+    },
+    "inputs/resource_policy.json": {
+      "bytes": 488,
+      "sha256": "3951f76d236d3f82b8481114947abf2c4d7ae761691e259042996210586c0a48"
+    },
+    "inputs/role_instructions.json": {
+      "bytes": 622,
+      "sha256": "298e0b5f0705ce0d223ad516ab0336f31c51288e6b36ef5a1a924f1e0445f6c3"
+    },
+    "inputs/runtime-profile.json": {
+      "bytes": 539,
+      "sha256": "70ca07c494c9660bfaf747772f2233ccaf77b4ef3a4da90c26121b7b59ff1d34"
+    },
+    "inputs/tool_policy.json": {
+      "bytes": 591,
+      "sha256": "62c5929dcdc341b3de938a1361a6bbfcb3d437fdb1c0dde29961303da1ba5866"
+    },
+    "inputs/toolchain.json": {
+      "bytes": 757,
+      "sha256": "db615d6cf822ce7b343dcaa4cd91dfc9b2a6b5d9e9a5f5f7ac743d823b3e6bb2"
+    }
+  },
+  "schema": "baton.w325959.frozen-inputs/1"
+}

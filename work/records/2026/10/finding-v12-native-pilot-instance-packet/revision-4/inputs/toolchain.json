@@ -1,0 +1,13 @@
+{
+  "adapter_digest": "sha256:5f2ef38f05ed7a9aecd11dd7e23e9cfbe1f0243fe27bd2c9aa1b004580fcdef1",
+  "authority": "W325959 under W321608 selection325952; no live grant",
+  "cli_build": "2.1.247",
+  "image_reference": "baton-v12-claude-worker:w239528-244216",
+  "kind": "toolchain",
+  "model": "opus",
+  "provenance": "Frozen prior deployment and profile. Engine presence and provider behavior unobserved by this preparation.",
+  "runtime_profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+  "schema": "baton.w325959.accountable-input/1",
+  "status": "proposed, subject to independent review and execution selection",
+  "worker_image_digest": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2"
+}

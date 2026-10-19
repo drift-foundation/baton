@@ -1,0 +1,36 @@
+{
+  "manifest_sha256": "5a4ecdb0315376da85a45fb785d03faa0e942359c7188ade44977e19a6b7d7a1",
+  "members": {
+    "FROZEN-INPUTS.json": true,
+    "INSTANCE-PACKET.md": true,
+    "configuration/configure-inputs.json": true,
+    "configuration/install-inputs.json": true,
+    "configuration/manifest-inputs.json": true,
+    "configuration/submission.json": true,
+    "configuration/task.json": true,
+    "evidence/PREPARATION.json": true,
+    "evidence/scenario-0-harness-self-check.json": true,
+    "evidence/scenario-1-pass-one-composes-and-reads-back.json": true,
+    "evidence/scenario-2-owner-and-diagnosis-ownership.json": true,
+    "evidence/scenario-3-pass-two-binds-the-two-stage-job.json": true,
+    "evidence/scenario-4-the-reused-inputs-are-verified.json": true,
+    "inputs/adapter.json": true,
+    "inputs/deployment.json": true,
+    "inputs/instance-retention.md": true,
+    "inputs/policy.json": true,
+    "inputs/runtime-profile.json": true,
+    "prepare.py": true
+  },
+  "frozen_members": {
+    "inputs/adapter.json": true,
+    "inputs/deployment.json": true,
+    "inputs/instance-retention.md": true,
+    "inputs/policy.json": true,
+    "inputs/runtime-profile.json": true
+  },
+  "root": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd",
+  "status": 0,
+  "stdout": "W325959 disposable preparation (labelled, not the selected instance):\n  0-harness-self-check: failed (0 checks passed, as intended) 0.0s\n  1-pass-one-composes-and-reads-back: observed (17 checks passed) 0.178s\n  2-owner-and-diagnosis-ownership: observed (16 checks passed) 0.015s\n  3-pass-two-binds-the-two-stage-job: observed (29 checks passed) 0.039s\n  4-the-reused-inputs-are-verified: observed (21 checks passed) 0.0s\nchecks passed 83, observed 4, failed-as-intended 1, unexpected 0, 0.233s\nselected destination untouched: True\n",
+  "stderr": "",
+  "wall_seconds": 0.25982690999808256
+}

@@ -1,0 +1,18 @@
+{
+  "probe": "same configure inputs over a disposable configuration carrying installer-derived repository selections",
+  "status": 2,
+  "output": "authority b62d73b7...    reused from this root's record\nrefused: this root is already configured with integration_target, integration_workspace and this document does not name them. A repeated bootstrap preserves what is there, and a selection that stops being named is not thereby unselected -- an installation DERIVES these under its destination, and composing from the input alone would quietly unconfigure where integration works. Copy the current values out of /var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/3-pass-two-binds-the-two-stage-job/deployment.json into your input document, or install a new destination if you mean a different deployment. Nothing was changed.\n",
+  "configuration_unchanged": true,
+  "fresh_worker_free_install_repository_plan": [
+    [
+      "target",
+      "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/3-pass-two-binds-the-two-stage-job/repo/target.git",
+      true
+    ],
+    [
+      "workspace",
+      "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/3-pass-two-binds-the-two-stage-job/repo/workspace",
+      false
+    ]
+  ]
+}

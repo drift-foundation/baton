@@ -1,0 +1,208 @@
+{
+  "authority_uuid": "cd7fb57ee5a246e9ba11f643489fa56d",
+  "checks": [
+    {
+      "check": "pass one composed",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "before registration the owner cannot take a Work on its own route: the route resolves to nobody",
+      "detail": "Refusal: route 'impl' does not resolve to 'baton.slaw'",
+      "passed": true
+    },
+    {
+      "check": "the implementation participant claims on `impl`",
+      "detail": {
+        "generation": null,
+        "participant": "baton.claude-pilot",
+        "work_ref": {
+          "authority_uuid": "cd7fb57ee5a246e9ba11f643489fa56d",
+          "work_id": "cd7fb57e-W1"
+        }
+      },
+      "passed": true
+    },
+    {
+      "check": "the review participant claims after the handoff to `rview`",
+      "detail": {
+        "generation": null,
+        "participant": "baton.reviewer-pilot",
+        "work_ref": {
+          "authority_uuid": "cd7fb57ee5a246e9ba11f643489fa56d",
+          "work_id": "cd7fb57e-W1"
+        }
+      },
+      "passed": true
+    },
+    {
+      "check": "THE OWNER ROUTE IS REAL: baton.slaw claims the Work its review ending handed on",
+      "detail": {
+        "generation": null,
+        "participant": "baton.slaw",
+        "work_ref": {
+          "authority_uuid": "cd7fb57ee5a246e9ba11f643489fa56d",
+          "work_id": "cd7fb57e-W1"
+        }
+      },
+      "passed": true
+    },
+    {
+      "check": "and the decision names the owner's own principal",
+      "detail": {
+        "effective_scope": "scope:deployment",
+        "endpoint": "baton.slaw",
+        "grant": "direct",
+        "policy_generation": 5,
+        "principal": "principal:baton.slaw",
+        "role": "owner"
+      },
+      "passed": true
+    },
+    {
+      "check": "a participant that does not handle this route is refused",
+      "detail": "Refusal: Work is already claimed",
+      "passed": true
+    },
+    {
+      "check": "THE DIAGNOSIS ROUTE IS REAL: its handler claims a dedicated diagnostic Work",
+      "detail": {
+        "generation": null,
+        "participant": "baton.diagnostician-pilot",
+        "work_ref": {
+          "authority_uuid": "cd7fb57ee5a246e9ba11f643489fa56d",
+          "work_id": "cd7fb57e-W2"
+        }
+      },
+      "passed": true
+    },
+    {
+      "check": "an identical claim replays rather than taking a second one",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "baton.verifier-pilot holds verify in this Work's own scope",
+      "detail": {
+        "capability": "verify",
+        "scope": "scope:deployment",
+        "who": "baton.verifier-pilot"
+      },
+      "passed": true
+    },
+    {
+      "check": "baton.reviewer-receipt-pilot holds review in this Work's own scope",
+      "detail": {
+        "capability": "review",
+        "scope": "scope:deployment",
+        "who": "baton.reviewer-receipt-pilot"
+      },
+      "passed": true
+    },
+    {
+      "check": "baton.slaw holds approve in this Work's own scope",
+      "detail": {
+        "capability": "approve",
+        "scope": "scope:deployment",
+        "who": "baton.slaw"
+      },
+      "passed": true
+    },
+    {
+      "check": "and the owner holds NO verify grant",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "and the owner holds NO review grant",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "the owner holds approve, integrate and close",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "the canonical dossier binds, which the human integration citation requires",
+      "detail": {
+        "bound": {
+          "bound_at": "2026-10-18T20:28:08.452Z",
+          "locator": "native-pilot-quickstart-cd7fb57e",
+          "operation_id": "w325959-bind-dossier",
+          "work_id": "cd7fb57e-W1"
+        },
+        "read": {
+          "bound_at": "2026-10-18T20:28:08.452Z",
+          "locator": "native-pilot-quickstart-cd7fb57e",
+          "operation_id": "w325959-bind-dossier",
+          "work_id": "cd7fb57e-W1"
+        }
+      },
+      "passed": true
+    }
+  ],
+  "checks_passed": 16,
+  "diagnosis_assignment": {
+    "generation": null,
+    "participant": "baton.diagnostician-pilot",
+    "work_ref": {
+      "authority_uuid": "cd7fb57ee5a246e9ba11f643489fa56d",
+      "work_id": "cd7fb57e-W2"
+    }
+  },
+  "diagnostician_on_the_owner_route": "Refusal: Work is already claimed",
+  "disposable_root": "/var/tmp/baton-w257624/w325959-preflight-review326210-i6tmqyte",
+  "dossier": {
+    "bound_at": "2026-10-18T20:28:08.452Z",
+    "locator": "native-pilot-quickstart-cd7fb57e",
+    "operation_id": "w325959-bind-dossier",
+    "work_id": "cd7fb57e-W1"
+  },
+  "dossier_locator": "native-pilot-quickstart-cd7fb57e",
+  "expected_failure": false,
+  "grants": {
+    "owner": [
+      "approve",
+      "integrate",
+      "close"
+    ],
+    "policy_generation": 10,
+    "receipts": {
+      "baton.reviewer-receipt-pilot": "review",
+      "baton.slaw": "approve",
+      "baton.verifier-pilot": "verify"
+    },
+    "scope": "scope:deployment"
+  },
+  "injected": "the two routes bootstrap does not register, registered and proved by claim, plus the per-Work receipt grants",
+  "intended_failed_check": null,
+  "label": "PREFLIGHT (W325959 disposable composition; not a production identity and not the selected instance)",
+  "not_performed": [
+    "any engine call",
+    "any provider call",
+    "any credential content read",
+    "any image build",
+    "any write to the selected destination",
+    "any submission to a manager",
+    "any mutation of this repository"
+  ],
+  "outcome": "observed",
+  "owner_assignment": {
+    "generation": null,
+    "participant": "baton.slaw",
+    "work_ref": {
+      "authority_uuid": "cd7fb57ee5a246e9ba11f643489fa56d",
+      "work_id": "cd7fb57e-W1"
+    }
+  },
+  "owner_claim_before_registration": "Refusal: route 'impl' does not resolve to 'baton.slaw'",
+  "registered": {
+    "diagnosis": "baton.diagnostician-pilot",
+    "impl": "baton.claude-pilot",
+    "owner": "baton.slaw",
+    "rview": "baton.reviewer-pilot"
+  },
+  "scenario": "2-owner-and-diagnosis-ownership",
+  "seconds": 0.015
+}

@@ -1,0 +1,56 @@
+{
+  "content_derived_and_recomputed_from_the_frozen_copies": {
+    "adapter_digest": "sha256:5f2ef38f05ed7a9aecd11dd7e23e9cfbe1f0243fe27bd2c9aa1b004580fcdef1",
+    "policy_digest": "sha256:837d7a03b2d92b9654cbc391daefcfa208f747bbd9ae7c528d54f528bd536357",
+    "retention_policy_digest": "sha256:0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a",
+    "runtime_profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be"
+  },
+  "frozen_inputs": "inputs/deployment.json (copied and digested; the prior instance's live path is NOT read at preparation time)",
+  "inherited_verbatim": {
+    "assignment_contract": "v12-assignment-1",
+    "outputs": "the declared output set",
+    "sources": "the nominated-mount source descriptor, which declares baton.source-boundary/1",
+    "worker_image_digest": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2"
+  },
+  "job_input_identity_excluded_members": [
+    "worker_image_digest",
+    "toolchain_digest",
+    "runtime_profile_digest",
+    "credential_policy_digest",
+    "role_instructions_digest",
+    "manifest_id",
+    "created_at",
+    "manifest_digest"
+  ],
+  "proposed_accountability_documents": {
+    "credential_policy_digest": {
+      "digest": "sha256:9a38998c23c1dcf1f4fa4ba8b813e4a56b1a1ff72b3656ac682dc6716a485393",
+      "path": "inputs/credential_policy.json"
+    },
+    "mount_policy_digest": {
+      "digest": "sha256:d10a510b7c6d98bed6c41a0dc9ce78a6ab9d8fcdc01fa39d6dd725a901d289d4",
+      "path": "inputs/mount_policy.json"
+    },
+    "network_policy_digest": {
+      "digest": "sha256:c380e213970052c7d26e44866aa74b3cefff3587531f6a55aa24c8398b1717dc",
+      "path": "inputs/network_policy.json"
+    },
+    "resource_policy_digest": {
+      "digest": "sha256:42db5af57148416a1c4050d801b2e79e9b83ace876ad0a43f1095f70419e6b7a",
+      "path": "inputs/resource_policy.json"
+    },
+    "role_instructions_digest": {
+      "digest": "sha256:c7ffcf7bc0c437ba2c4840b0ee17e968c851b87800072fc8dfeaa5fd20adaf06",
+      "path": "inputs/role_instructions.json"
+    },
+    "tool_policy_digest": {
+      "digest": "sha256:2b79c50bc633fa3d899bc313abe19379dd589157dd5aee5429ccd2a87d7e66e9",
+      "path": "inputs/tool_policy.json"
+    },
+    "toolchain_digest": {
+      "digest": "sha256:617b781139d60cefe6b51522d139611ef1b4ce5d2d1689b008c85103cab5baa5",
+      "path": "inputs/toolchain.json"
+    }
+  },
+  "schema": "baton.w325959.manifest-inputs/2"
+}

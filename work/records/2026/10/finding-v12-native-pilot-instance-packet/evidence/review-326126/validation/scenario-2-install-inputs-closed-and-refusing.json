@@ -1,0 +1,149 @@
+{
+  "checks": [
+    {
+      "check": "the schema is this build's bootstrap input schema",
+      "detail": "baton.v12.stack-bootstrap/1",
+      "passed": true
+    },
+    {
+      "check": "every REQUIRED member is named",
+      "detail": [
+        "checkpoint_profile",
+        "integration_profile",
+        "owner_participant",
+        "policy_generation",
+        "pool_generation",
+        "receipt_participants",
+        "retention_disposition",
+        "retention_policy_digest",
+        "schema",
+        "state_root"
+      ],
+      "passed": true
+    },
+    {
+      "check": "no member this build cannot carry is named",
+      "detail": [],
+      "passed": true
+    },
+    {
+      "check": "the state root is the selected destination, absolute",
+      "detail": "/home/sl/baton-instances/native-coordination-pilot-w321608-1",
+      "passed": true
+    },
+    {
+      "check": "the three receipt actors are named and the review receipt actor is NOT the owner",
+      "detail": {
+        "approval": "baton.slaw",
+        "review": "baton.reviewer-receipt-pilot",
+        "verification": "baton.verifier-pilot"
+      },
+      "passed": true
+    },
+    {
+      "check": "the owner participant is the selected human",
+      "detail": "baton.slaw",
+      "passed": true
+    },
+    {
+      "check": "the owner is configured for approve, integrate and close and for neither verify nor review",
+      "detail": [
+        "approve",
+        "integrate",
+        "close"
+      ],
+      "passed": true
+    },
+    {
+      "check": "no worker and no Job is configured by the fresh install, which is what bootstrap defers",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "the integration role is OPTIONAL in this build, so a two-stage pool is a configured deployment rather than a workaround",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "the only unresolved value left in pass one is the one build output, every routine value having been resolved",
+      "detail": [
+        "$.integration_profile.instructions_digest"
+      ],
+      "passed": true
+    },
+    {
+      "check": "the retention policy digest is RESOLVED to the digest of this tree's own retention policy, recomputed here",
+      "detail": "sha256:0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a",
+      "passed": true
+    },
+    {
+      "check": "the generations are resolved positive integers",
+      "detail": {
+        "policy": 1,
+        "pool": 1
+      },
+      "passed": true
+    },
+    {
+      "check": "bootstrap.held ACCEPTS it, because it validates presence and relationships rather than value formats",
+      "detail": true,
+      "passed": true
+    },
+    {
+      "check": "bootstrap.validated now ACCEPTS the configuration this input would emit, because the routine values are resolved",
+      "detail": true,
+      "passed": true
+    },
+    {
+      "check": "installing refuses without a built runtime",
+      "detail": {
+        "a distro that is not there": "BootstrapRefusal: there is no built runtime at /nonexistent/distro. Build one with `just build` from v12/ first.",
+        "no --distro": "BootstrapRefusal: installing into /home/sl/baton-instances/native-coordination-pilot-w321608-1 needs a built runtime; name it with --distro, or build one with `just build` from v12/."
+      },
+      "passed": true
+    }
+  ],
+  "checks_passed": 15,
+  "expected_failure": false,
+  "finding": "bootstrap.held validates presence and relationships, not value formats. bootstrap.validated holds the EMITTED configuration to the manager's own rules and refused this input while retention_policy_digest was a sentinel; with the routine values resolved it accepts. So pass one is no longer gated by a validator: what gates it is `admit`, which refuses an install with no built runtime, plus the worker images and the owner's launch selection. Two earlier cuts of this scenario asserted a refusal from `held` and then from `validated`; the run refused both and this is what is actually true.",
+  "held_accepts": true,
+  "injected": "pass one against bootstrap's own input contract",
+  "install_gates": {
+    "a distro that is not there": "BootstrapRefusal: there is no built runtime at /nonexistent/distro. Build one with `just build` from v12/ first.",
+    "no --distro": "BootstrapRefusal: installing into /home/sl/baton-instances/native-coordination-pilot-w321608-1 needs a built runtime; name it with --distro, or build one with `just build` from v12/."
+  },
+  "intended_failed_check": null,
+  "member": {
+    "bytes": 1021,
+    "path": "configuration/install-inputs.json",
+    "sha256": "6600c5728fc342c9e060957e50a8199a6da0304ce19b643a28e2abc79c5dca26"
+  },
+  "not_performed": [
+    "bootstrap",
+    "install",
+    "submit",
+    "serve",
+    "any store write",
+    "any container",
+    "any provider call",
+    "any Git mutation"
+  ],
+  "outcome": "observed",
+  "owner_participant": "baton.slaw",
+  "performed": [
+    "read the authored documents",
+    "called the product's own validators",
+    "ran the pinned verification argv in a temporary directory"
+  ],
+  "receipt_participants": {
+    "approval": "baton.slaw",
+    "review": "baton.reviewer-receipt-pilot",
+    "verification": "baton.verifier-pilot"
+  },
+  "scenario": "2-install-inputs-closed-and-refusing",
+  "seconds": 0.007,
+  "unresolved": [
+    "$.integration_profile.instructions_digest"
+  ],
+  "validated_accepts_emission": true
+}

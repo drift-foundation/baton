@@ -1,0 +1,939 @@
+{
+  "checks_passed": 70,
+  "destination": "/home/sl/baton-instances/native-coordination-pilot-w321608-1",
+  "failed_as_intended": 1,
+  "harness_self_check_failed_for_its_own_reason": true,
+  "observed": 5,
+  "packet": "/home/sl/src/baton/work/records/2026/10/finding-v12-native-pilot-instance-packet",
+  "scenarios": [
+    {
+      "checks": [
+        {
+          "observation": "the task document's unresolved values",
+          "value": []
+        },
+        {
+          "check": "the task document carries an unresolved sentinel (INTENTIONALLY FALSE)",
+          "detail": [],
+          "passed": false
+        }
+      ],
+      "checks_passed": 0,
+      "expected_failure": true,
+      "failed_check": "the task document carries an unresolved sentinel (INTENTIONALLY FALSE)",
+      "failed_for_intended_reason": true,
+      "injected": "a deliberately false expectation about the pinned task document",
+      "intended_failed_check": "the task document carries an unresolved sentinel (INTENTIONALLY FALSE)",
+      "not_performed": [
+        "bootstrap",
+        "install",
+        "submit",
+        "serve",
+        "any store write",
+        "any container",
+        "any provider call",
+        "any Git mutation"
+      ],
+      "outcome": "failed",
+      "performed": [
+        "read the authored documents",
+        "called the product's own validators",
+        "ran the pinned verification argv in a temporary directory"
+      ],
+      "scenario": "0-harness-self-check",
+      "seconds": 0.0
+    },
+    {
+      "check_behaviour": {
+        "absent": {
+          "status": 1,
+          "stderr": "no v12/QUICKSTART.md"
+        },
+        "accepted": {
+          "status": 0,
+          "stderr": "",
+          "stdout": "quickstart structure ok: 2633 bytes, 4 sections"
+        },
+        "marker": {
+          "status": 1,
+          "stderr": "unresolved markers: TODO",
+          "stdout": ""
+        },
+        "missing_section": {
+          "status": 1,
+          "stderr": "missing sections: ## Reading a failed attempt",
+          "stdout": ""
+        },
+        "too_short": {
+          "status": 1,
+          "stderr": "quickstart is shorter than its own contract",
+          "stdout": ""
+        }
+      },
+      "checks": [
+        {
+          "check": "the task document carries NO unresolved value",
+          "detail": [],
+          "passed": true
+        },
+        {
+          "check": "it validates through dogfood_operator.held_task",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "its declared base is the selected source",
+          "detail": "14e52d80679de5e844f72324df632da5e01cf393",
+          "passed": true
+        },
+        {
+          "check": "its source profile is the git line profile",
+          "detail": "git-line",
+          "passed": true
+        },
+        {
+          "check": "the verification command is one closed argv",
+          "detail": [
+            "python3",
+            "-c"
+          ],
+          "passed": true
+        },
+        {
+          "check": "the pinned check ACCEPTS a complete quickstart",
+          "detail": {
+            "status": 0,
+            "stderr": "",
+            "stdout": "quickstart structure ok: 2633 bytes, 4 sections"
+          },
+          "passed": true
+        },
+        {
+          "check": "it refuses a missing required section",
+          "detail": {
+            "status": 1,
+            "stderr": "missing sections: ## Reading a failed attempt",
+            "stdout": ""
+          },
+          "passed": true
+        },
+        {
+          "check": "it refuses a quickstart shorter than its own contract",
+          "detail": {
+            "status": 1,
+            "stderr": "quickstart is shorter than its own contract",
+            "stdout": ""
+          },
+          "passed": true
+        },
+        {
+          "check": "and it refuses an unresolved marker",
+          "detail": {
+            "status": 1,
+            "stderr": "unresolved markers: TODO",
+            "stdout": ""
+          },
+          "passed": true
+        },
+        {
+          "check": "with the file absent it refuses rather than passing",
+          "detail": "no v12/QUICKSTART.md",
+          "passed": true
+        }
+      ],
+      "checks_passed": 10,
+      "expected_failure": false,
+      "injected": "the one fully pinned document, validated by the workload's own owner and its verification argv actually run against five candidates",
+      "intended_failed_check": null,
+      "member": {
+        "bytes": 1886,
+        "path": "configuration/task.json",
+        "sha256": "631d025c6eb5e98d09cfef8ea3fff65bbf37661e3e062941fc1c9793c7bc4b73"
+      },
+      "not_performed": [
+        "bootstrap",
+        "install",
+        "submit",
+        "serve",
+        "any store write",
+        "any container",
+        "any provider call",
+        "any Git mutation"
+      ],
+      "note": "the sealed digest is over the canonical form dogfood_operator._copied_task writes (sorted keys, no indentation), which is what the input manifest's human contract binds -- not over the pretty-printed file here.",
+      "outcome": "observed",
+      "performed": [
+        "read the authored documents",
+        "called the product's own validators",
+        "ran the pinned verification argv in a temporary directory"
+      ],
+      "scenario": "1-task-document-immutable-and-owned",
+      "sealed_bytes": 1853,
+      "sealed_sha256": "5ec48d4baf2020a8ef972237444c5989cf8490dea23cc285dbfd3bc0508dc1bb",
+      "seconds": 0.153,
+      "task_id": "w321608-native-operator-quickstart"
+    },
+    {
+      "checks": [
+        {
+          "check": "the schema is this build's bootstrap input schema",
+          "detail": "baton.v12.stack-bootstrap/1",
+          "passed": true
+        },
+        {
+          "check": "every REQUIRED member is named",
+          "detail": [
+            "checkpoint_profile",
+            "integration_profile",
+            "owner_participant",
+            "policy_generation",
+            "pool_generation",
+            "receipt_participants",
+            "retention_disposition",
+            "retention_policy_digest",
+            "schema",
+            "state_root"
+          ],
+          "passed": true
+        },
+        {
+          "check": "no member this build cannot carry is named",
+          "detail": [],
+          "passed": true
+        },
+        {
+          "check": "the state root is the selected destination, absolute",
+          "detail": "/home/sl/baton-instances/native-coordination-pilot-w321608-1",
+          "passed": true
+        },
+        {
+          "check": "the three receipt actors are named and the review receipt actor is NOT the owner",
+          "detail": {
+            "approval": "baton.slaw",
+            "review": "baton.reviewer-receipt-pilot",
+            "verification": "baton.verifier-pilot"
+          },
+          "passed": true
+        },
+        {
+          "check": "the owner participant is the selected human",
+          "detail": "baton.slaw",
+          "passed": true
+        },
+        {
+          "check": "the owner is configured for approve, integrate and close and for neither verify nor review",
+          "detail": [
+            "approve",
+            "integrate",
+            "close"
+          ],
+          "passed": true
+        },
+        {
+          "check": "no worker and no Job is configured by the fresh install, which is what bootstrap defers",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "the integration role is OPTIONAL in this build, so a two-stage pool is a configured deployment rather than a workaround",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "the only unresolved value left in pass one is the one build output, every routine value having been resolved",
+          "detail": [
+            "$.integration_profile.instructions_digest"
+          ],
+          "passed": true
+        },
+        {
+          "check": "the retention policy digest is RESOLVED to the digest of this tree's own retention policy, recomputed here",
+          "detail": "sha256:0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a",
+          "passed": true
+        },
+        {
+          "check": "the generations are resolved positive integers",
+          "detail": {
+            "policy": 1,
+            "pool": 1
+          },
+          "passed": true
+        },
+        {
+          "check": "bootstrap.held ACCEPTS it, because it validates presence and relationships rather than value formats",
+          "detail": true,
+          "passed": true
+        },
+        {
+          "check": "bootstrap.validated now ACCEPTS the configuration this input would emit, because the routine values are resolved",
+          "detail": true,
+          "passed": true
+        },
+        {
+          "check": "installing refuses without a built runtime",
+          "detail": {
+            "a distro that is not there": "BootstrapRefusal: there is no built runtime at /nonexistent/distro. Build one with `just build` from v12/ first.",
+            "no --distro": "BootstrapRefusal: installing into /home/sl/baton-instances/native-coordination-pilot-w321608-1 needs a built runtime; name it with --distro, or build one with `just build` from v12/."
+          },
+          "passed": true
+        }
+      ],
+      "checks_passed": 15,
+      "expected_failure": false,
+      "finding": "bootstrap.held validates presence and relationships, not value formats. bootstrap.validated holds the EMITTED configuration to the manager's own rules and refused this input while retention_policy_digest was a sentinel; with the routine values resolved it accepts. So pass one is no longer gated by a validator: what gates it is `admit`, which refuses an install with no built runtime, plus the worker images and the owner's launch selection. Two earlier cuts of this scenario asserted a refusal from `held` and then from `validated`; the run refused both and this is what is actually true.",
+      "held_accepts": true,
+      "injected": "pass one against bootstrap's own input contract",
+      "install_gates": {
+        "a distro that is not there": "BootstrapRefusal: there is no built runtime at /nonexistent/distro. Build one with `just build` from v12/ first.",
+        "no --distro": "BootstrapRefusal: installing into /home/sl/baton-instances/native-coordination-pilot-w321608-1 needs a built runtime; name it with --distro, or build one with `just build` from v12/."
+      },
+      "intended_failed_check": null,
+      "member": {
+        "bytes": 1021,
+        "path": "configuration/install-inputs.json",
+        "sha256": "6600c5728fc342c9e060957e50a8199a6da0304ce19b643a28e2abc79c5dca26"
+      },
+      "not_performed": [
+        "bootstrap",
+        "install",
+        "submit",
+        "serve",
+        "any store write",
+        "any container",
+        "any provider call",
+        "any Git mutation"
+      ],
+      "outcome": "observed",
+      "owner_participant": "baton.slaw",
+      "performed": [
+        "read the authored documents",
+        "called the product's own validators",
+        "ran the pinned verification argv in a temporary directory"
+      ],
+      "receipt_participants": {
+        "approval": "baton.slaw",
+        "review": "baton.reviewer-receipt-pilot",
+        "verification": "baton.verifier-pilot"
+      },
+      "scenario": "2-install-inputs-closed-and-refusing",
+      "seconds": 0.007,
+      "unresolved": [
+        "$.integration_profile.instructions_digest"
+      ],
+      "validated_accepts_emission": true
+    },
+    {
+      "checks": [
+        {
+          "check": "the schema is job-submission/2, which is the only one that carries execution_limits",
+          "detail": "baton.v12.job-submission/2",
+          "passed": true
+        },
+        {
+          "check": "the Job declares implementation and review ONLY",
+          "detail": [
+            "implementation",
+            "review"
+          ],
+          "passed": true
+        },
+        {
+          "check": "so no integration stage exists for a serving manager to admit",
+          "detail": [
+            "implementation",
+            "review"
+          ],
+          "passed": true
+        },
+        {
+          "check": "the review stage depends on the implementation stage of this Job",
+          "detail": [
+            {
+              "job_id": "quickstart-a",
+              "kind": "implementation"
+            }
+          ],
+          "passed": true
+        },
+        {
+          "check": "the selected provider turn and verification ceilings are carried by the Job",
+          "detail": {
+            "provider_turn_seconds": 3600,
+            "verification_command_seconds": 900
+          },
+          "passed": true
+        },
+        {
+          "check": "the terminal policy is this build's only one",
+          "detail": "report-and-hold",
+          "passed": true
+        },
+        {
+          "check": "the test scope names the artifact this Work authors",
+          "detail": [
+            "v12/QUICKSTART.md"
+          ],
+          "passed": true
+        },
+        {
+          "check": "the submission validator ACCEPTS opaque digest text, because digest syntax is the manifest owner's rule and not this layer's",
+          "detail": true,
+          "passed": true
+        },
+        {
+          "observation": "where those two values are actually proved",
+          "value": "single_worker._held cross-binds the input manifest against the worker's own profile, policy and image digests and its 32-character authority UUID; stage_execution's _DIGEST refuses anything but sha256:<64 hex> in the deployment document. A submission whose input_digest is not the manifest's job_input_identity is refused where the stage is matched, not here."
+        },
+        {
+          "check": "with the owner's values and the readbacks in place, the SAME document validates",
+          "detail": "sub-w321608-quickstart-1",
+          "passed": true
+        },
+        {
+          "check": "and the validator preserves the two-stage set",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "and the Job's own limits survive normalization",
+          "detail": null,
+          "passed": true
+        }
+      ],
+      "checks_passed": 11,
+      "expected_failure": false,
+      "injected": "pass three against the Job manager's own validator, authored and resolved-copy",
+      "intended_failed_check": null,
+      "member": {
+        "bytes": 1392,
+        "path": "configuration/submission.json",
+        "sha256": "34443112b1a5d3b087411807c7bf2f6fa4cb9a8c635f09f00be9960e8f36e55a"
+      },
+      "normalized_shape": {
+        "job_id": "quickstart-a",
+        "schema": "baton.v12.job-submission/2",
+        "stages": [
+          "implementation",
+          "review"
+        ]
+      },
+      "not_performed": [
+        "bootstrap",
+        "install",
+        "submit",
+        "serve",
+        "any store write",
+        "any container",
+        "any provider call",
+        "any Git mutation"
+      ],
+      "outcome": "observed",
+      "performed": [
+        "read the authored documents",
+        "called the product's own validators",
+        "ran the pinned verification argv in a temporary directory"
+      ],
+      "scenario": "3-two-stage-submission-validates",
+      "seconds": 0.0,
+      "stand_ins_used_only_here": {
+        "input_digest": "sha256:1\u2026",
+        "policy_digest": "sha256:2\u2026",
+        "profile_digest": "sha256:3\u2026",
+        "work_id": "0000000a-W1"
+      },
+      "unresolved": [
+        "$.jobs[0].input_digest",
+        "$.jobs[0].policy_digest",
+        "$.jobs[0].stages[0].profile_digest",
+        "$.jobs[0].stages[0].work_id",
+        "$.jobs[0].stages[1].profile_digest",
+        "$.jobs[0].stages[1].work_id"
+      ],
+      "validator_accepts_opaque_digests": true
+    },
+    {
+      "checks": [
+        {
+          "check": "the second pass names workers and jobs, which the fresh install deferred",
+          "detail": [
+            "_note",
+            "checkpoint_profile",
+            "integration_profile",
+            "jobs",
+            "owner_participant",
+            "policy_generation",
+            "pool_generation",
+            "receipt_participants",
+            "retention_disposition",
+            "retention_policy_digest",
+            "schema",
+            "state_root",
+            "workers"
+          ],
+          "passed": true
+        },
+        {
+          "check": "the pool is implementation and review ONLY",
+          "detail": [
+            "implementation",
+            "review"
+          ],
+          "passed": true
+        },
+        {
+          "check": "the producer and the reviewer are different participants, which bootstrap's independence rule requires",
+          "detail": {
+            "implementation": "baton.claude-pilot",
+            "review": "baton.reviewer-pilot"
+          },
+          "passed": true
+        },
+        {
+          "check": "worker implementation-pilot names every member bootstrap requires of one",
+          "detail": [
+            "deployment",
+            "participant",
+            "role",
+            "worker_id"
+          ],
+          "passed": true
+        },
+        {
+          "check": "and its deployment names all 29 members the worker contract closes over",
+          "detail": [],
+          "passed": true
+        },
+        {
+          "check": "implementation-pilot carries no secret member",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "worker review-pilot names every member bootstrap requires of one",
+          "detail": [
+            "deployment",
+            "participant",
+            "role",
+            "worker_id"
+          ],
+          "passed": true
+        },
+        {
+          "check": "and its deployment names all 29 members the worker contract closes over",
+          "detail": [],
+          "passed": true
+        },
+        {
+          "check": "review-pilot carries no secret member",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "the Job binding names every member bootstrap requires",
+          "detail": [
+            "canonical_target_id",
+            "job_id",
+            "line_declared_base",
+            "source_worker_id",
+            "work_id"
+          ],
+          "passed": true
+        },
+        {
+          "check": "its producer is the configured implementation worker",
+          "detail": "implementation-pilot",
+          "passed": true
+        },
+        {
+          "check": "the declared base and the canonical target are the selected source",
+          "detail": {
+            "canonical_target_id": "14e52d80679de5e844f72324df632da5e01cf393",
+            "job_id": "quickstart-a",
+            "line_declared_base": "14e52d80679de5e844f72324df632da5e01cf393",
+            "source_worker_id": "implementation-pilot",
+            "work_id": "READBACK: the canonical Work id created in step 5"
+          },
+          "passed": true
+        },
+        {
+          "observation": "the unresolved values by class",
+          "value": {
+            "BUILD": 9,
+            "READBACK": 8
+          }
+        },
+        {
+          "check": "no routine value is left to the owner: every unresolved value in pass two is either a BUILD output or a READBACK from supported preparation",
+          "detail": [
+            "BUILD",
+            "READBACK"
+          ],
+          "passed": true
+        },
+        {
+          "check": "implementation-pilot resolves its engine, network, workspace group and capacity",
+          "detail": {
+            "engine": "docker",
+            "network": "none",
+            "workspace_capacity": {
+              "max_bytes": 167772160
+            },
+            "workspace_group": 1000
+          },
+          "passed": true
+        },
+        {
+          "check": "implementation-pilot selects NO provider credential, which is what 'no provider call is selected' means in a document",
+          "detail": {
+            "credential_profile": {},
+            "credential_slots": [],
+            "credential_sources": null
+          },
+          "passed": true
+        },
+        {
+          "check": "review-pilot resolves its engine, network, workspace group and capacity",
+          "detail": {
+            "engine": "docker",
+            "network": "none",
+            "workspace_capacity": {
+              "max_bytes": 167772160
+            },
+            "workspace_group": 1000
+          },
+          "passed": true
+        },
+        {
+          "check": "review-pilot selects NO provider credential, which is what 'no provider call is selected' means in a document",
+          "detail": {
+            "credential_profile": {},
+            "credential_slots": [],
+            "credential_sources": null
+          },
+          "passed": true
+        },
+        {
+          "check": "the implementation ending hands the Work to the review route and the review ending hands it to the OWNER route",
+          "detail": {
+            "implementation": "rview",
+            "review": "owner"
+          },
+          "passed": true
+        },
+        {
+          "check": "and the second pass is REFUSED while they stand",
+          "detail": "BootstrapRefusal: this deployment cannot be prepared: nothing reads _note. A selection this helper cannot carry is refused rather than accepted and dropped, because the two are indistinguishable to an operator until the deployment behaves differently from what they asked for. The supported optional selections are integration_target, integration_target_reference, integration_workspace, integration_observer, integration_instructions, integration_preparation, result_judgment_workers, owner_participant.",
+          "passed": true
+        }
+      ],
+      "checks_passed": 19,
+      "expected_failure": false,
+      "injected": "pass two against the worker deployment contract's closed member set",
+      "intended_failed_check": null,
+      "member": {
+        "adapter_digest": "BUILD: the sha256 of the agent-session-1.0 adapter asset packaged into the distro (bootstrap.EXPECTED_ASSETS names it). Produced by: just -f v12/justfile stack-distro (then `baton-v12-stack identity`)",
+        "adapter_name": "agent-session-1.0",
+        "authority_store": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/db/authority.sqlite3",
+        "authority_uuid": "READBACK: the 32-character identity generated by step 3 and persisted at /home/sl/baton-instances/native-coordination-pilot-w321608-1/authority-identity.json",
+        "credential_home": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/state/credentials",
+        "credential_profile": {},
+        "credential_slots": [],
+        "credential_sources": null,
+        "engine": "docker",
+        "image_digest": "BUILD: the content digest of the built review worker image config, validated and recorded in its owning record as tools/worker_image.py requires. Produced by: just -f v12/justfile worker-image ROLE=review (a fresh build result is a candidate; selecting it is a separate recorded act)",
+        "input_manifest": "READBACK: composed in step 6 from the created Work: its work_ref carries the authority_uuid and the Work id, and its runtime_profile_digest, policy_digest and worker_image_digest must equal this document's own three",
+        "launch_contract": "v12-assignment-1",
+        "launch_home": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/state/launch",
+        "launch_role": "review",
+        "network": "none",
+        "nominated_source": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/repo/source",
+        "participant": "baton.reviewer-pilot",
+        "policy_digest": "BUILD: the sha256 of the resource/network/mount/tool/credential policy set this deployment admits. Produced by: just -f v12/justfile pool-policy (then read the admitted policy digest from `pool`)",
+        "principal": "READBACK: Authority.principal_of(baton.reviewer-pilot) after step 3",
+        "profile_digest": "BUILD: the sha256 of the runtime profile document this pool admits for the review role. Produced by: just -f v12/justfile pool-profile ROLE=review (then read the admitted profile's digest from `pool`)",
+        "profile_name": "pilot-review",
+        "retention_disposition": "retain",
+        "retention_policy_digest": "sha256:0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a",
+        "review_route": "owner",
+        "schema": "baton.v12.single-worker-deployment/4",
+        "task_document": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/state/task/w321608-native-operator-quickstart.json",
+        "workspace_capacity": {
+          "max_bytes": 167772160
+        },
+        "workspace_group": 1000,
+        "workspace_storage": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/state/workspaces"
+      },
+      "not_performed": [
+        "bootstrap",
+        "install",
+        "submit",
+        "serve",
+        "any store write",
+        "any container",
+        "any provider call",
+        "any Git mutation"
+      ],
+      "outcome": "observed",
+      "participants": {
+        "implementation": "baton.claude-pilot",
+        "review": "baton.reviewer-pilot"
+      },
+      "performed": [
+        "read the authored documents",
+        "called the product's own validators",
+        "ran the pinned verification argv in a temporary directory"
+      ],
+      "refusal_while_unresolved": "BootstrapRefusal: this deployment cannot be prepared: nothing reads _note. A selection this helper cannot carry is refused rather than accepted and dropped, because the two are indistinguishable to an operator until the deployment behaves differently from what they asked for. The supported optional selections are integration_target, integration_target_reference, integration_workspace, integration_observer, integration_instructions, integration_preparation, result_judgment_workers, owner_participant.",
+      "roles": [
+        "implementation",
+        "review"
+      ],
+      "scenario": "4-worker-documents-name-every-member",
+      "seconds": 0.0,
+      "unresolved": [
+        "$.integration_profile.instructions_digest",
+        "$.jobs[0].work_id",
+        "$.policy_generation",
+        "$.workers[0].deployment.adapter_digest",
+        "$.workers[0].deployment.authority_uuid",
+        "$.workers[0].deployment.image_digest",
+        "$.workers[0].deployment.input_manifest",
+        "$.workers[0].deployment.policy_digest",
+        "$.workers[0].deployment.principal",
+        "$.workers[0].deployment.profile_digest",
+        "$.workers[1].deployment.adapter_digest",
+        "$.workers[1].deployment.authority_uuid",
+        "$.workers[1].deployment.image_digest",
+        "$.workers[1].deployment.input_manifest",
+        "$.workers[1].deployment.policy_digest",
+        "$.workers[1].deployment.principal",
+        "$.workers[1].deployment.profile_digest"
+      ],
+      "unresolved_count": 17,
+      "worker_member_count": 29
+    },
+    {
+      "checks": [
+        {
+          "check": "the selected destination does not exist yet",
+          "detail": "/home/sl/baton-instances/native-coordination-pilot-w321608-1",
+          "passed": true
+        },
+        {
+          "check": "its parent exists and is a directory this user owns",
+          "detail": "/home/sl/baton-instances",
+          "passed": true
+        },
+        {
+          "check": "nothing occupies the distro bootstrap refuses to replace",
+          "detail": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/distro",
+          "passed": true
+        },
+        {
+          "check": "nothing occupies the justfile bootstrap refuses to replace",
+          "detail": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/justfile",
+          "passed": true
+        },
+        {
+          "check": "nothing occupies the instance bootstrap refuses to replace",
+          "detail": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/instance.json",
+          "passed": true
+        },
+        {
+          "observation": "the layout this destination derives",
+          "value": {
+            "authority_store": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/db/authority.sqlite3",
+            "command": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/distro/baton-v12-stack",
+            "control_store": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/db/control.sqlite3",
+            "deployment": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/deployment.json",
+            "deployment_state": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/deployment-state",
+            "destination": "/home/sl/baton-instances/native-coordination-pilot-w321608-1",
+            "distro": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/distro",
+            "identity": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/authority-identity.json",
+            "instance": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/instance.json",
+            "integration_store": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/db/integration.sqlite3",
+            "job_store": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/db/jobs.sqlite3",
+            "justfile": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/justfile",
+            "lock": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/.bootstrap.lock",
+            "logs": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/logs",
+            "record": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/bootstrap.json",
+            "repository": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/repo",
+            "state": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/state",
+            "stores": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/db"
+          }
+        },
+        {
+          "check": "thirteen installed subcommands",
+          "detail": [
+            "bootstrap",
+            "disposition",
+            "identity",
+            "logs",
+            "manager",
+            "monitor",
+            "publish",
+            "record",
+            "repository",
+            "start",
+            "status",
+            "stop",
+            "view"
+          ],
+          "passed": true
+        },
+        {
+          "check": "the bootstrap input schema is the one the packet names",
+          "detail": "baton.v12.stack-bootstrap/1",
+          "passed": true
+        },
+        {
+          "check": "nine required inputs and seven optional",
+          "detail": {
+            "optional": [
+              "integration_target",
+              "integration_target_reference",
+              "integration_workspace",
+              "integration_observer",
+              "integration_instructions",
+              "integration_preparation",
+              "result_judgment_workers"
+            ],
+            "required": [
+              "schema",
+              "state_root",
+              "checkpoint_profile",
+              "integration_profile",
+              "retention_policy_digest",
+              "retention_disposition",
+              "pool_generation",
+              "policy_generation",
+              "receipt_participants"
+            ]
+          },
+          "passed": true
+        },
+        {
+          "check": "the authority store schema is 6",
+          "detail": 6,
+          "passed": true
+        },
+        {
+          "check": "the instance selector schema is stack-instance/1",
+          "detail": "baton.v12.stack-instance/1",
+          "passed": true
+        },
+        {
+          "check": "the recovery set schema is instance-recovery-set/3",
+          "detail": "baton.v12.instance-recovery-set/3",
+          "passed": true
+        },
+        {
+          "check": "limit generation 1 carries 3600/900/1800/300",
+          "detail": {
+            "host_verification": 300,
+            "integration_verification": 1800,
+            "ordinary_verification": 900,
+            "provider_turn": 3600
+          },
+          "passed": true
+        },
+        {
+          "check": "with bounds 1 and 86400",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "and a Job may express exactly two of them, which is why the packet states the total and the cleanup allowance as an operator envelope rather than a setting",
+          "detail": [
+            "provider_turn_seconds",
+            "verification_command_seconds"
+          ],
+          "passed": true
+        },
+        {
+          "check": "the routes are the three this build serves",
+          "detail": {
+            "implementation": "impl",
+            "integration": "integration",
+            "review": "rview"
+          },
+          "passed": true
+        }
+      ],
+      "checks_passed": 15,
+      "destination": "/home/sl/baton-instances/native-coordination-pilot-w321608-1",
+      "expected_failure": false,
+      "injected": "the read-only preflight and every pin the packet states",
+      "intended_failed_check": null,
+      "layout": {
+        "authority_store": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/db/authority.sqlite3",
+        "command": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/distro/baton-v12-stack",
+        "control_store": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/db/control.sqlite3",
+        "deployment": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/deployment.json",
+        "deployment_state": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/deployment-state",
+        "destination": "/home/sl/baton-instances/native-coordination-pilot-w321608-1",
+        "distro": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/distro",
+        "identity": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/authority-identity.json",
+        "instance": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/instance.json",
+        "integration_store": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/db/integration.sqlite3",
+        "job_store": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/db/jobs.sqlite3",
+        "justfile": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/justfile",
+        "lock": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/.bootstrap.lock",
+        "logs": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/logs",
+        "record": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/bootstrap.json",
+        "repository": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/repo",
+        "state": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/state",
+        "stores": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/db"
+      },
+      "limit_members": [
+        "provider_turn_seconds",
+        "verification_command_seconds"
+      ],
+      "limits": {
+        "host_verification": 300,
+        "integration_verification": 1800,
+        "ordinary_verification": 900,
+        "provider_turn": 3600
+      },
+      "not_performed": [
+        "bootstrap",
+        "install",
+        "submit",
+        "serve",
+        "any store write",
+        "any container",
+        "any provider call",
+        "any Git mutation"
+      ],
+      "outcome": "observed",
+      "performed": [
+        "read the authored documents",
+        "called the product's own validators",
+        "ran the pinned verification argv in a temporary directory"
+      ],
+      "scenario": "5-destination-fresh-and-pins-hold",
+      "seconds": 0.0,
+      "stop_timeout_seconds_default": 30,
+      "subcommands": [
+        "bootstrap",
+        "disposition",
+        "identity",
+        "logs",
+        "manager",
+        "monitor",
+        "publish",
+        "record",
+        "repository",
+        "start",
+        "status",
+        "stop",
+        "view"
+      ]
+    }
+  ],
+  "schema": "baton.w325959.packet-verification/1",
+  "seconds": 0.162,
+  "source_base": "14e52d80679de5e844f72324df632da5e01cf393",
+  "unexpected": 0,
+  "what_this_is": "contained structural verification of a PREPARATION packet: the authored documents are handed to the validators that own them, the pinned verification argv is run against five candidates in a temporary directory, and the unresolved values are proved to make the packet non-executable today"
+}

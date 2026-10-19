@@ -1,0 +1,627 @@
+{
+  "checks_passed": 58,
+  "disposable_root": "/tmp/w325959-preflight-328521-1",
+  "failed_as_intended": 1,
+  "harness_self_check_failed_for_its_own_reason": true,
+  "label": "PREFLIGHT (W325959 disposable composition; not a production identity and not the selected instance)",
+  "observed": 1,
+  "scenarios": [
+    {
+      "checks": [
+        {
+          "observation": "the disposable root",
+          "value": "/tmp/w325959-preflight-328521-1/0-harness-self-check"
+        },
+        {
+          "check": "the disposable root is the selected destination (INTENTIONALLY FALSE)",
+          "detail": "/tmp/w325959-preflight-328521-1/0-harness-self-check",
+          "passed": false
+        }
+      ],
+      "checks_passed": 0,
+      "disposable_root": "/tmp/w325959-preflight-328521-1",
+      "expected_failure": true,
+      "failed_check": "the disposable root is the selected destination (INTENTIONALLY FALSE)",
+      "failed_for_intended_reason": true,
+      "injected": "named harness refusal",
+      "intended_failed_check": "the disposable root is the selected destination (INTENTIONALLY FALSE)",
+      "label": "PREFLIGHT (W325959 disposable composition; not a production identity and not the selected instance)",
+      "not_performed": [
+        "any engine call",
+        "any provider call",
+        "any credential content read",
+        "any image build",
+        "any write to the selected destination",
+        "any submission to a manager",
+        "any mutation of this repository"
+      ],
+      "outcome": "failed",
+      "scenario": "0-harness-self-check",
+      "seconds": 0.0
+    },
+    {
+      "authority_uuid": "1a007045b7b44b90a2324c016512cf02",
+      "binding_drift": {
+        "exit": 2,
+        "inputs_at": "/tmp/w325959-preflight-328521-1/1-coherent-preparation/inputs.json",
+        "said": [
+          "authority 1a007045...    reused from this root's record",
+          "refused: this root already holds a different deployment and nothing was changed: job 'quickstart-a' is already bound with line_declared_base '14e52d80679de5e844f72324df632da5e01cf393' and this document names '0000000000000000000000000000000000000000'. A repeated bootstrap preserves what is there; if you mean a different deployment, give it its own state_root."
+        ]
+      },
+      "checks": [
+        {
+          "check": "four independent repository roles composed",
+          "detail": {
+            "prepared": [
+              {
+                "path": "/tmp/w325959-preflight-328521-1/1-coherent-preparation/repo/target.git",
+                "role": "target"
+              },
+              {
+                "path": "/tmp/w325959-preflight-328521-1/1-coherent-preparation/repo/workspace",
+                "role": "workspace"
+              },
+              {
+                "path": "/tmp/w325959-preflight-328521-1/1-coherent-preparation/repo/source-implementation-pilot",
+                "role": "source-implementation-pilot"
+              },
+              {
+                "path": "/tmp/w325959-preflight-328521-1/1-coherent-preparation/repo/source-review-pilot",
+                "role": "source-review-pilot"
+              }
+            ],
+            "proved": {
+              "declared_bases": [
+                "14e52d80679de5e844f72324df632da5e01cf393"
+              ],
+              "identities": {
+                "source-implementation-pilot": "/tmp/w325959-preflight-328521-1/1-coherent-preparation/repo/source-implementation-pilot",
+                "source-review-pilot": "/tmp/w325959-preflight-328521-1/1-coherent-preparation/repo/source-review-pilot",
+                "target": "/tmp/w325959-preflight-328521-1/1-coherent-preparation/repo/target.git",
+                "workspace": "/tmp/w325959-preflight-328521-1/1-coherent-preparation/repo/workspace"
+              },
+              "reference": null
+            },
+            "source": "OWNER-PINNED-SOURCE-14e52d80"
+          },
+          "passed": true
+        },
+        {
+          "check": "all clone operations explicitly avoid hardlinks",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "repository proof requests selected commit",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "normal repository preparation refuses existing paths before commands",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "supported installer completes with explicit no-repositories",
+          "detail": {
+            "exit": 0,
+            "inputs_at": "/tmp/w325959-preflight-328521-1/1-coherent-preparation/inputs.json",
+            "said": [
+              "    cd /tmp/w325959-preflight-328521-1/1-coherent-preparation && just status",
+              "    just --justfile /tmp/w325959-preflight-328521-1/1-coherent-preparation/justfile start        # from anywhere",
+              "",
+              "or the command directly, which is the same program:",
+              "",
+              "    /tmp/w325959-preflight-328521-1/1-coherent-preparation/distro/baton-v12-stack status --instance /tmp/w325959-preflight-328521-1/1-coherent-preparation/instance.json"
+            ]
+          },
+          "passed": true
+        },
+        {
+          "check": "second installation refuses existing runtime",
+          "detail": {
+            "exit": 2,
+            "inputs_at": "/tmp/w325959-preflight-328521-1/1-coherent-preparation/inputs.json",
+            "said": [
+              "refused: there is already a runtime at /tmp/w325959-preflight-328521-1/1-coherent-preparation/distro; nothing here upgrades a deployment in place. Stop that instance and prepare a new destination if you mean a different runtime."
+            ]
+          },
+          "passed": true
+        },
+        {
+          "check": "installer preserves explicit integration_target",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "installer preserves explicit integration_workspace",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "before registration the owner cannot take a Work on its own route: the route resolves to nobody",
+          "detail": "Refusal: route 'impl' does not resolve to 'baton.slaw'",
+          "passed": true
+        },
+        {
+          "check": "the implementation participant claims on `impl`",
+          "detail": {
+            "generation": null,
+            "participant": "baton.claude-pilot",
+            "work_ref": {
+              "authority_uuid": "1a007045b7b44b90a2324c016512cf02",
+              "work_id": "1a007045-W1"
+            }
+          },
+          "passed": true
+        },
+        {
+          "check": "the review participant claims after the handoff to `rview`",
+          "detail": {
+            "generation": null,
+            "participant": "baton.reviewer-pilot",
+            "work_ref": {
+              "authority_uuid": "1a007045b7b44b90a2324c016512cf02",
+              "work_id": "1a007045-W1"
+            }
+          },
+          "passed": true
+        },
+        {
+          "check": "THE OWNER ROUTE IS REAL: baton.slaw claims the Work its review ending handed on",
+          "detail": {
+            "generation": null,
+            "participant": "baton.slaw",
+            "work_ref": {
+              "authority_uuid": "1a007045b7b44b90a2324c016512cf02",
+              "work_id": "1a007045-W1"
+            }
+          },
+          "passed": true
+        },
+        {
+          "check": "and the decision names the owner's own principal",
+          "detail": {
+            "effective_scope": "scope:deployment",
+            "endpoint": "baton.slaw",
+            "grant": "direct",
+            "policy_generation": 5,
+            "principal": "principal:baton.slaw",
+            "role": "owner"
+          },
+          "passed": true
+        },
+        {
+          "check": "a participant that does not handle this route is refused",
+          "detail": "Refusal: Work is already claimed",
+          "passed": true
+        },
+        {
+          "check": "THE DIAGNOSIS ROUTE IS REAL: its handler claims a dedicated diagnostic Work",
+          "detail": {
+            "generation": null,
+            "participant": "baton.diagnostician-pilot",
+            "work_ref": {
+              "authority_uuid": "1a007045b7b44b90a2324c016512cf02",
+              "work_id": "1a007045-W2"
+            }
+          },
+          "passed": true
+        },
+        {
+          "check": "an identical claim replays rather than taking a second one",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "baton.verifier-pilot holds verify in this Work's own scope",
+          "detail": {
+            "capability": "verify",
+            "scope": "scope:deployment",
+            "who": "baton.verifier-pilot"
+          },
+          "passed": true
+        },
+        {
+          "check": "baton.reviewer-receipt-pilot holds review in this Work's own scope",
+          "detail": {
+            "capability": "review",
+            "scope": "scope:deployment",
+            "who": "baton.reviewer-receipt-pilot"
+          },
+          "passed": true
+        },
+        {
+          "check": "baton.slaw holds approve in this Work's own scope",
+          "detail": {
+            "capability": "approve",
+            "scope": "scope:deployment",
+            "who": "baton.slaw"
+          },
+          "passed": true
+        },
+        {
+          "check": "and the owner holds NO verify grant",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "and the owner holds NO review grant",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "the owner holds approve, integrate and close",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "the canonical dossier binds, which the human integration citation requires",
+          "detail": {
+            "bound": {
+              "bound_at": "2026-10-19T02:15:14.672Z",
+              "locator": "native-pilot-quickstart-1a007045",
+              "operation_id": "w325959-bind-dossier",
+              "work_id": "1a007045-W1"
+            },
+            "read": {
+              "bound_at": "2026-10-19T02:15:14.672Z",
+              "locator": "native-pilot-quickstart-1a007045",
+              "operation_id": "w325959-bind-dossier",
+              "work_id": "1a007045-W1"
+            }
+          },
+          "passed": true
+        },
+        {
+          "check": "the adapted manifest passes the MANAGER's own structure check",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "its source descriptor declares the boundary a nominated mount requires",
+          "detail": {
+            "baton.source-boundary/1": {
+              "delivery": "nominated-mount",
+              "profile": "git-line",
+              "workspace": "disk"
+            }
+          },
+          "passed": true
+        },
+        {
+          "check": "it names THIS Authority and THIS Work",
+          "detail": {
+            "authority_uuid": "1a007045b7b44b90a2324c016512cf02",
+            "work_id": "1a007045-W1"
+          },
+          "passed": true
+        },
+        {
+          "check": "and this task document's own bytes",
+          "detail": "sha256:5ec48d4baf2020a8ef972237444c5989cf8490dea23cc285dbfd3bc0508dc1bb",
+          "passed": true
+        },
+        {
+          "check": "the sealed digest is the canonical digest the manager recomputes, and it moved because the Work did",
+          "detail": {
+            "adapted": "sha256:7314a996f5169ebbf9e4cbd1dff664e9bf9cef251210f538b9c6542b651d30ea",
+            "prior": "sha256:1882866078bbe8b9bb2edda94f63fba2c81d562d52746878d4a391f330bfa6e7"
+          },
+          "passed": true
+        },
+        {
+          "check": "every worker document now names all 29 members the worker contract closes over",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "the producer and the reviewer are distinct participants",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "the review worker's outgoing route is the OWNER route",
+          "detail": {
+            "implementation": "rview",
+            "review": "owner"
+          },
+          "passed": true
+        },
+        {
+          "check": "no integration worker is configured",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "bootstrap's own input validator accepts the resolved configuration pass",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "and bootstrap.validated accepts the configuration this input EMITS",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "the emitted configuration carries both workers with their resolved principals",
+          "detail": [
+            "principal:baton.claude-pilot",
+            "principal:baton.reviewer-pilot"
+          ],
+          "passed": true
+        },
+        {
+          "check": "the in-place configuration pass is accepted by the supported entry point",
+          "detail": {
+            "exit": 0,
+            "inputs_at": "/tmp/w325959-preflight-328521-1/1-coherent-preparation/inputs.json",
+            "said": [
+              "Now export these and run `just start` from v12/:",
+              "",
+              "export BATON_V12_JOB_STORE=\"/tmp/w325959-preflight-328521-1/1-coherent-preparation/db/jobs.sqlite3\"",
+              "export BATON_V12_CONTROL_STORE=\"/tmp/w325959-preflight-328521-1/1-coherent-preparation/db/control.sqlite3\"",
+              "export BATON_V12_AUTHORITY_UUID=\"1a007045b7b44b90a2324c016512cf02\"",
+              "export BATON_V12_STAGE_EXECUTION_CONFIG=\"/tmp/w325959-preflight-328521-1/1-coherent-preparation/deployment.json\""
+            ]
+          },
+          "passed": true
+        },
+        {
+          "check": "repeating it preserves what is there",
+          "detail": {
+            "exit": 0,
+            "inputs_at": "/tmp/w325959-preflight-328521-1/1-coherent-preparation/inputs.json",
+            "said": [
+              "Now export these and run `just start` from v12/:",
+              "",
+              "export BATON_V12_JOB_STORE=\"/tmp/w325959-preflight-328521-1/1-coherent-preparation/db/jobs.sqlite3\"",
+              "export BATON_V12_CONTROL_STORE=\"/tmp/w325959-preflight-328521-1/1-coherent-preparation/db/control.sqlite3\"",
+              "export BATON_V12_AUTHORITY_UUID=\"1a007045b7b44b90a2324c016512cf02\"",
+              "export BATON_V12_STAGE_EXECUTION_CONFIG=\"/tmp/w325959-preflight-328521-1/1-coherent-preparation/deployment.json\""
+            ]
+          },
+          "passed": true
+        },
+        {
+          "check": "implementation-pilot keeps its install-derived storage selections",
+          "detail": {
+            "credential_home": "/tmp/w325959-preflight-328521-1/1-coherent-preparation/credentials/implementation",
+            "launch_home": "/tmp/w325959-preflight-328521-1/1-coherent-preparation/launch/implementation",
+            "nominated_source": "/tmp/w325959-preflight-328521-1/1-coherent-preparation/repo/source-implementation-pilot",
+            "workspace_storage": "/tmp/w325959-preflight-328521-1/1-coherent-preparation/workspaces/implementation"
+          },
+          "passed": true
+        },
+        {
+          "check": "review-pilot keeps its install-derived storage selections",
+          "detail": {
+            "credential_home": "/tmp/w325959-preflight-328521-1/1-coherent-preparation/credentials/review",
+            "launch_home": "/tmp/w325959-preflight-328521-1/1-coherent-preparation/launch/review",
+            "nominated_source": "/tmp/w325959-preflight-328521-1/1-coherent-preparation/repo/source-review-pilot",
+            "workspace_storage": "/tmp/w325959-preflight-328521-1/1-coherent-preparation/workspaces/review"
+          },
+          "passed": true
+        },
+        {
+          "check": "but a CHANGED Job binding is refused rather than moved",
+          "detail": {
+            "exit": 2,
+            "inputs_at": "/tmp/w325959-preflight-328521-1/1-coherent-preparation/inputs.json",
+            "said": [
+              "authority 1a007045...    reused from this root's record",
+              "refused: this root already holds a different deployment and nothing was changed: job 'quickstart-a' is already bound with line_declared_base '14e52d80679de5e844f72324df632da5e01cf393' and this document names '0000000000000000000000000000000000000000'. A repeated bootstrap preserves what is there; if you mean a different deployment, give it its own state_root."
+            ]
+          },
+          "passed": true
+        },
+        {
+          "observation": "the refusal's own words",
+          "value": [
+            "authority 1a007045...    reused from this root's record",
+            "refused: this root already holds a different deployment and nothing was changed: job 'quickstart-a' is already bound with line_declared_base '14e52d80679de5e844f72324df632da5e01cf393' and this document names '0000000000000000000000000000000000000000'. A repeated bootstrap preserves what is there; if you mean a different deployment, give it its own state_root."
+          ]
+        },
+        {
+          "check": "the emitted configuration carries both workers and the one binding",
+          "detail": {
+            "bindings": [
+              {
+                "canonical_target_id": "14e52d80679de5e844f72324df632da5e01cf393",
+                "job_id": "quickstart-a",
+                "job_work_id": "1a007045-W1",
+                "line_declared_base": "14e52d80679de5e844f72324df632da5e01cf393",
+                "review_work_id": "1a007045-W1",
+                "source_worker_id": "implementation-pilot"
+              }
+            ],
+            "workers": [
+              "implementation-pilot",
+              "review-pilot"
+            ]
+          },
+          "passed": true
+        },
+        {
+          "check": "and the binding still names the ORIGINAL base",
+          "detail": {
+            "canonical_target_id": "14e52d80679de5e844f72324df632da5e01cf393",
+            "job_id": "quickstart-a",
+            "job_work_id": "1a007045-W1",
+            "line_declared_base": "14e52d80679de5e844f72324df632da5e01cf393",
+            "review_work_id": "1a007045-W1",
+            "source_worker_id": "implementation-pilot"
+          },
+          "passed": true
+        },
+        {
+          "check": "the Job input identity is the PUBLIC projection and is NOT a hash of the whole manifest",
+          "detail": {
+            "public": "sha256:5842a8a5ab807e624e92357670bb57e82d38f3a635cf12889022d25efbdb4f25",
+            "revision_2_was": "sha256:881f64b99f27c8871a3f7dc017c8ed16cca2ea2acf6914cccd3e2cf904e249ac"
+          },
+          "passed": true
+        },
+        {
+          "check": "it is stable under the excluded members: changing the worker image digest does not move it",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "while changing an included policy identity DOES move it",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "the submission names that identity",
+          "detail": "sha256:5842a8a5ab807e624e92357670bb57e82d38f3a635cf12889022d25efbdb4f25",
+          "passed": true
+        },
+        {
+          "check": "the runtime consumer finds NO disagreement for implementation-pilot",
+          "detail": {},
+          "passed": true
+        },
+        {
+          "check": "the runtime consumer finds NO disagreement for review-pilot",
+          "detail": {},
+          "passed": true
+        },
+        {
+          "check": "and it DOES disagree when the Job names another input",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "the submission validates with the readbacks in place",
+          "detail": "quickstart-a",
+          "passed": true
+        },
+        {
+          "check": "and carries the selected per-invocation ceilings",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "read-only repository report accepts installed selector",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "repository report carries actual selected base",
+          "detail": "workspace      /tmp/w325959-preflight-328521-1/1-coherent-preparation/repo/workspace -- inside this instance -- a repository (bare) -- HEAD 14e52d80679de5e844f72324df632da5e01cf393\ntarget         /tmp/w325959-preflight-328521-1/1-coherent-preparation/repo/target.git -- inside this instance -- a repository (bare) -- HEAD 14e52d80679de5e844f72324df632da5e01cf393\nreference      not configured -- a reconciled result is imported at exactly one explicitly configured reference\ndeclared bases 14e52d80679de5e844f72324df632da5e01cf393\n\nnothing was run and nothing was written; preparing the target is the owner's, and the read-only commands to check it are in OPERATOR-INDEPENDENT-REPOSITORY.md\n",
+          "passed": true
+        },
+        {
+          "check": "configuration preserves installed instance",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "configuration preserves installed justfile",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "configuration preserves installed identity",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "nominated source has controlled pinned HEAD",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "nominated source has controlled pinned HEAD",
+          "detail": null,
+          "passed": true
+        }
+      ],
+      "checks_passed": 58,
+      "disposable_root": "/tmp/w325959-preflight-328521-1",
+      "emitted_bindings": [
+        {
+          "canonical_target_id": "14e52d80679de5e844f72324df632da5e01cf393",
+          "job_id": "quickstart-a",
+          "job_work_id": "1a007045-W1",
+          "line_declared_base": "14e52d80679de5e844f72324df632da5e01cf393",
+          "review_work_id": "1a007045-W1",
+          "source_worker_id": "implementation-pilot"
+        }
+      ],
+      "emitted_validation": "accepted by bootstrap.validated",
+      "expected_failure": false,
+      "injected": "one authority; controlled repository and installer boundaries",
+      "input_manifest": {
+        "manifest_digest": "sha256:7314a996f5169ebbf9e4cbd1dff664e9bf9cef251210f538b9c6542b651d30ea",
+        "manifest_id": "input-manifest-1",
+        "runtime_profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+        "work_ref": {
+          "authority_uuid": "1a007045b7b44b90a2324c016512cf02",
+          "work_id": "1a007045-W1"
+        },
+        "worker_image_digest": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2"
+      },
+      "intended_failed_check": null,
+      "job_input_identity": "sha256:5842a8a5ab807e624e92357670bb57e82d38f3a635cf12889022d25efbdb4f25",
+      "label": "PREFLIGHT (W325959 disposable composition; not a production identity and not the selected instance)",
+      "not_performed": [
+        "any engine call",
+        "any provider call",
+        "any credential content read",
+        "any image build",
+        "any write to the selected destination",
+        "any submission to a manager",
+        "any mutation of this repository"
+      ],
+      "outcome": "observed",
+      "pass_two": {
+        "exit": 0,
+        "inputs_at": "/tmp/w325959-preflight-328521-1/1-coherent-preparation/inputs.json",
+        "said": [
+          "Now export these and run `just start` from v12/:",
+          "",
+          "export BATON_V12_JOB_STORE=\"/tmp/w325959-preflight-328521-1/1-coherent-preparation/db/jobs.sqlite3\"",
+          "export BATON_V12_CONTROL_STORE=\"/tmp/w325959-preflight-328521-1/1-coherent-preparation/db/control.sqlite3\"",
+          "export BATON_V12_AUTHORITY_UUID=\"1a007045b7b44b90a2324c016512cf02\"",
+          "export BATON_V12_STAGE_EXECUTION_CONFIG=\"/tmp/w325959-preflight-328521-1/1-coherent-preparation/deployment.json\""
+        ]
+      },
+      "principals": {
+        "baton.claude-pilot": "principal:baton.claude-pilot",
+        "baton.reviewer-pilot": "principal:baton.reviewer-pilot"
+      },
+      "repeat": {
+        "exit": 0,
+        "inputs_at": "/tmp/w325959-preflight-328521-1/1-coherent-preparation/inputs.json",
+        "said": [
+          "Now export these and run `just start` from v12/:",
+          "",
+          "export BATON_V12_JOB_STORE=\"/tmp/w325959-preflight-328521-1/1-coherent-preparation/db/jobs.sqlite3\"",
+          "export BATON_V12_CONTROL_STORE=\"/tmp/w325959-preflight-328521-1/1-coherent-preparation/db/control.sqlite3\"",
+          "export BATON_V12_AUTHORITY_UUID=\"1a007045b7b44b90a2324c016512cf02\"",
+          "export BATON_V12_STAGE_EXECUTION_CONFIG=\"/tmp/w325959-preflight-328521-1/1-coherent-preparation/deployment.json\""
+        ]
+      },
+      "revision_2_naive_digest": "sha256:881f64b99f27c8871a3f7dc017c8ed16cca2ea2acf6914cccd3e2cf904e249ac",
+      "routes": {
+        "implementation": "rview",
+        "review": "owner"
+      },
+      "scenario": "1-coherent-preparation",
+      "seconds": 0.061,
+      "submission_stages": [
+        "implementation",
+        "review"
+      ],
+      "work_id": "1a007045-W1"
+    }
+  ],
+  "schema": "baton.w325959.disposable-preparation/1",
+  "seconds": 0.062,
+  "selected_destination_untouched": true,
+  "source_base": "14e52d80679de5e844f72324df632da5e01cf393",
+  "unexpected": 0
+}

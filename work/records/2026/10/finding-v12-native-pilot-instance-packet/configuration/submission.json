@@ -7,14 +7,14 @@
       },
       "input_digest": "READBACK: job_input_identity(input_manifest) once the manifest of step 6 exists",
       "job_id": "quickstart-a",
-      "policy_digest": "SELECT: the same policy digest the workers name",
+      "policy_digest": "BUILD: the same policy digest the two workers name. Produced by: just -f v12/justfile pool-policy",
       "stages": [
         {
           "depends_on": [],
           "kind": "implementation",
-          "profile_digest": "SELECT: sha256 of the runtime profile",
-          "profile_name": "SELECT: the runtime profile name",
-          "work_id": "READBACK: the Work id of step 4"
+          "profile_digest": "BUILD: the implementation runtime profile digest. Produced by: just -f v12/justfile pool-profile ROLE=implementation",
+          "profile_name": "pilot-implementation",
+          "work_id": "READBACK: the Work id of step 5"
         },
         {
           "depends_on": [
@@ -24,9 +24,9 @@
             }
           ],
           "kind": "review",
-          "profile_digest": "SELECT: sha256 of the runtime profile",
-          "profile_name": "SELECT: the runtime profile name",
-          "work_id": "READBACK: the Work id of step 4"
+          "profile_digest": "BUILD: the review runtime profile digest. Produced by: just -f v12/justfile pool-profile ROLE=review",
+          "profile_name": "pilot-review",
+          "work_id": "READBACK: the Work id of step 5"
         }
       ],
       "terminal_policy": "report-and-hold",

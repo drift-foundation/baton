@@ -1,0 +1,65 @@
+{
+  "claim": 326141,
+  "destination": "/home/sl/baton-instances/native-coordination-pilot-w321608-1",
+  "disposable_root": "/var/tmp/w325959-preflight",
+  "members": {
+    "INSTANCE-PACKET.md": {
+      "bytes": 14152,
+      "sha256": "9cf566db58118230df117889a1ca7f5ce985fd58e6d279097bd376ced8edb194"
+    },
+    "configuration/install-inputs.json": {
+      "bytes": 779,
+      "sha256": "151088597e5583bef768fb7b7518dac74cdae0b494e68ce57be4061f5f26a70b"
+    },
+    "configuration/job-inputs.json": {
+      "bytes": 6301,
+      "sha256": "eeae34ff9a10288f536e8e72e87d51460966d30121e5d75fd24f6cfb3b1d5fd7"
+    },
+    "configuration/manifest-inputs.json": {
+      "bytes": 2413,
+      "sha256": "045055e771380e88126c59a9de4870f15766225ffb14728ce577f3019927a487"
+    },
+    "configuration/submission.json": {
+      "bytes": 1307,
+      "sha256": "3319d4586f7407752940cb543556a8549f3ed50a05627b727d388b07558d3b5a"
+    },
+    "configuration/task.json": {
+      "bytes": 1886,
+      "sha256": "631d025c6eb5e98d09cfef8ea3fff65bbf37661e3e062941fc1c9793c7bc4b73"
+    },
+    "evidence/PREPARATION.json": {
+      "bytes": 38212,
+      "sha256": "375c9c677a1ab29352d516953c45cb0e7e568bd111c1229d55b540a332d4bc2d"
+    },
+    "evidence/scenario-0-harness-self-check.json": {
+      "bytes": 1188,
+      "sha256": "5e488dd87e19078c09c51e2dd840f77af0691e57f96c1dda43a2e5f279b99528"
+    },
+    "evidence/scenario-1-pass-one-composes-and-reads-back.json": {
+      "bytes": 8702,
+      "sha256": "337f5d1e403ff0a5bec64f930e3000ba25f66b7cd1c8fe20cfbf5a22c8ce7214"
+    },
+    "evidence/scenario-2-owner-and-diagnosis-ownership.json": {
+      "bytes": 6102,
+      "sha256": "3f180199da5252cd6736c66b89ff06e91ca079b4c7229979c3ddbe356fba0850"
+    },
+    "evidence/scenario-3-pass-two-binds-the-two-stage-job.json": {
+      "bytes": 10312,
+      "sha256": "5ceac4c3c210280b6e04f60e5330d15f605f5786f510a6ccb599ff30861865bf"
+    },
+    "evidence/scenario-4-the-reused-inputs-are-verified.json": {
+      "bytes": 7675,
+      "sha256": "0682185f4e7de3722ad4e1ef1f627cb5295e83d603b0da1c86ddc183247f74f0"
+    },
+    "prepare.py": {
+      "bytes": 39021,
+      "sha256": "7fd02f1f15e53ad01e89783bf25dfd1a24bc8a6497073f397b05003c11149470"
+    }
+  },
+  "note": "preparation composed end to end in a labelled disposable root through the supported bootstrap entry point: 72 checks passed, 4 scenarios observed, the self-check failed for its own named reason, 0 unexpected. The selected destination is untouched and still does not exist.",
+  "reused_inputs_from": "/home/sl/baton-instances/failed-reporting-w321528-324054/packet/deployment.json",
+  "revision": 2,
+  "schema": "baton.w325959.instance-packet/2",
+  "source_base": "14e52d80679de5e844f72324df632da5e01cf393",
+  "supersedes": "revision 1 (../INSTANCE-PACKET.md, ../configuration/, ../verification/), preserved unedited with its own MANIFEST.json; revision 1's manifest digest as the review published it: f74a3daa1e5eeb07fc378fd066155e4885d6744afcc2797ddad99daecb16e70b"
+}

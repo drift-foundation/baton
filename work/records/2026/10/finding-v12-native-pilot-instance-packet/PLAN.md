@@ -1,5 +1,7 @@
-# Current milestone
+# Current milestone — owner disposition of accepted preparation
 
-Prepare exact instance-specific packet under owner M325952 and FINDING. Bind source14e52d80679de5e844f72324df632da5e01cf393 and retained destination native-coordination-pilot-w321608-1. Resolve participants/profiles/build-image and credential/network references, owner and dedicated diagnosis routes; preserve two-stage Job and human delivery. Proposed3600s provider plus adequate total/cleanup.
+Revision4 independently accepted by baton.rvpc under E328582; review review-2026-10-19T02-23-47Z.md. Manifest SHA-256 762ffd3007153833b1b102c1c45268c8a6931ac493ede6c412481fb27f519b24 (78 members). Evidence: evidence/review-328582/PREPARATION.json and INDEPENDENT.json. Earlier revisions and author progress remain historical.
 
-Return manifest, source/provenance checks, deterministic disposable preflight and exact operator commands to baton.bug for independent review. No launch or actual selected-instance initialization. If a required input cannot be prepared within authority, record exact unavailable operation; no guessed pin. Parent W321608 stays open through review and native delivery. Read accepted W321690 proof rather than rerunning it without a new question. No product/closed-dossier edits; author owns this child preparation/PROGRESS only.
+Next: owner disposition and selection of the concrete sequence in revision-4/INSTANCE-PACKET.md. Actual fresh host bundle/provenance review, owner repository preparation, installation and actual generated artifact readback remain unexecuted; admission/launch requires separate selection. Source14e52d80679de5e844f72324df632da5e01cf393; selected destination /home/sl/baton-instances/native-coordination-pilot-w321608-1 remains absent. No automatic launch or backlog migration.
+
+Parent W321608 remains blocked on this child pending disposition. No unrelated graph or ownership changes. Reviewer owns FINDING/PLAN/reviews; preparer owns frozen revision4 and PROGRESS. Preserve packet bytes for owner review; later actual deployment artifacts require their own provenance review.

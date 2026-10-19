@@ -1,0 +1,8 @@
+{
+  "public_job_input_identity": "sha256:af0c4b00dfbd7eafb93678b8b104cec2a9d3a8693afe84e927c825624fee2a6e",
+  "packet_computed_input_digest": "sha256:719aeb7a56ca25b3e37fb16b57c774a743fb0bab9162d39694ede8f09b266da4",
+  "equal": false,
+  "source_exists": true,
+  "source_is_git_repository": false,
+  "configuration": "/var/tmp/baton-w257624/w325959-preflight-review326210-i6tmqyte/3-pass-two-binds-the-two-stage-job/deployment.json"
+}

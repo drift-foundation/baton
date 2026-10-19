@@ -33,7 +33,12 @@ import traceback
 
 DESTINATION = "/home/sl/baton-instances/native-coordination-pilot-w321608-1"
 BASE = "14e52d80679de5e844f72324df632da5e01cf393"
-SENTINELS = ("SELECT: ", "READBACK: ")
+# THREE CLASSES OF UNRESOLVED VALUE, and the FINDING's instruction makes the
+# distinction the point: the owner delegated resolution of routine values, so
+# `SELECT:` is now reserved for a genuine owner choice, `BUILD:` names a digest
+# that is the output of a build this preparation may not silently perform, and
+# `READBACK:` names a value supported preparation generates in an earlier step.
+SENTINELS = ("SELECT: ", "READBACK: ", "BUILD: ")
 
 
 class CheckFailed(AssertionError):
@@ -241,8 +246,24 @@ def the_install_inputs_are_closed_and_refuse_their_sentinels(packet, checks):
                   "workaround", "integration" in bootstrap.ROLES)
 
     unresolved = sentinels_in(document)
-    checks.expect("the unresolved values are explicit and enumerable",
-                  len(unresolved) >= 5, unresolved)
+    checks.expect("the only unresolved value left in pass one is the one "
+                  "build output, every routine value having been resolved",
+                  len(unresolved) == 1
+                  and unresolved == ["$.integration_profile."
+                                     "instructions_digest"], unresolved)
+    checks.expect("the retention policy digest is RESOLVED to the digest of "
+                  "this tree's own retention policy, recomputed here",
+                  document["retention_policy_digest"] == "sha256:" +
+                  __import__("hashlib").sha256(
+                      __import__("pathlib").Path(
+                          "/home/sl/src/baton/v12/instance-retention.md"
+                      ).read_bytes()).hexdigest(),
+                  document["retention_policy_digest"])
+    checks.expect("the generations are resolved positive integers",
+                  document["pool_generation"] == 1
+                  and document["policy_generation"] == 1,
+                  {"pool": document["pool_generation"],
+                   "policy": document["policy_generation"]})
 
     # WHERE THE GATE ACTUALLY IS, and the first cut of this scenario guessed
     # wrong. `bootstrap.held` owns PRESENCE and RELATIONSHIPS -- every required
@@ -278,27 +299,55 @@ def the_install_inputs_are_closed_and_refuse_their_sentinels(packet, checks):
         "retention_disposition": document["retention_disposition"],
         "receipt_participants": dict(document["receipt_participants"]),
         "workers": [], "job_bindings": []}
-    refusal = None
+    # AND NOW IT PASSES, which is the honest result and a changed one. While
+    # `retention_policy_digest` was a sentinel this refused with "the retention
+    # policy digest is a sha256 digest"; resolving it -- as the FINDING
+    # instructs, to this tree's own retention policy -- makes the emitted
+    # configuration one the manager would accept. The remaining pass-one
+    # sentinel, the integrator instructions digest, is NOT refused here.
+    accepted_emission = None
     try:
         bootstrap.validated(would_emit)
+        accepted_emission = True
     except Exception as caught:                              # noqa: BLE001
-        refusal = f"{type(caught).__name__}: {caught}"
-    checks.expect("and bootstrap.validated REFUSES the configuration this "
-                  "input would emit while the sentinels stand, before any "
-                  "durable effect -- which is what makes the packet "
-                  "non-executable today",
-                  refusal is not None and "sha256 digest" in refusal, refusal)
+        accepted_emission = f"{type(caught).__name__}: {caught}"
+    checks.expect("bootstrap.validated now ACCEPTS the configuration this "
+                  "input would emit, because the routine values are resolved",
+                  accepted_emission is True, accepted_emission)
+
+    # SO THE GATE ON PASS ONE IS THE BUILT RUNTIME, not a validator. `admit`
+    # runs before any durable effect and refuses an install with no distro and
+    # one whose distro is not there.
+    gates = {}
+    for named, distro in (("no --distro", None),
+                          ("a distro that is not there",
+                           "/nonexistent/distro")):
+        try:
+            bootstrap.admit(DESTINATION, distro)
+            gates[named] = "ACCEPTED"
+        except Exception as caught:                          # noqa: BLE001
+            gates[named] = f"{type(caught).__name__}: {caught}"
+    checks.expect("installing refuses without a built runtime",
+                  all("needs a built runtime" in one
+                      or "no built runtime at" in one
+                      for one in gates.values()), gates)
+    refusal = gates
     return {"member": held, "unresolved": unresolved,
             "held_accepts": accepted,
-            "validated_refusal": refusal,
+            "validated_accepts_emission": accepted_emission,
+            "install_gates": gates,
             "finding": "bootstrap.held validates presence and relationships, "
-                       "not value formats, so it accepts an opaque string "
-                       "where a digest or a generation belongs. The gate "
-                       "before any durable effect is bootstrap.validated, "
-                       "which holds the EMITTED configuration to the manager's "
-                       "own rules; its refusal here names the retention policy "
-                       "digest. An earlier cut of this scenario asserted the "
-                       "refusal came from `held` and the run said otherwise.",
+                       "not value formats. bootstrap.validated holds the "
+                       "EMITTED configuration to the manager's own rules and "
+                       "refused this input while retention_policy_digest was a "
+                       "sentinel; with the routine values resolved it accepts. "
+                       "So pass one is no longer gated by a validator: what "
+                       "gates it is `admit`, which refuses an install with no "
+                       "built runtime, plus the worker images and the owner's "
+                       "launch selection. Two earlier cuts of this scenario "
+                       "asserted a refusal from `held` and then from "
+                       "`validated`; the run refused both and this is what is "
+                       "actually true.",
             "receipt_participants": document["receipt_participants"],
             "owner_participant": document["owner_participant"]}
 
@@ -450,9 +499,45 @@ def the_worker_documents_name_every_member(packet, checks):
                   job["line_declared_base"] == BASE
                   and job["canonical_target_id"] == BASE, job)
     unresolved = sentinels_in(document)
-    checks.expect("every value that cannot exist before the instance does is "
-                  "an explicit readback or selection", len(unresolved) >= 10,
-                  len(unresolved))
+    kinds = {}
+    for path in unresolved:
+        held = document
+        for part in path[2:].replace("[", ".").replace("]", "").split("."):
+            held = held[int(part)] if part.isdigit() else held[part]
+        kinds.setdefault(held.split(":")[0], []).append(path)
+    checks.note("the unresolved values by class", {k: len(v) for k, v
+                                                   in sorted(kinds.items())})
+    checks.expect("no routine value is left to the owner: every unresolved "
+                  "value in pass two is either a BUILD output or a READBACK "
+                  "from supported preparation",
+                  sorted(kinds) == ["BUILD", "READBACK"], sorted(kinds))
+    for one in document["workers"]:
+        held = one["deployment"]
+        checks.expect(f"{one['worker_id']} resolves its engine, network, "
+                      f"workspace group and capacity",
+                      held["engine"] in ("docker", "podman")
+                      and held["network"] == "none"
+                      and isinstance(held["workspace_group"], int)
+                      and isinstance(held["workspace_capacity"]["max_bytes"],
+                                     int),
+                      {k: held[k] for k in ("engine", "network",
+                                            "workspace_group",
+                                            "workspace_capacity")})
+        checks.expect(f"{one['worker_id']} selects NO provider credential, "
+                      f"which is what 'no provider call is selected' means in "
+                      f"a document",
+                      held["credential_sources"] is None
+                      and held["credential_slots"] == []
+                      and held["credential_profile"] == {},
+                      {k: held[k] for k in ("credential_sources",
+                                            "credential_slots",
+                                            "credential_profile")})
+    routes = {one["role"]: one["deployment"]["review_route"]
+              for one in document["workers"]}
+    checks.expect("the implementation ending hands the Work to the review "
+                  "route and the review ending hands it to the OWNER route",
+                  routes == {"implementation": "rview", "review": "owner"},
+                  routes)
     refusal = None
     try:
         bootstrap.held(document)

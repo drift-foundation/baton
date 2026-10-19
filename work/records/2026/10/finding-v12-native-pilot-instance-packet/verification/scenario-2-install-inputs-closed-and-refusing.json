@@ -65,15 +65,23 @@
       "passed": true
     },
     {
-      "check": "the unresolved values are explicit and enumerable",
+      "check": "the only unresolved value left in pass one is the one build output, every routine value having been resolved",
       "detail": [
-        "$.integration_profile.instructions_digest",
-        "$.integration_profile.profile_kind",
-        "$.integration_profile.profile_version",
-        "$.policy_generation",
-        "$.pool_generation",
-        "$.retention_policy_digest"
+        "$.integration_profile.instructions_digest"
       ],
+      "passed": true
+    },
+    {
+      "check": "the retention policy digest is RESOLVED to the digest of this tree's own retention policy, recomputed here",
+      "detail": "sha256:0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a",
+      "passed": true
+    },
+    {
+      "check": "the generations are resolved positive integers",
+      "detail": {
+        "policy": 1,
+        "pool": 1
+      },
       "passed": true
     },
     {
@@ -82,21 +90,33 @@
       "passed": true
     },
     {
-      "check": "and bootstrap.validated REFUSES the configuration this input would emit while the sentinels stand, before any durable effect -- which is what makes the packet non-executable today",
-      "detail": "BootstrapRefusal: the deployment this document describes is not one the manager would accept, so nothing was prepared: the retention policy digest is a sha256 digest. Each worker's `deployment` member is the single-worker launch document v12/python/DEPLOYMENT.md specifies; this helper fills in only participant, principal, authority_store, authority_uuid and launch_role, and names the rest as yours to select.",
+      "check": "bootstrap.validated now ACCEPTS the configuration this input would emit, because the routine values are resolved",
+      "detail": true,
+      "passed": true
+    },
+    {
+      "check": "installing refuses without a built runtime",
+      "detail": {
+        "a distro that is not there": "BootstrapRefusal: there is no built runtime at /nonexistent/distro. Build one with `just build` from v12/ first.",
+        "no --distro": "BootstrapRefusal: installing into /home/sl/baton-instances/native-coordination-pilot-w321608-1 needs a built runtime; name it with --distro, or build one with `just build` from v12/."
+      },
       "passed": true
     }
   ],
-  "checks_passed": 12,
+  "checks_passed": 15,
   "expected_failure": false,
-  "finding": "bootstrap.held validates presence and relationships, not value formats, so it accepts an opaque string where a digest or a generation belongs. The gate before any durable effect is bootstrap.validated, which holds the EMITTED configuration to the manager's own rules; its refusal here names the retention policy digest. An earlier cut of this scenario asserted the refusal came from `held` and the run said otherwise.",
+  "finding": "bootstrap.held validates presence and relationships, not value formats. bootstrap.validated holds the EMITTED configuration to the manager's own rules and refused this input while retention_policy_digest was a sentinel; with the routine values resolved it accepts. So pass one is no longer gated by a validator: what gates it is `admit`, which refuses an install with no built runtime, plus the worker images and the owner's launch selection. Two earlier cuts of this scenario asserted a refusal from `held` and then from `validated`; the run refused both and this is what is actually true.",
   "held_accepts": true,
   "injected": "pass one against bootstrap's own input contract",
+  "install_gates": {
+    "a distro that is not there": "BootstrapRefusal: there is no built runtime at /nonexistent/distro. Build one with `just build` from v12/ first.",
+    "no --distro": "BootstrapRefusal: installing into /home/sl/baton-instances/native-coordination-pilot-w321608-1 needs a built runtime; name it with --distro, or build one with `just build` from v12/."
+  },
   "intended_failed_check": null,
   "member": {
-    "bytes": 1185,
+    "bytes": 1021,
     "path": "configuration/install-inputs.json",
-    "sha256": "96ddcb00305bf3016529a10202238a41e076b14067995d4f66a8de9f21b116f5"
+    "sha256": "6600c5728fc342c9e060957e50a8199a6da0304ce19b643a28e2abc79c5dca26"
   },
   "not_performed": [
     "bootstrap",
@@ -121,14 +141,9 @@
     "verification": "baton.verifier-pilot"
   },
   "scenario": "2-install-inputs-closed-and-refusing",
-  "seconds": 0.007,
+  "seconds": 0.008,
   "unresolved": [
-    "$.integration_profile.instructions_digest",
-    "$.integration_profile.profile_kind",
-    "$.integration_profile.profile_version",
-    "$.policy_generation",
-    "$.pool_generation",
-    "$.retention_policy_digest"
+    "$.integration_profile.instructions_digest"
   ],
-  "validated_refusal": "BootstrapRefusal: the deployment this document describes is not one the manager would accept, so nothing was prepared: the retention policy digest is a sha256 digest. Each worker's `deployment` member is the single-worker launch document v12/python/DEPLOYMENT.md specifies; this helper fills in only participant, principal, authority_store, authority_uuid and launch_role, and names the rest as yours to select."
+  "validated_accepts_emission": true
 }

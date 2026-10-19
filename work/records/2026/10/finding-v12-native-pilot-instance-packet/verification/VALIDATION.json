@@ -1,5 +1,5 @@
 {
-  "checks_passed": 62,
+  "checks_passed": 70,
   "destination": "/home/sl/baton-instances/native-coordination-pilot-w321608-1",
   "failed_as_intended": 1,
   "harness_self_check_failed_for_its_own_reason": true,
@@ -170,7 +170,7 @@
       "scenario": "1-task-document-immutable-and-owned",
       "sealed_bytes": 1853,
       "sealed_sha256": "5ec48d4baf2020a8ef972237444c5989cf8490dea23cc285dbfd3bc0508dc1bb",
-      "seconds": 0.16,
+      "seconds": 0.156,
       "task_id": "w321608-native-operator-quickstart"
     },
     {
@@ -240,15 +240,23 @@
           "passed": true
         },
         {
-          "check": "the unresolved values are explicit and enumerable",
+          "check": "the only unresolved value left in pass one is the one build output, every routine value having been resolved",
           "detail": [
-            "$.integration_profile.instructions_digest",
-            "$.integration_profile.profile_kind",
-            "$.integration_profile.profile_version",
-            "$.policy_generation",
-            "$.pool_generation",
-            "$.retention_policy_digest"
+            "$.integration_profile.instructions_digest"
           ],
+          "passed": true
+        },
+        {
+          "check": "the retention policy digest is RESOLVED to the digest of this tree's own retention policy, recomputed here",
+          "detail": "sha256:0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a",
+          "passed": true
+        },
+        {
+          "check": "the generations are resolved positive integers",
+          "detail": {
+            "policy": 1,
+            "pool": 1
+          },
           "passed": true
         },
         {
@@ -257,21 +265,33 @@
           "passed": true
         },
         {
-          "check": "and bootstrap.validated REFUSES the configuration this input would emit while the sentinels stand, before any durable effect -- which is what makes the packet non-executable today",
-          "detail": "BootstrapRefusal: the deployment this document describes is not one the manager would accept, so nothing was prepared: the retention policy digest is a sha256 digest. Each worker's `deployment` member is the single-worker launch document v12/python/DEPLOYMENT.md specifies; this helper fills in only participant, principal, authority_store, authority_uuid and launch_role, and names the rest as yours to select.",
+          "check": "bootstrap.validated now ACCEPTS the configuration this input would emit, because the routine values are resolved",
+          "detail": true,
+          "passed": true
+        },
+        {
+          "check": "installing refuses without a built runtime",
+          "detail": {
+            "a distro that is not there": "BootstrapRefusal: there is no built runtime at /nonexistent/distro. Build one with `just build` from v12/ first.",
+            "no --distro": "BootstrapRefusal: installing into /home/sl/baton-instances/native-coordination-pilot-w321608-1 needs a built runtime; name it with --distro, or build one with `just build` from v12/."
+          },
           "passed": true
         }
       ],
-      "checks_passed": 12,
+      "checks_passed": 15,
       "expected_failure": false,
-      "finding": "bootstrap.held validates presence and relationships, not value formats, so it accepts an opaque string where a digest or a generation belongs. The gate before any durable effect is bootstrap.validated, which holds the EMITTED configuration to the manager's own rules; its refusal here names the retention policy digest. An earlier cut of this scenario asserted the refusal came from `held` and the run said otherwise.",
+      "finding": "bootstrap.held validates presence and relationships, not value formats. bootstrap.validated holds the EMITTED configuration to the manager's own rules and refused this input while retention_policy_digest was a sentinel; with the routine values resolved it accepts. So pass one is no longer gated by a validator: what gates it is `admit`, which refuses an install with no built runtime, plus the worker images and the owner's launch selection. Two earlier cuts of this scenario asserted a refusal from `held` and then from `validated`; the run refused both and this is what is actually true.",
       "held_accepts": true,
       "injected": "pass one against bootstrap's own input contract",
+      "install_gates": {
+        "a distro that is not there": "BootstrapRefusal: there is no built runtime at /nonexistent/distro. Build one with `just build` from v12/ first.",
+        "no --distro": "BootstrapRefusal: installing into /home/sl/baton-instances/native-coordination-pilot-w321608-1 needs a built runtime; name it with --distro, or build one with `just build` from v12/."
+      },
       "intended_failed_check": null,
       "member": {
-        "bytes": 1185,
+        "bytes": 1021,
         "path": "configuration/install-inputs.json",
-        "sha256": "96ddcb00305bf3016529a10202238a41e076b14067995d4f66a8de9f21b116f5"
+        "sha256": "6600c5728fc342c9e060957e50a8199a6da0304ce19b643a28e2abc79c5dca26"
       },
       "not_performed": [
         "bootstrap",
@@ -296,16 +316,11 @@
         "verification": "baton.verifier-pilot"
       },
       "scenario": "2-install-inputs-closed-and-refusing",
-      "seconds": 0.007,
+      "seconds": 0.008,
       "unresolved": [
-        "$.integration_profile.instructions_digest",
-        "$.integration_profile.profile_kind",
-        "$.integration_profile.profile_version",
-        "$.policy_generation",
-        "$.pool_generation",
-        "$.retention_policy_digest"
+        "$.integration_profile.instructions_digest"
       ],
-      "validated_refusal": "BootstrapRefusal: the deployment this document describes is not one the manager would accept, so nothing was prepared: the retention policy digest is a sha256 digest. Each worker's `deployment` member is the single-worker launch document v12/python/DEPLOYMENT.md specifies; this helper fills in only participant, principal, authority_store, authority_uuid and launch_role, and names the rest as yours to select."
+      "validated_accepts_emission": true
     },
     {
       "checks": [
@@ -390,9 +405,9 @@
       "injected": "pass three against the Job manager's own validator, authored and resolved-copy",
       "intended_failed_check": null,
       "member": {
-        "bytes": 1232,
+        "bytes": 1392,
         "path": "configuration/submission.json",
-        "sha256": "ed13965241148c6be311300e87ef402b665524eb6b71379abc18c751bfbeb8eb"
+        "sha256": "34443112b1a5d3b087411807c7bf2f6fa4cb9a8c635f09f00be9960e8f36e55a"
       },
       "normalized_shape": {
         "job_id": "quickstart-a",
@@ -430,10 +445,8 @@
         "$.jobs[0].input_digest",
         "$.jobs[0].policy_digest",
         "$.jobs[0].stages[0].profile_digest",
-        "$.jobs[0].stages[0].profile_name",
         "$.jobs[0].stages[0].work_id",
         "$.jobs[0].stages[1].profile_digest",
-        "$.jobs[0].stages[1].profile_name",
         "$.jobs[0].stages[1].work_id"
       ],
       "validator_accepts_opaque_digests": true
@@ -444,8 +457,17 @@
           "check": "the second pass names workers and jobs, which the fresh install deferred",
           "detail": [
             "_note",
+            "checkpoint_profile",
+            "integration_profile",
             "jobs",
+            "owner_participant",
+            "policy_generation",
+            "pool_generation",
+            "receipt_participants",
+            "retention_disposition",
+            "retention_policy_digest",
             "schema",
+            "state_root",
             "workers"
           ],
           "passed": true
@@ -529,13 +551,73 @@
             "job_id": "quickstart-a",
             "line_declared_base": "14e52d80679de5e844f72324df632da5e01cf393",
             "source_worker_id": "implementation-pilot",
-            "work_id": "READBACK: the canonical Work id created in step 4"
+            "work_id": "READBACK: the canonical Work id created in step 5"
           },
           "passed": true
         },
         {
-          "check": "every value that cannot exist before the instance does is an explicit readback or selection",
-          "detail": 33,
+          "observation": "the unresolved values by class",
+          "value": {
+            "BUILD": 9,
+            "READBACK": 8
+          }
+        },
+        {
+          "check": "no routine value is left to the owner: every unresolved value in pass two is either a BUILD output or a READBACK from supported preparation",
+          "detail": [
+            "BUILD",
+            "READBACK"
+          ],
+          "passed": true
+        },
+        {
+          "check": "implementation-pilot resolves its engine, network, workspace group and capacity",
+          "detail": {
+            "engine": "docker",
+            "network": "none",
+            "workspace_capacity": {
+              "max_bytes": 167772160
+            },
+            "workspace_group": 1000
+          },
+          "passed": true
+        },
+        {
+          "check": "implementation-pilot selects NO provider credential, which is what 'no provider call is selected' means in a document",
+          "detail": {
+            "credential_profile": {},
+            "credential_slots": [],
+            "credential_sources": null
+          },
+          "passed": true
+        },
+        {
+          "check": "review-pilot resolves its engine, network, workspace group and capacity",
+          "detail": {
+            "engine": "docker",
+            "network": "none",
+            "workspace_capacity": {
+              "max_bytes": 167772160
+            },
+            "workspace_group": 1000
+          },
+          "passed": true
+        },
+        {
+          "check": "review-pilot selects NO provider credential, which is what 'no provider call is selected' means in a document",
+          "detail": {
+            "credential_profile": {},
+            "credential_slots": [],
+            "credential_sources": null
+          },
+          "passed": true
+        },
+        {
+          "check": "the implementation ending hands the Work to the review route and the review ending hands it to the OWNER route",
+          "detail": {
+            "implementation": "rview",
+            "review": "owner"
+          },
           "passed": true
         },
         {
@@ -544,14 +626,42 @@
           "passed": true
         }
       ],
-      "checks_passed": 14,
+      "checks_passed": 19,
       "expected_failure": false,
       "injected": "pass two against the worker deployment contract's closed member set",
       "intended_failed_check": null,
       "member": {
-        "bytes": 6817,
-        "path": "configuration/job-inputs.json",
-        "sha256": "e534834d830a9a281cd7b9df5840b6c3dfbfed35513a184ab65703b45c859976"
+        "adapter_digest": "BUILD: the sha256 of the agent-session-1.0 adapter asset packaged into the distro (bootstrap.EXPECTED_ASSETS names it). Produced by: just -f v12/justfile stack-distro (then `baton-v12-stack identity`)",
+        "adapter_name": "agent-session-1.0",
+        "authority_store": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/db/authority.sqlite3",
+        "authority_uuid": "READBACK: the 32-character identity generated by step 3 and persisted at /home/sl/baton-instances/native-coordination-pilot-w321608-1/authority-identity.json",
+        "credential_home": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/state/credentials",
+        "credential_profile": {},
+        "credential_slots": [],
+        "credential_sources": null,
+        "engine": "docker",
+        "image_digest": "BUILD: the content digest of the built review worker image config, validated and recorded in its owning record as tools/worker_image.py requires. Produced by: just -f v12/justfile worker-image ROLE=review (a fresh build result is a candidate; selecting it is a separate recorded act)",
+        "input_manifest": "READBACK: composed in step 6 from the created Work: its work_ref carries the authority_uuid and the Work id, and its runtime_profile_digest, policy_digest and worker_image_digest must equal this document's own three",
+        "launch_contract": "v12-assignment-1",
+        "launch_home": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/state/launch",
+        "launch_role": "review",
+        "network": "none",
+        "nominated_source": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/repo/source",
+        "participant": "baton.reviewer-pilot",
+        "policy_digest": "BUILD: the sha256 of the resource/network/mount/tool/credential policy set this deployment admits. Produced by: just -f v12/justfile pool-policy (then read the admitted policy digest from `pool`)",
+        "principal": "READBACK: Authority.principal_of(baton.reviewer-pilot) after step 3",
+        "profile_digest": "BUILD: the sha256 of the runtime profile document this pool admits for the review role. Produced by: just -f v12/justfile pool-profile ROLE=review (then read the admitted profile's digest from `pool`)",
+        "profile_name": "pilot-review",
+        "retention_disposition": "retain",
+        "retention_policy_digest": "sha256:0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a",
+        "review_route": "owner",
+        "schema": "baton.v12.single-worker-deployment/4",
+        "task_document": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/state/task/w321608-native-operator-quickstart.json",
+        "workspace_capacity": {
+          "max_bytes": 167772160
+        },
+        "workspace_group": 1000,
+        "workspace_storage": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/state/workspaces"
       },
       "not_performed": [
         "bootstrap",
@@ -581,41 +691,25 @@
       "scenario": "4-worker-documents-name-every-member",
       "seconds": 0.0,
       "unresolved": [
+        "$.integration_profile.instructions_digest",
         "$.jobs[0].work_id",
+        "$.policy_generation",
         "$.workers[0].deployment.adapter_digest",
-        "$.workers[0].deployment.adapter_name",
         "$.workers[0].deployment.authority_uuid",
-        "$.workers[0].deployment.credential_profile",
-        "$.workers[0].deployment.credential_slots",
-        "$.workers[0].deployment.credential_sources",
-        "$.workers[0].deployment.engine",
         "$.workers[0].deployment.image_digest",
         "$.workers[0].deployment.input_manifest",
         "$.workers[0].deployment.policy_digest",
         "$.workers[0].deployment.principal",
         "$.workers[0].deployment.profile_digest",
-        "$.workers[0].deployment.profile_name",
-        "$.workers[0].deployment.retention_policy_digest",
-        "$.workers[0].deployment.workspace_capacity.max_bytes",
-        "$.workers[0].deployment.workspace_group",
         "$.workers[1].deployment.adapter_digest",
-        "$.workers[1].deployment.adapter_name",
         "$.workers[1].deployment.authority_uuid",
-        "$.workers[1].deployment.credential_profile",
-        "$.workers[1].deployment.credential_slots",
-        "$.workers[1].deployment.credential_sources",
-        "$.workers[1].deployment.engine",
         "$.workers[1].deployment.image_digest",
         "$.workers[1].deployment.input_manifest",
         "$.workers[1].deployment.policy_digest",
         "$.workers[1].deployment.principal",
-        "$.workers[1].deployment.profile_digest",
-        "$.workers[1].deployment.profile_name",
-        "$.workers[1].deployment.retention_policy_digest",
-        "$.workers[1].deployment.workspace_capacity.max_bytes",
-        "$.workers[1].deployment.workspace_group"
+        "$.workers[1].deployment.profile_digest"
       ],
-      "unresolved_count": 33,
+      "unresolved_count": 17,
       "worker_member_count": 29
     },
     {
@@ -838,7 +932,7 @@
     }
   ],
   "schema": "baton.w325959.packet-verification/1",
-  "seconds": 0.168,
+  "seconds": 0.165,
   "source_base": "14e52d80679de5e844f72324df632da5e01cf393",
   "unexpected": 0,
   "what_this_is": "contained structural verification of a PREPARATION packet: the authored documents are handed to the validators that own them, the pinned verification argv is run against five candidates in a temporary directory, and the unresolved values are proved to make the packet non-executable today"

@@ -1,0 +1,23 @@
+{
+  "manifest_sha256": "e6dadbbc2f8009b7ddc5ed49d8fda6755162a27f81d5f34214ca60e4ef99b6c9",
+  "members": {
+    "INSTANCE-PACKET.md": true,
+    "configuration/install-inputs.json": true,
+    "configuration/job-inputs.json": true,
+    "configuration/manifest-inputs.json": true,
+    "configuration/submission.json": true,
+    "configuration/task.json": true,
+    "evidence/PREPARATION.json": true,
+    "evidence/scenario-0-harness-self-check.json": true,
+    "evidence/scenario-1-pass-one-composes-and-reads-back.json": true,
+    "evidence/scenario-2-owner-and-diagnosis-ownership.json": true,
+    "evidence/scenario-3-pass-two-binds-the-two-stage-job.json": true,
+    "evidence/scenario-4-the-reused-inputs-are-verified.json": true,
+    "prepare.py": true
+  },
+  "root": "/var/tmp/baton-w257624/w325959-preflight-review326210-i6tmqyte",
+  "status": 0,
+  "stdout": "W325959 disposable preparation (labelled, not the selected instance):\n  0-harness-self-check: failed (0 checks passed, as intended) 0.0s\n  1-pass-one-composes-and-reads-back: observed (17 checks passed) 0.15s\n  2-owner-and-diagnosis-ownership: observed (16 checks passed) 0.015s\n  3-pass-two-binds-the-two-stage-job: observed (18 checks passed) 0.032s\n  4-the-reused-inputs-are-verified: observed (21 checks passed) 0.0s\nchecks passed 72, observed 4, failed-as-intended 1, unexpected 0, 0.198s\nselected destination untouched: True\n",
+  "stderr": "",
+  "wall_seconds": 0.22440201900099055
+}

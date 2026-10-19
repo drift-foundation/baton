@@ -1,0 +1,256 @@
+{
+  "authority_uuid": "09c2bf182ff64e7e9d2fc31ef869e71e",
+  "binding_drift": {
+    "exit": 2,
+    "inputs_at": "/var/tmp/w325959-preflight/3-pass-two-binds-the-two-stage-job/inputs.json",
+    "said": [
+      "authority 09c2bf18...    reused from this root's record",
+      "refused: this root already holds a different deployment and nothing was changed: job 'quickstart-a' is already bound with line_declared_base '14e52d80679de5e844f72324df632da5e01cf393' and this document names '0000000000000000000000000000000000000000'. A repeated bootstrap preserves what is there; if you mean a different deployment, give it its own state_root."
+    ]
+  },
+  "checks": [
+    {
+      "check": "pass one composed",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "the adapted manifest passes the MANAGER's own structure check",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "its source descriptor declares the boundary a nominated mount requires",
+      "detail": {
+        "baton.source-boundary/1": {
+          "delivery": "nominated-mount",
+          "profile": "git-line",
+          "workspace": "disk"
+        }
+      },
+      "passed": true
+    },
+    {
+      "check": "it names THIS Authority and THIS Work",
+      "detail": {
+        "authority_uuid": "09c2bf182ff64e7e9d2fc31ef869e71e",
+        "work_id": "09c2bf18-W1"
+      },
+      "passed": true
+    },
+    {
+      "check": "and this task document's own bytes",
+      "detail": "sha256:5ec48d4baf2020a8ef972237444c5989cf8490dea23cc285dbfd3bc0508dc1bb",
+      "passed": true
+    },
+    {
+      "check": "the sealed digest is the canonical digest the manager recomputes, and it moved because the Work did",
+      "detail": {
+        "adapted": "sha256:1d70e9a184684fcbc40ec3005b1cac42b8cf35b94c3c9ffc5618d98100df2c55",
+        "prior": "sha256:1882866078bbe8b9bb2edda94f63fba2c81d562d52746878d4a391f330bfa6e7"
+      },
+      "passed": true
+    },
+    {
+      "check": "every worker document now names all 29 members the worker contract closes over",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "the producer and the reviewer are distinct participants",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "the review worker's outgoing route is the OWNER route",
+      "detail": {
+        "implementation": "rview",
+        "review": "owner"
+      },
+      "passed": true
+    },
+    {
+      "check": "no integration worker is configured",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "bootstrap's own input validator accepts the resolved second pass",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "observation": "the emitted-configuration validation answer",
+      "value": "TypeError: configuration() got multiple values for argument 'principals'"
+    },
+    {
+      "check": "pass two is accepted by the supported entry point",
+      "detail": {
+        "exit": 0,
+        "inputs_at": "/var/tmp/w325959-preflight/3-pass-two-binds-the-two-stage-job/inputs.json",
+        "said": [
+          "Now export these and run `just start` from v12/:",
+          "",
+          "export BATON_V12_JOB_STORE=\"/var/tmp/w325959-preflight/3-pass-two-binds-the-two-stage-job/db/jobs.sqlite3\"",
+          "export BATON_V12_CONTROL_STORE=\"/var/tmp/w325959-preflight/3-pass-two-binds-the-two-stage-job/db/control.sqlite3\"",
+          "export BATON_V12_AUTHORITY_UUID=\"09c2bf182ff64e7e9d2fc31ef869e71e\"",
+          "export BATON_V12_STAGE_EXECUTION_CONFIG=\"/var/tmp/w325959-preflight/3-pass-two-binds-the-two-stage-job/deployment.json\""
+        ]
+      },
+      "passed": true
+    },
+    {
+      "check": "repeating pass two preserves what is there",
+      "detail": {
+        "exit": 0,
+        "inputs_at": "/var/tmp/w325959-preflight/3-pass-two-binds-the-two-stage-job/inputs.json",
+        "said": [
+          "Now export these and run `just start` from v12/:",
+          "",
+          "export BATON_V12_JOB_STORE=\"/var/tmp/w325959-preflight/3-pass-two-binds-the-two-stage-job/db/jobs.sqlite3\"",
+          "export BATON_V12_CONTROL_STORE=\"/var/tmp/w325959-preflight/3-pass-two-binds-the-two-stage-job/db/control.sqlite3\"",
+          "export BATON_V12_AUTHORITY_UUID=\"09c2bf182ff64e7e9d2fc31ef869e71e\"",
+          "export BATON_V12_STAGE_EXECUTION_CONFIG=\"/var/tmp/w325959-preflight/3-pass-two-binds-the-two-stage-job/deployment.json\""
+        ]
+      },
+      "passed": true
+    },
+    {
+      "check": "but a CHANGED Job binding is refused rather than moved",
+      "detail": {
+        "exit": 2,
+        "inputs_at": "/var/tmp/w325959-preflight/3-pass-two-binds-the-two-stage-job/inputs.json",
+        "said": [
+          "authority 09c2bf18...    reused from this root's record",
+          "refused: this root already holds a different deployment and nothing was changed: job 'quickstart-a' is already bound with line_declared_base '14e52d80679de5e844f72324df632da5e01cf393' and this document names '0000000000000000000000000000000000000000'. A repeated bootstrap preserves what is there; if you mean a different deployment, give it its own state_root."
+        ]
+      },
+      "passed": true
+    },
+    {
+      "observation": "the refusal's own words",
+      "value": [
+        "authority 09c2bf18...    reused from this root's record",
+        "refused: this root already holds a different deployment and nothing was changed: job 'quickstart-a' is already bound with line_declared_base '14e52d80679de5e844f72324df632da5e01cf393' and this document names '0000000000000000000000000000000000000000'. A repeated bootstrap preserves what is there; if you mean a different deployment, give it its own state_root."
+      ]
+    },
+    {
+      "check": "the emitted configuration carries both workers and the one binding",
+      "detail": {
+        "bindings": [
+          {
+            "canonical_target_id": "14e52d80679de5e844f72324df632da5e01cf393",
+            "job_id": "quickstart-a",
+            "job_work_id": "09c2bf18-W1",
+            "line_declared_base": "14e52d80679de5e844f72324df632da5e01cf393",
+            "review_work_id": "09c2bf18-W1",
+            "source_worker_id": "implementation-pilot"
+          }
+        ],
+        "workers": [
+          "implementation-pilot",
+          "review-pilot"
+        ]
+      },
+      "passed": true
+    },
+    {
+      "check": "and the binding still names the ORIGINAL base",
+      "detail": {
+        "canonical_target_id": "14e52d80679de5e844f72324df632da5e01cf393",
+        "job_id": "quickstart-a",
+        "job_work_id": "09c2bf18-W1",
+        "line_declared_base": "14e52d80679de5e844f72324df632da5e01cf393",
+        "review_work_id": "09c2bf18-W1",
+        "source_worker_id": "implementation-pilot"
+      },
+      "passed": true
+    },
+    {
+      "check": "the submission validates with the readbacks in place",
+      "detail": "quickstart-a",
+      "passed": true
+    },
+    {
+      "check": "and carries the selected per-invocation ceilings",
+      "detail": null,
+      "passed": true
+    }
+  ],
+  "checks_passed": 18,
+  "disposable_root": "/var/tmp/w325959-preflight",
+  "emitted_bindings": [
+    {
+      "canonical_target_id": "14e52d80679de5e844f72324df632da5e01cf393",
+      "job_id": "quickstart-a",
+      "job_work_id": "09c2bf18-W1",
+      "line_declared_base": "14e52d80679de5e844f72324df632da5e01cf393",
+      "review_work_id": "09c2bf18-W1",
+      "source_worker_id": "implementation-pilot"
+    }
+  ],
+  "emitted_validation": "TypeError: configuration() got multiple values for argument 'principals'",
+  "expected_failure": false,
+  "injected": "the composed input manifest, the resolved worker documents and the submission",
+  "input_manifest": {
+    "manifest_digest": "sha256:1d70e9a184684fcbc40ec3005b1cac42b8cf35b94c3c9ffc5618d98100df2c55",
+    "manifest_id": "input-manifest-1",
+    "runtime_profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+    "work_ref": {
+      "authority_uuid": "09c2bf182ff64e7e9d2fc31ef869e71e",
+      "work_id": "09c2bf18-W1"
+    },
+    "worker_image_digest": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2"
+  },
+  "intended_failed_check": null,
+  "label": "PREFLIGHT (W325959 disposable composition; not a production identity and not the selected instance)",
+  "not_performed": [
+    "any engine call",
+    "any provider call",
+    "any credential content read",
+    "any image build",
+    "any write to the selected destination",
+    "any submission to a manager",
+    "any mutation of this repository"
+  ],
+  "outcome": "observed",
+  "pass_two": {
+    "exit": 0,
+    "inputs_at": "/var/tmp/w325959-preflight/3-pass-two-binds-the-two-stage-job/inputs.json",
+    "said": [
+      "Now export these and run `just start` from v12/:",
+      "",
+      "export BATON_V12_JOB_STORE=\"/var/tmp/w325959-preflight/3-pass-two-binds-the-two-stage-job/db/jobs.sqlite3\"",
+      "export BATON_V12_CONTROL_STORE=\"/var/tmp/w325959-preflight/3-pass-two-binds-the-two-stage-job/db/control.sqlite3\"",
+      "export BATON_V12_AUTHORITY_UUID=\"09c2bf182ff64e7e9d2fc31ef869e71e\"",
+      "export BATON_V12_STAGE_EXECUTION_CONFIG=\"/var/tmp/w325959-preflight/3-pass-two-binds-the-two-stage-job/deployment.json\""
+    ]
+  },
+  "principals": {
+    "baton.claude-pilot": "principal:baton.claude-pilot",
+    "baton.reviewer-pilot": "principal:baton.reviewer-pilot"
+  },
+  "repeat": {
+    "exit": 0,
+    "inputs_at": "/var/tmp/w325959-preflight/3-pass-two-binds-the-two-stage-job/inputs.json",
+    "said": [
+      "Now export these and run `just start` from v12/:",
+      "",
+      "export BATON_V12_JOB_STORE=\"/var/tmp/w325959-preflight/3-pass-two-binds-the-two-stage-job/db/jobs.sqlite3\"",
+      "export BATON_V12_CONTROL_STORE=\"/var/tmp/w325959-preflight/3-pass-two-binds-the-two-stage-job/db/control.sqlite3\"",
+      "export BATON_V12_AUTHORITY_UUID=\"09c2bf182ff64e7e9d2fc31ef869e71e\"",
+      "export BATON_V12_STAGE_EXECUTION_CONFIG=\"/var/tmp/w325959-preflight/3-pass-two-binds-the-two-stage-job/deployment.json\""
+    ]
+  },
+  "routes": {
+    "implementation": "rview",
+    "review": "owner"
+  },
+  "scenario": "3-pass-two-binds-the-two-stage-job",
+  "seconds": 0.033,
+  "submission_stages": [
+    "implementation",
+    "review"
+  ],
+  "work_id": "09c2bf18-W1"
+}

@@ -1,0 +1,40 @@
+{
+  "jobs": [
+    {
+      "execution_limits": {
+        "provider_turn_seconds": 3600,
+        "verification_command_seconds": 900
+      },
+      "input_digest": "READBACK: job_input_identity(input_manifest) from step 6",
+      "job_id": "quickstart-a",
+      "policy_digest": "sha256:3a532addb6b4a007ace31fa44d3d9e559be46e31fb4ce418c681ef8869172b6e",
+      "stages": [
+        {
+          "depends_on": [],
+          "kind": "implementation",
+          "profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+          "profile_name": "claude-fresh-implementation",
+          "work_id": "READBACK: the Work id created in step 5"
+        },
+        {
+          "depends_on": [
+            {
+              "job_id": "quickstart-a",
+              "kind": "implementation"
+            }
+          ],
+          "kind": "review",
+          "profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+          "profile_name": "claude-fresh-implementation",
+          "work_id": "READBACK: the Work id created in step 5"
+        }
+      ],
+      "terminal_policy": "report-and-hold",
+      "test_scope": [
+        "v12/QUICKSTART.md"
+      ]
+    }
+  ],
+  "schema": "baton.v12.job-submission/2",
+  "submission_id": "sub-w321608-quickstart-1"
+}

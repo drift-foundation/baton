@@ -1,0 +1,16 @@
+{
+  "authority": "W325959 under W321608 selection325952; no live grant",
+  "engine": "docker",
+  "kind": "resource_policy",
+  "provider_turn_seconds": 3600,
+  "runtime_uid": 1000,
+  "schema": "baton.w325959.accountable-input/1",
+  "scratch": {
+    "shm_bytes": 16777216,
+    "tmp_bytes": 67108864
+  },
+  "status": "proposed, subject to independent review and execution selection",
+  "verification_command_seconds": 900,
+  "workspace_capacity_bytes": 83886081,
+  "workspace_group": 1000
+}

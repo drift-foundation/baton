@@ -1,0 +1,261 @@
+{
+  "checks": [
+    {
+      "check": "the second pass names workers and jobs, which the fresh install deferred",
+      "detail": [
+        "_note",
+        "checkpoint_profile",
+        "integration_profile",
+        "jobs",
+        "owner_participant",
+        "policy_generation",
+        "pool_generation",
+        "receipt_participants",
+        "retention_disposition",
+        "retention_policy_digest",
+        "schema",
+        "state_root",
+        "workers"
+      ],
+      "passed": true
+    },
+    {
+      "check": "the pool is implementation and review ONLY",
+      "detail": [
+        "implementation",
+        "review"
+      ],
+      "passed": true
+    },
+    {
+      "check": "the producer and the reviewer are different participants, which bootstrap's independence rule requires",
+      "detail": {
+        "implementation": "baton.claude-pilot",
+        "review": "baton.reviewer-pilot"
+      },
+      "passed": true
+    },
+    {
+      "check": "worker implementation-pilot names every member bootstrap requires of one",
+      "detail": [
+        "deployment",
+        "participant",
+        "role",
+        "worker_id"
+      ],
+      "passed": true
+    },
+    {
+      "check": "and its deployment names all 29 members the worker contract closes over",
+      "detail": [],
+      "passed": true
+    },
+    {
+      "check": "implementation-pilot carries no secret member",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "worker review-pilot names every member bootstrap requires of one",
+      "detail": [
+        "deployment",
+        "participant",
+        "role",
+        "worker_id"
+      ],
+      "passed": true
+    },
+    {
+      "check": "and its deployment names all 29 members the worker contract closes over",
+      "detail": [],
+      "passed": true
+    },
+    {
+      "check": "review-pilot carries no secret member",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "the Job binding names every member bootstrap requires",
+      "detail": [
+        "canonical_target_id",
+        "job_id",
+        "line_declared_base",
+        "source_worker_id",
+        "work_id"
+      ],
+      "passed": true
+    },
+    {
+      "check": "its producer is the configured implementation worker",
+      "detail": "implementation-pilot",
+      "passed": true
+    },
+    {
+      "check": "the declared base and the canonical target are the selected source",
+      "detail": {
+        "canonical_target_id": "14e52d80679de5e844f72324df632da5e01cf393",
+        "job_id": "quickstart-a",
+        "line_declared_base": "14e52d80679de5e844f72324df632da5e01cf393",
+        "source_worker_id": "implementation-pilot",
+        "work_id": "READBACK: the canonical Work id created in step 5"
+      },
+      "passed": true
+    },
+    {
+      "observation": "the unresolved values by class",
+      "value": {
+        "BUILD": 9,
+        "READBACK": 8
+      }
+    },
+    {
+      "check": "no routine value is left to the owner: every unresolved value in pass two is either a BUILD output or a READBACK from supported preparation",
+      "detail": [
+        "BUILD",
+        "READBACK"
+      ],
+      "passed": true
+    },
+    {
+      "check": "implementation-pilot resolves its engine, network, workspace group and capacity",
+      "detail": {
+        "engine": "docker",
+        "network": "none",
+        "workspace_capacity": {
+          "max_bytes": 167772160
+        },
+        "workspace_group": 1000
+      },
+      "passed": true
+    },
+    {
+      "check": "implementation-pilot selects NO provider credential, which is what 'no provider call is selected' means in a document",
+      "detail": {
+        "credential_profile": {},
+        "credential_slots": [],
+        "credential_sources": null
+      },
+      "passed": true
+    },
+    {
+      "check": "review-pilot resolves its engine, network, workspace group and capacity",
+      "detail": {
+        "engine": "docker",
+        "network": "none",
+        "workspace_capacity": {
+          "max_bytes": 167772160
+        },
+        "workspace_group": 1000
+      },
+      "passed": true
+    },
+    {
+      "check": "review-pilot selects NO provider credential, which is what 'no provider call is selected' means in a document",
+      "detail": {
+        "credential_profile": {},
+        "credential_slots": [],
+        "credential_sources": null
+      },
+      "passed": true
+    },
+    {
+      "check": "the implementation ending hands the Work to the review route and the review ending hands it to the OWNER route",
+      "detail": {
+        "implementation": "rview",
+        "review": "owner"
+      },
+      "passed": true
+    },
+    {
+      "check": "and the second pass is REFUSED while they stand",
+      "detail": "BootstrapRefusal: this deployment cannot be prepared: nothing reads _note. A selection this helper cannot carry is refused rather than accepted and dropped, because the two are indistinguishable to an operator until the deployment behaves differently from what they asked for. The supported optional selections are integration_target, integration_target_reference, integration_workspace, integration_observer, integration_instructions, integration_preparation, result_judgment_workers, owner_participant.",
+      "passed": true
+    }
+  ],
+  "checks_passed": 19,
+  "expected_failure": false,
+  "injected": "pass two against the worker deployment contract's closed member set",
+  "intended_failed_check": null,
+  "member": {
+    "adapter_digest": "BUILD: the sha256 of the agent-session-1.0 adapter asset packaged into the distro (bootstrap.EXPECTED_ASSETS names it). Produced by: just -f v12/justfile stack-distro (then `baton-v12-stack identity`)",
+    "adapter_name": "agent-session-1.0",
+    "authority_store": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/db/authority.sqlite3",
+    "authority_uuid": "READBACK: the 32-character identity generated by step 3 and persisted at /home/sl/baton-instances/native-coordination-pilot-w321608-1/authority-identity.json",
+    "credential_home": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/state/credentials",
+    "credential_profile": {},
+    "credential_slots": [],
+    "credential_sources": null,
+    "engine": "docker",
+    "image_digest": "BUILD: the content digest of the built review worker image config, validated and recorded in its owning record as tools/worker_image.py requires. Produced by: just -f v12/justfile worker-image ROLE=review (a fresh build result is a candidate; selecting it is a separate recorded act)",
+    "input_manifest": "READBACK: composed in step 6 from the created Work: its work_ref carries the authority_uuid and the Work id, and its runtime_profile_digest, policy_digest and worker_image_digest must equal this document's own three",
+    "launch_contract": "v12-assignment-1",
+    "launch_home": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/state/launch",
+    "launch_role": "review",
+    "network": "none",
+    "nominated_source": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/repo/source",
+    "participant": "baton.reviewer-pilot",
+    "policy_digest": "BUILD: the sha256 of the resource/network/mount/tool/credential policy set this deployment admits. Produced by: just -f v12/justfile pool-policy (then read the admitted policy digest from `pool`)",
+    "principal": "READBACK: Authority.principal_of(baton.reviewer-pilot) after step 3",
+    "profile_digest": "BUILD: the sha256 of the runtime profile document this pool admits for the review role. Produced by: just -f v12/justfile pool-profile ROLE=review (then read the admitted profile's digest from `pool`)",
+    "profile_name": "pilot-review",
+    "retention_disposition": "retain",
+    "retention_policy_digest": "sha256:0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a",
+    "review_route": "owner",
+    "schema": "baton.v12.single-worker-deployment/4",
+    "task_document": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/state/task/w321608-native-operator-quickstart.json",
+    "workspace_capacity": {
+      "max_bytes": 167772160
+    },
+    "workspace_group": 1000,
+    "workspace_storage": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/state/workspaces"
+  },
+  "not_performed": [
+    "bootstrap",
+    "install",
+    "submit",
+    "serve",
+    "any store write",
+    "any container",
+    "any provider call",
+    "any Git mutation"
+  ],
+  "outcome": "observed",
+  "participants": {
+    "implementation": "baton.claude-pilot",
+    "review": "baton.reviewer-pilot"
+  },
+  "performed": [
+    "read the authored documents",
+    "called the product's own validators",
+    "ran the pinned verification argv in a temporary directory"
+  ],
+  "refusal_while_unresolved": "BootstrapRefusal: this deployment cannot be prepared: nothing reads _note. A selection this helper cannot carry is refused rather than accepted and dropped, because the two are indistinguishable to an operator until the deployment behaves differently from what they asked for. The supported optional selections are integration_target, integration_target_reference, integration_workspace, integration_observer, integration_instructions, integration_preparation, result_judgment_workers, owner_participant.",
+  "roles": [
+    "implementation",
+    "review"
+  ],
+  "scenario": "4-worker-documents-name-every-member",
+  "seconds": 0.0,
+  "unresolved": [
+    "$.integration_profile.instructions_digest",
+    "$.jobs[0].work_id",
+    "$.policy_generation",
+    "$.workers[0].deployment.adapter_digest",
+    "$.workers[0].deployment.authority_uuid",
+    "$.workers[0].deployment.image_digest",
+    "$.workers[0].deployment.input_manifest",
+    "$.workers[0].deployment.policy_digest",
+    "$.workers[0].deployment.principal",
+    "$.workers[0].deployment.profile_digest",
+    "$.workers[1].deployment.adapter_digest",
+    "$.workers[1].deployment.authority_uuid",
+    "$.workers[1].deployment.image_digest",
+    "$.workers[1].deployment.input_manifest",
+    "$.workers[1].deployment.policy_digest",
+    "$.workers[1].deployment.principal",
+    "$.workers[1].deployment.profile_digest"
+  ],
+  "unresolved_count": 17,
+  "worker_member_count": 29
+}

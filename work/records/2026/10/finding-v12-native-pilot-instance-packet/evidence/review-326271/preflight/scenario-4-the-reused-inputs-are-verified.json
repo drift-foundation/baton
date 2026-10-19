@@ -1,0 +1,225 @@
+{
+  "checks": [
+    {
+      "check": "policy_digest IS the canonical digest of policy.json, recomputed here",
+      "detail": {
+        "named_by_the_worker": "sha256:3a532addb6b4a007ace31fa44d3d9e559be46e31fb4ce418c681ef8869172b6e",
+        "recomputed": "sha256:3a532addb6b4a007ace31fa44d3d9e559be46e31fb4ce418c681ef8869172b6e"
+      },
+      "passed": true
+    },
+    {
+      "check": "profile_digest IS the canonical digest of runtime-profile.json, recomputed here",
+      "detail": {
+        "named_by_the_worker": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+        "recomputed": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be"
+      },
+      "passed": true
+    },
+    {
+      "check": "adapter_digest IS the canonical digest of adapter.json, recomputed here",
+      "detail": {
+        "named_by_the_worker": "sha256:5f2ef38f05ed7a9aecd11dd7e23e9cfbe1f0243fe27bd2c9aa1b004580fcdef1",
+        "recomputed": "sha256:5f2ef38f05ed7a9aecd11dd7e23e9cfbe1f0243fe27bd2c9aa1b004580fcdef1"
+      },
+      "passed": true
+    },
+    {
+      "check": "this packet reuses the prior instance's profile_digest verbatim",
+      "detail": {
+        "mine": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+        "prior": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be"
+      },
+      "passed": true
+    },
+    {
+      "check": "this packet reuses the prior instance's policy_digest verbatim",
+      "detail": {
+        "mine": "sha256:3a532addb6b4a007ace31fa44d3d9e559be46e31fb4ce418c681ef8869172b6e",
+        "prior": "sha256:3a532addb6b4a007ace31fa44d3d9e559be46e31fb4ce418c681ef8869172b6e"
+      },
+      "passed": true
+    },
+    {
+      "check": "this packet reuses the prior instance's adapter_digest verbatim",
+      "detail": {
+        "mine": "sha256:5f2ef38f05ed7a9aecd11dd7e23e9cfbe1f0243fe27bd2c9aa1b004580fcdef1",
+        "prior": "sha256:5f2ef38f05ed7a9aecd11dd7e23e9cfbe1f0243fe27bd2c9aa1b004580fcdef1"
+      },
+      "passed": true
+    },
+    {
+      "check": "this packet reuses the prior instance's image_digest verbatim",
+      "detail": {
+        "mine": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2",
+        "prior": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2"
+      },
+      "passed": true
+    },
+    {
+      "check": "this packet reuses the prior instance's adapter_name verbatim",
+      "detail": {
+        "mine": "docker-single-worker",
+        "prior": "docker-single-worker"
+      },
+      "passed": true
+    },
+    {
+      "check": "this packet reuses the prior instance's profile_name verbatim",
+      "detail": {
+        "mine": "claude-fresh-implementation",
+        "prior": "claude-fresh-implementation"
+      },
+      "passed": true
+    },
+    {
+      "check": "this packet reuses the prior instance's engine verbatim",
+      "detail": {
+        "mine": "docker",
+        "prior": "docker"
+      },
+      "passed": true
+    },
+    {
+      "check": "this packet reuses the prior instance's network verbatim",
+      "detail": {
+        "mine": "bridge",
+        "prior": "bridge"
+      },
+      "passed": true
+    },
+    {
+      "check": "this packet reuses the prior instance's launch_contract verbatim",
+      "detail": {
+        "mine": "v12-assignment-1",
+        "prior": "v12-assignment-1"
+      },
+      "passed": true
+    },
+    {
+      "check": "this packet reuses the prior instance's credential_sources verbatim",
+      "detail": {
+        "mine": "/home/sl/.baton/credential-sources.json",
+        "prior": "/home/sl/.baton/credential-sources.json"
+      },
+      "passed": true
+    },
+    {
+      "check": "this packet reuses the prior instance's credential_slots verbatim",
+      "detail": {
+        "mine": [
+          "claude"
+        ],
+        "prior": [
+          "claude"
+        ]
+      },
+      "passed": true
+    },
+    {
+      "check": "this packet reuses the prior instance's credential_profile verbatim",
+      "detail": {
+        "mine": {
+          "claude": {
+            "provider": "operator-file",
+            "reference": "w202663-development"
+          }
+        },
+        "prior": {
+          "claude": {
+            "provider": "operator-file",
+            "reference": "w202663-development"
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "check": "this packet reuses the prior instance's workspace_group verbatim",
+      "detail": {
+        "mine": 1000,
+        "prior": 1000
+      },
+      "passed": true
+    },
+    {
+      "check": "this packet reuses the prior instance's workspace_capacity verbatim",
+      "detail": {
+        "mine": {
+          "max_bytes": 83886081
+        },
+        "prior": {
+          "max_bytes": 83886081
+        }
+      },
+      "passed": true
+    },
+    {
+      "check": "the retention policy digest is this tree's own retention policy, recomputed",
+      "detail": "sha256:0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a",
+      "passed": true
+    },
+    {
+      "check": "the credential SOURCE is a reference this host has, and its content is never read",
+      "detail": "/home/sl/.baton/credential-sources.json",
+      "passed": true
+    },
+    {
+      "check": "the credential profile carries a provider and a reference and no secret member",
+      "detail": {
+        "claude": {
+          "provider": "operator-file",
+          "reference": "w202663-development"
+        }
+      },
+      "passed": true
+    },
+    {
+      "check": "the worker deployment schema is this build's own",
+      "detail": "baton.v12.single-worker-deployment/4",
+      "passed": true
+    },
+    {
+      "observation": "the image digest's provenance",
+      "value": {
+        "digest": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2",
+        "from": "/home/sl/src/baton/work/records/2026/10/finding-v12-native-pilot-instance-packet/revision-3/inputs/deployment.json",
+        "image_operation_classification": "python3 -m tools.worker_image --tag <tag> BUILDS an image (build, save, normalize, load, clean -- worker_image._main 384-440). It is NOT a read-only validation, and revision 2 wrongly called it one. A read-only presence check is an engine inspect of the recorded digest, which this preparation does not perform."
+      }
+    }
+  ],
+  "checks_passed": 21,
+  "disposable_root": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd",
+  "expected_failure": false,
+  "image_digest": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2",
+  "injected": "every reused digest recomputed from the document it describes",
+  "intended_failed_check": null,
+  "label": "PREFLIGHT (W325959 disposable composition; not a production identity and not the selected instance)",
+  "not_performed": [
+    "any engine call",
+    "any provider call",
+    "any credential content read",
+    "any image build",
+    "any write to the selected destination",
+    "any submission to a manager",
+    "any mutation of this repository"
+  ],
+  "outcome": "observed",
+  "recomputed": {
+    "adapter.json": {
+      "named_by_the_worker": "sha256:5f2ef38f05ed7a9aecd11dd7e23e9cfbe1f0243fe27bd2c9aa1b004580fcdef1",
+      "recomputed": "sha256:5f2ef38f05ed7a9aecd11dd7e23e9cfbe1f0243fe27bd2c9aa1b004580fcdef1"
+    },
+    "policy.json": {
+      "named_by_the_worker": "sha256:3a532addb6b4a007ace31fa44d3d9e559be46e31fb4ce418c681ef8869172b6e",
+      "recomputed": "sha256:3a532addb6b4a007ace31fa44d3d9e559be46e31fb4ce418c681ef8869172b6e"
+    },
+    "runtime-profile.json": {
+      "named_by_the_worker": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+      "recomputed": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be"
+    }
+  },
+  "reused_from": "/home/sl/src/baton/work/records/2026/10/finding-v12-native-pilot-instance-packet/revision-3/inputs/deployment.json",
+  "scenario": "4-the-reused-inputs-are-verified",
+  "seconds": 0.0
+}

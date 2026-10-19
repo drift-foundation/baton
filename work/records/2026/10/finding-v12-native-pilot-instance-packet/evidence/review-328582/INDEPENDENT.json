@@ -1,0 +1,393 @@
+{
+  "manifest_sha256": "762ffd3007153833b1b102c1c45268c8a6931ac493ede6c412481fb27f519b24",
+  "members_verified": 78,
+  "changed_input_refused_before_effects": true,
+  "owner_composer_with_simulated_install": {
+    "authority_uuid": "b3053ddaac524c34bd0b0c5d25832cee",
+    "work_id": "b3053dda-W1",
+    "label": "owner-selected installed preparation",
+    "pass_two": {
+      "exit": 0,
+      "said": [
+        "Now export these and run `just start` from v12/:",
+        "",
+        "export BATON_V12_JOB_STORE=\"/tmp/w325959-preflight-review328582-owner-composer/db/jobs.sqlite3\"",
+        "export BATON_V12_CONTROL_STORE=\"/tmp/w325959-preflight-review328582-owner-composer/db/control.sqlite3\"",
+        "export BATON_V12_AUTHORITY_UUID=\"b3053ddaac524c34bd0b0c5d25832cee\"",
+        "export BATON_V12_STAGE_EXECUTION_CONFIG=\"/tmp/w325959-preflight-review328582-owner-composer/deployment.json\""
+      ],
+      "inputs_at": "/tmp/w325959-preflight-review328582-owner-composer/inputs.json"
+    },
+    "repeat": {
+      "exit": 0,
+      "said": [
+        "Now export these and run `just start` from v12/:",
+        "",
+        "export BATON_V12_JOB_STORE=\"/tmp/w325959-preflight-review328582-owner-composer/db/jobs.sqlite3\"",
+        "export BATON_V12_CONTROL_STORE=\"/tmp/w325959-preflight-review328582-owner-composer/db/control.sqlite3\"",
+        "export BATON_V12_AUTHORITY_UUID=\"b3053ddaac524c34bd0b0c5d25832cee\"",
+        "export BATON_V12_STAGE_EXECUTION_CONFIG=\"/tmp/w325959-preflight-review328582-owner-composer/deployment.json\""
+      ],
+      "inputs_at": "/tmp/w325959-preflight-review328582-owner-composer/inputs.json"
+    },
+    "binding_drift": {
+      "not_run": "production preparation does not inject drift"
+    },
+    "emitted_bindings": [
+      {
+        "canonical_target_id": "14e52d80679de5e844f72324df632da5e01cf393",
+        "job_id": "quickstart-a",
+        "job_work_id": "b3053dda-W1",
+        "line_declared_base": "14e52d80679de5e844f72324df632da5e01cf393",
+        "review_work_id": "b3053dda-W1",
+        "source_worker_id": "implementation-pilot"
+      }
+    ],
+    "input_manifest": {
+      "manifest_id": "input-manifest-1",
+      "manifest_digest": "sha256:1a82e0a7292c112f97ee977314f922a0cf050c998d9f62a8192f9bf53315b585",
+      "work_ref": {
+        "authority_uuid": "b3053ddaac524c34bd0b0c5d25832cee",
+        "work_id": "b3053dda-W1"
+      },
+      "worker_image_digest": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2",
+      "runtime_profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be"
+    },
+    "routes": {
+      "implementation": "rview",
+      "review": "owner"
+    },
+    "principals": {
+      "baton.claude-pilot": "principal:baton.claude-pilot",
+      "baton.reviewer-pilot": "principal:baton.reviewer-pilot"
+    },
+    "emitted_validation": "accepted by bootstrap.validated",
+    "job_input_identity": "sha256:71db3be9aab696d035b00c4d7e923cc5410c7c8b8443536d7aa9d68628b9d934",
+    "revision_2_naive_digest": "sha256:079d0ed7416ceb11811d3ad0826f16f71b12b6910d393906c697000cb0966b18",
+    "submission_stages": [
+      "implementation",
+      "review"
+    ]
+  },
+  "checks": [
+    {
+      "check": "four independent repository roles composed",
+      "passed": true,
+      "detail": {
+        "source": "OWNER-PINNED-SOURCE-14e52d80",
+        "prepared": [
+          {
+            "role": "target",
+            "path": "/tmp/w325959-preflight-review328582-owner-composer/repo/target.git"
+          },
+          {
+            "role": "workspace",
+            "path": "/tmp/w325959-preflight-review328582-owner-composer/repo/workspace"
+          },
+          {
+            "role": "source-implementation-pilot",
+            "path": "/tmp/w325959-preflight-review328582-owner-composer/repo/source-implementation-pilot"
+          },
+          {
+            "role": "source-review-pilot",
+            "path": "/tmp/w325959-preflight-review328582-owner-composer/repo/source-review-pilot"
+          }
+        ],
+        "proved": {
+          "identities": {
+            "target": "/tmp/w325959-preflight-review328582-owner-composer/repo/target.git",
+            "workspace": "/tmp/w325959-preflight-review328582-owner-composer/repo/workspace",
+            "source-implementation-pilot": "/tmp/w325959-preflight-review328582-owner-composer/repo/source-implementation-pilot",
+            "source-review-pilot": "/tmp/w325959-preflight-review328582-owner-composer/repo/source-review-pilot"
+          },
+          "declared_bases": [
+            "14e52d80679de5e844f72324df632da5e01cf393"
+          ],
+          "reference": null
+        }
+      }
+    },
+    {
+      "check": "all clone operations explicitly avoid hardlinks",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "repository proof requests selected commit",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "normal repository preparation refuses existing paths before commands",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "supported installer completes with explicit no-repositories",
+      "passed": true,
+      "detail": {
+        "exit": 0,
+        "said": [
+          "    cd /tmp/w325959-preflight-review328582-owner-composer && just status",
+          "    just --justfile /tmp/w325959-preflight-review328582-owner-composer/justfile start        # from anywhere",
+          "",
+          "or the command directly, which is the same program:",
+          "",
+          "    /tmp/w325959-preflight-review328582-owner-composer/distro/baton-v12-stack status --instance /tmp/w325959-preflight-review328582-owner-composer/instance.json"
+        ],
+        "inputs_at": "/tmp/w325959-preflight-review328582-owner-composer/inputs.json"
+      }
+    },
+    {
+      "check": "second installation refuses existing runtime",
+      "passed": true,
+      "detail": {
+        "exit": 2,
+        "said": [
+          "refused: there is already a runtime at /tmp/w325959-preflight-review328582-owner-composer/distro; nothing here upgrades a deployment in place. Stop that instance and prepare a new destination if you mean a different runtime."
+        ],
+        "inputs_at": "/tmp/w325959-preflight-review328582-owner-composer/inputs.json"
+      }
+    },
+    {
+      "check": "installer preserves explicit integration_target",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "installer preserves explicit integration_workspace",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "the adapted manifest passes the MANAGER's own structure check",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "its source descriptor declares the boundary a nominated mount requires",
+      "passed": true,
+      "detail": {
+        "baton.source-boundary/1": {
+          "delivery": "nominated-mount",
+          "profile": "git-line",
+          "workspace": "disk"
+        }
+      }
+    },
+    {
+      "check": "it names THIS Authority and THIS Work",
+      "passed": true,
+      "detail": {
+        "authority_uuid": "b3053ddaac524c34bd0b0c5d25832cee",
+        "work_id": "b3053dda-W1"
+      }
+    },
+    {
+      "check": "and this task document's own bytes",
+      "passed": true,
+      "detail": "sha256:5ec48d4baf2020a8ef972237444c5989cf8490dea23cc285dbfd3bc0508dc1bb"
+    },
+    {
+      "check": "the sealed digest is the canonical digest the manager recomputes, and it moved because the Work did",
+      "passed": true,
+      "detail": {
+        "adapted": "sha256:1a82e0a7292c112f97ee977314f922a0cf050c998d9f62a8192f9bf53315b585",
+        "prior": "sha256:1882866078bbe8b9bb2edda94f63fba2c81d562d52746878d4a391f330bfa6e7"
+      }
+    },
+    {
+      "check": "every worker document now names all 29 members the worker contract closes over",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "the producer and the reviewer are distinct participants",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "the review worker's outgoing route is the OWNER route",
+      "passed": true,
+      "detail": {
+        "implementation": "rview",
+        "review": "owner"
+      }
+    },
+    {
+      "check": "no integration worker is configured",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "bootstrap's own input validator accepts the resolved configuration pass",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "and bootstrap.validated accepts the configuration this input EMITS",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "the emitted configuration carries both workers with their resolved principals",
+      "passed": true,
+      "detail": [
+        "principal:baton.claude-pilot",
+        "principal:baton.reviewer-pilot"
+      ]
+    },
+    {
+      "check": "the in-place configuration pass is accepted by the supported entry point",
+      "passed": true,
+      "detail": {
+        "exit": 0,
+        "said": [
+          "Now export these and run `just start` from v12/:",
+          "",
+          "export BATON_V12_JOB_STORE=\"/tmp/w325959-preflight-review328582-owner-composer/db/jobs.sqlite3\"",
+          "export BATON_V12_CONTROL_STORE=\"/tmp/w325959-preflight-review328582-owner-composer/db/control.sqlite3\"",
+          "export BATON_V12_AUTHORITY_UUID=\"b3053ddaac524c34bd0b0c5d25832cee\"",
+          "export BATON_V12_STAGE_EXECUTION_CONFIG=\"/tmp/w325959-preflight-review328582-owner-composer/deployment.json\""
+        ],
+        "inputs_at": "/tmp/w325959-preflight-review328582-owner-composer/inputs.json"
+      }
+    },
+    {
+      "check": "repeating it preserves what is there",
+      "passed": true,
+      "detail": {
+        "exit": 0,
+        "said": [
+          "Now export these and run `just start` from v12/:",
+          "",
+          "export BATON_V12_JOB_STORE=\"/tmp/w325959-preflight-review328582-owner-composer/db/jobs.sqlite3\"",
+          "export BATON_V12_CONTROL_STORE=\"/tmp/w325959-preflight-review328582-owner-composer/db/control.sqlite3\"",
+          "export BATON_V12_AUTHORITY_UUID=\"b3053ddaac524c34bd0b0c5d25832cee\"",
+          "export BATON_V12_STAGE_EXECUTION_CONFIG=\"/tmp/w325959-preflight-review328582-owner-composer/deployment.json\""
+        ],
+        "inputs_at": "/tmp/w325959-preflight-review328582-owner-composer/inputs.json"
+      }
+    },
+    {
+      "check": "implementation-pilot keeps its install-derived storage selections",
+      "passed": true,
+      "detail": {
+        "workspace_storage": "/tmp/w325959-preflight-review328582-owner-composer/workspaces/implementation",
+        "launch_home": "/tmp/w325959-preflight-review328582-owner-composer/launch/implementation",
+        "credential_home": "/tmp/w325959-preflight-review328582-owner-composer/credentials/implementation",
+        "nominated_source": "/tmp/w325959-preflight-review328582-owner-composer/repo/source-implementation-pilot"
+      }
+    },
+    {
+      "check": "review-pilot keeps its install-derived storage selections",
+      "passed": true,
+      "detail": {
+        "workspace_storage": "/tmp/w325959-preflight-review328582-owner-composer/workspaces/review",
+        "launch_home": "/tmp/w325959-preflight-review328582-owner-composer/launch/review",
+        "credential_home": "/tmp/w325959-preflight-review328582-owner-composer/credentials/review",
+        "nominated_source": "/tmp/w325959-preflight-review328582-owner-composer/repo/source-review-pilot"
+      }
+    },
+    {
+      "check": "the emitted configuration carries both workers and the one binding",
+      "passed": true,
+      "detail": {
+        "workers": [
+          "implementation-pilot",
+          "review-pilot"
+        ],
+        "bindings": [
+          {
+            "canonical_target_id": "14e52d80679de5e844f72324df632da5e01cf393",
+            "job_id": "quickstart-a",
+            "job_work_id": "b3053dda-W1",
+            "line_declared_base": "14e52d80679de5e844f72324df632da5e01cf393",
+            "review_work_id": "b3053dda-W1",
+            "source_worker_id": "implementation-pilot"
+          }
+        ]
+      }
+    },
+    {
+      "check": "and the binding still names the ORIGINAL base",
+      "passed": true,
+      "detail": {
+        "canonical_target_id": "14e52d80679de5e844f72324df632da5e01cf393",
+        "job_id": "quickstart-a",
+        "job_work_id": "b3053dda-W1",
+        "line_declared_base": "14e52d80679de5e844f72324df632da5e01cf393",
+        "review_work_id": "b3053dda-W1",
+        "source_worker_id": "implementation-pilot"
+      }
+    },
+    {
+      "check": "the Job input identity is the PUBLIC projection and is NOT a hash of the whole manifest",
+      "passed": true,
+      "detail": {
+        "public": "sha256:71db3be9aab696d035b00c4d7e923cc5410c7c8b8443536d7aa9d68628b9d934",
+        "revision_2_was": "sha256:079d0ed7416ceb11811d3ad0826f16f71b12b6910d393906c697000cb0966b18"
+      }
+    },
+    {
+      "check": "it is stable under the excluded members: changing the worker image digest does not move it",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "while changing an included policy identity DOES move it",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "the submission names that identity",
+      "passed": true,
+      "detail": "sha256:71db3be9aab696d035b00c4d7e923cc5410c7c8b8443536d7aa9d68628b9d934"
+    },
+    {
+      "check": "the runtime consumer finds NO disagreement for implementation-pilot",
+      "passed": true,
+      "detail": {}
+    },
+    {
+      "check": "the runtime consumer finds NO disagreement for review-pilot",
+      "passed": true,
+      "detail": {}
+    },
+    {
+      "check": "and it DOES disagree when the Job names another input",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "the submission validates with the readbacks in place",
+      "passed": true,
+      "detail": "quickstart-a"
+    },
+    {
+      "check": "and carries the selected per-invocation ceilings",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "read-only repository report accepts installed selector",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "repository report carries actual selected base",
+      "passed": true,
+      "detail": "workspace      /tmp/w325959-preflight-review328582-owner-composer/repo/workspace -- inside this instance -- a repository (bare) -- HEAD 14e52d80679de5e844f72324df632da5e01cf393\ntarget         /tmp/w325959-preflight-review328582-owner-composer/repo/target.git -- inside this instance -- a repository (bare) -- HEAD 14e52d80679de5e844f72324df632da5e01cf393\nreference      not configured -- a reconciled result is imported at exactly one explicitly configured reference\ndeclared bases 14e52d80679de5e844f72324df632da5e01cf393\n\nnothing was run and nothing was written; preparing the target is the owner's, and the read-only commands to check it are in OPERATOR-INDEPENDENT-REPOSITORY.md\n"
+    },
+    {
+      "check": "native Work pins v12 assignment contract and its own scope",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "generated task is the exact manifest-bound artifact",
+      "passed": true,
+      "detail": null
+    }
+  ]
+}

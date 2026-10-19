@@ -1,0 +1,208 @@
+{
+  "checks": [
+    {
+      "check": "the supported bootstrap entry point composed pass one",
+      "detail": {
+        "exit": 0,
+        "inputs_at": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/inputs.json",
+        "said": [
+          "Now export these and run `just start` from v12/:",
+          "",
+          "export BATON_V12_JOB_STORE=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/db/jobs.sqlite3\"",
+          "export BATON_V12_CONTROL_STORE=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/db/control.sqlite3\"",
+          "export BATON_V12_AUTHORITY_UUID=\"6a178fe3d5554b6f84228b4dfbbb70ff\"",
+          "export BATON_V12_STAGE_EXECUTION_CONFIG=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/deployment.json\""
+        ]
+      },
+      "passed": true
+    },
+    {
+      "check": "it made the identity",
+      "detail": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/authority-identity.json",
+      "passed": true
+    },
+    {
+      "check": "it made the authority_store",
+      "detail": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/db/authority.sqlite3",
+      "passed": true
+    },
+    {
+      "check": "it made the record",
+      "detail": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/bootstrap.json",
+      "passed": true
+    },
+    {
+      "check": "it made the configuration",
+      "detail": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/deployment.json",
+      "passed": true
+    },
+    {
+      "check": "and did NOT make the job_store, which the installed instance's manager owns",
+      "detail": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/db/jobs.sqlite3",
+      "passed": true
+    },
+    {
+      "check": "and did NOT make the control_store, which the installed instance's manager owns",
+      "detail": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/db/control.sqlite3",
+      "passed": true
+    },
+    {
+      "check": "the Authority identity is 32 hex characters, generated here and not named by the input",
+      "detail": "6a178fe3d5554b6f84228b4dfbbb70ff",
+      "passed": true
+    },
+    {
+      "check": "the emitted configuration binds no Job and configures no worker, which is what a fresh install is",
+      "detail": {
+        "job_bindings": [],
+        "workers": []
+      },
+      "passed": true
+    },
+    {
+      "check": "it carries this deployment's own generations and retention selection",
+      "detail": {
+        "policy_generation": 1,
+        "pool_generation": 1,
+        "retention_policy_digest": "sha256:0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a"
+      },
+      "passed": true
+    },
+    {
+      "check": "the store's own metadata names this build and this identity",
+      "detail": {
+        "authority_uuid": "6a178fe3d5554b6f84228b4dfbbb70ff",
+        "schema_version": "6",
+        "store_kind": "baton.v12.python.authority"
+      },
+      "passed": true
+    },
+    {
+      "check": "the policy generation reads back as the input named",
+      "detail": 1,
+      "passed": true
+    },
+    {
+      "check": "repeating pass one is accepted",
+      "detail": {
+        "exit": 0,
+        "inputs_at": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/inputs.json",
+        "said": [
+          "Now export these and run `just start` from v12/:",
+          "",
+          "export BATON_V12_JOB_STORE=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/db/jobs.sqlite3\"",
+          "export BATON_V12_CONTROL_STORE=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/db/control.sqlite3\"",
+          "export BATON_V12_AUTHORITY_UUID=\"6a178fe3d5554b6f84228b4dfbbb70ff\"",
+          "export BATON_V12_STAGE_EXECUTION_CONFIG=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/deployment.json\""
+        ]
+      },
+      "passed": true
+    },
+    {
+      "check": "and the Authority identity is UNCHANGED, not regenerated",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "a repeated Job-less pass ACCEPTS a changed generation, because preservation is about bindings and this binds none",
+      "detail": {
+        "exit": 0,
+        "inputs_at": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/inputs.json",
+        "said": [
+          "Now export these and run `just start` from v12/:",
+          "",
+          "export BATON_V12_JOB_STORE=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/db/jobs.sqlite3\"",
+          "export BATON_V12_CONTROL_STORE=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/db/control.sqlite3\"",
+          "export BATON_V12_AUTHORITY_UUID=\"6a178fe3d5554b6f84228b4dfbbb70ff\"",
+          "export BATON_V12_STAGE_EXECUTION_CONFIG=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/deployment.json\""
+        ]
+      },
+      "passed": true
+    },
+    {
+      "check": "and even then the Authority identity does not move",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "the emitted configuration carries the changed generation, so the change is visible rather than silent",
+      "detail": 2,
+      "passed": true
+    }
+  ],
+  "checks_passed": 17,
+  "disposable_root": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd",
+  "drift": {
+    "exit": 0,
+    "inputs_at": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/inputs.json",
+    "said": [
+      "Now export these and run `just start` from v12/:",
+      "",
+      "export BATON_V12_JOB_STORE=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/db/jobs.sqlite3\"",
+      "export BATON_V12_CONTROL_STORE=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/db/control.sqlite3\"",
+      "export BATON_V12_AUTHORITY_UUID=\"6a178fe3d5554b6f84228b4dfbbb70ff\"",
+      "export BATON_V12_STAGE_EXECUTION_CONFIG=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/deployment.json\""
+    ]
+  },
+  "emitted_configuration": {
+    "policy_generation": 1,
+    "pool_generation": 1,
+    "receipt_participants": {
+      "approval": "baton.slaw",
+      "review": "baton.reviewer-receipt-pilot",
+      "verification": "baton.verifier-pilot"
+    },
+    "retention_disposition": "retain",
+    "schema": "baton.v12.stage-execution-deployment/2"
+  },
+  "expected_failure": false,
+  "identity": {
+    "authority_uuid": "6a178fe3d5554b6f84228b4dfbbb70ff",
+    "label": "PREFLIGHT (W325959 disposable composition; not a production identity and not the selected instance)",
+    "schema": "baton.v12.instance-identity/1"
+  },
+  "injected": "the supported bootstrap entry point, its readbacks, a repetition and a drifted selection",
+  "intended_failed_check": null,
+  "label": "PREFLIGHT (W325959 disposable composition; not a production identity and not the selected instance)",
+  "not_performed": [
+    "any engine call",
+    "any provider call",
+    "any credential content read",
+    "any image build",
+    "any write to the selected destination",
+    "any submission to a manager",
+    "any mutation of this repository"
+  ],
+  "outcome": "observed",
+  "pass_one": {
+    "exit": 0,
+    "inputs_at": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/inputs.json",
+    "said": [
+      "Now export these and run `just start` from v12/:",
+      "",
+      "export BATON_V12_JOB_STORE=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/db/jobs.sqlite3\"",
+      "export BATON_V12_CONTROL_STORE=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/db/control.sqlite3\"",
+      "export BATON_V12_AUTHORITY_UUID=\"6a178fe3d5554b6f84228b4dfbbb70ff\"",
+      "export BATON_V12_STAGE_EXECUTION_CONFIG=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/deployment.json\""
+    ]
+  },
+  "repeat": {
+    "exit": 0,
+    "inputs_at": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/inputs.json",
+    "said": [
+      "Now export these and run `just start` from v12/:",
+      "",
+      "export BATON_V12_JOB_STORE=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/db/jobs.sqlite3\"",
+      "export BATON_V12_CONTROL_STORE=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/db/control.sqlite3\"",
+      "export BATON_V12_AUTHORITY_UUID=\"6a178fe3d5554b6f84228b4dfbbb70ff\"",
+      "export BATON_V12_STAGE_EXECUTION_CONFIG=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/deployment.json\""
+    ]
+  },
+  "scenario": "1-pass-one-composes-and-reads-back",
+  "seconds": 0.178,
+  "stored_identity": {
+    "authority_uuid": "6a178fe3d5554b6f84228b4dfbbb70ff",
+    "schema_version": "6",
+    "store_kind": "baton.v12.python.authority"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "authority": "W325959 under W321608 selection325952; no live grant",
+  "implementation": "Produce the operator quickstart specified by the frozen task; publish candidate then pass rview.",
+  "kind": "role_instructions",
+  "owner": "baton.slaw alone approves and records human integration/closure; verify/review receipt actors remain distinct.",
+  "review": "Independently evaluate that exact candidate for command correctness and usefulness; pass owner. No approval/integration receipt.",
+  "schema": "baton.w325959.accountable-input/1",
+  "status": "proposed, subject to independent review and execution selection"
+}

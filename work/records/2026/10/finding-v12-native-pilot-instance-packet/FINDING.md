@@ -11,3 +11,27 @@ Prove preparation and configuration/refusal with deterministic disposable prefli
 Acceptance: immutable manifest covers generated artifacts and commands; exact selected base/resources verified; two-stage Job has no automatic integration stage; actual independent review/candidate pickup preserved; verify/review separated from owner approve/integrate/close; dedicated diagnosis ownership explicit without impersonation; complete task and deterministic check inputs; effective provider/verification/total/cleanup limits and no silent retries; readback of generated identities/grants/generations; no unsupported CLI/private API; observed vs proposed values explicit. No repeated broad rehearsal when existing evidence applies. Preserve existing held/unknown runtime and recovery duties: supervisor stop is not cessation, recovery-check is not admission, one writable authority only.
 
 Ownership: reviewer owns FINDING/PLAN/reviews. Assigned baton.impl handler owns new packet/scripts/evidence and attributable PROGRESS. Closed W321690/child proofs remain immutable. No product source ownership granted; coordinate actual overlaps before any later execution. W321608 consumes independent review and retains umbrella through native delivery. One coupled packet outcome; no further split unless concrete independent prerequisite emerges. Existing W10/W7 and W321528/W321776/W325695 claims/gates unchanged.
+
+## 2026-10-18T20-17-05Z — packet review requires preparation correction
+
+Review review-2026-10-18T20-17-05Z.md independently checks manifest f74a3daa1e5eeb07fc378fd066155e4885d6744afcc2797ddad99daecb16e70b and repeats all 70 structural checks. Unsupported build recipes, absent full disposable composition, uncomposed owner/diagnosis route ownership and unbound useful execution inputs prevent readiness. Disposable preflight was already authorized; no new approval is required for it. Preserve source/destination/two-stage/human-approval scope and all prior evidence. No launch.
+
+## 2026-10-18T20-29-02Z — revision 2 composition progress and remaining concrete refusals
+
+review-2026-10-18T20-29-02Z.md verifies all13 members and independently repeats72 checks. Actual source-based findings: wrong Job input digest, second install where in-place configuration is intended, worker ID where a document path is required, and an image build mislabeled read-only. Seven disclosed identity placeholders and exact production operations remain unresolved. Preserve useful disposable route/grant/composition proof; complete the same selected packet without product scope expansion or launch.
+
+## 2026-10-18T20-37-30Z — revision3 identity correction accepted; installed transition still refuses
+
+review-2026-10-18T20-37-30Z.md verifies19 members/5 input pins and83 checks. Public Job identity correction accepted. Independent supported-bootstrap probe refuses configuration missing installer-derived integration_target/integration_workspace, preserving bytes; worker-free install plans no nominated source. Evidence evidence/review-326271/INSTALL-TRANSITION.json. Complete one coherent preparation path and accountable selected inputs. Generic tool comments do not revoke owner-delegated proposed input preparation; launch remains unselected.
+
+## 2026-10-18T20-41-30Z — incomplete continuation; historical pre-clone guidance superseded
+
+E326307 returns research only, no revision4. review-2026-10-18T20-41-30Z.md reads the cited repository guide through its final supersession: manual pre-clone is not the current normal workflow. Current prepare_repositories refuses existing planned paths; preclone-then-normal-install cannot be assumed safe. Continue authorized preparation using coherent supported operations and labelled deterministic fixture boundaries; no new owner gate or Git authority.
+
+## 2026-10-18T20-44-22Z — safe preparation handoff after repeated research-only returns
+
+E326329 supplies no new revision4 and cites an unquantified turn budget. review-2026-10-18T20-44-22Z.md preserves checkpoint and transfers routine preparation to configured baton.codx after baton.claude released. Scope and independent review unchanged; incoming claimant owns new packet and attributable PROGRESS append only. No new graph gate, owner approval requirement or execution selection.
+
+## 2026-10-19T02-23-47Z — revision 4 independently accepted as preparation
+
+Review: review-2026-10-19T02-23-47Z.md. All 78 manifest members verified; independent 60-check disposable proof and 39-check owner-composer fixture proof passed; changed frozen input refused before effects. Supersedes the outstanding revision1–3 preparation corrections, preserving their historical evidence. Proposed owner sequence is revision-4/INSTANCE-PACKET.md; no actual build/install/admission/launch selected or performed. Return to owner for disposition; native delivery remains unproved.

@@ -125,6 +125,6 @@
   "scenario": "1-task-document-immutable-and-owned",
   "sealed_bytes": 1853,
   "sealed_sha256": "5ec48d4baf2020a8ef972237444c5989cf8490dea23cc285dbfd3bc0508dc1bb",
-  "seconds": 0.16,
+  "seconds": 0.156,
   "task_id": "w321608-native-operator-quickstart"
 }

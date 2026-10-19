@@ -1,0 +1,33 @@
+{
+  "checks": [
+    {
+      "observation": "the disposable root",
+      "value": "/tmp/w325959-preflight-328521-3/0-harness-self-check"
+    },
+    {
+      "check": "the disposable root is the selected destination (INTENTIONALLY FALSE)",
+      "detail": "/tmp/w325959-preflight-328521-3/0-harness-self-check",
+      "passed": false
+    }
+  ],
+  "checks_passed": 0,
+  "disposable_root": "/tmp/w325959-preflight-328521-3",
+  "expected_failure": true,
+  "failed_check": "the disposable root is the selected destination (INTENTIONALLY FALSE)",
+  "failed_for_intended_reason": true,
+  "injected": "named harness refusal",
+  "intended_failed_check": "the disposable root is the selected destination (INTENTIONALLY FALSE)",
+  "label": "PREFLIGHT (W325959 disposable composition; not a production identity and not the selected instance)",
+  "not_performed": [
+    "any engine call",
+    "any provider call",
+    "any credential content read",
+    "any image build",
+    "any write to the selected destination",
+    "any submission to a manager",
+    "any mutation of this repository"
+  ],
+  "outcome": "failed",
+  "scenario": "0-harness-self-check",
+  "seconds": 0.0
+}

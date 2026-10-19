@@ -1,0 +1,1014 @@
+{
+  "checks_passed": 83,
+  "disposable_root": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd",
+  "failed_as_intended": 1,
+  "harness_self_check_failed_for_its_own_reason": true,
+  "label": "PREFLIGHT (W325959 disposable composition; not a production identity and not the selected instance)",
+  "observed": 4,
+  "scenarios": [
+    {
+      "checks": [
+        {
+          "observation": "the disposable root",
+          "value": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/0-harness-self-check"
+        },
+        {
+          "check": "the disposable root is the selected destination (INTENTIONALLY FALSE)",
+          "detail": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/0-harness-self-check",
+          "passed": false
+        }
+      ],
+      "checks_passed": 0,
+      "disposable_root": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd",
+      "expected_failure": true,
+      "failed_check": "the disposable root is the selected destination (INTENTIONALLY FALSE)",
+      "failed_for_intended_reason": true,
+      "injected": "a deliberately false expectation about which root this writes to",
+      "intended_failed_check": "the disposable root is the selected destination (INTENTIONALLY FALSE)",
+      "label": "PREFLIGHT (W325959 disposable composition; not a production identity and not the selected instance)",
+      "not_performed": [
+        "any engine call",
+        "any provider call",
+        "any credential content read",
+        "any image build",
+        "any write to the selected destination",
+        "any submission to a manager",
+        "any mutation of this repository"
+      ],
+      "outcome": "failed",
+      "scenario": "0-harness-self-check",
+      "seconds": 0.0
+    },
+    {
+      "checks": [
+        {
+          "check": "the supported bootstrap entry point composed pass one",
+          "detail": {
+            "exit": 0,
+            "inputs_at": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/inputs.json",
+            "said": [
+              "Now export these and run `just start` from v12/:",
+              "",
+              "export BATON_V12_JOB_STORE=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/db/jobs.sqlite3\"",
+              "export BATON_V12_CONTROL_STORE=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/db/control.sqlite3\"",
+              "export BATON_V12_AUTHORITY_UUID=\"6a178fe3d5554b6f84228b4dfbbb70ff\"",
+              "export BATON_V12_STAGE_EXECUTION_CONFIG=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/deployment.json\""
+            ]
+          },
+          "passed": true
+        },
+        {
+          "check": "it made the identity",
+          "detail": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/authority-identity.json",
+          "passed": true
+        },
+        {
+          "check": "it made the authority_store",
+          "detail": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/db/authority.sqlite3",
+          "passed": true
+        },
+        {
+          "check": "it made the record",
+          "detail": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/bootstrap.json",
+          "passed": true
+        },
+        {
+          "check": "it made the configuration",
+          "detail": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/deployment.json",
+          "passed": true
+        },
+        {
+          "check": "and did NOT make the job_store, which the installed instance's manager owns",
+          "detail": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/db/jobs.sqlite3",
+          "passed": true
+        },
+        {
+          "check": "and did NOT make the control_store, which the installed instance's manager owns",
+          "detail": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/db/control.sqlite3",
+          "passed": true
+        },
+        {
+          "check": "the Authority identity is 32 hex characters, generated here and not named by the input",
+          "detail": "6a178fe3d5554b6f84228b4dfbbb70ff",
+          "passed": true
+        },
+        {
+          "check": "the emitted configuration binds no Job and configures no worker, which is what a fresh install is",
+          "detail": {
+            "job_bindings": [],
+            "workers": []
+          },
+          "passed": true
+        },
+        {
+          "check": "it carries this deployment's own generations and retention selection",
+          "detail": {
+            "policy_generation": 1,
+            "pool_generation": 1,
+            "retention_policy_digest": "sha256:0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a"
+          },
+          "passed": true
+        },
+        {
+          "check": "the store's own metadata names this build and this identity",
+          "detail": {
+            "authority_uuid": "6a178fe3d5554b6f84228b4dfbbb70ff",
+            "schema_version": "6",
+            "store_kind": "baton.v12.python.authority"
+          },
+          "passed": true
+        },
+        {
+          "check": "the policy generation reads back as the input named",
+          "detail": 1,
+          "passed": true
+        },
+        {
+          "check": "repeating pass one is accepted",
+          "detail": {
+            "exit": 0,
+            "inputs_at": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/inputs.json",
+            "said": [
+              "Now export these and run `just start` from v12/:",
+              "",
+              "export BATON_V12_JOB_STORE=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/db/jobs.sqlite3\"",
+              "export BATON_V12_CONTROL_STORE=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/db/control.sqlite3\"",
+              "export BATON_V12_AUTHORITY_UUID=\"6a178fe3d5554b6f84228b4dfbbb70ff\"",
+              "export BATON_V12_STAGE_EXECUTION_CONFIG=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/deployment.json\""
+            ]
+          },
+          "passed": true
+        },
+        {
+          "check": "and the Authority identity is UNCHANGED, not regenerated",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "a repeated Job-less pass ACCEPTS a changed generation, because preservation is about bindings and this binds none",
+          "detail": {
+            "exit": 0,
+            "inputs_at": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/inputs.json",
+            "said": [
+              "Now export these and run `just start` from v12/:",
+              "",
+              "export BATON_V12_JOB_STORE=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/db/jobs.sqlite3\"",
+              "export BATON_V12_CONTROL_STORE=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/db/control.sqlite3\"",
+              "export BATON_V12_AUTHORITY_UUID=\"6a178fe3d5554b6f84228b4dfbbb70ff\"",
+              "export BATON_V12_STAGE_EXECUTION_CONFIG=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/deployment.json\""
+            ]
+          },
+          "passed": true
+        },
+        {
+          "check": "and even then the Authority identity does not move",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "the emitted configuration carries the changed generation, so the change is visible rather than silent",
+          "detail": 2,
+          "passed": true
+        }
+      ],
+      "checks_passed": 17,
+      "disposable_root": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd",
+      "drift": {
+        "exit": 0,
+        "inputs_at": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/inputs.json",
+        "said": [
+          "Now export these and run `just start` from v12/:",
+          "",
+          "export BATON_V12_JOB_STORE=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/db/jobs.sqlite3\"",
+          "export BATON_V12_CONTROL_STORE=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/db/control.sqlite3\"",
+          "export BATON_V12_AUTHORITY_UUID=\"6a178fe3d5554b6f84228b4dfbbb70ff\"",
+          "export BATON_V12_STAGE_EXECUTION_CONFIG=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/deployment.json\""
+        ]
+      },
+      "emitted_configuration": {
+        "policy_generation": 1,
+        "pool_generation": 1,
+        "receipt_participants": {
+          "approval": "baton.slaw",
+          "review": "baton.reviewer-receipt-pilot",
+          "verification": "baton.verifier-pilot"
+        },
+        "retention_disposition": "retain",
+        "schema": "baton.v12.stage-execution-deployment/2"
+      },
+      "expected_failure": false,
+      "identity": {
+        "authority_uuid": "6a178fe3d5554b6f84228b4dfbbb70ff",
+        "label": "PREFLIGHT (W325959 disposable composition; not a production identity and not the selected instance)",
+        "schema": "baton.v12.instance-identity/1"
+      },
+      "injected": "the supported bootstrap entry point, its readbacks, a repetition and a drifted selection",
+      "intended_failed_check": null,
+      "label": "PREFLIGHT (W325959 disposable composition; not a production identity and not the selected instance)",
+      "not_performed": [
+        "any engine call",
+        "any provider call",
+        "any credential content read",
+        "any image build",
+        "any write to the selected destination",
+        "any submission to a manager",
+        "any mutation of this repository"
+      ],
+      "outcome": "observed",
+      "pass_one": {
+        "exit": 0,
+        "inputs_at": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/inputs.json",
+        "said": [
+          "Now export these and run `just start` from v12/:",
+          "",
+          "export BATON_V12_JOB_STORE=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/db/jobs.sqlite3\"",
+          "export BATON_V12_CONTROL_STORE=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/db/control.sqlite3\"",
+          "export BATON_V12_AUTHORITY_UUID=\"6a178fe3d5554b6f84228b4dfbbb70ff\"",
+          "export BATON_V12_STAGE_EXECUTION_CONFIG=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/deployment.json\""
+        ]
+      },
+      "repeat": {
+        "exit": 0,
+        "inputs_at": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/inputs.json",
+        "said": [
+          "Now export these and run `just start` from v12/:",
+          "",
+          "export BATON_V12_JOB_STORE=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/db/jobs.sqlite3\"",
+          "export BATON_V12_CONTROL_STORE=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/db/control.sqlite3\"",
+          "export BATON_V12_AUTHORITY_UUID=\"6a178fe3d5554b6f84228b4dfbbb70ff\"",
+          "export BATON_V12_STAGE_EXECUTION_CONFIG=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/1-pass-one-composes-and-reads-back/deployment.json\""
+        ]
+      },
+      "scenario": "1-pass-one-composes-and-reads-back",
+      "seconds": 0.178,
+      "stored_identity": {
+        "authority_uuid": "6a178fe3d5554b6f84228b4dfbbb70ff",
+        "schema_version": "6",
+        "store_kind": "baton.v12.python.authority"
+      }
+    },
+    {
+      "authority_uuid": "3e0ece8a59fb44fd876caa89e083f585",
+      "checks": [
+        {
+          "check": "pass one composed",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "before registration the owner cannot take a Work on its own route: the route resolves to nobody",
+          "detail": "Refusal: route 'impl' does not resolve to 'baton.slaw'",
+          "passed": true
+        },
+        {
+          "check": "the implementation participant claims on `impl`",
+          "detail": {
+            "generation": null,
+            "participant": "baton.claude-pilot",
+            "work_ref": {
+              "authority_uuid": "3e0ece8a59fb44fd876caa89e083f585",
+              "work_id": "3e0ece8a-W1"
+            }
+          },
+          "passed": true
+        },
+        {
+          "check": "the review participant claims after the handoff to `rview`",
+          "detail": {
+            "generation": null,
+            "participant": "baton.reviewer-pilot",
+            "work_ref": {
+              "authority_uuid": "3e0ece8a59fb44fd876caa89e083f585",
+              "work_id": "3e0ece8a-W1"
+            }
+          },
+          "passed": true
+        },
+        {
+          "check": "THE OWNER ROUTE IS REAL: baton.slaw claims the Work its review ending handed on",
+          "detail": {
+            "generation": null,
+            "participant": "baton.slaw",
+            "work_ref": {
+              "authority_uuid": "3e0ece8a59fb44fd876caa89e083f585",
+              "work_id": "3e0ece8a-W1"
+            }
+          },
+          "passed": true
+        },
+        {
+          "check": "and the decision names the owner's own principal",
+          "detail": {
+            "effective_scope": "scope:deployment",
+            "endpoint": "baton.slaw",
+            "grant": "direct",
+            "policy_generation": 5,
+            "principal": "principal:baton.slaw",
+            "role": "owner"
+          },
+          "passed": true
+        },
+        {
+          "check": "a participant that does not handle this route is refused",
+          "detail": "Refusal: Work is already claimed",
+          "passed": true
+        },
+        {
+          "check": "THE DIAGNOSIS ROUTE IS REAL: its handler claims a dedicated diagnostic Work",
+          "detail": {
+            "generation": null,
+            "participant": "baton.diagnostician-pilot",
+            "work_ref": {
+              "authority_uuid": "3e0ece8a59fb44fd876caa89e083f585",
+              "work_id": "3e0ece8a-W2"
+            }
+          },
+          "passed": true
+        },
+        {
+          "check": "an identical claim replays rather than taking a second one",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "baton.verifier-pilot holds verify in this Work's own scope",
+          "detail": {
+            "capability": "verify",
+            "scope": "scope:deployment",
+            "who": "baton.verifier-pilot"
+          },
+          "passed": true
+        },
+        {
+          "check": "baton.reviewer-receipt-pilot holds review in this Work's own scope",
+          "detail": {
+            "capability": "review",
+            "scope": "scope:deployment",
+            "who": "baton.reviewer-receipt-pilot"
+          },
+          "passed": true
+        },
+        {
+          "check": "baton.slaw holds approve in this Work's own scope",
+          "detail": {
+            "capability": "approve",
+            "scope": "scope:deployment",
+            "who": "baton.slaw"
+          },
+          "passed": true
+        },
+        {
+          "check": "and the owner holds NO verify grant",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "and the owner holds NO review grant",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "the owner holds approve, integrate and close",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "the canonical dossier binds, which the human integration citation requires",
+          "detail": {
+            "bound": {
+              "bound_at": "2026-10-18T20:36:38.885Z",
+              "locator": "native-pilot-quickstart-3e0ece8a",
+              "operation_id": "w325959-bind-dossier",
+              "work_id": "3e0ece8a-W1"
+            },
+            "read": {
+              "bound_at": "2026-10-18T20:36:38.885Z",
+              "locator": "native-pilot-quickstart-3e0ece8a",
+              "operation_id": "w325959-bind-dossier",
+              "work_id": "3e0ece8a-W1"
+            }
+          },
+          "passed": true
+        }
+      ],
+      "checks_passed": 16,
+      "diagnosis_assignment": {
+        "generation": null,
+        "participant": "baton.diagnostician-pilot",
+        "work_ref": {
+          "authority_uuid": "3e0ece8a59fb44fd876caa89e083f585",
+          "work_id": "3e0ece8a-W2"
+        }
+      },
+      "diagnostician_on_the_owner_route": "Refusal: Work is already claimed",
+      "disposable_root": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd",
+      "dossier": {
+        "bound_at": "2026-10-18T20:36:38.885Z",
+        "locator": "native-pilot-quickstart-3e0ece8a",
+        "operation_id": "w325959-bind-dossier",
+        "work_id": "3e0ece8a-W1"
+      },
+      "dossier_locator": "native-pilot-quickstart-3e0ece8a",
+      "expected_failure": false,
+      "grants": {
+        "owner": [
+          "approve",
+          "integrate",
+          "close"
+        ],
+        "policy_generation": 10,
+        "receipts": {
+          "baton.reviewer-receipt-pilot": "review",
+          "baton.slaw": "approve",
+          "baton.verifier-pilot": "verify"
+        },
+        "scope": "scope:deployment"
+      },
+      "injected": "the two routes bootstrap does not register, registered and proved by claim, plus the per-Work receipt grants",
+      "intended_failed_check": null,
+      "label": "PREFLIGHT (W325959 disposable composition; not a production identity and not the selected instance)",
+      "not_performed": [
+        "any engine call",
+        "any provider call",
+        "any credential content read",
+        "any image build",
+        "any write to the selected destination",
+        "any submission to a manager",
+        "any mutation of this repository"
+      ],
+      "outcome": "observed",
+      "owner_assignment": {
+        "generation": null,
+        "participant": "baton.slaw",
+        "work_ref": {
+          "authority_uuid": "3e0ece8a59fb44fd876caa89e083f585",
+          "work_id": "3e0ece8a-W1"
+        }
+      },
+      "owner_claim_before_registration": "Refusal: route 'impl' does not resolve to 'baton.slaw'",
+      "registered": {
+        "diagnosis": "baton.diagnostician-pilot",
+        "impl": "baton.claude-pilot",
+        "owner": "baton.slaw",
+        "rview": "baton.reviewer-pilot"
+      },
+      "scenario": "2-owner-and-diagnosis-ownership",
+      "seconds": 0.015
+    },
+    {
+      "authority_uuid": "b62d73b746594141a456167c4c61493e",
+      "binding_drift": {
+        "exit": 2,
+        "inputs_at": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/3-pass-two-binds-the-two-stage-job/inputs.json",
+        "said": [
+          "authority b62d73b7...    reused from this root's record",
+          "refused: this root already holds a different deployment and nothing was changed: job 'quickstart-a' is already bound with line_declared_base '14e52d80679de5e844f72324df632da5e01cf393' and this document names '0000000000000000000000000000000000000000'. A repeated bootstrap preserves what is there; if you mean a different deployment, give it its own state_root."
+        ]
+      },
+      "checks": [
+        {
+          "check": "pass one composed",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "the adapted manifest passes the MANAGER's own structure check",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "its source descriptor declares the boundary a nominated mount requires",
+          "detail": {
+            "baton.source-boundary/1": {
+              "delivery": "nominated-mount",
+              "profile": "git-line",
+              "workspace": "disk"
+            }
+          },
+          "passed": true
+        },
+        {
+          "check": "it names THIS Authority and THIS Work",
+          "detail": {
+            "authority_uuid": "b62d73b746594141a456167c4c61493e",
+            "work_id": "b62d73b7-W1"
+          },
+          "passed": true
+        },
+        {
+          "check": "and this task document's own bytes",
+          "detail": "sha256:5ec48d4baf2020a8ef972237444c5989cf8490dea23cc285dbfd3bc0508dc1bb",
+          "passed": true
+        },
+        {
+          "check": "the sealed digest is the canonical digest the manager recomputes, and it moved because the Work did",
+          "detail": {
+            "adapted": "sha256:1f1207407b98937852bac3f050847476527d800d9d0c25b590afa0ba7655cf15",
+            "prior": "sha256:1882866078bbe8b9bb2edda94f63fba2c81d562d52746878d4a391f330bfa6e7"
+          },
+          "passed": true
+        },
+        {
+          "check": "every worker document now names all 29 members the worker contract closes over",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "the producer and the reviewer are distinct participants",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "the review worker's outgoing route is the OWNER route",
+          "detail": {
+            "implementation": "rview",
+            "review": "owner"
+          },
+          "passed": true
+        },
+        {
+          "check": "no integration worker is configured",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "bootstrap's own input validator accepts the resolved configuration pass",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "and bootstrap.validated accepts the configuration this input EMITS",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "the emitted configuration carries both workers with their resolved principals",
+          "detail": [
+            "principal:baton.claude-pilot",
+            "principal:baton.reviewer-pilot"
+          ],
+          "passed": true
+        },
+        {
+          "check": "the in-place configuration pass is accepted by the supported entry point",
+          "detail": {
+            "exit": 0,
+            "inputs_at": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/3-pass-two-binds-the-two-stage-job/inputs.json",
+            "said": [
+              "Now export these and run `just start` from v12/:",
+              "",
+              "export BATON_V12_JOB_STORE=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/3-pass-two-binds-the-two-stage-job/db/jobs.sqlite3\"",
+              "export BATON_V12_CONTROL_STORE=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/3-pass-two-binds-the-two-stage-job/db/control.sqlite3\"",
+              "export BATON_V12_AUTHORITY_UUID=\"b62d73b746594141a456167c4c61493e\"",
+              "export BATON_V12_STAGE_EXECUTION_CONFIG=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/3-pass-two-binds-the-two-stage-job/deployment.json\""
+            ]
+          },
+          "passed": true
+        },
+        {
+          "check": "repeating it preserves what is there",
+          "detail": {
+            "exit": 0,
+            "inputs_at": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/3-pass-two-binds-the-two-stage-job/inputs.json",
+            "said": [
+              "Now export these and run `just start` from v12/:",
+              "",
+              "export BATON_V12_JOB_STORE=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/3-pass-two-binds-the-two-stage-job/db/jobs.sqlite3\"",
+              "export BATON_V12_CONTROL_STORE=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/3-pass-two-binds-the-two-stage-job/db/control.sqlite3\"",
+              "export BATON_V12_AUTHORITY_UUID=\"b62d73b746594141a456167c4c61493e\"",
+              "export BATON_V12_STAGE_EXECUTION_CONFIG=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/3-pass-two-binds-the-two-stage-job/deployment.json\""
+            ]
+          },
+          "passed": true
+        },
+        {
+          "check": "implementation-pilot keeps its install-derived storage selections",
+          "detail": {
+            "credential_home": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/3-pass-two-binds-the-two-stage-job/credentials/implementation",
+            "launch_home": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/3-pass-two-binds-the-two-stage-job/launch/implementation",
+            "nominated_source": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/3-pass-two-binds-the-two-stage-job/repo/source",
+            "workspace_storage": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/3-pass-two-binds-the-two-stage-job/workspaces/implementation"
+          },
+          "passed": true
+        },
+        {
+          "check": "review-pilot keeps its install-derived storage selections",
+          "detail": {
+            "credential_home": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/3-pass-two-binds-the-two-stage-job/credentials/review",
+            "launch_home": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/3-pass-two-binds-the-two-stage-job/launch/review",
+            "nominated_source": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/3-pass-two-binds-the-two-stage-job/repo/source",
+            "workspace_storage": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/3-pass-two-binds-the-two-stage-job/workspaces/review"
+          },
+          "passed": true
+        },
+        {
+          "check": "but a CHANGED Job binding is refused rather than moved",
+          "detail": {
+            "exit": 2,
+            "inputs_at": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/3-pass-two-binds-the-two-stage-job/inputs.json",
+            "said": [
+              "authority b62d73b7...    reused from this root's record",
+              "refused: this root already holds a different deployment and nothing was changed: job 'quickstart-a' is already bound with line_declared_base '14e52d80679de5e844f72324df632da5e01cf393' and this document names '0000000000000000000000000000000000000000'. A repeated bootstrap preserves what is there; if you mean a different deployment, give it its own state_root."
+            ]
+          },
+          "passed": true
+        },
+        {
+          "observation": "the refusal's own words",
+          "value": [
+            "authority b62d73b7...    reused from this root's record",
+            "refused: this root already holds a different deployment and nothing was changed: job 'quickstart-a' is already bound with line_declared_base '14e52d80679de5e844f72324df632da5e01cf393' and this document names '0000000000000000000000000000000000000000'. A repeated bootstrap preserves what is there; if you mean a different deployment, give it its own state_root."
+          ]
+        },
+        {
+          "check": "the emitted configuration carries both workers and the one binding",
+          "detail": {
+            "bindings": [
+              {
+                "canonical_target_id": "14e52d80679de5e844f72324df632da5e01cf393",
+                "job_id": "quickstart-a",
+                "job_work_id": "b62d73b7-W1",
+                "line_declared_base": "14e52d80679de5e844f72324df632da5e01cf393",
+                "review_work_id": "b62d73b7-W1",
+                "source_worker_id": "implementation-pilot"
+              }
+            ],
+            "workers": [
+              "implementation-pilot",
+              "review-pilot"
+            ]
+          },
+          "passed": true
+        },
+        {
+          "check": "and the binding still names the ORIGINAL base",
+          "detail": {
+            "canonical_target_id": "14e52d80679de5e844f72324df632da5e01cf393",
+            "job_id": "quickstart-a",
+            "job_work_id": "b62d73b7-W1",
+            "line_declared_base": "14e52d80679de5e844f72324df632da5e01cf393",
+            "review_work_id": "b62d73b7-W1",
+            "source_worker_id": "implementation-pilot"
+          },
+          "passed": true
+        },
+        {
+          "check": "the Job input identity is the PUBLIC projection and is NOT a hash of the whole manifest",
+          "detail": {
+            "public": "sha256:587daffb1c4a6a3dfc2673a5412e8a49123b9c1c37afd21b8d5cbfd7c962e4a7",
+            "revision_2_was": "sha256:448c7db516e89e4adc9588ed81a25afbc266ca145e896c8acc7f25ed1f54b0db"
+          },
+          "passed": true
+        },
+        {
+          "check": "it is stable under the excluded members: changing the worker image digest does not move it",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "while changing an included policy identity DOES move it",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "the submission names that identity",
+          "detail": "sha256:587daffb1c4a6a3dfc2673a5412e8a49123b9c1c37afd21b8d5cbfd7c962e4a7",
+          "passed": true
+        },
+        {
+          "check": "the runtime consumer finds NO disagreement for implementation-pilot",
+          "detail": {},
+          "passed": true
+        },
+        {
+          "check": "the runtime consumer finds NO disagreement for review-pilot",
+          "detail": {},
+          "passed": true
+        },
+        {
+          "check": "and it DOES disagree when the Job names another input",
+          "detail": null,
+          "passed": true
+        },
+        {
+          "check": "the submission validates with the readbacks in place",
+          "detail": "quickstart-a",
+          "passed": true
+        },
+        {
+          "check": "and carries the selected per-invocation ceilings",
+          "detail": null,
+          "passed": true
+        }
+      ],
+      "checks_passed": 29,
+      "disposable_root": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd",
+      "emitted_bindings": [
+        {
+          "canonical_target_id": "14e52d80679de5e844f72324df632da5e01cf393",
+          "job_id": "quickstart-a",
+          "job_work_id": "b62d73b7-W1",
+          "line_declared_base": "14e52d80679de5e844f72324df632da5e01cf393",
+          "review_work_id": "b62d73b7-W1",
+          "source_worker_id": "implementation-pilot"
+        }
+      ],
+      "emitted_validation": "accepted by bootstrap.validated",
+      "expected_failure": false,
+      "injected": "the composed input manifest, the resolved worker documents and the submission",
+      "input_manifest": {
+        "manifest_digest": "sha256:1f1207407b98937852bac3f050847476527d800d9d0c25b590afa0ba7655cf15",
+        "manifest_id": "input-manifest-1",
+        "runtime_profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+        "work_ref": {
+          "authority_uuid": "b62d73b746594141a456167c4c61493e",
+          "work_id": "b62d73b7-W1"
+        },
+        "worker_image_digest": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2"
+      },
+      "intended_failed_check": null,
+      "job_input_identity": "sha256:587daffb1c4a6a3dfc2673a5412e8a49123b9c1c37afd21b8d5cbfd7c962e4a7",
+      "label": "PREFLIGHT (W325959 disposable composition; not a production identity and not the selected instance)",
+      "not_performed": [
+        "any engine call",
+        "any provider call",
+        "any credential content read",
+        "any image build",
+        "any write to the selected destination",
+        "any submission to a manager",
+        "any mutation of this repository"
+      ],
+      "outcome": "observed",
+      "pass_two": {
+        "exit": 0,
+        "inputs_at": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/3-pass-two-binds-the-two-stage-job/inputs.json",
+        "said": [
+          "Now export these and run `just start` from v12/:",
+          "",
+          "export BATON_V12_JOB_STORE=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/3-pass-two-binds-the-two-stage-job/db/jobs.sqlite3\"",
+          "export BATON_V12_CONTROL_STORE=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/3-pass-two-binds-the-two-stage-job/db/control.sqlite3\"",
+          "export BATON_V12_AUTHORITY_UUID=\"b62d73b746594141a456167c4c61493e\"",
+          "export BATON_V12_STAGE_EXECUTION_CONFIG=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/3-pass-two-binds-the-two-stage-job/deployment.json\""
+        ]
+      },
+      "principals": {
+        "baton.claude-pilot": "principal:baton.claude-pilot",
+        "baton.reviewer-pilot": "principal:baton.reviewer-pilot"
+      },
+      "repeat": {
+        "exit": 0,
+        "inputs_at": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/3-pass-two-binds-the-two-stage-job/inputs.json",
+        "said": [
+          "Now export these and run `just start` from v12/:",
+          "",
+          "export BATON_V12_JOB_STORE=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/3-pass-two-binds-the-two-stage-job/db/jobs.sqlite3\"",
+          "export BATON_V12_CONTROL_STORE=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/3-pass-two-binds-the-two-stage-job/db/control.sqlite3\"",
+          "export BATON_V12_AUTHORITY_UUID=\"b62d73b746594141a456167c4c61493e\"",
+          "export BATON_V12_STAGE_EXECUTION_CONFIG=\"/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd/3-pass-two-binds-the-two-stage-job/deployment.json\""
+        ]
+      },
+      "revision_2_naive_digest": "sha256:448c7db516e89e4adc9588ed81a25afbc266ca145e896c8acc7f25ed1f54b0db",
+      "routes": {
+        "implementation": "rview",
+        "review": "owner"
+      },
+      "scenario": "3-pass-two-binds-the-two-stage-job",
+      "seconds": 0.039,
+      "submission_stages": [
+        "implementation",
+        "review"
+      ],
+      "work_id": "b62d73b7-W1"
+    },
+    {
+      "checks": [
+        {
+          "check": "policy_digest IS the canonical digest of policy.json, recomputed here",
+          "detail": {
+            "named_by_the_worker": "sha256:3a532addb6b4a007ace31fa44d3d9e559be46e31fb4ce418c681ef8869172b6e",
+            "recomputed": "sha256:3a532addb6b4a007ace31fa44d3d9e559be46e31fb4ce418c681ef8869172b6e"
+          },
+          "passed": true
+        },
+        {
+          "check": "profile_digest IS the canonical digest of runtime-profile.json, recomputed here",
+          "detail": {
+            "named_by_the_worker": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+            "recomputed": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be"
+          },
+          "passed": true
+        },
+        {
+          "check": "adapter_digest IS the canonical digest of adapter.json, recomputed here",
+          "detail": {
+            "named_by_the_worker": "sha256:5f2ef38f05ed7a9aecd11dd7e23e9cfbe1f0243fe27bd2c9aa1b004580fcdef1",
+            "recomputed": "sha256:5f2ef38f05ed7a9aecd11dd7e23e9cfbe1f0243fe27bd2c9aa1b004580fcdef1"
+          },
+          "passed": true
+        },
+        {
+          "check": "this packet reuses the prior instance's profile_digest verbatim",
+          "detail": {
+            "mine": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+            "prior": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be"
+          },
+          "passed": true
+        },
+        {
+          "check": "this packet reuses the prior instance's policy_digest verbatim",
+          "detail": {
+            "mine": "sha256:3a532addb6b4a007ace31fa44d3d9e559be46e31fb4ce418c681ef8869172b6e",
+            "prior": "sha256:3a532addb6b4a007ace31fa44d3d9e559be46e31fb4ce418c681ef8869172b6e"
+          },
+          "passed": true
+        },
+        {
+          "check": "this packet reuses the prior instance's adapter_digest verbatim",
+          "detail": {
+            "mine": "sha256:5f2ef38f05ed7a9aecd11dd7e23e9cfbe1f0243fe27bd2c9aa1b004580fcdef1",
+            "prior": "sha256:5f2ef38f05ed7a9aecd11dd7e23e9cfbe1f0243fe27bd2c9aa1b004580fcdef1"
+          },
+          "passed": true
+        },
+        {
+          "check": "this packet reuses the prior instance's image_digest verbatim",
+          "detail": {
+            "mine": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2",
+            "prior": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2"
+          },
+          "passed": true
+        },
+        {
+          "check": "this packet reuses the prior instance's adapter_name verbatim",
+          "detail": {
+            "mine": "docker-single-worker",
+            "prior": "docker-single-worker"
+          },
+          "passed": true
+        },
+        {
+          "check": "this packet reuses the prior instance's profile_name verbatim",
+          "detail": {
+            "mine": "claude-fresh-implementation",
+            "prior": "claude-fresh-implementation"
+          },
+          "passed": true
+        },
+        {
+          "check": "this packet reuses the prior instance's engine verbatim",
+          "detail": {
+            "mine": "docker",
+            "prior": "docker"
+          },
+          "passed": true
+        },
+        {
+          "check": "this packet reuses the prior instance's network verbatim",
+          "detail": {
+            "mine": "bridge",
+            "prior": "bridge"
+          },
+          "passed": true
+        },
+        {
+          "check": "this packet reuses the prior instance's launch_contract verbatim",
+          "detail": {
+            "mine": "v12-assignment-1",
+            "prior": "v12-assignment-1"
+          },
+          "passed": true
+        },
+        {
+          "check": "this packet reuses the prior instance's credential_sources verbatim",
+          "detail": {
+            "mine": "/home/sl/.baton/credential-sources.json",
+            "prior": "/home/sl/.baton/credential-sources.json"
+          },
+          "passed": true
+        },
+        {
+          "check": "this packet reuses the prior instance's credential_slots verbatim",
+          "detail": {
+            "mine": [
+              "claude"
+            ],
+            "prior": [
+              "claude"
+            ]
+          },
+          "passed": true
+        },
+        {
+          "check": "this packet reuses the prior instance's credential_profile verbatim",
+          "detail": {
+            "mine": {
+              "claude": {
+                "provider": "operator-file",
+                "reference": "w202663-development"
+              }
+            },
+            "prior": {
+              "claude": {
+                "provider": "operator-file",
+                "reference": "w202663-development"
+              }
+            }
+          },
+          "passed": true
+        },
+        {
+          "check": "this packet reuses the prior instance's workspace_group verbatim",
+          "detail": {
+            "mine": 1000,
+            "prior": 1000
+          },
+          "passed": true
+        },
+        {
+          "check": "this packet reuses the prior instance's workspace_capacity verbatim",
+          "detail": {
+            "mine": {
+              "max_bytes": 83886081
+            },
+            "prior": {
+              "max_bytes": 83886081
+            }
+          },
+          "passed": true
+        },
+        {
+          "check": "the retention policy digest is this tree's own retention policy, recomputed",
+          "detail": "sha256:0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a",
+          "passed": true
+        },
+        {
+          "check": "the credential SOURCE is a reference this host has, and its content is never read",
+          "detail": "/home/sl/.baton/credential-sources.json",
+          "passed": true
+        },
+        {
+          "check": "the credential profile carries a provider and a reference and no secret member",
+          "detail": {
+            "claude": {
+              "provider": "operator-file",
+              "reference": "w202663-development"
+            }
+          },
+          "passed": true
+        },
+        {
+          "check": "the worker deployment schema is this build's own",
+          "detail": "baton.v12.single-worker-deployment/4",
+          "passed": true
+        },
+        {
+          "observation": "the image digest's provenance",
+          "value": {
+            "digest": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2",
+            "from": "/home/sl/src/baton/work/records/2026/10/finding-v12-native-pilot-instance-packet/revision-3/inputs/deployment.json",
+            "image_operation_classification": "python3 -m tools.worker_image --tag <tag> BUILDS an image (build, save, normalize, load, clean -- worker_image._main 384-440). It is NOT a read-only validation, and revision 2 wrongly called it one. A read-only presence check is an engine inspect of the recorded digest, which this preparation does not perform."
+          }
+        }
+      ],
+      "checks_passed": 21,
+      "disposable_root": "/var/tmp/baton-w257624/w325959-preflight-review326271-3ip71mcd",
+      "expected_failure": false,
+      "image_digest": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2",
+      "injected": "every reused digest recomputed from the document it describes",
+      "intended_failed_check": null,
+      "label": "PREFLIGHT (W325959 disposable composition; not a production identity and not the selected instance)",
+      "not_performed": [
+        "any engine call",
+        "any provider call",
+        "any credential content read",
+        "any image build",
+        "any write to the selected destination",
+        "any submission to a manager",
+        "any mutation of this repository"
+      ],
+      "outcome": "observed",
+      "recomputed": {
+        "adapter.json": {
+          "named_by_the_worker": "sha256:5f2ef38f05ed7a9aecd11dd7e23e9cfbe1f0243fe27bd2c9aa1b004580fcdef1",
+          "recomputed": "sha256:5f2ef38f05ed7a9aecd11dd7e23e9cfbe1f0243fe27bd2c9aa1b004580fcdef1"
+        },
+        "policy.json": {
+          "named_by_the_worker": "sha256:3a532addb6b4a007ace31fa44d3d9e559be46e31fb4ce418c681ef8869172b6e",
+          "recomputed": "sha256:3a532addb6b4a007ace31fa44d3d9e559be46e31fb4ce418c681ef8869172b6e"
+        },
+        "runtime-profile.json": {
+          "named_by_the_worker": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+          "recomputed": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be"
+        }
+      },
+      "reused_from": "/home/sl/src/baton/work/records/2026/10/finding-v12-native-pilot-instance-packet/revision-3/inputs/deployment.json",
+      "scenario": "4-the-reused-inputs-are-verified",
+      "seconds": 0.0
+    }
+  ],
+  "schema": "baton.w325959.disposable-preparation/1",
+  "seconds": 0.233,
+  "selected_destination_untouched": true,
+  "source_base": "14e52d80679de5e844f72324df632da5e01cf393",
+  "unexpected": 0
+}

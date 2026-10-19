@@ -1,0 +1,49 @@
+{
+  "authority_uuid": "deb706e6d4b749089c378435aedd9733",
+  "diagnosis_assignment": {
+    "generation": null,
+    "participant": "baton.diagnostician-pilot",
+    "work_ref": {
+      "authority_uuid": "deb706e6d4b749089c378435aedd9733",
+      "work_id": "deb706e6-W2"
+    }
+  },
+  "diagnostician_on_the_owner_route": "Refusal: Work is already claimed",
+  "dossier": {
+    "bound_at": "2026-10-19T02:17:18.419Z",
+    "locator": "native-pilot-quickstart-deb706e6",
+    "operation_id": "w325959-bind-dossier",
+    "work_id": "deb706e6-W1"
+  },
+  "dossier_locator": "native-pilot-quickstart-deb706e6",
+  "grants": {
+    "owner": [
+      "approve",
+      "integrate",
+      "close"
+    ],
+    "policy_generation": 10,
+    "receipts": {
+      "baton.reviewer-receipt-pilot": "review",
+      "baton.slaw": "approve",
+      "baton.verifier-pilot": "verify"
+    },
+    "scope": "scope:deployment"
+  },
+  "label": "PREFLIGHT (W325959 disposable composition; not a production identity and not the selected instance)",
+  "owner_assignment": {
+    "generation": null,
+    "participant": "baton.slaw",
+    "work_ref": {
+      "authority_uuid": "deb706e6d4b749089c378435aedd9733",
+      "work_id": "deb706e6-W1"
+    }
+  },
+  "owner_claim_before_registration": "Refusal: route 'impl' does not resolve to 'baton.slaw'",
+  "registered": {
+    "diagnosis": "baton.diagnostician-pilot",
+    "impl": "baton.claude-pilot",
+    "owner": "baton.slaw",
+    "rview": "baton.reviewer-pilot"
+  }
+}
