@@ -1,0 +1,8 @@
+{
+  "base": "fb48797903160aa764229d58f3a5beaf29648bfc",
+  "pins": {
+    "work/records/2026/09/finding-v12-single-implementation-proof/baseline.py": "c1b0a10e609503df0ba7ebdc7455cc8518c9175882edd185b65f20c342c4bd2f",
+    "v12/python/tools/authoring_enforcement.py": "bc8c0363e44fedeae09c15a9065733227f08e279164ed68dc4b0e9e058a7c50f"
+  },
+  "archive_sha256": "bb5d7f1b8c551d9a82e7015441490a94aff477dca42c07acaf62efa48bb429c0"
+}

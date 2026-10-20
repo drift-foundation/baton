@@ -1,0 +1,938 @@
+{
+  "additional_phase_controls": 2,
+  "cases": {
+    "absent_cleanup": {
+      "checks": "passed",
+      "child_status": -9,
+      "elapsed": 6.122503847996995,
+      "finished_snapshot": false,
+      "outcome_present": false,
+      "timeline": [
+        {
+          "event": "trace",
+          "function": "supervise",
+          "kind": "call",
+          "line": 1044,
+          "pid": 13,
+          "t": 0.420042
+        },
+        {
+          "event": "outer_signal",
+          "manager": 13,
+          "pid": 12,
+          "signal": 15,
+          "t": 3.753671
+        },
+        {
+          "event": "trace",
+          "function": "_handle",
+          "kind": "call",
+          "line": 294,
+          "mode": "raise",
+          "pid": 13,
+          "signal": 15,
+          "t": 3.75383
+        },
+        {
+          "event": "trace",
+          "function": "_handle",
+          "kind": "return",
+          "line": 299,
+          "mode": "raise",
+          "pid": 13,
+          "signal": 15,
+          "t": 3.753926
+        },
+        {
+          "event": "trace",
+          "function": "stop",
+          "kind": "call",
+          "line": 863,
+          "pid": 13,
+          "t": 3.753986
+        },
+        {
+          "event": "trace",
+          "function": "stop",
+          "kind": "return",
+          "line": 865,
+          "pid": 13,
+          "t": 3.754007
+        },
+        {
+          "cleanup_deadline": null,
+          "cleanup_started": null,
+          "event": "defer_call",
+          "pid": 13,
+          "t": 3.754036
+        },
+        {
+          "event": "deferred_signal_returned",
+          "pid": 13,
+          "received": [
+            "signal 15",
+            "signal 15"
+          ],
+          "t": 3.75412
+        },
+        {
+          "cleanup_deadline": 47026.240924655,
+          "cleanup_started": 47022.240924655,
+          "event": "cleanup_sweep",
+          "pid": 13,
+          "t": 3.769733
+        },
+        {
+          "cleanup_deadline": 47026.240924655,
+          "cleanup_started": 47022.240924655,
+          "event": "cleanup_sweep",
+          "pid": 13,
+          "t": 4.790555
+        },
+        {
+          "event": "outer_signal",
+          "manager": 13,
+          "pid": 12,
+          "signal": 9,
+          "t": 5.754001
+        },
+        {
+          "event": "manager_reaped",
+          "manager": 13,
+          "pid": 12,
+          "status": -9,
+          "t": 5.757307
+        },
+        {
+          "event": "trace",
+          "function": "stop",
+          "kind": "call",
+          "line": 412,
+          "pid": 12,
+          "t": 5.757363
+        },
+        {
+          "event": "trace",
+          "function": "stop",
+          "kind": "return",
+          "line": 416,
+          "pid": 12,
+          "t": 5.75746
+        }
+      ]
+    },
+    "blocked_sweep": {
+      "checks": "passed",
+      "child_status": -9,
+      "elapsed": 6.122108070005197,
+      "finished_snapshot": false,
+      "outcome_present": false,
+      "timeline": [
+        {
+          "event": "trace",
+          "function": "supervise",
+          "kind": "call",
+          "line": 1044,
+          "pid": 9,
+          "t": 0.424578
+        },
+        {
+          "event": "blocked_serving_sweep",
+          "pid": 9,
+          "t": 1.52928
+        },
+        {
+          "event": "outer_signal",
+          "manager": 9,
+          "pid": 8,
+          "signal": 15,
+          "t": 3.753635
+        },
+        {
+          "event": "trace",
+          "function": "_handle",
+          "kind": "call",
+          "line": 294,
+          "mode": "raise",
+          "pid": 9,
+          "signal": 15,
+          "t": 3.753777
+        },
+        {
+          "event": "trace",
+          "function": "_handle",
+          "kind": "return",
+          "line": 299,
+          "mode": "raise",
+          "pid": 9,
+          "signal": 15,
+          "t": 3.753856
+        },
+        {
+          "event": "trace",
+          "function": "stop",
+          "kind": "call",
+          "line": 863,
+          "pid": 9,
+          "t": 3.753906
+        },
+        {
+          "event": "trace",
+          "function": "stop",
+          "kind": "return",
+          "line": 865,
+          "pid": 9,
+          "t": 3.753923
+        },
+        {
+          "cleanup_deadline": null,
+          "cleanup_started": null,
+          "event": "defer_call",
+          "pid": 9,
+          "t": 3.75394
+        },
+        {
+          "cleanup_deadline": 47020.104957678,
+          "cleanup_started": 47016.104957678,
+          "event": "cleanup_sweep",
+          "pid": 9,
+          "t": 3.768644
+        },
+        {
+          "cleanup_deadline": 47020.104957678,
+          "cleanup_started": 47016.104957678,
+          "event": "cleanup_sweep",
+          "pid": 9,
+          "t": 4.788425
+        },
+        {
+          "event": "outer_signal",
+          "manager": 9,
+          "pid": 8,
+          "signal": 9,
+          "t": 5.753891
+        },
+        {
+          "event": "manager_reaped",
+          "manager": 9,
+          "pid": 8,
+          "status": -9,
+          "t": 5.757172
+        },
+        {
+          "event": "trace",
+          "function": "stop",
+          "kind": "call",
+          "line": 412,
+          "pid": 8,
+          "t": 5.757218
+        },
+        {
+          "event": "trace",
+          "function": "stop",
+          "kind": "return",
+          "line": 416,
+          "pid": 8,
+          "t": 5.757282
+        }
+      ]
+    },
+    "delayed_snapshot": {
+      "checks": "passed",
+      "child_status": -9,
+      "elapsed": 6.821077922002587,
+      "finished_snapshot": false,
+      "outcome_present": true,
+      "timeline": [
+        {
+          "event": "trace",
+          "function": "supervise",
+          "kind": "call",
+          "line": 1044,
+          "pid": 17,
+          "t": 0.432088
+        },
+        {
+          "event": "trace",
+          "function": "stop",
+          "kind": "call",
+          "line": 863,
+          "pid": 17,
+          "t": 1.537587
+        },
+        {
+          "event": "trace",
+          "function": "stop",
+          "kind": "return",
+          "line": 865,
+          "pid": 17,
+          "t": 1.537621
+        },
+        {
+          "cleanup_deadline": null,
+          "cleanup_started": null,
+          "event": "defer_call",
+          "pid": 17,
+          "t": 1.537639
+        },
+        {
+          "cleanup_deadline": 47030.14942076,
+          "cleanup_started": 47026.14942076,
+          "event": "cleanup_sweep",
+          "pid": 17,
+          "t": 1.539194
+        },
+        {
+          "cleanup_deadline": 47030.14942076,
+          "cleanup_started": 47026.14942076,
+          "event": "cleanup_sweep",
+          "pid": 17,
+          "t": 2.547617
+        },
+        {
+          "cleanup_deadline": 47030.14942076,
+          "cleanup_started": 47026.14942076,
+          "event": "cleanup_sweep",
+          "pid": 17,
+          "t": 3.556433
+        },
+        {
+          "event": "outer_signal",
+          "manager": 17,
+          "pid": 16,
+          "signal": 15,
+          "t": 4.503913
+        },
+        {
+          "event": "trace",
+          "function": "_handle",
+          "kind": "call",
+          "line": 294,
+          "mode": "defer",
+          "pid": 17,
+          "signal": 15,
+          "t": 4.504073
+        },
+        {
+          "event": "trace",
+          "function": "_handle",
+          "kind": "return",
+          "line": 298,
+          "mode": "defer",
+          "pid": 17,
+          "signal": 15,
+          "t": 4.504123
+        },
+        {
+          "cleanup_deadline": 47030.14942076,
+          "cleanup_started": 47026.14942076,
+          "event": "cleanup_sweep",
+          "pid": 17,
+          "t": 4.565509
+        },
+        {
+          "event": "trace",
+          "function": "supervise",
+          "kind": "return",
+          "line": 1064,
+          "pid": 17,
+          "t": 5.584482
+        },
+        {
+          "event": "trace",
+          "function": "stop",
+          "kind": "call",
+          "line": 213,
+          "pid": 17,
+          "t": 5.585456
+        },
+        {
+          "event": "snapshot_delay",
+          "pid": 17,
+          "seconds": 6,
+          "t": 5.58965
+        },
+        {
+          "event": "outer_signal",
+          "manager": 17,
+          "pid": 16,
+          "signal": 9,
+          "t": 6.413364
+        },
+        {
+          "event": "manager_reaped",
+          "manager": 17,
+          "pid": 16,
+          "status": -9,
+          "t": 6.416678
+        },
+        {
+          "event": "trace",
+          "function": "stop",
+          "kind": "call",
+          "line": 412,
+          "pid": 16,
+          "t": 6.416741
+        },
+        {
+          "event": "trace",
+          "function": "stop",
+          "kind": "return",
+          "line": 416,
+          "pid": 16,
+          "t": 6.416854
+        }
+      ]
+    },
+    "normal": {
+      "checks": "passed",
+      "child_status": 1,
+      "elapsed": 6.126350985003228,
+      "finished_snapshot": true,
+      "outcome_present": true,
+      "timeline": [
+        {
+          "event": "trace",
+          "function": "supervise",
+          "kind": "call",
+          "line": 1044,
+          "pid": 5,
+          "t": 0.42029
+        },
+        {
+          "event": "trace",
+          "function": "stop",
+          "kind": "call",
+          "line": 863,
+          "pid": 5,
+          "t": 1.522038
+        },
+        {
+          "event": "trace",
+          "function": "stop",
+          "kind": "return",
+          "line": 865,
+          "pid": 5,
+          "t": 1.52207
+        },
+        {
+          "cleanup_deadline": null,
+          "cleanup_started": null,
+          "event": "defer_call",
+          "pid": 5,
+          "t": 1.522085
+        },
+        {
+          "cleanup_deadline": 47011.724968081,
+          "cleanup_started": 47007.724968081,
+          "event": "cleanup_sweep",
+          "pid": 5,
+          "t": 1.52358
+        },
+        {
+          "cleanup_deadline": 47011.724968081,
+          "cleanup_started": 47007.724968081,
+          "event": "cleanup_sweep",
+          "pid": 5,
+          "t": 2.53173
+        },
+        {
+          "cleanup_deadline": 47011.724968081,
+          "cleanup_started": 47007.724968081,
+          "event": "cleanup_sweep",
+          "pid": 5,
+          "t": 3.540713
+        },
+        {
+          "cleanup_deadline": 47011.724968081,
+          "cleanup_started": 47007.724968081,
+          "event": "cleanup_sweep",
+          "pid": 5,
+          "t": 4.549474
+        },
+        {
+          "event": "trace",
+          "function": "supervise",
+          "kind": "return",
+          "line": 1064,
+          "pid": 5,
+          "t": 5.564075
+        },
+        {
+          "event": "trace",
+          "function": "stop",
+          "kind": "call",
+          "line": 213,
+          "pid": 5,
+          "t": 5.564991
+        },
+        {
+          "event": "snapshot_replaced",
+          "finished": true,
+          "pid": 5,
+          "t": 5.573368
+        },
+        {
+          "event": "trace",
+          "function": "stop",
+          "kind": "return",
+          "line": 218,
+          "pid": 5,
+          "t": 5.573456
+        },
+        {
+          "event": "snapshot_replaced",
+          "finished": true,
+          "pid": 5,
+          "t": 5.573633
+        },
+        {
+          "event": "outer_signal",
+          "manager": 5,
+          "pid": 4,
+          "signal": 9,
+          "t": 5.754128
+        },
+        {
+          "event": "manager_reaped",
+          "manager": 5,
+          "pid": 4,
+          "status": 1,
+          "t": 5.754294
+        },
+        {
+          "event": "trace",
+          "function": "stop",
+          "kind": "call",
+          "line": 412,
+          "pid": 4,
+          "t": 5.754333
+        },
+        {
+          "event": "trace",
+          "function": "stop",
+          "kind": "return",
+          "line": 417,
+          "pid": 4,
+          "t": 5.754405
+        }
+      ]
+    },
+    "pre_signal": {
+      "checks": "passed",
+      "child_status": 1,
+      "elapsed": 2.8674637930016615,
+      "finished_snapshot": true,
+      "outcome_present": false,
+      "timeline": [
+        {
+          "event": "injected_pre_supervision_signal",
+          "handler": "<function child_main.<locals>.<lambda> at 0x7e5c9a3531a0>",
+          "pid": 25,
+          "t": 0.398183
+        },
+        {
+          "event": "outer_signal",
+          "manager": 25,
+          "pid": 24,
+          "signal": 15,
+          "t": 1.002422
+        },
+        {
+          "event": "trace",
+          "function": "stop",
+          "kind": "call",
+          "line": 213,
+          "pid": 25,
+          "t": 2.398339
+        },
+        {
+          "event": "snapshot_replaced",
+          "finished": true,
+          "pid": 25,
+          "t": 2.403775
+        },
+        {
+          "event": "trace",
+          "function": "stop",
+          "kind": "return",
+          "line": 218,
+          "pid": 25,
+          "t": 2.40387
+        },
+        {
+          "event": "snapshot_replaced",
+          "finished": true,
+          "pid": 25,
+          "t": 2.404201
+        },
+        {
+          "event": "outer_signal",
+          "manager": 25,
+          "pid": 24,
+          "signal": 9,
+          "t": 2.503351
+        },
+        {
+          "event": "manager_reaped",
+          "manager": 25,
+          "pid": 24,
+          "status": 1,
+          "t": 2.503473
+        },
+        {
+          "event": "trace",
+          "function": "stop",
+          "kind": "call",
+          "line": 412,
+          "pid": 24,
+          "t": 2.503504
+        },
+        {
+          "event": "trace",
+          "function": "stop",
+          "kind": "return",
+          "line": 417,
+          "pid": 24,
+          "t": 2.503552
+        }
+      ]
+    },
+    "snapshot_before": {
+      "checks": "passed",
+      "child_status": 130,
+      "elapsed": 6.1209610020014225,
+      "finished_snapshot": true,
+      "outcome_present": true,
+      "timeline": [
+        {
+          "event": "trace",
+          "function": "supervise",
+          "kind": "call",
+          "line": 1044,
+          "pid": 29,
+          "t": 0.42507
+        },
+        {
+          "event": "trace",
+          "function": "stop",
+          "kind": "call",
+          "line": 863,
+          "pid": 29,
+          "t": 1.52978
+        },
+        {
+          "event": "trace",
+          "function": "stop",
+          "kind": "return",
+          "line": 865,
+          "pid": 29,
+          "t": 1.529812
+        },
+        {
+          "cleanup_deadline": null,
+          "cleanup_started": null,
+          "event": "defer_call",
+          "pid": 29,
+          "t": 1.529829
+        },
+        {
+          "cleanup_deadline": 47046.030394015,
+          "cleanup_started": 47042.030394015,
+          "event": "cleanup_sweep",
+          "pid": 29,
+          "t": 1.531367
+        },
+        {
+          "cleanup_deadline": 47046.030394015,
+          "cleanup_started": 47042.030394015,
+          "event": "cleanup_sweep",
+          "pid": 29,
+          "t": 2.539621
+        },
+        {
+          "cleanup_deadline": 47046.030394015,
+          "cleanup_started": 47042.030394015,
+          "event": "cleanup_sweep",
+          "pid": 29,
+          "t": 3.548242
+        },
+        {
+          "event": "outer_signal",
+          "manager": 29,
+          "pid": 28,
+          "signal": 15,
+          "t": 4.503826
+        },
+        {
+          "event": "trace",
+          "function": "_handle",
+          "kind": "call",
+          "line": 294,
+          "mode": "defer",
+          "pid": 29,
+          "signal": 15,
+          "t": 4.503929
+        },
+        {
+          "event": "trace",
+          "function": "_handle",
+          "kind": "return",
+          "line": 298,
+          "mode": "defer",
+          "pid": 29,
+          "signal": 15,
+          "t": 4.503997
+        },
+        {
+          "cleanup_deadline": 47046.030394015,
+          "cleanup_started": 47042.030394015,
+          "event": "cleanup_sweep",
+          "pid": 29,
+          "t": 4.556915
+        },
+        {
+          "event": "trace",
+          "function": "supervise",
+          "kind": "return",
+          "line": 1064,
+          "pid": 29,
+          "t": 5.575348
+        },
+        {
+          "event": "trace",
+          "function": "stop",
+          "kind": "call",
+          "line": 213,
+          "pid": 29,
+          "t": 5.576111
+        },
+        {
+          "event": "snapshot_delay",
+          "pid": 29,
+          "seconds": 0.01,
+          "t": 5.580415
+        },
+        {
+          "event": "snapshot_replaced",
+          "finished": true,
+          "pid": 29,
+          "t": 5.590617
+        },
+        {
+          "event": "trace",
+          "function": "stop",
+          "kind": "return",
+          "line": 218,
+          "pid": 29,
+          "t": 5.59071
+        },
+        {
+          "event": "snapshot_delay",
+          "pid": 29,
+          "seconds": 0.01,
+          "t": 5.590856
+        },
+        {
+          "event": "snapshot_replaced",
+          "finished": true,
+          "pid": 29,
+          "t": 5.601165
+        },
+        {
+          "event": "outer_signal",
+          "manager": 29,
+          "pid": 28,
+          "signal": 9,
+          "t": 5.754613
+        },
+        {
+          "event": "manager_reaped",
+          "manager": 29,
+          "pid": 28,
+          "status": 130,
+          "t": 5.75476
+        },
+        {
+          "event": "trace",
+          "function": "stop",
+          "kind": "call",
+          "line": 412,
+          "pid": 28,
+          "t": 5.754792
+        },
+        {
+          "event": "trace",
+          "function": "stop",
+          "kind": "return",
+          "line": 417,
+          "pid": 28,
+          "t": 5.754861
+        }
+      ]
+    },
+    "unknown": {
+      "checks": "passed",
+      "child_status": 130,
+      "elapsed": 6.171162088001438,
+      "finished_snapshot": true,
+      "outcome_present": true,
+      "timeline": [
+        {
+          "event": "trace",
+          "function": "supervise",
+          "kind": "call",
+          "line": 1044,
+          "pid": 21,
+          "t": 0.429643
+        },
+        {
+          "event": "trace",
+          "function": "stop",
+          "kind": "call",
+          "line": 863,
+          "pid": 21,
+          "t": 1.533282
+        },
+        {
+          "event": "trace",
+          "function": "stop",
+          "kind": "return",
+          "line": 865,
+          "pid": 21,
+          "t": 1.533313
+        },
+        {
+          "cleanup_deadline": null,
+          "cleanup_started": null,
+          "event": "defer_call",
+          "pid": 21,
+          "t": 1.53333
+        },
+        {
+          "cleanup_deadline": 47036.982759609,
+          "cleanup_started": 47032.982759609,
+          "event": "cleanup_sweep",
+          "pid": 21,
+          "t": 1.538757
+        },
+        {
+          "cleanup_deadline": 47036.982759609,
+          "cleanup_started": 47032.982759609,
+          "event": "cleanup_sweep",
+          "pid": 21,
+          "t": 2.549532
+        },
+        {
+          "cleanup_deadline": 47036.982759609,
+          "cleanup_started": 47032.982759609,
+          "event": "cleanup_sweep",
+          "pid": 21,
+          "t": 3.560246
+        },
+        {
+          "event": "outer_signal",
+          "manager": 21,
+          "pid": 20,
+          "signal": 15,
+          "t": 3.753591
+        },
+        {
+          "event": "trace",
+          "function": "_handle",
+          "kind": "call",
+          "line": 294,
+          "mode": "defer",
+          "pid": 21,
+          "signal": 15,
+          "t": 3.753708
+        },
+        {
+          "event": "trace",
+          "function": "_handle",
+          "kind": "return",
+          "line": 298,
+          "mode": "defer",
+          "pid": 21,
+          "signal": 15,
+          "t": 3.75374
+        },
+        {
+          "cleanup_deadline": 47036.982759609,
+          "cleanup_started": 47032.982759609,
+          "event": "cleanup_sweep",
+          "pid": 21,
+          "t": 4.571011
+        },
+        {
+          "event": "trace",
+          "function": "supervise",
+          "kind": "return",
+          "line": 1064,
+          "pid": 21,
+          "t": 5.587834
+        },
+        {
+          "event": "trace",
+          "function": "stop",
+          "kind": "call",
+          "line": 213,
+          "pid": 21,
+          "t": 5.588706
+        },
+        {
+          "event": "snapshot_replaced",
+          "finished": true,
+          "pid": 21,
+          "t": 5.59585
+        },
+        {
+          "event": "trace",
+          "function": "stop",
+          "kind": "return",
+          "line": 218,
+          "pid": 21,
+          "t": 5.595939
+        },
+        {
+          "event": "snapshot_replaced",
+          "finished": true,
+          "pid": 21,
+          "t": 5.596185
+        },
+        {
+          "event": "outer_signal",
+          "manager": 21,
+          "pid": 20,
+          "signal": 9,
+          "t": 5.75391
+        },
+        {
+          "event": "manager_reaped",
+          "manager": 21,
+          "pid": 20,
+          "status": 130,
+          "t": 5.754077
+        },
+        {
+          "event": "trace",
+          "function": "stop",
+          "kind": "call",
+          "line": 412,
+          "pid": 20,
+          "t": 5.754118
+        },
+        {
+          "event": "trace",
+          "function": "stop",
+          "kind": "return",
+          "line": 417,
+          "pid": 20,
+          "t": 5.754184
+        }
+      ]
+    }
+  },
+  "comparisons": 5,
+  "measured_process_seconds": 40.35162770801253
+}

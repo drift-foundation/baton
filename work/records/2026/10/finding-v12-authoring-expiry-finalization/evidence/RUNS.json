@@ -1,0 +1,257 @@
+{
+  "claim338031_test_seconds": 0,
+  "cumulative_measured_process_seconds": 99.37475597100274,
+  "overhead": "unmeasured source preparation, hashing, read-only inspection and analysis",
+  "preparation_findings": [
+    "probe1 old submission schema rejected execution_limits",
+    "probe2 inherited Git profile attempted failed clone; no repository created",
+    "probe3 tmpfs workspace refused",
+    "comparisons1 exploratory phase controls adjusted for final timing margins",
+    "first analyzer expected uncertain faults list; corrected to typed observation and held settlement"
+  ],
+  "prior_claim337974": "unknown",
+  "runs": [
+    {
+      "cases": [
+        {
+          "case": "normal",
+          "code": 1,
+          "elapsed": 0.8643253469999763,
+          "outer_pid": 4
+        }
+      ],
+      "measured_process_seconds": 0.8643253469999763,
+      "summary": "evidence/preparation/probe1/summary.json"
+    },
+    {
+      "cases": [
+        {
+          "case": "normal",
+          "code": 1,
+          "elapsed": 6.169263560994295,
+          "outer_pid": 4
+        }
+      ],
+      "measured_process_seconds": 6.169263560994295,
+      "summary": "evidence/preparation/probe2/summary.json"
+    },
+    {
+      "cases": [
+        {
+          "case": "normal",
+          "code": 1,
+          "elapsed": 6.118801940996491,
+          "outer_pid": 4
+        }
+      ],
+      "measured_process_seconds": 6.118801940996491,
+      "summary": "evidence/preparation/probe3/summary.json"
+    },
+    {
+      "cases": [
+        {
+          "case": "normal",
+          "code": 1,
+          "elapsed": 6.118958300001395,
+          "outer_pid": 4
+        }
+      ],
+      "measured_process_seconds": 6.118958300001395,
+      "summary": "evidence/probe4/summary.json"
+    },
+    {
+      "cases": [
+        {
+          "case": "normal",
+          "code": 1,
+          "elapsed": 6.126726401002088,
+          "guard_reacquired": true,
+          "manager_pids_absent": [
+            5
+          ],
+          "managers_reaped": [
+            5
+          ],
+          "outer_pid": 4
+        },
+        {
+          "case": "blocked_sweep",
+          "code": 1,
+          "elapsed": 6.1223655010035145,
+          "guard_reacquired": true,
+          "manager_pids_absent": [
+            9
+          ],
+          "managers_reaped": [
+            9
+          ],
+          "outer_pid": 8
+        },
+        {
+          "case": "absent_cleanup",
+          "code": 1,
+          "elapsed": 6.122208788001444,
+          "guard_reacquired": true,
+          "manager_pids_absent": [
+            13
+          ],
+          "managers_reaped": [
+            13
+          ],
+          "outer_pid": 12
+        },
+        {
+          "case": "delayed_snapshot",
+          "code": 1,
+          "elapsed": 6.120916149993718,
+          "guard_reacquired": true,
+          "manager_pids_absent": [
+            17
+          ],
+          "managers_reaped": [
+            17
+          ],
+          "outer_pid": 16
+        },
+        {
+          "case": "unknown",
+          "code": 1,
+          "elapsed": 6.170984689000761,
+          "guard_reacquired": true,
+          "manager_pids_absent": [
+            21
+          ],
+          "managers_reaped": [
+            21
+          ],
+          "outer_pid": 20
+        },
+        {
+          "case": "pre_signal",
+          "code": 1,
+          "elapsed": 2.9174779419990955,
+          "guard_reacquired": true,
+          "manager_pids_absent": [
+            25
+          ],
+          "managers_reaped": [
+            25
+          ],
+          "outer_pid": 24
+        },
+        {
+          "case": "snapshot_before",
+          "code": 1,
+          "elapsed": 6.171099642997433,
+          "guard_reacquired": true,
+          "manager_pids_absent": [
+            29
+          ],
+          "managers_reaped": [
+            29
+          ],
+          "outer_pid": 28
+        }
+      ],
+      "measured_process_seconds": 39.751779113998055,
+      "summary": "evidence/comparisons1/summary.json"
+    },
+    {
+      "cases": [
+        {
+          "case": "normal",
+          "code": 1,
+          "elapsed": 6.126350985003228,
+          "guard_reacquired": true,
+          "manager_pids_absent": [
+            5
+          ],
+          "managers_reaped": [
+            5
+          ],
+          "outer_pid": 4
+        },
+        {
+          "case": "blocked_sweep",
+          "code": 1,
+          "elapsed": 6.122108070005197,
+          "guard_reacquired": true,
+          "manager_pids_absent": [
+            9
+          ],
+          "managers_reaped": [
+            9
+          ],
+          "outer_pid": 8
+        },
+        {
+          "case": "absent_cleanup",
+          "code": 1,
+          "elapsed": 6.122503847996995,
+          "guard_reacquired": true,
+          "manager_pids_absent": [
+            13
+          ],
+          "managers_reaped": [
+            13
+          ],
+          "outer_pid": 12
+        },
+        {
+          "case": "delayed_snapshot",
+          "code": 1,
+          "elapsed": 6.821077922002587,
+          "guard_reacquired": true,
+          "manager_pids_absent": [
+            17
+          ],
+          "managers_reaped": [
+            17
+          ],
+          "outer_pid": 16
+        },
+        {
+          "case": "unknown",
+          "code": 1,
+          "elapsed": 6.171162088001438,
+          "guard_reacquired": true,
+          "manager_pids_absent": [
+            21
+          ],
+          "managers_reaped": [
+            21
+          ],
+          "outer_pid": 20
+        },
+        {
+          "case": "pre_signal",
+          "code": 1,
+          "elapsed": 2.8674637930016615,
+          "guard_reacquired": true,
+          "manager_pids_absent": [
+            25
+          ],
+          "managers_reaped": [
+            25
+          ],
+          "outer_pid": 24
+        },
+        {
+          "case": "snapshot_before",
+          "code": 1,
+          "elapsed": 6.1209610020014225,
+          "guard_reacquired": true,
+          "manager_pids_absent": [
+            29
+          ],
+          "managers_reaped": [
+            29
+          ],
+          "outer_pid": 28
+        }
+      ],
+      "measured_process_seconds": 40.35162770801253,
+      "summary": "evidence/comparisons2/summary.json"
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+[
+  {
+    "case": "normal",
+    "outer_pid": 4,
+    "code": 1,
+    "elapsed": 6.126350985003228,
+    "managers_reaped": [
+      5
+    ],
+    "manager_pids_absent": [
+      5
+    ],
+    "guard_reacquired": true
+  },
+  {
+    "case": "blocked_sweep",
+    "outer_pid": 8,
+    "code": 1,
+    "elapsed": 6.122108070005197,
+    "managers_reaped": [
+      9
+    ],
+    "manager_pids_absent": [
+      9
+    ],
+    "guard_reacquired": true
+  },
+  {
+    "case": "absent_cleanup",
+    "outer_pid": 12,
+    "code": 1,
+    "elapsed": 6.122503847996995,
+    "managers_reaped": [
+      13
+    ],
+    "manager_pids_absent": [
+      13
+    ],
+    "guard_reacquired": true
+  },
+  {
+    "case": "delayed_snapshot",
+    "outer_pid": 16,
+    "code": 1,
+    "elapsed": 6.821077922002587,
+    "managers_reaped": [
+      17
+    ],
+    "manager_pids_absent": [
+      17
+    ],
+    "guard_reacquired": true
+  },
+  {
+    "case": "unknown",
+    "outer_pid": 20,
+    "code": 1,
+    "elapsed": 6.171162088001438,
+    "managers_reaped": [
+      21
+    ],
+    "manager_pids_absent": [
+      21
+    ],
+    "guard_reacquired": true
+  },
+  {
+    "case": "pre_signal",
+    "outer_pid": 24,
+    "code": 1,
+    "elapsed": 2.8674637930016615,
+    "managers_reaped": [
+      25
+    ],
+    "manager_pids_absent": [
+      25
+    ],
+    "guard_reacquired": true
+  },
+  {
+    "case": "snapshot_before",
+    "outer_pid": 28,
+    "code": 1,
+    "elapsed": 6.1209610020014225,
+    "managers_reaped": [
+      29
+    ],
+    "manager_pids_absent": [
+      29
+    ],
+    "guard_reacquired": true
+  }
+]

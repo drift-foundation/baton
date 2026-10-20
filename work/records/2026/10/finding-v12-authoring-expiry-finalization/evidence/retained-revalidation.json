@@ -1,0 +1,90 @@
+[
+  {
+    "entry": "controller.json",
+    "index": "review-337693",
+    "matches": true,
+    "sha256": "138262e1f66d6b37c81f0d7c579b601cf45beb036f10e7639559f35c9e0ba1f1",
+    "source": "/home/sl/baton-instances/serving-renewal-w333485-337440/packet/outcome.json.enforcement-92296-1792462527943919287.json"
+  },
+  {
+    "entry": "manager.json",
+    "index": "review-337693",
+    "matches": true,
+    "sha256": "5a57d30221c750488121e74b384b91de908a2a2c2a9c4ba97ba5bbba9a895c63",
+    "source": "/home/sl/baton-instances/serving-renewal-w333485-337440/packet/outcome.json.manager-92296-1792461572094362187.json"
+  },
+  {
+    "entry": "v12/python/src/baton_v12/job_manager/manager.py",
+    "index": "review-337693",
+    "matches": true,
+    "sha256": "a3160a5e0939054b772486d2bfb1bc949e2c5ca4644a643a3f117818d05982f2",
+    "source": "/home/sl/baton-instances/serving-renewal-w333485-337440/packet/workspaces/.baton-review-lines/line-1484de365720d1d27a16c140537c821e459955cb2748fccd42c5d616c0a4aed1/checkout/v12/python/src/baton_v12/job_manager/manager.py"
+  },
+  {
+    "entry": "v12/python/src/baton_v12/job_manager/renewal.py",
+    "index": "review-337693",
+    "matches": true,
+    "sha256": "b1a661c5cf97e0b54873743d56acfb12f068c9e088107396170631c4bb0a5926",
+    "source": "/home/sl/baton-instances/serving-renewal-w333485-337440/packet/workspaces/.baton-review-lines/line-1484de365720d1d27a16c140537c821e459955cb2748fccd42c5d616c0a4aed1/checkout/v12/python/src/baton_v12/job_manager/renewal.py"
+  },
+  {
+    "entry": "v12/python/tools/job_manager.py",
+    "index": "review-337693",
+    "matches": true,
+    "sha256": "73c1d041cf08e545225da0adc740e7c771f4ca2193ad10ad8a507e650fdbbd09",
+    "source": "/home/sl/baton-instances/serving-renewal-w333485-337440/packet/workspaces/.baton-review-lines/line-1484de365720d1d27a16c140537c821e459955cb2748fccd42c5d616c0a4aed1/checkout/v12/python/tools/job_manager.py"
+  },
+  {
+    "difference_seconds": 0.16399420999869108,
+    "expiry_plus_outer_cleanup_cutoff_from_envelope": 954.935,
+    "index": "review-337693",
+    "kind": "timing_comparison_not_stack_proof",
+    "measured_outer_seconds": 955.0989942099986,
+    "reserve": 60,
+    "tail": 12
+  },
+  {
+    "entry": "controller.json",
+    "index": "review-337905",
+    "matches": true,
+    "sha256": "6a731cfc730cca9925a44ebb91c2698421be42a2190d1716aa1cdca508efb7b0",
+    "source": "/home/sl/baton-instances/serving-renewal-w333485-337717/packet/outcome.json.enforcement-128845-1792464367193290082.json"
+  },
+  {
+    "entry": "manager.json",
+    "index": "review-337905",
+    "matches": true,
+    "sha256": "3fb7d8f0d1f39d9a1ce28afc211faf5d9ca56ec6d025b07c7414138f738903f3",
+    "source": "/home/sl/baton-instances/serving-renewal-w333485-337717/packet/outcome.json.manager-128845-1792463412337620190.json"
+  },
+  {
+    "entry": "v12/python/src/baton_v12/job_manager/manager.py",
+    "index": "review-337905",
+    "matches": true,
+    "sha256": "a3160a5e0939054b772486d2bfb1bc949e2c5ca4644a643a3f117818d05982f2",
+    "source": "/home/sl/baton-instances/serving-renewal-w333485-337717/packet/workspaces/.baton-review-lines/line-d87df74e807f62485a0bd7985c5fe6951025f40ebe362d1981152f4cd54347b6/checkout/v12/python/src/baton_v12/job_manager/manager.py"
+  },
+  {
+    "entry": "v12/python/src/baton_v12/job_manager/renewal.py",
+    "index": "review-337905",
+    "matches": true,
+    "sha256": "8ec602a1c89068f459a60d6ef86e1d3f19badffb2ac9d1031a14f485fe16a1d9",
+    "source": "/home/sl/baton-instances/serving-renewal-w333485-337717/packet/workspaces/.baton-review-lines/line-d87df74e807f62485a0bd7985c5fe6951025f40ebe362d1981152f4cd54347b6/checkout/v12/python/src/baton_v12/job_manager/renewal.py"
+  },
+  {
+    "entry": "v12/python/tools/job_manager.py",
+    "index": "review-337905",
+    "matches": true,
+    "sha256": "73c1d041cf08e545225da0adc740e7c771f4ca2193ad10ad8a507e650fdbbd09",
+    "source": "/home/sl/baton-instances/serving-renewal-w333485-337717/packet/workspaces/.baton-review-lines/line-d87df74e807f62485a0bd7985c5fe6951025f40ebe362d1981152f4cd54347b6/checkout/v12/python/tools/job_manager.py"
+  },
+  {
+    "difference_seconds": -0.012967815998877086,
+    "expiry_plus_outer_cleanup_cutoff_from_envelope": 954.118,
+    "index": "review-337905",
+    "kind": "timing_comparison_not_stack_proof",
+    "measured_outer_seconds": 954.1050321840012,
+    "reserve": 60,
+    "tail": 12
+  }
+]

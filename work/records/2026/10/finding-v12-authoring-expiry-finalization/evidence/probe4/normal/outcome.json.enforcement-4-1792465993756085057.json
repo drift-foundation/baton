@@ -1,0 +1,114 @@
+{
+  "author_invocation_started": true,
+  "authoring_log": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/probe4/normal/outcome.json.authoring.log",
+  "child_exited": true,
+  "child_started": true,
+  "child_status": -9,
+  "elapsed_seconds": 5.005032099004893,
+  "enforcement": {
+    "attempts": {
+      "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {
+        "faults": [],
+        "observation": {
+          "runtime_id": "runtime-single-1",
+          "state": "absent",
+          "why": "the engine answered 'Error: No such container: runtime-single-1'"
+        },
+        "runtime": {
+          "assignment": {
+            "generation": 1,
+            "participant": "baton.claude",
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W1"
+            }
+          },
+          "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "cleanup": "pending",
+          "execution_runtime": "destroyed",
+          "runtime_id": "runtime-single-1"
+        },
+        "token": {
+          "acquired_at": "2026-10-20T03:13:09.497Z",
+          "acquired_expires_at": "2026-10-20T03:13:11.497Z",
+          "activating": false,
+          "activation_started": true,
+          "attempt": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "container": "runtime-single-1",
+          "domain": "workspace:66306:55745190",
+          "execution": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "expired": true,
+          "expires_at": "2026-10-20T03:13:11.497Z",
+          "expiry_judged_at": null,
+          "generation": 1,
+          "launch": "runtime.start:50f34424d07465b28176ecba7eb295be455a6a6763fffd0f3402ffb12aeb823b",
+          "operation": "runtime.start:50f34424d07465b28176ecba7eb295be455a6a6763fffd0f3402ffb12aeb823b",
+          "owner": "3a4228771ad1335ea9f69ce4243c775b386458a81b54ee22d576fdc827dc6cbd",
+          "renewals": 0,
+          "renewals_remaining": 4,
+          "renewed_at": null,
+          "returned": true,
+          "revision": 0,
+          "revoked": true,
+          "seconds": 2,
+          "timing_ambiguous": false,
+          "timing_decided_at": null,
+          "timing_observed_at": null,
+          "version": 1
+        }
+      }
+    },
+    "faults": [
+      "manager terminated without final enforcement report; cessation unresolved"
+    ],
+    "state": "held"
+  },
+  "enforcement_path": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/probe4/normal/outcome.json.enforcement-4-1792465993756085057.json",
+  "faults": [],
+  "manager_report_path": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/probe4/normal/outcome.json.manager-4-1792465988000041865.json",
+  "operator_signals": [],
+  "original_envelope": {
+    "authority": "0000000a000000000000000000000000",
+    "job": "job-a",
+    "packet": {
+      "bounds": {
+        "cleanup_seconds": 4,
+        "implementer_invocations": 1,
+        "retry": false,
+        "total_seconds": 8,
+        "turn_seconds": 20
+      },
+      "claim": 338073,
+      "code_boundary": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/probe4/normal/checkout",
+      "context": {
+        "mode": "fresh"
+      },
+      "deployment": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "config_path": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/probe4/normal/config.json",
+        "control_store": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/probe4/normal/control.sqlite3",
+        "job_store": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/probe4/normal/jobs.sqlite3"
+      },
+      "diagnostic_mode": "normal",
+      "manager_source": {
+        "files": {
+          "tools/authoring_enforcement.py": "bc8c0363e44fedeae09c15a9065733227f08e279164ed68dc4b0e9e058a7c50f"
+        },
+        "path": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/probe4/source/v12/python"
+      },
+      "outcome_path": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/probe4/normal/outcome.json",
+      "run_id": "diagnostic-normal",
+      "schema": "baton.single-implementation-packet/2",
+      "submission": {
+        "job_id": "job-a",
+        "path": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/probe4/normal/submission.json"
+      },
+      "work": "W337955"
+    },
+    "run": "diagnostic-normal",
+    "started_at": "2026-10-20T03:13:08.398Z",
+    "stop_at": "2026-10-20T03:13:12.398000+00:00"
+  },
+  "recovery_only": false,
+  "state": "held"
+}

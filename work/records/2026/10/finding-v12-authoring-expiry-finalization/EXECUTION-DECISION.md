@@ -1,0 +1,15 @@
+# W337955 concrete diagnostic execution decision
+
+Status: PROPOSED ONLY; no execution selected. Owner337938 authorizes assessment/preparation, excludes product implementation/live invocation/recovery/rerun/integration. AGENTS.md lines586–604 require isolated v12 executable work; v11 routing and a disposable directory do not supply an exception.
+
+Recommended owner choice: explicitly allow a temporary direct deterministic diagnostic exception for W337955 only, including independent reproduction, ending at independent diagnostic acceptance. This is NEW authority if approved, never revival of W333735/W334910 exceptions. Alternate: select a supported non-live isolated v12 diagnostic Job vehicle with exact adapter/image/inputs/limits and independently review that packet before execution. No such exact vehicle is currently established in this dossier; do not invent availability or require a live model merely for diagnostics.
+
+Proposed direct exception boundaries:
+
+- Exact committed input base fb48797903160aa764229d58f3a5beaf29648bfc; controller SHA256bc8c0363e44fedeae09c15a9065733227f08e279164ed68dc4b0e9e058a7c50f and historical baseline SHA256c1b0a10e609503df0ba7ebdc7455cc8518c9175882edd185b65f20c342c4bd2f. Source copied read-only into fresh disposable diagnostic workspace; only dossier fixture scripts/evidence and disposable writable test stores may change.
+- Real local controller/manager processes, manager guard, baseline Termination and enforcement thread; fake provider/engine at normal boundaries. No Docker/provider operations, credentials/transcripts, production stores, original retained instances or source edits. No integration or Git mutation.
+- Five finite comparisons: normal completion; expiry during blocked sweep; exact writer absent while baseline cleanup remains blocked; delayed final snapshot around kill boundary; unknown cessation. Include pre-supervision, serving and deferred-cleanup signal phases. Inject short timing; never replay900 wall seconds. Suggested per-case timeout30s plus5s kill/reap allowance; stop on failed cleanup and report exact remaining fixture PID. These are prospective experiment bounds, not a new cumulative development gate.
+- Record actual monotonic phase events, PID, signal installation/delivery, serve exit, cleanup entry/exit, guard shutdown/finished, snapshot replacement and outer terminate/kill/reap. Preserve exact failure output and durations. Confirm fixture processes reaped. No simulated state is live physical-cessation proof.
+- Deliver a hash-bound reproducible diagnosis and smallest justified correction recommendation, not a product patch. Independent reviewer repeats focused cases. If accepted, close diagnostic outcome; any product correction requires its own scope/execution selection and graph disposition before renewed authoring.
+
+Owner can approve the above exact diagnostic-only exception or select the alternate v12 vehicle. Until then continue static preparation only. Parent W333485 remains gated; no third authoring run follows automatically.
