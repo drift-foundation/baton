@@ -1,8 +1,9 @@
 """Independent enforcement lane for the one-invocation authoring supervisor.
 
-The lane owns its own connections and cancellation adapter. It never dispatches
-work. A scheduler blocked in filesystem/provider/engine work cannot block this
-lane. Engine availability is an assumption for physical cessation, never a fact
+The lane owns its own connections and cancellation adapter in the manager
+process. It never dispatches work. Authoring and enforcement use independent
+threads under the same workspace manager guard; an outer watchdog bounds their
+process lifetime. Blocking I/O in the author does not block the enforcement lane. Engine availability is an assumption for physical cessation, never a fact
 inferred from the timer. Restart is cancellation-only, not a fresh budget.
 """
 from contextlib import ExitStack
@@ -156,10 +157,13 @@ class Lane:
 
 class Guard:
     """Own a separate enforcement thread; no connection crosses threads."""
-    def __init__(self, packet, *, factory=None, clock=utc, lock_fd=None):
+    def __init__(self, packet, *, factory=None, clock=utc, lock_fd=None, publish=None, prepare=None):
         self.packet, self.factory, self.clock = packet, factory, clock
+        self.publish = publish or (lambda guard: None)
+        self.prepare = prepare
         self.lock_fd = None if lock_fd is None else os.dup(lock_fd)
         self.recovery = False
+        self.author_invocation_started = False
         self.envelope = None
         self.stopping = threading.Event()
         self.ready, self.finished, self.shutdown = threading.Event(), threading.Event(), threading.Event()
@@ -174,15 +178,19 @@ class Guard:
                 job = stack.enter_context(JobStore.open(dep['job_store'], authority_uuid=dep['authority_uuid'], incarnation=self.packet['run_id'] + '-enforcement', clock=self.clock))
                 with open(dep['config_path'], encoding='utf-8') as handle:
                     config = json.load(handle)
+                if self.prepare is not None:
+                    self.prepare(control, self.packet)
                 operations = (self.factory or stage_execution.operations_from)(config, job, control, engine_run=bounded_engine, checkout=self.packet['code_boundary'])
                 stack.callback(operations.close)
                 lane = Lane(control, job, operations, self.packet, clock=self.clock, stopping=self.stopping)
                 self.envelope = lane.held
                 self.recovery = lane.recovery
                 self.report = lane.tick()
+                self.publish(self)
                 self.ready.set()
                 while not self.shutdown.wait(POLL_SECONDS):
                     self.report = lane.tick()
+                    self.publish(self)
                 self.report = lane.tick()
         except Exception as fault:
             self.stopping.set()
@@ -192,6 +200,7 @@ class Guard:
                 os.close(self.lock_fd)
             self.ready.set()
             self.finished.set()
+            self.publish(self)
 
     def start(self):
         self.thread.start()
@@ -246,23 +255,23 @@ def child_compose(packet, job, control, stream):
     return Operations(operations, control, packet['run_id'])
 
 
-def supervise_process(packet, guard, launch, *, clock=time.monotonic, sleep=time.sleep):
+def supervise_process(packet, guard, launch, *, clock=time.monotonic, sleep=time.sleep, owned_child=None):
     """The outer deadline never calls the authoring sweep or cancellation engine.
 
     `launch` supplies one owned process with poll/terminate/kill/wait. Process
     exit is not runtime cessation. Recovery gets cleanup time, no new authoring.
     """
     started = clock()
-    child = None
-    report = {'state': 'held', 'child_started': False, 'child_exited': False, 'faults': []}
+    child = owned_child
+    report = {'state': 'held', 'child_started': owned_child is not None, 'child_exited': False, 'faults': []}
     reserve = packet['bounds']['cleanup_seconds']
     total = max(0, (instant(guard.envelope['stop_at']) - instant(guard.clock())).total_seconds()) + reserve
     deadline = started + total
     try:
-        if not guard.recovery and not guard.stopping.is_set():
+        if owned_child is None and not guard.recovery and not guard.stopping.is_set():
             child = launch()
             report['child_started'] = True
-        else:
+        elif guard.recovery:
             guard.stopping.set()
             deadline = started + reserve
         terminating = False
@@ -360,9 +369,69 @@ def admit_child(control, packet, parent, pid):
     return control.transact(identity, 'authoring.child', manager_signature('authoring.child', operands), lambda connection: operands)
 
 
-def child_main(packet_path, parent, lock_fd):
-    # Linux is the selected OCI host. The inherited flock also prevents a new
-    # controller while this child remains alive following parent loss.
+def publish_guard(path, guard):
+    value = {'envelope': guard.envelope, 'recovery': guard.recovery,
+             'stopping': guard.stopping.is_set(), 'finished': guard.finished.is_set(),
+             'author_invocation_started': guard.author_invocation_started,
+             'report': guard.report}
+    target = Path(path)
+    temporary = target.with_suffix('.tmp')
+    temporary.write_text(json.dumps(value, sort_keys=True))
+    os.replace(temporary, target)
+
+
+class RemoteGuard:
+    """The outer watchdog observes; only the manager process composes owners.
+
+    Snapshots are observations, never cessation or permission grants. A missing
+    final snapshot is held. The workspace guard stays close-on-exec in the
+    manager process; no guard descriptor or store handle crosses this boundary.
+    """
+    def __init__(self, path, packet):
+        self.path, self.packet, self.clock = Path(path), packet, utc
+        self.envelope = None
+        self.recovery = False
+        self.author_invocation_started = False
+        self.report = {'state': 'held', 'attempts': {}, 'faults': ['manager has not reported']}
+        self.stopping, self.finished = threading.Event(), threading.Event()
+
+    def refresh(self):
+        try:
+            value = json.loads(self.path.read_text())
+        except FileNotFoundError:
+            return
+        self.envelope = value['envelope']
+        self.recovery = value['recovery']
+        self.author_invocation_started = value['author_invocation_started']
+        self.report = value['report']
+        if value['stopping']:
+            self.stopping.set()
+        if value['finished']:
+            self.finished.set()
+
+    def stop(self, *, timeout=0):
+        del timeout
+        self.refresh()
+        if not self.finished.is_set():
+            return dict(self.report, state='held', faults=[*self.report.get('faults', []), 'manager terminated without final enforcement report; cessation unresolved'])
+        return self.report
+
+
+def prepare_manager(control, packet):
+    # Preserve the historical fresh/reuse preparation order, but acquire the
+    # real manager guard before configuration or qualification writes. This
+    # process retains it; neither the outer watchdog nor execed tools do.
+    import baseline
+    from baton_v12.worker_manager import workspaces
+    workspaces.hold_manager_instance(control, baseline._workspace_root(packet))
+    baseline.prepare(control, packet)
+
+
+def child_main(packet_path, parent, lock_fd, status_path):
+    # One manager process, two independent threads/connections. Both real
+    # compositions acquire the SAME process-local workspace guard. The outer
+    # process never composes a second manager. Descendants inherit no workspace
+    # guard; the existing close-on-exec and at-fork exclusion rules are unchanged.
     import ctypes
     import baseline
     libc = ctypes.CDLL(None, use_errno=True)
@@ -372,11 +441,27 @@ def child_main(packet_path, parent, lock_fd):
     verify_controller(packet)
     if lock_fd is None or os.fstat(lock_fd).st_ino != os.stat(packet['deployment']['control_store'] + '.authoring.lock').st_ino:
         raise RuntimeError('authoring child lacks its inherited controller lock')
-    with ControlStore.open(packet['deployment']['control_store'], incarnation='authoring-child-admission', clock=utc) as control:
-        if control.operation_record(KIND + ':' + packet['run_id']) is None:
-            raise RuntimeError('no committed authoring controller envelope')
-        admit_child(control, packet, parent, os.getpid())
-    return baseline.main(['--packet', packet_path, '--incarnation', 'authoring-child-' + str(os.getpid())], compose=child_compose)
+    guard = Guard(packet, lock_fd=lock_fd, publish=lambda held: publish_guard(status_path, held), prepare=prepare_manager)
+    previous = {number: signal.signal(number, lambda number, frame: guard.stopping.set()) for number in (signal.SIGTERM, signal.SIGINT)}
+    try:
+        guard.start()
+        if guard.recovery or guard.stopping.is_set():
+            # Recovery never enters baseline.main, surveys/submits or admits an
+            # author invocation. Keep enforcement available for its cleanup slice.
+            guard.stopping.set()
+            guard.finished.wait(packet['bounds']['cleanup_seconds'] / 2)
+            return 1
+        with ControlStore.open(packet['deployment']['control_store'], incarnation='authoring-child-admission', clock=utc) as control:
+            admit_child(control, packet, parent, os.getpid())
+        guard.author_invocation_started = True
+        return baseline.main(['--packet', packet_path, '--incarnation', 'authoring-child-' + str(os.getpid())], compose=child_compose)
+    finally:
+        guard.stopping.set()
+        guard.report = guard.stop(timeout=packet['bounds']['cleanup_seconds'] / 2)
+        if not guard.thread.is_alive():
+            publish_guard(status_path, guard)
+        for number, handler in previous.items():
+            signal.signal(number, handler)
 
 
 def main(argv=None):
@@ -388,9 +473,10 @@ def main(argv=None):
     parser.add_argument('--packet', required=True)
     parser.add_argument('--child-of', type=int)
     parser.add_argument('--lock-fd', type=int)
+    parser.add_argument('--status-path')
     args = parser.parse_args(argv)
     if args.child_of is not None:
-        return child_main(args.packet, args.child_of, args.lock_fd)
+        return child_main(args.packet, args.child_of, args.lock_fd, args.status_path)
     packet = baseline.held_packet(args.packet)
     baseline.verify_imported_sources(packet)
     verify_controller(packet)
@@ -403,10 +489,9 @@ def main(argv=None):
                 existing = control.operation_record(KIND + ':' + packet['run_id'])
         if existing is None:
             baseline.verify_worker_image(packet, image_inspect=baseline._engine_inspect)
-        with ControlStore.open(packet['deployment']['control_store'], incarnation='authoring-prepare', clock=utc) as control:
-            baseline.prepare(control, packet)
-        guard = Guard(packet, lock_fd=lock.fileno()).start()
         output_path = packet['outcome_path'] + '.authoring.log'
+        status_path = packet['outcome_path'] + f'.manager-{os.getpid()}-{time.time_ns()}.json'
+        guard = RemoteGuard(status_path, packet)
         received = []
         def stop(number, frame):
             del frame
@@ -415,8 +500,30 @@ def main(argv=None):
         previous = {number: signal.signal(number, stop) for number in (signal.SIGTERM, signal.SIGINT)}
         try:
             with open(output_path, 'ab', buffering=0) as output:
-                report = supervise_process(packet, guard, lambda: Process(
-                    [sys.executable, '-m', 'tools.authoring_enforcement', '--packet', args.packet, '--child-of', str(os.getpid()), '--lock-fd', str(lock.fileno())], output=output, lock_fd=lock.fileno()))
+                child = Process([sys.executable, '-m', 'tools.authoring_enforcement', '--packet', args.packet,
+                                 '--child-of', str(os.getpid()), '--lock-fd', str(lock.fileno()),
+                                 '--status-path', status_path], output=output, lock_fd=lock.fileno())
+                try:
+                    startup = time.monotonic() + 30
+                    while guard.envelope is None and child.poll() is None and time.monotonic() < startup and not guard.stopping.is_set():
+                        guard.refresh()
+                        time.sleep(POLL_SECONDS)
+                    if guard.envelope is None:
+                        raise RuntimeError('manager did not establish its enforcement envelope')
+                    def observe_sleep(seconds):
+                        time.sleep(seconds)
+                        guard.refresh()
+                    report = supervise_process(packet, guard, lambda: child, sleep=observe_sleep, owned_child=child)
+                except BaseException as fault:
+                    report = {'state': 'held', 'child_started': True, 'child_exited': False,
+                              'faults': [type(fault).__name__ + ': ' + str(fault)]}
+                    try:
+                        child.kill()
+                        report['child_status'] = child.wait(timeout=2)
+                        report['child_exited'] = True
+                    except Exception as cleanup_fault:
+                        report['faults'].append('manager process cessation unknown: ' + str(cleanup_fault))
+                    report['enforcement'] = guard.stop()
         finally:
             for number, handler in previous.items():
                 signal.signal(number, handler)
@@ -424,6 +531,8 @@ def main(argv=None):
         if received:
             report['state'] = 'held'
         report['authoring_log'] = output_path
+        report['manager_report_path'] = status_path
+        report['author_invocation_started'] = guard.author_invocation_started
         report['original_envelope'] = guard.envelope
         report['recovery_only'] = guard.recovery
         result = Path(packet['outcome_path'] + f'.enforcement-{os.getpid()}-{time.time_ns()}.json')
