@@ -1042,7 +1042,7 @@ def _turn_ceiling(limits, packet):
 
 
 def supervise(job, control, operations, packet, *, clock=None, sleep=None,
-              monotonic=None, inspect=None, surveyed=None):
+              monotonic=None, inspect=None, surveyed=None, shutdown=None):
     """One bounded implementation, with the termination handler held throughout.
 
     THE HANDLER IS INSTALLED HERE AND RESTORED HERE, around everything. The
@@ -1059,13 +1059,13 @@ def supervise(job, control, operations, packet, *, clock=None, sleep=None,
         return _supervise(job, control, operations, packet, clock=clock,
                           sleep=sleep, monotonic=monotonic,
                           termination=termination, inspect=inspect,
-                          surveyed=surveyed)
+                          surveyed=surveyed, shutdown=shutdown)
     finally:
         termination.restore()
 
 
 def _supervise(job, control, operations, packet, *, clock, sleep, monotonic,
-               termination=None, inspect=None, surveyed=None):
+               termination=None, inspect=None, surveyed=None, shutdown=None):
     """One Job, one implementation, bounded -- then a real stop, then accounting.
 
     THE PHASES ARE SEPARATE ON PURPOSE. Submission is not serving; serving is
@@ -1077,6 +1077,13 @@ def _supervise(job, control, operations, packet, *, clock, sleep, monotonic,
     sleep = time.sleep if sleep is None else sleep
     monotonic = time.monotonic if monotonic is None else monotonic
     from baton_v12.job_manager import read_submission, serve, submit, sweep
+
+    phase = "cleanup"
+    def bounded_call(step, thunk):
+        return thunk() if shutdown is None else shutdown.call(phase, step, thunk)
+
+    def guarded(thunk, default, **kwargs):
+        return _guarded(lambda: bounded_call(kwargs["what"], thunk), default, **kwargs)
 
     bounds = packet["bounds"]
     job_id = packet["submission"]["job_id"]
@@ -1228,6 +1235,8 @@ def _supervise(job, control, operations, packet, *, clock, sleep, monotonic,
     # the run to stop while it happens is recorded and answered after the
     # outcome is retained, rather than abandoning it half done.
     termination.defer()
+    if shutdown is not None:
+        shutdown.begin()
     measured["stopped"] = held["stop"] or "stopped-without-a-reason"
     measured["serving_failure"] = serving_failure
     measured["admissions"] = dict(gate.admissions)
@@ -1238,7 +1247,7 @@ def _supervise(job, control, operations, packet, *, clock, sleep, monotonic,
     measured["foreign_admissions"] = list(gate.foreign)
     measured["served_seconds"] = monotonic() - started
     admitted = dict(gate.launched)
-    refreshed, states, _limits, _read = _guarded(
+    refreshed, states, _limits, _read = guarded(
         lambda: _refresh(job, gate, job_id, uncertainty,
                          "after the serving loop"),
         ({}, {}, None, False), what="the post-stop canonical read",
@@ -1255,7 +1264,7 @@ def _supervise(job, control, operations, packet, *, clock, sleep, monotonic,
     # started it -- fence at the Authority, then order the quiescence -- so
     # this asks for it through a named capability and reports honestly when the
     # composition offers none, rather than reporting a leak as a clean stop.
-    measured["cancellation"] = _guarded(
+    measured["cancellation"] = guarded(
         lambda: _cancel_active(operations, control, packet, admitted,
                                held["states"], uncertainty,
                                reason=measured["stopped"],
@@ -1272,7 +1281,7 @@ def _supervise(job, control, operations, packet, *, clock, sleep, monotonic,
         for attempt in sorted(admitted):
             if attempt in origins:
                 continue
-            origins[attempt] = _guarded(
+            origins[attempt] = guarded(
                 lambda one=attempt: _origin(control, one, set(gate.launched),
                                             uncertainty)[0],
                 FOREIGN, what=f"the origin of {attempt}",
@@ -1293,11 +1302,13 @@ def _supervise(job, control, operations, packet, *, clock, sleep, monotonic,
     cleanup_deadline = cleanup_started + bounds["cleanup_seconds"]
     if fresh:
         cleanup_deadline = min(cleanup_deadline, started + bounds["total_seconds"])
+    if shutdown is not None:
+        cleanup_deadline = min(cleanup_deadline, shutdown.until("cleanup"))
     while monotonic() < cleanup_deadline:
-        if not _cleanups(control, packet, accountable)["outstanding"]:
+        if not guarded(lambda: _cleanups(control, packet, accountable), {"outstanding": list(accountable)}, what="pending cleanup", uncertainty=uncertainty, interrupted=caught)["outstanding"]:
             break
         try:
-            sweep(job, gate, now=clock())
+            bounded_call("cleanup sweep", lambda: sweep(job, gate, now=clock()))
             sweeps += 1
         except BaseException as failure:                     # noqa: BLE001
             # ALSO A SECOND INTERRUPT. An operator pressing Ctrl-C again
@@ -1310,7 +1321,7 @@ def _supervise(job, control, operations, packet, *, clock, sleep, monotonic,
                 f"cleanup sweep: {type(failure).__name__}: {failure}"
             break
         finally:
-            fresh, states, _limits, _read = _guarded(
+            fresh, states, _limits, _read = guarded(
                 lambda: _refresh(job, gate, job_id, uncertainty,
                                  "during the cleanup window"),
                 ({}, {}, None, False), what="a cleanup-window canonical read",
@@ -1324,7 +1335,7 @@ def _supervise(job, control, operations, packet, *, clock, sleep, monotonic,
                     admitted[attempt] = kind
             accountable = classify()
         try:
-            sleep(1)
+            sleep(min(1, max(0, cleanup_deadline - monotonic())))
         except BaseException as failure:                     # noqa: BLE001
             if not isinstance(failure, Exception):
                 interrupted = interrupted or \
@@ -1333,6 +1344,8 @@ def _supervise(job, control, operations, packet, *, clock, sleep, monotonic,
                 f"the cleanup window ended early: "
                 f"{type(failure).__name__}: {failure}")
             break
+    phase = "accounting"
+    measured["serving_failure"] = serving_failure
     measured["cleanup_sweeps"] = sweeps
     # AND WHY IT STOPPED MOVING, when that is why it stopped. An operator
     # reading `no-progress` is owed the number of unchanged ticks it rests on.
@@ -1343,7 +1356,7 @@ def _supervise(job, control, operations, packet, *, clock, sleep, monotonic,
     # THE FINAL CANONICAL READ IS A PRECONDITION OF SUCCESS, not a courtesy.
     # Without it the accounting rests on this process's own launch record,
     # which cannot answer whether the store holds anything else.
-    final, states, _limits, final_read = _guarded(
+    final, states, _limits, final_read = guarded(
         lambda: _refresh(job, gate, job_id, uncertainty,
                          "for the final accounting"),
         ({}, {}, None, False), what="the final canonical read",
@@ -1371,7 +1384,7 @@ def _supervise(job, control, operations, packet, *, clock, sleep, monotonic,
     measured["attempt_origins"] = origins
     measured["unallocated_attempts"] = sorted(
         one for one, origin in origins.items() if origin == UNALLOCATED)
-    accounting = _guarded(
+    accounting = guarded(
         lambda: _cleanups(control, packet, accountable),
         {"cleanup": {}, "outstanding": sorted(accountable)},
         what="the cleanup accounting", uncertainty=uncertainty,
@@ -1380,7 +1393,7 @@ def _supervise(job, control, operations, packet, *, clock, sleep, monotonic,
     measured["outstanding_cleanup"] = accounting["outstanding"]
 
     # -- 7. THE WORKLOAD THIS RUN ACTUALLY PRODUCED ------------------------
-    workload = _guarded(
+    workload = guarded(
         lambda: _workload_evidence(job, control, packet, accountable,
                                    held["kinds"], inspect=inspect),
         {"shortfalls": ["the workload evidence could not be read"]},
@@ -1444,7 +1457,8 @@ def _supervise(job, control, operations, packet, *, clock, sleep, monotonic,
                "held_because": reasons,
                "retry": False, "finished_at": clock(),
                "uncertainty": uncertainty, **measured}
-    _publish(packet["outcome_path"], outcome)
+    phase = "workload-publication"
+    bounded_call("workload publication", lambda: _publish(packet["outcome_path"], outcome))
     if interrupted is not None:
         # THE OUTCOME IS ON DISK AND THE INTERRUPT IS NOT SWALLOWED. An
         # operator who pressed Ctrl-C is owed both.
@@ -2775,7 +2789,12 @@ def _compose(packet, job, control, stream):
                                            checkout=packet["code_boundary"])
 
 
-def main(argv=None, *, stream=None, compose=None, image_inspect=None):
+def main(argv=None, *, stream=None, compose=None, image_inspect=None, shutdown=None):
+    def say(*args, **kwargs):
+        if shutdown is None or shutdown.deadline is None:
+            return print(*args, **kwargs)
+        return shutdown.call("guard-stop", "workload reporting", lambda: print(*args, **kwargs))
+
     stream = sys.stderr if stream is None else stream
     parser = argparse.ArgumentParser(
         prog="baseline",
@@ -2796,7 +2815,7 @@ def main(argv=None, *, stream=None, compose=None, image_inspect=None):
             image_inspect=_engine_inspect if image_inspect is None
             else image_inspect)
     except SupervisorRefusal as refusal:
-        print(f"refused before anything opened: {refusal}", file=stream)
+        say(f"refused before anything opened: {refusal}", file=stream)
         return 2
 
     from baton_v12.job_manager import JobStore
@@ -2819,10 +2838,10 @@ def main(argv=None, *, stream=None, compose=None, image_inspect=None):
         try:
             surveyed = survey(job, packet)
         except SupervisorRefusal as refusal:
-            print(f"refused before any owner act: {refusal}", file=stream)
+            say(f"refused before any owner act: {refusal}", file=stream)
             return 2
         if surveyed["preexisting_jobs"]:
-            print(f"this Job store also holds "
+            say(f"this Job store also holds "
                   f"{', '.join(surveyed['preexisting_jobs'])}; "
                   f"{surveyed['accounting_scope']}", file=stream, flush=True)
         with ControlStore.open(deployment["control_store"],
@@ -2832,7 +2851,7 @@ def main(argv=None, *, stream=None, compose=None, image_inspect=None):
             operations = (compose or _compose)(packet, job, control, stream)
             try:
                 outcome = supervise(job, control, operations, packet,
-                                    surveyed=surveyed)
+                                    surveyed=surveyed, shutdown=shutdown)
             except SupervisorInterrupted as stopped:
                 # THE OUTCOME IS ALREADY ON DISK; WHAT WAS MISSING WAS SAYING
                 # SO. W239528, owner pass 243171: an operator pressed Ctrl-C
@@ -2846,23 +2865,26 @@ def main(argv=None, *, stream=None, compose=None, image_inspect=None):
                 # success: the exit status is the interrupted one and the
                 # report says the run did not finish.
                 interrupted = stopped.outcome
-                print(f"interrupted: {stopped}", file=stream)
-                print(f"the outcome WAS retained at "
+                say(f"interrupted: {stopped}", file=stream)
+                say(f"the outcome WAS retained at "
                       f"{packet['outcome_path']}", file=stream)
-                print(f"state {interrupted['state']!r}, stopped "
+                say(f"state {interrupted['state']!r}, stopped "
                       f"{interrupted['stopped']!r}; "
                       f"{len(interrupted.get('held_because') or [])} "
                       f"held reason(s)", file=stream)
-                print(json.dumps(interrupted, indent=2, sort_keys=True),
+                say(json.dumps(interrupted, indent=2, sort_keys=True),
                       file=stream)
                 return 130
             finally:
                 closing = getattr(operations, "close", None)
                 if closing is not None:
-                    closing()
-    print(json.dumps(outcome, indent=2, sort_keys=True), file=stream)
+                    if shutdown is None:
+                        closing()
+                    else:
+                        shutdown.call("guard-stop", "operations close", closing)
+    say(json.dumps(outcome, indent=2, sort_keys=True), file=stream)
     if outcome["state"] != "settled":
-        print(f"held: the outcome is retained at {packet['outcome_path']}",
+        say(f"held: the outcome is retained at {packet['outcome_path']}",
               file=stream)
     return 0 if outcome["state"] == "settled" else 1
 

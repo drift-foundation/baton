@@ -197,7 +197,7 @@ def fixture_main():
                 print('competitor refused'); return 0
         raise AssertionError('independent manager admitted')
 
-    def workload(argv, *, compose):
+    def workload(argv, *, compose, shutdown=None):
         from baton_v12.job_manager import submit, reconcile
         with JobStore.open(value['deployment']['job_store'], authority_uuid=value['deployment']['authority_uuid'], incarnation='author', clock=e.utc) as job, ControlStore.open(value['deployment']['control_store'], incarnation='author', clock=e.utc) as control:
             operations = compose(value, job, control, sys.stderr)

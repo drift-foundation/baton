@@ -23,6 +23,7 @@ from baton_v12.job_manager import JobStore
 from baton_v12.job_manager.submission import stages_of
 from baton_v12.job_manager.episodes import episodes_of
 from tools import job_manager, single_worker, stage_execution
+from tools.authoring_shutdown import Shutdown, bounded
 
 POLL_SECONDS = 0.25
 ENGINE_SECONDS = 2
@@ -287,10 +288,14 @@ def supervise_process(packet, guard, launch, *, clock=time.monotonic, sleep=time
             if guard.finished.is_set() or clock() >= deadline - reserve:
                 guard.stopping.set()
             if guard.stopping.is_set() and child is not None and not terminating:
-                if not report['child_exited']:
-                    child.terminate()
                 deadline = min(deadline, clock() + reserve)
+                if not report['child_exited']:
+                    request = getattr(child, "request_shutdown", None)
+                    if request is not None:
+                        request(deadline - tail)
+                    child.terminate()
                 terminating = True
+            guard.watchdog_deadline = deadline - tail
             sleep(min(POLL_SECONDS, max(0, deadline - tail - clock())))
     except BaseException as fault:
         report['faults'].append(type(fault).__name__ + ': ' + str(fault))
@@ -305,6 +310,7 @@ def supervise_process(packet, guard, launch, *, clock=time.monotonic, sleep=time
                 report['faults'].append('authoring process cessation unknown: ' + str(fault))
         report['enforcement'] = guard.stop(timeout=max(0, deadline - clock()))
         report['elapsed_seconds'] = clock() - started
+        report['shutdown_deadline'] = deadline
     # Success requires the workload supervisor's own success. The enforcement
     # record cannot turn a held/absent author outcome into an accepted result.
     if report.get('child_status') == 0 and not report['faults'] and not report['enforcement']['faults']:
@@ -332,6 +338,15 @@ class Process:
             os.killpg(self.child.pid, number)
         except ProcessLookupError:
             pass
+
+    def request_shutdown(self, deadline):
+        if not hasattr(self, "shutdown_path"):
+            return
+        with bounded(deadline, "outer shutdown request"):
+            target = Path(self.shutdown_path)
+            temporary = target.with_suffix(".tmp")
+            temporary.write_text(json.dumps({"run_id": self.run_id, "deadline": deadline}))
+            os.replace(temporary, target)
 
     def terminate(self):
         self._signal(signal.SIGTERM)
@@ -410,10 +425,14 @@ class RemoteGuard:
             self.finished.set()
 
     def stop(self, *, timeout=0):
-        del timeout
-        self.refresh()
+        if timeout > 0:
+            try:
+                with bounded(time.monotonic() + timeout, 'final manager snapshot read'):
+                    self.refresh()
+            except Exception as fault:
+                return dict(self.report, state='held', faults=[*self.report.get('faults', []), str(fault)])
         if not self.finished.is_set():
-            return dict(self.report, state='held', faults=[*self.report.get('faults', []), 'manager terminated without final enforcement report; cessation unresolved'])
+            return dict(self.report, state='held', faults=[*self.report.get('faults', []), 'manager terminated without final enforcement report; retained observations do not resolve unknown effects'])
         return self.report
 
 
@@ -442,26 +461,39 @@ def child_main(packet_path, parent, lock_fd, status_path):
     if lock_fd is None or os.fstat(lock_fd).st_ino != os.stat(packet['deployment']['control_store'] + '.authoring.lock').st_ino:
         raise RuntimeError('authoring child lacks its inherited controller lock')
     guard = Guard(packet, lock_fd=lock_fd, publish=lambda held: publish_guard(status_path, held), prepare=prepare_manager)
+    shutdown = Shutdown(packet, status_path + ".shutdown.json", status_path + ".progress.json")
+    failure = None
     previous = {number: signal.signal(number, lambda number, frame: guard.stopping.set()) for number in (signal.SIGTERM, signal.SIGINT)}
     try:
         guard.start()
+        reserve = packet["bounds"]["cleanup_seconds"]
+        shutdown.maximum = min(shutdown.maximum, time.monotonic() + max(0, (instant(guard.envelope["stop_at"]) - instant(guard.clock())).total_seconds()) + reserve - min(12, reserve / 2))
         if guard.recovery or guard.stopping.is_set():
             # Recovery never enters baseline.main, surveys/submits or admits an
             # author invocation. Keep enforcement available for its cleanup slice.
             guard.stopping.set()
-            guard.finished.wait(packet['bounds']['cleanup_seconds'] / 2)
+            shutdown.begin()
+            guard.finished.wait(max(0, shutdown.until("cleanup") - time.monotonic()))
             return 1
         with ControlStore.open(packet['deployment']['control_store'], incarnation='authoring-child-admission', clock=utc) as control:
             admit_child(control, packet, parent, os.getpid())
         guard.author_invocation_started = True
-        return baseline.main(['--packet', packet_path, '--incarnation', 'authoring-child-' + str(os.getpid())], compose=child_compose)
+        return baseline.main(['--packet', packet_path, '--incarnation', 'authoring-child-' + str(os.getpid())], compose=child_compose, shutdown=shutdown)
+    except BaseException as fault:
+        failure = type(fault).__name__ + ': ' + str(fault)
+        raise
     finally:
         guard.stopping.set()
-        guard.report = guard.stop(timeout=packet['bounds']['cleanup_seconds'] / 2)
-        if not guard.thread.is_alive():
-            publish_guard(status_path, guard)
-        for number, handler in previous.items():
-            signal.signal(number, handler)
+        try:
+            shutdown.begin()
+            guard.report = shutdown.call('guard-stop', 'guard stop/join', lambda: guard.stop(timeout=max(0, shutdown.until('guard-stop') - time.monotonic())))
+            if failure is not None:
+                guard.report = dict(guard.report, state='held', faults=[*guard.report.get('faults', []), failure])
+            if not guard.thread.is_alive():
+                shutdown.call('guard-publication', 'final enforcement publication', lambda: publish_guard(status_path, guard))
+        finally:
+            for number, handler in previous.items():
+                signal.signal(number, handler)
 
 
 def main(argv=None):
@@ -499,23 +531,29 @@ def main(argv=None):
             guard.stopping.set()
         previous = {number: signal.signal(number, stop) for number in (signal.SIGTERM, signal.SIGINT)}
         try:
+            controller_deadline = time.monotonic() + packet['bounds']['total_seconds']
             with open(output_path, 'ab', buffering=0) as output:
                 child = Process([sys.executable, '-m', 'tools.authoring_enforcement', '--packet', args.packet,
                                  '--child-of', str(os.getpid()), '--lock-fd', str(lock.fileno()),
                                  '--status-path', status_path], output=output, lock_fd=lock.fileno())
+                child.shutdown_path = status_path + ".shutdown.json"
+                child.run_id = packet["run_id"]
                 try:
                     startup = time.monotonic() + 30
                     while guard.envelope is None and child.poll() is None and time.monotonic() < startup and not guard.stopping.is_set():
-                        guard.refresh()
+                        with bounded(startup, "manager startup snapshot"):
+                            guard.refresh()
                         time.sleep(POLL_SECONDS)
                     if guard.envelope is None:
                         raise RuntimeError('manager did not establish its enforcement envelope')
                     def observe_sleep(seconds):
-                        time.sleep(seconds)
-                        guard.refresh()
+                        with bounded(guard.watchdog_deadline, "manager shutdown observation"):
+                            time.sleep(seconds)
+                            guard.refresh()
                     report = supervise_process(packet, guard, lambda: child, sleep=observe_sleep, owned_child=child)
                 except BaseException as fault:
                     report = {'state': 'held', 'child_started': True, 'child_exited': False,
+                              'shutdown_deadline': min(controller_deadline, time.monotonic() + packet['bounds']['cleanup_seconds']),
                               'faults': [type(fault).__name__ + ': ' + str(fault)]}
                     try:
                         child.kill()
@@ -523,10 +561,17 @@ def main(argv=None):
                         report['child_exited'] = True
                     except Exception as cleanup_fault:
                         report['faults'].append('manager process cessation unknown: ' + str(cleanup_fault))
-                    report['enforcement'] = guard.stop()
+                    report['enforcement'] = guard.stop(timeout=max(0, report['shutdown_deadline'] - time.monotonic()))
         finally:
             for number, handler in previous.items():
                 signal.signal(number, handler)
+        try:
+            with bounded(report.get('shutdown_deadline', time.monotonic()), 'read shutdown progress'):
+                report['shutdown_progress'] = json.loads(Path(status_path + '.progress.json').read_text())
+        except FileNotFoundError:
+            report['shutdown_progress'] = None
+        except Exception as fault:
+            report['shutdown_progress'] = {'unknown': type(fault).__name__ + ': ' + str(fault)}
         report['operator_signals'] = received
         if received:
             report['state'] = 'held'
@@ -538,9 +583,15 @@ def main(argv=None):
         result = Path(packet['outcome_path'] + f'.enforcement-{os.getpid()}-{time.time_ns()}.json')
         report['enforcement_path'] = str(result)
         temporary = result.with_suffix('.tmp')
-        temporary.write_text(json.dumps(report, indent=2, sort_keys=True) + '\n')
-        os.replace(temporary, result)
-        print(json.dumps(report, sort_keys=True))
+        try:
+            with bounded(report.get('shutdown_deadline', time.monotonic()), 'outer outcome publication'):
+                temporary.write_text(json.dumps(report, indent=2, sort_keys=True) + '\n')
+                os.replace(temporary, result)
+                print(json.dumps(report, sort_keys=True))
+        except TimeoutError:
+            # No renewed publication budget. Preserve earlier manager/workload/phase
+            # evidence; a missing outer result is incomplete, never success.
+            return 1
         return 0 if report['state'] == 'completed' else 1
 
 
