@@ -1,0 +1,11 @@
+{
+  "historical_inner_costs": "unknown; preserved, not zero",
+  "historical_live_seconds": [
+    955.09899421,
+    954.105032184
+  ],
+  "preparation_static_seconds": 0.8050750069960486,
+  "product_execution_seconds": 0,
+  "supplier_author_cumulative_seconds": 135.817654632,
+  "supplier_independent_review_seconds": 4.704084767
+}
