@@ -1,0 +1,132 @@
+{
+  "time_utc": "2026-10-21T11:02:07.929421+00:00",
+  "actor": "baton.prompt",
+  "authority": "owner M345512; sibling coordination M345516",
+  "candidate_manifest_sha256": "6834513c45e6086fe2739c3591d3d2a592147e8cdd069e3291aa1a00b62f3799",
+  "review": "review-2026-10-21T10-27-03Z.md",
+  "state": "exact-reviewed-bytes-imported",
+  "files": [
+    {
+      "path": "v12/NEXT-RUN.md",
+      "base_sha256": null,
+      "sha256": "650db6c7aaff673aa7c3d6a54858b152b9332c8728bf474a0aef11aebccb37fb",
+      "mode": "0o644",
+      "bytes": 14092
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/attempts.py",
+      "base_sha256": "726197972a9b2558cbfa4eabfd877053a8ffbcd7c1b4c3f3f2b4c9372f85bbab",
+      "sha256": "5c3cf84641bcbef5fcf78c4bd058911dfc233b60242920ab30ebf6ce54fcdc7d",
+      "mode": "0o644",
+      "bytes": 210898
+    },
+    {
+      "path": "v12/python/tests/manager/test_authoring_enforcement.py",
+      "base_sha256": "947abaac77f3a0524c4c9f90e7f4a2ba3d76b643b72d3bec8a733955f7b9b823",
+      "sha256": "b89f9700781fc8d9fe70c59f05820aa82388dd73ffa99610d7c04f073702e3c8",
+      "mode": "0o644",
+      "bytes": 31341
+    },
+    {
+      "path": "v12/python/tests/tools/next_run_flow_fixture.py",
+      "base_sha256": null,
+      "sha256": "c0cab3ed413561602303a4a3cd270614915e98ce136f74d9c24b7f1f3edc09c2",
+      "mode": "0o644",
+      "bytes": 8348
+    },
+    {
+      "path": "v12/python/tests/tools/test_next_run.py",
+      "base_sha256": null,
+      "sha256": "b0123de44201c2d278ad04cec0f6173655768547afc131860be21cc7f10439cf",
+      "mode": "0o644",
+      "bytes": 10660
+    },
+    {
+      "path": "v12/python/tests/tools/test_next_run_flow.py",
+      "base_sha256": null,
+      "sha256": "73fcf2a9039108934514b96e123f0f3baaecdf8a9520c2e97a7a7b670243483c",
+      "mode": "0o644",
+      "bytes": 10383
+    },
+    {
+      "path": "v12/python/tests/tools/test_next_run_managed.py",
+      "base_sha256": null,
+      "sha256": "070dfa9286d3b3ecd2800fb17f19520d15cef60979584e687af22bce0867185a",
+      "mode": "0o644",
+      "bytes": 36597
+    },
+    {
+      "path": "v12/python/tests/tools/test_next_run_recovery.py",
+      "base_sha256": null,
+      "sha256": "c3bd2c230f8f1158c45cd8b7b5e15b7d00a6f6007fc3deaf4300f504b799404f",
+      "mode": "0o644",
+      "bytes": 2446
+    },
+    {
+      "path": "v12/python/tools/authoring_baseline.py",
+      "base_sha256": null,
+      "sha256": "8e5987f56f8d5329c33a8e73f9df56f13213e134f2dade8180afabf80723efe9",
+      "mode": "0o644",
+      "bytes": 148926
+    },
+    {
+      "path": "v12/python/tools/authoring_enforcement.py",
+      "base_sha256": "d12769df863424c402757d925e5efb848e473e2877e62244af5595be56c8ebb7",
+      "sha256": "ac3640fe020fb69144a9c8b040bd73abed3eeff69a3f9a1ff0dd9462d08bcf93",
+      "mode": "0o664",
+      "bytes": 32465
+    },
+    {
+      "path": "v12/python/tools/next_run.py",
+      "base_sha256": null,
+      "sha256": "f32720fada8047b40d51f28931a4c2afcef7e8417d3356f097b8d9ffd3eae373",
+      "mode": "0o644",
+      "bytes": 19156
+    },
+    {
+      "path": "v12/python/tools/next_run_bindings.py",
+      "base_sha256": null,
+      "sha256": "5f819a75d5cee75791371fd41cb3f3e53c8150be6d07484c69c0e64bb20fcf29",
+      "mode": "0o644",
+      "bytes": 41470
+    },
+    {
+      "path": "v12/python/tools/next_run_client.py",
+      "base_sha256": null,
+      "sha256": "d1f4e42a50ed95a8e34069e525017b4d9feca3ac3bc31fe7b51d592223d3ce1d",
+      "mode": "0o644",
+      "bytes": 1354
+    },
+    {
+      "path": "v12/python/tools/next_run_confinement.py",
+      "base_sha256": null,
+      "sha256": "317414e0246818f4507e5c3ab907e03b149151a9bb42acf2bf1b9ec9772b469e",
+      "mode": "0o644",
+      "bytes": 1691
+    },
+    {
+      "path": "v12/python/tools/next_run_entry.py",
+      "base_sha256": null,
+      "sha256": "8290d5797267d02608180bd8539905be573ee6092ad8a04bd274a09c326a6bf4",
+      "mode": "0o644",
+      "bytes": 2316
+    },
+    {
+      "path": "v12/python/tools/next_run_managed.py",
+      "base_sha256": null,
+      "sha256": "b4e6261a6a56086fb4eabcc292713ce21ad0dabcac9a7d1f1ac1562895ae76a9",
+      "mode": "0o644",
+      "bytes": 38544
+    },
+    {
+      "path": "v12/python/tools/next_run_recovery.py",
+      "base_sha256": null,
+      "sha256": "59502d0ea24707f211f8fc47bd07b3847a373de48da12939a8e93920cbc506f9",
+      "mode": "0o644",
+      "bytes": 2887
+    }
+  ],
+  "tests": "No new product tests; reuse independent 80 tests / 32.274s. Integration checks all target bytes and modes.",
+  "git": "No index or history mutation; human checkpoint due.",
+  "deployment": "No installation or live execution."
+}

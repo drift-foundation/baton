@@ -108,6 +108,28 @@ class LaneFixture(AttemptCase):
 
 
 class OwnerLane(LaneFixture):
+    def test_settled_intake_skips_redundant_fence_only_with_positive_cessation(self):
+        # Boundary-negative cases complement the real intake/cleanup joined test.
+        runtime = dict(attempts.attempt_runtime_of(self.store, ATTEMPT), execution_runtime='destroyed', cleanup='retained')
+        token = dict(self.current(), returned=True)
+        cases = [('settled', {}, {}, 'absent', {'receipt': 'present'}, False),
+                 ('missing-intake', {}, {}, 'absent', None, True),
+                 ('pending-cleanup', {'cleanup': 'pending'}, {}, 'absent', {'receipt': 'present'}, True),
+                 ('runtime-not-ended', {'execution_runtime': 'quiescent'}, {}, 'absent', {'receipt': 'present'}, True),
+                 ('outstanding-token', {}, {'returned': False}, 'absent', {'receipt': 'present'}, True),
+                 ('restartable-runtime', {}, {}, 'quiescent', {'receipt': 'present'}, True),
+                 ('live-runtime', {}, {}, 'running', {'receipt': 'present'}, True)]
+        lane = self.lane()
+        lane.stopping.set()
+        for name, changed_runtime, changed_token, engine_state, receipt, cancel in cases:
+            with self.subTest(name=name):
+                lane.cancelled.clear()
+                self.engine.state = engine_state
+                with patch.object(attempts, 'attempt_runtime_of', return_value=dict(runtime, **changed_runtime)), patch.object(tokens, 'token_of', return_value=dict(token, **changed_token)), patch.object(enforcement.intake, 'intake_receipt_of', return_value=receipt), patch.object(self.operations, 'cancel_attempt') as called:
+                    result = lane.tick()['attempts'][ATTEMPT]
+                    self.assertEqual(result['faults'], [])
+                    self.assertEqual(called.call_count, int(cancel))
+
     def test_expiry_reclaims_exact_runtime_without_a_serving_tick(self):
         value = packet()
         value['bounds']['total_seconds'] = 4800
@@ -447,6 +469,9 @@ class ControllerInputs(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             enforcement.verify_controller(value)
         value['manager_source']['files']['tools/authoring_enforcement.py'] = hashlib.sha256(source.read_bytes()).hexdigest()
+        with self.assertRaises(RuntimeError):
+            enforcement.verify_controller(value)
+        value['manager_source']['files']['tools/authoring_shutdown.py'] = hashlib.sha256(source.with_name('authoring_shutdown.py').read_bytes()).hexdigest()
         enforcement.verify_controller(value)
         value['manager_source']['files']['tools/authoring_enforcement.py'] = '0'*64
         with self.assertRaises(RuntimeError):

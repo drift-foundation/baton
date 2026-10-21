@@ -1,0 +1,121 @@
+{
+  "baseline": "BASELINE-344617.json",
+  "baseline_sha256": "912531d5839d1d93326758597cbd18b5697a5759044754d29537eb4e419b6079",
+  "changed_this_claim": [
+    "v12/NEXT-RUN.md",
+    "v12/python/tests/manager/test_authoring_enforcement.py",
+    "v12/python/tests/tools/next_run_flow_fixture.py",
+    "v12/python/tests/tools/test_next_run_flow.py",
+    "v12/python/tests/tools/test_next_run_managed.py",
+    "v12/python/tools/authoring_enforcement.py",
+    "v12/python/tools/next_run_managed.py"
+  ],
+  "claim": 345109,
+  "files": {
+    "v12/NEXT-RUN.md": {
+      "base_sha256": null,
+      "bytes": 14092,
+      "candidate_sha256": "650db6c7aaff673aa7c3d6a54858b152b9332c8728bf474a0aef11aebccb37fb"
+    },
+    "v12/python/src/baton_v12/worker_manager/attempts.py": {
+      "base_sha256": "726197972a9b2558cbfa4eabfd877053a8ffbcd7c1b4c3f3f2b4c9372f85bbab",
+      "bytes": 210898,
+      "candidate_sha256": "5c3cf84641bcbef5fcf78c4bd058911dfc233b60242920ab30ebf6ce54fcdc7d"
+    },
+    "v12/python/tests/manager/test_authoring_enforcement.py": {
+      "base_sha256": "947abaac77f3a0524c4c9f90e7f4a2ba3d76b643b72d3bec8a733955f7b9b823",
+      "bytes": 31341,
+      "candidate_sha256": "b89f9700781fc8d9fe70c59f05820aa82388dd73ffa99610d7c04f073702e3c8"
+    },
+    "v12/python/tests/tools/next_run_flow_fixture.py": {
+      "base_sha256": null,
+      "bytes": 8348,
+      "candidate_sha256": "c0cab3ed413561602303a4a3cd270614915e98ce136f74d9c24b7f1f3edc09c2"
+    },
+    "v12/python/tests/tools/test_next_run.py": {
+      "base_sha256": null,
+      "bytes": 10660,
+      "candidate_sha256": "b0123de44201c2d278ad04cec0f6173655768547afc131860be21cc7f10439cf"
+    },
+    "v12/python/tests/tools/test_next_run_flow.py": {
+      "base_sha256": null,
+      "bytes": 10383,
+      "candidate_sha256": "73fcf2a9039108934514b96e123f0f3baaecdf8a9520c2e97a7a7b670243483c"
+    },
+    "v12/python/tests/tools/test_next_run_managed.py": {
+      "base_sha256": null,
+      "bytes": 36597,
+      "candidate_sha256": "070dfa9286d3b3ecd2800fb17f19520d15cef60979584e687af22bce0867185a"
+    },
+    "v12/python/tests/tools/test_next_run_recovery.py": {
+      "base_sha256": null,
+      "bytes": 2446,
+      "candidate_sha256": "c3bd2c230f8f1158c45cd8b7b5e15b7d00a6f6007fc3deaf4300f504b799404f"
+    },
+    "v12/python/tools/authoring_baseline.py": {
+      "base_sha256": null,
+      "bytes": 148926,
+      "candidate_sha256": "8e5987f56f8d5329c33a8e73f9df56f13213e134f2dade8180afabf80723efe9"
+    },
+    "v12/python/tools/authoring_enforcement.py": {
+      "base_sha256": "d12769df863424c402757d925e5efb848e473e2877e62244af5595be56c8ebb7",
+      "bytes": 32465,
+      "candidate_sha256": "ac3640fe020fb69144a9c8b040bd73abed3eeff69a3f9a1ff0dd9462d08bcf93"
+    },
+    "v12/python/tools/next_run.py": {
+      "base_sha256": null,
+      "bytes": 19156,
+      "candidate_sha256": "f32720fada8047b40d51f28931a4c2afcef7e8417d3356f097b8d9ffd3eae373"
+    },
+    "v12/python/tools/next_run_bindings.py": {
+      "base_sha256": null,
+      "bytes": 41470,
+      "candidate_sha256": "5f819a75d5cee75791371fd41cb3f3e53c8150be6d07484c69c0e64bb20fcf29"
+    },
+    "v12/python/tools/next_run_client.py": {
+      "base_sha256": null,
+      "bytes": 1354,
+      "candidate_sha256": "d1f4e42a50ed95a8e34069e525017b4d9feca3ac3bc31fe7b51d592223d3ce1d"
+    },
+    "v12/python/tools/next_run_confinement.py": {
+      "base_sha256": null,
+      "bytes": 1691,
+      "candidate_sha256": "317414e0246818f4507e5c3ab907e03b149151a9bb42acf2bf1b9ec9772b469e"
+    },
+    "v12/python/tools/next_run_entry.py": {
+      "base_sha256": null,
+      "bytes": 2316,
+      "candidate_sha256": "8290d5797267d02608180bd8539905be573ee6092ad8a04bd274a09c326a6bf4"
+    },
+    "v12/python/tools/next_run_managed.py": {
+      "base_sha256": null,
+      "bytes": 38544,
+      "candidate_sha256": "b4e6261a6a56086fb4eabcc292713ce21ad0dabcac9a7d1f1ac1562895ae76a9"
+    },
+    "v12/python/tools/next_run_recovery.py": {
+      "base_sha256": null,
+      "bytes": 2887,
+      "candidate_sha256": "59502d0ea24707f211f8fc47bd07b3847a373de48da12939a8e93920cbc506f9"
+    }
+  },
+  "imported_origins": {
+    "v12/python/tools/authoring_baseline.py": "work/records/2026/09/finding-v12-single-implementation-proof/baseline.py",
+    "v12/python/tools/next_run_bindings.py": "work/records/2026/09/finding-v12-single-implementation-proof/baseline_bindings.py",
+    "v12/python/tools/next_run_confinement.py": {
+      "scope": "restrict_writes function; standalone imports and refusal function added",
+      "sha256": "7547b27f88873e240f1a0666e6c1cdd7dfc5d2a9064974264aea4be6fcdf1d15",
+      "source": "/opt/baton-managed-entry/entry.py"
+    }
+  },
+  "joined_evidence": [
+    "evidence/joined-flow-345109-14.json",
+    "evidence/joined-flow-345109-14.json.initial.json"
+  ],
+  "previous_candidate": "CANDIDATE-345023.json",
+  "source_copy": "/tmp/baton-next-run-345023",
+  "state": "joined owner proof and corrections awaiting independent acceptance",
+  "test_input_extension": "BASELINE-EXTENSION-345109.json",
+  "test_input_snapshots": "inputs-345109/",
+  "verification": "evidence/verification-345109-14.json",
+  "work": "W339626"
+}

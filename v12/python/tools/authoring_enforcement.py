@@ -132,7 +132,11 @@ class Lane:
                     exact = runtime['runtime_id'] or (token or {}).get('container')
                     observed = self.adapter.observe(exact) if exact is not None else None
                     evidence['observation'] = observed
-                    if attempt not in self.cancelled or (observed is not None and observed['state'] not in ('absent', 'quiescent')):
+                    # A completed intake/cleanup already ended this generation.
+                    # Do not issue a second Authority fence after that ending;
+                    # require owner receipts AND current exact absence instead.
+                    settled = runtime['execution_runtime'] == 'destroyed' and runtime['cleanup'] in ('retained', 'removed') and token is not None and token['returned'] and observed is not None and observed.get('runtime_id') == exact and observed['state'] == 'absent' and intake.intake_receipt_of(self.control, attempt) is not None
+                    if not settled and (attempt not in self.cancelled or (observed is not None and observed['state'] not in ('absent', 'quiescent'))):
                         # Fence even before any identity is known. Revisit a late
                         # bound/running effect under the same cancellation identity;
                         # an acknowledgement cannot suppress a subsequent stop.
@@ -360,14 +364,16 @@ class Process:
 
 def verify_controller(packet):
     source = packet['manager_source']
-    here = Path(__file__).resolve()
-    try:
-        relative = str(here.relative_to(Path(source['path']).resolve()))
-    except ValueError as error:
-        raise RuntimeError('authoring controller is outside the pinned manager source') from error
-    expected = source['files'].get(relative)
-    if expected is None or hashlib.sha256(here.read_bytes()).hexdigest() != expected:
-        raise RuntimeError('authoring controller bytes are not pinned by this packet')
+    from tools import authoring_shutdown
+    for module_path in (__file__, authoring_shutdown.__file__):
+        here = Path(module_path).resolve()
+        try:
+            relative = str(here.relative_to(Path(source['path']).resolve()))
+        except ValueError as error:
+            raise RuntimeError('authoring controller/helper is outside the pinned manager source') from error
+        expected = source['files'].get(relative)
+        if expected is None or hashlib.sha256(here.read_bytes()).hexdigest() != expected:
+            raise RuntimeError('authoring controller/helper bytes are not pinned by this packet')
 
 
 def admit_child(control, packet, parent, pid):
@@ -440,7 +446,7 @@ def prepare_manager(control, packet):
     # Preserve the historical fresh/reuse preparation order, but acquire the
     # real manager guard before configuration or qualification writes. This
     # process retains it; neither the outer watchdog nor execed tools do.
-    import baseline
+    from tools import authoring_baseline as baseline
     from baton_v12.worker_manager import workspaces
     workspaces.hold_manager_instance(control, baseline._workspace_root(packet))
     baseline.prepare(control, packet)
@@ -452,7 +458,7 @@ def child_main(packet_path, parent, lock_fd, status_path):
     # process never composes a second manager. Descendants inherit no workspace
     # guard; the existing close-on-exec and at-fork exclusion rules are unchanged.
     import ctypes
-    import baseline
+    from tools import authoring_baseline as baseline
     libc = ctypes.CDLL(None, use_errno=True)
     if libc.prctl(1, signal.SIGKILL, 0, 0, 0) != 0 or os.getppid() != parent:
         raise RuntimeError('cannot bind authoring lifetime to its controller')
@@ -500,7 +506,7 @@ def main(argv=None):
     import argparse
     import fcntl
     import sys
-    import baseline
+    from tools import authoring_baseline as baseline
     parser = argparse.ArgumentParser(description='One isolated authoring invocation with independent deadline and expiry enforcement')
     parser.add_argument('--packet', required=True)
     parser.add_argument('--child-of', type=int)

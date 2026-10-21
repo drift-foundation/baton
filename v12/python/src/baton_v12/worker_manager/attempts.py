@@ -234,6 +234,27 @@ def attempt_runtime_of(store, attempt_id):
             "assignment": _fixed_assignment(found)}
 
 
+def runtime_recovery_inventory(store):
+    """Read every attempt's exact runtime and resource-owner cessation evidence.
+
+    Includes attempts not yet linked to Job episodes. Absence of a workspace
+    token is explicit uncertainty, never a synthetic non-launch proof. The
+    caller must exclude concurrent writers before using this inventory.
+    """
+    from . import tokens
+    result = []
+    for row in _attempts(store, "ORDER BY runtime_attempt_id"):
+        token = None
+        identity = row['runtime_attempt_id']
+        if row['workspace_device'] is not None and row['workspace_inode'] is not None:
+            domain = tokens.domain_of('workspace', tokens.workspace_identity(row))
+            generation = tokens.generation_of(store, domain, execution=identity, operation=_start_operation_id(row))
+            if generation is not None:
+                token = tokens.token_of(store, domain, generation)
+        result.append({'attempt_id': identity, 'runtime': attempt_runtime_of(store, identity), 'token': token})
+    return result
+
+
 def _committed_record(store, attempt_id, operation_id, what, members):
     """One of this manager's OWN journalled records, read back and owned.
 
