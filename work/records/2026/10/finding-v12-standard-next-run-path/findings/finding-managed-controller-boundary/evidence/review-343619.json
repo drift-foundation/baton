@@ -1,0 +1,7 @@
+{
+  "receipt_sha256": "3678d8d9ef07fe3f38f6ab507229ce418341d7caf273c54e60fd0d1a4102e252",
+  "entry_sha256": "7547b27f88873e240f1a0666e6c1cdd7dfc5d2a9064974264aea4be6fcdf1d15",
+  "rules_sha256": "303ca565862fe5040edf9a90ff8e71ae5b3721b9acca5d39b6fccfbeaf72d5f0",
+  "receipt_identity_checks": "pass",
+  "active_sudoers": "not independently read; prior permission denial preserved; operator343603 is correction provenance"
+}

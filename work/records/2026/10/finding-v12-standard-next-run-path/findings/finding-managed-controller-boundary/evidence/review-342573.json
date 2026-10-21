@@ -1,0 +1,14 @@
+{
+  "digests": {
+    "/opt/baton-managed-entry/entry.py": "7547b27f88873e240f1a0666e6c1cdd7dfc5d2a9064974264aea4be6fcdf1d15",
+    "/home/sl/.codex-pushcoin/rules/managed-entry.rules": "303ca565862fe5040edf9a90ff8e71ae5b3721b9acca5d39b6fccfbeaf72d5f0",
+    "/tmp/baton-managed-entry-340184/operator/managed-entry.sudoers": "b15573e011758e6d98783bca9962fb2c8269d626740582e5abe85ea86b34188f",
+    "work/records/2026/10/finding-v12-standard-next-run-path/findings/finding-managed-controller-boundary/evidence/managed-342558.json": "d6c84c6fedbebf72e8a7e5c17ce94c3750e9b3e32ac12e9635f9aeb482449718"
+  },
+  "unreadable": [
+    "/etc/sudoers",
+    "/etc/sudoers.d/baton-managed-entry"
+  ],
+  "reviewer_uid_map": "      1000          0          1\n",
+  "note": "Reviewer namespace observations are not evidence of the failed codxpc command namespace. No sudo execution or admission retry performed."
+}

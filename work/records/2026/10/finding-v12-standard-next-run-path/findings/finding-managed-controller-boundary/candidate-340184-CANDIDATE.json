@@ -1,0 +1,118 @@
+{
+  "base": "bc925cf5c62d69426ed5862af4d41f4d2a967b0f",
+  "candidate_root": "/tmp/baton-managed-entry-340184",
+  "claim": 340184,
+  "files": {
+    "v12/python/tests/tools/test_managed_entry.py": {
+      "base": "absent",
+      "sha256": "f9ac3b90cabcaa1b4d3f65d0e224493f57e392a331d31bb2710a01c3eca38b72"
+    },
+    "v12/python/tools/managed_entry.py": {
+      "base": "absent",
+      "sha256": "7547b27f88873e240f1a0666e6c1cdd7dfc5d2a9064974264aea4be6fcdf1d15"
+    },
+    "v12/python/tools/managed_entry_install.py": {
+      "base": "absent",
+      "sha256": "76da2696c37f41a1312cdf9e7d8ea322a608479ad802481659bdd4476be6f00c"
+    }
+  },
+  "operator_artifacts": {
+    "IMPORT-EVIDENCE.json": "e109f85cb487b5bfbe0caa68aeef05f5d6d4ed550c5adc734a2b20a1567aa066",
+    "OPERATOR.md": "ce14a6e4a7767d163888c8ab82626963adf7b1a2aa90114c36c695395ca0a5df",
+    "SUCCESSOR.json": "6592796c47a1bc8bb61d76400a104a1a2011ee063d0ffc7248951e902831180a",
+    "operator-bundle/manifest.json": "240abf377476e41436c90b12bab70583117cbf81e47efa0079be11876cbf53eb",
+    "operator/managed-entry.rules": "303ca565862fe5040edf9a90ff8e71ae5b3721b9acca5d39b6fccfbeaf72d5f0",
+    "operator/managed-entry.sudoers": "b15573e011758e6d98783bca9962fb2c8269d626740582e5abe85ea86b34188f"
+  },
+  "previous_candidate_sha256": "4bb826c3c6b3e741c85973088122058a52a1b30fb476ee91d1d9aefa8c54c358",
+  "remaining": [
+    "Independent boundary/custody successor review",
+    "Operator selection and validation of private state provisioning retaining the existing authority; service identity and credential access prerequisites",
+    "Operator installation and actual managed check/inspect independent receipt",
+    "Complete separate parent launch selection; parent remains blocked"
+  ],
+  "status": "boundary-candidate-for-independent-review; unprovisioned successor, no installation or launch acceptance",
+  "tests": {
+    "command": "timeout 30s python3 -B /tmp/baton-managed-entry-340184/v12/python/tests/tools/test_managed_entry.py",
+    "count": 31,
+    "cumulative_known_process_seconds": 5.0,
+    "cumulative_unittest_seconds": 4.352,
+    "current_measured_process_seconds": 4.5,
+    "current_unittest_seconds": 4.264,
+    "historical_unknown": "first claim340058 process duration remains unknown; nested unittest time not added to outer process time",
+    "iterations": [
+      {
+        "count": 27,
+        "process_seconds": 1.1,
+        "unittest_seconds": 0.98
+      },
+      {
+        "count": 30,
+        "process_seconds": 1.7,
+        "unittest_seconds": 1.639
+      },
+      {
+        "count": 31,
+        "process_seconds": 1.7,
+        "unittest_seconds": 1.645
+      }
+    ],
+    "limits": "Real Landlock and actual pinned producer/controller imports over disposable temp files. Root ownership/drop/install use fixtures, not effective managed/runtime proof. No real engine, provider, credential access, store read, migration or new authority.",
+    "prior_review_spending": {
+      "canary_seconds": 0.009086,
+      "import_seconds": 0.33441900399975566,
+      "outer_unittest_seconds": "not used as total",
+      "unittest_seconds": 0.015
+    },
+    "prior_tests": {
+      "command": "timeout 30s python3 -B /tmp/baton-managed-entry-340058/v12/python/tests/tools/test_managed_entry.py",
+      "count": 23,
+      "iterations": [
+        {
+          "count": 16,
+          "process_seconds": "unknown",
+          "unittest_seconds": 0.004
+        },
+        {
+          "count": 18,
+          "process_seconds": 0.1,
+          "unittest_seconds": 0.006
+        },
+        {
+          "count": 18,
+          "process_seconds": 0.1,
+          "unittest_seconds": 0.006
+        },
+        {
+          "count": 22,
+          "process_seconds": 0.1,
+          "unittest_seconds": 0.044
+        },
+        {
+          "count": 23,
+          "process_seconds": 0.1,
+          "unittest_seconds": 0.014
+        },
+        {
+          "count": 23,
+          "process_seconds": 0.1,
+          "unittest_seconds": 0.014
+        }
+      ],
+      "latest_process_seconds": 0.1,
+      "latest_unittest_seconds": 0.014,
+      "limitations": "Privilege/filesystem ownership checks use deterministic stat fixtures and temporary files, not actual root installation. Actual managed check/inspect and sudoers validation still required. No real Docker/provider/credential call.",
+      "result": "pass"
+    },
+    "result": "pass",
+    "separate_import_evidence": {
+      "exit": 0,
+      "fixture": "/tmp/w339972-import-340184-ug1y6zib",
+      "scope": "Disposable config path relocation only; no installed custody proof, engine, store or provider",
+      "seconds": 0.32695182700081205,
+      "stderr": "",
+      "stdout": "actual pinned packet/import/controller verified; no store/engine/provider\n"
+    }
+  },
+  "work": "W339972"
+}

@@ -1,0 +1,10 @@
+{
+  "fixture_root": "/tmp/w339972-output340142-2u7ez_7a",
+  "actual_producer": "baseline._publish",
+  "original_target": "CANARY-UNCHANGED",
+  "after_target": "{\n  \"review_fixture\": true\n}\n",
+  "output_is_symlink": true,
+  "target_outside_configured_output": true,
+  "scope": "All effects confined to disposable reviewer temp tree; no existing instance, actual installation, engine, credential or provider touched. Demonstrates pathname confinement failure, not an actual host escape.",
+  "seconds": 0.00908552700002474
+}

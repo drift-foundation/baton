@@ -1,0 +1,8 @@
+{
+  "test_fixture_root": "/tmp/w339972-review340142-b3dncsaa",
+  "note": "Disposable relocation of protected-location strings to a temporary test tree; deployment config digest recomputed only in that fixture. No change to candidate or proposed successor. Root custody not simulated as proven. Actual pinned baseline/controller imports and held_packet only, no engine/store/provider.",
+  "exit": 0,
+  "stdout": "actual pinned import and held_packet verified; no engine/store call\n",
+  "stderr": "",
+  "seconds": 0.33441900399975566
+}

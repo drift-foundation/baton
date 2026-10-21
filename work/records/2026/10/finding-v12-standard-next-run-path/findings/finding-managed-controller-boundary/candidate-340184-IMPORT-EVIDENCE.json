@@ -1,0 +1,8 @@
+{
+  "fixture": "/tmp/w339972-import-340184-ug1y6zib",
+  "exit": 0,
+  "stdout": "actual pinned packet/import/controller verified; no store/engine/provider\n",
+  "stderr": "",
+  "seconds": 0.32695182700081205,
+  "scope": "Disposable config path relocation only; no installed custody proof, engine, store or provider"
+}

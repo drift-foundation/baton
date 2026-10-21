@@ -1,0 +1,19 @@
+{
+  "work": "W339972",
+  "participant": "baton.codxpc",
+  "claim": 342558,
+  "date": "2026-10-20",
+  "command": "/usr/bin/sudo -n /opt/baton-managed-entry/entry.py check w339626-custody-v2",
+  "result": {
+    "chunk_id": "a4cd4a",
+    "wall_time_seconds": 0.00001114,
+    "exit_code": 1,
+    "original_token_count": 12,
+    "output": "sudo-rs: interactive authentication is required\n"
+  },
+  "inspect": "not run: procedure stops on failed check",
+  "approval_requested": false,
+  "retry": false,
+  "arm_or_start": false,
+  "installed_entry_sha256": "7547b27f88873e240f1a0666e6c1cdd7dfc5d2a9064974264aea4be6fcdf1d15"
+}

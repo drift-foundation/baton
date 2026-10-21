@@ -1,0 +1,19 @@
+{
+  "original_packet_sha256": "41973dea7204b24bda6095bf8437d6d57d75cb66380f6978217a92197394cb07",
+  "successor_packet_sha256": "139fe90465f01d1d4b92ec21744e7a9f1ddff313397fbfa7deae30784a77d4e7",
+  "changed_packet_members": [
+    "manager_source.path",
+    "supervisor.path",
+    "manager_runtime.path",
+    "code_boundary",
+    "deployment.config_path",
+    "deployment.config_sha256",
+    "submission.path"
+  ],
+  "deployment_change": "workers[*].deployment.task_document relocated to protected unchanged task bytes",
+  "unchanged": "controller/helper/runtime/task bytes, authority/stores/run/job/source/limits/outcome/lock; no original file changed",
+  "selection": "w339626-custody-v1",
+  "armed": false,
+  "installation_performed": false,
+  "review_required": "Explicitly review this custody successor before registration; parent launch selection remains absent."
+}

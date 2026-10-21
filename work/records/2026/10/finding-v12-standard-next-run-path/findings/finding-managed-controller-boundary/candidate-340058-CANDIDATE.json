@@ -1,0 +1,67 @@
+{
+  "base": "bc925cf5c62d69426ed5862af4d41f4d2a967b0f",
+  "work": "W339972",
+  "claim": 340058,
+  "candidate_root": "/tmp/baton-managed-entry-340058",
+  "files": {
+    "v12/python/tools/managed_entry.py": {
+      "base": "absent",
+      "sha256": "d05aeecf9a5ec5bbac63e894c524d3873ed1df7103b938a8a1c2640316ace2cd"
+    },
+    "v12/python/tools/managed_entry_install.py": {
+      "base": "absent",
+      "sha256": "5b7505f2714a72710d3b970342abb2e394fb004f9eea806e5a5721a93ece8a18"
+    },
+    "v12/python/tests/tools/test_managed_entry.py": {
+      "base": "absent",
+      "sha256": "a155c4eb5e20133ced3f32b5ae7fab05598eb541197f03171cc441f8a5510714"
+    }
+  },
+  "operator_artifacts": {
+    "OPERATOR.md": "f5c1508abfe2fb5c607cab7a54dff887a54eea60fdf1c7495d2c8bb6dd27b8a5",
+    "SUCCESSOR.json": "7e0be911355358441840063c5663d096d3fbc2ed79e19b06d589c6d913eaf3fd",
+    "operator/managed-entry.rules": "303ca565862fe5040edf9a90ff8e71ae5b3721b9acca5d39b6fccfbeaf72d5f0",
+    "operator/managed-entry.sudoers": "b15573e011758e6d98783bca9962fb2c8269d626740582e5abe85ea86b34188f",
+    "operator-bundle/manifest.json": "b3f24c7ffa26e8f741dd58cf5f924762f9c9cf507a4c246a19b4fa3f165548ef"
+  },
+  "tests": {
+    "command": "timeout 30s python3 -B /tmp/baton-managed-entry-340058/v12/python/tests/tools/test_managed_entry.py",
+    "count": 23,
+    "result": "pass",
+    "latest_unittest_seconds": 0.014,
+    "latest_process_seconds": 0.1,
+    "iterations": [
+      {
+        "count": 16,
+        "unittest_seconds": 0.004,
+        "process_seconds": "unknown"
+      },
+      {
+        "count": 18,
+        "unittest_seconds": 0.006,
+        "process_seconds": 0.1
+      },
+      {
+        "count": 18,
+        "unittest_seconds": 0.006,
+        "process_seconds": 0.1
+      },
+      {
+        "count": 22,
+        "unittest_seconds": 0.044,
+        "process_seconds": 0.1
+      },
+      {
+        "count": 23,
+        "unittest_seconds": 0.014,
+        "process_seconds": 0.1
+      },
+      {
+        "count": 23,
+        "unittest_seconds": 0.014,
+        "process_seconds": 0.1
+      }
+    ],
+    "limitations": "Privilege/filesystem ownership checks use deterministic stat fixtures and temporary files, not actual root installation. Actual managed check/inspect and sudoers validation still required. No real Docker/provider/credential call."
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "claim": 341498,
+  "checked_at": "2026-10-20T19:35:17.685306+00:00",
+  "mode": "read-only preparation; no installation or helper execution",
+  "facts": {
+    "uid61234": "no NSS entry",
+    "gid61234": "no NSS entry",
+    "docker_group_gid": 119,
+    "home_mode": "0750; service requires traverse ACL",
+    "installation_and_storage": "absent",
+    "old_db_metadata": "authority.sqlite3 size233472; control.sqlite3.authoring.lock size0",
+    "credential_reader": "pinned user_credentials.py requires effective uid ownership/private modes; MAX_BEARER4096",
+    "fixture_hashes": "all three match"
+  },
+  "limitations": [
+    "sandbox process namespace does not prove host-wide quiescence",
+    "no broad owned-file scan performed",
+    "no credential registry or bearer read",
+    "no DB content read",
+    "operator must revalidate observations immediately before changes"
+  ],
+  "validation": {
+    "helper": "AST parse only, not executed",
+    "shell_blocks_bash_n": 9
+  },
+  "files": {
+    "OPERATOR.md": "df7535e8ddb10fc1aed16f3a4a1b3661d9adfafa83ad59a0fd32131697bbec80",
+    "provision-credential.py": "4c8d430dbd7748836df2a25cf0fc83c5364749f8c171a8de86c7b67a88c32848"
+  }
+}

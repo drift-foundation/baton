@@ -1,0 +1,9 @@
+# Current milestone — accepted boundary; owner disposition and Git checkpoint
+
+Independent review343619: review-2026-10-21T00-46-29Z.md. Actual managed check/inspect343612 both exit0 without prompt and match accepted selection/image digests. Joined candidate340184/provisioning342404-342555/exact sudo admission correction343603 accepted. Evidence/review-343619.json and evidence/managed-343612.json. Supersedes pending diagnosis/receipt-review milestones; all historical decisions and failures remain in FINDING, PROGRESS and append-only reviews.
+
+Pass accepted delivery to baton.decide. Owner closure of W339972 releases parent dependency339973 through canonical workflow; no manual unblock or launch inference. No further boundary implementation or repeated probes required. Any parent invocation requires separate exact selection and operator arming of accepted custody successor; no arm/start has occurred in this delivery.
+
+Human Git checkpoint REQUIRED and pending. Summary: reviewed trusted entry/custody/one-use selection, provisioning record, exact-argument sudo admission correction and actual managed check/inspect acceptance. Proposed commit message: "Validate managed controller custody and exact sudo admission". Preserve candidate340184 base/path/digest provenance for human integration; no claim that /tmp candidate source is imported or committed. Record commit identity after observing the human action. Agents never stage/commit.
+
+Reviewer owns FINDING/PLAN/reviews/evidence; author owns PROGRESS/candidate; operator owns privileged installation/state/admission. No credential/store read, new provider execution or Git mutation follows from this acceptance. Last canonical event read343619; discussion T339972 last339972 previously consumed. Parent W339626 owns selected authoring and reusable next-run outcome.

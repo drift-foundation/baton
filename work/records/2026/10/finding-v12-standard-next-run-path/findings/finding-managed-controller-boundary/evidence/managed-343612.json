@@ -1,0 +1,32 @@
+{
+  "work": "W339972",
+  "participant": "baton.codxpc",
+  "claim": 343612,
+  "date": "2026-10-21",
+  "operator_correction_event": 343603,
+  "check": {
+    "command": "/usr/bin/sudo -n /opt/baton-managed-entry/entry.py check w339626-custody-v2",
+    "result": {
+      "chunk_id": "a7ab95",
+      "wall_time_seconds": 0.000007675,
+      "exit_code": 0,
+      "original_token_count": 36,
+      "output": "{\"selection\": \"w339626-custody-v2\", \"selection_sha256\": \"04cc16db980abb8c10dbbdcf2d3e589f524c768f2ba1982f479615a232f52227\", \"state\": \"checked\"}\n"
+    }
+  },
+  "inspect": {
+    "command": "/usr/bin/sudo -n /opt/baton-managed-entry/entry.py inspect w339626-custody-v2",
+    "result": {
+      "chunk_id": "c5c612",
+      "wall_time_seconds": 0.228445091,
+      "exit_code": 0,
+      "original_token_count": 18,
+      "output": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2\n"
+    }
+  },
+  "approval_prompt": false,
+  "arm_or_start": false,
+  "source_changes": false,
+  "limitations": "No private store reads or before/after store census. No-Job-effects assessment relies on the accepted fixed check/inspect entry paths; independent review remains required.",
+  "timing": "Tool-reported wall durations retained verbatim; no separate end-to-end stopwatch."
+}
