@@ -563,6 +563,323 @@ class ManagedAllocation(unittest.TestCase):
         self.assertEqual(outside.read_text(), 'preserved')
         self.assertEqual((inside / 'allowed').read_text(), 'ok')
 
+    # -- W339626: THE CONFINED SOURCE LINE ------------------------------------
+    #
+    # The run w339626-live-345599 died before any runtime with
+    # `ProfileRefusal: Git line materialization failed: fatal: could not open
+    # '/dev/null' for reading and writing: Permission denied`. The case above
+    # proves an allowed file and a denied file; it never starts REAL Git under
+    # REAL confinement, and that combination is what failed. These do.
+    #
+    # They use the real kernel and the real `git` binary deliberately: a mocked
+    # Git cannot prove a Landlock boundary. `test_next_run_flow` replaces
+    # `Host.dispatch` and never calls `restrict_writes`, so it cannot either.
+
+    def _confined(self, script, *operands, timeout=30):
+        """Run `script` in a real child that applies the real confinement."""
+        code = Path(managed.__file__).resolve().parents[1]
+        return subprocess.run(
+            [sys.executable, '-I', '-B', '-c', script, str(code / 'src'),
+             str(code), *[str(one) for one in operands]],
+            capture_output=True, text=True, timeout=timeout,
+            env=dict(os.environ, GIT_CONFIG_GLOBAL='/dev/null',
+                     GIT_CONFIG_SYSTEM='/dev/null',
+                     GIT_AUTHOR_NAME='fixture',
+                     GIT_AUTHOR_EMAIL='fixture@invalid',
+                     GIT_COMMITTER_NAME='fixture',
+                     GIT_COMMITTER_EMAIL='fixture@invalid'))
+
+    def _line(self, place):
+        """A REAL one-commit repository, built here and thrown away."""
+        place.mkdir(parents=True, exist_ok=True)
+        for argv in (['git', 'init', '--quiet', '-b', 'main', str(place)],
+                     ['git', '-C', str(place), 'commit', '--quiet',
+                      '--allow-empty', '-m', 'fixture']):
+            done = subprocess.run(argv, capture_output=True, text=True,
+                                  timeout=30,
+                                  env=dict(os.environ,
+                                           GIT_CONFIG_GLOBAL='/dev/null',
+                                           GIT_CONFIG_SYSTEM='/dev/null',
+                                           GIT_AUTHOR_NAME='fixture',
+                                           GIT_AUTHOR_EMAIL='fixture@invalid',
+                                           GIT_COMMITTER_NAME='fixture',
+                                           GIT_COMMITTER_EMAIL='fixture@invalid'))
+            self.assertEqual(done.returncode, 0, done.stderr)
+        return place
+
+    # W339626 R3, review-2026-10-21T16-30-13Z.md: THE ARGV IS THE PRODUCT'S,
+    # NOT THIS FILE'S.
+    #
+    # The previous revision composed `git clone --quiet --no-hardlinks` by
+    # hand. Production composes `clone_vector`, which carries `--no-hardlinks`
+    # AND `--no-local`, and `--no-local` selects a DIFFERENT TRANSPORT inside
+    # Git -- so the earlier case established a local-clone symptom and not the
+    # production path. It also stopped at the clone, while the production plan
+    # is three steps: clone, detach to the DECLARED BASE, then verify the
+    # worktree really is that commit.
+    #
+    # So this runs `checkout_plan`'s own steps, in its own order, comparing
+    # each `expect_stdout` the plan supplies. A drift in any production vector
+    # changes what this case executes instead of silently diverging from it.
+    REAL_PLAN = ("import json,subprocess,sys;sys.path[:0]=sys.argv[1:3];"
+                 "from baton_v12.source_profiles.checkout import checkout_plan;"
+                 "from tools.next_run_confinement import restrict_writes;"
+                 "plan=checkout_plan(sys.argv[4],sys.argv[3],profile='git',"
+                 "declared=sys.argv[5]);"
+                 "restrict_writes(sys.argv[3]);"
+                 "ran=[]\n"
+                 "for step in plan['steps']:\n"
+                 "  d=subprocess.run(list(step['argv']),capture_output=True,text=True)\n"
+                 "  ran.append({'argv':list(step['argv']),'status':d.returncode,"
+                 "'stdout':d.stdout,'stderr':d.stderr,"
+                 "'expect_stdout':step['expect_stdout']})\n"
+                 "  if d.returncode!=0: break\n"
+                 "print(json.dumps({'source_root':plan['source_root'],"
+                 "'base':plan['base'],'base_kind':plan['base_kind'],'ran':ran}))\n"
+                 "sys.exit(0 if all(one['status']==0 for one in ran) else 1)")
+
+    def _head(self, place):
+        """The fixture line's own commit name, read from the disposable line."""
+        done = subprocess.run(['git', '-C', str(place), 'rev-parse', 'HEAD'],
+                              capture_output=True, text=True, timeout=30)
+        self.assertEqual(done.returncode, 0, done.stderr)
+        return done.stdout.strip()
+
+    def test_confined_production_plan_materializes_a_source_line(self):
+        """The REAL production source line, under the REAL confinement.
+
+        Every argv comes from `checkout_plan`, so `--no-local` is present
+        because production composes it and not because this case typed it.
+        """
+        inside = self.root / 'confined-git'
+        inside.mkdir()
+        line = self._line(self.root / 'line')
+        base = self._head(line)
+        done = self._confined(self.REAL_PLAN, inside, line, base)
+        # BEFORE the null-device allowance the FIRST step is status 128 with
+        # "could not open '/dev/null' for reading and writing: Permission
+        # denied" -- the exact production wording.
+        self.assertEqual(done.returncode, 0, done.stdout + done.stderr)
+        self.assertNotIn('Permission denied', done.stderr)
+        report = json.loads(done.stdout)
+
+        # THE PRODUCTION VECTOR, asserted rather than assumed.
+        self.assertEqual(len(report['ran']), 3, report)
+        clone = report['ran'][0]['argv']
+        self.assertEqual(clone[:4], ['git', 'clone', '--no-hardlinks',
+                                     '--no-local'])
+        self.assertEqual(clone[-2:], [str(line), str(inside / 'checkout')])
+
+        # THE DECLARED BASE IS CHECKED OUT AND THEN PROVED, by the plan's own
+        # expectation rather than by this case restating it.
+        self.assertEqual(report['base'], base)
+        self.assertEqual(report['base_kind'], 'sha1')
+        for step in report['ran']:
+            self.assertEqual(step['status'], 0, step)
+            if step['expect_stdout'] is not None:
+                self.assertEqual(step['stdout'].strip(),
+                                 step['expect_stdout'].strip(), step)
+
+        # AND THE CHECKOUT IS REAL AND READABLE at the plan's source root.
+        checkout = Path(report['source_root'])
+        self.assertEqual(checkout, inside / 'checkout')
+        self.assertTrue((checkout / '.git').is_dir())
+        self.assertEqual(self._head(checkout), base)
+
+    def test_the_null_allowance_denies_every_other_device_write(self):
+        """WRITE_FILE on one validated inode is not a /dev grant."""
+        inside = self.root / 'one-inode'
+        inside.mkdir()
+        script = ("import os,sys;sys.path[:0]=sys.argv[1:3];"
+                  "from tools.next_run_confinement import restrict_writes;"
+                  "restrict_writes(sys.argv[3]);"
+                  "os.close(os.open('/dev/null',os.O_RDWR));"
+                  "d={}\n"
+                  "for name in ('/dev/zero','/dev/full','/dev/random'):\n"
+                  "  try:\n"
+                  "    os.close(os.open(name,os.O_WRONLY)); d[name]='allowed'\n"
+                  "  except OSError as f: d[name]='denied'\n"
+                  "  except Exception: d[name]='absent'\n"
+                  "try:\n"
+                  "  os.close(os.open('/dev/w339626-probe',os.O_WRONLY|os.O_CREAT,0o600))\n"
+                  "  d['create']='allowed'\n"
+                  "except OSError: d['create']='denied'\n"
+                  "print(repr(d));sys.exit(0 if all(v!='allowed' for v in d.values()) else 3)")
+        done = self._confined(script, inside)
+        self.assertEqual(done.returncode, 0, done.stdout + done.stderr)
+        self.assertNotIn("'allowed'", done.stdout)
+
+    def test_confinement_still_denies_sibling_installation_and_credentials(self):
+        """The allowance widens nothing it was not asked to widen."""
+        inside = self.root / 'mine'
+        inside.mkdir()
+        sibling = self.root / 'sibling-run'
+        sibling.mkdir()
+        (sibling / 'held').write_text('preserved')
+        installation = self.install / 'code'
+        credential = self.root / 'credentials'
+        credential.mkdir()
+        (credential / 'token').write_text('preserved')
+        script = ("import sys;sys.path[:0]=sys.argv[1:3];from pathlib import Path;"
+                  "from tools.next_run_confinement import restrict_writes;"
+                  "restrict_writes(sys.argv[3]);"
+                  "bad=[]\n"
+                  "for one in sys.argv[4:]:\n"
+                  "  try:\n"
+                  "    Path(one).write_text('x'); bad.append(one)\n"
+                  "  except OSError: pass\n"
+                  "print(repr(bad));sys.exit(0 if not bad else 3)")
+        done = self._confined(script, inside, sibling / 'held',
+                              sibling / 'new', installation / 'intruded',
+                              credential / 'token', credential / 'new')
+        self.assertEqual(done.returncode, 0, done.stdout + done.stderr)
+        self.assertEqual((sibling / 'held').read_text(), 'preserved')
+        self.assertEqual((credential / 'token').read_text(), 'preserved')
+        self.assertFalse((sibling / 'new').exists())
+        self.assertFalse((credential / 'new').exists())
+
+    def test_a_grandchild_inherits_the_confinement(self):
+        """Descendants inherit, which is what a dispatched tree relies on."""
+        inside = self.root / 'inherited'
+        inside.mkdir()
+        outside = self.root / 'kept'
+        outside.write_text('preserved')
+        script = ("import subprocess,sys;sys.path[:0]=sys.argv[1:3];"
+                  "from tools.next_run_confinement import restrict_writes;"
+                  "restrict_writes(sys.argv[3]);"
+                  "d=subprocess.run([sys.executable,'-I','-B','-c',"
+                  "'import sys;open(sys.argv[1],\"w\").write(\"bad\")',"
+                  "sys.argv[4]],capture_output=True,text=True);"
+                  "sys.exit(0 if d.returncode!=0 else 3)")
+        done = self._confined(script, inside, outside)
+        self.assertEqual(done.returncode, 0, done.stderr)
+        self.assertEqual(outside.read_text(), 'preserved')
+
+    def test_an_unusable_null_facility_fails_closed(self):
+        """A wrong device refuses with NO boundary applied, never a weaker one."""
+        inside = self.root / 'closed'
+        inside.mkdir()
+        decoy = self.root / 'not-a-device'
+        decoy.write_text('regular file')
+        outside = self.root / 'still-mine'
+        outside.write_text('preserved')
+        script = ("import sys;sys.path[:0]=sys.argv[1:3];from pathlib import Path;"
+                  "from tools import next_run_confinement as c;"
+                  "c.NULL_DEVICE=sys.argv[4]\n"
+                  "try:\n"
+                  "  c.restrict_writes(sys.argv[3])\n"
+                  "except ValueError as f:\n"
+                  "  Path(sys.argv[5]).write_text('refused-and-unconfined')\n"
+                  "  print(str(f));sys.exit(0)\n"
+                  "sys.exit(3)")
+        for operand, expected in ((decoy, 'not a character device'),
+                                  (Path('/dev/zero'), 'not the null device'),
+                                  (self.root / 'absent-device',
+                                   'could not be opened')):
+            with self.subTest(operand=str(operand)):
+                outside.write_text('preserved')
+                done = self._confined(script, inside, operand, outside)
+                self.assertEqual(done.returncode, 0, done.stdout + done.stderr)
+                self.assertIn(expected, done.stdout)
+                # Nothing was applied: the refusal happened before
+                # landlock_restrict_self, so this write outside still works.
+                self.assertEqual(outside.read_text(),
+                                 'refused-and-unconfined')
+
+    def test_a_refused_preparation_closes_every_descriptor_it_opened(self):
+        """W339626 R2: a refusal must not leak what it refused to use.
+
+        review-2026-10-21T16-30-13Z.md: the ruleset and the parent were
+        acquired before `_null_device()` and outside any `finally`, so each
+        fail-closed refusal leaked them -- and the fail-closed path is the one
+        this module advertises, so repeated refusals in a long-lived process
+        accumulate descriptors until it cannot open anything.
+
+        MEASURED AT THE CANDIDATE BEFORE THE CORRECTION: 2 descriptors per
+        call for a wrong-type device, 2 for an absent one, 1 for a root that
+        cannot be opened. The assertion is zero growth over many calls, so a
+        single-descriptor regression is caught too.
+
+        THREE FAILURE SHAPES, all after at least one acquisition: a validation
+        refusal (`ValueError`), an acquisition failure on the root
+        (`OSError`), and a FAILED RULE INSTALLATION with all three descriptors
+        held, induced with an access right the kernel rejects. Then a real
+        confinement is applied LAST, proving the process is still able to
+        confine and that the boundary it installs is the right one.
+        """
+        inside = self.root / 'balanced'
+        inside.mkdir()
+        decoy = self.root / 'balanced-not-a-device'
+        decoy.write_text('regular file')
+        outside = self.root / 'balanced-outside'
+        outside.write_text('preserved')
+        rounds = 40
+        script = (
+            "import json,os,sys;sys.path[:0]=sys.argv[1:3];"
+            "from pathlib import Path;"
+            "from tools import next_run_confinement as c\n"
+            "root,decoy,absent,outside,rounds=sys.argv[3],sys.argv[4],"
+            "sys.argv[5],sys.argv[6],int(sys.argv[7])\n"
+            "def held():\n"
+            "  return len(os.listdir('/proc/self/fd'))\n"
+            "report={}\n"
+            "def sweep(name,setup,expected):\n"
+            "  setup()\n"
+            "  before=held();seen=set()\n"
+            "  for _ in range(rounds):\n"
+            "    try:\n"
+            "      c.restrict_writes(root);seen.add('APPLIED')\n"
+            "    except expected as f: seen.add(type(f).__name__)\n"
+            "  report[name]={'growth':held()-before,'raised':sorted(seen)}\n"
+            "def wrong_type():\n"
+            "  c.NULL_DEVICE=decoy\n"
+            "def absent_device():\n"
+            "  c.NULL_DEVICE=absent\n"
+            "sweep('wrong-type',wrong_type,ValueError)\n"
+            "sweep('absent-device',absent_device,ValueError)\n"
+            "c.NULL_DEVICE='/dev/null'\n"
+            "before=held();seen=set()\n"
+            "for _ in range(rounds):\n"
+            "  try: c.restrict_writes(absent)\n"
+            "  except OSError as f: seen.add(type(f).__name__)\n"
+            "report['absent-root']={'growth':held()-before,'raised':sorted(seen)}\n"
+            # A FAILED RULE INSTALLATION: every descriptor is already held when
+            # landlock_add_rule refuses an access right outside the handled set.
+            "original=c.WRITE_FILE;c.WRITE_FILE=1<<40\n"
+            "before=held();seen=set()\n"
+            "for _ in range(rounds):\n"
+            "  try: c.restrict_writes(root)\n"
+            "  except OSError as f: seen.add(type(f).__name__)\n"
+            "report['failed-rule']={'growth':held()-before,'raised':sorted(seen)}\n"
+            "c.WRITE_FILE=original\n"
+            # LAST, because confinement is irreversible: a normal success.
+            "c.restrict_writes(root)\n"
+            "Path(root+'/allowed').write_text('ok')\n"
+            "try:\n"
+            "  Path(outside).write_text('bad');report['outside']='allowed'\n"
+            "except OSError: report['outside']='denied'\n"
+            "print(json.dumps(report))\n"
+            "sys.exit(0)")
+        done = self._confined(script, inside, decoy,
+                              self.root / 'balanced-absent', outside, rounds)
+        self.assertEqual(done.returncode, 0, done.stdout + done.stderr)
+        report = json.loads(done.stdout)
+
+        for name, raised in (('wrong-type', ['ValueError']),
+                             ('absent-device', ['ValueError']),
+                             ('absent-root', ['FileNotFoundError']),
+                             ('failed-rule', ['OSError'])):
+            with self.subTest(failure=name):
+                # The refusal still happens, and it is still the same one.
+                self.assertEqual(report[name]['raised'], raised, report)
+                # And it costs nothing. NOT "few": none.
+                self.assertEqual(report[name]['growth'], 0, report)
+
+        # The process could still confine afterwards, and correctly.
+        self.assertEqual(report['outside'], 'denied', report)
+        self.assertEqual((inside / 'allowed').read_text(), 'ok')
+        self.assertEqual(outside.read_text(), 'preserved')
+
     def test_installed_imports_bind_controller_and_helper(self):
         self.broker.prepare(self.fixture.task())
         code = self.install / 'code'

@@ -38,6 +38,16 @@ def main():
         record('simulated-git', list(argv))
         argv = list(argv)
         if 'clone' in argv:
+            # W339626: THE PRE-RUNTIME SOURCE-LINE REFUSAL, injected at the
+            # boundary and answered by the REAL product profile code. The live
+            # run w339626-live-345599 died here with a permission denial on the
+            # null device the Git launcher opens, so the denial is reproduced
+            # as the backend's own answer rather than by stubbing the refusal.
+            if deny_line:
+                record('simulated-git-line-denied', argv[-2:])
+                return dict(returncode=128, stdout='',
+                            stderr="fatal: could not open '/dev/null' for "
+                                   'reading and writing: Permission denied')
             source, destination = argv[-2:]
             shutil.copytree(source, destination)
             (Path(destination) / '.git/info').mkdir(parents=True)
@@ -80,6 +90,16 @@ def main():
         return dict(returncode=0, stdout=output, stderr='')
     fail_start = '--fixture-fail-start' in args
     if fail_start: args.remove('--fixture-fail-start')
+    # W339626: THE FLAG HAS TO REACH THE PROCESS THAT ACTUALLY MATERIALIZES.
+    # `main` strips it before calling the controller, and the source line is
+    # composed in the WATCHDOG'S CHILD rather than here -- so without the
+    # explicit propagation in `Process` below the child parses no flag,
+    # `deny_line` is False there, and the clone succeeds. Measured before the
+    # correction: the production clone argv appeared in the trace while
+    # `simulated-git-line-denied` never did, and the run failed as "froze no
+    # result at all" instead of as a pre-runtime source refusal.
+    deny_line = '--fixture-deny-line' in args
+    if deny_line: args.remove('--fixture-deny-line')
     worker_threads = []
     def run_worker():
         try:
@@ -141,7 +161,12 @@ def main():
     class Process(original_process):
         def __init__(self, argv, **kwargs):
             if fail_start: raise OSError('simulated controller child launch failure')
-            super().__init__([argv[0], '-I', '-B', __file__, code, tests_root, trace, *argv[3:]], **kwargs)
+            # The fixture flag is RE-COMPOSED for the child, because `main`
+            # consumed it out of this process's argv and the child is where the
+            # product's own source line runs. It precedes `argv[3:]` so the
+            # child still sees the controller's operands in the same order.
+            carried = ['--fixture-deny-line'] if deny_line else []
+            super().__init__([argv[0], '-I', '-B', __file__, code, tests_root, trace, *carried, *argv[3:]], **kwargs)
     enforcement.Process = Process
     if args[0] == '--fixture-recover':
         from tools import next_run_recovery
