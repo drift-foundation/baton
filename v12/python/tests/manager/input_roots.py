@@ -101,7 +101,12 @@ def composed(case, storage, *, work_ref, participant, generation,
 
 def storage_under(case):
     """A workspace storage root that goes away with the case."""
-    home = tempfile.mkdtemp(prefix="v12-input-roots-")
+    # CANONICAL, for the reason `test_maintenance.MaintenanceCase.setUp`
+    # states: under the verifier `TMPDIR` is a `/proc/self/fd/<n>` alias, and a
+    # storage root spelled through it is neither canonical for the product's
+    # own refusals nor resolvable by a child process. The directory is the
+    # fixture's own, made after the provider is gone.
+    home = os.path.realpath(tempfile.mkdtemp(prefix="v12-input-roots-"))
     case.addCleanup(_forcibly_remove, home)
     place = os.path.join(home, "storage")
     os.makedirs(place)

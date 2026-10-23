@@ -66,7 +66,7 @@ import stat
 from ..contracts import (ContractRefusal, check_no_durable_secret, digest,
                          own)
 from ..contracts.errors import name_value, sample_of
-from . import attempts, boundaries, documents, lanes, schema
+from . import attempts, boundaries, documents, failure_cause, lanes, schema
 from .attempts import observe
 from .authority_port import FENCE, GATE_DISCHARGE, GATE_DISCHARGED_PHASE
 from .output import frozen_output_of
@@ -5648,8 +5648,26 @@ def reclaim_expired_resource(store, adapter, *, attempt_id, govern):
         return {"reclaimed": "not-overdue", "attempt_id": attempt_id}
     runtime_id = overdue.get("container")
     if attempt["runtime_id"] is not None and runtime_id != attempt["runtime_id"]:
-        raise ContractRefusal("runtime-observation", "identity-mismatch",
-                              "the token and attempt do not name the same runtime; expiry cannot choose a different execution")
+        # W333486: THE MISMATCH IS THIS MANAGER'S OWN TYPED FACT, recorded
+        # before the refusal leaves. Nothing was ordered and nothing ceased;
+        # what happened is that the token and the attempt name different
+        # runtimes, and a composed cause that answered `unknown` here would
+        # be discarding something the manager positively knows.
+        # W341357 R2: AND THE RECORDER'S ANSWER IS CARRIED ON THE REFUSAL.
+        # The return was dropped here, so a journal that could not write this
+        # manager's own typed fact raised exactly the ordinary refusal and
+        # nothing said the fact was lost. The refusal's pair and message are
+        # untouched; the degradation rides beside them.
+        reported = failure_cause.record_cessation_outcome(
+            store, attempt_id, component="expiry-reclaim",
+            generation=overdue["generation"], runtime_id=runtime_id,
+            correlation_id=operation_id, effects=(),
+            outcome="identity-mismatch", category="runtime-observation",
+            code="identity-mismatch")
+        raise failure_cause.carry_degradation(
+            ContractRefusal("runtime-observation", "identity-mismatch",
+                            "the token and attempt do not name the same runtime; expiry cannot choose a different execution"),
+            reported)
     if runtime_id is None:
         # W275774 review 17:09:10Z [P1]: NO ATTACHED IDENTITY IS NOT "NEVER LAUNCHED".
         #
@@ -5664,17 +5682,57 @@ def reclaim_expired_resource(store, adapter, *, attempt_id, govern):
         # answer carries it either way. The entitlement is withdrawn in both -- an
         # overdue holder stops being entitled regardless -- and the resource stays
         # held, because neither case has a cessation to confirm.
-        govern.revoke(store, attempt, operation=operation_id)
         launched = overdue.get("launch") is not None
-        return {"reclaimed": "held", "attempt_id": attempt_id,
-                "state": attempt["execution_runtime"], "launched": launched,
-                "why": ("this generation JOURNALLED A LAUNCH and no container was "
-                        "ever bound, so whether an execution is running is UNKNOWN; "
-                        "the revocation stands and the resource stays held"
-                        if launched else
-                        "this generation journalled no launch and no runtime is "
-                        "attached, so there is nothing to stop; the revocation "
-                        "stands and the roots are the ending's to settle")}
+        # W333486: THE WITHDRAWAL HAPPENED AND NOTHING WAS ORDERED STOPPED,
+        # which is a composition this record states rather than leaves to be
+        # inferred from the absence of a stop. `launched` rides the intent
+        # because it is the fact that distinguishes "nothing to stop" from
+        # "a writer this manager cannot name".
+        #
+        # review340349 item 3: RECORDED BEFORE THE WITHDRAWAL, which is this
+        # branch's only effect, and raising rather than reporting prose that
+        # the caller would discard.
+        reported = failure_cause.ensure_cessation_intent(
+            store, attempt_id, component="expiry-reclaim",
+            generation=overdue["generation"], domain=overdue.get("domain"),
+            launched=launched, runtime_id=None, correlation_id=operation_id)
+        govern.revoke(store, attempt, operation=operation_id)
+        reported += failure_cause.record_cessation_outcome(
+            store, attempt_id, component="expiry-reclaim",
+            generation=overdue["generation"], runtime_id=None,
+            correlation_id=operation_id, effects=("revoke",),
+            outcome="no-identity-resolved")
+        held_answer = {
+            "reclaimed": "held", "attempt_id": attempt_id,
+            "state": attempt["execution_runtime"], "launched": launched,
+            "why": ("this generation JOURNALLED A LAUNCH and no container was "
+                    "ever bound, so whether an execution is running is UNKNOWN; "
+                    "the revocation stands and the resource stays held"
+                    if launched else
+                    "this generation journalled no launch and no runtime is "
+                    "attached, so there is nothing to stop; the revocation "
+                    "stands and the roots are the ending's to settle")}
+        # review340349 item 3: added ONLY when a record failed, so an
+        # ordinary withdrawal answers exactly what it always answered.
+        # W341357 R2: through the contract's own owner, which is now the one
+        # place this member is written and the one place it is bounded.
+        return failure_cause.carry_degradation(held_answer, reported)
+    # W333486 review340349 item 3: AND THE INTENT IS DURABLE BEFORE THE FIRST
+    # EFFECT OF ANY KIND, which is the withdrawal rather than the stop.
+    # `revoke` is named in `failure_cause.EFFECTS` because it is one, so
+    # recording after it would leave the same gap one step earlier. The
+    # correlation identity is derived first for the same reason: it is the id
+    # the engine is about to be handed and the intent must carry it.
+    reclaim_id = reclaim_operation_id(dict(attempt, runtime_id=runtime_id), overdue["generation"])
+    # AND IT RAISES IF NOTHING COULD BE MADE DURABLE, so no effect is ordered
+    # without a record of this manager having ordered it. A collision answers
+    # normally: an intent for this act is already durable and the first
+    # account stands.
+    reported = failure_cause.ensure_cessation_intent(
+        store, attempt_id, component="expiry-reclaim",
+        generation=overdue["generation"], domain=overdue.get("domain"),
+        launched=overdue.get("launch") is not None, runtime_id=runtime_id,
+        correlation_id=reclaim_id)
     # 1. THE ENTITLEMENT GOES FIRST.
     govern.revoke(store, attempt, operation=operation_id)
     # 2. THE SHUTDOWN, outside every lock, under this reclaim's own identity.
@@ -5688,7 +5746,11 @@ def reclaim_expired_resource(store, adapter, *, attempt_id, govern):
     # The removal is a separate verb because stopping and removing are separate facts:
     # a container that stopped but could not be removed is still holding its mounts,
     # and reporting them together would lose exactly that distinction.
-    reclaim_id = reclaim_operation_id(dict(attempt, runtime_id=runtime_id), overdue["generation"])
+    # WHAT THIS PASS ACTUALLY ORDERS, accumulated as it orders it. A replayed
+    # reclaim that observes an exact absence orders NEITHER; one that observes
+    # `quiescent` skips the stop and still removes. The record must not read a
+    # pass that ordered nothing as a pass that ordered a stop.
+    issued = ["revoke"]
     try:
         # Replayed reclaim observes first: an exact absence needs no second
         # stop/remove effect. Acknowledgement or an unknown observation never
@@ -5699,15 +5761,36 @@ def reclaim_expired_resource(store, adapter, *, attempt_id, govern):
         if before not in ("absent", "quiescent"):
             adapter.stop_expired({"runtime_id": runtime_id,
                                   "operation_id": reclaim_id})
+            issued.append("stop")
         remove = getattr(adapter, "remove", None)
         if before != "absent" and remove is not None:
             remove({"runtime_id": runtime_id,
                     "operation_id": reclaim_id})
+            issued.append("remove")
     except ContractRefusal as refusal:
         # A REFUSED STOP IS NOT A CESSATION. The revocation stands, the resource
         # stays held, and the reason is carried rather than swallowed.
-        return {"reclaimed": "held", "attempt_id": attempt_id, "state": "uncertain",
-                "why": f"the stop was refused: {refusal.message}"}
+        #
+        # W333486: AND IT IS A KNOWN TYPED FAILURE RATHER THAN AN UNKNOWN. The
+        # typed pair is recorded and the cessation stays explicitly unknown;
+        # the refusal's PROSE stays on this path, because it can quote adapter
+        # text and a durable record is the last place that may reach.
+        # W341357 R2: THE RECORDING ANSWER IS CARRIED, not dropped. The
+        # intent is durable, the stop was ordered, the engine refused it, and
+        # that KNOWN typed failure is the thing the record exists for -- so a
+        # journal that could not take it is reported rather than stepped over.
+        # The refusal's own prose stays exactly where it was: the engine's
+        # account is not masked and the hold is unchanged.
+        reported += failure_cause.record_cessation_outcome(
+            store, attempt_id, component="expiry-reclaim",
+            generation=overdue["generation"], runtime_id=runtime_id,
+            correlation_id=reclaim_id, effects=issued, outcome="stop-failed",
+            category=refusal.category, code=refusal.code)
+        return failure_cause.carry_degradation(
+            {"reclaimed": "held", "attempt_id": attempt_id,
+             "state": "uncertain",
+             "why": f"the stop was refused: {refusal.message}"},
+            reported)
     # 3. AND WHAT THAT EXACT IDENTITY NOW IS, asked of the adapter.
     state, _value, why = attempts._observed(adapter, runtime_id)
     # THE OBSERVATION'S OWN VOCABULARY: `attempts.OBSERVED_RUNTIME` names the four
@@ -5716,15 +5799,42 @@ def reclaim_expired_resource(store, adapter, *, attempt_id, govern):
     # instead of the answered state, so a positively absent runtime read as
     # inconclusive and nothing was ever confirmed.
     if state not in ("absent", "quiescent"):
-        return {"reclaimed": "held", "attempt_id": attempt_id, "state": state,
-                "why": f"cessation is not positively proved: {why}"}
+        # W333486: THE EFFECT CROSSED AND WHAT EXISTS NOW COULD NOT BE
+        # ESTABLISHED. That is its own fact and not a stop failure.
+        # W341357 R2: carried, for the reason above. An unrecorded later
+        # observation can leave an older tip standing as current, so a caller
+        # that is told the observation was inconclusive must also be told
+        # whether that inconclusiveness reached disk.
+        reported += failure_cause.record_cessation_outcome(
+            store, attempt_id, component="expiry-reclaim",
+            generation=overdue["generation"], runtime_id=runtime_id,
+            correlation_id=reclaim_id, effects=issued,
+            outcome="uncertain-observation")
+        return failure_cause.carry_degradation(
+            {"reclaimed": "held", "attempt_id": attempt_id, "state": state,
+             "why": f"cessation is not positively proved: {why}"},
+            reported)
     if attempt["runtime_id"] is None:
         # The token may bind a container before the attempt attaches it. It
         # is still this generation's exact writer and must be stopped, but
         # an absent/quiescent observation does not settle a delayed launch.
-        return {"reclaimed": "held", "attempt_id": attempt_id, "state": state,
-                "container": runtime_id,
-                "why": "the token-bound runtime ceased; attachment/activation remains unresolved and the resource stays held"}
+        # W333486: TWO FACTS, CARRIED WITHOUT COLLAPSING. Cessation of the
+        # bound container is ESTABLISHED and the attempt's own termination is
+        # still UNRESOLVED, so the outcome names both rather than choosing.
+        # W341357 R2: carried. The two facts this outcome keeps apart are
+        # exactly what a reader would lose, and the resource stays held
+        # either way -- nothing here infers a cessation from a recording
+        # outcome or frees anything because of one.
+        reported += failure_cause.record_cessation_outcome(
+            store, attempt_id, component="expiry-reclaim",
+            generation=overdue["generation"], runtime_id=runtime_id,
+            correlation_id=reclaim_id, effects=issued,
+            outcome="held-attachment-unresolved")
+        return failure_cause.carry_degradation(
+            {"reclaimed": "held", "attempt_id": attempt_id, "state": state,
+             "container": runtime_id,
+             "why": "the token-bound runtime ceased; attachment/activation remains unresolved and the resource stays held"},
+            reported)
     cessation = _resource_cessation(
         store,
         {"state": "absent",
@@ -5736,21 +5846,45 @@ def reclaim_expired_resource(store, adapter, *, attempt_id, govern):
          # rather than leaving the member to a reader's default.
          "writer_cessation": None},
         attempt, attempt_id)
+    # W333486: AN EXACT CORRELATED POSITIVE OBSERVATION IS WHAT PROVES A
+    # CESSATION, and `absent` and `quiescent` are NOT the same fact -- a
+    # quiescent container still exists and still holds its mounts. The record
+    # keeps them apart and is written whether or not the custody proof that
+    # the RESOURCE ending needs happens to exist.
+    # W341357 R2: carried onto BOTH answers below. This is the one shape
+    # that proves a cessation, so a journal that could not take it is the
+    # case where the durable reader will later answer `intent-only` about an
+    # attempt whose runtime this manager positively observed gone.
+    reported += failure_cause.record_cessation_outcome(
+        store, attempt_id, component="expiry-reclaim",
+        generation=overdue["generation"], runtime_id=runtime_id,
+        correlation_id=reclaim_id, effects=issued,
+        outcome="ceased-absent" if state == "absent" else "ceased-quiescent")
     if cessation is None:
         # AND THE DIAGNOSTIC NAMES THE OBSERVED STATE rather than asserting absence.
         # Review 17:09:10Z: this said "the container is gone", which is true of
         # `absent` and NOT of `quiescent` -- a quiescent container still exists and
         # still holds its mounts. Reporting them the same way would put a false fact
         # in the record a later reader relies on.
-        return {"reclaimed": "held", "attempt_id": attempt_id, "state": state,
-                "why": f"the runtime observed {name_value(state)} and no "
-                       f"writer-absence proof exists yet, so the revoked generation "
-                       f"keeps the resource"}
+        return failure_cause.carry_degradation(
+            {"reclaimed": "held", "attempt_id": attempt_id, "state": state,
+             "why": f"the runtime observed {name_value(state)} and no "
+                    f"writer-absence proof exists yet, so the revoked generation "
+                    f"keeps the resource"},
+            reported)
     # 4. THE RETURN, as a manager settlement on confirmed cessation.
+    #
+    # W341357 R2: AND THE RELEASE IS NOT WITHHELD BECAUSE A RECORD FAILED.
+    # The cessation was positively observed and the intent is durable, so
+    # this ending is authorized; retracting it over a reporting failure would
+    # be a recording outcome deciding a lifecycle, which is the inverse of
+    # the mistake being corrected.
     govern.release(store, attempt, operation=operation_id, cessation=cessation,
                    reclaiming=True)
-    return {"reclaimed": "returned", "attempt_id": attempt_id, "state": state,
-            "container": cessation["container"]}
+    return failure_cause.carry_degradation(
+        {"reclaimed": "returned", "attempt_id": attempt_id, "state": state,
+         "container": cessation["container"]},
+        reported)
 
 
 def _custody_already_committed(store, attempt_id):
@@ -5877,8 +6011,24 @@ def settle_revoked_resource(store, adapter, *, attempt_id, govern,
         # reclaim's instant; a container can be restarted by a hand outside this
         # manager, and normalizing under a running writer is the one thing this
         # ending must never do.
-        return {"settled": "held", "attempt_id": attempt_id, "state": state,
-                "why": f"the runtime is not positively absent now: {why}"}
+        #
+        # W333486: AND THE SETTLEMENT'S OWN ACCOUNT SAYS SO. This is the
+        # settlement component's observation, not the reclaim's, and the two
+        # are separate records because they were taken at separate instants.
+        # W341357 R2: carried. This branch's ONLY durable act is the outcome
+        # record -- it returns before the intent and before the release -- so
+        # a journal that could not take it leaves nothing at all on disk
+        # about the observation, and the hold is reported with no sign of it.
+        reported = failure_cause.record_cessation_outcome(
+            store, attempt_id, component="settlement",
+            generation=generation, runtime_id=attempt["runtime_id"],
+            correlation_id=operation_id, effects=(),
+            outcome="uncertain-observation" if state != "quiescent"
+                    else "ceased-quiescent")
+        return failure_cause.carry_degradation(
+            {"settled": "held", "attempt_id": attempt_id, "state": state,
+             "why": f"the runtime is not positively absent now: {why}"},
+            reported)
     # W285465, OWNER-NO-AUTOMATIC-NORMALIZATION-20260928 with DESIGN HOST-5: THIS ENDING
     # RUNS NO HELPER. Slawomir selects shared-group ACCESSIBLE job output, so there is no
     # normalization here to produce a receipt and none is required: accessible output
@@ -5924,10 +6074,37 @@ def settle_revoked_resource(store, adapter, *, attempt_id, govern,
     # builder and is REMOVED rather than left unreachable -- every held outcome on this
     # path now returns above, where the fact that is missing is named.
     cessation = {"container": current["container"], "stopped": True, "helpers": []}
+    # W333486: THE SETTLEMENT'S INTENT, DURABLE BEFORE ITS EFFECT. This
+    # ending's effect is the RELEASE, and the generation is finished here
+    # rather than on the reclaim's own path -- which is exactly why
+    # completion must be attributable on either release path and why a
+    # captured intent must not disappear because the other one ran.
+    #
+    # review340349 item 3: IT RAISES WHEN NOTHING COULD BE MADE DURABLE, so
+    # the release is not ordered without a record of this manager ordering
+    # it. Refusing here leaves the generation HELD, which is a state this
+    # manager's own readers already describe and not an invented one.
+    reported = failure_cause.ensure_cessation_intent(
+        store, attempt_id, component="settlement", generation=generation,
+        domain=domain, launched=current["launch"] is not None,
+        runtime_id=current["container"], correlation_id=operation_id)
     govern.release(store, attempt, operation=operation_id, cessation=cessation,
                    reclaiming=True)
+    # AN EXACT CORRELATED POSITIVE ABSENCE, observed above against the
+    # token-bound container. This is the one shape that proves a cessation.
+    reported += failure_cause.record_cessation_outcome(
+        store, attempt_id, component="settlement", generation=generation,
+        runtime_id=current["container"], correlation_id=operation_id,
+        effects=(), outcome="ceased-absent")
     answer = {"settled": "returned", "attempt_id": attempt_id, "state": state,
               "container": cessation["container"]}
+    # W333486 review340349 item 3: A RECORDING FAILURE IS OBSERVABLE. The
+    # release happened and its account did not reach disk, which an operator
+    # has to be told rather than left to infer from a reader answering
+    # `unknown` later. It is added ONLY when something failed, so an ordinary
+    # settlement's answer is byte-for-byte what it was.
+    # W341357 R2: through the contract's own owner, for the reason above.
+    failure_cause.carry_degradation(answer, reported)
     if inaccessible is not None:
         # THE DURABLE ERROR TRAVELS WITH THE RETURN, so a reader learns both facts: the
         # execution ownership is released because its cessation held, AND this attempt's

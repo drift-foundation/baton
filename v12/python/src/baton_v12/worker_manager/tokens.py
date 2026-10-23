@@ -338,7 +338,7 @@ def token_of(control, domain, generation):
         answer["renewed_at"] = renewals[-1]["renewed_at"]
     else:
         answer["renewed_at"] = None
-    answer["renewals_remaining"] = max(0, RENEWAL_LIMIT - len(renewals))
+    answer["renewals_remaining"] = 0 if acquired.get("permission") is not None else max(0, RENEWAL_LIMIT - len(renewals))
     # W275775 [P1]: A JUDGED EXPIRY IS STICKY, and this reader says so. Without the record
     # this answered the arithmetic alone, so a clock that went backwards made a token that
     # had already been judged expired look live again -- and a reader that contradicts an
@@ -359,8 +359,11 @@ def token_of(control, domain, generation):
     return answer
 
 
+_DEFAULT_SECONDS = object()
+
+
 def acquire(control, domain, *, operation, execution, attempt=None,
-            seconds=LIFETIME_SECONDS, eligible=None):
+            seconds=_DEFAULT_SECONDS, eligible=None, permission=None):
     """Take exclusive permission for this resource, atomically, in one short write.
 
     EVERYTHING HERE IS DATABASE WORK, which is DB-1 and DB-3: eligibility, the
@@ -376,6 +379,22 @@ def acquire(control, domain, *, operation, execution, attempt=None,
     that can end an expired generation is a later G1 step, not an implicit effect of
     asking again.
     """
+    # A prospective envelope is absolute: startup, lost replies and restart do
+    # not buy another duration. Old duration-based records replay unchanged.
+    # The caller's independent execution controller owns stop_at; the token
+    # retains permission through expires_at for the required cleanup interval.
+    if permission is None:
+        seconds = LIFETIME_SECONDS if seconds is _DEFAULT_SECONDS else seconds
+    else:
+        if seconds is not _DEFAULT_SECONDS:
+            raise ContractRefusal("policy", "denied", "choose a duration or an execution envelope, not both")
+        seconds = None
+        permission = boundaries.document(permission, "a token execution envelope", required=("started_at", "stop_at", "expires_at", "policy"))
+        boundaries.instant(permission["started_at"], "a token envelope origin")
+        boundaries.instant(permission["stop_at"], "a token envelope execution deadline")
+        boundaries.instant(permission["expires_at"], "a token envelope cleanup deadline")
+        if not permission["started_at"] < permission["stop_at"] < permission["expires_at"]:
+            raise ContractRefusal("policy", "denied", "token execution and cleanup intervals must be positive")
     boundaries.text(domain, "a governed conflict domain")
     operation = boundaries.text(operation, "a token operation identity")
     execution = boundaries.text(execution, "a token execution identity")
@@ -435,7 +454,7 @@ def acquire(control, domain, *, operation, execution, attempt=None,
         #
         # So the walk covers every generation, returned or not, and the comparison is the
         # full operand set this acquisition was recorded under.
-        offered = {"execution": execution, "attempt": attempt, "seconds": seconds}
+        offered = {"execution": execution, "attempt": attempt, "seconds": seconds, "permission": permission}
         generation = 1
         while True:
             recorded = _document(control, _acquired_id(domain, generation), ACQUIRED_KIND)
@@ -465,11 +484,13 @@ def acquire(control, domain, *, operation, execution, attempt=None,
                 f"and that token has not been "
                 f"returned; an outstanding baton excludes every conflicting "
                 f"acquisition, and an expired one is revoked rather than replaced")
+        taken = taken_at if permission is None else control._now()
+        if permission is not None and not permission["started_at"] <= taken < permission["stop_at"]:
+            raise ContractRefusal("refused", "precondition", "execution envelope is exhausted or its clock is ambiguous")
         if eligible is not None:
             refusal = eligible(connection)
             if refusal is not None:
                 raise ContractRefusal("refused", "precondition", refusal)
-        taken = taken_at
         document = {"version": TOKEN_VERSION, "domain": domain,
                     "generation": generation, "operation": operation,
                     "execution": execution, "attempt": attempt,
@@ -478,8 +499,9 @@ def acquire(control, domain, *, operation, execution, attempt=None,
                     "seconds": seconds,
                     "owner": proposed_owner, "renewals": 0,
                     "acquired_at": taken,
-                    "expires_at": boundaries.deadline(taken, seconds,
-                                                      "a resource token expiry")}
+                    "expires_at": permission["expires_at"] if permission is not None else boundaries.deadline(taken, seconds, "a resource token expiry")}
+        if permission is not None:
+            document["permission"] = permission
         control._record(_acquired_id(domain, generation), ACQUIRED_KIND,
                         manager_signature(ACQUIRED_KIND, document),
                         "committed", _recorded(document), None)
@@ -588,6 +610,8 @@ def _extended(control, token, domain, generation, what, execution, operation,
             f"{name_value(held['execution'])} under {name_value(held['operation'])}; a "
             f"renewal is for the same resource, generation, operation and execution, and "
             f"anything else is a second holder asking for somebody else's permission")
+    if held.get("permission") is not None:
+        raise ContractRefusal("policy", "denied", "an execution envelope has a fixed terminal deadline and cannot be renewed")
     standing = _renewals_of(control, domain, generation)
     if revision > len(standing):
         raise ContractRefusal(
@@ -970,13 +994,33 @@ def effects_permitted(control, token):
     binding after the reply is not sufficient on its own: between those two moments
     the container may already exist. So permission to expose the resource is a
     separate, positive question, and it answers True only when THIS generation is
-    current, unreturned, unexpired and has a bound container. A caller that cannot
-    get True here must not hand the resource to the execution -- the closed
-    start/dispatch sequence at the production seam is what enforces that, and it is
-    the next G1 step.
+    current, unreturned, UNREVOKED, unexpired and has a bound container. A caller
+    that cannot get True here must not hand the resource to the execution -- the
+    closed start/dispatch sequence at the production seam is what enforces that, and
+    it is the next G1 step.
+
+    AND `revoked` IS IN THAT LIST BECAUSE OF W354630 review354690. This asked four
+    questions and not revocation, so a REVOKED generation whose expiry judgement no
+    longer reads true -- a failed expiry cleanup, a restart, a clock that went
+    backwards -- ANSWERED TRUE, and a caller that trusts this gate would have been
+    cleared to hand it the resource again. WHAT WAS DEMONSTRATED IS THE PERMISSION,
+    not an executed duplicate effect: review 2026-10-22T20-30-29Z corrected this
+    docstring for claiming the stronger thing, and neither proof observed a repeated
+    external effect. The permission alone is the defect, because the closed
+    start/dispatch sequence above is built on this answer.
+
+    `revoke`'s own contract is the refutation: "what it does is record that this
+    generation may no longer act", and TOK-5's "revoked rather than replaced" keeps
+    the resource held BY the revoked generation until its cessation is confirmed. A
+    withdrawn entitlement that still answers True is the revival those rules exist
+    to prevent, and expiry is not a substitute for it: revocation is the durable
+    fact and the expiry judgement is a clock reading.
     """
     current = token_of(control, token["domain"], token["generation"])
     if current is None or current["returned"] or current["expired"]:
+        return False
+    # THE DURABLE WITHDRAWAL, asked separately from the clock.
+    if current["revoked"]:
         return False
     if current["owner"] != token["owner"] or current["container"] is None:
         return False

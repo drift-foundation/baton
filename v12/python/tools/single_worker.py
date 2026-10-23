@@ -1234,7 +1234,8 @@ class _SingleWorker:
     def __init__(self, given, control, port, *, credential_provider,
                  engine_run, session=None, clock=None, checkpoint=None,
                  stage=None, judgment_document=None,
-                 execution_context=None, activity=None):
+                 execution_context=None, activity=None, permission_policy=None,
+                 lifetime_policy=None):
         self.given = given
         # W285464: THE PREPARATION OWNERSHIPS THIS COMPOSITION HOLDS, per attempt.
         # The capability lives for as long as this manager composition does, which is
@@ -1265,6 +1266,11 @@ class _SingleWorker:
         # deployment and focused verification -- and those keep the legacy
         # launch shapes they already had.
         self.execution_context = execution_context
+        self.permission_policy = permission_policy
+        # W325959: the native sibling of permission_policy. It answers a
+        # bounded token lifetime for THIS attempt's Job; None keeps the
+        # acquisition default, which is what every pre-existing caller gets.
+        self.lifetime_policy = lifetime_policy
         # W103083: THE TWO PLACES A STAGE DIFFERS, AND THERE ARE ONLY TWO.
         # What a worker MOUNTS and how its attempt ENDS are the whole of the
         # difference between an implementation, a review and an integration
@@ -2227,12 +2233,20 @@ class _SingleWorker:
                 # arrives between the two is refused by the acquisition rather than
                 # slipping through the gap. Same domain, same journal, same G1
                 # endings -- only the eligibility is added.
+                execution = self._job_execution(stage)
+                permission, permission_eligible = (None, None) if self.permission_policy is None else self.permission_policy(self.control, stage, execution)
+                # W325959: AND THE BOUNDED LIFETIME, when a caller resolved one.
+                # `acquire` refuses seconds beside a permission, so a deployment
+                # supplying both is a composition error rather than a silent
+                # preference -- and neither being supplied keeps today's default.
+                seconds = None if self.lifetime_policy is None else self.lifetime_policy(self.control, stage, execution)
                 answer = request_runtime_start(
                     self.control, adapter, attempt_id=attempt_id,
                     inputs=roots["inputs"],
                     govern=workspaces.prepared_workspace_governance(
                         self.control, attempt_id,
-                        mounted=roots["workspace"]))
+                        mounted=roots["workspace"], permission=permission,
+                        permission_eligible=permission_eligible, seconds=seconds))
             else:
                 answer = reconcile_runtime(self.control, adapter,
                                            attempt_id=attempt_id)
@@ -3256,7 +3270,8 @@ class _Operations(ManagerOperations):
 
 
 def operations_from(document, job_store, control_store, *, engine_run=None,
-                    credential_provider=None, clock=None, checkpoint=None):
+                    credential_provider=None, clock=None, checkpoint=None, permission_policy=None,
+                    lifetime_policy=None):
     """Build the exact manager operations from one already-read document.
 
     ``job_store`` is accepted because every factory has the same public shape.
@@ -3312,7 +3327,8 @@ def operations_from(document, job_store, control_store, *, engine_run=None,
         helper = activity_ingestion(control_store, clock=clock)
         return worker_operations(given, control_store, authority, provider,
                                  engine_run=engine_run, clock=clock,
-                                 checkpoint=checkpoint,
+                                 checkpoint=checkpoint, permission_policy=permission_policy,
+                                 lifetime_policy=lifetime_policy,
                                  dispose=_bootstrap_dispose(authority, helper),
                                  activity=None if helper is None
                                  else helper.enqueue,
@@ -3494,7 +3510,8 @@ def worker_preflight(given, control_store, *, credential_provider=None,
 def worker_operations(given, control_store, authority, provider, *,
                       engine_run=None, clock=None, checkpoint=None,
                       dispose=None, stage=None, judgment_document=None,
-                      execution_context=None, activity=None):
+                      execution_context=None, activity=None, permission_policy=None,
+                      lifetime_policy=None):
     """The half that needs an Authority, over one the CALLER owns.
 
     `dispose` is what makes this reusable by a pool. A single-worker
@@ -3539,7 +3556,8 @@ def worker_operations(given, control_store, authority, provider, *,
         clock=clock,
         checkpoint=checkpoint, stage=stage,
         judgment_document=judgment_document,
-        execution_context=execution_context,
+        execution_context=execution_context, permission_policy=permission_policy,
+        lifetime_policy=lifetime_policy,
         # W61599: THE DEPLOYMENT'S ONE INGESTION HELPER, handed to every worker
         # it composes. The helper is per STORE and not per worker, so what a
         # worker receives is the enqueue and never the helper itself -- a

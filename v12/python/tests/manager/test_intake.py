@@ -2438,6 +2438,22 @@ class TheQuiescenceGateIsDischargedFromTheCommittedCleanup(IntakeCase):
                            "signature_digest": "sha256:" + "0" * 64,
                            "surprise": 1}):
             with self.subTest(operation=repr(operation)):
+                # W341357, MEASURED. THIS ITERATION'S FIXTURES COME DOWN BEFORE THE NEXT
+                # ONES GO UP. `addCleanup` runs only when the OUTER method ends, so
+                # re-running `setUp` in a loop kept every iteration's durable store live
+                # at once: instrumenting these methods measured 17 and 22 simultaneous
+                # temporary roots, and 7.1 MiB and 12.6 MiB of a 64 MiB `/tmp` tmpfs
+                # held at the worst instant -- the whole five-module gate's high-water
+                # mark, reached inside one method.
+                #
+                # NOTHING IS WEAKENED AND NOTHING IS SKIPPED. Each iteration still
+                # builds a COMPLETE fixture through the same `setUp`, and still reaches
+                # every refusal below; a cleanup that fails is still reported, because
+                # `doCleanups` records its failure against this sub-case rather than
+                # swallowing it. What changes is only WHEN the previous iteration's
+                # storage is released: at the end of its own sub-case instead of at the
+                # end of the method.
+                self.doCleanups()
                 self.setUp()
                 self.spoil_cleanup_result(operation)
                 caught = self.refused()
@@ -2532,6 +2548,9 @@ class TheQuiescenceGateIsDischargedFromTheCommittedCleanup(IntakeCase):
                         {"cleanup": "failed"}, {"runtime_id": None},
                         {"gate": 1}):
             with self.subTest(spoiled=sorted(members)):
+                # W341357: the previous iteration's fixtures come down first -- see
+                # `test_a_journalled_receipt_that_is_not_a_discharge_is_refused`.
+                self.doCleanups()
                 self.setUp()
                 self.settled()
                 self.gated()
@@ -2594,6 +2613,9 @@ class TheQuiescenceGateIsDischargedFromTheCommittedCleanup(IntakeCase):
     def test_a_receipt_about_something_else_is_refused_by_both_exits(self):
         for members in self.RECEIPT_COUNTEREXAMPLES:
             with self.subTest(spoiled=sorted(members)):
+                # W341357: the previous iteration's fixtures come down first -- see
+                # `test_a_journalled_receipt_that_is_not_a_discharge_is_refused`.
+                self.doCleanups()
                 self.setUp()
                 self.both_exits_refuse(**members)
 
@@ -2619,6 +2641,9 @@ class TheQuiescenceGateIsDischargedFromTheCommittedCleanup(IntakeCase):
                               ("kind", "unrelated.operation"),
                               ("result", "[]")):
             with self.subTest(column=column, value=value):
+                # W341357: the previous iteration's fixtures come down first -- see
+                # `test_a_journalled_receipt_that_is_not_a_discharge_is_refused`.
+                self.doCleanups()
                 self.setUp()
                 self.settled()
                 self.gated()
@@ -4048,6 +4073,9 @@ class TheAbandonedGateIsDischargedFromItsOwnCommittedEvidence(IntakeCase):
         """[P1] The authority pins the whole cancellation answer in
         `route_fenced`; two of its five members were unchecked here."""
         self.assertIn("cause", self.spoiled_fence(cause="pass").message)
+        # W341357: the previous iteration's fixtures come down first -- see
+        # `test_a_journalled_receipt_that_is_not_a_discharge_is_refused`.
+        self.doCleanups()
         self.setUp()
         self.assertIn("phase", self.spoiled_fence(phase="queued").message)
 
@@ -4060,6 +4088,9 @@ class TheAbandonedGateIsDischargedFromItsOwnCommittedEvidence(IntakeCase):
                                        generation=9))
         self.rewrite_composite(fenced=spoiled)
         self.assertEqual(self.refused(self.read).category, "integrity")
+        # W341357: the previous iteration's fixtures come down first -- see
+        # `test_a_journalled_receipt_that_is_not_a_discharge_is_refused`.
+        self.doCleanups()
         self.setUp()
         answered = self.abandoned()
         self.rewrite_composite(fenced=dict(answered["fenced"],

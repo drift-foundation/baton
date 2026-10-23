@@ -102,7 +102,11 @@ def disk_backed_under(case):
     could not take its own delivery away again would leave the next run's
     storage populated.
     """
-    place = tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root())
+    # CANONICAL, for `input_roots.storage_under`'s reason: a `/proc/self/fd`
+    # alias is not a spelling the product's refusals or a child process can
+    # use, and this directory is the fixture's own.
+    place = os.path.realpath(
+        tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
     case.addCleanup(_forcibly_remove, place)
     return place
 

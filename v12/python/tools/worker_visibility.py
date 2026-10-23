@@ -1,7 +1,7 @@
 """W324214 -- the minimum read-only worker visibility view.
 
 WHAT IT IS. A bounded PROJECTION over one status document the Job Manager
-already publishes (`baton.v12.job-status/6`): one row per current stage, with
+already publishes (`baton.v12.job-status/7`): one row per current stage, with
 the worker, allocation, runtime, exchange and activity facts that document
 actually carries, each labelled with WHERE IT CAME FROM and -- when the source
 records one -- WHEN IT WAS OBSERVED. It answers "which worker is this stage
@@ -62,7 +62,7 @@ operator's terminal view of the same document and owns the reading of it:
 input, and this module calls it rather than growing a second reader. What is
 new here is the JSON PROJECTION -- per-fact provenance, per-fact unknown
 reasons and the explicit attempt-association checks -- published under its own
-version, `baton.v12.worker-visibility/1`. `baton.v12.job-status/6` is
+version, `baton.v12.worker-visibility/1`. `baton.v12.job-status/7` is
 unchanged by this Work.
 
 ONE DELIBERATE DISAGREEMENT WITH THE VIEWER, stated out loud: the terminal

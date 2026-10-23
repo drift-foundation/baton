@@ -12,6 +12,7 @@ NO LIVE ENGINE AND NO DAEMON. Every `ps`, `create`, `start`, `wait`, `logs`,
 including this engine's own absence sentence.
 """
 
+import contextlib
 import json
 import os
 import pathlib
@@ -135,7 +136,21 @@ class MaintenanceCase(unittest.TestCase):
     def setUp(self):
         root = tempfile.TemporaryDirectory(prefix="v12-maintenance-")
         self.addCleanup(root.cleanup)
-        self.root = root.name
+        # ITS CANONICAL SPELLING, because every root below is DERIVED from this
+        # one and the product refuses a derived place that is not canonical.
+        # Under the verifier `TMPDIR` is `/proc/self/fd/<n>` on purpose
+        # (`claude_agent._pinned_environment`), so `tempfile` answers a
+        # descriptor alias: `workspaces._composed_line_roots` can never see
+        # `realpath(place) == place` through it, and a child process -- which
+        # does not inherit the verifier's descriptor -- cannot resolve it at
+        # all. This resolves the FIXTURE'S OWN directory, created after the
+        # provider is gone; the verifier's authority is the held descriptors it
+        # opened before the provider ran and `_revalidated_directories` still
+        # re-proves exactly those, so there is no name here for anyone to swap.
+        # Nothing about the production refusals changes: a link, a
+        # non-canonical place and a replaced object are still refused, and the
+        # cases that drive those refusals still reach them.
+        self.root = os.path.realpath(root.name)
         self.instant = "2026-09-27T00:00:00.000Z"
         self.store = self.opened()
         self.group = input_roots.configured_group(self.store)
@@ -247,6 +262,23 @@ class MaintenanceCase(unittest.TestCase):
         operands = argv[argv.index("-c") + 2:]
         done = subprocess.run([sys.executable, "-c", program, *operands],
                               capture_output=True, timeout=120)
+        # A CHILD FAILURE SURFACES AS A CHILD FAILURE. Discarding `returncode`
+        # and `stderr` turned a program that could not run at all into empty
+        # stdout, and the caller's indexing then reported `IndexError: list
+        # index out of range` -- a hidden failure wearing the mask of a parsing
+        # bug. The child's own ending and diagnostic are what a reader needs.
+        #
+        # SILENCE IS THE FAILURE, not a non-zero ending. This program STATES
+        # its outcome on stdout and exits 4 when it refuses a name -- which is
+        # the behaviour `test_a_compound_name_is_refused_by_the_program_itself`
+        # drives -- so the exit status alone cannot tell a refusal from a
+        # program that never started. A child that printed no document did not
+        # answer, and that is what is reported here.
+        if not done.stdout.strip():
+            raise AssertionError(
+                f"the manager's own program printed no document over "
+                f"{source!r}: it exited {done.returncode} and its stderr "
+                f"was:\n{done.stderr.decode('utf-8', 'replace')}")
         return done.stdout.decode("utf-8", "replace")
 
     # -- the act ----------------------------------------------------------
@@ -1913,6 +1945,20 @@ class TheSELECTEDOutputIsAccessibleOrItIsAnError(MaintenanceCase):
         from baton_v12.worker_manager import intake
 
         os.makedirs(self.roots()["result"], exist_ok=True)
+        # W341357, MEASURED. THE PRECONDITION IS ESTABLISHED, NOT INHERITED FROM THE
+        # UMASK. `os.makedirs` takes the process umask, and this verifier runs at 0077,
+        # so the fixture's own result root came out 0700 -- group-unreachable. The
+        # subject read then CORRECTLY named the fixture's root as the first inaccessible
+        # entry, and both cases below failed before reaching what they are about: this
+        # one never reached its `None`, and the next never reached its named file. The
+        # product is right in both runs; the fixture was asserting about a root it had
+        # not made accessible. This is the same three lines
+        # `test_a_TRAVERSAL_FAILURE_is_an_answer_and_not_silence` already uses, and
+        # `test_an_UNREACHABLE_ROOT_is_the_first_thing_that_is_inaccessible` still sets
+        # 0700 ITSELF, so the refusal case still refuses.
+        os.chown(self.roots()["result"], -1,
+                 workspaces.configured_workspace_group(self.store).gid)
+        os.chmod(self.roots()["result"], 0o750)
         answer = os.path.join(self.roots()["result"], "answer.txt")
         with open(answer, "wb") as writing:
             writing.write(b"the job's own answer\n")
@@ -1928,6 +1974,11 @@ class TheSELECTEDOutputIsAccessibleOrItIsAnError(MaintenanceCase):
         from baton_v12.worker_manager import intake
 
         os.makedirs(self.roots()["result"], exist_ok=True)
+        # W341357: the group-reachable root is established rather than inherited from
+        # the umask -- see the case above. What this case is about is the FILE at 0o600.
+        os.chown(self.roots()["result"], -1,
+                 workspaces.configured_workspace_group(self.store).gid)
+        os.chmod(self.roots()["result"], 0o750)
         answer = os.path.join(self.roots()["result"], "answer.txt")
         with open(answer, "wb") as writing:
             writing.write(b"the job's own answer\n")
@@ -2757,10 +2808,23 @@ class TheORDINARYEndingCompletesWithNoHelperOrItHolds(unittest.TestCase):
         """
         for answer in (None, False, 0, "", "none", {}, {"helper_identity": "x"},
                        ["baton-custody-" + "a" * 32], [None], (None,)):
-            with self.subTest(answered=repr(answer)):
+            with self.subTest(answered=repr(answer)), contextlib.ExitStack() as scope:
+                # W341357, MEASURED. THE SUB-CASE'S OWN FIXTURE COMES DOWN WITH THE
+                # SUB-CASE. `self.addCleanup` deferred every iteration's teardown to the
+                # end of the OUTER method, so all ten sub-cases' durable stores stayed live
+                # together: instrumenting this method measured 22 simultaneous temporary
+                # roots and 13,193,216 bytes held at the worst instant out of a 64 MiB
+                # `/tmp` tmpfs -- the whole five-module gate's high-water mark, reached
+                # inside this one method.
+                #
+                # NOTHING IS WEAKENED AND NOTHING IS SKIPPED. Every sub-case still builds a
+                # complete fixture through the same `setUp` and still reaches every
+                # assertion below, and a teardown that FAILS is still reported, because
+                # `ExitStack` raises out of the `with` and the enclosing `subTest` records
+                # it against this sub-case. Only the INSTANT of release moves.
                 case = type(self)()
                 case.setUp()
-                self.addCleanup(case.doCleanups)
+                scope.callback(case.doCleanups)
                 made = case.adapter()
                 made.surviving_helpers = lambda *a, **k: answer
                 # W285465 under OWNER-SIMPLE-COMPLETION-20260928: an unreadable answer is
@@ -2780,10 +2844,12 @@ class TheORDINARYEndingCompletesWithNoHelperOrItHolds(unittest.TestCase):
     def test_a_GENUINELY_EMPTY_observation_is_still_a_positive_absence(self):
         """The other half, so the validation above cannot pass by refusing everything."""
         for answer in ([], ()):
-            with self.subTest(answered=repr(answer)):
+            with self.subTest(answered=repr(answer)), contextlib.ExitStack() as scope:
+                # W341357: this sub-case's fixture comes down with the sub-case -- see
+                # `test_an_UNREADABLE_listing_ANSWER_is_not_a_confirmed_absence`.
                 case = type(self)()
                 case.setUp()
-                self.addCleanup(case.doCleanups)
+                scope.callback(case.doCleanups)
                 made = case.adapter()
                 made.surviving_helpers = lambda *a, **k: answer
                 self.assertIn(case.ending(made)["cleanup"],
@@ -2909,10 +2975,12 @@ class TheORDINARYEndingCompletesWithNoHelperOrItHolds(unittest.TestCase):
                 ("a surviving writer",
                  {"helpers": [{"helper_identity": "baton-custody-x"}]}),
                 ("a runtime that was not absent", {"state": "quiescent"})):
-            with self.subTest(changed=name):
+            with self.subTest(changed=name), contextlib.ExitStack() as scope:
+                # W341357: this sub-case's fixture comes down with the sub-case -- see
+                # `test_an_UNREADABLE_listing_ANSWER_is_not_a_confirmed_absence`.
                 case = type(self)()
                 case.setUp()
-                self.addCleanup(case.doCleanups)
+                scope.callback(case.doCleanups)
                 theirs = case.pinned_attempt()
                 mine = tokens.domain_of("workspace",
                                         tokens.workspace_identity(theirs))

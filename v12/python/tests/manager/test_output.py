@@ -101,6 +101,16 @@ class OutputCase(unittest.TestCase):
     def setUp(self):
         self._root = tempfile.TemporaryDirectory(prefix="v12-output-")
         self.addCleanup(self._root.cleanup)
+        # ITS CANONICAL SPELLING, ONCE, so every root derived from it agrees.
+        # Under the verifier `TMPDIR` is a `/proc/self/fd/<n>` descriptor alias
+        # (`claude_agent._pinned_environment`), and a storage root spelled
+        # through it is not the canonical place the manager's own custody
+        # derivation answers -- so a case comparing the two compared two
+        # spellings of one directory. Canonicalising the fixture's own
+        # directory here rather than at each reader is what keeps the fixture
+        # from holding both spellings at once. `cleanup` removes the same
+        # object either way, and nothing the product refuses is affected.
+        self._root.name = os.path.realpath(self._root.name)
         self.path = os.path.join(self._root.name, "control.sqlite3")
         self.store = ControlStore.open(self.path, incarnation="manager-1",
                                        clock=lambda: NOW)

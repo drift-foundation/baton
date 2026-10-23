@@ -3347,6 +3347,8 @@ TOKEN_DELEGATES = {
 }
 
 DELEGATED = {
+    ("caller", "workspaces.py:prepared_workspace_governance", "permission"):
+        ("tokens.py:acquire", "caller:permission"),
     **DEADLINE_DELEGATES,
     **TOKEN_DELEGATES,
     ("adopted", "review_cycles.py:consumption_subject", "line_writers.writer_id"):

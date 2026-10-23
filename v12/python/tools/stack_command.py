@@ -101,6 +101,23 @@ def _logs(operands):
     return attempt_logs_command.main(operands)
 
 
+def _attempt_diagnostics(operands):
+    """W333486: the READ-ONLY attempt diagnostic report, from this bundle.
+
+    Served here for the reason `logs`, `record` and `disposition` are: an
+    operator reading evidence after an incident holds the DEPLOYED bundle and
+    not a checkout, so the supported invocation is this bundle's own
+    subcommand. The report itself opens no store and spawns nothing.
+
+    AND A SOURCE-LEVEL ENTRY IS NOT A DEPLOYED ONE. This table is the source
+    of truth for what the command serves; an installed bundle built before
+    this entry existed does not carry it until it is rebuilt, which this Work
+    does not do.
+    """
+    from tools import attempt_diagnostics
+    return attempt_diagnostics.main(operands)
+
+
 def _stack(subcommand):
     """The four `tools.stack` verbs, which take their verb LAST.
 
@@ -245,6 +262,8 @@ COMMANDS = {
     # durable transition through a participant-bound session.
     "disposition": _disposition,
     "identity": _identity,
+    # W333486: READ-ONLY, and a pure projection over one status document.
+    "attempt-diagnostics": _attempt_diagnostics,
 }
 
 

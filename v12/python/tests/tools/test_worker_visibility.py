@@ -364,7 +364,7 @@ class EveryCurrentStageGetsARow(VisibilityCase):
         self.submitted()
         held = visibility(self.document())
         self.assertEqual(held["schema"], "baton.v12.worker-visibility/1")
-        self.assertEqual(held["source_schema"], "baton.v12.job-status/6")
+        self.assertEqual(held["source_schema"], "baton.v12.job-status/7")
 
     def test_every_known_fact_resolves_to_the_path_it_claims(self):
         """The provenance is walked back into the source document.
@@ -1036,7 +1036,7 @@ class TheDocumentIsValidatedBeforeAnythingIsReported(VisibilityCase):
         document["schema"] = "baton.v12.job-status/99"
         with self.assertRaises(VisibilityRefusal) as caught:
             visibility(document)
-        self.assertIn("baton.v12.job-status/6", str(caught.exception))
+        self.assertIn("baton.v12.job-status/7", str(caught.exception))
 
     def test_the_refusal_does_not_echo_the_rejected_input(self):
         """A message assembled out of an untrusted document lets that document
@@ -1180,7 +1180,7 @@ class TheDocumentIsValidatedBeforeAnythingIsReported(VisibilityCase):
 
         self.assertEqual(worker_visibility.SOURCE_SCHEMA,
                          documents.STATUS_SCHEMA)
-        self.assertEqual(documents.STATUS_SCHEMA, "baton.v12.job-status/6")
+        self.assertEqual(documents.STATUS_SCHEMA, "baton.v12.job-status/7")
 
     def test_an_oversize_document_refuses_rather_than_truncating(self):
         self.submitted()
@@ -1249,7 +1249,7 @@ class TheCommandReadsAFileAndAnswersJSON(VisibilityCase):
         document["schema"] = "baton.v12.job-status/99"
         code, output = self.ran(["--snapshot", self.written(document)])
         self.assertEqual(code, 2)
-        self.assertIn("baton.v12.job-status/6", json.loads(output)["refused"])
+        self.assertIn("baton.v12.job-status/7", json.loads(output)["refused"])
         self.assertNotIn("stages", json.loads(output))
 
     def test_an_oversize_file_refuses_rather_than_reading_a_subset(self):
@@ -1325,7 +1325,7 @@ class TheViewOpensNothingAndActsNotAtAll(VisibilityCase):
         self.assertEqual(code, 0)
         self.assertEqual(self.acts.calls, before)
         self.assertEqual(json.loads(stream.getvalue())["source_schema"],
-                         "baton.v12.job-status/6")
+                         "baton.v12.job-status/7")
 
     def test_the_stores_are_unchanged_by_being_viewed(self):
         """The disposable owner state is established before and compared
@@ -1374,7 +1374,7 @@ class TheViewOpensNothingAndActsNotAtAll(VisibilityCase):
         """The contract this view reads is the producer's and stays theirs."""
         from baton_v12.job_manager import documents
 
-        self.assertEqual(documents.STATUS_SCHEMA, "baton.v12.job-status/6")
+        self.assertEqual(documents.STATUS_SCHEMA, "baton.v12.job-status/7")
         self.assertEqual(
             documents.CONTRACTS["stage.status"][0],
             ("stage_id", "job_id", "kind", "state", "work_id", "profile_name",

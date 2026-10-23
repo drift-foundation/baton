@@ -3875,7 +3875,7 @@ def require_prepared(control, assignment_id, roots, what):
     return recorded
 
 
-def prepared_workspace_governance(control, assignment_id, mounted=None):
+def prepared_workspace_governance(control, assignment_id, mounted=None, *, permission=None, permission_eligible=None, seconds=None):
     """The task's own workspace governance, with the PREPARATION CONDITION attached.
 
     W285464 review 2026-09-27T17-37-14Z, and the oldest outstanding item: the start
@@ -3903,8 +3903,19 @@ def prepared_workspace_governance(control, assignment_id, mounted=None):
     from . import tokens
 
     ordinary = tokens.workspace_governance(control=control, mounted=mounted)
+    if permission_eligible is not None:
+        boundaries.capability(permission_eligible, "an execution envelope admission predicate")
 
     def eligible(_connection):
+        if permission is not None:
+            from . import attempts
+            current = attempts._require_attempt(control, assignment_id)
+            if current["execution_runtime"] not in ("not-started", "start-requested", "running") or current["cleanup"] != "pending" or control.operation_record(attempts._cancel_operation_id(current)) is not None:
+                return "the execution is ending or cancelled; no envelope permission is acquired"
+        if permission_eligible is not None:
+            refusal = permission_eligible(_connection)
+            if refusal is not None:
+                return refusal
         for kind, standing in (
                 ("host preparation", standing_preparation(control,
                                                           assignment_id)),
@@ -3967,12 +3978,23 @@ def prepared_workspace_governance(control, assignment_id, mounted=None):
 
         def reserve(self, asking, attempt, *, operation):
             """Acquire with the preparation condition inside the SAME transaction."""
+            if permission is not None and attempt["runtime_attempt_id"] != assignment_id:
+                raise ContractRefusal("runtime-observation", "identity-mismatch", "the execution envelope belongs to another prepared assignment")
             domain = tokens.domain_of(ordinary.resource_kind,
                                       ordinary.identity(attempt))
+            # W325959: THE JOB'S OWN BOUNDED LIFETIME, OR THE DEFAULT.
+            #
+            # `seconds` is passed only when a caller resolved one; `acquire`
+            # refuses `seconds` beside `permission`, so the two stay exclusive
+            # and a caller that supplies neither keeps LIFETIME_SECONDS. The
+            # native path supplied neither, which is why its task token took
+            # 900 while its Job allowed 3600 -- the recorded pilot failure.
+            extra = {} if seconds is None else {"seconds": seconds}
             token = tokens.acquire(
                 asking, domain, operation=operation,
                 execution=attempt["runtime_attempt_id"],
-                attempt=attempt["runtime_attempt_id"], eligible=eligible)
+                attempt=attempt["runtime_attempt_id"], eligible=eligible,
+                permission=permission, **extra)
             tokens.journal_launch(asking, token, operation)
             return tokens.Reservation(asking, token, operation)
 

@@ -118,7 +118,19 @@ SUBMISSION_LIMITS_SCHEMAS = (SUBMISSION_SCHEMA,)
 # W156162 moved this to /5. A Job now reports its requested and EFFECTIVE
 # execution limits with their units, scope and origins, and a reader written
 # against /4 would not know a ceiling had been configured at all.
-STATUS_SCHEMA = "baton.v12.job-status/6"
+# W333486: AND /7 ADDS `attempt_diagnostics` TO EVERY STAGE. What an older
+# reader would not know was recorded is WHICH COMPONENT OF THE WORKER MANAGER
+# ORDERED THIS ATTEMPT'S RUNTIME STOPPED, under which operation identity, with
+# what engine outcome, and whether cessation was established -- plus the token
+# axis, the revocation and the completion the token journal holds. A /6 reader
+# sees a stage with no diagnostic and reads it as "nobody looked", which is
+# the honest thing for it to read: the member is OPTIONAL in the contract, so
+# a document composed before it existed is still a valid one.
+#
+# AND IT IS A DIAGNOSTIC, NOT A STATE. Nothing in the projection branches on
+# it and no stage state is derived from it; a diagnostic cause is not an
+# acceptance and must not become a second route to `exceptional`.
+STATUS_SCHEMA = "baton.v12.job-status/7"
 
 # The three stages this milestone's vertical slice has. They are a CLOSED
 # vocabulary rather than free text because the projection below maps each one
@@ -591,7 +603,8 @@ CONTRACTS = {
                       "profile_name", "profile_digest", "episode", "offer_id",
                       "attempt_id", "episodes", "corrections", "allocation",
                       "allocations", "gates", "receipts", "deferral",
-                      "runtime", "exchange", "artifacts"), ()),
+                      "runtime", "exchange", "artifacts"),
+                     ("attempt_diagnostics", "diagnostic_degradation",)),
     # W156162 added `execution_limits`, which is why STATUS_SCHEMA moved to /5.
     # W197661 added `deferral` to `stage.status`, which is why it is at /6: a
     # reader that must not mistake a re-enterable deferral for a state has to

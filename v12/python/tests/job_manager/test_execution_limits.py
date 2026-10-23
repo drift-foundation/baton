@@ -273,7 +273,7 @@ class TheStoreKeepsWhatTheJobAskedFor(JobManagerCase):
         submit(store, limited(verification_command_seconds=120))
         held = projection.status(store, self.operations(),
                                  observed_at=NOW)
-        self.assertEqual(held["schema"], "baton.v12.job-status/6")
+        self.assertEqual(held["schema"], "baton.v12.job-status/7")
         [entry] = [one for one in held["jobs"] if one["job_id"] == "job-a"]
         answer = entry["execution_limits"]
         self.assertEqual(answer["requested"],

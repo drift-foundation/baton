@@ -1389,7 +1389,7 @@ class TheGUIDES_OWN_EXAMPLE_COMPOSES_AND_SERVES_FROM_SOURCE(unittest.TestCase):
         self.assertIs(published.get("canonical"), True)
         self.assertEqual(published.get("jobs"), [])
         self.assertTrue(published.get("observed_at"))
-        self.assertEqual(published.get("schema"), "baton.v12.job-status/6")
+        self.assertEqual(published.get("schema"), "baton.v12.job-status/7")
         # AND IT IS THIS RUN'S: `start` refuses unless a snapshot was written
         # DURING it, which is the gate the message above reports.
         self.assertGreater(os.path.getmtime(place), self.started)

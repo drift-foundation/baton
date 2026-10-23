@@ -3530,6 +3530,14 @@ def _order_quiescence(store, agent, adapter, attempt_id, assignment,
     # A governed launch binds its container before the attempt attaches it; that
     # interval still has a known writer. Resolve it from the token owner's
     # execution/start-operation binding, never from caller-supplied identity.
+    # W333486: THE GOVERNED GENERATION IS NAMED IN THIS SCOPE because the
+    # cessation records below are keyed on it -- cancellation is a SECOND
+    # terminating component and carries its own operation identity and its own
+    # typed outcome, so a composed cause does not answer `unknown` for an
+    # attempt that cancellation actually ended.
+    from . import failure_cause
+    domain = None
+    generation = None
     runtime_id = attempt["runtime_id"]
     if attempt["workspace_device"] is not None and attempt["workspace_inode"] is not None:
         from . import tokens
@@ -3539,8 +3547,22 @@ def _order_quiescence(store, agent, adapter, attempt_id, assignment,
             token = tokens.token_of(store, domain, generation)
             bound = token["container"]
             if runtime_id is not None and bound is not None and bound != runtime_id:
-                raise ContractRefusal("runtime-observation", "identity-mismatch",
-                                      "the attempt and its token name different runtimes; cancellation cannot choose another execution")
+                # W341357 R2: THE RECORDER'S ANSWER IS CARRIED ON THE
+                # REFUSAL. The return was dropped, so a journal that could
+                # not write this manager's own typed fact raised exactly the
+                # ordinary refusal and nothing said the fact was lost. The
+                # pair and the message leave unchanged; nothing is ordered
+                # either way, which is what this refusal protects.
+                reported = failure_cause.record_cessation_outcome(
+                    store, attempt_id, component="cancellation",
+                    generation=generation, runtime_id=bound,
+                    correlation_id=operation_id, effects=(),
+                    outcome="identity-mismatch",
+                    category="runtime-observation", code="identity-mismatch")
+                raise failure_cause.carry_degradation(
+                    ContractRefusal("runtime-observation", "identity-mismatch",
+                                    "the attempt and its token name different runtimes; cancellation cannot choose another execution"),
+                    reported)
             if runtime_id is None and not token["returned"]:
                 runtime_id = bound
     current = attempt["execution_runtime"]
@@ -3548,10 +3570,26 @@ def _order_quiescence(store, agent, adapter, attempt_id, assignment,
         observe(store, attempt_id=attempt_id, axis="execution_runtime",
                 value="cancel-requested")
     if runtime_id is None:
-        return documents.quiescence_not_ordered(
-            ordered=False,
-            why=f"attempt {name_value(attempt_id)} has no attached or token-bound runtime identity; "
-                f"the assignment is fenced but an unresolved launch is not proof of cessation")
+        # W333486: FENCED BUT NOT ORDERED, as the typed fact it is. The
+        # Authority fence is held and no identity resolved, so nothing was
+        # ordered and nothing ceased -- and an unresolved launch is not proof
+        # of cessation.
+        # W341357 R2: carried onto the document. `diagnostic_degradation`
+        # is declared OPTIONAL on `quiescence.not-ordered` for exactly the
+        # reason it already was on `quiescence.ordered`, so an ordinary
+        # answer is byte-for-byte what it was and `ordered: false` still
+        # means the fence is held and nothing was ordered.
+        reported = failure_cause.record_cessation_outcome(
+            store, attempt_id, component="cancellation",
+            generation=generation, runtime_id=None,
+            correlation_id=operation_id, effects=(),
+            outcome="fenced-not-ordered")
+        return failure_cause.carry_degradation(
+            documents.quiescence_not_ordered(
+                ordered=False,
+                why=f"attempt {name_value(attempt_id)} has no attached or token-bound runtime identity; "
+                    f"the assignment is fenced but an unresolved launch is not proof of cessation"),
+            reported)
     if current == "destroyed":
         return documents.quiescence_not_ordered(
             ordered=False,
@@ -3575,35 +3613,107 @@ def _order_quiescence(store, agent, adapter, attempt_id, assignment,
     # means absence cannot carry presence.
     agent_failure = []
     agent_settlement = None
+    # W333486: THE INTENT IS DURABLE BEFORE EITHER BOUNDARY IS CROSSED, under
+    # the runtime resolved from the token and the manager's own operation
+    # identity -- the same one both sides are handed, so each settles the same
+    # act and a later reader joins them.
+    # review340349 item 3: AND IT RAISES WHEN NOTHING COULD BE MADE DURABLE,
+    # so neither boundary is crossed without a record of this manager having
+    # ordered it. Refusing here leaves the assignment FENCED and its runtime
+    # not ordered stopped, which is the typed `fenced-not-ordered` state this
+    # path already answers elsewhere rather than an invented one -- and it
+    # weakens no fence and no cleanup, because it happens before both.
+    reported = failure_cause.ensure_cessation_intent(
+        store, attempt_id, component="cancellation", generation=generation,
+        domain=domain, launched=True, runtime_id=runtime_id,
+        correlation_id=operation_id)
+    issued = []
     try:
         agent_settlement = agent.cancel({
             "attempt_id": attempt_id, "assignment": assignment,
             "runtime_id": runtime_id, "operation_id": operation_id})
     except BaseException as failure:
         agent_failure.append(failure)
+    else:
+        issued.append("agent-cancel")
     try:
         runtime_settlement = adapter.stop({
             "runtime_id": runtime_id, "operation_id": operation_id})
     except BaseException as failure:
+        # W333486: A KNOWN TYPED ENGINE FAILURE IS NOT AN UNKNOWN. The typed
+        # pair is recorded where there is one and the category is the generic
+        # `engine-unavailable` where the boundary raised something untyped;
+        # the cessation stays explicitly unknown either way, and no message
+        # reaches the record.
+        # W341357 R2: AND THE RECORDING ANSWER IS CARRIED ON WHATEVER
+        # LEAVES. The intent is durable, both boundaries were reached, and
+        # this KNOWN typed engine failure is the thing the record exists for
+        # -- so a journal that could not take it is reported rather than
+        # stepped over. `reported` already holds the intent's own sentence.
+        reported += failure_cause.record_cessation_outcome(
+            store, attempt_id, component="cancellation",
+            generation=generation, runtime_id=runtime_id,
+            correlation_id=operation_id, effects=issued,
+            outcome=("stop-failed" if isinstance(failure, ContractRefusal)
+                     else "engine-unavailable"),
+            category=getattr(failure, "category", None),
+            code=getattr(failure, "code", None))
         # Both boundaries failed. Neither is allowed to hide the other, and
         # choosing between them would be this boundary deciding which failure
         # the caller is entitled to see.
+        #
+        # NEITHER HIDES THE LOSS EITHER, and the group is where it belongs
+        # when there are two: the degradation is about the act, not about one
+        # of the two boundaries that refused it.
         if agent_failure:
-            raise ExceptionGroup(
-                f"neither the agent nor the runtime accepted cancellation for "
-                f"attempt {attempt_id}",
-                [agent_failure[0], failure]) from None
-        raise
+            raise failure_cause.carry_degradation(
+                ExceptionGroup(
+                    f"neither the agent nor the runtime accepted cancellation "
+                    f"for attempt {attempt_id}",
+                    [agent_failure[0], failure]),
+                reported) from None
+        raise failure_cause.carry_degradation(failure, reported)
+    issued.append("stop")
     if agent_failure:
-        raise agent_failure[0]
+        # THE STOP CROSSED AND THE AGENT DID NOT. Recorded before the agent's
+        # failure is re-raised, because what this manager ordered is a fact
+        # independent of which boundary went wrong.
+        # W341357 R2: carried on the agent's own failure as it is re-raised.
+        # What this manager ordered is a fact independent of which boundary
+        # went wrong, and so is whether that fact reached disk.
+        reported += failure_cause.record_cessation_outcome(
+            store, attempt_id, component="cancellation",
+            generation=generation, runtime_id=runtime_id,
+            correlation_id=operation_id, effects=issued, outcome="ordered")
+        raise failure_cause.carry_degradation(agent_failure[0], reported)
+    # W333486: ORDERED IS ORDERED AND NOTHING MORE. Both boundaries accepted
+    # the act; neither answer is evidence that the runtime ceased, so the
+    # outcome is `ordered` and its cessation is explicitly unknown. Positive
+    # quiescence arrives as an OBSERVATION or not at all.
+    reported += failure_cause.record_cessation_outcome(
+        store, attempt_id, component="cancellation", generation=generation,
+        runtime_id=runtime_id, correlation_id=operation_id, effects=issued,
+        outcome="ordered")
+    # review340349 item 3: BOTH BOUNDARIES CROSSED AND THE ACCOUNT MAY NOT
+    # HAVE REACHED DISK. Reported beside the settlements rather than stepped
+    # over, and only when something failed, so an ordinary cancellation's
+    # document is exactly what it was.
+    #
+    # W341357 R2: through the contract's own owner, which is now the one
+    # place this member is written and the one place it is bounded. The two
+    # near-identical constructions this replaced were one document built
+    # twice, and the member list of the answer depended on which branch ran.
+    #
     # ORDERED, not done. Each settlement is passed through as the boundary gave
     # it, un-summarized: the manager has no basis for turning either into a fact
     # about the world, and normalizing "returned nothing" into "returned null"
     # is a smaller version of the same mistake.
-    return documents.quiescence_ordered(
-        ordered=True, runtime_id=runtime_id,
-        agent_settlement=agent_settlement,
-        runtime_settlement=runtime_settlement)
+    return failure_cause.carry_degradation(
+        documents.quiescence_ordered(
+            ordered=True, runtime_id=runtime_id,
+            agent_settlement=agent_settlement,
+            runtime_settlement=runtime_settlement),
+        reported)
 
 
 # -- step 4: finalizing an assignment that is ALREADY QUIESCENT ---------------

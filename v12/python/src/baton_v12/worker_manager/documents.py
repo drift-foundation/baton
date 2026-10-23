@@ -41,12 +41,17 @@ __all__ = ["CONTRACTS", "ASSIGNMENT", "profile_certified",
            # this package's own act, and a public constructor would be one
            # more trust-domain crossing for a caller nobody has.
            "RUNTIME_PREPARATION_FAILED",
+           # W333486: the two member sets are exported for the reason the
+           # sibling above is -- `failure_cause` owns the documents it reads
+           # back against them -- and the constructors stay package-private.
+           "ATTEMPT_CESSATION_INTENT", "ATTEMPT_CESSATION_OUTCOME",
            "DESTROY_COMMAND",
            "FAILED_START_DESTROY_COMMAND",
            "attempt_recorded", "assignment_activated", "observation",
            "runtime_labels", "runtime_start_requested", "runtime_attached",
            "runtime_uncertain", "runtime_not_submitted", "runtime_cancel",
            "cancel_intent",
+           "attempt_cessation_intent", "attempt_cessation_outcome",
            "quiescence_ordered", "quiescence_not_ordered",
            "attempt_cancelled", "FENCED_BEFORE_START",
            "fenced_before_start",
@@ -198,6 +203,57 @@ CONTRACTS = {
     "runtime.preparation-failed": (("attempt_id", "expect",
                                     "runtime_id", "execution_runtime",
                                     "failure"), ()),
+    # W333486: THE TWO HALVES OF AN ORDERED CESSATION, and they are two
+    # documents because intent and outcome are two facts. A manager that
+    # ordered a container stopped knows that it ordered it; whether the
+    # container ceased is a separate question whose answer may never arrive.
+    # Folding them into one record would make every captured intent read as a
+    # performed stop, which is the inference `review-333812` forbids.
+    #
+    # `component` names WHICH owner ordered the effect -- expiry reclaim,
+    # the revoked-generation settlement, or cancellation -- because an attempt
+    # that cancellation ended and one that expiry reclaimed are different
+    # accounts and a composed cause that knew only one would answer `unknown`
+    # for the other.
+    #
+    # `runtime_id` IS THE TOKEN-BOUND CONTAINER, substituted exactly as
+    # `intake.reclaim_expired_resource` substitutes it: the token may bind a
+    # container before the attempt attaches it, so the attempt column can be
+    # `None` while a real writer exists.
+    "attempt.cessation-intent": (("attempt_id", "expect",
+                                  "start_operation_id", "component",
+                                  "domain", "generation", "launched",
+                                  "runtime_id", "correlation_id"), ()),
+    # THE OUTCOME IS REPLAY-HONEST. `effects` is what THIS pass actually
+    # ordered -- `()` for a replayed reclaim that observed an exact absence,
+    # `("remove",)` for one that observed `quiescent` and therefore skipped the
+    # stop and still removed, `("stop", "remove")` otherwise. A record that
+    # named the act's PURPOSE rather than its effects would read a pass that
+    # ordered nothing as a pass that ordered a stop.
+    #
+    # `outcome` is the typed vocabulary and `cessation` is deliberately a
+    # SEPARATE member: a known typed stop failure is not an unknown, and a
+    # cessation that is unknown is not a failure. `category` and `code` carry
+    # the typed pair of a refusal and are `None` when there was none; no
+    # message, no engine text and no exception repr is carried here, because a
+    # durable record is the last place a secret should be able to reach.
+    #
+    # W333486 review340349 item 3: AND IT CARRIES ITS OWN PLACE IN A
+    # SUPERSESSION CHAIN. Outcome identity is fixed by the attempt, its
+    # assignment, the start operation, the component and the generation --
+    # facts that cannot change -- so an UNCERTAIN first observation followed
+    # by a LATER POSITIVE one used to collide under one id and the uncertain
+    # one was retained forever. `revision` is that id's one changeable
+    # coordinate and `supersedes` names the record this one replaces, so both
+    # observations are kept and a reader can see WHICH IS CURRENT. A historical
+    # uncertainty is not allowed to become an enduring substitute for better
+    # later evidence.
+    "attempt.cessation-outcome": (("attempt_id", "expect",
+                                   "start_operation_id", "component",
+                                   "generation", "runtime_id",
+                                   "correlation_id", "effects", "outcome",
+                                   "cessation", "category", "code",
+                                   "revision", "supersedes"), ()),
     # W32576: THE OTHER MANAGER-OWNED ENDING RECORD, and it is a sibling of
     # the one above rather than a variant of it. A start that failed and a
     # handshake that refused are two different facts about one attempt -- the
@@ -250,9 +306,22 @@ CONTRACTS = {
     # ORDERED, NOT DONE. Reaching a boundary is not evidence of its effect, so
     # the two settlements ride back UNINTERPRETED and the manager reports only
     # what it did: it ordered the acts.
+    # W333486 review340349 item 3: `diagnostic_degradation` is OPTIONAL and
+    # is present only when a cessation record could not be written. An
+    # ordinary cancellation's document is therefore unchanged, and a failure
+    # to record is observable instead of stepped over.
     "quiescence.ordered": (("ordered", "runtime_id", "agent_settlement",
-                            "runtime_settlement"), ()),
-    "quiescence.not-ordered": (("ordered", "why"), ()),
+                            "runtime_settlement"),
+                           ("diagnostic_degradation",)),
+    # W341357 R2: `diagnostic_degradation` is OPTIONAL here for exactly the
+    # reason it already is on `quiescence.ordered` one entry up. This branch
+    # records `fenced-not-ordered` -- the manager's own typed fact that the
+    # assignment is fenced and nothing was ordered -- and dropped the
+    # recorder's answer, so a journal that could not write that fact returned
+    # a document saying only `ordered: false`. Present only when a record
+    # could not be written, so an ordinary answer is unchanged.
+    "quiescence.not-ordered": (("ordered", "why"),
+                               ("diagnostic_degradation",)),
     # NESTED RATHER THAN MERGED. The frozen host spread the intent, the fence
     # and the quiescence answer into one object, so its member set depended on
     # which branch ran. Three named members always present is a document a
@@ -559,6 +628,8 @@ RUNTIME_LABELS = CONTRACTS["runtime.labels"][0]
 # members against the attempt row -- so it is owned as a document first.
 RUNTIME_START_FAILED = CONTRACTS["runtime.start-failed"][0]
 RUNTIME_PREPARATION_FAILED = CONTRACTS["runtime.preparation-failed"][0]
+ATTEMPT_CESSATION_INTENT = CONTRACTS["attempt.cessation-intent"][0]
+ATTEMPT_CESSATION_OUTCOME = CONTRACTS["attempt.cessation-outcome"][0]
 DESTROY_COMMAND = CONTRACTS["destroy.command"][0]
 FAILED_START_DESTROY_COMMAND = CONTRACTS["destroy.failed-start-command"][0]
 # W32576: read back by the refused-session cleanup crossing, for the same
@@ -925,6 +996,28 @@ def runtime_preparation_failed(**members):
     DESTRUCTION AUTHORIZATION and this one authorizes nothing at all.
     """
     return _emit("runtime.preparation-failed", members)
+
+
+def attempt_cessation_intent(**members):
+    """W333486: THIS MANAGER IS ABOUT TO ORDER THIS EXACT RUNTIME STOPPED.
+
+    Written BEFORE the engine is asked, so a death between the effect and any
+    later record cannot lose the fact that this manager ordered it. It proves
+    nothing about what happened -- that is the outcome's job -- and a reader
+    that treated it as a stop would be inferring an effect from an intent.
+    """
+    return _emit("attempt.cessation-intent", members)
+
+
+def attempt_cessation_outcome(**members):
+    """W333486: WHAT THE ENGINE ANSWERED, and what is still unknown.
+
+    Separate from the intent above, and its `cessation` member is separate
+    from its `outcome` member, because a known typed stop failure and an
+    unestablished cessation are two facts that must not collapse into "no
+    termination evidence".
+    """
+    return _emit("attempt.cessation-outcome", members)
 
 
 def runtime_cancel(**members):

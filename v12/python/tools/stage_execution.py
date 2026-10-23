@@ -6396,7 +6396,8 @@ def _pool(given, resolved):
 def operations_from(document, job_store, control_store, *, engine_run=None,
                     credential_provider=None, clock=None, checkpoint=None,
                     checkout=None, checkpoint_profile=None,
-                    review_verdict=None, integration_port=None):
+                    review_verdict=None, integration_port=None, permission_policy=None,
+                    lifetime_policy=None):
     """Compose the whole stage deployment, or change nothing at all.
 
     THE ORDER IS THE CONTRACT, AND REVIEW 2026-09-07T14-12-42Z [P1] IS WHY IT
@@ -6582,7 +6583,8 @@ def operations_from(document, job_store, control_store, *, engine_run=None,
                 operations = single_worker.worker_operations(
                     one["deployment"], control_store, composed.authority,
                     provider, engine_run=engine_run, clock=clock,
-                    checkpoint=checkpoint,
+                    checkpoint=checkpoint, permission_policy=permission_policy,
+                    lifetime_policy=lifetime_policy,
                     stage=StageComposition(deployment, role=one["role"],
                                            worker_id=one["worker_id"]),
                     # W156162: the same reader every Job-bound factory gets.
@@ -6817,9 +6819,64 @@ def _configuration():
     return _read(place)
 
 
+def native_lifetime_policy(deployment):
+    """THE NATIVE TASK-TOKEN LIFETIME, from each attempt's OWN Job.
+
+    W325959. The native stop owner is the serving loop's reclaim pass --
+    `tokens.Governance.overdue` answers only for an expired token and
+    `tools/job_manager._reclaiming` acts on it -- so natively the token
+    lifetime IS the execution bound. This resolves it from the Job's admitted
+    configuration through its owner, `execution_limits.task_token_seconds`,
+    and answers `None` when there is no Job context to resolve from, which
+    leaves the acquisition default exactly where it was.
+
+    NOT AN ENVELOPE. An envelope would record a `stop_at` that no native party
+    enforces -- nothing native reads it -- so this uses the bounded `seconds`
+    the acquisition already supports and the reclaim pass already enforces.
+    """
+    from baton_v12.job_manager import execution_limits
+
+    def select(control, stage, context):
+        del control
+        if not isinstance(stage, dict) or not isinstance(context, dict):
+            return None
+        if context.get("attempt_id") != stage.get("attempt_id"):
+            return None
+        limits = context.get("execution_limits")
+        if not isinstance(limits, dict):
+            return None
+        # THROUGH THE OWNER, NEVER RE-DERIVED. A resolution this build cannot
+        # reproduce is refused rather than guessed at, the same rule
+        # `managed_execution._resolved_limits` follows one layer down.
+        requested = execution_limits.owned_execution_limits(
+            limits.get("requested"))
+        generation = execution_limits.owned_generation(
+            limits.get("compatibility_generation"))
+        rebuilt = execution_limits.resolved(requested, generation)
+        if limits != rebuilt:
+            raise ContractRefusal(
+                "refused", "precondition",
+                "a task token lifetime is composed from the admitted Job "
+                "resolution, and this document is not the one its owner "
+                "produces")
+        return execution_limits.task_token_seconds(rebuilt)
+
+    del deployment
+    return select
+
+
 def factory(job_store, control_store):
-    """The `module:attribute` entry point `tools.job_manager` already loads."""
-    return operations_from(_configuration(), job_store, control_store)
+    """The `module:attribute` entry point `tools.job_manager` already loads.
+
+    W325959: it now supplies the NATIVE LIFETIME POLICY. Without it the
+    prepared acquisition took `tokens.LIFETIME_SECONDS` -- 900 -- while the
+    Job allowed a 3600-second provider turn, which is the recorded pilot
+    failure. No permission envelope is supplied: see `native_lifetime_policy`.
+    """
+    configuration = _configuration()
+    return operations_from(configuration, job_store, control_store,
+                           lifetime_policy=native_lifetime_policy(
+                               configuration))
 
 
 # -- the observation-only surface --------------------------------------------

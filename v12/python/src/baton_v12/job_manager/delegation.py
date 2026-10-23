@@ -61,6 +61,9 @@ from ..worker_manager import (attempt_activity_of, attempt_runtime_of,
                               attempt_start_failure_of, boundaries,
                               claimed_offers_for, frozen_output_of,
                               issue_offer, recover_on_restart, submit_claim)
+from ..worker_manager.failure_cause import (DIAGNOSTIC_SCHEMA,
+                                            attempt_failure_cause_of, degradation_of,
+                                            DEGRADATION_MEMBER)
 from ..worker_manager.events import publish_offer_states
 
 __all__ = ["CANONICAL_OPERATIONS", "INTENT_OPERANDS", "OBSERVATION_MEMBERS",
@@ -147,7 +150,16 @@ OBSERVATION_MEMBERS = ("claimed_by", "runtime", "activity", "output",
 # before this member existed is still a complete one: it is normalized to
 # `None` here, which means nobody looked, and every such deployment keeps its
 # exact previous behaviour.
-OBSERVATION_OPTIONAL = ("integration",)
+# W333486: AND THE SAME RULE FOR THE COMPOSED ATTEMPT DIAGNOSTIC.
+#
+# OPTIONAL FOR EXACTLY THE REASON ABOVE, and review340349 blocker 1 is why it
+# exists at all: the composed cause had no production caller, so ordinary
+# status could not carry it and the supported report could only ever see a
+# fixture. Fixtures on both sides of an unjoined seam prove nothing. This is
+# the join -- `ManagerOperations.observe` supplies it from the control store
+# it already holds, and an observation composed before this member existed is
+# still a COMPLETE one: it normalizes to `None`, which means nobody looked.
+OBSERVATION_OPTIONAL = ("integration", "diagnostics", "diagnostic_degradation")
 
 # W126558, `work/records/2026/09/finding-v12-composed-ending-consumer/findings/
 # finding-integration-stage-observation/OBSERVATION.md` revision 1.
@@ -239,7 +251,7 @@ def unobserved():
     return {"claimed_by": None, "runtime": None, "activity": None,
             "output": None, "start_failure": None,
             "preparation_failure": None, "exchange": None,
-            "integration": None}
+            "integration": None, "diagnostics": None, "diagnostic_degradation": None}
 
 
 def canonical_operation(act, offer_id):
@@ -380,6 +392,8 @@ def _bound(observed, stage):
                                required=OBSERVATION_MEMBERS,
                                optional=OBSERVATION_OPTIONAL)
     held.setdefault("integration", None)
+    held.setdefault("diagnostics", None)
+    held.setdefault("diagnostic_degradation", None)
     holder = held["claimed_by"]
     if holder is None:
         return unobserved()
@@ -397,7 +411,64 @@ def _bound(observed, stage):
             f"runtime this store never obtained and leave this stage's own "
             f"claim owed to nobody")
     held["integration"] = _integration_observation(held, stage)
+    # W333486: AND THE DIAGNOSTIC IS BOUND HERE for the same reason the
+    # integration observation is -- `_bound` is the one place that has already
+    # proved WHOSE claim this attempt is under, and that proof is exactly what
+    # a composed cause must be held against.
+    held["diagnostics"] = _attempt_diagnostic(held, stage)
     return held
+
+
+def _attempt_diagnostic(held, stage):
+    """One composed attempt diagnostic, OWNED and bound to THIS stage's attempt.
+
+    W333486 review340349 blocker 1. `None` is the ordinary and compatible
+    answer: a deployment with no manager control store, and every stage
+    between an ending and its replacement, answer it -- and `None` means
+    NOBODY LOOKED, which is not the same fact as nothing having happened.
+
+    THE SCHEMA IS OWNED IN BOTH DIRECTIONS. A document carrying a version
+    this build does not own is not silently accepted and not silently
+    dropped: it is refused, because a reader that accepted a shape it was not
+    written against would be reporting members it cannot own, and one that
+    discarded it quietly would hide that the producer had moved.
+
+    AND THE EPISODE AND RUNTIME CORRELATION SURVIVES THE JOIN. The diagnostic
+    is composed under an ATTEMPT id, and this stage's attempt id is the one it
+    must be about; a diagnostic naming another attempt is a statement about
+    somebody else's stage. The runtime correlation is the diagnostic's own
+    `execution.token_bound_runtime_id`, which the composition re-proved
+    against the token -- this does not re-derive it, because deriving it a
+    second time here would be this leaf answering the Worker Manager's
+    question.
+
+    NOTHING HERE IS AN ACT and nothing here decides a stage state.
+    """
+    found = held.get("diagnostics")
+    if found is None:
+        return None
+    what = f"stage {name_value(stage.get('stage_id'))}'s attempt diagnostic"
+    if not isinstance(found, dict):
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"{what} is a {type(found).__name__}; a composed attempt "
+            f"diagnostic is an object or it is absent")
+    if found.get("schema") != DIAGNOSTIC_SCHEMA:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"{what} carries schema {name_value(found.get('schema'))} and "
+            f"this build owns {name_value(DIAGNOSTIC_SCHEMA)}; a reader that "
+            f"accepted a shape it was not written against would report "
+            f"members it cannot own")
+    expected = stage.get("attempt_id")
+    if found.get("attempt_id") != expected:
+        raise ContractRefusal(
+            "refused", "operation-collision",
+            f"{what} is about attempt {name_value(found.get('attempt_id'))} "
+            f"and this stage's claim is on {name_value(expected)}; a "
+            f"diagnostic about another attempt cannot say what happened to "
+            f"this one")
+    return found
 
 
 def _integration_observation(held, stage):
@@ -673,7 +744,7 @@ class ManagerOperations:
                  "_deliver_bearer", "_start_runtime", "_observe_exchange",
                  "_observe_integration",
                  "_dispatch_exchange", "_conclude_attempt",
-                 "_refresh_runtime")
+                 "_refresh_runtime", "_diagnostic_degradations")
 
     # THE CANONICAL STORE IS OPEN. A status document says so, because a
     # projection assembled without the manager can only report what was
@@ -686,6 +757,7 @@ class ManagerOperations:
                  observe_integration=None,
                  dispatch_exchange=None, conclude_attempt=None,
                  refresh_runtime=None):
+        self._diagnostic_degradations = set()
         self.control = control
         self.port = port
         # THE TRANSPORT IS OURS BY DEFAULT AND SUPPLIABLE ON PURPOSE. One
@@ -874,7 +946,7 @@ class ManagerOperations:
                 f"launch stage {name_value(stage['stage_id'])}; a deployment "
                 f"that admits and claims without one is a control plane that "
                 f"reports work it can never begin")
-        return self._start_runtime(stage, job)
+        return self._diagnostic_call(stage, self._start_runtime, stage, job)
 
     def refresh_runtime(self, stage):
         """Ask the ENGINE what this attempt's attached runtime is now.
@@ -901,7 +973,7 @@ class ManagerOperations:
         """
         if self._refresh_runtime is None:
             return None
-        return _refreshed(self._refresh_runtime(stage), stage)
+        return _refreshed(self._diagnostic_call(stage, self._refresh_runtime, stage), stage)
 
     def dispatch(self, stage, job):
         """Publish THE ONE command sequence for a started, idle runtime.
@@ -955,7 +1027,35 @@ class ManagerOperations:
                 f"conclude stage {name_value(stage['stage_id'])}; an answered "
                 f"worker whose result nobody freezes is a stage that will "
                 f"never complete")
-        return self._conclude_attempt(stage, job)
+        return self._diagnostic_call(stage, self._conclude_attempt, stage, job)
+
+    def _diagnostic_call(self, stage, call, *operands):
+        """Keep carrier evidence for this attempt in the serving observation.
+
+        This is explicitly process-local evidence, never a durable receipt or
+        a negative assertion after restart. The private failure sentence is
+        not retained. Reads do not call this function or mutate the cache.
+        """
+        try:
+            answer = call(*operands)
+        except Exception as failure:
+            if degradation_of(failure) is not None:
+                self._diagnostic_degradations.add(stage["attempt_id"])
+            raise
+        if type(answer) is dict and degradation_of(answer) is not None:
+            self._diagnostic_degradations.add(stage["attempt_id"])
+        return answer
+
+    def _diagnostics(self, attempt_id):
+        try:
+            # The public producer uses tuples for immutable name lists.
+            # Own their JSON representation before the strict POD boundary.
+            return json.loads(json.dumps(attempt_failure_cause_of(self.control, attempt_id)))
+        except (ContractRefusal, OSError, ValueError, KeyError, TypeError):
+            # Diagnostic evidence failure does not erase the independent
+            # runtime/state observation. Never copy exception text here.
+            return {"schema": DIAGNOSTIC_SCHEMA, "attempt_id": attempt_id,
+                    "unavailable": True}
 
     def observe(self, stage):
         """Every canonical fact the projection needs, from public readers.
@@ -1005,7 +1105,20 @@ class ManagerOperations:
                 # is that answer rather than a state.
                 "integration": (self._observe_integration(stage)
                                 if self._observe_integration is not None
-                                else None)}
+                                else None),
+                # W333486 review340349 blocker 1: AND THE COMPOSED CAUSE, from
+                # the control store this object already holds. It is the
+                # SEVENTH READ and it is still no opinion: the composition
+                # reads facts their owners hold, derives nothing itself, and
+                # answers an explicit `unknown` naming which records are
+                # absent for an attempt that predates them. A historical
+                # attempt therefore reaches ordinary status with an honest
+                # unknown rather than with nothing at all.
+                "diagnostics": self._diagnostics(attempt_id),
+                "diagnostic_degradation": (
+                    {"known": True, "value": True,
+                     "source": "ManagerOperations carrier observation; process-local"}
+                    if attempt_id in self._diagnostic_degradations else None)}
 
 
 # WHAT A REFRESH MAY ANSWER, closed. Review 2026-09-04T14-27-54Z [P1]: the
@@ -1076,7 +1189,7 @@ def _refreshed(answer, stage):
         answer,
         f"the deployment's runtime refresh for stage "
         f"{name_value(stage['stage_id'])}",
-        required=("execution_runtime",))
+        required=("execution_runtime",), optional=(DEGRADATION_MEMBER,))
     state = taken["execution_runtime"]
     if state not in REFRESH_STATES:
         raise ContractRefusal(

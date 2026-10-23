@@ -252,11 +252,56 @@ class Operations:
         return self.operations.cancel_attempt(attempt_id=attempt_id, reason='authoring-enforcement')
 
 
+def permission_policy(packet):
+    """Bind prospective acquisition to the persisted controller envelope.
+
+    Invocation limits remain per invocation. The controller owns total execution
+    and cleanup time; acquisition never starts either clock again.
+    """
+    from baton_v12.contracts import ContractRefusal
+    from baton_v12.job_manager import execution_limits
+
+    def select(control, stage, context):
+        record = control.operation_record(KIND + ':' + packet['run_id'])
+        if record is None or not isinstance(stage, dict) or not isinstance(context, dict) or stage.get('job_id') != packet['submission']['job_id'] or context.get('job_id') != stage.get('job_id') or context.get('attempt_id') != stage.get('attempt_id'):
+            raise ContractRefusal('refused', 'precondition', 'permission requires the selected Job and persisted execution envelope')
+        held, _ = envelope(control, packet)
+        limits = context.get('execution_limits')
+        if not isinstance(limits, dict):
+            raise ContractRefusal('refused', 'precondition', 'permission requires populated Job invocation limits')
+        requested = execution_limits.owned_execution_limits(limits.get('requested'))
+        expected = execution_limits.resolved(requested, limits.get('compatibility_generation'))
+        if limits != expected:
+            raise ContractRefusal('refused', 'precondition', 'permission limits differ from the admitted Job resolution')
+        total, cleanup = packet['bounds']['total_seconds'], packet['bounds']['cleanup_seconds']
+        if type(total) is not int or type(cleanup) is not int or not 0 < cleanup < total:
+            raise ContractRefusal('policy', 'denied', 'execution envelope requires positive execution and cleanup intervals')
+        if limits['boundaries']['provider_turn']['seconds'] + limits['boundaries']['ordinary_verification']['seconds'] > total - cleanup:
+            raise ContractRefusal('policy', 'denied', 'selected envelope cannot support the populated provider and verification limits')
+        def stamp(value):
+            return value.isoformat(timespec='milliseconds').replace('+00:00', 'Z')
+        selected = {'started_at': held['started_at'], 'stop_at': stamp(instant(held['stop_at'])),
+                    'expires_at': stamp(instant(held['started_at']) + timedelta(seconds=total)),
+                    'policy': {'run': packet['run_id'], 'job': stage['job_id'], 'execution_limits': limits,
+                               'total_seconds': total, 'cleanup_seconds': cleanup}}
+        def eligible(connection):
+            del connection
+            if control.operation_record(HALT_KIND + ':' + packet['run_id']) is not None:
+                return 'authoring envelope admission is closed'
+            remaining = (instant(held['stop_at']) - instant(control._now())).total_seconds()
+            needed = limits['boundaries']['provider_turn']['seconds'] + limits['boundaries']['ordinary_verification']['seconds']
+            if remaining < needed:
+                return 'remaining execution envelope cannot support the populated invocation limits'
+            return None
+        return selected, eligible
+    return select
+
+
 def child_compose(packet, job, control, stream):
     del stream
     with open(packet['deployment']['config_path'], encoding='utf-8') as handle:
         config = json.load(handle)
-    operations = stage_execution.operations_from(config, job, control, engine_run=bounded_engine, checkout=packet['code_boundary'])
+    operations = stage_execution.operations_from(config, job, control, engine_run=bounded_engine, checkout=packet['code_boundary'], permission_policy=permission_policy(packet))
     return Operations(operations, control, packet['run_id'])
 
 

@@ -32,7 +32,9 @@ from ..contracts import ContractRefusal
 from ..contracts.errors import name_value
 from ..worker_manager import boundaries
 
-__all__ = ["BOUNDARIES", "COMPATIBILITY", "CURRENT_GENERATION",
+__all__ = ["BOUNDARIES", "CHECKOUT_SECONDS", "CHECKOUT_STEPS",
+           "CLEANUP_RESERVE_SECONDS", "task_token_seconds",
+           "COMPATIBILITY", "CURRENT_GENERATION",
            "GENERATIONS", "LEGACY_GENERATION", "LIMIT_MEMBERS", "MAX_SECONDS",
            "MIN_SECONDS", "SCOPE", "UNITS", "boundary_default", "effective",
            "owned_execution_limits", "owned_generation", "requested_from_row",
@@ -171,6 +173,64 @@ def owned_generation(value):
                 f"hold is a resolution it cannot reproduce, and guessing one "
                 f"would reinterpret the Job")
     return value
+
+
+# W325959: THE NATIVE TASK-TOKEN LIFETIME, composed from this owner's own
+# boundaries and nothing invented.
+#
+# WHY A TOKEN LIFETIME BELONGS HERE AT ALL. The native stop owner is the
+# serving loop's reclaim pass: `tokens.Governance.overdue` answers only for an
+# EXPIRED token and `tools/job_manager._reclaiming` acts on what it answers.
+# So on the native path the token's lifetime IS the execution bound, and it has
+# to cover the authorized work the attempt performs inside the workspace or it
+# revokes a worker that is still doing what it was told to do. That is the
+# recorded pilot failure: the task token took the 900-second default while its
+# Job allowed a 3600-second provider turn.
+#
+# WHAT IT COVERS, enumerated rather than estimated -- every bounded operation
+# the worker performs between acquisition and cessation:
+#
+#   * the SOURCE CHECKOUT. `v12/worker/claude_agent.py` gives each step of the
+#     composed plan `CHECKOUT_SECONDS`, and the version-control profile's plan
+#     is three steps (clone, detach, verify). `CHECKOUT_STEPS` is that count.
+#   * ONE PROVIDER TURN, at this Job's resolved `provider_turn`. One, and the
+#     product enforces it: `baton_worker.serve_exchange` publishes its receipt
+#     before dispatch as the replay fence, so a restart or a crash re-entry
+#     "all find it and none of them starts a second provider turn".
+#   * ONE ORDINARY VERIFICATION, at this Job's resolved boundary.
+#
+# WHAT IT DOES NOT COVER, deliberately: offer settlement and host preparation
+# happen BEFORE acquisition, and custody discard, container removal and the
+# stop grace happen at or AFTER cessation. Expiry is not release, so the
+# cleanup reserve below is additional rather than carved out of the work.
+#
+# THIS IS A LIM-2 TOKEN BOUND, not a LIM-3 cumulative one. It is derived per
+# attempt from that attempt's own operations and each attempt acquires its own
+# token, so nothing accumulates across a Job's stages and no whole-Job ceiling
+# is implied.
+CHECKOUT_SECONDS = 900
+CHECKOUT_STEPS = 3
+CLEANUP_RESERVE_SECONDS = 120
+
+
+def task_token_seconds(resolved, *, checkout_steps=CHECKOUT_STEPS,
+                       cleanup_reserve=CLEANUP_RESERVE_SECONDS):
+    """How long a native task token must live for THIS Job's resolution.
+
+    `resolved` is an `execution_limits.resolved` document -- this owner's own
+    output -- so the two invocation ceilings come from the Job's admitted
+    configuration and are never re-derived here. The per-invocation ceilings
+    themselves are UNCHANGED by this: a longer token does not lengthen a
+    provider turn or a verification, it only stops the permission expiring
+    while one of them is legitimately running.
+    """
+    boundaries = resolved["boundaries"]
+    provider = boundaries["provider_turn"]["seconds"]
+    verification = boundaries["ordinary_verification"]["seconds"]
+    if checkout_steps < 0 or cleanup_reserve < 0:
+        _refuse("a token lifetime is composed from non-negative allowances")
+    return (checkout_steps * CHECKOUT_SECONDS + provider + verification
+            + cleanup_reserve)
 
 
 def boundary_default(boundary, generation=CURRENT_GENERATION):

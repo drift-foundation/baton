@@ -1033,4 +1033,12 @@ def _stage_status(entry, held):
         # The frozen result's artifacts carry the manager's own locators. They
         # are reported as the manager recorded them and are not resolved,
         # opened or walked here.
-        artifacts=frozen.get("artifacts") if type(frozen) is dict else None)
+        artifacts=frozen.get("artifacts") if type(frozen) is dict else None,
+        # W333486 review340349 blocker 1: THE COMPOSED ATTEMPT DIAGNOSTIC,
+        # REPORTED AND BRANCHED ON BY NOTHING. `null` says nobody looked,
+        # which is a different answer from a cause that was composed and came
+        # back `unknown`. The stage state above is what the existing axes
+        # decided and this member does not touch it: a diagnostic cause is not
+        # an acceptance and must not become a second route to `exceptional`.
+        attempt_diagnostics=observed.get("diagnostics"),
+        diagnostic_degradation=observed.get("diagnostic_degradation"))
