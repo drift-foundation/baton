@@ -184,6 +184,17 @@ class JobStore:
         self.authority_uuid = authority_uuid
         self.incarnation = incarnation
         self._clock = clock
+        # W359719 review R18: WHICH DATABASE THIS HANDLE WAS OPENED ON.
+        #
+        # The same fact `ControlStore` has carried since W270664 F2, for the
+        # same kind of reason. A caller composing an operation across several
+        # owners has to be able to say that THIS store is the one the
+        # instance it named owns -- and sharing an Authority uuid does not
+        # make two deployments one instance, which is how a probe admitted
+        # one instance's Job through another instance's ports. Read from the
+        # connection rather than from the operand, so it is the database that
+        # is actually open.
+        self.database = self._path_of(connection)
 
     # -- opening -------------------------------------------------------------
 

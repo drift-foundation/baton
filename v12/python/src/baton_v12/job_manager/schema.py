@@ -22,7 +22,8 @@ from ..contracts import ContractRefusal
 from ..worker_manager.boundaries import Column
 
 __all__ = ["ALLOCATION_COLUMNS", "AFFINITY_COLUMNS", "EPISODE_COLUMNS",
-           "DEFERRAL_COLUMNS", "GENERATION_COLUMNS", "MIGRATIONS", "POOL_WORKER_COLUMNS", "SCHEMA", "SCHEMA_VERSION",
+           "DEFERRAL_COLUMNS", "FRESH_ATTEMPT_COLUMNS", "FRESH_ATTEMPT_STATES",
+           "GENERATION_COLUMNS", "MIGRATIONS", "POOL_WORKER_COLUMNS", "SCHEMA", "SCHEMA_VERSION",
            "check_authority",
            "STORE_KIND", "TABLES", "JOB_COLUMNS",
            "JOB_EXECUTION_LIMIT_COLUMNS", "OPERATION_COLUMNS",
@@ -85,7 +86,11 @@ def check_authority(value, *, what):
 # mechanical as well as tidy: `JobStore._schema_three_shape` derives the
 # schema-3 expectation by subtracting what the migrations after 3 CREATE, and a
 # step that ALTERED an existing table could not be subtracted from it.
-SCHEMA_VERSION = 7
+# Eight. W358969 added `fresh_attempts`, the durable reservation a
+# manager-owned fresh attempt is admitted under. CREATE ONLY, for the
+# reason every step after 3 is: `_schema_three_shape` subtracts what the
+# later migrations create, and an ALTER could not be subtracted.
+SCHEMA_VERSION = 8
 
 # W197661 review 2026-09-18T02-59-56Z [R2]: `deferrals` was in `SCHEMA` and in
 # the migration and NOT here, and `JobStore`'s required-table validation reads
@@ -94,8 +99,8 @@ SCHEMA_VERSION = 7
 # creates is a relation the build requires.
 TABLES = ("meta", "operations", "submissions", "jobs",
           "job_execution_limits", "stages", "episodes",
-          "receipts", "deferrals", "pool_generations", "pool_workers",
-          "stage_allocations", "worker_affinity")
+          "receipts", "deferrals", "fresh_attempts", "pool_generations",
+          "pool_workers", "stage_allocations", "worker_affinity")
 
 OPERATION_STATES = ("committed", "refused")
 
@@ -105,6 +110,9 @@ OPERATION_STATES = ("committed", "refused")
 # instead of performing it again. They are two rows-worth of different history
 # and a restart audit needs to tell them apart.
 RECEIPT_STATES = ("performed", "adopted", "refused")
+
+# W358969: a reserved fresh identity, and one that has been recorded.
+FRESH_ATTEMPT_STATES = ("intended", "admitted")
 
 SCHEMA = """
 CREATE TABLE meta (
@@ -493,6 +501,93 @@ CREATE TABLE deferrals (
   PRIMARY KEY (stage_id, episode, act),
   FOREIGN KEY (stage_id, episode) REFERENCES episodes(stage_id, episode)
 );
+
+CREATE TABLE fresh_attempts (
+  -- W358969 / DESIGN REC-7: ONE FRESH ATTEMPT'S RESERVED IDENTITY AND ITS
+  -- LINK BACK TO THE ATTEMPT IT REPLACES.
+  --
+  -- WHY A TABLE AND NOT JUST THE JOURNAL. The journal records that an
+  -- operation happened; this records a Job identity that is SPOKEN FOR before
+  -- any Job row exists. The admission spans two stores -- this one records the
+  -- Jobs, the deployment configuration binds them -- and REC-7 forbids
+  -- claiming one transaction across both. So the identity is reserved HERE
+  -- first, durably, and the bridge to the other store happens afterwards with
+  -- an explicit incomplete state to come back to. A crash between the two
+  -- leaves a row saying exactly which Job was being admitted and from what.
+  --
+  -- THE PRIMARY KEY IS THE RESERVATION. Two concurrent requests for one fresh
+  -- identity cannot both insert it, and the one that loses is told the fact
+  -- rather than racing on to compose a submission nobody can record.
+  job_id TEXT PRIMARY KEY,
+  -- THE RETAINED FAILURE THIS REPLACES, and the attempts it owned. The
+  -- attempt ids are the evidence locators an operator follows back to the
+  -- logs, the runtime and the diagnostics of the execution that failed; a
+  -- fresh attempt that did not carry them would be a new Job with no account
+  -- of why it exists.
+  prior_job_id TEXT NOT NULL,
+  prior_attempt_ids TEXT NOT NULL,
+  work_id TEXT NOT NULL,
+  submission_id TEXT NOT NULL,
+  -- `intended` is reserved and not yet recorded; `admitted` is the submission
+  -- committed. Nothing else: a state for every intermediate cut would be this
+  -- relation claiming to know what the OTHER store did, which is the exact
+  -- cross-store omniscience REC-7 refuses.
+  state TEXT NOT NULL CHECK (state IN ('intended', 'admitted')),
+  -- THE CANONICAL REQUEST, so a second request for the same fresh identity
+  -- carrying different operands is refused as the different intent it is
+  -- rather than resuming somebody else's.
+  request TEXT NOT NULL,
+  -- AND THE EXACT SUBMISSION THIS RESERVATION EXISTS TO ADMIT.
+  --
+  -- W358969 review R9. The reservation named a submission ID, and
+  -- `_unclaimed` exempted anything carrying that name -- so a second writer
+  -- reusing the name with a DIFFERENT document recorded its own Jobs under
+  -- the reserved identity, and the retry published a binding for a pipeline
+  -- it had not described. A name is not an intent. This is the canonical
+  -- signature of the document the admission composed, so the one submission
+  -- that may pass is the one the reservation is actually for.
+  submission_signature TEXT NOT NULL,
+  intended_at TEXT NOT NULL,
+  admitted_at TEXT,
+  incarnation TEXT NOT NULL,
+  -- WHO IS PERFORMING THIS ADMISSION'S EXTERNAL EFFECTS, or NULL for nobody.
+  --
+  -- W358969 review R5. A reservation plus a replayable submission does not
+  -- make the WORK BETWEEN them happen once: two identical concurrent
+  -- requests both passed `_reserved` -- one inserting, one replaying -- and
+  -- both went on to publish a deployment binding. The reservation says the
+  -- identity is spoken for; this says who is allowed to act on it right now,
+  -- and it is taken by a compare-and-swap in the same lock the reservation
+  -- is taken in.
+  --
+  -- IT IS AN OWNERSHIP RECORD, NOT A LEASE WITH A CLOCK. A deadline here
+  -- would be this table deciding that a manager it cannot see has stopped,
+  -- which is exactly the kind of inferred cessation this Work refuses
+  -- everywhere else. A held row is released by its own holder finishing, and
+  -- a holder re-running under the same manager incarnation continues its own
+  -- interrupted work.
+  holder TEXT,
+  CHECK ((state = 'intended' AND admitted_at IS NULL)
+         OR (state = 'admitted' AND admitted_at IS NOT NULL)),
+  -- THE PRIOR JOB MUST BE ONE THIS STORE HOLDS. A fresh attempt at a Job this
+  -- manager never admitted is not a retry of anything.
+  FOREIGN KEY (prior_job_id) REFERENCES jobs(job_id)
+);
+
+CREATE UNIQUE INDEX fresh_attempts_one_successor
+  -- ONE FAILED JOB HAS ONE SUCCESSOR, enforced by the DATABASE. W358969
+  -- review R2: the first cut asked this with a SELECT before the reservation
+  -- transaction, which is a read-then-write check -- an independent
+  -- two-connection probe synchronized two requests past that read and both
+  -- were admitted, so one failure acquired `retry-left` AND `retry-right`.
+  -- The constraint belongs where two writers meet, and that is here: the
+  -- second INSERT fails inside the loser's own transaction however the reads
+  -- interleaved.
+  --
+  -- THE COMMENT IS AFTER THE VERB on purpose. `store._created_name` reads a
+  -- migration statement's first word to derive what schema 3 is a
+  -- subtraction OF, and a statement whose first word is `--` is refused.
+  ON fresh_attempts (prior_job_id);
 """
 
 # version already recorded -> the statements that carry it to the next one.
@@ -870,6 +965,99 @@ CREATE TABLE deferrals (
   FOREIGN KEY (stage_id, episode) REFERENCES episodes(stage_id, episode)
 );
 """,
+    # W358969, CREATE ONLY and keyed 7 because `_migrate` reads
+    # `MIGRATIONS[at]` and then increments -- the step TO schema 8 is the one
+    # a store at 7 takes. An existing store migrates rather than refusing: the
+    # Jobs it holds are pipelines somebody is running, and a fresh attempt is
+    # exactly what an operator with a failed one needs.
+    7: """
+CREATE TABLE fresh_attempts (
+  -- W358969 / DESIGN REC-7: ONE FRESH ATTEMPT'S RESERVED IDENTITY AND ITS
+  -- LINK BACK TO THE ATTEMPT IT REPLACES.
+  --
+  -- WHY A TABLE AND NOT JUST THE JOURNAL. The journal records that an
+  -- operation happened; this records a Job identity that is SPOKEN FOR before
+  -- any Job row exists. The admission spans two stores -- this one records the
+  -- Jobs, the deployment configuration binds them -- and REC-7 forbids
+  -- claiming one transaction across both. So the identity is reserved HERE
+  -- first, durably, and the bridge to the other store happens afterwards with
+  -- an explicit incomplete state to come back to. A crash between the two
+  -- leaves a row saying exactly which Job was being admitted and from what.
+  --
+  -- THE PRIMARY KEY IS THE RESERVATION. Two concurrent requests for one fresh
+  -- identity cannot both insert it, and the one that loses is told the fact
+  -- rather than racing on to compose a submission nobody can record.
+  job_id TEXT PRIMARY KEY,
+  -- THE RETAINED FAILURE THIS REPLACES, and the attempts it owned. The
+  -- attempt ids are the evidence locators an operator follows back to the
+  -- logs, the runtime and the diagnostics of the execution that failed; a
+  -- fresh attempt that did not carry them would be a new Job with no account
+  -- of why it exists.
+  prior_job_id TEXT NOT NULL,
+  prior_attempt_ids TEXT NOT NULL,
+  work_id TEXT NOT NULL,
+  submission_id TEXT NOT NULL,
+  -- `intended` is reserved and not yet recorded; `admitted` is the submission
+  -- committed. Nothing else: a state for every intermediate cut would be this
+  -- relation claiming to know what the OTHER store did, which is the exact
+  -- cross-store omniscience REC-7 refuses.
+  state TEXT NOT NULL CHECK (state IN ('intended', 'admitted')),
+  -- THE CANONICAL REQUEST, so a second request for the same fresh identity
+  -- carrying different operands is refused as the different intent it is
+  -- rather than resuming somebody else's.
+  request TEXT NOT NULL,
+  -- AND THE EXACT SUBMISSION THIS RESERVATION EXISTS TO ADMIT.
+  --
+  -- W358969 review R9. The reservation named a submission ID, and
+  -- `_unclaimed` exempted anything carrying that name -- so a second writer
+  -- reusing the name with a DIFFERENT document recorded its own Jobs under
+  -- the reserved identity, and the retry published a binding for a pipeline
+  -- it had not described. A name is not an intent. This is the canonical
+  -- signature of the document the admission composed, so the one submission
+  -- that may pass is the one the reservation is actually for.
+  submission_signature TEXT NOT NULL,
+  intended_at TEXT NOT NULL,
+  admitted_at TEXT,
+  incarnation TEXT NOT NULL,
+  -- WHO IS PERFORMING THIS ADMISSION'S EXTERNAL EFFECTS, or NULL for nobody.
+  --
+  -- W358969 review R5. A reservation plus a replayable submission does not
+  -- make the WORK BETWEEN them happen once: two identical concurrent
+  -- requests both passed `_reserved` -- one inserting, one replaying -- and
+  -- both went on to publish a deployment binding. The reservation says the
+  -- identity is spoken for; this says who is allowed to act on it right now,
+  -- and it is taken by a compare-and-swap in the same lock the reservation
+  -- is taken in.
+  --
+  -- IT IS AN OWNERSHIP RECORD, NOT A LEASE WITH A CLOCK. A deadline here
+  -- would be this table deciding that a manager it cannot see has stopped,
+  -- which is exactly the kind of inferred cessation this Work refuses
+  -- everywhere else. A held row is released by its own holder finishing, and
+  -- a holder re-running under the same manager incarnation continues its own
+  -- interrupted work.
+  holder TEXT,
+  CHECK ((state = 'intended' AND admitted_at IS NULL)
+         OR (state = 'admitted' AND admitted_at IS NOT NULL)),
+  -- THE PRIOR JOB MUST BE ONE THIS STORE HOLDS. A fresh attempt at a Job this
+  -- manager never admitted is not a retry of anything.
+  FOREIGN KEY (prior_job_id) REFERENCES jobs(job_id)
+);
+
+CREATE UNIQUE INDEX fresh_attempts_one_successor
+  -- ONE FAILED JOB HAS ONE SUCCESSOR, enforced by the DATABASE. W358969
+  -- review R2: the first cut asked this with a SELECT before the reservation
+  -- transaction, which is a read-then-write check -- an independent
+  -- two-connection probe synchronized two requests past that read and both
+  -- were admitted, so one failure acquired `retry-left` AND `retry-right`.
+  -- The constraint belongs where two writers meet, and that is here: the
+  -- second INSERT fails inside the loser's own transaction however the reads
+  -- interleaved.
+  --
+  -- THE COMMENT IS AFTER THE VERB on purpose. `store._created_name` reads a
+  -- migration statement's first word to derive what schema 3 is a
+  -- subtraction OF, and a statement whose first word is `--` is refused.
+  ON fresh_attempts (prior_job_id);
+""",
 }
 
 OPERATION_COLUMNS = {
@@ -950,6 +1138,18 @@ DEFERRAL_COLUMNS = {
     "code": Column("text"), "message": Column("text"),
     "first_seen_at": Column("instant"), "last_seen_at": Column("instant"),
     "incarnation": Column("text"),
+}
+
+FRESH_ATTEMPT_COLUMNS = {
+    "job_id": Column("identity"), "prior_job_id": Column("identity"),
+    "prior_attempt_ids": Column("json"), "work_id": Column("text"),
+    "submission_id": Column("identity"), "state": Column("text",
+                                                         allowed=FRESH_ATTEMPT_STATES),
+    "request": Column("json"),
+    "submission_signature": Column("json"),
+    "intended_at": Column("instant"),
+    "admitted_at": Column("instant", nullable=True),
+    "incarnation": Column("text"), "holder": Column("text", nullable=True),
 }
 
 GENERATION_COLUMNS = {

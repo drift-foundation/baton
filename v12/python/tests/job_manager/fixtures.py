@@ -272,9 +272,17 @@ class FakeOperations:
 
     canonical = True
 
-    def __init__(self):
+    def __init__(self, authority_uuid=UUID):
         from baton_v12.eventing import EventQueue
 
+        # W358969: WHICH AUTHORITY THE DERIVED IDENTITIES BELONG TO. Episode
+        # offer and attempt ids are derived in an Authority's namespace, so a
+        # case running against a REAL instance -- whose uuid `bootstrap`
+        # generated -- needs this fake to derive in that namespace too.
+        # Without it the manager's own binding check refuses, correctly, that
+        # another store's offer holds this attempt's claim. Defaults to the
+        # fixture Authority, so every existing case means what it meant.
+        self.authority_uuid = authority_uuid
         self.journal = {}
         self.observations = {}
         self.refusals = {}
@@ -354,7 +362,8 @@ class FakeOperations:
         if records:
             from baton_v12.job_manager.episodes import identities
 
-            _offer_id, attempt_id = identities(UUID, stage_id, 1)
+            _offer_id, attempt_id = identities(self.authority_uuid,
+                                               stage_id, 1)
             self.recorded_failures[stage_id] = {
                 "attempt_id": attempt_id, "expect": None,
                 "start_operation_id": f"runtime.start:{stage_id}",
@@ -557,7 +566,8 @@ class FakeOperations:
         if held["claimed_by"] is True:
             from baton_v12.job_manager.episodes import identities
 
-            held["claimed_by"] = identities(UUID, stage_id, 1)[0]
+            held["claimed_by"] = identities(self.authority_uuid,
+                                            stage_id, 1)[0]
         self.observations[stage_id] = held
 
     def frozen(self, stage_id, disposition, artifacts=None,
@@ -585,7 +595,8 @@ class FakeOperations:
         """
         from baton_v12.job_manager.episodes import identities
 
-        _offer_id, attempt_id = identities(UUID, stage_id, 1)
+        _offer_id, attempt_id = identities(self.authority_uuid, stage_id,
+                                           1)
         held = self.observations.get(stage_id) or {}
         self.observed(stage_id, claimed_by=True,
                       exchange=held.get("exchange"),

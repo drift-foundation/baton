@@ -86,6 +86,7 @@ __all__ = ["ACTS", "CONTRACTS", "CORRECTION_ENDINGS", "DEPENDENCY_MEMBERS",
            "owned_submission", "read_submission", "receipt", "reconciliation",
            "stage_episode", "stage_id", "stage_launch", "stage_status",
            "status",
+           "fresh_attempt_admitted",
            "submission_recorded", "submission_signature", "sweep_report"]
 
 # W156162 moved this to /2. A Job may now carry `execution_limits`, and a
@@ -571,6 +572,16 @@ CONTRACTS = {
                                 ()),
     "submission.recorded": (("submission_id", "signature", "jobs", "stages",
                              "recorded_at"), ()),
+    # W358969 / DESIGN REC-7: ONE ADMITTED FRESH ATTEMPT, and every fact the
+    # decision rested on. The linkage members are required rather than
+    # optional because a retry whose document did not name what it replaces
+    # would be a new Job with no account of why it exists -- and the operator
+    # reading it after the next failure is the one who needs that account.
+    "fresh-attempt.admitted": (("job_id", "prior_job_id",
+                                "prior_submission_id", "prior_attempt_ids",
+                                "prior_states", "work", "binding",
+                                "submission_id", "stages", "exclusion",
+                                "recorded_at"), ()),
     "stage.act": (("stage_id", "job_id", "kind", "episode", "act",
                    "operation_id", "offer_id", "attempt_id", "work_id"), ()),
     "stage.receipt": (("stage_id", "episode", "act", "operation_id", "state",
@@ -683,6 +694,10 @@ def _emit(name, members):
 
 def submission_recorded(**members):
     return _emit("submission.recorded", members)
+
+
+def fresh_attempt_admitted(**members):
+    return _emit("fresh-attempt.admitted", members)
 
 
 def act(**members):

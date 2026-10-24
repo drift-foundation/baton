@@ -712,6 +712,8 @@ class MigratingPinsTheAuthorityWithoutRenamingAnything(MigratingFromSchemaOne):
         # W197661: AND THE TABLE THE 6 -> 7 STEP CREATES, for the same reason
         # the note above gives. Each new relation added after the impersonated
         # version has to be subtracted here too.
+        # W358969: AND THE TABLE THE 7 -> 8 STEP CREATES.
+        connection.execute("DROP TABLE fresh_attempts")
         connection.execute("DROP TABLE deferrals")
         connection.execute("DROP TABLE integration_capacity_members")
         connection.execute("DROP TABLE integration_capacity_roots")

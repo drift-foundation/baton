@@ -37,6 +37,14 @@
 # the context, so nothing else can change under it -- which a re-included
 # `python/src/baton_v12` directory would not.
 !python/src/baton_v12/attempt_log_format.py
+# W321776: AND THE DECLARED VERIFICATION CONTEXT, re-included for the reason
+# the paragraph above records rather than for a new one. `Dockerfile.claude`
+# now carries `COPY python/src/baton_v12/verification_context.py`, and a COPY
+# whose source this allowlist does not name fails the build with "file not
+# found in build context or excluded by .dockerignore" -- which is exactly how
+# every build in this tree failed when the capture format was added and this
+# file was not widened with it. One file named, not its directory.
+!python/src/baton_v12/verification_context.py
 
 # Not even inside the two directories above.
 **/__pycache__

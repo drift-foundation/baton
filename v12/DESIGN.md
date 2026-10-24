@@ -379,6 +379,21 @@ observation cannot revoke a later successfully renewed deadline. Once expiry or
 revocation wins, renewal MUST refuse; no heartbeat, late renewal request or
 clock adjustment revives the token. Follow TOK-6 before admitting replacement.
 
+**Owner clarification 2026-10-21 — lease policy must support the selected execution.**
+A fixed 900-second lease is not a v12 requirement and MUST NOT be an incidental
+ceiling that repeatedly interrupts an otherwise authorized longer Job. Select and
+record bounded permission durations compatible with the Job's execution limits
+and required cleanup reserve. A shorter renewable lease is valid only when the
+actual execution path supplies timely eligible renewal; an unused renewal API
+does not establish that support. Correct the deployed execution path or its
+bounded initial-duration policy rather than repeatedly truncating development
+at an arbitrary profile constant. Do not reset or exceed selected Job limits,
+disable cancellation/expiry enforcement, revive expired permission, or silently
+reinterpret existing tokens. Historical 900-second/four-renewal profile bounds
+may be revised through the owned correction and independent verification; they
+are not immutable product requirements. Decision: W333485 FINDING, owner
+lease-policy correction, 2026-10-21.
+
 **TOK-10.** Failed or unavailable Docker control leaves an actionable held state.
 The manager must continue trying the supported termination/reconciliation path
 under its recovery policy and report the exact unresolved execution. It must not
@@ -742,6 +757,24 @@ intake, retention, authorized routing and cleanup. Their exact ordering follows
 the selected normal or cancellation contract. A partial ending cannot manufacture
 a passed review or erase an allocation. Each substep has its own stable replay.
 
+**REC-7. Manager-owned fresh-attempt admission (owner 2026-10-23).**
+Routine fresh-attempt retry MUST be a supported deterministic Job manager operation
+exposed through the CLI, without a model preparing the run. A new Job identity is
+permitted; preserve the selected Job specification and link the fresh execution to
+the prior failed attempt and its retained evidence. The manager MUST allocate or
+validate Job identity uniqueness atomically at its owning store boundary and own
+admission, replay and binding consistency. Compose Work authorization and host
+runtime/resource exclusion through their owning APIs under DB-3 through DB-5;
+this does not imply a cross-store transaction or transfer physical runtime facts
+to the scheduler. Unknown prior execution must not permit conflicting effects.
+The CLI requests the operation and reports its outcome. Script-side prechecks
+cannot substitute for manager enforcement or require copied/directly inspected
+live databases. Resolve current credentials through the supported launch boundary.
+Reuse installed configuration; no per-retry installation or bespoke packet is
+required. This supersedes completing a pilot script's duplicate admission checks
+before implementing the manager operation. Exact syntax is an implementation
+choice; preserve deterministic verification and independent acceptance.
+
 ## 13. Security, credentials and trust
 
 **SEC-1.** This v12 deployment uses trusted selected worker images with strict
@@ -797,6 +830,36 @@ verification accounting must not become an extra owner gate merely because an
 old cumulative stopwatch allowance is exhausted or historically unknown.
 
 ## 15. Operator surfaces and durable records
+
+**OBS-0. Routine task startup (owner 2026-10-20).** Routine preparation and
+startup MUST take at most 60 seconds from receiving the task description and
+selected input files to the assigned agent starting substantive task work.
+The routine path MUST NOT require script authoring, test writing or bespoke
+execution-packet engineering. Task thinking, coding and verification after
+startup are separate and may take 30 minutes. Do not exclude per-run packet
+engineering by calling it task work. Acceptance measures the whole routine
+path, including input handling, configuration, validation and launch, rather
+than only helper runtime. Report interval endpoints and supported-environment
+assumptions explicitly; do not hide preparation outside the interval.
+This supersedes an interpretation that a reusable preparer alone meets the
+startup outcome while routine runs still require programming. Existing
+isolation, enforcement, execution selection and independent acceptance remain
+required. Decision: [rapid startup](../work/records/2026/10/finding-v12-standard-next-run-path/OWNER-RAPID-START-20261020.md).
+
+**OBS-0a. Install once, automatic preflight and recovery (owner 2026-10-21).**
+Privileged account, credential, ACL, storage and narrow admission provisioning
+MUST be handled by installation tooling as one-time installation. Routine
+starts, failures and retries MUST NOT require operator-authored shell/Python
+procedures, repeated account creation, credential copying, ACL setup or sudoers
+editing. The launcher MUST create and validate required output directories and
+other launch prerequisites before consuming a run selection. Supported recovery
+MUST preserve evidence and isolation without repeating installation. Routine
+preparation remains input-only and subject to OBS-0's whole-path 60-second limit.
+Further manual reprovisioning requirements are product defects, not normal
+operator steps. Historical manual provisioning acceptance does not establish
+this product outcome. This supersedes interpreting those procedures as the
+routine workflow; it does not authorize a live invocation, clearing consumed
+receipts or weakening isolation. Decision: [install once](../work/records/2026/10/finding-v12-standard-next-run-path/OWNER-INSTALL-ONCE-20261021.md).
 
 **OBS-1.** Structured command/JSON surfaces own mutation. The initial v12 monitor
 is read-only and shows Jobs, stages, workers, attempts, tokens/expiry, gates,
@@ -944,6 +1007,21 @@ Broad stress/performance campaigns, advanced scheduling and shared capacity,
 distributed execution, additional engine coverage, generalized operator replacement
 and a richer command-capable TUI belong to separately selected later work. Existing
 interfaces should allow extension without making unproved features delivery claims.
+
+**Owner clarification 2026-10-22 — bounded native coordination versus generalized
+operator replacement.** The native v12 coordination workflow needed to prepare,
+execute, inspect and independently accept useful parallel Jobs is part of the
+current v12 adoption target. The temporary v11-to-v12 preparation and result
+collection bridge is transitional, not the target workflow. "Generalized operator
+replacement" above means broader workflow, organizational and UI capabilities
+beyond that bounded path; it does not defer native v12 coordination itself.
+This supersedes any interpretation of that phrase that postpones the bounded
+native cutover. Use an explicit supported cutover preserving one coordination
+authority and existing Work/evidence; this requirement alone authorizes neither
+migration nor deployment. Minor polish and broader hardening must not become
+adoption gates; concrete correctness, isolation, recovery, attribution and
+false-success defects needed by the selected path remain blockers. Decision:
+[normative design finding](../work/records/2026/09/finding-v12-normative-design/FINDING.md).
 
 Live-container workspace detach/reattach is deferred from v12 as a later handoff
 optimization. Preserve the independently accepted experiment and its provenance;

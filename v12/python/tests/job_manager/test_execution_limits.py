@@ -525,6 +525,13 @@ class TheMigrationLeavesOldJobsMeaningExactlyWhatTheyMeant(JobManagerCase):
                         # impersonating schema 4 must not install a relation
                         # added two steps later, or the migration it is about
                         # fails on an object that is already there.
+                        # W358969: and the 7 -> 8 step's, for the same
+                        # reason once more.
+                        "CREATE TABLE fresh_attempts",
+                        # AND ITS INDEX: a relation and its index are one
+                        # step's output, and installing the second without
+                        # the first is a statement about nothing.
+                        "CREATE UNIQUE INDEX fresh_attempts_one_successor",
                         "CREATE TABLE deferrals",
                         "CREATE TABLE job_execution_limits",
                         "CREATE TABLE integration_capacity_roots",

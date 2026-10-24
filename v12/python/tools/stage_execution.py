@@ -5465,14 +5465,34 @@ def _job_workers(deployment, stage, job=None):
                 f"bound to {binding['job_work_id']!r}; a Job's Work is a fact "
                 f"about the Job and not about whichever worker is free",
                 category="refused", code="precondition")
-    lane = [one for one in deployment.given["workers"]
+    return binding, servable_workers(deployment.given, binding, stage, job)
+
+
+def servable_workers(given, binding, stage, job):
+    """The same rule, from DOCUMENTS alone. W358969.
+
+    SPLIT OUT RATHER THAN COPIED, and the split is the point. A caller that
+    needs to know whether a Job's stage could be served -- the manager's fresh
+    attempt admission is the first -- had no supported way to ask: the rule
+    lived behind a `Deployment` object, which needs a control store and an
+    authority this question has nothing to do with. The alternative that was
+    actually tried was a second implementation of the comparison in a helper
+    script, which is how a configuration that validated cleanly and could
+    serve nothing got as far as an owner.
+
+    NOTHING ABOUT THE ANSWER CHANGES. `_job_workers` is this function plus the
+    two facts only a live deployment holds -- which binding a Job has, and the
+    Job row itself -- so there is one rule and one refusal, and a caller
+    holding the documents gets exactly what the scheduler would get.
+    """
+    lane = [one for one in given["workers"]
             if one["role"] == stage.get("kind")]
     # THE DOCUMENT EACH ONE WOULD ACTUALLY SERVE THIS JOB UNDER, which is its
     # configured deployment for every role but integration, and that role's
     # per-Job operand set for integration. `_integration_operations` composes
     # the provider from the same derivation, so a worker admitted here is one
     # whose own validator holds the operands this compared.
-    served = {one["worker_id"]: _served_deployment(deployment.given, one,
+    served = {one["worker_id"]: _served_deployment(given, one,
                                                    binding) for one in lane}
     compatible = [one for one in lane
                   if not _disagreements(served[one["worker_id"]], stage, job,
@@ -5491,7 +5511,7 @@ def _job_workers(deployment, stage, job=None):
     # eligibility to the actor already configured; it grants no second
     # integrator and no new profile or driver capability.
     if stage.get("kind") == "integration":
-        actor = deployment.given["integration_profile"]["integrator_participant"]
+        actor = given["integration_profile"]["integrator_participant"]
         compatible = [one for one in compatible
                       if one["deployment"]["participant"] == actor]
     if not compatible:
@@ -5506,7 +5526,7 @@ def _job_workers(deployment, stage, job=None):
                 f"worker that must then refuse them, which would hold that "
                 f"worker's capacity for a stage nobody can serve",
                 category="refused", code="precondition")
-    return binding, compatible
+    return compatible
 
 
 def _job_eligibility(composed):

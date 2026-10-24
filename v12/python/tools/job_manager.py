@@ -40,6 +40,7 @@ import sys
 from baton_v12.contracts import ContractRefusal
 from baton_v12.contracts.errors import name_value
 from baton_v12.job_manager import (JobStore, ManagerOperations, Unobserved,
+                                   admit_fresh_attempt,
                                    read_submission, reconcile, serve, status,
                                    submit)
 from baton_v12.worker_manager import ControlStore
@@ -752,6 +753,66 @@ def _submit(taken, clock, stream):
                      stream)
 
 
+def _fresh_attempt(taken, clock, stream):
+    """W358969 / DESIGN REC-7: THE CLI REQUESTS THE OPERATION AND REPORTS IT.
+
+    Everything this function decides is which owner each port reaches. It
+    holds no rule about cessation, uniqueness, replay, Work reuse or binding
+    compatibility -- those are `fresh_attempt.admit`'s and they are enforced
+    inside this store's own lock, which is the whole of REC-7's "script-side
+    prechecks cannot substitute for manager enforcement".
+
+    THE CONTROL STORE IS OPENED READ-ONLY. This operation reads the host's
+    record of the prior attempt and asks it nothing else; a surface that
+    needed write access to the Worker Manager to admit a Job would be able to
+    change the evidence it was judging. The EXCLUSION it needs is not write
+    access -- it is `workspaces.hold_manager_instance`, which this composes
+    as the ownership port and which a read-only handle takes exactly as a
+    serving manager does, because the guard is a file lock beside the
+    workspace root rather than a row in the database.
+    """
+    from tools.fresh_attempt_ports import (DeploymentBinding, HostExclusion,
+                                           InstanceOwnership,
+                                           WorkAuthorization, _agreeing,
+                                           instance_identity)
+
+    # EVERY STORE THIS COMMAND OPENS IS THE ONE THE INSTANCE OWNS. Review
+    # R14: the first cut handed the `--control` operand to the host port as
+    # the path that operand was supposed to be checked against, which
+    # compares a name with itself. The instance's own layout says where its
+    # four stores live; each operand is held to that before anything is
+    # opened, so naming another deployment's store is a refusal rather than
+    # a successful admission reading somebody else's history.
+    identity = instance_identity(taken.instance)
+    _agreeing("job_store", taken.store, "Job store", identity)
+    _agreeing("control_store", taken.control, "control store", identity)
+    _agreeing("authority_store", taken.authority, "Authority store",
+              identity)
+    deployment = DeploymentBinding(taken.instance, stream=sys.stderr,
+                                   identity=identity)
+    with _job_store(taken, clock) as store:
+        with ControlStore.open_readonly(taken.control,
+                                        incarnation=taken.incarnation,
+                                        clock=clock) as control:
+            authorization = WorkAuthorization.opened(
+                taken.authority, authority_uuid=taken.authority_uuid,
+                route=taken.route, identity=identity)
+            # THE REFUSING READ-ONLY OPERATIONS OBJECT, which is `status`'s.
+            # Deriving the prior Job's stage states is a READ, and handing
+            # this operation something that could issue an offer would put a
+            # capability inside an admission for nothing to use.
+            return _emit(admit_fresh_attempt(
+                store, _ReadOnly(control), prior_job_id=taken.prior_job,
+                exclusion=HostExclusion(control, identity=identity),
+                authorization=authorization,
+                binding=deployment,
+                ownership=InstanceOwnership.of(control,
+                                               deployment.configuration(),
+                                               identity=identity),
+                job_id=taken.job_id, work_id=taken.work_id,
+                submission_id=taken.submission_id), stream)
+
+
 def _status(taken, clock, stream):
     # W85500 review 2026-09-04T14-27-54Z [P1]: AN EXPLICIT REQUEST IS NEVER
     # SILENTLY DOWNGRADED.
@@ -1114,6 +1175,45 @@ def main(argv, *, clock=None, stream=None):
     submitting.add_argument("--document", required=True,
                             help="the submission JSON, or - for stdin")
     submitting.set_defaults(run=_submit)
+
+    # W358969 / DESIGN REC-7: the supported retry, as one manager operation.
+    retrying = commands.add_parser(
+        "fresh-attempt",
+        help="admit a fresh attempt at a Job whose execution failed")
+    retrying.add_argument("--prior-job", required=True,
+                          help="the retained failed Job this repeats; its "
+                               "submitted specification, limits and scope "
+                               "are carried forward unchanged")
+    retrying.add_argument("--control", required=True,
+                          help="the Worker Manager control store, opened "
+                               "READ-ONLY: a fresh attempt is refused unless "
+                               "this host's own record shows every prior "
+                               "runtime ceased and its resource returned, "
+                               "and unknown refuses rather than proceeds")
+    retrying.add_argument("--authority", required=True,
+                          help="the Authority store whose Work this attempt "
+                               "runs under; the prior Job's Work is reused "
+                               "when it is open, which is what makes the "
+                               "installed workers able to serve it")
+    retrying.add_argument("--instance", required=True,
+                          help="the deployment's state root, whose own "
+                               "bootstrap prepares the additive Job binding "
+                               "and whose selector is asked whether a worker "
+                               "can serve each stage")
+    retrying.add_argument("--route", default="baton.impl",
+                          help="the route a Work is created under, used only "
+                               "when the selected Work does not exist yet")
+    retrying.add_argument("--job-id", default=None,
+                          help="the fresh Job identity; derived from the "
+                               "prior one when omitted, so no operator or "
+                               "model has to invent a name")
+    retrying.add_argument("--work-id", default=None,
+                          help="the Work this attempt runs under; the prior "
+                               "Job's when omitted")
+    retrying.add_argument("--submission-id", default=None,
+                          help="the submission identity; derived from the "
+                               "fresh Job id when omitted")
+    retrying.set_defaults(run=_fresh_attempt)
 
     reading = commands.add_parser(
         "status", help="print the read-only status projection")

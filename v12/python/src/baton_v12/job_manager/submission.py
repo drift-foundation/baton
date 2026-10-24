@@ -54,7 +54,7 @@ def submit(store, document):
     signature = job_signature(_KIND, owned)
 
     def act(connection):
-        _unclaimed(connection, submission_id, owned)
+        _unclaimed(connection, submission_id, owned, signature)
         recorded_at = store._now()
         connection.execute(
             "INSERT INTO submissions (submission_id, signature, document, "
@@ -76,7 +76,7 @@ def submit(store, document):
     return store.transact(operation_id(submission_id), _KIND, signature, act)
 
 
-def _unclaimed(connection, submission_id, owned):
+def _unclaimed(connection, submission_id, owned, signature):
     """Refuse a Job identity another submission already holds, BEFORE writing.
 
     THE ORDER IS WHAT KEEPS THE SUBMISSION ATOMIC. A durable refusal is itself
@@ -96,6 +96,70 @@ def _unclaimed(connection, submission_id, owned):
     concurrent submission can insert between this check and the inserts below.
     """
     wanted = [job["job_id"] for job in owned["jobs"]]
+    # W358969 review R6: AND THE IDENTITIES A FRESH ATTEMPT HAS RESERVED.
+    #
+    # ONE IDENTITY HAS ONE OWNER, and until now this knew about only half of
+    # them. A fresh attempt reserves its Job id durably before it publishes a
+    # deployment binding for it, precisely so no second writer can take that
+    # name in between -- and an ordinary submission went straight past the
+    # reservation and recorded the Job anyway, which left the retry holding a
+    # binding for somebody else's pipeline and refusing at its own submit.
+    # The reservation is in this store, the check belongs in this store's own
+    # conflict decision, and it is made in the same lock as the one below.
+    #
+    # THE RETRY'S OWN SUBMISSION IS NOT A CONFLICT WITH ITSELF. The row
+    # records which submission the reservation is for, so the one submission
+    # the reservation exists to admit passes and every other is refused.
+    # W358969 review R9: THE RESERVATION NAMES AN INTENT, NOT A NAME. The
+    # first cut exempted any submission whose id matched, so a second writer
+    # reusing that id with a DIFFERENT document recorded its own Jobs under
+    # the reserved identity and the retry published a binding for a pipeline
+    # nobody had described. What passes is the exact document the reservation
+    # was taken for, compared by the canonical signature this store itself
+    # computed when it reserved.
+    # W358969 review R12: BY SUBMISSION IDENTITY AS WELL AS BY JOB.
+    #
+    # The first cut loaded reservations whose JOB ids occurred in the
+    # incoming document, so a second submission that reused the reserved
+    # SUBMISSION id for an entirely different Job saw no reservation at all
+    # and recorded itself -- and the retry, whose operation identity is
+    # derived from that submission id, then collided after it had already
+    # published a deployment binding. A reservation owns both names.
+    reserved = sorted(
+        (row[0], row[1], row[2]) for row in connection.execute(
+            "SELECT job_id, submission_id, submission_signature FROM "
+            "fresh_attempts WHERE submission_id = ? OR job_id IN "
+            "(" + ", ".join("?" * len(wanted)) + ")",
+            (submission_id,) + tuple(wanted)))
+    conflicting = [one for one in reserved
+                   if one[1] != submission_id or one[2] != signature]
+    if conflicting:
+        held = conflicting[0]
+        # WHICH NAME WAS TAKEN, said plainly, because the two are different
+        # mistakes: one submission reusing a reserved Job, and one reusing a
+        # reserved submission id for something else entirely.
+        overlapping = [one for one, _, _ in conflicting if one in wanted]
+        raise ContractRefusal(
+            "refused", "precondition",
+            (f"{sample_of(overlapping)} is RESERVED by a fresh attempt "
+             if overlapping else
+             f"submission {name_value(submission_id)} is RESERVED by the "
+             f"fresh attempt for Job {name_value(held[0])}, which is not in "
+             f"this document; the admission ")
+            + f"recorded under submission {name_value(held[1])}"
+            + (" for a different document than this one"
+               if held[1] == submission_id and overlapping else "")
+            + "; that admission is in progress or incomplete and owns the "
+              "identity, so a second submission taking the name would "
+              "strand whatever it has already published")
+        # ORDINARY, NOT DURABLE, and the difference matters here. A durable
+        # refusal is a committed OUTCOME FOR THIS OPERATION IDENTITY -- and
+        # this operation identity is derived from the submission id, which
+        # belongs to the reservation holder. Sealing a refusal under it would
+        # let an intruder's rejected document permanently poison the one
+        # submission the reservation exists to admit, which is a worse
+        # outcome than the collision. The conflict below is durable because
+        # the identity there really is settled by another pipeline.
     taken = sorted(
         row[0] for row in connection.execute(
             "SELECT job_id FROM jobs WHERE submission_id != ? AND job_id IN "

@@ -54,6 +54,7 @@ import fcntl
 import json
 import os
 import stat
+import threading
 from types import MappingProxyType
 
 # W15232: `check_content_manifest` and `validate_fragment` went with the
@@ -107,7 +108,9 @@ __all__ = ["INPUT_MANIFEST", "ASSIGNMENT_MANIFEST", "MAX_ENTRIES",
            "PERMISSION_ACTS", "establish_line_access", "prove_line_integrity",
            "WORKSPACE_STORAGE_KEY", "STORAGE_CONFIGURE_OPERATION",
            "MANAGER_INSTANCE_GUARD", "ManagerInstanceGuard",
-           "hold_manager_instance",
+           "hold_manager_instance", "held_manager_instance",
+           "borrow_manager_instance", "borrowers_of",
+           "holders_of",
            "WorkspaceStorage", "check_workspace_storage",
            "configure_workspace_storage", "configured_workspace_storage",
            "MAX_BYTES", "MAX_DEPTH", "READ_ONLY_DIR", "READ_ONLY_FILE",
@@ -1013,8 +1016,38 @@ class ManagerInstanceGuard:
         an explicit `LOCK_UN` from a forked child would release the PARENT's exclusion --
         review 21:26:24Z ruled that out by name. Closing one descriptor that refers to a
         description another descriptor still refers to releases nothing.
+
+        AND ONE COUNTED RULE FOR EVERY HOLDER. W359719 review R19: a lifetime
+        owner and a temporary borrower used to count differently, so a
+        serving lifetime taken DURING an admission was handed the same cached
+        object and had it closed underneath it when the admission finished.
+        Holding is holding; the descriptor closes when the LAST holder lets
+        go, whoever they are and in whichever order they arrived. The fork
+        handler still closes unconditionally through `_disown`, because a
+        child inherits descriptors and no ownership at all.
         """
-        self._disown()
+        with _BORROWING:
+            held = _HOLDERS.get(self.place)
+            if held is not None:
+                held -= 1
+                if held > 0:
+                    _HOLDERS[self.place] = held
+                    return
+                del _HOLDERS[self.place]
+            # W359719 review R21: THE RETIREMENT AND THE CLOSE HAPPEN HERE,
+            # INSIDE THE SAME CRITICAL SECTION as the count that decided
+            # them. Leaving the lock first left the object still in
+            # `_HELD_GUARDS` with its descriptor open, so a new holder could
+            # take it, count itself in and be handed a guard this release
+            # was already committed to closing. Serializing acquisition
+            # against acquisition is not enough; it has to be serialized
+            # against the whole of the final release.
+            #
+            # A NEW HOLDER THEREFORE WAITS AND THEN ACQUIRES ITS OWN. By the
+            # time it has the lock the cache entry is gone, so it opens a
+            # fresh descriptor and takes a real `flock` -- a valid guard
+            # rather than a retiring one.
+            self._disown()
 
     def _disown(self):
         """Stop holding this descriptor, WITHOUT unlocking what anybody else holds."""
@@ -1051,61 +1084,184 @@ def hold_manager_instance(store, place):
     created its own file would hold a lock on a file nobody guards, so the comparison is
     what makes the refusal unavoidable rather than racy.
     """
+    # W359719 review R19: THE CACHE, THE ACQUISITION AND THE COUNT ARE
+    # ONE CRITICAL SECTION. Two first-time holders arriving together
+    # used to race -- the one that lost found no cache entry yet and
+    # was denied by its own sibling's `flock` -- and a holder counted
+    # after the fact could be closed between obtaining the guard and
+    # being registered. Serializing them makes the second find the
+    # standing guard, which is what the cache is for. The lock covers
+    # this module's bookkeeping and a bounded open/flock/fstat;
+    # nothing else runs under it.
+    with _BORROWING:
+        place = _real(check_workspace_storage(place), "a managed workspace root")
+        standing = _HELD_GUARDS.get(place)
+        if standing is not None:
+            if standing.pid == os.getpid():
+                # W359719 review R19: A SECOND HOLDER IS A SECOND HOLDER.
+                # The cached object is returned, as it always was, and the
+                # count beside it says how many hands are on it -- so
+                # whichever of them releases last closes the descriptor.
+                _HOLDERS[place] = _HOLDERS.get(place, 1) + 1
+                return standing
+            # INHERITED, NOT ACQUIRED. Review 21:26:24Z reproduced this: a forked child holds
+            # the parent's live descriptor AND this cache, so it could retain the lock past
+            # the parent's death and could answer "I am the manager" without acquiring
+            # anything. `_forget_inherited_guards` below runs at fork and is the primary
+            # correction; this is the same rule applied to any child that reached here by a
+            # path that handler did not cover. The descriptor is dropped -- closed, never
+            # unlocked -- and this call goes on to ACQUIRE, which is what a manager must do.
+            standing._disown()
+        path = _instance_guard(place)
+        mine = getattr(store, "database", None)
+        if type(mine) is not str or mine == "":
+            _refuse("this manager's control store has no path, so the instance it guards "
+                    "cannot be named", code="schema")
+        try:
+            descriptor = os.open(path, os.O_RDWR | os.O_CREAT | os.O_CLOEXEC, 0o600)
+        except OSError as fault:
+            _refuse(f"the manager instance guard could not be opened at "
+                    f"{name_value(path)}: {fault.strerror or fault!r}")
+        try:
+            try:
+                fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except OSError as fault:
+                if fault.errno not in (errno.EACCES, errno.EAGAIN, errno.EWOULDBLOCK):
+                    _refuse(f"the manager instance guard at {name_value(path)} could not be "
+                            f"taken: {fault.strerror or fault!r}")
+                _denied(f"another manager is already active for workspace "
+                        f"{name_value(place)}{_guarding(descriptor)}; only one Host manager "
+                        f"may be active for one workspace and database, so this start is a "
+                        f"configuration error rather than a standby -- point this manager at "
+                        f"its own database and workspace, or stop the active one first")
+            held = os.fstat(descriptor)
+            try:
+                found = os.stat(path)
+            except OSError as fault:
+                _refuse(f"the manager instance guard at {name_value(path)} went away while "
+                        f"being taken: {fault.strerror or fault!r}; a lock on a file nobody "
+                        f"guards is not an exclusion")
+            if (held.st_dev, held.st_ino) != (found.st_dev, found.st_ino):
+                _denied(f"the manager instance guard at {name_value(path)} was replaced while "
+                        f"being taken: this descriptor holds device {held.st_dev} inode "
+                        f"{held.st_ino} and the path now names device {found.st_dev} inode "
+                        f"{found.st_ino}; a guard another manager unlinked is not one this "
+                        f"manager holds")
+            _record_guard(descriptor, store, mine)
+        except BaseException:
+            os.close(descriptor)
+            raise
+        held = ManagerInstanceGuard(place, path, mine, descriptor)
+        _HELD_GUARDS[place] = held
+        _HOLDERS[place] = 1
+        return held
+
+
+@contextlib.contextmanager
+def borrow_manager_instance(store, place):
+    """Hold this instance for the life of ONE user, among any number of them.
+
+    W359719 review R13. `hold_manager_instance` is a LIFETIME hold: a manager
+    takes it once and keeps it until it stops. A short-lived user -- a fresh
+    attempt admitting a Job -- needs the same exclusion for the length of its
+    own work, and the first cut built that out of "ask whether it is held,
+    then acquire, then release unless it was borrowed". Two overlapping
+    admissions both saw it unheld, both acquired the same cached descriptor,
+    and the FIRST one to finish closed it: the second was still running and
+    the instance was no longer excluded. A probe stepped exactly that and a
+    spawned process took the guard underneath it.
+
+    SO THE LIFETIME IS COUNTED, HERE, BESIDE THE CACHE IT BELONGS TO. Each
+    borrower increments; the last one out releases, and only if this chain of
+    borrows is what acquired the guard in the first place. A guard an external
+    owner was already holding is never released by a borrower, however many
+    there were -- that is the same rule the first cut had and the only part of
+    it that was right.
+
+    NOT A SECOND CACHE. `_HELD_GUARDS` stays the one place a held guard lives
+    and `_forget_inherited_guards` stays the one fork rule; this adds a count
+    beside them and clears it at the same moment, so a forked child inherits
+    no borrows exactly as it inherits no guards.
+    """
+    place = _real(check_workspace_storage(place), "a managed workspace root")
+    # ACQUIRING AND REGISTERING ARE ONE ACT, and so are decrementing and
+    # releasing. Review R16: the first cut obtained the cached guard and
+    # THEN registered its borrow, so a probe could pause between the two
+    # while the last borrower decremented to zero and closed the
+    # descriptor -- the second user entered holding a guard that no longer
+    # guarded anything, and a spawned process took the instance. The window
+    # is not closed by ordering alone, because the two users are two
+    # threads; it is closed by not letting them interleave at all.
+    #
+    # THE LOCK IS THIS MODULE'S AND IT IS HELD ONLY OVER ITS OWN
+    # BOOKKEEPING. `hold_manager_instance` is inside it because the cache
+    # read and the registration must agree, and that call is a bounded
+    # `open`/`flock`/`fstat` on this host with no store, network or engine
+    # work in it. The yield is OUTSIDE: an admission's whole body does not
+    # run under a mutex.
+    guard = hold_manager_instance(store, place)
+    with _BORROWING:
+        _BORROWED[place] = _BORROWED.get(place, 0) + 1
+    try:
+        yield guard
+    finally:
+        with _BORROWING:
+            held = _BORROWED.get(place, 0) - 1
+            if held > 0:
+                _BORROWED[place] = held
+            else:
+                _BORROWED.pop(place, None)
+        # RELEASED LIKE ANY OTHER HOLDER, which is the whole of R19: the
+        # count decides, not a remembered claim about who acquired first.
+        guard.release()
+
+
+def borrowers_of(place):
+    """How many borrowers this process holds for one instance. A reader."""
+    return _BORROWED.get(_real(check_workspace_storage(place),
+                               "a managed workspace root"), 0)
+
+
+def holders_of(place):
+    """How many holders of EVERY kind this process has. A reader."""
+    return _HOLDERS.get(_real(check_workspace_storage(place),
+                              "a managed workspace root"), 0)
+
+
+# W359719: HOW MANY LIVE BORROWERS THIS PROCESS HAS PER INSTANCE. Beside
+# `_HELD_GUARDS` because it is the same fact seen from the other end, and
+# cleared by the same fork handler for the same reason.
+_BORROWED = {}
+# AND HOW MANY HOLDERS OF EVERY KIND. Review R19: a lifetime owner and a
+# borrower are both holders, and the descriptor closes when the last of them
+# lets go -- in whichever order they arrived.
+_HOLDERS = {}
+# AND THE ONE LOCK THAT MAKES ACQUIRING AND RELEASING COHERENT. Review R16.
+# It guards this module's borrow bookkeeping and the cache read beside it --
+# never a caller's body, never a store, never an engine.
+_BORROWING = threading.RLock()
+
+
+
+def held_manager_instance(place):
+    """The guard THIS PROCESS already holds for one instance, or `None`.
+
+    W358969 review R10. `hold_manager_instance` deliberately returns the
+    standing descriptor when this process already holds it -- which is right
+    for a manager composing twice -- and it leaves a SECOND caller unable to
+    tell "I acquired this" from "I was handed somebody else's lifetime". A
+    caller that releases what it borrowed drops an exclusion its owner still
+    believes it holds, which is exactly the loss the probe reproduced.
+
+    SO THE QUESTION IS ANSWERED BEFORE THE ACQUISITION rather than inferred
+    after it. A reader, not a second acquisition: nothing here opens, locks
+    or closes anything.
+    """
     place = _real(check_workspace_storage(place), "a managed workspace root")
     standing = _HELD_GUARDS.get(place)
-    if standing is not None:
-        if standing.pid == os.getpid():
-            return standing
-        # INHERITED, NOT ACQUIRED. Review 21:26:24Z reproduced this: a forked child holds
-        # the parent's live descriptor AND this cache, so it could retain the lock past
-        # the parent's death and could answer "I am the manager" without acquiring
-        # anything. `_forget_inherited_guards` below runs at fork and is the primary
-        # correction; this is the same rule applied to any child that reached here by a
-        # path that handler did not cover. The descriptor is dropped -- closed, never
-        # unlocked -- and this call goes on to ACQUIRE, which is what a manager must do.
-        standing._disown()
-    path = _instance_guard(place)
-    mine = getattr(store, "database", None)
-    if type(mine) is not str or mine == "":
-        _refuse("this manager's control store has no path, so the instance it guards "
-                "cannot be named", code="schema")
-    try:
-        descriptor = os.open(path, os.O_RDWR | os.O_CREAT | os.O_CLOEXEC, 0o600)
-    except OSError as fault:
-        _refuse(f"the manager instance guard could not be opened at "
-                f"{name_value(path)}: {fault.strerror or fault!r}")
-    try:
-        try:
-            fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        except OSError as fault:
-            if fault.errno not in (errno.EACCES, errno.EAGAIN, errno.EWOULDBLOCK):
-                _refuse(f"the manager instance guard at {name_value(path)} could not be "
-                        f"taken: {fault.strerror or fault!r}")
-            _denied(f"another manager is already active for workspace "
-                    f"{name_value(place)}{_guarding(descriptor)}; only one Host manager "
-                    f"may be active for one workspace and database, so this start is a "
-                    f"configuration error rather than a standby -- point this manager at "
-                    f"its own database and workspace, or stop the active one first")
-        held = os.fstat(descriptor)
-        try:
-            found = os.stat(path)
-        except OSError as fault:
-            _refuse(f"the manager instance guard at {name_value(path)} went away while "
-                    f"being taken: {fault.strerror or fault!r}; a lock on a file nobody "
-                    f"guards is not an exclusion")
-        if (held.st_dev, held.st_ino) != (found.st_dev, found.st_ino):
-            _denied(f"the manager instance guard at {name_value(path)} was replaced while "
-                    f"being taken: this descriptor holds device {held.st_dev} inode "
-                    f"{held.st_ino} and the path now names device {found.st_dev} inode "
-                    f"{found.st_ino}; a guard another manager unlinked is not one this "
-                    f"manager holds")
-        _record_guard(descriptor, store, mine)
-    except BaseException:
-        os.close(descriptor)
-        raise
-    held = ManagerInstanceGuard(place, path, mine, descriptor)
-    _HELD_GUARDS[place] = held
-    return held
+    if standing is None or standing.pid != os.getpid():
+        return None
+    return standing
 
 
 def _forget_inherited_guards():
@@ -1125,6 +1281,19 @@ def _forget_inherited_guards():
     for guard in list(_HELD_GUARDS.values()):
         guard._disown()
     _HELD_GUARDS.clear()
+    # W359719: AND THE BORROW COUNTS, at the same moment and for the same
+    # reason. A child that inherited a count would believe it was the last
+    # borrower out and release a descriptor it never acquired.
+    _BORROWED.clear()
+    _HOLDERS.clear()
+    # R20: AND THE MUTEX ITSELF, which a child cannot otherwise get back.
+    # `fork` copies the lock in whatever state it was in, so a fork while
+    # another thread held it leaves the child waiting forever for a thread
+    # that does not exist there. A fresh lock is the only correct value: the
+    # child inherits no guards and no counts, so nothing the old lock was
+    # protecting still exists.
+    global _BORROWING
+    _BORROWING = threading.RLock()
 
 
 if hasattr(os, "register_at_fork"):

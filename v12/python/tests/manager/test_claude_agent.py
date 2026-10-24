@@ -2181,19 +2181,29 @@ class TheRecipeIsInspectableWithoutADaemon(unittest.TestCase):
         A worker that can import the manager is a worker one bug away from
         holding the manager's capabilities, so the admitted module is checked
         for what it imports rather than for what it is called.
+
+        W321776 ADDS THE THIRD NAME ON THE SAME RULE, and the check is a loop
+        rather than a copy of itself: `verification_context` is the declared
+        verification context BOTH holders decide -- this worker and the
+        independent operator -- and two implementations of one contract is how
+        a pair comes to disagree while each half believes it agreed. It imports
+        `re` and nothing else, which is what admits it.
         """
         import ast
 
-        place = (pathlib.Path("/home/sl/src/baton/v12/python/src/baton_v12")
-                 / "attempt_log_format.py")
-        tree = ast.parse(place.read_text())
-        imported = set()
-        for node in ast.walk(tree):
-            if isinstance(node, ast.Import):
-                imported.update(one.name for one in node.names)
-            elif isinstance(node, ast.ImportFrom):
-                imported.add(node.module or "")
-        self.assertEqual(sorted(imported), ["itertools", "json", "os", "stat"])
+        root = pathlib.Path("/home/sl/src/baton/v12/python/src/baton_v12")
+        for name, expected in (("attempt_log_format.py",
+                                ["itertools", "json", "os", "stat"]),
+                               ("verification_context.py", ["re"])):
+            with self.subTest(module=name):
+                tree = ast.parse((root / name).read_text())
+                imported = set()
+                for node in ast.walk(tree):
+                    if isinstance(node, ast.Import):
+                        imported.update(one.name for one in node.names)
+                    elif isinstance(node, ast.ImportFrom):
+                        imported.add(node.module or "")
+                self.assertEqual(sorted(imported), expected)
 
     def test_nothing_from_the_manager_is_copied_in(self):
         """The rule is about the MANAGER, and W71917 made that distinction
@@ -2222,7 +2232,13 @@ class TheRecipeIsInspectableWithoutADaemon(unittest.TestCase):
         what the rule is actually about.
         """
         allowed = ("python/src/baton_v12/source_profiles",
-                   "python/src/baton_v12/attempt_log_format.py")
+                   "python/src/baton_v12/attempt_log_format.py",
+                   # W321776: THE THIRD NAME, admitted on the same rule and
+                   # held by the import-graph case above. The declared
+                   # verification context is what the worker and the
+                   # independent operator must BOTH decide, and a contract each
+                   # of them spelled separately is two rules that can disagree.
+                   "python/src/baton_v12/verification_context.py")
         for sources, destination in self.copies():
             for source in sources:
                 if "baton_v12" not in source:

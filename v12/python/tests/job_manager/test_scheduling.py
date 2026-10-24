@@ -105,7 +105,8 @@ class PoolDocuments(PoolCase):
         # never in schema 3 either, so a fixture impersonating 3 by subtracting
         # later objects has to subtract it too.
         # W197661: and `deferrals` is the 6 -> 7 step's, on the same rule.
-        for table in ("deferrals",
+        # W358969: and `fresh_attempts` is the 7 -> 8 step's.
+        for table in ("fresh_attempts", "deferrals",
                       "integration_capacity_members",
                       "integration_capacity_roots",
                       "job_execution_limits", "worker_affinity",
@@ -434,7 +435,8 @@ class TheMigrationProvesTheSchemaItMigratesFrom(PoolCase):
             # fixture impersonating an older version has to subtract every
             # relation added after it, or its "schema 3" store carries an
             # object schema 3 never had.
-            for table in ("deferrals",
+            # W358969: and the 7 -> 8 step's, once more.
+            for table in ("fresh_attempts", "deferrals",
                           "integration_capacity_members",
                           "integration_capacity_roots",
                           "job_execution_limits", "worker_affinity",

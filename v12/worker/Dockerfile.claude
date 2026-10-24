@@ -134,6 +134,16 @@ RUN apt-get update \
 # proved nothing about either production image.
 COPY python/src/baton_v12/attempt_log_format.py \
      /opt/baton/attempt_log_format.py
+# W321776: THE DECLARED VERIFICATION CONTEXT, carried the same way and for the
+# same reason. `baton_v12.verification_context` imports nothing but `re`, so it
+# travels under its own name beside the two above. It is the half of the paired
+# correction BOTH holders decide -- the worker here and the independent operator
+# outside -- and a contract each of them spelled separately is two rules that
+# can disagree, which is the defect the pair exists to remove. Without this
+# layer the worker cannot read a `/3` task at all, and the refusal direction
+# requires it to answer rather than ignore the member.
+COPY python/src/baton_v12/verification_context.py \
+     /opt/baton/verification_context.py
 COPY worker/baton_worker.py /opt/baton/baton_worker.py
 COPY worker/claude_agent.py /opt/baton/claude_agent.py
 COPY worker/dogfood_entry.py /opt/baton/dogfood_entry.py
