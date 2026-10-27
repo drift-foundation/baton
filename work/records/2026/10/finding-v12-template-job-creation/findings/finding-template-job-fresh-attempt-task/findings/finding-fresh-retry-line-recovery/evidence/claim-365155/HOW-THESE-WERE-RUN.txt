@@ -1,0 +1,93 @@
+W365075 claim365155 -- how every run in this directory was produced
+===================================================================
+
+ISOLATED CANDIDATE ROOT.  /tmp/w365155, built from the canonical bytes at
+19f02ce1295b4517a85f0822d48754efc982f388 with the whole of v12/ except
+node_modules, KEEPING THE v12 LEVEL: suites resolve repository assets by
+pathlib parents[4], and a flat copy fails hundreds of them.  The claim's own
+changed files were then overlaid from candidate-365155/, and every overlaid
+file was re-hashed against the candidate afterwards -- byte identical.
+
+THE CANONICAL TREE WAS NEVER EDITED.  A read-only working-tree status over
+v12/python is empty at the end of this claim.
+
+COMMAND, for every run below:
+
+    cd /tmp/w365155/v12/python
+    PYTHONPATH=src:. python3 -m unittest <targets>
+
+  runs/fresh-retry-line-recovery.txt
+      tests.tools.test_fresh_retry_line_recovery -v          12 OK
+
+  runs/retry-task-lineage.txt
+      tests.tools.test_retry_task_lineage -v                 24 OK
+
+  runs/job-manager-group.txt
+      discover -s tests/job_manager -t .                   1375 OK
+
+  runs/four-tools-suites.txt
+      the five non-version-control tools suites of this
+      dossier's scope: test_fresh_retry_line_recovery,
+      test_retry_task_lineage, test_connected_creation,
+      test_job_task_delivery, test_creation_ports           151 OK
+
+WHAT WAS DELIBERATELY NOT RUN, AND WHY.
+
+  tests/tools/test_stage_execution.py and the rest of the tests/tools and
+  tests/manager groups compose REAL version control -- their own docstring
+  says "a real version-controlled checkout materialized by the accepted
+  checkpoint profile from a real nominated source" -- and real processes.  My
+  role forbids mutating version-control operations, and that prohibition is
+  not scoped to this repository, so those suites are the reviewer's to run.
+
+  This matters for one changed file: tools/stage_execution.py, whose
+  `_fenced_gate` / `_fence_operation` readers are covered by
+  `TheDischargeReceiptIsCommittedWithItsOwnKind` and
+  `TheComposedEndingIsOrderedAndSettledFromItsOwnRecord` in that suite.  The
+  change those two readers took is proved HERE instead, by
+  `test_the_prior_endings_gate_is_discharged_by_the_release`, which reads the
+  committed discharge through `worker_manager.gate_discharge_of` and the
+  Work's gate through `Authority.project_work`.  But those version-controlled
+  classes were not re-run, and that is an OPEN VERIFICATION GAP rather than a
+  pass.
+
+  I did start broad discovery runs over tests/ and tests/manager earlier in
+  this claim before recognising the above, and stopped them.  No
+  version-control repository was created by them: a search for directories
+  named .git under /tmp and /var/tmp newer than three hours answered nothing,
+  and the suites that would compose one error out earlier in a scratch root.
+  Their logs are not kept as evidence because they are not a result --
+  tests/manager fails in the hundreds in ANY partial scratch root (its
+  declaration tables and its
+  `test_the_committed_v12_baseline_compiles_and_stays_byte_identical` are
+  assertions about the canonical repository, not about this change), so
+  nothing in them is attributable to this change either way.
+
+PROBES, in probes/.  Each is a one-off unittest case over the suites' own
+fixtures, kept because its answer is what decided a design question.
+
+  probes/gate.py, probes/gate-after-fix.json
+      The two-producer pool: the Work's gate after the `unable` ending, the
+      retry driven to its own runtime, its real turn, and the line /
+      checkpoint / attachment / attempt rows afterwards.  This is the probe
+      that found the undischarged `runtime-quiescence:1` gate -- the dead end
+      my first cut created one step past the one this Work is about -- and
+      then confirmed the retry reaching a running review container.
+
+  probes/single.py
+      The ONE-producer pool after the release: gate null, line idle, retry
+      `offered`, claim deferred on "route 'rview' does not resolve to
+      'baton.claude'".  This is why that suite's route case was restored to
+      its original assertion rather than retargeted.
+
+  probes/settle.py
+      The first Job's projected implementation stage, which is how I learned
+      the discharge is not a member of the stage projection and has to be
+      read through its owner's reader.
+
+SEAMS.  The checkpoint profile is
+`tests/job_manager/test_review_driver.Profile` -- "the checkpoint profile a
+deployment configures, with no VCS behind it" -- and the engine is
+`tests/tools/test_stage_execution._ConcurrentEngine`.  No live model, no
+container engine, no network, no credential and no deployed instance was
+touched.

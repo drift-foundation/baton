@@ -1,0 +1,74 @@
+How the runs in this directory were produced — claim364962, W364834
+===================================================================
+
+Candidate root /tmp/w364962 (candidate-364962 overlaid on a root carrying the
+whole of v12/ except node_modules). Baseline: candidate-364837, manifest
+39004823d435c850966588b770f7b4f2f69663ef74b08d537054ab1f46ee114b.
+
+Commands, from <root>/v12/python with PYTHONPATH=src:. —
+
+  python3 -m unittest tests.tools.test_retry_task_lineage -v
+  python3 -m unittest discover -s tests/job_manager -t . -p 'test_*.py'
+  python3 -m unittest tests.tools.test_retry_task_lineage \
+      tests.tools.test_connected_creation tests.tools.test_creation_ports \
+      tests.tools.test_job_task_delivery tests.tools.test_bootstrap
+
+RETRY-LINEAGE.txt       20 cases, OK.
+JOB-MANAGER-SUITE.txt   whole tests/job_manager, 1375 OK.
+TOOLS-CANDIDATE.txt     five tools suites, 270 cases, OK.
+
+WHAT CHANGED SINCE claim364837: the test file only. No product byte.
+
+THE CORRECTION THE REVIEW ASKED FOR, AND WHAT DRIVING IT FOUND
+
+1. The stale docstring is corrected. A faulted turn does NOT release the
+   pool's capacity; ART-7 retention is why, and the comment now says so.
+
+2. A TURN THAT RAISES AND A TURN THAT ANSWERS ARE DIFFERENT ENDINGS, which
+   is what unblocked the chain. `finalize_quiescent_assignment` refuses an
+   attempt whose "worker disposition is 'none'" -- a raised turn leaves a
+   `faulted` terminal with no disposition, and the Work stays claimed. An
+   ANSWERED `unable` is an ending the product settles itself: the assignment
+   is finalized by the composed ending (calling it again from the fixture was
+   refused as "already recorded"), and the retry is then OFFERED. An `unable`
+   answer must still produce artifacts -- "a retention decision names at
+   least one artifact" -- so the agent withholds only the proposal.
+
+3. With a spare producer configured and authorized for both routes the Work
+   passes through, the retry is offered, CLAIMED by the spare and prepared,
+   carrying the task it inherited. That is further than any earlier claim of
+   this Work reached.
+
+4. WHERE IT STOPS, with its exact reproduction, per the review's instruction
+   to record a distinct defect rather than assume its scope:
+
+       line state 'review-ready' does not admit a writer
+
+   One Work has ONE development line -- `create_line`'s identity is
+   `(authority, work)` -- and a retry is a NEW Job on that same Work, so it is
+   granted a writer on that same line. The first round's ending left the line
+   `review-ready`, and the accepted provider refuses a writer there. A line
+   awaiting review is advanced by a VERDICT (a correction round through
+   `open_correction`); a fresh attempt is not a correction. So the retry
+   reaches preparation and is refused before any container, with no task or
+   identity disagreement anywhere in it. The two supported ways past it are a
+   correction round, or a retry on its own Work and line — and the second
+   collides with the carried input identity, which includes `work_ref`.
+
+   `test_the_retrys_preparation_is_refused_by_the_lines_own_state` asserts
+   that refusal from the composition the loop asked, and that both Jobs
+   resolve to one line.
+
+WHAT IS ASSERTED ABOUT THE DELIVERY ITSELF: the document the spare producer
+would serve the retry under carries the inherited task bytes; the reader the
+serving path calls answers them; the Job-scoped identity of that document is
+what the retry submitted, which the real `_matches` admits; and the pool's own
+`_job_workers` admits the retry for both stages. The first attempt's stage,
+attempt, allocation, recorded identity and input root are untouched by all of
+it, and a reopened store replays the same admission to the same retry.
+
+WHAT STANDS IN, NAMED: `_ConcurrentEngine` (the repository's multi-container
+double, because this pool runs two attempts), `test_review_driver.Profile` as
+the checkpoint profile with no version control behind it, the scripted in-image
+worker, and the three `fresh_attempt` ports that are not this outcome's. Every
+case refuses to spawn version control.

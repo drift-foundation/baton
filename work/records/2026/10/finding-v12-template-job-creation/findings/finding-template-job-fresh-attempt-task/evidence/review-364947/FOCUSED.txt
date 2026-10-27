@@ -1,0 +1,37 @@
+................................................................................................../tmp/w364834-review-364947/v12/python/tests/job_manager/test_fresh_attempt.py:2499: DeprecationWarning: This process (pid=12) is multi-threaded, use of fork() may lead to deadlocks in the child.
+  child = os.fork()
+.............<frozen os>:717: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x757b852eaa70>
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+<frozen os>:717: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x757b852eab60>
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.../tmp/w364834-review-364947/v12/python/src/baton_v12/contracts/canonical.py:159: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x757b852e8a90>
+  return "[" + ",".join(_canonical_text(entry, _depth + 1)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+..........<frozen abc>:117: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x757b7ed10b80>
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+................../tmp/w364834-review-364947/v12/python/src/baton_v12/worker_manager/store.py:710: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x757b7ed11b70>
+  connection.execute(statement)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/tmp/w364834-review-364947/v12/python/src/baton_v12/worker_manager/store.py:710: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x757b7ed11c60>
+  connection.execute(statement)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+........................................../tmp/w364834-review-364947/v12/python/tests/tools/test_job_task_delivery.py:278: ResourceWarning: unclosed file <_io.BufferedReader name='/var/tmp/baton-w257624/v12-w71917-gbmf6v9r/inputs-job-first/inputs/task.json'>
+  "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+............................./tmp/w364834-review-364947/v12/worker/baton_worker.py:1038: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x757b7efb7f10>
+  continue
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/tmp/w364834-review-364947/v12/worker/baton_worker.py:1038: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x757b7ed10040>
+  continue
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+..................../tmp/w364834-review-364947/v12/python/tests/tools/test_job_task_delivery.py:186: ResourceWarning: unclosed file <_io.BufferedReader name='/var/tmp/baton-w257624/v12-w71917-887y6o17/inputs-job-first/inputs/task.json'>
+  "rb").read().decode("utf-8")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/tmp/w364834-review-364947/v12/python/tests/tools/test_job_task_delivery.py:189: ResourceWarning: unclosed file <_io.BufferedReader name='/var/tmp/baton-w257624/v12-w71917-887y6o17/inputs-job-second/inputs/task.json'>
+  "rb").read().decode("utf-8")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+........
+----------------------------------------------------------------------
+Ran 241 tests in 28.150s
+
+OK

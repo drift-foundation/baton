@@ -1,0 +1,119 @@
+test_a_retry_of_the_retry_follows_the_lineage (tests.tools.test_retry_task_lineage.TheConnectedAdmissionCarriesTheTask.test_a_retry_of_the_retry_follows_the_lineage)
+RETRY OF RETRY: the whole chain, through the real adapters. ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+target                already established; left alone
+configuration /var/tmp/baton-w257624/v12-w71917-d2_hwp4y/bootstrap-deployment/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "job-cli-first": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/baton-w257624/v12-w71917-d2_hwp4y/bootstrap-deployment/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/baton-w257624/v12-w71917-d2_hwp4y/bootstrap-deployment/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/baton-w257624/v12-w71917-d2_hwp4y/bootstrap-deployment/deployment.json"
+/usr/lib/python3/dist-packages/jsonschema/_keywords.py:281: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x719aa002d5d0>
+  def type(validator, types, instance, schema):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_missing_provenance_refuses_before_any_job_exists (tests.tools.test_retry_task_lineage.TheConnectedAdmissionCarriesTheTask.test_missing_provenance_refuses_before_any_job_exists)
+MISSING PROVENANCE, refused by the REAL selector. ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+target                already established; left alone
+configuration /var/tmp/baton-w257624/v12-w71917-cc_wr_0z/bootstrap-deployment/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "job-cli-first": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/baton-w257624/v12-w71917-cc_wr_0z/bootstrap-deployment/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/baton-w257624/v12-w71917-cc_wr_0z/bootstrap-deployment/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/baton-w257624/v12-w71917-cc_wr_0z/bootstrap-deployment/deployment.json"
+ok
+test_the_real_adapters_bind_and_select_the_inherited_task (tests.tools.test_retry_task_lineage.TheConnectedAdmissionCarriesTheTask.test_the_real_adapters_bind_and_select_the_inherited_task)
+THE OUTCOME, with the owners real and the task inherited. ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+target                already established; left alone
+configuration /var/tmp/baton-w257624/v12-w71917-ymt2z99q/bootstrap-deployment/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "job-cli-first": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/baton-w257624/v12-w71917-ymt2z99q/bootstrap-deployment/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/baton-w257624/v12-w71917-ymt2z99q/bootstrap-deployment/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/baton-w257624/v12-w71917-ymt2z99q/bootstrap-deployment/deployment.json"
+ok
+test_the_real_selector_refuses_the_retry_asked_without_the_task (tests.tools.test_retry_task_lineage.TheConnectedAdmissionCarriesTheTask.test_the_real_selector_refuses_the_retry_asked_without_the_task)
+THE OPERAND IS WHAT DECIDES, asked of the real adapter directly. ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+/tmp/review-w364834-366169-b/v12/python/src/baton_v12/authority/store.py:574: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x719aa002de40>
+  self._db.execute("BEGIN IMMEDIATE")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/tmp/review-w364834-366169-b/v12/python/src/baton_v12/authority/store.py:574: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x719aa002e020>
+  self._db.execute("BEGIN IMMEDIATE")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+target                already established; left alone
+configuration /var/tmp/baton-w257624/v12-w71917-nvy04c87/bootstrap-deployment/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "job-cli-first": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/baton-w257624/v12-w71917-nvy04c87/bootstrap-deployment/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/baton-w257624/v12-w71917-nvy04c87/bootstrap-deployment/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/baton-w257624/v12-w71917-nvy04c87/bootstrap-deployment/deployment.json"
+ok
+test_the_same_request_over_a_reopened_store_replays (tests.tools.test_retry_task_lineage.TheConnectedAdmissionCarriesTheTask.test_the_same_request_over_a_reopened_store_replays)
+REOPEN AND REPLAY, through the real adapters. ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+target                already established; left alone
+configuration /var/tmp/baton-w257624/v12-w71917-5xykc3yg/bootstrap-deployment/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "job-cli-first": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/baton-w257624/v12-w71917-5xykc3yg/bootstrap-deployment/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/baton-w257624/v12-w71917-5xykc3yg/bootstrap-deployment/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/baton-w257624/v12-w71917-5xykc3yg/bootstrap-deployment/deployment.json"
+ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.561s
+
+OK

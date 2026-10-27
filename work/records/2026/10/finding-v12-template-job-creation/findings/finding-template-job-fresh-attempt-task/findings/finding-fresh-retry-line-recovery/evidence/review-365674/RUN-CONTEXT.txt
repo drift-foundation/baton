@@ -1,0 +1,7 @@
+Reviewer baton.rvpc claim365674. Candidate-365537, base19f02ce1295b4517a85f0822d48754efc982f388.
+Reconstructed whole v12 scratch from prior complete overlay, applied every manifest member and verified all hashes. Existing canonical base paths independently match manifest base digests (BASE-CHECK.json).
+From scratch/v12/python:
+BATON_V12_STACK_TEST_ROOT=/var/tmp/baton-w257624 BATON_V12_DISK_ROOT=/var/tmp/baton-w257624 PYTHONPATH=src:. python3 -m unittest tests.tools.test_fresh_retry_line_recovery tests.tools.test_retry_task_lineage tests.job_manager.test_review_driver
+Original evidence/review-365511/completed_probe.py and replay_probe.py run unchanged with the same environment against this overlay; new outputs in this directory. Original scripts remain durable in that prior evidence directory.
+Engine/checkpoint/provider are deterministic test seams; no real provider/engine, deployed instance, Git mutation or canonical import. Interruption tests simulate failure before release transaction after external fence and resume ordinary ticks, not an actual OS process kill. ControlStore reopen is separately covered.
+All candidate, hashes, scripts and logs are under canonical dossier. /tmp scratch is disposable. Rebuild using complete v12 source at recorded base plus exact overlay and required canonical work fixtures; do not reconstruct from missing /tmp paths after shutdown.

@@ -1,0 +1,21 @@
+{
+  "v12/python/src/baton_v12/job_manager/__init__.py": true,
+  "v12/python/src/baton_v12/job_manager/documents.py": true,
+  "v12/python/src/baton_v12/job_manager/fresh_attempt.py": true,
+  "v12/python/src/baton_v12/job_manager/review_driver.py": true,
+  "v12/python/src/baton_v12/job_manager/schema.py": true,
+  "v12/python/src/baton_v12/job_manager/submission.py": true,
+  "v12/python/src/baton_v12/worker_manager/attempts.py": true,
+  "v12/python/src/baton_v12/worker_manager/review_cycles.py": true,
+  "v12/python/tests/job_manager/test_execution_limits.py": true,
+  "v12/python/tests/job_manager/test_fresh_attempt.py": true,
+  "v12/python/tests/job_manager/test_review_driver.py": true,
+  "v12/python/tests/job_manager/test_scheduling.py": true,
+  "v12/python/tests/job_manager/test_store.py": true,
+  "v12/python/tools/bootstrap.py": true,
+  "v12/python/tools/fresh_attempt_ports.py": true,
+  "v12/python/tools/instance.py": true,
+  "v12/python/tools/job_manager.py": true,
+  "v12/python/tools/single_worker.py": true,
+  "v12/python/tools/stage_execution.py": true
+}

@@ -1,0 +1,41 @@
+test_a_published_round_still_freezes_and_waits_for_its_review (tests.tools.test_fresh_retry_line_recovery.ALegitimatePendingReviewStillRefuses.test_a_published_round_still_freezes_and_waits_for_its_review) ... ok
+test_release_writer_refuses_a_round_that_produced_a_candidate (tests.tools.test_fresh_retry_line_recovery.ALegitimatePendingReviewStillRefuses.test_release_writer_refuses_a_round_that_produced_a_candidate)
+And it refuses at the FIRST precondition that is false. ... ok
+test_an_unable_ending_leaves_no_checkpoint_and_an_idle_line (tests.tools.test_fresh_retry_line_recovery.TheEndingReleasesTheLineItHeld.test_an_unable_ending_leaves_no_checkpoint_and_an_idle_line) ... ok
+test_the_first_attempts_outputs_and_record_survive_the_release (tests.tools.test_fresh_retry_line_recovery.TheEndingReleasesTheLineItHeld.test_the_first_attempts_outputs_and_record_survive_the_release) ... ok
+test_the_writer_is_revoked_as_released (tests.tools.test_fresh_retry_line_recovery.TheEndingReleasesTheLineItHeld.test_the_writer_is_revoked_as_released) ... ok
+test_a_completed_writer_is_refused_while_it_is_still_active (tests.tools.test_fresh_retry_line_recovery.TheReleaseRefusesACandidateBeforeAnyFreeze.test_a_completed_writer_is_refused_while_it_is_still_active) ... ok
+test_the_refused_asking_left_the_line_exactly_as_it_was (tests.tools.test_fresh_retry_line_recovery.TheReleaseRefusesACandidateBeforeAnyFreeze.test_the_refused_asking_left_the_line_exactly_as_it_was) ... ok
+test_the_releasable_answers_are_the_complement_of_completed (tests.tools.test_fresh_retry_line_recovery.TheReleaseRefusesACandidateBeforeAnyFreeze.test_the_releasable_answers_are_the_complement_of_completed)
+THE VOCABULARY PIN, so a fifth answer is visible rather than silent. ... ok
+test_the_round_it_protected_still_reached_its_review (tests.tools.test_fresh_retry_line_recovery.TheReleaseRefusesACandidateBeforeAnyFreeze.test_the_round_it_protected_still_reached_its_review) ... ok
+test_a_live_runtime_with_no_answer_yet_refuses (tests.tools.test_fresh_retry_line_recovery.TheReleaseRefusesUnsettledAndForeignExecution.test_a_live_runtime_with_no_answer_yet_refuses)
+UNKNOWN EXECUTION IS NOT A RELEASABLE ROUND. ... ok
+test_a_session_for_another_participant_refuses_at_the_releasable_moment (tests.tools.test_fresh_retry_line_recovery.TheReleaseRefusesUnsettledAndForeignExecution.test_a_session_for_another_participant_refuses_at_the_releasable_moment)
+THE CAPABILITY REFUSAL, asked where every other check passes. ... ok
+test_a_changed_reason_after_the_later_checkpoint_still_refuses (tests.tools.test_fresh_retry_line_recovery.TheReleaseReplaysAfterALaterCheckpoint.test_a_changed_reason_after_the_later_checkpoint_still_refuses)
+THE IDENTITY STILL MEANS SOMETHING, which is the other half of R2. ... ok
+test_a_reopened_store_answers_the_same_old_release (tests.tools.test_fresh_retry_line_recovery.TheReleaseReplaysAfterALaterCheckpoint.test_a_reopened_store_answers_the_same_old_release)
+REOPEN, because durable means across incarnations. ... ok
+test_the_newer_state_is_not_consulted_and_not_changed (tests.tools.test_fresh_retry_line_recovery.TheReleaseReplaysAfterALaterCheckpoint.test_the_newer_state_is_not_consulted_and_not_changed) ... ok
+test_the_old_release_answers_its_exact_committed_document (tests.tools.test_fresh_retry_line_recovery.TheReleaseReplaysAfterALaterCheckpoint.test_the_old_release_answers_its_exact_committed_document) ... ok
+test_the_ending_finishes_on_a_later_tick (tests.tools.test_fresh_retry_line_recovery.TheReleaseSurvivesAnInterruptedWrite.test_the_ending_finishes_on_a_later_tick) ... ok
+test_the_interruption_produced_no_second_authority_fence (tests.tools.test_fresh_retry_line_recovery.TheReleaseSurvivesAnInterruptedWrite.test_the_interruption_produced_no_second_authority_fence)
+THE POINT OF THE CASE: one ending, one fence, one gate. ... ok
+test_the_recovered_ending_still_discharged_the_works_gate (tests.tools.test_fresh_retry_line_recovery.TheReleaseSurvivesAnInterruptedWrite.test_the_recovered_ending_still_discharged_the_works_gate)
+AND THE RETRY IS STILL REACHABLE AFTERWARDS. ... ok
+test_re_entering_it_twice_more_adds_no_effect (tests.tools.test_fresh_retry_line_recovery.TheReleasedEndingIsReEnterable.test_re_entering_it_twice_more_adds_no_effect) ... ok
+test_the_re_entered_ending_proves_the_release_it_performed (tests.tools.test_fresh_retry_line_recovery.TheReleasedEndingIsReEnterable.test_the_re_entered_ending_proves_the_release_it_performed)
+AND BY THE RELEASE, because there is no checkpoint to prove it by. ... ok
+test_the_whole_ending_answers_the_same_document_again (tests.tools.test_fresh_retry_line_recovery.TheReleasedEndingIsReEnterable.test_the_whole_ending_answers_the_same_document_again) ... ok
+test_a_different_reason_for_the_same_writer_refuses (tests.tools.test_fresh_retry_line_recovery.WhatTheReleaseRefuses.test_a_different_reason_for_the_same_writer_refuses)
+An operation id reused with different operands changes nothing. ... ok
+test_a_stale_generation_refuses (tests.tools.test_fresh_retry_line_recovery.WhatTheReleaseRefuses.test_a_stale_generation_refuses) ... ok
+test_an_unknown_writer_refuses (tests.tools.test_fresh_retry_line_recovery.WhatTheReleaseRefuses.test_an_unknown_writer_refuses) ... ok
+test_the_release_the_ending_performed_replays_its_own_answer (tests.tools.test_fresh_retry_line_recovery.WhatTheReleaseRefuses.test_the_release_the_ending_performed_replays_its_own_answer)
+The ending is replayable, so asking again answers rather than ... ok
+
+----------------------------------------------------------------------
+Ran 25 tests in 49.215s
+
+OK

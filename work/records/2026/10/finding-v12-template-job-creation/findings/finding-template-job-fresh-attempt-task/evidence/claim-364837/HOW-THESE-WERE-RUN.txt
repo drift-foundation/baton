@@ -1,0 +1,116 @@
+How the runs in this directory were produced — claim364837, W364834
+===================================================================
+
+The canonical tree is not edited. The candidate root carries the whole of
+`v12/` except `node_modules`, without the stray `v12-w71917-*` fixture
+directories.
+
+  candidate root  /tmp/w364834   (candidate-364837 overlaid)
+
+Baseline: parent candidate-364768, manifest
+edceb4cd4b38cb7e1ebee2c09759a3e13cfaea96add3671e3e3855404d605b54, over base
+19f02ce1295b4517a85f0822d48754efc982f388.
+
+Commands, from <root>/v12/python with PYTHONPATH=src:. —
+
+  python3 -m unittest tests.tools.test_retry_task_lineage -v
+  python3 -m unittest discover -s tests/job_manager -t . -p 'test_*.py'
+  python3 -m unittest tests.tools.test_retry_task_lineage \
+      tests.tools.test_connected_creation tests.tools.test_creation_ports \
+      tests.tools.test_job_task_delivery tests.tools.test_bootstrap \
+      tests.tools.test_instance
+  python3 retry_probe.py          (the reproduction, kept verbatim)
+
+What each file is
+-----------------
+
+RETRY-LINEAGE.txt       tests.tools.test_retry_task_lineage, 17 cases, OK.
+                        Read this first.
+JOB-MANAGER-SUITE.txt   whole tests/job_manager, 1375 OK.
+TOOLS-CANDIDATE.txt     six tools suites, 384 cases, OK — no failures at all,
+                        which is what a complete root gives.
+retry_probe.py          the probe that reproduced the gap: a real install, a
+                        real CLI creation, a pool loop, and the real
+                        fresh-attempt command. It is kept because of what it
+                        establishes about the ENVIRONMENT rather than the
+                        defect: the installed instance's own loop materializes
+                        its line through the real `git` checkpoint profile and
+                        refuses with "Git line materialization failed", so the
+                        reproduction that completes is the one in the suite,
+                        over the injected profile.
+
+What was wrong
+--------------
+
+Two code facts, exactly as the FINDING names them.
+
+1. `fresh_attempt._bound` asked `binding.serving(...)` with no task. A
+   retried template Job submits the prior Job's input digest -- `_composed`
+   carries it verbatim, and for a created Job that digest IS its own task's
+   Job-scoped identity -- so every configured worker was compared against the
+   INSTALLED document and the retry was refused as unservable by the very
+   pool that served the original.
+2. `creation.job_task_of` read `template_jobs` alone, a relation a retry
+   identity has no row in. Even past admission, the delivery would have been
+   the installed task beside a Job declaring its own: `single_worker._matches`
+   refuses that as "another bootstrap input".
+
+What the fix is
+---------------
+
+`creation.job_task_of` FOLLOWS THE RETRY LINEAGE. `fresh_attempts.prior_job_id`
+is the retry relation's own NOT NULL column -- the schema's stated reason for
+keeping two relations rather than widening one -- and the read walks it. So a
+retried Job's task is owned by the creation that made it, immutable where that
+creation wrote it, and reachable from every successor. Nothing is copied into
+the retry's row, which would be a second account of one fact, and nothing is
+recovered from the deployment's installed bytes, which a configuration change
+moves. The walk is bounded and refuses a circular lineage rather than looping.
+
+`fresh_attempt.admit` reads that task for the PRIOR Job and passes it into
+`_bound`, which forwards it to the selector. `None` is every Job with no own
+task and the selector then compares the installed document exactly as before.
+
+What the 17 cases assert
+------------------------
+
+ADMISSION: the prior Job's own task reaches the servability question, once
+per stage, and is not the installed document; a Job with no own task asks with
+`None`; the fresh Job answers the prior task through the lineage and its
+submission declares the prior identity; a retry of a retry follows the whole
+chain; nothing copied the task into the retry's row (one creation row still
+holds it); the original creation row, the first attempt's recorded input
+identity and its exceptional stage are untouched; and the same request again
+answers the same fresh Job with one retry row.
+
+DELIVERY: the reader the serving path calls (`single_worker.job_task_reader`)
+answers the inherited task for the retry; the per-stage document a worker
+would serve the retry under carries those bytes, is a fresh document rather
+than the installed one, and its Job-scoped identity is what the retry
+submitted -- which the real `_matches` then admits; and the pool's own
+`_job_workers` admits the retry for both stages.
+
+REFUSALS: a circular lineage refuses `integrity/schema` naming the cycle; a
+hand-submitted Job and a Job nobody submitted both answer `None`.
+
+WHERE THIS STOPS, measured rather than assumed
+----------------------------------------------
+
+A faulted attempt's material is PRESERVED (DESIGN ART-7), so its allocation
+stays held and the pool answers the retry's offer with "every effective
+worker/principal capacity is reserved or recovery-required". One case reads
+that exact refusal out of the loop's own report. Releasing that capacity is
+the recovery path's act -- not an admission's and not a delivery's -- so the
+retried Job's own STARTED container is outside this outcome. Everything the
+runtime would use for it is asserted by the objects that compose it.
+
+WHAT STANDS IN, NAMED. The engine is the suite's double and the checkpoint
+profile is `test_review_driver.Profile`, the deployment-configured profile
+with no version control behind it; every case installs process runners that
+refuse any version-control invocation. The in-image worker is
+`scripted_agent.ScriptedAgent` with a `work` that raises, which is how the
+first attempt really ends. The three `fresh_attempt` ports that are not this
+outcome's -- the host exclusion, the Work authorization and the deployment
+binding -- are `test_fresh_attempt`'s own strict stand-ins; the binding
+RECORDS the task it was asked with, which is what makes "the task travelled"
+assertable rather than inferred.

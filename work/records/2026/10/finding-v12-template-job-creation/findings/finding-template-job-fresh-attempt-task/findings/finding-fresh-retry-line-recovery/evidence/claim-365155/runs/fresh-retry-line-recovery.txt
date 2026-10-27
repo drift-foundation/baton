@@ -1,0 +1,21 @@
+test_a_published_round_still_freezes_and_waits_for_its_review (tests.tools.test_fresh_retry_line_recovery.ALegitimatePendingReviewStillRefuses.test_a_published_round_still_freezes_and_waits_for_its_review) ... ok
+test_release_writer_refuses_a_round_that_produced_a_candidate (tests.tools.test_fresh_retry_line_recovery.ALegitimatePendingReviewStillRefuses.test_release_writer_refuses_a_round_that_produced_a_candidate)
+And it refuses at the FIRST precondition that is false. ... ok
+test_an_unable_ending_leaves_no_checkpoint_and_an_idle_line (tests.tools.test_fresh_retry_line_recovery.TheEndingReleasesTheLineItHeld.test_an_unable_ending_leaves_no_checkpoint_and_an_idle_line) ... ok
+test_the_first_attempts_outputs_and_record_survive_the_release (tests.tools.test_fresh_retry_line_recovery.TheEndingReleasesTheLineItHeld.test_the_first_attempts_outputs_and_record_survive_the_release) ... ok
+test_the_writer_is_revoked_as_released (tests.tools.test_fresh_retry_line_recovery.TheEndingReleasesTheLineItHeld.test_the_writer_is_revoked_as_released) ... ok
+test_re_entering_it_twice_more_adds_no_effect (tests.tools.test_fresh_retry_line_recovery.TheReleasedEndingIsReEnterable.test_re_entering_it_twice_more_adds_no_effect) ... ok
+test_the_re_entered_ending_proves_the_release_it_performed (tests.tools.test_fresh_retry_line_recovery.TheReleasedEndingIsReEnterable.test_the_re_entered_ending_proves_the_release_it_performed)
+AND BY THE RELEASE, because there is no checkpoint to prove it by. ... ok
+test_the_whole_ending_answers_the_same_document_again (tests.tools.test_fresh_retry_line_recovery.TheReleasedEndingIsReEnterable.test_the_whole_ending_answers_the_same_document_again) ... ok
+test_a_different_reason_for_the_same_writer_refuses (tests.tools.test_fresh_retry_line_recovery.WhatTheReleaseRefuses.test_a_different_reason_for_the_same_writer_refuses)
+An operation id reused with different operands changes nothing. ... ok
+test_a_stale_generation_refuses (tests.tools.test_fresh_retry_line_recovery.WhatTheReleaseRefuses.test_a_stale_generation_refuses) ... ok
+test_an_unknown_writer_refuses (tests.tools.test_fresh_retry_line_recovery.WhatTheReleaseRefuses.test_an_unknown_writer_refuses) ... ok
+test_the_release_the_ending_performed_replays_its_own_answer (tests.tools.test_fresh_retry_line_recovery.WhatTheReleaseRefuses.test_the_release_the_ending_performed_replays_its_own_answer)
+The ending is replayable, so asking again answers rather than ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 4.013s
+
+OK

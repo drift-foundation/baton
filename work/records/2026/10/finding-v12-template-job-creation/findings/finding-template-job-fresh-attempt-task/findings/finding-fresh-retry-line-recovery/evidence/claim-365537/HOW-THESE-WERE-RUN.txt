@@ -1,0 +1,76 @@
+W365075 claim365537 -- how every run in this directory was produced
+===================================================================
+
+ISOLATED CANDIDATE ROOT.  /tmp/w365155, built from the canonical bytes at
+19f02ce1295b4517a85f0822d48754efc982f388 with the whole of v12/ except
+node_modules, KEEPING THE v12 LEVEL (suites resolve repository assets by
+pathlib parents[4]).  This claim's three changed files were overlaid and then
+re-hashed against candidate-365537 -- byte identical, every .py member.
+
+THE CANONICAL TREE WAS NEVER EDITED.  A read-only working-tree status over
+v12/python is empty at the end of this claim.
+
+COMMAND, for every run below:
+
+    cd /tmp/w365155/v12/python
+    PYTHONPATH=src:. python3 -m unittest <targets>
+
+  runs/fresh-retry-line-recovery.txt
+      tests.tools.test_fresh_retry_line_recovery -v          25 OK
+      (12 at claim365155; the 13 new cases are R1, R2, the live/foreign
+      runtime refusals and the interrupted-write recovery)
+
+  runs/retry-task-lineage.txt
+      tests.tools.test_retry_task_lineage -v                 24 OK
+
+  runs/job-manager-group.txt
+      discover -s tests/job_manager -t .                   1375 OK
+
+  runs/five-tools-suites.txt
+      the five non-version-control tools suites of this
+      dossier's scope: test_fresh_retry_line_recovery,
+      test_retry_task_lineage, test_connected_creation,
+      test_job_task_delivery, test_creation_ports           164 OK
+
+THE REVIEWER'S OWN REPRODUCTIONS, RE-RUN UNCHANGED.  Both probe scripts are
+copied byte-for-byte from evidence/review-365511/ and run against this
+candidate; nothing in them was adjusted.
+
+  probes/completed_probe.py -> probes/COMPLETED-PROBE-AFTER.txt
+      Before: the probe RELEASED a `completed` writer and returned the line to
+      idle.  Now: refused -- "recorded disposition 'completed', which carries a
+      candidate; a release ends a round that produced NOTHING to review" --
+      and `line_state_after` is `writing`, so the asking changed nothing.
+
+  probes/replay_probe.py -> probes/REPLAY-PROBE-AFTER.txt
+      Before: "already recorded with a different kind or signature".  Now: the
+      old release answers its committed document, with `state` `idle`,
+      `current_checkpoint_id` null and gate `runtime-quiescence:1` -- its own
+      pinned facts, while the line is `reviewing` at the later round's frozen
+      checkpoint.
+
+NO VERSION-CONTROL SUITE WAS RUN, AND NONE IS TRANSFERRED.  The review states
+the reviewer shares the Git restriction and that connected deterministic
+evidence may establish reader behaviour, so the two `tools/stage_execution.py`
+readers changed at claim365155 are established here rather than referred
+onward:
+
+  _fenced_gate -- `test_the_prior_endings_gate_is_discharged_by_the_release`
+      reads the committed discharge through `worker_manager.gate_discharge_of`
+      and the Work's gate through `Authority.project_work`.
+  _fence_operation -- the one-producer case's refusal NAMES the review route
+      ("route 'rview' does not resolve to 'baton.claude'"), which exists only
+      because the released ending's handoff was fenced by an authority
+      operation that reader had to find.  A released ending carrying none
+      would never have moved the Work to that route.
+  Both are also exercised by the recovery suite's interrupted-write case,
+      which asserts exactly one journalled `attempt.finalize-quiescent` and a
+      discharged gate after the recovery.
+
+SEAMS.  Checkpoint profile `tests/job_manager/test_review_driver.Profile`
+("the checkpoint profile a deployment configures, with no VCS behind it");
+engine `tests/tools/test_stage_execution._ConcurrentEngine`.  The interrupted
+write is one synthetic `OSError` raised from `ControlStore.transact` for the
+first `review-line.release-writer` operation and nothing else; recovery is the
+serving loop's own later ticks with nothing patched.  No live model, no
+container engine, no network, no credential, no deployed instance.

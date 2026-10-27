@@ -1,0 +1,25 @@
+test_audit_checkpoint_reads_and_changes_nothing (tests.tools.test_fresh_retry_line_recovery.NoSupportedOperationAdvancesIt.test_audit_checkpoint_reads_and_changes_nothing)
+The one operation that accepts this state, and it is a READ. ... ok
+test_integration_checkpoint_answers_nothing_to_integrate (tests.tools.test_fresh_retry_line_recovery.NoSupportedOperationAdvancesIt.test_integration_checkpoint_answers_nothing_to_integrate)
+It is a READ with a precondition, and this line does not meet it. ... ok
+test_record_verdict_has_no_attachment_to_take (tests.tools.test_fresh_retry_line_recovery.NoSupportedOperationAdvancesIt.test_record_verdict_has_no_attachment_to_take) ... ok
+test_restore_abandoned_correction_needs_a_writing_line (tests.tools.test_fresh_retry_line_recovery.NoSupportedOperationAdvancesIt.test_restore_abandoned_correction_needs_a_writing_line)
+Its own docstring is about the `writing` case; this line is not. ... ok
+test_the_retrys_own_preparation_meets_the_line_state (tests.tools.test_fresh_retry_line_recovery.NoSupportedOperationAdvancesIt.test_the_retrys_own_preparation_meets_the_line_state)
+THE REFUSAL AS THE LOOP MEETS IT, through the composition. ... ok
+test_an_unable_ending_still_freezes_the_lines_checkpoint (tests.tools.test_fresh_retry_line_recovery.TheEndingLeavesAReviewThatCannotHappen.test_an_unable_ending_still_freezes_the_lines_checkpoint) ... ok
+test_nothing_is_attached_and_the_review_stage_is_blocked (tests.tools.test_fresh_retry_line_recovery.TheEndingLeavesAReviewThatCannotHappen.test_nothing_is_attached_and_the_review_stage_is_blocked) ... ok
+test_the_writer_that_produced_it_is_revoked (tests.tools.test_fresh_retry_line_recovery.TheEndingLeavesAReviewThatCannotHappen.test_the_writer_that_produced_it_is_revoked)
+So nothing is `writing` either: the abandonment recovery's ... ok
+test_the_first_attempts_evidence_survives_the_retry (tests.tools.test_retry_task_lineage.TheRetriedJobReachesItsOwnRuntimes.test_the_first_attempts_evidence_survives_the_retry) ... ok
+test_the_retry_is_offered_claimed_and_prepared_on_the_spare (tests.tools.test_retry_task_lineage.TheRetriedJobReachesItsOwnRuntimes.test_the_retry_is_offered_claimed_and_prepared_on_the_spare)
+HOW FAR THE RETRY GETS, which is further than any earlier claim. ... ok
+test_the_retrys_preparation_is_refused_by_the_lines_own_state (tests.tools.test_retry_task_lineage.TheRetriedJobReachesItsOwnRuntimes.test_the_retrys_preparation_is_refused_by_the_lines_own_state)
+WHERE IT STOPS, and it is not capacity and not the task. ... ok
+test_the_same_admission_after_a_reopen_answers_the_same_retry (tests.tools.test_retry_task_lineage.TheRetriedJobReachesItsOwnRuntimes.test_the_same_admission_after_a_reopen_answers_the_same_retry)
+REOPEN AND REPLAY, over the same durable state. ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 11.573s
+
+OK

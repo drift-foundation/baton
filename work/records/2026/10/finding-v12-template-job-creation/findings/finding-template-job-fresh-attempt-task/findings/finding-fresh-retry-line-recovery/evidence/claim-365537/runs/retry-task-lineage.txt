@@ -1,0 +1,45 @@
+test_nothing_copied_the_task_into_the_retrys_own_row (tests.tools.test_retry_task_lineage.TheAdmissionCarriesTheTask.test_nothing_copied_the_task_into_the_retrys_own_row)
+One creation holds the bytes; the lineage is how they are found. ... ok
+test_the_fresh_job_answers_the_priors_task_through_the_lineage (tests.tools.test_retry_task_lineage.TheAdmissionCarriesTheTask.test_the_fresh_job_answers_the_priors_task_through_the_lineage) ... ok
+test_the_original_creation_and_its_evidence_are_untouched (tests.tools.test_retry_task_lineage.TheAdmissionCarriesTheTask.test_the_original_creation_and_its_evidence_are_untouched) ... ok
+test_the_priors_own_task_reaches_the_servability_question (tests.tools.test_retry_task_lineage.TheAdmissionCarriesTheTask.test_the_priors_own_task_reaches_the_servability_question) ... ok
+test_the_same_request_again_answers_the_same_fresh_job (tests.tools.test_retry_task_lineage.TheAdmissionCarriesTheTask.test_the_same_request_again_answers_the_same_fresh_job) ... ok
+test_a_circular_lineage_refuses (tests.tools.test_retry_task_lineage.TheLineageRefusesWhatItCannotRead.test_a_circular_lineage_refuses) ... ok
+test_a_lineage_whose_origin_was_never_created_answers_none (tests.tools.test_retry_task_lineage.TheLineageRefusesWhatItCannotRead.test_a_lineage_whose_origin_was_never_created_answers_none)
+The legacy path: a retry of a hand-submitted Job has no own task. ... ok
+test_the_document_a_worker_would_serve_the_retry_under (tests.tools.test_retry_task_lineage.TheRetriedJobIsServedItsOwnTask.test_the_document_a_worker_would_serve_the_retry_under) ... ok
+test_the_retry_is_offered_and_its_claim_waits_on_the_works_route (tests.tools.test_retry_task_lineage.TheRetriedJobIsServedItsOwnTask.test_the_retry_is_offered_and_its_claim_waits_on_the_works_route)
+WHAT THE ONE-PRODUCER POOL DOES, read out of the loop's reports. ... ok
+test_the_serving_readers_answer_the_inherited_task (tests.tools.test_retry_task_lineage.TheRetriedJobIsServedItsOwnTask.test_the_serving_readers_answer_the_inherited_task) ... ok
+test_the_document_the_spare_would_serve_the_retry_under (tests.tools.test_retry_task_lineage.TheRetriedJobReachesItsOwnRuntimes.test_the_document_the_spare_would_serve_the_retry_under)
+The delivery question, which is this suite's own subject. ... ok
+test_the_excluded_rounds_material_is_untouched_by_all_of_it (tests.tools.test_retry_task_lineage.TheRetriedJobReachesItsOwnRuntimes.test_the_excluded_rounds_material_is_untouched_by_all_of_it)
+WHAT THE RECOVERY DID NOT DO, after the whole lifecycle ran. ... ok
+test_the_first_attempts_evidence_survives_the_retry (tests.tools.test_retry_task_lineage.TheRetriedJobReachesItsOwnRuntimes.test_the_first_attempts_evidence_survives_the_retry) ... ok
+test_the_prior_endings_gate_is_discharged_by_the_release (tests.tools.test_retry_task_lineage.TheRetriedJobReachesItsOwnRuntimes.test_the_prior_endings_gate_is_discharged_by_the_release)
+THE OBLIGATION THE RELEASE INHERITED, and discharged. ... ok
+test_the_released_line_admits_the_retrys_own_writer (tests.tools.test_retry_task_lineage.TheRetriedJobReachesItsOwnRuntimes.test_the_released_line_admits_the_retrys_own_writer)
+ONE LINE FOR THE WORK, AND THE RETRY IS WRITING ON IT. ... ok
+test_the_retry_reaches_its_own_implementation_runtime (tests.tools.test_retry_task_lineage.TheRetriedJobReachesItsOwnRuntimes.test_the_retry_reaches_its_own_implementation_runtime)
+W365075'S MILESTONE, FIRST HALF: a container for the retry. ... ok
+test_the_retry_reaches_its_own_independent_review_runtime (tests.tools.test_retry_task_lineage.TheRetriedJobReachesItsOwnRuntimes.test_the_retry_reaches_its_own_independent_review_runtime)
+W365075'S MILESTONE, SECOND HALF: review, started. ... ok
+test_the_same_admission_after_a_reopen_answers_the_same_retry (tests.tools.test_retry_task_lineage.TheRetriedJobReachesItsOwnRuntimes.test_the_same_admission_after_a_reopen_answers_the_same_retry)
+REOPEN AND REPLAY, over the same durable state. ... ok
+test_a_job_with_no_own_task_is_served_the_installed_one (tests.tools.test_job_task_delivery.TheCreatedJobRunsThroughThePoolServingLoop.test_a_job_with_no_own_task_is_served_the_installed_one)
+THE PRESERVED PATH, through the same loop and the same fix. ... ok
+test_the_created_jobs_own_task_reaches_a_started_runtime (tests.tools.test_job_task_delivery.TheCreatedJobRunsThroughThePoolServingLoop.test_the_created_jobs_own_task_reaches_a_started_runtime)
+THE WHOLE SCENARIO: creation, loop, publication, start. ... ok
+test_the_stageless_adapter_over_the_pool_attempt_is_the_delivered_one (tests.tools.test_job_task_delivery.TheCreatedJobRunsThroughThePoolServingLoop.test_the_stageless_adapter_over_the_pool_attempt_is_the_delivered_one)
+THE RECOVERY IDENTITY, after a real pool start. ... ok
+test_the_review_attempt_is_recorded_and_adapted_on_the_delivered_input (tests.tools.test_job_task_delivery.TheReviewStageRunsThroughThePoolServingLoop.test_the_review_attempt_is_recorded_and_adapted_on_the_delivered_input)
+THE IDENTITIES: recorded, manifest, context and adapter. ... ok
+test_the_review_mount_is_the_checkpoint_the_round_froze (tests.tools.test_job_task_delivery.TheReviewStageRunsThroughThePoolServingLoop.test_the_review_mount_is_the_checkpoint_the_round_froze)
+REVIEW SEMANTICS, from the attachment the loop granted. ... ok
+test_the_review_runtime_is_started_with_the_requested_task (tests.tools.test_job_task_delivery.TheReviewStageRunsThroughThePoolServingLoop.test_the_review_runtime_is_started_with_the_requested_task)
+THE MILESTONE: the loop, the ending, and the review runtime. ... ok
+
+----------------------------------------------------------------------
+Ran 24 tests in 30.177s
+
+OK

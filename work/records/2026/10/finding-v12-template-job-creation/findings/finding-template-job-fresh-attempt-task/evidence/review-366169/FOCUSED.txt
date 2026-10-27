@@ -1,0 +1,1013 @@
+test_nothing_copied_the_task_into_the_retrys_own_row (tests.tools.test_retry_task_lineage.TheAdmissionCarriesTheTask.test_nothing_copied_the_task_into_the_retrys_own_row)
+One creation holds the bytes; the lineage is how they are found. ... FAIL
+test_the_fresh_job_answers_the_priors_task_through_the_lineage (tests.tools.test_retry_task_lineage.TheAdmissionCarriesTheTask.test_the_fresh_job_answers_the_priors_task_through_the_lineage) ... FAIL
+test_the_original_creation_and_its_evidence_are_untouched (tests.tools.test_retry_task_lineage.TheAdmissionCarriesTheTask.test_the_original_creation_and_its_evidence_are_untouched) ... FAIL
+test_the_priors_own_task_reaches_the_servability_question (tests.tools.test_retry_task_lineage.TheAdmissionCarriesTheTask.test_the_priors_own_task_reaches_the_servability_question) ... FAIL
+test_the_same_request_again_answers_the_same_fresh_job (tests.tools.test_retry_task_lineage.TheAdmissionCarriesTheTask.test_the_same_request_again_answers_the_same_fresh_job) ... FAIL
+test_a_retry_of_the_retry_follows_the_lineage (tests.tools.test_retry_task_lineage.TheConnectedAdmissionCarriesTheTask.test_a_retry_of_the_retry_follows_the_lineage)
+RETRY OF RETRY: the whole chain, through the real adapters. ... FAIL
+test_missing_provenance_refuses_before_any_job_exists (tests.tools.test_retry_task_lineage.TheConnectedAdmissionCarriesTheTask.test_missing_provenance_refuses_before_any_job_exists)
+MISSING PROVENANCE, refused by the REAL selector. ... FAIL
+test_the_real_adapters_bind_and_select_the_inherited_task (tests.tools.test_retry_task_lineage.TheConnectedAdmissionCarriesTheTask.test_the_real_adapters_bind_and_select_the_inherited_task)
+THE OUTCOME, with the owners real and the task inherited. ... FAIL
+test_the_real_selector_refuses_the_retry_asked_without_the_task (tests.tools.test_retry_task_lineage.TheConnectedAdmissionCarriesTheTask.test_the_real_selector_refuses_the_retry_asked_without_the_task)
+THE OPERAND IS WHAT DECIDES, asked of the real adapter directly. ... FAIL
+test_the_same_request_over_a_reopened_store_replays (tests.tools.test_retry_task_lineage.TheConnectedAdmissionCarriesTheTask.test_the_same_request_over_a_reopened_store_replays)
+REOPEN AND REPLAY, through the real adapters. ... FAIL
+test_inconsistent_provenance_refuses (tests.tools.test_retry_task_lineage.TheDispatchRefusesProvenanceItCannotTrust.test_inconsistent_provenance_refuses)
+INCONSISTENT: provenance that disagrees with itself. ... FAIL
+test_missing_provenance_refuses_rather_than_delivering_installed (tests.tools.test_retry_task_lineage.TheDispatchRefusesProvenanceItCannotTrust.test_missing_provenance_refuses_rather_than_delivering_installed)
+MISSING: the origin's row no longer carries a task at all. ... FAIL
+test_provenance_emptied_to_nothing_refuses_at_the_row (tests.tools.test_retry_task_lineage.TheDispatchRefusesProvenanceItCannotTrust.test_provenance_emptied_to_nothing_refuses_at_the_row)
+AND EMPTY TEXT IS REFUSED ONE LAYER EARLIER, by the row itself. ... FAIL
+test_provenance_that_is_not_a_document_refuses (tests.tools.test_retry_task_lineage.TheDispatchRefusesProvenanceItCannotTrust.test_provenance_that_is_not_a_document_refuses)
+AND ONE THAT IS NOT A TASK AT ALL, by the same rule. ... FAIL
+test_substituted_provenance_refuses (tests.tools.test_retry_task_lineage.TheDispatchRefusesProvenanceItCannotTrust.test_substituted_provenance_refuses)
+SUBSTITUTED: another creation's task document in that row. ... FAIL
+test_a_circular_lineage_refuses (tests.tools.test_retry_task_lineage.TheLineageRefusesWhatItCannotRead.test_a_circular_lineage_refuses) ... FAIL
+test_a_lineage_whose_origin_was_never_created_answers_none (tests.tools.test_retry_task_lineage.TheLineageRefusesWhatItCannotRead.test_a_lineage_whose_origin_was_never_created_answers_none)
+The legacy path: a retry of a hand-submitted Job has no own task. ... FAIL
+test_the_document_a_worker_would_serve_the_retry_under (tests.tools.test_retry_task_lineage.TheRetriedJobIsServedItsOwnTask.test_the_document_a_worker_would_serve_the_retry_under) ... FAIL
+test_the_retry_is_offered_and_its_claim_waits_on_the_works_route (tests.tools.test_retry_task_lineage.TheRetriedJobIsServedItsOwnTask.test_the_retry_is_offered_and_its_claim_waits_on_the_works_route)
+WHAT THE ONE-PRODUCER POOL DOES, read out of the loop's reports. ... FAIL
+test_the_serving_readers_answer_the_inherited_task (tests.tools.test_retry_task_lineage.TheRetriedJobIsServedItsOwnTask.test_the_serving_readers_answer_the_inherited_task) ... FAIL
+test_one_identity_reaches_both_of_the_retrys_runtimes (tests.tools.test_retry_task_lineage.TheRetriedJobReachesItsOwnRuntimes.test_one_identity_reaches_both_of_the_retrys_runtimes)
+BOTH RUNTIME INPUTS, compared against each other. ... FAIL
+test_the_document_the_spare_would_serve_the_retry_under (tests.tools.test_retry_task_lineage.TheRetriedJobReachesItsOwnRuntimes.test_the_document_the_spare_would_serve_the_retry_under)
+The delivery question, which is this suite's own subject. ... FAIL
+test_the_excluded_rounds_material_is_untouched_by_all_of_it (tests.tools.test_retry_task_lineage.TheRetriedJobReachesItsOwnRuntimes.test_the_excluded_rounds_material_is_untouched_by_all_of_it)
+WHAT THE RECOVERY DID NOT DO, after the whole lifecycle ran. ... FAIL
+test_the_first_attempts_evidence_survives_the_retry (tests.tools.test_retry_task_lineage.TheRetriedJobReachesItsOwnRuntimes.test_the_first_attempts_evidence_survives_the_retry) ... FAIL
+test_the_prior_endings_gate_is_discharged_by_the_release (tests.tools.test_retry_task_lineage.TheRetriedJobReachesItsOwnRuntimes.test_the_prior_endings_gate_is_discharged_by_the_release)
+THE OBLIGATION THE RELEASE INHERITED, and discharged. ... FAIL
+test_the_released_line_admits_the_retrys_own_writer (tests.tools.test_retry_task_lineage.TheRetriedJobReachesItsOwnRuntimes.test_the_released_line_admits_the_retrys_own_writer)
+ONE LINE FOR THE WORK, AND THE RETRY IS WRITING ON IT. ... FAIL
+test_the_retry_reaches_its_own_implementation_runtime (tests.tools.test_retry_task_lineage.TheRetriedJobReachesItsOwnRuntimes.test_the_retry_reaches_its_own_implementation_runtime)
+W365075'S MILESTONE, FIRST HALF: a container for the retry. ... FAIL
+test_the_retry_reaches_its_own_independent_review_runtime (tests.tools.test_retry_task_lineage.TheRetriedJobReachesItsOwnRuntimes.test_the_retry_reaches_its_own_independent_review_runtime)
+W365075'S MILESTONE, SECOND HALF: review, started. ... FAIL
+test_the_retrys_review_input_identity_is_the_one_it_declared (tests.tools.test_retry_task_lineage.TheRetriedJobReachesItsOwnRuntimes.test_the_retrys_review_input_identity_is_the_one_it_declared)
+THE FULL BOUND IDENTITY of the review runtime, all four places. ... FAIL
+test_the_retrys_review_runtime_is_delivered_the_inherited_task (tests.tools.test_retry_task_lineage.TheRetriedJobReachesItsOwnRuntimes.test_the_retrys_review_runtime_is_delivered_the_inherited_task)
+REVIEW 2026-10-27T14-36-28Z: THE REVIEW RUNTIME'S OWN BYTES. ... FAIL
+test_the_same_admission_after_a_reopen_answers_the_same_retry (tests.tools.test_retry_task_lineage.TheRetriedJobReachesItsOwnRuntimes.test_the_same_admission_after_a_reopen_answers_the_same_retry)
+REOPEN AND REPLAY, over the same durable state. ... FAIL
+test_a_job_with_no_own_task_is_served_the_installed_one (tests.tools.test_job_task_delivery.TheCreatedJobRunsThroughThePoolServingLoop.test_a_job_with_no_own_task_is_served_the_installed_one)
+THE PRESERVED PATH, through the same loop and the same fix. ... FAIL
+test_the_created_jobs_own_task_reaches_a_started_runtime (tests.tools.test_job_task_delivery.TheCreatedJobRunsThroughThePoolServingLoop.test_the_created_jobs_own_task_reaches_a_started_runtime)
+THE WHOLE SCENARIO: creation, loop, publication, start. ... FAIL
+test_the_stageless_adapter_over_the_pool_attempt_is_the_delivered_one (tests.tools.test_job_task_delivery.TheCreatedJobRunsThroughThePoolServingLoop.test_the_stageless_adapter_over_the_pool_attempt_is_the_delivered_one)
+THE RECOVERY IDENTITY, after a real pool start. ... FAIL
+test_the_review_attempt_is_recorded_and_adapted_on_the_delivered_input (tests.tools.test_job_task_delivery.TheReviewStageRunsThroughThePoolServingLoop.test_the_review_attempt_is_recorded_and_adapted_on_the_delivered_input)
+THE IDENTITIES: recorded, manifest, context and adapter. ... FAIL
+test_the_review_mount_is_the_checkpoint_the_round_froze (tests.tools.test_job_task_delivery.TheReviewStageRunsThroughThePoolServingLoop.test_the_review_mount_is_the_checkpoint_the_round_froze)
+REVIEW SEMANTICS, from the attachment the loop granted. ... FAIL
+test_the_review_runtime_is_started_with_the_requested_task (tests.tools.test_job_task_delivery.TheReviewStageRunsThroughThePoolServingLoop.test_the_review_runtime_is_started_with_the_requested_task)
+THE MILESTONE: the loop, the ending, and the review runtime. ... FAIL
+
+======================================================================
+FAIL: test_nothing_copied_the_task_into_the_retrys_own_row (tests.tools.test_retry_task_lineage.TheAdmissionCarriesTheTask.test_nothing_copied_the_task_into_the_retrys_own_row)
+One creation holds the bytes; the lineage is how they are found.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_retry_task_lineage.py", line 101, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/review-w364834-366169-b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_the_fresh_job_answers_the_priors_task_through_the_lineage (tests.tools.test_retry_task_lineage.TheAdmissionCarriesTheTask.test_the_fresh_job_answers_the_priors_task_through_the_lineage)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_retry_task_lineage.py", line 101, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/review-w364834-366169-b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_the_original_creation_and_its_evidence_are_untouched (tests.tools.test_retry_task_lineage.TheAdmissionCarriesTheTask.test_the_original_creation_and_its_evidence_are_untouched)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_retry_task_lineage.py", line 101, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/review-w364834-366169-b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_the_priors_own_task_reaches_the_servability_question (tests.tools.test_retry_task_lineage.TheAdmissionCarriesTheTask.test_the_priors_own_task_reaches_the_servability_question)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_retry_task_lineage.py", line 101, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/review-w364834-366169-b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_the_same_request_again_answers_the_same_fresh_job (tests.tools.test_retry_task_lineage.TheAdmissionCarriesTheTask.test_the_same_request_again_answers_the_same_fresh_job)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_retry_task_lineage.py", line 101, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/review-w364834-366169-b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_a_retry_of_the_retry_follows_the_lineage (tests.tools.test_retry_task_lineage.TheConnectedAdmissionCarriesTheTask.test_a_retry_of_the_retry_follows_the_lineage)
+RETRY OF RETRY: the whole chain, through the real adapters.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /tmp/review-w364834-366169-b.
+
+======================================================================
+FAIL: test_missing_provenance_refuses_before_any_job_exists (tests.tools.test_retry_task_lineage.TheConnectedAdmissionCarriesTheTask.test_missing_provenance_refuses_before_any_job_exists)
+MISSING PROVENANCE, refused by the REAL selector.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /tmp/review-w364834-366169-b.
+
+======================================================================
+FAIL: test_the_real_adapters_bind_and_select_the_inherited_task (tests.tools.test_retry_task_lineage.TheConnectedAdmissionCarriesTheTask.test_the_real_adapters_bind_and_select_the_inherited_task)
+THE OUTCOME, with the owners real and the task inherited.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /tmp/review-w364834-366169-b.
+
+======================================================================
+FAIL: test_the_real_selector_refuses_the_retry_asked_without_the_task (tests.tools.test_retry_task_lineage.TheConnectedAdmissionCarriesTheTask.test_the_real_selector_refuses_the_retry_asked_without_the_task)
+THE OPERAND IS WHAT DECIDES, asked of the real adapter directly.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /tmp/review-w364834-366169-b.
+
+======================================================================
+FAIL: test_the_same_request_over_a_reopened_store_replays (tests.tools.test_retry_task_lineage.TheConnectedAdmissionCarriesTheTask.test_the_same_request_over_a_reopened_store_replays)
+REOPEN AND REPLAY, through the real adapters.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /tmp/review-w364834-366169-b.
+
+======================================================================
+FAIL: test_inconsistent_provenance_refuses (tests.tools.test_retry_task_lineage.TheDispatchRefusesProvenanceItCannotTrust.test_inconsistent_provenance_refuses)
+INCONSISTENT: provenance that disagrees with itself.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_retry_task_lineage.py", line 449, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_retry_task_lineage.py", line 101, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/review-w364834-366169-b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_missing_provenance_refuses_rather_than_delivering_installed (tests.tools.test_retry_task_lineage.TheDispatchRefusesProvenanceItCannotTrust.test_missing_provenance_refuses_rather_than_delivering_installed)
+MISSING: the origin's row no longer carries a task at all.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_retry_task_lineage.py", line 449, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_retry_task_lineage.py", line 101, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/review-w364834-366169-b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_provenance_emptied_to_nothing_refuses_at_the_row (tests.tools.test_retry_task_lineage.TheDispatchRefusesProvenanceItCannotTrust.test_provenance_emptied_to_nothing_refuses_at_the_row)
+AND EMPTY TEXT IS REFUSED ONE LAYER EARLIER, by the row itself.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_retry_task_lineage.py", line 449, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_retry_task_lineage.py", line 101, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/review-w364834-366169-b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_provenance_that_is_not_a_document_refuses (tests.tools.test_retry_task_lineage.TheDispatchRefusesProvenanceItCannotTrust.test_provenance_that_is_not_a_document_refuses)
+AND ONE THAT IS NOT A TASK AT ALL, by the same rule.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_retry_task_lineage.py", line 449, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_retry_task_lineage.py", line 101, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/review-w364834-366169-b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_substituted_provenance_refuses (tests.tools.test_retry_task_lineage.TheDispatchRefusesProvenanceItCannotTrust.test_substituted_provenance_refuses)
+SUBSTITUTED: another creation's task document in that row.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_retry_task_lineage.py", line 449, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_retry_task_lineage.py", line 101, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/review-w364834-366169-b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_a_circular_lineage_refuses (tests.tools.test_retry_task_lineage.TheLineageRefusesWhatItCannotRead.test_a_circular_lineage_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_retry_task_lineage.py", line 101, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/review-w364834-366169-b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_a_lineage_whose_origin_was_never_created_answers_none (tests.tools.test_retry_task_lineage.TheLineageRefusesWhatItCannotRead.test_a_lineage_whose_origin_was_never_created_answers_none)
+The legacy path: a retry of a hand-submitted Job has no own task.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_retry_task_lineage.py", line 101, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/review-w364834-366169-b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_the_document_a_worker_would_serve_the_retry_under (tests.tools.test_retry_task_lineage.TheRetriedJobIsServedItsOwnTask.test_the_document_a_worker_would_serve_the_retry_under)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_retry_task_lineage.py", line 101, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/review-w364834-366169-b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_the_retry_is_offered_and_its_claim_waits_on_the_works_route (tests.tools.test_retry_task_lineage.TheRetriedJobIsServedItsOwnTask.test_the_retry_is_offered_and_its_claim_waits_on_the_works_route)
+WHAT THE ONE-PRODUCER POOL DOES, read out of the loop's reports.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_retry_task_lineage.py", line 101, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/review-w364834-366169-b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_the_serving_readers_answer_the_inherited_task (tests.tools.test_retry_task_lineage.TheRetriedJobIsServedItsOwnTask.test_the_serving_readers_answer_the_inherited_task)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_retry_task_lineage.py", line 101, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/review-w364834-366169-b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_one_identity_reaches_both_of_the_retrys_runtimes (tests.tools.test_retry_task_lineage.TheRetriedJobReachesItsOwnRuntimes.test_one_identity_reaches_both_of_the_retrys_runtimes)
+BOTH RUNTIME INPUTS, compared against each other.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_retry_task_lineage.py", line 449, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_retry_task_lineage.py", line 101, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/review-w364834-366169-b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_the_document_the_spare_would_serve_the_retry_under (tests.tools.test_retry_task_lineage.TheRetriedJobReachesItsOwnRuntimes.test_the_document_the_spare_would_serve_the_retry_under)
+The delivery question, which is this suite's own subject.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_retry_task_lineage.py", line 449, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_retry_task_lineage.py", line 101, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/review-w364834-366169-b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_the_excluded_rounds_material_is_untouched_by_all_of_it (tests.tools.test_retry_task_lineage.TheRetriedJobReachesItsOwnRuntimes.test_the_excluded_rounds_material_is_untouched_by_all_of_it)
+WHAT THE RECOVERY DID NOT DO, after the whole lifecycle ran.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_retry_task_lineage.py", line 449, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_retry_task_lineage.py", line 101, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/review-w364834-366169-b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_the_first_attempts_evidence_survives_the_retry (tests.tools.test_retry_task_lineage.TheRetriedJobReachesItsOwnRuntimes.test_the_first_attempts_evidence_survives_the_retry)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_retry_task_lineage.py", line 449, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_retry_task_lineage.py", line 101, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/review-w364834-366169-b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_the_prior_endings_gate_is_discharged_by_the_release (tests.tools.test_retry_task_lineage.TheRetriedJobReachesItsOwnRuntimes.test_the_prior_endings_gate_is_discharged_by_the_release)
+THE OBLIGATION THE RELEASE INHERITED, and discharged.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_retry_task_lineage.py", line 449, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_retry_task_lineage.py", line 101, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/review-w364834-366169-b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_the_released_line_admits_the_retrys_own_writer (tests.tools.test_retry_task_lineage.TheRetriedJobReachesItsOwnRuntimes.test_the_released_line_admits_the_retrys_own_writer)
+ONE LINE FOR THE WORK, AND THE RETRY IS WRITING ON IT.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_retry_task_lineage.py", line 449, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_retry_task_lineage.py", line 101, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/review-w364834-366169-b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_the_retry_reaches_its_own_implementation_runtime (tests.tools.test_retry_task_lineage.TheRetriedJobReachesItsOwnRuntimes.test_the_retry_reaches_its_own_implementation_runtime)
+W365075'S MILESTONE, FIRST HALF: a container for the retry.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_retry_task_lineage.py", line 449, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_retry_task_lineage.py", line 101, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/review-w364834-366169-b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_the_retry_reaches_its_own_independent_review_runtime (tests.tools.test_retry_task_lineage.TheRetriedJobReachesItsOwnRuntimes.test_the_retry_reaches_its_own_independent_review_runtime)
+W365075'S MILESTONE, SECOND HALF: review, started.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_retry_task_lineage.py", line 449, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_retry_task_lineage.py", line 101, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/review-w364834-366169-b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_the_retrys_review_input_identity_is_the_one_it_declared (tests.tools.test_retry_task_lineage.TheRetriedJobReachesItsOwnRuntimes.test_the_retrys_review_input_identity_is_the_one_it_declared)
+THE FULL BOUND IDENTITY of the review runtime, all four places.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_retry_task_lineage.py", line 449, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_retry_task_lineage.py", line 101, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/review-w364834-366169-b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_the_retrys_review_runtime_is_delivered_the_inherited_task (tests.tools.test_retry_task_lineage.TheRetriedJobReachesItsOwnRuntimes.test_the_retrys_review_runtime_is_delivered_the_inherited_task)
+REVIEW 2026-10-27T14-36-28Z: THE REVIEW RUNTIME'S OWN BYTES.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_retry_task_lineage.py", line 449, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_retry_task_lineage.py", line 101, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/review-w364834-366169-b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_the_same_admission_after_a_reopen_answers_the_same_retry (tests.tools.test_retry_task_lineage.TheRetriedJobReachesItsOwnRuntimes.test_the_same_admission_after_a_reopen_answers_the_same_retry)
+REOPEN AND REPLAY, over the same durable state.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_retry_task_lineage.py", line 449, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_retry_task_lineage.py", line 101, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/review-w364834-366169-b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_a_job_with_no_own_task_is_served_the_installed_one (tests.tools.test_job_task_delivery.TheCreatedJobRunsThroughThePoolServingLoop.test_a_job_with_no_own_task_is_served_the_installed_one)
+THE PRESERVED PATH, through the same loop and the same fix.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_job_task_delivery.py", line 1984, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/review-w364834-366169-b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_the_created_jobs_own_task_reaches_a_started_runtime (tests.tools.test_job_task_delivery.TheCreatedJobRunsThroughThePoolServingLoop.test_the_created_jobs_own_task_reaches_a_started_runtime)
+THE WHOLE SCENARIO: creation, loop, publication, start.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_job_task_delivery.py", line 1984, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/review-w364834-366169-b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_the_stageless_adapter_over_the_pool_attempt_is_the_delivered_one (tests.tools.test_job_task_delivery.TheCreatedJobRunsThroughThePoolServingLoop.test_the_stageless_adapter_over_the_pool_attempt_is_the_delivered_one)
+THE RECOVERY IDENTITY, after a real pool start.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_job_task_delivery.py", line 1984, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/review-w364834-366169-b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_the_review_attempt_is_recorded_and_adapted_on_the_delivered_input (tests.tools.test_job_task_delivery.TheReviewStageRunsThroughThePoolServingLoop.test_the_review_attempt_is_recorded_and_adapted_on_the_delivered_input)
+THE IDENTITIES: recorded, manifest, context and adapter.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_job_task_delivery.py", line 2612, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/review-w364834-366169-b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_the_review_mount_is_the_checkpoint_the_round_froze (tests.tools.test_job_task_delivery.TheReviewStageRunsThroughThePoolServingLoop.test_the_review_mount_is_the_checkpoint_the_round_froze)
+REVIEW SEMANTICS, from the attachment the loop granted.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_job_task_delivery.py", line 2612, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/review-w364834-366169-b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_the_review_runtime_is_started_with_the_requested_task (tests.tools.test_job_task_delivery.TheReviewStageRunsThroughThePoolServingLoop.test_the_review_runtime_is_started_with_the_requested_task)
+THE MILESTONE: the loop, the ending, and the review runtime.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_job_task_delivery.py", line 2612, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/review-w364834-366169-b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/review-w364834-366169-b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+----------------------------------------------------------------------
+Ran 37 tests in 0.016s
+
+FAILED (failures=37)

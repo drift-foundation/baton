@@ -1,0 +1,1 @@
+[{"disposition": "completed", "refusal": "attempt 'attempt-2413cea1d01877ff7c178c4b31a485110ecd45628add216214e\u2026 recorded disposition 'completed', which carries a candidate; a release ends a round that produced NOTHING to review, and this round's material is a review's to decide", "line_state_after": "writing"}]

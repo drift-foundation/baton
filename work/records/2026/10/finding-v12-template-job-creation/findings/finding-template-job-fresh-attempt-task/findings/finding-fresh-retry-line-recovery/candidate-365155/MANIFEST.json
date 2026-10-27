@@ -1,0 +1,232 @@
+{
+ "ANSWERS": "W365075: safe owning-API recovery for a fresh Job retry -- an implementation ending that produced no candidate releases its writer instead of freezing a checkpoint, carries the assignment fence out so the Work's runtime-quiescence gate is discharged, and the retry then reaches its own implementation runtime and its own independent review runtime",
+ "BASE_COMMIT": "19f02ce1295b4517a85f0822d48754efc982f388",
+ "BASE_IS_CLEAN_FOR_THESE_PATHS": true,
+ "CHANGED_SINCE_365081": [
+  "v12/python/src/baton_v12/job_manager/review_driver.py",
+  "v12/python/src/baton_v12/worker_manager/review_cycles.py",
+  "v12/python/tests/job_manager/test_review_driver.py",
+  "v12/python/tests/tools/test_fresh_retry_line_recovery.py",
+  "v12/python/tests/tools/test_retry_task_lineage.py",
+  "v12/python/tools/stage_execution.py"
+ ],
+ "CLAIM": 365155,
+ "COUNTS": {
+  "changed_since_365081": 6,
+  "members": 28,
+  "new_to_the_product": 9,
+  "unchanged_since_365081": 22
+ },
+ "MEMBERS": {
+  "v12/python/src/baton_v12/job_manager/__init__.py": {
+   "base": "bfebb949e201c9de01075e98e3872fc2f761d460bd57308192c10a0795cf580c",
+   "candidate": "50722a7496e2719afa9c67c6d331e18d28543f78b8c930beba91ff80aece907c",
+   "candidate_365081": "50722a7496e2719afa9c67c6d331e18d28543f78b8c930beba91ff80aece907c",
+   "changed_since_365081": false,
+   "new_to_the_product": false
+  },
+  "v12/python/src/baton_v12/job_manager/creation.py": {
+   "base": null,
+   "candidate": "b707227ebb794158497b33228089df91db7b6aa69c22f71134fa62a2c96a42ee",
+   "candidate_365081": "b707227ebb794158497b33228089df91db7b6aa69c22f71134fa62a2c96a42ee",
+   "changed_since_365081": false,
+   "new_to_the_product": true
+  },
+  "v12/python/src/baton_v12/job_manager/documents.py": {
+   "base": "2138a81d2f95420da615b80daf48d2a3ccd738cd935b99b861c643417161c468",
+   "candidate": "b7ee4bb9def4eb26e14ee3a38bbab55000b6e8f897c67a632ba2711640f27350",
+   "candidate_365081": "b7ee4bb9def4eb26e14ee3a38bbab55000b6e8f897c67a632ba2711640f27350",
+   "changed_since_365081": false,
+   "new_to_the_product": false
+  },
+  "v12/python/src/baton_v12/job_manager/fresh_attempt.py": {
+   "base": "ee3b4dd9668f043276b89dee9e36e0fd3fbc5b786d94a55568bfbba749635dbf",
+   "candidate": "a5c492669937816c27e93dc5fc3eb4dd28ee4317aa521f4989539904d886c0b5",
+   "candidate_365081": "a5c492669937816c27e93dc5fc3eb4dd28ee4317aa521f4989539904d886c0b5",
+   "changed_since_365081": false,
+   "new_to_the_product": false
+  },
+  "v12/python/src/baton_v12/job_manager/review_driver.py": {
+   "base": "b148669c84af0dc87d248cee293ac48a03553f9963603161502574e201a04d47",
+   "candidate": "d784215400821af1c704b896f4fc2cacb5519ad096c518f3072d8611df4f7a25",
+   "candidate_365081": null,
+   "changed_since_365081": true,
+   "new_to_the_product": false
+  },
+  "v12/python/src/baton_v12/job_manager/schema.py": {
+   "base": "bba74451ad7d579562c3f252ee9d3dc5ffd45ff976f9dd205dca8f87f97513d5",
+   "candidate": "38ba3ca2e79fe347a3e80c67304af6ccce59cc9100af59b9c0babf579f8747af",
+   "candidate_365081": "38ba3ca2e79fe347a3e80c67304af6ccce59cc9100af59b9c0babf579f8747af",
+   "changed_since_365081": false,
+   "new_to_the_product": false
+  },
+  "v12/python/src/baton_v12/job_manager/submission.py": {
+   "base": "4f4ad3193d1fdbaf37122a6b9398cd4ecb7e921e9cf1ade33a2942d8a2c8dce8",
+   "candidate": "d5c4697845d3bb09c0624683dfb4dfaff04ea060df72e6bff4091791731116cb",
+   "candidate_365081": "d5c4697845d3bb09c0624683dfb4dfaff04ea060df72e6bff4091791731116cb",
+   "changed_since_365081": false,
+   "new_to_the_product": false
+  },
+  "v12/python/src/baton_v12/worker_manager/attempts.py": {
+   "base": "e929d7305a723e6e355079b120c6740d9d8ddf26fad89b771738e92e74688b45",
+   "candidate": "2d1c18f93b4a292f6be4caf0604df0bd1875584cb4571f7b8762f14cf2f4c809",
+   "candidate_365081": "2d1c18f93b4a292f6be4caf0604df0bd1875584cb4571f7b8762f14cf2f4c809",
+   "changed_since_365081": false,
+   "new_to_the_product": false
+  },
+  "v12/python/src/baton_v12/worker_manager/review_cycles.py": {
+   "base": "706a2e138ea29d6d27173ebdb15077b1e99b065878ae25d57c4b7306f3358552",
+   "candidate": "dedeed62e96b59872d11bc2b9e6be1346b30d988157f06d7a1a1a61b06b8c807",
+   "candidate_365081": null,
+   "changed_since_365081": true,
+   "new_to_the_product": false
+  },
+  "v12/python/tests/job_manager/test_creation.py": {
+   "base": null,
+   "candidate": "791bdfa28333966d6cb8cc1dc9e136f282e2df7ee4d75f5337141cf3f17c0849",
+   "candidate_365081": "791bdfa28333966d6cb8cc1dc9e136f282e2df7ee4d75f5337141cf3f17c0849",
+   "changed_since_365081": false,
+   "new_to_the_product": true
+  },
+  "v12/python/tests/job_manager/test_execution_limits.py": {
+   "base": "4bece59fbc870ba23e49f398ff2acb25d6be38484ce7903cfc82ae5f30e9c2d7",
+   "candidate": "03eb0d74d027e29c1d2901649139c21e562596376bf7b5e1d6a1134de89f0e43",
+   "candidate_365081": "03eb0d74d027e29c1d2901649139c21e562596376bf7b5e1d6a1134de89f0e43",
+   "changed_since_365081": false,
+   "new_to_the_product": false
+  },
+  "v12/python/tests/job_manager/test_fresh_attempt.py": {
+   "base": "a022d2e14bf2f503aeb32ae4419bcfc1eca5d815bb4ac1b83005c2f3634fb9aa",
+   "candidate": "bba992fff6dca99c46babc4884e2f6376fc3fc295a85b0197fc16922b69a28f9",
+   "candidate_365081": "bba992fff6dca99c46babc4884e2f6376fc3fc295a85b0197fc16922b69a28f9",
+   "changed_since_365081": false,
+   "new_to_the_product": false
+  },
+  "v12/python/tests/job_manager/test_review_driver.py": {
+   "base": "e7c15fe743b52d8b9b32354b60878301d7a344b4cf870a1324f562c768965c77",
+   "candidate": "f9978c556ed0f238932ac7ed01d9fc1a1622c1bbcf4466eab8675446d60952b3",
+   "candidate_365081": null,
+   "changed_since_365081": true,
+   "new_to_the_product": false
+  },
+  "v12/python/tests/job_manager/test_scheduling.py": {
+   "base": "6041b43d0cfe457051a958ce31b44ae7e08a39ccff129dfda3072214bc21a3b0",
+   "candidate": "47f0043e3185394a9b07e00ff827bf1c2064dfeab7714f41328aeb5badf2d842",
+   "candidate_365081": "47f0043e3185394a9b07e00ff827bf1c2064dfeab7714f41328aeb5badf2d842",
+   "changed_since_365081": false,
+   "new_to_the_product": false
+  },
+  "v12/python/tests/job_manager/test_store.py": {
+   "base": "ddceb61359cfa6f132ca7273a35363e6301c6e1c25852334bbab8458cc38b9c8",
+   "candidate": "73c27abf44dbce537da99067f7b8245c51c8ab22d21c209f2de0d777ef131ceb",
+   "candidate_365081": "73c27abf44dbce537da99067f7b8245c51c8ab22d21c209f2de0d777ef131ceb",
+   "changed_since_365081": false,
+   "new_to_the_product": false
+  },
+  "v12/python/tests/tools/test_connected_creation.py": {
+   "base": null,
+   "candidate": "1015552728a53b1f06f029284b9c781e14172bd35bc448d1b1dee1159d49677b",
+   "candidate_365081": "1015552728a53b1f06f029284b9c781e14172bd35bc448d1b1dee1159d49677b",
+   "changed_since_365081": false,
+   "new_to_the_product": true
+  },
+  "v12/python/tests/tools/test_creation_ports.py": {
+   "base": null,
+   "candidate": "83c507131df51f8da158def10795c6d5712621a149a170d20e788dfd851d74da",
+   "candidate_365081": "83c507131df51f8da158def10795c6d5712621a149a170d20e788dfd851d74da",
+   "changed_since_365081": false,
+   "new_to_the_product": true
+  },
+  "v12/python/tests/tools/test_fresh_retry_line_recovery.py": {
+   "base": null,
+   "candidate": "5c291fec82eae62052076214b9c837f13ccb608f533465851e45ae35bfa38218",
+   "candidate_365081": "d1de717feaef0639849f08fe1f567f1e01fad89807ea0eec1940b78529dcacf8",
+   "changed_since_365081": true,
+   "new_to_the_product": true
+  },
+  "v12/python/tests/tools/test_job_task_delivery.py": {
+   "base": null,
+   "candidate": "d610f69734f87ef252bfade4ec2d03b155848bce98c8085224dd3328e3d17a7a",
+   "candidate_365081": "d610f69734f87ef252bfade4ec2d03b155848bce98c8085224dd3328e3d17a7a",
+   "changed_since_365081": false,
+   "new_to_the_product": true
+  },
+  "v12/python/tests/tools/test_retry_task_lineage.py": {
+   "base": null,
+   "candidate": "cc00ccaebd10ee0849befca772d1b2a11bc8d3019a68a88eedbee3c094728f2f",
+   "candidate_365081": "1fcae7ba6dd2ef9711622b706a44af1584a03b51cf79c1a5e7842138618622b8",
+   "changed_since_365081": true,
+   "new_to_the_product": true
+  },
+  "v12/python/tools/bootstrap.py": {
+   "base": "a429914792f98d18a7b14b06a378a683746c3f32de0dbfb99053fcde8e07cec7",
+   "candidate": "3bc26bb0a71cf980ae9f37e813d52fd125a0dbed30d0a43e66e36dd0bcf0bc02",
+   "candidate_365081": "3bc26bb0a71cf980ae9f37e813d52fd125a0dbed30d0a43e66e36dd0bcf0bc02",
+   "changed_since_365081": false,
+   "new_to_the_product": false
+  },
+  "v12/python/tools/creation_ports.py": {
+   "base": null,
+   "candidate": "a9fc808a63f4d1e78b3ae5bc31937bc450380639cffc6b2057e9249af46a8933",
+   "candidate_365081": "a9fc808a63f4d1e78b3ae5bc31937bc450380639cffc6b2057e9249af46a8933",
+   "changed_since_365081": false,
+   "new_to_the_product": true
+  },
+  "v12/python/tools/fresh_attempt_ports.py": {
+   "base": "243afbaccc721f4f9518b252e75b7b9c0198a5e3846a33bb5bd97953783e9c9c",
+   "candidate": "c8a41e078769eb105440ed8fb71e6d66bf484cf292cd344cabefa8dc2c75a2a5",
+   "candidate_365081": "c8a41e078769eb105440ed8fb71e6d66bf484cf292cd344cabefa8dc2c75a2a5",
+   "changed_since_365081": false,
+   "new_to_the_product": false
+  },
+  "v12/python/tools/instance.py": {
+   "base": "1541bc46951aef07dfddae5584f20340088b9e626611d75858e2a66d6b2a7106",
+   "candidate": "ee59b95ca4f4a9753058ad48d4215f3a18be395290e8924b762311392dbad433",
+   "candidate_365081": "ee59b95ca4f4a9753058ad48d4215f3a18be395290e8924b762311392dbad433",
+   "changed_since_365081": false,
+   "new_to_the_product": false
+  },
+  "v12/python/tools/job_manager.py": {
+   "base": "1634c9a4cce57dd6041a1f769bba59f834a08e6a1d2565de2bbf6d2534d07cd1",
+   "candidate": "9f9008fd68a3f00ed41516c0127655cd24a5518df15294f22282c0f0dc66018f",
+   "candidate_365081": "9f9008fd68a3f00ed41516c0127655cd24a5518df15294f22282c0f0dc66018f",
+   "changed_since_365081": false,
+   "new_to_the_product": false
+  },
+  "v12/python/tools/job_task.py": {
+   "base": null,
+   "candidate": "a9ce7948bd39e9e8b2981ad26f299f5e2ad388ad18c6a522337a1c7c27d6e919",
+   "candidate_365081": "a9ce7948bd39e9e8b2981ad26f299f5e2ad388ad18c6a522337a1c7c27d6e919",
+   "changed_since_365081": false,
+   "new_to_the_product": true
+  },
+  "v12/python/tools/single_worker.py": {
+   "base": "70cc08066e73b7504c21eed395361c8153947177dddf5980857b6e199a339e4a",
+   "candidate": "677e6f0ba39d10a983d20b46fe1252b73ddb7839b8f7cdf1016b88f9111e991b",
+   "candidate_365081": "677e6f0ba39d10a983d20b46fe1252b73ddb7839b8f7cdf1016b88f9111e991b",
+   "changed_since_365081": false,
+   "new_to_the_product": false
+  },
+  "v12/python/tools/stage_execution.py": {
+   "base": "07ac51193d24283e5257f35d9031ba89d228934ebcd24d9cda5ec1dc0df71984",
+   "candidate": "3410e33f45bfe8d681e9264fbbe3559f5553d6bd99a15353d4bf41294aa17877",
+   "candidate_365081": "80188ebb48ec527e1988700ddbae17bd86942e194c078b7df7ffdb2bcfe50e66",
+   "changed_since_365081": true,
+   "new_to_the_product": false
+  }
+ },
+ "PRODUCT_CHANGED_IN_THIS_CLAIM": [
+  "v12/python/src/baton_v12/job_manager/review_driver.py",
+  "v12/python/src/baton_v12/worker_manager/review_cycles.py",
+  "v12/python/tools/stage_execution.py"
+ ],
+ "SEEDED_FROM": {
+  "candidate": "../candidate-365081",
+  "manifest": "a7c59777e448b06c4d8b09654519160048d0b1103268d911f161a5675d665664"
+ },
+ "TESTS_CHANGED_IN_THIS_CLAIM": [
+  "v12/python/tests/job_manager/test_review_driver.py",
+  "v12/python/tests/tools/test_fresh_retry_line_recovery.py",
+  "v12/python/tests/tools/test_retry_task_lineage.py"
+ ]
+}

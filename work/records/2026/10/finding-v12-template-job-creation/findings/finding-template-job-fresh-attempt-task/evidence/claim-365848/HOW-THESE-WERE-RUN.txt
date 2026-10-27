@@ -1,0 +1,106 @@
+HOW THESE WERE RUN — claim365848, W364834
+
+THE CANDIDATE ROOT
+
+    /tmp/w365848
+
+It is the repository's own tracked tree at base 39e8374684bb1d82089a95fb03e2343c746acc94,
+extracted whole, with the 28 members of the owner-accepted child candidate
+    findings/finding-fresh-retry-line-recovery/candidate-365537
+    (MANIFEST.json sha256 e2f18f9b4a40e2e4eccd42e2648262cb2ead62d9edb114fd49ae26b16a00d58e)
+overlaid on top, and then the ONE member this claim changed:
+    v12/python/tests/tools/test_retry_task_lineage.py
+
+The whole tree is extracted rather than just v12/, because these suites
+resolve repository assets by walking up from their own file -- a root carrying
+only the v12/ level cannot find, for example,
+work/records/2026/08/.../finding-worker-control-api-manifests/evidence/vectors.json,
+and 24 of 24 cases error on its absence. That was measured, not assumed.
+
+Every run below:
+
+    cd /tmp/w365848/v12/python
+    PYTHONPATH=src:. python3 -m unittest <targets>
+
+python3 is 3.13.
+
+WHAT WAS RUN, AND WHAT IS IN EACH FILE
+
+  retry-task-lineage.txt
+      tests.tools.test_retry_task_lineage, verbose.
+      37 tests, OK. This suite is this Work's own; 24 of those cases are the
+      accepted candidate's and 13 are this claim's.
+
+  job-manager-whole.txt
+      unittest discover -s tests/job_manager -t . -p 'test_*.py'
+      1375 tests, OK.
+
+  tools-seven-suites.txt
+      tests.tools.test_retry_task_lineage, test_connected_creation,
+      test_creation_ports, test_job_task_delivery,
+      test_fresh_retry_line_recovery, test_bootstrap, test_instance.
+      429 tests, OK. These are the suites whose subjects this claim touches:
+      the lineage, the connected creation fixture this claim's connected
+      admission cases are built on, the creation ports, the delivery, the
+      accepted line recovery, the installer and the instance layout.
+
+  single-worker-and-stage-execution.txt
+      tests.tools.test_single_worker and tests.tools.test_stage_execution.
+      720 tests, 719 OK and ONE FAILURE, which is PRE-EXISTING ON THE BASE:
+          test_single_worker.AFaultedTerminalSurvivesTheContainerThatWroteIt
+          .test_a_real_observing_status_run_mutates_no_durable_state
+      It compares the durable files before and after an observing status run
+      and finds control.sqlite3-wal / control.sqlite3-shm and four input-root
+      files added. Neither this claim nor the accepted candidate changes any
+      product byte, so it cannot be caused by either; the proof is the next
+      file.
+
+  pre-existing-base-failure.txt
+      The same class, run in /tmp/w365848-base -- the tracked tree at
+      39e83746 with NO candidate overlay at all.
+      11 tests, the SAME ONE FAILURE. So it is a property of the base.
+
+WHAT WAS NOT RUN, AND WHY
+
+  No live provider, no model, no container engine, no deployed-instance
+  mutation, no migration and no cutover.
+
+  NO VERSION CONTROL OPERATION OF ANY KIND, and no fixture that performs one
+  was run. Every case in the lineage suite installs process runners that
+  refuse any version-control invocation, the checkpoint profile is
+  tests.job_manager.test_review_driver.Profile (the deployment-configured
+  profile with no VCS behind it), and the connected cases install their
+  instance with --no-repositories.
+
+THE DETERMINISTIC SEAMS, NAMED
+
+  In the pool cases: the ENGINE (_ConcurrentEngine, the repository's own
+  multi-container model), the CHECKPOINT PROFILE (above), the scripted
+  in-image worker, and the three fresh_attempt ports that are not this
+  outcome's -- which is why this claim adds the connected cases below.
+
+  In the connected cases (TheConnectedAdmissionCarriesTheTask): the instance
+  is installed by the real bootstrap.main, the prior Job is created by the
+  real job_manager.main create, and the admission is composed with the real
+  fresh_attempt_ports.DeploymentBinding / WorkAuthorization /
+  InstanceOwnership / HostExclusion over that instance's own configuration,
+  Authority, install document and stores. The ONE stand-in is the manager
+  OPERATIONS object (fixtures.FakeOperations), which is how the prior Job's
+  stage states are made terminal without starting a container -- the same
+  substitution tests/job_manager/test_fresh_attempt.py's TheConnectedRetry
+  makes, for the same reason, and the CLI itself hands this operation a
+  refusing read-only object because deriving those states is a read. The
+  one-folder runtime is test_bootstrap's stand-in directory and nothing here
+  executes it.
+
+A NOTE ON ResourceWarning
+
+  Running the connected cases under -W always::ResourceWarning reports
+  "unclosed database": tools/job_manager.py's create and fresh-attempt
+  commands each compose WorkAuthorization.opened, which opens an Authority
+  that nothing disposes. For a CLI process that exits immediately this is
+  harmless and it is PRE-EXISTING -- the accepted
+  test_connected_creation.TheConnectedCreation reports three of them on this
+  same base. This claim disposes the handle its OWN fixture opens, because a
+  test process that opens one per case must, and changes no product byte for
+  the rest.

@@ -1,0 +1,18 @@
+cwd: /tmp/review-w364834-366169-b/v12/python
+argv: ['python3', '-m', 'unittest', '-v', 'tests.tools.test_retry_task_lineage']
+PYTHONPATH=src:.
+exit: 1
+measured_seconds: 0.614
+Deterministic engine/provider/checkpoint seams; no live execution.
+Initial copy failed on pre-existing broken symlink; second copy preserved symlinks. Both scratch paths retained.
+
+Retry with BATON_V12_DISK_ROOT=/var/tmp/baton-w257624 (authorized disk storage).
+exit: 1
+measured_seconds: 55.310
+Initial run refused all37 setup calls: default roots tmpfs or unwritable; no product assertions reached.
+
+Previous run: 32 passed, 5 connected setup failures requiring separate STACK root variable.
+Retry only those5 with BATON_V12_STACK_TEST_ROOT=/var/tmp/baton-w257624, DISK_ROOT unchanged.
+argv: ['python3', '-m', 'unittest', '-v', 'tests.tools.test_retry_task_lineage.TheConnectedAdmissionCarriesTheTask']
+exit: 0
+measured_seconds: 0.764
