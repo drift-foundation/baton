@@ -1,0 +1,421 @@
+..F......................................................................................................................................................................................................................................................................................W103068 genuine consumer evidence {"derived_proposal": "proposal-result-27e75b2f0fd486f6a31b56264b4ae8c127106f52ba7442c85b9b4f7665b3c8b5", "derived_result": "result-27e75b2f0fd486f6a31b56264b4ae8c127106f52ba7442c85b9b4f7665b3c8b5", "jobs": {"job-a": {"implementation": "completed", "integration": "completed", "review": "completed"}, "job-b": {"implementation": "completed", "integration": "completed", "review": "completed"}}, "judgments": [{"assignment": {"authority_uuid": "0000000a000000000000000000000000", "effective_scope": "scope:deployment", "generation": 1, "participant": "baton.verifier", "principal": "principal:baton.verifier", "runtime_attempt_id": "judgment-88bf47b5add7a02d6eefe7c273c9c2799105248949476ab3a2ae268460b25893", "work_id": "0000000a-W3"}, "attempt_id": "judgment-88bf47b5add7a02d6eefe7c273c9c2799105248949476ab3a2ae268460b25893", "receipt_digest": "sha256:9271527c01dd60d2a9d699df17267486fd882677e92ebe4ca6c98da86701ad1d", "result_digest": "sha256:1dcdedfeb50765e27a26c5d5f86815ffb621df831d26e103afe244f40dc2a287", "result_id": "result-judgment-88bf47b5add7a02d6eefe7c273c9c2799105248949476ab3a2ae268460b25893", "subject": {"candidate": "33ed32d0194de689e7e778f3e46d996676acb6e8", "canonical_target_id": "target-a", "causal_observations": {"base": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": true, "input_commit": "52c63d27998e7c1c6b686d14ef99193cd155dcec", "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb", "output": "ModuleNotFoundError: No module named 'feature'", "status": 1, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "combined": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "33ed32d0194de689e7e778f3e46d996676acb6e8", "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "isolated": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "b6b320f16e988558bd6963027cbec892d87f89da", "input_tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}}, "content_digest": "sha256:dbd5fc06696dc50da92f4c5707584461e6055556d44294f379fd556e6980f457", "derived_proposal_id": "proposal-result-27e75b2f0fd486f6a31b56264b4ae8c127106f52ba7442c85b9b4f7665b3c8b5", "derived_result_digest": "sha256:d8a23b8fe6cd6365505d3e3383efa9e31eb2d95d67ba00e2005b354b496aa2b0", "derived_result_id": "derived-result-27e75b2f0fd486f6a31b56264b4ae8c127106f52ba7442c85b9b4f7665b3c8b5", "job_id": "job-b", "kind": "verification", "observed_by": "baton.result-observer", "policy_generation": 15, "result_id": "result-27e75b2f0fd486f6a31b56264b4ae8c127106f52ba7442c85b9b4f7665b3c8b5", "source_base": "52c63d27998e7c1c6b686d14ef99193cd155dcec", "source_candidate": "b6b320f16e988558bd6963027cbec892d87f89da", "source_proposal_id": "integration-driver.proposal:242312af76905a945f88d233125e96363f2461e0250d6fa84f68a5b6ad5b6cb3", "target_revision": "577ad3ab2867e44548d4099c56f6b323be486cde", "tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f"}, "verdict": "accepted"}, {"assignment": {"authority_uuid": "0000000a000000000000000000000000", "effective_scope": "scope:deployment", "generation": 1, "participant": "baton.approver-review", "principal": "principal:baton.approver-review", "runtime_attempt_id": "judgment-2ab128529c493c598649c63f982b931ccb7ebb6eb3e7a0e99abf67405dfb5602", "work_id": "0000000a-W4"}, "attempt_id": "judgment-2ab128529c493c598649c63f982b931ccb7ebb6eb3e7a0e99abf67405dfb5602", "receipt_digest": "sha256:b7d3a5c17cedfdb083e6191090e48420821efdf5ded4f251b6b442aeb60379fc", "result_digest": "sha256:8e84074058358408c121168b4c7c292d289664b66a1afc7c44f51fd404d73554", "result_id": "result-judgment-2ab128529c493c598649c63f982b931ccb7ebb6eb3e7a0e99abf67405dfb5602", "subject": {"candidate": "33ed32d0194de689e7e778f3e46d996676acb6e8", "canonical_target_id": "target-a", "causal_observations": {"base": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": true, "input_commit": "52c63d27998e7c1c6b686d14ef99193cd155dcec", "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb", "output": "ModuleNotFoundError: No module named 'feature'", "status": 1, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "combined": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "33ed32d0194de689e7e778f3e46d996676acb6e8", "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "isolated": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "b6b320f16e988558bd6963027cbec892d87f89da", "input_tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}}, "content_digest": "sha256:dbd5fc06696dc50da92f4c5707584461e6055556d44294f379fd556e6980f457", "derived_proposal_id": "proposal-result-27e75b2f0fd486f6a31b56264b4ae8c127106f52ba7442c85b9b4f7665b3c8b5", "derived_result_digest": "sha256:d8a23b8fe6cd6365505d3e3383efa9e31eb2d95d67ba00e2005b354b496aa2b0", "derived_result_id": "derived-result-27e75b2f0fd486f6a31b56264b4ae8c127106f52ba7442c85b9b4f7665b3c8b5", "job_id": "job-b", "kind": "review", "observed_by": "baton.result-observer", "policy_generation": 15, "result_id": "result-27e75b2f0fd486f6a31b56264b4ae8c127106f52ba7442c85b9b4f7665b3c8b5", "source_base": "52c63d27998e7c1c6b686d14ef99193cd155dcec", "source_candidate": "b6b320f16e988558bd6963027cbec892d87f89da", "source_proposal_id": "integration-driver.proposal:242312af76905a945f88d233125e96363f2461e0250d6fa84f68a5b6ad5b6cb3", "target_revision": "577ad3ab2867e44548d4099c56f6b323be486cde", "tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f"}, "verdict": "accepted"}, {"assignment": {"authority_uuid": "0000000a000000000000000000000000", "effective_scope": "scope:deployment", "generation": 1, "participant": "baton.approver", "principal": "principal:baton.approver", "runtime_attempt_id": "judgment-a4b0a3f199966ec74994b8d62aae312c48c64f5b7e35f565c9546614ead5a754", "work_id": "0000000a-W5"}, "attempt_id": "judgment-a4b0a3f199966ec74994b8d62aae312c48c64f5b7e35f565c9546614ead5a754", "receipt_digest": "sha256:394162d4df2db32865759c34cf3bcb7f4247413b6563c29c1bee905ee968c3c0", "result_digest": "sha256:3e5222b3964003ee4ff5d376cec352c6f1887fb9e5e65c8e4b52fff9166e7bd1", "result_id": "result-judgment-a4b0a3f199966ec74994b8d62aae312c48c64f5b7e35f565c9546614ead5a754", "subject": {"candidate": "33ed32d0194de689e7e778f3e46d996676acb6e8", "canonical_target_id": "target-a", "causal_observations": {"base": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": true, "input_commit": "52c63d27998e7c1c6b686d14ef99193cd155dcec", "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb", "output": "ModuleNotFoundError: No module named 'feature'", "status": 1, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "combined": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "33ed32d0194de689e7e778f3e46d996676acb6e8", "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "isolated": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "b6b320f16e988558bd6963027cbec892d87f89da", "input_tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}}, "content_digest": "sha256:dbd5fc06696dc50da92f4c5707584461e6055556d44294f379fd556e6980f457", "derived_proposal_id": "proposal-result-27e75b2f0fd486f6a31b56264b4ae8c127106f52ba7442c85b9b4f7665b3c8b5", "derived_result_digest": "sha256:d8a23b8fe6cd6365505d3e3383efa9e31eb2d95d67ba00e2005b354b496aa2b0", "derived_result_id": "derived-result-27e75b2f0fd486f6a31b56264b4ae8c127106f52ba7442c85b9b4f7665b3c8b5", "job_id": "job-b", "kind": "approval", "observed_by": "baton.result-observer", "policy_generation": 15, "result_id": "result-27e75b2f0fd486f6a31b56264b4ae8c127106f52ba7442c85b9b4f7665b3c8b5", "source_base": "52c63d27998e7c1c6b686d14ef99193cd155dcec", "source_candidate": "b6b320f16e988558bd6963027cbec892d87f89da", "source_proposal_id": "integration-driver.proposal:242312af76905a945f88d233125e96363f2461e0250d6fa84f68a5b6ad5b6cb3", "target_revision": "577ad3ab2867e44548d4099c56f6b323be486cde", "tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f"}, "verdict": "accepted"}], "receipts": [{"actor": "baton.verifier", "candidate_digest": "33ed32d0194de689e7e778f3e46d996676acb6e8", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.verifier", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.verifier", "role": "verify"}, "disposition": "passed", "kind": "verification", "policy_generation": null, "proposal_id": "proposal-result-27e75b2f0fd486f6a31b56264b4ae8c127106f52ba7442c85b9b4f7665b3c8b5", "receipt_id": "judgment-ad019ef02a53f32df8156db88c1e5f24dbeb434425a95184b049974434874764", "recorded_at": "2026-10-26T21:17:32.505Z", "target": "577ad3ab2867e44548d4099c56f6b323be486cde"}, {"actor": "baton.approver-review", "candidate_digest": "33ed32d0194de689e7e778f3e46d996676acb6e8", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.approver-review", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.approver-review", "role": "review"}, "disposition": "accepted", "kind": "review", "policy_generation": null, "proposal_id": "proposal-result-27e75b2f0fd486f6a31b56264b4ae8c127106f52ba7442c85b9b4f7665b3c8b5", "receipt_id": "judgment-be08bc9f7e5301216ccb2d7f43dc1a7a9a80ffa1f00e348f73fe64402282f383", "recorded_at": "2026-10-26T21:17:32.506Z", "target": "577ad3ab2867e44548d4099c56f6b323be486cde"}, {"actor": "baton.approver", "candidate_digest": "33ed32d0194de689e7e778f3e46d996676acb6e8", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.approver", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.approver", "role": "approve"}, "disposition": "approved", "kind": "approval", "policy_generation": 15, "proposal_id": "proposal-result-27e75b2f0fd486f6a31b56264b4ae8c127106f52ba7442c85b9b4f7665b3c8b5", "receipt_id": "judgment-b8d408d3ab06e208b9c091aca145663be65107d3399a20fdf4e7aedc682b1b1d", "recorded_at": "2026-10-26T21:17:32.507Z", "target": "577ad3ab2867e44548d4099c56f6b323be486cde"}, {"actor": "baton.integrator", "candidate_digest": "33ed32d0194de689e7e778f3e46d996676acb6e8", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.integrator", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.integrator", "role": "integrate"}, "disposition": "integrated", "kind": "integration", "policy_generation": null, "proposal_id": "proposal-result-27e75b2f0fd486f6a31b56264b4ae8c127106f52ba7442c85b9b4f7665b3c8b5", "receipt_id": "integration-driver.integration-receipt:e87be0ab790f798d31481e9fdf8ceaf1f1fe2cd780070f8b8ad3ea470c2dc9dc", "recorded_at": "2026-10-26T21:17:32.587Z", "target": "577ad3ab2867e44548d4099c56f6b323be486cde"}], "target": "33ed32d0194de689e7e778f3e46d996676acb6e8"}....................................................................
+W103068 genuine consumer evidence {"derived_proposal": "proposal-result-95970054eb16f97345588c69b047dcfde394553220af57865faaae1a5910d0bd", "derived_result": "result-95970054eb16f97345588c69b047dcfde394553220af57865faaae1a5910d0bd", "jobs": {"job-a": {"implementation": "completed", "integration": "completed", "review": "completed"}, "job-b": {"implementation": "completed", "integration": "completed", "review": "completed"}}, "judgments": [{"assignment": {"authority_uuid": "0000000a000000000000000000000000", "effective_scope": "scope:deployment", "generation": 1, "participant": "baton.verifier", "principal": "principal:baton.verifier", "runtime_attempt_id": "judgment-ba4ac4e4a68711cca2178431594bebbbc59d79a34e1e106eb97dedc65de7ec94", "work_id": "0000000a-W3"}, "attempt_id": "judgment-ba4ac4e4a68711cca2178431594bebbbc59d79a34e1e106eb97dedc65de7ec94", "receipt_digest": "sha256:4d4486ecd51ccdddc1e043409f1012706efebcb4d3655aa76b6fd7bae00fe3c4", "result_digest": "sha256:162df90bb40a63a4a9892eacdef02f3cc3be308962142221ed44baad1a7b1fea", "result_id": "result-judgment-ba4ac4e4a68711cca2178431594bebbbc59d79a34e1e106eb97dedc65de7ec94", "subject": {"candidate": "84e4a489cb4139afc08fe1ca6c8a02a5df4bdbf7", "canonical_target_id": "target-a", "causal_observations": {"base": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": true, "input_commit": "27c202580ac8a798f31875bc80b791c561df00bc", "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb", "output": "ModuleNotFoundError: No module named 'feature'", "status": 1, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "combined": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "84e4a489cb4139afc08fe1ca6c8a02a5df4bdbf7", "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "isolated": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "f5d47471fddd36eba2f7f0c3fdd0f2fd8d075a37", "input_tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}}, "content_digest": "sha256:dbd5fc06696dc50da92f4c5707584461e6055556d44294f379fd556e6980f457", "derived_proposal_id": "proposal-result-95970054eb16f97345588c69b047dcfde394553220af57865faaae1a5910d0bd", "derived_result_digest": "sha256:401fd961ee673c99e2c0d5485fac0283ec24bda54453d6fe8ab7fa439a9829d8", "derived_result_id": "derived-result-95970054eb16f97345588c69b047dcfde394553220af57865faaae1a5910d0bd", "job_id": "job-b", "kind": "verification", "observed_by": "baton.result-observer", "policy_generation": 15, "result_id": "result-95970054eb16f97345588c69b047dcfde394553220af57865faaae1a5910d0bd", "source_base": "27c202580ac8a798f31875bc80b791c561df00bc", "source_candidate": "f5d47471fddd36eba2f7f0c3fdd0f2fd8d075a37", "source_proposal_id": "integration-driver.proposal:af045e80fbf9265159e795959ab80c26398d7a9b322e3a97ec2800c0f306312a", "target_revision": "cbc50c7bd64abdb9961c77acf61a3df397e47fd3", "tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f"}, "verdict": "accepted"}, {"assignment": {"authority_uuid": "0000000a000000000000000000000000", "effective_scope": "scope:deployment", "generation": 1, "participant": "baton.approver-review", "principal": "principal:baton.approver-review", "runtime_attempt_id": "judgment-390d19b645bf5e2bd84112f0ef26915f5536759a280a4faa20d3315b30d2167a", "work_id": "0000000a-W4"}, "attempt_id": "judgment-390d19b645bf5e2bd84112f0ef26915f5536759a280a4faa20d3315b30d2167a", "receipt_digest": "sha256:21b8fff02c05d7eea9ed1ed2e4b02b67d903559dbea79ff8543854b545c6ace0", "result_digest": "sha256:1ec767a7c27c2b5e07ac6de6204fbf49d45ac4ccf63bd7a76cf2d673a5e6cdf3", "result_id": "result-judgment-390d19b645bf5e2bd84112f0ef26915f5536759a280a4faa20d3315b30d2167a", "subject": {"candidate": "84e4a489cb4139afc08fe1ca6c8a02a5df4bdbf7", "canonical_target_id": "target-a", "causal_observations": {"base": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": true, "input_commit": "27c202580ac8a798f31875bc80b791c561df00bc", "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb", "output": "ModuleNotFoundError: No module named 'feature'", "status": 1, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "combined": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "84e4a489cb4139afc08fe1ca6c8a02a5df4bdbf7", "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "isolated": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "f5d47471fddd36eba2f7f0c3fdd0f2fd8d075a37", "input_tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}}, "content_digest": "sha256:dbd5fc06696dc50da92f4c5707584461e6055556d44294f379fd556e6980f457", "derived_proposal_id": "proposal-result-95970054eb16f97345588c69b047dcfde394553220af57865faaae1a5910d0bd", "derived_result_digest": "sha256:401fd961ee673c99e2c0d5485fac0283ec24bda54453d6fe8ab7fa439a9829d8", "derived_result_id": "derived-result-95970054eb16f97345588c69b047dcfde394553220af57865faaae1a5910d0bd", "job_id": "job-b", "kind": "review", "observed_by": "baton.result-observer", "policy_generation": 15, "result_id": "result-95970054eb16f97345588c69b047dcfde394553220af57865faaae1a5910d0bd", "source_base": "27c202580ac8a798f31875bc80b791c561df00bc", "source_candidate": "f5d47471fddd36eba2f7f0c3fdd0f2fd8d075a37", "source_proposal_id": "integration-driver.proposal:af045e80fbf9265159e795959ab80c26398d7a9b322e3a97ec2800c0f306312a", "target_revision": "cbc50c7bd64abdb9961c77acf61a3df397e47fd3", "tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f"}, "verdict": "accepted"}, {"assignment": {"authority_uuid": "0000000a000000000000000000000000", "effective_scope": "scope:deployment", "generation": 1, "participant": "baton.approver", "principal": "principal:baton.approver", "runtime_attempt_id": "judgment-a5f4ef3e165e21da2012618ecfc878a762a5aa935345edafd2359d009e546189", "work_id": "0000000a-W5"}, "attempt_id": "judgment-a5f4ef3e165e21da2012618ecfc878a762a5aa935345edafd2359d009e546189", "receipt_digest": "sha256:494ad54d0f5eb8caed56c62e903ed1959938574813ca7806730d55b334aeee16", "result_digest": "sha256:f79bf67e6a97d0e74dd61a452f73f8afd85e558e1753e08d553668378d092878", "result_id": "result-judgment-a5f4ef3e165e21da2012618ecfc878a762a5aa935345edafd2359d009e546189", "subject": {"candidate": "84e4a489cb4139afc08fe1ca6c8a02a5df4bdbf7", "canonical_target_id": "target-a", "causal_observations": {"base": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": true, "input_commit": "27c202580ac8a798f31875bc80b791c561df00bc", "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb", "output": "ModuleNotFoundError: No module named 'feature'", "status": 1, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "combined": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "84e4a489cb4139afc08fe1ca6c8a02a5df4bdbf7", "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "isolated": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "f5d47471fddd36eba2f7f0c3fdd0f2fd8d075a37", "input_tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}}, "content_digest": "sha256:dbd5fc06696dc50da92f4c5707584461e6055556d44294f379fd556e6980f457", "derived_proposal_id": "proposal-result-95970054eb16f97345588c69b047dcfde394553220af57865faaae1a5910d0bd", "derived_result_digest": "sha256:401fd961ee673c99e2c0d5485fac0283ec24bda54453d6fe8ab7fa439a9829d8", "derived_result_id": "derived-result-95970054eb16f97345588c69b047dcfde394553220af57865faaae1a5910d0bd", "job_id": "job-b", "kind": "approval", "observed_by": "baton.result-observer", "policy_generation": 15, "result_id": "result-95970054eb16f97345588c69b047dcfde394553220af57865faaae1a5910d0bd", "source_base": "27c202580ac8a798f31875bc80b791c561df00bc", "source_candidate": "f5d47471fddd36eba2f7f0c3fdd0f2fd8d075a37", "source_proposal_id": "integration-driver.proposal:af045e80fbf9265159e795959ab80c26398d7a9b322e3a97ec2800c0f306312a", "target_revision": "cbc50c7bd64abdb9961c77acf61a3df397e47fd3", "tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f"}, "verdict": "accepted"}], "receipts": [{"actor": "baton.verifier", "candidate_digest": "84e4a489cb4139afc08fe1ca6c8a02a5df4bdbf7", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.verifier", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.verifier", "role": "verify"}, "disposition": "passed", "kind": "verification", "policy_generation": null, "proposal_id": "proposal-result-95970054eb16f97345588c69b047dcfde394553220af57865faaae1a5910d0bd", "receipt_id": "judgment-d090e71c5aa06c59c566f71b4e04611ae28146f8f130b040a6bb379465616167", "recorded_at": "2026-10-26T21:18:32.679Z", "target": "cbc50c7bd64abdb9961c77acf61a3df397e47fd3"}, {"actor": "baton.approver-review", "candidate_digest": "84e4a489cb4139afc08fe1ca6c8a02a5df4bdbf7", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.approver-review", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.approver-review", "role": "review"}, "disposition": "accepted", "kind": "review", "policy_generation": null, "proposal_id": "proposal-result-95970054eb16f97345588c69b047dcfde394553220af57865faaae1a5910d0bd", "receipt_id": "judgment-32f9516232a0f9b48d5dce956ce434e8d0a71842260df75682f20810ad5bc35f", "recorded_at": "2026-10-26T21:18:32.680Z", "target": "cbc50c7bd64abdb9961c77acf61a3df397e47fd3"}, {"actor": "baton.approver", "candidate_digest": "84e4a489cb4139afc08fe1ca6c8a02a5df4bdbf7", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.approver", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.approver", "role": "approve"}, "disposition": "approved", "kind": "approval", "policy_generation": 15, "proposal_id": "proposal-result-95970054eb16f97345588c69b047dcfde394553220af57865faaae1a5910d0bd", "receipt_id": "judgment-74c5089e10700494bb40401acac064c8281c2e421bac9895b75fc7888cf10c92", "recorded_at": "2026-10-26T21:18:32.681Z", "target": "cbc50c7bd64abdb9961c77acf61a3df397e47fd3"}, {"actor": "baton.integrator", "candidate_digest": "84e4a489cb4139afc08fe1ca6c8a02a5df4bdbf7", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.integrator", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.integrator", "role": "integrate"}, "disposition": "integrated", "kind": "integration", "policy_generation": null, "proposal_id": "proposal-result-95970054eb16f97345588c69b047dcfde394553220af57865faaae1a5910d0bd", "receipt_id": "integration-driver.integration-receipt:dc50ea64dfb0f08e62d4f4dad5617513cbdd549f490fdb5554856a02ea3abb17", "recorded_at": "2026-10-26T21:18:32.761Z", "target": "cbc50c7bd64abdb9961c77acf61a3df397e47fd3"}], "target": "84e4a489cb4139afc08fe1ca6c8a02a5df4bdbf7"}.................................................................................................................................................................................................................................................................................................................................................
+W103068 genuine consumer evidence {"derived_proposal": "proposal-result-c31bd32b6437be6ec5af30e48140f3e50f519e6f1ce0a582f97d72ce9347bf42", "derived_result": "result-c31bd32b6437be6ec5af30e48140f3e50f519e6f1ce0a582f97d72ce9347bf42", "jobs": {"job-a": {"implementation": "completed", "integration": "completed", "review": "completed"}, "job-b": {"implementation": "completed", "integration": "completed", "review": "completed"}}, "judgments": [{"assignment": {"authority_uuid": "0000000a000000000000000000000000", "effective_scope": "scope:deployment", "generation": 1, "participant": "baton.verifier", "principal": "principal:baton.verifier", "runtime_attempt_id": "judgment-bf92af3f07296a3492e42c251a3475d3d4185e731a8881c50bcaf4d7f1bd028f", "work_id": "0000000a-W3"}, "attempt_id": "judgment-bf92af3f07296a3492e42c251a3475d3d4185e731a8881c50bcaf4d7f1bd028f", "receipt_digest": "sha256:ff7b29ec2f798a41c6dd920731992f550528522434c84d78b3913e50c694d3e2", "result_digest": "sha256:93345943ca318a5e0e8a1a03ed129c1839687d07540b399784b1305ed020d2f4", "result_id": "result-judgment-bf92af3f07296a3492e42c251a3475d3d4185e731a8881c50bcaf4d7f1bd028f", "subject": {"candidate": "52d71d5a7e6294be606090f97545bb14b3170c90", "canonical_target_id": "target-a", "causal_observations": {"base": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": true, "input_commit": "45e17ed28b7aa24d3d32c659fe417c0f26e0f3d1", "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb", "output": "ModuleNotFoundError: No module named 'feature'", "status": 1, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "combined": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "52d71d5a7e6294be606090f97545bb14b3170c90", "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "isolated": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "7c05828f1bf5b66f713a43e5cb2dd9f09986af91", "input_tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}}, "content_digest": "sha256:dbd5fc06696dc50da92f4c5707584461e6055556d44294f379fd556e6980f457", "derived_proposal_id": "proposal-result-c31bd32b6437be6ec5af30e48140f3e50f519e6f1ce0a582f97d72ce9347bf42", "derived_result_digest": "sha256:fb27c40ab70bc0b5a1fe9d4e3a4463c795c7c3b7ccc8d214b2e6dc6f7d0bb56d", "derived_result_id": "derived-result-c31bd32b6437be6ec5af30e48140f3e50f519e6f1ce0a582f97d72ce9347bf42", "job_id": "job-b", "kind": "verification", "observed_by": "baton.result-observer", "policy_generation": 15, "result_id": "result-c31bd32b6437be6ec5af30e48140f3e50f519e6f1ce0a582f97d72ce9347bf42", "source_base": "45e17ed28b7aa24d3d32c659fe417c0f26e0f3d1", "source_candidate": "7c05828f1bf5b66f713a43e5cb2dd9f09986af91", "source_proposal_id": "integration-driver.proposal:8afb99d577e2f4ca5bce6c2f0199a4f97babbe482dc4e1b0f8a84b2586417968", "target_revision": "253f887cc678332a2e2692d7346b2720362a8d0b", "tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f"}, "verdict": "accepted"}, {"assignment": {"authority_uuid": "0000000a000000000000000000000000", "effective_scope": "scope:deployment", "generation": 1, "participant": "baton.approver-review", "principal": "principal:baton.approver-review", "runtime_attempt_id": "judgment-22263926f58729fd4dd271e405893d70124b80efcf85f8b9325738388d257eaa", "work_id": "0000000a-W4"}, "attempt_id": "judgment-22263926f58729fd4dd271e405893d70124b80efcf85f8b9325738388d257eaa", "receipt_digest": "sha256:3b73e682c866d71af8bef7b4cb1b4e62c0d03e9acfdfa33af08daf4060bbb7d9", "result_digest": "sha256:8f7e47a07a8976aab1c90afa30c50e25ac7086d7af4f108ee75b3b0d4baf5b24", "result_id": "result-judgment-22263926f58729fd4dd271e405893d70124b80efcf85f8b9325738388d257eaa", "subject": {"candidate": "52d71d5a7e6294be606090f97545bb14b3170c90", "canonical_target_id": "target-a", "causal_observations": {"base": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": true, "input_commit": "45e17ed28b7aa24d3d32c659fe417c0f26e0f3d1", "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb", "output": "ModuleNotFoundError: No module named 'feature'", "status": 1, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "combined": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "52d71d5a7e6294be606090f97545bb14b3170c90", "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "isolated": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "7c05828f1bf5b66f713a43e5cb2dd9f09986af91", "input_tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}}, "content_digest": "sha256:dbd5fc06696dc50da92f4c5707584461e6055556d44294f379fd556e6980f457", "derived_proposal_id": "proposal-result-c31bd32b6437be6ec5af30e48140f3e50f519e6f1ce0a582f97d72ce9347bf42", "derived_result_digest": "sha256:fb27c40ab70bc0b5a1fe9d4e3a4463c795c7c3b7ccc8d214b2e6dc6f7d0bb56d", "derived_result_id": "derived-result-c31bd32b6437be6ec5af30e48140f3e50f519e6f1ce0a582f97d72ce9347bf42", "job_id": "job-b", "kind": "review", "observed_by": "baton.result-observer", "policy_generation": 15, "result_id": "result-c31bd32b6437be6ec5af30e48140f3e50f519e6f1ce0a582f97d72ce9347bf42", "source_base": "45e17ed28b7aa24d3d32c659fe417c0f26e0f3d1", "source_candidate": "7c05828f1bf5b66f713a43e5cb2dd9f09986af91", "source_proposal_id": "integration-driver.proposal:8afb99d577e2f4ca5bce6c2f0199a4f97babbe482dc4e1b0f8a84b2586417968", "target_revision": "253f887cc678332a2e2692d7346b2720362a8d0b", "tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f"}, "verdict": "accepted"}, {"assignment": {"authority_uuid": "0000000a000000000000000000000000", "effective_scope": "scope:deployment", "generation": 1, "participant": "baton.approver", "principal": "principal:baton.approver", "runtime_attempt_id": "judgment-44d3d17523767177fac2b9438d10d47b7fa9048d9db3bd145172e63d0805baeb", "work_id": "0000000a-W5"}, "attempt_id": "judgment-44d3d17523767177fac2b9438d10d47b7fa9048d9db3bd145172e63d0805baeb", "receipt_digest": "sha256:2592fca81b51b83bd93b683ecc365323ac0447793919594259dff1a8a9ae2a50", "result_digest": "sha256:a4dd06704929f878a738059cd5dcbf740df58ca3331313e3cf434ce6cc26f157", "result_id": "result-judgment-44d3d17523767177fac2b9438d10d47b7fa9048d9db3bd145172e63d0805baeb", "subject": {"candidate": "52d71d5a7e6294be606090f97545bb14b3170c90", "canonical_target_id": "target-a", "causal_observations": {"base": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": true, "input_commit": "45e17ed28b7aa24d3d32c659fe417c0f26e0f3d1", "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb", "output": "ModuleNotFoundError: No module named 'feature'", "status": 1, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "combined": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "52d71d5a7e6294be606090f97545bb14b3170c90", "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "isolated": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "7c05828f1bf5b66f713a43e5cb2dd9f09986af91", "input_tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}}, "content_digest": "sha256:dbd5fc06696dc50da92f4c5707584461e6055556d44294f379fd556e6980f457", "derived_proposal_id": "proposal-result-c31bd32b6437be6ec5af30e48140f3e50f519e6f1ce0a582f97d72ce9347bf42", "derived_result_digest": "sha256:fb27c40ab70bc0b5a1fe9d4e3a4463c795c7c3b7ccc8d214b2e6dc6f7d0bb56d", "derived_result_id": "derived-result-c31bd32b6437be6ec5af30e48140f3e50f519e6f1ce0a582f97d72ce9347bf42", "job_id": "job-b", "kind": "approval", "observed_by": "baton.result-observer", "policy_generation": 15, "result_id": "result-c31bd32b6437be6ec5af30e48140f3e50f519e6f1ce0a582f97d72ce9347bf42", "source_base": "45e17ed28b7aa24d3d32c659fe417c0f26e0f3d1", "source_candidate": "7c05828f1bf5b66f713a43e5cb2dd9f09986af91", "source_proposal_id": "integration-driver.proposal:8afb99d577e2f4ca5bce6c2f0199a4f97babbe482dc4e1b0f8a84b2586417968", "target_revision": "253f887cc678332a2e2692d7346b2720362a8d0b", "tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f"}, "verdict": "accepted"}], "receipts": [{"actor": "baton.approver-review", "candidate_digest": "52d71d5a7e6294be606090f97545bb14b3170c90", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.approver-review", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.approver-review", "role": "review"}, "disposition": "accepted", "kind": "review", "policy_generation": null, "proposal_id": "proposal-result-c31bd32b6437be6ec5af30e48140f3e50f519e6f1ce0a582f97d72ce9347bf42", "receipt_id": "judgment-25989c42f0096cdbcae8c84ca7db880ffe5f9b92595a1cb467e1b013bbd2c53a", "recorded_at": "2026-10-26T21:20:37.060Z", "target": "253f887cc678332a2e2692d7346b2720362a8d0b"}, {"actor": "baton.verifier", "candidate_digest": "52d71d5a7e6294be606090f97545bb14b3170c90", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.verifier", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.verifier", "role": "verify"}, "disposition": "passed", "kind": "verification", "policy_generation": null, "proposal_id": "proposal-result-c31bd32b6437be6ec5af30e48140f3e50f519e6f1ce0a582f97d72ce9347bf42", "receipt_id": "judgment-7a674cff1955ec25a7b00028f0d003cd6162379cad9ce092732a13815c0c15f4", "recorded_at": "2026-10-26T21:20:37.060Z", "target": "253f887cc678332a2e2692d7346b2720362a8d0b"}, {"actor": "baton.approver", "candidate_digest": "52d71d5a7e6294be606090f97545bb14b3170c90", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.approver", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.approver", "role": "approve"}, "disposition": "approved", "kind": "approval", "policy_generation": 15, "proposal_id": "proposal-result-c31bd32b6437be6ec5af30e48140f3e50f519e6f1ce0a582f97d72ce9347bf42", "receipt_id": "judgment-2f866e8d083269d1dbbdb6dc45d6510239f79614150fa782686867af6bfe3bb9", "recorded_at": "2026-10-26T21:20:37.061Z", "target": "253f887cc678332a2e2692d7346b2720362a8d0b"}, {"actor": "baton.integrator", "candidate_digest": "52d71d5a7e6294be606090f97545bb14b3170c90", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.integrator", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.integrator", "role": "integrate"}, "disposition": "integrated", "kind": "integration", "policy_generation": null, "proposal_id": "proposal-result-c31bd32b6437be6ec5af30e48140f3e50f519e6f1ce0a582f97d72ce9347bf42", "receipt_id": "integration-driver.integration-receipt:871f034273687a657ad94f1951980ea35572202a6dd1a7303b3dd97ad92a60e5", "recorded_at": "2026-10-26T21:20:37.141Z", "target": "253f887cc678332a2e2692d7346b2720362a8d0b"}], "target": "52d71d5a7e6294be606090f97545bb14b3170c90"}.........................................E.....EEEEEEE..........................................................EEEEEEEEE................................................
+======================================================================
+ERROR: test_the_guides_minimal_block_NAMES_what_is_required_and_no_more (tests.tools.test_bootstrap.AFreshInstallHasZeroJobs.test_the_guides_minimal_block_NAMES_what_is_required_and_no_more)
+WHAT THIS PROVES AND WHAT IT DOES NOT, said here because review
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 2064, in test_the_guides_minimal_block_NAMES_what_is_required_and_no_more
+    guide = (_DISTRIBUTION.parent / "STACK.md").read_text()
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/w363066-base492/v12/STACK.md'
+
+======================================================================
+ERROR: test_SERVE_itself_refuses_a_pool_that_arrives_mid_run (tests.tools.test_bootstrap.AnInstanceWithNoCapacityREFUSES_WORK_IT_CANNOT_SERVE.test_SERVE_itself_refuses_a_pool_that_arrives_mid_run)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1853, in test_SERVE_itself_refuses_a_pool_that_arrives_mid_run
+    said = self.serve_until_refused(activate)
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1811, in serve_until_refused
+    prepared = self.composed("serving")
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1653, in composed
+    document = dict(guide_example(),
+                    ~~~~~~~~~~~~~^^
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1268, in guide_example
+    guide = (_DISTRIBUTION.parent / "STACK.md").read_text()
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/w363066-base492/v12/STACK.md'
+
+======================================================================
+ERROR: test_SERVE_itself_refuses_an_offer_that_arrives_mid_run (tests.tools.test_bootstrap.AnInstanceWithNoCapacityREFUSES_WORK_IT_CANNOT_SERVE.test_SERVE_itself_refuses_an_offer_that_arrives_mid_run)
+[P1], review 2026-09-16T23-16-06Z, and my claim was the wrong one.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1837, in test_SERVE_itself_refuses_an_offer_that_arrives_mid_run
+    said = self.serve_until_refused(self.seed_offer)
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1811, in serve_until_refused
+    prepared = self.composed("serving")
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1653, in composed
+    document = dict(guide_example(),
+                    ~~~~~~~~~~~~~^^
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1268, in guide_example
+    guide = (_DISTRIBUTION.parent / "STACK.md").read_text()
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/w363066-base492/v12/STACK.md'
+
+======================================================================
+ERROR: test_a_POOL_activated_after_attachment_is_not_ignored (tests.tools.test_bootstrap.AnInstanceWithNoCapacityREFUSES_WORK_IT_CANNOT_SERVE.test_a_POOL_activated_after_attachment_is_not_ignored)
+The reviewer's third case: capacity that arrives naming workers this
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1749, in test_a_POOL_activated_after_attachment_is_not_ignored
+    prepared = self.composed("pool-arrives")
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1653, in composed
+    document = dict(guide_example(),
+                    ~~~~~~~~~~~~~^^
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1268, in guide_example
+    guide = (_DISTRIBUTION.parent / "STACK.md").read_text()
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/w363066-base492/v12/STACK.md'
+
+======================================================================
+ERROR: test_control_work_ALREADY_HERE_refuses_at_startup (tests.tools.test_bootstrap.AnInstanceWithNoCapacityREFUSES_WORK_IT_CANNOT_SERVE.test_control_work_ALREADY_HERE_refuses_at_startup)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1703, in test_control_work_ALREADY_HERE_refuses_at_startup
+    prepared = self.composed("already-here")
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1653, in composed
+    document = dict(guide_example(),
+                    ~~~~~~~~~~~~~^^
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1268, in guide_example
+    guide = (_DISTRIBUTION.parent / "STACK.md").read_text()
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/w363066-base492/v12/STACK.md'
+
+======================================================================
+ERROR: test_control_work_ARRIVING_AFTER_attachment_refuses_on_resume (tests.tools.test_bootstrap.AnInstanceWithNoCapacityREFUSES_WORK_IT_CANNOT_SERVE.test_control_work_ARRIVING_AFTER_attachment_refuses_on_resume)
+The half a constructor check cannot answer: the deployment composed
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1725, in test_control_work_ARRIVING_AFTER_attachment_refuses_on_resume
+    prepared = self.composed("arriving")
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1653, in composed
+    document = dict(guide_example(),
+                    ~~~~~~~~~~~~~^^
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1268, in guide_example
+    guide = (_DISTRIBUTION.parent / "STACK.md").read_text()
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/w363066-base492/v12/STACK.md'
+
+======================================================================
+ERROR: test_serve_over_genuinely_empty_stores_just_ticks (tests.tools.test_bootstrap.AnInstanceWithNoCapacityREFUSES_WORK_IT_CANNOT_SERVE.test_serve_over_genuinely_empty_stores_just_ticks)
+The control for both: with nothing there, nothing is refused.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1865, in test_serve_over_genuinely_empty_stores_just_ticks
+    prepared = self.composed("quiet")
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1653, in composed
+    document = dict(guide_example(),
+                    ~~~~~~~~~~~~~^^
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1268, in guide_example
+    guide = (_DISTRIBUTION.parent / "STACK.md").read_text()
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/w363066-base492/v12/STACK.md'
+
+======================================================================
+ERROR: test_the_READER_itself_changes_nothing (tests.tools.test_bootstrap.AnInstanceWithNoCapacityREFUSES_WORK_IT_CANNOT_SERVE.test_the_READER_itself_changes_nothing)
+`unconfigured_work` is the question WITHOUT the actions.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1891, in test_the_READER_itself_changes_nothing
+    self.composed("read-only")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1653, in composed
+    document = dict(guide_example(),
+                    ~~~~~~~~~~~~~^^
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1268, in guide_example
+    guide = (_DISTRIBUTION.parent / "STACK.md").read_text()
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/w363066-base492/v12/STACK.md'
+
+======================================================================
+ERROR: test_it_COMPOSES_and_then_STARTS_STATUS_MONITOR_STOPS (tests.tools.test_bootstrap.TheGUIDES_OWN_EXAMPLE_COMPOSES_AND_SERVES_FROM_SOURCE.test_it_COMPOSES_and_then_STARTS_STATUS_MONITOR_STOPS)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1340, in test_it_COMPOSES_and_then_STARTS_STATUS_MONITOR_STOPS
+    self.composed_from_source()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1311, in composed_from_source
+    document = dict(guide_example(),
+                    ~~~~~~~~~~~~~^^
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1268, in guide_example
+    guide = (_DISTRIBUTION.parent / "STACK.md").read_text()
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/w363066-base492/v12/STACK.md'
+
+======================================================================
+ERROR: test_the_guides_example_is_a_document_that_PARSES (tests.tools.test_bootstrap.TheGUIDES_OWN_EXAMPLE_COMPOSES_AND_SERVES_FROM_SOURCE.test_the_guides_example_is_a_document_that_PARSES)
+[F2]: the previous example did not, and a check that compared member
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1333, in test_the_guides_example_is_a_document_that_PARSES
+    held = guide_example()
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1268, in guide_example
+    guide = (_DISTRIBUTION.parent / "STACK.md").read_text()
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/w363066-base492/v12/STACK.md'
+
+======================================================================
+ERROR: test_the_zeros_are_READ_rather_than_asserted (tests.tools.test_bootstrap.TheGUIDES_OWN_EXAMPLE_COMPOSES_AND_SERVES_FROM_SOURCE.test_the_zeros_are_READ_rather_than_asserted)
+"Never replace real store observation with constant zero." The
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1378, in test_the_zeros_are_READ_rather_than_asserted
+    answer = self.composed_from_source()
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1311, in composed_from_source
+    document = dict(guide_example(),
+                    ~~~~~~~~~~~~~^^
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1268, in guide_example
+    guide = (_DISTRIBUTION.parent / "STACK.md").read_text()
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/w363066-base492/v12/STACK.md'
+
+======================================================================
+ERROR: test_RECONFIGURING_an_installed_instance_keeps_everything_else (tests.tools.test_bootstrap.TheINSTALLED_INSTANCE_SERVES_THE_SAME_WAY.test_RECONFIGURING_an_installed_instance_keeps_everything_else)
+The supported later-configuration path, run rather than described.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1561, in test_RECONFIGURING_an_installed_instance_keeps_everything_else
+    destination, _ = self.install()
+                     ~~~~~~~~~~~~^^
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1456, in install
+    document = dict(guide_example())
+                    ~~~~~~~~~~~~~^^
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1268, in guide_example
+    guide = (_DISTRIBUTION.parent / "STACK.md").read_text()
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/w363066-base492/v12/STACK.md'
+
+======================================================================
+ERROR: test_a_repeat_that_would_DROP_a_derived_selection_is_refused (tests.tools.test_bootstrap.TheINSTALLED_INSTANCE_SERVES_THE_SAME_WAY.test_a_repeat_that_would_DROP_a_derived_selection_is_refused)
+Review 2026-09-16T23-16-06Z [P2], and the reviewer's own case.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1534, in test_a_repeat_that_would_DROP_a_derived_selection_is_refused
+    destination, _ = self.install()
+                     ~~~~~~~~~~~~^^
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1456, in install
+    document = dict(guide_example())
+                    ~~~~~~~~~~~~~^^
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1268, in guide_example
+    guide = (_DISTRIBUTION.parent / "STACK.md").read_text()
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/w363066-base492/v12/STACK.md'
+
+======================================================================
+ERROR: test_the_INSTALLED_SELECTOR_drives_the_empty_lifecycle (tests.tools.test_bootstrap.TheINSTALLED_INSTANCE_SERVES_THE_SAME_WAY.test_the_INSTALLED_SELECTOR_drives_the_empty_lifecycle)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1506, in test_the_INSTALLED_SELECTOR_drives_the_empty_lifecycle
+    self.install()
+    ~~~~~~~~~~~~^^
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1456, in install
+    document = dict(guide_example())
+                    ~~~~~~~~~~~~~^^
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1268, in guide_example
+    guide = (_DISTRIBUTION.parent / "STACK.md").read_text()
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/w363066-base492/v12/STACK.md'
+
+======================================================================
+ERROR: test_the_guides_document_INSTALLS_into_a_destination (tests.tools.test_bootstrap.TheINSTALLED_INSTANCE_SERVES_THE_SAME_WAY.test_the_guides_document_INSTALLS_into_a_destination)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1478, in test_the_guides_document_INSTALLS_into_a_destination
+    destination, said = self.install()
+                        ~~~~~~~~~~~~^^
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1456, in install
+    document = dict(guide_example())
+                    ~~~~~~~~~~~~~^^
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1268, in guide_example
+    guide = (_DISTRIBUTION.parent / "STACK.md").read_text()
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/w363066-base492/v12/STACK.md'
+
+======================================================================
+ERROR: test_the_two_operand_installer_REFUSES_an_installed_destination (tests.tools.test_bootstrap.TheINSTALLED_INSTANCE_SERVES_THE_SAME_WAY.test_the_two_operand_installer_REFUSES_an_installed_destination)
+And it says so, which is why the form above exists.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1594, in test_the_two_operand_installer_REFUSES_an_installed_destination
+    destination, _ = self.install()
+                     ~~~~~~~~~~~~^^
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1456, in install
+    document = dict(guide_example())
+                    ~~~~~~~~~~~~~^^
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1268, in guide_example
+    guide = (_DISTRIBUTION.parent / "STACK.md").read_text()
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/w363066-base492/v12/STACK.md'
+
+======================================================================
+ERROR: test_two_destinations_are_two_instances (tests.tools.test_bootstrap.TheINSTALLED_INSTANCE_SERVES_THE_SAME_WAY.test_two_destinations_are_two_instances)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1494, in test_two_destinations_are_two_instances
+    first, _ = self.install("one")
+               ~~~~~~~~~~~~^^^^^^^
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1456, in install
+    document = dict(guide_example())
+                    ~~~~~~~~~~~~~^^
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_bootstrap.py", line 1268, in guide_example
+    guide = (_DISTRIBUTION.parent / "STACK.md").read_text()
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/w363066-base492/v12/STACK.md'
+
+======================================================================
+FAIL: test_a_real_observing_status_run_mutates_no_durable_state (tests.tools.test_single_worker.AFaultedTerminalSurvivesTheContainerThatWroteIt.test_a_real_observing_status_run_mutates_no_durable_state)
+W85500 review 2026-09-04T14-27-54Z [P1]: BEHAVIOUR, not capability.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w363066-base492/v12/python/tests/tools/test_single_worker.py", line 5936, in test_a_real_observing_status_run_mutates_no_durable_state
+    self.assertEqual(sorted(after), sorted(before),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "an observing status run added or removed a durable "
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "file")
+                     ^^^^^^^
+AssertionError: Lists differ: ['aut[33 chars]', 'control.sqlite3-shm', 'control.sqlite3-wal[1345 chars]son'] != ['aut[33 chars]', 'credentials/credential-state/attempt-7b5e0[1259 chars]son']
+
+First differing element 2:
+'control.sqlite3-shm'
+'credentials/credential-state/attempt-7b5e0[60 chars]json'
+
+First list contains 4 additional elements.
+First extra element 18:
+'storage/attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571/inputs/assignment.json'
+
+Diff is 1500 characters long. Set self.maxDiff to None to see it. : an observing status run added or removed a durable file
+
+----------------------------------------------------------------------
+Ran 855 tests in 270.603s
+
+FAILED (failures=1, errors=17)
+

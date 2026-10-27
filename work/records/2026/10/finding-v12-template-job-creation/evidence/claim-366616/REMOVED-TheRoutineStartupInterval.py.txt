@@ -1,0 +1,207 @@
+class TheRoutineStartupInterval(JoinedWorkflowCase):
+    """DESIGN OBS-0, measured on this path, with its endpoints written down.
+
+    THE INTERVAL. It opens at the instant the operator's selection arrives --
+    a task name, a statement, acceptance criteria and a selected work scope,
+    and nothing else -- and it closes when the assigned agent ENTERS
+    `work()` inside its own runtime, which is the first substantive act of the
+    task. The producing agent stamps `time.monotonic()` there itself, so the
+    endpoint is the agent's own and not this fixture's guess about it.
+
+    WHAT IS INSIDE, all of it, because OBS-0 says "the whole routine path,
+    including input handling, configuration, validation and launch":
+
+      * reading this deployment's installed worker configuration and proving
+        it (`single_worker._held`, the static preflight);
+      * the whole creation -- template resolution, the full-resolution digest,
+        the identity reservation, the Work authorization, the deployment
+        binding published and prepared, the per-Job task composed and the
+        submission admitted;
+      * every scheduler tick that follows: the offer, the claim, the principal
+        allocation, the writer grant on the line, the input root composed and
+        frozen, the launch document written, the credential delivered and the
+        runtime started;
+      * the in-image startup: the launch adoption, the exchange, and the
+        worker's own preflight up to its first substantive act.
+
+    WHAT IS OUTSIDE, and OBS-0a is why: the ONE-TIME install and the
+    deployment's own start. `pool()` opens the stores, validates the
+    configuration, certifies the checkpoint profile, mints the session and
+    activates the pool -- that is `just start`, performed once per deployment
+    and not per task, and SCH-2's scheduler is persistent by design. Nothing
+    per-run is outside: there is no packet to engineer, no script to author and
+    no manifest to write, which is the clause OBS-0 adds about not excluding
+    per-run engineering by calling it task work.
+
+    WHAT THIS IS NOT. The container engine and the provider are this suite's
+    declared seams, so the figure contains NO image pull, NO container start,
+    NO provider authentication and NO model latency. It is the product's own
+    routine path and is reported as exactly that. The supported environment is
+    the one this suite runs in: a prepared local deployment on one host, local
+    SQLite stores, the deployment-configured checkpoint profile with no version
+    control behind it, and no network.
+
+    AND THE SUITE'S OWN DURATION IS NOT THE MEASURE. The figure below is one
+    monotonic interval around one task's routine path; `unittest`'s wall clock
+    for this file is not reported as a startup figure anywhere.
+    """
+
+    BOUND = 60.0
+
+    def measured(self, task, statement):
+        """One routine start, clocked from the operator's words."""
+        held = self.pool("joined-obs0-" + task)
+        # ---- THE INTERVAL OPENS HERE ----------------------------------
+        opened = time.monotonic()
+        installed = single_worker._held(held["workers"][0]["deployment"])
+        answered = self.create(held["jobs"], installed, task_id=task,
+                               statement=statement)
+        self.job_id = answered["job_id"]
+        held["installed"] = installed
+        held["created"] = answered
+        created = time.monotonic()
+        self.driven(held["jobs"], held["composed"], self.job_id)
+        launched = time.monotonic()
+        stage = self.stage_of(held["jobs"], held["composed"], self.job_id)
+        self._agent = lambda: self.producing_agent()
+        self.assertEqual(
+            self.turn(held["jobs"], held["control"], held["composed"],
+                      "implementation", stage["attempt_id"]), 0)
+        # ---- AND IT CLOSED WHEN THE AGENT STAMPED ITS OWN ENTRY -------
+        self.assertEqual(len(self.produced), 1, self.produced)
+        held["interval"] = {
+            "whole_seconds": self.produced[0] - opened,
+            "creation_seconds": created - opened,
+            "scheduling_seconds": launched - created,
+            "launch_to_work_seconds": self.produced[0] - launched,
+            "attempt_id": stage["attempt_id"]}
+        held["implementation"] = [stage["attempt_id"]]
+        return held
+
+    def test_the_routine_start_is_within_the_obs0_bound(self):
+        held = self.measured("obs0-first", "Measure the routine start.")
+        interval = held["interval"]
+        # THE AGENT REALLY STARTED, and it is serving the requested task --
+        # a figure for a start that delivered the installed document would be
+        # measuring the wrong path quickly.
+        self.assertEqual(
+            self.published(interval["attempt_id"]).decode("utf-8"),
+            self.task_of(held))
+        self.assertLess(interval["whole_seconds"], self.BOUND,
+                        json.dumps(interval, default=str))
+        # AND EVERY PART OF IT IS ACCOUNTED FOR: the three legs sum to the
+        # whole, so nothing was measured outside what is reported.
+        self.assertAlmostEqual(
+            interval["creation_seconds"] + interval["scheduling_seconds"]
+            + interval["launch_to_work_seconds"],
+            interval["whole_seconds"], places=6)
+
+    def test_the_correction_rounds_start_is_within_the_bound_too(self):
+        """A CORRECTION IS A ROUTINE START, so it is measured as one.
+
+        OBS-0a: "routine starts, failures and retries MUST NOT require
+        operator-authored shell/Python procedures". The correction round is
+        the retry case the product performs itself, and the clock here opens
+        at the recorded verdict -- the moment this round's input is settled --
+        and closes at the second agent's own `work()` entry.
+        """
+        held = self.pool("joined-obs0-correction")
+        self.requested(held, task="obs0-correction",
+                       statement="Measure the correction round's start.")
+        self.implemented(held)
+        self.judged(held, "changes-requested")
+        self.assertEqual(len(self.produced), 1)
+        # ---- THE SECOND INTERVAL OPENS AT THE RECORDED VERDICT --------
+        opened = time.monotonic()
+        second = self.stage_of(held["jobs"], held["composed"], self.job_id)
+        self.assertNotEqual(second["attempt_id"], held["implementation"][0])
+        self._agent = lambda: self.producing_agent()
+        self.assertEqual(
+            self.turn(held["jobs"], held["control"], held["composed"],
+                      "implementation", second["attempt_id"]), 0)
+        self.assertEqual(len(self.produced), 2)
+        elapsed = self.produced[1] - opened
+        self.assertLess(elapsed, self.BOUND, elapsed)
+        # AND THE ROUND IT STARTED IS SERVING THE REQUESTED TASK.
+        self.assertEqual(
+            self.published(second["attempt_id"]).decode("utf-8"),
+            self.task_of(held))
+
+    def test_the_measured_path_required_no_authored_procedure(self):
+        """OBS-0's OTHER HALF, asserted rather than asserted ABOUT.
+
+        "The routine path MUST NOT require script authoring, test writing or
+        bespoke execution-packet engineering." What the operator supplied is
+        the four selections below and nothing else: no manifest, no digest, no
+        submission document, no launch packet and no path. That is a property
+        of the creation request's own shape, so it is read off the recorded
+        request rather than described in prose.
+        """
+        held = self.measured("obs0-shape", "Measure what the caller supplied.")
+        resolution = creation.resolution_of(held["jobs"], self.job_id)
+        # WHAT THE CALLER SELECTED, as the resolution records it: a statement,
+        # acceptance criteria and two scopes. The identities beside the
+        # statement are DERIVED and are here as provenance.
+        self.assertEqual(sorted(resolution["task"]),
+                         ["job_id", "statement", "submission_id", "work_id"])
+        self.assertEqual(resolution["task"]["statement"],
+                         "Measure what the caller supplied.")
+        self.assertEqual(sorted(resolution["scope"]), ["tests", "work"])
+        self.assertTrue(resolution["acceptance"])
+        # AND NO SELECTION CARRIED A DIGEST, A MANIFEST OR A DOCUMENT. The
+        # caller's half of the resolution is these four members; everything
+        # the Job needed beyond them the deployment derived.
+        for member in ("task", "acceptance", "scope", "overrides"):
+            rendered = json.dumps(resolution[member])
+            for forbidden in ("sha256:", "input_manifest", "manifest_digest",
+                              "launch", "workspace"):
+                self.assertNotIn(forbidden, rendered,
+                                 "%s names %s" % (member, forbidden))
+        # THE DERIVED HALF IS THE DEPLOYMENT'S OWN, and it is what the answer
+        # reported back rather than anything the caller stated.
+        self.assertTrue(
+            resolution["source"]["input_digest"].startswith("sha256:"))
+        self.assertEqual(held["created"]["source"]["input_digest"],
+                         resolution["source"]["input_digest"])
+        self.assertEqual(sorted(resolution["submission"]),
+                         ["jobs", "schema", "submission_id"])
+        # AND THE IMMUTABLE CALLER INTENT A REPLAY IS KEYED ON names the three
+        # identities and a digest of the request -- never a derived fact.
+        request = json.loads(
+            [one for one in creation.created_job_rows(held["jobs"])
+             if one["job_id"] == self.job_id][0]["request"])
+        self.assertEqual(sorted(request),
+                         ["job_id", "request_digest", "submission_id"])
+
+    def test_the_interval_is_reported_with_its_endpoints(self):
+        """The figure, written where a reader can see what it covers."""
+        held = self.measured("obs0-report", "Measure and report the start.")
+        interval = held["interval"]
+        report = {
+            "bound_seconds": self.BOUND,
+            "opens_at": "the operator's selection arrives (task id, "
+                        "statement, acceptance criteria, selected work scope)",
+            "closes_at": "the assigned agent enters work() in its own runtime",
+            "inside": ["installed worker configuration read and proved",
+                       "template resolution, reservation, Work authorization, "
+                       "deployment binding published and prepared, per-Job "
+                       "task composed, submission admitted",
+                       "offer, claim, allocation, writer grant, input root "
+                       "composed and frozen, launch document, credential "
+                       "delivery, runtime start",
+                       "launch adoption, exchange, worker preflight"],
+            "outside": ["one-time install and the deployment's own start "
+                        "(stores, configuration validation, profile "
+                        "certification, session mint, pool activation)"],
+            "seams": ["container engine", "provider inside the workload"],
+            "measured": interval}
+        # THE REPORT IS WRITTEN WHERE THE EVIDENCE DIRECTORY CAN COLLECT IT.
+        named = os.environ.get("BATON_V12_OBS0_REPORT")
+        if named:
+            with open(named, "w") as writing:
+                json.dump(report, writing, indent=1, sort_keys=True)
+                writing.write("\n")
+        self.assertLess(interval["whole_seconds"], self.BOUND)
+        self.assertGreater(interval["whole_seconds"], 0.0)
+
+

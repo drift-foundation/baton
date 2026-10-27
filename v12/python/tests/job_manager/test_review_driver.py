@@ -4191,9 +4191,13 @@ class TheImplementationResumeReadsRealCommittedCustody(ReviewResultCase):
         with self.no_external_act(held):
             answered = self.resume(held)
         self.assertEqual(sorted(answered), sorted(
+            # W365075 ADDED `released`, and this case is the reason to say so
+            # here: the ending document now reports which of step eight's two
+            # endings it took, and both entries that answer it carry the member
+            # so the comparison this case makes stays member-for-member.
             ("attempt_id", "disposition", "result_id", "manifest_digest",
              "receipt_digest", "artifacts", "retention", "published",
-             "checkpoint_id", "checkpoint")))
+             "checkpoint_id", "checkpoint", "released")))
         self.assertEqual(answered["attempt_id"], self.ATTEMPT)
         self.assertEqual(answered["disposition"], "completed")
         self.assertEqual(answered["result_id"], ended["result_id"])

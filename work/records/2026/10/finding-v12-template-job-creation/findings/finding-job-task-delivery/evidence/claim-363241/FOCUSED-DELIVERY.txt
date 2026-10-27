@@ -1,0 +1,94 @@
+test_a_legacy_job_naming_the_whole_manifest_digest_says_so (tests.tools.test_job_task_delivery.DeliveryCase.test_a_legacy_job_naming_the_whole_manifest_digest_says_so)
+Review206898 [R3]. This IS a semantic change, so a Job submitted ... ok
+test_a_worker_that_moved_a_shared_member_is_still_refused (tests.tools.test_job_task_delivery.DeliveryCase.test_a_worker_that_moved_a_shared_member_is_still_refused)
+The Job half. A heterogeneous pool must not become a pool that ... ok
+test_a_worker_whose_image_is_not_its_own_manifests_is_refused (tests.tools.test_job_task_delivery.DeliveryCase.test_a_worker_whose_image_is_not_its_own_manifests_is_refused)
+`single_worker.py:267` is intact, and it is what stops "each worker ... ok
+test_the_two_refusals_are_told_apart (tests.tools.test_job_task_delivery.DeliveryCase.test_the_two_refusals_are_told_apart)
+The whole reason the legacy branch exists: a migratable Job and a ... ok
+test_three_roles_on_three_images_all_match_one_job (tests.tools.test_job_task_delivery.DeliveryCase.test_three_roles_on_three_images_all_match_one_job)
+THE POSITIVE. Three workers, three images, three runtime manifests, ... ok
+test_a_legacy_job_naming_the_whole_manifest_digest_says_so (tests.tools.test_job_task_delivery.RestartProvesWhatWasPublished.test_a_legacy_job_naming_the_whole_manifest_digest_says_so)
+Review206898 [R3]. This IS a semantic change, so a Job submitted ... ok
+test_a_missing_published_task_refuses (tests.tools.test_job_task_delivery.RestartProvesWhatWasPublished.test_a_missing_published_task_refuses) ... ok
+test_a_restart_proves_the_published_task_and_continues (tests.tools.test_job_task_delivery.RestartProvesWhatWasPublished.test_a_restart_proves_the_published_task_and_continues)
+NOT A SECOND RENDERING COMPARED WITH ITSELF. ... /tmp/w363066/v12/python/tests/tools/test_job_task_delivery.py:239: ResourceWarning: unclosed file <_io.BufferedReader name='/var/tmp/v12-w71917-mdwunscl/inputs-job-first/task.json'>
+  "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_a_restart_that_would_deliver_another_task_refuses (tests.tools.test_job_task_delivery.RestartProvesWhatWasPublished.test_a_restart_that_would_deliver_another_task_refuses)
+THE MISMATCH, which is the cross-Job accident made concrete. ... ok
+test_a_tampered_published_task_refuses (tests.tools.test_job_task_delivery.RestartProvesWhatWasPublished.test_a_tampered_published_task_refuses) ... ok
+test_a_worker_that_moved_a_shared_member_is_still_refused (tests.tools.test_job_task_delivery.RestartProvesWhatWasPublished.test_a_worker_that_moved_a_shared_member_is_still_refused)
+The Job half. A heterogeneous pool must not become a pool that ... ok
+test_a_worker_whose_image_is_not_its_own_manifests_is_refused (tests.tools.test_job_task_delivery.RestartProvesWhatWasPublished.test_a_worker_whose_image_is_not_its_own_manifests_is_refused)
+`single_worker.py:267` is intact, and it is what stops "each worker ... ok
+test_publishing_over_an_existing_task_refuses (tests.tools.test_job_task_delivery.RestartProvesWhatWasPublished.test_publishing_over_an_existing_task_refuses)
+PROVENANCE THIS COMPOSITION CANNOT PROVE. ... ok
+test_the_two_refusals_are_told_apart (tests.tools.test_job_task_delivery.RestartProvesWhatWasPublished.test_the_two_refusals_are_told_apart)
+The whole reason the legacy branch exists: a migratable Job and a ... ok
+test_three_roles_on_three_images_all_match_one_job (tests.tools.test_job_task_delivery.RestartProvesWhatWasPublished.test_three_roles_on_three_images_all_match_one_job)
+THE POSITIVE. Three workers, three images, three runtime manifests, ... ok
+test_a_job_the_reader_answers_none_for_gets_the_installed_task (tests.tools.test_job_task_delivery.TheInstalledDeliveryIsPreserved.test_a_job_the_reader_answers_none_for_gets_the_installed_task) ... ok
+test_a_legacy_job_naming_the_whole_manifest_digest_says_so (tests.tools.test_job_task_delivery.TheInstalledDeliveryIsPreserved.test_a_legacy_job_naming_the_whole_manifest_digest_says_so)
+Review206898 [R3]. This IS a semantic change, so a Job submitted ... ok
+test_a_stage_with_no_job_gets_the_installed_task (tests.tools.test_job_task_delivery.TheInstalledDeliveryIsPreserved.test_a_stage_with_no_job_gets_the_installed_task)
+THE BOOTSTRAP COMPOSITION, which binds no Job. ... ok
+test_a_worker_that_moved_a_shared_member_is_still_refused (tests.tools.test_job_task_delivery.TheInstalledDeliveryIsPreserved.test_a_worker_that_moved_a_shared_member_is_still_refused)
+The Job half. A heterogeneous pool must not become a pool that ... ok
+test_a_worker_whose_image_is_not_its_own_manifests_is_refused (tests.tools.test_job_task_delivery.TheInstalledDeliveryIsPreserved.test_a_worker_whose_image_is_not_its_own_manifests_is_refused)
+`single_worker.py:267` is intact, and it is what stops "each worker ... ok
+test_a_worker_with_no_reader_at_all_gets_the_installed_task (tests.tools.test_job_task_delivery.TheInstalledDeliveryIsPreserved.test_a_worker_with_no_reader_at_all_gets_the_installed_task) ... ok
+test_the_two_refusals_are_told_apart (tests.tools.test_job_task_delivery.TheInstalledDeliveryIsPreserved.test_the_two_refusals_are_told_apart)
+The whole reason the legacy branch exists: a migratable Job and a ... ok
+test_three_roles_on_three_images_all_match_one_job (tests.tools.test_job_task_delivery.TheInstalledDeliveryIsPreserved.test_three_roles_on_three_images_all_match_one_job)
+THE POSITIVE. Three workers, three images, three runtime manifests, ... ok
+test_a_legacy_job_naming_the_whole_manifest_digest_says_so (tests.tools.test_job_task_delivery.TheReaderOverARealStore.test_a_legacy_job_naming_the_whole_manifest_digest_says_so)
+Review206898 [R3]. This IS a semantic change, so a Job submitted ... ok
+test_a_worker_that_moved_a_shared_member_is_still_refused (tests.tools.test_job_task_delivery.TheReaderOverARealStore.test_a_worker_that_moved_a_shared_member_is_still_refused)
+The Job half. A heterogeneous pool must not become a pool that ... ok
+test_a_worker_whose_image_is_not_its_own_manifests_is_refused (tests.tools.test_job_task_delivery.TheReaderOverARealStore.test_a_worker_whose_image_is_not_its_own_manifests_is_refused)
+`single_worker.py:267` is intact, and it is what stops "each worker ... ok
+test_it_answers_the_stored_document_and_none_for_everything_else (tests.tools.test_job_task_delivery.TheReaderOverARealStore.test_it_answers_the_stored_document_and_none_for_everything_else) ... ok
+test_the_two_refusals_are_told_apart (tests.tools.test_job_task_delivery.TheReaderOverARealStore.test_the_two_refusals_are_told_apart)
+The whole reason the legacy branch exists: a migratable Job and a ... ok
+test_three_roles_on_three_images_all_match_one_job (tests.tools.test_job_task_delivery.TheReaderOverARealStore.test_three_roles_on_three_images_all_match_one_job)
+THE POSITIVE. Three workers, three images, three runtime manifests, ... ok
+test_a_legacy_job_naming_the_whole_manifest_digest_says_so (tests.tools.test_single_worker.ThreeWorkersOneJobThreeImages.test_a_legacy_job_naming_the_whole_manifest_digest_says_so)
+Review206898 [R3]. This IS a semantic change, so a Job submitted ... ok
+test_a_worker_that_moved_a_shared_member_is_still_refused (tests.tools.test_single_worker.ThreeWorkersOneJobThreeImages.test_a_worker_that_moved_a_shared_member_is_still_refused)
+The Job half. A heterogeneous pool must not become a pool that ... ok
+test_a_worker_whose_image_is_not_its_own_manifests_is_refused (tests.tools.test_single_worker.ThreeWorkersOneJobThreeImages.test_a_worker_whose_image_is_not_its_own_manifests_is_refused)
+`single_worker.py:267` is intact, and it is what stops "each worker ... ok
+test_the_two_refusals_are_told_apart (tests.tools.test_single_worker.ThreeWorkersOneJobThreeImages.test_the_two_refusals_are_told_apart)
+The whole reason the legacy branch exists: a migratable Job and a ... ok
+test_three_roles_on_three_images_all_match_one_job (tests.tools.test_single_worker.ThreeWorkersOneJobThreeImages.test_three_roles_on_three_images_all_match_one_job)
+THE POSITIVE. Three workers, three images, three runtime manifests, ... ok
+test_a_legacy_job_naming_the_whole_manifest_digest_says_so (tests.tools.test_job_task_delivery.TwoJobsOnOneWorkerGetTheirOwnBytes.test_a_legacy_job_naming_the_whole_manifest_digest_says_so)
+Review206898 [R3]. This IS a semantic change, so a Job submitted ... ok
+test_a_worker_that_moved_a_shared_member_is_still_refused (tests.tools.test_job_task_delivery.TwoJobsOnOneWorkerGetTheirOwnBytes.test_a_worker_that_moved_a_shared_member_is_still_refused)
+The Job half. A heterogeneous pool must not become a pool that ... ok
+test_a_worker_whose_image_is_not_its_own_manifests_is_refused (tests.tools.test_job_task_delivery.TwoJobsOnOneWorkerGetTheirOwnBytes.test_a_worker_whose_image_is_not_its_own_manifests_is_refused)
+`single_worker.py:267` is intact, and it is what stops "each worker ... ok
+test_neither_jobs_bytes_reach_the_others_root (tests.tools.test_job_task_delivery.TwoJobsOnOneWorkerGetTheirOwnBytes.test_neither_jobs_bytes_reach_the_others_root)
+NO CROSS-JOB EFFECT, from ONE worker object. ... /tmp/w363066/v12/python/tests/tools/test_job_task_delivery.py:147: ResourceWarning: unclosed file <_io.BufferedReader name='/var/tmp/v12-w71917-n8s620n3/inputs-job-first/task.json'>
+  "rb").read().decode("utf-8")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/tmp/w363066/v12/python/tests/tools/test_job_task_delivery.py:150: ResourceWarning: unclosed file <_io.BufferedReader name='/var/tmp/v12-w71917-n8s620n3/inputs-job-second/task.json'>
+  "rb").read().decode("utf-8")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_the_published_file_is_this_jobs_own_task (tests.tools.test_job_task_delivery.TwoJobsOnOneWorkerGetTheirOwnBytes.test_the_published_file_is_this_jobs_own_task)
+THE BYTES ON DISK, read back and compared whole. ... ok
+test_the_review_role_is_delivered_the_same_task (tests.tools.test_job_task_delivery.TwoJobsOnOneWorkerGetTheirOwnBytes.test_the_review_role_is_delivered_the_same_task)
+ROLE-SPECIFIC SEMANTICS PRESERVED, and the task is the JOB's. ... ok
+test_the_two_jobs_input_identities_differ_and_both_are_consistent (tests.tools.test_job_task_delivery.TwoJobsOnOneWorkerGetTheirOwnBytes.test_the_two_jobs_input_identities_differ_and_both_are_consistent) ... ok
+test_the_two_refusals_are_told_apart (tests.tools.test_job_task_delivery.TwoJobsOnOneWorkerGetTheirOwnBytes.test_the_two_refusals_are_told_apart)
+The whole reason the legacy branch exists: a migratable Job and a ... ok
+test_three_roles_on_three_images_all_match_one_job (tests.tools.test_job_task_delivery.TwoJobsOnOneWorkerGetTheirOwnBytes.test_three_roles_on_three_images_all_match_one_job)
+THE POSITIVE. Three workers, three images, three runtime manifests, ... ok
+
+----------------------------------------------------------------------
+Ran 43 tests in 0.524s
+
+OK

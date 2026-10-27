@@ -1,0 +1,134 @@
+{
+  "ANSWERS": "work/records/2026/10/finding-v12-template-job-creation/findings/finding-job-task-delivery/FINDING.md",
+  "BASE_COMMIT": "19f02ce1295b4517a85f0822d48754efc982f388",
+  "BASE_IS_CLEAN_FOR_THESE_PATHS": true,
+  "CLAIM": 363069,
+  "INHERITED_OVERLAY": {
+    "accepted": false,
+    "candidate": "work/records/2026/10/finding-v12-template-job-creation/candidate-362931",
+    "manifest": "02090c1c505a055722e15de6c3e06f3e9ed0b940619055a69253549a0169fc9b",
+    "note": "an unintegrated working baseline, as the FINDING states",
+    "preserved_untouched": true
+  },
+  "MEMBERS": {
+    "v12/python/src/baton_v12/job_manager/__init__.py": {
+      "base": "bfebb949e201c9de01075e98e3872fc2f761d460bd57308192c10a0795cf580c",
+      "candidate": "50722a7496e2719afa9c67c6d331e18d28543f78b8c930beba91ff80aece907c",
+      "changed_in_this_child": false,
+      "inherited_362931": "50722a7496e2719afa9c67c6d331e18d28543f78b8c930beba91ff80aece907c",
+      "new_to_the_product": false
+    },
+    "v12/python/src/baton_v12/job_manager/creation.py": {
+      "base": null,
+      "candidate": "1ac6376876a083ac671445cc3f96e8e20034e9b9fe5077684bbfe02c39ab1420",
+      "changed_in_this_child": true,
+      "inherited_362931": "9b7c67f6e760dc24ef75b9217888391c8b18e19824973c27cbb3d4a44035b381",
+      "new_to_the_product": true
+    },
+    "v12/python/src/baton_v12/job_manager/documents.py": {
+      "base": "2138a81d2f95420da615b80daf48d2a3ccd738cd935b99b861c643417161c468",
+      "candidate": "b7ee4bb9def4eb26e14ee3a38bbab55000b6e8f897c67a632ba2711640f27350",
+      "changed_in_this_child": false,
+      "inherited_362931": "b7ee4bb9def4eb26e14ee3a38bbab55000b6e8f897c67a632ba2711640f27350",
+      "new_to_the_product": false
+    },
+    "v12/python/src/baton_v12/job_manager/fresh_attempt.py": {
+      "base": "ee3b4dd9668f043276b89dee9e36e0fd3fbc5b786d94a55568bfbba749635dbf",
+      "candidate": "c9d267c9e66542515607d54ce552fae929a65c3e941728bfa10b213bbc5f720d",
+      "changed_in_this_child": false,
+      "inherited_362931": "c9d267c9e66542515607d54ce552fae929a65c3e941728bfa10b213bbc5f720d",
+      "new_to_the_product": false
+    },
+    "v12/python/src/baton_v12/job_manager/schema.py": {
+      "base": "bba74451ad7d579562c3f252ee9d3dc5ffd45ff976f9dd205dca8f87f97513d5",
+      "candidate": "38ba3ca2e79fe347a3e80c67304af6ccce59cc9100af59b9c0babf579f8747af",
+      "changed_in_this_child": true,
+      "inherited_362931": "055c71c343ca578ec0fa4d6e61e1fc9af46fed1cf942455a7f3838a9df0b05c3",
+      "new_to_the_product": false
+    },
+    "v12/python/src/baton_v12/job_manager/submission.py": {
+      "base": "4f4ad3193d1fdbaf37122a6b9398cd4ecb7e921e9cf1ade33a2942d8a2c8dce8",
+      "candidate": "d5c4697845d3bb09c0624683dfb4dfaff04ea060df72e6bff4091791731116cb",
+      "changed_in_this_child": false,
+      "inherited_362931": "d5c4697845d3bb09c0624683dfb4dfaff04ea060df72e6bff4091791731116cb",
+      "new_to_the_product": false
+    },
+    "v12/python/tests/job_manager/test_creation.py": {
+      "base": null,
+      "candidate": "d6eed8b001f7eb7ba7cf3d55eefb61e40b9c138b5cbfffa025cc98994b692b5d",
+      "changed_in_this_child": true,
+      "inherited_362931": "c5e04f23f1c497f948a9b034ac54d764e5076fa231f663eb6062d49a3baf62dd",
+      "new_to_the_product": true
+    },
+    "v12/python/tests/job_manager/test_execution_limits.py": {
+      "base": "4bece59fbc870ba23e49f398ff2acb25d6be38484ce7903cfc82ae5f30e9c2d7",
+      "candidate": "03eb0d74d027e29c1d2901649139c21e562596376bf7b5e1d6a1134de89f0e43",
+      "changed_in_this_child": false,
+      "inherited_362931": "03eb0d74d027e29c1d2901649139c21e562596376bf7b5e1d6a1134de89f0e43",
+      "new_to_the_product": false
+    },
+    "v12/python/tests/job_manager/test_scheduling.py": {
+      "base": "6041b43d0cfe457051a958ce31b44ae7e08a39ccff129dfda3072214bc21a3b0",
+      "candidate": "47f0043e3185394a9b07e00ff827bf1c2064dfeab7714f41328aeb5badf2d842",
+      "changed_in_this_child": false,
+      "inherited_362931": "47f0043e3185394a9b07e00ff827bf1c2064dfeab7714f41328aeb5badf2d842",
+      "new_to_the_product": false
+    },
+    "v12/python/tests/job_manager/test_store.py": {
+      "base": "ddceb61359cfa6f132ca7273a35363e6301c6e1c25852334bbab8458cc38b9c8",
+      "candidate": "73c27abf44dbce537da99067f7b8245c51c8ab22d21c209f2de0d777ef131ceb",
+      "changed_in_this_child": false,
+      "inherited_362931": "73c27abf44dbce537da99067f7b8245c51c8ab22d21c209f2de0d777ef131ceb",
+      "new_to_the_product": false
+    },
+    "v12/python/tests/tools/test_creation_ports.py": {
+      "base": null,
+      "candidate": "86797603c0d8f90efb8fc71dc529c33736ac2dd0e87724d4ffbcb2f92169afb1",
+      "changed_in_this_child": true,
+      "inherited_362931": "5f4b0a9fbe1b16697ce36704e65a371c715d3d078cd9af9edc5ca6a3bab60c25",
+      "new_to_the_product": true
+    },
+    "v12/python/tools/creation_ports.py": {
+      "base": null,
+      "candidate": "a9fc808a63f4d1e78b3ae5bc31937bc450380639cffc6b2057e9249af46a8933",
+      "changed_in_this_child": true,
+      "inherited_362931": "63f2b3889afaecfd002324d494c992ad1c835cc9087d85351d0f059fc107c512",
+      "new_to_the_product": true
+    },
+    "v12/python/tools/job_manager.py": {
+      "base": "1634c9a4cce57dd6041a1f769bba59f834a08e6a1d2565de2bbf6d2534d07cd1",
+      "candidate": "9f9008fd68a3f00ed41516c0127655cd24a5518df15294f22282c0f0dc66018f",
+      "changed_in_this_child": false,
+      "inherited_362931": "9f9008fd68a3f00ed41516c0127655cd24a5518df15294f22282c0f0dc66018f",
+      "new_to_the_product": false
+    },
+    "v12/python/tools/job_task.py": {
+      "base": null,
+      "candidate": "a9ce7948bd39e9e8b2981ad26f299f5e2ad388ad18c6a522337a1c7c27d6e919",
+      "changed_in_this_child": true,
+      "inherited_362931": null,
+      "new_to_the_product": true
+    },
+    "v12/python/tools/single_worker.py": {
+      "base": "70cc08066e73b7504c21eed395361c8153947177dddf5980857b6e199a339e4a",
+      "candidate": "af2607f594716fe91b43d444d9ef2a24f700f7ab6a5634684c4aac9816b80934",
+      "changed_in_this_child": true,
+      "inherited_362931": null,
+      "new_to_the_product": false
+    },
+    "v12/python/tools/stage_execution.py": {
+      "base": "07ac51193d24283e5257f35d9031ba89d228934ebcd24d9cda5ec1dc0df71984",
+      "candidate": "5b0d8d1766f77766e02a48c9e43e9797ff6699779b2dafacc682d4c168825d89",
+      "changed_in_this_child": true,
+      "inherited_362931": null,
+      "new_to_the_product": false
+    }
+  },
+  "STORE_SCHEMA": {
+    "columns_added_in_this_child": [
+      "task_document"
+    ],
+    "relation": "template_jobs",
+    "version": 9
+  }
+}

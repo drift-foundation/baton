@@ -1,0 +1,125 @@
+test_a_changed_acceptance_contract_is_a_different_creation (tests.job_manager.test_creation.ChangedIntent.test_a_changed_acceptance_contract_is_a_different_creation) ... ok
+test_a_changed_derivation_is_a_different_creation (tests.job_manager.test_creation.ChangedIntent.test_a_changed_derivation_is_a_different_creation)
+AND THE DEPLOYMENT'S OWN FACTS ARE PART OF THE INTENT. ... ok
+test_a_changed_override_is_a_different_creation (tests.job_manager.test_creation.ChangedIntent.test_a_changed_override_is_a_different_creation) ... ok
+test_a_changed_statement_is_a_different_creation (tests.job_manager.test_creation.ChangedIntent.test_a_changed_statement_is_a_different_creation) ... ok
+test_a_changed_work_scope_is_a_different_creation (tests.job_manager.test_creation.ChangedIntent.test_a_changed_work_scope_is_a_different_creation) ... ok
+test_submit_alone_would_have_replayed_every_one_of_those (tests.job_manager.test_creation.ChangedIntent.test_submit_alone_would_have_replayed_every_one_of_those)
+THE CONTROL CASE, so the refusals above are not a coincidence. ... ok
+test_a_creation_interrupted_after_the_binding_is_finished_by_a_rerun (tests.job_manager.test_creation.InterruptionAndRecovery.test_a_creation_interrupted_after_the_binding_is_finished_by_a_rerun)
+CUT B PUBLISHED, CUT C NOT. The intent row says so. ... ok
+test_a_reopened_store_replays_the_recorded_creation (tests.job_manager.test_creation.InterruptionAndRecovery.test_a_reopened_store_replays_the_recorded_creation)
+REPLAY SURVIVES A REOPEN, which is what makes it durable. ... ok
+test_a_reservation_held_by_another_incarnation_refuses_naming_it (tests.job_manager.test_creation.InterruptionAndRecovery.test_a_reservation_held_by_another_incarnation_refuses_naming_it)
+DECIDING AN UNSEEN MANAGER HAS STOPPED IS NOT THIS OPERATION'S. ... ok
+test_the_same_incarnation_continues_its_own_interrupted_work (tests.job_manager.test_creation.InterruptionAndRecovery.test_the_same_incarnation_continues_its_own_interrupted_work) ... ok
+test_a_chosen_job_identity_is_used_and_derived_otherwise (tests.job_manager.test_creation.ReplayAndIdentity.test_a_chosen_job_identity_is_used_and_derived_otherwise) ... ok
+test_a_chosen_submission_identity_is_used_and_derived_otherwise (tests.job_manager.test_creation.ReplayAndIdentity.test_a_chosen_submission_identity_is_used_and_derived_otherwise) ... ok
+test_a_concurrent_creation_of_one_identity_is_one_creation (tests.job_manager.test_creation.ReplayAndIdentity.test_a_concurrent_creation_of_one_identity_is_one_creation) ... ok
+test_a_replay_asks_no_owner_anything (tests.job_manager.test_creation.ReplayAndIdentity.test_a_replay_asks_no_owner_anything)
+A COMPLETED CREATION CANNOT START REFUSING LATER. ... ok
+test_a_submission_identity_another_document_recorded_refuses (tests.job_manager.test_creation.ReplayAndIdentity.test_a_submission_identity_another_document_recorded_refuses) ... ok
+test_an_identity_a_fresh_attempt_reserved_refuses (tests.job_manager.test_creation.ReplayAndIdentity.test_an_identity_a_fresh_attempt_reserved_refuses)
+THE TWO RESERVATION RELATIONS SEE EACH OTHER. ... ok
+test_an_identity_an_ordinary_submission_holds_refuses (tests.job_manager.test_creation.ReplayAndIdentity.test_an_identity_an_ordinary_submission_holds_refuses) ... ok
+test_the_same_request_replays_its_recorded_answer (tests.job_manager.test_creation.ReplayAndIdentity.test_the_same_request_replays_its_recorded_answer) ... ok
+test_two_creations_sharing_one_submission_identity_refuse (tests.job_manager.test_creation.ReplayAndIdentity.test_two_creations_sharing_one_submission_identity_refuse) ... ok
+test_an_absent_override_is_absent_rather_than_empty (tests.job_manager.test_creation.TheCommandRequestsTheOperation.test_an_absent_override_is_absent_rather_than_empty)
+WHICH IS WHAT KEEPS AN UNCONFIGURED JOB A `/1` DOCUMENT. ... ok
+test_an_explicit_template_and_identities_travel (tests.job_manager.test_creation.TheCommandRequestsTheOperation.test_an_explicit_template_and_identities_travel) ... ok
+test_repeating_an_operand_accumulates_a_list (tests.job_manager.test_creation.TheCommandRequestsTheOperation.test_repeating_an_operand_accumulates_a_list) ... ok
+test_the_operator_words_become_the_resolvers_own_request (tests.job_manager.test_creation.TheCommandRequestsTheOperation.test_the_operator_words_become_the_resolvers_own_request) ... ok
+test_the_verb_delegates_every_decision_to_the_manager (tests.job_manager.test_creation.TheCommandRequestsTheOperation.test_the_verb_delegates_every_decision_to_the_manager)
+IT HOLDS NO RULE, asserted from the source. ... ok
+test_the_verb_offers_no_operand_for_a_derived_fact (tests.job_manager.test_creation.TheCommandRequestsTheOperation.test_the_verb_offers_no_operand_for_a_derived_fact) ... usage: job_manager [-h] --store STORE --incarnation INCARNATION
+                   --authority-uuid AUTHORITY_UUID
+                   {submit,fresh-attempt,create,status,serve} ...
+job_manager: error: unrecognized arguments: --input-digest x
+usage: job_manager [-h] --store STORE --incarnation INCARNATION
+                   --authority-uuid AUTHORITY_UUID
+                   {submit,fresh-attempt,create,status,serve} ...
+job_manager: error: unrecognized arguments: --policy-digest x
+usage: job_manager [-h] --store STORE --incarnation INCARNATION
+                   --authority-uuid AUTHORITY_UUID
+                   {submit,fresh-attempt,create,status,serve} ...
+job_manager: error: unrecognized arguments: --profile x
+usage: job_manager [-h] --store STORE --incarnation INCARNATION
+                   --authority-uuid AUTHORITY_UUID
+                   {submit,fresh-attempt,create,status,serve} ...
+job_manager: error: unrecognized arguments: --profile-name x
+usage: job_manager [-h] --store STORE --incarnation INCARNATION
+                   --authority-uuid AUTHORITY_UUID
+                   {submit,fresh-attempt,create,status,serve} ...
+job_manager: error: unrecognized arguments: --profile-digest x
+usage: job_manager [-h] --store STORE --incarnation INCARNATION
+                   --authority-uuid AUTHORITY_UUID
+                   {submit,fresh-attempt,create,status,serve} ...
+job_manager: error: unrecognized arguments: --work-id x
+usage: job_manager [-h] --store STORE --incarnation INCARNATION
+                   --authority-uuid AUTHORITY_UUID
+                   {submit,fresh-attempt,create,status,serve} ...
+job_manager: error: unrecognized arguments: --document x
+usage: job_manager [-h] --store STORE --incarnation INCARNATION
+                   --authority-uuid AUTHORITY_UUID
+                   {submit,fresh-attempt,create,status,serve} ...
+job_manager: error: unrecognized arguments: --manifest x
+usage: job_manager [-h] --store STORE --incarnation INCARNATION
+                   --authority-uuid AUTHORITY_UUID
+                   {submit,fresh-attempt,create,status,serve} ...
+job_manager: error: unrecognized arguments: --packet x
+ok
+test_a_binding_already_configured_is_used_rather_than_added (tests.job_manager.test_creation.TheCreation.test_a_binding_already_configured_is_used_rather_than_added) ... ok
+test_a_work_that_does_not_exist_yet_is_created_replayably (tests.job_manager.test_creation.TheCreation.test_a_work_that_does_not_exist_yet_is_created_replayably) ... ok
+test_an_explicit_template_selection_travels_and_is_shown (tests.job_manager.test_creation.TheCreation.test_an_explicit_template_selection_travels_and_is_shown) ... ok
+test_both_stages_run_under_the_one_derived_work (tests.job_manager.test_creation.TheCreation.test_both_stages_run_under_the_one_derived_work) ... ok
+test_every_digest_comes_from_the_deployment_and_none_from_the_request (tests.job_manager.test_creation.TheCreation.test_every_digest_comes_from_the_deployment_and_none_from_the_request)
+THE WHOLE POINT OF THE OPERATION, asserted as an absence. ... ok
+test_the_answer_carries_the_full_resolution_and_its_digest (tests.job_manager.test_creation.TheCreation.test_the_answer_carries_the_full_resolution_and_its_digest) ... ok
+test_the_answer_names_the_job_its_work_and_its_stages (tests.job_manager.test_creation.TheCreation.test_the_answer_names_the_job_its_work_and_its_stages) ... ok
+test_the_binding_is_published_through_its_owner (tests.job_manager.test_creation.TheCreation.test_the_binding_is_published_through_its_owner) ... ok
+test_the_derivation_is_read_again_inside_the_guard (tests.job_manager.test_creation.TheCreation.test_the_derivation_is_read_again_inside_the_guard)
+A CONFIGURATION SOMEBODY REPUBLISHED IS NOT THIS ONE. ... ok
+test_the_instance_guard_is_held_for_the_whole_creation (tests.job_manager.test_creation.TheCreation.test_the_instance_guard_is_held_for_the_whole_creation) ... ok
+test_the_job_is_really_recorded_and_its_stages_gated (tests.job_manager.test_creation.TheCreation.test_the_job_is_really_recorded_and_its_stages_gated)
+THE STORE IS THE PROOF, not the answer document. ... ok
+test_the_reservation_is_durable_and_records_the_digest (tests.job_manager.test_creation.TheCreation.test_the_reservation_is_durable_and_records_the_digest) ... ok
+test_the_selector_is_asked_for_every_stage_with_its_own_profile (tests.job_manager.test_creation.TheCreation.test_the_selector_is_asked_for_every_stage_with_its_own_profile)
+THE OPERANDS ARE THE SUBMITTED ONES, per stage. ... ok
+test_the_statement_and_acceptance_survive_where_the_submission_cannot (tests.job_manager.test_creation.TheCreation.test_the_statement_and_acceptance_survive_where_the_submission_cannot) ... ok
+test_the_two_scopes_stay_separate_through_the_creation (tests.job_manager.test_creation.TheCreation.test_the_two_scopes_stay_separate_through_the_creation)
+R3 OF THE RESOLVER, PRESERVED BY ITS CONSUMER. ... ok
+test_the_work_is_reused_rather_than_created (tests.job_manager.test_creation.TheCreation.test_the_work_is_reused_rather_than_created) ... ok
+test_a_creation_under_a_moved_default_is_honest_about_it (tests.job_manager.test_creation.TheGenerationAgreement.test_a_creation_under_a_moved_default_is_honest_about_it)
+THE RESOLUTION IS COMPOSED AND CONSUMED INSIDE ONE OPERATION. ... ok
+test_an_override_reaches_the_store_through_the_creation (tests.job_manager.test_creation.TheGenerationAgreement.test_an_override_reaches_the_store_through_the_creation) ... ok
+test_the_consumption_contract_is_reached_rather_than_bypassed (tests.job_manager.test_creation.TheGenerationAgreement.test_the_consumption_contract_is_reached_rather_than_bypassed)
+A STALE RESOLUTION CANNOT BE SUBMITTED BY THIS OPERATION. ... ok
+test_the_created_job_reports_the_ceilings_the_store_gives_it (tests.job_manager.test_creation.TheGenerationAgreement.test_the_created_job_reports_the_ceilings_the_store_gives_it) ... ok
+test_a_created_job_can_be_retried_by_the_existing_operation (tests.job_manager.test_creation.TheRetryContractIsPreserved.test_a_created_job_can_be_retried_by_the_existing_operation)
+FRESH-ATTEMPT SEMANTICS ARE UNTOUCHED. ... ok
+test_the_legacy_hand_authored_submission_still_records (tests.job_manager.test_creation.TheRetryContractIsPreserved.test_the_legacy_hand_authored_submission_still_records) ... ok
+test_a_binding_owner_refusal_propagates_as_itself (tests.job_manager.test_creation.WhatItRefusesBeforeAnyEffect.test_a_binding_owner_refusal_propagates_as_itself)
+NOTHING IS CAUGHT AND TRANSLATED. ... ok
+test_a_closed_work_refuses_and_nothing_is_submitted (tests.job_manager.test_creation.WhatItRefusesBeforeAnyEffect.test_a_closed_work_refuses_and_nothing_is_submitted) ... ok
+test_a_deployment_binding_another_work_refuses (tests.job_manager.test_creation.WhatItRefusesBeforeAnyEffect.test_a_deployment_binding_another_work_refuses) ... ok
+test_a_deployment_that_can_serve_no_stage_refuses (tests.job_manager.test_creation.WhatItRefusesBeforeAnyEffect.test_a_deployment_that_can_serve_no_stage_refuses) ... ok
+test_a_derivation_answering_a_malformed_profile_refuses (tests.job_manager.test_creation.WhatItRefusesBeforeAnyEffect.test_a_derivation_answering_a_malformed_profile_refuses) ... ok
+test_a_derivation_missing_a_member_refuses (tests.job_manager.test_creation.WhatItRefusesBeforeAnyEffect.test_a_derivation_missing_a_member_refuses) ... ok
+test_a_derivation_missing_the_review_profile_refuses (tests.job_manager.test_creation.WhatItRefusesBeforeAnyEffect.test_a_derivation_missing_the_review_profile_refuses)
+AND IT REFUSES AT THE RESOLVER, naming the role. ... ok
+test_a_guard_this_process_cannot_take_refuses_before_reserving (tests.job_manager.test_creation.WhatItRefusesBeforeAnyEffect.test_a_guard_this_process_cannot_take_refuses_before_reserving) ... ok
+test_a_request_that_is_not_a_document_refuses (tests.job_manager.test_creation.WhatItRefusesBeforeAnyEffect.test_a_request_that_is_not_a_document_refuses) ... ok
+test_a_request_the_resolver_owns_refuses_before_any_effect (tests.job_manager.test_creation.WhatItRefusesBeforeAnyEffect.test_a_request_the_resolver_owns_refuses_before_any_effect)
+AND THE RESOLVER'S OWN MEMBERS REFUSE WITH NOTHING PUBLISHED. ... ok
+test_a_request_this_operation_owns_refuses_before_any_derivation (tests.job_manager.test_creation.WhatItRefusesBeforeAnyEffect.test_a_request_this_operation_owns_refuses_before_any_derivation)
+THE MEMBERS `_asked` OWNS COST THE DEPLOYMENT NOTHING. ... ok
+test_an_absent_owner_port_refuses_naming_it (tests.job_manager.test_creation.WhatItRefusesBeforeAnyEffect.test_an_absent_owner_port_refuses_naming_it) ... ok
+test_an_owner_answering_for_another_authority_refuses (tests.job_manager.test_creation.WhatItRefusesBeforeAnyEffect.test_an_owner_answering_for_another_authority_refuses) ... ok
+test_no_broad_except_stands_between_a_fault_and_its_caller (tests.job_manager.test_creation.WhatItRefusesBeforeAnyEffect.test_no_broad_except_stands_between_a_fault_and_its_caller)
+ASSERTED FROM THE SOURCE, not remembered. ... ok
+test_owners_answering_for_two_instances_refuse (tests.job_manager.test_creation.WhatItRefusesBeforeAnyEffect.test_owners_answering_for_two_instances_refuse) ... ok
+
+----------------------------------------------------------------------
+Ran 62 tests in 0.185s
+
+OK

@@ -296,8 +296,19 @@ def _owned(store, operations, *, prior, operands, document, exclusion,
     #    exists, so it is the safe half to publish first.
     authorized = _authorized(authorization, work_id, job_id,
                              reserved=job_id)
+    # W364834: AND THE TASK THIS FRESH JOB WILL BE DELIVERED travels with the
+    # servability question. The composed submission carries the prior Job's
+    # input digest verbatim, which for a template-created Job is its own
+    # task's Job-scoped identity -- so asking without the task compares every
+    # configured worker against the INSTALLED document and refuses the retry
+    # as unservable by the very pool that served the original. Read from the
+    # store rather than remembered: `creation.job_task_of` is the Job owner's
+    # own answer and it follows the retry lineage, so a retry of a retry is
+    # the same read.
+    from . import creation
     bound = _bound(binding, job_id=job_id, prior_job_id=prior_job_id,
-                   work_id=work_id, document=document, reserved=job_id)
+                   work_id=work_id, document=document, reserved=job_id,
+                   task=creation.job_task_of(store, prior_job_id))
 
     # -- CUT C: the submission, and the completion that closes the intent.
     #    A refusal HERE is a refusal with effects already published, so it is
@@ -640,8 +651,17 @@ def _authorized(authorization, work_id, job_id, *, reserved=None):
 
 
 def _bound(binding, *, job_id, prior_job_id, work_id, document,
-           reserved=None):
+           reserved=None, task=None):
     """The deployment binds the fresh Job, and a worker can serve every stage.
+
+    `task` IS THE TASK THIS FRESH JOB WILL BE DELIVERED, and W364834 is that
+    it has to travel. The composed submission carries the prior Job's input
+    digest verbatim, which for a template-created Job is its own task's
+    Job-scoped identity -- so a servability question asked without the task
+    compares every configured worker against the INSTALLED document and
+    refuses the retry as unservable by the pool that served the original.
+    `None` is every Job that has no own task, and the selector then compares
+    the installed document exactly as it did before.
 
     THE SECOND HALF IS THE ONE THAT MATTERS, AND IT IS ASKED WITH THE
     SUBMITTED OPERANDS. Review R3: the first cut passed only a Job id and a
@@ -676,7 +696,8 @@ def _bound(binding, *, job_id, prior_job_id, work_id, document,
             f"the Job and this operation will not quietly move it", reserved)
     serving = {}
     for stage in entry["stages"]:
-        workers = binding.serving(job_id, stage=dict(stage), job=dict(job))
+        workers = binding.serving(job_id, stage=dict(stage), job=dict(job),
+                                  task=task)
         if not workers:
             raise _refusing(
                 f"no configured worker can serve Job {name_value(job_id)}'s "
@@ -821,6 +842,25 @@ def _reserved(store, operands, prior, document):
                 f"in this store by an ordinary submission; a fresh attempt "
                 f"cannot take an identity that names another pipeline",
                 durable=True)
+        # W361912 review 2026-10-26T19-22-51Z R1: AND AN IDENTITY A TEMPLATE
+        # CREATION HAS RESERVED. The exclusion has to be symmetric or it is
+        # not an exclusion: a creation reserves `template_jobs` before it
+        # publishes a Work authorization and a deployment binding, and a
+        # retry that took that name would strand them exactly as the
+        # reviewer's probe stranded a creation's.
+        creating = connection.execute(
+            "SELECT job_id, submission_id FROM template_jobs WHERE "
+            "job_id = ? OR submission_id = ?",
+            (operands["job_id"], operands["submission_id"])).fetchone()
+        if creating is not None:
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"{name_value(creating[0])} is RESERVED by a template "
+                f"creation recorded under submission "
+                f"{name_value(creating[1])}; that creation is in progress or "
+                f"incomplete and owns the identity, so a fresh attempt "
+                f"taking the name would strand whatever it has already "
+                f"published")
         held = connection.execute(
             "SELECT request, state FROM fresh_attempts WHERE job_id = ?",
             (operands["job_id"],)).fetchone()

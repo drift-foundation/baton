@@ -90,3 +90,14 @@ No assertion weakening or new status-defect classification is implied. Author
 also reports undisposed WorkAuthorization Authority handles. Preserve these
 observations for the parent consumer; neither is established as a regression of
 this bounded retry change. No workaround was applied.
+
+## 2026-10-27 — owner closure and human Git checkpoint observed
+
+baton.prompt confirmed canonical W364834 closure with outcome satisfying after
+owner acceptance, then verified Slawomir's commit
+`18e771f034d22fed40ae4c597aa606f50c169daa` (`chore(work): checkpoint accepted
+fresh-attempt task continuity`). The commit retains this dossier, its candidates,
+reviews and evidence, including child W365075. This fulfills the pending evidence
+checkpoint and supersedes the owner-disposition/checkpoint-pending statements
+above. It does not import the candidate into canonical product paths or establish
+W361912's remaining packaged-command, full-workflow or OBS-0 acceptance.

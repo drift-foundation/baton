@@ -527,6 +527,11 @@ class TheMigrationLeavesOldJobsMeaningExactlyWhatTheyMeant(JobManagerCase):
                         # fails on an object that is already there.
                         # W358969: and the 7 -> 8 step's, for the same
                         # reason once more.
+                        # W361912: and the 8 -> 9 step's relation and its
+                        # two indexes, on the same rule.
+                        "CREATE TABLE template_jobs",
+                        "CREATE UNIQUE INDEX template_jobs_one_submission",
+                        "CREATE INDEX template_jobs_by_state",
                         "CREATE TABLE fresh_attempts",
                         # AND ITS INDEX: a relation and its index are one
                         # step's output, and installing the second without

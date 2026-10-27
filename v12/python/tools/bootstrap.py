@@ -532,6 +532,16 @@ def layout(root):
             "integration_store": str(root / "db" / "integration.sqlite3"),
             "deployment_state": str(root / "deployment-state"),
             "record": str(root / "bootstrap.json"),
+            # W361912: WHAT THIS INSTALL CONSUMED, kept for the additive
+            # bindings that prepare from it. `fresh_attempt_ports` names this
+            # exact file; naming it here too means one layout answers where
+            # every document of an instance lives.
+            "install_inputs": str(root / "install-inputs.json"),
+            # AND THE NAME A PARTIAL WRITE WOULD OCCUPY. `custody` refuses a
+            # link or a leftover here before anything is created, which is
+            # what closes the link-traversal the reviewer's probe found.
+            "install_inputs_temporary":
+                str(root / "install-inputs.json.partial"),
             "configuration": str(root / "deployment.json")}
 
 
@@ -1853,7 +1863,8 @@ def custody(places, destination):
     resolved_destination = os.path.realpath(destination)
     for name in ("distro", "instance", "lock", "stores", "repository", "logs",
                  "state", "deployment_state", "deployment", "record",
-                 "identity", "justfile"):
+                 "identity", "justfile", "install_inputs",
+                 "install_inputs_temporary"):
         owned = places[name]
         if not os.path.lexists(owned):
             continue
@@ -1895,6 +1906,25 @@ def custody(places, destination):
         raise BootstrapRefusal(
             "there is already an instance selector at " + places["instance"]
             + ". Nothing here replaces one; prepare a new destination.")
+    # W361912 review 2026-10-26T23-51-22Z: AND THE INSTALLER INPUT DOCUMENT,
+    # which the first version of that write did not ask about at all.
+    #
+    # The reviewer's probe proved all three consequences: a regular
+    # `install-inputs.json` carrying foreign bytes was overwritten and the
+    # install still published a selector; a LINK at the temporary name was
+    # followed by the write and then promoted onto the real name by the
+    # rename; and a failure after the write left the document behind. The
+    # first two are refused here, before anything is created, for the same
+    # reason the justfile and the selector are -- and the third is the unwind
+    # in `install`.
+    for name, what in (("install_inputs", "installer input document"),
+                       ("install_inputs_temporary",
+                        "partially written installer input document")):
+        if os.path.lexists(places[name]):
+            raise BootstrapRefusal(
+                "there is already " + ("an " if what[0] in "aeiou" else "a ")
+                + what + " at " + places[name]
+                + ". Nothing here replaces one; prepare a new destination.")
 
 
 @contextlib.contextmanager
@@ -2123,6 +2153,7 @@ def install(destination, distro, document, *, stream=sys.stdout, now=None,
         copied = os.lstat(places["distro"])
         runtime_identity = (copied.st_dev, copied.st_ino)
         justfile_identity = None
+        install_inputs_identity = None
         try:
             runtime = instance.manifest(places["distro"])
             if runtime["digest"] != runtime_before["digest"]:
@@ -2158,6 +2189,65 @@ def install(destination, distro, document, *, stream=sys.stdout, now=None,
             justfile_identity = _identity_of_handle(handle)
             with os.fdopen(handle, "w") as writing:
                 writing.write(deployed_justfile(places))
+            # W361912: THE INPUT DOCUMENT THIS INSTALL CONSUMED, kept the way
+            # the justfile is kept.
+            #
+            # `fresh_attempt_ports._install` reads this file and its docstring
+            # already said `bootstrap.install` writes it -- and nothing did,
+            # so on a real install every additive binding (an ordinary
+            # creation's and a fresh attempt's) refused with "there is nothing
+            # here to add to". Found by driving the real `create` command
+            # against a real install.
+            #
+            # IT IS THE DOCUMENT `prepare` CONSUMED, not the one this function
+            # was handed: `main` adds the resolved `authority_uuid` for the
+            # selector and that member is SUPERSEDED as an input, so keeping
+            # the handed document made the first binding refuse "nothing reads
+            # authority_uuid". A kept document that cannot be prepared is no
+            # more use than an absent one.
+            #
+            # EXCLUSIVE, NO-FOLLOW AND IDENTITY-PINNED, and it uses no
+            # temporary at all. Review 2026-10-26T23-51-22Z: the first version
+            # wrote through `_publish`, whose `.tmp` path a LINK could own --
+            # the write followed it and the rename then promoted the link onto
+            # the real name. There is nothing to rename here: either this
+            # attempt creates the name or it does not exist, and `custody`
+            # has already refused a foreign one before any effect.
+            try:
+                opened = os.open(places["install_inputs"],
+                                 os.O_WRONLY | os.O_CREAT | os.O_EXCL
+                                 | os.O_NOFOLLOW, 0o644)
+            except FileExistsError:
+                raise BootstrapRefusal(
+                    "there is already an installer input document at "
+                    + places["install_inputs"] + ", which this install would "
+                    "keep its own input at. It was left exactly as it is; a "
+                    "destination is prepared once.")
+            install_inputs_identity = _identity_of_handle(opened)
+            with os.fdopen(opened, "w") as writing:
+                writing.write(json.dumps(
+                    {name: value for name, value in document.items()
+                     if name not in SUPERSEDED},
+                    indent=2, sort_keys=True) + "\n")
+            # W361912: THE INPUT DOCUMENT IS KEPT, beside the configuration.
+            #
+            # `fresh_attempt_ports._install` reads this file and its docstring
+            # already said `bootstrap.install` writes it -- and nothing did.
+            # So on a really installed instance every additive binding, which
+            # is how an ordinary creation and a fresh attempt both bind their
+            # Job, refused with "install-inputs.json does not exist; an
+            # additive binding is prepared from this instance's own install
+            # document and there is nothing here to add to". Found by driving
+            # the real `create` command against a real install; no fixture
+            # could see it, because the two suites that exercise the additive
+            # path write this file themselves.
+            #
+            # IT IS THE DOCUMENT THIS INSTALL CONSUMED, unchanged. `prepare`
+            # derives the configuration from it; an additive binding appends
+            # one Job entry to it and prepares again, so what has to be here
+            # is the input and not the derived configuration -- which is the
+            # distinction `_publish_install` states in as many words.
+            #
             try:
                 instance.create(places["instance"], selector)
             except instance.InstanceRefusal as refusal:
@@ -2175,7 +2265,10 @@ def install(destination, distro, document, *, stream=sys.stdout, now=None,
             # for that leftover, which this attempt had created. Nothing
             # foreign is touched either way: the selector, if one appeared, is
             # somebody else's and is left exactly as it is.
-            said = [_remove_if_still_ours(places["justfile"],
+            said = [_remove_if_still_ours(places["install_inputs"],
+                                          install_inputs_identity,
+                                          "installer input document"),
+                    _remove_if_still_ours(places["justfile"],
                                           justfile_identity, "justfile"),
                     _remove_if_still_ours(places["distro"],
                                           runtime_identity, "runtime")]
@@ -2184,6 +2277,7 @@ def install(destination, distro, document, *, stream=sys.stdout, now=None,
             raise
 
     print("instance      " + places["instance"], file=stream)
+    print("install       " + places["install_inputs"], file=stream)
     print("runtime       %d files, digest %s"
           % (runtime["files"], runtime["digest"][:16] + "..."), file=stream)
     print("stores        " + places["stores"], file=stream)

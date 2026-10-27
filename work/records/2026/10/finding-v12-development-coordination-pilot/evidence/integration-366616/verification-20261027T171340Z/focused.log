@@ -1,0 +1,188 @@
+test_everything_the_correction_needed_happened_inside_the_clock (tests.tools.test_connected_startup.TheCorrectionStartIsMeasured.test_everything_the_correction_needed_happened_inside_the_clock)
+WHAT THE INTERVAL CONTAINED, read from the stores afterwards. ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+target                already established; left alone
+configuration /var/tmp/baton-integration-366616-tfjlyw48/v12-w71917-afyt064w/bootstrap-deployment/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "job-startup-contents": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/baton-integration-366616-tfjlyw48/v12-w71917-afyt064w/bootstrap-deployment/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/baton-integration-366616-tfjlyw48/v12-w71917-afyt064w/bootstrap-deployment/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/baton-integration-366616-tfjlyw48/v12-w71917-afyt064w/bootstrap-deployment/deployment.json"
+ok
+test_the_correction_start_is_within_the_obs0_bound (tests.tools.test_connected_startup.TheCorrectionStartIsMeasured.test_the_correction_start_is_within_the_obs0_bound) ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+target                already established; left alone
+configuration /var/tmp/baton-integration-366616-tfjlyw48/v12-w71917-ytm0n5zv/bootstrap-deployment/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "job-startup-correction": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/baton-integration-366616-tfjlyw48/v12-w71917-ytm0n5zv/bootstrap-deployment/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/baton-integration-366616-tfjlyw48/v12-w71917-ytm0n5zv/bootstrap-deployment/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/baton-integration-366616-tfjlyw48/v12-w71917-ytm0n5zv/bootstrap-deployment/deployment.json"
+ok
+test_the_verdict_was_the_reviewers_own_on_the_connected_path (tests.tools.test_connected_startup.TheCorrectionStartIsMeasured.test_the_verdict_was_the_reviewers_own_on_the_connected_path)
+The same independence the pool suite proves, over a real install. ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+target                already established; left alone
+configuration /var/tmp/baton-integration-366616-tfjlyw48/v12-w71917-znk6se5s/bootstrap-deployment/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "job-startup-independent": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/baton-integration-366616-tfjlyw48/v12-w71917-znk6se5s/bootstrap-deployment/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/baton-integration-366616-tfjlyw48/v12-w71917-znk6se5s/bootstrap-deployment/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/baton-integration-366616-tfjlyw48/v12-w71917-znk6se5s/bootstrap-deployment/deployment.json"
+ok
+test_the_admission_inside_the_interval_was_the_real_owners (tests.tools.test_connected_startup.TheInitialRoutineStartIsMeasured.test_the_admission_inside_the_interval_was_the_real_owners)
+R1'S CORRECTION, ASSERTED RATHER THAN DESCRIBED. ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+target                already established; left alone
+configuration /var/tmp/baton-integration-366616-tfjlyw48/v12-w71917-sf3rho_0/bootstrap-deployment/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "job-startup-owners": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/baton-integration-366616-tfjlyw48/v12-w71917-sf3rho_0/bootstrap-deployment/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/baton-integration-366616-tfjlyw48/v12-w71917-sf3rho_0/bootstrap-deployment/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/baton-integration-366616-tfjlyw48/v12-w71917-sf3rho_0/bootstrap-deployment/deployment.json"
+ok
+test_the_initial_start_is_within_the_obs0_bound (tests.tools.test_connected_startup.TheInitialRoutineStartIsMeasured.test_the_initial_start_is_within_the_obs0_bound) ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+target                already established; left alone
+configuration /var/tmp/baton-integration-366616-tfjlyw48/v12-w71917-fb80rd_g/bootstrap-deployment/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "job-startup-a": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/baton-integration-366616-tfjlyw48/v12-w71917-fb80rd_g/bootstrap-deployment/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/baton-integration-366616-tfjlyw48/v12-w71917-fb80rd_g/bootstrap-deployment/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/baton-integration-366616-tfjlyw48/v12-w71917-fb80rd_g/bootstrap-deployment/deployment.json"
+/home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py:84: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7038c04b24d0>
+  return any(0xD800 <= ord(character) <= 0xDFFF for character in text)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_the_measured_path_required_no_authored_procedure (tests.tools.test_connected_startup.TheInitialRoutineStartIsMeasured.test_the_measured_path_required_no_authored_procedure)
+OBS-0's OTHER HALF: no script, no test, no packet. ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+target                already established; left alone
+configuration /var/tmp/baton-integration-366616-tfjlyw48/v12-w71917-jbz0lg3z/bootstrap-deployment/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "job-startup-shape": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/baton-integration-366616-tfjlyw48/v12-w71917-jbz0lg3z/bootstrap-deployment/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/baton-integration-366616-tfjlyw48/v12-w71917-jbz0lg3z/bootstrap-deployment/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/baton-integration-366616-tfjlyw48/v12-w71917-jbz0lg3z/bootstrap-deployment/deployment.json"
+/home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py:84: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7038c0258b80>
+  return any(0xD800 <= ord(character) <= 0xDFFF for character in text)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_both_intervals_are_within_the_bound_and_reported (tests.tools.test_connected_startup.TheIntervalsAreReportedWithTheirEndpoints.test_both_intervals_are_within_the_bound_and_reported) ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+target                already established; left alone
+configuration /var/tmp/baton-integration-366616-tfjlyw48/v12-w71917-g86udpww/bootstrap-deployment/deployment.json
+capacity      {"job_affinity": {"job-a": "impl-a", "job-startup-report": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/baton-integration-366616-tfjlyw48/v12-w71917-g86udpww/bootstrap-deployment/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/baton-integration-366616-tfjlyw48/v12-w71917-g86udpww/bootstrap-deployment/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/baton-integration-366616-tfjlyw48/v12-w71917-g86udpww/bootstrap-deployment/deployment.json"
+/home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py:84: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7038c0259120>
+  return any(0xD800 <= ord(character) <= 0xDFFF for character in text)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_a_technical_verdict_is_not_an_owner_decision (tests.tools.test_joined_workflow.TheCreatedJobIsReviewedAndCorrected.test_a_technical_verdict_is_not_an_owner_decision) ... /home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py:103: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7038c03a2e30>
+  def _canonical_text(value, _depth):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py:103: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7038c03dbf10>
+  def _canonical_text(value, _depth):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py:103: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7038c04b1030>
+  def _canonical_text(value, _depth):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py:103: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7038c04b2110>
+  def _canonical_text(value, _depth):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_round_ones_evidence_survives_the_correction (tests.tools.test_joined_workflow.TheCreatedJobIsReviewedAndCorrected.test_round_ones_evidence_survives_the_correction)
+WHAT THE CORRECTION DID NOT DO. ... ok
+test_the_correction_round_is_opened_by_the_loop_and_runs (tests.tools.test_joined_workflow.TheCreatedJobIsReviewedAndCorrected.test_the_correction_round_is_opened_by_the_loop_and_runs)
+THE ROUND THE VERDICT CALLS FOR, performed by the product. ... ok
+test_the_correction_round_is_served_the_requested_task (tests.tools.test_joined_workflow.TheCreatedJobIsReviewedAndCorrected.test_the_correction_round_is_served_the_requested_task)
+THE WHOLE POINT OF THE JOINED PROOF. ... ok
+test_the_review_was_independent_of_the_round_it_judged (tests.tools.test_joined_workflow.TheCreatedJobIsReviewedAndCorrected.test_the_review_was_independent_of_the_round_it_judged)
+INDEPENDENCE, read from the two assignments rather than asserted. ... ok
+test_the_reviewers_verdict_is_read_from_its_own_frozen_output (tests.tools.test_joined_workflow.TheCreatedJobIsReviewedAndCorrected.test_the_reviewers_verdict_is_read_from_its_own_frozen_output)
+NOBODY IN THIS DEPLOYMENT DECIDED IT. ... ok
+test_a_held_result_froze_no_checkpoint_and_was_reviewed_by_nobody (tests.tools.test_joined_workflow.TheHeldResultIsAttributedTruthfully.test_a_held_result_froze_no_checkpoint_and_was_reviewed_by_nobody)
+THE FAILURE MODE THIS CASE EXISTS FOR. ... ok
+test_the_held_round_is_exceptional_and_names_its_worker (tests.tools.test_joined_workflow.TheHeldResultIsAttributedTruthfully.test_the_held_round_is_exceptional_and_names_its_worker) ... ok
+test_the_held_rounds_own_input_is_still_the_requested_task (tests.tools.test_joined_workflow.TheHeldResultIsAttributedTruthfully.test_the_held_rounds_own_input_is_still_the_requested_task)
+EVIDENCE PRESERVED means the task it was given, too. ... ok
+test_a_rejected_verdict_is_recorded_and_opens_no_correction (tests.tools.test_joined_workflow.TheRejectedReviewStopsWithoutAcceptingAnything.test_a_rejected_verdict_is_recorded_and_opens_no_correction) ... ok
+test_a_rejection_accepts_and_integrates_nothing (tests.tools.test_joined_workflow.TheRejectedReviewStopsWithoutAcceptingAnything.test_a_rejection_accepts_and_integrates_nothing) ... ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 35.067s
+
+OK

@@ -1,0 +1,311 @@
+........................usage: job_manager [-h] --store STORE --incarnation INCARNATION
+                   --authority-uuid AUTHORITY_UUID
+                   {submit,fresh-attempt,create,status,serve} ...
+job_manager: error: unrecognized arguments: --input-digest x
+usage: job_manager [-h] --store STORE --incarnation INCARNATION
+                   --authority-uuid AUTHORITY_UUID
+                   {submit,fresh-attempt,create,status,serve} ...
+job_manager: error: unrecognized arguments: --policy-digest x
+usage: job_manager [-h] --store STORE --incarnation INCARNATION
+                   --authority-uuid AUTHORITY_UUID
+                   {submit,fresh-attempt,create,status,serve} ...
+job_manager: error: unrecognized arguments: --profile x
+usage: job_manager [-h] --store STORE --incarnation INCARNATION
+                   --authority-uuid AUTHORITY_UUID
+                   {submit,fresh-attempt,create,status,serve} ...
+job_manager: error: unrecognized arguments: --profile-name x
+usage: job_manager [-h] --store STORE --incarnation INCARNATION
+                   --authority-uuid AUTHORITY_UUID
+                   {submit,fresh-attempt,create,status,serve} ...
+job_manager: error: unrecognized arguments: --profile-digest x
+usage: job_manager [-h] --store STORE --incarnation INCARNATION
+                   --authority-uuid AUTHORITY_UUID
+                   {submit,fresh-attempt,create,status,serve} ...
+job_manager: error: unrecognized arguments: --work-id x
+usage: job_manager [-h] --store STORE --incarnation INCARNATION
+                   --authority-uuid AUTHORITY_UUID
+                   {submit,fresh-attempt,create,status,serve} ...
+job_manager: error: unrecognized arguments: --document x
+usage: job_manager [-h] --store STORE --incarnation INCARNATION
+                   --authority-uuid AUTHORITY_UUID
+                   {submit,fresh-attempt,create,status,serve} ...
+job_manager: error: unrecognized arguments: --manifest x
+usage: job_manager [-h] --store STORE --incarnation INCARNATION
+                   --authority-uuid AUTHORITY_UUID
+                   {submit,fresh-attempt,create,status,serve} ...
+job_manager: error: unrecognized arguments: --packet x
+......................................FFFFFFFFFFFFFF
+======================================================================
+FAIL: test_a_missing_lane_refuses_naming_it (tests.tools.test_creation_ports.TheDerivationsOwnRefusals.test_a_missing_lane_refuses_naming_it)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w361912-review-362892b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/w361912-review-362892b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/w361912-review-362892b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/w361912-review-362892b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/w361912-review-362892b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_lanes_disagreeing_about_the_policy_refuse (tests.tools.test_creation_ports.TheDerivationsOwnRefusals.test_lanes_disagreeing_about_the_policy_refuse)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w361912-review-362892b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/w361912-review-362892b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/w361912-review-362892b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/w361912-review-362892b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/w361912-review-362892b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_only_the_requested_lanes_have_to_agree (tests.tools.test_creation_ports.TheDerivationsOwnRefusals.test_only_the_requested_lanes_have_to_agree)
+AN INTEGRATION WORKER ON ANOTHER PROFILE IS NOT A DISAGREEMENT.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w361912-review-362892b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/w361912-review-362892b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/w361912-review-362892b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/w361912-review-362892b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/w361912-review-362892b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_the_lanes_a_port_derives_are_an_operand (tests.tools.test_creation_ports.TheDerivationsOwnRefusals.test_the_lanes_a_port_derives_are_an_operand)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w361912-review-362892b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/w361912-review-362892b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/w361912-review-362892b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/w361912-review-362892b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/w361912-review-362892b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_two_workers_of_one_role_with_two_profiles_refuse (tests.tools.test_creation_ports.TheDerivationsOwnRefusals.test_two_workers_of_one_role_with_two_profiles_refuse)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w361912-review-362892b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/w361912-review-362892b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/w361912-review-362892b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/w361912-review-362892b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/w361912-review-362892b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_a_wrong_derived_profile_makes_that_stage_unservable (tests.tools.test_creation_ports.TheDerivedJobIsServable.test_a_wrong_derived_profile_makes_that_stage_unservable)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w361912-review-362892b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/w361912-review-362892b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/w361912-review-362892b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/w361912-review-362892b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/w361912-review-362892b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_every_resolved_stage_is_servable_by_a_configured_worker (tests.tools.test_creation_ports.TheDerivedJobIsServable.test_every_resolved_stage_is_servable_by_a_configured_worker)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w361912-review-362892b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/w361912-review-362892b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/w361912-review-362892b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/w361912-review-362892b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/w361912-review-362892b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_one_wrong_derived_digest_makes_every_stage_unservable (tests.tools.test_creation_ports.TheDerivedJobIsServable.test_one_wrong_derived_digest_makes_every_stage_unservable)
+THE CONTROL CASE, so the pass above is not a coincidence.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w361912-review-362892b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/w361912-review-362892b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/w361912-review-362892b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/w361912-review-362892b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/w361912-review-362892b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_a_malformed_deployment_document_refuses_through_its_owner (tests.tools.test_creation_ports.TheFourDerivedFacts.test_a_malformed_deployment_document_refuses_through_its_owner)
+THE OWNER'S REFUSAL, not a second validator here.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w361912-review-362892b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/w361912-review-362892b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/w361912-review-362892b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/w361912-review-362892b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/w361912-review-362892b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_each_one_is_the_configured_workers_own (tests.tools.test_creation_ports.TheFourDerivedFacts.test_each_one_is_the_configured_workers_own)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w361912-review-362892b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/w361912-review-362892b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/w361912-review-362892b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/w361912-review-362892b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/w361912-review-362892b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_the_integration_role_is_not_derived_for_a_two_stage_template (tests.tools.test_creation_ports.TheFourDerivedFacts.test_the_integration_role_is_not_derived_for_a_two_stage_template)
+ONLY THE LANES THIS CREATION NEEDS.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w361912-review-362892b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/w361912-review-362892b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/w361912-review-362892b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/w361912-review-362892b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/w361912-review-362892b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_a_deployment_missing_a_role_is_refused (tests.tools.test_creation_ports.TheOwnerRefusesIncoherenceBeforeThePortSeesIt.test_a_deployment_missing_a_role_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w361912-review-362892b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/w361912-review-362892b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/w361912-review-362892b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/w361912-review-362892b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/w361912-review-362892b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_a_worker_whose_manifest_was_edited_is_refused (tests.tools.test_creation_ports.TheOwnerRefusesIncoherenceBeforeThePortSeesIt.test_a_worker_whose_manifest_was_edited_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w361912-review-362892b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/w361912-review-362892b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/w361912-review-362892b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/w361912-review-362892b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/w361912-review-362892b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_a_worker_whose_policy_disagrees_with_its_manifest_is_refused (tests.tools.test_creation_ports.TheOwnerRefusesIncoherenceBeforeThePortSeesIt.test_a_worker_whose_policy_disagrees_with_its_manifest_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w361912-review-362892b/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/w361912-review-362892b/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/w361912-review-362892b/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/tmp/w361912-review-362892b/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/w361912-review-362892b/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+----------------------------------------------------------------------
+Ran 76 tests in 0.182s
+
+FAILED (failures=14)

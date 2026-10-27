@@ -1,0 +1,97 @@
+How the runs in this directory were produced — claim363492, W363066
+===================================================================
+
+The canonical tree is not edited. Every run is on a disposable scratch root
+built from the canonical bytes at base 19f02ce1; the candidate root has
+candidate-363492 overlaid and the base root has no overlay. The retained
+/tmp/w361912-base from earlier claims was NOT used: it had drifted from
+canonical (34 fewer tests/manager cases discovered, two modules failing to
+load), so a fresh base root was built for this claim.
+
+  candidate root  /tmp/w363066-492
+  base root       /tmp/w363066-base492
+
+Each root is <root>/v12/python + <root>/v12/worker + <root>/v12/DESIGN.md and
+the v12 JSON files + <root>/AGENTS.md + the published result-manifest vectors
+subtree under <root>/work/records/2026/08/... that two suites read by
+`parents[4]`. Keeping the `v12` directory level matters: without it the
+repository root resolves one directory too high and ~354 suites fail on a
+missing vectors.json.
+
+Commands, from <root>/v12/python with PYTHONPATH=src:. —
+
+  python3 -m unittest tests.tools.test_job_task_delivery -v
+  python3 -m unittest discover -s tests/job_manager -t . -p 'test_*.py'
+  python3 -m unittest tests.tools.test_single_worker \
+      tests.tools.test_stage_execution tests.tools.test_bootstrap \
+      tests.tools.test_creation_ports tests.tools.test_job_task_delivery
+  python3 -m unittest discover -s tests/manager -t . -p 'test_*.py'
+
+The base root's five-suite command omits test_creation_ports and
+test_job_task_delivery, which do not exist there: both are new to the product
+in this child. That is why the two totals differ (916 against 855) while the
+FAILING NAMES are identical.
+
+What each file is
+-----------------
+
+FOCUSED-DELIVERY.txt    tests.tools.test_job_task_delivery, 33 cases, OK.
+                        The seven new ones are
+                        TheRuntimePathDeliversAndRecoversOneIdentity, which
+                        drives single_worker.operations_from — the production
+                        bootstrap composition — over a real Job store, a real
+                        control store, the suite's deterministic Engine and
+                        the serving loop's own reconcile/status, and then asks
+                        the recovery entrypoints. Read this one first.
+JOB-MANAGER-SUITE.txt   whole tests/job_manager, 1375 OK — the same count as
+                        the inherited overlay.
+TOOLS-CANDIDATE.txt     five tools suites on the candidate: 916 cases,
+                        1 failure and 17 errors.
+TOOLS-BASE.txt          three tools suites on the base root: 855 cases,
+                        1 failure and 17 errors.
+FAILING-NAMES-CANDIDATE.txt
+FAILING-NAMES-BASE.txt  those 18 names on each root. `diff` reports no
+                        difference: all 18 are pre-existing, 17 in
+                        test_bootstrap (which installs instances and serves
+                        them) and one in test_single_worker.
+
+What is proved here, and what is not
+------------------------------------
+
+PROVED, through the runtime's own entrypoints rather than helpers:
+
+  * a started attempt over a delivered task is RECORDED against the delivered
+    input identity, and the bytes at /input/task.json are that task's bytes;
+  * the stage-less adapter — the composition every identification, adoption,
+    cleanup and recovery caller builds — carries the DELIVERED manifest digest
+    and the delivered outputs, and not the installed ones;
+  * `refresh_runtime`, which is handed {"attempt_id": ...} and no job_id,
+    identifies the running attempt and reaches the engine;
+  * a root replaced by a COMPLETE, internally valid installed pair is refused
+    integrity/digest, with no second launch — self-consistency is not
+    provenance, because the proof is attempts.authorize_input_root and not a
+    read of the root alone;
+  * a root missing a protocol document is refused rather than answered from
+    the installed configuration;
+  * an attempt recorded against the installed input still composes its adapter
+    with the root deleted, so the pre-existing path acquires no new refusal;
+  * a stage-shaped operand with no job_id refuses, naming both digests, so the
+    silent-installed-resolution route is closed too.
+
+NOT PROVED, and named in PROGRESS.md: two Jobs through one serving loop (one
+Job here, because this deployment's submission carries one); a review-role
+serving loop (this deployment's launch_role is implementation, and a review
+attempt mounts an upstream frozen checkpoint); and restart/adoption through
+the suite's crash-and-restart machinery.
+
+The ONE substitution in the engine-driven cases is the per-Job task reader on
+the composed worker: a Job row carrying a task_document is written by
+creation.create_template_job, which needs an installed deployment and a Work
+binding this suite has neither of. TheReaderOverARealStore drives
+job_task_reader against a real store.
+
+No provider, no container engine, no installed instance, no deployment. The
+engine is tests.tools.test_single_worker.Engine, one observable process
+boundary without a daemon. The stores are disposable SQLite files under
+temporary directories. No Git operation of any kind, in the repository or in
+the scratch roots.

@@ -1,0 +1,152 @@
+How the runs in this directory were produced — claim363909, W363066
+===================================================================
+
+The canonical tree is not edited. Every run is on a disposable scratch root
+built from canonical bytes at base 19f02ce1 with candidate-363909 overlaid.
+
+  candidate root  /tmp/w363066-909
+  base root       /tmp/w363066-base492   (built fresh in claim363492 and
+                                          re-verified byte-identical to
+                                          canonical src/ and tools/ again
+                                          before its failing-name list was
+                                          reused here)
+
+Each root is <root>/v12/python + <root>/v12/worker + <root>/v12/DESIGN.md and
+the v12 JSON files + <root>/AGENTS.md + the published result-manifest vectors
+subtree under <root>/work/records/2026/08/... that two suites read by
+`parents[4]`. Keeping the `v12` directory level matters: without it the
+repository root resolves one directory too high and ~354 suites fail on a
+missing vectors.json.
+
+Commands, from <root>/v12/python with PYTHONPATH=src:. —
+
+  python3 -m unittest tests.tools.test_job_task_delivery -v
+  python3 -m unittest discover -s tests/job_manager -t . -p 'test_*.py'
+  python3 -m unittest tests.tools.test_single_worker \
+      tests.tools.test_stage_execution tests.tools.test_bootstrap \
+      tests.tools.test_creation_ports tests.tools.test_job_task_delivery
+
+What each file is
+-----------------
+
+FOCUSED-DELIVERY.txt    tests.tools.test_job_task_delivery, 54 cases, OK.
+                        New in this claim: five in
+                        TheReviewRoleRuntimeIsDeliveredTheSameTask and three
+                        in TwoRequestedJobsThroughOnePool, both over the
+                        non-version-controlled pool route.
+JOB-MANAGER-SUITE.txt   whole tests/job_manager, 1375 OK — unchanged count.
+TOOLS-CANDIDATE.txt     five tools suites, 937 cases, 1 failure and 17 errors.
+FAILING-NAMES-CANDIDATE.txt
+FAILING-NAMES-BASE.txt  those 18 names on the candidate and the base root's
+                        own 18. `diff` reports no difference: all 18 are
+                        pre-existing, 17 in test_bootstrap (which installs
+                        instances and serves them) and one in
+                        test_single_worker.
+
+THE NON-VERSION-CONTROLLED ROUTE, AND HOW IT IS PROVED
+------------------------------------------------------
+
+The two remaining scenarios are pool behaviour, and the pool's own serving
+loop materializes its development line through the configured `git` checkpoint
+profile. Measured, not assumed: with the process runners replaced by ones that
+refuse any version-control invocation, the first preparation tick of
+`ServingCase.serving()` raises
+
+  this case spawned version control: git clone --no-hardlinks --no-local ...
+
+which is the line materialization. This implementer may not perform
+version-control mutations, so that loop is not driven.
+
+What the product supports instead is the PROFILE SEAM. `create_line`,
+`prepare_implementation`, `freeze_checkpoint` and `prepare_review` take the
+checkpoint profile as an operand, and
+`tests.job_manager.test_review_driver.Profile` is the deployment-configured
+profile "with no VCS behind it" — its own docstring. Over that seam the line,
+the writer grant, the frozen checkpoint, the review attachment and both mounts
+are the accepted operations against a real control store, composed by the real
+`stage_execution.StageComposition` the serving loop composes.
+
+EVERY CASE IN `PoolDeliveryCase` PROVES ITS OWN ABSENCE OF VERSION CONTROL:
+`setUp` installs the refusing runners for the life of the case. The guard was
+itself verified by a negative control — a probe case that calls
+`subprocess.run(["git", "--version"])` under it fails with
+
+  AssertionError: this case spawned version control: git --version
+
+so a case that reached version control would fail rather than quietly perform
+it. That probe is not part of the suite; it was run once, from the candidate
+root, to establish that the guard is not vacuous.
+
+What is proved here
+-------------------
+
+SCENARIO 2, THE REVIEW ROLE (five cases): a real line, a real writer grant,
+a real `freeze_checkpoint`, a real `prepare_review` against that checkpoint,
+and the real `review_boundary` behind the attachment.
+
+  * the review attempt's own `/input/task.json` carries the JOB'S REQUESTED
+    task bytes, not the review deployment's installed ones, and the manifest
+    beside them is the REVIEW worker's own with its own image digest and a
+    human contract naming the delivered bytes;
+  * one Job gives both roles ONE Job-scoped identity over TWO different
+    runtime manifests, with the same human contract — which is what lets a
+    Job declare one `input_digest` for its stages;
+  * the mount is the attachment's: the durable record read back through
+    `review_cycles.review_for_attempt` is `active`, names the checkpoint the
+    upstream round really froze and this reviewer's participant, and the
+    boundary's SOURCE PATH is the line's frozen checkout rather than the
+    writable line the writer was granted — the different source path a
+    configuration-level both-role proof cannot reach;
+  * the stage-less adapter over the review attempt's roots describes the
+    DELIVERED manifest digest, which is this Work's correction asked for the
+    role it had never been asked for;
+  * and a Job with no own task is delivered the installed one through the
+    same mount.
+
+SCENARIO 1, TWO JOBS THROUGH ONE POOL (three cases): two Jobs, two Works, two
+lines, one control store, one storage, one workspace group, and ONE shared
+reader table holding BOTH Jobs' tasks — which is what makes a crossed delivery
+observable at all.
+
+  * each attempt's root carries its own requested bytes, its own input
+    identity and its own stage-less adapter identity, the two identities
+    differ, and neither root contains the other Job's id anywhere;
+  * each Job is granted its OWN line, read back through
+    `review_cycles.writer_for_attempt` as `active` with the composition's own
+    writer id;
+  * and neither delivery mutates the shared held configuration: the mapping,
+    the serialized installed manifest and the installed task bytes are
+    unchanged after both, and each stage's served document is a fresh object.
+
+TWO WORKS IS THE PRODUCT'S RULE, not a fixture convenience: `create_line`
+refuses a second line for one Authority and Work ("this Authority and Work
+already own a line under different immutable operands"), and a pool worker's
+manifest declares the Work its stages belong to. The real `_matches` is asked
+to admit each worker for its Job before the pair under test is prepared.
+
+What is NOT proved
+------------------
+
+  * No runtime is STARTED in the pool cases. The sequence driven is
+    `_prepared`'s own — `_mounted` through the stage composition, the real
+    `_assignment_manifest`, the real `_input` — and it stops where the launch
+    document, the credential delivery and the runtime start would begin,
+    because those need an Authority session this harness does not mint. The
+    engine-driven start, the adopted launch context and the recovery
+    entrypoints are covered for the implementation role by
+    `TheRuntimePathDeliversAndRecoversOneIdentity` and
+    `ARestartAdoptsTheDeliveredAttempt` in the same suite.
+  * The restart cases crash BEFORE any engine-start effect. The six points
+    are `claimed`, `attempt`, `boundary`, `input`, `manifest` and
+    `credential`; the one launch happens after all of them. No case here
+    claims recovery from a crash between the start vector and its record.
+  * The upstream implementation attempt in the review scenario has its
+    four-part assignment identity and its completion axes written by the
+    fixture, which is the owning suite's own device
+    (`tests.job_manager.test_review_driver.DriverCase.attempt`). The input
+    identity every assertion is held against is written by the product's own
+    `attempts.record_attempt`.
+
+No provider, no container engine, no installed instance, no deployment, no
+version-control process. The stores are disposable SQLite files under
+temporary directories.

@@ -1,0 +1,99 @@
+How the runs in this directory were produced — claim363069, W363066
+===================================================================
+
+The canonical tree is not edited. Every run is on a disposable scratch root
+built from the canonical bytes at base 19f02ce1 with candidate-363069
+overlaid; the base root for comparison is the same recipe with no overlay.
+
+  candidate root  /tmp/w363066
+  base root       /tmp/w361912-base   (retained; same base commit and recipe)
+
+Each root is <root>/v12/python + <root>/v12/worker + <root>/v12/DESIGN.md and
+the v12 JSON files + <root>/AGENTS.md + the published result-manifest vectors
+subtree under <root>/work/records/2026/08/... that two suites read by
+`parents[4]`. Keeping the `v12` directory level matters: without it the
+repository root resolves one directory too high and ~354 suites fail on a
+missing vectors.json.
+
+Commands, from <root>/v12/python with PYTHONPATH=src:. —
+
+  python3 -m unittest tests.tools.test_creation_ports -v
+  python3 -m unittest tests.job_manager.test_creation -v
+  python3 -m unittest discover -s tests/job_manager -t . -p 'test_*.py'
+  python3 -m unittest tests.tools.test_stage_execution \
+      tests.tools.test_bootstrap tests.tools.test_single_worker \
+      tests.tools.test_creation_ports
+
+What each file is
+-----------------
+
+COMPOSED-TASK.txt       THE DELIVERED CONTENT, printed. Two distinct
+                        selections over ONE configured pool, each with its
+                        composed `baton.dogfood-task/2` document, its
+                        rendered instructions, its Job-scoped input identity
+                        and the `human_contract` artifact that names its
+                        bytes — and the installed identity beneath, which is
+                        neither of them. Read this first: it is the finding
+                        closed, in the form the FINDING asked for ("inspect
+                        delivered task content, not source strings alone").
+FOCUSED-TASK-DELIVERY.txt
+                        tests.tools.test_creation_ports, 28 cases, OK (19 in
+                        the inherited overlay). The nine added are
+                        `TwoDistinctTasksOnOnePool`.
+FOCUSED-CREATION.txt    tests.job_manager.test_creation, 76 cases, OK —
+                        the inherited suite unchanged in count, so the
+                        parent's R1/R2 corrections still hold with the task
+                        composition threaded through.
+JOB-MANAGER-SUITE.txt   whole tests/job_manager, 1375 OK — the same count as
+                        the inherited overlay.
+TOOLS-CANDIDATE.txt     test_stage_execution + test_bootstrap +
+                        test_single_worker + test_creation_ports: 883 cases,
+                        1 failure and 17 errors.
+BOOTSTRAP-SINGLEWORKER-BASE.txt
+BOOTSTRAP-SINGLEWORKER-CANDIDATE.txt
+                        those 18, on base and on candidate: byte-identical
+                        lists. All 18 are pre-existing — 17 in test_bootstrap
+                        (which installs instances and serves them) and one in
+                        test_single_worker. test_stage_execution and
+                        test_creation_ports contribute none.
+
+What is proved here, and what is not
+------------------------------------
+
+PROVED. The composition and the identity, which are the two halves the
+parent's R3 showed must move together:
+
+  * each created Job's own `baton.dogfood-task/2` document, composed from the
+    installed one with exactly `task_id` and `instructions` substituted —
+    `verification`, `source_root`, `source_profile` and `declared_base` travel
+    as the deployment wrote them, asserted member by member;
+  * the per-Job input manifest whose `human_contract` names those bytes, with
+    `manifest_digest` recomputed by §12's rule and the whole document proved
+    by `check_manifest_structure`; no digest check is weakened anywhere;
+  * the Job's `input_digest` IS that manifest's Job-scoped identity, so the
+    two agree by construction, and `creation._task_agrees` refuses inside the
+    operation before anything is reserved if they ever do not;
+  * two distinct tasks on one pool get two distinct identities, neither of
+    them the installed one, and BOTH stages of each are servable — asked of
+    `stage_execution.servable_workers`, the scheduler's own function, which
+    the parent's R3 proved impossible before this;
+  * determinism, so `single_worker._proved_task`'s restart comparison is a
+    comparison of one rendering;
+  * a Job with no own task still serves the installed one, asserted rather
+    than assumed.
+
+NOT PROVED, and this is the gap that remains open — see PROGRESS.md, which
+names the exact code points. `stage_execution` composes
+`single_worker.worker_operations(one["deployment"], ...)` ONCE PER WORKER for
+the implementation and review roles (line ~6656), not per bound Job. So the
+`_SingleWorker` that runs those stages still holds the INSTALLED `task_bytes`
+and `input_manifest`, and `_input` publishes the installed task into the
+attempt's input root. The selector now agrees about the per-Job document and
+the integration role is composed per bound Job and gets it; those two roles do
+not yet. No connected execution rehearsal is claimed and none is run here.
+
+No provider, no container engine, no installed instance, no deployment. The
+Job stores are disposable SQLite files under temporary directories; the
+deployment documents are tests.tools.test_stage_execution's own fixture, owned
+by `stage_execution.held_configuration`. No Git operation of any kind, in the
+repository or in the scratch roots.

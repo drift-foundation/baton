@@ -1,0 +1,126 @@
+How the runs in this directory were produced — claim362931, W361912
+===================================================================
+
+Same recipe as evidence/claim-362657. The canonical tree is not edited, so
+every run is on a disposable scratch root built from the canonical bytes at
+the accepted base 19f02ce1 with candidate-362931 overlaid.
+
+  candidate root  /tmp/w361912
+  base root       /tmp/w361912-base   (retained from claim362657)
+
+Each root is <root>/v12/python + <root>/v12/worker + <root>/v12/DESIGN.md and
+the v12 JSON files + <root>/AGENTS.md + the published result-manifest vectors
+subtree under <root>/work/records/2026/08/... that tests/manager/test_output.py
+and tests/job_manager/test_review_driver.py read by `parents[4]`. Keeping the
+`v12` directory level matters: without it the repository root resolves one
+directory too high and ~354 suites fail on a missing vectors.json.
+
+Commands, from <root>/v12/python with PYTHONPATH=src:. —
+
+  python3 -m unittest tests.job_manager.test_creation -v
+  python3 -m unittest tests.tools.test_creation_ports -v
+  python3 -m unittest discover -s tests/job_manager -t . -p 'test_*.py'
+  python3 -m unittest tests.tools.test_bootstrap
+  python3 -m unittest tests.tools.test_stage_execution \
+      tests.tools.test_packaging tests.tools.test_creation_ports
+  python3 <repo>/work/records/.../evidence/review-362892/probe.py
+  python3 <this directory>/probe-corrected.py
+
+The two counterexamples, before and after
+-----------------------------------------
+
+REVIEWER-PROBE-UNMODIFIED.stderr
+        THE REVIEWER'S OWN probe.py, run UNCHANGED. Its `theft` case expects
+        the foreign submission to SUCCEED, so against these bytes it raises
+        and the script never reaches its own `print` -- which is the result.
+        The traceback ends:
+
+          ContractRefusal: 'job-w361912-a' is RESERVED by a template creation
+          recorded under submission 'sub-job-w361912-a'; that admission is in
+          progress or incomplete and owns the identity, so a second submission
+          taking the name would strand whatever it has already published
+
+        Its stdout is therefore empty; both files are kept so that is legible
+        rather than looking like a lost log.
+
+PROBE-CORRECTED.stdout
+        The same two constructions with the refusal caught, so both outcomes
+        read as data. probe-corrected.py's header names exactly what differs
+        from the reviewer's script and why.
+
+  R1  before (review-362892/PROBE-RESULTS.json): the foreign submission was
+      ACCEPTED, recording `job-w361912-a/implementation` under
+      `foreign-submission`; the creation then refused at its own submit with
+      its binding stranded.
+      after: `foreign_submission.refused` is true, `durable` is false -- an
+      intruder cannot poison the holder's operation identity -- and
+      `original_resume` is "completed" with both stages recorded, so the
+      sentence the incomplete report prints is true again.
+
+  R2  before: `replayed` false with a "different creation" refusal after only
+      a derived digest moved.
+      after: `replayed` true, `derivation_asked_on_replay` 0, and
+      `recorded_provenance_unchanged` true -- the replay answers the recorded
+      creation without asking the deployment anything, and does not rewrite
+      what was created.
+
+What each other file is
+-----------------------
+
+FOCUSED-CREATION.txt    tests.job_manager.test_creation, 76 cases, OK (62 in
+                        candidate-362657). The fourteen added cases are the
+                        two R1/R2 classes below plus three corrections of
+                        cases whose claims this round invalidated.
+FOCUSED-PORTS.txt       tests.tools.test_creation_ports, 19 cases, OK (14
+                        before). The five added cases are
+                        TheRequestedTaskDoesNotReachTheWorker -- R3's
+                        reproduction.
+JOB-MANAGER-SUITE.txt   whole tests/job_manager, 1375 OK. Base root is 1299.
+BOOTSTRAP-BASE.txt      tests.tools.test_bootstrap: 17 errors on base and 17
+BOOTSTRAP-CANDIDATE.txt on candidate, byte-identical lists. Pre-existing.
+TOOLS-CANDIDATE.txt     tests.tools.test_stage_execution + test_packaging +
+TOOLS-BASE.txt          test_creation_ports: 507 OK, exit 0. Base is 488 OK,
+                        exit 0 (retained from claim362657, same base commit
+                        and same recipe); the difference is this suite's 19.
+
+R3 is reproduced here, not fixed
+--------------------------------
+
+`TheRequestedTaskDoesNotReachTheWorker` in tests/tools/test_creation_ports.py
+asserts the mechanism from the owning code, in three facts and one
+consequence. It is EVIDENCE FOR a specification gap, not a fix:
+
+  * `single_worker._task_bytes(given["task_document"],
+    manifest["human_contract"])` reads the task from the DEPLOYMENT's
+    configured path at static preflight and holds it as immutable bytes. Its
+    signature takes a path and a manifest artifact and no Job operand.
+  * `stage_execution._Stage.prepare_context` delivers exactly
+    `worker.given["task_bytes"]`.
+  * `contracts.manifest` classifies `human_contract` as JOB INTENT -- "which
+    task, by content digest" -- so it is INSIDE `job_input_identity`, which
+    is what `_disagreements` compares against the Job's `input_digest`.
+    `JOB_INPUT_EXCLUDED` does not contain it, and a case asserts that.
+  * consequence, driven through `stage_execution.servable_workers`: a Job
+    whose input identity named the REQUESTED task is refused for EVERY stage
+    with "the submitted input". So the gap cannot be closed by deriving a
+    different digest.
+
+PROGRESS.md states what that implies for scope and what it would take.
+
+What was NOT run and NOT proved
+-------------------------------
+
+No provider, no container engine, no Authority, no installed instance, no
+deployment. The Job stores are the disposable SQLite files
+tests/job_manager/fixtures.JobManagerCase creates under a temporary
+directory; the Authority, the host guard and the deployment binding are
+stand-ins, except where a case drives the real `fresh_attempt.admit` through
+that suite's own fakes. The compatibility generation is moved with
+unittest.mock.patch in the test process only. No Git operation of any kind.
+
+Still not proved, unchanged from claim362657 and now joined by R3's
+consequence: `NewJobBinding.create_binding` against an installed instance;
+interruption inside `bootstrap.prepare`; the connected
+implementation/review/correction/held cycle; and the OBS-0 interval. No
+figure for that interval is offered and none should be inferred from the
+suite timings above, which are harness wall time.

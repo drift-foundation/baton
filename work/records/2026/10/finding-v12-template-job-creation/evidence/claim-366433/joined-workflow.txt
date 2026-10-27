@@ -1,0 +1,30 @@
+test_a_technical_verdict_is_not_an_owner_decision (tests.tools.test_joined_workflow.TheCreatedJobIsReviewedAndCorrected.test_a_technical_verdict_is_not_an_owner_decision) ... ok
+test_round_ones_evidence_survives_the_correction (tests.tools.test_joined_workflow.TheCreatedJobIsReviewedAndCorrected.test_round_ones_evidence_survives_the_correction)
+WHAT THE CORRECTION DID NOT DO. ... ok
+test_the_correction_round_is_opened_by_the_loop_and_runs (tests.tools.test_joined_workflow.TheCreatedJobIsReviewedAndCorrected.test_the_correction_round_is_opened_by_the_loop_and_runs)
+THE ROUND THE VERDICT CALLS FOR, performed by the product. ... ok
+test_the_correction_round_is_served_the_requested_task (tests.tools.test_joined_workflow.TheCreatedJobIsReviewedAndCorrected.test_the_correction_round_is_served_the_requested_task)
+THE WHOLE POINT OF THE JOINED PROOF. ... ok
+test_the_review_was_independent_of_the_round_it_judged (tests.tools.test_joined_workflow.TheCreatedJobIsReviewedAndCorrected.test_the_review_was_independent_of_the_round_it_judged)
+INDEPENDENCE, read from the two assignments rather than asserted. ... ok
+test_the_reviewers_verdict_is_read_from_its_own_frozen_output (tests.tools.test_joined_workflow.TheCreatedJobIsReviewedAndCorrected.test_the_reviewers_verdict_is_read_from_its_own_frozen_output)
+NOBODY IN THIS DEPLOYMENT DECIDED IT. ... ok
+test_a_held_result_froze_no_checkpoint_and_was_reviewed_by_nobody (tests.tools.test_joined_workflow.TheHeldResultIsAttributedTruthfully.test_a_held_result_froze_no_checkpoint_and_was_reviewed_by_nobody)
+THE FAILURE MODE THIS CASE EXISTS FOR. ... ok
+test_the_held_round_is_exceptional_and_names_its_worker (tests.tools.test_joined_workflow.TheHeldResultIsAttributedTruthfully.test_the_held_round_is_exceptional_and_names_its_worker) ... ok
+test_the_held_rounds_own_input_is_still_the_requested_task (tests.tools.test_joined_workflow.TheHeldResultIsAttributedTruthfully.test_the_held_rounds_own_input_is_still_the_requested_task)
+EVIDENCE PRESERVED means the task it was given, too. ... ok
+test_a_rejected_verdict_is_recorded_and_opens_no_correction (tests.tools.test_joined_workflow.TheRejectedReviewStopsWithoutAcceptingAnything.test_a_rejected_verdict_is_recorded_and_opens_no_correction) ... ok
+test_a_rejection_accepts_and_integrates_nothing (tests.tools.test_joined_workflow.TheRejectedReviewStopsWithoutAcceptingAnything.test_a_rejection_accepts_and_integrates_nothing) ... ok
+test_the_correction_rounds_start_is_within_the_bound_too (tests.tools.test_joined_workflow.TheRoutineStartupInterval.test_the_correction_rounds_start_is_within_the_bound_too)
+A CORRECTION IS A ROUTINE START, so it is measured as one. ... ok
+test_the_interval_is_reported_with_its_endpoints (tests.tools.test_joined_workflow.TheRoutineStartupInterval.test_the_interval_is_reported_with_its_endpoints)
+The figure, written where a reader can see what it covers. ... ok
+test_the_measured_path_required_no_authored_procedure (tests.tools.test_joined_workflow.TheRoutineStartupInterval.test_the_measured_path_required_no_authored_procedure)
+OBS-0's OTHER HALF, asserted rather than asserted ABOUT. ... ok
+test_the_routine_start_is_within_the_obs0_bound (tests.tools.test_joined_workflow.TheRoutineStartupInterval.test_the_routine_start_is_within_the_obs0_bound) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 34.508s
+
+OK

@@ -1,0 +1,15 @@
+{
+  "exit": 0,
+  "wall_seconds": 35.39086490800037,
+  "argv": [
+    "python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.tools.test_connected_startup",
+    "tests.tools.test_joined_workflow"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "disk_root": "/var/tmp/baton-integration-366616-tfjlyw48",
+  "postcheck": "all 32 candidate hashes and modes match"
+}

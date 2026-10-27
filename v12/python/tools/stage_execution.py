@@ -1312,7 +1312,12 @@ class StageComposition:
         provider_context.admit_context_use(self.deployment.control, self.deployment.jobs, worker.port, attempt_id=stage["attempt_id"], writer_id=prepared["writer_id"], profile_digest=selected["profile_digest"])
         storage = context_delivery.configured_context_storage(self.deployment.control)
         context_delivery.materialize_context_use(self.deployment.control, storage, attempt_id=stage["attempt_id"])
-        return provider_context.bind_context_invocation(self.deployment.control, self.deployment.jobs, worker.port, attempt_id=stage["attempt_id"], writer_id=prepared["writer_id"], profile_digest=selected["profile_digest"], task_bytes=worker.given["task_bytes"])
+        # W363066: THE BYTES THIS STAGE'S JOB IS ACTUALLY DELIVERED, asked of
+        # the worker's own per-stage composition rather than read off the
+        # shared installed configuration. `_for_job` answers the installed
+        # pair for a Job with no own task, so a legacy delivery is unchanged.
+        held_task = worker._given_for(stage)["task_bytes"]
+        return provider_context.bind_context_invocation(self.deployment.control, self.deployment.jobs, worker.port, attempt_id=stage["attempt_id"], writer_id=prepared["writer_id"], profile_digest=selected["profile_digest"], task_bytes=held_task)
 
     def revalidate_context(self, worker, stage):
         from baton_v12.worker_manager import provider_context
@@ -1958,7 +1963,13 @@ class StageComposition:
         are the same document, so one reader answers both, and an answer
         carrying neither is one no handoff can be about.
         """
+        # W365075 ADDED THE SECOND PAIR. An implementation ending that
+        # produced no candidate releases its writer instead of freezing a
+        # checkpoint, and that release performs the SAME assignment fence --
+        # so an ending that took it carries its fence under `released` and is
+        # otherwise an answer carrying none.
         for record, member in (("checkpoint", "fence"),
+                               ("released", "fence"),
                                ("verdict_record", "review_fence")):
             fence = (answered.get(record) or {}).get(member) or {}
             intent = fence.get("intent") or {}
@@ -2015,7 +2026,13 @@ class StageComposition:
         which is committed and cannot disappear, and the accepted provider's
         step two replays the Authority's own answer for exactly this shape.
         """
+        # W365075 ADDED THE SECOND PAIR. An implementation ending that
+        # produced no candidate releases its writer instead of freezing a
+        # checkpoint, and that release performs the SAME assignment fence --
+        # so an ending that took it carries its fence under `released` and is
+        # otherwise an answer carrying none.
         for record, member in (("checkpoint", "fence"),
+                               ("released", "fence"),
                                ("verdict_record", "review_fence")):
             fence = (answered.get(record) or {}).get(member) or {}
             gate = (fence.get("fenced") or {}).get("gate")
@@ -4400,7 +4417,9 @@ class StageDeployment:
                     f"one deployment names one integrator",
                     category="refused", code="precondition")
         binding = self.binding_for(job_id)
-        return _served_deployment(self.given, named[0], binding)
+        return _served_deployment(
+            self.given, named[0], binding,
+            single_worker.job_task_reader(self.jobs)(job_id=job_id))
 
     def integration_port_for(self, job_id, *, line_id, proposal_id,
                              canonical_target_id):
@@ -5364,7 +5383,50 @@ def _producer_of(given, binding):
             f"configure", category="refused", code="precondition")
 
 
-def _served_deployment(given, worker, binding):
+def _with_job_task(held, binding, job_task):
+    """One held deployment, serving this Job's own task if it has one.
+
+    `job_task` is the answer `single_worker.job_task_reader` gives for this
+    binding's Job: the composed document's text, or `None`. It is passed in
+    rather than read here because this function is called from both the
+    selector's compatibility derivation and the serving composition, and a
+    Job-store read inside it would make every one of those a Job-store
+    reader -- the separation `job_execution_reader` keeps.
+
+    THE SUBSTITUTION IS THE SAME TWO MEMBERS IN BOTH DIRECTIONS, composed by
+    `tools.job_task` so the bytes the artifact names and the bytes the worker
+    reads are one computation.
+
+    AND IT DOES NOT ASK THE BINDING WHETHER THERE IS A JOB.
+
+    W363066 review at handoff E363900 asked for the pool's own serving loop,
+    and driving it found this: the first version returned the installed
+    document whenever `binding["job_id"]` was `None`, and in a `/1` document
+    -- the ordinary one-Job deployment, and the one the dogfood instance runs
+    -- the binding's `job_id` IS `None` BY CONSTRUCTION. `binding_for`'s own
+    words: "THE ONE-JOB DOCUMENT BINDS EVERY JOB IT IS ASKED ABOUT". So a
+    created Job carrying its own task was compared by `_disagreements`
+    against the INSTALLED input identity, every configured worker was
+    excluded as disagreeing about "the submitted input", and the stage could
+    not be offered at all -- measured, with the scheduler's own refusal, in
+    `TheCreatedJobRunsThroughThePoolServingLoop`.
+
+    WHICH JOB'S TASK THIS IS WAS NEVER THE BINDING'S FACT. The caller reads
+    it with `job_task_reader(...)(job_id=stage["job_id"])` -- the stage's own
+    Job -- and `_job_workers` has already refused a stage whose Job this
+    deployment does not bind. The binding answers where a Job's line, base
+    and target come from; it does not answer whether the Job exists.
+    """
+    if job_task is None:
+        return held
+    from tools import job_task as composer
+
+    manifest = composer.manifest_for(held["input_manifest"], job_task)
+    return dict(held, input_manifest=manifest,
+                task_bytes=composer.delivered_bytes(job_task))
+
+
+def _served_deployment(given, worker, binding, job_task=None):
     """The held deployment this worker actually serves THIS Job's stage under.
 
     W130216 review [P1]. THE INTEGRATION ROLE IS THE ONE THAT CANNOT BE
@@ -5398,6 +5460,22 @@ def _served_deployment(given, worker, binding):
     fact rather than a second copy of it.
     """
     held = worker["deployment"]
+    # W363066: THIS JOB'S OWN TASK, FOR EVERY ROLE THAT RUNS IT.
+    #
+    # The finding this closes is that a created Job executed the task the
+    # DEPLOYMENT installed: `single_worker._task_bytes` reads the configured
+    # document once at preflight, and this function -- the one place a worker's
+    # held deployment becomes the document it serves a particular Job under --
+    # substituted nothing for the implementation and review roles. So a Job
+    # that has its own task gets it here, and gets the manifest that names it
+    # in the same substitution, which is this function's own existing rule:
+    # THE MANIFEST AND THE TASK IT NAMES MOVE TOGETHER.
+    #
+    # A JOB WITH NO OWN TASK IS UNCHANGED. `job_task` answers `None` for a Job
+    # submitted by hand, created before the relation existed, or created
+    # against a deployment that composes none -- and its delivery is the
+    # installed one exactly as before.
+    held = _with_job_task(held, binding, job_task)
     if worker["role"] != "integration" or binding["job_id"] is None:
         return held
     # W130224: THE MANIFEST AND THE TASK IT NAMES MOVE TOGETHER. `_held`
@@ -5465,10 +5543,17 @@ def _job_workers(deployment, stage, job=None):
                 f"bound to {binding['job_work_id']!r}; a Job's Work is a fact "
                 f"about the Job and not about whichever worker is free",
                 category="refused", code="precondition")
-    return binding, servable_workers(deployment.given, binding, stage, job)
+    # W363066: AND THIS JOB'S OWN TASK, from the Job owner the live
+    # deployment already holds. The document a worker would serve this Job
+    # under names this Job's task, so the compatibility derived here is the
+    # compatibility of the real delivery rather than of the installed one.
+    return binding, servable_workers(
+        deployment.given, binding, stage, job,
+        single_worker.job_task_reader(deployment.jobs)(
+            job_id=stage["job_id"]))
 
 
-def servable_workers(given, binding, stage, job):
+def servable_workers(given, binding, stage, job, job_task=None):
     """The same rule, from DOCUMENTS alone. W358969.
 
     SPLIT OUT RATHER THAN COPIED, and the split is the point. A caller that
@@ -5492,8 +5577,9 @@ def servable_workers(given, binding, stage, job):
     # per-Job operand set for integration. `_integration_operations` composes
     # the provider from the same derivation, so a worker admitted here is one
     # whose own validator holds the operands this compared.
-    served = {one["worker_id"]: _served_deployment(given, one,
-                                                   binding) for one in lane}
+    served = {one["worker_id"]: _served_deployment(given, one, binding,
+                                                   job_task)
+              for one in lane}
     compatible = [one for one in lane
                   if not _disagreements(served[one["worker_id"]], stage, job,
                                         binding)]
@@ -6300,7 +6386,11 @@ def _integration_operations(given, worker, provider, control_store, authority,
     try:
         for binding in given["job_bindings"]:
             composed.append((binding["job_id"], single_worker.worker_operations(
-                _served_deployment(given, worker, binding), control_store,
+                _served_deployment(
+                    given, worker, binding,
+                    single_worker.job_task_reader(job_store)(
+                        job_id=binding["job_id"])),
+                control_store,
                 authority, provider, engine_run=engine_run, clock=clock,
                 checkpoint=checkpoint, dispose=lambda: None,
                 # W156162: EVERY JOB-BOUND FACTORY GETS THE READER. Review
@@ -6600,11 +6690,19 @@ def operations_from(document, job_store, control_store, *, engine_run=None,
                 # itself rather than a port built too early.
                 deployment._integration_operations = operations
             else:
+                # W363066: AND THE PER-JOB TASK READER, for both ordinary
+                # roles. The worker's configuration stays the installed one --
+                # shared, immutable, one handle per worker -- and the task a
+                # particular stage is served is composed per stage from this
+                # reader. That is what delivers the requested task without
+                # making the implementation and review workers per-Job
+                # capacities, which they are not.
                 operations = single_worker.worker_operations(
                     one["deployment"], control_store, composed.authority,
                     provider, engine_run=engine_run, clock=clock,
                     checkpoint=checkpoint, permission_policy=permission_policy,
                     lifetime_policy=lifetime_policy,
+                    job_task=single_worker.job_task_reader(job_store),
                     stage=StageComposition(deployment, role=one["role"],
                                            worker_id=one["worker_id"]),
                     # W156162: the same reader every Job-bound factory gets.

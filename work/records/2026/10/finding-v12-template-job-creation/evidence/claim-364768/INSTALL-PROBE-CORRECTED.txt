@@ -1,0 +1,36 @@
+{
+ "kind": "existing",
+ "install_refused": true,
+ "refusal": "2 != 0 : refused: there is already an installer input document at /var/tmp/v12-w71917-ch7gdv_p/bootstrap-deployment/install-inputs.json. Nothing here replaces o",
+ "input_exists": true,
+ "input_symlink": false,
+ "foreign_preserved": true,
+ "selector_exists": false
+}
+{
+ "kind": "temp-symlink",
+ "install_refused": false,
+ "refusal": null,
+ "input_exists": true,
+ "input_symlink": false,
+ "foreign_preserved": true,
+ "selector_exists": true
+}
+{
+ "kind": "temp-partial-symlink",
+ "install_refused": true,
+ "refusal": "2 != 0 : refused: the destination already carries a link at /var/tmp/v12-w71917-hpsnrkst/bootstrap-deployment/install-inputs.json.partial (to /var/tmp/v12-w7191",
+ "input_exists": false,
+ "input_symlink": false,
+ "foreign_preserved": true,
+ "selector_exists": false
+}
+{
+ "kind": "failed-selector",
+ "install_refused": true,
+ "refusal": "2 != 0 : repositories  not prepared: no source checkout was found or named, so the deployment has no target, workspace o",
+ "input_exists": false,
+ "input_symlink": false,
+ "foreign_preserved": false,
+ "selector_exists": false
+}

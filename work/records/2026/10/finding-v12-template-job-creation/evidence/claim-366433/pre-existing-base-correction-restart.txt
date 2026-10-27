@@ -1,0 +1,91 @@
+F.EF..FE
+======================================================================
+ERROR: setUpClass (tests.tools.test_correction_restart.CountedReopenInvalidEvidence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w366433-base/v12/python/tests/tools/test_correction_restart.py", line 299, in setUpClass
+    cls.observed = artifact(counted_reopen=True)
+                   ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/w366433-base/v12/python/tests/tools/test_correction_restart.py", line 16, in artifact
+    return world.run_scenario(counted_reopen=counted_reopen)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/w366433-base/v12/python/tests/tools/correction_restart_trace.py", line 466, in run_scenario
+    self.fail(json.dumps({"failure": "preparation did not answer", "tick": self.tick_count,
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          "preparation": refused, "children": self.child_diagnostics()}, sort_keys=True))
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/case.py", line 732, in fail
+    raise self.failureException(msg)
+AssertionError: {"children": [{"exit_status": 1, "log": "", "pid": 125679, "runtime_id": "runtime-single-5"}], "failure": "preparation did not answer", "preparation": {"prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0": {"command": {"command_digest": "sha256:9c35200f2bacbac4d2bdf383cdb14e590b9de202cb659d578fb7cb4c2cc21788", "operations": ["describe", "work"], "sequence_id": "sequence-8e6390981511cb2d6ff48c3ca4bd9e0f"}, "foreign": [], "receipt": {"accepted_at": "2026-10-27T16:20:08.000Z"}, "sequence_id": "sequence-8e6390981511cb2d6ff48c3ca4bd9e0f", "state": "faulted", "states": [{"operation": "describe", "state": "answered"}, {"operation": "work", "state": "faulted"}], "terminal": {"answered": ["describe"], "disposition": null, "ending": "faulted", "fault_code": "agent", "manifest_digest": null}, "transport": "baton.worker-exchange/1", "unreadable": null}}, "tick": 16}
+
+======================================================================
+ERROR: setUpClass (tests.tools.test_correction_restart.UsefulCorrectionInvalidEvidence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w366433-base/v12/python/tests/tools/test_correction_restart.py", line 127, in setUpClass
+    cls.observed = artifact()
+                   ~~~~~~~~^^
+  File "/tmp/w366433-base/v12/python/tests/tools/test_correction_restart.py", line 16, in artifact
+    return world.run_scenario(counted_reopen=counted_reopen)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/w366433-base/v12/python/tests/tools/correction_restart_trace.py", line 466, in run_scenario
+    self.fail(json.dumps({"failure": "preparation did not answer", "tick": self.tick_count,
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          "preparation": refused, "children": self.child_diagnostics()}, sort_keys=True))
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/case.py", line 732, in fail
+    raise self.failureException(msg)
+AssertionError: {"children": [{"exit_status": 1, "log": "", "pid": 126537, "runtime_id": "runtime-single-5"}], "failure": "preparation did not answer", "preparation": {"prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0": {"command": {"command_digest": "sha256:9c35200f2bacbac4d2bdf383cdb14e590b9de202cb659d578fb7cb4c2cc21788", "operations": ["describe", "work"], "sequence_id": "sequence-8e6390981511cb2d6ff48c3ca4bd9e0f"}, "foreign": [], "receipt": {"accepted_at": "2026-10-27T16:20:17.000Z"}, "sequence_id": "sequence-8e6390981511cb2d6ff48c3ca4bd9e0f", "state": "faulted", "states": [{"operation": "describe", "state": "answered"}, {"operation": "work", "state": "faulted"}], "terminal": {"answered": ["describe"], "disposition": null, "ending": "faulted", "fault_code": "agent", "manifest_digest": null}, "transport": "baton.worker-exchange/1", "unreadable": null}}, "tick": 16}
+
+======================================================================
+FAIL: test_manager_recomposition_preserves_both_positive_counts (tests.tools.test_correction_restart.CountedReopen.test_manager_recomposition_preserves_both_positive_counts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w366433-base/v12/python/tests/tools/test_correction_restart.py", line 287, in test_manager_recomposition_preserves_both_positive_counts
+    observed = artifact(counted_reopen=True)
+  File "/tmp/w366433-base/v12/python/tests/tools/test_correction_restart.py", line 16, in artifact
+    return world.run_scenario(counted_reopen=counted_reopen)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/w366433-base/v12/python/tests/tools/correction_restart_trace.py", line 466, in run_scenario
+    self.fail(json.dumps({"failure": "preparation did not answer", "tick": self.tick_count,
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          "preparation": refused, "children": self.child_diagnostics()}, sort_keys=True))
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {"children": [{"exit_status": 1, "log": "", "pid": 125454, "runtime_id": "runtime-single-5"}], "failure": "preparation did not answer", "preparation": {"prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0": {"command": {"command_digest": "sha256:9c35200f2bacbac4d2bdf383cdb14e590b9de202cb659d578fb7cb4c2cc21788", "operations": ["describe", "work"], "sequence_id": "sequence-8e6390981511cb2d6ff48c3ca4bd9e0f"}, "foreign": [], "receipt": {"accepted_at": "2026-10-27T16:20:06.000Z"}, "sequence_id": "sequence-8e6390981511cb2d6ff48c3ca4bd9e0f", "state": "faulted", "states": [{"operation": "describe", "state": "answered"}, {"operation": "work", "state": "faulted"}], "terminal": {"answered": ["describe"], "disposition": null, "ending": "faulted", "fault_code": "agent", "manifest_digest": null}, "transport": "baton.worker-exchange/1", "unreadable": null}}, "tick": 16}
+
+======================================================================
+FAIL: test_no_external_reader_runs_inside_a_control_transaction (tests.tools.test_correction_restart.TransactionBoundaryThroughTheConnectedPath.test_no_external_reader_runs_inside_a_control_transaction)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w366433-base/v12/python/tests/tools/test_correction_restart.py", line 115, in test_no_external_reader_runs_inside_a_control_transaction
+    observed = artifact()
+  File "/tmp/w366433-base/v12/python/tests/tools/test_correction_restart.py", line 16, in artifact
+    return world.run_scenario(counted_reopen=counted_reopen)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/w366433-base/v12/python/tests/tools/correction_restart_trace.py", line 466, in run_scenario
+    self.fail(json.dumps({"failure": "preparation did not answer", "tick": self.tick_count,
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          "preparation": refused, "children": self.child_diagnostics()}, sort_keys=True))
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {"children": [{"exit_status": 1, "log": "", "pid": 125900, "runtime_id": "runtime-single-5"}], "failure": "preparation did not answer", "preparation": {"prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0": {"command": {"command_digest": "sha256:9c35200f2bacbac4d2bdf383cdb14e590b9de202cb659d578fb7cb4c2cc21788", "operations": ["describe", "work"], "sequence_id": "sequence-8e6390981511cb2d6ff48c3ca4bd9e0f"}, "foreign": [], "receipt": {"accepted_at": "2026-10-27T16:20:10.000Z"}, "sequence_id": "sequence-8e6390981511cb2d6ff48c3ca4bd9e0f", "state": "faulted", "states": [{"operation": "describe", "state": "answered"}, {"operation": "work", "state": "faulted"}], "terminal": {"answered": ["describe"], "disposition": null, "ending": "faulted", "fault_code": "agent", "manifest_digest": null}, "transport": "baton.worker-exchange/1", "unreadable": null}}, "tick": 16}
+
+======================================================================
+FAIL: test_useful_correction_reaches_managed_target (tests.tools.test_correction_restart.UsefulCorrection.test_useful_correction_reaches_managed_target)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w366433-base/v12/python/tests/tools/test_correction_restart.py", line 28, in test_useful_correction_reaches_managed_target
+    observed = artifact()
+  File "/tmp/w366433-base/v12/python/tests/tools/test_correction_restart.py", line 16, in artifact
+    return world.run_scenario(counted_reopen=counted_reopen)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/w366433-base/v12/python/tests/tools/correction_restart_trace.py", line 466, in run_scenario
+    self.fail(json.dumps({"failure": "preparation did not answer", "tick": self.tick_count,
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          "preparation": refused, "children": self.child_diagnostics()}, sort_keys=True))
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {"children": [{"exit_status": 1, "log": "", "pid": 126315, "runtime_id": "runtime-single-5"}], "failure": "preparation did not answer", "preparation": {"prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0": {"command": {"command_digest": "sha256:9c35200f2bacbac4d2bdf383cdb14e590b9de202cb659d578fb7cb4c2cc21788", "operations": ["describe", "work"], "sequence_id": "sequence-8e6390981511cb2d6ff48c3ca4bd9e0f"}, "foreign": [], "receipt": {"accepted_at": "2026-10-27T16:20:14.000Z"}, "sequence_id": "sequence-8e6390981511cb2d6ff48c3ca4bd9e0f", "state": "faulted", "states": [{"operation": "describe", "state": "answered"}, {"operation": "work", "state": "faulted"}], "terminal": {"answered": ["describe"], "disposition": null, "ending": "faulted", "fault_code": "agent", "manifest_digest": null}, "transport": "baton.worker-exchange/1", "unreadable": null}}, "tick": 16}
+
+----------------------------------------------------------------------
+Ran 6 tests in 12.740s
+
+FAILED (failures=3, errors=2)

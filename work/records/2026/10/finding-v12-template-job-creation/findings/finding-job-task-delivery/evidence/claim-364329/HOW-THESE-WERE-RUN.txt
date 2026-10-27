@@ -1,0 +1,107 @@
+How the runs in this directory were produced — claim364329, W363066
+===================================================================
+
+The canonical tree is not edited. Every run is on a disposable scratch root
+built from canonical bytes at base 19f02ce1 with candidate-364329 overlaid.
+
+  candidate root  /tmp/w363066-329
+  base root       /tmp/w363066-base492   (re-verified byte-identical to
+                                          canonical src/ and tools/ before
+                                          its failing-name list was reused)
+
+Each root is <root>/v12/python + <root>/v12/worker + <root>/v12/DESIGN.md and
+the v12 JSON files + <root>/AGENTS.md + the published result-manifest vectors
+subtree under <root>/work/records/2026/08/..., with the `v12` directory level
+kept.
+
+Commands, from <root>/v12/python with PYTHONPATH=src:. —
+
+  python3 -m unittest tests.tools.test_job_task_delivery -v
+  python3 -m unittest tests.tools.test_job_task_delivery\
+      .TheReviewStageRunsThroughThePoolServingLoop -v
+  python3 -m unittest discover -s tests/job_manager -t . -p 'test_*.py'
+  python3 -m unittest tests.tools.test_single_worker \
+      tests.tools.test_stage_execution tests.tools.test_bootstrap \
+      tests.tools.test_creation_ports tests.tools.test_job_task_delivery
+
+What each file is
+-----------------
+
+REVIEW-RUNTIME.txt      the remaining milestone, on its own: three cases, OK.
+FOCUSED-DELIVERY.txt    tests.tools.test_job_task_delivery, 65 cases, OK.
+JOB-MANAGER-SUITE.txt   whole tests/job_manager, 1375 OK.
+TOOLS-CANDIDATE.txt     five tools suites, 948 cases, 1 failure 17 errors.
+FAILING-NAMES-CANDIDATE.txt
+FAILING-NAMES-BASE.txt  those 18 names on each root; `diff` reports no
+                        difference. All 18 are pre-existing.
+
+THE REVIEW RUNTIME, THROUGH THE LOOP
+------------------------------------
+
+One chain, driven by `reconcile` and `sweep` with one real in-image worker
+turn in the middle. No offer, claim, activation, preparation or launch is
+written by the fixture; the states waited for are the projection's own.
+
+  1. a Job created by the real `creation.create_template_job`;
+  2. the pool's loop offers, claims, prepares, publishes its requested task
+     and starts its implementation runtime;
+  3. one real `baton_worker.serve_exchange` turn over the MOUNTED roots --
+     which for an implementation attempt in the pool is the LINE CHECKOUT,
+     not `<storage>/<attempt>/workspace`;
+  4. the real ending: seal, intake, retention, `retain_proposal`,
+     `publish_candidate`, `freeze_checkpoint`. The implementation stage
+     reaches `completed`;
+  5. the loop then reaches the REVIEW stage, grants its attachment over that
+     frozen checkpoint, publishes the Job's requested task into the review
+     attempt's own input root, and STARTS its runtime. The review stage
+     reaches `waiting`.
+
+What the three cases assert:
+
+  * the projection is exactly {implementation: completed, review: waiting};
+    the review attempt's `/input/task.json` equals
+    `creation.job_task_of(jobs, job_id)` -- the Job store's own answer -- and
+    is not the deployment's installed task; a second container was started
+    with its own identity;
+  * the review attempt is RECORDED against the review worker's own per-Job
+    manifest digest, which differs from that worker's installed one; its
+    Job-scoped identity is the one the Job declared, the same identity the
+    implementation stage was served under (one Job, two roles, two runtime
+    manifests, one identity); the manager's own LAUNCH CONTEXT carries that
+    identity, proved by `launch.adopt` accepting it -- adoption compares
+    canonical bytes, so a context naming anything else refuses; and the
+    stage-less ADAPTER over the review roots describes it;
+  * the attachment read back through `review_cycles.review_for_attempt` is
+    `active`, names this reviewer's participant and names the line's CURRENT
+    checkpoint -- the one the implementation round froze -- and the mount's
+    source is that checkpoint's checkout rather than the writable line the
+    producer was granted.
+
+THE THREE DETERMINISTIC SEAMS, AND WHAT IS SYNTHETIC
+----------------------------------------------------
+
+ENGINE: the suite's double. CHECKPOINT PROFILE:
+`test_review_driver.Profile`, the deployment-configured profile "with no VCS
+behind it" -- so the line is materialized and frozen without version control,
+and every case installs process runners that refuse any version-control
+invocation. WORKER: `scripted_agent.ScriptedAgent` plus one addition.
+
+SYNTHETIC, labelled here and in the class docstring: a real producer's
+proposal is a patch and an object bundle that version control wrote in the
+line, and its claim names the base it was taken from. This fixture's agent
+writes `objects.bundle` with fixed bytes and answers a claim naming the
+configured canonical target as its base and a fixed head. Those bytes are NOT
+a change proposal anybody could apply, and nothing here claims a live proposal
+or an owner receipt.
+
+THE RULE IS NOT BYPASSED, and the fixture knows it because the publication
+refused the earlier drafts: without a `git-change-proposal` output, "the
+frozen result carries 0 git-change-proposal outputs; publication needs exactly
+one"; with one but no bundle, "the worker names its object transport at
+'objects.bundle' and the frozen content manifest measured nothing there". Both
+are the product's own validation of the operands, and both had to be satisfied
+rather than skipped. `ComposedLifecycleCase.frozen` composes a synthetic
+proposal the same way, for the same reason.
+
+No provider, no container engine, no installed instance, no deployment, and no
+version-control process.

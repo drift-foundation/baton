@@ -1,0 +1,7 @@
+cwd=/tmp/review-w361912-366726/v12/python
+argv=['python3', '-m', 'unittest', '-v', 'tests.tools.test_connected_startup', 'tests.tools.test_joined_workflow']
+PYTHONPATH=src:.
+BATON_V12_DISK_ROOT=BATON_V12_STACK_TEST_ROOT=/var/tmp/baton-w257624
+BATON_V12_OBS0_REPORT=/home/sl/src/baton/work/records/2026/10/finding-v12-template-job-creation/evidence/review-366726/OBS0-INTERVALS.json
+exit=0
+wall_seconds=35.842

@@ -1,0 +1,8 @@
+cwd=/tmp/review-w361912-366598/v12/python
+argv=['python3', '-m', 'unittest', '-v', 'tests.tools.test_joined_workflow']
+PYTHONPATH=src:.
+BATON_V12_DISK_ROOT=BATON_V12_STACK_TEST_ROOT=/var/tmp/baton-w257624
+exit=0
+wall_seconds=35.189
+
+Boundary probe: python3 timing_boundary_probe.py with same cwd/environment; 2 tests OK in3.370s (unittest duration; wrapper wall unavailable). TIMING-PROBE.txt retained.

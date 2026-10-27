@@ -52,6 +52,7 @@ __all__ = ["TRANSITIONS", "AXES", "CONTEXT_COLUMNS",
            "observe", "activate_assignment", "label_context",
            "attempt_activity_of", "observe_activity",
            "pin_boundary_identity", "boundary_identity_of",
+           "recorded_input_of",
            "request_runtime_start",
            "reconcile_runtime", "request_cancellation",
            "finalize_quiescent_assignment", "assignment_of",
@@ -642,6 +643,35 @@ def _rollback(connection):
         connection.execute("ROLLBACK")
     except Exception:
         pass
+
+
+def recorded_input_of(store, attempt_id):
+    """What input identity this attempt WAS RECORDED AGAINST, or `None`.
+
+    W363066. A recovery caller holds an attempt and roots and no stage, so it
+    cannot ask a Job which input it serves -- but the manager already wrote
+    the answer down: `record_attempt` fixes `input_digest` at the start, and
+    `authorize_input_root` holds a composed root to exactly that value. This
+    is the same column, read alone, so a caller can tell the two cases apart
+    BEFORE it decides whether a root has to be proved:
+
+      an attempt recorded against the manager's installed input needs no root
+      read at all, and refusing one whose root has already been removed would
+      be a new failure in a path that owes an ending; and
+      an attempt recorded against ANOTHER input must not be described by the
+      installed one, so for that attempt the root is the only honest source
+      and `authorize_input_root` is how it is read.
+
+    ABSENCE AND NONE ARE DIFFERENT ANSWERS and both are answers here. No such
+    attempt is `None` because the recovery callers above it already treat an
+    unknown attempt as nothing to reconcile rather than a refusal; an attempt
+    that exists and recorded no digest is `None` because it was never claimed
+    against an input and so was never delivered one. Neither is a licence to
+    skip a comparison: `authorize_input_root` still refuses a root for an
+    attempt with no recorded digest, and this function starts nothing.
+    """
+    found = _attempt_row(store, attempt_id)
+    return None if found is None else found["input_digest"]
 
 
 def boundary_identity_of(store, attempt_id):

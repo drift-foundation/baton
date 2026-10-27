@@ -1,0 +1,231 @@
+{
+  "timestamp": "2026-10-27T16:53:50.319620+00:00",
+  "manifest_sha256": "177147f6557aa6882f7fd6fee74068817a0fc078a0191ead5c09b7aa80931b03",
+  "base": "18e771f034d22fed40ae4c597aa606f50c169daa",
+  "members": [
+    {
+      "path": "v12/justfile",
+      "candidate_matches": true,
+      "target_matches_base": true,
+      "target_is_candidate": false,
+      "owner_writable": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/__init__.py",
+      "candidate_matches": true,
+      "target_matches_base": true,
+      "target_is_candidate": false,
+      "owner_writable": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/creation.py",
+      "candidate_matches": true,
+      "target_matches_base": true,
+      "target_is_candidate": false,
+      "owner_writable": null
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/documents.py",
+      "candidate_matches": true,
+      "target_matches_base": true,
+      "target_is_candidate": false,
+      "owner_writable": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/fresh_attempt.py",
+      "candidate_matches": true,
+      "target_matches_base": true,
+      "target_is_candidate": false,
+      "owner_writable": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/review_driver.py",
+      "candidate_matches": true,
+      "target_matches_base": true,
+      "target_is_candidate": false,
+      "owner_writable": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/schema.py",
+      "candidate_matches": true,
+      "target_matches_base": true,
+      "target_is_candidate": false,
+      "owner_writable": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/submission.py",
+      "candidate_matches": true,
+      "target_matches_base": true,
+      "target_is_candidate": false,
+      "owner_writable": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/attempts.py",
+      "candidate_matches": true,
+      "target_matches_base": true,
+      "target_is_candidate": false,
+      "owner_writable": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/review_cycles.py",
+      "candidate_matches": true,
+      "target_matches_base": true,
+      "target_is_candidate": false,
+      "owner_writable": true
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_creation.py",
+      "candidate_matches": true,
+      "target_matches_base": true,
+      "target_is_candidate": false,
+      "owner_writable": null
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_execution_limits.py",
+      "candidate_matches": true,
+      "target_matches_base": true,
+      "target_is_candidate": false,
+      "owner_writable": true
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_fresh_attempt.py",
+      "candidate_matches": true,
+      "target_matches_base": true,
+      "target_is_candidate": false,
+      "owner_writable": true
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_review_driver.py",
+      "candidate_matches": true,
+      "target_matches_base": true,
+      "target_is_candidate": false,
+      "owner_writable": true
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_scheduling.py",
+      "candidate_matches": true,
+      "target_matches_base": true,
+      "target_is_candidate": false,
+      "owner_writable": true
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_store.py",
+      "candidate_matches": true,
+      "target_matches_base": true,
+      "target_is_candidate": false,
+      "owner_writable": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_connected_creation.py",
+      "candidate_matches": true,
+      "target_matches_base": true,
+      "target_is_candidate": false,
+      "owner_writable": null
+    },
+    {
+      "path": "v12/python/tests/tools/test_connected_startup.py",
+      "candidate_matches": true,
+      "target_matches_base": true,
+      "target_is_candidate": false,
+      "owner_writable": null
+    },
+    {
+      "path": "v12/python/tests/tools/test_creation_ports.py",
+      "candidate_matches": true,
+      "target_matches_base": true,
+      "target_is_candidate": false,
+      "owner_writable": null
+    },
+    {
+      "path": "v12/python/tests/tools/test_fresh_retry_line_recovery.py",
+      "candidate_matches": true,
+      "target_matches_base": true,
+      "target_is_candidate": false,
+      "owner_writable": null
+    },
+    {
+      "path": "v12/python/tests/tools/test_job_task_delivery.py",
+      "candidate_matches": true,
+      "target_matches_base": true,
+      "target_is_candidate": false,
+      "owner_writable": null
+    },
+    {
+      "path": "v12/python/tests/tools/test_joined_workflow.py",
+      "candidate_matches": true,
+      "target_matches_base": true,
+      "target_is_candidate": false,
+      "owner_writable": null
+    },
+    {
+      "path": "v12/python/tests/tools/test_packaged_creation.py",
+      "candidate_matches": true,
+      "target_matches_base": true,
+      "target_is_candidate": false,
+      "owner_writable": null
+    },
+    {
+      "path": "v12/python/tests/tools/test_retry_task_lineage.py",
+      "candidate_matches": true,
+      "target_matches_base": true,
+      "target_is_candidate": false,
+      "owner_writable": null
+    },
+    {
+      "path": "v12/python/tools/bootstrap.py",
+      "candidate_matches": true,
+      "target_matches_base": true,
+      "target_is_candidate": false,
+      "owner_writable": true
+    },
+    {
+      "path": "v12/python/tools/creation_ports.py",
+      "candidate_matches": true,
+      "target_matches_base": true,
+      "target_is_candidate": false,
+      "owner_writable": null
+    },
+    {
+      "path": "v12/python/tools/fresh_attempt_ports.py",
+      "candidate_matches": true,
+      "target_matches_base": true,
+      "target_is_candidate": false,
+      "owner_writable": true
+    },
+    {
+      "path": "v12/python/tools/instance.py",
+      "candidate_matches": true,
+      "target_matches_base": true,
+      "target_is_candidate": false,
+      "owner_writable": true
+    },
+    {
+      "path": "v12/python/tools/job_manager.py",
+      "candidate_matches": true,
+      "target_matches_base": true,
+      "target_is_candidate": false,
+      "owner_writable": true
+    },
+    {
+      "path": "v12/python/tools/job_task.py",
+      "candidate_matches": true,
+      "target_matches_base": true,
+      "target_is_candidate": false,
+      "owner_writable": null
+    },
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "candidate_matches": true,
+      "target_matches_base": true,
+      "target_is_candidate": false,
+      "owner_writable": true
+    },
+    {
+      "path": "v12/python/tools/stage_execution.py",
+      "candidate_matches": true,
+      "target_matches_base": true,
+      "target_is_candidate": false,
+      "owner_writable": true
+    }
+  ]
+}

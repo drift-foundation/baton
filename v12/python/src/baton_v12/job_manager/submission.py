@@ -76,6 +76,22 @@ def submit(store, document):
     return store.transact(operation_id(submission_id), _KIND, signature, act)
 
 
+# THE RESERVATION RELATIONS, as one statement. Both tables carry the same
+# three identifying columns for the same reason -- a reservation owns a Job
+# name AND a submission name, and only the exact document it was taken for may
+# consume it -- so the union is the whole of "who already owns this identity".
+# A fourth column names which admission it is, so the refusal below can say so
+# without the caller guessing from the shape.
+_RESERVATIONS = (
+    "SELECT job_id, submission_id, submission_signature, "
+    "'fresh attempt' AS by FROM fresh_attempts "
+    "WHERE submission_id = ? OR job_id IN ({names}) "
+    "UNION ALL "
+    "SELECT job_id, submission_id, submission_signature, "
+    "'template creation' AS by FROM template_jobs "
+    "WHERE submission_id = ? OR job_id IN ({names})")
+
+
 def _unclaimed(connection, submission_id, owned, signature):
     """Refuse a Job identity another submission already holds, BEFORE writing.
 
@@ -125,12 +141,27 @@ def _unclaimed(connection, submission_id, owned, signature):
     # and recorded itself -- and the retry, whose operation identity is
     # derived from that submission id, then collided after it had already
     # published a deployment binding. A reservation owns both names.
+    # W361912 review 2026-10-26T19-22-51Z R1: AND THE IDENTITIES A TEMPLATE
+    # CREATION HAS RESERVED, which is the SAME sentence a third time.
+    #
+    # `creation._reserved` writes `template_jobs` before it publishes a Work
+    # authorization or a deployment binding, exactly as a fresh attempt writes
+    # `fresh_attempts`, and for exactly the same reason. This query knew about
+    # two of the three relations -- so the reviewer's probe interrupted a
+    # creation after its binding was published, called this API with the
+    # reserved Job identity and a DIFFERENT document, and recorded it. The
+    # creation then refused at its own submit with its binding stranded, while
+    # telling the operator that repeating the request would finish it.
+    #
+    # ONE QUERY OVER BOTH RELATIONS, because two queries are two chances to
+    # add a third relation to only one of them. The columns are deliberately
+    # the same three in both tables, and `_RESERVATIONS` names them once.
     reserved = sorted(
-        (row[0], row[1], row[2]) for row in connection.execute(
-            "SELECT job_id, submission_id, submission_signature FROM "
-            "fresh_attempts WHERE submission_id = ? OR job_id IN "
-            "(" + ", ".join("?" * len(wanted)) + ")",
-            (submission_id,) + tuple(wanted)))
+        (row[0], row[1], row[2], row[3]) for row in connection.execute(
+            _RESERVATIONS.format(
+                names=", ".join("?" * len(wanted))),
+            (submission_id,) + tuple(wanted) + (submission_id,)
+            + tuple(wanted)))
     conflicting = [one for one in reserved
                    if one[1] != submission_id or one[2] != signature]
     if conflicting:
@@ -138,13 +169,22 @@ def _unclaimed(connection, submission_id, owned, signature):
         # WHICH NAME WAS TAKEN, said plainly, because the two are different
         # mistakes: one submission reusing a reserved Job, and one reusing a
         # reserved submission id for something else entirely.
-        overlapping = [one for one, _, _ in conflicting if one in wanted]
+        overlapping = [one for one, _, _, _ in conflicting if one in wanted]
+        # WHICH KIND OF ADMISSION HOLDS IT, named from the relation the row
+        # came from rather than assumed. The remedy is the same either way and
+        # the sentence should still be true.
+        by = held[3]
         raise ContractRefusal(
             "refused", "precondition",
-            (f"{sample_of(overlapping)} is RESERVED by a fresh attempt "
+            # THE ARTICLE IS THE SENTENCE'S, NOT THE COLUMN'S. The two
+            # branches need different ones, so `by` is the bare noun -- the
+            # first cut put "a" in the column and the non-overlapping branch
+            # read "by the a fresh attempt", which `test_fresh_attempt`
+            # caught.
+            (f"{sample_of(overlapping)} is RESERVED by a {by} "
              if overlapping else
              f"submission {name_value(submission_id)} is RESERVED by the "
-             f"fresh attempt for Job {name_value(held[0])}, which is not in "
+             f"{by} for Job {name_value(held[0])}, which is not in "
              f"this document; the admission ")
             + f"recorded under submission {name_value(held[1])}"
             + (" for a different document than this one"

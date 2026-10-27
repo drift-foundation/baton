@@ -1,0 +1,108 @@
+How the runs in this directory were produced — claim363241, W363066
+===================================================================
+
+Same recipe as evidence/claim-363069. The canonical tree is not edited; every
+run is on a disposable scratch root built from the canonical bytes at base
+19f02ce1 with candidate-363241 overlaid.
+
+  candidate root  /tmp/w363066
+  base root       /tmp/w361912-base   (retained; same base commit and recipe)
+
+Each root is <root>/v12/python + <root>/v12/worker + <root>/v12/DESIGN.md and
+the v12 JSON files + <root>/AGENTS.md + the published result-manifest vectors
+subtree under <root>/work/records/2026/08/... that two suites read by
+`parents[4]`. Keeping the `v12` level matters: without it the repository root
+resolves one directory too high and ~354 suites fail on a missing vectors.json.
+
+Commands, from <root>/v12/python with PYTHONPATH=src:. —
+
+  python3 -m unittest tests.tools.test_job_task_delivery -v
+  python3 -m unittest tests.tools.test_creation_ports -v
+  python3 -m unittest tests.job_manager.test_creation
+  python3 -m unittest discover -s tests/job_manager -t . -p 'test_*.py'
+  python3 -m unittest tests.tools.test_stage_execution \
+      tests.tools.test_single_worker tests.tools.test_bootstrap \
+      tests.tools.test_creation_ports tests.tools.test_job_task_delivery
+
+What each file is
+-----------------
+
+PUBLISHED-BYTES.txt     READ THIS FIRST. The installed task this pool was
+                        configured with, then THE FILE ON DISK at
+                        `task.json` for two distinct Jobs served by ONE
+                        worker object — each with its mode, its byte count,
+                        its `human_contract` artifact and its published
+                        instructions — and then a Job with no own task
+                        receiving the installed bytes. This is the review's
+                        "inspect the bytes actually published/delivered",
+                        answered with the bytes.
+FOCUSED-DELIVERY.txt    tests.tools.test_job_task_delivery, 43 cases, OK. NEW
+                        this claim. It drives `_SingleWorker._for_job`,
+                        `_published_task` and `_proved_task` over real
+                        directories, and `job_task_reader` over a real Job
+                        store.
+FOCUSED-PORTS.txt       tests.tools.test_creation_ports, 28 cases, OK. One
+                        case changed: the R3 diagnostic that asserted
+                        `task_bytes=worker.given["task_bytes"]` documented
+                        the defect and is now the assertion that it is gone.
+FOCUSED-CREATION.txt    tests.job_manager.test_creation, 76 cases, OK —
+                        unchanged, so the parent's R1/R2 corrections hold.
+JOB-MANAGER-SUITE.txt   whole tests/job_manager, 1375 OK — unchanged count.
+TOOLS-CANDIDATE.txt     the five-suite tools run: 926 cases, 1 failure and 17
+                        errors.
+TOOLS-PREEXISTING-BASE.txt
+TOOLS-PREEXISTING-CANDIDATE.txt
+                        those 18 on base and on candidate: byte-identical
+                        lists. All pre-existing — 17 in test_bootstrap (which
+                        installs instances and serves them) and one in
+                        test_single_worker. test_stage_execution,
+                        test_creation_ports and test_job_task_delivery
+                        contribute none.
+
+What the delivery suite actually drives
+---------------------------------------
+
+`_published_task` is where a task becomes a file: exclusive no-follow
+creation, whole write, fsync, read-back comparison against the held bytes,
+then 0444. `_proved_task` is the restart half — the same three questions asked
+again of what is on disk. Those two functions ARE the delivery, so the cases
+drive them rather than asserting around them:
+
+  * two Jobs on ONE worker each publish their own `task.json`, read back and
+    compared whole, with the `human_contract` artifact naming those bytes;
+  * neither Job's bytes appear in the other's root, and the shared
+    configuration is unchanged afterwards;
+  * the two input identities differ, each equals its own composed manifest's,
+    and neither is the installed one;
+  * the implementation and review roles are delivered the SAME task for one
+    Job — role instructions differ (projected out of `job_input_identity`)
+    and the task does not, because a reviewer judging a different task than
+    the implementer performed is the one thing a shared Job cannot survive;
+  * restart: `_proved_task` accepts what was published and the file is 0444;
+  * refused before launch: a restart that would deliver ANOTHER Job's task, a
+    tampered file, a missing file, and publishing over an existing one;
+  * preserved: a Job the reader answers `None` for, a worker with no reader,
+    and a stage with no Job all receive the installed task;
+  * `job_task_reader` over a real JobStore answers `None` for an unknown Job
+    and for `None`, and the stored document verbatim for a row that has one.
+
+What is NOT proved here
+-----------------------
+
+No provider, no container engine, no installed instance, no deployment, and no
+connected lifecycle. The worker is composed the way
+`test_single_worker.ThreeWorkersOneJobThreeImages` composes one — `__new__`
+plus the held configuration — because `_for_job`, `_published_task` and
+`_proved_task` read the held configuration and their operands and nothing
+else; a case that needed a live runtime to ask a delivery question would be
+measuring the fixture. So this claim proves the bytes that reach the input
+root and the identity that accompanies them; it does not run a container over
+that root.
+
+Still owned by the PARENT W361912 and untouched here: the connected
+implementation/review/correction/held rehearsal, the OBS-0 interval (no figure
+offered; the timings above are harness wall time),
+`NewJobBinding.create_binding` against an installed instance, and interruption
+inside `bootstrap.prepare`.
+
+No Git operation of any kind, in the repository or in the scratch roots.

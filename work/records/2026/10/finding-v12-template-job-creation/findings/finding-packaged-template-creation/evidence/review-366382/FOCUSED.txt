@@ -1,0 +1,41 @@
+test_a_real_bundle_digests_whole_and_verifies (tests.tools.test_packaging.WhatTheBundleIS.test_a_real_bundle_digests_whole_and_verifies) ... ok
+test_an_unbound_extra_file_in_a_real_bundle_is_refused (tests.tools.test_packaging.WhatTheBundleIS.test_an_unbound_extra_file_in_a_real_bundle_is_refused) ... ok
+test_one_changed_byte_in_a_real_library_is_refused (tests.tools.test_packaging.WhatTheBundleIS.test_one_changed_byte_in_a_real_library_is_refused) ... ok
+test_the_copy_is_the_same_runtime_as_the_build (tests.tools.test_packaging.WhatTheBundleIS.test_the_copy_is_the_same_runtime_as_the_build)
+`install` re-digests what it copied for exactly this reason. ... ok
+test_an_unknown_subcommand_is_refused_by_name (tests.tools.test_packaging.WhatTheBundleSaysItIs.test_an_unknown_subcommand_is_refused_by_name) ... ok
+test_every_subcommand_this_command_serves_is_offered (tests.tools.test_packaging.WhatTheBundleSaysItIs.test_every_subcommand_this_command_serves_is_offered) ... ok
+test_it_answers_for_itself_with_nothing_from_this_checkout (tests.tools.test_packaging.WhatTheBundleSaysItIs.test_it_answers_for_itself_with_nothing_from_this_checkout) ... ok
+test_it_says_its_version_with_NO_checkout_and_NO_repository_tool (tests.tools.test_packaging.WhatTheBundleSaysItIs.test_it_says_its_version_with_NO_checkout_and_NO_repository_tool)
+OWNER-VERSION-STAMP-20260916.md: `--version` must answer where the ... ok
+test_the_captured_stamp_is_the_one_the_build_recorded (tests.tools.test_packaging.WhatTheBundleSaysItIs.test_the_captured_stamp_is_the_one_the_build_recorded)
+The final artifact must contain the same metadata the build ... ok
+test_the_frozen_schema_assets_travelled (tests.tools.test_packaging.WhatTheBundleSaysItIs.test_the_frozen_schema_assets_travelled)
+`contracts.frozen` reads them at IMPORT time, so a bundle without ... ok
+test_the_native_validator_is_ONE_OF_THE_FILES_THIS_BUNDLE_BINDS (tests.tools.test_packaging.WhatTheBundleSaysItIs.test_the_native_validator_is_ONE_OF_THE_FILES_THIS_BUNDLE_BINDS)
+The defect a real build found. `rpds` has no pure-Python fallback, ... ok
+test_the_bundle_creates_binds_and_submits_one_template_job (tests.tools.test_packaged_creation.TheFrozenCommandCreatesAnOrdinaryJob.test_the_bundle_creates_binds_and_submits_one_template_job) ... ok
+test_the_created_job_carries_its_own_task_and_its_binding (tests.tools.test_packaged_creation.TheFrozenCommandCreatesAnOrdinaryJob.test_the_created_job_carries_its_own_task_and_its_binding)
+WHAT IS DURABLE AFTERWARDS, read from the instance's own files. ... ok
+test_the_template_resolved_is_one_THIS_BUILD_carries (tests.tools.test_packaged_creation.TheFrozenCommandCreatesAnOrdinaryJob.test_the_template_resolved_is_one_THIS_BUILD_carries)
+THE PACKAGED RESOURCE, and the build's own inventory of it. ... ok
+test_two_ordinary_creations_bind_two_jobs (tests.tools.test_packaged_creation.TheFrozenCommandCreatesAnOrdinaryJob.test_two_ordinary_creations_bind_two_jobs) ... ok
+test_the_identity_the_install_recorded_is_the_commands_own (tests.tools.test_packaged_creation.TheFrozenCommandInstallsTheBundleItIsGiven.test_the_identity_the_install_recorded_is_the_commands_own)
+`_identity_of` RAN THE COMMAND, and this is what it got back. ... ok
+test_the_instance_binds_this_bundle_and_verifies_against_it (tests.tools.test_packaged_creation.TheFrozenCommandInstallsTheBundleItIsGiven.test_the_instance_binds_this_bundle_and_verifies_against_it) ... ok
+test_a_template_this_build_does_not_carry_is_refused_by_name (tests.tools.test_packaged_creation.TheFrozenCommandRefusesTruthfully.test_a_template_this_build_does_not_carry_is_refused_by_name) ... ok
+test_an_operand_this_command_does_not_serve_is_refused (tests.tools.test_packaged_creation.TheFrozenCommandRefusesTruthfully.test_an_operand_this_command_does_not_serve_is_refused)
+AN UNPERMITTED OVERRIDE HAS NO OPERAND, which IS the enforcement. ... ok
+test_an_unknown_subcommand_is_refused_rather_than_guessed (tests.tools.test_packaged_creation.TheFrozenCommandRefusesTruthfully.test_an_unknown_subcommand_is_refused_rather_than_guessed)
+Nothing is installed for this one: the command refuses first. ... ok
+test_an_unsupported_source_selection_is_refused_by_name (tests.tools.test_packaged_creation.TheFrozenCommandRefusesTruthfully.test_an_unsupported_source_selection_is_refused_by_name) ... ok
+test_the_permitted_override_reaches_the_resolved_limits (tests.tools.test_packaged_creation.TheFrozenCommandRefusesTruthfully.test_the_permitted_override_reaches_the_resolved_limits)
+AND THE ONE THAT IS PERMITTED IS HONOURED, end to end. ... ok
+test_a_changed_intent_under_the_same_task_is_refused (tests.tools.test_packaged_creation.TheSameIntentReplaysThroughTheBundle.test_a_changed_intent_under_the_same_task_is_refused)
+A DIFFERENT SELECTION IS A DIFFERENT CREATION, not a replay. ... ok
+test_the_same_request_again_answers_the_same_job_once (tests.tools.test_packaged_creation.TheSameIntentReplaysThroughTheBundle.test_the_same_request_again_answers_the_same_job_once) ... ok
+
+----------------------------------------------------------------------
+Ran 24 tests in 13.145s
+
+OK

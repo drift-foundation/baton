@@ -23,6 +23,7 @@ from ..worker_manager.boundaries import Column
 
 __all__ = ["ALLOCATION_COLUMNS", "AFFINITY_COLUMNS", "EPISODE_COLUMNS",
            "DEFERRAL_COLUMNS", "FRESH_ATTEMPT_COLUMNS", "FRESH_ATTEMPT_STATES",
+           "TEMPLATE_JOB_COLUMNS", "TEMPLATE_JOB_STATES",
            "GENERATION_COLUMNS", "MIGRATIONS", "POOL_WORKER_COLUMNS", "SCHEMA", "SCHEMA_VERSION",
            "check_authority",
            "STORE_KIND", "TABLES", "JOB_COLUMNS",
@@ -90,7 +91,7 @@ def check_authority(value, *, what):
 # manager-owned fresh attempt is admitted under. CREATE ONLY, for the
 # reason every step after 3 is: `_schema_three_shape` subtracts what the
 # later migrations create, and an ALTER could not be subtracted.
-SCHEMA_VERSION = 8
+SCHEMA_VERSION = 9
 
 # W197661 review 2026-09-18T02-59-56Z [R2]: `deferrals` was in `SCHEMA` and in
 # the migration and NOT here, and `JobStore`'s required-table validation reads
@@ -99,7 +100,8 @@ SCHEMA_VERSION = 8
 # creates is a relation the build requires.
 TABLES = ("meta", "operations", "submissions", "jobs",
           "job_execution_limits", "stages", "episodes",
-          "receipts", "deferrals", "fresh_attempts", "pool_generations",
+          "receipts", "deferrals", "fresh_attempts", "template_jobs",
+          "pool_generations",
           "pool_workers", "stage_allocations", "worker_affinity")
 
 OPERATION_STATES = ("committed", "refused")
@@ -113,6 +115,11 @@ RECEIPT_STATES = ("performed", "adopted", "refused")
 
 # W358969: a reserved fresh identity, and one that has been recorded.
 FRESH_ATTEMPT_STATES = ("intended", "admitted")
+
+# W361912: the same two states for an ordinary Job created from a template.
+# Deliberately the same vocabulary and deliberately NOT the same relation --
+# see the 8 -> 9 migration for why one table could not carry both.
+TEMPLATE_JOB_STATES = ("intended", "created")
 
 SCHEMA = """
 CREATE TABLE meta (
@@ -588,6 +595,110 @@ CREATE UNIQUE INDEX fresh_attempts_one_successor
   -- migration statement's first word to derive what schema 3 is a
   -- subtraction OF, and a statement whose first word is `--` is refused.
   ON fresh_attempts (prior_job_id);
+
+CREATE TABLE template_jobs (
+  -- W361912 / DESIGN SCH-1a: ONE ORDINARY JOB CREATED FROM A VERSIONED
+  -- TEMPLATE, reserved before anything outside this store is touched.
+  --
+  -- WHY NOT `fresh_attempts`, which has the same two states and nearly the
+  -- same columns. That relation's own contract is a retry: `prior_job_id` is
+  -- NOT NULL, it carries `prior_attempt_ids`, and the unique index
+  -- `fresh_attempts_one_successor` is on the prior Job -- which is the rule
+  -- that one failed execution has one successor. An ordinary creation has no
+  -- predecessor, so it would have to write a sentinel into a required
+  -- foreign-key-checked column and would collide with every other creation
+  -- at that unique index.
+  -- Widening the retry relation to admit a NULL predecessor would weaken the
+  -- fork refusal W358969 exists for. Two intents, two relations, one
+  -- vocabulary.
+  --
+  -- THE PRIMARY KEY IS THE RESERVATION, exactly as it is one relation over:
+  -- two concurrent creations of one identity cannot both insert it.
+  job_id TEXT PRIMARY KEY,
+  work_id TEXT NOT NULL,
+  submission_id TEXT NOT NULL,
+  -- THE EXACT TEMPLATE VERSION THIS JOB WAS CREATED UNDER. It is also inside
+  -- the resolution digest below; it is a column of its own because "which
+  -- template is this Job" is a question an operator asks of the store rather
+  -- than a digest they reverse.
+  template_version TEXT NOT NULL,
+  state TEXT NOT NULL CHECK (state IN ('intended', 'created')),
+  -- THE CANONICAL REQUEST, so a second request for this identity carrying
+  -- different operands refuses as the different intent it is.
+  request TEXT NOT NULL,
+  -- AND THE FULL RESOLUTION DIGEST, which is the identity of the selected
+  -- intent and is NOT derivable from the submission.
+  --
+  -- W361910's acceptance review is explicit about why this column exists:
+  -- "Task statement, acceptance and work scope can differ without changing
+  -- the legacy submission; a submission signature alone is therefore
+  -- insufficient to identify that complete selected intent." A replay keyed
+  -- on the submission signature would hand a caller back a Job created for a
+  -- different statement, a different acceptance contract and a different
+  -- selected work scope, and report it as the same creation.
+  -- THE IMMUTABLE CALLER INTENT, which is what a replay is keyed on.
+  --
+  -- Review 2026-10-26T19-22-51Z R2: the first cut keyed the journal signature
+  -- on `resolution_digest` below, which carries this deployment's DERIVED
+  -- facts -- so an identical caller request repeated after the installed pool
+  -- moved was refused as a different creation instead of replaying the one it
+  -- had already performed. What the caller asked for and what the deployment
+  -- derived are two facts, and they are two columns.
+  request_digest TEXT NOT NULL,
+  resolution_digest TEXT NOT NULL,
+  -- AND THE RESOLUTION ITSELF, because a digest preserves IDENTITY and this
+  -- preserves PROVENANCE. The submission carries no statement, no acceptance
+  -- criterion and no selected work scope -- there is nowhere in it for them --
+  -- so a store holding only the digest could tell two creations apart and
+  -- could not say what either of them was for. The answer `create` journals
+  -- cannot nest the whole resolution inside itself (`contracts.canonical`
+  -- bounds a document at depth 8 and a resolution carrying a submission is
+  -- already at it), so the document lives here and the answer carries its
+  -- members flattened beside the digest.
+  resolution TEXT NOT NULL,
+  -- W363066: THIS JOB'S OWN TASK DOCUMENT, or NULL for a Job that has none.
+  --
+  -- The finding this closes: a created Job retained its caller's statement,
+  -- acceptance and scope as provenance and executed the task the DEPLOYMENT
+  -- installed, because `single_worker._task_bytes` reads the configured
+  -- `task_document` once at preflight and `stage_execution` forwards those
+  -- held bytes. The bytes are stored HERE so the path is never reopened: a
+  -- recorded Job runs the task it was created with, and a later configuration
+  -- change cannot move it.
+  --
+  -- NULL IS AN ORDINARY VALUE. A Job submitted by hand, created before this
+  -- relation existed, or created against a deployment that composes no
+  -- per-Job task has no own task and its delivery is the installed one --
+  -- which is the behaviour every Job had before this Work.
+  task_document TEXT,
+  -- The submission half as well, because that is what `submit` will journal
+  -- and what `_unclaimed` compares; the two together are what make a replay
+  -- the same creation rather than merely a compatible one.
+  submission_signature TEXT NOT NULL,
+  intended_at TEXT NOT NULL,
+  created_at TEXT,
+  incarnation TEXT NOT NULL,
+  -- WHO IS PERFORMING THIS CREATION'S EXTERNAL EFFECTS, or NULL for nobody.
+  -- W358969 review R5's compare-and-swap, for the same reason: a reservation
+  -- says the identity is spoken for and says nothing about who may publish a
+  -- Work authorization and a deployment binding for it.
+  holder TEXT,
+  CHECK ((state = 'intended' AND created_at IS NULL)
+         OR (state = 'created' AND created_at IS NOT NULL))
+);
+CREATE UNIQUE INDEX template_jobs_one_submission
+  -- ONE SUBMISSION IDENTITY, ONE CREATION. Two creations that chose one
+  -- submission name cannot both own the operation identity derived from it,
+  -- and the database is where two writers meet rather than at a read.
+  --
+  -- THE COMMENT IS INSIDE THE STATEMENT, which is not a style choice:
+  -- `store._created_name` refuses a post-schema-3 statement whose first word
+  -- is `--`, because this build derives schema 3 by subtracting what those
+  -- steps CREATE. The `fresh_attempts` index one relation over says the same
+  -- thing in its own body for the same reason.
+  ON template_jobs (submission_id);
+CREATE INDEX template_jobs_by_state
+  ON template_jobs (state, intended_at);
 """
 
 # version already recorded -> the statements that carry it to the next one.
@@ -970,6 +1081,111 @@ CREATE TABLE deferrals (
     # a store at 7 takes. An existing store migrates rather than refusing: the
     # Jobs it holds are pipelines somebody is running, and a fresh attempt is
     # exactly what an operator with a failed one needs.
+    8: """
+CREATE TABLE template_jobs (
+  -- W361912 / DESIGN SCH-1a: ONE ORDINARY JOB CREATED FROM A VERSIONED
+  -- TEMPLATE, reserved before anything outside this store is touched.
+  --
+  -- WHY NOT `fresh_attempts`, which has the same two states and nearly the
+  -- same columns. That relation's own contract is a retry: `prior_job_id` is
+  -- NOT NULL, it carries `prior_attempt_ids`, and the unique index
+  -- `fresh_attempts_one_successor` is on the prior Job -- which is the rule
+  -- that one failed execution has one successor. An ordinary creation has no
+  -- predecessor, so it would have to write a sentinel into a required
+  -- foreign-key-checked column and would collide with every other creation
+  -- at that unique index.
+  -- Widening the retry relation to admit a NULL predecessor would weaken the
+  -- fork refusal W358969 exists for. Two intents, two relations, one
+  -- vocabulary.
+  --
+  -- THE PRIMARY KEY IS THE RESERVATION, exactly as it is one relation over:
+  -- two concurrent creations of one identity cannot both insert it.
+  job_id TEXT PRIMARY KEY,
+  work_id TEXT NOT NULL,
+  submission_id TEXT NOT NULL,
+  -- THE EXACT TEMPLATE VERSION THIS JOB WAS CREATED UNDER. It is also inside
+  -- the resolution digest below; it is a column of its own because "which
+  -- template is this Job" is a question an operator asks of the store rather
+  -- than a digest they reverse.
+  template_version TEXT NOT NULL,
+  state TEXT NOT NULL CHECK (state IN ('intended', 'created')),
+  -- THE CANONICAL REQUEST, so a second request for this identity carrying
+  -- different operands refuses as the different intent it is.
+  request TEXT NOT NULL,
+  -- AND THE FULL RESOLUTION DIGEST, which is the identity of the selected
+  -- intent and is NOT derivable from the submission.
+  --
+  -- W361910's acceptance review is explicit about why this column exists:
+  -- "Task statement, acceptance and work scope can differ without changing
+  -- the legacy submission; a submission signature alone is therefore
+  -- insufficient to identify that complete selected intent." A replay keyed
+  -- on the submission signature would hand a caller back a Job created for a
+  -- different statement, a different acceptance contract and a different
+  -- selected work scope, and report it as the same creation.
+  -- THE IMMUTABLE CALLER INTENT, which is what a replay is keyed on.
+  --
+  -- Review 2026-10-26T19-22-51Z R2: the first cut keyed the journal signature
+  -- on `resolution_digest` below, which carries this deployment's DERIVED
+  -- facts -- so an identical caller request repeated after the installed pool
+  -- moved was refused as a different creation instead of replaying the one it
+  -- had already performed. What the caller asked for and what the deployment
+  -- derived are two facts, and they are two columns.
+  request_digest TEXT NOT NULL,
+  resolution_digest TEXT NOT NULL,
+  -- AND THE RESOLUTION ITSELF, because a digest preserves IDENTITY and this
+  -- preserves PROVENANCE. The submission carries no statement, no acceptance
+  -- criterion and no selected work scope -- there is nowhere in it for them --
+  -- so a store holding only the digest could tell two creations apart and
+  -- could not say what either of them was for. The answer `create` journals
+  -- cannot nest the whole resolution inside itself (`contracts.canonical`
+  -- bounds a document at depth 8 and a resolution carrying a submission is
+  -- already at it), so the document lives here and the answer carries its
+  -- members flattened beside the digest.
+  resolution TEXT NOT NULL,
+  -- W363066: THIS JOB'S OWN TASK DOCUMENT, or NULL for a Job that has none.
+  --
+  -- The finding this closes: a created Job retained its caller's statement,
+  -- acceptance and scope as provenance and executed the task the DEPLOYMENT
+  -- installed, because `single_worker._task_bytes` reads the configured
+  -- `task_document` once at preflight and `stage_execution` forwards those
+  -- held bytes. The bytes are stored HERE so the path is never reopened: a
+  -- recorded Job runs the task it was created with, and a later configuration
+  -- change cannot move it.
+  --
+  -- NULL IS AN ORDINARY VALUE. A Job submitted by hand, created before this
+  -- relation existed, or created against a deployment that composes no
+  -- per-Job task has no own task and its delivery is the installed one --
+  -- which is the behaviour every Job had before this Work.
+  task_document TEXT,
+  -- The submission half as well, because that is what `submit` will journal
+  -- and what `_unclaimed` compares; the two together are what make a replay
+  -- the same creation rather than merely a compatible one.
+  submission_signature TEXT NOT NULL,
+  intended_at TEXT NOT NULL,
+  created_at TEXT,
+  incarnation TEXT NOT NULL,
+  -- WHO IS PERFORMING THIS CREATION'S EXTERNAL EFFECTS, or NULL for nobody.
+  -- W358969 review R5's compare-and-swap, for the same reason: a reservation
+  -- says the identity is spoken for and says nothing about who may publish a
+  -- Work authorization and a deployment binding for it.
+  holder TEXT,
+  CHECK ((state = 'intended' AND created_at IS NULL)
+         OR (state = 'created' AND created_at IS NOT NULL))
+);
+CREATE UNIQUE INDEX template_jobs_one_submission
+  -- ONE SUBMISSION IDENTITY, ONE CREATION. Two creations that chose one
+  -- submission name cannot both own the operation identity derived from it,
+  -- and the database is where two writers meet rather than at a read.
+  --
+  -- THE COMMENT IS INSIDE THE STATEMENT, which is not a style choice:
+  -- `store._created_name` refuses a post-schema-3 statement whose first word
+  -- is `--`, because this build derives schema 3 by subtracting what those
+  -- steps CREATE. The `fresh_attempts` index one relation over says the same
+  -- thing in its own body for the same reason.
+  ON template_jobs (submission_id);
+CREATE INDEX template_jobs_by_state
+  ON template_jobs (state, intended_at);
+""",
     7: """
 CREATE TABLE fresh_attempts (
   -- W358969 / DESIGN REC-7: ONE FRESH ATTEMPT'S RESERVED IDENTITY AND ITS
@@ -1149,6 +1365,21 @@ FRESH_ATTEMPT_COLUMNS = {
     "submission_signature": Column("json"),
     "intended_at": Column("instant"),
     "admitted_at": Column("instant", nullable=True),
+    "incarnation": Column("text"), "holder": Column("text", nullable=True),
+}
+
+TEMPLATE_JOB_COLUMNS = {
+    "job_id": Column("identity"), "work_id": Column("text"),
+    "submission_id": Column("identity"),
+    "template_version": Column("text"),
+    "state": Column("text", allowed=TEMPLATE_JOB_STATES),
+    "request": Column("json"),
+    "request_digest": Column("text"),
+    "resolution_digest": Column("text"), "resolution": Column("json"),
+    "task_document": Column("text", nullable=True),
+    "submission_signature": Column("json"),
+    "intended_at": Column("instant"),
+    "created_at": Column("instant", nullable=True),
     "incarnation": Column("text"), "holder": Column("text", nullable=True),
 }
 

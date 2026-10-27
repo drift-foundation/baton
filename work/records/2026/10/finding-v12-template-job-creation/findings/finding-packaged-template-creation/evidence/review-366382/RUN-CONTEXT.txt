@@ -1,0 +1,10 @@
+cwd: /tmp/review-w366246-366382/v12/python
+argv: ['python3', '-m', 'unittest', '-v', 'tests.tools.test_packaging', 'tests.tools.test_packaged_creation']
+PYTHONPATH=src:.
+BATON_V12_DISK_ROOT=/var/tmp/baton-w257624
+BATON_V12_STACK_TEST_ROOT=/var/tmp/baton-w257624
+BATON_V12_STACK_DISTRO=/tmp/w366250-build/out/distro
+BATON_V12_STACK_PACKAGING_REQUIRED=1
+exit=0
+wall_seconds=13.674
+No rebuild, live provider/engine, deployed mutation or Git mutation. Tests execute actual frozen command against disposable stores.

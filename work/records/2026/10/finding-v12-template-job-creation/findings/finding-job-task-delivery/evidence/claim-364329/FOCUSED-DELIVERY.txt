@@ -1,0 +1,130 @@
+test_a_crash_at_the_boundary_resumes_delivered (tests.tools.test_job_task_delivery.ARestartAdoptsTheDeliveredAttempt.test_a_crash_at_the_boundary_resumes_delivered) ... ok
+test_a_crash_at_the_credential_resumes_delivered (tests.tools.test_job_task_delivery.ARestartAdoptsTheDeliveredAttempt.test_a_crash_at_the_credential_resumes_delivered) ... ok
+test_a_crash_at_the_published_input_resumes_delivered (tests.tools.test_job_task_delivery.ARestartAdoptsTheDeliveredAttempt.test_a_crash_at_the_published_input_resumes_delivered)
+THE ONE THAT MATTERS MOST: the root is on disk, half-trusted. ... ok
+test_a_crash_at_the_recorded_attempt_resumes_delivered (tests.tools.test_job_task_delivery.ARestartAdoptsTheDeliveredAttempt.test_a_crash_at_the_recorded_attempt_resumes_delivered)
+The point where `record_attempt` has fixed the input digest. ... ok
+test_a_crash_at_the_retained_manifest_resumes_delivered (tests.tools.test_job_task_delivery.ARestartAdoptsTheDeliveredAttempt.test_a_crash_at_the_retained_manifest_resumes_delivered) ... ok
+test_a_crash_before_the_claim_resumes_on_the_delivered_identity (tests.tools.test_job_task_delivery.ARestartAdoptsTheDeliveredAttempt.test_a_crash_before_the_claim_resumes_on_the_delivered_identity)
+THE EARLY CONTROL: nothing has been prepared yet. ... ok
+test_a_restart_that_would_deliver_another_task_publishes_nothing (tests.tools.test_job_task_delivery.ARestartAdoptsTheDeliveredAttempt.test_a_restart_that_would_deliver_another_task_publishes_nothing)
+AND THE ADOPTION IS NOT A RE-PREPARATION. ... ok
+test_a_missing_published_task_refuses (tests.tools.test_job_task_delivery.RestartProvesWhatWasPublished.test_a_missing_published_task_refuses) ... ok
+test_a_restart_proves_the_published_task_and_continues (tests.tools.test_job_task_delivery.RestartProvesWhatWasPublished.test_a_restart_proves_the_published_task_and_continues)
+NOT A SECOND RENDERING COMPARED WITH ITSELF. ... /tmp/w363066-329/v12/python/tests/tools/test_job_task_delivery.py:278: ResourceWarning: unclosed file <_io.BufferedReader name='/var/tmp/v12-w71917-pq9q_mdp/inputs-job-first/inputs/task.json'>
+  "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_a_restart_that_would_deliver_another_task_refuses (tests.tools.test_job_task_delivery.RestartProvesWhatWasPublished.test_a_restart_that_would_deliver_another_task_refuses)
+THE MISMATCH, which is the cross-Job accident made concrete. ... ok
+test_a_tampered_published_task_refuses (tests.tools.test_job_task_delivery.RestartProvesWhatWasPublished.test_a_tampered_published_task_refuses) ... ok
+test_publishing_over_an_existing_task_refuses (tests.tools.test_job_task_delivery.RestartProvesWhatWasPublished.test_publishing_over_an_existing_task_refuses)
+PROVENANCE THIS COMPOSITION CANNOT PROVE. ... ok
+test_a_matching_terminal_drives_the_whole_ending (tests.tools.test_single_worker.TheAnsweredEndingRunsThroughTheRealOwners.test_a_matching_terminal_drives_the_whole_ending) ... ok
+test_a_terminal_naming_another_envelope_stops_before_intake (tests.tools.test_single_worker.TheAnsweredEndingRunsThroughTheRealOwners.test_a_terminal_naming_another_envelope_stops_before_intake)
+The mismatch control, through the real owners. ... ok
+test_a_terminal_with_no_usable_digest_never_reaches_the_ending (tests.tools.test_single_worker.TheAnsweredEndingRunsThroughTheRealOwners.test_a_terminal_with_no_usable_digest_never_reaches_the_ending)
+The missing and malformed controls, refused at their own owner. ... ok
+test_the_ending_is_not_asked_again_once_cleanup_is_settled (tests.tools.test_single_worker.TheAnsweredEndingRunsThroughTheRealOwners.test_the_ending_is_not_asked_again_once_cleanup_is_settled) ... ok
+test_a_job_with_no_own_task_prepares_the_installed_one (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_a_job_with_no_own_task_prepares_the_installed_one)
+THE PRESERVED PATH, through the same owning sequence. ... ok
+test_a_missing_task_refuses_on_the_reopened_preparation (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_a_missing_task_refuses_on_the_reopened_preparation) ... ok
+test_a_reopened_preparation_proves_the_same_root (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_a_reopened_preparation_proves_the_same_root)
+RESTART THROUGH THE OWNING PATH, not a second rendering. ... ok
+test_a_tampered_root_refuses_on_the_reopened_preparation (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_a_tampered_root_refuses_on_the_reopened_preparation) ... ok
+test_an_assignment_from_the_installed_manifest_refuses (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_an_assignment_from_the_installed_manifest_refuses)
+THE REVIEWER'S R2, AS A CASE. ... ok
+test_both_ordinary_roles_prepare_the_requested_task (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_both_ordinary_roles_prepare_the_requested_task)
+THE WHOLE SEQUENCE, for implementation AND review. ... ok
+test_the_recorded_and_launch_identities_are_the_delivered_one (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_the_recorded_and_launch_identities_are_the_delivered_one)
+EVERY OWNER DESCRIBES ONE RUNTIME INPUT. ... ok
+test_two_jobs_prepare_independently_on_one_worker (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_two_jobs_prepare_independently_on_one_worker) ... ok
+test_a_job_with_no_own_task_is_served_the_installed_one (tests.tools.test_job_task_delivery.TheCreatedJobRunsThroughThePoolServingLoop.test_a_job_with_no_own_task_is_served_the_installed_one)
+THE PRESERVED PATH, through the same loop and the same fix. ... ok
+test_the_created_jobs_own_task_reaches_a_started_runtime (tests.tools.test_job_task_delivery.TheCreatedJobRunsThroughThePoolServingLoop.test_the_created_jobs_own_task_reaches_a_started_runtime)
+THE WHOLE SCENARIO: creation, loop, publication, start. ... ok
+test_the_stageless_adapter_over_the_pool_attempt_is_the_delivered_one (tests.tools.test_job_task_delivery.TheCreatedJobRunsThroughThePoolServingLoop.test_the_stageless_adapter_over_the_pool_attempt_is_the_delivered_one)
+THE RECOVERY IDENTITY, after a real pool start. ... ok
+test_a_job_the_reader_answers_none_for_gets_the_installed_task (tests.tools.test_job_task_delivery.TheInstalledDeliveryIsPreserved.test_a_job_the_reader_answers_none_for_gets_the_installed_task) ... ok
+test_a_stage_with_no_job_gets_the_installed_task (tests.tools.test_job_task_delivery.TheInstalledDeliveryIsPreserved.test_a_stage_with_no_job_gets_the_installed_task)
+THE BOOTSTRAP COMPOSITION, which binds no Job. ... ok
+test_a_worker_with_no_reader_at_all_gets_the_installed_task (tests.tools.test_job_task_delivery.TheInstalledDeliveryIsPreserved.test_a_worker_with_no_reader_at_all_gets_the_installed_task) ... ok
+test_it_answers_the_stored_document_and_none_for_everything_else (tests.tools.test_job_task_delivery.TheReaderOverARealStore.test_it_answers_the_stored_document_and_none_for_everything_else) ... ok
+test_a_review_job_with_no_own_task_is_delivered_the_installed_one (tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_a_review_job_with_no_own_task_is_delivered_the_installed_one)
+THE PRESERVED PATH for the review role, through the same mount. ... ok
+test_one_job_gives_both_roles_one_job_scoped_identity (tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_one_job_gives_both_roles_one_job_scoped_identity)
+ONE JOB, TWO ROLES, TWO RUNTIME MANIFESTS, ONE IDENTITY. ... ok
+test_the_review_attempt_is_delivered_the_jobs_requested_task (tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_the_review_attempt_is_delivered_the_jobs_requested_task)
+THE BYTES IN THE REVIEW ATTEMPT'S OWN INPUT ROOT. ... ok
+test_the_review_mount_is_the_frozen_checkpoint_read_only (tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_the_review_mount_is_the_frozen_checkpoint_read_only)
+REVIEW SEMANTICS, from the boundary the manager composed. ... ok
+test_the_stageless_adapter_over_a_review_attempt_is_the_delivered_one (tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_the_stageless_adapter_over_a_review_attempt_is_the_delivered_one)
+AND THE RECOVERY PATH, for the role that was never covered. ... ok
+test_the_review_attempt_is_recorded_and_adapted_on_the_delivered_input (tests.tools.test_job_task_delivery.TheReviewStageRunsThroughThePoolServingLoop.test_the_review_attempt_is_recorded_and_adapted_on_the_delivered_input)
+THE IDENTITIES: recorded, manifest, context and adapter. ... ok
+test_the_review_mount_is_the_checkpoint_the_round_froze (tests.tools.test_job_task_delivery.TheReviewStageRunsThroughThePoolServingLoop.test_the_review_mount_is_the_checkpoint_the_round_froze)
+REVIEW SEMANTICS, from the attachment the loop granted. ... ok
+test_the_review_runtime_is_started_with_the_requested_task (tests.tools.test_job_task_delivery.TheReviewStageRunsThroughThePoolServingLoop.test_the_review_runtime_is_started_with_the_requested_task)
+THE MILESTONE: the loop, the ending, and the review runtime. ... ok
+test_a_removed_root_refuses_rather_than_substituting_the_installed (tests.tools.test_job_task_delivery.TheRuntimePathDeliversAndRecoversOneIdentity.test_a_removed_root_refuses_rather_than_substituting_the_installed)
+A ROOT THAT CANNOT BE PROVED IS NOT ANSWERED FROM ELSEWHERE. ... ok
+test_a_stage_that_resolves_the_wrong_input_refuses (tests.tools.test_job_task_delivery.TheRuntimePathDeliversAndRecoversOneIdentity.test_a_stage_that_resolves_the_wrong_input_refuses)
+THE OTHER ROUTE TO THE SAME WRONG ANSWER, closed. ... ok
+test_an_attempt_whose_WHOLE_root_was_substituted_refuses (tests.tools.test_job_task_delivery.TheRuntimePathDeliversAndRecoversOneIdentity.test_an_attempt_whose_WHOLE_root_was_substituted_refuses)
+A COMPLETE, INTERNALLY VALID PAIR, refused by the RECORD alone. ... ok
+test_an_attempt_whose_root_HALF_was_substituted_refuses (tests.tools.test_job_task_delivery.TheRuntimePathDeliversAndRecoversOneIdentity.test_an_attempt_whose_root_HALF_was_substituted_refuses)
+ONE DOCUMENT REPLACED, which is a MISMATCHED pair. ... ok
+test_an_installed_attempt_with_no_root_still_reconciles (tests.tools.test_job_task_delivery.TheRuntimePathDeliversAndRecoversOneIdentity.test_an_installed_attempt_with_no_root_still_reconciles)
+THE PRESERVED PATH, and it must not acquire a new failure. ... ok
+test_the_recovery_entrypoint_identifies_the_delivered_attempt (tests.tools.test_job_task_delivery.TheRuntimePathDeliversAndRecoversOneIdentity.test_the_recovery_entrypoint_identifies_the_delivered_attempt)
+`refresh_runtime`, the serving loop's own runtime read. ... ok
+test_the_stageless_adapter_describes_the_delivered_input (tests.tools.test_job_task_delivery.TheRuntimePathDeliversAndRecoversOneIdentity.test_the_stageless_adapter_describes_the_delivered_input)
+THE CORRECTION, asked of the function the recovery callers use. ... ok
+test_the_started_attempt_is_recorded_against_the_delivered_input (tests.tools.test_job_task_delivery.TheRuntimePathDeliversAndRecoversOneIdentity.test_the_started_attempt_is_recorded_against_the_delivered_input)
+THE RECORD AND THE DISK, after a real start. ... ok
+test_a_legacy_job_naming_the_whole_manifest_digest_says_so (tests.tools.test_single_worker.ThreeWorkersOneJobThreeImages.test_a_legacy_job_naming_the_whole_manifest_digest_says_so)
+Review206898 [R3]. This IS a semantic change, so a Job submitted ... ok
+test_a_worker_that_moved_a_shared_member_is_still_refused (tests.tools.test_single_worker.ThreeWorkersOneJobThreeImages.test_a_worker_that_moved_a_shared_member_is_still_refused)
+The Job half. A heterogeneous pool must not become a pool that ... ok
+test_a_worker_whose_image_is_not_its_own_manifests_is_refused (tests.tools.test_single_worker.ThreeWorkersOneJobThreeImages.test_a_worker_whose_image_is_not_its_own_manifests_is_refused)
+`single_worker.py:267` is intact, and it is what stops "each worker ... ok
+test_the_two_refusals_are_told_apart (tests.tools.test_single_worker.ThreeWorkersOneJobThreeImages.test_the_two_refusals_are_told_apart)
+The whole reason the legacy branch exists: a migratable Job and a ... ok
+test_three_roles_on_three_images_all_match_one_job (tests.tools.test_single_worker.ThreeWorkersOneJobThreeImages.test_three_roles_on_three_images_all_match_one_job)
+THE POSITIVE. Three workers, three images, three runtime manifests, ... ok
+test_both_attempts_are_recorded_against_their_own_identity (tests.tools.test_job_task_delivery.TwoCreatedJobsRunThroughOnePoolServingLoop.test_both_attempts_are_recorded_against_their_own_identity)
+THE DURABLE RECORD, for both, written by the loop. ... ok
+test_both_created_jobs_are_served_their_own_requested_bytes (tests.tools.test_job_task_delivery.TwoCreatedJobsRunThroughOnePoolServingLoop.test_both_created_jobs_are_served_their_own_requested_bytes)
+TWO JOBS, ONE LOOP, TWO DELIVERIES, NOTHING CROSSED. ... ok
+test_both_jobs_reach_their_own_started_runtime (tests.tools.test_job_task_delivery.TwoCreatedJobsRunThroughOnePoolServingLoop.test_both_jobs_reach_their_own_started_runtime)
+TWO JOBS CODING SIMULTANEOUSLY, through one loop. ... ok
+test_each_job_reached_its_own_line_and_producer (tests.tools.test_job_task_delivery.TwoCreatedJobsRunThroughOnePoolServingLoop.test_each_job_reached_its_own_line_and_producer)
+THE POOL'S OWN PER-JOB BINDING, read back through its reader. ... ok
+test_the_single_container_engine_refuses_the_second_delivery (tests.tools.test_job_task_delivery.TwoCreatedJobsRunThroughOnePoolServingLoop.test_the_single_container_engine_refuses_the_second_delivery)
+AND THE REFUSAL IS KEPT, because it is worth keeping. ... ok
+test_neither_jobs_bytes_reach_the_others_root (tests.tools.test_job_task_delivery.TwoJobsOnOneWorkerGetTheirOwnBytes.test_neither_jobs_bytes_reach_the_others_root)
+NO CROSS-JOB EFFECT, from ONE worker object. ... /tmp/w363066-329/v12/python/tests/tools/test_job_task_delivery.py:186: ResourceWarning: unclosed file <_io.BufferedReader name='/var/tmp/v12-w71917-ijup7f5s/inputs-job-first/inputs/task.json'>
+  "rb").read().decode("utf-8")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/tmp/w363066-329/v12/python/tests/tools/test_job_task_delivery.py:189: ResourceWarning: unclosed file <_io.BufferedReader name='/var/tmp/v12-w71917-ijup7f5s/inputs-job-second/inputs/task.json'>
+  "rb").read().decode("utf-8")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_the_published_file_is_this_jobs_own_task (tests.tools.test_job_task_delivery.TwoJobsOnOneWorkerGetTheirOwnBytes.test_the_published_file_is_this_jobs_own_task)
+THE BYTES ON DISK, read back and compared whole. ... ok
+test_the_review_role_is_delivered_the_same_task (tests.tools.test_job_task_delivery.TwoJobsOnOneWorkerGetTheirOwnBytes.test_the_review_role_is_delivered_the_same_task)
+ROLE-SPECIFIC SEMANTICS PRESERVED, and the task is the JOB's. ... ok
+test_the_two_jobs_input_identities_differ_and_both_are_consistent (tests.tools.test_job_task_delivery.TwoJobsOnOneWorkerGetTheirOwnBytes.test_the_two_jobs_input_identities_differ_and_both_are_consistent) ... ok
+test_each_job_gets_its_own_bytes_identity_and_root (tests.tools.test_job_task_delivery.TwoRequestedJobsThroughOnePool.test_each_job_gets_its_own_bytes_identity_and_root)
+TWO ATTEMPTS, TWO ROOTS, NOTHING OF EITHER IN THE OTHER. ... ok
+test_each_job_is_granted_its_own_line (tests.tools.test_job_task_delivery.TwoRequestedJobsThroughOnePool.test_each_job_is_granted_its_own_line)
+THE POOL'S OWN REASON this is possible at all. ... ok
+test_the_shared_configuration_is_not_mutated_by_either_job (tests.tools.test_job_task_delivery.TwoRequestedJobsThroughOnePool.test_the_shared_configuration_is_not_mutated_by_either_job)
+ONE WORKER OBJECT, SERVING TWO JOBS, UNCHANGED BY BOTH. ... ok
+test_the_served_job_gets_its_own_bytes_and_the_second_waits (tests.tools.test_job_task_delivery.TwoRequestedJobsThroughOneServingLoop.test_the_served_job_gets_its_own_bytes_and_the_second_waits)
+WHAT ONE BOOTSTRAP LOOP CAN ACTUALLY SERVE, measured. ... ok
+
+----------------------------------------------------------------------
+Ran 65 tests in 6.757s
+
+OK

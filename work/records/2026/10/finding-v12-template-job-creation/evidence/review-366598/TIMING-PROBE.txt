@@ -1,0 +1,11 @@
+test_the_routine_start_is_within_the_obs0_bound (tests.tools.test_joined_workflow.TheRoutineStartupInterval.test_the_routine_start_is_within_the_obs0_bound) ... CREATION_PORTS {"derivation": "tests.job_manager.test_creation.FakeDerivation", "authorization": "tests.job_manager.test_creation.FakeAuthorization", "binding": "tests.job_manager.test_creation.FakeBinding", "ownership": "tests.job_manager.test_creation.FakeOwnership"}
+ok
+test_the_correction_rounds_start_is_within_the_bound_too (tests.tools.test_joined_workflow.TheRoutineStartupInterval.test_the_correction_rounds_start_is_within_the_bound_too)
+A CORRECTION IS A ROUTINE START, so it is measured as one. ... CREATION_PORTS {"derivation": "tests.job_manager.test_creation.FakeDerivation", "authorization": "tests.job_manager.test_creation.FakeAuthorization", "binding": "tests.job_manager.test_creation.FakeBinding", "ownership": "tests.job_manager.test_creation.FakeOwnership"}
+BEFORE_CORRECTION_TIMER {"stage_state": "waiting", "second_attempt": "attempt-149c98226999ec49ee1699a7d9906fb79bf69659e8b8f5de925854b0f80f3795", "runtimes": [{"runtime_attempt_id": "attempt-85732a401245fc1f7374be3571ad3ba252cf9695ea8fba7f21115fea3f8d7070", "execution_runtime": "destroyed"}, {"runtime_attempt_id": "attempt-c91bf546b53c3e5be940a60a107500aa8388700babfaf2415c474c8c0e7b9f19", "execution_runtime": "destroyed"}, {"runtime_attempt_id": "attempt-149c98226999ec49ee1699a7d9906fb79bf69659e8b8f5de925854b0f80f3795", "execution_runtime": "running"}]}
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 3.370s
+
+OK

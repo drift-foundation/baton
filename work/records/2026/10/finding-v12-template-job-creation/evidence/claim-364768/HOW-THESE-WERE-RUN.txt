@@ -1,0 +1,102 @@
+How the runs in this directory were produced — claim364768, W361912
+===================================================================
+
+The canonical tree is not edited. Both roots carry the whole of `v12/` except
+`node_modules`, without the stray `v12-w71917-*` fixture directories, which is
+the recipe correction recorded in claim364551.
+
+  candidate root  /tmp/w361912-768   (candidate-364768 overlaid)
+  base root       /tmp/w361912-base  (no overlay)
+
+Commands, from <root>/v12/python with PYTHONPATH=src:. —
+
+  python3 -m unittest tests.tools.test_connected_creation -v
+  python3 -m unittest discover -s tests/job_manager -t . -p 'test_*.py'
+  python3 -m unittest tests.tools.test_bootstrap tests.tools.test_instance \
+      tests.tools.test_packaging tests.tools.test_creation_ports \
+      tests.tools.test_connected_creation tests.tools.test_job_task_delivery
+  python3 reviewers_probe_relaxed.py       > INSTALL-PROBE-CORRECTED.txt
+
+What each file is
+-----------------
+
+CONNECTED-CREATION.txt  tests.tools.test_connected_creation, 22 cases, OK.
+                        Eight of them are new: the installer-input custody
+                        class.
+JOB-MANAGER-SUITE.txt   whole tests/job_manager, 1375 OK.
+TOOLS-CANDIDATE.txt     six tools suites: 378 cases, ONE failure —
+                        test_packaging's
+                        test_every_subcommand_this_command_serves_is_offered.
+TOOLS-BASE.txt          bootstrap + instance + packaging on the BASE root: the
+                        same one failure. Pre-existing and unrelated: the
+                        deployed command does not offer `attempt-diagnostics`
+                        among its subcommands, and nothing in this Work
+                        touches `tools/stack.py`.
+reviewers_probe_relaxed.py
+INSTALL-PROBE-CORRECTED.txt
+                        THE REVIEWER'S OWN PROBE, with one assumption
+                        relaxed, and its output. `install_probe.py` calls
+                        `ConnectedCreationCase.installed`, which ASSERTS the
+                        install succeeded — so against this candidate it
+                        raises before it can report, because the install now
+                        refuses. The relaxed copy runs the same three setups
+                        (plus the temporary name this implementation actually
+                        uses) and reports what each leaves behind.
+
+What the probe reports now, case by case
+----------------------------------------
+
+  existing              install REFUSED ("there is already an installer input
+                        document at ..."), the foreign bytes preserved, NO
+                        selector published.
+  temp-symlink          install SUCCEEDS with the link untouched and the
+                        foreign target preserved. The `.tmp` name the first
+                        version renamed from is not used by anything any
+                        more, so there is nothing to follow — a stronger
+                        answer than refusing it.
+  temp-partial-symlink  install REFUSED by `custody` ("the destination
+                        already carries a link at
+                        .../install-inputs.json.partial"), nothing created,
+                        foreign target preserved.
+  failed-selector       install refused, and the input document is GONE: the
+                        unwind now covers it. No selector, no justfile, no
+                        runtime.
+
+The correction
+--------------
+
+`custody` (which is asked twice, the second time holding the destination's
+lock) now includes `install_inputs` and `install_inputs_temporary` in the
+link/outside loop and refuses either name outright, exactly as it refuses the
+justfile and the selector — before any effect.
+
+The write itself no longer goes through `_publish`. It is the justfile's own
+pattern: `os.open` with `O_CREAT | O_EXCL | O_NOFOLLOW`, the identity pinned
+from `_identity_of_handle` the moment the file exists, the document written
+through that handle, and no temporary and no rename anywhere. `install`'s
+unwind removes it through `_remove_if_still_ours`, so a file somebody replaced
+between the create and the failure is left alone and reported as such.
+
+What the eight new cases assert
+-------------------------------
+
+  * a foreign REGULAR document at that name is refused with its bytes intact
+    and nothing published;
+  * a LINK at that name is refused, the link survives and so do its target's
+    bytes;
+  * a DANGLING link is refused (lexists, not exists);
+  * a link at the TEMPORARY name is refused and not followed;
+  * a stale `.tmp` link is inert: the install succeeds, the link and its
+    target are untouched, and the creation over that instance still works;
+  * a selector failure after the document is written removes ONLY what this
+    attempt made, leaves no half install, and a RETRY installs and creates;
+  * a document REPLACED during the failure is left alone, with the unwind
+    saying it is "no longer the installer input document this attempt made";
+  * a successful install owns a regular file at that name, leaves no
+    temporary of either spelling, and a second install into the same
+    destination is refused rather than replacing it.
+
+WHAT STANDS IN, NAMED, unchanged from claim364551: `test_bootstrap`'s
+stand-in one-folder runtime with `_identity_of` patched as that suite patches
+it (nothing executes it); one `ControlStore.open` as the manager's first run;
+`--no-repositories` and directory sources, so no version control runs.

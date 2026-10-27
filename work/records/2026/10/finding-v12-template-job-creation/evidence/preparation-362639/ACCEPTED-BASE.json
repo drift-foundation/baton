@@ -1,0 +1,22 @@
+{
+  "commit": "19f02ce1295b4517a85f0822d48754efc982f388",
+  "owner_close_event": 362634,
+  "candidate_manifest": "cdb05010acc18113d78f1197f3370d6b770bb7e3ee1beb016f6f3968ca7116e3",
+  "members": {
+    "v12/python/src/baton_v12/job_manager/__init__.py": {
+      "reviewed": "bfebb949e201c9de01075e98e3872fc2f761d460bd57308192c10a0795cf580c",
+      "current": "bfebb949e201c9de01075e98e3872fc2f761d460bd57308192c10a0795cf580c",
+      "committed": "bfebb949e201c9de01075e98e3872fc2f761d460bd57308192c10a0795cf580c"
+    },
+    "v12/python/src/baton_v12/job_manager/templates.py": {
+      "reviewed": "64f9f3412c673d7bac7ace6190e3f8ddebba7056f90a279f07fc70efc0975e16",
+      "current": "64f9f3412c673d7bac7ace6190e3f8ddebba7056f90a279f07fc70efc0975e16",
+      "committed": "64f9f3412c673d7bac7ace6190e3f8ddebba7056f90a279f07fc70efc0975e16"
+    },
+    "v12/python/tests/job_manager/test_templates.py": {
+      "reviewed": "a45389dedc4008c937bca139effa6c08cba852c5c8d1ebc6e8cbfa97d6caab13",
+      "current": "a45389dedc4008c937bca139effa6c08cba852c5c8d1ebc6e8cbfa97d6caab13",
+      "committed": "a45389dedc4008c937bca139effa6c08cba852c5c8d1ebc6e8cbfa97d6caab13"
+    }
+  }
+}

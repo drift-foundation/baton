@@ -1,0 +1,59 @@
+{
+ "bound_seconds": 60.0,
+ "correction": {
+  "closes_at": "the second agent enters work() in its own runtime, stamped by the agent",
+  "inside": [
+   "the review ending: seal, intake, retention, the verdict read from frozen output and recorded",
+   "routing the Work back to the producer's own route",
+   "open_correction advancing the Job to its next round",
+   "allocation, writer grant on the released line, input root, launch document, credential delivery, runtime start",
+   "launch adoption, exchange and worker preflight"
+  ],
+  "measured": {
+   "attempt_id": "attempt-39a4d64781b0c3b0b44dca40083495eb55b2152fdf3d935ed79a889b4413f2be",
+   "runtime_startup_seconds": 0.0043102389990963275,
+   "verdict_to_launch_seconds": 0.2899591000004875,
+   "whole_seconds": 0.29426933899958385
+  },
+  "opens_at": "immediately after the review turn returns and BEFORE any reconciliation; the verdict relation is asserted empty at this instant, so the verdict is not yet recorded"
+ },
+ "initial": {
+  "closes_at": "the assigned agent enters work() in its own runtime, stamped by the agent",
+  "inside": [
+   "command parsing, request composition and dispatch",
+   "DeploymentDerivation reading this instance's emitted configuration",
+   "WorkAuthorization on this instance's own Authority",
+   "NewJobBinding publishing into install-inputs.json and bootstrap.prepare revalidating the whole deployment",
+   "InstanceOwnership taking the real instance guard",
+   "create_template_job: template resolution, full resolution digest, identity reservation, per-Job task composed, submission admitted",
+   "every scheduler tick: offer, claim, allocation, writer grant, input root composed and frozen, launch document, credential delivery, runtime start",
+   "launch adoption, exchange and worker preflight"
+  ],
+  "measured": {
+   "attempt_id": "attempt-39db1d3fd85f46cff6d24391fdc16786ae6fdc6bdc2dc34d274e81da3cc3cd99",
+   "command_and_admission_seconds": 0.04080879899993306,
+   "runtime_startup_seconds": 0.00430887600123242,
+   "scheduling_and_launch_seconds": 0.11375393399976019,
+   "whole_seconds": 0.15887160900092567
+  },
+  "opens_at": "immediately before the operator's command line is composed and tools.job_manager.main is entered"
+ },
+ "not_established": [
+  "a completed corrected candidate and a second review",
+  "applicable version-control changes; the proposal and the verdict are synthetic deterministic content",
+  "live model judgment, provider authentication or container start latency"
+ ],
+ "one_time_and_outside_every_interval": [
+  "the install: Authority, Work, routes, grants, storage layout, deployment configuration, selector",
+  "the deployment's own start: stores opened, configuration validated, checkpoint profile certified, session minted, pool activated"
+ ],
+ "schema": "baton.v12.obs0-interval-report/2",
+ "seams": [
+  "container engine (_ConcurrentEngine; no image pull, no container start)",
+  "provider inside the workload (scripted_agent; no model, no credential authentication)",
+  "checkpoint profile with no version control behind it; every case refuses any version-control invocation",
+  "the installed one-folder runtime is test_bootstrap's stand-in directory and nothing here executes it; that the real frozen command creates and replays ordinary Jobs is W366246's accepted proof, reused rather than re-run"
+ ],
+ "supersedes": "evidence/claim-366433/obs0-interval.json, whose single interval was measured with fake admission owners (R1) and whose correction figure was never recorded (R2)",
+ "supported_environment": "one host; a prepared local deployment installed once by the real bootstrap; local SQLite stores; no network"
+}

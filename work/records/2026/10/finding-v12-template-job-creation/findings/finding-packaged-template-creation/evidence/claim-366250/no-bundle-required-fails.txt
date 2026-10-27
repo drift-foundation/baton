@@ -1,0 +1,181 @@
+FFFFFFFFFFFFF
+======================================================================
+FAIL: test_the_bundle_creates_binds_and_submits_one_template_job (tests.tools.test_packaged_creation.TheFrozenCommandCreatesAnOrdinaryJob.test_the_bundle_creates_binds_and_submits_one_template_job)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w366250/v12/python/tests/tools/test_packaged_creation.py", line 95, in setUp
+    self.fail(missing + " -- and " + test_packaging.REQUIRED
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              + " is set, so this run is the gate and a skip "
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              "would be a false pass.")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: no built runtime to create with -- run `just build` from v12/ (or `just test-packaging`, which builds and then runs this), or name one with BATON_V12_STACK_DISTRO. A bundle is the one thing these cases cannot stand in for: creating a Job with the SOURCE command is what tests/tools/test_connected_creation.py already does. -- and BATON_V12_STACK_PACKAGING_REQUIRED is set, so this run is the gate and a skip would be a false pass.
+
+======================================================================
+FAIL: test_the_created_job_carries_its_own_task_and_its_binding (tests.tools.test_packaged_creation.TheFrozenCommandCreatesAnOrdinaryJob.test_the_created_job_carries_its_own_task_and_its_binding)
+WHAT IS DURABLE AFTERWARDS, read from the instance's own files.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w366250/v12/python/tests/tools/test_packaged_creation.py", line 95, in setUp
+    self.fail(missing + " -- and " + test_packaging.REQUIRED
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              + " is set, so this run is the gate and a skip "
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              "would be a false pass.")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: no built runtime to create with -- run `just build` from v12/ (or `just test-packaging`, which builds and then runs this), or name one with BATON_V12_STACK_DISTRO. A bundle is the one thing these cases cannot stand in for: creating a Job with the SOURCE command is what tests/tools/test_connected_creation.py already does. -- and BATON_V12_STACK_PACKAGING_REQUIRED is set, so this run is the gate and a skip would be a false pass.
+
+======================================================================
+FAIL: test_the_template_resolved_is_one_THIS_BUILD_carries (tests.tools.test_packaged_creation.TheFrozenCommandCreatesAnOrdinaryJob.test_the_template_resolved_is_one_THIS_BUILD_carries)
+THE PACKAGED RESOURCE, and the build's own inventory of it.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w366250/v12/python/tests/tools/test_packaged_creation.py", line 95, in setUp
+    self.fail(missing + " -- and " + test_packaging.REQUIRED
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              + " is set, so this run is the gate and a skip "
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              "would be a false pass.")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: no built runtime to create with -- run `just build` from v12/ (or `just test-packaging`, which builds and then runs this), or name one with BATON_V12_STACK_DISTRO. A bundle is the one thing these cases cannot stand in for: creating a Job with the SOURCE command is what tests/tools/test_connected_creation.py already does. -- and BATON_V12_STACK_PACKAGING_REQUIRED is set, so this run is the gate and a skip would be a false pass.
+
+======================================================================
+FAIL: test_two_ordinary_creations_bind_two_jobs (tests.tools.test_packaged_creation.TheFrozenCommandCreatesAnOrdinaryJob.test_two_ordinary_creations_bind_two_jobs)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w366250/v12/python/tests/tools/test_packaged_creation.py", line 95, in setUp
+    self.fail(missing + " -- and " + test_packaging.REQUIRED
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              + " is set, so this run is the gate and a skip "
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              "would be a false pass.")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: no built runtime to create with -- run `just build` from v12/ (or `just test-packaging`, which builds and then runs this), or name one with BATON_V12_STACK_DISTRO. A bundle is the one thing these cases cannot stand in for: creating a Job with the SOURCE command is what tests/tools/test_connected_creation.py already does. -- and BATON_V12_STACK_PACKAGING_REQUIRED is set, so this run is the gate and a skip would be a false pass.
+
+======================================================================
+FAIL: test_the_identity_the_install_recorded_is_the_commands_own (tests.tools.test_packaged_creation.TheFrozenCommandInstallsTheBundleItIsGiven.test_the_identity_the_install_recorded_is_the_commands_own)
+`_identity_of` RAN THE COMMAND, and this is what it got back.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w366250/v12/python/tests/tools/test_packaged_creation.py", line 95, in setUp
+    self.fail(missing + " -- and " + test_packaging.REQUIRED
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              + " is set, so this run is the gate and a skip "
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              "would be a false pass.")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: no built runtime to create with -- run `just build` from v12/ (or `just test-packaging`, which builds and then runs this), or name one with BATON_V12_STACK_DISTRO. A bundle is the one thing these cases cannot stand in for: creating a Job with the SOURCE command is what tests/tools/test_connected_creation.py already does. -- and BATON_V12_STACK_PACKAGING_REQUIRED is set, so this run is the gate and a skip would be a false pass.
+
+======================================================================
+FAIL: test_the_instance_binds_this_bundle_and_verifies_against_it (tests.tools.test_packaged_creation.TheFrozenCommandInstallsTheBundleItIsGiven.test_the_instance_binds_this_bundle_and_verifies_against_it)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w366250/v12/python/tests/tools/test_packaged_creation.py", line 95, in setUp
+    self.fail(missing + " -- and " + test_packaging.REQUIRED
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              + " is set, so this run is the gate and a skip "
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              "would be a false pass.")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: no built runtime to create with -- run `just build` from v12/ (or `just test-packaging`, which builds and then runs this), or name one with BATON_V12_STACK_DISTRO. A bundle is the one thing these cases cannot stand in for: creating a Job with the SOURCE command is what tests/tools/test_connected_creation.py already does. -- and BATON_V12_STACK_PACKAGING_REQUIRED is set, so this run is the gate and a skip would be a false pass.
+
+======================================================================
+FAIL: test_a_template_this_build_does_not_carry_is_refused_by_name (tests.tools.test_packaged_creation.TheFrozenCommandRefusesTruthfully.test_a_template_this_build_does_not_carry_is_refused_by_name)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w366250/v12/python/tests/tools/test_packaged_creation.py", line 95, in setUp
+    self.fail(missing + " -- and " + test_packaging.REQUIRED
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              + " is set, so this run is the gate and a skip "
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              "would be a false pass.")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: no built runtime to create with -- run `just build` from v12/ (or `just test-packaging`, which builds and then runs this), or name one with BATON_V12_STACK_DISTRO. A bundle is the one thing these cases cannot stand in for: creating a Job with the SOURCE command is what tests/tools/test_connected_creation.py already does. -- and BATON_V12_STACK_PACKAGING_REQUIRED is set, so this run is the gate and a skip would be a false pass.
+
+======================================================================
+FAIL: test_an_operand_this_command_does_not_serve_is_refused (tests.tools.test_packaged_creation.TheFrozenCommandRefusesTruthfully.test_an_operand_this_command_does_not_serve_is_refused)
+AN UNPERMITTED OVERRIDE HAS NO OPERAND, which IS the enforcement.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w366250/v12/python/tests/tools/test_packaged_creation.py", line 95, in setUp
+    self.fail(missing + " -- and " + test_packaging.REQUIRED
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              + " is set, so this run is the gate and a skip "
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              "would be a false pass.")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: no built runtime to create with -- run `just build` from v12/ (or `just test-packaging`, which builds and then runs this), or name one with BATON_V12_STACK_DISTRO. A bundle is the one thing these cases cannot stand in for: creating a Job with the SOURCE command is what tests/tools/test_connected_creation.py already does. -- and BATON_V12_STACK_PACKAGING_REQUIRED is set, so this run is the gate and a skip would be a false pass.
+
+======================================================================
+FAIL: test_an_unknown_subcommand_is_refused_rather_than_guessed (tests.tools.test_packaged_creation.TheFrozenCommandRefusesTruthfully.test_an_unknown_subcommand_is_refused_rather_than_guessed)
+Nothing is installed for this one: the command refuses first.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w366250/v12/python/tests/tools/test_packaged_creation.py", line 95, in setUp
+    self.fail(missing + " -- and " + test_packaging.REQUIRED
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              + " is set, so this run is the gate and a skip "
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              "would be a false pass.")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: no built runtime to create with -- run `just build` from v12/ (or `just test-packaging`, which builds and then runs this), or name one with BATON_V12_STACK_DISTRO. A bundle is the one thing these cases cannot stand in for: creating a Job with the SOURCE command is what tests/tools/test_connected_creation.py already does. -- and BATON_V12_STACK_PACKAGING_REQUIRED is set, so this run is the gate and a skip would be a false pass.
+
+======================================================================
+FAIL: test_an_unsupported_source_selection_is_refused_by_name (tests.tools.test_packaged_creation.TheFrozenCommandRefusesTruthfully.test_an_unsupported_source_selection_is_refused_by_name)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w366250/v12/python/tests/tools/test_packaged_creation.py", line 95, in setUp
+    self.fail(missing + " -- and " + test_packaging.REQUIRED
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              + " is set, so this run is the gate and a skip "
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              "would be a false pass.")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: no built runtime to create with -- run `just build` from v12/ (or `just test-packaging`, which builds and then runs this), or name one with BATON_V12_STACK_DISTRO. A bundle is the one thing these cases cannot stand in for: creating a Job with the SOURCE command is what tests/tools/test_connected_creation.py already does. -- and BATON_V12_STACK_PACKAGING_REQUIRED is set, so this run is the gate and a skip would be a false pass.
+
+======================================================================
+FAIL: test_the_permitted_override_reaches_the_resolved_limits (tests.tools.test_packaged_creation.TheFrozenCommandRefusesTruthfully.test_the_permitted_override_reaches_the_resolved_limits)
+AND THE ONE THAT IS PERMITTED IS HONOURED, end to end.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w366250/v12/python/tests/tools/test_packaged_creation.py", line 95, in setUp
+    self.fail(missing + " -- and " + test_packaging.REQUIRED
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              + " is set, so this run is the gate and a skip "
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              "would be a false pass.")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: no built runtime to create with -- run `just build` from v12/ (or `just test-packaging`, which builds and then runs this), or name one with BATON_V12_STACK_DISTRO. A bundle is the one thing these cases cannot stand in for: creating a Job with the SOURCE command is what tests/tools/test_connected_creation.py already does. -- and BATON_V12_STACK_PACKAGING_REQUIRED is set, so this run is the gate and a skip would be a false pass.
+
+======================================================================
+FAIL: test_a_changed_intent_under_the_same_task_is_refused (tests.tools.test_packaged_creation.TheSameIntentReplaysThroughTheBundle.test_a_changed_intent_under_the_same_task_is_refused)
+A DIFFERENT SELECTION IS A DIFFERENT CREATION, not a replay.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w366250/v12/python/tests/tools/test_packaged_creation.py", line 95, in setUp
+    self.fail(missing + " -- and " + test_packaging.REQUIRED
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              + " is set, so this run is the gate and a skip "
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              "would be a false pass.")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: no built runtime to create with -- run `just build` from v12/ (or `just test-packaging`, which builds and then runs this), or name one with BATON_V12_STACK_DISTRO. A bundle is the one thing these cases cannot stand in for: creating a Job with the SOURCE command is what tests/tools/test_connected_creation.py already does. -- and BATON_V12_STACK_PACKAGING_REQUIRED is set, so this run is the gate and a skip would be a false pass.
+
+======================================================================
+FAIL: test_the_same_request_again_answers_the_same_job_once (tests.tools.test_packaged_creation.TheSameIntentReplaysThroughTheBundle.test_the_same_request_again_answers_the_same_job_once)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w366250/v12/python/tests/tools/test_packaged_creation.py", line 95, in setUp
+    self.fail(missing + " -- and " + test_packaging.REQUIRED
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              + " is set, so this run is the gate and a skip "
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              "would be a false pass.")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: no built runtime to create with -- run `just build` from v12/ (or `just test-packaging`, which builds and then runs this), or name one with BATON_V12_STACK_DISTRO. A bundle is the one thing these cases cannot stand in for: creating a Job with the SOURCE command is what tests/tools/test_connected_creation.py already does. -- and BATON_V12_STACK_PACKAGING_REQUIRED is set, so this run is the gate and a skip would be a false pass.
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.130s
+
+FAILED (failures=13)

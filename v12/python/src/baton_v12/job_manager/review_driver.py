@@ -756,10 +756,27 @@ def end_implementation(control, port, adapter, publication, *, attempt_id,
             artifacts=sorted(one["artifact_id"] for one in held),
             proposal=proposal)
     # STEP EIGHT. This ends the assignment, which is why nothing above may
-    # follow it.
-    checkpoint = review_cycles.freeze_checkpoint(
-        control, writer_id=writer_id, generation=generation, profile=profile,
-        port=port)
+    # follow it -- and WHICH ending it is depends on the disposition, for the
+    # same reason the publication above does.
+    #
+    # W365075: freezing was unconditional, so a turn with nothing to review
+    # still left the line `review-ready` -- a state only a verdict leaves, and
+    # a verdict needs a review attachment that a Job whose implementation did
+    # not complete never creates. Every later writer on that Work was then
+    # refused for ever, correction and fresh retry alike, which DESIGN
+    # REC-4/5/7 forbid. `release_writer` does what this step owes -- revoke
+    # the quiescent writer and fence its assignment -- and leaves the line
+    # where the last round that produced something left it.
+    released = None
+    checkpoint = None
+    if _publishable(disposition):
+        checkpoint = review_cycles.freeze_checkpoint(
+            control, writer_id=writer_id, generation=generation,
+            profile=profile, port=port)
+    else:
+        released = review_cycles.release_writer(
+            control, writer_id=writer_id, generation=generation, port=port,
+            reason=_NO_CANDIDATE)
     # W275774: THE GOVERNANCE THIS DEPLOYMENT'S START RESERVED UNDER.
     #
     # A GOVERNED START WITH AN UNGOVERNED ENDING IS WORSE THAN NO GOVERNANCE,
@@ -783,8 +800,13 @@ def end_implementation(control, port, adapter, publication, *, attempt_id,
             "artifacts": sorted(one["artifact_id"] for one in held),
             "retention": decided["disposition"],
             "published": published,
-            "checkpoint_id": checkpoint["checkpoint_id"],
-            "checkpoint": checkpoint}
+            # AND `None` RATHER THAN OMITTED, for the reason `published` is:
+            # an explicit null says the step was reached and no checkpoint was
+            # owed. `released` carries what happened instead.
+            "checkpoint_id": (None if checkpoint is None
+                              else checkpoint["checkpoint_id"]),
+            "checkpoint": checkpoint,
+            "released": released}
 
 
 # WHICH IMPLEMENTATION RESULTS HAVE A CANDIDATE TO PUBLISH, and it is only
@@ -815,6 +837,12 @@ def end_implementation(control, port, adapter, publication, *, attempt_id,
 # an explicit `null` says the step was reached, was not owed, and nothing was
 # published. It is not a success.
 PUBLISHABLE = ("completed",)
+
+
+# THE RELEASE REASON, NAMED ONCE. It is part of the release's operation
+# signature, so the ordinary ending and both resume entries have to spell it
+# identically or the replay refuses as a different operation.
+_NO_CANDIDATE = "implementation produced no candidate to review"
 
 
 def _publishable(disposition):
@@ -1064,6 +1092,35 @@ def _frozen_checkpoint(control, port, writer, *, generation, profile, what):
         profile=profile, port=port)
 
 
+def _released_round(control, port, writer, *, generation, what):
+    """The writer release this ending already performed, replayed.
+
+    W365075, and `_frozen_checkpoint`'s argument applied to the ending the
+    other branch of step eight takes. A round that produced no candidate
+    freezes nothing, so a resume cannot prove it by a checkpoint -- there is
+    none, and asking for one refuses for the absence of something that was
+    never owed, which is the same mistake `published` already corrects one
+    member along.
+
+    AND IT IS THE SAME TWO PATHS. `release_writer` asks its own journalled
+    operation before it proves any mutable fact, so either the release
+    committed and the recorded answer replays -- no fence, no Authority, no
+    line write -- or it did not, and `_quiescent_completed` refuses because a
+    runtime this manager has destroyed is not a positively quiescent one. Both
+    resume entries are reached only behind a fenced writer, which the release
+    itself is what produces, so the found path is the live one.
+
+    THE REPLAY IS WHAT ANSWERS, for `_frozen_checkpoint`'s reason: the caller
+    compares the two endings' documents member for member, and composing this
+    one from rows read here would be a second account of what the release
+    committed.
+    """
+    del what
+    return review_cycles.release_writer(
+        control, writer_id=writer["writer_id"], generation=generation,
+        port=port, reason=_NO_CANDIDATE)
+
+
 def _resumed_implementation(control, port, adapter, publication, *,
                             attempt_id, disposition, terminal, writer_id,
                             generation, profile, retention_disposition,
@@ -1116,9 +1173,19 @@ def _resumed_implementation(control, port, adapter, publication, *,
     del retained
     _let_go(control, attempt_id=attempt_id,
             retention_policy_digest=retention_policy_digest, what=what)
-    checkpoint = _frozen_checkpoint(control, port, writer,
-                                    generation=generation, profile=profile,
-                                    what=what)
+    # WHICH ENDING IS BEING RESUMED, decided from the disposition exactly as
+    # the live step eight decides it: a round with a candidate froze a
+    # checkpoint and one without released its writer, and a resume proves
+    # whichever of those happened.
+    released = None
+    checkpoint = None
+    if _publishable(disposition):
+        checkpoint = _frozen_checkpoint(control, port, writer,
+                                        generation=generation,
+                                        profile=profile, what=what)
+    else:
+        released = _released_round(control, port, writer,
+                                   generation=generation, what=what)
     # W120425 review [P2]: THE ORDINARY ENDING'S OWN ANSWER, not the record
     # that carries it. The committed publication receipt already holds exactly
     # what `publish_candidate` returned, so returning the whole receipt made
@@ -1142,8 +1209,10 @@ def _resumed_implementation(control, port, adapter, publication, *,
             "artifacts": sorted(one["artifact_id"] for one in held),
             "retention": decided["disposition"],
             "published": published,
-            "checkpoint_id": checkpoint["checkpoint_id"],
-            "checkpoint": checkpoint}
+            "checkpoint_id": (None if checkpoint is None
+                              else checkpoint["checkpoint_id"]),
+            "checkpoint": checkpoint,
+            "released": released}
 
 
 def _fence_settled(control, *, writer_id, attempt_id, generation):
@@ -1222,9 +1291,19 @@ def _cleaning_implementation(control, port, adapter, publication, *,
         retention_disposition=retention_disposition,
         retention_policy_digest=retention_policy_digest, what=what)
     del retained
-    checkpoint = _frozen_checkpoint(control, port, writer,
-                                    generation=generation, profile=profile,
-                                    what=what)
+    # WHICH ENDING IS BEING RESUMED, decided from the disposition exactly as
+    # the live step eight decides it: a round with a candidate froze a
+    # checkpoint and one without released its writer, and a resume proves
+    # whichever of those happened.
+    released = None
+    checkpoint = None
+    if _publishable(disposition):
+        checkpoint = _frozen_checkpoint(control, port, writer,
+                                        generation=generation,
+                                        profile=profile, what=what)
+    else:
+        released = _released_round(control, port, writer,
+                                   generation=generation, what=what)
     # SAME RULE AS THE OTHER TWO ENTRIES. A result with no candidate never
     # published, so requiring its record here would refuse the one act this
     # entry exists to reach -- and leave the runtime standing for the absence
@@ -1250,8 +1329,10 @@ def _cleaning_implementation(control, port, adapter, publication, *,
             "artifacts": sorted(one["artifact_id"] for one in held),
             "retention": decided["disposition"],
             "published": published,
-            "checkpoint_id": checkpoint["checkpoint_id"],
-            "checkpoint": checkpoint}
+            "checkpoint_id": (None if checkpoint is None
+                              else checkpoint["checkpoint_id"]),
+            "checkpoint": checkpoint,
+            "released": released}
 
 
 def end_review(control, port, adapter, *, attachment_id, disposition, verdict,

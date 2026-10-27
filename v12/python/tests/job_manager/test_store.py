@@ -713,6 +713,11 @@ class MigratingPinsTheAuthorityWithoutRenamingAnything(MigratingFromSchemaOne):
         # the note above gives. Each new relation added after the impersonated
         # version has to be subtracted here too.
         # W358969: AND THE TABLE THE 7 -> 8 STEP CREATES.
+        # W361912: AND THE TABLE THE 8 -> 9 STEP CREATES, which is the same
+        # note again -- a fixture that impersonates schema 2 with today's
+        # build has to subtract every relation added since, or the schema-3
+        # check correctly reports an object schema 2 never had.
+        connection.execute("DROP TABLE template_jobs")
         connection.execute("DROP TABLE fresh_attempts")
         connection.execute("DROP TABLE deferrals")
         connection.execute("DROP TABLE integration_capacity_members")

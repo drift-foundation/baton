@@ -1,0 +1,25 @@
+implementation: {'implementation': 'waiting', 'review': 'blocked'}
+mounted roots: {'inputs': '/var/tmp/v12-w71917-lfroo4y0/storage/attempt-7086d26c7413a4d677fc7052802b4381f56bdd0fdd6dd48ac7905cba095c6e55/inputs', 'workspace': '/var/tmp/v12-w71917-lfroo4y0/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout'}
+turn: 0
+0 {'implementation': 'answering', 'review': 'blocked'} []
+1 {'implementation': 'answering', 'review': 'blocked'} []
+2 {'implementation': 'answering', 'review': 'blocked'} []
+3 {'implementation': 'answering', 'review': 'blocked'} []
+4 {'implementation': 'answering', 'review': 'blocked'} []
+5 {'implementation': 'answering', 'review': 'blocked'} []
+6 {'implementation': 'answering', 'review': 'blocked'} []
+7 {'implementation': 'answering', 'review': 'blocked'} []
+8 {'implementation': 'answering', 'review': 'blocked'} []
+9 {'implementation': 'answering', 'review': 'blocked'} []
+10 {'implementation': 'answering', 'review': 'blocked'} []
+11 {'implementation': 'answering', 'review': 'blocked'} []
+12 {'implementation': 'answering', 'review': 'blocked'} []
+13 {'implementation': 'answering', 'review': 'blocked'} []
+14 {'implementation': 'answering', 'review': 'blocked'} []
+15 {'implementation': 'answering', 'review': 'blocked'} []
+impl runtime: {"runtime_id": "runtime-single-1", "execution_runtime": "quiescent", "assignment": {"work_ref": {"authority_uuid": "0000000a000000000000000000000000", "work_id": "0000000a-W1"}, "participant": "baton.claude", "generation": 1}, "activity": {"attempt_id": "attempt-7086d26c7413a4d677fc7052802b4381f56bd
+impl exchange: {"transport": "baton.worker-exchange/1", "sequence_id": "sequence-a239b5034298dfd2cd46058661e06d9f", "command": {"sequence_id": "sequence-a239b5034298dfd2cd46058661e06d9f", "command_digest": "sha256:b5121c4f72c2dc1f141641488c812c9e039b909364d40374355f7bf504403046", "operations": ["describe", "work"]}, "receipt": {"accepted_at": "2026-10-26T22:39:15.000Z"}, "states": [{"operation": "describe", "sta
+impl receipts: [('admit', 'performed'), ('claim', 'performed')]
+impl deferral: [{"act": "conclude", "episode": 1, "outstanding": true, "attempt_id": "attempt-7086d26c7413a4d677fc7052802b4381f56bdd0fdd6dd48ac7905cba095c6e55", "operation_id": null, "category": "integrity", "code": "schema", "message": "the frozen result carries 0 git-change-proposal outputs; publication needs ex
+review stage: blocked attempt-95e8ccff19e4990f14ffcce8071620e209eb714754854a4f6c48e292c20b6d17
+review root: False

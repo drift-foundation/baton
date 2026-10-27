@@ -1,0 +1,75 @@
+{
+  "ACCEPTED_PREREQUISITE": {
+    "all_three_members_match": true,
+    "candidate_manifest": "cdb05010acc18113d78f1197f3370d6b770bb7e3ee1beb016f6f3968ca7116e3",
+    "verified_against": "work/records/2026/10/finding-v12-template-job-creation/evidence/preparation-362639/ACCEPTED-BASE.json",
+    "work": "W361910"
+  },
+  "ANSWERS": "work/records/2026/10/finding-v12-template-job-creation/FINDING.md and PLAN.md, from the accepted W361910 resolver",
+  "BASE_COMMIT": "19f02ce1295b4517a85f0822d48754efc982f388",
+  "BASE_IS_CLEAN_FOR_THESE_PATHS": true,
+  "CLAIM": 362657,
+  "MEMBERS": {
+    "v12/python/src/baton_v12/job_manager/__init__.py": {
+      "base": "bfebb949e201c9de01075e98e3872fc2f761d460bd57308192c10a0795cf580c",
+      "candidate": "50722a7496e2719afa9c67c6d331e18d28543f78b8c930beba91ff80aece907c",
+      "new": false
+    },
+    "v12/python/src/baton_v12/job_manager/creation.py": {
+      "base": null,
+      "candidate": "bf7928c195e2c643744e644e1ab1e9d810e57f5f0e5c6aadf803a3559692fe01",
+      "new": true
+    },
+    "v12/python/src/baton_v12/job_manager/documents.py": {
+      "base": "2138a81d2f95420da615b80daf48d2a3ccd738cd935b99b861c643417161c468",
+      "candidate": "b7ee4bb9def4eb26e14ee3a38bbab55000b6e8f897c67a632ba2711640f27350",
+      "new": false
+    },
+    "v12/python/src/baton_v12/job_manager/schema.py": {
+      "base": "bba74451ad7d579562c3f252ee9d3dc5ffd45ff976f9dd205dca8f87f97513d5",
+      "candidate": "8fe0ecfb767de7d355ed82c89ce6060f3efa3bf372f05fadde07d867af0f399f",
+      "new": false
+    },
+    "v12/python/tests/job_manager/test_creation.py": {
+      "base": null,
+      "candidate": "91049a25082c99eef80f65e2358c38008f4913139feb6669b6ae0d900b15ec22",
+      "new": true
+    },
+    "v12/python/tests/job_manager/test_execution_limits.py": {
+      "base": "4bece59fbc870ba23e49f398ff2acb25d6be38484ce7903cfc82ae5f30e9c2d7",
+      "candidate": "03eb0d74d027e29c1d2901649139c21e562596376bf7b5e1d6a1134de89f0e43",
+      "new": false
+    },
+    "v12/python/tests/job_manager/test_scheduling.py": {
+      "base": "6041b43d0cfe457051a958ce31b44ae7e08a39ccff129dfda3072214bc21a3b0",
+      "candidate": "47f0043e3185394a9b07e00ff827bf1c2064dfeab7714f41328aeb5badf2d842",
+      "new": false
+    },
+    "v12/python/tests/job_manager/test_store.py": {
+      "base": "ddceb61359cfa6f132ca7273a35363e6301c6e1c25852334bbab8458cc38b9c8",
+      "candidate": "73c27abf44dbce537da99067f7b8245c51c8ab22d21c209f2de0d777ef131ceb",
+      "new": false
+    },
+    "v12/python/tests/tools/test_creation_ports.py": {
+      "base": null,
+      "candidate": "c0080ead0a824bee30a684f65c89f02012544a3eed5e00710f4392c91197432e",
+      "new": true
+    },
+    "v12/python/tools/creation_ports.py": {
+      "base": null,
+      "candidate": "63f2b3889afaecfd002324d494c992ad1c835cc9087d85351d0f059fc107c512",
+      "new": true
+    },
+    "v12/python/tools/job_manager.py": {
+      "base": "1634c9a4cce57dd6041a1f769bba59f834a08e6a1d2565de2bbf6d2534d07cd1",
+      "candidate": "9f9008fd68a3f00ed41516c0127655cd24a5518df15294f22282c0f0dc66018f",
+      "new": false
+    }
+  },
+  "STORE_SCHEMA": {
+    "from": 8,
+    "migration": "MIGRATIONS[8]",
+    "relation": "template_jobs",
+    "to": 9
+  }
+}

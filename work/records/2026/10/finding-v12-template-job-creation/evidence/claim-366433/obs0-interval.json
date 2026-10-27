@@ -1,0 +1,25 @@
+{
+ "bound_seconds": 60.0,
+ "closes_at": "the assigned agent enters work() in its own runtime",
+ "inside": [
+  "installed worker configuration read and proved",
+  "template resolution, reservation, Work authorization, deployment binding published and prepared, per-Job task composed, submission admitted",
+  "offer, claim, allocation, writer grant, input root composed and frozen, launch document, credential delivery, runtime start",
+  "launch adoption, exchange, worker preflight"
+ ],
+ "measured": {
+  "attempt_id": "attempt-58ad338f9655a646b953a96e5e25783bdd297bb71c3eace58e5c7f00e7d40da2",
+  "creation_seconds": 0.009778470000128436,
+  "launch_to_work_seconds": 0.010024047000115388,
+  "scheduling_seconds": 0.10823968000022433,
+  "whole_seconds": 0.12804219700046815
+ },
+ "opens_at": "the operator's selection arrives (task id, statement, acceptance criteria, selected work scope)",
+ "outside": [
+  "one-time install and the deployment's own start (stores, configuration validation, profile certification, session mint, pool activation)"
+ ],
+ "seams": [
+  "container engine",
+  "provider inside the workload"
+ ]
+}

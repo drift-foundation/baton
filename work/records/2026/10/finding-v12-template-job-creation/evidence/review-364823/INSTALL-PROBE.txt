@@ -1,0 +1,3 @@
+{"kind": "existing", "input_exists": true, "input_symlink": false, "foreign_preserved": true, "selector_exists": false}
+{"kind": "temp-symlink", "input_exists": true, "input_symlink": false, "foreign_preserved": true, "selector_exists": true}
+{"kind": "failed-selector", "input_exists": false, "input_symlink": false, "foreign_preserved": null, "selector_exists": false}

@@ -391,3 +391,85 @@ authority, relax isolation/recovery/independent acceptance, or restore mandatory
 v12 orchestration for routine development. Current direct-development policy
 remains until explicitly changed. Broad monitor/TUI enrichment remains v13 scope;
 the selected outcome is the lightweight read-only monitor used with useful Jobs.
+
+## 2026-10-27T16-54-56Z — joined template delivery accepted; integration remains due
+
+**Confirmed:** W361912 closed satisfying at E366766 with exact candidate-366616
+manifest `177147f6557aa6882f7fd6fee74068817a0fc078a0191ead5c09b7aa80931b03`.
+All32 candidate members verified again; canonical targets all remain base bytes
+(or absent for additions), at HEAD18e771f034d22fed40ae4c597aa606f50c169daa.
+Human integration and Git checkpoint remain explicitly due under owner closure.
+Review: review-2026-10-27T16-54-56Z.md; evidence/review-366770/INTEGRATION-STATUS.json.
+
+**Current state supersession:** the prior PLAN statement that W321608 is blocked
+on W361912 is historical: E366767 woke the umbrella after satisfying closure.
+The creation/retry chain is complete; useful Job/monitor continuation remains
+post-integration under the October27 owner ruling. Keep this umbrella open.
+Source/package/simulated timing acceptance does not certify live startup, a
+completed correction plus second review, or native cutover. Preserve all original
+evidence and its limits. No further coding decomposition justified at this
+checkpoint; next bounded milestone is human integration/checkpoint, then reviewer
+preparation of concrete useful-Job/monitor selection. No product changes or tests
+rerun this turn. Reviewer owns only this dossier records and new review evidence.
+
+## 2026-10-27 — owner selects candidate-366616 integration
+
+Slawomir explicitly instructed baton.prompt to integrate candidate-366616 while
+holding W321608 (claim E366860). This selects human-plus-copilot exact-byte
+import under review-2026-10-27T16-46-15Z.md and umbrella assessment
+review-2026-10-27T16-54-56Z.md; manifest
+`177147f6557aa6882f7fd6fee74068817a0fc078a0191ead5c09b7aa80931b03`.
+Whole-path preflight confirms 20 existing writable regular base files and 12
+absent additions; no symlink parents. Canonical v12 status is clean and no Baton
+background participant holds Work. baton.prompt owns only this exact import and
+integration evidence during the human claim. Preserve existing modes; additions
+use ordinary non-executable modes. Standing test authority covers the reviewed
+test paths; their exact enumeration remains in the manifest/review.
+
+Perform bounded connected-startup/joined-workflow verification with deterministic
+seams and explicit writable disk roots. Reuse unchanged accepted package and
+other focused evidence. No live provider/engine, deployment or Git mutation.
+Human product commit remains pending, followed by return to baton.bug for
+useful-Job/monitor planning. This supersedes integration-unselected wording only;
+all source acceptance and adoption limitations remain.
+
+## 2026-10-27 — candidate-366616 imported; local verification pending
+
+**Confirmed:** baton.prompt imported all 32 reviewed candidate members under
+Slawomir's instruction and claim E366860. Receipt and exact product path list:
+`evidence/integration-366616/receipt.json` and `product-paths.txt`. All candidate
+hashes and modes rechecked after the attempted verification; existing modes
+preserved and new regular files use 0644. No Git index/history mutation.
+
+**Verification limitation:** the initial focused 18-test run failed seven tests
+because the explicitly configured scratch root was inside the checkout
+(31.393867s). The second failed all 18 at the disk-root guard because /tmp is
+tmpfs (0.313861s). These are environment failures, not passing integration
+evidence; logs and measured results are preserved in the integration directory.
+Two requests to run with disk-backed /var/tmp failed at permission acquisition
+(`approval request failed`), before command execution. No successful local
+integration check is claimed. The accepted independent review remains unchanged.
+`evidence/integration-366616/verify.py` supplies the exact human-run check with
+a 180-second timeout, disk-backed scratch, before/after hash and mode checks,
+and uniquely named durable output. Human Git checkpoint remains pending.
+
+`git diff --check -- v12` reports candidate-provided trailing whitespace at
+`v12/python/tools/single_worker.py:1482`. Preserve the reviewed bytes; no
+unreviewed whitespace correction was applied. This entry supersedes all
+prior descriptions of the candidate as not yet imported. No deployment, live
+provider/engine execution or Work handoff was performed.
+
+## 2026-10-27 — human-run integration verification passed
+
+Slawomir ran the prepared verification helper with disk-backed /var/tmp scratch.
+The durable result in
+`evidence/integration-366616/verification-20261027T171340Z/verification.json`
+records exit 0, 35.390864908s wall time and all 32 candidate hashes/modes matching
+after verification. `focused.log` records all 18 connected-startup/joined-workflow
+tests passing (35.067s unittest duration). baton.prompt read the saved result
+and independently rechecked all 32 imported hashes/modes. This supersedes the
+pending-verification state above; failed environment attempts remain historical
+evidence. Exact-byte integration and bounded verification are complete. Human
+Git checkpoint remains due, then the umbrella returns for useful-Job/monitor
+preparation. Candidate-provided trailing whitespace remains unchanged. No broader
+suite, deployment, live-provider or cutover claim is made.

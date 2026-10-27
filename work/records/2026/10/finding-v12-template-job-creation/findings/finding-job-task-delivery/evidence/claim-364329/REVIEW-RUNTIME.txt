@@ -1,0 +1,11 @@
+test_the_review_attempt_is_recorded_and_adapted_on_the_delivered_input (tests.tools.test_job_task_delivery.TheReviewStageRunsThroughThePoolServingLoop.test_the_review_attempt_is_recorded_and_adapted_on_the_delivered_input)
+THE IDENTITIES: recorded, manifest, context and adapter. ... ok
+test_the_review_mount_is_the_checkpoint_the_round_froze (tests.tools.test_job_task_delivery.TheReviewStageRunsThroughThePoolServingLoop.test_the_review_mount_is_the_checkpoint_the_round_froze)
+REVIEW SEMANTICS, from the attachment the loop granted. ... ok
+test_the_review_runtime_is_started_with_the_requested_task (tests.tools.test_job_task_delivery.TheReviewStageRunsThroughThePoolServingLoop.test_the_review_runtime_is_started_with_the_requested_task)
+THE MILESTONE: the loop, the ending, and the review runtime. ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 1.401s
+
+OK

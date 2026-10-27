@@ -1,0 +1,49 @@
+test_a_missing_lane_refuses_naming_it (tests.tools.test_creation_ports.TheDerivationsOwnRefusals.test_a_missing_lane_refuses_naming_it) ... ok
+test_lanes_disagreeing_about_the_policy_refuse (tests.tools.test_creation_ports.TheDerivationsOwnRefusals.test_lanes_disagreeing_about_the_policy_refuse) ... ok
+test_only_the_requested_lanes_have_to_agree (tests.tools.test_creation_ports.TheDerivationsOwnRefusals.test_only_the_requested_lanes_have_to_agree)
+AN INTEGRATION WORKER ON ANOTHER PROFILE IS NOT A DISAGREEMENT. ... ok
+test_the_lanes_a_port_derives_are_an_operand (tests.tools.test_creation_ports.TheDerivationsOwnRefusals.test_the_lanes_a_port_derives_are_an_operand) ... ok
+test_two_workers_of_one_role_with_two_profiles_refuse (tests.tools.test_creation_ports.TheDerivationsOwnRefusals.test_two_workers_of_one_role_with_two_profiles_refuse) ... ok
+test_a_wrong_derived_profile_makes_that_stage_unservable (tests.tools.test_creation_ports.TheDerivedJobIsServable.test_a_wrong_derived_profile_makes_that_stage_unservable) ... ok
+test_every_resolved_stage_is_servable_by_a_configured_worker (tests.tools.test_creation_ports.TheDerivedJobIsServable.test_every_resolved_stage_is_servable_by_a_configured_worker) ... ok
+test_one_wrong_derived_digest_makes_every_stage_unservable (tests.tools.test_creation_ports.TheDerivedJobIsServable.test_one_wrong_derived_digest_makes_every_stage_unservable)
+THE CONTROL CASE, so the pass above is not a coincidence. ... ok
+test_a_malformed_deployment_document_refuses_through_its_owner (tests.tools.test_creation_ports.TheFourDerivedFacts.test_a_malformed_deployment_document_refuses_through_its_owner)
+THE OWNER'S REFUSAL, not a second validator here. ... ok
+test_each_one_is_the_configured_workers_own (tests.tools.test_creation_ports.TheFourDerivedFacts.test_each_one_is_the_configured_workers_own) ... ok
+test_the_integration_role_is_not_derived_for_a_two_stage_template (tests.tools.test_creation_ports.TheFourDerivedFacts.test_the_integration_role_is_not_derived_for_a_two_stage_template)
+ONLY THE LANES THIS CREATION NEEDS. ... ok
+test_a_deployment_missing_a_role_is_refused (tests.tools.test_creation_ports.TheOwnerRefusesIncoherenceBeforeThePortSeesIt.test_a_deployment_missing_a_role_is_refused) ... ok
+test_a_worker_whose_manifest_was_edited_is_refused (tests.tools.test_creation_ports.TheOwnerRefusesIncoherenceBeforeThePortSeesIt.test_a_worker_whose_manifest_was_edited_is_refused) ... ok
+test_a_worker_whose_policy_disagrees_with_its_manifest_is_refused (tests.tools.test_creation_ports.TheOwnerRefusesIncoherenceBeforeThePortSeesIt.test_a_worker_whose_policy_disagrees_with_its_manifest_is_refused) ... ok
+test_a_job_naming_the_requested_task_is_unservable (tests.tools.test_creation_ports.TheRequestedTaskDoesNotReachTheWorker.test_a_job_naming_the_requested_task_is_unservable)
+THE CONSEQUENCE, driven through the scheduler's own rule. ... ok
+test_the_provider_is_handed_this_stages_own_bytes (tests.tools.test_creation_ports.TheRequestedTaskDoesNotReachTheWorker.test_the_provider_is_handed_this_stages_own_bytes)
+FACT 2, AND THE ONE THING THIS WORK CHANGED ABOUT IT. ... ok
+test_the_task_bytes_come_from_the_deployment_not_from_any_job (tests.tools.test_creation_ports.TheRequestedTaskDoesNotReachTheWorker.test_the_task_bytes_come_from_the_deployment_not_from_any_job)
+FACT 1, from the owner's own signature and docstring. ... ok
+test_the_task_is_inside_the_job_input_identity (tests.tools.test_creation_ports.TheRequestedTaskDoesNotReachTheWorker.test_the_task_is_inside_the_job_input_identity)
+FACT 3, and this is what makes it a specification gap. ... ok
+test_what_the_creation_actually_derives_is_the_installed_task (tests.tools.test_creation_ports.TheRequestedTaskDoesNotReachTheWorker.test_what_the_creation_actually_derives_is_the_installed_task)
+AND SO THE CREATED JOB RUNS THE INSTALLED TASK. ... ok
+test_a_composed_task_the_adapter_would_refuse_is_still_its_refusal (tests.tools.test_creation_ports.TwoDistinctTasksOnOnePool.test_a_composed_task_the_adapter_would_refuse_is_still_its_refusal)
+THE RECEIVING ADAPTER REMAINS THE ONLY VALIDATOR. ... ok
+test_a_job_with_no_own_task_still_serves_the_installed_one (tests.tools.test_creation_ports.TwoDistinctTasksOnOnePool.test_a_job_with_no_own_task_still_serves_the_installed_one)
+THE PRESERVED BEHAVIOUR, asserted rather than assumed. ... ok
+test_a_mismatched_or_malformed_selection_refuses (tests.tools.test_creation_ports.TwoDistinctTasksOnOnePool.test_a_mismatched_or_malformed_selection_refuses) ... ok
+test_both_stages_of_each_job_are_servable_with_its_own_task (tests.tools.test_creation_ports.TwoDistinctTasksOnOnePool.test_both_stages_of_each_job_are_servable_with_its_own_task)
+THE SCHEDULER'S OWN RULE, asked with the per-Job manifest. ... ok
+test_each_job_receives_its_own_task_content (tests.tools.test_creation_ports.TwoDistinctTasksOnOnePool.test_each_job_receives_its_own_task_content)
+THE DELIVERED CONTENT, not a source string. ... ok
+test_the_composition_is_deterministic (tests.tools.test_creation_ports.TwoDistinctTasksOnOnePool.test_the_composition_is_deterministic)
+ONE SELECTION COMPOSES ONE DOCUMENT, byte for byte. ... ok
+test_the_deployments_own_members_travel_unchanged (tests.tools.test_creation_ports.TwoDistinctTasksOnOnePool.test_the_deployments_own_members_travel_unchanged)
+EXACTLY TWO MEMBERS ARE SUBSTITUTED. ... ok
+test_the_input_identity_names_the_delivered_task (tests.tools.test_creation_ports.TwoDistinctTasksOnOnePool.test_the_input_identity_names_the_delivered_task)
+THE HALF THAT MAKES IT SERVABLE AT ALL. ... ok
+test_two_tasks_give_two_identities_and_neither_is_the_installed_one (tests.tools.test_creation_ports.TwoDistinctTasksOnOnePool.test_two_tasks_give_two_identities_and_neither_is_the_installed_one) ... ok
+
+----------------------------------------------------------------------
+Ran 28 tests in 0.465s
+
+OK

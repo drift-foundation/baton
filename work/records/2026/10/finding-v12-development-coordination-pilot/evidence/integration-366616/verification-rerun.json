@@ -1,0 +1,14 @@
+{
+  "exit": 1,
+  "wall_seconds": 0.3138613510000141,
+  "argv": [
+    "python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.tools.test_connected_startup",
+    "tests.tools.test_joined_workflow"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "disk_root": "/tmp/baton-integration-366616-y24t6yw7"
+}

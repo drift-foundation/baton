@@ -1,0 +1,12 @@
+{
+  "states": {
+    "job-pool-first": "waiting",
+    "job-pool-second": "waiting"
+  },
+  "starts": 2,
+  "runtimes": {
+    "job-pool-first": "runtime-single-1",
+    "job-pool-second": "runtime-single-2"
+  },
+  "each_published_task_matches_own_created_job": true
+}

@@ -1,0 +1,63 @@
+===== job-one =====
+{
+  "declared_base": null,
+  "schema": "baton.dogfood-task/2",
+  "source_profile": "generic",
+  "source_root": "source",
+  "task_id": "job-one",
+  "verification": [
+    "python3",
+    "-c",
+    "raise SystemExit(0)"
+  ]
+}
+--- instructions ---
+Close the first finding.
+
+Acceptance criteria:
+  - job-one is accepted
+
+Selected work scope (the paths this task covers):
+  - v12/python/tools/job_task.py
+
+Bounded test-change scope (tests you may change):
+  - v12/python/tests/tools/test_creation_ports.py
+
+Template: baton.v12.job-template.implementation-review/1
+Work: 0000000a-W1
+
+input_digest    sha256:6b94964633bfc78d76eec7e67fc99eff9c144dfe4afb0cf4ba8b50179f121c44
+human_contract  {"artifact_id": "w81115-task-1", "bytes": 541, "content_digest": "sha256:77483cb6a7b3674a61bbc090b0bd7f7a636c9e997af9001ac075d39d28daf4e6", "locator": "artifact://contracts/w81115-task-1", "media_type": "application/json"}
+
+===== job-two =====
+{
+  "declared_base": null,
+  "schema": "baton.dogfood-task/2",
+  "source_profile": "generic",
+  "source_root": "source",
+  "task_id": "job-two",
+  "verification": [
+    "python3",
+    "-c",
+    "raise SystemExit(0)"
+  ]
+}
+--- instructions ---
+Close the second finding.
+
+Acceptance criteria:
+  - job-two is accepted
+
+Selected work scope (the paths this task covers):
+  - v12/python/tools/job_task.py
+
+Bounded test-change scope (tests you may change):
+  - v12/python/tests/tools/test_creation_ports.py
+
+Template: baton.v12.job-template.implementation-review/1
+Work: 0000000a-W1
+
+input_digest    sha256:c9d0ffccbeb3c6758b6f4a6dc0d1d1da7a27f606253613f4a7e9cbf993a57352
+human_contract  {"artifact_id": "w81115-task-1", "bytes": 542, "content_digest": "sha256:9b653533215c8317951b536c88efdbbed0f160eedf0a6c724006af80c1a10d06", "locator": "artifact://contracts/w81115-task-1", "media_type": "application/json"}
+
+installed input_digest sha256:a55259380523b2540778abbad98e6ba519357eabc0a9472635292acd1b559b1c

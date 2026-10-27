@@ -1,0 +1,152 @@
+HOW THESE WERE RUN — claim366433, W361912
+
+THE CANDIDATE ROOT
+
+    /tmp/w366433
+
+The repository's own tracked tree at 18e771f034d22fed40ae4c597aa606f50c169daa,
+extracted whole with `git archive` (a read; it writes nothing to the
+repository), with the 30 members of the owner-accepted package child
+    findings/finding-packaged-template-creation/candidate-366250
+    (MANIFEST.json sha256
+     9d3cb6830cbda604b2d15cec8d23269d42232a147a8521278fd16481a2f39b98)
+overlaid, plus this claim's ONE change:
+    v12/python/tests/tools/test_joined_workflow.py    (new)
+
+No product byte changed in this claim.
+
+The whole tree is extracted rather than just v12/, because these suites resolve
+repository assets by walking up from their own file -- the worker-control
+vectors under work/records/2026/08/... are one of them -- and a root carrying
+only the v12/ level errors on their absence.
+
+Every run below:
+
+    cd /tmp/w366433/v12/python
+    PYTHONPATH=src:. python3 -m unittest <targets>
+
+python3 is 3.13.
+
+WHAT WAS RUN, AND WHAT IS IN EACH FILE
+
+  joined-workflow.txt
+      tests.tools.test_joined_workflow, verbose, with
+      BATON_V12_OBS0_REPORT naming obs0-interval.json.
+      15 tests, OK. This suite is this claim's only change.
+
+  obs0-interval.json
+      The DESIGN OBS-0 measurement, written by the suite itself at the end of
+      test_the_interval_is_reported_with_its_endpoints. It carries the bound,
+      both endpoints in words, the four groups of work INSIDE the interval,
+      what is OUTSIDE it and why, the two deterministic seams, and the four
+      measured figures -- the whole interval and its three legs, which sum to
+      it exactly (the suite asserts that, so nothing was measured outside what
+      is reported).
+
+  job-manager-whole.txt
+      unittest discover -s tests/job_manager -t . -p 'test_*.py'
+      1375 tests, OK.
+
+  tools-eight-suites.txt
+      tests.tools.test_joined_workflow, test_job_task_delivery,
+      test_retry_task_lineage, test_connected_creation, test_creation_ports,
+      test_fresh_retry_line_recovery, test_bootstrap, test_instance.
+      444 tests, OK. These are the suites whose subjects this claim's path
+      runs through.
+
+  tools-nine-suites.txt
+      THE SAME EIGHT PLUS tests.tools.test_correction_restart, which I added
+      to the run myself because this claim is about the correction workflow.
+      450 tests, 3 FAILURES and 2 ERRORS, all five in that suite and all five
+      PRE-EXISTING ON THE BASE. Kept rather than dropped, because running it
+      and then reporting only the eight-suite number would be choosing the
+      number that looks better.
+
+  pre-existing-base-correction-restart.txt
+      tests.tools.test_correction_restart in /tmp/w366433-base -- the tracked
+      tree at 18e771f0 with NO candidate overlay at all.
+      6 tests, THE SAME 3 failures and 2 errors. Its scenario harness
+      (tests/tools/correction_restart_trace.py) reports "preparation did not
+      answer" from setUpClass. No product byte changed in this claim or in the
+      accepted candidate, so neither can cause it.
+
+THE OBS-0 INTERVAL, STATED HERE AS WELL AS IN THE SUITE
+
+  OPENS when the operator's selection arrives: a task id, a statement,
+  acceptance criteria and a selected work scope. Nothing else is supplied --
+  no digest, no manifest, no submission document, no launch packet, no path --
+  and test_the_measured_path_required_no_authored_procedure reads that off the
+  recorded resolution rather than describing it.
+
+  CLOSES when the assigned agent ENTERS work() inside its own runtime. The
+  producing agent stamps time.monotonic() there itself, so the endpoint is the
+  agent's own rather than this fixture's guess about it.
+
+  INSIDE, all of it: the installed worker configuration read and proved; the
+  whole creation (template resolution, full-resolution digest, identity
+  reservation, Work authorization, deployment binding published and prepared,
+  per-Job task composed, submission admitted); every scheduler tick that
+  follows (offer, claim, principal allocation, writer grant, input root
+  composed and frozen, launch document, credential delivery, runtime start);
+  and the in-image startup (launch adoption, exchange, worker preflight).
+
+  OUTSIDE, and OBS-0a is why: the one-time install and the deployment's own
+  start -- opening the stores, validating the configuration, certifying the
+  checkpoint profile, minting the session and activating the pool. That is
+  `just start`, performed once per deployment and not once per task, and
+  SCH-2's scheduler is persistent by design. NOTHING PER-RUN IS OUTSIDE.
+
+  THE CORRECTION ROUND IS MEASURED AS A ROUTINE START TOO, from the recorded
+  verdict to the second agent's own work() entry, because OBS-0a names retries
+  as routine.
+
+  WHAT THE FIGURE IS NOT. The container engine and the provider inside the
+  workload are this suite's declared seams, so it contains NO image pull, NO
+  container start, NO provider authentication and NO model latency. It is the
+  product's own routine path and is reported as exactly that. The supported
+  environment is the one this suite runs in: a prepared local deployment on
+  one host, local SQLite stores, the deployment-configured checkpoint profile
+  with no version control behind it, and no network.
+
+  AND THE SUITE'S OWN DURATION IS NOT THE MEASURE. joined-workflow.txt reports
+  ~34s of wall clock for 15 cases, each of which installs its own disposable
+  deployment and runs two or three real worker turns. That number is not a
+  startup figure and is not offered as one.
+
+WHAT WAS NOT RUN, AND WHY
+
+  NO VERSION-CONTROL OPERATION OF ANY KIND, and this suite PROVES it rather
+  than asserting it: every case calls `no_version_control()`, which replaces
+  subprocess.run and subprocess.Popen with wrappers that raise AssertionError
+  on any argv whose program is `git`. A case that spawned one would fail, so
+  15 passes is the evidence. The checkpoint profile is
+  tests.job_manager.test_review_driver.Profile, the deployment-configured
+  profile with no VCS behind it.
+
+  This is also why the repository's existing full-lifecycle harness
+  test_stage_execution.ComposedOneJobCase is NOT used for the workflow: its
+  setUp runs `init`, `add` and `commit` against a real repository. Standing
+  policy forbids an agent performing a mutating version-control operation and
+  does not scope that to the working tree, so the joined path is driven on the
+  no-VCS composition this Work's own children established instead. Only
+  ComposedOneJobCase.quiescing -- its multi-container engine double -- is
+  borrowed, and it performs no version control.
+
+  No live provider, no model, no container engine, no deployed-instance
+  mutation, no install, no migration and no cutover. Every destination is a
+  disposable root outside the checkout.
+
+WHAT STANDS IN, NAMED
+
+  THE ENGINE is _ConcurrentEngine, the repository's own multi-container model.
+  THE CHECKPOINT PROFILE is the one above.
+  THE WORKER is scripted_agent.ScriptedAgent with the one addition each role
+  needs: the producer writes `objects.bundle` and a `baton.git-proposal/1`
+  claim; the reviewer writes `report.json` and a `baton.checkpoint-review/1`
+  claim naming the checkpoint's own base, head and tree. Those bytes are not a
+  patch anybody could apply and not a judgment anybody formed. What they are
+  is the operand shape the product VALIDATES, and it does: `publish_candidate`
+  refuses a claim whose transport is not in the frozen tree, and
+  `review_verdict_from_result` refuses a claim whose three objects are not the
+  checkpoint's -- which is why the reviewer's evidence is read from the
+  checkpoint rather than composed by the fixture.

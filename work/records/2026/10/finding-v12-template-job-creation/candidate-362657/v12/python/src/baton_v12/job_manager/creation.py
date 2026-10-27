@@ -1,0 +1,828 @@
+"""Creating an ORDINARY JOB from a versioned template. W361912.
+
+DESIGN SCH-1a, owner 2026-10-24. "Ordinary creation MUST NOT require
+operator-authored manifests or bespoke launch packets, nor duplicate
+admission, uniqueness or recovery in a helper. The Job manager owns validation
+and admission of the instantiated workflow through the existing owning APIs.
+The CLI requests the operation and reports its result."
+
+WHAT WAS MISSING, AND IT IS NOT THE RESOLVER. W361910 delivered
+`templates.resolve`, `templates.owned_resolution` and
+`templates.submission_for_admission`, and its acceptance review is explicit
+that those are "not an atomic admission, cross-owner recovery protocol or full
+workflow execution proof". What this module adds is the operation that spends
+a resolution: one manager-owned act that reserves the identity, composes the
+Work authorization and the deployment binding through their owners, records
+the submission and journals the whole thing replayably.
+
+AND THE OTHER HALF IS THAT NOBODY COULD SUPPLY THE RESOLVER'S OPERANDS.
+`templates.resolve` needs a configuration naming each role's
+`profile_name`/`profile_digest`, and a source naming the Job's `input_digest`
+and `policy_digest`. Those four are not an operator's to know, and the rule
+that proves it is `stage_execution._disagreements` -- the scheduler's own
+comparison, which decides which configured worker may serve a stage by
+checking, per stage, the serving worker's `launch_role` against the stage
+kind, its manifest `work_ref.work_id` against the binding's Work, its
+`profile_name` and `profile_digest` against the stage's,
+`job_input_identity(manifest)` against the Job's `input_digest`, and its
+`policy_digest` against the Job's. Every one of those is a fact the DEPLOYMENT
+holds about the workers it installed. An operator typing them is configuring
+the pool from a Job, and typing one wrong produces a configuration that
+validates cleanly and whose stages no worker can ever be selected for -- which
+is the failure the pilot actually recorded.
+
+SO THE REQUEST IS INPUT ONLY and the derivation is a port. The caller supplies
+the template selection, the task, the two scopes, the acceptance criteria and
+the permitted overrides. `derivation` answers what this deployment installed;
+this module holds it to the shape `templates.resolve` requires and then asks
+the SELECTOR whether the result can actually be served, because a derivation
+this module believed and the scheduler would reject is the same defect wearing
+a different coat.
+
+THE FULL RESOLUTION DIGEST IS THE IDENTITY OF THE SELECTED INTENT, and that is
+W361910's acceptance review speaking: "Task statement, acceptance and work
+scope can differ without changing the legacy submission; a submission
+signature alone is therefore insufficient to identify that complete selected
+intent." So the reservation records `resolution_digest`, a replay is the same
+digest, and a second request whose statement, acceptance or work scope differs
+refuses as the different creation it is -- even though `submission.submit`
+would have replayed it happily.
+
+THE ORDER OF THE CUTS IS THE RECOVERY STORY, and it is `fresh_attempt`'s
+order, for `fresh_attempt`'s reasons.
+
+  1. derive the deployment's facts and resolve -- no store is touched
+  2. hold the instance, then re-derive and re-resolve inside the guard
+  3. CUT A: reserve the identity, the submission name and the resolution
+     digest, inside this store's write lock
+  4. acquire the holder, so exactly one admission publishes this identity's
+     external effects
+  5. CUT B: the Work authorization, then the deployment binding. A binding
+     with no Job is INERT, so it is the safe half to publish first
+  6. ask the selector whether each resolved stage can be served, with the
+     binding now published
+  7. agree the compatibility generation and take the submission THROUGH
+     `templates.submission_for_admission`, which is the accepted consumption
+     contract
+  8. CUT C: `submission.submit`
+  9. mark the intent created and journal the answer
+
+NOTHING OUTSIDE THIS STORE IS TOUCHED BEFORE CUT A. That ordering is
+`fresh_attempt`'s own correction carried forward: its first cut authorized the
+Work first, so a request differing from a recorded one minted a Work on the
+Authority and THEN refused as a collision -- an effect performed for an
+operation that was never admitted.
+
+WHAT THIS MODULE DOES NOT OWN. It records no second account of a submission,
+an offer, a runtime or a review; `submission.submit` still owns submission
+identity and atomicity and `fresh_attempt.admit` still owns retry, both
+untouched. It performs no Git operation, opens no container, reads no
+credential and takes no review decision. It does not schedule: whether the
+created Job then RUNS is the serving loop's, and this module stops at a
+recorded, bound, servable Job.
+"""
+
+import json
+import sqlite3
+
+from ..contracts import ContractRefusal, digest
+from ..contracts.errors import name_value, sample_of
+from ..worker_manager import boundaries
+from . import documents, execution_limits, submission, templates
+from .store import job_signature
+
+__all__ = ["ACQUIRE_KIND", "CREATE_KIND", "DERIVATION_MEMBERS",
+           "INSTALLED_SOURCE", "INTENT_KIND", "PROFILE_MEMBERS",
+           "create_operation_id", "create_template_job", "created_job_of",
+           "created_job_rows", "intent_operation_id", "job_id_for",
+           "resolution_of", "submission_id_for"]
+
+INTENT_KIND = "template_job.intend"
+ACQUIRE_KIND = "template_job.acquire"
+CREATE_KIND = "template_job.create"
+
+# What the deployment's derivation port must answer. CLOSED, because a member
+# this module does not resolve is a fact somebody believes is being used.
+DERIVATION_MEMBERS = ("work_id", "input_digest", "policy_digest", "profiles")
+PROFILE_MEMBERS = ("profile_name", "profile_digest")
+
+# The one source a creation may select: the one this instance installed. An
+# enum of one says the decision was made rather than skipped --
+# `documents.TERMINAL_POLICIES` is the same shape for the same reason -- and a
+# second member would be a source-profile decision nobody has made.
+INSTALLED_SOURCE = "installed"
+
+
+def _refuse(message, *, category="integrity", code="schema", durable=False):
+    raise ContractRefusal(category, code, message, durable=durable)
+
+
+def intent_operation_id(job_id):
+    return f"{INTENT_KIND}:{job_id}"
+
+
+def acquire_operation_id(job_id, holder):
+    return f"{ACQUIRE_KIND}:{job_id}:{holder}"
+
+
+def create_operation_id(job_id):
+    return f"{CREATE_KIND}:{job_id}"
+
+
+def job_id_for(task_id):
+    """The Job identity a request that states none resolves to.
+
+    DERIVED FROM WHAT THE CALLER DID NAME rather than invented, so an operator
+    never has to make up a second name for one task. `fresh_attempt` derives
+    its successor the same way and for the same reason.
+    """
+    return f"job-{boundaries.identity(task_id, 'a task id')}"
+
+
+def submission_id_for(job_id):
+    """`templates.submission_id_for`'s spelling, reached rather than copied."""
+    return templates.submission_id_for(job_id)
+
+
+def create_template_job(store, operations, *, request, derivation,
+                        authorization, binding, ownership):
+    """Create one ordinary Job from a versioned template, or replay doing so.
+
+    Answers a `template-job.created` document. Every refusal names the fact
+    that stopped it and says whether anything was published.
+
+    `operations` is accepted and deliberately UNUSED for any decision: it is
+    the manager's canonical-operations object, and a creation issues no offer,
+    starts no runtime and takes no claim. It is in the signature because the
+    reads this operation performs are the same reads the serving loop's object
+    exposes, and a later slice that needs one will not change this surface.
+    """
+    for port, what in ((derivation, "the deployment derivation port"),
+                       (authorization, "the Work authorization port"),
+                       (binding, "the deployment binding port"),
+                       (ownership, "the instance ownership port")):
+        if port is None:
+            _refuse(f"an ordinary creation composes four owners and {what} is "
+                    f"absent; this operation does not decide an owner's fact "
+                    f"for it by assuming one",
+                    category="refused", code="precondition")
+    _one_instance(store, {"the deployment derivation port": derivation,
+                          "the Work authorization port": authorization,
+                          "the deployment binding port": binding,
+                          "the instance ownership port": ownership})
+
+    # THE REQUEST IS OWNED BEFORE A DERIVATION IS ASKED FOR. A malformed
+    # request should cost nothing, and asking the deployment to read its own
+    # configuration for one is a cost.
+    asked = _asked(request)
+    _first, resolution = _resolved(asked, derivation)
+    operands = {"job_id": resolution["task"]["job_id"],
+                "work_id": resolution["task"]["work_id"],
+                "submission_id": resolution["task"]["submission_id"],
+                "template_version": resolution["template"]["version"],
+                "resolution_digest": templates.resolution_digest(resolution)}
+
+    # A REPLAY ANSWERS BEFORE ANY OWNER IS ASKED ANYTHING ELSE. The whole
+    # operation is already recorded, so re-deriving its preconditions would
+    # mean a completed creation could start refusing later because the
+    # deployment moved on -- `fresh_attempt.admit`'s rule, and the same
+    # stale-check defect it removes.
+    try:
+        found, value = store.replay(create_operation_id(operands["job_id"]),
+                                    job_signature(CREATE_KIND, operands),
+                                    kind=CREATE_KIND)
+    except ContractRefusal as collision:
+        if collision.code != "operation-collision":
+            raise
+        # AN OPERATION COLLISION HERE IS A CHANGED SELECTED INTENT, and the
+        # generic sentence does not say so. The operation identity is the Job
+        # and the signature carries the FULL resolution digest, so a second
+        # request under this identity whose statement, acceptance contract,
+        # selected work scope, override or derived deployment facts differ
+        # collides -- which is exactly the case W361910's acceptance review
+        # says a submission signature could not have caught, because the
+        # normalized submission is byte-identical for three of those five.
+        # So this names both digests and what they mean.
+        raise _changed(store, operands) from collision
+    if found:
+        return value
+
+    with ownership.held() as owner, ownership.invocation(operands["job_id"]):
+        # RE-DERIVED AND RE-RESOLVED INSIDE THE GUARD. The derivation reads
+        # this instance's own configuration, and the one writer that could
+        # have changed it between the first read and now is a manager whose
+        # guard this now holds. A creation composed from a configuration
+        # somebody republished underneath it would bind a Job against workers
+        # that no longer exist.
+        derived, held = _resolved(asked, derivation)
+        if templates.resolution_digest(held) != operands["resolution_digest"]:
+            _refuse(f"this deployment's configuration changed while this "
+                    f"creation was waiting for the instance guard: the "
+                    f"resolution it composed is no longer the one this "
+                    f"instance derives. Nothing was reserved and nothing was "
+                    f"published; run the same request again",
+                    category="refused", code="precondition")
+        return _owned(store, resolution=held, operands=operands,
+                      derived=derived, authorization=authorization,
+                      binding=binding, owner=owner)
+
+
+def _changed(store, operands):
+    """The refusal a second, different creation under one identity gets."""
+    held = created_job_of(store, operands["job_id"])
+    recorded = held["resolution_digest"] if held is not None else None
+    return ContractRefusal(
+        "refused", "precondition",
+        f"Job {name_value(operands['job_id'])} was already created from a "
+        f"different creation: this store records the resolution "
+        f"{name_value(recorded)} and this request resolves to "
+        f"{name_value(operands['resolution_digest'])}. The selected intent "
+        f"includes the task statement, the acceptance criteria, the selected "
+        f"work scope and this deployment's own derived facts -- none of "
+        f"which the normalized submission carries -- so two requests that "
+        f"would submit byte-identical documents are still two creations. "
+        f"Create the changed intent under another Job identity; the recorded "
+        f"one is untouched", durable=True)
+
+
+def _owned(store, *, resolution, operands, derived, authorization,
+           binding, owner):
+    """Everything that happens while this process owns the instance."""
+    job_id = operands["job_id"]
+    document = resolution["submission"]
+
+    # -- CUT A: the reservation, before any other owner is mutated.
+    _reserved(store, operands, resolution, document)
+
+    # -- AND EXACTLY ONE RUNNER OWNS THIS IDENTITY'S EFFECTS. The reservation
+    #    says the identity is spoken for and says nothing about who may act on
+    #    it; this compare-and-swap is what a second concurrent caller loses.
+    _acquired(store, operands, owner=owner)
+
+    # -- CUT B: the Work authorization, then the binding. Both idempotent, and
+    #    the binding is inert until the Job exists.
+    authorized = _authorized(authorization, operands)
+    bound = _bound(binding, operands, resolution=resolution)
+
+    # -- THE SELECTOR DECIDES SERVABILITY, not this module and not the
+    #    derivation port. Asked AFTER the binding is published, because
+    #    `servable_workers` compares against the binding -- and asked for
+    #    EVERY resolved stage, because a review worker on another Work is the
+    #    exact case `_job_workers` was corrected for.
+    servable = _servable(binding, resolution, reserved=job_id)
+
+    # -- THE ACCEPTED CONSUMPTION CONTRACT, inside the operation. W361910's
+    #    review: "W361912 owns those existing acceptance obligations and must
+    #    preserve the generation agreement through its operation rather than
+    #    treating a precheck as authority." So the document this submits is
+    #    the one that verb answers, and a resolution this build would no
+    #    longer produce refuses here with the binding already published and
+    #    nothing recorded.
+    try:
+        taken = templates.submission_for_admission(
+            resolution, generation=execution_limits.CURRENT_GENERATION)
+    except ContractRefusal as refusal:
+        raise _incomplete(f"the resolution this creation composed is no "
+                          f"longer consumable: {refusal.message}",
+                          reserved=job_id) from refusal
+
+    # -- CUT C: the submission, and the completion that closes the intent.
+    try:
+        recorded = submission.submit(store, taken)
+    except ContractRefusal as refusal:
+        if refusal.code == "operation-collision":
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"the submission for this creation collided with an "
+                f"operation this store had already settled: "
+                f"{refusal.message}. The identity {name_value(job_id)} is "
+                f"RESERVED and its binding may already be published; "
+                f"repeating this request cannot change an immutable outcome, "
+                f"so create the Job under another submission identity") \
+                from refusal
+        raise _incomplete(f"the submission for this creation was refused: "
+                          f"{refusal.message}", reserved=job_id) from refusal
+    # THE DERIVATION IN THE ANSWER IS THE ONE THIS CREATION USED, not a third
+    # reading of the port. Asking again would record facts the Job was not
+    # composed from if anything had moved -- which is the whole class of
+    # defect the re-read inside the guard exists to catch.
+    return _completed(store, operands, resolution=resolution,
+                      derivation=derived, work=authorized,
+                      bound=bound, servable=servable, recorded=recorded)
+
+
+def _incomplete(why, *, reserved):
+    """A refusal PAST the reservation, reported as the incomplete act it is.
+
+    `fresh_attempt._incomplete`'s rule: the reservation and whatever the Work
+    authorization and the binding already published REMAIN. The creation is
+    incomplete rather than undone, and the one way forward is to fix what is
+    named and run the same request again.
+    """
+    return ContractRefusal(
+        "refused", "precondition",
+        f"{why}. The Job identity {name_value(reserved)} is RESERVED and its "
+        f"Work authorization and deployment binding may already be "
+        f"published: this creation is INCOMPLETE rather than undone, no "
+        f"submission was recorded, and running the same request again "
+        f"finishes it once what is named above is repaired")
+
+
+# -- the request, and what the deployment answers ----------------------------
+
+def _asked(request):
+    """The caller's request, owned by the resolver's own contract.
+
+    NOT A SECOND SCHEMA. `templates.resolve` already owns a
+    `baton.v12.job-template-request/1` member by member, including the two
+    scopes, the acceptance list and the permitted overrides -- so this takes
+    exactly that document and adds the one thing a creation needs and a pure
+    resolution does not: the request may omit the identities this operation
+    derives.
+
+    WHAT IS OMITTED HERE AND SUPPLIED LATER. `work_id` is the DEPLOYMENT's --
+    the configured workers hold a Work in their own input manifests and
+    `_disagreements` compares against it, so a caller naming one would be
+    choosing which installed workers can serve the Job it is creating. The
+    `job_id` may be derived from the task id. Everything else is the caller's
+    and travels verbatim into the resolution.
+    """
+    taken = boundaries.document(
+        request, "an ordinary Job creation request",
+        required=("schema", "task", "source_selection", "scope",
+                  "acceptance"),
+        optional=("template", "overrides"))
+    if taken["schema"] != templates.REQUEST_SCHEMA:
+        _refuse(f"an ordinary Job creation request is "
+                f"{name_value(templates.REQUEST_SCHEMA)}, the resolver's own "
+                f"request contract; this is "
+                f"{name_value(taken['schema'])}")
+    task = boundaries.document(taken["task"], "a creation request's task",
+                               required=("task_id", "statement"),
+                               optional=("job_id", "submission_id"))
+    boundaries.identity(task["task_id"], "a task id")
+    # THE SOURCE SELECTION IS A CHOICE, NOT A DIGEST. A creation names WHICH
+    # of this deployment's installed sources it runs against; the digests that
+    # selection resolves to are the deployment's to state. An enum of one is
+    # how this build says the decision was made rather than skipped --
+    # `documents.TERMINAL_POLICIES` is the same shape for the same reason.
+    if taken["source_selection"] != INSTALLED_SOURCE:
+        _refuse(f"a creation's source selection is one of "
+                f"{name_value(INSTALLED_SOURCE)}; this is "
+                f"{name_value(taken['source_selection'])}. The input and "
+                f"policy digests a Job carries are facts about the workers "
+                f"this deployment installed, and a request that could state "
+                f"them would be configuring the pool from a Job")
+    return {"request": taken, "task": task}
+
+
+def _resolved(asked, derivation, held=None):
+    """The resolution, from the caller's request and the deployment's facts.
+
+    THE DERIVATION IS HELD TO A CLOSED SHAPE before it is believed. It is a
+    port over another owner's documents, and a port that answered a missing
+    profile as `None` would resolve a Job whose stage requests a profile named
+    `null` -- which `documents` admits as text and the selector can never
+    match.
+    """
+    derived = _derived(derivation) if held is None else held
+    task = asked["task"]
+    job_id = (task["job_id"] if "job_id" in task
+              else job_id_for(task["task_id"]))
+    request = dict(asked["request"])
+    del request["source_selection"]
+    request["task"] = {"job_id": boundaries.identity(job_id, "a Job id"),
+                       "work_id": derived["work_id"],
+                       "statement": task["statement"]}
+    if "submission_id" in task:
+        request["task"]["submission_id"] = task["submission_id"]
+    request["source"] = {"input_digest": derived["input_digest"],
+                         "policy_digest": derived["policy_digest"]}
+    return derived, templates.resolve(request, configuration={
+        "schema": templates.CONFIGURATION_SCHEMA,
+        "profiles": derived["profiles"]})
+
+
+def _derived(derivation):
+    taken = boundaries.document(derivation.derived(),
+                                "this deployment's derived Job facts",
+                                required=DERIVATION_MEMBERS)
+    for member in ("work_id", "input_digest", "policy_digest"):
+        boundaries.text(taken[member], f"this deployment's derived {member}")
+    profiles = boundaries.document(
+        taken["profiles"], "this deployment's derived runtime profiles",
+        optional=documents.STAGE_KINDS)
+    if not profiles:
+        _refuse(f"this deployment derived no runtime profile for any stage "
+                f"kind; a creation requests the profile its installed "
+                f"workers carry, and there is nothing here to request",
+                category="refused", code="precondition")
+    for kind in profiles:
+        one = boundaries.document(profiles[kind],
+                                  f"the derived {kind} runtime profile",
+                                  required=PROFILE_MEMBERS)
+        for member in PROFILE_MEMBERS:
+            boundaries.text(one[member], f"a derived {member}")
+    return taken
+
+
+def _servable(binding, resolution, *, reserved):
+    """Every resolved stage can be served by a worker this deployment holds.
+
+    ASKED OF THE SELECTOR, which is `stage_execution.servable_workers` behind
+    the port -- not re-derived here. A comparison written in this module would
+    be a copy of the scheduler's rule, and the pilot measured what that copy
+    costs: a configuration that validated cleanly and whose stages no worker
+    could ever be selected for.
+
+    AND ASKED FOR EVERY STAGE. `_job_workers` was corrected for exactly the
+    narrower version of this: compatibility derived for the implementation
+    kind alone reserved a review worker on another Work, leaving capacity held
+    for a stage that could never be served.
+    """
+    entry = resolution["submission"]["jobs"][0]
+    answered = {}
+    empty = []
+    for stage in entry["stages"]:
+        held = binding.serving(entry["job_id"], stage=stage, job=entry)
+        answered[stage["kind"]] = sorted(held or ())
+        if not held:
+            empty.append(stage["kind"])
+    if empty:
+        raise _incomplete(
+            f"this deployment configures no worker that can serve the "
+            f"{sample_of(sorted(empty))} stage of the Job this request "
+            f"creates, so nothing would ever run it", reserved=reserved)
+    return answered
+
+
+# -- the other owners --------------------------------------------------------
+
+def _one_instance(store, ports):
+    """Every owner answers for the SAME instance, or nothing is attempted.
+
+    `fresh_attempt._one_instance`'s rule and its reason: a caller composed
+    the real ports over an unrelated EMPTY control store and the admission
+    read its absences as this instance's own history. A port that declares no
+    instance is UNBOUND and accepted, which is what lets a unit case compose
+    stand-ins that answer for no deployment.
+    """
+    declared = {}
+    for what, port in ports.items():
+        named = port.instance() if hasattr(port, "instance") else None
+        if named is not None:
+            declared[what] = named
+    roots = {what: one.get("root") for what, one in declared.items()}
+    distinct = sorted({one for one in roots.values() if one is not None})
+    if len(distinct) > 1:
+        _refuse(f"these owners answer for {len(distinct)} different "
+                f"deployments -- {sample_of(distinct)} -- and an ordinary "
+                f"creation is composed against one instance: "
+                f"{json.dumps(roots, sort_keys=True)}",
+                category="refused", code="precondition")
+    for what, one in declared.items():
+        named = one.get("authority_uuid")
+        if named is not None and named != store.authority_uuid:
+            _refuse(f"{what} answers for Authority {name_value(named)} and "
+                    f"this Job store is bound to "
+                    f"{name_value(store.authority_uuid)}; a Job created here "
+                    f"derives its episode identities in this store's "
+                    f"namespace and nobody else's",
+                    category="refused", code="precondition")
+    return declared
+
+
+def _authorized(authorization, operands):
+    """The Work this Job runs under, reused when it is open or created once.
+
+    THE WORK IS THE DEPLOYMENT'S DERIVATION and this port's to confirm. The
+    configured workers hold a Work in their own input manifests, so a created
+    Job runs under that Work or no installed worker can serve it -- which the
+    selector is asked about a few lines later. What this does is prove the
+    Authority really holds it, through the Authority's own API.
+    """
+    work_id = operands["work_id"]
+    held = authorization.work_of(work_id)
+    if held is None:
+        created = authorization.create_work(
+            work_id, operation_id=f"{CREATE_KIND}.work:{work_id}")
+        return {"work_id": work_id, "state": "created",
+                "projection": created}
+    state = held.get("state") if type(held) is dict else None
+    if state is not None and state != "open":
+        raise _incomplete(
+            f"Work {name_value(work_id)} is {name_value(state)} and an "
+            f"ordinary Job is created under an OPEN Work; a closed Work "
+            f"cannot take a claim, so nothing would ever run this Job",
+            reserved=operands["job_id"])
+    return {"work_id": work_id, "state": "reused", "projection": held}
+
+
+def _bound(binding, operands, *, resolution):
+    """This Job's deployment binding, published through its owner.
+
+    IDEMPOTENT AND INERT. `bootstrap.prepare` revalidates the whole deployment
+    and refuses to move anything a repeated bootstrap must preserve, and a
+    binding for a Job this store does not hold selects nothing -- so this is
+    the safe half to publish before the submission.
+    """
+    job_id = operands["job_id"]
+    existing = binding.binding_of(job_id)
+    if existing is not None:
+        if existing.get("job_work_id") not in (None, operands["work_id"]):
+            raise _incomplete(
+                f"this deployment already binds Job {name_value(job_id)} to "
+                f"Work {name_value(existing.get('job_work_id'))} and this "
+                f"creation runs under {name_value(operands['work_id'])}; a "
+                f"Job's Work is a fact about the Job",
+                reserved=job_id)
+        return existing
+    # NOTHING IS CAUGHT HERE, which is `fresh_attempt._bound`'s posture and
+    # the rule W361910's R4 review stated: unexpected programmer faults stay
+    # visible rather than being translated into "your deployment refused".
+    # `fresh_attempt_ports.BindingRefusal` is already an operator-facing
+    # sentence about this instance and the thing it says is what has to be
+    # fixed, so it propagates as itself; what this module adds is the
+    # INCOMPLETE account below for the refusals it does decide.
+    published = binding.create_binding(
+        job_id, work_id=operands["work_id"],
+        template_version=operands["template_version"])
+    if published is None:
+        raise _incomplete(f"this deployment reported no binding for Job "
+                          f"{name_value(job_id)} after publishing one",
+                          reserved=job_id)
+    return published
+
+
+# -- the three durable cuts in this store ------------------------------------
+
+def _reserved(store, operands, resolution, document):
+    """CUT A: the identity, the submission name and the DIGEST, in one lock.
+
+    THE PRIMARY KEY makes two concurrent requests one creation. The recorded
+    request plus the recorded resolution digest make a THIRD request carrying
+    a different selected intent a refusal rather than a quiet resumption of
+    somebody else's Job.
+
+    AND THE DIGEST IS WHY THIS IS NOT JUST A SUBMISSION. W361910's acceptance
+    review: the statement, the acceptance contract and the selected work scope
+    can all differ while the normalized submission stays byte-identical, so a
+    reservation comparing submissions alone would hand the second caller back
+    the first one's Job and call it their creation.
+    """
+    signature = job_signature(INTENT_KIND, operands)
+    intended = job_signature("submission.record", document)
+    provenance = json.dumps(resolution, sort_keys=True, ensure_ascii=False)
+
+    def act(connection):
+        # THE ORDINARY JOB TABLE, INSIDE THE SAME LOCK. An identity an
+        # ordinary submission or a fresh attempt already holds is not free,
+        # and finding that out at `submit` would be finding it out with a
+        # Work and a binding already published for it.
+        taken = connection.execute(
+            "SELECT job_id FROM jobs WHERE job_id = ?",
+            (operands["job_id"],)).fetchone()
+        if taken is not None:
+            _refuse(f"Job {name_value(operands['job_id'])} is already "
+                    f"recorded in this store; a creation cannot take an "
+                    f"identity that names another pipeline",
+                    category="refused", code="precondition", durable=True)
+        retried = connection.execute(
+            "SELECT job_id FROM fresh_attempts WHERE job_id = ?",
+            (operands["job_id"],)).fetchone()
+        if retried is not None:
+            _refuse(f"Job {name_value(operands['job_id'])} is reserved by a "
+                    f"fresh attempt; one identity names one admission",
+                    category="refused", code="precondition", durable=True)
+        # AND THE SUBMISSION IDENTITY'S OWN HISTORY, in this store's journal
+        # as well as its rows. `fresh_attempt._reserved` review R15: an
+        # identity can be permanently settled with no `submissions` row at
+        # all, and an absent row is not a free name. None of these is durable
+        # for THIS operation: the remedy is another submission identity for
+        # the same Job, which is the same intent operation id, so sealing
+        # them here would make the remedy impossible.
+        journalled = connection.execute(
+            "SELECT signature, state FROM operations WHERE operation_id = ?",
+            (submission.operation_id(operands["submission_id"]),)).fetchone()
+        if journalled is not None and journalled[0] != intended:
+            named = submission.operation_id(operands["submission_id"])
+            _refuse(f"the submission operation {name_value(named)} "
+                    f"is already settled in this store's journal as "
+                    f"{name_value(journalled[1])} for a DIFFERENT document, "
+                    f"so that identity can never record this one. An "
+                    f"operation's outcome is immutable and repeating this "
+                    f"request will not change it: choose another submission "
+                    f"identity. Nothing was reserved and no Work or binding "
+                    f"was touched", category="refused", code="precondition")
+        recorded = connection.execute(
+            "SELECT signature FROM submissions WHERE submission_id = ?",
+            (operands["submission_id"],)).fetchone()
+        if recorded is not None and recorded[0] != intended:
+            _refuse(f"submission {name_value(operands['submission_id'])} is "
+                    f"already recorded in this store for a different "
+                    f"document; a creation cannot take a submission identity "
+                    f"that names another intent",
+                    category="refused", code="precondition")
+        sharing = connection.execute(
+            "SELECT job_id FROM fresh_attempts WHERE submission_id = ? AND "
+            "job_id != ?", (operands["submission_id"],
+                            operands["job_id"])).fetchone()
+        if sharing is not None:
+            _refuse(f"submission {name_value(operands['submission_id'])} is "
+                    f"reserved by the fresh attempt for Job "
+                    f"{name_value(sharing[0])}; one submission identity "
+                    f"names one intent",
+                    category="refused", code="precondition")
+        held = connection.execute(
+            "SELECT request, resolution_digest, state FROM template_jobs "
+            "WHERE job_id = ?", (operands["job_id"],)).fetchone()
+        if held is not None:
+            if json.loads(held[0]) != operands:
+                _refuse(f"Job {name_value(operands['job_id'])} is already "
+                        f"reserved for a different creation; one identity "
+                        f"names one Job and a second intent reusing it would "
+                        f"take over the first one's",
+                        category="refused", code="precondition", durable=True)
+            return _intent(operands, state=held[2])
+        try:
+            connection.execute(
+                "INSERT INTO template_jobs (job_id, work_id, submission_id, "
+                "template_version, state, request, resolution_digest, "
+                "resolution, submission_signature, intended_at, created_at, "
+                "incarnation) "
+                "VALUES (?, ?, ?, ?, 'intended', ?, ?, ?, ?, ?, NULL, ?)",
+                (operands["job_id"], operands["work_id"],
+                 operands["submission_id"], operands["template_version"],
+                 json.dumps(operands, sort_keys=True, ensure_ascii=False),
+                 operands["resolution_digest"], provenance, intended,
+                 store._now(), store.incarnation))
+        except sqlite3.IntegrityError:
+            # THE LOSER OF THE RACE READS WHO WON, inside its own still-open
+            # transaction, so the identity it names is the one really there.
+            won = connection.execute(
+                "SELECT job_id FROM template_jobs WHERE submission_id = ?",
+                (operands["submission_id"],)).fetchone()
+            _refuse(f"submission "
+                    f"{name_value(operands['submission_id'])} is already "
+                    f"reserved by the creation of Job "
+                    f"{name_value(won[0] if won is not None else None)}; one "
+                    f"submission identity names one creation",
+                    category="refused", code="precondition", durable=True)
+        return _intent(operands, state="intended")
+
+    return store.transact(intent_operation_id(operands["job_id"]),
+                          INTENT_KIND, signature, act)
+
+
+def _acquired(store, operands, *, owner):
+    """Take exclusive ownership of THIS creation's external effects.
+
+    `fresh_attempt._acquired`'s compare-and-swap, for its reason: a
+    reservation plus a replayable submission does not make the WORK BETWEEN
+    them happen once, and two identical concurrent requests both published a
+    binding. A holder continues its OWN interrupted work and nobody else's.
+    """
+    holder = _holder(store, owner)
+    signature = job_signature(ACQUIRE_KIND, dict(operands, holder=holder))
+
+    def act(connection):
+        changed = connection.execute(
+            "UPDATE template_jobs SET holder = ? WHERE job_id = ? AND "
+            "(holder IS NULL OR holder = ?)",
+            (holder, operands["job_id"], holder)).rowcount
+        if changed == 0:
+            held = connection.execute(
+                "SELECT holder, state FROM template_jobs WHERE job_id = ?",
+                (operands["job_id"],)).fetchone()
+            _refuse(f"the creation of {name_value(operands['job_id'])} is "
+                    f"held by {name_value(held[0] if held else None)} and is "
+                    f"{name_value(held[1] if held else None)}; one creation "
+                    f"performs this identity's Work authorization, binding "
+                    f"and submission, and a second acting beside it would "
+                    f"publish them twice. Let that one finish, or re-run "
+                    f"under the same manager incarnation to continue its "
+                    f"interrupted work",
+                    category="refused", code="precondition")
+        return {"job_id": operands["job_id"], "holder": holder}
+
+    return store.transact(
+        acquire_operation_id(operands["job_id"], holder), ACQUIRE_KIND,
+        signature, act)
+
+
+def _holder(store, owner):
+    """`fresh_attempt._holder`'s identity: the guard and the incarnation."""
+    named = getattr(owner, "holder", None)
+    return f"{store.incarnation}@{named if named else 'no-instance'}"
+
+
+def _intent(operands, *, state):
+    return {"job_id": operands["job_id"], "work_id": operands["work_id"],
+            "submission_id": operands["submission_id"],
+            "template_version": operands["template_version"],
+            "resolution_digest": operands["resolution_digest"],
+            "state": state}
+
+
+def _completed(store, operands, *, resolution, derivation, work, bound,
+               servable, recorded):
+    """CUT C: the intent becomes a creation, and the answer is journalled.
+
+    THE WHOLE RESOLUTION TRAVELS IN THE ANSWER, and so does its digest. A
+    caller repeating the command is told the same thing the first one was
+    told, including which selected intent was created and which deployment
+    facts it was derived from -- so "what is this Job" is a question the store
+    answers rather than one an operator reconstructs from a submission that
+    carries none of it.
+    """
+    signature = job_signature(CREATE_KIND, operands)
+    # THE RESOLUTION'S MEMBERS TRAVEL FLATTENED, not nested, and that is a
+    # structural fact rather than a preference. `contracts.canonical` bounds a
+    # document at depth 8; a resolution carrying a normalized submission is
+    # already at that bound, so an answer with `resolution` as a member is one
+    # `store.transact` refuses to journal. The whole document is kept in the
+    # reservation row instead -- `resolution_of` reads it back -- and what is
+    # here is every member of it except the submission, whose own identity is
+    # `submission_id` and whose bytes `submission_of` holds.
+    answer = documents.template_job_created(
+        job_id=operands["job_id"], work_id=operands["work_id"],
+        submission_id=operands["submission_id"],
+        resolution_digest=operands["resolution_digest"],
+        template=dict(resolution["template"]),
+        task=dict(resolution["task"]), source=dict(resolution["source"]),
+        scope={"work": list(resolution["scope"]["work"]),
+               "tests": list(resolution["scope"]["tests"])},
+        acceptance=list(resolution["acceptance"]),
+        overrides={name: dict(value) for name, value
+                   in resolution["overrides"].items()},
+        rules={name: dict(value)
+               for name, value in resolution["rules"].items()},
+        execution_limits=resolution["execution_limits"],
+        derivation=derivation, work=work, binding=bound,
+        stages=list(recorded["stages"]), servable=servable,
+        recorded_at=recorded["recorded_at"])
+
+    def act(connection):
+        changed = connection.execute(
+            "UPDATE template_jobs SET state = 'created', created_at = ? "
+            "WHERE job_id = ? AND state = 'intended'",
+            (store._now(), operands["job_id"])).rowcount
+        if changed == 0:
+            held = connection.execute(
+                "SELECT state FROM template_jobs WHERE job_id = ?",
+                (operands["job_id"],)).fetchone()
+            if held is None:
+                _refuse(f"the reservation for "
+                        f"{name_value(operands['job_id'])} is gone between "
+                        f"this operation's own two cuts")
+        return answer
+
+    return store.transact(create_operation_id(operands["job_id"]),
+                          CREATE_KIND, signature, act)
+
+
+# -- the owned reads ---------------------------------------------------------
+
+def created_job_rows(store):
+    from . import schema
+
+    return [boundaries.row(record, "a persisted template Job",
+                           schema.TEMPLATE_JOB_COLUMNS)
+            for record in store._connection.execute(
+                "SELECT * FROM template_jobs ORDER BY intended_at, job_id"
+            ).fetchall()]
+
+
+def created_job_of(store, job_id):
+    """One creation's reservation, or `None` for a Job nobody created here."""
+    boundaries.identity(job_id, "a Job id")
+    for row in created_job_rows(store):
+        if row["job_id"] == job_id:
+            return row
+    return None
+
+
+def resolution_of(store, job_id):
+    """The FULL resolution one created Job was created from.
+
+    OWNED ON THE WAY OUT, through the resolver's own owner, because a row is
+    this build's own write and is still receiver input the moment it is read
+    back -- a store somebody edited by hand is exactly where an unchecked
+    read would hand a consumer a resolution nobody resolved.
+
+    THIS IS THE PROVENANCE HALF. `created_job_of` gives the digest, which
+    says WHICH selected intent; this gives the document, which says what that
+    intent was -- the statement, the acceptance contract and the selected
+    work scope, none of which the submission has anywhere to carry.
+    """
+    held = created_job_of(store, job_id)
+    if held is None:
+        return None
+    resolution = templates.owned_resolution(json.loads(held["resolution"]))
+    found = digest(resolution)
+    if found != held["resolution_digest"]:
+        _refuse(f"the resolution stored for Job {name_value(job_id)} digests "
+                f"to {name_value(found)} and its reservation records "
+                f"{name_value(held['resolution_digest'])}; a row and the "
+                f"identity it is filed under cannot disagree")
+    return resolution

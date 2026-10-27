@@ -1,60 +1,74 @@
-# W321608 — template-based ordinary Job creation
+# W321608 — integrate accepted template creation, then select useful Jobs
 
-## Next milestone after accepted integration — owner 2026-10-27
+Current checkpoint: reviewer E366770 consumes W361912 satisfying closure E366766.
+All six children and three prerequisite gates are closed satisfying. Historical
+blocked checkpoint is superseded; previous PLAN preserved in PLAN-HISTORY-366770.md.
+Current independent assessment: review-2026-10-27T16-54-56Z.md.
 
-Owner selects useful v12 Jobs observed through the lightweight read-only monitor
-as the next post-integration milestone. Exact decision: FINDING entry
-`2026-10-27T01:52:12Z`. Finish current creation/retry joined acceptance and human
-integration/checkpoint, then prepare concrete bounded live-use selection and
-operator commands. Reuse accepted W324214 visibility; coordinate independent
-monitor improvements in parallel where ownership and inputs permit. Broad v13
-hardening is not an added adoption gate. No specific deployment/live run, graph
-change, allocation, backlog migration or development-policy reversal is selected
-by this priority. The managed handler records actual scheduling relationships
-before dependent execution.
+## One current milestone: human integration and Git checkpoint
 
-The checkpoint below preserves the October 26 allocation history; its old
-W361910-blocked status is historical (W361910 is now closed and committed as
-19f02ce1295b4517a85f0822d48754efc982f388). Current W321608 gate remains W361912.
+Pass to baton.decide with accepted candidate:
+../finding-v12-template-job-creation/candidate-366616/MANIFEST.json
+SHA256 `177147f6557aa6882f7fd6fee74068817a0fc078a0191ead5c09b7aa80931b03`,
+base `18e771f034d22fed40ae4c597aa606f50c169daa`.
+Latest exact-byte review: ../finding-v12-template-job-creation/review-2026-10-27T16-46-15Z.md.
+Historical pre-import checkpoint: all32 candidate members verified; targets were all base. Superseded by the integration status below.
+Evidence: evidence/review-366770/INTEGRATION-STATUS.json. Revalidate ownership,
+provenance, target bytes/modes and overlap immediately before any import. Preserve
+other actors' changes. Import only reviewed bytes, verify bounded integration,
+and record human Git checkpoint. Suggested message:
+`feat(v12): create template Jobs with verified delivery and startup`.
+Agents do not mutate Git. No source edits or further implementation slice assigned.
 
-Current checkpoint: reviewer claim361899, 2026-10-26. Accepted pilot W325959
-closed satisfying E361852; human quickstart commit182c8f943cdfc12134ae2d082d9afe98189efe90
-is recorded by the owner. Live pipeline success and separate direct documentation
-correction remain distinct. No broad cutover or renewed live execution selected.
+## After checkpoint
 
-Owner FINDING 2026-10-24T00:36:47Z selects template creation next. DESIGN SCH-1a
-now records that contract. W361910 delivers versioned template resolution; W361912
-delivers manager-owned ordinary creation, thin CLI and connected deterministic
-workflow proof, depending on W361910 via E361914. This umbrella consumes W361912
-for joined acceptance and subsequent owner delivery. Preserve existing closed
-prerequisite identities/evidence and W10/W7 gates.
+Return umbrella to baton.bug for the owner-selected useful-Job/lightweight-monitor
+continuation (FINDING 2026-10-27T01:52:12Z). Prepare a concrete bounded selection
+and operator commands; use W324214 accepted visibility. Install any needed actual
+Work dependencies before dependent execution, coordinating independent file
+ownership. Broad v13 monitor hardening is not an adoption gate. Preserve W10/W7
+and existing closed children/evidence; umbrella remains open through its assessment.
 
-Child records:
-- ../finding-v12-versioned-job-template/ (W361910)
-- ../finding-v12-template-job-creation/ (W361912)
+Accepted deterministic evidence includes original template task delivery, review
+and held/rejected behavior, retry recovery, actual frozen-command creation, and
+whole initial/correction-start timing. It does not prove completed correction plus
+second review, applicable Git transport from synthetic proposals or live latency.
+Historical live pilot acceptance remains separately bound. No deployment, new
+live run, backlog migration or coordination cutover selected. Temporary direct
+development continues; v11 is the authority.
 
-Reviewer owns records/reviews and current DESIGN alignment; implementer owns
-isolated candidate, tests and PROGRESS in its claimed child. Child execution is
-serial across shared code; implementer chooses needed paths and records them.
-Independent acceptance binds exact bytes. No product changes by reviewer.
-Use direct v11 claimed development and deterministic providers/engines; no live
-run, provisioning, deployment, migration, Git mutation or routine v12 packet.
+Ownership: reviewer owns FINDING/PLAN/reviews/evidence. Implementation PROGRESS,
+immutable candidates and canonical product files are untouched in this turn.
+Read positions E366770 / M361944, child closure E366766; no pending obligations.
 
-Acceptance must establish useful input-only creation, exact resolved template and
-limits, manager-owned admission/replay/recovery, independent review/correction,
-honest held outcomes and whole routine-start timing under stated assumptions.
-A resolver alone cannot establish full startup or native cutover readiness.
+## Integration selected — owner 2026-10-27
 
-Pending human checkpoint for specification/planning:
-`docs(v12): specify template-based Job creation`. Product milestone checkpoint
-follows independently accepted delivery. Do not describe either as committed.
+Owner claim E366860 and explicit interactive instruction select baton.prompt
+exact-byte import of candidate-366616 and bounded verification. Preflight passes
+for all32 paths; no active background allocation overlaps. This supersedes the
+awaiting-integration-selection checkpoint above. Human Git checkpoint stays due.
 
-Read position: W321608 events361899/thread358996, W325959 events through361852
-and latest review03:33:50Z. Full previous PLAN retained in PLAN-HISTORY-361899.md;
-its pending pilot/retry statuses are superseded by the owner closure above.
+## Historical pending-verification status — 2026-10-27 (superseded below)
 
-Graph readback snapshot361942 confirms W321608 blocked on W361912 (E361927),
-W361912 blocked on W361910 (E361914), both contained by this umbrella. W361910
-passed to baton.impl with set-next=baton.bug at E361941. Parent and child claims
-are released; no reviewer claim remains in this chain. Prior closed children
-remain unchanged.
+All 32 candidate members are imported and match their reviewed hashes and
+expected modes. This supersedes the pre-import state above. Verification remains
+pending: checkout scratch and tmpfs scratch were rejected by test guards;
+permission requests for /var/tmp failed before execution. Run
+`python3 work/records/2026/10/finding-v12-development-coordination-pilot/evidence/integration-366616/verify.py`
+from the repository, inspect the recorded result, then record the human Git
+checkpoint. Do not treat these failed environment attempts as a passing check.
+Preserve candidate whitespace at single_worker.py:1482. Receipt, logs and exact
+product path list are in evidence/integration-366616. W321608 remains with the
+human; post-checkpoint continuation above remains due.
+
+## Current milestone — human Git checkpoint
+
+Integration is complete: the human-run disk-backed check passed all 18 tests
+(exit 0; 35.390864908s wall), and all 32 imported hashes/modes still match.
+Evidence: evidence/integration-366616/verification-20261027T171340Z/.
+This supersedes the pending-verification milestone. Commit the reviewed product
+paths and owning evidence using evidence/integration-366616/commit-paths.txt;
+that list excludes failed-run scratch. Git belongs to Slawomir. Preserve the
+candidate's known whitespace warning rather than changing reviewed bytes.
+After recording the commit, return W321608 to baton.bug for the already selected
+useful-Job/lightweight-monitor preparation. Keep the umbrella open.

@@ -106,7 +106,8 @@ class PoolDocuments(PoolCase):
         # later objects has to subtract it too.
         # W197661: and `deferrals` is the 6 -> 7 step's, on the same rule.
         # W358969: and `fresh_attempts` is the 7 -> 8 step's.
-        for table in ("fresh_attempts", "deferrals",
+        # W361912: and `template_jobs` is the 8 -> 9 step's, same rule again.
+        for table in ("template_jobs", "fresh_attempts", "deferrals",
                       "integration_capacity_members",
                       "integration_capacity_roots",
                       "job_execution_limits", "worker_affinity",
@@ -436,7 +437,8 @@ class TheMigrationProvesTheSchemaItMigratesFrom(PoolCase):
             # relation added after it, or its "schema 3" store carries an
             # object schema 3 never had.
             # W358969: and the 7 -> 8 step's, once more.
-            for table in ("fresh_attempts", "deferrals",
+            # W361912: and the 8 -> 9 step's, once more again.
+            for table in ("template_jobs", "fresh_attempts", "deferrals",
                           "integration_capacity_members",
                           "integration_capacity_roots",
                           "job_execution_limits", "worker_affinity",

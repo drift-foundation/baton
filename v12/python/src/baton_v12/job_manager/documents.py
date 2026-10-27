@@ -87,7 +87,8 @@ __all__ = ["ACTS", "CONTRACTS", "CORRECTION_ENDINGS", "DEPENDENCY_MEMBERS",
            "stage_episode", "stage_id", "stage_launch", "stage_status",
            "status",
            "fresh_attempt_admitted",
-           "submission_recorded", "submission_signature", "sweep_report"]
+           "submission_recorded", "submission_signature", "sweep_report",
+           "template_job_created"]
 
 # W156162 moved this to /2. A Job may now carry `execution_limits`, and a
 # reader written against /1 would see a Job whose provider turn and verification
@@ -582,6 +583,24 @@ CONTRACTS = {
                                 "prior_states", "work", "binding",
                                 "submission_id", "stages", "exclusion",
                                 "recorded_at"), ()),
+    # W361912 / DESIGN SCH-1a: ONE ORDINARY JOB CREATED FROM A TEMPLATE, and
+    # every fact the creation rested on. `resolution` and `resolution_digest`
+    # are required rather than optional because the digest IS the identity of
+    # the selected intent: W361910's acceptance review records that the task
+    # statement, the acceptance contract and the selected work scope can all
+    # differ while the normalized submission stays identical, so a document
+    # naming only the submission could not say what was created.
+    # The resolution's members travel FLATTENED here and the whole document
+    # lives in the reservation row: `contracts.canonical` bounds a document at
+    # depth 8, and a resolution carrying a normalized submission is already at
+    # that bound, so `resolution` as a member is an answer nothing could
+    # journal. `creation.resolution_of` is the provenance read.
+    "template-job.created": (("job_id", "work_id", "submission_id",
+                              "resolution_digest", "template", "task",
+                              "source", "scope", "acceptance", "overrides",
+                              "rules", "execution_limits", "derivation",
+                              "work", "binding", "stages", "servable",
+                              "recorded_at"), ()),
     "stage.act": (("stage_id", "job_id", "kind", "episode", "act",
                    "operation_id", "offer_id", "attempt_id", "work_id"), ()),
     "stage.receipt": (("stage_id", "episode", "act", "operation_id", "state",
@@ -698,6 +717,11 @@ def submission_recorded(**members):
 
 def fresh_attempt_admitted(**members):
     return _emit("fresh-attempt.admitted", members)
+
+
+def template_job_created(**members):
+    """W361912: the answer one ordinary template creation journals."""
+    return _emit("template-job.created", members)
 
 
 def act(**members):

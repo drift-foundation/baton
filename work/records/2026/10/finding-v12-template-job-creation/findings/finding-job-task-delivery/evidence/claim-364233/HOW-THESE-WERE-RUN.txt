@@ -1,0 +1,108 @@
+How the runs in this directory were produced — claim364233, W363066
+===================================================================
+
+The canonical tree is not edited. Every run is on a disposable scratch root
+built from canonical bytes at base 19f02ce1 with candidate-364233 overlaid.
+
+  candidate root  /tmp/w363066-233
+  base root       /tmp/w363066-base492   (re-verified byte-identical to
+                                          canonical src/ and tools/ before
+                                          its failing-name list was reused)
+
+Each root is <root>/v12/python + <root>/v12/worker + <root>/v12/DESIGN.md and
+the v12 JSON files + <root>/AGENTS.md + the published result-manifest vectors
+subtree under <root>/work/records/2026/08/..., with the `v12` directory level
+kept.
+
+Commands, from <root>/v12/python with PYTHONPATH=src:. —
+
+  python3 -m unittest tests.tools.test_job_task_delivery -v
+  python3 -m unittest discover -s tests/job_manager -t . -p 'test_*.py'
+  python3 -m unittest tests.tools.test_single_worker \
+      tests.tools.test_stage_execution tests.tools.test_bootstrap \
+      tests.tools.test_creation_ports tests.tools.test_job_task_delivery
+  python3 review_stage_probe.py          > REVIEW-STAGE-PROBE.txt
+
+What each file is
+-----------------
+
+FOCUSED-DELIVERY.txt    tests.tools.test_job_task_delivery, 62 cases, OK.
+                        New in this claim: the concurrent success regression
+                        (both created Jobs reach their own started runtime)
+                        beside the preserved single-container refusal.
+JOB-MANAGER-SUITE.txt   whole tests/job_manager, 1375 OK.
+TOOLS-CANDIDATE.txt     five tools suites; failing names compared below.
+FAILING-NAMES-CANDIDATE.txt
+FAILING-NAMES-BASE.txt  the 18 pre-existing names on each root; `diff`
+                        reports no difference.
+review_stage_probe.py
+REVIEW-STAGE-PROBE.txt  THE REMAINING MILESTONE, driven as far as it goes and
+                        recorded verbatim. Read this with the PROGRESS
+                        section for claim364233.
+
+A CORRECTION TO MY OWN CLAIM
+----------------------------
+
+claim364051 said "every engine double in this repository models ONE
+container". That is false, and the reviewer disproved it in one line:
+`tests/tools/test_stage_execution._ConcurrentEngine` is "one observable OCI
+process boundary holding SEVERAL containers", written for exactly this fact.
+Calling `both()` with it starts both Jobs. I had read two doubles, found that
+neither modelled simultaneous containers, and generalized to the repository
+without searching for a third.
+
+The regression now uses it: both created Jobs reach `waiting`, the engine
+composes TWO containers with distinct identities, each attempt is attached to
+its own, and each started runtime's input root equals
+`creation.job_task_of(jobs, job_id)` -- the Job store's own answer, so the
+bytes on disk are held to the created Job rather than to a value the case
+recomposed. The single-container refusal is kept as its own case, because what
+it measures -- the manager declining to adopt a runtime labelled for another
+attempt -- is worth keeping.
+
+WHERE THE REVIEW-RUNTIME MILESTONE STANDS, EXACTLY
+--------------------------------------------------
+
+The probe drives the pool loop over a really created Job and then runs the
+real in-image worker turn. What happens, in order:
+
+  1. the created Job's implementation stage reaches `waiting` with its own
+     requested task published and a container started -- as the committed
+     cases assert;
+  2. the real `baton_worker.serve_exchange` turn over the MOUNTED roots
+     returns 0. Those roots are the composition's own: in the pool an
+     implementation attempt's workspace is the LINE CHECKOUT, not
+     `<storage>/<attempt>/workspace`. A first version of the probe derived
+     the paths and the ending deferred with "this assignment is completed
+     and published no 'output.json'" -- the agent had written the envelope
+     into a directory nothing mounts;
+  3. the stage reaches `answering`, and the ending then DEFERS, every tick,
+     with the publication's own refusal:
+
+         the frozen result carries 0 git-change-proposal outputs;
+         publication needs exactly one
+
+So the review stage stays `blocked`, because a review stage opens only after
+its implementation stage's result is PUBLISHED, and publication needs a change
+proposal.
+
+THE EXACT MISSING CAPABILITY. `ServingCase`'s manifest -- the one this pool
+composes -- declares exactly one output: `proposal`, of type
+`directory-result`, at `workspace/output`. Nothing a worker writes under that
+declaration can be a `git-change-proposal`. The harness that publishes one is
+`ComposedOneJobCase`, whose manifest declares the proposal and whose line is a
+real version-controlled checkout: the proposal IS a patch and a bundle
+produced by version control in the line, and its `setUp` runs
+version-control init/add/commit. This implementer may not perform
+version-control mutations, so that harness is not run.
+
+Two supported ways out, neither of which is this implementer's to choose:
+either an owner allowance to run the version-controlled line fixture, or a
+publication seam for the pool like `ComposedLifecycleCase`'s injected
+`Publisher` -- which exists at `stage_execution.Publication` but is not
+reachable through `stage_execution.operations_from`, so the pool composes its
+publisher internally today.
+
+No provider, no container engine, no installed instance, no deployment, and no
+version-control process: every pool case installs process runners that refuse
+any version-control invocation.

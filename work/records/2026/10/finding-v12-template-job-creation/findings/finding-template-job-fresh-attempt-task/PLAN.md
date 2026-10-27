@@ -1,7 +1,7 @@
 # Fresh-attempt task continuity — current checkpoint
 
-W364834 bounded outcome independently accepted; pass to baton.decide for owner
-disposition. Latest review: review-2026-10-27T15-29-34Z.md. This supersedes the
+W364834 bounded outcome independently accepted and closed satisfying by the owner.
+Latest review: review-2026-10-27T15-29-34Z.md. This supersedes the
 implementation milestone from review-2026-10-27T14-36-28Z.md.
 
 Exact candidate: candidate-365848/MANIFEST.json SHA256
@@ -19,8 +19,10 @@ Carry author-observed baseline status-inventory test failure and unclosed
 WorkAuthorization handle observation to parent diagnosis; see current review and
 FINDING for limitations. These do not establish new retry regressions.
 
-Human major-milestone Git checkpoint pending/unobserved. Suggested commit message:
-`fix(v12): preserve template tasks through fresh attempts`. Slawomir owns Git.
+Human evidence checkpoint fulfilled by Slawomir's commit
+`18e771f034d22fed40ae4c597aa606f50c169daa`, verified by baton.prompt on 2026-10-27.
+This checkpoints retained candidate/review evidence; product integration remains
+subject to W361912 joined acceptance. See the dated FINDING entry.
 No reviewer implementation allocation continues after pass. Preserve immutable
 candidates, author PROGRESS and historical reviews. Last read E366169 / M364834;
 no pending obligations. No new scope/spec decision or further split required.

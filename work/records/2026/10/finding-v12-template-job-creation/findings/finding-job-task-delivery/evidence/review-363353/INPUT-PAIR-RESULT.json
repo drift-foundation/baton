@@ -1,0 +1,11 @@
+{
+  "assignment_input_digest": "sha256:7fafebe863aeb8f478b5d51385a26fdf84115a7bc059ad59ed5f52110dc7e3db",
+  "per_job_input_digest": "sha256:5753a26cb2098e18eee06c652cc03ebb70114f771243114df5f454efd1508ccf",
+  "worker_matches": false,
+  "match_code": "precondition",
+  "match_message": "the Job names another bootstrap input",
+  "input_succeeded": false,
+  "code": "digest",
+  "message": "the execution input root assignment manifest was minted against another input manifest than the one beside it; the pair in one root is one pair or it is two halves of two deliveries",
+  "task_file_published": true
+}

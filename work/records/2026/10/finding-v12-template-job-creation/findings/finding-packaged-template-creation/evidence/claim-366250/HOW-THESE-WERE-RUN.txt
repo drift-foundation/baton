@@ -1,0 +1,151 @@
+HOW THESE WERE RUN — claim366250, W366246
+
+THE TWO DISPOSABLE ROOTS, AND WHY THERE ARE TWO
+
+Both are the repository's own tracked tree at
+18e771f034d22fed40ae4c597aa606f50c169daa, extracted whole with `git archive`
+(a read; it writes nothing to the repository), with the 28 members of the
+parent's accepted candidate
+    findings/finding-template-job-fresh-attempt-task/candidate-365848
+    (MANIFEST.json sha256
+     7ad4b9381840836d13dd485fd08ce2e63bb5b5a200419f0987c6900ae1baa730)
+overlaid, plus this claim's two changes:
+    v12/justfile                                       (the gate recipe)
+    v12/python/tests/tools/test_packaged_creation.py    (new)
+
+  THE BUILD ROOT  /home/sl/src/baton/.w366250-build
+      Inside the working tree, deliberately. `packaging/stack.spec` captures
+      the build stamp through `tools.build_stamp.capture()`, which finds the
+      repository by walking up from its own file for `v12/justfile` and then
+      READS `rev-parse HEAD` and `status --porcelain
+      --untracked-files=normal`. From a root under /tmp those reads find no
+      repository, the stamp records `commit: null`, and `--version` answers
+      "baton 12.0.0 (source commit unknown)" -- which
+      test_packaging.test_it_says_its_version_with_NO_checkout_and_NO_
+      repository_tool correctly refuses. Built where it was, the stamp
+      records what is true: commit 18e771f0, dirty true.
+      It also carries the one repository asset the test fixtures read,
+      work/records/2026/08/.../finding-worker-control-api-manifests/evidence/
+      vectors.json, without which 13 of 13 cases error on its absence.
+      REMOVED after this evidence was captured.
+
+  THE TEST ROOT   /tmp/w366250
+      The whole tracked tree plus the same overlay, used to RUN the suites.
+      Its v12/python was proved byte-identical to the build root's over 330
+      files (excluding the generated packaging/build-stamp.json and the build
+      output), so the bundle's source and the test process's source are the
+      same bytes.
+
+THE BUILD
+
+    cd /home/sl/src/baton/.w366250-build/v12 && just build /tmp/w366250-build
+
+  build.log is that run, whole. It is the supported recipe as written: it
+  resolves the prepared interpreter through `tools.environment interpreter`,
+  runs
+      pip install --no-cache-dir --disable-pip-version-check \
+          --require-hashes --ignore-installed -r requirements.build.lock
+  -- which downloaded and installed altgraph 0.17.5, packaging 26.3,
+  pyinstaller 6.16.0, pyinstaller-hooks-contrib 2026.7 and setuptools 84.0.0
+  against their pinned hashes -- and then runs
+      pyinstaller --noconfirm --clean --distpath ... --workpath ... \
+          packaging/stack.spec
+  EXIT=0 is the last line.
+
+  THE PRIOR INABILITY CLAIM DOES NOT HOLD. The prepared environment already
+  carried every entry of requirements.build.lock at exactly the pinned
+  version, and the recipe's own pinned install ran anyway. Nothing here is a
+  revalidation by assertion.
+
+THE BUNDLE
+
+  bundle-identity.json is `<distro>/baton-v12-stack identity` run from `/`
+  under `env -i HOME=... PATH=/usr/bin:/bin`.
+  bundle-manifest.json carries, for BOTH builds made in this claim, the file
+  count, the folder digest from the product's own `instance.manifest`, the
+  executable digest and all 81 per-file digests.
+
+    files             81
+    folder digest     25f1039e246a6906bfaa305f6a359a7f859029727de1cdb90140a2babc6791ff
+    executable        ba962a2086310df238ff25cf282a3298f71ae9289594e6f7c83222ee8f4571ef
+    build stamp       18e771f034d22fed40ae4c597aa606f50c169daa, dirty true
+
+  The folder digest above is the GATE-BUILT bundle, which is the artifact of
+  record because `just test-packaging` builds its own and runs the suites
+  against it.
+
+  ONE OBSERVED FACT, REPORTED AND NOT ACTED ON. Two builds from
+  byte-identical source produced an identical executable and 80 identical
+  files; exactly one file differs, `_internal/base_library.zip`, whose zip
+  metadata carries timestamps. A one-folder build is therefore reproducible
+  except for that archive. Nothing depends on it -- `instance.manifest` pins
+  whichever bundle is installed and `instance.verify` holds the installation
+  to it -- and making the build bit-reproducible would be the packaging
+  redesign this Work's FINDING excludes.
+
+THE RUNS
+
+  Unless stated otherwise:  cd /tmp/w366250/v12/python
+                            PYTHONPATH=src:. python3 -m unittest <targets>
+  with BATON_V12_STACK_DISTRO naming the gate-built bundle. python3 is 3.13.
+
+  gate.log
+      cd /home/sl/src/baton/.w366250-build/v12 && just test-packaging
+      THE SUPPORTED GATE, run as written. It builds the bundle itself, then
+      runs both suites under BATON_V12_STACK_PACKAGING_REQUIRED=1 bound to
+      what it just built. 24 tests, OK, EXIT=0.
+
+  packaged-creation.txt
+      tests.tools.test_packaged_creation, verbose. 13 tests, OK.
+
+  no-bundle-skips.txt
+      The same suite with BATON_V12_STACK_DISTRO naming nothing.
+      13 SKIPPED -- the suite says what to run instead of answering.
+
+  no-bundle-required-fails.txt
+      The same, with BATON_V12_STACK_PACKAGING_REQUIRED=1 also set.
+      13 FAILURES -- the gate does not skip, because exit 0 with thirteen
+      skips would report that the real thing was checked when nothing was.
+
+  job-manager-whole.txt
+      unittest discover -s tests/job_manager -t . -p 'test_*.py'
+      1375 tests, OK.
+
+  tools-nine-suites.txt
+      tests.tools.test_packaging, test_packaged_creation,
+      test_connected_creation, test_creation_ports, test_job_task_delivery,
+      test_retry_task_lineage, test_fresh_retry_line_recovery,
+      test_bootstrap, test_instance. 453 tests, OK.
+
+      test_packaging is 11 of those and it passes WHOLE against this bundle,
+      including test_every_subcommand_this_command_serves_is_offered. The
+      previous claim recorded that case failing for a STALE installed bundle
+      that predated the `attempt-diagnostics` subcommand; a current build
+      carries it, which is what that note predicted.
+
+WHAT WAS NOT RUN, AND WHY
+
+  Every install passed --no-repositories. No Job was served, no runtime or
+  container was started, no provider, model or credential was reached, and
+  no deployed instance was touched: every destination is a disposable root
+  outside the checkout, created and discarded by the cases themselves.
+
+  NO GIT MUTATION OF ANY KIND. The only version-control calls anywhere in
+  this claim are `rev-parse`, `status`, `log`, `diff` and `archive` -- the
+  first two performed by `build_stamp` at packaging time, which its own
+  docstring describes as read-only, and the rest by me while reading state.
+
+WHAT STANDS IN, NAMED, AND IT IS ONE THING
+
+  The OPERATOR'S INPUT DOCUMENT for `bootstrap` is composed in the test
+  process from `test_bootstrap`'s accepted worker fixtures and written to a
+  file. The installer reads JSON and nothing else from it, so composing it
+  there is the same act as an operator writing one; v12/STACK.md specifies
+  its members. Nothing of the checkout reaches the command any other way:
+  every invocation is a subprocess run from `/` under
+  `env {HOME: <disposable>, PATH: /usr/bin:/bin}` -- no PYTHONPATH, no
+  BATON_V12_*, no virtual environment.
+
+  In particular NOTHING IS PATCHED. `test_connected_creation` must patch
+  `bootstrap._identity_of` because its runtime is a stand-in directory; here
+  `--distro` names the real bundle and `_identity_of` runs the real command.

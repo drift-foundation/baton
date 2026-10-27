@@ -1,0 +1,24 @@
+[
+  {
+    "case": "completed replay after deployment input changes",
+    "replayed": false,
+    "code": "precondition",
+    "message": "Job 'job-w361912-a' was already created from a different creation: this store records the resolution 'sha256:8c7dd682c3d441bd4b423ce106be369c0437f1519cefafc05194\u2026 and this request resolves to 'sha256:33202378fe7e94591510d2ac07178edff61d5d371a70b398e203\u2026. The selected intent includes the task statement, the acceptance criteria, the selected work scope and this deployment's own derived facts -- none of which the normalized submission carries -- so two requests that would submit byte-identical documents are still two creations. Create the changed intent under another Job identity; the recorded one is untouched"
+  },
+  {
+    "case": "ordinary submit steals interrupted creation Job identity",
+    "reserved_state": "intended",
+    "foreign_submission_accepted": {
+      "submission_id": "foreign-submission",
+      "signature": "{\"kind\":\"submission.record\",\"operands\":{\"jobs\":[{\"input_digest\":\"sha256:1111111111111111111111111111111111111111111111111111111111111111\",\"job_id\":\"job-w361912-a\",\"policy_digest\":\"sha256:2222222222222222222222222222222222222222222222222222222222222222\",\"stages\":[{\"depends_on\":[],\"kind\":\"implementation\",\"profile_digest\":\"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"profile_name\":\"reference\",\"work_id\":\"0000000a-W1\"}],\"terminal_policy\":\"report-and-hold\",\"test_scope\":[\"v12/python/tests/job_manager\"]}],\"schema\":\"baton.v12.job-submission/1\",\"submission_id\":\"foreign-submission\"}}",
+      "jobs": [
+        "job-w361912-a"
+      ],
+      "stages": [
+        "job-w361912-a/implementation"
+      ],
+      "recorded_at": "2026-09-02T00:00:00.000Z"
+    },
+    "original_resume": "the submission for this creation was refused: 'job-w361912-a' is already recorded by another submission; one Job identity names one pipeline, and a second submission reusing it would silently take over the first one's stages. The Job identity 'job-w361912-a' is RESERVED and its Work authorization and deployment binding may already be published: this creation is INCOMPLETE rather than undone, no submission was recorded, and running the same request again finishes it once what is named above is repaired"
+  }
+]

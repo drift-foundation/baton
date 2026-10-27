@@ -1,0 +1,432 @@
+test_everything_the_correction_needed_happened_inside_the_clock (tests.tools.test_connected_startup.TheCorrectionStartIsMeasured.test_everything_the_correction_needed_happened_inside_the_clock)
+WHAT THE INTERVAL CONTAINED, read from the stores afterwards. ... FAIL
+test_the_correction_start_is_within_the_obs0_bound (tests.tools.test_connected_startup.TheCorrectionStartIsMeasured.test_the_correction_start_is_within_the_obs0_bound) ... FAIL
+test_the_verdict_was_the_reviewers_own_on_the_connected_path (tests.tools.test_connected_startup.TheCorrectionStartIsMeasured.test_the_verdict_was_the_reviewers_own_on_the_connected_path)
+The same independence the pool suite proves, over a real install. ... FAIL
+test_the_admission_inside_the_interval_was_the_real_owners (tests.tools.test_connected_startup.TheInitialRoutineStartIsMeasured.test_the_admission_inside_the_interval_was_the_real_owners)
+R1'S CORRECTION, ASSERTED RATHER THAN DESCRIBED. ... FAIL
+test_the_initial_start_is_within_the_obs0_bound (tests.tools.test_connected_startup.TheInitialRoutineStartIsMeasured.test_the_initial_start_is_within_the_obs0_bound) ... FAIL
+test_the_measured_path_required_no_authored_procedure (tests.tools.test_connected_startup.TheInitialRoutineStartIsMeasured.test_the_measured_path_required_no_authored_procedure)
+OBS-0's OTHER HALF: no script, no test, no packet. ... FAIL
+test_both_intervals_are_within_the_bound_and_reported (tests.tools.test_connected_startup.TheIntervalsAreReportedWithTheirEndpoints.test_both_intervals_are_within_the_bound_and_reported) ... FAIL
+test_a_technical_verdict_is_not_an_owner_decision (tests.tools.test_joined_workflow.TheCreatedJobIsReviewedAndCorrected.test_a_technical_verdict_is_not_an_owner_decision) ... FAIL
+test_round_ones_evidence_survives_the_correction (tests.tools.test_joined_workflow.TheCreatedJobIsReviewedAndCorrected.test_round_ones_evidence_survives_the_correction)
+WHAT THE CORRECTION DID NOT DO. ... FAIL
+test_the_correction_round_is_opened_by_the_loop_and_runs (tests.tools.test_joined_workflow.TheCreatedJobIsReviewedAndCorrected.test_the_correction_round_is_opened_by_the_loop_and_runs)
+THE ROUND THE VERDICT CALLS FOR, performed by the product. ... FAIL
+test_the_correction_round_is_served_the_requested_task (tests.tools.test_joined_workflow.TheCreatedJobIsReviewedAndCorrected.test_the_correction_round_is_served_the_requested_task)
+THE WHOLE POINT OF THE JOINED PROOF. ... FAIL
+test_the_review_was_independent_of_the_round_it_judged (tests.tools.test_joined_workflow.TheCreatedJobIsReviewedAndCorrected.test_the_review_was_independent_of_the_round_it_judged)
+INDEPENDENCE, read from the two assignments rather than asserted. ... FAIL
+test_the_reviewers_verdict_is_read_from_its_own_frozen_output (tests.tools.test_joined_workflow.TheCreatedJobIsReviewedAndCorrected.test_the_reviewers_verdict_is_read_from_its_own_frozen_output)
+NOBODY IN THIS DEPLOYMENT DECIDED IT. ... FAIL
+test_a_held_result_froze_no_checkpoint_and_was_reviewed_by_nobody (tests.tools.test_joined_workflow.TheHeldResultIsAttributedTruthfully.test_a_held_result_froze_no_checkpoint_and_was_reviewed_by_nobody)
+THE FAILURE MODE THIS CASE EXISTS FOR. ... FAIL
+test_the_held_round_is_exceptional_and_names_its_worker (tests.tools.test_joined_workflow.TheHeldResultIsAttributedTruthfully.test_the_held_round_is_exceptional_and_names_its_worker) ... FAIL
+test_the_held_rounds_own_input_is_still_the_requested_task (tests.tools.test_joined_workflow.TheHeldResultIsAttributedTruthfully.test_the_held_rounds_own_input_is_still_the_requested_task)
+EVIDENCE PRESERVED means the task it was given, too. ... FAIL
+test_a_rejected_verdict_is_recorded_and_opens_no_correction (tests.tools.test_joined_workflow.TheRejectedReviewStopsWithoutAcceptingAnything.test_a_rejected_verdict_is_recorded_and_opens_no_correction) ... FAIL
+test_a_rejection_accepts_and_integrates_nothing (tests.tools.test_joined_workflow.TheRejectedReviewStopsWithoutAcceptingAnything.test_a_rejection_accepts_and_integrates_nothing) ... FAIL
+
+======================================================================
+FAIL: test_everything_the_correction_needed_happened_inside_the_clock (tests.tools.test_connected_startup.TheCorrectionStartIsMeasured.test_everything_the_correction_needed_happened_inside_the_clock)
+WHAT THE INTERVAL CONTAINED, read from the stores afterwards.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_connected_startup.py", line 96, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1934, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<2 lines>...
+        "choose another, or unset it to fall back.")
+AssertionError: BATON_V12_STACK_TEST_ROOT is '/tmp/baton-integration-366616-y24t6yw7' and it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory. An explicitly selected root is never silently passed over; choose another, or unset it to fall back.
+
+======================================================================
+FAIL: test_the_correction_start_is_within_the_obs0_bound (tests.tools.test_connected_startup.TheCorrectionStartIsMeasured.test_the_correction_start_is_within_the_obs0_bound)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_connected_startup.py", line 96, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1934, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<2 lines>...
+        "choose another, or unset it to fall back.")
+AssertionError: BATON_V12_STACK_TEST_ROOT is '/tmp/baton-integration-366616-y24t6yw7' and it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory. An explicitly selected root is never silently passed over; choose another, or unset it to fall back.
+
+======================================================================
+FAIL: test_the_verdict_was_the_reviewers_own_on_the_connected_path (tests.tools.test_connected_startup.TheCorrectionStartIsMeasured.test_the_verdict_was_the_reviewers_own_on_the_connected_path)
+The same independence the pool suite proves, over a real install.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_connected_startup.py", line 96, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1934, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<2 lines>...
+        "choose another, or unset it to fall back.")
+AssertionError: BATON_V12_STACK_TEST_ROOT is '/tmp/baton-integration-366616-y24t6yw7' and it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory. An explicitly selected root is never silently passed over; choose another, or unset it to fall back.
+
+======================================================================
+FAIL: test_the_admission_inside_the_interval_was_the_real_owners (tests.tools.test_connected_startup.TheInitialRoutineStartIsMeasured.test_the_admission_inside_the_interval_was_the_real_owners)
+R1'S CORRECTION, ASSERTED RATHER THAN DESCRIBED.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_connected_startup.py", line 96, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1934, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<2 lines>...
+        "choose another, or unset it to fall back.")
+AssertionError: BATON_V12_STACK_TEST_ROOT is '/tmp/baton-integration-366616-y24t6yw7' and it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory. An explicitly selected root is never silently passed over; choose another, or unset it to fall back.
+
+======================================================================
+FAIL: test_the_initial_start_is_within_the_obs0_bound (tests.tools.test_connected_startup.TheInitialRoutineStartIsMeasured.test_the_initial_start_is_within_the_obs0_bound)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_connected_startup.py", line 96, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1934, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<2 lines>...
+        "choose another, or unset it to fall back.")
+AssertionError: BATON_V12_STACK_TEST_ROOT is '/tmp/baton-integration-366616-y24t6yw7' and it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory. An explicitly selected root is never silently passed over; choose another, or unset it to fall back.
+
+======================================================================
+FAIL: test_the_measured_path_required_no_authored_procedure (tests.tools.test_connected_startup.TheInitialRoutineStartIsMeasured.test_the_measured_path_required_no_authored_procedure)
+OBS-0's OTHER HALF: no script, no test, no packet.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_connected_startup.py", line 96, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1934, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<2 lines>...
+        "choose another, or unset it to fall back.")
+AssertionError: BATON_V12_STACK_TEST_ROOT is '/tmp/baton-integration-366616-y24t6yw7' and it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory. An explicitly selected root is never silently passed over; choose another, or unset it to fall back.
+
+======================================================================
+FAIL: test_both_intervals_are_within_the_bound_and_reported (tests.tools.test_connected_startup.TheIntervalsAreReportedWithTheirEndpoints.test_both_intervals_are_within_the_bound_and_reported)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_connected_startup.py", line 96, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1934, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<2 lines>...
+        "choose another, or unset it to fall back.")
+AssertionError: BATON_V12_STACK_TEST_ROOT is '/tmp/baton-integration-366616-y24t6yw7' and it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory. An explicitly selected root is never silently passed over; choose another, or unset it to fall back.
+
+======================================================================
+FAIL: test_a_technical_verdict_is_not_an_owner_decision (tests.tools.test_joined_workflow.TheCreatedJobIsReviewedAndCorrected.test_a_technical_verdict_is_not_an_owner_decision)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_joined_workflow.py", line 121, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/disk_roots.py", line 75, in disk_backed_root
+    raise AssertionError(
+    ...<3 lines>...
+        f"the delivery")
+AssertionError: BATON_V12_DISK_ROOT is '/tmp/baton-integration-366616-y24t6yw7', which is on a tmpfs filesystem; W71917 refuses a workspace on memory, so a run pointed at one would prove the refusal rather than the delivery
+
+======================================================================
+FAIL: test_round_ones_evidence_survives_the_correction (tests.tools.test_joined_workflow.TheCreatedJobIsReviewedAndCorrected.test_round_ones_evidence_survives_the_correction)
+WHAT THE CORRECTION DID NOT DO.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_joined_workflow.py", line 121, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/disk_roots.py", line 75, in disk_backed_root
+    raise AssertionError(
+    ...<3 lines>...
+        f"the delivery")
+AssertionError: BATON_V12_DISK_ROOT is '/tmp/baton-integration-366616-y24t6yw7', which is on a tmpfs filesystem; W71917 refuses a workspace on memory, so a run pointed at one would prove the refusal rather than the delivery
+
+======================================================================
+FAIL: test_the_correction_round_is_opened_by_the_loop_and_runs (tests.tools.test_joined_workflow.TheCreatedJobIsReviewedAndCorrected.test_the_correction_round_is_opened_by_the_loop_and_runs)
+THE ROUND THE VERDICT CALLS FOR, performed by the product.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_joined_workflow.py", line 121, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/disk_roots.py", line 75, in disk_backed_root
+    raise AssertionError(
+    ...<3 lines>...
+        f"the delivery")
+AssertionError: BATON_V12_DISK_ROOT is '/tmp/baton-integration-366616-y24t6yw7', which is on a tmpfs filesystem; W71917 refuses a workspace on memory, so a run pointed at one would prove the refusal rather than the delivery
+
+======================================================================
+FAIL: test_the_correction_round_is_served_the_requested_task (tests.tools.test_joined_workflow.TheCreatedJobIsReviewedAndCorrected.test_the_correction_round_is_served_the_requested_task)
+THE WHOLE POINT OF THE JOINED PROOF.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_joined_workflow.py", line 121, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/disk_roots.py", line 75, in disk_backed_root
+    raise AssertionError(
+    ...<3 lines>...
+        f"the delivery")
+AssertionError: BATON_V12_DISK_ROOT is '/tmp/baton-integration-366616-y24t6yw7', which is on a tmpfs filesystem; W71917 refuses a workspace on memory, so a run pointed at one would prove the refusal rather than the delivery
+
+======================================================================
+FAIL: test_the_review_was_independent_of_the_round_it_judged (tests.tools.test_joined_workflow.TheCreatedJobIsReviewedAndCorrected.test_the_review_was_independent_of_the_round_it_judged)
+INDEPENDENCE, read from the two assignments rather than asserted.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_joined_workflow.py", line 121, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/disk_roots.py", line 75, in disk_backed_root
+    raise AssertionError(
+    ...<3 lines>...
+        f"the delivery")
+AssertionError: BATON_V12_DISK_ROOT is '/tmp/baton-integration-366616-y24t6yw7', which is on a tmpfs filesystem; W71917 refuses a workspace on memory, so a run pointed at one would prove the refusal rather than the delivery
+
+======================================================================
+FAIL: test_the_reviewers_verdict_is_read_from_its_own_frozen_output (tests.tools.test_joined_workflow.TheCreatedJobIsReviewedAndCorrected.test_the_reviewers_verdict_is_read_from_its_own_frozen_output)
+NOBODY IN THIS DEPLOYMENT DECIDED IT.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_joined_workflow.py", line 121, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/disk_roots.py", line 75, in disk_backed_root
+    raise AssertionError(
+    ...<3 lines>...
+        f"the delivery")
+AssertionError: BATON_V12_DISK_ROOT is '/tmp/baton-integration-366616-y24t6yw7', which is on a tmpfs filesystem; W71917 refuses a workspace on memory, so a run pointed at one would prove the refusal rather than the delivery
+
+======================================================================
+FAIL: test_a_held_result_froze_no_checkpoint_and_was_reviewed_by_nobody (tests.tools.test_joined_workflow.TheHeldResultIsAttributedTruthfully.test_a_held_result_froze_no_checkpoint_and_was_reviewed_by_nobody)
+THE FAILURE MODE THIS CASE EXISTS FOR.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_joined_workflow.py", line 121, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/disk_roots.py", line 75, in disk_backed_root
+    raise AssertionError(
+    ...<3 lines>...
+        f"the delivery")
+AssertionError: BATON_V12_DISK_ROOT is '/tmp/baton-integration-366616-y24t6yw7', which is on a tmpfs filesystem; W71917 refuses a workspace on memory, so a run pointed at one would prove the refusal rather than the delivery
+
+======================================================================
+FAIL: test_the_held_round_is_exceptional_and_names_its_worker (tests.tools.test_joined_workflow.TheHeldResultIsAttributedTruthfully.test_the_held_round_is_exceptional_and_names_its_worker)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_joined_workflow.py", line 121, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/disk_roots.py", line 75, in disk_backed_root
+    raise AssertionError(
+    ...<3 lines>...
+        f"the delivery")
+AssertionError: BATON_V12_DISK_ROOT is '/tmp/baton-integration-366616-y24t6yw7', which is on a tmpfs filesystem; W71917 refuses a workspace on memory, so a run pointed at one would prove the refusal rather than the delivery
+
+======================================================================
+FAIL: test_the_held_rounds_own_input_is_still_the_requested_task (tests.tools.test_joined_workflow.TheHeldResultIsAttributedTruthfully.test_the_held_rounds_own_input_is_still_the_requested_task)
+EVIDENCE PRESERVED means the task it was given, too.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_joined_workflow.py", line 121, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/disk_roots.py", line 75, in disk_backed_root
+    raise AssertionError(
+    ...<3 lines>...
+        f"the delivery")
+AssertionError: BATON_V12_DISK_ROOT is '/tmp/baton-integration-366616-y24t6yw7', which is on a tmpfs filesystem; W71917 refuses a workspace on memory, so a run pointed at one would prove the refusal rather than the delivery
+
+======================================================================
+FAIL: test_a_rejected_verdict_is_recorded_and_opens_no_correction (tests.tools.test_joined_workflow.TheRejectedReviewStopsWithoutAcceptingAnything.test_a_rejected_verdict_is_recorded_and_opens_no_correction)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_joined_workflow.py", line 121, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/disk_roots.py", line 75, in disk_backed_root
+    raise AssertionError(
+    ...<3 lines>...
+        f"the delivery")
+AssertionError: BATON_V12_DISK_ROOT is '/tmp/baton-integration-366616-y24t6yw7', which is on a tmpfs filesystem; W71917 refuses a workspace on memory, so a run pointed at one would prove the refusal rather than the delivery
+
+======================================================================
+FAIL: test_a_rejection_accepts_and_integrates_nothing (tests.tools.test_joined_workflow.TheRejectedReviewStopsWithoutAcceptingAnything.test_a_rejection_accepts_and_integrates_nothing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_joined_workflow.py", line 121, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/disk_roots.py", line 109, in disk_backed_under
+    tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root()))
+                                               ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/disk_roots.py", line 75, in disk_backed_root
+    raise AssertionError(
+    ...<3 lines>...
+        f"the delivery")
+AssertionError: BATON_V12_DISK_ROOT is '/tmp/baton-integration-366616-y24t6yw7', which is on a tmpfs filesystem; W71917 refuses a workspace on memory, so a run pointed at one would prove the refusal rather than the delivery
+
+----------------------------------------------------------------------
+Ran 18 tests in 0.006s
+
+FAILED (failures=18)

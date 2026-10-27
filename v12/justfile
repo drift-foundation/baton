@@ -245,9 +245,15 @@ test-bootstrap ROOT="":
 		timeout --kill-after=10s 180s \
 		"$PREPARED" -m unittest -v tests.tools.test_bootstrap
 
-# Build the bundle and then ask it what it is. The one check that cannot be
-# stood in for: `tests/tools/test_packaging.py` SKIPS without a bundle, so this
+# Build the bundle, ask it what it is, and then MAKE IT CREATE A JOB. The one
+# check that cannot be stood in for: both suites SKIP without a bundle, so this
 # is the command that guarantees the real thing was examined.
+#
+# W366246 added the second suite. `test_packaging` asks the bundle about
+# itself -- frozen, its schema assets, its native validator, its own digest --
+# and `test_packaged_creation` asks it to INSTALL a disposable instance and
+# create ordinary template Jobs in it, which is the only thing that exercises
+# the packaged template resources and the actual command wiring end to end.
 test-packaging:
 	#!/usr/bin/env bash
 	set -euo pipefail
@@ -261,8 +267,9 @@ test-packaging:
 	exec env PYTHONPATH=src:. \
 		BATON_V12_STACK_DISTRO="$PWD/build/out/distro" \
 		BATON_V12_STACK_PACKAGING_REQUIRED=1 \
-		timeout --kill-after=10s 600s \
-		"$PREPARED" -m unittest -v tests.tools.test_packaging
+		timeout --kill-after=10s 900s \
+		"$PREPARED" -m unittest -v \
+		tests.tools.test_packaging tests.tools.test_packaged_creation
 
 # Start the persistent scheduler and its snapshot publisher. Repeatable.
 #

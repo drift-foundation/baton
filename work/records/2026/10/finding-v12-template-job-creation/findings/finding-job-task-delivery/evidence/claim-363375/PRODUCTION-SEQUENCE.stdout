@@ -1,0 +1,9 @@
+{
+  "assignment_input_digest": "sha256:5753a26cb2098e18eee06c652cc03ebb70114f771243114df5f454efd1508ccf",
+  "per_job_input_digest": "sha256:5753a26cb2098e18eee06c652cc03ebb70114f771243114df5f454efd1508ccf",
+  "installed_input_digest": "sha256:a55259380523b2540778abbad98e6ba519357eabc0a9472635292acd1b559b1c",
+  "worker_matches": true,
+  "input_succeeded": true,
+  "root_manifest_is_the_per_job_one": true,
+  "published_task_id": "job-first"
+}

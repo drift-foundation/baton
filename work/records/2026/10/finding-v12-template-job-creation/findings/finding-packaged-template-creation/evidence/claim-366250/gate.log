@@ -1,0 +1,149 @@
+Collecting altgraph==0.17.5 (from -r requirements.build.lock (line 17))
+  Downloading altgraph-0.17.5-py2.py3-none-any.whl (21 kB)
+Collecting packaging==26.3 (from -r requirements.build.lock (line 19))
+  Downloading packaging-26.3-py3-none-any.whl (129 kB)
+Collecting pyinstaller==6.16.0 (from -r requirements.build.lock (line 21))
+  Downloading pyinstaller-6.16.0-py3-none-manylinux2014_x86_64.whl (733 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 733.8/733.8 kB 7.4 MB/s eta 0:00:00
+Collecting pyinstaller-hooks-contrib==2026.7 (from -r requirements.build.lock (line 23))
+  Downloading pyinstaller_hooks_contrib-2026.7-py3-none-any.whl (459 kB)
+Collecting setuptools==84.0.0 (from -r requirements.build.lock (line 25))
+  Downloading setuptools-84.0.0-py3-none-any.whl (818 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 818.2/818.2 kB 10.8 MB/s eta 0:00:00
+Installing collected packages: altgraph, setuptools, packaging, pyinstaller-hooks-contrib, pyinstaller
+
+Successfully installed altgraph-0.17.5 packaging-26.3 pyinstaller-6.16.0 pyinstaller-hooks-contrib-2026.7 setuptools-84.0.0
+20 INFO: PyInstaller: 6.16.0, contrib hooks: 2026.7
+20 INFO: Python: 3.13.7
+21 INFO: Platform: Linux-6.17.0-41-generic-x86_64-with-glibc2.42
+21 INFO: Python environment: /home/sl/.local/state/baton-v12-venv
+22 INFO: Removing temporary files and cleaning cache in /home/sl/.cache/pyinstaller
+60 INFO: Module search paths (PYTHONPATH):
+['/home/sl/src/baton/.w366250-build/v12/python',
+ '/usr/lib/python313.zip',
+ '/usr/lib/python3.13',
+ '/usr/lib/python3.13/lib-dynload',
+ '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages',
+ '/home/sl/src/baton/.w366250-build/v12/python',
+ '/home/sl/src/baton/.w366250-build/v12/python',
+ '/home/sl/src/baton/.w366250-build/v12/python/src']
+111 INFO: Appending 'datas' from .spec
+111 INFO: checking Analysis
+111 INFO: Building Analysis because Analysis-00.toc is non existent
+111 INFO: Looking for Python shared library...
+115 INFO: Using Python shared library: /lib/x86_64-linux-gnu/libpython3.13.so.1.0
+115 INFO: Running Analysis Analysis-00.toc
+115 INFO: Target bytecode optimization level: 0
+115 INFO: Initializing module dependency graph...
+115 INFO: Initializing module graph hook caches...
+118 INFO: Analyzing modules for base_library.zip ...
+355 INFO: Processing standard module hook 'hook-heapq.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks'
+395 INFO: Processing standard module hook 'hook-encodings.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks'
+1060 INFO: Processing standard module hook 'hook-pickle.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks'
+1538 INFO: Caching module dependency graph...
+1551 INFO: Analyzing /home/sl/src/baton/.w366250-build/v12/python/tools/stack_command.py
+1583 INFO: Processing standard module hook 'hook-jsonschema.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/_pyinstaller_hooks_contrib/stdhooks'
+1625 INFO: Processing standard module hook 'hook-platform.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks'
+1634 INFO: Processing standard module hook 'hook-_ctypes.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks'
+1710 INFO: Processing pre-safe-import-module hook 'hook-typing_extensions.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks/pre_safe_import_module'
+1711 INFO: SetuptoolsInfo: initializing cached setuptools info...
+2792 INFO: Setuptools: 'typing_extensions' appears to be a setuptools-vendored copy - creating alias to 'setuptools._vendor.typing_extensions'!
+2795 INFO: Processing standard module hook 'hook-setuptools.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks'
+2799 INFO: Processing pre-safe-import-module hook 'hook-distutils.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks/pre_safe_import_module'
+2817 INFO: Processing standard module hook 'hook-sysconfig.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks'
+2820 INFO: Processing pre-safe-import-module hook 'hook-jaraco.functools.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks/pre_safe_import_module'
+2820 INFO: Setuptools: 'jaraco.functools' appears to be a setuptools-vendored copy - creating alias to 'setuptools._vendor.jaraco.functools'!
+2825 INFO: Processing pre-safe-import-module hook 'hook-more_itertools.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks/pre_safe_import_module'
+2825 INFO: Setuptools: 'more_itertools' appears to be a setuptools-vendored copy - creating alias to 'setuptools._vendor.more_itertools'!
+2883 INFO: Processing standard module hook 'hook-_osx_support.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks'
+2889 INFO: Processing pre-safe-import-module hook 'hook-packaging.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks/pre_safe_import_module'
+3028 INFO: Processing pre-safe-import-module hook 'hook-jaraco.text.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks/pre_safe_import_module'
+3028 INFO: Setuptools: 'jaraco.text' appears to be a setuptools-vendored copy - creating alias to 'setuptools._vendor.jaraco.text'!
+3033 INFO: Processing standard module hook 'hook-setuptools._vendor.jaraco.text.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks'
+3033 INFO: Processing pre-safe-import-module hook 'hook-importlib_resources.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks/pre_safe_import_module'
+3034 INFO: Processing pre-safe-import-module hook 'hook-jaraco.context.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks/pre_safe_import_module'
+3034 INFO: Setuptools: 'jaraco.context' appears to be a setuptools-vendored copy - creating alias to 'setuptools._vendor.jaraco.context'!
+3299 INFO: Processing pre-safe-import-module hook 'hook-tomli.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks/pre_safe_import_module'
+3299 INFO: Setuptools: 'tomli' appears to be a setuptools-vendored copy - creating alias to 'setuptools._vendor.tomli'!
+3500 INFO: Processing pre-safe-import-module hook 'hook-wheel.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks/pre_safe_import_module'
+3501 INFO: Setuptools: 'wheel' appears to be a setuptools-vendored copy - creating alias to 'setuptools._vendor.wheel'!
+3573 INFO: Processing standard module hook 'hook-jsonschema_specifications.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/_pyinstaller_hooks_contrib/stdhooks'
+3768 INFO: Processing standard module hook 'hook-sqlite3.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks'
+4717 INFO: Analyzing hidden import 'tools.dogfood_operator'
+4768 INFO: Analyzing hidden import 'tools.worker_image'
+4773 INFO: Processing module hooks (post-graph stage)...
+5034 INFO: Processing standard module hook 'hook-multiprocessing.util.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks'
+5081 INFO: Processing standard module hook 'hook-xml.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks'
+5219 INFO: Performing binary vs. data reclassification (33 entries)
+5220 INFO: Looking for ctypes DLLs
+5240 INFO: Analyzing run-time hooks ...
+5241 INFO: Including run-time hook 'pyi_rth_setuptools.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks/rthooks'
+5242 INFO: Including run-time hook 'pyi_rth_pkgutil.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks/rthooks'
+5242 INFO: Including run-time hook 'pyi_rth_multiprocessing.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks/rthooks'
+5243 INFO: Including run-time hook 'pyi_rth_inspect.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks/rthooks'
+5246 INFO: Creating base_library.zip...
+5253 INFO: Looking for dynamic libraries
+5339 INFO: Warnings written to /home/sl/src/baton/.w366250-build/v12/python/build/work/stack/warn-stack.txt
+5348 INFO: Graph cross-reference written to /home/sl/src/baton/.w366250-build/v12/python/build/work/stack/xref-stack.html
+5354 INFO: checking PYZ
+5354 INFO: Building PYZ because PYZ-00.toc is non existent
+5354 INFO: Building PYZ (ZlibArchive) /home/sl/src/baton/.w366250-build/v12/python/build/work/stack/PYZ-00.pyz
+5651 INFO: Building PYZ (ZlibArchive) /home/sl/src/baton/.w366250-build/v12/python/build/work/stack/PYZ-00.pyz completed successfully.
+5656 INFO: checking PKG
+5656 INFO: Building PKG because PKG-00.toc is non existent
+5656 INFO: Building PKG (CArchive) baton-v12-stack.pkg
+5662 INFO: Building PKG (CArchive) baton-v12-stack.pkg completed successfully.
+5663 INFO: Bootloader /home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/bootloader/Linux-64bit-intel/run
+5663 INFO: checking EXE
+5663 INFO: Building EXE because EXE-00.toc is non existent
+5663 INFO: Building EXE from EXE-00.toc
+5663 INFO: Copying bootloader EXE to /home/sl/src/baton/.w366250-build/v12/python/build/work/stack/baton-v12-stack
+5663 INFO: Appending PKG archive to custom ELF section in EXE
+5670 INFO: Building EXE from EXE-00.toc completed successfully.
+5670 INFO: checking COLLECT
+5670 INFO: Building COLLECT because COLLECT-00.toc is non existent
+5670 INFO: Building COLLECT COLLECT-00.toc
+5677 INFO: Building COLLECT COLLECT-00.toc completed successfully.
+5677 INFO: Build complete! The results are available in: /home/sl/src/baton/.w366250-build/v12/python/build/out
+test_a_real_bundle_digests_whole_and_verifies (tests.tools.test_packaging.WhatTheBundleIS.test_a_real_bundle_digests_whole_and_verifies) ... ok
+test_an_unbound_extra_file_in_a_real_bundle_is_refused (tests.tools.test_packaging.WhatTheBundleIS.test_an_unbound_extra_file_in_a_real_bundle_is_refused) ... ok
+test_one_changed_byte_in_a_real_library_is_refused (tests.tools.test_packaging.WhatTheBundleIS.test_one_changed_byte_in_a_real_library_is_refused) ... ok
+test_the_copy_is_the_same_runtime_as_the_build (tests.tools.test_packaging.WhatTheBundleIS.test_the_copy_is_the_same_runtime_as_the_build)
+`install` re-digests what it copied for exactly this reason. ... ok
+test_an_unknown_subcommand_is_refused_by_name (tests.tools.test_packaging.WhatTheBundleSaysItIs.test_an_unknown_subcommand_is_refused_by_name) ... ok
+test_every_subcommand_this_command_serves_is_offered (tests.tools.test_packaging.WhatTheBundleSaysItIs.test_every_subcommand_this_command_serves_is_offered) ... ok
+test_it_answers_for_itself_with_nothing_from_this_checkout (tests.tools.test_packaging.WhatTheBundleSaysItIs.test_it_answers_for_itself_with_nothing_from_this_checkout) ... ok
+test_it_says_its_version_with_NO_checkout_and_NO_repository_tool (tests.tools.test_packaging.WhatTheBundleSaysItIs.test_it_says_its_version_with_NO_checkout_and_NO_repository_tool)
+OWNER-VERSION-STAMP-20260916.md: `--version` must answer where the ... ok
+test_the_captured_stamp_is_the_one_the_build_recorded (tests.tools.test_packaging.WhatTheBundleSaysItIs.test_the_captured_stamp_is_the_one_the_build_recorded)
+The final artifact must contain the same metadata the build ... ok
+test_the_frozen_schema_assets_travelled (tests.tools.test_packaging.WhatTheBundleSaysItIs.test_the_frozen_schema_assets_travelled)
+`contracts.frozen` reads them at IMPORT time, so a bundle without ... ok
+test_the_native_validator_is_ONE_OF_THE_FILES_THIS_BUNDLE_BINDS (tests.tools.test_packaging.WhatTheBundleSaysItIs.test_the_native_validator_is_ONE_OF_THE_FILES_THIS_BUNDLE_BINDS)
+The defect a real build found. `rpds` has no pure-Python fallback, ... ok
+test_the_bundle_creates_binds_and_submits_one_template_job (tests.tools.test_packaged_creation.TheFrozenCommandCreatesAnOrdinaryJob.test_the_bundle_creates_binds_and_submits_one_template_job) ... ok
+test_the_created_job_carries_its_own_task_and_its_binding (tests.tools.test_packaged_creation.TheFrozenCommandCreatesAnOrdinaryJob.test_the_created_job_carries_its_own_task_and_its_binding)
+WHAT IS DURABLE AFTERWARDS, read from the instance's own files. ... ok
+test_the_template_resolved_is_one_THIS_BUILD_carries (tests.tools.test_packaged_creation.TheFrozenCommandCreatesAnOrdinaryJob.test_the_template_resolved_is_one_THIS_BUILD_carries)
+THE PACKAGED RESOURCE, and the build's own inventory of it. ... ok
+test_two_ordinary_creations_bind_two_jobs (tests.tools.test_packaged_creation.TheFrozenCommandCreatesAnOrdinaryJob.test_two_ordinary_creations_bind_two_jobs) ... ok
+test_the_identity_the_install_recorded_is_the_commands_own (tests.tools.test_packaged_creation.TheFrozenCommandInstallsTheBundleItIsGiven.test_the_identity_the_install_recorded_is_the_commands_own)
+`_identity_of` RAN THE COMMAND, and this is what it got back. ... ok
+test_the_instance_binds_this_bundle_and_verifies_against_it (tests.tools.test_packaged_creation.TheFrozenCommandInstallsTheBundleItIsGiven.test_the_instance_binds_this_bundle_and_verifies_against_it) ... ok
+test_a_template_this_build_does_not_carry_is_refused_by_name (tests.tools.test_packaged_creation.TheFrozenCommandRefusesTruthfully.test_a_template_this_build_does_not_carry_is_refused_by_name) ... ok
+test_an_operand_this_command_does_not_serve_is_refused (tests.tools.test_packaged_creation.TheFrozenCommandRefusesTruthfully.test_an_operand_this_command_does_not_serve_is_refused)
+AN UNPERMITTED OVERRIDE HAS NO OPERAND, which IS the enforcement. ... ok
+test_an_unknown_subcommand_is_refused_rather_than_guessed (tests.tools.test_packaged_creation.TheFrozenCommandRefusesTruthfully.test_an_unknown_subcommand_is_refused_rather_than_guessed)
+Nothing is installed for this one: the command refuses first. ... ok
+test_an_unsupported_source_selection_is_refused_by_name (tests.tools.test_packaged_creation.TheFrozenCommandRefusesTruthfully.test_an_unsupported_source_selection_is_refused_by_name) ... ok
+test_the_permitted_override_reaches_the_resolved_limits (tests.tools.test_packaged_creation.TheFrozenCommandRefusesTruthfully.test_the_permitted_override_reaches_the_resolved_limits)
+AND THE ONE THAT IS PERMITTED IS HONOURED, end to end. ... ok
+test_a_changed_intent_under_the_same_task_is_refused (tests.tools.test_packaged_creation.TheSameIntentReplaysThroughTheBundle.test_a_changed_intent_under_the_same_task_is_refused)
+A DIFFERENT SELECTION IS A DIFFERENT CREATION, not a replay. ... ok
+test_the_same_request_again_answers_the_same_job_once (tests.tools.test_packaged_creation.TheSameIntentReplaysThroughTheBundle.test_the_same_request_again_answers_the_same_job_once) ... ok
+
+----------------------------------------------------------------------
+Ran 24 tests in 12.966s
+
+OK
+EXIT=0

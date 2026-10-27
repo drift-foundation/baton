@@ -1,0 +1,108 @@
+How the runs in this directory were produced — claim363375, W363066
+===================================================================
+
+Same recipe as the earlier claim directories: a disposable scratch root from
+the canonical bytes at base 19f02ce1 with candidate-363375 overlaid.
+
+  candidate root  /tmp/w363066
+  base root       /tmp/w361912-base   (retained; same base commit and recipe)
+
+Commands, from <root>/v12/python with PYTHONPATH=src:. —
+
+  python3 -m unittest tests.tools.test_job_task_delivery -v
+  python3 -m unittest discover -s tests/job_manager -t . -p 'test_*.py'
+  python3 -m unittest tests.tools.test_single_worker \
+      tests.tools.test_stage_execution tests.tools.test_bootstrap \
+      tests.tools.test_creation_ports tests.tools.test_job_task_delivery
+  python3 <repo>/.../evidence/review-363353/input_pair_probe.py
+  python3 <this directory>/PRODUCTION-SEQUENCE source (inline, header kept)
+
+The two probe outputs, and what the difference means
+----------------------------------------------------
+
+REVIEWER-PROBE-UNMODIFIED.stdout
+        YOUR input_pair_probe.py, run UNCHANGED:
+          worker_matches        true   <- R1 was false; it is closed
+          input_succeeded       false  <- unchanged, and correct; see below
+        R1 flips with no change to the probe: `_matches` now reads the
+        document the stage is served under, so the composed Job is no longer
+        refused as "another bootstrap input".
+
+PRODUCTION-SEQUENCE.stdout
+        The SAME two constructions with ONE line different, and the file's
+        header says which: your script mints the assignment from `w.given` --
+        the INSTALLED configuration, which is what `_prepared` did before this
+        correction -- and this mints it from `w._given_for(stage)`, the one
+        document every consumer now reads. Result:
+          assignment_input_digest  == per_job_input_digest
+          installed_input_digest   different from both
+          worker_matches           true
+          input_succeeded          true
+          root_manifest_is_the_per_job_one  true
+          published_task_id        job-first
+
+        So R2 is closed in production. Your probe's `input_succeeded: false`
+        is now the pair validator working: an assignment minted against the
+        installed digest beside a per-Job root IS two halves of two
+        deliveries, and `TheConnectedPreparationPath.
+        test_an_assignment_from_the_installed_manifest_refuses` asserts it
+        must stay refused.
+
+What each other file is
+-----------------------
+
+FOCUSED-DELIVERY.txt    tests.tools.test_job_task_delivery, 26 cases, OK.
+                        The count FELL from 43 because the previous version
+                        subclassed `ThreeWorkersOneJobThreeImages` and so
+                        re-ran ITS cases under four of this suite's classes.
+                        The helpers are now bound explicitly and no borrowed
+                        assertion runs here. Nine of the 26 are the new
+                        `TheConnectedPreparationPath`.
+JOB-MANAGER-SUITE.txt   whole tests/job_manager, 1375 OK — unchanged.
+TOOLS-CANDIDATE.txt     five tools suites: 909 cases, 1 failure, 17 errors.
+TOOLS-PREEXISTING-BASE.txt
+TOOLS-PREEXISTING-CANDIDATE.txt
+                        those 18 on base and candidate: byte-identical. All
+                        pre-existing — 17 in test_bootstrap and one in
+                        test_single_worker. Note test_single_worker is in
+                        this run precisely because `_matches`, `_claimed`,
+                        `_input`, `_adapter` and `_assignment_manifest` are
+                        its subject; it contributes no new failure.
+
+What the connected cases drive
+------------------------------
+
+`TheConnectedPreparationPath` drives what `_prepared` drives, in its order:
+one document from `_given_for(stage)`, then the real `_matches`, the real
+`_assignment_manifest` and the real `_input` — which calls the real
+`compose_input_root`. No engine and no provider; the sequence ends where a
+runtime would start.
+
+  * both ordinary roles prepare the requested task: assignment digest ==
+    root manifest digest, the file in the root is this Job's task, and none
+    of those identities is the installed one;
+  * two Jobs prepare independently on ONE worker with no bytes crossing and
+    the shared configuration unchanged;
+  * a reopened preparation runs `_input` again over the composed root, so
+    `read_input_root` succeeds and the comparison branch and `_proved_task`
+    both run against real material;
+  * an assignment minted from the installed manifest refuses with "two
+    halves of two deliveries" — your R2, kept as a case;
+  * a tampered and a missing task each refuse on the reopened preparation,
+    with no launch;
+  * a Job with no own task prepares the INSTALLED one through the same
+    sequence, and the published bytes are asserted equal to the installed.
+
+Still not proved, and still the parent's
+----------------------------------------
+
+No container is started over the prepared root: the sequence under test ends
+at the composed input root. The `_adapter` RECOVERY callers that hold roots
+and an attempt but no stage still read the installed configuration — correct
+for every Job with no own task, and a named limitation for one that has;
+PROGRESS.md states it with the call sites. The connected
+implementation/review/correction/held rehearsal, the OBS-0 interval,
+`NewJobBinding.create_binding` against an installed instance and interruption
+inside `bootstrap.prepare` remain W361912's.
+
+No live provider, engine or deployed instance. No Git operation of any kind.

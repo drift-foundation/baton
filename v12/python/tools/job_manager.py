@@ -40,9 +40,10 @@ import sys
 from baton_v12.contracts import ContractRefusal
 from baton_v12.contracts.errors import name_value
 from baton_v12.job_manager import (JobStore, ManagerOperations, Unobserved,
-                                   admit_fresh_attempt,
+                                   admit_fresh_attempt, create_template_job,
                                    read_submission, reconcile, serve, status,
                                    submit)
+from baton_v12.job_manager import templates
 from baton_v12.worker_manager import ControlStore
 from baton_v12.worker_manager import attempts, boundaries, intake, oci, tokens
 
@@ -813,6 +814,98 @@ def _fresh_attempt(taken, clock, stream):
                 submission_id=taken.submission_id), stream)
 
 
+def _create(taken, clock, stream):
+    """W361912 / DESIGN SCH-1a: THE CLI REQUESTS THE OPERATION AND REPORTS IT.
+
+    Everything this function decides is which owner each port reaches and how
+    the operator's words become the resolver's own request document. It holds
+    no rule about identity, uniqueness, replay, generation agreement,
+    servability or binding recovery -- those belong to
+    `creation.create_template_job` and are enforced inside this store's own
+    lock and under this
+    instance's own guard, which is REC-7's "script-side prechecks cannot
+    substitute for manager enforcement".
+
+    AND IT COMPOSES NO DIGEST. There is no operand here for an input digest, a
+    policy digest, a profile name, a profile digest or a Work: every one of
+    them is derived by `creation_ports.DeploymentDerivation` from the workers
+    this instance installed. That absence is the feature -- SCH-1a's
+    "Ordinary creation MUST NOT require operator-authored manifests or bespoke
+    launch packets" is a statement about this argument list.
+
+    THE CONTROL STORE IS OPENED READ-ONLY, as `fresh-attempt`'s is: a creation
+    reads nothing of the Worker Manager's but the instance guard beside its
+    workspace root, and a surface that needed write access to the Worker
+    Manager to create a Job could change the evidence it was judging.
+    """
+    from tools.creation_ports import (DeploymentDerivation, InstanceOwnership,
+                                      NewJobBinding, WorkAuthorization,
+                                      agreeing, instance_identity)
+
+    identity = instance_identity(taken.instance)
+    agreeing("job_store", taken.store, "Job store", identity)
+    agreeing("control_store", taken.control, "control store", identity)
+    agreeing("authority_store", taken.authority, "Authority store", identity)
+    request = _creation_request(taken)
+    deployment = NewJobBinding(taken.instance, stream=sys.stderr,
+                              identity=identity)
+    derivation = DeploymentDerivation(taken.instance, identity=identity)
+    with _job_store(taken, clock) as store:
+        with ControlStore.open_readonly(taken.control,
+                                        incarnation=taken.incarnation,
+                                        clock=clock) as control:
+            authorization = WorkAuthorization.opened(
+                taken.authority, authority_uuid=taken.authority_uuid,
+                route=taken.route, identity=identity)
+            return _emit(create_template_job(
+                store, _ReadOnly(control), request=request,
+                derivation=derivation, authorization=authorization,
+                binding=deployment,
+                ownership=InstanceOwnership.of(control,
+                                               deployment.configuration(),
+                                               identity=identity)), stream)
+
+
+def _creation_request(taken):
+    """The operator's words, as the resolver's own request document.
+
+    NOT A SECOND SCHEMA AND NOT A MANIFEST. This builds exactly
+    `baton.v12.job-template-request/1` -- the document W361910's accepted
+    resolver already owns member by member -- plus the `source_selection` and
+    `task.task_id` members a creation adds. Reading an acceptance criterion or
+    a statement from a file is deliberately NOT offered: a document an
+    operator authors beside the command is the packet this operation exists to
+    remove, and a criterion long enough to need a file is one the Work's own
+    dossier should be carrying.
+    """
+    request = {"schema": templates.REQUEST_SCHEMA,
+               "task": {"task_id": taken.task,
+                        "statement": taken.statement},
+               "source_selection": taken.source,
+               "scope": {"work": list(taken.work_scope),
+                         "tests": list(taken.test_scope or ())},
+               "acceptance": list(taken.acceptance)}
+    if taken.template is not None:
+        request["template"] = taken.template
+    if taken.job_id is not None:
+        request["task"]["job_id"] = taken.job_id
+    if taken.submission_id is not None:
+        request["task"]["submission_id"] = taken.submission_id
+    limits = {}
+    if taken.provider_turn_seconds is not None:
+        limits["provider_turn_seconds"] = taken.provider_turn_seconds
+    if taken.verification_command_seconds is not None:
+        limits["verification_command_seconds"] = \
+            taken.verification_command_seconds
+    # PRESENT ONLY WHEN THE OPERATOR STATED ONE. An absent override and an
+    # empty one are different intents to the resolver, and inventing the
+    # member for a caller who configured nothing would give every Job a `/2`
+    # submission identity -- which is the distinction `documents._job` keeps.
+    if limits:
+        request["overrides"] = {"execution_limits": limits}
+    return request
+
+
 def _status(taken, clock, stream):
     # W85500 review 2026-09-04T14-27-54Z [P1]: AN EXPLICIT REQUEST IS NEVER
     # SILENTLY DOWNGRADED.
@@ -1214,6 +1307,91 @@ def main(argv, *, clock=None, stream=None):
                           help="the submission identity; derived from the "
                                "fresh Job id when omitted")
     retrying.set_defaults(run=_fresh_attempt)
+
+    # W361912 / DESIGN SCH-1a: ORDINARY CREATION, AND NOTE WHAT IS ABSENT.
+    # No --input-digest, no --policy-digest, no --profile, no --work-id and no
+    # --document: every one of those is derived from the workers this instance
+    # installed. An operand for any of them would be this command asking an
+    # operator to configure the pool from a Job.
+    creating = commands.add_parser(
+        "create",
+        help="create one ordinary Job from a versioned template")
+    creating.add_argument("--instance", required=True,
+                          help="the deployment's state root, whose installed "
+                               "workers supply this Job's Work, input "
+                               "digest, policy digest and runtime profiles, "
+                               "and whose own bootstrap publishes its "
+                               "binding")
+    creating.add_argument("--control", required=True,
+                          help="the Worker Manager control store, opened "
+                               "READ-ONLY: a creation reads nothing of it "
+                               "but the instance guard beside its workspace "
+                               "root")
+    creating.add_argument("--authority", required=True,
+                          help="the Authority store whose Work this Job runs "
+                               "under; the deployment's derived Work is "
+                               "reused when it is open and created once when "
+                               "it does not exist")
+    creating.add_argument("--task", required=True,
+                          help="what this Job is called, in the operator's "
+                               "own words; the Job and submission identities "
+                               "are derived from it unless named")
+    creating.add_argument("--statement", required=True,
+                          help="the task as stated. Preserved in the "
+                               "resolution and enforced by nothing; the "
+                               "authoritative statement is the Work's own "
+                               "dossier")
+    creating.add_argument("--acceptance", required=True, action="append",
+                          metavar="CRITERION",
+                          help="one acceptance criterion, repeatable. At "
+                               "least one is required: a Job with nothing to "
+                               "be judged against cannot be independently "
+                               "reviewed, which is this template's second "
+                               "stage")
+    creating.add_argument("--work-scope", required=True, action="append",
+                          metavar="PATH",
+                          help="one repository-relative path this task "
+                               "covers, repeatable. This is the SELECTED "
+                               "WORK scope a reviewer and an integrator read "
+                               "a proposal against; it grants no "
+                               "test-change authority")
+    creating.add_argument("--test-scope", action="append", default=[],
+                          metavar="PATH",
+                          help="one repository-relative path this Work may "
+                               "change tests at, repeatable and empty by "
+                               "default. This is the bounded test-change "
+                               "scope the submission carries as test_scope")
+    creating.add_argument("--template", default=None,
+                          help="the exact template version; omitted resolves "
+                               "the configured default, which is still shown "
+                               "in the answer with its origin")
+    creating.add_argument("--source", default="installed",
+                          help="which source this Job runs against. One "
+                               "value is supported -- the one this instance "
+                               "installed -- and it is an operand rather "
+                               "than an assumption so a later source "
+                               "selection has somewhere to go")
+    creating.add_argument("--route", default="baton.impl",
+                          help="the route a Work is created under, used only "
+                               "when the deployment's derived Work does not "
+                               "exist yet")
+    creating.add_argument("--job-id", default=None,
+                          help="the Job identity; derived from --task when "
+                               "omitted, so no operator or model has to "
+                               "invent a name")
+    creating.add_argument("--submission-id", default=None,
+                          help="the submission identity; derived from the "
+                               "Job id when omitted")
+    creating.add_argument("--provider-turn-seconds", type=int, default=None,
+                          help="this Job's provider-turn ceiling in seconds, "
+                               "a permitted override; omitted preserves the "
+                               "runner default and submits a /1 document")
+    creating.add_argument("--verification-command-seconds", type=int,
+                          default=None,
+                          help="this Job's verification-command ceiling in "
+                               "seconds, a permitted override reaching all "
+                               "three verification boundaries")
+    creating.set_defaults(run=_create)
 
     reading = commands.add_parser(
         "status", help="print the read-only status projection")

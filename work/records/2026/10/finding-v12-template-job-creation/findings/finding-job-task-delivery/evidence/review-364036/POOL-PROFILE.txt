@@ -1,0 +1,1 @@
+{"composition_succeeded": true, "worker_count": 3, "profile": "reference", "scope": "composition only; not pool execution acceptance"}

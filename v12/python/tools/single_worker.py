@@ -1234,7 +1234,8 @@ class _SingleWorker:
     def __init__(self, given, control, port, *, credential_provider,
                  engine_run, session=None, clock=None, checkpoint=None,
                  stage=None, judgment_document=None,
-                 execution_context=None, activity=None, permission_policy=None,
+                 execution_context=None, job_task=None, activity=None,
+                 permission_policy=None,
                  lifetime_policy=None):
         self.given = given
         # W285464: THE PREPARATION OWNERSHIPS THIS COMPOSITION HOLDS, per attempt.
@@ -1266,6 +1267,13 @@ class _SingleWorker:
         # deployment and focused verification -- and those keep the legacy
         # launch shapes they already had.
         self.execution_context = execution_context
+        # W363066: THIS WORKER'S WAY OF ASKING WHICH TASK A JOB WAS CREATED
+        # WITH. Held exactly as `execution_context` is -- a narrow read-only
+        # closure over the Job owner, never a cached answer -- and consulted
+        # PER STAGE. The configured `given` is never mutated: `_for_job`
+        # returns a fresh document, so one worker serving two Jobs cannot
+        # carry one of them into the other.
+        self.job_task = job_task
         self.permission_policy = permission_policy
         # W325959: the native sibling of permission_policy. It answers a
         # bounded token lifetime for THIS attempt's Job; None keeps the
@@ -1340,7 +1348,7 @@ class _SingleWorker:
             work_ref=dict(manifest["work_ref"]))
 
     def _matches(self, stage, job):
-        given = self.given
+        given = self._given_for(stage)
         manifest = given["input_manifest"]
         # W103083: THE KIND IS THE CONFIGURED ROLE. It read `implementation`
         # as a literal, which is the same value `_held` proves `launch_role`
@@ -1444,8 +1452,13 @@ class _SingleWorker:
                     "work_id": stage["work_id"],
                     "participant": self.given["participant"],
                     "profile_digest": self.given["profile_digest"],
+                    # W363066: THE MANIFEST THIS STAGE IS ACTUALLY SERVED
+                    # UNDER. The offer was issued for the Job's own submitted
+                    # input identity, and comparing against the INSTALLED
+                    # manifest would refuse a stage whose own task is
+                    # delivered -- the stage refusing its own claim.
                     "input_digest": job_input_identity(
-                        self.given["input_manifest"],
+                        self._given_for(stage)["input_manifest"],
                         what="this single worker's configured input"),
                     "policy_digest": self.given["policy_digest"]}
         for member, value in expected.items():
@@ -1455,9 +1468,161 @@ class _SingleWorker:
                         code="operation-collision")
         return row
 
-    def _input(self, roots, assignment, boundary):
-        given = self.given
+    def _given_for(self, stage):
+        """The HELD CONFIGURATION this stage is served under, whole.
+
+        W363066 review 2026-10-26T20-28-59Z. `_for_job` answered the manifest
+        and the task and I substituted them at `_claimed` and `_input` only --
+        so `_matches` still compared the INSTALLED manifest and refused the
+        composed Job as "another bootstrap input", and `_assignment_manifest`
+        minted an assignment against the installed digest while `_input`
+        published the per-Job one, which `compose_input_root` refuses as "two
+        halves of two deliveries" AFTER `task.json` is on disk. Both were
+        reproduced by the reviewer's probe against these functions.
+        
+        THE CORRECTION IS ONE DOCUMENT RATHER THAN TWO MEMBERS. Every
+        stage-scoped operation in this class begins `given = self.given`, so
+        every one of them now begins `given = self._given_for(stage)` and
+        there is nothing left to remember to substitute: the match, the claim,
+        the recorded attempt, the assignment, the input root, the launch
+        context and the adapter identity all read ONE document.
+
+        THE SHARED CONFIGURATION IS NEVER WRITTEN TO. This returns
+        `self.given` itself when the stage has no own task -- the ordinary
+        case and every Job that existed before this Work -- and a FRESH copy
+        otherwise, so one worker serving two Jobs cannot carry one into the
+        other.
+        """
+        manifest, task = self._for_job(stage)
+        if manifest is self.given["input_manifest"]:
+            return self.given
+        return dict(self.given, input_manifest=manifest, task_bytes=task)
+
+    def _for_job(self, stage):
+        """The input manifest and task bytes THIS stage's Job is served under.
+
+        W363066. `given` is the worker's installed configuration and is shared
+        by every Job this worker serves, so the per-Job document is COMPOSED
+        HERE, per stage, from a fresh copy -- and `given` itself is never
+        written to. A worker that cached one Job's task on itself would hand
+        it to the next Job that asked.
+
+        `None` FROM THE READER IS THE INSTALLED DELIVERY, which is what a Job
+        submitted by hand, created before the column existed, or created
+        against a deployment that composes no per-Job task gets. That is the
+        behaviour every Job had before this Work and it is preserved rather
+        than special-cased.
+
+        AND THE TWO TRAVEL TOGETHER. `_task_bytes` proved the installed bytes
+        against the installed manifest's own human contract, so a per-Job task
+        beside the installed manifest is a pair that validator would never
+        have accepted -- which is `_served_deployment`'s own sentence and the
+        reason this answers both or neither.
+        """
+        installed = (self.given["input_manifest"], self.given["task_bytes"])
+        # `getattr` RATHER THAN THE ATTRIBUTE, because a worker composed
+        # without `__init__` has no reader. `test_single_worker`'s own
+        # harness builds one that way to ask a preflight question without a
+        # store, port, engine or credential provider, and a composition with
+        # no reader is the installed delivery -- which is what that harness
+        # is asking about.
+        reader = getattr(self, "job_task", None)
+        if reader is None or stage is None:
+            return installed
+        held = reader(job_id=stage.get("job_id"))
+        if held is None:
+            return installed
+        from tools import job_task as composer
+
+        return (composer.manifest_for(self.given["input_manifest"], held),
+                composer.delivered_bytes(held))
+
+    def _adapter_manifest(self, given, roots, stage, attempt_id):
+        """The input identity an adapter over THIS attempt may describe.
+
+        W363066 review 2026-10-26T20-45Z. Two kinds of caller build adapters
+        and they know different things. A stage-scoped caller knows which Job
+        it serves and `_given_for` has already composed that Job's document;
+        an identification, adoption, cleanup or recovery caller holds an
+        attempt and roots and nothing else. Both must describe the input the
+        attempt was actually delivered, so both are answered here.
+
+        AND A STAGE IS CHECKED RATHER THAN TRUSTED where an attempt is also
+        named. `_given_for` resolves a per-Job task through the stage's
+        `job_id`, so a stage document that reached this class without one --
+        `refresh_runtime` is given `{"attempt_id": ...}` and nothing else --
+        would resolve to the installed input SILENTLY, which is the same
+        wrong answer by a different route. The recorded digest is the
+        manager's own record of what the attempt was claimed against, so
+        where there is one it decides, and a disagreement is a refusal that
+        names both sides rather than a preference between them.
+        """
         manifest = given["input_manifest"]
+        if attempt_id is None:
+            # The preflight and bootstrap compositions identify no attempt.
+            return manifest
+        recorded = attempts.recorded_input_of(self.control, attempt_id)
+        if stage is None:
+            return self._delivered_manifest(roots, attempt_id, recorded)
+        if recorded is not None and recorded != manifest["manifest_digest"]:
+            _refuse(f"attempt {attempt_id!r} was recorded against input "
+                    f"{recorded!r} and the stage it is served under names "
+                    f"{manifest['manifest_digest']!r}; an adapter will not "
+                    f"describe an attempt with inputs it was not claimed "
+                    f"against", category="integrity", code="digest")
+        return manifest
+
+    def _delivered_manifest(self, roots, attempt_id, recorded):
+        """The input manifest THIS ATTEMPT WAS COMPOSED WITH, with no stage.
+
+        W363066 review 2026-10-26T20-45Z. `_given_for` needs a stage to know
+        which Job it is serving, and the adapter callers that identify, adopt,
+        clean up or recover an attempt have no stage: they hold an attempt id
+        and two root paths. Answering those the INSTALLED manifest described
+        an attempt that owns another input with inputs it was never given --
+        wrong `outputs` and a wrong `input_manifest_digest` on the one adapter
+        a recovery reconciles with.
+
+        THE MANAGER'S OWN RECORD DECIDES WHICH CASE THIS IS, and the two are
+        not interchangeable. `record_attempt` fixed `input_digest` from the
+        document the stage was served under, so:
+
+          nothing recorded, or the INSTALLED identity recorded, is the
+          installed manifest -- no root is read, so an attempt whose root has
+          already been removed is still reconcilable and every Job that
+          existed before this Work behaves exactly as it did; and
+          ANOTHER identity recorded means this attempt owns another input, and
+          then the manifest is read back off the disk the runtime mounted and
+          held to that record by `attempts.authorize_input_root` -- all four
+          parts of the activated assignment, the runtime attempt id, and the
+          recorded input digest. A self-consistent root composed for another
+          attempt satisfies none of those, which is why this does not simply
+          read the pair itself.
+
+        A ROOT THAT CANNOT BE PROVED IS A REFUSAL RATHER THAN A SUBSTITUTION.
+        For an attempt recorded against another input there is no second
+        source for what it was delivered: a missing, partial or tampered root
+        leaves the manager unable to say what the runtime mounted, and
+        answering the installed manifest would be a confident wrong answer
+        about exactly the attempt this correction exists for. The callers
+        above this already contain a refusal -- `_naming` answers `None`,
+        `refresh_runtime` reports it, the cleanup paths carry it into the
+        ending they write -- so the refusal is bounded and named.
+
+        `recorded` IS THE CALLER'S READ, passed rather than re-read, so the
+        one decision above this and the proof below it are made against the
+        same value.
+        """
+        installed = self.given["input_manifest"]
+        if recorded is None or recorded == installed["manifest_digest"]:
+            return installed
+        delivered, _ = attempts.authorize_input_root(
+            self.control, attempt_id=attempt_id, inputs=roots["inputs"])
+        return delivered
+
+    def _input(self, roots, assignment, boundary, stage=None):
+        given = self._given_for(stage)
+        manifest, task = given["input_manifest"], given["task_bytes"]
         try:
             held_input, held_assignment = workspaces.read_input_root(
                 roots["inputs"])
@@ -1481,7 +1646,7 @@ class _SingleWorker:
             # completes it, which is also W76207's rule: a death anywhere in
             # between leaves a partial root the next process refuses above
             # rather than repairs.
-            self._published_task(roots["inputs"])
+            self._published_task(roots["inputs"], content=task)
             if self.judgment_document is not None:
                 self._published_task(roots["inputs"], name="judgment.json",
                                      content=self.judgment_document)
@@ -1518,7 +1683,7 @@ class _SingleWorker:
         # material beside it. Inferring the task from `input.json` would be
         # this deployment concluding something the reader it called never
         # looked at.
-        self._proved_task(roots["inputs"])
+        self._proved_task(roots["inputs"], content=task)
         if self.judgment_document is not None:
             self._proved_task(roots["inputs"], name="judgment.json",
                               content=self.judgment_document)
@@ -1683,9 +1848,15 @@ class _SingleWorker:
         return place
 
     def _adapter(self, roots, delivery, orphan, launched, boundary=None,
-                 scratch=None):
-        given = self.given
-        manifest = given["input_manifest"]
+                 scratch=None, stage=None, attempt_id=None):
+        # W363066: THE DOCUMENT THIS STAGE IS SERVED UNDER when the caller
+        # knows which stage it is, and WHAT THE ATTEMPT WAS COMPOSED WITH when
+        # it does not. The recovery, identification, cleanup and abandonment
+        # callers hold an attempt and roots and no stage, and the input
+        # identity an adapter describes has to be the delivered one for all of
+        # them -- see `_delivered_manifest`.
+        given = self._given_for(stage)
+        manifest = self._adapter_manifest(given, roots, stage, attempt_id)
         return OciAdapter(
             given["engine"], self.engine,
             identity={"image_digest": given["image_digest"],
@@ -1802,7 +1973,8 @@ class _SingleWorker:
         """
         if self.credential_home.read_state(attempt_id) is None:
             return None
-        adapter = self._adapter(roots, None, None, launched)
+        adapter = self._adapter(roots, None, None, launched,
+                                attempt_id=attempt_id)
         recovery = {
             "attempt_id": attempt_id,
             # THE ASSIGNMENT ACTIVATION FIXED, out of the same atomic read the
@@ -1839,7 +2011,9 @@ class _SingleWorker:
         """
         self._matches(stage, job)
         row = self._claim(stage)
-        given = self.given
+        # W363066: THE DOCUMENT THIS STAGE IS SERVED UNDER, so the recorded
+        # attempt names the runtime input that is actually delivered.
+        given = self._given_for(stage)
         attempt_id = stage["attempt_id"]
         self.checkpoint("claimed")
         record_attempt(
@@ -1932,7 +2106,7 @@ class _SingleWorker:
             home = os.path.join(self.given["workspace_storage"], attempt_id)
             return self._adapter({"inputs": os.path.join(home, "inputs"),
                                   "workspace": os.path.join(home, "workspace")},
-                                 None, None, None)
+                                 None, None, None, attempt_id=attempt_id)
         except ContractRefusal:
             return None
 
@@ -2067,7 +2241,7 @@ class _SingleWorker:
         value is released -- after its bytes are proved gone -- before any
         durable state is read again.
         """
-        given = self.given
+        given = self._given_for(stage)
         roots, boundary = self._mounted(stage, attempt_id)
         # W71917: THE BOUNDARY IS COMPOSED BEFORE THE INPUT ROOT IS FROZEN,
         # and the order is the content. `compose_source_boundary` establishes
@@ -2113,7 +2287,7 @@ class _SingleWorker:
         self.checkpoint("boundary")
         assignment = _assignment_manifest(given, row, attempt_id,
                                           stage["offer_id"])
-        manifest = self._input(roots, assignment, boundary)
+        manifest = self._input(roots, assignment, boundary, stage)
         self.checkpoint("input")
         retain_manifest(self.control, manifest, "inputManifest")
         self.checkpoint("manifest")
@@ -2170,9 +2344,10 @@ class _SingleWorker:
             # W202663: the per-attempt disk-backed scratch travels with the
             # START path only -- identification and recovery adapters compose
             # exactly what they composed before.
-            adapter = self._adapter(roots, delivery, orphan, launched,
-                                    boundary,
-                                    scratch=self._attempt_scratch(attempt_id))
+            adapter = self._adapter(
+                roots, delivery, orphan, launched, boundary,
+                scratch=self._attempt_scratch(attempt_id), stage=stage,
+                attempt_id=attempt_id)
             if fresh:
                 # W285464, amended TOK-7: NO LAUNCH WHILE A HOST WRITER COULD STILL
                 # FINISH, AND NOT OVER A REPLACED RESOURCE. The gate asks the
@@ -2434,7 +2609,8 @@ class _SingleWorker:
                 self.group, self.given["workspace_storage"], attempt_id,
                 control=self.control)
             # Observation carries no credential or launch delivery.
-            adapter = self._adapter(roots, None, None, None)
+            adapter = self._adapter(roots, None, None, None,
+                                    attempt_id=attempt_id)
         # THE ENGINE'S OWN FAILURES, NAMED BY THE DEPLOYMENT THAT OWNS THEM.
         # Review 2026-09-04T19:08:40Z [P1]: the manager caught `OSError` and
         # then caught `Exception`, so it was deciding what an engine failure
@@ -2585,7 +2761,7 @@ class _SingleWorker:
             control=self.control)
         return attempts.request_cancellation(
             self.control, self.port, _UncooperativeAgent(self.given),
-            self._adapter(roots, None, None, None),
+            self._adapter(roots, None, None, None, attempt_id=attempt_id),
             attempt_id=attempt_id, reason=reason)
 
     def abandon_attempt(self, *, attempt_id, reason, stage, seconds=None,
@@ -2672,7 +2848,8 @@ class _SingleWorker:
         # process cannot hold, not a substitute invented here: the credential
         # lifecycle is then settled by cleanup discarding the orphaned root,
         # which is what the recovery refusal itself describes.
-        if self._adapter(roots, None, None, launched).observe(
+        if self._adapter(roots, None, None, launched,
+                         attempt_id=attempt_id).observe(
                 state["runtime_id"], seconds=seconds)["state"] == "absent":
             delivery = None
             orphan = (credentials.OrphanTeardown(
@@ -2681,7 +2858,8 @@ class _SingleWorker:
         else:
             delivery, orphan = self._credential(attempt_id, state, roots,
                                                 launched, seconds=seconds)
-        adapter = self._adapter(roots, delivery, orphan, launched)
+        adapter = self._adapter(roots, delivery, orphan, launched,
+                                stage=stage, attempt_id=attempt_id)
         answered = intake.abandon_attempt(
             self.control, self.port, adapter, attempt_id=attempt_id,
             reason=reason,
@@ -2872,7 +3050,8 @@ class _SingleWorker:
         roots = self._mounted(stage, attempt_id, checkpoint=False,
                               writer=False)[0]
         delivery, orphan = self._credential(attempt_id, state, roots, launched)
-        adapter = self._adapter(roots, delivery, orphan, launched)
+        adapter = self._adapter(roots, delivery, orphan, launched,
+                                stage=stage, attempt_id=attempt_id)
         if self.stage is not None:
             # W103083: AND THE ENDING ITSELF IS THE STAGE'S. Everything above
             # is the part that is the same for all three roles -- the terminal
@@ -3146,7 +3325,7 @@ class _SingleWorker:
                     "a Job's configured ceilings; a launch composed now would "
                     "state defaults nothing chose",
                     category="refused", code="precondition")
-        given = self.given
+        given = self._given_for(stage)
         return self.execution_context(
             job_id=job_id, attempt_id=stage["attempt_id"],
             runtime_input_digest=given["input_manifest"]["manifest_digest"],
@@ -3333,7 +3512,16 @@ def operations_from(document, job_store, control_store, *, engine_run=None,
                                  activity=None if helper is None
                                  else helper.enqueue,
                                  execution_context=job_execution_reader(
-                                     job_store))
+                                     job_store),
+                                 # W363066: THE BOOTSTRAP DEPLOYMENT SERVES A
+                                 # REQUESTED TASK TOO. This composition reads
+                                 # the Job store for its execution context
+                                 # already; the per-Job task is the same
+                                 # store, read the same way, and a Job that
+                                 # carries none -- every Job this path has
+                                 # ever served -- is answered the installed
+                                 # task exactly as before.
+                                 job_task=job_task_reader(job_store))
     except BaseException:
         # PARTIAL CONSTRUCTION RELEASES WHAT IT ACQUIRED. A half-built
         # composition must not leave a slot occupied by a helper nobody will
@@ -3361,6 +3549,35 @@ def _bootstrap_dispose(authority, helper):
             authority.dispose()
 
     return dispose
+
+
+def job_task_reader(job_store):
+    """A NARROW, READ-ONLY reader for ONE Job's own task document.
+
+    W363066, the same shape and the same reason as `job_execution_reader`
+    below: the composition that serves a stage has to be able to ask which
+    task the Job it is serving was created with, and handing a worker the Job
+    store would make every launch composition -- including the read-only
+    observation the projection runs on every tick -- a Job-store reader.
+
+    `None` IS AN ORDINARY ANSWER, and three different Jobs give it: one
+    submitted by hand, one created before the relation existed, and one
+    created against a deployment that composes no per-Job task. All three
+    deliver the installed task, which is the behaviour every Job had before
+    this Work.
+
+    IT IS A FUNCTION RATHER THAN A CACHED ANSWER, for `job_execution_reader`'s
+    reason exactly: a value remembered from admission would be a second
+    account of a fact the Job owner holds.
+    """
+    def reader(*, job_id):
+        from baton_v12.job_manager import creation as job_creation
+
+        if job_id is None:
+            return None
+        return job_creation.job_task_of(job_store, job_id)
+
+    return reader
 
 
 def job_execution_reader(job_store):
@@ -3510,7 +3727,8 @@ def worker_preflight(given, control_store, *, credential_provider=None,
 def worker_operations(given, control_store, authority, provider, *,
                       engine_run=None, clock=None, checkpoint=None,
                       dispose=None, stage=None, judgment_document=None,
-                      execution_context=None, activity=None, permission_policy=None,
+                      execution_context=None, job_task=None, activity=None,
+                      permission_policy=None,
                       lifetime_policy=None):
     """The half that needs an Authority, over one the CALLER owns.
 
@@ -3556,7 +3774,8 @@ def worker_operations(given, control_store, authority, provider, *,
         clock=clock,
         checkpoint=checkpoint, stage=stage,
         judgment_document=judgment_document,
-        execution_context=execution_context, permission_policy=permission_policy,
+        execution_context=execution_context, job_task=job_task,
+        permission_policy=permission_policy,
         lifetime_policy=lifetime_policy,
         # W61599: THE DEPLOYMENT'S ONE INGESTION HELPER, handed to every worker
         # it composes. The helper is per STORE and not per worker, so what a

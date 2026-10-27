@@ -588,7 +588,7 @@ class DeploymentBinding:
 
         return bootstrap.jobs_of(document)
 
-    def serving(self, job_id, *, stage, job):
+    def serving(self, job_id, *, stage, job, task=None):
         """Which configured workers can serve THIS stage of THIS Job.
 
         THE OPERANDS ARE THE SUBMITTED ONES. The first cut of this adapter
@@ -599,6 +599,14 @@ class DeploymentBinding:
         whether the configured pool can serve the SPECIFICATION being
         re-attempted -- so the caller supplies that specification and this
         passes it through untouched.
+
+        `task` IS THE JOB'S OWN TASK DOCUMENT WHEN THE CALLER HOLDS IT, which
+        a creation does and nothing else does. The selector composes the
+        document a worker would serve the Job under from that task, and for a
+        Job being created the `template_jobs` row it would otherwise be read
+        from does not exist yet -- see `creation._servable`. `None` is every
+        other caller and every deployment that composes no per-Job task: the
+        selector then compares the installed document, unchanged.
         """
         from tools import stage_execution
 
@@ -608,7 +616,7 @@ class DeploymentBinding:
             return []
         try:
             compatible = stage_execution.servable_workers(
-                configured, binding, dict(stage, job_id=job_id), job)
+                configured, binding, dict(stage, job_id=job_id), job, task)
         except ContractRefusal:
             # THE SELECTOR'S OWN REFUSAL IS AN ANSWER HERE, not a failure.
             # `_job_workers` refuses when nothing can serve the stage, and

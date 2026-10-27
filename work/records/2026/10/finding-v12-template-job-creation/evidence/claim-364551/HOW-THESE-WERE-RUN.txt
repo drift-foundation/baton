@@ -1,0 +1,144 @@
+How the runs in this directory were produced — claim364551, W361912
+===================================================================
+
+The canonical tree is not edited. Every run is on a disposable scratch root
+built from canonical bytes at base 19f02ce1; the candidate root has
+candidate-364551 overlaid and the base root has no overlay.
+
+  candidate root  /tmp/w361912-551
+  base root       /tmp/w361912-base
+
+THE ROOT RECIPE CHANGED, AND IT MATTERS. Every earlier claim of this Work and
+of its child copied only `v12/python`, `v12/worker`, `v12/DESIGN.md` and the
+v12 JSON files. These roots copy the WHOLE of `v12/` except `node_modules`,
+and they drop the stray `v12-w71917-*` fixture directories the canonical tree
+is carrying.
+
+  `tests.tools.test_bootstrap` is **135 OK** on such a root.
+
+The 17 `test_bootstrap` errors carried as "pre-existing" through every claim
+of the child were MINE: that suite reads `v12/STACK.md` through
+`_DISTRIBUTION.parent`, and the earlier roots never had it. They were
+identical on base and candidate, so no claim rested on them being product
+behaviour, but calling them pre-existing was wrong and this corrects it.
+
+Commands, from <root>/v12/python with PYTHONPATH=src:. —
+
+  python3 -m unittest tests.tools.test_connected_creation -v
+  python3 -m unittest discover -s tests/job_manager -t . -p 'test_*.py'
+  python3 -m unittest tests.tools.test_bootstrap tests.tools.test_instance \
+      tests.tools.test_packaging tests.tools.test_creation_ports \
+      tests.tools.test_connected_creation tests.tools.test_job_task_delivery
+  python3 -m unittest tests.tools.test_single_worker            (base root)
+  python3 connected_cli_probe.py
+
+What each file is
+-----------------
+
+CONNECTED-CREATION.txt  tests.tools.test_connected_creation, 14 cases, OK --
+                        the new suite. Read this first.
+JOB-MANAGER-SUITE.txt   whole tests/job_manager, 1375 OK.
+TOOLS-CANDIDATE.txt     six tools suites on the candidate: 370 cases, ONE
+                        failure, `test_packaging`'s
+                        test_every_subcommand_this_command_serves_is_offered.
+TOOLS-BASE.txt          test_bootstrap + test_instance + test_packaging on
+                        the BASE root: 263 cases, the same one failure. It is
+                        pre-existing and unrelated: the deployed command does
+                        not offer `attempt-diagnostics` among its
+                        subcommands. Nothing in this claim touches
+                        `tools/stack.py`.
+SINGLE-WORKER-BASE.txt  test_single_worker on the base root: the one failure
+                        this Work has carried from the start,
+                        test_a_real_observing_status_run_mutates_no_durable_state.
+connected_cli_probe.py  the probe that found the three defects, kept verbatim:
+                        a real install, a real control store, the real
+                        `job_manager.main` create, and the same argv again.
+
+THE THREE DEFECTS THIS CLAIM FIXED
+----------------------------------
+
+All three were invisible to every fixture that composed the creation ports
+itself, and all three were found by running the supported command against a
+really installed instance.
+
+1. `install-inputs.json` WAS NEVER WRITTEN BY ANYTHING.
+   `fresh_attempt_ports._install` reads it and its docstring already said
+   "`bootstrap.install` writes it beside the configuration" -- nothing did.
+   So on a real install EVERY additive binding (an ordinary creation's and a
+   fresh attempt's) refused:
+
+       install-inputs.json does not exist; an additive binding is prepared
+       from this instance's own install document and there is nothing here to
+       add to
+
+   The two suites that exercise the additive path write the file themselves,
+   which is why no test could see it. Fixed in `tools/instance.py` (the
+   layout names it) and `tools/bootstrap.py` (the installer writes it under
+   the same lock and inside the same unwind as the selector and the justfile).
+
+2. THE DOCUMENT `install` IS HANDED IS NOT ONE `prepare` ACCEPTS. `main` adds
+   the resolved `authority_uuid` for the selector, and that member is
+   SUPERSEDED as an input -- an input document naming one is refused in as
+   many words. Keeping the handed document made the first additive binding
+   refuse with "nothing reads authority_uuid". What is kept is now the
+   document `prepare` accepted moments earlier.
+
+3. THE SERVABILITY QUESTION WAS ASKED WITHOUT THE JOB'S OWN TASK. A Job
+   created against a deployment that composes a per-Job task submits that
+   task's Job-scoped input identity, and the selector derives a worker's
+   compatibility from the document it would serve the Job under -- composed
+   from the task it reads out of the `template_jobs` row. That row is written
+   by the same operation, AFTER this question. So every configured worker was
+   judged against the installed identity and the creation refused:
+
+       this deployment configures no worker that can serve the
+       'implementation', 'review' stage of the Job this request creates, so
+       nothing would ever run it
+
+   for a pool that serves it perfectly well. Fixed by passing the derived task
+   document through `creation._servable` and the port's `serving` into the
+   selector, which already takes it. The test fakes implement that contract
+   and were updated with it.
+
+What the new suite proves
+-------------------------
+
+  * A REAL INSTALL leaves a preparable input document, and says where.
+  * THE SUPPORTED COMMAND, entered with an operator's argv, creates one Job:
+    every digest derived (the operator names none), the binding published into
+    the configuration with the derived producer, the Job entry appended to the
+    install document beside the one the install already named, the submission
+    admitted, the Job's own task document written and both resolved stages
+    servable by a named worker.
+  * TWO ordinary creations bind two Jobs with two distinct tasks.
+  * REPLAY: the same argv again answers the same Job and the same resolution
+    digest, publishes nothing twice, and leaves one created-Job row.
+  * CHANGED INTENT under the same Job refuses and leaves the first creation
+    untouched.
+  * INTERRUPTION BEFORE THE PREPARE leaves the harmless direction -- the
+    install document names the Job, the configuration does not bind it, and
+    no submission exists -- and the same command again finishes it without a
+    second entry. INTERRUPTION AFTER THE BINDING leaves the binding published
+    and no submission, and the same command finishes it. Neither leaves a
+    stage a scheduler could offer.
+  * REFUSALS: an unsupported source selection, a template this build does not
+    carry, an override value nothing can mean, and a Job store belonging to
+    another deployment. Each leaves the configuration and the install document
+    exactly as they were, and the foreign store is never created.
+  * PACKAGED RESOURCES: the template the answer names is the one this build
+    carries, with the roles the submission's stages were resolved from; and
+    the selector the install emitted carries the runtime digest and the schema
+    assets the admission reported, read back off the instance.
+
+WHAT STANDS IN, NAMED. The one-folder RUNTIME is `test_bootstrap`'s stand-in
+directory and nothing here executes it; `_identity_of` is patched exactly as
+that suite patches it. The CONTROL STORE is created by one
+`ControlStore.open`, which is what a deployment's manager does on its first
+run; the creation opens it read-only and reads only the instance guard. No
+container engine, no provider, no serving loop, and no version control:
+`--no-repositories` is passed and the installed workers' sources are
+directories.
+
+AND THE CLI'S REFUSALS ARE EXCEPTIONS, not exit codes: `job_manager.main`
+parses, dispatches and catches nothing, for every command. The suite asserts
+the typed refusal rather than a surface this CLI does not have.

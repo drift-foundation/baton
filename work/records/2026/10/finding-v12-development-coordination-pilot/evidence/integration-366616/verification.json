@@ -1,0 +1,14 @@
+{
+  "exit": 1,
+  "wall_seconds": 31.39386690399988,
+  "argv": [
+    "python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.tools.test_connected_startup",
+    "tests.tools.test_joined_workflow"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "disk_root": "/home/sl/src/baton/work/records/2026/10/finding-v12-development-coordination-pilot/evidence/integration-366616/scratch"
+}

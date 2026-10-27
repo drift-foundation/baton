@@ -1,0 +1,136 @@
+How the runs in this directory were produced — claim364051, W363066
+===================================================================
+
+The canonical tree is not edited. Every run is on a disposable scratch root
+built from canonical bytes at base 19f02ce1 with candidate-364051 overlaid.
+
+  candidate root  /tmp/w363066-051
+  base root       /tmp/w363066-base492   (built fresh in claim363492;
+                                          re-verified byte-identical to
+                                          canonical src/ and tools/ again
+                                          before its failing-name list was
+                                          reused here)
+
+Each root is <root>/v12/python + <root>/v12/worker + <root>/v12/DESIGN.md and
+the v12 JSON files + <root>/AGENTS.md + the published result-manifest vectors
+subtree under <root>/work/records/2026/08/... that two suites read by
+`parents[4]`. Keeping the `v12` directory level matters: without it the
+repository root resolves one directory too high and ~354 suites fail on a
+missing vectors.json.
+
+Commands, from <root>/v12/python with PYTHONPATH=src:. —
+
+  python3 -m unittest tests.tools.test_job_task_delivery -v
+  python3 -m unittest discover -s tests/job_manager -t . -p 'test_*.py'
+  python3 -m unittest tests.tools.test_single_worker \
+      tests.tools.test_stage_execution tests.tools.test_bootstrap \
+      tests.tools.test_creation_ports tests.tools.test_job_task_delivery
+  python3 /tmp/probe_pool2.py        (kept here as pool_loop_probe.py)
+
+What each file is
+-----------------
+
+FOCUSED-DELIVERY.txt    tests.tools.test_job_task_delivery, 61 cases, OK.
+                        New in this claim: three in
+                        TheCreatedJobRunsThroughThePoolServingLoop and four
+                        in TwoCreatedJobsRunThroughOnePoolServingLoop.
+JOB-MANAGER-SUITE.txt   whole tests/job_manager, 1375 OK — unchanged count.
+TOOLS-CANDIDATE.txt     five tools suites, 944 cases, 1 failure and 17 errors.
+FAILING-NAMES-CANDIDATE.txt
+FAILING-NAMES-BASE.txt  those 18 names on the candidate and the base root's
+                        own 18. `diff` reports no difference: all 18 are
+                        pre-existing, 17 in test_bootstrap (which installs
+                        instances and serves them) and one in
+                        test_single_worker.
+pool_loop_probe.py      THE PROBE THAT FOUND THE DEFECT, kept verbatim. It
+                        creates a Job through `creation.create_template_job`
+                        and drives the real pool serving loop over it with
+                        the injected checkpoint profile and process runners
+                        that refuse any version-control invocation. Before
+                        the fix it printed `queued` for fourteen ticks and
+                        the scheduler's refusal; after it, `waiting` on the
+                        first tick with `published task_id: job-pool-a`.
+
+THE DEFECT THIS CLAIM FIXED
+---------------------------
+
+`tools/stage_execution.py`, `_with_job_task`:
+
+    if job_task is None or binding.get("job_id") is None:
+        return held
+
+In a `/1` deployment document -- the ordinary one-Job pool, and the shape the
+dogfood instance runs -- the binding's `job_id` IS `None` by construction;
+`binding_for`'s own docstring says "THE ONE-JOB DOCUMENT BINDS EVERY JOB IT IS
+ASKED ABOUT". So a created Job carrying its own task was compared by
+`_disagreements` against the INSTALLED input identity, every configured worker
+was excluded, and the scheduler recorded, every tick:
+
+    no worker this deployment configures for the 'implementation' stage can
+    serve Job 'job-pool-a': {'implementation-worker': ['the submitted
+    input']}. Assembly supplies coherent operands rather than reserving a
+    worker that must then refuse them
+
+The POOL path for a created Job was therefore dead end to end, while the
+bootstrap single-worker path (which has no binding) worked. The condition on
+the binding is removed: which Job's task this is was never the binding's fact
+-- the caller reads it with `job_task_reader(...)(job_id=stage["job_id"])` and
+`_job_workers` has already refused a stage whose Job the deployment does not
+bind.
+
+What is proved here
+-------------------
+
+THE POOL'S OWN SERVING LOOP, over Jobs a real creation operation put in a real
+Job store, with `reconcile` and `sweep` doing the offering, claiming,
+allocating, line granting, publishing and starting. No offer, claim, attempt,
+activation, preparation or launch state is written by any case.
+
+  * a created Job's OWN requested task reaches a STARTED runtime: the bytes at
+    /input/task.json are that Job's composed document, one container was
+    created and activated, the attempt is recorded against the delivered
+    manifest digest rather than the installed one, and the Job-scoped identity
+    is the one the Job declared;
+  * the stage-less adapter over that pool attempt describes the delivered
+    input, so this Work's recovery correction holds on the pool path too;
+  * a Job with no own task is served the installed one through the same loop
+    and the same fixed function -- the preserved path;
+  * TWO created Jobs, each with its own requested task, Work, line and
+    producer, are both driven by ONE loop over one Job store and one control
+    store: each input root carries its own task document and its own
+    instructions, neither carries a word of the other's, both attempts are
+    recorded against their own distinct identities, and each Job's writer
+    grant names its own line read back through
+    `review_cycles.writer_for_attempt`.
+
+What is NOT proved, and why
+---------------------------
+
+  * THE SECOND JOB'S RUNTIME DOES NOT START, and the reason is the fixture:
+    every engine double in this repository models ONE container. `Engine`
+    mints `runtime-single-1` for every launch; `ComposedOneJobCase.quiescing`
+    (borrowed here) mints a fresh identity per launch but still answers one
+    listing row. So the second CONCURRENT attempt is shown the first
+    attempt's container and the manager refuses to adopt it:
+
+        runtime 'runtime-single-1' carries this attempt's id and is labelled
+        '<first attempt>' for runtime_attempt_id where this delivery asked
+        for '<second attempt>'; one delivery carries one identity
+
+    That refusal is correct product behaviour. The missing capability is a
+    deterministic double that models two live containers. The case asserts
+    what the loop durably recorded instead: a start failure, no runtime
+    attached, an uncertain runtime axis for the second attempt, and the first
+    attempt still running.
+  * THE REVIEW-ROLE RUNTIME IS STILL NOT DRIVEN THROUGH THE LOOP. A review
+    stage opens only when its implementation stage completes, which needs the
+    in-image worker turn, the freeze, the publication and the intake. The
+    review MOUNT, its upstream frozen checkpoint, its attachment, its
+    delivered task and its stage-less adapter are proved over the accepted
+    driver operations by `TheReviewRoleRuntimeIsDeliveredTheSameTask`; what
+    is missing is that same delivery reached through `sweep`.
+
+No provider, no container engine, no installed instance, no deployment, and no
+version-control process: the pool cases install process runners that refuse
+any version-control invocation, and that guard is verified by a negative
+control recorded in evidence/claim-363909.

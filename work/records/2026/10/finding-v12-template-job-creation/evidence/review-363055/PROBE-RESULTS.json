@@ -1,0 +1,24 @@
+[
+  {
+    "case": "completed replay after deployment input changes",
+    "replayed": true,
+    "derivation_asked_on_replay": 0,
+    "recorded_provenance_unchanged": true
+  },
+  {
+    "case": "ordinary submit steals interrupted creation Job identity",
+    "reserved_state": "intended",
+    "foreign_submission": {
+      "refused": true,
+      "code": "precondition",
+      "durable": false,
+      "message": "'job-w361912-a' is RESERVED by a template creation recorded under submission 'sub-job-w361912-a'; that admission is in progress or incomplete and owns the identity, so a second submission taking the name would strand whatever it has already published"
+    },
+    "original_resume": "completed",
+    "resumed_job": "job-w361912-a",
+    "recorded_stages": [
+      "job-w361912-a/implementation",
+      "job-w361912-a/review"
+    ]
+  }
+]

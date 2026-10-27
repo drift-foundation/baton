@@ -1,0 +1,181 @@
+HOW THESE WERE RUN — claim366616, W361912
+
+WHAT THIS CLAIM CORRECTS
+
+Review 2026-10-27T16-27-58Z found two measurement defects in claim366433 and
+both were right:
+
+  R1  the measured interval borrowed test_job_task_delivery's creation ports,
+      which are test_creation's FakeDerivation, FakeAuthorization, FakeBinding
+      and FakeOwnership -- so the Work authorization and the deployment
+      binding publication were SIMULATED inside an interval whose report
+      claimed to include them, and the supported command's own parsing and
+      composition were not in it at all.
+  R2  the correction case opened its timer after a helper had already run
+      sixteen reconcile/sweep rounds, so the routing, the allocation, the
+      preparation and the launch it meant to measure had already happened.
+
+Nothing in the previous claim is deleted. evidence/claim-366433/ is intact,
+including its obs0-interval.json, and the removed class is preserved verbatim
+at REMOVED-TheRoutineStartupInterval.py.txt beside this file.
+
+THE CANDIDATE ROOT
+
+    /tmp/w366616
+
+The repository's own tracked tree at 18e771f034d22fed40ae4c597aa606f50c169daa,
+extracted whole with `git archive` (a read; it writes nothing to the
+repository), with the 31 members of candidate-366433 overlaid
+    (MANIFEST.json sha256
+     36f50a504872872a566f1b941b4f1c27501eb235b57aadd9395d1626baded322)
+plus this claim's two changes:
+    v12/python/tests/tools/test_connected_startup.py   (new)
+    v12/python/tests/tools/test_joined_workflow.py     (corrected)
+
+No product byte changed in this claim or in the one before it.
+
+Every run below:
+
+    cd /tmp/w366616/v12/python
+    PYTHONPATH=src:. python3 -m unittest <targets>
+
+python3 is 3.13.
+
+WHAT WAS RUN, AND WHAT IS IN EACH FILE
+
+  connected-startup.txt
+      tests.tools.test_connected_startup, verbose, with
+      BATON_V12_OBS0_REPORT naming obs0-intervals.json.
+      7 tests, OK. This is the corrected measurement.
+
+  obs0-intervals.json
+      BOTH intervals, written by the suite itself, each with its own opening
+      and closing endpoint, the work inside it, the one-time exclusions, the
+      seams, the supported environment, and an explicit list of what is NOT
+      established. It supersedes evidence/claim-366433/obs0-interval.json and
+      says so in its own `supersedes` member.
+
+  joined-workflow.txt
+      tests.tools.test_joined_workflow, verbose. 11 tests, OK.
+      These are the workflow cases review 2026-10-27T16-27-58Z verified
+      independently; they are unchanged. The four defective timing cases are
+      gone from this file and the supersession is in its docstring.
+
+  job-manager-whole.txt
+      unittest discover -s tests/job_manager -t . -p 'test_*.py'
+      1375 tests, OK.
+
+  tools-nine-suites.txt
+      tests.tools.test_connected_startup, test_joined_workflow,
+      test_connected_creation, test_job_task_delivery,
+      test_retry_task_lineage, test_creation_ports,
+      test_fresh_retry_line_recovery, test_bootstrap, test_instance.
+      447 tests, OK.
+
+      test_correction_restart is NOT in this run. Its 3 failures and 2 errors
+      were reported in claim366433 with a base rerun proving them
+      pre-existing; evidence/claim-366433/ keeps both logs. Nothing in this
+      claim touches it and no new base rerun is offered for it.
+
+THE TWO INTERVALS
+
+  THE INITIAL ONE opens immediately before the operator's command line is
+  composed and tools.job_manager.main is entered, and closes when the
+  assigned agent ENTERS work() inside its own runtime -- the agent takes that
+  stamp itself.
+
+    INSIDE: command parsing, request composition and dispatch;
+      DeploymentDerivation reading this instance's emitted configuration;
+      WorkAuthorization on this instance's own Authority; NewJobBinding
+      publishing the Job entry into install-inputs.json and calling
+      bootstrap.prepare, which revalidates the WHOLE deployment;
+      InstanceOwnership taking the real instance guard; create_template_job
+      (template resolution, full resolution digest, identity reservation,
+      per-Job task composed, submission admitted); every scheduler tick
+      (offer, claim, allocation, writer grant, input root composed and
+      frozen, launch document, credential delivery, runtime start); and the
+      in-image startup through the worker's preflight.
+
+    That the owners were REAL is asserted from their EFFECTS rather than
+    described: test_the_admission_inside_the_interval_was_the_real_owners
+    reads the published binding out of the instance's own deployment.json,
+    the appended entry out of install-inputs.json, and the open Work out of
+    the instance's own Authority. A fake records those; it does not perform
+    them.
+
+  THE CORRECTION ONE opens immediately after the review turn returns, with NO
+  reconciliation in between -- and the suite ASSERTS that the verdict relation
+  is empty at that instant, so the verdict is not yet recorded. It closes at
+  the second agent's own work() stamp.
+
+    INSIDE: the review ending (seal, intake, retention, the verdict read from
+      frozen output and recorded); routing the Work back to the producer's own
+      route; open_correction advancing the Job to its next round; the
+      allocation, the writer grant on the released line, the input root, the
+      launch document, the credential delivery and the runtime start; and the
+      second agent's startup.
+
+    Review 2026-10-27T16-27-58Z said "if opening earlier is simpler, report
+    that conservatively and accurately rather than backdating an
+    observation". This opens earlier than the verdict it was asked to open
+    at, and the figure is larger than claim366433's meaningless one because
+    it now contains the work.
+
+  OUTSIDE BOTH, and OBS-0a is the authority: the one-time install (Authority,
+  Work, routes, grants, storage layout, deployment configuration, selector)
+  and the deployment's own start (stores opened, configuration validated,
+  checkpoint profile certified, session minted, pool activated). That is
+  `just start`, once per deployment rather than once per task, and SCH-2's
+  scheduler is persistent by design. NOTHING PER-RUN IS OUTSIDE.
+
+  AND THE SUITE'S OWN DURATION IS NOT THE MEASURE. connected-startup.txt
+  reports ~4s for 7 cases, each installing its own disposable deployment;
+  joined-workflow.txt reports ~31s for 11. Neither is a startup figure and
+  neither is offered as one.
+
+THE SEAMS, ALL OF THEM, AND THEY ARE NOT CALLED OWNERS
+
+  the container ENGINE is _ConcurrentEngine, the repository's own
+    multi-container model: no image is pulled and no container started;
+  the PROVIDER inside the workload is scripted_agent.ScriptedAgent with one
+    addition per role: no model is reached and no credential authenticated;
+  the CHECKPOINT PROFILE is tests.job_manager.test_review_driver.Profile, the
+    deployment-configured profile with no version control behind it;
+  the installed one-folder RUNTIME is test_bootstrap's stand-in directory with
+    bootstrap._identity_of patched exactly as that suite patches it. Nothing
+    here executes it, and the install is outside every interval. That the
+    REAL frozen command creates and replays ordinary Jobs is W366246's own
+    accepted proof under findings/finding-packaged-template-creation, reused
+    rather than re-run -- which review 2026-10-27T16-27-58Z expressly allows.
+
+WHAT IS NOT ESTABLISHED, stated so no summary has to infer it
+
+  The correction round is measured to the second agent's first substantive
+  act. A COMPLETED corrected candidate and a SECOND review are not reached.
+  The proposal and the verdict are synthetic deterministic content, not an
+  applicable version-control change and not a live model's judgment. The
+  figures are not evidence about image pull, container start, provider
+  authentication or model latency.
+
+WHAT WAS NOT RUN, AND WHY
+
+  NO VERSION-CONTROL OPERATION OF ANY KIND, and both suites PROVE it rather
+  than asserting it: every case installs runners that replace subprocess.run
+  and subprocess.Popen with wrappers that RAISE on any argv whose program is
+  `git`. A case that spawned one would fail, so 18 passes is the evidence.
+  Every install passes --no-repositories.
+
+  No live provider, no model, no container engine, no deployed-instance
+  mutation, no migration and no cutover. Every destination is a disposable
+  root outside the checkout.
+
+A CARRIED OBSERVATION, UNCHANGED
+
+  Running the connected cases under -W always::ResourceWarning reports
+  "unclosed database" from tools/job_manager.py's create command, which
+  composes WorkAuthorization.opened and lets the process exit without
+  disposing the Authority. This suite reaches it precisely BECAUSE it uses the
+  real CLI. It is pre-existing -- claim366250 recorded it and the parent
+  FINDING carries it as a diagnostic observation -- it is harmless for a
+  command-line process, and no product byte was changed for it here. Every
+  handle this fixture opens is disposed or cleaned up.

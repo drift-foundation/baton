@@ -1,0 +1,22 @@
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-template-job-creation/evidence/review-362892/probe.py", line 32, in <module>
+    run('ordinary submit steals interrupted creation Job identity',theft)
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-template-job-creation/evidence/review-362892/probe.py", line 11, in run
+    try: results.append({'case':name, **action(case)})
+                                        ~~~~~~^^^^^^
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-template-job-creation/evidence/review-362892/probe.py", line 27, in theft
+    foreign=submit(c.jobs,submission('foreign-submission',jobs=[job(JOB)]))
+  File "/tmp/w361912/v12/python/src/baton_v12/job_manager/submission.py", line 76, in submit
+    return store.transact(operation_id(submission_id), _KIND, signature, act)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/w361912/v12/python/src/baton_v12/job_manager/store.py", line 989, in transact
+    result = action(connection)
+  File "/tmp/w361912/v12/python/src/baton_v12/job_manager/submission.py", line 57, in act
+    _unclaimed(connection, submission_id, owned, signature)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/w361912/v12/python/src/baton_v12/job_manager/submission.py", line 177, in _unclaimed
+    raise ContractRefusal(
+    ...<16 lines>...
+          "strand whatever it has already published")
+baton_v12.contracts.errors.ContractRefusal: 'job-w361912-a' is RESERVED by a template creation recorded under submission 'sub-job-w361912-a'; that admission is in progress or incomplete and owns the identity, so a second submission taking the name would strand whatever it has already published

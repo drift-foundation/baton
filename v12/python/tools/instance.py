@@ -73,6 +73,21 @@ def layout(destination):
         "state": str(root / STATE),
         "deployment": str(root / "deployment.json"),
         "record": str(root / "bootstrap.json"),
+        # W361912: THE INPUT DOCUMENT THIS INSTANCE WAS INSTALLED FROM.
+        #
+        # `fresh_attempt_ports` reads `<instance>/install-inputs.json` and
+        # every additive binding -- an ordinary creation's and a fresh
+        # attempt's -- prepares from it. Nothing wrote it, so on a really
+        # installed instance both refused with "install-inputs.json does not
+        # exist; an additive binding is prepared from this instance's own
+        # install document and there is nothing here to add to". It is an
+        # OWNED NAME of this destination like every other one here, so it is
+        # derived here and written by `bootstrap.install` under the same lock
+        # as the selector.
+        "install_inputs": str(root / "install-inputs.json"),
+        # AND THE NAME A PARTIAL WRITE WOULD OCCUPY, so `bootstrap.custody`
+        # can refuse a link or a leftover there before anything is created.
+        "install_inputs_temporary": str(root / "install-inputs.json.partial"),
         # THIS INSTANCE'S OWN AUTHORITY IDENTITY, generated once at install.
         # It is an OWNED NAME like every other here, which is why it is derived
         # rather than left to `tools.bootstrap` alone: review 2026-09-16T22-27-59Z

@@ -20,10 +20,12 @@ from .store import _recorded, manager_signature
 
 __all__ = ["ABANDONED_CORRECTION", "ABANDONED_CORRECTION_SCHEMA",
            "ATTACH_KIND", "DISPOSITIONS", "GRANT_KIND", "LINE_HOME",
+           "NO_CANDIDATE",
            "RESTORE_KIND", "VERDICT_KIND",
            "abandoned_correction_of", "attach_review", "audit_checkpoint",
            "checkpoint_of",
            "create_line", "freeze_checkpoint", "grant_writer",
+           "release_writer",
            "RESTORE_SETTLED_KIND", "settle_restoration_execution",
            "integration_checkpoint", "line_of", "line_status",
            "record_progress", "record_verdict",
@@ -32,6 +34,16 @@ __all__ = ["ABANDONED_CORRECTION", "ABANDONED_CORRECTION_SCHEMA",
            "writer_for_attempt", "writer_of"]
 
 DISPOSITIONS = ("accepted", "changes-requested", "rejected")
+
+# W365075: THE WORKER ANSWERS A WRITER RELEASE IS FOR, enumerated rather than
+# subtracted. `schema.DISPOSITIONS` is the four terminal answers a worker can
+# give, and exactly one of them -- `completed` -- carries a candidate: it is
+# the answer `output.request_freeze` seals a result under and the only one a
+# proposal is ever published from. Naming the other three means a FIFTH answer
+# added to that vocabulary refuses a release rather than silently becoming
+# releasable, which is the direction this boundary has to fail in; a case pins
+# the complement so the addition is visible rather than silent.
+NO_CANDIDATE = ("unable", "plan-rejected", "cancelled")
 
 # W103076: THE TWO OPERATION KINDS THIS MODULE COMMITS ITS ATTACHMENTS AND
 # VERDICTS UNDER. They are named here because the readers below cross-bind a
@@ -1960,6 +1972,205 @@ def record_progress(store, *, writer_id, generation, sequence, document):
 
     return store.transact(operation_id,
                           "review-line.progress", signature, act)
+
+
+def release_writer(store, *, writer_id, generation, port, reason):
+    """End a writer that produced NO CANDIDATE, without asking for a review.
+
+    W365075. `end_implementation` performed `freeze_checkpoint`
+    unconditionally, so an implementation turn that answered `unable` or
+    `cancelled` -- a turn with nothing to review -- still froze this line's
+    checkpoint and left the line `review-ready`. Nothing can leave that state
+    but a verdict, a verdict takes a review ATTACHMENT, and the Job whose
+    implementation did not complete never opens its review stage: so no
+    attachment is ever created, no verdict is ever possible, and
+    `grant_writer` (which admits only `idle` or `correction-ready`) refuses
+    every later writer on that Work for ever -- correction and fresh retry
+    alike. DESIGN REC-4/5/7 require a safe fresh attempt from known inputs
+    after exclusion, and that state makes one impossible.
+
+    THIS IS THE SAME RULE `_publishable` ALREADY STATES ONE STEP EARLIER.
+    That constant exists because this module published unconditionally and
+    "an implementation turn that produced no candidate has nothing to offer
+    against a target". A turn with nothing to offer has nothing to review
+    either, and this is where that is said.
+
+    WHAT IT DOES AND DOES NOT DO. It does what step eight owes: revoke the
+    quiescent writer and fence its assignment, which is what actually ends an
+    attempt. It does NOT compose a checkpoint, does not call the profile, and
+    does not touch the line's CURRENT checkpoint or any output, receipt or
+    retention: a round that produced nothing leaves the line exactly where the
+    last round that produced something left it. So the line returns to
+    `correction-ready` when a frozen checkpoint is retained -- a later writer
+    is then a correction on that same checkpoint, which is the admission that
+    already exists -- and to `idle` when there is none, which is what a line
+    whose first round produced nothing has always meant.
+
+    AND IT BROADENS NOTHING. `grant_writer`'s admitted states are untouched,
+    no verdict is invented, and the exclusion is `freeze_checkpoint`'s plus the
+    one this operation is named after: the writer must be THIS attempt's, at
+    the named generation, active, on a line that is still `writing` at the same
+    current checkpoint; the attempt must be quiescent; and its RECORDED
+    disposition must be one that produced no candidate. Each of those is a
+    refusal before any effect -- before the assignment fence in particular,
+    because that act is irreversible -- and the whole act replays by its own
+    operation id so an interrupted ending finishes rather than repeating.
+
+    W365075 review 2026-10-27T01-42-10Z corrected two things here, and both
+    comments below carry their own reproduction: [R1] the disposition was
+    never proved, so a `completed` writer could be released in the interval
+    between its turn and its freeze; [R2] the replay identity's signature
+    carried the line's MUTABLE current checkpoint, so an old release stopped
+    being able to answer once a later round froze one.
+    """
+    boundaries.generation(generation, "a writer release assignment generation")
+    boundaries.text(reason, "a writer release reason")
+    writer = writer_of(store, writer_id)
+    line = line_of(store, writer["line_id"])
+    if writer["assignment_generation"] != generation:
+        raise ContractRefusal("stale-assignment", "generation",
+                              "a writer release names a stale writer "
+                              "generation")
+    # THE SIGNATURE IS THE CALLER'S INTENT AND THIS WRITER'S OWN IMMUTABLE
+    # FACTS, AND NOTHING MUTABLE.
+    #
+    # W365075 review 2026-10-27T01-42-10Z [R2]. It used to carry the LINE'S
+    # CURRENT CHECKPOINT and the state the release inferred from it, and both
+    # of those move: the next round freezes a candidate and
+    # `current_checkpoint_id` changes. So a re-asked identical release
+    # recomputed a different signature and refused its own committed
+    # operation with "already recorded with a different kind or signature" --
+    # the reviewer's `replay_probe.py` reproduces exactly that, after the
+    # retry's review has started.
+    #
+    # IT IS `_frozen_checkpoint`'S OWN CORRECTION. That helper's docstring
+    # records the same mistake and the same reason: "`current_checkpoint_id`
+    # is MUTABLE and moves every time a later round freezes", so a historical
+    # recovery may not depend on it. The four operands kept here are the
+    # writer, its generation, its line and the caller's sentence -- a changed
+    # generation or a changed reason is a DIFFERENT intent and still refuses,
+    # which is what this identity is for.
+    operands = {"writer_id": writer_id, "generation": generation,
+                "line_id": line["line_id"], "reason": reason}
+    signature = manager_signature("review-line.release-writer", operands)
+    operation_id = "review-line.release-writer:" + writer_id
+    # THE REPLAY IS ASKED BEFORE ANY MUTABLE FACT IS PROVED, which is
+    # `restore_abandoned_correction`'s own rule and the one this operation
+    # needed too: a release that already committed must answer without
+    # re-proving a runtime that has since been cleaned up. The first version
+    # proved quiescence first and so refused its own replay with "requires
+    # the exact attached runtime to be positively quiescent" -- measured by
+    # `test_the_release_the_ending_performed_replays_its_own_answer`.
+    found, result = store.replay(operation_id, signature,
+                                 kind="review-line.release-writer")
+    if found:
+        return result
+    # THE REFUSALS A ROUND WITH SOMETHING TO REVIEW MUST MEET BEFORE THE
+    # AUTHORITY IS ASKED. They are re-decided inside the write below, because
+    # "check then commit" is two acts -- but they are also asked HERE, because
+    # the fence between them is irreversible: a line that is `review-ready`
+    # has material offered for a legitimate review, and ending its assignment
+    # and then refusing would be the one effect this operation must never
+    # have.
+    if writer["state"] != "active":
+        raise ContractRefusal("refused", "precondition",
+                              f"a writer release has no active writer; "
+                              f"this one is {writer['state']!r}")
+    if line["state"] != "writing":
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"line state {line['state']!r} is not a writer's to release; "
+            f"only the line a writer is holding comes back this way")
+    attempt = _quiescent_completed(store, writer["runtime_attempt_id"])
+    # THE ELIGIBILITY THIS OPERATION IS NAMED AFTER, PROVED FROM THE RECORD.
+    #
+    # W365075 review 2026-10-27T01-42-10Z [R1]. `_quiescent_completed` proves
+    # a TERMINAL disposition -- it rejects only `none` -- so `completed`
+    # passed, and the reviewer's `completed_probe.py` walked through: it
+    # stopped the successful retry at its own freeze call and released that
+    # writer instead, fencing the assignment and returning the line to `idle`
+    # with a candidate sealed. The caller's reason string is not a proof, and
+    # the active-writer interval before the freeze is exactly where this
+    # cannot depend on the Job Manager having chosen the right branch.
+    #
+    # THE RECORDED DISPOSITION IS THE PROOF, AND IT IS ENOUGH. `output`'s own
+    # rule is "the disposition is COMPARED, not accepted": a seal must declare
+    # the disposition the attempt axis already recorded, and that axis is
+    # terminal-once -- every answer beyond `none` has an empty successor set --
+    # so this fact cannot move under the fence below and no sealed result can
+    # disagree with it. A `completed` round with nothing sealed yet is refused
+    # here too, which is the interval the probe found.
+    if attempt["worker_disposition"] not in NO_CANDIDATE:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"attempt {name_value(writer['runtime_attempt_id'])} recorded "
+            f"disposition {attempt['worker_disposition']!r}, which carries a "
+            f"candidate; a release ends a round that produced NOTHING to "
+            f"review, and this round's material is a review's to decide")
+    if attempt["assignment_participant"] != getattr(port, "participant", None):
+        raise ContractRefusal("refused", "capability",
+                              "the writer release session acts for another "
+                              "participant")
+    # THE FENCE, BEFORE THE RELEASE COMMITS AND INSIDE ITS ANSWER.
+    #
+    # This is the act that ends the assignment, and the Authority installs
+    # `runtime-quiescence:<generation>` in the same transaction -- so the gate
+    # reference IS the ending's obligation, and a consumer that cannot find it
+    # leaves the Work gated for ever. `freeze_checkpoint` keeps it on the
+    # checkpoint row for that reason; a release has no such row, so it travels
+    # in the committed answer instead, which is what makes a resumed ending
+    # able to name the gate it owes a discharge for.
+    #
+    # AND AFTER THE REFUSALS, BEFORE THE WRITE. `finalize_quiescent_assignment`
+    # commits its decision before the Authority is asked and replays it after,
+    # so a death on either side of this line re-enters and reissues the SAME
+    # authority act rather than a second one.
+    fenced = _fence(attempts.finalize_quiescent_assignment(
+        store, port, attempt_id=writer["runtime_attempt_id"],
+        reason=reason), "the released writer fence")
+
+    def act(connection):
+        current = writer_of(store, writer_id)
+        held = line_of(store, writer["line_id"])
+        if current["state"] != "active":
+            raise ContractRefusal("refused", "precondition",
+                                  f"a writer release has no active writer; "
+                                  f"this one is {current['state']!r}")
+        if held["state"] != "writing":
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"line state {held['state']!r} is not a writer's to release; "
+                f"only the line a writer is holding comes back this way")
+        # THE STALE CHECK STAYS, AND IT IS A CHECK ON A NEW ACT ONLY. It
+        # compares the line this release was DECIDED against with the line
+        # under the lock, which is what makes "check then commit" one act. It
+        # is deliberately not in the signature above: a replay never reaches
+        # here, so an old release is answered rather than re-judged against a
+        # checkpoint a later round froze.
+        if held["current_checkpoint_id"] != line["current_checkpoint_id"]:
+            raise ContractRefusal("stale-assignment", "generation",
+                                  "the line's current checkpoint moved while "
+                                  "this release was being decided")
+        # AND THE STATE THE LINE GOES BACK TO IS THE LINE'S OWN FACT, decided
+        # here from the row under the lock rather than from the caller or from
+        # a read taken before it.
+        returning = ("correction-ready"
+                     if held["current_checkpoint_id"] is not None else "idle")
+        now = store._now()
+        connection.execute(
+            "UPDATE line_writers SET state = 'revoked', revoked_at = ?, "
+            "revocation_reason = 'released' WHERE writer_id = ? "
+            "AND state = 'active'", (now, writer_id))
+        connection.execute(
+            "UPDATE review_lines SET state = ? WHERE line_id = ? "
+            "AND state = 'writing'", (returning, held["line_id"]))
+        return {"writer_id": writer_id, "line_id": held["line_id"],
+                "state": returning, "reason": reason,
+                "current_checkpoint_id": held["current_checkpoint_id"],
+                "released_at": now, "fence": fenced}
+
+    return store.transact(operation_id, "review-line.release-writer",
+                          signature, act)
 
 
 def freeze_checkpoint(store, *, writer_id, generation, profile, port):

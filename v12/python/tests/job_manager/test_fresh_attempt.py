@@ -127,6 +127,7 @@ class FakeBinding:
         self._work_id = work_id
         self.added = []
         self.asked = []
+        self.tasks = []
         self._identity = identity
 
     def instance(self):
@@ -141,11 +142,17 @@ class FakeBinding:
                               "source_worker_id": "implementation-pilot"}
         return self.bound[job_id]
 
-    def serving(self, job_id, *, stage, job):
+    def serving(self, job_id, *, stage, job, task=None):
         # THE FAKE RECORDS WHAT IT WAS ASKED, because review R3 was about the
         # operands rather than the answer: a case asserts that the SUBMITTED
         # digests and the stage's OWN profile reached this port.
+        #
+        # W364834: AND THE TASK THIS FRESH JOB WILL BE DELIVERED, which the
+        # real port needs because the selector composes the document a worker
+        # would serve the Job under from it. Recorded rather than used: what
+        # this fake decides is still only the configured answer.
         self.asked.append((job_id, dict(stage), dict(job)))
+        self.tasks.append(task)
         return list(self._serving)
 
 
@@ -478,8 +485,13 @@ class _BindOnce:
         self.held.bind(job_id, like=like, work_id=work_id)
         raise _Interrupted("the host went away after the binding was written")
 
-    def serving(self, job_id, kind):
-        return self.held.serving(job_id, kind)
+    def serving(self, job_id, *, stage, job, task=None):
+        # W364834: THE PORT'S OWN SIGNATURE, forwarded whole. This wrapper
+        # took `(job_id, kind)` -- a shape the port has not had since review
+        # R3 made the servability question carry the submitted operands -- so
+        # it would have raised if anything had ever reached it. Nothing did,
+        # because this double interrupts at `bind`, one step earlier.
+        return self.held.serving(job_id, stage=stage, job=job, task=task)
 
 
 def submission_rows_of(store):

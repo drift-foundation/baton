@@ -1,0 +1,102 @@
+How the runs in this directory were produced — claim363763, W363066
+===================================================================
+
+The canonical tree is not edited. Every run is on a disposable scratch root
+built from canonical bytes at base 19f02ce1 with candidate-363763 overlaid.
+
+  candidate root  /tmp/w363066-763
+  base root       /tmp/w363066-base492   (built fresh in claim363492 and
+                                          re-verified byte-identical to
+                                          canonical src/ and tools/ before
+                                          its failing-name list was reused)
+
+Each root is <root>/v12/python + <root>/v12/worker + <root>/v12/DESIGN.md and
+the v12 JSON files + <root>/AGENTS.md + the published result-manifest vectors
+subtree under <root>/work/records/2026/08/... that two suites read by
+`parents[4]`. Keeping the `v12` directory level matters: without it the
+repository root resolves one directory too high and ~354 suites fail on a
+missing vectors.json.
+
+Commands, from <root>/v12/python with PYTHONPATH=src:. —
+
+  python3 -m unittest tests.tools.test_job_task_delivery -v
+  python3 -m unittest discover -s tests/job_manager -t . -p 'test_*.py'
+  python3 -m unittest tests.tools.test_single_worker \
+      tests.tools.test_stage_execution tests.tools.test_bootstrap \
+      tests.tools.test_creation_ports tests.tools.test_job_task_delivery
+
+What each file is
+-----------------
+
+FOCUSED-DELIVERY.txt    tests.tools.test_job_task_delivery, 46 cases, OK.
+                        New in this claim: seven in
+                        ARestartAdoptsTheDeliveredAttempt, one in
+                        TwoRequestedJobsThroughOneServingLoop, and the
+                        whole-root substitution case beside the half-root one.
+JOB-MANAGER-SUITE.txt   whole tests/job_manager, 1375 OK — unchanged count.
+TOOLS-CANDIDATE.txt     five tools suites, 929 cases, 1 failure and 17 errors.
+FAILING-NAMES-CANDIDATE.txt
+FAILING-NAMES-BASE.txt  those 18 names, and the base root's own 18 from the
+                        run recorded in evidence/claim-363763's predecessor.
+                        `diff` reports no difference: all 18 are pre-existing,
+                        17 in test_bootstrap (which installs instances and
+                        serves them) and one in test_single_worker.
+
+What is proved here, and what is not
+------------------------------------
+
+PROVED in this claim, through the runtime's own entrypoints:
+
+  * CRASH AND RESTART ADOPTION. The production composition dies inside the
+    operation at six different checkpoints -- claimed, attempt, boundary,
+    input, manifest, credential -- with no unwinding, and a fresh
+    `operations_from` over fresh store handles resumes it. Each case asserts
+    ONE launch and ONE claimed offer (the restart machinery's own questions)
+    and then: the attempt is recorded against the delivered identity, the
+    published root still carries the delivered task, the stage-less adapter
+    over the adopted roots describes the delivered manifest, and
+    `refresh_runtime` identifies the adopted runtime.
+  * A RESTART THAT WOULD DELIVER ANOTHER RENDERING publishes nothing, starts
+    nothing and changes no record -- refused by the identity comparison in
+    `_matches` before any publication, which is EARLIER than the author
+    expected. Asserted from the durable side and then asked of `_matches`
+    directly.
+  * A COMPLETE, INTERNALLY VALID SUBSTITUTED PAIR is refused by the durable
+    record alone. Both `/input` documents are replaced by one consistent
+    installed delivery minted for THIS attempt and THIS assignment;
+    `check_input_pair` is called on the fixture inside the test and
+    `read_input_root` accepts the root, so the refusal is provenance and not
+    a malformed fixture. The earlier half-substitution case is KEPT and now
+    describes itself correctly: it leaves a mismatched pair, which the pair
+    rule refuses first.
+  * ONE REQUESTED JOB THROUGH THE REAL LOOP, ended for real: the in-image
+    program over the mounted exchange, then the Worker Manager's own ending
+    through `sweep` to `completed`.
+
+NOT PROVED, with the reason measured rather than assumed:
+
+  * TWO JOBS THROUGH ONE LOOP. The bootstrap single-worker deployment cannot
+    express it: `_matches` binds a stage's Work to this worker's manifest, so
+    a second Job on another Work is never servable; and two Jobs over one
+    Work do not finish it either, because the first ending passes the Work to
+    its review route and the second stage's claim never completes (`offered`
+    after 8 ticks in the case and 30 in a probe, with no attempt recorded and
+    no roots created). The pool is where that behavior lives.
+  * THE REVIEW-ROLE RUNTIME DELIVERY. `operations_from` calls `_held` with
+    `roles=("implementation",)`, so a review configuration is refused
+    outright; a review attempt mounts an upstream frozen checkpoint behind
+    `review_driver.prepare_review`. The end-to-end harness for that is
+    `ComposedOneJobCase`, whose setUp runs version-control init/add/commit in
+    its fixture. This implementer's contract forbids mutating version-control
+    operations anywhere, including a temporary fixture repository, so that
+    harness was not run and no case was built on it. PROGRESS names the
+    non-version-controlled route that remains open.
+
+No provider, no container engine, no installed instance, no deployment. The
+engine is tests.tools.test_single_worker.Engine (and its `quiescing` variant,
+which models a stopped container stopping), one observable process boundary
+without a daemon. The in-image worker is the real `baton_worker.serve_exchange`
+with the scripted agent, which is how the owning suite drives an ending. The
+stores are disposable SQLite files under temporary directories. No Git
+operation of any kind, in the repository or in the scratch roots, and no test
+fixture that performs one was executed.

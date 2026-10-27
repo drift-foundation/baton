@@ -1,0 +1,93 @@
+How the runs in this directory were produced — claim362657, W361912
+===================================================================
+
+The canonical tree is not edited, so every run is on a disposable scratch root
+built from the canonical bytes at the accepted base 19f02ce1 with the
+candidate overlaid. The base root is built the same way with no overlay, so a
+base/candidate diff compares BYTES and not environments.
+
+  base root       /tmp/w361912-base
+  candidate root  /tmp/w361912           (candidate-362657 overlaid)
+
+Each root is <root>/v12/python + <root>/v12/worker + <root>/v12/DESIGN.md and
+the v12 JSON files + <root>/AGENTS.md + the one published result-manifest
+vectors subtree under <root>/work/records/2026/08/... that
+tests/manager/test_output.py and tests/job_manager/test_review_driver.py read
+by `parents[4]`. Keeping the `v12` directory level matters: without it the
+repository root resolves one directory too high and ~354 suites fail on a
+missing vectors.json.
+
+Commands, from <root>/v12/python with PYTHONPATH=src:. —
+
+  python3 -m unittest tests.job_manager.test_creation -v
+  python3 -m unittest tests.tools.test_creation_ports -v
+  python3 -m unittest discover -s tests/job_manager -t . -p 'test_*.py'
+  python3 -m unittest tests.tools.test_bootstrap
+  python3 -m unittest tests.tools.test_stage_execution \
+      tests.tools.test_packaging [tests.tools.test_creation_ports]
+
+What each file is
+-----------------
+
+FOCUSED-CREATION.txt      tests.job_manager.test_creation, 62 cases, OK. The
+                          manager operation over a REAL disposable Job store
+                          -- its reservation rows, its journal, the real
+                          `submission.submit` and the real projection -- with
+                          the four owners that live in other processes' files
+                          as stand-ins, plus the CLI verb's wiring.
+FOCUSED-PORTS.txt         tests.tools.test_creation_ports, 14 cases, OK. The
+                          DEPLOYMENT DERIVATION against a real deployment
+                          document owned by `stage_execution.held_configuration`,
+                          and the round trip that matters: derive, resolve,
+                          then ask `stage_execution.servable_workers` -- the
+                          scheduler's own function -- whether each resolved
+                          stage can be served.
+JOB-MANAGER-SUITE.txt     the whole tests/job_manager suite on the candidate:
+                          1361 cases, OK. The same suite on the base root is
+                          1299 OK; the difference is exactly this candidate's
+                          62. The store-schema fixtures in test_store,
+                          test_scheduling and test_execution_limits each
+                          subtract the new relation, which is what their own
+                          comments instruct for every relation added after the
+                          version they impersonate.
+BOOTSTRAP-BASE.txt        tests.tools.test_bootstrap on the base: 135 cases,
+BOOTSTRAP-CANDIDATE.txt   17 errors. The same on the candidate: 17 errors, and
+                          the two lists are IDENTICAL. These are pre-existing
+                          in this root (the suite installs instances and
+                          serves them) and this candidate adds none.
+TOOLS-BASE.txt            tests.tools.test_stage_execution plus
+TOOLS-CANDIDATE.txt       test_packaging: 488 cases OK on the base, and 502
+                          cases OK on the candidate with test_creation_ports
+                          added. Both exit 0. This is the suite that owns
+                          `servable_workers` and `held_configuration`, which
+                          is why it is run whole rather than sampled.
+
+What was NOT run, and what is NOT proved
+----------------------------------------
+
+Read this beside PROGRESS.md's "Remaining scope" section, which states the
+same limits as scope rather than as test selection.
+
+No provider, no container engine, no Authority, no installed instance and no
+deployment. The Job stores these cases open are the disposable SQLite files
+tests/job_manager/fixtures.JobManagerCase creates under a temporary directory;
+the Authority, the host guard and the deployment binding are stand-ins that
+record what they were asked. The compatibility generation is moved with
+unittest.mock.patch in the test process only. No Git operation of any kind, in
+the repository or in the scratch roots.
+
+Specifically NOT proved by anything here:
+
+  * `creation_ports.NewJobBinding.create_binding` is not driven against an
+    installed instance. It composes `bootstrap.prepare` through the inherited
+    `DeploymentBinding` writer lock and atomic install write, and the whole
+    tests.tools.test_bootstrap suite runs beside it with no added failure --
+    but no case here installs an instance and then creates a Job in it end to
+    end. `DeploymentDerivation` IS driven against a real owned deployment
+    document; this half is not.
+  * the connected implementation -> independent review -> changes-requested
+    correction -> failed/held result cycle for a CREATED Job. The cases stop
+    at a recorded, bound, servable Job whose review stage the real projection
+    reports `blocked` behind its implementation.
+  * the OBS-0 input-to-substantive-simulated-work interval. Nothing here
+    measures it and no figure is offered.

@@ -1,0 +1,65 @@
+===== the INSTALLED task this pool was configured with =====
+{"declared_base": null, "instructions": "write one bounded proposal", "schema": "baton.dogfood-task/2", "source_profile": "generic", "source_root": "source", "task_id": "w81115-bootstrap", "verification": ["python3", "-c", "raise SystemExit(0)"]}
+
+===== job-first: the file at task.json (mode 0o444) =====
+{
+  "declared_base": null,
+  "schema": "baton.dogfood-task/2",
+  "source_profile": "generic",
+  "source_root": "source",
+  "task_id": "job-first",
+  "verification": [
+    "python3",
+    "-c",
+    "raise SystemExit(0)"
+  ]
+}
+--- instructions, as published ---
+Close the first finding.
+
+Acceptance criteria:
+  - job-first is accepted
+
+Selected work scope (the paths this task covers):
+  - v12/python/tools/job_task.py
+
+Bounded test-change scope: none. This task changes no test.
+
+Template: baton.v12.job-template.implementation-review/1
+Work: 0000000a-W1
+
+bytes on disk       504
+human_contract      {"artifact_id": "w81115-task-1", "bytes": 504, "content_digest": "sha256:f17aa3c927b594ef8b869d4a291e0ad92107b11037d8a0e3ce80efa8b3b10941", "locator": "artifact://contracts/w81115-task-1", "media_type": "application/json"}
+
+===== job-second: the file at task.json (mode 0o444) =====
+{
+  "declared_base": null,
+  "schema": "baton.dogfood-task/2",
+  "source_profile": "generic",
+  "source_root": "source",
+  "task_id": "job-second",
+  "verification": [
+    "python3",
+    "-c",
+    "raise SystemExit(0)"
+  ]
+}
+--- instructions, as published ---
+Close the second finding.
+
+Acceptance criteria:
+  - job-second is accepted
+
+Selected work scope (the paths this task covers):
+  - v12/python/tools/job_task.py
+
+Bounded test-change scope: none. This task changes no test.
+
+Template: baton.v12.job-template.implementation-review/1
+Work: 0000000a-W1
+
+bytes on disk       507
+human_contract      {"artifact_id": "w81115-task-1", "bytes": 507, "content_digest": "sha256:be83a4ddb4981b205f506a2afc022375bdba036910a158ff4a24370bff3b3503", "locator": "artifact://contracts/w81115-task-1", "media_type": "application/json"}
+
+===== a Job with no own task gets the INSTALLED bytes =====
+identical to installed: True

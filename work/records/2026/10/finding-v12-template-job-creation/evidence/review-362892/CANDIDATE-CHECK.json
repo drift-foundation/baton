@@ -1,0 +1,16 @@
+{
+  "manifest_sha256": "e310e70caff0a714f6732a032165be14519c0d93fa38f3e4d539c0d62077789a",
+  "members": {
+    "v12/python/src/baton_v12/job_manager/__init__.py": "50722a7496e2719afa9c67c6d331e18d28543f78b8c930beba91ff80aece907c",
+    "v12/python/src/baton_v12/job_manager/creation.py": "bf7928c195e2c643744e644e1ab1e9d810e57f5f0e5c6aadf803a3559692fe01",
+    "v12/python/src/baton_v12/job_manager/documents.py": "b7ee4bb9def4eb26e14ee3a38bbab55000b6e8f897c67a632ba2711640f27350",
+    "v12/python/src/baton_v12/job_manager/schema.py": "8fe0ecfb767de7d355ed82c89ce6060f3efa3bf372f05fadde07d867af0f399f",
+    "v12/python/tests/job_manager/test_creation.py": "91049a25082c99eef80f65e2358c38008f4913139feb6669b6ae0d900b15ec22",
+    "v12/python/tests/job_manager/test_execution_limits.py": "03eb0d74d027e29c1d2901649139c21e562596376bf7b5e1d6a1134de89f0e43",
+    "v12/python/tests/job_manager/test_scheduling.py": "47f0043e3185394a9b07e00ff827bf1c2064dfeab7714f41328aeb5badf2d842",
+    "v12/python/tests/job_manager/test_store.py": "73c27abf44dbce537da99067f7b8245c51c8ab22d21c209f2de0d777ef131ceb",
+    "v12/python/tests/tools/test_creation_ports.py": "c0080ead0a824bee30a684f65c89f02012544a3eed5e00710f4392c91197432e",
+    "v12/python/tools/creation_ports.py": "63f2b3889afaecfd002324d494c992ad1c835cc9087d85351d0f059fc107c512",
+    "v12/python/tools/job_manager.py": "9f9008fd68a3f00ed41516c0127655cd24a5518df15294f22282c0f0dc66018f"
+  }
+}

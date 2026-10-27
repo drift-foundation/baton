@@ -1,0 +1,857 @@
+"""W363066 — the bytes a stage is ACTUALLY delivered, published and proved.
+
+`test_creation_ports` proves the composition and the input identity.
+`test_creation` proves the operation. This suite is the one the review asked
+for last: it drives the REAL publication and proof path — `_SingleWorker`'s own
+`_for_job`, `_published_task` and `_proved_task` over a real directory, with a
+real Job store behind `single_worker.job_task_reader` — and INSPECTS THE BYTES
+ON DISK rather than a source string or a rendering compared with itself.
+
+WHY THAT PATH AND NOT A FULL LIFECYCLE. `_published_task` is where the task
+becomes a file: exclusive no-follow creation, whole write, fsync, read-back
+comparison against the held bytes, then 0444. `_proved_task` is the restart
+half: the same three questions asked again of what is on disk. Those two
+functions are the delivery, and driving them over one worker serving two Jobs
+is what shows the bytes do not cross.
+
+THE WORKER IS COMPOSED THE WAY `ThreeWorkersOneJobThreeImages` COMPOSES ONE --
+`__new__` plus the held configuration -- because `_for_job`, `_published_task`
+and `_proved_task` read the held configuration and their operands and nothing
+else. A case that needed a live runtime to ask a delivery question would be
+measuring the fixture.
+"""
+
+import json
+import os
+import shutil
+import stat
+import unittest
+
+from baton_v12.contracts import ContractRefusal, digest_of_bytes
+from baton_v12.contracts.manifest import job_input_identity
+
+from baton_v12.worker_manager import attempts, workspaces
+
+from tools import job_task, single_worker
+
+from tests.job_manager import fixtures
+from tests.tools.test_single_worker import (Engine, SingleWorkerCase,
+                                            ThreeWorkersOneJobThreeImages,
+                                            status, submit)
+
+FIRST = "job-first"
+SECOND = "job-second"
+
+
+class DeliveryCase(SingleWorkerCase):
+    """One configured worker, a real Job store, and real files on disk.
+
+    THE HELPERS ARE BORROWED AND THE TESTS ARE NOT. Subclassing
+    `ThreeWorkersOneJobThreeImages` re-ran ITS cases under every subclass
+    here, which is noise at best and -- because its `worker_for` composes a
+    worker through `__new__` for a preflight question -- a fixture asking a
+    different question under this suite's name. Binding the four helpers
+    explicitly takes what this suite needs from the owner that has it,
+    without inheriting a single assertion.
+    """
+
+    ROLES = ThreeWorkersOneJobThreeImages.ROLES
+    configured_as = ThreeWorkersOneJobThreeImages.configured_as
+    held = ThreeWorkersOneJobThreeImages.held
+    stage_for = ThreeWorkersOneJobThreeImages.stage_for
+    job_for = ThreeWorkersOneJobThreeImages.job_for
+    worker_for = ThreeWorkersOneJobThreeImages.worker_for
+
+    def selection(self, job_id, statement, *, work_id=None):
+        return {"job_id": job_id, "statement": statement,
+                "acceptance": [f"{job_id} is accepted"],
+                "scope": {"work": ["v12/python/tools/job_task.py"],
+                          "tests": []},
+                "template_version":
+                    "baton.v12.job-template.implementation-review/1",
+                "work_id": work_id or fixtures.WORK_A}
+
+    def composed(self, job_id, statement, *, installed):
+        """One Job's own task document, from the installed bytes."""
+        return job_task.per_job_delivery(
+            installed, self.installed_manifest,
+            self.selection(job_id, statement))
+
+    def worker_serving(self, role, tasks):
+        """One worker whose reader answers from a fixed table.
+
+        THE TABLE IS A STAND-IN FOR THE JOB STORE and is deliberately shaped
+        like `job_task_reader`'s answer: text for a Job that has its own task,
+        `None` for one that does not. The reader itself is driven against a
+        REAL store in `TheReaderOverARealStore` below, so neither half is
+        taken on trust.
+        """
+        given, manifest = self.configured_as(0, role)
+        self.installed_manifest = self.held(given)["input_manifest"]
+        worker = self.worker_for(given)
+        worker.judgment_document = None
+        worker.job_task = lambda *, job_id: tasks.get(job_id)
+        return worker
+
+    def inputs(self, name):
+        """One fresh input root, under a parent this case can still write.
+
+        `compose_input_root` FREEZES the root 0555 when it finishes, which is
+        the product doing its job -- so every root gets its own parent
+        directory and a case that has to mutate a frozen one re-opens it with
+        `writable` below. A fixture that created the second root beside a
+        frozen first one met `PermissionError` and was measuring the freeze.
+        """
+        place = os.path.join(self.root, f"inputs-{name}", "inputs")
+        os.makedirs(place)
+        return place
+
+    def writable(self, root):
+        """Re-open a frozen root so a case can tamper with what is inside."""
+        os.chmod(root, 0o755)
+        held = os.path.join(root, single_worker.TASK_DOCUMENT)
+        if os.path.exists(held):
+            os.chmod(held, 0o644)
+        return root
+
+    def stage_of(self, role, job_id):
+        return dict(self.stage_for(role), job_id=job_id)
+
+
+class TwoJobsOnOneWorkerGetTheirOwnBytes(DeliveryCase):
+
+    def test_the_published_file_is_this_jobs_own_task(self):
+        """THE BYTES ON DISK, read back and compared whole."""
+        worker = self.worker_serving("implementation", {})
+        installed = self.held(self.configured_as(0, "implementation")[0])[
+            "task_bytes"]
+        first = self.composed(FIRST, "Close the first finding.",
+                              installed=installed)
+        second = self.composed(SECOND, "Close the second finding.",
+                               installed=installed)
+        worker.job_task = lambda *, job_id: {
+            FIRST: first["task_document"],
+            SECOND: second["task_document"]}.get(job_id)
+        for job_id, held in ((FIRST, first), (SECOND, second)):
+            with self.subTest(job=job_id):
+                manifest, task = worker._for_job(
+                    self.stage_of("implementation", job_id))
+                place = self.inputs(job_id)
+                worker._published_task(place, content=task)
+                with open(os.path.join(place, single_worker.TASK_DOCUMENT),
+                          "rb") as reading:
+                    found = reading.read()
+                self.assertEqual(found, task)
+                document = json.loads(found.decode("utf-8"))
+                self.assertEqual(document["task_id"], job_id)
+                self.assertIn(f"{job_id} is accepted",
+                              document["instructions"])
+                # AND THE MANIFEST THAT TRAVELS WITH IT NAMES THESE BYTES.
+                contract = manifest["human_contract"]
+                self.assertEqual(contract["bytes"], len(found))
+                self.assertEqual(contract["content_digest"],
+                                 digest_of_bytes(found))
+
+    def test_neither_jobs_bytes_reach_the_others_root(self):
+        """NO CROSS-JOB EFFECT, from ONE worker object.
+
+        The worker is shared and immutable; `_for_job` composes per stage from
+        a fresh copy, so there is nothing on the worker for one Job to leave
+        behind for the next.
+        """
+        worker = self.worker_serving("implementation", {})
+        installed = self.held(self.configured_as(0, "implementation")[0])[
+            "task_bytes"]
+        first = self.composed(FIRST, "Close the first finding.",
+                              installed=installed)
+        second = self.composed(SECOND, "Close the second finding.",
+                               installed=installed)
+        worker.job_task = lambda *, job_id: {
+            FIRST: first["task_document"],
+            SECOND: second["task_document"]}.get(job_id)
+        places = {}
+        for job_id, held in ((FIRST, first), (SECOND, second)):
+            _manifest, task = worker._for_job(
+                self.stage_of("implementation", job_id))
+            places[job_id] = self.inputs(job_id)
+            worker._published_task(places[job_id], content=task)
+        held_first = open(os.path.join(places[FIRST],
+                                       single_worker.TASK_DOCUMENT),
+                          "rb").read().decode("utf-8")
+        held_second = open(os.path.join(places[SECOND],
+                                        single_worker.TASK_DOCUMENT),
+                           "rb").read().decode("utf-8")
+        self.assertNotEqual(held_first, held_second)
+        self.assertNotIn("second finding", held_first)
+        self.assertNotIn("first finding", held_second)
+        self.assertNotIn(SECOND, held_first)
+        self.assertNotIn(FIRST, held_second)
+        # AND THE SHARED CONFIGURATION IS UNTOUCHED.
+        self.assertEqual(worker.given["task_bytes"], installed)
+
+    def test_the_two_jobs_input_identities_differ_and_both_are_consistent(
+            self):
+        worker = self.worker_serving("implementation", {})
+        installed = self.held(self.configured_as(0, "implementation")[0])[
+            "task_bytes"]
+        first = self.composed(FIRST, "A first task.", installed=installed)
+        second = self.composed(SECOND, "A second task.", installed=installed)
+        worker.job_task = lambda *, job_id: {
+            FIRST: first["task_document"],
+            SECOND: second["task_document"]}.get(job_id)
+        held = {}
+        for job_id in (FIRST, SECOND):
+            manifest, _task = worker._for_job(
+                self.stage_of("implementation", job_id))
+            held[job_id] = job_input_identity(manifest)
+        self.assertNotEqual(held[FIRST], held[SECOND])
+        self.assertEqual(held[FIRST],
+                         job_input_identity(first["input_manifest"]))
+        self.assertEqual(held[SECOND],
+                         job_input_identity(second["input_manifest"]))
+        self.assertNotEqual(held[FIRST],
+                            job_input_identity(worker.given["input_manifest"]))
+
+    def test_the_review_role_is_delivered_the_same_task(self):
+        """ROLE-SPECIFIC SEMANTICS PRESERVED, and the task is the JOB's.
+
+        An implementer and a reviewer read different role instructions -- that
+        is `role_instructions_digest`, which `job_input_identity` projects OUT
+        -- and they read the SAME task, because a reviewer judging a different
+        task than the implementer performed is the one thing a shared Job
+        cannot survive.
+        """
+        installed = {}
+        composed = {}
+        for role in ("implementation", "review"):
+            worker = self.worker_serving(role, {})
+            installed[role] = self.held(self.configured_as(0, role)[0])[
+                "task_bytes"]
+            composed[role] = self.composed(FIRST, "One task, two roles.",
+                                           installed=installed[role])
+            worker.job_task = lambda *, job_id: composed[role][
+                "task_document"] if job_id == FIRST else None
+            _manifest, task = worker._for_job(self.stage_of(role, FIRST))
+            place = self.inputs(f"{role}-{FIRST}")
+            worker._published_task(place, content=task)
+            with open(os.path.join(place, single_worker.TASK_DOCUMENT),
+                      "rb") as reading:
+                composed[role] = reading.read()
+        self.assertEqual(composed["implementation"], composed["review"],
+                         "one Job is one task whoever serves the stage")
+
+
+class RestartProvesWhatWasPublished(DeliveryCase):
+    """The resumed attempt reads the bytes the first one wrote, or refuses."""
+
+    def published(self, job_id="job-first", statement="A first task."):
+        worker = self.worker_serving("implementation", {})
+        installed = self.held(self.configured_as(0, "implementation")[0])[
+            "task_bytes"]
+        held = self.composed(job_id, statement, installed=installed)
+        worker.job_task = lambda *, job_id_asked=None, job_id=None: (
+            held["task_document"] if job_id == job_id_asked or job_id
+            else None)
+        worker.job_task = lambda *, job_id: held["task_document"]
+        _manifest, task = worker._for_job(
+            self.stage_of("implementation", job_id))
+        place = self.inputs(job_id)
+        worker._published_task(place, content=task)
+        return worker, place, task
+
+    def test_a_restart_proves_the_published_task_and_continues(self):
+        """NOT A SECOND RENDERING COMPARED WITH ITSELF.
+
+        `_proved_task` reads what is on disk and compares it with the bytes
+        this delivery holds, so this is the resumed attempt's own question
+        asked of real material the first attempt wrote.
+        """
+        worker, place, task = self.published()
+        worker._proved_task(place, content=task)
+        found = open(os.path.join(place, single_worker.TASK_DOCUMENT),
+                     "rb").read()
+        self.assertEqual(found, task)
+        mode = stat.S_IMODE(os.stat(os.path.join(
+            place, single_worker.TASK_DOCUMENT)).st_mode)
+        self.assertEqual(mode, 0o444,
+                         "the published task is read-only on disk")
+
+    def test_a_restart_that_would_deliver_another_task_refuses(self):
+        """THE MISMATCH, which is the cross-Job accident made concrete."""
+        worker, place, _task = self.published()
+        installed = self.held(self.configured_as(0, "implementation")[0])[
+            "task_bytes"]
+        other = self.composed(SECOND, "A second task.", installed=installed)
+        with self.assertRaises(ContractRefusal) as caught:
+            worker._proved_task(
+                place, content=job_task.delivered_bytes(
+                    other["task_document"]))
+        # REFUSED BEFORE LAUNCH, and `_proved_task` names the fact rather
+        # than the member: the document on disk is not the content this
+        # delivery holds.
+        self.assertIn(caught.exception.code, ("digest", "precondition"))
+        self.assertIn("another task document", caught.exception.message)
+
+    def test_a_tampered_published_task_refuses(self):
+        worker, place, task = self.published()
+        held = os.path.join(place, single_worker.TASK_DOCUMENT)
+        os.chmod(held, 0o644)
+        with open(held, "wb") as writing:
+            writing.write(task[:-1] + b" ")
+        with self.assertRaises(ContractRefusal):
+            worker._proved_task(place, content=task)
+
+    def test_a_missing_published_task_refuses(self):
+        worker, place, task = self.published()
+        os.unlink(os.path.join(place, single_worker.TASK_DOCUMENT))
+        with self.assertRaises(ContractRefusal) as caught:
+            worker._proved_task(place, content=task)
+        self.assertIn("path", caught.exception.code)
+
+    def test_publishing_over_an_existing_task_refuses(self):
+        """PROVENANCE THIS COMPOSITION CANNOT PROVE.
+
+        `_published_task` creates exclusively, so a document somebody else
+        left at that name is refused rather than overwritten -- unchanged by
+        this Work and asserted because the per-Job content now flows through
+        it.
+        """
+        worker, place, task = self.published()
+        with self.assertRaises(ContractRefusal) as caught:
+            worker._published_task(place, content=task)
+        self.assertIn("already carries", caught.exception.message)
+
+
+class TheInstalledDeliveryIsPreserved(DeliveryCase):
+    """A Job with no own task is served exactly as before this Work."""
+
+    def test_a_job_the_reader_answers_none_for_gets_the_installed_task(self):
+        worker = self.worker_serving("implementation", {})
+        installed_given = self.held(self.configured_as(0, "implementation")[0])
+        manifest, task = worker._for_job(
+            self.stage_of("implementation", "job-legacy"))
+        self.assertEqual(task, installed_given["task_bytes"])
+        self.assertEqual(manifest, installed_given["input_manifest"])
+
+    def test_a_worker_with_no_reader_at_all_gets_the_installed_task(self):
+        worker = self.worker_serving("implementation", {})
+        worker.job_task = None
+        installed_given = self.held(self.configured_as(0, "implementation")[0])
+        manifest, task = worker._for_job(
+            self.stage_of("implementation", FIRST))
+        self.assertEqual(task, installed_given["task_bytes"])
+        self.assertEqual(manifest, installed_given["input_manifest"])
+
+    def test_a_stage_with_no_job_gets_the_installed_task(self):
+        """THE BOOTSTRAP COMPOSITION, which binds no Job."""
+        worker = self.worker_serving("implementation", {})
+        installed_given = self.held(self.configured_as(0, "implementation")[0])
+        for stage in (None, {"kind": "implementation"}):
+            with self.subTest(stage=stage):
+                _manifest, task = worker._for_job(stage)
+                self.assertEqual(task, installed_given["task_bytes"])
+
+
+class TheReaderOverARealStore(DeliveryCase):
+    """`job_task_reader` against a real Job store, not a stand-in table."""
+
+    def test_it_answers_the_stored_document_and_none_for_everything_else(
+            self):
+        from baton_v12.job_manager import JobStore
+        from baton_v12.job_manager.creation import job_task_of
+
+        place = os.path.join(self.root, "jobs.sqlite3")
+        store = JobStore.open(place, authority_uuid=fixtures.UUID,
+                              incarnation="jobs-1",
+                              clock=lambda: fixtures.NOW)
+        self.addCleanup(store.close)
+        reader = single_worker.job_task_reader(store)
+        self.assertIsNone(reader(job_id="job-nobody-created"))
+        self.assertIsNone(reader(job_id=None))
+        self.assertIsNone(job_task_of(store, "job-nobody-created"))
+        # AND A ROW WITH A TASK IS ANSWERED VERBATIM. Written through the
+        # store's own connection rather than through a creation, because what
+        # is under test here is the READER and a creation would need its four
+        # owner ports.
+        store._connection.execute(
+            "INSERT INTO template_jobs (job_id, work_id, submission_id, "
+            "template_version, state, request, request_digest, "
+            "resolution_digest, resolution, task_document, "
+            "submission_signature, intended_at, created_at, incarnation) "
+            "VALUES ('job-stored', ?, 'sub-stored', 'v/1', 'intended', '{}', "
+            "'sha256:r', 'sha256:x', '{}', ?, '{}', ?, NULL, 'jobs-1')",
+            (fixtures.WORK_A, '{"schema":"baton.dogfood-task/2"}',
+             fixtures.NOW))
+        self.assertEqual(reader(job_id="job-stored"),
+                         '{"schema":"baton.dogfood-task/2"}')
+
+
+class TheConnectedPreparationPath(DeliveryCase):
+    """W363066 review 2026-10-26T20-28-59Z: the OWNING sequence, not helpers.
+
+    The previous round's cases called `_for_job` and the file helpers directly
+    and bypassed both production boundaries the reviewer then reproduced:
+    `_matches` compared the INSTALLED manifest and refused the composed Job,
+    and `_assignment_manifest` minted an assignment against the installed
+    digest while `_input` published the per-Job one -- which
+    `compose_input_root` refuses as "two halves of two deliveries", after
+    `task.json` is already on disk.
+
+    SO THESE CASES DRIVE WHAT `_prepared` DRIVES, in its order: one document
+    from `_given_for(stage)`, then the real `_matches`, the real
+    `_assignment_manifest`, and the real `_input` -- which calls the real
+    `compose_input_root`. No engine and no provider: the sequence under test
+    ends where a runtime would start.
+    """
+
+    def row_for(self, worker):
+        """The claimed-offer row `_assignment_manifest` reads."""
+        return dict(worker.given["input_manifest"]["work_ref"],
+                    participant=worker.given["participant"],
+                    claim_generation=1,
+                    claim_principal=worker.given["principal"],
+                    claim_scope="scope:deployment", claim_role="baton.impl",
+                    claim_grant="direct", claim_policy_generation=1,
+                    claim_event_seq=1, accepted_at=fixtures.NOW,
+                    decided_at=fixtures.NOW)
+
+    def prepared(self, role, job_id, statement, *, worker=None, name=None):
+        """One stage's preparation, through the owning sequence."""
+        worker = worker or self.worker_serving(role, {})
+        installed = self.held(self.configured_as(0, role)[0])["task_bytes"]
+        made = self.composed(job_id, statement, installed=installed)
+        held = {job_id: made["task_document"]}
+        existing = worker.job_task
+        worker.job_task = lambda *, job_id: held.get(
+            job_id, existing(job_id=job_id) if existing else None)
+        stage = self.stage_of(role, job_id)
+        given = worker._given_for(stage)
+        manifest = given["input_manifest"]
+        worker._matches(stage, self.job_for(manifest))
+        assignment = single_worker._assignment_manifest(
+            given, self.row_for(worker), stage["attempt_id"],
+            stage["offer_id"])
+        root = self.inputs(name or f"{role}-{job_id}")
+        mount = os.path.join(root, manifest["sources"][0]["destination"])
+        os.makedirs(mount)
+        from types import SimpleNamespace
+
+        read = worker._input({"inputs": root}, assignment,
+                             SimpleNamespace(mountpoint=mount), stage)
+        return {"worker": worker, "stage": stage, "given": given,
+                "assignment": assignment, "root": root, "mount": mount,
+                "read": read, "composed": made}
+
+    def published(self, root):
+        with open(os.path.join(root, single_worker.TASK_DOCUMENT),
+                  "rb") as reading:
+            return reading.read()
+
+    def test_both_ordinary_roles_prepare_the_requested_task(self):
+        """THE WHOLE SEQUENCE, for implementation AND review."""
+        for role in ("implementation", "review"):
+            with self.subTest(role=role):
+                held = self.prepared(role, FIRST, "The requested task.")
+                manifest = held["given"]["input_manifest"]
+                # THE ASSIGNMENT AND THE ROOT ARE ONE PAIR.
+                self.assertEqual(held["assignment"]["input_manifest_digest"],
+                                 manifest["manifest_digest"])
+                self.assertEqual(held["read"]["manifest_digest"],
+                                 manifest["manifest_digest"])
+                # AND THE FILE IN THE ROOT IS THIS JOB'S TASK.
+                document = json.loads(self.published(held["root"]).decode())
+                self.assertEqual(document["task_id"], FIRST)
+                self.assertIn("The requested task.",
+                              document["instructions"])
+                # AND NONE OF THOSE IS THE INSTALLED IDENTITY.
+                installed = self.held(self.configured_as(0, role)[0])
+                self.assertNotEqual(manifest["manifest_digest"],
+                                    installed["input_manifest"][
+                                        "manifest_digest"])
+
+    def test_the_recorded_and_launch_identities_are_the_delivered_one(self):
+        """EVERY OWNER DESCRIBES ONE RUNTIME INPUT.
+
+        `start` records the attempt from this document and `_job_execution`
+        composes the execution context from it, so the digest an operator
+        reads back is the digest of the root the container is given.
+        """
+        held = self.prepared("implementation", FIRST, "The requested task.")
+        worker, stage = held["worker"], held["stage"]
+        manifest = held["given"]["input_manifest"]
+        self.assertEqual(
+            worker._given_for(stage)["input_manifest"]["manifest_digest"],
+            manifest["manifest_digest"])
+        # THE ADAPTER IDENTITY TOO, when the caller names the stage.
+        self.assertEqual(
+            worker._given_for(stage)["input_manifest"]["toolchain_digest"],
+            manifest["toolchain_digest"])
+
+    def test_two_jobs_prepare_independently_on_one_worker(self):
+        worker = self.worker_serving("implementation", {})
+        installed = self.held(self.configured_as(0, "implementation")[0])[
+            "task_bytes"]
+        made = {one: self.composed(one, f"Task for {one}.",
+                                   installed=installed)
+                for one in (FIRST, SECOND)}
+        worker.job_task = lambda *, job_id: made[job_id]["task_document"] \
+            if job_id in made else None
+        roots = {}
+        for job_id in (FIRST, SECOND):
+            stage = self.stage_of("implementation", job_id)
+            given = worker._given_for(stage)
+            worker._matches(stage, self.job_for(given["input_manifest"]))
+            assignment = single_worker._assignment_manifest(
+                given, self.row_for(worker), f"attempt-{job_id}",
+                stage["offer_id"])
+            root = self.inputs(f"two-{job_id}")
+            mount = os.path.join(
+                root, given["input_manifest"]["sources"][0]["destination"])
+            os.makedirs(mount)
+            from types import SimpleNamespace
+
+            worker._input({"inputs": root}, assignment,
+                          SimpleNamespace(mountpoint=mount), stage)
+            roots[job_id] = root
+        first = json.loads(self.published(roots[FIRST]).decode())
+        second = json.loads(self.published(roots[SECOND]).decode())
+        self.assertEqual(first["task_id"], FIRST)
+        self.assertEqual(second["task_id"], SECOND)
+        self.assertNotIn(SECOND, json.dumps(first))
+        self.assertNotIn(FIRST, json.dumps(second))
+        self.assertEqual(worker.given["task_bytes"], installed)
+
+    def test_a_reopened_preparation_proves_the_same_root(self):
+        """RESTART THROUGH THE OWNING PATH, not a second rendering.
+
+        `_input` is called again over the root the first preparation composed:
+        `read_input_root` succeeds now, so the comparison branch runs and
+        `_proved_task` reads what is on disk.
+        """
+        held = self.prepared("implementation", FIRST, "The requested task.")
+        from types import SimpleNamespace
+
+        again = held["worker"]._input(
+            {"inputs": held["root"]}, held["assignment"],
+            SimpleNamespace(mountpoint=held["mount"]), held["stage"])
+        self.assertEqual(again["manifest_digest"],
+                         held["given"]["input_manifest"]["manifest_digest"])
+        self.assertEqual(json.loads(self.published(held["root"]).decode())[
+            "task_id"], FIRST)
+
+    def test_an_assignment_from_the_installed_manifest_refuses(self):
+        """THE REVIEWER'S R2, AS A CASE.
+
+        An assignment minted against the installed digest beside a per-Job
+        root is what `compose_input_root` refuses, and it must stay refused:
+        the pair in one root is one pair.
+        """
+        from types import SimpleNamespace
+
+        worker = self.worker_serving("implementation", {})
+        installed = self.held(self.configured_as(0, "implementation")[0])[
+            "task_bytes"]
+        made = self.composed(FIRST, "The requested task.",
+                             installed=installed)
+        worker.job_task = lambda *, job_id: made["task_document"]
+        stage = self.stage_of("implementation", FIRST)
+        manifest = worker._given_for(stage)["input_manifest"]
+        # MINTED FROM THE INSTALLED CONFIGURATION, which is what `_prepared`
+        # did before this correction.
+        assignment = single_worker._assignment_manifest(
+            worker.given, self.row_for(worker), stage["attempt_id"],
+            stage["offer_id"])
+        root = self.inputs("mismatched")
+        mount = os.path.join(root, manifest["sources"][0]["destination"])
+        os.makedirs(mount)
+        with self.assertRaises(ContractRefusal) as caught:
+            worker._input({"inputs": root}, assignment,
+                          SimpleNamespace(mountpoint=mount), stage)
+        self.assertIn("two halves of two deliveries",
+                      caught.exception.message)
+
+    def test_a_tampered_root_refuses_on_the_reopened_preparation(self):
+        from types import SimpleNamespace
+
+        held = self.prepared("implementation", FIRST, "The requested task.")
+        place = os.path.join(self.writable(held["root"]),
+                             single_worker.TASK_DOCUMENT)
+        with open(place, "r+b") as writing:
+            writing.seek(0)
+            writing.write(b"{")
+        with self.assertRaises(ContractRefusal):
+            held["worker"]._input(
+                {"inputs": held["root"]}, held["assignment"],
+                SimpleNamespace(mountpoint=held["mount"]), held["stage"])
+
+    def test_a_missing_task_refuses_on_the_reopened_preparation(self):
+        from types import SimpleNamespace
+
+        held = self.prepared("implementation", FIRST, "The requested task.")
+        os.unlink(os.path.join(self.writable(held["root"]),
+                               single_worker.TASK_DOCUMENT))
+        with self.assertRaises(ContractRefusal):
+            held["worker"]._input(
+                {"inputs": held["root"]}, held["assignment"],
+                SimpleNamespace(mountpoint=held["mount"]), held["stage"])
+
+    def test_a_job_with_no_own_task_prepares_the_installed_one(self):
+        """THE PRESERVED PATH, through the same owning sequence."""
+        from types import SimpleNamespace
+
+        worker = self.worker_serving("implementation", {})
+        installed = self.held(self.configured_as(0, "implementation")[0])
+        stage = self.stage_of("implementation", "job-legacy")
+        given = worker._given_for(stage)
+        self.assertIs(given, worker.given)
+        worker._matches(stage, self.job_for(given["input_manifest"]))
+        assignment = single_worker._assignment_manifest(
+            given, self.row_for(worker), stage["attempt_id"],
+            stage["offer_id"])
+        root = self.inputs("legacy")
+        mount = os.path.join(
+            root, given["input_manifest"]["sources"][0]["destination"])
+        os.makedirs(mount)
+        worker._input({"inputs": root}, assignment,
+                      SimpleNamespace(mountpoint=mount), stage)
+        self.assertEqual(self.published(root), installed["task_bytes"])
+
+
+class TheRuntimePathDeliversAndRecoversOneIdentity(SingleWorkerCase):
+    """W363066 review 2026-10-26T20-45Z: THE RUNTIME'S OWN ENTRYPOINTS.
+
+    Everything above this drives the preparation sequence; the reviewer's
+    remaining objection was that none of it invokes `reconcile`, the launch,
+    or the recovery and cleanup entrypoints -- so it could not establish that
+    the runtime connects them. These cases do.
+
+    WHAT IS REAL HERE. The production bootstrap composition
+    (`single_worker.operations_from`), a real Job store with a real
+    submission, a real control store, and the serving loop's own
+    `reconcile`/`status` -- which offer, claim, reconcile the claimed stage
+    through `_prepared`, publish the input root through `_input`, record the
+    attempt, compose the launch adapter and start it. The engine is
+    `test_single_worker.Engine`, the suite's deterministic process boundary,
+    and the credential provider is the same fixture every case in that suite
+    uses. Nothing in a container answers, which is why `commanded` stops at
+    `waiting`.
+
+    WHAT IS SUBSTITUTED, AND ONLY THIS. The per-Job task READER on the
+    composed worker, because a Job store row carrying a `task_document` is
+    written by `creation.create_template_job`, which needs an installed
+    deployment and a Work binding this suite has neither of.
+    `TheReaderOverARealStore` above drives `job_task_reader` against a real
+    store, so the read is not taken on trust either -- but these cases are
+    about what the RUNTIME does with the answer.
+
+    THE REVIEW ROLE is covered at the adapter by
+    `TheStagelessAdapterOverBothRoles` below: this deployment's
+    `launch_role` is `implementation` and a second serving loop would be a
+    second configuration, not a second proof.
+    """
+
+    def delivered(self, statement="The requested runtime task."):
+        """The composed per-Job delivery for this deployment's one Job."""
+        installed = single_worker._held(self.config)
+        selection = {
+            "job_id": "job-a", "statement": statement,
+            "acceptance": ["the delivered task is accepted"],
+            "scope": {"work": ["v12/python/tools/single_worker.py"],
+                      "tests": []},
+            "template_version":
+                "baton.v12.job-template.implementation-review/1",
+            "work_id": fixtures.WORK_A}
+        return job_task.per_job_delivery(installed["task_bytes"],
+                                         installed["input_manifest"],
+                                         selection)
+
+    def submission_for(self, made):
+        """The submission a created Job would carry: ITS OWN identity.
+
+        `_matches` holds a Job's `input_digest` to the identity of the
+        document the stage is served under, so a Job delivered its own task
+        declares its own identity -- which is exactly what
+        `creation.submission_for_admission` writes and `_task_agrees`
+        refuses to let drift.
+        """
+        return fixtures.submission(jobs=[fixtures.job(
+            input_digest=job_input_identity(made["input_manifest"]),
+            policy_digest=fixtures.POLICY_DIGEST,
+            stages=[fixtures.stage(work_id=fixtures.WORK_A,
+                                   profile_name="reference",
+                                   profile_digest=fixtures.PROFILE)])])
+
+    def running(self, incarnation="delivered-1", made=None):
+        """One started attempt over a delivered task, through `reconcile`."""
+        made = made or self.delivered()
+        job, control = self.stores(incarnation)
+        engine = Engine()
+        operations = self.operations(job, control, engine)
+        self.addCleanup(operations.close)
+        operations._worker.job_task = lambda *, job_id: (
+            made["task_document"] if job_id == "job-a" else None)
+        submit(job, self.submission_for(made))
+        projected = self.commanded(job, operations)
+        stage = projected["jobs"][0]["stages"][0]
+        attempt = stage["attempt_id"]
+        return {"made": made, "job": job, "control": control,
+                "engine": engine, "operations": operations,
+                "worker": operations._worker, "stage": stage,
+                "attempt": attempt,
+                "roots": workspaces.assignment_workspace(
+                    operations._worker.group, self.storage, attempt,
+                    control=control)}
+
+    def test_the_started_attempt_is_recorded_against_the_delivered_input(self):
+        """THE RECORD AND THE DISK, after a real start."""
+        held = self.running()
+        delivered = job_input_identity(held["made"]["input_manifest"])
+        installed = job_input_identity(self.manifest)
+        self.assertNotEqual(delivered, installed)
+        self.assertEqual(
+            attempts.recorded_input_of(held["control"], held["attempt"]),
+            held["made"]["input_manifest"]["manifest_digest"])
+        with open(os.path.join(held["roots"]["inputs"],
+                               single_worker.TASK_DOCUMENT), "rb") as reading:
+            self.assertEqual(reading.read(),
+                             held["made"]["task_document"].encode("utf-8"))
+        self.assertEqual(len(held["engine"].starts), 1)
+
+    def test_the_stageless_adapter_describes_the_delivered_input(self):
+        """THE CORRECTION, asked of the function the recovery callers use.
+
+        A recovery caller has roots and an attempt and no stage. Before this
+        Work the adapter it built carried the INSTALLED manifest digest and
+        the installed `outputs` -- and `OciAdapter.seal` stamps that digest
+        into the frozen result, so a per-Job attempt would have been sealed
+        with provenance naming an input it was never given.
+        """
+        held = self.running()
+        manifest = held["made"]["input_manifest"]
+        adapter = held["worker"]._adapter(held["roots"], None, None, None,
+                                          attempt_id=held["attempt"])
+        self.assertEqual(adapter.input_manifest_digest,
+                         manifest["manifest_digest"])
+        self.assertNotEqual(adapter.input_manifest_digest,
+                            self.manifest["manifest_digest"])
+        # `declared_outputs` is keyed by name, owned by `sealing`.
+        self.assertEqual(sorted(adapter.declared_outputs),
+                         sorted(one["name"] for one in manifest["outputs"]))
+
+    def test_the_recovery_entrypoint_identifies_the_delivered_attempt(self):
+        """`refresh_runtime`, the serving loop's own runtime read.
+
+        It is given `{"attempt_id": ...}` and nothing else -- no `job_id` --
+        so it is the exact caller that could not resolve a Job's task, and it
+        reaches the engine through the stage-less adapter.
+        """
+        held = self.running()
+        refreshed = held["worker"].refresh_runtime(
+            {"attempt_id": held["attempt"]})
+        self.assertIsNotNone(refreshed)
+        self.assertEqual(refreshed, {"execution_runtime": "running"})
+        # AND THE ENGINE WAS ASKED, rather than an answer manufactured here.
+        self.assertTrue([one for one in held["engine"].vectors
+                         if one[1] in ("ps", "inspect")])
+
+    def test_an_attempt_whose_root_was_substituted_refuses(self):
+        """SELF-CONSISTENCY IS NOT PROVENANCE.
+
+        The root is re-composed as a COMPLETE, internally valid installed
+        delivery -- the pair `read_input_root` accepts -- and the recorded
+        attempt is the only thing that disagrees with it.
+        """
+        held = self.running()
+        root = held["roots"]["inputs"]
+        os.chmod(root, 0o755)
+        place = os.path.join(root, "input.json")
+        os.chmod(place, 0o644)
+        with open(place, "w") as writing:
+            json.dump(self.manifest, writing)
+        with self.assertRaises(ContractRefusal) as refused:
+            held["worker"]._adapter(held["roots"], None, None, None,
+                                    attempt_id=held["attempt"])
+        self.assertEqual((refused.exception.category, refused.exception.code),
+                         ("integrity", "digest"))
+        self.assertEqual(len(held["engine"].starts), 1)
+
+    def test_a_removed_root_refuses_rather_than_substituting_the_installed(
+            self):
+        """A ROOT THAT CANNOT BE PROVED IS NOT ANSWERED FROM ELSEWHERE."""
+        held = self.running()
+        root = held["roots"]["inputs"]
+        os.chmod(root, 0o755)
+        os.chmod(os.path.join(root, "input.json"), 0o644)
+        os.remove(os.path.join(root, "input.json"))
+        with self.assertRaises(ContractRefusal):
+            held["worker"]._adapter(held["roots"], None, None, None,
+                                    attempt_id=held["attempt"])
+        # AND THE RECOVERY PATH CONTAINS IT. `_naming` is the one adapter
+        # composition whose contract is an answer rather than a raise: a
+        # failure already on its way out must not become a retry loop.
+        self.assertIsNone(held["worker"]._naming(held["attempt"]))
+
+    def test_an_installed_attempt_with_no_root_still_reconciles(self):
+        """THE PRESERVED PATH, and it must not acquire a new failure.
+
+        An attempt recorded against the installed input needs no root read at
+        all, so cleanup after the root is gone still composes an adapter --
+        which is what every Job before this Work does and what a cleanup owes
+        an ending.
+        """
+        made = self.delivered()
+        job, control = self.stores("installed-1")
+        engine = Engine()
+        operations = self.operations(job, control, engine)
+        self.addCleanup(operations.close)
+        operations._worker.job_task = lambda *, job_id: None
+        submit(job, self.submission)
+        stage = self.commanded(job, operations)["jobs"][0]["stages"][0]
+        attempt = stage["attempt_id"]
+        roots = workspaces.assignment_workspace(
+            operations._worker.group, self.storage, attempt, control=control)
+        self.assertEqual(
+            attempts.recorded_input_of(control, attempt),
+            self.manifest["manifest_digest"])
+        # The composition FREEZES the root 0555, so a case that removes one
+        # re-opens it first -- the same reason `writable` exists above.
+        os.chmod(os.path.dirname(roots["inputs"]), 0o755)
+        os.chmod(roots["inputs"], 0o755)
+        for name in os.listdir(roots["inputs"]):
+            place = os.path.join(roots["inputs"], name)
+            os.chmod(place, 0o755 if os.path.isdir(place) else 0o644)
+        shutil.rmtree(roots["inputs"])
+        adapter = operations._worker._adapter(roots, None, None, None,
+                                             attempt_id=attempt)
+        self.assertEqual(adapter.input_manifest_digest,
+                         self.manifest["manifest_digest"])
+        del made
+        # AND NOT BY REACHING THE DISK. `workspaces.assignment_workspace`
+        # independently refuses a missing prepared root, so the callers that
+        # revalidate roots never arrive here with one -- which is why this
+        # must not add a SECOND refusal for an attempt that owns no other
+        # input: `_naming` composes its paths by derivation and would then
+        # answer `None` for every ordinary cleanup.
+        self.assertFalse(os.path.exists(roots["inputs"]))
+
+    def test_a_stage_that_resolves_the_wrong_input_refuses(self):
+        """THE OTHER ROUTE TO THE SAME WRONG ANSWER, closed.
+
+        `refresh_runtime` is handed `{"attempt_id": ...}`, which carries no
+        `job_id` -- so a stage-scoped caller given that shape would resolve
+        the INSTALLED document and describe a delivered attempt with it. The
+        recorded digest decides, so passing it as a stage refuses instead.
+        """
+        held = self.running()
+        with self.assertRaises(ContractRefusal) as refused:
+            held["worker"]._adapter(held["roots"], None, None, None,
+                                    stage={"attempt_id": held["attempt"]},
+                                    attempt_id=held["attempt"])
+        self.assertEqual((refused.exception.category, refused.exception.code),
+                         ("integrity", "digest"))
+        self.assertIn(held["made"]["input_manifest"]["manifest_digest"],
+                      str(refused.exception))
+
+
+if __name__ == "__main__":
+    unittest.main()
