@@ -1,86 +1,60 @@
-# Current checkpoint — owner M325952, claim325956
+# W321608 — template-based ordinary Job creation
 
-Instance-specific preparation selected: W325959 owns exact packet for retained destination /home/sl/baton-instances/native-coordination-pilot-w321608-1 at full base14e52d80679de5e844f72324df632da5e01cf393. Owner delegates concrete input resolution; no repeat routine-choice approval round. Child returns to baton.bug for independent review, parent consumes accepted packet and retains continuation through native delivery. No launch/cutover or live instance initialization. Existing v11 Works remain unchanged.
+## Next milestone after accepted integration — owner 2026-10-27
 
-This supersedes operand-selection-pending checkpoint below; source/outcome/ownership and all execution/recovery boundaries remain. W325959 is preparation only, not shadow native deliverable. See its FINDING/PLAN for exact acceptance.
+Owner selects useful v12 Jobs observed through the lightweight read-only monitor
+as the next post-integration milestone. Exact decision: FINDING entry
+`2026-10-27T01:52:12Z`. Finish current creation/retry joined acceptance and human
+integration/checkpoint, then prepare concrete bounded live-use selection and
+operator commands. Reuse accepted W324214 visibility; coordinate independent
+monitor improvements in parallel where ownership and inputs permit. Broad v13
+hardening is not an added adoption gate. No specific deployment/live run, graph
+change, allocation, backlog migration or development-policy reversal is selected
+by this priority. The managed handler records actual scheduling relationships
+before dependent execution.
 
-# Current checkpoint — 2026-10-18T19-50-44Z
+The checkpoint below preserves the October 26 allocation history; its old
+W361910-blocked status is historical (W361910 is now closed and committed as
+19f02ce1295b4517a85f0822d48754efc982f388). Current W321608 gate remains W361912.
 
-Preparation readiness ACCEPTED. W321689 and W321690 closed satisfying; W321690 owner E325893 explicitly leaves deployment unselected. Latest review-2026-10-18T19-50-44Z.md; SELECTION-325909.md is the finite owner decision sheet.
+Current checkpoint: reviewer claim361899, 2026-10-26. Accepted pilot W325959
+closed satisfying E361852; human quickstart commit182c8f943cdfc12134ae2d082d9afe98189efe90
+is recorded by the owner. Live pipeline success and separate direct documentation
+correction remain distinct. No broad cutover or renewed live execution selected.
 
-Next: owner pins actual instance/resources/identities/diagnostic route and execution choice, then prepare and review immutable instance-specific two-stage Job packet before admission. One new native-v12 operator-quickstart Work, single-human approval and integrated-documentation closure remain selected outcome. No pilot Job/attempt, deployment or migration exists by this checkpoint. Preserve existing Work/claims and W10/W7 gates; no broad backlog/new prerequisites. Supersedes prerequisite-pending milestones below, preserving historical evidence and exclusions.
+Owner FINDING 2026-10-24T00:36:47Z selects template creation next. DESIGN SCH-1a
+now records that contract. W361910 delivers versioned template resolution; W361912
+delivers manager-owned ordinary creation, thin CLI and connected deterministic
+workflow proof, depending on W361910 via E361914. This umbrella consumes W361912
+for joined acceptance and subsequent owner delivery. Preserve existing closed
+prerequisite identities/evidence and W10/W7 gates.
 
-# Owner classification — poke324905
+Child records:
+- ../finding-v12-versioned-job-template/ (W361910)
+- ../finding-v12-template-job-creation/ (W361912)
 
-Interrupted-provider-session recovery is deferred, not a gate for current
-continuations or native v12 cutover. Successful-turn context reuse remains in
-the v12 target. Proceed with reviewed3600s provider packets and preserved candidate
-checkpoints; exact launch still needs execution selection. Revisit only if longer
-runs demonstrate material interruption loss. Preserve existing evidence and real
-dependencies. Ruling: baton:work/records/2026/10/finding-v12-development-coordination-pilot/OWNER-INTERRUPTED-SESSION-RECOVERY-324905.md.
+Reviewer owns records/reviews and current DESIGN alignment; implementer owns
+isolated candidate, tests and PROGRESS in its claimed child. Child execution is
+serial across shared code; implementer chooses needed paths and records them.
+Independent acceptance binds exact bytes. No product changes by reviewer.
+Use direct v11 claimed development and deterministic providers/engines; no live
+run, provisioning, deployment, migration, Git mutation or routine v12 packet.
 
-# Immediate critical path — leave v11 coordination
+Acceptance must establish useful input-only creation, exact resolved template and
+limits, manager-owned admission/replay/recovery, independent review/correction,
+honest held outcomes and whole routine-start timing under stated assumptions.
+A resolver alone cannot establish full startup or native cutover readiness.
 
-Owner 2026-10-18 selects fastest bounded path to native v12 coordination:
-1. W321689: finish current corrections and independent acceptance, then owner checkpoint.
-2. W321690: prove native creation/pickup, candidate review/correction, failed/held
-   result ownership, restart/replay and owner disposition through packaged surfaces;
-   deliver a concrete reviewed pilot/cutover packet. Existing evidence is reused.
-3. W321608: present that packet for explicit owner execution/cutover selection.
+Pending human checkpoint for specification/planning:
+`docs(v12): specify template-based Job creation`. Product milestone checkpoint
+follows independently accepted delivery. Do not describe either as committed.
 
-These three Work receive high priority. Preserve current claims and input gates.
-W324316 bridging, W324214 telemetry and broad hardening are not extra cutover gates.
-Only a demonstrated blocker in the selected native workflow justifies additional
-critical-path work. Prepare independent inputs concurrently when available; no
-unreviewed deployment, shadow authority or silent backlog migration.
-Reviewer confirmation: poke answer324396 / T321690 message324395.
+Read position: W321608 events361899/thread358996, W325959 events through361852
+and latest review03:33:50Z. Full previous PLAN retained in PLAN-HISTORY-361899.md;
+its pending pilot/retry statuses are superseded by the owner closure above.
 
-Earlier milestones below are historical where superseded by this checkpoint.
-
----
-
-# Priority clarification — native v12 coordination, 2026-10-18
-
-Owner prioritizes leaving v11 for all coordination. Finish existing W321689 then
-W321690 joined workflow/packet; assess actual native terminal-result pickup and
-review ownership rather than investing in W324316's v12-to-v11 bridge. Manual
-collection is temporary. Keep evidence and authority in v11 until supported
-cutover is explicitly selected; no migration or deployment is implied here.
-
-# W321608 — selected pilot preparation, 2026-10-18
-
-Owner M321677 selects new v12-only operator-quickstart Work, single-human approval
-and integrated-documentation closure. Existing Work stays in v11. No deployment
-or live execution until independently reviewed concrete packet and owner selection.
-Read events through321681, thread through321677; reviewer claim321681.
-
-Current milestone: W321688 is closed satisfying, integrated and checkpointed as
-433b09d6963ca9789700849b640e242e772b9867. Deliver W321689 owner
-disposition commands through an isolated v12 Job; W321690 joins both in deterministic packaged-surface
-rehearsal and concrete packet. Actual dependency edges321691–321694 installed;
-W321608 remains open and waits for W321690. W10/W7 gates unchanged.
-
-Reviewer owns dossier FINDING/PLAN/reviews; each assigned implementer owns child
-PROGRESS and isolated candidate. W321689 uses the accepted W321688 base. Record actual changed paths and preserve
-W61981/W321528 files/pins. No product implementation by reviewer.
-
-Slawomir owns production backup/restore and Git; implementer prepares and rehearses
-the procedure on disposable fixtures, reviewer validates, owner selects any real
-operation. Exact recovery-set and exclusion requirements are in FINDING.
-
-Joined acceptance consumer: independent reviewer, then baton.decide. Each candidate
-requires exact-byte review; packet must preserve no-v11-shadow-authority and
-withdrawal boundaries. Nine prior focused tests passed (PROBE-321622.json); no
-new runtime claims. Human checkpoint remains due for accepted planning milestone:
-`docs: prepare bounded v12 coordination pilot prerequisites`.
-
-Execution boundary: prepare and coordinate packets/dossiers in v11; executable
-work always runs via v12. Record Job/attempt and retained evidence. A concrete
-v12 blocker requires resolution, not direct-execution fallback. See the owner
-clarification appended to FINDING; no new deployment or live-provider selection.
-
-Parallel-delivery priority (owner 2026-10-18): prepare independent packets and
-maximize concurrent v12 Jobs. Immediate candidate alongside active W321689 is
-ready W321528; revalidate its accepted-base packet and coordinate actual overlap
-before execution. Preserve W321690 and W321776 real input gates. No additional
-Job is claimed running by this plan; ledger allocation remains unchanged.
+Graph readback snapshot361942 confirms W321608 blocked on W361912 (E361927),
+W361912 blocked on W361910 (E361914), both contained by this umbrella. W361910
+passed to baton.impl with set-next=baton.bug at E361941. Parent and child claims
+are released; no reviewer claim remains in this chain. Prior closed children
+remain unchanged.

@@ -274,3 +274,120 @@ Owner E325893 closes W321690 satisfying and wakes this umbrella E325894. Claim32
 Claim325956 pins M325952/E325954: retained destination /home/sl/baton-instances/native-coordination-pilot-w321608-1, accepted source14e52d80679de5e844f72324df632da5e01cf393, Slawomir retention/backup/Git ownership, two-stage native quickstart Work, separate judgment actors, human owner and dedicated diagnosis. Owner delegates resolution of concrete participants/grants/profiles/build-images/credential-network references and proposed3600s provider bounds with reserves. This supersedes waiting for routine operand selection in SELECTION-325909, not independent packet review or separate launch/cutover selection.
 
 Create W325959, baton:work/records/2026/10/finding-v12-native-pilot-instance-packet/, as bounded preparation-only child routed baton.impl. One independently reviewable packet keeps umbrella available for joined acceptance and prevents confusing v11 preparation with the future native deliverable. Reviewer owns child FINDING/PLAN; implementer owns new packet/PROGRESS only. Parent dependency installed separately and read back; no backlog or existing assignment changes. Umbrella remains open through native delivery.
+
+## 2026-10-21 — owner prioritizes fast code–try–identify cycles
+
+Owner: "the critical path does not seem complicated, yet we are constantly burried in new tiny issues. I want the cycle of code-try-identify to go fast". Recorded by baton.prompt. This confirms rapid feedback and useful integrated delivery as the working priority within the accepted v12 scope; preparation milestones alone are not evidence of usable Jobs.
+
+Apply existing focused-verification and continuity authority concretely: run the smallest relevant reproduction/gate early in each selected isolated execution, correct demonstrated ordinary defects and repeat there while the existing invocation/lease permits. Preserve the complete acceptance gate for the candidate handoff. Reuse unchanged reviewed setup and evidence; identity-only continuation changes do not justify rebuilding or re-reviewing unaffected machinery. Record a new issue, but make it a delivery blocker only when it demonstrably prevents the selected outcome or violates a required correctness/isolation/recovery invariant. Do not split a routine tightly coupled correction into a new approval campaign. Existing graph gates change only through explicit supported coordination.
+
+Handoffs name the observed failure, useful result, next executable action and concrete reason execution stopped. Distinguish time spent on useful execution from setup/review/queueing when evidence permits; unknown durations remain unknown. Reviewer corrections return directly to implementation within accepted scope. Installation preparation must produce concrete executable operands and a bounded validation path, reusing the committed accepted implementation rather than reopening it speculatively.
+
+This supersedes any operational interpretation that every small discovery or partial turn requires a new scope decision. It does not extend consumed invocation selections, leases, live-provider/deployment authority, host-execution exceptions or permit bypassing independent acceptance. Prompt coordinates existing assignments without claiming them or altering their active allocations. Current renewal claim345627 and diagnostics/installation work retain their selected boundaries.
+
+## 2026-10-22T03:15:30.728068+00:00 — shutdown evidence persistence requirement
+
+Owner states /tmp is wiped on shutdown: required receipts and restart inputs must not remain solely there. Preserve current-run reports, candidates, verification evidence and continuation checkpoints in canonical dossiers or durable instance storage before releasing for shutdown; verify copied hashes. baton.prompt verified all21 W339626 Stage B receipt files against their durable dossier copies and preserved the temporary helper and once-only marker under operator-b-helper-347232. Active W341357 handler notified to preserve remaining current-run evidence before drain release. This does not authorize another run or imply all temporary evidence has been audited.
+
+## 2026-10-22 — suspend mandatory v12 development orchestration
+
+Owner selects: "change the policy to not use v12 orchestration for now" and confirms that adoption was premature without proper orchestration and is slowing delivery. Until explicitly superseded, routine v12 implementation, correction and independent verification use direct agent/host execution under the existing v11 claim workflow. Do not require a v12 Job, bespoke execution packet, live-provider launch or per-correction host exception merely to develop v12. This explicitly supersedes the October 18 mandatory v12 execution/no-direct-fallback rule and the requirement that parallel development use v12 Jobs; it is not a product-specification relaxation.
+
+Preserve accepted scope, actual file ownership, isolated candidates where overlap/provenance requires them, independent exact-byte review, deterministic verification defaults, required acceptance and human Git control. Reuse retained candidates and focused evidence; measure useful work and overhead honestly. Actual v12 orchestration tests remain appropriate when the product behavior itself requires them, within the owning scope and existing live-provider/engine/deployment selection boundaries. No speculative reruns, new live execution, install or deployment is selected by this policy. Active claims and in-flight executions are preserved; participants adopt the simpler workflow at a safe boundary without duplicate executors.
+
+V11 remains the current coordination authority. No switch to a file-based journal, bulk backlog migration, deletion of records or abandonment of dependencies is selected here. Native v12 coordination and execution remain the delivery target; resume using them for routine development only after an explicit owner decision supported by a practical orchestration path. Prompt records this policy and notifies existing implementers/reviewer; no new implementation Work or claim is needed solely to apply it.
+
+## 2026-10-24T00:36:47Z — template-based Job creation follows accepted retry
+
+Owner confirms the discussed template contract and priority: "I agree, once this immediate retry-job is done and passes, we focus on this". Recorded by baton.prompt from the interactive conversation. Finish the current manager-owned retry outcome and its required acceptance first; then focus on simple ordinary Job creation with an explicit template selection. This makes the previously selected general-creation/template follow-on the next priority, without adding it to W358969/W359719 acceptance or interrupting their active allocation. This supersedes leaving the follow-on priority unspecified, not the retry-first ruling or existing acceptance and operational boundaries.
+
+Confirmed request: template, task, source, scope, acceptance criteria and optional explicit overrides. Resolve and record the exact template version and show the resolved selection; a configured default may save typing without hiding that selection. The reusable template covers stages/roles, stage dependencies and consumed results, input/output contracts (including candidate, verification evidence and review findings), completion/correction/failure rules, and default execution/verification limits with permitted overrides. Deployment supplies actual workers, credentials and capacity. Start with the ordinary implementation-to-independent-review workflow, not a general framework.
+
+The Job manager owns validation of the instantiated workflow and admission through the existing owning APIs; the CLI requests the operation and reports the result. No operator-authored manifests or bespoke launch packets should be required for this ordinary path. Preserve explicit task scope, acceptance and limit overrides, independent review, source/result provenance and prior retry evidence. Template composition must not duplicate admission/uniqueness/recovery logic in a helper.
+
+Coordination checkpoint: W321608 owns this queued follow-on until the managed reviewer allocates bounded implementation Work and installs/readbacks the actual scheduling relationships at the retry handoff. This entry does not install a graph dependency. Align normative DESIGN with this confirmed contract before dependent implementation; SCH-1 currently pins normalized submissions but does not yet state this template contract. No new live run, deployment, cutover or Git mutation selected.
+
+## 2026-10-26 — accepted pilot consumed; template delivery allocated
+
+**Confirmed:** under claim361899, read W321608 detail/events through361899 and
+T321608 through358996 (complete pages). Owner E361852 closes W325959 satisfying:
+instance4 quickstart-d completed implementation and independent review with retained
+results/released resources; stale documentation was separately corrected and
+committed as182c8f943cdfc12134ae2d082d9afe98189efe90. Read its full final handoff
+E361815, closure and exact review-2026-10-24T03-33-50Z.md. This consumes accepted
+evidence, not a new live run or certification of the old document. Current graph
+also reports W358969 and other prerequisite children closed satisfying.
+
+**Confirmed scope:** the October24 template-first ruling now becomes actionable.
+DESIGN SCH-1a transcribes that already-approved contract before implementation;
+it extends SCH-1 without weakening admission, recovery or startup requirements.
+No new product choice or deployment selection is inferred. Temporary direct
+development remains current; v11 remains the coordination authority.
+
+**Observed code:** job_manager/submission.py:submit accepts a normalized document
+and owns atomic submission/Job uniqueness, including fresh-attempt reservations.
+job_manager/documents.py owns closed versioned submission shapes. tools/job_manager.py
+main exposes document-based submit and fresh-attempt; fresh_attempt.py:admit owns
+the connected retry and existing ownership ports. tools/bootstrap.py:_compose owns
+Work/grant composition. The inspected ordinary path has no template request or
+resolution surface. This is a bounded source finding, not a deployment probe.
+Operational read correction: src/baton_v12/stack_command.py does not exist; located
+and read tools/stack_command.py instead. No required policy/dossier is unreadable.
+CLI `help` was rejected as an unknown verb; supported `--help` supplied workflow
+operands. These were caller locator/syntax corrections, not product defects.
+
+**Decomposition:** W361910 resolves and pins the versioned implementation-review
+template contract; W361912 consumes that exact accepted result and delivers the
+manager creation operation, thin CLI and joined deterministic rehearsal. The two
+outcomes are independently reviewable; serial delivery avoids overlapping shared
+submission/admission edits and speculative interfaces. W361912 waits on W361910
+(E361914). W321608 retains joined acceptance and stays open through delivery.
+Both use flat top-level canonical dossiers because they are separately scheduled
+product capabilities. No broad framework, migration or extra retry gate is added.
+
+**Ownership:** reviewer owns this FINDING/PLAN, new child FINDING/PLAN/reviews and
+the SCH-1a specification transcription. No concurrent DESIGN/product edit was
+observed in scoped git status. Implementer owns each isolated child candidate,
+tests and its PROGRESS once claimed; canonical product import remains a separately
+reviewed human-plus-agent operation. Actual needed files are the implementer's
+choice; coordinate any real overlap. No protocol/application implementation or
+existing test mutation performed in this review turn.
+
+Historical pilot-preparation and retry-pending checkpoints in the previous PLAN
+are superseded as current status by this entry and retained verbatim in
+PLAN-HISTORY-361899.md. No tests rerun: this is planning and accepted-evidence
+consumption. Required human Git checkpoint remains pending for the new specification
+and planning milestone: `docs(v12): specify template-based Job creation`.
+
+Canonical completion of allocation: E361927 installed parent -> W361912 and
+released claim361899; E361941 passed W361910 to baton.impl, next baton.bug.
+Detail readback snapshot361942 confirms the complete serial graph and released
+claims. A pass using unsupported `next=` refused without effect; corrected to
+the advertised `set-next=` and succeeded. No policy bypass or operational blocker.
+
+## 2026-10-27T01:52:12Z — owner selects useful Jobs and lightweight monitor after integration
+
+Owner confirms the prompt recommendation: after the current creation/retry chain
+passes joined acceptance and is integrated, the next milestone is to run useful
+v12 Jobs and observe them in the lightweight Job monitor. Use that bounded real
+work to guide monitor improvements; do not substitute a broad infrastructure or
+v13 hardening campaign for this milestone. Recorded by baton.prompt from the
+interactive owner's "I agree". This makes the post-integration priority explicit;
+it does not supersede the current creation/retry acceptance requirements.
+
+At this decision the remaining chain is W365075 writer recovery, W364834 retry
+task preservation, and W361912 joined creation/workflow acceptance. W321608 is
+unclaimed and blocked on W361912. Minimum worker visibility W324214 is already
+closed satisfying; reuse its accepted evidence. Monitor work can proceed in
+parallel where actual files and inputs are independent, with explicit ownership.
+No new scheduling edge, allocation or claim is installed by this record.
+
+After accepted integration and the human Git checkpoint, the managed reviewer
+prepares the bounded useful-Job/monitor continuation and concrete operator
+commands, allocating any necessary Work through the canonical graph. A particular
+build, deployment and live execution still require explicit supported selection.
+This ruling does not launch a Job, migrate backlog, change the coordination
+authority, relax isolation/recovery/independent acceptance, or restore mandatory
+v12 orchestration for routine development. Current direct-development policy
+remains until explicitly changed. Broad monitor/TUI enrichment remains v13 scope;
+the selected outcome is the lightweight read-only monitor used with useful Jobs.

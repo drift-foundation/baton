@@ -657,6 +657,27 @@ stage requirements, worker capabilities, limits, test expectations and terminal
 policy. Same submission identity replays exactly; changed intent requires a new
 explicit revision/operation. Mutable configuration must not reinterpret active Jobs.
 
+**SCH-1a. Versioned template creation (owner 2026-10-24).** Ordinary Job creation
+MUST accept an explicit template selection, task, source, scope, acceptance
+criteria and permitted explicit overrides. Resolve, record and show the exact
+template version and resolved selection. A configured default may save typing
+but MUST NOT hide that selection or reinterpret an already submitted Job.
+The reusable template defines stages/roles, dependencies and consumed results,
+input/output contracts including candidate, verification evidence and review
+findings, completion/correction/failure rules, and default execution/verification
+limits with permitted overrides. Start with implementation followed by independent
+review, not a general workflow framework. Deployment supplies workers, credentials
+and capacity; these are not operator-authored per-Job manifests.
+
+The Job manager owns validation and admission of the instantiated workflow through
+the existing owning APIs. The CLI requests the operation and reports its result.
+Ordinary creation MUST NOT require operator-authored manifests or bespoke launch
+packets, nor duplicate admission, uniqueness or recovery in a helper. Preserve
+source/result provenance, independent review and the resolved limits. SCH-1,
+DB-3 through DB-7, REC-7 and OBS-0/OBS-0a continue to apply. This extends SCH-1;
+it does not authorize live execution, deployment or authority cutover. Decision:
+[template-first creation](../work/records/2026/10/finding-v12-development-coordination-pilot/FINDING.md#2026-10-24t003647z--template-based-job-creation-follows-accepted-retry).
+
 **SCH-2.** Persistent scheduling advances eligible stages without a human manually
 driving each ordinary handoff. Admission reserves real principal capacity and checks
 stage gates atomically. Capacity uncertainty remains occupied; liveness timeout

@@ -214,6 +214,12 @@ Decision and measured feedback-time comparison:
   either address or use one participant for both foreground and background
   execution. Each runtime publisher reports only the exact context mapped to
   its participant; runtime visibility does not imply a readiness consumer.
+- When recommending an operator action, `baton.prompt` supplies the exact commands
+  the human can run to accept and carry it out, not only inspection commands.
+  Identify prerequisites, expected outcomes and separate approval boundaries.
+  Prefer short, independently pasteable commands or a prepared helper with a
+  read-only check mode. A recommendation does not execute the action or authorize
+  the copilot to act as another participant.
 - `baton.merge` is a distinct managed context, not an alias for implementation,
   review, tuning, or approval. It imports only an independently approved,
   digest-bound proposal into the current working tree after checking its base,
@@ -585,6 +591,11 @@ Owner selects coder `codx-pc`, canonical `baton.codxpc` (six-cell member limit),
 
 ## V11 preparation and v12 execution — owner 2026-10-18
 
+**Historical execution rule, superseded 2026-10-22:** the mandatory v12-only
+development execution and no-direct-fallback requirements below are replaced by
+"Temporary direct development workflow" at the end of this section. Preserve
+historical evidence and the unchanged scope, review and Git rules.
+
 For now, prepare Work packets and dossiers and coordinate scope, ownership,
 acceptance and handoffs in v11. Run executable work through isolated v12 Jobs.
 Record actual v12 Job/attempt identities and retained execution evidence in the
@@ -606,17 +617,24 @@ coordination authority or select a production deployment.
 Decision history:
 [Owner execution boundary](work/records/2026/10/finding-v12-development-coordination-pilot/FINDING.md#2026-10-18--owner-clarifies-v11-preparation--v12-execution-boundary).
 
-### Temporary W321689 completion exception — owner 2026-10-18
+### Recording bounded owner exceptions
 
-Owner permits W321689 alone to finish its already-started direct implementation,
-focused verification and independent review without reimplementation solely to
-change execution provenance. Preserve and report the actual direct provenance;
-this does not accept the candidate or waive review, defects or human Git ownership.
-The exception expires when W321689 closes and does not extend to successor Work.
-All other executable work follows the v12 requirement above. Exact ruling:
-[W321689 continuation exception](work/records/2026/10/finding-v12-pilot-owner-disposition/FINDING.md#2026-10-18--owner-permits-w321689-only-completion-exception).
+Keep general agent policy here. Job-specific permissions, temporary exceptions,
+execution selections and their expiry belong in the owning dossier's FINDING,
+with the currently applicable decision referenced by its PLAN and handoff.
+Do not duplicate those rulings as job-specific sections in AGENTS.
+
+An explicit owner exception recorded there overrides the general execution
+boundary only within its stated scope and lifetime. Revalidate it before acting;
+do not infer an exception from a blocker or extend it to successor or sibling Work.
+Moving a ruling out of AGENTS does not revoke it or revive an expired exception.
+Preserve actual execution provenance, independent review and human Git ownership.
 
 ### Parallel delivery priority — owner 2026-10-18
+
+**Clarified 2026-10-22:** useful parallel delivery remains the priority, but the
+requirement to execute development through v12 Jobs is suspended by the temporary
+workflow below. Coordinate disjoint direct execution instead.
 
 Maximize useful parallel v12 execution: prepare independent bounded Work packets
 in v11 and run ready independent Jobs concurrently through v12. Do not reproduce
@@ -636,3 +654,26 @@ bridge investment. W324316's reporter proposal is not selected for implementatio
 manual result collection remains a temporary measure. Preserve one coordination
 authority, existing Work/evidence and independent acceptance until an explicit
 supported cutover; this priority does not itself migrate backlog or deploy.
+
+### Temporary direct development workflow — owner 2026-10-22
+
+Until explicitly superseded, do not use v12 orchestration for routine v12
+development. Implement, correct and verify directly through the existing agent
+workflow under the current v11 claim protocol. A v12 Job, bespoke launch packet
+or additional host-execution exception is not required for ordinary authorized
+development. This supersedes the October 18 mandatory v12 execution and
+no-direct-fallback rules, including older Work wording that repeats them.
+
+Preserve accepted scope, file ownership, isolated candidates where needed for
+overlap/provenance, independent exact-byte review, deterministic verification
+defaults, required acceptance and human Git ownership. Reuse retained work and
+focused evidence. Tests of actual v12 orchestration still exercise that product
+boundary when needed; existing live-provider, engine and deployment selection
+boundaries remain. No new live run, install, deployment, claim takeover or Git
+mutation is authorized by this development-workflow ruling.
+
+Preserve active claims and in-flight executions and change workflow at a safe
+boundary. V11 remains the coordination authority until an explicit cutoff;
+file-journal coordination is not yet selected. Native v12 coordination and
+execution remain the target, not a prerequisite for finishing their development.
+Decision: [temporary direct workflow](work/records/2026/10/finding-v12-development-coordination-pilot/FINDING.md#2026-10-22--suspend-mandatory-v12-development-orchestration).
