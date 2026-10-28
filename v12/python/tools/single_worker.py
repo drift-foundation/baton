@@ -4270,6 +4270,20 @@ class _Observation:
             runtime_input_digest=given["input_manifest"]["manifest_digest"],
             runtime_policy_digest=given["policy_digest"])
 
+    def exchange_delivery(self, stage):
+        """Adopt the typed retained exchange; no output scan or serving setup."""
+        attempt_id = stage["attempt_id"]
+        launched = launch.adopt(
+            self.launch_home, attempt_id=attempt_id,
+            session=self._session_of(attempt_id),
+            contract=self.given["launch_contract"],
+            role=self.given["launch_role"],
+            transport=exchange.EXCHANGE_TRANSPORT,
+            job_execution=self._job_execution(stage),
+            provider_context=_context_descriptor(self.control, self.given, attempt_id),
+            workspace_group=self.group)
+        return None if launched is None else launched.exchange
+
     def observe_exchange(self, stage):
         """The same reconstruction the serving deployment performs.
 
@@ -4280,19 +4294,8 @@ class _Observation:
         a refusal's prose is composed from values a worker wrote.
         """
         try:
-            attempt_id = stage["attempt_id"]
-            launched = launch.adopt(
-                self.launch_home, attempt_id=attempt_id,
-                session=self._session_of(attempt_id),
-                contract=self.given["launch_contract"],
-                role=self.given["launch_role"],
-                transport=exchange.EXCHANGE_TRANSPORT,
-                job_execution=self._job_execution(stage),
-                provider_context=_context_descriptor(self.control, self.given, attempt_id),
-                workspace_group=self.group)
-            if launched is None or launched.exchange is None:
-                return None
-            return exchange.observation(launched.exchange)
+            delivery = self.exchange_delivery(stage)
+            return None if delivery is None else exchange.observation(delivery)
         except ContractRefusal as refusal:
             return {"transport": exchange.EXCHANGE_TRANSPORT,
                     "sequence_id": None, "command": None, "receipt": None,
@@ -4369,3 +4372,9 @@ def _context_mount(control, given, attempt_id):
     if storage.path != given["provider_context"]["storage"]:
         _refuse("required context storage changed")
     return context_delivery.context_mount_of(control, storage, attempt_id=attempt_id)
+
+
+def settlement_delivery(document, job_store, control_store, stage):
+    """Typed exchange read for explicit retained settlement, including review roles."""
+    return _Observation(document, control_store, job_store=job_store,
+                        roles=("implementation", "review", "integration")).exchange_delivery(stage)

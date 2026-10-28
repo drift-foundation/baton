@@ -3870,6 +3870,29 @@ def preparation_completed(control, assignment_id):
     return _json.loads(result) if type(result) is str else result
 
 
+def settlement_preparation(control, assignment_id):
+    """Read primary-path provenance without touching retained output.
+
+    All reads belong to this control store, so the settlement owner can repeat
+    this check in its intent/outcome transactions. An unresolved legacy effect
+    is never converted into a primary-path absence claim.
+    """
+    from . import custody
+
+    prepared = preparation_completed(control, assignment_id)
+    if prepared is None:
+        raise ContractRefusal("refused", "precondition", "stopped settlement requires recorded completed host preparation")
+    for name, reader in (("preparation", standing_preparation), ("allocation", standing_allocation), ("removal", standing_removal), ("cleanup", standing_cleanup), ("adoption", standing_adoption)):
+        if reader(control, assignment_id):
+            raise ContractRefusal("runtime-observation", "quiescence-unknown", f"unsettled {name} keeps stopped execution held")
+    if list(_journal_maintenance(control, assignment_id)):
+        raise ContractRefusal("runtime-observation", "quiescence-unknown", "unsettled maintenance keeps stopped execution held")
+    for root in ("result", "workspace"):
+        if custody._standing_overlap(control, assignment_id, root) is not None:
+            raise ContractRefusal("runtime-observation", "quiescence-unknown", "unsettled custody effect keeps stopped execution held")
+    return prepared
+
+
 def record_preparation(control, assignment_id, roots, published):
     """Record that every governed host preparation writer has finished.
 

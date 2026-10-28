@@ -2267,7 +2267,43 @@ TOKEN_OWNERS = {
         "an ordinal this module allocated and recorded; a generation naming no acquisition answers `None` rather than inventing one",
 }
 
+# W375444: explicit public-to-private ownership. These are selected request
+# members, not an inventory-derived exemption: new members still need a rule.
+SETTLEMENT_REQUEST_MEMBERS = (
+    "", ".operation_id", ".attempt_id", ".runtime_id", ".start_operation_id",
+    ".assignment", ".assignment.work_ref", ".assignment.work_ref.authority_uuid",
+    ".assignment.work_ref.work_id", ".assignment.participant", ".assignment.generation",
+    ".token", ".token.domain", ".token.generation", ".token.owner", ".token.launch")
+SETTLEMENT_DELEGATES = {
+    **{("caller", "stopped_settlement.py:" + method, "request" + member):
+       ("stopped_settlement.py:_request", "caller:given" + "".join("[" + part + "]" for part in member.split(".") if part))
+       for method in ("settle_stopped", "status", "preview") for member in SETTLEMENT_REQUEST_MEMBERS},
+    ("caller", "stopped_settlement.py:settle_stopped", "govern"):
+        ("stopped_settlement.py:_governed_domain", "caller:govern"),
+    ("caller", "stopped_settlement.py:preview", "govern"):
+        ("stopped_settlement.py:_governed_domain", "caller:govern"),
+    ("caller", "workspaces.py:settlement_preparation", "assignment_id"):
+        ("workspaces.py:preparation_completed", "caller:assignment_id"),
+}
+SETTLEMENT_OWNERS = {
+    **{("caller", "stopped_settlement.py:" + method, "request." + member):
+       "_request owns the fixed schema version and exact lowercase SHA256 grammar before any store or runtime effect"
+       for method in ("settle_stopped", "status", "preview") for member in ("schema", "failure_digest")},
+    **{("caller", "stopped_settlement.py:" + method, "delivery"):
+       "exchange.observation requires its nominal ExchangeDelivery and validates fault history; selection also compares exact attempt and failure digest"
+       for method in ("failure_digest", "settle_stopped", "preview")},
+    ("caller", "stopped_settlement.py:settle_stopped", "adapter"):
+        "attempts._observed owns the trusted observe crossing; missing, failed and non-cessation answers hold without selecting or returning a token",
+    ("caller", "stopped_settlement.py:preview", "adapter"):
+        "attempts._observed owns the read-only runtime crossing; missing or uncertain answers hold without selection",
+    ("caller", "tokens.py:settlement_fence_of", "control"):
+        "the ControlStore capability is exercised through its operation journal, including exact closed-connection failure",
+    ("caller", "workspaces.py:settlement_preparation", "control"):
+        "the ControlStore capability is exercised through the preparation journal, including exact closed-connection failure",
+}
+
 STATED_OWNERS = {
+    **SETTLEMENT_OWNERS,
     **DEADLINE_OWNERS,
     **TOKEN_OWNERS,
     **MAINTENANCE_OWNERS,
@@ -3347,6 +3383,7 @@ TOKEN_DELEGATES = {
 }
 
 DELEGATED = {
+    **SETTLEMENT_DELEGATES,
     ("caller", "workspaces.py:prepared_workspace_governance", "permission"):
         ("tokens.py:acquire", "caller:permission"),
     **DEADLINE_DELEGATES,
@@ -8227,6 +8264,7 @@ class EveryProbeProvesItArrived(BoundaryCase):
 
     def all_probes(self):
         return {**self.probes(), **self.column_probes(),
+                **self.settlement_probes(),
                 **self.deadline_probes(),
                 **self.event_probes(),
                 **self.custody_probes(),
@@ -8239,6 +8277,66 @@ class EveryProbeProvesItArrived(BoundaryCase):
                 **self.review_cycle_probes(),
                 **self.worker_entry_probes(),
                 **self.token_probes()}
+
+    def settlement_probes(self):
+        """Negative probes cross the public API, with the exact named owner failing."""
+        import copy
+        from baton_v12.worker_manager import stopped_settlement, tokens
+        from .test_stopped_settlement import StoppedSettlement
+
+        def request_probe(method, subject, label):
+            def run():
+                fixture = StoppedSettlement()
+                self.addCleanup(fixture.doCleanups)
+                fixture.setUp()
+                request = copy.deepcopy(fixture.request)
+                parts = subject.split(".")[1:]
+                value = True if "generation" in label else [] if label in (
+                    "a stopped settlement request", "settlement assignment", "settlement token", "settlement work reference") else None
+                if not parts:
+                    request = value
+                else:
+                    target = request
+                    for part in parts[:-1]:
+                        target = target[part]
+                    target[parts[-1]] = value
+                if method == "status":
+                    stopped_settlement.status(fixture.store, request)
+                elif method == "preview":
+                    stopped_settlement.preview(fixture.store, fixture.port, fixture.adapter, fixture.govern, request=request, delivery=fixture.delivery)
+                else:
+                    fixture.settle(request=request)
+            return run
+
+        def governance_probe(label, method):
+            def run():
+                fixture = StoppedSettlement()
+                self.addCleanup(fixture.doCleanups)
+                fixture.setUp()
+                member = "identity" if label == "settlement resource governance" else "release"
+                setattr(fixture.govern, member, None)
+                if method == "preview":
+                    stopped_settlement.preview(fixture.store, fixture.port, fixture.adapter, fixture.govern, request=fixture.request, delivery=fixture.delivery)
+                else:
+                    fixture.settle()
+            return run
+
+        found = {}
+        for entry in SETTLEMENT_DELEGATES:
+            for label in delegated_labels(entry):
+                if entry[1].startswith("stopped_settlement.py:") and entry[2].startswith("request"):
+                    probe = request_probe(entry[1].split(":")[1], entry[2], label)
+                elif entry[2] == "govern":
+                    probe = governance_probe(label, entry[1].split(":")[1])
+                else:
+                    probe = lambda: workspaces.settlement_preparation(self.store, SURROGATE)
+                found[(entry, label)] = (label, probe)
+        for subject, label, probe in (
+                ("domain", "a settlement fence domain", lambda: tokens.settlement_fence_of(self.store, SURROGATE, 1)),
+                ("generation", "a settlement fence generation", lambda: tokens.settlement_fence_of(self.store, "workspace:probe", True))):
+            entry = ("caller", "tokens.py:settlement_fence_of", subject)
+            found[(entry, label)] = (label, probe)
+        return found
 
     def token_probes(self):
         """W275774 child A: the shared resource token's receiving entries.
@@ -9506,6 +9604,7 @@ TOKEN_WITNESSES = {
 }
 
 WITNESSES = {
+    **{entry: "test_stopped_settlement_preview_stated_owners" if entry[1] == "stopped_settlement.py:preview" else "test_stopped_settlement_stated_owners" for entry in SETTLEMENT_OWNERS},
     **TOKEN_WITNESSES,
     ("caller", "maintenance.py:prepare", "seconds"):
         "test_a_maintenance_allowance_may_only_lower_this_modules_bound",
@@ -10149,6 +10248,31 @@ class DeadlineForwardingInventory(unittest.TestCase):
 
 
 class StatedRules(BoundaryCase):
+
+    def test_stopped_settlement_preview_stated_owners(self):
+        from .test_stopped_settlement import StoppedSettlement
+        from baton_v12.worker_manager import stopped_settlement
+        fixture = StoppedSettlement()
+        self.addCleanup(fixture.doCleanups)
+        fixture.setUp()
+        def preview(request=fixture.request, delivery=fixture.delivery, adapter=fixture.adapter):
+            return stopped_settlement.preview(fixture.store, fixture.port, adapter, fixture.govern, request=request, delivery=delivery)
+        self.assertEqual(preview()["eligibility"], "eligible")
+        self.assertEqual(stopped_settlement.status(fixture.store, fixture.request)["state"], "not-selected")
+        for field, value in (("schema", "unsupported"), ("failure_digest", "sha256:" + "A" * 64)):
+            with self.subTest(field=field), self.assertRaises(ContractRefusal):
+                preview(dict(fixture.request, **{field: value}))
+        with self.assertRaises(ContractRefusal):
+            preview(delivery=object())
+        self.assertEqual(preview(adapter=object())["eligibility"], "held")
+
+    def test_stopped_settlement_stated_owners(self):
+        from .test_stopped_settlement import StoppedSettlement
+        for method in ("test_request_members_and_nominal_capabilities_refuse", "test_local_request_and_capability_rules", "test_stopped_failure_preserves_axes_and_replays_without_observation"):
+            fixture = StoppedSettlement(method)
+            self.addCleanup(fixture.doCleanups)
+            fixture.setUp()
+            getattr(fixture, method)()
 
     def _token_fixture(self):
         """Child A's fixture, from the ORDINARY test tree.
@@ -15954,3 +16078,43 @@ class DuplicateColumnChecksRequireOwnedWitnesses(unittest.TestCase):
         nested = ("adopted", "review_cycles.py:checkpoint_of", "line_checkpoints.fence.intent")
         self.assertNotIn(nested, _column_check_relations(self.records, {nested}, self.sources))
         self.assertEqual(set(layer_labels(nested)), {"a persisted assignment fence", "a persisted line checkpoint"})
+
+
+class StoppedSettlementInventory(BoundaryCase):
+    """W375444's complete additive slice, alongside unchanged aggregate gates."""
+
+    @staticmethod
+    def owns(site):
+        return site.startswith("stopped_settlement.py:") or site in ("tokens.py:settlement_fence_of", "workspaces.py:settlement_preparation")
+
+    def test_entries_calls_and_probes_are_owned(self):
+        entries = {entry for entry in receiving_entries() if self.owns(entry[1])}
+        self.assertEqual({entry[1] for entry in entries}, {"stopped_settlement.py:failure_digest", "stopped_settlement.py:settle_stopped", "stopped_settlement.py:status", "stopped_settlement.py:preview", "tokens.py:settlement_fence_of", "workspaces.py:settlement_preparation"})
+        owner = EveryReceivingEntryHasOneOwner()
+        for entry in sorted(entries):
+            with self.subTest(entry=entry):
+                self.assertIsNotNone(owner.owner_of(entry)[0])
+                self.assertEqual(sum((bool(layer_labels(entry)), entry in STATED_OWNERS, entry in DELEGATED, entry[0] == "caller" and entry[2] in CONSTRUCTED_BY)), 1)
+                if entry in STATED_OWNERS:
+                    self.assertTrue(callable(getattr(StatedRules, WITNESSES.get(entry, ""), None)))
+        records = boundary_occurrences()
+        _, residual = _account_boundary_calls(records, _boundary_claims(records, receiving_entries(), DELEGATED), NOT_AN_ENTRY)
+        self.assertEqual([(r.site, r.kind, r.label) for r in residual if self.owns(r.site)], [])
+        driver = EveryProbeProvesItArrived()
+        try:
+            driver.setUp()
+            declared = {pair for pair in driver.all_probes() if self.owns(pair[0][1])}
+            wanted = {pair for pair in driver.expected() if self.owns(pair[0][1])}
+            self.assertEqual(declared, wanted)
+        finally:
+            driver.doCleanups()
+        for entry, label in sorted(wanted):
+            with self.subTest(entry=entry, label=label):
+                driver = EveryProbeProvesItArrived()
+                try:
+                    driver.setUp()
+                    full, probe = driver.all_probes()[(entry, label)]
+                    self.assertIn(label, full)
+                    driver.refusing(full, probe)
+                finally:
+                    driver.doCleanups()

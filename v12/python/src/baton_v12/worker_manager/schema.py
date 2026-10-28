@@ -114,7 +114,10 @@ STORE_KIND = "baton.v12.python.worker-manager"
 # attachments, exact-checkpoint verdicts and integration eligibility cannot be
 # reconstructed from a schema-16 attempt after the fact. The standing fresh-
 # store boundary therefore applies unchanged.
-SCHEMA_VERSION = 18
+# 19 adds retained failed-execution settlement and an acting fence. Old writers
+# must not open this journal and overlook its new permission-withdrawal record.
+# Fresh development stores only; no migration is selected (W375444).
+SCHEMA_VERSION = 19
 
 TABLES = ("meta", "operations", "offers", "attempts", "observations",
           "profiles", "agent_sessions", "posture_slots", "manifests",

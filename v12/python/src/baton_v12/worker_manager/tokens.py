@@ -43,6 +43,7 @@ ACQUIRED_KIND = "resource-token.acquired"
 LAUNCH_KIND = "resource-token.launch"
 BOUND_KIND = "resource-token.bound"
 RETURNED_KIND = "resource-token.returned"
+SETTLEMENT_FENCE_KIND = "resource-token.settlement-fence"
 # W275774 review 15:00:16Z: THE IN-FLIGHT ACTIVATION IS ITSELF A DURABLE FACT.
 #
 # An independent probe defeated the previous argument exactly: a permission was
@@ -173,6 +174,32 @@ def _renewed_id(domain, generation, revision):
 
 def _returned_id(domain, generation):
     return f"{RETURNED_KIND}:{domain}:{generation}"
+
+
+def settlement_fence_of(control, domain, generation):
+    """The immutable settlement selection withdrawing this generation's permission."""
+    boundaries.text(domain, "a settlement fence domain")
+    boundaries.generation(generation, "a settlement fence generation")
+    if generation == 0:
+        raise ContractRefusal("integrity", "schema", "a resource token generation starts at one")
+    return _document(control, f"{SETTLEMENT_FENCE_KIND}:{domain}:{generation}", SETTLEMENT_FENCE_KIND)
+
+
+def _fence_settlement(control, token, selection):
+    """Called only inside the settlement owner's intent transaction."""
+    from .store import _recorded, manager_signature
+
+    if not control._connection.in_transaction:
+        raise RuntimeError("settlement fence requires its intent transaction")
+    _owning(control, token, "selecting settlement", reclaiming=True)
+    document = {"domain": token["domain"], "generation": token["generation"], "owner": token["owner"], "selection": selection}
+    operation = f"{SETTLEMENT_FENCE_KIND}:{token['domain']}:{token['generation']}"
+    signature = manager_signature(SETTLEMENT_FENCE_KIND, document)
+    found, result = control.replay(operation, signature, kind=SETTLEMENT_FENCE_KIND)
+    if found:
+        return result
+    control._record(operation, SETTLEMENT_FENCE_KIND, signature, "committed", _recorded(document), None)
+    return document
 
 
 def _document(control, operation_id, kind):
@@ -356,6 +383,7 @@ def token_of(control, domain, generation):
     answer["timing_decided_at"] = None if unsure is None else unsure["decided_at"]
     answer["revoked"] = _document(control, _revoked_id(domain, generation),
                                   REVOKED_KIND) is not None
+    answer["settlement_fence"] = settlement_fence_of(control, domain, generation)
     return answer
 
 
@@ -688,7 +716,7 @@ def _extended(control, token, domain, generation, what, execution, operation,
                 f"held either way")
         return dict(document)
 
-    return control.transact(identity, RENEWED_KIND, signature, extend)
+    return _acting_record(control, token, identity, RENEWED_KIND, operands, action=extend)
 
 
 def journal_launch(control, token, launch):
@@ -706,13 +734,7 @@ def journal_launch(control, token, launch):
     document = {"domain": token["domain"], "generation": token["generation"],
                 "owner": token["owner"], "launch": launch}
 
-    def journalling(_connection):
-        _owning(control, token, "journalling a launch")
-        return dict(document)
-
-    return control.transact(_launch_id(token["domain"], token["generation"]),
-                            LAUNCH_KIND,
-                            manager_signature(LAUNCH_KIND, document), journalling)
+    return _acting_record(control, token, _launch_id(token["domain"], token["generation"]), LAUNCH_KIND, document)
 
 
 def bind_container(control, token, container, *, launch):
@@ -740,13 +762,29 @@ def bind_container(control, token, container, *, launch):
     document = {"domain": token["domain"], "generation": token["generation"],
                 "owner": token["owner"], "launch": launch, "container": container}
 
-    def binding(_connection):
-        _owning(control, token, "binding a container")
-        return dict(document)
+    return _acting_record(control, token, _bound_id(token["domain"], token["generation"]), BOUND_KIND, document)
 
-    return control.transact(_bound_id(token["domain"], token["generation"]),
-                            BOUND_KIND,
-                            manager_signature(BOUND_KIND, document), binding)
+
+def _acting_record(control, token, operation, kind, document, *, action=None):
+    """Acting replay rechecks permission under the same lock as settlement."""
+    from .store import _recorded, manager_signature
+
+    if control._readonly or control._snapshots:
+        raise ContractRefusal("policy", "denied", "a read-only manager performs no acting operation")
+    signature = manager_signature(kind, document)
+    connection = control._connection
+    connection.execute("BEGIN IMMEDIATE")
+    try:
+        _owning(control, token, kind)
+        found, result = control.replay(operation, signature, kind=kind)
+        if not found:
+            result = document if action is None else action(connection)
+            control._record(operation, kind, signature, "committed", _recorded(result), None)
+        connection.execute("COMMIT")
+        return result
+    except BaseException:
+        connection.execute("ROLLBACK")
+        raise
 
 
 def revoke(control, resource_identity, resource_kind, *, execution, operation):
@@ -1020,7 +1058,7 @@ def effects_permitted(control, token):
     if current is None or current["returned"] or current["expired"]:
         return False
     # THE DURABLE WITHDRAWAL, asked separately from the clock.
-    if current["revoked"]:
+    if current["revoked"] or current["settlement_fence"] is not None:
         return False
     if current["owner"] != token["owner"] or current["container"] is None:
         return False
@@ -1227,6 +1265,8 @@ def _owning(control, token, what, *, reclaiming=False):
     # also blocked the RETURN then the only path that can free a reclaimed resource
     # would be the one the revocation closes, and every revoked generation would
     # hold its resource forever. My own case found exactly that.
+    if not reclaiming and settlement_fence_of(control, token["domain"], token["generation"]) is not None:
+        raise ContractRefusal("refused", "already-terminal", f"{what} is refused: this exact generation is fenced for stopped-execution settlement")
     if not reclaiming and _document(
             control, _revoked_id(token["domain"], token["generation"]),
             REVOKED_KIND) is not None:

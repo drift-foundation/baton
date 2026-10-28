@@ -267,3 +267,36 @@ receipts and citations are reported at closure either way, and the recovery set
 is `record recovery-manifest` with `record recovery-check` over a restored
 one — a clean check is a precondition for an operator's admission and never an
 admission itself. Slawomir owns backup, restore and every Git operation.
+
+### Retained failed-execution settlement
+
+The installed command accepts an explicit instance selector and the exact Job,
+stage and episode. Preview is read-only and does not reserve eligibility:
+
+```sh
+"$DEST/distro/baton-v12-stack" manager settlement-preview --instance "$DEST/instance.json" --job JOB --stage JOB/implementation --episode 1 --operation-id OPERATION > preview.json
+```
+
+Save the `request` object from that response as `request.json`, then select the
+operation explicitly:
+
+```sh
+"$DEST/distro/baton-v12-stack" manager settle-stopped --instance "$DEST/instance.json" --document request.json
+"$DEST/distro/baton-v12-stack" manager settlement-status --instance "$DEST/instance.json" --document request.json
+```
+
+The request binds the installed package and deployment, Job episode, original
+assignment, exact runtime and resource generation, and validated faulted exchange.
+Settlement refuses while another manager holds the instance. It rechecks
+eligibility, fences execution permission, observes cessation again, records
+`failed-stopped`, and returns only that generation. Unknown runtime or writer
+state stays held. Files, failed exchange, result-consumption obligations and
+Authority disposition remain independent; settlement supplies no successful
+review verdict and performs no cleanup.
+
+Retry the unchanged request after interruption. Status distinguishes
+`not-selected`, `held`, `release-pending`, `returned-receipt-pending`, and
+`settled`. A committed request can resume after independent Authority disposition;
+a new selection requires the expected current assignment. Preview and status
+open existing stores read-only, with no migration or writable fallback. Preview
+may inspect the exact runtime; status reads only durable settlement records.
