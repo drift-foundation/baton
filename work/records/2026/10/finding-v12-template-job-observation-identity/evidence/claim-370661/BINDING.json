@@ -1,0 +1,112 @@
+{
+ "base": "42bed8bb04a53380e565b1a63fb2bc702677f0d0",
+ "candidate": {
+  "v12/python/tests/tools/test_job_task_delivery.py": {
+   "bytes": 161935,
+   "sha256": "4a99cab76ff0d71b74485313827384c0506ef6bb3d5f1904163e94b840fa872e"
+  },
+  "v12/python/tools/single_worker.py": {
+   "bytes": 239509,
+   "sha256": "29e569365e182f70372938c65115c1ff813e6b3105781733c24eb34cda924971"
+  }
+ },
+ "claim": "E370661",
+ "diagnostic_consumed_read_only": {
+  "review": "review-2026-10-28T02-03-46Z.md",
+  "sha256": "3443c8a7e5f9a7c5e42c6e49d2d12a23768fb64ed3fc175866d698e589429b9a"
+ },
+ "diffs": {
+  "single_worker.diff": "8b62bdb8337f61413b3d00760951620977d807d206cb0a031ddb9611d2513540",
+  "test_job_task_delivery.diff": "f3f0196e81509d779181e8dfd796f4678dc7b15f2c2b233b57427bd9bf8a6aed"
+ },
+ "human_checkpoint_due": "the PLAN proposes the message 'Fix template Job observation manifest reconstruction'. No agent performs any Git mutation.",
+ "not_established": [
+  "the retained deployment is NOT updated: it runs the 18e771f0 bundle and this correction is source only, so the live instance would still report unreadable until an owner selects a rebuild",
+  "no deployment update, live retry, provider run or change to retained execution evidence",
+  "the test harness substitutes the per-Job task reader's ANSWER for the reason the suite already documents; TheReaderOverARealStore covers the read itself",
+  "no container, engine, provider or credential was involved in any run"
+ ],
+ "record_files": {
+  "FINDING.md": "ae79047548b37b370547da276e1376b0159f535dec7bcbfb3efee74caf208b09",
+  "PLAN.md": "7c01e0346792ea71379ef46189020f9edc324241a5ec881ad30824df4de561a0",
+  "PROGRESS.md": "390ab5e283ee853f4b1450074ed3d2920b87422ac28eb272817189062acca6dc"
+ },
+ "schema": "baton.v12.observation-identity-binding/1",
+ "selected_by": "owner E370626 \u2014 bounded source correction of observation's installed-versus-Job-composed manifest mismatch",
+ "the_change": {
+  "call_sites": [
+   "_SingleWorker._given_for",
+   "_SingleWorker._for_job",
+   "_Observation._job_execution"
+  ],
+  "new_module_function": "tools/single_worker.py given_for_job(given, reader, stage) \u2014 the single account of the per-Job resolution rule",
+  "new_reader": "_Observation.__init__ now builds job_task_reader(job_store), the same narrow read-only reader the serving composition uses",
+  "not_changed": [
+   "launch.adopt and its exact-byte comparison",
+   "the policy digest, limits, launch contract, role and allocation",
+   "the installed-task fallback",
+   "the refusal shape the exchange projection returns"
+  ]
+ },
+ "v12_working_tree": {
+  "only_the_two_candidate_paths": true,
+  "porcelain": [
+   "M v12/python/tests/tools/test_job_task_delivery.py",
+   " M v12/python/tools/single_worker.py"
+  ]
+ },
+ "verification": {
+  "command": "cd v12/python && PYTHONPATH=src:. BATON_V12_DISK_ROOT=/var/tmp/baton-w257624 BATON_V12_STACK_TEST_ROOT=/var/tmp/baton-w257624 python3 -m unittest <module>",
+  "evidence": {
+   "single_worker.diff": "8b62bdb8337f61413b3d00760951620977d807d206cb0a031ddb9611d2513540",
+   "test_job_task_delivery.diff": "f3f0196e81509d779181e8dfd796f4678dc7b15f2c2b233b57427bd9bf8a6aed",
+   "test_job_task_delivery.txt": "4437c6a3bb57e98d65b364972a0c612a219e2e61b1c460523325b7219edcf89f"
+  },
+  "pre_existing_failures_verified_as_pre_existing": {
+   "method": "both suites run against the pristine committed source and against the candidate; identical results",
+   "single_worker": "243 tests / 1 failure on HEAD and on the candidate",
+   "stage_execution_hardening": "3 tests / 1 failure on HEAD and on the candidate"
+  },
+  "suites": {
+   "tests.tools.test_job_task_delivery": {
+    "result": "OK",
+    "tests": 93,
+    "was": 65
+   },
+   "tests.tools.test_single_worker": {
+    "failure": "test_a_real_observing_status_run_mutates_no_durable_state",
+    "pre_existing": true,
+    "result": "1 failure",
+    "tests": 243
+   },
+   "tests.tools.test_stage_execution": {
+    "result": "OK",
+    "tests": 477
+   },
+   "tests.tools.test_stage_execution_hardening": {
+    "failure": "test_worker_construction_failure_closes_every_acquired_handle",
+    "pre_existing": true,
+    "result": "1 failure",
+    "tests": 3
+   },
+   "tests.tools.test_stage_execution_status_hardening": {
+    "result": "OK",
+    "tests": 2
+   }
+  },
+  "the_new_cases_fail_without_the_fix": {
+   "errors": [
+    "test_the_shared_configuration_is_never_written_to",
+    "test_two_jobs_on_one_worker_resolve_their_own_contexts",
+    "test_the_observation_still_holds_no_act_and_no_engine"
+   ],
+   "failures": [
+    "test_the_two_compositions_agree_on_the_launch_context \u2014 observation 303a1a8b\u2026 vs serving 7cf28d1b\u2026",
+    "test_the_observation_adopts_the_materialized_launch \u2014 state unreadable {policy, denied}"
+   ],
+   "how_checked": "the pristine committed single_worker.py extracted with `git show HEAD:\u2026` to a temp file and swapped in; no Git mutation",
+   "note": "the three error rather than fail because they reference the new seam. The preservation cases pass both ways, which is what preservation means."
+  }
+ },
+ "work": "W370555"
+}

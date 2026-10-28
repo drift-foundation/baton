@@ -1,0 +1,18 @@
+{
+  "at": "2026-10-28T02:02:39.697186+00:00",
+  "head": "42bed8bb04a53380e565b1a63fb2bc702677f0d0",
+  "source_sha256": {
+    "v12/python/tools/single_worker.py": "677e6f0ba39d10a983d20b46fe1252b73ddb7839b8f7cdf1016b88f9111e991b",
+    "v12/python/tools/stage_execution.py": "3410e33f45bfe8d681e9264fbbe3559f5553d6bd99a15353d4bf41294aa17877",
+    "v12/python/tools/job_task.py": "a9ce7948bd39e9e8b2981ad26f299f5e2ad388ad18c6a522337a1c7c27d6e919",
+    "v12/python/src/baton_v12/worker_manager/launch.py": "e7503f09547fa28f181cac896c00a34bef484a24d2e0a4ba57def5771a83f4cc",
+    "v12/python/src/baton_v12/job_manager/submission.py": "d5c4697845d3bb09c0624683dfb4dfaff04ea060df72e6bff4091791731116cb"
+  },
+  "v12_status": "",
+  "evidence_sha256": {
+    "reproduce.py": "cd3221164e303702cce4e9dac2ec6a2b0bc3dd8357f83f8015a107203cd18c22",
+    "INITIAL-FAILURE.txt": "a12292c4a7f58c484d7896bca7c4a2f3b2087df2faa89bd4e817062b646bf247",
+    "result.json": "e1b7776c6db07cac70ade46a24365c1be62c00867ae16128941f40af84230300",
+    "initial-probe.py": "122a9d886a25a2a910c1cfe0708e9626a68b3bc43050810468a4ba06e2630d66"
+  }
+}

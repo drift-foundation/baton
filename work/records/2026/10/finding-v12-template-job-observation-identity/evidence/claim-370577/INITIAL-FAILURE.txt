@@ -1,0 +1,1 @@
+Initial probe exited1 before adoption: exchange.materialize requires WorkspaceGroup capability, not os.getgid() integer. No mismatch assertion was reached. Corrected diagnostic uses explicit no-exchange /3 transport to isolate unchanged launch-byte comparison; does not claim exchange namespace coverage. Scratch left retained.

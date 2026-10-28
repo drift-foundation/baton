@@ -1,0 +1,28 @@
+{
+  "schema": "w370555-diagnostic/1",
+  "root_retained": "/var/tmp/baton-w257624/w370555-_kmqcn68",
+  "seconds": 0.0012093570039724,
+  "results": [
+    {
+      "case": "composed",
+      "different_context_members": [
+        "runtime_input_digest"
+      ],
+      "serving_adoption": "accepted",
+      "observation_adoption": {
+        "category": "policy",
+        "code": "denied",
+        "message": "attempt 'attempt-composed''s launch document is not the one this manager would have written for it; a document that is merely well formed proves which KIND of thing it is and not which delivery"
+      },
+      "launch_bytes_unchanged": true
+    },
+    {
+      "case": "legacy-installed",
+      "different_context_members": [],
+      "serving_adoption": "accepted",
+      "observation_adoption": "accepted",
+      "launch_bytes_unchanged": true
+    }
+  ],
+  "limitations": "Fixture task and Job readers; no admission/store/installed-code/provider proof."
+}

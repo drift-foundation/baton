@@ -1,0 +1,11 @@
+{
+  "command": [
+    "/home/sl/.local/state/baton-v12-venv/bin/python",
+    "-m",
+    "unittest",
+    "tests.tools.test_job_task_delivery"
+  ],
+  "exit": 0,
+  "seconds": 9.961786608000693,
+  "candidate_mismatches": []
+}

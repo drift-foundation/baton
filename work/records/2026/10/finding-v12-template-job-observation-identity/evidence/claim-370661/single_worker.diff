@@ -1,0 +1,184 @@
+diff --git a/v12/python/tools/single_worker.py b/v12/python/tools/single_worker.py
+index fbba431a..fe3e4566 100644
+--- a/v12/python/tools/single_worker.py
++++ b/v12/python/tools/single_worker.py
+@@ -1493,49 +1493,30 @@ class _SingleWorker:
+         otherwise, so one worker serving two Jobs cannot carry one into the
+         other.
+         """
+-        manifest, task = self._for_job(stage)
+-        if manifest is self.given["input_manifest"]:
+-            return self.given
+-        return dict(self.given, input_manifest=manifest, task_bytes=task)
++        return given_for_job(self.given, getattr(self, "job_task", None),
++                             stage)
+ 
+     def _for_job(self, stage):
+         """The input manifest and task bytes THIS stage's Job is served under.
+ 
+         W363066. `given` is the worker's installed configuration and is shared
+         by every Job this worker serves, so the per-Job document is COMPOSED
+-        HERE, per stage, from a fresh copy -- and `given` itself is never
+-        written to. A worker that cached one Job's task on itself would hand
+-        it to the next Job that asked.
+-
+-        `None` FROM THE READER IS THE INSTALLED DELIVERY, which is what a Job
+-        submitted by hand, created before the column existed, or created
+-        against a deployment that composes no per-Job task gets. That is the
+-        behaviour every Job had before this Work and it is preserved rather
+-        than special-cased.
+-
+-        AND THE TWO TRAVEL TOGETHER. `_task_bytes` proved the installed bytes
+-        against the installed manifest's own human contract, so a per-Job task
+-        beside the installed manifest is a pair that validator would never
+-        have accepted -- which is `_served_deployment`'s own sentence and the
+-        reason this answers both or neither.
++        per stage from a fresh copy -- and `given` itself is never written to.
++        A worker that cached one Job's task on itself would hand it to the
++        next Job that asked.
++
++        W370555: THE COMPOSITION MOVED OUT AND THE REASON IS A MEASURED
++        DEFECT. `_Observation` reconstructs this same launch to adopt it, and
++        it read `self.given` directly -- so a Job-bound delivery was
++        re-authored against the INSTALLED manifest digest, `launch.adopt`
++        refused the exact-byte comparison, and every Job-bound launch reported
++        `unreadable (policy/denied)` on every status pass while serving
++        continued normally. The rule now lives in `given_for_job` and both
++        callers read it, because two copies of one rule is what produced that.
+         """
+-        installed = (self.given["input_manifest"], self.given["task_bytes"])
+-        # `getattr` RATHER THAN THE ATTRIBUTE, because a worker composed
+-        # without `__init__` has no reader. `test_single_worker`'s own
+-        # harness builds one that way to ask a preflight question without a
+-        # store, port, engine or credential provider, and a composition with
+-        # no reader is the installed delivery -- which is what that harness
+-        # is asking about.
+-        reader = getattr(self, "job_task", None)
+-        if reader is None or stage is None:
+-            return installed
+-        held = reader(job_id=stage.get("job_id"))
+-        if held is None:
+-            return installed
+-        from tools import job_task as composer
+-
+-        return (composer.manifest_for(self.given["input_manifest"], held),
+-                composer.delivered_bytes(held))
++        given = given_for_job(self.given, getattr(self, "job_task", None),
++                              stage)
++        return given["input_manifest"], given["task_bytes"]
+ 
+     def _adapter_manifest(self, given, roots, stage, attempt_id):
+         """The input identity an adapter over THIS attempt may describe.
+@@ -3551,6 +3532,62 @@ def _bootstrap_dispose(authority, helper):
+     return dispose
+ 
+ 
++def given_for_job(given, reader, stage):
++    """The configuration a stage's Job is served under. PURE; shares nothing.
++
++    W370555. THE ONE ACCOUNT OF THIS RULE, read by the serving composition and
++    by the read-only observation that re-authors the same launch to adopt it.
++    It is a module function rather than a method on either of them because the
++    defect this corrects was two copies of one rule disagreeing:
++    `_SingleWorker._job_execution` composed the Job's own manifest while
++    `_Observation._job_execution` named the installed one, so adoption's
++    exact-byte comparison refused every Job-bound delivery and the projection
++    reported `unreadable (policy/denied)` on every pass while serving was
++    working normally. A reader that cannot reproduce the bytes reports every
++    healthy stage as broken, which is worse than reporting nothing.
++
++    `given` IS NEVER WRITTEN TO. The shared installed document is RETURNED
++    ITSELF when the stage has no own task -- the ordinary case and every Job
++    that predates the per-Job relation -- and a FRESH copy otherwise, so one
++    worker serving two Jobs cannot carry one into the other. Callers compare
++    identity (`is`) to tell the two apart and this keeps that true.
++
++    `None` FROM THE READER IS THE INSTALLED DELIVERY, and three different Jobs
++    give it: one submitted by hand, one created before the relation existed,
++    and one created against a deployment that composes no per-Job task. All
++    three deliver the installed task, which is the behaviour every Job had
++    before W363066.
++
++    A MISSING READER IS ALSO THE INSTALLED DELIVERY, because a composition
++    built without one is asking an installed-delivery question:
++    `test_single_worker`'s harness builds a worker with no store, port, engine
++    or credential provider for exactly that, and an observation over a command
++    that named no Job store has nothing to ask.
++
++    AND THE MANIFEST AND THE TASK TRAVEL TOGETHER. `_task_bytes` proved the
++    installed bytes against the installed manifest's own human contract, so a
++    per-Job task beside the installed manifest is a pair that validator would
++    never have accepted -- `_served_deployment`'s own sentence, and the reason
++    this answers both or neither.
++
++    IT RESOLVES NOTHING ELSE. The policy digest, the limits, the launch
++    contract, the role and the allocation stay exactly as the deployment
++    configured them: this substitutes the input manifest and the task bytes
++    and touches no other member.
++    """
++    if reader is None or stage is None:
++        return given
++    held = reader(job_id=stage.get("job_id"))
++    if held is None:
++        return given
++    from tools import job_task as composer
++
++    return dict(given,
++                input_manifest=composer.manifest_for(given["input_manifest"],
++                                                     held),
++                task_bytes=composer.delivered_bytes(held))
++
++
+ def job_task_reader(job_store):
+     """A NARROW, READ-ONLY reader for ONE Job's own task document.
+ 
+@@ -4073,6 +4110,18 @@ class _Observation:
+         # credentials.
+         self.execution_context = (job_execution_reader(job_store)
+                                   if job_store is not None else None)
++        # W370555: AND THE JOB'S OWN TASK, over the same read-only owner, for
++        # the same reason the execution reader is here. Adoption re-authors the
++        # launch and compares canonical bytes, and a Job-bound delivery carries
++        # that Job's COMPOSED input manifest -- so an observation that could
++        # only name the installed one reproduced different bytes and reported
++        # every Job-bound launch unreadable while serving was fine. This is the
++        # one question that fixes it, asked through the narrow reader the
++        # serving composition already uses: no write, no migration, no runtime
++        # refresh, no serving factory, no Authority session, no engine, no
++        # credentials.
++        self.job_task = (job_task_reader(job_store)
++                         if job_store is not None else None)
+         self.given = given
+         self.control = control_store
+         self.launch_home = given["launch_home"]
+@@ -4098,6 +4147,21 @@ class _Observation:
+         this observation adopt a delivery the serving composition materialized
+         -- and what would otherwise report every Job-bound launch unreadable on
+         every status pass.
++
++        W370555: AND THE INPUT DIGEST IS THE JOB'S, WHICH IT WAS NOT. This read
++        `self.given` directly while the serving composition read
++        `_given_for(stage)`, so a Job created with its own task was re-authored
++        here against the INSTALLED manifest digest. `launch.adopt` compares the
++        canonical bytes exactly -- correctly -- so the delivery refused
++        `policy/denied` and the projection reported every Job-bound stage
++        `unreadable` forever, while the stage itself ran and completed. An
++        operator reading status saw a failure that was not there.
++
++        THE EXACT-BYTE CHECK IS NOT WEAKENED and nothing is adopted from the
++        launch document being examined: the expected identity is composed from
++        the Job owner's own record through `given_for_job`, the SAME account the
++        serving path reads. A launch whose bytes really do disagree still
++        refuses, which is what makes the readable ones worth anything.
+         """
+         if self.execution_context is None or stage is None:
+             return None
+@@ -4110,7 +4174,7 @@ class _Observation:
+             _refuse("this execution names no Job and this observation "
+                     "reproduces a Job-bound launch; there is nothing here to "
+                     "resolve", category="refused", code="precondition")
+-        given = self.given
++        given = given_for_job(self.given, self.job_task, stage)
+         return self.execution_context(
+             job_id=job_id, attempt_id=stage["attempt_id"],
+             runtime_input_digest=given["input_manifest"]["manifest_digest"],

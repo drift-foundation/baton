@@ -1,0 +1,22 @@
+{
+  "valid_exchange": "waiting",
+  "read_calls_changed_no_job_or_control_rows": true,
+  "valid_read_preserved_launch": true,
+  "tampered_mode_restored": "0o444",
+  "tampered_exchange": {
+    "transport": "baton.worker-exchange/1",
+    "sequence_id": null,
+    "command": null,
+    "receipt": null,
+    "states": [],
+    "terminal": null,
+    "foreign": [],
+    "state": "unreadable",
+    "unreadable": {
+      "category": "policy",
+      "code": "denied"
+    }
+  },
+  "seconds": 0.10780191500089131,
+  "limits": "existing deterministic serving harness and task-reader substitution; no live engine/provider or real template admission"
+}

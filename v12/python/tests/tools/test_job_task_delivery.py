@@ -2872,5 +2872,301 @@ class TheReviewStageRunsThroughThePoolServingLoop(ServingCase):
         self.assertIn("checkout", str(prepared["boundary"]["boundary"].source))
 
 
+class ObservationReproducesTheDeliveredIdentity(
+        TheRuntimePathDeliversAndRecoversOneIdentity):
+    """W370555 — the read-only observation adopts what serving materialized.
+
+    THE DEFECT, MEASURED IN PRODUCTION BEFORE IT WAS UNDERSTOOD. A live run
+    (W370268) admitted a template Job, started a real container, and watched
+    the status surface report the implementation stage `exceptional` with
+    `exchange: unreadable (policy/denied)` for eighteen minutes while the
+    stage was in fact working and then COMPLETED with a real candidate and no
+    intervention. Nothing was wrong with serving; the reader was wrong.
+
+    WHY. `_SingleWorker._job_execution` composes the launch context from
+    `_given_for(stage)` -- this Job's own manifest -- and
+    `_Observation._job_execution` composed it from `self.given`, the INSTALLED
+    one. `launch.adopt` re-authors the launch document and compares canonical
+    bytes exactly, so for every Job created with its own task the two
+    compositions disagreed about `runtime_input_digest` and adoption refused.
+    A Job-bound launch was therefore unreadable on every single status pass.
+
+    THE EXACT-BYTE CHECK IS NOT WHAT WAS WRONG and these cases do not weaken
+    it. `TheObservationStillRefusesALaunchItCannotReproduce` below keeps the
+    refusals, because a reader that adopted anything would be worth nothing.
+
+    THESE CASES BORROW THE RUNTIME HARNESS AND ADD THEIR OWN QUESTIONS. The
+    inherited class drives the real production composition -- offer, claim,
+    `_prepared`, `_input`, the recorded attempt, the launch adapter and the
+    engine start -- so what a case here asks of a REAL materialized launch is
+    a question about the reader rather than about a fixture.
+    """
+
+    def observing(self, held, *, job_store=None, control_store=None,
+                  substitute=True):
+        """A real `_Observation` over this deployment, as `status --observe`
+        builds one: the same configuration document and the same two stores.
+
+        THE READER IS SUBSTITUTED FOR THE SAME REASON THE SERVING ONE IS, and
+        the inherited class states it: a Job store row carrying a
+        `task_document` is written by `creation.create_template_job`, which
+        needs an installed deployment and a Work binding this suite has
+        neither of. So this harness substitutes the reader on BOTH sides --
+        the same answer to both -- and what the cases then measure is whether
+        the two COMPOSITIONS agree given one answer, which is the identity
+        question. `TheReaderOverARealStore` drives the real
+        `job_task_reader` against a real store, so the read itself is not
+        taken on trust either.
+
+        `substitute=False` leaves the real reader in place, which is how a
+        case asks what an unsubstituted observation builds.
+        """
+        observation = single_worker.observation_from(
+            self.config,
+            held["job"] if job_store is None else job_store,
+            held["control"] if control_store is None else control_store)
+        if substitute:
+            document = held["made"]["task_document"]
+            observation.job_task = lambda *, job_id: (
+                document if job_id == "job-a" else None)
+        return observation
+
+    def test_the_two_compositions_agree_on_the_launch_context(self):
+        """THE IDENTITY AGREEMENT, asserted directly on the bytes.
+
+        This is the whole Work in one assertion: the context the serving
+        deployment composes for a stage and the context the observation
+        composes for the same stage must be the same document, because
+        adoption compares exactly that.
+        """
+        held = self.running("observe-agree")
+        stage = held["stage"]
+        serving = held["worker"]._job_execution(stage)
+        observed = self.observing(held)._job_execution(stage)
+        self.assertEqual(observed, serving)
+        # AND IT IS THE JOB'S OWN IDENTITY, not the installed one -- a case
+        # where the two happened to be equal would assert nothing.
+        delivered = held["made"]["input_manifest"]["manifest_digest"]
+        self.assertNotEqual(delivered, self.manifest["manifest_digest"])
+        self.assertEqual(observed["runtime_input_digest"], delivered)
+
+    def test_the_observation_adopts_the_materialized_launch(self):
+        """THE BEHAVIOUR AN OPERATOR SEES, through the real surface.
+
+        `observe_exchange` never raises: it answers a projection or the safe
+        `unreadable` category. `unreadable` is produced ONLY by a refusal, so
+        anything else is proof that adoption succeeded over the launch the
+        serving loop actually wrote.
+        """
+        held = self.running("observe-adopt")
+        answered = self.observing(held).observe_exchange(held["stage"])
+        if answered is not None:
+            self.assertNotEqual(answered.get("state"), "unreadable",
+                                answered.get("unreadable"))
+
+    def test_the_policy_digest_and_the_limits_are_still_the_deployments(self):
+        """ONLY the input manifest and the task move.
+
+        The correction substitutes a per-Job document; it must not have
+        started resolving the policy identity, the limits or the allocation
+        from somewhere else.
+        """
+        held = self.running("observe-policy")
+        observed = self.observing(held)._job_execution(held["stage"])
+        self.assertEqual(observed["runtime_policy_digest"],
+                         self.config["policy_digest"])
+        self.assertEqual(observed["job_id"], "job-a")
+        self.assertEqual(observed["attempt_id"], held["attempt"])
+
+    def test_a_fresh_reader_over_the_same_state_reproduces_the_context(self):
+        """RESTART. A reader that remembered anything would fail here.
+
+        The context is re-derived from the Job owner's own record by a second
+        `_Observation` over FRESH store handles under a new incarnation --
+        which is what a restarted `status --observe` is.
+        """
+        held = self.running("observe-restart")
+        first = self.observing(held)._job_execution(held["stage"])
+        job, control = self.stores("observe-restart-2")
+        self.addCleanup(job.close)
+        self.addCleanup(control.close)
+        again = self.observing(held, job_store=job,
+                               control_store=control)._job_execution(
+                                   held["stage"])
+        self.assertEqual(again, first)
+
+    def test_the_installed_delivery_is_still_what_a_jobless_task_gets(self):
+        """THE FALLBACK, preserved. A Job with no own task is every Job that
+        predates the per-Job relation, and its delivery is the installed one.
+        """
+        held = self.running("observe-installed")
+        observation = self.observing(held)
+        # The reader answers `None` for this Job, exactly as a real store does
+        # for a Job nobody created with a task.
+        observation.job_task = lambda *, job_id: None
+        observed = observation._job_execution(held["stage"])
+        self.assertEqual(observed["runtime_input_digest"],
+                         self.manifest["manifest_digest"])
+
+    def test_the_shared_configuration_is_never_written_to(self):
+        """NO CONTAMINATION. The installed document is shared by every Job
+        this worker serves, so resolving one Job's delivery must not touch it.
+        """
+        held = self.running("observe-shared")
+        observation = self.observing(held)
+        # IDENTITY RATHER THAN A SERIALIZATION, because the held
+        # configuration carries owned objects a dump cannot render -- and
+        # because `is` is the stronger question: the shared document and the
+        # shared manifest must be the SAME objects afterwards, not merely
+        # equal ones.
+        document, manifest = observation.given, observation.given[
+            "input_manifest"]
+        keys = sorted(observation.given)
+        observation._job_execution(held["stage"])
+        observation.observe_exchange(held["stage"])
+        self.assertIs(observation.given, document)
+        self.assertIs(observation.given["input_manifest"], manifest)
+        self.assertEqual(sorted(observation.given), keys)
+        # AND THE INSTALLED MANIFEST IS STILL THE INSTALLED ONE.
+        self.assertEqual(
+            observation.given["input_manifest"]["manifest_digest"],
+            self.manifest["manifest_digest"])
+        # WHILE THE RESOLVED DOCUMENT WAS A DIFFERENT ONE, or nothing was
+        # being kept apart.
+        resolved = single_worker.given_for_job(
+            observation.given, observation.job_task, held["stage"])
+        self.assertIsNot(resolved, document)
+        self.assertNotEqual(resolved["input_manifest"]["manifest_digest"],
+                            manifest["manifest_digest"])
+
+    def test_two_jobs_on_one_worker_resolve_their_own_contexts(self):
+        """CROSS-CONTAMINATION, asked of the reader rather than the writer.
+
+        `TwoJobsOnOneWorkerGetTheirOwnBytes` proves the serving side. This
+        proves the observation side over ONE reader: two stages naming two
+        Jobs resolve two different input identities, and asking for one does
+        not change the answer for the other.
+        """
+        held = self.running("observe-two")
+        first = self.delivered("The first statement.")
+        second = self.delivered("The second statement.")
+        # Two Jobs with different statements compose different identities, or
+        # this case would pass without distinguishing anything.
+        self.assertNotEqual(first["input_manifest"]["manifest_digest"],
+                            second["input_manifest"]["manifest_digest"])
+        observation = self.observing(held)
+        composed = {FIRST: first["task_document"],
+                    SECOND: second["task_document"]}
+        observation.job_task = lambda *, job_id: composed.get(job_id)
+
+        def resolved(job_id):
+            return single_worker.given_for_job(
+                observation.given, observation.job_task,
+                dict(held["stage"], job_id=job_id))["input_manifest"][
+                    "manifest_digest"]
+
+        self.assertEqual(resolved(FIRST),
+                         first["input_manifest"]["manifest_digest"])
+        self.assertEqual(resolved(SECOND),
+                         second["input_manifest"]["manifest_digest"])
+        # ASKED AGAIN, IN THE OTHER ORDER: a reader that cached would answer
+        # the first Job's identity for the second.
+        self.assertEqual(resolved(SECOND),
+                         second["input_manifest"]["manifest_digest"])
+        self.assertEqual(resolved(FIRST),
+                         first["input_manifest"]["manifest_digest"])
+
+
+class TheObservationStillRefusesALaunchItCannotReproduce(
+        TheRuntimePathDeliversAndRecoversOneIdentity):
+    """W370555 — the correction must not have made the reader credulous.
+
+    The defect was a reader that could not reproduce a correct launch. The
+    wrong correction is a reader that accepts an incorrect one, and the
+    diagnostic review said so in terms: weakening the exact-byte check would
+    be the wrong fix. So these cases keep the refusals, and they drive them
+    through the same public surface an operator reads.
+    """
+
+    observing = ObservationReproducesTheDeliveredIdentity.observing
+
+    def unreadable(self, observation, stage):
+        """What the surface answers, held to the refusal shape."""
+        answered = observation.observe_exchange(stage)
+        self.assertIsNotNone(answered)
+        self.assertEqual(answered["state"], "unreadable")
+        # THE PROSE STAYS OUT, which is the exchange owner's rule: what comes
+        # back is the category and the code and nothing else.
+        self.assertEqual(sorted(answered["unreadable"]), ["category", "code"])
+        return answered["unreadable"]
+
+    def test_a_stage_naming_another_attempt_is_refused(self):
+        """CROSS-ATTEMPT. The launch on disk belongs to one attempt."""
+        held = self.running("refuse-cross")
+        observation = self.observing(held)
+        stranger = dict(held["stage"],
+                        attempt_id="attempt-" + ("c" * 64))
+        answered = observation.observe_exchange(stranger)
+        # Absence is the honest answer for an attempt with no launch at all;
+        # what must never happen is adopting THIS attempt's material under
+        # another attempt's name.
+        if answered is not None:
+            self.assertEqual(answered["state"], "unreadable")
+
+    def test_a_stage_naming_another_job_is_refused(self):
+        """THE EXACT-BYTE CHECK, still doing its work.
+
+        The launch was written for `job-a`; a stage naming another Job
+        composes a different context, so the re-authored document differs and
+        adoption refuses. This is the same mechanism that produced the defect
+        -- kept, because it is correct.
+        """
+        held = self.running("refuse-job")
+        observation = self.observing(held)
+        self.unreadable(observation, dict(held["stage"], job_id="job-other"))
+
+    def test_a_corrupted_launch_document_is_refused(self):
+        """TAMPERING. The bytes on disk are proved, not trusted."""
+        held = self.running("refuse-corrupt")
+        place = os.path.join(self.config["launch_home"], held["attempt"],
+                             "launch.json")
+        self.assertTrue(os.path.exists(place), place)
+        os.chmod(place, 0o644)
+        with open(place, "r+", encoding="utf-8") as handle:
+            document = json.load(handle)
+            document["role"] = "review"
+            handle.seek(0)
+            handle.truncate()
+            json.dump(document, handle)
+        self.unreadable(self.observing(held), held["stage"])
+
+    def test_a_stage_naming_no_job_is_refused(self):
+        """AN UNBOUND EXECUTION. Both compositions refuse it, identically,
+        because two readers that disagreed about the defaults would disagree
+        about the bytes.
+        """
+        held = self.running("refuse-jobless")
+        observation = self.observing(held)
+        stage = dict(held["stage"])
+        stage.pop("job_id", None)
+        with self.assertRaises(ContractRefusal):
+            observation._job_execution(stage)
+
+    def test_the_observation_still_holds_no_act_and_no_engine(self):
+        """WHAT IT IS NOT, re-asserted after the correction added a reader."""
+        held = self.running("refuse-surface")
+        observation = self.observing(held)
+        for act in ("admit", "claim", "launch", "dispatch", "conclude",
+                    "start", "delivered", "ending", "command",
+                    "refresh_runtime"):
+            self.assertFalse(hasattr(observation, act), act)
+        self.assertTrue(hasattr(observation, "observe_exchange"))
+        # AND THE READER IT BUILDS ITSELF IS REAL, asked of an observation
+        # this case did not substitute: the correction's whole point is that
+        # `status --observe` carries one.
+        self.assertTrue(callable(
+            self.observing(held, substitute=False).job_task))
+
+
 if __name__ == "__main__":
     unittest.main()
