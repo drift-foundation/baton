@@ -12,9 +12,9 @@ way to have them is to run it.
 SKIPPED WHEN THE ENGINE IS ABSENT, and this is deliberately the opposite policy
 from W6633's image gate. That one builds THIS repository's own artefact and a
 missing daemon is a failed prerequisite for it. This one exercises a THIRD
-PARTY's runtime — Docker and Podman, two engines the adapter claims to speak —
-and a developer machine with one of them is the ordinary case. A required gate
-that cannot run without both would be a gate people learn to ignore.
+PARTY's runtime — Docker, the engine the adapter claims to speak (its Podman
+variant was removed on 2026-10-30, W384870) — and a developer machine with it
+is the ordinary case.
 
 The skip is per engine and it is NARROW: it fires only when the binary is
 absent or its daemon cannot be reached. Anything the engine actually answers is
@@ -359,10 +359,6 @@ class DockerRunsWhatTheAdapterComposes(EngineCycle, unittest.TestCase):
     engine = "docker"
 
 
-class PodmanRunsWhatTheAdapterComposes(EngineCycle, unittest.TestCase):
-    engine = "podman"
-
-
 class TheEngineGateLeavesNothingBehind(unittest.TestCase):
 
     def test_cleanup_queries_the_label_namespace_the_tests_create(self):
@@ -435,13 +431,11 @@ class TheEngineGateLeavesNothingBehind(unittest.TestCase):
         if not asked:
             self.skipTest("neither engine is reachable")
 
-    def test_both_engines_this_adapter_claims_are_covered(self):
+    def test_every_engine_this_adapter_claims_is_covered(self):
         """The claim and the coverage are the same list. An engine added to
         `ENGINES` without a case here would be an engine this adapter says it
-        speaks and nobody ever ran."""
-        covered = {case.engine for case in
-                   (DockerRunsWhatTheAdapterComposes,
-                    PodmanRunsWhatTheAdapterComposes)}
+        speaks and nobody ever ran. (Since W384870 the list is Docker alone.)"""
+        covered = {case.engine for case in (DockerRunsWhatTheAdapterComposes,)}
         self.assertEqual(covered, set(ENGINES))
 
 

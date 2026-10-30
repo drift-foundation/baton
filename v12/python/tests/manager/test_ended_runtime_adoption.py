@@ -446,8 +446,3 @@ class EndedRuntimeAdoption(Lifecycle):
 class DockerEndedRuntimeAdoption(EndedRuntimeAdoption, unittest.TestCase):
     engine = "docker"
     required = True
-
-
-class PodmanEndedRuntimeAdoption(EndedRuntimeAdoption, unittest.TestCase):
-    engine = "podman"
-    required = False

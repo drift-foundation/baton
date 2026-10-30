@@ -35,11 +35,15 @@ import time
 import unittest
 from unittest import mock
 
-from tools.parallel_test import (METHOD_SPLIT, PARALLEL_MODULES, ROOT, Run, RunnerRefusal,
+from tools.parallel_test import (GROUP_MODULES, GROUP_PACKAGES, GROUPS, METHOD_SPLIT,
+                                 OPTIONAL_SKIPS, PARALLEL_MODULES, ROOT, Run, RunnerRefusal,
                                  SERIAL_MODULES, STATUS_EVIDENCE_MODULE, STATUS_EVIDENCE_VARIABLE,
-                                 SUPERVISED_MODULES, Suite, main, partition, resolve_jobs)
+                                 SUPERVISED_MODULES, Suite, account, base_id, group_of, main,
+                                 module_of, partition, resolve_jobs)
 
 RUNNER = pathlib.Path(__file__).resolve().parents[2] / "tools" / "parallel_test.py"
+# W384870: a fake tree carves no group; its packages map to one group each.
+FAKE_PACKAGES = {"tests": "authority", "tests.tools": "tools-pure"}
 
 PRELUDE = """import json
 import os
@@ -110,7 +114,10 @@ class FakeTreeCase(unittest.TestCase):
         self.marks.mkdir(parents=True)
 
     def suite(self, parallel, serial=(), method_split=(), supervised=()):
-        return Suite(self.root, parallel, serial, method_split=method_split, pythonpath=None, supervised=supervised)
+        # W384870: a fake tree carves no group; its one package maps to one
+        # group so the partition check holds over it as it does over the real tree.
+        return Suite(self.root, parallel, serial, method_split=method_split, pythonpath=None,
+                     supervised=supervised, groups={}, packages=FAKE_PACKAGES)
 
     def run_suite(self, suite, argv):
         """One in-process run, returning its exit code and its exact stdout."""
@@ -392,8 +399,11 @@ class SupervisedSelectionFailsClosed(FakeTreeCase):
             with self.subTest(extra=extra), mock.patch("tools.parallel_test.shard_work") as shards:
                 code, output = self.run_suite(self.selected(), ["--phase", "parallel", "--jobs", "1"] + extra)
             self.assertEqual(code, 2, output)
-            self.assertIn("supervised-owned test IDs", output)
-            self.assertIn("tests.test_gated.Gated.test_engine", output)
+            # W384870: the collector now refuses the BINDING module first (a
+            # bound stranger would run twice); `check_collected_ids` remains
+            # the second line. Either way: refused by name, before any shard.
+            self.assertIn("binds test classes defined elsewhere", output)
+            self.assertIn("tests.test_gated.Gated", output)
             self.assertNotIn("-> OK", output)
             shards.assert_not_called()
             self.assertEqual([p.name for p in self.marks.iterdir()], ["gated-imported"])
@@ -645,7 +655,8 @@ class DriverCase(FakeTreeCase):
         path.write_text("import sys\n"
                         "sys.path.insert(0, %r)\n"
                         "from tools.parallel_test import Suite, main\n"
-                        "suite = Suite(%r, %r, %r, method_split=(), pythonpath=None)\n"
+                        "FAKE = {'tests': 'authority', 'tests.tools': 'tools-pure'}\n"
+            "suite = Suite(%r, %r, %r, method_split=(), pythonpath=None, groups={}, packages=FAKE)\n"
                         "raise SystemExit(main(sys.argv[1:], suite=suite))\n"
                         % (str(ROOT), str(self.root), tuple(parallel), tuple(serial)),
                         encoding="utf-8")
@@ -770,7 +781,8 @@ class AnInterruptLeavesNothingBehind(DriverCase):
             "import sys\n"
             "sys.path.insert(0, %r)\n"
             "from tools.parallel_test import Run, Suite, main\n"
-            "suite = Suite(%r, %r, (), method_split=(), pythonpath=None)\n"
+            "FAKE = {'tests': 'authority', 'tests.tools': 'tools-pure'}\n"
+            "suite = Suite(%r, %r, (), method_split=(), pythonpath=None, groups={}, packages=FAKE)\n"
             "original = Run.signal_group\n"
             "armed = True\n"
             "def interrupt_at_signal(self, pgid, which):\n"
@@ -826,7 +838,8 @@ class AnInterruptLeavesNothingBehind(DriverCase):
             "import time\n"
             "sys.path.insert(0, %r)\n"
             "from tools.parallel_test import Suite, main\n"
-            "suite = Suite(%r, %r, (), method_split=(), pythonpath=None)\n"
+            "FAKE = {'tests': 'authority', 'tests.tools': 'tools-pure'}\n"
+            "suite = Suite(%r, %r, (), method_split=(), pythonpath=None, groups={}, packages=FAKE)\n"
             "original = Suite.spawn\n"
             "armed = True\n"
             "def interrupt_after_spawn(self, argv, err):\n"
@@ -872,7 +885,8 @@ class AnInterruptLeavesNothingBehind(DriverCase):
             "import sys\n"
             "sys.path.insert(0, %r)\n"
             "from tools.parallel_test import Run, Suite, main\n"
-            "suite = Suite(%r, %r, (), method_split=(), pythonpath=None)\n"
+            "FAKE = {'tests': 'authority', 'tests.tools': 'tools-pure'}\n"
+            "suite = Suite(%r, %r, (), method_split=(), pythonpath=None, groups={}, packages=FAKE)\n"
             "original = Run.shutdown\n"
             "armed = True\n"
             "def interrupt_during_cleanup(self):\n"
@@ -967,6 +981,20 @@ class AShardThatDiesWithoutAReportIsAFailure(FakeTreeCase):
         self.assertIn("about to die", output)
 
 
+class CollectionRefusesAModuleThatBindsAnotherModulesTests(FakeTreeCase):
+
+    def test_an_imported_test_class_is_named_at_the_module_that_binds_it(self):
+        # W384870: `from tests.test_owner import Owner` would make unittest run
+        # Owner's cases twice, once under each module. The collector refuses the
+        # binding module by name instead of letting the duplicate surface later.
+        write_tree(self.root, {"test_owner": case_source(self.marks, "Owner", ["test_a"]),
+                               "test_binder": "from tests.test_owner import Owner\n"})
+        code, output = self.run_suite(self.suite(("tests.test_owner", "tests.test_binder")), ["--jobs", "1"])
+        self.assertEqual(code, 2)
+        self.assertIn("tests.test_binder binds test classes defined elsewhere", output)
+        self.assertIn("tests.test_owner.Owner", output)
+
+
 class CollectionRefusesAModuleItCannotLoad(FakeTreeCase):
 
     def test_an_unimportable_module_stops_the_run_rather_than_becoming_one_failure(self):
@@ -978,3 +1006,265 @@ class CollectionRefusesAModuleItCannotLoad(FakeTreeCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+# -- W384870: the group partition and exact test-identity accounting ---------
+
+
+
+class TheGroupsAreAnExactPartitionOfTheRealTree(unittest.TestCase):
+    """Every v12 test module in exactly one group, and the carved sets honest."""
+
+    def test_every_registered_module_has_exactly_one_known_group(self):
+        suite = Suite(ROOT, PARALLEL_MODULES, SERIAL_MODULES, supervised=SUPERVISED_MODULES)
+        suite.check_groups()
+        for module in suite.registered():
+            with self.subTest(module=module):
+                self.assertIn(suite.group_of(module), GROUPS)
+
+    def test_the_carved_groups_are_disjoint_and_registered(self):
+        registered = set(PARALLEL_MODULES + SERIAL_MODULES) | {e["module"] for e in SUPERVISED_MODULES}
+        seen = {}
+        for name, modules in GROUP_MODULES.items():
+            self.assertIn(name, GROUPS)
+            for module in modules:
+                self.assertNotIn(module, seen, f"{module} carved twice: {seen.get(module)} and {name}")
+                seen[module] = name
+                self.assertIn(module, registered)
+        self.assertTrue(set(GROUP_PACKAGES.values()) <= set(GROUPS))
+
+    def test_the_engine_group_is_exactly_the_serial_engine_gates(self):
+        serial_engines = tuple(m for m in SERIAL_MODULES if m.startswith(("tests.manager.", "tests.tools.")))
+        self.assertEqual(sorted(GROUP_MODULES["manager-engine"]), sorted(serial_engines))
+        self.assertEqual(GROUP_MODULES["supervised"], tuple(e["module"] for e in SUPERVISED_MODULES))
+
+    def test_a_module_carved_twice_or_unmapped_is_refused(self):
+        with self.assertRaises(RunnerRefusal):
+            group_of("tests.x.test_a", {"scans": ("tests.x.test_a",), "supervised": ("tests.x.test_a",)}, {})
+        with self.assertRaises(RunnerRefusal):
+            group_of("tests.x.test_a", {}, {"tests.y": "authority"})
+        self.assertEqual(group_of("tests.y.test_a", {}, {"tests.y": "authority"}), "authority")
+
+    def test_every_optional_skip_names_a_real_test(self):
+        for test_id in OPTIONAL_SKIPS:
+            with self.subTest(test_id=test_id):
+                loaded = list(unittest.TestLoader().loadTestsFromName(test_id))
+                self.assertEqual([one.id() for one in loaded], [test_id])
+
+    def test_ids_resolve_to_their_module(self):
+        self.assertEqual(module_of("tests.manager.test_x.Klass.test_a"), "tests.manager.test_x")
+        self.assertEqual(module_of("setUpClass (tests.manager.test_x.Klass)"), "setUpClass")
+        self.assertEqual(base_id("tests.m.test_x.K.test_a (member='x')"), "tests.m.test_x.K.test_a")
+
+
+class AccountingDerivesPassedFromWhatRan(unittest.TestCase):
+    """Pure: collected versus executed, with every outcome subtracted."""
+
+    def report(self, label, executed, **outcomes):
+        answer = {"label": label, "executed": executed, "failures": [], "errors": [], "skipped": [],
+                  "expected_failures": [], "unexpected_successes": []}
+        answer.update(outcomes)
+        return answer
+
+    def test_a_clean_run_is_passed_plus_optional_skips_equals_collected(self):
+        ledger = account(["t.a", "t.b", "t.c"], [self.report("x", ["t.a", "t.b"]),
+                                                 self.report("y", ["t.c"], skipped=[{"id": "t.c", "reason": "optional"}])],
+                         optional={"t.c": "owner said so"})
+        self.assertTrue(ledger["ok"])
+        self.assertEqual(ledger["passed"], ["t.a", "t.b"])
+        self.assertEqual(ledger["optional_skipped"], {"t.c": "optional"})
+
+    def test_a_required_skip_an_unaccounted_id_and_a_duplicate_each_fail(self):
+        ledger = account(["t.a", "t.b"], [self.report("x", ["t.a"], skipped=[{"id": "t.a", "reason": "no reason"}])])
+        self.assertFalse(ledger["ok"])
+        self.assertEqual(ledger["required_skipped"], {"t.a": "no reason"})
+        self.assertEqual(ledger["unaccounted"], ["t.b"])
+        ledger = account(["t.a"], [self.report("x", ["t.a"]), self.report("y", ["t.a"])])
+        self.assertFalse(ledger["ok"])
+        self.assertEqual(ledger["duplicates"], ["t.a"])
+
+    def test_a_subtest_failure_fails_its_test_and_a_stray_error_is_visible(self):
+        ledger = account(["t.a", "t.b"], [self.report("x", ["t.a", "t.b"],
+                                                      failures=[{"id": "t.a (member='p')", "trace": ""}],
+                                                      errors=[{"id": "setUpClass (t.K)", "trace": ""}])])
+        self.assertFalse(ledger["ok"])
+        self.assertEqual(ledger["failed"], ["t.a"])
+        self.assertEqual(list(ledger["fixture_errors"]), ["setUpClass (t.K)"])
+        self.assertEqual(ledger["stray_errors"], [])
+        self.assertEqual(ledger["passed"], ["t.b"])
+
+
+class AnAccountedRunProvesEveryIdRan(FakeTreeCase):
+
+    def suite(self, parallel, serial=(), optional=None):
+        return Suite(self.root, parallel, serial, pythonpath=None, groups={}, packages=FAKE_PACKAGES,
+                     optional_skips=optional or {})
+
+    def test_collected_equals_executed_and_the_ledger_is_written(self):
+        write_tree(self.root, {"test_one": case_source(self.marks, "One", ["test_a", "test_b"]),
+                               "test_two": case_source(self.marks, "Two", ["test_a"])})
+        summary = self.root / "ledger.json"
+        code, output = self.run_suite(self.suite(("tests.test_one",), serial=("tests.test_two",)),
+                                      ["--jobs", "1", "--account", "--summary", str(summary)])
+        self.assertEqual(code, 0, output)
+        self.assertIn("[accounting] passed 3 + optional skipped 0 = 3 of collected 3 -> OK", output)
+        self.assertIn("[groups] authority=3", output)
+        ledger = json.loads(summary.read_text(encoding="utf-8"))
+        self.assertEqual(ledger["collected"], ledger["executed"])
+        self.assertEqual(ledger["passed"], ["tests.test_one.One.test_a", "tests.test_one.One.test_b",
+                                            "tests.test_two.Two.test_a"])
+
+    def test_a_shard_that_dies_leaves_its_ids_unaccounted(self):
+        source = case_source(self.marks, "Dies", ["test_a"]).replace(
+            "        self.assertTrue(True)", "        os._exit(9)")
+        write_tree(self.root, {"test_dies": source, "test_ok": case_source(self.marks, "Ok", ["test_a"])})
+        code, output = self.run_suite(self.suite(("tests.test_dies", "tests.test_ok")), ["--jobs", "1", "--account"])
+        self.assertEqual(code, 1)
+        self.assertIn("[UNACCOUNTED] tests.test_dies.Dies.test_a", output)
+        self.assertIn("-> FAILED", output)
+
+    def test_a_skip_is_required_unless_the_registry_says_optional(self):
+        source = case_source(self.marks, "Skips", ["test_a"]).replace(
+            "        self.assertTrue(True)", "        self.skipTest('needs something')")
+        write_tree(self.root, {"test_skips": source})
+        code, output = self.run_suite(self.suite(("tests.test_skips",)), ["--jobs", "1", "--account"])
+        self.assertEqual(code, 1)
+        self.assertIn("[REQUIRED SKIP] tests.test_skips.Skips.test_a: needs something", output)
+        optional = {"tests.test_skips.Skips.test_a": "owner classified"}
+        code, output = self.run_suite(self.suite(("tests.test_skips",), optional=optional),
+                                      ["--jobs", "1", "--account"])
+        self.assertEqual(code, 0, output)
+        self.assertIn("[optional skip] tests.test_skips.Skips.test_a: needs something", output)
+        self.assertIn("passed 0 + optional skipped 1 = 1 of collected 1 -> OK", output)
+
+    def test_keep_going_runs_the_serial_phase_after_a_parallel_failure(self):
+        write_tree(self.root, {"test_bad": case_source(self.marks, "Bad", ["test_a"], failing=["test_a"]),
+                               "test_serial": case_source(self.marks, "Serial", ["test_a"])})
+        code, output = self.run_suite(self.suite(("tests.test_bad",), serial=("tests.test_serial",)),
+                                      ["--jobs", "1", "--account", "--keep-going"])
+        self.assertEqual(code, 1)
+        self.assertNotIn("the serial registry did not run", output)
+        self.assertIn("[pass] tests.test_serial", output)
+        self.assertIn("Serial.test_a", [name for name, _, _ in self.intervals()])
+
+
+class AClassFixtureThatNeverStartsItsTestsLeavesThemUnaccounted(FakeTreeCase):
+    """B0's first ledger trusted the loaded plan and counted never-started tests
+    as passed; and every `setUpClass (...)` skip collapsed into one key."""
+
+    def fixture_module(self, cls, raising):
+        return (case_source(self.marks, cls, ["test_a", "test_b"])
+                .replace("class %s(unittest.TestCase):" % cls,
+                         "class %s(unittest.TestCase):\n    @classmethod\n    def setUpClass(cls):\n"
+                         "        raise %s\n" % (cls, raising)))
+
+    def suite(self, parallel, optional=None):
+        return Suite(self.root, parallel, (), pythonpath=None, groups={}, packages=FAKE_PACKAGES,
+                     optional_skips=optional or {})
+
+    def test_a_class_level_error_leaves_its_tests_unaccounted_and_names_the_fixture(self):
+        write_tree(self.root, {"test_broken": self.fixture_module("Broken", "RuntimeError('no fixture')"),
+                               "test_ok": case_source(self.marks, "Ok", ["test_a"])})
+        code, output = self.run_suite(self.suite(("tests.test_broken", "tests.test_ok")), ["--jobs", "1", "--account"])
+        self.assertEqual(code, 1)
+        self.assertIn("[FIXTURE ERROR] setUpClass (tests.test_broken.Broken): RuntimeError: no fixture", output)
+        self.assertIn("[UNACCOUNTED] tests.test_broken.Broken.test_a", output)
+        self.assertIn("[UNACCOUNTED] tests.test_broken.Broken.test_b", output)
+        self.assertIn("collected 3, executed 1, passed 1,", output)
+
+    def test_two_class_level_skips_stay_two_events_and_are_required_unless_optional(self):
+        write_tree(self.root, {"test_p": self.fixture_module("P", "unittest.SkipTest('the engine is not on PATH')"),
+                               "test_q": self.fixture_module("Q", "unittest.SkipTest('the engine is not on PATH')")})
+        code, output = self.run_suite(self.suite(("tests.test_p", "tests.test_q")), ["--jobs", "1", "--account"])
+        self.assertEqual(code, 1)
+        self.assertIn("[FIXTURE SKIP] setUpClass (tests.test_p.P): the engine is not on PATH", output)
+        self.assertIn("[FIXTURE SKIP] setUpClass (tests.test_q.Q): the engine is not on PATH", output)
+        self.assertIn("fixture skips 2,", output)
+        self.assertIn("unaccounted 4", output)
+        optional = {"setUpClass (tests.test_p.P)": "owner: engine variant optional",
+                    "setUpClass (tests.test_q.Q)": "owner: engine variant optional"}
+        code, output = self.run_suite(self.suite(("tests.test_p", "tests.test_q"), optional=optional),
+                                      ["--jobs", "1", "--account"])
+        self.assertEqual(code, 0, output)
+        self.assertIn("[optional skip] tests.test_p.P.test_a: not started: the engine is not on PATH", output)
+        self.assertIn("passed 0 + optional skipped 4 = 4 of collected 4 -> OK", output)
+
+
+class SubtestOutcomesBindToTheirParent(FakeTreeCase):
+    """Review R1: `test [message]`, `test (param=…)` and `test [message] (param=…)`
+    outcomes are the PARENT's, bound by structure, never by cutting text."""
+
+    def source(self):
+        return (PRELUDE % str(self.marks) + "\n\n"
+                "class Sub(unittest.TestCase):\n"
+                "    def test_message_failure(self):\n"
+                "        with self.subTest('named diagnostic'):\n"
+                "            self.fail('message-only subtest fails')\n"
+                "    def test_parameter_error(self):\n"
+                "        with self.subTest(member='x'):\n"
+                "            raise RuntimeError('parameters-only subtest errors')\n"
+                "    def test_both_skip(self):\n"
+                "        with self.subTest('why', member='y'):\n"
+                "            self.skipTest('message-plus-parameters subtest skips')\n"
+                "    def test_passes(self):\n"
+                "        with self.subTest('fine'):\n"
+                "            self.assertTrue(True)\n")
+
+    def test_no_synthetic_id_and_no_passed_parent(self):
+        write_tree(self.root, {"test_sub": self.source()})
+        summary = self.root / "ledger.json"
+        code, output = self.run_suite(self.suite(("tests.test_sub",)),
+                                      ["--jobs", "1", "--account", "--summary", str(summary)])
+        self.assertEqual(code, 1)
+        ledger = json.loads(summary.read_text(encoding="utf-8"))
+        self.assertEqual(ledger["failed"], ["tests.test_sub.Sub.test_message_failure"])
+        self.assertEqual(ledger["errors"], ["tests.test_sub.Sub.test_parameter_error"])
+        self.assertEqual(list(ledger["required_skipped"]), ["tests.test_sub.Sub.test_both_skip"])
+        self.assertEqual(ledger["passed"], ["tests.test_sub.Sub.test_passes"])
+        self.assertEqual(ledger["stray_errors"], [])
+        self.assertEqual(ledger["uncollected"], [])
+        self.assertEqual(ledger["fixture_errors"], {})
+        self.assertEqual(ledger["fixture_skipped"], {})
+        # The diagnostics keep the subtest's own identity.
+        self.assertIn("=== FAILURE: tests.test_sub.Sub.test_message_failure [named diagnostic] ===", output)
+        self.assertIn("message-only subtest fails", output)
+        self.assertIn("collected 4, executed 4, passed 1,", output)
+
+    def test_subjects_are_read_from_the_result_objects(self):
+        from tools.parallel_test import subject, subject_of
+        class K(unittest.TestCase):
+            def test_a(self):
+                pass
+        parent = K("test_a")
+        sub = unittest.case._SubTest(parent, "named diagnostic", {"member": "x"})
+        self.assertEqual(subject_of(sub), {"id": sub.id(), "parent": parent.id(), "fixture": False})
+        self.assertEqual(subject_of(parent), {"id": parent.id(), "parent": parent.id(), "fixture": False})
+        holder = unittest.suite._ErrorHolder("setUpClass (tests.x.K)")
+        self.assertEqual(subject_of(holder), {"id": "setUpClass (tests.x.K)", "parent": None, "fixture": True})
+        # A report entry without structure falls back to the text rule.
+        self.assertEqual(subject({"id": "tests.m.K.test_a [msg] (member='x')"}), ("tests.m.K.test_a", False))
+        self.assertEqual(subject({"id": "setUpClass (tests.m.K)"}), (None, True))
+
+
+class AGroupSelectsExactlyItsModules(FakeTreeCase):
+
+    def test_a_group_runs_its_modules_and_an_unknown_group_refuses(self):
+        write_tree(self.root, {"test_one": case_source(self.marks, "One", ["test_a"]),
+                               "test_two": case_source(self.marks, "Two", ["test_a"])})
+        suite = Suite(self.root, ("tests.test_one", "tests.test_two"), (), pythonpath=None,
+                      groups={"scans": ("tests.test_two",)}, packages=FAKE_PACKAGES)
+        code, output = self.run_suite(suite, ["--jobs", "1", "--group", "scans", "--account"])
+        self.assertEqual(code, 0, output)
+        self.assertIn("[group] scans: 1 parallel, 0 serial, 0 supervised modules", output)
+        self.assertEqual([name for name, _, _ in self.intervals()], ["Two.test_a"])
+        code, output = self.run_suite(suite, ["--jobs", "1", "--group", "nope"])
+        self.assertEqual(code, 2)
+        self.assertIn("unknown group", output)
+
+    def test_the_registry_is_checked_before_the_group_narrows_it(self):
+        write_tree(self.root, {"test_one": case_source(self.marks, "One", ["test_a"]),
+                               "test_stranger": case_source(self.marks, "Stranger", ["test_a"])})
+        suite = Suite(self.root, ("tests.test_one",), (), pythonpath=None, groups={}, packages=FAKE_PACKAGES)
+        code, output = self.run_suite(suite, ["--jobs", "1", "--group", "authority"])
+        self.assertEqual(code, 2)
+        self.assertIn("belong to no registry", output)

@@ -677,3 +677,31 @@ boundary. V11 remains the coordination authority until an explicit cutoff;
 file-journal coordination is not yet selected. Native v12 coordination and
 execution remain the target, not a prerequisite for finishing their development.
 Decision: [temporary direct workflow](work/records/2026/10/finding-v12-development-coordination-pilot/FINDING.md#2026-10-22--suspend-mandatory-v12-development-orchestration).
+
+## V12 test execution policy — owner 2026-10-30
+
+Owner ruling (W384870, T384870 M384887): a durable guide to running the v12
+Python tests exists at `v12/python/TESTING.md`, and following it is critical.
+Every agent doing v12 test work (writing, repairing, selecting or reporting
+tests) reads and follows that guide. Concretely:
+
+- Declare the affected logical groups (the guide's nine) in the handoff and
+  verify with `just test-one` / `just test-group GROUP` from `v12/python` by
+  default; focused verification is the normal cadence.
+- A full `just test-all LOG` is an integration checkpoint that the owning Work
+  explicitly selects; do not run one routinely, and a retry after a fix is a
+  new selected checkpoint, not an automatic rerun.
+- Use the prepared interpreter the recipes resolve; never the ambient one.
+- Every test is required unless its exact id is in the runner's
+  `OPTIONAL_SKIPS` with a recorded owner ruling; a skip outside that registry,
+  a class fixture that skips or errors, or a never-started test fails an
+  accounted run and is reported, never waived.
+- New test modules go into exactly one execution registry and one group; a
+  module that binds another module's test classes is refused.
+- Retain the log, the JSON ledger and the source identity header together as
+  evidence; a passed count without its collected count is not evidence.
+
+Transient Work ids, failure counts and run history belong in the owning
+dossier, not in the guide. Decision history:
+[W384870 FINDING](work/records/2026/10/finding-v12-controlled-test-groups/FINDING.md).
+

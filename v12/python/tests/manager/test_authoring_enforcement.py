@@ -229,7 +229,7 @@ class OwnerLane(LaneFixture):
             enforcement.admit_child(self.store, packet(), 100, 101)
 
     def test_multiple_engine_names_refuse_instead_of_observing_the_wrong_engine(self):
-        self.operations.configuration['workers'].append({'deployment': {'engine': 'podman'}})
+        self.operations.configuration['workers'].append({'deployment': {'engine': 'other-engine'}})
         with self.assertRaises(RuntimeError):
             self.lane()
         self.assertEqual(self.engine.calls, [])

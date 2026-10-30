@@ -31,7 +31,7 @@ in this campaign before:
 
 IT FAILS RATHER THAN SKIPS WITHOUT DOCKER, inheriting the lifecycle gate's
 rule: a required integration that quietly passes because it could not run is
-the failure mode this campaign is built against. Podman is additive and skips.
+the failure mode this campaign is built against. (The Podman variant was removed 2026-10-30, W384870.)
 """
 
 import json
@@ -197,7 +197,7 @@ class OneRealContainerAnswersTheTransport(Lifecycle):
         through the inherited workspace group and the host can read back.
         """
         runtime_id, roots, given, delivery = self.running()
-        answered = self.talk(runtime_id, delivery.document["session"],
+        answered = self.talk(runtime_id, launch.payload_of(delivery.document)["session"],
                              ["describe", "work"],
                              [f"op-1-{self.attempt}", f"op-2-{self.attempt}"])
         self.assertEqual(answered["ending"], "answered", answered)
@@ -275,7 +275,7 @@ class OneRealContainerAnswersTheTransport(Lifecycle):
         both or the diagnostics in the frames.
         """
         runtime_id, _roots, _given, delivery = self.running()
-        answered = self.talk(runtime_id, delivery.document["session"],
+        answered = self.talk(runtime_id, launch.payload_of(delivery.document)["session"],
                              ["describe"], [f"op-{self.attempt}"])
         self.assertEqual(answered["ending"], "answered", answered)
         self.assertEqual(answered["stderr"], "")
@@ -300,7 +300,7 @@ class OneRealContainerAnswersTheTransport(Lifecycle):
         runtime_id, _roots, _given, delivery = self.running()
         subprocess.run([self.engine, "rm", "--force", runtime_id],
                        capture_output=True, timeout=180)
-        answered = self.talk(runtime_id, delivery.document["session"],
+        answered = self.talk(runtime_id, launch.payload_of(delivery.document)["session"],
                              ["describe"], [f"op-{self.attempt}"], seconds=60)
         self.assertIn(answered["ending"], ("lost", "faulted"))
         self.assertEqual(answered["ending"], "lost", answered)
@@ -351,7 +351,7 @@ class OneRealContainerAnswersTheTransport(Lifecycle):
                          next(argv for argv in self.engine_calls
                               if "run" in argv))
         self.settled(runtime_id)
-        answered = self.talk(runtime_id, delivery.document["session"],
+        answered = self.talk(runtime_id, launch.payload_of(delivery.document)["session"],
                              ["describe"], [f"op-{self.attempt}"], seconds=60)
         self.assertEqual(answered["ending"], "lost", answered)
         self.assertEqual(answered["answers"], [])
@@ -361,9 +361,3 @@ class DockerWorkerEntry(OneRealContainerAnswersTheTransport,
                         unittest.TestCase):
     engine = "docker"
     required = True
-
-
-class PodmanWorkerEntry(OneRealContainerAnswersTheTransport,
-                        unittest.TestCase):
-    engine = "podman"
-    required = False

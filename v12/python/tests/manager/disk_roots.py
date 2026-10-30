@@ -43,10 +43,17 @@ def candidates():
     directory a test run is guaranteed to have and is almost always on real
     storage -- and because it is the same filesystem the run's own artifacts
     are already on, so a run that can write its results can write this.
+
+    W384870: it is tried LAST. On a host whose `/tmp` is a tmpfs the previous
+    order fell through to the checkout before `/var/tmp`, and every case a
+    kill or a crash interrupted left its `v12-w71917-*` root inside the
+    package directory: 61 of them, referenced by 48 baseline errors, before
+    the 2026-10-29 cleanup. `/var/tmp` is real storage on every host this
+    runs on and is where `tools.environment` already puts its test roots.
     """
     named = os.environ.get(VARIABLE)
-    return ([named] if named else []) + [tempfile.gettempdir(),
-                                         str(DISTRIBUTION), "/var/tmp"]
+    return ([named] if named else []) + [tempfile.gettempdir(), "/var/tmp",
+                                         str(DISTRIBUTION)]
 
 
 def disk_backed_root():

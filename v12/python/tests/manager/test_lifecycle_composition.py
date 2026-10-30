@@ -40,9 +40,9 @@ construction; under those operands `start`, `list`, `stop`, `destroy` and
 
 IT FAILS RATHER THAN SKIPS WHEN DOCKER IS ABSENT, for the reason W6633's gate
 gives: a required integration that quietly passes because it could not run is
-the failure mode this campaign is built against. Podman is additive and skips,
-for the reason W6632's engine suite gives -- a second third-party daemon is not
-a prerequisite for this repository's own integration.
+the failure mode this campaign is built against. The Podman variant of this
+matrix was removed on 2026-10-30 (W384870, owner decision): Docker is the only
+engine the product supports, so a second daemon is nothing to skip over.
 """
 
 import hashlib
@@ -1928,8 +1928,3 @@ class RecordingAgent:
 class DockerComposition(Composition, unittest.TestCase):
     engine = "docker"
     required = True
-
-
-class PodmanComposition(Composition, unittest.TestCase):
-    engine = "podman"
-    required = False

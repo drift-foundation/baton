@@ -124,10 +124,27 @@ class AdmissionCase(CoordinatorCase):
                 copy.deepcopy(self.frozen),
             "job_rows": lambda store: [copy.deepcopy(self.job)],
             "stages_of": lambda store, job_id: copy.deepcopy(self.stages),
+            # W384870 (B1, C2): admission RE-READS the proposal's input manifest
+            # from the manager and derives the Job input identity from it. The
+            # stub manager here holds no manifests table, so both reads are
+            # answered at admission's own seams: a retained document exists
+            # exactly for the proposal's input digest, and its identity is the
+            # digest the Job names. `TheInputManifestIsReReadNotTrusted` covers
+            # the absent and disagreeing cases.
+            "job_input_identity": lambda producing: producing["job_input_digest"],
+            "manifests": SimpleNamespace(load_manifest=self.load_manifest),
         }
+        self.retained_manifests = {
+            self.proposal["input_digest"]: {"job_input_digest": self.job["input_digest"]}}
         self.patch = mock.patch.multiple(admission, **patches)
         self.patch.start()
         self.addCleanup(self.patch.stop)
+
+    def load_manifest(self, store, manifest_digest, definition):
+        self.assertIs(store, self.manager)
+        self.assertEqual(definition, "inputManifest")
+        found = self.retained_manifests.get(manifest_digest)
+        return copy.deepcopy(found) if found is not None else None
 
     def admit(self, entry_id="entry-1", store=None):
         return admit_candidate(
@@ -418,3 +435,21 @@ class SourceEligibilityIsNotResultFreshness(AdmissionCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TheInputManifestIsReReadNotTrusted(AdmissionCase):
+    """W384870 (B1, C2): the manager's retained input manifest decides the Job."""
+
+    def test_an_absent_input_manifest_refuses_before_any_entry(self):
+        self.retained_manifests.clear()
+        with self.assertRaises(ContractRefusal) as caught:
+            self.admit()
+        self.assertIn("retains no such document", str(caught.exception))
+        self.unchanged()
+
+    def test_a_manifest_naming_another_job_input_refuses(self):
+        self.retained_manifests[self.proposal["input_digest"]] = {"job_input_digest": "sha256:other"}
+        with self.assertRaises(ContractRefusal) as caught:
+            self.admit()
+        self.assertIn("the input digest", str(caught.exception))
+        self.unchanged()

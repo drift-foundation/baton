@@ -631,7 +631,7 @@ class TheDocumentIsDeliveredReadOnlyAtItsFixedTarget(unittest.TestCase):
             posture="execution", name="w325695-topology",
             workspace_group=input_roots.configured_group(self.store()))
         held.update(changed)
-        return oci.run_vector("podman", **held)
+        return oci.run_vector("docker", **held)
 
     def store(self):
         store = ControlStore.open(
@@ -810,7 +810,7 @@ class TheAdapterBindsTheSelectionToItsOwnIdentity(unittest.TestCase):
         held = dict(identity=dict(IDENTITY), assignment_roots=self.roots,
                     posture="execution")
         held.update(changed)
-        return oci.OciAdapter("podman", lambda *a, **k: None, **held)
+        return oci.OciAdapter("docker", lambda *a, **k: None, **held)
 
     def test_the_matching_selection_is_held(self):
         held = self.delivered()
@@ -999,7 +999,7 @@ class TheSupportedDeploymentSelectsAndDeliversIt(unittest.TestCase):
             place = os.path.join(self.home, name)
             os.makedirs(place, 0o700)
             roots[name] = place
-        held = oci.OciAdapter("podman", lambda *a, **k: None,
+        held = oci.OciAdapter("docker", lambda *a, **k: None,
                               identity=dict(IDENTITY),
                               assignment_roots=roots, posture="execution",
                               layout_delivery=delivery)

@@ -96,7 +96,7 @@ The configuration is one JSON object with schema
 | `profile_name`, `profile_digest` | The one certified implementation runtime profile |
 | `policy_digest` | The Job and input manifest's exact policy digest |
 | `adapter_name`, `adapter_digest` | The deployment's fixed OCI adapter identity |
-| `engine`, `image_digest`, `network` | `docker` or `podman`, an immutable image digest, and the approved network name |
+| `engine`, `image_digest`, `network` | `docker`, an immutable image digest, and the approved network name |
 | `workspace_storage`, `workspace_group` | Absolute persistent storage and the provisioned non-authority gid described below |
 | `launch_home`, `credential_home` | Absolute persistent launch state and manager-private credential homes |
 | `credential_sources` | Absolute private user registry described below; the public production factory refuses `null` |
@@ -1190,53 +1190,16 @@ a property of a deployment and not of any code here. A malformed value is
 refused rather than falling back, so a run that meant to prove a provisioned
 group cannot silently report a login-group run instead.
 
-`tests.manager.test_input_delivery` also carries the Podman half of the matrix.
-It skips where Podman is absent, and a skip is a named absence rather than a
-pass — but under M38837 it no longer gates this mechanism's acceptance. See
-the engine section below for what is certified and what is not.
+## Engines: Docker only
 
-## Engines: Docker is certified, Podman is not
-
-**Docker is the only engine this mechanism is certified on.** Approver ruling
-M38837 supersedes the earlier two-engine closure gate for this slice: the
-complete Docker matrix IS the certification, and Podman is a longer-term
-portability certification owned by **W32391**, which is still open. Deploy on
-Docker. Treat everything below as retained experimental evidence rather than
-as a supported choice, and do not run a deployment on either Podman mode until
-W32391 closes with compatible-engine evidence.
-
-The measurements are kept because they were measured rather than predicted,
-and because the two modes say different things.
-
-Under **rootful** Podman the mechanism behaved exactly as it does on Docker:
-`--user 65532:65532` untouched, the configured group applied as a supplementary
-group, and the worker writing its workspace. That is one environment's
-observation and not certification — the full case matrix behind the Docker
-acceptance was not run there.
-
-Under **rootless** Podman it does not hold. The group is still applied — the
-worker really holds the gid — but the bind-mounted workspace arrives owned by
-`nobody`:
-
-    running as [65532, 65532]  groups [8291, 65532]   <- applied
-    /workspace  mode 02770  gid 65534                 <- not the configured gid
-    create -> PermissionError
-
-Rootless Podman runs the container in a user namespace mapping the invoking
-user's own uid/gid and its subuid/subgid range. The configured workspace group
-is a *supplementary* group of the manager, so it is not in that mapping, and
-the setgid group the manager established means nothing inside the container.
-
-A rootless-Podman deployment therefore needs the configured gid mapped into
-the container's user namespace (`--gidmap` / `--userns=keep-id:gid=…`). This
-manager does not compose those flags: the launch vector is pinned by approver
-rulings M34630 and M34916, and adding a namespace mapping to it is a change to
-the ruled vector rather than a deployment detail. **W32391 owns that question
-along with the rest of Podman certification; until it closes, deploy on
-Docker.**
-
-Evidence for all three: `work/records/2026/08/finding-v12-worker-workspace-
-writable/evidence/w33936-podman-2026-08-29.txt`.
+Docker is the product and the acceptance target. Podman-specific support
+(engine admission, absence phrasing, inspect vectors, the Podman half of every
+engine test matrix and this document's Podman certification notes) was removed
+on 2026-10-30 by owner decision under W384870 (T384870 M384888). The shared
+OCI abstractions the Docker adapter uses are unchanged. The historical Podman
+evidence remains in the Work records it was written to, including the
+rootless-Podman workspace-group observation of 2026-08-29; it describes a
+configuration this product no longer offers.
 
 ## Managed integration
 

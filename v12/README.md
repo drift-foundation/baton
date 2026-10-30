@@ -8,6 +8,17 @@ The remaining proof-of-concept description and Node instructions below concern
 the historical disposable reference. Their scope and compatibility statements
 do not describe the complete current `v12/` subtree or supersede DESIGN.md.
 
+## Testing the Python distribution
+
+The current product is the Python distribution under `python/`. How to run,
+select and account its tests — `just test-one`, `just test-group GROUP`,
+`just test-all LOG` from `v12/python`, the nine logical groups, the prepared
+environment, required versus optional skips and what a retained log must
+carry — is in [python/TESTING.md](python/TESTING.md). Agents doing v12 test
+work are required to follow it (repository `AGENTS.md`, "V12 test execution
+policy"). The legacy Node suite below is the superseded prototype's; it is not
+part of the Python product's acceptance.
+
 ## Historical baton-v12-poc — disposable Claude ACP natural-dispatch proof
 
 **Disposable** proof of concept for Baton Work `W76`

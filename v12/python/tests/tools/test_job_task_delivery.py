@@ -28,6 +28,7 @@ import stat
 import unittest
 
 from baton_v12.contracts import ContractRefusal, digest, digest_of_bytes
+from baton_v12.worker_manager import launch
 from baton_v12.contracts.manifest import check_input_pair, job_input_identity
 
 from baton_v12.job_manager import templates
@@ -40,10 +41,13 @@ from tests.manager import input_roots
 from tests.tools.test_stage_execution import (ComposedOneJobCase,
                                               ServingCase,
                                               _ConcurrentEngine)
-from tests.tools.test_single_worker import (
-    Engine, SingleWorkerCase, TheAnsweredEndingRunsThroughTheRealOwners,
-    ThreeWorkersOneJobThreeImages, claimed_offers_for, reconcile, status,
-    submit, sweep)
+# W384870: the sibling's TEST CLASSES are reached through the module, never
+# bound here. A `TestCase` subclass in this module's namespace is collected a
+# second time by `unittest`, so the serial gate ran those cases twice and the
+# accounted runner refused the duplicate ids.
+from tests.tools import test_single_worker as single_worker_tests
+from tests.tools.test_single_worker import (Engine, SingleWorkerCase, claimed_offers_for,
+                                            reconcile, status, submit, sweep)
 
 FIRST = "job-first"
 SECOND = "job-second"
@@ -61,12 +65,12 @@ class DeliveryCase(SingleWorkerCase):
     without inheriting a single assertion.
     """
 
-    ROLES = ThreeWorkersOneJobThreeImages.ROLES
-    configured_as = ThreeWorkersOneJobThreeImages.configured_as
-    held = ThreeWorkersOneJobThreeImages.held
-    stage_for = ThreeWorkersOneJobThreeImages.stage_for
-    job_for = ThreeWorkersOneJobThreeImages.job_for
-    worker_for = ThreeWorkersOneJobThreeImages.worker_for
+    ROLES = single_worker_tests.ThreeWorkersOneJobThreeImages.ROLES
+    configured_as = single_worker_tests.ThreeWorkersOneJobThreeImages.configured_as
+    held = single_worker_tests.ThreeWorkersOneJobThreeImages.held
+    stage_for = single_worker_tests.ThreeWorkersOneJobThreeImages.stage_for
+    job_for = single_worker_tests.ThreeWorkersOneJobThreeImages.job_for
+    worker_for = single_worker_tests.ThreeWorkersOneJobThreeImages.worker_for
 
     def selection(self, job_id, statement, *, work_id=None):
         return {"job_id": job_id, "statement": statement,
@@ -1402,7 +1406,7 @@ class TwoRequestedJobsThroughOneServingLoop(SingleWorkerCase):
     the engine and the in-image provider stand in, exactly as there.
     """
 
-    quiescing = TheAnsweredEndingRunsThroughTheRealOwners.quiescing
+    quiescing = single_worker_tests.TheAnsweredEndingRunsThroughTheRealOwners.quiescing
 
     def requested(self, job_id, statement, work_id):
         installed = single_worker._held(self.config)
@@ -1507,7 +1511,7 @@ class TwoRequestedJobsThroughOneServingLoop(SingleWorkerCase):
         self.assertEqual(
             baton_worker.serve_exchange(
                 scripted_agent.ScriptedAgent(), delivered.document,
-                delivered.document["session"],
+                launch.payload_of(delivered.document)["session"],
                 delivered.exchange.command_root,
                 delivered.exchange.event_root), 0)
         report = sweep(job, operations, now=fixtures.NOW)
@@ -2722,7 +2726,7 @@ class TheReviewStageRunsThroughThePoolServingLoop(ServingCase):
         try:
             return baton_worker.serve_exchange(
                 self.agent(), delivered.document,
-                delivered.document["session"],
+                launch.payload_of(delivered.document)["session"],
                 delivered.exchange.command_root,
                 delivered.exchange.event_root)
         finally:

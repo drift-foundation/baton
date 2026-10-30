@@ -533,8 +533,3 @@ class NegativeEndings(Lifecycle):
 class DockerNegativeEndings(NegativeEndings, unittest.TestCase):
     engine = "docker"
     required = True
-
-
-class PodmanNegativeEndings(NegativeEndings, unittest.TestCase):
-    engine = "podman"
-    required = False

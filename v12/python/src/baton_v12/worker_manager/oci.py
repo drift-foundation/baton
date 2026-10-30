@@ -1,7 +1,8 @@
 """THE CONSTRAINED OCI ADAPTER CORE: closed argv, typed observations.
 
 W6632 (`work/records/2026/08/finding-v12-oci-adapter-core`), the second bounded
-child of W5. Runtime-neutral across Docker and compatible Podman.
+child of W5. Docker is the supported engine; Podman support was removed on
+2026-10-30 by owner decision (W384870, T384870 M384888).
 
 THE ONE SENTENCE THIS MODULE IS BUILT AROUND: **the engine reports facts; it
 never decides assignment authority, settlement or retry.** Everything below
@@ -74,11 +75,13 @@ __all__ = ["ENGINES", "EnginePort", "LABEL_PREFIX", "LABEL_CONTEXT",
            "inspect_vector",
            "list_vector", "run_vector", "stop_vector"]
 
-# The two engines this core speaks, and nothing else. A name outside this set is
-# refused rather than passed to a process: "docker" and "podman" are the two
-# whose argv this module was written against, and an engine that merely accepts
-# the same flags is not the same evidence.
-ENGINES = ("docker", "podman")
+# The one engine this core speaks, and nothing else. A name outside this set is
+# refused rather than passed to a process: "docker" is the engine whose argv
+# this module was written against, and an engine that merely accepts the same
+# flags is not the same evidence. W384870 (owner, 2026-10-30): "podman" was
+# removed from this set with the rest of the Podman-specific surface; Docker is
+# the product and the acceptance target.
+ENGINES = ("docker",)
 
 # The frozen `digest` pattern, applied to an image reference.
 _IMAGE = re.compile(r"\Asha256:[0-9a-f]{64}\Z")
@@ -1979,11 +1982,6 @@ _ABSENT_FORMS = {
     # sentence with `object` for `inspect --type container` on some versions.
     "docker": (re.compile(rf"no such container:\s*{_ABSENT_IDENTITY}", re.I),
                re.compile(rf"no such object:\s*{_ABSENT_IDENTITY}", re.I)),
-    # `Error: no container with name or ID "<id>" found: no such container`,
-    # and the bare `no such container <id>` older podman emitted.
-    "podman": (re.compile(rf"no container with name or id\s+\"?"
-                          rf"{_ABSENT_IDENTITY}", re.I),
-               re.compile(rf"no such container\s+{_ABSENT_IDENTITY}", re.I)),
 }
 
 # Trailing punctuation an engine may put after the identity inside a longer
@@ -2390,7 +2388,13 @@ class OciAdapter:
         # W177936: the launch boundary's grant, absent by default -- see
         # `_context_execution`. Owned at construction like every delivery.
         self.context_execution = context_execution
-        context_document = launch_delivery.document.get("provider_context") if launch_delivery is not None else None
+        # W376586: THROUGH `launch.payload_of`, because `/5` carries the
+        # container document one level down and this member is the container's.
+        # Asking the wrapper for it answered absent and refused a valid
+        # context delivery as a missing mount.
+        context_document = (
+            launch.payload_of(launch_delivery.document)
+            .get("provider_context") if launch_delivery is not None else None)
         self.context_document = context_document
         if (context_delivery is None) != (context_document is None):
             _denied("context launch and mount must both be present")

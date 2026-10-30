@@ -47,9 +47,9 @@ from tests.tools import test_connected_creation as connected
 from tests.job_manager.test_fresh_attempt import (FakeAuthorization,
                                                   FakeBinding, FakeExclusion,
                                                   FakeOwnership)
-from tests.tools.test_job_task_delivery import (
-    TheCreatedJobRunsThroughThePoolServingLoop as pool,
-    TheReviewStageRunsThroughThePoolServingLoop as reviewing)
+# W384870: reached through the module so no sibling `TestCase` is bound here
+# and collected twice (see test_job_task_delivery's import note).
+from tests.tools import test_job_task_delivery as delivery
 from tests.tools.test_stage_execution import (ComposedOneJobCase,
                                               ServingCase,
                                               _ConcurrentEngine)
@@ -60,14 +60,14 @@ class RetryLineageCase(ServingCase):
     """One created Job, failed by the engine, and the retry at it."""
 
     # THE HELPERS ARE BORROWED AND THE CASES ARE NOT.
-    no_version_control = pool.no_version_control
-    identity_for = pool.identity_for
-    creation_ports = pool.creation_ports
-    create = pool.create
-    driven = pool.driven
-    stages = pool.stages
-    stage_of = pool.stage_of
-    published = pool.published
+    no_version_control = delivery.TheCreatedJobRunsThroughThePoolServingLoop.no_version_control
+    identity_for = delivery.TheCreatedJobRunsThroughThePoolServingLoop.identity_for
+    creation_ports = delivery.TheCreatedJobRunsThroughThePoolServingLoop.creation_ports
+    create = delivery.TheCreatedJobRunsThroughThePoolServingLoop.create
+    driven = delivery.TheCreatedJobRunsThroughThePoolServingLoop.driven
+    stages = delivery.TheCreatedJobRunsThroughThePoolServingLoop.stages
+    stage_of = delivery.TheCreatedJobRunsThroughThePoolServingLoop.stage_of
+    published = delivery.TheCreatedJobRunsThroughThePoolServingLoop.published
 
     def worker_of(self, composed, role, worker_id=None, attempt_id=None):
         """One composed worker: by exact id, by the attempt it prepared, or
@@ -94,7 +94,7 @@ class RetryLineageCase(ServingCase):
                                                               attempt_id])
         return held[0]["operations"]._worker
     # THE REAL IN-IMAGE TURN, and the engine that can carry an ending.
-    turn = reviewing.turn
+    turn = delivery.TheReviewStageRunsThroughThePoolServingLoop.turn
     quiescing = ComposedOneJobCase.quiescing
 
     def setUp(self):
@@ -428,8 +428,8 @@ class RetryRuntimeCase(RetryLineageCase):
 
     BASE = "a" * 40
     HEAD = "b" * 40
-    PROPOSAL_OUTPUTS = reviewing.PROPOSAL_OUTPUTS
-    proposal_manifest = reviewing.proposal_manifest
+    PROPOSAL_OUTPUTS = delivery.TheReviewStageRunsThroughThePoolServingLoop.PROPOSAL_OUTPUTS
+    proposal_manifest = delivery.TheReviewStageRunsThroughThePoolServingLoop.proposal_manifest
     SPARE = "implementation-worker-b"
 
     def quiescing(self):
@@ -478,7 +478,7 @@ class RetryRuntimeCase(RetryLineageCase):
         """
         if not self.proposing:
             return RetryLineageCase.agent(self)
-        return reviewing.agent(self)
+        return delivery.TheReviewStageRunsThroughThePoolServingLoop.agent(self)
 
     def spare_capacity_document(self):
         """The pool, with a second producer and the retry bound to it."""
@@ -603,7 +603,7 @@ class RetryRuntimeCase(RetryLineageCase):
         self._turning_attempt = attempt_id
         self.job_id = job_id or owner
         try:
-            return reviewing.turn(self, jobs, control, composed, role,
+            return delivery.TheReviewStageRunsThroughThePoolServingLoop.turn(self, jobs, control, composed, role,
                                   attempt_id)
         finally:
             self._turning_attempt = held

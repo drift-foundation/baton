@@ -399,11 +399,6 @@ class DockerDelivery(Delivery, unittest.TestCase):
     required = True
 
 
-class PodmanDelivery(Delivery, unittest.TestCase):
-    engine = "podman"
-    required = False
-
-
 class Configured(unittest.TestCase):
     """A case that holds the deployment's configured workspace group.
 
@@ -1709,8 +1704,3 @@ class TheConfiguredWorkspaceGroup(Delivery):
 class DockerConfiguredGroup(TheConfiguredWorkspaceGroup, unittest.TestCase):
     engine = "docker"
     required = True
-
-
-class PodmanConfiguredGroup(TheConfiguredWorkspaceGroup, unittest.TestCase):
-    engine = "podman"
-    required = False

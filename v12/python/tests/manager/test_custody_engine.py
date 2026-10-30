@@ -395,8 +395,3 @@ class CustodyRemovesWhatTheWorkerLeaves(Lifecycle):
 class DockerCustody(CustodyRemovesWhatTheWorkerLeaves, unittest.TestCase):
     engine = "docker"
     required = True
-
-
-class PodmanCustody(CustodyRemovesWhatTheWorkerLeaves, unittest.TestCase):
-    engine = "podman"
-    required = False

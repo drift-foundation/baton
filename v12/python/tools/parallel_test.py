@@ -425,7 +425,73 @@ PARALLEL_MODULES = ("tests.tools.test_stack",
     "tests.tools.test_scheduler_trace",
     "tests.tools.test_stage_execution_hardening",
     "tests.tools.test_stage_execution_status_hardening",
-    "tests.tools.test_standalone_ab")
+    "tests.tools.test_standalone_ab",
+    # W384870. The modules found registered nowhere by the 2026-10-29 baseline
+    # audit, each read before classification: none reaches a daemon (every
+    # `docker` word in them is a fake engine or a planted secret), none builds
+    # an image, none shares a name; class fixtures stay within one class
+    # shard. So they SHARD. The engine-owning modules remain the serial
+    # registry below, unchanged.
+    "tests.authority.test_dossier",
+    "tests.job_manager.test_creation",
+    "tests.job_manager.test_fresh_attempt",
+    "tests.job_manager.test_native_permission",
+    "tests.job_manager.test_native_stop_restart",
+    "tests.job_manager.test_role_capability",
+    "tests.job_manager.test_role_contract",
+    "tests.job_manager.test_serving_renewal",
+    "tests.job_manager.test_store_readonly",
+    "tests.job_manager.test_templates",
+    "tests.manager.test_adapter_declaration",
+    "tests.manager.test_attempt_failure_cause",
+    "tests.manager.test_attempt_logs",
+    "tests.manager.test_authoring_enforcement",
+    "tests.manager.test_authoring_manager_guard",
+    "tests.manager.test_authoring_shutdown_deadline",
+    "tests.manager.test_claude_context",
+    "tests.manager.test_dogfood_entry",
+    "tests.manager.test_fixture_dispatch",
+    "tests.manager.test_importing_fixture",
+    "tests.manager.test_integration_generation",
+    "tests.manager.test_maintenance",
+    "tests.manager.test_proposing_fixture",
+    "tests.manager.test_provider_context",
+    "tests.manager.test_provider_context_delivery",
+    "tests.manager.test_stopped_settlement",
+    "tests.manager.test_verification_context",
+    "tests.manager.test_verification_views",
+    "tests.manager.test_verifier_topology",
+    "tests.manager.test_w197661_verifier",
+    "tests.manager.test_worker_packaging",
+    "tests.tools.test_accepted_base",
+    "tests.tools.test_attempt_diagnostics",
+    "tests.tools.test_attempt_logs_command",
+    "tests.tools.test_connected_creation",
+    "tests.tools.test_connected_startup",
+    "tests.tools.test_correction_restart",
+    "tests.tools.test_creation_ports",
+    "tests.tools.test_disposition_command",
+    "tests.tools.test_dossier_command",
+    "tests.tools.test_dossier_recovery",
+    "tests.tools.test_fresh_retry_line_recovery",
+    "tests.tools.test_job_task_delivery",
+    "tests.tools.test_joined_workflow",
+    "tests.tools.test_managed_apply",
+    "tests.tools.test_next_run",
+    "tests.tools.test_next_run_flow",
+    "tests.tools.test_next_run_managed",
+    "tests.tools.test_next_run_recovery",
+    "tests.tools.test_operator_verification_view",
+    "tests.tools.test_packaged_creation",
+    "tests.tools.test_pool",
+    "tests.tools.test_retry_task_lineage",
+    "tests.tools.test_startup_prerequisites",
+    "tests.tools.test_stopped_settlement_command",
+    "tests.tools.test_stopped_settlement_joined",
+    "tests.tools.test_worker_visibility",
+    # W384870 review R2: the content-bound source identity `test-all` records.
+    # Pure: a disposable git repository per case, no engine, no network.
+    "tests.tools.test_source_identity")
 
 SUPERVISED_MODULES = ({
     "module": "tests.manager.test_runtime_deadline_engine",
@@ -441,7 +507,7 @@ STATUS_EVIDENCE_VARIABLE = "BATON_STATUS_HARDENING_EVIDENCE"
 #
 # `test_worker_container` builds THIS repository's worker image, owns the
 # suite-global `baton-w6633-test` names and is the only source module with
-# class fixtures. `test_oci_engine` drives a real Docker/Podman daemon and
+# class fixtures. `test_oci_engine` drives a real Docker daemon and
 # PULLS the pinned base into the shared image store when it is absent; its own
 # comments record a full run where an unconditional pull changed what the image
 # gate resolved between two builds. Running either concurrently with anything —
@@ -527,6 +593,90 @@ SERIAL_MODULES = ("tests.manager.test_worker_container",
 # shard; every other class ships as one shard.
 METHOD_SPLIT = ("tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner",
                 "tests.manager.test_boundary_inventory.EveryProbeProvesItArrived")
+
+# -- W384870: the logical test groups, an EXACT PARTITION by module -----------
+#
+# A group is a scheduling and repair unit, never a second execution registry:
+# the parallel/serial/supervised registries above still decide HOW a module
+# runs, the group decides which `test-group` selects it. Every module on disk
+# belongs to exactly one group, checked mechanically beside the registry
+# check, so `test-all` iterating the registries once schedules every test id
+# exactly once and a `test-group` never runs an id twice across groups.
+#
+# Four groups are carved out explicitly; the rest follow their package.
+GROUP_MODULES = {
+    # The serial engine gates that own a daemon, built images or shared names.
+    "manager-engine": ("tests.manager.test_worker_container",
+                       "tests.manager.test_failed_start_destroy_engine",
+                       "tests.manager.test_oci_engine",
+                       "tests.manager.test_lifecycle_composition",
+                       "tests.manager.test_negative_race_endings",
+                       "tests.manager.test_ended_runtime_adoption",
+                       "tests.manager.test_output_custody_engine",
+                       "tests.manager.test_credentials_engine",
+                       "tests.manager.test_refused_session_engine",
+                       "tests.manager.test_custody_engine",
+                       "tests.manager.test_input_delivery",
+                       "tests.manager.test_worker_entry_engine",
+                       "tests.manager.test_dogfood_image",
+                       "tests.manager.test_abandoned_attempt_engine",
+                       "tests.manager.test_private_line_access_engine",
+                       "tests.tools.test_dogfood_arc_engine",
+                       "tests.tools.test_dogfood_retry_engine"),
+    # Run only through its reviewed supervisor.
+    "supervised": ("tests.manager.test_runtime_deadline_engine",),
+    # The whole-universe scans: long poles whose registries every new module
+    # touches.
+    "scans": ("tests.manager.test_boundary_inventory",
+              "tests.manager.test_dependencies",
+              "tests.manager.test_contracts_inventory",
+              "tests.manager.test_text_sweep",
+              "tests.manager.test_source_boundary"),
+    # The cases that examine a BUILT bundle and refuse to stand in for one.
+    "tools-packaged": ("tests.tools.test_packaging",
+                       "tests.tools.test_packaged_creation"),
+}
+GROUP_PACKAGES = {"tests.authority": "authority",
+                  "tests.job_manager": "job_manager",
+                  "tests.integration": "integration",
+                  "tests.manager": "manager-pure",
+                  "tests.tools": "tools-pure"}
+GROUPS = ("authority", "job_manager", "manager-pure", "manager-engine", "integration",
+          "tools-pure", "tools-packaged", "supervised", "scans")
+
+
+def group_of(module, explicit=GROUP_MODULES, packages=GROUP_PACKAGES):
+    """The ONE group a module belongs to, or a refusal."""
+    owners = [name for name, modules in explicit.items() if module in modules]
+    if len(owners) > 1:
+        raise RunnerRefusal(f"{module} is carved into more than one group: {owners}")
+    if owners:
+        return owners[0]
+    package = module.rsplit(".", 1)[0]
+    if package in packages:
+        return packages[package]
+    raise RunnerRefusal(f"{module} belongs to no group; add it to a carved group or map its package")
+
+
+# W384870: the proofs the owner classified OPTIONAL on 2026-10-29. A skip of
+# any OTHER test is a required proof not run, and `--account` fails the run.
+# Each entry is an exact test id and the reason the owner accepted.
+OPTIONAL_SKIPS = {
+    "tests.manager.test_source_boundary.CleanupNeverRemovesMaterialThisManagerDidNotCreate."
+    "test_a_real_same_filesystem_bind_mount_is_refused":
+        "needs a user namespace this host does not permit; the sibling case "
+        "proves the same boundary",
+    "tests.manager.test_source_boundary.TheWorkspaceIsStorageAndScratchIsBounded."
+    "test_more_than_the_scratch_bound_really_fits_in_the_workspace":
+        "host-capacity proof selected by BATON_V12_LARGE_WORKSPACE_PROOF=1",
+}
+
+# What a composed supervised step needs in the environment, by module. The
+# supervised metadata itself stays the closed four-field shape above.
+SUPERVISED_ENVIRONMENT = {
+    "tests.manager.test_runtime_deadline_engine": ("BATON_W32577_IMAGE_DIGEST",),
+}
+SUPERVISOR_TIMEOUT_SECONDS = 200.0
 
 
 class RunnerRefusal(Exception):
@@ -620,14 +770,66 @@ class Suite:
     """
 
     def __init__(self, root, parallel, serial, method_split=METHOD_SPLIT,
-                 tests_dir="tests", pythonpath="src", supervised=()):
+                 tests_dir="tests", pythonpath="src", supervised=(),
+                 groups=GROUP_MODULES, packages=GROUP_PACKAGES, group_names=GROUPS,
+                 optional_skips=OPTIONAL_SKIPS):
         self.root = pathlib.Path(root)
+        self.optional_skips = dict(optional_skips)
         self.parallel = tuple(parallel)
         self.serial = tuple(serial)
         self.supervised = tuple(supervised)
         self.method_split = tuple(method_split)
         self.tests_dir = tests_dir
         self.pythonpath = pythonpath
+        self.groups = dict(groups)
+        self.packages = dict(packages)
+        self.group_names = tuple(group_names)
+
+    # -- W384870: the group partition --------------------------------------
+
+    def registered(self):
+        return list(self.parallel) + list(self.serial) + [entry["module"] for entry in self.supervised]
+
+    def group_of(self, module):
+        return group_of(module, self.groups, self.packages)
+
+    def check_groups(self):
+        """Every registered module in exactly one KNOWN group, and nothing carved
+        that the registries do not know."""
+        registered = set(self.registered())
+        for name, modules in self.groups.items():
+            if name not in self.group_names:
+                raise RunnerRefusal(f"group {name!r} is carved but not a known group")
+            stray = sorted(set(modules) - registered)
+            if stray:
+                raise RunnerRefusal(f"group {name} names modules the registries do not: {stray}")
+        for name in self.packages.values():
+            if name not in self.group_names:
+                raise RunnerRefusal(f"package group {name!r} is not a known group")
+        for module in sorted(registered):
+            self.group_of(module)
+
+    def group_counts(self, ids):
+        counts = {name: 0 for name in self.group_names}
+        for one in ids:
+            counts[self.group_of(module_of(one))] += 1
+        return counts
+
+    def restricted(self, group):
+        """This suite scoped to ONE group; registries and checks unchanged."""
+        if group not in self.group_names:
+            raise RunnerRefusal(f"unknown group {group!r}; the groups are {', '.join(self.group_names)}")
+        chosen = Suite(self.root,
+                       [m for m in self.parallel if self.group_of(m) == group],
+                       [m for m in self.serial if self.group_of(m) == group],
+                       method_split=self.method_split, tests_dir=self.tests_dir,
+                       pythonpath=self.pythonpath,
+                       supervised=[e for e in self.supervised if self.group_of(e["module"]) == group],
+                       groups=self.groups, packages=self.packages, group_names=self.group_names,
+                       optional_skips=self.optional_skips)
+        if not chosen.registered():
+            raise RunnerRefusal(f"group {group} selects no module")
+        return chosen
 
     # -- registry completeness, checked against the filesystem ---------------
 
@@ -674,12 +876,14 @@ class Suite:
     def supervised_description(self):
         return "; ".join(f"{entry['module']} ({entry['work']}; {entry['supervisor']}; {entry['reason']})" for entry in self.supervised)
 
-    def check_selection(self, phase, print_ids):
-        if self.supervised:
+    def check_selection(self, phase, print_ids, with_supervised=False):
+        if self.supervised and not with_supervised:
             if print_ids and phase != "parallel":
                 raise RunnerRefusal("--print-ids requires explicit --phase parallel while supervised tests are uncomposed: " + self.supervised_description())
             if phase == "all":
                 raise RunnerRefusal("all-source acceptance is uncomposed; supervised tests require separate selection: " + self.supervised_description())
+        if with_supervised and phase != "all":
+            raise RunnerRefusal("--with-supervised composes the whole run; it requires --phase all")
         if phase != "serial" and STATUS_EVIDENCE_MODULE in self.parallel and self.environment().get(STATUS_EVIDENCE_VARIABLE):
             raise RunnerRefusal(f"unset {STATUS_EVIDENCE_VARIABLE} before selecting {STATUS_EVIDENCE_MODULE}; shared evidence destinations are not supported")
 
@@ -997,15 +1201,21 @@ class Run:
 # -- collection ---------------------------------------------------------------
 
 
-def collect(run, jobs):
-    """Exact test ids for every parallel module, gathered by child processes."""
+def collect(run, jobs, modules=None, label="collect"):
+    """Exact test ids for every parallel module, gathered by child processes.
+
+    W384870: the same child collection serves the serial and supervised
+    registries when a run is ACCOUNTED, so the expected set is every id the
+    tree declares and not only the parallel ones. Collection imports; it
+    selects nothing to run.
+    """
     root = run.result_root
     work = []
-    for module in run.suite.parallel:
-        out = root / f"collect-{module}.json"
+    for module in (run.suite.parallel if modules is None else modules):
+        out = root / f"{label}-{module}.json"
         work.append({"label": module, "module": module, "out": out,
                      "argv": ["collect-one", module, str(out)]})
-    done = run.drive(work, jobs, "collect")
+    done = run.drive(work, jobs, label)
     ids = []
     for item in sorted(done, key=lambda one: one["label"]):
         # The child's own recorded reason first: it names the import that
@@ -1086,6 +1296,200 @@ def present(results, heading, out):
             "skipped": skipped, "ok": ok}
 
 
+# -- W384870: exact test-identity accounting and the composed supervised step --
+
+
+def module_of(test_id):
+    """`package.module.Class.method` -> `package.module` (also for `setUpClass (x.y.Z)`)."""
+    text = test_id.split(" (")[0]
+    parts = text.split(".")
+    if len(parts) >= 2 and parts[-2][:1].isupper():
+        return ".".join(parts[:-2])
+    return ".".join(parts[:-1]) if len(parts) > 1 else text
+
+
+FIXTURE_EVENT = re.compile(r"^(setUpClass|tearDownClass|setUpModule|tearDownModule) \(")
+
+
+def is_fixture_event(test_id):
+    """`setUpClass (pkg.mod.Class)` and its kin: an outcome of a FIXTURE, not of a test."""
+    return bool(FIXTURE_EVENT.match(test_id))
+
+
+def base_id(test_id):
+    """FALLBACK ONLY, for a report entry that carries no structural `parent`.
+
+    A subtest id carries ` [message]` and/or ` (member=...)`; the accounted
+    identity is its test. The runner's own reports bind the parent
+    structurally (`subject_of`), so this text rule is reached only for a
+    report produced by something else. A fixture event's parenthesis names the
+    class or module it belongs to and is kept whole.
+    """
+    if is_fixture_event(test_id):
+        return test_id
+    for marker in (" [", " ("):
+        if marker in test_id:
+            test_id = test_id.split(marker)[0]
+    return test_id
+
+
+def subject(entry):
+    """(accounted id or None, is_fixture) for one report entry, structure first."""
+    if "parent" in entry:
+        return entry["parent"], bool(entry.get("fixture"))
+    if is_fixture_event(entry["id"]):
+        return None, True
+    return base_id(entry["id"]), False
+
+
+def account(collected, reports, optional=OPTIONAL_SKIPS):
+    """collected == executed, every executed id with exactly one outcome.
+
+    Nothing here trusts a count: `passed` is DERIVED from the ids that ran
+    minus the ids that did anything other than pass, and the run is OK only
+    when passed plus OPTIONAL skips is exactly the collected set.
+    """
+    expected = set(collected)
+    owners = {}
+    failed, errored, expected_failures, unexpected = set(), set(), set(), set()
+    skipped, fixture_skipped, fixture_errors = {}, {}, {}
+    stray_errors = []
+    for answer in reports:
+        for one in answer.get("executed", []):
+            owners.setdefault(one, []).append(answer["label"])
+        for one in answer.get("failures", []):
+            parent, fixture = subject(one)
+            if fixture or parent is None:
+                fixture_errors[one["id"]] = one["trace"].rstrip().splitlines()[-1][:200] if one["trace"].strip() else ""
+            elif parent not in expected:
+                stray_errors.append(one["id"])
+            else:
+                failed.add(parent)
+        for one in answer.get("errors", []):
+            parent, fixture = subject(one)
+            if fixture or parent is None:
+                fixture_errors[one["id"]] = one["trace"].rstrip().splitlines()[-1][:200] if one["trace"].strip() else ""
+            elif parent not in expected:
+                stray_errors.append(one["id"])
+            else:
+                errored.add(parent)
+        for one in answer.get("skipped", []):
+            parent, fixture = subject(one)
+            if fixture or parent is None:
+                fixture_skipped[one["id"]] = one["reason"]
+            else:
+                skipped[parent] = one["reason"]
+        expected_failures.update(base_id(one) for one in answer.get("expected_failures", []))
+        unexpected.update(base_id(one) for one in answer.get("unexpected_successes", []))
+    executed = set(owners)
+    duplicates = sorted(one for one, labels in owners.items() if len(labels) > 1)
+    unaccounted = sorted(expected - executed)
+    uncollected = sorted(executed - expected)
+    optional_skipped = {one: why for one, why in sorted(skipped.items()) if one in optional}
+    required_skipped = {one: why for one, why in sorted(skipped.items()) if one not in optional}
+    # A class-level skip the owner classified optional (by its fixture id)
+    # makes the tests it never started OPTIONAL too, by the class prefix.
+    optional_fixtures = {one for one in fixture_skipped if one in optional}
+    optional_prefixes = tuple(one[len("setUpClass ("):-1] + "." for one in optional_fixtures if one.startswith("setUpClass ("))
+    not_started_optional = sorted(one for one in unaccounted if one.startswith(optional_prefixes)) if optional_prefixes else []
+    unaccounted = sorted(set(unaccounted) - set(not_started_optional))
+    for one in not_started_optional:
+        optional_skipped[one] = "not started: " + fixture_skipped[next(f for f in optional_fixtures if one.startswith(f[len("setUpClass ("):-1] + "."))]
+    required_fixture_skips = {one: why for one, why in sorted(fixture_skipped.items()) if one not in optional}
+    passed = sorted(executed - failed - errored - set(skipped) - expected_failures - unexpected)
+    ok = not (failed or errored or duplicates or unaccounted or uncollected or required_skipped
+              or required_fixture_skips or fixture_errors or unexpected or stray_errors)
+    ok = ok and set(passed) | set(optional_skipped) == expected
+    return {"collected": sorted(expected), "executed": sorted(executed), "passed": passed,
+            "optional_skipped": optional_skipped, "required_skipped": required_skipped,
+            "fixture_skipped": dict(sorted(fixture_skipped.items())), "fixture_errors": dict(sorted(fixture_errors.items())),
+            "failed": sorted(failed), "errors": sorted(errored), "stray_errors": sorted(stray_errors),
+            "expected_failures": sorted(expected_failures), "unexpected_successes": sorted(unexpected),
+            "duplicates": duplicates, "unaccounted": unaccounted, "uncollected": uncollected, "ok": ok}
+
+
+def present_accounting(ledger, out):
+    print("--- accounting ---", file=out)
+    for one, why in ledger["optional_skipped"].items():
+        print(f"[optional skip] {one}: {why}", file=out)
+    for one, why in ledger["required_skipped"].items():
+        print(f"[REQUIRED SKIP] {one}: {why}", file=out)
+    for one, why in ledger["fixture_skipped"].items():
+        print(f"[FIXTURE SKIP] {one}: {why}", file=out)
+    for one, why in ledger["fixture_errors"].items():
+        print(f"[FIXTURE ERROR] {one}: {why}", file=out)
+    for kind in ("duplicates", "unaccounted", "uncollected", "stray_errors", "unexpected_successes"):
+        for one in ledger[kind]:
+            print(f"[{kind.upper()}] {one}", file=out)
+    n, p, k = len(ledger["collected"]), len(ledger["passed"]), len(ledger["optional_skipped"])
+    print(f"collected {n}, executed {len(ledger['executed'])}, passed {p}, optional skipped {k}, "
+          f"required skipped {len(ledger['required_skipped'])}, failed {len(ledger['failed'])}, "
+          f"errors {len(ledger['errors'])}, fixture skips {len(ledger['fixture_skipped'])}, "
+          f"fixture errors {len(ledger['fixture_errors'])}, duplicates {len(ledger['duplicates'])}, "
+          f"unaccounted {len(ledger['unaccounted'])}", file=out)
+    print(f"[accounting] passed {p} + optional skipped {k} = {p + k} of collected {n} "
+          f"-> {'OK' if ledger['ok'] else 'FAILED'}", file=out)
+
+
+def resolve_supervisor(locator, root):
+    """`baton:work/records/...py` -> the file, under THIS checkout's repository root."""
+    prefix, _, relative = locator.partition(":")
+    repository = pathlib.Path(root).resolve().parents[1]
+    if prefix != "baton":
+        raise RunnerRefusal(f"supervisor locator root {prefix!r} is not this repository")
+    path = (repository / relative).resolve()
+    if repository not in path.parents or not path.is_file():
+        raise RunnerRefusal(f"supervisor {locator} is not a file under {repository}")
+    return path
+
+
+def supervise(run, entry, index, ids, retain, out):
+    """ONE supervised module through its reviewed supervisor, as one report.
+
+    The supervisor owns the body and the cleanup; this runner owns the
+    accounting: the module's collected ids are executed only when the
+    supervisor exits 0 and its body ran every one of them to OK.
+    """
+    missing = [name for name in SUPERVISED_ENVIRONMENT.get(entry["module"], ()) if not os.environ.get(name)]
+    if missing:
+        raise RunnerRefusal(f"supervised {entry['module']} needs {missing} in the environment")
+    supervisor = resolve_supervisor(entry["supervisor"], run.suite.root)
+    home = pathlib.Path(retain) if retain else run.result_root
+    run_dir = home / f"supervised-{index:02d}" / "run"
+    run_dir.parent.mkdir(parents=True, exist_ok=False)
+    command = [sys.executable, "-W", "error", str(supervisor),
+               "--python", sys.executable, "--run-dir", str(run_dir)]
+    print(f"[supervised] {entry['module']} via {entry['supervisor']} ({entry['work']})", file=out)
+    started = time.monotonic()
+    trace = ""
+    try:
+        completed = subprocess.run(command, cwd=str(run.suite.root), env=run.suite.environment(),
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                   timeout=SUPERVISOR_TIMEOUT_SECONDS)
+        returncode = completed.returncode
+        trace = completed.stdout.decode("utf-8", "replace")[-4000:] + completed.stderr.decode("utf-8", "replace")[-4000:]
+    except subprocess.TimeoutExpired as expired:
+        returncode = -1
+        trace = f"supervisor exceeded {SUPERVISOR_TIMEOUT_SECONDS}s: {expired}"
+    elapsed = time.monotonic() - started
+    body = run_dir / "body.log"
+    body_text = body.read_text(encoding="utf-8", errors="replace") if body.exists() else ""
+    ran = re.search(r"^Ran (\d+) tests? in", body_text, re.M)
+    # `unittest` prints its verdict line after `Ran N tests`; the body may
+    # print its own evidence afterwards, so the verdict is searched for, not
+    # assumed to be the last line.
+    verdict = re.search(r"^OK(?: \(.*\))?$", body_text[ran.end():], re.M) if ran else None
+    body_ok = bool(ran) and int(ran.group(1)) == len(ids) and verdict is not None and "skipped" not in verdict.group(0)
+    ok = returncode == 0 and body_ok
+    run.note(f"[supervised] done {entry['module']} rc={returncode} in {elapsed:.2f}s")
+    answer = {"label": entry["module"], "ids": list(ids), "executed": list(ids) if ok else [],
+              "ran": int(ran.group(1)) if ran else 0, "ok": ok, "failures": [], "skipped": [],
+              "expected_failures": [], "unexpected_successes": [], "returncode": returncode,
+              "errors": [] if ok else [{"id": entry["module"],
+                                        "trace": f"supervisor rc={returncode}; body:\n{body_text[-3000:]}\n{trace}"}]}
+    return answer
+
+
 def main(argv=None, suite=None, out=sys.stdout, progress=sys.stderr):
     parser = argparse.ArgumentParser(prog="parallel_test",
                                      description="Run the safe v12 source tests across available CPUs.")
@@ -1097,6 +1501,19 @@ def main(argv=None, suite=None, out=sys.stdout, progress=sys.stderr):
     parser.add_argument("--print-ids", action="store_true",
                         help="print scoped collected IDs without running them; supervised entries require explicit --phase parallel")
     parser.add_argument("--root", default=None, help=argparse.SUPPRESS)
+    parser.add_argument("--group", default=None,
+                        help="W384870: run exactly one logical group (" + ", ".join(GROUPS) + ")")
+    parser.add_argument("--account", action="store_true",
+                        help="W384870: exact test-identity accounting; collected ids must equal executed ids, "
+                             "and any skip outside the optional registry fails the run")
+    parser.add_argument("--with-supervised", action="store_true",
+                        help="W384870: compose the supervised registry through its reviewed supervisor (requires --phase all)")
+    parser.add_argument("--keep-going", action="store_true",
+                        help="W384870: run the serial and supervised phases even after a failed parallel phase")
+    parser.add_argument("--summary", default=None,
+                        help="W384870: write the JSON accounting ledger to this path")
+    parser.add_argument("--retain", default=None,
+                        help="W384870: keep supervised run directories under this directory instead of the disposable result root")
     options = parser.parse_args(argv)
 
     if suite is None:
@@ -1109,9 +1526,15 @@ def main(argv=None, suite=None, out=sys.stdout, progress=sys.stderr):
         signal.signal(number, run.record_signal)
 
     def phases():
+        nonlocal suite
         suite.check_registry()
-        suite.check_selection(options.phase, options.print_ids)
-        if suite.supervised:
+        suite.check_groups()
+        if options.group:
+            suite = run.suite = suite.restricted(options.group)
+            print(f"[group] {options.group}: {len(suite.parallel)} parallel, {len(suite.serial)} serial, "
+                  f"{len(suite.supervised)} supervised modules", file=out)
+        suite.check_selection(options.phase, options.print_ids, options.with_supervised)
+        if suite.supervised and not options.with_supervised:
             print(f"[scope] {options.phase} only; supervised not selected: {suite.supervised_description()}", file=out)
         run.open_result_root()
         # Collection is bounded by the same worker count, and by the module
@@ -1120,6 +1543,23 @@ def main(argv=None, suite=None, out=sys.stdout, progress=sys.stderr):
         ids = collect(run, jobs) if options.phase != "serial" else []
         suite.check_collected_ids(ids)
         shards = partition(ids, suite.method_split) if ids else []
+        expected = list(ids)
+        supervised_ids = {}
+        if options.account and options.phase != "parallel" and suite.serial:
+            serial_ids = collect(run, resolve_jobs(options.jobs, run.detected, len(suite.serial)),
+                                 modules=suite.serial, label="collect-serial")
+            suite.check_collected_ids(serial_ids)
+            expected.extend(serial_ids)
+            print(f"[collect-serial] {len(suite.serial)} serial modules -> {len(serial_ids)} tests", file=out)
+        if options.with_supervised:
+            for entry in suite.supervised:
+                found = collect(run, 1, modules=(entry["module"],), label="collect-supervised")
+                supervised_ids[entry["module"]] = found
+                expected.extend(found)
+            print(f"[collect-supervised] {len(suite.supervised)} supervised modules -> "
+                  f"{sum(len(v) for v in supervised_ids.values())} tests", file=out)
+        reports = []
+        stopped = False
 
         if options.print_ids:
             for one in sorted(ids):
@@ -1134,25 +1574,44 @@ def main(argv=None, suite=None, out=sys.stdout, progress=sys.stderr):
             print(f"[parallel] jobs={jobs} (available CPUs {run.detected})", file=out)
             done = run.drive(shard_work(run, shards, "parallel"), jobs, "parallel")
             results = sorted((harvest(item) for item in done), key=lambda one: one["label"])
+            reports.extend(results)
             summaries["parallel source"] = present(results, "parallel source", out)
-            if not summaries["parallel source"]["ok"]:
+            if not summaries["parallel source"]["ok"] and not options.keep_going:
                 # The canonical gate's fail-fast ORDERING, preserved: a broken
                 # source phase does not get to spend a Docker daemon's time.
+                # W384870: the accounting below still runs, so the ids that
+                # never executed are named rather than merely implied.
                 print("[summary] parallel source FAILED; the serial registry did not run", file=out)
-                return 1
-
-        if options.phase != "parallel":
+                stopped = True
+        if options.phase != "parallel" and not stopped:
             serial = [{"label": module, "ids": [module]} for module in suite.serial]
             print(f"[serial] {len(serial)} source modules, one at a time", file=out)
             done = run.drive(shard_work(run, serial, "serial"), 1, "serial")
             results = sorted((harvest(item) for item in done), key=lambda one: one["label"])
+            reports.extend(results)
             summaries["serial source"] = present(results, "serial source", out)
-
+        if options.with_supervised and suite.supervised and not stopped:
+            results = [supervise(run, entry, index, supervised_ids[entry["module"]], options.retain, out)
+                       for index, entry in enumerate(suite.supervised)]
+            reports.extend(results)
+            summaries["supervised source"] = present(results, "supervised source", out)
         line = " | ".join(f"{name}: {one['ran']} tests, "
                           f"{one['failures'] + one['errors']} failed, {one['skipped']} skipped"
                           for name, one in summaries.items())
         ok = all(one["ok"] for one in summaries.values())
-        print(f"[summary] {line} -> {'OK' if ok else 'FAILED'}", file=out)
+        if not stopped:
+            print(f"[summary] {line} -> {'OK' if ok else 'FAILED'}", file=out)
+        if options.account:
+            ledger = account(expected, reports, suite.optional_skips)
+            ledger["groups"] = suite.group_counts(expected)
+            ledger["phases"] = summaries
+            ledger["ok"] = ledger["ok"] and ok
+            print("[groups] " + ", ".join(f"{name}={count}" for name, count in ledger["groups"].items()), file=out)
+            present_accounting(ledger, out)
+            if options.summary:
+                pathlib.Path(options.summary).write_text(json.dumps(ledger, indent=1, sort_keys=True) + "\n",
+                                                         encoding="utf-8")
+            ok = ledger["ok"]
         return 0 if ok else 1
 
     try:
@@ -1209,6 +1668,15 @@ def collect_one(module, out):
                 # collected as "one test that will fail somewhere later".
                 raise RunnerRefusal(f"{module} could not be loaded: {test.id()}")
             answer["ids"].append(test.id())
+        # W384870: a `TestCase` imported into this module's namespace is
+        # collected again under ITS OWN module's id, so the same test would run
+        # twice and the accounting would see a duplicate. Name the cause here,
+        # at the module that binds the stranger, rather than as a bare
+        # duplicate downstream.
+        foreign = sorted({one.rsplit(".", 1)[0] for one in answer["ids"] if not one.startswith(module + ".")})
+        if foreign:
+            raise RunnerRefusal(f"{module} binds test classes defined elsewhere, which unittest would run "
+                                f"twice; import their module instead: {foreign}")
     except Exception as trouble:
         answer["error"] = f"{type(trouble).__name__}: {trouble}"
     pathlib.Path(out).write_text(json.dumps(answer), encoding="utf-8")
@@ -1223,20 +1691,57 @@ def iterate(suite):
             yield item
 
 
+class StartedResult(unittest.TextTestResult):
+    """A TextTestResult that also remembers which test ids actually began."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.started = []
+
+    def startTest(self, test):
+        self.started.append(test.id())
+        super().startTest(test)
+
+
+def subject_of(test):
+    """The STRUCTURAL identity of one outcome, never parsed from its text.
+
+    W384870 review R1: a subtest's id is `parent [message] (params)`, and the
+    first ledger recovered the parent by cutting the text at ` (` -- which left
+    a message-only subtest failure under a synthetic id and its parent PASSED.
+    `unittest` knows the parent: a `_SubTest` carries `test_case`; a fixture
+    event (`setUpClass (pkg.Class)`) is an `_ErrorHolder` with no test behind
+    it. Both facts are read from the objects, and the full id is kept beside
+    them for the diagnostics.
+    """
+    case = getattr(test, "test_case", None)
+    if case is not None:
+        return {"id": test.id(), "parent": case.id(), "fixture": False}
+    fixture = type(test).__name__ == "_ErrorHolder" or not hasattr(test, "_testMethodName")
+    return {"id": test.id(), "parent": None if fixture else test.id(), "fixture": fixture}
+
+
 def run_shard(plan_path):
     plan = json.loads(pathlib.Path(plan_path).read_text(encoding="utf-8"))
     # The runner's own text output is discarded on purpose: the parent presents
     # this shard from the STRUCTURED report below, in sorted order, so a stream
     # written at completion time could only reintroduce the nondeterminism the
     # whole design removes.
-    result = unittest.TextTestRunner(stream=io.StringIO(), verbosity=0).run(
-        unittest.TestLoader().loadTestsFromNames(plan["ids"]))
-    answer = {"ids": plan["ids"], "ran": result.testsRun, "ok": result.wasSuccessful(),
-              "failures": [{"id": test.id(), "trace": trace} for test, trace in result.failures],
-              "errors": [{"id": test.id(), "trace": trace} for test, trace in result.errors],
-              "skipped": [{"id": test.id(), "reason": why} for test, why in result.skipped],
-              "expected_failures": [test.id() for test, _ in result.expectedFailures],
-              "unexpected_successes": [test.id() for test in result.unexpectedSuccesses]}
+    loaded = unittest.TestLoader().loadTestsFromNames(plan["ids"])
+    # W384870: the exact ids this shard STARTED, recorded by the result as each
+    # test begins. Not the loaded plan: a class whose setUpClass skips or
+    # errors starts none of its tests, and B0's first ledger counted those as
+    # passed because it trusted the plan. `loaded` is kept for the record.
+    loaded_ids = [test.id() for test in iterate(loaded)]   # before running: a run suite drops its tests
+    result = unittest.TextTestRunner(stream=io.StringIO(), verbosity=0,
+                                     resultclass=StartedResult).run(loaded)
+    answer = {"ids": plan["ids"], "loaded": loaded_ids,
+              "executed": list(result.started), "ran": result.testsRun, "ok": result.wasSuccessful(),
+              "failures": [dict(subject_of(test), trace=trace) for test, trace in result.failures],
+              "errors": [dict(subject_of(test), trace=trace) for test, trace in result.errors],
+              "skipped": [dict(subject_of(test), reason=why) for test, why in result.skipped],
+              "expected_failures": [subject_of(test)["parent"] or test.id() for test, _ in result.expectedFailures],
+              "unexpected_successes": [subject_of(test)["parent"] or test.id() for test in result.unexpectedSuccesses]}
     pathlib.Path(plan["report"]).write_text(json.dumps(answer), encoding="utf-8")
     return 0 if answer["ok"] else 1
 

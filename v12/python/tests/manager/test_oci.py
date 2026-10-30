@@ -2,7 +2,7 @@
 
 The acceptance this file answers to, from the bound record:
 
-  golden Docker and Podman argv/inspect vectors sharing ONE worker-control
+  golden Docker argv/inspect vectors sharing ONE worker-control
   vocabulary and rejecting unknown or contradictory engine data; exact labels
   and digests surviving restart reconciliation; stop, quiescent, destroyed and
   positive absence all DISTINCT; duplicate starts, stale identities and
@@ -114,10 +114,6 @@ def listing(runtime_id="runtime-1", labels=None, engine="docker",
     image = IMAGE if image is None else image
     reported = {f"{LABEL_PREFIX}{name}": str(value)
                 for name, value in labels.items()}
-    if engine == "podman":
-        return json.dumps({"Id": runtime_id, "ImageID": image,
-                           "Labels": ",".join(f"{key}={value}" for key, value
-                                              in reported.items())})
     return json.dumps({"ID": runtime_id, "Image": image,
                        "Labels": reported})
 
@@ -315,14 +311,15 @@ class TheVectorsAreClosedAndOrdered(Configured):
                                name="baton-op-1")
 
     def test_an_engine_this_adapter_does_not_speak_is_refused(self):
-        for engine in ("kubectl", "docker ", "DOCKER", ""):
+        # W384870: "podman" is refused like any other name since its removal.
+        for engine in ("kubectl", "docker ", "DOCKER", "", "podman"):
             with self.subTest(engine=engine):
                 with self.assertRaises(ContractRefusal):
                     list_vector(engine, labels=LABELS)
 
     def test_the_query_vectors_name_one_exact_identity(self):
-        self.assertEqual(inspect_vector("podman", runtime_id="r-1"),
-                         ["podman", "inspect", "--type", "container",
+        self.assertEqual(inspect_vector("docker", runtime_id="r-1"),
+                         ["docker", "inspect", "--type", "container",
                           "--format", "{{json .}}", "r-1"])
         self.assertEqual(stop_vector("docker", runtime_id="r-1"),
                          ["docker", "stop", "--time", "30", "r-1"])
@@ -1057,12 +1054,11 @@ class OneDeliveryCarriesOneResolvedIdentity(Adapting):
         self.assertEqual(caught.exception.code, "digest")
 
     def test_the_engines_two_spellings_of_the_image_are_one_fact(self):
-        """Docker answers `Image` and Podman answers `ImageID`, and the id may
-        arrive with or without the `sha256:` prefix. One vocabulary for the
-        manager, every spelling read here."""
+        """Docker answers `Image`, and the id may arrive with or without the
+        `sha256:` prefix. One vocabulary for the manager, every spelling read
+        here. (The Podman `ImageID` spelling left with Podman support, W384870.)"""
         for what, entry in (
                 ("docker", listing()),
-                ("podman", listing(engine="podman")),
                 ("a bare id", listing(image=IMAGE[len("sha256:"):]))):
             with self.subTest(spelling=what):
                 adapter = self.adapter(answer(stdout=entry))

@@ -391,20 +391,6 @@ class TheDISPATCHIsDecidedByTheDELIVERY(unittest.TestCase):
             with open(os.path.join(instance, name)) as handle:
                 self.assertNotIn("integration_preparation", json.load(handle))
 
-    def test_and_the_RETAINED_RUN_composed_no_apply_input(self):
-        """The same answer from the other side: the destination this Work's
-        clean episode left behind holds no managed-apply material at all."""
-        destination = "/home/sl/baton-v12-lifecycle-200564-clean"
-        if not os.path.isdir(destination):
-            self.skipTest("the retained destination is not present")
-        found = []
-        for where, directories, names in os.walk(destination):
-            if "managed-results" in directories:
-                found.append(os.path.join(where, "managed-results"))
-            found.extend(os.path.join(where, one) for one in names
-                         if one == self.contract.APPLY_REQUEST_DOCUMENT)
-        self.assertEqual(found, [])
-
     def test_an_UNREADABLE_delivery_REFUSES_rather_than_proposing(self):
         """The fallback a one-image fixture must never have: an integration
         container that cannot read its delivery says so and exits, rather than

@@ -218,9 +218,3 @@ class DockerRefusedSession(ARefusedHandshakeReallyEndsItsRuntime,
                            unittest.TestCase):
     engine = "docker"
     required = True
-
-
-class PodmanRefusedSession(ARefusedHandshakeReallyEndsItsRuntime,
-                           unittest.TestCase):
-    engine = "podman"
-    required = False
