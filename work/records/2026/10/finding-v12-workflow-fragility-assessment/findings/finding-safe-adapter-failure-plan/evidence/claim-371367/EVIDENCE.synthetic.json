@@ -1,0 +1,49 @@
+{
+  "schema": "baton.v12.exchange-qualification-evidence/1",
+  "host_runtime_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+  "workers": [
+    {
+      "image_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "adapter_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+      "runtime_profile_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+      "wire_profile": "typed-adapter-file-exchange/1"
+    }
+  ],
+  "checks": [
+    {
+      "case": "matched-typed",
+      "result": "passed",
+      "artifact_digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+    },
+    {
+      "case": "new-host-legacy-worker",
+      "result": "passed",
+      "artifact_digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+    },
+    {
+      "case": "old-host-new-input",
+      "result": "passed",
+      "artifact_digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+    },
+    {
+      "case": "legacy-launch-new-worker",
+      "result": "passed",
+      "artifact_digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+    },
+    {
+      "case": "unsupported-tuple",
+      "result": "passed",
+      "artifact_digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+    },
+    {
+      "case": "historical-report",
+      "result": "passed",
+      "artifact_digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+    },
+    {
+      "case": "no-effect-refusal",
+      "result": "passed",
+      "artifact_digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+    }
+  ]
+}

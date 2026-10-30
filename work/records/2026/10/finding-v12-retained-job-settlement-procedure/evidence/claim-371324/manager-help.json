@@ -1,0 +1,13 @@
+{
+  "name": "manager-help",
+  "cmd": "/home/sl/baton-instances/useful-template-job-w366962/distro/baton-v12-stack manager --help",
+  "started": "2026-10-28T03:30:08.919Z",
+  "result": {
+    "chunk_id": "b62ae6",
+    "wall_time_seconds": 0.109002407,
+    "exit_code": 0,
+    "original_token_count": 357,
+    "output": "usage: job_manager [-h] --store STORE --incarnation INCARNATION\n                   --authority-uuid AUTHORITY_UUID\n                   {submit,fresh-attempt,create,status,serve} ...\n\nSubmit Jobs to the v12 Job manager, read its status, or run its control loop.\n\npositional arguments:\n  {submit,fresh-attempt,create,status,serve}\n    submit              record one versioned multi-Job submission\n    fresh-attempt       admit a fresh attempt at a Job whose execution failed\n    create              create one ordinary Job from a versioned template\n    status              print the read-only status projection\n    serve               run the persistent control loop\n\noptions:\n  -h, --help            show this help message and exit\n  --store STORE         the Job store's path; there is no default, and one\n                        inside the checkout is what the external state root\n                        exists to prevent\n  --incarnation INCARNATION\n                        this process's incarnation, which is what restart\n                        recovery distinguishes managers by\n  --authority-uuid AUTHORITY_UUID\n                        the 32-lowercase-hex Authority this Job store belongs\n                        to; it namespaces every episode identity the store\n                        derives, is persisted on first open, and a later open\n                        naming another one refuses without changing the store\n"
+  },
+  "ended": "2026-10-28T03:30:09.191Z"
+}

@@ -1,0 +1,461 @@
+diff --git a/v12/worker/claude_agent.py b/v12/worker/claude_agent.py
+index ba157140..a0e542c3 100644
+--- a/v12/worker/claude_agent.py
++++ b/v12/worker/claude_agent.py
+@@ -3155,7 +3155,18 @@ class ClaudeAgent:
+         return made, roots
+ 
+     def _child_environments(self, scratch):
+-        """Create both child environments before either child may execute."""
++        """Create both child environments before either child may execute.
++
++        W325695: AND AGREE ON THE SELECTED LAYOUT HERE, which is before the
++        provider rather than at verification time. TASK.md requires the
++        worker and the manager to agree on the immutable layout identity
++        BEFORE provider launch, and requires an old image with a new layout
++        selection -- or a new image whose selected layout is missing or
++        wrong -- to refuse before the provider. A check that waited for the
++        verifier would let a provider turn spend a model invocation against a
++        deployment that could never verify.
++        """
++        self._layout_preflight()
+         contextual = self._context_bound()
+         provider_home = self._context_home() if contextual is not None else self._prepared_home(scratch)
+         _provider_root, provider_roots = self._new_ephemera(
+@@ -3259,6 +3270,339 @@ class ClaudeAgent:
+             checked[name] = self._checked_directory(scratch, checked[name])
+         return checked
+ 
++    # W325695: THE LAYOUT IS SELECTED, NEVER DETECTED.
++    #
++    # Review 2026-10-28T03-09-09Z [R1] refused the first cut of this for the
++    # right reason: it chose ordinary paths whenever the existing scratch
++    # roots happened to appear in the mount table, which means an arbitrary
++    # mounted directory opted into new semantics with no profile, image or
++    # adapter agreement, while a broken new-layout deployment silently
++    # degraded to the known defective path. The retained packet TASK.md says
++    # it in two words -- "No auto-detection of arbitrary directories" -- and
++    # requires an explicit versioned trusted runtime-layout selection binding
++    # topology, image digest, adapter/policy digests and effective identity.
++    #
++    # SO THE MANAGER DELIVERS A SELECTION AND THIS READS IT. A new name under
++    # a new schema, because TASK.md forbids appending members to the frozen
++    # task /2, result or worker-launch documents: absence of the document is
++    # the EXPLICITLY LEGACY case and is answered WITHOUT reading the mount
++    # table at all, which review [R1] also asked for -- a legacy deployment
++    # must not acquire a new-table dependency merely to be told it is legacy.
++    LAYOUT_DOCUMENT = "/run/baton/verifier-layout.json"
++    LAYOUT_SCHEMA = "baton.v12.verifier-layout/1"
++    LAYOUT_MEMBERS = ("schema", "roots", "filesystem", "options", "uid",
++                      "gid", "image_digest", "adapter_digest",
++                      "policy_digest")
++    # The topology TASK.md selects, as facts this worker must prove rather
++    # than values it may choose.
++    LAYOUT_FILESYSTEM = "tmpfs"
++    LAYOUT_OPTIONS = ("rw", "noexec", "nosuid", "nodev")
++    # The scaffolding TASK.md selects: ordinary root-owned 0755 image
++    # directories in a read-only rootfs, outside every writable mount.
++    LAYOUT_ANCESTOR_MODE = 0o755
++    LAYOUT_ANCESTOR_UID = 0
++
++    @classmethod
++    def _selected_layout(cls, place=None):
++        """The trusted runtime-layout selection, or `None` for legacy.
++
++        ABSENCE IS THE LEGACY SELECTION and costs nothing: no mount table is
++        read, no new refusal is reachable, and every deployment that exists
++        today takes exactly the path it takes now. A document that is present
++        but malformed is NOT legacy -- it is a deployment that tried to
++        select the new topology and failed, which refuses.
++        """
++        place = place or cls.LAYOUT_DOCUMENT
++        if not os.path.lexists(place):
++            return None
++        try:
++            with open(place, "r", encoding="utf-8") as handle:
++                held = json.load(handle)
++        except (OSError, ValueError) as failed:
++            raise TaskRefusal(
++                f"the trusted verifier-layout selection at {place} cannot be "
++                f"read ({type(failed).__name__}); a deployment that selects "
++                f"the new topology and cannot state it does not fall back to "
++                f"the old one") from failed
++        if type(held) is not dict:
++            raise TaskRefusal(
++                f"the trusted verifier-layout selection at {place} is not a "
++                f"document")
++        missing = sorted(one for one in cls.LAYOUT_MEMBERS if one not in held)
++        extra = sorted(one for one in held
++                       if one not in cls.LAYOUT_MEMBERS)
++        if missing or extra:
++            raise TaskRefusal(
++                f"the trusted verifier-layout selection is exactly "
++                f"{', '.join(cls.LAYOUT_MEMBERS)}"
++                + (f"; missing {', '.join(missing)}" if missing else "")
++                + (f"; unexpected {', '.join(extra)}" if extra else ""))
++        if held["schema"] != cls.LAYOUT_SCHEMA:
++            raise TaskRefusal(
++                f"the trusted verifier-layout selection says it is "
++                f"{held['schema']!r} and this worker reads "
++                f"{cls.LAYOUT_SCHEMA!r}; an old image with a new layout "
++                f"selection refuses here rather than at the provider")
++        names = ("HOME", *(one for one, _leaf in cls.EPHEMERA_ROOTS))
++        roots = held["roots"]
++        if type(roots) is not dict or sorted(roots) != sorted(names):
++            raise TaskRefusal(
++                f"the trusted verifier-layout selection names "
++                f"{sorted(roots) if type(roots) is dict else type(roots).__name__}"
++                f" and this worker's verifier environment is exactly "
++                f"{sorted(names)}")
++        for name, place_named in roots.items():
++            if (type(place_named) is not str
++                    or not os.path.isabs(place_named)
++                    or os.path.normpath(place_named) != place_named
++                    or place_named.rstrip("/") != place_named):
++                raise TaskRefusal(
++                    f"the selected verifier root for {name} is "
++                    f"{place_named!r}; a selected root is one canonical "
++                    f"absolute path with no traversal or trailing separator")
++        if held["filesystem"] != cls.LAYOUT_FILESYSTEM:
++            raise TaskRefusal(
++                f"the trusted verifier-layout selection names filesystem "
++                f"{held['filesystem']!r} and this worker proves "
++                f"{cls.LAYOUT_FILESYSTEM!r}")
++        options = held["options"]
++        if type(options) is not list or sorted(set(options)) != sorted(
++                cls.LAYOUT_OPTIONS):
++            raise TaskRefusal(
++                f"the trusted verifier-layout selection names options "
++                f"{options!r} and this worker proves exactly "
++                f"{sorted(cls.LAYOUT_OPTIONS)}")
++        for name in ("uid", "gid"):
++            if type(held[name]) is not int or held[name] < 0:
++                raise TaskRefusal(
++                    f"the trusted verifier-layout selection's {name} is "
++                    f"{held[name]!r}; the trusted execution identity is an "
++                    f"explicit number and is never inferred from the ambient "
++                    f"process")
++        for name in ("image_digest", "adapter_digest", "policy_digest"):
++            if type(held[name]) is not str or not held[name]:
++                raise TaskRefusal(
++                    f"the trusted verifier-layout selection's {name} is "
++                    f"{held[name]!r}; the layout is bound to the exact image, "
++                    f"adapter and policy that were selected with it")
++        return held
++
++    @classmethod
++    def _mount_facts(cls, place=None):
++        """Every mount this process holds, with the fields the proof needs.
++
++        Review [R2]: the first cut kept only the mount point, so it proved
++        presence rather than the selected topology -- the reviewer's own probe
++        passed `ext4,rw` records at mutable scratch roots straight through it.
++        `mountinfo` carries the filesystem type, the per-mount options and the
++        superblock options, and all three are part of what was selected, so
++        all three are kept.
++
++        `os.path.ismount` is still not used, for the reason it never was: it
++        compares `st_dev` with the parent, which a bind mount inside one
++        filesystem does not change.
++        """
++        held = {}
++        try:
++            with open(place or cls.MOUNTINFO, "r", encoding="utf-8") as table:
++                raw = table.read()
++        except OSError as failed:
++            raise TaskRefusal(
++                f"this runtime cannot read {place or cls.MOUNTINFO} "
++                f"({type(failed).__name__}); the selected verifier topology "
++                f"is a question only the mount table answers, and this "
++                f"adapter will not assume it") from failed
++        for line in raw.splitlines():
++            fields = line.split(" ")
++            if len(fields) < 10 or "-" not in fields:
++                continue
++            separator = fields.index("-")
++            if separator + 2 >= len(fields):
++                continue
++            point = fields[4]
++            for sequence, character in (("\\040", " "), ("\\011", "\t"),
++                                        ("\\012", "\n"), ("\\134", "\\")):
++                point = point.replace(sequence, character)
++            held[point] = {
++                "mount_id": fields[0], "parent_id": fields[1],
++                "device": fields[2], "root": fields[3], "point": point,
++                "options": set(fields[5].split(",")),
++                "filesystem": fields[separator + 1],
++                "super_options": set(fields[separator + 3].split(","))
++                if separator + 3 < len(fields) else set()}
++        return held
++
++    MOUNTINFO = "/proc/self/mountinfo"
++
++    def _proved_ancestors(self, place, facts):
++        """Every ancestor of a selected root is immutable image scaffolding.
++
++        TASK.md selects "ordinary root-owned 0755 image directories in
++        read-only rootfs, outside all writable mounts; no mutable ancestor",
++        and review [R2] is right that the first cut proved none of it. A
++        writable ancestor is a directory a process sharing this uid can
++        rename, which would put the selected root back inside the race the
++        whole mechanism exists to leave.
++        """
++        name = os.path.dirname(place)
++        while True:
++            try:
++                state = os.lstat(name)
++            except OSError as failed:
++                raise TaskRefusal(
++                    f"the selected verifier root {place} has an ancestor "
++                    f"{name} this runtime cannot read "
++                    f"({type(failed).__name__})") from failed
++            if not stat.S_ISDIR(state.st_mode):
++                raise TaskRefusal(
++                    f"the selected verifier root {place} has an ancestor "
++                    f"{name} that is not an ordinary directory")
++            if state.st_uid != self.LAYOUT_ANCESTOR_UID:
++                raise TaskRefusal(
++                    f"the selected verifier root {place} has an ancestor "
++                    f"{name} owned by uid {state.st_uid}; the selected "
++                    f"scaffolding is image material owned by "
++                    f"{self.LAYOUT_ANCESTOR_UID}")
++            if stat.S_IMODE(state.st_mode) != self.LAYOUT_ANCESTOR_MODE:
++                raise TaskRefusal(
++                    f"the selected verifier root {place} has an ancestor "
++                    f"{name} with mode "
++                    f"{stat.S_IMODE(state.st_mode):04o}, not "
++                    f"{self.LAYOUT_ANCESTOR_MODE:04o}")
++            carried = facts.get(name)
++            if carried is not None and "ro" not in carried["options"]:
++                raise TaskRefusal(
++                    f"the selected verifier root {place} has an ancestor "
++                    f"{name} that is a WRITABLE mount "
++                    f"({carried['filesystem']}); a selected root inside a "
++                    f"writable mount has a mutable ancestor and is not "
++                    f"protected by being a mount itself")
++            if name == "/":
++                break
++            name = os.path.dirname(name)
++
++    def _proved_root(self, name, place, facts, selection):
++        """One selected root, proved against the selection. Returns its fd.
++
++        EVERY SELECTED FACT, and a refusal names which one failed: the
++        canonical selected pathname, the mount's existence as a mount, its
++        filesystem type, its exact options, immutable ancestors, mode 0700,
++        the trusted uid/gid the selection states -- never the ambient
++        process identity -- and the opened object's identity against the
++        named one.
++
++        THE DESCRIPTOR IS STILL OPENED AND STILL KEPT. The mount is what
++        makes the ordinary pathname safe; the descriptor remains the evidence
++        that the object did not move while it was being proved, and
++        `_revalidated_directories` re-asks it after the provider has run.
++        """
++        flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
++        try:
++            descriptor = os.open(place, flags)
++        except OSError as failed:
++            raise TaskRefusal(
++                f"the selected verifier root {name} at {place} cannot be "
++                f"opened as a directory ({type(failed).__name__}); a link, a "
++                f"missing name or an absent mount is a selected layout this "
++                f"image does not provide, and it refuses before the provider "
++                f"runs") from failed
++        try:
++            carried = facts.get(place)
++            if carried is None:
++                raise TaskRefusal(
++                    f"the selected verifier root {name} at {place} is not a "
++                    f"mount point in this runtime's own mount table; the "
++                    f"selected topology is a private mount per root, and an "
++                    f"ordinary directory can be renamed by a process sharing "
++                    f"this uid")
++            if carried["filesystem"] != selection["filesystem"]:
++                raise TaskRefusal(
++                    f"the selected verifier root {name} at {place} is a "
++                    f"{carried['filesystem']} mount and the selection names "
++                    f"{selection['filesystem']}")
++            required = set(selection["options"])
++            present = carried["options"] | carried["super_options"]
++            absent = sorted(required - present)
++            if absent:
++                raise TaskRefusal(
++                    f"the selected verifier root {name} at {place} is "
++                    f"mounted without {', '.join(absent)}; the selection "
++                    f"names {sorted(required)}")
++            self._proved_ancestors(place, facts)
++            state = os.fstat(descriptor)
++            named = os.lstat(place)
++            if not stat.S_ISDIR(state.st_mode):
++                raise TaskRefusal(
++                    f"the selected verifier root {name} at {place} is not a "
++                    f"directory")
++            if stat.S_IMODE(state.st_mode) != 0o700:
++                raise TaskRefusal(
++                    f"the selected verifier root {name} at {place} has mode "
++                    f"{stat.S_IMODE(state.st_mode):04o}, not 0700")
++            if (state.st_uid, state.st_gid) != (selection["uid"],
++                                                selection["gid"]):
++                raise TaskRefusal(
++                    f"the selected verifier root {name} at {place} is owned "
++                    f"by {state.st_uid}:{state.st_gid} and the selection "
++                    f"names the trusted identity "
++                    f"{selection['uid']}:{selection['gid']}")
++            if (state.st_dev, state.st_ino) != (named.st_dev, named.st_ino):
++                raise TaskRefusal(
++                    f"the selected verifier root {name} at {place} was "
++                    f"replaced while it was being opened")
++        except BaseException:
++            os.close(descriptor)
++            raise
++        return descriptor
++
++    def _layout_environment(self, environment, selection):
++        """The verifier environment the SELECTED layout supplies.
++
++        The roots are the selection's own fixed canonical paths, not the
++        scratch paths the legacy form uses -- which is the other half of
++        review [R2]: the mutable scratch environment must not be the input to
++        the new path. Descendants and nested canonical checks get ordinary
++        stable pathnames, which is the whole correction.
++        """
++        facts = self._mount_facts()
++        pinned = {"PATH": environment["PATH"]}
++        held = []
++        try:
++            for name in ("HOME", *(one for one, _l in self.EPHEMERA_ROOTS)):
++                place = selection["roots"][name]
++                held.append((name, self._proved_root(name, place, facts,
++                                                     selection)))
++                pinned[name] = place
++        except BaseException:
++            for _name, descriptor in held:
++                os.close(descriptor)
++            raise
++        return pinned, tuple(held)
++
++    def _layout_preflight(self):
++        """Agree on the layout BEFORE the provider runs, or refuse.
++
++        TASK.md: "Worker and manager must agree on immutable layout identity
++        before provider launch", "Old image+new layout refuses before
++        provider; new image+missing/old layout refuses before provider." A
++        check that only ran at verification time would let a provider turn
++        spend a model invocation against a deployment that could never
++        verify.
++
++        It proves and then RELEASES. The descriptors the verifier is handed
++        are opened again at verification time, after the provider has had
++        write access, because a proof taken before the provider is not a
++        proof about the object the verifier gets.
++        """
++        selection = self._selected_layout()
++        if selection is None:
++            return None
++        _pinned, held = self._layout_environment(
++            {"PATH": os.environ.get("PATH", "")}, selection)
++        for _name, descriptor in held:
++            os.close(descriptor)
++        return selection
++
+     def _pinned_environment(self, scratch, environment):
+         """Open verifier roots before the provider can create descendants.
+ 
+@@ -3274,6 +3618,14 @@ class ClaudeAgent:
+         environment and for operator inspection, but they are no longer the
+         verifier's authority.
+         """
++        # W325695: THE SELECTED LAYOUT DECIDES, and nothing else does. A
++        # deployment that selected the trusted layout gets ordinary stable
++        # paths its descendants can resolve; a deployment that selected
++        # nothing is EXPLICITLY LEGACY and gets exactly the descriptor form
++        # below, without this worker reading the mount table at all.
++        selection = self._selected_layout()
++        if selection is not None:
++            return self._layout_environment(environment, selection)
+         checked = self._revalidated_environment(scratch, environment)
+         pinned = {"PATH": checked["PATH"]}
+         held = []
+@@ -3302,7 +3654,17 @@ class ClaudeAgent:
+ 
+     @staticmethod
+     def _revalidated_directories(environment, directories):
+-        """Validate held objects, never provider-writable pathnames."""
++        """Validate held objects, never provider-writable pathnames.
++
++        W325695: BOTH FORMS ARE RE-ASKED, and the object checks are the same
++        either way. What differs is only what the environment is allowed to
++        say: the descriptor form must still name `/proc/self/fd/<n>`, and the
++        mount-bound form must still name a path the kernel lists as a mount
++        point -- because a root that was unmounted while the provider ran is a
++        root whose non-replaceability has expired, which is exactly the
++        lifetime failure the holder-alias workaround was refused for.
++        """
++        selection, facts = None, {}
+         for name, descriptor in directories:
+             try:
+                 state = os.fstat(descriptor)
+@@ -3321,10 +3683,59 @@ class ClaudeAgent:
+                 raise TaskRefusal(
+                     f"the held verifier root {name} was removed after the "
+                     f"provider ran")
+-            if environment[name] != f"/proc/self/fd/{descriptor}":
++            named = environment[name]
++            if named == f"/proc/self/fd/{descriptor}":
++                continue
++            # THE SELECTED FORM IS RE-PROVED, NOT RE-ASSUMED. Review [R2]:
++            # presence is not the topology, so the fs type, the options and
++            # the immutable ancestors are asked again -- a root remounted or
++            # unmounted while the provider ran is one whose selected binding
++            # has expired, which is the lifetime failure the holder-alias
++            # workaround was refused for.
++            if selection is None:
++                selection = ClaudeAgent._selected_layout()
++                if selection is None:
++                    raise TaskRefusal(
++                        f"the verifier environment names {named} for its "
++                        f"held {name} directory and this runtime selects no "
++                        f"trusted layout; an ordinary pathname is only the "
++                        f"verifier's authority under a selected layout")
++                facts = ClaudeAgent._mount_facts()
++            if named != selection["roots"].get(name):
++                raise TaskRefusal(
++                    f"the verifier environment names {named} for its held "
++                    f"{name} directory and the selected layout names "
++                    f"{selection['roots'].get(name)!r}")
++            carried = facts.get(named)
++            if carried is None:
++                raise TaskRefusal(
++                    f"the selected verifier root {name} at {named} is no "
++                    f"longer a mount point; a root unmounted while the "
++                    f"provider ran can be replaced by a process sharing this "
++                    f"uid")
++            if carried["filesystem"] != selection["filesystem"]:
++                raise TaskRefusal(
++                    f"the selected verifier root {name} at {named} is now a "
++                    f"{carried['filesystem']} mount")
++            absent = sorted(set(selection["options"])
++                            - (carried["options"] | carried["super_options"]))
++            if absent:
++                raise TaskRefusal(
++                    f"the selected verifier root {name} at {named} is now "
++                    f"mounted without {', '.join(absent)}")
++            try:
++                at_name = os.lstat(named)
++            except OSError as failed:
++                raise TaskRefusal(
++                    f"the verifier environment names {named} for its held "
++                    f"{name} directory and that name cannot be read "
++                    f"({type(failed).__name__})") from failed
++            if (at_name.st_dev, at_name.st_ino) != (state.st_dev,
++                                                    state.st_ino):
+                 raise TaskRefusal(
+-                    f"the verifier environment no longer names its held "
+-                    f"{name} directory")
++                    f"the verifier environment names {named} for its held "
++                    f"{name} directory and that name is now a different "
++                    f"object")
+         return tuple(descriptor for _name, descriptor in directories)
+ 
+     def _provider(self, task, candidate, scratch, environment, prompt=None):

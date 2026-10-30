@@ -95,3 +95,10 @@ retains joined acceptance. Do not enlarge the active W321689 implementation or
 duplicate W321690's joined pilot rehearsal. Reviewer owns only this parent
 FINDING/PLAN and append-only review; no product or child PROGRESS edits occur.
 Future product implementation follows the isolated-v12-Job standing default.
+
+
+## 2026-10-29 — delivery-plan reconciliation W383239
+
+Broad flat-dossier migration remains deferred beyond v12 under the existing release classification. Minimal native pilot binding was already accepted; it is not an outstanding preparation gate. Preserve permanent dossiers and existing identities. No storage migration or v12-only execution prerequisite is selected.
+
+Current PLAN supersedes prior scheduling; the entire prior PLAN is preserved byte-for-byte in PLAN-HISTORY-W383239.md. No source, tests, specification, acceptance result or claim ownership changed by this record update.

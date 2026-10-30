@@ -1,0 +1,22 @@
+{
+  "command": [
+    "timeout",
+    "90",
+    "python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.tools.test_stopped_settlement_joined.JoinedSettlement",
+    "tests.manager.test_stopped_settlement"
+  ],
+  "PYTHONPATH": "v12/python/src:v12/python",
+  "returncode": 0,
+  "seconds": 3.0028423630010366,
+  "prior_iterations_seconds": [
+    0.776428811,
+    0.368305255,
+    2.470332927
+  ],
+  "prior_campaign_author_seconds": 240.05749715,
+  "limitations": "deterministic provider and OCI; installed identity simulated; no native frozen binary, live provider, actual engine, deployment or retained store"
+}

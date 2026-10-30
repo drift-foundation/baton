@@ -23,6 +23,7 @@ one timing claim it makes is a 0.6-second sleep against a 0-second one rather
 than a race it hopes to win.
 """
 
+import ast
 import io
 import json
 import os
@@ -35,10 +36,10 @@ import time
 import unittest
 from unittest import mock
 
-from tools.parallel_test import (GROUP_MODULES, GROUP_PACKAGES, GROUPS, METHOD_SPLIT,
+from tools.parallel_test import (CONSUMED_INPUTS, GROUP_MODULES, GROUP_PACKAGES, GROUPS, METHOD_SPLIT,
                                  OPTIONAL_SKIPS, PARALLEL_MODULES, ROOT, Run, RunnerRefusal,
                                  SERIAL_MODULES, STATUS_EVIDENCE_MODULE, STATUS_EVIDENCE_VARIABLE,
-                                 SUPERVISED_MODULES, Suite, account, base_id, group_of, main,
+                                 SUPERVISED_MODULES, Suite, account, base_id, consumed_inputs, group_of, main,
                                  module_of, partition, resolve_jobs)
 
 RUNNER = pathlib.Path(__file__).resolve().parents[2] / "tools" / "parallel_test.py"
@@ -1268,3 +1269,157 @@ class AGroupSelectsExactlyItsModules(FakeTreeCase):
         code, output = self.run_suite(suite, ["--jobs", "1", "--group", "authority"])
         self.assertEqual(code, 2)
         self.assertIn("belong to no registry", output)
+
+
+# -- W384870 R2: every record path a test reads is declared or synthetic --
+
+def _string_chain(node):
+    """The string constants of a `/` chain, left to right; None for a non-constant."""
+    if isinstance(node, ast.Constant) and isinstance(node.value, str):
+        return [node.value]
+    if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Div):
+        return _string_chain(node.left) + _string_chain(node.right)
+    return [None]
+
+
+def _record_path(parts):
+    """`work/records/...` joined from the first part that names it through the
+    last consecutive constant, or None when no part does."""
+    for index, part in enumerate(parts):
+        if part is None:
+            continue
+        if "work/records" in part or (part == "work" and parts[index + 1:index + 2] == ["records"]):
+            tail = []
+            for later in parts[index:]:
+                if later is None:
+                    break
+                tail.append(later)
+            text = "/".join(tail)
+            return text[text.index("work/records"):]
+    return None
+
+
+def record_paths(source):
+    """Every repository record path a module names in code: a string constant,
+    a `pathlib` `/` chain or an `os.path.join` call whose constants spell
+    `work/records/...`. Docstrings are prose and are skipped; comments never
+    reach the AST. A constant inside a chain or join is reported once, joined."""
+    tree = ast.parse(source.read_text(encoding="utf-8"), filename=str(source))
+    skip = set()
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.Module, ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)):
+            body = node.body
+            if body and isinstance(body[0], ast.Expr) and isinstance(body[0].value, ast.Constant):
+                skip.add(id(body[0].value))
+    found = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Div) and id(node) not in skip:
+            for inner in ast.walk(node):
+                if inner is not node:
+                    skip.add(id(inner))
+            joined = _record_path(_string_chain(node))
+        elif isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and node.func.attr == "join":
+            for inner in node.args:
+                skip.add(id(inner))
+            joined = _record_path([one.value if isinstance(one, ast.Constant) and isinstance(one.value, str) else None
+                                   for one in node.args])
+        else:
+            continue
+        if joined:
+            found.add(joined)
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Constant) and isinstance(node.value, str) and id(node) not in skip and "work/records" in node.value:
+            found.add(node.value[node.value.index("work/records"):])
+    # `work/records/YYYY/MM/finding-x` is the shortest path that can name a
+    # record; anything shorter is a root or a prefix check, not an input.
+    return {one for one in found if one.count("/") >= 4}
+
+
+# Record paths the test tree names WITHOUT reading them from this checkout:
+# forbidden words, synthetic documents, references created inside a case's own
+# temporary repository, fake registry entries. Each is exact. A new literal
+# lands here only with a reason, or in CONSUMED_INPUTS when the run reads it.
+SYNTHETIC_RECORD_PATHS = {
+    # the runner's supervisor-locator grammar, a pattern rather than a path
+    r"work/records/[0-9]{4}/(?:0[1-9]|1[0-2])/(?:[A-Za-z0-9_.-]+/)+[A-Za-z0-9_.-]+\.py",
+    # a reference each dossier case creates inside its own temporary repository
+    "work/records/2026/10/finding-v12-pilot-dossier-binding/FINDING.md",
+    # the disposition command cases' temporary repository
+    "work/records/2026/10/finding-pilot",
+    "work/records/2026/10/finding-pilot/INTEGRATION.json",
+    "work/records/2026/10/finding-pilot/INTEGRATION-2.json",
+    "work/records/2026/10/finding-pilot/LINKED.json",
+    "work/records/2026/10/finding-pilot/OTHER.json",
+    # synthetic contract documents of the dogfood operator cases
+    "work/records/2026/08/finding-v12-first-useful-dogfood-task",
+    "work/records/2026/08/finding-v12-first-useful-dogfood-task/evidence/first-task.md",
+    # fake supervised-registry entries of this module's own cases
+    "work/records/2026/09/finding-example/engine-gate.py",
+    "work/records/2026/09/../gate.py",
+}
+
+
+class TheDeclaredInputsCoverWhatTheTestsRead(unittest.TestCase):
+    """CONSUMED_INPUTS is complete against the tree, mechanically.
+
+    The declaration is the identity's boundary (`tools.source_identity
+    --declared`), so a record path a test reads but nobody declared would be
+    the R2 defect again: a run whose tested bytes can change without its
+    identity changing. This sweep names every record path the tests and tools
+    spell in code and requires each to be declared or listed as synthetic.
+    """
+
+    def declared(self):
+        return consumed_inputs()
+
+    def covered(self, path):
+        for declared in self.declared():
+            if path == declared or path.startswith(declared + "/"):
+                return True
+            # a dossier directory a test keeps (RECORD / "x.json" later) whose consumed file is declared
+            if declared.startswith(path + "/") and path.count("/") >= 4:
+                return True
+        return False
+
+    def test_every_record_path_in_the_tree_is_declared_or_synthetic(self):
+        sources = sorted(list((ROOT / "tests").rglob("*.py")) + list((ROOT / "tools").glob("*.py")))
+        self.assertGreater(len(sources), 150)
+        undeclared, seen = {}, set()
+        for source in sources:
+            for path in record_paths(source):
+                seen.add(path)
+                if not self.covered(path) and path not in SYNTHETIC_RECORD_PATHS:
+                    undeclared.setdefault(path, []).append(source.relative_to(ROOT).as_posix())
+        self.assertEqual(undeclared, {}, "declare these in CONSUMED_INPUTS, or list them as synthetic with a reason")
+        self.assertEqual(sorted(SYNTHETIC_RECORD_PATHS - seen), [], "a synthetic entry nobody spells any more is stale")
+        for path in SYNTHETIC_RECORD_PATHS:
+            self.assertFalse(self.covered(path), f"{path} is declared AND listed as synthetic; it is one or the other")
+
+    def test_the_sweep_reads_the_three_spellings_and_skips_prose(self):
+        # Spelled in two halves so that the sweep over THIS module does not read the probe.
+        root = "work/" + "records"
+        with tempfile.TemporaryDirectory(prefix="v12-record-sweep-") as home:
+            source = pathlib.Path(home, "probe.py")
+            source.write_text(
+                f'"""{root}/2026/01/finding-doc/PROSE.md is prose."""\n'
+                'import os, pathlib\n'
+                'REPO = pathlib.Path("/r")\n'
+                f'A = "{root}/2026/01/finding-a/a.json"\n'
+                'B = REPO / "work" / "records" / "2026" / "01" / "finding-b" / "b.json"\n'
+                f'C = os.path.join(str(REPO), "{root}/2026/01", "finding-c", "c.json")\n'
+                f'D = "baton:{root}/2026/01/finding-d/d.py"\n'
+                'def f():\n'
+                f'    """{root}/2026/01/finding-doc/ALSO-PROSE.md"""\n'
+                '    return REPO / "work" / "records" / "2026" / "01" / "finding-e"\n', encoding="utf-8")
+            self.assertEqual(record_paths(source), {
+                f"{root}/2026/01/finding-a/a.json", f"{root}/2026/01/finding-b/b.json",
+                f"{root}/2026/01/finding-c/c.json", f"{root}/2026/01/finding-d/d.py",
+                f"{root}/2026/01/finding-e"})
+
+    def test_every_declared_input_names_its_consumers_and_is_not_a_whole_dossier(self):
+        for entry in CONSUMED_INPUTS:
+            self.assertTrue(entry["consumers"], entry["path"])
+            self.assertTrue(entry["path"].startswith("work/records/20"), entry["path"])
+            self.assertGreaterEqual(entry["path"].count("/"), 5, f"{entry['path']} is a whole dossier, not the consumed file or import path")
+            self.assertTrue((ROOT.parents[1] / entry["path"]).exists(), entry["path"])
+        self.assertEqual(len({entry["path"] for entry in CONSUMED_INPUTS}), len(CONSUMED_INPUTS), "declared twice")

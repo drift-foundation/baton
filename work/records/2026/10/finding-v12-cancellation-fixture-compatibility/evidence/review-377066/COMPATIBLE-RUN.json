@@ -1,0 +1,10 @@
+{
+  "returncode": 0,
+  "seconds": 0.3014546980011801,
+  "command": [
+    "timeout",
+    "60",
+    "python3",
+    "work/records/2026/10/finding-v12-cancellation-fixture-compatibility/evidence/review-377066/fixture-compatible-probe.py"
+  ]
+}

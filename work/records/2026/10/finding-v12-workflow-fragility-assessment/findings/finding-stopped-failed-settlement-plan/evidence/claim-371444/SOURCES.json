@@ -1,0 +1,78 @@
+[
+  {
+    "path": "v12/DESIGN.md",
+    "sha256": "571738130e7cfedd33966c1e920488b629e6b877eef16b1a3c61ccb7ea7f2796"
+  },
+  {
+    "path": "v12/python/tools/single_worker.py",
+    "sha256": "29e569365e182f70372938c65115c1ff813e6b3105781733c24eb34cda924971"
+  },
+  {
+    "path": "v12/python/tools/job_manager.py",
+    "sha256": "9f9008fd68a3f00ed41516c0127655cd24a5518df15294f22282c0f0dc66018f"
+  },
+  {
+    "path": "v12/python/tools/fresh_attempt_ports.py",
+    "sha256": "c8a41e078769eb105440ed8fb71e6d66bf484cf292cd344cabefa8dc2c75a2a5"
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/intake.py",
+    "sha256": "71f0ef60bd5b26409e9c24fe49bd2ace1382e8ef1cb0ab8b3e2a5a44deae3d97"
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/attempts.py",
+    "sha256": "2d1c18f93b4a292f6be4caf0604df0bd1875584cb4571f7b8762f14cf2f4c809"
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/tokens.py",
+    "sha256": "adb773a8b65609c11d8ed0ffec77ecb72b1fd8db52efecd124d13a971b3067e1"
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/store.py",
+    "sha256": "587552eb2699c732814033f1752fa4a1264e8ec3b192d76e89d10c6991b36116"
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/schema.py",
+    "sha256": "56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1"
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/workspaces.py",
+    "sha256": "e769da4557d0405edee8e17d4333bebd18bc713c07781250d45f10d0e8587dc4"
+  },
+  {
+    "path": "v12/python/src/baton_v12/job_manager/fresh_attempt.py",
+    "sha256": "a5c492669937816c27e93dc5fc3eb4dd28ee4317aa521f4989539904d886c0b5"
+  },
+  {
+    "path": "v12/python/src/baton_v12/job_manager/manager.py",
+    "sha256": "4c5bc31f895c0ff0d6dfe8fd4e6f54421e2b3b6cb65a0aa4abf0f9f85a248ceb"
+  },
+  {
+    "path": "v12/python/src/baton_v12/job_manager/projection.py",
+    "sha256": "02e0c80c8e468007a8666959e405468946463d815eb617331b0eb0dcdc68425a"
+  },
+  {
+    "path": "work/records/2026/10/finding-v12-documentation-review-startup-fault/CLEANUP-RESEARCH-370686.md",
+    "sha256": "8d6ff28387ddcc88a4ca24d089bdce4aa30c30cd6d884cd865a1859d01fc1c5c"
+  },
+  {
+    "path": "work/records/2026/10/finding-v12-documentation-review-startup-fault/SETTLEMENT-COMMANDS-370686.md",
+    "sha256": "2da778d6b5f7d75451808d40cec075e7a25b3d3ab3693edaae0f15a30b781bda"
+  },
+  {
+    "path": "work/records/2026/10/finding-v12-retained-job-settlement-procedure/PROCEDURE.md",
+    "sha256": "0470870ba8ec2d06239cb621cd275449cab3edd7c01ce811ecfb01dc60cf1cc7"
+  },
+  {
+    "path": "work/records/2026/10/finding-v12-retained-job-settlement-procedure/review-2026-10-28T03-39-14Z.md",
+    "sha256": "9cf13c7bbd506e49ffa58f362441a8686e0ed096fa0429bb10fd54ca0f398f8a"
+  },
+  {
+    "path": "work/records/2026/08/finding-custody-engine-operation-settlement/PLAN.md",
+    "sha256": "d05c799391d531d944fb9ec800809a7fb3cffeefe8612baaccc542c040bc3e33"
+  },
+  {
+    "path": "work/records/2026/08/finding-custody-engine-operation-settlement/review-2026-10-28T00-44-30Z.md",
+    "sha256": "2fb446b14088a23b5562485b847495e55a4de3a671025938492148cd7c2d6eb1"
+  }
+]

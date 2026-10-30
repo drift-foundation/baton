@@ -1,0 +1,291 @@
+{
+  "measured_subprocess_seconds": 84.93653973301116,
+  "initial_failed_fixture_tool_wall_seconds": 0.239105111,
+  "initial_failed_fixture_reported_test_seconds": 0.034,
+  "inventory_comparison_seconds": 25.024048950999713,
+  "effective_policy_probe_seconds": 0.01511460499750683,
+  "current_measured_total_seconds": 110.00970328900839,
+  "prior_author_preparation_seconds": 25.100016307,
+  "prior_live_run_elapsed_seconds": [
+    955.09899421,
+    954.105032184
+  ],
+  "prior_inner_provider_verification_seconds": "unknown; not zero",
+  "amendment_child_preparation_seconds_separate": 0.587729208,
+  "historical_reviewer_prerequisite_costs": "preserved in PROGRESS; separate attribution",
+  "runs": [
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "tests.job_manager.test_serving_renewal"
+      ],
+      "seconds": 0.44690850900224177,
+      "status": 0,
+      "evidence": "evidence/composition-1.json"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "tests.job_manager.test_serving_renewal"
+      ],
+      "seconds": 0.23222141999940504,
+      "status": 1,
+      "evidence": "evidence/focused-2.json"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "tests.job_manager.test_serving_renewal"
+      ],
+      "seconds": 0.24564619500233675,
+      "status": 1,
+      "evidence": "evidence/focused-3.json"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "tests.job_manager.test_serving_renewal"
+      ],
+      "seconds": 0.23696638800174696,
+      "status": 0,
+      "evidence": "evidence/focused-4.json"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "tests.job_manager.test_serving_renewal"
+      ],
+      "seconds": 0.26752893700177083,
+      "status": 0,
+      "evidence": "evidence/focused-5.json"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "tests.job_manager.test_serving_renewal",
+        "tests.job_manager.test_tool",
+        "tests.job_manager.test_sweep",
+        "tests.job_manager.test_execution_limits"
+      ],
+      "seconds": 1.0927764640000532,
+      "status": 0,
+      "evidence": "evidence/gate-1.json"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "tests.job_manager.test_serving_renewal",
+        "tests.job_manager.test_tool",
+        "tests.job_manager.test_sweep",
+        "tests.job_manager.test_execution_limits"
+      ],
+      "seconds": 1.165154492999136,
+      "status": 0,
+      "evidence": "evidence/gate-2.json"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "tests.job_manager.test_serving_renewal",
+        "tests.job_manager.test_tool",
+        "tests.job_manager.test_sweep",
+        "tests.job_manager.test_execution_limits"
+      ],
+      "seconds": 1.2412643839998054,
+      "status": 0,
+      "evidence": "evidence/gate-final-author.json"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "tests.job_manager.test_serving_renewal",
+        "tests.job_manager.test_tool",
+        "tests.job_manager.test_sweep",
+        "tests.job_manager.test_execution_limits"
+      ],
+      "seconds": 1.202524551001261,
+      "status": 0,
+      "evidence": "evidence/gate-final.json"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "-f",
+        "tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator"
+      ],
+      "seconds": 6.259446801999729,
+      "status": 1,
+      "evidence": "evidence/inventory-focused-2.json"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "-f",
+        "tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator"
+      ],
+      "seconds": 4.541447113999311,
+      "status": 1,
+      "evidence": "evidence/inventory-focused.json"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "tests.job_manager.test_serving_renewal.ProductionLaunch"
+      ],
+      "seconds": 0.20028904500213685,
+      "status": 1,
+      "evidence": "evidence/launch-1.json"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "tests.job_manager.test_serving_renewal.ProductionLaunch"
+      ],
+      "seconds": 0.22344161699948017,
+      "status": 1,
+      "evidence": "evidence/launch-2.json"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "tests.job_manager.test_serving_renewal.ProductionLaunch"
+      ],
+      "seconds": 0.25518592099979287,
+      "status": 0,
+      "evidence": "evidence/launch-3.json"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "/tmp/baton-serving-envelope-347778/work/records/2026/09/finding-v12-token-renewal",
+        "-p",
+        "test_renewal_arbitration.py"
+      ],
+      "seconds": 0.3209064799993939,
+      "status": 0,
+      "evidence": "evidence/renewal-api.json"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "/tmp/baton-serving-envelope-347778/work/records/2026/09/finding-v12-token-renewal",
+        "-p",
+        "test_renewal_arbitration.py"
+      ],
+      "seconds": 0.29683623399978387,
+      "status": 0,
+      "evidence": "evidence/renewal-final-author.json"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "/tmp/baton-serving-envelope-347778/work/records/2026/09/finding-v12-token-renewal",
+        "-p",
+        "test_renewal_arbitration.py"
+      ],
+      "seconds": 0.3149295940020238,
+      "status": 0,
+      "evidence": "evidence/renewal-final.json"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "tests.manager.test_authoring_enforcement",
+        "tests.tools.test_single_worker.TheTaskTOKENIsAcquiredUnderThePreparationCondition"
+      ],
+      "seconds": 0.8278423490010027,
+      "status": 1,
+      "evidence": "evidence/safety-1.json"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "tests.manager.test_authoring_enforcement",
+        "tests.tools.test_single_worker.TheTaskTOKENIsAcquiredUnderThePreparationCondition"
+      ],
+      "seconds": 0.817467551001755,
+      "status": 1,
+      "evidence": "evidence/safety-2.json"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "tests.manager.test_authoring_enforcement",
+        "tests.tools.test_single_worker.TheTaskTOKENIsAcquiredUnderThePreparationCondition"
+      ],
+      "seconds": 2.5585939930024324,
+      "status": 0,
+      "evidence": "evidence/safety-final-author.json"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "tests.manager.test_authoring_enforcement",
+        "tests.tools.test_single_worker.TheTaskTOKENIsAcquiredUnderThePreparationCondition",
+        "tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner"
+      ],
+      "seconds": 60.00639084299837,
+      "status": 124,
+      "evidence": "evidence/safety-final.json"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "tests.manager.test_authoring_enforcement.ProcessComposition"
+      ],
+      "seconds": 2.1827708489981887,
+      "status": 0,
+      "evidence": "evidence/shutdown-3.json"
+    }
+  ]
+}

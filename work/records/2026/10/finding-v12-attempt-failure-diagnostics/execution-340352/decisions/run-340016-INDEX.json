@@ -1,0 +1,100 @@
+{
+  "attempt_id": "attempt-00cdd1a06d6322b016a3e78799dd6206811be6d00b1159ecdd8f719d6914886b",
+  "authority_uuid": "b8bc9fc36b784826b0c9915ae550994b",
+  "base": "bc925cf5c62d69426ed5862af4d41f4d2a967b0f",
+  "collected_at": "2026-10-20",
+  "collected_by": "baton.claude, claim340149, acting as the external operator per TASK item 6",
+  "files": {
+    "COLLECTION.json": {
+      "sha256": "c74e9db3e6d12004f73d223374b37b1a83cf97649d1dd25ed997cee0b25f7118",
+      "source": "/tmp/w333486-collection-340016.json",
+      "source_sha256": "c74e9db3e6d12004f73d223374b37b1a83cf97649d1dd25ed997cee0b25f7118"
+    },
+    "EXECUTOR-PREFLIGHT.json": {
+      "sha256": "11d0f40a6bc4268238a4e9bd151c5f61d951edceab06590f0d35bf8ee8c04464",
+      "source": "/tmp/w333486-executor-preflight-340149.json",
+      "source_sha256": "11d0f40a6bc4268238a4e9bd151c5f61d951edceab06590f0d35bf8ee8c04464"
+    },
+    "candidate-change.patch": {
+      "sha256": "3af1822dc0d08851466105f17cbf5e9e26248ff75dc3d9352a9a43b979058e3e",
+      "source": "/home/sl/baton-instances/attempt-diagnostics-w333486-340016/packet/workspaces/.baton-review-lines/line-70a887ddb1e0d4b403323d5329ef4173a07363016063d23383d6ffa5093abf09/custody/attempt-00cdd1a06d6322b016a3e78799dd6206811be6d00b1159ecdd8f719d6914886b/proposal/change.patch",
+      "source_sha256": "3af1822dc0d08851466105f17cbf5e9e26248ff75dc3d9352a9a43b979058e3e"
+    },
+    "candidate-result.json": {
+      "sha256": "4b4688b3f38e3dcf1eda0ad350b62d9d7b354d52d6f30d110a414c6419c97ad3",
+      "source": "/home/sl/baton-instances/attempt-diagnostics-w333486-340016/packet/workspaces/.baton-review-lines/line-70a887ddb1e0d4b403323d5329ef4173a07363016063d23383d6ffa5093abf09/custody/attempt-00cdd1a06d6322b016a3e78799dd6206811be6d00b1159ecdd8f719d6914886b/proposal/result.json",
+      "source_sha256": "4b4688b3f38e3dcf1eda0ad350b62d9d7b354d52d6f30d110a414c6419c97ad3"
+    },
+    "candidate-verification.txt": {
+      "sha256": "3956f269c9537533e8f0e7f6767075da4e8f2dbc8c58b7a0e3eec2cf9d78aca9",
+      "source": "/home/sl/baton-instances/attempt-diagnostics-w333486-340016/packet/workspaces/.baton-review-lines/line-70a887ddb1e0d4b403323d5329ef4173a07363016063d23383d6ffa5093abf09/custody/attempt-00cdd1a06d6322b016a3e78799dd6206811be6d00b1159ecdd8f719d6914886b/proposal/verification.txt",
+      "source_sha256": "3956f269c9537533e8f0e7f6767075da4e8f2dbc8c58b7a0e3eec2cf9d78aca9"
+    },
+    "outcome.json": {
+      "sha256": "2033a67660e117aab13365c9fe10b6791b60d5982d85389bcd1b20779390b468",
+      "source": "/home/sl/baton-instances/attempt-diagnostics-w333486-340016/packet/outcome.json",
+      "source_sha256": "2033a67660e117aab13365c9fe10b6791b60d5982d85389bcd1b20779390b468"
+    },
+    "outcome.json.authoring.log": {
+      "sha256": "c10621ea891da45f17bd8d16cfa2fe49eaf33ac0bf80d2058757e731201ee405",
+      "source": "/home/sl/baton-instances/attempt-diagnostics-w333486-340016/packet/outcome.json.authoring.log",
+      "source_sha256": "c10621ea891da45f17bd8d16cfa2fe49eaf33ac0bf80d2058757e731201ee405"
+    },
+    "outcome.json.enforcement-27098-1792513927446507606.json": {
+      "sha256": "27486ddab2d9f70530cd4285701533a841ee4a46953a31d939e181be9cfe6b47",
+      "source": "/home/sl/baton-instances/attempt-diagnostics-w333486-340016/packet/outcome.json.enforcement-27098-1792513927446507606.json",
+      "source_sha256": "27486ddab2d9f70530cd4285701533a841ee4a46953a31d939e181be9cfe6b47"
+    },
+    "outcome.json.manager-27098-1792513057408252459.json": {
+      "sha256": "a86466a53d0416eeea5729bc9f95d762a08dd4bfd0bafb63755370058fcfa5d9",
+      "source": "/home/sl/baton-instances/attempt-diagnostics-w333486-340016/packet/outcome.json.manager-27098-1792513057408252459.json",
+      "source_sha256": "a86466a53d0416eeea5729bc9f95d762a08dd4bfd0bafb63755370058fcfa5d9"
+    },
+    "outcome.json.manager-27098-1792513057408252459.json.progress.json": {
+      "sha256": "bdaa84a3ce0cc307fe9b0ce5f5ddfd63f8ee635d38e0326e66de25ca62aae9e4",
+      "source": "/home/sl/baton-instances/attempt-diagnostics-w333486-340016/packet/outcome.json.manager-27098-1792513057408252459.json.progress.json",
+      "source_sha256": "bdaa84a3ce0cc307fe9b0ce5f5ddfd63f8ee635d38e0326e66de25ca62aae9e4"
+    }
+  },
+  "instance": "/home/sl/baton-instances/attempt-diagnostics-w333486-340016",
+  "outcome": {
+    "attempt_disposition": "unable",
+    "cancellation": {
+      "execution_runtime": "destroyed",
+      "requested": true,
+      "runtime_id": "f030ef11754dc146a533133fc757cad1f924d89a7eb3b312735740c9917fa575",
+      "why": "this manager observed the runtime destroyed"
+    },
+    "candidate_bytes": 127315,
+    "candidate_content_digest": "sha256:67b6d96eb24fdd1d88624dcbd451f0201d7033184eb966a8985d91f54d901e74",
+    "candidate_head": "433692c5003d7f3a91a1acab7efdb471d5597235",
+    "candidate_retained": true,
+    "candidate_verification": "failed (the task gate exited 1)",
+    "child_exited": true,
+    "child_status": 1,
+    "cleanup": {
+      "cleanup": "retained",
+      "state": "absent",
+      "why": "the engine answered that this exact identity does not exist"
+    },
+    "controller_faults": [],
+    "controller_state": "held",
+    "elapsed_seconds": 869.2875037370004,
+    "served_seconds": 869.4529082979998,
+    "shutdown_progress_step": "final enforcement publication",
+    "stage_states": {
+      "implementation": "exceptional"
+    },
+    "workload_state": "held",
+    "workload_stopped": "exceptional"
+  },
+  "packet_digest": "e60442a61fd8b7e73d7d51eb322723b3a8e9e472e7bfc2a37c4efc7f70ab863f",
+  "preserved": "the instance is preserved unchanged; these are read-only copies (mode 0444) taken into the dossier so the evidence survives independently of that directory. Nothing was rerun, recovered or mutated, and no credential value was read.",
+  "retained_candidate_locator": "file:///home/sl/baton-instances/attempt-diagnostics-w333486-340016/packet/workspaces/.baton-review-lines/line-70a887ddb1e0d4b403323d5329ef4173a07363016063d23383d6ffa5093abf09/custody/attempt-00cdd1a06d6322b016a3e78799dd6206811be6d00b1159ecdd8f719d6914886b/proposal",
+  "retained_logs_root": "/home/sl/baton-instances/attempt-diagnostics-w333486-340016/packet/launch/implementation/logs",
+  "run": "attempt-diagnostics-w333486-340016",
+  "schema": "baton.w333486-selected-run-evidence/1",
+  "supported_logs_reader": "baton-v12-stack logs --logs <retained_logs_root> --attempt <attempt_id> locators -- round-tripped successfully this claim against this real delivery",
+  "verification_output_withheld_by_design": "candidate-verification.txt records the argv and exit 1 but deliberately NOT the stdout or stderr: that output is code from the candidate tree running with the attempt credential mount readable, so it is exactly what a proposal must not carry. The document itself says the operator must rerun the command from the collected candidate tree, outside the worker. THAT RERUN IS THE INDEPENDENT REVIEWER'S AND WAS NOT PERFORMED BY THIS CLAIM.",
+  "what": "THE FIRST AUTHORING INVOCATION THAT HAS EVER COMPLETED FOR THIS WORK. Owner reroute340145 selected execution-340016 (accepted manifest b9d74fa6) and this is the run: launched 2026-10-20T16:17:37Z, controller pid 27098, ended with all four final results published."
+}

@@ -1,0 +1,337 @@
+{
+ "checkpoint_profile": "git",
+ "integration_profile": {
+  "instructions_digest": "sha256:fafc35958002db5284b54f4d22cf59a7dccfb5ac05e15baa69db73fcff06d6f2",
+  "integrator_participant": "baton.integrator-w366962",
+  "profile_kind": "git",
+  "profile_version": 1
+ },
+ "integration_target": "/tmp/w370688-fixture-destination/repo/target.git",
+ "integration_workspace": "/tmp/w370688-fixture-destination/repo/workspace",
+ "jobs": [
+  {
+   "canonical_target_id": "f36bcd75ed22430355efe1b274b8f236cb591f6b",
+   "job_id": "job-template-job-guide-42bed8bb",
+   "line_declared_base": "f36bcd75ed22430355efe1b274b8f236cb591f6b",
+   "source_worker_id": "impl-w366962",
+   "work_id": "37068800-W1"
+  }
+ ],
+ "owner_participant": "baton.slaw",
+ "policy_generation": 1,
+ "pool_generation": 1,
+ "receipt_participants": {
+  "approval": "baton.slaw",
+  "review": "baton.reviewer-receipt-w366962",
+  "verification": "baton.verifier-w366962"
+ },
+ "retention_disposition": "retain",
+ "retention_policy_digest": "sha256:0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a",
+ "schema": "baton.v12.stack-bootstrap/1",
+ "workers": [
+  {
+   "deployment": {
+    "adapter_digest": "sha256:5f2ef38f05ed7a9aecd11dd7e23e9cfbe1f0243fe27bd2c9aa1b004580fcdef1",
+    "adapter_name": "docker-single-worker",
+    "authority_store": "/tmp/w370688-fixture-destination/db/authority.sqlite3",
+    "authority_uuid": "37068800370688003706880037068800",
+    "credential_home": "/tmp/w370688-fixture-destination/state/credentials",
+    "credential_profile": {
+     "claude": {
+      "provider": "operator-file",
+      "reference": "w202663-development"
+     }
+    },
+    "credential_slots": [
+     "claude"
+    ],
+    "credential_sources": "/home/sl/.baton/credential-sources.json",
+    "engine": "docker",
+    "image_digest": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2",
+    "input_manifest": {
+     "assignment_contract": "v12-assignment-1",
+     "created_at": "2026-08-21T22:00:00.000Z",
+     "credential_policy_digest": "sha256:2628980cae5d3f95c9ffd3839e5bde88a1358b484e7360f8ddcff69495f795a3",
+     "extensions": {},
+     "human_contract": {
+      "artifact_id": "template-job-guide-42bed8bb",
+      "bytes": 8146,
+      "content_digest": "sha256:b2226415f3a57bda25f2a2023f9cb514ba7ac2863e72e5ab090c122913fe5b6b",
+      "locator": "artifact://contracts/template-job-guide-42bed8bb",
+      "media_type": "application/json"
+     },
+     "manifest_digest": "sha256:bfac80e311b737f647a74f199d9bf0497007fa781a04d543e2849aabb797075d",
+     "manifest_id": "input-manifest-1",
+     "mount_policy_digest": "sha256:13ce0af038312d1551eef7c267d691ff3e63e760f967ec60a1e732a9e373243e",
+     "network_policy_digest": "sha256:d5678ba5d0f7b0191d38d3866e75633a3653314ba3a5b1722a8fd7d0bbc71742",
+     "outputs": [
+      {
+       "constraints": {
+        "allowed_media_types": [
+         "application/octet-stream",
+         "text/plain"
+        ],
+        "link_policy": "forbid",
+        "max_bytes": 1048576,
+        "max_entries": 100,
+        "validator_digest": null
+       },
+       "name": "proposal",
+       "path": "proposal",
+       "required": false,
+       "type": "git-change-proposal"
+      },
+      {
+       "constraints": {
+        "allowed_media_types": [
+         "application/octet-stream"
+        ],
+        "link_policy": "forbid",
+        "max_bytes": 1048576,
+        "max_entries": 100,
+        "validator_digest": null
+       },
+       "name": "findings",
+       "path": "findings",
+       "required": false,
+       "type": "directory-result"
+      },
+      {
+       "constraints": {
+        "allowed_media_types": [
+         "application/octet-stream"
+        ],
+        "link_policy": "forbid",
+        "max_bytes": 1048576,
+        "max_entries": 100,
+        "validator_digest": null
+       },
+       "name": "logs",
+       "path": "logs",
+       "required": false,
+       "type": "directory-result"
+      }
+     ],
+     "policy_digest": "sha256:837d7a03b2d92b9654cbc391daefcfa208f747bbd9ae7c528d54f528bd536357",
+     "record_binding": {
+      "finding_digest": "sha256:b4475b9e2a845440b535607ddbcec42008ad941d2a61972b2be7191ea974e83e",
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/decisions",
+      "plan_digest": "sha256:4408f58bb94bf184cd6ed49b9b87ede18bde1bee674085f7467291153f4eac8a",
+      "root": "baton-repository"
+     },
+     "resource_policy_digest": "sha256:22ec8ab47622524c2400045743adde69118a003853553fe140c83148ce37deee",
+     "retention_policy_digest": "sha256:0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a",
+     "role_instructions_digest": "sha256:9916592243dd0f1621f79d7a19ded89b2c48ef8e4ac92cf37ad0214ec80ce5b5",
+     "runtime_profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+     "schema": "baton.worker-manifest/input",
+     "sources": [
+      {
+       "consumption": {
+        "baton.source-boundary/1": {
+         "delivery": "nominated-mount",
+         "profile": "git-line",
+         "workspace": "disk"
+        }
+       },
+       "content_manifest": {
+        "entries": [],
+        "entry_count": 0,
+        "total_bytes": 0,
+        "tree_digest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+       },
+       "destination": "source",
+       "name": "source",
+       "required": true
+      }
+     ],
+     "tool_policy_digest": "sha256:0baa3740180e047a492b97053c010a03eeb07b3e57e8418f5583b7af2169c3cb",
+     "toolchain_digest": "sha256:ceba06f33217267d29e25823d81d24e87e178c54ed77fbcf60c6a7c9d04cc183",
+     "version": {
+      "major": 1,
+      "minor": 0
+     },
+     "work_ref": {
+      "authority_uuid": "37068800370688003706880037068800",
+      "work_id": "37068800-W1"
+     },
+     "worker_image_digest": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2"
+    },
+    "launch_contract": "v12-assignment-1",
+    "launch_home": "/tmp/w370688-fixture-destination/state/launch",
+    "launch_role": "implementation",
+    "network": "bridge",
+    "nominated_source": "/tmp/w370688-fixture-destination/repo/source-impl-w366962",
+    "participant": "baton.claude-w366962",
+    "policy_digest": "sha256:837d7a03b2d92b9654cbc391daefcfa208f747bbd9ae7c528d54f528bd536357",
+    "principal": "principal:baton.claude-w366962",
+    "profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+    "profile_name": "claude-fresh-implementation",
+    "retention_disposition": "retain",
+    "retention_policy_digest": "sha256:0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a",
+    "review_route": "rview",
+    "schema": "baton.v12.single-worker-deployment/4",
+    "task_document": "/tmp/w370688-fixture-destination/state/task/template-job-guide-42bed8bb.json",
+    "workspace_capacity": {
+     "max_bytes": 83886081
+    },
+    "workspace_group": 1000,
+    "workspace_storage": "/tmp/w370688-fixture-destination/state/workspaces"
+   },
+   "participant": "baton.claude-w366962",
+   "role": "implementation",
+   "worker_id": "impl-w366962"
+  },
+  {
+   "deployment": {
+    "adapter_digest": "sha256:5f2ef38f05ed7a9aecd11dd7e23e9cfbe1f0243fe27bd2c9aa1b004580fcdef1",
+    "adapter_name": "docker-single-worker",
+    "authority_store": "/tmp/w370688-fixture-destination/db/authority.sqlite3",
+    "authority_uuid": "37068800370688003706880037068800",
+    "credential_home": "/tmp/w370688-fixture-destination/state/credentials",
+    "credential_profile": {
+     "claude": {
+      "provider": "operator-file",
+      "reference": "w202663-development"
+     }
+    },
+    "credential_slots": [
+     "claude"
+    ],
+    "credential_sources": "/home/sl/.baton/credential-sources.json",
+    "engine": "docker",
+    "image_digest": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2",
+    "input_manifest": {
+     "assignment_contract": "v12-assignment-1",
+     "created_at": "2026-08-21T22:00:00.000Z",
+     "credential_policy_digest": "sha256:2628980cae5d3f95c9ffd3839e5bde88a1358b484e7360f8ddcff69495f795a3",
+     "extensions": {},
+     "human_contract": {
+      "artifact_id": "template-job-guide-42bed8bb",
+      "bytes": 8146,
+      "content_digest": "sha256:b2226415f3a57bda25f2a2023f9cb514ba7ac2863e72e5ab090c122913fe5b6b",
+      "locator": "artifact://contracts/template-job-guide-42bed8bb",
+      "media_type": "application/json"
+     },
+     "manifest_digest": "sha256:bfac80e311b737f647a74f199d9bf0497007fa781a04d543e2849aabb797075d",
+     "manifest_id": "input-manifest-1",
+     "mount_policy_digest": "sha256:13ce0af038312d1551eef7c267d691ff3e63e760f967ec60a1e732a9e373243e",
+     "network_policy_digest": "sha256:d5678ba5d0f7b0191d38d3866e75633a3653314ba3a5b1722a8fd7d0bbc71742",
+     "outputs": [
+      {
+       "constraints": {
+        "allowed_media_types": [
+         "application/octet-stream",
+         "text/plain"
+        ],
+        "link_policy": "forbid",
+        "max_bytes": 1048576,
+        "max_entries": 100,
+        "validator_digest": null
+       },
+       "name": "proposal",
+       "path": "proposal",
+       "required": false,
+       "type": "git-change-proposal"
+      },
+      {
+       "constraints": {
+        "allowed_media_types": [
+         "application/octet-stream"
+        ],
+        "link_policy": "forbid",
+        "max_bytes": 1048576,
+        "max_entries": 100,
+        "validator_digest": null
+       },
+       "name": "findings",
+       "path": "findings",
+       "required": false,
+       "type": "directory-result"
+      },
+      {
+       "constraints": {
+        "allowed_media_types": [
+         "application/octet-stream"
+        ],
+        "link_policy": "forbid",
+        "max_bytes": 1048576,
+        "max_entries": 100,
+        "validator_digest": null
+       },
+       "name": "logs",
+       "path": "logs",
+       "required": false,
+       "type": "directory-result"
+      }
+     ],
+     "policy_digest": "sha256:837d7a03b2d92b9654cbc391daefcfa208f747bbd9ae7c528d54f528bd536357",
+     "record_binding": {
+      "finding_digest": "sha256:b4475b9e2a845440b535607ddbcec42008ad941d2a61972b2be7191ea974e83e",
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/decisions",
+      "plan_digest": "sha256:4408f58bb94bf184cd6ed49b9b87ede18bde1bee674085f7467291153f4eac8a",
+      "root": "baton-repository"
+     },
+     "resource_policy_digest": "sha256:22ec8ab47622524c2400045743adde69118a003853553fe140c83148ce37deee",
+     "retention_policy_digest": "sha256:0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a",
+     "role_instructions_digest": "sha256:9916592243dd0f1621f79d7a19ded89b2c48ef8e4ac92cf37ad0214ec80ce5b5",
+     "runtime_profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+     "schema": "baton.worker-manifest/input",
+     "sources": [
+      {
+       "consumption": {
+        "baton.source-boundary/1": {
+         "delivery": "nominated-mount",
+         "profile": "git-line",
+         "workspace": "disk"
+        }
+       },
+       "content_manifest": {
+        "entries": [],
+        "entry_count": 0,
+        "total_bytes": 0,
+        "tree_digest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+       },
+       "destination": "source",
+       "name": "source",
+       "required": true
+      }
+     ],
+     "tool_policy_digest": "sha256:0baa3740180e047a492b97053c010a03eeb07b3e57e8418f5583b7af2169c3cb",
+     "toolchain_digest": "sha256:ceba06f33217267d29e25823d81d24e87e178c54ed77fbcf60c6a7c9d04cc183",
+     "version": {
+      "major": 1,
+      "minor": 0
+     },
+     "work_ref": {
+      "authority_uuid": "37068800370688003706880037068800",
+      "work_id": "37068800-W1"
+     },
+     "worker_image_digest": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2"
+    },
+    "launch_contract": "v12-assignment-1",
+    "launch_home": "/tmp/w370688-fixture-destination/state/launch",
+    "launch_role": "review",
+    "network": "bridge",
+    "nominated_source": "/tmp/w370688-fixture-destination/repo/source-review-w366962",
+    "participant": "baton.reviewer-w366962",
+    "policy_digest": "sha256:837d7a03b2d92b9654cbc391daefcfa208f747bbd9ae7c528d54f528bd536357",
+    "principal": "principal:baton.reviewer-w366962",
+    "profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+    "profile_name": "claude-fresh-implementation",
+    "retention_disposition": "retain",
+    "retention_policy_digest": "sha256:0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a",
+    "review_route": "owner",
+    "schema": "baton.v12.single-worker-deployment/4",
+    "task_document": "/tmp/w370688-fixture-destination/state/task/template-job-guide-42bed8bb.json",
+    "workspace_capacity": {
+     "max_bytes": 83886081
+    },
+    "workspace_group": 1000,
+    "workspace_storage": "/tmp/w370688-fixture-destination/state/workspaces"
+   },
+   "participant": "baton.reviewer-w366962",
+   "role": "review",
+   "worker_id": "review-w366962"
+  }
+ ]
+}

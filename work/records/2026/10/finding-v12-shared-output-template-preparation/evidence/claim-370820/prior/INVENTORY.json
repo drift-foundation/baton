@@ -1,0 +1,57 @@
+{
+ "claim": 370696,
+ "decision_inputs": {
+  "FINDING.md": "3d6459458e3da197104ce9b0f34f1251aa5025ccb6d2543346259a3c313614a9",
+  "PLAN.md": "3f55d6bd9c209df5147b972a46e39ca083a0f9d8fed9c64144c49ce27079001c"
+ },
+ "files": {
+  "COMMANDS.md": {
+   "bytes": 3574,
+   "sha256": "7090ac4a3d4404ad87e0cc5c7dabd0cf5ae4ccc91883d9152434258639d57787"
+  },
+  "PROGRESS.md": {
+   "bytes": 3781,
+   "sha256": "1de7c822252fba410caad8a9c9c7935cdd59601bc815579fa5b52d4f92d8faa6"
+  },
+  "candidate/BOOTSTRAP-FIXTURE.json": {
+   "bytes": 12994,
+   "sha256": "c78d05a6ba4594259c7dcef6582f71af67deac96a8b051dc3d9478e705da876e"
+  },
+  "candidate/COMPOSITION.json": {
+   "bytes": 25411,
+   "sha256": "fff37aa2cf3530cefaf21699e1b1968bfe99a7acf367de57bc3c61b967206817"
+  },
+  "candidate/task.json": {
+   "bytes": 8146,
+   "sha256": "c21e6b93bfe199ebb89b3ec7a75e70a5636c52f9986b1afa3709a381c6bd98d7"
+  },
+  "evidence/claim-370696/PROOF.json": {
+   "bytes": 58313,
+   "sha256": "0d3deb62a8ce1ec245463927fa2f96bc676476ad6e01f1f45203c953b789800b"
+  },
+  "evidence/claim-370696/RUNS.json": {
+   "bytes": 948,
+   "sha256": "b8368526da65df062f2b05d0e87bdef7e6451ffff0a4b33a728fe73a712e9b3d"
+  },
+  "prepare.py": {
+   "bytes": 4770,
+   "sha256": "d7d1a4b8ac3ea0bc8e137ea17ff4727705d03bb78994536e8cf9f9845ca7cf1d"
+  },
+  "prove.py": {
+   "bytes": 12822,
+   "sha256": "40181b8a6a4a1122696407e3910abe0e90026aa78cf2b977a2b99a14708a4a52"
+  }
+ },
+ "fixture_uuid": "37068800370688003706880037068800",
+ "product_source_read": {
+  "v12/python/src/baton_v12/integration/driver.py": "6b3e0ab90b0c840151df72462dbf593b03a327ffe62d5ee6935a41246b97fb19",
+  "v12/python/src/baton_v12/job_manager/review_driver.py": "d784215400821af1c704b896f4fc2cacb5519ad096c518f3072d8611df4f7a25",
+  "v12/python/src/baton_v12/worker_manager/intake.py": "71f0ef60bd5b26409e9c24fe49bd2ace1382e8ef1cb0ab8b3e2a5a44deae3d97",
+  "v12/python/src/baton_v12/worker_manager/output.py": "434182ab922729aaa3af5d53b0539a0fa8d6b5d34b4cad5b3a7454da594c2e1d",
+  "v12/python/src/baton_v12/worker_manager/sealing.py": "fa127f926785eb0e3b56cda2359141f066b4de4851b3de1e7cd7d6d3f87fdada",
+  "v12/worker/baton_worker.py": "56cdee824193834e9f1e8e974259575219a9223aa9b4f1946c99099b35c5cd34",
+  "v12/worker/claude_agent.py": "b014ea3f5f58af573a0cbaa4b8838a270953806a89ef274682d5cca6627efe7c"
+ },
+ "status": "awaiting independent review",
+ "work": "W370688"
+}

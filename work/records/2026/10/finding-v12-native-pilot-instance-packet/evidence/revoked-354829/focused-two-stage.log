@@ -1,0 +1,33 @@
+test_a_REVOKED_generation_permits_no_effects_even_when_expiry_reads_false (tests.job_manager.test_native_permission.ARevokedGenerationPermitsNoEffects.test_a_REVOKED_generation_permits_no_effects_even_when_expiry_reads_false) ... ok
+test_a_bound_live_generation_DOES_permit_effects (tests.job_manager.test_native_permission.ARevokedGenerationPermitsNoEffects.test_a_bound_live_generation_DOES_permit_effects)
+The control: without revocation the gate answers True. ... ok
+test_REPLAY_of_the_same_acquisition_does_not_extend_or_duplicate (tests.job_manager.test_native_permission.NativeAcquisition.test_REPLAY_of_the_same_acquisition_does_not_extend_or_duplicate)
+Durable original timing; a replayed start is not a new permission. ... ok
+test_WITHOUT_the_policy_the_REAL_reserve_still_takes_900 (tests.job_manager.test_native_permission.NativeAcquisition.test_WITHOUT_the_policy_the_REAL_reserve_still_takes_900)
+The defect, reproduced through the same real act. A disconnected ... ok
+test_a_lifetime_BESIDE_a_permission_is_refused_by_the_acquisition (tests.job_manager.test_native_permission.NativeAcquisition.test_a_lifetime_BESIDE_a_permission_is_refused_by_the_acquisition) ... ok
+test_expiry_makes_it_RECLAIMABLE_through_the_real_overdue_owner (tests.job_manager.test_native_permission.NativeAcquisition.test_expiry_makes_it_RECLAIMABLE_through_the_real_overdue_owner)
+The native stop trigger, asked of the owner that enforces it. ... ok
+test_the_REAL_policy_feeds_the_REAL_reserve_and_the_token_takes_it (tests.job_manager.test_native_permission.NativeAcquisition.test_the_REAL_policy_feeds_the_REAL_reserve_and_the_token_takes_it)
+The whole chain: policy -> reserve -> acquire -> stored token. ... ok
+test_the_acquired_token_SURVIVES_PAST_900_and_is_still_bounded (tests.job_manager.test_native_permission.NativeAcquisition.test_the_acquired_token_SURVIVES_PAST_900_and_is_still_bounded) ... ok
+test_the_per_invocation_ceilings_are_UNCHANGED_by_the_lifetime (tests.job_manager.test_native_permission.NativeAcquisition.test_the_per_invocation_ceilings_are_UNCHANGED_by_the_lifetime) ... ok
+test_the_policy_REFUSES_a_resolution_its_owner_would_not_produce (tests.job_manager.test_native_permission.NativeAcquisition.test_the_policy_REFUSES_a_resolution_its_owner_would_not_produce) ... ok
+test_the_policy_answers_NONE_when_there_is_nothing_to_resolve (tests.job_manager.test_native_permission.NativeAcquisition.test_the_policy_answers_NONE_when_there_is_nothing_to_resolve)
+No Job context leaves the acquisition default exactly where it was. ... ok
+test_WITHOUT_the_policy_the_same_real_serving_acquires_900 (tests.job_manager.test_native_permission.NativeProductionLaunch.test_WITHOUT_the_policy_the_same_real_serving_acquires_900)
+The disconnected composition, through the same real path. ... ok
+test_native_serving_reaches_the_acquisition_with_the_selected_lifetime (tests.job_manager.test_native_permission.NativeProductionLaunch.test_native_serving_reaches_the_acquisition_with_the_selected_lifetime) ... ok
+test_the_native_factory_delivers_the_policy_to_both_stage_workers (tests.job_manager.test_native_permission.NativeStageComposition.test_the_native_factory_delivers_the_policy_to_both_stage_workers) ... ok
+test_BOTH_stages_acquire_their_OWN_token_at_the_composed_lifetime (tests.job_manager.test_native_permission.NativeTwoStageAcquisition.test_BOTH_stages_acquire_their_OWN_token_at_the_composed_lifetime) ... ok
+test_the_review_stage_is_reached_because_the_ENDING_moved_the_route (tests.job_manager.test_native_permission.NativeTwoStageAcquisition.test_the_review_stage_is_reached_because_the_ENDING_moved_the_route)
+The precondition, asserted rather than assumed. ... ok
+test_BOTH_stages_acquire_their_OWN_token_at_the_composed_lifetime (tests.job_manager.test_native_permission.TheDisconnectedTwoStageComposition.test_BOTH_stages_acquire_their_OWN_token_at_the_composed_lifetime)
+Overridden: this composition must NOT reach the composed lifetime. ... ok
+test_the_review_stage_is_reached_because_the_ENDING_moved_the_route (tests.job_manager.test_native_permission.TheDisconnectedTwoStageComposition.test_the_review_stage_is_reached_because_the_ENDING_moved_the_route)
+The precondition, asserted rather than assumed. ... ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 1.450s
+
+OK

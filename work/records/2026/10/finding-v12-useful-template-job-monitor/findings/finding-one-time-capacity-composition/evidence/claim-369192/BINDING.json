@@ -1,0 +1,165 @@
+{
+ "caveat": "PROGRESS.md is digested as of this write and is appended to afterwards in this same claim; the record files are listed so a reviewer can see which revision the proof was taken against.",
+ "delivered": {
+  "CLEAN-START.md": {
+   "bytes": 6173,
+   "sha256": "42a549cfdea4141ff46088adc1586b5f2dbc28e26f014d83a6e4f7b7089085f4"
+  },
+  "capacity.py": {
+   "bytes": 56357,
+   "sha256": "a6fc65b262960ad3c465fbee0590052e0a313b6c13edb858c0e4e42dc482c930"
+  },
+  "fixtures/qualifying-TEMPLATE-JOBS.md": {
+   "bytes": 3552,
+   "sha256": "bc7aee367d1fb1b229e0f667c4ee4c527f5327131b81852ed27e54cfdd159817"
+  },
+  "guide_contract.py": {
+   "bytes": 11402,
+   "sha256": "5b3959614a6abdfeb4661536f35c59dbdd77d9027e1f85cb7a750d1919ade80a"
+  },
+  "proposed_grants.py": {
+   "bytes": 18076,
+   "sha256": "2df6109e5fa0369d845ce7e0bb20917b35cecff4776c104168ad42f9fff8cf6c"
+  },
+  "prove_capacity.py": {
+   "bytes": 29475,
+   "sha256": "f3942d5b3ec0bbebef77daade28ebf8315ef085ef2007f8d0e84136ab23e022d"
+  },
+  "prove_guide_contract.py": {
+   "bytes": 11502,
+   "sha256": "64e0e1b8711ef6021c62f575162b48aca0f4995e8513bde3dcba48e9411ccba2"
+  }
+ },
+ "evidence": {
+  "GUIDE-CONTRACT.json": "641d3d8775c2ebb9dca773f9f7a9d66d44e908f5bd717eeeec8b2a2aa9a502f0",
+  "GUIDE-CONTRACT.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "PROOF.json": "5c8402f3ad0de81da124cf2c196864e0df5bccc6dedfb33c4904878e63f12b48",
+  "PROOF.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "PROPOSED-GRANTS.json": "2f4606df0fe094d1d813c9f6a998b411e913566fa6045498908cd2c1f902d863",
+  "PROPOSED-GRANTS.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "cli-preflight.json": "1224f8d14dfb42712b58e0751693946b8374127c872a712da2240dcb44477f53",
+  "cli-preflight.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+ },
+ "external_inputs": {
+  "files": {
+   "v12/instance-inputs.json": {
+    "sha256": "e2eb35b222b67ac6fae77f361bc2a007623c7a4f2d7bc75c593f46ec2708137e",
+    "what": "canonical instance inputs"
+   },
+   "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json": {
+    "sha256": "fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903",
+    "what": "published conformance vectors"
+   },
+   "work/records/2026/10/finding-v12-native-pilot-instance-packet/fresh5-361402/configure-inputs.json": {
+    "sha256": "f60b129baad7fc098be76af530a6705b96cd510aa4d8b2ff552cf3b9d6e2a494",
+    "what": "reviewed pilot configuration"
+   },
+   "work/records/2026/10/finding-v12-native-pilot-instance-packet/fresh5-361402/task.json": {
+    "sha256": "91a13de94a23941b6653b9da40ae56e28046c7b30456def734638243185272f0",
+    "what": "reviewed pilot task"
+   },
+   "work/records/2026/10/finding-v12-native-pilot-instance-packet/revision-4/inputs/deployment.json": {
+    "sha256": "6a675445d361a5208f82dfc43593595cd2d5d9bcbb3e893842c03b5cb8587a3e",
+    "what": "reviewed pilot input manifest"
+   },
+   "work/records/2026/10/finding-v12-template-job-creation/findings/finding-packaged-template-creation/evidence/review-366382/BUNDLE-ARCHIVE.json": {
+    "sha256": "de9c669ce77819686f5043207151af5f6e1894940f87da70e16fde0c9dcbbad9",
+    "what": "retained runtime archive record"
+   },
+   "work/records/2026/10/finding-v12-template-job-creation/findings/finding-packaged-template-creation/evidence/review-366382/verified-first-build.tar.gz": {
+    "sha256": "1da85eed0a3a19a5da0b83253abbbb40ebeed01bfe90ee05a10055dec0057125",
+    "what": "retained runtime archive"
+   }
+  },
+  "note": "digests read now; a parent assembling on this result should re-read them and compare",
+  "source_revision": "42bed8bb04a53380e565b1a63fb2bc702677f0d0"
+ },
+ "outcomes_bound_here": {
+  "create_exit": 0,
+  "document_digest": "sha256:8561a7964075276e1b3f0f12748486de4430d564e7d548d2fa9f6b2937173c33",
+  "guide_contract_cases": 18,
+  "guide_contract_ok": true,
+  "joined_proof_ok": true,
+  "manifest_digest": "sha256:7163fd17198d13b06b80d0b73d6456805a3db0c8464e9421f25a0d7b2e2aad7a",
+  "preflight_no_mutation": true,
+  "preparation_is_complete": false,
+  "preparation_is_complete_with_the_proposal_bound": false,
+  "proposal_admits_and_creates": true,
+  "valid_foreign_identity_refused": true
+ },
+ "proposal_reads_from": {
+  "v12/python/src/baton_v12/worker_manager/provider_context.py": "ca54ecec366fde97390a873537d9fb430db90bfe21e39448450d79d6fa4d7835",
+  "v12/python/src/baton_v12/worker_manager/source_boundary.py": "6a6b0f7ecd29ee260e55d5abb93ebcf8891641a9cd1866109a9d291bf44e918f",
+  "v12/python/tools/single_worker.py": "677e6f0ba39d10a983d20b46fe1252b73ddb7839b8f7cdf1016b88f9111e991b",
+  "v12/worker/Dockerfile.claude": "487748a01c72906d3725b78ecafe060a4d290c070822ecb20c8373fe82589b49",
+  "v12/worker/claude_agent.py": "b014ea3f5f58af573a0cbaa4b8838a270953806a89ef274682d5cca6627efe7c"
+ },
+ "proposed_grants": {
+  "members": {
+   "credential_policy_digest": {
+    "derivation": "reused",
+    "file_sha256": "5399f947126ec7d031bced5895076657d24be21443e6db0c9ec86b51b14a9877",
+    "identity_if_granted": "sha256:c8278005e08e5feae9c7f22f259fd1625a51285b85df7bc623b45b77277a5662",
+    "path": "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants/credential_policy.json",
+    "status": "proposed-not-granted"
+   },
+   "mount_policy_digest": {
+    "derivation": "reused",
+    "file_sha256": "40bbe54bfd29865a5c8d3319b6cc019ae23e2005ce9d733aa3cbb5db223ce49d",
+    "identity_if_granted": "sha256:a852ffa00f9f7f9ed447a4dd836c790aab15e0f2ee84219dc780f81d957cf9b5",
+    "path": "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants/mount_policy.json",
+    "status": "proposed-not-granted"
+   },
+   "network_policy_digest": {
+    "derivation": "authored",
+    "file_sha256": "fd23b28efadbe648ac43b0a1324de3dc5bfe873adfaa2c0d0ec60a777e3d9014",
+    "identity_if_granted": "sha256:06407bb4fb68082854e98e1db6737dbebee95255b90813a488ea058d0fd223ab",
+    "path": "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants/network_policy.json",
+    "status": "proposed-not-granted"
+   },
+   "resource_policy_digest": {
+    "derivation": "authored",
+    "file_sha256": "eb99686f18e73701aa7db25b2f0c6e3044fb94e583d290e9b2c7a018bd27952c",
+    "identity_if_granted": "sha256:e34a1471ce962e1737392740ad13b23234af531755baf5be61c2678038df9b8c",
+    "path": "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants/resource_policy.json",
+    "status": "proposed-not-granted"
+   },
+   "role_instructions_digest": {
+    "derivation": "reused",
+    "file_sha256": "8ac96cb65d446a41a570a9ffa499ba955aa9e8d137bbbed7356fbd2d68ae04e5",
+    "identity_if_granted": "sha256:7321d8dcfa4993bda8c1ac736297638ce34c49e2f22545b1a8be56cfae29ce7a",
+    "path": "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants/role_instructions.json",
+    "status": "proposed-not-granted"
+   },
+   "tool_policy_digest": {
+    "derivation": "reused",
+    "file_sha256": "eabb731948b1391bec7ef0c95035710ab4cef6c145b783e7f77765c4347051d6",
+    "identity_if_granted": "sha256:27634ea683a0a554be5b44a6bf2192f25418a1b6dfc376e33e5ed77d01f51199",
+    "path": "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants/tool_policy.json",
+    "status": "proposed-not-granted"
+   },
+   "toolchain_digest": {
+    "derivation": "reused",
+    "file_sha256": "25920341783793832dc76dc14c2e67ba09b768737700b70122181da6eabe6507",
+    "identity_if_granted": "sha256:cd6ccc00aff63f9b01036d6a5f6eb67ba1eb98a9372c66e9788bc79841be5af3",
+    "path": "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants/toolchain.json",
+    "status": "proposed-not-granted"
+   }
+  },
+  "status": "PROPOSED, NOT GRANTED -- no owner has selected any of these"
+ },
+ "retained_record_files": {
+  "CLEAN-START.md": "42a549cfdea4141ff46088adc1586b5f2dbc28e26f014d83a6e4f7b7089085f4",
+  "FINDING.md": "c71499e19c18375b0557ad2d2026994eed11fc1e9c7742352d28ac34ddf479ee",
+  "INCIDENT-367234-scratch-deletion.md": "4bc3feffb7ae309a829391dbfda57f738284c02b544d383000a34264035d85c0",
+  "PLAN.md": "8529c3e7ef66e7f68483114cc8ffc758d5be776e46f37d91be55c0f7fc26f3ee",
+  "PROGRESS.md": "bda1dd2f4c195b8cbb14cad77589c1adedd8453c78d6f4e4e36417ec7896ba3c"
+ },
+ "schema": "baton.v12.capacity-binding/2",
+ "superseded": {
+  "compose_capacity.py": "7da8b79332ba331815d7bbbe6f307c7dd1bd53ac155678fb9dad3ca8ed8431cf",
+  "note": "entrypoint refuses; body retained as the record of the attempt",
+  "prove_admission.py": "919fe8f97707e3fc9f8e544011a84375f55703b695d3de7402c0d4e19bc33174"
+ },
+ "what": "the digest binding review 2026-10-27T18-27-26Z [R3] asks for, extended with the seven proposed artifacts owner selection E369183 authorized preparing. A parent assembling on this result consumes the reviewed bytes, not whatever is on disk later."
+}

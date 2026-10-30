@@ -1,0 +1,49 @@
+{
+  "agree": true,
+  "composed_from": "/tmp/w333486-preflight-334663/packet",
+  "execution_policy": {
+    "implementer_invocations": 1,
+    "provider_turn_seconds": 3600,
+    "source": "policy.json",
+    "verification_command_seconds": 30
+  },
+  "lease_disclosure": {
+    "enforced": true,
+    "lifetime_seconds": 900,
+    "renewals_at_this_base": 0,
+    "why": "The accepted controller makes the initial 900-second lease ENFORCED rather than ignored; it does not extend it, and production renewal remains W333485 unfinished work. So these ceilings are requested bounds and NOT a promise of a 3600-second authoring run: expect enforced expiry at 900 seconds with cessation ordered, partial output retained and a held outcome.",
+    "withdrawn": [
+      "execution-333504/OPERATOR.md claimed the native pilot 903-second termination transferred to the authoring vehicle; it did not, that vehicle had no reclaim.",
+      "execution-333707/HOLD.md said the lease is unenforced on the vehicle; true there, and no longer true at this base."
+    ]
+  },
+  "note": "Read from the GENERATED documents rather than from prose.",
+  "residual_total_margin_seconds": 1110,
+  "schema": "baton.w333486-execution-limits-check/3",
+  "submission": {
+    "execution_limits": {
+      "provider_turn_seconds": 3600,
+      "verification_command_seconds": 30
+    },
+    "source": "submission.json jobs[0]",
+    "terminal_policy": "report-and-hold"
+  },
+  "supervisor_bounds": {
+    "cleanup_seconds": 60,
+    "implementer_invocations": 1,
+    "retry": false,
+    "total_seconds": 4800,
+    "turn_seconds": 3600
+  },
+  "verification_ceiling": {
+    "disclosed": "TASK.md states this as a design constraint and requires an honest measured report rather than deleted coverage if the gate cannot be made to fit.",
+    "headroom_for_the_two_new_modules_seconds": 15.77,
+    "measured_existing_gate_seconds": 14.23,
+    "measured_existing_gate_tests": 1124,
+    "modules": 10,
+    "not_this_packets_to_set": true,
+    "seconds": 30,
+    "tighter_than_previous_revision": "execution-333707 left about 18.17s over nine modules; this revision deliberately adds tests.manager.test_authoring_enforcement, which costs 2.194s, so about 15.8s remains. The trade was taken on purpose: this candidate edits the files that module covers.",
+    "why": "Fixed by the composer at baseline_bindings.py:345 and :522 with no compose parameter."
+  }
+}

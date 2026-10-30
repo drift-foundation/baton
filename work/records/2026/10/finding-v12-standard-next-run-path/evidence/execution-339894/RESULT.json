@@ -1,0 +1,36 @@
+{
+  "state": "startup-refused-before-manager-child",
+  "observed_at": "2026-10-20T15:44:27.868432+00:00",
+  "selection_event": 339891,
+  "claim": 339894,
+  "run_root": "/tmp/baton-standard-next-run-w339626-339782",
+  "packet_sha256": "41973dea7204b24bda6095bf8437d6d57d75cb66380f6978217a92197394cb07",
+  "exit_code": 1,
+  "start_wall_seconds": 0.2174,
+  "failure": "baseline.SupervisorRefusal: the engine answered no document for image baton-v12-claude-worker:w239528-244216",
+  "underlying_read": {
+    "argv": [
+      "docker",
+      "image",
+      "inspect",
+      "baton-v12-claude-worker:w239528-244216"
+    ],
+    "returncode": 1,
+    "stderr": "permission denied while trying to connect to the docker API at unix:///var/run/docker.sock",
+    "stdout_length": 3
+  },
+  "actual_job_id": null,
+  "actual_attempt_id": null,
+  "provider_invocations": 0,
+  "product_test_seconds": 0,
+  "retry_performed": false,
+  "paths_exist": {
+    "instance/db/jobs.sqlite3": false,
+    "instance/db/control.sqlite3": false,
+    "instance/db/control.sqlite3.authoring.lock": true,
+    "packet/outcome.json": false,
+    "packet/outcome.json.authoring.log": false
+  },
+  "cessation_evidence": "Parent process exited1; source main line523 refused before child Process construction line535. No manager child or worker launch reached. Not an engine-wide cessation assertion.",
+  "remaining": "Repair managed controller access to Docker through approved execution policy, then obtain explicit disposition for a subsequent invocation; no retry under spent one-invocation selection."
+}

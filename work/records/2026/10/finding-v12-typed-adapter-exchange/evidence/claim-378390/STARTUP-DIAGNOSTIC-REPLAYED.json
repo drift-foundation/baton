@@ -1,0 +1,52 @@
+{
+ "all_statuses_agree": true,
+ "answers": {
+  "uncorrelatable_no_session": {
+   "adapter_constructed": false,
+   "entry_said_the_same": true,
+   "entry_said_why": false,
+   "entry_status": 2,
+   "serve_said_why": false,
+   "serve_status": 2,
+   "statuses_agree": true
+  },
+  "unknown_outer_member": {
+   "adapter_constructed": false,
+   "entry_said_the_same": true,
+   "entry_said_why": true,
+   "entry_status": 3,
+   "serve_said_why": true,
+   "serve_status": 3,
+   "statuses_agree": true
+  },
+  "unwrapped_exchange": {
+   "adapter_constructed": false,
+   "entry_said_the_same": true,
+   "entry_said_why": true,
+   "entry_status": 3,
+   "serve_said_why": true,
+   "serve_status": 3,
+   "statuses_agree": true
+  },
+  "valid_wrapper": {
+   "adapter_constructed": true,
+   "entry_said_the_same": true,
+   "entry_said_why": false,
+   "entry_status": 2,
+   "serve_said_why": false,
+   "serve_status": 2,
+   "statuses_agree": true
+  },
+  "wrong_profile": {
+   "adapter_constructed": false,
+   "entry_said_the_same": true,
+   "entry_said_why": true,
+   "entry_status": 3,
+   "serve_said_why": true,
+   "serve_status": 3,
+   "statuses_agree": true
+  }
+ },
+ "note": "The probe recorded the shipped entry returning 2 with empty stderr and no capture for three correlatable refusals that serve answers 3 with one bounded sentence. The entry no longer decides the ending: it decides only whether an adapter may be built, and main/serve report and settle. Uncorrelatable input stays distinct. The diagnostic paths differ only in the launch path each run used, which is why the comparison drops the locator. valid_wrapper answers 2 on BOTH routes for a different reason than the refusals: its launch validates and an adapter is built, and the exchange then refuses this probe's WRITABLE command namespace -- a worker rule about the room, not about the launch. What this vector establishes is that the adapter is constructed only for the delivery that validates, and that both routes still agree.",
+ "replayed": "work/records/2026/10/finding-v12-typed-adapter-exchange/evidence/review-378337/STARTUP-DIAGNOSTIC.json"
+}

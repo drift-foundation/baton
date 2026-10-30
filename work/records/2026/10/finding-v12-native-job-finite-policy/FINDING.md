@@ -1,0 +1,25 @@
+# Persisted finite native Job policy and joined control proof
+
+Canonical Work: W383217, child of W321608.
+
+Owner authority: W321608 E383183 approves baton:work/records/2026/10/finding-v12-development-coordination-pilot/CONTROL-SELECTION-383131.md, SHA256 4af2b7d214bad390f6501d87ae3cd5b3e335f9fc49b25afcf456de72d5e6b25c. Parent FINDING pins the ruling; v12/DESIGN.md LIM-5 is updated before implementation. Read those, docs/EFFECTIVE-BATON.md and current canonical handoff. This is direct development under successful v11 claim, not operational execution.
+
+Reviewer owns FINDING/PLAN/reviews. The implementing claimant owns actual source/tests, new evidence and attributable PROGRESS; record baseline, exact chosen files and test changes/reasons before editing, preserving prior authors and dirty bytes. Evidence locations are not an exclusive edit list. Necessary in-scope paths need no further approval solely because unlisted. Coordinate actual shared-file changes first. Return exact candidate/base/path hashes and focused evidence to baton.bug. Routine corrections continue directly. Human owns Git and accepted milestone checkpoint.
+
+Use disposable deterministic providers/engine adapters and real owning stores/composition at their normal boundaries. No build, actual engine, live model, operational install, credential delivery, retained-store mutation, migration, cleanup campaign or cutover is selected. No manufactured receipt or inferred cessation. Sensible per-run timeouts; record actual durations without cumulative-budget gates.
+
+## Bounded outcome
+
+Consume independently accepted W383215 cancellation/fence implementation, then implement versioned persisted per-Job correction and stage/Job wall-deadline control through that same owner. First documentation profile: one implementation and one independent review, zero correction rounds; stage4800s from execution admission before preparation, Job9960s from durable accepted creation including queue time, provider3600s/verification900s per invocation. First deadline/cancel closes future admission and orders exact cessation. These limits may truncate otherwise valid work before native token expiry and do not enlarge it.
+
+A changes-requested verdict remains visible and cannot open a forbidden successor or become acceptance. Reuse existing deployment decline/routing and episode owners. Preserve elapsed-time evidence across restart/correction, without resetting admitted limits. Ambiguous clock/runtime state holds admission and reports uncertainty. Allow120s bounded shutdown attempt after trigger, separately reported; unresolved shutdown retains hold and ongoing reconciliation rather than claiming a hard cessation guarantee. Manager outage cannot count as continuous enforcement. Cessation, stopped settlement, retained results, review and human acceptance remain separate.
+
+Confirmed baseline from accepted W378034: execution_limits supports invocation limits; stage_execution.native_lifetime_policy derives7320s per task token for3600/900; no stage4800/Job9960 persisted controls currently exist. The former unselected LIM-3 aggregate-contract status is superseded only for owner E383183/updated LIM-5. No generic currency/cumulative accounting or broader scheduler redesign is selected.
+
+## Ownership and acceptance
+
+Serial successor to W383215, blocked until its independent acceptance and owner disposition. It then owns relevant Job policy/schema/admission/scheduler/composition and focused tests, preserving predecessor bytes. No concurrent parent product author. Actual paths belong to implementer choice, with explicit overlap coordination. W371295 retains role provenance; W375517/W375518 retain admission journal/queued serving and schema coherence. Share their owners rather than add a second ledger or independently incompatible schema. W321608 joins this result with cancellation and exact artifact/readiness evidence.
+
+Prove normal implementation/review completion, changes-requested with no successor, admission-to-preparation and accepted-creation-to-queue clock origins, stage-vs-Job first deadline, restart without reset, late completion/launch, expiry-vs-success/cancel races, unchanged/changed operation replay, stale selection refusal, timing uncertainty, unresolved shutdown after the bounded attempt, preserved output and exact later settlement. Drive actual installed command and serving/owning API boundaries with deterministic clocks/providers/engines. Test per-invocation/resource-token semantics remain separate; record honest timing and outcomes. Deadline recording alone is not enforcement. Do not treat fixture receipts, supervisor exit, elapsed time or a sent stop as cessation.
+
+This is the integrated deterministic control proof, not an actual useful documentation live run, image qualification or adoption signoff. Preserve known role_contract.py:510 import issue and existing correction owners; no imported broad backlog gate. Return independently reviewable exact candidate and outcome evidence.

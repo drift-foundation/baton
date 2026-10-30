@@ -1,0 +1,1080 @@
+.....................F.F...FF......FFFFFF....F......F..................................................................................F.EF..FE...................................................................................................................W103068 genuine consumer evidence {"derived_proposal": "proposal-result-ab4c07ea48640e17594755c61d4de20eda03333b053a365935d88cd049fc6d93", "derived_result": "result-ab4c07ea48640e17594755c61d4de20eda03333b053a365935d88cd049fc6d93", "jobs": {"job-a": {"implementation": "completed", "integration": "completed", "review": "completed"}, "job-b": {"implementation": "completed", "integration": "completed", "review": "completed"}}, "judgments": [{"assignment": {"authority_uuid": "0000000a000000000000000000000000", "effective_scope": "scope:deployment", "generation": 1, "participant": "baton.verifier", "principal": "principal:baton.verifier", "runtime_attempt_id": "judgment-af0b8ddc949c447d8931245f76b85cf6e2b49a7da21bf30c1b4c25ae04ea293d", "work_id": "0000000a-W3"}, "attempt_id": "judgment-af0b8ddc949c447d8931245f76b85cf6e2b49a7da21bf30c1b4c25ae04ea293d", "receipt_digest": "sha256:aacc9ebed00a48b4000a3bcc726d5b08f55374dbabb0c7bf87b6d915e5697037", "result_digest": "sha256:1b73d210d729c1acc702b7cc5e388a84dbb513b96c4e8018a6418d8f8316837d", "result_id": "result-judgment-af0b8ddc949c447d8931245f76b85cf6e2b49a7da21bf30c1b4c25ae04ea293d", "subject": {"candidate": "2772458f034af87c2251a87e2c4adcd87a6f197e", "canonical_target_id": "target-a", "causal_observations": {"base": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": true, "input_commit": "267bf153c39f81910aca28d52b69db05bca15ee7", "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb", "output": "ModuleNotFoundError: No module named 'feature'", "status": 1, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "combined": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "2772458f034af87c2251a87e2c4adcd87a6f197e", "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "isolated": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "d31d7783a46e199911151a1433bb358cdf5346e8", "input_tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}}, "content_digest": "sha256:dbd5fc06696dc50da92f4c5707584461e6055556d44294f379fd556e6980f457", "derived_proposal_id": "proposal-result-ab4c07ea48640e17594755c61d4de20eda03333b053a365935d88cd049fc6d93", "derived_result_digest": "sha256:ffeb14d9debfc2abd4c13484f185bf99c31c379b330022fbb7b322a76da68f33", "derived_result_id": "derived-result-ab4c07ea48640e17594755c61d4de20eda03333b053a365935d88cd049fc6d93", "job_id": "job-b", "kind": "verification", "observed_by": "baton.result-observer", "policy_generation": 15, "result_id": "result-ab4c07ea48640e17594755c61d4de20eda03333b053a365935d88cd049fc6d93", "source_base": "267bf153c39f81910aca28d52b69db05bca15ee7", "source_candidate": "d31d7783a46e199911151a1433bb358cdf5346e8", "source_proposal_id": "integration-driver.proposal:92099409aa68f918386c64fbb5ef5f8b82318ae37b32c79a71932368ea505f2e", "target_revision": "aca3418e6fdb36d8cfb8e84bc6c13f5278e1d3a7", "tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f"}, "verdict": "accepted"}, {"assignment": {"authority_uuid": "0000000a000000000000000000000000", "effective_scope": "scope:deployment", "generation": 1, "participant": "baton.approver-review", "principal": "principal:baton.approver-review", "runtime_attempt_id": "judgment-027ab35318d7c4278c25fe42abd7537d34eade923de76a2313c82763d0b82107", "work_id": "0000000a-W4"}, "attempt_id": "judgment-027ab35318d7c4278c25fe42abd7537d34eade923de76a2313c82763d0b82107", "receipt_digest": "sha256:7de96dbdaec69e1fc5c451cf28a850a2b41afada658531cdd35dbaa35afdaa67", "result_digest": "sha256:58e13a0cecfce536a29ee89d19ae69a30a5be7ab282cd53f929467bd70cfed19", "result_id": "result-judgment-027ab35318d7c4278c25fe42abd7537d34eade923de76a2313c82763d0b82107", "subject": {"candidate": "2772458f034af87c2251a87e2c4adcd87a6f197e", "canonical_target_id": "target-a", "causal_observations": {"base": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": true, "input_commit": "267bf153c39f81910aca28d52b69db05bca15ee7", "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb", "output": "ModuleNotFoundError: No module named 'feature'", "status": 1, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "combined": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "2772458f034af87c2251a87e2c4adcd87a6f197e", "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "isolated": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "d31d7783a46e199911151a1433bb358cdf5346e8", "input_tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}}, "content_digest": "sha256:dbd5fc06696dc50da92f4c5707584461e6055556d44294f379fd556e6980f457", "derived_proposal_id": "proposal-result-ab4c07ea48640e17594755c61d4de20eda03333b053a365935d88cd049fc6d93", "derived_result_digest": "sha256:ffeb14d9debfc2abd4c13484f185bf99c31c379b330022fbb7b322a76da68f33", "derived_result_id": "derived-result-ab4c07ea48640e17594755c61d4de20eda03333b053a365935d88cd049fc6d93", "job_id": "job-b", "kind": "review", "observed_by": "baton.result-observer", "policy_generation": 15, "result_id": "result-ab4c07ea48640e17594755c61d4de20eda03333b053a365935d88cd049fc6d93", "source_base": "267bf153c39f81910aca28d52b69db05bca15ee7", "source_candidate": "d31d7783a46e199911151a1433bb358cdf5346e8", "source_proposal_id": "integration-driver.proposal:92099409aa68f918386c64fbb5ef5f8b82318ae37b32c79a71932368ea505f2e", "target_revision": "aca3418e6fdb36d8cfb8e84bc6c13f5278e1d3a7", "tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f"}, "verdict": "accepted"}, {"assignment": {"authority_uuid": "0000000a000000000000000000000000", "effective_scope": "scope:deployment", "generation": 1, "participant": "baton.approver", "principal": "principal:baton.approver", "runtime_attempt_id": "judgment-dbe66235ef4428e400e385c2a7fdfc2f61ba125cd2208325b2d90afa3b8eb731", "work_id": "0000000a-W5"}, "attempt_id": "judgment-dbe66235ef4428e400e385c2a7fdfc2f61ba125cd2208325b2d90afa3b8eb731", "receipt_digest": "sha256:1c143d153a86c621137d309c5e1d7f348a36a026ae348141bddcc76201f02447", "result_digest": "sha256:e33f243b4ed240c734e2a6af95363ef489ba035deb28752fea40558110898f0f", "result_id": "result-judgment-dbe66235ef4428e400e385c2a7fdfc2f61ba125cd2208325b2d90afa3b8eb731", "subject": {"candidate": "2772458f034af87c2251a87e2c4adcd87a6f197e", "canonical_target_id": "target-a", "causal_observations": {"base": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": true, "input_commit": "267bf153c39f81910aca28d52b69db05bca15ee7", "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb", "output": "ModuleNotFoundError: No module named 'feature'", "status": 1, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "combined": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "2772458f034af87c2251a87e2c4adcd87a6f197e", "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "isolated": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "d31d7783a46e199911151a1433bb358cdf5346e8", "input_tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}}, "content_digest": "sha256:dbd5fc06696dc50da92f4c5707584461e6055556d44294f379fd556e6980f457", "derived_proposal_id": "proposal-result-ab4c07ea48640e17594755c61d4de20eda03333b053a365935d88cd049fc6d93", "derived_result_digest": "sha256:ffeb14d9debfc2abd4c13484f185bf99c31c379b330022fbb7b322a76da68f33", "derived_result_id": "derived-result-ab4c07ea48640e17594755c61d4de20eda03333b053a365935d88cd049fc6d93", "job_id": "job-b", "kind": "approval", "observed_by": "baton.result-observer", "policy_generation": 15, "result_id": "result-ab4c07ea48640e17594755c61d4de20eda03333b053a365935d88cd049fc6d93", "source_base": "267bf153c39f81910aca28d52b69db05bca15ee7", "source_candidate": "d31d7783a46e199911151a1433bb358cdf5346e8", "source_proposal_id": "integration-driver.proposal:92099409aa68f918386c64fbb5ef5f8b82318ae37b32c79a71932368ea505f2e", "target_revision": "aca3418e6fdb36d8cfb8e84bc6c13f5278e1d3a7", "tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f"}, "verdict": "accepted"}], "receipts": [{"actor": "baton.verifier", "candidate_digest": "2772458f034af87c2251a87e2c4adcd87a6f197e", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.verifier", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.verifier", "role": "verify"}, "disposition": "passed", "kind": "verification", "policy_generation": null, "proposal_id": "proposal-result-ab4c07ea48640e17594755c61d4de20eda03333b053a365935d88cd049fc6d93", "receipt_id": "judgment-ce716426dbe49ea3f89f49d14db1f091f258bbda08d9f46c1590caa594556e50", "recorded_at": "2026-10-30T02:23:41.142Z", "target": "aca3418e6fdb36d8cfb8e84bc6c13f5278e1d3a7"}, {"actor": "baton.approver", "candidate_digest": "2772458f034af87c2251a87e2c4adcd87a6f197e", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.approver", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.approver", "role": "approve"}, "disposition": "approved", "kind": "approval", "policy_generation": 15, "proposal_id": "proposal-result-ab4c07ea48640e17594755c61d4de20eda03333b053a365935d88cd049fc6d93", "receipt_id": "judgment-77422d332e4089d43ddc692fc73f38460a384d6d1449152baad801a60fc8c4f1", "recorded_at": "2026-10-30T02:23:41.143Z", "target": "aca3418e6fdb36d8cfb8e84bc6c13f5278e1d3a7"}, {"actor": "baton.approver-review", "candidate_digest": "2772458f034af87c2251a87e2c4adcd87a6f197e", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.approver-review", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.approver-review", "role": "review"}, "disposition": "accepted", "kind": "review", "policy_generation": null, "proposal_id": "proposal-result-ab4c07ea48640e17594755c61d4de20eda03333b053a365935d88cd049fc6d93", "receipt_id": "judgment-2334a7ad07971bfd22404d6c49a38c7e8e66c39dd42f79e48df587ebfe3cd34f", "recorded_at": "2026-10-30T02:23:41.143Z", "target": "aca3418e6fdb36d8cfb8e84bc6c13f5278e1d3a7"}, {"actor": "baton.integrator", "candidate_digest": "2772458f034af87c2251a87e2c4adcd87a6f197e", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.integrator", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.integrator", "role": "integrate"}, "disposition": "integrated", "kind": "integration", "policy_generation": null, "proposal_id": "proposal-result-ab4c07ea48640e17594755c61d4de20eda03333b053a365935d88cd049fc6d93", "receipt_id": "integration-driver.integration-receipt:a957140f339ea53932bb3e86c669c2ce9333ade97fa9c888cdbe42fe8337f733", "recorded_at": "2026-10-30T02:23:41.224Z", "target": "aca3418e6fdb36d8cfb8e84bc6c13f5278e1d3a7"}], "target": "2772458f034af87c2251a87e2c4adcd87a6f197e"}....................................................................
+W103068 genuine consumer evidence {"derived_proposal": "proposal-result-c3eb8f82973e694f143642af17945ba20b3fe103d6939dd292534832b59f0460", "derived_result": "result-c3eb8f82973e694f143642af17945ba20b3fe103d6939dd292534832b59f0460", "jobs": {"job-a": {"implementation": "completed", "integration": "completed", "review": "completed"}, "job-b": {"implementation": "completed", "integration": "completed", "review": "completed"}}, "judgments": [{"assignment": {"authority_uuid": "0000000a000000000000000000000000", "effective_scope": "scope:deployment", "generation": 1, "participant": "baton.verifier", "principal": "principal:baton.verifier", "runtime_attempt_id": "judgment-5a763e8c064683c61aca9a5e8423af6117d8ccd587ef03f17071916bb31950b6", "work_id": "0000000a-W3"}, "attempt_id": "judgment-5a763e8c064683c61aca9a5e8423af6117d8ccd587ef03f17071916bb31950b6", "receipt_digest": "sha256:bfcb1356bb77197b62a28c0bd52381e8bb99ec13487cb51bbce994e87acc4b08", "result_digest": "sha256:a9f863cff322d8597a6ef5f2323b1c937b394efb0f2d3b1411be6e621cd4b8d8", "result_id": "result-judgment-5a763e8c064683c61aca9a5e8423af6117d8ccd587ef03f17071916bb31950b6", "subject": {"candidate": "27e58b6e95c0ab43eb00ff891690cff47c142984", "canonical_target_id": "target-a", "causal_observations": {"base": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": true, "input_commit": "a05f6a2f47dc47c1227e649629a31ee006dfb828", "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb", "output": "ModuleNotFoundError: No module named 'feature'", "status": 1, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "combined": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "27e58b6e95c0ab43eb00ff891690cff47c142984", "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "isolated": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "a6956ce2d971c1b8d263408ef1e5ac89cc1c381f", "input_tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}}, "content_digest": "sha256:dbd5fc06696dc50da92f4c5707584461e6055556d44294f379fd556e6980f457", "derived_proposal_id": "proposal-result-c3eb8f82973e694f143642af17945ba20b3fe103d6939dd292534832b59f0460", "derived_result_digest": "sha256:a29a7a8eadeb7982134035fb7cbb8746959e0ead3d0dd368c138a71923192a39", "derived_result_id": "derived-result-c3eb8f82973e694f143642af17945ba20b3fe103d6939dd292534832b59f0460", "job_id": "job-b", "kind": "verification", "observed_by": "baton.result-observer", "policy_generation": 15, "result_id": "result-c3eb8f82973e694f143642af17945ba20b3fe103d6939dd292534832b59f0460", "source_base": "a05f6a2f47dc47c1227e649629a31ee006dfb828", "source_candidate": "a6956ce2d971c1b8d263408ef1e5ac89cc1c381f", "source_proposal_id": "integration-driver.proposal:9503f01e1094e456a126f0347c31dd34eb76cd96d265339d756f8705198328a5", "target_revision": "e9484c47ce93623bab16fec53afad2e560160961", "tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f"}, "verdict": "accepted"}, {"assignment": {"authority_uuid": "0000000a000000000000000000000000", "effective_scope": "scope:deployment", "generation": 1, "participant": "baton.approver-review", "principal": "principal:baton.approver-review", "runtime_attempt_id": "judgment-612ee9bf75ce58411f2433c8cc4597b15c66739b59ade09207efefa1283636e2", "work_id": "0000000a-W4"}, "attempt_id": "judgment-612ee9bf75ce58411f2433c8cc4597b15c66739b59ade09207efefa1283636e2", "receipt_digest": "sha256:e6dfa943117e2c0d8804676806fe2a72f636516f8a982f624f38ae867ffcd438", "result_digest": "sha256:5e14b991d79a23a072b99c15cd93e68dee917bdad221590798a82360e6cc089e", "result_id": "result-judgment-612ee9bf75ce58411f2433c8cc4597b15c66739b59ade09207efefa1283636e2", "subject": {"candidate": "27e58b6e95c0ab43eb00ff891690cff47c142984", "canonical_target_id": "target-a", "causal_observations": {"base": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": true, "input_commit": "a05f6a2f47dc47c1227e649629a31ee006dfb828", "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb", "output": "ModuleNotFoundError: No module named 'feature'", "status": 1, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "combined": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "27e58b6e95c0ab43eb00ff891690cff47c142984", "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "isolated": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "a6956ce2d971c1b8d263408ef1e5ac89cc1c381f", "input_tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}}, "content_digest": "sha256:dbd5fc06696dc50da92f4c5707584461e6055556d44294f379fd556e6980f457", "derived_proposal_id": "proposal-result-c3eb8f82973e694f143642af17945ba20b3fe103d6939dd292534832b59f0460", "derived_result_digest": "sha256:a29a7a8eadeb7982134035fb7cbb8746959e0ead3d0dd368c138a71923192a39", "derived_result_id": "derived-result-c3eb8f82973e694f143642af17945ba20b3fe103d6939dd292534832b59f0460", "job_id": "job-b", "kind": "review", "observed_by": "baton.result-observer", "policy_generation": 15, "result_id": "result-c3eb8f82973e694f143642af17945ba20b3fe103d6939dd292534832b59f0460", "source_base": "a05f6a2f47dc47c1227e649629a31ee006dfb828", "source_candidate": "a6956ce2d971c1b8d263408ef1e5ac89cc1c381f", "source_proposal_id": "integration-driver.proposal:9503f01e1094e456a126f0347c31dd34eb76cd96d265339d756f8705198328a5", "target_revision": "e9484c47ce93623bab16fec53afad2e560160961", "tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f"}, "verdict": "accepted"}, {"assignment": {"authority_uuid": "0000000a000000000000000000000000", "effective_scope": "scope:deployment", "generation": 1, "participant": "baton.approver", "principal": "principal:baton.approver", "runtime_attempt_id": "judgment-486b1907b874b8adaa951cec3a6a55d1b58959f98e974e18cfaf5a7bc7b8df15", "work_id": "0000000a-W5"}, "attempt_id": "judgment-486b1907b874b8adaa951cec3a6a55d1b58959f98e974e18cfaf5a7bc7b8df15", "receipt_digest": "sha256:3589cc5472a3d92275425eaff8c81b9e6ac3c494af7daba67e6bf042b2d8188b", "result_digest": "sha256:f0392c863cbd192fabc57b91b9c17bcb479a588ec2e8412a600cda5f3ae2ab46", "result_id": "result-judgment-486b1907b874b8adaa951cec3a6a55d1b58959f98e974e18cfaf5a7bc7b8df15", "subject": {"candidate": "27e58b6e95c0ab43eb00ff891690cff47c142984", "canonical_target_id": "target-a", "causal_observations": {"base": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": true, "input_commit": "a05f6a2f47dc47c1227e649629a31ee006dfb828", "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb", "output": "ModuleNotFoundError: No module named 'feature'", "status": 1, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "combined": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "27e58b6e95c0ab43eb00ff891690cff47c142984", "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "isolated": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "a6956ce2d971c1b8d263408ef1e5ac89cc1c381f", "input_tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}}, "content_digest": "sha256:dbd5fc06696dc50da92f4c5707584461e6055556d44294f379fd556e6980f457", "derived_proposal_id": "proposal-result-c3eb8f82973e694f143642af17945ba20b3fe103d6939dd292534832b59f0460", "derived_result_digest": "sha256:a29a7a8eadeb7982134035fb7cbb8746959e0ead3d0dd368c138a71923192a39", "derived_result_id": "derived-result-c3eb8f82973e694f143642af17945ba20b3fe103d6939dd292534832b59f0460", "job_id": "job-b", "kind": "approval", "observed_by": "baton.result-observer", "policy_generation": 15, "result_id": "result-c3eb8f82973e694f143642af17945ba20b3fe103d6939dd292534832b59f0460", "source_base": "a05f6a2f47dc47c1227e649629a31ee006dfb828", "source_candidate": "a6956ce2d971c1b8d263408ef1e5ac89cc1c381f", "source_proposal_id": "integration-driver.proposal:9503f01e1094e456a126f0347c31dd34eb76cd96d265339d756f8705198328a5", "target_revision": "e9484c47ce93623bab16fec53afad2e560160961", "tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f"}, "verdict": "accepted"}], "receipts": [{"actor": "baton.verifier", "candidate_digest": "27e58b6e95c0ab43eb00ff891690cff47c142984", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.verifier", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.verifier", "role": "verify"}, "disposition": "passed", "kind": "verification", "policy_generation": null, "proposal_id": "proposal-result-c3eb8f82973e694f143642af17945ba20b3fe103d6939dd292534832b59f0460", "receipt_id": "judgment-bdb0109cf5e224eb16533f7611e0c1f7fb2414dd519b4218974c1aa53e915a67", "recorded_at": "2026-10-30T02:24:41.017Z", "target": "e9484c47ce93623bab16fec53afad2e560160961"}, {"actor": "baton.approver-review", "candidate_digest": "27e58b6e95c0ab43eb00ff891690cff47c142984", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.approver-review", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.approver-review", "role": "review"}, "disposition": "accepted", "kind": "review", "policy_generation": null, "proposal_id": "proposal-result-c3eb8f82973e694f143642af17945ba20b3fe103d6939dd292534832b59f0460", "receipt_id": "judgment-e20fe9b72c537200457742603224553fdfd7adb76a84bca0389432665d2d78f5", "recorded_at": "2026-10-30T02:24:41.018Z", "target": "e9484c47ce93623bab16fec53afad2e560160961"}, {"actor": "baton.approver", "candidate_digest": "27e58b6e95c0ab43eb00ff891690cff47c142984", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.approver", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.approver", "role": "approve"}, "disposition": "approved", "kind": "approval", "policy_generation": 15, "proposal_id": "proposal-result-c3eb8f82973e694f143642af17945ba20b3fe103d6939dd292534832b59f0460", "receipt_id": "judgment-17aebae8f7ffdc548f5310f5ecbd9a6d71ebec6e24965022b013d6d774099e04", "recorded_at": "2026-10-30T02:24:41.019Z", "target": "e9484c47ce93623bab16fec53afad2e560160961"}, {"actor": "baton.integrator", "candidate_digest": "27e58b6e95c0ab43eb00ff891690cff47c142984", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.integrator", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.integrator", "role": "integrate"}, "disposition": "integrated", "kind": "integration", "policy_generation": null, "proposal_id": "proposal-result-c3eb8f82973e694f143642af17945ba20b3fe103d6939dd292534832b59f0460", "receipt_id": "integration-driver.integration-receipt:dc1a5a349f8a91d10a0594bfbf19c793c1c26135f90d0b04df0e89807a36433c", "recorded_at": "2026-10-30T02:24:41.100Z", "target": "e9484c47ce93623bab16fec53afad2e560160961"}], "target": "27e58b6e95c0ab43eb00ff891690cff47c142984"}.................................................................................................................................................................................................................................................................................................................................................
+W103068 genuine consumer evidence {"derived_proposal": "proposal-result-f8e068ed4f6d0e05acd75c0e9b788045d32de6f388a81d1cad3b368a13e526cf", "derived_result": "result-f8e068ed4f6d0e05acd75c0e9b788045d32de6f388a81d1cad3b368a13e526cf", "jobs": {"job-a": {"implementation": "completed", "integration": "completed", "review": "completed"}, "job-b": {"implementation": "completed", "integration": "completed", "review": "completed"}}, "judgments": [{"assignment": {"authority_uuid": "0000000a000000000000000000000000", "effective_scope": "scope:deployment", "generation": 1, "participant": "baton.verifier", "principal": "principal:baton.verifier", "runtime_attempt_id": "judgment-932f5b33495c8d3073a7042fcf55c827533479911685af60bdcadbeaf3927f2a", "work_id": "0000000a-W3"}, "attempt_id": "judgment-932f5b33495c8d3073a7042fcf55c827533479911685af60bdcadbeaf3927f2a", "receipt_digest": "sha256:4c00398e960469fb18f8dcb29dbef30cc224a78ceafd8db251a364911dd3a1f6", "result_digest": "sha256:4508e0c20dd2dfaec3be88d9b30e3da37a0a637e0fd1a0d3f815aca14d7ebefb", "result_id": "result-judgment-932f5b33495c8d3073a7042fcf55c827533479911685af60bdcadbeaf3927f2a", "subject": {"candidate": "f837740ca01e920eb8e0774bbe2c0093a05706f9", "canonical_target_id": "target-a", "causal_observations": {"base": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": true, "input_commit": "aae1cf7050202f6860ee53b1a3e5dd4465cf4823", "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb", "output": "ModuleNotFoundError: No module named 'feature'", "status": 1, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "combined": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "f837740ca01e920eb8e0774bbe2c0093a05706f9", "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "isolated": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "e9ee5ce49cbdd6ee1cc63e77c5eba81093056def", "input_tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}}, "content_digest": "sha256:dbd5fc06696dc50da92f4c5707584461e6055556d44294f379fd556e6980f457", "derived_proposal_id": "proposal-result-f8e068ed4f6d0e05acd75c0e9b788045d32de6f388a81d1cad3b368a13e526cf", "derived_result_digest": "sha256:3c3e4a7e2e3cf00d6364e1ecf297fd1c0c270660b2daab91000b8127242f5537", "derived_result_id": "derived-result-f8e068ed4f6d0e05acd75c0e9b788045d32de6f388a81d1cad3b368a13e526cf", "job_id": "job-b", "kind": "verification", "observed_by": "baton.result-observer", "policy_generation": 15, "result_id": "result-f8e068ed4f6d0e05acd75c0e9b788045d32de6f388a81d1cad3b368a13e526cf", "source_base": "aae1cf7050202f6860ee53b1a3e5dd4465cf4823", "source_candidate": "e9ee5ce49cbdd6ee1cc63e77c5eba81093056def", "source_proposal_id": "integration-driver.proposal:ce005c7aa4d3fe78e1d0fb7346e0d887f37f5279ac95bc3dc5189eff5d219830", "target_revision": "e0f7bf56069c05b3b2aef9665590ae0ade639eb4", "tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f"}, "verdict": "accepted"}, {"assignment": {"authority_uuid": "0000000a000000000000000000000000", "effective_scope": "scope:deployment", "generation": 1, "participant": "baton.approver-review", "principal": "principal:baton.approver-review", "runtime_attempt_id": "judgment-81b41173346aad1896ecdaee7bd743d6fb458545b80e28a1a5ee865428fdb3c6", "work_id": "0000000a-W4"}, "attempt_id": "judgment-81b41173346aad1896ecdaee7bd743d6fb458545b80e28a1a5ee865428fdb3c6", "receipt_digest": "sha256:016417b75427a43972b4f3d6bb34261469a13eaf00a1224605a98f6f2f2f2eb2", "result_digest": "sha256:1a1bd36092ff483383e481dbbafde16e2b42d78139434696a16f63a89b8f2337", "result_id": "result-judgment-81b41173346aad1896ecdaee7bd743d6fb458545b80e28a1a5ee865428fdb3c6", "subject": {"candidate": "f837740ca01e920eb8e0774bbe2c0093a05706f9", "canonical_target_id": "target-a", "causal_observations": {"base": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": true, "input_commit": "aae1cf7050202f6860ee53b1a3e5dd4465cf4823", "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb", "output": "ModuleNotFoundError: No module named 'feature'", "status": 1, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "combined": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "f837740ca01e920eb8e0774bbe2c0093a05706f9", "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "isolated": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "e9ee5ce49cbdd6ee1cc63e77c5eba81093056def", "input_tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}}, "content_digest": "sha256:dbd5fc06696dc50da92f4c5707584461e6055556d44294f379fd556e6980f457", "derived_proposal_id": "proposal-result-f8e068ed4f6d0e05acd75c0e9b788045d32de6f388a81d1cad3b368a13e526cf", "derived_result_digest": "sha256:3c3e4a7e2e3cf00d6364e1ecf297fd1c0c270660b2daab91000b8127242f5537", "derived_result_id": "derived-result-f8e068ed4f6d0e05acd75c0e9b788045d32de6f388a81d1cad3b368a13e526cf", "job_id": "job-b", "kind": "review", "observed_by": "baton.result-observer", "policy_generation": 15, "result_id": "result-f8e068ed4f6d0e05acd75c0e9b788045d32de6f388a81d1cad3b368a13e526cf", "source_base": "aae1cf7050202f6860ee53b1a3e5dd4465cf4823", "source_candidate": "e9ee5ce49cbdd6ee1cc63e77c5eba81093056def", "source_proposal_id": "integration-driver.proposal:ce005c7aa4d3fe78e1d0fb7346e0d887f37f5279ac95bc3dc5189eff5d219830", "target_revision": "e0f7bf56069c05b3b2aef9665590ae0ade639eb4", "tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f"}, "verdict": "accepted"}, {"assignment": {"authority_uuid": "0000000a000000000000000000000000", "effective_scope": "scope:deployment", "generation": 1, "participant": "baton.approver", "principal": "principal:baton.approver", "runtime_attempt_id": "judgment-a9a65b8e950dfe68b09237539cec3809b5e290df411fe22d99087de6cb656d02", "work_id": "0000000a-W5"}, "attempt_id": "judgment-a9a65b8e950dfe68b09237539cec3809b5e290df411fe22d99087de6cb656d02", "receipt_digest": "sha256:ba11f158006bb2d668b87e9d344fbcaec331e27fc5b33ba0c5e6d8dd6f2c5d9b", "result_digest": "sha256:3eeef91489dd1b2e12add10bcde37b2b86bc889d45ad60b2eda428f8352cd10d", "result_id": "result-judgment-a9a65b8e950dfe68b09237539cec3809b5e290df411fe22d99087de6cb656d02", "subject": {"candidate": "f837740ca01e920eb8e0774bbe2c0093a05706f9", "canonical_target_id": "target-a", "causal_observations": {"base": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": true, "input_commit": "aae1cf7050202f6860ee53b1a3e5dd4465cf4823", "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb", "output": "ModuleNotFoundError: No module named 'feature'", "status": 1, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "combined": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "f837740ca01e920eb8e0774bbe2c0093a05706f9", "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "isolated": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "e9ee5ce49cbdd6ee1cc63e77c5eba81093056def", "input_tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}}, "content_digest": "sha256:dbd5fc06696dc50da92f4c5707584461e6055556d44294f379fd556e6980f457", "derived_proposal_id": "proposal-result-f8e068ed4f6d0e05acd75c0e9b788045d32de6f388a81d1cad3b368a13e526cf", "derived_result_digest": "sha256:3c3e4a7e2e3cf00d6364e1ecf297fd1c0c270660b2daab91000b8127242f5537", "derived_result_id": "derived-result-f8e068ed4f6d0e05acd75c0e9b788045d32de6f388a81d1cad3b368a13e526cf", "job_id": "job-b", "kind": "approval", "observed_by": "baton.result-observer", "policy_generation": 15, "result_id": "result-f8e068ed4f6d0e05acd75c0e9b788045d32de6f388a81d1cad3b368a13e526cf", "source_base": "aae1cf7050202f6860ee53b1a3e5dd4465cf4823", "source_candidate": "e9ee5ce49cbdd6ee1cc63e77c5eba81093056def", "source_proposal_id": "integration-driver.proposal:ce005c7aa4d3fe78e1d0fb7346e0d887f37f5279ac95bc3dc5189eff5d219830", "target_revision": "e0f7bf56069c05b3b2aef9665590ae0ade639eb4", "tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f"}, "verdict": "accepted"}], "receipts": [{"actor": "baton.approver-review", "candidate_digest": "f837740ca01e920eb8e0774bbe2c0093a05706f9", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.approver-review", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.approver-review", "role": "review"}, "disposition": "accepted", "kind": "review", "policy_generation": null, "proposal_id": "proposal-result-f8e068ed4f6d0e05acd75c0e9b788045d32de6f388a81d1cad3b368a13e526cf", "receipt_id": "judgment-fb52f8b228808f1818d09178b05a303e203f0d68dc425e5d2283e2244c131a15", "recorded_at": "2026-10-30T02:26:46.347Z", "target": "e0f7bf56069c05b3b2aef9665590ae0ade639eb4"}, {"actor": "baton.verifier", "candidate_digest": "f837740ca01e920eb8e0774bbe2c0093a05706f9", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.verifier", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.verifier", "role": "verify"}, "disposition": "passed", "kind": "verification", "policy_generation": null, "proposal_id": "proposal-result-f8e068ed4f6d0e05acd75c0e9b788045d32de6f388a81d1cad3b368a13e526cf", "receipt_id": "judgment-c5290cfe05bb0818d9773dc2b12efa9ed9b80c8fceb4119e5709c20352e52f2c", "recorded_at": "2026-10-30T02:26:46.347Z", "target": "e0f7bf56069c05b3b2aef9665590ae0ade639eb4"}, {"actor": "baton.approver", "candidate_digest": "f837740ca01e920eb8e0774bbe2c0093a05706f9", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.approver", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.approver", "role": "approve"}, "disposition": "approved", "kind": "approval", "policy_generation": 15, "proposal_id": "proposal-result-f8e068ed4f6d0e05acd75c0e9b788045d32de6f388a81d1cad3b368a13e526cf", "receipt_id": "judgment-23ff3894400a31bbeb4221a221d6a753344a0cc0327deda749602ca60affa83b", "recorded_at": "2026-10-30T02:26:46.348Z", "target": "e0f7bf56069c05b3b2aef9665590ae0ade639eb4"}, {"actor": "baton.integrator", "candidate_digest": "f837740ca01e920eb8e0774bbe2c0093a05706f9", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.integrator", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.integrator", "role": "integrate"}, "disposition": "integrated", "kind": "integration", "policy_generation": null, "proposal_id": "proposal-result-f8e068ed4f6d0e05acd75c0e9b788045d32de6f388a81d1cad3b368a13e526cf", "receipt_id": "integration-driver.integration-receipt:27c56b33bbf472f48e4deb80e3b9ebee84a7d2d975f22e4958ff74b44392015f", "recorded_at": "2026-10-30T02:26:46.429Z", "target": "e0f7bf56069c05b3b2aef9665590ae0ade639eb4"}], "target": "f837740ca01e920eb8e0774bbe2c0093a05706f9"}..................................
+======================================================================
+ERROR: setUpClass (tests.tools.test_correction_restart.CountedReopenInvalidEvidence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_correction_restart.py", line 299, in setUpClass
+    cls.observed = artifact(counted_reopen=True)
+                   ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_correction_restart.py", line 16, in artifact
+    return world.run_scenario(counted_reopen=counted_reopen)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/correction_restart_trace.py", line 466, in run_scenario
+    self.fail(json.dumps({"failure": "preparation did not answer", "tick": self.tick_count,
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          "preparation": refused, "children": self.child_diagnostics()}, sort_keys=True))
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/case.py", line 732, in fail
+    raise self.failureException(msg)
+AssertionError: {"children": [{"exit_status": 1, "log": "", "pid": 399241, "runtime_id": "runtime-single-5"}], "failure": "preparation did not answer", "preparation": {"prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0": {"command": {"command_digest": "sha256:9c35200f2bacbac4d2bdf383cdb14e590b9de202cb659d578fb7cb4c2cc21788", "operations": ["describe", "work"], "sequence_id": "sequence-8e6390981511cb2d6ff48c3ca4bd9e0f"}, "foreign": [], "receipt": {"accepted_at": "2026-10-30T02:22:45.000Z"}, "sequence_id": "sequence-8e6390981511cb2d6ff48c3ca4bd9e0f", "state": "faulted", "states": [{"operation": "describe", "state": "answered"}, {"operation": "work", "state": "faulted"}], "terminal": {"adapter_failure": null, "answered": ["describe"], "disposition": null, "ending": "faulted", "fault_code": "agent", "manifest_digest": null, "terminal_digest": "sha256:b7b90c49d89cb40fe16221dad1214554abc7fa3b975ca7aa3194617b0fa956a8"}, "transport": "baton.worker-exchange/1", "unreadable": null}}, "tick": 16}
+
+======================================================================
+ERROR: setUpClass (tests.tools.test_correction_restart.UsefulCorrectionInvalidEvidence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_correction_restart.py", line 127, in setUpClass
+    cls.observed = artifact()
+                   ~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_correction_restart.py", line 16, in artifact
+    return world.run_scenario(counted_reopen=counted_reopen)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/correction_restart_trace.py", line 466, in run_scenario
+    self.fail(json.dumps({"failure": "preparation did not answer", "tick": self.tick_count,
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          "preparation": refused, "children": self.child_diagnostics()}, sort_keys=True))
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/case.py", line 732, in fail
+    raise self.failureException(msg)
+AssertionError: {"children": [{"exit_status": 1, "log": "", "pid": 400087, "runtime_id": "runtime-single-5"}], "failure": "preparation did not answer", "preparation": {"prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0": {"command": {"command_digest": "sha256:9c35200f2bacbac4d2bdf383cdb14e590b9de202cb659d578fb7cb4c2cc21788", "operations": ["describe", "work"], "sequence_id": "sequence-8e6390981511cb2d6ff48c3ca4bd9e0f"}, "foreign": [], "receipt": {"accepted_at": "2026-10-30T02:22:53.000Z"}, "sequence_id": "sequence-8e6390981511cb2d6ff48c3ca4bd9e0f", "state": "faulted", "states": [{"operation": "describe", "state": "answered"}, {"operation": "work", "state": "faulted"}], "terminal": {"adapter_failure": null, "answered": ["describe"], "disposition": null, "ending": "faulted", "fault_code": "agent", "manifest_digest": null, "terminal_digest": "sha256:b7b90c49d89cb40fe16221dad1214554abc7fa3b975ca7aa3194617b0fa956a8"}, "transport": "baton.worker-exchange/1", "unreadable": null}}, "tick": 16}
+
+======================================================================
+FAIL: test_every_boundary_call_belongs_to_an_entry_or_is_declared (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared)
+Every exact source call has an entry claim or a named exception.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 7770, in test_every_boundary_call_belongs_to_an_entry_or_is_declared
+    self.assertEqual(orphans, [], "boundary calls attributed to no entry")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('attempts.py:_committed_record', 'docume[14709 chars]er')] != []
+
+First list contains 190 additional elements.
+First extra element 0:
+('attempts.py:_committed_record', 'document', 'a committed ending record')
+
+Diff is 15906 characters long. Set self.maxDiff to None to see it. : boundary calls attributed to no entry
+
+======================================================================
+FAIL: test_every_receiving_entry_has_an_owning_validator (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 7646, in test_every_receiving_entry_has_an_owning_validator
+    self.assertEqual(unowned, [], "receiving entries with no owner")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('adopted', 'attempts.py:_decide', 'obser[46934 chars]un')] != []
+
+First list contains 694 additional elements.
+First extra element 0:
+('adopted', 'attempts.py:_decide', 'observations.next')
+
+Diff is 49836 characters long. Set self.maxDiff to None to see it. : receiving entries with no owner
+
+======================================================================
+FAIL: test_no_entry_is_owned_twice (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_entry_is_owned_twice) (entry=('caller', 'intake.py:discharge_abandoned_quiescence_gate', 'port'))
+4bz forbids blanket revalidation, and this is where it shows.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 7792, in test_no_entry_is_owned_twice
+    self.assertLessEqual(claims, 1, "owned more than once")
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 not less than or equal to 1 : owned more than once
+
+======================================================================
+FAIL: test_no_entry_is_owned_twice (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_entry_is_owned_twice) (entry=('caller', 'intake.py:discharge_quiescence_gate', 'port'))
+4bz forbids blanket revalidation, and this is where it shows.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 7792, in test_no_entry_is_owned_twice
+    self.assertLessEqual(claims, 1, "owned more than once")
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 not less than or equal to 1 : owned more than once
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'intake.py:_attempt_of', 'attempts.runtime_attempt_id'), label='a persisted attempt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6366, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 5021, in run
+    worker_manager.request_intake(self.store, self.port, _Collecting(),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                  attempt_id="attempt-1")
+                                  ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 506, in request_intake
+    attempt = _attempt_of(store._connection, attempt_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 236, in _attempt_of
+    raise ContractRefusal(
+        "refused", "precondition",
+        f"no runtime attempt {name_value(attempt_id)}")
+baton_v12.contracts.errors.ContractRefusal: no runtime attempt 'attempt-1'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9413, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6372, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'a persisted attempt' not found in "no runtime attempt 'attempt-1'" : refused, but not at 'a persisted attempt': no runtime attempt 'attempt-1'
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'output.py:_attempt_of', 'attempts.runtime_attempt_id'), label='a persisted attempt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6366, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 4940, in run
+    sealed=self.sealed_result())
+           ~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 4905, in sealed_result
+    worker_manager.freeze_operation(self.attempt_row())),
+                                    ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 4888, in attempt_row
+    return {key: found[key] for key in found.keys()}
+                                       ^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'keys'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9413, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6378, in refusing
+    self.fail(f"{label}: escaped as {type(failure).__name__}: {failure}")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: a persisted attempt: escaped as AttributeError: 'NoneType' object has no attribute 'keys'
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('caller', 'custody.py:custody_act', 'assignment_id'), label='an assignment identity')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6366, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 8127, in <lambda>
+    return lambda: custody.custody_act(engine, run, **body)
+                   ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/custody.py", line 2503, in custody_act
+    name = _custody_identity(_recorded_store(store), assignment_id, which,
+                             ~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/custody.py", line 2393, in _recorded_store
+    return configured_workspace_storage(store).place
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 1475, in configured_workspace_storage
+    return WorkspaceStorage(_agreed_storage_place(store, physical=True), _MINT)
+                            ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 1491, in _agreed_storage_place
+    _denied("this manager has no configured workspace store; the "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "deployment records the one directory attempts are allocated "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "under before any custody act, and a store taken from a "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "caller's operand is not a deployment's decision")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5094, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: this manager has no configured workspace store; the deployment records the one directory attempts are allocated under before any custody act, and a store taken from a caller's operand is not a deployment's decision
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9413, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6372, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'an assignment identity' not found in "this manager has no configured workspace store; the deployment records the one directory attempts are allocated under before any custody act, and a store taken from a caller's operand is not a deployment's decision" : refused, but not at 'an assignment identity': this manager has no configured workspace store; the deployment records the one directory attempts are allocated under before any custody act, and a store taken from a caller's operand is not a deployment's decision
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('caller', 'custody.py:custody_act', 'engine'), label='an engine name')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6366, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 8127, in <lambda>
+    return lambda: custody.custody_act(engine, run, **body)
+                   ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/custody.py", line 2503, in custody_act
+    name = _custody_identity(_recorded_store(store), assignment_id, which,
+                             ~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/custody.py", line 2393, in _recorded_store
+    return configured_workspace_storage(store).place
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 1475, in configured_workspace_storage
+    return WorkspaceStorage(_agreed_storage_place(store, physical=True), _MINT)
+                            ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 1491, in _agreed_storage_place
+    _denied("this manager has no configured workspace store; the "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "deployment records the one directory attempts are allocated "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "under before any custody act, and a store taken from a "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "caller's operand is not a deployment's decision")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5094, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: this manager has no configured workspace store; the deployment records the one directory attempts are allocated under before any custody act, and a store taken from a caller's operand is not a deployment's decision
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9413, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6372, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'an engine name' not found in "this manager has no configured workspace store; the deployment records the one directory attempts are allocated under before any custody act, and a store taken from a caller's operand is not a deployment's decision" : refused, but not at 'an engine name': this manager has no configured workspace store; the deployment records the one directory attempts are allocated under before any custody act, and a store taken from a caller's operand is not a deployment's decision
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('caller', 'custody.py:custody_act', 'image_digest'), label='an image digest')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6366, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 8127, in <lambda>
+    return lambda: custody.custody_act(engine, run, **body)
+                   ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/custody.py", line 2503, in custody_act
+    name = _custody_identity(_recorded_store(store), assignment_id, which,
+                             ~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/custody.py", line 2393, in _recorded_store
+    return configured_workspace_storage(store).place
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 1475, in configured_workspace_storage
+    return WorkspaceStorage(_agreed_storage_place(store, physical=True), _MINT)
+                            ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 1491, in _agreed_storage_place
+    _denied("this manager has no configured workspace store; the "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "deployment records the one directory attempts are allocated "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "under before any custody act, and a store taken from a "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "caller's operand is not a deployment's decision")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5094, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: this manager has no configured workspace store; the deployment records the one directory attempts are allocated under before any custody act, and a store taken from a caller's operand is not a deployment's decision
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9413, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6372, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'an image digest' not found in "this manager has no configured workspace store; the deployment records the one directory attempts are allocated under before any custody act, and a store taken from a caller's operand is not a deployment's decision" : refused, but not at 'an image digest': this manager has no configured workspace store; the deployment records the one directory attempts are allocated under before any custody act, and a store taken from a caller's operand is not a deployment's decision
+
+======================================================================
+FAIL: test_every_owned_entry_has_exactly_one_probe (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9378, in test_every_owned_entry_has_exactly_one_probe
+    self.assertEqual(sorted(wanted - declared), [], "owned, never probed")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [(('adopted', 'attempts.py:_attempts', 'at[27438 chars]te")] != []
+
+First list contains 266 additional elements.
+First extra element 0:
+(('adopted', 'attempts.py:_attempts', 'attempts.activity_bytes'), 'a persisted attempt')
+
+Diff is 30026 characters long. Set self.maxDiff to None to see it. : owned, never probed
+
+======================================================================
+FAIL: test_the_missing_probe_check_can_actually_fail (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_missing_probe_check_can_actually_fail)
+Every entry has a probe today, so relaxing the check changes no
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9442, in test_the_missing_probe_check_can_actually_fail
+    self.assertEqual(sorted(wanted - declared), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [(('adopted', 'attempts.py:_attempts', 'at[27438 chars]te")] != []
+
+First list contains 266 additional elements.
+First extra element 0:
+(('adopted', 'attempts.py:_attempts', 'attempts.activity_bytes'), 'a persisted attempt')
+
++ []
+- [(('adopted', 'attempts.py:_attempts', 'attempts.activity_bytes'),
+-   'a persisted attempt'),
+-  (('adopted',
+-    'handshake.py:certified_agent_session_profile',
+-    'profiles.body.postures'),
+-   'a retained agent-session profile'),
+-  (('adopted',
+-    'handshake.py:certified_agent_session_profile',
+-    'profiles.body.postures.declared_output'),
+-   'a retained agent-session profile'),
+-  (('adopted',
+-    'handshake.py:certified_agent_session_profile',
+-    'profiles.body.postures.policy'),
+-   'a retained agent-session profile'),
+-  (('adopted',
+-    'handshake.py:certified_agent_session_profile',
+-    'profiles.body.postures.workspace'),
+-   'a retained agent-session profile'),
+-  (('adopted', 'intake.py:_attempt_of', 'attempts.assignment_generation'),
+-   'a persisted attempt'),
+-  (('adopted', 'intake.py:retentions_of', 'retentions.retain_operation_id'),
+-   'a persisted retention'),
+-  (('adopted', 'interrogation.py:_row', 'interrogations.assignment_generation'),
+-   'a persisted interrogation'),
+-  (('adopted', 'interrogation.py:_row', 'interrogations.assignment_participant'),
+-   'a persisted interrogation'),
+-  (('adopted', 'interrogation.py:_row', 'interrogations.deadline_at'),
+-   'a persisted interrogation'),
+-  (('adopted', 'interrogation.py:_row', 'interrogations.operation_id'),
+-   'a persisted interrogation'),
+-  (('adopted', 'interrogation.py:_row', 'interrogations.requested_at'),
+-   'a persisted interrogation'),
+-  (('adopted', 'interrogation.py:_row', 'interrogations.runtime_attempt_id'),
+-   'a persisted interrogation'),
+-  (('adopted', 'interrogation.py:_row', 'interrogations.settled_at'),
+-   'a persisted interrogation'),
+-  (('adopted', 'interrogation.py:interrogations_of', 'interrogations.answer'),
+-   'a persisted interrogation'),
+-  (('adopted',
+-    'interrogation.py:interrogations_of',
+-    'interrogations.assignment_generation'),
+-   'a persisted interrogation'),
+-  (('adopted',
+-    'interrogation.py:interrogations_of',
+-    'interrogations.assignment_participant'),
+-   'a persisted interrogation'),
+-  (('adopted',
+-    'interrogation.py:interrogations_of',
+-    'interrogations.authority_uuid'),
+-   'a persisted interrogation'),
+-  (('adopted',
+-    'interrogation.py:interrogations_of',
+-    'interrogations.deadline_at'),
+-   'a persisted interrogation'),
+-  (('adopted', 'interrogation.py:interrogations_of', 'interrogations.kind'),
+-   'a persisted interrogation'),
+-  (('adopted',
+-    'interrogation.py:interrogations_of',
+-    'interrogations.observation'),
+-   'a persisted interrogation'),
+-  (('adopted',
+-    'interrogation.py:interrogations_of',
+-    'interrogations.operation_id'),
+-   'a persisted interrogation'),
+-  (('adopted', 'interrogation.py:interrogations_of', 'interrogations.outcome'),
+-   'a persisted interrogation'),
+-  (('adopted', 'interrogation.py:interrogations_of', 'interrogations.posture'),
+-   'a persisted interrogation'),
+-  (('adopted',
+-    'interrogation.py:interrogations_of',
+-    'interrogations.published_at'),
+-   'a persisted interrogation'),
+-  (('adopted',
+-    'interrogation.py:interrogations_of',
+-    'interrogations.requested_at'),
+-   'a persisted interrogation'),
+-  (('adopted',
+-    'interrogation.py:interrogations_of',
+-    'interrogations.runtime_attempt_id'),
+-   'a persisted interrogation'),
+-  (('adopted',
+-    'interrogation.py:interrogations_of',
+-    'interrogations.session_epoch'),
+-   'a persisted interrogation'),
+-  (('adopted',
+-    'interrogation.py:interrogations_of',
+-    'interrogations.settled_at'),
+-   'a persisted interrogation'),
+-  (('adopted', 'interrogation.py:interrogations_of', 'interrogations.work_id'),
+-   'a persisted interrogation'),
+-  (('adopted', 'output.py:_attempt_of', 'attempts.assignment_generation'),
+-   'a persisted attempt'),
+-  (('adopted', 'review_cycles.py:_one_by_attempt', 'WHERE'), '{what}'),
+-  (('adopted',
+-    'review_cycles.py:_one_by_attempt',
+-    'WHERE.assignment_generation'),
+-   '{what}'),
+-  (('adopted', 'review_cycles.py:_one_by_attempt', 'WHERE.attachment_id'),
+-   '{what}'),
+-  (('adopted', 'review_cycles.py:_one_by_attempt', 'WHERE.based_checkpoint_id'),
+-   '{what}'),
+-  (('adopted', 'review_cycles.py:_one_by_attempt', 'WHERE.checkpoint_id'),
+-   '{what}'),
+-  (('adopted', 'review_cycles.py:_one_by_attempt', 'WHERE.line_id'), '{what}'),
+-  (('adopted', 'review_cycles.py:_one_by_attempt', 'WHERE.participant'),
+-   '{what}'),
+-  (('adopted', 'review_cycles.py:_one_by_attempt', 'WHERE.principal'), '{what}'),
+-  (('adopted', 'review_cycles.py:_one_by_attempt', 'WHERE.reviewer_participant'),
+-   '{what}'),
+-  (('adopted', 'review_cycles.py:_one_by_attempt', 'WHERE.reviewer_principal'),
+-   '{what}'),
+-  (('adopted', 'review_cycles.py:_one_by_attempt', 'WHERE.revocation_reason'),
+-   '{what}'),
+-  (('adopted', 'review_cycles.py:_one_by_attempt', 'WHERE.runtime_attempt_id'),
+-   '{what}'),
+-  (('adopted', 'review_cycles.py:_one_by_attempt', 'WHERE.state'), '{what}'),
+-  (('adopted', 'review_cycles.py:_one_by_attempt', 'WHERE.worker_id'), '{what}'),
+-  (('adopted', 'review_cycles.py:_one_by_attempt', 'WHERE.writer_id'), '{what}'),
+-  (('adopted',
+-    'review_cycles.py:_verdict_row',
+-    'checkpoint_verdicts.review_fence.intent'),
+-   'a persisted checkpoint verdict'),
+-  (('adopted',
+-    'review_cycles.py:_verdict_row',
+-    'checkpoint_verdicts.review_result.artifacts'),
+-   'a persisted checkpoint verdict'),
+-  (('adopted',
+-    'review_cycles.py:_verdict_row',
+-    'checkpoint_verdicts.review_result.artifacts.artifact_id'),
+-   'a persisted checkpoint verdict'),
+-  (('adopted',
+-    'review_cycles.py:_verdict_row',
+-    'checkpoint_verdicts.review_result.artifacts.locator'),
+-   'a persisted checkpoint verdict'),
+-  (('adopted',
+-    'review_cycles.py:_verdict_row',
+-    'checkpoint_verdicts.review_result.artifacts.output_name'),
+-   'a persisted checkpoint verdict'),
+-  (('adopted',
+-    'review_cycles.py:_verdict_row',
+-    'checkpoint_verdicts.review_result.manifest_digest'),
+-   'a persisted checkpoint verdict'),
+-  (('adopted',
+-    'review_cycles.py:checkpoint_of',
+-    'line_checkpoints.fence.intent'),
+-   'a persisted assignment fence'),
+-  (('adopted',
+-    'review_cycles.py:checkpoint_of',
+-    'line_checkpoints.fence.intent'),
+-   'a persisted line checkpoint'),
+-  (('adopted', 'sessions.py:_attempt', 'attempts.assignment_generation'),
+-   'a persisted attempt'),
+-  (('adopted', 'sessions.py:_attempt', 'attempts.assignment_participant'),
+-   'a persisted attempt'),
+-  (('adopted', 'sessions.py:_session_row', 'agent_sessions.authority_uuid'),
+-   'a persisted agent session'),
+-  (('adopted', 'sessions.py:_session_row', 'agent_sessions.generation'),
+-   'a persisted agent session'),
+-  (('adopted', 'sessions.py:_session_row', 'agent_sessions.participant'),
+-   'a persisted agent session'),
+-  (('adopted', 'sessions.py:_session_row', 'agent_sessions.posture'),
+-   'a persisted agent session'),
+-  (('adopted', 'sessions.py:_session_row', 'agent_sessions.profile_digest'),
+-   'a persisted agent session'),
+-  (('adopted', 'sessions.py:_session_row', 'agent_sessions.runtime_attempt_id'),
+-   'a persisted agent session'),
+-  (('adopted', 'sessions.py:_session_row', 'agent_sessions.work_id'),
+-   'a persisted agent session'),
+-  (('adopted', 'workspaces.py:_configured_gid', 'meta'),
+-   "the configured workspace group's record"),
+-  (('adopted', 'workspaces.py:_configured_gid', 'meta.value'),
+-   "the configured workspace group's record"),
+-  (('caller', 'attempt_logs.py:AttemptLogs.__init__', 'attempt_id'),
+-   'an attempt id'),
+-  (('caller', 'attempt_logs.py:AttemptLogs.__init__', 'root'),
+-   'an attempt log root'),
+-  (('caller', 'attempt_logs.py:adopt', 'root'), 'an attempt log delivery root'),
+-  (('caller', 'attempt_logs.py:materialize', 'root'),
+-   'an attempt log delivery root'),
+-  (('caller', 'attempts.py:record_attempt', 'image_digest'),
+-   '{what}, when it is given,'),
+-  (('caller', 'attempts.py:record_attempt', 'input_digest'),
+-   '{what}, when it is given,'),
+-  (('caller', 'attempts.py:record_attempt', 'policy_digest'),
+-   '{what}, when it is given,'),
+-  (('caller', 'attempts.py:record_attempt', 'toolchain_digest'),
+-   '{what}, when it is given,'),
+-  (('caller', 'attempts.py:request_cancellation', 'reason'),
+-   '{what}, when it is given,'),
+-  (('caller', 'attempts.py:request_runtime_start', 'adapter.mounts.source'),
+-   "the runtime adapter's start"),
+-  (('caller', 'attempts.py:request_runtime_start', 'adapter.mounts.target'),
+-   "the runtime adapter's start"),
+-  (('caller', 'attempts.py:request_runtime_start', 'adapter.mounts.writable'),
+-   "the runtime adapter's start"),
+-  (('caller', 'attempts.py:request_runtime_start', 'govern'),
+-   'a resource-token reservation'),
+-  (('caller', 'custody.py:clear_custody_hold', 'attempt_id'),
+-   'an assignment identity'),
+-  (('caller', 'custody.py:clear_custody_hold', 'helper_identity'),
+-   'the helper identity reconciled'),
+-  (('caller', 'custody.py:clear_custody_hold', 'observed'),
+-   'what the operator observed'),
+-  (('caller', 'exchange.py:ExchangeDelivery.__init__', 'attempt_id'),
+-   'an exchange attempt id'),
+-  (('caller', 'exchange.py:ExchangeDelivery.__init__', 'root'),
+-   'an exchange delivery root'),
+-  (('caller', 'exchange.py:adopt', 'root'), 'an exchange delivery root'),
+-  (('caller', 'exchange.py:command_document', 'attempt_id'),
+-   'an exchange attempt id'),
+-  (('caller', 'exchange.py:materialize', 'root'), 'an exchange delivery root'),
+-  (('caller', 'exchange.py:publish_command', 'document'), 'an exchange command'),
+-  (('caller', 'exchange.py:publish_command', 'document.attempt_id'),
+-   'an exchange command'),
+-  (('caller', 'exchange.py:publish_command', 'document.sequence_id'),
+-   'an exchange command'),
+-  (('caller', 'exchange.py:sequence_of', 'attempt_id'),
+-   'an exchange attempt id'),
+-  (('caller', 'exchange.py:worker_operation_id', 'attempt_id'),
+-   'an exchange attempt id'),
+-  (('caller', 'intake.py:abandon_attempt', 'adapter'),
+-   "the runtime adapter's abandoned-attempt destroy"),
+-  (('caller', 'intake.py:abandon_attempt', 'attempt_id'),
+-   'a runtime attempt id'),
+-  (('caller', 'intake.py:abandon_attempt', 'reason'), 'an abandonment reason'),
+-  (('caller', 'intake.py:abandon_attempt', 'retention_policy_digest'),
+-   'a retention policy digest'),
+-  (('caller', 'intake.py:abandoned_gate_discharge_of', 'attempt_id'),
+-   'a runtime attempt id'),
+-  (('caller', 'intake.py:abandonment_cleanup_of', 'attempt_id'),
+-   'a runtime attempt id'),
+-  (('caller', 'intake.py:abandonment_cleanup_of', 'retention_policy_digest'),
+-   'a retention policy digest'),
+-  (('caller', 'intake.py:cleanup_of', 'attempt_id'), 'a runtime attempt id'),
+-  (('caller', 'intake.py:cleanup_of', 'retention_policy_digest'),
+-   'a retention policy digest'),
+-  (('caller', 'intake.py:collect_operation', 'attempt.assignment_generation'),
+-   'a persisted attempt'),
+-  (('caller', 'intake.py:collect_operation', 'attempt.assignment_participant'),
+-   'a persisted attempt'),
+-  (('caller', 'intake.py:collect_operation', 'attempt.authority_uuid'),
+-   'a persisted attempt'),
+-  (('caller', 'intake.py:collect_operation', 'attempt.work_id'),
+-   'a persisted attempt'),
+-  (('caller', 'intake.py:discharge_abandoned_quiescence_gate', 'attempt_id'),
+-   'a runtime attempt id'),
+-  (('caller', 'intake.py:discharge_abandoned_quiescence_gate', 'port'),
+-   "the authority session's gate discharge"),
+-  (('caller',
+-    'intake.py:discharge_abandoned_quiescence_gate',
+-    'retention_policy_digest'),
+-   'a retention policy digest'),
+-  (('caller', 'intake.py:discharge_quiescence_gate', 'attempt_id'),
+-   'a runtime attempt id'),
+-  (('caller', 'intake.py:discharge_quiescence_gate', 'port'),
+-   "the authority session's gate discharge"),
+-  (('caller', 'intake.py:discharge_quiescence_gate', 'retention_policy_digest'),
+-   'a retention policy digest'),
+-  (('caller', 'intake.py:fence_pre_attach_abandonment', 'attempt_id'),
+-   'a runtime attempt id'),
+-  (('caller', 'intake.py:fence_pre_attach_abandonment', 'reason'),
+-   'an abandonment reason'),
+-  (('caller', 'intake.py:gate_discharge_of', 'attempt_id'),
+-   'a runtime attempt id'),
+-  (('caller', 'intake.py:inaccessible_output', 'attempt_id'),
+-   'an assignment identity'),
+-  (('caller', 'intake.py:intake_operation', 'attempt.assignment_generation'),
+-   'a persisted attempt'),
+-  (('caller', 'intake.py:intake_operation', 'attempt.assignment_participant'),
+-   'a persisted attempt'),
+-  (('caller', 'intake.py:intake_operation', 'attempt.authority_uuid'),
+-   'a persisted attempt'),
+-  (('caller', 'intake.py:intake_operation', 'attempt.work_id'),
+-   'a persisted attempt'),
+-  (('caller', 'intake.py:reclaim_expired_resource', 'adapter'),
+-   "the runtime adapter's expiry stop"),
+-  (('caller', 'intake.py:reclaim_operation_id', 'attempt'),
+-   'a runtime identity'),
+-  (('caller', 'intake.py:reclaim_operation_id', 'attempt'),
+-   'an attempt identity'),
+-  (('caller', 'intake.py:reclaim_operation_id', 'attempt.runtime_attempt_id'),
+-   'an attempt identity'),
+-  (('caller', 'intake.py:reclaim_operation_id', 'attempt.runtime_id'),
+-   'a runtime identity'),
+-  (('caller', 'intake.py:settle_revoked_resource', 'adapter'),
+-   "the runtime adapter's observe"),
+-  (('caller', 'maintenance.py:check_preparation', 'operation'),
+-   'a maintenance preparation'),
+-  (('caller', 'maintenance.py:maintenance_failure', 'assignment_id'),
+-   'an assignment identity'),
+-  (('caller', 'maintenance.py:maintenance_failure', 'which'),
+-   'a custody root name'),
+-  (('caller', 'maintenance.py:maintenance_orphan', 'assignment_id'),
+-   'an assignment identity'),
+-  (('caller', 'maintenance.py:maintenance_orphan', 'which'),
+-   'a custody root name'),
+-  (('caller', 'maintenance.py:maintenance_settlement', 'assignment_id'),
+-   'an assignment identity'),
+-  (('caller', 'maintenance.py:maintenance_settlement', 'which'),
+-   'a custody root name'),
+-  (('caller', 'maintenance.py:prepare', 'assignment_id'),
+-   'an assignment identity'),
+-  (('caller', 'maintenance.py:prepare', 'engine'), 'an engine name'),
+-  (('caller', 'maintenance.py:prepare', 'image_digest'), 'an image digest'),
+-  (('caller', 'maintenance.py:prepare', 'operation'),
+-   'a maintenance preparation'),
+-  (('caller', 'maintenance.py:prepare', 'run'), "the engine's run operation"),
+-  (('caller', 'maintenance.py:prepare', 'which'), 'a custody root name'),
+-  (('caller', 'maintenance.py:standing_maintenance', 'assignment_id'),
+-   'an assignment identity'),
+-  (('caller', 'maintenance.py:standing_maintenance', 'which'),
+-   'a custody root name'),
+-  (('caller', 'oci.py:OciAdapter.destroy', 'command.runtime_attempt_id'),
+-   'a destroy command'),
+-  (('caller', 'oci.py:OciAdapter.destroy_abandoned', 'command'),
+-   'an abandoned-attempt destroy command'),
+-  (('caller',
+-    'oci.py:OciAdapter.destroy_abandoned',
+-    'command.runtime_attempt_id'),
+-   'an abandoned-attempt destroy command'),
+-  (('caller', 'oci.py:OciAdapter.destroy_abandoned', 'command.runtime_id'),
+-   'an abandoned-attempt destroy command'),
+-  (('caller', 'oci.py:OciAdapter.destroy_deadline', 'command'),
+-   'a deadline destroy command'),
+-  (('caller',
+-    'oci.py:OciAdapter.destroy_deadline',
+-    'command.runtime_attempt_id'),
+-   'a deadline destroy command'),
+-  (('caller', 'oci.py:OciAdapter.destroy_deadline', 'command.runtime_id'),
+-   'a deadline destroy command'),
+-  (('caller',
+-    'oci.py:OciAdapter.destroy_failed_start',
+-    'command.runtime_attempt_id'),
+-   'a failed-start destroy command'),
+-  (('caller',
+-    'oci.py:OciAdapter.destroy_refused_session',
+-    'command.runtime_attempt_id'),
+-   'a refused-session destroy command'),
+-  (('caller', 'oci.py:OciAdapter.retain', 'command'), 'a retain command'),
+-  (('caller', 'oci.py:OciAdapter.retain', 'command.artifact_ids'),
+-   'a retain command'),
+-  (('caller', 'oci.py:OciAdapter.retain', 'command.disposition'),
+-   'a retention disposition'),
+-  (('caller', 'oci.py:OciAdapter.retain', 'command.runtime_attempt_id'),
+-   'a runtime attempt id'),
+-  (('caller', 'oci.py:OciAdapter.start', 'request.input_root'),
+-   'a start request'),
+-  (('caller', 'oci.py:OciAdapter.start', 'request.labels.participant'),
+-   'a start request'),
+-  (('caller', 'oci.py:OciAdapter.start', 'request.labels.runtime_attempt_id'),
+-   'a start request'),
+-  (('caller', 'oci.py:activation_vector', 'runtime_id'), 'a created runtime id'),
+-  (('caller', 'oci.py:canonical_source', 'place'), 'a host path'),
+-  (('caller', 'oci.py:canonical_target', 'place'), 'a container path'),
+-  (('caller', 'oci.py:exec_vector', 'runtime_id'), 'a runtime id'),
+-  (('caller', 'oci.py:logs_vector', 'engine'), 'an engine name'),
+-  (('caller', 'oci.py:logs_vector', 'runtime_id'), 'a runtime id'),
+-  (('caller', 'oci.py:run_vector', 'activation'), 'a runtime activation'),
+-  (('caller', 'oci.py:wait_vector', 'engine'), 'an engine name'),
+-  (('caller', 'oci.py:wait_vector', 'runtime_id'), 'a runtime id'),
+-  (('caller', 'provider_context.py:authorize_qualification_run', 'run_id'),
+-   'a qualification run identity'),
+-  (('caller', 'review_cycles.py:release_writer', 'generation'),
+-   'a writer release assignment generation'),
+-  (('caller', 'review_cycles.py:release_writer', 'reason'),
+-   'a writer release reason'),
+-  (('caller',
+-    'review_cycles.py:restore_abandoned_correction',
+-    'retention_policy_digest'),
+-   'a retention policy digest'),
+-  (('caller', 'sessions.py:reconcile_agent_session', 'agent'),
+-   "the agent adapter's {operation}"),
+-  (('caller', 'source_boundary.py:compose_verifier_layout', 'marker'),
+-   'a verifier-layout marker'),
+-  (('caller',
+-    'source_boundary.py:compose_verifier_layout',
+-    'marker.layout_digest'),
+-   'a verifier-layout marker'),
+-  (('caller', 'source_boundary.py:compose_verifier_layout', 'marker.schema'),
+-   'a verifier-layout marker'),
+-  (('caller', 'source_boundary.py:materialize_verifier_layout', 'document'),
+-   'a verifier-layout document'),
+-  (('caller',
+-    'source_boundary.py:materialize_verifier_layout',
+-    'document.schema'),
+-   'a verifier-layout document'),
+-  (('caller', 'source_boundary.py:materialize_verifier_layout', 'storage'),
+-   "the manager's verifier-layout storage"),
+-  (('caller', 'store.py:ControlStore.open_readonly', 'clock'),
+-   "the manager's instant source"),
+-  (('caller', 'store.py:ControlStore.open_readonly', 'incarnation'),
+-   'a manager incarnation'),
+-  (('caller', 'store.py:ControlStore.open_readonly', 'path'),
+-   'a read-only control store path'),
+-  (('caller', 'tokens.py:Governance.__init__', 'identity'),
+-   'a governed resource identity'),
+-  (('caller', 'tokens.py:Governance.__init__', 'resource_kind'),
+-   'a governed resource kind'),
+-  (('caller', 'tokens.py:acquire', 'permission'), 'a token execution envelope'),
+-  (('caller', 'tokens.py:acquire', 'permission.expires_at'),
+-   'a token envelope cleanup deadline'),
+-  (('caller', 'tokens.py:acquire', 'permission.started_at'),
+-   'a token envelope origin'),
+-  (('caller', 'tokens.py:acquire', 'permission.stop_at'),
+-   'a token envelope execution deadline'),
+-  (('caller', 'tokens.py:admit_activation', 'container'),
+-   'a bound container identity'),
+-  (('caller', 'tokens.py:release', 'cessation'), 'a container cessation answer'),
+-  (('caller', 'tokens.py:release', 'cessation.container'),
+-   'a container cessation answer'),
+-  (('caller', 'tokens.py:release', 'cessation.helpers'),
+-   'a container cessation answer'),
+-  (('caller', 'tokens.py:release', 'cessation.stopped'),
+-   'a container cessation answer'),
+-  (('caller', 'tokens.py:renew', 'execution'), 'a token execution identity'),
+-  (('caller', 'tokens.py:renew', 'operation'), 'a token operation identity'),
+-  (('caller', 'tokens.py:renew', 'seconds'), 'a renewed resource token expiry'),
+-  (('caller', 'tokens.py:renew', 'token'), 'a governed conflict domain'),
+-  (('caller', 'tokens.py:renew', 'token.domain'), 'a governed conflict domain'),
+-  (('caller', 'tokens.py:settle_activation', 'container'),
+-   'a bound container identity'),
+-  (('caller', 'tokens.py:unresolved', 'domain'), 'a governed conflict domain'),
+-  (('caller', 'workspaces.py:admit_preparation', 'assignment_id'),
+-   'an assignment identity'),
+-  (('caller', 'workspaces.py:bind_token_container', 'container'),
+-   'a bound container identity'),
+-  (('caller', 'workspaces.py:check_workspace_storage', 'place'),
+-   'the configured workspace store'),
+-  (('caller', 'workspaces.py:compose_input_root', 'assignment'),
+-   "the manager's own assignment"),
+-  (('caller', 'workspaces.py:compose_input_root', 'runtime_attempt_id'),
+-   'a runtime attempt identity'),
+-  (('caller', 'workspaces.py:governed_resource_identity', 'assignment_id'),
+-   'an assignment identity'),
+-  (('caller', 'workspaces.py:preparation_completed', 'assignment_id'),
+-   'an assignment identity'),
+-  (('caller', 'workspaces.py:prepared_workspace_governance', 'permission'),
+-   'a token execution envelope'),
+-  (('caller',
+-    'workspaces.py:prepared_workspace_governance',
+-    'permission_eligible'),
+-   'an execution envelope admission predicate'),
+-  (('caller', 'workspaces.py:record_preparation', 'assignment_id'),
+-   'an assignment identity'),
+-  (('caller', 'workspaces.py:refuse_if_held', 'assignment_id'),
+-   'an assignment identity'),
+-  (('caller', 'workspaces.py:release_preparation', 'why'),
+-   'a preparation release reason'),
+-  (('caller', 'workspaces.py:require_prepared', 'assignment_id'),
+-   'an assignment identity'),
+-  (('caller', 'workspaces.py:restoration_lock_path', 'line_id'),
+-   'a development line identity'),
+-  (('injected',
+-    'authority_port.py:AuthorityPort.assignment_of',
+-    'assignment_of'),
+-   "the live assignment's identity"),
+-  (('injected',
+-    'authority_port.py:AuthorityPort.assignment_of',
+-    'assignment_of.generation'),
+-   "the live assignment's generation"),
+-  (('injected',
+-    'authority_port.py:AuthorityPort.assignment_of',
+-    'assignment_of.participant'),
+-   "the live assignment's participant"),
+-  (('injected',
+-    'authority_port.py:AuthorityPort.assignment_of',
+-    'assignment_of.work_ref'),
+-   "the live assignment's Work reference"),
+-  (('injected',
+-    'authority_port.py:AuthorityPort.assignment_of',
+-    'assignment_of.work_ref.authority_uuid'),
+-   "the live assignment's authority"),
+-  (('injected',
+-    'authority_port.py:AuthorityPort.assignment_of',
+-    'assignment_of.work_ref.work_id'),
+-   "the live assignment's Work id"),
+-  (('injected', 'authority_port.py:AuthorityPort.cancel', 'cancel.assignment'),
+-   "the fenced assignment's identity"),
+-  (('injected',
+-    'authority_port.py:AuthorityPort.cancel',
+-    'cancel.assignment.generation'),
+-   "the fenced assignment's generation"),
+-  (('injected',
+-    'authority_port.py:AuthorityPort.cancel',
+-    'cancel.assignment.participant'),
+-   "the fenced assignment's participant"),
+-  (('injected',
+-    'authority_port.py:AuthorityPort.cancel',
+-    'cancel.assignment.work_ref'),
+-   "the fenced assignment's Work reference"),
+-  (('injected',
+-    'authority_port.py:AuthorityPort.cancel',
+-    'cancel.assignment.work_ref.authority_uuid'),
+-   "the fenced assignment's authority"),
+-  (('injected',
+-    'authority_port.py:AuthorityPort.cancel',
+-    'cancel.assignment.work_ref.work_id'),
+-   "the fenced assignment's Work id"),
+-  (('injected', 'authority_port.py:AuthorityPort.claim', 'claim.assignment'),
+-   "the claim answer's identity"),
+-  (('injected',
+-    'authority_port.py:AuthorityPort.claim',
+-    'claim.assignment.generation'),
+-   "the claim answer's generation"),
+-  (('injected',
+-    'authority_port.py:AuthorityPort.claim',
+-    'claim.assignment.participant'),
+-   "the claim answer's participant"),
+-  (('injected',
+-    'authority_port.py:AuthorityPort.claim',
+-    'claim.assignment.work_ref'),
+-   "the claim answer's Work reference"),
+-  (('injected',
+-    'authority_port.py:AuthorityPort.claim',
+-    'claim.assignment.work_ref.authority_uuid'),
+-   "the claim answer's authority"),
+-  (('injected',
+-    'authority_port.py:AuthorityPort.claim',
+-    'claim.assignment.work_ref.work_id'),
+-   "the claim answer's Work id"),
+-  (('injected', 'authority_port.py:AuthorityPort.claim', 'claim.decision'),
+-   "the claim answer's decision"),
+-  (('injected',
+-    'authority_port.py:AuthorityPort.claim',
+-    'claim.decision.effective_scope'),
+-   "the claim answer's effective scope"),
+-  (('injected',
+-    'authority_port.py:AuthorityPort.claim',
+-    'claim.decision.endpoint'),
+-   "the claim answer's decision endpoint"),
+-  (('injected',
+-    'authority_port.py:AuthorityPort.claim',
+-    'claim.decision.principal'),
+-   "the claim answer's principal"),
+-  (('injected', 'authority_port.py:AuthorityPort.claim', 'claim.decision.role'),
+-   "the claim answer's decided role"),
+-  (('injected', 'authority_port.py:AuthorityPort.satisfy_gate', 'satisfy_gate'),
+-   "the session's gate-discharge answer"),
+-  (('injected',
+-    'authority_port.py:AuthorityPort.satisfy_gate',
+-    'satisfy_gate.kind'),
+-   "the discharged gate's kind"),
+-  (('injected',
+-    'authority_port.py:AuthorityPort.settle_operation',
+-    'settle_operation.result.assignment'),
+-   "the committed claim's identity"),
+-  (('injected',
+-    'authority_port.py:AuthorityPort.settle_operation',
+-    'settle_operation.result.assignment.generation'),
+-   "the committed claim's generation"),
+-  (('injected',
+-    'authority_port.py:AuthorityPort.settle_operation',
+-    'settle_operation.result.assignment.participant'),
+-   "the committed claim's participant"),
+-  (('injected',
+-    'authority_port.py:AuthorityPort.settle_operation',
+-    'settle_operation.result.assignment.work_ref'),
+-   "the committed claim's Work reference"),
+-  (('injected',
+-    'authority_port.py:AuthorityPort.settle_operation',
+-    'settle_operation.result.assignment.work_ref.authority_uuid'),
+-   "the committed claim's authority"),
+-  (('injected',
+-    'authority_port.py:AuthorityPort.settle_operation',
+-    'settle_operation.result.assignment.work_ref.work_id'),
+-   "the committed claim's Work id"),
+-  (('injected',
+-    'authority_port.py:AuthorityPort.settle_operation',
+-    'settle_operation.result.decision'),
+-   "the committed claim's decision"),
+-  (('injected',
+-    'authority_port.py:AuthorityPort.settle_operation',
+-    'settle_operation.result.decision.effective_scope'),
+-   "the committed claim's effective scope"),
+-  (('injected',
+-    'authority_port.py:AuthorityPort.settle_operation',
+-    'settle_operation.result.decision.endpoint'),
+-   "the committed claim's decision endpoint"),
+-  (('injected',
+-    'authority_port.py:AuthorityPort.settle_operation',
+-    'settle_operation.result.decision.principal'),
+-   "the committed claim's principal"),
+-  (('injected',
+-    'authority_port.py:AuthorityPort.settle_operation',
+-    'settle_operation.result.decision.role'),
+-   "the committed claim's decided role"),
+-  (('injected', 'intake.py:_destroyed', 'adapter.destroy.credentials'),
+-   'a credentials teardown ending'),
+-  (('injected',
+-    'intake.py:_destroyed',
+-    'adapter.destroy.credentials.lifecycle_state'),
+-   "a credentials teardown ending's state"),
+-  (('injected', 'intake.py:_destroyed', 'adapter.destroy.launch'),
+-   'a launch teardown ending'),
+-  (('injected',
+-    'intake.py:_destroyed',
+-    'adapter.destroy.launch.lifecycle_state'),
+-   "a launch teardown ending's state"),
+-  (('injected', 'intake.py:_destroyed_abandoned', 'adapter.destroy_abandoned'),
+-   'an abandoned-attempt destroy observation'),
+-  (('injected',
+-    'intake.py:_destroyed_abandoned',
+-    'adapter.destroy_abandoned.credentials'),
+-   'a credentials teardown ending'),
+-  (('injected',
+-    'intake.py:_destroyed_abandoned',
+-    'adapter.destroy_abandoned.credentials.lifecycle_state'),
+-   "a credentials teardown ending's state"),
+-  (('injected',
+-    'intake.py:_destroyed_abandoned',
+-    'adapter.destroy_abandoned.launch'),
+-   'a launch teardown ending'),
+-  (('injected',
+-    'intake.py:_destroyed_abandoned',
+-    'adapter.destroy_abandoned.launch.lifecycle_state'),
+-   "a launch teardown ending's state"),
+-  (('injected',
+-    'intake.py:_destroyed_abandoned',
+-    'adapter.destroy_abandoned.runtime_id'),
+-   'an observed runtime id'),
+-  (('injected',
+-    'intake.py:_destroyed_abandoned',
+-    'adapter.destroy_abandoned.state'),
+-   "a destroy observation's state"),
+-  (('injected',
+-    'intake.py:_destroyed_abandoned',
+-    'adapter.destroy_abandoned.why'),
+-   "a destroy observation's reason"),
+-  (('injected',
+-    'intake.py:_destroyed_failed_start',
+-    'adapter.destroy_failed_start.credentials'),
+-   'a credentials teardown ending'),
+-  (('injected',
+-    'intake.py:_destroyed_failed_start',
+-    'adapter.destroy_failed_start.credentials.lifecycle_state'),
+-   "a credentials teardown ending's state"),
+-  (('injected',
+-    'intake.py:_destroyed_failed_start',
+-    'adapter.destroy_failed_start.launch'),
+-   'a launch teardown ending'),
+-  (('injected',
+-    'intake.py:_destroyed_failed_start',
+-    'adapter.destroy_failed_start.launch.lifecycle_state'),
+-   "a launch teardown ending's state"),
+-  (('injected',
+-    'intake.py:_destroyed_refused_session',
+-    'adapter.destroy_refused_session.credentials'),
+-   'a credentials teardown ending'),
+-  (('injected',
+-    'intake.py:_destroyed_refused_session',
+-    'adapter.destroy_refused_session.credentials.lifecycle_state'),
+-   "a credentials teardown ending's state"),
+-  (('injected',
+-    'intake.py:_destroyed_refused_session',
+-    'adapter.destroy_refused_session.launch'),
+-   'a launch teardown ending'),
+-  (('injected',
+-    'intake.py:_destroyed_refused_session',
+-    'adapter.destroy_refused_session.launch.lifecycle_state'),
+-   "a launch teardown ending's state")]
+
+======================================================================
+FAIL: test_public_start_and_cleanup_supply_owned_lane_values (tests.manager.test_boundary_inventory.LanesHaveCompleteReceivingCoverage.test_public_start_and_cleanup_supply_owned_lane_values)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 15635, in test_public_start_and_cleanup_supply_owned_lane_values
+    settled = fixture.cleanup_settled()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_runtime_lane.py", line 116, in cleanup_settled
+    return authorize_cleanup(
+        self.store, self.port,
+    ...<7 lines>...
+                             **endings}),
+        attempt_id=attempt_id, retention_policy_digest=RETENTION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 1424, in authorize_cleanup
+    settled = store.transact(
+        operation["operation_id"], "runtime.destroy", signature,
+    ...<4 lines>...
+                                   admitted_cleanup=admitted_cleanup,
+                                   preserved=preserved))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/store.py", line 810, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 1426, in <lambda>
+    lambda connection: _settle(store, connection, attempt_id, receipt,
+                       ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                               retention_policy_digest, observed,
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+                               admitted_cleanup=admitted_cleanup,
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                               preserved=preserved))
+                               ^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 5515, in _settle
+    lanes._release_lane(connection, attempt_id=attempt_id,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                       reference=lanes.lane_reference(attempt),
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                       why=f"cleanup settled {ending}")
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 15628, in run
+    self.assertEqual(kwargs["why"], "cleanup settled complete")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cleanup settled retained' != 'cleanup settled complete'
+- cleanup settled retained
+?                 ^  --- -
++ cleanup settled complete
+?                 ^^^^^
+
+
+======================================================================
+FAIL: test_manager_recomposition_preserves_both_positive_counts (tests.tools.test_correction_restart.CountedReopen.test_manager_recomposition_preserves_both_positive_counts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_correction_restart.py", line 287, in test_manager_recomposition_preserves_both_positive_counts
+    observed = artifact(counted_reopen=True)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_correction_restart.py", line 16, in artifact
+    return world.run_scenario(counted_reopen=counted_reopen)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/correction_restart_trace.py", line 466, in run_scenario
+    self.fail(json.dumps({"failure": "preparation did not answer", "tick": self.tick_count,
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          "preparation": refused, "children": self.child_diagnostics()}, sort_keys=True))
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {"children": [{"exit_status": 1, "log": "", "pid": 399017, "runtime_id": "runtime-single-5"}], "failure": "preparation did not answer", "preparation": {"prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0": {"command": {"command_digest": "sha256:9c35200f2bacbac4d2bdf383cdb14e590b9de202cb659d578fb7cb4c2cc21788", "operations": ["describe", "work"], "sequence_id": "sequence-8e6390981511cb2d6ff48c3ca4bd9e0f"}, "foreign": [], "receipt": {"accepted_at": "2026-10-30T02:22:42.000Z"}, "sequence_id": "sequence-8e6390981511cb2d6ff48c3ca4bd9e0f", "state": "faulted", "states": [{"operation": "describe", "state": "answered"}, {"operation": "work", "state": "faulted"}], "terminal": {"adapter_failure": null, "answered": ["describe"], "disposition": null, "ending": "faulted", "fault_code": "agent", "manifest_digest": null, "terminal_digest": "sha256:b7b90c49d89cb40fe16221dad1214554abc7fa3b975ca7aa3194617b0fa956a8"}, "transport": "baton.worker-exchange/1", "unreadable": null}}, "tick": 16}
+
+======================================================================
+FAIL: test_no_external_reader_runs_inside_a_control_transaction (tests.tools.test_correction_restart.TransactionBoundaryThroughTheConnectedPath.test_no_external_reader_runs_inside_a_control_transaction)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_correction_restart.py", line 115, in test_no_external_reader_runs_inside_a_control_transaction
+    observed = artifact()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_correction_restart.py", line 16, in artifact
+    return world.run_scenario(counted_reopen=counted_reopen)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/correction_restart_trace.py", line 466, in run_scenario
+    self.fail(json.dumps({"failure": "preparation did not answer", "tick": self.tick_count,
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          "preparation": refused, "children": self.child_diagnostics()}, sort_keys=True))
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {"children": [{"exit_status": 1, "log": "", "pid": 399462, "runtime_id": "runtime-single-5"}], "failure": "preparation did not answer", "preparation": {"prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0": {"command": {"command_digest": "sha256:9c35200f2bacbac4d2bdf383cdb14e590b9de202cb659d578fb7cb4c2cc21788", "operations": ["describe", "work"], "sequence_id": "sequence-8e6390981511cb2d6ff48c3ca4bd9e0f"}, "foreign": [], "receipt": {"accepted_at": "2026-10-30T02:22:47.000Z"}, "sequence_id": "sequence-8e6390981511cb2d6ff48c3ca4bd9e0f", "state": "faulted", "states": [{"operation": "describe", "state": "answered"}, {"operation": "work", "state": "faulted"}], "terminal": {"adapter_failure": null, "answered": ["describe"], "disposition": null, "ending": "faulted", "fault_code": "agent", "manifest_digest": null, "terminal_digest": "sha256:b7b90c49d89cb40fe16221dad1214554abc7fa3b975ca7aa3194617b0fa956a8"}, "transport": "baton.worker-exchange/1", "unreadable": null}}, "tick": 16}
+
+======================================================================
+FAIL: test_useful_correction_reaches_managed_target (tests.tools.test_correction_restart.UsefulCorrection.test_useful_correction_reaches_managed_target)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_correction_restart.py", line 28, in test_useful_correction_reaches_managed_target
+    observed = artifact()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_correction_restart.py", line 16, in artifact
+    return world.run_scenario(counted_reopen=counted_reopen)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/correction_restart_trace.py", line 466, in run_scenario
+    self.fail(json.dumps({"failure": "preparation did not answer", "tick": self.tick_count,
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          "preparation": refused, "children": self.child_diagnostics()}, sort_keys=True))
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {"children": [{"exit_status": 1, "log": "", "pid": 399866, "runtime_id": "runtime-single-5"}], "failure": "preparation did not answer", "preparation": {"prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0": {"command": {"command_digest": "sha256:9c35200f2bacbac4d2bdf383cdb14e590b9de202cb659d578fb7cb4c2cc21788", "operations": ["describe", "work"], "sequence_id": "sequence-8e6390981511cb2d6ff48c3ca4bd9e0f"}, "foreign": [], "receipt": {"accepted_at": "2026-10-30T02:22:51.000Z"}, "sequence_id": "sequence-8e6390981511cb2d6ff48c3ca4bd9e0f", "state": "faulted", "states": [{"operation": "describe", "state": "answered"}, {"operation": "work", "state": "faulted"}], "terminal": {"adapter_failure": null, "answered": ["describe"], "disposition": null, "ending": "faulted", "fault_code": "agent", "manifest_digest": null, "terminal_digest": "sha256:b7b90c49d89cb40fe16221dad1214554abc7fa3b975ca7aa3194617b0fa956a8"}, "transport": "baton.worker-exchange/1", "unreadable": null}}, "tick": 17}
+
+----------------------------------------------------------------------
+Ran 690 tests in 328.815s
+
+FAILED (failures=15, errors=2)
+

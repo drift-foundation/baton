@@ -1,0 +1,136 @@
+diff --git a/v12/python/tools/single_worker.py b/v12/python/tools/single_worker.py
+index fe3e4566..839987aa 100644
+--- a/v12/python/tools/single_worker.py
++++ b/v12/python/tools/single_worker.py
+@@ -27,7 +27,7 @@ import threading
+ from datetime import datetime, timezone
+ 
+ from baton_v12.authority import Authority, Refusal, claim_signature
+-from baton_v12.worker_manager import tokens
++from baton_v12.worker_manager import source_boundary, tokens, workspaces
+ from baton_v12.contracts import (ContractRefusal, check_manifest_structure,
+                                  check_no_durable_secret, digest,
+                                  digest_of_bytes, job_input_identity)
+@@ -58,7 +58,8 @@ from baton_v12.worker_manager.oci import ENGINES, EnginePort, OciAdapter
+ 
+ from tools.user_credentials import SourceRefusal, UserCredentialSources
+ 
+-__all__ = ["CONFIG_ENV", "CONFIG_SCHEMA", "factory", "operations_from",
++__all__ = ["CONFIG_ENV", "CONFIG_SCHEMA", "LAYOUT_CONFIG_SCHEMA",
++           "factory", "operations_from",
+            "worker_operations", "worker_preflight",
+            "JudgmentExecution"]
+ 
+@@ -113,6 +114,12 @@ CONFIG_ENV = "BATON_V12_SINGLE_WORKER_CONFIG"
+ # who the wrong name misleads.
+ CONFIG_SCHEMA = "baton.v12.single-worker-deployment/4"
+ CONTEXT_CONFIG_SCHEMA = "baton.v12.single-worker-deployment/5"
++# W325695: AND THE ONE THAT SELECTS THE PRIVATE VERIFIER TOPOLOGY. `/4` and
++# `/5` are untouched and remain supported, exactly as `/5` added
++# `provider_context` beside `/4` -- so an existing configuration is explicitly
++# legacy and keeps the descriptor environment it has today. `/6` carries ONE
++# more member: the verifier-layout marker its image declares.
++LAYOUT_CONFIG_SCHEMA = "baton.v12.single-worker-deployment/6"
+ MAX_CONFIG_BYTES = 1024 * 1024
+ 
+ # W81115: THE TWO NAMES THE CERTIFIED WORKLOAD FIXES, mirrored here rather than
+@@ -220,13 +227,72 @@ def _read(path):
+                 f"document ({type(failure).__name__})")
+ 
+ 
++def layout_delivery(given, group):
++    """The trusted verifier-layout selection this deployment delivers, or None.
++
++    W325695. `None` IS THE EXPLICITLY LEGACY ANSWER and is what a `/4` or `/5`
++    configuration gets: nothing is composed, nothing is materialized, no mount
++    is added and the worker reads no document. A `/6` configuration naming its
++    image's marker gets the compatible pair.
++
++    THE IDENTITY IS NOT AN OPERAND. `workspaces.identity_for` mints it from the
++    deployment's own configured group -- the same capability `oci.run_vector`
++    composes into `--user` and the same one the four private roots are created
++    under -- so the document cannot name an identity the container will not run
++    as. The four digests are this configuration's own resolved identity, which
++    `OciAdapter` then refuses to disagree with.
++
++    MATERIALIZED UNDER THE MANAGER'S OWN LAUNCH HOME, which is manager-owned
++    storage rather than an assignment root: a document mounted out of `inputs`
++    would be one the input digest describes, and one out of `workspace` would
++    be one the worker may WRITE -- so the worker could rewrite the document its
++    own verifier roots are proved against.
++    """
++    marker = given.get("verifier_layout")
++    if marker is None:
++        return None
++    return source_boundary.materialize_verifier_layout(
++        given["launch_home"],
++        document=source_boundary.compose_verifier_layout(
++            marker=marker, identity=workspaces.identity_for(group),
++            image_digest=given["image_digest"],
++            profile_digest=given["profile_digest"],
++            policy_digest=given["policy_digest"],
++            adapter_digest=given["adapter_digest"]))
++
++
+ def _held(document, *, roles=("implementation",)):
+     """Own and relate every static deployment choice before an offer exists."""
+-    contextual = type(document) is dict and document.get("schema") == CONTEXT_CONFIG_SCHEMA
+-    given = dict(_document(document, "a single-worker configuration", _MEMBERS + (("provider_context",) if contextual else ())))
+-    if given["schema"] not in (CONFIG_SCHEMA, CONTEXT_CONFIG_SCHEMA):
++    said = document.get("schema") if type(document) is dict else None
++    # W325695 review 2026-10-28T18-29-29Z: LAYOUT SELECTION IS INDEPENDENT OF
++    # THE CONTEXT MODE, and my first cut conflated them. Treating `/6` as
++    # contextual made `provider_context` a required member and sent every `/6`
++    # deployment through the retained-implementation-only rule below -- so a
++    # fresh `/6` configuration refused for a missing context it never selected,
++    # and a review-role one refused outright. `/5` keeps its context rules
++    # exactly; `/6` selects a verifier layout and says nothing about context.
++    contextual = said == CONTEXT_CONFIG_SCHEMA
++    layout_selecting = said == LAYOUT_CONFIG_SCHEMA
++    given = dict(_document(
++        document, "a single-worker configuration",
++        _MEMBERS + (("provider_context",) if contextual else ())
++        + (("verifier_layout",) if layout_selecting else ())))
++    if given["schema"] not in (CONFIG_SCHEMA, CONTEXT_CONFIG_SCHEMA,
++                               LAYOUT_CONFIG_SCHEMA):
+         _refuse(f"a single-worker configuration says {given['schema']!r}; "
+                 f"this deployment reads {CONFIG_SCHEMA!r}")
++    # W325695: THE IMAGE'S OWN VERIFIER-LAYOUT MARKER, as the deployment
++    # states it. ABSENT OR NULL IS EXPLICITLY LEGACY and costs nothing: no
++    # layout is composed, no document is delivered and the worker takes the
++    # descriptor path it takes today. A `/6` configuration naming a marker is
++    # the compatible pair, and `source_boundary.compose_verifier_layout`
++    # refuses a marker from another topology -- so a wrong one is refused
++    # before any runtime starts rather than by a worker mid-run.
++    if given.get("verifier_layout") is not None:
++        if type(given["verifier_layout"]) is not dict:
++            _refuse("the configuration's verifier_layout is the marker "
++                    "document this deployment's image declares, or null for "
++                    "an explicitly legacy deployment")
+     for member in ("authority_store", "workspace_storage", "launch_home",
+                    "credential_home", "nominated_source", "task_document"):
+         given[member] = _path(given[member], f"the configuration's {member}")
+@@ -1867,6 +1933,11 @@ class _SingleWorker:
+             credential_home=self.credential_home,
+             credential_orphan=orphan,
+             launch_delivery=launched, workspace_group=self.group,
++            # W325695: THE SELECTED TOPOLOGY, or `None` for a legacy
++            # deployment. The adapter binds it to its own resolved identity
++            # and `run_vector` refuses a document naming another execution
++            # identity or image, so the pair is proved before the engine.
++            layout_delivery=layout_delivery(given, self.group),
+             context_delivery=_context_mount(self.control, self.given, launched.attempt_id) if launched is not None else None,
+             scratch_delivery=scratch,
+             context_execution=self._context_grant(launched),
+@@ -3757,6 +3828,11 @@ def worker_preflight(given, control_store, *, credential_provider=None,
+                               given["workspace_storage"],
+                               ".preflight-workspace")},
+         posture="execution", workspace_group=group,
++        # W325695: AND THE SELECTED TOPOLOGY, HERE TOO. This is the static
++        # structural half, so a `/6` configuration whose marker names another
++        # topology -- or whose resolved identity disagrees with the document
++        # -- is refused BEFORE admission rather than at the first start.
++        layout_delivery=layout_delivery(given, group),
+         network=given["network"], interactive=True)
+     return provider
+ 

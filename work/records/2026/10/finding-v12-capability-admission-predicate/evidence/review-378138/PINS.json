@@ -1,0 +1,7 @@
+{
+  "v12/python/src/baton_v12/job_manager/role_capability.py": "9861727b1871b15be7200b427a8a80641e74922afe8a117341b4ba43283986f5",
+  "v12/python/tests/job_manager/test_role_capability.py": "38684c0df66fcad9c91388f0ea52c8e57c8874d033f847545e61f367bd671255",
+  "v12/python/src/baton_v12/job_manager/role_contract.py": "691ed3a0e653a9705f181790c9565706902bd3958f2973e49e85cff586ca6967",
+  "v12/python/src/baton_v12/verification_context.py": "f599072ac1202e9b759d9e7850f76c98790e23710cf6181d5a6e8907dd51650e",
+  "v12/python/tools/job_task.py": "a9ce7948bd39e9e8b2981ad26f299f5e2ad388ad18c6a522337a1c7c27d6e919"
+}

@@ -1,0 +1,93 @@
+{
+ "boundary": "a child process spawned with the controller's exact cwd, PYTHONPATH and BATON_V12_STAGE_EXECUTION_CONFIG read from the GENERATED packet/AUTHORING-COMMAND.json, calling the staged controller's own bounded_engine. The engine call is therefore a grandchild of this process, which is the depth the real run uses.",
+ "child": {
+  "baseline_file": "/home/sl/baton-instances/durable-capture-w341357-352156/code/v12/python/tools/authoring_baseline.py",
+  "controller_file": "/home/sl/baton-instances/durable-capture-w341357-352156/code/v12/python/tools/authoring_enforcement.py",
+  "engine_entry": "tools.authoring_enforcement.bounded_engine -> single_worker._engine_run -> subprocess.run",
+  "probes": [
+   {
+    "argv": [
+     "docker",
+     "version",
+     "--format",
+     "{{json .}}"
+    ],
+    "engine_run_return_keys": [
+     "status",
+     "stderr",
+     "stdout"
+    ],
+    "probe": "engine-version",
+    "seconds": 0.045,
+    "status": 0,
+    "stderr": "",
+    "stdout": "{\"Client\":{\"Version\":\"29.1.3\",\"ApiVersion\":\"1.52\",\"DefaultAPIVersion\":\"1.52\",\"GitCommit\":\"29.1.3-0ubuntu3~25.10.1\",\"GoVersion\":\"go1.24.4\",\"Os\":\"linux\",\"Arch\":\"amd64\",\"BuildTime\":\"Thu Mar  5 17:56:15 2026\",\"Context\":\"default\"},\"Server\":{\"Platform\":{\"Name\":\"\"},\"Version\":\"29.1.3\",\"ApiVersion\":\"1.52\",\"MinAPIVersion\":\"1.44\",\"Os\":\"linux\",\"Arch\":\"amd64\",\"Components\":[{\"Name\":\"Engine\",\"Version\":\"29.1.3\",\"Details\":{\"ApiVersion\":\"1.52\",\"Arch\":\"amd64\",\"BuildTime\":\"Thu Mar  5 17:56:15 2026\",\"Experimental\":\"false\",\"GitCommit\":\"29.1.3-0ubuntu3~25.10.1\",\"GoVersion\":\"go1.24.4\",\"KernelVersion\":\"6.17.0-41-generic\",\"MinAPIVersion\":\"1.44\",\"Os\":\"linux\"}},{\"Name\":\"containerd\",\"Version\":\"2.2.1\",\"Details\":{\"GitCommit\":\"\"}},{\"Name\":\"runc\",\"Version\":\"1.3.4-0ubuntu1~25.10.1\",\"Details\":{\"GitCommit\":\"\"}},{\"Name\":\"docker-init\",\"Version\":\"0.19.0\",\"Details\":{\"GitCommit\":\"\"}}],\"GitCommit\":\"29.1.3-0ubuntu3~25.10.1\",\"GoVersion\":\"go1.24.4\",\"KernelVersion\":\"6.17.0-41-generic\",\"BuildTime\":\"2026-03-05T17:56:15.000059530+00:00\"}}\n"
+   },
+   {
+    "argv": [
+     "docker",
+     "image",
+     "inspect",
+     "baton-v12-claude-worker:w239528-244216",
+     "--format",
+     "{{json .Id}}"
+    ],
+    "engine_run_return_keys": [
+     "status",
+     "stderr",
+     "stdout"
+    ],
+    "probe": "image-inspect",
+    "seconds": 0.005,
+    "status": 0,
+    "stderr": "",
+    "stdout": "\"sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2\"\n"
+   }
+  ],
+  "resolved": {
+   "baton_v12": [
+    "/home/sl/baton-instances/durable-capture-w341357-352156/code/v12/python/src/baton_v12"
+   ],
+   "tools": [
+    "/home/sl/baton-instances/durable-capture-w341357-352156/code/v12/python/tools"
+   ]
+  },
+  "startup": {
+   "held_packet": {
+    "accepted": true,
+    "not_reached": false,
+    "refused": null
+   },
+   "verify_controller": {
+    "accepted": true,
+    "not_reached": false,
+    "refused": null
+   },
+   "verify_imported_sources": {
+    "accepted": true,
+    "not_reached": false,
+    "refused": null
+   }
+  },
+  "startup_seconds": 0.007341,
+  "stopped_before": "main's next statement, the authoring lock at authoring_enforcement.py:566; no lock taken, no store opened, no image verified by the controller"
+ },
+ "child_status": 0,
+ "child_stderr": "",
+ "claim": 352586,
+ "denials": [],
+ "environment": {
+  "BATON_V12_STAGE_EXECUTION_CONFIG": "/home/sl/baton-instances/durable-capture-w341357-352156/packet/deployment.json",
+  "PYTHONDONTWRITEBYTECODE": "1",
+  "PYTHONPATH": "/home/sl/baton-instances/durable-capture-w341357-352156/code/v12/python/src:/home/sl/baton-instances/durable-capture-w341357-352156/code/v12/python:/home/sl/baton-instances/durable-capture-w341357-352156/supervisor"
+ },
+ "read_only": "engine version and image inspect only, plus the three pre-lock startup verifiers; no container created, no workload started, no Job submitted, no store opened, no lock taken, no credential value read, nothing written anywhere by this program",
+ "regenerated": "the author's claim352156 copy of this check was under /tmp and is absent after the announced wipe; this is a regenerated check against the composed packet, not recovered historical bytes",
+ "run": "durable-capture-w341357-352156",
+ "schema": "baton.w341357-executor-preflight/2",
+ "seconds": 0.379,
+ "verdict": "available",
+ "what_this_does_not_establish": "that the controller starts, that the provider session is valid, that a Job is admitted or that a turn completes. Three selected invocations in a row failed at startup; this is the window the last two were in, and a closed window is not a prediction.",
+ "when": "AFTER bind and BEFORE the single selected start",
+ "working_directory": "/home/sl/baton-instances/durable-capture-w341357-352156/code/v12/python"
+}

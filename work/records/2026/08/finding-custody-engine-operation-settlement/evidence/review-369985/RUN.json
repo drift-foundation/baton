@@ -1,0 +1,15 @@
+{
+  "selectors": [
+    "tests.manager.test_custody.TheDeadlineIsThisManagersOwn.test_reaping_the_cli_does_not_settle_a_daemon_mutation",
+    "tests.manager.test_exchange.TheWorkerIsTheOtherEnd.test_the_receipt_is_published_before_the_provider_is_dispatched",
+    "tests.manager.test_exchange.TheWorkerIsTheOtherEnd.test_a_second_worker_over_one_receipt_starts_no_second_turn",
+    "tests.manager.test_exchange.TheWorkerIsTheOtherEnd.test_a_worker_re_entering_after_a_receipt_alone_claims_nothing",
+    "tests.manager.test_authoring_enforcement.LateLaunch",
+    "tests.manager.test_authoring_enforcement.UnboundLaunch",
+    "tests.manager.test_authoring_enforcement.LateBindingCancellation",
+    "tests.manager.test_authoring_enforcement.OwnerLane"
+  ],
+  "exit": 1,
+  "elapsed_seconds": 0.5406773979993886,
+  "kind": "deterministic fake-engine and worker exchange; no real engine/provider"
+}

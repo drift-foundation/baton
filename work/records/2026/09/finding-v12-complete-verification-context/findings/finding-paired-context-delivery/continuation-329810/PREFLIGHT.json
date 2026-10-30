@@ -1,0 +1,76 @@
+{
+  "engine_invoked": false,
+  "job_submitted": false,
+  "prepared": {
+    "artifacts": {
+      "PACKET.json": "f5302a8dbb5f79bbea92df2fbc273c6975cbe9c277d6c7231f9c25953582443f",
+      "adapter.json": "cbe3bb4ade990eb5411c64a40be74a10e46a79f48343c499b5f1a8453fabc9c7",
+      "commands.json": "4fdeae38fb525f4e8cc8e15c019202c269e337f2ad083eb1dd52a96b6c4f482a",
+      "deployment.json": "1473e39a5869983ef676edea8f9218221c2325490837c6e46e8b206305a71c0e",
+      "policy.json": "d067a1a6fedc701501280564772c356f3cb8320de55460caf46e5fdfd5f40cd4",
+      "runtime-profile.json": "70ca07c494c9660bfaf747772f2233ccaf77b4ef3a4da90c26121b7b59ff1d34",
+      "submission.json": "53eeed84765f4fa95a5f9a3db94cc28cc11aa8c06e12a2f6ad01658878debfb6",
+      "task.json": "243bda221c6100dff83257a87abb9a8217dabd2e18deb62bcb61fb6ff664b5d5"
+    },
+    "authority_uuid": "ad1c2dd89bb54bd698c6206a51ee6ca7",
+    "independent_review": "an independent reviewer consumes the immutable retained proposal through v11 after exact runtime cessation; no automatic acceptance",
+    "packet_sha256": "f5302a8dbb5f79bbea92df2fbc273c6975cbe9c277d6c7231f9c25953582443f",
+    "state": "prepared-not-executed",
+    "work": "W321776"
+  },
+  "product_tests": 0,
+  "provider_invoked": false,
+  "root": "/tmp/w321776-preflight-329810",
+  "steps": [
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-complete-verification-context/findings/finding-paired-context-delivery/continuation-329810/prepare.py",
+        "stage",
+        "--root",
+        "/tmp/w321776-preflight-329810"
+      ],
+      "seconds": 0.12071230100264074,
+      "status": 0,
+      "stderr": "",
+      "stdout": "staged; bootstrap separately with --no-repositories, then bind\n",
+      "step": "stage"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "-m",
+        "tools.bootstrap",
+        "--inputs",
+        "/tmp/w321776-preflight-329810/bootstrap-inputs.json",
+        "--destination",
+        "/tmp/w321776-preflight-329810/instance",
+        "--distro",
+        "/home/sl/baton-runs/managed-correction-236087/build/stack/out/distro",
+        "--no-repositories"
+      ],
+      "seconds": 0.5929750759969465,
+      "status": 0,
+      "stderr": "",
+      "stdout": "repositories  not prepared: no source checkout was found or named, so the deployment has no target, workspace or worker sources yet and will schedule without reconciling\nauthority ad1c2dd8...    generated for this instance\njob   none; no Work, grant or placeholder was created\nconfiguration /tmp/w321776-preflight-329810/instance/deployment.json\ncapacity      {\"job_affinity\": {}, \"jobs\": 0, \"note\": \"this instance binds no Job and configures no execution capacity; it serves a real idle scheduler and publisher over empty stores, and a worker, a Work, a declared base, a canonical target and a producer are supplied together when a Job is created\", \"schema\": \"baton.v12.stage-execution-deployment/2\", \"targets\": [], \"workers_by_role\": {\"implementation\": [], \"integration\": [], \"review\": []}}\nno Job was submitted and nothing was executed\ninstance      /tmp/w321776-preflight-329810/instance/instance.json\nruntime       81 files, digest c1ef3d23394916c8...\nstores        /tmp/w321776-preflight-329810/instance/db\nrepository    /tmp/w321776-preflight-329810/instance/repo\njustfile      /tmp/w321776-preflight-329810/instance/justfile\n\nThe deployment is operated from the destination, and needs nothing else:\n\n    cd /tmp/w321776-preflight-329810/instance && just status\n    just --justfile /tmp/w321776-preflight-329810/instance/justfile start        # from anywhere\n\nor the command directly, which is the same program:\n\n    /tmp/w321776-preflight-329810/instance/distro/baton-v12-stack status --instance /tmp/w321776-preflight-329810/instance/instance.json\n",
+      "step": "bootstrap"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-complete-verification-context/findings/finding-paired-context-delivery/continuation-329810/prepare.py",
+        "bind",
+        "--root",
+        "/tmp/w321776-preflight-329810"
+      ],
+      "seconds": 0.3618670829964685,
+      "status": 0,
+      "stderr": "",
+      "stdout": "prepared and validated; no job submitted, no engine/provider invoked\n",
+      "step": "bind"
+    }
+  ]
+}

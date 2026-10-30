@@ -1,0 +1,15 @@
+{
+  "observed_utc": "2026-10-19T02:33:00.112921+00:00",
+  "source": "/home/sl/baton-builds/native-pilot-14e52d80",
+  "source_head": "14e52d80679de5e844f72324df632da5e01cf393",
+  "source_status_porcelain": "",
+  "packet_manifest_sha256": "762ffd3007153833b1b102c1c45268c8a6931ac493ede6c412481fb27f519b24",
+  "bundle_inventory_sha256": "60bd426f99910cc3217bff5e03d8d8e77601c360dcb6b53f5cb47570e6f03873",
+  "file_count": 81,
+  "symlink_count": 0,
+  "schema_file_digests": {
+    "agent-session-1.0.schema.json": "22e6e61c8fbe4b4312b0bc5e33e5be23dff7ba944e213a2855106dc06b55202c",
+    "worker-control-1.0.schema.json": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+  },
+  "selected_destination_absent": true
+}

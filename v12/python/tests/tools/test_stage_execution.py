@@ -4651,10 +4651,19 @@ class ComposedOneJobCase(ServingCase):
         try:
             scratch = os.path.join(self.root, "scratch-" + attempt_id[:12])
             os.makedirs(scratch, exist_ok=True)
+            # W376586: THE CONTAINER DOCUMENT IS THE `/5` WRAPPER'S PAYLOAD,
+            # and the fixture asks for it the way the product does -- through
+            # `launch.payload_of` -- rather than reaching into the wrapper. In
+            # a real container `baton_worker.launched` does this unwrapping;
+            # this fixture hands the worker an already-validated document, so
+            # it has to ask the same question itself.
+            from baton_v12.worker_manager import launch as launch_module
+
+            seen = launch_module.payload_of(delivered.document)
             return baton_worker.serve_exchange(
                 claude_agent.ClaudeAgent(run=self.provider(**operands),
                                          home=scratch),
-                delivered.document, delivered.document["session"],
+                seen, seen["session"],
                 delivered.exchange.command_root, delivered.exchange.event_root)
         finally:
             for module, name, value in held:

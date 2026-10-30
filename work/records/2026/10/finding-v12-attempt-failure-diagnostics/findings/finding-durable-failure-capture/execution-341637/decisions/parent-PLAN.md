@@ -1,0 +1,9 @@
+# Current milestone — await bounded durable failure capture
+
+Child W341357, findings/finding-durable-failure-capture, owns producer capture/outcome history/read contract and focused isolated deterministic proof. It is routed baton.impl for continuation preparation. Parent W333486 must depend on W341357 and remain open through independent child acceptance. This replaces the former single A+B+C+gate correction milestone after lease-interrupted340352; review review-2026-10-20T19-13-47Z.md.
+
+Next parent slice after accepted child: restore necessary preserved downstream partial changes into a fresh isolated continuation using the accepted producer contract; complete ordinary versioned status/report and production-boundary integration, read-only/secret/episode/runtime evidence, historical gate classification/full gate fit, installed-bundle proof and joined acceptance. Preserve full original partial snapshot; none is an accepted candidate. Do not import the whole unverified tree as accepted child output.
+
+Run340352 authority97e4a8911d3e4432bde5fa87791e34b4 returned no frozen candidate; verification not-run. Evidence/run-340352/INDEX.json has14 verified copies and6 source pairs. Owner341187 one invocation is consumed; no further execution selected. Child preparation is routine within scope; actual isolated execution needs applicable selection. No host product-test fallback, old-instance mutation, lease extension or Git writes.
+
+Ownership: child author producer paths/tests and its preparation/PROGRESS/candidate; parent downstream status/report after dependency closure. Locations guide allocation, not arbitrary edit gates. Shared contract edits serial. Reviewer FINDING/PLAN/new reviews/evidence. W333485 independent; actual overlap serially integrated. W325959 consumes full joined outcome and human checkpoint. Events341344/thread334829; graph decomposition341357.

@@ -1,0 +1,45 @@
+{
+  "agree": true,
+  "composed_from": "/tmp/w333486-preflight-337453/packet",
+  "execution_policy": {
+    "implementer_invocations": 1,
+    "provider_turn_seconds": 3600,
+    "source": "policy.json",
+    "verification_command_seconds": 30
+  },
+  "lease_disclosure": {
+    "enforced": true,
+    "lifetime_seconds": 900,
+    "no_completed_run": "No authoring invocation has ever completed for this Work. The one actual execution, execution-334663, failed at startup in 0.506s; see FAILURE.md.",
+    "renewals_at_this_base": 0,
+    "why": "Both prerequisites are closed, so the initial lease is ENFORCED rather than ignored; neither extends it, and production renewal remains W333485 unfinished work. These ceilings are requested bounds and NOT a promise of a 3600-second authoring run."
+  },
+  "note": "Read from the GENERATED documents rather than from prose.",
+  "residual_total_margin_seconds": 1110,
+  "schema": "baton.w333486-execution-limits-check/4",
+  "submission": {
+    "execution_limits": {
+      "provider_turn_seconds": 3600,
+      "verification_command_seconds": 30
+    },
+    "source": "submission.json jobs[0]",
+    "terminal_policy": "report-and-hold"
+  },
+  "supervisor_bounds": {
+    "cleanup_seconds": 60,
+    "implementer_invocations": 1,
+    "retry": false,
+    "total_seconds": 4800,
+    "turn_seconds": 3600
+  },
+  "verification_ceiling": {
+    "fit_unproved": "review-2026-10-19T19-17-22Z.md is explicit that the 30-second fit for the new modules remains unproved and that no coverage may be removed to force a pass.",
+    "headroom_for_the_two_new_modules_seconds": 15.905,
+    "measured_existing_gate_seconds": 14.095,
+    "measured_existing_gate_tests": 1124,
+    "modules": 10,
+    "not_this_packets_to_set": true,
+    "seconds": 30,
+    "why": "Fixed by the composer at baseline_bindings.py:345 and :522 with no compose parameter."
+  }
+}

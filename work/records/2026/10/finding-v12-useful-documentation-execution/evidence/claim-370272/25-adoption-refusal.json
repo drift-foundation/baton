@@ -1,0 +1,21 @@
+{
+ "adopted": {
+  "ok": false,
+  "raised": "TypeError: adopt() missing 4 required keyword-only arguments: 'attempt_id', 'session', 'contract', and 'role'"
+ },
+ "attempt_id": "attempt-16aa4dc348aa54aac84738be2f9caeac86ff4767d32aa59d88c48410d4fb9db9",
+ "launch_home": "/home/sl/baton-instances/useful-template-job-w366962/state/launch",
+ "launch_home_entries": [
+  "attempt-16aa4dc348aa54aac84738be2f9caeac86ff4767d32aa59d88c48410d4fb9db9",
+  "logs"
+ ],
+ "launch_root": "/home/sl/baton-instances/useful-template-job-w366962/state/launch/attempt-16aa4dc348aa54aac84738be2f9caeac86ff4767d32aa59d88c48410d4fb9db9",
+ "launch_root_entries": [
+  "command",
+  "events",
+  "launch.json"
+ ],
+ "launch_root_exists": true,
+ "launch_root_mode": "0o555",
+ "what": "a READ-ONLY reproduction of the launch adoption the serve loop performs each tick. The status projection carries only the safe category/code by design, so the refusal prose is obtained here instead. Nothing is written and no store is opened."
+}

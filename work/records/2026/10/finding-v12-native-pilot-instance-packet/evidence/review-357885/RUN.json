@@ -1,0 +1,12 @@
+{
+  "exit": 0,
+  "elapsed_seconds": 0.3949404150043847,
+  "hashes": {
+    "configure.py": "eac4aa701197e38645f944e50c386c7f99f8a755ef56fafe893e4c7ffdb3c15d",
+    "prove.py": "2c0686260ab6255dfa71398bd2f1eb0cf57ead6fe9c1311ef4f9653126a9bd0b",
+    "PROPOSAL.md": "88a6c172817f1fa16a64f934107813feadbfffe2bb9eedf2dd846b4fda2eba6f",
+    "INDEX.json": "1f79076097e0d101e8f0d76689363c0e5b8b6ae505091b98119cc84863e4ac69",
+    "evidence/PROVE.json": "92e21a7cb83d504c7821bbffcd8a6c0d9e492dd3058c3e59bfdbaa38e4467585"
+  },
+  "checks": 87
+}

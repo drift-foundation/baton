@@ -1,0 +1,4 @@
+{
+  "result": "BindingRefusal: this instance configures no 'implementation' worker, and a Job with a implementation stage that no worker can serve would never run. Install one before creating a Job that owes that stage",
+  "fixture": "empty workers with implementation/review roles, correcting omitted _kinds in PROBES.json; no installed store or runtime used"
+}

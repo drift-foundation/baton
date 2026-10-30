@@ -1,0 +1,163 @@
+.EEEEEEEE..F...FFFFF..EF.............................
+======================================================================
+ERROR: test_BOTH_owned_origins_are_reported_as_known_provenance (tests.tools.test_attempt_diagnostics.JobFactsAndObservationTimeReachTheReport.test_BOTH_owned_origins_are_reported_as_known_provenance) (boundary='host_verification')
+`job` and `compatibility` are the two the producer writes.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353758/red3/v12/python/tests/tools/test_attempt_diagnostics.py", line 593, in test_BOTH_owned_origins_are_reported_as_known_provenance
+    attempt_diagnostics.SOURCE_LIMIT_ORIGINS)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'tools.attempt_diagnostics' has no attribute 'SOURCE_LIMIT_ORIGINS'. Did you mean: 'SOURCE_LIMIT_SETTINGS'?
+
+======================================================================
+ERROR: test_BOTH_owned_origins_are_reported_as_known_provenance (tests.tools.test_attempt_diagnostics.JobFactsAndObservationTimeReachTheReport.test_BOTH_owned_origins_are_reported_as_known_provenance) (boundary='integration_verification')
+`job` and `compatibility` are the two the producer writes.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353758/red3/v12/python/tests/tools/test_attempt_diagnostics.py", line 593, in test_BOTH_owned_origins_are_reported_as_known_provenance
+    attempt_diagnostics.SOURCE_LIMIT_ORIGINS)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'tools.attempt_diagnostics' has no attribute 'SOURCE_LIMIT_ORIGINS'. Did you mean: 'SOURCE_LIMIT_SETTINGS'?
+
+======================================================================
+ERROR: test_BOTH_owned_origins_are_reported_as_known_provenance (tests.tools.test_attempt_diagnostics.JobFactsAndObservationTimeReachTheReport.test_BOTH_owned_origins_are_reported_as_known_provenance) (boundary='ordinary_verification')
+`job` and `compatibility` are the two the producer writes.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353758/red3/v12/python/tests/tools/test_attempt_diagnostics.py", line 593, in test_BOTH_owned_origins_are_reported_as_known_provenance
+    attempt_diagnostics.SOURCE_LIMIT_ORIGINS)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'tools.attempt_diagnostics' has no attribute 'SOURCE_LIMIT_ORIGINS'. Did you mean: 'SOURCE_LIMIT_SETTINGS'?
+
+======================================================================
+ERROR: test_BOTH_owned_origins_are_reported_as_known_provenance (tests.tools.test_attempt_diagnostics.JobFactsAndObservationTimeReachTheReport.test_BOTH_owned_origins_are_reported_as_known_provenance) (boundary='provider_turn')
+`job` and `compatibility` are the two the producer writes.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353758/red3/v12/python/tests/tools/test_attempt_diagnostics.py", line 593, in test_BOTH_owned_origins_are_reported_as_known_provenance
+    attempt_diagnostics.SOURCE_LIMIT_ORIGINS)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'tools.attempt_diagnostics' has no attribute 'SOURCE_LIMIT_ORIGINS'. Did you mean: 'SOURCE_LIMIT_SETTINGS'?
+
+======================================================================
+ERROR: test_BOTH_owned_origins_are_reported_as_known_provenance (tests.tools.test_attempt_diagnostics.JobFactsAndObservationTimeReachTheReport.test_BOTH_owned_origins_are_reported_as_known_provenance) (boundary='host_verification')
+`job` and `compatibility` are the two the producer writes.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353758/red3/v12/python/tests/tools/test_attempt_diagnostics.py", line 593, in test_BOTH_owned_origins_are_reported_as_known_provenance
+    attempt_diagnostics.SOURCE_LIMIT_ORIGINS)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'tools.attempt_diagnostics' has no attribute 'SOURCE_LIMIT_ORIGINS'. Did you mean: 'SOURCE_LIMIT_SETTINGS'?
+
+======================================================================
+ERROR: test_BOTH_owned_origins_are_reported_as_known_provenance (tests.tools.test_attempt_diagnostics.JobFactsAndObservationTimeReachTheReport.test_BOTH_owned_origins_are_reported_as_known_provenance) (boundary='integration_verification')
+`job` and `compatibility` are the two the producer writes.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353758/red3/v12/python/tests/tools/test_attempt_diagnostics.py", line 593, in test_BOTH_owned_origins_are_reported_as_known_provenance
+    attempt_diagnostics.SOURCE_LIMIT_ORIGINS)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'tools.attempt_diagnostics' has no attribute 'SOURCE_LIMIT_ORIGINS'. Did you mean: 'SOURCE_LIMIT_SETTINGS'?
+
+======================================================================
+ERROR: test_BOTH_owned_origins_are_reported_as_known_provenance (tests.tools.test_attempt_diagnostics.JobFactsAndObservationTimeReachTheReport.test_BOTH_owned_origins_are_reported_as_known_provenance) (boundary='ordinary_verification')
+`job` and `compatibility` are the two the producer writes.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353758/red3/v12/python/tests/tools/test_attempt_diagnostics.py", line 593, in test_BOTH_owned_origins_are_reported_as_known_provenance
+    attempt_diagnostics.SOURCE_LIMIT_ORIGINS)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'tools.attempt_diagnostics' has no attribute 'SOURCE_LIMIT_ORIGINS'. Did you mean: 'SOURCE_LIMIT_SETTINGS'?
+
+======================================================================
+ERROR: test_BOTH_owned_origins_are_reported_as_known_provenance (tests.tools.test_attempt_diagnostics.JobFactsAndObservationTimeReachTheReport.test_BOTH_owned_origins_are_reported_as_known_provenance) (boundary='provider_turn')
+`job` and `compatibility` are the two the producer writes.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353758/red3/v12/python/tests/tools/test_attempt_diagnostics.py", line 593, in test_BOTH_owned_origins_are_reported_as_known_provenance
+    attempt_diagnostics.SOURCE_LIMIT_ORIGINS)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'tools.attempt_diagnostics' has no attribute 'SOURCE_LIMIT_ORIGINS'. Did you mean: 'SOURCE_LIMIT_SETTINGS'?
+
+======================================================================
+ERROR: test_owned_execution_limit_vocabulary_does_not_drift (tests.tools.test_attempt_diagnostics.JobFactsAndObservationTimeReachTheReport.test_owned_execution_limit_vocabulary_does_not_drift)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353758/red3/v12/python/tests/tools/test_attempt_diagnostics.py", line 627, in test_owned_execution_limit_vocabulary_does_not_drift
+    self.assertEqual(sorted(attempt_diagnostics.SOURCE_LIMIT_ORIGINS),
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'tools.attempt_diagnostics' has no attribute 'SOURCE_LIMIT_ORIGINS'. Did you mean: 'SOURCE_LIMIT_SETTINGS'?
+
+======================================================================
+FAIL: test_a_SECRET_nested_anywhere_in_the_limits_does_not_travel (tests.tools.test_attempt_diagnostics.JobFactsAndObservationTimeReachTheReport.test_a_SECRET_nested_anywhere_in_the_limits_does_not_travel)
+NOT ONE CANARY, ANYWHERE -- including in an owned field's VALUE.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353758/red3/v12/python/tests/tools/test_attempt_diagnostics.py", line 550, in test_a_SECRET_nested_anywhere_in_the_limits_does_not_travel
+    self.assertNotIn(SECRET, json.dumps(held))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'canary-zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz' unexpectedly found in '{"schema": "baton.v12.attempt-diagnostics/1", "deployment_obligation": "tools/stack_command.COMMANDS serves \'attempt-diagnostics\' in source; an installed bundle must be rebuilt before the deployed command carries it, and this report rebuilds nothing", "reads": "one status document, through tools/job_viewer.read_snapshot", "reads_diagnostics": "baton.v12.attempt-failure-cause/1", "opens_no_store": true, "is_acceptance": false, "freshness_verdict": null, "freshness_why": "no freshness policy has been selected for these facts, so this report states instants and declines to judge them", "source_observed_at": {"observed_at": {"known": true, "value": "2026-09-02T00:00:00.000Z", "source": "status"}}, "source_time_why": "`source_observed_at` is when the status document was composed; a row\'s `execution.observed_at` is when its runtime was looked at and a cause\'s `at` is when the cessation was ordered. Three different facts, and no freshness verdict is derived from any of them", "rows": [{"stage": {"stage_id": {"known": true, "value": "job-a/implementation", "source": "status"}, "job_id": {"known": true, "value": "job-a", "source": "status"}, "kind": {"known": true, "value": "implementation", "source": "status"}, "state": {"known": true, "value": "queued", "source": "status"}, "attempt_id": {"known": true, "value": "attempt-e78478c409a32c432d03b34b562a793ad607897e026de4b48330983c83d400d1", "source": "status"}, "episode": {"known": true, "value": 1, "source": "status"}}, "cause": null, "diagnostic_degradation": {"known": false, "value": null, "why": "no recording-failure carrier is available in this snapshot; absence does not prove recording succeeded"}, "unknown_why": null, "absent_records": null, "diagnostics_unavailable": null, "execution": null, "token": null, "axes": null, "completeness": {"state": "absent", "missing": [], "why": "this status document carries no attempt diagnostics for this stage; nobody looked, which is not the same as nothing having happened", "is_acceptance": false, "proves_cessation": false}, "execution_limits": {"envelope": {"units": {"known": true, "value": "canary-zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz", "source": "status"}, "scope": {"known": true, "value": "canary-zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz", "source": "status"}, "compatibility_generation": {"known": true, "value": 99, "source": "status"}}, "requested": {"provider_turn_seconds": {"known": true, "value": 120, "source": "status.requested"}, "verification_command_seconds": {"known": false, "value": null, "why": "the source document does not carry verification_command_seconds"}}, "boundaries": {"host_verification": {"seconds": {"known": true, "value": 300, "source": "status.boundaries"}, "default_seconds": {"known": true, "value": 300, "source": "status.boundaries"}, "origin": {"known": true, "value": "compatibility", "source": "status.boundaries"}, "setting": {"known": true, "value": "verification_command_seconds", "source": "status.boundaries"}}, "integration_verification": {"seconds": {"known": true, "value": 1800, "source": "status.boundaries"}, "default_seconds": {"known": true, "value": 1800, "source": "status.boundaries"}, "origin": {"known": true, "value": "compatibility", "source": "status.boundaries"}, "setting": {"known": true, "value": "verification_command_seconds", "source": "status.boundaries"}}, "ordinary_verification": {"seconds": {"known": true, "value": 900, "source": "status.boundaries"}, "default_seconds": {"known": true, "value": 900, "source": "status.boundaries"}, "origin": {"known": true, "value": "compatibility", "source": "status.boundaries"}, "setting": {"known": true, "value": "verification_command_seconds", "source": "status.boundaries"}}, "provider_turn": {"seconds": {"known": true, "value": 120, "source": "status.boundaries"}, "default_seconds": {"known": true, "value": 3600, "source": "status.boundaries"}, "origin": {"known": true, "value": "canary-zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz", "source": "status.boundaries"}, "setting": {"known": true, "value": "canary-zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz", "source": "status.boundaries"}}}, "unrecognised": [], "why": null}, "unrecognised": [], "locators": {"attempt_id": {"known": true, "value": "attempt-e78478c409a32c432d03b34b562a793ad607897e026de4b48330983c83d400d1", "source": "status"}, "recorded_artifacts": {"known": false, "value": null, "why": "this stage records no artifacts"}, "workspace_object": {"device": {"known": false, "value": null, "why": "the source document does not carry device"}, "inode": {"known": false, "value": null, "why": "the source document does not carry inode"}, "is_a_path": false, "is_a_locator": false, "why": "a device and inode identify a workspace object; they are not a path and resolve no retained output on their own"}, "supported_read": {"command": "baton-v12-stack logs --logs <launch-home>/logs --attempt <attempt-id> locators", "operator_must_supply": "<launch-home>", "why": "the delivery root is a deployment fact and this report resolves no deployment document; a report that did would be a reader that can be pointed at a store"}}}, {"stage": {"stage_id": {"known": true, "value": "job-b/implementation", "source": "status"}, "job_id": {"known": true, "value": "job-b", "source": "status"}, "kind": {"known": true, "value": "implementation", "source": "status"}, "state": {"known": true, "value": "queued", "source": "status"}, "attempt_id": {"known": true, "value": "attempt-28ebc793c6af672ac8e38af2e9e2692d5df0b8db6f8e62f296ac72c9a21d1e86", "source": "status"}, "episode": {"known": true, "value": 1, "source": "status"}}, "cause": null, "diagnostic_degradation": {"known": false, "value": null, "why": "no recording-failure carrier is available in this snapshot; absence does not prove recording succeeded"}, "unknown_why": null, "absent_records": null, "diagnostics_unavailable": null, "execution": null, "token": null, "axes": null, "completeness": {"state": "absent", "missing": [], "why": "this status document carries no attempt diagnostics for this stage; nobody looked, which is not the same as nothing having happened", "is_acceptance": false, "proves_cessation": false}, "execution_limits": {"envelope": {"units": {"known": true, "value": "seconds", "source": "status"}, "scope": {"known": true, "value": "per-invocation", "source": "status"}, "compatibility_generation": {"known": true, "value": 1, "source": "status"}}, "requested": {"provider_turn_seconds": {"known": false, "value": null, "why": "the source document does not carry provider_turn_seconds"}, "verification_command_seconds": {"known": false, "value": null, "why": "the source document does not carry verification_command_seconds"}}, "boundaries": {"host_verification": {"seconds": {"known": true, "value": 300, "source": "status.boundaries"}, "default_seconds": {"known": true, "value": 300, "source": "status.boundaries"}, "origin": {"known": true, "value": "compatibility", "source": "status.boundaries"}, "setting": {"known": true, "value": "verification_command_seconds", "source": "status.boundaries"}}, "integration_verification": {"seconds": {"known": true, "value": 1800, "source": "status.boundaries"}, "default_seconds": {"known": true, "value": 1800, "source": "status.boundaries"}, "origin": {"known": true, "value": "compatibility", "source": "status.boundaries"}, "setting": {"known": true, "value": "verification_command_seconds", "source": "status.boundaries"}}, "ordinary_verification": {"seconds": {"known": true, "value": 900, "source": "status.boundaries"}, "default_seconds": {"known": true, "value": 900, "source": "status.boundaries"}, "origin": {"known": true, "value": "compatibility", "source": "status.boundaries"}, "setting": {"known": true, "value": "verification_command_seconds", "source": "status.boundaries"}}, "provider_turn": {"seconds": {"known": true, "value": 3600, "source": "status.boundaries"}, "default_seconds": {"known": true, "value": 3600, "source": "status.boundaries"}, "origin": {"known": true, "value": "compatibility", "source": "status.boundaries"}, "setting": {"known": true, "value": "provider_turn_seconds", "source": "status.boundaries"}}}, "unrecognised": [], "why": null}, "unrecognised": [], "locators": {"attempt_id": {"known": true, "value": "attempt-28ebc793c6af672ac8e38af2e9e2692d5df0b8db6f8e62f296ac72c9a21d1e86", "source": "status"}, "recorded_artifacts": {"known": false, "value": null, "why": "this stage records no artifacts"}, "workspace_object": {"device": {"known": false, "value": null, "why": "the source document does not carry device"}, "inode": {"known": false, "value": null, "why": "the source document does not carry inode"}, "is_a_path": false, "is_a_locator": false, "why": "a device and inode identify a workspace object; they are not a path and resolve no retained output on their own"}, "supported_read": {"command": "baton-v12-stack logs --logs <launch-home>/logs --attempt <attempt-id> locators", "operator_must_supply": "<launch-home>", "why": "the delivery root is a deployment fact and this report resolves no deployment document; a report that did would be a reader that can be pointed at a store"}}}]}'
+
+======================================================================
+FAIL: test_an_UNOWNED_closed_value_is_UNKNOWN_and_is_never_echoed (tests.tools.test_attempt_diagnostics.JobFactsAndObservationTimeReachTheReport.test_an_UNOWNED_closed_value_is_UNKNOWN_and_is_never_echoed) (member='units')
+Every newly projected closed member, one at a time.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353758/red3/v12/python/tests/tools/test_attempt_diagnostics.py", line 572, in test_an_UNOWNED_closed_value_is_UNKNOWN_and_is_never_echoed
+    self.assertFalse(fact["known"], fact)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not false : {'known': True, 'value': 'canary-zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz', 'source': 'status'}
+
+======================================================================
+FAIL: test_an_UNOWNED_closed_value_is_UNKNOWN_and_is_never_echoed (tests.tools.test_attempt_diagnostics.JobFactsAndObservationTimeReachTheReport.test_an_UNOWNED_closed_value_is_UNKNOWN_and_is_never_echoed) (member='scope')
+Every newly projected closed member, one at a time.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353758/red3/v12/python/tests/tools/test_attempt_diagnostics.py", line 572, in test_an_UNOWNED_closed_value_is_UNKNOWN_and_is_never_echoed
+    self.assertFalse(fact["known"], fact)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not false : {'known': True, 'value': 'canary-zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz', 'source': 'status'}
+
+======================================================================
+FAIL: test_an_UNOWNED_closed_value_is_UNKNOWN_and_is_never_echoed (tests.tools.test_attempt_diagnostics.JobFactsAndObservationTimeReachTheReport.test_an_UNOWNED_closed_value_is_UNKNOWN_and_is_never_echoed) (member='compatibility_generation')
+Every newly projected closed member, one at a time.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353758/red3/v12/python/tests/tools/test_attempt_diagnostics.py", line 572, in test_an_UNOWNED_closed_value_is_UNKNOWN_and_is_never_echoed
+    self.assertFalse(fact["known"], fact)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not false : {'known': True, 'value': 99, 'source': 'status'}
+
+======================================================================
+FAIL: test_an_UNOWNED_closed_value_is_UNKNOWN_and_is_never_echoed (tests.tools.test_attempt_diagnostics.JobFactsAndObservationTimeReachTheReport.test_an_UNOWNED_closed_value_is_UNKNOWN_and_is_never_echoed) (member='origin')
+Every newly projected closed member, one at a time.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353758/red3/v12/python/tests/tools/test_attempt_diagnostics.py", line 572, in test_an_UNOWNED_closed_value_is_UNKNOWN_and_is_never_echoed
+    self.assertFalse(fact["known"], fact)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not false : {'known': True, 'value': 'canary-zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz', 'source': 'status.boundaries'}
+
+======================================================================
+FAIL: test_an_UNOWNED_closed_value_is_UNKNOWN_and_is_never_echoed (tests.tools.test_attempt_diagnostics.JobFactsAndObservationTimeReachTheReport.test_an_UNOWNED_closed_value_is_UNKNOWN_and_is_never_echoed) (member='setting')
+Every newly projected closed member, one at a time.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353758/red3/v12/python/tests/tools/test_attempt_diagnostics.py", line 572, in test_an_UNOWNED_closed_value_is_UNKNOWN_and_is_never_echoed
+    self.assertFalse(fact["known"], fact)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not false : {'known': True, 'value': 'canary-zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz', 'source': 'status.boundaries'}
+
+======================================================================
+FAIL: test_the_SNAPSHOT_time_is_reported_and_is_NOT_the_other_two_instants (tests.tools.test_attempt_diagnostics.JobFactsAndObservationTimeReachTheReport.test_the_SNAPSHOT_time_is_reported_and_is_NOT_the_other_two_instants)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353758/red3/v12/python/tests/tools/test_attempt_diagnostics.py", line 467, in test_the_SNAPSHOT_time_is_reported_and_is_NOT_the_other_two_instants
+    self.assertIn("NO instant of its own", held["source_time_why"])
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'NO instant of its own' not found in "`source_observed_at` is when the status document was composed; a row's `execution.observed_at` is when its runtime was looked at and a cause's `at` is when the cessation was ordered. Three different facts, and no freshness verdict is derived from any of them"
+
+----------------------------------------------------------------------
+Ran 42 tests in 0.135s
+
+FAILED (failures=7, errors=9)

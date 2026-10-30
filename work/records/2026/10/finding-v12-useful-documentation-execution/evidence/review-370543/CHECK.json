@@ -1,0 +1,12 @@
+{
+  "at": "2026-10-28T01:58:43.116024+00:00",
+  "binding_sha256": "1ec3160d3529b486ec4a999970e49bc9ac8c20fbab49e700e59b140a848137cd",
+  "checked": 9,
+  "mismatches": [],
+  "candidate_files": {
+    "objects.bundle": "53dddeb6a850073f203c509cf9c4c8820f8308b87228ff6cc8465c11c5dedc75",
+    "verification.txt": "8ac895b964b42abe88d25185672607358e4c012b485aa6c48a55b2cd1f8374f9",
+    "result.json": "11cfeb4f2ceb95cbf0e9637f01d043e7fa7b5b4bf71f3c2c82deb779c94186f3",
+    "change.patch": "419512abebc831d920c72689e26a5535303feb2203cb42bfdf44d0acfe4aef2c"
+  }
+}

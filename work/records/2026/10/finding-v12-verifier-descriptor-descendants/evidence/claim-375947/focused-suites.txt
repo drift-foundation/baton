@@ -1,0 +1,33 @@
+..............................................................................................................................................................................................................................................................................................................................................................................................................................s...................s..........................................................s..F...............................................................
+======================================================================
+FAIL: test_the_runtime_gets_exactly_the_declared_bounded_scratch (tests.manager.test_source_boundary.TheWorkspaceIsStorageAndScratchIsBounded.test_the_runtime_gets_exactly_the_declared_bounded_scratch)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_source_boundary.py", line 781, in test_the_runtime_gets_exactly_the_declared_bounded_scratch
+    self.assertEqual(
+    ~~~~~~~~~~~~~~~~^
+        composed,
+        ^^^^^^^^^
+        [f"{target}:rw,noexec,nosuid,nodev,size={one >> 20}m"
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         for target, one in source_boundary.SCRATCH_MOUNTS])
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['/tm[67 chars]v,size=16m', '/run/baton/logs:rw,noexec,nosuid,nodev,size=16m'] != ['/tm[67 chars]v,size=16m']
+
+First list contains 1 additional elements.
+First extra element 2:
+'/run/baton/logs:rw,noexec,nosuid,nodev,size=16m'
+
+  ['/tmp:rw,noexec,nosuid,nodev,size=64m',
+-  '/dev/shm:rw,noexec,nosuid,nodev,size=16m',
+?                                            ^
+
++  '/dev/shm:rw,noexec,nosuid,nodev,size=16m']
+?                                            ^
+
+-  '/run/baton/logs:rw,noexec,nosuid,nodev,size=16m']
+
+----------------------------------------------------------------------
+Ran 560 tests in 18.033s
+
+FAILED (failures=1, skipped=3)

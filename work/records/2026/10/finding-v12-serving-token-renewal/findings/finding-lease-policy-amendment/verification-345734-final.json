@@ -1,0 +1,20 @@
+{
+  "command": [
+    "python3",
+    "-B",
+    "work/records/2026/10/finding-v12-serving-token-renewal/findings/finding-lease-policy-amendment/amendment-345734/prepare.py",
+    "verify"
+  ],
+  "timeout_seconds": 30,
+  "seconds": 0.2685933909997402,
+  "returncode": 0,
+  "stdout": "{\"base\": \"bc925cf5c62d69426ed5862af4d41f4d2a967b0f\", \"bounds\": {\"cleanup_seconds\": 60, \"implementer_invocations\": 1, \"retry\": false, \"total_seconds\": 4800, \"turn_seconds\": 3600}, \"gate\": [\"tests.job_manager.test_serving_renewal\", \"tests.job_manager.test_tool\", \"tests.job_manager.test_sweep\", \"tests.job_manager.test_execution_limits\"], \"run\": \"serving-renewal-w333485-339444\", \"state\": \"amendment-pins-match-not-launched\", \"task_inputs\": [\"work/records/2026/10/finding-v12-serving-token-renewal/findings/finding-lease-policy-amendment/amendment-345734/TASK.md\", \"work/records/2026/10/finding-v12-serving-token-renewal/continuation-339444/SOURCE.json\", \"work/records/2026/10/finding-v12-serving-token-renewal/continuation-339444/restore.py\", \"work/records/2026/10/finding-v12-serving-token-renewal/continuation-339444/PARTIAL-INPUT.json\", \"work/records/2026/10/finding-v12-serving-token-renewal/continuation-339444/LOAD-COMMAND.txt\", \"work/records/2026/10/finding-v12-serving-token-renewal/continuation-339444/candidate-input/v12/python/src/baton_v12/job_manager/manager.py\", \"work/records/2026/10/finding-v12-serving-token-renewal/continuation-339444/candidate-input/v12/python/src/baton_v12/job_manager/renewal.py\", \"work/records/2026/10/finding-v12-serving-token-renewal/continuation-339444/candidate-input/v12/python/tools/job_manager.py\", \"work/records/2026/10/finding-v12-serving-token-renewal/findings/finding-lease-policy-amendment/amendment-345734/TOK-9.md\", \"work/records/2026/10/finding-v12-serving-token-renewal/findings/finding-lease-policy-amendment/amendment-345734/AMENDMENT.json\"]}\n",
+  "stderr": "",
+  "assertions": [
+    "unchanged envelope",
+    "10 unique exact task fixture paths",
+    "all predecessor file hashes unchanged",
+    "single task expression substitution parses"
+  ],
+  "scope": "read-only preparation checks; no product tests, composition/stage/bootstrap or runtime operations"
+}

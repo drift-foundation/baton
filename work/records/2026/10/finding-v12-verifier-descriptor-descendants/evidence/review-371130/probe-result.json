@@ -1,0 +1,6 @@
+{
+  "accepted_without_explicit_layout_selection": true,
+  "accepted_simulated_wrong_filesystem_and_options": true,
+  "roots_are_under_mutable_test_scratch": true,
+  "kind": "source admission counterexample with simulated mount table, not real kernel proof"
+}

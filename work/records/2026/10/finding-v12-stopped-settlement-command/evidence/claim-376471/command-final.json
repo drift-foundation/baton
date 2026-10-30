@@ -1,0 +1,10 @@
+{
+  "seconds": 1.5249414909994812,
+  "names": [
+    "tests.tools.test_stopped_settlement_command"
+  ],
+  "tests": 11,
+  "failures": [],
+  "errors": [],
+  "skipped": []
+}

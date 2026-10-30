@@ -1,0 +1,34 @@
+{
+  "artifacts": {
+    "PACKET.json": "bab5b3e828e07052431c4e73e622a6b462ff61c9e97a5e42f0a2c390c3b39336",
+    "adapter.json": "cbe3bb4ade990eb5411c64a40be74a10e46a79f48343c499b5f1a8453fabc9c7",
+    "commands.json": "e6b223297cbd57a395f442c7e53a5533d47c83a81ad21e1d09e85192447f42e3",
+    "deployment.json": "bdd607f63b5677cd515c5c20dc71bfbe295413c1cd82fb6a90f2f96cd1f1f885",
+    "policy.json": "2b75b8208cd288418ea5a9af8ece0c443abdaa19fda80a1ea2725e43fdbc306c",
+    "runtime-profile.json": "70ca07c494c9660bfaf747772f2233ccaf77b4ef3a4da90c26121b7b59ff1d34",
+    "submission.json": "f142405062a4c244ea77091b8d37af9256ae1712b2eae0b48b23f8af5cc362d5",
+    "task.json": "a75e4cc062c5253cc18b38afcb8f7496c70c4c4a0e53e190ca0e7e9be3153894"
+  },
+  "authoring_command": "/home/sl/baton-instances/durable-capture-w341357-352156/packet/AUTHORING-COMMAND.json",
+  "authoring_controller": {
+    "relative": "tools/authoring_enforcement.py",
+    "sha256": "248ee9edd72214efbdc77044a9af6ad2c382e2ca1dbd5b71ff0db720d9a5a5dc",
+    "staged": "/home/sl/baton-instances/durable-capture-w341357-352156/code/v12/python/tools/authoring_enforcement.py"
+  },
+  "authority_uuid": "33bac7926fdd4ddfb15a3eae7fb4f6eb",
+  "composer_start_is_unenforced": true,
+  "enforcement": "ENFORCEMENT.md",
+  "independent_review": "an independent reviewer consumes this preparation packet through v11; execution awaits an exact separate selection, and there is no automatic acceptance",
+  "packet_sha256": "bab5b3e828e07052431c4e73e622a6b462ff61c9e97a5e42f0a2c390c3b39336",
+  "shutdown": "SHUTDOWN.md",
+  "shutdown_helper": {
+    "relative": "tools/authoring_shutdown.py",
+    "sha256": "af9e5ea6b140d772cdb143c73bccf7c321869b4707245ba7e8ca79ab855fab2e",
+    "staged": "/home/sl/baton-instances/durable-capture-w341357-352156/code/v12/python/tools/authoring_shutdown.py",
+    "why": "imported by the controller; the vehicle does not start without it"
+  },
+  "start_authorized": false,
+  "start_selected": false,
+  "state": "prepared-not-executed",
+  "work": "W341357"
+}

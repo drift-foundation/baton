@@ -1,0 +1,35 @@
+{
+  "selected_identity": {
+    "uid": 1000,
+    "gid": 1000,
+    "mode": 448
+  },
+  "selected_tmpfs": [
+    "/tmp:rw,noexec,nosuid,nodev,size=32m",
+    "/dev/shm:rw,noexec,nosuid,nodev,size=16m",
+    "/run/baton-verifier/home:rw,noexec,nosuid,nodev,size=4m",
+    "/run/baton-verifier/tmp:rw,noexec,nosuid,nodev,size=16m",
+    "/run/baton-verifier/cache:rw,noexec,nosuid,nodev,size=4m",
+    "/run/baton-verifier/pycache:rw,noexec,nosuid,nodev,size=8m",
+    "/run/baton/logs:rw,noexec,nosuid,nodev,size=16m"
+  ],
+  "unselected_tmpfs": [
+    "/tmp:rw,noexec,nosuid,nodev,size=32m",
+    "/dev/shm:rw,noexec,nosuid,nodev,size=16m",
+    "/run/baton-verifier/home:rw,noexec,nosuid,nodev,size=4m",
+    "/run/baton-verifier/tmp:rw,noexec,nosuid,nodev,size=16m",
+    "/run/baton-verifier/cache:rw,noexec,nosuid,nodev,size=4m",
+    "/run/baton-verifier/pycache:rw,noexec,nosuid,nodev,size=8m",
+    "/run/baton/logs:rw,noexec,nosuid,nodev,size=16m"
+  ],
+  "selected_user": "1000:1000",
+  "selected_roots_missing_mode_uid_gid": [
+    "/run/baton-verifier/home:rw,noexec,nosuid,nodev,size=4m",
+    "/run/baton-verifier/tmp:rw,noexec,nosuid,nodev,size=16m",
+    "/run/baton-verifier/cache:rw,noexec,nosuid,nodev,size=4m",
+    "/run/baton-verifier/pycache:rw,noexec,nosuid,nodev,size=8m"
+  ],
+  "marker_without_delivery_refusal": "this image declares the verifier topology 1423c3aa9e41d7a8719297435798252133af88a55a6031491238ce0e412bc472 and no trusted layout selection was delivered at /tmp/v12-w325695-xa1tx1p0/layout.json; a new image whose layout delivery did not arrive refuses before the provider rather than running the descendant-incompatible descriptor path it was built to leave behind",
+  "wall_seconds": 0.008213113999772759,
+  "scope": "Source argv and real document parser; no engine or mount operation."
+}

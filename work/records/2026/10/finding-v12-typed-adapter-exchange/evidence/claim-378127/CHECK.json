@@ -1,0 +1,54 @@
+{
+ "amendment_sha256": "ced2e81f031e7f56c060963d2724cca524e1a7e17e3e5f18d1c5fc777c38f68e",
+ "boundaries": {
+  "build": false,
+  "deployment": false,
+  "engine": false,
+  "git_mutation": false,
+  "provider": false
+ },
+ "changed_this_claim": {
+  "v12/python/tests/manager/test_exchange.py": "d187653fb639b7517df7edf4a327dd244e0f6d5c7d330fb3edf5eb4d88f92537",
+  "v12/python/tests/manager/test_worker_entry.py": "762fe0fddf6e2bc024bae655a4cedb99883b2ee94d924de6a05f55de137aafe5",
+  "v12/worker/baton_worker.py": "e9d9d32ee96baa304a8719644b939e5a4c13383c8171c573eeebacf4909a8f05",
+  "v12/worker/dogfood_entry.py": "59418be175aa2c47f4f9260dcdaab85d7ab1d21ad756fc89de8009f6add9a798"
+ },
+ "claim": 378127,
+ "unchanged_from_E378061": {
+  "v12/python/src/baton_v12/worker_manager/exchange.py": "684f2cf4df4cc5dbe0e012b3e6b73ab2de59d9aebc05d0d94f506ee625becca8",
+  "v12/python/src/baton_v12/worker_manager/launch.py": "5709d900db09159c52176968eb804bc5e2d7b5fb1d0f9e84c4a6e2d92d8d4bb8",
+  "v12/python/src/baton_v12/worker_manager/oci.py": "7ee9c5b9be6c1a747be5238fad98071e92e91b796208d73480b09ec9c8e6c434",
+  "v12/python/tests/manager/test_claude_context.py": "3b5dc6173403f7b840e63a958aca10ae8c97a3e658a74ab25060528d4b2a54d8",
+  "v12/python/tests/manager/test_worker_packaging.py": "eaff720029142397a0113ef1ea9e169fd5669c032d4c8e44e6877f71eacaa9f7",
+  "v12/python/tests/tools/test_execution_limits.py": "a62302b8141e0ea2218cb0c6febf22e1742c85fc8ca2a9f6a12377be14bf8e86",
+  "v12/python/tests/tools/test_single_worker.py": "fa1392242b9496ba9bba6be1d9adddfa8a97c782f6da5de48f18fb0b8231ea46",
+  "v12/python/tests/tools/test_stage_execution.py": "ca451fccb3b23c02c1684c8804131e7853e08a577ecf5f1160fd536b1f75cf18",
+  "v12/worker/Dockerfile.claude": "a5ef0783770ba44f206a68c71c9570685294f62bde338b69722aada0326f18d0",
+  "v12/worker/Dockerfile.integration": "022b4a3eb5b20de487860308cfe5e4021497f289100498ce02d2b85acc163f43",
+  "v12/worker/adapter_refusal.py": "97f6d9f5edee922017ead4c6d6b116382e56a398c59aa9262f959033d45a3e35",
+  "v12/worker/claude_agent.py": "017257c0cf50f02c01b2174eb7786df073b6bdf81b6819ad1cb4cde034fa57d8"
+ },
+ "verification": {
+  "manager": {
+   "cases_run": 886,
+   "cause_established": "the case asserts a LATCHED status 1 for five non-/1 schemas; HEAD's own serve sends every non-/1 schema to the prompt path (W197661, baton_worker.py:2566 at HEAD) and returns 3. Both the case and the policy are byte-identical at HEAD, and the isolated pre-claim snapshot under claim 377048 measured the same '3 != 1' with HEAD's baton_worker.py in place. Not this claim's, and NOT attributed by name-matching.",
+   "failing_case": "test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches",
+   "failing_cases": 1,
+   "failing_subtests": 5,
+   "log": "manager.log",
+   "modules": 9,
+   "note": "five subtest failures are ONE case, and the one skip is not a pass",
+   "skipped": 1
+  },
+  "selection_note": "each module inspected for a daemon invocation before selection; test_dogfood_image, test_worker_container and tests.job_manager.test_tool excluded",
+  "tools": {
+   "cases_run": 1013,
+   "failing_cases": 6,
+   "log": "tools.log",
+   "modules": 7,
+   "note": "not claimed as pre-existing on the strength of the names alone: the two runs bracket this claim's edits and the set did not move",
+   "set_identical_to": "the same six names measured under claim 377761 before any edit of this claim; the diff of the two sets is empty"
+  }
+ },
+ "work": "2b077949-W376586"
+}

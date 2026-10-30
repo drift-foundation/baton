@@ -1,0 +1,20 @@
+{
+ "adopted": {
+  "exchange_root": null,
+  "ok": true
+ },
+ "attempt_id": "attempt-16aa4dc348aa54aac84738be2f9caeac86ff4767d32aa59d88c48410d4fb9db9",
+ "launch_contract": "v12-assignment-1",
+ "launch_document_members": [
+  "contract",
+  "job_execution",
+  "role",
+  "schema",
+  "session",
+  "transport"
+ ],
+ "launch_root": "/home/sl/baton-instances/useful-template-job-w366962/state/launch/attempt-16aa4dc348aa54aac84738be2f9caeac86ff4767d32aa59d88c48410d4fb9db9",
+ "role": "implementation",
+ "session_from_document": true,
+ "what": "the launch adoption the serve loop performs each tick, reproduced READ-ONLY with the operands taken from the attempt's own launch.json. Nothing is written."
+}

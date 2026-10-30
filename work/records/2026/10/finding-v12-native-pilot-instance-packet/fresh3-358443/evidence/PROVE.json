@@ -1,0 +1,244 @@
+{
+ "adapter_source": "/home/sl/baton-builds/w325959-30245386-356981/src/v12/worker/claude_agent.py",
+ "authority_uuid": "22d215f306344963843f42f0dd290a79",
+ "checks": {
+  "checks": [
+   {
+    "check": "every shipped PACKET_PINS entry is the real digest of the real document",
+    "ok": true,
+    "pinned": [
+     "configure-inputs.json",
+     "install-inputs.json",
+     "submission.json",
+     "task.json"
+    ]
+   },
+   {
+    "check": "the shipped HELPER_PINS entry is the real digest of the imported helper",
+    "helper": "/home/sl/src/baton/work/records/2026/10/finding-v12-native-pilot-instance-packet/post-install-357462",
+    "ok": true
+   },
+   {
+    "check": "the shipped INHERITED_PINS resolve at the ACTUAL consumption site",
+    "ok": true,
+    "site": "/home/sl/src/baton/work/records/2026/10/finding-v12-native-pilot-instance-packet"
+   },
+   {
+    "check": "the resolved distro is an executable bundle, no longer PENDING",
+    "distro": "/home/sl/baton-builds/w325959-30245386-356981/build/out/distro",
+    "ok": true
+   },
+   {
+    "check": "the install document carries NO workers and NO jobs",
+    "ok": true
+   },
+   {
+    "check": "the packet names the selected fresh identifiers",
+    "ok": true
+   },
+   {
+    "check": "REPRODUCTION: a malformed task refuses in preflight, creating nothing",
+    "destination_created": false,
+    "ok": true,
+    "refusal": "REFUSED: the consumed document task.json at /tmp/fresh3-prove-uf6fs2ia/packet-malformed-task/task.json is not valid JSON: Expecting value: line 1 column 1 (char 0). Nothing is minted for a packet that cannot be read."
+   },
+   {
+    "check": "REPRODUCTION: and the SAME input refuses at apply, creating nothing",
+    "destination_created": false,
+    "ok": true,
+    "refusal": "REFUSED: the consumed document task.json at /tmp/fresh3-prove-uf6fs2ia/packet-malformed-task/task.json is not valid JSON: Expecting value: line 1 column 1 (char 0). Nothing is minted for a packet that cannot be read."
+   },
+   {
+    "check": "a packet document that does not hash to its pin refuses, creating nothing",
+    "destination_created": false,
+    "ok": true,
+    "refusal": "REFUSED: the packet document configure-inputs.json is sha256:aae0c2fbd03dbc57b138da0646baf03bef5b11f6f37709605662875a2f4d503e and this procedure is bound to sha256:f3b1e7958ada60792768f29ef9ba2f8f2791a3dafda8ac1a5a23421800b3c56b; these are not the reviewed bytes"
+   },
+   {
+    "check": "an UNPINNED consumed document refuses rather than passing on existence",
+    "destination_created": false,
+    "ok": true,
+    "refusal": "REFUSED: the packet document task.json has no pinned digest in this procedure; an unpinned consumed document is not bound, and this preparation seals it in"
+   },
+   {
+    "check": "helper drift refuses: the imported module is not the accepted one",
+    "destination_created": false,
+    "ok": true,
+    "refusal": "REFUSED: the helper module configure.py is sha256:b15280cc19aabca5bd519b88f57a34e7b7dabe7e67a40a28348befabf9d16333 and this procedure is bound to sha256:0000000000000000000000000000000000000000000000000000000000000000; these are not the reviewed bytes"
+   },
+   {
+    "check": "an absent consumed document refuses, creating nothing",
+    "destination_created": false,
+    "ok": true,
+    "refusal": "REFUSED: the inherited input revision-4/inputs/absent.json is missing at /home/sl/src/baton/work/records/2026/10/finding-v12-native-pilot-instance-packet/revision-4/inputs/absent.json; this preparation consumes it and will not proceed without it"
+   },
+   {
+    "check": "a nonexistent bundle refuses, creating nothing",
+    "destination_created": false,
+    "ok": true,
+    "refusal": "REFUSED: the bundle /tmp/fresh3-prove-uf6fs2ia/no-such-bundle is not a directory this preparation can admit (a link or a missing path is not a one-folder bundle)"
+   },
+   {
+    "check": "a bundle with no baton-v12-stack refuses, creating nothing",
+    "destination_created": false,
+    "ok": true,
+    "refusal": "REFUSED: the bundle /tmp/fresh3-prove-uf6fs2ia/hollow-bundle carries no baton-v12-stack executable at /tmp/fresh3-prove-uf6fs2ia/hollow-bundle/baton-v12-stack; `admit` runs this file to read the bundle's own identity"
+   },
+   {
+    "check": "a NON-EXECUTABLE bundle command refuses, creating nothing",
+    "destination_created": false,
+    "ok": true,
+    "refusal": "REFUSED: the bundle command /tmp/fresh3-prove-uf6fs2ia/nonexecutable-bundle/baton-v12-stack is not executable; `admit` runs it and would fail after the destination had already been created"
+   },
+   {
+    "check": "a nonexistent repository source refuses, creating nothing",
+    "destination_created": false,
+    "ok": true,
+    "refusal": "REFUSED: the repository source /tmp/fresh3-prove-uf6fs2ia/no-such-source is not a directory; step 4 clones every non-mirror role from it"
+   },
+   {
+    "check": "a source tree with no v12 directory refuses, creating nothing",
+    "destination_created": false,
+    "ok": true,
+    "refusal": "REFUSED: the repository source /tmp/fresh3-prove-uf6fs2ia/not-the-product carries no v12 directory; this is not the product source tree step 4 expects"
+   },
+   {
+    "check": "a bundle inside a RETAINED instance refuses, creating nothing",
+    "destination_created": false,
+    "ok": true,
+    "refusal": "REFUSED: this preparation would READ its bundle from /home/sl/baton-instances/native-coordination-pilot-w321608-2/distro, which lies inside /home/sl/baton-instances/native-coordination-pilot-w321608-2; a retained instance is not an input to a fresh one"
+   },
+   {
+    "check": "an instance-3 path inside a retained instance refuses",
+    "destination_created": false,
+    "ok": true,
+    "refusal": "REFUSED: instance 3's destination at /home/sl/baton-instances/native-coordination-pilot-w321608-1/nested-3 lies inside /home/sl/baton-instances/native-coordination-pilot-w321608-1; a fresh instance isolates its own state"
+   },
+   {
+    "check": "a packet whose state_root is another destination refuses",
+    "ok": true,
+    "refusal": "REFUSED: install-inputs.json names state_root /tmp/fresh3-prove-uf6fs2ia/native-coordination-pilot-w321608-3 and this run names /tmp/fresh3-prove-uf6fs2ia/elsewhere-3"
+   },
+   {
+    "check": "after every negative case the destination still does not exist",
+    "ok": true
+   },
+   {
+    "check": "preflight plans and creates nothing",
+    "ok": true
+   },
+   {
+    "check": "preflight validated the CONTRACTS against a provisional identity, pre-mint",
+    "ok": true,
+    "provisional": "sha256:793990b1ff65b54baccc4c45e60750ff140ad0d74354b3030bb2485861b926ba"
+   },
+   {
+    "check": "preflight checked the bundle, the source and every consumed path",
+    "ok": true
+   },
+   {
+    "check": "noninterference with instances 1 and 2 is checked",
+    "ok": true
+   },
+   {
+    "check": "step 1 minted an authority",
+    "ok": true
+   },
+   {
+    "check": "the minted authority is NOT the provisional rehearsal uuid",
+    "ok": true
+   },
+   {
+    "check": "the Work carries that authority's prefix",
+    "ok": true
+   },
+   {
+    "check": "the Work is NOT the instance-2 one",
+    "ok": true
+   },
+   {
+    "check": "ALL FOUR repositories were prepared by the supported call -- no manual clone",
+    "ok": true
+   },
+   {
+    "check": "both stage workers are installed",
+    "ok": true
+   },
+   {
+    "check": "the Job is bound",
+    "ok": true
+   },
+   {
+    "check": "every installed worker names the MINTED authority, not the provisional one",
+    "ok": true
+   },
+   {
+    "check": "the real runtime consumer accepts the INSTALLED configuration",
+    "ok": true
+   },
+   {
+    "check": "the installed manifest carries the shared two-stage output contract",
+    "ok": true
+   },
+   {
+    "check": "the readback task digest describes the EMITTED bytes and is not null",
+    "ok": true,
+    "task_digest": "sha256:2f87e9dc45b94eb4100d6127a5f6e9487cb7c6edb2bbac6f3653052f966a62d0"
+   },
+   {
+    "check": "the workspace storage prerequisite is measured, not assumed",
+    "created_by_preparation": false,
+    "ok": true,
+    "present": {
+     "/tmp/fresh3-prove-uf6fs2ia/native-coordination-pilot-w321608-3/state/workspaces": false
+    }
+   },
+   {
+    "adapter_sha256": "b014ea3f5f58af573a0cbaa4b8838a270953806a89ef274682d5cca6627efe7c",
+    "check": "the adapter under test is the CLEAN REVIEWED build, not the dirty tree",
+    "ok": true
+   },
+   {
+    "check": "the implementation role selects its half and answers the rest absent",
+    "ok": true
+   },
+   {
+    "check": "the review role selects its half and answers the rest absent",
+    "ok": true
+   },
+   {
+    "check": "a proposal-only declaration still refuses the review role",
+    "ok": true,
+    "refusal": "a review turn writes findings, logs and this assignment declares no findings, logs"
+   },
+   {
+    "check": "a second preparation refuses the existing destination",
+    "ok": true,
+    "refusal": "REFUSED: the destination /tmp/fresh3-prove-uf6fs2ia/native-coordination-pilot-w321608-3 already exists; a fresh instance is prepared once. Inspect it rather than having this write into somebody else's tree."
+   }
+  ],
+  "failed": [],
+  "total": 42
+ },
+ "claim": 358517,
+ "git_executed": false,
+ "input_digest": "sha256:2836412d5740b8cd2a4db5f25a222d6a2111cfa9608eb074fbe8b3966608fbbc",
+ "limits": "Deterministic and disposable. The repository boundary is SIMULATED through the product's injected runner and the bundle is a STUB satisfying admit's identity checks. This establishes composition, ordering, both role declaration contracts and every pre-mint refusal -- NOT that a real bundle, real clones or a real provider turn succeed.",
+ "manifest_digest": "sha256:2d53d08e521d8d739a4fa0d984a545d11f995f53da47764aa0452f0a10fc0803",
+ "packet": "/home/sl/src/baton/work/records/2026/10/finding-v12-native-pilot-instance-packet/fresh3-358443",
+ "repositories": [
+  "source-implementation-pilot",
+  "source-review-pilot",
+  "target.git",
+  "workspace"
+ ],
+ "repository_boundary": "SIMULATED through the product's injected runner",
+ "task_digest": "sha256:2f87e9dc45b94eb4100d6127a5f6e9487cb7c6edb2bbac6f3653052f966a62d0",
+ "work": "22d215f3-W1",
+ "workspace_storage": [
+  "/tmp/fresh3-prove-uf6fs2ia/native-coordination-pilot-w321608-3/state/workspaces"
+ ],
+ "workspace_storage_present": {
+  "/tmp/fresh3-prove-uf6fs2ia/native-coordination-pilot-w321608-3/state/workspaces": false
+ }
+}

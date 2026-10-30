@@ -1,0 +1,34 @@
+# red-to-green: the two new classes against candidate-360435's host bytes
+FAIL:  test_a_final_release_cannot_run_through_a_registration   <- R16 reproduced
+ERROR: test_many_concurrent_borrowers_hold_one_instance         <- R16, under real contention
+FAIL:  test_an_unbound_port_refuses_before_anything_is_read     <- R17
+FAIL:  test_each_of_the_four_is_required_to_declare             <- R17
+FAIL:  test_a_real_host_port_cannot_be_built_without_one        <- R17
+FAIL:  test_a_real_host_port_proves_the_store_it_wraps_at_birth <- R17
+Ran 12 tests / FAILED (failures=5, errors=1)
+# the same 12 against this candidate: Ran 12 tests / OK
+
+# focused suite, three consecutive runs
+Ran 125 tests in 10.957s
+OK
+Ran 125 tests in 10.882s
+OK
+Ran 125 tests in 10.876s
+OK
+
+# whole job_manager package, three consecutive runs
+ERROR: test_the_native_factory_delivers_the_policy_to_both_stage_workers (tests.job_manager.test_native_permission.NativeStageComposition.test_the_native_factory_delivers_the_policy_to_both_stage_workers)
+Ran 1143 tests in 24.521s
+FAILED (errors=1)
+ERROR: test_the_native_factory_delivers_the_policy_to_both_stage_workers (tests.job_manager.test_native_permission.NativeStageComposition.test_the_native_factory_delivers_the_policy_to_both_stage_workers)
+Ran 1143 tests in 24.802s
+FAILED (errors=1)
+ERROR: test_the_native_factory_delivers_the_policy_to_both_stage_workers (tests.job_manager.test_native_permission.NativeStageComposition.test_the_native_factory_delivers_the_policy_to_both_stage_workers)
+Ran 1143 tests in 24.643s
+FAILED (errors=1)
+
+# tests.tools.test_bootstrap + test_scheduler_trace + test_single_worker
+#   + tests.manager.test_custody + tests.manager.test_workspaces: Ran 780 in 96.212s,
+#   one failure, test_single_worker...test_a_real_observing_status_run_mutates_no_durable_state,
+#   pre-existing on canonical HEAD (../../evidence/claim-359459/PREEXISTING-SINGLE-WORKER.txt)
+# four inventory suites: 116 failures, identical to the canonical base; comm -13 empty

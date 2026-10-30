@@ -1,0 +1,91 @@
+{
+  "candidate_sha256": "6834513c45e6086fe2739c3591d3d2a592147e8cdd069e3291aa1a00b62f3799",
+  "hashes": {
+    "v12/NEXT-RUN.md": {
+      "work/records/2026/10/finding-v12-standard-next-run-path/candidate-345109": "650db6c7aaff673aa7c3d6a54858b152b9332c8728bf474a0aef11aebccb37fb",
+      "/tmp/baton-next-run-345023": "650db6c7aaff673aa7c3d6a54858b152b9332c8728bf474a0aef11aebccb37fb"
+    },
+    "v12/python/src/baton_v12/worker_manager/attempts.py": {
+      "work/records/2026/10/finding-v12-standard-next-run-path/candidate-345109": "5c3cf84641bcbef5fcf78c4bd058911dfc233b60242920ab30ebf6ce54fcdc7d",
+      "/tmp/baton-next-run-345023": "5c3cf84641bcbef5fcf78c4bd058911dfc233b60242920ab30ebf6ce54fcdc7d"
+    },
+    "v12/python/tests/manager/test_authoring_enforcement.py": {
+      "work/records/2026/10/finding-v12-standard-next-run-path/candidate-345109": "b89f9700781fc8d9fe70c59f05820aa82388dd73ffa99610d7c04f073702e3c8",
+      "/tmp/baton-next-run-345023": "b89f9700781fc8d9fe70c59f05820aa82388dd73ffa99610d7c04f073702e3c8"
+    },
+    "v12/python/tests/tools/next_run_flow_fixture.py": {
+      "work/records/2026/10/finding-v12-standard-next-run-path/candidate-345109": "c0cab3ed413561602303a4a3cd270614915e98ce136f74d9c24b7f1f3edc09c2",
+      "/tmp/baton-next-run-345023": "c0cab3ed413561602303a4a3cd270614915e98ce136f74d9c24b7f1f3edc09c2"
+    },
+    "v12/python/tests/tools/test_next_run.py": {
+      "work/records/2026/10/finding-v12-standard-next-run-path/candidate-345109": "b0123de44201c2d278ad04cec0f6173655768547afc131860be21cc7f10439cf",
+      "/tmp/baton-next-run-345023": "b0123de44201c2d278ad04cec0f6173655768547afc131860be21cc7f10439cf"
+    },
+    "v12/python/tests/tools/test_next_run_flow.py": {
+      "work/records/2026/10/finding-v12-standard-next-run-path/candidate-345109": "73fcf2a9039108934514b96e123f0f3baaecdf8a9520c2e97a7a7b670243483c",
+      "/tmp/baton-next-run-345023": "73fcf2a9039108934514b96e123f0f3baaecdf8a9520c2e97a7a7b670243483c"
+    },
+    "v12/python/tests/tools/test_next_run_managed.py": {
+      "work/records/2026/10/finding-v12-standard-next-run-path/candidate-345109": "070dfa9286d3b3ecd2800fb17f19520d15cef60979584e687af22bce0867185a",
+      "/tmp/baton-next-run-345023": "070dfa9286d3b3ecd2800fb17f19520d15cef60979584e687af22bce0867185a"
+    },
+    "v12/python/tests/tools/test_next_run_recovery.py": {
+      "work/records/2026/10/finding-v12-standard-next-run-path/candidate-345109": "c3bd2c230f8f1158c45cd8b7b5e15b7d00a6f6007fc3deaf4300f504b799404f",
+      "/tmp/baton-next-run-345023": "c3bd2c230f8f1158c45cd8b7b5e15b7d00a6f6007fc3deaf4300f504b799404f"
+    },
+    "v12/python/tools/authoring_baseline.py": {
+      "work/records/2026/10/finding-v12-standard-next-run-path/candidate-345109": "8e5987f56f8d5329c33a8e73f9df56f13213e134f2dade8180afabf80723efe9",
+      "/tmp/baton-next-run-345023": "8e5987f56f8d5329c33a8e73f9df56f13213e134f2dade8180afabf80723efe9"
+    },
+    "v12/python/tools/authoring_enforcement.py": {
+      "work/records/2026/10/finding-v12-standard-next-run-path/candidate-345109": "ac3640fe020fb69144a9c8b040bd73abed3eeff69a3f9a1ff0dd9462d08bcf93",
+      "/tmp/baton-next-run-345023": "ac3640fe020fb69144a9c8b040bd73abed3eeff69a3f9a1ff0dd9462d08bcf93"
+    },
+    "v12/python/tools/next_run.py": {
+      "work/records/2026/10/finding-v12-standard-next-run-path/candidate-345109": "f32720fada8047b40d51f28931a4c2afcef7e8417d3356f097b8d9ffd3eae373",
+      "/tmp/baton-next-run-345023": "f32720fada8047b40d51f28931a4c2afcef7e8417d3356f097b8d9ffd3eae373"
+    },
+    "v12/python/tools/next_run_bindings.py": {
+      "work/records/2026/10/finding-v12-standard-next-run-path/candidate-345109": "5f819a75d5cee75791371fd41cb3f3e53c8150be6d07484c69c0e64bb20fcf29",
+      "/tmp/baton-next-run-345023": "5f819a75d5cee75791371fd41cb3f3e53c8150be6d07484c69c0e64bb20fcf29"
+    },
+    "v12/python/tools/next_run_client.py": {
+      "work/records/2026/10/finding-v12-standard-next-run-path/candidate-345109": "d1f4e42a50ed95a8e34069e525017b4d9feca3ac3bc31fe7b51d592223d3ce1d",
+      "/tmp/baton-next-run-345023": "d1f4e42a50ed95a8e34069e525017b4d9feca3ac3bc31fe7b51d592223d3ce1d"
+    },
+    "v12/python/tools/next_run_confinement.py": {
+      "work/records/2026/10/finding-v12-standard-next-run-path/candidate-345109": "317414e0246818f4507e5c3ab907e03b149151a9bb42acf2bf1b9ec9772b469e",
+      "/tmp/baton-next-run-345023": "317414e0246818f4507e5c3ab907e03b149151a9bb42acf2bf1b9ec9772b469e"
+    },
+    "v12/python/tools/next_run_entry.py": {
+      "work/records/2026/10/finding-v12-standard-next-run-path/candidate-345109": "8290d5797267d02608180bd8539905be573ee6092ad8a04bd274a09c326a6bf4",
+      "/tmp/baton-next-run-345023": "8290d5797267d02608180bd8539905be573ee6092ad8a04bd274a09c326a6bf4"
+    },
+    "v12/python/tools/next_run_managed.py": {
+      "work/records/2026/10/finding-v12-standard-next-run-path/candidate-345109": "b4e6261a6a56086fb4eabcc292713ce21ad0dabcac9a7d1f1ac1562895ae76a9",
+      "/tmp/baton-next-run-345023": "b4e6261a6a56086fb4eabcc292713ce21ad0dabcac9a7d1f1ac1562895ae76a9"
+    },
+    "v12/python/tools/next_run_recovery.py": {
+      "work/records/2026/10/finding-v12-standard-next-run-path/candidate-345109": "59502d0ea24707f211f8fc47bd07b3847a373de48da12939a8e93920cbc506f9",
+      "/tmp/baton-next-run-345023": "59502d0ea24707f211f8fc47bd07b3847a373de48da12939a8e93920cbc506f9"
+    }
+  },
+  "worker_extension_hashes_verified": 10,
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_next_run_flow",
+    "tests.tools.test_next_run",
+    "tests.tools.test_next_run_managed",
+    "tests.tools.test_next_run_recovery",
+    "tests.manager.test_authoring_enforcement"
+  ],
+  "cwd": "/tmp/baton-next-run-345023/v12/python",
+  "disk_root": "/var/tmp/baton-w257624/review-w339626-345258",
+  "timeout_seconds": 60,
+  "process_seconds": 32.46252531900018,
+  "returncode": 0,
+  "stdout": "",
+  "stderr": "................................................................................\n----------------------------------------------------------------------\nRan 80 tests in 32.274s\n\nOK\n"
+}

@@ -1,0 +1,6 @@
+{
+  "old_identity": "sha256:819cf6f9bf11a5b8870922d2e99f92db71d621ed18bc40faf1666d26064103bf",
+  "new_identity": "sha256:55a1ba85c216575b33873de86d1bbfcda06cbd4a899a7c2fcbd5d87d81e114e6",
+  "review_only_document_accepted": true,
+  "boundary": "Pure document validation, no submission/store/engine. This proves grammar admits review-only; not execution or recovery readiness."
+}

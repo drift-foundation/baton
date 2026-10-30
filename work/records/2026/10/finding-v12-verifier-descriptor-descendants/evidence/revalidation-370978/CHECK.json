@@ -1,0 +1,57 @@
+{
+  "HEAD": "f36bcd75ed22430355efe1b274b8f236cb591f6b",
+  "manifest_sha256": "34f80cd19db542f479545285555a8b5844260e9729c33e1c2fe13018c73414fb",
+  "members": {
+    "ARGV-CHECK.json": true,
+    "ENGINE-PROOF.md": true,
+    "ENGINE-SELECTION.template.json": true,
+    "LAYOUT-CHECK.json": true,
+    "LAYOUT.json": true,
+    "LIMITS-CHECK.json": true,
+    "OPERATOR.md": true,
+    "PREFLIGHT.json": true,
+    "PREPARATION-PINS.json": true,
+    "RUNNER-CHECK.json": true,
+    "SOURCE-PINS.json": true,
+    "TASK.md": true,
+    "check_layout.py": true,
+    "engine-proof.py": true,
+    "kernel-payload.py": true,
+    "prepare.py": true,
+    "test_engine_proof.py": true
+  },
+  "source_comparison": {
+    "v12/worker/claude_agent.py": {
+      "prior": "18c34ff52faa150237df0c8d0206b805801ee71cb9e7a4ec6e84e4379d7f9d8d",
+      "current": "b014ea3f5f58af573a0cbaa4b8838a270953806a89ef274682d5cca6627efe7c",
+      "same": false
+    },
+    "v12/worker/Dockerfile.claude": {
+      "prior": "9f7e439babafabb5303aac0c17a2ac5179390c5a63fb74824b6c851ea4ab12ef",
+      "current": "487748a01c72906d3725b78ecafe060a4d290c070822ecb20c8373fe82589b49",
+      "same": false
+    },
+    "v12/python/src/baton_v12/worker_manager/oci.py": {
+      "prior": "a56d76c4fc1e4a7427fab7b56f79ec33e29fd0e52b56a1a8eca9da92f2de4d36",
+      "current": "a56d76c4fc1e4a7427fab7b56f79ec33e29fd0e52b56a1a8eca9da92f2de4d36",
+      "same": true
+    },
+    "v12/python/src/baton_v12/worker_manager/source_boundary.py": {
+      "prior": "6a6b0f7ecd29ee260e55d5abb93ebcf8891641a9cd1866109a9d291bf44e918f",
+      "current": "6a6b0f7ecd29ee260e55d5abb93ebcf8891641a9cd1866109a9d291bf44e918f",
+      "same": true
+    },
+    "v12/python/src/baton_v12/worker_manager/launch.py": {
+      "prior": "e7503f09547fa28f181cac896c00a34bef484a24d2e0a4ba57def5771a83f4cc",
+      "current": "e7503f09547fa28f181cac896c00a34bef484a24d2e0a4ba57def5771a83f4cc",
+      "same": true
+    },
+    "v12/DESIGN.md": {
+      "prior": "a103e054dba664c0441ce74c69ba5be6366eb716f8bcd111eadd142f7c9b1e3b",
+      "current": "500fa602410be8fe125be56140685c696ebd653f68abbc87a4b0d4e512bc0751",
+      "same": false
+    }
+  },
+  "probe_exit": 0,
+  "total_check_seconds": 0.07862669599853689
+}

@@ -1,0 +1,619 @@
+{
+ "canonical_instance_inputs": {
+  "path": "v12/instance-inputs.json",
+  "sha256": "e2eb35b222b67ac6fae77f361bc2a007623c7a4f2d7bc75c593f46ec2708137e"
+ },
+ "command": "compose",
+ "distro": "/var/tmp/baton-w257624/w367232-runtime-6a5d302y/distro",
+ "document": {
+  "checkpoint_profile": "git",
+  "integration_profile": {
+   "instructions_digest": "sha256:fafc35958002db5284b54f4d22cf59a7dccfb5ac05e15baa69db73fcff06d6f2",
+   "integrator_participant": "baton.integrator-w366962",
+   "profile_kind": "git",
+   "profile_version": 1
+  },
+  "integration_target": "/var/tmp/baton-w257624/w367232-proof-1o2ls6ia/instance/repo/target.git",
+  "integration_workspace": "/var/tmp/baton-w257624/w367232-proof-1o2ls6ia/instance/repo/workspace",
+  "jobs": [
+   {
+    "canonical_target_id": "42bed8bb04a53380e565b1a63fb2bc702677f0d0",
+    "job_id": "job-template-job-guide-42bed8bb",
+    "line_declared_base": "42bed8bb04a53380e565b1a63fb2bc702677f0d0",
+    "source_worker_id": "impl-w366962",
+    "work_id": "a6d83f1f-W1"
+   }
+  ],
+  "owner_participant": "baton.slaw",
+  "policy_generation": 1,
+  "pool_generation": 1,
+  "receipt_participants": {
+   "approval": "baton.slaw",
+   "review": "baton.reviewer-receipt-w366962",
+   "verification": "baton.verifier-w366962"
+  },
+  "retention_disposition": "retain",
+  "retention_policy_digest": "sha256:0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a",
+  "schema": "baton.v12.stack-bootstrap/1",
+  "workers": [
+   {
+    "deployment": {
+     "adapter_digest": "sha256:5f2ef38f05ed7a9aecd11dd7e23e9cfbe1f0243fe27bd2c9aa1b004580fcdef1",
+     "adapter_name": "docker-single-worker",
+     "authority_store": "/var/tmp/baton-w257624/w367232-proof-1o2ls6ia/instance/db/authority.sqlite3",
+     "authority_uuid": "a6d83f1f4e254121b8c472616edae873",
+     "credential_home": "/var/tmp/baton-w257624/w367232-proof-1o2ls6ia/instance/state/credentials",
+     "credential_profile": {
+      "claude": {
+       "provider": "operator-file",
+       "reference": "w202663-development"
+      }
+     },
+     "credential_slots": [
+      "claude"
+     ],
+     "credential_sources": "/home/sl/.baton/credential-sources.json",
+     "engine": "docker",
+     "image_digest": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2",
+     "input_manifest": {
+      "assignment_contract": "v12-assignment-1",
+      "created_at": "2026-08-21T22:00:00.000Z",
+      "credential_policy_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "extensions": {},
+      "human_contract": {
+       "artifact_id": "template-job-guide-42bed8bb",
+       "bytes": 7999,
+       "content_digest": "sha256:e0a71cc1e299f3b724e554faad5e83ba588dc72e1a2d4391d95ed007ff2c1a48",
+       "locator": "artifact://contracts/template-job-guide-42bed8bb",
+       "media_type": "application/json"
+      },
+      "manifest_digest": "sha256:d82ec2b4b9e6d87d849e945a0c4258bbc7da320c670e923e22ee650952a823ec",
+      "manifest_id": "input-manifest-1",
+      "mount_policy_digest": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+      "network_policy_digest": "sha256:8888888888888888888888888888888888888888888888888888888888888888",
+      "outputs": [
+       {
+        "constraints": {
+         "allowed_media_types": [
+          "application/octet-stream",
+          "text/plain"
+         ],
+         "link_policy": "forbid",
+         "max_bytes": 1048576,
+         "max_entries": 100,
+         "validator_digest": null
+        },
+        "name": "proposal",
+        "path": "proposal",
+        "required": true,
+        "type": "git-change-proposal"
+       }
+      ],
+      "policy_digest": "sha256:837d7a03b2d92b9654cbc391daefcfa208f747bbd9ae7c528d54f528bd536357",
+      "record_binding": {
+       "finding_digest": "sha256:c95c923120cad2b861534f7d8438d5bdb3e6541bdb4dba5462a8aa00b0732227",
+       "path": "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition",
+       "plan_digest": "sha256:60481d0ab9054df13ec52edcd8aa1ef092f22d1a160234aa9fc08612757ea0a1",
+       "root": "baton-repository"
+      },
+      "resource_policy_digest": "sha256:7777777777777777777777777777777777777777777777777777777777777777",
+      "retention_policy_digest": "sha256:0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a",
+      "role_instructions_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "runtime_profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+      "schema": "baton.worker-manifest/input",
+      "sources": [
+       {
+        "consumption": {
+         "baton.source-boundary/1": {
+          "delivery": "nominated-mount",
+          "profile": "git-line",
+          "workspace": "disk"
+         }
+        },
+        "content_manifest": {
+         "entries": [],
+         "entry_count": 0,
+         "total_bytes": 0,
+         "tree_digest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "destination": "source",
+        "name": "source",
+        "required": true
+       }
+      ],
+      "tool_policy_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "toolchain_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+      "version": {
+       "major": 1,
+       "minor": 0
+      },
+      "work_ref": {
+       "authority_uuid": "a6d83f1f4e254121b8c472616edae873",
+       "work_id": "a6d83f1f-W1"
+      },
+      "worker_image_digest": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2"
+     },
+     "launch_contract": "v12-assignment-1",
+     "launch_home": "/var/tmp/baton-w257624/w367232-proof-1o2ls6ia/instance/state/launch",
+     "launch_role": "implementation",
+     "network": "bridge",
+     "nominated_source": "/var/tmp/baton-w257624/w367232-proof-1o2ls6ia/instance/repo/source-impl-w366962",
+     "participant": "baton.claude-w366962",
+     "policy_digest": "sha256:837d7a03b2d92b9654cbc391daefcfa208f747bbd9ae7c528d54f528bd536357",
+     "principal": "principal:baton.claude-w366962",
+     "profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+     "profile_name": "claude-fresh-implementation",
+     "retention_disposition": "retain",
+     "retention_policy_digest": "sha256:0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a",
+     "review_route": "rview",
+     "schema": "baton.v12.single-worker-deployment/4",
+     "task_document": "/var/tmp/baton-w257624/w367232-proof-1o2ls6ia/instance/state/task/template-job-guide-42bed8bb.json",
+     "workspace_capacity": {
+      "max_bytes": 83886081
+     },
+     "workspace_group": 1000,
+     "workspace_storage": "/var/tmp/baton-w257624/w367232-proof-1o2ls6ia/instance/state/workspaces"
+    },
+    "participant": "baton.claude-w366962",
+    "role": "implementation",
+    "worker_id": "impl-w366962"
+   },
+   {
+    "deployment": {
+     "adapter_digest": "sha256:5f2ef38f05ed7a9aecd11dd7e23e9cfbe1f0243fe27bd2c9aa1b004580fcdef1",
+     "adapter_name": "docker-single-worker",
+     "authority_store": "/var/tmp/baton-w257624/w367232-proof-1o2ls6ia/instance/db/authority.sqlite3",
+     "authority_uuid": "a6d83f1f4e254121b8c472616edae873",
+     "credential_home": "/var/tmp/baton-w257624/w367232-proof-1o2ls6ia/instance/state/credentials",
+     "credential_profile": {
+      "claude": {
+       "provider": "operator-file",
+       "reference": "w202663-development"
+      }
+     },
+     "credential_slots": [
+      "claude"
+     ],
+     "credential_sources": "/home/sl/.baton/credential-sources.json",
+     "engine": "docker",
+     "image_digest": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2",
+     "input_manifest": {
+      "assignment_contract": "v12-assignment-1",
+      "created_at": "2026-08-21T22:00:00.000Z",
+      "credential_policy_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "extensions": {},
+      "human_contract": {
+       "artifact_id": "template-job-guide-42bed8bb",
+       "bytes": 7999,
+       "content_digest": "sha256:e0a71cc1e299f3b724e554faad5e83ba588dc72e1a2d4391d95ed007ff2c1a48",
+       "locator": "artifact://contracts/template-job-guide-42bed8bb",
+       "media_type": "application/json"
+      },
+      "manifest_digest": "sha256:d82ec2b4b9e6d87d849e945a0c4258bbc7da320c670e923e22ee650952a823ec",
+      "manifest_id": "input-manifest-1",
+      "mount_policy_digest": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+      "network_policy_digest": "sha256:8888888888888888888888888888888888888888888888888888888888888888",
+      "outputs": [
+       {
+        "constraints": {
+         "allowed_media_types": [
+          "application/octet-stream",
+          "text/plain"
+         ],
+         "link_policy": "forbid",
+         "max_bytes": 1048576,
+         "max_entries": 100,
+         "validator_digest": null
+        },
+        "name": "proposal",
+        "path": "proposal",
+        "required": true,
+        "type": "git-change-proposal"
+       }
+      ],
+      "policy_digest": "sha256:837d7a03b2d92b9654cbc391daefcfa208f747bbd9ae7c528d54f528bd536357",
+      "record_binding": {
+       "finding_digest": "sha256:c95c923120cad2b861534f7d8438d5bdb3e6541bdb4dba5462a8aa00b0732227",
+       "path": "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition",
+       "plan_digest": "sha256:60481d0ab9054df13ec52edcd8aa1ef092f22d1a160234aa9fc08612757ea0a1",
+       "root": "baton-repository"
+      },
+      "resource_policy_digest": "sha256:7777777777777777777777777777777777777777777777777777777777777777",
+      "retention_policy_digest": "sha256:0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a",
+      "role_instructions_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "runtime_profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+      "schema": "baton.worker-manifest/input",
+      "sources": [
+       {
+        "consumption": {
+         "baton.source-boundary/1": {
+          "delivery": "nominated-mount",
+          "profile": "git-line",
+          "workspace": "disk"
+         }
+        },
+        "content_manifest": {
+         "entries": [],
+         "entry_count": 0,
+         "total_bytes": 0,
+         "tree_digest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "destination": "source",
+        "name": "source",
+        "required": true
+       }
+      ],
+      "tool_policy_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "toolchain_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+      "version": {
+       "major": 1,
+       "minor": 0
+      },
+      "work_ref": {
+       "authority_uuid": "a6d83f1f4e254121b8c472616edae873",
+       "work_id": "a6d83f1f-W1"
+      },
+      "worker_image_digest": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2"
+     },
+     "launch_contract": "v12-assignment-1",
+     "launch_home": "/var/tmp/baton-w257624/w367232-proof-1o2ls6ia/instance/state/launch",
+     "launch_role": "review",
+     "network": "bridge",
+     "nominated_source": "/var/tmp/baton-w257624/w367232-proof-1o2ls6ia/instance/repo/source-review-w366962",
+     "participant": "baton.reviewer-w366962",
+     "policy_digest": "sha256:837d7a03b2d92b9654cbc391daefcfa208f747bbd9ae7c528d54f528bd536357",
+     "principal": "principal:baton.reviewer-w366962",
+     "profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+     "profile_name": "claude-fresh-implementation",
+     "retention_disposition": "retain",
+     "retention_policy_digest": "sha256:0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a",
+     "review_route": "owner",
+     "schema": "baton.v12.single-worker-deployment/4",
+     "task_document": "/var/tmp/baton-w257624/w367232-proof-1o2ls6ia/instance/state/task/template-job-guide-42bed8bb.json",
+     "workspace_capacity": {
+      "max_bytes": 83886081
+     },
+     "workspace_group": 1000,
+     "workspace_storage": "/var/tmp/baton-w257624/w367232-proof-1o2ls6ia/instance/state/workspaces"
+    },
+    "participant": "baton.reviewer-w366962",
+    "role": "review",
+    "worker_id": "review-w366962"
+   }
+  ]
+ },
+ "document_digest": "sha256:000180689685d3d914493bc1aa7829aba06039f2b637eda48b0364502c590ab3",
+ "effects": {
+  "created": [],
+  "extracted": [],
+  "removed": [],
+  "wrote": []
+ },
+ "inputs_this_composition_depends_on": {
+  "files": {
+   "v12/instance-inputs.json": {
+    "sha256": "e2eb35b222b67ac6fae77f361bc2a007623c7a4f2d7bc75c593f46ec2708137e",
+    "what": "canonical instance inputs"
+   },
+   "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json": {
+    "sha256": "fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903",
+    "what": "published conformance vectors"
+   },
+   "work/records/2026/10/finding-v12-native-pilot-instance-packet/fresh5-361402/configure-inputs.json": {
+    "sha256": "f60b129baad7fc098be76af530a6705b96cd510aa4d8b2ff552cf3b9d6e2a494",
+    "what": "reviewed pilot configuration"
+   },
+   "work/records/2026/10/finding-v12-native-pilot-instance-packet/fresh5-361402/task.json": {
+    "sha256": "91a13de94a23941b6653b9da40ae56e28046c7b30456def734638243185272f0",
+    "what": "reviewed pilot task"
+   },
+   "work/records/2026/10/finding-v12-native-pilot-instance-packet/revision-4/inputs/deployment.json": {
+    "sha256": "6a675445d361a5208f82dfc43593595cd2d5d9bcbb3e893842c03b5cb8587a3e",
+    "what": "reviewed pilot input manifest"
+   },
+   "work/records/2026/10/finding-v12-template-job-creation/findings/finding-packaged-template-creation/evidence/review-366382/BUNDLE-ARCHIVE.json": {
+    "sha256": "de9c669ce77819686f5043207151af5f6e1894940f87da70e16fde0c9dcbbad9",
+    "what": "retained runtime archive record"
+   },
+   "work/records/2026/10/finding-v12-template-job-creation/findings/finding-packaged-template-creation/evidence/review-366382/verified-first-build.tar.gz": {
+    "sha256": "1da85eed0a3a19a5da0b83253abbbb40ebeed01bfe90ee05a10055dec0057125",
+    "what": "retained runtime archive"
+   }
+  },
+  "note": "digests read now; a parent assembling on this result should re-read them and compare",
+  "source_revision": "42bed8bb04a53380e565b1a63fb2bc702677f0d0"
+ },
+ "installed_task": {
+  "bytes": 7999,
+  "content_digest": "sha256:e0a71cc1e299f3b724e554faad5e83ba588dc72e1a2d4391d95ed007ff2c1a48",
+  "declared_base": "42bed8bb04a53380e565b1a63fb2bc702677f0d0",
+  "place": "/var/tmp/baton-w257624/w367232-proof-1o2ls6ia/instance/state/task/template-job-guide-42bed8bb.json",
+  "task_id": "template-job-guide-42bed8bb"
+ },
+ "lane_bases": {
+  "implementation": {
+   "from": "the reviewed pilot's own implementation worker",
+   "profile_name": "claude-fresh-implementation",
+   "review_route": "rview"
+  },
+  "review": {
+   "from": "the reviewed pilot's own review worker",
+   "profile_name": "claude-fresh-implementation",
+   "review_route": "owner"
+  }
+ },
+ "lanes": [
+  "implementation",
+  "review"
+ ],
+ "manifest_coherence": {
+  "human_contract_is_the_installed_task": true,
+  "image_matches_worker": true,
+  "policy_digest_matches_worker": true,
+  "record_binding": {
+   "finding_digest": "sha256:c95c923120cad2b861534f7d8438d5bdb3e6541bdb4dba5462a8aa00b0732227",
+   "path": "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition",
+   "plan_digest": "sha256:60481d0ab9054df13ec52edcd8aa1ef092f22d1a160234aa9fc08612757ea0a1",
+   "root": "baton-repository"
+  },
+  "runtime_profile_matches_worker": true,
+  "work_ref": {
+   "authority_uuid": "a6d83f1f4e254121b8c472616edae873",
+   "work_id": "a6d83f1f-W1"
+  }
+ },
+ "manifest_digest": "sha256:d82ec2b4b9e6d87d849e945a0c4258bbc7da320c670e923e22ee650952a823ec",
+ "minted_authority_uuid": "a6d83f1f4e254121b8c472616edae873",
+ "no_secret_in_this_answer": true,
+ "participants": [
+  "baton.claude-w366962",
+  "baton.reviewer-w366962"
+ ],
+ "pins_requiring_operator_verification": {
+  "adapter_digest": "sha256:5f2ef38f05ed7a9aecd11dd7e23e9cfbe1f0243fe27bd2c9aa1b004580fcdef1",
+  "adapter_name": "docker-single-worker",
+  "credential_references": [
+   "claude"
+  ],
+  "credential_sources": "/home/sl/.baton/credential-sources.json",
+  "engine": "docker",
+  "image_digest": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2",
+  "policy_digest": "sha256:837d7a03b2d92b9654cbc391daefcfa208f747bbd9ae7c528d54f528bd536357",
+  "profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+  "profile_name": "claude-fresh-implementation",
+  "why": "taken from the reviewed pilot deployment because they are instance-independent facts; nothing here contacts a container engine or credential provider, so an operator must confirm the image, the credential references AND the credential_sources registry path resolve on the installing host before any execution selection"
+ },
+ "preparation_is_complete": false,
+ "provenance": {
+  "canonical_instance_inputs": {
+   "path": "v12/instance-inputs.json",
+   "sha256": "e2eb35b222b67ac6fae77f361bc2a007623c7a4f2d7bc75c593f46ec2708137e"
+  },
+  "members": {
+   "assignment_contract": {
+    "kind": "inherited-contract",
+    "source": "structural, from the published conformance vector at work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json (sha256 fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903)",
+    "value": "v12-assignment-1"
+   },
+   "created_at": {
+    "kind": "inherited-contract",
+    "source": "structural, from the published conformance vector at work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json (sha256 fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903)",
+    "value": "2026-08-21T22:00:00.000Z"
+   },
+   "credential_policy_digest": {
+    "kind": "unresolved-grant",
+    "missing_selection": "the credential policy covering the `claude` slot that resolves through reference `w202663-development`. Resolving it means reading an operator credential registry, which this preparation does not do.",
+    "source": "the published conformance vector at work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json (sha256 fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903), carried unchanged -- the same baseline tools/next_run_bindings.py reads and leaves",
+    "value": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "what_it_names": "the credential profile; the owner ruling names it separate from the shared Job identity"
+   },
+   "extensions": {
+    "kind": "inherited-contract",
+    "source": "structural, from the published conformance vector at work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json (sha256 fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903)",
+    "value": {}
+   },
+   "human_contract": {
+    "kind": "selected",
+    "note": "its verification argv is guide_contract.SCRIPT, driven to real refusals in prove_guide_contract.py",
+    "source": "sha256 of the task document bytes this composition writes; the same bytes the installer opens",
+    "value": {
+     "artifact_id": "template-job-guide-42bed8bb",
+     "bytes": 7999,
+     "content_digest": "sha256:e0a71cc1e299f3b724e554faad5e83ba588dc72e1a2d4391d95ed007ff2c1a48",
+     "locator": "artifact://contracts/template-job-guide-42bed8bb",
+     "media_type": "application/json"
+    }
+   },
+   "manifest_digest": {
+    "kind": "selected",
+    "source": "the seal, computed last over the finished document by baton_v12.contracts.digest",
+    "value": "sha256:d82ec2b4b9e6d87d849e945a0c4258bbc7da320c670e923e22ee650952a823ec"
+   },
+   "manifest_id": {
+    "kind": "inherited-contract",
+    "source": "structural, from the published conformance vector at work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json (sha256 fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903)",
+    "value": "input-manifest-1"
+   },
+   "mount_policy_digest": {
+    "kind": "unresolved-grant",
+    "missing_selection": "the mount policy document governing the nominated-mount delivery. No such document is published with the pilot.",
+    "source": "the published conformance vector at work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json (sha256 fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903), carried unchanged -- the same baseline tools/next_run_bindings.py reads and leaves",
+    "value": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+    "what_it_names": "a Job-wide bound, compared across every worker"
+   },
+   "network_policy_digest": {
+    "kind": "unresolved-grant",
+    "missing_selection": "the network policy document for the `bridge` network this deployment pins. No such document is published with the pilot.",
+    "source": "the published conformance vector at work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json (sha256 fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903), carried unchanged -- the same baseline tools/next_run_bindings.py reads and leaves",
+    "value": "sha256:8888888888888888888888888888888888888888888888888888888888888888",
+    "what_it_names": "a Job-wide bound, compared across every worker"
+   },
+   "outputs": {
+    "kind": "inherited-contract",
+    "source": "the reviewed pilot deployment's own input manifest at work/records/2026/10/finding-v12-native-pilot-instance-packet/revision-4/inputs/deployment.json (sha256 6a675445d361a5208f82dfc43593595cd2d5d9bcbb3e893842c03b5cb8587a3e)",
+    "value": [
+     {
+      "constraints": {
+       "allowed_media_types": [
+        "application/octet-stream",
+        "text/plain"
+       ],
+       "link_policy": "forbid",
+       "max_bytes": 1048576,
+       "max_entries": 100,
+       "validator_digest": null
+      },
+      "name": "proposal",
+      "path": "proposal",
+      "required": true,
+      "type": "git-change-proposal"
+     }
+    ]
+   },
+   "policy_digest": {
+    "kind": "inherited-contract",
+    "note": "identical to the worker that carries this manifest, which is what the installer checks; the document behind the digest is not published, so this is an accepted contract and not a content check",
+    "source": "the reviewed pilot worker deployment's policy_digest at work/records/2026/10/finding-v12-native-pilot-instance-packet/fresh5-361402/configure-inputs.json (sha256 f60b129baad7fc098be76af530a6705b96cd510aa4d8b2ff552cf3b9d6e2a494)",
+    "value": "sha256:837d7a03b2d92b9654cbc391daefcfa208f747bbd9ae7c528d54f528bd536357"
+   },
+   "record_binding": {
+    "kind": "selected",
+    "source": "this child's own dossier: FINDING.md and PLAN.md, digested now",
+    "value": {
+     "finding_digest": "sha256:c95c923120cad2b861534f7d8438d5bdb3e6541bdb4dba5462a8aa00b0732227",
+     "path": "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition",
+     "plan_digest": "sha256:60481d0ab9054df13ec52edcd8aa1ef092f22d1a160234aa9fc08612757ea0a1",
+     "root": "baton-repository"
+    }
+   },
+   "resource_policy_digest": {
+    "kind": "unresolved-grant",
+    "missing_selection": "the resource policy document the operator grants this deployment. The Job's own provider/verification limits travel on the submission instead and are selected; this identity is not.",
+    "source": "the published conformance vector at work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json (sha256 fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903), carried unchanged -- the same baseline tools/next_run_bindings.py reads and leaves",
+    "value": "sha256:7777777777777777777777777777777777777777777777777777777777777777",
+    "what_it_names": "a Job-wide bound, compared across every worker"
+   },
+   "retention_policy_digest": {
+    "kind": "inherited-contract",
+    "note": "identical to the worker that carries this manifest, which is what the installer checks; the document behind the digest is not published, so this is an accepted contract and not a content check",
+    "source": "the reviewed pilot worker deployment's retention_policy_digest at work/records/2026/10/finding-v12-native-pilot-instance-packet/fresh5-361402/configure-inputs.json (sha256 f60b129baad7fc098be76af530a6705b96cd510aa4d8b2ff552cf3b9d6e2a494)",
+    "value": "sha256:0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a"
+   },
+   "role_instructions_digest": {
+    "kind": "unresolved-grant",
+    "missing_selection": "the two role-instruction documents this deployment would hand its implementation and review lanes. The parent selects neither, and authoring them here would be making the grant.",
+    "source": "the published conformance vector at work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json (sha256 fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903), carried unchanged -- the same baseline tools/next_run_bindings.py reads and leaves",
+    "value": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+    "what_it_names": "the ROLE's own instructions; contracts/manifest.py classifies it per-role, because an implementer and a reviewer are told different things"
+   },
+   "runtime_profile_digest": {
+    "kind": "inherited-contract",
+    "note": "identical to the worker that carries this manifest, which is what the installer checks; the document behind the digest is not published, so this is an accepted contract and not a content check",
+    "source": "the reviewed pilot worker deployment's profile_digest at work/records/2026/10/finding-v12-native-pilot-instance-packet/fresh5-361402/configure-inputs.json (sha256 f60b129baad7fc098be76af530a6705b96cd510aa4d8b2ff552cf3b9d6e2a494)",
+    "value": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be"
+   },
+   "schema": {
+    "kind": "inherited-contract",
+    "source": "structural, from the published conformance vector at work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json (sha256 fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903)",
+    "value": "baton.worker-manifest/input"
+   },
+   "sources": {
+    "kind": "inherited-contract",
+    "source": "the reviewed pilot deployment's own input manifest at work/records/2026/10/finding-v12-native-pilot-instance-packet/revision-4/inputs/deployment.json (sha256 6a675445d361a5208f82dfc43593595cd2d5d9bcbb3e893842c03b5cb8587a3e)",
+    "value": [
+     {
+      "consumption": {
+       "baton.source-boundary/1": {
+        "delivery": "nominated-mount",
+        "profile": "git-line",
+        "workspace": "disk"
+       }
+      },
+      "content_manifest": {
+       "entries": [],
+       "entry_count": 0,
+       "total_bytes": 0,
+       "tree_digest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "destination": "source",
+      "name": "source",
+      "required": true
+     }
+    ]
+   },
+   "tool_policy_digest": {
+    "kind": "unresolved-grant",
+    "missing_selection": "the tool policy document for the workload's permitted tools. No such document is published with the pilot.",
+    "source": "the published conformance vector at work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json (sha256 fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903), carried unchanged -- the same baseline tools/next_run_bindings.py reads and leaves",
+    "value": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "what_it_names": "a Job-wide bound, compared across every worker"
+   },
+   "toolchain_digest": {
+    "kind": "unresolved-grant",
+    "missing_selection": "the toolchain inventory of image sha256:c862c055...; reading it means contacting a container engine, which this preparation does not do.",
+    "source": "the published conformance vector at work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json (sha256 fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903), carried unchanged -- the same baseline tools/next_run_bindings.py reads and leaves",
+    "value": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+    "what_it_names": "the toolchain travelling with the worker image"
+   },
+   "version": {
+    "kind": "inherited-contract",
+    "source": "structural, from the published conformance vector at work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json (sha256 fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903)",
+    "value": {
+     "major": 1,
+     "minor": 0
+    }
+   },
+   "work_ref": {
+    "kind": "selected",
+    "source": "the authority identity minted at the destination and read back, with the Work derived from it",
+    "value": {
+     "authority_uuid": "a6d83f1f4e254121b8c472616edae873",
+     "work_id": "a6d83f1f-W1"
+    }
+   },
+   "worker_image_digest": {
+    "kind": "inherited-contract",
+    "note": "identical to the worker that carries this manifest, which is what the installer checks; the document behind the digest is not published, so this is an accepted contract and not a content check",
+    "source": "the reviewed pilot worker deployment's image_digest at work/records/2026/10/finding-v12-native-pilot-instance-packet/fresh5-361402/configure-inputs.json (sha256 f60b129baad7fc098be76af530a6705b96cd510aa4d8b2ff552cf3b9d6e2a494)",
+    "value": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2"
+   }
+  },
+  "preparation_is_complete": false,
+  "published_vector": {
+   "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json",
+   "read_the_way": "tools/next_run_bindings.py reads it",
+   "sha256": "fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903"
+  },
+  "reviewed_pilot_manifest": {
+   "path": "work/records/2026/10/finding-v12-native-pilot-instance-packet/revision-4/inputs/deployment.json",
+   "sha256": "6a675445d361a5208f82dfc43593595cd2d5d9bcbb3e893842c03b5cb8587a3e"
+  },
+  "reviewed_pilot_worker": {
+   "member": "workers[].deployment",
+   "path": "work/records/2026/10/finding-v12-native-pilot-instance-packet/fresh5-361402/configure-inputs.json",
+   "sha256": "f60b129baad7fc098be76af530a6705b96cd510aa4d8b2ff552cf3b9d6e2a494"
+  },
+  "rule": "tools/dogfood_operator.input_manifest: 'EVERY POLICY IDENTITY IS AN OPERAND ... A tool that filled one in would be making a grant on an operator's behalf.' So these are carried and named, never invented.",
+  "unaccounted_members": [],
+  "unresolved_operator_grants": [
+   "credential_policy_digest",
+   "mount_policy_digest",
+   "network_policy_digest",
+   "resource_policy_digest",
+   "role_instructions_digest",
+   "tool_policy_digest",
+   "toolchain_digest"
+  ]
+ },
+ "schema": "baton.v12.one-time-capacity/2",
+ "source": {
+  "at_selected_commit": true,
+  "commit": "42bed8bb04a53380e565b1a63fb2bc702677f0d0",
+  "root": "/home/sl/src/baton",
+  "selected": "42bed8bb04a53380e565b1a63fb2bc702677f0d0"
+ },
+ "task_bytes": "{\n \"declared_base\": \"42bed8bb04a53380e565b1a63fb2bc702677f0d0\",\n \"instructions\": \"Write a reusable operator guide for ordinary v12 template Job creation and observation using the supported installed command. Explain the supplied task, source, scope and acceptance inputs, template version and limits, independent review and held results, failure/recovery boundary and human disposition. Verify all documented command examples against current supported parsers and behavior. Preserve the historical instance4 QUICKSTART facts; do not claim source features are installed there. Deliver documentation, not product redesign.\",\n \"schema\": \"baton.dogfood-task/2\",\n \"source_profile\": \"git-line\",\n \"source_root\": \"source\",\n \"task_id\": \"template-job-guide-42bed8bb\",\n \"verification\": [\n  \"python3\",\n  \"-c\",\n  \"\\nimport argparse, contextlib, io, os, re, shlex, sys\\n\\nGUIDE = 'v12/TEMPLATE-JOBS.md'\\nTEMPLATE = 'baton.v12.job-template.implementation-review/1'\\nSECTIONS = ('## Creating the Job', '## What the inputs mean', '## Watching it without touching it', '## Independent review and the held result', '## When an attempt fails', '## The human disposition')\\n\\ndef refuse(why):\\n    sys.exit(\\\"guide verification refused: \\\" + why)\\n\\nif not os.path.isfile(GUIDE):\\n    refuse(\\\"there is no \\\" + GUIDE + \\\"; this task delivers that guide and the \\\"\\n           \\\"pre-existing v12/QUICKSTART.md satisfies nothing here\\\")\\ntext = io.open(GUIDE, encoding=\\\"utf-8\\\").read()\\n\\nmissing = [one for one in SECTIONS if one not in text]\\nif missing:\\n    refuse(\\\"missing sections: \\\" + \\\", \\\".join(missing))\\nat = [text.index(one) for one in SECTIONS]\\nif at != sorted(at):\\n    refuse(\\\"the sections are present but out of the order the task names\\\")\\nif TEMPLATE not in text:\\n    refuse(\\\"the guide never names the exact template version \\\" + TEMPLATE)\\nmarks = [one for one in (\\\"TODO\\\", \\\"TBD\\\", \\\"FIXME\\\") if one in text]\\nif marks:\\n    refuse(\\\"unresolved markers: \\\" + \\\", \\\".join(marks))\\n\\ntry:\\n    sys.path[:0] = [\\\"v12/python/src\\\", \\\"v12/python\\\"]\\n    from tools import stack_command\\nexcept Exception as failure:\\n    refuse(\\\"the owning parsers could not be imported from this checkout \\\"\\n           \\\"(%s: %s); this contract will not pass a guide whose commands it \\\"\\n           \\\"could not check\\\" % (type(failure).__name__, failure))\\n\\nblocks = re.findall(r\\\"```sh\\\\n(.*?)```\\\", text, re.S)\\nnamed = {}\\nfor block in blocks:\\n    for line in block.splitlines():\\n        found = re.match(r\\\"^([A-Z][A-Z0-9_]*)=(.*)$\\\", line.strip())\\n        if found:\\n            named[found.group(1)] = found.group(2).strip().strip('\\\"')\\n\\ndef expanded(line):\\n    out = line\\n    for key in sorted(named, key=len, reverse=True):\\n        out = out.replace(\\\"${\\\" + key + \\\"}\\\", named[key])\\n        out = out.replace(\\\"$\\\" + key, named[key])\\n    return out\\n\\nclass Parsed(Exception):\\n    def __init__(self, taken):\\n        self.taken = taken\\n\\nheld = argparse.ArgumentParser.parse_args\\n\\ndef parsing(self, args=None, namespace=None):\\n    raise Parsed(held(self, args=args, namespace=namespace))\\n\\nchecked, created = 0, 0\\nargparse.ArgumentParser.parse_args = parsing\\ntry:\\n    for block in blocks:\\n        for line in block.splitlines():\\n            line = line.strip()\\n            if not line or line.startswith(\\\"#\\\"):\\n                continue\\n            if \\\"baton-v12-stack\\\" not in line:\\n                continue\\n            if line.endswith(\\\"\\\\\\\\\\\"):\\n                refuse(\\\"a documented invocation is continued across lines and \\\"\\n                       \\\"is not pasteable as published: \\\" + line)\\n            whole = expanded(line)\\n            if \\\"$\\\" in whole:\\n                refuse(\\\"a documented invocation still carries an undefined \\\"\\n                       \\\"expansion after the guide's own assignments: \\\" + whole)\\n            try:\\n                words = shlex.split(whole)\\n            except ValueError as failure:\\n                refuse(\\\"a documented invocation does not parse as a shell \\\"\\n                       \\\"command (%s): %s\\\" % (failure, line))\\n            where = [i for i, one in enumerate(words)\\n                     if one.endswith(\\\"baton-v12-stack\\\")]\\n            words = words[where[0] + 1:]\\n            if not words:\\n                refuse(\\\"a documented invocation names no subcommand: \\\" + line)\\n            verb, operands = words[0], words[1:]\\n            if verb not in stack_command.COMMANDS:\\n                refuse(\\\"the guide documents subcommand %r, which this build \\\"\\n                       \\\"does not serve; it serves %s\\\"\\n                       % (verb, \\\", \\\".join(sorted(stack_command.COMMANDS))))\\n            if verb == \\\"manager\\\" and \\\"create\\\" in operands:\\n                created += 1\\n                if \\\"--document\\\" in operands:\\n                    refuse(\\\"a documented create example supplies --document; \\\"\\n                           \\\"ordinary template creation takes input operands \\\"\\n                           \\\"only and authors no admission document\\\")\\n                for want in (\\\"--task\\\", \\\"--statement\\\", \\\"--acceptance\\\",\\n                             \\\"--work-scope\\\", \\\"--template\\\", \\\"--source\\\"):\\n                    if want not in operands:\\n                        refuse(\\\"the documented create example omits \\\" + want)\\n                if operands[operands.index(\\\"--template\\\") + 1] != TEMPLATE:\\n                    refuse(\\\"the documented create example names a template \\\"\\n                           \\\"version other than \\\" + TEMPLATE)\\n                if operands[operands.index(\\\"--source\\\") + 1] != \\\"installed\\\":\\n                    refuse(\\\"the documented create example does not select the \\\"\\n                           \\\"installed source\\\")\\n            if verb == \\\"identity\\\":\\n                if operands:\\n                    refuse(\\\"identity takes no operands; the guide gives it \\\"\\n                           + \\\" \\\".join(operands))\\n                checked += 1\\n                continue\\n            if verb == \\\"attempt-diagnostics\\\":\\n                positional = [one for one in operands\\n                              if not one.startswith(\\\"-\\\")]\\n                if len(operands) != 1 or len(positional) != 1:\\n                    refuse(\\\"attempt-diagnostics takes exactly one positional \\\"\\n                           \\\"status file; the guide gives it \\\"\\n                           + \\\" \\\".join(operands))\\n                checked += 1\\n                continue\\n            said = io.StringIO()\\n            try:\\n                with contextlib.redirect_stdout(said), \\\\\\n                        contextlib.redirect_stderr(said):\\n                    stack_command.main([verb] + operands)\\n            except Parsed:\\n                checked += 1\\n                continue\\n            except SystemExit:\\n                refuse(\\\"this build's own parser refuses a documented \\\"\\n                       \\\"invocation -- %s -- with: %s\\\"\\n                       % (line, \\\" \\\".join(said.getvalue().split())[:300]))\\n            except Exception as failure:\\n                refuse(\\\"a documented invocation could not be checked against \\\"\\n                       \\\"its parser (%s: %s): %s\\\"\\n                       % (type(failure).__name__, failure, line))\\n            refuse(\\\"a documented invocation reached no parser at all, so it \\\"\\n                   \\\"cannot be checked: \\\" + line)\\nfinally:\\n    argparse.ArgumentParser.parse_args = held\\n\\nif not created:\\n    refuse(\\\"the guide documents no `manager ... create` example, which is the \\\"\\n           \\\"command it exists to teach\\\")\\nprint(\\\"guide structure ok: %d bytes, %d ordered sections, %d documented \\\"\\n      \\\"invocations parsed against this build, %d create examples. \\\"\\n      \\\"MECHANICAL ONLY -- the five acceptance criteria are the independent \\\"\\n      \\\"reviewer's judgment, not this command's.\\\"\\n      % (len(text), len(SECTIONS), checked, created))\\n\"\n ]\n}\n",
+ "task_document_place": "/var/tmp/baton-w257624/w367232-proof-1o2ls6ia/instance/state/task/template-job-guide-42bed8bb.json",
+ "why_not_complete": "7 operator grants in the input manifest have no selected source and are carried at the published vector's constants: credential_policy_digest, mount_policy_digest, network_policy_digest, resource_policy_digest, role_instructions_digest, tool_policy_digest, toolchain_digest. `provenance.members` names the exact selection missing for each. This preparation is reusable and the connected proof is real, but it is NOT a finished operational configuration until an operator grants them.",
+ "work_id": "a6d83f1f-W1"
+}

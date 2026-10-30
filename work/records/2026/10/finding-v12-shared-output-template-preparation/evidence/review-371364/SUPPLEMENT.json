@@ -1,0 +1,29 @@
+{
+  "canonical_record_read_forbidden_composition_equal": true,
+  "policy_delta_paths": {
+    "credential_policy.json": [
+      "/for_selection"
+    ],
+    "role_instructions.json": [
+      "/for_selection"
+    ],
+    "resource_policy.json": [
+      "/for_selection"
+    ],
+    "network_policy.json": [
+      "/for_selection"
+    ],
+    "mount_policy.json": [
+      "/for_selection",
+      "/read_from"
+    ],
+    "tool_policy.json": [
+      "/for_selection"
+    ],
+    "toolchain.json": [
+      "/CAVEAT",
+      "/for_selection"
+    ]
+  },
+  "operational_ready": false
+}

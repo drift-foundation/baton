@@ -1,0 +1,39 @@
+{
+  "scope": "Inert OS operations and exact AST-extracted existing path validator; no product correction implemented",
+  "worker_sha256": "b014ea3f5f58af573a0cbaa4b8838a270953806a89ef274682d5cca6627efe7c",
+  "base": "f36bcd75ed22430355efe1b274b8f236cb591f6b",
+  "observations": {
+    "self_fd": {
+      "immediate": true,
+      "grandchild": {
+        "exists": false,
+        "resolved": "/proc/6/fd/3"
+      },
+      "exact_nested_adapter": {
+        "accepted": false,
+        "reason": "the private child root /proc/self/fd/3/nested/home resolves outside scratch to /tmp/w325695-mechanism-7xphts75/root/nested/home"
+      }
+    },
+    "holder_fd": {
+      "immediate": true,
+      "grandchild": {
+        "exists": true,
+        "resolved": "/tmp/w325695-mechanism-7xphts75/root"
+      },
+      "exact_nested_adapter": {
+        "accepted": false,
+        "reason": "the private child root /proc/4/fd/3/nested/home resolves outside scratch to /tmp/w325695-mechanism-7xphts75/root/nested/home"
+      }
+    },
+    "replacement": {
+      "resolved_path_redirects": true,
+      "holder_alias_stays_on_object": true,
+      "holder_did_not_write_candidate": true
+    },
+    "holder_close": {
+      "exists_after_close": false
+    }
+  },
+  "seconds": 0.043544331994780805,
+  "limits": "Rejects these specific incomplete compositions. Does not establish impossibility of every adapter-local solution; no engine namespace or credential isolation claim. All children awaited; temporary marker tree cleaned."
+}

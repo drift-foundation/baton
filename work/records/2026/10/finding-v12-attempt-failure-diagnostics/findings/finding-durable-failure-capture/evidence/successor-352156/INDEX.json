@@ -1,0 +1,21 @@
+{
+  "claim": 352156,
+  "copies": {
+    "EXECUTOR-CAPABILITY.json": "3634e1e47239f4e051e8c7cf7c78f0ee07f9396daf9f206a24e30b134eef524e",
+    "PROBES.json": "d268ff85b2091d1ee9a3ac2bc5bf0c3f1c7f3bb91bd807a06de173c836964a3c",
+    "SEAL.json": "a14dc708f9dfd42f273aa409db4c805489fa9fdef15a33bea106e96b25638d26",
+    "STARTUP-CHECK-OLD.json": "c81d90f944abffeb00c0f67f45301ee538cba6fb95428cbc8545a0770492dce9",
+    "STARTUP-CHECK.json": "2506aaeeeceea7b6d540eb94afe4a3ce99ea7b051db004e6d22e28e487e9a5aa"
+  },
+  "packet": "execution-352156",
+  "packet_manifest": "9bda87e4ad655da1c1a452b901f994c5da7b4647d1a64c02ab2287866086dc2e",
+  "schema": "baton.w341357-successor-evidence/3",
+  "the_run_this_claim_also_executed": "the owner-selected run350529, whose evidence is at ../run-350529/. This claim both ran a selected invocation and prepared its successor.",
+  "what": {
+    "EXECUTOR-CAPABILITY.json": "pre-stage structural capability bound to THIS manifest: capable, zero denials, 0.017s, two read-only engine calls.",
+    "PROBES.json": "61 of 61 probes behaving as intended in 2.468s, carried unchanged.",
+    "SEAL.json": "the resultant seal, verified both ways.",
+    "STARTUP-CHECK-OLD.json": "THE COUNTERFACTUAL: the same check against the packet composed at the preserved run350529 root reproduces the exact SupervisorRefusal, with verify_controller NOT REACHED rather than refused. Read-only; that root was not modified.",
+    "STARTUP-CHECK.json": "main's first three statements against THIS claim's composed packet, in a child with the controller's exact environment: all three accept, 0.330s. Stops at the authoring lock. Does NOT establish that the controller starts."
+  }
+}

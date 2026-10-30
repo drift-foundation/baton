@@ -1,0 +1,13 @@
+{
+  "cases": [
+    {
+      "role": "implementation",
+      "outcome": "ContractRefusal: required context receipt declaration is missing"
+    },
+    {
+      "role": "review",
+      "outcome": "ContractRefusal: required provider context is retained implementation only"
+    }
+  ],
+  "wall_seconds": 0.0021272720005072188
+}

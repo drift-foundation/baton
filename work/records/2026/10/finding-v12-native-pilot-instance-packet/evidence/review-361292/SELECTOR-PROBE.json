@@ -1,0 +1,6 @@
+{
+  "proposed_external_command_after_publish": "refused by instance.read",
+  "reason": "/tmp/w325959-review-361292-chxsyzv2/instance.json names command '/home/sl/w325959-bundle/out/distro/baton-v12-stack' and this destination derives '/tmp/w325959-review-361292-chxsyzv2/distro/baton-v12-stack'; every path an instance owns is DERIVED from its destination, so one that disagrees is describing a different deployment.",
+  "seconds": 0.0003281999997852836,
+  "live_instance_touched": false
+}

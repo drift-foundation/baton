@@ -1,0 +1,610 @@
+{
+  "deployment_obligation": "tools/stack_command.COMMANDS serves 'attempt-diagnostics' in source; an installed bundle must be rebuilt before the deployed command carries it, and this report rebuilds nothing",
+  "freshness_verdict": null,
+  "freshness_why": "no freshness policy has been selected for these facts, so this report states instants and declines to judge them",
+  "is_acceptance": false,
+  "opens_no_store": true,
+  "reads": "one status document, through tools/job_viewer.read_snapshot",
+  "reads_diagnostics": "baton.v12.attempt-failure-cause/1",
+  "rows": [
+    {
+      "absent_records": [
+        "attempt.cessation-*:expiry-reclaim",
+        "attempt.cessation-*:settlement",
+        "attempt.cessation-*:cancellation",
+        "resource-token.revoked:workspace:66306:50110418:1",
+        "runtime.start-failed",
+        "runtime.preparation-failed"
+      ],
+      "axes": {
+        "completion": {
+          "known": false,
+          "value": null,
+          "why": "completion was not established by the diagnostic producer"
+        },
+        "domain": {
+          "known": true,
+          "source": "diagnostics",
+          "value": "workspace:66306:50110418"
+        },
+        "generation": {
+          "known": true,
+          "source": "diagnostics",
+          "value": 1
+        },
+        "lifetime_seconds": {
+          "known": true,
+          "source": "diagnostics",
+          "value": 900
+        },
+        "preparation_failure_recorded": {
+          "known": true,
+          "source": "diagnostics",
+          "value": false
+        },
+        "preparation_failure_runtime_id": {
+          "known": false,
+          "value": null,
+          "why": "preparation_failure_runtime_id was not established by the diagnostic producer"
+        },
+        "renewal_limit": {
+          "known": true,
+          "source": "diagnostics",
+          "value": 4
+        },
+        "revocation": {
+          "known": false,
+          "value": null,
+          "why": "revocation was not established by the diagnostic producer"
+        },
+        "revoked_container": {
+          "known": false,
+          "value": null,
+          "why": "revoked_container was not established by the diagnostic producer"
+        },
+        "revoked_expired_at": {
+          "known": false,
+          "value": null,
+          "why": "revoked_expired_at was not established by the diagnostic producer"
+        },
+        "revoked_owner": {
+          "known": false,
+          "value": null,
+          "why": "revoked_owner was not established by the diagnostic producer"
+        },
+        "start_failure_recorded": {
+          "known": true,
+          "source": "diagnostics",
+          "value": false
+        },
+        "start_failure_runtime_id": {
+          "known": false,
+          "value": null,
+          "why": "start_failure_runtime_id was not established by the diagnostic producer"
+        }
+      },
+      "cause": null,
+      "completeness": {
+        "is_acceptance": false,
+        "missing": [
+          "cause"
+        ],
+        "proves_cessation": false,
+        "state": "incomplete",
+        "why": "this diagnostic records no component having ordered a cessation for this attempt; which component ended it, if any did, is unknown, and an absent record is not proof that nothing happened"
+      },
+      "diagnostic_degradation": {
+        "known": false,
+        "value": null,
+        "why": "no recording-failure carrier is available in this snapshot; absence does not prove recording succeeded"
+      },
+      "diagnostics_unavailable": null,
+      "execution": {
+        "activity_at": {
+          "known": true,
+          "source": "diagnostics.execution",
+          "value": "2026-10-28T01:27:14.576Z"
+        },
+        "activity_bytes": {
+          "known": true,
+          "source": "diagnostics.execution",
+          "value": 294956
+        },
+        "cleanup": {
+          "known": true,
+          "source": "diagnostics.execution",
+          "value": "pending"
+        },
+        "execution_runtime": {
+          "known": true,
+          "source": "diagnostics.execution",
+          "value": "running"
+        },
+        "observed_at": {
+          "known": true,
+          "source": "diagnostics.execution",
+          "value": "2026-10-28T01:26:34.190Z"
+        },
+        "runtime_id": {
+          "known": true,
+          "source": "diagnostics.execution",
+          "value": "061f34d2cbcfce41d498cba9e3e2e13791e0773c99e9ded3f4a88bfbaaccf6b6"
+        },
+        "token_bound_runtime_id": {
+          "known": true,
+          "source": "diagnostics.execution",
+          "value": "061f34d2cbcfce41d498cba9e3e2e13791e0773c99e9ded3f4a88bfbaaccf6b6"
+        }
+      },
+      "execution_limits": {
+        "boundaries": {
+          "host_verification": {
+            "default_seconds": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": 300
+            },
+            "origin": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": "job"
+            },
+            "seconds": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": 900
+            },
+            "setting": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": "verification_command_seconds"
+            }
+          },
+          "integration_verification": {
+            "default_seconds": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": 1800
+            },
+            "origin": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": "job"
+            },
+            "seconds": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": 900
+            },
+            "setting": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": "verification_command_seconds"
+            }
+          },
+          "ordinary_verification": {
+            "default_seconds": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": 900
+            },
+            "origin": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": "job"
+            },
+            "seconds": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": 900
+            },
+            "setting": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": "verification_command_seconds"
+            }
+          },
+          "provider_turn": {
+            "default_seconds": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": 3600
+            },
+            "origin": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": "job"
+            },
+            "seconds": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": 3600
+            },
+            "setting": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": "provider_turn_seconds"
+            }
+          }
+        },
+        "envelope": {
+          "compatibility_generation": {
+            "known": true,
+            "source": "status",
+            "value": 1
+          },
+          "scope": {
+            "known": true,
+            "source": "status",
+            "value": "per-invocation"
+          },
+          "units": {
+            "known": true,
+            "source": "status",
+            "value": "seconds"
+          }
+        },
+        "requested": {
+          "provider_turn_seconds": {
+            "known": true,
+            "source": "status.requested",
+            "value": 3600
+          },
+          "verification_command_seconds": {
+            "known": true,
+            "source": "status.requested",
+            "value": 900
+          }
+        },
+        "unrecognised": [],
+        "why": null
+      },
+      "locators": {
+        "attempt_id": {
+          "known": true,
+          "source": "status",
+          "value": "attempt-16aa4dc348aa54aac84738be2f9caeac86ff4767d32aa59d88c48410d4fb9db9"
+        },
+        "recorded_artifacts": {
+          "known": false,
+          "value": null,
+          "why": "this stage records no artifacts"
+        },
+        "supported_read": {
+          "command": "baton-v12-stack logs --logs <launch-home>/logs --attempt <attempt-id> locators",
+          "operator_must_supply": "<launch-home>",
+          "why": "the delivery root is a deployment fact and this report resolves no deployment document; a report that did would be a reader that can be pointed at a store"
+        },
+        "workspace_object": {
+          "device": {
+            "known": true,
+            "source": "diagnostics",
+            "value": 66306
+          },
+          "inode": {
+            "known": true,
+            "source": "diagnostics",
+            "value": 50110418
+          },
+          "is_a_locator": false,
+          "is_a_path": false,
+          "why": "a device and inode identify a workspace object; they are not a path and resolve no retained output on their own"
+        }
+      },
+      "stage": {
+        "attempt_id": {
+          "known": true,
+          "source": "status",
+          "value": "attempt-16aa4dc348aa54aac84738be2f9caeac86ff4767d32aa59d88c48410d4fb9db9"
+        },
+        "episode": {
+          "known": true,
+          "source": "status",
+          "value": 1
+        },
+        "job_id": {
+          "known": true,
+          "source": "status",
+          "value": "job-template-job-guide-42bed8bb"
+        },
+        "kind": {
+          "known": true,
+          "source": "status",
+          "value": "implementation"
+        },
+        "stage_id": {
+          "known": true,
+          "source": "status",
+          "value": "job-template-job-guide-42bed8bb/implementation"
+        },
+        "state": {
+          "known": true,
+          "source": "status",
+          "value": "exceptional"
+        }
+      },
+      "token": {
+        "acquired_expires_at": {
+          "known": true,
+          "source": "diagnostics.token",
+          "value": "2026-10-28T03:28:33.970Z"
+        },
+        "activating": {
+          "known": true,
+          "source": "diagnostics.token",
+          "value": false
+        },
+        "container": {
+          "known": true,
+          "source": "diagnostics.token",
+          "value": "061f34d2cbcfce41d498cba9e3e2e13791e0773c99e9ded3f4a88bfbaaccf6b6"
+        },
+        "expired": {
+          "known": true,
+          "source": "diagnostics.token",
+          "value": false
+        },
+        "expires_at": {
+          "known": true,
+          "source": "diagnostics.token",
+          "value": "2026-10-28T03:28:33.970Z"
+        },
+        "expiry_judged_at": {
+          "known": false,
+          "value": null,
+          "why": "expiry_judged_at was not established by the diagnostic producer"
+        },
+        "launch": {
+          "known": true,
+          "source": "diagnostics.token",
+          "value": "runtime.start:ffb8ce40e8e0386a6a4121f792b7cc573ab8f35c4d75e52eb7db971eb426315e"
+        },
+        "owner": {
+          "known": true,
+          "source": "diagnostics.token",
+          "value": "348ed7b40059a593eaf5da9980d0105dc769f928879de666477003b751f0a5a8"
+        },
+        "renewals": {
+          "known": true,
+          "source": "diagnostics.token",
+          "value": 0
+        },
+        "renewals_remaining": {
+          "known": true,
+          "source": "diagnostics.token",
+          "value": 4
+        },
+        "renewed_at": {
+          "known": false,
+          "value": null,
+          "why": "renewed_at was not established by the diagnostic producer"
+        },
+        "returned": {
+          "known": true,
+          "source": "diagnostics.token",
+          "value": false
+        }
+      },
+      "unknown_why": "no durable cause was established for this attempt",
+      "unrecognised": []
+    },
+    {
+      "absent_records": null,
+      "axes": null,
+      "cause": null,
+      "completeness": {
+        "is_acceptance": false,
+        "missing": [],
+        "proves_cessation": false,
+        "state": "absent",
+        "why": "this status document carries no attempt diagnostics for this stage; nobody looked, which is not the same as nothing having happened"
+      },
+      "diagnostic_degradation": {
+        "known": false,
+        "value": null,
+        "why": "no recording-failure carrier is available in this snapshot; absence does not prove recording succeeded"
+      },
+      "diagnostics_unavailable": null,
+      "execution": null,
+      "execution_limits": {
+        "boundaries": {
+          "host_verification": {
+            "default_seconds": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": 300
+            },
+            "origin": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": "job"
+            },
+            "seconds": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": 900
+            },
+            "setting": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": "verification_command_seconds"
+            }
+          },
+          "integration_verification": {
+            "default_seconds": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": 1800
+            },
+            "origin": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": "job"
+            },
+            "seconds": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": 900
+            },
+            "setting": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": "verification_command_seconds"
+            }
+          },
+          "ordinary_verification": {
+            "default_seconds": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": 900
+            },
+            "origin": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": "job"
+            },
+            "seconds": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": 900
+            },
+            "setting": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": "verification_command_seconds"
+            }
+          },
+          "provider_turn": {
+            "default_seconds": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": 3600
+            },
+            "origin": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": "job"
+            },
+            "seconds": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": 3600
+            },
+            "setting": {
+              "known": true,
+              "source": "status.boundaries",
+              "value": "provider_turn_seconds"
+            }
+          }
+        },
+        "envelope": {
+          "compatibility_generation": {
+            "known": true,
+            "source": "status",
+            "value": 1
+          },
+          "scope": {
+            "known": true,
+            "source": "status",
+            "value": "per-invocation"
+          },
+          "units": {
+            "known": true,
+            "source": "status",
+            "value": "seconds"
+          }
+        },
+        "requested": {
+          "provider_turn_seconds": {
+            "known": true,
+            "source": "status.requested",
+            "value": 3600
+          },
+          "verification_command_seconds": {
+            "known": true,
+            "source": "status.requested",
+            "value": 900
+          }
+        },
+        "unrecognised": [],
+        "why": null
+      },
+      "locators": {
+        "attempt_id": {
+          "known": true,
+          "source": "status",
+          "value": "attempt-793b51aabf70b8b4469e8db90b12c7ecbe606a8abbbd2c2cf39f9a7214f945e5"
+        },
+        "recorded_artifacts": {
+          "known": false,
+          "value": null,
+          "why": "this stage records no artifacts"
+        },
+        "supported_read": {
+          "command": "baton-v12-stack logs --logs <launch-home>/logs --attempt <attempt-id> locators",
+          "operator_must_supply": "<launch-home>",
+          "why": "the delivery root is a deployment fact and this report resolves no deployment document; a report that did would be a reader that can be pointed at a store"
+        },
+        "workspace_object": {
+          "device": {
+            "known": false,
+            "value": null,
+            "why": "the source document does not carry device"
+          },
+          "inode": {
+            "known": false,
+            "value": null,
+            "why": "the source document does not carry inode"
+          },
+          "is_a_locator": false,
+          "is_a_path": false,
+          "why": "a device and inode identify a workspace object; they are not a path and resolve no retained output on their own"
+        }
+      },
+      "stage": {
+        "attempt_id": {
+          "known": true,
+          "source": "status",
+          "value": "attempt-793b51aabf70b8b4469e8db90b12c7ecbe606a8abbbd2c2cf39f9a7214f945e5"
+        },
+        "episode": {
+          "known": true,
+          "source": "status",
+          "value": 1
+        },
+        "job_id": {
+          "known": true,
+          "source": "status",
+          "value": "job-template-job-guide-42bed8bb"
+        },
+        "kind": {
+          "known": true,
+          "source": "status",
+          "value": "review"
+        },
+        "stage_id": {
+          "known": true,
+          "source": "status",
+          "value": "job-template-job-guide-42bed8bb/review"
+        },
+        "state": {
+          "known": true,
+          "source": "status",
+          "value": "blocked"
+        }
+      },
+      "token": null,
+      "unknown_why": null,
+      "unrecognised": []
+    }
+  ],
+  "schema": "baton.v12.attempt-diagnostics/1",
+  "source_observed_at": {
+    "observed_at": {
+      "known": true,
+      "source": "status",
+      "value": "2026-10-28T01:27:18.188Z"
+    }
+  },
+  "source_time_why": "`source_observed_at` is when the status document was composed; a row's `execution.observed_at` is when its runtime was last looked at and `execution.activity_at` is when its stream last moved. Different facts, and no freshness verdict is derived from any of them. A cause carries NO instant of its own in this report"
+}

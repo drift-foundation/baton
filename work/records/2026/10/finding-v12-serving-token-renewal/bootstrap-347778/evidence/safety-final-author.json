@@ -1,0 +1,11 @@
+{
+  "command": [
+    "/usr/bin/python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_authoring_enforcement",
+    "tests.tools.test_single_worker.TheTaskTOKENIsAcquiredUnderThePreparationCondition"
+  ],
+  "seconds": 2.5585939930024324,
+  "status": 0
+}

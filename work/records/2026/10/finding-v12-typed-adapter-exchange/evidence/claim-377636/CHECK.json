@@ -1,0 +1,51 @@
+{
+ "amendment": {
+  "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-safe-adapter-failure-plan/AMENDMENT-376531.md",
+  "sha256": "ced2e81f031e7f56c060963d2724cca524e1a7e17e3e5f18d1c5fc777c38f68e"
+ },
+ "boundaries": {
+  "build": false,
+  "deployment": false,
+  "engine": false,
+  "git_mutation": false,
+  "provider": false,
+  "retained_instance": false
+ },
+ "changed_this_claim": {
+  "v12/python/tests/manager/test_exchange.py": "8e585b205c8b618cd15905d58b2460f4ce8f51683836cac56c6e69d80fd91ff2",
+  "v12/python/tests/manager/test_worker_packaging.py": "eaff720029142397a0113ef1ea9e169fd5669c032d4c8e44e6877f71eacaa9f7",
+  "v12/worker/Dockerfile.claude": "a5ef0783770ba44f206a68c71c9570685294f62bde338b69722aada0326f18d0",
+  "v12/worker/Dockerfile.integration": "022b4a3eb5b20de487860308cfe5e4021497f289100498ce02d2b85acc163f43",
+  "v12/worker/baton_worker.py": "138483a345253a5e475cec491e9af312155c8d8ca9ebb3fe46d9b362a3d18c8c"
+ },
+ "claim": 377636,
+ "focused": {
+  "daemon_free": true,
+  "failures": 0,
+  "modules": [
+   "tests.manager.test_exchange",
+   "tests.manager.test_worker_packaging",
+   "tests.manager.test_adapter_declaration",
+   "tests.manager.test_claude_agent",
+   "tests.manager.test_integration_image"
+  ],
+  "ran": 467,
+  "seconds": 16.888,
+  "selection_note": "test_dogfood_image is DELIBERATELY EXCLUDED: it names the docker engine and the reviewer hit its setUpClass on my advertised list. Every module above was checked for a daemon reference before selection.",
+  "skipped": 1
+ },
+ "separately_run": {
+  "attribution": "identical pre-claim in the isolated snapshot measured under claim 377048; not this candidate's",
+  "failures": 5,
+  "module": "tests.manager.test_worker_image",
+  "named": "ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches, 5 subtests",
+  "ran_with_the_five": 573
+ },
+ "unchanged_from_E377538": {
+  "v12/python/src/baton_v12/worker_manager/exchange.py": "684f2cf4df4cc5dbe0e012b3e6b73ab2de59d9aebc05d0d94f506ee625becca8",
+  "v12/python/tests/manager/test_integration_image.py": "8d33c6a8d324bc776eecab94413eb93c932adef81e770f3eed89ee201a4fcdb1",
+  "v12/worker/adapter_refusal.py": "97f6d9f5edee922017ead4c6d6b116382e56a398c59aa9262f959033d45a3e35",
+  "v12/worker/claude_agent.py": "017257c0cf50f02c01b2174eb7786df073b6bdf81b6819ad1cb4cde034fa57d8"
+ },
+ "work": "2b077949-W376586"
+}

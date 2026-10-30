@@ -1,0 +1,10 @@
+{
+  "patch_applies_without_fuzz": true,
+  "candidate_paths_verified": 4,
+  "shared_paths_unchanged_from_prior_review": true,
+  "original_and_new_copy_unchanged": true,
+  "focused_module_case_counts": {
+    "test_next_run_managed.py": 34,
+    "test_next_run_flow.py": 3
+  }
+}

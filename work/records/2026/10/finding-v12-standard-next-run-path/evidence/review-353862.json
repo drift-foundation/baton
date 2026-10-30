@@ -1,0 +1,12 @@
+{
+  "claim": 353862,
+  "checked_utc": "2026-10-22T18:07:26.060056+00:00",
+  "commit": "d6881d8adbd567b6e92a4a2a1d0cb68ee781f70a",
+  "four_commit_tree_hashes_match": true,
+  "installed_source_hashes_match": true,
+  "retained_report_matches": true,
+  "procedure_sha256": "af3e27d53e3944bea212270f9d08c6cc56084ef6880604857c367997020a879b",
+  "task_sha256": "8acbe2639f5b21e380fe1db1d7ca2b541b4bef6d579dc62324774db44d698871",
+  "product_execution": false,
+  "live_operations": false
+}

@@ -1,0 +1,63 @@
+{
+  "agrees_with_reviewer_digests": true,
+  "attempt": "attempt-5b3a73432204dc215833b3bf2c6b22d9dc47ddf733e9f66eafc445aea6d15083",
+  "base": "bc925cf5c62d69426ed5862af4d41f4d2a967b0f",
+  "candidate_content_digest": "sha256:5c0fca78e650ad9ff75b07e86a3d9b1c80e094d93087ab13c1c7566e0c3ca391",
+  "candidate_patch": {
+    "bytes": 175064,
+    "relative": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/recovery-345388/candidate.patch",
+    "sections": 9,
+    "sha256": "5030be0867af2c7989638ca2cf369891672b876b80f6245e6344d0db793d3458"
+  },
+  "changed_paths": [
+    "v12/python/src/baton_v12/worker_manager/attempts.py",
+    "v12/python/src/baton_v12/worker_manager/documents.py",
+    "v12/python/src/baton_v12/worker_manager/failure_cause.py",
+    "v12/python/src/baton_v12/worker_manager/intake.py",
+    "v12/python/tests/manager/disk_roots.py",
+    "v12/python/tests/manager/input_roots.py",
+    "v12/python/tests/manager/test_attempt_failure_cause.py",
+    "v12/python/tests/manager/test_maintenance.py",
+    "v12/python/tests/manager/test_output.py"
+  ],
+  "derived_by": "baton.claude, claim345822, read-only from work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/evidence/run-345388",
+  "derived_how": "candidate-change.patch copied VERBATIM. No hunk edited, reordered or regenerated. Verified against its source and against the reviewer's independently published digest, and the patch sections checked to name exactly the result document's own changed_paths.",
+  "gate_result_these_bytes_produced": {
+    "classification": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/evidence/run-345388/GATE-CLASSIFICATION.json",
+    "classification_superseded_where": "that document calls disk_roots.py new and counts 16 independent cases. Both are wrong and review-2026-10-21T11-37-58Z.md corrects them. The original evidence is preserved unchanged.",
+    "errors": 16,
+    "errors_are": "16 failing SUBTEST outcomes in FOUR methods, not 16 independent test methods. Every chain ends in SQLite database-or-disk-full; one additionally ends in a cannot-rollback/no-active-transaction after that failure.",
+    "exit_status": 1,
+    "failures": 0,
+    "tests": 864,
+    "the_four_methods": [
+      "tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_journalled_receipt_that_is_not_a_discharge_is_refused",
+      "tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_receipt_about_something_else_is_refused_by_both_exits",
+      "tests.manager.test_maintenance.TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_a_COMMITTED_cessation_for_ANOTHER_subject_moves_nothing",
+      "tests.manager.test_maintenance.TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_an_UNREADABLE_listing_ANSWER_is_not_a_confirmed_absence"
+    ],
+    "unittest_seconds": 12.515
+  },
+  "head": "5a7d5976ab48c2e66ad5ae610e526362a0990871",
+  "reviewer_published_digests": {
+    "candidate_content": "5c0fca78e650ad9ff75b07e86a3d9b1c80e094d93087ab13c1c7566e0c3ca391",
+    "candidate_objects_bundle": "c6d1706d40fb0792b15b18a8606c156825e88fdc8ee23d50aef7285d6fb58eb9",
+    "candidate_patch": "5030be0867af2c7989638ca2cf369891672b876b80f6245e6344d0db793d3458"
+  },
+  "reviewer_published_in": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/review-2026-10-21T11-37-58Z.md",
+  "run": "durable-capture-w341357-345388",
+  "schema": "baton.w341357-recovery/3",
+  "status": "NOTHING IN THESE BYTES IS ACCEPTED.",
+  "transport_not_pinned": {
+    "file": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/evidence/run-345388/candidate-objects.bundle",
+    "sha256": "c6d1706d40fb0792b15b18a8606c156825e88fdc8ee23d50aef7285d6fb58eb9",
+    "why": "the bundle is the candidate TRANSPORT, recorded by digest and locator for provenance. Deliberately NOT a task input: this campaign creates no version-control object on this host, PROVENANCE.checkpoint.paths stays empty, and prepare.py still refuses a declared restored buffer."
+  },
+  "what": "THE EXACT RETAINED CANDIDATE from run durable-capture-w341357-345388. RETAINED AND UNACCEPTED: its gate ran to completion and exited 1 with 16 SQLite database-or-disk-full SUBTEST errors in FOUR methods.",
+  "what_the_previous_run_did_not_establish": [
+    "which filesystem filled, and its available bytes or inodes",
+    "the peak usage that caused it",
+    "the same-environment pinned base versus candidate comparison",
+    "that every assertion in a setup-failing subtest reached and passed"
+  ]
+}

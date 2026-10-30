@@ -1,0 +1,11 @@
+# Concrete prospective bootstrap exception request
+
+Candidate and review: evidence/review-347846/MANIFEST.json; review findings R1–R3 in newest review. Existing four main-tree candidate files are preserved unaccepted. No retrospective approval assumed.
+
+Proposed owner decision: authorize baton.impl to copy the digest-bound four-file confinement correction into a supported isolated host candidate, correct R1 absent-candidate accounting assertions, R2 descriptor cleanup and R3 real production-profile coverage, and perform focused deterministic verification; authorize baton.rvpc independent deterministic verification. Reuse existing historical evidence where applicable. Include explicit permission for fixture-only Git init/commit/clone needed by deterministic tests in disposable isolated fixture directories, never the shared checkout or its Git metadata. Alternatively require an existing read-only fixture that avoids these operations. No blanket host product execution.
+
+Verification outcome: actual kernel confinement plus real production source-line composition succeeds, other devices/outside/sibling/install/credential writes remain denied, invalid facility fails closed without descriptor leaks, inherited restriction and pre-runtime failure cause/held/no-retry accounting remain correct. Relevant focused modules are tests.tools.test_next_run_managed and tests.tools.test_next_run_flow; implementer may use equivalent focused evidence and directly affected safety checks. Tests/fixtures may be corrected under standing test authority; no acceptance waived.
+
+Scope excludes live models/providers, actual engine calls, install/deployment or installed-root edits, live token/state mutation, consumed C retry/recovery, shared checkout integration and all shared Git mutations. Exception expires on independent acceptance of this correction. Candidate correction occurs isolated; preserve current shared diff for human disposition, do not revert others' work. Independent acceptance and later exact operator install/run selection remain separate. This request does not extend W333485 authority and does not bless the previous out-of-boundary execution.
+
+After selection route directly baton.impl with current PLAN/review; no repeated product-scope approval. An explicitly supplied supported v12 execution path is an alternative to the exception.

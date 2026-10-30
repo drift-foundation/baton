@@ -1,0 +1,22 @@
+{
+  "name": "pending",
+  "argv": [
+    "/home/sl/baton-instances/useful-template-job-w366962/distro/baton-v12-stack",
+    "disposition",
+    "pending",
+    "--authority-store",
+    "/home/sl/baton-instances/useful-template-job-w366962/db/authority.sqlite3",
+    "--authority-uuid",
+    "6dcb60dce5cd485b8bf03c24bc4afc82",
+    "--work",
+    "6dcb60dc-W1",
+    "--participant",
+    "baton.rvpc"
+  ],
+  "start": "2026-10-28T19:18:48.608226+00:00",
+  "end": "2026-10-28T19:18:48.700556+00:00",
+  "seconds": 0.09233851899989531,
+  "exit": 0,
+  "stdout": "{\n  \"authority_uuid\": \"6dcb60dce5cd485b8bf03c24bc4afc82\",\n  \"canonical_target\": \"42bed8bb04a53380e565b1a63fb2bc702677f0d0\",\n  \"close_decision\": null,\n  \"closure_acceptance\": null,\n  \"dossier\": null,\n  \"due\": \"the latest candidate has no passed verification, so execution has not produced a checkable result yet\",\n  \"evidence\": [],\n  \"holds\": {\n    \"approve\": false,\n    \"close\": false,\n    \"integrate\": false\n  },\n  \"latest_proposal\": \"integration-driver.proposal:4f11c905608c7b06eac7765d5ce65c817b72c2e252ea0fb760548846ce2bb819\",\n  \"owner_action\": \"awaiting-verification\",\n  \"participant\": \"baton.rvpc\",\n  \"policy_generation\": 11,\n  \"proposals\": [\n    {\n      \"assignment_ref\": {\n        \"generation\": 1,\n        \"participant\": \"baton.claude-w366962\",\n        \"work_ref\": {\n          \"authority_uuid\": \"6dcb60dce5cd485b8bf03c24bc4afc82\",\n          \"work_id\": \"6dcb60dc-W1\"\n        }\n      },\n      \"candidate_digest\": \"e6de29e5f945f692a42f689570d5c39edc4f61bc\",\n      \"decision\": {\n        \"effective_scope\": \"scope:deployment\",\n        \"endpoint\": \"baton.claude-w366962\",\n        \"grant\": \"direct\",\n        \"policy_generation\": 11,\n        \"principal\": \"principal:baton.claude-w366962\",\n        \"role\": \"impl\"\n      },\n      \"input_digest\": \"sha256:dda286b03a1a264a91c8ca72fa2e1202bcdf7ec2252d91bcad37b49160788535\",\n      \"owner_action\": \"awaiting-verification\",\n      \"policy_digest\": \"sha256:837d7a03b2d92b9654cbc391daefcfa208f747bbd9ae7c528d54f528bd536357\",\n      \"proposal_id\": \"integration-driver.proposal:4f11c905608c7b06eac7765d5ce65c817b72c2e252ea0fb760548846ce2bb819\",\n      \"published_at\": \"2026-10-28T01:43:19.628Z\",\n      \"receipts\": {\n        \"approval\": null,\n        \"integration\": null,\n        \"review\": null,\n        \"verification\": null\n      },\n      \"result_digest\": \"sha256:b8a440facd3520dad89421a7a750f36e0befc2555ce9b91889f9fd519e022d3f\",\n      \"result_id\": \"result-attempt-16aa4dc348aa54aac84738be2f9caeac86ff4767d32aa59d88c48410d4fb9db9\",\n      \"target\": \"42bed8bb04a53380e565b1a63fb2bc702677f0d0\"\n    }\n  ],\n  \"rationale\": null,\n  \"work\": {\n    \"assignment\": {\n      \"generation\": 2,\n      \"participant\": \"baton.reviewer-w366962\",\n      \"work_ref\": {\n        \"authority_uuid\": \"6dcb60dce5cd485b8bf03c24bc4afc82\",\n        \"work_id\": \"6dcb60dc-W1\"\n      }\n    },\n    \"handler\": \"baton.reviewer-w366962\",\n    \"outcome\": null,\n    \"phase\": \"active\",\n    \"route\": \"rview\",\n    \"scope\": \"scope:deployment\",\n    \"status\": \"open\",\n    \"work_id\": \"6dcb60dc-W1\"\n  }\n}\n",
+  "stderr": ""
+}

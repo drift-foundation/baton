@@ -1,0 +1,12 @@
+{
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_startup_prerequisites",
+    "tests.tools.test_bootstrap",
+    "tests.tools.test_instance"
+  ],
+  "seconds": 18.866903653997724,
+  "returncode": 0
+}

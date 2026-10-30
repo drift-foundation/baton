@@ -1,0 +1,292 @@
+{
+  "attempts": 0,
+  "credential_read": false,
+  "engine_invoked": false,
+  "job_submitted": false,
+  "measured_seconds": {
+    "probes": 0.782832,
+    "steps": 1.188762
+  },
+  "note": "The preparation steps were exercised once into this THROWAWAY root. The selected root named in OPERATOR.md is untouched and does not exist. No Job was submitted, no engine or container was invoked, no provider was contacted and no credential was read.",
+  "prepared": {
+    "artifacts": {
+      "PACKET.json": "737083160d858babc09b1f085c78e505502de1c6c8717a8ee351b9cf13d9442d",
+      "adapter.json": "cbe3bb4ade990eb5411c64a40be74a10e46a79f48343c499b5f1a8453fabc9c7",
+      "commands.json": "48f273958f1f0ba5c3a710881095b80530880c44c68cf87fa85c040e72937a83",
+      "deployment.json": "b0a4f927c9369ec608fe2565ff6ed61caa1569c30f5d0039eabe5184ec98c337",
+      "policy.json": "2b75b8208cd288418ea5a9af8ece0c443abdaa19fda80a1ea2725e43fdbc306c",
+      "runtime-profile.json": "70ca07c494c9660bfaf747772f2233ccaf77b4ef3a4da90c26121b7b59ff1d34",
+      "submission.json": "d895af7a713357660acc08dd605fd2061cbec5458bfbe9a7e4a851f3517283d3",
+      "task.json": "deca5f851f76718dbc5ff801b5061954baa1e6497c43c0a3af1aee3de92ffcde"
+    },
+    "authority_uuid": "f72d08c14e7e4ab8967f2c512979fd9d",
+    "independent_review": "an independent reviewer consumes the immutable retained proposal through v11 after exact runtime cessation; no automatic acceptance",
+    "packet_sha256": "737083160d858babc09b1f085c78e505502de1c6c8717a8ee351b9cf13d9442d",
+    "state": "prepared-not-executed",
+    "work": "W333486"
+  },
+  "probes": [
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-attempt-failure-diagnostics/execution-333504/prepare.py",
+        "bind",
+        "--root",
+        "/tmp/w333486-probe-drift"
+      ],
+      "expected_fragment": "staged manager drifted",
+      "left_no_root": true,
+      "probe": "bind refuses drifted staged manager source",
+      "refused_as_expected": true,
+      "seconds": 0.04716936400109262,
+      "status": 1,
+      "tail": [
+        "RuntimeError: staged manager drifted: src/baton_v12/job_manager/projection.py"
+      ]
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "/tmp/w333486-probe-packet/prepare.py",
+        "stage",
+        "--root",
+        "/tmp/w333486-probe-root-c"
+      ],
+      "expected_fragment": "supervisor source drifted",
+      "left_no_root": true,
+      "probe": "a wrong supervisor digest refuses and leaves no root",
+      "refused_as_expected": true,
+      "seconds": 0.14137683599983575,
+      "status": 1,
+      "tail": [
+        "RuntimeError: supervisor source drifted: baseline.py"
+      ]
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-attempt-failure-diagnostics/execution-333504/prepare.py",
+        "stage",
+        "--root",
+        "/tmp/w333486-preflight-333504"
+      ],
+      "expected_fragment": "File exists",
+      "left_no_root": true,
+      "probe": "stage refuses an existing root",
+      "refused_as_expected": true,
+      "seconds": 0.14748948499982362,
+      "status": 1,
+      "tail": [
+        "FileExistsError: [Errno 17] File exists: '/tmp/w333486-preflight-333504'"
+      ]
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-attempt-failure-diagnostics/execution-333504/prepare.py",
+        "bind",
+        "--root",
+        "/tmp/w333486-preflight-333504"
+      ],
+      "expected_fragment": "already holds a composed packet",
+      "left_no_root": true,
+      "probe": "bind refuses a root that already holds a packet",
+      "refused_as_expected": true,
+      "seconds": 0.04547542499858537,
+      "status": 1,
+      "tail": [
+        "RuntimeError: this root already holds a composed packet; composing a second one over it would replace the documents an owner may already have read"
+      ]
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "/tmp/w333486-probe-packet/prepare.py",
+        "stage",
+        "--root",
+        "/tmp/w333486-probe-root-a"
+      ],
+      "expected_fragment": "another base or run",
+      "left_no_root": true,
+      "probe": "a packet naming another base refuses and leaves no root",
+      "refused_as_expected": true,
+      "seconds": 0.04347270300058881,
+      "status": 1,
+      "tail": [
+        "RuntimeError: the pins name another base or run"
+      ]
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "/tmp/w333486-probe-packet/prepare.py",
+        "stage",
+        "--root",
+        "/tmp/w333486-probe-root-e"
+      ],
+      "expected_fragment": "another base or run",
+      "left_no_root": true,
+      "probe": "a packet naming another run refuses and leaves no root",
+      "refused_as_expected": true,
+      "seconds": 0.04240082200158213,
+      "status": 1,
+      "tail": [
+        "RuntimeError: the pins name another base or run"
+      ]
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "/tmp/w333486-probe-packet/prepare.py",
+        "stage",
+        "--root",
+        "/tmp/w333486-probe-root-b"
+      ],
+      "expected_fragment": "preparation input drifted",
+      "left_no_root": true,
+      "probe": "a drifted preparation input refuses and leaves no root",
+      "refused_as_expected": true,
+      "seconds": 0.04386290900038148,
+      "status": 1,
+      "tail": [
+        "RuntimeError: selected preparation input drifted: work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json"
+      ]
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-attempt-failure-diagnostics/execution-333504/prepare.py",
+        "stage",
+        "--root",
+        "/tmp/w333486-probe-root-d"
+      ],
+      "expected_fragment": "already exists on the host",
+      "left_no_root": true,
+      "probe": "an already-present gate module refuses and leaves no root",
+      "refused_as_expected": true,
+      "seconds": 0.04630136100058735,
+      "status": 1,
+      "tail": [
+        "RuntimeError: a gate module the turn must create already exists on the host: v12/python/tests/tools/test_attempt_diagnostics.py"
+      ]
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-attempt-failure-diagnostics/execution-333504/verify-inputs.py"
+      ],
+      "expected_fragment": "already exists on the host",
+      "left_no_root": true,
+      "probe": "verify-inputs refuses an already-present gate module",
+      "refused_as_expected": true,
+      "seconds": 0.11341411399916979,
+      "status": 1,
+      "tail": [
+        "DRIFTED: a gate module the turn must create already exists on the host: v12/python/tests/tools/test_attempt_diagnostics.py"
+      ]
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-attempt-failure-diagnostics/execution-333504/verify-inputs.py"
+      ],
+      "expected_fragment": "inputs verified against",
+      "left_no_root": true,
+      "probe": "verify-inputs passes on an undrifted tree",
+      "refused_as_expected": true,
+      "seconds": 0.11186885299866844,
+      "status": 0,
+      "tail": [
+        "inputs verified against bbdacb5d38f6cf2d2461e9da103d28f9ab30cc6c: 112 manager files, 3 supervisor files, 3 preparation inputs, 7 task inputs, 2 gate modules still owed"
+      ]
+    }
+  ],
+  "product_tests": 0,
+  "provider_invoked": false,
+  "retained_roots": [
+    "/tmp/w333486-preflight-333504",
+    "/tmp/w333486-probe-drift",
+    "/tmp/w333486-base-probe"
+  ],
+  "retained_why": "Left in place for the operator rather than removed: a managed turn does not issue a destructive shell command merely to tidy its own temporary reproduction. None of them is the selected root and none holds a credential or a submitted Job.",
+  "root": "/tmp/w333486-preflight-333504",
+  "runtimes": 0,
+  "schema": "baton.w333486-execution-preflight/1",
+  "steps": [
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-attempt-failure-diagnostics/execution-333504/prepare.py",
+        "stage",
+        "--root",
+        "/tmp/w333486-probe-drift"
+      ],
+      "seconds": 0.12169296799947915,
+      "status": 0,
+      "stderr": "",
+      "stdout": "staged; bootstrap separately with --no-repositories, then bind\n",
+      "step": "stage (drift probe root)"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-attempt-failure-diagnostics/execution-333504/prepare.py",
+        "stage",
+        "--root",
+        "/tmp/w333486-preflight-333504"
+      ],
+      "seconds": 0.12222023700087448,
+      "status": 0,
+      "stderr": "",
+      "stdout": "staged; bootstrap separately with --no-repositories, then bind\n",
+      "step": "stage"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "-m",
+        "tools.bootstrap",
+        "--inputs",
+        "/tmp/w333486-preflight-333504/bootstrap-inputs.json",
+        "--destination",
+        "/tmp/w333486-preflight-333504/instance",
+        "--distro",
+        "/home/sl/baton-runs/managed-correction-236087/build/stack/out/distro",
+        "--no-repositories"
+      ],
+      "seconds": 0.5915861860012228,
+      "status": 0,
+      "stderr": "",
+      "stdout": "repositories  not prepared: no source checkout was found or named, so the deployment has no target, workspace or worker sources yet and will schedule without reconciling\nauthority f72d08c1...    generated for this instance\njob   none; no Work, grant or placeholder was created\nconfiguration /tmp/w333486-preflight-333504/instance/deployment.json\ncapacity      {\"job_affinity\": {}, \"jobs\": 0, \"note\": \"this instance binds no Job and configures no execution capacity; it serves a real idle scheduler and publisher over empty stores, and a worker, a Work, a declared base, a canonical target and a producer are supplied together when a Job is created\", \"schema\": \"baton.v12.stage-execution-deployment/2\", \"targets\": [], \"workers_by_role\": {\"implementation\": [], \"integration\": [], \"review\": []}}\nno Job was submitted and nothing was executed\ninstance      /tmp/w333486-preflight-333504/instance/instance.json\nruntime       81 files, digest c1ef3d23394916c8...\nstores        /tmp/w333486-preflight-333504/instance/db\nrepository    /tmp/w333486-preflight-333504/instance/repo\njustfile      /tmp/w333486-preflight-333504/instance/justfile\n\nThe deployment is operated from the destination, and needs nothing else:\n\n    cd /tmp/w333486-preflight-333504/instance && just status\n    just --justfile /tmp/w333486-preflight-333504/instance/justfile start        # from anywhere\n\nor the command directly, which is the same program:\n\n    /tmp/w333486-preflight-333504/instance/distro/baton-v12-stack status --instance /tmp/w333486-preflight-333504/instance/instance.json\n",
+      "step": "bootstrap"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-attempt-failure-diagnostics/execution-333504/prepare.py",
+        "bind",
+        "--root",
+        "/tmp/w333486-preflight-333504"
+      ],
+      "seconds": 0.3532621860013023,
+      "status": 0,
+      "stderr": "",
+      "stdout": "prepared and validated; no job submitted, no engine/provider invoked\n",
+      "step": "bind"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "checks": [
+    "distinct role roots refuse at the actual worker_preflight boundary",
+    "failed preflight preserves committed root",
+    "failed preflight preserves both admitted episodes and Job state",
+    "shared-root worker preflight passes implementation",
+    "shared-root worker preflight passes review",
+    "role launch homes remain separate",
+    "role credential homes remain separate",
+    "no live offers reached before refusal",
+    "public recovery neither abandons nor repeats an unissued episode",
+    "restart preflight and public recovery preserve original episodes",
+    "retained episode drift refuses before replacement",
+    "candidate tampering refuses before replacement",
+    "byte drift refuses before replacements",
+    "other configuration unchanged on refusal",
+    "guarded four-file application succeeds",
+    "application is replayable without changed stores",
+    "separate guarded recovery succeeds without submission or startup",
+    "same two original episodes retained through application and recovery",
+    "exact reviewed bytes imported deployment.json",
+    "exact reviewed bytes imported generated/configuration.json",
+    "exact reviewed bytes imported generated/configure-inputs.json",
+    "exact reviewed bytes imported inputs.json"
+  ],
+  "count": 22,
+  "label": "DISPOSABLE deterministic fixture; no live deployment mutation or engine/provider",
+  "recovery": {
+    "abandoned": [],
+    "recoverable": []
+  },
+  "seconds": 0.05061749999731546
+}

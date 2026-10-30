@@ -1,0 +1,25 @@
+{
+ "destination": "/var/tmp/baton-w257624/w367232-seq-fl06ha7a/instance",
+ "step1_mint_exit": 0,
+ "step2_minted_uuid": "dd20994520834f08b6ad1b0767372dc4",
+ "step2_is_generated": true,
+ "step1_configured_no_workers": true,
+ "step3": {
+  "work": "dd209945-W1",
+  "lanes": [
+   "implementation",
+   "review"
+  ],
+  "participants": [
+   "baton.claude-w366962",
+   "baton.reviewer-w366962"
+  ],
+  "declared_base": "42bed8bb04a53380e565b1a63fb2bc702677f0d0"
+ },
+ "step4_install_exit": 2,
+ "step4_said": [
+  "repositories  not prepared: no source checkout was found or named, so the deployment has no target, workspace or worker sources yet and will schedule without reconciling",
+  "authority dd209945...    reused from this root's record",
+  "refused: the deployment this document describes is not one the manager would accept, so nothing was prepared: the bootstrap input manifest names another runtime profile. Each worker's `deployment` member is the single-worker launch document v12/python/DEPLOYMENT.md specifies; this helper fills in only participant, principal, authority_store, authority_uuid and launch_role, and names the rest as yours to select."
+ ]
+}

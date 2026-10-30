@@ -1,0 +1,19 @@
+{
+  "command": [
+    "timeout",
+    "60",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_role_capability",
+    "tests.job_manager.test_role_contract",
+    "tests.job_manager.test_templates",
+    "tests.job_manager.test_creation"
+  ],
+  "returncode": 0,
+  "seconds": 0.5013958420004201,
+  "pins": {
+    "v12/python/src/baton_v12/job_manager/role_capability.py": "af370172d58a763b5b766930317acdbdeabba301293c31c56e2fe1807da59990",
+    "v12/python/tests/job_manager/test_role_capability.py": "45e6321a0e63576d375513bcaeba9820d2845c709c4e45d7abaa616e0d4da5a3"
+  }
+}

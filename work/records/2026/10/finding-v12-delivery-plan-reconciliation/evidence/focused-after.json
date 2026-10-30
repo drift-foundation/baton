@@ -1,0 +1,1526 @@
+{
+  "W371076": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.rvpc",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": {
+        "action_owner": "baton.slaw",
+        "adapter": "codex",
+        "cause": null,
+        "detail": null,
+        "episode": null,
+        "expires_at": "2026-10-29T12:28:55Z",
+        "facts": [
+          {
+            "age_seconds": 2270,
+            "key": "dispatcher",
+            "observed_at": "2026-10-29T11:46:40Z",
+            "source": "configured",
+            "value": "pc/codx-pc"
+          },
+          {
+            "age_seconds": 2270,
+            "key": "readiness",
+            "observed_at": "2026-10-29T11:46:40Z",
+            "source": "configured",
+            "value": "/home/sl/baton-v11.14aecfb/codx-pc/run/events.sock"
+          },
+          {
+            "age_seconds": 2270,
+            "key": "service",
+            "observed_at": "2026-10-29T11:46:40Z",
+            "source": "configured",
+            "value": "codex-event-bridge pid 918195"
+          }
+        ],
+        "incarnation": "ce7473ce-797f-416f-8aed-161666c8dfbb",
+        "last_contact": "2026-10-29T12:23:55Z",
+        "model": null,
+        "note": null,
+        "provenance": "reported",
+        "provider": null,
+        "refresh_generation": null,
+        "refresh_requested": null,
+        "session": "01a1877b-b8ec-7c23-9097-609f6b546d5b",
+        "since": "2026-10-29T12:22:15Z",
+        "stale": false,
+        "state": "working",
+        "work": null
+      },
+      "available_transitions": [
+        "prioritize"
+      ],
+      "binding": {
+        "actor": "baton.rvpc",
+        "created_ts": "2026-10-28T03:02:37Z",
+        "git_provenance": null,
+        "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-composed-workflow-proof-plan",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 371076
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.rvpc",
+          "created_ts": "2026-10-28T03:02:37Z",
+          "git_provenance": null,
+          "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-composed-workflow-proof-plan",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 371076
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W370747",
+          "title": "Assess design changes to reduce v12 workflow fragility"
+        },
+        {
+          "id": "2b077949-W371076",
+          "title": "Plan joined deterministic ordinary template workflow proof"
+        }
+      ],
+      "claimed_at": "2026-10-29T12:22:27Z",
+      "classification": "design-choice",
+      "duplicate_of": null,
+      "episode_seq": 383348,
+      "first_open_blocker": null,
+      "follow_up_of": null,
+      "gate": null,
+      "handler": {
+        "member": "codxpc",
+        "participant": "baton.codxpc",
+        "team": "baton"
+      },
+      "handoff_at": null,
+      "heartbeat_at": "2026-10-29T12:22:27Z",
+      "id": "2b077949-W371076",
+      "last_change_seq": 383351,
+      "last_changed_at": "2026-10-29T12:22:27.149Z",
+      "links": {
+        "blocked_by": [
+          {
+            "handler": null,
+            "id": "2b077949-W371074",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Plan supported settlement of stopped failed executions",
+            "via_obligation": null
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W370688",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Prepare corrected shared outputs for the two-role template Job",
+            "via_obligation": null
+          }
+        ],
+        "blocks": [
+          {
+            "handler": null,
+            "id": "2b077949-W370747",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.bug",
+              "handlers": [
+                "rvpc"
+              ],
+              "role": "rview",
+              "route": "rview"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Assess design changes to reduce v12 workflow fragility",
+            "via_obligation": null
+          }
+        ],
+        "contains": [],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W371076",
+        "parent": {
+          "handler": null,
+          "id": "2b077949-W370747",
+          "outcome": null,
+          "route": {
+            "endpoint": "baton.bug",
+            "handlers": [
+              "rvpc"
+            ],
+            "role": "rview",
+            "route": "rview"
+          },
+          "status": "open",
+          "team": "baton",
+          "title": "Assess design changes to reduce v12 workflow fragility"
+        }
+      },
+      "local_id": "W371076",
+      "message_count": 2,
+      "my_pending_obligations": 0,
+      "new": 2,
+      "new_breakdown": {
+        "children": [],
+        "id": "2b077949-W371076",
+        "overlap": 0,
+        "own": 2,
+        "snapshot_seq": 383365,
+        "subtree_total": 2
+      },
+      "next": null,
+      "obligations": [],
+      "open_blockers": 0,
+      "open_dependents": 1,
+      "origin": "decomposition",
+      "outcome": null,
+      "phase": "active",
+      "pickup": "claimed",
+      "priority": "normal",
+      "progress": {
+        "children": 0,
+        "closed": 0
+      },
+      "rationale": null,
+      "ready": true,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.codx",
+        "handlers": [
+          "codxpc"
+        ],
+        "role": "impl",
+        "route": "implpc"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 371076,
+          "id": "2b077949-T371076",
+          "last_seq": 383349,
+          "new": 2,
+          "subject": "Plan joined deterministic ordinary template workflow proof"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "Plan joined deterministic ordinary template workflow proof",
+      "trials": []
+    },
+    "snapshot_seq": 383365
+  },
+  "W321776": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.rvpc",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": {
+        "action_owner": "baton.slaw",
+        "adapter": "acp",
+        "cause": null,
+        "detail": null,
+        "episode": 383121,
+        "expires_at": "2026-10-29T12:29:18Z",
+        "facts": [
+          {
+            "age_seconds": 2283,
+            "key": "readiness",
+            "observed_at": "2026-10-29T11:46:27Z",
+            "source": "configured",
+            "value": "/home/sl/baton-v11.14aecfb/baton.json"
+          },
+          {
+            "age_seconds": 2283,
+            "key": "service",
+            "observed_at": "2026-10-29T11:46:27Z",
+            "source": "configured",
+            "value": "acp-baton-bridge pid 917588"
+          },
+          {
+            "age_seconds": 2283,
+            "key": "workdir",
+            "observed_at": "2026-10-29T11:46:27Z",
+            "source": "configured",
+            "value": "/home/sl/src/baton"
+          }
+        ],
+        "incarnation": "b3f63c47-ff39-41e0-b2a5-b60d80fdafe9",
+        "last_contact": "2026-10-29T12:24:18Z",
+        "model": null,
+        "note": null,
+        "provenance": "reported",
+        "provider": null,
+        "refresh_generation": null,
+        "refresh_requested": null,
+        "session": "57209ea8-6397-4a17-83e1-6f0b2f0812b0",
+        "since": "2026-10-29T11:57:36Z",
+        "stale": false,
+        "state": "working",
+        "work": "2b077949-W321776"
+      },
+      "available_transitions": [
+        "prioritize"
+      ],
+      "binding": {
+        "actor": "baton.rvpc",
+        "created_ts": "2026-10-18T08:09:13Z",
+        "git_provenance": null,
+        "path": "work/records/2026/09/finding-v12-complete-verification-context/findings/finding-paired-context-delivery",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 321776
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.rvpc",
+          "created_ts": "2026-10-18T08:09:13Z",
+          "git_provenance": null,
+          "path": "work/records/2026/09/finding-v12-complete-verification-context/findings/finding-paired-context-delivery",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 321776
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W61981",
+          "title": "Make v12 verification context complete and explicit"
+        },
+        {
+          "id": "2b077949-W321776",
+          "title": "W61981: Deliver paired worker and operator verification contexts"
+        }
+      ],
+      "claimed_at": "2026-10-29T11:57:46Z",
+      "classification": "confirmed-defect",
+      "duplicate_of": null,
+      "episode_seq": 383121,
+      "first_open_blocker": null,
+      "follow_up_of": null,
+      "gate": null,
+      "handler": {
+        "member": "claude",
+        "participant": "baton.claude",
+        "team": "baton"
+      },
+      "handoff_at": "2026-10-28T02:51:42Z",
+      "heartbeat_at": "2026-10-29T11:57:46Z",
+      "id": "2b077949-W321776",
+      "last_change_seq": 383132,
+      "last_changed_at": "2026-10-29T11:57:46.676Z",
+      "links": {
+        "blocked_by": [
+          {
+            "handler": null,
+            "id": "2b077949-W321528",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "V12: Report retained failed-run candidates and effective timeouts accurately",
+            "via_obligation": null
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W321780",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "W61981: Prepare versioned verification-context packet",
+            "via_obligation": null
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W325695",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "V12 verifier descriptor paths fail in descendant processes",
+            "via_obligation": null
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W376586",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Implement current matched typed adapter exchange",
+            "via_obligation": null
+          }
+        ],
+        "blocks": [
+          {
+            "handler": null,
+            "id": "2b077949-W61981",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.bug",
+              "handlers": [
+                "rvpc"
+              ],
+              "role": "rview",
+              "route": "rview"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Make v12 verification context complete and explicit",
+            "via_obligation": null
+          }
+        ],
+        "contains": [],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W321776",
+        "parent": {
+          "handler": null,
+          "id": "2b077949-W61981",
+          "outcome": null,
+          "route": {
+            "endpoint": "baton.bug",
+            "handlers": [
+              "rvpc"
+            ],
+            "role": "rview",
+            "route": "rview"
+          },
+          "status": "open",
+          "team": "baton",
+          "title": "Make v12 verification context complete and explicit"
+        }
+      },
+      "local_id": "W321776",
+      "message_count": 5,
+      "my_pending_obligations": 0,
+      "new": 5,
+      "new_breakdown": {
+        "children": [],
+        "id": "2b077949-W321776",
+        "overlap": 0,
+        "own": 5,
+        "snapshot_seq": 383365,
+        "subtree_total": 5
+      },
+      "next": null,
+      "obligations": [],
+      "open_blockers": 0,
+      "open_dependents": 1,
+      "origin": "decomposition",
+      "outcome": null,
+      "phase": "active",
+      "pickup": "claimed",
+      "priority": "normal",
+      "progress": {
+        "children": 0,
+        "closed": 0
+      },
+      "rationale": null,
+      "ready": true,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.impl",
+        "handlers": [
+          "claude"
+        ],
+        "role": "impl",
+        "route": "impl"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 321776,
+          "id": "2b077949-T321776",
+          "last_seq": 383365,
+          "new": 5,
+          "subject": "W61981: Deliver paired worker and operator verification contexts"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "W61981: Deliver paired worker and operator verification contexts",
+      "trials": []
+    },
+    "snapshot_seq": 383365
+  },
+  "W321608": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.rvpc",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "add_dependency",
+        "classify",
+        "create_child",
+        "create_trial",
+        "pass",
+        "prioritize",
+        "remove_dependency",
+        "request",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.rvpc",
+        "created_ts": "2026-10-18T07:52:10Z",
+        "git_provenance": null,
+        "path": "work/records/2026/10/finding-v12-development-coordination-pilot",
+        "prior": 0,
+        "rationale": "Canonical record for owner-selected bounded coordination replacement assessment; reviewer-only findings and pilot plan under claim321622.",
+        "revision": 1,
+        "root": "baton",
+        "seq": 321624
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.rvpc",
+          "created_ts": "2026-10-18T07:52:10Z",
+          "git_provenance": null,
+          "path": "work/records/2026/10/finding-v12-development-coordination-pilot",
+          "prior": 0,
+          "rationale": "Canonical record for owner-selected bounded coordination replacement assessment; reviewer-only findings and pilot plan under claim321622.",
+          "revision": 1,
+          "root": "baton",
+          "seq": 321624
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W321608",
+          "title": "Assess replacing v11 coordination with v12 for one development workflow"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "design-choice",
+      "duplicate_of": null,
+      "episode_seq": 383183,
+      "first_open_blocker": "W383217",
+      "follow_up_of": null,
+      "gate": {
+        "kind": "work",
+        "message": null,
+        "obligation": null,
+        "selector": "W383217",
+        "started_at": "2026-10-29T12:09:28.911Z",
+        "started_seq": 383237,
+        "work": "2b077949-W383217"
+      },
+      "handler": null,
+      "handoff_at": "2026-10-29T12:03:13Z",
+      "heartbeat_at": null,
+      "id": "2b077949-W321608",
+      "last_change_seq": 383237,
+      "last_changed_at": "2026-10-29T12:09:28.911Z",
+      "links": {
+        "blocked_by": [
+          {
+            "handler": null,
+            "id": "2b077949-W321690",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "V12 pilot: joined deterministic workflow rehearsal and concrete packet",
+            "via_obligation": null
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W325959",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Prepare instance-specific native v12 coordination pilot packet",
+            "via_obligation": null
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W361912",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Create ordinary Jobs through manager-owned template admission and thin CLI",
+            "via_obligation": null
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W366962",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Prepare useful template-Job and monitor operator selection",
+            "via_obligation": null
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W370268",
+            "outcome": "non-satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Execute selected useful documentation Job and observe native review",
+            "via_obligation": null
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W376804",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Prepare smallest readiness subset for next useful documentation run",
+            "via_obligation": null
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W376246",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Complete safe prerequisite preparation and owned cleanup",
+            "via_obligation": null
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W378034",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Resolve supported finite native Job control for useful-run readiness",
+            "via_obligation": null
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W383217",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.impl",
+              "handlers": [
+                "claude"
+              ],
+              "role": "impl",
+              "route": "impl"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Enforce persisted finite native Job policy and joined control",
+            "via_obligation": null
+          }
+        ],
+        "blocks": [],
+        "contains": [
+          {
+            "handler": null,
+            "id": "2b077949-W321689",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "V12 pilot: supported human disposition and delivery closure commands"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W321690",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "V12 pilot: joined deterministic workflow rehearsal and concrete packet"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W325959",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Prepare instance-specific native v12 coordination pilot packet"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W358969",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Manager-owned fresh-attempt admission and thin native CLI"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W361910",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Resolve versioned implementation-review Job templates"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W361912",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Create ordinary Jobs through manager-owned template admission and thin CLI"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W366962",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Prepare useful template-Job and monitor operator selection"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W370268",
+            "outcome": "non-satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Execute selected useful documentation Job and observe native review"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W376804",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Prepare smallest readiness subset for next useful documentation run"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W378034",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Resolve supported finite native Job control for useful-run readiness"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W383215",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.impl",
+              "handlers": [
+                "claude"
+              ],
+              "role": "impl",
+              "route": "impl"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Implement installed native Job cancellation and admission fencing"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W383217",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.impl",
+              "handlers": [
+                "claude"
+              ],
+              "role": "impl",
+              "route": "impl"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Enforce persisted finite native Job policy and joined control"
+          }
+        ],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W321608",
+        "parent": null
+      },
+      "local_id": "W321608",
+      "message_count": 12,
+      "my_pending_obligations": 0,
+      "new": 12,
+      "new_breakdown": {
+        "children": [
+          {
+            "id": "2b077949-W321689",
+            "new": 3
+          },
+          {
+            "id": "2b077949-W321690",
+            "new": 8
+          },
+          {
+            "id": "2b077949-W325959",
+            "new": 30
+          },
+          {
+            "id": "2b077949-W358969",
+            "new": 3
+          },
+          {
+            "id": "2b077949-W361910",
+            "new": 1
+          },
+          {
+            "id": "2b077949-W361912",
+            "new": 5
+          },
+          {
+            "id": "2b077949-W366962",
+            "new": 4
+          },
+          {
+            "id": "2b077949-W370268",
+            "new": 13
+          },
+          {
+            "id": "2b077949-W376804",
+            "new": 2
+          },
+          {
+            "id": "2b077949-W378034",
+            "new": 1
+          },
+          {
+            "id": "2b077949-W383215",
+            "new": 1
+          },
+          {
+            "id": "2b077949-W383217",
+            "new": 1
+          }
+        ],
+        "id": "2b077949-W321608",
+        "overlap": 0,
+        "own": 12,
+        "snapshot_seq": 383365,
+        "subtree_total": 84
+      },
+      "next": null,
+      "obligations": [],
+      "open_blockers": 1,
+      "open_dependents": 0,
+      "origin": "external-report",
+      "outcome": null,
+      "phase": "block",
+      "pickup": "pending",
+      "priority": "high",
+      "progress": {
+        "children": 12,
+        "closed": 10
+      },
+      "rationale": null,
+      "ready": false,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.bug",
+        "handlers": [
+          "rvpc"
+        ],
+        "role": "rview",
+        "route": "rview"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 321608,
+          "id": "2b077949-T321608",
+          "last_seq": 383071,
+          "new": 12,
+          "subject": "Assess replacing v11 coordination with v12 for one development workflow"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "Assess replacing v11 coordination with v12 for one development workflow",
+      "trials": []
+    },
+    "snapshot_seq": 383365
+  },
+  "W383215": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.rvpc",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "prioritize",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.rvpc",
+        "created_ts": "2026-10-29T12:06:42Z",
+        "git_provenance": null,
+        "path": "work/records/2026/10/finding-v12-native-job-cancellation",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 383215
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.rvpc",
+          "created_ts": "2026-10-29T12:06:42Z",
+          "git_provenance": null,
+          "path": "work/records/2026/10/finding-v12-native-job-cancellation",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 383215
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": true,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W321608",
+          "title": "Assess replacing v11 coordination with v12 for one development workflow"
+        },
+        {
+          "id": "2b077949-W383215",
+          "title": "Implement installed native Job cancellation and admission fencing"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "design-choice",
+      "duplicate_of": null,
+      "episode_seq": 383249,
+      "first_open_blocker": null,
+      "follow_up_of": null,
+      "gate": null,
+      "handler": null,
+      "handoff_at": "2026-10-29T12:09:59Z",
+      "heartbeat_at": null,
+      "id": "2b077949-W383215",
+      "last_change_seq": 383249,
+      "last_changed_at": "2026-10-29T12:09:59.789Z",
+      "links": {
+        "blocked_by": [],
+        "blocks": [
+          {
+            "handler": null,
+            "id": "2b077949-W383217",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.impl",
+              "handlers": [
+                "claude"
+              ],
+              "role": "impl",
+              "route": "impl"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Enforce persisted finite native Job policy and joined control",
+            "via_obligation": null
+          }
+        ],
+        "contains": [],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W383215",
+        "parent": {
+          "handler": null,
+          "id": "2b077949-W321608",
+          "outcome": null,
+          "route": {
+            "endpoint": "baton.bug",
+            "handlers": [
+              "rvpc"
+            ],
+            "role": "rview",
+            "route": "rview"
+          },
+          "status": "open",
+          "team": "baton",
+          "title": "Assess replacing v11 coordination with v12 for one development workflow"
+        }
+      },
+      "local_id": "W383215",
+      "message_count": 1,
+      "my_pending_obligations": 0,
+      "new": 1,
+      "new_breakdown": {
+        "children": [],
+        "id": "2b077949-W383215",
+        "overlap": 0,
+        "own": 1,
+        "snapshot_seq": 383365,
+        "subtree_total": 1
+      },
+      "next": {
+        "endpoint": "baton.bug",
+        "handlers": [
+          "rvpc"
+        ],
+        "role": "rview",
+        "route": "rview"
+      },
+      "obligations": [],
+      "open_blockers": 0,
+      "open_dependents": 1,
+      "origin": "decomposition",
+      "outcome": null,
+      "phase": "queued",
+      "pickup": "overdue",
+      "priority": "normal",
+      "progress": {
+        "children": 0,
+        "closed": 0
+      },
+      "rationale": null,
+      "ready": true,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.impl",
+        "handlers": [
+          "claude"
+        ],
+        "role": "impl",
+        "route": "impl"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 383215,
+          "id": "2b077949-T383215",
+          "last_seq": 383215,
+          "new": 1,
+          "subject": "Implement installed native Job cancellation and admission fencing"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "Implement installed native Job cancellation and admission fencing",
+      "trials": []
+    },
+    "snapshot_seq": 383365
+  },
+  "W383217": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.rvpc",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "prioritize",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.rvpc",
+        "created_ts": "2026-10-29T12:07:36Z",
+        "git_provenance": null,
+        "path": "work/records/2026/10/finding-v12-native-job-finite-policy",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 383217
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.rvpc",
+          "created_ts": "2026-10-29T12:07:36Z",
+          "git_provenance": null,
+          "path": "work/records/2026/10/finding-v12-native-job-finite-policy",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 383217
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W321608",
+          "title": "Assess replacing v11 coordination with v12 for one development workflow"
+        },
+        {
+          "id": "2b077949-W383217",
+          "title": "Enforce persisted finite native Job policy and joined control"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "design-choice",
+      "duplicate_of": null,
+      "episode_seq": 383220,
+      "first_open_blocker": "W383215",
+      "follow_up_of": null,
+      "gate": {
+        "kind": "work",
+        "message": null,
+        "obligation": null,
+        "selector": "W383215",
+        "started_at": "2026-10-29T12:07:42.593Z",
+        "started_seq": 383219,
+        "work": "2b077949-W383215"
+      },
+      "handler": null,
+      "handoff_at": null,
+      "heartbeat_at": null,
+      "id": "2b077949-W383217",
+      "last_change_seq": 383220,
+      "last_changed_at": "2026-10-29T12:07:46.955Z",
+      "links": {
+        "blocked_by": [
+          {
+            "handler": null,
+            "id": "2b077949-W383215",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.impl",
+              "handlers": [
+                "claude"
+              ],
+              "role": "impl",
+              "route": "impl"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Implement installed native Job cancellation and admission fencing",
+            "via_obligation": null
+          }
+        ],
+        "blocks": [
+          {
+            "handler": null,
+            "id": "2b077949-W321608",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.bug",
+              "handlers": [
+                "rvpc"
+              ],
+              "role": "rview",
+              "route": "rview"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Assess replacing v11 coordination with v12 for one development workflow",
+            "via_obligation": null
+          }
+        ],
+        "contains": [],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W383217",
+        "parent": {
+          "handler": null,
+          "id": "2b077949-W321608",
+          "outcome": null,
+          "route": {
+            "endpoint": "baton.bug",
+            "handlers": [
+              "rvpc"
+            ],
+            "role": "rview",
+            "route": "rview"
+          },
+          "status": "open",
+          "team": "baton",
+          "title": "Assess replacing v11 coordination with v12 for one development workflow"
+        }
+      },
+      "local_id": "W383217",
+      "message_count": 1,
+      "my_pending_obligations": 0,
+      "new": 1,
+      "new_breakdown": {
+        "children": [],
+        "id": "2b077949-W383217",
+        "overlap": 0,
+        "own": 1,
+        "snapshot_seq": 383365,
+        "subtree_total": 1
+      },
+      "next": null,
+      "obligations": [],
+      "open_blockers": 1,
+      "open_dependents": 1,
+      "origin": "decomposition",
+      "outcome": null,
+      "phase": "block",
+      "pickup": null,
+      "priority": "normal",
+      "progress": {
+        "children": 0,
+        "closed": 0
+      },
+      "rationale": null,
+      "ready": false,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.impl",
+        "handlers": [
+          "claude"
+        ],
+        "role": "impl",
+        "route": "impl"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 383217,
+          "id": "2b077949-T383217",
+          "last_seq": 383217,
+          "new": 1,
+          "subject": "Enforce persisted finite native Job policy and joined control"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "Enforce persisted finite native Job policy and joined control",
+      "trials": []
+    },
+    "snapshot_seq": 383365
+  },
+  "W370747": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.rvpc",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "add_dependency",
+        "classify",
+        "create_child",
+        "create_trial",
+        "pass",
+        "prioritize",
+        "remove_dependency",
+        "request",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.rvpc",
+        "created_ts": "2026-10-28T02:23:40Z",
+        "git_provenance": null,
+        "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment",
+        "prior": 0,
+        "rationale": "Attach planning dossier to existing owner-selected design assessment before research; no duplicate Work or gate on active corrections.",
+        "revision": 1,
+        "root": "baton",
+        "seq": 370753
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.rvpc",
+          "created_ts": "2026-10-28T02:23:40Z",
+          "git_provenance": null,
+          "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment",
+          "prior": 0,
+          "rationale": "Attach planning dossier to existing owner-selected design assessment before research; no duplicate Work or gate on active corrections.",
+          "revision": 1,
+          "root": "baton",
+          "seq": 370753
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W370747",
+          "title": "Assess design changes to reduce v12 workflow fragility"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "design-choice",
+      "duplicate_of": null,
+      "episode_seq": 370866,
+      "first_open_blocker": "W371076",
+      "follow_up_of": null,
+      "gate": {
+        "kind": "work",
+        "message": null,
+        "obligation": null,
+        "selector": "W371076",
+        "started_at": "2026-10-28T03:06:34.935Z",
+        "started_seq": 371114,
+        "work": "2b077949-W371076"
+      },
+      "handler": null,
+      "handoff_at": "2026-10-28T02:37:12Z",
+      "heartbeat_at": null,
+      "id": "2b077949-W370747",
+      "last_change_seq": 371114,
+      "last_changed_at": "2026-10-28T03:06:34.935Z",
+      "links": {
+        "blocked_by": [
+          {
+            "handler": {
+              "member": "codxpc",
+              "participant": "baton.codxpc",
+              "team": "baton"
+            },
+            "id": "2b077949-W371076",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.codx",
+              "handlers": [
+                "codxpc"
+              ],
+              "role": "impl",
+              "route": "implpc"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Plan joined deterministic ordinary template workflow proof",
+            "via_obligation": null
+          }
+        ],
+        "blocks": [],
+        "contains": [
+          {
+            "handler": null,
+            "id": "2b077949-W371072",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.bug",
+              "handlers": [
+                "rvpc"
+              ],
+              "role": "rview",
+              "route": "rview"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Plan residual template and adapter admission contracts"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W371073",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.bug",
+              "handlers": [
+                "rvpc"
+              ],
+              "role": "rview",
+              "route": "rview"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Plan safe typed adapter failures through existing diagnostics"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W371074",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Plan supported settlement of stopped failed executions"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W371075",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.bug",
+              "handlers": [
+                "rvpc"
+              ],
+              "role": "rview",
+              "route": "rview"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Plan routine create while serving and installer prerequisites"
+          },
+          {
+            "handler": {
+              "member": "codxpc",
+              "participant": "baton.codxpc",
+              "team": "baton"
+            },
+            "id": "2b077949-W371076",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.codx",
+              "handlers": [
+                "codxpc"
+              ],
+              "role": "impl",
+              "route": "implpc"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Plan joined deterministic ordinary template workflow proof"
+          }
+        ],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W370747",
+        "parent": null
+      },
+      "local_id": "W370747",
+      "message_count": 1,
+      "my_pending_obligations": 0,
+      "new": 1,
+      "new_breakdown": {
+        "children": [
+          {
+            "id": "2b077949-W371072",
+            "new": 17
+          },
+          {
+            "id": "2b077949-W371073",
+            "new": 9
+          },
+          {
+            "id": "2b077949-W371074",
+            "new": 16
+          },
+          {
+            "id": "2b077949-W371075",
+            "new": 20
+          },
+          {
+            "id": "2b077949-W371076",
+            "new": 2
+          }
+        ],
+        "id": "2b077949-W370747",
+        "overlap": 0,
+        "own": 1,
+        "snapshot_seq": 383365,
+        "subtree_total": 65
+      },
+      "next": null,
+      "obligations": [],
+      "open_blockers": 1,
+      "open_dependents": 0,
+      "origin": "external-report",
+      "outcome": null,
+      "phase": "block",
+      "pickup": "pending",
+      "priority": "normal",
+      "progress": {
+        "children": 5,
+        "closed": 1
+      },
+      "rationale": null,
+      "ready": false,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.bug",
+        "handlers": [
+          "rvpc"
+        ],
+        "role": "rview",
+        "route": "rview"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 370747,
+          "id": "2b077949-T370747",
+          "last_seq": 370747,
+          "new": 1,
+          "subject": "Assess design changes to reduce v12 workflow fragility"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "Assess design changes to reduce v12 workflow fragility",
+      "trials": []
+    },
+    "snapshot_seq": 383365
+  }
+}

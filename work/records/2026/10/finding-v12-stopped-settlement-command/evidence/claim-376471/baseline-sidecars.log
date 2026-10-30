@@ -1,0 +1,31 @@
+test_a_real_observing_status_run_mutates_no_durable_state (tests.tools.test_single_worker.AFaultedTerminalSurvivesTheContainerThatWroteIt.test_a_real_observing_status_run_mutates_no_durable_state)
+W85500 review 2026-09-04T14-27-54Z [P1]: BEHAVIOUR, not capability. ... FAIL
+
+======================================================================
+FAIL: test_a_real_observing_status_run_mutates_no_durable_state (tests.tools.test_single_worker.AFaultedTerminalSurvivesTheContainerThatWroteIt.test_a_real_observing_status_run_mutates_no_durable_state)
+W85500 review 2026-09-04T14-27-54Z [P1]: BEHAVIOUR, not capability.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 6067, in test_a_real_observing_status_run_mutates_no_durable_state
+    self.assertEqual(sorted(after), sorted(before),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "an observing status run added or removed a durable "
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "file")
+                     ^^^^^^^
+AssertionError: Lists differ: ['aut[33 chars]', 'control.sqlite3-shm', 'control.sqlite3-wal[1345 chars]son'] != ['aut[33 chars]', 'credentials/credential-state/attempt-7b5e0[1259 chars]son']
+
+First differing element 2:
+'control.sqlite3-shm'
+'credentials/credential-state/attempt-7b5e0[60 chars]json'
+
+First list contains 4 additional elements.
+First extra element 18:
+'storage/attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571/inputs/assignment.json'
+
+Diff is 1500 characters long. Set self.maxDiff to None to see it. : an observing status run added or removed a durable file
+
+----------------------------------------------------------------------
+Ran 1 test in 0.118s
+
+FAILED (failures=1)

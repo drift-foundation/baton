@@ -1,0 +1,12 @@
+{
+  "command": [
+    "/usr/bin/python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_authoring_enforcement",
+    "tests.tools.test_single_worker.TheTaskTOKENIsAcquiredUnderThePreparationCondition",
+    "tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner"
+  ],
+  "seconds": 60.00639084299837,
+  "status": 124
+}

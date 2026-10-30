@@ -1,0 +1,67 @@
+{
+  "cases": {
+    "a-grandchild-inherits": {
+      "kept_after": "preserved",
+      "observed": "{'grandchild_status': 1}",
+      "seconds": 0.053,
+      "status": 0,
+      "stderr": ""
+    },
+    "an-unusable-null-facility-fails-closed": {
+      "a regular file": {
+        "observed": "{'refusal': '/tmp/w339626-347765/wa/not-a-device is not a character device'}",
+        "seconds": 0.011,
+        "status": 0,
+        "stderr": "",
+        "witness_after": "refused-and-unconfined"
+      },
+      "an absent path": {
+        "observed": "{'refusal': 'the null device /tmp/w339626-347765/wa/absent-device could not be opened for confinement: No such file or directory'}",
+        "seconds": 0.011,
+        "status": 0,
+        "stderr": "",
+        "witness_after": "refused-and-unconfined"
+      },
+      "another character device": {
+        "observed": "{'refusal': '/dev/zero is not the null device'}",
+        "seconds": 0.011,
+        "status": 0,
+        "stderr": "",
+        "witness_after": "refused-and-unconfined"
+      }
+    },
+    "no-other-device-write-and-no-dev-create": {
+      "observed": "{'/dev/null': 'allowed', '/dev/zero': 'denied', '/dev/full': 'denied', '/dev/random': 'denied', 'create /dev entry': 'denied'}",
+      "seconds": 0.01,
+      "status": 0,
+      "stderr": ""
+    },
+    "real-git-materializes-a-source-line": {
+      "observed": "{'status': 0, 'stderr': ''}",
+      "seconds": 0.014,
+      "status": 0,
+      "stderr": ""
+    },
+    "sibling-installation-and-credential-writes-denied": {
+      "credential_new_exists": false,
+      "credential_token": "preserved",
+      "installation_intruded_exists": false,
+      "observed": "[]",
+      "seconds": 0.011,
+      "sibling_held": "preserved",
+      "sibling_new_exists": false,
+      "status": 0,
+      "stderr": ""
+    }
+  },
+  "module": "/home/sl/src/baton/v12/python/tools/next_run_confinement.py",
+  "mutated_nothing_installed": true,
+  "ran_no_product_test_module": true,
+  "read_no_credential": true,
+  "schema": "baton.w339626-confinement-boundary/1",
+  "started_no_runtime": true,
+  "submitted_no_job": true,
+  "what": "a bounded author DIAGNOSTIC exercising the five scenarios the product regression asserts, with the REAL kernel boundary and the REAL git binary, in a disposable fixture. NOT the regression module and NOT independent acceptance.",
+  "work": "/tmp/w339626-347765/wa",
+  "wrote_only_under": "/tmp/w339626-347765/wa"
+}

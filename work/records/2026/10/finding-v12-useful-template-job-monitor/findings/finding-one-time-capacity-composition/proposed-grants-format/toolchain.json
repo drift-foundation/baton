@@ -1,0 +1,33 @@
+{
+ "CAVEAT": "this is the RECIPE, not an inspection of the built image. Nothing here contacts a container engine, so binding this accepts the recipe at 42bed8bb as the toolchain statement for image sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2. An owner who needs the image's actual inventory must inspect the image.",
+ "authorized_by": null,
+ "build_steps": [
+  "FROM node:22-trixie-slim",
+  "RUN npm install -g \"@anthropic-ai/claude-code@${CLAUDE_VERSION}\" \\",
+  "RUN apt-get update \\",
+  "COPY python/src/baton_v12/attempt_log_format.py \\",
+  "COPY python/src/baton_v12/verification_context.py \\",
+  "COPY worker/baton_worker.py /opt/baton/baton_worker.py",
+  "COPY worker/claude_agent.py /opt/baton/claude_agent.py",
+  "COPY worker/dogfood_entry.py /opt/baton/dogfood_entry.py",
+  "COPY worker/worker-control-1.0.schema.json \\",
+  "COPY python/src/baton_v12/source_profiles /opt/baton/source_profiles",
+  "RUN useradd --uid 65532 --create-home nonroot \\"
+ ],
+ "derivation": "reused",
+ "for_selection": "42bed8bb04a53380e565b1a63fb2bc702677f0d0",
+ "image_this_describes": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2",
+ "missing_selection_this_answers": "the toolchain inventory of image sha256:c862c055...; reading it means contacting a container engine, which this preparation does not do.",
+ "proposed_for": "toolchain_digest",
+ "read_from": [
+  {
+   "path": "v12/worker/Dockerfile.claude",
+   "sha256": "487748a01c72906d3725b78ecafe060a4d290c070822ecb20c8373fe82589b49",
+   "what": "the worker image build recipe at the selected revision"
+  }
+ ],
+ "recipe_sha256": "487748a01c72906d3725b78ecafe060a4d290c070822ecb20c8373fe82589b49",
+ "schema": "baton.v12.proposed-toolchain/1",
+ "selected_by": null,
+ "status": "proposed-not-granted"
+}

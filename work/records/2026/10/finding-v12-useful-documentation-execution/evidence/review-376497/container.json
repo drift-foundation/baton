@@ -1,0 +1,16 @@
+{
+  "name": "container",
+  "argv": [
+    "docker",
+    "inspect",
+    "--format",
+    "{{json .State}}",
+    "a813a59f691c23022343cb25f3050df2c95386ae36b7dbab647fd4108d906ee6"
+  ],
+  "start": "2026-10-28T19:18:48.700682+00:00",
+  "end": "2026-10-28T19:18:48.706443+00:00",
+  "seconds": 0.005769549999968149,
+  "exit": 1,
+  "stdout": "\n",
+  "stderr": "permission denied while trying to connect to the docker API at unix:///var/run/docker.sock\n"
+}

@@ -1,0 +1,7 @@
+{
+  "baseline_source": "/tmp/w375445-baseline-22lmpq14",
+  "baseline_replacements": "base/v12/python product files; other source copied unchanged",
+  "failure_identity_equal": true,
+  "assertion_equal": true,
+  "meaning": "Read-only SQLite sidecar file creation; unchanged baseline failure, no assertion weakened"
+}

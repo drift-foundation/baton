@@ -1,0 +1,579 @@
+--- a/v12/python/src/baton_v12/worker_manager/tokens.py
++++ b/v12/python/src/baton_v12/worker_manager/tokens.py
+@@ -338,7 +338,7 @@
+         answer["renewed_at"] = renewals[-1]["renewed_at"]
+     else:
+         answer["renewed_at"] = None
+-    answer["renewals_remaining"] = max(0, RENEWAL_LIMIT - len(renewals))
++    answer["renewals_remaining"] = 0 if acquired.get("permission") is not None else max(0, RENEWAL_LIMIT - len(renewals))
+     # W275775 [P1]: A JUDGED EXPIRY IS STICKY, and this reader says so. Without the record
+     # this answered the arithmetic alone, so a clock that went backwards made a token that
+     # had already been judged expired look live again -- and a reader that contradicts an
+@@ -359,8 +359,11 @@
+     return answer
+ 
+ 
++_DEFAULT_SECONDS = object()
++
++
+ def acquire(control, domain, *, operation, execution, attempt=None,
+-            seconds=LIFETIME_SECONDS, eligible=None):
++            seconds=_DEFAULT_SECONDS, eligible=None, permission=None):
+     """Take exclusive permission for this resource, atomically, in one short write.
+ 
+     EVERYTHING HERE IS DATABASE WORK, which is DB-1 and DB-3: eligibility, the
+@@ -376,6 +379,22 @@
+     that can end an expired generation is a later G1 step, not an implicit effect of
+     asking again.
+     """
++    # A prospective envelope is absolute: startup, lost replies and restart do
++    # not buy another duration. Old duration-based records replay unchanged.
++    # The caller's independent execution controller owns stop_at; the token
++    # retains permission through expires_at for the required cleanup interval.
++    if permission is None:
++        seconds = LIFETIME_SECONDS if seconds is _DEFAULT_SECONDS else seconds
++    else:
++        if seconds is not _DEFAULT_SECONDS:
++            raise ContractRefusal("policy", "denied", "choose a duration or an execution envelope, not both")
++        seconds = None
++        permission = boundaries.document(permission, "a token execution envelope", required=("started_at", "stop_at", "expires_at", "policy"))
++        boundaries.instant(permission["started_at"], "a token envelope origin")
++        boundaries.instant(permission["stop_at"], "a token envelope execution deadline")
++        boundaries.instant(permission["expires_at"], "a token envelope cleanup deadline")
++        if not permission["started_at"] < permission["stop_at"] < permission["expires_at"]:
++            raise ContractRefusal("policy", "denied", "token execution and cleanup intervals must be positive")
+     boundaries.text(domain, "a governed conflict domain")
+     operation = boundaries.text(operation, "a token operation identity")
+     execution = boundaries.text(execution, "a token execution identity")
+@@ -435,7 +454,7 @@
+         #
+         # So the walk covers every generation, returned or not, and the comparison is the
+         # full operand set this acquisition was recorded under.
+-        offered = {"execution": execution, "attempt": attempt, "seconds": seconds}
++        offered = {"execution": execution, "attempt": attempt, "seconds": seconds, "permission": permission}
+         generation = 1
+         while True:
+             recorded = _document(control, _acquired_id(domain, generation), ACQUIRED_KIND)
+@@ -465,11 +484,13 @@
+                 f"and that token has not been "
+                 f"returned; an outstanding baton excludes every conflicting "
+                 f"acquisition, and an expired one is revoked rather than replaced")
++        taken = taken_at if permission is None else control._now()
++        if permission is not None and not permission["started_at"] <= taken < permission["stop_at"]:
++            raise ContractRefusal("refused", "precondition", "execution envelope is exhausted or its clock is ambiguous")
+         if eligible is not None:
+             refusal = eligible(connection)
+             if refusal is not None:
+                 raise ContractRefusal("refused", "precondition", refusal)
+-        taken = taken_at
+         document = {"version": TOKEN_VERSION, "domain": domain,
+                     "generation": generation, "operation": operation,
+                     "execution": execution, "attempt": attempt,
+@@ -478,8 +499,9 @@
+                     "seconds": seconds,
+                     "owner": proposed_owner, "renewals": 0,
+                     "acquired_at": taken,
+-                    "expires_at": boundaries.deadline(taken, seconds,
+-                                                      "a resource token expiry")}
++                    "expires_at": permission["expires_at"] if permission is not None else boundaries.deadline(taken, seconds, "a resource token expiry")}
++        if permission is not None:
++            document["permission"] = permission
+         control._record(_acquired_id(domain, generation), ACQUIRED_KIND,
+                         manager_signature(ACQUIRED_KIND, document),
+                         "committed", _recorded(document), None)
+@@ -588,6 +610,8 @@
+             f"{name_value(held['execution'])} under {name_value(held['operation'])}; a "
+             f"renewal is for the same resource, generation, operation and execution, and "
+             f"anything else is a second holder asking for somebody else's permission")
++    if held.get("permission") is not None:
++        raise ContractRefusal("policy", "denied", "an execution envelope has a fixed terminal deadline and cannot be renewed")
+     standing = _renewals_of(control, domain, generation)
+     if revision > len(standing):
+         raise ContractRefusal(
+--- a/v12/python/src/baton_v12/worker_manager/workspaces.py
++++ b/v12/python/src/baton_v12/worker_manager/workspaces.py
+@@ -3875,7 +3875,7 @@
+     return recorded
+ 
+ 
+-def prepared_workspace_governance(control, assignment_id, mounted=None):
++def prepared_workspace_governance(control, assignment_id, mounted=None, *, permission=None, permission_eligible=None):
+     """The task's own workspace governance, with the PREPARATION CONDITION attached.
+ 
+     W285464 review 2026-09-27T17-37-14Z, and the oldest outstanding item: the start
+@@ -3903,8 +3903,19 @@
+     from . import tokens
+ 
+     ordinary = tokens.workspace_governance(control=control, mounted=mounted)
++    if permission_eligible is not None:
++        boundaries.capability(permission_eligible, "an execution envelope admission predicate")
+ 
+     def eligible(_connection):
++        if permission is not None:
++            from . import attempts
++            current = attempts._require_attempt(control, assignment_id)
++            if current["execution_runtime"] not in ("not-started", "start-requested", "running") or current["cleanup"] != "pending" or control.operation_record(attempts._cancel_operation_id(current)) is not None:
++                return "the execution is ending or cancelled; no envelope permission is acquired"
++        if permission_eligible is not None:
++            refusal = permission_eligible(_connection)
++            if refusal is not None:
++                return refusal
+         for kind, standing in (
+                 ("host preparation", standing_preparation(control,
+                                                           assignment_id)),
+@@ -3967,12 +3978,14 @@
+ 
+         def reserve(self, asking, attempt, *, operation):
+             """Acquire with the preparation condition inside the SAME transaction."""
++            if permission is not None and attempt["runtime_attempt_id"] != assignment_id:
++                raise ContractRefusal("runtime-observation", "identity-mismatch", "the execution envelope belongs to another prepared assignment")
+             domain = tokens.domain_of(ordinary.resource_kind,
+                                       ordinary.identity(attempt))
+             token = tokens.acquire(
+                 asking, domain, operation=operation,
+                 execution=attempt["runtime_attempt_id"],
+-                attempt=attempt["runtime_attempt_id"], eligible=eligible)
++                attempt=attempt["runtime_attempt_id"], eligible=eligible, permission=permission)
+             tokens.journal_launch(asking, token, operation)
+             return tokens.Reservation(asking, token, operation)
+ 
+--- /dev/null
++++ b/v12/python/tests/job_manager/test_serving_renewal.py
+@@ -0,0 +1,276 @@
++"""W333485: prospective fixed-envelope permission, fake engine/controlled time."""
++from pathlib import Path
++from types import SimpleNamespace
++from unittest.mock import patch
++import copy
++
++from baton_v12.contracts import ContractRefusal
++from baton_v12.job_manager import execution_limits
++from baton_v12.worker_manager import ControlStore, activate_assignment, pin_boundary_identity, reconcile_runtime, request_cancellation
++from baton_v12.worker_manager import attempts, tokens, workspaces
++from tools import authoring_enforcement as enforcement, stage_execution
++from tests.manager.test_attempts import AttemptCase, Adapter, Agent, ATTEMPT
++from tests.manager.test_authoring_enforcement import Clock, Engine, packet
++
++
++class ServingPermission(AttemptCase):
++    def setUp(self):
++        super().setUp()
++        self.clock = Clock()
++        self.store.close()
++        self.store = ControlStore.open(self.path, incarnation='permission-case', clock=self.clock.utc)
++        self.addCleanup(self.store.close)
++        self.claimed()
++        activate_assignment(self.store, self.port, attempt_id=ATTEMPT, expect=self.expect())
++        home = Path(self.storage) / ATTEMPT
++        home.mkdir()
++        roots = {name: str(home / name) for name in ('workspace', 'inputs')}
++        for name in roots.values():
++            Path(name).mkdir()
++        found = Path(roots["workspace"]).stat()
++        pin_boundary_identity(self.store, attempt_id=ATTEMPT, source=(11, 111), workspace=(found.st_dev, found.st_ino))
++        workspaces.record_preparation(self.store, ATTEMPT, roots, [])
++        self.value = packet()
++        self.value['bounds']['total_seconds'] = 4800
++        self.context = {'job_id': 'job-one', 'attempt_id': ATTEMPT, 'execution_limits': execution_limits.resolved({'provider_turn_seconds': 3600, 'verification_command_seconds': 30})}
++        self.stage = {'job_id': 'job-one', 'attempt_id': ATTEMPT}
++        self.adapter = Adapter('runtime-1')
++        self.adapter.listing = [{'runtime_id': 'runtime-1', 'labels': attempts._runtime_labels(self.row())}]
++        reconcile_runtime(self.store, self.adapter, attempt_id=ATTEMPT)
++        self.engine = Engine(self.store)
++        native_stop = self.adapter.stop
++        def stop(command):
++            native_stop(command)
++            self.engine(['docker', 'stop', command['runtime_id']], seconds=2)
++            return {'stopped': True}
++        self.adapter.stop = stop
++        self.adapter.observe = lambda runtime: {'state': self.engine.state, 'why': 'controlled external engine', 'mounts': None}
++        self.cancelled = []
++        def cancel(**kwargs):
++            self.cancelled.append(kwargs)
++            return request_cancellation(self.store, self.port, Agent(), self.adapter, **kwargs)
++        self.operations = SimpleNamespace(configuration={'workers': [{'deployment': {'engine': 'docker'}}]}, cancel_attempt=cancel)
++        selected = patch.object(enforcement, 'selected_attempts', return_value=[ATTEMPT])
++        selected.start()
++        self.addCleanup(selected.stop)
++        self.lane = enforcement.Lane(self.store, object(), self.operations, self.value, engine_run=self.engine, clock=self.clock.utc, monotonic=self.clock.monotonic)
++
++    def selection(self):
++        return enforcement.permission_policy(self.value)(self.store, self.stage, self.context)
++
++    def acquire(self):
++        permission, eligible = self.selection()
++        governance = workspaces.prepared_workspace_governance(self.store, ATTEMPT, permission=permission, permission_eligible=eligible)
++        row = self.row()
++        operation = attempts._start_operation_id(row)
++        governance.reserve(self.store, row, operation=operation)
++        domain = tokens.domain_of('workspace', governance.identity(row))
++        token = tokens.token_of(self.store, domain, tokens.generation_of(self.store, domain, execution=ATTEMPT, operation=operation))
++        tokens.bind_container(self.store, token, 'runtime-1', launch=operation)
++        return token
++
++    def current(self, token):
++        return tokens.token_of(self.store, token['domain'], token['generation'])
++
++    def test_real_acquisition_and_enforcement_support_3600_then_cleanup(self):
++        before = copy.deepcopy(self.context)
++        self.clock.advance(120)  # preparation/startup is charged to the original envelope
++        token = self.acquire()
++        self.assertEqual(token['permission']['policy']['cleanup_seconds'], 60)
++        self.assertEqual(token['expires_at'], token['permission']['expires_at'])
++        self.assertEqual((enforcement.instant(token['expires_at']) - enforcement.instant(token['acquired_at'])).total_seconds(), 4680)
++        for seconds in (901, 1800, 3600, 3720):
++            self.clock.seconds = seconds
++            report = self.lane.tick()
++            self.assertFalse(self.lane.stopping.is_set(), report)
++            self.assertFalse(self.current(token)['expired'])
++            self.assertEqual(self.engine.state, 'running')
++        self.clock.seconds = 4740
++        report = self.lane.tick()
++        self.assertTrue(self.lane.stopping.is_set())
++        self.assertEqual(self.engine.state, 'quiescent', report)
++        self.assertFalse(self.current(token)['returned'])
++        self.clock.seconds = 4800
++        report = self.lane.tick()
++        self.assertEqual(self.engine.state, 'absent', report)
++        self.assertTrue(self.current(token)['returned'])
++        self.assertEqual(self.context, before)
++        self.assertEqual(self.current(token)['permission'], token['permission'])
++
++    def test_replay_and_restart_never_reset_the_deadline(self):
++        token = self.acquire()
++        self.clock.advance(1000)
++        self.store.close()
++        self.store = ControlStore.open(self.path, incarnation='restarted', clock=self.clock.utc)
++        self.addCleanup(self.store.close)
++        replay = self.acquire()
++        self.assertEqual(replay['acquired_at'], token['acquired_at'])
++        self.assertEqual(replay['expires_at'], token['expires_at'])
++        self.assertEqual(replay['owner'], token['owner'])
++        self.assertEqual(replay['generation'], token['generation'])
++        recovered = enforcement.Lane(self.store, object(), self.operations, self.value, engine_run=self.engine, clock=self.clock.utc, monotonic=self.clock.monotonic)
++        self.assertTrue(recovered.recovery)
++        self.assertTrue(recovered.stopping.is_set())
++
++    def test_malformed_permission_reaches_its_token_validator_without_acquiring(self):
++        permission, eligible = self.selection()
++        for changed in ({'expires_at': 'tomorrow'}, {'stop_at': permission['started_at']}, {'extra': True}):
++            with self.subTest(changed=changed):
++                governance = workspaces.prepared_workspace_governance(self.store, ATTEMPT, permission=dict(permission, **changed), permission_eligible=eligible)
++                with self.assertRaises(ContractRefusal):
++                    governance.reserve(self.store, self.row(), operation='invalid')
++                self.assertEqual(tokens.outstanding(self.store, tokens.domain_of('workspace', governance.identity(self.row()))), [])
++        with self.assertRaises(ContractRefusal):
++            tokens.acquire(self.store, 'workspace:legacy', operation='invalid-duration', execution=ATTEMPT, seconds=None)
++
++    def test_cancellation_before_acquisition_refuses_new_permission(self):
++        request_cancellation(self.store, self.port, Agent(), self.adapter, attempt_id=ATTEMPT, reason='test-cancel')
++        with self.assertRaisesRegex(ContractRefusal, 'ending or cancelled'):
++            self.acquire()
++
++    def test_foreign_prepared_assignment_cannot_use_the_policy(self):
++        permission, eligible = self.selection()
++        governance = workspaces.prepared_workspace_governance(self.store, ATTEMPT, permission=permission, permission_eligible=eligible)
++        with self.assertRaisesRegex(ContractRefusal, 'another prepared assignment'):
++            governance.reserve(self.store, dict(self.row(), runtime_attempt_id='foreign'), operation='foreign')
++
++    def test_closed_admission_competes_inside_acquisition(self):
++        permission, eligible = self.selection()
++        enforcement.halt(self.store, self.value['run_id'])
++        govern = workspaces.prepared_workspace_governance(self.store, ATTEMPT, permission=permission, permission_eligible=eligible)
++        with self.assertRaisesRegex(ContractRefusal, 'admission is closed'):
++            govern.reserve(self.store, self.row(), operation='new-start')
++        self.assertEqual(tokens.outstanding(self.store, tokens.domain_of('workspace', govern.identity(self.row()))), [])
++
++    def test_exhausted_or_regressed_clock_cannot_acquire(self):
++        for instant in (-1, 4740, 4800):
++            with self.subTest(instant=instant):
++                self.clock.seconds = instant
++                with self.assertRaisesRegex(ContractRefusal, 'exhausted or its clock is ambiguous'):
++                    self.acquire()
++
++    def test_expiry_is_not_revival_or_reuse_and_unknown_cessation_holds(self):
++        token = self.acquire()
++        self.engine.unavailable = True
++        self.clock.seconds = 4800
++        report = self.lane.tick()
++        self.assertTrue(self.lane.stopping.is_set())
++        self.assertFalse(self.current(token)['returned'], report)
++        replay = self.acquire()
++        self.assertEqual(replay['expires_at'], token['expires_at'])
++        self.assertTrue(self.current(token)['expired'])
++        with self.assertRaises(ContractRefusal):
++            tokens.acquire(self.store, token['domain'], operation='competitor', execution='other')
++        self.clock.seconds = 100
++        with self.assertRaises(ContractRefusal):
++            tokens.renew(self.store, token, execution=ATTEMPT, operation=token['operation'], expected_revision=0)
++        self.assertFalse(self.current(token)['returned'])
++
++    def test_startup_cannot_consume_the_required_invocation_and_cleanup_reserve(self):
++        self.clock.seconds = 1111  # 4740 - 3630 is the latest full invocation start.
++        with self.assertRaisesRegex(ContractRefusal, 'remaining execution envelope'):
++            self.acquire()
++
++    def test_fixed_envelope_cannot_be_renewed_or_rebound(self):
++        token = self.acquire()
++        with self.assertRaisesRegex(ContractRefusal, 'fixed terminal deadline'):
++            tokens.renew(self.store, token, execution=ATTEMPT, operation=token['operation'], expected_revision=0)
++        changed = copy.deepcopy(token['permission'])
++        changed['policy']['cleanup_seconds'] = 61
++        with self.assertRaises(ContractRefusal):
++            tokens.acquire(self.store, token['domain'], operation=token['operation'], execution=ATTEMPT, attempt=ATTEMPT, permission=changed)
++        self.assertEqual(self.current(token)['permission'], token['permission'])
++
++    def test_missing_invalid_foreign_and_oversized_limits_refuse(self):
++        original = copy.deepcopy(self.context)
++        for limits in (None, {}, dict(original['execution_limits'], scope='unlimited'), execution_limits.resolved({'provider_turn_seconds': 4800})):
++            with self.subTest(limits=limits):
++                self.context['execution_limits'] = limits
++                with self.assertRaises(ContractRefusal):
++                    self.selection()
++        self.context = original
++        self.stage['job_id'] = 'unrelated'
++        with self.assertRaises(ContractRefusal):
++            self.selection()
++
++    def test_shorter_populated_limits_and_envelope_are_not_a_new_constant(self):
++        self.value['run_id'] = 'shorter'
++        self.value['bounds'] = dict(self.value['bounds'], total_seconds=600, cleanup_seconds=40)
++        enforcement.envelope(self.store, self.value)
++        self.context['execution_limits'] = execution_limits.resolved({'provider_turn_seconds': 400, 'verification_command_seconds': 20})
++        permission, _ = self.selection()
++        self.assertEqual((enforcement.instant(permission['expires_at']) - enforcement.instant(permission['started_at'])).total_seconds(), 600)
++        self.assertEqual((enforcement.instant(permission['expires_at']) - enforcement.instant(permission['stop_at'])).total_seconds(), 40)
++
++
++from tests.tools.test_single_worker import SingleWorkerCase, Engine as LaunchEngine
++
++
++class ProductionLaunch(SingleWorkerCase):
++    def test_job_serving_reaches_envelope_acquisition_and_dispatch(self):
++        from baton_v12.job_manager import submit
++        from tests.job_manager import fixtures
++        from tools import single_worker
++        job, control = self.stores('envelope-launch')
++        self.submission['schema'] = 'baton.v12.job-submission/2'
++        self.submission['jobs'][0]['execution_limits'] = {'provider_turn_seconds': 3600, 'verification_command_seconds': 30}
++        submit(job, self.submission)
++        value = packet()
++        value['submission']['job_id'] = 'job-a'
++        value['bounds']['total_seconds'] = 4800
++        value['deployment']['authority_uuid'] = job.authority_uuid
++        held, _ = enforcement.envelope(control, value)
++        engine = LaunchEngine()
++        operations = single_worker.operations_from(self.config, job, control, engine_run=engine,
++            credential_provider=lambda provider, reference: self.secret, clock=lambda: fixtures.NOW,
++            permission_policy=enforcement.permission_policy(value))
++        self.addCleanup(operations.close)
++        self.commanded(job, operations)
++        self.assertEqual(len(engine.starts), 1)
++        self.assertTrue(engine.running)
++        rows = list(control._connection.execute('SELECT runtime_attempt_id, workspace_device, workspace_inode FROM attempts'))
++        self.assertEqual(len(rows), 1)
++        row = dict(rows[0])
++        domain = tokens.domain_of('workspace', tokens.workspace_identity(row))
++        token = tokens.token_of(control, domain, 1)
++        self.assertIsNotNone(token.get('permission'))
++        self.assertEqual(token['container'], engine.runtime_id)
++        self.assertEqual(token['permission']['started_at'], held['started_at'])
++        self.assertEqual(token['permission']['policy']['execution_limits']['requested'], self.submission['jobs'][0]['execution_limits'])
++        self.assertTrue(tokens.effects_permitted(control, token))
++        clock = Clock()
++        clock.origin = enforcement.instant(held['started_at'])
++        control._clock = clock.utc
++        for seconds in (901, 1800, 3600):
++            clock.seconds = seconds
++            self.assertTrue(tokens.effects_permitted(control, token))
++            self.assertTrue(engine.running)
++        self.assertEqual(tokens.token_of(control, domain, 1)['expires_at'], token['expires_at'])
++
++
++from tests.tools.test_stage_execution import ServingCase
++
++
++class AuthoringComposition(ServingCase):
++    def test_child_composition_delivers_policy_to_real_stage_workers(self):
++        import json
++        job, control = self.stores('authoring-envelope-composition')
++        document = self.composed_document()
++        config = Path(self.root) / 'envelope-config.json'
++        config.write_text(json.dumps(document))
++        value = packet()
++        value['code_boundary'] = self.checkout
++        value['deployment']['config_path'] = str(config)
++        actual = stage_execution.operations_from
++        def compose(config, job, control, **named):
++            # External provider/engine injection only; the actual stage factory
++            # and its returned workers consume the policy from child_compose.
++            named['engine_run'] = LaunchEngine()
++            return actual(config, job, control, credential_provider=lambda provider, reference: self.secret, **named)
++        with patch.object(stage_execution, 'operations_from', side_effect=compose):
++            composed = enforcement.child_compose(value, job, control, None)
++        self.addCleanup(composed.close)
++        workers = [one['operations']._worker for one in composed.workers if one['role'] in ('implementation', 'review')]
++        self.assertEqual(len(workers), 2)
++        self.assertTrue(all(callable(worker.permission_policy) for worker in workers))
++        self.assertIs(workers[0].permission_policy, workers[1].permission_policy)
+--- a/v12/python/tests/manager/test_boundary_inventory.py
++++ b/v12/python/tests/manager/test_boundary_inventory.py
+@@ -3347,6 +3347,8 @@
+ }
+ 
+ DELEGATED = {
++    ("caller", "workspaces.py:prepared_workspace_governance", "permission"):
++        ("tokens.py:acquire", "caller:permission"),
+     **DEADLINE_DELEGATES,
+     **TOKEN_DELEGATES,
+     ("adopted", "review_cycles.py:consumption_subject", "line_writers.writer_id"):
+--- a/v12/python/tools/authoring_enforcement.py
++++ b/v12/python/tools/authoring_enforcement.py
+@@ -252,11 +252,56 @@
+         return self.operations.cancel_attempt(attempt_id=attempt_id, reason='authoring-enforcement')
+ 
+ 
++def permission_policy(packet):
++    """Bind prospective acquisition to the persisted controller envelope.
++
++    Invocation limits remain per invocation. The controller owns total execution
++    and cleanup time; acquisition never starts either clock again.
++    """
++    from baton_v12.contracts import ContractRefusal
++    from baton_v12.job_manager import execution_limits
++
++    def select(control, stage, context):
++        record = control.operation_record(KIND + ':' + packet['run_id'])
++        if record is None or not isinstance(stage, dict) or not isinstance(context, dict) or stage.get('job_id') != packet['submission']['job_id'] or context.get('job_id') != stage.get('job_id') or context.get('attempt_id') != stage.get('attempt_id'):
++            raise ContractRefusal('refused', 'precondition', 'permission requires the selected Job and persisted execution envelope')
++        held, _ = envelope(control, packet)
++        limits = context.get('execution_limits')
++        if not isinstance(limits, dict):
++            raise ContractRefusal('refused', 'precondition', 'permission requires populated Job invocation limits')
++        requested = execution_limits.owned_execution_limits(limits.get('requested'))
++        expected = execution_limits.resolved(requested, limits.get('compatibility_generation'))
++        if limits != expected:
++            raise ContractRefusal('refused', 'precondition', 'permission limits differ from the admitted Job resolution')
++        total, cleanup = packet['bounds']['total_seconds'], packet['bounds']['cleanup_seconds']
++        if type(total) is not int or type(cleanup) is not int or not 0 < cleanup < total:
++            raise ContractRefusal('policy', 'denied', 'execution envelope requires positive execution and cleanup intervals')
++        if limits['boundaries']['provider_turn']['seconds'] + limits['boundaries']['ordinary_verification']['seconds'] > total - cleanup:
++            raise ContractRefusal('policy', 'denied', 'selected envelope cannot support the populated provider and verification limits')
++        def stamp(value):
++            return value.isoformat(timespec='milliseconds').replace('+00:00', 'Z')
++        selected = {'started_at': held['started_at'], 'stop_at': stamp(instant(held['stop_at'])),
++                    'expires_at': stamp(instant(held['started_at']) + timedelta(seconds=total)),
++                    'policy': {'run': packet['run_id'], 'job': stage['job_id'], 'execution_limits': limits,
++                               'total_seconds': total, 'cleanup_seconds': cleanup}}
++        def eligible(connection):
++            del connection
++            if control.operation_record(HALT_KIND + ':' + packet['run_id']) is not None:
++                return 'authoring envelope admission is closed'
++            remaining = (instant(held['stop_at']) - instant(control._now())).total_seconds()
++            needed = limits['boundaries']['provider_turn']['seconds'] + limits['boundaries']['ordinary_verification']['seconds']
++            if remaining < needed:
++                return 'remaining execution envelope cannot support the populated invocation limits'
++            return None
++        return selected, eligible
++    return select
++
++
+ def child_compose(packet, job, control, stream):
+     del stream
+     with open(packet['deployment']['config_path'], encoding='utf-8') as handle:
+         config = json.load(handle)
+-    operations = stage_execution.operations_from(config, job, control, engine_run=bounded_engine, checkout=packet['code_boundary'])
++    operations = stage_execution.operations_from(config, job, control, engine_run=bounded_engine, checkout=packet['code_boundary'], permission_policy=permission_policy(packet))
+     return Operations(operations, control, packet['run_id'])
+ 
+ 
+--- a/v12/python/tools/single_worker.py
++++ b/v12/python/tools/single_worker.py
+@@ -1234,7 +1234,7 @@
+     def __init__(self, given, control, port, *, credential_provider,
+                  engine_run, session=None, clock=None, checkpoint=None,
+                  stage=None, judgment_document=None,
+-                 execution_context=None, activity=None):
++                 execution_context=None, activity=None, permission_policy=None):
+         self.given = given
+         # W285464: THE PREPARATION OWNERSHIPS THIS COMPOSITION HOLDS, per attempt.
+         # The capability lives for as long as this manager composition does, which is
+@@ -1265,6 +1265,7 @@
+         # deployment and focused verification -- and those keep the legacy
+         # launch shapes they already had.
+         self.execution_context = execution_context
++        self.permission_policy = permission_policy
+         # W103083: THE TWO PLACES A STAGE DIFFERS, AND THERE ARE ONLY TWO.
+         # What a worker MOUNTS and how its attempt ENDS are the whole of the
+         # difference between an implementation, a review and an integration
+@@ -2227,12 +2228,13 @@
+                 # arrives between the two is refused by the acquisition rather than
+                 # slipping through the gap. Same domain, same journal, same G1
+                 # endings -- only the eligibility is added.
++                permission, permission_eligible = (None, None) if self.permission_policy is None else self.permission_policy(self.control, stage, self._job_execution(stage))
+                 answer = request_runtime_start(
+                     self.control, adapter, attempt_id=attempt_id,
+                     inputs=roots["inputs"],
+                     govern=workspaces.prepared_workspace_governance(
+                         self.control, attempt_id,
+-                        mounted=roots["workspace"]))
++                        mounted=roots["workspace"], permission=permission, permission_eligible=permission_eligible))
+             else:
+                 answer = reconcile_runtime(self.control, adapter,
+                                            attempt_id=attempt_id)
+@@ -3256,7 +3258,7 @@
+ 
+ 
+ def operations_from(document, job_store, control_store, *, engine_run=None,
+-                    credential_provider=None, clock=None, checkpoint=None):
++                    credential_provider=None, clock=None, checkpoint=None, permission_policy=None):
+     """Build the exact manager operations from one already-read document.
+ 
+     ``job_store`` is accepted because every factory has the same public shape.
+@@ -3312,7 +3314,7 @@
+         helper = activity_ingestion(control_store, clock=clock)
+         return worker_operations(given, control_store, authority, provider,
+                                  engine_run=engine_run, clock=clock,
+-                                 checkpoint=checkpoint,
++                                 checkpoint=checkpoint, permission_policy=permission_policy,
+                                  dispose=_bootstrap_dispose(authority, helper),
+                                  activity=None if helper is None
+                                  else helper.enqueue,
+@@ -3494,7 +3496,7 @@
+ def worker_operations(given, control_store, authority, provider, *,
+                       engine_run=None, clock=None, checkpoint=None,
+                       dispose=None, stage=None, judgment_document=None,
+-                      execution_context=None, activity=None):
++                      execution_context=None, activity=None, permission_policy=None):
+     """The half that needs an Authority, over one the CALLER owns.
+ 
+     `dispose` is what makes this reusable by a pool. A single-worker
+@@ -3539,7 +3541,7 @@
+         clock=clock,
+         checkpoint=checkpoint, stage=stage,
+         judgment_document=judgment_document,
+-        execution_context=execution_context,
++        execution_context=execution_context, permission_policy=permission_policy,
+         # W61599: THE DEPLOYMENT'S ONE INGESTION HELPER, handed to every worker
+         # it composes. The helper is per STORE and not per worker, so what a
+         # worker receives is the enqueue and never the helper itself -- a
+--- a/v12/python/tools/stage_execution.py
++++ b/v12/python/tools/stage_execution.py
+@@ -6396,7 +6396,7 @@
+ def operations_from(document, job_store, control_store, *, engine_run=None,
+                     credential_provider=None, clock=None, checkpoint=None,
+                     checkout=None, checkpoint_profile=None,
+-                    review_verdict=None, integration_port=None):
++                    review_verdict=None, integration_port=None, permission_policy=None):
+     """Compose the whole stage deployment, or change nothing at all.
+ 
+     THE ORDER IS THE CONTRACT, AND REVIEW 2026-09-07T14-12-42Z [P1] IS WHY IT
+@@ -6582,7 +6582,7 @@
+                 operations = single_worker.worker_operations(
+                     one["deployment"], control_store, composed.authority,
+                     provider, engine_run=engine_run, clock=clock,
+-                    checkpoint=checkpoint,
++                    checkpoint=checkpoint, permission_policy=permission_policy,
+                     stage=StageComposition(deployment, role=one["role"],
+                                            worker_id=one["worker_id"]),
+                     # W156162: the same reader every Job-bound factory gets.

@@ -1,0 +1,393 @@
+diff --git a/v12/python/tests/tools/test_startup_prerequisites.py b/v12/python/tests/tools/test_startup_prerequisites.py
+new file mode 100644
+index 00000000..613a2204
+--- /dev/null
++++ b/v12/python/tests/tools/test_startup_prerequisites.py
+@@ -0,0 +1,387 @@
++"""W375516 — configured prerequisites and application-read-only validation.
++
++Nothing here installs operationally, runs an engine or provider, or touches a
++retained store: every store is a disposable one this module creates and the
++prerequisite roots are temporary directories.
++"""
++
++import os
++import pathlib
++import shutil
++import stat
++import sys
++import tempfile
++import unittest
++
++sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2] / "src"))
++sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2]))
++
++from tools import bootstrap                                      # noqa: E402
++
++
++def worker(home, who="w-1", **named):
++    held = {"workspace_storage": os.path.join(home, who, "storage"),
++            "launch_home": os.path.join(home, who, "launch"),
++            "credential_home": os.path.join(home, who, "credentials")}
++    held.update(named)
++    return {"worker_id": who, "deployment": held}
++
++
++class TheTripleIsTheOneStageExecutionNames(unittest.TestCase):
++    """REQUIRED REUSE: the roots are the triple that module already holds
++    together, not a second list."""
++
++    def test_the_three_names(self):
++        from tools import stage_execution  # noqa: F401
++        self.assertEqual(bootstrap.PREREQUISITE_ROOTS,
++                         ("workspace_storage", "launch_home",
++                          "credential_home"))
++
++    def test_every_configured_root_of_every_worker_is_named(self):
++        home = tempfile.mkdtemp()
++        self.addCleanup(shutil.rmtree, home, True)
++        document = {"workers": [worker(home, "w-1"), worker(home, "w-2")]}
++        self.assertEqual(len(bootstrap.prerequisite_places(document)), 6)
++
++    def test_a_shared_root_is_named_once(self):
++        """Two workers of one instance sharing a root is the operator's
++        business; preparing it twice is not."""
++        home = tempfile.mkdtemp()
++        self.addCleanup(shutil.rmtree, home, True)
++        one = worker(home, "w-1")
++        two = worker(home, "w-2", **one["deployment"])
++        held = bootstrap.prerequisite_places({"workers": [one, two]})
++        self.assertEqual(len(held), 3)
++
++    def test_a_malformed_worker_entry_names_nothing(self):
++        for named in ({"workers": None}, {"workers": [None]},
++                      {"workers": [{"worker_id": "w"}]}, {}):
++            with self.subTest(document=named):
++                self.assertEqual(bootstrap.prerequisite_places(named), [])
++
++
++class TheReportIsApplicationReadOnly(unittest.TestCase):
++    """It says what is wrong and changes nothing. No initialize, migrate,
++    repair, chmod or writable fallback."""
++
++    def setUp(self):
++        self.home = tempfile.mkdtemp()
++        self.addCleanup(shutil.rmtree, self.home, True)
++        self.document = {"workers": [worker(self.home)]}
++
++    def test_every_missing_root_is_reported_by_exact_path(self):
++        said = bootstrap.prerequisite_report(self.document)
++        self.assertEqual(len(said), 3)
++        for _who, _name, place, why in said:
++            self.assertEqual(why, "does not exist")
++            self.assertTrue(place.startswith(self.home))
++
++    def test_it_creates_nothing(self):
++        before = sorted(os.listdir(self.home))
++        bootstrap.prerequisite_report(self.document)
++        self.assertEqual(sorted(os.listdir(self.home)), before)
++        for _who, _name, place in bootstrap.prerequisite_places(self.document):
++            self.assertFalse(os.path.lexists(place), place)
++
++    def test_a_prepared_deployment_reports_nothing(self):
++        with open(os.devnull, "w") as quiet:
++            bootstrap.prepare_prerequisites(self.document, {}, made={},
++                                            stream=quiet)
++        self.assertEqual(bootstrap.prerequisite_report(self.document), [])
++
++    def test_a_link_is_unusable_rather_than_followed(self):
++        place = bootstrap.prerequisite_places(self.document)[0][2]
++        os.makedirs(os.path.dirname(place), exist_ok=True)
++        real = os.path.join(self.home, "elsewhere")
++        os.makedirs(real)
++        os.symlink(real, place)
++        said = dict((one[2], one[3])
++                    for one in bootstrap.prerequisite_report(self.document))
++        self.assertEqual(said[place], "is a symbolic link")
++
++    def test_a_linked_ancestor_is_reported_too(self):
++        """W376246: the observation and the preparation disagreed -- a root
++        under a linked parent refused at prepare and was reported as fine
++        here, so an operator could be told a deployment was ready that an
++        install would refuse to make."""
++        real = os.path.join(self.home, "real-w-1")
++        os.makedirs(real)
++        os.symlink(real, os.path.join(self.home, "w-1"))
++        said = [one[3] for one in
++                bootstrap.prerequisite_report(self.document)]
++        self.assertTrue(said)
++        for why in said:
++            self.assertIn("which resolves to", why)
++
++    def test_a_file_at_an_owed_name_is_reported_as_what_it_is(self):
++        place = bootstrap.prerequisite_places(self.document)[1][2]
++        os.makedirs(os.path.dirname(place), exist_ok=True)
++        with open(place, "w", encoding="utf-8") as handle:
++            handle.write("not a root")
++        said = dict((one[2], one[3])
++                    for one in bootstrap.prerequisite_report(self.document))
++        self.assertIn("not a directory", said[place])
++
++    def test_an_unusable_mode_is_reported_without_repair(self):
++        place = bootstrap.prerequisite_places(self.document)[2][2]
++        os.makedirs(place)
++        os.chmod(place, 0o000)
++        self.addCleanup(os.chmod, place, 0o700)
++        if os.geteuid() == 0:
++            self.skipTest("root bypasses the access check this case drives")
++        said = dict((one[2], one[3])
++                    for one in bootstrap.prerequisite_report(self.document))
++        self.assertIn("not readable, writable and traversable", said[place])
++        self.assertEqual(stat.S_IMODE(os.lstat(place).st_mode), 0o000,
++                         "the report must not chmod anything")
++
++
++class ThePrepareOwnsOnlyWhatItMade(unittest.TestCase):
++
++    def setUp(self):
++        self.home = tempfile.mkdtemp()
++        self.addCleanup(shutil.rmtree, self.home, True)
++        self.document = {"workers": [worker(self.home)]}
++        self.quiet = open(os.devnull, "w")
++        self.addCleanup(self.quiet.close)
++
++    def prepared(self, made=None):
++        """`made` IS THE CALLER'S, so a refusal mid-way still hands back the
++        roots this attempt created -- the property the review found missing."""
++        made = {} if made is None else made
++        return bootstrap.prepare_prerequisites(self.document, {}, made=made,
++                                               stream=self.quiet)
++
++    def test_every_configured_root_is_created_and_owned(self):
++        """EVERY COMPONENT, not just the leaf. W376246: `os.makedirs` creates
++        missing PARENTS, and recording only the leaves left every intermediate
++        this attempt made outside the unwind."""
++        made = self.prepared()
++        for _who, _name, place in bootstrap.prerequisite_places(self.document):
++            self.assertIn(place, made, place)
++        self.assertIn(os.path.join(self.home, "w-1"), made,
++                      "the intermediate this attempt created is owned too")
++        self.assertEqual(len(made), 4)
++        for place, identity in made.items():
++            held = os.lstat(place)
++            self.assertTrue(stat.S_ISDIR(held.st_mode))
++            self.assertEqual(identity, (held.st_dev, held.st_ino))
++
++    def test_an_existing_root_is_left_alone_and_is_not_ours(self):
++        """An occupied prerequisite is the operator's: not repaired, and NOT
++        in the unwind, so a later failure cannot remove somebody else's."""
++        place = bootstrap.prerequisite_places(self.document)[0][2]
++        os.makedirs(place)
++        os.chmod(place, 0o755)
++        made = self.prepared()
++        self.assertNotIn(place, made)
++        self.assertEqual(stat.S_IMODE(os.lstat(place).st_mode), 0o755,
++                         "an existing root must not be chmodded")
++
++    def test_a_link_at_an_owed_name_refuses(self):
++        place = bootstrap.prerequisite_places(self.document)[0][2]
++        os.makedirs(os.path.dirname(place), exist_ok=True)
++        real = os.path.join(self.home, "elsewhere")
++        os.makedirs(real)
++        os.symlink(real, place)
++        with self.assertRaises(bootstrap.BootstrapRefusal) as caught:
++            self.prepared()
++        said = str(caught.exception)
++        self.assertIn("nothing here follows a link", said)
++        self.assertTrue(os.path.islink(place), "the link must be left as is")
++        self.assertEqual(os.listdir(real), [], "nothing written through it")
++
++    def test_a_file_at_an_owed_name_refuses(self):
++        place = bootstrap.prerequisite_places(self.document)[1][2]
++        os.makedirs(os.path.dirname(place), exist_ok=True)
++        with open(place, "w", encoding="utf-8") as handle:
++            handle.write("foreign")
++        with self.assertRaises(bootstrap.BootstrapRefusal) as caught:
++            self.prepared()
++        self.assertIn("left exactly as it is", str(caught.exception))
++        with open(place, encoding="utf-8") as reading:
++            self.assertEqual(reading.read(), "foreign")
++
++    def test_a_refusal_still_hands_back_what_was_already_created(self):
++        """THE REVIEW'S FIRST BLOCKER. A link at the third owed name used to
++        throw away the two roots this attempt had just made, so `install`'s
++        unwind never saw them and the residue blocked its own retry."""
++        places = bootstrap.prerequisite_places(self.document)
++        os.makedirs(os.path.dirname(places[2][2]), exist_ok=True)
++        real = os.path.join(self.home, "elsewhere")
++        os.makedirs(real)
++        for place in (places[0][2], places[1][2]):
++            os.makedirs(place)
++        os.symlink(real, places[2][2])
++        made = {}
++        with self.assertRaises(bootstrap.BootstrapRefusal):
++            self.prepared(made)
++        # Nothing was created, because every root is inspected first -- and
++        # the dictionary is the caller's either way, so whatever HAD been made
++        # would be in it.
++        self.assertEqual(made, {})
++
++    def test_nothing_is_created_when_a_later_root_refuses(self):
++        """Every root is inspected before any is created, so an install that
++        is going to refuse refuses with nothing made at all."""
++        places = bootstrap.prerequisite_places(self.document)
++        os.makedirs(os.path.dirname(places[2][2]), exist_ok=True)
++        with open(places[2][2], "w", encoding="utf-8") as handle:
++            handle.write("foreign")
++        made = {}
++        with self.assertRaises(bootstrap.BootstrapRefusal):
++            self.prepared(made)
++        self.assertEqual(made, {})
++        for _who, _name, place in places[:2]:
++            self.assertFalse(os.path.lexists(place), place)
++
++    def test_an_inaccessible_existing_root_refuses(self):
++        """THE REVIEW'S SECOND BLOCKER: it used to be accepted, which moved
++        the failure to the first start."""
++        if os.geteuid() == 0:
++            self.skipTest("root bypasses the access check this case drives")
++        place = bootstrap.prerequisite_places(self.document)[0][2]
++        os.makedirs(place)
++        os.chmod(place, 0o000)
++        self.addCleanup(os.chmod, place, 0o700)
++        with self.assertRaises(bootstrap.BootstrapRefusal) as caught:
++            self.prepared()
++        self.assertIn("nothing here chmods a root", str(caught.exception))
++        self.assertEqual(stat.S_IMODE(os.lstat(place).st_mode), 0o000)
++
++    def test_a_linked_ancestor_refuses(self):
++        """THE REVIEW'S THIRD BLOCKER. `os.makedirs` creates missing parents
++        and traverses existing ones, so a link above an owed name put this
++        deployment's state somewhere it did not choose."""
++        who = os.path.join(self.home, "w-1")
++        real = os.path.join(self.home, "real-w-1")
++        os.makedirs(real)
++        os.symlink(real, who)
++        with self.assertRaises(bootstrap.BootstrapRefusal) as caught:
++            self.prepared()
++        self.assertIn("through a link", str(caught.exception))
++        self.assertEqual(os.listdir(real), [],
++                         "nothing may be created through the link")
++
++    def test_a_prepared_root_is_private_whatever_the_umask(self):
++        """W376246: a creation mode is umask-filtered, so under `umask 000` a
++        prepared root was 0777 -- world-writable mutable state nobody asked
++        for. The mode is named and applied on what this call created."""
++        before = os.umask(0o000)
++        self.addCleanup(os.umask, before)
++        for place in self.prepared():
++            self.assertEqual(stat.S_IMODE(os.lstat(place).st_mode),
++                             bootstrap.PREREQUISITE_MODE, place)
++
++    def test_a_populated_root_this_attempt_made_is_not_removed(self):
++        """W376246: the unwind used `rmtree`, so a directory this attempt
++        created that somebody else wrote into had THEIR content deleted. The
++        uncertainty is reported instead."""
++        made = self.prepared()
++        place = bootstrap.unwound_order(made)[0]
++        theirs = os.path.join(place, "theirs.txt")
++        with open(theirs, "w", encoding="utf-8") as handle:
++            handle.write("not this attempt's")
++        said = bootstrap._remove_if_still_ours(place, made[place], "root")
++        self.assertIn("would take somebody else's content", said)
++        self.assertTrue(os.path.isfile(theirs), "their file must survive")
++        self.assertTrue(os.path.isdir(place))
++
++    def test_a_racing_link_at_an_owed_name_is_revalidated(self):
++        """W376246: `FileExistsError` was accepted without revalidation, so an
++        object appearing in that window was treated as usable. A link that
++        races in refuses, and is not owned."""
++        places = bootstrap.prerequisite_places(self.document)
++        real = os.path.join(self.home, "elsewhere")
++        os.makedirs(real)
++        made = {}
++        original = os.mkdir
++        racing = {"done": False}
++
++        def mkdir(path, *args, **named):
++            original(path, *args, **named)
++            if not racing["done"] and path == os.path.dirname(places[0][2]):
++                racing["done"] = True
++                os.symlink(real, places[0][2])
++
++        from unittest import mock
++        with mock.patch("os.mkdir", mkdir):
++            with self.assertRaises(bootstrap.BootstrapRefusal) as caught:
++                self.prepared(made)
++        self.assertIn("follows a link", str(caught.exception))
++        self.assertNotIn(places[0][2], made,
++                         "a racer's object is never owned by this attempt")
++        self.assertTrue(os.path.islink(places[0][2]))
++
++    def test_the_owned_unwind_removes_exactly_what_was_made(self):
++        """`install`'s existing helper, driven over this answer."""
++        made = self.prepared()
++        foreign = os.path.join(self.home, "foreign")
++        os.makedirs(foreign)
++        # INNERMOST FIRST, which is what `unwound_order` answers: a parent
++        # cannot go before its child, and the unwind refuses to remove a
++        # populated directory.
++        for place in bootstrap.unwound_order(made):
++            bootstrap._remove_if_still_ours(place, made[place], "root")
++            self.assertFalse(os.path.lexists(place), place)
++        self.assertTrue(os.path.isdir(foreign))
++
++    def test_a_replaced_root_is_no_longer_ours_and_survives(self):
++        made = self.prepared()
++        place = bootstrap.unwound_order(made)[0]
++        identity = made[place]
++        os.rmdir(place)
++        os.makedirs(place)
++        bootstrap._remove_if_still_ours(place, identity, "root")
++        self.assertTrue(os.path.isdir(place),
++                        "a root replaced since creation is not this "
++                        "attempt's and must survive the unwind")
++
++
++class TheControlStoreIsInitializedThroughItsOwnOpener(unittest.TestCase):
++
++    def setUp(self):
++        self.home = tempfile.mkdtemp()
++        self.addCleanup(shutil.rmtree, self.home, True)
++        self.places = {"control_store": os.path.join(self.home,
++                                                     "control.sqlite3")}
++
++    def test_an_absent_store_is_initialized_and_closed(self):
++        bootstrap.initialize_control_store(
++            self.places, incarnation="bootstrap-test",
++            clock=lambda: "2026-10-28T00:00:00.000Z")
++        self.assertTrue(os.path.isfile(self.places["control_store"]))
++
++    def test_initializing_twice_adopts_rather_than_refusing(self):
++        """A second install of the same destination is refused elsewhere; the
++        opener itself must adopt a store it already initialized."""
++        for _ in range(2):
++            bootstrap.initialize_control_store(
++                self.places, incarnation="bootstrap-test",
++                clock=lambda: "2026-10-28T00:00:00.000Z")
++
++    def test_an_unopenable_store_refuses_in_this_commands_voice(self):
++        """So `main` prints "refused:" rather than raising a traceback out of
++        a setup command."""
++        os.makedirs(self.places["control_store"])
++        with self.assertRaises(bootstrap.BootstrapRefusal) as caught:
++            bootstrap.initialize_control_store(
++                self.places, incarnation="bootstrap-test",
++                clock=lambda: "2026-10-28T00:00:00.000Z")
++        self.assertIn("not a prepared one", str(caught.exception))
++
++    def test_nothing_holds_the_store_afterwards(self):
++        """A prepared instance is one nothing is attached to: the first start
++        has to be able to open it."""
++        bootstrap.initialize_control_store(
++            self.places, incarnation="bootstrap-test",
++            clock=lambda: "2026-10-28T00:00:00.000Z")
++        from baton_v12.worker_manager.store import ControlStore
++        again = ControlStore.open(self.places["control_store"],
++                                  incarnation="first-start",
++                                  clock=lambda: "2026-10-28T00:00:01.000Z")
++        again.close()
++
++
++if __name__ == "__main__":
++    unittest.main()

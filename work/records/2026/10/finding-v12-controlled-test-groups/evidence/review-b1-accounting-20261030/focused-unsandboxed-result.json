@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "just",
+    "test-one",
+    "tests.tools.test_parallel_runner",
+    "tests.job_manager.test_role_contract",
+    "tests.integration.test_admission",
+    "tests.manager.test_oci_integration.TheModulesImportInEitherOrder",
+    "tests.tools.test_stage_execution.OrdinaryTerminalLifecycle"
+  ],
+  "returncode": 0,
+  "elapsed_seconds": 29.991527172001952
+}

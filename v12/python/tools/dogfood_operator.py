@@ -164,6 +164,7 @@ import re
 from baton_v12.contracts import ContractRefusal, check_no_durable_secret
 from baton_v12.contracts import validate_fragment as _validate_fragment
 from baton_v12 import source_profiles
+from baton_v12 import verification_context
 from baton_v12.worker_manager import source_boundary, workspaces
 from baton_v12.worker_manager.oci import _network as _engine_network
 from baton_v12.worker_manager.authority_port import SESSION_OPERATIONS
@@ -698,17 +699,33 @@ def held_task(document, *, what="the frozen task"):
     """
     if type(document) is not dict:
         raise OperatorRefusal(f"{what} is one JSON object")
-    missing = sorted(one for one in _TASK_MEMBERS if one not in document)
-    extra = sorted(one for one in document if one not in _TASK_MEMBERS)
+    # W321776: THE GENERATION FIRST, because the closed member set depends on
+    # it -- and the REFUSAL DIRECTION is asked of the shared contract rather
+    # than spelled a second time here. A `/2` document carrying
+    # `verification_context` refuses rather than having the member ignored,
+    # and a `/3` document without it refuses rather than being staged as a
+    # context-free task. Both ends ask the same function, which is what makes
+    # "both holders agree" a fact about one rule.
+    if document.get("schema") not in _TASK_GENERATIONS:
+        raise OperatorRefusal(
+            f"{what} says it is {document.get('schema')!r} and this "
+            f"deployment stages {' and '.join(_TASK_GENERATIONS)}")
+    try:
+        generation = verification_context.generation(document)
+    except verification_context.ContextRefusal as refusal:
+        raise OperatorRefusal(
+            f"{what} declares {document['schema']!r} and its verification "
+            f"context does not agree with it ({refusal.cause}: "
+            f"{refusal.detail})") from None
+    members = (_CONTEXT_TASK_MEMBERS
+               if generation == _CONTEXT_TASK_SCHEMA else _TASK_MEMBERS)
+    missing = sorted(one for one in members if one not in document)
+    extra = sorted(one for one in document if one not in members)
     if missing or extra:
         raise OperatorRefusal(
-            f"{what} is exactly {', '.join(_TASK_MEMBERS)}"
+            f"{what} is exactly {', '.join(members)}"
             + (f"; missing {', '.join(missing)}" if missing else "")
             + (f"; unexpected {', '.join(extra)}" if extra else ""))
-    if document["schema"] != _TASK_SCHEMA:
-        raise OperatorRefusal(
-            f"{what} says it is {document['schema']!r} and this deployment "
-            f"stages {_TASK_SCHEMA!r}")
     if type(document["task_id"]) is not str \
             or not _TASK_ID.match(document["task_id"]):
         raise OperatorRefusal(f"{what} carries no usable task identity")
@@ -768,6 +785,15 @@ def held_task(document, *, what="the frozen task"):
 _TASK_SCHEMA = "baton.dogfood-task/2"
 _TASK_MEMBERS = ("schema", "task_id", "instructions", "verification",
                  "source_root", "source_profile", "declared_base")
+
+# W321776: AND THE SECOND GENERATION, beside the frozen one rather than over
+# it. `/2` above keeps its exact member tuple and its exact meaning; `/3` is
+# `/2` plus `verification_context`, and `claude_agent` holds the same pair at
+# the receiving end so a document from a generation neither speaks is still
+# refused on the way in rather than at a failed provider attempt.
+_CONTEXT_TASK_SCHEMA = verification_context.TASK_SCHEMA
+_CONTEXT_TASK_MEMBERS = _TASK_MEMBERS + ("verification_context",)
+_TASK_GENERATIONS = (_TASK_SCHEMA, _CONTEXT_TASK_SCHEMA)
 _TASK_ID = re.compile(r"\A[a-zA-Z0-9][a-zA-Z0-9._-]{0,127}\Z")
 
 
@@ -1141,7 +1167,8 @@ def run_dogfood_task(*, engine, run, open_channel, store, port, session,
                      toolchain_digest, adapter_digest, adapter_name,
                      labels, retention_policy_digest,
                      retention_disposition, bearer,
-                     seconds=CONVERSATION_SECONDS):
+                     seconds=CONVERSATION_SECONDS,
+                     sealed_inputs=None, accepted_objects=None):
     """ONE supervised dogfood attempt, composed from public operations only.
 
     THE ORDER IS THE ACCEPTED ARC and this function's whole job is to be the
@@ -1257,6 +1284,17 @@ def run_dogfood_task(*, engine, run, open_channel, store, port, session,
     # unaffected: the manifest was composed from the staged tree above and
     # names nothing here.
     _copied_task(task, roots["inputs"])
+    # W321776: AND THE SEAL, BEFORE THE ROOT IS SEALED, for the same reason the
+    # task is written here: `compose_input_root` exposes the whole surface
+    # read-only as its last act, so a write afterwards is a `PermissionError`.
+    #
+    # A `/3` TASK WITHOUT A SEAL REFUSES RATHER THAN STAGING. The declared
+    # context names immutable inputs and pinned candidate bytes by digest, and
+    # a holder cannot materialize what nobody sealed -- so the refusal belongs
+    # here, before a container exists, rather than in a Stage-A document after
+    # a runtime was started for it.
+    _staged_seal(task, roots["inputs"], sealed_inputs,
+                 os.path.join(roots["inputs"], SOURCE_TARGET))
     workspaces.compose_input_root(
         roots["inputs"], given, assignment,
         assignment=dict(assignment["assignment_ref"]),
@@ -1334,7 +1372,8 @@ def run_dogfood_task(*, engine, run, open_channel, store, port, session,
     return _after_start(store, port, session, adapter, evidence,
                         engine=engine, open_channel=open_channel,
                         attempt_id=attempt_id, runtime_id=runtime_id,
-                        roots=roots, task=task,
+                        roots=roots, task=task, run=run,
+                        accepted_objects=accepted_objects,
                         source=os.path.join(roots["inputs"], SOURCE_TARGET),
                         expect=dict(expect), review_route=review_route,
                         retention_policy_digest=retention_policy_digest,
@@ -1355,7 +1394,8 @@ class _Lost(Exception):
 def _after_start(store, port, session, adapter, evidence, *, engine,
                  open_channel, attempt_id, runtime_id, roots, task, source,
                  expect, review_route, retention_policy_digest,
-                 retention_disposition, seconds):
+                 retention_disposition, seconds, run=None,
+                 accepted_objects=None):
     """ONE owner for every branch after a runtime exists.
 
     Review 2026-08-30T06:44:13Z [P0], twice over. The conversation was outside
@@ -1396,7 +1436,9 @@ def _after_start(store, port, session, adapter, evidence, *, engine,
                  source=source, disposition=disposition,
                  expect=expect, review_route=review_route,
                  retention_policy_digest=retention_policy_digest,
-                 retention_disposition=retention_disposition)
+                 retention_disposition=retention_disposition,
+                 seal_root=_seal_root_of(roots),
+                 accepted_objects=accepted_objects, run=run)
     except _Lost as why:
         _unresolved(evidence, str(why))
     except ContractRefusal as refused:
@@ -1420,9 +1462,25 @@ def _after_start(store, port, session, adapter, evidence, *, engine,
     return evidence
 
 
+def _seal_root_of(roots):
+    """Where this attempt's seal was staged, or `None` when there is none.
+
+    A `/2` attempt stages no seal at all, so the absence is an ordinary answer
+    rather than a fault -- and the inputs root is asked for rather than
+    assumed, because the roots a caller hands this arc are the manager's
+    allocation and not a shape this function may insist on.
+    """
+    try:
+        inputs = roots["inputs"]
+    except (KeyError, TypeError, IndexError):
+        return None
+    return os.path.join(inputs, SEAL_ROOT) if inputs else None
+
+
 def _custody(store, port, session, adapter, evidence, *, attempt_id,
              runtime_id, task, source, disposition, expect, review_route,
-             retention_policy_digest, retention_disposition):
+             retention_policy_digest, retention_disposition, seal_root=None,
+             accepted_objects=None, run=None):
     """Quiescence, freeze, intake, the derivation, retention, and the pass.
 
     EVERY REASON IT CANNOT PROCEED IS RAISED. `_after_start` owns the ending,
@@ -1501,7 +1559,8 @@ def _custody(store, port, session, adapter, evidence, *, attempt_id,
     # DERIVED BEFORE RETENTION DISCARDS THE BYTES, which is the ordering the
     # parent finding requires.
     evidence["independent"] = _derived(held[0]["custody_locator"], task,
-                                       source)
+                                       source, seal_root=seal_root,
+                                       objects=accepted_objects, runner=run)
     # RECORDING A CHECK IS NOT PASSING IT. Review 2026-08-30T14:36:46Z [P0]:
     # `_derived` wrote `verification_status` and this went straight on to
     # retention and the pass, so a candidate whose frozen task verification
@@ -3154,7 +3213,625 @@ def _observed_after(adapter, runtime_id):
         return {"state": "unobserved", "why": type(failed).__name__}
 
 
-def _derived(custody_locator, task, source):
+# -- W321776: the seal, and the INDEPENDENT operator's own view --------------
+
+# The two names inside the input root, and they are the worker's constants
+# spelled at the sending end. `claude_agent.SEAL_DOCUMENT`/`SEAL_ROOT` hold the
+# same two words at the receiving end, which is the both-ends rule this
+# campaign applies to every crossing.
+SEAL_DOCUMENT = "seal.json"
+SEAL_ROOT = "sealed"
+
+# How much of one sealed input is read at a time. The seal carries declared
+# immutable inputs -- fixtures and vectors -- not payload trees, and a bounded
+# read is the same discipline every other document crossing here is under.
+MAX_SEALED_BYTES = 16 * 1024 * 1024
+
+
+def compose_seal(place, *, inputs, pins, candidate):
+    """THE SEAL, measured ONCE and written for both holders.
+
+    `inputs` is an ordered collection of `{name, source, destination}`: the
+    declared immutable set, where its bytes are on this host now, and where the
+    task declares each one must land in a view. `pins` is an ordered collection
+    of candidate-relative paths whose bytes the task requires UNCHANGED, and
+    `candidate` is the staged tree they are measured in.
+
+    IT ANSWERS BOTH DOCUMENTS, and that is the point rather than a convenience.
+    The sealed set and the task's `verification_context.inputs` carry the same
+    digests, and Stage A refuses a declaration the seal does not agree with --
+    so composing them from two separate measurements would mean the ONLY check
+    of that agreement was between two readings of the same file taken at
+    different instants. One measurement, two documents, no window.
+
+    A PIN IS MEASURED AT SEALING, which is what makes it decidable in Stage A.
+    The packet is explicit: a pin names a path that exists at sealing with the
+    digest it has at sealing, and the view-stage question of whether those
+    bytes are still there is Stage B's.
+    """
+    root = os.path.join(place, SEAL_ROOT)
+    os.makedirs(root, exist_ok=True)
+    sealed, declared = [], []
+    for one in inputs:
+        raw = _sealed_bytes(one["source"], f"the declared input {one['name']}")
+        measured = _sealed_digest(raw)
+        # THE PLACE IS THE NAME. Stage A already holds every input name to a
+        # bounded grammar with no separator in it, so a name is a safe single
+        # path segment and a seal that composed some other layout would be a
+        # second thing for the two holders to agree about.
+        with open(os.path.join(root, one["name"]), "wb") as writing:
+            writing.write(raw)
+        sealed.append({"name": one["name"], "place": one["name"],
+                       "content_digest": measured, "bytes": len(raw)})
+        declared.append({"name": one["name"],
+                         "destination": one["destination"],
+                         "content_digest": measured, "bytes": len(raw)})
+    pinned = []
+    for path in pins:
+        raw = _sealed_bytes(os.path.join(candidate, path),
+                            f"the pinned candidate path {path}")
+        pinned.append({"path": path, "content_digest": _sealed_digest(raw)})
+    document = {"schema": verification_context.SEAL_SCHEMA,
+                "inputs": sealed, "pins": pinned}
+    # HELD BEFORE IT IS WRITTEN, by the reader's own rule. A seal this
+    # composer wrote and the shared contract would refuse is a document that
+    # only fails at the far end, inside a container, after a provider turn.
+    verification_context.held_seal(document)
+    with open(os.path.join(place, SEAL_DOCUMENT), "w",
+              encoding="utf-8") as writing:
+        json.dump(document, writing, sort_keys=True)
+    return document, declared
+
+
+def _derived_in_view(proposal, candidate, task, *, seal_root, objects, runner):
+    """THE WHOLE INDEPENDENT OBSERVATION, in a view this operator owns.
+
+    The retained output is read for ONE thing -- the worker's published
+    observation of what its turn changed and removed -- and that document is
+    what the view is then bound to. Everything else is measured here: the
+    bytes, the inputs as materialized, the context outcome and the command's
+    verdict. Evidence that restated the worker's conclusions would be a second
+    copy of them rather than a second observation.
+
+    `verification_status` IS STILL ANSWERED, because the ending's authority
+    pass is decided on it and a recorded check is not a passing one. A context
+    refusal answers a NON-ZERO status with no verdict attached, which is the
+    honest reading: the ending must not pass a candidate nobody verified, and
+    the record says plainly that no verdict about the candidate exists.
+    """
+    import json as _json
+    import tempfile
+
+    result = os.path.join(proposal, "result.json")
+    try:
+        with open(result, "rb") as reading:
+            raw = reading.read(MAX_SEALED_BYTES + 1)
+    except OSError as failed:
+        raise _Lost(
+            f"the retained proposal carries no readable {result} "
+            f"({type(failed).__name__}); a declared verification context is "
+            f"verified against the published result and not against a tree "
+            f"alone") from failed
+    try:
+        record = _json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, ValueError) as failed:
+        raise _Lost(f"{result} is not a readable document "
+                    f"({type(failed).__name__})") from failed
+    try:
+        observation = verification_context.held_observation(
+            {"changed": record.get("candidate_changed"),
+             "removed": record.get("candidate_removed")})
+    except verification_context.MalformedOutcome as failed:
+        raise _Lost(f"{result} publishes no usable candidate observation "
+                    f"({failed})") from failed
+    observation = dict(observation)
+    observation["head"] = record.get("head")
+    observation["entry_head"] = record.get("entry_head")
+    sealed, _pinned = read_seal(os.path.dirname(seal_root)) \
+        if seal_root else ({}, {})
+    context = task["verification_context"]
+    root = tempfile.mkdtemp(prefix="dogfood-view-", dir=VERIFICATION_TEMP_ROOT)
+    if _within(root, proposal) or _within(root, candidate):
+        discard_view(root)
+        raise _Lost(
+            f"the independent verification view {root} is inside retained "
+            f"proposal storage; no view was materialized")
+    verdict, outcome, status = None, None, None
+    measured, inputs = [], []
+    try:
+        try:
+            operator_view(
+                root, task=task, sealed=sealed, seal_root=seal_root,
+                observation=observation,
+                candidate=candidate if os.path.isdir(candidate) else None,
+                objects=objects,
+                transport=(os.path.join(proposal, "objects.bundle")
+                           if not os.path.isdir(candidate) else None),
+                runner=runner)
+        except verification_context.ContextRefusal as refusal:
+            outcome = refusal.document()
+            verdict = verification_context.NOT_RUN
+        else:
+            # MEASURED IN THIS VIEW, over the paths the retained result
+            # reported -- the same bounded scope the adapter measured, with
+            # the same honest limit: a path status could not see is neither
+            # measured nor delivered.
+            place = os.path.join(root, context["candidate_destination"])
+            measured = [
+                {"path": one["path"],
+                 "content_digest": _view_digest(place, one["path"])}
+                for one in observation["changed"]]
+            inputs = [{"name": one["name"],
+                       "content_digest": _view_digest(root,
+                                                      one["destination"])}
+                      for one in context["inputs"]]
+            # THE COMMAND RERUN IS NOT THE REPOSITORY CAPABILITY. `runner`
+            # drives the view's repository steps; the frozen command is the
+            # operator's own child exactly as it has always been, so a seam
+            # injected for one purpose cannot quietly become the thing that
+            # "ran" the gate.
+            ran = verified_in_view(task, root, proposal=proposal)
+            outcome = verification_context.ready()
+            status = ran.returncode
+            verdict = (verification_context.PASSED if status == 0
+                       else verification_context.FAILED)
+    finally:
+        discard_view(root)
+    evidence = operator_evidence(
+        task=task, task_bytes=_json.dumps(task, sort_keys=True).encode(),
+        result=record, result_bytes=raw, observation=observation,
+        measured=measured, inputs=inputs,
+        transport=("objects.bundle" if not os.path.isdir(candidate)
+                   else None),
+        context=outcome, command=verdict, exit_status=status)
+    return {"changed_paths": sorted(one["path"] for one in measured),
+            "verification_argv": list(task["verification"]),
+            # A REFUSED CONTEXT IS NOT A PASS, and the ending decides the
+            # authority pass on this number. `None` would read as absent and
+            # `0` would read as verified, so a refusal answers the one value
+            # that is neither: it did not pass, and the evidence beside it
+            # says no verdict about the candidate exists.
+            "verification_status": 0 if status == 0 else (
+                status if status is not None else 1),
+            "members_present": sorted(
+                one for one in PROPOSAL_MEMBERS
+                if os.path.exists(os.path.join(proposal, one))),
+            "operator_evidence": evidence}
+
+
+def _staged_seal(task, inputs, sealed_inputs, candidate):
+    """The seal, staged for a `/3` task and REFUSED ABSENT for one.
+
+    `sealed_inputs` is the operator's own selection: an ordered collection of
+    `{name, source}` naming where each declared input's bytes are on this host.
+    The DESTINATIONS come from the task, which is the party that declares them,
+    so the two cannot disagree about where a view puts something.
+
+    A `/2` TASK STAGES NOTHING HERE, and that is the frozen generation keeping
+    its exact arc: no seal document, no sealed root, no new member in the input
+    manifest.
+    """
+    if task.get("schema") != verification_context.TASK_SCHEMA:
+        if sealed_inputs:
+            raise OperatorRefusal(
+                "this attempt supplies sealed inputs for a task that declares "
+                "no verification context; a seal nobody declared is material "
+                "no holder would materialize")
+        return None
+    context = task["verification_context"]
+    places = {one["name"]: one["source"] for one in (sealed_inputs or [])}
+    declared = []
+    for one in context["inputs"]:
+        if one["name"] not in places:
+            raise OperatorRefusal(
+                f"this task declares the immutable input {one['name']!r} and "
+                f"this attempt supplies no bytes for it; the declared set is "
+                f"sealed before the claim and is not re-derived inside a "
+                f"container")
+        declared.append({"name": one["name"], "source": places[one["name"]],
+                         "destination": one["destination"]})
+    extra = sorted(set(places) - {one["name"] for one in context["inputs"]})
+    if extra:
+        raise OperatorRefusal(
+            f"this attempt supplies bytes for {', '.join(extra)}, which this "
+            f"task does not declare")
+    document, measured = compose_seal(
+        inputs, inputs=declared,
+        pins=[one["path"] for one in context["candidate"]["pins"]],
+        candidate=candidate)
+    # AND THE TWO DOCUMENTS ARE HELD AGAINST EACH OTHER HERE, before a
+    # container exists. Stage A will ask the same question inside the worker;
+    # asking it at the sending end is what keeps the promised refusal out of a
+    # failed provider attempt.
+    sealed, pinned = verification_context.held_seal(document)
+    try:
+        verification_context.held(task, sealed=sealed, pinned=pinned,
+                                  pairing=_task_pairing)
+    except verification_context.ContextRefusal as refusal:
+        raise OperatorRefusal(
+            f"this task's declared verification context does not hold against "
+            f"the seal this attempt composed ({refusal.cause}: "
+            f"{refusal.detail})") from None
+    del measured
+    return document
+
+
+def _task_pairing(profile, declared):
+    """`checkout_plan`'s own pairing, asked with this deployment's two roots."""
+    return source_profiles.checkout_plan(
+        source_boundary.SOURCE_TARGET, source_boundary.WORKSPACE_TARGET,
+        profile=profile, declared=declared)
+
+
+def read_seal(place):
+    """The seal, read and held, from the root the holder was handed."""
+    document = os.path.join(place, SEAL_DOCUMENT)
+    try:
+        with open(document, "rb") as reading:
+            raw = reading.read(MAX_SEALED_BYTES + 1)
+    except OSError as failed:
+        raise OperatorRefusal(
+            f"this attempt declares a verification context and has no "
+            f"readable seal at {document} "
+            f"({type(failed).__name__})") from None
+    try:
+        return verification_context.held_seal(json.loads(raw.decode("utf-8")))
+    except (UnicodeDecodeError, ValueError) as failed:
+        raise OperatorRefusal(
+            f"{document} is not a readable document "
+            f"({type(failed).__name__})") from None
+    except verification_context.MalformedOutcome as failed:
+        raise OperatorRefusal(f"{document} is not one sealed set "
+                              f"({failed})") from None
+
+
+def _sealed_bytes(place, what):
+    try:
+        with open(place, "rb") as reading:
+            raw = reading.read(MAX_SEALED_BYTES + 1)
+    except OSError as failed:
+        raise OperatorRefusal(
+            f"{what} cannot be read at {place} "
+            f"({type(failed).__name__}); a seal names bytes this deployment "
+            f"holds, not bytes it hopes to find") from None
+    if len(raw) > MAX_SEALED_BYTES:
+        raise OperatorRefusal(
+            f"{what} at {place} is larger than {MAX_SEALED_BYTES} bytes")
+    return raw
+
+
+def _sealed_digest(raw):
+    import hashlib
+
+    return "sha256:" + hashlib.sha256(raw).hexdigest()
+
+
+def operator_view(root, *, task, sealed, seal_root, observation,
+                  candidate=None, objects=None, transport=None, runner=None):
+    """THE INDEPENDENT OPERATOR'S OWN FRESH PRIVATE VIEW, and NOT the worker's.
+
+    DESIGN VER-3 requires a fresh private view at EACH holder, and the point of
+    the second one is that its bytes come from the RETAINED OUTPUT rather than
+    from anything the worker handed over as a conclusion. Two shapes, because
+    the retained output has two shapes:
+
+      a GENERIC candidate has no commit and no transport -- its retained output
+      IS the candidate tree, so `candidate` names that tree and nothing is
+      resolved;
+      a VERSION-CONTROL candidate retains an INCREMENTAL object transport for
+      `base..HEAD`, which does not carry the base history. So `objects` names
+      the accepted-base object source -- the deployment's own retained
+      repository, advanced only by `tools/accepted_base.py` -- and `transport`
+      names the retained bundle. The prerequisite objects come from that one
+      named place and the bundle is applied over them.
+
+    NOT FROM AN AMBIENT HOST CHECKOUT, and there is no fallback to one. A
+    digest proves which objects were wanted; it does not supply missing ones,
+    and an operator that fell back to whatever repository happened to be on the
+    host would be verifying a candidate assembled from an unaudited source --
+    the same class of defect as verifying in the candidate itself.
+
+    `runner` IS THE REPOSITORY CAPABILITY, INJECTED, exactly as the arc injects
+    `run`. Nothing here imports a process capability of its own, so the
+    version-control path is drivable deterministically and a caller that has no
+    business running commands cannot be made to.
+
+    ON ANY FAILURE THE VIEW IS DISCARDED AND NOTHING ELSE IS. A refusal, a
+    half-built view and an interruption leave the same residue, so the sweep
+    covers all of them rather than covering two and leaving the third.
+    """
+    import shutil
+
+    context = task["verification_context"]
+    os.makedirs(root, exist_ok=True)
+    destination = os.path.join(root, context["candidate_destination"])
+    try:
+        if candidate is not None:
+            _view_copy(candidate, destination)
+        else:
+            _view_resolved(destination, context=context,
+                           observation=observation, objects=objects,
+                           transport=transport, runner=runner)
+        for index, one in enumerate(context["inputs"]):
+            held = sealed[one["name"]]
+            place = os.path.join(root, one["destination"])
+            os.makedirs(os.path.dirname(place), exist_ok=True)
+            try:
+                shutil.copyfile(os.path.join(seal_root, held["place"]), place)
+            except OSError:
+                raise verification_context.ContextRefusal(
+                    verification_context.MATERIALIZATION,
+                    f"verification_context.inputs[{index}].name",
+                    stage=verification_context.VIEW_STAGE) from None
+        verification_context.answered(
+            verification_context.view_plan(context, observation=observation),
+            isdir=lambda one: os.path.isdir(os.path.join(root, one)),
+            exists=lambda one: os.path.lexists(os.path.join(root, one)),
+            digest=lambda one: _view_digest(root, one))
+    except BaseException:
+        discard_view(root)
+        raise
+    return root
+
+
+def _view_copy(candidate, destination):
+    """The retained candidate tree, copied into the view, no-follow.
+
+    REGULAR FILES AND DIRECTORIES ONLY. A copied link is how a view reaches
+    outside itself, and the retained candidate is bytes this deployment took
+    custody of from a container -- so the second party proves the shape rather
+    than assuming the first did.
+    """
+    import shutil
+    import stat as _view_stat
+
+    if not os.path.isdir(candidate):
+        raise verification_context.ContextRefusal(
+            verification_context.MISSING_INPUT,
+            "verification_context.candidate_destination",
+            stage=verification_context.VIEW_STAGE)
+    copied = 0
+    for base, directories, files in os.walk(candidate, followlinks=False):
+        for name in directories:
+            if os.path.islink(os.path.join(base, name)):
+                raise verification_context.ContextRefusal(
+                    verification_context.MATERIALIZATION,
+                    "verification_context.candidate_destination",
+                    stage=verification_context.VIEW_STAGE)
+            os.makedirs(os.path.join(destination, os.path.relpath(
+                os.path.join(base, name), candidate)), exist_ok=True)
+        for name in files:
+            full = os.path.join(base, name)
+            held = os.lstat(full)
+            if not _view_stat.S_ISREG(held.st_mode):
+                raise verification_context.ContextRefusal(
+                    verification_context.MATERIALIZATION,
+                    "verification_context.candidate_destination",
+                    stage=verification_context.VIEW_STAGE)
+            landing = os.path.join(destination,
+                                   os.path.relpath(full, candidate))
+            os.makedirs(os.path.dirname(landing), exist_ok=True)
+            shutil.copyfile(full, landing)
+            copied += 1
+    if not copied:
+        raise verification_context.ContextRefusal(
+            verification_context.MISSING_INPUT,
+            "verification_context.candidate_destination",
+            stage=verification_context.VIEW_STAGE)
+    return copied
+
+
+def _view_resolved(destination, *, context, observation, objects, transport,
+                   runner):
+    """The retained transport, resolved over the accepted base's objects.
+
+    THE PREREQUISITES ARE REQUIRED, NOT ASSUMED, and each one has its own
+    refusal because each one is a different thing being wrong:
+
+      the accepted-base object source is absent or does not hold `base` --
+      `missing-input`, and the command does not start;
+      the bundle's prerequisites are unsatisfied in the receiving repository,
+      or it resolves some OTHER head than the one the retained result
+      published -- `materialization`; a bundle for another head is not this
+      result's candidate;
+      `declared_base` is not an ancestor of the measured `entry_head` --
+      `invalid-layout`, which is the ONLY role the base plays. THE BASE IS
+      NEVER CHECKED OUT INTO THE VIEW: a view built at the base would discard
+      the very changes the verification exists to measure.
+    """
+    import shutil
+
+    base = context["candidate"]["declared_base"]
+    head = observation.get("head")
+    entry = observation.get("entry_head")
+    if objects is None or not os.path.isdir(objects):
+        raise verification_context.ContextRefusal(
+            verification_context.MISSING_INPUT,
+            verification_context.BASE_SOURCE_DETAIL,
+            stage=verification_context.VIEW_STAGE)
+    if transport is None or not os.path.isfile(transport):
+        raise verification_context.ContextRefusal(
+            verification_context.MATERIALIZATION,
+            verification_context.TRANSPORT_DETAIL,
+            stage=verification_context.VIEW_STAGE)
+    if head is None:
+        # A RESULT THAT PUBLISHED NO HEAD HAS NO CANDIDATE TO RESOLVE. Saying
+        # `materialization` about a transport that was never supposed to exist
+        # would be reporting the absence of a thing as a corruption of it.
+        raise verification_context.ContextRefusal(
+            verification_context.MISSING_INPUT,
+            f"{verification_context.RESULT_DETAIL}.head",
+            stage=verification_context.VIEW_STAGE)
+    ask = _repository_asked(runner)
+    if ask(["git", "--git-dir", objects, "cat-file", "-e",
+            f"{base}^{{commit}}"]) != 0:
+        raise verification_context.ContextRefusal(
+            verification_context.MISSING_INPUT,
+            verification_context.BASE_SOURCE_DETAIL,
+            stage=verification_context.VIEW_STAGE)
+    os.makedirs(destination, exist_ok=True)
+    metadata = os.path.join(destination, ".git")
+    for argv, cause, detail in (
+            (["git", "init", "--quiet", destination],
+             verification_context.MATERIALIZATION,
+             verification_context.TRANSPORT_DETAIL),
+            # THE BASE'S OBJECTS FIRST, from the one named source, so the
+            # incremental bundle has the history it does not carry.
+            (["git", "--git-dir", metadata, "--work-tree", destination,
+              "fetch", "--quiet", objects, base],
+             verification_context.MISSING_INPUT,
+             verification_context.BASE_SOURCE_DETAIL),
+            # THEN THE BUNDLE'S OWN PREREQUISITE CHECK, asked of the bundle
+            # rather than inferred from a successful fetch.
+            (["git", "--git-dir", metadata, "--work-tree", destination,
+              "bundle", "verify", transport],
+             verification_context.MATERIALIZATION,
+             verification_context.TRANSPORT_DETAIL),
+            (["git", "--git-dir", metadata, "--work-tree", destination,
+              "fetch", "--quiet", transport, head],
+             verification_context.MATERIALIZATION,
+             verification_context.TRANSPORT_DETAIL),
+            # THE TRANSPORT MUST RESOLVE THE HEAD THE RESULT PUBLISHED, which
+            # a fetch that succeeded against some other object would not say.
+            (["git", "--git-dir", metadata, "--work-tree", destination,
+              "cat-file", "-e", f"{head}^{{commit}}"],
+             verification_context.MATERIALIZATION,
+             verification_context.TRANSPORT_DETAIL),
+            (["git", "--git-dir", metadata, "--work-tree", destination,
+              "checkout", "--quiet", "--detach", head],
+             verification_context.MATERIALIZATION,
+             verification_context.TRANSPORT_DETAIL)):
+        if ask(argv) != 0:
+            raise verification_context.ContextRefusal(
+                cause, detail, stage=verification_context.VIEW_STAGE)
+    if entry is not None and ask(
+            ["git", "--git-dir", metadata, "merge-base", "--is-ancestor",
+             base, entry]) != 0:
+        raise verification_context.ContextRefusal(
+            verification_context.INVALID_LAYOUT,
+            verification_context.ANCESTRY_DETAIL,
+            stage=verification_context.VIEW_STAGE)
+    # THE METADATA IS NOT CANDIDATE MATERIAL and is removed before the command
+    # runs, so the view holds the candidate's files and nothing about how they
+    # got there -- and Stage B's byte questions are asked of the files alone.
+    shutil.rmtree(metadata, ignore_errors=True)
+
+
+def _repository_asked(runner):
+    """One bounded call of the injected repository capability."""
+    if runner is None:
+        raise OperatorRefusal(
+            "a version-control candidate's view needs the injected "
+            "repository capability; this deployment does not reach for a "
+            "process capability of its own")
+
+    def ask(argv):
+        try:
+            answered = runner(list(argv), capture_output=True, text=True,
+                              timeout=VIEW_SECONDS)
+        except OSError:
+            return 1
+        return answered.returncode
+
+    return ask
+
+
+# How long one repository step in an operator view is given. A fetch over a
+# local object source and a bundle is a local operation; this bounds a hung one
+# without being a product Job limit.
+VIEW_SECONDS = 600
+
+
+def _view_digest(root, relative):
+    """One view path's digest spelling, or `None` when it is not there."""
+    import hashlib
+
+    try:
+        with open(os.path.join(root, relative), "rb") as reading:
+            return "sha256:" + hashlib.sha256(reading.read()).hexdigest()
+    except OSError:
+        return None
+
+
+def discard_view(root):
+    """Remove the view THIS OPERATOR CREATED, and nothing else.
+
+    VER-4's cleanup boundary from the other end: the retained proposal, the
+    retained candidate and the sealed inputs are not this step's to touch, on
+    success, on a test failure, on a timeout, on a failed start and on a
+    partial materialization alike.
+    """
+    import shutil
+
+    shutil.rmtree(root, ignore_errors=True)
+
+
+def verified_in_view(task, view, *, proposal, runner=None):
+    """The frozen argv, rerun IN THE VIEW, with the derived import path.
+
+    THE IMPORT PATH IS DERIVED AND OVERRIDES, which is the correction
+    September's hand-set `PYTHONPATH=src` is the counter-example to. It is
+    `import_roots` joined to `working_directory` joined to this view, and it
+    REPLACES whatever the host exported rather than extending it -- so a
+    hostile ambient entry is absent from the child's path and the gate still
+    passes. The argv still carries no environment assignment: one that did
+    would be a second, disagreeing source of the same fact.
+
+    THE REST OF THE ENVIRONMENT IS STILL THE HOST'S, and that difference from
+    the worker adapter is deliberate and unchanged: this is the operator's own
+    rerun on the operator's own host, and a closed environment here would
+    break a frozen command that legitimately needs the host's `PATH`, locale
+    or interpreter selection.
+    """
+    import subprocess
+
+    context = task["verification_context"]
+    working = os.path.join(view, context["working_directory"])
+    overrides = {"PYTHONPATH": ":".join(
+        os.path.join(view, one)
+        for one in verification_context.import_path(context))}
+    return _verified(task, working, proposal, overrides=overrides,
+                     runner=runner)
+
+
+def operator_evidence(*, task, task_bytes, result, result_bytes, observation,
+                      measured, inputs, transport, context, command,
+                      exit_status):
+    """`baton.dogfood-operator-evidence/1`, bound to the RETAINED OUTPUT.
+
+    `result_digest` names the exact published result this operator
+    independently verified, and `result_head`/`transport` name where it got the
+    bytes. That binding is the document's whole point: the changed candidate is
+    an OBSERVATION, so what a second holder confirms is the observation's
+    retained record -- never a task member that could not have carried it, and
+    never "a task of this id", which some other result of the same task would
+    satisfy.
+
+    THE MEMBERS ARE MEASURED, NOT COPIED FROM THE TASK. Evidence that restated
+    the declaration would agree with it by construction and prove nothing about
+    the view; the whole reason there are two holders is that their measurements
+    can disagree.
+    """
+    document = {
+        "schema": verification_context.EVIDENCE_SCHEMA,
+        "task_id": task["task_id"],
+        "task_digest": _sealed_digest(task_bytes),
+        "candidate_profile": task["source_profile"],
+        "candidate_base": task["declared_base"],
+        "candidate_entry": observation.get("entry_head"),
+        "result_head": observation.get("head"),
+        "result_digest": _sealed_digest(result_bytes),
+        "transport": transport,
+        "candidate_changed": list(measured),
+        "candidate_removed": sorted(observation["removed"]),
+        "inputs": list(inputs),
+        "context": context, "command": command, "exit_status": exit_status}
+    del result
+    return verification_context.held_evidence(document)
+
+
+def _derived(custody_locator, task, source, *, seal_root=None, objects=None,
+             runner=None):
     """The diff and the verification, RECOMPUTED by this operator.
 
     NEITHER READS THE WORKER'S ACCOUNT. `change.patch` and `result.json` are
@@ -3177,6 +3854,20 @@ def _derived(custody_locator, task, source):
     # rather than guessed at.
     proposal = _proposal_root(custody_locator)
     candidate = os.path.join(proposal, "candidate")
+    # THE SCHEMA IS ASKED, NOT RE-HELD. `held_task` already decided the
+    # generation and its refusal direction at every place a task is believed;
+    # re-deciding here would refuse a `/1`-era fixture this function has always
+    # accepted, and a derivation is not where a document is validated.
+    if task.get("schema") == verification_context.TASK_SCHEMA:
+        # W321776: A DECLARED CONTEXT IS VERIFIED IN THE OPERATOR'S OWN VIEW,
+        # never in retained custody. `_verified` below runs with `cwd` set to
+        # the retained candidate, which is exactly the behaviour VER-3 forbids
+        # at this holder as much as at the worker: a command that wrote or
+        # deleted a source path would alter the bytes this deployment took
+        # custody of.
+        return _derived_in_view(proposal, candidate, task,
+                                seal_root=seal_root, objects=objects,
+                                runner=runner)
     changed = sorted(_changed_paths(source, candidate))
     # W85497: THE RERUN WRITES NOTHING INTO WHAT IT IS MEASURING.
     #
@@ -3223,8 +3914,15 @@ MAX_DIAGNOSTIC = 4000
 VERIFICATION_TEMP_ROOT = "/tmp"
 
 
-def _verified(task, candidate, proposal):
+def _verified(task, candidate, proposal, *, overrides=None, runner=None):
     """The frozen command, rerun with its ephemera OUTSIDE the proposal.
+
+    W321776: `overrides` AND `runner` ARE BOTH ADDITIVE AND BOTH DEFAULT TO
+    THE EXISTING BEHAVIOUR. `overrides` carries the derived closed import path
+    for a `/3` view, which REPLACES any ambient value rather than extending
+    it; `runner` is the injected process capability, so a `/3` view's rerun is
+    drivable deterministically by the same seam the arc already injects. With
+    neither, this is byte-for-byte the `/2` rerun it was.
 
     THE ENVIRONMENT IS THE HOST'S, WITH THREE NAMES OVERRIDDEN, and the
     difference from the worker adapter is deliberate. `claude_agent` composes
@@ -3292,11 +3990,14 @@ def _verified(task, candidate, proposal):
         # outside the retained proposal by construction and is removed with
         # everything else in the `finally` below. Only the tail is ever read
         # into memory.
+        # AND THE DERIVED IMPORT PATH LAST, so a `/3` view's closed value
+        # cannot be shadowed by one of the three names above and an ambient
+        # entry cannot survive into the child.
+        env.update(overrides or {})
         with open(os.path.join(ephemera, "verification.out"), "w+b") as said:
-            verified = subprocess.run(list(task["verification"]),
-                                      cwd=candidate, stdout=said,
-                                      stderr=subprocess.STDOUT, timeout=900,
-                                      env=env)
+            verified = (runner or subprocess.run)(
+                list(task["verification"]), cwd=candidate, stdout=said,
+                stderr=subprocess.STDOUT, timeout=900, env=env)
             if verified.returncode != 0:
                 _shown(task, verified.returncode, said)
         return verified

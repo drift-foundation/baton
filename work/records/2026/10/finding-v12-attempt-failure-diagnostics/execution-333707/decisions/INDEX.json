@@ -1,0 +1,46 @@
+{
+  "claim": 333707,
+  "no_hash_editing": "Nothing here edits a hash of the superseded packet. execution-333504 is preserved byte-for-byte with its own seal.",
+  "not_an_authority": "A snapshot records what was accepted when it was taken. It is not a second authority and does not override a later decision. verify-inputs.py reports live-source drift explicitly so review and the owner decide whether the snapshot still reflects accepted scope.",
+  "schema": "baton.w333486-decision-snapshots/1",
+  "snapshots": {
+    "FINDING.md": {
+      "snapshot_sha256": "5ce734adafca96d34c2abf25c355624da8358c08be240a7ce1efae007ff61b3f",
+      "source_path": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/FINDING.md",
+      "source_sha256": "5ce734adafca96d34c2abf25c355624da8358c08be240a7ce1efae007ff61b3f"
+    },
+    "PLAN.md": {
+      "snapshot_sha256": "52cfb75ec04b3c17de0e1db569583af038bb1219e45b8f53a05bf5ff5e5c7293",
+      "source_path": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/PLAN.md",
+      "source_sha256": "52cfb75ec04b3c17de0e1db569583af038bb1219e45b8f53a05bf5ff5e5c7293"
+    },
+    "owner-failure-evidence.md": {
+      "snapshot_sha256": "c41ec181b51ed1fe8e6924744f6c61588b1493854392048a7cb973cc5d9622ea",
+      "source_path": "work/records/2026/10/finding-v12-native-pilot-instance-packet/OWNER-FAILURE-EVIDENCE-20261019.md",
+      "source_sha256": "c41ec181b51ed1fe8e6924744f6c61588b1493854392048a7cb973cc5d9622ea"
+    },
+    "review-333691.md": {
+      "snapshot_sha256": "b020e5ac605d6ae9817a65e9d8ab0645209dcc05338a439be32fa563f105ea63",
+      "source_path": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/review-2026-10-19T16-44-00Z.md",
+      "source_sha256": "b020e5ac605d6ae9817a65e9d8ab0645209dcc05338a439be32fa563f105ea63"
+    },
+    "sibling-blocker-RESULT.json": {
+      "snapshot_sha256": "5d18221925a28a66e716ce523b0b8a42a1e9b07741ab49596479cffbf8026b36",
+      "source_path": "work/records/2026/10/finding-v12-serving-token-renewal/evidence/review-333618/RESULT.json",
+      "source_sha256": "5d18221925a28a66e716ce523b0b8a42a1e9b07741ab49596479cffbf8026b36"
+    },
+    "sibling-blocker-SUMMARY.json": {
+      "snapshot_sha256": "e40e29c738c8de8ebe74f57a6e7d860a10c4fbd8758473488dd61b4a726c7f99",
+      "source_path": "work/records/2026/10/finding-v12-serving-token-renewal/evidence/review-333618/SUMMARY.json",
+      "source_sha256": "e40e29c738c8de8ebe74f57a6e7d860a10c4fbd8758473488dd61b4a726c7f99"
+    },
+    "sibling-review-333618.md": {
+      "snapshot_sha256": "e8f4414590ec782d96ddac5513ffc0fd093e69042ac683628378fe979c150d36",
+      "source_path": "work/records/2026/10/finding-v12-serving-token-renewal/review-2026-10-19T16-34-00Z.md",
+      "source_sha256": "e8f4414590ec782d96ddac5513ffc0fd093e69042ac683628378fe979c150d36"
+    }
+  },
+  "snapshotted_at": "2026-10-19",
+  "snapshotted_by": "baton.claude",
+  "why": "Review 2026-10-19T16-44-00Z: the superseded execution-333504 packet pinned the MUTABLE reviewer-owned FINDING.md and PLAN.md, so every ordinary current-plan update invalidated it. These are immutable byte-for-byte snapshots taken this claim. The packet pins the SNAPSHOTS; the live sources are reported as drift rather than refused, so a later plan update cannot invalidate a sealed packet and cannot silently change what the turn was told either."
+}

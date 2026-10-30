@@ -1,0 +1,26 @@
+{
+  "cwd": "/tmp/w361910-review-362455/v12/python",
+  "PYTHONPATH": "src:.",
+  "runs": [
+    {
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "tests.job_manager.test_templates",
+        "tests.job_manager.test_submission",
+        "tests.job_manager.test_execution_limits"
+      ],
+      "seconds": 0.49681960300040373,
+      "exit": 0
+    },
+    {
+      "argv": [
+        "python3",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-versioned-job-template/evidence/review-362383/probe.py"
+      ],
+      "seconds": 0.16818557399892597,
+      "exit": 0
+    }
+  ]
+}

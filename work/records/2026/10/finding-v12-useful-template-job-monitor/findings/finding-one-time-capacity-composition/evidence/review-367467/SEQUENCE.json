@@ -1,0 +1,78 @@
+{
+ "destination": "/var/tmp/baton-w257624/w367232-seq-e7cecl5j/instance",
+ "step1_mint_exit": 0,
+ "step2_minted_uuid": "c420da00411141ef8d1857ee572fca79",
+ "step2_is_generated": true,
+ "step1_configured_no_workers": true,
+ "step3": {
+  "work": "c420da00-W1",
+  "lanes": [
+   "implementation",
+   "review"
+  ],
+  "participants": [
+   "baton.claude-w366962",
+   "baton.reviewer-w366962"
+  ],
+  "declared_base": "42bed8bb04a53380e565b1a63fb2bc702677f0d0"
+ },
+ "test_substitution": {
+  "what": "the two nominated source directories are created empty",
+  "why": "the installer lstats them; the operator obtains them with --repository-source, which clones, and cloning is outside this preparation's boundary",
+  "not_operational": true
+ },
+ "installed_task_written": {
+  "place": "/var/tmp/baton-w257624/w367232-seq-e7cecl5j/instance/state/task/template-job-guide-42bed8bb.json",
+  "bytes": 1413
+ },
+ "step4_install_exit": 0,
+ "step4_said": [
+  "    cd /var/tmp/baton-w257624/w367232-seq-e7cecl5j/instance && just status",
+  "    just --justfile /var/tmp/baton-w257624/w367232-seq-e7cecl5j/instance/justfile start        # from anywhere",
+  "",
+  "or the command directly, which is the same program:",
+  "",
+  "    /var/tmp/baton-w257624/w367232-seq-e7cecl5j/instance/distro/baton-v12-stack status --instance /var/tmp/baton-w257624/w367232-seq-e7cecl5j/instance/instance.json"
+ ],
+ "step4_emitted_lanes": [
+  [
+   "implementation",
+   "baton.claude-w366962"
+  ],
+  [
+   "review",
+   "baton.reviewer-w366962"
+  ]
+ ],
+ "step4_all_minted": true,
+ "step5_derived": {
+  "work_id": "c420da00-W1",
+  "profiles": [
+   "implementation",
+   "review"
+  ],
+  "input_digest": "sha256:8b2da0482dbaf454a2624eeddb0c0e0dc7c7504805776d71921e69f8e7bc3514"
+ },
+ "step6_create_exit": 0,
+ "step6_create": {
+  "job_id": "job-template-job-guide-42bed8bb",
+  "work_id": "c420da00-W1",
+  "template": "baton.v12.job-template.implementation-review/1",
+  "servable": {
+   "implementation": [
+    "impl-w366962"
+   ],
+   "review": [
+    "review-w366962"
+   ]
+  },
+  "acceptance_count": 5,
+  "scope": {
+   "work": [
+    "v12/TEMPLATE-JOBS.md"
+   ],
+   "tests": []
+  },
+  "statement": "Write a reusable operator guide for ordinary v12 template Jo..."
+ }
+}

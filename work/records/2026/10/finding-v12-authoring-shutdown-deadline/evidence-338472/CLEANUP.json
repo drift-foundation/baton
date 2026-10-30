@@ -1,0 +1,483 @@
+{
+  "all_retained_composition_managers_reaped": true,
+  "cases": [
+    {
+      "case": "composition-1/absent_cleanup",
+      "manager_started": [
+        14
+      ],
+      "manager_reaped": [
+        14
+      ]
+    },
+    {
+      "case": "composition-1/blocked_sweep",
+      "manager_started": [
+        10
+      ],
+      "manager_reaped": [
+        10
+      ]
+    },
+    {
+      "case": "composition-1/delayed_snapshot",
+      "manager_started": [
+        18
+      ],
+      "manager_reaped": [
+        18
+      ]
+    },
+    {
+      "case": "composition-1/normal",
+      "manager_started": [
+        6
+      ],
+      "manager_reaped": [
+        6
+      ]
+    },
+    {
+      "case": "composition-1/pre_signal",
+      "manager_started": [
+        38
+      ],
+      "manager_reaped": [
+        38
+      ]
+    },
+    {
+      "case": "composition-1/snapshot_before",
+      "manager_started": [
+        22
+      ],
+      "manager_reaped": [
+        22
+      ]
+    },
+    {
+      "case": "composition-1/stuck_snapshot",
+      "manager_started": [
+        26
+      ],
+      "manager_reaped": [
+        26
+      ]
+    },
+    {
+      "case": "composition-1/stuck_workload",
+      "manager_started": [
+        30
+      ],
+      "manager_reaped": [
+        30
+      ]
+    },
+    {
+      "case": "composition-1/unknown",
+      "manager_started": [
+        34
+      ],
+      "manager_reaped": [
+        34
+      ]
+    },
+    {
+      "case": "composition-2/absent_cleanup",
+      "manager_started": [
+        30
+      ],
+      "manager_reaped": [
+        30
+      ]
+    },
+    {
+      "case": "composition-2/blocked_sweep",
+      "manager_started": [
+        26
+      ],
+      "manager_reaped": [
+        26
+      ]
+    },
+    {
+      "case": "composition-2/delayed_snapshot",
+      "manager_started": [
+        34
+      ],
+      "manager_reaped": [
+        34
+      ]
+    },
+    {
+      "case": "composition-2/normal",
+      "manager_started": [
+        22
+      ],
+      "manager_reaped": [
+        22
+      ]
+    },
+    {
+      "case": "composition-2/pre_signal",
+      "manager_started": [
+        62
+      ],
+      "manager_reaped": [
+        62
+      ]
+    },
+    {
+      "case": "composition-2/snapshot_before",
+      "manager_started": [
+        38
+      ],
+      "manager_reaped": [
+        38
+      ]
+    },
+    {
+      "case": "composition-2/stuck_accounting",
+      "manager_started": [
+        54
+      ],
+      "manager_reaped": [
+        54
+      ]
+    },
+    {
+      "case": "composition-2/stuck_cleanup",
+      "manager_started": [
+        50
+      ],
+      "manager_reaped": [
+        50
+      ]
+    },
+    {
+      "case": "composition-2/stuck_snapshot",
+      "manager_started": [
+        42
+      ],
+      "manager_reaped": [
+        42
+      ]
+    },
+    {
+      "case": "composition-2/stuck_workload",
+      "manager_started": [
+        46
+      ],
+      "manager_reaped": [
+        46
+      ]
+    },
+    {
+      "case": "composition-2/unknown",
+      "manager_started": [
+        58
+      ],
+      "manager_reaped": [
+        58
+      ]
+    },
+    {
+      "case": "composition-3/absent_cleanup",
+      "manager_started": [
+        15
+      ],
+      "manager_reaped": [
+        15
+      ]
+    },
+    {
+      "case": "composition-3/blocked_sweep",
+      "manager_started": [
+        11
+      ],
+      "manager_reaped": [
+        11
+      ]
+    },
+    {
+      "case": "composition-3/delayed_snapshot",
+      "manager_started": [
+        19
+      ],
+      "manager_reaped": [
+        19
+      ]
+    },
+    {
+      "case": "composition-3/normal",
+      "manager_started": [
+        7
+      ],
+      "manager_reaped": [
+        7
+      ]
+    },
+    {
+      "case": "composition-3/pre_signal",
+      "manager_started": [
+        47
+      ],
+      "manager_reaped": [
+        47
+      ]
+    },
+    {
+      "case": "composition-3/snapshot_before",
+      "manager_started": [
+        23
+      ],
+      "manager_reaped": [
+        23
+      ]
+    },
+    {
+      "case": "composition-3/stuck_accounting",
+      "manager_started": [
+        39
+      ],
+      "manager_reaped": [
+        39
+      ]
+    },
+    {
+      "case": "composition-3/stuck_cleanup",
+      "manager_started": [
+        35
+      ],
+      "manager_reaped": [
+        35
+      ]
+    },
+    {
+      "case": "composition-3/stuck_snapshot",
+      "manager_started": [
+        27
+      ],
+      "manager_reaped": [
+        27
+      ]
+    },
+    {
+      "case": "composition-3/stuck_workload",
+      "manager_started": [
+        31
+      ],
+      "manager_reaped": [
+        31
+      ]
+    },
+    {
+      "case": "composition-3/unknown",
+      "manager_started": [
+        43
+      ],
+      "manager_reaped": [
+        43
+      ]
+    },
+    {
+      "case": "composition-4/absent_cleanup",
+      "manager_started": [
+        15
+      ],
+      "manager_reaped": [
+        15
+      ]
+    },
+    {
+      "case": "composition-4/blocked_sweep",
+      "manager_started": [
+        11
+      ],
+      "manager_reaped": [
+        11
+      ]
+    },
+    {
+      "case": "composition-4/delayed_snapshot",
+      "manager_started": [
+        19
+      ],
+      "manager_reaped": [
+        19
+      ]
+    },
+    {
+      "case": "composition-4/normal",
+      "manager_started": [
+        7
+      ],
+      "manager_reaped": [
+        7
+      ]
+    },
+    {
+      "case": "composition-4/pre_signal",
+      "manager_started": [
+        47
+      ],
+      "manager_reaped": [
+        47
+      ]
+    },
+    {
+      "case": "composition-4/snapshot_before",
+      "manager_started": [
+        23
+      ],
+      "manager_reaped": [
+        23
+      ]
+    },
+    {
+      "case": "composition-4/stuck_accounting",
+      "manager_started": [
+        39
+      ],
+      "manager_reaped": [
+        39
+      ]
+    },
+    {
+      "case": "composition-4/stuck_cleanup",
+      "manager_started": [
+        35
+      ],
+      "manager_reaped": [
+        35
+      ]
+    },
+    {
+      "case": "composition-4/stuck_snapshot",
+      "manager_started": [
+        27
+      ],
+      "manager_reaped": [
+        27
+      ]
+    },
+    {
+      "case": "composition-4/stuck_workload",
+      "manager_started": [
+        31
+      ],
+      "manager_reaped": [
+        31
+      ]
+    },
+    {
+      "case": "composition-4/unknown",
+      "manager_started": [
+        43
+      ],
+      "manager_reaped": [
+        43
+      ]
+    },
+    {
+      "case": "composition-5/absent_cleanup",
+      "manager_started": [
+        15
+      ],
+      "manager_reaped": [
+        15
+      ]
+    },
+    {
+      "case": "composition-5/blocked_sweep",
+      "manager_started": [
+        11
+      ],
+      "manager_reaped": [
+        11
+      ]
+    },
+    {
+      "case": "composition-5/delayed_snapshot",
+      "manager_started": [
+        19
+      ],
+      "manager_reaped": [
+        19
+      ]
+    },
+    {
+      "case": "composition-5/normal",
+      "manager_started": [
+        7
+      ],
+      "manager_reaped": [
+        7
+      ]
+    },
+    {
+      "case": "composition-5/pre_signal",
+      "manager_started": [
+        47
+      ],
+      "manager_reaped": [
+        47
+      ]
+    },
+    {
+      "case": "composition-5/snapshot_before",
+      "manager_started": [
+        23
+      ],
+      "manager_reaped": [
+        23
+      ]
+    },
+    {
+      "case": "composition-5/stuck_accounting",
+      "manager_started": [
+        39
+      ],
+      "manager_reaped": [
+        39
+      ]
+    },
+    {
+      "case": "composition-5/stuck_cleanup",
+      "manager_started": [
+        35
+      ],
+      "manager_reaped": [
+        35
+      ]
+    },
+    {
+      "case": "composition-5/stuck_snapshot",
+      "manager_started": [
+        27
+      ],
+      "manager_reaped": [
+        27
+      ]
+    },
+    {
+      "case": "composition-5/stuck_workload",
+      "manager_started": [
+        31
+      ],
+      "manager_reaped": [
+        31
+      ]
+    },
+    {
+      "case": "composition-5/unknown",
+      "manager_started": [
+        43
+      ],
+      "manager_reaped": [
+        43
+      ]
+    }
+  ],
+  "pid_absence_and_guard_release": "checked inside each test before behavior assertions; final suite all passed"
+}

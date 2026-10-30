@@ -1,0 +1,65 @@
+{
+  "schema": "baton.w325695.claim-binding/1",
+  "work": "2b077949-W325695",
+  "claim": 375947,
+  "authorization": "owner E371012; review 2026-10-28T17-58-14Z named three confirmed source blockers and authorized closed deployment-schema evolution inside that outcome",
+  "base": "f36bcd75ed22430355efe1b274b8f236cb591f6b",
+  "supersedes": {
+    "claim": 371379,
+    "binding_sha256": "c2d5c445a05eee05be9a60097d4b17eaeac32da9319c25b7dee673a917b90488",
+    "note": "all eight hashes matched at claim start; this continues from the reviewed bytes"
+  },
+  "outcome": "RETURNED INCOMPLETE. Blockers 2 and 3 are corrected and tested. Blocker 1 is NOT done.",
+  "candidate": {
+    "v12/python/src/baton_v12/worker_manager/oci.py": "94fae89d4ceba1078eb99b3de52e742d80cac91b7bd11d0f7d31aa95fdf1aa01",
+    "v12/python/src/baton_v12/worker_manager/source_boundary.py": "26f4b80c67703ae49ae6216a1461fecc10843c861cee7d59cfa5b6a896d30f3e",
+    "v12/python/tests/manager/test_oci.py": "f401abeebec28ea3ddf30735e2703f0cf47a5c0703e3f2c5b2ef35d5fb53202e",
+    "v12/python/tests/manager/test_verifier_topology.py": "6ab5f7c53043641bad4fc6db1b1ca42946b1937f22a76a88cffdebdd1a07cae0",
+    "v12/worker/claude_agent.py": "cd7cee152af411e02043094ff0d6de838721209b08483960429480d9dfc90f0a",
+    "v12/python/tests/manager/test_claude_agent.py": "73ed8797304ba55116573e6802c9617e91033f161fc71dce6adb9bc06085315c",
+    "v12/worker/Dockerfile.claude": "200d0049692542fa9e85a5f7a23c9f09ed9d8cfc9511b383ea747c5ae7c4bfea",
+    "v12/worker/verifier-layout-marker.json": "3355c11a36044111f713d37a729e51f8b781801d655be5e0df14de7fb69c9648"
+  },
+  "unchanged_since_claim_371379": [
+    "v12/worker/claude_agent.py",
+    "v12/python/tests/manager/test_claude_agent.py",
+    "v12/worker/Dockerfile.claude",
+    "v12/worker/verifier-layout-marker.json"
+  ],
+  "blocker_2_fixed": {
+    "claim": "the created mount now carries the identity and mode the worker proves",
+    "how": "oci._selected_scratch emits uid=, gid= and mode=0700 on each of the four private roots, from the same workspaces.identity_for capability this vector composes into --user and the same source_boundary.VERIFIER_MODE the document names",
+    "evidence": "BOTH-VECTORS.txt; six new cases in test_verifier_topology",
+    "not_weakened": "no worker check was relaxed; claude_agent.py is byte-identical to the reviewed bytes"
+  },
+  "blocker_3_fixed": {
+    "claim": "the redistribution is now a property of the selected profile",
+    "how": "source_boundary.SCRATCH_MOUNTS is restored to the committed legacy pair (/tmp 64 MiB, /dev/shm 16 MiB) and a new SELECTED_SCRATCH_MOUNTS carries the 32/16/4/16/4/8 split; run_vector composes the selected table only when layout_delivered is present",
+    "evidence": "unselected argv length is 51 again (the pre-W325695 value), contains no verifier root, no uid= and no mode=, and is identical to layout_delivered=None; both tables are asserted at import to hold the same 80 MiB aggregate, so MIN_WORKSPACE_BYTES is one number either way"
+  },
+  "blocker_1_not_done": {
+    "claim": "tools/single_worker.py still never delivers the selection",
+    "exact_remaining_scope": [
+      "a closed deployment-schema version (baton.v12.single-worker-deployment/6 beside /4 and /5, following the existing provider_context precedent) carrying the image's verifier-layout marker, absent/null meaning legacy",
+      "_held validation of that member, then source_boundary.compose_verifier_layout against the minted workspace identity and the configuration's four resolved digests",
+      "source_boundary.materialize_verifier_layout into manager-owned storage, and layout_delivery= passed at BOTH OciAdapter construction sites (_adapter around line 1841 and the preflight construction around line 3748)",
+      "the compatible/legacy/both-incompatible-direction cases driven through the supported deployment entry rather than through helpers",
+      "and the claim I made last claim must be CORRECTED rather than repeated: because Dockerfile.claude copies the marker unconditionally, the candidate IMAGE is not legacy-compatible. Existing images are unchanged; the new image REQUIRES the new configuration, and the worker's marker-present/document-absent refusal is correct fail-closed behaviour rather than a defect to hide"
+    ],
+    "serialization": "E375838 blocks W375445 on this Work (M375839, confirmed M375854), so this Work holds first tools/single_worker.py configuration/adapter ownership and that allocation survives this return"
+  },
+  "verification": {
+    "tests.manager.test_verifier_topology": "63 tests OK (was 55; six new identity/mode/both-vector cases and the capacity cases rewritten for two tables)",
+    "tests.manager.test_claude_agent": "279 tests OK, 1 skipped",
+    "tests.manager.test_oci": "143 tests OK",
+    "tests.manager.test_source_boundary": "75 tests, 1 failure, 2 skipped",
+    "combined": "560 tests, 1 failure, 3 skipped, 18.033s",
+    "attribution_by_cause_not_by_name": "the one test_source_boundary failure compares boundary_mounts' operands against SCRATCH_MOUNTS and reports the attempt-log decoy as an extra element. boundary_mounts is untouched by this candidate and SCRATCH_MOUNTS now holds exactly the committed tuple ((/tmp, 64 MiB), (/dev/shm, 16 MiB)) -- asserted in BOTH-VECTORS.txt -- so both operands of that assertion are now byte-identical to the committed tree and the cause is independent of this candidate. NO shared-checkout file swap was performed this claim, per the review's instruction"
+  },
+  "not_established": [
+    "blocker 1, above",
+    "the kernel/mount proof remains separately selected; mount facts and image scaffolding are still substituted at one labelled point each",
+    "the image is not built; per-root ENOSPC is not exercised",
+    "no engine, provider, deployment or live operation"
+  ]
+}

@@ -1,0 +1,708 @@
+{
+  "schema": "baton.w341357-verification/1",
+  "status": "EVIDENCE ONLY. NOTHING HERE IS ACCEPTED OR ACCEPTS ANYTHING.",
+  "not_for_import": {
+    "rule": "THIS FILE MUST BE EXCLUDED FROM ANY LATER PRODUCT IMPORT.",
+    "why": "it is a verification record written into the candidate tree because the proposal carries no transcript and the previous run's numbers reached nobody. It is not product, not configuration, not a fixture and not a contract; nothing imports it and nothing may.",
+    "contains_no": [
+      "credential",
+      "environment variable value",
+      "provider transcript",
+      "provider text",
+      "private token",
+      "log locator contents"
+    ]
+  },
+  "work": "W341357",
+  "base": "bc925cf5c62d69426ed5862af4d41f4d2a967b0f",
+  "candidate_input": {
+    "what": "the exact retained candidate from run durable-capture-w341357-345388",
+    "recovery_input": "recovery-345388/candidate.patch",
+    "patch_sha256": "5030be0867af2c7989638ca2cf369891672b876b80f6245e6344d0db793d3458",
+    "patch_bytes": 175064,
+    "patch_sections": 9,
+    "retained_head_it_came_from": "5a7d5976ab48c2e66ad5ae610e526362a0990871",
+    "applied_with": [
+      "git",
+      "apply",
+      "<recovery-345388>/candidate.patch"
+    ],
+    "applied_cleanly": true,
+    "nine_changed_paths_confirmed_present_after_apply": true,
+    "working_tree_paths_after_apply": 9
+  },
+  "head": {
+    "value": "not observable from inside this turn",
+    "why": "the adapter measures, commits and names the candidate head AFTER the provider turn returns. The worker cannot read a commit that does not exist while it is still running, and this run performed no version-control mutation.",
+    "what_identifies_this_candidate_instead": "the changed paths and per-file digests below"
+  },
+  "environment_stated_identical_for_every_run_below": {
+    "assertion": "every count in this document was produced by the same process image, the same interpreter, the same uid/gid, the same umask and the same mounts, inside one provider turn. No run below was taken from a handoff.",
+    "python": "3.13.5",
+    "uid": 1000,
+    "gid": 1000,
+    "umask": "0o0077",
+    "umask_note": "0o077 is the measured process umask and it is load-bearing for one of the two defects corrected below."
+  },
+  "step_2_the_actual_roots_READ_not_inferred": {
+    "how_read": "os.statvfs on the selected directory, /proc/mounts for the backing mount, and source_boundary.filesystem_of for the kind the product itself sees",
+    "ordinary_sqlite_and_workspace_root": {
+      "selected_by": "tempfile.gettempdir(), i.e. TMPDIR",
+      "canonical_path": "<TMPDIR>  -- the literal value is an environment value and is deliberately not reproduced here",
+      "path_shape": "a provider-ephemera directory beneath /tmp",
+      "backing_mount": "/tmp",
+      "mount_line": "tmpfs /tmp tmpfs rw,nosuid,nodev,noexec,relatime,size=65536k,inode64",
+      "filesystem_kind_the_product_sees": "tmpfs",
+      "total_bytes": 67108864,
+      "shared_with": "the provider's own ephemera. The 64 MiB is not the gate's alone.",
+      "this_is_where_every_control.sqlite3_and_maintenance_root_lands": true,
+      "confirms": "test_output.py OutputCase.setUp and MaintenanceCase.setUp both use tempfile.TemporaryDirectory, so BATON_V12_DISK_ROOT does NOT relocate them -- the static lead was correct about this and it was verified here."
+    },
+    "disk_backed_workspace_root": {
+      "selected_by": "tests/manager/disk_roots.disk_backed_root()",
+      "candidates_offered_in_order": [
+        "<TMPDIR>",
+        "<checkout>/v12/python",
+        "/var/tmp"
+      ],
+      "first_candidate_rejected_because": "it is tmpfs, which W71917 refuses for a workspace",
+      "selected": "<checkout>/v12/python",
+      "backing_mount": "/ (overlay, upper on /dev/nvme0n1p2)",
+      "total_bytes": 982240026624,
+      "avail_bytes_at_selection": 644867325952,
+      "avail_inodes_at_selection": 57727021,
+      "verdict": "this root was never remotely near exhaustion in any run below"
+    },
+    "correction_to_the_previous_classification": {
+      "claim_withdrawn": "that tmp_bytes 67108864 / shm_bytes 16777216 / workspace_min_bytes 83886081 were evidence of what filled",
+      "why": "they are configured capacities. The observed figure that matters is the AVAILABLE space on /tmp at gate time, measured below. It happens to be that /tmp's total is also 67108864 bytes -- but that is now an observation rather than an inference from the profile."
+    }
+  },
+  "step_2_capacity_and_headroom_on_the_filling_mount": {
+    "mount": "/tmp (tmpfs, 67108864 bytes total)",
+    "sampled": "a 10-20 ms statvfs sampler thread inside the test process, plus explicit before/after samples outside the run",
+    "full_five_module_gate_PURE_CANDIDATE": {
+      "avail_bytes_before": 57540608,
+      "avail_bytes_minimum_during": 44236800,
+      "avail_bytes_after": 57397248,
+      "high_water_used_bytes": 13303808,
+      "avail_inodes_before": 3993627,
+      "avail_inodes_minimum_during": 3993301,
+      "avail_inodes_after": 3993620,
+      "high_water_used_inodes": 326,
+      "samples": 563
+    },
+    "full_five_module_gate_AFTER_CORRECTION": {
+      "avail_bytes_before": 56115200,
+      "avail_bytes_minimum_during": 53678080,
+      "avail_bytes_after": 56107008,
+      "high_water_used_bytes": 2437120,
+      "avail_inodes_before": 3993600,
+      "avail_inodes_minimum_during": 3993537,
+      "avail_inodes_after": 3993595,
+      "high_water_used_inodes": 63,
+      "samples": 566
+    },
+    "high_water_reduction": {
+      "bytes": "13303808 -> 2437120, a reduction of 10866688 bytes (81.7%)",
+      "inodes": "326 -> 63",
+      "headroom_on_a_64_MiB_tmpfs_after_correction": "the gate's peak demand is now 2.4 MB where it was 13.3 MB"
+    },
+    "disk_backed_mount_during_the_gate": {
+      "avail_bytes_before": 644826763264,
+      "avail_bytes_after": 644826718208,
+      "verdict": "never a constraint"
+    }
+  },
+  "step_2_per_subcase_lifetime_and_high_water": {
+    "how_measured": "tempfile.mkdtemp and shutil.rmtree instrumented to timestamp every open and every removal, with a statvfs sampler, one method per run",
+    "finding": "EVERY removal happened AFTER the LAST open, in all four methods. Not one sub-case's store was released before the method ended. The static lead was correct and is now quantified.",
+    "before_correction": {
+      "test_a_journalled_receipt_that_is_not_a_discharge_is_refused": {
+        "subcase_temp_roots_opened": 13,
+        "peak_simultaneous_temp_roots": 13,
+        "closes_before_the_final_open": 0,
+        "tmp_high_water_used_bytes": 5439488,
+        "tmp_high_water_used_inodes": 162,
+        "tmp_avail_bytes_before": 56460288,
+        "tmp_avail_bytes_during_min": 50827264,
+        "tmp_avail_bytes_after": 56254464
+      },
+      "test_a_receipt_about_something_else_is_refused_by_both_exits": {
+        "subcase_temp_roots_opened": 17,
+        "peak_simultaneous_temp_roots": 17,
+        "closes_before_the_final_open": 0,
+        "tmp_high_water_used_bytes": 7090176,
+        "tmp_high_water_used_inodes": 206,
+        "tmp_avail_bytes_before": 56254464,
+        "tmp_avail_bytes_during_min": 49164288,
+        "tmp_avail_bytes_after": 56254464
+      },
+      "test_a_COMMITTED_cessation_for_ANOTHER_subject_moves_nothing": {
+        "subcase_temp_roots_opened": 10,
+        "peak_simultaneous_temp_roots": 10,
+        "closes_before_the_final_open": 0,
+        "tmp_high_water_used_bytes": 5898240,
+        "tmp_high_water_used_inodes": 145,
+        "tmp_avail_bytes_before": 56254464,
+        "tmp_avail_bytes_during_min": 50356224,
+        "tmp_avail_bytes_after": 56254464
+      },
+      "test_an_UNREADABLE_listing_ANSWER_is_not_a_confirmed_absence": {
+        "subcase_temp_roots_opened": 22,
+        "peak_simultaneous_temp_roots": 22,
+        "closes_before_the_final_open": 0,
+        "tmp_high_water_used_bytes": 13193216,
+        "tmp_high_water_used_inodes": 319,
+        "tmp_avail_bytes_before": 56254464,
+        "tmp_avail_bytes_during_min": 43061248,
+        "tmp_avail_bytes_after": 56254464
+      }
+    },
+    "after_correction": {
+      "test_a_journalled_receipt_that_is_not_a_discharge_is_refused": {
+        "subcase_temp_roots_opened": 13,
+        "tmp_high_water_used_bytes": 790528,
+        "tmp_high_water_used_inodes": 26,
+        "tmp_avail_bytes_before": 56127488,
+        "tmp_avail_bytes_during_min": 55336960,
+        "tmp_avail_bytes_after": 56123392
+      },
+      "test_a_receipt_about_something_else_is_refused_by_both_exits": {
+        "subcase_temp_roots_opened": 17,
+        "tmp_high_water_used_bytes": 675840,
+        "tmp_high_water_used_inodes": 26,
+        "tmp_avail_bytes_before": 56123392,
+        "tmp_avail_bytes_during_min": 55447552,
+        "tmp_avail_bytes_after": 56123392
+      },
+      "test_a_COMMITTED_cessation_for_ANOTHER_subject_moves_nothing": {
+        "subcase_temp_roots_opened": 10,
+        "tmp_high_water_used_bytes": 2400256,
+        "tmp_high_water_used_inodes": 58,
+        "tmp_avail_bytes_before": 56123392,
+        "tmp_avail_bytes_during_min": 53723136,
+        "tmp_avail_bytes_after": 56123392
+      },
+      "test_an_UNREADABLE_listing_ANSWER_is_not_a_confirmed_absence": {
+        "subcase_temp_roots_opened": 22,
+        "tmp_high_water_used_bytes": 2383872,
+        "tmp_high_water_used_inodes": 58,
+        "tmp_avail_bytes_before": 56123392,
+        "tmp_avail_bytes_during_min": 53739520,
+        "tmp_avail_bytes_after": 56123392
+      }
+    },
+    "high_water_mark_and_which_method_reaches_it": {
+      "method": "tests.manager.test_maintenance.TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_an_UNREADABLE_listing_ANSWER_is_not_a_confirmed_absence",
+      "before_correction_bytes": 13193216,
+      "after_correction_bytes": 2383872,
+      "note": "this single method's peak (13193216) accounts for essentially the whole five-module gate's peak (13303808). The suite is not collectively large; one method held 22 sub-case stores at once."
+    },
+    "cleanup_result": {
+      "what_ran": "every fixture cleanup registered by every sub-case, in all four methods, in both arms",
+      "when_it_ran_before_the_correction": "at the END of the outer test method only",
+      "when_it_runs_now": "at the end of each sub-case",
+      "did_anything_stay_live": "No. /tmp available bytes returned to its pre-method value after every method in both arms (see tmp_avail_bytes_before vs _after above), and the full gate returned to within 8192 bytes of its pre-run value. The deferral was a PEAK problem, not a leak."
+    }
+  },
+  "step_2_base_versus_candidate_same_environment": {
+    "environment": "identical -- same process image, interpreter, uid/gid, umask and mounts, one provider turn, no handoff",
+    "focused_four_methods": {
+      "methods": [
+        "tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_journalled_receipt_that_is_not_a_discharge_is_refused",
+        "tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_receipt_about_something_else_is_refused_by_both_exits",
+        "tests.manager.test_maintenance.TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_a_COMMITTED_cessation_for_ANOTHER_subject_moves_nothing",
+        "tests.manager.test_maintenance.TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_an_UNREADABLE_listing_ANSWER_is_not_a_confirmed_absence"
+      ],
+      "command": [
+        "python3",
+        "<a loader over exactly those four method names>"
+      ],
+      "pinned_base_UNCHANGED": {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0,
+        "duration_seconds": 0.682,
+        "run_before_the_patch_was_applied": true
+      },
+      "retained_candidate_AS_GIVEN": {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0,
+        "duration_seconds": 0.646
+      },
+      "THE_HEADLINE": "the four methods the previous run reported as 16 disk-full subtest errors PASS here, in isolation, under the candidate as given. The sqlite3 'database or disk is full' outcome DID NOT REPRODUCE in this environment -- not in isolation and not in the full gate."
+    },
+    "module_gate_the_four_modules_both_trees_share": {
+      "why_four_and_not_five": "tests/manager/test_attempt_failure_cause.py does not exist at the pinned base; it is created by the candidate. A five-module gate at base is not loadable, so the shared four modules are the honest comparison and the fifth module's 63 tests are the difference.",
+      "modules": [
+        "tests.manager.test_intake",
+        "tests.manager.test_attempts",
+        "tests.manager.test_maintenance",
+        "tests.manager.test_contracts_inventory"
+      ],
+      "pinned_base_UNCHANGED": {
+        "duration_seconds": 11.167,
+        "tests": 801,
+        "failures": 2,
+        "errors": 0,
+        "skips": 0
+      },
+      "how_base_was_restored": "the seven tracked candidate paths returned to HEAD with `git checkout -- <paths>` and the two created paths moved aside; all nine then restored and re-verified by sha256. No index, ref, stash or commit was touched.",
+      "retained_candidate_AS_GIVEN_five_modules": {
+        "tests": 864,
+        "failures": 2,
+        "errors": 0,
+        "skips": 0,
+        "duration_seconds": 11.432
+      },
+      "what_this_establishes": [
+        "the two assertion failures observed under the candidate are PRESENT AT THE PINNED BASE, in this same environment, in the same two methods. The candidate did not introduce them and does not touch them: it changes neither TheSELECTEDOutputIsAccessibleOrItIsAnError nor intake.inaccessible_output.",
+        "the candidate adds 63 tests (801 -> 864) and changes no other outcome.",
+        "zero disk-full errors at base and zero under the candidate."
+      ]
+    }
+  },
+  "step_3_what_was_corrected_and_what_it_leaves_standing": {
+    "defect_1_umask_dependent_fixture_precondition": {
+      "where": [
+        "v12/python/tests/manager/test_maintenance.py TheSELECTEDOutputIsAccessibleOrItIsAnError.test_ACCESSIBLE_output_answers_None_and_changes_nothing",
+        "v12/python/tests/manager/test_maintenance.py TheSELECTEDOutputIsAccessibleOrItIsAnError.test_INACCESSIBLE_output_names_the_exact_entry_and_preserves_it"
+      ],
+      "measured_cause": "both tests built their result root with os.makedirs and no mode, so it inherited the 0o077 umask and came out 0o700 -- group-unreachable. intake.inaccessible_output then CORRECTLY named the fixture's own root as the first inaccessible entry. The observed report carried mode 0o2700 (setgid inherited from the workspace) and the root's path, not the answer file's.",
+      "who_was_wrong": "the fixture. The product read is right in both arms.",
+      "fix": "establish the precondition explicitly: chown the result root to workspaces.configured_workspace_group(...).gid and chmod it 0o750 -- the SAME three lines test_a_TRAVERSAL_FAILURE_is_an_answer_and_not_silence already uses in the same class, and that test_an_UNREACHABLE_ROOT... does NOT get, because it sets 0o700 itself.",
+      "no_assertion_weakened": "no assertion, expectation or refusal text was edited. Only the fixture's setup gained two calls."
+    },
+    "defect_2_sub_case_fixture_lifetime": {
+      "where": [
+        "v12/python/tests/manager/test_intake.py -- six in-method `self.setUp()` sites (four inside subTest loops, two sequential), each now preceded by `self.doCleanups()`",
+        "v12/python/tests/manager/test_maintenance.py -- three `self.addCleanup(case.doCleanups)` sites, each now `scope.callback(case.doCleanups)` inside a per-sub-case `contextlib.ExitStack`"
+      ],
+      "measured_cause": "addCleanup runs only when the OUTER method ends, so re-running setUp or building a fresh case per sub-case kept every sub-case's store live simultaneously -- measured at 13, 17, 10 and 22 simultaneous temporary roots and zero releases before the final open.",
+      "mechanism_chosen": "drain the previous sub-case's cleanups before the next setUp (test_intake), and bind each sub-case's teardown to a contextlib.ExitStack scoped to that sub-case (test_maintenance). Per-sub-case cleanup was a suggestion; this is the shape chosen.",
+      "why_failures_still_surface": "doCleanups records a failing cleanup against the enclosing sub-case rather than swallowing it, and ExitStack re-raises out of the `with`, where subTest records it. A broken teardown is still a reported outcome.",
+      "effect": "gate /tmp high-water 13303808 -> 2437120 bytes; worst method 13193216 -> 2383872 bytes"
+    },
+    "what_was_NOT_done": {
+      "TMPDIR": "unchanged. No TMPDIR was set, exported, redirected or aliased by this run, and the verifier's /proc/self/fd aliasing is untouched.",
+      "resource_limits": "unchanged. No limit, operand, profile or capacity was altered.",
+      "skips": "none added. The sealed argv exits 1 on any skip and it exited 0.",
+      "assertions": "none deleted, relaxed, reworded or made conditional.",
+      "refusals_and_negative_cases": "none removed and none made unreachable -- see the assertion-execution evidence below.",
+      "custody_security_and_identity_boundary": "untouched. No production path, custody check, object-identity refusal or source boundary rule was widened or relaxed. All four producer sections of the candidate are byte-identical to what was handed in.",
+      "producer": "not reopened. No producer feature added. The gate demonstrated no producer defect.",
+      "vehicle": "tools/authoring_enforcement.py, tools/authoring_shutdown.py and the supervisor baseline were not read for modification and not touched.",
+      "input_mount": "nothing under /input was written."
+    }
+  },
+  "step_3_assertion_coverage_NOT_argued_from_test_COUNT": {
+    "why": "an equal test count proves nothing: a test that fails during setup never proved its later assertions. So assertion EXECUTIONS were counted, per method, in both arms, by instrumenting every unittest.TestCase.assert* entry point.",
+    "arms": "pure retained candidate (test_maintenance.py as given, test_intake.py at base) versus the corrected tree, same process image, same loader, same order",
+    "pure_candidate_outcome": {
+      "tests": 12,
+      "failures": 2,
+      "errors": 0
+    },
+    "corrected_outcome": {
+      "tests": 12,
+      "failures": 0,
+      "errors": 0
+    },
+    "assertion_executions_per_method": {
+      "test_ACCESSIBLE_output_answers_None_and_changes_nothing": {
+        "pure_candidate": 1,
+        "corrected": 5
+      },
+      "test_INACCESSIBLE_output_names_the_exact_entry_and_preserves_it": {
+        "pure_candidate": 5,
+        "corrected": 12
+      },
+      "test_a_COMMITTED_cessation_for_ANOTHER_subject_moves_nothing": {
+        "pure_candidate": 10,
+        "corrected": 10
+      },
+      "test_a_GENUINELY_EMPTY_observation_is_still_a_positive_absence": {
+        "pure_candidate": 2,
+        "corrected": 2
+      },
+      "test_a_SUBSTITUTED_root_a_caller_names_is_refused_not_skipped": {
+        "pure_candidate": 8,
+        "corrected": 8
+      },
+      "test_a_TRAVERSAL_FAILURE_is_an_answer_and_not_silence": {
+        "pure_candidate": 3,
+        "corrected": 3
+      },
+      "test_a_journalled_receipt_that_is_not_a_discharge_is_refused": {
+        "pure_candidate": 30,
+        "corrected": 30
+      },
+      "test_a_present_invalid_record_is_never_reported_as_absence": {
+        "pure_candidate": 27,
+        "corrected": 27
+      },
+      "test_a_receipt_about_something_else_is_refused_by_both_exits": {
+        "pure_candidate": 72,
+        "corrected": 72
+      },
+      "test_an_UNDERIVABLE_root_is_reported_and_never_read_as_success": {
+        "pure_candidate": 3,
+        "corrected": 3
+      },
+      "test_an_UNREACHABLE_ROOT_is_the_first_thing_that_is_inaccessible": {
+        "pure_candidate": 6,
+        "corrected": 6
+      },
+      "test_an_UNREADABLE_listing_ANSWER_is_not_a_confirmed_absence": {
+        "pure_candidate": 90,
+        "corrected": 90
+      }
+    },
+    "what_this_shows": [
+      "the six methods whose fixture LIFETIME changed execute the IDENTICAL number of assertions in both arms -- 30, 72, 27, 10, 90 and 2. Per-sub-case cleanup bought nothing away.",
+      "the two methods whose PRECONDITION was fixed went 1 -> 5 and 5 -> 12 assertion executions. That is the direct measurement of the point the reviewer made: under the candidate they died at their first and fourth assertion respectively and NEVER reached the rest. They reach them now.",
+      "test_an_UNREACHABLE_ROOT_is_the_first_thing_that_is_inaccessible -- the refusal case that a careless fix would have made unreachable -- still executes 6 assertions and still passes. It sets 0o700 itself and still gets its refusal.",
+      "test_a_SUBSTITUTED_root_a_caller_names_is_refused_not_skipped (8) and test_an_UNDERIVABLE_root_is_reported_and_never_read_as_success (3) are unchanged."
+    ],
+    "method_detail_pure": {
+      "test_ACCESSIBLE_output_answers_None_and_changes_nothing": {
+        "assertIsNone": 1
+      },
+      "test_INACCESSIBLE_output_names_the_exact_entry_and_preserves_it": {
+        "assertEqual": 1,
+        "assertIsInstance": 2,
+        "assertIsNotNone": 1,
+        "assertMultiLineEqual": 1
+      },
+      "test_a_COMMITTED_cessation_for_ANOTHER_subject_moves_nothing": {
+        "assertIn": 4,
+        "assertIsNotNone": 1,
+        "assertRaises": 4,
+        "assertTrue": 1
+      },
+      "test_a_GENUINELY_EMPTY_observation_is_still_a_positive_absence": {
+        "assertIn": 2
+      },
+      "test_a_SUBSTITUTED_root_a_caller_names_is_refused_not_skipped": {
+        "assertEqual": 1,
+        "assertIn": 2,
+        "assertIsInstance": 2,
+        "assertIsNotNone": 2,
+        "assertMultiLineEqual": 1
+      },
+      "test_a_TRAVERSAL_FAILURE_is_an_answer_and_not_silence": {
+        "assertIn": 2,
+        "assertIsNotNone": 1
+      },
+      "test_a_journalled_receipt_that_is_not_a_discharge_is_refused": {
+        "assertEqual": 6,
+        "assertRaises": 12,
+        "assertSequenceEqual": 6,
+        "assertTupleEqual": 6
+      },
+      "test_a_present_invalid_record_is_never_reported_as_absence": {
+        "assertEqual": 9,
+        "assertRaises": 6,
+        "assertSequenceEqual": 6,
+        "assertTupleEqual": 6
+      },
+      "test_a_receipt_about_something_else_is_refused_by_both_exits": {
+        "assertEqual": 24,
+        "assertRaises": 16,
+        "assertSequenceEqual": 16,
+        "assertTupleEqual": 16
+      },
+      "test_an_UNDERIVABLE_root_is_reported_and_never_read_as_success": {
+        "assertIn": 1,
+        "assertIsNone": 1,
+        "assertIsNotNone": 1
+      },
+      "test_an_UNREACHABLE_ROOT_is_the_first_thing_that_is_inaccessible": {
+        "assertEqual": 2,
+        "assertIsInstance": 2,
+        "assertIsNotNone": 1,
+        "assertMultiLineEqual": 1
+      },
+      "test_an_UNREADABLE_listing_ANSWER_is_not_a_confirmed_absence": {
+        "assertEqual": 20,
+        "assertIn": 20,
+        "assertIsInstance": 20,
+        "assertListEqual": 10,
+        "assertMultiLineEqual": 10,
+        "assertSequenceEqual": 10
+      }
+    },
+    "method_detail_corrected": {
+      "test_ACCESSIBLE_output_answers_None_and_changes_nothing": {
+        "assertDictEqual": 1,
+        "assertEqual": 1,
+        "assertIsInstance": 2,
+        "assertIsNone": 1
+      },
+      "test_INACCESSIBLE_output_names_the_exact_entry_and_preserves_it": {
+        "assertDictEqual": 1,
+        "assertEqual": 4,
+        "assertIn": 1,
+        "assertIsInstance": 4,
+        "assertIsNotNone": 1,
+        "assertMultiLineEqual": 1
+      },
+      "test_a_COMMITTED_cessation_for_ANOTHER_subject_moves_nothing": {
+        "assertIn": 4,
+        "assertIsNotNone": 1,
+        "assertRaises": 4,
+        "assertTrue": 1
+      },
+      "test_a_GENUINELY_EMPTY_observation_is_still_a_positive_absence": {
+        "assertIn": 2
+      },
+      "test_a_SUBSTITUTED_root_a_caller_names_is_refused_not_skipped": {
+        "assertEqual": 1,
+        "assertIn": 2,
+        "assertIsInstance": 2,
+        "assertIsNotNone": 2,
+        "assertMultiLineEqual": 1
+      },
+      "test_a_TRAVERSAL_FAILURE_is_an_answer_and_not_silence": {
+        "assertIn": 2,
+        "assertIsNotNone": 1
+      },
+      "test_a_journalled_receipt_that_is_not_a_discharge_is_refused": {
+        "assertEqual": 6,
+        "assertRaises": 12,
+        "assertSequenceEqual": 6,
+        "assertTupleEqual": 6
+      },
+      "test_a_present_invalid_record_is_never_reported_as_absence": {
+        "assertEqual": 9,
+        "assertRaises": 6,
+        "assertSequenceEqual": 6,
+        "assertTupleEqual": 6
+      },
+      "test_a_receipt_about_something_else_is_refused_by_both_exits": {
+        "assertEqual": 24,
+        "assertRaises": 16,
+        "assertSequenceEqual": 16,
+        "assertTupleEqual": 16
+      },
+      "test_an_UNDERIVABLE_root_is_reported_and_never_read_as_success": {
+        "assertIn": 1,
+        "assertIsNone": 1,
+        "assertIsNotNone": 1
+      },
+      "test_an_UNREACHABLE_ROOT_is_the_first_thing_that_is_inaccessible": {
+        "assertEqual": 2,
+        "assertIsInstance": 2,
+        "assertIsNotNone": 1,
+        "assertMultiLineEqual": 1
+      },
+      "test_an_UNREADABLE_listing_ANSWER_is_not_a_confirmed_absence": {
+        "assertEqual": 20,
+        "assertIn": 20,
+        "assertIsInstance": 20,
+        "assertListEqual": 10,
+        "assertMultiLineEqual": 10,
+        "assertSequenceEqual": 10
+      }
+    }
+  },
+  "step_4_the_complete_five_module_gate": {
+    "modules": [
+      "tests.manager.test_intake",
+      "tests.manager.test_attempts",
+      "tests.manager.test_maintenance",
+      "tests.manager.test_contracts_inventory",
+      "tests.manager.test_attempt_failure_cause"
+    ],
+    "exact_sealed_command_as_argv": [
+      "python3",
+      "-c",
+      "import os,sys,unittest; os.chdir('v12/python'); roots=[os.getcwd(),os.path.join(os.getcwd(),'src')]; sys.path[:0]=roots; os.environ['PYTHONPATH']=os.pathsep.join(roots); names=[\"tests.manager.test_intake\", \"tests.manager.test_attempts\", \"tests.manager.test_maintenance\", \"tests.manager.test_contracts_inventory\", \"tests.manager.test_attempt_failure_cause\"]; r=unittest.TextTestRunner(verbosity=1).run(unittest.defaultTestLoader.loadTestsFromNames(names)); [print('SKIPPED '+str(one[0])) for one in r.skipped]; sys.exit(0 if r.wasSuccessful() and not r.skipped else 1)"
+    ],
+    "run_from": "the repository root of the private checkout",
+    "result": {
+      "exit_status": 0,
+      "tests": 864,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "unittest_reported_seconds": 11.398,
+      "wall_seconds": 11.604
+    },
+    "against_the_ceiling": {
+      "verification_command_seconds": 30,
+      "measured_wall_seconds": 11.604,
+      "fits": true,
+      "headroom_seconds": 18.396
+    },
+    "the_previous_two_runs_for_comparison": {
+      "run_345039": {
+        "tests": 864,
+        "failures": 9,
+        "errors": 7,
+        "seconds": 12.817
+      },
+      "run_345388": {
+        "tests": 864,
+        "failures": 0,
+        "errors": 16,
+        "seconds": 12.515
+      },
+      "this_run": {
+        "tests": 864,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0,
+        "seconds": 11.398
+      }
+    },
+    "instrumented_repeat_of_the_same_five_modules": {
+      "tests": 864,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "duration_seconds": 11.49
+    }
+  },
+  "step_4_focused_reproduction": {
+    "methods": [
+      "tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_journalled_receipt_that_is_not_a_discharge_is_refused",
+      "tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_receipt_about_something_else_is_refused_by_both_exits",
+      "tests.manager.test_maintenance.TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_a_COMMITTED_cessation_for_ANOTHER_subject_moves_nothing",
+      "tests.manager.test_maintenance.TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_an_UNREADABLE_listing_ANSWER_is_not_a_confirmed_absence"
+    ],
+    "pinned_base": {
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "duration_seconds": 0.682
+    },
+    "candidate_as_given": {
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "duration_seconds": 0.646
+    },
+    "corrected": {
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "duration_seconds": "measured per method, see the lifetime table"
+    }
+  },
+  "commands_run_as_argv": [
+    [
+      "git",
+      "apply",
+      "--check",
+      "-v",
+      "<recovery-345388>/candidate.patch"
+    ],
+    [
+      "git",
+      "apply",
+      "<recovery-345388>/candidate.patch"
+    ],
+    [
+      "sha256sum",
+      "<recovery-345388>/candidate.patch"
+    ],
+    [
+      "python3",
+      "<focused loader over the four named methods>"
+    ],
+    [
+      "python3",
+      "<five-module loader with a statvfs sampler thread>"
+    ],
+    [
+      "python3",
+      "<per-method loader with tempfile/shutil lifetime instrumentation>"
+    ],
+    [
+      "python3",
+      "<per-method loader counting every TestCase.assert* execution>"
+    ],
+    [
+      "git",
+      "checkout",
+      "--",
+      "<the seven tracked candidate paths>"
+    ],
+    [
+      "python3",
+      "-c",
+      "import os,sys,unittest; os.chdir('v12/python'); roots=[os.getcwd(),os.path.join(os.getcwd(),'src')]; sys.path[:0]=roots; os.environ['PYTHONPATH']=os.pathsep.join(roots); names=[\"tests.manager.test_intake\", \"tests.manager.test_attempts\", \"tests.manager.test_maintenance\", \"tests.manager.test_contracts_inventory\", \"tests.manager.test_attempt_failure_cause\"]; r=unittest.TextTestRunner(verbosity=1).run(unittest.defaultTestLoader.loadTestsFromNames(names)); [print('SKIPPED '+str(one[0])) for one in r.skipped]; sys.exit(0 if r.wasSuccessful() and not r.skipped else 1)"
+    ]
+  ],
+  "changed_paths_and_ownership": {
+    "carried_in_from_the_retained_candidate_UNMODIFIED_BY_THIS_RUN": {
+      "ownership": "the producer finding, handed in as recovery-345388. Byte-identical to the patch as given; verified by sha256 after the base comparison restored them.",
+      "paths": [
+        "v12/python/src/baton_v12/worker_manager/attempts.py",
+        "v12/python/src/baton_v12/worker_manager/documents.py",
+        "v12/python/src/baton_v12/worker_manager/failure_cause.py",
+        "v12/python/src/baton_v12/worker_manager/intake.py",
+        "v12/python/tests/manager/disk_roots.py",
+        "v12/python/tests/manager/input_roots.py",
+        "v12/python/tests/manager/test_attempt_failure_cause.py",
+        "v12/python/tests/manager/test_output.py"
+      ]
+    },
+    "changed_by_this_run": {
+      "v12/python/tests/manager/test_maintenance.py": {
+        "ownership": "verification fixture, already a candidate-changed path; this turn's declared allocation",
+        "carried_in_from_the_candidate": "the canonical-root and child-stdout sections, unmodified",
+        "added_by_this_run": [
+          "import contextlib",
+          "three per-sub-case contextlib.ExitStack scopes replacing self.addCleanup(case.doCleanups)",
+          "the group-reachable result-root precondition in the two TheSELECTEDOutputIsAccessibleOrItIsAnError cases"
+        ]
+      },
+      "v12/python/tests/manager/test_intake.py": {
+        "ownership": "verification fixture; NEW path for this candidate -- it was not among the retained candidate's nine, and it is declared here as a tenth",
+        "added_by_this_run": [
+          "six `self.doCleanups()` calls, each immediately before an in-method `self.setUp()`"
+        ]
+      },
+      "W341357-VERIFICATION.json": {
+        "ownership": "this run's verification evidence; required by TASK.md step 5 because the proposal carries no transcript",
+        "note": "evidence only, excluded from product import"
+      }
+    },
+    "total_changed_paths_in_this_candidate": 11
+  },
+  "what_this_run_did_NOT_establish": [
+    "WHY run 345388 saw sqlite3 'database or disk is full' and this run did not. The outcome did not reproduce here, in isolation or in the full gate, at the base or under the candidate as given. The strongest supported explanation -- and it is not proven -- is that /tmp is a 64 MiB tmpfs SHARED with the provider's own ephemera, that run 345388 worked for 789 seconds before its gate ran, and that the gate's then-13.3 MB peak met a /tmp that the turn had already largely consumed. This run observed 56-57 MB available at gate time; what 345388 had available at its gate time was never recorded and cannot now be recovered. THIS IS THE ONE OPERAND FINDING: /tmp is 67108864 bytes total, it is not the gate's alone, and nothing bounds what else consumes it. Reported with numbers and NOT acted on -- no limit was changed and no TMPDIR was moved.",
+    "that the correction would have been sufficient in 345388's environment. It reduces the gate's peak /tmp demand by 10866688 bytes (81.7%), which is the right direction and a large margin, but the environment it would have had to survive was not measured.",
+    "the candidate head. The adapter names it after this turn returns.",
+    "anything about the controller report, the workload outcome or the shutdown progress file. They are published AFTER this turn ends and are STRUCTURALLY UNAVAILABLE to the worker -- reported here as unavailable rather than as present or absent.",
+    "independent producer byte acceptance. Still owed. The producer's 63 focused cases report no failure, which is evidence and not signoff.",
+    "that the two umask-dependent cases pass under a different umask. 0o022 was not exercised; the fix establishes the mode explicitly, so it should not depend on one, but that was not measured.",
+    "the correlation keys run_id, work, claim, outcome_path and status_path. No environment variable or file carrying them was present in this worker's environment; only the work reference W341357 was given in the task text. Named absent-by-structure rather than guessed."
+  ],
+  "lease_and_cessation_facts_POSITIVELY_OBSERVED_FROM_INSIDE": {
+    "monotonic_start_recorded_as_the_first_act": true,
+    "turn_ended_by": "the provider returning on its own, within the planning targets",
+    "no_signal_received": "no SIGTERM or lease signal was observed by this process",
+    "no_submission_call": "there is none; ending the turn IS freezing",
+    "pid": {
+      "value": "not reported",
+      "why": "the pids this worker can read are its own short-lived shell and measurement children, not the provider process the lease is held against. A child's pid offered as the worker's would be a false correlation key, so none is given."
+    },
+    "monotonic_elapsed_at_report_write_seconds": 549,
+    "planning_targets": {
+      "stop_optional_edits_by_seconds": 600,
+      "end_turn_by_seconds": 720,
+      "lease_seconds": 900,
+      "previous_run_returned_at_seconds": 789
+    }
+  }
+}

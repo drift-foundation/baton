@@ -1,0 +1,36 @@
+{
+ "command": "PYTHONDONTWRITEBYTECODE=1 timeout 120 python3 work/records/2026/10/finding-v12-shared-output-template-preparation/prove.py",
+ "cumulative_proof_process_seconds": 3.067959753,
+ "final_body_seconds": 0.5075197320038569,
+ "historical_predecessor_verification": "not rerun or reconstructed; historical accounting remains in predecessor records",
+ "preflight_process_seconds": 0.027183819,
+ "proof_runs": [
+  {
+   "exit": 1,
+   "reason": "test iterated optional context receipt outside selected declarations",
+   "seconds": 0.162160764
+  },
+  {
+   "exit": 1,
+   "reason": "fixture scratch root absent for review",
+   "seconds": 0.560570646
+  },
+  {
+   "exit": 1,
+   "reason": "real host rejects text/plain-only findings; corrected to measured octet-stream",
+   "seconds": 0.662949604
+  },
+  {
+   "exit": 0,
+   "seconds": 0.5617092
+  },
+  {
+   "exit": 0,
+   "seconds": 0.559468007
+  },
+  {
+   "exit": 0,
+   "seconds": 0.561101532
+  }
+ ]
+}

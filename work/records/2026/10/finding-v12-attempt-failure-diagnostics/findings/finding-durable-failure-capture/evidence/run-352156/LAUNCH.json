@@ -1,0 +1,23 @@
+{
+ "argv": [
+  "/usr/bin/python3",
+  "-m",
+  "tools.authoring_enforcement",
+  "--packet",
+  "/home/sl/baton-instances/durable-capture-w341357-352156/packet/PACKET.json"
+ ],
+ "claim": 352586,
+ "cwd": "/home/sl/baton-instances/durable-capture-w341357-352156/code/v12/python",
+ "environment": {
+  "BATON_V12_STAGE_EXECUTION_CONFIG": "/home/sl/baton-instances/durable-capture-w341357-352156/packet/deployment.json",
+  "PYTHONDONTWRITEBYTECODE": "1",
+  "PYTHONPATH": "/home/sl/baton-instances/durable-capture-w341357-352156/code/v12/python/src:/home/sl/baton-instances/durable-capture-w341357-352156/code/v12/python:/home/sl/baton-instances/durable-capture-w341357-352156/supervisor"
+ },
+ "launched_at": "2026-10-22T15:23:19Z",
+ "monotonic_start": 1792682599.8091207,
+ "pid": 11500,
+ "run": "durable-capture-w341357-352156",
+ "schema": "baton.w341357-launch/1",
+ "selection": "owner reroute352577, exactly one invocation, no retry",
+ "source": "packet/AUTHORING-COMMAND.json, the generated enforced command; packet/commands.json's start was NOT used"
+}

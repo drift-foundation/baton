@@ -1,0 +1,55 @@
+{
+ "base": "d3a7a41cc7347e4741706673c20f62b4a3190f65",
+ "head": "d6881d8adbd567b6e92a4a2a1d0cb68ee781f70a",
+ "rows": [
+  {
+   "path": "v12/python/src/baton_v12/worker_manager/tokens.py",
+   "declared": "c59c5d92352cbb2b225455b0c02cb625f1b4da6e9a4cc8cd65b0bc644e1fd5b4",
+   "cand": "389ea0ff9205aa1d53552eb61f3d468deb7033ecac8b362fef4586007dccb2b5",
+   "base": "c59c5d92352cbb2b225455b0c02cb625f1b4da6e9a4cc8cd65b0bc644e1fd5b4",
+   "head": "c59c5d92352cbb2b225455b0c02cb625f1b4da6e9a4cc8cd65b0bc644e1fd5b4"
+  },
+  {
+   "path": "v12/python/src/baton_v12/worker_manager/workspaces.py",
+   "declared": "d4fea18eab1d0f0e1ee8e197a006dc97274c021ed4dd6c548660a2e17ff08a03",
+   "cand": "61e0e0b1e089ac498e0d5af8566bdd76e26ebabe56a81aa0ae7c64971005e94a",
+   "base": "d4fea18eab1d0f0e1ee8e197a006dc97274c021ed4dd6c548660a2e17ff08a03",
+   "head": "d4fea18eab1d0f0e1ee8e197a006dc97274c021ed4dd6c548660a2e17ff08a03"
+  },
+  {
+   "path": "v12/python/tests/job_manager/test_serving_renewal.py",
+   "declared": null,
+   "cand": "92c77ce12181f958fd3ca5b41d5d47cdb9c878e0d61785fc7fcdb195bb5f0182",
+   "base": null,
+   "head": null
+  },
+  {
+   "path": "v12/python/tests/manager/test_boundary_inventory.py",
+   "declared": "3929186ac94e0e0d1f6c8590c112121e2d09831dfa2697e120b6ff37068f20fb",
+   "cand": "39c371207c53029c6429c2df3042497b69191b40e65204e438f2295f4ef006bf",
+   "base": "3929186ac94e0e0d1f6c8590c112121e2d09831dfa2697e120b6ff37068f20fb",
+   "head": "3929186ac94e0e0d1f6c8590c112121e2d09831dfa2697e120b6ff37068f20fb"
+  },
+  {
+   "path": "v12/python/tools/authoring_enforcement.py",
+   "declared": "ac3640fe020fb69144a9c8b040bd73abed3eeff69a3f9a1ff0dd9462d08bcf93",
+   "cand": "248ee9edd72214efbdc77044a9af6ad2c382e2ca1dbd5b71ff0db720d9a5a5dc",
+   "base": "ac3640fe020fb69144a9c8b040bd73abed3eeff69a3f9a1ff0dd9462d08bcf93",
+   "head": "ac3640fe020fb69144a9c8b040bd73abed3eeff69a3f9a1ff0dd9462d08bcf93"
+  },
+  {
+   "path": "v12/python/tools/single_worker.py",
+   "declared": "f634e02296ff05fd0f17c51b87a917252d61f9156eaaa83f5145b3ac46bfbcd5",
+   "cand": "abb10d0ee6d90709cbaa3293d3cc5d207b384d5e22aac16e5983bab82a030c4f",
+   "base": "f634e02296ff05fd0f17c51b87a917252d61f9156eaaa83f5145b3ac46bfbcd5",
+   "head": "f634e02296ff05fd0f17c51b87a917252d61f9156eaaa83f5145b3ac46bfbcd5"
+  },
+  {
+   "path": "v12/python/tools/stage_execution.py",
+   "declared": "bad0a355abccf7838f2f4c3948947ace93ff7105a625ae2a866e74eec40d606d",
+   "cand": "920009ab6bb77284cd2107bb54a5ada76c3c56dc2588d1775907587f5cdaa6d2",
+   "base": "bad0a355abccf7838f2f4c3948947ace93ff7105a625ae2a866e74eec40d606d",
+   "head": "bad0a355abccf7838f2f4c3948947ace93ff7105a625ae2a866e74eec40d606d"
+  }
+ ]
+}

@@ -1,0 +1,42 @@
+{
+  "claim": 352340,
+  "manifest": "9bda87e4ad655da1c1a452b901f994c5da7b4647d1a64c02ab2287866086dc2e",
+  "packet_sha256": "fc9c18ecd2d10b6151a988e2bc893cb84814783c4eadfee7677fd11a7ea64ea9",
+  "manager_members": 115,
+  "fixtures": 68,
+  "checks": {
+    "accepted": [
+      "held_packet",
+      "verify_imported_sources",
+      "verify_controller"
+    ],
+    "resolved": {
+      "baton_v12": [
+        "/tmp/w341357-review352340/code/v12/python/src/baton_v12"
+      ],
+      "tools": [
+        "/tmp/w341357-review352340/code/v12/python/tools"
+      ]
+    }
+  },
+  "seconds": 0.32947783299999855,
+  "no_lock_store_engine_provider_invoked_by_check": true,
+  "temporary_author_preflight": "/tmp/w341357-preflight11 missing after shutdown; independently regenerated preparation, not recovered historical bytes",
+  "generated": {
+    "deployment.json": "58f1cc8e4030ed5fce649015a03eb5508b8ff840d197e60f5f563dced2d94f85",
+    "submission.json": "8dc7a6bea97267afd2051e27e04705c529edfe9ab90d2e25a2d6eab55728adb1",
+    "commands.json": "b09c939a18cf18395462205c77050f132c7870aca2bf7d1171abc4b4836ff678",
+    "task.json": "a75e4cc062c5253cc18b38afcb8f7496c70c4c4a0e53e190ca0e7e9be3153894",
+    "PACKET.json": "fc9c18ecd2d10b6151a988e2bc893cb84814783c4eadfee7677fd11a7ea64ea9",
+    "policy.json": "2b75b8208cd288418ea5a9af8ece0c443abdaa19fda80a1ea2725e43fdbc306c",
+    "runtime-profile.json": "70ca07c494c9660bfaf747772f2233ccaf77b4ef3a4da90c26121b7b59ff1d34",
+    "adapter.json": "cbe3bb4ade990eb5411c64a40be74a10e46a79f48343c499b5f1a8453fabc9c7",
+    "AUTHORING-COMMAND.json": "f4cb86dd06c23084ad4f61342f7be92fb7c72cb413dc70f39b80c09dc1c29f20"
+  },
+  "proposed_root_absent": true,
+  "reviewer_errors": [
+    "Initial unchanged-file assertion included verify-inputs.py; only its PACKET_DIR identity changed.",
+    "Initial bootstrap omitted documented PYTHONPATH and failed before admission; corrected environment passed.",
+    "Initial hash script used root instead of manager_source.path and stopped; corrected."
+  ]
+}

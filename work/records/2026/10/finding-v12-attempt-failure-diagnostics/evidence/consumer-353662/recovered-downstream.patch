@@ -1,0 +1,408 @@
+diff --git a/v12/python/src/baton_v12/job_manager/delegation.py b/v12/python/src/baton_v12/job_manager/delegation.py
+index ad6a70d7..25ff4f21 100644
+--- a/v12/python/src/baton_v12/job_manager/delegation.py
++++ b/v12/python/src/baton_v12/job_manager/delegation.py
+@@ -61,6 +61,8 @@ from ..worker_manager import (attempt_activity_of, attempt_runtime_of,
+                               attempt_start_failure_of, boundaries,
+                               claimed_offers_for, frozen_output_of,
+                               issue_offer, recover_on_restart, submit_claim)
++from ..worker_manager.failure_cause import (DIAGNOSTIC_SCHEMA,
++                                            attempt_failure_cause_of)
+ from ..worker_manager.events import publish_offer_states
+ 
+ __all__ = ["CANONICAL_OPERATIONS", "INTENT_OPERANDS", "OBSERVATION_MEMBERS",
+@@ -147,7 +149,16 @@ OBSERVATION_MEMBERS = ("claimed_by", "runtime", "activity", "output",
+ # before this member existed is still a complete one: it is normalized to
+ # `None` here, which means nobody looked, and every such deployment keeps its
+ # exact previous behaviour.
+-OBSERVATION_OPTIONAL = ("integration",)
++# W333486: AND THE SAME RULE FOR THE COMPOSED ATTEMPT DIAGNOSTIC.
++#
++# OPTIONAL FOR EXACTLY THE REASON ABOVE, and review340349 blocker 1 is why it
++# exists at all: the composed cause had no production caller, so ordinary
++# status could not carry it and the supported report could only ever see a
++# fixture. Fixtures on both sides of an unjoined seam prove nothing. This is
++# the join -- `ManagerOperations.observe` supplies it from the control store
++# it already holds, and an observation composed before this member existed is
++# still a COMPLETE one: it normalizes to `None`, which means nobody looked.
++OBSERVATION_OPTIONAL = ("integration", "diagnostics")
+ 
+ # W126558, `work/records/2026/09/finding-v12-composed-ending-consumer/findings/
+ # finding-integration-stage-observation/OBSERVATION.md` revision 1.
+@@ -239,7 +250,7 @@ def unobserved():
+     return {"claimed_by": None, "runtime": None, "activity": None,
+             "output": None, "start_failure": None,
+             "preparation_failure": None, "exchange": None,
+-            "integration": None}
++            "integration": None, "diagnostics": None}
+ 
+ 
+ def canonical_operation(act, offer_id):
+@@ -380,6 +391,7 @@ def _bound(observed, stage):
+                                required=OBSERVATION_MEMBERS,
+                                optional=OBSERVATION_OPTIONAL)
+     held.setdefault("integration", None)
++    held.setdefault("diagnostics", None)
+     holder = held["claimed_by"]
+     if holder is None:
+         return unobserved()
+@@ -397,9 +409,66 @@ def _bound(observed, stage):
+             f"runtime this store never obtained and leave this stage's own "
+             f"claim owed to nobody")
+     held["integration"] = _integration_observation(held, stage)
++    # W333486: AND THE DIAGNOSTIC IS BOUND HERE for the same reason the
++    # integration observation is -- `_bound` is the one place that has already
++    # proved WHOSE claim this attempt is under, and that proof is exactly what
++    # a composed cause must be held against.
++    held["diagnostics"] = _attempt_diagnostic(held, stage)
+     return held
+ 
+ 
++def _attempt_diagnostic(held, stage):
++    """One composed attempt diagnostic, OWNED and bound to THIS stage's attempt.
++
++    W333486 review340349 blocker 1. `None` is the ordinary and compatible
++    answer: a deployment with no manager control store, and every stage
++    between an ending and its replacement, answer it -- and `None` means
++    NOBODY LOOKED, which is not the same fact as nothing having happened.
++
++    THE SCHEMA IS OWNED IN BOTH DIRECTIONS. A document carrying a version
++    this build does not own is not silently accepted and not silently
++    dropped: it is refused, because a reader that accepted a shape it was not
++    written against would be reporting members it cannot own, and one that
++    discarded it quietly would hide that the producer had moved.
++
++    AND THE EPISODE AND RUNTIME CORRELATION SURVIVES THE JOIN. The diagnostic
++    is composed under an ATTEMPT id, and this stage's attempt id is the one it
++    must be about; a diagnostic naming another attempt is a statement about
++    somebody else's stage. The runtime correlation is the diagnostic's own
++    `execution.token_bound_runtime_id`, which the composition re-proved
++    against the token -- this does not re-derive it, because deriving it a
++    second time here would be this leaf answering the Worker Manager's
++    question.
++
++    NOTHING HERE IS AN ACT and nothing here decides a stage state.
++    """
++    found = held.get("diagnostics")
++    if found is None:
++        return None
++    what = f"stage {name_value(stage.get('stage_id'))}'s attempt diagnostic"
++    if not isinstance(found, dict):
++        raise ContractRefusal(
++            "integrity", "schema",
++            f"{what} is a {type(found).__name__}; a composed attempt "
++            f"diagnostic is an object or it is absent")
++    if found.get("schema") != DIAGNOSTIC_SCHEMA:
++        raise ContractRefusal(
++            "integrity", "schema",
++            f"{what} carries schema {name_value(found.get('schema'))} and "
++            f"this build owns {name_value(DIAGNOSTIC_SCHEMA)}; a reader that "
++            f"accepted a shape it was not written against would report "
++            f"members it cannot own")
++    expected = stage.get("attempt_id")
++    if found.get("attempt_id") != expected:
++        raise ContractRefusal(
++            "refused", "operation-collision",
++            f"{what} is about attempt {name_value(found.get('attempt_id'))} "
++            f"and this stage's claim is on {name_value(expected)}; a "
++            f"diagnostic about another attempt cannot say what happened to "
++            f"this one")
++    return found
++
++
+ def _integration_observation(held, stage):
+     """One supplied integration observation, owned and bound to THIS stage.
+ 
+@@ -1005,7 +1074,17 @@ class ManagerOperations:
+                 # is that answer rather than a state.
+                 "integration": (self._observe_integration(stage)
+                                 if self._observe_integration is not None
+-                                else None)}
++                                else None),
++                # W333486 review340349 blocker 1: AND THE COMPOSED CAUSE, from
++                # the control store this object already holds. It is the
++                # SEVENTH READ and it is still no opinion: the composition
++                # reads facts their owners hold, derives nothing itself, and
++                # answers an explicit `unknown` naming which records are
++                # absent for an attempt that predates them. A historical
++                # attempt therefore reaches ordinary status with an honest
++                # unknown rather than with nothing at all.
++                "diagnostics": attempt_failure_cause_of(self.control,
++                                                        attempt_id)}
+ 
+ 
+ # WHAT A REFRESH MAY ANSWER, closed. Review 2026-09-04T14-27-54Z [P1]: the
+diff --git a/v12/python/src/baton_v12/job_manager/documents.py b/v12/python/src/baton_v12/job_manager/documents.py
+index 79d9a59f..45102554 100644
+--- a/v12/python/src/baton_v12/job_manager/documents.py
++++ b/v12/python/src/baton_v12/job_manager/documents.py
+@@ -118,7 +118,19 @@ SUBMISSION_LIMITS_SCHEMAS = (SUBMISSION_SCHEMA,)
+ # W156162 moved this to /5. A Job now reports its requested and EFFECTIVE
+ # execution limits with their units, scope and origins, and a reader written
+ # against /4 would not know a ceiling had been configured at all.
+-STATUS_SCHEMA = "baton.v12.job-status/6"
++# W333486: AND /7 ADDS `attempt_diagnostics` TO EVERY STAGE. What an older
++# reader would not know was recorded is WHICH COMPONENT OF THE WORKER MANAGER
++# ORDERED THIS ATTEMPT'S RUNTIME STOPPED, under which operation identity, with
++# what engine outcome, and whether cessation was established -- plus the token
++# axis, the revocation and the completion the token journal holds. A /6 reader
++# sees a stage with no diagnostic and reads it as "nobody looked", which is
++# the honest thing for it to read: the member is OPTIONAL in the contract, so
++# a document composed before it existed is still a valid one.
++#
++# AND IT IS A DIAGNOSTIC, NOT A STATE. Nothing in the projection branches on
++# it and no stage state is derived from it; a diagnostic cause is not an
++# acceptance and must not become a second route to `exceptional`.
++STATUS_SCHEMA = "baton.v12.job-status/7"
+ 
+ # The three stages this milestone's vertical slice has. They are a CLOSED
+ # vocabulary rather than free text because the projection below maps each one
+@@ -591,7 +603,8 @@ CONTRACTS = {
+                       "profile_name", "profile_digest", "episode", "offer_id",
+                       "attempt_id", "episodes", "corrections", "allocation",
+                       "allocations", "gates", "receipts", "deferral",
+-                      "runtime", "exchange", "artifacts"), ()),
++                      "runtime", "exchange", "artifacts"),
++                     ("attempt_diagnostics",)),
+     # W156162 added `execution_limits`, which is why STATUS_SCHEMA moved to /5.
+     # W197661 added `deferral` to `stage.status`, which is why it is at /6: a
+     # reader that must not mistake a re-enterable deferral for a state has to
+diff --git a/v12/python/src/baton_v12/job_manager/projection.py b/v12/python/src/baton_v12/job_manager/projection.py
+index c280e8cb..351481de 100644
+--- a/v12/python/src/baton_v12/job_manager/projection.py
++++ b/v12/python/src/baton_v12/job_manager/projection.py
+@@ -1033,4 +1033,11 @@ def _stage_status(entry, held):
+         # The frozen result's artifacts carry the manager's own locators. They
+         # are reported as the manager recorded them and are not resolved,
+         # opened or walked here.
+-        artifacts=frozen.get("artifacts") if type(frozen) is dict else None)
++        artifacts=frozen.get("artifacts") if type(frozen) is dict else None,
++        # W333486 review340349 blocker 1: THE COMPOSED ATTEMPT DIAGNOSTIC,
++        # REPORTED AND BRANCHED ON BY NOTHING. `null` says nobody looked,
++        # which is a different answer from a cause that was composed and came
++        # back `unknown`. The stage state above is what the existing axes
++        # decided and this member does not touch it: a diagnostic cause is not
++        # an acceptance and must not become a second route to `exceptional`.
++        attempt_diagnostics=observed.get("diagnostics"))
+diff --git a/v12/python/tests/job_manager/test_delegation.py b/v12/python/tests/job_manager/test_delegation.py
+index fa3334a4..44d1f015 100644
+--- a/v12/python/tests/job_manager/test_delegation.py
++++ b/v12/python/tests/job_manager/test_delegation.py
+@@ -152,7 +152,7 @@ class Observation(JobManagerCase):
+                                     "exchange": None,
+                                     # W126558: and the same answer for the
+                                     # integration read, for the same reason.
+-                                    "integration": None})
++                                    "integration": None, "diagnostics": None})
+ 
+     def test_the_closed_surface_is_what_a_deployment_must_supply(self):
+         acts = self.operations()
+@@ -240,7 +240,7 @@ class Observation(JobManagerCase):
+                           "activity": None, "output": None,
+                           "start_failure": None,
+                           "preparation_failure": None, "exchange": None,
+-                          "integration": None})
++                          "integration": None, "diagnostics": None})
+         for call in (lambda: unobserved.receipt_of("offer.issue:x"),
+                      lambda: unobserved.recover(now=NOW),
+                      lambda: unobserved.admit({}, {}),
+diff --git a/v12/python/tests/job_manager/test_exchange.py b/v12/python/tests/job_manager/test_exchange.py
+index 51eeaa94..6447ebf5 100644
+--- a/v12/python/tests/job_manager/test_exchange.py
++++ b/v12/python/tests/job_manager/test_exchange.py
+@@ -226,7 +226,7 @@ class AStartedContainerIsNotWorkInProgress(ExchangeCase):
+     def test_the_status_schema_says_the_vocabulary_moved(self):
+         self.assertEqual(status(self.jobs, self.acts,
+                                 observed_at=NOW)["schema"],
+-                         "baton.v12.job-status/6")
++                         "baton.v12.job-status/7")
+ 
+ 
+ class AReaderWithNoExchangeStillTellsTheTruth(ExchangeCase):
+diff --git a/v12/python/tests/job_manager/test_execution_limits.py b/v12/python/tests/job_manager/test_execution_limits.py
+index 1de90e1f..5299310d 100644
+--- a/v12/python/tests/job_manager/test_execution_limits.py
++++ b/v12/python/tests/job_manager/test_execution_limits.py
+@@ -273,7 +273,7 @@ class TheStoreKeepsWhatTheJobAskedFor(JobManagerCase):
+         submit(store, limited(verification_command_seconds=120))
+         held = projection.status(store, self.operations(),
+                                  observed_at=NOW)
+-        self.assertEqual(held["schema"], "baton.v12.job-status/6")
++        self.assertEqual(held["schema"], "baton.v12.job-status/7")
+         [entry] = [one for one in held["jobs"] if one["job_id"] == "job-a"]
+         answer = entry["execution_limits"]
+         self.assertEqual(answer["requested"],
+diff --git a/v12/python/tests/job_manager/test_tool.py b/v12/python/tests/job_manager/test_tool.py
+index 84044c6e..c42d1b20 100644
+--- a/v12/python/tests/job_manager/test_tool.py
++++ b/v12/python/tests/job_manager/test_tool.py
+@@ -166,7 +166,7 @@ class Reading(ToolCase):
+                                "--authority-uuid", UUID,
+                                "--incarnation", "jobs-1", "status")
+         self.assertFalse(answer["canonical"])
+-        self.assertEqual(answer["schema"], "baton.v12.job-status/6")
++        self.assertEqual(answer["schema"], "baton.v12.job-status/7")
+         self.assertEqual([one["job_id"] for one in answer["jobs"]],
+                          ["job-a", "job-b"])
+ 
+@@ -226,7 +226,7 @@ class Reading(ToolCase):
+             "--control", self.control_path,
+             "--observe", "tests.job_manager.test_tool:observing")
+         self.assertTrue(answer["canonical"])
+-        self.assertEqual(answer["schema"], "baton.v12.job-status/6")
++        self.assertEqual(answer["schema"], "baton.v12.job-status/7")
+         self.assertEqual([one["job_id"] for one in answer["jobs"]],
+                          ["job-a", "job-b"])
+         # THE READER WAS ASKED FOR EVERY STAGE, which is what the projection
+@@ -568,7 +568,7 @@ class TheStatusSurfaceOpensBothStoresReadOnly(ToolCase):
+         self.submitted()
+         without = self.status()
+         self.assertFalse(without["canonical"])
+-        self.assertEqual(without["schema"], "baton.v12.job-status/6")
++        self.assertEqual(without["schema"], "baton.v12.job-status/7")
+         self.assertEqual([one["job_id"] for one in without["jobs"]],
+                          ["job-a", "job-b"])
+         with_control = self.status("--control", self.control_path)
+diff --git a/v12/python/tests/tools/test_bootstrap.py b/v12/python/tests/tools/test_bootstrap.py
+index 1544bd77..9be1283b 100644
+--- a/v12/python/tests/tools/test_bootstrap.py
++++ b/v12/python/tests/tools/test_bootstrap.py
+@@ -1389,7 +1389,7 @@ class TheGUIDES_OWN_EXAMPLE_COMPOSES_AND_SERVES_FROM_SOURCE(unittest.TestCase):
+         self.assertIs(published.get("canonical"), True)
+         self.assertEqual(published.get("jobs"), [])
+         self.assertTrue(published.get("observed_at"))
+-        self.assertEqual(published.get("schema"), "baton.v12.job-status/6")
++        self.assertEqual(published.get("schema"), "baton.v12.job-status/7")
+         # AND IT IS THIS RUN'S: `start` refuses unless a snapshot was written
+         # DURING it, which is the gate the message above reports.
+         self.assertGreater(os.path.getmtime(place), self.started)
+diff --git a/v12/python/tests/tools/test_worker_visibility.py b/v12/python/tests/tools/test_worker_visibility.py
+index 2bdf0e4a..3ef19fc0 100644
+--- a/v12/python/tests/tools/test_worker_visibility.py
++++ b/v12/python/tests/tools/test_worker_visibility.py
+@@ -364,7 +364,7 @@ class EveryCurrentStageGetsARow(VisibilityCase):
+         self.submitted()
+         held = visibility(self.document())
+         self.assertEqual(held["schema"], "baton.v12.worker-visibility/1")
+-        self.assertEqual(held["source_schema"], "baton.v12.job-status/6")
++        self.assertEqual(held["source_schema"], "baton.v12.job-status/7")
+ 
+     def test_every_known_fact_resolves_to_the_path_it_claims(self):
+         """The provenance is walked back into the source document.
+@@ -1036,7 +1036,7 @@ class TheDocumentIsValidatedBeforeAnythingIsReported(VisibilityCase):
+         document["schema"] = "baton.v12.job-status/99"
+         with self.assertRaises(VisibilityRefusal) as caught:
+             visibility(document)
+-        self.assertIn("baton.v12.job-status/6", str(caught.exception))
++        self.assertIn("baton.v12.job-status/7", str(caught.exception))
+ 
+     def test_the_refusal_does_not_echo_the_rejected_input(self):
+         """A message assembled out of an untrusted document lets that document
+@@ -1180,7 +1180,7 @@ class TheDocumentIsValidatedBeforeAnythingIsReported(VisibilityCase):
+ 
+         self.assertEqual(worker_visibility.SOURCE_SCHEMA,
+                          documents.STATUS_SCHEMA)
+-        self.assertEqual(documents.STATUS_SCHEMA, "baton.v12.job-status/6")
++        self.assertEqual(documents.STATUS_SCHEMA, "baton.v12.job-status/7")
+ 
+     def test_an_oversize_document_refuses_rather_than_truncating(self):
+         self.submitted()
+@@ -1249,7 +1249,7 @@ class TheCommandReadsAFileAndAnswersJSON(VisibilityCase):
+         document["schema"] = "baton.v12.job-status/99"
+         code, output = self.ran(["--snapshot", self.written(document)])
+         self.assertEqual(code, 2)
+-        self.assertIn("baton.v12.job-status/6", json.loads(output)["refused"])
++        self.assertIn("baton.v12.job-status/7", json.loads(output)["refused"])
+         self.assertNotIn("stages", json.loads(output))
+ 
+     def test_an_oversize_file_refuses_rather_than_reading_a_subset(self):
+@@ -1325,7 +1325,7 @@ class TheViewOpensNothingAndActsNotAtAll(VisibilityCase):
+         self.assertEqual(code, 0)
+         self.assertEqual(self.acts.calls, before)
+         self.assertEqual(json.loads(stream.getvalue())["source_schema"],
+-                         "baton.v12.job-status/6")
++                         "baton.v12.job-status/7")
+ 
+     def test_the_stores_are_unchanged_by_being_viewed(self):
+         """The disposable owner state is established before and compared
+@@ -1374,7 +1374,7 @@ class TheViewOpensNothingAndActsNotAtAll(VisibilityCase):
+         """The contract this view reads is the producer's and stays theirs."""
+         from baton_v12.job_manager import documents
+ 
+-        self.assertEqual(documents.STATUS_SCHEMA, "baton.v12.job-status/6")
++        self.assertEqual(documents.STATUS_SCHEMA, "baton.v12.job-status/7")
+         self.assertEqual(
+             documents.CONTRACTS["stage.status"][0],
+             ("stage_id", "job_id", "kind", "state", "work_id", "profile_name",
+diff --git a/v12/python/tools/stack.py b/v12/python/tools/stack.py
+index 07ae7393..6227d034 100644
+--- a/v12/python/tools/stack.py
++++ b/v12/python/tools/stack.py
+@@ -83,7 +83,7 @@ ABSENT, LIVE, GONE, UNKNOWN = "absent", "live", "gone", "unknown"
+ # `just status` still answers on an installation too broken to import the
+ # package -- which is exactly when an operator needs it. The copy cannot drift
+ # silently: `tests/tools/test_stack.py` holds it equal to the original.
+-STATUS_SCHEMA = "baton.v12.job-status/6"
++STATUS_SCHEMA = "baton.v12.job-status/7"
+ 
+ # What `job_manager serve` prints on stderr once its deployment has composed.
+ # REVIEW 2026-09-16T06-00-07Z [C3]: an observer's published snapshot is
+diff --git a/v12/python/tools/stack_command.py b/v12/python/tools/stack_command.py
+index fef64148..b6757875 100644
+--- a/v12/python/tools/stack_command.py
++++ b/v12/python/tools/stack_command.py
+@@ -101,6 +101,23 @@ def _logs(operands):
+     return attempt_logs_command.main(operands)
+ 
+ 
++def _attempt_diagnostics(operands):
++    """W333486: the READ-ONLY attempt diagnostic report, from this bundle.
++
++    Served here for the reason `logs`, `record` and `disposition` are: an
++    operator reading evidence after an incident holds the DEPLOYED bundle and
++    not a checkout, so the supported invocation is this bundle's own
++    subcommand. The report itself opens no store and spawns nothing.
++
++    AND A SOURCE-LEVEL ENTRY IS NOT A DEPLOYED ONE. This table is the source
++    of truth for what the command serves; an installed bundle built before
++    this entry existed does not carry it until it is rebuilt, which this Work
++    does not do.
++    """
++    from tools import attempt_diagnostics
++    return attempt_diagnostics.main(operands)
++
++
+ def _stack(subcommand):
+     """The four `tools.stack` verbs, which take their verb LAST.
+ 
+@@ -245,6 +262,8 @@ COMMANDS = {
+     # durable transition through a participant-bound session.
+     "disposition": _disposition,
+     "identity": _identity,
++    # W333486: READ-ONLY, and a pure projection over one status document.
++    "attempt-diagnostics": _attempt_diagnostics,
+ }
+ 
+ 
+diff --git a/v12/python/tools/worker_visibility.py b/v12/python/tools/worker_visibility.py
+index 49081263..3567690a 100644
+--- a/v12/python/tools/worker_visibility.py
++++ b/v12/python/tools/worker_visibility.py
+@@ -1,7 +1,7 @@
+ """W324214 -- the minimum read-only worker visibility view.
+ 
+ WHAT IT IS. A bounded PROJECTION over one status document the Job Manager
+-already publishes (`baton.v12.job-status/6`): one row per current stage, with
++already publishes (`baton.v12.job-status/7`): one row per current stage, with
+ the worker, allocation, runtime, exchange and activity facts that document
+ actually carries, each labelled with WHERE IT CAME FROM and -- when the source
+ records one -- WHEN IT WAS OBSERVED. It answers "which worker is this stage
+@@ -62,7 +62,7 @@ operator's terminal view of the same document and owns the reading of it:
+ input, and this module calls it rather than growing a second reader. What is
+ new here is the JSON PROJECTION -- per-fact provenance, per-fact unknown
+ reasons and the explicit attempt-association checks -- published under its own
+-version, `baton.v12.worker-visibility/1`. `baton.v12.job-status/6` is
++version, `baton.v12.worker-visibility/1`. `baton.v12.job-status/7` is
+ unchanged by this Work.
+ 
+ ONE DELIBERATE DISAGREEMENT WITH THE VIEWER, stated out loud: the terminal

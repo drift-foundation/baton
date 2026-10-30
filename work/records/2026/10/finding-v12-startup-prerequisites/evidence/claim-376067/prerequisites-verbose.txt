@@ -1,0 +1,31 @@
+test_an_absent_store_is_initialized_and_closed (tests.tools.test_startup_prerequisites.TheControlStoreIsInitializedThroughItsOwnOpener.test_an_absent_store_is_initialized_and_closed) ... ok
+test_an_unopenable_store_refuses_in_this_commands_voice (tests.tools.test_startup_prerequisites.TheControlStoreIsInitializedThroughItsOwnOpener.test_an_unopenable_store_refuses_in_this_commands_voice)
+So `main` prints "refused:" rather than raising a traceback out of ... ok
+test_initializing_twice_adopts_rather_than_refusing (tests.tools.test_startup_prerequisites.TheControlStoreIsInitializedThroughItsOwnOpener.test_initializing_twice_adopts_rather_than_refusing)
+A second install of the same destination is refused elsewhere; the ... ok
+test_nothing_holds_the_store_afterwards (tests.tools.test_startup_prerequisites.TheControlStoreIsInitializedThroughItsOwnOpener.test_nothing_holds_the_store_afterwards)
+A prepared instance is one nothing is attached to: the first start ... ok
+test_a_file_at_an_owed_name_refuses (tests.tools.test_startup_prerequisites.ThePrepareOwnsOnlyWhatItMade.test_a_file_at_an_owed_name_refuses) ... ok
+test_a_link_at_an_owed_name_refuses (tests.tools.test_startup_prerequisites.ThePrepareOwnsOnlyWhatItMade.test_a_link_at_an_owed_name_refuses) ... ok
+test_a_replaced_root_is_no_longer_ours_and_survives (tests.tools.test_startup_prerequisites.ThePrepareOwnsOnlyWhatItMade.test_a_replaced_root_is_no_longer_ours_and_survives) ... ok
+test_an_existing_root_is_left_alone_and_is_not_ours (tests.tools.test_startup_prerequisites.ThePrepareOwnsOnlyWhatItMade.test_an_existing_root_is_left_alone_and_is_not_ours)
+An occupied prerequisite is the operator's: not repaired, and NOT ... ok
+test_every_configured_root_is_created_and_owned (tests.tools.test_startup_prerequisites.ThePrepareOwnsOnlyWhatItMade.test_every_configured_root_is_created_and_owned) ... ok
+test_the_owned_unwind_removes_exactly_what_was_made (tests.tools.test_startup_prerequisites.ThePrepareOwnsOnlyWhatItMade.test_the_owned_unwind_removes_exactly_what_was_made)
+`install`'s existing helper, driven over this answer. ... ok
+test_a_file_at_an_owed_name_is_reported_as_what_it_is (tests.tools.test_startup_prerequisites.TheReportIsApplicationReadOnly.test_a_file_at_an_owed_name_is_reported_as_what_it_is) ... ok
+test_a_link_is_unusable_rather_than_followed (tests.tools.test_startup_prerequisites.TheReportIsApplicationReadOnly.test_a_link_is_unusable_rather_than_followed) ... ok
+test_a_prepared_deployment_reports_nothing (tests.tools.test_startup_prerequisites.TheReportIsApplicationReadOnly.test_a_prepared_deployment_reports_nothing) ... ok
+test_an_unusable_mode_is_reported_without_repair (tests.tools.test_startup_prerequisites.TheReportIsApplicationReadOnly.test_an_unusable_mode_is_reported_without_repair) ... ok
+test_every_missing_root_is_reported_by_exact_path (tests.tools.test_startup_prerequisites.TheReportIsApplicationReadOnly.test_every_missing_root_is_reported_by_exact_path) ... ok
+test_it_creates_nothing (tests.tools.test_startup_prerequisites.TheReportIsApplicationReadOnly.test_it_creates_nothing) ... ok
+test_a_malformed_worker_entry_names_nothing (tests.tools.test_startup_prerequisites.TheTripleIsTheOneStageExecutionNames.test_a_malformed_worker_entry_names_nothing) ... ok
+test_a_shared_root_is_named_once (tests.tools.test_startup_prerequisites.TheTripleIsTheOneStageExecutionNames.test_a_shared_root_is_named_once)
+Two workers of one instance sharing a root is the operator's ... ok
+test_every_configured_root_of_every_worker_is_named (tests.tools.test_startup_prerequisites.TheTripleIsTheOneStageExecutionNames.test_every_configured_root_of_every_worker_is_named) ... ok
+test_the_three_names (tests.tools.test_startup_prerequisites.TheTripleIsTheOneStageExecutionNames.test_the_three_names) ... ok
+
+----------------------------------------------------------------------
+Ran 20 tests in 0.010s
+
+OK

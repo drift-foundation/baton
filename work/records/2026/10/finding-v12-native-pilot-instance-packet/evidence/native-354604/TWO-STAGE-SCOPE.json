@@ -1,0 +1,39 @@
+{
+ "schema": "baton.w325959-two-stage-scope/1",
+ "claim": 354604,
+ "status": "INTERRUPTION CHECKPOINT. One small verified change this claim, plus the concrete shape and cost of the named remaining gap so the next claim starts at the work rather than at the survey. Nothing is reported as proved that is not.",
+
+ "THE_REVIEWERS_OPERATIONAL_FINDING_ABSORBED_WITHOUT_A_SOURCE_EDIT": {
+  "what_happened": "review354590 hit 3 failures until it set BATON_V12_DISK_ROOT=/var/tmp/baton-w257624, and said so.",
+  "why_there_is_NO_defect_to_fix": "the real-composition cases inherit SingleWorkerCase/ServingCase, which already take a disk-backed root through tests.manager.disk_roots (test_single_worker.py:287). That helper REFUSES BY NAME on a tmpfs rather than falling back, by design -- its own docstring: 'a suite that skipped itself on a tmpfs /tmp would report green on a host where the boundary was never exercised'. The reviewer read the refusal and supplied the operand, which is the designed path. Changing the mechanism would be churn and would weaken a deliberate refusal.",
+  "what_I_did_instead": "recorded the requirement in the test module's own docstring, so the next runner reads that refusal as an environment operand rather than as a failure of this subject. Verified: 12 cases still OK.",
+  "test_file": "a94903fe -> 6de86489 (claim354566 rewrite) -> 4cdc1afcf954a4beacaa261aceb35f6458feb1c621b3b9d307b04b3969a80cef (this docstring note)"
+ },
+
+ "THE_NAMED_GAP_AND_WHY_I_DID_NOT_HALF_BUILD_IT": {
+  "the_gap_verbatim": "'Two real stage workers carrying one policy prove delivery, not both stages reaching actual acquired tokens and valid beyond900 work.' Correct -- my NativeStageComposition case proves DELIVERY by object identity and nothing about the review stage's own acquisition.",
+  "what_I_established_about_its_shape_this_claim": [
+   "SingleWorkerCase.submission composes ONE stage (fixtures.stage with WORK_A only, test_single_worker.py:414-421), so the harness my acquisition case uses cannot reach a review stage at all -- it is structurally single-stage.",
+   "ServingCase.serving() DOES compose both stage workers and is the right base (test_stage_execution.py:3592 reads both roles off composed.workers), but driving the REVIEW stage to its own acquisition needs the implementation stage completed and the review gate opened first. test_a_review_stage_is_admitted_by_the_review_worker (:3609) only exercises _matches STRUCTURALLY -- it builds a stage dict by hand and asserts no refusal; it never starts anything.",
+   "so the two-stage acquisition proof needs a fixture that completes an implementation stage and opens the review gate, which is materially more than extending an existing case"
+  ],
+  "why_I_stopped": "I had budget to start it but not to finish and verify it. A half-built two-stage drive reported as progress would be the third surrogate in a row after inspect.getsource and the mocked composer, and the reviewer has corrected me twice on exactly that. Reporting the shape honestly is worth more than an unverified attempt."
+ },
+
+ "EXACT_NEXT_EXECUTABLE_STEP": "base the two-stage proof on ServingCase.serving() rather than SingleWorkerCase; complete the implementation stage and open the review gate through the existing prepare_implementation / freeze_checkpoint / prepare_review helpers named at test_stage_execution.py:727 and :2469; then drive each stage's own acquisition and OBSERVE BOTH ACQUIRED TOKENS -- each must carry its Job's composed lifetime and exceed 900, and the review stage's token must be its own generation rather than the implementation's.",
+
+ "REMAINING_OWED_UNCHANGED": [
+  "both native stages reaching ACTUAL ACQUIRED TOKENS and valid beyond 900 (shape above)",
+  "exact stop/cancel: expiry is proved through the real overdue owner; cancellation is not proved at all",
+  "cleanup and unknown holds beyond expiry-is-not-release and resource-stays-held",
+  "reopened-store original timing, no duplicate effects, no revival -- my replay case reuses the same open store, which the reviewer correctly says is not restart",
+  "the joined owner-produced cause through durable capture, /7 status and the packaged secret-free report"
+ ],
+
+ "RETAINED_AND_UNCHANGED_THIS_CLAIM": {
+  "product_paths": "all four byte-unchanged: execution_limits 24f27d7769e7f1dd, workspaces 7db36ee60d5b32af, single_worker 70cc08066e73b750, stage_execution 765c1567806c115f",
+  "combined_candidate": "the 31-path composition plus my five paths; manifest and delta unchanged except the test file docstring",
+  "wiring_arms": "all five link-reversion arms from claims354527 and 354566 retained in their own evidence directories; not repeated here, as the review directed",
+  "boundaries": "no live instance, engine, provider or credential; no deployment, recovery, migration or shared import; no version-control mutation -- reads only"
+ }
+}

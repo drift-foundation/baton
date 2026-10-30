@@ -1,0 +1,42 @@
+{
+  "child_status": 0,
+  "child_stderr": "",
+  "claim": 352156,
+  "failures": [],
+  "imports": {
+    "the_line_that_failed": {
+      "file": "/home/sl/baton-instances/durable-capture-w341357-350529/code/v12/python/tools/authoring_baseline.py",
+      "has_main": true,
+      "resolved": true,
+      "statement": "from tools import authoring_baseline as baseline"
+    },
+    "tools.authoring_baseline": {
+      "file": "/home/sl/baton-instances/durable-capture-w341357-350529/code/v12/python/tools/authoring_baseline.py",
+      "imported": true
+    },
+    "tools.authoring_enforcement": {
+      "file": "/home/sl/baton-instances/durable-capture-w341357-350529/code/v12/python/tools/authoring_enforcement.py",
+      "imported": true
+    },
+    "tools.authoring_shutdown": {
+      "file": "/home/sl/baton-instances/durable-capture-w341357-350529/code/v12/python/tools/authoring_shutdown.py",
+      "imported": true
+    }
+  },
+  "schema": "baton.w341357-deferred-import-check/1",
+  "seconds": 0.321,
+  "staged_baseline_sha256": "8e5987f56f8d5329c33a8e73f9df56f13213e134f2dade8180afabf80723efe9",
+  "staged_controller_sha256": "248ee9edd72214efbdc77044a9af6ad2c382e2ca1dbd5b71ff0db720d9a5a5dc",
+  "verdict": "imports-resolve",
+  "what": "AN AUTHOR CHECK, NOT PACKET MACHINERY. Imports the staged controller, the deferred baseline and the shutdown helper in a child with the controller's exact cwd, PYTHONPATH and BATON_V12_STAGE_EXECUTION_CONFIG, and executes the exact statement from tools/authoring_enforcement.py:554 that run348852 died on.",
+  "what_it_does_not_do": [
+    "call any main",
+    "compose an envelope",
+    "submit a Job",
+    "start a container or workload",
+    "read any credential value",
+    "establish that the controller RUNS; only that these imports resolve"
+  ],
+  "why": "the gap I reported at claim348929 -- neither packet preflight establishes that the staged source can import the controller it pins -- is still open and still the owner's and the reviewer's call. This does not widen the packet; it is one read-only check run by the operator of the selected invocation.",
+  "working_directory": "/home/sl/baton-instances/durable-capture-w341357-350529/code/v12/python"
+}

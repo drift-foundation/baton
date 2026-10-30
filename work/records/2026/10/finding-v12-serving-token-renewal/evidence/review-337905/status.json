@@ -1,0 +1,232 @@
+{
+  "schema": "baton.v12.job-status/6",
+  "observed_at": "2026-10-20T02:48:02.593Z",
+  "incarnation": "serving-renewal-w333485-337717-read",
+  "canonical": true,
+  "jobs": [
+    {
+      "job_id": "job-serving-renewal-w333485-337717",
+      "submission_id": "serving-renewal-w333485-337717-submission",
+      "input_digest": "sha256:17e4c2dc84ba0c2862f07b97b94f2ac3b09a6eae6f62c3c14ee19ef655f1d36f",
+      "policy_digest": "sha256:7057bdd0b1ef4f1c272ea22e357cadb2cac839fd7a10c45da8f3d72b7c9b9e11",
+      "test_scope": [],
+      "terminal_policy": "report-and-hold",
+      "execution_limits": {
+        "units": "seconds",
+        "scope": "per-invocation",
+        "compatibility_generation": 1,
+        "requested": {
+          "provider_turn_seconds": 3600,
+          "verification_command_seconds": 30
+        },
+        "boundaries": {
+          "host_verification": {
+            "seconds": 30,
+            "origin": "job",
+            "setting": "verification_command_seconds",
+            "default_seconds": 300
+          },
+          "integration_verification": {
+            "seconds": 30,
+            "origin": "job",
+            "setting": "verification_command_seconds",
+            "default_seconds": 1800
+          },
+          "ordinary_verification": {
+            "seconds": 30,
+            "origin": "job",
+            "setting": "verification_command_seconds",
+            "default_seconds": 900
+          },
+          "provider_turn": {
+            "seconds": 3600,
+            "origin": "job",
+            "setting": "provider_turn_seconds",
+            "default_seconds": 3600
+          }
+        }
+      },
+      "stages": [
+        {
+          "stage_id": "job-serving-renewal-w333485-337717/implementation",
+          "job_id": "job-serving-renewal-w333485-337717",
+          "kind": "implementation",
+          "state": "exceptional",
+          "work_id": "208c2728-W1",
+          "profile_name": "claude-fresh-implementation",
+          "profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+          "episode": 1,
+          "offer_id": "offer-d09e5b43ed71e1adf9e6c9ea80f0b9c87a7ad8711e75171409a66659460a7150",
+          "attempt_id": "attempt-d09e5b43ed71e1adf9e6c9ea80f0b9c87a7ad8711e75171409a66659460a7150",
+          "episodes": [
+            {
+              "stage_id": "job-serving-renewal-w333485-337717/implementation",
+              "episode": 1,
+              "offer_id": "offer-d09e5b43ed71e1adf9e6c9ea80f0b9c87a7ad8711e75171409a66659460a7150",
+              "attempt_id": "attempt-d09e5b43ed71e1adf9e6c9ea80f0b9c87a7ad8711e75171409a66659460a7150",
+              "opened_at": "2026-10-20T02:30:12.705Z",
+              "incarnation": "authoring-child-128858",
+              "ended_state": null,
+              "ended_revision": null,
+              "ended_at": null
+            }
+          ],
+          "corrections": 0,
+          "allocation": {
+            "assignment_id": "attempt-d09e5b43ed71e1adf9e6c9ea80f0b9c87a7ad8711e75171409a66659460a7150",
+            "stage_id": "job-serving-renewal-w333485-337717/implementation",
+            "episode": 1,
+            "generation": 1,
+            "worker_id": "implementation-worker",
+            "lane": "implementation",
+            "participant": "baton.impl",
+            "canonical_principal": "principal:baton.impl",
+            "preferred_worker_id": null,
+            "selection_outcome": "initial",
+            "allocation_state": "reserved",
+            "reserved_at": "2026-10-20T02:30:12.714Z",
+            "recovery_required_at": null,
+            "released_at": null,
+            "release_reason": null,
+            "variant": "baton.v12.stage-execution-deployment/1",
+            "separation_class": "provider-diverse",
+            "generation_digest": "sha256:b24102c3dbbd1222f4eebb1aba0a588270ea238780e457c437c59ebbaff87299",
+            "worker_profile_name": "claude-fresh-implementation",
+            "worker_profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be"
+          },
+          "allocations": [
+            {
+              "assignment_id": "attempt-d09e5b43ed71e1adf9e6c9ea80f0b9c87a7ad8711e75171409a66659460a7150",
+              "stage_id": "job-serving-renewal-w333485-337717/implementation",
+              "episode": 1,
+              "generation": 1,
+              "worker_id": "implementation-worker",
+              "lane": "implementation",
+              "participant": "baton.impl",
+              "canonical_principal": "principal:baton.impl",
+              "preferred_worker_id": null,
+              "selection_outcome": "initial",
+              "allocation_state": "reserved",
+              "reserved_at": "2026-10-20T02:30:12.714Z",
+              "recovery_required_at": null,
+              "released_at": null,
+              "release_reason": null,
+              "variant": "baton.v12.stage-execution-deployment/1",
+              "separation_class": "provider-diverse",
+              "generation_digest": "sha256:b24102c3dbbd1222f4eebb1aba0a588270ea238780e457c437c59ebbaff87299",
+              "worker_profile_name": "claude-fresh-implementation",
+              "worker_profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be"
+            }
+          ],
+          "gates": [],
+          "receipts": [
+            {
+              "stage_id": "job-serving-renewal-w333485-337717/implementation",
+              "episode": 1,
+              "act": "admit",
+              "operation_id": "offer.issue:offer-d09e5b43ed71e1adf9e6c9ea80f0b9c87a7ad8711e75171409a66659460a7150",
+              "state": "performed",
+              "recorded_at": "2026-10-20T02:30:12.718Z",
+              "detail": {
+                "canonical_state": "committed",
+                "refusal": null,
+                "result": {
+                  "expires_at": "2026-10-20T02:32:12.717Z",
+                  "issued_at": "2026-10-20T02:30:12.717Z",
+                  "offer_id": "offer-d09e5b43ed71e1adf9e6c9ea80f0b9c87a7ad8711e75171409a66659460a7150",
+                  "participant": "baton.impl",
+                  "runtime_attempt_id": "attempt-d09e5b43ed71e1adf9e6c9ea80f0b9c87a7ad8711e75171409a66659460a7150",
+                  "verifier": "sha256:0b67b62df627a161cdbce36db8b54ee5c711352ee20efa29ee210d21f6393e7c",
+                  "work_id": "208c2728-W1"
+                },
+                "settled_at": "2026-10-20T02:30:12.717Z"
+              }
+            },
+            {
+              "stage_id": "job-serving-renewal-w333485-337717/implementation",
+              "episode": 1,
+              "act": "claim",
+              "operation_id": "offer.settle:offer-d09e5b43ed71e1adf9e6c9ea80f0b9c87a7ad8711e75171409a66659460a7150",
+              "state": "performed",
+              "recorded_at": "2026-10-20T02:30:13.724Z",
+              "detail": {
+                "canonical_state": "committed",
+                "refusal": null,
+                "result": {
+                  "assignment": {
+                    "generation": 1,
+                    "participant": "baton.impl",
+                    "work_ref": {
+                      "authority_uuid": "208c2728b78c46b187e04d991fcea312",
+                      "work_id": "208c2728-W1"
+                    }
+                  },
+                  "claim_event": 1,
+                  "decision": {
+                    "effective_scope": "scope:deployment",
+                    "endpoint": "baton.impl",
+                    "grant": "direct",
+                    "policy_generation": 8,
+                    "principal": "principal:baton.impl",
+                    "role": "impl"
+                  },
+                  "offer_id": "offer-d09e5b43ed71e1adf9e6c9ea80f0b9c87a7ad8711e75171409a66659460a7150",
+                  "state": "claimed"
+                },
+                "settled_at": "2026-10-20T02:30:13.724Z"
+              }
+            }
+          ],
+          "deferral": null,
+          "runtime": {
+            "runtime_id": "a42c5de9d5358b5da9f862382fa9784c81630df5fcc33386c24654ee87841c3b",
+            "execution_runtime": "destroyed",
+            "assignment": {
+              "work_ref": {
+                "authority_uuid": "208c2728b78c46b187e04d991fcea312",
+                "work_id": "208c2728-W1"
+              },
+              "participant": "baton.impl",
+              "generation": 1
+            },
+            "activity": {
+              "attempt_id": "attempt-d09e5b43ed71e1adf9e6c9ea80f0b9c87a7ad8711e75171409a66659460a7150",
+              "bytes_observed": null,
+              "observed_at": null
+            }
+          },
+          "exchange": {
+            "transport": "baton.worker-exchange/1",
+            "sequence_id": "sequence-a17855c97934616004ffef2216eea443",
+            "command": {
+              "sequence_id": "sequence-a17855c97934616004ffef2216eea443",
+              "command_digest": "sha256:2c9867502b98637d57b5d043d51ee73c33866c69b824ac6bfc8a7482d9bb0586",
+              "operations": [
+                "describe",
+                "work"
+              ]
+            },
+            "receipt": {
+              "accepted_at": "2026-10-20T02:30:19.000Z"
+            },
+            "states": [
+              {
+                "operation": "describe",
+                "state": "answered"
+              },
+              {
+                "operation": "work",
+                "state": "dispatched"
+              }
+            ],
+            "terminal": null,
+            "foreign": [],
+            "unreadable": null,
+            "state": "working"
+          },
+          "artifacts": null
+        }
+      ]
+    }
+  ]
+}

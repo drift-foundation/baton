@@ -1,0 +1,482 @@
+{
+  "attempts": 0,
+  "claim": 339628,
+  "collection": {
+    "exercised_against": [
+      "the retained read-only copies at ../evidence/execution-334663-failure (real evidence)",
+      "six synthetic fixtures covering absent, inaccessible, pending, unparseable, uncorrelated and a real TimeoutError fault"
+    ],
+    "owner": "the external operator and the independent reviewer, not the worker inside the run",
+    "program": "collect.py",
+    "read_only": "opened no store, wrote nothing, started nothing; the authoring log is reported by presence, size and digest only, never by content. The preserved instance itself was not touched -- the dossier copies were used.",
+    "real_case_result": "controller present (state held, child_status 1, elapsed 0.506s, faults []), workload ABSENT, shutdown progress ABSENT, authoring log present at 4215 bytes -- and publication_timeout.established FALSE, because no correlated TimeoutError fault was read. That run died at startup; a reader that named a timeout there would be inventing one."
+  },
+  "composer_start_measured": {
+    "baseline_bindings_sha256": "09fbf3c59820231b7199e24aa1cf64eee93f6ea2e60f3477fed5ca909e5fc379",
+    "disposition": "Reported for classification in ENFORCEMENT.md, not patched. Mitigated by packet/AUTHORING-COMMAND.json and PREPARED.json composer_start_is_unenforced.",
+    "line": 721,
+    "start_member": "[python, -B, <supervisor>/baseline.py, --packet, ..., --incarnation, ...]",
+    "unchanged_at_this_base": true
+  },
+  "controller_binding": {
+    "accepted_from_staged_source": {
+      "says": "ACCEPTED from /tmp/w333486-preflight-339628/code/v12/python/tools/authoring_enforcement.py",
+      "seconds": 0.299,
+      "status": 0
+    },
+    "refused_from_host_checkout": {
+      "says": "RuntimeError: authoring controller is outside the pinned manager source",
+      "seconds": 0.142,
+      "status": 1
+    },
+    "why": "The corrected controller own verify_controller resolves itself inside the packet manager_source and compares the pinned digest. Proved BOTH ways at claim339628, read-only, opening no store and starting nothing."
+  },
+  "credential_read": false,
+  "enforcement": "ENFORCEMENT.md",
+  "engine_invoked": false,
+  "falsification_rerun": false,
+  "guard_proof_rerun": false,
+  "job_submitted": false,
+  "measured_seconds": {
+    "bind": 0.358,
+    "bootstrap": 0.593,
+    "claim_total_measured": 3.49,
+    "collection_against_real_evidence": 0.016,
+    "controller_binding": 0.441,
+    "input_check": 0.117,
+    "note": "the final preparation run of this claim; an earlier discarded bind is not counted twice",
+    "preparation_total": 1.075,
+    "probes": 1.497,
+    "product_tests": 0.0,
+    "shutdown_helper_probe": 0.344,
+    "stage": 0.124
+  },
+  "note": "One disposable preparation root, exercised once at claim339628. No Job submitted, no attempt, no runtime, no engine, no provider, no credential read, AND NO PRODUCT TEST EXECUTED. The proposed destination /home/sl/baton-instances/attempt-diagnostics-w333486-339628 is untouched and does not exist.",
+  "prepared": {
+    "artifacts": 8,
+    "authority_uuid": "923a27f538bf421cb86138b879a85095",
+    "composer_start_is_unenforced": true,
+    "fixture_files": 21,
+    "note": "composed AFTER every pinned task input reached its final bytes; the first bind of this claim was discarded and re-run because ENFORCEMENT.md -- a pinned fixture.file -- was still being corrected when it ran. The sealed packet and this evidence describe the same bytes.",
+    "packet_sha256": "40503fd3a7209fae9ce5c347a3bb2e64fbd0b7b9d8a98e328f1e0f62f14d8faf",
+    "start_authorized": false,
+    "start_selected": false,
+    "state": "prepared-not-executed",
+    "why_the_digest_differs": "bootstrap --no-repositories generates this instance own authority uuid and bind derives the Work id from it, so a selected run composes a DIFFERENT packet digest. This preflight digest is a fact about the throwaway root, not a proposed production identity.",
+    "work": "W333486"
+  },
+  "probe_note": "Thirty cases, all behaving as intended, and this revision makes them a sealed program rather than an ad-hoc shell sequence so a reviewer can re-run them in 1.5 seconds. Every root-creating refusal also asserts whether the root was created. SEVEN ARE NEW and they are the executable proof of correction 2: nothing-published, inaccessible-is-not-absent, partial-temporary-is-pending, unparseable-report-is-unknown-cause, uncorrelated-report-is-unknown-cause, timeout-named-only-on-positive-evidence, and real-retained-failure-evidence -- the last running collect.py over the READ-ONLY COPIES of this Work's one actual execution, which left no workload outcome because it died at startup, and which an absence-means-timeout reader would have reported as a publication timeout that never happened. Four more refusals are new or restored: a provenance declaring a restored buffer, a damaged and an absent review-339623 snapshot, and a drifted preparation input. TWO CASES ARE HONEST ABOUT THEIR METHOD: owed-gate-module-already-on-the-host substitutes two existing module paths for the two owed names in the COPY's prepare.py, because probing it literally would mean creating a product test file in the host working tree; and bind-a-root-staged-for-another-run refuses EARLIER than I expected, at the pins (\"the pins name another base or run\") rather than at the staged-root comparison, because the copy's run constant and its own pins disagree first. Both are recorded as they behaved, not as predicted.",
+  "probes": {
+    "all_passed": true,
+    "cases": [
+      {
+        "passed": true,
+        "probe": "no-acknowledgement",
+        "refusal": "RuntimeError: This packet's START IS NOT SELECTED. Every input gate is closed (W333735 at a9f4fa4d, W334910 at fb487979, W338305 at bc925cf5), so this is not a blocker -- but independent preparation review comes first, then an exact executi",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.044,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "superseded-controller",
+        "refusal": "RuntimeError: the authoring controller is not pinned by this packet manager source",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.048,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "unpinned-shutdown-helper",
+        "refusal": "RuntimeError: the authoring shutdown helper the controller imports is not pinned by this packet manager source",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.046,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "drifted-shutdown-helper",
+        "refusal": "RuntimeError: the authoring shutdown helper the controller imports is not pinned by this packet manager source",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.046,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "drifted-manager-source",
+        "refusal": "RuntimeError: the authoring controller is not pinned by this packet manager source",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.046,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "drifted-supervisor-baseline",
+        "refusal": "RuntimeError: supervisor source drifted: baseline.py",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.146,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "provenance-claims-selected-start",
+        "refusal": "RuntimeError: the provenance claims a start nobody has selected",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.049,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "provenance-claims-authorized-start",
+        "refusal": "RuntimeError: the provenance claims a start nobody has selected",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.047,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "provenance-declares-a-restored-buffer",
+        "refusal": "RuntimeError: this preparation carries no restored buffer, and the provenance declares one",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.046,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "damaged-shutdown-snapshot",
+        "refusal": "RuntimeError: decision snapshot damaged or absent: shutdown-review.md",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.049,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "damaged-new-review-snapshot",
+        "refusal": "RuntimeError: decision snapshot damaged or absent: review-339623.md",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.046,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "absent-decision-snapshot",
+        "refusal": "RuntimeError: decision snapshot damaged or absent: review-339623.md",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.047,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "absent-shutdown-document",
+        "refusal": "RuntimeError: a declared vehicle document is absent: SHUTDOWN.md",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.047,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "absent-task-input",
+        "refusal": "RuntimeError: declared task input is absent: work/records/this/does/not/exist.md",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.049,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "checkout-input-not-at-the-base",
+        "refusal": "RuntimeError: declared checkout input is not at the base: v12/NOT-AT-THE-BASE.md",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.053,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "drifted-preparation-input",
+        "refusal": "RuntimeError: selected preparation input drifted: work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.042,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "root-inside-the-repository",
+        "refusal": "RuntimeError: select a fresh absolute external preparation root",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.05,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "relative-root",
+        "refusal": "RuntimeError: select a fresh absolute external preparation root",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.052,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "existing-root",
+        "refusal": "FileExistsError: [Errno 17] File exists: '/tmp/w333486-probe-339628/root-existing-root'",
+        "refused": true,
+        "root_created": true,
+        "root_expected": true,
+        "seconds": 0.146,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "stage-for-the-bind-cases",
+        "refusal": "(staged on purpose; the two probes below use it)",
+        "refused": false,
+        "root_created": true,
+        "root_expected": true,
+        "seconds": 0.124,
+        "status": 0,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "bind-a-root-staged-for-another-run",
+        "refusal": "RuntimeError: the pins name another base or run",
+        "refused": true,
+        "root_created": true,
+        "root_expected": true,
+        "seconds": 0.043,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "rebind-over-a-composed-packet",
+        "refusal": "RuntimeError: this root already holds a composed packet; composing a second one over it would replace the documents an owner may already have read",
+        "refused": true,
+        "root_created": true,
+        "root_expected": true,
+        "seconds": 0.051,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "owed-gate-module-already-on-the-host",
+        "refusal": "RuntimeError: a gate module the turn must create already exists on the host: v12/python/tests/manager/test_intake.py",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.052,
+        "status": 1,
+        "substituted": true
+      },
+      {
+        "expected": {
+          "authoring_log": "absent",
+          "controller": "absent",
+          "publication_timeout_established": false,
+          "shutdown_progress": "absent",
+          "workload": "absent"
+        },
+        "mismatched": [],
+        "passed": true,
+        "probe": "nothing-published",
+        "seconds": 0.015,
+        "status": 0,
+        "timeout_note": "NOT ESTABLISHED. No correlated TimeoutError fault was read. An absent or inaccessible report is not evidence of a timeout: a run that never "
+      },
+      {
+        "expected": {
+          "authoring_log": "inaccessible",
+          "controller": "inaccessible",
+          "publication_timeout_established": false,
+          "shutdown_progress": "inaccessible",
+          "workload": "inaccessible"
+        },
+        "mismatched": [],
+        "passed": true,
+        "probe": "inaccessible-is-not-absent",
+        "seconds": 0.014,
+        "status": 0,
+        "timeout_note": "NOT ESTABLISHED. No correlated TimeoutError fault was read. An absent or inaccessible report is not evidence of a timeout: a run that never "
+      },
+      {
+        "expected": {
+          "controller": "pending",
+          "publication_timeout_established": false,
+          "workload": "pending"
+        },
+        "mismatched": [],
+        "passed": true,
+        "probe": "partial-temporary-is-pending",
+        "seconds": 0.015,
+        "status": 0,
+        "timeout_note": "NOT ESTABLISHED. No correlated TimeoutError fault was read. An absent or inaccessible report is not evidence of a timeout: a run that never "
+      },
+      {
+        "expected": {
+          "controller": "unknown-cause",
+          "publication_timeout_established": false
+        },
+        "mismatched": [],
+        "passed": true,
+        "probe": "unparseable-report-is-unknown-cause",
+        "seconds": 0.015,
+        "status": 0,
+        "timeout_note": "NOT ESTABLISHED. No correlated TimeoutError fault was read. An absent or inaccessible report is not evidence of a timeout: a run that never "
+      },
+      {
+        "expected": {
+          "controller": "unknown-cause",
+          "controller_identity": "mismatch",
+          "publication_timeout_established": false
+        },
+        "mismatched": [],
+        "passed": true,
+        "probe": "uncorrelated-report-is-unknown-cause",
+        "seconds": 0.015,
+        "status": 0,
+        "timeout_note": "NOT ESTABLISHED. No correlated TimeoutError fault was read. An absent or inaccessible report is not evidence of a timeout: a run that never "
+      },
+      {
+        "expected": {
+          "controller": "present",
+          "controller_identity": "matched",
+          "publication_timeout_established": true
+        },
+        "mismatched": [],
+        "passed": true,
+        "probe": "timeout-named-only-on-positive-evidence",
+        "seconds": 0.015,
+        "status": 0,
+        "timeout_note": "a TimeoutError fault was READ in a correlated controller report. Even so: the bound at authoring_enforcement.py:586-594 spans write_text, os"
+      },
+      {
+        "expected": {
+          "authoring_log": "present",
+          "controller": "present",
+          "publication_timeout_established": false,
+          "shutdown_progress": "absent",
+          "workload": "absent"
+        },
+        "mismatched": [],
+        "passed": true,
+        "probe": "real-retained-failure-evidence",
+        "seconds": 0.016,
+        "status": 0,
+        "timeout_note": "NOT ESTABLISHED. No correlated TimeoutError fault was read. An absent or inaccessible report is not evidence of a timeout: a run that never "
+      }
+    ],
+    "passed": 30,
+    "program": "probe.py, sealed in this packet so the refusals are reproducible rather than asserted",
+    "seconds": 1.497,
+    "total": 30,
+    "work": "/tmp/w333486-probe-339628"
+  },
+  "product_tests": {
+    "boundary": "ZERO product test execution this claim. That is the correction review-339623 item 3 required: claim339421 executed about 127.7s of product tests directly on the host outside a preparation-only boundary and then described them as measurement rather than execution. The gate and exclusion numbers this packet carries are that claim's measurements, attributed as such in GATE-CHECK.json, and were not re-run -- re-running them to tidy their provenance would repeat the mistake.",
+    "changed": 0,
+    "executed_this_claim": 0,
+    "what_ran_instead": "the read-only input check, one stage/bootstrap/bind into a disposable root, 30 preparation probes, the controller binding check both ways, and the shutdown-helper import check. All preparation, all disposable."
+  },
+  "provider_invoked": false,
+  "retained_roots": [
+    "/tmp/w333486-preflight-339628",
+    "/tmp/w333486-probe-339628",
+    "/tmp/w333486-helper-probe-339628",
+    "/tmp/w333486-binding-339628.py",
+    "/tmp/probe-339628.json"
+  ],
+  "retained_why": "Left in place for the operator and the reviewer rather than removed. None is a selected root, none holds a credential and none holds a submitted Job. The earlier revisions' roots are listed in OPERATOR.md and are also untouched.",
+  "reuse_note": "The accepted enforcement falsification, the accepted guard real-process proof and the accepted shutdown regressions were all REUSED from their independent acceptances and none was re-run. Unlike claim339421, no product test was run to measure one either.",
+  "root": "/tmp/w333486-preflight-339628",
+  "runtimes": 0,
+  "schema": "baton.w333486-execution-preflight/6",
+  "shutdown": "SHUTDOWN.md",
+  "shutdown_helper_is_required": {
+    "measured": {
+      "says": "ModuleNotFoundError: No module named 'tools.authoring_shutdown'",
+      "seconds": 0.344,
+      "status": 1,
+      "what": "the staged manager source with tools/authoring_shutdown.py removed"
+    },
+    "why": "Importing the controller from a staged manager source with tools/authoring_shutdown.py removed fails with ModuleNotFoundError, so the pin is load-bearing: without it the vehicle does not start, and a startup failure is what killed this Work's one actual execution."
+  },
+  "shutdown_proof_rerun": false,
+  "start_authorized": false,
+  "start_selected": false,
+  "steps": {
+    "bind": {
+      "proved": "held_packet re-pinned every artifact including all 21 fixture.files; verify_imported_sources passed",
+      "seconds": 0.358,
+      "status": 0
+    },
+    "bootstrap": {
+      "flag": "--no-repositories",
+      "seconds": 0.593,
+      "status": 0
+    },
+    "input_check": {
+      "drift": "none reported",
+      "seconds": 0.117,
+      "status": 0
+    },
+    "stage": {
+      "flag": "--acknowledge-unselected-start required",
+      "seconds": 0.124,
+      "status": 0
+    }
+  }
+}

@@ -1,0 +1,129 @@
+{
+  "schema": "baton.v12.job-status/6",
+  "observed_at": "2026-10-19T04:31:27.623Z",
+  "incarnation": "w325959-inspect-329727",
+  "canonical": true,
+  "jobs": [
+    {
+      "job_id": "quickstart-a",
+      "submission_id": "sub-w321608-quickstart-1",
+      "input_digest": "sha256:ee61953eebd8b1e9599b1fc398bce1a6e0f13f502b2b3fbbc454943a2922f5be",
+      "policy_digest": "sha256:837d7a03b2d92b9654cbc391daefcfa208f747bbd9ae7c528d54f528bd536357",
+      "test_scope": [
+        "v12/QUICKSTART.md"
+      ],
+      "terminal_policy": "report-and-hold",
+      "execution_limits": {
+        "units": "seconds",
+        "scope": "per-invocation",
+        "compatibility_generation": 1,
+        "requested": {
+          "provider_turn_seconds": 3600,
+          "verification_command_seconds": 900
+        },
+        "boundaries": {
+          "host_verification": {
+            "seconds": 900,
+            "origin": "job",
+            "setting": "verification_command_seconds",
+            "default_seconds": 300
+          },
+          "integration_verification": {
+            "seconds": 900,
+            "origin": "job",
+            "setting": "verification_command_seconds",
+            "default_seconds": 1800
+          },
+          "ordinary_verification": {
+            "seconds": 900,
+            "origin": "job",
+            "setting": "verification_command_seconds",
+            "default_seconds": 900
+          },
+          "provider_turn": {
+            "seconds": 3600,
+            "origin": "job",
+            "setting": "provider_turn_seconds",
+            "default_seconds": 3600
+          }
+        }
+      },
+      "stages": [
+        {
+          "stage_id": "quickstart-a/implementation",
+          "job_id": "quickstart-a",
+          "kind": "implementation",
+          "state": "queued",
+          "work_id": "1cdb8d19-W1",
+          "profile_name": "claude-fresh-implementation",
+          "profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+          "episode": 1,
+          "offer_id": "offer-695f0b35db9f5a9419236e8c87352ea41ce8f3383f48fefcacf63b44f7da544e",
+          "attempt_id": "attempt-695f0b35db9f5a9419236e8c87352ea41ce8f3383f48fefcacf63b44f7da544e",
+          "episodes": [
+            {
+              "stage_id": "quickstart-a/implementation",
+              "episode": 1,
+              "offer_id": "offer-695f0b35db9f5a9419236e8c87352ea41ce8f3383f48fefcacf63b44f7da544e",
+              "attempt_id": "attempt-695f0b35db9f5a9419236e8c87352ea41ce8f3383f48fefcacf63b44f7da544e",
+              "opened_at": "2026-10-19T04:28:46.749Z",
+              "incarnation": "w325959-owner-submit-1",
+              "ended_state": null,
+              "ended_revision": null,
+              "ended_at": null
+            }
+          ],
+          "corrections": 0,
+          "allocation": null,
+          "allocations": [],
+          "gates": [],
+          "receipts": [],
+          "deferral": null,
+          "runtime": null,
+          "exchange": null,
+          "artifacts": null
+        },
+        {
+          "stage_id": "quickstart-a/review",
+          "job_id": "quickstart-a",
+          "kind": "review",
+          "state": "blocked",
+          "work_id": "1cdb8d19-W1",
+          "profile_name": "claude-fresh-implementation",
+          "profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+          "episode": 1,
+          "offer_id": "offer-2ea17286471490288e46e11a063ca12d5bb9108192d7df115cb0e1a6002b4e29",
+          "attempt_id": "attempt-2ea17286471490288e46e11a063ca12d5bb9108192d7df115cb0e1a6002b4e29",
+          "episodes": [
+            {
+              "stage_id": "quickstart-a/review",
+              "episode": 1,
+              "offer_id": "offer-2ea17286471490288e46e11a063ca12d5bb9108192d7df115cb0e1a6002b4e29",
+              "attempt_id": "attempt-2ea17286471490288e46e11a063ca12d5bb9108192d7df115cb0e1a6002b4e29",
+              "opened_at": "2026-10-19T04:28:46.749Z",
+              "incarnation": "w325959-owner-submit-1",
+              "ended_state": null,
+              "ended_revision": null,
+              "ended_at": null
+            }
+          ],
+          "corrections": 0,
+          "allocation": null,
+          "allocations": [],
+          "gates": [
+            {
+              "stage_id": "quickstart-a/implementation",
+              "state": "queued",
+              "open": false
+            }
+          ],
+          "receipts": [],
+          "deferral": null,
+          "runtime": null,
+          "exchange": null,
+          "artifacts": null
+        }
+      ]
+    }
+  ]
+}

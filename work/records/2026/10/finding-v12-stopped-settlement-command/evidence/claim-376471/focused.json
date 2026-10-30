@@ -1,0 +1,14 @@
+{
+  "seconds": 9.675671488001171,
+  "names": [
+    "tests.tools.test_stopped_settlement_command",
+    "tests.manager.test_stopped_settlement",
+    "tests.manager.test_boundary_inventory.StoppedSettlementInventory",
+    "tests.manager.test_boundary_inventory.StatedRules",
+    "tests.tools.test_stage_execution.TheObservationSurfaceIsSeparateAndReadOnly"
+  ],
+  "tests": 142,
+  "failures": [],
+  "errors": [],
+  "skipped": []
+}

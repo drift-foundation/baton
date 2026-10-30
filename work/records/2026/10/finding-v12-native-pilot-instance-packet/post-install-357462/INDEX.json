@@ -1,0 +1,197 @@
+{
+  "WORK": "2b077949-W325959",
+  "CLAIM": 358300,
+  "ANSWERS_REVIEW": "work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-23T02-34-20Z.md",
+  "WHAT_THIS_IS": "The post-install packet for the ACCEPTED empty installation at destination 2: human-only worker repository preparation, native registration/configuration, a fresh Job, the owner-run lifecycle commands, and a deterministic disposable proof of the composition and its refusals.",
+  "IMMUTABLE_HASHES": {
+    "configure-inputs.json": "acfc230c95633bce4a18b47bc1d5b91410a7715f298fe81a20302bc752c1d5f4",
+    "task.json": "9d588235e058d043f2c2c2bcc50ecf560f0bddbe4358f5e0751bfe45a3437780",
+    "submission.json": "948649b50ec1326954e6e9fe168eedab3bef5b1d7e21c84a8153eb13c1738cf2",
+    "compose.py (superseded)": "5ee6e20e83bbe16479d4cac5ef0577ce8b42950b6049c020541741c412baab5c",
+    "prove.py": "8f04cbfdcdf3b25c044db4389fcc85fbe1210d53d1b99a9d96bc7c7821f393e1",
+    "PROPOSAL.md": "SEE INDEX-HASHES.txt -- this file changed after INDEX was written",
+    "GIT-OPERATION-DISCLOSURE.md": "27f0139b5958e4d691f355f95029bbedec922702f11ac160dfa14dce5d3a4fa0",
+    "evidence/COMPOSE.json (superseded run)": "1525c52a4264040bfe58cd007e2f9ae0d48616f3d56eca7983e03fa1602983eb",
+    "evidence/PROVE.json": "80325611b6572676d1323d1815c9b62ba8e9bd4fd6b4aa482c5ed50e80a02608"
+  },
+  "RESOLVED_FACTS_CARRIED": {
+    "destination": "/home/sl/baton-instances/native-coordination-pilot-w321608-2",
+    "authority_uuid": "673355e1f28e4b5683cbef09eb8f2658",
+    "runtime_files": 81,
+    "runtime_digest": "3dbc610e0c2a0e1165367871097bd2a5bb590e271fee729b94b436a04045e7ac",
+    "executable_digest": "9cda6dabe328ee800c2eb3cb6997d29dce179c857f9bb2968c33a4adbf043673",
+    "build_commit": "302453869d07eb5579e79a6572586d3c3cf62a5c",
+    "target_and_workspace_head": "302453869d07eb5579e79a6572586d3c3cf62a5c",
+    "source_of_truth": "evidence/review-357437/READBACK.json, the reviewer's independent readback -- this claim did not re-read the installation"
+  },
+  "WHY_REVISION_4_CANNOT_BE_RERUN": {
+    "owner_operations": "revision-4/owner_operations.py refuses before repository preparation when the destination exists, and destination 2 exists",
+    "prepare": "revision-4/prepare.py pins BASE 14e52d80 and SELECTED ...w321608-1 -- the old source and old destination",
+    "product_level": "CORRECTED at claim357542. Against a REAL installed destination, bootstrap.prepare_repositories refuses at custody (bootstrap.py:1880) on the existing runtime -- 'nothing here upgrades a deployment in place' -- BEFORE any repository is considered. It is ALSO prepared-once at the per-repository level ('Nothing here replaces one'), which is what answers on a destination with no installed runtime. The earlier entry named only the later site, which was wrong for this destination because the earlier disposable shape had no distro. prove.py asserts BOTH and labels which shape produces which.",
+    "so_the_gap_is_narrow": "no supported operation adds a worker source repository to a prepared destination"
+  },
+  "THE_ONE_CAPABILITY_GAP_STATED_PLAINLY": {
+    "what": "there is no supported command that prepares a worker source repository under an existing destination",
+    "proposed_path": "human-only no-local clone from target.git per worker -- the PRODUCT'S OWN semantics, since bootstrap._cloning clones every non-mirror role from the target with --no-local for object independence -- followed by bootstrap.repositories_proved, which writes nothing. PROPOSED ONLY; an agent must not run it, and collision/error handling for dangling symlinks and a failed first clone is still owed.",
+    "not_an_updater": "this implements nothing and invents no mechanism; it is the smallest honest path and is labelled as the gap rather than hidden"
+  },
+  "DETERMINISTIC_PROOF": {
+    "file": "evidence/PROVE.json",
+    "script": "prove.py, which IMPORTS configure.compose so the proved path is the owner path",
+    "result": "110 checks, 0 failed",
+    "git_executed": false,
+    "real_consumer": "tools.stage_execution.held_configuration accepted the READ-BACK installed configuration; the installed deployment composes both stage workers and binds the Job",
+    "cross_binding_asserted": [
+      "policy_digest is the recomputed one, not the inherited 3a532add",
+      "retention is the real digest, not the cccc placeholder",
+      "all seven accountability digests replaced",
+      "worker and manifest agree on policy and retention",
+      "the human contract digest IS the task document's bytes",
+      "job_input_identity agrees with the emitted input_digest",
+      "documents.owned_submission accepts the submission and preserves 3600/900"
+    ],
+    "two_refusal_orderings_both_shown": [
+      "a second apply trips the emitted-output check FIRST, before the authority is opened",
+      "with outputs moved aside, the already-created Work is what refuses",
+      "both leave the installation BYTE-unchanged by tree_digest, so a partial repeat strands nothing",
+      "an absent-repository installation and a pre-existing output each refuse with NO deployment document written"
+    ],
+    "incidental_finding": "adapter_digest is a WORKER member, not a manifest one; adding it to the manifest is refused by the frozen schema's unevaluatedProperties",
+    "limits": "deterministic and disposable, repository boundary SIMULATED through the product's injected runner. Not evidence about the production destination, not a live run, not an engine/provider/model proof.",
+    "closes_the_reproduction": "a pre-existing generated/bootstrap-inputs.json now refuses before any effect, its bytes verified untouched and no deployment document written; a dangling link at an output name is refused; a tampered inherited manifest recipe is refused against its pin",
+    "now_exercised_against_a_real_install": "two genuine supported empty installs are created in the disposable root; one is configured end to end with preservation compared both before and after, the other proves an altered selection refuses in preflight with the installation byte-unchanged",
+    "defaults_now_exercised": "three checks drive configure.INHERITED_PINS as shipped: every pin is a real digest matching the reviewed bytes it names; unchanged inherited bytes are ACCEPTED; an altered manifest-inputs.json is REFUSED with the installation byte-unchanged; and an unpinned consumed document refuses rather than passing an existence-only check",
+    "adapter_boundary_now_covered": "twelve checks drive claude_agent._selected from the reviewed build for both roles, including the original delivered refusal and both required-other-role refusals",
+    "provenance": "the adapter module is imported from the clean reviewed build at /home/sl/baton-builds/w325959-30245386-356981/src/v12/worker, and the evidence records its actual path and sha256 b014ea3f... with a check asserting the clean origin"
+  },
+  "FRESH_IDENTIFIERS_REFUSING_REUSE": {
+    "job_id": "quickstart-b",
+    "submission_id": "sub-w321608-quickstart-2",
+    "task_id": "w321608-native-operator-quickstart-2",
+    "work_id": "READBACK from the native registration -- NEVER presumed, explicitly not W1",
+    "why": "the review requires refusing collisions rather than treating prior identifiers as reusable; quickstart-a and sub-w321608-quickstart-1 belong to the untouched old instance"
+  },
+  "PRESERVED_FROM_THE_ACCEPTED_INSTALL": [
+    "integration target and workspace paths, and the integration profile naming baton.integrator-pilot -- no integration worker or stage is selected",
+    "retention disposition and retention policy digest",
+    "receipt participants: verification baton.verifier-pilot, review baton.reviewer-receipt-pilot, approval baton.slaw",
+    "policy and pool generations, and the installed identity and selector"
+  ],
+  "FUTURE_READBACK_OPERANDS_NAMED_NOT_GUESSED": [
+    "the Work id, scope and policy generation the registration reports",
+    "the composed input manifest and its public input_digest",
+    "every post-configuration store fact",
+    "every runtime and status observation after start",
+    "all verification, review and owner receipts"
+  ],
+  "SELECTIONS_SEPARATED": [
+    "1. worker repository preparation (human-only clones plus the product's verification)",
+    "2. registration and configuration",
+    "3. submission",
+    "4. serving and any live execution -- with the live-provider question stated: does this exact installed native two-stage path produce a useful independently reviewed candidate with real provider protocol/authentication and the owner receipt flow? Deterministic composition cannot answer it, and no live execution is selected."
+  ],
+  "OLD_INSTANCE_1": "authority 1cdb8d19, Work 1cdb8d19-W1, Job quickstart-a -- unresolved and UNTOUCHED. No updater, recovery, resubmission or backlog migration. This packet does not recover that Job and does not claim to.",
+  "BOUNDARIES": {
+    "production_destination": "never read, written, configured or started by this claim; its facts come from the reviewer's READBACK.json",
+    "live": "no live model, engine, provider, network or serving",
+    "authority": "no production authority opened or mutated",
+    "version_control": "prove.py executes NO git at all -- the repository boundary is simulated through the product's own injected runner seam. The SUPERSEDED compose.py DID execute git init, add and commit, which an agent may not do, and its own wording misdescribed that; see GIT-OPERATION-DISCLOSURE.md. No staging, commit, index or history mutation of THIS repository at any point. The human-only clone commands remain proposed and were never run by an agent.",
+    "product_source": "read-only -- no product change is selected",
+    "unstarted_is_not_cessation": "the empty install's absent manager/publisher/snapshot is an unstarted configuration and is NOT evidence of old-runtime cessation",
+    "disclosed_policy_violation": "at claim357462 I executed mutating git operations inside a temporary directory and described them inaccurately. Recorded truthfully in GIT-OPERATION-DISCLOSURE.md; the old script and its run output are retained unchanged and are not relabelled as compliant."
+  },
+  "STATUS": "Provenance corrected so the proof's claim matches its actual import, and the recovery conclusion corrected from a name-search to the state-machine invariant that actually refuses. prove.py: 110 checks, 0 failed, no Git. One unread fact decides the outcome and is named.",
+  "SUPERSEDES_WITHIN_THIS_PACKET": {
+    "compose.py": "RETAINED, superseded by prove.py. It executed git init/add/commit, which an agent may not do, and its wording misdescribed that -- see GIT-OPERATION-DISCLOSURE.md. Its run output evidence/COMPOSE.json is retained unchanged.",
+    "the refusal site": "the earlier claim that prepare_repositories refuses at the per-repository existence check was WRONG for a real installed destination; it refuses earlier at custody on the existing runtime. prove.py asserts both sites."
+  },
+  "REMAINING_SCOPE_NOT_DELIVERED": [
+    "nothing in the author's scope: what remains are OWNER SELECTIONS -- the human worker-repository preparation of PROPOSAL step 1, running configure.py --owner-selected, the submission, and serving"
+  ],
+  "THE_OWNER_PROCEDURE": {
+    "file": "configure.py",
+    "entry": "configure.compose(destination, packet, apply=..., runner=...) and a --destination/--owner-selected CLI; WITHOUT --owner-selected it PREFLIGHTS and writes nothing",
+    "the_supported_call": "bootstrap.main(['--inputs', staged]) with NO --destination -- prepare(document, installing=False), which reuses this root's existing Authority",
+    "readback": "the installed deployment.json, validated by tools.stage_execution.held_configuration, with the composed roles and job_bindings asserted",
+    "preflight_order": [
+      "reviewed packet hashes",
+      "selector validity and instance.verify",
+      "authority identity file vs selector",
+      "selected authority and runtime digest",
+      "exact layout equality for state_root, containment under repo/ for integration paths",
+      "the selected base on every job",
+      "task-document conflict",
+      "emitted-output conflict",
+      "the selected Work not already existing",
+      "repository presence, then the product's independence proof"
+    ],
+    "never_does": "no repository command, no submission, no serving, no admission, no engine/provider/model, no Git"
+  },
+  "VERIFIED_FACTS_FOR_THE_NEXT_CLAIM": {
+    "supported_operation": "bootstrap.main(['--inputs', document]) with NO --destination runs prepare(document, installing=False); the justfile calls this 'the older form and still works'. prepare at bootstrap.py:1248 REUSES this root's existing Authority ('a root that already has a record keeps the Authority that record names') and refuses conflicts before opening any store.",
+    "it_also_registers": "bootstrap.py:731 add_route_handler, :746 create_work, :758/:760/:771 grant_capability -- so configure.py must NOT register separately",
+    "real_consumer": "tools/stage_execution.held_configuration at :516 proves one closed deployment document, sweeping for secrets first and replacing each worker's deployment with the owned form single_worker._held derives",
+    "manifest_recipe": "revision-4/configuration/manifest-inputs.json -- four content_derived members and seven accountability members, applied at revision-4/prepare.py:314-320, with the seal AFTER them"
+  },
+  "CORRECTIONS_CARRIED": {
+    "work_identity": "jobs[0].work_id is 673355e1-W1, SELECTED by this packet, created by bootstrap.py:746 and COLLISION-CHECKED by the authority. Not an allocation, not a readback. The earlier 'never presumed / whatever the authority reports' wording is withdrawn and the semantics live in prose because the product refuses unknown members in the input document.",
+    "manifest": "ten members replaced from the accepted documents before the seal -- three recomputed plus seven accountability digests. The inherited 3a532add policy and cccc retention placeholder are gone and worker/manifest agreement is asserted.",
+    "registration": "the duplicate register was DELETED; the supported operation performs routes, create_work and grants.",
+    "git_disclosure": "retained unchanged in GIT-OPERATION-DISCLOSURE.md; the false no-history-mutation summary stays corrected."
+  },
+  "CORRECTIONS_AT_357787": {
+    "the_reproduced_defect": "generated/bootstrap-inputs.json -- the one name apply_supported itself writes -- was NOT in the conflict list, so a pre-existing one was overwritten while the apply succeeded. The list is now derived from a WRITES tuple rather than restated beside the writes, which is how the two drifted apart. Proved: the occupying bytes are untouched and no deployment document is written.",
+    "occupied_links": "os.path.exists follows a symlink and answers false for a broken one, so an occupied name looked free. The check now uses is_symlink() or exists(), and refuses a linked output directory or task name outright. Proved with a dangling link at an output name.",
+    "all_consumed_inputs_pinned": "PACKET_PINS gained configure-inputs.json, and a new INHERITED_PINS binds the four documents the manifest cross-binding actually consumes: revision-4/inputs/deployment.json, native-finding.md, native-plan.md and configuration/manifest-inputs.json. A missing inherited input refuses by name; a tampered one refuses against its pin, which is proved.",
+    "identity_document_bytes": "preflight now checks the identity file is a baton.v12.instance-identity/1 document and is not a link, moving the supported call's own refusal to before the first write.",
+    "installed_selection_preservation": "installed_selections reads the eight preserved selections from the install's deployment.json BEFORE configuring and preservation_held refuses drift afterwards, naming each changed selection. Previously the driver only asserted paths were under the destination and never compared what the install chose.",
+    "exact_commands": "PROPOSAL steps 3b and 3c now carry the bound source/interpreter/packet/destination invocation for preflight and apply, and the submission as a separate selection."
+  },
+  "CORRECTIONS_AT_357834": {
+    "genuine_empty_install": "supported_empty_install runs the SUPPORTED two-operand bootstrap (--inputs + --destination + --distro) so the install writes its own deployment.json, bootstrap.json and selector. Previously the fixture composed the shape directly, leaving no prior deployment document, so drift_refused reported compared:0 and the preservation claim was never exercised. It now compares the real install's own selections.",
+    "drift_refuses_before_effects": "the comparison moved INTO preflight. It used to run after the supported call, so a configuration that changed a preserved selection was caught only once the task document and the authority had been written. Proved: an altered retention_disposition refuses in preflight and the installation is BYTE-unchanged -- no task, no authority write, no output.",
+    "commands": "step 3b now uses the build's own prepared interpreter rather than ambient python3; step 3c is corrected against the installed bundle's help to `manager --store --incarnation --authority-uuid submit --document`. The earlier --instance/--submission spelling was invalid."
+  },
+  "PRODUCT_FACTS_LEARNED_BY_REFUSAL": {
+    "work_prefix": "contracts/manifest.py refuses a Work reference that does not carry its authority's own prefix -- a further reason the selected identifier is validated rather than freely chosen",
+    "admit_runs_the_bundle": "bootstrap.admit EXECUTES the built command's `identity` and requires frozen=true, exactly the two frozen schema assets, and a native_rpds path that is one of the files the bundle's own manifest binds -- a build that imported the host's rpds 'is not self-contained'",
+    "unknown_members_refused": "the bootstrap input refuses a member it cannot carry rather than dropping it",
+    "identity_schema": "the instance identity file is a baton.v12.instance-identity/1 document, not a bare mapping"
+  },
+  "CORRECTIONS_AT_357900": {
+    "the_reproduced_default": "INHERITED_PINS carried four None values and preflight only compared a pin when one was given -- so under the SHIPPED DEFAULTS the four inherited documents were checked for EXISTENCE and nothing else, and an independent reproduction sealed an all-zero credential_policy_digest straight through. The four reviewed digests are now in place.",
+    "why_my_own_proof_missed_it": "the earlier inherited-pin check passed an explicit synthetic override, so it proved the comparison worked when a pin was SUPPLIED and said nothing about the defaults. The new checks exercise configure.INHERITED_PINS AS SHIPPED: unchanged bytes accepted, an altered manifest-inputs.json refused with the installation byte-unchanged.",
+    "unpinned_is_now_a_refusal": "a consumed inherited document with no pinned digest refuses by name, so the None-valued shape that caused this cannot return silently as a pass.",
+    "prose_reconciled": "PROPOSAL's Work-identity paragraph no longer calls the identifier a readback operand -- it is SELECTED, collision-checked and prefix-checked -- and the stale proof counts are updated to 97.",
+    "operands_resolved": "the reviewer supplied both: interpreter /home/sl/baton-builds/w325959-30245386-356981/venv/bin/python and incarnation w325959-owner-submit-2. Neither is PENDING any more."
+  },
+  "THE_LIVE_FAULT_AND_ITS_FIX": {
+    "what_happened": "the review stage faulted with fault_code=agent and exit 1 after ~94ms, no provider call. Diagnosed in review-2026-10-23T04-08-43Z.md.",
+    "cause": "the delivered inputs/input.json declared exactly one required output, `proposal`. claude_agent.py:2283 calls _selected(declared, REVIEW_OUTPUTS, 'review') BEFORE task observation or any provider call, and REVIEW_OUTPUTS is findings/logs -- so it refused. Adding those two while leaving proposal REQUIRED then refuses at :4683, because a reviewer does not produce a required proposal.",
+    "why_my_97_checks_missed_it": "they were structural and consumer checks over the manager's documents. None of them ran the WORKER adapter's declaration contract, which is a different consumer entirely. The packet acceptance that rested on them is superseded for two-stage executability.",
+    "the_fix_is_the_products_own_instruction": "claude_agent.py:460 says a shared Job's two manifests 'cannot both satisfy' one role's declaration, so 'the declaration set is therefore THE UNION and each role produces its own half, answering the other half missing-optional. THE ASSEMBLY OWNS CONSTRUCTING THAT MANIFEST.' SHARED_OUTPUTS is that assembly: proposal, findings and logs, every one required:False because _selected refuses a required output its role does not write.",
+    "required_here_is_the_adapter_contract": "not the Job's acceptance. A stage answering missing-optional is making a statement in the manager's own vocabulary; the downstream requirement that a proposal exists is the integration and receipt half and is unchanged."
+  },
+  "ADAPTER_COVERAGE_ADDED": [
+    "the shared contract is exactly the union of IMPLEMENTATION_OUTPUTS and REVIEW_OUTPUTS, and every name is in COMMON_OUTPUTS",
+    "the IMPLEMENTATION role selects proposal and answers findings/logs absent",
+    "the REVIEW role selects findings and logs and answers proposal absent",
+    "the absent half is answered missing-optional",
+    "THE DELIVERED proposal-only declaration STILL REFUSES a review turn -- the exact live fault, preserved so this is a correction and not a weakening",
+    "a REQUIRED proposal still refuses the review turn even with the union declared, and a REQUIRED findings still refuses the implementation turn",
+    "an unknown output name is still refused",
+    "the sealed manifest carries the contract and both workers carry it identically, since one Job's stages share one manifest"
+  ],
+  "RECOVERY": {
+    "file": "RECOVERY-358300.md -- supersedes RECOVERY-358239.md",
+    "the_route_is_real_as_far_as_the_line": "review_cycles.create_line:1495 'create or recover the one persistent line for Authority and Work', with line_id derived from authority_uuid and work_id only; _same_assignment:1186 compares authority/work/generation; attach_review:2125 gates on frozen checkpoint, profile, assignment, producer line and INDEPENDENCE. None compares Job ID, so admission, claim and line recovery are NOT where a review-only Job stops.",
+    "the_first_blocking_invariant": "attach_review:2168 refuses unless line['state'] == 'review-ready', and a successful attach sets the line to 'reviewing' at :2206 -- BEFORE the container runs. The faulted review therefore already consumed the review-ready state. The only write of 'review-ready' is at :2114 inside freeze_checkpoint, so a line becomes review-ready again only by FREEZING A NEW CHECKPOINT. No detach, abandon_review, release or reopen entry point exists; the abandonment family is abandoned_correction_of/restore_abandoned_correction and the latter returns a line to CORRECTION-ready (:3648), not review-ready.",
+    "minimal_missing_capability": "one supported operation that, for a line in 'reviewing' whose attached review attempt ended without a verdict, returns it to 'review-ready' against the SAME current checkpoint, preserving the frozen checkpoint, the producer's writer identity and revision, and the failed attempt's independence record as history. It is the direct analogue of restore_abandoned_correction, so this is a review-side counterpart of an operation the product ALREADY HAS -- a materially smaller claim than 'no adoption path exists'. Not built and not proposed as product work here.",
+    "the_one_unread_fact_that_decides_it": "whether the attachment actually committed. I INFER the line reached 'reviewing' from the worker having started its exchange protocol, which means the manager had already attached. I did NOT read the store to confirm the line's current state, because that is a raw-store read nobody authorised. If the attachment did not commit, the line may still be review-ready and a review-only Job may attach with NO new capability. A supported read-only inspection should settle this before anything is selected.",
+    "not_traced": "ending, publication and receipt attribution for a review-only Job. The line-state gate is only the FIRST thing it hits; I am not claiming the rest of the route is clear."
+  },
+  "CORRECTIONS_AT_358300": {
+    "provenance": "prove.py hardcoded /home/sl/src/baton -- the DIRTY working tree -- while its comment and my handoff called it the reviewed build. The results held because this one file is byte-identical in both (b014ea3f...), but the CLAIM was wrong. The proof now prefers the clean reviewed build, names the working tree as an explicit fallback, and records the module's ACTUAL path and sha256 in the evidence with a check asserting it came from the clean build.",
+    "recovery_conclusion": "RECOVERY-358239.md concluded 'the capability is ABSENT' from a search for absent FUNCTION NAMES. That is a weak argument and the reviewer's candidate route is real: create_line keys the line on Authority+Work with NO Job ID, and neither _same_assignment nor attach_review compares Job ID. Superseded by RECOVERY-358300.md."
+  }
+}

@@ -1,0 +1,23 @@
+# Implementer progress — W371073
+
+## 2026-10-28 — baton.codxpc, claim E371189
+
+Completed the bounded planning milestone; awaiting independent review, not implementation approval. Read canonical Work events through E371189 and the full sole associated thread T371073/M371073; revalidated bound FINDING/PLAN, owner E370866 and parent assessment, current source and W333486 accepted review. Canonical reread still showed this claim and no later Work amendment.
+
+Owned changes: PROPOSAL.md, this attributable progress, and new evidence/claim-371189 only. No product, test-suite, DESIGN, sibling dossier or Git mutation. Missing exploratory job_manager/exchange.py was resolved to actual worker_manager/exchange.py; nonexistent initial PROGRESS.md was created, not assumed read. Source anchors use current hashes after observing prior line-number drift.
+
+Proposal specifies four pre-provider declaration codes, dedicated exception identity (not generic TaskRefusal serialization), terminal/2, diagnostic/2, status/8 and report/2. Existing cessation semantics, provider failures, read-only status/report and unknown historical evidence stay separate. Uses existing durable exchange terminal, no new journal or retention guarantee. Proposed observed time is status observation, never occurrence time. W371072 capability identity remains symbolic pending joined owner approval. Proposed DESIGN addition remains outside DESIGN. No proposed contract is asserted selected.
+
+Evidence: synthetic command, proposed terminal and diagnostic branch, inert check script, source hash inventory and VERIFICATION.json. Two successful inert runs measured 0.127961s and 0.125645s, cumulative 0.253606s. First check-count label corrected from seven to five; five assertions actually executed both times. No product tests, real provider or engine execution. Inspection/hash generation is not runtime acceptance; historical verification totals unknown, not reconstructed. No new test-path changes.
+
+Handoff condition: independently review exact proposal/examples and reconcile version pairing with admission sibling; parent W370747 takes explicit owner decisions before DESIGN/new semantics. W371076 can consume the proposed boundary for joined proof planning. Remaining implementation and its deterministic coverage are future selected Work, not an unfinished execution of this planning milestone. Return baton.bug; keep this Work open for review.
+
+## 2026-10-28 — baton.codxpc, claim E371367: compatibility correction
+
+Read canonical events through E371367 and full T371073, current FINDING/PLAN and review-2026-10-28T03-29-38Z.md. Revalidated owner-approved admission E371253 in its pinned FINDING and current DESIGN: capability/1 has no host-reader relation. Original proposal/progress/inventory retained under evidence/claim-371367/prior before revision; original examples and inventory remain unchanged.
+
+Replaced the unsupported delegation with a concrete proposed detached host-package/worker-tuple qualification and evidence contract, bootstrap/2 and instance/2 gates at existing package/install/serve owners, and worker-launch/5 wrapper. Typed worker refuses unwrapped legacy file launches before adapter/receipt/provider. Old bootstrap/instance readers refuse new schemas; an old host manually given unsupported /1 inputs may still start a container, explicitly not a claimed pre-engine guarantee. Approved admission capability/1 and deployment/3 stay unchanged. Bootstrap-record/1 keeps its Job-binding meaning; qualification equality is independently checked on repeat. New wire and DESIGN text remain proposed only.
+
+Source-backed owners: bootstrap.admit/held/prepare, instance.manifest/malformed/verify, stack_command, worker launch and baton_worker.launched. Exploratory tools/install.py did not exist; actual bootstrap/instance owners were read and pinned. No required input skipped. New exact synthetic qualification/evidence examples are marked non-operational, with repeated-digit identifiers and no claimed measured qualification. Nine read-only old-gate/example checks passed in 0.120653221s; cumulative measured author checks 0.374259221s including earlier 0.253606s. No product suite, new reader execution, engine/provider, build, installation, deployment or Git mutation.
+
+R1 proposal correction complete, awaiting independent review and then owner wire/DESIGN decision. Reviewer should coordinate visibility to W371075 startup and W371295 admission implementation before overlapping allocation; no new graph edge or sibling edit made. W371076 remains joined proof consumer and W370747 joins owner acceptance. Exact current inventory binds this correction and retained prior files.

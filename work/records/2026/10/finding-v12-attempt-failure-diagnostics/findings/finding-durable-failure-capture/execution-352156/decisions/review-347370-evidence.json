@@ -1,0 +1,49 @@
+{
+  "claim": 347370,
+  "candidate": {
+    "acceptance": "unobserved -- STILL NOT ACCEPTED. A passing gate is not acceptance; independent producer byte review and the parent joined acceptance remain owed.",
+    "adapter_disposition": "candidate",
+    "base": "bc925cf5c62d69426ed5862af4d41f4d2a967b0f",
+    "bytes": 281836,
+    "changed_paths": [
+      "W341357-VERIFICATION.json",
+      "v12/python/src/baton_v12/worker_manager/attempts.py",
+      "v12/python/src/baton_v12/worker_manager/documents.py",
+      "v12/python/src/baton_v12/worker_manager/failure_cause.py",
+      "v12/python/src/baton_v12/worker_manager/intake.py",
+      "v12/python/tests/manager/disk_roots.py",
+      "v12/python/tests/manager/input_roots.py",
+      "v12/python/tests/manager/test_attempt_failure_cause.py",
+      "v12/python/tests/manager/test_intake.py",
+      "v12/python/tests/manager/test_maintenance.py",
+      "v12/python/tests/manager/test_output.py"
+    ],
+    "content_digest": "sha256:59d666d9131eb3de7aec669eafc9be1a2dbb7c8c6a0ff8d60770b7d32109f854",
+    "head": "e9d292ede76ac4f93d4761e32779f0ea9f207648",
+    "state": "valid",
+    "supersedes_candidate": "sha256:5c0fca78e650ad9ff75b07e86a3d9b1c80e094d93087ab13c1c7566e0c3ca391 from run345388, preserved",
+    "transport": "objects.bundle",
+    "verification": "passed",
+    "worker_disposition": "completed"
+  },
+  "copies_checked": 16,
+  "literal_source_pairs_checked": 15,
+  "hash_mismatches": [],
+  "patch_sha256": "294368c55fd468a95a4375c250e560def0f4cbc0a0c8a2a3a6f2658732e83856",
+  "bundle_sha256": "806ef4006de0591755cf502bbdc2d2e743c79155a4ab115ffd5128abbcd41ec2",
+  "producer_sections_unchanged": {
+    "a/v12/python/src/baton_v12/worker_manager/attempts.py b/v12/python/src/baton_v12/worker_manager/attempts.py": true,
+    "a/v12/python/src/baton_v12/worker_manager/documents.py b/v12/python/src/baton_v12/worker_manager/documents.py": true,
+    "a/v12/python/src/baton_v12/worker_manager/failure_cause.py b/v12/python/src/baton_v12/worker_manager/failure_cause.py": true,
+    "a/v12/python/src/baton_v12/worker_manager/intake.py b/v12/python/src/baton_v12/worker_manager/intake.py": true
+  },
+  "raw_gate_sha256": "1031c25bca6d011d67b3d11e68ee27ff7f6df9cebecc2459bca5c76c05fac876",
+  "sealed_gate": {
+    "tests": 864,
+    "seconds": 12.631,
+    "result": "OK"
+  },
+  "findings_method": "static candidate source and test inspection; no product execution",
+  "product_acceptance": "withheld",
+  "host_product_tests": 0
+}

@@ -1,0 +1,13 @@
+{
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_role_capability",
+    "tests.job_manager.test_role_contract",
+    "tests.job_manager.test_templates",
+    "tests.job_manager.test_creation"
+  ],
+  "seconds": 1.515709456998593,
+  "returncode": 0
+}

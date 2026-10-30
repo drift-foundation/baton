@@ -1,0 +1,99 @@
+{
+ "base": "f36bcd75ed22430355efe1b274b8f236cb591f6b",
+ "claim": "E371131",
+ "delivered": {
+  "PROGRESS.md": {
+   "bytes": 6294,
+   "sha256": "54e12c96f431f5b22d6d6fa328a19af29f7bcc62882cc9bc16d96dc4046257c4"
+  },
+  "PROPOSAL.md": {
+   "bytes": 16894,
+   "sha256": "3ec301169674f12839d10d65738ffa20db1643d5d1fd1939cafa0af8cbc0f425"
+  }
+ },
+ "design_clauses_read_verbatim": [
+  "HOST-8",
+  "DB-3",
+  "DB-4",
+  "DB-5",
+  "DB-6",
+  "DB-7",
+  "OBS-0a"
+ ],
+ "labelled": {
+  "inferred": "that S1-S3 suffice to reach a first start with no operator-authored step; not built and not run",
+  "observed": "the four refusals and every source anchor, re-read at this base",
+  "open": "the four owner choices above",
+  "proposed": "every contract in the proposal's sections 2 through 6"
+ },
+ "not_performed": [
+  "product source, test or specification edits",
+  "install",
+  "start",
+  "create",
+  "live retry",
+  "engine or provider",
+  "deployment or cleanup mutation",
+  "broad refactor",
+  "Git mutation",
+  "any probe"
+ ],
+ "options_recommended_against": {
+  "B": "a second cross-process configuration guard -- new semantics and deadlock risk for the same outcome",
+  "C": "yielding the lifetime guard -- reopens the second-manager window HOST-8 exists to refuse",
+  "D": "keeping the stop/create/start cycle -- what the FINDING rules out and what OBS-0a forbids as a routine operator step"
+ },
+ "recommendation": "Option A -- a durable creation intent bound to the Job's existing operation id, performed by the SERVING manager inside the guard it already holds. DB-4 prescribes that shape; DB-7 already supplies replay and refusal; HOST-8 untouched.",
+ "record_files_unmodified": {
+  "FINDING.md": "0f2b8a14ae2c4792d16f3b9fcd0032f9ca75c271eb06cec5f0e7974d94ab706e",
+  "PLAN.md": "0305305ca83501adb572351d8848b12edffa96759ccee7e9e005e4288cce8d7f"
+ },
+ "schema": "baton.v12.startup-plan-binding/1",
+ "selected_by": "owner W370747 E370866 \u2014 planning only",
+ "slices": {
+  "S1": "installer creates and validates every configured path; independently acceptable",
+  "S2": "install-time idempotent control-store initialisation through the owning API; independently acceptable",
+  "S3": "status --observe --instance, env var retained; independently acceptable; SEQUENCE AFTER W370555's accepted checkpoint because it touches tools/single_worker.py",
+  "S4": "Option A; needs the owner's decision first; largest overlap surface, so last"
+ },
+ "source_anchors_read": {
+  "v12/DESIGN.md": "500fa602410be8fe125be56140685c696ebd653f68abbc87a4b0d4e512bc0751",
+  "v12/python/src/baton_v12/job_manager/creation.py": "b707227ebb794158497b33228089df91db7b6aa69c22f71134fa62a2c96a42ee",
+  "v12/python/src/baton_v12/worker_manager/workspaces.py": "e769da4557d0405edee8e17d4333bebd18bc713c07781250d45f10d0e8587dc4",
+  "v12/python/tools/bootstrap.py": "3bc26bb0a71cf980ae9f37e813d52fd125a0dbed30d0a43e66e36dd0bcf0bc02",
+  "v12/python/tools/fresh_attempt_ports.py": "c8a41e078769eb105440ed8fb71e6d66bf484cf292cd344cabefa8dc2c75a2a5",
+  "v12/python/tools/instance.py": "ee59b95ca4f4a9753058ad48d4215f3a18be395290e8924b762311392dbad433",
+  "v12/python/tools/job_manager.py": "9f9008fd68a3f00ed41516c0127655cd24a5518df15294f22282c0f0dc66018f"
+ },
+ "the_four_observed_failures": {
+  "1_create_before_start": {
+   "anchor": "job_manager._create uses ControlStore.open_readonly; the one writable open is _serve",
+   "kind": "code gap under existing DESIGN (OBS-0a, DB-6)",
+   "refusal": "a read-only manager requires an existing regular store"
+  },
+  "2_missing_workspace_storage": {
+   "anchor": "instance.layout has no workspaces/launch/credentials member and bootstrap creates only stores/repository/logs/state",
+   "kind": "code gap under existing DESIGN (OBS-0a)",
+   "refusal": "the configured workspace store ... is not a directory this manager can see"
+  },
+  "3_observation_configuration": {
+   "anchor": "single_worker.observing_factory",
+   "kind": "code gap under existing DESIGN (OBS-0a)",
+   "refusal": "this deployment reads its configuration from BATON_V12_STAGE_EXECUTION_CONFIG and it is unset"
+  },
+  "4_create_while_serving": {
+   "anchor": "creation.py:225 holds the instance guard deliberately so the derivation cannot go stale (DB-3/DB-5); HOST-8 mandates one active manager behind an exclusive non-blocking file lock; borrow_manager_instance composes only in-process",
+   "kind": "NOT a gap -- a design decision is required",
+   "refusal": "another manager is already active for workspace ...; stop the active one first"
+  },
+  "no_probe_was_run": "re-reaching them would require starting the retained instance, which this planning claim forbids",
+  "observed_by": "this handler as the operator in W370268; exact refusal text retained in that dossier's evidence/claim-370272"
+ },
+ "unresolved_owner_choices": [
+  "how an admission runs while a manager is serving (section 4)",
+  "whether `create` waits by default or returns an intent receipt",
+  "the OBS-0a interval's endpoints and clock source -- not measurable as things stand, because observed_at is query time and no output records when an operator's command was received",
+  "whether the intent relation belongs to the Job store or the control store (DB-4 says one owner per fact; the Job store is recommended)"
+ ],
+ "work": "W371075"
+}

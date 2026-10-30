@@ -1,0 +1,16 @@
+{
+  "at": "2026-10-28T02:16:40.432644+00:00",
+  "command": [
+    "/home/sl/baton-instances/useful-template-job-w366962/distro/baton-v12-stack",
+    "disposition",
+    "pending",
+    "--authority-store",
+    "/home/sl/baton-instances/useful-template-job-w366962/db/authority.sqlite3",
+    "--authority-uuid",
+    "6dcb60dce5cd485b8bf03c24bc4afc82",
+    "--work",
+    "6dcb60dc-W1"
+  ],
+  "exit": 0,
+  "pending_sha256": "ca9c24a88d03ac209432d7cde43a66dd9b5284038f8de300410c1e965a727955"
+}

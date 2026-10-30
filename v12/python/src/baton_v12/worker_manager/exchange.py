@@ -58,14 +58,18 @@ import os
 import re
 import stat
 
-from ..contracts import (ContractRefusal, check_no_durable_secret, digest,
-                         digest_of_bytes)
+from ..contracts import (ContractRefusal, canonical_bytes,
+                         check_no_durable_secret, digest, digest_of_bytes)
 from ..contracts.errors import name_value
 from . import boundaries
 from . import workspaces
 
 __all__ = ["ACTIVITY_DOCUMENT", "ACTIVITY_MEMBERS", "ACTIVITY_OPERATION",
-           "ACTIVITY_SCHEMA", "COMMAND_DIRECTORY", "COMMAND_MEMBERS",
+           "ACTIVITY_SCHEMA", "ADAPTER_CODES", "ADAPTER_COMPONENT",
+           "ADAPTER_FAILURE_CODE", "ADAPTER_FAILURE_MEMBERS",
+           "ADAPTER_FAILURE_OPERATION", "ADAPTER_ROLES",
+           "MAX_ADAPTER_FAILURE_BYTES",
+           "COMMAND_DIRECTORY", "COMMAND_MEMBERS",
            "COMMAND_SCHEMA",
            "COMMAND_TARGET", "ENDINGS", "EVENT_DIRECTORY", "EVENT_DOCUMENTS",
            "EVENT_TARGET", "EXCHANGE_TRANSPORT", "MAX_ACTIVITY_BYTES",
@@ -102,7 +106,12 @@ EVENT_DIRECTORY = "events"
 COMMAND_SCHEMA = "baton.worker-exchange.command/1"
 RECEIPT_SCHEMA = "baton.worker-exchange.receipt/1"
 STATE_SCHEMA = "baton.worker-exchange.state/1"
-TERMINAL_SCHEMA = "baton.worker-exchange.terminal/1"
+# W376586: THE TERMINAL IS READ AT `/2`, and at nothing else. One current
+# closed file-exchange release is what AMENDMENT-376531.md selects, so there is
+# no `/1` branch here and no document that is valid under both -- a worker
+# writing `/1` says it cannot state the mandatory member this reader requires,
+# and `_event` refuses it by the same equality test every other kind is under.
+TERMINAL_SCHEMA = "baton.worker-exchange.terminal/2"
 
 # ONE SEQUENCE PER ATTEMPT, and the two operations in it. This bootstrap needs
 # a command, not a queue: the ordered pair is the whole vocabulary, and a
@@ -214,7 +223,32 @@ STATE_MEMBERS = ("schema", "session", "attempt_id", "sequence_id",
 # against each other without this document carrying any output.
 TERMINAL_MEMBERS = ("schema", "session", "attempt_id", "sequence_id",
                     "command_digest", "ending", "answered", "disposition",
-                    "fault_code", "manifest_digest")
+                    "fault_code", "manifest_digest", "adapter_failure")
+
+# W376586: THE ADDED MEMBER'S OWN CLOSED SHAPE, and the vocabulary behind it.
+#
+# THESE ARE A SECOND COPY ON PURPOSE, exactly like the four document names and
+# the ending vocabulary above: this package cannot import the worker's
+# `adapter_refusal`, because a manager that could import the worker's modules
+# would be reaching into the image it launches. `test_exchange` holds the two
+# copies against each other for the reason it already holds the others -- two
+# copies of one contract agree until they don't.
+ADAPTER_COMPONENT = "role-adapter"
+ADAPTER_CODES = ("declaration-set-invalid", "declaration-name-unsupported",
+                 "role-output-missing", "other-role-output-required")
+ADAPTER_ROLES = ("implementation", "review")
+ADAPTER_FAILURE_MEMBERS = ("component", "code", "role", "operation",
+                           "operation_id")
+# The ONE operation a typed declaration cause may name, and the ONE fault code
+# its ending may carry. A declaration is checked when the provider turn is
+# composed, so `describe` cannot produce one; the typed object is additional
+# evidence about an `agent` fault rather than a new ending or a new code.
+ADAPTER_FAILURE_OPERATION = "work"
+ADAPTER_FAILURE_CODE = "agent"
+# AND THE ADDED OBJECT'S OWN BOUND, separate from the whole document's. It is
+# the amendment's number and it is measured on the canonical bytes, so a
+# conforming writer and this reader bound the same thing.
+MAX_ADAPTER_FAILURE_BYTES = 1024
 # W61599: AND THE OPTIONAL DOCUMENT'S OWN CLOSED SET. Six of these eight are
 # the identities every worker document is correlated by, and the reason they
 # are all here rather than only the count is that BINDING is what makes a late
@@ -890,8 +924,17 @@ def _command_view(delivery):
             "command_digest": digest_of_bytes(raw)}
 
 
-def _event(delivery, command, name, members, schema, what):
+def _event(delivery, command, name, members, schema, what, nested=()):
     """One worker document, held to its KIND before anything else about it.
+
+    ANSWERS THE DOCUMENT AND THE DIGEST OF THE EXACT BYTES IT WAS READ FROM,
+    or `None`. W376586: the amendment requires the SHA-256 of "the same bounded
+    terminal bytes that were validated" and forbids a reopen-for-digest race --
+    so the digest is taken here, over the one `raw` this function bounded,
+    no-follow-opened and parsed, and never by opening the name a second time.
+    Two reads of a file the least trusted program in the deployment can replace
+    are two different documents, and a digest of the second one is not evidence
+    about the first.
 
     W81857 review 2026-09-04T04-17-15Z [P1]: `schema` was in every closed
     member set and was compared with nothing, so a document explicitly
@@ -909,13 +952,14 @@ def _event(delivery, command, name, members, schema, what):
     raw = _read_exact(delivery.event_root, name, what=what)
     if raw is None:
         return None
-    document = _decoded(raw, name, what=what, members=members)
+    document = _decoded(raw, name, what=what, members=members, nested=nested)
     if document["schema"] != schema:
         _untrusted(f"{what} at {name_value(name)} says it is "
                    f"{name_value(document['schema'])} and this exchange reads "
                    f"{name_value(schema)}; a document from another protocol is "
                    f"not one to read the recognised parts out of")
-    return _correlated(document, delivery, command, name, what=what)
+    return (_correlated(document, delivery, command, name, what=what),
+            digest_of_bytes(raw))
 
 
 def observation(delivery):
@@ -960,9 +1004,10 @@ def observation(delivery):
     view["state"] = "waiting"
     try:
         view["foreign"] = _foreign(delivery)
-        receipt = _event(delivery, command, RECEIPT_DOCUMENT,
-                         RECEIPT_MEMBERS, RECEIPT_SCHEMA,
-                         "the worker receipt")
+        held = _event(delivery, command, RECEIPT_DOCUMENT,
+                      RECEIPT_MEMBERS, RECEIPT_SCHEMA,
+                      "the worker receipt")
+        receipt = None if held is None else held[0]
         if receipt is not None:
             view["receipt"] = {
                 "accepted_at": _instant(receipt["accepted_at"],
@@ -970,11 +1015,12 @@ def observation(delivery):
                                         "the worker receipt")}
             view["state"] = "working"
         for operation in OPERATIONS:
-            found = _event(delivery, command, state_document(operation),
-                           STATE_MEMBERS, STATE_SCHEMA,
-                           "a worker state event")
-            if found is None:
+            held = _event(delivery, command, state_document(operation),
+                          STATE_MEMBERS, STATE_SCHEMA,
+                          "a worker state event")
+            if held is None:
                 continue
+            found = held[0]
             if found["operation"] != operation:
                 _untrusted(f"a worker state event at "
                            f"{name_value(state_document(operation))} reports "
@@ -988,11 +1034,17 @@ def observation(delivery):
                     state_document(operation), "a worker state event")
             view["states"].append({"operation": operation,
                                    "state": found["state"]})
-        terminal = _event(delivery, command, TERMINAL_DOCUMENT,
-                          TERMINAL_MEMBERS, TERMINAL_SCHEMA,
-                          "the worker terminal result")
+        # THE ADDED MEMBER IS AN OBJECT, so it is named `nested` and validated
+        # by the parser that knows what it means, which is the rule every
+        # structured member in this reader is already under.
+        held = _event(delivery, command, TERMINAL_DOCUMENT,
+                      TERMINAL_MEMBERS, TERMINAL_SCHEMA,
+                      "the worker terminal result",
+                      nested=("adapter_failure",))
+        terminal = None if held is None else held[0]
         if terminal is not None:
-            view["terminal"] = _terminal(terminal, delivery)
+            view["terminal"] = _terminal(terminal, delivery,
+                                         terminal_digest=held[1])
             _caused(view, receipt)
             view["state"] = view["terminal"]["ending"]
         elif receipt is not None:
@@ -1221,7 +1273,101 @@ def _caused(view, receipt):
     return view
 
 
-def _terminal(terminal, delivery):
+def _adapter_failure(value, delivery, *, ending, fault, answered):
+    """The typed pre-provider declaration cause, or the absence of one.
+
+    W376586. NULL IS AN ANSWER AND MEANS "NO TYPED CAUSE WAS ESTABLISHED" --
+    not "no failure happened", which the ending already says, and not "this
+    worker cannot state one", which `/1` said by having no member at all. That
+    is why the member is mandatory at this version and why the reader does not
+    default it.
+
+    A NON-NULL CAUSE IS A CLAIM ABOUT THE WHOLE ENDING, so the whole ending is
+    required to agree with it. The amendment fixes every one of these and this
+    reader refuses rather than degrades, because a terminal whose added member
+    contradicts its own ten is not a document to read either half of:
+
+      * the ending is `faulted` and the fault code is `agent` -- a typed cause
+        is additional evidence ABOUT that fault, never a new ending or code;
+      * `disposition` and `manifest_digest` are null, which `_terminal` has
+        already required of a faulted ending;
+      * `answered` is exactly `["describe"]`. A declaration is checked when the
+        provider turn is composed, so the only reachable sequence is: describe
+        answered, work faulted. A cause claiming to have stopped a sequence
+        that never answered `describe`, or one that answered `work`, is
+        claiming a history this transport cannot produce;
+      * the operation is `work` and its identity is the one THIS MANAGER
+        MINTED. `worker_operation_id` is the manager-owned expected value, and
+        comparing against it rather than against a grammar is the difference
+        between correlation and a shape that looks right;
+      * every one of the three vocabulary members is a literal from this
+        build's closed copy, and the object is exactly the five members.
+
+    THE RECEIPT/DESCRIBE/WORK HISTORY IS NOT RE-DERIVED HERE. `_caused` already
+    requires the receipt that fenced dispatch and a state map that matches the
+    ending and `answered` member for member -- so a faulted terminal answering
+    `["describe"]` is accepted only beside a real receipt, an answered
+    `describe` event and a faulted `work` event. Asking the same question twice
+    in two places is how two answers drift apart; what this adds is the
+    `answered` value the typed cause requires, which is the one part of that
+    history `_caused` takes from this document rather than from this manager.
+    """
+    if value is None:
+        return None
+    holder = TERMINAL_DOCUMENT
+    what = "the worker terminal result"
+    if type(value) is not dict:
+        _untrusted(f"{what} at {name_value(holder)} carries an "
+                   f"adapter_failure that is not one closed object or null")
+    missing = sorted(one for one in ADAPTER_FAILURE_MEMBERS
+                     if one not in value)
+    extra = sorted(one for one in value
+                   if one not in ADAPTER_FAILURE_MEMBERS)
+    if missing or extra:
+        _untrusted(f"{what}'s adapter_failure is exactly "
+                   f"{', '.join(ADAPTER_FAILURE_MEMBERS)}"
+                   + (f"; missing {', '.join(missing)}" if missing else "")
+                   + (f"; unexpected {', '.join(extra)}" if extra else ""))
+    if len(canonical_bytes(value)) > MAX_ADAPTER_FAILURE_BYTES:
+        _untrusted(f"{what}'s adapter_failure is wider than "
+                   f"{MAX_ADAPTER_FAILURE_BYTES} canonical bytes")
+    if ending != "faulted" or fault != ADAPTER_FAILURE_CODE:
+        _untrusted(f"{what} carries an adapter_failure beside a "
+                   f"{name_value(ending)} ending and fault code "
+                   f"{name_value(fault)}; a typed declaration cause is "
+                   f"evidence about a faulted {name_value(ADAPTER_FAILURE_CODE)}"
+                   f" fault and is not an ending of its own")
+    # THE PREFIX IS DERIVED FROM THE COMMANDED ORDER, not spelled a second
+    # time: the operations this sequence answers before the typed cause are
+    # exactly those ahead of `work` in `OPERATIONS`, so a change to that tuple
+    # cannot leave a stale literal here claiming a different history.
+    before = list(OPERATIONS[:OPERATIONS.index(ADAPTER_FAILURE_OPERATION)])
+    if list(answered) != before:
+        _untrusted(f"{what} carries an adapter_failure and answered "
+                   f"{list(answered)!r}; a declaration is checked when the "
+                   f"provider turn is composed, so the one reachable history "
+                   f"is {before!r} answered and "
+                   f"{name_value(ADAPTER_FAILURE_OPERATION)} faulted")
+    component = _vocabulary(value["component"], (ADAPTER_COMPONENT,),
+                            "adapter_failure component", holder, what)
+    code = _vocabulary(value["code"], ADAPTER_CODES, "adapter_failure code",
+                       holder, what)
+    role = _vocabulary(value["role"], ADAPTER_ROLES, "adapter_failure role",
+                       holder, what)
+    operation = _vocabulary(value["operation"], (ADAPTER_FAILURE_OPERATION,),
+                            "adapter_failure operation", holder, what)
+    expected = worker_operation_id(delivery.attempt_id, operation)
+    if value["operation_id"] != expected:
+        _untrusted(f"{what}'s adapter_failure names operation id "
+                   f"{name_value(value['operation_id'])} and this manager "
+                   f"minted {name_value(expected)} for "
+                   f"{name_value(operation)}; an operation identity a worker "
+                   f"composed is not one this manager commanded")
+    return {"component": component, "code": code, "role": role,
+            "operation": operation, "operation_id": expected}
+
+
+def _terminal(terminal, delivery, *, terminal_digest):
     """The worker's terminal claim, held to the closed vocabulary.
 
     NOTHING IS DEFAULTED. A terminal naming an ending outside the three, or
@@ -1275,7 +1421,17 @@ def _terminal(terminal, delivery):
                               "the worker terminal result"))
     return {"ending": ending, "answered": list(answered),
             "disposition": disposition, "fault_code": fault,
-            "manifest_digest": manifest}
+            "manifest_digest": manifest,
+            # W376586: THE ADDED MEMBER AND THE IDENTITY OF THE BYTES IT CAME
+            # FROM. `terminal_digest` is taken by `_event` over the exact
+            # bounded bytes validated above -- it is this manager's own
+            # measurement of what it read, never a value the worker asserted,
+            # and it is what lets a later report name WHICH terminal a typed
+            # cause was read out of.
+            "adapter_failure": _adapter_failure(
+                terminal["adapter_failure"], delivery, ending=ending,
+                fault=fault, answered=answered),
+            "terminal_digest": terminal_digest}
 
 
 def _foreign(delivery):

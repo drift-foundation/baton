@@ -1,0 +1,29 @@
+{
+  "time": "2026-10-22T17:56:18.078542+00:00",
+  "actor": "baton.prompt",
+  "authority": "M353723",
+  "manifest_digest": "93c48fd2fd53e4d10238e51a69355a2d53115444f5985105a942960acf35ff6a",
+  "files": [
+    {
+      "path": "v12/python/tests/tools/next_run_flow_fixture.py",
+      "sha256": "74f787ba822d4a90ab99624616506a216b1cb086c6c8dcf8f1f92819c41bf14b",
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/python/tests/tools/test_next_run_flow.py",
+      "sha256": "60a81c4e57d869ab3c4771cdecc8da9ac25a32605631ea799bd564ecde6effb0",
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/python/tests/tools/test_next_run_managed.py",
+      "sha256": "1a6cb8a25ede87636a50bc19fbfc677891283e80e3fd2a4557337a46459b81cc",
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/python/tools/next_run_confinement.py",
+      "sha256": "da028659e4b84e7a503b49b7a7e1a9ae5721fffbb41df31e75cca1afb439aa52",
+      "mode": "0o644"
+    }
+  ],
+  "verification": "All four accepted hashes and original modes match after import. Reuse independent 37-test no-skip acceptance; no tests rerun. Git index unchanged."
+}

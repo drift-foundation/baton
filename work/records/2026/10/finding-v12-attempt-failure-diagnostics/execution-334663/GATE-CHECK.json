@@ -1,0 +1,35 @@
+{
+  "ambient_pythonpath_offered": "/nonexistent-ambient-value",
+  "argv_source": "/tmp/w333486-preflight-334663/packet/task.json verification member, verbatim",
+  "argv_words": 3,
+  "composition_modules": {
+    "modules": [
+      "tests.manager.test_intake",
+      "tests.job_manager.test_tool",
+      "tests.manager.test_attempts"
+    ],
+    "why": "The reclaim/settlement/cancellation composition this correction must attribute lives across these three."
+  },
+  "expected": "non-zero, failing ONLY on the two modules the turn must write (tests.manager.test_attempt_failure_cause and tests.tools.test_attempt_diagnostics).",
+  "gate_additions": {
+    "module": "tests.manager.test_authoring_enforcement",
+    "why": "This candidate edits intake.py and attempts.py, which that module now covers; the accepted enforcement correction must not be broken by attribution work on top of it."
+  },
+  "note": "Run against a clean git-archive export of the declared base a9f4fa4d, including work/records/2026/09/finding-v12-single-implementation-proof because tests.manager.test_authoring_enforcement spawns a real supervisor and resolves it from the checkout root. The ambient PYTHONPATH offered is deliberately useless and the gate overwrites it. Author evidence, not independent product acceptance.",
+  "reported": [
+    "ERROR: test_attempt_failure_cause (unittest.loader._FailedTest.test_attempt_failure_cause)",
+    "ERROR: test_attempt_diagnostics (unittest.loader._FailedTest.test_attempt_diagnostics)"
+  ],
+  "run_from": "/tmp/w333486-base-a9f4",
+  "schema": "baton.w333486-execution-gate-check/3",
+  "seconds": 14.106293464003102,
+  "status": 1,
+  "tail": [
+    "",
+    "",
+    "----------------------------------------------------------------------",
+    "Ran 1126 tests in 13.792s",
+    "",
+    "FAILED (errors=2)"
+  ]
+}

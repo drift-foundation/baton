@@ -1,0 +1,142 @@
+{
+ "DESIGN_CHANGED_DURING_THIS_CLAIM": {
+  "authorship": "the owner's; read-only to me. I did not author, request or touch it. DESIGN.md MUST be re-read at the next claim rather than carried from this base",
+  "conformance_recorded": [
+   "recording an intent IS a Job-store effect, so the order is replay -> closed-data contract validation -> record the intent -> flock -> CUT A",
+   "the fence compares the retained contract and capability digests TOGETHER WITH configuration_revision, not instead of them",
+   "no template- or deployment-supplied callback inside the intent transition or any cut; no second store opened under one",
+   "a queued intent whose contract no longer validates REFUSES rather than re-deriving -- which is why the intent stores canonical operands, not a reference to mutable configuration",
+   "shared optional declarations cannot satisfy a role's required outputs -- the exact fault W370268 observed"
+  ],
+  "found_by": "re-hashing the anchors at claim rather than carrying them",
+  "sha256_at_base": "500fa602410be8fe125be56140685c696ebd653f68abbc87a4b0d4e512bc0751",
+  "sha256_now": "571738130e7cfedd33966c1e920488b629e6b877eef16b1a3c61ccb7ea7f2796",
+  "what": "+16 lines, a new owner clause 'Development role-contract admission (owner 2026-10-28)', which SELECTS sibling W371072's admission plan as normative and cites that sibling's FINDING.md as the decision",
+  "why_it_matters": "revision 1 and the review both treat W371072 as a peer proposal to reconcile with; it is now a settled requirement, so sec 7 is corrected and a new sec 2.6a states conformance with each sentence of the clause"
+ },
+ "R1_corrected": {
+  "arbitration": "the per-Job ownership.invocation flock, which contends across threads of one process as well as across processes; the intent row records that a request exists, it does not arbitrate",
+  "cross_job_serialization": "at most one queued admission performed per reconcile step",
+  "generation_fence": "configuration_revision recorded at admission, compared before offer/allocation and again before external launch",
+  "owning_store": "the Job store -- the Job's creation is already its fact under DB-4; no second store is opened under any transaction",
+  "relation": "creation_intents: job_id, operation_id (= create_operation_id(job_id)), request_digest (= job_signature(CREATE_KIND, operands)), canonical operands, received_at, state, holder, configuration_revision, outcome, settled_at",
+  "replay_preserved_before_derivation": true,
+  "retirement_fence": "a conditional pending->performing transition on the recorded request_digest; a retired row cannot transition, so a retired intent can never later execute (DB-7)",
+  "states": [
+   "pending",
+   "performing",
+   "completed",
+   "refused",
+   "retired"
+  ],
+  "waiting": "--wait is the default and preserves today's printed answer; --no-wait prints the intent receipt; a timed-out wait leaves the intent PENDING, because a timeout is a statement about the waiter and not about the request",
+  "withdrawn_from_revision_1": [
+   "'no partial reservation survives' -- DB-5 explicitly permits safe held/reconciling states, and sec 2.5 maps the ones that do survive onto the existing CUT A/B/C in creation._owned",
+   "'the OS guard serialises admissions' -- workspaces.borrow_manager_instance is COUNTED, so N in-process borrowers coexist by design"
+  ]
+ },
+ "R2_corrected": {
+  "obs0_interval_restored": "<=60 seconds from receipt of the task description and selected input files to the assigned agent starting substantive work, across input handling, configuration, validation and launch",
+  "obs1_assertion_corrected": "from 'mutates no durable byte' to no application-data or schema mutation, no initialization or migration, no reconciliation and no writable fallback; SQLite sidecar and locking behaviour is the accepted boundary per the owner clarification of 2026-10-18 and ControlStore.open_readonly's own docstring",
+  "proposed_endpoints": [
+   "received_at on the creation intent -- the operator's command receipt becomes a product fact",
+   "the worker's existing state-work.json 'work' state"
+  ],
+  "stated_limit": "a simulated provider does not establish real image pull, container start or authentication latency; no live run is selected here",
+  "withdrawn": "revision 1 substituted install-to-first-start and omitted the bound; install is OBS-0a and separate"
+ },
+ "R3_corrected": {
+  "control_store": "the installer calls the existing ControlStore.open(path, *, incarnation, clock), which already initializes an empty store, adopts a supported existing schema, requests WAL and closes its handle on every failure -- one creator, one migrator, no second compatibility check; _create/_status keep open_readonly so DB-6 is untouched",
+  "inventory_withdrawn": "instance.settings already derives the four operands and stack.instance_settings already validates the installed selector, so a versioned instance.json inventory would be a second account of a fact they own (DB-4)",
+  "no_chmod_anywhere": "wrong type, symlink, foreign owner or unreadable refuses by name; crash residue is reported, never repaired",
+  "no_upgrade_invented": "bootstrap.install refuses an occupied installed destination and upgrades nothing, so revision 1's create-and-validate-if-absent implied a reinstall path that does not exist; split into fresh-install creation and a separate READ-ONLY validate verb that reports and refuses, repairing nothing",
+  "observation_surface": "stack status/monitor are already instance-addressed; the gap is the lower-level manager status --observe, which gains --instance deriving BATON_V12_STAGE_EXECUTION_CONFIG through instance.settings. Exact argv is in sec 4.5. Precedence: explicit --instance wins, the env var is retained, and a DISAGREEMENT between them REFUSES"
+ },
+ "R4_corrected": {
+  "actual_v12_modifications": "W325695's v12/worker/claude_agent.py and v12/python/tests/manager/test_claude_agent.py -- not W370555's, not mine this claim, and not touched by it",
+  "base_already_includes_W370555": "f36bcd75 contains that correction; its checkpoint is NOT a future gate and S3 does not sequence after it",
+  "how_corrected": "by an attributable APPEND to PROGRESS.md, leaving the reviewed revision-1 text in place rather than editing it silently",
+  "withdrawn": "'deterministic reproduction would require starting the retained instance' is unsupported; isolated temporary stores and fake owner boundaries reach the sec 6 acceptance without starting it"
+ },
+ "anchors_rehashed_at_this_claim": {
+  "v12/DESIGN.md": "571738130e7cfedd33966c1e920488b629e6b877eef16b1a3c61ccb7ea7f2796",
+  "v12/python/src/baton_v12/job_manager/creation.py": "b707227ebb794158497b33228089df91db7b6aa69c22f71134fa62a2c96a42ee",
+  "v12/python/src/baton_v12/worker_manager/store.py": "587552eb2699c732814033f1752fa4a1264e8ec3b192d76e89d10c6991b36116",
+  "v12/python/src/baton_v12/worker_manager/workspaces.py": "e769da4557d0405edee8e17d4333bebd18bc713c07781250d45f10d0e8587dc4",
+  "v12/python/tools/bootstrap.py": "3bc26bb0a71cf980ae9f37e813d52fd125a0dbed30d0a43e66e36dd0bcf0bc02",
+  "v12/python/tools/fresh_attempt_ports.py": "c8a41e078769eb105440ed8fb71e6d66bf484cf292cd344cabefa8dc2c75a2a5",
+  "v12/python/tools/instance.py": "ee59b95ca4f4a9753058ad48d4215f3a18be395290e8924b762311392dbad433",
+  "v12/python/tools/job_manager.py": "9f9008fd68a3f00ed41516c0127655cd24a5518df15294f22282c0f0dc66018f",
+  "v12/python/tools/stack.py": "c0586c7f31abcb3d4e13b3dc0f2236a590802b3edbb6a107c32f933908ade009"
+ },
+ "answers_review": "review-2026-10-28T03-22-00Z.md",
+ "as_delivered_371131": {
+  "PROGRESS.md": {
+   "sha256": "54e12c96f431f5b22d6d6fa328a19af29f7bcc62882cc9bc16d96dc4046257c4",
+   "verified": "MATCHES the sha256 recorded in the reviewed binding"
+  },
+  "PROPOSAL.md": {
+   "sha256": "3ec301169674f12839d10d65738ffa20db1643d5d1fd1939cafa0af8cbc0f425",
+   "verified": "MATCHES the sha256 recorded in the reviewed binding"
+  }
+ },
+ "base": "f36bcd75ed22430355efe1b274b8f236cb591f6b",
+ "boundaries": "Written: PROPOSAL.md, PROGRESS.md and evidence/claim-371264/. Nothing else. FINDING.md, PLAN.md and both reviews are the reviewer's and unmodified. Sibling dossiers, product source, tests and DESIGN were read-only. No Git mutation -- only status, diff and show, all reads.",
+ "claim": "E371264",
+ "cumulative": "claim-371131 (the four refusals re-read, seven anchor hashes, one read-only instance.layout enumeration) plus this claim's reads above. All claim-371131 evidence retained, nothing deleted.",
+ "deliverable": {
+  "PROGRESS.md": {
+   "bytes": 15067,
+   "sha256": "9ffb417ae74a1604442d5ab1833b28b761f40bfb6f6dcbc2b8932ee1a5249fa8"
+  },
+  "PROPOSAL.md": {
+   "bytes": 23795,
+   "sha256": "c026b60d33930391a67b286064f69642cc2331bb89dfc65fd41ec747e4a4005d"
+  }
+ },
+ "evidence": {
+  "PROGRESS.md": "54e12c96f431f5b22d6d6fa328a19af29f7bcc62882cc9bc16d96dc4046257c4",
+  "PROPOSAL.md": "3ec301169674f12839d10d65738ffa20db1643d5d1fd1939cafa0af8cbc0f425"
+ },
+ "open_for_owner": [
+  "the sec 2 queued-admission decision itself",
+  "whether create waits by default",
+  "whether one-per-tick serial reconcile suffices or a concurrency bound is wanted",
+  "whether configuration_revision is owned here or by the now-selected W371072 work"
+ ],
+ "record_files": {
+  "FINDING.md": "63e442c9a53c6f07eff5a6746f114c4c6972d78eeae73ca649afc8ebc4eff0ed",
+  "PLAN.md": "ae9bacb1d7e3265080782e5441a45b5b4ce68f94eeb2912debe2a36f87ae8259",
+  "review-2026-10-28T03-22-00Z.md": "cc5bd523891e9795ebdb268e646cdc7fed05a177dfafbc1de1518b3ba0006ee6"
+ },
+ "revision": 2,
+ "schema": "baton.v12.planning-binding/2",
+ "slices": {
+  "S1": "instance.layout gains workspaces/launch/credentials; fresh install creates and validates them; occupied/wrong-type refuses",
+  "S2": "install-time control-store initialization through ControlStore.open; existing-instance read-only validate verb",
+  "S3": "manager status --observe --instance, with mismatch refusal",
+  "S4": "creation_intents, its owner API, the serial reconcile step, the configuration fence and --wait/--no-wait -- needs the sec 2 decision AND conformance with the new owner clause"
+ },
+ "status": "PLANNING ONLY -- corrected proposal answering R1-R4 of review-2026-10-28T03-22-00Z.md. No product source, test or specification byte changed; nothing installed or started; no engine, provider or deployment touched.",
+ "supersedes": {
+  "as_delivered_preserved_at": "evidence/claim-371264/as-delivered-371131/",
+  "prior_binding": "evidence/claim-371131/BINDING.json",
+  "sha256": "c7ce5c08347ad659f86d3e7650890f6e59f8ec4563abb5bda8322011111a5caf",
+  "why": "R1-R4; the reviewed bytes are retained unchanged, not rewritten in place"
+ },
+ "verification_this_claim": {
+  "hashes": "2 snapshot confirmations + 9 anchor re-hashes",
+  "probes_run": "none",
+  "read_only": [
+   "DESIGN.md OBS-0 and OBS-1 verbatim",
+   "creation.py cut markers and _owned",
+   "ControlStore.open and open_readonly",
+   "bootstrap.install's occupied-destination refusal",
+   "instance.settings and stack.instance_settings",
+   "sibling W371072's PROPOSAL.md and review-2026-10-28T03-16-17Z.md",
+   "the new owner clause, via a working-tree diff"
+  ],
+  "suites_run": "none -- no product byte changed"
+ },
+ "work": "W371075"
+}

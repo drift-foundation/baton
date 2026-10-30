@@ -1,0 +1,132 @@
+{
+  "accounting_scope": "this run accounts for Job 'job-durable-capture-w341357-345388' and for nothing else. Attempt discovery, cancellation and cleanup all read the status projection filtered to that Job, so a runtime belonging to another Job in this store is NOT covered by this outcome and its absence is NOT established by it.",
+  "admissions": {
+    "implementation": 1
+  },
+  "admitted_attempts": [
+    "attempt-5b3a73432204dc215833b3bf2c6b22d9dc47ddf733e9f66eafc445aea6d15083"
+  ],
+  "attempt_origins": {
+    "attempt-5b3a73432204dc215833b3bf2c6b22d9dc47ddf733e9f66eafc445aea6d15083": "started"
+  },
+  "cancellation": {
+    "attempt-5b3a73432204dc215833b3bf2c6b22d9dc47ddf733e9f66eafc445aea6d15083": {
+      "execution_runtime": "destroyed",
+      "requested": true,
+      "runtime_id": "42026078f84ad15ea07185be4b31ff908f6f66294c932a9983bb00804b5d0299",
+      "why": "this manager observed the runtime destroyed"
+    }
+  },
+  "claim": 345388,
+  "cleanup": {
+    "attempt-5b3a73432204dc215833b3bf2c6b22d9dc47ddf733e9f66eafc445aea6d15083": {
+      "cleanup": "retained",
+      "state": "absent",
+      "why": "the engine answered that this exact identity does not exist"
+    }
+  },
+  "cleanup_sweeps": 0,
+  "final_canonical_read": true,
+  "finished_at": "2026-10-21T11:22:49.131Z",
+  "foreign_admissions": [],
+  "gate_refusals": [],
+  "held_because": [
+    "the run stopped 'exceptional' rather than completing its stages",
+    "attempt attempt-5b3a73432204dc215833b3bf2c6b22d9dc47ddf733e9f66eafc445aea6d15083 ended 'unable' rather than 'completed', so it published no proposal. An implementation turn that could not do its work is an ANSWER -- the attempt's retained provider log carries what the provider reported -- and it is not a proposal this run may count. WHETHER IT RETAINED A CANDIDATE ANYWAY is a separate question and `candidates` answers it.",
+    "this run published no proposal at all. Whether any turn nevertheless RETAINED a candidate is answered by `candidates`, and a retained candidate is not a published proposal, a verification or an acceptance"
+  ],
+  "interrupted": null,
+  "interruptions": [],
+  "job_id": "job-durable-capture-w341357-345388",
+  "observed_attempts": [
+    "attempt-5b3a73432204dc215833b3bf2c6b22d9dc47ddf733e9f66eafc445aea6d15083"
+  ],
+  "outstanding_cleanup": [],
+  "preexisting_jobs": [],
+  "preexisting_stages": {},
+  "provider_turn": {
+    "default_seconds": 3600,
+    "origin": "job",
+    "seconds": 3600,
+    "setting": "provider_turn_seconds"
+  },
+  "retry": false,
+  "run_id": "durable-capture-w341357-345388",
+  "schema": "baton.single-implementation-outcome/1",
+  "served_seconds": 789.1424403600004,
+  "serving_failure": null,
+  "stage_states": {
+    "implementation": "exceptional"
+  },
+  "stalled_after": 6,
+  "stalled_ticks": 0,
+  "started_order": [
+    "attempt-5b3a73432204dc215833b3bf2c6b22d9dc47ddf733e9f66eafc445aea6d15083"
+  ],
+  "state": "held",
+  "stopped": "exceptional",
+  "submission_id": "durable-capture-w341357-345388-submission",
+  "submitted_at": "2026-10-21T11:09:39.981Z",
+  "unallocated_attempts": [],
+  "uncertainty": [],
+  "unexpected_attempts": [],
+  "work": "W341357",
+  "workload": {
+    "attribution": [],
+    "candidates": [
+      {
+        "acceptance": "unobserved",
+        "assignment": {
+          "authority_uuid": "f225e29a55fd4ca3aed8e066ed2c6035",
+          "effective_scope": "scope:deployment",
+          "generation": 1,
+          "participant": "baton.impl",
+          "principal": "principal:baton.impl",
+          "work_id": "f225e29a-W1"
+        },
+        "attempt_id": "attempt-5b3a73432204dc215833b3bf2c6b22d9dc47ddf733e9f66eafc445aea6d15083",
+        "attribution": {
+          "attempt_id": "attempt-5b3a73432204dc215833b3bf2c6b22d9dc47ddf733e9f66eafc445aea6d15083",
+          "author": "Baton worker <worker@baton.invalid>",
+          "base": "bc925cf5c62d69426ed5862af4d41f4d2a967b0f",
+          "committer": "Baton worker <worker@baton.invalid>",
+          "head": "5a7d5976ab48c2e66ad5ae610e526362a0990871",
+          "line_id": "line-44dbd5b0d13f37a75be9f605bae4bc463012ca921ab2e7812601580256a4e2c4",
+          "line_path": "/home/sl/baton-instances/durable-capture-w341357-345388/packet/workspaces/.baton-review-lines/line-44dbd5b0d13f37a75be9f605bae4bc463012ca921ab2e7812601580256a4e2c4/checkout",
+          "parents": [
+            "bc925cf5c62d69426ed5862af4d41f4d2a967b0f"
+          ]
+        },
+        "base": "bc925cf5c62d69426ed5862af4d41f4d2a967b0f",
+        "bytes": 223394,
+        "content_digest": "sha256:5c0fca78e650ad9ff75b07e86a3d9b1c80e094d93087ab13c1c7566e0c3ca391",
+        "disposition": "unable",
+        "generation": 1,
+        "head": "5a7d5976ab48c2e66ad5ae610e526362a0990871",
+        "locator": "file:///home/sl/baton-instances/durable-capture-w341357-345388/packet/workspaces/.baton-review-lines/line-44dbd5b0d13f37a75be9f605bae4bc463012ca921ab2e7812601580256a4e2c4/custody/attempt-5b3a73432204dc215833b3bf2c6b22d9dc47ddf733e9f66eafc445aea6d15083/proposal",
+        "state": "valid",
+        "transport": "objects.bundle",
+        "verification": "failed",
+        "why": null
+      }
+    ],
+    "conversations": [],
+    "dispositions": [
+      {
+        "attempt_id": "attempt-5b3a73432204dc215833b3bf2c6b22d9dc47ddf733e9f66eafc445aea6d15083",
+        "disposition": "unable"
+      }
+    ],
+    "generations": [],
+    "implementation_attempts": [
+      "attempt-5b3a73432204dc215833b3bf2c6b22d9dc47ddf733e9f66eafc445aea6d15083"
+    ],
+    "modes": [],
+    "proposals": [],
+    "shortfalls": [
+      "attempt attempt-5b3a73432204dc215833b3bf2c6b22d9dc47ddf733e9f66eafc445aea6d15083 ended 'unable' rather than 'completed', so it published no proposal. An implementation turn that could not do its work is an ANSWER -- the attempt's retained provider log carries what the provider reported -- and it is not a proposal this run may count. WHETHER IT RETAINED A CANDIDATE ANYWAY is a separate question and `candidates` answers it.",
+      "this run published no proposal at all. Whether any turn nevertheless RETAINED a candidate is answered by `candidates`, and a retained candidate is not a published proposal, a verification or an acceptance"
+    ]
+  }
+}
+held: the outcome is retained at /home/sl/baton-instances/durable-capture-w341357-345388/packet/outcome.json

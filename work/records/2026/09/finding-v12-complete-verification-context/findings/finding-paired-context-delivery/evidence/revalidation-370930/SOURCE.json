@@ -1,0 +1,56 @@
+{
+  "HEAD": "f36bcd75ed22430355efe1b274b8f236cb591f6b",
+  "packet_manifest_sha256": "356e8ef42295dcd5d7a966fb2a050bcba1d2991c9b074b945fa4572dd6d40fb0",
+  "packet_members": {
+    "CONTEXT-CHECK.json": true,
+    "GATE-CHECK.json": true,
+    "LIMITS-CHECK.json": true,
+    "LOAD-COMMAND.txt": true,
+    "OPERATOR.md": true,
+    "PACKET.md": true,
+    "PREFLIGHT.json": true,
+    "PREPARATION-PINS.json": true,
+    "PROVENANCE.json": true,
+    "TASK.md": true,
+    "candidate-input/v12/.dockerignore": true,
+    "candidate-input/v12/python/src/baton_v12/verification_context.py": true,
+    "candidate-input/v12/python/tests/manager/test_claude_agent.py": true,
+    "candidate-input/v12/python/tests/manager/test_verification_context.py": true,
+    "candidate-input/v12/worker/Dockerfile.claude": true,
+    "prepare.py": true,
+    "restore.py": true,
+    "verify-inputs.py": true
+  },
+  "checkpoint": {
+    "v12/python/src/baton_v12/verification_context.py": {
+      "checkpoint_sha256": "f599072ac1202e9b759d9e7850f76c98790e23710cf6181d5a6e8907dd51650e",
+      "checkpoint_copy_matches": true,
+      "current_sha256": "f599072ac1202e9b759d9e7850f76c98790e23710cf6181d5a6e8907dd51650e",
+      "HEAD_sha256": "f599072ac1202e9b759d9e7850f76c98790e23710cf6181d5a6e8907dd51650e"
+    },
+    "v12/python/tests/manager/test_verification_context.py": {
+      "checkpoint_sha256": "42dcbfc99ef97c5191461d901bc32630ac58641c77c73341cae9bea1b0f264ff",
+      "checkpoint_copy_matches": true,
+      "current_sha256": "42dcbfc99ef97c5191461d901bc32630ac58641c77c73341cae9bea1b0f264ff",
+      "HEAD_sha256": "42dcbfc99ef97c5191461d901bc32630ac58641c77c73341cae9bea1b0f264ff"
+    },
+    "v12/worker/Dockerfile.claude": {
+      "checkpoint_sha256": "487748a01c72906d3725b78ecafe060a4d290c070822ecb20c8373fe82589b49",
+      "checkpoint_copy_matches": true,
+      "current_sha256": "487748a01c72906d3725b78ecafe060a4d290c070822ecb20c8373fe82589b49",
+      "HEAD_sha256": "487748a01c72906d3725b78ecafe060a4d290c070822ecb20c8373fe82589b49"
+    },
+    "v12/.dockerignore": {
+      "checkpoint_sha256": "b7da7ead0d55e0df74be3b2df79d309fd3aa5455967e3a6bc1d705293cb57ca8",
+      "checkpoint_copy_matches": true,
+      "current_sha256": "b7da7ead0d55e0df74be3b2df79d309fd3aa5455967e3a6bc1d705293cb57ca8",
+      "HEAD_sha256": "b7da7ead0d55e0df74be3b2df79d309fd3aa5455967e3a6bc1d705293cb57ca8"
+    },
+    "v12/python/tests/manager/test_claude_agent.py": {
+      "checkpoint_sha256": "215e9db278b9d87c971be970528646d2fd5fad5b74ef927a49036916ba37288e",
+      "checkpoint_copy_matches": true,
+      "current_sha256": "215e9db278b9d87c971be970528646d2fd5fad5b74ef927a49036916ba37288e",
+      "HEAD_sha256": "215e9db278b9d87c971be970528646d2fd5fad5b74ef927a49036916ba37288e"
+    }
+  }
+}

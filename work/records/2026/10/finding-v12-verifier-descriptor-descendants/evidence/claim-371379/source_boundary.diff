@@ -1,0 +1,426 @@
+diff --git a/v12/python/src/baton_v12/worker_manager/source_boundary.py b/v12/python/src/baton_v12/worker_manager/source_boundary.py
+index af1d43e6..abe599e4 100644
+--- a/v12/python/src/baton_v12/worker_manager/source_boundary.py
++++ b/v12/python/src/baton_v12/worker_manager/source_boundary.py
+@@ -71,6 +71,8 @@ Live byte and entry ceilings are separate v12 hardening because they change
+ the storage or privilege model.
+ """
+ 
++import hashlib
++import json
+ import os
+ import stat
+ 
+@@ -84,6 +86,14 @@ __all__ = ["SOURCE_NAME", "SOURCE_TARGET", "WORKSPACE_TARGET",
+            "MEMORY_FILESYSTEMS", "MOUNTINFO",
+            "CONSUMPTION_KEY", "CONSUMPTION_MEMBERS", "DELIVERY", "BACKING",
+            "MAX_PROFILE", "MIN_WORKSPACE_BYTES", "MAX_WORKSPACE_BYTES",
++           "SCRATCH_AGGREGATE_BYTES", "VERIFIER_PARENT", "VERIFIER_ROOTS",
++           "VERIFIER_FILESYSTEM", "VERIFIER_OPTIONS", "VERIFIER_MODE",
++           "LAYOUT_SCHEMA", "LAYOUT_TARGET", "LAYOUT_MEMBERS",
++           "MARKER_TARGET", "MARKER_SCHEMA", "MARKER_MEMBERS",
++           "LAYOUT_NAME", "MAX_LAYOUT_BYTES",
++           "layout_topology", "layout_digest", "compose_verifier_layout",
++           "image_layout_marker", "layout_bytes", "LayoutDelivery",
++           "materialize_verifier_layout",
+            "NominatedSource", "WorkspaceCapacity", "SourceBoundary",
+            "adopt_source_boundary", "boundary_mounts", "check_disk_backed",
+            "compose_runtime_storage_boundary", "compose_source_boundary",
+@@ -104,13 +114,69 @@ WORKSPACE_TARGET = "/output"
+ # agree until they don't, and this one is load-bearing twice: it is what the
+ # runtime actually gets, and it is the floor a declared capacity must clear.
+ SCRATCH_TARGET = "/tmp"
+-SCRATCH_BYTES = 64 * 1024 * 1024
++SCRATCH_BYTES = 32 * 1024 * 1024
+ SHARED_MEMORY_TARGET = "/dev/shm"
+ SHARED_MEMORY_BYTES = 16 * 1024 * 1024
++
++# W325695: THE VERIFIER'S OWN PRIVATE ROOTS, one bounded tmpfs each.
++#
++# The defect this answers: the verifier's roots were handed to it as
++# `/proc/self/fd/<n>` descriptor paths, which a CHILD cannot resolve -- a
++# descriptor is per-process, so an ordinary `git` or a nested adapter in a
++# grandchild found nothing at the only name it was given. The remedy is
++# ordinary stable pathnames whose non-replaceability comes from the mount
++# rather than from a held descriptor.
++#
++# WHY A SEPARATE MOUNT PER ROOT and not four directories in one: a private
++# mount is the thing a process sharing this uid cannot rename, and per-root
++# mounts are also what makes the per-root byte bound real. One shared mount
++# would let a filled cache take the home root's room with it.
++#
++# THE PARENT IS NOT A MOUNT. `preparation-325908/TASK.md` selects "ordinary
++# root-owned 0755 image directories in read-only rootfs, outside all writable
++# mounts; no mutable ancestor" -- so `/run` and `/run/baton-verifier` are
++# image scaffolding, and the worker proves that rather than trusting it.
++VERIFIER_PARENT = "/run/baton-verifier"
++# name -> (target, bytes). The NAME is the verifier environment's own
++# vocabulary, so the manager and the worker cannot disagree about which root
++# is which; `claude_agent` reads these names and never invents one.
++VERIFIER_ROOTS = (
++    ("HOME", f"{VERIFIER_PARENT}/home", 4 * 1024 * 1024),
++    ("TMPDIR", f"{VERIFIER_PARENT}/tmp", 16 * 1024 * 1024),
++    ("XDG_CACHE_HOME", f"{VERIFIER_PARENT}/cache", 4 * 1024 * 1024),
++    ("PYTHONPYCACHEPREFIX", f"{VERIFIER_PARENT}/pycache", 8 * 1024 * 1024),
++)
++VERIFIER_FILESYSTEM = "tmpfs"
++# The options every scratch mount already carries, named here because the
++# worker PROVES this exact set and a second spelling would drift from it.
++VERIFIER_OPTIONS = ("rw", "noexec", "nosuid", "nodev")
++VERIFIER_MODE = 0o700
++
+ SCRATCH_MOUNTS = (
+     (SCRATCH_TARGET, SCRATCH_BYTES),
+     (SHARED_MEMORY_TARGET, SHARED_MEMORY_BYTES),
+-)
++) + tuple((target, size) for _name, target, size in VERIFIER_ROOTS)
++
++# THE AGGREGATE IS UNCHANGED, AND THAT IS THE POINT. TASK.md: "This
++# redistributes old shared /tmp 64MiB, not extra capacity." The old shared
++# `/tmp` was 64 MiB; it is now 32 MiB and the 32 MiB it gave up is exactly the
++# four verifier roots (4 + 16 + 4 + 8). So the scratch aggregate is still
++# 80 MiB, the workspace floor derived from it below is still 80 MiB, and the
++# existing 16 MiB legacy log decoy still accounts separately for a 96 MiB
++# total. ASSERTED rather than described, because a later edit that moves one
++# number and leaves this comment would otherwise grow the bound silently.
++SCRATCH_AGGREGATE_BYTES = sum(size for _target, size in SCRATCH_MOUNTS)
++assert SCRATCH_AGGREGATE_BYTES == 80 * 1024 * 1024, SCRATCH_AGGREGATE_BYTES
++assert sum(size for _name, _target, size in VERIFIER_ROOTS) == (
++    64 * 1024 * 1024 - SCRATCH_BYTES)
++# No two roots may name one directory. The review's own counterexample: a
++# parser that checks four canonical strings accepts the SAME mounted
++# directory named for all four roles, which would put the cache and the home
++# root in one another's room and defeat the per-root bound above.
++assert len({target for _name, target, _size in VERIFIER_ROOTS}) == len(
++    VERIFIER_ROOTS)
++assert len({name for name, _target, _size in VERIFIER_ROOTS}) == len(
++    VERIFIER_ROOTS)
+ 
+ # WHAT MAY NOT RELY ON SCRATCH, written out because "not tmpfs" is a rule about
+ # these five things and a reader should not have to reconstruct which. Every
+@@ -169,7 +235,10 @@ MAX_PROFILE = 64
+ # It is a FLOOR ON THE DECLARATION and not a reservation. Nothing allocates
+ # these bytes; `check_disk_backed` proves the filesystem is real storage and
+ # the capacity proof below asks whether it currently holds what was declared.
+-MIN_WORKSPACE_BYTES = SCRATCH_BYTES + SHARED_MEMORY_BYTES
++# W325695: derived from the WHOLE scratch table rather than from two of its
++# names, so adding the four verifier roots could not leave the floor behind at
++# the pair it used to sum. It is the same 80 MiB it was before that change.
++MIN_WORKSPACE_BYTES = SCRATCH_AGGREGATE_BYTES
+ 
+ # And this component's own ceiling, which is the manager's existing policy
+ # bound on any one delivery. A declared capacity above it is a configuration
+@@ -981,3 +1050,313 @@ def _profile(profile):
+         _refuse(f"a source consumption profile is at most {MAX_PROFILE} "
+                 f"characters; this is {len(held)}", code="limit")
+     return held
++
++
++# W325695: THE TRUSTED RUNTIME-LAYOUT SELECTION, composed here because this
++# module already owns the topology above and a second owner would be a second
++# spelling of it.
++#
++# A NEW SCHEMA AND A NEW NAME. `preparation-325908/TASK.md` forbids appending
++# members to the frozen task /2, result or worker-launch documents, so the new
++# semantics arrive as their own document rather than as extra members on one
++# that other readers already parse.
++LAYOUT_SCHEMA = "baton.v12.verifier-layout/1"
++LAYOUT_TARGET = "/run/baton/verifier-layout.json"
++# What the IMAGE declares, as its own file in the read-only rootfs beside the
++# scaffolding it describes. This is the trusted expectation the delivered
++# document is compared against -- the review's point that "source agreement is
++# not established by carrying claims" is exactly this: the document alone is
++# the manager's say-so, the marker alone is the image's, and only agreement
++# between two independently-produced statements proves the pair was selected
++# together.
++MARKER_TARGET = "/opt/baton/verifier-layout-marker.json"
++MARKER_SCHEMA = "baton.v12.verifier-layout-marker/1"
++LAYOUT_MEMBERS = ("schema", "layout_digest", "roots", "filesystem", "options",
++                  "mode", "uid", "gid", "image_digest", "profile_digest",
++                  "policy_digest", "adapter_digest")
++# The document's name under the delivery root, and the ceiling the worker
++# reads to. `claude_agent` reads at most this many bytes, so a document wider
++# than this is one it would never see whole -- refused here rather than
++# delivered for the worker to reject.
++LAYOUT_NAME = "verifier-layout.json"
++MAX_LAYOUT_BYTES = 64 * 1024
++MARKER_MEMBERS = ("schema", "layout_digest", "roots", "filesystem", "options",
++                  "mode")
++
++
++def layout_topology():
++    """The selected topology, in the one canonical form both sides digest.
++
++    SORTED AND FULLY SPELLED, because this is the preimage of an identity: two
++    composers that agree on the topology and disagree on how to write it down
++    would produce two digests for one selection and refuse each other.
++    """
++    return {"schema": LAYOUT_SCHEMA,
++            "roots": {name: target for name, target, _size in VERIFIER_ROOTS},
++            "sizes": {name: size for name, _target, size in VERIFIER_ROOTS},
++            "filesystem": VERIFIER_FILESYSTEM,
++            "options": sorted(VERIFIER_OPTIONS),
++            "mode": VERIFIER_MODE}
++
++
++def layout_digest():
++    """The identity of the selected topology, and of nothing else.
++
++    DELIBERATELY NOT OVER THE IDENTITIES. The uid/gid and the image, adapter
++    and policy digests are per-deployment selections; folding them in would
++    mean every deployment had a different topology identity and the image
++    could never declare one. What this digest answers is the question the
++    image CAN answer: "are these the roots, the filesystem, the options and
++    the mode I was built with".
++    """
++    return hashlib.sha256(
++        json.dumps(layout_topology(), sort_keys=True,
++                   separators=(",", ":")).encode("utf-8")).hexdigest()
++
++
++def compose_verifier_layout(*, marker, identity, image_digest, profile_digest,
++                            policy_digest, adapter_digest):
++    """The document ONE runtime receives, or a refusal naming the mismatch.
++
++    THE MANAGER-SIDE INCOMPATIBILITY REFUSAL, which the review asked for by
++    name: "An old worker cannot be made to reject a document it does not read
++    merely by adding a schema check to the new worker; prove manager-side
++    incompatibility refusal too." An old image carries no marker, so `marker`
++    is `None`, and this refuses to compose a selection for it -- BEFORE any
++    runtime starts, rather than by hoping a worker that never reads the
++    document will somehow decline it. The other direction is the worker's, and
++    it has to be: only the worker can see that its image's marker arrived with
++    no document beside it.
++
++    `marker` is an OPERAND and is not discovered here. This module composes;
++    what an image declares is read from that image's own record by the caller
++    that owns image identity. Inferring it would make the refusal a guess.
++
++    THE EXECUTION IDENTITY IS A CAPABILITY AND NOT A PAIR OF INTEGERS, and
++    that is the review's correction rather than a style choice: "Bind selected
++    topology and effective UID/GID through the actual owner composition, not
++    self-assertion in an arbitrary document." The owner composition is
++    `workspaces.identity_for`, which derives the uid from `os.geteuid()`
++    behind the deployment's own minted workspace group -- the SAME object
++    `oci.run_vector` turns into this runtime's `--user` flag. So the document
++    cannot name an identity the container will not run as, and a caller cannot
++    choose one: two integers would have been exactly the self-assertion that
++    was refused, and a `WorkspaceIdentity` is a thing only the manager's own
++    provisioning can mint.
++
++    THE FOUR DIGESTS ARE THE WHOLE RESOLVED IDENTITY, `oci.RESOLVED_IDENTITY`
++    member for member, for the same reason: `OciAdapter` holds one resolved
++    identity at construction and refuses a layout document that disagrees with
++    it, so the pair the worker proves is the pair the adapter started. A
++    three-member subset would have left `profile_digest` -- the runtime
++    profile that selects the posture the roots live under -- unbound.
++    """
++    if marker is None:
++        _denied(f"this image declares no verifier-layout marker, so the "
++                f"selected private verifier topology cannot be composed for "
++                f"it; an image built before {name_value(LAYOUT_SCHEMA)} has "
++                f"no {name_value(VERIFIER_PARENT)} scaffolding and no "
++                f"per-root mounts, and composing a document it cannot honour "
++                f"would start a runtime whose verifier roots do not exist")
++    held = boundaries.document(marker, "a verifier-layout marker",
++                               required=MARKER_MEMBERS)
++    if held["schema"] != MARKER_SCHEMA:
++        _denied(f"a verifier-layout marker says it is "
++                f"{name_value(held['schema'])}; this manager composes against "
++                f"exactly {name_value(MARKER_SCHEMA)}")
++    mine = layout_digest()
++    if held["layout_digest"] != mine:
++        _denied(f"this image declares verifier topology "
++                f"{name_value(held['layout_digest'])} and this manager "
++                f"composes {name_value(mine)}; the image's fixed root "
++                f"scaffolding and this manager's mounts were selected from "
++                f"different topologies, and the pair refuses before the "
++                f"provider rather than after a verifier cannot find a root")
++    # THE TRUSTED EXECUTION IDENTITY, MINTED AND NOT NAMED. TASK.md: "not
++    # hardcoded 65532, not ambient login group". `WorkspaceIdentity` is both:
++    # it is never 65532, because its uid is this manager's own effective uid,
++    # and it is never an ambient group, because its gid is the deployment's
++    # minted `WorkspaceGroup`. A caller holding only integers cannot get here.
++    if type(identity) is not workspaces.WorkspaceIdentity:
++        _denied(f"a verifier layout is composed under this deployment's "
++                f"minted execution identity, which is the same capability "
++                f"the runtime's own `--user` flag is composed from; this is "
++                f"{name_value(identity)}")
++    for name, value in (("image_digest", image_digest),
++                        ("profile_digest", profile_digest),
++                        ("policy_digest", policy_digest),
++                        ("adapter_digest", adapter_digest)):
++        boundaries.text(value, f"a verifier layout's {name}")
++    topology = layout_topology()
++    return {"schema": LAYOUT_SCHEMA,
++            "layout_digest": mine,
++            "roots": topology["roots"],
++            "filesystem": topology["filesystem"],
++            "options": topology["options"],
++            "mode": topology["mode"],
++            "uid": identity.uid, "gid": identity.gid,
++            "image_digest": image_digest,
++            "profile_digest": profile_digest,
++            "policy_digest": policy_digest,
++            "adapter_digest": adapter_digest}
++
++
++def image_layout_marker():
++    """The marker an image build writes beside its own root scaffolding.
++
++    Composed from the same `layout_topology` the document is, so an image
++    recipe cannot declare a topology this manager does not compose. The recipe
++    writes this file; `MARKER_TARGET` is where the worker reads it.
++    """
++    topology = layout_topology()
++    return {"schema": MARKER_SCHEMA,
++            "layout_digest": layout_digest(),
++            "roots": topology["roots"],
++            "filesystem": topology["filesystem"],
++            "options": topology["options"],
++            "mode": topology["mode"]}
++
++
++def layout_bytes(document):
++    """The canonical bytes of one layout document, bounded.
++
++    ONE SPELLING, because these bytes are compared: `materialize_verifier_layout`
++    adopts an existing document only when it is byte-identical to what this
++    composition would write, and two spellings of one selection would make a
++    deployment refuse its own delivery.
++    """
++    payload = json.dumps(document, ensure_ascii=False, sort_keys=True,
++                         separators=(",", ":")).encode("utf-8")
++    if len(payload) > MAX_LAYOUT_BYTES:
++        _denied(f"this verifier-layout document is {len(payload)} bytes and "
++                f"the worker reads at most {MAX_LAYOUT_BYTES}; a document the "
++                f"worker would refuse is not one this manager writes")
++    return payload
++
++
++class LayoutDelivery:
++    """The TYPED capability the adapter receives, and the only one.
++
++    THE SAME RULE `launch.LaunchDelivery` IS UNDER, and it is the review's
++    "protect document delivery, type, ownership and immutability": what
++    crosses to the adapter is a delivery this manager materialized, not a path
++    a caller chose. A path operand would be a caller-selected locator for the
++    one document the verifier's roots are proved against -- which is exactly
++    what the fixed target exists to take away.
++
++    IT CARRIES THE DOCUMENT, not just the place, because the adapter has a
++    proof to make about it: `OciAdapter` refuses a delivery whose resolved
++    identity is not the one it was constructed under, and `oci.run_vector`
++    refuses one whose uid/gid is not the identity it is composing into
++    `--user`. Neither check is possible against bytes on disk alone.
++    """
++
++    def __init__(self, *, root, place, document):
++        self.root = root
++        self.place = place
++        self.document = document
++
++    def mount(self):
++        """The ONE read-only bind this delivery authorizes.
++
++        A pair rather than a mount document: `readonly` is not a parameter,
++        and a delivery that could ask to be writable would be a layout
++        document the worker could rewrite between proving its roots against it
++        and being asked about them.
++        """
++        return (self.place, LAYOUT_TARGET)
++
++
++def materialize_verifier_layout(storage, *, document):
++    """Put one composed layout selection on disk as this manager's own.
++
++    `storage` is the manager's own layout storage and NOT an assignment root,
++    for the reason `launch.materialize` states: a document mounted out of
++    `inputs` is one the input digest describes, and one mounted out of
++    `workspace` is one the worker may WRITE -- so the worker could rewrite the
++    document its own verifier roots are proved against.
++
++    AN EXISTING DOCUMENT IS ADOPTED ONLY IF IT IS THIS ONE, byte for byte.
++    `launch.materialize` refuses any existing root outright and is right to:
++    its document is per-attempt, so an existing one is a live delivery or an
++    orphan. THIS document is a per-deployment selection -- a pure function of
++    the topology above, the image's marker and the resolved identity -- so a
++    second start of the same deployment composes the same bytes, and refusing
++    them would mean a deployment could serve exactly one runtime. Different
++    bytes at the name still REFUSE: that is a selection that changed under a
++    deployment whose live runtimes were started against the old one.
++    """
++    home = boundaries.text(storage, "the manager's verifier-layout storage")
++    if not os.path.isabs(home):
++        _refuse(f"the manager's verifier-layout storage is not an absolute "
++                f"path; a root this build cannot name exactly is not a root",
++                code="path")
++    held = boundaries.document(document, "a verifier-layout document",
++                               required=LAYOUT_MEMBERS)
++    if held["schema"] != LAYOUT_SCHEMA:
++        _denied(f"a verifier-layout delivery carries "
++                f"{name_value(held['schema'])}; this manager delivers exactly "
++                f"{name_value(LAYOUT_SCHEMA)}")
++    payload = layout_bytes(held)
++    root = os.path.join(os.path.realpath(home), "verifier-layout")
++    place = os.path.join(root, LAYOUT_NAME)
++    os.makedirs(root, mode=0o700, exist_ok=True)
++    # THE EXISTING DOCUMENT IS COMPARED THROUGH A DESCRIPTOR, never by a
++    # second lookup of a name that could be something else by then -- the rule
++    # `launch.adopt` states. `O_NOFOLLOW` so a link left at the name refuses
++    # rather than being read through, and the type comes from the descriptor
++    # this function is holding.
++    try:
++        handle = os.open(place, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC)
++    except FileNotFoundError:
++        handle = None
++    except OSError as failure:
++        _refuse(f"the verifier-layout document at {place} cannot be opened "
++                f"({type(failure).__name__}); a link or special file at the "
++                f"name is refused rather than read through", code="path")
++    if handle is not None:
++        try:
++            found = os.fstat(handle)
++            if not stat.S_ISREG(found.st_mode):
++                _refuse(f"the verifier-layout document at {place} is not an "
++                        f"ordinary file", code="path")
++            if found.st_size > MAX_LAYOUT_BYTES:
++                _refuse(f"the verifier-layout document at {place} is "
++                        f"{found.st_size} bytes and this manager writes at "
++                        f"most {MAX_LAYOUT_BYTES}", code="limit")
++            if os.read(handle, MAX_LAYOUT_BYTES + 1) != payload:
++                _denied(f"a different verifier-layout selection is already "
++                        f"delivered at {place}; this deployment's selection "
++                        f"changed while runtimes may have been started "
++                        f"against the one on disk, and replacing those bytes "
++                        f"would leave a live worker proving its roots against "
++                        f"a selection nothing recorded")
++        finally:
++            os.close(handle)
++        return LayoutDelivery(root=root, place=place, document=held)
++    # EXCLUSIVE CREATION, NO-FOLLOW, AND CREATED UNREADABLE, then made
++    # readable on the DESCRIPTOR this function wrote -- `launch.materialize`'s
++    # rule and its reason: a creation mode is filtered by the umask, so a
++    # manager under the ordinary service umask 077 would author a document the
++    # container's execution identity cannot read, and `fchmod` after the last
++    # byte means the document becomes readable exactly when it becomes whole.
++    handle = os.open(place,
++                     os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
++                     0o000)
++    try:
++        written = 0
++        while written < len(payload):
++            step = os.write(handle, payload[written:])
++            if type(step) is not int or step <= 0:
++                _refuse(f"writing the verifier-layout document made no "
++                        f"progress after {written} of {len(payload)} bytes; a "
++                        f"partly written document is one the worker refuses "
++                        f"and this manager believes it delivered")
++            written += step
++        os.fchmod(handle, 0o444)
++    except BaseException:
++        os.close(handle)
++        os.unlink(place)
++        raise
++    os.close(handle)
++    return LayoutDelivery(root=root, place=place, document=held)

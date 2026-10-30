@@ -1,0 +1,77 @@
+[
+  {
+    "work": "W2",
+    "path": "work/records/2026/08/finding-v12-isolated-agent-workers",
+    "history_sha256": "77dff7b73d191c0a5160be693f10f18f727fbc9ffb5f701cdb9b2ef21b556644"
+  },
+  {
+    "work": "W370747",
+    "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment",
+    "history_sha256": "9c9d71402a23a8ebc7622bed405b7fdb6f1c3e8442d5f3d91713f61242391286"
+  },
+  {
+    "work": "W371076",
+    "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-composed-workflow-proof-plan",
+    "history_sha256": "ba0637868c8f52494cb379e6149855541c2b6325c22837c9a8a6ce6a10e4ae88"
+  },
+  {
+    "work": "W371072",
+    "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-template-adapter-admission-plan",
+    "history_sha256": "9f87a1eb2651054b62e5a05fb005228f5b18cad0bf5a738817fc27ea5a49aa48"
+  },
+  {
+    "work": "W371073",
+    "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-safe-adapter-failure-plan",
+    "history_sha256": "24f62b839ad0ee9a7ed14cea4869e4f4f5f6265551e180c573a37a0659f5d7df"
+  },
+  {
+    "work": "W371075",
+    "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-routine-startup-prerequisites-plan",
+    "history_sha256": "5cbe989008b82033b33ee6aec472ca7dc98cb6a6d5f949e4daa5c35160f647d8"
+  },
+  {
+    "work": "W375516",
+    "path": "work/records/2026/10/finding-v12-startup-prerequisites",
+    "history_sha256": "8e8a85201688af604dda9c77a37de0388d5f6dd432efc9178b5a70679cbfc16a"
+  },
+  {
+    "work": "W376254",
+    "path": "work/records/2026/10/finding-v12-startup-prerequisites/findings/finding-readonly-validation",
+    "history_sha256": "2d5613e54e8e792f7f0d0e5169d1c43f08d4d6b05f14e8f2477b50562af4296d"
+  },
+  {
+    "work": "W371295",
+    "path": "work/records/2026/10/finding-v12-role-contract-admission",
+    "history_sha256": "82a9beb4a73a7018baa85ff1fc41531a2aabafe8ecfa1fed15926154771f7ed3"
+  },
+  {
+    "work": "W61981",
+    "path": "work/records/2026/09/finding-v12-complete-verification-context",
+    "history_sha256": "286b0376f9d7d4261f1582c7f80f0c3605904b401336546e51c1fb5d7707172e"
+  },
+  {
+    "work": "W321776",
+    "path": "work/records/2026/09/finding-v12-complete-verification-context/findings/finding-paired-context-delivery",
+    "history_sha256": "72e71f47eab688b16237fbb1c4666f3ad0bf4c38182adfcc5d8ca6e2ff7f71cc"
+  },
+  {
+    "work": "W62098",
+    "path": "work/records/2026/09/finding-v12-proposal-import-base-closure",
+    "history_sha256": "fee7d62d87b06675e1ea97e13056bfd82ea31c5d7fdc5b14b99a08a9a77861bc"
+  },
+  {
+    "work": "W62535",
+    "path": "work/records/2026/09/finding-v12-dogfood-preflight-before-staging",
+    "history_sha256": "35b330cf03f2ee1897d7a411b16e379a536c35fabb4864ad1386a34124765170"
+  },
+  {
+    "work": "W39435",
+    "path": "work/records/2026/08/finding-v12-flat-dossier-storage",
+    "history_sha256": "8f0e7226b6a24c391b85053916fcdb7406cbe7cd105f0a8937e13b1673073ffd"
+  },
+  {
+    "work": "W44342",
+    "path": "work/records/2026/08/finding-custody-engine-operation-settlement",
+    "history_sha256": "d05c799391d531d944fb9ec800809a7fb3cffeefe8612baaccc542c040bc3e33"
+  }
+]

@@ -1,0 +1,221 @@
+diff --git a/v12/python/src/baton_v12/job_manager/manager.py b/v12/python/src/baton_v12/job_manager/manager.py
+index 4bf42e48..a8da6f8a 100644
+--- a/v12/python/src/baton_v12/job_manager/manager.py
++++ b/v12/python/src/baton_v12/job_manager/manager.py
+@@ -830,7 +830,7 @@ def _adopt(store, operations, held):
+ 
+ 
+ def serve(store, operations, *, clock, sleep, should_continue,
+-          interval=TICK_SECONDS, reclaim=None):
++          interval=TICK_SECONDS, reclaim=None, renewal=None):
+     """The long-lived process, with its waiting and its stopping INJECTED.
+ 
+     A loop that reached for `time.sleep` and a module-level flag would be a
+@@ -842,6 +842,21 @@ def serve(store, operations, *, clock, sleep, should_continue,
+     Answers the LAST report rather than every one of them. A process that ran
+     for a week would otherwise answer with a week of reports, and the useful
+     fact at the end of a run is what was true at the end of it.
++
++    W333485: AND THE RENEWAL PASS IS ASKED SEVERAL TIMES PER TICK, which is the
++    one thing about this order that is not obvious. A renewal decision is owed
++    at a DEADLINE rather than at a cadence, and nothing in this loop is bounded
++    by the interval: a sweep delegates canonical acts, and the deployment's
++    reclaim pass has a command allowance of three engine calls times thirty
++    seconds times sixteen candidates. So asking once per tick would mean a lead
++    that must survive the longest pass in the loop. It is asked instead BEFORE
++    the first effectful act, after the wait, and again after the sweep and the
++    reclaim -- and the pass that composes the reclaim asks it between engine
++    calls as well, which is where the real bound comes from. Its own scan floor
++    makes the extra asks cheap, so this is latency rather than work.
++
++    THE TICK INTERVAL IS NOT A WHOLE-LOOP BOUND, and this loop does not claim
++    one. What it owns is the ORDER and the places the question is asked.
+     """
+     boundaries.capability(clock, "the Job manager's instant source")
+     boundaries.capability(sleep, "the loop's wait")
+@@ -858,9 +873,23 @@ def serve(store, operations, *, clock, sleep, should_continue,
+     # learned its expiry pass was unusable. A run that cannot reclaim must not begin.
+     if reclaim is not None:
+         boundaries.capability(reclaim, "a resource reclaim pass")
++    # W333485: TYPED IN THE SAME PLACE AND FOR THE SAME REASON. A run that
++    # cannot renew must not begin: the alternative is a deployment that recovers,
++    # adopts runtimes and then discovers that every live permission will expire
++    # at its initial lease.
++    if renewal is not None:
++        boundaries.capability(renewal, "a token renewal pass")
++    # AND THE FIRST DECISION COMES BEFORE THE FIRST EFFECTFUL ACT. A restarted
++    # manager can resume beside a permission already inside its lead -- the
++    # recovery it is about to perform is exactly the long act that would carry it
++    # past the deadline -- and the committed token state is what this reads, so a
++    # renewal another incarnation already took is seen as taken.
++    renewed = renewal(now=clock()) if renewal is not None else None
+     report = reconcile(store, operations, now=clock())
+     while should_continue():
+         sleep(interval)
++        if renewal is not None:
++            renewed = renewal(now=clock())
+         report = sweep(store, operations, now=clock())
+         # W275774: THE OVERDUE-RESOURCE PASS, INJECTED for the same reason the clock
+         # and the wait are.
+@@ -884,6 +913,14 @@ def serve(store, operations, *, clock, sleep, should_continue,
+             reclaimed = reclaim(now=clock())
+             if reclaimed is not None:
+                 report = dict(report, reclaimed=reclaimed)
++        if renewal is not None:
++            # AND AGAIN AFTER BOTH, so a tick's own work cannot be what carries a
++            # permission past its lead. The pass's answer carries its cumulative
++            # counters, so the renewals it took between these calls -- inside the
++            # reclaim's engine loop -- are accounted for in this report too.
++            renewed = renewal(now=clock())
++        if renewed is not None:
++            report = dict(report, renewed=renewed)
+     return report
+ 
+ 
+diff --git a/v12/python/tools/job_manager.py b/v12/python/tools/job_manager.py
+index b1f069a2..e0bdcf55 100644
+--- a/v12/python/tools/job_manager.py
++++ b/v12/python/tools/job_manager.py
+@@ -42,6 +42,11 @@ from baton_v12.contracts.errors import name_value
+ from baton_v12.job_manager import (JobStore, ManagerOperations, Unobserved,
+                                    read_submission, reconcile, serve, status,
+                                    submit)
++# W333485: THE RENEWAL PASS IS A COMPONENT, reached as one. It is not exported
++# from the package for the reason `tokens` is not: a serving composition is
++# reached by name, and `_renewing` below is the only thing in this tool that
++# builds one.
++from baton_v12.job_manager import renewal as job_renewal
+ from baton_v12.worker_manager import ControlStore
+ from baton_v12.worker_manager import attempts, boundaries, intake, oci, tokens
+ 
+@@ -422,7 +427,47 @@ class _Reclaiming:
+         self.observe = adapter.observe
+ 
+ 
+-def _reclaiming(control, engine, run, custodian=None):
++def _pumping(between, faults, run):
++    """The renewal scan, asked BEFORE every engine command this pass issues.
++
++    W333485. THE LATENCY PROBLEM THIS SOLVES, stated as the arithmetic above
++    states it: a reclaim pass may spend 1440 seconds in engine commands, so a
++    renewal decided once per pass cannot protect a 120-second lead, and a
++    decision taken at the FRONT of the pass cannot protect the next one either.
++    What can is asking between the calls -- each of which this tool bounds at
++    `_RECLAIM_SECONDS` -- so the longest gap between two inspections is the
++    pass's own scan floor plus one bounded command rather than the whole pass.
++
++    ASKED BEFORE RATHER THAN AFTER, because the useful instant is the one before
++    this process hands thirty seconds to a subprocess.
++
++    IT CANNOT BREAK THE ENGINE CALL. A renewal fault is a renewal fault: turning
++    it into a failed stop would hold a resource for a reason that has nothing to
++    do with the resource. So faults are collected and reported in the pass's own
++    answer, and the engine command proceeds either way.
++
++    AND NOTHING HERE DECIDES ANYTHING. The pass it calls owns the floor, the
++    eligibility and the write; this is the seam that gives it the chance.
++    """
++    def running(argv, *, seconds=None):
++        try:
++            between()
++        except (KeyboardInterrupt, SystemExit):
++            raise
++        except ContractRefusal as refusal:
++            faults.append({"why": refusal.message})
++        except Exception as fault:                         # noqa: BLE001
++            faults.append({"why": f"the renewal scan faulted: {fault!r}"})
++        # BOUNDED IN PLACE. A long-lived process must not grow a list because
++        # one engine is unreachable, and the newest faults are the actionable
++        # ones.
++        del faults[:-_RECLAIM_CANDIDATES]
++        return run(argv, seconds=seconds)
++
++    return running
++
++
++def _reclaiming(control, engine, run, custodian=None, between=None):
+     """One expiry pass over every attempt that has a runtime to reclaim.
+ 
+     BOUNDED, which review 17:17:15Z asked for by name: it walks the attempts this
+@@ -436,6 +481,15 @@ def _reclaiming(control, engine, run, custodian=None):
+     and answered, never swallowed.
+     """
+     governance = tokens.workspace_governance()
++    # W333485: AND THE RENEWAL SCAN RIDES THE RUNNER, when one was supplied. It
++    # wraps `run` rather than this pass's loop so that EVERY engine command --
++    # the reclaim's stop, remove and inspect, the ending's own observation and
++    # each custody vector -- is preceded by a chance to renew.
++    renewal_faults = []
++    if between is not None:
++        boundaries.capability(between, "a renewal scan asked between engine "
++                                       "calls")
++        run = _pumping(between, renewal_faults, run)
+     # THE CAPABILITY IS COMPOSED ONLY WHEN IT CAN BE HONOURED. Without a configured
+     # custodian image there is no normalization this pass can perform, and an adapter
+     # advertising the verb anyway would turn the ending's refusal into a false start.
+@@ -528,7 +582,12 @@ def _reclaiming(control, engine, run, custodian=None):
+                 # -- see `_observing_unresolved` for why this pass observes and holds
+                 # rather than attaching.
+                 "unresolved": unresolved,
+-                "unresolved_resumes_after": resumed_unresolved[0]}
++                "unresolved_resumes_after": resumed_unresolved[0],
++                # W333485: WHAT THE INTERLEAVED RENEWAL SCAN COULD NOT DO, if
++                # anything. Bounded and reported rather than accumulated: a
++                # week-long run must not grow a list, and a scan that keeps
++                # failing is a fact an operator needs in the tick it happens.
++                "renewal_faults": renewal_faults[-_RECLAIM_CANDIDATES:]}
+ 
+     return pass_over_attempts
+ 
+@@ -1063,20 +1122,48 @@ def _serve(taken, clock, stream):
+                 signal.signal(signal.SIGINT, stop)
+                 signal.signal(signal.SIGTERM, stop)
+                 if taken.once:
+-                    return _emit(reconcile(store, operations, now=clock()),
+-                                 stream)
++                    # W333485: THE SINGLE-SHOT RUN DECIDES RENEWAL TOO, and
++                    # before it recovers. An operator reconciling a deployment
++                    # by hand is exactly the moment a live permission may be
++                    # inside its lead, and a recovery is the long act that
++                    # would carry it past the deadline.
++                    once = job_renewal.serving_renewal(control, store)
++                    answered = once(now=clock())
++                    return _emit(dict(reconcile(store, operations,
++                                                now=clock()),
++                                      renewed=answered), stream)
+                 # W275774: AND THE EXPIRY PASS IS SUPPLIED, not defaulted away.
+                 # A deployment whose factory composes its own pass wins, because it
+                 # may know more about its adapters than this tool does; otherwise
+                 # this tool's own lean pass is used.
++                # W333485: AND THE RENEWAL PASS IS COMPOSED HERE, for the
++                # reason the expiry pass is: it needs BOTH stores -- the
++                # control store's attempts and tokens, and this Job store's
++                # episodes and ending obligations -- and this tool is where a
++                # deployment's two stores are already open side by side.
++                #
++                # A FACTORY'S OWN PASS WINS, exactly as it does for the
++                # reclaim: a deployment that knows more about its eligibility
++                # than this tool does supplies `renew`.
++                #
++                # THE SAME PASS IS HANDED TO BOTH CONSUMERS. The loop asks it
++                # at its tick boundaries; the reclaim composition asks it
++                # between engine commands. One object, so its scan floor and
++                # its counters are one state rather than two passes with two
++                # opinions about when it last looked.
++                renewing = (getattr(operations, "renew", None)
++                            or job_renewal.serving_renewal(control, store))
+                 return _emit(serve(store, operations, clock=clock,
+                                    sleep=time.sleep,
+                                    should_continue=lambda: running[0],
+                                    interval=taken.interval,
++                                   renewal=renewing,
+                                    reclaim=getattr(operations, "reclaim", None)
+                                    or _reclaiming(control, taken.engine,
+                                                   _engine_runner,
+-                                                  taken.custodian_image)), stream)
++                                                  taken.custodian_image,
++                                                  between=lambda: renewing(
++                                                      now=clock()))), stream)
+             finally:
+                 if operations is not None:
+                     _release(operations, stream)

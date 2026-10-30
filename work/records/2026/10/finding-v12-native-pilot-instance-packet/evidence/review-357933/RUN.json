@@ -1,0 +1,41 @@
+{
+  "hashes": {
+    "configure.py": "e0514b5f18094452c1fdbb691ed97debff1b5b283150325feb7ef6a62a50fda6",
+    "prove.py": "5fe14eab8d6e50bdc4004f3235d47a9c88194632ac17f501a51491dff3dc9787",
+    "PROPOSAL.md": "7a082cdc33068a9b51e30bfeb9c13240cb5aff178fffcb997293639eda995280",
+    "INDEX.json": "4918f96c8748c5d4ed10924ae58d33010c466d1c6216c3e75c462a149c001e86",
+    "evidence/PROVE.json": "cb7c30418e976f1e073bbd199b283b8d0d4762dc1ed95e25fcd33bbbb29d69df"
+  },
+  "inherited_pins_match": true,
+  "exit": 0,
+  "elapsed_seconds": 0.39116346800437896,
+  "proof_location": "Disposable mirror; fixed-name _prove-defaults confined to owned temporary root.",
+  "checks": 97,
+  "tamper_cases": [
+    {
+      "path": "revision-4/inputs/deployment.json",
+      "refusal": "REFUSED: revision-4/inputs/deployment.json is sha256:9d1c1b072b5c8a33a067d1f92eea4bae73553a2de6af3770b15a65c04dbb520f and this procedure is bound to sha256:6a675445d361a5208f82dfc43593595cd2d5d9bcbb3e893842c03b5cb8587a3e",
+      "expected": true,
+      "seconds": 0.0065871370024979115
+    },
+    {
+      "path": "revision-4/inputs/native-finding.md",
+      "refusal": "REFUSED: revision-4/inputs/native-finding.md is sha256:fbb6197d0489dd41158838e30af8f5797be8569b51bbc70713f28ab5ff1a9a63 and this procedure is bound to sha256:8e51f5ec4c0d8c1866412f1987e0b07f0a06c3c24969262c70ef4837f25b8947",
+      "expected": true,
+      "seconds": 8.096099918475375e-05
+    },
+    {
+      "path": "revision-4/inputs/native-plan.md",
+      "refusal": "REFUSED: revision-4/inputs/native-plan.md is sha256:34cc0fbcb96c940e975f467448077d7e461c4b07be7980c9911853c678d990aa and this procedure is bound to sha256:39c50d05797f5ed0ea92ae27a44a6f18cbc95baf3210e361c3845a603c03d8ab",
+      "expected": true,
+      "seconds": 8.21330031612888e-05
+    },
+    {
+      "path": "revision-4/configuration/manifest-inputs.json",
+      "refusal": "REFUSED: revision-4/configuration/manifest-inputs.json is sha256:7b5ee26609479f8d7b4ecaa1c90ca3dde542138c2d9b2b830fce8fb030d3cbe6 and this procedure is bound to sha256:4c924188e853cc457e57ae405bce4e7ab06ddbe9f3b461ba7eeafa00f7fb30ab",
+      "expected": true,
+      "seconds": 9.022700396599248e-05
+    }
+  ],
+  "no_destination_effects": true
+}

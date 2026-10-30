@@ -1,0 +1,863 @@
+{
+  "observed_at": "2026-10-21T15:08:38.440006+00:00",
+  "actor": "baton.prompt",
+  "owner_report": "all run (Section A staging, preflight, installer)",
+  "installation_sha256": "342587c532c9a6aa03ca65d2a664bb79b815812b43619a5a907e0a65a9b0c4ac",
+  "ready_matches": true,
+  "capacity": 4,
+  "caller_uid": 1000,
+  "groups": [
+    1000,
+    119
+  ],
+  "accounts": [
+    {
+      "uid": 997,
+      "gid": 986
+    },
+    {
+      "uid": 995,
+      "gid": 984
+    },
+    {
+      "uid": 994,
+      "gid": 983
+    },
+    {
+      "uid": 993,
+      "gid": 982
+    }
+  ],
+  "file_count": 207,
+  "file_checks": [
+    {
+      "path": "client.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/__init__.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/attempt_log_format.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/authority/__init__.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/authority/api.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/authority/core.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/authority/dossier.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/authority/errors.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/authority/identity.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/authority/labels.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/authority/principals.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/authority/schema.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/authority/session.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/authority/store.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/checkpoint_profiles.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/contracts/__init__.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/contracts/canonical.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/contracts/errors.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/contracts/frozen.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/contracts/manifest.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/contracts/pod.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/contracts/schema/agent-session-1.0.schema.json",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/contracts/schema/worker-control-1.0.schema.json",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/contracts/secrets.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/contracts/validate.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/eventing.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/integration/__init__.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/integration/admission.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/integration/driver.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/integration/execution.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/integration/git_profile.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/integration/managed_execution.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/integration/oci_delivery.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/integration/queue.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/integration/reconciliation.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/integration/recovery.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/integration/runtime.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/integration/schema.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/integration/store.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/job_manager/__init__.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/job_manager/delegation.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/job_manager/documents.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/job_manager/ending.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/job_manager/episodes.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/job_manager/execution_limits.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/job_manager/integration_capacity.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/job_manager/manager.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/job_manager/projection.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/job_manager/review_driver.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/job_manager/scheduler.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/job_manager/schema.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/job_manager/store.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/job_manager/submission.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/source_profiles/__init__.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/source_profiles/checkout.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/verification_context.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/version.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/worker_manager/__init__.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/worker_manager/attempt_logs.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/worker_manager/attempts.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/worker_manager/authority_port.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/worker_manager/boundaries.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/worker_manager/context_delivery.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/worker_manager/credentials.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/worker_manager/custody.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/worker_manager/deadlines.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/worker_manager/documents.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/worker_manager/events.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/worker_manager/exchange.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/worker_manager/handshake.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/worker_manager/intake.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/worker_manager/interrogation.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/worker_manager/lanes.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/worker_manager/launch.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/worker_manager/maintenance.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/worker_manager/manifests.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/worker_manager/oci.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/worker_manager/offers.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/worker_manager/output.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/worker_manager/posture_slots.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/worker_manager/provider_context.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/worker_manager/review_cycles.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/worker_manager/schema.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/worker_manager/sealing.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/worker_manager/sessions.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/worker_manager/source_boundary.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/worker_manager/store.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/worker_manager/tokens.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/worker_manager/worker_entry.py",
+      "match": true
+    },
+    {
+      "path": "code/src/baton_v12/worker_manager/workspaces.py",
+      "match": true
+    },
+    {
+      "path": "code/tools/__init__.py",
+      "match": true
+    },
+    {
+      "path": "code/tools/accepted_base.py",
+      "match": true
+    },
+    {
+      "path": "code/tools/attempt_logs_command.py",
+      "match": true
+    },
+    {
+      "path": "code/tools/authoring_baseline.py",
+      "match": true
+    },
+    {
+      "path": "code/tools/authoring_enforcement.py",
+      "match": true
+    },
+    {
+      "path": "code/tools/authoring_shutdown.py",
+      "match": true
+    },
+    {
+      "path": "code/tools/bootstrap.py",
+      "match": true
+    },
+    {
+      "path": "code/tools/build_stamp.py",
+      "match": true
+    },
+    {
+      "path": "code/tools/disposition_command.py",
+      "match": true
+    },
+    {
+      "path": "code/tools/dogfood_operator.py",
+      "match": true
+    },
+    {
+      "path": "code/tools/dossier_command.py",
+      "match": true
+    },
+    {
+      "path": "code/tools/environment.py",
+      "match": true
+    },
+    {
+      "path": "code/tools/instance.py",
+      "match": true
+    },
+    {
+      "path": "code/tools/integration_bundle.py",
+      "match": true
+    },
+    {
+      "path": "code/tools/integration_placement.py",
+      "match": true
+    },
+    {
+      "path": "code/tools/integration_worker.py",
+      "match": true
+    },
+    {
+      "path": "code/tools/job_manager.py",
+      "match": true
+    },
+    {
+      "path": "code/tools/job_viewer.py",
+      "match": true
+    },
+    {
+      "path": "code/tools/next_run.py",
+      "match": true
+    },
+    {
+      "path": "code/tools/next_run_bindings.py",
+      "match": true
+    },
+    {
+      "path": "code/tools/next_run_client.py",
+      "match": true
+    },
+    {
+      "path": "code/tools/next_run_confinement.py",
+      "match": true
+    },
+    {
+      "path": "code/tools/next_run_entry.py",
+      "match": true
+    },
+    {
+      "path": "code/tools/next_run_managed.py",
+      "match": true
+    },
+    {
+      "path": "code/tools/next_run_recovery.py",
+      "match": true
+    },
+    {
+      "path": "code/tools/parallel_test.py",
+      "match": true
+    },
+    {
+      "path": "code/tools/pool.py",
+      "match": true
+    },
+    {
+      "path": "code/tools/single_worker.py",
+      "match": true
+    },
+    {
+      "path": "code/tools/stack.py",
+      "match": true
+    },
+    {
+      "path": "code/tools/stack_command.py",
+      "match": true
+    },
+    {
+      "path": "code/tools/stage_execution.py",
+      "match": true
+    },
+    {
+      "path": "code/tools/user_credentials.py",
+      "match": true
+    },
+    {
+      "path": "code/tools/worker_image.py",
+      "match": true
+    },
+    {
+      "path": "code/tools/worker_visibility.py",
+      "match": true
+    },
+    {
+      "path": "entry.py",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/attrs-26.1.0.dist-info/INSTALLER",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/attrs-26.1.0.dist-info/METADATA",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/attrs-26.1.0.dist-info/RECORD",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/attrs-26.1.0.dist-info/REQUESTED",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/attrs-26.1.0.dist-info/WHEEL",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/attrs-26.1.0.dist-info/licenses/LICENSE",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/base_library.zip",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/baton_v12/contracts/schema/agent-session-1.0.schema.json",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/baton_v12/contracts/schema/worker-control-1.0.schema.json",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/build-stamp.json",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/jsonschema-4.26.0.dist-info/INSTALLER",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/jsonschema-4.26.0.dist-info/METADATA",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/jsonschema-4.26.0.dist-info/RECORD",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/jsonschema-4.26.0.dist-info/REQUESTED",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/jsonschema-4.26.0.dist-info/WHEEL",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/jsonschema-4.26.0.dist-info/entry_points.txt",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/jsonschema-4.26.0.dist-info/licenses/COPYING",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/jsonschema/benchmarks/issue232/issue.json",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/jsonschema_specifications/schemas/draft201909/metaschema.json",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/jsonschema_specifications/schemas/draft201909/vocabularies/applicator",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/jsonschema_specifications/schemas/draft201909/vocabularies/content",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/jsonschema_specifications/schemas/draft201909/vocabularies/core",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/jsonschema_specifications/schemas/draft201909/vocabularies/format",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/jsonschema_specifications/schemas/draft201909/vocabularies/meta-data",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/jsonschema_specifications/schemas/draft201909/vocabularies/validation",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/jsonschema_specifications/schemas/draft202012/metaschema.json",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/applicator",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/content",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/core",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/format-annotation",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/format-assertion",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/meta-data",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/unevaluated",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/validation",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/jsonschema_specifications/schemas/draft3/metaschema.json",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/jsonschema_specifications/schemas/draft4/metaschema.json",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/jsonschema_specifications/schemas/draft6/metaschema.json",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/jsonschema_specifications/schemas/draft7/metaschema.json",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/libbz2.so.1.0",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/libcrypto.so.3",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/libexpat.so.1",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/libffi.so.8",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/libgcc_s.so.1",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/liblzma.so.5",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/libncursesw.so.6",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/libobjc.so.4",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/libpython3.13.so.1.0",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/libreadline.so.8",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/libsqlite3.so.0",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/libssl.so.3",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/libtinfo.so.6",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/libuuid.so.1",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/libz.so.1",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/libzstd.so.1",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/python3.13/lib-dynload/_bz2.cpython-313-x86_64-linux-gnu.so",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/python3.13/lib-dynload/_codecs_cn.cpython-313-x86_64-linux-gnu.so",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/python3.13/lib-dynload/_codecs_hk.cpython-313-x86_64-linux-gnu.so",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/python3.13/lib-dynload/_codecs_iso2022.cpython-313-x86_64-linux-gnu.so",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/python3.13/lib-dynload/_codecs_jp.cpython-313-x86_64-linux-gnu.so",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/python3.13/lib-dynload/_codecs_kr.cpython-313-x86_64-linux-gnu.so",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/python3.13/lib-dynload/_codecs_tw.cpython-313-x86_64-linux-gnu.so",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/python3.13/lib-dynload/_contextvars.cpython-313-x86_64-linux-gnu.so",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/python3.13/lib-dynload/_ctypes.cpython-313-x86_64-linux-gnu.so",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/python3.13/lib-dynload/_curses.cpython-313-x86_64-linux-gnu.so",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/python3.13/lib-dynload/_decimal.cpython-313-x86_64-linux-gnu.so",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/python3.13/lib-dynload/_hashlib.cpython-313-x86_64-linux-gnu.so",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/python3.13/lib-dynload/_lzma.cpython-313-x86_64-linux-gnu.so",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/python3.13/lib-dynload/_multibytecodec.cpython-313-x86_64-linux-gnu.so",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/python3.13/lib-dynload/_multiprocessing.cpython-313-x86_64-linux-gnu.so",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/python3.13/lib-dynload/_posixshmem.cpython-313-x86_64-linux-gnu.so",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/python3.13/lib-dynload/_queue.cpython-313-x86_64-linux-gnu.so",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/python3.13/lib-dynload/_sqlite3.cpython-313-x86_64-linux-gnu.so",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/python3.13/lib-dynload/_ssl.cpython-313-x86_64-linux-gnu.so",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/python3.13/lib-dynload/_uuid.cpython-313-x86_64-linux-gnu.so",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/python3.13/lib-dynload/mmap.cpython-313-x86_64-linux-gnu.so",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/python3.13/lib-dynload/readline.cpython-313-x86_64-linux-gnu.so",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/python3.13/lib-dynload/resource.cpython-313-x86_64-linux-gnu.so",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/python3.13/lib-dynload/termios.cpython-313-x86_64-linux-gnu.so",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/rpds/rpds.cpython-313-x86_64-linux-gnu.so",
+      "match": true
+    },
+    {
+      "path": "runtime/_internal/setuptools/_vendor/jaraco/text/Lorem ipsum.txt",
+      "match": true
+    },
+    {
+      "path": "runtime/baton-v12-stack",
+      "match": true
+    },
+    {
+      "path": "vectors.json",
+      "match": true
+    }
+  ],
+  "limitation": "Managed namespace maps host root objects to nobody; actual host custody/admission requires independent review and host evidence. No credential contents inspected. Not independent acceptance."
+}

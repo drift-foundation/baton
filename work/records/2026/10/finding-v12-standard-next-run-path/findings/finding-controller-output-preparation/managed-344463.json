@@ -1,0 +1,34 @@
+{
+  "work": "W343989",
+  "participant": "baton.codxpc",
+  "claim": 344463,
+  "date": "2026-10-21",
+  "owner_selection": 344382,
+  "operator_report": 344460,
+  "check": {
+    "command": "/usr/bin/sudo -n /opt/baton-managed-entry/entry.py check w339626-custody-v3",
+    "result": {
+      "chunk_id": "7fc8f6",
+      "wall_time_seconds": 0.000008105,
+      "exit_code": 0,
+      "original_token_count": 36,
+      "output": "{\"selection\": \"w339626-custody-v3\", \"selection_sha256\": \"436fe9b30f112f11ba50659883024d7cf60270497b59692251342163581febab\", \"state\": \"checked\"}\n"
+    },
+    "observed_call_wall_seconds": 0.079
+  },
+  "inspect": {
+    "command": "/usr/bin/sudo -n /opt/baton-managed-entry/entry.py inspect w339626-custody-v3",
+    "result": {
+      "chunk_id": "317f7f",
+      "wall_time_seconds": 0.242875185,
+      "exit_code": 0,
+      "original_token_count": 18,
+      "output": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2\n"
+    },
+    "observed_call_wall_seconds": 0.429
+  },
+  "timing": "Observed call intervals include tool overhead; tool wall retained separately, not additive.",
+  "approval_prompt": false,
+  "arm_or_start": false,
+  "limitations": "Private root metadata/authority comparison based on operator344460 report, not independently re-read here. No private store census. No Job dispatch follows accepted fixed check/inspect paths; independent acceptance still required."
+}

@@ -1,0 +1,26 @@
+{
+ "base": "614668e0831e8c87cdae11ca43620e0d544a84d5",
+ "changed_paths": [
+  "v12/QUICKSTART.md"
+ ],
+ "collection": null,
+ "disposition": "candidate",
+ "entry_head": "614668e0831e8c87cdae11ca43620e0d544a84d5",
+ "head": "5d747fecc950989a7ef0a0d50e58a1d2e15a657f",
+ "provider": {
+  "failure_reason": null,
+  "seconds_bound": 3600,
+  "status": 0
+ },
+ "schema": "baton.dogfood-proposal/2",
+ "task_id": "w321608-native-operator-quickstart-4",
+ "verification": {
+  "argv": [
+   "python3",
+   "-c",
+   "import io,os,sys\np='v12/QUICKSTART.md'\nif not os.path.isfile(p): sys.exit('no '+p)\nt=io.open(p,encoding='utf-8').read()\nneed=['## Supported commands','## Execution is not acceptance','## Reading a failed attempt','## Cancelling or holding safely']\nmiss=[h for h in need if h not in t]\nif miss: sys.exit('missing sections: '+', '.join(miss))\nif len(t)<1200: sys.exit('quickstart is shorter than its own contract')\nbad=[w for w in ['TODO','TBD','FIXME'] if w in t]\nif bad: sys.exit('unresolved markers: '+', '.join(bad))\nprint('quickstart structure ok: %d bytes, %d sections'%(len(t),len(need)))\n"
+  ],
+  "status": 0
+ },
+ "why": "the candidate changed the source and its own verification passed"
+}

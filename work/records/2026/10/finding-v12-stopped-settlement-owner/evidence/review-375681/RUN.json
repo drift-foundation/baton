@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_stopped_settlement"
+  ],
+  "cwd": "v12/python",
+  "exit_code": 0,
+  "wall_seconds": 0.6047795770000448,
+  "pins": 5,
+  "scope": "Independent reproduction of author 17-case settlement module; no broader acceptance."
+}

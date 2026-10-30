@@ -1,0 +1,237 @@
+{
+  "/home/sl/src/baton/work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/evidence/claim-369373/BINDING.json": {
+    "expected": "92d9962a71b64b5d25142e22a3b5bd52a374093aa1a352c0c8594b2893765723",
+    "actual": "92d9962a71b64b5d25142e22a3b5bd52a374093aa1a352c0c8594b2893765723",
+    "ok": true
+  },
+  "/home/sl/src/baton/work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/CLEAN-START.md": {
+    "expected": "b76c22ca65b50b8bdb14627088f04ff69bdce2f51df849db00afe263c6bffaf9",
+    "actual": "b76c22ca65b50b8bdb14627088f04ff69bdce2f51df849db00afe263c6bffaf9",
+    "ok": true
+  },
+  "/home/sl/src/baton/work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/capacity.py": {
+    "expected": "1944c97d6868c12ae19a363cb88f6e50d539adca0f33b328a9eaf4415be7fda6",
+    "actual": "1944c97d6868c12ae19a363cb88f6e50d539adca0f33b328a9eaf4415be7fda6",
+    "ok": true
+  },
+  "/home/sl/src/baton/work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/fixtures/qualifying-TEMPLATE-JOBS.md": {
+    "expected": "bc7aee367d1fb1b229e0f667c4ee4c527f5327131b81852ed27e54cfdd159817",
+    "actual": "bc7aee367d1fb1b229e0f667c4ee4c527f5327131b81852ed27e54cfdd159817",
+    "ok": true
+  },
+  "/home/sl/src/baton/work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/guide_contract.py": {
+    "expected": "5b3959614a6abdfeb4661536f35c59dbdd77d9027e1f85cb7a750d1919ade80a",
+    "actual": "5b3959614a6abdfeb4661536f35c59dbdd77d9027e1f85cb7a750d1919ade80a",
+    "ok": true
+  },
+  "/home/sl/src/baton/work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed_grants.py": {
+    "expected": "f447fcb62eb665abb5e0bd445392926735c2f3763e4868cbdd8ec8fe76911857",
+    "actual": "f447fcb62eb665abb5e0bd445392926735c2f3763e4868cbdd8ec8fe76911857",
+    "ok": true
+  },
+  "/home/sl/src/baton/work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/prove_capacity.py": {
+    "expected": "8c31bc2d0719a8a089a9ba881d3ecf292e0c45591560e8301da1e363bf0ff5e4",
+    "actual": "8c31bc2d0719a8a089a9ba881d3ecf292e0c45591560e8301da1e363bf0ff5e4",
+    "ok": true
+  },
+  "/home/sl/src/baton/work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/prove_custody.py": {
+    "expected": "b89cf865be53e0e190e505531209f37d58e71d140d9062302841e07f59017200",
+    "actual": "b89cf865be53e0e190e505531209f37d58e71d140d9062302841e07f59017200",
+    "ok": true
+  },
+  "/home/sl/src/baton/work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/prove_guide_contract.py": {
+    "expected": "64e0e1b8711ef6021c62f575162b48aca0f4995e8513bde3dcba48e9411ccba2",
+    "actual": "64e0e1b8711ef6021c62f575162b48aca0f4995e8513bde3dcba48e9411ccba2",
+    "ok": true
+  },
+  "v12/instance-inputs.json": {
+    "expected": "e2eb35b222b67ac6fae77f361bc2a007623c7a4f2d7bc75c593f46ec2708137e",
+    "actual": "e2eb35b222b67ac6fae77f361bc2a007623c7a4f2d7bc75c593f46ec2708137e",
+    "ok": true
+  },
+  "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json": {
+    "expected": "fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903",
+    "actual": "fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903",
+    "ok": true
+  },
+  "work/records/2026/10/finding-v12-native-pilot-instance-packet/fresh5-361402/configure-inputs.json": {
+    "expected": "f60b129baad7fc098be76af530a6705b96cd510aa4d8b2ff552cf3b9d6e2a494",
+    "actual": "f60b129baad7fc098be76af530a6705b96cd510aa4d8b2ff552cf3b9d6e2a494",
+    "ok": true
+  },
+  "work/records/2026/10/finding-v12-native-pilot-instance-packet/fresh5-361402/task.json": {
+    "expected": "91a13de94a23941b6653b9da40ae56e28046c7b30456def734638243185272f0",
+    "actual": "91a13de94a23941b6653b9da40ae56e28046c7b30456def734638243185272f0",
+    "ok": true
+  },
+  "work/records/2026/10/finding-v12-native-pilot-instance-packet/revision-4/inputs/deployment.json": {
+    "expected": "6a675445d361a5208f82dfc43593595cd2d5d9bcbb3e893842c03b5cb8587a3e",
+    "actual": "6a675445d361a5208f82dfc43593595cd2d5d9bcbb3e893842c03b5cb8587a3e",
+    "ok": true
+  },
+  "work/records/2026/10/finding-v12-template-job-creation/findings/finding-packaged-template-creation/evidence/review-366382/BUNDLE-ARCHIVE.json": {
+    "expected": "de9c669ce77819686f5043207151af5f6e1894940f87da70e16fde0c9dcbbad9",
+    "actual": "de9c669ce77819686f5043207151af5f6e1894940f87da70e16fde0c9dcbbad9",
+    "ok": true
+  },
+  "work/records/2026/10/finding-v12-template-job-creation/findings/finding-packaged-template-creation/evidence/review-366382/verified-first-build.tar.gz": {
+    "expected": "1da85eed0a3a19a5da0b83253abbbb40ebeed01bfe90ee05a10055dec0057125",
+    "actual": "1da85eed0a3a19a5da0b83253abbbb40ebeed01bfe90ee05a10055dec0057125",
+    "ok": true
+  },
+  "v12/python/src/baton_v12/worker_manager/provider_context.py": {
+    "expected": "ca54ecec366fde97390a873537d9fb430db90bfe21e39448450d79d6fa4d7835",
+    "actual": "ca54ecec366fde97390a873537d9fb430db90bfe21e39448450d79d6fa4d7835",
+    "ok": true
+  },
+  "v12/python/src/baton_v12/worker_manager/source_boundary.py": {
+    "expected": "6a6b0f7ecd29ee260e55d5abb93ebcf8891641a9cd1866109a9d291bf44e918f",
+    "actual": "6a6b0f7ecd29ee260e55d5abb93ebcf8891641a9cd1866109a9d291bf44e918f",
+    "ok": true
+  },
+  "v12/python/tools/single_worker.py": {
+    "expected": "677e6f0ba39d10a983d20b46fe1252b73ddb7839b8f7cdf1016b88f9111e991b",
+    "actual": "677e6f0ba39d10a983d20b46fe1252b73ddb7839b8f7cdf1016b88f9111e991b",
+    "ok": true
+  },
+  "v12/worker/Dockerfile.claude": {
+    "expected": "487748a01c72906d3725b78ecafe060a4d290c070822ecb20c8373fe82589b49",
+    "actual": "487748a01c72906d3725b78ecafe060a4d290c070822ecb20c8373fe82589b49",
+    "ok": true
+  },
+  "v12/worker/claude_agent.py": {
+    "expected": "b014ea3f5f58af573a0cbaa4b8838a270953806a89ef274682d5cca6627efe7c",
+    "actual": "b014ea3f5f58af573a0cbaa4b8838a270953806a89ef274682d5cca6627efe7c",
+    "ok": true
+  },
+  "/home/sl/src/baton/work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/evidence/claim-369373/CUSTODY.json": {
+    "expected": "131faa266581f94034007c5c36d476fef00bfd73eedf9443a8b4da886c88415a",
+    "actual": "131faa266581f94034007c5c36d476fef00bfd73eedf9443a8b4da886c88415a",
+    "ok": true
+  },
+  "/home/sl/src/baton/work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/evidence/claim-369373/CUSTODY.stderr": {
+    "expected": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "actual": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ok": true
+  },
+  "/home/sl/src/baton/work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/evidence/claim-369373/PROPOSED-GRANTS-VERIFY.json": {
+    "expected": "71d9bc7da260cd5a2dc47e4e15fb70f89aac2015393ffd72b30619714abe2b92",
+    "actual": "71d9bc7da260cd5a2dc47e4e15fb70f89aac2015393ffd72b30619714abe2b92",
+    "ok": true
+  },
+  "/home/sl/src/baton/work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/evidence/claim-369373/example-a-default.json": {
+    "expected": "eed54b598cd18c74e1e7b5c3d9d45521f22c4aae9a3c8ff78a491af1264a3d85",
+    "actual": "eed54b598cd18c74e1e7b5c3d9d45521f22c4aae9a3c8ff78a491af1264a3d85",
+    "ok": true
+  },
+  "/home/sl/src/baton/work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/evidence/claim-369373/example-a.stderr": {
+    "expected": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "actual": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ok": true
+  },
+  "/home/sl/src/baton/work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/evidence/claim-369373/example-b-formatted.json": {
+    "expected": "d7d739b67f45bfb91e3e042af80dbd47cb911255610eafe88069ad8a859780f8",
+    "actual": "d7d739b67f45bfb91e3e042af80dbd47cb911255610eafe88069ad8a859780f8",
+    "ok": true
+  },
+  "/home/sl/src/baton/work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/evidence/claim-369373/example-b.stderr": {
+    "expected": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "actual": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ok": true
+  },
+  "/home/sl/src/baton/work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/evidence/claim-369373/example-c-mismatch.json": {
+    "expected": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "actual": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ok": true
+  },
+  "/home/sl/src/baton/work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/evidence/claim-369373/example-c-refusal.txt": {
+    "expected": "ca4ddd9e9e3966d3c8f7ad4d2ecf1330160baebaeb40048d37c1ae826a2c732e",
+    "actual": "ca4ddd9e9e3966d3c8f7ad4d2ecf1330160baebaeb40048d37c1ae826a2c732e",
+    "ok": true
+  },
+  "/home/sl/src/baton/work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/evidence/claim-369298/BINDING.json": {
+    "expected": "da14f9ba5b0a2b7997dc34bfbf4750361089a172142b8f918c091c741465c395",
+    "actual": "da14f9ba5b0a2b7997dc34bfbf4750361089a172142b8f918c091c741465c395",
+    "ok": true
+  },
+  "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants/INVENTORY.json": {
+    "expected": "6ae52f7b2b796fe1bae8323155513fb8f751e182f4a48a0dffbb577243284add",
+    "actual": "6ae52f7b2b796fe1bae8323155513fb8f751e182f4a48a0dffbb577243284add",
+    "ok": true
+  },
+  "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants/credential_policy.json": {
+    "expected": "5399f947126ec7d031bced5895076657d24be21443e6db0c9ec86b51b14a9877",
+    "actual": "5399f947126ec7d031bced5895076657d24be21443e6db0c9ec86b51b14a9877",
+    "ok": true
+  },
+  "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants/mount_policy.json": {
+    "expected": "40bbe54bfd29865a5c8d3319b6cc019ae23e2005ce9d733aa3cbb5db223ce49d",
+    "actual": "40bbe54bfd29865a5c8d3319b6cc019ae23e2005ce9d733aa3cbb5db223ce49d",
+    "ok": true
+  },
+  "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants/network_policy.json": {
+    "expected": "fd23b28efadbe648ac43b0a1324de3dc5bfe873adfaa2c0d0ec60a777e3d9014",
+    "actual": "fd23b28efadbe648ac43b0a1324de3dc5bfe873adfaa2c0d0ec60a777e3d9014",
+    "ok": true
+  },
+  "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants/resource_policy.json": {
+    "expected": "eb99686f18e73701aa7db25b2f0c6e3044fb94e583d290e9b2c7a018bd27952c",
+    "actual": "eb99686f18e73701aa7db25b2f0c6e3044fb94e583d290e9b2c7a018bd27952c",
+    "ok": true
+  },
+  "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants/role_instructions.json": {
+    "expected": "8ac96cb65d446a41a570a9ffa499ba955aa9e8d137bbbed7356fbd2d68ae04e5",
+    "actual": "8ac96cb65d446a41a570a9ffa499ba955aa9e8d137bbbed7356fbd2d68ae04e5",
+    "ok": true
+  },
+  "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants/tool_policy.json": {
+    "expected": "eabb731948b1391bec7ef0c95035710ab4cef6c145b783e7f77765c4347051d6",
+    "actual": "eabb731948b1391bec7ef0c95035710ab4cef6c145b783e7f77765c4347051d6",
+    "ok": true
+  },
+  "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants/toolchain.json": {
+    "expected": "25920341783793832dc76dc14c2e67ba09b768737700b70122181da6eabe6507",
+    "actual": "25920341783793832dc76dc14c2e67ba09b768737700b70122181da6eabe6507",
+    "ok": true
+  },
+  "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants-format/INVENTORY.json": {
+    "expected": "e57d3ed180400a12b8fd4992cd1eafdae894101d4f93fe18415585bfd7fb9a18",
+    "actual": "e57d3ed180400a12b8fd4992cd1eafdae894101d4f93fe18415585bfd7fb9a18",
+    "ok": true
+  },
+  "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants-format/credential_policy.json": {
+    "expected": "5399f947126ec7d031bced5895076657d24be21443e6db0c9ec86b51b14a9877",
+    "actual": "5399f947126ec7d031bced5895076657d24be21443e6db0c9ec86b51b14a9877",
+    "ok": true
+  },
+  "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants-format/mount_policy.json": {
+    "expected": "40bbe54bfd29865a5c8d3319b6cc019ae23e2005ce9d733aa3cbb5db223ce49d",
+    "actual": "40bbe54bfd29865a5c8d3319b6cc019ae23e2005ce9d733aa3cbb5db223ce49d",
+    "ok": true
+  },
+  "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants-format/network_policy.json": {
+    "expected": "fd23b28efadbe648ac43b0a1324de3dc5bfe873adfaa2c0d0ec60a777e3d9014",
+    "actual": "fd23b28efadbe648ac43b0a1324de3dc5bfe873adfaa2c0d0ec60a777e3d9014",
+    "ok": true
+  },
+  "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants-format/resource_policy.json": {
+    "expected": "eb99686f18e73701aa7db25b2f0c6e3044fb94e583d290e9b2c7a018bd27952c",
+    "actual": "eb99686f18e73701aa7db25b2f0c6e3044fb94e583d290e9b2c7a018bd27952c",
+    "ok": true
+  },
+  "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants-format/role_instructions.json": {
+    "expected": "68086264b2555f0552efc3d3f1f98fe990f339a5022c21bc36d1bbdb8cf4cb99",
+    "actual": "68086264b2555f0552efc3d3f1f98fe990f339a5022c21bc36d1bbdb8cf4cb99",
+    "ok": true
+  },
+  "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants-format/tool_policy.json": {
+    "expected": "eabb731948b1391bec7ef0c95035710ab4cef6c145b783e7f77765c4347051d6",
+    "actual": "eabb731948b1391bec7ef0c95035710ab4cef6c145b783e7f77765c4347051d6",
+    "ok": true
+  },
+  "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants-format/toolchain.json": {
+    "expected": "25920341783793832dc76dc14c2e67ba09b768737700b70122181da6eabe6507",
+    "actual": "25920341783793832dc76dc14c2e67ba09b768737700b70122181da6eabe6507",
+    "ok": true
+  }
+}

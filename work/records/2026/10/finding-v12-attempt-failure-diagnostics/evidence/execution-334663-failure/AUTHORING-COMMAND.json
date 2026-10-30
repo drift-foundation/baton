@@ -1,0 +1,29 @@
+{
+  "controller": {
+    "relative": "tools/authoring_enforcement.py",
+    "sha256": "2da6eb36b398d730c8cc07a9df0b604de678a3fd994d5019097fa023addfb88f",
+    "staged": "/home/sl/baton-instances/attempt-diagnostics-w333486-334663/code/v12/python/tools/authoring_enforcement.py"
+  },
+  "do_not_use": {
+    "document": "/home/sl/baton-instances/attempt-diagnostics-w333486-334663/packet/commands.json",
+    "member": "start"
+  },
+  "environment": {
+    "BATON_V12_STAGE_EXECUTION_CONFIG": "/home/sl/baton-instances/attempt-diagnostics-w333486-334663/packet/deployment.json",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/home/sl/baton-instances/attempt-diagnostics-w333486-334663/code/v12/python/src:/home/sl/baton-instances/attempt-diagnostics-w333486-334663/code/v12/python:/home/sl/baton-instances/attempt-diagnostics-w333486-334663/supervisor"
+  },
+  "lease": "tokens.LIFETIME_SECONDS is 900 and production renewal is not in this base. The 3600/4800 ceilings are requested bounds, not a promised run length; expect enforced expiry at 900 seconds with partial output retained.",
+  "schema": "baton.w333486-authoring-command/1",
+  "start": [
+    "/usr/bin/python3",
+    "-m",
+    "tools.authoring_enforcement",
+    "--packet",
+    "/home/sl/baton-instances/attempt-diagnostics-w333486-334663/packet/PACKET.json"
+  ],
+  "start_selected": false,
+  "termination": "SIGINT/SIGTERM sets the enforcement stop and the reserved cleanup window begins; the controller reports state=held. A held outcome is not proof of cessation.",
+  "why": "The composer generated commands.json names the UNENFORCED supervisor (baseline_bindings.py:721 -> baseline.py, whose serve call carries no reclaim argument). Use THIS invocation. The composer defect is reported in ENFORCEMENT.md, not patched.",
+  "working_directory": "/home/sl/baton-instances/attempt-diagnostics-w333486-334663/code/v12/python"
+}

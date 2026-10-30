@@ -1,0 +1,84 @@
+{
+ "adapter_source": "/home/sl/baton-builds/w325959-30245386-356981/src/v12/worker/claude_agent.py",
+ "authority_uuid": "e0dac42dd1b143fa93b7206029f648c2",
+ "checks": {
+  "checks": [
+   {
+    "check": "the install document carries NO workers and NO jobs",
+    "ok": true
+   },
+   {
+    "check": "the packet names the selected fresh identifiers",
+    "ok": true
+   },
+   {
+    "check": "preflight plans and creates nothing",
+    "ok": true
+   },
+   {
+    "check": "noninterference with instances 1 and 2 is checked",
+    "ok": true
+   },
+   {
+    "check": "step 1 minted an authority",
+    "ok": true
+   },
+   {
+    "check": "the Work carries that authority's prefix",
+    "ok": true
+   },
+   {
+    "check": "the Work is NOT the instance-2 one",
+    "ok": true
+   },
+   {
+    "check": "ALL FOUR repositories were prepared by the supported call -- no manual clone",
+    "ok": true
+   },
+   {
+    "check": "both stage workers are installed",
+    "ok": true
+   },
+   {
+    "check": "the Job is bound",
+    "ok": true
+   },
+   {
+    "check": "the real runtime consumer accepted the installed configuration",
+    "ok": true
+   },
+   {
+    "check": "the implementation role selects its half and answers the rest absent",
+    "ok": true
+   },
+   {
+    "check": "the review role selects its half and answers the rest absent",
+    "ok": true
+   },
+   {
+    "check": "a proposal-only declaration still refuses the review role",
+    "ok": true,
+    "refusal": "a review turn writes findings, logs and this assignment declares no findings, logs"
+   },
+   {
+    "check": "a second preparation refuses the existing destination",
+    "ok": true,
+    "refusal": "REFUSED: the destination /tmp/fresh3-prove-jxxyn26v/native-coordination-pilot-w321608-3 already exists; a fresh instance is prepared once. Inspect it rather than having this write into somebody else's tree."
+   }
+  ],
+  "failed": [],
+  "total": 15
+ },
+ "git_executed": false,
+ "input_digest": "sha256:73a1d52d122f80080bcd1ddb66eaed93bfdb5df2c0f5dd2586783cffef758231",
+ "manifest_digest": "sha256:323512e96be3eb3d569eb57323251e9ea0b709ad592c4814a2a783239bf14240",
+ "packet": "/home/sl/src/baton/work/records/2026/10/finding-v12-native-pilot-instance-packet/fresh3-358443",
+ "repositories": [
+  "source-implementation-pilot",
+  "source-review-pilot",
+  "target.git",
+  "workspace"
+ ],
+ "repository_boundary": "SIMULATED through the product's injected runner",
+ "work": "e0dac42d-W1"
+}

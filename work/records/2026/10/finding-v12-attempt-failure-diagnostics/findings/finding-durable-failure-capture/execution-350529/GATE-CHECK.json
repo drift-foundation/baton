@@ -1,0 +1,67 @@
+{
+  "MEASURED_THREE_TIMES_AND_IT_NOW_PASSES": {
+    "ceiling_seconds": 30,
+    "first": {
+      "errors": 7,
+      "exit_status": 1,
+      "failures": 9,
+      "run": "durable-capture-w341357-345039",
+      "seconds": 12.817,
+      "tests": 864
+    },
+    "fits_the_ceiling": true,
+    "not_settled": "a passing gate is NOT acceptance. The review confirmed the gate in the same breath as withholding product acceptance on two producer defects, because \"a passing gate lacking these injections does not establish it.\"",
+    "second": {
+      "errors": 16,
+      "exit_status": 1,
+      "failures": 0,
+      "run": "durable-capture-w341357-345388",
+      "seconds": 12.515,
+      "tests": 864
+    },
+    "settled": "the ceiling fits and the gate PASSES. Both questions are closed.",
+    "third": {
+      "confirmed_by": "the reviewer, by hashing the raw stream in place",
+      "errors": 0,
+      "exit_status": 0,
+      "failures": 0,
+      "run": "durable-capture-w341357-345822",
+      "seconds": 12.631,
+      "skips": 0,
+      "tests": 864,
+      "verdict": "OK",
+      "whose": "the sealed ADAPTER run, which decided the disposition",
+      "worker_in_turn": "864/0/0/0 in 11.398s unittest and 11.604s wall -- a separate measurement of the same argv, not an independent repetition"
+    }
+  },
+  "SUPERSEDED_still_never_measured": {
+    "superseded_by": "the argv has now been measured three times -- 864/9+7 at 12.817s, 864/0+16 at 12.515s and 864 OK at 12.631s exit 0 with no skips. The statement was still standing in execution-348852's GATE-CHECK.json, in the same file as MEASURED_THREE_TIMES_AND_IT_NOW_PASSES, and it contradicted it. Corrected at claim350529. What remains true: a passing gate is not acceptance, and no coverage may be weakened, deleted, relaxed or narrowed to keep it passing.",
+    "text": "four runs; zero measurements of this argv. TASK.md step 2 makes measuring it the turn's first substantive act."
+  },
+  "ceiling": 30,
+  "composed_from": "/tmp/w341357-preflight10/packet/task.json",
+  "executed_by_this_preparation": false,
+  "member_digest_unchanged": true,
+  "member_digest_unchanged_since_claim339421": true,
+  "modules": [
+    "tests.manager.test_intake",
+    "tests.manager.test_attempts",
+    "tests.manager.test_maintenance",
+    "tests.manager.test_contracts_inventory",
+    "tests.manager.test_attempt_failure_cause"
+  ],
+  "names_all_five": true,
+  "owed": [
+    "v12/python/tests/manager/test_attempt_failure_cause.py"
+  ],
+  "parent_baseline_for_context": "the parent's twelve-module argv measured 1124 tests / 13.642s of EXISTING modules at claim339421, obtained by direct host product execution OUTSIDE that claim's preparation-only boundary -- an operational finding recorded in the parent PROGRESS and in review-2026-10-20T14-56-51Z. Carried here only as context; this slice measures nothing and claims nothing.",
+  "schema": "baton.w341357-execution-gate-check/1",
+  "the_fifth_module_is_still_owed_at_the_host_base": {
+    "module": "v12/python/tests/manager/test_attempt_failure_cause.py",
+    "present_on_the_host": false,
+    "why": "it arrives with the retained candidate, so the argv fails at the base by construction. The turn applies the candidate first."
+  },
+  "unchanged_by_this_continuation": "THE SAME FIVE MODULES and the same argv ACROSS THE CORRECTED HOST BINDING: the member digest re-derived from this claim's composed task.json is IDENTICAL to the one every accepted packet since claim339421 carried, even though the manager source is now the 115-member W348979 archive and seven of its members are not the old consumer host bytes. The gate is provably the same gate -- re-derived, not asserted.",
+  "verification_member_sha256": "2f7ed3dca95da498657a0e549e53107679fd7e8cf4503d5022555ba9e642176c",
+  "why_not": "no product-test authority for this author, and the measurement belongs inside the isolated run. This claim executed no product test at all."
+}

@@ -1,0 +1,9 @@
+{
+  "prior_bootstrap_input_overwritten": true,
+  "apply_succeeded": true,
+  "installed_workers": [
+    "implementation",
+    "review"
+  ],
+  "boundary": "Disposable native state; simulated repository runner; no production/Git/live activity"
+}

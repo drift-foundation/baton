@@ -1,0 +1,13 @@
+{
+  "name": "close-help",
+  "cmd": "/home/sl/baton-instances/useful-template-job-w366962/distro/baton-v12-stack disposition close --help",
+  "started": "2026-10-28T03:30:08.919Z",
+  "result": {
+    "chunk_id": "6abe5f",
+    "wall_time_seconds": 0.000006942,
+    "exit_code": 0,
+    "original_token_count": 318,
+    "output": "usage: baton-v12-stack disposition close [-h]\n                                         --authority-store AUTHORITY_STORE\n                                         --authority-uuid AUTHORITY_UUID\n                                         --participant PARTICIPANT --work WORK\n                                         --operation-id OPERATION_ID\n                                         --outcome OUTCOME\n                                         --rationale RATIONALE\n                                         [--proposal PROPOSAL]\n                                         [--expect-candidate-digest EXPECT_CANDIDATE_DIGEST]\n                                         [--root ROOT]\n                                         [--expect-assignment EXPECT_ASSIGNMENT]\n\noptions:\n  -h, --help            show this help message and exit\n  --authority-store AUTHORITY_STORE\n  --authority-uuid AUTHORITY_UUID\n  --participant PARTICIPANT\n  --work WORK\n  --operation-id OPERATION_ID\n  --outcome OUTCOME\n  --rationale RATIONALE\n  --proposal PROPOSAL\n  --expect-candidate-digest EXPECT_CANDIDATE_DIGEST\n  --root ROOT\n  --expect-assignment EXPECT_ASSIGNMENT\n                        a JSON document holding the exact assignment identity\n                        this close ends, when one is live\n"
+  },
+  "ended": "2026-10-28T03:30:09.047Z"
+}

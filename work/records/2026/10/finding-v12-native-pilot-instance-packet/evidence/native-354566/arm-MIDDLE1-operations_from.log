@@ -1,0 +1,14 @@
+..........F.
+======================================================================
+FAIL: test_native_serving_reaches_the_acquisition_with_the_selected_lifetime (tests.job_manager.test_native_permission.NativeProductionLaunch.test_native_serving_reaches_the_acquisition_with_the_selected_lifetime)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w325959-354165/m1/v12/python/tests/job_manager/test_native_permission.py", line 261, in test_native_serving_reaches_the_acquisition_with_the_selected_lifetime
+    self.assertEqual(token['seconds'], expected)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 900 != 7320
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.227s
+
+FAILED (failures=1)

@@ -1,0 +1,45 @@
+{
+ "bytes": 943,
+ "carries_no_authority_identity": true,
+ "command": "print",
+ "deferred_to_phase_2": {
+  "jobs": 1,
+  "workers": 2
+ },
+ "derived_from": "the accepted child's capacity.compose, minus workers and jobs -- so phase 1 and phase 2 cannot disagree about this deployment's top-level members",
+ "destination": "/home/sl/baton-instances/useful-template-job-w366962",
+ "document": {
+  "checkpoint_profile": "git",
+  "integration_profile": {
+   "instructions_digest": "sha256:fafc35958002db5284b54f4d22cf59a7dccfb5ac05e15baa69db73fcff06d6f2",
+   "integrator_participant": "baton.integrator-w366962",
+   "profile_kind": "git",
+   "profile_version": 1
+  },
+  "integration_target": "/home/sl/baton-instances/useful-template-job-w366962/repo/target.git",
+  "integration_workspace": "/home/sl/baton-instances/useful-template-job-w366962/repo/workspace",
+  "owner_participant": "baton.slaw",
+  "policy_generation": 1,
+  "pool_generation": 1,
+  "receipt_participants": {
+   "approval": "baton.slaw",
+   "review": "baton.reviewer-receipt-w366962",
+   "verification": "baton.verifier-w366962"
+  },
+  "retention_disposition": "retain",
+  "retention_policy_digest": "sha256:0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a",
+  "schema": "baton.v12.stack-bootstrap/1",
+  "state_root": "/home/sl/baton-instances/useful-template-job-w366962"
+ },
+ "document_sha256": "4888a4be09874b71270d99a3a4719ee2c9e5ab1e8a356638a25f3231158b298d",
+ "effects": {
+  "created": [],
+  "removed": [],
+  "wrote": []
+ },
+ "next": "bootstrap --inputs <this file>, with no --destination and no --distro: that is the mint form",
+ "proved_absent_from_the_output": true,
+ "read_only": true,
+ "schema": "baton.v12.mint-inputs/1",
+ "throwaway_identity_used_to_derive_it": "00000000000000000000000000000000"
+}

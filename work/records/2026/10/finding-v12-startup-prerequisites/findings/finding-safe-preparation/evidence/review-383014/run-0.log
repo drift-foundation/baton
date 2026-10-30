@@ -1,0 +1,28 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    from baton_v12.integration import IntegrationStore
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/__init__.py", line 17, in <module>
+    from .execution import INTEGRATION_PORT, OUTCOMES, integrate_next
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/execution.py", line 70, in <module>
+    from . import git_profile, reconciliation, runtime
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 38, in <module>
+    from . import admission, managed_execution, schema
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/admission.py", line 22, in <module>
+    from ..job_manager import documents as job_documents
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/__init__.py", line 54, in <module>
+    from .creation import (CREATE_KIND, DERIVATION_MEMBERS, INSTALLED_SOURCE,
+                           create_template_job, created_job_of,
+                           created_job_rows, resolution_of)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/creation.py", line 91, in <module>
+    from . import documents, execution_limits, submission, templates
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/templates.py", line 92, in <module>
+    from . import (documents, execution_limits, fresh_attempt,
+                   review_driver, role_contract)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/role_contract.py", line 514, in <module>
+    for _consumer, _namespace in zip(CONSUMERS, _namespaces()):
+                                                ~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/role_contract.py", line 510, in _namespaces
+    from ..integration.driver import CLAIM_NAMESPACE
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/driver.py", line 28, in <module>
+    from .admission import admit_candidate, resolved_account
+ImportError: cannot import name 'admit_candidate' from partially initialized module 'baton_v12.integration.admission' (most likely due to a circular import) (/home/sl/src/baton/v12/python/src/baton_v12/integration/admission.py)

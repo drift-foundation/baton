@@ -1,0 +1,12 @@
+{
+  "ordinary_directory_replacement": {
+    "returned_success": true,
+    "foreign_mode_after": "0o700",
+    "foreign_identity_adopted": true
+  },
+  "open_refusal": {
+    "message": "this deployment's workspace_storage for worker probe at /tmp/tmpvsh4i8sl/unopened could not be opened as the directory this install just created (PermissionError); something replaced it, and nothing here follows what took its place.",
+    "created_root_left": true,
+    "owned": {}
+  }
+}

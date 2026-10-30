@@ -1,0 +1,35 @@
+{
+  "installed_direct_docker": {
+    "returncode": 0,
+    "stdout": "{\n  \"matchedRules\": [\n    {\n      \"prefixRuleMatch\": {\n        \"matchedPrefix\": [\n          \"docker\",\n          \"image\",\n          \"inspect\"\n        ],\n        \"decision\": \"allow\"\n      }\n    }\n  ],\n  \"decision\": \"allow\"\n}\n",
+    "stderr": "WARNING: proceeding, even though we could not create PATH aliases: Read-only file system (os error 30)\n"
+  },
+  "installed_controller": {
+    "returncode": 0,
+    "stdout": "{\n  \"matchedRules\": []\n}\n",
+    "stderr": "WARNING: proceeding, even though we could not create PATH aliases: Read-only file system (os error 30)\n"
+  },
+  "candidate_probe": {
+    "returncode": 0,
+    "stdout": "{\n  \"matchedRules\": [\n    {\n      \"prefixRuleMatch\": {\n        \"matchedPrefix\": [\n          \"env\",\n          \"BATON_V12_STAGE_EXECUTION_CONFIG=/tmp/baton-standard-next-run-w339626-339782/packet/deployment.json\",\n          \"PYTHONDONTWRITEBYTECODE=1\",\n          \"PYTHONPATH=/tmp/baton-standard-next-run-w339626-339782/code/v12/python/src:/tmp/baton-standard-next-run-w339626-339782/code/v12/python:/tmp/baton-standard-next-run-w339626-339782/supervisor\",\n          \"/usr/bin/python3\",\n          \"-B\",\n          \"-c\",\n          \"import baseline; from tools.authoring_enforcement import verify_controller; p=baseline.held_packet('/tmp/baton-standard-next-run-w339626-339782/packet/PACKET.json'); baseline.verify_imported_sources(p); verify_controller(p); d=baseline.verify_worker_image(p,image_inspect=baseline._engine_inspect); print(d['Id'])\"\n        ],\n        \"decision\": \"allow\"\n      }\n    }\n  ],\n  \"decision\": \"allow\"\n}\n",
+    "stderr": "WARNING: proceeding, even though we could not create PATH aliases: Read-only file system (os error 30)\n"
+  },
+  "candidate_launch": {
+    "returncode": 0,
+    "stdout": "{\n  \"matchedRules\": []\n}\n",
+    "stderr": "WARNING: proceeding, even though we could not create PATH aliases: Read-only file system (os error 30)\n"
+  },
+  "candidate_other_code": {
+    "returncode": 0,
+    "stdout": "{\n  \"matchedRules\": []\n}\n",
+    "stderr": "WARNING: proceeding, even though we could not create PATH aliases: Read-only file system (os error 30)\n"
+  },
+  "candidate_other_packet": {
+    "returncode": 0,
+    "stdout": "{\n  \"matchedRules\": []\n}\n",
+    "stderr": "WARNING: proceeding, even though we could not create PATH aliases: Read-only file system (os error 30)\n"
+  },
+  "installed_policy_sha256": "0e41ce0d35d5fb26984e6bce37bd8f9952cafb91d5fd90182b090817c73e9f81",
+  "probe_policy_sha256": "a6b0e95e3dedebcb316d8cc31f21430020c38d36b1d747a1e020ee42f9dbf34d",
+  "live_subprocess_validation": "pending operator installation and existing codxpc managed-context probe; no live execution performed"
+}

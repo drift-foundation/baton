@@ -1,0 +1,86 @@
+{
+ "composition": {
+  "captured_at": "evidence/claim-367234/COMPOSITION.json",
+  "composed_by": "prove_admission.py (one composition, through the accepted fixture's own worker documents)",
+  "lanes": [
+   "implementation",
+   "review"
+  ],
+  "participants": [
+   "baton.claude-w366962",
+   "baton.reviewer-w366962"
+  ],
+  "worker_ids": [
+   "impl-w366962",
+   "review-w366962"
+  ]
+ },
+ "derived_paths": {
+  "authority_store": "/home/sl/baton-instances/useful-template-job-w366962/db/authority.sqlite3",
+  "command": "/home/sl/baton-instances/useful-template-job-w366962/distro/baton-v12-stack",
+  "control_store": "/home/sl/baton-instances/useful-template-job-w366962/db/control.sqlite3",
+  "deployment": "/home/sl/baton-instances/useful-template-job-w366962/deployment.json",
+  "deployment_state": "/home/sl/baton-instances/useful-template-job-w366962/deployment-state",
+  "destination": "/home/sl/baton-instances/useful-template-job-w366962",
+  "distro": "/home/sl/baton-instances/useful-template-job-w366962/distro",
+  "identity": "/home/sl/baton-instances/useful-template-job-w366962/authority-identity.json",
+  "install_inputs": "/home/sl/baton-instances/useful-template-job-w366962/install-inputs.json",
+  "install_inputs_temporary": "/home/sl/baton-instances/useful-template-job-w366962/install-inputs.json.partial",
+  "instance": "/home/sl/baton-instances/useful-template-job-w366962/instance.json",
+  "integration_store": "/home/sl/baton-instances/useful-template-job-w366962/db/integration.sqlite3",
+  "job_store": "/home/sl/baton-instances/useful-template-job-w366962/db/jobs.sqlite3",
+  "justfile": "/home/sl/baton-instances/useful-template-job-w366962/justfile",
+  "lock": "/home/sl/baton-instances/useful-template-job-w366962/.bootstrap.lock",
+  "logs": "/home/sl/baton-instances/useful-template-job-w366962/logs",
+  "record": "/home/sl/baton-instances/useful-template-job-w366962/bootstrap.json",
+  "repository": "/home/sl/baton-instances/useful-template-job-w366962/repo",
+  "state": "/home/sl/baton-instances/useful-template-job-w366962/state",
+  "stores": "/home/sl/baton-instances/useful-template-job-w366962/db"
+ },
+ "inert_boundaries": [
+  "no engine or provider reached; nothing started",
+  "no repository cloned and no network used",
+  "image_digest and adapter_digest travel as pins an operator verifies before execution",
+  "credentials travel as references only; no secret in this file, the emitted document or any evidence"
+ ],
+ "mode": "preflight",
+ "runtime": {
+  "archive_sha256": "1da85eed0a3a19a5da0b83253abbbb40ebeed01bfe90ee05a10055dec0057125",
+  "build_stamp_disclosed": "18e771f0, dirty -- not relabelled",
+  "distro": "/var/tmp/baton-w257624/distro/distro",
+  "executable_sha256": "ba962a2086310df238ff25cf282a3298f71ae9289594e6f7c83222ee8f4571ef",
+  "files": 81,
+  "folder_digest": "0b7bc59213605489319e973a6a6cdf285c76513a00f75bf5e05d669df88beefd"
+ },
+ "schema": "baton.v12.one-time-capacity-preparation/1",
+ "selected": {
+  "job_id": "job-template-job-guide-42bed8bb",
+  "lanes": [
+   {
+    "participant": "baton.claude-w366962",
+    "role": "implementation",
+    "worker_id": "impl-w366962"
+   },
+   {
+    "participant": "baton.reviewer-w366962",
+    "role": "review",
+    "worker_id": "review-w366962"
+   }
+  ],
+  "proposed_destination": "/home/sl/baton-instances/useful-template-job-w366962",
+  "provider_turn_seconds": 3600,
+  "source_commit": "42bed8bb04a53380e565b1a63fb2bc702677f0d0",
+  "task_id": "template-job-guide-42bed8bb",
+  "template": "baton.v12.job-template.implementation-review/1",
+  "verification_command_seconds": 900,
+  "work_scope": [
+   "v12/TEMPLATE-JOBS.md"
+  ]
+ },
+ "source": {
+  "commit": "42bed8bb04a53380e565b1a63fb2bc702677f0d0",
+  "root": "/home/sl/src/baton"
+ },
+ "task_document_place": "/home/sl/baton-instances/useful-template-job-w366962/state/task/template-job-guide-42bed8bb.json",
+ "wrote_nothing": true
+}

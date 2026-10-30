@@ -1,0 +1,18 @@
+...........F
+======================================================================
+FAIL: test_the_native_factory_delivers_the_policy_to_both_stage_workers (tests.job_manager.test_native_permission.NativeStageComposition.test_the_native_factory_delivers_the_policy_to_both_stage_workers)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w325959-354165/m3/v12/python/tests/job_manager/test_native_permission.py", line 327, in test_the_native_factory_delivers_the_policy_to_both_stage_workers
+    self.assertTrue(all(callable(worker.lifetime_policy)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for worker in workers),
+                        ^^^^^^^^^^^^^^^^^^^^^^^
+                    'both stage workers must carry the lifetime policy')
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : both stage workers must carry the lifetime policy
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.220s
+
+FAILED (failures=1)

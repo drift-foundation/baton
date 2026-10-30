@@ -1,0 +1,26 @@
+{
+  "seconds": 0.015432103002240183,
+  "results": {
+    "valid": {
+      "profile": "git-line",
+      "declared_base": "0000000000000000000000000000000000000000",
+      "admission": [
+        "implementation",
+        "review"
+      ],
+      "source_profile_owner": "accepted"
+    },
+    "missing_base": {
+      "profile": "git-line",
+      "declared_base": null,
+      "admission": {
+        "exception": "ContractRefusal",
+        "message": "this deployment's implementation candidate's composed task's task pairs source_profile 'git-line' with declared_base none, which the profile package refuses: a git-line profile verifies the base revision the assignment declared, and this one declares none; a checkout nobody can check against a base is a copy of whatever the mount happened to hold"
+      },
+      "source_profile_owner": {
+        "exception": "ProfileRefusal",
+        "message": "a git-line profile verifies the base revision the assignment declared, and this one declares none; a checkout nobody can check against a base is a copy of whatever the mount happened to hold"
+      }
+    }
+  }
+}

@@ -1,0 +1,1781 @@
+{
+  "W319114": {
+    "agent": null,
+    "available_transitions": [],
+    "binding": {
+      "actor": "baton.rvpc",
+      "created_ts": "2026-10-18T02:28:11Z",
+      "git_provenance": null,
+      "path": "work/records/2026/10/finding-v12-status-concurrent-submission",
+      "prior": 0,
+      "rationale": "Bind the owner-selected v12 preparation, bounded race reproduction and task-specific execution/review packet.",
+      "revision": 1,
+      "root": "baton",
+      "seq": 319430
+    },
+    "binding_count": 1,
+    "bindings": [
+      {
+        "actor": "baton.rvpc",
+        "created_ts": "2026-10-18T02:28:11Z",
+        "git_provenance": null,
+        "path": "work/records/2026/10/finding-v12-status-concurrent-submission",
+        "prior": 0,
+        "rationale": "Bind the owner-selected v12 preparation, bounded race reproduction and task-specific execution/review packet.",
+        "revision": 1,
+        "root": "baton",
+        "seq": 319430
+      }
+    ],
+    "bindings_next_after": null,
+    "bindings_truncated": false,
+    "blocking": false,
+    "breadcrumb": [
+      {
+        "id": "2b077949-W319114",
+        "title": "V12 Job status can fail across a concurrent submission"
+      }
+    ],
+    "claimed_at": null,
+    "classification": "confirmed-defect",
+    "duplicate_of": null,
+    "episode_seq": 321509,
+    "first_open_blocker": null,
+    "follow_up_of": null,
+    "gate": null,
+    "handler": null,
+    "handoff_at": "2026-10-18T07:37:27Z",
+    "heartbeat_at": null,
+    "id": "2b077949-W319114",
+    "last_change_seq": 321555,
+    "last_changed_at": "2026-10-18T07:43:43.703Z",
+    "links": {
+      "blocked_by": [],
+      "blocks": [],
+      "contains": [],
+      "duplicate_of": null,
+      "duplicates": [],
+      "follow_up_of": null,
+      "follow_ups": [],
+      "id": "2b077949-W319114",
+      "parent": null
+    },
+    "local_id": "W319114",
+    "message_count": 2,
+    "my_pending_obligations": 0,
+    "new": 2,
+    "new_breakdown": {
+      "children": [],
+      "id": "2b077949-W319114",
+      "overlap": 0,
+      "own": 2,
+      "snapshot_seq": 383283,
+      "subtree_total": 2
+    },
+    "next": null,
+    "obligations": [],
+    "open_blockers": 0,
+    "open_dependents": 0,
+    "origin": "self-initiated",
+    "outcome": "satisfying",
+    "phase": null,
+    "pickup": null,
+    "priority": "normal",
+    "progress": {
+      "children": 0,
+      "closed": 0
+    },
+    "rationale": "Cumulative code independently accepted, integrated and verified with 406 tests; committed as 3dcf6dc4.  Both provider timeout outcomes remain preserved.",
+    "ready": false,
+    "revision": null,
+    "revision_count": 0,
+    "revisions": [],
+    "revisions_next_after": null,
+    "revisions_truncated": false,
+    "route": null,
+    "status": "closed",
+    "team": "baton",
+    "thread_count": 1,
+    "threads": [
+      {
+        "added_seq": 319114,
+        "id": "2b077949-T319114",
+        "last_seq": 319391,
+        "new": 2,
+        "subject": "V12 Job status can fail across a concurrent submission"
+      }
+    ],
+    "threads_next_after": null,
+    "threads_truncated": false,
+    "title": "V12 Job status can fail across a concurrent submission",
+    "trials": []
+  },
+  "W247941": {
+    "agent": null,
+    "available_transitions": [],
+    "binding": {
+      "actor": "baton.prompt",
+      "created_ts": "2026-09-23T13:14:58Z",
+      "git_provenance": null,
+      "path": "work/records/2026/09/finding-v12-real-jobs-adoption-gate",
+      "prior": 0,
+      "rationale": null,
+      "revision": 1,
+      "root": "baton",
+      "seq": 247941
+    },
+    "binding_count": 1,
+    "bindings": [
+      {
+        "actor": "baton.prompt",
+        "created_ts": "2026-09-23T13:14:58Z",
+        "git_provenance": null,
+        "path": "work/records/2026/09/finding-v12-real-jobs-adoption-gate",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 247941
+      }
+    ],
+    "bindings_next_after": null,
+    "bindings_truncated": false,
+    "blocking": false,
+    "breadcrumb": [
+      {
+        "id": "2b077949-W247941",
+        "title": "V12 adoption gate: clear independent parallel real development Jobs"
+      }
+    ],
+    "claimed_at": null,
+    "classification": "design-choice",
+    "duplicate_of": null,
+    "episode_seq": 307575,
+    "first_open_blocker": null,
+    "follow_up_of": null,
+    "gate": null,
+    "handler": null,
+    "handoff_at": "2026-09-29T16:58:46Z",
+    "heartbeat_at": null,
+    "id": "2b077949-W247941",
+    "last_change_seq": 307582,
+    "last_changed_at": "2026-09-29T16:59:48.783Z",
+    "links": {
+      "blocked_by": [
+        {
+          "handler": null,
+          "id": "2b077949-W239533",
+          "outcome": "satisfying",
+          "route": null,
+          "status": "closed",
+          "team": "baton",
+          "title": "V12: Independent managed review of a retained proposal",
+          "via_obligation": null
+        },
+        {
+          "handler": null,
+          "id": "2b077949-W257627",
+          "outcome": "satisfying",
+          "route": null,
+          "status": "closed",
+          "team": "baton",
+          "title": "V12: Diagnose original worker startup failure and prepare fresh packet",
+          "via_obligation": null
+        },
+        {
+          "handler": null,
+          "id": "2b077949-W275633",
+          "outcome": "satisfying",
+          "route": null,
+          "status": "closed",
+          "team": "baton",
+          "title": "V12: Token-bound maintenance execution prerequisite",
+          "via_obligation": null
+        }
+      ],
+      "blocks": [],
+      "contains": [],
+      "duplicate_of": null,
+      "duplicates": [],
+      "follow_up_of": null,
+      "follow_ups": [],
+      "id": "2b077949-W247941",
+      "parent": null
+    },
+    "local_id": "W247941",
+    "message_count": 8,
+    "my_pending_obligations": 0,
+    "new": 8,
+    "new_breakdown": {
+      "children": [],
+      "id": "2b077949-W247941",
+      "overlap": 0,
+      "own": 8,
+      "snapshot_seq": 383283,
+      "subtree_total": 8
+    },
+    "next": null,
+    "obligations": [],
+    "open_blockers": 0,
+    "open_dependents": 0,
+    "origin": "decomposition",
+    "outcome": "satisfying",
+    "phase": null,
+    "pickup": null,
+    "priority": "normal",
+    "progress": {
+      "children": 0,
+      "closed": 0
+    },
+    "rationale": "Accept initial v12 adoption for the reviewed fresh-context parallel-Job workflow per E307575 and review-2026-09-29T16-58-33Z.md in the bound dossier. Run03 proves actual parallel activity, isolation, attributed proposals and independent accepted reviews, and exact runtime cessation without unresolved cleanup. Preserve all three runs as evidence. W306614 retains supervisor completion-stop/reporting correction; context reuse and residual recovery obligations remain open. No proposal integration or additional live execution authorized by this closure.",
+    "ready": false,
+    "revision": null,
+    "revision_count": 0,
+    "revisions": [],
+    "revisions_next_after": null,
+    "revisions_truncated": false,
+    "route": null,
+    "status": "closed",
+    "team": "baton",
+    "thread_count": 1,
+    "threads": [
+      {
+        "added_seq": 247941,
+        "id": "2b077949-T247941",
+        "last_seq": 305971,
+        "new": 8,
+        "subject": "V12 adoption gate: clear independent parallel real development Jobs"
+      }
+    ],
+    "threads_next_after": null,
+    "threads_truncated": false,
+    "title": "V12 adoption gate: clear independent parallel real development Jobs",
+    "trials": []
+  },
+  "W236087": {
+    "agent": null,
+    "available_transitions": [],
+    "binding": {
+      "actor": "baton.prompt",
+      "created_ts": "2026-09-22T05:39:19Z",
+      "git_provenance": null,
+      "path": "work/records/2026/09/finding-v12-managed-session-resume",
+      "prior": 0,
+      "rationale": null,
+      "revision": 1,
+      "root": "baton",
+      "seq": 236087
+    },
+    "binding_count": 1,
+    "bindings": [
+      {
+        "actor": "baton.prompt",
+        "created_ts": "2026-09-22T05:39:19Z",
+        "git_provenance": null,
+        "path": "work/records/2026/09/finding-v12-managed-session-resume",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 236087
+      }
+    ],
+    "bindings_next_after": null,
+    "bindings_truncated": false,
+    "blocking": false,
+    "breadcrumb": [
+      {
+        "id": "2b077949-W236087",
+        "title": "V12: Integrate managed session resume for reviewer corrections"
+      }
+    ],
+    "claimed_at": null,
+    "classification": "design-choice",
+    "duplicate_of": null,
+    "episode_seq": 316930,
+    "first_open_blocker": null,
+    "follow_up_of": "2b077949-W177936",
+    "gate": null,
+    "handler": null,
+    "handoff_at": "2026-09-30T15:35:54Z",
+    "heartbeat_at": null,
+    "id": "2b077949-W236087",
+    "last_change_seq": 316942,
+    "last_changed_at": "2026-09-30T15:37:11.204Z",
+    "links": {
+      "blocked_by": [
+        {
+          "handler": null,
+          "id": "2b077949-W239533",
+          "outcome": "satisfying",
+          "route": null,
+          "status": "closed",
+          "team": "baton",
+          "title": "V12: Independent managed review of a retained proposal",
+          "via_obligation": null
+        }
+      ],
+      "blocks": [],
+      "contains": [],
+      "duplicate_of": null,
+      "duplicates": [],
+      "follow_up_of": {
+        "handler": null,
+        "id": "2b077949-W177936",
+        "outcome": "satisfying",
+        "route": null,
+        "status": "closed",
+        "team": "baton",
+        "title": "V12: Prepare production context qualification packet"
+      },
+      "follow_ups": [],
+      "id": "2b077949-W236087",
+      "parent": null
+    },
+    "local_id": "W236087",
+    "message_count": 8,
+    "my_pending_obligations": 0,
+    "new": 8,
+    "new_breakdown": {
+      "children": [],
+      "id": "2b077949-W236087",
+      "overlap": 0,
+      "own": 8,
+      "snapshot_seq": 383283,
+      "subtree_total": 8
+    },
+    "next": null,
+    "obligations": [
+      {
+        "accepted_into": null,
+        "endpoint": "baton.decide",
+        "flavor": "response",
+        "resolved_seq": 236120,
+        "seq": 236105,
+        "status": "responded",
+        "thread": "2b077949-T236087"
+      }
+    ],
+    "open_blockers": 0,
+    "open_dependents": 0,
+    "origin": "external-report",
+    "outcome": "satisfying",
+    "phase": null,
+    "pickup": null,
+    "priority": "normal",
+    "progress": {
+      "children": 0,
+      "closed": 0
+    },
+    "rationale": "Accept E316862 and closure recommendation E316930: actual managed context restoration, independently reviewed correction, proposal attribution and cessation of all four runtimes proved for candidate run managed-correction-316689. Status and allocation follow-ups tracked separately as W316915 and W316918. Preserve earlier retained resources and evidence. This closure does not imply general production qualification, parallel reuse or proposal integration.",
+    "ready": false,
+    "revision": null,
+    "revision_count": 0,
+    "revisions": [],
+    "revisions_next_after": null,
+    "revisions_truncated": false,
+    "route": null,
+    "status": "closed",
+    "team": "baton",
+    "thread_count": 1,
+    "threads": [
+      {
+        "added_seq": 236087,
+        "id": "2b077949-T236087",
+        "last_seq": 239616,
+        "new": 8,
+        "subject": "V12: Integrate managed session resume for reviewer corrections"
+      }
+    ],
+    "threads_next_after": null,
+    "threads_truncated": false,
+    "title": "V12: Integrate managed session resume for reviewer corrections",
+    "trials": []
+  },
+  "W177936": {
+    "agent": null,
+    "available_transitions": [],
+    "binding": {
+      "actor": "baton.prompt",
+      "created_ts": "2026-09-15T12:21:42Z",
+      "git_provenance": null,
+      "path": "work/records/2026/09/finding-v12-production-context-qualification-preparation",
+      "prior": 0,
+      "rationale": null,
+      "revision": 1,
+      "root": "baton",
+      "seq": 177936
+    },
+    "binding_count": 1,
+    "bindings": [
+      {
+        "actor": "baton.prompt",
+        "created_ts": "2026-09-15T12:21:42Z",
+        "git_provenance": null,
+        "path": "work/records/2026/09/finding-v12-production-context-qualification-preparation",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 177936
+      }
+    ],
+    "bindings_next_after": null,
+    "bindings_truncated": false,
+    "blocking": false,
+    "breadcrumb": [
+      {
+        "id": "2b077949-W177936",
+        "title": "V12: Prepare production context qualification packet"
+      }
+    ],
+    "claimed_at": null,
+    "classification": "design-choice",
+    "duplicate_of": null,
+    "episode_seq": 236032,
+    "first_open_blocker": null,
+    "follow_up_of": null,
+    "gate": null,
+    "handler": null,
+    "handoff_at": "2026-09-22T05:32:55Z",
+    "heartbeat_at": null,
+    "id": "2b077949-W177936",
+    "last_change_seq": 236059,
+    "last_changed_at": "2026-09-22T05:36:15.625Z",
+    "links": {
+      "blocked_by": [],
+      "blocks": [],
+      "contains": [],
+      "duplicate_of": null,
+      "duplicates": [],
+      "follow_up_of": null,
+      "follow_ups": [
+        {
+          "handler": null,
+          "id": "2b077949-W236087",
+          "outcome": "satisfying",
+          "route": null,
+          "status": "closed",
+          "team": "baton",
+          "title": "V12: Integrate managed session resume for reviewer corrections"
+        }
+      ],
+      "id": "2b077949-W177936",
+      "parent": null
+    },
+    "local_id": "W177936",
+    "message_count": 40,
+    "my_pending_obligations": 0,
+    "new": 40,
+    "new_breakdown": {
+      "children": [],
+      "id": "2b077949-W177936",
+      "overlap": 0,
+      "own": 40,
+      "snapshot_seq": 383283,
+      "subtree_total": 40
+    },
+    "next": null,
+    "obligations": [],
+    "open_blockers": 0,
+    "open_dependents": 0,
+    "origin": "decomposition",
+    "outcome": "satisfying",
+    "phase": null,
+    "pickup": null,
+    "priority": "normal",
+    "progress": {
+      "children": 0,
+      "closed": 0
+    },
+    "rationale": "Accept independently reviewed isolated session recall per review-2026-09-22T05-31-21Z.md. Production reuse remains disabled and unqualified. Dispose the serious-work gate; subsequent development may use fresh attempts. Preserve original fixture failures and evidence.",
+    "ready": false,
+    "revision": null,
+    "revision_count": 0,
+    "revisions": [],
+    "revisions_next_after": null,
+    "revisions_truncated": false,
+    "route": null,
+    "status": "closed",
+    "team": "baton",
+    "thread_count": 1,
+    "threads": [
+      {
+        "added_seq": 177936,
+        "id": "2b077949-T177936",
+        "last_seq": 235674,
+        "new": 40,
+        "subject": "V12: Prepare production context qualification packet"
+      }
+    ],
+    "threads_next_after": null,
+    "threads_truncated": false,
+    "title": "V12: Prepare production context qualification packet",
+    "trials": []
+  },
+  "W370302": {
+    "agent": null,
+    "available_transitions": [],
+    "binding": {
+      "actor": "baton.rvpc",
+      "created_ts": "2026-10-28T01:22:35Z",
+      "git_provenance": null,
+      "path": "work/records/2026/10/finding-v12-cancellation-fixture-compatibility",
+      "prior": 0,
+      "rationale": null,
+      "revision": 1,
+      "root": "baton",
+      "seq": 370302
+    },
+    "binding_count": 1,
+    "bindings": [
+      {
+        "actor": "baton.rvpc",
+        "created_ts": "2026-10-28T01:22:35Z",
+        "git_provenance": null,
+        "path": "work/records/2026/10/finding-v12-cancellation-fixture-compatibility",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 370302
+      }
+    ],
+    "bindings_next_after": null,
+    "bindings_truncated": false,
+    "blocking": false,
+    "breadcrumb": [
+      {
+        "id": "2b077949-W370302",
+        "title": "Prepare cancellation fixture compatibility coding Job"
+      }
+    ],
+    "claimed_at": null,
+    "classification": "confirmed-defect",
+    "duplicate_of": null,
+    "episode_seq": 377082,
+    "first_open_blocker": null,
+    "follow_up_of": null,
+    "gate": null,
+    "handler": null,
+    "handoff_at": "2026-10-28T20:13:37Z",
+    "heartbeat_at": null,
+    "id": "2b077949-W370302",
+    "last_change_seq": 377678,
+    "last_changed_at": "2026-10-28T21:39:06.518Z",
+    "links": {
+      "blocked_by": [
+        {
+          "handler": null,
+          "id": "2b077949-W370268",
+          "outcome": "non-satisfying",
+          "route": null,
+          "status": "closed",
+          "team": "baton",
+          "title": "Execute selected useful documentation Job and observe native review",
+          "via_obligation": null
+        }
+      ],
+      "blocks": [],
+      "contains": [],
+      "duplicate_of": null,
+      "duplicates": [],
+      "follow_up_of": null,
+      "follow_ups": [],
+      "id": "2b077949-W370302",
+      "parent": null
+    },
+    "local_id": "W370302",
+    "message_count": 1,
+    "my_pending_obligations": 0,
+    "new": 1,
+    "new_breakdown": {
+      "children": [],
+      "id": "2b077949-W370302",
+      "overlap": 0,
+      "own": 1,
+      "snapshot_seq": 383283,
+      "subtree_total": 1
+    },
+    "next": null,
+    "obligations": [],
+    "open_blockers": 0,
+    "open_dependents": 0,
+    "origin": "decomposition",
+    "outcome": "satisfying",
+    "phase": null,
+    "pickup": null,
+    "priority": "normal",
+    "progress": {
+      "children": 0,
+      "closed": 0
+    },
+    "rationale": "Accept preparation per review-2026-10-28T20-13-28Z.md and SELECTION-377066.md. Retain task for later exact execution selection using W376804/W321608 preparation. No implementation or live run selected; preserve assertions and W44342 residual.",
+    "ready": false,
+    "revision": null,
+    "revision_count": 0,
+    "revisions": [],
+    "revisions_next_after": null,
+    "revisions_truncated": false,
+    "route": null,
+    "status": "closed",
+    "team": "baton",
+    "thread_count": 1,
+    "threads": [
+      {
+        "added_seq": 370302,
+        "id": "2b077949-T370302",
+        "last_seq": 370302,
+        "new": 1,
+        "subject": "Prepare cancellation fixture compatibility coding Job"
+      }
+    ],
+    "threads_next_after": null,
+    "threads_truncated": false,
+    "title": "Prepare cancellation fixture compatibility coding Job",
+    "trials": []
+  },
+  "W371074": {
+    "agent": null,
+    "available_transitions": [],
+    "binding": {
+      "actor": "baton.rvpc",
+      "created_ts": "2026-10-28T03:02:36Z",
+      "git_provenance": null,
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-stopped-failed-settlement-plan",
+      "prior": 0,
+      "rationale": null,
+      "revision": 1,
+      "root": "baton",
+      "seq": 371074
+    },
+    "binding_count": 1,
+    "bindings": [
+      {
+        "actor": "baton.rvpc",
+        "created_ts": "2026-10-28T03:02:36Z",
+        "git_provenance": null,
+        "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-stopped-failed-settlement-plan",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 371074
+      }
+    ],
+    "bindings_next_after": null,
+    "bindings_truncated": false,
+    "blocking": false,
+    "breadcrumb": [
+      {
+        "id": "2b077949-W370747",
+        "title": "Assess design changes to reduce v12 workflow fragility"
+      },
+      {
+        "id": "2b077949-W371074",
+        "title": "Plan supported settlement of stopped failed executions"
+      }
+    ],
+    "claimed_at": null,
+    "classification": "design-choice",
+    "duplicate_of": null,
+    "episode_seq": 377696,
+    "first_open_blocker": null,
+    "follow_up_of": null,
+    "gate": null,
+    "handler": null,
+    "handoff_at": "2026-10-28T21:40:38Z",
+    "heartbeat_at": null,
+    "id": "2b077949-W371074",
+    "last_change_seq": 377713,
+    "last_changed_at": "2026-10-28T21:41:55.754Z",
+    "links": {
+      "blocked_by": [
+        {
+          "handler": null,
+          "id": "2b077949-W375446",
+          "outcome": "satisfying",
+          "route": null,
+          "status": "closed",
+          "team": "baton",
+          "title": "Prove joined stopped-failure settlement with deterministic runtime boundaries",
+          "via_obligation": null
+        }
+      ],
+      "blocks": [
+        {
+          "handler": null,
+          "id": "2b077949-W371076",
+          "outcome": null,
+          "route": {
+            "endpoint": "baton.codx",
+            "handlers": [
+              "codxpc"
+            ],
+            "role": "impl",
+            "route": "implpc"
+          },
+          "status": "open",
+          "team": "baton",
+          "title": "Plan joined deterministic ordinary template workflow proof",
+          "via_obligation": null
+        }
+      ],
+      "contains": [
+        {
+          "handler": null,
+          "id": "2b077949-W375444",
+          "outcome": "satisfying",
+          "route": null,
+          "status": "closed",
+          "team": "baton",
+          "title": "Implement retained failed-execution settlement owner and token fence"
+        },
+        {
+          "handler": null,
+          "id": "2b077949-W375445",
+          "outcome": "satisfying",
+          "route": null,
+          "status": "closed",
+          "team": "baton",
+          "title": "Expose installed stopped-failure settlement and read-only status"
+        },
+        {
+          "handler": null,
+          "id": "2b077949-W375446",
+          "outcome": "satisfying",
+          "route": null,
+          "status": "closed",
+          "team": "baton",
+          "title": "Prove joined stopped-failure settlement with deterministic runtime boundaries"
+        }
+      ],
+      "duplicate_of": null,
+      "duplicates": [],
+      "follow_up_of": null,
+      "follow_ups": [],
+      "id": "2b077949-W371074",
+      "parent": {
+        "handler": null,
+        "id": "2b077949-W370747",
+        "outcome": null,
+        "route": {
+          "endpoint": "baton.bug",
+          "handlers": [
+            "rvpc"
+          ],
+          "role": "rview",
+          "route": "rview"
+        },
+        "status": "open",
+        "team": "baton",
+        "title": "Assess design changes to reduce v12 workflow fragility"
+      }
+    },
+    "local_id": "W371074",
+    "message_count": 6,
+    "my_pending_obligations": 0,
+    "new": 6,
+    "new_breakdown": {
+      "children": [
+        {
+          "id": "2b077949-W375444",
+          "new": 5
+        },
+        {
+          "id": "2b077949-W375445",
+          "new": 4
+        },
+        {
+          "id": "2b077949-W375446",
+          "new": 1
+        }
+      ],
+      "id": "2b077949-W371074",
+      "overlap": 0,
+      "own": 6,
+      "snapshot_seq": 383283,
+      "subtree_total": 16
+    },
+    "next": null,
+    "obligations": [],
+    "open_blockers": 0,
+    "open_dependents": 1,
+    "origin": "decomposition",
+    "outcome": "satisfying",
+    "phase": null,
+    "pickup": null,
+    "priority": "normal",
+    "progress": {
+      "children": 3,
+      "closed": 3
+    },
+    "rationale": "Accept integrated implementation and deterministic behavior per review-2026-10-28T21-40-29Z.md and all three accepted children. Twelve final pins verified; 37 focused tests passed against current exchange code. Preserve simulation limits: no native deployment, live engine or historical- instance cleanup claimed. W371076 retains broader workflow proof; no new execution authorized.",
+    "ready": false,
+    "revision": null,
+    "revision_count": 0,
+    "revisions": [],
+    "revisions_next_after": null,
+    "revisions_truncated": false,
+    "route": null,
+    "status": "closed",
+    "team": "baton",
+    "thread_count": 1,
+    "threads": [
+      {
+        "added_seq": 371074,
+        "id": "2b077949-T371074",
+        "last_seq": 375487,
+        "new": 6,
+        "subject": "Plan supported settlement of stopped failed executions"
+      }
+    ],
+    "threads_next_after": null,
+    "threads_truncated": false,
+    "title": "Plan supported settlement of stopped failed executions",
+    "trials": []
+  },
+  "W376723": {
+    "agent": null,
+    "available_transitions": [],
+    "binding": {
+      "actor": "baton.rvpc",
+      "created_ts": "2026-10-28T19:39:39Z",
+      "git_provenance": null,
+      "path": "work/records/2026/10/finding-v12-capability-admission-predicate",
+      "prior": 0,
+      "rationale": null,
+      "revision": 1,
+      "root": "baton",
+      "seq": 376723
+    },
+    "binding_count": 1,
+    "bindings": [
+      {
+        "actor": "baton.rvpc",
+        "created_ts": "2026-10-28T19:39:39Z",
+        "git_provenance": null,
+        "path": "work/records/2026/10/finding-v12-capability-admission-predicate",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 376723
+      }
+    ],
+    "bindings_next_after": null,
+    "bindings_truncated": false,
+    "blocking": false,
+    "breadcrumb": [
+      {
+        "id": "2b077949-W370747",
+        "title": "Assess design changes to reduce v12 workflow fragility"
+      },
+      {
+        "id": "2b077949-W371072",
+        "title": "Plan residual template and adapter admission contracts"
+      },
+      {
+        "id": "2b077949-W371295",
+        "title": "Compose qualified role contract admission and provenance"
+      },
+      {
+        "id": "2b077949-W376723",
+        "title": "Implement closed capability validation and pure admission predicate"
+      }
+    ],
+    "claimed_at": null,
+    "classification": "design-choice",
+    "duplicate_of": null,
+    "episode_seq": 378573,
+    "first_open_blocker": null,
+    "follow_up_of": null,
+    "gate": null,
+    "handler": null,
+    "handoff_at": "2026-10-28T23:37:10Z",
+    "heartbeat_at": null,
+    "id": "2b077949-W376723",
+    "last_change_seq": 383124,
+    "last_changed_at": "2026-10-29T11:57:35.092Z",
+    "links": {
+      "blocked_by": [],
+      "blocks": [
+        {
+          "handler": null,
+          "id": "2b077949-W376731",
+          "outcome": null,
+          "route": {
+            "endpoint": "baton.impl",
+            "handlers": [
+              "claude"
+            ],
+            "role": "impl",
+            "route": "impl"
+          },
+          "status": "open",
+          "team": "baton",
+          "title": "Retain versioned role admission carriers and lane provenance",
+          "via_obligation": null
+        }
+      ],
+      "contains": [],
+      "duplicate_of": null,
+      "duplicates": [],
+      "follow_up_of": null,
+      "follow_ups": [],
+      "id": "2b077949-W376723",
+      "parent": {
+        "handler": null,
+        "id": "2b077949-W371295",
+        "outcome": null,
+        "route": {
+          "endpoint": "baton.bug",
+          "handlers": [
+            "rvpc"
+          ],
+          "role": "rview",
+          "route": "rview"
+        },
+        "status": "open",
+        "team": "baton",
+        "title": "Compose qualified role contract admission and provenance"
+      }
+    },
+    "local_id": "W376723",
+    "message_count": 2,
+    "my_pending_obligations": 0,
+    "new": 2,
+    "new_breakdown": {
+      "children": [],
+      "id": "2b077949-W376723",
+      "overlap": 0,
+      "own": 2,
+      "snapshot_seq": 383283,
+      "subtree_total": 2
+    },
+    "next": null,
+    "obligations": [],
+    "open_blockers": 0,
+    "open_dependents": 1,
+    "origin": "decomposition",
+    "outcome": "satisfying",
+    "phase": null,
+    "pickup": null,
+    "priority": "normal",
+    "progress": {
+      "children": 0,
+      "closed": 0
+    },
+    "rationale": "Accept review-2026-10-28T23-36-58Z and its exact source manifest. Carrier persistence, connected admission and qualification remain separate.",
+    "ready": false,
+    "revision": null,
+    "revision_count": 0,
+    "revisions": [],
+    "revisions_next_after": null,
+    "revisions_truncated": false,
+    "route": null,
+    "status": "closed",
+    "team": "baton",
+    "thread_count": 1,
+    "threads": [
+      {
+        "added_seq": 376723,
+        "id": "2b077949-T376723",
+        "last_seq": 376983,
+        "new": 2,
+        "subject": "Implement closed capability validation and pure admission predicate"
+      }
+    ],
+    "threads_next_after": null,
+    "threads_truncated": false,
+    "title": "Implement closed capability validation and pure admission predicate",
+    "trials": []
+  },
+  "W376586": {
+    "agent": null,
+    "available_transitions": [],
+    "binding": {
+      "actor": "baton.rvpc",
+      "created_ts": "2026-10-28T19:27:55Z",
+      "git_provenance": null,
+      "path": "work/records/2026/10/finding-v12-typed-adapter-exchange",
+      "prior": 0,
+      "rationale": null,
+      "revision": 1,
+      "root": "baton",
+      "seq": 376586
+    },
+    "binding_count": 1,
+    "bindings": [
+      {
+        "actor": "baton.rvpc",
+        "created_ts": "2026-10-28T19:27:55Z",
+        "git_provenance": null,
+        "path": "work/records/2026/10/finding-v12-typed-adapter-exchange",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 376586
+      }
+    ],
+    "bindings_next_after": null,
+    "bindings_truncated": false,
+    "blocking": false,
+    "breadcrumb": [
+      {
+        "id": "2b077949-W370747",
+        "title": "Assess design changes to reduce v12 workflow fragility"
+      },
+      {
+        "id": "2b077949-W371073",
+        "title": "Plan safe typed adapter failures through existing diagnostics"
+      },
+      {
+        "id": "2b077949-W376586",
+        "title": "Implement current matched typed adapter exchange"
+      }
+    ],
+    "claimed_at": null,
+    "classification": "design-choice",
+    "duplicate_of": null,
+    "episode_seq": 378534,
+    "first_open_blocker": null,
+    "follow_up_of": null,
+    "gate": null,
+    "handler": null,
+    "handoff_at": "2026-10-28T23:32:54Z",
+    "heartbeat_at": null,
+    "id": "2b077949-W376586",
+    "last_change_seq": 383121,
+    "last_changed_at": "2026-10-29T11:57:34.999Z",
+    "links": {
+      "blocked_by": [],
+      "blocks": [
+        {
+          "handler": null,
+          "id": "2b077949-W376587",
+          "outcome": null,
+          "route": {
+            "endpoint": "baton.impl",
+            "handlers": [
+              "claude"
+            ],
+            "role": "impl",
+            "route": "impl"
+          },
+          "status": "open",
+          "team": "baton",
+          "title": "Propagate typed adapter failures through existing diagnostics",
+          "via_obligation": null
+        },
+        {
+          "handler": null,
+          "id": "2b077949-W376588",
+          "outcome": null,
+          "route": {
+            "endpoint": "baton.impl",
+            "handlers": [
+              "claude"
+            ],
+            "role": "impl",
+            "route": "impl"
+          },
+          "status": "open",
+          "team": "baton",
+          "title": "Prove joined matched typed adapter failure reporting",
+          "via_obligation": null
+        },
+        {
+          "handler": null,
+          "id": "2b077949-W371296",
+          "outcome": null,
+          "route": {
+            "endpoint": "baton.impl",
+            "handlers": [
+              "claude"
+            ],
+            "role": "impl",
+            "route": "impl"
+          },
+          "status": "open",
+          "team": "baton",
+          "title": "Qualify actual role adapters against selected contract",
+          "via_obligation": null
+        },
+        {
+          "handler": {
+            "member": "claude",
+            "participant": "baton.claude",
+            "team": "baton"
+          },
+          "id": "2b077949-W321776",
+          "outcome": null,
+          "route": {
+            "endpoint": "baton.impl",
+            "handlers": [
+              "claude"
+            ],
+            "role": "impl",
+            "route": "impl"
+          },
+          "status": "open",
+          "team": "baton",
+          "title": "W61981: Deliver paired worker and operator verification contexts",
+          "via_obligation": null
+        }
+      ],
+      "contains": [],
+      "duplicate_of": null,
+      "duplicates": [],
+      "follow_up_of": null,
+      "follow_ups": [],
+      "id": "2b077949-W376586",
+      "parent": {
+        "handler": null,
+        "id": "2b077949-W371073",
+        "outcome": null,
+        "route": {
+          "endpoint": "baton.bug",
+          "handlers": [
+            "rvpc"
+          ],
+          "role": "rview",
+          "route": "rview"
+        },
+        "status": "open",
+        "team": "baton",
+        "title": "Plan safe typed adapter failures through existing diagnostics"
+      }
+    },
+    "local_id": "W376586",
+    "message_count": 2,
+    "my_pending_obligations": 0,
+    "new": 2,
+    "new_breakdown": {
+      "children": [],
+      "id": "2b077949-W376586",
+      "overlap": 0,
+      "own": 2,
+      "snapshot_seq": 383283,
+      "subtree_total": 2
+    },
+    "next": null,
+    "obligations": [],
+    "open_blockers": 0,
+    "open_dependents": 4,
+    "origin": "decomposition",
+    "outcome": "satisfying",
+    "phase": null,
+    "pickup": null,
+    "priority": "normal",
+    "progress": {
+      "children": 0,
+      "closed": 0
+    },
+    "rationale": "Accept review-2026-10-28T23-32-40Z and its exact source manifest. Diagnostics propagation, joined proof and installed qualification remain separate.",
+    "ready": false,
+    "revision": null,
+    "revision_count": 0,
+    "revisions": [],
+    "revisions_next_after": null,
+    "revisions_truncated": false,
+    "route": null,
+    "status": "closed",
+    "team": "baton",
+    "thread_count": 1,
+    "threads": [
+      {
+        "added_seq": 376586,
+        "id": "2b077949-T376586",
+        "last_seq": 377873,
+        "new": 2,
+        "subject": "Implement current matched typed adapter exchange"
+      }
+    ],
+    "threads_next_after": null,
+    "threads_truncated": false,
+    "title": "Implement current matched typed adapter exchange",
+    "trials": []
+  },
+  "W325695": {
+    "agent": null,
+    "available_transitions": [],
+    "binding": {
+      "actor": "baton.rvpc",
+      "created_ts": "2026-10-18T19:28:00Z",
+      "git_provenance": null,
+      "path": "work/records/2026/10/finding-v12-verifier-descriptor-descendants",
+      "prior": 0,
+      "rationale": null,
+      "revision": 1,
+      "root": "baton",
+      "seq": 325695
+    },
+    "binding_count": 1,
+    "bindings": [
+      {
+        "actor": "baton.rvpc",
+        "created_ts": "2026-10-18T19:28:00Z",
+        "git_provenance": null,
+        "path": "work/records/2026/10/finding-v12-verifier-descriptor-descendants",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 325695
+      }
+    ],
+    "bindings_next_after": null,
+    "bindings_truncated": false,
+    "blocking": false,
+    "breadcrumb": [
+      {
+        "id": "2b077949-W325695",
+        "title": "V12 verifier descriptor paths fail in descendant processes"
+      }
+    ],
+    "claimed_at": null,
+    "classification": "confirmed-defect",
+    "duplicate_of": null,
+    "episode_seq": 377772,
+    "first_open_blocker": null,
+    "follow_up_of": null,
+    "gate": null,
+    "handler": null,
+    "handoff_at": "2026-10-28T21:48:50Z",
+    "heartbeat_at": null,
+    "id": "2b077949-W325695",
+    "last_change_seq": 377852,
+    "last_changed_at": "2026-10-28T22:00:16.853Z",
+    "links": {
+      "blocked_by": [],
+      "blocks": [
+        {
+          "handler": {
+            "member": "claude",
+            "participant": "baton.claude",
+            "team": "baton"
+          },
+          "id": "2b077949-W321776",
+          "outcome": null,
+          "route": {
+            "endpoint": "baton.impl",
+            "handlers": [
+              "claude"
+            ],
+            "role": "impl",
+            "route": "impl"
+          },
+          "status": "open",
+          "team": "baton",
+          "title": "W61981: Deliver paired worker and operator verification contexts",
+          "via_obligation": null
+        }
+      ],
+      "contains": [],
+      "duplicate_of": null,
+      "duplicates": [],
+      "follow_up_of": null,
+      "follow_ups": [],
+      "id": "2b077949-W325695",
+      "parent": null
+    },
+    "local_id": "W325695",
+    "message_count": 15,
+    "my_pending_obligations": 0,
+    "new": 15,
+    "new_breakdown": {
+      "children": [],
+      "id": "2b077949-W325695",
+      "overlap": 0,
+      "own": 15,
+      "snapshot_seq": 383283,
+      "subtree_total": 15
+    },
+    "next": null,
+    "obligations": [
+      {
+        "accepted_into": null,
+        "endpoint": "baton.codx",
+        "flavor": "response",
+        "resolved_seq": 375839,
+        "seq": 375836,
+        "status": "responded",
+        "thread": "2b077949-T325695"
+      },
+      {
+        "accepted_into": null,
+        "endpoint": "baton.codx",
+        "flavor": "response",
+        "resolved_seq": 376434,
+        "seq": 376426,
+        "status": "responded",
+        "thread": "2b077949-T325695"
+      }
+    ],
+    "open_blockers": 0,
+    "open_dependents": 1,
+    "origin": "self-initiated",
+    "outcome": "satisfying",
+    "phase": null,
+    "pickup": null,
+    "priority": "normal",
+    "progress": {
+      "children": 0,
+      "closed": 0
+    },
+    "rationale": "Accept review-2026-10-28T21-48-41Z.md: previously accepted source correction plus selected kernel proof and owned-container cleanup complete this Work. Preserve the review corrections and exact-image evidence limits. No repeat execution or broader release qualification authorized.",
+    "ready": false,
+    "revision": null,
+    "revision_count": 0,
+    "revisions": [],
+    "revisions_next_after": null,
+    "revisions_truncated": false,
+    "route": null,
+    "status": "closed",
+    "team": "baton",
+    "thread_count": 1,
+    "threads": [
+      {
+        "added_seq": 325695,
+        "id": "2b077949-T325695",
+        "last_seq": 376434,
+        "new": 15,
+        "subject": "V12 verifier descriptor paths fail in descendant processes"
+      }
+    ],
+    "threads_next_after": null,
+    "threads_truncated": false,
+    "title": "V12 verifier descriptor paths fail in descendant processes",
+    "trials": []
+  },
+  "W371294": {
+    "agent": null,
+    "available_transitions": [],
+    "binding": {
+      "actor": "baton.rvpc",
+      "created_ts": "2026-10-28T03:26:24Z",
+      "git_provenance": null,
+      "path": "work/records/2026/10/finding-v12-role-contract-validators",
+      "prior": 0,
+      "rationale": null,
+      "revision": 1,
+      "root": "baton",
+      "seq": 371294
+    },
+    "binding_count": 1,
+    "bindings": [
+      {
+        "actor": "baton.rvpc",
+        "created_ts": "2026-10-28T03:26:24Z",
+        "git_provenance": null,
+        "path": "work/records/2026/10/finding-v12-role-contract-validators",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 371294
+      }
+    ],
+    "bindings_next_after": null,
+    "bindings_truncated": false,
+    "blocking": false,
+    "breadcrumb": [
+      {
+        "id": "2b077949-W370747",
+        "title": "Assess design changes to reduce v12 workflow fragility"
+      },
+      {
+        "id": "2b077949-W371072",
+        "title": "Plan residual template and adapter admission contracts"
+      },
+      {
+        "id": "2b077949-W371294",
+        "title": "Implement selected development role contract validators"
+      }
+    ],
+    "claimed_at": null,
+    "classification": "design-choice",
+    "duplicate_of": null,
+    "episode_seq": 375959,
+    "first_open_blocker": null,
+    "follow_up_of": null,
+    "gate": null,
+    "handler": null,
+    "handoff_at": "2026-10-28T18:15:40Z",
+    "heartbeat_at": null,
+    "id": "2b077949-W371294",
+    "last_change_seq": 376456,
+    "last_changed_at": "2026-10-28T19:15:05.663Z",
+    "links": {
+      "blocked_by": [],
+      "blocks": [
+        {
+          "handler": null,
+          "id": "2b077949-W371295",
+          "outcome": null,
+          "route": {
+            "endpoint": "baton.bug",
+            "handlers": [
+              "rvpc"
+            ],
+            "role": "rview",
+            "route": "rview"
+          },
+          "status": "open",
+          "team": "baton",
+          "title": "Compose qualified role contract admission and provenance",
+          "via_obligation": null
+        }
+      ],
+      "contains": [],
+      "duplicate_of": null,
+      "duplicates": [],
+      "follow_up_of": null,
+      "follow_ups": [],
+      "id": "2b077949-W371294",
+      "parent": {
+        "handler": null,
+        "id": "2b077949-W371072",
+        "outcome": null,
+        "route": {
+          "endpoint": "baton.bug",
+          "handlers": [
+            "rvpc"
+          ],
+          "role": "rview",
+          "route": "rview"
+        },
+        "status": "open",
+        "team": "baton",
+        "title": "Plan residual template and adapter admission contracts"
+      }
+    },
+    "local_id": "W371294",
+    "message_count": 1,
+    "my_pending_obligations": 0,
+    "new": 1,
+    "new_breakdown": {
+      "children": [],
+      "id": "2b077949-W371294",
+      "overlap": 0,
+      "own": 1,
+      "snapshot_seq": 383283,
+      "subtree_total": 1
+    },
+    "next": null,
+    "obligations": [],
+    "open_blockers": 0,
+    "open_dependents": 1,
+    "origin": "decomposition",
+    "outcome": "satisfying",
+    "phase": null,
+    "pickup": null,
+    "priority": "normal",
+    "progress": {
+      "children": 0,
+      "closed": 0
+    },
+    "rationale": "Accept bounded validator slice per review-2026-10-28T18-14-30Z.md and binding d91260acf2181b1f3b41233b43eea39283d07475916e14e558001f0c63cc4f32. Independent 448 focused tests passed. W371295 and parent joined acceptance remain outstanding; no deployment or default change. Human checkpoint remains due.",
+    "ready": false,
+    "revision": null,
+    "revision_count": 0,
+    "revisions": [],
+    "revisions_next_after": null,
+    "revisions_truncated": false,
+    "route": null,
+    "status": "closed",
+    "team": "baton",
+    "thread_count": 1,
+    "threads": [
+      {
+        "added_seq": 371294,
+        "id": "2b077949-T371294",
+        "last_seq": 371294,
+        "new": 1,
+        "subject": "Implement selected development role contract validators"
+      }
+    ],
+    "threads_next_after": null,
+    "threads_truncated": false,
+    "title": "Implement selected development role contract validators",
+    "trials": []
+  },
+  "W370555": {
+    "agent": null,
+    "available_transitions": [],
+    "binding": {
+      "actor": "baton.rvpc",
+      "created_ts": "2026-10-28T01:58:51Z",
+      "git_provenance": null,
+      "path": "work/records/2026/10/finding-v12-template-job-observation-identity",
+      "prior": 0,
+      "rationale": null,
+      "revision": 1,
+      "root": "baton",
+      "seq": 370555
+    },
+    "binding_count": 1,
+    "bindings": [
+      {
+        "actor": "baton.rvpc",
+        "created_ts": "2026-10-28T01:58:51Z",
+        "git_provenance": null,
+        "path": "work/records/2026/10/finding-v12-template-job-observation-identity",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 370555
+      }
+    ],
+    "bindings_next_after": null,
+    "bindings_truncated": false,
+    "blocking": false,
+    "breadcrumb": [
+      {
+        "id": "2b077949-W321608",
+        "title": "Assess replacing v11 coordination with v12 for one development workflow"
+      },
+      {
+        "id": "2b077949-W370268",
+        "title": "Execute selected useful documentation Job and observe native review"
+      },
+      {
+        "id": "2b077949-W370555",
+        "title": "Diagnose template Job observation identity mismatch"
+      }
+    ],
+    "claimed_at": null,
+    "classification": "suspected-defect",
+    "duplicate_of": null,
+    "episode_seq": 370886,
+    "first_open_blocker": null,
+    "follow_up_of": null,
+    "gate": null,
+    "handler": null,
+    "handoff_at": "2026-10-28T02:40:00Z",
+    "heartbeat_at": null,
+    "id": "2b077949-W370555",
+    "last_change_seq": 370905,
+    "last_changed_at": "2026-10-28T02:41:54.537Z",
+    "links": {
+      "blocked_by": [],
+      "blocks": [],
+      "contains": [],
+      "duplicate_of": null,
+      "duplicates": [],
+      "follow_up_of": null,
+      "follow_ups": [],
+      "id": "2b077949-W370555",
+      "parent": {
+        "handler": null,
+        "id": "2b077949-W370268",
+        "outcome": "non-satisfying",
+        "route": null,
+        "status": "closed",
+        "team": "baton",
+        "title": "Execute selected useful documentation Job and observe native review"
+      }
+    },
+    "local_id": "W370555",
+    "message_count": 2,
+    "my_pending_obligations": 0,
+    "new": 2,
+    "new_breakdown": {
+      "children": [],
+      "id": "2b077949-W370555",
+      "overlap": 0,
+      "own": 2,
+      "snapshot_seq": 383283,
+      "subtree_total": 2
+    },
+    "next": null,
+    "obligations": [],
+    "open_blockers": 0,
+    "open_dependents": 0,
+    "origin": "decomposition",
+    "outcome": "satisfying",
+    "phase": null,
+    "pickup": null,
+    "priority": "normal",
+    "progress": {
+      "children": 0,
+      "closed": 0
+    },
+    "rationale": "Accept independently reviewed observation identity correction, committed as f36bcd75ed22430355efe1b274b8f236cb591f6b; both committed source/test hashes match review-2026-10-28T02-38-50Z.md. Source delivery complete. No deployment update, live retry or acceptance of the documentation candidate implied; review-failure and cleanup work remain separate.",
+    "ready": false,
+    "revision": null,
+    "revision_count": 0,
+    "revisions": [],
+    "revisions_next_after": null,
+    "revisions_truncated": false,
+    "route": null,
+    "status": "closed",
+    "team": "baton",
+    "thread_count": 1,
+    "threads": [
+      {
+        "added_seq": 370555,
+        "id": "2b077949-T370555",
+        "last_seq": 370778,
+        "new": 2,
+        "subject": "Diagnose template Job observation identity mismatch"
+      }
+    ],
+    "threads_next_after": null,
+    "threads_truncated": false,
+    "title": "Diagnose template Job observation identity mismatch",
+    "trials": []
+  },
+  "W370688": {
+    "agent": null,
+    "available_transitions": [],
+    "binding": {
+      "actor": "baton.rvpc",
+      "created_ts": "2026-10-28T02:15:17Z",
+      "git_provenance": null,
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation",
+      "prior": 0,
+      "rationale": null,
+      "revision": 1,
+      "root": "baton",
+      "seq": 370688
+    },
+    "binding_count": 1,
+    "bindings": [
+      {
+        "actor": "baton.rvpc",
+        "created_ts": "2026-10-28T02:15:17Z",
+        "git_provenance": null,
+        "path": "work/records/2026/10/finding-v12-shared-output-template-preparation",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 370688
+      }
+    ],
+    "bindings_next_after": null,
+    "bindings_truncated": false,
+    "blocking": false,
+    "breadcrumb": [
+      {
+        "id": "2b077949-W321608",
+        "title": "Assess replacing v11 coordination with v12 for one development workflow"
+      },
+      {
+        "id": "2b077949-W370268",
+        "title": "Execute selected useful documentation Job and observe native review"
+      },
+      {
+        "id": "2b077949-W370560",
+        "title": "Diagnose documentation review failure and cleanup boundary"
+      },
+      {
+        "id": "2b077949-W370688",
+        "title": "Prepare corrected shared outputs for the two-role template Job"
+      }
+    ],
+    "claimed_at": null,
+    "classification": "confirmed-defect",
+    "duplicate_of": null,
+    "episode_seq": 371383,
+    "first_open_blocker": null,
+    "follow_up_of": null,
+    "gate": null,
+    "handler": null,
+    "handoff_at": "2026-10-28T03:35:09Z",
+    "heartbeat_at": null,
+    "id": "2b077949-W370688",
+    "last_change_seq": 375222,
+    "last_changed_at": "2026-10-28T13:11:30.094Z",
+    "links": {
+      "blocked_by": [],
+      "blocks": [
+        {
+          "handler": null,
+          "id": "2b077949-W371076",
+          "outcome": null,
+          "route": {
+            "endpoint": "baton.codx",
+            "handlers": [
+              "codxpc"
+            ],
+            "role": "impl",
+            "route": "implpc"
+          },
+          "status": "open",
+          "team": "baton",
+          "title": "Plan joined deterministic ordinary template workflow proof",
+          "via_obligation": null
+        }
+      ],
+      "contains": [],
+      "duplicate_of": null,
+      "duplicates": [],
+      "follow_up_of": null,
+      "follow_ups": [],
+      "id": "2b077949-W370688",
+      "parent": {
+        "handler": null,
+        "id": "2b077949-W370560",
+        "outcome": "satisfying",
+        "route": null,
+        "status": "closed",
+        "team": "baton",
+        "title": "Diagnose documentation review failure and cleanup boundary"
+      }
+    },
+    "local_id": "W370688",
+    "message_count": 2,
+    "my_pending_obligations": 0,
+    "new": 2,
+    "new_breakdown": {
+      "children": [],
+      "id": "2b077949-W370688",
+      "overlap": 0,
+      "own": 2,
+      "snapshot_seq": 383283,
+      "subtree_total": 2
+    },
+    "next": null,
+    "obligations": [],
+    "open_blockers": 0,
+    "open_dependents": 1,
+    "origin": "decomposition",
+    "outcome": "satisfying",
+    "phase": null,
+    "pickup": null,
+    "priority": "normal",
+    "progress": {
+      "children": 0,
+      "closed": 0
+    },
+    "rationale": "Accept successor preparation inventory 00add5d1b3fba1ca655abbdff9640f4a20134bd05cb00803c9acb5e1b55bec38 under review-2026-10-28T03-35-08Z.md.  Operational readiness remains false pending qualified manager package and worker-image compatibility. No deployment or retry authorized.",
+    "ready": false,
+    "revision": null,
+    "revision_count": 0,
+    "revisions": [],
+    "revisions_next_after": null,
+    "revisions_truncated": false,
+    "route": null,
+    "status": "closed",
+    "team": "baton",
+    "thread_count": 1,
+    "threads": [
+      {
+        "added_seq": 370688,
+        "id": "2b077949-T370688",
+        "last_seq": 371363,
+        "new": 2,
+        "subject": "Prepare corrected shared outputs for the two-role template Job"
+      }
+    ],
+    "threads_next_after": null,
+    "threads_truncated": false,
+    "title": "Prepare corrected shared outputs for the two-role template Job",
+    "trials": []
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "environment": {
+    "BATON_V12_STAGE_EXECUTION_CONFIG": "/tmp/baton-standard-next-run-w339626-339782/packet/deployment.json",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/tmp/baton-standard-next-run-w339626-339782/code/v12/python/src:/tmp/baton-standard-next-run-w339626-339782/code/v12/python"
+  },
+  "outcome": "/tmp/baton-standard-next-run-w339626-339782/packet/outcome.json",
+  "schema": "baton.single-implementation-commands/1",
+  "start": [
+    "/usr/bin/python3",
+    "-B",
+    "/tmp/baton-standard-next-run-w339626-339782/supervisor/baseline.py",
+    "--packet",
+    "/tmp/baton-standard-next-run-w339626-339782/packet/PACKET.json",
+    "--incarnation",
+    "baton-standard-next-run-w339626-339782"
+  ],
+  "status": [
+    "/usr/bin/python3",
+    "-B",
+    "-m",
+    "tools.stack_command",
+    "manager",
+    "--store",
+    "/tmp/baton-standard-next-run-w339626-339782/instance/db/jobs.sqlite3",
+    "--incarnation",
+    "baton-standard-next-run-w339626-339782-read",
+    "--authority-uuid",
+    "5a2f5ddc15f247e68f1cbe93b4de93d3",
+    "status",
+    "--control",
+    "/tmp/baton-standard-next-run-w339626-339782/instance/db/control.sqlite3",
+    "--observe",
+    "tools.stage_execution:observing_factory"
+  ],
+  "submission_owner": "start; do not also submit manually",
+  "termination": "SIGINT/SIGTERM requests this supervisor's bounded cancellation/accounting; a held outcome is not cessation proof"
+}

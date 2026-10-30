@@ -1,0 +1,17 @@
+{
+  "claim": 353231,
+  "candidate_manifest": "0143f146b8f7562ef60f22c4f0984670301f338e2687af806ebff6df2e08b807",
+  "seals_verified": 27,
+  "tree_files_verified": 1105,
+  "candidate_paths_verified": 11,
+  "argv": [
+    "python3",
+    "-c",
+    "import os,sys,unittest; os.chdir('v12/python'); roots=[os.getcwd(),os.path.join(os.getcwd(),'src')]; sys.path[:0]=roots; os.environ['PYTHONPATH']=os.pathsep.join(roots); names=[\"tests.manager.test_intake\", \"tests.manager.test_attempts\", \"tests.manager.test_maintenance\", \"tests.manager.test_contracts_inventory\", \"tests.manager.test_attempt_failure_cause\"]; r=unittest.TextTestRunner(verbosity=1).run(unittest.defaultTestLoader.loadTestsFromNames(names)); [print('SKIPPED '+str(one[0])) for one in r.skipped]; sys.exit(0 if r.wasSuccessful() and not r.skipped else 1)"
+  ],
+  "cwd": "/tmp/w341357-review353231",
+  "status": 0,
+  "seconds": 11.603579964000346,
+  "timeout_seconds": 30,
+  "live_provider_engine_calls": 0
+}

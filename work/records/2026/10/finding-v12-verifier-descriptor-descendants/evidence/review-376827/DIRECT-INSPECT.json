@@ -1,0 +1,10 @@
+{
+  "command": "docker inspect w325695-proof-376414",
+  "result": {
+    "chunk_id": "df3950",
+    "wall_time_seconds": 0.000007133,
+    "exit_code": 1,
+    "original_token_count": 12,
+    "output": "[]\nerror: no such object: w325695-proof-376414\n"
+  }
+}

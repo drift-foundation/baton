@@ -1,0 +1,7 @@
+test_a_pre_runtime_source_refusal_is_accounted_and_not_cleaned (tests.tools.test_next_run_flow.JoinedFlow.test_a_pre_runtime_source_refusal_is_accounted_and_not_cleaned)
+W339626: the live C failure's own shape, through real accounting. ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 8.229s
+
+OK

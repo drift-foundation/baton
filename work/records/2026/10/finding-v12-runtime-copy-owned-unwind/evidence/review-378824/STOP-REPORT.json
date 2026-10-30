@@ -1,0 +1,25 @@
+{
+  "calls": [
+    "root-a"
+  ],
+  "retained": [
+    "input-file",
+    "runtime-a"
+  ],
+  "all_inputs": [
+    [
+      "root-a",
+      "root-b"
+    ],
+    [
+      "input-file",
+      "justfile"
+    ],
+    [
+      "runtime-a",
+      "runtime-b"
+    ]
+  ],
+  "report": "cleanup       synthetic stop\ncleanup       stopped: no further removal was attempted after a removal this attempt could not prove was its own\ncleanup       RETAINED 2 object(s) this attempt made, listed above; they are not removed because this attempt cannot prove at the destructive call that the object it would delete is still its own\n",
+  "boundary": "in-memory helper and same break iteration as install; no filesystem removal"
+}

@@ -1,0 +1,39 @@
+{
+  "work": "W338305",
+  "claim": 339397,
+  "commit": "bc925cf5c62d69426ed5862af4d41f4d2a967b0f",
+  "paths": {
+    "v12/python/tests/manager/shutdown_fixture.py": {
+      "accepted": "bb1dcd4a1e19dca9869a9ca067250234ad04ef880543461169d009528e2c7432",
+      "committed": "bb1dcd4a1e19dca9869a9ca067250234ad04ef880543461169d009528e2c7432",
+      "checkout": "bb1dcd4a1e19dca9869a9ca067250234ad04ef880543461169d009528e2c7432"
+    },
+    "v12/python/tests/manager/test_authoring_manager_guard.py": {
+      "accepted": "9fe4c32424bed14f9bd7cd19d5e677f747411db845c76208139fce459150858b",
+      "committed": "9fe4c32424bed14f9bd7cd19d5e677f747411db845c76208139fce459150858b",
+      "checkout": "9fe4c32424bed14f9bd7cd19d5e677f747411db845c76208139fce459150858b"
+    },
+    "v12/python/tests/manager/test_authoring_shutdown_deadline.py": {
+      "accepted": "bd00443891602e2aee7a4640b41a050d33a017ba7724e35ca4ebe67751a5f767",
+      "committed": "bd00443891602e2aee7a4640b41a050d33a017ba7724e35ca4ebe67751a5f767",
+      "checkout": "bd00443891602e2aee7a4640b41a050d33a017ba7724e35ca4ebe67751a5f767"
+    },
+    "v12/python/tools/authoring_enforcement.py": {
+      "accepted": "d12769df863424c402757d925e5efb848e473e2877e62244af5595be56c8ebb7",
+      "committed": "d12769df863424c402757d925e5efb848e473e2877e62244af5595be56c8ebb7",
+      "checkout": "d12769df863424c402757d925e5efb848e473e2877e62244af5595be56c8ebb7"
+    },
+    "v12/python/tools/authoring_shutdown.py": {
+      "accepted": "af9e5ea6b140d772cdb143c73bccf7c321869b4707245ba7e8ca79ab855fab2e",
+      "committed": "af9e5ea6b140d772cdb143c73bccf7c321869b4707245ba7e8ca79ab855fab2e",
+      "checkout": "af9e5ea6b140d772cdb143c73bccf7c321869b4707245ba7e8ca79ab855fab2e"
+    },
+    "work/records/2026/09/finding-v12-single-implementation-proof/baseline.py": {
+      "accepted": "8e5987f56f8d5329c33a8e73f9df56f13213e134f2dade8180afabf80723efe9",
+      "committed": "8e5987f56f8d5329c33a8e73f9df56f13213e134f2dade8180afabf80723efe9",
+      "checkout": "8e5987f56f8d5329c33a8e73f9df56f13213e134f2dade8180afabf80723efe9"
+    }
+  },
+  "result": "all six committed and checkout hashes match independently accepted candidate",
+  "execution": "read-only Git and filesystem comparison; no tests or live runtime"
+}

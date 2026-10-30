@@ -1,0 +1,276 @@
+##### Failure/error report blocks:
+Failure/error report blocks: 368
+Most affected modules:
+91 tests.manager.test_dependencies
+62 tests.manager.test_integration_worker
+34 tests.tools.test_next_run_managed
+28 tests.manager.test_boundary_inventory
+22 tests.manager.test_input_delivery
+11 tests.integration.test_admission
+11 tests.tools.test_next_run
+11 tests.manager.test_authoring_shutdown_deadline
+10 tests.tools.test_packaged_creation
+8 tests.manager.test_authoring_enforcement
+7 tests.manager.test_authoring_manager_guard
+6 tests.manager.test_custody_engine
+6 tests.manager.test_launch
+5 tests.tools.test_correction_restart
+5 tests.manager.test_worker_image
+Repeated exception messages (symptoms, not established root causes):
+48 FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/v12/python/v12-w71917-1s6fw85g/mounted-attempt-9e96/assignment.json'
+14 AssertionError: Lists differ: [1000, 1000] != [65532, 65532]
+13 AssertionError: [] is not true
+10 AttributeError: 'function' object has no attribute 'execute'
+7 AssertionError: 'retained' != 'complete'
+7 AssertionError: 2 != 0 : usage: job_manager [-h] --store STORE --incarnation INCARNATION
+6 AssertionError: 'component' not found in {'names', 'reported', 'required', 'refusal', 'now', 'engine', 'roots', 'reclaim', 'category', 'admits', 'validator', 'gid', 'failed_start_record_digest', 'ordinal', 'token', 'sequence', 'ma
+6 AssertionError: 'uuid' not found in {'json', 'importlib', 'itertools', 'jsonschema', 'unicodedata', 're', 'pathlib', 'threading', 'collections', 'datetime', 'types', 'sqlite3', 'stat', 'functools', 'os', 'ipaddress', 'hmac', 'typi
+5 AssertionError: 'running' != 'quiescent'
+5 AssertionError: False is not true : Traceback (most recent call last):
+5 AssertionError: 'jobs' not found in {'names', 'reported', 'required', 'refusal', 'now', 'engine', 'roots', 'reclaim', 'category', 'admits', 'validator', 'gid', 'failed_start_record_digest', 'ordinal', 'token', 'sequence', 'max_byt
+5 AssertionError: 3 != 1
+4 KeyError: 'provider_context'
+4 AssertionError: True is not false
+4 AssertionError: 'authority' not found in {'names', 'reported', 'required', 'refusal', 'now', 'engine', 'roots', 'reclaim', 'category', 'admits', 'validator', 'gid', 'failed_start_record_digest', 'ordinal', 'token', 'sequence', 'ma
+4 ImportError: cannot import name 'admit_candidate' from partially initialized module 'baton_v12.integration.admission' (most likely due to a circular import) (/home/sl/src/baton/v12/python/src/baton_v12/integration/admission.py)
+3 PermissionError: [Errno 13] Permission denied: 'nested'
+3 AssertionError: 2 not less than or equal to 1 : owned more than once
+3 AssertionError: 'context_id' not found in {'names', 'reported', 'required', 'refusal', 'now', 'engine', 'roots', 'reclaim', 'category', 'admits', 'validator', 'gid', 'failed_start_record_digest', 'ordinal', 'token', 'sequence', 'm
+3 AssertionError: 'job_execution' not found in {'names', 'reported', 'required', 'refusal', 'now', 'engine', 'roots', 'reclaim', 'category', 'admits', 'validator', 'gid', 'failed_start_record_digest', 'ordinal', 'token', 'sequence',
+3 AssertionError: 'provider_context' not found in {'names', 'reported', 'required', 'refusal', 'now', 'engine', 'roots', 'reclaim', 'category', 'admits', 'validator', 'gid', 'failed_start_record_digest', 'ordinal', 'token', 'sequenc
+3 AssertionError: 'urllib' not found in {'json', 'importlib', 'itertools', 'jsonschema', 'unicodedata', 're', 'pathlib', 'threading', 'collections', 'datetime', 'types', 'sqlite3', 'stat', 'functools', 'os', 'ipaddress', 'hmac', 'ty
+
+
+##### Ran 11136 tests
+I just run and finished. /tmp/baton-v12-python-tests.log
+Ran 11136 tests in 1334.733s
+
+##### Ran 11136 tests
+17101:FAILED-START SIDE EFFECTS. After a refusal from another caller, the ... ok
+17695:ERROR: test_complete_evidence_enqueues_the_exact_producer_account (tests.integration.test_admission.AcceptedAccount.test_complete_evidence_enqueues_the_exact_producer_account)
+17722:ERROR: test_exact_replay_returns_the_same_entry_and_rank (tests.integration.test_admission.AcceptedAccount.test_exact_replay_returns_the_same_entry_and_rank)
+17749:ERROR: test_two_authorities_share_one_target_order (tests.integration.test_admission.AcceptedAccount.test_two_authorities_share_one_target_order)
+17776:ERROR: test_job_input_policy_scope_and_work_are_not_caller_claims (tests.integration.test_admission.RefusalBeforeMutation.test_job_input_policy_scope_and_work_are_not_caller_claims) (member='input_digest')
+17807:ERROR: test_job_input_policy_scope_and_work_are_not_caller_claims (tests.integration.test_admission.RefusalBeforeMutation.test_job_input_policy_scope_and_work_are_not_caller_claims) (member='policy_digest')
+17838:ERROR: test_a_moved_target_refuses_the_import_account_and_not_eligibility (tests.integration.test_admission.SourceEligibilityIsNotResultFreshness.test_a_moved_target_refuses_the_import_account_and_not_eligibility)
+17860:ERROR: test_eligibility_still_proves_every_producer_it_ever_did (tests.integration.test_admission.SourceEligibilityIsNotResultFreshness.test_eligibility_still_proves_every_producer_it_ever_did) (what='job')
+17887:ERROR: test_eligibility_still_proves_every_producer_it_ever_did (tests.integration.test_admission.SourceEligibilityIsNotResultFreshness.test_eligibility_still_proves_every_producer_it_ever_did)
+17914:ERROR: test_neither_source_answer_touches_the_coordinator (tests.integration.test_admission.SourceEligibilityIsNotResultFreshness.test_neither_source_answer_touches_the_coordinator)
+17940:ERROR: test_the_submission_operand_carries_the_objects_the_account_cannot (tests.integration.test_admission.SourceEligibilityIsNotResultFreshness.test_the_submission_operand_carries_the_objects_the_account_cannot)
+17963:ERROR: test_the_native_factory_delivers_the_policy_to_both_stage_workers (tests.job_manager.test_native_permission.NativeStageComposition.test_the_native_factory_delivers_the_policy_to_both_stage_workers)
+18001:ERROR: test_reopened_store_preserves_deadline_and_generation_without_revival (tests.job_manager.test_native_stop_restart.NativeStopRestart.test_reopened_store_preserves_deadline_and_generation_without_revival)
+18022:ERROR: test_expiry_is_not_revival_or_reuse_and_unknown_cessation_holds (tests.job_manager.test_serving_renewal.ServingPermission.test_expiry_is_not_revival_or_reuse_and_unknown_cessation_holds)
+18045:ERROR: test_cancellation_owner_refuses_token_and_attachment_identity_disagreement (tests.manager.test_authoring_enforcement.BeforeAttachmentCancellation.test_cancellation_owner_refuses_token_and_attachment_identity_disagreement)
+18059:ERROR: test_preexisting_independent_manager_refuses_before_author_admission (tests.manager.test_authoring_manager_guard.ManagerComposition.test_preexisting_independent_manager_refuses_before_author_admission)
+18068:ERROR: test_real_composition_admits_action_and_restart_never_reinvokes (tests.manager.test_authoring_manager_guard.ManagerComposition.test_real_composition_admits_action_and_restart_never_reinvokes)
+18077:ERROR: test_a_cancelled_attempt_settles_through_the_same_act (tests.manager.test_credentials.OneOrderedTeardownOnEveryEnding.test_a_cancelled_attempt_settles_through_the_same_act)
+18093:ERROR: test_a_failure_ending_settles_through_the_same_act (tests.manager.test_credentials.OneOrderedTeardownOnEveryEnding.test_a_failure_ending_settles_through_the_same_act)
+18110:ERROR: test_a_runtime_not_proved_gone_leaves_the_lifecycle_unresolved (tests.manager.test_credentials.OneOrderedTeardownOnEveryEnding.test_a_runtime_not_proved_gone_leaves_the_lifecycle_unresolved)
+18126:ERROR: test_destroy_tears_down_once_the_runtime_is_proved_gone (tests.manager.test_credentials.OneOrderedTeardownOnEveryEnding.test_destroy_tears_down_once_the_runtime_is_proved_gone)
+18141:ERROR: test_a_stranded_running_helper_is_reclaimed_and_the_act_completes (tests.manager.test_custody_engine.DockerCustody.test_a_stranded_running_helper_is_reclaimed_and_the_act_completes)
+18172:ERROR: test_it_holds_at_every_mode_the_worker_can_choose (tests.manager.test_custody_engine.DockerCustody.test_it_holds_at_every_mode_the_worker_can_choose) (mode='0o700')
+18201:ERROR: test_it_holds_at_every_mode_the_worker_can_choose (tests.manager.test_custody_engine.DockerCustody.test_it_holds_at_every_mode_the_worker_can_choose) (mode='0o500')
+18224:ERROR: test_it_holds_at_every_mode_the_worker_can_choose (tests.manager.test_custody_engine.DockerCustody.test_it_holds_at_every_mode_the_worker_can_choose) (mode='0o0')
+18247:ERROR: test_nested_hostile_modes_do_not_hide_objects_from_custody (tests.manager.test_custody_engine.DockerCustody.test_nested_hostile_modes_do_not_hide_objects_from_custody)
+18277
+
+##### Ran 11136 tests
+
+======================================================================
+FAIL: test_fresh_process_observes_owned_completion_after_serving_closes (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_fresh_process_observes_owned_completion_after_serving_closes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 6537, in test_fresh_process_observes_owned_completion_after_serving_closes
+    self.assertEqual(result.returncode, 0, result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/v12-w71917-yhzvi6nb/read-completed.py", line 8, in <module>
+    from baton_v12.integration import IntegrationStore
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/__init__.py", line 17, in <module>
+    from .execution import INTEGRATION_PORT, OUTCOMES, integrate_next
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/execution.py", line 70, in <module>
+    from . import git_profile, reconciliation, runtime
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 38, in <module>
+    from . import admission, managed_execution, schema
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/admission.py", line 22, in <module>
+    from ..job_manager import documents as job_documents
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/__init__.py", line 54, in <module>
+    from .creation import (CREATE_KIND, DERIVATION_MEMBERS, INSTALLED_SOURCE,
+                           create_template_job, created_job_of,
+                           created_job_rows, resolution_of)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/creation.py", line 91, in <module>
+    from . import documents, execution_limits, submission, templates
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/templates.py", line 92, in <module>
+    from . import (documents, execution_limits, fresh_attempt,
+                   review_driver, role_contract)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/role_contract.py", line 514, in <module>
+    for _consumer, _namespace in zip(CONSUMERS, _namespaces()):
+                                                ~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/role_contract.py", line 510, in _namespaces
+    from ..integration.driver import CLAIM_NAMESPACE
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/driver.py", line 28, in <module>
+    from .admission import admit_candidate, resolved_account
+ImportError: cannot import name 'admit_candidate' from partially initialized module 'baton_v12.integration.admission' (most likely due to a circular import) (/home/sl/src/baton/v12/python/src/baton_v12/integration/admission.py)
+
+
+======================================================================
+FAIL: test_worker_construction_failure_closes_every_acquired_handle (tests.tools.test_stage_execution_hardening.ConstructionUnwindsConcreteHandles.test_worker_construction_failure_closes_every_acquired_handle)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution_hardening.py", line 112, in test_worker_construction_failure_closes_every_acquired_handle
+    self.assertEqual(closed, ["implementation", "coordinator", "authority"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['coordinator', 'authority'] != ['implementation', 'coordinator', 'authority']
+
+First differing element 0:
+'coordinator'
+'implementation'
+
+Second list contains 1 additional elements.
+First extra element 2:
+'authority'
+
+- ['coordinator', 'authority']
++ ['implementation', 'coordinator', 'authority']
+?  ++++++++++++++++++
+
+
+----------------------------------------------------------------------
+Ran 11136 tests in 1334.733s
+
+FAILED (failures=220, errors=148, skipped=21)
+error: Recipe `test` failed with exit code 1
+
+
+##### Ran 11136 tests
+Warning: truncated output (original token count: 19169)
+Total output lines: 372
+
+17101:FAILED-START SIDE EFFECTS. After a refusal from another caller, the ... ok
+17695:ERROR: test_complete_evidence_enqueues_the_exact_producer_account (tests.integration.test_admission.AcceptedAccount.test_complete_evidence_enqueues_the_exact_producer_account)
+17722:ERROR: test_exact_replay_returns_the_same_entry_and_rank (tests.integration.test_admission.AcceptedAccount.test_exact_replay_returns_the_same_entry_and_rank)
+17749:ERROR: test_two_authorities_share_one_target_order (tests.integration.test_admission.AcceptedAccount.test_two_authorities_share_one_target_order)
+17776:ERROR: test_job_input_policy_scope_and_work_are_not_caller_claims (tests.integration.test_admission.RefusalBeforeMutation.test_job_input_policy_scope_and_work_are_not_caller_claims) (member='input_digest')
+17807:ERROR: test_job_input_policy_scope_and_work_are_not_caller_claims (tests.integration.test_admission.RefusalBeforeMutation.test_job_input_policy_scope_and_work_are_not_caller_claims) (member='policy_digest')
+17838:ERROR: test_a_moved_target_refuses_the_import_account_and_not_eligibility (tests.integration.test_admission.SourceEligibilityIsNotResultFreshness.test_a_moved_target_refuses_the_import_account_and_not_eligibility)
+17860:ERROR: test_eligibility_still_proves_every_producer_it_ever_did (tests.integration.test_admission.SourceEligibilityIsNotResultFreshness.test_eligibility_still_proves_every_producer_it_ever_did) (what='job')
+17887:ERROR: test_eligibility_still_proves_every_producer_it_ever_did (tests.integration.test_admission.SourceEligibilityIsNotResultFreshness.test_eligibility_still_proves_every_producer_it_ever_did)
+17914:ERROR: test_neither_source_answer_touches_the_coordinator (tests.integration.test_admission.SourceEligibilityIsNotResultFreshness.test_neither_source_answer_touches_the_coordinator)
+17940:ERROR: test_the_submission_operand_carries_the_objects_the_account_cannot (tests.integration.test_admission.SourceEligibilityIsNotResultFreshness.test_the_submission_operand_carries_the_objects_the_account_cannot)
+17963:ERROR: test_the_native_factory_delivers_the_policy_to_both_stage_workers (tests.job_manager.test_native_permission.NativeStageComposition.test_the_native_factory_delivers_the_policy_to_both_stage_workers)
+18001:ERROR: test_reopened_store_preserves_deadline_and_generation_without_revival (tests.job_manager.test_native_stop_restart.NativeStopRestart.test_reopened_store_preserves_deadline_and_generation_without_revival)
+18022:ERROR: test_expiry_is_not_revival_or_reuse_and_unknown_cessation_holds (tests.job_manager.test_serving_renewal.ServingPermission.test_expiry_is_not_revival_or_reuse_and_unknown_cessation_holds)
+18045:ERROR: test_cancellation_owner_refuses_token_and_attachment_identity_disagreement (tests.manager.test_authoring_enforcement.BeforeAttachmentCancellation.test_cancellation_owner_refuses_token_and_attachment_identity_disagreement)
+18059:ERROR: test_preexisting_independent_manager_refuses_before_author_admission (tests.manager.test_authoring_manager_guard.ManagerComposition.test_preexisting_independent_manager_refuses_before_author_admission)
+18068:ERROR: test_real_composition_admits_action_and_restart_never_reinvokes (tests.manager.test_authoring_manager_guard.ManagerComposition.test_real_composition_admits_action_and_restart_never_reinvokes)
+18077:ERROR: test_a_cancelled_attempt_settles_through_the_same_act (tests.manager.test_credentials.OneOrderedTeardownOnEveryEnding.test_a_cancelled_attempt_settles_through_the_same_act)
+18093:ERROR: test_a_failure_ending_settles_through_the_same_act (tests.manager.test_credentials.OneOrderedTeardownOnEveryEnding.test_a_failure_ending_settles_through_the_same_act)
+18110:ERROR: test_a_runtime_not_proved_gone_leaves_the_lifecycle_unresolved (tests.manager.test_credentials.OneOrderedTeardownOnEveryEnding.test_a_runtime_not_proved_gone_leaves_the_lifecycle_unresolved)
+18126:ERROR: test_destroy_tears_down_once_the_runtime_is_proved_gone (tests.manager.test_credentials.OneOrderedTeardownOnEveryEnding.test_destroy_tears_down_once_the_runtime_is_proved_gone)
+18141:ERROR: test_a_stranded_running_helper_is_reclaimed_and_the_act_completes (tests.manager.test_custody_engine.DockerCustody.test_a_stranded_running_helper_is_reclaimed_and_the_act_completes)
+18172:ERROR: test_it_holds_at_every_mode_the_worker_can_choose (tests.manager.test_custody_engine.DockerCustody.test_it_holds_at_every_mode_the_worker_can_choose) (mode='0o700')
+18201:ERROR: test_it_holds_at_every_mode_the_worker_can_choose (tests.manager.test_custody_engine.DockerCustody.test_it_holds_at_every_mode_the_worker_can_choose) (mode='0o500')
+18224:ERROR: test_it_holds_at_every_mode_the_worker_can_choose (tests.manager.test_custody_engine.DockerCustody.test_it_holds_at_every_mode_the_worker_can_choose) (mode='0o0')
+18247:ERROR: test_nested_hostile_modes_do_not_hide_objects_from_custody (tests.manager.test_custody_engin
+
+##### Traceback (most recent call last)
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/sl/opt/baton/v11/0650c61/bin/baton/__main__.py", line 3, in <module>
+    baton_work.cli.entry()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/opt/baton/v11/0650c61/bin/baton/baton_work/cli.py", line 2351, in entry
+    sys.exit(main())
+             ~~~~^^
+  File "/home/sl/opt/baton/v11/0650c61/bin/baton/baton_work/cli.py", line 1799, in main
+    result = _dispatch(store, args)
+  File "/home/sl/opt/baton/v11/0650c61/bin/baton/baton_work/cli.py", line 2278, in _dispatch
+    return transitions.drain_dispatch(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+    	store, actor_team=team, actor=member, reason=args.reason,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    	op_id=args.op_id, refs=args.refs or ())
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/opt/baton/v11/0650c61/bin/baton/baton_work/transitions.py", line 1524, in drain_dispatch
+    return store._write("dispatch_drain", f"{actor_team}.{actor}", payload,
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        mutate, operation=operation, finish=finish,
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        references=refs)
+                        ^^^^^^^^^^^^^^^^
+  File "/home/sl/opt/baton/v11/0650c61/bin/baton/baton_work/authority.py", line 1222, in _write
+    seq = self.conn.execute(
+          ~~~~~~~~~~~~~~~~~^
+    	"UPDATE sequence SET value = value + 1 WHERE id = 1 "
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    	"RETURNING value").fetchone()["value"]
+     ^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: attempt to write a readonly database
+
+
+##### Traceback (most recent call last)
+ERROR: test_complete_evidence_enqueues_the_exact_producer_account (tests.integration.test_admission.AcceptedAccount.test_complete_evidence_enqueues_the_exact_producer_account)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_admission.py", line 155, in test_complete_evidence_enqueues_the_exact_producer_account
+    placed = self.admit()
+  File "/home/sl/src/baton/v12/python/tests/integration/test_admission.py", line 133, in admit
+    return admit_candidate(
+        store or self.coordinator, self.manager, self.jobs, self.authority,
+        canonical_target_id=TARGET, entry_id=entry_id, line_id="line-1",
+        proposal_id="proposal-1")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/admission.py", line 421, in admit_candidate
+    account = resolved_account(manager, jobs, authority, line_id=line_id,
+                               proposal_id=proposal_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/admission.py", line 322, in resolved_account
+    proved = _proved(manager, jobs, authority, line_id=line_id,
+                     proposal_id=proposal_id, freshness=freshness)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/admission.py", line 282, in _proved
+    producing = manifests.load_manifest(manager, proposal["input_digest"],
+                                        "inputManifest")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/manifests.py", line 142, in load_manifest
+    row = _manifest_row(store._connection, manifest_digest)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/manifests.py", line 57, in _manifest_row
+    found = connection.execute(
+            ^^^^^^^^^^^^^^^^^^
+AttributeError: 'function' object has no attribute 'execute'
+
+======================================================================
+ERROR: test_exact_replay_returns_the_same_entry_and_rank (tests.integration.test_admission.AcceptedAccount.test_exact_replay_returns_the_same_entry_and_rank)
+----------------------------------------------------------------------
+ERROR: test_a_deletion_is_imported_as_an_absence (tests.manager.test_integration_worker.TheAcceptedBundleIsCarriedThroughTheRealEntry.test_a_deletion_is_imported_as_an_absence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+======================================================================
+ERROR: test_a_mode_change_is_not_publishable_and_starts_no_provider (tests.manager.test_integration_worker.TheAcceptedBundleIsCarriedThroughTheRealEntry.test_a_mode_change_is_not_publishable_and_starts_no_provider)
+CANDIDATE MODE IS NOT PERMISSION, and there is nothing in this
+----------------------------------------------------------------------
+FAIL: test_the_bundle_creates_binds_and_submits_one_template_job (tests.tools.test_packaged_creation.TheFrozenCommandCreatesAnOrdinaryJob.test_the_bundle_creates_binds_and_submits_one_template_job)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_packaged_creation.py", line 256, in test_the_bundle_creates_binds_and_submits_one_template_job
+    held = self.packaged_answer()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_packaged_creation.py", line 165, in packaged_answer
+    self.assertE
+

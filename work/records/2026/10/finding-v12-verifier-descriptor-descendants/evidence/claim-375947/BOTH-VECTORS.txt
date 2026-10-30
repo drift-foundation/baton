@@ -1,0 +1,20 @@
+document uid/gid/mode: 1000 1000 0o700
+
+UNSELECTED tmpfs operands:
+   /tmp:rw,noexec,nosuid,nodev,size=64m
+   /dev/shm:rw,noexec,nosuid,nodev,size=16m
+   /run/baton/logs:rw,noexec,nosuid,nodev,size=16m
+
+SELECTED tmpfs operands:
+   /tmp:rw,noexec,nosuid,nodev,size=32m
+   /dev/shm:rw,noexec,nosuid,nodev,size=16m
+   /run/baton/logs:rw,noexec,nosuid,nodev,size=16m
+   /run/baton-verifier/home:rw,noexec,nosuid,nodev,size=4m,uid=1000,gid=1000,mode=0700
+   /run/baton-verifier/tmp:rw,noexec,nosuid,nodev,size=16m,uid=1000,gid=1000,mode=0700
+   /run/baton-verifier/cache:rw,noexec,nosuid,nodev,size=4m,uid=1000,gid=1000,mode=0700
+   /run/baton-verifier/pycache:rw,noexec,nosuid,nodev,size=8m,uid=1000,gid=1000,mode=0700
+
+unselected argv length: 51
+unselected identical to layout_delivered=None: True
+committed SCRATCH_MOUNTS value restored: True
+aggregate equal across both tables: True

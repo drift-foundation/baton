@@ -1,0 +1,238 @@
+{
+  "work": "W370688",
+  "claim": "E371277",
+  "selected_commit": "f36bcd75ed22430355efe1b274b8f236cb591f6b",
+  "historical_inventory": "2cc804344888ca5d116a7965ac8523729c2a33a94f174294ba5bffe30493295b",
+  "files": [
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/PROGRESS.md",
+      "sha256": "22a80be537a9e86a2973d24822a9193d580c74d11e32d118d0019e4284bc062b",
+      "bytes": 9820
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/COMMANDS.md",
+      "sha256": "0e08e2463b3b86a20922fdff99a308b79a70483060516b019bbc638ea5778e53",
+      "bytes": 4641
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/RETAINED-INPUTS.json",
+      "sha256": "5e0d8ffbfea9279dcc4b2c70532145f7ea006fed77b2792095ebc326b1d3234e",
+      "bytes": 5824
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/candidate/BOOTSTRAP-FIXTURE.json",
+      "sha256": "b5d54e85f383faced64982038f1dbf3f85b1d462c57edd1f4d2c87197f84ee00",
+      "bytes": 13048
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/candidate/COMPOSITION.json",
+      "sha256": "7e5fc78c0b2d518c93889cc531ea82faab23b4a4c7ec8c4c087a158694a6af60",
+      "bytes": 26183
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/candidate/task.json",
+      "sha256": "b2226415f3a57bda25f2a2023f9cb514ba7ac2863e72e5ab090c122913fe5b6b",
+      "bytes": 8146
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/decisions/FINDING.md",
+      "sha256": "b4475b9e2a845440b535607ddbcec42008ad941d2a61972b2be7191ea974e83e",
+      "bytes": 6602
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/decisions/PLAN.md",
+      "sha256": "4408f58bb94bf184cd6ed49b9b87ede18bde1bee674085f7467291153f4eac8a",
+      "bytes": 2346
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/evidence/ARTIFACTS.json",
+      "sha256": "5826ad039f052b1e718a0268d4e224309b6818ca2eed67b6a0ac9ead06e9c10f",
+      "bytes": 3623
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/evidence/POLICY-DELTA.json",
+      "sha256": "00867599bcca053dbd46b9cc256d274f0f8332df50b30acad0d0b00c692cc118",
+      "bytes": 7137
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/evidence/PROGRESS.before.md",
+      "sha256": "c90bb93f49c8cdf9adf1ef4d7d2d5eb16b86c60c4690254bf1d3a794b34cc83b",
+      "bytes": 6231
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/evidence/RUNS.json",
+      "sha256": "c8e88d3125f19a6ff1a4df654785cd092ffcfdabba64f4b08ff05a775b3bb0a5",
+      "bytes": 218
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/evidence/SOURCE-OBJECTS.json",
+      "sha256": "967edfd821d1bc30bc66f684b4dede634573f7d77720726f07992a40a324ac14",
+      "bytes": 217728
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/evidence/grants-first/INVENTORY.json",
+      "sha256": "6b6b7ebeea170e073e39ca6168a3114977ef8e298b6d5e7284ef2b948a748dca",
+      "bytes": 2777
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/evidence/grants-first/credential_policy.json",
+      "sha256": "5399f947126ec7d031bced5895076657d24be21443e6db0c9ec86b51b14a9877",
+      "bytes": 1334
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/evidence/grants-first/mount_policy.json",
+      "sha256": "0aeeb775de49ecc87957de0d51c26946b207dbbd68eefe167f01eefc1d6e20f9",
+      "bytes": 1172
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/evidence/grants-first/network_policy.json",
+      "sha256": "fd23b28efadbe648ac43b0a1324de3dc5bfe873adfaa2c0d0ec60a777e3d9014",
+      "bytes": 1031
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/evidence/grants-first/resource_policy.json",
+      "sha256": "eb99686f18e73701aa7db25b2f0c6e3044fb94e583d290e9b2c7a018bd27952c",
+      "bytes": 1399
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/evidence/grants-first/role_instructions.json",
+      "sha256": "8ac96cb65d446a41a570a9ffa499ba955aa9e8d137bbbed7356fbd2d68ae04e5",
+      "bytes": 18172
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/evidence/grants-first/tool_policy.json",
+      "sha256": "eabb731948b1391bec7ef0c95035710ab4cef6c145b783e7f77765c4347051d6",
+      "bytes": 1226
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/evidence/grants-first/toolchain.json",
+      "sha256": "25920341783793832dc76dc14c2e67ba09b768737700b70122181da6eabe6507",
+      "bytes": 1805
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/evidence/proof-1.json",
+      "sha256": "8823e196c7368d4c632037b6250c6a9abd0898445dbd40c32fb2a66d6c90744d",
+      "bytes": 59328
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/evidence/proof-1.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/evidence/proof-2.json",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/evidence/proof-2.stderr",
+      "sha256": "59ada7c17f5558b4ce6d8390c9c77662ee3036dbc34c896d5caf48eced1a6d09",
+      "bytes": 1437
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/evidence/proof-3.json",
+      "sha256": "029c103dca19d5c469a41d31fa192e333ad9deffa5db9fb20a32e8c22736bd69",
+      "bytes": 60621
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/evidence/proof-3.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/grants/INVENTORY.json",
+      "sha256": "6b6b7ebeea170e073e39ca6168a3114977ef8e298b6d5e7284ef2b948a748dca",
+      "bytes": 2777
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/grants/credential_policy.json",
+      "sha256": "5399f947126ec7d031bced5895076657d24be21443e6db0c9ec86b51b14a9877",
+      "bytes": 1334
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/grants/mount_policy.json",
+      "sha256": "0aeeb775de49ecc87957de0d51c26946b207dbbd68eefe167f01eefc1d6e20f9",
+      "bytes": 1172
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/grants/network_policy.json",
+      "sha256": "fd23b28efadbe648ac43b0a1324de3dc5bfe873adfaa2c0d0ec60a777e3d9014",
+      "bytes": 1031
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/grants/resource_policy.json",
+      "sha256": "eb99686f18e73701aa7db25b2f0c6e3044fb94e583d290e9b2c7a018bd27952c",
+      "bytes": 1399
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/grants/role_instructions.json",
+      "sha256": "8ac96cb65d446a41a570a9ffa499ba955aa9e8d137bbbed7356fbd2d68ae04e5",
+      "bytes": 18172
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/grants/tool_policy.json",
+      "sha256": "eabb731948b1391bec7ef0c95035710ab4cef6c145b783e7f77765c4347051d6",
+      "bytes": 1226
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/grants/toolchain.json",
+      "sha256": "25920341783793832dc76dc14c2e67ba09b768737700b70122181da6eabe6507",
+      "bytes": 1805
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/grants-selected/INVENTORY.json",
+      "sha256": "9dc1fb607577a6cce238eb42cfc51b5536cd17e0b94851b96a5243971061be20",
+      "bytes": 2777
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/grants-selected/credential_policy.json",
+      "sha256": "de41b1520fa2584a62be04073b5de5662281bb2cb9a1571dce61fb1634ad050d",
+      "bytes": 1334
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/grants-selected/mount_policy.json",
+      "sha256": "c8852934329b0a25f34d2fbcce0d1930dd0138e4ccaa4292fbe3c20a5d4bb0a3",
+      "bytes": 1172
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/grants-selected/network_policy.json",
+      "sha256": "31fe791226ace829062d934164bd94783d6d6fe75f65e0c042a5d5ec9dc8e706",
+      "bytes": 1031
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/grants-selected/resource_policy.json",
+      "sha256": "d776d56ac5b77867e70c5c2881b712e53b0eadc1bbfc14643510bc76810c7127",
+      "bytes": 1399
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/grants-selected/role_instructions.json",
+      "sha256": "f1a95b243fa1fa3464d14dd9e05d77b82ed8fd7797dc7fc96b9558344d202edb",
+      "bytes": 18172
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/grants-selected/tool_policy.json",
+      "sha256": "56352093d95bc3cb76e849f77b8c7a06b0b4b92004483f0a5412b67f69eb30f7",
+      "bytes": 1226
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/grants-selected/toolchain.json",
+      "sha256": "918a426e3709c66492d85c84bbe02f054e0590bbd2e193441c9dc3c70944d4f4",
+      "bytes": 1805
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/prepare.py",
+      "sha256": "079a2355ec4980809ae17b5fd553cfeae101a0318708ff63c97075bf8f07a8a1",
+      "bytes": 6123
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/prove.py",
+      "sha256": "fae77c912905ece3a5ba079d933d27f2accd3cd3a62c2cc32ed82183e65e6623",
+      "bytes": 15076
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/successor-371277/source.py",
+      "sha256": "938927cd7b67c3ab8d14dfa25599ea6b041158607f829e63bea68d421b473e8f",
+      "bytes": 3834
+    }
+  ]
+}

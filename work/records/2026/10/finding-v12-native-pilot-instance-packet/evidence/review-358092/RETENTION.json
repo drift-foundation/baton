@@ -1,0 +1,26 @@
+{
+  "proposal": "/home/sl/baton-instances/native-coordination-pilot-w321608-2/state/workspaces/.baton-review-lines/line-c9d18effbbd31abde487a4f60f3f253651a09ac92704375925fcee90660e6890/custody/attempt-4b3113e16f5466a43cf7320c23a696d2adee84ff94a1d751c0dc6860bdce299a/proposal",
+  "exists": true,
+  "files": [
+    {
+      "path": "objects.bundle",
+      "sha256": "db0eb8a8e3eb32a95b22c1e9e0c222730c2d7b8a8b23b93eb54c48cb6553153b",
+      "bytes": 5630
+    },
+    {
+      "path": "verification.txt",
+      "sha256": "9e0c3840f48c6bec0cf1c8e89b63e0bc616e9c99d713e045db562975e68b0685",
+      "bytes": 1135
+    },
+    {
+      "path": "result.json",
+      "sha256": "aac24776957abba38b0139354fedcf8648c560779f4ad9ba9d81e336f13aa941",
+      "bytes": 1203
+    },
+    {
+      "path": "change.patch",
+      "sha256": "d82e5f2458b530df5dba34ab17040efbb722635e7564fb02f874e50b9d9477df",
+      "bytes": 12467
+    }
+  ]
+}

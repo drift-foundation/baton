@@ -1,0 +1,80 @@
+{
+  "capability_digest": "sha256:4d6a3391facb990ac61090ab5e6b114203b27a27faeca1083458c7bd8f649601",
+  "current_manifest_for_preserves_bad_outputs": true,
+  "current_template": {
+    "completion": {
+      "deciding_role": "review",
+      "delivers": "proposal",
+      "outcome": "accepted",
+      "verdict_output": "findings"
+    },
+    "correction": {
+      "episode_ending": "superseded-by-correction",
+      "outcome": "correction",
+      "repeats": [
+        "implementation",
+        "review"
+      ]
+    },
+    "failure": {
+      "outcome": "held",
+      "recovery_operation": "fresh_attempt.admit",
+      "stage_state": "exceptional",
+      "terminal_policy": "report-and-hold"
+    },
+    "permitted_overrides": [
+      "execution_limits"
+    ],
+    "roles": [
+      {
+        "consumes": [],
+        "depends_on": [],
+        "kind": "implementation",
+        "produces": [
+          "proposal"
+        ],
+        "role": "implementation"
+      },
+      {
+        "consumes": [
+          "proposal"
+        ],
+        "depends_on": [
+          "implementation"
+        ],
+        "kind": "review",
+        "produces": [
+          "findings",
+          "logs"
+        ],
+        "role": "review"
+      }
+    ],
+    "terminal_policy": "report-and-hold",
+    "version": "baton.v12.job-template.implementation-review/1"
+  },
+  "descriptor_digest": "sha256:21b78036947430e3ae073a04fd5237b10a844471207a52cba9ea6186acdffdaf",
+  "review_refusal": "a review turn writes findings, logs and this assignment declares no findings, logs",
+  "roles": {
+    "implementation": {
+      "absent": [
+        "findings",
+        "logs"
+      ],
+      "produces": [
+        "proposal"
+      ]
+    },
+    "review": {
+      "absent": [
+        "proposal"
+      ],
+      "produces": [
+        "findings",
+        "logs"
+      ]
+    }
+  },
+  "scope": "inert planning probe, no proposed validator implemented",
+  "seconds": 0.14075767100439407
+}

@@ -1,0 +1,15 @@
+{
+  "cwd": "/tmp/w361910-review-362383/v12/python",
+  "PYTHONPATH": "src:.",
+  "focused": {
+    "command": "python3 -m unittest tests.job_manager.test_templates tests.job_manager.test_submission tests.job_manager.test_execution_limits",
+    "exit": 0,
+    "tests": 167,
+    "test_report_seconds": 0.168
+  },
+  "probe": {
+    "command": "python3 <canonical evidence/review-362383/probe.py>",
+    "exit": 0
+  },
+  "wall_seconds": "unknown; outer capture script failed after both output files were written because its final json import was missing. No product failure or rerun inferred."
+}

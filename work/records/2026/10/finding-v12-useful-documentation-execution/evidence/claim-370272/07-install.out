@@ -1,0 +1,26 @@
+repositories  4 prepared under /home/sl/baton-instances/useful-template-job-w366962/repo: target, workspace, source-impl-w366962, source-review-w366962
+authority 6dcb60dc...    reused from this root's record
+route impl           -> baton.claude-w366962
+route rview          -> baton.reviewer-w366962
+work  6dcb60dc-W1    created on impl
+grant 6dcb60dc-W1    approve/review/verify/integrate in its own scope
+owner 6dcb60dc-W1    approve/integrate/close in its own scope; no verify or review grant
+target                42bed8bb04a53380e565b1a63fb2bc702677f0d0 established from line_declared_base
+configuration /home/sl/baton-instances/useful-template-job-w366962/deployment.json
+capacity      {"job_affinity": {"job-template-job-guide-42bed8bb": "impl-w366962"}, "jobs": 1, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["42bed8bb04a53380e565b1a63fb2bc702677f0d0"], "workers_by_role": {"implementation": ["impl-w366962"], "integration": [], "review": ["review-w366962"]}}
+no Job was submitted and nothing was executed
+instance      /home/sl/baton-instances/useful-template-job-w366962/instance.json
+install       /home/sl/baton-instances/useful-template-job-w366962/install-inputs.json
+runtime       81 files, digest 0b7bc59213605489...
+stores        /home/sl/baton-instances/useful-template-job-w366962/db
+repository    /home/sl/baton-instances/useful-template-job-w366962/repo
+justfile      /home/sl/baton-instances/useful-template-job-w366962/justfile
+
+The deployment is operated from the destination, and needs nothing else:
+
+    cd /home/sl/baton-instances/useful-template-job-w366962 && just status
+    just --justfile /home/sl/baton-instances/useful-template-job-w366962/justfile start        # from anywhere
+
+or the command directly, which is the same program:
+
+    /home/sl/baton-instances/useful-template-job-w366962/distro/baton-v12-stack status --instance /home/sl/baton-instances/useful-template-job-w366962/instance.json

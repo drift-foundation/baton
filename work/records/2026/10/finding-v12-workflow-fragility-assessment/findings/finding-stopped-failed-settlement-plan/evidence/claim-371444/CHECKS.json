@@ -1,0 +1,9 @@
+{
+  "kind": "inert schema-source and example checks",
+  "assertions": 4,
+  "seconds": 0.0017422569944756106,
+  "passed": true,
+  "product_tests": 0,
+  "live_calls": 0,
+  "note": "No new owner API, migration or settlement behavior implemented or exercised."
+}

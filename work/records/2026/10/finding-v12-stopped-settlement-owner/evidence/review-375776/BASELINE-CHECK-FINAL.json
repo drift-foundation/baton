@@ -1,0 +1,7 @@
+{
+  "failure_identities_equal": true,
+  "residual_sets_equal": true,
+  "normalized_cause_differences": [],
+  "normalization": "Stale-owner assertions retain missing entry and omit expanded receiving-universe display; other AssertionError lines compared exactly.",
+  "scope": "Independent comparison of retained author full-run evidence, not a repeated full-suite run."
+}

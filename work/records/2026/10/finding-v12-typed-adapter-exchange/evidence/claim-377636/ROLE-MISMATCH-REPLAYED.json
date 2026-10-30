@@ -1,0 +1,38 @@
+{
+ "answers": {
+  "launch=implementation claim=implementation": {
+   "adapter_failure": {
+    "code": "role-output-missing",
+    "component": "role-adapter",
+    "operation": "work",
+    "operation_id": "work:attempt-implementation-implementation",
+    "role": "implementation"
+   },
+   "ending": "faulted",
+   "fault_code": "agent"
+  },
+  "launch=implementation claim=review": {
+   "adapter_failure": null,
+   "ending": "faulted",
+   "fault_code": "agent"
+  },
+  "launch=review claim=implementation": {
+   "adapter_failure": null,
+   "ending": "faulted",
+   "fault_code": "agent"
+  },
+  "launch=review claim=review": {
+   "adapter_failure": {
+    "code": "role-output-missing",
+    "component": "role-adapter",
+    "operation": "work",
+    "operation_id": "work:attempt-review-review",
+    "role": "review"
+   },
+   "ending": "faulted",
+   "fault_code": "agent"
+  }
+ },
+ "note": "The reviewer's probe was launch=implementation, claim=review, accepted with role 'review'. Both mismatch directions now carry null typed evidence with the ending unchanged; both matched selections carry the launch's own role.",
+ "replayed": "work/records/2026/10/finding-v12-typed-adapter-exchange/evidence/review-377545/ROLE-MISMATCH.json"
+}

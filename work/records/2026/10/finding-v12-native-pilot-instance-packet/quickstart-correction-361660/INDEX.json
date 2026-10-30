@@ -1,0 +1,93 @@
+{
+ "adds": [
+  "the deployed dispatcher takes --instance immediately after the subcommand; the bare source parser declares it top-level, so a line copied from stack.py has the operands reversed. Measured three ways.",
+  "attempt-diagnostics takes ONE positional status document and has no --help",
+  "the fresh-attempt boundary: a Job whose execution FAILED, never a completed one",
+  "the 3600/900 execution limits, the runtime-quiescence:1 gate generation, and the four terminal outcomes"
+ ],
+ "answers": "review-2026-10-24T03-10-08Z.md",
+ "claim": 361660,
+ "corrects": {
+  "defects": [
+   "destination named as instance 1 (...-w321608-1); it is ...-w321608-4",
+   "Job named quickstart-a; it is quickstart-d",
+   "source/base named 14e52d80...; the build stamp and declared base are 614668e0...",
+   "claims attempt-diagnostics and manager fresh-attempt are not in this build; BOTH are in it",
+   "names baton.diagnostician-pilot; the cited record names baton.diagnostician and no such participant is configured here (found by checking the claim, not substituting identifiers)"
+  ],
+  "retained_proposal": {
+   "base": "614668e0831e8c87cdae11ca43620e0d544a84d5",
+   "change.patch": "sha256:9468ec71a9a1e693e2d7718b1584ec60f82c9ffbda0ca9dc504c9e3887e1bdfd",
+   "changed_paths": [
+    "v12/QUICKSTART.md"
+   ],
+   "head": "5d747fecc950989a7ef0a0d50e58a1d2e15a657f",
+   "result.json": "sha256:af9df6dc7a1da3f20ed6e2ef1f0c26671470cb5f7a318f97b502df19509187e9"
+  },
+  "retained_review": {
+   "report.json": "sha256:f1b569316d97fb0803f912af1d83916e353198352d7b14fbf537842bb9ee41ff",
+   "verdict": "ACCEPTED - preserved unchanged; it judged the claims against the historical 14e52d80 surface"
+  }
+ },
+ "current_facts": {
+  "authority_uuid": "19b4f1459c2442e4aec8c7cd23e92312",
+  "base": "614668e0831e8c87cdae11ca43620e0d544a84d5",
+  "canonical_target": "614668e0831e8c87cdae11ca43620e0d544a84d5",
+  "destination": "/home/sl/baton-instances/native-coordination-pilot-w321608-4",
+  "integrator": "baton.integrator-pilot",
+  "job": "quickstart-d",
+  "launch_logs": "/home/sl/baton-instances/native-coordination-pilot-w321608-4/state/launch/logs",
+  "pool_generation": 1,
+  "provider_turn_seconds": 3600,
+  "receipts": {
+   "approval": "baton.slaw",
+   "review": "baton.reviewer-receipt-pilot",
+   "verification": "baton.verifier-pilot"
+  },
+  "retention": "retain",
+  "stage_participants": [
+   "implementation",
+   "review"
+  ],
+  "terminal_policy": "report-and-hold",
+  "verification_command_seconds": 900,
+  "work": "19b4f145-W1"
+ },
+ "members": {
+  "CONTEXT.md": "sha256:f6a31d8222e6812cb69c512d6daf996051431311438beee723b0a488758884d1",
+  "QUICKSTART.md": "sha256:3dc0ea4912e6ef8b35552877938b50c96cdddfc9bb4c82003437a0b02d73ad61",
+  "evidence/CLI-READBACK.json": "sha256:73988fb492efe9df0255d5a599bd9545723fdcd5141d0d5cdbb409fec480e5c1",
+  "evidence/SEMANTIC-CHECK.json": "sha256:9e89eb4bd6d0d433a9de397680dc24ce36a3693485c55ed89787884a49311c1e",
+  "semantic_check.py": "sha256:19f8055650e7c672baa5d7e91cf52965143f395c484032748170ab9d4946cc6e"
+ },
+ "not_done": "no import, no checkout write, no modification of the retained proposal/report, deployed task/configuration/stores/worker contexts, no closure, no provider/engine/start/stop/submit/fresh-attempt run, no Git mutation",
+ "owner_direction": "E361628 - bounded current-instance documentation/context correction and semantic review; no import, closure or new live run",
+ "packet": "quickstart-correction-361660",
+ "readback": {
+  "file": "evidence/CLI-READBACK.json",
+  "method": "read-only calls on the INSTALLED command; no store opened, no engine reached, nothing started, stopped, submitted or retried"
+ },
+ "verification": {
+  "checks": 19,
+  "evidence": "evidence/SEMANTIC-CHECK.json",
+  "facts_are_read_not_written": "every current fact comes from the installed deployment.json / authority-identity.json / submission at run time",
+  "failed": 0,
+  "file": "semantic_check.py",
+  "repeated_identically": 4,
+  "seconds": 0.018,
+  "structural_note": "the deployed Job's OWN verification command is run verbatim and PASSES on the stale candidate; the structural result is kept and labelled insufficient rather than replaced",
+  "variants_rejected": [
+   "the retained stale proposal",
+   "wrong instance (destination 1)",
+   "wrong Job (quickstart-a)",
+   "wrong base (14e52d80)",
+   "wrong authority and Work",
+   "false command absence",
+   "an invented diagnosis participant",
+   "limits dropped",
+   "pressure to repeat completed work"
+  ]
+ },
+ "what_this_is": "a DIRECT DEVELOPMENT correction of one document, not another v12 Job, not an amended live receipt, and not permission to execute anything",
+ "work": "W325959"
+}

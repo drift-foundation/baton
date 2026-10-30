@@ -1,0 +1,14 @@
+{
+  "manifest_sha256": "3df2d453b4f2d6f6afca9f4420f055978fc56c6b650f0d6e7cd8873ea8c6dc7c",
+  "manifest_members_match": 6,
+  "source_files_match_git_and_export": 1078,
+  "image_inputs_equal": 10,
+  "task_changed_fields": [
+    "declared_base",
+    "task_id"
+  ],
+  "parser_vectors_passed": 8,
+  "seconds": 0.35663557600128115,
+  "runtime_or_store_operations": false,
+  "author_artifacts_unchanged": true
+}

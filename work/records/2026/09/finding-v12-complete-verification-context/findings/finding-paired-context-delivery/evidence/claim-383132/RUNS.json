@@ -1,0 +1,141 @@
+{
+ "claim": 383132,
+ "work": "2b077949-W321776",
+ "participant": "baton.claude",
+ "head": "8876bf950ff1f8ab8767ce9786df268cc9d767c6",
+ "environment": {
+  "working_directory": "v12/python",
+  "PYTHONPATH": "src",
+  "PYTHONDONTWRITEBYTECODE": "1",
+  "note": "the ambient PYTHONPATH is explicitly unset before each run"
+ },
+ "boundaries": {
+  "engine_or_image_build": "none selected; no image was built",
+  "live_provider": "none; the adapter's process capability is injected and the provider is a recorded fake",
+  "version_control_mutation": "none, in any repository including throwaway ones; the operator's repository capability is injected and the transport cases are driven by a recorded SIMULATED repository",
+  "credential_read": "none; the fixture credential's content is asserted never to be read",
+  "deployment_or_raw_sql": "none"
+ },
+ "measured": [
+  {
+   "what": "the named 102-test credential gate IN THE WORKER'S OWN materialized view",
+   "where": "tests.manager.test_verification_views.TheNamedGatePassesInTheWorkersOwnView",
+   "result": "passed in the view, context ready / command passed / exit_status 0, zero skips and zero context errors",
+   "note": "the gate runs as the LITERAL argv with the import path DERIVED from the declaration"
+  },
+  {
+   "what": "the named 102-test credential gate IN THE INDEPENDENT OPERATOR'S OWN materialized view",
+   "where": "tests.tools.test_operator_verification_view.TheNamedGatePassesInTheOperatorsOwnView",
+   "result": "passed in the view, verification_status 0, operator-evidence/1 held and bound to the retained result digest"
+  },
+  {
+   "what": "tests.manager.test_verification_views (the worker's view, Stage A/B, cleanup, safe outcomes)",
+   "tests": 44,
+   "result": "OK"
+  },
+  {
+   "what": "tests.tools.test_operator_verification_view (the operator's view, transport prerequisites, the seal)",
+   "tests": 38,
+   "result": "OK"
+  },
+  {
+   "what": "tests.manager.test_verification_context (Stage A and the shared vocabulary, unchanged)",
+   "tests": 96,
+   "result": "OK"
+  },
+  {
+   "what": "the three verification suites together",
+   "tests": 178,
+   "unittest_seconds": 13.534,
+   "wall_seconds": 13.72,
+   "result": "OK"
+  },
+  {
+   "what": "the named 102 gate on the HOST, baseline provenance only",
+   "tests": 102,
+   "unittest_seconds": 0.228,
+   "wall_seconds": 0.44,
+   "result": "OK",
+   "note": "a host run; it establishes the vector is intact and nothing about either view"
+  },
+  {
+   "what": "tests.manager.test_claude_agent + test_claude_context + test_worker_packaging + test_worker_entry + test_exchange + tests.tools.test_dogfood_operator",
+   "tests": 973,
+   "unittest_seconds": 70.451,
+   "wall_seconds": 70.77,
+   "result": "OK, 1 skip",
+   "note": "the skip is pre-existing in test_claude_agent"
+  },
+  {
+   "what": "tests.manager.test_contracts_inventory + test_credentials + test_adapter_declaration + test_source_boundary + test_worker_entry_engine",
+   "result": "run; see pre_existing below"
+  },
+  {
+   "what": "tests.tools.test_single_worker + test_job_task_delivery + test_connected_creation + test_execution_limits + test_instance",
+   "tests": 635,
+   "unittest_seconds": 125.529,
+   "result": "5 failures, all pre-existing; see pre_existing below"
+  },
+  {
+   "what": "tests.tools.test_connected_startup + test_startup_prerequisites + test_stopped_settlement_joined",
+   "tests": 98,
+   "unittest_seconds": 8.086,
+   "result": "OK"
+  },
+  {
+   "what": "tests.tools.test_stage_execution",
+   "tests": 477,
+   "unittest_seconds": 255.852,
+   "result": "1 failure, pre-existing; see pre_existing below"
+  }
+ ],
+ "pre_existing": [
+  {
+   "where": "tests.manager.test_credentials.OneOrderedTeardownOnEveryEnding",
+   "count": 4,
+   "failure": "TypeError: the fixture's observe lambda got an unexpected keyword argument 'seconds'",
+   "attribution": "REPRODUCED AT PRISTINE HEAD 8876bf95 in an exported tree at /tmp/w321776-attrib-1, byte-independent of this candidate and of the uncommitted W376586 bytes. oci._removed passes seconds= at HEAD too; test_credentials.py imports nothing this candidate changes.",
+   "owner": "not this Work's; reported in the handoff as a found defect"
+  },
+  {
+   "where": "tests.tools.test_execution_limits.TheDerivedJudgmentCarriesItsOwningResultsJob / TheTwoReadersResolveOneJobIdentically",
+   "count": 3,
+   "attribution": "REPRODUCED AT PRISTINE HEAD in the same exported tree"
+  },
+  {
+   "where": "tests.tools.test_execution_limits.AFreshProcessAdoptsBothJobsConfiguredLaunches.test_the_child_answers_each_jobs_own_numbers",
+   "count": 1,
+   "failure": "ImportError: cannot import name 'admit_candidate' from partially initialized module 'baton_v12.integration.admission' (circular import)",
+   "attribution": "one of the TWO FRESH-PROCESS CIRCULAR-IMPORT FAILURES explicitly disclosed in W376586's accepted review 2026-10-28T23-32-40Z"
+  },
+  {
+   "where": "tests.tools.test_single_worker.AFaultedTerminalSurvivesTheContainerThatWroteIt.test_a_real_observing_status_run_mutates_no_durable_state",
+   "count": 1,
+   "failure": "control.sqlite3-wal/-shm appear as durable files after an observing run",
+   "attribution": "the WAL/SHM OBSERVATIONAL-FILE FAILURE explicitly disclosed in W376586's accepted review 2026-10-28T23-32-40Z"
+  },
+  {
+   "where": "tests.manager.test_source_boundary.TheWorkspaceIsStorageAndScratchIsBounded.test_the_runtime_gets_exactly_the_declared_bounded_scratch",
+   "count": 1,
+   "attribution": "REPRODUCED AT PRISTINE HEAD in the same exported tree"
+  },
+  {
+   "where": "tests.manager.test_worker_entry_engine.DockerWorkerEntry.test_a_real_container_answers_describe_and_work_through_exec",
+   "count": 1,
+   "failure": "a uid assertion in the case's own fixture; it fails before any image or container work",
+   "attribution": "REPRODUCED AT PRISTINE HEAD in the same exported tree",
+   "disclosure": "this is a DAEMON-BACKED module name and running it was outside this claim's no-engine posture. It failed in well under a second on the fixture's own assertion, so no image was built and no container was created; recording it rather than leaving the module name unexplained."
+  },
+  {
+   "where": "tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_fresh_process_observes_owned_completion_after_serving_closes",
+   "count": 1,
+   "failure": "ImportError: cannot import name 'admit_candidate' from partially initialized module 'baton_v12.integration.admission' (circular import), raised through job_manager/role_contract.py:510 -> integration/driver.py:28",
+   "attribution": "DOES NOT reproduce at pristine HEAD, because role_contract.py is a NEW untracked W376586 file and templates.py is one of its modified ones. It is the SECOND of the two fresh-process circular-import failures disclosed in W376586's accepted review 2026-10-28T23-32-40Z; this candidate touches none of job_manager, integration or templates.",
+   "owner": "not this Work's; reported in the handoff"
+  }
+ ],
+ "not_measured": [
+  "tests.manager.test_integration_image and tests.manager.test_dogfood_image -- these BUILD the reference worker image, which this claim's no-build posture excludes. Dockerfile.integration's new COPY layer is therefore established by tests.manager.test_worker_packaging, which stages exactly what each recipe names into a directory outside the checkout and imports the programs there. That proves the recipe STATES the dependency; it does not prove a built image.",
+  "any real repository behaviour. The operator's version-control view is established against an injected simulated capability only, and is labelled a SIMULATED BOUNDARY wherever it is reported."
+ ]
+}

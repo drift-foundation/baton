@@ -1,0 +1,1417 @@
+{
+  "SUPERSEDED_the_retained_candidate_travels": {
+    "superseded_by": "recovery-345822 and candidate.patch 294368c55fd468a95a4375c250e560def0f4cbc0a0c8a2a3a6f2658732e83856 since claim347396. The old key was still present in execution-348852's PREFLIGHT.json beside its replacement; retired at claim350529 rather than left to be read as current.",
+    "text": "candidate_patch 5030be0867af2c7989638ca2cf369891672b876b80f6245e6344d0db793d3458 -- the FIRST retained candidate, from run345039."
+  },
+  "attempts": 0,
+  "author_classification_corrected": "three claims of mine were corrected by review-2026-10-21T11-37-58Z.md and all three are accepted: disk_roots.py was not new, the 16 errors are subtest outcomes in four methods, and an equal test count proves nothing about assertion coverage. PROVENANCE author_classification_corrected and FIXTURE.md carry them. The original evidence is untouched.",
+  "claim": 350529,
+  "collection": {
+    "also_new": [
+      "the shutdown request is collected as a sixth artifact",
+      "composed packet members are recognised, so unclassified_entries means what it says",
+      "directory_entries is reported for information and NEVER used to infer a state"
+    ],
+    "false_claim_withdrawn": "that a child publication timeout reaches the progress file. It does not: Shutdown.call writes its snapshot with EARLIER faults before running its step and appends that step fault to memory only, and the controller final publication is the LAST such call. This vehicle persists NO publication fault reliably, so absence is EXPECTED and informative in neither direction, and a fault found on disk is PARSED and labelled as such.",
+    "owner": "the external operator and the independent reviewer, not the worker inside the run",
+    "program": "collect.py, revision 3 (schema baton.w333486-final-result-collection/3)",
+    "read_only": "opened no store, wrote nothing, started nothing; the authoring log is reported by presence, size and digest only. The preserved instance was not touched -- the dossier copies were used, and both reviewers' fixture directories were read, never created or modified.",
+    "real_case_result": "over the read-only copies at ../evidence/execution-334663-failure with --expect-run: controller PRESENT and MATCHED on original_envelope.run, authoring log present, workload/progress/manager/shutdown-request ABSENT, enforcement_path and authoring_log links FOUND, manager_report_path not named by that older incarnation, publication_timeout.established FALSE with producer_persistence explaining why that is uninformative, and INDEX.json surfaced under unclassified_entries rather than silently ignored.",
+    "reviewer_fixtures_result": "all three review-340012 fixtures now behave: malformed-linked-path returns BOTH the controller and the workload with the bad link reported malformed; unrelated-temp marks only the controller pending; progress-is-not-manager reports the progress file present and the manager snapshot absent.",
+    "seven_defects_fixed": [
+      "1 present workload read rather than reported absent; no artifact resolved from a label",
+      "2 each artifact correlated through the shape IT publishes, with the deciding field named",
+      "3 a publication fault reported only from a publication step in a correlated artifact",
+      "4 a malformed REPORT is an observation and never aborts the rest",
+      "5 a malformed LINK is likewise an observation, shape-checked and not followed, with the whole linkage pass additionally guarded",
+      "6 each artifact classified ONLY from its own filenames, read from the producers: outcome.json.partial for the workload, outcome.json.enforcement-<pid>-<ns>.tmp for the controller. One artifact temporary can no longer mark another pending",
+      "7 the infix groups are [^.]+, so the manager-snapshot pattern cannot swallow ...json.progress.json"
+    ]
+  },
+  "completion_md_had_to_change": {
+    "now": "4c7d666f5e94863fbafec033b17b295dca8ad6ecccf578ba72526b70f2e7c137",
+    "previous": "c8c5d4dd0e795486140f11ea48c80862de525f33caf590e3b5cd74b87713ff66",
+    "why": "it carried the 900-second lease and the 600/720 cutoffs as policy. The review required the superseded assumptions removed, so the ONE carried-verbatim worker byte in this campaign had to move. It is the only one, and ENFORCEMENT/SHUTDOWN/FAILURE carry dated amendments rather than silent rewrites."
+  },
+  "composer_start_measured": {
+    "baseline_bindings_sha256": "09fbf3c59820231b7199e24aa1cf64eee93f6ea2e60f3477fed5ca909e5fc379",
+    "disposition": "Reported for classification in ENFORCEMENT.md, not patched. Mitigated by packet/AUTHORING-COMMAND.json and PREPARED.json composer_start_is_unenforced.",
+    "line": 721,
+    "remeasured_at_claim345039": true,
+    "start_member": "[python, -B, <supervisor>/baseline.py, --packet, ..., --incarnation, ...]",
+    "unchanged_at_this_base": true
+  },
+  "controller_binding": {
+    "accepted_from_staged_source": {
+      "says": "ACCEPTED from /tmp/w333486-preflight-340016/code/v12/python/tools/authoring_enforcement.py",
+      "seconds": 0.296,
+      "status": 0
+    },
+    "refused_from_host_checkout": {
+      "says": "RuntimeError: authoring controller is outside the pinned manager source",
+      "seconds": 0.141,
+      "status": 1
+    },
+    "why": "The corrected controller own verify_controller resolves itself inside the packet manager_source and compares the pinned digest. Proved BOTH ways at claim339868, read-only, opening no store and starting nothing."
+  },
+  "credential": {
+    "last_provider_authentication": "run345822, which authenticated and served 733.29s. The LAST SELECTED RUN, run348852, contacted no provider at all -- it died at the controller's import. Neither is a promise about the next attempt.",
+    "provider": "operator-file",
+    "read": false,
+    "reference": "w202663-development",
+    "registry": "/home/sl/.baton/credential-sources.json",
+    "slot": "claude",
+    "structural_preflight_gap": "the boundary preflight checks that the registry names the reference and that the backing file exists, and reads NO value. It cannot detect an expired session. REPORTED, not widened. This claim ran no boundary preflight at all: that belongs to the selected-run turn."
+  },
+  "credential_read": false,
+  "enforcement": "ENFORCEMENT.md",
+  "engine_invoked": false,
+  "falsification_rerun": false,
+  "focused_gate": {
+    "ceiling_note": "the parent's twelve-module argv measured 13.642s of EXISTING modules at claim339421, by direct host execution outside that claim's preparation boundary. Five focused modules are a strict subset of those plus the owed one, so the 30-second ceiling is far likelier to fit -- but NO measurement of this argv exists and none is claimed.",
+    "composed_argv_names_all_five": true,
+    "modules": [
+      "tests.manager.test_intake",
+      "tests.manager.test_attempts",
+      "tests.manager.test_maintenance",
+      "tests.manager.test_contracts_inventory",
+      "tests.manager.test_attempt_failure_cause"
+    ],
+    "not_run_here": "the gate was NOT executed by this preparation. There is no product-test authority for this author and the classification belongs inside the isolated run, per TASK verification section.",
+    "owed": [
+      "v12/python/tests/manager/test_attempt_failure_cause.py"
+    ],
+    "verification_member_sha256": "2f7ed3dca95da498657a0e549e53107679fd7e8cf4503d5022555ba9e642176c",
+    "why": "FINDING keeps the parent's full joined twelve-module gate with the parent. Five producer modules here."
+  },
+  "gate_still_unmeasured": "RETIRED AND THEN SOME. Measured three times and the third PASSED: 864/9+7 at 12.817s, 864/0+16 at 12.515s, then 864 OK at 12.631s exit 0 with no skips. What is now unestablished is not the gate but the two producer defects, which have never been executed.",
+  "guard_proof_rerun": false,
+  "identity_rebinding_verified": {
+    "five_of_seven_byte_identical": "TASK.md, RECOVERY.md, COMPLETION.md, FIXTURE.md and ENFORCEMENT.md travel unchanged; SHUTDOWN.md and FAILURE.md changed because they named the superseded controller as the one this packet pins.",
+    "gate_member_digest_unchanged": "2f7ed3dca95da498657a0e549e53107679fd7e8cf4503d5022555ba9e642176c",
+    "read_from": "the composed PACKET.json fixture.files and task.json of this claim's own bind, not from the pins",
+    "root_after": "/home/sl/baton-instances/durable-capture-w341357-350529 (ABSENT; created by step 1)",
+    "root_before": "/home/sl/baton-instances/durable-capture-w341357-348852 (EXISTS; the import failure; preserved, never reused)",
+    "run_id_after": "durable-capture-w341357-350529",
+    "run_id_before": "durable-capture-w341357-348852",
+    "worker_visible_bytes": {
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/COMPLETION.md": "4c7d666f5e94863fbafec033b17b295dca8ad6ecccf578ba72526b70f2e7c137",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/ENFORCEMENT.md": "4d1f2687322b11d4ca84eb245458d2f770e79e1fc6b16f33ff3db8488b641ed2",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/FAILURE.md": "9e025d5f6d4841e69a629d9f62e9c857b126642a4a7bc9cc887f1239105ec1b2",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/FIXTURE.md": "1f327c28db694bb79c779c17219e5c6b039c4a485a9ac65d1e5b582d8f1e6798",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/RECOVERY.md": "4fa687c9ae908718e7ea563171834864a5f68e1537572610e5c08a1c5cf0aac9",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/SHUTDOWN.md": "52bb69b4e22c182a982b2d08821e17331fdfaba5183e72f47c85ac7f24dac873",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/TASK.md": "30dffcc9800b7696c8a04c15b6bb57f4439cb098a8e5fe56e41cfd94ed1e97f5",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/FINDING.md": "faec4b8e600167b16cbbd86ab08840e68a7432980178a6aaa0e7c4c805d1a8c4",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/PLAN.md": "bf948c2ee5de03db82c0fb465246d35e31c364bbe709e36de2d7b0d7d476ab60",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/enforcement-integration.md": "f6d6aea39e2b90282d8c08d39a82c53ab8b7a9fbde27223705c5583b5576d889",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/enforcement-review.md": "22c6f3006d53976d5187dddd9c11545469c666e79be2e913239e20787f5c039a",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/guard-integration.md": "c7ec27fd38ab255277820c391aa787ad9eedec6d46df3e6318c0c16c8a61480e",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/guard-review.md": "f28697c9f0b16dd2421d2a7e42941dc96c0892f938b2abe770a1b5b74b71d999",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/host-import-closure-review.md": "a18840bd889c077a9d180dc657d472027902ae3a950f3b6a15114bb88337f799",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/host-operator-delta.md": "c0b49133fc9d84d4fdc3f804c37edc3269c2a8d652e2ac37ae62fd2438077be3",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/owner-failure-evidence.md": "c41ec181b51ed1fe8e6924744f6c61588b1493854392048a7cb973cc5d9622ea",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/parent-FINDING.md": "00f024ce4921f09cd0e9bfbafd7549f165d447dac97411c67e940e59f544911e",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/parent-PLAN.md": "b7d987ed049d3b222294e1d7d2c06a0ef9de49c62a1ed2a923d338f8c684f2b2",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/review-333812.md": "9cefcfed7b8e8ee8ccbbbc416a51255889739e41ba7436bd84c28e5b7ba59d8a",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/review-334776.md": "f6332faf1e580450d0796e87f2624edb3f6f29acb4df8c377d98f13830ea7b09",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/review-337566.md": "3d72960c83dd045280468ac9c432515aa346f6b57cc91f176f2fb3ae3e6ba01e",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/review-339623.md": "f01d359d769b05be7e6616ad7e73459a17898fbb65026e28022c55ec294819ae",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/review-339861.md": "aa3a263267838f13dc80db0926a9ef8e53ae13058ce8de2ec5d741b4d96c0907",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/review-340012.md": "83f999f35b8a484f2925a501163fdcbbe517d0e20cd19bee373a1cfb06ec9efa",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/review-340349.md": "d595b1589c8eead1cedf722fddac3cac4b70e62ac805410ded6e4a9262734919",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/review-341441.md": "bed1a38f8801696888e44004a682c6e22180d630b6429e69f3fa8e4b8b9a2270",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/review-341628.md": "b9fc3152b4677645b7a114f1d6777639d266ad74fe89e311aa4cc958f3d3c528",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/review-342415.md": "2470e7c9668fbf97be60cd25efbb0af87129e24d808bffaab18bbc9e345f3409",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/review-345368.md": "5e6c99a097d28db72d319b059cdbaaf9ca8b6b0c1ea856639f698641ea8f5f1a",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/review-345793.md": "f047783149f8a7267d10dc2ca0f81a177774297d42e77c2fa73ebaae44ddffc2",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/review-347370.md": "520f3b7098dd59358858987573303b9af5276ae47e184d61a15bed110751ac21",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/review-348704.md": "385f0e48aa4504033dc837977061ebe5db016007a457e8876d0650087ff39ce2",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/review-348787.md": "cf15d2e0af2501ae1599139cad1d52f7878770d0ae4853a82d91d4d579892c55",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/review-348838.md": "38285653b8d06b49fb93b2b6f4f6e04641a11b61d47b607f350b9e926c743964",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/review-348968.md": "75f252c860e314f55861042e3b7d9847d2dc63171c11c43ce452f295a09d688d",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/review-350495.md": "8db42fd8d2defe992ed4b4635a8462c5d7250eece6b9be99ca4901d29fde7eb9",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/shutdown-finding.md": "c51449df66f682706274a8746d941dafa970a71331df9e59f80337b1d5de1719",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/shutdown-review.md": "7b8a27d70a3aee340ec18968f92bf08c8e35ce288c4d80efd523c5c6aae54f8b"
+    }
+  },
+  "job_submitted": false,
+  "measured_seconds": {
+    "bind": 0.361,
+    "bootstrap": 0.595,
+    "claim_total_measured": 9.736,
+    "deferred_dependency_guard": 0.02,
+    "input_check": 0.06,
+    "preparation_total": 1.035,
+    "probes": 2.381,
+    "product_tests": 0.0,
+    "stage": 0.079,
+    "supplier_verify_read_only": 6.24
+  },
+  "note": "One disposable preparation root, exercised once at claim350529 into /tmp/w341357-preflight10. Re-exercised because the host binding and the identity both changed, so recording the previous composition would describe a different packet. No Job, attempt, runtime, engine, provider, credential read or PRODUCT TEST.",
+  "parent_runs_not_touched": {
+    "instances": [
+      "/home/sl/baton-instances/attempt-diagnostics-w333486-334663",
+      "/home/sl/baton-instances/attempt-diagnostics-w333486-340016",
+      "/home/sl/baton-instances/attempt-diagnostics-w333486-340352",
+      "/home/sl/baton-instances/durable-capture-w341357-341360",
+      "/home/sl/baton-instances/durable-capture-w341357-341637",
+      "/home/sl/baton-instances/durable-capture-w341357-345039",
+      "/home/sl/baton-instances/durable-capture-w341357-345388",
+      "/home/sl/baton-instances/durable-capture-w341357-345822",
+      "/home/sl/baton-instances/durable-capture-w341357-348852"
+    ],
+    "what_was_not_done": "no rerun, no recovery, no mutation, no second bind, no credential read, no test executed, no version-control write, no overlay of any existing root"
+  },
+  "prepared": {
+    "artifacts": 8,
+    "authority_uuid": "1227b3a0b4f244deb4c724d510cca229",
+    "claim_in_composed_packet": 350529,
+    "fixture_files": 66,
+    "packet_sha256": "8290126781ff5ae4a1b8f6c57799c6fe69be41d2496dcbe9ae93a74ae42295a3",
+    "read_back": "every value read out of the bound documents rather than asserted.",
+    "run_id": "durable-capture-w341357-350529",
+    "start_authorized": false,
+    "start_selected": false,
+    "state": "prepared-not-executed",
+    "work": "W341357"
+  },
+  "probe_note": "SIXTY-ONE cases, all behaving as intended in 2.381s, CARRIED UNCHANGED for the fifth consecutive packet -- including across the corrected host binding, which needed no probe edit because the host-reading mechanism is unchanged.",
+  "probes": {
+    "all_passed": true,
+    "cases": [
+      {
+        "passed": true,
+        "probe": "no-acknowledgement",
+        "refusal": "RuntimeError: This packet's START IS NOT SELECTED. Every input gate is closed (W333735 at a9f4fa4d, W334910 at fb487979, W338305 at bc925cf5, W333485 and W348979 both closed satisfying), so this is not a blocker -- but independent preparati",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.044,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "superseded-controller",
+        "refusal": "RuntimeError: the accepted host binding and these pins disagree about authoring_controller",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.048,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "unpinned-shutdown-helper",
+        "refusal": "RuntimeError: these pins and the accepted host binding declare different manager source",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.05,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "drifted-shutdown-helper",
+        "refusal": "RuntimeError: the accepted host binding and these pins disagree about shutdown_helper",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.048,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "drifted-manager-source",
+        "refusal": "RuntimeError: these pins and the accepted host binding declare different manager source",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.048,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "drifted-supervisor-baseline",
+        "refusal": "RuntimeError: these pins and the accepted host binding declare different supervisor source",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.049,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "provenance-claims-selected-start",
+        "refusal": "RuntimeError: the provenance claims a start nobody has selected",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.05,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "provenance-claims-authorized-start",
+        "refusal": "RuntimeError: the provenance claims a start nobody has selected",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.048,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "provenance-declares-a-restored-buffer",
+        "refusal": "RuntimeError: this preparation carries no restored buffer, and the provenance declares one",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.048,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "damaged-shutdown-snapshot",
+        "refusal": "RuntimeError: decision snapshot damaged or absent: shutdown-review.md",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.048,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "damaged-new-review-snapshot",
+        "refusal": "RuntimeError: decision snapshot damaged or absent: review-339623.md",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.05,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "absent-decision-snapshot",
+        "refusal": "RuntimeError: decision snapshot damaged or absent: review-339623.md",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.048,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "absent-shutdown-document",
+        "refusal": "RuntimeError: a declared vehicle document is absent: SHUTDOWN.md",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.051,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "absent-task-input",
+        "refusal": "RuntimeError: declared task input is absent: work/records/this/does/not/exist.md",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.051,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "checkout-input-not-at-the-base",
+        "refusal": "RuntimeError: declared checkout input is not at the base: v12/NOT-AT-THE-BASE.md",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.057,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "drifted-preparation-input",
+        "refusal": "RuntimeError: selected preparation input drifted: work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.047,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "root-inside-the-repository",
+        "refusal": "RuntimeError: select a fresh absolute external preparation root",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.056,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "relative-root",
+        "refusal": "RuntimeError: select a fresh absolute external preparation root",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.053,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "existing-root",
+        "refusal": "FileExistsError: [Errno 17] File exists: '/tmp/w341357-probe-350529/root-existing-root'",
+        "refused": true,
+        "root_created": true,
+        "root_expected": true,
+        "seconds": 0.096,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "drifted-retained-candidate-patch",
+        "refusal": "RuntimeError: a recovery input is not its declared bytes: work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/recovery-345822/candidate.patch",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.049,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "drifted-recovery-index",
+        "refusal": "RuntimeError: a recovery input is not its declared bytes: work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/recovery-345822/INDEX.json",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.048,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "retained-candidate-not-a-task-input",
+        "refusal": "RuntimeError: a recovery input is not a task input, so the turn could not read it off the mount: work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/recovery-345822/candidate.patch",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.047,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "candidate-disagrees-with-the-reviewers-published-digest",
+        "refusal": "RuntimeError: the recovery index carries different reviewer digests than these pins",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.049,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "drifted-candidate-transport-bundle",
+        "refusal": "RuntimeError: the recovery index carries different reviewer digests than these pins",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.048,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "candidate-transport-pinned-as-a-task-input",
+        "refusal": "RuntimeError: the candidate transport must NOT be a task input: this campaign creates no version-control object on this host and restores nothing into the checkout",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.05,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "recovery-index-names-another-candidate-head",
+        "refusal": "RuntimeError: the recovery index names another candidate head",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.048,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "run-evidence-names-another-candidate",
+        "refusal": "RuntimeError: the recovery index names another candidate content",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.046,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "recovery-index-of-another-schema",
+        "refusal": "RuntimeError: the recovery index is not baton.w341357-recovery/2: 'baton.w341357-recovery/3'",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.05,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "absent-recovery-document",
+        "refusal": "RuntimeError: a worker-visible document this packet depends on is absent: RECOVERY.md",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.047,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "absent-completion-document",
+        "refusal": "RuntimeError: a worker-visible document this packet depends on is absent: COMPLETION.md",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.048,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "completion-document-not-a-task-input",
+        "refusal": "RuntimeError: a worker-visible document is not a task input, so the turn could not read it: COMPLETION.md",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.048,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "absent-fixture-document",
+        "refusal": "RuntimeError: a worker-visible document this packet depends on is absent: FIXTURE.md",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.047,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "fixture-document-not-a-task-input",
+        "refusal": "RuntimeError: a worker-visible document is not a task input, so the turn could not read it: FIXTURE.md",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.048,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "task-document-not-a-task-input",
+        "refusal": "RuntimeError: a worker-visible document is not a task input, so the turn could not read it: TASK.md",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.05,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "stage-for-the-bind-cases",
+        "refusal": "(staged on purpose; the two probes below use it)",
+        "refused": false,
+        "root_created": true,
+        "root_expected": true,
+        "seconds": 0.076,
+        "status": 0,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "bind-a-root-staged-for-another-run",
+        "refusal": "RuntimeError: the pins name another base or run",
+        "refused": true,
+        "root_created": true,
+        "root_expected": true,
+        "seconds": 0.043,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "rebind-over-a-composed-packet",
+        "refusal": "RuntimeError: this root already holds a composed packet; composing a second one over it would replace the documents an owner may already have read",
+        "refused": true,
+        "root_created": true,
+        "root_expected": true,
+        "seconds": 0.053,
+        "status": 1,
+        "substituted": null
+      },
+      {
+        "passed": true,
+        "probe": "owed-gate-module-already-on-the-host",
+        "refusal": "RuntimeError: a gate module the turn must create already exists on the host: v12/python/tests/manager/test_intake.py",
+        "refused": true,
+        "root_created": false,
+        "root_expected": false,
+        "seconds": 0.054,
+        "status": 1,
+        "substituted": true
+      },
+      {
+        "expected": {
+          "available": [
+            "workload"
+          ],
+          "publication_timeout_established": false,
+          "workload": "present",
+          "workload_correlated_on": [
+            "run_id",
+            "job_id",
+            "work",
+            "claim"
+          ],
+          "workload_identity": "matched",
+          "workload_read_state": "settled"
+        },
+        "mismatched": [],
+        "observed": {
+          "available": [
+            "workload"
+          ],
+          "publication_timeout_established": false,
+          "workload": "present",
+          "workload_correlated_on": [
+            "run_id",
+            "job_id",
+            "work",
+            "claim"
+          ],
+          "workload_identity": "matched",
+          "workload_read_state": "settled"
+        },
+        "passed": true,
+        "probe": "present-workload-is-read",
+        "seconds": 0.015,
+        "status": 0,
+        "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+      },
+      {
+        "expected": {
+          "controller": "present",
+          "controller_correlated_on": [
+            "original_envelope.run",
+            "original_envelope.job",
+            "original_envelope.authority"
+          ],
+          "controller_identity": "matched",
+          "publication_timeout_established": false
+        },
+        "mismatched": [],
+        "observed": {
+          "controller": "present",
+          "controller_correlated_on": [
+            "original_envelope.run",
+            "original_envelope.job",
+            "original_envelope.authority"
+          ],
+          "controller_identity": "matched",
+          "publication_timeout_established": false
+        },
+        "passed": true,
+        "probe": "actual-controller-shape-correlates",
+        "seconds": 0.016,
+        "status": 0,
+        "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+      },
+      {
+        "expected": {
+          "controller": "present",
+          "controller_identity": "matched",
+          "other_timeouts_observed": 1,
+          "publication_timeout_established": false,
+          "uncorrelated_timeouts": 0
+        },
+        "mismatched": [],
+        "observed": {
+          "controller": "present",
+          "controller_identity": "matched",
+          "other_timeouts_observed": 1,
+          "publication_timeout_established": false,
+          "uncorrelated_timeouts": 0
+        },
+        "passed": true,
+        "probe": "unrelated-timeout-is-not-publication",
+        "seconds": 0.016,
+        "status": 0,
+        "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+      },
+      {
+        "expected": {
+          "available": [
+            "workload"
+          ],
+          "controller": "unknown-cause",
+          "publication_timeout_established": false,
+          "workload": "present"
+        },
+        "mismatched": [],
+        "observed": {
+          "available": [
+            "workload"
+          ],
+          "controller": "unknown-cause",
+          "publication_timeout_established": false,
+          "workload": "present"
+        },
+        "passed": true,
+        "probe": "nonobject-report-does-not-abort-collection",
+        "seconds": 0.016,
+        "status": 0,
+        "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+      },
+      {
+        "expected": {
+          "other_timeouts_observed": 0,
+          "parsed_found_how_labelled": true,
+          "parsed_publication_steps": [
+            "final enforcement publication"
+          ],
+          "producer_persistence_states_unreliable": true,
+          "publication_timeout_established": true,
+          "shutdown_progress": "present",
+          "shutdown_progress_identity": "matched"
+        },
+        "mismatched": [],
+        "observed": {
+          "other_timeouts_observed": 0,
+          "parsed_found_how_labelled": true,
+          "parsed_publication_steps": [
+            "final enforcement publication"
+          ],
+          "producer_persistence_states_unreliable": true,
+          "publication_timeout_established": true,
+          "shutdown_progress": "present",
+          "shutdown_progress_identity": "matched"
+        },
+        "passed": true,
+        "probe": "publication-fault-on-disk-is-parsed-not-producer-proof",
+        "seconds": 0.016,
+        "status": 0,
+        "timeout_note": "A correlated fault naming a publication step was FOUND ON DISK, so that step did time out. This is the one case where th"
+      },
+      {
+        "expected": {
+          "parsed_publication_steps": [],
+          "producer_persistence_states_unreliable": true,
+          "publication_timeout_established": false,
+          "shutdown_progress": "present"
+        },
+        "mismatched": [],
+        "observed": {
+          "parsed_publication_steps": [],
+          "producer_persistence_states_unreliable": true,
+          "publication_timeout_established": false,
+          "shutdown_progress": "present"
+        },
+        "passed": true,
+        "probe": "absent-publication-fault-stays-unknown",
+        "seconds": 0.015,
+        "status": 0,
+        "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+      },
+      {
+        "expected": {
+          "controller": "unknown-cause",
+          "controller_identity": "mismatch",
+          "publication_timeout_established": false
+        },
+        "mismatched": [],
+        "observed": {
+          "controller": "unknown-cause",
+          "controller_identity": "mismatch",
+          "publication_timeout_established": false
+        },
+        "passed": true,
+        "probe": "conflicting-identity-is-mismatch",
+        "seconds": 0.016,
+        "status": 0,
+        "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+      },
+      {
+        "expected": {
+          "controller": "present",
+          "controller_identity": "unresolved",
+          "publication_timeout_established": false
+        },
+        "mismatched": [],
+        "observed": {
+          "controller": "present",
+          "controller_identity": "unresolved",
+          "publication_timeout_established": false
+        },
+        "passed": true,
+        "probe": "no-envelope-is-unresolved",
+        "seconds": 0.016,
+        "status": 0,
+        "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+      },
+      {
+        "expected": {
+          "controller": "unknown-cause",
+          "controller_identity": "mismatch",
+          "other_timeouts_observed": 0,
+          "publication_timeout_established": false,
+          "uncorrelated_timeouts": 1
+        },
+        "mismatched": [],
+        "observed": {
+          "controller": "unknown-cause",
+          "controller_identity": "mismatch",
+          "other_timeouts_observed": 0,
+          "publication_timeout_established": false,
+          "uncorrelated_timeouts": 1
+        },
+        "passed": true,
+        "probe": "uncorrelated-timeout-is-not-evidence",
+        "seconds": 0.015,
+        "status": 0,
+        "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+      },
+      {
+        "expected": {
+          "controller": "present",
+          "linked_progress_found": [
+            "found"
+          ],
+          "manager_snapshot": "present",
+          "publication_timeout_established": false,
+          "shutdown_progress": "present",
+          "shutdown_progress_identity": "matched"
+        },
+        "mismatched": [],
+        "observed": {
+          "controller": "present",
+          "linked_progress_found": [
+            "found"
+          ],
+          "manager_snapshot": "present",
+          "publication_timeout_established": false,
+          "shutdown_progress": "present",
+          "shutdown_progress_identity": "matched"
+        },
+        "passed": true,
+        "probe": "linked-progress-resolves-from-the-report",
+        "seconds": 0.016,
+        "status": 0,
+        "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+      },
+      {
+        "expected": {
+          "available": [
+            "workload"
+          ],
+          "controller": "inaccessible",
+          "publication_timeout_established": false,
+          "workload": "present"
+        },
+        "mismatched": [],
+        "observed": {
+          "available": [
+            "workload"
+          ],
+          "controller": "inaccessible",
+          "publication_timeout_established": false,
+          "workload": "present"
+        },
+        "passed": true,
+        "probe": "read-failure-is-isolated",
+        "seconds": 0.015,
+        "status": 0,
+        "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+      },
+      {
+        "expected": {
+          "authoring_log": "absent",
+          "available": [],
+          "controller": "absent",
+          "publication_timeout_established": false,
+          "shutdown_progress": "absent",
+          "workload": "absent"
+        },
+        "mismatched": [],
+        "observed": {
+          "authoring_log": "absent",
+          "available": [],
+          "controller": "absent",
+          "publication_timeout_established": false,
+          "shutdown_progress": "absent",
+          "workload": "absent"
+        },
+        "passed": true,
+        "probe": "nothing-published",
+        "seconds": 0.015,
+        "status": 0,
+        "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+      },
+      {
+        "expected": {
+          "authoring_log": "inaccessible",
+          "controller": "inaccessible",
+          "publication_timeout_established": false,
+          "shutdown_progress": "inaccessible",
+          "workload": "inaccessible"
+        },
+        "mismatched": [],
+        "observed": {
+          "authoring_log": "inaccessible",
+          "controller": "inaccessible",
+          "publication_timeout_established": false,
+          "shutdown_progress": "inaccessible",
+          "workload": "inaccessible"
+        },
+        "passed": true,
+        "probe": "inaccessible-is-not-absent",
+        "seconds": 0.015,
+        "status": 0,
+        "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+      },
+      {
+        "expected": {
+          "controller": "pending",
+          "controller_own_temporaries": 1,
+          "manager_snapshot": "absent",
+          "publication_timeout_established": false,
+          "shutdown_progress": "absent",
+          "unclassified_entries": [],
+          "workload": "absent"
+        },
+        "mismatched": [],
+        "observed": {
+          "controller": "pending",
+          "controller_own_temporaries": 1,
+          "manager_snapshot": "absent",
+          "publication_timeout_established": false,
+          "shutdown_progress": "absent",
+          "unclassified_entries": [],
+          "workload": "absent"
+        },
+        "passed": true,
+        "probe": "controller-own-temporary-is-pending",
+        "seconds": 0.015,
+        "status": 0,
+        "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+      },
+      {
+        "expected": {
+          "controller": "absent",
+          "publication_timeout_established": false,
+          "unclassified_entries": [],
+          "workload": "pending",
+          "workload_own_temporaries": 1
+        },
+        "mismatched": [],
+        "observed": {
+          "controller": "absent",
+          "publication_timeout_established": false,
+          "unclassified_entries": [],
+          "workload": "pending",
+          "workload_own_temporaries": 1
+        },
+        "passed": true,
+        "probe": "workload-own-temporary-is-pending",
+        "seconds": 0.016,
+        "status": 0,
+        "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+      },
+      {
+        "expected": {
+          "controller": "pending",
+          "manager_snapshot": "absent",
+          "manager_snapshot_own_temporaries": 0,
+          "publication_timeout_established": false,
+          "shutdown_progress": "present",
+          "shutdown_request": "absent",
+          "workload": "absent",
+          "workload_own_temporaries": 0
+        },
+        "mismatched": [],
+        "observed": {
+          "controller": "pending",
+          "manager_snapshot": "absent",
+          "manager_snapshot_own_temporaries": 0,
+          "publication_timeout_established": false,
+          "shutdown_progress": "present",
+          "shutdown_request": "absent",
+          "workload": "absent",
+          "workload_own_temporaries": 0
+        },
+        "passed": true,
+        "probe": "unrelated-temporary-cannot-fabricate-pending",
+        "seconds": 0.016,
+        "status": 0,
+        "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+      },
+      {
+        "expected": {
+          "available": [
+            "shutdown_progress"
+          ],
+          "manager_snapshot": "absent",
+          "publication_timeout_established": false,
+          "shutdown_progress": "present",
+          "shutdown_request": "absent",
+          "unclassified_entries": []
+        },
+        "mismatched": [],
+        "observed": {
+          "available": [
+            "shutdown_progress"
+          ],
+          "manager_snapshot": "absent",
+          "publication_timeout_established": false,
+          "shutdown_progress": "present",
+          "shutdown_request": "absent",
+          "unclassified_entries": []
+        },
+        "passed": true,
+        "probe": "progress-is-not-a-manager-snapshot",
+        "seconds": 0.016,
+        "status": 0,
+        "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+      },
+      {
+        "expected": {
+          "available": [
+            "controller",
+            "workload"
+          ],
+          "controller": "present",
+          "isolated_failures": 0,
+          "link_states": {
+            "authoring_log": "malformed",
+            "enforcement_path": "named but not present",
+            "manager_report_path": "not named by the report",
+            "progress (manager_report_path + .progress.json)": "not named by the report"
+          },
+          "publication_timeout_established": false,
+          "workload": "present"
+        },
+        "mismatched": [],
+        "observed": {
+          "available": [
+            "controller",
+            "workload"
+          ],
+          "controller": "present",
+          "isolated_failures": 0,
+          "link_states": {
+            "authoring_log": "malformed",
+            "enforcement_path": "named but not present",
+            "manager_report_path": "not named by the report",
+            "progress (manager_report_path + .progress.json)": "not named by the report"
+          },
+          "publication_timeout_established": false,
+          "workload": "present"
+        },
+        "passed": true,
+        "probe": "malformed-link-does-not-lose-other-results",
+        "seconds": 0.016,
+        "status": 0,
+        "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+      },
+      {
+        "expected": {
+          "controller": "unknown-cause",
+          "publication_timeout_established": false
+        },
+        "mismatched": [],
+        "observed": {
+          "controller": "unknown-cause",
+          "publication_timeout_established": false
+        },
+        "passed": true,
+        "probe": "unparseable-report-is-unknown-cause",
+        "seconds": 0.017,
+        "status": 0,
+        "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+      },
+      {
+        "expected": {
+          "controller": "present",
+          "controller_identity": "unresolved",
+          "publication_timeout_established": false
+        },
+        "mismatched": [],
+        "observed": {
+          "controller": "present",
+          "controller_identity": "unresolved",
+          "publication_timeout_established": false
+        },
+        "passed": true,
+        "probe": "no-composed-packet-is-unresolved",
+        "seconds": 0.016,
+        "status": 0,
+        "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+      },
+      {
+        "expected": {
+          "controller_identity": "unresolved",
+          "expected_identity_state": "unknown-cause",
+          "publication_timeout_established": false
+        },
+        "mismatched": [],
+        "observed": {
+          "controller_identity": "unresolved",
+          "expected_identity_state": "unknown-cause",
+          "publication_timeout_established": false
+        },
+        "passed": true,
+        "probe": "expect-run-contradicting-the-packet-is-refused",
+        "seconds": 0.015,
+        "status": 0,
+        "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+      },
+      {
+        "expected": {
+          "authoring_log": "present",
+          "available": [
+            "authoring_log",
+            "controller"
+          ],
+          "controller": "present",
+          "controller_identity": "unresolved",
+          "publication_timeout_established": false,
+          "shutdown_progress": "absent",
+          "workload": "absent"
+        },
+        "mismatched": [],
+        "observed": {
+          "authoring_log": "present",
+          "available": [
+            "authoring_log",
+            "controller"
+          ],
+          "controller": "present",
+          "controller_identity": "unresolved",
+          "publication_timeout_established": false,
+          "shutdown_progress": "absent",
+          "workload": "absent"
+        },
+        "passed": true,
+        "probe": "real-retained-failure-evidence",
+        "seconds": 0.016,
+        "status": 0,
+        "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+      },
+      {
+        "expected": {
+          "authoring_log": "present",
+          "controller": "present",
+          "controller_correlated_on": [
+            "original_envelope.run"
+          ],
+          "controller_identity": "matched",
+          "identity_source": "--expect-run, supplied by the operator",
+          "publication_timeout_established": false,
+          "workload": "absent"
+        },
+        "mismatched": [],
+        "observed": {
+          "authoring_log": "present",
+          "controller": "present",
+          "controller_correlated_on": [
+            "original_envelope.run"
+          ],
+          "controller_identity": "matched",
+          "identity_source": "--expect-run, supplied by the operator",
+          "publication_timeout_established": false,
+          "workload": "absent"
+        },
+        "passed": true,
+        "probe": "real-retained-failure-evidence-correlated",
+        "seconds": 0.016,
+        "status": 0,
+        "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+      }
+    ],
+    "passed": 61,
+    "schema": "baton.w333486-preparation-probes/1",
+    "seconds": 2.381,
+    "total": 61,
+    "work": "/tmp/w341357-probe-350529"
+  },
+  "product_tests": {
+    "boundary": "ZERO product test execution this claim. That is the correction review-339623 item 3 required: claim339421 executed about 127.7s of product tests directly on the host outside a preparation-only boundary and then described them as measurement rather than execution. The gate and exclusion numbers this packet carries are that claim's measurements, attributed as such in GATE-CHECK.json, and were not re-run -- re-running them to tidy their provenance would repeat the mistake.",
+    "changed": 0,
+    "executed_this_claim": 0,
+    "what_ran_instead": "the read-only input check, one stage/bootstrap/bind into a disposable root, 30 preparation probes, the controller binding check both ways, and the shutdown-helper import check. All preparation, all disposable."
+  },
+  "provider_invoked": false,
+  "recovery_inputs_travel": {
+    "binds_to_reviewer_digests": true,
+    "checked_how": "read from the composed PACKET.json fixture.files, not asserted",
+    "count": 2,
+    "files": {
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/recovery-345822/INDEX.json": "70e1f2b11723cf5646c411ce02f0e31402f405ba3839ad362ea15a8fb7cf3213",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/recovery-345822/candidate.patch": "294368c55fd468a95a4375c250e560def0f4cbc0a0c8a2a3a6f2658732e83856"
+    }
+  },
+  "retained_roots": [
+    "/tmp/probe-340016.json",
+    "/tmp/w333486-binding-340016.py",
+    "/tmp/w333486-helper-probe-340016",
+    "/tmp/w333486-preflight-340016",
+    "/tmp/w333486-probe-340016",
+    "/tmp/w333486-review339847-o0iu4z8j and /tmp/w333486-review339992-ozeqtge_ (the REVIEWER's fixtures, read only, neither created nor modified by this claim)",
+    "/tmp/w341357-350529 -- this claim's build scripts, probe report and the deferred-dependency guard check",
+    "/tmp/w341357-preflight10 -- this claim's exercised preparation root",
+    "/tmp/w341357-probe-350529 -- this claim's 61 probe copies, roots and fixtures"
+  ],
+  "retained_why": "Left in place for the operator and the reviewer rather than removed. None is a selected root, none holds a credential and none holds a submitted Job. The earlier revisions' roots are listed in OPERATOR.md and are also untouched.",
+  "reuse_note": "The accepted enforcement falsification, the accepted guard real-process proof and the accepted shutdown regressions were all REUSED from their independent acceptances and none was re-run. Unlike claim339421, no product test was run to measure one either.",
+  "root": "/tmp/w341357-preflight10",
+  "runtimes": 0,
+  "schema": "baton.w341357-execution-preflight/3",
+  "shutdown": "SHUTDOWN.md",
+  "shutdown_helper_is_required": {
+    "measured": {
+      "says": "ModuleNotFoundError: No module named 'tools.authoring_shutdown'",
+      "seconds": 0.33,
+      "status": 1,
+      "what": "the staged manager source with tools/authoring_shutdown.py removed"
+    },
+    "why": "Importing the controller from a staged manager source with tools/authoring_shutdown.py removed fails with ModuleNotFoundError, so the pin is load-bearing: without it the vehicle does not start, and a startup failure is what killed this Work's one actual execution."
+  },
+  "shutdown_proof_rerun": false,
+  "start_authorized": false,
+  "start_selected": false,
+  "steps": {
+    "bind": {
+      "proved": "held_packet re-pinned every artifact including all 66 fixture.files, and verify_imported_sources proved the process was running the staged code",
+      "seconds": 0.361,
+      "status": 0
+    },
+    "bootstrap": {
+      "flag": "--no-repositories",
+      "seconds": 0.595,
+      "status": 0
+    },
+    "input_check": {
+      "counted": "115 manager files, 3 supervisor, 2 preparation inputs, 66 task inputs, 57 decision snapshots, 4 checkout documents, 1 pinned controller, 1 pinned shutdown helper, 2 pinned recovery inputs, 1 gate module still owed",
+      "drift": "none reported",
+      "seconds": 0.06,
+      "status": 0
+    },
+    "stage": {
+      "seconds": 0.079,
+      "status": 0
+    }
+  },
+  "supplier_evidence_reused_not_reimplemented": {
+    "limits": "STATIC. No product import, --help, engine or provider operation and no dynamic startup. Static closure is not startup evidence.",
+    "measured_here_seconds": 6.24,
+    "result": {
+      "members": 115,
+      "old_archive_missing_deferred_main_dependency": true,
+      "preserved": 114,
+      "product_executed": false,
+      "seconds": 6.064954055997077,
+      "static_edges": 1261,
+      "verified": true
+    },
+    "verify_py": "work/records/2026/10/finding-v12-host-runtime-import-closure/runtime-348981/verify.py",
+    "what": "the supplier's own read-only archive and static-closure verifier was RUN rather than reimplemented: verified true, 115 members, 114 preserved, the old archive provably missing the deferred main dependency, 1261 static edges, product_executed false."
+  },
+  "the_binding_defect_this_packet_consumes_the_correction_for": "run348852 staged the accepted 114-member binding and the accepted controller died at import on tools.authoring_baseline, which that binding did not declare. The preparation, the seals, the binding equality and both preflights were all correct; the defect was in what the binding declared. W348979 added the one member byte-for-byte from the accepted host base and owner350489 closed it satisfying. This packet consumes that corrected binding, refuses a binding that omits the member, and corrects every statement that named the old count, the superseded controller or the retired lease -- including two in prepare.py and one it GENERATED into the command document run348852 was launched with.",
+  "the_corrected_binding_is_what_changed": {
+    "archive_sha256": "6b66a5e22aa7b55c4229dee139c67a67bbf8660d4b97e53e1f7993340ecfd5ad",
+    "binding": "work/records/2026/10/finding-v12-host-runtime-import-closure/runtime-348981/HOST-POLICY.json",
+    "binding_sha256": "8309fd6ec90231c6e2d92468520bdeb075f20c4ee5f7ae7e8d34c637c10022a6",
+    "controller_in_composed_packet": "248ee9edd72214efbdc77044a9af6ad2c382e2ca1dbd5b71ff0db720d9a5a5dc",
+    "controller_in_the_binding": "248ee9edd72214efbdc77044a9af6ad2c382e2ca1dbd5b71ff0db720d9a5a5dc",
+    "controller_matches": true,
+    "deferred_dependency": {
+      "declared_by_the_binding": "8e5987f56f8d5329c33a8e73f9df56f13213e134f2dade8180afabf80723efe9",
+      "equal_to_the_supervisor_baseline_pin": true,
+      "in_the_composed_packet": "8e5987f56f8d5329c33a8e73f9df56f13213e134f2dade8180afabf80723efe9",
+      "member": "tools/authoring_baseline.py",
+      "on_disk_in_the_staged_source": "8e5987f56f8d5329c33a8e73f9df56f13213e134f2dade8180afabf80723efe9"
+    },
+    "equals_the_binding_as_a_whole_map": true,
+    "helper_matches": true,
+    "members_in_the_binding": 115,
+    "members_in_the_composed_packet": 115,
+    "package_set": [
+      "baton_v12",
+      "tools"
+    ],
+    "package_set_required_by_the_supplier": [
+      "baton_v12",
+      "tools"
+    ],
+    "read_how": "every value read out of this claim's own composed PACKET.json, task.json and AUTHORING-COMMAND.json and off the staged source, not from these pins."
+  },
+  "the_deferred_dependency_guard": {
+    "demonstrated_read_only": {
+      "prepare.py": {
+        "corrected_binding": {
+          "declares_the_deferred_dependency": true,
+          "members": 115
+        },
+        "refusal": "the binding does not declare the deferred controller dependency, which is the defect that killed run348852: tools/authoring_baseline.py",
+        "superseded_binding_refused": true,
+        "what_this_shows": "pointed at the exact 114-member binding run348852 staged -- whose bytes and archive digest both still verify -- this program now REFUSES during preparation instead of composing a packet whose controller cannot import. Read-only: no root, no staging, no extraction, no product import."
+      },
+      "verify-inputs.py": {
+        "corrected_binding": {
+          "declares_the_deferred_dependency": true,
+          "members": 115
+        },
+        "refusal": "the binding does not declare the deferred controller dependency, which is the defect that killed run348852: tools/authoring_baseline.py",
+        "superseded_binding_refused": true,
+        "what_this_shows": "pointed at the exact 114-member binding run348852 staged -- whose bytes and archive digest both still verify -- this program now REFUSES during preparation instead of composing a packet whose controller cannot import. Read-only: no root, no staging, no extraction, no product import."
+      }
+    },
+    "seconds": 0.02,
+    "what": "prepare.py and verify-inputs.py now refuse a binding that does not declare tools/authoring_baseline.py by name.",
+    "what_it_is_not": "an import check of the staged controller. Nothing here establishes that the controller STARTS; see import_closure_preflight_gap in PROVENANCE.json.",
+    "why_not_a_probe": "probe.py is carried unchanged, as the review requires, so this refusal is demonstrated by a separate read-only check rather than claimed as probe coverage it does not have."
+  },
+  "the_passing_candidate_travels": {
+    "candidate_patch": "294368c55fd468a95a4375c250e560def0f4cbc0a0c8a2a3a6f2658732e83856",
+    "completion_carried_verbatim": true,
+    "gate_member_digest_unchanged": true,
+    "matches_reviewer_published_digest": true,
+    "previous_turn_report_matches_published": true,
+    "previous_turn_report_snapshot": "a5b69ad30c2fc0be5c4c6dcb81daebba878a51d02e452ddf62d1dd3c179bc703",
+    "read_from": "this claim's own composed PACKET.json and task.json",
+    "recovery_index": "70e1f2b11723cf5646c411ce02f0e31402f405ba3839ad362ea15a8fb7cf3213",
+    "task_names_the_existing_channel": true,
+    "task_names_the_report": true,
+    "transport_absent_from_fixtures": true,
+    "why_that_snapshot": "so the turn can read what the previous turn MEASURED without reaching into a preserved instance.",
+    "worker_documents": {
+      "COMPLETION.md": "c8c5d4dd0e795486140f11ea48c80862de525f33caf590e3b5cd74b87713ff66",
+      "ENFORCEMENT.md": "06f3c249d68b2b1ab73b6b0c6f85477ff30acce9e65a3e0a587d05a52fc24297",
+      "FAILURE.md": "6999e65d9b1fe266efe2331260dfcf912c25b2addb870c70d80d563a19851c99",
+      "FIXTURE.md": "1f327c28db694bb79c779c17219e5c6b039c4a485a9ac65d1e5b582d8f1e6798",
+      "RECOVERY.md": "4fa687c9ae908718e7ea563171834864a5f68e1537572610e5c08a1c5cf0aac9",
+      "SHUTDOWN.md": "c6e3c8bf0eb8834d7142a901758cf88de280b1b0d160d3e6bdb3c16574f2f8e4",
+      "TASK.md": "fb26495bf6a9c52cd543aeca611f3c4d5c2a4e7d53437b166ea19edfa0aa2d5b"
+    }
+  },
+  "the_two_defects_were_revalidated_not_assumed": "R1 and R2 were both read in the candidate bytes: the _same_account fact-comparison and the chain walk at failure_cause.py:461 and 524-545, the settlement re-sampling at intake.py:5966-5982, the bare-statement calls at intake.py:5771-5775 and 5788-5792, the working channel at intake.py:5710-5711 / 6058-6059 / attempts.py:3647, and the inconsistent phrase at failure_cause.py:733-734. All six hold.",
+  "the_worker_candidate_did_not_move": {
+    "across": "the corrected host binding. Changing the host does not authorize rebasing the worker, and nothing on the worker side moved.",
+    "base": "bc925cf5c62d69426ed5862af4d41f4d2a967b0f",
+    "candidate_patch": "294368c55fd468a95a4375c250e560def0f4cbc0a0c8a2a3a6f2658732e83856",
+    "gate_member_digest_unchanged": true,
+    "transport_absent_from_fixtures": true
+  },
+  "why_the_old_root_cannot_be_reused": {
+    "first": "prepare.py stage calls root.mkdir(mode=0o700) with no exist_ok, so an existing root raises. Probe existing-root demonstrates it: \"FileExistsError: [Errno 17] File exists\".",
+    "note": "BOTH PROBES ALREADY EXISTED and are carried unchanged. No new probe was written for this rebinding, because the rebinding introduces no new refusal -- the two refusals that make the old root unusable were already regressions in this packet.",
+    "second": "prepare.py bind refuses when packet/PACKET.json already exists. Probe rebind-over-a-composed-packet demonstrates it: \"this root already holds a composed packet; composing a second one over it would replace the documents an owner may already have read\"."
+  },
+  "work": "W341357",
+  "worker_visible_cutoffs": {
+    "SUPERSEDED_cutoffs": {
+      "superseded_by": "the 600/720/180 planning targets existed to survive the retired 900-second lease and are HISTORY. execution-348852 still carried them here as the current cutoffs; retired at claim350529.",
+      "text": {
+        "gate_first": true,
+        "margin_preserved_seconds": 180,
+        "monotonic_start": "first act",
+        "provider_return_target_seconds": 720,
+        "stop_optional_edits_seconds": 600
+      }
+    },
+    "how": "COMPLETION.md is a pinned task input, so it travels as fixture.files to /input/source. prepare.py and verify-inputs.py both REFUSE if it is absent or is not a task input, and two probes cover each refusal.",
+    "permission": {
+      "execution_stop": "origin + 4740 seconds",
+      "margin": "the turn must leave the adapter room before the execution stop; there is no stopwatch cutoff",
+      "permission_expiry": "origin + 4800 seconds"
+    },
+    "requirement": "review341628: the completion mechanism must live in worker-visible pinned inputs; appending it only to PROGRESS is insufficient.",
+    "verified_from_the_composed_packet": {
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/COMPLETION.md": "4c7d666f5e94863fbafec033b17b295dca8ad6ecccf578ba72526b70f2e7c137",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/ENFORCEMENT.md": "4d1f2687322b11d4ca84eb245458d2f770e79e1fc6b16f33ff3db8488b641ed2",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/FAILURE.md": "9e025d5f6d4841e69a629d9f62e9c857b126642a4a7bc9cc887f1239105ec1b2",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/FIXTURE.md": "1f327c28db694bb79c779c17219e5c6b039c4a485a9ac65d1e5b582d8f1e6798",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/RECOVERY.md": "4fa687c9ae908718e7ea563171834864a5f68e1537572610e5c08a1c5cf0aac9",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/SHUTDOWN.md": "52bb69b4e22c182a982b2d08821e17331fdfaba5183e72f47c85ac7f24dac873",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/TASK.md": "30dffcc9800b7696c8a04c15b6bb57f4439cb098a8e5fe56e41cfd94ed1e97f5",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/FINDING.md": "faec4b8e600167b16cbbd86ab08840e68a7432980178a6aaa0e7c4c805d1a8c4",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/PLAN.md": "bf948c2ee5de03db82c0fb465246d35e31c364bbe709e36de2d7b0d7d476ab60",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/enforcement-integration.md": "f6d6aea39e2b90282d8c08d39a82c53ab8b7a9fbde27223705c5583b5576d889",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/enforcement-review.md": "22c6f3006d53976d5187dddd9c11545469c666e79be2e913239e20787f5c039a",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/guard-integration.md": "c7ec27fd38ab255277820c391aa787ad9eedec6d46df3e6318c0c16c8a61480e",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/guard-review.md": "f28697c9f0b16dd2421d2a7e42941dc96c0892f938b2abe770a1b5b74b71d999",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/host-import-closure-review.md": "a18840bd889c077a9d180dc657d472027902ae3a950f3b6a15114bb88337f799",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/host-operator-delta.md": "c0b49133fc9d84d4fdc3f804c37edc3269c2a8d652e2ac37ae62fd2438077be3",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/owner-failure-evidence.md": "c41ec181b51ed1fe8e6924744f6c61588b1493854392048a7cb973cc5d9622ea",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/parent-FINDING.md": "00f024ce4921f09cd0e9bfbafd7549f165d447dac97411c67e940e59f544911e",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/parent-PLAN.md": "b7d987ed049d3b222294e1d7d2c06a0ef9de49c62a1ed2a923d338f8c684f2b2",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/review-333812.md": "9cefcfed7b8e8ee8ccbbbc416a51255889739e41ba7436bd84c28e5b7ba59d8a",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/review-334776.md": "f6332faf1e580450d0796e87f2624edb3f6f29acb4df8c377d98f13830ea7b09",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/review-337566.md": "3d72960c83dd045280468ac9c432515aa346f6b57cc91f176f2fb3ae3e6ba01e",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/review-339623.md": "f01d359d769b05be7e6616ad7e73459a17898fbb65026e28022c55ec294819ae",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/review-339861.md": "aa3a263267838f13dc80db0926a9ef8e53ae13058ce8de2ec5d741b4d96c0907",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/review-340012.md": "83f999f35b8a484f2925a501163fdcbbe517d0e20cd19bee373a1cfb06ec9efa",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/review-340349.md": "d595b1589c8eead1cedf722fddac3cac4b70e62ac805410ded6e4a9262734919",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/review-341441.md": "bed1a38f8801696888e44004a682c6e22180d630b6429e69f3fa8e4b8b9a2270",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/review-341628.md": "b9fc3152b4677645b7a114f1d6777639d266ad74fe89e311aa4cc958f3d3c528",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/review-342415.md": "2470e7c9668fbf97be60cd25efbb0af87129e24d808bffaab18bbc9e345f3409",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/review-345368.md": "5e6c99a097d28db72d319b059cdbaaf9ca8b6b0c1ea856639f698641ea8f5f1a",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/review-345793.md": "f047783149f8a7267d10dc2ca0f81a177774297d42e77c2fa73ebaae44ddffc2",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/review-347370.md": "520f3b7098dd59358858987573303b9af5276ae47e184d61a15bed110751ac21",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/review-348704.md": "385f0e48aa4504033dc837977061ebe5db016007a457e8876d0650087ff39ce2",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/review-348787.md": "cf15d2e0af2501ae1599139cad1d52f7878770d0ae4853a82d91d4d579892c55",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/review-348838.md": "38285653b8d06b49fb93b2b6f4f6e04641a11b61d47b607f350b9e926c743964",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/review-348968.md": "75f252c860e314f55861042e3b7d9847d2dc63171c11c43ce452f295a09d688d",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/review-350495.md": "8db42fd8d2defe992ed4b4635a8462c5d7250eece6b9be99ca4901d29fde7eb9",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/shutdown-finding.md": "c51449df66f682706274a8746d941dafa970a71331df9e59f80337b1d5de1719",
+      "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529/decisions/shutdown-review.md": "7b8a27d70a3aee340ec18968f92bf08c8e35ce288c4d80efd523c5c6aae54f8b"
+    }
+  }
+}

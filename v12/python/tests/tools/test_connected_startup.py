@@ -68,6 +68,7 @@ import time
 import unittest
 
 from baton_v12.contracts import digest
+from baton_v12.worker_manager import launch
 from baton_v12.job_manager import (JobStore, creation, reconcile,
                                    review_driver, status as projected, sweep)
 from baton_v12.worker_manager import ControlStore, attempts, review_cycles
@@ -311,7 +312,7 @@ class ConnectedStartupCase(_connected.ConnectedCreationCase):
         try:
             return baton_worker.serve_exchange(
                 self.agent(), delivered.document,
-                delivered.document["session"],
+                launch.payload_of(delivered.document)["session"],
                 delivered.exchange.command_root,
                 delivered.exchange.event_root)
         finally:

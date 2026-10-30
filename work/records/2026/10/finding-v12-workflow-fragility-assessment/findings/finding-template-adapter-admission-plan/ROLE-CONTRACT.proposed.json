@@ -1,0 +1,86 @@
+{
+  "outputs": [
+    {
+      "constraints": {
+        "allowed_media_types": [
+          "application/octet-stream",
+          "text/plain"
+        ],
+        "link_policy": "forbid",
+        "max_bytes": 1048576,
+        "max_entries": 100,
+        "validator_digest": null
+      },
+      "name": "proposal",
+      "path": "proposal",
+      "required": false,
+      "type": "git-change-proposal"
+    },
+    {
+      "constraints": {
+        "allowed_media_types": [
+          "application/octet-stream"
+        ],
+        "link_policy": "forbid",
+        "max_bytes": 1048576,
+        "max_entries": 100,
+        "validator_digest": null
+      },
+      "name": "findings",
+      "path": "findings",
+      "required": false,
+      "type": "directory-result"
+    },
+    {
+      "constraints": {
+        "allowed_media_types": [
+          "application/octet-stream"
+        ],
+        "link_policy": "forbid",
+        "max_bytes": 1048576,
+        "max_entries": 100,
+        "validator_digest": null
+      },
+      "name": "logs",
+      "path": "logs",
+      "required": false,
+      "type": "directory-result"
+    }
+  ],
+  "roles": [
+    {
+      "consumer": "git-proposal/1",
+      "consumes": [],
+      "produces": [
+        "proposal"
+      ],
+      "required_for_success": [
+        "proposal"
+      ],
+      "role": "implementation"
+    },
+    {
+      "consumer": "checkpoint-review/1",
+      "consumes": [
+        {
+          "delivery": "frozen-checkpoint",
+          "output": "proposal",
+          "role": "implementation"
+        }
+      ],
+      "produces": [
+        "findings",
+        "logs"
+      ],
+      "required_for_success": [
+        "findings",
+        "logs"
+      ],
+      "role": "review"
+    }
+  ],
+  "schema": "baton.v12.development-role-contract/1",
+  "source_profile": "git-line",
+  "task_schema": "baton.dogfood-task/2",
+  "template": "baton.v12.job-template.implementation-review/2"
+}

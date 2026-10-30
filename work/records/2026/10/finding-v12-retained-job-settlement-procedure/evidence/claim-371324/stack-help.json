@@ -1,0 +1,13 @@
+{
+  "name": "stack-help",
+  "cmd": "/home/sl/baton-instances/useful-template-job-w366962/distro/baton-v12-stack --help",
+  "started": "2026-10-28T03:30:08.919Z",
+  "result": {
+    "chunk_id": "225701",
+    "wall_time_seconds": 0.00000512,
+    "exit_code": 0,
+    "original_token_count": 126,
+    "output": "usage: baton-v12-stack\n                       [{attempt-diagnostics,bootstrap,disposition,identity,logs,manager,monitor,publish,record,repository,start,status,stop,view}]\n\nThe deployed v12 stack: one command, several subcommands.\n\npositional arguments:\n  {attempt-diagnostics,bootstrap,disposition,identity,logs,manager,monitor,publish,record,repository,start,status,stop,view}\n\nEvery operand after the subcommand is that subcommand's own.\n--version (-V) says what this build is and needs nothing else.\n"
+  },
+  "ended": "2026-10-28T03:30:09.053Z"
+}

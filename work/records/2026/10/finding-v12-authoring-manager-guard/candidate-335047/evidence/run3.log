@@ -1,0 +1,32 @@
+test_real_composition_admits_action_and_restart_never_reinvokes (tests.manager.test_authoring_manager_guard.ManagerComposition.test_real_composition_admits_action_and_restart_never_reinvokes) ... FAIL
+
+======================================================================
+FAIL: test_real_composition_admits_action_and_restart_never_reinvokes (tests.manager.test_authoring_manager_guard.ManagerComposition.test_real_composition_admits_action_and_restart_never_reinvokes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/baton-w334910-335047/v12/python/tests/manager/test_authoring_manager_guard.py", line 56, in test_real_composition_admits_action_and_restart_never_reinvokes
+    self.assertEqual(child.wait(timeout=12), 0, self.log(output))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : {"authoring_log": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-manager-guard/test-storage-335047/v12-w71917-v3pa6ktc/outcome.json.authoring.log", "child_exited": true, "child_started": true, "child_status": 1, "elapsed_seconds": 0.00014524000289384276, "enforcement": {"attempts": {}, "faults": [], "state": "stopping"}, "enforcement_path": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-manager-guard/test-storage-335047/v12-w71917-v3pa6ktc/outcome.json.enforcement-5-1792439648173989121.json", "faults": [], "manager_report_path": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-manager-guard/test-storage-335047/v12-w71917-v3pa6ktc/outcome.json.manager-5-1792439647423196147.json", "operator_signals": [], "original_envelope": {"authority": "0000000a000000000000000000000000", "job": "job-a", "packet": {"bounds": {"cleanup_seconds": 2, "implementer_invocations": 1, "retry": false, "total_seconds": 5, "turn_seconds": 3}, "code_boundary": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-manager-guard/test-storage-335047/v12-w71917-v3pa6ktc/checkout", "deployment": {"authority_uuid": "0000000a000000000000000000000000", "config_path": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-manager-guard/test-storage-335047/v12-w71917-v3pa6ktc/config.json", "control_store": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-manager-guard/test-storage-335047/v12-w71917-v3pa6ktc/control.sqlite3", "job_store": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-manager-guard/test-storage-335047/v12-w71917-v3pa6ktc/jobs.sqlite3"}, "outcome_path": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-manager-guard/test-storage-335047/v12-w71917-v3pa6ktc/outcome.json", "run_id": "guard-regression", "submission": {"job_id": "job-a"}, "test_mode": "normal", "test_submission": {"jobs": [{"input_digest": "sha256:a55259380523b2540778abbad98e6ba519357eabc0a9472635292acd1b559b1c", "job_id": "job-a", "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222", "stages": [{"depends_on": [], "kind": "implementation", "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "profile_name": "reference", "work_id": "0000000a-W1"}], "terminal_policy": "report-and-hold", "test_scope": ["v12/python/tests/job_manager"]}], "schema": "baton.v12.job-submission/1", "submission_id": "sub-1"}}, "run": "guard-regression", "started_at": "2026-10-19T19:54:07.903Z", "stop_at": "2026-10-19T19:54:10.903000+00:00"}, "recovery_only": false, "state": "held"}
+Traceback (most recent call last):
+  File "/tmp/baton-w334910-335047/v12/python/tests/manager/test_authoring_manager_guard.py", line 188, in <module>
+    raise SystemExit(fixture_main())
+                     ~~~~~~~~~~~~^^
+  File "/tmp/baton-w334910-335047/v12/python/tests/manager/test_authoring_manager_guard.py", line 184, in fixture_main
+    return e.main(sys.argv[1:])
+           ~~~~~~^^^^^^^^^^^^^^
+  File "/tmp/baton-w334910-335047/v12/python/tools/authoring_enforcement.py", line 459, in main
+    return child_main(args.packet, args.child_of, args.lock_fd, args.status_path)
+  File "/tmp/baton-w334910-335047/v12/python/tools/authoring_enforcement.py", line 438, in child_main
+    return baseline.main(['--packet', packet_path, '--incarnation', 'authoring-child-' + str(os.getpid())], compose=child_compose)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/baton-w334910-335047/v12/python/tests/manager/test_authoring_manager_guard.py", line 154, in workload
+    with JobStore.open(value['deployment']['job_store'], authority_uuid=value['deployment']['authority_uuid'], incarnation='author') as job, ControlStore.open(value['deployment']['control_store'], incarnation='author') as control:
+         ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: JobStore.open() missing 1 required keyword-only argument: 'clock'
+
+
+----------------------------------------------------------------------
+Ran 1 test in 1.316s
+
+FAILED (failures=1)

@@ -1,0 +1,14 @@
+{
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_authoring_enforcement",
+    "tests.job_manager.test_tool.TheStatusSurfaceMayReadIntegrationAndStillActOnNothing",
+    "tests.job_manager.test_tool.TheRecoveryPassVisitsTheUNCERTAINTokensToo",
+    "-v"
+  ],
+  "elapsed_seconds": 3.668646550999256,
+  "exit_code": 1,
+  "timeout_seconds": 45
+}

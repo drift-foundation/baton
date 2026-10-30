@@ -1,0 +1,118 @@
+{
+  "attempt_id": "attempt-3bd83be3b5481608c8a6d9b9f8004f35497636605aa1d15899e295d305df79e9",
+  "authority_uuid": "0fa9c41fef90485596b45bd6f91f2f8f",
+  "base": "bc925cf5c62d69426ed5862af4d41f4d2a967b0f",
+  "collected_at": "2026-10-20",
+  "collected_by": "baton.claude, claim341471",
+  "files": {
+    "COLLECTION.json": {
+      "sha256": "6716faa42ed4b4775a871ff34d9db4fe5c2bee3ee92791604758b27630cc7e41"
+    },
+    "EXECUTOR-PREFLIGHT.json": {
+      "sha256": "1d9d18ebe67ff05b08cb60d9254d78cb5b56cfcb4ed9b1e77eaccef1d80d52cb"
+    },
+    "outcome.json": {
+      "sha256": "14f426a26872f2c83f7d83009a4ddb3fdd91811b319cce5b68cf659b1a380aeb",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-341360/packet/outcome.json",
+      "source_sha256": "14f426a26872f2c83f7d83009a4ddb3fdd91811b319cce5b68cf659b1a380aeb"
+    },
+    "outcome.json.authoring.log": {
+      "sha256": "50fd13a5237aa0a693ca04a030a12fd621103ca30b55988472605ba019a24231",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-341360/packet/outcome.json.authoring.log",
+      "source_sha256": "50fd13a5237aa0a693ca04a030a12fd621103ca30b55988472605ba019a24231"
+    },
+    "outcome.json.enforcement-91778-1792525477266282419.json": {
+      "sha256": "6951dc7b35036ea19ec433d29bf4b6954830b7099b883006d30be65430ed44de",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-341360/packet/outcome.json.enforcement-91778-1792525477266282419.json",
+      "source_sha256": "6951dc7b35036ea19ec433d29bf4b6954830b7099b883006d30be65430ed44de"
+    },
+    "outcome.json.manager-91778-1792524527634671059.json": {
+      "sha256": "99ad6c2ff1f8998d6d6436cbaaa505faa1b4c4a300f9fbdd9306691599c54907",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-341360/packet/outcome.json.manager-91778-1792524527634671059.json",
+      "source_sha256": "99ad6c2ff1f8998d6d6436cbaaa505faa1b4c4a300f9fbdd9306691599c54907"
+    },
+    "outcome.json.manager-91778-1792524527634671059.json.progress.json": {
+      "sha256": "f95178de01106f909e47eb99e176ad38dce78388c59fec273bb07732be6f54d9",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-341360/packet/outcome.json.manager-91778-1792524527634671059.json.progress.json",
+      "source_sha256": "f95178de01106f909e47eb99e176ad38dce78388c59fec273bb07732be6f54d9"
+    },
+    "outcome.json.manager-91778-1792524527634671059.json.shutdown.json": {
+      "sha256": "ed850bd4bc5747b6caade084f62f8f7c3887c334b2855003e0ee75f113b20b88",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-341360/packet/outcome.json.manager-91778-1792524527634671059.json.shutdown.json",
+      "source_sha256": "ed850bd4bc5747b6caade084f62f8f7c3887c334b2855003e0ee75f113b20b88"
+    },
+    "retained-partial/delta-failure_cause.diff": {
+      "sha256": "9c19e3a84e868e2d9059b744c7233de862f9bff0852d6e13e88b490c352f29a9"
+    },
+    "retained-partial/delta-tests.diff": {
+      "sha256": "d8df4ef16f30aa8366e536f2a3f558fe82b6fa9e855b1b48f2a43cf38bc05512"
+    },
+    "retained-partial/status.txt": {
+      "sha256": "03e173a11fd7d0c224bad60dcd55d58e1396b4ad8cf22d84551308b77e6440ce"
+    },
+    "retained-partial/tracked.diff": {
+      "sha256": "d2e6e129af764f53f98815176ce45135060ba03c79d393d8afaf6aa29521cd9c"
+    },
+    "retained-partial/v12/python/src/baton_v12/worker_manager/failure_cause.py": {
+      "sha256": "86be4114206e379d5f15d65268b5e5e8e55b5ce51d90704d0ea40b22eba452c6"
+    },
+    "retained-partial/v12/python/tests/manager/test_attempt_failure_cause.py": {
+      "sha256": "fb9f8e77bde9ceecfe8bf2fd61baa3b73b8a9802f7b3e64fd2b7b0adc65fb539"
+    }
+  },
+  "gate_still_unclassified": "verification is not-run again, so the five-module focused gate has STILL never been measured and the 30-second fit question remains unproved -- as does the parent historical twelve-module failure.",
+  "instance": "/home/sl/baton-instances/durable-capture-w341357-341360",
+  "net_progress_measured_against_the_recovery_input": {
+    "failure_cause.py": {
+      "recovery_lines": 926,
+      "recovery_sha256": "87a6264b266ed112c284d977...",
+      "run_lines": 1208,
+      "run_sha256": "86be4114206e379d..."
+    },
+    "status": "UNVERIFIED AND UNFROZEN. No candidate, no proposal, the gate never ran, and this author executed no test. Whether those 62 cases pass is UNKNOWN.",
+    "test_attempt_failure_cause.py": {
+      "recovery_lines": 332,
+      "recovery_test_cases": 26,
+      "run_lines": 1374,
+      "run_test_cases": 62
+    },
+    "the_three_applied_files_are_byte_identical": "per-file diff sections for worker_manager attempts.py, documents.py and intake.py hash identically to the supplied producer.diff sections, so the turn applied the recovery and did not revisit those files.",
+    "what_it_built": "item 1 is implemented: a new `_authorizes` helper decides whether the intent ALREADY COMMITTED under this id describes THIS effect, resolving the mismatch on the facts through the existing `_same_account` -- exactly the correction TASK item 1 asked for, with the store reasoning reproduced in its docstring. Item 4 is implemented: a published producer shape and read API with DIAGNOSTIC_SCHEMA/READ_SCHEMAS (an unsupported version is REFUSED), one `decode`, `answer_of` over FOUR answers including intent-only, ANSWER_OF_OUTCOME, `absent_of`, CAUSE_MEMBERS and FIELD_BOUND. The 62 test cases name exact replay versus conflicting runtime/correlation/launched, nothing-durable-no-effect, build-defect-is-not-a-collision, cancellation ordering neither boundary without a durable intent and both with one, the fence still taken, crash-leaves-intent-only on all three boundaries, reclaim both release paths, settlement, replayed reclaim ordering nothing, quiescent skips the stop and still removes, the four answers each reachable, known typed failure is not unknown cessation, absent is not quiescent, no caller filing a stop failure as a cessation, unsupported version refused, bare scalar refused, older record as a bounded unknown, and a closed allowlisted cause member set."
+  },
+  "outcome": {
+    "candidate": {
+      "acceptance": "no-candidate",
+      "state": "absent",
+      "verification": "not-run",
+      "why": "the turn froze no result at all"
+    },
+    "child_status": 130,
+    "cleanup": {
+      "attempt-3bd83be3b5481608c8a6d9b9f8004f35497636605aa1d15899e295d305df79e9": {
+        "cleanup": null,
+        "why": "no committed cleanup"
+      }
+    },
+    "cleanup_sweeps": 44,
+    "collection": "all six artifacts present, every correlatable one matched, all four links found, no isolated failures",
+    "controller_elapsed_seconds": 948.8808754800011,
+    "controller_faults": [],
+    "controller_state": "held",
+    "interrupted": "KeyboardInterrupt: signal 15",
+    "outstanding_cleanup": [
+      "attempt-3bd83be3b5481608c8a6d9b9f8004f35497636605aa1d15899e295d305df79e9"
+    ],
+    "served_seconds": 905.1834081710003,
+    "stage_states": {
+      "implementation": "exceptional"
+    },
+    "workload_state": "held",
+    "workload_stopped": "interrupted"
+  },
+  "packet_digest": "b493886180fea5b05d808cd3c070bedcafd76ac5c71464f97bafb03d44feaac3",
+  "preserved": "the instance, its review line and its partial work are untouched. No rerun, no recovery, no mutation, no credential read, no test executed, no version-control write. retained-partial/ holds read-only copies: the two changed files, the tracked diff, the status inventory, and the two deltas against the recovery input so a reviewer can see exactly what this run added.",
+  "run": "durable-capture-w341357-341360",
+  "schema": "baton.w341357-run-evidence/1",
+  "the_lease_fired_again": "served 905.18s against 900, interrupted by signal 15, controller elapsed 948.88 including its bounded shutdown, shutdown request written. This is the SECOND CONSECUTIVE run killed at the lease with nothing frozen -- parent run340352 was 904.78s, this one 905.18s -- against parent run340016 which finished on its own at 869.3s. Three runs, roughly 2723 seconds of provider time, and ZERO frozen candidates.",
+  "what": "THE THIRD COMPLETED RUN IN THIS CAMPAIGN AND THE SECOND CONSECUTIVE LEASE KILL WITH NOTHING FROZEN. Owner reroute341467 selected the accepted producer-slice packet execution-341360 and this is the run: launched 2026-10-20T19:28:47Z, controller pid 91778. Cut off at 905.18s served against the 900-second lease; the turn froze no result, so there is NO CANDIDATE. But it had very nearly finished the slice, and that work is preserved here."
+}

@@ -1,0 +1,12 @@
+{
+ "answers_review": "review-2026-10-22T19-12-16Z.md (reviewer claim354344)",
+ "candidate_unchanged": "COMBINED-MANIFEST 21f98ff355b6d0d2693dc84c28605a765ea1728d813ee22b7aedab8ec3e60dd3",
+ "claim": 354357,
+ "copies": {
+  "POLICY.json": "99cc3619763b6cc48b3d7d7c4ed161cca5e452dfdd7ef355e6accfe648d8bea9",
+  "progress-section.md": "3b4e4418b60d5e7cc8d74198b645dd03dd49c760c5e4d73d3539ff99509c8edd"
+ },
+ "product_edits": 0,
+ "schema": "baton.w325959-policy/1",
+ "tests_run": 0
+}

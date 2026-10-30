@@ -1,0 +1,11 @@
+{
+  "v12/python/src/baton_v12/worker_manager/oci.py": "94fae89d4ceba1078eb99b3de52e742d80cac91b7bd11d0f7d31aa95fdf1aa01",
+  "v12/python/src/baton_v12/worker_manager/source_boundary.py": "26f4b80c67703ae49ae6216a1461fecc10843c861cee7d59cfa5b6a896d30f3e",
+  "v12/python/tests/manager/test_oci.py": "f401abeebec28ea3ddf30735e2703f0cf47a5c0703e3f2c5b2ef35d5fb53202e",
+  "v12/python/tests/manager/test_verifier_topology.py": "70be13f39c794125c8ce9ac1daf6c67671527ec59134fa6777ea5d42820a9808",
+  "v12/worker/claude_agent.py": "cd7cee152af411e02043094ff0d6de838721209b08483960429480d9dfc90f0a",
+  "v12/python/tests/manager/test_claude_agent.py": "73ed8797304ba55116573e6802c9617e91033f161fc71dce6adb9bc06085315c",
+  "v12/worker/Dockerfile.claude": "200d0049692542fa9e85a5f7a23c9f09ed9d8cfc9511b383ea747c5ae7c4bfea",
+  "v12/worker/verifier-layout-marker.json": "3355c11a36044111f713d37a729e51f8b781801d655be5e0df14de7fb69c9648",
+  "v12/python/tools/single_worker.py": "807cc6b3652d019da51d7c0c50acbd2f457f9a6f1c23e3772c98ff9fc521a2a7"
+}

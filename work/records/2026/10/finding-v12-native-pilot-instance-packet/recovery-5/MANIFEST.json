@@ -1,0 +1,74 @@
+{
+  "claim": 329727,
+  "members": {
+    "CHANGE.json": {
+      "bytes": 8517,
+      "sha256": "2c9f6030e25f583877cfef5460193cbc4c8d97815b5cd6c3f41b23d48e43ad08"
+    },
+    "RECOVERY.md": {
+      "bytes": 8498,
+      "sha256": "cbfdb90851c4c2fe2508265c6eb3a66f1999a71dfccd8de54c5d12a523c806ac"
+    },
+    "after/deployment.json": {
+      "bytes": 13739,
+      "sha256": "5b80f32a9e62262729f19adfbcca62b8934e773728a816d8dfcc444a0580e6ef"
+    },
+    "after/generated/configuration.json": {
+      "bytes": 13739,
+      "sha256": "5b80f32a9e62262729f19adfbcca62b8934e773728a816d8dfcc444a0580e6ef"
+    },
+    "after/generated/configure-inputs.json": {
+      "bytes": 13309,
+      "sha256": "4756c1dc916404f82e783df95ad87d196e84e41141e8520037f715e832bbc644"
+    },
+    "after/inputs.json": {
+      "bytes": 13309,
+      "sha256": "4756c1dc916404f82e783df95ad87d196e84e41141e8520037f715e832bbc644"
+    },
+    "before/deployment.json": {
+      "bytes": 13731,
+      "sha256": "dfc2c08ec5f07155ae008f6d2307e7dc0d307c1ebebe62f54272e64200885fa0"
+    },
+    "before/generated/configuration.json": {
+      "bytes": 13731,
+      "sha256": "dfc2c08ec5f07155ae008f6d2307e7dc0d307c1ebebe62f54272e64200885fa0"
+    },
+    "before/generated/configure-inputs.json": {
+      "bytes": 13301,
+      "sha256": "6ff15885ca5309affc0db25439248818b41f94f36d7de1f5aa62a7d579539b2e"
+    },
+    "before/inputs.json": {
+      "bytes": 13301,
+      "sha256": "6ff15885ca5309affc0db25439248818b41f94f36d7de1f5aa62a7d579539b2e"
+    },
+    "build_packet.py": {
+      "bytes": 2707,
+      "sha256": "eb4f4ce0ae4e216b984f21ab15ed84d9ec06b99234f4f2b2cf756961cac5de39"
+    },
+    "evidence/ROOT.json": {
+      "bytes": 288,
+      "sha256": "e787cbfee9a9d4349aff662021453b89ac6aeae1e17404bec153b1fe3e55ddb7"
+    },
+    "evidence/STATUS.json": {
+      "bytes": 4599,
+      "sha256": "ed9365f456a25495e3281d18b6882824c20176c3d09b6ce479f0bd2f907be09c"
+    },
+    "evidence/VERIFICATION-run1.json": {
+      "bytes": 1388,
+      "sha256": "b5f255caf0dbb025a8d457907b3689721a46a0a30a6c1786d2ade86aca64ed46"
+    },
+    "evidence/VERIFICATION.json": {
+      "bytes": 1498,
+      "sha256": "5fbdae1271864d088ea869dc248ded9a4e81a07028e2f62034b297d8233f774e"
+    },
+    "recover_packet.py": {
+      "bytes": 7114,
+      "sha256": "6a9953c0b37ae669fc4fefc3e6d46522ba0ab92bde374daadbb284b08d99d6e2"
+    },
+    "verify.py": {
+      "bytes": 7952,
+      "sha256": "d2cbbf9930a1a8ab8cdb010034e31bb442164fefa8f4f5368c33fabb389acc8a"
+    }
+  },
+  "schema": "baton.w325959.recovery-manifest/1"
+}

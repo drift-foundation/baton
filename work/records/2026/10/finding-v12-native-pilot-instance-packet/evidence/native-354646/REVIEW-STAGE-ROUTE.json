@@ -1,0 +1,41 @@
+{
+ "schema": "baton.w325959-review-stage-route/1",
+ "claim": 354646,
+ "status": "A MEASURED NEGATIVE RESULT that rules out the cheap shape by PRODUCT REFUSAL, and leaves exactly one route for the review stage's acquisition. No product edit this claim; the candidate's 12 focused cases remain OK and the test file is byte-unchanged from claim354604.",
+
+ "scope_narrowed_by_the_reviewer_at_354642": {
+  "mine": "the two-stage acquisition / beyond-900 proof, and the joined owner-failure through durable capture, /7 status and the packaged report",
+  "moved_to_child_W354630_codxpc": "native stop/cancel, cleanup/unknown holds and persisted restart, with its own NEW test_native_stop_restart.py",
+  "respected": "I did not duplicate the child proof, did not edit its test path, and did not read into its dossier"
+ },
+
+ "WHAT_I_TRIED_AND_WHAT_THE_PRODUCT_SAID": {
+  "the_cheap_shape": "drive the review stage's own acquisition INDEPENDENTLY through SingleWorkerCase -- the harness that already reaches a real acquired token -- by composing a review-kind stage with no predecessor and setting the deployment's launch_role to 'review'. Both operands are parameterisable (fixtures.stage(kind=...) and self.config['launch_role']), so it looked available.",
+  "the_refusal_verbatim": "tools/single_worker.py:296 _held -> ContractRefusal('policy','denied'): \"this deployment launches implementation and this configuration names 'review'\"",
+  "what_that_establishes": "single_worker's deployment is IMPLEMENTATION-ONLY by design. The review role is served by stage_execution's composed review worker, not by single_worker.operations_from. So the independent-drive shortcut is not merely awkward -- the product refuses it, and that refusal is correct.",
+  "and_I_removed_the_case_rather_than_keeping_it": "the non-working case is deleted from the candidate; nothing failing was left behind and the module is back to 12 OK at the same digest as claim354604."
+ },
+
+ "THE_HARNESS_SPLIT_THAT_IS_THE_REAL_COST": {
+  "SingleWorkerCase": "reaches a REAL acquired token (my proved implementation-stage case) but is structurally SINGLE-STAGE and implementation-only, now by product refusal rather than by fixture shape",
+  "ComposedLifecycleCase": "drives ONE JOB THROUGH BOTH STAGES with prepare_implementation / freeze_checkpoint / prepare_review as accepted operations -- but its own docstring says the freeze, intake, retention and cleanup OPERATIONS are NOT PERFORMED because 'they need an engine, a delivered workspace and a custody tree, which is the live proof's half'. That is exactly the half where a token is acquired.",
+  "ServingCase": "composes BOTH stage workers for real (my delivery case uses it) and is the only base that has a review worker at all, but its existing cases assert composition rather than acquisition",
+  "so": "the two existing harnesses split along precisely the line this proof must cross: one does real acquisition without a review stage, the other does both stages while standing in for acquisition. ServingCase is the only base with both halves present, and reaching the review stage's acquisition there needs the engine/workspace delivery half built on top of it."
+ },
+
+ "EXACT_NEXT_EXECUTABLE_STEP": "build the review-stage acquisition on ServingCase, whose composed review worker is the only one the product will launch in that role: take composed.workers[review]['operations'] and drive ITS OWN runtime start against an admitted review stage with a delivered workspace, then observe that worker's acquired token -- its own generation, its Job's composed lifetime, above 900. The implementation half is already proved at claim354566 (NativeProductionLaunch), so what remains is the review half plus the statement that the two are driven independently rather than sequenced.",
+
+ "REMAINING_OWED_AFTER_THIS_CLAIM": [
+  "the review stage's own acquired token (route above); the implementation stage's is proved",
+  "the joined owner-produced cause through durable capture, /7 status and the packaged secret-free report"
+ ],
+
+ "RETAINED_AND_UNCHANGED": {
+  "product_paths": "all four byte-unchanged: execution_limits 24f27d7769e7f1dd, workspaces 7db36ee60d5b32af, single_worker 70cc08066e73b750, stage_execution 765c1567806c115f",
+  "test_file": "4cdc1afcf954a4beacaa261aceb35f6458feb1c621b3b9d307b04b3969a80cef -- identical to claim354604; the attempted case was added and removed within this claim",
+  "combined_candidate": "the 31-path supplier composition plus my five paths, manifest and delta unchanged",
+  "wiring_arms": "all five link-reversion arms retained in their claim354527 and claim354566 evidence directories; not repeated, as directed",
+  "boundaries": "no live instance, engine, provider or credential; no deployment, recovery, migration or shared import; no version-control mutation -- reads only"
+ },
+ "measured_this_claim": {"focused_runs": 3, "seconds_each": "0.260, 0.242, 0.252", "product_edits": 0}
+}

@@ -348,7 +348,7 @@ def certify_production_profile(control, profile, evidence):
         context_delivery.validate_generation(control, storage, evidence["context_id"], final["payload"])
         if context_invocation_of(control, admission["payload"]["attempt_id"]) is None:
             _refuse("certification requires strict serving receipt bindings")
-        reader = lambda attempt, artifact: context_delivery.read_context_receipt(control, attempt_id=attempt, artifact_id=artifact, workspace_storage=workspaces.configured_workspace_storage(control).place)
+        reader = lambda attempt, artifact: context_delivery.read_context_receipt(control, attempt_id=attempt, artifact_id=artifact)
         if _receipt(control, admission, reader) != final["payload"]["receipt_digest"]:
             _refuse("certification receipt differs from finalization")
     continuity = _document(evidence["continuity"], ("verdict_id", "report_digest"))

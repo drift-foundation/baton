@@ -1,0 +1,152 @@
+{
+  "state": {
+    "authority_uuid": "1cdb8d19feda47c0a209bd0669b16871",
+    "jobs": [
+      {
+        "execution_limits": {
+          "boundaries": {
+            "host_verification": {
+              "default_seconds": 300,
+              "origin": "job",
+              "seconds": 900,
+              "setting": "verification_command_seconds"
+            },
+            "integration_verification": {
+              "default_seconds": 1800,
+              "origin": "job",
+              "seconds": 900,
+              "setting": "verification_command_seconds"
+            },
+            "ordinary_verification": {
+              "default_seconds": 900,
+              "origin": "job",
+              "seconds": 900,
+              "setting": "verification_command_seconds"
+            },
+            "provider_turn": {
+              "default_seconds": 3600,
+              "origin": "job",
+              "seconds": 3600,
+              "setting": "provider_turn_seconds"
+            }
+          },
+          "compatibility_generation": 1,
+          "requested": {
+            "provider_turn_seconds": 3600,
+            "verification_command_seconds": 900
+          },
+          "scope": "per-invocation",
+          "units": "seconds"
+        },
+        "input_digest": "sha256:ee61953eebd8b1e9599b1fc398bce1a6e0f13f502b2b3fbbc454943a2922f5be",
+        "job_id": "quickstart-a",
+        "policy_digest": "sha256:837d7a03b2d92b9654cbc391daefcfa208f747bbd9ae7c528d54f528bd536357",
+        "stages": [
+          {
+            "allocation": null,
+            "allocations": [],
+            "artifacts": null,
+            "attempt_id": "attempt-695f0b35db9f5a9419236e8c87352ea41ce8f3383f48fefcacf63b44f7da544e",
+            "corrections": 0,
+            "deferral": null,
+            "episode": 1,
+            "episodes": [
+              {
+                "attempt_id": "attempt-695f0b35db9f5a9419236e8c87352ea41ce8f3383f48fefcacf63b44f7da544e",
+                "ended_at": null,
+                "ended_revision": null,
+                "ended_state": null,
+                "episode": 1,
+                "incarnation": "w325959-owner-submit-1",
+                "offer_id": "offer-695f0b35db9f5a9419236e8c87352ea41ce8f3383f48fefcacf63b44f7da544e",
+                "opened_at": "2026-10-19T04:28:46.749Z",
+                "stage_id": "quickstart-a/implementation"
+              }
+            ],
+            "exchange": null,
+            "gates": [],
+            "job_id": "quickstart-a",
+            "kind": "implementation",
+            "offer_id": "offer-695f0b35db9f5a9419236e8c87352ea41ce8f3383f48fefcacf63b44f7da544e",
+            "profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+            "profile_name": "claude-fresh-implementation",
+            "receipts": [],
+            "runtime": null,
+            "stage_id": "quickstart-a/implementation",
+            "state": "queued",
+            "work_id": "1cdb8d19-W1"
+          },
+          {
+            "allocation": null,
+            "allocations": [],
+            "artifacts": null,
+            "attempt_id": "attempt-2ea17286471490288e46e11a063ca12d5bb9108192d7df115cb0e1a6002b4e29",
+            "corrections": 0,
+            "deferral": null,
+            "episode": 1,
+            "episodes": [
+              {
+                "attempt_id": "attempt-2ea17286471490288e46e11a063ca12d5bb9108192d7df115cb0e1a6002b4e29",
+                "ended_at": null,
+                "ended_revision": null,
+                "ended_state": null,
+                "episode": 1,
+                "incarnation": "w325959-owner-submit-1",
+                "offer_id": "offer-2ea17286471490288e46e11a063ca12d5bb9108192d7df115cb0e1a6002b4e29",
+                "opened_at": "2026-10-19T04:28:46.749Z",
+                "stage_id": "quickstart-a/review"
+              }
+            ],
+            "exchange": null,
+            "gates": [
+              {
+                "open": false,
+                "stage_id": "quickstart-a/implementation",
+                "state": "queued"
+              }
+            ],
+            "job_id": "quickstart-a",
+            "kind": "review",
+            "offer_id": "offer-2ea17286471490288e46e11a063ca12d5bb9108192d7df115cb0e1a6002b4e29",
+            "profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+            "profile_name": "claude-fresh-implementation",
+            "receipts": [],
+            "runtime": null,
+            "stage_id": "quickstart-a/review",
+            "state": "blocked",
+            "work_id": "1cdb8d19-W1"
+          }
+        ],
+        "submission_id": "sub-w321608-quickstart-1",
+        "terminal_policy": "report-and-hold",
+        "test_scope": [
+          "v12/QUICKSTART.md"
+        ]
+      }
+    ],
+    "outstanding_offers": [],
+    "workspace_root": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/workspaces/implementation"
+  },
+  "changes": {
+    "deployment.json": {
+      "after": "5b80f32a9e62262729f19adfbcca62b8934e773728a816d8dfcc444a0580e6ef",
+      "before": "dfc2c08ec5f07155ae008f6d2307e7dc0d307c1ebebe62f54272e64200885fa0",
+      "mode": 436
+    },
+    "generated/configuration.json": {
+      "after": "5b80f32a9e62262729f19adfbcca62b8934e773728a816d8dfcc444a0580e6ef",
+      "before": "dfc2c08ec5f07155ae008f6d2307e7dc0d307c1ebebe62f54272e64200885fa0",
+      "mode": 436
+    },
+    "generated/configure-inputs.json": {
+      "after": "4756c1dc916404f82e783df95ad87d196e84e41141e8520037f715e832bbc644",
+      "before": "6ff15885ca5309affc0db25439248818b41f94f36d7de1f5aa62a7d579539b2e",
+      "mode": 436
+    },
+    "inputs.json": {
+      "after": "4756c1dc916404f82e783df95ad87d196e84e41141e8520037f715e832bbc644",
+      "before": "6ff15885ca5309affc0db25439248818b41f94f36d7de1f5aa62a7d579539b2e",
+      "mode": 436
+    }
+  }
+}

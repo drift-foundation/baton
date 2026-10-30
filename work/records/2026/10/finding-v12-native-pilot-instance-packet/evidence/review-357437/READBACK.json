@@ -1,0 +1,19 @@
+{
+  "observed_at": "2026-10-23T02:34:20.657378+00:00",
+  "authority_uuid": "673355e1f28e4b5683cbef09eb8f2658",
+  "runtime_files": 81,
+  "runtime_digest": "3dbc610e0c2a0e1165367871097bd2a5bb590e271fee729b94b436a04045e7ac",
+  "matches_build_receipt": true,
+  "empty_configuration": true,
+  "artifact_hashes": {
+    "instance.json": "9b54ad069007dc19df04c3c8c25854d02011f10f5e37089b39c51fa0b5c8690a",
+    "deployment.json": "cf62f06d0f7b3484657be930f86924a26c415e41c64425657d17b347677a3198",
+    "authority-identity.json": "465b57683390991c595d17bb4b6a865d2f0603fb4b2cde446f8b111814079842"
+  },
+  "repository_heads": {
+    "target.git": "302453869d07eb5579e79a6572586d3c3cf62a5c",
+    "workspace": "302453869d07eb5579e79a6572586d3c3cf62a5c"
+  },
+  "status": "manager absent; publisher absent; snapshot absent; jobs absent; runtime unknown (no published snapshot)",
+  "limits": "Read-only public artifacts, runtime files, installed identity/status and git rev-parse only. No raw store reads or live execution. Not proof of old-runtime cessation."
+}

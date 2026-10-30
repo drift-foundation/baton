@@ -1,0 +1,1 @@
+python3 -c 'import hashlib,pathlib; p=pathlib.Path('"'"'/input/source/work/records/2026/10/finding-v12-serving-token-renewal/continuation-339444/restore.py'"'"'); b=p.read_bytes(); assert hashlib.sha256(b).hexdigest()=='"'"'54052734c46fcca3948bcc19ec0427ae26fd930ea6275169b1a608bd6b32aec2'"'"'; exec(compile(b,str(p),"exec"),{"__name__":"__main__","__file__":str(p)})'

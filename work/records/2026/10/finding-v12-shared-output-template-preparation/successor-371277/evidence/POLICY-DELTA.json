@@ -1,0 +1,165 @@
+{
+  "INVENTORY.json": [
+    {
+      "member": "/for_selection",
+      "before": "42bed8bb04a53380e565b1a63fb2bc702677f0d0",
+      "after": "f36bcd75ed22430355efe1b274b8f236cb591f6b"
+    },
+    {
+      "member": "/members/credential_policy_digest/file_sha256",
+      "before": "5399f947126ec7d031bced5895076657d24be21443e6db0c9ec86b51b14a9877",
+      "after": "de41b1520fa2584a62be04073b5de5662281bb2cb9a1571dce61fb1634ad050d"
+    },
+    {
+      "member": "/members/credential_policy_digest/identity_if_granted",
+      "before": "sha256:c8278005e08e5feae9c7f22f259fd1625a51285b85df7bc623b45b77277a5662",
+      "after": "sha256:2628980cae5d3f95c9ffd3839e5bde88a1358b484e7360f8ddcff69495f795a3"
+    },
+    {
+      "member": "/members/mount_policy_digest/file_sha256",
+      "before": "40bbe54bfd29865a5c8d3319b6cc019ae23e2005ce9d733aa3cbb5db223ce49d",
+      "after": "c8852934329b0a25f34d2fbcce0d1930dd0138e4ccaa4292fbe3c20a5d4bb0a3"
+    },
+    {
+      "member": "/members/mount_policy_digest/identity_if_granted",
+      "before": "sha256:a852ffa00f9f7f9ed447a4dd836c790aab15e0f2ee84219dc780f81d957cf9b5",
+      "after": "sha256:13ce0af038312d1551eef7c267d691ff3e63e760f967ec60a1e732a9e373243e"
+    },
+    {
+      "member": "/members/network_policy_digest/file_sha256",
+      "before": "fd23b28efadbe648ac43b0a1324de3dc5bfe873adfaa2c0d0ec60a777e3d9014",
+      "after": "31fe791226ace829062d934164bd94783d6d6fe75f65e0c042a5d5ec9dc8e706"
+    },
+    {
+      "member": "/members/network_policy_digest/identity_if_granted",
+      "before": "sha256:06407bb4fb68082854e98e1db6737dbebee95255b90813a488ea058d0fd223ab",
+      "after": "sha256:d5678ba5d0f7b0191d38d3866e75633a3653314ba3a5b1722a8fd7d0bbc71742"
+    },
+    {
+      "member": "/members/resource_policy_digest/file_sha256",
+      "before": "eb99686f18e73701aa7db25b2f0c6e3044fb94e583d290e9b2c7a018bd27952c",
+      "after": "d776d56ac5b77867e70c5c2881b712e53b0eadc1bbfc14643510bc76810c7127"
+    },
+    {
+      "member": "/members/resource_policy_digest/identity_if_granted",
+      "before": "sha256:e34a1471ce962e1737392740ad13b23234af531755baf5be61c2678038df9b8c",
+      "after": "sha256:22ec8ab47622524c2400045743adde69118a003853553fe140c83148ce37deee"
+    },
+    {
+      "member": "/members/role_instructions_digest/file_sha256",
+      "before": "8ac96cb65d446a41a570a9ffa499ba955aa9e8d137bbbed7356fbd2d68ae04e5",
+      "after": "f1a95b243fa1fa3464d14dd9e05d77b82ed8fd7797dc7fc96b9558344d202edb"
+    },
+    {
+      "member": "/members/role_instructions_digest/identity_if_granted",
+      "before": "sha256:7321d8dcfa4993bda8c1ac736297638ce34c49e2f22545b1a8be56cfae29ce7a",
+      "after": "sha256:9916592243dd0f1621f79d7a19ded89b2c48ef8e4ac92cf37ad0214ec80ce5b5"
+    },
+    {
+      "member": "/members/tool_policy_digest/file_sha256",
+      "before": "eabb731948b1391bec7ef0c95035710ab4cef6c145b783e7f77765c4347051d6",
+      "after": "56352093d95bc3cb76e849f77b8c7a06b0b4b92004483f0a5412b67f69eb30f7"
+    },
+    {
+      "member": "/members/tool_policy_digest/identity_if_granted",
+      "before": "sha256:27634ea683a0a554be5b44a6bf2192f25418a1b6dfc376e33e5ed77d01f51199",
+      "after": "sha256:0baa3740180e047a492b97053c010a03eeb07b3e57e8418f5583b7af2169c3cb"
+    },
+    {
+      "member": "/members/toolchain_digest/file_sha256",
+      "before": "25920341783793832dc76dc14c2e67ba09b768737700b70122181da6eabe6507",
+      "after": "918a426e3709c66492d85c84bbe02f054e0590bbd2e193441c9dc3c70944d4f4"
+    },
+    {
+      "member": "/members/toolchain_digest/identity_if_granted",
+      "before": "sha256:cd6ccc00aff63f9b01036d6a5f6eb67ba1eb98a9372c66e9788bc79841be5af3",
+      "after": "sha256:ceba06f33217267d29e25823d81d24e87e178c54ed77fbcf60c6a7c9d04cc183"
+    },
+    {
+      "member": "/task_sha256",
+      "before": "c21e6b93bfe199ebb89b3ec7a75e70a5636c52f9986b1afa3709a381c6bd98d7",
+      "after": "b2226415f3a57bda25f2a2023f9cb514ba7ac2863e72e5ab090c122913fe5b6b"
+    }
+  ],
+  "credential_policy.json": [
+    {
+      "member": "/for_selection",
+      "before": "42bed8bb04a53380e565b1a63fb2bc702677f0d0",
+      "after": "f36bcd75ed22430355efe1b274b8f236cb591f6b"
+    }
+  ],
+  "role_instructions.json": [
+    {
+      "member": "/for_selection",
+      "before": "42bed8bb04a53380e565b1a63fb2bc702677f0d0",
+      "after": "f36bcd75ed22430355efe1b274b8f236cb591f6b"
+    }
+  ],
+  "resource_policy.json": [
+    {
+      "member": "/for_selection",
+      "before": "42bed8bb04a53380e565b1a63fb2bc702677f0d0",
+      "after": "f36bcd75ed22430355efe1b274b8f236cb591f6b"
+    }
+  ],
+  "network_policy.json": [
+    {
+      "member": "/for_selection",
+      "before": "42bed8bb04a53380e565b1a63fb2bc702677f0d0",
+      "after": "f36bcd75ed22430355efe1b274b8f236cb591f6b"
+    }
+  ],
+  "mount_policy.json": [
+    {
+      "member": "/for_selection",
+      "before": "42bed8bb04a53380e565b1a63fb2bc702677f0d0",
+      "after": "f36bcd75ed22430355efe1b274b8f236cb591f6b"
+    },
+    {
+      "member": "/read_from",
+      "before": [
+        {
+          "path": "work/records/2026/10/finding-v12-native-pilot-instance-packet/revision-4/inputs/deployment.json",
+          "sha256": "6a675445d361a5208f82dfc43593595cd2d5d9bcbb3e893842c03b5cb8587a3e",
+          "what": "the reviewed manifest's own source consumption"
+        },
+        {
+          "path": "v12/python/tools/single_worker.py",
+          "sha256": "677e6f0ba39d10a983d20b46fe1252b73ddb7839b8f7cdf1016b88f9111e991b",
+          "what": "the staged source destination"
+        }
+      ],
+      "after": [
+        {
+          "path": "work/records/2026/10/finding-v12-native-pilot-instance-packet/revision-4/inputs/deployment.json",
+          "sha256": "6a675445d361a5208f82dfc43593595cd2d5d9bcbb3e893842c03b5cb8587a3e",
+          "what": "the reviewed manifest's own source consumption"
+        },
+        {
+          "path": "v12/python/tools/single_worker.py",
+          "sha256": "29e569365e182f70372938c65115c1ff813e6b3105781733c24eb34cda924971",
+          "what": "the staged source destination"
+        }
+      ]
+    }
+  ],
+  "tool_policy.json": [
+    {
+      "member": "/for_selection",
+      "before": "42bed8bb04a53380e565b1a63fb2bc702677f0d0",
+      "after": "f36bcd75ed22430355efe1b274b8f236cb591f6b"
+    }
+  ],
+  "toolchain.json": [
+    {
+      "member": "/CAVEAT",
+      "before": "this is the RECIPE, not an inspection of the built image. Nothing here contacts a container engine, so binding this accepts the recipe at 42bed8bb as the toolchain statement for image sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2. An owner who needs the image's actual inventory must inspect the image.",
+      "after": "this is the RECIPE, not an inspection of the built image. Nothing here contacts a container engine, so binding this accepts the recipe at f36bcd75 as the toolchain statement for image sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2. An owner who needs the image's actual inventory must inspect the image."
+    },
+    {
+      "member": "/for_selection",
+      "before": "42bed8bb04a53380e565b1a63fb2bc702677f0d0",
+      "after": "f36bcd75ed22430355efe1b274b8f236cb591f6b"
+    }
+  ]
+}

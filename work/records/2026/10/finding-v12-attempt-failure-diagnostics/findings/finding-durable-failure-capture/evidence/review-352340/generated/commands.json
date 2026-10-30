@@ -1,0 +1,38 @@
+{
+  "environment": {
+    "BATON_V12_STAGE_EXECUTION_CONFIG": "/tmp/w341357-review352340/packet/deployment.json",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/tmp/w341357-review352340/code/v12/python/src:/tmp/w341357-review352340/code/v12/python"
+  },
+  "outcome": "/tmp/w341357-review352340/packet/outcome.json",
+  "schema": "baton.single-implementation-commands/1",
+  "start": [
+    "/usr/bin/python3",
+    "-B",
+    "/tmp/w341357-review352340/code/v12/python/tools/authoring_baseline.py",
+    "--packet",
+    "/tmp/w341357-review352340/packet/PACKET.json",
+    "--incarnation",
+    "durable-capture-w341357-352156"
+  ],
+  "status": [
+    "/usr/bin/python3",
+    "-B",
+    "-m",
+    "tools.stack_command",
+    "manager",
+    "--store",
+    "/tmp/w341357-review352340/instance/db/jobs.sqlite3",
+    "--incarnation",
+    "durable-capture-w341357-352156-read",
+    "--authority-uuid",
+    "551d3605a5184905b026bf13be03ec90",
+    "status",
+    "--control",
+    "/tmp/w341357-review352340/instance/db/control.sqlite3",
+    "--observe",
+    "tools.stage_execution:observing_factory"
+  ],
+  "submission_owner": "start; do not also submit manually",
+  "termination": "SIGINT/SIGTERM requests this supervisor's bounded cancellation/accounting; a held outcome is not cessation proof"
+}

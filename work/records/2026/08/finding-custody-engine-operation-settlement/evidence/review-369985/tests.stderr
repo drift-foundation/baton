@@ -1,0 +1,35 @@
+test_reaping_the_cli_does_not_settle_a_daemon_mutation (tests.manager.test_custody.TheDeadlineIsThisManagersOwn.test_reaping_the_cli_does_not_settle_a_daemon_mutation)
+THE PROVIDER DEFECT, REPRODUCED -- and why the stopgap must stay ... ok
+test_the_receipt_is_published_before_the_provider_is_dispatched (tests.manager.test_exchange.TheWorkerIsTheOtherEnd.test_the_receipt_is_published_before_the_provider_is_dispatched) ... ok
+test_a_second_worker_over_one_receipt_starts_no_second_turn (tests.manager.test_exchange.TheWorkerIsTheOtherEnd.test_a_second_worker_over_one_receipt_starts_no_second_turn) ... ok
+test_a_worker_re_entering_after_a_receipt_alone_claims_nothing (tests.manager.test_exchange.TheWorkerIsTheOtherEnd.test_a_worker_re_entering_after_a_receipt_alone_claims_nothing) ... ok
+test_late_binding_after_expiry_is_refused_and_no_new_launch_is_granted (tests.manager.test_authoring_enforcement.LateLaunch.test_late_binding_after_expiry_is_refused_and_no_new_launch_is_granted) ... ok
+test_token_bound_before_attempt_attachment_is_stopped_but_held (tests.manager.test_authoring_enforcement.LateLaunch.test_token_bound_before_attempt_attachment_is_stopped_but_held) ... ok
+test_expired_unbound_launch_stays_revoked_and_has_no_invented_stop_target (tests.manager.test_authoring_enforcement.UnboundLaunch.test_expired_unbound_launch_stays_revoked_and_has_no_invented_stop_target) ... ok
+test_late_bind_and_later_activation_are_stopped_under_the_original_fence (tests.manager.test_authoring_enforcement.LateBindingCancellation.test_late_bind_and_later_activation_are_stopped_under_the_original_fence) ... FAIL
+test_acknowledgement_without_cessation_keeps_token_held (tests.manager.test_authoring_enforcement.OwnerLane.test_acknowledgement_without_cessation_keeps_token_held) ... ok
+test_child_admission_is_consumed_once_even_before_submission (tests.manager.test_authoring_enforcement.OwnerLane.test_child_admission_is_consumed_once_even_before_submission) ... ok
+test_early_deadline_uses_cancellation_not_token_renewal_or_early_revoke (tests.manager.test_authoring_enforcement.OwnerLane.test_early_deadline_uses_cancellation_not_token_renewal_or_early_revoke) ... ok
+test_expiry_reclaims_exact_runtime_without_a_serving_tick (tests.manager.test_authoring_enforcement.OwnerLane.test_expiry_reclaims_exact_runtime_without_a_serving_tick) ... ok
+test_halt_fences_all_three_dispatch_boundaries_but_preserves_reads (tests.manager.test_authoring_enforcement.OwnerLane.test_halt_fences_all_three_dispatch_boundaries_but_preserves_reads) ... ok
+test_halt_refuses_first_child_admission (tests.manager.test_authoring_enforcement.OwnerLane.test_halt_refuses_first_child_admission) ... ok
+test_multiple_engine_names_refuse_instead_of_observing_the_wrong_engine (tests.manager.test_authoring_enforcement.OwnerLane.test_multiple_engine_names_refuse_instead_of_observing_the_wrong_engine) ... ok
+test_regressed_wall_clock_closes_admission (tests.manager.test_authoring_enforcement.OwnerLane.test_regressed_wall_clock_closes_admission) ... ok
+test_restart_reuses_original_envelope_and_never_grants_more_time (tests.manager.test_authoring_enforcement.OwnerLane.test_restart_reuses_original_envelope_and_never_grants_more_time) ... ok
+test_settled_intake_skips_redundant_fence_only_with_positive_cessation (tests.manager.test_authoring_enforcement.OwnerLane.test_settled_intake_skips_redundant_fence_only_with_positive_cessation) ... ok
+test_slow_or_refused_engine_retains_exact_actionable_hold (tests.manager.test_authoring_enforcement.OwnerLane.test_slow_or_refused_engine_retains_exact_actionable_hold) ... ok
+test_wrong_runtime_observation_cannot_release (tests.manager.test_authoring_enforcement.OwnerLane.test_wrong_runtime_observation_cannot_release) ... ok
+
+======================================================================
+FAIL: test_late_bind_and_later_activation_are_stopped_under_the_original_fence (tests.manager.test_authoring_enforcement.LateBindingCancellation.test_late_bind_and_later_activation_are_stopped_under_the_original_fence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_authoring_enforcement.py", line 605, in test_late_bind_and_later_activation_are_stopped_under_the_original_fence
+    self.assertTrue([call for call in self.session.calls if call[0]=='cancel'])
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+----------------------------------------------------------------------
+Ran 20 tests in 0.362s
+
+FAILED (failures=1)

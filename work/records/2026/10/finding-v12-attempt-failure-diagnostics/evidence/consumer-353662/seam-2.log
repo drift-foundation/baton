@@ -1,0 +1,31 @@
+...................................................................................................F..................................
+======================================================================
+FAIL: test_a_status_surface_with_no_control_store_refuses_every_act (tests.job_manager.test_delegation.Observation.test_a_status_surface_with_no_control_store_refuses_every_act)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353662/v12/python/tests/job_manager/test_delegation.py", line 239, in test_a_status_surface_with_no_control_store_refuses_every_act
+    self.assertEqual(unobserved.observe({"attempt_id": "attempt:x"}),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     {"claimed_by": None, "runtime": None,
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+                      "integration": None, "diagnostics": None,
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                "diagnostic_degradation": None})
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'cla[147 chars]on': None, 'diagnostics': None} != {'cla[147 chars]on': None, 'diagnostics': None, 'diagnostic_degradation': None}
+  {'activity': None,
+   'claimed_by': None,
++  'diagnostic_degradation': None,
+   'diagnostics': None,
+   'exchange': None,
+   'integration': None,
+   'output': None,
+   'preparation_failure': None,
+   'runtime': None,
+   'start_failure': None}
+
+----------------------------------------------------------------------
+Ran 134 tests in 0.291s
+
+FAILED (failures=1)

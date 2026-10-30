@@ -1,0 +1,50 @@
+{
+  "results": [
+    {
+      "case": "original",
+      "status": 0,
+      "snapshot_time": {
+        "observed_at": {
+          "known": true,
+          "source": "status",
+          "value": "2026-09-02T00:00:00.000Z"
+        }
+      },
+      "origin": {
+        "known": true,
+        "source": "status.boundaries",
+        "value": "compatibility"
+      },
+      "provider_seconds": {
+        "known": true,
+        "source": "status.boundaries",
+        "value": 3600
+      },
+      "private_canary_forwarded": false
+    },
+    {
+      "case": "private-origin",
+      "status": 0,
+      "snapshot_time": {
+        "observed_at": {
+          "known": true,
+          "source": "status",
+          "value": "2026-09-02T00:00:00.000Z"
+        }
+      },
+      "origin": {
+        "known": true,
+        "source": "status.boundaries",
+        "value": "PRIVATE-CANARY-354007"
+      },
+      "provider_seconds": {
+        "known": true,
+        "source": "status.boundaries",
+        "value": 3600
+      },
+      "private_canary_forwarded": true
+    }
+  ],
+  "seconds": 0.46265112699984456,
+  "binary_sha256": "a1ec84af1458ea96b3c9dc72d28942ad03980c89317489b18dff333dc484298d"
+}

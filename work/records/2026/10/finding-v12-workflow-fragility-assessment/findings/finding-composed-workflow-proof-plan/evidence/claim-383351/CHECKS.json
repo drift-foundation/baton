@@ -1,0 +1,9 @@
+{
+  "kind": "inert document/source-pin check, no product import or runtime execution",
+  "file_count": 55,
+  "required_scenario_rows": 10,
+  "predecessor_inventory_matches": true,
+  "elapsed_seconds": 0.0028142200026195496,
+  "runtime_verification_seconds": 0,
+  "historical_predecessor_total_seconds": null
+}

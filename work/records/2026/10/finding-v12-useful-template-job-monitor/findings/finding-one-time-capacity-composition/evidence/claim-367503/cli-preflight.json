@@ -1,0 +1,173 @@
+{
+ "archive": {
+  "archive": "/home/sl/src/baton/work/records/2026/10/finding-v12-template-job-creation/findings/finding-packaged-template-creation/evidence/review-366382/verified-first-build.tar.gz",
+  "archive_sha256": "1da85eed0a3a19a5da0b83253abbbb40ebeed01bfe90ee05a10055dec0057125",
+  "files_in_archive": 81,
+  "pinned_build_stamp": "18e771f0 dirty -- disclosed, never relabelled",
+  "pinned_folder_digest": "0b7bc59213605489319e973a6a6cdf285c76513a00f75bf5e05d669df88beefd",
+  "verified_by": "digest now; the folder digest is verified when `materialize` extracts it"
+ },
+ "command": "preflight",
+ "delivered_artifacts": {
+  "CLEAN-START.md": {
+   "bytes": 3723,
+   "sha256": "f125583bc17c20179658f11c98fff6d532d348307a2f66b105418a26e23bf4fa"
+  },
+  "capacity.py": {
+   "bytes": 50115,
+   "sha256": "34fb83314dcc1f3d8373ff010b8ccc36a78e6d9d172a36c01bff2d4bfafb6784"
+  },
+  "fixtures/qualifying-TEMPLATE-JOBS.md": {
+   "bytes": 3552,
+   "sha256": "bc7aee367d1fb1b229e0f667c4ee4c527f5327131b81852ed27e54cfdd159817"
+  },
+  "guide_contract.py": {
+   "bytes": 9673,
+   "sha256": "19f596a20b4fd54cef7939cbe949bf55870b1eee668da33bd4ced9fdeb8ad4d6"
+  },
+  "prove_capacity.py": {
+   "bytes": 18638,
+   "sha256": "6e9f0ee53e976abad6105d9f8d16a890640c0f773a868900c329999a15eae57a"
+  },
+  "prove_guide_contract.py": {
+   "bytes": 8829,
+   "sha256": "650af023c32551443523ce95888fbdf0adef66f7ba43f7bac076e2042db7290a"
+  }
+ },
+ "derived_paths": {
+  "authority_store": "/home/sl/baton-instances/useful-template-job-w366962/db/authority.sqlite3",
+  "command": "/home/sl/baton-instances/useful-template-job-w366962/distro/baton-v12-stack",
+  "control_store": "/home/sl/baton-instances/useful-template-job-w366962/db/control.sqlite3",
+  "deployment": "/home/sl/baton-instances/useful-template-job-w366962/deployment.json",
+  "deployment_state": "/home/sl/baton-instances/useful-template-job-w366962/deployment-state",
+  "destination": "/home/sl/baton-instances/useful-template-job-w366962",
+  "distro": "/home/sl/baton-instances/useful-template-job-w366962/distro",
+  "identity": "/home/sl/baton-instances/useful-template-job-w366962/authority-identity.json",
+  "install_inputs": "/home/sl/baton-instances/useful-template-job-w366962/install-inputs.json",
+  "install_inputs_temporary": "/home/sl/baton-instances/useful-template-job-w366962/install-inputs.json.partial",
+  "instance": "/home/sl/baton-instances/useful-template-job-w366962/instance.json",
+  "integration_store": "/home/sl/baton-instances/useful-template-job-w366962/db/integration.sqlite3",
+  "job_store": "/home/sl/baton-instances/useful-template-job-w366962/db/jobs.sqlite3",
+  "justfile": "/home/sl/baton-instances/useful-template-job-w366962/justfile",
+  "lock": "/home/sl/baton-instances/useful-template-job-w366962/.bootstrap.lock",
+  "logs": "/home/sl/baton-instances/useful-template-job-w366962/logs",
+  "record": "/home/sl/baton-instances/useful-template-job-w366962/bootstrap.json",
+  "repository": "/home/sl/baton-instances/useful-template-job-w366962/repo",
+  "state": "/home/sl/baton-instances/useful-template-job-w366962/state",
+  "stores": "/home/sl/baton-instances/useful-template-job-w366962/db"
+ },
+ "effects": {
+  "created": [],
+  "extracted": [],
+  "removed": [],
+  "wrote": []
+ },
+ "inputs_this_composition_depends_on": {
+  "files": {
+   "v12/instance-inputs.json": {
+    "sha256": "e2eb35b222b67ac6fae77f361bc2a007623c7a4f2d7bc75c593f46ec2708137e",
+    "what": "canonical instance inputs"
+   },
+   "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json": {
+    "sha256": "fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903",
+    "what": "published conformance vectors"
+   },
+   "work/records/2026/10/finding-v12-native-pilot-instance-packet/fresh5-361402/configure-inputs.json": {
+    "sha256": "f60b129baad7fc098be76af530a6705b96cd510aa4d8b2ff552cf3b9d6e2a494",
+    "what": "reviewed pilot configuration"
+   },
+   "work/records/2026/10/finding-v12-native-pilot-instance-packet/fresh5-361402/task.json": {
+    "sha256": "91a13de94a23941b6653b9da40ae56e28046c7b30456def734638243185272f0",
+    "what": "reviewed pilot task"
+   },
+   "work/records/2026/10/finding-v12-native-pilot-instance-packet/revision-4/inputs/deployment.json": {
+    "sha256": "6a675445d361a5208f82dfc43593595cd2d5d9bcbb3e893842c03b5cb8587a3e",
+    "what": "reviewed pilot input manifest"
+   },
+   "work/records/2026/10/finding-v12-template-job-creation/findings/finding-packaged-template-creation/evidence/review-366382/BUNDLE-ARCHIVE.json": {
+    "sha256": "de9c669ce77819686f5043207151af5f6e1894940f87da70e16fde0c9dcbbad9",
+    "what": "retained runtime archive record"
+   },
+   "work/records/2026/10/finding-v12-template-job-creation/findings/finding-packaged-template-creation/evidence/review-366382/verified-first-build.tar.gz": {
+    "sha256": "1da85eed0a3a19a5da0b83253abbbb40ebeed01bfe90ee05a10055dec0057125",
+    "what": "retained runtime archive"
+   }
+  },
+  "note": "digests read now; a parent assembling on this result should re-read them and compare",
+  "source_revision": "42bed8bb04a53380e565b1a63fb2bc702677f0d0"
+ },
+ "next": "materialize, then compose with the minted uuid",
+ "preparation_is_complete": false,
+ "read_only_except_evidence": true,
+ "schema": "baton.v12.one-time-capacity/2",
+ "selection": {
+  "acceptance": [
+   "Examples use supported manager create with input-only operands and the exact template version; they do not author admission manifests or replace owner APIs.",
+   "Source/installed distinction, actual deployment identities, proposed versus executed operations and default/overridden limits remain explicit and truthful.",
+   "Monitoring is read-only; query time is not worker contact; unknown activity is not success; ending the monitor does not stop scheduling.",
+   "Implementation completion, independent verdict, held proposal, human acceptance and Git integration are distinguished. Failure/retry and runtime-cessation prerequisites are stated without silently retrying or claiming stop is cleanup.",
+   "Semantic evidence checks command order/options and statements against owning implementations, not only headings/byte count. Review binds the actual candidate."
+  ],
+  "destination": "/home/sl/baton-instances/useful-template-job-w366962",
+  "job_id": "job-template-job-guide-42bed8bb",
+  "lanes": [
+   {
+    "participant": "baton.claude-w366962",
+    "role": "implementation",
+    "worker_id": "impl-w366962"
+   },
+   {
+    "participant": "baton.reviewer-w366962",
+    "role": "review",
+    "worker_id": "review-w366962"
+   }
+  ],
+  "provider_turn_seconds": 3600,
+  "source_commit": "42bed8bb04a53380e565b1a63fb2bc702677f0d0",
+  "statement": "Write a reusable operator guide for ordinary v12 template Job creation and observation using the supported installed command. Explain the supplied task, source, scope and acceptance inputs, template version and limits, independent review and held results, failure/recovery boundary and human disposition. Verify all documented command examples against current supported parsers and behavior. Preserve the historical instance4 QUICKSTART facts; do not claim source features are installed there. Deliver documentation, not product redesign.",
+  "task_id": "template-job-guide-42bed8bb",
+  "template": "baton.v12.job-template.implementation-review/1",
+  "test_scope": [],
+  "verification_command_seconds": 900,
+  "work_scope": [
+   "v12/TEMPLATE-JOBS.md"
+  ]
+ },
+ "source": {
+  "at_selected_commit": true,
+  "commit": "42bed8bb04a53380e565b1a63fb2bc702677f0d0",
+  "root": "/home/sl/src/baton",
+  "selected": "42bed8bb04a53380e565b1a63fb2bc702677f0d0"
+ },
+ "task_document_place": "/home/sl/baton-instances/useful-template-job-w366962/state/task/template-job-guide-42bed8bb.json",
+ "unresolved_operator_grants": {
+  "credential_policy_digest": {
+   "missing_selection": "the credential policy covering the `claude` slot that resolves through reference `w202663-development`. Resolving it means reading an operator credential registry, which this preparation does not do.",
+   "what_it_names": "the credential profile; the owner ruling names it separate from the shared Job identity"
+  },
+  "mount_policy_digest": {
+   "missing_selection": "the mount policy document governing the nominated-mount delivery. No such document is published with the pilot.",
+   "what_it_names": "a Job-wide bound, compared across every worker"
+  },
+  "network_policy_digest": {
+   "missing_selection": "the network policy document for the `bridge` network this deployment pins. No such document is published with the pilot.",
+   "what_it_names": "a Job-wide bound, compared across every worker"
+  },
+  "resource_policy_digest": {
+   "missing_selection": "the resource policy document the operator grants this deployment. The Job's own provider/verification limits travel on the submission instead and are selected; this identity is not.",
+   "what_it_names": "a Job-wide bound, compared across every worker"
+  },
+  "role_instructions_digest": {
+   "missing_selection": "the two role-instruction documents this deployment would hand its implementation and review lanes. The parent selects neither, and authoring them here would be making the grant.",
+   "what_it_names": "the ROLE's own instructions; contracts/manifest.py classifies it per-role, because an implementer and a reviewer are told different things"
+  },
+  "tool_policy_digest": {
+   "missing_selection": "the tool policy document for the workload's permitted tools. No such document is published with the pilot.",
+   "what_it_names": "a Job-wide bound, compared across every worker"
+  },
+  "toolchain_digest": {
+   "missing_selection": "the toolchain inventory of image sha256:c862c055...; reading it means contacting a container engine, which this preparation does not do.",
+   "what_it_names": "the toolchain travelling with the worker image"
+  }
+ }
+}

@@ -1,0 +1,60 @@
+diff --git a/v12/worker/Dockerfile.claude b/v12/worker/Dockerfile.claude
+index e7fc3a48..640a7f4c 100644
+--- a/v12/worker/Dockerfile.claude
++++ b/v12/worker/Dockerfile.claude
+@@ -198,6 +198,55 @@ COPY python/src/baton_v12/source_profiles /opt/baton/source_profiles
+ RUN useradd --uid 65532 --create-home nonroot \
+     && mkdir -p /home/nonroot/.claude \
+     && chown -R 65532:65532 /home/nonroot
++
++# W325695: THE VERIFIER ROOT SCAFFOLDING AND THE TRUSTED LAYOUT MARKER.
++#
++# THE DEFECT THIS IMAGE HALF ANSWERS. The verifier's roots were handed to it
++# as `/proc/self/fd/<n>` descriptor paths. A descriptor is per-process, so an
++# ordinary `git` in a child -- or a nested adapter in a grandchild -- found
++# nothing at the only name it was given, and 40 failures with 20 errors were
++# reproducible by inheriting that TMPDIR. The remedy is ordinary stable
++# pathnames whose non-replaceability comes from a private mount, and a mount
++# needs a MOUNTPOINT that exists in the image.
++#
++# ROOT-OWNED 0755, OUTSIDE EVERY WRITABLE MOUNT, AND NO MUTABLE ANCESTOR,
++# which is what `preparation-325908/TASK.md` selects and what
++# `claude_agent._proved_ancestors` proves at runtime. A writable ancestor is a
++# directory a process sharing uid 65532 can rename, which would put the
++# selected root back inside the race the whole mechanism exists to leave. So
++# these are created BEFORE `USER` drops privilege, are not chowned to the
++# runtime uid, and the mounts the manager composes are what the runtime
++# writes into -- the engine initialises each one 0700 and owned by the
++# selected identity.
++#
++# THE MARKER IS THIS IMAGE'S OWN STATEMENT, and it is the half of the
++# agreement a delivered document cannot supply. Review 2026-10-28T03-25-24Z:
++# "source agreement is not established by carrying claims." The manager
++# composes the document; this file says what the image was BUILT with; the
++# worker refuses unless the two name one topology. Written here as literal
++# bytes rather than generated at build time so `pinned source/image checks`
++# bind exactly these -- and
++# `tests/manager/test_verifier_topology.TheMarkerBytesAreTheComposedOnes`
++# proves it is byte-identical to `source_boundary.image_layout_marker()`, so
++# the two cannot drift silently.
++#
++# ITS PRESENCE IS THE "NEW IMAGE" ANSWER. An image built before this layer
++# has no marker, the worker takes the unchanged legacy path, and the manager
++# refuses to compose a selection for it -- which is how both incompatibility
++# directions refuse before a provider runs.
++RUN mkdir -p /run/baton-verifier/home \
++             /run/baton-verifier/tmp \
++             /run/baton-verifier/cache \
++             /run/baton-verifier/pycache \
++    && chown -R 0:0 /run/baton-verifier \
++    && chmod 0755 /run /run/baton-verifier \
++                  /run/baton-verifier/home \
++                  /run/baton-verifier/tmp \
++                  /run/baton-verifier/cache \
++                  /run/baton-verifier/pycache
++COPY worker/verifier-layout-marker.json \
++     /opt/baton/verifier-layout-marker.json
++
+ USER 65532:65532
+ 
+ # The entrypoint is the REFERENCE WORKER's program with this image's agent

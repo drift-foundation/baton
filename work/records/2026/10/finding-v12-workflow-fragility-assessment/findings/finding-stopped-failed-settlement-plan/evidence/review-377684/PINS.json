@@ -1,0 +1,74 @@
+[
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/tokens.py",
+    "sha256": "3d1e87409bc055bce94af9448cf4e04a3a40ff44d290b9bd88f4693136009d45",
+    "actual_sha256": "3d1e87409bc055bce94af9448cf4e04a3a40ff44d290b9bd88f4693136009d45",
+    "matches": true
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/schema.py",
+    "sha256": "74c3983213b0c0f5f68f13e4b461697901701824e407942355db1b06f17d86c5",
+    "actual_sha256": "74c3983213b0c0f5f68f13e4b461697901701824e407942355db1b06f17d86c5",
+    "matches": true
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/workspaces.py",
+    "sha256": "ef9bc97a2c38b536ad725ee2f113d77b686bd5d56425874b839f9e20cad0197f",
+    "actual_sha256": "ef9bc97a2c38b536ad725ee2f113d77b686bd5d56425874b839f9e20cad0197f",
+    "matches": true
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/stopped_settlement.py",
+    "sha256": "4f335989c29ccf25329d4a711c8a58c7b8b757da182ba90f3ad5cf7e55bfeef4",
+    "actual_sha256": "4f335989c29ccf25329d4a711c8a58c7b8b757da182ba90f3ad5cf7e55bfeef4",
+    "matches": true
+  },
+  {
+    "path": "v12/python/tests/manager/test_stopped_settlement.py",
+    "sha256": "658ce53e854158307b2804578bad10800b92674e4df0bd1085102348378a35f3",
+    "actual_sha256": "658ce53e854158307b2804578bad10800b92674e4df0bd1085102348378a35f3",
+    "matches": true
+  },
+  {
+    "path": "v12/python/tests/manager/test_boundary_inventory.py",
+    "sha256": "3bd3fca934a68807f162c932a4aaf5f8eef30a1f0655fa5c8ab237b49bd22358",
+    "actual_sha256": "3bd3fca934a68807f162c932a4aaf5f8eef30a1f0655fa5c8ab237b49bd22358",
+    "matches": true
+  },
+  {
+    "path": "v12/python/tools/job_manager.py",
+    "sha256": "aa719108a6f578aec1a2c0fbc3b51d62e04bef29d069540245834ef556e03bd6",
+    "actual_sha256": "aa719108a6f578aec1a2c0fbc3b51d62e04bef29d069540245834ef556e03bd6",
+    "matches": true
+  },
+  {
+    "path": "v12/python/tools/single_worker.py",
+    "sha256": "0df31ac8dc5d8b71699209be2378ae8232a435aa15fbdfb4f33866fef22806c4",
+    "actual_sha256": "0df31ac8dc5d8b71699209be2378ae8232a435aa15fbdfb4f33866fef22806c4",
+    "matches": true
+  },
+  {
+    "path": "v12/QUICKSTART.md",
+    "sha256": "55c01e250978eed3b341024658962cea688e857cff83581c75c2ee733938ab87",
+    "actual_sha256": "55c01e250978eed3b341024658962cea688e857cff83581c75c2ee733938ab87",
+    "matches": true
+  },
+  {
+    "path": "v12/python/tools/stopped_settlement.py",
+    "sha256": "03dac7113b6c229bac4181cebeb9485aec54c28643e998584ff3e238d5ea28e6",
+    "actual_sha256": "03dac7113b6c229bac4181cebeb9485aec54c28643e998584ff3e238d5ea28e6",
+    "matches": true
+  },
+  {
+    "path": "v12/python/tests/tools/test_stopped_settlement_command.py",
+    "sha256": "cff435fb92e4b5066f598e8236f107e5701168aa1f6ab6e57dcf93851c520ec2",
+    "actual_sha256": "cff435fb92e4b5066f598e8236f107e5701168aa1f6ab6e57dcf93851c520ec2",
+    "matches": true
+  },
+  {
+    "path": "v12/python/tests/tools/test_stopped_settlement_joined.py",
+    "sha256": "beb1819899eeebfa43820ce97a1032fe375b82c7d017ceb51e78298c9de61a0d",
+    "actual_sha256": "beb1819899eeebfa43820ce97a1032fe375b82c7d017ceb51e78298c9de61a0d",
+    "matches": true
+  }
+]

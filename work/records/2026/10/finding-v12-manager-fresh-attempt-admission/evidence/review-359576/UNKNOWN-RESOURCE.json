@@ -1,0 +1,18 @@
+{
+  "job_id": "quickstart-c-retry-2",
+  "exclusion": {
+    "attempt-113d7744b434cd901c16f48b2e63aa2bdd06821f7d1e785027bcb865acaef6ad": {
+      "runtime": "destroyed",
+      "cleanup": "retained",
+      "resource": null,
+      "basis": "the host's own record, read after the reservation"
+    },
+    "attempt-ec4bdf73a1febf8c0dc439fd264e157f19929dc99547c674ada5aea08ab05e65": {
+      "runtime": "destroyed",
+      "cleanup": "retained",
+      "resource": null,
+      "basis": "the host's own record, read after the reservation"
+    }
+  },
+  "seconds": 0.004558204999739246
+}

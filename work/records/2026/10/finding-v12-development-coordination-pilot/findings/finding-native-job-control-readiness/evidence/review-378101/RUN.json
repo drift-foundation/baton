@@ -1,0 +1,17 @@
+{
+  "returncode": 0,
+  "seconds": 0.4370688989984046,
+  "native_task_token_seconds": 7320,
+  "decline": {
+    "outcome": "correction",
+    "verdict_id": "probe-verdict",
+    "correction": null,
+    "correction_declined": {
+      "policy": "decline",
+      "job_id": "probe-job",
+      "why": "this deployment is configured review-only, so the correction round a changes-requested verdict calls for belongs to a separately selected Job and is not opened here"
+    }
+  },
+  "selected_source": "8876bf950ff1f8ab8767ce9786df268cc9d767c6",
+  "archive_sha256": "65ef6df7d340eaec8f84c9f2dd47fc9e2bdc5d93d53265c5d022c3b08d13a3b5"
+}

@@ -1,0 +1,13 @@
+{
+  "name": "container",
+  "cmd": "docker inspect --format '{{json .State}}' a813a59f691c23022343cb25f3050df2c95386ae36b7dbab647fd4108d906ee6",
+  "started": "2026-10-28T03:30:08.919Z",
+  "result": {
+    "chunk_id": "ae0f1c",
+    "wall_time_seconds": 0.000008836,
+    "exit_code": 0,
+    "original_token_count": 56,
+    "output": "{\"Status\":\"exited\",\"Running\":false,\"Paused\":false,\"Restarting\":false,\"OOMKilled\":false,\"Dead\":false,\"Pid\":0,\"ExitCode\":1,\"Error\":\"\",\"StartedAt\":\"2026-10-28T01:43:30.175057747Z\",\"FinishedAt\":\"2026-10-28T01:43:32.27722424Z\"}\n"
+  },
+  "ended": "2026-10-28T03:30:08.954Z"
+}

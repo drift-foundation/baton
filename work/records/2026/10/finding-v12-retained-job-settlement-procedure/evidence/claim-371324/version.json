@@ -1,0 +1,13 @@
+{
+  "name": "version",
+  "cmd": "/home/sl/baton-instances/useful-template-job-w366962/distro/baton-v12-stack --version",
+  "started": "2026-10-28T03:30:08.919Z",
+  "result": {
+    "chunk_id": "a092a4",
+    "wall_time_seconds": 0.000008406,
+    "exit_code": 0,
+    "original_token_count": 8,
+    "output": "baton 12.0.0 (18e771f0, dirty)\n"
+  },
+  "ended": "2026-10-28T03:30:09.045Z"
+}

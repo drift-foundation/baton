@@ -1,0 +1,34 @@
+{
+  "manifest": "f3e5b57f1f708e99aede47c49a3b6190016bdfb3c9d4ab5b79de81d43d1bb16e",
+  "baseline_match": true,
+  "files": {
+    "v12/NEXT-RUN.md": {
+      "snapshot_match": true,
+      "source_copy_match": true
+    },
+    "v12/python/tests/manager/test_authoring_enforcement.py": {
+      "snapshot_match": true,
+      "source_copy_match": true
+    },
+    "v12/python/tests/tools/test_next_run.py": {
+      "snapshot_match": true,
+      "source_copy_match": true
+    },
+    "v12/python/tools/authoring_baseline.py": {
+      "snapshot_match": true,
+      "source_copy_match": true
+    },
+    "v12/python/tools/authoring_enforcement.py": {
+      "snapshot_match": true,
+      "source_copy_match": true
+    },
+    "v12/python/tools/next_run.py": {
+      "snapshot_match": true,
+      "source_copy_match": true
+    },
+    "v12/python/tools/next_run_bindings.py": {
+      "snapshot_match": true,
+      "source_copy_match": true
+    }
+  }
+}

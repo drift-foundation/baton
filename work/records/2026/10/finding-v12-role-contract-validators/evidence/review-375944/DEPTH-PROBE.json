@@ -1,0 +1,26 @@
+[
+  {
+    "depth": 9,
+    "bytes": 19,
+    "outcome": "ContractRefusal: a development role contract nests deeper than the frozen limit of 8",
+    "seconds": 2.7742000384023413e-05
+  },
+  {
+    "depth": 100,
+    "bytes": 201,
+    "outcome": "ContractRefusal: a development role contract nests deeper than the frozen limit of 8",
+    "seconds": 1.5268000424839556e-05
+  },
+  {
+    "depth": 1000,
+    "bytes": 2001,
+    "outcome": "ContractRefusal: a development role contract nests deeper than the frozen limit of 8",
+    "seconds": 0.00014261599972087424
+  },
+  {
+    "depth": 2000,
+    "bytes": 4001,
+    "outcome": "ContractRefusal: a development role contract nests deeper than the frozen limit of 8",
+    "seconds": 8.353599969268544e-05
+  }
+]

@@ -1,0 +1,303 @@
+{
+ "attempts": 0,
+ "composer_start_measured": {
+  "baseline_bindings_sha256": "09fbf3c59820231b7199e24aa1cf64eee93f6ea2e60f3477fed5ca909e5fc379",
+  "disposition": "Reported for classification in ENFORCEMENT.md, not patched. Mitigated by packet/AUTHORING-COMMAND.json and PREPARED.json composer_start_is_unenforced.",
+  "line": 721,
+  "start_member": "[python, -B, <supervisor>/baseline.py, --packet, ..., --incarnation, ...]",
+  "unchanged_at_this_base": true
+ },
+ "controller_binding": {
+  "accepted_from_staged_source": {
+   "says": "ACCEPTED from /tmp/w333486-preflight-339421/code/v12/python/tools/authoring_enforcement.py",
+   "seconds": 0.32,
+   "status": 0
+  },
+  "refused_from_host_checkout": {
+   "says": "RuntimeError: authoring controller is outside the pinned manager source",
+   "seconds": 0.173,
+   "status": 1
+  },
+  "why": "The corrected controller own verify_controller resolves itself inside packet manager_source and compares the pinned digest. Proved BOTH ways, read-only, opening no store and starting nothing."
+ },
+ "credential_read": false,
+ "enforcement": "ENFORCEMENT.md",
+ "engine_invoked": false,
+ "falsification_rerun": false,
+ "guard_proof_rerun": false,
+ "job_submitted": false,
+ "measured_seconds": {
+  "bind": 0.361,
+  "bootstrap": 0.591,
+  "controller_binding": 0.493,
+  "excluded_module_measurements": 71.221,
+  "existing_gate_modules": 14.007,
+  "input_check": 0.116,
+  "preparation_total": 1.194,
+  "probes": 1.154,
+  "sealed_gate": 14.18,
+  "shutdown_helper_probe": 0.325,
+  "stage": 0.126
+ },
+ "note": "One disposable preparation root, exercised once. No Job submitted, no attempt, no runtime, no engine, no provider, no credential read. The proposed destination /home/sl/baton-instances/attempt-diagnostics-w333486-339421 is untouched and does not exist.",
+ "prepared": {
+  "artifacts": 8,
+  "authority_uuid": "a5cdffad82ca410caca041b69b91d6f0",
+  "composer_start_is_unenforced": true,
+  "fixture_files": 20,
+  "packet_sha256": "199e63235afdc337ffccbfc503d65e54d9b48a59821c918528374ea9041313ea",
+  "start_authorized": false,
+  "start_selected": false,
+  "state": "prepared-not-executed",
+  "why_the_digest_differs": "bootstrap --no-repositories generates this instance own authority uuid and bind derives the Work id from it, so a selected run composes a DIFFERENT packet digest. This preflight digest is a fact about the throwaway root, not a proposed production identity."
+ },
+ "probe_note": "Every root-creating probe also asserts whether the root was created. Three are new to this revision: an unpinned shutdown helper, a drifted shutdown helper, and a damaged shutdown-review snapshot. One earlier expectation of mine was wrong and was corrected toward the code: a copied packet with FAILURE.md deleted still staged, because the task-input existence check validates the REPOSITORY-resident packet whose bytes travel as fixture.files, not the copy being run. The probe now declares a task input that exists nowhere and is refused by name.",
+ "probes": {
+  "cases": [
+   {
+    "passed": true,
+    "probe": "no-acknowledgement",
+    "refusal": "RuntimeError: This packet's START IS NOT SELECTED. Every input gate is closed (W333735 at a9f4fa4d, W334910 at fb487979, W338305 at bc925cf5), so this is not a blocker -- but independent preparation review comes first, then an exact execution selection. Three things to know: an earlier packet WAS se",
+    "refused": true,
+    "root_created": false,
+    "root_expected": false,
+    "seconds": 0.043,
+    "status": 1
+   },
+   {
+    "passed": true,
+    "probe": "superseded-controller",
+    "refusal": "RuntimeError: the authoring controller is not pinned by this packet manager source",
+    "refused": true,
+    "root_created": false,
+    "root_expected": false,
+    "seconds": 0.046,
+    "status": 1
+   },
+   {
+    "passed": true,
+    "probe": "unpinned-shutdown-helper",
+    "refusal": "RuntimeError: the authoring shutdown helper the controller imports is not pinned by this packet manager source",
+    "refused": true,
+    "root_created": false,
+    "root_expected": false,
+    "seconds": 0.048,
+    "status": 1
+   },
+   {
+    "passed": true,
+    "probe": "drifted-shutdown-helper",
+    "refusal": "RuntimeError: the authoring shutdown helper the controller imports is not pinned by this packet manager source",
+    "refused": true,
+    "root_created": false,
+    "root_expected": false,
+    "seconds": 0.046,
+    "status": 1
+   },
+   {
+    "passed": true,
+    "probe": "drifted-manager-source",
+    "refusal": "RuntimeError: the authoring controller is not pinned by this packet manager source",
+    "refused": true,
+    "root_created": false,
+    "root_expected": false,
+    "seconds": 0.046,
+    "status": 1
+   },
+   {
+    "passed": true,
+    "probe": "drifted-supervisor-baseline",
+    "refusal": "RuntimeError: supervisor source drifted: baseline.py",
+    "refused": true,
+    "root_created": false,
+    "root_expected": false,
+    "seconds": 0.147,
+    "status": 1
+   },
+   {
+    "passed": true,
+    "probe": "provenance-claims-selected-start",
+    "refusal": "RuntimeError: the provenance claims a start nobody has selected",
+    "refused": true,
+    "root_created": false,
+    "root_expected": false,
+    "seconds": 0.048,
+    "status": 1
+   },
+   {
+    "passed": true,
+    "probe": "provenance-claims-authorized-start",
+    "refusal": "RuntimeError: the provenance claims a start nobody has selected",
+    "refused": true,
+    "root_created": false,
+    "root_expected": false,
+    "seconds": 0.046,
+    "status": 1
+   },
+   {
+    "passed": true,
+    "probe": "damaged-shutdown-snapshot",
+    "refusal": "RuntimeError: decision snapshot damaged or absent: shutdown-review.md",
+    "refused": true,
+    "root_created": false,
+    "root_expected": false,
+    "seconds": 0.046,
+    "status": 1
+   },
+   {
+    "passed": true,
+    "probe": "absent-shutdown-document",
+    "refusal": "RuntimeError: a declared vehicle document is absent: SHUTDOWN.md",
+    "refused": true,
+    "root_created": false,
+    "root_expected": false,
+    "seconds": 0.048,
+    "status": 1
+   },
+   {
+    "passed": true,
+    "probe": "absent-task-input",
+    "refusal": "RuntimeError: decision snapshot damaged or absent: shutdown-integration.json",
+    "refused": true,
+    "root_created": false,
+    "root_expected": false,
+    "seconds": 0.048,
+    "status": 1
+   },
+   {
+    "passed": true,
+    "probe": "root-inside-the-repository",
+    "refusal": "RuntimeError: select a fresh absolute external preparation root",
+    "refused": true,
+    "root_created": false,
+    "root_expected": false,
+    "seconds": 0.052,
+    "status": 1
+   },
+   {
+    "passed": true,
+    "probe": "relative-root",
+    "refusal": "RuntimeError: select a fresh absolute external preparation root",
+    "refused": true,
+    "root_created": false,
+    "root_expected": false,
+    "seconds": 0.052,
+    "status": 1
+   },
+   {
+    "passed": true,
+    "probe": "existing-root",
+    "refusal": "FileExistsError: [Errno 17] File exists: '/tmp/w333486-probe-339421/already-there'",
+    "refused": true,
+    "root_created": true,
+    "root_expected": true,
+    "seconds": 0.147,
+    "status": 1
+   },
+   {
+    "passed": true,
+    "probe": "rebind-over-a-composed-packet",
+    "refusal": "RuntimeError: this root already holds a composed packet; composing a second one over it would replace the documents an owner may already have read",
+    "refused": true,
+    "root_created": true,
+    "root_expected": true,
+    "seconds": 0.051,
+    "status": 1
+   },
+   {
+    "passed": true,
+    "probe": "bind-a-root-staged-for-another-run",
+    "refusal": "RuntimeError: this root was staged for another run",
+    "refused": true,
+    "root_created": true,
+    "root_expected": true,
+    "seconds": 0.051,
+    "status": 1
+   },
+   {
+    "passed": true,
+    "probe": "absent-task-input",
+    "refusal": "RuntimeError: declared task input is absent: work/records/2026/10/finding-v12-attempt-failure-diagnostics/execution-339421/NOT-A-FILE.md",
+    "refused": true,
+    "root_created": false,
+    "root_expected": false,
+    "seconds": 0.047,
+    "status": 1
+   },
+   {
+    "passed": true,
+    "probe": "checkout-input-not-at-the-base",
+    "refusal": "RuntimeError: declared checkout input is not at the base: v12/python/tools/attempt_diagnostics.py",
+    "refused": true,
+    "root_created": false,
+    "root_expected": false,
+    "seconds": 0.091,
+    "status": 1
+   },
+   {
+    "passed": true,
+    "probe": "owed-gate-module-already-on-the-host",
+    "refusal": "RuntimeError: a gate module the turn must create already exists on the host: v12/python/tests/manager/test_attempt_failure_cause.py",
+    "refused": true,
+    "root_created": false,
+    "root_expected": false,
+    "seconds": 0.051,
+    "status": 1
+   }
+  ],
+  "passed": 19,
+  "seconds": 1.154,
+  "total": 19
+ },
+ "product_tests": {
+  "changed": 0,
+  "measured_only": true
+ },
+ "provider_invoked": false,
+ "retained_roots": [
+  "/tmp/w333486-preflight-339421",
+  "/tmp/w333486-base-339421",
+  "/tmp/w333486-probe-339421",
+  "/tmp/w333486-helper-probe-339421"
+ ],
+ "retained_why": "Left in place for the operator and the reviewer rather than removed. None is a selected root, none holds a credential and none holds a submitted Job.",
+ "root": "/tmp/w333486-preflight-339421",
+ "runtimes": 0,
+ "schema": "baton.w333486-execution-preflight/5",
+ "shutdown": "SHUTDOWN.md",
+ "shutdown_helper_is_required": {
+  "measured": {
+   "says": "ModuleNotFoundError: No module named 'tools.authoring_shutdown'",
+   "seconds": 0.325,
+   "status": 1,
+   "what": "the staged manager source with tools/authoring_shutdown.py removed"
+  },
+  "why": "Importing the controller from a staged manager source with tools/authoring_shutdown.py removed fails with ModuleNotFoundError. The pin is therefore load-bearing: without it the vehicle does not start, which is a startup failure rather than a refusal. Measured, not inferred."
+ },
+ "shutdown_proof_rerun": false,
+ "start_authorized": false,
+ "start_selected": false,
+ "steps": [
+  {
+   "says": "114 manager files, 3 supervisor files, 2 preparation inputs, 20 task inputs, 15 decision snapshots, 4 checkout documents, 1 pinned authoring controller, 1 pinned shutdown helper, 2 gate modules still owed; no decision-source drift",
+   "seconds": 0.116,
+   "status": 0,
+   "step": "verify-inputs.py"
+  },
+  {
+   "seconds": 0.126,
+   "status": 0,
+   "step": "prepare.py stage --acknowledge-unselected-start"
+  },
+  {
+   "seconds": 0.591,
+   "status": 0,
+   "step": "tools.bootstrap --no-repositories"
+  },
+  {
+   "seconds": 0.361,
+   "status": 0,
+   "step": "prepare.py bind"
+  }
+ ]
+}

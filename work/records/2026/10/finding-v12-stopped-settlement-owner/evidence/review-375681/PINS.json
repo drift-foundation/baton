@@ -1,0 +1,32 @@
+[
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/tokens.py",
+    "expected": "3d1e87409bc055bce94af9448cf4e04a3a40ff44d290b9bd88f4693136009d45",
+    "actual": "3d1e87409bc055bce94af9448cf4e04a3a40ff44d290b9bd88f4693136009d45",
+    "match": true
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/schema.py",
+    "expected": "74c3983213b0c0f5f68f13e4b461697901701824e407942355db1b06f17d86c5",
+    "actual": "74c3983213b0c0f5f68f13e4b461697901701824e407942355db1b06f17d86c5",
+    "match": true
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/workspaces.py",
+    "expected": "ef9bc97a2c38b536ad725ee2f113d77b686bd5d56425874b839f9e20cad0197f",
+    "actual": "ef9bc97a2c38b536ad725ee2f113d77b686bd5d56425874b839f9e20cad0197f",
+    "match": true
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/stopped_settlement.py",
+    "expected": "5837d72197af46dc6e1dbdd3925b4d79a2c2b76d4be1a64d0332d4e5ae4bc921",
+    "actual": "5837d72197af46dc6e1dbdd3925b4d79a2c2b76d4be1a64d0332d4e5ae4bc921",
+    "match": true
+  },
+  {
+    "path": "v12/python/tests/manager/test_stopped_settlement.py",
+    "expected": "88cfc0fbe73d3f3dcd948596530461d502d6b52d9c26d6c7c8ee6a7b871e36e5",
+    "actual": "88cfc0fbe73d3f3dcd948596530461d502d6b52d9c26d6c7c8ee6a7b871e36e5",
+    "match": true
+  }
+]

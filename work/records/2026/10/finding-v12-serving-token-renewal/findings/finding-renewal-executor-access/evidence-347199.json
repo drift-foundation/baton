@@ -1,0 +1,21 @@
+{
+  "claim": 347199,
+  "shell_blocks_syntax_checked": 7,
+  "checker_ast_valid": true,
+  "managed_check_exit": 1,
+  "only_failed_check": "parent_writable_and_searchable",
+  "root_absent": true,
+  "all_input_pins_match": true,
+  "operator_check_not_run": true,
+  "config_sha256": "7b9c66705a204971ae12641bd75d087cbb9073fdf87d0da85427b85c18fd6fd7",
+  "files": {
+    "OPERATOR-347199.md": "829a6ae660db24e1a7603ebdac179ed3539e7ea36bb10e09ba9ab08db8d301cb",
+    "preflight-347199.py": "373a8b3378b6406f7a3a539f3eead6580a01a894a5fdb20c43708d32188abd24"
+  },
+  "verification_seconds": {
+    "amendment": 0.127092884,
+    "managed_readonly_preflight": 0.146562296
+  },
+  "product_tests": 0,
+  "mutating_operations": 0
+}

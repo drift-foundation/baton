@@ -1,0 +1,148 @@
+interrupted: KeyboardInterrupt: signal 15
+the outcome WAS retained at /home/sl/baton-instances/durable-capture-w341357-341360/packet/outcome.json
+state 'held', stopped 'interrupted'; 5 held reason(s)
+{
+  "accounting_scope": "this run accounts for Job 'job-durable-capture-w341357-341360' and for nothing else. Attempt discovery, cancellation and cleanup all read the status projection filtered to that Job, so a runtime belonging to another Job in this store is NOT covered by this outcome and its absence is NOT established by it.",
+  "admissions": {
+    "implementation": 1
+  },
+  "admitted_attempts": [
+    "attempt-3bd83be3b5481608c8a6d9b9f8004f35497636605aa1d15899e295d305df79e9"
+  ],
+  "attempt_origins": {
+    "attempt-3bd83be3b5481608c8a6d9b9f8004f35497636605aa1d15899e295d305df79e9": "started"
+  },
+  "cancellation": {
+    "attempt-3bd83be3b5481608c8a6d9b9f8004f35497636605aa1d15899e295d305df79e9": {
+      "answer": {
+        "fenced": {
+          "assignment": "{'work_ref': {'authority_uuid': '0fa9c41fef90485596b45bd6f91f2f8f', 'work_id': '0fa9c41f-W1'}, 'participant': 'baton.impl', 'generation': 1}",
+          "cause": "cancelled",
+          "fenced": true,
+          "gate": "runtime-quiescence:1",
+          "phase": "block"
+        },
+        "intent": {
+          "assignment": "{'work_ref': {'authority_uuid': '0fa9c41fef90485596b45bd6f91f2f8f', 'work_id': '0fa9c41f-W1'}, 'participant': 'baton.impl', 'generation': 1}",
+          "attempt_id": "attempt-3bd83be3b5481608c8a6d9b9f8004f35497636605aa1d15899e295d305df79e9",
+          "authority_operation_id": "authority.attempt.cancel:80c0a65b1aafb6a50424a0b91cc90bd41f4acb366ccc11816225368ce5a85956",
+          "reason": "authoring-enforcement"
+        },
+        "quiescence": {
+          "agent_settlement": "{'cooperative': False, 'participant': 'baton.impl', 'attempt_id': 'attempt-3bd83be3b5481608c8a6d9b9f8004f35497636605aa1d15899e295d305df79e9', 'operation_id': 'attempt.cancel:80c0a65b1aafb6a50424a0b91cc90bd41f4acb366ccc11816225368ce5a85956', 'why': \"this deployment's worker is driven through a durable file exchange and carries no cooperative cancellation channel; the runtime stop below is the whole of the order this attempt receives\"}",
+          "ordered": true,
+          "runtime_id": "abcaa2f1ac01a7d8e242d6bfe7ef22c2eb9128a21b335f3dff422f526980b166",
+          "runtime_settlement": "{'runtime_id': 'abcaa2f1ac01a7d8e242d6bfe7ef22c2eb9128a21b335f3dff422f526980b166', 'ordered': False, 'state': 'absent', 'why': 'the engine answered that this exact identity does not exist'}"
+        },
+        "session_quiescence": {
+          "agent_session_ref": null,
+          "requested": false,
+          "state": null,
+          "why": "no execution session holds the posture of attempt 'attempt-3bd83be3b5481608c8a6d9b9f8004f35497636605aa1d15899e\u2026; there is no conversation to interrupt"
+        }
+      },
+      "execution_runtime": "running",
+      "requested": true,
+      "runtime_id": "abcaa2f1ac01a7d8e242d6bfe7ef22c2eb9128a21b335f3dff422f526980b166",
+      "stage_state": "running"
+    }
+  },
+  "claim": 341360,
+  "cleanup": {
+    "attempt-3bd83be3b5481608c8a6d9b9f8004f35497636605aa1d15899e295d305df79e9": {
+      "cleanup": null,
+      "why": "no committed cleanup"
+    }
+  },
+  "cleanup_sweeps": 44,
+  "final_canonical_read": true,
+  "finished_at": "2026-10-20T19:44:37.230Z",
+  "foreign_admissions": [],
+  "gate_refusals": [],
+  "held_because": [
+    "the run was interrupted: KeyboardInterrupt: signal 15",
+    "this manager cannot prove positive cleanup for attempt-3bd83be3b5481608c8a6d9b9f8004f35497636605aa1d15899e295d305df79e9",
+    "the run stopped 'interrupted' rather than completing its stages",
+    "attempt attempt-3bd83be3b5481608c8a6d9b9f8004f35497636605aa1d15899e295d305df79e9 froze no result at all, so its turn ended before it could answer. The adapter refuses a turn it cannot give an account of; the attempt's retained events carry the refusal.",
+    "this run published no proposal at all. Whether any turn nevertheless RETAINED a candidate is answered by `candidates`, and a retained candidate is not a published proposal, a verification or an acceptance"
+  ],
+  "interrupted": "KeyboardInterrupt: signal 15",
+  "interruptions": [
+    "signal 15"
+  ],
+  "job_id": "job-durable-capture-w341357-341360",
+  "observed_attempts": [
+    "attempt-3bd83be3b5481608c8a6d9b9f8004f35497636605aa1d15899e295d305df79e9"
+  ],
+  "outstanding_cleanup": [
+    "attempt-3bd83be3b5481608c8a6d9b9f8004f35497636605aa1d15899e295d305df79e9"
+  ],
+  "preexisting_jobs": [],
+  "preexisting_stages": {},
+  "provider_turn": {
+    "default_seconds": 3600,
+    "origin": "job",
+    "seconds": 3600,
+    "setting": "provider_turn_seconds"
+  },
+  "retry": false,
+  "run_id": "durable-capture-w341357-341360",
+  "schema": "baton.single-implementation-outcome/1",
+  "served_seconds": 905.1834081710003,
+  "serving_failure": null,
+  "stage_states": {
+    "implementation": "exceptional"
+  },
+  "stalled_after": 6,
+  "stalled_ticks": 0,
+  "started_order": [
+    "attempt-3bd83be3b5481608c8a6d9b9f8004f35497636605aa1d15899e295d305df79e9"
+  ],
+  "state": "held",
+  "stopped": "interrupted",
+  "submission_id": "durable-capture-w341357-341360-submission",
+  "submitted_at": "2026-10-20T19:28:48.043Z",
+  "unallocated_attempts": [],
+  "uncertainty": [],
+  "unexpected_attempts": [],
+  "work": "W341357",
+  "workload": {
+    "attribution": [],
+    "candidates": [
+      {
+        "acceptance": "no-candidate",
+        "assignment": null,
+        "attempt_id": "attempt-3bd83be3b5481608c8a6d9b9f8004f35497636605aa1d15899e295d305df79e9",
+        "attribution": null,
+        "base": null,
+        "bytes": null,
+        "content_digest": null,
+        "disposition": null,
+        "generation": null,
+        "head": null,
+        "locator": null,
+        "state": "absent",
+        "transport": null,
+        "verification": "not-run",
+        "why": "the turn froze no result at all"
+      }
+    ],
+    "conversations": [],
+    "dispositions": [
+      {
+        "attempt_id": "attempt-3bd83be3b5481608c8a6d9b9f8004f35497636605aa1d15899e295d305df79e9",
+        "disposition": null
+      }
+    ],
+    "generations": [],
+    "implementation_attempts": [
+      "attempt-3bd83be3b5481608c8a6d9b9f8004f35497636605aa1d15899e295d305df79e9"
+    ],
+    "modes": [],
+    "proposals": [],
+    "shortfalls": [
+      "attempt attempt-3bd83be3b5481608c8a6d9b9f8004f35497636605aa1d15899e295d305df79e9 froze no result at all, so its turn ended before it could answer. The adapter refuses a turn it cannot give an account of; the attempt's retained events carry the refusal.",
+      "this run published no proposal at all. Whether any turn nevertheless RETAINED a candidate is answered by `candidates`, and a retained candidate is not a published proposal, a verification or an acceptance"
+    ]
+  }
+}

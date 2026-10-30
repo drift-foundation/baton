@@ -1,0 +1,29 @@
+{
+  "schema": "baton.v12.stopped-execution-settlement-request/1",
+  "operation_id": "settle-synthetic-371444",
+  "instance_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+  "deployment_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+  "authority_uuid": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "job_id": "job-synthetic",
+  "stage_id": "job-synthetic/review",
+  "episode": 1,
+  "attempt_id": "attempt-synthetic",
+  "assignment": {
+    "work_ref": {
+      "authority_uuid": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "work_id": "aaaaaaaa-W1"
+    },
+    "participant": "baton.synthetic-reviewer",
+    "generation": 2
+  },
+  "runtime_id": "3333333333333333333333333333333333333333333333333333333333333333",
+  "start_operation_id": "runtime.start:4444444444444444444444444444444444444444444444444444444444444444",
+  "token": {
+    "domain": "workspace:synthetic",
+    "generation": 1,
+    "owner": "5555555555555555555555555555555555555555555555555555555555555555",
+    "launch": "runtime.start:4444444444444444444444444444444444444444444444444444444444444444"
+  },
+  "failure_evidence_digest": "sha256:6666666666666666666666666666666666666666666666666666666666666666",
+  "reason": "failed-execution-retain-evidence"
+}

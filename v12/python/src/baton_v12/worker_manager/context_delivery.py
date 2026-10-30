@@ -614,8 +614,13 @@ def context_mount_of(control, storage, *, attempt_id):
     return ContextMount(control, storage, adopt_context_use(control, storage, attempt_id=attempt_id))
 
 
-def read_context_receipt(control, *, attempt_id, artifact_id, workspace_storage):
-    """Read the original accepted custody file; never fetch a supplied URL."""
+def read_context_receipt(control, *, attempt_id, artifact_id):
+    """Read the original accepted custody file; never fetch a supplied URL.
+
+    W384870 (B2): `workspace_storage` was a parameter this function never read;
+    the operand catalog records why that name must not return as a held
+    capability, so it was removed rather than declared.
+    """
     from . import output, manifests
     frozen = output.frozen_output_of(control, attempt_id)
     collected = intake.intake_receipt_of(control, attempt_id)

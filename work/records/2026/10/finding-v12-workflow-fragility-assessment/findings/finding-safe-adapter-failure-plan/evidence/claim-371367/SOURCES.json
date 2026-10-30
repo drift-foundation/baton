@@ -1,0 +1,34 @@
+[
+  {
+    "path": "v12/python/tools/bootstrap.py",
+    "sha256": "3bc26bb0a71cf980ae9f37e813d52fd125a0dbed30d0a43e66e36dd0bcf0bc02"
+  },
+  {
+    "path": "v12/python/tools/instance.py",
+    "sha256": "ee59b95ca4f4a9753058ad48d4215f3a18be395290e8924b762311392dbad433"
+  },
+  {
+    "path": "v12/python/tools/stack_command.py",
+    "sha256": "ad49c04fa609703f80e80e14156888ef118e876d7e8a4aef3414e959db92c707"
+  },
+  {
+    "path": "v12/python/tools/build_stamp.py",
+    "sha256": "6b4fed17742702e9dc3577d8f4a54a9bf01d7ca947c1eacf739b18cad7c91218"
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/launch.py",
+    "sha256": "e7503f09547fa28f181cac896c00a34bef484a24d2e0a4ba57def5771a83f4cc"
+  },
+  {
+    "path": "v12/worker/baton_worker.py",
+    "sha256": "56cdee824193834e9f1e8e974259575219a9223aa9b4f1946c99099b35c5cd34"
+  },
+  {
+    "path": "v12/DESIGN.md",
+    "sha256": "571738130e7cfedd33966c1e920488b629e6b877eef16b1a3c61ccb7ea7f2796"
+  },
+  {
+    "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-template-adapter-admission-plan/FINDING.md",
+    "sha256": "ca961ff9957937c7ed5e61003e10fc08171207d843aead2eaac2c257c1825991"
+  }
+]

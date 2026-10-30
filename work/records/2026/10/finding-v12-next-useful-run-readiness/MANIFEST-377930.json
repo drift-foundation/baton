@@ -1,0 +1,22 @@
+{
+  "claim": 377930,
+  "files": {
+    "CHECK-377930.json": "0cfd75edde9b014799628ea55aa3e2c36a8962c664b88230d923cec521b24f83",
+    "COMMANDS-377930.md": "123db7ceaf702db4e5f57c828be3fb3317cecbe052b39ee87875e117946373a9",
+    "PROGRESS.md": "c5695ba67090ec26521f3fd46b3f5b1a1e11f017f67d02c118047b56ded3ea34",
+    "READINESS-377930.md": "bd30eeb88731b6aa250476256ecd6cf34d1fd4ff29f75fca2ff2f2555a8ca747",
+    "TASK-377930.json": "ae6e3187929bf89ff66796cde989622df2363e6b7ac023caf604f41df9201180",
+    "check-377930.py": "5cc0897854038ddeb13a8d764e9d5141fa1bf84df2ed80d561cee4e9ab2c0d6b"
+  },
+  "final_checks": {
+    "export_files_unchanged": 1078,
+    "kernel_receipt_digest_verified": true,
+    "task_changed_fields": [
+      "declared_base",
+      "task_id"
+    ],
+    "trailing_whitespace": false
+  },
+  "status": "unsupported-operation disposition; no live readiness claimed",
+  "work": "W376804"
+}

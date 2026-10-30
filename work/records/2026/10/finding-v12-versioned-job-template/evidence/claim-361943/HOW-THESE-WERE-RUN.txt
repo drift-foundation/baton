@@ -1,0 +1,87 @@
+How the runs in this directory were produced — claim361943, W361910
+===================================================================
+
+The canonical tree is NOT edited by this candidate, so every run below is on a
+disposable scratch root built from the canonical bytes plus the candidate
+overlaid. Both roots are built the same way, so a base/candidate diff of their
+failure lists is a comparison of BYTES and not of environments.
+
+  base root       /tmp/w361910-base
+  candidate root  /tmp/w361910-final
+
+Each root is:
+
+  <root>/v12/python           copy of v12/python at 182c8f94, excluding the
+                              retained v12-w71917-* workspaces, __pycache__
+                              and build/
+  <root>/v12/worker           copy of v12/worker
+  <root>/v12/DESIGN.md, *.json
+  <root>/AGENTS.md
+  <root>/work/records/2026/08/finding-v12-isolated-agent-workers/findings/
+         finding-v12-worker-contract/findings/
+         finding-worker-control-api-manifests/evidence/
+                              the published result-manifest vectors, which
+                              tests/manager/test_output.py and
+                              tests/job_manager/test_review_driver.py read
+                              from the repository by `parents[4]`
+
+The candidate root then has candidate-361943/v12/python unpacked over it.
+The depth matters: the suites resolve repository assets as
+`Path(__file__).resolve().parents[4]`, so a scratch root missing the `v12`
+level makes 354 suites fail on a missing vectors.json. That shape was observed
+and corrected before any of these runs; it is an artifact of where the copy
+sits and not a result.
+
+Commands, run from <root>/v12/python:
+
+  PYTHONPATH=src:. python3 -m unittest tests.job_manager.test_templates -v
+  PYTHONPATH=src:. python3 -m unittest discover -s tests/job_manager -t . \
+      -p 'test_*.py'
+  PYTHONPATH=src:. python3 -m unittest tests.manager.test_dependencies \
+      tests.manager.test_text_sweep tests.manager.test_contracts_inventory
+  PYTHONPATH=src:. python3 -m unittest discover -s tests/manager -t . \
+      -p 'test_*.py'
+
+What each file is
+-----------------
+
+FOCUSED.txt                  tests.job_manager.test_templates, 78 cases, OK.
+JOB-MANAGER-SUITE.txt        the whole tests/job_manager suite on the
+                             candidate: 1255 cases, OK. The same suite on the
+                             base root is 1177 cases, OK — the difference is
+                             exactly this candidate's 78.
+INVENTORY-BASE.txt           the three package-surface sweeps on the base.
+INVENTORY-CANDIDATE.txt      the same three on the candidate. 89 failures
+                             each and the two files are IDENTICAL.
+MANAGER-BASE.txt             every FAIL/ERROR line from the whole
+                             tests/manager discovery on the base.
+MANAGER-CANDIDATE.txt        the same on the candidate. 259 lines each and
+                             the two files are IDENTICAL.
+MANAGER-TOTALS-*.txt         the run totals for those two: 4786 cases,
+                             169 failures and 90 errors, on both.
+
+What the 89 and the 259 are, stated honestly
+--------------------------------------------
+
+They are PRE-EXISTING in this root and this candidate adds none of them: the
+base and candidate lists are byte-identical, which is what makes them a
+baseline rather than a claim. They are NOT asserted to be failures in the
+canonical checkout. A scratch root is not a Git checkout, has no container
+engine, no installed instance and no deployment state root, and a large part of
+tests/manager asks for one of those. The one case that was checked both ways
+makes the shape concrete: tests.tools.test_version fails in either scratch root
+on `the source was not found from this file`, and the same suite in the
+canonical checkout is 27 cases, OK.
+
+What was NOT run, and why
+-------------------------
+
+No provider, no container engine, no Authority, no installed instance and no
+deployment: this candidate is a document resolver that opens no store of its
+own and starts nothing. The Job stores these cases do open are the disposable
+SQLite files `tests/job_manager/fixtures.JobManagerCase` creates under a
+temporary directory. No Git operation of any kind was performed, in the
+repository or in the scratch roots. The whole tests/tools tree was not run:
+nothing in this candidate reaches `tools/`, and the two suites there that read
+the package's packaged surface — tests.tools.test_packaging and
+tests.tools.test_version — were run and match the base exactly.

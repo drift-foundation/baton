@@ -1,0 +1,28 @@
+{
+  "checks": {
+    "CLEAN-START.md": true,
+    "capacity.py": true,
+    "fixtures/qualifying-TEMPLATE-JOBS.md": true,
+    "guide_contract.py": true,
+    "prove_capacity.py": true,
+    "prove_guide_contract.py": true,
+    "v12/instance-inputs.json": true,
+    "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json": true,
+    "work/records/2026/10/finding-v12-native-pilot-instance-packet/fresh5-361402/configure-inputs.json": true,
+    "work/records/2026/10/finding-v12-native-pilot-instance-packet/fresh5-361402/task.json": true,
+    "work/records/2026/10/finding-v12-native-pilot-instance-packet/revision-4/inputs/deployment.json": true,
+    "work/records/2026/10/finding-v12-template-job-creation/findings/finding-packaged-template-creation/evidence/review-366382/BUNDLE-ARCHIVE.json": true,
+    "work/records/2026/10/finding-v12-template-job-creation/findings/finding-packaged-template-creation/evidence/review-366382/verified-first-build.tar.gz": true
+  },
+  "all_match": true,
+  "binding_sha256": "200e45840e077b2646a39354836c012b5f754212a92c6833d1a8f026a3f78bfc",
+  "guide_exit": 0,
+  "guide_wall_seconds": 0.8972553109997534,
+  "earlier_independent_runs": {
+    "capacity_exit": 0,
+    "capacity_wall_seconds": 0.633666827,
+    "guide_exit": 0,
+    "guide_wall_seconds": 0.78582899
+  },
+  "repeat_reason": "First guide stdout was truncated by tool output limit; repeat retains full durable reviewer output."
+}

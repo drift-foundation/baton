@@ -1,0 +1,19 @@
+{
+  "integer-required": {
+    "accepted": [
+      "implementation",
+      "review"
+    ]
+  },
+  "single-role-only": {
+    "accepted": [
+      "implementation"
+    ]
+  },
+  "empty-projection": {
+    "accepted": [
+      "implementation",
+      "review"
+    ]
+  }
+}

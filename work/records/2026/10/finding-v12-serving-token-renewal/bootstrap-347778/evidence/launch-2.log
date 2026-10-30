@@ -1,0 +1,36 @@
+E
+======================================================================
+ERROR: test_job_serving_reaches_envelope_acquisition_and_dispatch (tests.job_manager.test_serving_renewal.ProductionLaunch.test_job_serving_reaches_envelope_acquisition_and_dispatch)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/baton-serving-envelope-347778/v12/python/tests/job_manager/test_serving_renewal.py", line 189, in test_job_serving_reaches_envelope_acquisition_and_dispatch
+    submit(job, self.submission)
+    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/baton-serving-envelope-347778/v12/python/src/baton_v12/job_manager/submission.py", line 48, in submit
+    owned = documents.owned_submission(document)
+  File "/tmp/baton-serving-envelope-347778/v12/python/src/baton_v12/job_manager/documents.py", line 333, in owned_submission
+    owned = [_job(entry, taken["schema"]) for entry in jobs]
+             ~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/baton-serving-envelope-347778/v12/python/src/baton_v12/job_manager/documents.py", line 371, in _job
+    taken = boundaries.document(entry, "a submitted Job", required=JOB_MEMBERS,
+                                optional=optional)
+  File "/tmp/baton-serving-envelope-347778/v12/python/src/baton_v12/worker_manager/boundaries.py", line 227, in document
+    _members(taken, what, required, optional)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/baton-serving-envelope-347778/v12/python/src/baton_v12/worker_manager/boundaries.py", line 202, in _members
+    _refuse(f"{what} also carries {', '.join(extra)}, which this build's "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"contract for it does not name; an unrecognised member is "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"refused rather than ignored, because ignoring one silently "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"assumes the members we do recognise still mean what they did")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/baton-serving-envelope-347778/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: a submitted Job also carries execution_limits, which this build's contract for it does not name; an unrecognised member is refused rather than ignored, because ignoring one silently assumes the members we do recognise still mean what they did
+
+----------------------------------------------------------------------
+Ran 1 test in 0.055s
+
+FAILED (errors=1)

@@ -1,0 +1,11 @@
+# Current milestone — corrected diagnostic preparation
+
+Latest review review-2026-10-19T16-44-00Z.md, claim333691; detail333689, handoff333682, thread333486 read. All11 sealed entries and112 manager/3 supervisor/3 preparation/7 task input pins verified before this checkpoint. No product candidate, Job or attempt exists. Prior author preparation/test counts remain in PROGRESS and sealed evidence; not independent acceptance.
+
+Next executable preparation milestone: superseding immutable packet with causal recovery acceptance for reclaim-to-settlement and crash/replay, typed stop/engine failure separate from unknown cessation, and usable safe evidence locators. See latest review for exact code paths and expected outcomes. Preserve execution333504 unchanged; reviewer FINDING/PLAN updates stale its pins by design. Prefer immutable decision snapshots for the successor.
+
+Do not start this authoring vehicle. It shares baseline.py:1207 missing reclaim and blocking/cancellation issue independently recorded in W333485 review-2026-10-19T16-34-00Z.md. W333485 is at owner disposition; no exception or safe replacement selected. Reuse that evidence, do not reproduce it or seek a parallel approval to launch the same unproved vehicle. Preparation corrections are independent of production renewal; no whole-sibling dependency installed.
+
+After safe authoring selection: implement via isolated v12 Job, retain actual Job/attempt/candidate provenance, run deterministic outcome verification, return independent review. No direct-host product implementation, provider/deployment/pilot retry selected. Author baseline test failures and installed-bundle mismatch remain disclosed, not broad cleanup scope. Verify the new command in the eventual coherent deployed bundle before deployment acceptance.
+
+Base bbdacb5d38f6cf2d2461e9da103d28f9ab30cc6c; failed pilot14e52d80 unchanged. Implementer owns packet/PROGRESS and isolated candidate; reviewer owns FINDING/PLAN/reviews. Coordinate actual intake/serving overlap with W333485 and serialize combined integration. W325959 retains joined acceptance and concrete owner deployment/recovery selection. Human Git checkpoint after accepted combined correction remains pending.

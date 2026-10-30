@@ -1,0 +1,11 @@
+patching file W341357-VERIFICATION.json
+patching file v12/python/src/baton_v12/worker_manager/attempts.py
+patching file v12/python/src/baton_v12/worker_manager/documents.py
+patching file v12/python/src/baton_v12/worker_manager/failure_cause.py
+patching file v12/python/src/baton_v12/worker_manager/intake.py
+patching file v12/python/tests/manager/disk_roots.py
+patching file v12/python/tests/manager/input_roots.py
+patching file v12/python/tests/manager/test_attempt_failure_cause.py
+patching file v12/python/tests/manager/test_intake.py
+patching file v12/python/tests/manager/test_maintenance.py
+patching file v12/python/tests/manager/test_output.py

@@ -1,0 +1,33 @@
+{
+ "agrees_with_the_profile_package": true,
+ "answers": {
+  "generic with a base": {
+   "profile_package": "refused",
+   "pure_boundary": "refused",
+   "worker_reader": "accepted"
+  },
+  "generic with no base": {
+   "profile_package": "accepted",
+   "pure_boundary": "accepted",
+   "worker_reader": "accepted"
+  },
+  "git with NO base": {
+   "profile_package": "refused",
+   "pure_boundary": "refused",
+   "worker_reader": "accepted"
+  },
+  "git-line with NO base": {
+   "profile_package": "refused",
+   "pure_boundary": "refused",
+   "worker_reader": "accepted"
+  },
+  "git-line with a base": {
+   "profile_package": "accepted",
+   "pure_boundary": "accepted",
+   "worker_reader": "accepted"
+  }
+ },
+ "no_false_admission": true,
+ "note": "The pairing is now ASKED through the package that defines it. This boundary agrees with the PROFILE PACKAGE on every vector. It is stricter than the worker reader on three, and that is the consumer's own documented deferral -- it leaves the pairing to checkout_plan later in the same turn, and a pre-effect predicate has no later turn. No vector is admitted here that either the consumer or the package refuses.",
+ "replayed": "review-2026-10-28T23-13-01Z: check_dogfood_task permitted git-line with a null declared_base, admitted for both roles, while source_profiles.checkout_plan refuses it."
+}

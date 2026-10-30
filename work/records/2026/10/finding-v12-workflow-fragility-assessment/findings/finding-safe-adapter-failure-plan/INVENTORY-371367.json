@@ -1,0 +1,62 @@
+{
+  "work": "W371073",
+  "claim": "E371367",
+  "prior_inventory_sha256": "862260b0ba7117b2d9a63866e561eb20a2e2eb319ae422bb5cb9243c892d1d9b",
+  "files": [
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-safe-adapter-failure-plan/PROPOSAL.md",
+      "bytes": 33872,
+      "sha256": "b7a1e91b8c07f8c73d37d147bee5fd4789c08649961b20ede76abce79d65e671"
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-safe-adapter-failure-plan/PROGRESS.md",
+      "bytes": 4687,
+      "sha256": "7a1128382d65165cb4a88bb253c4d75f8d0404140da19acb9cb59b62e0a8b28e"
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-safe-adapter-failure-plan/evidence/claim-371367/CHECKS.json",
+      "bytes": 361,
+      "sha256": "782d921ce01b66b5488e8a97e5fae0a6ab9d18c32172c6526f7ad5e25341d0e2"
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-safe-adapter-failure-plan/evidence/claim-371367/EVIDENCE.synthetic.json",
+      "bytes": 1789,
+      "sha256": "ff80bca6cb9206d49b84af60000c7f7818e9313a7a172fcd166b1da50a551d4f"
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-safe-adapter-failure-plan/evidence/claim-371367/EXAMPLES.md",
+      "bytes": 360,
+      "sha256": "2fdc03d266aae446c12b166cdae71d263b1578dbdbaf1e89bb68e51cf7434e9d"
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-safe-adapter-failure-plan/evidence/claim-371367/QUALIFICATION.synthetic.json",
+      "bytes": 638,
+      "sha256": "d9cd3b6a70f0bfe1d161d72576cd02fe259db898be4114950677662ed9d15504"
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-safe-adapter-failure-plan/evidence/claim-371367/SOURCES.json",
+      "bytes": 1182,
+      "sha256": "b567e8b7a0bd773f946ac08209f48512ec93f7c9e80daee2a3452035da024980"
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-safe-adapter-failure-plan/evidence/claim-371367/check.py",
+      "bytes": 1391,
+      "sha256": "d4633d4748379af60e3c95c85e9df17e65d018d1bef01388f968579f200a6791"
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-safe-adapter-failure-plan/evidence/claim-371367/prior/INVENTORY-371189.json",
+      "bytes": 2253,
+      "sha256": "862260b0ba7117b2d9a63866e561eb20a2e2eb319ae422bb5cb9243c892d1d9b"
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-safe-adapter-failure-plan/evidence/claim-371367/prior/PROGRESS.md",
+      "bytes": 2427,
+      "sha256": "b1c4cb90ac1b0aadb10223b877c91bb338d9e5dbc7b6cc90257628794b2447f4"
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-safe-adapter-failure-plan/evidence/claim-371367/prior/PROPOSAL.md",
+      "bytes": 19019,
+      "sha256": "8dc78023942424cd56ffd8f0278387ccc628c80886d84892f3687a35ffb8bd7e"
+    }
+  ]
+}

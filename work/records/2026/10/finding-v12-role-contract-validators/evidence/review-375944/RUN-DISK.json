@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_role_contract",
+    "tests.job_manager.test_templates",
+    "tests.job_manager.test_creation",
+    "tests.tools.test_creation_ports",
+    "tests.tools.test_job_task_delivery",
+    "tests.tools.test_connected_creation",
+    "tests.manager.test_contracts_inventory",
+    "tests.manager.test_frozen"
+  ],
+  "test_root": "/var/tmp/baton-w257624",
+  "exit_code": 0,
+  "wall_seconds": 11.538857866000399
+}

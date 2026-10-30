@@ -1,0 +1,23 @@
+{
+  "preparation_manifest": "eed7cc1b3e0a4dfeb6ac9e81fd2b72e3a80c6cd4e622c83c29242855b3de00c5",
+  "artifact_count": 10,
+  "bundle_count": 206,
+  "failures": [],
+  "shell_blocks": 14,
+  "syntax_exit_codes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "kind": "planning-only",
+  "runs": [
+    {
+      "purpose": "inert synthetic example assertions",
+      "seconds": 0.127961,
+      "exit": 0,
+      "note": "initial output mislabeled assertion count as seven; five assertions executed"
+    },
+    {
+      "purpose": "corrected count and regenerate identical examples",
+      "seconds": 0.125645,
+      "exit": 0,
+      "assertions": 5
+    }
+  ],
+  "measured_cumulative_seconds": 0.253606,
+  "product_tests": 0,
+  "live_provider_calls": 0,
+  "engine_calls": 0,
+  "historical_total": "unknown; no product verification inherited or claimed"
+}

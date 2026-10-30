@@ -1,0 +1,80 @@
+Proposed checkpoint: W384870 B0/B1, Docker-only cleanup, testing policy and R1/R2 corrections
+
+PREPARATION ONLY. No index or Git history changed. R1/R2 corrections have arrived
+(M384899) but still await independent verification. This packet identifies scope;
+it is not final suite acceptance or a claim that the staged subset was tested.
+
+Files are relative to /home/sl/src/baton. source-hashes.json pins the bytes
+inspected when preparing this packet. K is still implementing: compare hashes
+before using these lists. A difference requires checking the changed scope,
+not overwriting K's files. tracked-candidate.diff preserves the inspected diff,
+including the explicitly identified earlier-Work hunks in mixed files.
+
+1. whole-files.txt: 23 complete files attributable to this checkpoint at capture.
+   Includes TESTING.md and the new source_identity implementation/test.
+   test_authoring_enforcement.py currently contains only the engine-name change;
+   it is also a B3-owned path, so later changes must not be swept in unnoticed.
+
+2. mixed-files.txt: stage individual hunks, not whole files:
+
+   src/baton_v12/worker_manager/oci.py (under v12/python):
+     INCLUDE module-header Docker-only wording, ENGINES=('docker',), removal
+     of _ABSENT_FORMS['podman'].
+     EXCLUDE OciAdapter.__init__ launch.payload_of change (earlier W376586).
+
+   tests/manager/test_worker_entry_engine.py:
+     INCLUDE Podman docstring change and removal of PodmanWorkerEntry.
+     EXCLUDE the four launch.payload_of(delivery.document) session changes.
+
+   tests/tools/test_job_task_delivery.py:
+     INCLUDE test_single_worker module alias, removal of imported test classes,
+     and class references through single_worker_tests.
+     EXCLUDE the launch import and two launch.payload_of session changes.
+
+3. prior-work-untracked.txt: these whole files originate in earlier Work, with
+   B0/B1 changes layered on top. They cannot be committed as isolated B0/B1
+   hunks while the original files remain untracked:
+     role_contract.py and test_role_contract.py contain B1 C1;
+     test_stopped_settlement_joined.py contains B0's import correction.
+   Committing them whole imports their earlier implementation too. Do not
+   treat their presence on this list as review/acceptance of that earlier Work.
+
+4. untracked-registered-tests.txt: current runner registry explicitly names
+   these files; all except test_source_identity.py are earlier-Work inputs.
+   Without those tests a checkout of a B0/B1-only commit is incomplete and
+   the registry refuses. The earlier tests also depend on earlier product
+   changes (including role_capability.py and other candidate paths). This is
+   NOT a dependency-closed standalone commit list. Choose a prior-Work baseline
+   or an explicitly broader WIP checkpoint before claiming reproducibility.
+   Do not remove registry entries to conceal those dependencies.
+
+5. record-files.txt: dossier root records, the independent review, and the
+   bounded removal record. Root records also contain B2 history; preserving
+   history is intentional and does not stage B2 product implementation.
+   This list is not the full evidence set. Keep all existing evidence locally;
+   review logs/JSON/proofs separately if committing them. Do not recursively
+   add the dossier: it includes raw run artifacts and deployment config packets.
+
+Excluded from this proposed implementation checkpoint:
+   B2/S1 inventory work in test_dependencies.py/test_boundary_inventory.py;
+   B2 context_delivery/provider_context/correction_restart_trace/stage_execution
+   changes and the three test_claude_context keyword removals;
+   all other earlier-Work product/tests, DESIGN changes, deployment packets,
+   and other dossiers. Nothing is removed or reverted in the working tree.
+
+Owner commands AFTER checking the checkpoint boundary/dependencies and R1/R2:
+
+  cd /home/sl/src/baton
+  xargs -d '\n' git add -- < work/records/2026/10/finding-v12-controlled-test-groups/checkpoint-preparation-20261030/whole-files.txt
+  git add -p -- v12/python/src/baton_v12/worker_manager/oci.py v12/python/tests/manager/test_worker_entry_engine.py v12/python/tests/tools/test_job_task_delivery.py
+  xargs -d '\n' git add -- < work/records/2026/10/finding-v12-controlled-test-groups/checkpoint-preparation-20261030/record-files.txt
+  git diff --cached --stat
+  git diff --cached --check
+  git diff --cached
+
+No automatic command is provided for the earlier-Work untracked files: their
+scope/parent checkpoint must be selected explicitly, not silently imported.
+Suggested eventual message:
+  WIP: controlled Docker test groups, accounting and testing policy
+
+This WIP checkpoint would preserve work; it would not assert a clean suite.

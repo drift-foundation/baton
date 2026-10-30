@@ -1,0 +1,46 @@
+{"child": false, "event": "process_entry", "monotonic": 3025.906642394, "pid": 46, "thread": 136835094454592}
+{"event": "trace", "function": "main", "kind": "call", "monotonic": 3025.906908749, "pid": 46, "thread": 136835094454592}
+{"event": "manager_started", "manager": 47, "monotonic": 3025.90839375, "pid": 46, "thread": 136835094454592}
+{"child": true, "event": "process_entry", "monotonic": 3026.255512579, "pid": 47, "thread": 126618378719552}
+{"event": "trace", "function": "main", "kind": "call", "monotonic": 3026.255723772, "pid": 47, "thread": 126618378719552}
+{"event": "trace", "function": "child_main", "kind": "call", "monotonic": 3026.256528918, "pid": 47, "thread": 126618378719552}
+{"event": "trace", "function": "start", "kind": "call", "monotonic": 3026.257818976, "pid": 47, "thread": 126618378719552}
+{"event": "trace", "function": "_run", "kind": "call", "monotonic": 3026.257975457, "pid": 47, "thread": 126618330822336}
+{"event": "manager_guard_held", "guard_pid": 47, "monotonic": 3026.282827823, "pid": 47, "thread": 126618330822336}
+{"event": "snapshot_begin", "finished": false, "monotonic": 3026.319205172, "pid": 47, "report": {"attempts": {}, "faults": [], "state": "watching"}, "stopping": false, "thread": 126618330822336}
+{"event": "trace", "function": "publish_guard", "kind": "call", "monotonic": 3026.319262318, "pid": 47, "thread": 126618330822336}
+{"event": "trace", "function": "publish_guard", "kind": "return", "monotonic": 3026.319400325, "pid": 47, "thread": 126618330822336}
+{"event": "snapshot_replaced", "finished": false, "monotonic": 3026.319422356, "pid": 47, "thread": 126618330822336}
+{"event": "trace", "function": "start", "kind": "return", "monotonic": 3026.319474032, "pid": 47, "thread": 126618378719552}
+{"event": "injected_pre_supervision_signal", "monotonic": 3026.319522782, "pid": 47, "thread": 126618378719552}
+{"event": "snapshot_begin", "finished": false, "monotonic": 3026.573509226, "pid": 47, "report": {"attempts": {}, "faults": [], "state": "stopping"}, "stopping": true, "thread": 126618330822336}
+{"event": "trace", "function": "publish_guard", "kind": "call", "monotonic": 3026.573572874, "pid": 47, "thread": 126618330822336}
+{"event": "trace", "function": "publish_guard", "kind": "return", "monotonic": 3026.573731309, "pid": 47, "thread": 126618330822336}
+{"event": "snapshot_replaced", "finished": false, "monotonic": 3026.573755023, "pid": 47, "thread": 126618330822336}
+{"event": "snapshot_begin", "finished": false, "monotonic": 3026.824015351, "pid": 47, "report": {"attempts": {}, "faults": [], "state": "stopping"}, "stopping": true, "thread": 126618330822336}
+{"event": "trace", "function": "publish_guard", "kind": "call", "monotonic": 3026.824059713, "pid": 47, "thread": 126618330822336}
+{"event": "trace", "function": "publish_guard", "kind": "return", "monotonic": 3026.824191197, "pid": 47, "thread": 126618330822336}
+{"event": "snapshot_replaced", "finished": false, "monotonic": 3026.824212146, "pid": 47, "thread": 126618330822336}
+{"event": "outer_signal", "manager": 47, "monotonic": 3026.909144657, "pid": 46, "signal": 15, "thread": 136835094454592}
+{"event": "snapshot_begin", "finished": false, "monotonic": 3027.074455453, "pid": 47, "report": {"attempts": {}, "faults": [], "state": "stopping"}, "stopping": true, "thread": 126618330822336}
+{"event": "trace", "function": "publish_guard", "kind": "call", "monotonic": 3027.074491229, "pid": 47, "thread": 126618330822336}
+{"event": "trace", "function": "publish_guard", "kind": "return", "monotonic": 3027.074606904, "pid": 47, "thread": 126618330822336}
+{"event": "snapshot_replaced", "finished": false, "monotonic": 3027.074626681, "pid": 47, "thread": 126618330822336}
+{"event": "trace", "function": "stop", "kind": "call", "monotonic": 3027.319840097, "pid": 47, "thread": 126618378719552}
+{"event": "snapshot_begin", "finished": true, "monotonic": 3027.325042638, "pid": 47, "report": {"attempts": {}, "faults": [], "state": "stopping"}, "stopping": true, "thread": 126618330822336}
+{"event": "trace", "function": "publish_guard", "kind": "call", "monotonic": 3027.325085337, "pid": 47, "thread": 126618330822336}
+{"event": "trace", "function": "publish_guard", "kind": "return", "monotonic": 3027.325205089, "pid": 47, "thread": 126618330822336}
+{"event": "snapshot_replaced", "finished": true, "monotonic": 3027.325224476, "pid": 47, "thread": 126618330822336}
+{"event": "trace", "function": "_run", "kind": "return", "monotonic": 3027.325238542, "pid": 47, "thread": 126618330822336}
+{"event": "trace", "function": "stop", "kind": "return", "monotonic": 3027.325316256, "pid": 47, "thread": 126618378719552}
+{"event": "snapshot_begin", "finished": true, "monotonic": 3027.325446308, "pid": 47, "report": {"attempts": {}, "faults": [], "state": "stopping"}, "stopping": true, "thread": 126618378719552}
+{"event": "trace", "function": "publish_guard", "kind": "call", "monotonic": 3027.325471084, "pid": 47, "thread": 126618378719552}
+{"event": "trace", "function": "publish_guard", "kind": "return", "monotonic": 3027.32555498, "pid": 47, "thread": 126618378719552}
+{"event": "snapshot_replaced", "finished": true, "monotonic": 3027.325569357, "pid": 47, "thread": 126618378719552}
+{"event": "trace", "function": "child_main", "kind": "return", "monotonic": 3027.32559248, "pid": 47, "thread": 126618378719552}
+{"event": "trace", "function": "main", "kind": "return", "monotonic": 3027.325613749, "pid": 47, "thread": 126618378719552}
+{"event": "outer_signal", "manager": 47, "monotonic": 3027.409443184, "pid": 46, "signal": 9, "thread": 136835094454592}
+{"event": "manager_reaped", "manager": 47, "monotonic": 3027.409533402, "pid": 46, "status": 1, "thread": 136835094454592}
+{"event": "trace", "function": "stop", "kind": "call", "monotonic": 3027.409562626, "pid": 46, "thread": 136835094454592}
+{"event": "trace", "function": "stop", "kind": "return", "monotonic": 3027.409630993, "pid": 46, "thread": 136835094454592}
+{"event": "trace", "function": "main", "kind": "return", "monotonic": 3027.409830694, "pid": 46, "thread": 136835094454592}

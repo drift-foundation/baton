@@ -1,0 +1,12 @@
+{
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_exchange",
+    "tests.manager.test_worker_packaging"
+  ],
+  "seconds": 1.0644255410006735,
+  "returncode": 0,
+  "pins_unchanged": true
+}

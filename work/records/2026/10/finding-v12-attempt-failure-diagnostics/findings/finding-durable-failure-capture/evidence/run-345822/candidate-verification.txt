@@ -1,0 +1,13 @@
+$ python3 -c import os,sys,unittest; os.chdir('v12/python'); roots=[os.getcwd(),os.path.join(os.getcwd(),'src')]; sys.path[:0]=roots; os.environ['PYTHONPATH']=os.pathsep.join(roots); names=["tests.manager.test_intake", "tests.manager.test_attempts", "tests.manager.test_maintenance", "tests.manager.test_contracts_inventory", "tests.manager.test_attempt_failure_cause"]; r=unittest.TextTestRunner(verbosity=1).run(unittest.defaultTestLoader.loadTestsFromNames(names)); [print('SKIPPED '+str(one[0])) for one in r.skipped]; sys.exit(0 if r.wasSuccessful() and not r.skipped else 1)
+exit: 0
+
+The command's own stdout and stderr are deliberately not
+reproduced here. It is code from the candidate tree this turn's
+provider edited, and it runs with the attempt's credential mount
+readable -- so its output is exactly the content this proposal
+must not carry, and nothing here can tell one of its bytes from
+another without reading the bearer.
+
+Rerun the command yourself, from the collected candidate tree,
+outside the worker. The acceptance already says that rerun and
+not this file is what an operator trusts.

@@ -1,0 +1,403 @@
+"""Read-only input check for the W333486 packet at the corrected shutdown checkpoint.
+
+Opens no store, writes nothing, starts nothing.
+
+TWO KINDS OF ANSWER, and the difference is the point. **Refusals** are things
+that decide what would be built: a pinned preparation input, the declared
+base's own manager and supervisor bytes, the bootstrap binary, the pinned
+controller, the pinned shutdown helper the controller imports, a damaged
+decision snapshot, an absent task input, a checkout document missing from the
+base, a gate module that already exists. **Reports** are things that decide
+what is next: whether each live decision source still matches the immutable
+snapshot taken from it.
+
+An earlier packet pinned the mutable reviewer-owned `FINDING.md` and
+`PLAN.md`, so an ordinary current-plan update invalidated a sealed packet.
+Review 2026-10-19T16-44-00Z asked for snapshots instead. Drift
+in a live decision source is therefore REPORTED, exits 0, and is for review and
+the owner to judge -- a snapshot records what was accepted when it was taken
+and is not a second authority.
+
+A drifted input means this packet is describing something that is no longer
+there, and re-sealing it at the new bytes is the correct response -- never
+editing a pin to match. That is exactly what happened to `../execution-337453`:
+the shutdown correction moved the controller and the supervisor baseline under
+it, so a successor was sealed and that one was preserved.
+
+AND IT IS WHY THE PREVIOUS PACKET IS STILL VALID WHERE IT WAS PINNED.
+`../execution-339421` pins the same vehicle bytes this packet pins; nothing
+drifted under it. It is superseded for what its documents SAID -- worker-owned
+post-run collection, absence read as a publication timeout, an overstated
+filesystem non-effect, and absolute sibling file bans -- all four corrected
+here under `decisions/review-339623.md`. When this program reported
+DECISION-SOURCE DRIFT on `FINDING.md` and `PLAN.md` for that packet, that was
+the design working: the reviewer had moved them, and reporting rather than
+refusing is what let the sealed packet stay honest about what it was told.
+"""
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import sys
+
+HERE = Path(__file__).resolve().parent
+PACKET_DIR = 'work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-352156'
+REPO = Path('/home/sl/src/baton')
+DISTRO = Path('/home/sl/baton-runs/managed-correction-236087/build/stack/out/distro')
+OLD = 'work/records/2026/09/finding-v12-single-implementation-proof'
+OWED = ('v12/python/tests/manager/test_attempt_failure_cause.py',)
+CONTROLLER = 'tools/authoring_enforcement.py'
+SHUTDOWN = 'tools/authoring_shutdown.py'
+
+
+def sha(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+HOST_POLICY = 'work/records/2026/10/finding-v12-host-runtime-import-closure/runtime-348981/HOST-POLICY.json'
+HOST_POLICY_SHA256 = ('8309fd6ec90231c6e2d92468520bdeb075f20c4ee5f7ae7e8d34c6'
+                      '37c10022a6')
+HOST_ARCHIVE_SHA256 = ('6b66a5e22aa7b55c4229dee139c67a67bbf8660d4b97e53e1f799'
+                       '3340ecfd5ad')
+HOST_DEFERRED_DEPENDENCY = 'tools/authoring_baseline.py'
+
+
+def host_policy():
+    """The accepted host runtime, held against its own binding.
+
+    W348979 closed satisfying and its OPERATOR-DELTA.md releases this exact
+    binding for consumption. The 115 host members come from THAT ARCHIVE
+    rather than from the old consumer host base, because six of them are the
+    accepted permission correction and one is the d3a7a41c baseline -- and the
+    supplier is explicit that the controller correction must NOT be applied as
+    an unchecked patch over the worker base.
+
+    Nothing here extracts, stages or imports product code. It reads bytes and
+    compares digests.
+    """
+    place = REPO / HOST_POLICY
+    if not place.is_file():
+        raise RuntimeError('the accepted host policy is absent: ' + HOST_POLICY)
+    if sha(place) != HOST_POLICY_SHA256:
+        raise RuntimeError('the accepted host policy is not its declared bytes')
+    policy = json.loads(place.read_text())
+    archive = place.parent / policy['archive']['path']
+    if not archive.is_file():
+        raise RuntimeError('the accepted host archive is absent')
+    held = sha(archive)
+    if held != HOST_ARCHIVE_SHA256 or held != policy['archive']['sha256']:
+        raise RuntimeError('the accepted host archive is not its declared bytes')
+    if HOST_DEFERRED_DEPENDENCY not in policy['manager_files']:
+        raise RuntimeError('the binding does not declare the deferred '
+                           'controller dependency, which is the defect that '
+                           'killed run348852: ' + HOST_DEFERRED_DEPENDENCY)
+    return policy, archive
+
+
+def host_members(policy, archive):
+    """Every accepted member, read and proved BEFORE any destination exists.
+
+    REFUSES an unsafe path, a non-regular entry, a missing member, an extra
+    member or a drifted byte -- all of it before `stage` creates anything, so a
+    bad archive leaves the filesystem exactly as it found it.
+    """
+    import tarfile
+    declared = policy['manager_files']
+    held = {}
+    with tarfile.open(archive, 'r:gz') as bundle:
+        for member in bundle.getmembers():
+            name = member.name
+            if not member.isreg():
+                raise RuntimeError('the host archive carries a non-regular '
+                                   'entry: ' + name)
+            parts = Path(name).parts
+            if name.startswith('/') or '..' in parts or Path(name).is_absolute():
+                raise RuntimeError('the host archive carries an unsafe path: '
+                                   + name)
+            if name not in declared:
+                raise RuntimeError('the host archive carries a member the '
+                                   'binding does not declare: ' + name)
+            content = bundle.extractfile(member).read()
+            if hashlib.sha256(content).hexdigest() != declared[name]:
+                raise RuntimeError('a host member is not its declared bytes: '
+                                   + name)
+            held[name] = content
+    missing = sorted(set(declared) - set(held))
+    if missing:
+        raise RuntimeError('the host archive is missing declared members: '
+                           + repr(missing[:4]))
+    return held
+
+
+WORKER_DOCUMENTS = ('TASK.md', 'RECOVERY.md', 'COMPLETION.md', 'FIXTURE.md',
+                    'ENFORCEMENT.md', 'SHUTDOWN.md', 'FAILURE.md')
+
+
+def _recovery_checks(pins, held, repo, read):
+    """The retained candidate, held against four independent records.
+
+    Retargeted at `baton.w341357-recovery/3`. The previous revisions pinned a
+    PRODUCER DIFF split out of an unfrozen working tree; this one pins the
+    EXACT RETAINED CANDIDATE a completed run returned, so the records it is
+    checked against are different records:
+
+      1. the pinned bytes on disk, against the pin (done by the caller);
+      2. the recovery index, against the pin -- same patch digest, same schema;
+      3. the reviewer's INDEPENDENTLY PUBLISHED digests for the patch, the
+         transport bundle and the candidate content, so a drift on either side
+         is a refusal rather than a silent divergence;
+      4. the RUN'S OWN retained evidence index, which is a separate immutable
+         record of what that run returned -- head, base and content digest.
+
+    The transport bundle is NOT pinned as a task input, deliberately: this
+    campaign creates no version-control object on this host. Its digest is
+    still checked against the reviewer's, because a drifted transport means the
+    evidence set moved under the packet.
+    """
+    source = read(repo / held['index'])
+    if source.get('schema') != held['index_schema']:
+        raise RuntimeError('the recovery index is not '
+                           + held['index_schema'] + ': ' + repr(source.get('schema')))
+    patch = held['patch_relative']
+    if source['candidate_patch']['sha256'] != held['files'][patch]:
+        raise RuntimeError('the recovery index and the pins disagree about the '
+                           'retained candidate patch')
+    if not source.get('agrees_with_reviewer_digests'):
+        raise RuntimeError('the recovery index does not record agreement with '
+                           "the reviewer's published digests")
+    candidate = held['candidate']
+    for field in ('head', 'base'):
+        if source.get(field) != candidate[field]:
+            raise RuntimeError('the recovery index names another candidate '
+                               + field)
+    if source.get('candidate_content_digest') != candidate['content_digest']:
+        raise RuntimeError('the recovery index names another candidate content')
+    published = held['reviewer_published_digests']
+    if source['reviewer_published_digests'] != published:
+        raise RuntimeError("the recovery index carries different reviewer "
+                           'digests than these pins')
+    if published['candidate_patch'] != held['files'][patch]:
+        raise RuntimeError('the pinned candidate patch disagrees with the '
+                           "reviewer's published digest")
+    bundle = repo / held['transport_bundle']
+    if not bundle.is_file():
+        raise RuntimeError('the retained candidate transport is absent: '
+                           + held['transport_bundle'])
+    if hashlib.sha256(bundle.read_bytes()).hexdigest() \
+            != published['candidate_objects_bundle']:
+        raise RuntimeError('the retained candidate transport is not the '
+                           "reviewer's published bytes")
+    if held['transport_bundle'] in pins['task_inputs']:
+        raise RuntimeError('the candidate transport must NOT be a task input: '
+                           'this campaign creates no version-control object on '
+                           'this host and restores nothing into the checkout')
+    evidence = read(repo / held['run_evidence_index'])
+    if evidence['run'] != candidate['run'] \
+            or evidence['attempt'] != candidate['attempt']:
+        raise RuntimeError('the run evidence index describes another run or '
+                           'attempt')
+    retained = evidence['candidate']
+    if retained['head'] != candidate['head'] \
+            or retained['base'] != candidate['base'] \
+            or retained['content_digest'] != candidate['content_digest']:
+        raise RuntimeError("the run's own evidence index names another "
+                           'candidate than these pins')
+    if sorted(source['changed_paths']) != sorted(retained['changed_paths']):
+        raise RuntimeError('the recovery index and the run evidence disagree '
+                           'about the candidate changed paths')
+    return source
+
+
+def recovery(pins, held):
+    return _recovery_checks(pins, held, REPO, lambda place: json.loads(place.read_text()))
+
+
+def blob(base, relative):
+    return hashlib.sha256(subprocess.check_output(
+        ['git', 'show', base + ':' + relative], cwd=REPO)).hexdigest()
+
+
+def main():
+    pins = json.loads((HERE / 'PREPARATION-PINS.json').read_text())
+    base = pins['base']
+    wrong, drift = [], []
+
+    for name, expected in pins['files'].items():
+        held = sha(REPO / name) if (REPO / name).is_file() else None
+        if held != expected:
+            wrong.append(f'preparation input {name}: {held} != {expected}')
+
+    if sha(DISTRO / 'baton-v12-stack') \
+            != pins['historical_bootstrap_binary_sha256']:
+        wrong.append('the historical bootstrap binary is not its declared bytes')
+
+    # THE ACCEPTED CONTROLLER MUST BE PINNED, because its own verify_controller
+    # resolves itself inside the packet manager source and compares the digest.
+    # A packet that staged it unpinned would refuse at launch rather than here.
+    #
+    # AND THE SHUTDOWN HELPER MUST BE PINNED TOO, for a blunter reason: the
+    # controller imports it at line 26, so a manager source staged without it
+    # does not start. Both are checked the same three ways -- the pin, the
+    # packet's own manager source, and the declared base.
+    for which, relative in (('authoring_controller', CONTROLLER),
+                            ('shutdown_helper', SHUTDOWN)):
+        held = pins[which]
+        if held['relative'] != relative:
+            wrong.append(f'the pinned {which} is not {relative}')
+        elif pins['manager_files'].get(relative) != held['sha256']:
+            wrong.append(f'the {which} digest disagrees with the pinned '
+                         f'manager source')
+        else:
+            pass  # proved against the accepted host archive above
+
+    # THE HOST SOURCE IS THE CORRECTED ACCEPTED ARCHIVE, not the worker base.
+    # Seven of its 115 members are deliberately NOT the old consumer host
+    # bytes: six carry the accepted permission correction, and
+    # tools/authoring_baseline.py did not exist on that host at all. Checking
+    # them against the base would refuse the very change this successor
+    # consumes -- and omitting the seventh is what killed run348852.
+    try:
+        policy, archive = host_policy()
+        members = host_members(policy, archive)
+        if pins['manager_files'] != policy['manager_files']:
+            wrong.append('these pins and the accepted host binding declare '
+                         'different manager source')
+        for relative, expected in pins['manager_files'].items():
+            held = members.get(relative)
+            held = hashlib.sha256(held).hexdigest() if held is not None else None
+            if held != expected:
+                wrong.append(f'accepted host member {relative}: {held} '
+                             f'!= {expected}')
+        for which, path in (('authoring_controller', CONTROLLER),
+                            ('shutdown_helper', SHUTDOWN)):
+            if policy[which]['path'] != path \
+                    or policy['manager_files'][path] != policy[which]['sha256'] \
+                    or pins[which]['sha256'] != policy[which]['sha256']:
+                wrong.append(f'the accepted host binding and these pins '
+                             f'disagree about {which}')
+    except RuntimeError as refused:
+        wrong.append(str(refused))
+
+    for name, expected in pins['supervisor_files'].items():
+        try:
+            held = blob(base, OLD + '/' + name)
+        except subprocess.CalledProcessError:
+            held = None
+        if held != expected:
+            wrong.append(f'base supervisor source {name}: {held} != {expected}')
+
+    for name in pins['task_inputs']:
+        if not (REPO / name).is_file():
+            wrong.append(f'declared task input is absent: {name}')
+
+    for name in pins['read_from_checkout_at_base']:
+        try:
+            blob(base, name)
+        except subprocess.CalledProcessError:
+            wrong.append(f'declared checkout input is not at the base: {name}')
+
+    # THE SNAPSHOTS THEMSELVES ARE FATAL, because they live inside this packet:
+    # a difference is a damaged packet, not a moved decision.
+    index = json.loads((HERE / 'decisions/INDEX.json').read_text())['snapshots']
+    for name, held in index.items():
+        place = HERE / 'decisions' / name
+        if not place.is_file():
+            wrong.append(f'decision snapshot is absent: {name}')
+        elif sha(place) != held['snapshot_sha256']:
+            wrong.append(f'decision snapshot is damaged: {name}')
+
+    # AND THE LIVE SOURCES ARE REPORTED. This is the whole reason the snapshots
+    # exist; see the module docstring.
+    for name, held in sorted(index.items()):
+        source = REPO / held['source_path']
+        now = sha(source) if source.is_file() else None
+        if now != held['source_sha256']:
+            drift.append(f'{held["source_path"]}: live {now} != snapshot '
+                         f'{held["source_sha256"]} (decisions/{name})')
+
+    task = (HERE / 'TASK.md').read_text()
+    program = (HERE / 'prepare.py').read_text()
+    for name in OWED:
+        if name not in task:
+            wrong.append(f'the task does not name the gate module {name}')
+        dotted = name[len('v12/python/'):-len('.py')].replace('/', '.')
+        if f"'{dotted}'" not in program:
+            wrong.append(f'the sealed gate does not name {dotted}')
+        if (REPO / name).exists():
+            wrong.append(f'a gate module the turn must create already exists '
+                         f'on the host: {name}')
+
+    # THE RETAINED CANDIDATE. Fatal, like every other input that decides what
+    # would be built: this packet continues from returned work and the turn's
+    # first act is to apply exactly these bytes.
+    held = pins.get('recovery_input')
+    if not held:
+        wrong.append('these pins declare no recovery input, and this packet '
+                     'continues from preserved partial work')
+    else:
+        for relative, expected in sorted(held['files'].items()):
+            place = REPO / relative
+            if not place.is_file():
+                wrong.append('a recovery input is absent: ' + relative)
+            elif sha(place) != expected:
+                wrong.append('a recovery input is not its declared bytes: ' + relative)
+            if relative not in pins['task_inputs']:
+                wrong.append('a recovery input is not a task input, so the turn '
+                             'could not read it off the mount: ' + relative)
+        try:
+            recovery(pins, held)
+        except RuntimeError as refused:
+            wrong.append(str(refused))
+        for name in WORKER_DOCUMENTS:
+            if not (HERE / name).is_file():
+                wrong.append('a worker-visible document is absent: ' + name)
+            if f'{PACKET_DIR}/{name}' not in pins['task_inputs']:
+                wrong.append('a worker-visible document is not a task input, so '
+                             'the turn could not read it: ' + name)
+
+    provenance = json.loads((HERE / 'PROVENANCE.json').read_text())
+    if provenance['base'] != base or provenance['accepted'] is not False:
+        wrong.append('the provenance disagrees with these pins')
+    if provenance['start_authorized'] is not False:
+        wrong.append('the provenance claims a start this packet holds')
+    if provenance['checkpoint']['paths']:
+        wrong.append('the provenance declares a restored buffer this '
+                     'preparation does not carry')
+    if provenance['start_selected'] is not False:
+        wrong.append('the provenance claims a start nobody has selected')
+    for which in ('enforcement', 'shutdown'):
+        if not (HERE / provenance[which]['document']).is_file():
+            wrong.append(f'the declared {which} document is absent')
+
+    if wrong:
+        for one in wrong:
+            print('DRIFTED: ' + one)
+        return 1
+    print(f'inputs verified against {base}: '
+          f'{len(pins["manager_files"])} manager files, '
+          f'{len(pins["supervisor_files"])} supervisor files, '
+          f'{len(pins["files"])} preparation inputs, '
+          f'{len(pins["task_inputs"])} task inputs, '
+          f'{len(index)} decision snapshots, '
+          f'{len(pins["read_from_checkout_at_base"])} checkout documents, '
+          f'1 pinned authoring controller, 1 pinned shutdown helper, '
+          f'{len(held["files"]) if held else 0} pinned recovery inputs, '
+          f'{len(OWED)} gate modules still owed')
+    if drift:
+        print('\nDECISION-SOURCE DRIFT (reported, not fatal; the turn reads the '
+              'snapshots, and review decides whether they still reflect '
+              'accepted scope):')
+        for one in drift:
+            print('  ' + one)
+    else:
+        print('no decision-source drift: every live source still matches its '
+              'snapshot')
+    print('\nSTART IS NOT SELECTED -- see ENFORCEMENT.md and SHUTDOWN.md. Every '
+          'input gate is CLOSED; what remains is independent preparation '
+          'review and then an exact execution selection. Use '
+          'packet/AUTHORING-COMMAND.json, never commands.json start.')
+    return 0
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

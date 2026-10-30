@@ -1,0 +1,18 @@
+{
+  "kind": "pure current-request identity counterexample",
+  "assertions": 5,
+  "seconds": 0.00029652099328814074,
+  "passed": true,
+  "request_digest": "sha256:7a00cc69f9d73a823a1fd57e2694a8be7d567496b1f0c92e2a5d1d7dfa5ca27f",
+  "minimal_journal_operands": {
+    "job_id": "job-synthetic-queue-371528",
+    "submission_id": "sub-job-synthetic-queue-371528",
+    "request_digest": "sha256:7a00cc69f9d73a823a1fd57e2694a8be7d567496b1f0c92e2a5d1d7dfa5ca27f"
+  },
+  "journal_signature": "{\"kind\":\"template_job.create\",\"operands\":{\"job_id\":\"job-synthetic-queue-371528\",\"request_digest\":\"sha256:7a00cc69f9d73a823a1fd57e2694a8be7d567496b1f0c92e2a5d1d7dfa5ca27f\",\"submission_id\":\"sub-job-synthetic-queue-371528\"}}",
+  "complete_request_canonical_utf8": "{\"acceptance\":[\"Report only fixture evidence.\"],\"schema\":\"baton.v12.job-template-request/1\",\"scope\":{\"tests\":[],\"work\":[\"synthetic.md\"]},\"source_selection\":\"installed\",\"task\":{\"statement\":\"Inspect synthetic source.\",\"task_id\":\"synthetic-queue-371528\"}}",
+  "product_integration_tests": 0,
+  "provider_calls": 0,
+  "engine_calls": 0,
+  "new_queue_behavior_tested": false
+}

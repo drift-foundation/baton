@@ -1,0 +1,10 @@
+[
+  {
+    "path": "v12/python/tools/bootstrap.py",
+    "base_sha256": "46b5b29d017f42643be01a2e2d9cfd7433861e1e777ef5ae8f0f2a39f27d1120"
+  },
+  {
+    "path": "v12/python/tests/tools/test_startup_prerequisites.py",
+    "base_sha256": "cdf5afd5cb6bee66224d64e46179293ecc90cb150c64c2a32962d958237c4c92"
+  }
+]

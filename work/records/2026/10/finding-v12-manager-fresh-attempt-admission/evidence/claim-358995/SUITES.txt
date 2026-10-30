@@ -1,0 +1,8 @@
+# whole job_manager suite (candidate)
+ERROR: test_the_native_factory_delivers_the_policy_to_both_stage_workers (tests.job_manager.test_native_permission.NativeStageComposition.test_the_native_factory_delivers_the_policy_to_both_stage_workers)
+Ran 1060 tests in 13.651s
+FAILED (errors=1)
+
+# tools.test_stage_execution + test_scheduler_trace + test_bootstrap (candidate)
+Ran 279 tests in 71.888s
+OK

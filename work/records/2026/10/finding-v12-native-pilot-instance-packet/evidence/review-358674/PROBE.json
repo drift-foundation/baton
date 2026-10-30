@@ -1,0 +1,6 @@
+{
+  "pure_configuration_valid": true,
+  "existing_binding_conflicts": [],
+  "jobs": 2,
+  "note": "Pure schema/binding probe only: worker runtime manifest selection and admission for the new Work are NOT proved; no bootstrap prepare or Authority store API opened."
+}

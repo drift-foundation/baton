@@ -1,0 +1,15 @@
+# red-to-green: the two R12 cases against the PARENT candidate-359603 submission.py
+FAIL: test_a_nonoverlapping_job_cannot_take_the_reserved_submission_id
+FAIL: test_the_retry_still_completes_after_that_rejection
+Ran 6 tests / FAILED (failures=2)
+# the same six against this candidate: Ran 6 tests / OK
+
+# whole job_manager suite (candidate-359749)
+ERROR: test_the_native_factory_delivers_the_policy_to_both_stage_workers (tests.job_manager.test_native_permission.NativeStageComposition.test_the_native_factory_delivers_the_policy_to_both_stage_workers)
+Ran 1102 tests in 16.130s
+FAILED (errors=1)
+
+# tests.tools.test_bootstrap + test_scheduler_trace + test_single_worker: Ran 522 in 91.775s,
+#   one failure, test_single_worker...test_a_real_observing_status_run_mutates_no_durable_state,
+#   pre-existing on the canonical tree at HEAD (../../evidence/claim-359459/PREEXISTING-SINGLE-WORKER.txt)
+# four inventory suites: 116 failures, identical to the canonical base; comm -13 empty

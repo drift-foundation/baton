@@ -1,0 +1,47 @@
+{
+  "base": "a9f4fa4da2323a357ae15aefbc5d7d22d41487b6",
+  "claim": 334663,
+  "not_an_authority": "A snapshot records what was accepted when it was taken. It is not a second authority and does not override a later decision. verify-inputs.py reports live-source drift explicitly so review and the owner decide whether the snapshot still reflects accepted scope.",
+  "preserves": "execution-333504 and execution-333707 are untouched, each with its own seal. No hash of either was edited and neither start_authorized flag was flipped.",
+  "schema": "baton.w333486-decision-snapshots/2",
+  "snapshots": {
+    "FINDING.md": {
+      "snapshot_sha256": "b62a7d159524eb49f1a791ab97d5fa148c3fbdc626920745abdd0b2d6e39d6e5",
+      "source_path": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/FINDING.md",
+      "source_sha256": "b62a7d159524eb49f1a791ab97d5fa148c3fbdc626920745abdd0b2d6e39d6e5"
+    },
+    "PLAN.md": {
+      "snapshot_sha256": "639a64e741ff76261fa8c78f3c349ff26c831f8a427a51698d6072c28f0ce80a",
+      "source_path": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/PLAN.md",
+      "source_sha256": "639a64e741ff76261fa8c78f3c349ff26c831f8a427a51698d6072c28f0ce80a"
+    },
+    "enforcement-integration.md": {
+      "snapshot_sha256": "f6d6aea39e2b90282d8c08d39a82c53ab8b7a9fbde27223705c5583b5576d889",
+      "source_path": "work/records/2026/10/finding-v12-authoring-expiry-enforcement/INTEGRATION-20261019.md",
+      "source_sha256": "f6d6aea39e2b90282d8c08d39a82c53ab8b7a9fbde27223705c5583b5576d889"
+    },
+    "enforcement-review.md": {
+      "snapshot_sha256": "22c6f3006d53976d5187dddd9c11545469c666e79be2e913239e20787f5c039a",
+      "source_path": "work/records/2026/10/finding-v12-authoring-expiry-enforcement/review-2026-10-19T17-25-12Z.md",
+      "source_sha256": "22c6f3006d53976d5187dddd9c11545469c666e79be2e913239e20787f5c039a"
+    },
+    "owner-failure-evidence.md": {
+      "snapshot_sha256": "c41ec181b51ed1fe8e6924744f6c61588b1493854392048a7cb973cc5d9622ea",
+      "source_path": "work/records/2026/10/finding-v12-native-pilot-instance-packet/OWNER-FAILURE-EVIDENCE-20261019.md",
+      "source_sha256": "c41ec181b51ed1fe8e6924744f6c61588b1493854392048a7cb973cc5d9622ea"
+    },
+    "review-333691.md": {
+      "snapshot_sha256": "b020e5ac605d6ae9817a65e9d8ab0645209dcc05338a439be32fa563f105ea63",
+      "source_path": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/review-2026-10-19T16-44-00Z.md",
+      "source_sha256": "b020e5ac605d6ae9817a65e9d8ab0645209dcc05338a439be32fa563f105ea63"
+    },
+    "review-333812.md": {
+      "snapshot_sha256": "9cefcfed7b8e8ee8ccbbbc416a51255889739e41ba7436bd84c28e5b7ba59d8a",
+      "source_path": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/review-2026-10-19T17-00-00Z.md",
+      "source_sha256": "9cefcfed7b8e8ee8ccbbbc416a51255889739e41ba7436bd84c28e5b7ba59d8a"
+    }
+  },
+  "snapshotted_at": "2026-10-19",
+  "snapshotted_by": "baton.claude",
+  "why": "Refreshed for the accepted base. The two enforcement documents are NEW in this revision: they are the independently reviewed and integrated authoring prerequisite this packet now binds, and the task must be revalidated against the intake.py and attempts.py bytes they describe. The sibling blocker review and its probe evidence are DROPPED: the prerequisite they substantiated is closed, so carrying them forward would bind a resolved blocker as if it still stood. They remain in execution-333707."
+}

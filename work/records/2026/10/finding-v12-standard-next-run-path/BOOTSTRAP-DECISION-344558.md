@@ -1,0 +1,15 @@
+# Proposed finite development-boundary selection — not yet granted
+
+Confirm the installed-interface limitation in PREPARATION-344532.md and review344558. No task-amendment operation exists. Bound inputs: INPUT-BINDING-344532.json SHA25690b2fad2102039ace7e77127137a0df9ffc2ddc516ad4dec25f7dd78cf77cb62, TASK-344516 and DESIGN OBS-0/0a. Existing v3 cannot implement those inputs unchanged.
+
+Recommended exact owner selection:
+
+Authorize baton.codxpc via baton.codx, under an exclusive W339626 claim, to implement only the bound install-once reusable next-run outcome in a separate /tmp source copy. Capture exact baseline bytes/path inventory and Git provenance before changes; preserve any imported accepted entry/installer candidate as explicitly identified baseline input, not an asserted prior repository integration. Record all candidate paths/digests and test expectation changes for review. No Git index/history operations or main checkout product edits.
+
+Permit focused local deterministic verification in temporary roots, simulating provider/engine and privileged installation operations at their normal boundaries while exercising real affected configuration, launcher, controller, output and result owners. Use sensible per-run timeouts and record measured durations. Required outcomes: one installation followed by two distinct input-only starts and supported failed-start recovery; output/prerequisite preparation before consumption; invalid prerequisite refusal without consumption/dispatch; stale/foreign/incompatible input and collision refusal; no clearing consumed evidence or replaying uncertain effects; preserved isolation and truthful attribution. Whole-path <=60s timing includes input receipt through substantive-work evidence. Simulated timing is labelled simulated and cannot establish live-provider startup or installed-root behavior.
+
+No live model/provider or Docker engine operation; no host account/credential/ACL/sudoers change, installed-file amendment, existing authority/store/lock/consumption mutation, arming/start, automatic integration or Git mutation. New isolated fixture stores are allowed for deterministic verification; existing operational stores are not test fixtures. No broader scheduler, permission weakening, lease/renewal or context-reuse redesign.
+
+Exception begins only upon explicit owner selection and expires at independent candidate acceptance, before human integration or deployment. Deliver independently reviewable exact candidate, outcome evidence/limitations and concrete conditional installation/validation commands. Human integration and any real installation/live acceptance retain their separate selections. Preserve installed v3 and all previous failures. This enables building the supported path; it does not declare it already delivered.
+
+If owner declines this exception, select a viable isolated v12 authoring boundary that can accept the new bound task without repeating manual provisioning. Do not ask the implementer to guess or bypass immutable registered state.

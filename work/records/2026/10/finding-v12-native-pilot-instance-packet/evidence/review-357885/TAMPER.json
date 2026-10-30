@@ -1,0 +1,14 @@
+{
+  "accepted_plan_with_tampered_inherited_recipe": true,
+  "default_inherited_pins": {
+    "revision-4/inputs/deployment.json": null,
+    "revision-4/inputs/native-finding.md": null,
+    "revision-4/inputs/native-plan.md": null,
+    "revision-4/configuration/manifest-inputs.json": null
+  },
+  "original_credential_digest": "sha256:9a38998c23c1dcf1f4fa4ba8b813e4a56b1a1ff72b3656ac682dc6716a485393",
+  "manifest_credential_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "installation_unchanged": true,
+  "elapsed_seconds": 0.24756822700146586,
+  "boundary": "Disposable, simulated repository answers; no Git or production access. Packet pins/selector retargeted to disposable fixture; inherited argument deliberately left at owner defaults."
+}

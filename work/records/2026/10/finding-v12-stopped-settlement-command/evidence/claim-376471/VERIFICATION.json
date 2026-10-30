@@ -1,0 +1,33 @@
+{
+  "claim": "E376471",
+  "early_unittest_reported_seconds": [
+    7.387,
+    0.305,
+    0.314,
+    0.307,
+    0.285,
+    0.298,
+    0.38,
+    0.451,
+    1.13,
+    1.104,
+    1.107
+  ],
+  "stopwatch_recorded_runs": {
+    "focused": 9.675671488001171,
+    "regressions": 2.9274644429988257,
+    "baseline-sidecars": 0.4146312909997505,
+    "command-final": 1.5249414909994812,
+    "final": 9.829922015998818,
+    "superseded_command_final_10_tests": 1.3996970819989656
+  },
+  "diagnostic_fixture_tool_seconds": [
+    0.173962249,
+    0.334274405
+  ],
+  "claim_measured_seconds": 39.34856446499701,
+  "historical_W375444_author_measured_seconds": 200.708932685,
+  "combined_known_author_seconds": 240.057497149997,
+  "unknown": "Other diagnostics, shell/setup, packaging capability check and historical parent total not stopwatch recorded; independent reviewer spending stays separate",
+  "scope": "Deterministic fake OCI, temporary installed-selector/package fixture; no native packaged binary built, PyInstaller unavailable in current interpreter; no actual engine/provider/deployment/retained-store operations"
+}

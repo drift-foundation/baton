@@ -1,0 +1,30 @@
+{
+  "ambient_pythonpath_offered": "/nonexistent-ambient-value",
+  "argv_source": "/tmp/w333486-preflight-333707/packet/task.json verification member, verbatim",
+  "argv_words": 3,
+  "expected": "non-zero, failing ONLY on the two modules the turn must write (tests.manager.test_attempt_failure_cause and tests.tools.test_attempt_diagnostics). A failure of any other named module would mean the gate is not green at the base it is sealed against.",
+  "gate_includes_composition_modules": {
+    "modules": [
+      "tests.manager.test_intake",
+      "tests.job_manager.test_tool"
+    ],
+    "why": "Review 2026-10-19T16-44-00Z item 2 requires proving the actual reclaim-to-settlement composition, which lives across these two."
+  },
+  "note": "Run against a clean git-archive export of the declared base, no working-tree bytes. The ambient PYTHONPATH offered is deliberately useless and the gate overwrites it from its own derived roots. Author evidence, not independent product acceptance.",
+  "reported": [
+    "ERROR: test_attempt_failure_cause (unittest.loader._FailedTest.test_attempt_failure_cause)",
+    "ERROR: test_attempt_diagnostics (unittest.loader._FailedTest.test_attempt_diagnostics)"
+  ],
+  "run_from": "/tmp/w333486-base-probe",
+  "schema": "baton.w333486-execution-gate-check/2",
+  "seconds": 11.9887911980004,
+  "status": 1,
+  "tail": [
+    "",
+    "",
+    "----------------------------------------------------------------------",
+    "Ran 1093 tests in 11.758s",
+    "",
+    "FAILED (errors=2)"
+  ]
+}

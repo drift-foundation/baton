@@ -1,0 +1,209 @@
+{
+  "THE_UNAVAILABLE_OPERATION": {
+    "operation": "executing the product regression modules -- python -m unittest tests.tools.test_next_run_managed tests.tools.test_next_run_flow -- from v12/python",
+    "what_an_authorized_run_still_owes": "executing those two modules, and confirming the rest of the suite is unaffected.",
+    "what_is_retained": "the correction and all three test files are written and digest-bound above; the boundary evidence above is real and was produced without a product-test run.",
+    "why_unavailable": "that is a host product-test execution. The owner source-copy implementation-and-verification exception (344614) EXPIRED at the full independent acceptance recorded in review-2026-10-21T10-27-03Z.md, the FINDING states the source-copy development exception remains expired, and no new invocation, execution selection or renewed exception is in force for this claim. review-2026-10-21T16-16-14Z.md instructs: \"if needed execution is unavailable, report its exact operation and retain prepared work rather than using a host fallback.\""
+  },
+  "author": "baton.claude",
+  "authority": "review-2026-10-21T16-16-14Z.md and pass347759",
+  "candidate_paths": {
+    "v12/python/tests/tools/next_run_flow_fixture.py": {
+      "base_sha256": "c0cab3ed413561602303a4a3cd270614915e98ce136f74d9c24b7f1f3edc09c2",
+      "candidate_sha256": "7002f5697cd64c09b80c902ce68eb7394174d1da0d897b9782e088f620f45118",
+      "changed": true
+    },
+    "v12/python/tests/tools/test_next_run_flow.py": {
+      "base_sha256": "73fcf2a9039108934514b96e123f0f3baaecdf8a9520c2e97a7a7b670243483c",
+      "candidate_sha256": "1d557a19a7bbbb70051f30e0befc302ba9df276a769a89af9efc38e5ad2d4e3f",
+      "changed": true
+    },
+    "v12/python/tests/tools/test_next_run_managed.py": {
+      "base_sha256": "070dfa9286d3b3ecd2800fb17f19520d15cef60979584e687af22bce0867185a",
+      "candidate_sha256": "4e9f8c35d8ea4f204319344b65fe7fbd783b7d18df7de238e9f919a1cf979139",
+      "changed": true
+    },
+    "v12/python/tools/next_run_confinement.py": {
+      "base_sha256": "317414e0246818f4507e5c3ab907e03b149151a9bb42acf2bf1b9ec9772b469e",
+      "candidate_sha256": "77037d51fd24848fdbe91a2888e13e08a4778a3136259acdf2351ecd7cb45e65",
+      "changed": true
+    }
+  },
+  "claim": 347765,
+  "execution": {
+    "attempts": 0,
+    "credential_reads": 0,
+    "engine_calls": 0,
+    "installed_mutations": 0,
+    "jobs": 0,
+    "live_invocations": 0,
+    "product_tests_executed": 0,
+    "provider_calls": 0,
+    "recoveries": 0,
+    "retries": 0,
+    "runtimes": 0,
+    "version_control_mutations": 0
+  },
+  "outcome_evidence": {
+    "after": {
+      "a-grandchild-inherits": {
+        "kept_after": "preserved",
+        "observed": "{'grandchild_status': 1}",
+        "seconds": 0.053,
+        "status": 0,
+        "stderr": ""
+      },
+      "an-unusable-null-facility-fails-closed": {
+        "a regular file": {
+          "observed": "{'refusal': '/tmp/w339626-347765/wa/not-a-device is not a character device'}",
+          "status": 0,
+          "witness": "refused-and-unconfined"
+        },
+        "an absent path": {
+          "observed": "{'refusal': 'the null device /tmp/w339626-347765/wa/absent-device could not be opened for confinement: No such file or directory'}",
+          "status": 0,
+          "witness": "refused-and-unconfined"
+        },
+        "another character device": {
+          "observed": "{'refusal': '/dev/zero is not the null device'}",
+          "status": 0,
+          "witness": "refused-and-unconfined"
+        }
+      },
+      "no-other-device-write-and-no-dev-create": {
+        "observed": "{'/dev/null': 'allowed', '/dev/zero': 'denied', '/dev/full': 'denied', '/dev/random': 'denied', 'create /dev entry': 'denied'}",
+        "seconds": 0.01,
+        "status": 0,
+        "stderr": ""
+      },
+      "real-git-materializes-a-source-line": {
+        "observed": "{'status': 0, 'stderr': ''}",
+        "seconds": 0.014,
+        "status": 0,
+        "stderr": ""
+      },
+      "sibling-installation-and-credential-writes-denied": {
+        "credential_new_exists": false,
+        "credential_token": "preserved",
+        "installation_intruded_exists": false,
+        "observed": "[]",
+        "seconds": 0.011,
+        "sibling_held": "preserved",
+        "sibling_new_exists": false,
+        "status": 0,
+        "stderr": ""
+      }
+    },
+    "before": {
+      "a-grandchild-inherits": {
+        "kept_after": "preserved",
+        "observed": "{'grandchild_status': 1}",
+        "seconds": 0.054,
+        "status": 0,
+        "stderr": ""
+      },
+      "an-unusable-null-facility-fails-closed": {
+        "a regular file": {
+          "observed": "{'refusal': None}",
+          "status": 3,
+          "witness": "preserved"
+        },
+        "an absent path": {
+          "observed": "{'refusal': None}",
+          "status": 3,
+          "witness": "preserved"
+        },
+        "another character device": {
+          "observed": "{'refusal': None}",
+          "status": 3,
+          "witness": "preserved"
+        }
+      },
+      "no-other-device-write-and-no-dev-create": {
+        "observed": "{'/dev/null': 'denied', '/dev/zero': 'denied', '/dev/full': 'denied', '/dev/random': 'denied', 'create /dev entry': 'denied'}",
+        "seconds": 0.01,
+        "status": 0,
+        "stderr": ""
+      },
+      "real-git-materializes-a-source-line": {
+        "observed": "{'status': 128, 'stderr': \"fatal: could not open '/dev/null' for reading and writing: Permission denied\"}",
+        "seconds": 0.013,
+        "status": 3,
+        "stderr": ""
+      },
+      "sibling-installation-and-credential-writes-denied": {
+        "credential_new_exists": false,
+        "credential_token": "preserved",
+        "installation_intruded_exists": false,
+        "observed": "[]",
+        "seconds": 0.012,
+        "sibling_held": "preserved",
+        "sibling_new_exists": false,
+        "status": 0,
+        "stderr": ""
+      }
+    },
+    "before_revision_fail_closed_note": "the three fail-closed cases report status 3 against the BEFORE module, correctly: that revision has no NULL_DEVICE to validate, so setting the attribute does nothing and restrict_writes succeeds. That is the absence of the facility, not a failure of it.",
+    "boundaries": "wrote only beneath /tmp/w339626-347765; mutated nothing installed; started no runtime; submitted no Job; read no credential; ran no product test module.",
+    "headline": {
+      "dev_null_after": "allowed",
+      "dev_null_before": "denied errno 13",
+      "fail_closed_after": "all three wrong facilities refuse with a precise message AND the witness proves nothing was applied",
+      "grandchild_after": "denied, status 1 -- inheritance intact",
+      "other_devices_after": "/dev/zero, /dev/full, /dev/random all DENIED and creating a /dev entry DENIED -- not a /dev grant",
+      "outside_root_after": "denied errno 13",
+      "outside_root_before": "denied errno 13",
+      "real_git_after": "status 0, empty stderr",
+      "real_git_before": "status 128, the exact production message",
+      "sibling_installation_credential_after": "all denied; held files preserved and new files absent"
+    },
+    "how": "a bounded author DIAGNOSTIC in a disposable fixture: the product module imported into throwaway children under a temporary root, the REAL kernel boundary, and the REAL git binary cloning a REAL local line built and discarded in the same directory."
+  },
+  "schema": "baton.w339626-confinement-correction/1",
+  "the_correction": {
+    "fails_closed": "validation runs BEFORE landlock_restrict_self, so a missing, wrong-type or wrong-number device refuses with NO boundary applied rather than a weaker one.",
+    "file": "v12/python/tools/next_run_confinement.py",
+    "mechanism": "ONE additional Landlock path_beneath rule, bound to the null device's own inode via an O_PATH|O_NOFOLLOW descriptor, granting WRITE_FILE and nothing else.",
+    "not_done": [
+      "no /dev directory grant",
+      "no writable-root expansion",
+      "no caller-selected device or path -- the device is fixed in the module and identified by type and device number, not spelling",
+      "no truncate, create, remove or directory right",
+      "no disabling of Landlock",
+      "no chmod or chown",
+      "no installed mutation"
+    ],
+    "validated": [
+      "the path opens",
+      "stat.S_ISCHR",
+      "device number is (1,3)"
+    ],
+    "why_a_write_right_here_leaks_nothing": "a null device cannot carry data; the point is only that the O_RDWR open the Git launcher performs succeeds."
+  },
+  "the_regression_tests": {
+    "assertion_source": "the flow case asserts the states recorded in operator-diagnostics-347468/reports.json for run w339626-live-345599: execution_runtime not-started, cancellation requested with state None, cleanup None with the attempt still in outstanding_cleanup, retry False, held_because non-empty, no candidate.",
+    "executed": false,
+    "static_check": "every changed file parses (ast.parse). THAT IS NOT A TEST RUN and is not offered as one.",
+    "where": [
+      "v12/python/tests/tools/test_next_run_managed.py -- five real-kernel cases: confined real git materializes a source line; the null allowance denies every other device write; sibling, installation and credential writes stay denied; a grandchild inherits; an unusable null facility fails closed",
+      "v12/python/tests/tools/test_next_run_flow.py -- the pre-runtime source refusal through real owner accounting, with the states the live C run actually recorded",
+      "v12/python/tests/tools/next_run_flow_fixture.py -- the --fixture-deny-line boundary injection the flow case drives"
+    ],
+    "written": true
+  },
+  "the_reproduction": {
+    "matches_the_review": "the review states the installed and checkout next_run_confinement.py are that digest; the \"before\" module used here is exactly those bytes, read from HEAD.",
+    "module_as_installed": "317414e0246818f4507e5c3ab907e03b149151a9bb42acf2bf1b9ec9772b469e",
+    "observed_stderr": "fatal: could not open '/dev/null' for reading and writing: Permission denied",
+    "production_field": {
+      "composed_characters": 125,
+      "composed_with_the_reproduced_operand": "ProfileRefusal: Git line materialization failed: fatal: could not open '/dev/null' for reading and writing: Permission denied",
+      "original_characters": 125,
+      "sanitized": "ProfileRefusal: Git line materialization failed: fatal: could not open <operand> for reading and writing: Permission denied",
+      "source": "operator-error-347682/diagnostic.json",
+      "verdict": "EXACT LENGTH MATCH with the recorded field, and the inner text is byte-identical to what the real git produced here."
+    },
+    "what": "the review required the /dev/null hypothesis to be DYNAMICALLY reproduced before any correction, and said a mocked Git or a provider fixture is not proof of the kernel boundary.",
+    "what_this_does_not_establish": "the redacted operand of the production run was never observed. Mechanism agreement plus length agreement is very strong and is still not the same as having read that field."
+  }
+}

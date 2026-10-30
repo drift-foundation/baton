@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "python3",
+    "-B",
+    "-c",
+    "import unittest,sys;r=unittest.TextTestRunner(verbosity=2).run(unittest.defaultTestLoader.loadTestsFromName('tests.tools.test_attempt_diagnostics'));sys.exit(0 if r.wasSuccessful() and not r.skipped else 1)"
+  ],
+  "cwd": "/tmp/w333486-review354068/v12/python",
+  "status": 0,
+  "seconds": 0.4639096379996772,
+  "reaped": true
+}

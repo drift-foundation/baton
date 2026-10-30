@@ -1,0 +1,22 @@
+# red-to-green: the new class against the PRIOR candidate-359749 fresh_attempt.py
+ERROR: test_another_submission_identity_admits_the_same_retry
+FAIL:  test_a_settled_refusal_refuses_the_retry_before_any_effect
+FAIL:  test_an_incompatible_committed_submission_refuses_the_same_way
+FAIL:  test_it_does_not_promise_a_repair_that_cannot_happen
+Ran 6 tests / FAILED (failures=3, errors=1)
+# the same six against this candidate: Ran 6 tests / OK
+
+# focused suite (candidate-359821)
+Ran 90 tests in 2.466s
+
+OK
+
+# whole job_manager suite
+ERROR: test_the_native_factory_delivers_the_policy_to_both_stage_workers (tests.job_manager.test_native_permission.NativeStageComposition.test_the_native_factory_delivers_the_policy_to_both_stage_workers)
+Ran 1108 tests in 16.149s
+FAILED (errors=1)
+
+# tests.tools.test_bootstrap + test_scheduler_trace + test_single_worker: Ran 522 in 91.970s,
+#   one failure, test_single_worker...test_a_real_observing_status_run_mutates_no_durable_state,
+#   pre-existing on canonical HEAD (../../evidence/claim-359459/PREEXISTING-SINGLE-WORKER.txt)
+# four inventory suites: 116 failures, identical to the canonical base; comm -13 empty

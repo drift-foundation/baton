@@ -1,0 +1,20 @@
+repositories  not prepared: no source checkout was found or named, so the deployment has no target, workspace or worker sources yet and will schedule without reconciling
+authority 86b3f9e3...    generated for this instance
+job   none; no Work, grant or placeholder was created
+configuration /tmp/w333486-review-334776-9_o7_umg/root/instance/deployment.json
+capacity      {"job_affinity": {}, "jobs": 0, "note": "this instance binds no Job and configures no execution capacity; it serves a real idle scheduler and publisher over empty stores, and a worker, a Work, a declared base, a canonical target and a producer are supplied together when a Job is created", "schema": "baton.v12.stage-execution-deployment/2", "targets": [], "workers_by_role": {"implementation": [], "integration": [], "review": []}}
+no Job was submitted and nothing was executed
+instance      /tmp/w333486-review-334776-9_o7_umg/root/instance/instance.json
+runtime       81 files, digest c1ef3d23394916c8...
+stores        /tmp/w333486-review-334776-9_o7_umg/root/instance/db
+repository    /tmp/w333486-review-334776-9_o7_umg/root/instance/repo
+justfile      /tmp/w333486-review-334776-9_o7_umg/root/instance/justfile
+
+The deployment is operated from the destination, and needs nothing else:
+
+    cd /tmp/w333486-review-334776-9_o7_umg/root/instance && just status
+    just --justfile /tmp/w333486-review-334776-9_o7_umg/root/instance/justfile start        # from anywhere
+
+or the command directly, which is the same program:
+
+    /tmp/w333486-review-334776-9_o7_umg/root/instance/distro/baton-v12-stack status --instance /tmp/w333486-review-334776-9_o7_umg/root/instance/instance.json

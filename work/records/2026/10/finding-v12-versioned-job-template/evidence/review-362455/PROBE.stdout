@@ -1,0 +1,50 @@
+{
+  "template:null": {
+    "type": "ContractRefusal",
+    "typed_refusal": true,
+    "message": "a resolution's template selection is one exact document; this is none"
+  },
+  "task:{}": {
+    "type": "ContractRefusal",
+    "typed_refusal": true,
+    "message": "a resolution's task needs job_id, work_id, statement, submission_id"
+  },
+  "scope:{}": {
+    "type": "ContractRefusal",
+    "typed_refusal": true,
+    "message": "a resolution's scope needs work, tests"
+  },
+  "stages:[null]": {
+    "type": "ContractRefusal",
+    "typed_refusal": true,
+    "message": "a resolved stage is one exact document; this is none"
+  },
+  "stages:[{\"kind\": \"implementation\"}]": {
+    "type": "ContractRefusal",
+    "typed_refusal": true,
+    "message": "a resolved stage needs role, stage_id, work_id, profile_name, profile_digest, depends_on, consumes, produces"
+  },
+  "acceptance:null": {
+    "type": "ContractRefusal",
+    "typed_refusal": true,
+    "message": "a resolution's acceptance is a list; this is none"
+  },
+  "overrides:{\"execution_limits\": null}": {
+    "type": "ContractRefusal",
+    "typed_refusal": true,
+    "message": "a resolution's execution_limits override is one exact document; this is none"
+  },
+  "stale_limit": "refused",
+  "lookup_mutation": "refused",
+  "scope": {
+    "work": [
+      "v12/python/src/baton_v12/job_manager/templates.py"
+    ],
+    "tests": [
+      "v12/python/tests/job_manager/test_templates.py"
+    ]
+  },
+  "submission_test_scope": [
+    "v12/python/tests/job_manager/test_templates.py"
+  ]
+}

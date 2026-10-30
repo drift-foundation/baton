@@ -1,0 +1,24 @@
+diff --git a/v12/worker/verifier-layout-marker.json b/v12/worker/verifier-layout-marker.json
+new file mode 100644
+index 00000000..fcc20e80
+--- /dev/null
++++ b/v12/worker/verifier-layout-marker.json
+@@ -0,0 +1,18 @@
++{
++ "filesystem": "tmpfs",
++ "layout_digest": "1423c3aa9e41d7a8719297435798252133af88a55a6031491238ce0e412bc472",
++ "mode": 448,
++ "options": [
++  "nodev",
++  "noexec",
++  "nosuid",
++  "rw"
++ ],
++ "roots": {
++  "HOME": "/run/baton-verifier/home",
++  "PYTHONPYCACHEPREFIX": "/run/baton-verifier/pycache",
++  "TMPDIR": "/run/baton-verifier/tmp",
++  "XDG_CACHE_HOME": "/run/baton-verifier/cache"
++ },
++ "schema": "baton.v12.verifier-layout-marker/1"
++}

@@ -1,0 +1,102 @@
+{
+  "manifest_sha256": "35d46119213f1797dc05eda2e00a5e23d168718c77c72f6c1c77aef02caf439b",
+  "sealed_members": 25,
+  "root": "/tmp/w333486-review-337566-6_qpcbh6/root",
+  "runs": [
+    {
+      "label": "pins",
+      "argv": [
+        "python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-attempt-failure-diagnostics/execution-337453/verify-inputs.py"
+      ],
+      "returncode": 0,
+      "seconds": 0.11368950399628375
+    },
+    {
+      "label": "unselected-refusal",
+      "argv": [
+        "python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-attempt-failure-diagnostics/execution-337453/prepare.py",
+        "stage",
+        "--root",
+        "/tmp/w333486-review-337566-6_qpcbh6/root"
+      ],
+      "returncode": 1,
+      "seconds": 0.044187995001266245
+    },
+    {
+      "label": "stage",
+      "argv": [
+        "python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-attempt-failure-diagnostics/execution-337453/prepare.py",
+        "stage",
+        "--root",
+        "/tmp/w333486-review-337566-6_qpcbh6/root",
+        "--acknowledge-unselected-start"
+      ],
+      "returncode": 0,
+      "seconds": 0.12948770899674855
+    },
+    {
+      "label": "bootstrap",
+      "argv": [
+        "python3",
+        "-B",
+        "-m",
+        "tools.bootstrap",
+        "--inputs",
+        "/tmp/w333486-review-337566-6_qpcbh6/root/bootstrap-inputs.json",
+        "--destination",
+        "/tmp/w333486-review-337566-6_qpcbh6/root/instance",
+        "--distro",
+        "/home/sl/baton-runs/managed-correction-236087/build/stack/out/distro",
+        "--no-repositories"
+      ],
+      "returncode": 0,
+      "seconds": 0.5973599610006204
+    },
+    {
+      "label": "bind",
+      "argv": [
+        "python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-attempt-failure-diagnostics/execution-337453/prepare.py",
+        "bind",
+        "--root",
+        "/tmp/w333486-review-337566-6_qpcbh6/root"
+      ],
+      "returncode": 0,
+      "seconds": 0.3623929469977156
+    },
+    {
+      "label": "controller",
+      "argv": [
+        "python3",
+        "-B",
+        "-c",
+        "import json,sys,hashlib\nfrom pathlib import Path\nimport baseline\nfrom tools import authoring_enforcement as a\nr=Path(sys.argv[1]); p=baseline.held_packet(str(r/'packet/PACKET.json')); baseline.verify_imported_sources(p);a.verify_controller(p)\nassert hashlib.sha256(Path(a.__file__).read_bytes()).hexdigest()=='bc8c0363e44fedeae09c15a9065733227f08e279164ed68dc4b0e9e058a7c50f'\nc=json.loads((r/'packet/AUTHORING-COMMAND.json').read_text()); print(json.dumps(c,indent=2))\nfor key in ('job_store','control_store'): assert not Path(p['deployment'][key]).exists()\ns=json.loads((r/'packet/submission.json').read_text());assert s['jobs'][0]['execution_limits']==dict(provider_turn_seconds=3600,verification_command_seconds=30)\nassert p['bounds']['total_seconds']==4800 and p['bounds']['cleanup_seconds']==60\nprint('corrected controller binding, limits, absent execution stores: PASS')\n",
+        "/tmp/w333486-review-337566-6_qpcbh6/root"
+      ],
+      "returncode": 0,
+      "seconds": 0.3268885500001488
+    },
+    {
+      "label": "superseded-controller-refusal",
+      "argv": [
+        "python3",
+        "-B",
+        "/tmp/w333486-review-337566-6_qpcbh6/negative/prepare.py",
+        "stage",
+        "--root",
+        "/tmp/w333486-review-337566-6_qpcbh6/refused",
+        "--acknowledge-unselected-start"
+      ],
+      "returncode": 1,
+      "seconds": 0.04822079600126017
+    }
+  ],
+  "total_seconds": 1.6222274619940436
+}

@@ -1,0 +1,26 @@
+{
+  "cwd": "/tmp/baton-standard-next-run-w339626-339782/code/v12/python",
+  "probe": [
+    "env",
+    "BATON_V12_STAGE_EXECUTION_CONFIG=/tmp/baton-standard-next-run-w339626-339782/packet/deployment.json",
+    "PYTHONDONTWRITEBYTECODE=1",
+    "PYTHONPATH=/tmp/baton-standard-next-run-w339626-339782/code/v12/python/src:/tmp/baton-standard-next-run-w339626-339782/code/v12/python:/tmp/baton-standard-next-run-w339626-339782/supervisor",
+    "/usr/bin/python3",
+    "-B",
+    "-c",
+    "import baseline; from tools.authoring_enforcement import verify_controller; p=baseline.held_packet('/tmp/baton-standard-next-run-w339626-339782/packet/PACKET.json'); baseline.verify_imported_sources(p); verify_controller(p); d=baseline.verify_worker_image(p,image_inspect=baseline._engine_inspect); print(d['Id'])"
+  ],
+  "probe_shell": "env BATON_V12_STAGE_EXECUTION_CONFIG=/tmp/baton-standard-next-run-w339626-339782/packet/deployment.json PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/tmp/baton-standard-next-run-w339626-339782/code/v12/python/src:/tmp/baton-standard-next-run-w339626-339782/code/v12/python:/tmp/baton-standard-next-run-w339626-339782/supervisor /usr/bin/python3 -B -c 'import baseline; from tools.authoring_enforcement import verify_controller; p=baseline.held_packet('\"'\"'/tmp/baton-standard-next-run-w339626-339782/packet/PACKET.json'\"'\"'); baseline.verify_imported_sources(p); verify_controller(p); d=baseline.verify_worker_image(p,image_inspect=baseline._engine_inspect); print(d['\"'\"'Id'\"'\"'])'",
+  "launch_NOT_SELECTED": [
+    "env",
+    "BATON_V12_STAGE_EXECUTION_CONFIG=/tmp/baton-standard-next-run-w339626-339782/packet/deployment.json",
+    "PYTHONDONTWRITEBYTECODE=1",
+    "PYTHONPATH=/tmp/baton-standard-next-run-w339626-339782/code/v12/python/src:/tmp/baton-standard-next-run-w339626-339782/code/v12/python:/tmp/baton-standard-next-run-w339626-339782/supervisor",
+    "/usr/bin/python3",
+    "-B",
+    "-m",
+    "tools.authoring_enforcement",
+    "--packet",
+    "/tmp/baton-standard-next-run-w339626-339782/packet/PACKET.json"
+  ]
+}

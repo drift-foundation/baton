@@ -1,0 +1,209 @@
+{
+ "claim": 354259,
+ "current_baseline": "d6881d8adbd567b6e92a4a2a1d0cb68ee781f70a",
+ "identical_to_supplier": 30,
+ "paths": {
+  "v12/python/src/baton_v12/job_manager/delegation.py": {
+   "composed": "a115e6edeb07fce7c73772e09b237a35645faf87b2aa7c849093ad853edad338",
+   "identical_to_supplier": true,
+   "supplier": "W333486 diagnostics",
+   "supplier_sha256": "a115e6edeb07fce7c73772e09b237a35645faf87b2aa7c849093ad853edad338"
+  },
+  "v12/python/src/baton_v12/job_manager/documents.py": {
+   "composed": "7029d28c85eed30543d03acdbb0394d61765f4f704a7e6e3eeb41d2fb07e49c4",
+   "identical_to_supplier": true,
+   "supplier": "W333486 diagnostics",
+   "supplier_sha256": "7029d28c85eed30543d03acdbb0394d61765f4f704a7e6e3eeb41d2fb07e49c4"
+  },
+  "v12/python/src/baton_v12/job_manager/projection.py": {
+   "composed": "02e0c80c8e468007a8666959e405468946463d815eb617331b0eb0dcdc68425a",
+   "identical_to_supplier": true,
+   "supplier": "W333486 diagnostics",
+   "supplier_sha256": "02e0c80c8e468007a8666959e405468946463d815eb617331b0eb0dcdc68425a"
+  },
+  "v12/python/src/baton_v12/worker_manager/attempts.py": {
+   "composed": "e929d7305a723e6e355079b120c6740d9d8ddf26fad89b771738e92e74688b45",
+   "identical_to_supplier": false,
+   "supplier": "W333486 diagnostics",
+   "supplier_sha256": "f48c55193510ace5dd4a0571ffaf1f3cb78084966bb858c9bf37a7e2e7b7fc91"
+  },
+  "v12/python/src/baton_v12/worker_manager/documents.py": {
+   "composed": "376e62ab5bab0bcec8c4b662cd8b94935a1732f9ec2692a10bb9cb4af5a962c8",
+   "identical_to_supplier": true,
+   "supplier": "W333486 diagnostics",
+   "supplier_sha256": "376e62ab5bab0bcec8c4b662cd8b94935a1732f9ec2692a10bb9cb4af5a962c8"
+  },
+  "v12/python/src/baton_v12/worker_manager/failure_cause.py": {
+   "composed": "776f5932dc9c3d0f2df7ffed4e895078806def020d829a47563801da9621f1a3",
+   "identical_to_supplier": true,
+   "supplier": "W333486 diagnostics",
+   "supplier_sha256": "776f5932dc9c3d0f2df7ffed4e895078806def020d829a47563801da9621f1a3"
+  },
+  "v12/python/src/baton_v12/worker_manager/intake.py": {
+   "composed": "71f0ef60bd5b26409e9c24fe49bd2ace1382e8ef1cb0ab8b3e2a5a44deae3d97",
+   "identical_to_supplier": true,
+   "supplier": "W333486 diagnostics",
+   "supplier_sha256": "71f0ef60bd5b26409e9c24fe49bd2ace1382e8ef1cb0ab8b3e2a5a44deae3d97"
+  },
+  "v12/python/src/baton_v12/worker_manager/tokens.py": {
+   "composed": "389ea0ff9205aa1d53552eb61f3d468deb7033ecac8b362fef4586007dccb2b5",
+   "identical_to_supplier": true,
+   "supplier": "W333485 permission",
+   "supplier_sha256": "389ea0ff9205aa1d53552eb61f3d468deb7033ecac8b362fef4586007dccb2b5"
+  },
+  "v12/python/src/baton_v12/worker_manager/workspaces.py": {
+   "composed": "61e0e0b1e089ac498e0d5af8566bdd76e26ebabe56a81aa0ae7c64971005e94a",
+   "identical_to_supplier": true,
+   "supplier": "W333485 permission",
+   "supplier_sha256": "61e0e0b1e089ac498e0d5af8566bdd76e26ebabe56a81aa0ae7c64971005e94a"
+  },
+  "v12/python/tests/job_manager/test_delegation.py": {
+   "composed": "337ab849613a68224f733712f1b11435b685d677763fe7923a3b76fb6666d949",
+   "identical_to_supplier": true,
+   "supplier": "W333486 diagnostics",
+   "supplier_sha256": "337ab849613a68224f733712f1b11435b685d677763fe7923a3b76fb6666d949"
+  },
+  "v12/python/tests/job_manager/test_exchange.py": {
+   "composed": "c988c874775d09b579dc7390293807a1cc7d5f64a30f98419751dc8a81567876",
+   "identical_to_supplier": true,
+   "supplier": "W333486 diagnostics",
+   "supplier_sha256": "c988c874775d09b579dc7390293807a1cc7d5f64a30f98419751dc8a81567876"
+  },
+  "v12/python/tests/job_manager/test_execution_limits.py": {
+   "composed": "04548669bfb666db2bbb9c8b52759877209affd1470500e0b7d69c670108eef9",
+   "identical_to_supplier": true,
+   "supplier": "W333486 diagnostics",
+   "supplier_sha256": "04548669bfb666db2bbb9c8b52759877209affd1470500e0b7d69c670108eef9"
+  },
+  "v12/python/tests/job_manager/test_serving_renewal.py": {
+   "composed": "92c77ce12181f958fd3ca5b41d5d47cdb9c878e0d61785fc7fcdb195bb5f0182",
+   "identical_to_supplier": true,
+   "supplier": "W333485 permission",
+   "supplier_sha256": "92c77ce12181f958fd3ca5b41d5d47cdb9c878e0d61785fc7fcdb195bb5f0182"
+  },
+  "v12/python/tests/job_manager/test_tool.py": {
+   "composed": "3c687ce3839406f3dddb96d96b073b7751ea790d80893486b1ba40b5a6c01618",
+   "identical_to_supplier": true,
+   "supplier": "W333486 diagnostics",
+   "supplier_sha256": "3c687ce3839406f3dddb96d96b073b7751ea790d80893486b1ba40b5a6c01618"
+  },
+  "v12/python/tests/manager/disk_roots.py": {
+   "composed": "a1dd203287116ce60dfb6479f4ced25cccb106f3b775827c7e4f5409c779c4e4",
+   "identical_to_supplier": true,
+   "supplier": "W333486 diagnostics",
+   "supplier_sha256": "a1dd203287116ce60dfb6479f4ced25cccb106f3b775827c7e4f5409c779c4e4"
+  },
+  "v12/python/tests/manager/input_roots.py": {
+   "composed": "86a01fae28809f1be541a6756653257354885fc9cc84957967836335b4db0fab",
+   "identical_to_supplier": true,
+   "supplier": "W333486 diagnostics",
+   "supplier_sha256": "86a01fae28809f1be541a6756653257354885fc9cc84957967836335b4db0fab"
+  },
+  "v12/python/tests/manager/test_attempt_failure_cause.py": {
+   "composed": "8371cbb8b28e16572defe0ef4c0a0efd09a4d41ea6ab22c92cdc1c6efcf94e30",
+   "identical_to_supplier": true,
+   "supplier": "W333486 diagnostics",
+   "supplier_sha256": "8371cbb8b28e16572defe0ef4c0a0efd09a4d41ea6ab22c92cdc1c6efcf94e30"
+  },
+  "v12/python/tests/manager/test_boundary_inventory.py": {
+   "composed": "39c371207c53029c6429c2df3042497b69191b40e65204e438f2295f4ef006bf",
+   "identical_to_supplier": true,
+   "supplier": "W333485 permission",
+   "supplier_sha256": "39c371207c53029c6429c2df3042497b69191b40e65204e438f2295f4ef006bf"
+  },
+  "v12/python/tests/manager/test_intake.py": {
+   "composed": "88bdda6bacb2b17c58ecdf9f7a8aaf1cec4fb300906960d26888040f87c23809",
+   "identical_to_supplier": true,
+   "supplier": "W333486 diagnostics",
+   "supplier_sha256": "88bdda6bacb2b17c58ecdf9f7a8aaf1cec4fb300906960d26888040f87c23809"
+  },
+  "v12/python/tests/manager/test_maintenance.py": {
+   "composed": "e3c90ab294273fa9ff81709ecaae74c857f8a52d1db616b1de3237f411fc53af",
+   "identical_to_supplier": true,
+   "supplier": "W333486 diagnostics",
+   "supplier_sha256": "e3c90ab294273fa9ff81709ecaae74c857f8a52d1db616b1de3237f411fc53af"
+  },
+  "v12/python/tests/manager/test_output.py": {
+   "composed": "b0e5d9839fcada66668eedca82a0912560cf13ec7ccf359e9b195a968c131b80",
+   "identical_to_supplier": true,
+   "supplier": "W333486 diagnostics",
+   "supplier_sha256": "b0e5d9839fcada66668eedca82a0912560cf13ec7ccf359e9b195a968c131b80"
+  },
+  "v12/python/tests/tools/test_attempt_diagnostics.py": {
+   "composed": "3882768c6c8a482c6a2df5b15552b1beef2c585a2c6ef3589127f300a9d75cca",
+   "identical_to_supplier": true,
+   "supplier": "W333486 diagnostics",
+   "supplier_sha256": "3882768c6c8a482c6a2df5b15552b1beef2c585a2c6ef3589127f300a9d75cca"
+  },
+  "v12/python/tests/tools/test_bootstrap.py": {
+   "composed": "c6b5ad3c0600904ed5965259e8b3549e35f193be6c90e02714e731768ffe6df6",
+   "identical_to_supplier": true,
+   "supplier": "W333486 diagnostics",
+   "supplier_sha256": "c6b5ad3c0600904ed5965259e8b3549e35f193be6c90e02714e731768ffe6df6"
+  },
+  "v12/python/tests/tools/test_worker_visibility.py": {
+   "composed": "a27319c43edc1f962a008b113ed5114df8dcad047c76b35fb49687a9ba8f0a2e",
+   "identical_to_supplier": true,
+   "supplier": "W333486 diagnostics",
+   "supplier_sha256": "a27319c43edc1f962a008b113ed5114df8dcad047c76b35fb49687a9ba8f0a2e"
+  },
+  "v12/python/tools/attempt_diagnostics.py": {
+   "composed": "6e02e22ef7ebd5cb4ae4725bc19a7c200b62897aba9f1f341435ceff2bb4fd12",
+   "identical_to_supplier": true,
+   "supplier": "W333486 diagnostics",
+   "supplier_sha256": "6e02e22ef7ebd5cb4ae4725bc19a7c200b62897aba9f1f341435ceff2bb4fd12"
+  },
+  "v12/python/tools/authoring_enforcement.py": {
+   "composed": "248ee9edd72214efbdc77044a9af6ad2c382e2ca1dbd5b71ff0db720d9a5a5dc",
+   "identical_to_supplier": true,
+   "supplier": "W333485 permission",
+   "supplier_sha256": "248ee9edd72214efbdc77044a9af6ad2c382e2ca1dbd5b71ff0db720d9a5a5dc"
+  },
+  "v12/python/tools/single_worker.py": {
+   "composed": "abb10d0ee6d90709cbaa3293d3cc5d207b384d5e22aac16e5983bab82a030c4f",
+   "identical_to_supplier": true,
+   "supplier": "W333485 permission",
+   "supplier_sha256": "abb10d0ee6d90709cbaa3293d3cc5d207b384d5e22aac16e5983bab82a030c4f"
+  },
+  "v12/python/tools/stack.py": {
+   "composed": "c0586c7f31abcb3d4e13b3dc0f2236a590802b3edbb6a107c32f933908ade009",
+   "identical_to_supplier": true,
+   "supplier": "W333486 diagnostics",
+   "supplier_sha256": "c0586c7f31abcb3d4e13b3dc0f2236a590802b3edbb6a107c32f933908ade009"
+  },
+  "v12/python/tools/stack_command.py": {
+   "composed": "ad49c04fa609703f80e80e14156888ef118e876d7e8a4aef3414e959db92c707",
+   "identical_to_supplier": true,
+   "supplier": "W333486 diagnostics",
+   "supplier_sha256": "ad49c04fa609703f80e80e14156888ef118e876d7e8a4aef3414e959db92c707"
+  },
+  "v12/python/tools/stage_execution.py": {
+   "composed": "920009ab6bb77284cd2107bb54a5ada76c3c56dc2588d1775907587f5cdaa6d2",
+   "identical_to_supplier": true,
+   "supplier": "W333485 permission",
+   "supplier_sha256": "920009ab6bb77284cd2107bb54a5ada76c3c56dc2588d1775907587f5cdaa6d2"
+  },
+  "v12/python/tools/worker_visibility.py": {
+   "composed": "0689d32b90664ef1b3c63c8f8d94928b4545e0c5872a92a71557e0c17c54a80d",
+   "identical_to_supplier": true,
+   "supplier": "W333486 diagnostics",
+   "supplier_sha256": "0689d32b90664ef1b3c63c8f8d94928b4545e0c5872a92a71557e0c17c54a80d"
+  }
+ },
+ "schema": "baton.w325959-combined-manifest/1",
+ "supplier_path_intersection": "EMPTY -- provably disjoint",
+ "suppliers": {
+  "W333485 permission": {
+   "base": "d3a7a41cc7347e4741706673c20f62b4a3190f65",
+   "paths": 7
+  },
+  "W333486 diagnostics": {
+   "base": "bc925cf5c62d69426ed5862af4d41f4d2a967b0f",
+   "paths": 24
+  }
+ },
+ "three_way_merged": [
+  "v12/python/src/baton_v12/worker_manager/attempts.py"
+ ],
+ "total_paths": 31
+}

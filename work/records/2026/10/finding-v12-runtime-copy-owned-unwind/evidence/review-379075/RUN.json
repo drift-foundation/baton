@@ -1,0 +1,16 @@
+{
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_startup_prerequisites",
+    "tests.tools.test_bootstrap",
+    "tests.tools.test_instance",
+    "tests.tools.test_connected_creation",
+    "tests.tools.test_pool",
+    "tests.job_manager.test_fresh_attempt"
+  ],
+  "seconds": 41.695326488999854,
+  "returncode": 0,
+  "pins_unchanged": true
+}

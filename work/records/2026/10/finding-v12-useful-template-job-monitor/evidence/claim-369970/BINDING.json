@@ -1,0 +1,111 @@
+{
+ "consumes_child": {
+  "accepted_binding": "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/evidence/claim-369373/BINDING.json",
+  "accepted_binding_sha256": "92d9962a71b64b5d25142e22a3b5bd52a374093aa1a352c0c8594b2893765723",
+  "closed": "satisfying, owner E369951",
+  "entrypoints_this_packet_invokes": {
+   "capacity.py": "1944c97d6868c12ae19a363cb88f6e50d539adca0f33b328a9eaf4415be7fda6",
+   "proposed_grants.py": "f447fcb62eb665abb5e0bd445392926735c2f3763e4868cbdd8ec8fe76911857"
+  },
+  "proofs_reused_rather_than_reconstructed": {
+   "prove_capacity.py": "8c31bc2d0719a8a089a9ba881d3ecf292e0c45591560e8301da1e363bf0ff5e4",
+   "prove_custody.py": "b89cf865be53e0e190e505531209f37d58e71d140d9062302841e07f59017200",
+   "prove_guide_contract.py": "64e0e1b8711ef6021c62f575162b48aca0f4995e8513bde3dcba48e9411ccba2"
+  },
+  "record": "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition"
+ },
+ "delivered": {
+  "COMMANDS.md": {
+   "bytes": 37748,
+   "sha256": "42f26ba33f7f9afa41d1253e18febabbb1e12e84b982cc7bf5a7be85a94f325f"
+  },
+  "verify_commands.py": {
+   "bytes": 41014,
+   "sha256": "c97ac795a540dcca1e2421752829f2aaed663ac7c5b5160bd9cf264cfd8e3f7c"
+  }
+ },
+ "owner_input_documents": {
+  "FINDING.md": "c4501760d78ef8a90a7833614d3cbcfb3de8b8509f922dad673150a3ed94047a",
+  "PLAN.md": "add1cbaeb90e23d3f2d404761f2d9c0b663c3f26b3adc4f8b6c9a9fdf1f838ea",
+  "USEFUL-JOB.md": "2d2a060c4fdd652e5b64c33474c2694fc287d5ba9d04cee793d586c419c058ba"
+ },
+ "owner_selection": {
+  "members_still_ungranted": [
+   "proposed-not-granted"
+  ],
+  "proposed_format_selected": false,
+  "ruling": "child FINDING.md entry '2026-10-28 - owner selects default policy basis', owner E369951",
+  "selected_inventory": "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants/INVENTORY.json",
+  "selected_inventory_sha256": "6ae52f7b2b796fe1bae8323155513fb8f751e182f4a48a0dffbb577243284add",
+  "selected_task_sha256": "c21e6b93bfe199ebb89b3ec7a75e70a5636c52f9986b1afa3709a381c6bd98d7",
+  "this_packet_edited_none_of_them": true,
+  "verified_against_child_binding": true
+ },
+ "prepared_against_commit": "42bed8bb04a53380e565b1a63fb2bc702677f0d0",
+ "schema": "baton.v12.operator-packet-binding/1",
+ "unresolved_execution_choices": [
+  "the worker image sha256:c862c055... must exist on the installing host; the toolchain artifact is the build recipe, not an image inspection",
+  "the credential reference w202663-development must resolve through the operator's credential-sources registry; nothing here reads one",
+  "a real source tree must be clonable by --repository-source; the child's proof used EMPTY nominated directories and labelled that a simulation",
+  "COMMANDS.md section 8's decision: accept that an automatically opened correction may consume a further 3600s invocation, or select a cancellation procedure through the Authority API. Neither is prepared as a control and no round cap exists",
+  "the live OBS-0 endpoints are not measurable from these outputs and stay unknown",
+  "execution itself: no install, start, create, owner act or deletion is selected here"
+ ],
+ "verification": {
+  "child_helper_invocations": 2,
+  "command": "python3 work/records/2026/10/finding-v12-useful-template-job-monitor/verify_commands.py",
+  "exit": 0,
+  "failures": 0,
+  "install_sequence": {
+   "bootstrap_invocations": 2,
+   "destination_installs": [
+    [
+     "--inputs",
+     "/home/sl/baton-instances/useful-template-job-w366962-phase2.json",
+     "--destination",
+     "/home/sl/baton-instances/useful-template-job-w366962",
+     "--distro",
+     "/home/sl/baton-instances/useful-template-job-w366962-distro",
+     "--repository-source",
+     "/home/sl/src/baton"
+    ]
+   ],
+   "faults": [],
+   "mint_only": [
+    [
+     "--inputs",
+     "/home/sl/baton-instances/useful-template-job-w366962-mint.json"
+    ]
+   ]
+  },
+  "packet_digest_the_verifier_saw": "42f26ba33f7f9afa41d1253e18febabbb1e12e84b982cc7bf5a7be85a94f325f",
+  "published_invocations": 16,
+  "result": "evidence/claim-369970/verification.json",
+  "result_sha256": "e5284fea8bafdf012bc31281f9c3349915f91c8ce1138e174497f7f02570b7bc",
+  "schema": "baton.v12.command-packet-verification/3",
+  "two_lanes": {
+   "compose_wrote": [],
+   "mismatched_set_refused": true,
+   "occupied_path_refused": true,
+   "one_input_manifest_digest": 1,
+   "participants": [
+    "baton.claude-w366962",
+    "baton.reviewer-w366962"
+   ],
+   "preparation_is_complete": false,
+   "principals": [
+    "principal:baton.claude-w366962",
+    "principal:baton.reviewer-w366962"
+   ],
+   "review_routes": {
+    "implementation": "rview",
+    "review": "owner"
+   },
+   "roles": [
+    "implementation",
+    "review"
+   ]
+  }
+ },
+ "what": "what this parent packet delivers and what it consumes, by digest, so the reviewer and then the owner read the same bytes the verification passed over."
+}

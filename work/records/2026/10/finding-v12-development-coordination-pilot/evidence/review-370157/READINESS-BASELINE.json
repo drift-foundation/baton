@@ -1,0 +1,24 @@
+{
+  "binding_sha256": "29375db1f141bb4b64b3be38a9429264590d3a3d2a41dd196461d7c977eaf34f",
+  "expected_binding": "29375db1f141bb4b64b3be38a9429264590d3a3d2a41dd196461d7c977eaf34f",
+  "head": "42bed8bb04a53380e565b1a63fb2bc702677f0d0",
+  "v12_status": "",
+  "fresh_paths": {
+    "/home/sl/baton-instances/useful-template-job-w366962": {
+      "lexists": false
+    },
+    "/home/sl/baton-instances/useful-template-job-w366962-distro": {
+      "lexists": false
+    },
+    "/home/sl/baton-instances/useful-template-job-w366962-mint.json": {
+      "lexists": false
+    },
+    "/home/sl/baton-instances/useful-template-job-w366962-compose": {
+      "lexists": false
+    },
+    "/home/sl/baton-instances/useful-template-job-w366962-phase2.json": {
+      "lexists": false
+    }
+  },
+  "no_image_or_credential_access": true
+}

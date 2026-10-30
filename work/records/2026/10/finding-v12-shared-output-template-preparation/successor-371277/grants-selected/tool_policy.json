@@ -1,0 +1,41 @@
+{
+ "argv_policy": {
+  "arguments": [
+   "--print",
+   "--dangerously-skip-permissions",
+   "--output-format",
+   "json"
+  ],
+  "open": "--session-id",
+  "program": "claude",
+  "restore": "--resume"
+ },
+ "authorized_by": null,
+ "derivation": "reused",
+ "environment_policy": {
+  "cwd": "/output",
+  "ephemera": "fresh-per-child",
+  "home": "/run/baton/context/home",
+  "keys": [
+   "HOME",
+   "PATH",
+   "PYTHONPYCACHEPREFIX",
+   "TMPDIR",
+   "XDG_CACHE_HOME"
+  ]
+ },
+ "for_selection": "f36bcd75ed22430355efe1b274b8f236cb591f6b",
+ "missing_selection_this_answers": "the tool policy document for the workload's permitted tools. No such document is published with the pilot.",
+ "note": "tools/next_run_bindings.py digests these same two constants for its context profile, so this proposal reuses content the product already treats as policy",
+ "proposed_for": "tool_policy_digest",
+ "read_from": [
+  {
+   "path": "v12/python/src/baton_v12/worker_manager/provider_context.py",
+   "sha256": "ca54ecec366fde97390a873537d9fb430db90bfe21e39448450d79d6fa4d7835",
+   "what": "the product's own argv and environment policy"
+  }
+ ],
+ "schema": "baton.v12.proposed-tool-policy/1",
+ "selected_by": null,
+ "status": "proposed-not-granted"
+}

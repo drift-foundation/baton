@@ -1,0 +1,24 @@
+FIRST RAISED BootstrapRefusal : prerequisite preparation failed (InterruptedError); created or uncertain effects are recorded; access or identity failure is not evidence of replacement, and is not one it reports as ready
+
+--- first stream ---
+cleanup       retained /tmp/v12-create-step-0avy6p04/prerequisites/w-1/storage: this attempt made the prepared prerequisite root and is NOT deleting it: a name-based removal cannot be bound to this object, so the bytes stay
+cleanup       retained /tmp/v12-create-step-0avy6p04/prerequisites/w-1/launch: uncertain effect (creation attempted; identity not established); no deletion authority, and this attempt cannot say whether anything is there
+cleanup       retained /tmp/v12-create-step-0avy6p04/prerequisites/w-1: this attempt made the prepared prerequisite root and is NOT deleting it: a name-based removal cannot be bound to this object, so the bytes stay
+cleanup       retained /tmp/v12-create-step-0avy6p04/prerequisites: this attempt made the prepared prerequisite root and is NOT deleting it: a name-based removal cannot be bound to this object, so the bytes stay
+cleanup       RETAINED 4 path(s), none of them deleted: 3 this attempt made and did not delete, 1 this attempt can neither claim nor disclaim:
+cleanup         /tmp/v12-create-step-0avy6p04/prerequisites/w-1/storage  [this attempt's own]
+cleanup         /tmp/v12-create-step-0avy6p04/prerequisites/w-1/launch  [unproven]
+cleanup         /tmp/v12-create-step-0avy6p04/prerequisites/w-1  [this attempt's own]
+cleanup         /tmp/v12-create-step-0avy6p04/prerequisites  [this attempt's own]
+
+foreign file at the uncertain name: 'somebody else took the name\n'
+foreign addition under the owned root: True
+
+RETRY RAISED BootstrapRefusal : this deployment's launch_home for worker w-1 is already a regular file at /tmp/v12-create-step-0avy6p04/prerequisites/w-1/launch. It was left exactly as it is; a prerequisite root is a directory this deployment owns, and nothing here follows a link or reuses another object's name.
+--- retry stream ---
+
+--- end ---
+the foreign bytes after the retry: 'somebody else took the name\n'
+lexists False /tmp/v12-create-step-0avy6p04/deployment/distro
+lexists False /tmp/v12-create-step-0avy6p04/deployment/justfile
+lexists False /tmp/v12-create-step-0avy6p04/deployment/instance.json

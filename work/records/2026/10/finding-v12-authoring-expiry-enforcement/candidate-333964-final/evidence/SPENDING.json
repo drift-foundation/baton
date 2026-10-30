@@ -1,0 +1,40 @@
+{
+  "cumulative_implementation_measured_seconds": 28.00016660799787,
+  "measurement": "Current runs: subprocess monotonic stopwatch,45-second timeouts. Earlier implementation measurement provenance remains in candidate333743. No unknown costs erased or claimed bounded.",
+  "prior_implementation_measured_seconds": 22.21331526499756,
+  "prior_review_focused_seconds": 2.878483888,
+  "prior_review_probe_seconds": 0.367630978,
+  "runs": {
+    "focused-1": {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "tests.manager.test_authoring_enforcement",
+        "tests.manager.test_attempts.CancellationFencesBeforeItStops",
+        "tests.job_manager.test_tool.TheStatusSurfaceMayReadIntegrationAndStillActOnNothing",
+        "tests.job_manager.test_tool.TheRecoveryPassVisitsTheUNCERTAINTokensToo",
+        "-v"
+      ],
+      "elapsed_seconds": 2.987047345999599,
+      "exit_code": 0,
+      "timeout_seconds": 45
+    },
+    "focused-final": {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "tests.manager.test_authoring_enforcement",
+        "tests.manager.test_attempts.CancellationFencesBeforeItStops",
+        "tests.job_manager.test_tool.TheStatusSurfaceMayReadIntegrationAndStillActOnNothing",
+        "tests.job_manager.test_tool.TheRecoveryPassVisitsTheUNCERTAINTokensToo",
+        "-v"
+      ],
+      "elapsed_seconds": 2.7998039970007085,
+      "exit_code": 0,
+      "timeout_seconds": 45
+    }
+  },
+  "this_claim_measured_seconds": 5.786851343000308
+}

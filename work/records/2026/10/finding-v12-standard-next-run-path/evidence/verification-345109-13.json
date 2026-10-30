@@ -1,0 +1,13 @@
+{
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_next_run_flow"
+  ],
+  "timeout_seconds": 60,
+  "process_seconds": 16.468803576000028,
+  "returncode": 1,
+  "stdout": "",
+  "stderr": ".E\n======================================================================\nERROR: test_two_tasks_and_failed_start_recovery_after_one_installation (tests.tools.test_next_run_flow.JoinedFlow.test_two_tasks_and_failed_start_recovery_after_one_installation)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/tmp/baton-next-run-345023/v12/python/tests/tools/test_next_run_flow.py\", line 131, in test_two_tasks_and_failed_start_recovery_after_one_installation\n    recovered = self.request(action='recover', run='failed', task=recovery_task)\n  File \"/tmp/baton-next-run-345023/v12/python/tests/tools/test_next_run_flow.py\", line 46, in request\n    return managed.execute_request(self.broker, managed.read_request(io.BytesIO(json.dumps(data).encode())))\n           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/baton-next-run-345023/v12/python/tools/next_run_managed.py\", line 646, in execute_request\n    return broker.recover(request['run'], request['task'])\n           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/baton-next-run-345023/v12/python/tools/next_run_managed.py\", line 499, in recover\n    record, packet = self.check(name)\n                     ~~~~~~~~~~^^^^^^\n  File \"/tmp/baton-next-run-345023/v12/python/tools/next_run_managed.py\", line 446, in check\n    self.host.owned(item, record['uid'], private=True)\n    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/baton-next-run-345023/v12/python/tests/tools/test_next_run_managed.py\", line 40, in owned\n    raise nr.Refusal('unsafe simulated custody: ' + str(path))\ntools.next_run.Refusal: unsafe simulated custody: /home/sl/src/baton/work/records/2026/10/finding-v12-standard-next-run-path/evidence/flow-fixtures-345109/next-run-test-jbz32l_r/storage/failed/packet/outcome.json.authoring.log\n\n----------------------------------------------------------------------\nRan 2 tests in 16.284s\n\nFAILED (errors=1)\n"
+}

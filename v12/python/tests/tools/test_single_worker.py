@@ -5713,7 +5713,8 @@ class AFaultedTerminalSurvivesTheContainerThatWroteIt(SingleWorkerCase):
         # THE WORKER ANSWERS NON-ZERO, which is what a faulted turn does.
         self.assertEqual(
             baton_worker.serve_exchange(
-                agent, delivered.document, delivered.document["session"],
+                agent, launch.payload_of(delivered.document),
+                launch.payload_of(delivered.document)["session"],
                 delivered.exchange.command_root,
                 delivered.exchange.event_root), 1)
         # AND THEN THE CONTAINER GOES AWAY, between sweeps and unasked.
@@ -6175,7 +6176,7 @@ class TheAnsweredEndingRunsThroughTheRealOwners(SingleWorkerCase):
         self.assertEqual(
             baton_worker.serve_exchange(
                 scripted_agent.ScriptedAgent(), delivered.document,
-                delivered.document["session"],
+                launch.payload_of(delivered.document)["session"],
                 delivered.exchange.command_root,
                 delivered.exchange.event_root), 0)
         return job, control, operations, attempt_id, delivered.exchange

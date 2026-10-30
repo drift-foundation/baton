@@ -144,6 +144,15 @@ Fixtures that need real storage use `tests/manager/disk_roots.py`, which never
 puts a workspace on a tmpfs. Clean up what you create; a case interrupted
 mid-run leaves its root behind under the first disk-backed candidate.
 
+A test that executes, imports or reads a file OUTSIDE `v12/` (a captured image
+context in a Work record, a proposed contract, a manifest vector) declares that
+file or import directory in `CONSUMED_INPUTS` in `tools/parallel_test.py`,
+with its consumers. The declaration is part of the run's source identity
+(section 9). `tests/tools/test_parallel_runner.py` sweeps the tree for record
+paths spelled in code and fails when one is neither declared nor listed as
+synthetic there; declare the smallest path actually consumed, never a whole
+dossier, because dossiers also hold the evidence runs produce.
+
 ## 7. Required versus optional skips
 
 Every test is REQUIRED unless its exact id (or, for a class-level skip, the
@@ -192,15 +201,31 @@ ledger beside it (`<log without .log>.summary.json`: every id by outcome, the
 per-group counts and the phase summaries), the supervised run directory in the
 same folder, and two source-identity documents.
 
-The source identity is CONTENT-BOUND (`tools/source_identity.py`): `HEAD` plus
-the SHA-256 of the bytes of every modified, added, deleted, renamed or
-untracked file under the scope `v12/`, rolled into one `content-digest`. Two
-candidates with identical `git status` text and different bytes have different
-digests. The boundary is explicit: gitignored paths (so `v12/python/build/`
-and other generated outputs) are excluded, and anything outside `v12/` — the
-Work records where a run's own evidence lands — is outside the identity by
-construction. The per-file list is in `<log>.source.json`; the identity is
-taken again after the run into `<log>.source-after.json`, and a run whose
+The source identity is CONTENT-BOUND (`tools/source_identity.py`) and has two
+parts, both rolled into one `content-digest` with `HEAD`:
+
+- The SCOPE `v12/`: the SHA-256 of the bytes of every modified, added,
+  deleted, renamed or untracked file under it. Two candidates with identical
+  `git status` text and different bytes have different digests. Gitignored
+  paths (so `v12/python/build/` and other generated outputs) are excluded.
+- The DECLARED CONSUMED INPUTS (`--declared`: `CONSUMED_INPUTS` in
+  `tools/parallel_test.py` plus each supervised module's supervisor): the
+  files outside `v12/` that the run executes, imports or reads — the reviewed
+  `engine-gate.py` supervisor, the captured image contexts a fixture puts on
+  its import path, the proposed role contracts, the manifest vectors and
+  schemas, a pinned scheduler trace. Every non-ignored file of each declared
+  path is hashed WHETHER OR NOT git considers it changed, because `HEAD` binds
+  only the committed version and an edited or untracked input would otherwise
+  change what the run tested without changing its identity. A declared input
+  that is absent in the checkout, or wholly gitignored, REFUSES the identity
+  (exit 2) and so refuses the run before any test starts; after the run the
+  same refusal fails it.
+
+Everything else outside `v12/` — the Work records where a run's own evidence
+lands, build outputs, `__pycache__` beside an input — is outside the identity
+by construction. The per-file lists (`changed` and `consumed`, each file with
+its digest and whether git tracks it) are in `<log>.source.json`; the identity
+is taken again after the run into `<log>.source-after.json`, and a run whose
 tested bytes changed under it reports `SOURCE DRIFT` and fails, because it no
 longer identifies one candidate.
 
@@ -210,9 +235,15 @@ tmpfs, and the selected image and bundle. Keep the log, the ledger, the two
 source documents and the header together; a passed count without its collected
 count and content-bound source identity is not evidence.
 
-Limitation: the identity covers files git can see under `v12/`; a dependency
-installed in the prepared environment is identified by the lock the
-environment was installed from (`just setup` records it), not by this digest.
+Limitations: the identity covers files git can see under `v12/` and the
+declared inputs; a dependency installed in the prepared environment is
+identified by the lock the environment was installed from (`just setup`
+records it), not by this digest. The declaration is checked against record
+paths spelled in test code (section 6); a test that reaches a record through
+a computed path would need to declare it by hand. Several fixture modules
+name this checkout by its absolute path rather than relative to themselves;
+the identity hashes the repository-relative paths, which coincide only while
+the checkout is the one those modules name.
 
 ## 10. When a full run needs a selected checkpoint
 

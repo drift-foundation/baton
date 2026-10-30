@@ -90,14 +90,22 @@ class TheContainerEntryReadsTheThirdVersion(unittest.TestCase):
             ["provider_turn"]["seconds"], 60)
 
     def test_the_earlier_versions_are_read_exactly_as_before(self):
-        for document in (
-                launch.launch_document(session="s", contract="c",
-                                       role="implementation"),
-                launch.launch_document(
-                    session="s", contract="c", role="implementation",
-                    transport="baton.worker-exchange/1")):
-            with self.subTest(schema=document["schema"]):
-                self.assertEqual(self.launched(document), document)
+        """W376586: AND THE PROPERTY IS UNCHANGED, which is the point of the
+        `/5` wrapper being a wrapper. `/1` is read exactly as before. The
+        file-exchange launch is now DELIVERED wrapped, and what the worker
+        reads out of it is the same `/2` container document it read before --
+        so the assertion follows the container rather than the delivery."""
+        ordinary = launch.launch_document(session="s", contract="c",
+                                          role="implementation")
+        self.assertEqual(ordinary["schema"], "baton.worker-launch/1")
+        self.assertEqual(self.launched(ordinary), ordinary)
+        wrapped = launch.launch_document(
+            session="s", contract="c", role="implementation",
+            transport="baton.worker-exchange/1")
+        self.assertEqual(wrapped["schema"], "baton.worker-launch/5")
+        self.assertEqual(self.launched(wrapped), wrapped["payload"])
+        self.assertEqual(wrapped["payload"]["schema"],
+                         "baton.worker-launch/2")
 
     def test_a_context_that_is_not_a_document_is_refused(self):
         held = delivery()
@@ -3166,7 +3174,7 @@ class TheComposedObservationAdoptsTwoJobsConfiguredLaunches(unittest.TestCase):
                 self.assertIsNone(answered)
                 return answered
             self.assertIsNotNone(answered)
-            context = answered.document["job_execution"]
+            context = launch.payload_of(answered.document)["job_execution"]
             # THE DOCUMENT IS THE ONE THIS READER EXPECTED, byte for byte --
             # `adopt` compares canonical bytes and this is what it compared.
             self.assertEqual(context, named["job_execution"])
@@ -3365,7 +3373,7 @@ with JobStore.open(spec["job"], authority_uuid=spec["uuid"],
     def watched(*arguments, **named):
         answered = adopting(*arguments, **named)
         assert answered is not None
-        context = answered.document["job_execution"]
+        context = launch.payload_of(answered.document)["job_execution"]
         assert context == named["job_execution"], context
         bounds = context["execution_limits"]["boundaries"]
         captured.append({"job_id": context["job_id"],
@@ -3755,7 +3763,7 @@ class AReopenedServingKeepsBothJobsLaunchesUntouched(unittest.TestCase):
         def watched(*arguments, **named):
             answered = adopting(*arguments, **named)
             if answered is not None and named.get("job_execution"):
-                context = answered.document["job_execution"]
+                context = launch.payload_of(answered.document)["job_execution"]
                 self.assertEqual(context, named["job_execution"])
                 captured[context["job_id"]] = context
             return answered

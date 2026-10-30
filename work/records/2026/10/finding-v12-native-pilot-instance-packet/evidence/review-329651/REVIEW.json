@@ -1,0 +1,58 @@
+{
+  "generated_files": {
+    "authority-readback.json": {
+      "bytes": 1021,
+      "sha256": "b201c168a8223c5da89bee54698b56800b5ec32c253b610aecbbf1f20d6ab622"
+    },
+    "configuration.json": {
+      "bytes": 13731,
+      "sha256": "dfc2c08ec5f07155ae008f6d2307e7dc0d307c1ebebe62f54272e64200885fa0"
+    },
+    "configure-inputs.json": {
+      "bytes": 13301,
+      "sha256": "6ff15885ca5309affc0db25439248818b41f94f36d7de1f5aa62a7d579539b2e"
+    },
+    "dossiers/native-pilot-quickstart-1cdb8d19/FINDING.md": {
+      "bytes": 424,
+      "sha256": "8e51f5ec4c0d8c1866412f1987e0b07f0a06c3c24969262c70ef4837f25b8947"
+    },
+    "dossiers/native-pilot-quickstart-1cdb8d19/PLAN.md": {
+      "bytes": 475,
+      "sha256": "39c50d05797f5ed0ea92ae27a44a6f18cbc95baf3210e361c3845a603c03d8ab"
+    },
+    "installer.json": {
+      "bytes": 5,
+      "sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed"
+    },
+    "manifest.json": {
+      "bytes": 3070,
+      "sha256": "1b5de7f567b1a7dd7f3eb79bdbff97643423c629b13ece6344d3be99f21a9742"
+    },
+    "ownership.json": {
+      "bytes": 1011,
+      "sha256": "4f42ddf069951f71d8390a2a93daba6a8d65343655279513549bbce0a9c21926"
+    },
+    "preparation-readback.json": {
+      "bytes": 12000,
+      "sha256": "fc302e7e01b677baddf0dadf0cddb96c22b4363ad714d3d116699ee9c110b233"
+    },
+    "repository.txt": {
+      "bytes": 708,
+      "sha256": "be61d567a4e8a7a2a11455aa6ba2decba6bd46ec8475098cd82b73a11e15d9d8"
+    },
+    "submission.json": {
+      "bytes": 1266,
+      "sha256": "72c5da000489e90a6ba3239da425d508b6ff77b34420adcdd9201ce7c9629f32"
+    },
+    "task.json": {
+      "bytes": 1853,
+      "sha256": "5ec48d4baf2020a8ef972237444c5989cf8490dea23cc285dbfd3bc0508dc1bb"
+    }
+  },
+  "configuration_matches_deployment": true,
+  "submission_matches_workers": true,
+  "task_and_dossier_exact": true,
+  "authority_readonly_refusal": "Refusal: the file at '/home/sl/baton-instances/native-coordination-pilot-w321608-1\\u2026' is not a baton.v12.python.authority store; this authority opens its own stores and adopts nothing -- not the Node v12 authority, not v11, not a worker-manager control store, not an arbitrary SQLite file",
+  "live_grants_and_principals_verified": false,
+  "image_inspect_observed": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2"
+}

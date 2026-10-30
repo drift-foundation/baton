@@ -1,0 +1,23 @@
+{
+  "work": "W343989",
+  "claim": 344059,
+  "status": "corrected preparation only; uninstalled and unselected",
+  "supersedes_procedure": "OPERATOR-344007.md",
+  "prior_preparation_manifest_sha256": "eed7cc1b3e0a4dfeb6ac9e81fd2b72e3a80c6cd4e622c83c29242855b3de00c5",
+  "artifacts": {
+    "OPERATOR-344059.md": "c89d6e502bab5f290509cacbfd1e4693f0ff768f58727bd00d338acd5b6c6756",
+    "publication-fixture-344059.py": "2f8270211e16345e912b1c42df849a0acd3a190d0f232fe9f13fc201cb915bbd",
+    "VALIDATION-344059.json": "d83163630c8f9adda5a80f10737ef54f22c6deb191b524dde059fee28bce7608",
+    "SUCCESSOR-344007.json": "6b69e94a32352c5da6cfd6d02c2aaf7af35f29d93cb305ad7bce51c5e1b244f5",
+    "credential-sources-v3.json": "8249bc4a85657a9694db893b86c8875a7f76b90480b39fabac1f58e28426b400",
+    "sudoers-v3": "f103256d2f78f9571d86ada51a6457380038d8e5f2f81aa2ee92f704268e4b48",
+    "successor-selection.json": "436fe9b30f112f11ba50659883024d7cf60270497b59692251342163581febab",
+    "successor-PACKET.json": "5dd0195f6958e32889cd30261f0d1de86283d6bd28c2353743ea198473fed795",
+    "successor-deployment.json": "e19800ab83225e98cb8887879716f8084cf89d32392307d308527adc39e38bbd",
+    "successor-manifest.json": "f1c3e2d11ec5557c86273a6abc0c0ccb99b61f98acde3dddfcd5b737057f1265",
+    "SHA256SUMS-344059": "d917b64fe8116462cfd21231454fb69f732e8af51b19c83e23629c6a5029dd87"
+  },
+  "bundle": "/tmp/baton-output-preparation-344007/bundle",
+  "bundle_manifest_sha256": "f1c3e2d11ec5557c86273a6abc0c0ccb99b61f98acde3dddfcd5b737057f1265",
+  "bundle_regenerated": false
+}

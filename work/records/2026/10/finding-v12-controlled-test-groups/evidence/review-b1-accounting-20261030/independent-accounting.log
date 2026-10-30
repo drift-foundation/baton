@@ -1,0 +1,127 @@
+{
+  "Good": {
+    "collected": [
+      "__main__.Good.test_one"
+    ],
+    "executed": [
+      "__main__.Good.test_one"
+    ],
+    "passed": [
+      "__main__.Good.test_one"
+    ],
+    "optional_skipped": {},
+    "required_skipped": {},
+    "fixture_skipped": {},
+    "fixture_errors": {},
+    "failed": [],
+    "errors": [],
+    "stray_errors": [],
+    "expected_failures": [],
+    "unexpected_successes": [],
+    "duplicates": [],
+    "unaccounted": [],
+    "uncollected": [],
+    "ok": true
+  },
+  "SetupError": {
+    "collected": [
+      "__main__.SetupError.test_one"
+    ],
+    "executed": [],
+    "passed": [],
+    "optional_skipped": {},
+    "required_skipped": {},
+    "fixture_skipped": {},
+    "fixture_errors": {
+      "setUpClass (__main__.SetupError)": "RuntimeError: fixture failure"
+    },
+    "failed": [],
+    "errors": [],
+    "stray_errors": [],
+    "expected_failures": [],
+    "unexpected_successes": [],
+    "duplicates": [],
+    "unaccounted": [
+      "__main__.SetupError.test_one"
+    ],
+    "uncollected": [],
+    "ok": false
+  },
+  "SetupSkip": {
+    "collected": [
+      "__main__.SetupSkip.test_one"
+    ],
+    "executed": [],
+    "passed": [],
+    "optional_skipped": {},
+    "required_skipped": {},
+    "fixture_skipped": {
+      "setUpClass (__main__.SetupSkip)": "fixture unavailable"
+    },
+    "fixture_errors": {},
+    "failed": [],
+    "errors": [],
+    "stray_errors": [],
+    "expected_failures": [],
+    "unexpected_successes": [],
+    "duplicates": [],
+    "unaccounted": [
+      "__main__.SetupSkip.test_one"
+    ],
+    "uncollected": [],
+    "ok": false
+  },
+  "TeardownError": {
+    "collected": [
+      "__main__.TeardownError.test_one"
+    ],
+    "executed": [
+      "__main__.TeardownError.test_one"
+    ],
+    "passed": [
+      "__main__.TeardownError.test_one"
+    ],
+    "optional_skipped": {},
+    "required_skipped": {},
+    "fixture_skipped": {},
+    "fixture_errors": {
+      "tearDownClass (__main__.TeardownError)": "RuntimeError: cleanup failure"
+    },
+    "failed": [],
+    "errors": [],
+    "stray_errors": [],
+    "expected_failures": [],
+    "unexpected_successes": [],
+    "duplicates": [],
+    "unaccounted": [],
+    "uncollected": [],
+    "ok": false
+  },
+  "MessageSubtest": {
+    "collected": [
+      "__main__.MessageSubtest.test_one"
+    ],
+    "executed": [
+      "__main__.MessageSubtest.test_one"
+    ],
+    "passed": [
+      "__main__.MessageSubtest.test_one"
+    ],
+    "optional_skipped": {},
+    "required_skipped": {},
+    "fixture_skipped": {},
+    "fixture_errors": {},
+    "failed": [
+      "__main__.MessageSubtest.test_one [named diagnostic]"
+    ],
+    "errors": [],
+    "stray_errors": [],
+    "expected_failures": [],
+    "unexpected_successes": [],
+    "duplicates": [],
+    "unaccounted": [],
+    "uncollected": [],
+    "ok": false
+  }
+}
+REPRODUCED: message-bearing subtest failure also counts its parent as passed

@@ -1,0 +1,32 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/tmp/w333485-preflight-l7tf7s6h/instance-root/code/v12/python/tools/stack_command.py", line 294, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/tmp/w333485-preflight-l7tf7s6h/instance-root/code/v12/python/tools/stack_command.py", line 290, in main
+    return COMMANDS[subcommand](operands)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/tmp/w333485-preflight-l7tf7s6h/instance-root/code/v12/python/tools/stack_command.py", line 82, in _manager
+    return job_manager.main(operands)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/tmp/w333485-preflight-l7tf7s6h/instance-root/code/v12/python/tools/job_manager.py", line 1165, in main
+    return taken.run(taken, clock or _utc_clock(),
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stream if stream is not None else sys.stdout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/w333485-preflight-l7tf7s6h/instance-root/code/v12/python/tools/job_manager.py", line 781, in _status
+    with _observing_job_store(taken, clock) as store:
+         ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/tmp/w333485-preflight-l7tf7s6h/instance-root/code/v12/python/tools/job_manager.py", line 103, in _observing_job_store
+    return JobStore.open_readonly(
+           ~~~~~~~~~~~~~~~~~~~~~~^
+        taken.store, authority_uuid=taken.authority_uuid,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        incarnation=taken.incarnation, clock=clock)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/w333485-preflight-l7tf7s6h/instance-root/code/v12/python/src/baton_v12/job_manager/store.py", line 379, in open_readonly
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"create what it was asked to read")
+baton_v12.contracts.errors.ContractRefusal: a read-only Job store requires an existing regular store; '/tmp/w333485-preflight-l7tf7s6h/instance-root/instance/db/j… is not one, and this opener does not create what it was asked to read

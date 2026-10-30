@@ -1,0 +1,240 @@
+diff --git a/v12/worker/claude_agent.py b/v12/worker/claude_agent.py
+index ba157140..8fee8dcd 100644
+--- a/v12/worker/claude_agent.py
++++ b/v12/worker/claude_agent.py
+@@ -3259,6 +3259,166 @@ class ClaudeAgent:
+             checked[name] = self._checked_directory(scratch, checked[name])
+         return checked
+ 
++    # W325695: THE MOUNT TABLE IS THE KERNEL'S OWN ACCOUNT, read rather than
++    # inferred. `os.path.ismount` compares st_dev against the parent, which a
++    # bind mount within one filesystem does not change -- so it answers "no"
++    # for exactly the topology this correction depends on. `mountinfo` names
++    # every mount point the kernel holds for this process, which is the fact
++    # being asked about.
++    MOUNTINFO = "/proc/self/mountinfo"
++
++    @classmethod
++    def _mount_points(cls, place=None):
++        """Every mount point in this process's namespace, as a set of paths.
++
++        FIELD 5 AND NOTHING PARSED LOOSELY. `mountinfo` is
++        `id parent major:minor root mountpoint options...`, and the mount
++        point is the fifth field with octal escapes for the four characters a
++        path may not carry literally. Decoding exactly those four is the whole
++        of the parsing: a reader that split on every space or that applied
++        `unicode_escape` would mis-read a path containing a backslash, and a
++        mount table this worker mis-reads is a security answer it has no
++        right to give.
++        """
++        held = set()
++        try:
++            with open(place or cls.MOUNTINFO, "r", encoding="utf-8") as table:
++                raw = table.read()
++        except OSError as failed:
++            raise TaskRefusal(
++                f"this runtime cannot read {place or cls.MOUNTINFO} "
++                f"({type(failed).__name__}); a verifier root's "
++                f"non-replaceability is a question only the mount table "
++                f"answers, and this adapter will not assume it") from failed
++        for line in raw.splitlines():
++            fields = line.split(" ")
++            if len(fields) < 5:
++                continue
++            point = fields[4]
++            for sequence, character in (("\\040", " "), ("\\011", "\t"),
++                                        ("\\012", "\n"), ("\\134", "\\")):
++                point = point.replace(sequence, character)
++            held.add(point)
++        return held
++
++    def _mount_bound_root(self, place, points, *, name):
++        """Prove ONE verifier root the provider cannot replace, and return it.
++
++        W325695. The descriptor alias this replaces defeated a check/use race
++        and broke every descendant; the pathname alone defeats neither. What
++        makes an ordinary pathname safe here is that it IS A MOUNT POINT: the
++        kernel refuses to rename or unlink one while it is mounted, `EBUSY`,
++        REGARDLESS OF UID -- and uid is exactly what this worker cannot rely
++        on, because the provider runs as the same one and can chmod back any
++        mode this adapter sets on a parent.
++
++        FIVE FACTS, ALL OF THEM, AND A REFUSAL NAMES WHICH ONE FAILED:
++
++          * the name opens as a directory with `O_NOFOLLOW`, so a link at
++            that name is refused rather than followed;
++          * the kernel's own mount table lists it as a mount point, which
++            `os.path.ismount` cannot establish for a bind mount inside one
++            filesystem because st_dev does not change;
++          * it is mode 0700, so no other identity reaches it through DAC;
++          * it is owned by THIS runtime's uid and gid, because a root owned by
++            somebody else is not one this adapter prepared;
++          * the opened object and the named object are the same inode on the
++            same device, which is the object-binding check the descriptor
++            form already made and which is kept unchanged.
++
++        THE DESCRIPTOR IS STILL OPENED AND STILL RETURNED. It is no longer the
++        verifier's authority -- the mount is -- but it remains the evidence
++        that the object did not move while it was being proved, and
++        `_revalidated_directories` re-asks it after the provider has run.
++        """
++        flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
++        try:
++            descriptor = os.open(place, flags)
++        except OSError as failed:
++            raise TaskRefusal(
++                f"the private verifier root {name} at {place} cannot be "
++                f"opened as a directory ({type(failed).__name__}); a link or "
++                f"a missing name is not a root this adapter prepared"
++            ) from failed
++        try:
++            state = os.fstat(descriptor)
++            named = os.lstat(place)
++            if place not in points:
++                raise TaskRefusal(
++                    f"the private verifier root {name} at {place} is not a "
++                    f"mount point in this runtime's own mount table; an "
++                    f"ordinary directory can be renamed by a process sharing "
++                    f"this uid, so it cannot carry an ordinary pathname into "
++                    f"the verifier")
++            if not stat.S_ISDIR(state.st_mode):
++                raise TaskRefusal(
++                    f"the private verifier root {name} at {place} is not a "
++                    f"directory")
++            if stat.S_IMODE(state.st_mode) != 0o700:
++                raise TaskRefusal(
++                    f"the private verifier root {name} at {place} has mode "
++                    f"{stat.S_IMODE(state.st_mode):04o}, not 0700")
++            if (state.st_uid, state.st_gid) != (os.getuid(), os.getgid()):
++                raise TaskRefusal(
++                    f"the private verifier root {name} at {place} is owned "
++                    f"by {state.st_uid}:{state.st_gid} and this runtime is "
++                    f"{os.getuid()}:{os.getgid()}; a root this adapter did "
++                    f"not prepare is not one it will verify under")
++            if (state.st_dev, state.st_ino) != (named.st_dev, named.st_ino):
++                raise TaskRefusal(
++                    f"the private verifier root {name} at {place} was "
++                    f"replaced while it was being opened")
++        except BaseException:
++            os.close(descriptor)
++            raise
++        return descriptor
++
++    def _mount_bound_environment(self, scratch, environment):
++        """The descendant-compatible form, or `None` if this image has none.
++
++        WHY DETECTION RATHER THAN A DECLARATION. The frozen task and launch
++        shapes are closed and this correction is explicitly not authorized to
++        extend them, so the layout is not announced to the worker -- it is
++        PROVED by the worker, from the kernel's mount table and the objects
++        themselves. An image that provides the layout gets ordinary verifier
++        paths that descendants and nested canonical-path checks can use; an
++        image that does not gets exactly today's behaviour.
++
++        AND A PARTIAL LAYOUT REFUSES RATHER THAN DEGRADING. If some roots are
++        mount points and others are not, this is neither the old topology nor
++        the new one, and quietly choosing either would be choosing a security
++        posture nobody selected. The refusal names the roots that disagreed.
++        """
++        checked = self._revalidated_environment(scratch, environment)
++        names = ("HOME", *(one for one, _leaf in self.EPHEMERA_ROOTS))
++        points = self._mount_points()
++        mounted = [one for one in names if checked[one] in points]
++        if not mounted:
++            return None
++        if len(mounted) != len(names):
++            raise TaskRefusal(
++                "this runtime provides mount-bound verifier roots for "
++                + ", ".join(mounted) + " and ordinary directories for "
++                + ", ".join(one for one in names if one not in mounted)
++                + "; a half-converted layout is neither topology and this "
++                  "adapter will not choose one for it")
++        pinned = {"PATH": checked["PATH"]}
++        held = []
++        try:
++            for name in names:
++                descriptor = self._mount_bound_root(checked[name], points,
++                                                    name=name)
++                held.append((name, descriptor))
++                # THE ORDINARY PATH, which is the whole correction: a
++                # grandchild resolves it, and a nested adapter's lexical and
++                # canonical spellings agree because there is no alias.
++                pinned[name] = checked[name]
++        except BaseException:
++            for _name, descriptor in held:
++                os.close(descriptor)
++            raise
++        return pinned, tuple(held)
++
+     def _pinned_environment(self, scratch, environment):
+         """Open verifier roots before the provider can create descendants.
+ 
+@@ -3274,6 +3434,14 @@ class ClaudeAgent:
+         environment and for operator inspection, but they are no longer the
+         verifier's authority.
+         """
++        # W325695: THE DESCENDANT-COMPATIBLE FORM FIRST, when this image
++        # provides it. The descriptor form below is kept unchanged for every
++        # image that does not, because it is what today's deployments run and
++        # it is correct for an immediate child -- the defect is that it is
++        # only correct for an immediate child.
++        bound = self._mount_bound_environment(scratch, environment)
++        if bound is not None:
++            return bound
+         checked = self._revalidated_environment(scratch, environment)
+         pinned = {"PATH": checked["PATH"]}
+         held = []
+@@ -3302,7 +3470,17 @@ class ClaudeAgent:
+ 
+     @staticmethod
+     def _revalidated_directories(environment, directories):
+-        """Validate held objects, never provider-writable pathnames."""
++        """Validate held objects, never provider-writable pathnames.
++
++        W325695: BOTH FORMS ARE RE-ASKED, and the object checks are the same
++        either way. What differs is only what the environment is allowed to
++        say: the descriptor form must still name `/proc/self/fd/<n>`, and the
++        mount-bound form must still name a path the kernel lists as a mount
++        point -- because a root that was unmounted while the provider ran is a
++        root whose non-replaceability has expired, which is exactly the
++        lifetime failure the holder-alias workaround was refused for.
++        """
++        points = None
+         for name, descriptor in directories:
+             try:
+                 state = os.fstat(descriptor)
+@@ -3321,10 +3499,31 @@ class ClaudeAgent:
+                 raise TaskRefusal(
+                     f"the held verifier root {name} was removed after the "
+                     f"provider ran")
+-            if environment[name] != f"/proc/self/fd/{descriptor}":
++            named = environment[name]
++            if named == f"/proc/self/fd/{descriptor}":
++                continue
++            if points is None:
++                points = ClaudeAgent._mount_points()
++            if named not in points:
++                raise TaskRefusal(
++                    f"the verifier environment names {named} for its held "
++                    f"{name} directory and the kernel no longer lists that "
++                    f"path as a mount point; a root that was unmounted while "
++                    f"the provider ran can be replaced by a process sharing "
++                    f"this uid")
++            try:
++                at_name = os.lstat(named)
++            except OSError as failed:
++                raise TaskRefusal(
++                    f"the verifier environment names {named} for its held "
++                    f"{name} directory and that name cannot be read "
++                    f"({type(failed).__name__})") from failed
++            if (at_name.st_dev, at_name.st_ino) != (state.st_dev,
++                                                    state.st_ino):
+                 raise TaskRefusal(
+-                    f"the verifier environment no longer names its held "
+-                    f"{name} directory")
++                    f"the verifier environment names {named} for its held "
++                    f"{name} directory and that name is now a different "
++                    f"object")
+         return tuple(descriptor for _name, descriptor in directories)
+ 
+     def _provider(self, task, candidate, scratch, environment, prompt=None):

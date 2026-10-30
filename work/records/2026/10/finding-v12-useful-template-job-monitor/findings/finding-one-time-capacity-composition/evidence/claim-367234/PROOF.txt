@@ -1,0 +1,43 @@
+test_the_same_request_again_replays (tests.tools.w367232_prove.OrdinaryCreateReachesItsOwners.test_the_same_request_again_replays) ... ok
+test_the_selected_job_is_admitted_through_these_inputs (tests.tools.w367232_prove.OrdinaryCreateReachesItsOwners.test_the_selected_job_is_admitted_through_these_inputs) ... /home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py:103: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x74ceaa4c5c60>
+  def _canonical_text(value, _depth):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py:103: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x74ceaa4c64d0>
+  def _canonical_text(value, _depth):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_the_derivation_resolves_both_lanes_and_the_task (tests.tools.w367232_prove.TheEmittedConfigurationCarriesBothLanes.test_the_derivation_resolves_both_lanes_and_the_task)
+THE REFUSAL THE PARENT REPRODUCES, REPLACED BY AN ANSWER. ... ok
+test_the_mint_and_the_two_lanes (tests.tools.w367232_prove.TheEmittedConfigurationCarriesBothLanes.test_the_mint_and_the_two_lanes) ... ok
+test_a_worker_less_phase_one_generates_and_persists_a_uuid (tests.tools.w367232_prove.ThePhaseOneMintGeneratesAFreshIdentity.test_a_worker_less_phase_one_generates_and_persists_a_uuid) ... ok
+test_a_foreign_authority_uuid_refuses (tests.tools.w367232_prove.TheRefusalsAnOperatorMustRelyOn.test_a_foreign_authority_uuid_refuses) ... authority 0000000a...    reused from this root's record
+route impl           -> baton.claude-w366962
+route rview          -> baton.reviewer-w366962
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+target                already established; left alone
+configuration /var/tmp/baton-w257624/v12-w71917-4oualbqn/bootstrap-deployment/deployment.json
+capacity      {"job_affinity": {"job-foreign-check": "impl-w366962", "job-template-job-guide-42bed8bb": "impl-w366962"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-w366962"], "integration": [], "review": ["review-w366962"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/baton-w257624/v12-w71917-4oualbqn/bootstrap-deployment/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/baton-w257624/v12-w71917-4oualbqn/bootstrap-deployment/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/baton-w257624/v12-w71917-4oualbqn/bootstrap-deployment/deployment.json"
+ok
+test_a_single_lane_deployment_is_refused_BY_THE_INSTALLER (tests.tools.w367232_prove.TheRefusalsAnOperatorMustRelyOn.test_a_single_lane_deployment_is_refused_BY_THE_INSTALLER)
+A BETTER FACT THAN THE ONE THIS CASE WENT LOOKING FOR. ... ok
+test_a_stale_source_commit_refuses_before_anything_is_composed (tests.tools.w367232_prove.TheRefusalsAnOperatorMustRelyOn.test_a_stale_source_commit_refuses_before_anything_is_composed) ... ok
+test_a_wrong_artifact_refuses_the_install (tests.tools.w367232_prove.TheRefusalsAnOperatorMustRelyOn.test_a_wrong_artifact_refuses_the_install)
+A runtime that is not a frozen build is refused by the installer. ... ok
+test_both_pins_hold_and_the_stamp_is_not_relabelled (tests.tools.w367232_prove.TheRetainedRuntimeIsMaterializedAndPinned.test_both_pins_hold_and_the_stamp_is_not_relabelled) ... ok
+test_the_selected_source_is_read_and_held (tests.tools.w367232_prove.TheRetainedRuntimeIsMaterializedAndPinned.test_the_selected_source_is_read_and_held) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 4.063s
+
+OK

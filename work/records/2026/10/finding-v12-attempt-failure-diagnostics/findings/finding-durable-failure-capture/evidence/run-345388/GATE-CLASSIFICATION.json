@@ -1,0 +1,194 @@
+{
+  "AGAINST_THE_FIRST": {
+    "no_coverage_was_bought": "THE TEST COUNT IS IDENTICAL AT 864 AND ZERO CASES WERE SKIPPED. That is the mechanical check that the correction did not drop, skip, narrow or delete a module, a case or an assertion, which is what TASK.md step 2 forbade.",
+    "previous": {
+      "all_in": "tests.manager.test_maintenance",
+      "errors": 7,
+      "failures": 9,
+      "tests": 864,
+      "unittest_seconds": 12.817
+    },
+    "previous_run": "durable-capture-w341357-345039",
+    "test_count_unchanged": true,
+    "what_appeared": "A DIFFERENT AND SINGLE CAUSE. All 16 remaining results are ERRORS and every one of them is sqlite3.OperationalError: database or disk is full, raised initialising or transacting a store. The distribution also moved: 6 in tests.manager.test_intake and 10 in tests.manager.test_maintenance.",
+    "what_moved": "FAILURES 9 -> 0. Every path-comparison assertion and every line-layout refusal that failed last run now passes. The fixture correction worked for the class it targeted."
+  },
+  "THE_SECOND_MEASUREMENT": {
+    "adapter_disposition": "verification-failed",
+    "ceiling_seconds": 30,
+    "errors": 16,
+    "exit_status": 1,
+    "failures": 0,
+    "fits_the_ceiling": true,
+    "skipped_reported": [],
+    "tests": 864,
+    "unittest_seconds": 12.515,
+    "verdict": "FAILED (errors=16)"
+  },
+  "WHAT_IS_ESTABLISHED": [
+    "the gate ran to completion again and exited 1; the candidate is retained, valid and UNACCEPTED",
+    "the test count is unchanged at 864 with zero skips, so no coverage was removed to buy a pass",
+    "FAILURES fell from 9 to 0: the path-assertion and line-layout class the fixture correction targeted is fixed",
+    "all 16 remaining results are ERRORS with ONE identical cause, sqlite3.OperationalError: database or disk is full",
+    "the 30-second ceiling still fits: 12.515s against 12.817s last run",
+    "the turn introduced tests/manager/disk_roots.py and changed test_maintenance.py, test_output.py and input_roots.py alongside the four producer paths -- nine changed paths, all fixture or producer, none in the vehicle and none in job_manager"
+  ],
+  "WHAT_IS_NOT_ESTABLISHED": [
+    "WHICH filesystem filled. The retained stream carries no store path and no disk-root decision line, so the chosen root is NOT NAMED by this evidence. Reporting it is the first thing the next turn owes.",
+    "whether the exhaustion is CAUSED by the new disk-backed root or merely SURFACED by it. The mechanism is plain but the measurement does not exist.",
+    "THE BASE-VERSUS-CANDIDATE COMPARISON TASK.md STEP 1 ASKED FOR. It is not in any host-verifiable artifact -- see the_reporting_channel_gap below.",
+    "anything about producer acceptance. The gate exited 1.",
+    "any host-side rerun: none was performed and none is authorized."
+  ],
+  "all_errors_are_one_cause": true,
+  "by_module": {
+    "tests.manager.test_intake": {
+      "errors": 6,
+      "failures": 0,
+      "total": 6
+    },
+    "tests.manager.test_maintenance": {
+      "errors": 10,
+      "failures": 0,
+      "total": 10
+    }
+  },
+  "candidate_changed_paths": [
+    "v12/python/src/baton_v12/worker_manager/attempts.py",
+    "v12/python/src/baton_v12/worker_manager/documents.py",
+    "v12/python/src/baton_v12/worker_manager/failure_cause.py",
+    "v12/python/src/baton_v12/worker_manager/intake.py",
+    "v12/python/tests/manager/disk_roots.py",
+    "v12/python/tests/manager/input_roots.py",
+    "v12/python/tests/manager/test_attempt_failure_cause.py",
+    "v12/python/tests/manager/test_maintenance.py",
+    "v12/python/tests/manager/test_output.py"
+  ],
+  "derived_by": "baton.claude, claim345571, read-only from the retained attempt stream",
+  "exhaustion_errors": 16,
+  "failing_case_count": 16,
+  "failing_cases": [
+    {
+      "case": "test_a_journalled_receipt_that_is_not_a_discharge_is_refused",
+      "kind": "ERROR",
+      "qualified": "tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_journalled_receipt_that_is_not_a_discharge_is_refused"
+    },
+    {
+      "case": "test_a_journalled_receipt_that_is_not_a_discharge_is_refused",
+      "kind": "ERROR",
+      "qualified": "tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_journalled_receipt_that_is_not_a_discharge_is_refused"
+    },
+    {
+      "case": "test_a_receipt_about_something_else_is_refused_by_both_exits",
+      "kind": "ERROR",
+      "qualified": "tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_receipt_about_something_else_is_refused_by_both_exits"
+    },
+    {
+      "case": "test_a_receipt_about_something_else_is_refused_by_both_exits",
+      "kind": "ERROR",
+      "qualified": "tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_receipt_about_something_else_is_refused_by_both_exits"
+    },
+    {
+      "case": "test_a_receipt_about_something_else_is_refused_by_both_exits",
+      "kind": "ERROR",
+      "qualified": "tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_receipt_about_something_else_is_refused_by_both_exits"
+    },
+    {
+      "case": "test_a_receipt_about_something_else_is_refused_by_both_exits",
+      "kind": "ERROR",
+      "qualified": "tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_receipt_about_something_else_is_refused_by_both_exits"
+    },
+    {
+      "case": "test_a_COMMITTED_cessation_for_ANOTHER_subject_moves_nothing",
+      "kind": "ERROR",
+      "qualified": "tests.manager.test_maintenance.TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_a_COMMITTED_cessation_for_ANOTHER_subject_moves_nothing"
+    },
+    {
+      "case": "test_a_COMMITTED_cessation_for_ANOTHER_subject_moves_nothing",
+      "kind": "ERROR",
+      "qualified": "tests.manager.test_maintenance.TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_a_COMMITTED_cessation_for_ANOTHER_subject_moves_nothing"
+    },
+    {
+      "case": "test_an_UNREADABLE_listing_ANSWER_is_not_a_confirmed_absence",
+      "kind": "ERROR",
+      "qualified": "tests.manager.test_maintenance.TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_an_UNREADABLE_listing_ANSWER_is_not_a_confirmed_absence"
+    },
+    {
+      "case": "test_an_UNREADABLE_listing_ANSWER_is_not_a_confirmed_absence",
+      "kind": "ERROR",
+      "qualified": "tests.manager.test_maintenance.TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_an_UNREADABLE_listing_ANSWER_is_not_a_confirmed_absence"
+    },
+    {
+      "case": "test_an_UNREADABLE_listing_ANSWER_is_not_a_confirmed_absence",
+      "kind": "ERROR",
+      "qualified": "tests.manager.test_maintenance.TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_an_UNREADABLE_listing_ANSWER_is_not_a_confirmed_absence"
+    },
+    {
+      "case": "test_an_UNREADABLE_listing_ANSWER_is_not_a_confirmed_absence",
+      "kind": "ERROR",
+      "qualified": "tests.manager.test_maintenance.TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_an_UNREADABLE_listing_ANSWER_is_not_a_confirmed_absence"
+    },
+    {
+      "case": "test_an_UNREADABLE_listing_ANSWER_is_not_a_confirmed_absence",
+      "kind": "ERROR",
+      "qualified": "tests.manager.test_maintenance.TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_an_UNREADABLE_listing_ANSWER_is_not_a_confirmed_absence"
+    },
+    {
+      "case": "test_an_UNREADABLE_listing_ANSWER_is_not_a_confirmed_absence",
+      "kind": "ERROR",
+      "qualified": "tests.manager.test_maintenance.TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_an_UNREADABLE_listing_ANSWER_is_not_a_confirmed_absence"
+    },
+    {
+      "case": "test_an_UNREADABLE_listing_ANSWER_is_not_a_confirmed_absence",
+      "kind": "ERROR",
+      "qualified": "tests.manager.test_maintenance.TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_an_UNREADABLE_listing_ANSWER_is_not_a_confirmed_absence"
+    },
+    {
+      "case": "test_an_UNREADABLE_listing_ANSWER_is_not_a_confirmed_absence",
+      "kind": "ERROR",
+      "qualified": "tests.manager.test_maintenance.TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_an_UNREADABLE_listing_ANSWER_is_not_a_confirmed_absence"
+    }
+  ],
+  "raw_stream": {
+    "bytes": 29297,
+    "not_copied_why": "the gate ran inside the attempt over a tree the provider edited with the attempt credential mount readable. The proposal's own verification.txt refuses to reproduce this stream for exactly that reason. A grep is not a proof of absence, so the raw bytes stay in the instance and only this derivation enters the dossier.",
+    "place": "/home/sl/baton-instances/durable-capture-w341357-345388/packet/launch/implementation/logs/attempt-5b3a73432204dc215833b3bf2c6b22d9dc47ddf733e9f66eafc445aea6d15083/verification.stderr.log",
+    "reader": "baton-v12-stack logs --logs /home/sl/baton-instances/durable-capture-w341357-345388/packet/launch/implementation/logs --attempt attempt-5b3a73432204dc215833b3bf2c6b22d9dc47ddf733e9f66eafc445aea6d15083 locators",
+    "sha256": "99f7de5b0552142a8f2240c249ac260c561ac16b88da40f014a9d6716df4faea"
+  },
+  "schema": "baton.w341357-gate-classification/2",
+  "the_mechanism_the_turn_introduced": {
+    "file": "v12/python/tests/manager/disk_roots.py",
+    "what": "a NEW fixture helper that answers a DISK-BACKED temporary root, because source_boundary.compose_source_boundary refuses a workspace on a memory filesystem. Its candidate order is an explicit BATON_V12_DISK_ROOT operand first, then tempfile.gettempdir(), then the distribution root, then /var/tmp -- and it REFUSES rather than silently falling back if an explicit variable names memory-backed or unwritable storage.",
+    "what_it_ran_into": "the root it found has bounded space. The composed runtime profile bounds scratch at tmp_bytes 67108864 and shm_bytes 16777216 with workspace_min_bytes 83886081, and 864 cases each creating SQLite stores exhausted whatever root was chosen.",
+    "why_it_is_the_right_shape": "the verifier exports TMPDIR as a /proc/self/fd alias over scratch, and scratch is memory-backed, so the production boundary correctly refuses a workspace there. The helper states the choice instead of skipping, which is the rule this Work is about."
+  },
+  "the_reporting_channel_gap": {
+    "finding": "the transcript references the gate count and the base but carries no parseable failures= or errors= counts at all. So the comparison is NOT established by any evidence a reviewer can read without the transcript.",
+    "scanned_not_quoted": {
+      "bytes": 9809,
+      "method": "counted pattern occurrences only. The transcript is NOT copied into the dossier and NOT quoted.",
+      "occurrences": {
+        "[Bb]aseline": 0,
+        "\\b864\\b": 3,
+        "\\bbase\\b": 8,
+        "errors=\\d+": 0,
+        "failures=\\d+": 0
+      },
+      "place": "/home/sl/baton-instances/durable-capture-w341357-345388/packet/launch/implementation/logs/attempt-5b3a73432204dc215833b3bf2c6b22d9dc47ddf733e9f66eafc445aea6d15083/provider.stdout.log",
+      "sha256": "cb8f3ee22e25a011c783e619906924a8c6d7ad3a1f74bb99941d2e43e756bc6d"
+    },
+    "what": "TASK.md step 1 asked the worker for the base-versus-candidate counts and step 6 asked it to report them, but the task gave it NO CHANNEL other than the provider transcript -- and the proposal deliberately carries no transcript, so those numbers reach nobody.",
+    "whose_defect": "MINE. I wrote that task. A future packet must give the turn a declared output path for its own report, or ask for the numbers somewhere the proposal carries."
+  },
+  "traceback_files": {
+    "/output/v12/python/src/baton_v12/authority/api.py": 2,
+    "/output/v12/python/src/baton_v12/authority/core.py": 2,
+    "/output/v12/python/src/baton_v12/authority/store.py": 4,
+    "/output/v12/python/src/baton_v12/worker_manager/offers.py": 2,
+    "/output/v12/python/src/baton_v12/worker_manager/store.py": 26,
+    "/output/v12/python/tests/manager/test_intake.py": 31,
+    "/output/v12/python/tests/manager/test_maintenance.py": 20,
+    "/output/v12/python/tests/manager/test_output.py": 16
+  }
+}

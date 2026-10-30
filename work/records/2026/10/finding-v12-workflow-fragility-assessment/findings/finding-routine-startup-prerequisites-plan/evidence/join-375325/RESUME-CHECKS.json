@@ -1,0 +1,119 @@
+{
+  "claim": "E375325",
+  "verified_at": "2026-10-28T17:06:14.219796+00:00",
+  "checks": [
+    {
+      "path": "work/records/2026/10/finding-v12-queued-admission-contract-plan/PROPOSAL.md",
+      "expected": "3aee843672879335c8395900f8268c506ef587cf192f123a6b9db0004b75a800",
+      "actual": "3aee843672879335c8395900f8268c506ef587cf192f123a6b9db0004b75a800",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-queued-admission-contract-plan/PROGRESS.md",
+      "expected": "fe5f484e10b927ceb1a6cc00cecad1959a29616d61a8d20289c6f04ba8f8ea31",
+      "actual": "fe5f484e10b927ceb1a6cc00cecad1959a29616d61a8d20289c6f04ba8f8ea31",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-queued-admission-contract-plan/evidence/claim-371528/CHECKS.json",
+      "expected": "fd5c493c02ba110d5c94542ab534cf3849be3dbc5447af8fe0247def3632e37f",
+      "actual": "fd5c493c02ba110d5c94542ab534cf3849be3dbc5447af8fe0247def3632e37f",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-queued-admission-contract-plan/evidence/claim-371528/REQUEST.synthetic.json",
+      "expected": "8abb9cd89355d32e3dc0af32dec2ad324cd91a6a014075fca2206d841476c845",
+      "actual": "8abb9cd89355d32e3dc0af32dec2ad324cd91a6a014075fca2206d841476c845",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-queued-admission-contract-plan/evidence/claim-371528/SOURCES.json",
+      "expected": "b94154d9df80cd358d2734133919a933ecd8c5dafed96675e8fc90ad6d058c9a",
+      "actual": "b94154d9df80cd358d2734133919a933ecd8c5dafed96675e8fc90ad6d058c9a",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-routine-startup-prerequisites-plan/evidence/review-371387/PROPOSAL-revision2.md",
+      "expected": "c026b60d33930391a67b286064f69642cc2331bb89dfc65fd41ec747e4a4005d",
+      "actual": "c026b60d33930391a67b286064f69642cc2331bb89dfc65fd41ec747e4a4005d",
+      "match": true
+    },
+    {
+      "path": "v12/DESIGN.md",
+      "expected": "571738130e7cfedd33966c1e920488b629e6b877eef16b1a3c61ccb7ea7f2796",
+      "actual": "9a31d23cb5dcc3f205d938a18cf6f7595dddffca5877a97450c6e899fb6731f4",
+      "match": false
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/creation.py",
+      "expected": "b707227ebb794158497b33228089df91db7b6aa69c22f71134fa62a2c96a42ee",
+      "actual": "b707227ebb794158497b33228089df91db7b6aa69c22f71134fa62a2c96a42ee",
+      "match": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/schema.py",
+      "expected": "38ba3ca2e79fe347a3e80c67304af6ccce59cc9100af59b9c0babf579f8747af",
+      "actual": "38ba3ca2e79fe347a3e80c67304af6ccce59cc9100af59b9c0babf579f8747af",
+      "match": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/store.py",
+      "expected": "539daa267effea1a2ac17d344ec68b9e7b2e92efb484c3a4bb50fd0265168186",
+      "actual": "539daa267effea1a2ac17d344ec68b9e7b2e92efb484c3a4bb50fd0265168186",
+      "match": true
+    },
+    {
+      "path": "v12/python/tools/fresh_attempt_ports.py",
+      "expected": "c8a41e078769eb105440ed8fb71e6d66bf484cf292cd344cabefa8dc2c75a2a5",
+      "actual": "c8a41e078769eb105440ed8fb71e6d66bf484cf292cd344cabefa8dc2c75a2a5",
+      "match": true
+    },
+    {
+      "path": "v12/python/tools/job_manager.py",
+      "expected": "9f9008fd68a3f00ed41516c0127655cd24a5518df15294f22282c0f0dc66018f",
+      "actual": "9f9008fd68a3f00ed41516c0127655cd24a5518df15294f22282c0f0dc66018f",
+      "match": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/workspaces.py",
+      "expected": "e769da4557d0405edee8e17d4333bebd18bc713c07781250d45f10d0e8587dc4",
+      "actual": "e769da4557d0405edee8e17d4333bebd18bc713c07781250d45f10d0e8587dc4",
+      "match": true
+    },
+    {
+      "path": "v12/worker/baton_worker.py",
+      "expected": "56cdee824193834e9f1e8e974259575219a9223aa9b4f1946c99099b35c5cd34",
+      "actual": "56cdee824193834e9f1e8e974259575219a9223aa9b4f1946c99099b35c5cd34",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-template-adapter-admission-plan/PROPOSAL.md",
+      "expected": "ad0f2171f06f8da9e6e3c2784e50cab91d27f94c4d0727014e4520b00aa0b339",
+      "actual": "ad0f2171f06f8da9e6e3c2784e50cab91d27f94c4d0727014e4520b00aa0b339",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-template-adapter-admission-plan/FINDING.md",
+      "expected": "ca961ff9957937c7ed5e61003e10fc08171207d843aead2eaac2c257c1825991",
+      "actual": "ca961ff9957937c7ed5e61003e10fc08171207d843aead2eaac2c257c1825991",
+      "match": true
+    },
+    {
+      "path": "v12/python/tools/bootstrap.py",
+      "expected": "3bc26bb0a71cf980ae9f37e813d52fd125a0dbed30d0a43e66e36dd0bcf0bc02",
+      "actual": "3bc26bb0a71cf980ae9f37e813d52fd125a0dbed30d0a43e66e36dd0bcf0bc02",
+      "match": true
+    },
+    {
+      "path": "v12/python/tools/instance.py",
+      "expected": "ee59b95ca4f4a9753058ad48d4215f3a18be395290e8924b762311392dbad433",
+      "actual": "ee59b95ca4f4a9753058ad48d4215f3a18be395290e8924b762311392dbad433",
+      "match": true
+    }
+  ],
+  "design_drift": "Re-read W371074 fresh-schema settlement clause and owning FINDING; reflected in joined decision.",
+  "historical_parent_unchanged": true,
+  "joined_proposal_sha256": "eec22c06ca548a4da14107fce18e6029887909413d196c060a0a1fa7e6fb7dd0",
+  "measured_pin_check_seconds": 0.0008582730000057381,
+  "tests": "No product tests; document/source-pin checks only."
+}

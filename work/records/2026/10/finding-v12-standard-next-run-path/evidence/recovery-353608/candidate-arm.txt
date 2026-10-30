@@ -1,0 +1,19 @@
+.................................F..
+======================================================================
+FAIL: test_a_pre_runtime_source_refusal_is_accounted_and_not_cleaned (tests.tools.test_next_run_flow.JoinedFlow.test_a_pre_runtime_source_refusal_is_accounted_and_not_cleaned)
+W339626: the live C failure's own shape, through real accounting.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w339626-353054/candidate/v12/python/tests/tools/test_next_run_flow.py", line 187, in test_a_pre_runtime_source_refusal_is_accounted_and_not_cleaned
+    self.assertIn('Permission denied', failure)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'Permission denied' not found in ''
+
+----------------------------------------------------------------------
+Ran 36 tests in 34.375s
+
+FAILED (failures=1)
+
+real	0m34.815s
+user	0m11.796s
+sys	0m1.563s

@@ -1,0 +1,39 @@
+{
+  "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+  "participant": "baton.prompt",
+  "projection_version": "12.8",
+  "protocol_version": 11,
+  "result": {
+    "id": "2b077949-T384870",
+    "labels": [
+      {
+        "status": "open",
+        "team": "baton",
+        "work": "2b077949-W384870"
+      }
+    ],
+    "last_seq": 384904,
+    "local_id": "T384870",
+    "messages": [
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "Owner confirms scheduled-server-reboot stop after K handoff M384903. Stop execution now; no further tests/implementation until Slawomir explicitly resumes. Persistent restart checkpoint: baton:work/records/2026/10/finding-v12-controlled-test-groups/RESTART-20261030.md; FINDING pins the stop, PLAN points to checkpoint. S1/first S4 delivered but not independently accepted; R1 accepted; R2 remains open per M384901 for consumed work/records inputs. B3 remains authorized after resume where non-overlapping; no new scope approval gate created. Read-only runtime check found no active test processes or matching Baton background services; only unrelated mdb114-a MariaDB container runs and is left untouched. Owner-held claim still active as baton.slaw episode 384882; exact owner release and post-reboot reclaim commands are in the checkpoint. Copilot does not impersonate owner or release the claim. Capturing persistent source/evidence backup and hashes under evidence/shutdown-20261030; no Git mutation or server reboot by copilot.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 384904,
+        "ts": "2026-10-30 03:43:25"
+      }
+    ],
+    "new": 28,
+    "next_after": null,
+    "next_before": null,
+    "participants": [
+      "baton"
+    ],
+    "subject": "V12: controlled test groups and a clean full-suite baseline",
+    "total": 28
+  },
+  "snapshot_seq": 384904
+}

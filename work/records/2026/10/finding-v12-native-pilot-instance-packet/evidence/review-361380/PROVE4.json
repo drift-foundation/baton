@@ -1,0 +1,165 @@
+{
+ "bundle": "/home/sl/w325959-bundle/out/distro",
+ "bundle_digest": "1b014603aec40e9f6d9c03a8b21ae74a02d9f1fef1ff95fc0f3e8a851a229c07",
+ "checks": [
+  {
+   "check": "the real bundle recomputes to this packet's pin through the product's own instance.manifest",
+   "digest": "1b014603aec40e9f6d9c03a8b21ae74a02d9f1fef1ff95fc0f3e8a851a229c07",
+   "files": 81,
+   "outcome": true
+  },
+  {
+   "check": "the frozen command carries the fresh-attempt verb, so a failure of THIS revision has a supported retry",
+   "detail": "manager fresh-attempt --help",
+   "outcome": true
+  },
+  {
+   "check": "`verification_context` is NOT in the bundle's PYZ table of contents: package membership is not PyInstaller inclusion",
+   "detail": "corrected accounting",
+   "outcome": true
+  },
+  {
+   "check": "`fresh_attempt_ports` and `job_manager.fresh_attempt` ARE",
+   "outcome": true
+  },
+  {
+   "check": "the preflight validates and plans",
+   "outcome": true
+  },
+  {
+   "check": "and it creates nothing at the destination",
+   "outcome": true
+  },
+  {
+   "check": "it carries this revision's identities",
+   "outcome": true
+  },
+  {
+   "authority": "02419b32e67b422dbf681e66c1b8c707",
+   "check": "the apply mints an authority and reads it back",
+   "outcome": true
+  },
+  {
+   "check": "the Work carries THIS authority's prefix",
+   "outcome": true,
+   "work": "02419b32-W1"
+  },
+  {
+   "check": "and it is not instance 3's Work",
+   "outcome": true
+  },
+  {
+   "check": "both stages are configured",
+   "outcome": true,
+   "workers": [
+    "implementation",
+    "review"
+   ]
+  },
+  {
+   "check": "one Job binding is installed",
+   "outcome": true
+  },
+  {
+   "check": "all four repositories are prepared",
+   "outcome": true,
+   "repositories": [
+    "source-implementation-pilot",
+    "source-review-pilot",
+    "target.git",
+    "workspace"
+   ]
+  },
+  {
+   "check": "the emitted task document digests its own composed bytes",
+   "outcome": true,
+   "task_digest": "sha256:9fdb1dd4ada5908bbd1718c8dbc89eff0d4c7def98dab9f89834373d47b8876b"
+  },
+  {
+   "check": "the installed configuration is one this build accepts",
+   "outcome": true
+  },
+  {
+   "check": "the submission names this revision's Job and submission",
+   "outcome": true
+  },
+  {
+   "check": "the per-invocation limits are preserved exactly",
+   "limits": {
+    "provider_turn_seconds": 3600,
+    "verification_command_seconds": 900
+   },
+   "outcome": true
+  },
+  {
+   "check": "the submission names NEITHER instance 3's Job NOR its Work",
+   "outcome": true
+  },
+  {
+   "check": "both stages are submitted, review gated on implementation",
+   "outcome": true
+  },
+  {
+   "check": "a second preparation of the SAME destination refuses",
+   "destination_exists": false,
+   "detail": "REFUSED: the destination /tmp/w325959-r4-apply-o6maxil_/destination already exists; a fresh instance is prepared once. Inspect it rather than having this write into somebody else's tree.",
+   "outcome": true
+  },
+  {
+   "check": "and the first installation is untouched: its selector still names the authority it minted",
+   "outcome": true
+  },
+  {
+   "check": "a malformed packet document refuses before the mint",
+   "destination_exists": false,
+   "detail": "REFUSED: the consumed document task.json at /tmp/w325959-r4-refuse-4zxexqar/broken/task.json is not valid JSON: Expecting property name enclosed in double quotes: line 1 column 3 (char 2). Nothing is minted for a packet ",
+   "outcome": true
+  },
+  {
+   "check": "a changed pin refuses before the mint",
+   "destination_exists": false,
+   "detail": "REFUSED: the packet document task.json is sha256:9fdb1dd4ada5908bbd1718c8dbc89eff0d4c7def98dab9f89834373d47b8876b and this procedure is bound to sha256:0000000000000000000000000000000000000000000000000000000000000000; th",
+   "outcome": true
+  },
+  {
+   "check": "an absent bundle refuses before the mint",
+   "destination_exists": false,
+   "detail": "REFUSED: the bundle /tmp/w325959-r4-refuse-4zxexqar/nowhere is not a directory this preparation can admit (a link or a missing path is not a one-folder bundle)",
+   "outcome": true
+  },
+  {
+   "check": "a destination inside retained 1 refuses",
+   "destination_exists": false,
+   "detail": "REFUSED: instance 3's destination at /home/sl/baton-instances/native-coordination-pilot-w321608-1/inside lies inside /home/sl/baton-instances/native-coordination-pilot-w321608-1; a fresh instance isolates its own state",
+   "outcome": true
+  },
+  {
+   "check": "a destination inside retained 2 refuses",
+   "destination_exists": false,
+   "detail": "REFUSED: instance 3's destination at /home/sl/baton-instances/native-coordination-pilot-w321608-2/inside lies inside /home/sl/baton-instances/native-coordination-pilot-w321608-2; a fresh instance isolates its own state",
+   "outcome": true
+  },
+  {
+   "check": "a destination inside retained 3 refuses",
+   "destination_exists": false,
+   "detail": "REFUSED: instance 3's destination at /home/sl/baton-instances/native-coordination-pilot-w321608-3/inside lies inside /home/sl/baton-instances/native-coordination-pilot-w321608-3; a fresh instance isolates its own state",
+   "outcome": true
+  },
+  {
+   "check": "a drifted accepted helper refuses",
+   "destination_exists": false,
+   "detail": "REFUSED: the accepted helper fresh.py is sha256:682c6b094f259fd1114781dbe54b79c5bd88c9590162f18a92551ceac586521f and this packet consumes sha256:0000000000000000000000000000000000000000000000000000000000000000; a drifted",
+   "outcome": true
+  }
+ ],
+ "disposable_apply": {
+  "authority": "02419b32e67b422dbf681e66c1b8c707",
+  "root": "/tmp/w325959-r4-apply-o6maxil_/destination",
+  "work": "02419b32-W1"
+ },
+ "failed": [],
+ "packet": "/home/sl/src/baton/work/records/2026/10/finding-v12-native-pilot-instance-packet/fresh4-361320",
+ "revision": 4,
+ "seconds": 0.43891812400033814,
+ "source_commit": "614668e0831e8c87cdae11ca43620e0d544a84d5"
+}

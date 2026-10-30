@@ -1,0 +1,255 @@
+{
+  "claim": 345627,
+  "owner_selection": 345625,
+  "selected_root": "/home/sl/baton-instances/serving-renewal-w333485-339444",
+  "selected_root_exists": false,
+  "parent": "/home/sl/baton-instances",
+  "parent_mode": "0o775",
+  "parent_uid": 1000,
+  "parent_gid": 1000,
+  "euid": 1000,
+  "egid": 1000,
+  "parent_write_access": false,
+  "write_authority_roots": [
+    "/home/sl/src/baton",
+    "/tmp"
+  ],
+  "manifest_sha256": "0f8eba8caa8eca82639f83b184c90dbafd7a19757be7fe6336c5494ce4329adb",
+  "input_verification": {
+    "command": [
+      "python3",
+      "-B",
+      "work/records/2026/10/finding-v12-serving-token-renewal/continuation-339444/verify-inputs.py"
+    ],
+    "returncode": 0,
+    "stdout": "{\"base\": \"bc925cf5c62d69426ed5862af4d41f4d2a967b0f\", \"manager_files\": 119, \"run\": \"serving-renewal-w333485-339444\", \"state\": \"prelaunch-input-pins-match\", \"task_inputs\": 8, \"verification_names\": 4}\n",
+    "stderr": "",
+    "seconds": 0.26524880199940526,
+    "timeout": 30
+  },
+  "seals": [
+    {
+      "path": "ACCEPTED-PREREQUISITE.json",
+      "matches": true
+    },
+    {
+      "path": "LOAD-COMMAND.txt",
+      "matches": true
+    },
+    {
+      "path": "OPERATOR.md",
+      "matches": true
+    },
+    {
+      "path": "PACKET-INPUTS.json",
+      "matches": true
+    },
+    {
+      "path": "PARTIAL-INPUT.json",
+      "matches": true
+    },
+    {
+      "path": "PREPARATION-PINS.json",
+      "matches": true
+    },
+    {
+      "path": "PREPARATION-RESULT.md",
+      "matches": true
+    },
+    {
+      "path": "SOURCE.json",
+      "matches": true
+    },
+    {
+      "path": "SPENDING.json",
+      "matches": true
+    },
+    {
+      "path": "TASK.md",
+      "matches": true
+    },
+    {
+      "path": "candidate-input/v12/python/src/baton_v12/job_manager/manager.py",
+      "matches": true
+    },
+    {
+      "path": "candidate-input/v12/python/src/baton_v12/job_manager/renewal.py",
+      "matches": true
+    },
+    {
+      "path": "candidate-input/v12/python/tools/job_manager.py",
+      "matches": true
+    },
+    {
+      "path": "check-composition.py",
+      "matches": true
+    },
+    {
+      "path": "check-overlay.py",
+      "matches": true
+    },
+    {
+      "path": "check-preparation.py",
+      "matches": true
+    },
+    {
+      "path": "evidence/IMAGE.txt",
+      "matches": true
+    },
+    {
+      "path": "evidence/OVERLAY.json",
+      "matches": true
+    },
+    {
+      "path": "evidence/final/CHECK.json",
+      "matches": true
+    },
+    {
+      "path": "evidence/final/PREPARED.json",
+      "matches": true
+    },
+    {
+      "path": "evidence/final/base-refused.log",
+      "matches": true
+    },
+    {
+      "path": "evidence/final/bind.log",
+      "matches": true
+    },
+    {
+      "path": "evidence/final/bootstrap-inputs.json",
+      "matches": true
+    },
+    {
+      "path": "evidence/final/bootstrap.log",
+      "matches": true
+    },
+    {
+      "path": "evidence/final/composition.log",
+      "matches": true
+    },
+    {
+      "path": "evidence/final/digest-refused.log",
+      "matches": true
+    },
+    {
+      "path": "evidence/final/generated/PACKET.json",
+      "matches": true
+    },
+    {
+      "path": "evidence/final/generated/adapter.json",
+      "matches": true
+    },
+    {
+      "path": "evidence/final/generated/commands.json",
+      "matches": true
+    },
+    {
+      "path": "evidence/final/generated/deployment.json",
+      "matches": true
+    },
+    {
+      "path": "evidence/final/generated/policy.json",
+      "matches": true
+    },
+    {
+      "path": "evidence/final/generated/runtime-profile.json",
+      "matches": true
+    },
+    {
+      "path": "evidence/final/generated/submission.json",
+      "matches": true
+    },
+    {
+      "path": "evidence/final/generated/task.json",
+      "matches": true
+    },
+    {
+      "path": "evidence/final/pins.log",
+      "matches": true
+    },
+    {
+      "path": "evidence/final/rebind-refused.log",
+      "matches": true
+    },
+    {
+      "path": "evidence/final/reuse-refused.log",
+      "matches": true
+    },
+    {
+      "path": "evidence/final/stage.json",
+      "matches": true
+    },
+    {
+      "path": "evidence/final/stage.log",
+      "matches": true
+    },
+    {
+      "path": "evidence/final/staged-drift-refused.log",
+      "matches": true
+    },
+    {
+      "path": "evidence/initial/CHECK.json",
+      "matches": true
+    },
+    {
+      "path": "evidence/initial/base-refused.log",
+      "matches": true
+    },
+    {
+      "path": "evidence/initial/bind.log",
+      "matches": true
+    },
+    {
+      "path": "evidence/initial/bootstrap.log",
+      "matches": true
+    },
+    {
+      "path": "evidence/initial/composition.log",
+      "matches": true
+    },
+    {
+      "path": "evidence/initial/digest-refused.log",
+      "matches": true
+    },
+    {
+      "path": "evidence/initial/pins.log",
+      "matches": true
+    },
+    {
+      "path": "evidence/initial/rebind-refused.log",
+      "matches": true
+    },
+    {
+      "path": "evidence/initial/reuse-refused.log",
+      "matches": true
+    },
+    {
+      "path": "evidence/initial/stage.log",
+      "matches": true
+    },
+    {
+      "path": "evidence/initial/staged-drift-refused.log",
+      "matches": true
+    },
+    {
+      "path": "prepare.py",
+      "matches": true
+    },
+    {
+      "path": "restore.py",
+      "matches": true
+    },
+    {
+      "path": "source.tar.gz",
+      "matches": true
+    },
+    {
+      "path": "verify-inputs.py",
+      "matches": true
+    }
+  ],
+  "stage_attempted": false,
+  "launch_attempted": false,
+  "reason": "Selected parent is not writable and is outside supplied write roots. Stop before stage root.mkdir; no replacement path or stronger executor selected."
+}

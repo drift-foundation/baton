@@ -1,0 +1,85 @@
+{
+  "claim": 353886,
+  "inspection": "static bytes only; no product imports, store reads or executions",
+  "sources": [
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "tree_sha256": "f634e02296ff05fd0f17c51b87a917252d61f9156eaaa83f5145b3ac46bfbcd5",
+      "installed_sha256": "f634e02296ff05fd0f17c51b87a917252d61f9156eaaa83f5145b3ac46bfbcd5",
+      "same_installed_bytes": true
+    },
+    {
+      "path": "v12/python/tools/stage_execution.py",
+      "tree_sha256": "bad0a355abccf7838f2f4c3948947ace93ff7105a625ae2a866e74eec40d606d",
+      "installed_sha256": "bad0a355abccf7838f2f4c3948947ace93ff7105a625ae2a866e74eec40d606d",
+      "same_installed_bytes": true
+    },
+    {
+      "path": "v12/python/tools/next_run_managed.py",
+      "tree_sha256": "b4e6261a6a56086fb4eabcc292713ce21ad0dabcac9a7d1f1ac1562895ae76a9",
+      "installed_sha256": "b4e6261a6a56086fb4eabcc292713ce21ad0dabcac9a7d1f1ac1562895ae76a9",
+      "same_installed_bytes": true
+    },
+    {
+      "path": "v12/python/tools/next_run_recovery.py",
+      "tree_sha256": "59502d0ea24707f211f8fc47bd07b3847a373de48da12939a8e93920cbc506f9",
+      "installed_sha256": "59502d0ea24707f211f8fc47bd07b3847a373de48da12939a8e93920cbc506f9",
+      "same_installed_bytes": true
+    },
+    {
+      "path": "v12/python/tools/next_run_entry.py",
+      "tree_sha256": "8290d5797267d02608180bd8539905be573ee6092ad8a04bd274a09c326a6bf4",
+      "installed_sha256": "8290d5797267d02608180bd8539905be573ee6092ad8a04bd274a09c326a6bf4",
+      "same_installed_bytes": true
+    },
+    {
+      "path": "v12/python/tools/next_run_client.py",
+      "tree_sha256": "d1f4e42a50ed95a8e34069e525017b4d9feca3ac3bc31fe7b51d592223d3ce1d",
+      "installed_sha256": "d1f4e42a50ed95a8e34069e525017b4d9feca3ac3bc31fe7b51d592223d3ce1d",
+      "same_installed_bytes": true
+    },
+    {
+      "path": "v12/python/tools/authoring_enforcement.py",
+      "tree_sha256": "ac3640fe020fb69144a9c8b040bd73abed3eeff69a3f9a1ff0dd9462d08bcf93",
+      "installed_sha256": "ac3640fe020fb69144a9c8b040bd73abed3eeff69a3f9a1ff0dd9462d08bcf93",
+      "same_installed_bytes": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/attempts.py",
+      "tree_sha256": "5c3cf84641bcbef5fcf78c4bd058911dfc233b60242920ab30ebf6ce54fcdc7d",
+      "installed_sha256": "5c3cf84641bcbef5fcf78c4bd058911dfc233b60242920ab30ebf6ce54fcdc7d",
+      "same_installed_bytes": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/workspaces.py",
+      "tree_sha256": "d4fea18eab1d0f0e1ee8e197a006dc97274c021ed4dd6c548660a2e17ff08a03",
+      "installed_sha256": "d4fea18eab1d0f0e1ee8e197a006dc97274c021ed4dd6c548660a2e17ff08a03",
+      "same_installed_bytes": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/tokens.py",
+      "tree_sha256": "c59c5d92352cbb2b225455b0c02cb625f1b4da6e9a4cc8cd65b0bc644e1fd5b4",
+      "installed_sha256": "c59c5d92352cbb2b225455b0c02cb625f1b4da6e9a4cc8cd65b0bc644e1fd5b4",
+      "same_installed_bytes": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/review_cycles.py",
+      "tree_sha256": "706a2e138ea29d6d27173ebdb15077b1e99b065878ae25d57c4b7306f3358552",
+      "installed_sha256": "706a2e138ea29d6d27173ebdb15077b1e99b065878ae25d57c4b7306f3358552",
+      "same_installed_bytes": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/review_driver.py",
+      "tree_sha256": "b148669c84af0dc87d248cee293ac48a03553f9963603161502574e201a04d47",
+      "installed_sha256": "b148669c84af0dc87d248cee293ac48a03553f9963603161502574e201a04d47",
+      "same_installed_bytes": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/checkpoint_profiles.py",
+      "tree_sha256": "bcd539447066fa5e05fcf5340ec3c1b675920ccd9d859ec81d18889f2d3d4f04",
+      "installed_sha256": "bcd539447066fa5e05fcf5340ec3c1b675920ccd9d859ec81d18889f2d3d4f04",
+      "same_installed_bytes": true
+    }
+  ],
+  "seconds": 0.004785934999745223
+}

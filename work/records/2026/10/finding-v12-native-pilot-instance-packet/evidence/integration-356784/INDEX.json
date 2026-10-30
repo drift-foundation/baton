@@ -1,0 +1,118 @@
+{
+  "WORK": "2b077949-W325959",
+  "CLAIM": 356784,
+  "AUTHORITY": {
+    "owner_approval": "M356736, baton.slaw, 2026-10-23T00:51:58Z -- approves human-plus-agent integration of the exact 34-path delta cf84e58a, requires a whole-target-set drift/overlap/type/mode check BEFORE importing, stop on divergence, Git remains Slawomir's, keep W325959 open, no deployment/recovery/live execution",
+    "binding_review": "work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-22T20-41-13Z.md",
+    "identity_question_checked_not_assumed": "AGENTS.md makes baton.merge the integrator and explicitly NOT an alias for implementation. The review's 'no automatic managed-integrator allocation' plus the owner's human-plus-agent approval and the canonical reroute to baton.impl are what authorize this turn. Flagged rather than glossed: if a managed baton.merge turn was intended, this verification still stands and no import was performed here."
+  },
+
+  "THE_FINDING": "THE INTEGRATION WAS ALREADY PERFORMED BEFORE THIS WORK WAS REROUTED. All 34 accepted paths already hold the accepted bytes, in the working tree AND at HEAD. There was nothing to import, and nothing was imported.",
+
+  "ATTRIBUTION_CORRECTED_WITHIN_THIS_CLAIM": {
+    "what_I_first_wrote": "that the OWNER performed both the integration and the checkpoint himself",
+    "what_is_actually_true": "the FILE IMPORT was performed by baton.prompt at 00:52:57Z under owner authority M356736, with its own receipt evidence/integration-356736.json; the GIT CHECKPOINT was Slawomir's, commit 30245386 at 00:57:38Z. So 'human-plus-agent integration' happened exactly as named -- agent imported, human owned Git.",
+    "how_I_found_it": "the reviewer-owned PLAN's checkpoint entry names baton.prompt and its receipt; I had not read that entry before writing the first attribution",
+    "why_it_is_corrected_rather_than_left": "a wrong attribution in a durable record is the kind of thing this campaign exists to prevent, and the import act matters for who is answerable for it",
+    "receipt_independently_verified_here": "evidence/integration-356736.json carries 34 files, path set IDENTICAL to DELTA, every sha256 matching the accepted bytes, zero disagreements, under authority M356736; modes recorded 0o664 x21 and 0o644 x13"
+  },
+
+  "AN_OBSERVATION_FOR_THE_REVIEWER_AND_OWNER_NOT_AN_ADJUDICATION": {
+    "fact": "AGENTS.md makes baton.merge the integrator that imports an approved digest-bound proposal into the working tree, says it is 'not an alias for implementation, review, tuning, or approval', and says of baton.prompt that 'a recommendation does not execute the action or authorize the copilot to act as another participant'. The import here was performed by baton.prompt.",
+    "mitigating_and_recorded_fairly": "baton.prompt held explicit owner authority M356736 for exactly this import, the binding review had said 'no automatic managed-integrator allocation', the receipt is exact and complete, and the imported bytes are the independently accepted ones with zero divergence. Nothing was overwritten or redesigned.",
+    "disposition": "recorded as an operational observation for the reviewer and owner. It is not mine to adjudicate and I am not treating it as a defect; I am also not leaving it unrecorded, because the identity that may import into the shared tree is a live rule in AGENTS.md."
+  },
+
+  "THE_CHECKPOINT_COMMIT": {
+    "commit": "302453869d07eb5579e79a6572586d3c3cf62a5c",
+    "parent": "d6881d8adbd567b6e92a4a2a1d0cb68ee781f70a -- the accepted baseline",
+    "author": "Slawomir Lisznianski <sl@pushcoin.com>",
+    "authored_and_committed": "2026-10-22T18:57:38-06:00 = 2026-10-23T00:57:38Z",
+    "subject": "fix(v12): compose native token lifetimes and actionable failure reports",
+    "matches_the_named_checkpoint": "exactly -- this is the message review-2026-10-22T20-41-13Z.md said was due",
+    "timeline": [
+      "00:51:58Z owner baton.slaw approves the 34-path delta (M356736)",
+      "00:52:57Z baton.prompt imports the 34 delta files into the working tree under that authority, receipt evidence/integration-356736.json",
+      "00:57:38Z Slawomir commits 30245386 on top of the accepted baseline -- the human checkpoint, and the only Git act",
+      "00:58:03Z baton.prompt reroutes W325959 to baton.impl (356781)",
+      "00:58:23Z baton.claude claims it (356784) -- six minutes after the import was already complete"
+    ],
+    "path_set": {
+      "file": "checkpoint-path-set.txt",
+      "total": 34,
+      "added": 7,
+      "modified": 27,
+      "set_identical_to_DELTA": true,
+      "extra_paths_in_commit": 0,
+      "delta_paths_missing_from_commit": 0,
+      "additions_identical_to_delta_additions": true,
+      "why_this_matters": "the review required 'import only enumerated delta paths, never the entire old candidate tree'. The owner's own import honoured that exactly -- no full-tree import, no unlisted path."
+    }
+  },
+
+  "THE_PREFLIGHT": {
+    "file": "PREFLIGHT.json",
+    "script": "preflight.py -- read-only, takes no operands",
+    "checked": "all 34 accepted paths against the reviewed base, the accepted bytes, the baseline commit and HEAD",
+    "result": {
+      "ALREADY-AT-ACCEPTED": 34,
+      "DIVERGED": 0,
+      "OVERLAP": 0,
+      "missing_existing_targets": 0,
+      "symlinks": 0,
+      "non_regular_or_not_owner_writable": 0,
+      "worktree_equals_HEAD_for_all_34": true,
+      "modes_present": ["0o644", "0o664"],
+      "executable_targets": 0,
+      "additions_at_HEAD": "all seven are 100644 -- ordinary non-executable repository mode, which is what a planned new regular file must use"
+    },
+    "gates_from_AGENTS_md_applied": [
+      "every existing target a non-symlink REGULAR file: pass",
+      "every existing target already OWNER-WRITABLE: pass -- no chmod, install or privileged replacement was needed or used",
+      "every planned addition must not already exist as a different file: pass, they exist only as the accepted bytes themselves",
+      "no custody-mode preservation and final modes verified: pass"
+    ]
+  },
+
+  "VERIFICATION_THIS_TURN_ADDS": {
+    "why_it_is_new": "both prior acceptances measured the ISOLATED /tmp candidate. Neither ran the accepted bytes in the INTEGRATED tree, and the binding review named that gap itself: 'identical supplier test bytes establish provenance, not by themselves a standalone supplier reproduction with identical surrounding sources.'",
+    "joined_native_proof_in_situ": {
+      "log": "integrated-joined-26.log",
+      "where": "/home/sl/src/baton/v12/python -- the integrated shared tree, not the candidate",
+      "result": "26 tests, OK, 1.650s unittest / 1.91s process"
+    },
+    "every_delta_test_module_in_situ": {
+      "log": "integrated-delta-modules.log",
+      "modules": 15,
+      "result": "1328 tests, 1300 passing, 28 failures, 77.791s",
+      "closes_the_reviews_limitation": "the supplier's own diagnostics and renewal suites reproduce WITH THESE SURROUNDING SOURCES, which is what provenance alone did not establish",
+      "failures": {
+        "count": 28,
+        "all_in": "tests.manager.test_boundary_inventory",
+        "identical_to_the_disclosed_set": "diff against evidence/revoked-354829/preexisting-failures-committed-tree.txt is EMPTY",
+        "new_failures_introduced_by_the_integration": 0
+      }
+    }
+  },
+
+  "THE_28_RESTATED_NOW_THAT_THEY_ARE_COMMITTED": {
+    "sharper_than_before": "these were a candidate-and-shared-tree observation; they are now in COMMITTED HISTORY at 30245386, so the integrated checkpoint carries 28 failing test_boundary_inventory cases",
+    "not_caused_by_this_delta": "the identical 28 failed on the PRE-integration shared tree, whose test_boundary_inventory.py was still at d6881d8a bytes",
+    "travels_with_accepted_supplier_bytes": "test_boundary_inventory.py is byte-identical to W333485's ACCEPTED candidate, so the condition rides accepted supplier bytes rather than anything this Work authored",
+    "disposition": "out of this Work's scope, unrepaired, no repair attempted -- and now worth an owner's attention precisely BECAUSE it is committed rather than pending",
+    "also_corrected_earlier": "the file name 'preexisting-failures-committed-tree.txt' is itself the misnomer corrected at claim355012: that run was against the SHARED WORKING TREE. The file name is retained because the bytes are evidence and renaming evidence would be worse; the correction is recorded in FINDING and PROGRESS."
+  },
+
+  "STILL_OWED_ON_THIS_WORK": [
+    "the minimal retained-native installation/recovery operand finalization using W354389's accepted prerequisite inventory -- the review gates it on 'after reviewed integration and observed human checkpoint', and BOTH are now observed complete, so it is unblocked",
+    "then separately selected operational steps -- not selected here, and W321608's gate remains"
+  ],
+
+  "BOUNDARIES": {
+    "writes_to_the_shared_tree": "NONE. This claim read it and ran tests over it. No import was performed because none was needed.",
+    "live": "no live instance, engine, provider, model or credential",
+    "operations": "no deployment, installation, recovery, migration or operational selection",
+    "version_control": "read-only -- log, show, diff-tree, ls-tree, cat-file. No staging, commit, index or history mutation. Git remains Slawomir's and the checkpoint was HIS act, not mine.",
+    "no_readiness_claim": "deterministic proofs only; no installed readiness or useful live delivery is claimed"
+  }
+}

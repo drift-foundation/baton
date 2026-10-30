@@ -1,0 +1,11 @@
+{
+  "launch_schema": "baton.worker-launch/5",
+  "direct_launched_accepts": true,
+  "production_entry_exit": 2,
+  "order": [
+    "adapter-constructed",
+    "read-launch"
+  ],
+  "injection": "fork branch and launch delivery reader simulated; real entry/main/serve/session_of executed; adapter is recording fake; no provider or engine",
+  "probe_correction": "initial probe lacked source_profiles import path; second probe used mock exception class losing exit operand; final explicit exit function preserves code"
+}

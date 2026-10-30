@@ -17,9 +17,10 @@ Next: managed reviewer prepares the selected correction and supported isolated
 v12 execution path, coordinates overlaps and installs/readbacks its consumer
 gates before releasing dependent execution. Preserve this diagnostic as a finite
 accepted outcome; its ledger closure remains with the authorized owner endpoint.
-Human Git checkpoint remains due, proposed commit
-`Record bounded authoring shutdown deadline diagnostic and reproduction`.
-No commit observed. W333485 and W333486 consume this diagnosis through existing
+Human Git checkpoint completed by Slawomir: 70760ef47a9bb2001c959a0dbdec72cdde61bfe6,
+`docs: checkpoint authoring shutdown diagnosis`, observed 2026-10-20.
+The commit preserves 419 dossier files; disposable SQLite files remain untracked.
+W333485 and W333486 consume this diagnosis through existing
 dependency gates; W325959 retains joined campaign acceptance. Any deadline
 correction has selected scope but still needs a concrete execution vehicle. Keep that coupled
 correction together; renewal and diagnostic-report delivery remain separate.

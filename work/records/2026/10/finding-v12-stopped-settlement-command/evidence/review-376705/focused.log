@@ -1,0 +1,8 @@
+...................................................../home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py:10586: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py' mode='r' encoding='UTF-8'>
+  source = ast.parse(open(_ws.__file__).read())
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+...........................................................................................
+----------------------------------------------------------------------
+Ran 144 tests in 9.586s
+
+OK

@@ -1,0 +1,9 @@
+blocks found: 7
+block 1: OK (7 lines)
+block 2: OK (2 lines)
+block 3: OK (3 lines)
+block 4: OK (3 lines)
+block 5: OK (2 lines)
+block 6: OK (9 lines)
+block 7: OK (11 lines)
+blocks: 7 syntax errors: 0

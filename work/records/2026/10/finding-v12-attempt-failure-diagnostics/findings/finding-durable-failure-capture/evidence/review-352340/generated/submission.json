@@ -1,0 +1,26 @@
+{
+  "jobs": [
+    {
+      "execution_limits": {
+        "provider_turn_seconds": 3600,
+        "verification_command_seconds": 30
+      },
+      "input_digest": "sha256:3d1c7623a68378152987d7586518fc2f4dda6f310b8b19c003cdde74b5e2211a",
+      "job_id": "job-durable-capture-w341357-352156",
+      "policy_digest": "sha256:7057bdd0b1ef4f1c272ea22e357cadb2cac839fd7a10c45da8f3d72b7c9b9e11",
+      "stages": [
+        {
+          "depends_on": [],
+          "kind": "implementation",
+          "profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+          "profile_name": "claude-fresh-implementation",
+          "work_id": "551d3605-W1"
+        }
+      ],
+      "terminal_policy": "report-and-hold",
+      "test_scope": []
+    }
+  ],
+  "schema": "baton.v12.job-submission/2",
+  "submission_id": "durable-capture-w341357-352156-submission"
+}

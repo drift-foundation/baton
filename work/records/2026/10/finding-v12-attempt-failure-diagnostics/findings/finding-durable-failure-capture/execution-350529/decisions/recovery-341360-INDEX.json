@@ -1,0 +1,55 @@
+{
+  "agrees_with_reviewer_digests": true,
+  "derived_at": "2026-10-20",
+  "derived_by": "baton.claude, claim341637",
+  "derived_from": {
+    "base": "bc925cf5c62d69426ed5862af4d41f4d2a967b0f",
+    "evidence": "findings/finding-durable-failure-capture/evidence/run-341360/INDEX.json",
+    "reviewer_source_sha256": "86be4114206e379d5f15d65268b5e5e8e55b5ce51d90704d0ea40b22eba452c6",
+    "reviewer_tests_sha256": "fb9f8e77bde9ceecfe8bf2fd61baa3b73b8a9802f7b3e64fd2b7b0adc65fb539",
+    "run": "durable-capture-w341357-341360"
+  },
+  "producer_diff": {
+    "carried_unchanged_from": "recovery/producer.diff",
+    "file": "producer.diff",
+    "identical": true,
+    "paths": [
+      "v12/python/src/baton_v12/worker_manager/documents.py",
+      "v12/python/src/baton_v12/worker_manager/intake.py",
+      "v12/python/src/baton_v12/worker_manager/attempts.py"
+    ],
+    "sha256": "df78f9a0c01c8d48cfb177005c0e37317bb67a1286978417aea6cec1116aa9cc"
+  },
+  "producer_new_files": {
+    "v12/python/src/baton_v12/worker_manager/failure_cause.py": {
+      "sha256": "86be4114206e379d5f15d65268b5e5e8e55b5ce51d90704d0ea40b22eba452c6",
+      "source": "evidence/run-341360/retained-partial/v12/python/src/baton_v12/worker_manager/failure_cause.py",
+      "source_sha256": "86be4114206e379d5f15d65268b5e5e8e55b5ce51d90704d0ea40b22eba452c6"
+    },
+    "v12/python/tests/manager/test_attempt_failure_cause.py": {
+      "sha256": "fb9f8e77bde9ceecfe8bf2fd61baa3b73b8a9802f7b3e64fd2b7b0adc65fb539",
+      "source": "evidence/run-341360/retained-partial/v12/python/tests/manager/test_attempt_failure_cause.py",
+      "source_sha256": "fb9f8e77bde9ceecfe8bf2fd61baa3b73b8a9802f7b3e64fd2b7b0adc65fb539"
+    }
+  },
+  "read_only": "the run instance and the parent evidence were read, never written. No version-control operation of any kind was performed to derive this.",
+  "schema": "baton.w341357-recovery-input/2",
+  "status": "UNVERIFIED RECOVERY INPUT and NOT a candidate. run341360 was cut off at 905.18s by the 900-second lease and froze no result: no candidate, no proposal, verification not-run. Nothing has ever executed these bytes -- line counts and test-case names are not evidence that they work, and the review is explicit about that.",
+  "what": "the LATEST producer bytes, from run341360. The two new files are that run's own versions; producer.diff is carried UNCHANGED from recovery/ because the three applied files came back byte-identical per diff section, so that run applied the patch and never revisited them.",
+  "what_changed_since_recovery": {
+    "v12/python/src/baton_v12/worker_manager/failure_cause.py": {
+      "changed": true,
+      "first_recovery_sha256": "87a6264b266ed112c284d977d987c79256988f6cba04a770676432872c554935",
+      "lines_after": 1208,
+      "lines_before": 926,
+      "this_recovery_sha256": "86be4114206e379d5f15d65268b5e5e8e55b5ce51d90704d0ea40b22eba452c6"
+    },
+    "v12/python/tests/manager/test_attempt_failure_cause.py": {
+      "changed": true,
+      "first_recovery_sha256": "279031824d0b478b2f1e3d5a48b60d6f0b78331356f7f9fd43ddbabaea4b407f",
+      "lines_after": 1374,
+      "lines_before": 332,
+      "this_recovery_sha256": "fb9f8e77bde9ceecfe8bf2fd61baa3b73b8a9802f7b3e64fd2b7b0adc65fb539"
+    }
+  }
+}

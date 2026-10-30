@@ -1,0 +1,67 @@
+{
+ "answers": "review-2026-10-24T02-35-41Z.md",
+ "claim": 361402,
+ "corrections": {
+  "R1": "COMMANDS selection 2b indexed a `preparation` wrapper that the emitted readback does not have; corrected to top-level [\"workspace_storage\"][0] and proved against the ACTUALLY emitted document, with the previous command proved to raise on it",
+  "R2a": "the entrypoint hashed its own documents at import, so a valid edit became the expectation; PACKET_PINS are now literal constants reviewed with fresh5.py and a valid edit refuses before the mint",
+  "R2b": "the_bundle verified the default DISTRO while prepare installed the selected bundle; the verified bundle is now the used one and a different admissible bundle refuses unless its digest is stated",
+  "R3a": "COMMIT was a label, never checked; the source's actual HEAD is now read (read-only rev-parse) and a non-repository or another revision refuses before the mint",
+  "R3b": "task/configure declared base 30245386 while claiming source 614668e0 (an ancestor, so nothing would have failed); declared base, canonical target and recorded source are now one commit, 614668e0"
+ },
+ "members": {
+  "COMMANDS.md": "sha256:0ae9478d555be00778d725117e2352236f28bf307f9d46a8cf18372ee20d753b",
+  "configure-inputs.json": "sha256:f60b129baad7fc098be76af530a6705b96cd510aa4d8b2ff552cf3b9d6e2a494",
+  "evidence/PROVE5.json": "sha256:b0f3e0c2ae8314fac28fd8331e903f3c0339a2b165e2a2f568ff0d7762976842",
+  "evidence/SHELL-SYNTAX.txt": "sha256:f6fac87d6d80acbd1e8637dbac2dfb270b85ec3a417e24e6f04c2ce5b4405a47",
+  "fresh5.py": "sha256:44bff920c04366915a2cbcc57032da605b7c66463b44233cb1c3f1d49facd4cd",
+  "install-inputs.json": "sha256:6f544c461007ec85faa884b2d4843f431f96f1835d65e91a55ae4cd38807b937",
+  "prove5.py": "sha256:1bbee9dccfb4498b26daa88086ca70290aca11e5dc3169bca0cc2e0571404892",
+  "shell_syntax.py": "sha256:6ebe6b3009b63134204fb37745d5397f2ad4b06bfa2ea2e1a8eeb7b42630b58a",
+  "submission.json": "sha256:863073a4db40e20490fcef782622d63f94d9267230ce0d86c3e0f769fb86b26a",
+  "task.json": "sha256:91a13de94a23941b6653b9da40ae56e28046c7b30456def734638243185272f0"
+ },
+ "no_repository_mutation": "the only repository call anywhere in this packet is a read-only rev-parse; the proof creates no fixture repository and clones only through the injected simulated runner",
+ "nothing_executed": "instance 4 does not exist; no install, deployment, start, submission, serving or retry was performed; the proof's apply is DISPOSABLE, with a simulated repository runner and a stub bundle",
+ "owner_direction": "M361302 - new revision destination, fresh workload, no updater, instances 1-3 preserved",
+ "packet": "fresh5-361402",
+ "proof": {
+  "checks": 36,
+  "evidence": "evidence/PROVE5.json",
+  "failed": 0,
+  "file": "prove5.py",
+  "repeated_identically": 3,
+  "seconds": 0.2
+ },
+ "reused_not_copied": {
+  "fresh3-358443/fresh.py": "imported and pinned; JOB/SUBMISSION/TASK/RETAINED rebound and the rebinding verified against the answer",
+  "post-install-357462/configure.py": "imported and pinned by that module"
+ },
+ "revision": 4,
+ "selection": {
+  "bundle": "/home/sl/w325959-bundle/out/distro",
+  "bundle_digest": "1b014603aec40e9f6d9c03a8b21ae74a02d9f1fef1ff95fc0f3e8a851a229c07",
+  "bundle_files": 81,
+  "destination": "/home/sl/baton-instances/native-coordination-pilot-w321608-4",
+  "execution_limits": {
+   "provider_turn_seconds": 3600,
+   "verification_command_seconds": 900
+  },
+  "job": "quickstart-d",
+  "retained_untouched": [
+   "native-coordination-pilot-w321608-1",
+   "native-coordination-pilot-w321608-2",
+   "native-coordination-pilot-w321608-3"
+  ],
+  "source_commit": "614668e0831e8c87cdae11ca43620e0d544a84d5",
+  "submission": "sub-w321608-quickstart-4",
+  "task": "w321608-native-operator-quickstart-4"
+ },
+ "shell_syntax": {
+  "blocks": 9,
+  "errors": 0,
+  "evidence": "evidence/SHELL-SYNTAX.txt",
+  "file": "shell_syntax.py"
+ },
+ "supersedes": "fresh4-361320 (preserved)",
+ "work": "W325959"
+}

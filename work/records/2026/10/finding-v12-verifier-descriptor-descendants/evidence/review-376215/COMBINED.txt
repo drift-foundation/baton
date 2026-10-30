@@ -1,0 +1,1 @@
+{"context_mode": "required", "complete_configuration_admitted": true, "delivery_materialized": true, "adapter_accepted": true, "worker_reader_accepted": true, "engine_called": false}

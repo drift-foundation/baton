@@ -1,0 +1,80 @@
+{
+ "applied": false,
+ "bundle": "/home/sl/baton-builds/w325959-30245386-356981/build/out/distro",
+ "destination": "/home/sl/baton-instances/native-coordination-pilot-w321608-3",
+ "job": "quickstart-c",
+ "noninterference": {
+  "checked_paths": 23,
+  "consumed_checked": [
+   "packet",
+   "helper",
+   "bundle",
+   "repository source",
+   "inherited inputs"
+  ],
+  "isolated_from": [
+   "/home/sl/baton-instances/native-coordination-pilot-w321608-1",
+   "/home/sl/baton-instances/native-coordination-pilot-w321608-2"
+  ]
+ },
+ "packet_digests": {
+  "configure-inputs.json": "sha256:b108d2189d15e77b0d7eb3cb1d9b9d61eb9ac3cb662ab91c2da1e34805b976ca",
+  "install-inputs.json": "sha256:bfe7f223dcef1eb2d5ecbb5f05d5c925f5d7b04b22d96e5a516fd19e6bd3e77d",
+  "submission.json": "sha256:76013289a5b0d587c148add78ac93ec16272481f2b00680a077c3602bd507c7c",
+  "task.json": "sha256:2f87e9dc45b94eb4100d6127a5f6e9487cb7c6edb2bbac6f3653052f966a62d0"
+ },
+ "planned": true,
+ "repository_source": "/home/sl/baton-builds/w325959-30245386-356981/src",
+ "static": {
+  "helper": "/home/sl/src/baton/work/records/2026/10/finding-v12-native-pilot-instance-packet/post-install-357462",
+  "helper_digests": {
+   "configure.py": "sha256:b15280cc19aabca5bd519b88f57a34e7b7dabe7e67a40a28348befabf9d16333"
+  },
+  "inherited_digests": {
+   "revision-4/configuration/manifest-inputs.json": "sha256:4c924188e853cc457e57ae405bce4e7ab06ddbe9f3b461ba7eeafa00f7fb30ab",
+   "revision-4/inputs/deployment.json": "sha256:6a675445d361a5208f82dfc43593595cd2d5d9bcbb3e893842c03b5cb8587a3e",
+   "revision-4/inputs/native-finding.md": "sha256:8e51f5ec4c0d8c1866412f1987e0b07f0a06c3c24969262c70ef4837f25b8947",
+   "revision-4/inputs/native-plan.md": "sha256:39c50d05797f5ed0ea92ae27a44a6f18cbc95baf3210e361c3845a603c03d8ab"
+  },
+  "noninterference": {
+   "checked_paths": 23,
+   "consumed_checked": [
+    "packet",
+    "helper",
+    "bundle",
+    "repository source",
+    "inherited inputs"
+   ],
+   "isolated_from": [
+    "/home/sl/baton-instances/native-coordination-pilot-w321608-1",
+    "/home/sl/baton-instances/native-coordination-pilot-w321608-2"
+   ]
+  },
+  "packet": "/home/sl/src/baton/work/records/2026/10/finding-v12-native-pilot-instance-packet/fresh3-358443",
+  "packet_digests": {
+   "configure-inputs.json": "sha256:b108d2189d15e77b0d7eb3cb1d9b9d61eb9ac3cb662ab91c2da1e34805b976ca",
+   "install-inputs.json": "sha256:bfe7f223dcef1eb2d5ecbb5f05d5c925f5d7b04b22d96e5a516fd19e6bd3e77d",
+   "submission.json": "sha256:76013289a5b0d587c148add78ac93ec16272481f2b00680a077c3602bd507c7c",
+   "task.json": "sha256:2f87e9dc45b94eb4100d6127a5f6e9487cb7c6edb2bbac6f3653052f966a62d0"
+  },
+  "prerequisites": {
+   "bundle": "/home/sl/baton-builds/w325959-30245386-356981/build/out/distro",
+   "command": "/home/sl/baton-builds/w325959-30245386-356981/build/out/distro/baton-v12-stack",
+   "source": "/home/sl/baton-builds/w325959-30245386-356981/src"
+  },
+  "provisional": {
+   "authority_uuid": "00000000000000000000000000000000",
+   "input_digest": "sha256:7804df9dee1849dfdf55646f7257ec7f0daa06052417e86c2b6f04f58cc2eafe",
+   "manifest_digest": "sha256:793990b1ff65b54baccc4c45e60750ff140ad0d74354b3030bb2485861b926ba",
+   "note": "A REHEARSAL against a deliberately unreal authority, proving the contracts compose before anything is minted. It is not installed; step 3 recomposes against the minted uuid.",
+   "work": "00000000-W1"
+  },
+  "validated": true
+ },
+ "step1": {
+  "planned": true,
+  "would_mint_under": "/home/sl/baton-instances/native-coordination-pilot-w321608-3"
+ },
+ "submission": "sub-w321608-quickstart-3",
+ "task": "w321608-native-operator-quickstart-3"
+}

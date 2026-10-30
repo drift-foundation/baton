@@ -1,0 +1,1 @@
+sl ALL=(root) NOPASSWD:NOSETENV: /opt/baton-managed-entry/entry.py check w339626-custody-v3, /opt/baton-managed-entry/entry.py inspect w339626-custody-v3, /opt/baton-managed-entry/entry.py start w339626-custody-v3

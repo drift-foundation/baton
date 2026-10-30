@@ -1,0 +1,58 @@
+{
+ "base_commit": "8876bf950ff1f8ab8767ce9786df268cc9d767c6",
+ "boundaries": {
+  "build": false,
+  "deployment": false,
+  "engine": false,
+  "git_mutation": false,
+  "io_in_predicate": false,
+  "provider_import_in_host": false,
+  "qualification_minted": false
+ },
+ "candidate": {
+  "v12/python/src/baton_v12/job_manager/role_capability.py": "07f9f827d197900825d2abf234f116821675edf43dffa5ff183bcd022e339959",
+  "v12/python/tests/job_manager/test_role_capability.py": "de1d0d9370da8b02604369f1c5b1e0e3319f213df0f77b56bcaa986552cd40f1"
+ },
+ "claim": 378340,
+ "coordination": {
+  "decision": "claude_agent.py is W376586's current candidate and under review, so no shared extraction was performed in this claim; its bytes are unchanged at 017257c0. The agreement between the two copies is proved by measurement in TheTwoTaskReadersAgree, and PROGRESS records the single owning home as the coordinated follow-up.",
+  "overlap": "the supported /2 task vocabulary is spelled in the generic host and consumed by claude_agent._read_task"
+ },
+ "focused": {
+  "cases_run": 342,
+  "failures": 0,
+  "modules": [
+   "tests.job_manager.test_role_capability",
+   "tests.job_manager.test_role_contract",
+   "tests.job_manager.test_templates",
+   "tests.job_manager.test_creation"
+  ],
+  "test_role_capability_cases": 70
+ },
+ "job_manager_discovery": {
+  "cases_run": 1519,
+  "causes_established": [
+   {
+    "case": "test_native_permission.NativeStageComposition.test_the_native_factory_delivers_the_policy_to_both_stage_workers",
+    "cause": "stage_execution.held_configuration refuses a configured integration_store path the fixture composes under v12/python itself, inside the checkout"
+   },
+   {
+    "case": "test_native_stop_restart.NativeStopRestart.test_reopened_store_preserves_deadline_and_generation_without_revival",
+    "cause": "resource-token.launch refused for a REVOKED generation of workspace:43:<n> inside that suite's own fixture"
+   },
+   {
+    "case": "test_serving_renewal.ServingPermission.test_expiry_is_not_revival_or_reuse_and_unknown_cessation_holds",
+    "cause": "the same revoked-generation token refusal in that suite's own fixture"
+   }
+  ],
+  "failing_cases": 3,
+  "independence_of_this_candidate": "each of the three fails IN ISOLATION, so none is cross-test interference; and nothing in src/ or tools/ imports role_capability at all (the importer set is empty), so this candidate is not in their execution path. Structural, not name-matching."
+ },
+ "reused_owners_untouched": {
+  "v12/python/src/baton_v12/job_manager/role_contract.py": "691ed3a0e653a9705f181790c9565706902bd3958f2973e49e85cff586ca6967",
+  "v12/python/src/baton_v12/verification_context.py": "f599072ac1202e9b759d9e7850f76c98790e23710cf6181d5a6e8907dd51650e",
+  "v12/python/tools/job_task.py": "a9ce7948bd39e9e8b2981ad26f299f5e2ad388ad18c6a522337a1c7c27d6e919",
+  "v12/worker/claude_agent.py": "017257c0cf50f02c01b2174eb7786df073b6bdf81b6819ad1cb4cde034fa57d8"
+ },
+ "work": "2b077949-W376723"
+}

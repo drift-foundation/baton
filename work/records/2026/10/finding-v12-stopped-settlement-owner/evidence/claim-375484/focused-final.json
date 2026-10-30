@@ -1,0 +1,15 @@
+{
+  "seconds": 7.5547733379999045,
+  "names": [
+    "tests.manager.test_stopped_settlement",
+    "tests.manager.test_store",
+    "tests.manager.test_maintenance",
+    "tests.manager.test_workspaces",
+    "tests.manager.test_attempts.CancellationFencesBeforeItStops",
+    "tests.manager.test_boundary_inventory.StatedRules"
+  ],
+  "tests": 485,
+  "failures": [],
+  "errors": [],
+  "skipped": []
+}

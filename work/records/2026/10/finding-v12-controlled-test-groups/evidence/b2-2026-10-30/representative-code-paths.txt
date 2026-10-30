@@ -1,0 +1,219 @@
+##### A/B/C UNOWNED RECEIVING ENTRIES (sampled)
+
+### ('caller', 'provider_context.py:admit_context_use', 'jobs')  (in unowned list: True)
+   def at provider_context.py:757-837 (81 lines)
+   757: def admit_context_use(control, jobs, authority, *, attempt_id, writer_id, profile_digest):
+   775:         facts = _facts(control, jobs, authority, attempt_id, writer_id, profile_digest, live=True)
+   778:         admitting = _owner_facts(control, jobs, authority, request["payload"])
+   779:         _transition(control, action="admit", context_id=request["context_id"], use_id=request["use_id"], expected_revision=request["revision"], payloa
+   789:     facts = _facts(control, jobs, authority, attempt_id, writer_id, profile_digest, live=True)
+   806:             row = jobs.operation_record(episodes.correction_operation_id(facts["identity"]["job_id"], checkpoint))
+   814:             if ending.settlement_of(jobs, old["stage_id"], old["episode"]) is None:
+   825:         control, jobs, facts, context_profile_of(
+   834:         return admit_context_use(control, jobs, authority, attempt_id=attempt_id, writer_id=writer_id, profile_digest=profile_digest)
+   835:     admitting = _owner_facts(control, jobs, authority, payload)
+   836:     _transition(control, action="admit", context_id=context_id, use_id=use_id, expected_revision=len(chain), payload=payload, check=lambda: _check_adm
+
+### ('caller', 'provider_context.py:admit_context_use', 'attempt_id')  (in unowned list: True)
+   def at provider_context.py:757-837 (81 lines)
+   757: def admit_context_use(control, jobs, authority, *, attempt_id, writer_id, profile_digest):
+   758:     _text(attempt_id); _text(writer_id); _hash(profile_digest)
+   760:     request_id = _id("context-admission-request", attempt_id)
+   761:     request_operands = {"attempt_id": attempt_id, "writer_id": writer_id, "profile_digest": profile_digest}
+   772:             return context_use_of(control, attempt_id)
+   775:         facts = _facts(control, jobs, authority, attempt_id, writer_id, profile_digest, live=True)
+   780:         return context_use_of(control, attempt_id)
+   781:     existing = [row for chain in _history(control).values() for row in chain if row["action"] == "admit" and row["payload"]["attempt_id"] == attempt_i
+   788:         return context_use_of(control, attempt_id)
+   789:     facts = _facts(control, jobs, authority, attempt_id, writer_id, profile_digest, live=True)
+   819:             if recorded["implementation"]["attempt_id"] != attempt_id or recorded["implementation"]["episode"] != facts["episode"]:
+   829:     use_id = _id("context-use", [context_id, attempt_id, generation])
+   834:         return admit_context_use(control, jobs, authority, attempt_id=attempt_id, writer_id=writer_id, profile_digest=profile_digest)
+   837:     return context_use_of(control, attempt_id)
+
+### ('caller', 'workspaces.py:settle_cleanup', 'connection')  (in unowned list: True)
+   def at workspaces.py:2745-2804 (60 lines)
+   2745: def settle_cleanup(control, connection, assignment_id, admitted, what):
+   2753:     NO FILESYSTEM CALL AND NO NESTED TRANSACTION. `connection` is the caller's open
+
+### ('caller', 'workspaces.py:settle_cleanup', 'assignment_id')  (in unowned list: True)
+   def at workspaces.py:2745-2804 (60 lines)
+   2745: def settle_cleanup(control, connection, assignment_id, admitted, what):
+   2771:         _cleanup_admission_id(assignment_id, ordinal))
+   2777:     held = _admitted_cleanup_document(control, assignment_id, ordinal, record)
+   2782:     current, _generation = _current_cleanup_owner(control, assignment_id, ordinal,
+   2785:             or held.get("attempt_id") != assignment_id:
+   2790:     if control.operation_record(_cleanup_settled_id(assignment_id, ordinal)) \
+   2796:     document = {"attempt_id": assignment_id, "ordinal": ordinal,
+   2801:         _cleanup_settled_id(assignment_id, ordinal), CLEANUP_SETTLED_KIND,
+
+### ('caller', 'failure_cause.py:record_and_raise_cessation_intent', 'component')  (in unowned list: True)
+   def at failure_cause.py:441-463 (23 lines)
+   441: def record_and_raise_cessation_intent(store, attempt_id, *, component,
+   454:     operation_id = cessation_intent_operation_id(attempt, component, generation)
+   457:         start_operation_id=start_operation_id, component=_component(component),
+
+### ('caller', 'launch.py:launch_document', 'job_execution')  (in unowned list: True)
+   def at launch.py:469-531 (63 lines)
+   470:                     job_execution=None, provider_context=None):
+   500:     if job_execution is not None:
+   508:         document["job_execution"] = _job_execution(job_execution)
+   510:         if job_execution is None or role != "implementation" or transport != exchange.EXCHANGE_TRANSPORT:
+   513:         document["provider_context"] = _context_delivery(provider_context, document["job_execution"])
+
+### ('caller', 'oci.py:run_vector', 'context_delivered')  (in unowned list: True)
+   def at oci.py:1335-1817 (483 lines)
+   1340:                integration_delivered=None, context_delivered=None,
+   1800:     if context_delivered is not None:
+   1806:         for source, target, writable in _context_mounts(context_delivered, posture, others):
+
+### ('caller', 'context_delivery.py:configure_context_storage', 'excluded_roots')  (in unowned list: True)
+   def at context_delivery.py:74-94 (21 lines)
+   74: def configure_context_storage(control, path, *, excluded_roots, runtime_uid):
+   77:     if type(excluded_roots) is not list or not excluded_roots:
+   83:         fixed_roots = list(excluded_roots) + [workspaces.configured_workspace_storage(control).place]
+
+### ('caller', 'documents.py:abandon_intent', 'members')  (in unowned list: True)
+   def at documents.py:800-808 (9 lines)
+   800: def abandon_intent(**members):
+   808:     return _emit("attempt.abandon-intent", members)
+
+### ('caller', 'attempt_logs.py:AttemptLogs.place', 'stream')  (in unowned list: True)
+   def at attempt_logs.py:164-165 (2 lines)
+   164:     def place(self, stream):
+   165:         return os.path.join(self.log_root, named(stream) + ".log")
+
+### ('caller', 'intake.py:abandon_attempt', 'govern')  (in unowned list: True)
+   def at intake.py:2658-2946 (289 lines)
+   2660:                     govern=None):
+   2778:         _released(store, govern, attempt, attempt_id, already["cleanup"])
+   2945:     _released(store, govern, attempt, attempt_id, answer["cleanup"])
+
+### ('caller', 'custody.py:adopted_directory_custody', 'prepared_store')  (in unowned list: True)
+   def at custody.py:2290-2324 (35 lines)
+   2291:                               prepared_store=None):
+   2300:     `prepared_store`, the frozen store it measured before the transaction
+   2316:     recorded = _recorded_store(store, prepared_store)
+
+### ('caller', 'exchange.py:activity_identities', 'delivery')  (in unowned list: True)
+   def at exchange.py:1104-1140 (37 lines)
+   1104: def activity_identities(delivery, *, session):
+   1109:     composition that made the delivery, and these six are WIRE fields that are
+   1124:     if type(delivery) is not ExchangeDelivery:
+   1126:                 f"own typed delivery; this is {name_value(delivery)}")
+   1127:     command = _command_view(delivery)
+   1131:         _untrusted(f"attempt {name_value(delivery.attempt_id)}'s command names "
+   1135:             "attempt_id": delivery.attempt_id,
+   1139:             "operation_id": worker_operation_id(delivery.attempt_id,
+
+### ('injected', 'attempts.py:_observed', 'adapter.observe')  (in unowned list: True)
+   def at attempts.py:2973-3034 (62 lines)
+   2973: def _observed(adapter, runtime_id):
+   3000:         answer = adapter.observe(runtime_id)
+
+### ('injected', 'authority_port.py:AuthorityPort.claim', 'claim.claim_event')  (in unowned list: True)
+   def at authority_port.py:444-468 (25 lines)
+   444:     def claim(self, work_id, operation_id, authority_uuid, scope, role):
+   445:         """Take the claim, as the identity this session is bound to.
+   457:         answer = self._session.claim({"work_id": work_id,
+   464:         taken = boundaries.document(answer, "the claim answer's result",
+   467:                          "the claim answer")
+   468:         return self._decided(taken, scope, role, "the claim answer")
+
+### ('injected', 'authority_port.py:AuthorityPort.claim', 'claim.decision.grant')  (in unowned list: True)
+   def at authority_port.py:444-468 (25 lines)
+   444:     def claim(self, work_id, operation_id, authority_uuid, scope, role):
+   445:         """Take the claim, as the identity this session is bound to.
+   457:         answer = self._session.claim({"work_id": work_id,
+   464:         taken = boundaries.document(answer, "the claim answer's result",
+   467:                          "the claim answer")
+   468:         return self._decided(taken, scope, role, "the claim answer")
+
+### ('injected', 'authority_port.py:AuthorityPort.claim', 'claim.decision.policy_generation')  (in unowned list: True)
+   def at authority_port.py:444-468 (25 lines)
+   444:     def claim(self, work_id, operation_id, authority_uuid, scope, role):
+   445:         """Take the claim, as the identity this session is bound to.
+   457:         answer = self._session.claim({"work_id": work_id,
+   464:         taken = boundaries.document(answer, "the claim answer's result",
+   467:                          "the claim answer")
+   468:         return self._decided(taken, scope, role, "the claim answer")
+
+### ('adopted', 'attempts.py:_decide', 'observations.next')  (in unowned list: True)
+   def at attempts.py:1124-1196 (73 lines)
+   1145:         "SELECT observation_digest FROM observations WHERE "
+   1186:         "observations WHERE runtime_attempt_id = ?",
+   1189:         "INSERT INTO observations (runtime_attempt_id, incarnation, "
+
+### ('adopted', 'attempts.py:_next_source_seq', 'observations.next')  (in unowned list: True)
+   def at attempts.py:1111-1121 (11 lines)
+   1119:         "SELECT COALESCE(MAX(source_seq), 0) + 1 AS next FROM observations "
+
+### ('adopted', 'provider_context.py:_history', 'operations')  (in unowned list: True)
+   def at provider_context.py:574-602 (29 lines)
+   576:     rows = control._connection.execute("SELECT operation_id FROM operations WHERE kind = ? ORDER BY rowid", (TRANSITION_KIND,)).fetchall()
+
+### ('adopted', 'provider_context.py:_history', 'operations.operation_id')  (in unowned list: True)
+   def at provider_context.py:574-602 (29 lines)
+   576:     rows = control._connection.execute("SELECT operation_id FROM operations WHERE kind = ? ORDER BY rowid", (TRANSITION_KIND,)).fetchall()
+
+### ('adopted', 'provider_context.py:_qualified', 'operations')  (in unowned list: True)
+   def at provider_context.py:212-300 (89 lines)
+   280:         "SELECT operation_id FROM operations WHERE kind = ? ORDER BY rowid",
+
+### ('adopted', 'provider_context.py:_qualified', 'operations.operation_id')  (in unowned list: True)
+   def at provider_context.py:212-300 (89 lines)
+   280:         "SELECT operation_id FROM operations WHERE kind = ? ORDER BY rowid",
+
+##### D UNATTRIBUTED VALIDATOR CALLS (sampled)
+
+### ['attempts.py:_committed_record', 'document', 'a committed ending record']
+   def at attempts.py:259-311 (53 lines)
+   310:     return boundaries.document(committed, "a committed ending record",
+   callers in module: 2
+     346: record = _committed_record(store, attempt_id,
+     400: record = _committed_record(store, attempt_id,
+
+### ['custody.py:_reconciled', 'identity', 'a listed runtime id']
+   def at custody.py:844-954 (111 lines)
+   905:     boundaries.identity(runtime_id, "a listed runtime id")
+   callers in module: 3
+     1440: answering = _reconciled(engine, port, name=name,
+     2533: stranded = _reconciled(engine, port, name=name, image_digest=image_digest)
+     2693: stranded = _reconciled(engine, run, name=name, image_digest=image_digest)
+
+### ['exchange.py:_instant', 'instant', "a worker document's {name}"]
+   def at exchange.py:798-817 (20 lines)
+   806:     THE GRAMMAR AND THE CALENDAR, both, for the reason `boundaries.instant`
+   813:         boundaries.instant(value, f"a worker document's {name}")
+   callers in module: 1
+     1013: "accepted_at": _instant(receipt["accepted_at"],
+
+### ['failure_cause.py:_committed', 'document', 'a committed cessation record']
+   def at failure_cause.py:1024-1049 (26 lines)
+   1048:     return boundaries.document(committed, "a committed cessation record",
+   callers in module: 3
+     602: held = _committed(store, attempt_id, operation_id,
+     868: held = _committed(store, attempt_id, operation_id,
+     991: record = _committed(store, attempt_id, operation_id, what, members)
+
+### ['intake.py:_abandon_fence_operation_id', 'document', 'a persisted attempt']
+   def at intake.py:3676-3717 (42 lines)
+   3713:     taken = boundaries.document(attempt, "a persisted attempt",
+   callers in module: 2
+     2747: own_fence = _abandon_fence_operation_id(attempt)
+     3993: authority_operation_id = _abandon_fence_operation_id(attempt)
+
+### ['interrogation.py:_diagnostics', 'text', 'a probe diagnostic name']
+   def at interrogation.py:372-407 (36 lines)
+   381:     document = boundaries.document(given, "probe diagnostics")
+   388:         boundaries.text(name, "a probe diagnostic name")
+   callers in module: 1
+     368: "diagnostics": _diagnostics(seen["diagnostics"]),
+
+##### E OWNED BUT UNPROBED (sampled)
+### [['adopted', 'attempts.py:_attempts', 'attempts.activity_bytes'], 'a persisted attempt']
+### [['adopted', 'handshake.py:certified_agent_session_profile', 'profiles.body.postures'], 'a retained agent-session profile']
+### [['adopted', 'handshake.py:certified_agent_session_profile', 'profiles.body.postures.declared_output'], 'a retained agent-session profile']
+### [['caller', 'attempt_logs.py:AttemptLogs.__init__', 'attempt_id'], 'an attempt id']
+### [['caller', 'attempt_logs.py:AttemptLogs.__init__', 'root'], 'an attempt log root']
+### [['caller', 'attempt_logs.py:adopt', 'root'], 'an attempt log delivery root']

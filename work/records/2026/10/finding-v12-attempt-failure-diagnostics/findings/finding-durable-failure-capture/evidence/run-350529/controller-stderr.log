@@ -1,0 +1,17 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/sl/baton-instances/durable-capture-w341357-350529/code/v12/python/tools/authoring_enforcement.py", line 650, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/home/sl/baton-instances/durable-capture-w341357-350529/code/v12/python/tools/authoring_enforcement.py", line 564, in main
+    baseline.verify_imported_sources(packet)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "/home/sl/baton-instances/durable-capture-w341357-350529/code/v12/python/tools/authoring_baseline.py", line 590, in verify_imported_sources
+    _refuse(f"this process is running {here!r} and the packet binds "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{packet['supervisor']['path']!r}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/baton-instances/durable-capture-w341357-350529/code/v12/python/tools/authoring_baseline.py", line 338, in _refuse
+    raise SupervisorRefusal(message)
+tools.authoring_baseline.SupervisorRefusal: this process is running '/home/sl/baton-instances/durable-capture-w341357-350529/code/v12/python/tools/authoring_baseline.py' and the packet binds '/home/sl/baton-instances/durable-capture-w341357-350529/supervisor/baseline.py'

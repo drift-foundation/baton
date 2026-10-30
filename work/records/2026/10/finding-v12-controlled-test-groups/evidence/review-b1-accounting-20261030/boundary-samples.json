@@ -1,0 +1,28 @@
+{
+  "context_bad_identity": {
+    "type": "ContractRefusal",
+    "reason": "provider context identity is durable text; this is 123"
+  },
+  "context_bad_digest": {
+    "type": "ContractRefusal",
+    "reason": "provider context: invalid digest"
+  },
+  "emit_none_values": {
+    "required_keys": [
+      "attempt_id",
+      "assignment",
+      "runtime_id",
+      "decision",
+      "authority_operation_id",
+      "reason"
+    ],
+    "accepted": {
+      "attempt_id": null,
+      "assignment": null,
+      "runtime_id": null,
+      "decision": null,
+      "authority_operation_id": null,
+      "reason": null
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "binding_sha256": "90b2fad2102039ace7e77127137a0df9ffc2ddc516ad4dec25f7dd78cf77cb62",
+  "inputs": {
+    "v12/DESIGN.md": true,
+    "work/records/2026/10/finding-v12-standard-next-run-path/TASK-344516.md": true,
+    "work/records/2026/10/finding-v12-standard-next-run-path/OWNER-INSTALL-ONCE-20261021.md": true,
+    "work/records/2026/10/finding-v12-standard-next-run-path/OWNER-RAPID-START-20261020.md": true
+  },
+  "/opt/baton-managed-entry/entry.py": true,
+  "/opt/baton-managed-entry/selections/w339626-custody-v3/selection.json": true,
+  "/tmp/baton-managed-entry-340184/v12/python/tools/managed_entry_install.py": true
+}

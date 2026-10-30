@@ -37,6 +37,7 @@ import os
 import signal
 import sys
 
+import baton_worker
 from baton_worker import main
 from claude_agent import ClaudeAgent, ROOM_VARIABLE
 
@@ -81,7 +82,7 @@ def supervised(run=None):
         for one in (signal.SIGTERM, signal.SIGINT):
             signal.signal(one, signal.SIG_DFL)
         os.environ[ROOM_VARIABLE] = ROOM_TARGET
-        os._exit(main(agent=ClaudeAgent()) if run is None else run())
+        os._exit(_production() if run is None else run())
     held["worker"] = worker
     while True:
         try:
@@ -115,6 +116,63 @@ def supervised(run=None):
             # signal N is exit 128+N, not a success and not a bare 1.
             return 128 + os.WTERMSIG(status)
         return os.WEXITSTATUS(status)
+
+
+def _production(place=None, read=None, build=None, command_root=None,
+                event_root=None):
+    """The production line: THE ADAPTER IS BUILT ONLY IF THE LAUNCH VALIDATES,
+    AND THE WORKER STILL OWNS THE REFUSAL.
+
+    W376586 review 2026-10-28T22-29-20Z, P1: this read
+    `main(agent=ClaudeAgent())`, so Python evaluated the constructor before
+    `main` was entered and long before anything read the launch -- and the
+    amendment requires an unsupported, unwrapped or wrong-profile
+    file-exchange launch to refuse BEFORE adapter construction.
+
+    W376586 review 2026-10-28T23-07-14Z: MY FIRST CORRECTION THEN SWALLOWED
+    THE REFUSAL. It caught `WorkerFault` and returned 2 before `main`, so a
+    correlatable rejected launch lost the bounded stderr sentence `serve`
+    emits, lost `_WorkerCapture`, and was misreported as uncorrelatable. The
+    comment claiming `serve` would have reached the same ending was simply
+    false: `serve` answers 3 with one bounded explanation for exactly those
+    documents, which is W197661's whole subject -- an operator gets a sentence
+    rather than a silent container.
+
+    SO THIS DECIDES ONE THING AND REPORTS NOTHING. It reads and validates the
+    delivery to answer "may an adapter be constructed?", and then calls `main`
+    on EVERY path. A valid delivery gets the real adapter; a rejected one gets
+    `agent=None`, and `serve` -- which re-reads the document as the
+    authoritative owner -- performs its own validation, its own capture, its
+    own latch, its own bounded diagnostic and its own status. Nothing here
+    formats a second diagnostic and nothing here chooses an exit code.
+
+    AND NO ADAPTER IS CONSTRUCTED ON THE REJECTED PATH, which is the property
+    the first correction was for: `agent=None` reaches `serve`, and `serve`
+    resolves the reference default only after the delivery has validated and
+    only when it is not latched -- so every refusal returns with nothing built.
+
+    `place`, `read`, `build` and the two exchange roots are the seams a case
+    drives: they let a test prove the ORDER and the REPORTING without a
+    provider, a container or the image's fixed paths. They are the same
+    operands `main` already takes.
+    """
+    reader = baton_worker.read_launch if read is None else read
+    make = ClaudeAgent if build is None else build
+    where = baton_worker.LAUNCH_DOCUMENT if place is None else place
+    agent = None
+    try:
+        baton_worker.launched(reader(where), where)
+    except (baton_worker.Uncorrelated, baton_worker.WorkerFault):
+        # NOT HANDLED HERE, ONLY NOTED: the adapter is not built. `main` is
+        # entered regardless and the worker reports and settles this document
+        # exactly as it does for every other caller.
+        pass
+    else:
+        agent = make()
+    held = {} if command_root is None else {"command_root": command_root}
+    if event_root is not None:
+        held["event_root"] = event_root
+    return main(agent=agent, place=where, **held)
 
 
 if __name__ == "__main__":

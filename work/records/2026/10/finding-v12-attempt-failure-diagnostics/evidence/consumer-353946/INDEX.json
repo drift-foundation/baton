@@ -1,0 +1,103 @@
+{
+ "accepted_producer_untouched": {
+  "note": "equal to INPUT.json's accepted producer hashes; no producer change was needed or made",
+  "src/baton_v12/worker_manager/attempts.py": "f48c55193510ace5dd4a0571ffaf1f3cb78084966bb858c9bf37a7e2e7b7fc91",
+  "src/baton_v12/worker_manager/documents.py": "376e62ab5bab0bcec8c4b662cd8b94935a1732f9ec2692a10bb9cb4af5a962c8",
+  "src/baton_v12/worker_manager/failure_cause.py": "776f5932dc9c3d0f2df7ffed4e895078806def020d829a47563801da9621f1a3",
+  "src/baton_v12/worker_manager/intake.py": "71f0ef60bd5b26409e9c24fe49bd2ace1382e8ef1cb0ab8b3e2a5a44deae3d97"
+ },
+ "answers_review": "review-2026-10-22T18-18-00Z.md (reviewer claim353910)",
+ "base": "bc925cf5c62d69426ed5862af4d41f4d2a967b0f",
+ "candidate_changed_by_this_claim": {
+  "v12/python/tests/tools/test_attempt_diagnostics.py": {
+   "now": "faea822ae6e49a28b5fcb39bf3b15dcfbe0c2d4e996d2da920c8ac47cfe129f9",
+   "reviewed": "e7a7b9293000601ff2cc1198700c651c8ccffc574fc1aa05623d37dd6a8a1d4f"
+  },
+  "v12/python/tools/attempt_diagnostics.py": {
+   "now": "b3932d126dcb20a79c3fcb21ef2b77caf553f453172b2251cba2021287ed8227",
+   "reviewed": "7b83221617097c4da0be3f0218c62f6c694691f2fc8fd04448836eda3999025b"
+  }
+ },
+ "claim": 353946,
+ "copies": {
+  "build-353946.log": "089721f11a479bfca512b1b186892eb2d6b5e2c56375cd5f8c5aa557a2011ca2",
+  "candidate-attempt_diagnostics.py": "b3932d126dcb20a79c3fcb21ef2b77caf553f453172b2251cba2021287ed8227",
+  "candidate-test_attempt_diagnostics.py": "faea822ae6e49a28b5fcb39bf3b15dcfbe0c2d4e996d2da920c8ac47cfe129f9",
+  "joined-353946.log": "053faf55e56af3efb0a7ed02e1c328bd7e2479b1d7da25913c50763ea66bf306",
+  "omission-closed.json": "4dbb1ae03e163e786ad9abb4512da127b49b996bde4f8c2c273e331c113434e8",
+  "packaged-353946.json": "5c080a06a0cf1c98c5e17e3fcff3bdc2bb937c97e4ed16a2f9e9014145b55a0c",
+  "packaging-353946.log": "634140d901b095aa2835c4aaad37ebba0ee137d163943b88f01640c8c62615a3",
+  "progress-section.md": "f866b4f078baa42cbdb3549b130272c861be3018cc8c0613e5e2b75af03c26e9",
+  "red2-arm.log": "4c24d5c4c5251836b44c19824e439056c3bfc12320bb541348bd5d15353b0a3c",
+  "source-status.json": "7bc304e7331421074a0478c3b516d26dbc12b7af33d9aca3ed967ffd573be299"
+ },
+ "not_done": [
+  "no migration or dual-version reader: the reviewer confirmed /6 refusal matches the closed-version contract and asked for no decision",
+  "no shared-tree import or edit, no Git mutation, no live provider or engine, no deployment, no installed-root edit, no recovery",
+  "no new split: Job facts and observation provenance stayed in this same consumer outcome"
+ ],
+ "other_consumer_files_unchanged_since_review": {
+  "src/baton_v12/job_manager/delegation.py": "a115e6edeb07fce7c73772e09b237a35645faf87b2aa7c849093ad853edad338",
+  "src/baton_v12/job_manager/documents.py": "7029d28c85eed30543d03acdbb0394d61765f4f704a7e6e3eeb41d2fb07e49c4",
+  "src/baton_v12/job_manager/projection.py": "02e0c80c8e468007a8666959e405468946463d815eb617331b0eb0dcdc68425a",
+  "tools/stack.py": "c0586c7f31abcb3d4e13b3dc0f2236a590802b3edbb6a107c32f933908ade009",
+  "tools/stack_command.py": "ad49c04fa609703f80e80e14156888ef118e876d7e8a4aef3414e959db92c707",
+  "tools/worker_visibility.py": "0689d32b90664ef1b3c63c8f8d94928b4545e0c5872a92a71557e0c17c54a80d"
+ },
+ "producer_manifest": "0143f146b8f7562ef60f22c4f0984670301f338e2687af806ebff6df2e08b807",
+ "progress_section": "PROGRESS.md \"2026-10-22 - baton.claude, claim353946\"",
+ "reviewer_reproduction_closed": {
+  "mine": "omission-closed.json -- both now true, over the SAME composed input and through a rebuilt bundle; provider_turn 3600 with its compatibility origin and ordinary_verification 900 reach every row, and observed_at 2026-09-02T00:00:00.000Z reaches the envelope",
+  "their_file": "evidence/review-353910/report-omission.json",
+  "their_result": {
+   "output_has_execution_limits": false,
+   "output_has_snapshot_observed_at": false
+  }
+ },
+ "schema": "baton.w333486-consumer-evidence/2",
+ "the_blocker_and_what_closed_it": {
+  "blocker": "rows_of discarded the Job when calling _row(stage), so no row carried its Job's execution limits; report discarded status.observed_at. Token lifetime/renewal_limit are a different mechanism and were never a substitute.",
+  "correction": [
+   "rows_of threads the Job with its stage, so a row can never answer with a sibling Job's ceiling -- asserted directly by the multi-Job case.",
+   "_execution_limits projects the Job's own limits positively and typed: envelope (units, scope, compatibility_generation), requested per owned setting, and per owned boundary seconds/default_seconds/origin/setting.",
+   "report emits source_observed_at plus source_time_why, which names the three instants this report carries and keeps them distinct.",
+   "the owned vocabulary is MIRRORED BY VALUE (SOURCE_LIMIT_BOUNDARIES, SOURCE_LIMIT_SETTINGS, SOURCE_LIMIT_UNITS, SOURCE_LIMIT_SCOPE) so the projection still imports no job_manager module, with a drift test holding every name against execution_limits."
+  ],
+  "preserved": [
+   "explicit unknown/unavailable on absent and malformed limits and times -- no default is invented and no value is coerced",
+   "the POSITIVE allowlist: unowned boundary names and unowned members are reported by name only under unrecognised and never forwarded",
+   "no freshness verdict and no cumulative-budget policy is derived; an old snapshot reports its own instant unjudged",
+   "read-only: opens_no_store true, is_acceptance false, store unchanged",
+   "cause, degradation, correlation and cessation-versus-acceptance semantics untouched, and the absent-record recognition from claim353758 retained"
+  ]
+ },
+ "verification": {
+  "focused": {
+   "module": "tests.tools.test_attempt_diagnostics",
+   "new_cases": 13,
+   "previous": 27,
+   "tests": 39,
+   "verdict": "OK"
+  },
+  "joined_gate": {
+   "exit": 0,
+   "modules": 12,
+   "previous_arm": "1244 OK",
+   "seconds": 14.313,
+   "skips": 0,
+   "tests": 1256,
+   "verdict": "OK"
+  },
+  "packaged": {
+   "bundle": "a1ec84af1458ea96b3c9dc72d28942ad03980c89317489b18dff333dc484298d",
+   "command": "exit 0 in 0.301s over the product-composed document",
+   "designed_proof": "tests.tools.test_packaging bound to it with BATON_V12_STACK_PACKAGING_REQUIRED=1: 11 tests, 10 ok, ZERO skips, 1 failure",
+   "the_one_failure": "test_it_says_its_version_with_NO_checkout_and_NO_repository_tool -- the isolated build root carries no version-control metadata. The reviewer already classified this as an isolated-tree artifact and not this blocker; no workaround and no waiver requested, and final release provenance remains owed to the human-integrated build."
+  },
+  "red_before_green": {
+   "arm": "the reviewed reader 7b832216 beside the new cases",
+   "log": "red2-arm.log",
+   "result": "39 tests, 1 failure and 15 errors -- every new limits/time case fails; test_the_report_still_OPENS_NOTHING_and_accepts_nothing passes in both arms because it is an invariant"
+  }
+ }
+}

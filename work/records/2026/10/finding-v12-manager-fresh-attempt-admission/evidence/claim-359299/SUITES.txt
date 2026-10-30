@@ -1,0 +1,8 @@
+# whole job_manager suite (candidate-359299)
+ERROR: test_the_native_factory_delivers_the_policy_to_both_stage_workers (tests.job_manager.test_native_permission.NativeStageComposition.test_the_native_factory_delivers_the_policy_to_both_stage_workers)
+Ran 1073 tests in 14.421s
+FAILED (errors=1)
+
+# tests.tools.test_bootstrap + test_scheduler_trace: Ran 279 tests in 72.271s / OK
+# tests.tools.test_stage_execution: Ran 477 tests in 250.935s / OK
+# four inventory suites: 116 failures on candidate, 116 identical on canonical base; comm -13 is empty

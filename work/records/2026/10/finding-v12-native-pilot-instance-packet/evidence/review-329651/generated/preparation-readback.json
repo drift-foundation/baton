@@ -1,0 +1,301 @@
+{
+  "checks": [
+    {
+      "check": "the adapted manifest passes the MANAGER's own structure check",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "its source descriptor declares the boundary a nominated mount requires",
+      "detail": {
+        "baton.source-boundary/1": {
+          "delivery": "nominated-mount",
+          "profile": "git-line",
+          "workspace": "disk"
+        }
+      },
+      "passed": true
+    },
+    {
+      "check": "it names THIS Authority and THIS Work",
+      "detail": {
+        "authority_uuid": "1cdb8d19feda47c0a209bd0669b16871",
+        "work_id": "1cdb8d19-W1"
+      },
+      "passed": true
+    },
+    {
+      "check": "and this task document's own bytes",
+      "detail": "sha256:5ec48d4baf2020a8ef972237444c5989cf8490dea23cc285dbfd3bc0508dc1bb",
+      "passed": true
+    },
+    {
+      "check": "the sealed digest is the canonical digest the manager recomputes, and it moved because the Work did",
+      "detail": {
+        "adapted": "sha256:ffe6b843a0230f375805eb01390bc91de95801ab2b7df11a82f8950749884ea3",
+        "prior": "sha256:1882866078bbe8b9bb2edda94f63fba2c81d562d52746878d4a391f330bfa6e7"
+      },
+      "passed": true
+    },
+    {
+      "check": "every worker document now names all 29 members the worker contract closes over",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "the producer and the reviewer are distinct participants",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "the review worker's outgoing route is the OWNER route",
+      "detail": {
+        "implementation": "rview",
+        "review": "owner"
+      },
+      "passed": true
+    },
+    {
+      "check": "no integration worker is configured",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "bootstrap's own input validator accepts the resolved configuration pass",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "and bootstrap.validated accepts the configuration this input EMITS",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "the emitted configuration carries both workers with their resolved principals",
+      "detail": [
+        "principal:baton.claude-pilot",
+        "principal:baton.reviewer-pilot"
+      ],
+      "passed": true
+    },
+    {
+      "check": "the in-place configuration pass is accepted by the supported entry point",
+      "detail": {
+        "exit": 0,
+        "inputs_at": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/inputs.json",
+        "said": [
+          "Now export these and run `just start` from v12/:",
+          "",
+          "export BATON_V12_JOB_STORE=\"/home/sl/baton-instances/native-coordination-pilot-w321608-1/db/jobs.sqlite3\"",
+          "export BATON_V12_CONTROL_STORE=\"/home/sl/baton-instances/native-coordination-pilot-w321608-1/db/control.sqlite3\"",
+          "export BATON_V12_AUTHORITY_UUID=\"1cdb8d19feda47c0a209bd0669b16871\"",
+          "export BATON_V12_STAGE_EXECUTION_CONFIG=\"/home/sl/baton-instances/native-coordination-pilot-w321608-1/deployment.json\""
+        ]
+      },
+      "passed": true
+    },
+    {
+      "check": "repeating it preserves what is there",
+      "detail": {
+        "exit": 0,
+        "inputs_at": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/inputs.json",
+        "said": [
+          "Now export these and run `just start` from v12/:",
+          "",
+          "export BATON_V12_JOB_STORE=\"/home/sl/baton-instances/native-coordination-pilot-w321608-1/db/jobs.sqlite3\"",
+          "export BATON_V12_CONTROL_STORE=\"/home/sl/baton-instances/native-coordination-pilot-w321608-1/db/control.sqlite3\"",
+          "export BATON_V12_AUTHORITY_UUID=\"1cdb8d19feda47c0a209bd0669b16871\"",
+          "export BATON_V12_STAGE_EXECUTION_CONFIG=\"/home/sl/baton-instances/native-coordination-pilot-w321608-1/deployment.json\""
+        ]
+      },
+      "passed": true
+    },
+    {
+      "check": "implementation-pilot keeps its install-derived storage selections",
+      "detail": {
+        "credential_home": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/credentials/implementation",
+        "launch_home": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/launch/implementation",
+        "nominated_source": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/repo/source-implementation-pilot",
+        "workspace_storage": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/workspaces/implementation"
+      },
+      "passed": true
+    },
+    {
+      "check": "review-pilot keeps its install-derived storage selections",
+      "detail": {
+        "credential_home": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/credentials/review",
+        "launch_home": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/launch/review",
+        "nominated_source": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/repo/source-review-pilot",
+        "workspace_storage": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/workspaces/review"
+      },
+      "passed": true
+    },
+    {
+      "check": "the emitted configuration carries both workers and the one binding",
+      "detail": {
+        "bindings": [
+          {
+            "canonical_target_id": "14e52d80679de5e844f72324df632da5e01cf393",
+            "job_id": "quickstart-a",
+            "job_work_id": "1cdb8d19-W1",
+            "line_declared_base": "14e52d80679de5e844f72324df632da5e01cf393",
+            "review_work_id": "1cdb8d19-W1",
+            "source_worker_id": "implementation-pilot"
+          }
+        ],
+        "workers": [
+          "implementation-pilot",
+          "review-pilot"
+        ]
+      },
+      "passed": true
+    },
+    {
+      "check": "and the binding still names the ORIGINAL base",
+      "detail": {
+        "canonical_target_id": "14e52d80679de5e844f72324df632da5e01cf393",
+        "job_id": "quickstart-a",
+        "job_work_id": "1cdb8d19-W1",
+        "line_declared_base": "14e52d80679de5e844f72324df632da5e01cf393",
+        "review_work_id": "1cdb8d19-W1",
+        "source_worker_id": "implementation-pilot"
+      },
+      "passed": true
+    },
+    {
+      "check": "the Job input identity is the PUBLIC projection and is NOT a hash of the whole manifest",
+      "detail": {
+        "public": "sha256:ee61953eebd8b1e9599b1fc398bce1a6e0f13f502b2b3fbbc454943a2922f5be",
+        "revision_2_was": "sha256:1afbbeb28be5bf9be60e4536340694d04d23fd9b73328dbe51ec88f7fa369e2c"
+      },
+      "passed": true
+    },
+    {
+      "check": "it is stable under the excluded members: changing the worker image digest does not move it",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "while changing an included policy identity DOES move it",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "the submission names that identity",
+      "detail": "sha256:ee61953eebd8b1e9599b1fc398bce1a6e0f13f502b2b3fbbc454943a2922f5be",
+      "passed": true
+    },
+    {
+      "check": "the runtime consumer finds NO disagreement for implementation-pilot",
+      "detail": {},
+      "passed": true
+    },
+    {
+      "check": "the runtime consumer finds NO disagreement for review-pilot",
+      "detail": {},
+      "passed": true
+    },
+    {
+      "check": "and it DOES disagree when the Job names another input",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "the submission validates with the readbacks in place",
+      "detail": "quickstart-a",
+      "passed": true
+    },
+    {
+      "check": "and carries the selected per-invocation ceilings",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "read-only repository report accepts installed selector",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "repository report carries actual selected base",
+      "detail": "workspace      /home/sl/baton-instances/native-coordination-pilot-w321608-1/repo/workspace -- inside this instance -- a repository (work tree) -- HEAD 14e52d80679de5e844f72324df632da5e01cf393\ntarget         /home/sl/baton-instances/native-coordination-pilot-w321608-1/repo/target.git -- inside this instance -- a repository (bare) -- HEAD 14e52d80679de5e844f72324df632da5e01cf393\nreference      not configured -- a reconciled result is imported at exactly one explicitly configured reference\ndeclared bases 14e52d80679de5e844f72324df632da5e01cf393\n\nnothing was run and nothing was written; preparing the target is the owner's, and the read-only commands to check it are in OPERATOR-INDEPENDENT-REPOSITORY.md\n",
+      "passed": true
+    },
+    {
+      "check": "native Work pins v12 assignment contract and its own scope",
+      "detail": null,
+      "passed": true
+    },
+    {
+      "check": "generated task is the exact manifest-bound artifact",
+      "detail": null,
+      "passed": true
+    }
+  ],
+  "result": {
+    "authority_uuid": "1cdb8d19feda47c0a209bd0669b16871",
+    "binding_drift": {
+      "not_run": "production preparation does not inject drift"
+    },
+    "emitted_bindings": [
+      {
+        "canonical_target_id": "14e52d80679de5e844f72324df632da5e01cf393",
+        "job_id": "quickstart-a",
+        "job_work_id": "1cdb8d19-W1",
+        "line_declared_base": "14e52d80679de5e844f72324df632da5e01cf393",
+        "review_work_id": "1cdb8d19-W1",
+        "source_worker_id": "implementation-pilot"
+      }
+    ],
+    "emitted_validation": "accepted by bootstrap.validated",
+    "input_manifest": {
+      "manifest_digest": "sha256:ffe6b843a0230f375805eb01390bc91de95801ab2b7df11a82f8950749884ea3",
+      "manifest_id": "input-manifest-1",
+      "runtime_profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+      "work_ref": {
+        "authority_uuid": "1cdb8d19feda47c0a209bd0669b16871",
+        "work_id": "1cdb8d19-W1"
+      },
+      "worker_image_digest": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2"
+    },
+    "job_input_identity": "sha256:ee61953eebd8b1e9599b1fc398bce1a6e0f13f502b2b3fbbc454943a2922f5be",
+    "label": "owner-selected installed preparation",
+    "pass_two": {
+      "exit": 0,
+      "inputs_at": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/inputs.json",
+      "said": [
+        "Now export these and run `just start` from v12/:",
+        "",
+        "export BATON_V12_JOB_STORE=\"/home/sl/baton-instances/native-coordination-pilot-w321608-1/db/jobs.sqlite3\"",
+        "export BATON_V12_CONTROL_STORE=\"/home/sl/baton-instances/native-coordination-pilot-w321608-1/db/control.sqlite3\"",
+        "export BATON_V12_AUTHORITY_UUID=\"1cdb8d19feda47c0a209bd0669b16871\"",
+        "export BATON_V12_STAGE_EXECUTION_CONFIG=\"/home/sl/baton-instances/native-coordination-pilot-w321608-1/deployment.json\""
+      ]
+    },
+    "principals": {
+      "baton.claude-pilot": "principal:baton.claude-pilot",
+      "baton.reviewer-pilot": "principal:baton.reviewer-pilot"
+    },
+    "repeat": {
+      "exit": 0,
+      "inputs_at": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/inputs.json",
+      "said": [
+        "Now export these and run `just start` from v12/:",
+        "",
+        "export BATON_V12_JOB_STORE=\"/home/sl/baton-instances/native-coordination-pilot-w321608-1/db/jobs.sqlite3\"",
+        "export BATON_V12_CONTROL_STORE=\"/home/sl/baton-instances/native-coordination-pilot-w321608-1/db/control.sqlite3\"",
+        "export BATON_V12_AUTHORITY_UUID=\"1cdb8d19feda47c0a209bd0669b16871\"",
+        "export BATON_V12_STAGE_EXECUTION_CONFIG=\"/home/sl/baton-instances/native-coordination-pilot-w321608-1/deployment.json\""
+      ]
+    },
+    "revision_2_naive_digest": "sha256:1afbbeb28be5bf9be60e4536340694d04d23fd9b73328dbe51ec88f7fa369e2c",
+    "routes": {
+      "implementation": "rview",
+      "review": "owner"
+    },
+    "submission_stages": [
+      "implementation",
+      "review"
+    ],
+    "work_id": "1cdb8d19-W1"
+  }
+}

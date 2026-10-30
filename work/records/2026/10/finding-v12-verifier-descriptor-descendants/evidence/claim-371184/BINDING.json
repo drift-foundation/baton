@@ -1,0 +1,113 @@
+{
+ "R1_corrected": {
+  "absent_is_explicitly_legacy": "answered on lexists alone; NO mount table is read, which review [R1] asked for by name and a test enforces",
+  "malformed_is_not_legacy": true,
+  "trusted_identity": "the selection's uid/gid, never the ambient process, never a hardcoded 65532",
+  "what": "detection replaced by an explicit versioned selection, baton.v12.verifier-layout/1 at /run/baton/verifier-layout.json, a NEW schema and name as TASK.md requires rather than a widened frozen task or launch shape"
+ },
+ "R2_corrected": {
+  "mount_facts_kept": [
+   "mount_id",
+   "parent_id",
+   "device",
+   "root",
+   "point",
+   "options",
+   "filesystem",
+   "super_options"
+  ],
+  "proved_per_root": [
+   "canonical selected pathname",
+   "O_NOFOLLOW open",
+   "is a mount point",
+   "filesystem type",
+   "exact mount options",
+   "immutable ancestors",
+   "mode 0700",
+   "the selection's uid/gid",
+   "object identity against the named object"
+  ],
+  "reproved_after_the_provider": [
+   "mount presence",
+   "filesystem type",
+   "options",
+   "object identity"
+  ],
+  "scratch_is_no_longer_the_input": "the verifier receives the selection's own fixed paths"
+ },
+ "R3_NOT_DONE_remaining_scope": [
+  "no manager-side composition of the verifier-layout/1 document -- the worker reads a selection nothing yet writes, so every deployment today has it absent and behaves as unchanged legacy",
+  "no OCI/source_boundary composition of the four private rw,noexec,nosuid,nodev tmpfs mounts, their fixed roots or their delivery",
+  "no capacity partition -- source_boundary still selects /tmp 64MiB plus /dev/shm 16MiB; the 32/16/4/16/4/8 split and its 96MiB total are unimplemented and per-root ENOSPC behaviour is untested",
+  "no image recipe scaffolding or trusted layout marker",
+  "no connected acceptance across worker and configured topology"
+ ],
+ "base": "f36bcd75ed22430355efe1b274b8f236cb591f6b",
+ "candidate": {
+  "v12/python/tests/manager/test_claude_agent.py": {
+   "bytes": 236859,
+   "sha256": "e079b844c403d755baa13459291b28bf130c843409105a409ad9937816e0c5bc"
+  },
+  "v12/worker/claude_agent.py": {
+   "bytes": 303835,
+   "sha256": "a73b8820397ac755e7762c835cebb574a427347d574f9585bc6b6ecd3d1c0ba5"
+  }
+ },
+ "claim": "E371184",
+ "diffs": {
+  "claude_agent.diff": "018c3053f626342d62faa54055d7ed8f6414c238c4f4ba0222f4b7aea8a20d86",
+  "test_claude_agent.diff": "10cc5dab834ffbd63aa7ccddd2a2350090544b9ede38339993d3994b356ae4dc"
+ },
+ "downstream_untouched": "W321776's /3 work is a consumer, not scope here",
+ "evidence": {
+  "claude_agent.diff": "018c3053f626342d62faa54055d7ed8f6414c238c4f4ba0222f4b7aea8a20d86",
+  "selected-layout.txt": "d12a29b1ee07e2c344088cdb0a840b51a6bf66cf11f7eb96d7cad1d118e0dc65",
+  "test_claude_agent.diff": "10cc5dab834ffbd63aa7ccddd2a2350090544b9ede38339993d3994b356ae4dc"
+ },
+ "pre_provider_agreement": "_child_environments calls _layout_preflight, which proves and then releases; both incompatibility directions refuse there",
+ "preserved": [
+  "the legacy descriptor form, unchanged and taken whenever no layout is selected",
+  "_checked_directory's component guard",
+  "W321528's _verify timeout reporting",
+  "W321776's committed Stage-A additions"
+ ],
+ "record_files": {
+  "FINDING.md": "a3f57d8534680128ad2afe377b9eb693ebb54d208d777d6830656223a5c38a31",
+  "PLAN.md": "bd9cad14b41fba0bcdef7de8c8769ee18895aa154b6eb1d194f825516377b9a5",
+  "PROGRESS.md": "aab932f3c52af90732e81612c74be2c6fc91f893616b9dae1c6d73c1d3446942",
+  "REVALIDATION-370978.md": "71e872066ed8f676d16ca8cd2a69ced5cae068cd467f2af8feb5f850f17c8b42"
+ },
+ "schema": "baton.v12.verifier-root-binding/2",
+ "status": "INCOMPLETE -- R1 and R2 corrected, R3 not done. Returned with exact remaining scope rather than offered as the selected correction.",
+ "still_separately_selected": "the corrected-image/kernel proof; no engine, provider, deployment or live operation was performed",
+ "supersedes": {
+  "prior_binding": "evidence/claim-371040/BINDING.json",
+  "sha256": "122c5bf9646e1c612f99d17fad7294d611f70800558467af926dbccf1341ac72",
+  "why": "its auto-detection design was refused by review-2026-10-28T03-09-09Z [R1]"
+ },
+ "tests": {
+  "added": [
+   "TheVerifierLayoutIsSelectedAndProved (25 cases)",
+   "TheSelectedPolicyConstants (3 cases)"
+  ],
+  "all_new_cases_fail_without_the_fix": {
+   "count": 27,
+   "how_checked": "pristine worker extracted with `git show HEAD:...` to a temp file and swapped in; no Git mutation"
+  },
+  "policy_pinned_against_the_substitution": "TheSelectedPolicyConstants asserts tmpfs, the four options, uid 0, mode 0755, the schema and the document path, and parses the host's REAL mountinfo with every field",
+  "removed": "TheVerifierRootsReachDescendants -- it tested the auto-detection that had to change; its real descendant, control and object-binding coverage is carried into the new class under standing test authority",
+  "substituted_and_labelled": [
+   "the mount table",
+   "the root-owned 0755 image scaffolding"
+  ],
+  "suite": {
+   "module": "tests.manager.test_claude_agent",
+   "originally": 241,
+   "result": "OK",
+   "skip_reason": "the positive ancestor case needs a root-owned 0755 /run and says so rather than asserting nothing",
+   "skipped": 1,
+   "tests": 269
+  }
+ },
+ "work": "W325695"
+}

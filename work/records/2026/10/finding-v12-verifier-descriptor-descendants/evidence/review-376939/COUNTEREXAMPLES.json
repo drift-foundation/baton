@@ -1,0 +1,46 @@
+[
+  {
+    "case": "prefix collision",
+    "answer": {
+      "name": "w325695-proof-376414",
+      "status": 1,
+      "stdout": "[]",
+      "stderr": "error: no such object: w325695-proof-376414-other",
+      "state": "absent",
+      "why": "exit 1 with no such object"
+    }
+  },
+  {
+    "case": "mixed unlisted error",
+    "answer": {
+      "name": "w325695-proof-376414",
+      "status": 1,
+      "stdout": "[]",
+      "stderr": "error: no such object: w325695-proof-376414\nI/O error",
+      "state": "absent",
+      "why": "exit 1 with no such object"
+    }
+  },
+  {
+    "case": "original supported daemon spelling",
+    "answer": {
+      "name": "w325695-proof-376414",
+      "status": 1,
+      "stdout": "",
+      "stderr": "Error response from daemon: No such container: w325695-proof-376414",
+      "state": "uncertain",
+      "why": "an error about access, not the object"
+    }
+  },
+  {
+    "case": "zero mixed error",
+    "answer": {
+      "name": "w325695-proof-376414",
+      "status": 0,
+      "stdout": "[]",
+      "stderr": "I/O error",
+      "state": "absent",
+      "why": "exit 0 with an empty inspect array"
+    }
+  }
+]

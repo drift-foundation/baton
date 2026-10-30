@@ -1,0 +1,27 @@
+{
+  "child_status": 0,
+  "child_stderr": "",
+  "module": "/home/sl/src/baton/v12/python/tools/next_run_confinement.py",
+  "mutated_nothing_installed": true,
+  "observed": {
+    "dev_null_O_RDWR": "denied: errno 13 Permission denied",
+    "git_clone": {
+      "status": 128,
+      "stderr": "fatal: could not open '/dev/null' for reading and writing: Permission denied",
+      "stdout_bytes": 0
+    },
+    "module": "/home/sl/src/baton/v12/python/tools/next_run_confinement.py",
+    "restricted": true,
+    "root": "/tmp/w339626-347765/before/runroot-r029gzsp",
+    "write_inside_root": "allowed",
+    "write_outside_root": "denied: errno 13"
+  },
+  "read_no_credential": true,
+  "schema": "baton.w339626-confinement-reproduction/1",
+  "seconds": 0.015,
+  "started_no_runtime": true,
+  "submitted_no_job": true,
+  "what": "a bounded author DIAGNOSTIC: the real product confinement module applied in a throwaway child under a temporary root, then the exact /dev/null O_RDWR open and a REAL git clone of a real local line. NOT a product-test run and NOT independent acceptance evidence.",
+  "work": "/tmp/w339626-347765/before",
+  "wrote_only_under": "/tmp/w339626-347765/before"
+}

@@ -1,0 +1,1 @@
+Read-only ps -o pid,ppid,stat,comm -p 92296,92309 returned header only, exit1. Neither recorded PID present at reviewer observation. No signal sent. Exact-container.txt records independent docker inspect absence. These observations do not settle ledger cleanup or prove unrelated process absence.

@@ -1,0 +1,70 @@
+{
+  "manifest": "164546f94cc88854271d623a149835e1283e76a4f8d9049bdc68a402656ab13f",
+  "cli_and_restart": {
+    "answer": {
+      "job_id": "job-a-retry-2",
+      "prior_job_id": "job-a",
+      "prior_submission_id": "sub-job-a",
+      "prior_attempt_ids": [
+        "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c"
+      ],
+      "prior_states": {
+        "job-a/implementation": "exceptional",
+        "job-a/review": "blocked"
+      },
+      "work": {
+        "work_id": "0000000a-W1",
+        "disposition": "reused",
+        "status": "open"
+      },
+      "binding": {
+        "job_id": "job-a-retry-2",
+        "disposition": "added",
+        "job_work_id": "0000000a-W1",
+        "serving": {
+          "implementation": [
+            "impl-a"
+          ],
+          "review": [
+            "review-a"
+          ]
+        }
+      },
+      "submission_id": "sub-job-a-retry-2",
+      "stages": [
+        "job-a-retry-2/implementation",
+        "job-a-retry-2/review"
+      ],
+      "exclusion": {
+        "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {
+          "runtime": null,
+          "cleanup": null,
+          "resource": null,
+          "basis": "no attempt was ever recorded on this instance's own host, /var/tmp/baton-w257624/v12-w71917-042tmc8u/bootstrap-deployment/db/control.sqlite3"
+        },
+        "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c": {
+          "runtime": null,
+          "cleanup": null,
+          "resource": null,
+          "basis": "no attempt was ever recorded on this instance's own host, /var/tmp/baton-w257624/v12-w71917-042tmc8u/bootstrap-deployment/db/control.sqlite3"
+        }
+      },
+      "recorded_at": "2026-09-02T00:00:00.000Z"
+    },
+    "prior_unchanged": true,
+    "workers_unchanged": true,
+    "reopened_replay_equal": true,
+    "limits": {
+      "provider_turn_seconds": 3600,
+      "verification_command_seconds": 900
+    }
+  },
+  "different_incarnation_incomplete_refusal": "the fresh attempt 'job-a-retry-2' is held by 'jobs-1@/var/tmp/baton-w257624/v12-w71917-h7ptxk0i/bootstrap\u2026 and is 'intended'; one admission performs this identity's Work authorization, binding and submission, and a second acting beside it would publish them twice. Let that one finish, or re-run under the same manager incarnation to continue its interrupted work",
+  "real_binding_cut": {
+    "job_id": "job-a-retry-2",
+    "publication_calls": 1,
+    "recovered": true
+  },
+  "seconds": 0.15391348599951016
+}

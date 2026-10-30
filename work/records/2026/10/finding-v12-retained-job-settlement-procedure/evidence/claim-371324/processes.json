@@ -1,0 +1,13 @@
+{
+  "name": "processes",
+  "cmd": "ps -o pid,ppid,stat,lstart,args -p 169781,169782",
+  "started": "2026-10-28T03:30:08.919Z",
+  "result": {
+    "chunk_id": "ebd885",
+    "wall_time_seconds": 0.000008516,
+    "exit_code": 0,
+    "original_token_count": 173,
+    "output": "    PID    PPID STAT                  STARTED COMMAND\n 169781       1 Ssl  Tue Oct 27 19:26:24 2026 /home/sl/baton-instances/useful-template-job-w366962/distro/baton-v12-stack manager --store /home/sl/baton-instances/useful-template-job-w366962/db/jobs.sqlite3 --incarnation v12-stack-169780-1793150785297135474 --authority-uuid 6dcb60dce5cd485b8bf03c24bc4afc82 serve --control /home/sl/baton-instances/useful-template-job-w366962/db/control.sqlite3 --operations tools.stage_execution:factory\n 169782       1 Ss   Tue Oct 27 19:26:24 2026 /home/sl/baton-instances/useful-template-job-w366962/distro/baton-v12-stack publish --root /home/sl/baton-instances/useful-template-job-w366962/state\n"
+  },
+  "ended": "2026-10-28T03:30:08.959Z"
+}

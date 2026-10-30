@@ -1,0 +1,55 @@
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  628.2kB
+Step 1/17 : FROM node:22-trixie-slim
+ ---> 37d261af2f28
+Step 2/17 : ARG CLAUDE_VERSION=2.1.247
+ ---> Using cache
+ ---> 23094008896c
+Step 3/17 : RUN npm install -g "@anthropic-ai/claude-code@${CLAUDE_VERSION}"     && npm cache clean --force
+ ---> Using cache
+ ---> ec425c32f435
+Step 4/17 : RUN apt-get update     && apt-get install --no-install-recommends -y ca-certificates git python3        python3-jsonschema     && rm -rf /var/lib/apt/lists/*
+ ---> Using cache
+ ---> d0a3737b375d
+Step 5/17 : COPY python/src/baton_v12/attempt_log_format.py      /opt/baton/attempt_log_format.py
+ ---> Using cache
+ ---> 4660bb158674
+Step 6/17 : COPY python/src/baton_v12/verification_context.py      /opt/baton/verification_context.py
+ ---> 179ad5aad36e
+Step 7/17 : COPY worker/baton_worker.py /opt/baton/baton_worker.py
+ ---> 89e8c962d0a2
+Step 8/17 : COPY worker/claude_agent.py /opt/baton/claude_agent.py
+ ---> f5c3d20f7221
+Step 9/17 : COPY worker/dogfood_entry.py /opt/baton/dogfood_entry.py
+ ---> 4b40de9a643b
+Step 10/17 : COPY worker/worker-control-1.0.schema.json      /opt/baton/worker-control-1.0.schema.json
+ ---> 652fe7ce29e5
+Step 11/17 : COPY python/src/baton_v12/source_profiles /opt/baton/source_profiles
+ ---> d899f87fa604
+Step 12/17 : RUN useradd --uid 65532 --create-home nonroot     && mkdir -p /home/nonroot/.claude     && chown -R 65532:65532 /home/nonroot
+ ---> Running in 44cb7207d6c9
+[91museradd warning: nonroot's uid 65532 outside of the UID_MIN 1000 and UID_MAX 60000 range.
+[0m ---> Removed intermediate container 44cb7207d6c9
+ ---> 79d8fe8c3752
+Step 13/17 : RUN mkdir -p /run/baton-verifier/home              /run/baton-verifier/tmp              /run/baton-verifier/cache              /run/baton-verifier/pycache     && chown -R 0:0 /run/baton-verifier     && chmod 0755 /run /run/baton-verifier                   /run/baton-verifier/home                   /run/baton-verifier/tmp                   /run/baton-verifier/cache                   /run/baton-verifier/pycache
+ ---> Running in d2afdf251f9c
+ ---> Removed intermediate container d2afdf251f9c
+ ---> 1c3aa00d558f
+Step 14/17 : COPY worker/verifier-layout-marker.json      /opt/baton/verifier-layout-marker.json
+ ---> c5a288058b46
+Step 15/17 : USER 65532:65532
+ ---> Running in 1469f94ef217
+ ---> Removed intermediate container 1469f94ef217
+ ---> 6be475662539
+Step 16/17 : ENTRYPOINT ["python3", "/opt/baton/dogfood_entry.py"]
+ ---> Running in afacd7a7c022
+ ---> Removed intermediate container afacd7a7c022
+ ---> 9467717d9b98
+Step 17/17 : ENV PYTHONDONTWRITEBYTECODE=1     PYTHONUNBUFFERED=1     PYTHONPATH=/opt/baton     PYTHONHASHSEED=0     NODE_NO_WARNINGS=1
+ ---> Running in 797da36adf0b
+ ---> Removed intermediate container 797da36adf0b
+ ---> 47e733834bb6
+Successfully built 47e733834bb6

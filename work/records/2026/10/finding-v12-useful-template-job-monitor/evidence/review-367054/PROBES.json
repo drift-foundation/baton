@@ -1,0 +1,10 @@
+{
+  "diagnostic_argv": [
+    "--status",
+    "/not-opened/status.json"
+  ],
+  "exit": 2,
+  "stderr": "usage: attempt-diagnostics <status-document.json>; this report is a pure projection over one status document and takes no store, instance or engine operand\n",
+  "empty_workers_derivation": "AttributeError: 'DeploymentDerivation' object has no attribute '_kinds'",
+  "effects": "No store, provider, engine or installed instance accessed; diagnostic refuses before opening a file and derivation uses inert empty-worker mapping."
+}

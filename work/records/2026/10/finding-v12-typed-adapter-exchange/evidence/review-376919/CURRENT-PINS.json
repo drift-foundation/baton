@@ -1,0 +1,7 @@
+{
+  "v12/worker/claude_agent.py": "cd7cee152af411e02043094ff0d6de838721209b08483960429480d9dfc90f0a",
+  "v12/worker/baton_worker.py": "56cdee824193834e9f1e8e974259575219a9223aa9b4f1946c99099b35c5cd34",
+  "v12/python/src/baton_v12/worker_manager/launch.py": "e7503f09547fa28f181cac896c00a34bef484a24d2e0a4ba57def5771a83f4cc",
+  "v12/python/src/baton_v12/worker_manager/exchange.py": "50cfc38b1322196697b0d5a62fa7146a64035080ef231585ff6ee3dd6e2b6bb8",
+  "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-safe-adapter-failure-plan/AMENDMENT-376531.md": "ced2e81f031e7f56c060963d2724cca524e1a7e17e3e5f18d1c5fc777c38f68e"
+}

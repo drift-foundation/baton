@@ -1,0 +1,297 @@
+{
+ "authority_uuid": "19b4f1459c2442e4aec8c7cd23e92312",
+ "instance": "/home/sl/baton-instances/native-coordination-pilot-w321608-4",
+ "method": "read-only calls on the INSTALLED command; no store opened, no engine reached, nothing started, stopped, submitted or retried",
+ "observed_by": "baton.claude, claim361660",
+ "participants": [
+  "baton.claude-pilot",
+  "baton.integrator-pilot",
+  "baton.reviewer-pilot",
+  "baton.reviewer-receipt-pilot",
+  "baton.slaw",
+  "baton.verifier-pilot"
+ ],
+ "probes": {
+  "attempt-diagnostics": {
+   "argv": [
+    "attempt-diagnostics",
+    "--help"
+   ],
+   "note": "read-only help",
+   "status": 2,
+   "stderr": "attempt diagnostics unavailable: input is unreadable or not a supported status document\n",
+   "stdout": ""
+  },
+  "bootstrap": {
+   "argv": [
+    "bootstrap",
+    "--help"
+   ],
+   "note": "parser only; never invoked against this instance",
+   "status": 0,
+   "stderr": "",
+   "stdout": "usage: bootstrap [-h] --inputs INPUTS [--destination DESTINATION]\n                 [--distro DISTRO] [--repository-source REPOSITORY_SOURCE]\n                 [--no-repositories]\n\nPrepare the v12 stack's one-time deployment.\n\noptions:\n  -h, --help            show this help message and exit\n  --inputs INPUTS       the baton.v12.stack-bootstrap/1 document naming this\n                        deployment's production selections\n  --destination DESTINATION\n                        an absolute external destination to install into; the\n                        instance.json emitted there selects every lifecycle\n                        command\n  --distro DISTRO       the built one-folder runtime to install\n  --repository-source REPOSITORY_SOURCE\n                        the checkout this deployment's repositories are cloned\n                        from; the default is the one containing this\n                        distribution's own v12/justfile\n  --no-repositories     install without preparing any repository, which leaves\n                        a deployment that schedules and never reconciles\n"
+  },
+  "diagnostics-help": {
+   "argv": [
+    "attempt-diagnostics",
+    "--help"
+   ],
+   "note": "no --help: the operand is read as a filename",
+   "status": 2,
+   "stderr": "attempt diagnostics unavailable: input is unreadable or not a supported status document\n",
+   "stdout": ""
+  },
+  "diagnostics-real": {
+   "argv": [
+    "attempt-diagnostics",
+    "/home/sl/baton-instances/native-coordination-pilot-w321608-4/state/status.json"
+   ],
+   "note": "the real projection over this instance's published document",
+   "status": 0,
+   "stderr": "",
+   "stdout": "{\n  \"deployment_obligation\": \"tools/stack_command.COMMANDS serves 'attempt-diagnostics' in source; an installed bundle must be rebuilt before the deployed command carries it, and this report rebuilds nothing\",\n  \"freshness_verdict\": null,\n  \"freshness_why\": \"no freshness policy has been selected for these facts, so this report states instants and declines to judge them\",\n  \"is_acceptance\": false,\n  \"opens_no_store\": true,\n  \"reads\": \"one status document, through tools/job_viewer.read_snapshot\",\n  \"reads_diagnostics\": \"baton.v12.attempt-failure-cause/1\",\n  \"rows\": [\n    {\n      \"absent_records\": [\n        \"attempt.cessation-*:expiry-reclaim\",\n        \"attempt.cessation-*:settlement\",\n        \"attempt.cessation-*:cancellation\",\n        \"resource-token.revoked:workspace:66306:49847991:1\",\n        \"runtime.start-failed\",\n        \"runtime.preparation-failed\"\n      ],\n      \"axes\": {\n        \"completion\": {\n          \"known\": true,\n          \"source\": \"diagnostics\",\n          \"value\": true\n        },\n        \"domain\": {\n          \"known\": true,\n          \"source\": \"diagnostics\",\n          \"value\": \"workspace:66306:49847991\"\n        },\n        \"generation\": {\n          \"known\": true,\n          \"source\": \"diagnostics\",\n          \"value\": 1\n        },\n        \"lifetime_seconds\": {\n          \"known\": true,\n          \"source\": \"diagnostics\",\n          \"value\": 900\n        },\n        \"preparation_failure_recorded\": {\n          \"known\": true,\n          \"source\": \"diagnostics\",\n          \"value\": false\n        },\n        \"preparation_failure_runtime_id\": {\n          \"known\": false,\n          \"value\": null,\n          \"why\": \"preparation_failure_runtime_id was not established by the diagnostic producer\"\n        },\n        \"renewal_limit\": {\n          \"known\": true,\n          \"source\": \"diagnostics\",\n          \"value\": 4\n        },\n        \"revocation\": {\n          \"known\": false,\n          \"value\": null,\n          \"why\": \"revocation was not established by the diagnostic producer\"\n        },\n        \"revoked_container\": {\n          \"known\": false,\n          \"value\": null,\n          \"why\": \"revoked_container was not established by the diagnostic producer\"\n        },\n        \"revoked_expired_at\": {\n          \"known\": false,\n          \"value\": null,\n          \"why\": \"revoked_expired_at was not established by the diagnostic producer\"\n        },\n        \"revoked_owner\": {\n          \"known\": false,\n          \"value\": null,\n          \"why\": \"revoked_owner was not established by the diagnostic producer\"\n        },\n        \"start_failure_recorded\": {\n          \"known\": true,\n          \"source\": \"diagnostics\",\n          \"value\": false\n        },\n        \"start_failure_runtime_id\": {\n          \"known\": false,\n          \"value\": null,\n          \"why\": \"start_failure_runtime_id was not established by the diagnostic producer\"\n        }\n      },\n      \"cause\": null,\n      \"completeness\": {\n        \"is_acceptance\": false,\n        \"missing\": [\n          \"cause\"\n        ],\n        \"proves_cessation\": false,\n        \"state\": \"incomplete\",\n        \"why\": \"this diagnostic records no component having ordered a cessation for this attempt; which component ended it, if any did, is unknown, and an absent record is not proof that nothing happened\"\n      },\n      \"diagnostic_degradation\": {\n        \"known\": false,\n        \"value\": null,\n        \"why\": \"no recording-failure carrier is available in this snapshot; absence does not prove recording succeeded\"\n      },\n      \"diagnostics_unavailable\": null,\n      \"execution\": {\n        \"activity_at\": {\n          \"known\": true,\n          \"source\": \"diagnostics.execution\",\n          \"value\": \"2026-10-24T03:00:09.285Z\"\n        },\n        \"activity_bytes\": {\n          \"known\": true,\n          \"source\": \"diagnostics.execution\",\n          \"value\": 981980\n        },\n        \"cleanup\": {\n          \"known\": true,\n          \"source\": \"diagnostics.execution\",\n          \"value\": \"retained\"\n        },\n        \"execution_runtime\": {\n       "
+  },
+  "disposition": {
+   "argv": [
+    "disposition",
+    "--help"
+   ],
+   "note": "read-only help",
+   "status": 0,
+   "stderr": "",
+   "stdout": "usage: baton-v12-stack disposition [-h]\n                                   {pending,approve,deny,integrated,close} ...\n\nThe owner's disposition: what is due, approve or deny the exact reviewed\ncandidate, record the human integration, and close on the selected acceptance.\nWrites no repository file and runs no Git command.\n\npositional arguments:\n  {pending,approve,deny,integrated,close}\n    pending             what owner act is due on one Work\n    approve             approve the exact reviewed candidate\n    deny                deny the exact reviewed candidate\n    integrated          record the human integration of approved bytes\n    close               close on the selected acceptance\n\noptions:\n  -h, --help            show this help message and exit\n"
+  },
+  "disposition-close": {
+   "argv": [
+    "disposition",
+    "close",
+    "--help"
+   ],
+   "note": "read-only help",
+   "status": 0,
+   "stderr": "",
+   "stdout": "usage: baton-v12-stack disposition close [-h]\n                                         --authority-store AUTHORITY_STORE\n                                         --authority-uuid AUTHORITY_UUID\n                                         --participant PARTICIPANT --work WORK\n                                         --operation-id OPERATION_ID\n                                         --outcome OUTCOME\n                                         --rationale RATIONALE\n                                         [--proposal PROPOSAL]\n                                         [--expect-candidate-digest EXPECT_CANDIDATE_DIGEST]\n                                         [--root ROOT]\n                                         [--expect-assignment EXPECT_ASSIGNMENT]\n\noptions:\n  -h, --help            show this help message and exit\n  --authority-store AUTHORITY_STORE\n  --authority-uuid AUTHORITY_UUID\n  --participant PARTICIPANT\n  --work WORK\n  --operation-id OPERATION_ID\n  --outcome OUTCOME\n  --rationale RATIONALE\n  --proposal PROPOSAL\n  --expect-candidate-digest EXPECT_CANDIDATE_DIGEST\n  --root ROOT\n  --expect-assignment EXPECT_ASSIGNMENT\n                        a JSON document holding the exact assignment identity\n                        this close ends, when one is live\n"
+  },
+  "identity": {
+   "argv": [
+    "identity"
+   ],
+   "note": "what this build IS",
+   "status": 0,
+   "stderr": "",
+   "stdout": "{\n  \"build_stamp\": {\n    \"changed_entries\": 383,\n    \"commit\": \"614668e0831e8c87cdae11ca43620e0d544a84d5\",\n    \"detail\": null,\n    \"dirty\": true,\n    \"excused_build_output\": 0,\n    \"schema\": \"baton.v12.build-stamp/1\",\n    \"source\": \"/home/sl/src/baton\"\n  },\n  \"command\": \"baton-v12-stack\",\n  \"executable\": \"/home/sl/baton-instances/native-coordination-pilot-w321608-4/distro/baton-v12-stack\",\n  \"frozen\": true,\n  \"machine\": \"x86_64\",\n  \"native_rpds\": \"/home/sl/baton-instances/native-coordination-pilot-w321608-4/distro/_internal/rpds/rpds.cpython-313-x86_64-linux-gnu.so\",\n  \"platform\": \"Linux-6.17.0-41-generic-x86_64-with-glibc2.42\",\n  \"python\": \"3.13.7\",\n  \"resources\": \"/home/sl/baton-instances/native-coordination-pilot-w321608-4/distro/_internal\",\n  \"schema_assets\": {\n    \"agent-session-1.0\": 48212,\n    \"worker-control-1.0\": 51419\n  },\n  \"sha256\": \"f4e9cecf0ccb7211b5c36691a35d8499cff94c7e64f1aff18c36bb50b13206d3\",\n  \"version\": \"12.0.0\"\n}\n"
+  },
+  "logs": {
+   "argv": [
+    "logs",
+    "--help"
+   ],
+   "note": "read-only help",
+   "status": 0,
+   "stderr": "",
+   "stdout": "usage: baton-v12-stack logs [-h] --logs LOGS --attempt ATTEMPT\n                            {locators,read,follow} ...\n\nRead one attempt's retained raw output. Opens no store and reaches no engine.\n\npositional arguments:\n  {locators,read,follow}\n    locators            every stream, where it is, and what it honestly is\n    read                a bounded window onto one stream\n    follow              the next slice and where to ask from next\n\noptions:\n  -h, --help            show this help message and exit\n  --logs LOGS           the attempt-log delivery root, which is <launch\n                        home>/logs for a deployment this manager laid out\n  --attempt ATTEMPT     the runtime attempt id whose room to read\n"
+  },
+  "logs-read": {
+   "argv": [
+    "logs",
+    "--logs",
+    "/home/sl/baton-instances/native-coordination-pilot-w321608-4/state/launch/logs",
+    "--attempt",
+    "x",
+    "read",
+    "--help"
+   ],
+   "note": "read-only help",
+   "status": 0,
+   "stderr": "",
+   "stdout": "usage: baton-v12-stack logs read [-h] --stream STREAM [--from-byte FROM_BYTE]\n                                 [--limit LIMIT] [--text]\n\noptions:\n  -h, --help            show this help message and exit\n  --stream STREAM       one of worker.stdout, worker.stderr, provider.stdout,\n                        provider.stderr, verification.stdout,\n                        verification.stderr\n  --from-byte FROM_BYTE\n                        the position to read from; a follow's own\n                        next_from_byte comes back here\n  --limit LIMIT         how many bytes at most\n  --text                write the log's own bytes to stdout and the capture\n                        state to stderr\n"
+  },
+  "manager": {
+   "argv": [
+    "manager",
+    "--help"
+   ],
+   "note": "read-only help",
+   "status": 0,
+   "stderr": "",
+   "stdout": "usage: job_manager [-h] --store STORE --incarnation INCARNATION\n                   --authority-uuid AUTHORITY_UUID\n                   {submit,fresh-attempt,status,serve} ...\n\nSubmit Jobs to the v12 Job manager, read its status, or run its control loop.\n\npositional arguments:\n  {submit,fresh-attempt,status,serve}\n    submit              record one versioned multi-Job submission\n    fresh-attempt       admit a fresh attempt at a Job whose execution failed\n    status              print the read-only status projection\n    serve               run the persistent control loop\n\noptions:\n  -h, --help            show this help message and exit\n  --store STORE         the Job store's path; there is no default, and one\n                        inside the checkout is what the external state root\n                        exists to prevent\n  --incarnation INCARNATION\n                        this process's incarnation, which is what restart\n                        recovery distinguishes managers by\n  --authority-uuid AUTHORITY_UUID\n                        the 32-lowercase-hex Authority this Job store belongs\n                        to; it namespaces every episode identity the store\n                        derives, is persisted on first open, and a later open\n                        naming another one refuses without changing the store\n"
+  },
+  "manager-fresh-attempt": {
+   "argv": [
+    "manager",
+    "--store",
+    "/nonexistent",
+    "--incarnation",
+    "readback",
+    "--authority-uuid",
+    "19b4f1459c2442e4aec8c7cd23e92312",
+    "fresh-attempt",
+    "--help"
+   ],
+   "note": "operands of the retry verb the retained candidate calls absent",
+   "status": 0,
+   "stderr": "",
+   "stdout": "usage: job_manager fresh-attempt [-h] --prior-job PRIOR_JOB --control CONTROL\n                                 --authority AUTHORITY --instance INSTANCE\n                                 [--route ROUTE] [--job-id JOB_ID]\n                                 [--work-id WORK_ID]\n                                 [--submission-id SUBMISSION_ID]\n\noptions:\n  -h, --help            show this help message and exit\n  --prior-job PRIOR_JOB\n                        the retained failed Job this repeats; its submitted\n                        specification, limits and scope are carried forward\n                        unchanged\n  --control CONTROL     the Worker Manager control store, opened READ-ONLY: a\n                        fresh attempt is refused unless this host's own record\n                        shows every prior runtime ceased and its resource\n                        returned, and unknown refuses rather than proceeds\n  --authority AUTHORITY\n                        the Authority store whose Work this attempt runs\n                        under; the prior Job's Work is reused when it is open,\n                        which is what makes the installed workers able to\n                        serve it\n  --instance INSTANCE   the deployment's state root, whose own bootstrap\n                        prepares the additive Job binding and whose selector\n                        is asked whether a worker can serve each stage\n  --route ROUTE         the route a Work is created under, used only when the\n                        selected Work does not exist yet\n  --job-id JOB_ID       the fresh Job identity; derived from the prior one\n                        when omitted, so no operator or model has to invent a\n                        name\n  --work-id WORK_ID     the Work this attempt runs under; the prior Job's when\n                        omitted\n  --submission-id SUBMISSION_ID\n                        the submission identity; derived from the fresh Job id\n                        when omitted\n"
+  },
+  "manager-status": {
+   "argv": [
+    "manager",
+    "--store",
+    "/nonexistent",
+    "--incarnation",
+    "readback",
+    "--authority-uuid",
+    "19b4f1459c2442e4aec8c7cd23e92312",
+    "status",
+    "--help"
+   ],
+   "note": "read-only help",
+   "status": 0,
+   "stderr": "",
+   "stdout": "usage: job_manager status [-h] [--control CONTROL] [--observe OBSERVE]\n\noptions:\n  -h, --help         show this help message and exit\n  --control CONTROL  the Worker Manager control store; without it the\n                     projection reports canonical=false rather than an empty\n                     pipeline, and with one that is driving another Job store\n                     it refuses rather than projecting that store's offers as\n                     these Jobs'\n  --observe OBSERVE  an observation-only deployment factory as\n                     module:attribute, which reconstructs this attempt's\n                     durable launch and exchange files so the projection can\n                     report a worker's terminal; without it the exchange is\n                     reported as null, which is 'nobody looked' rather than\n                     'nothing happened'. It opens no Authority and carries no\n                     act, and it does not refresh the runtime axis -- that is\n                     the serving loop's, because reconciling records what it\n                     saw\n"
+  },
+  "monitor": {
+   "argv": [
+    "monitor",
+    "--help"
+   ],
+   "note": "read-only help",
+   "status": 0,
+   "stderr": "",
+   "stdout": "usage: stack monitor [-h] [--interval INTERVAL] [--ticks TICKS]\n\noptions:\n  -h, --help           show this help message and exit\n  --interval INTERVAL  seconds between refreshes\n  --ticks TICKS        bounded refreshes; Ctrl-C is the way out\n"
+  },
+  "order-after": {
+   "argv": [
+    "monitor",
+    "--instance",
+    "/nonexistent/instance.json",
+    "--interval",
+    "3"
+   ],
+   "note": "--instance immediately after the subcommand: PARSED, refused on the missing file",
+   "status": 2,
+   "stderr": "",
+   "stdout": "refused: there is no instance at /nonexistent/instance.json. `just bootstrap <inputs.json> <destination>` prepares one and writes it there.\n"
+  },
+  "order-first": {
+   "argv": [
+    "--instance",
+    "/nonexistent/instance.json",
+    "start"
+   ],
+   "note": "source-parser order: not a subcommand. NOTHING STARTED -- the file does not exist",
+   "status": 2,
+   "stderr": "refused: no subcommand named '--instance'; this command serves attempt-diagnostics, bootstrap, disposition, identity, logs, manager, monitor, publish, record, repository, start, status, stop, view\n",
+   "stdout": ""
+  },
+  "order-last": {
+   "argv": [
+    "monitor",
+    "--interval",
+    "3",
+    "--instance",
+    "/nonexistent/instance.json"
+   ],
+   "note": "--instance after the verb's own options: unrecognized",
+   "status": 2,
+   "stderr": "usage: stack [-h] [--instance INSTANCE] [--root ROOT]\n             {start,stop,status,publish,repository,monitor} ...\nstack: error: unrecognized arguments: --instance /nonexistent/instance.json\n",
+   "stdout": ""
+  },
+  "publish": {
+   "argv": [
+    "publish",
+    "--help"
+   ],
+   "note": "parser only; never invoked against this instance",
+   "status": 0,
+   "stderr": "",
+   "stdout": "usage: stack publish [-h]\n\noptions:\n  -h, --help  show this help message and exit\n"
+  },
+  "record": {
+   "argv": [
+    "record",
+    "--help"
+   ],
+   "note": "read-only help",
+   "status": 0,
+   "stderr": "",
+   "stdout": "usage: baton-v12-stack record [-h]\n                              {bind,read,cite,verify,recovery-manifest,recovery-check} ...\n\nThe canonical dossier binding and the retained-instance recovery set. Reads\nare read-only; nothing here migrates, copies or restores a live instance.\n\npositional arguments:\n  {bind,read,cite,verify,recovery-manifest,recovery-check}\n    bind                bind one Work to one flat dossier\n    read                resolve a Work or a locator\n    cite                digest a file and cite it\n    verify              resolve every citation\n    recovery-manifest   the recovery set of a retained instance\n    recovery-check      is a restored set complete and unclaimed\n\noptions:\n  -h, --help            show this help message and exit\n"
+  },
+  "repository": {
+   "argv": [
+    "repository",
+    "--help"
+   ],
+   "note": "read-only help",
+   "status": 0,
+   "stderr": "",
+   "stdout": "usage: stack repository [-h]\n\noptions:\n  -h, --help  show this help message and exit\n"
+  },
+  "start": {
+   "argv": [
+    "start",
+    "--help"
+   ],
+   "note": "parser only; never invoked against this instance",
+   "status": 0,
+   "stderr": "",
+   "stdout": "usage: stack start [-h]\n\noptions:\n  -h, --help  show this help message and exit\n"
+  },
+  "status": {
+   "argv": [
+    "status",
+    "--help"
+   ],
+   "note": "read-only help",
+   "status": 0,
+   "stderr": "",
+   "stdout": "usage: stack status [-h]\n\noptions:\n  -h, --help  show this help message and exit\n"
+  },
+  "stop": {
+   "argv": [
+    "stop",
+    "--help"
+   ],
+   "note": "parser only; never invoked against this instance",
+   "status": 0,
+   "stderr": "",
+   "stdout": "usage: stack stop [-h]\n\noptions:\n  -h, --help  show this help message and exit\n"
+  },
+  "top": {
+   "argv": [
+    "--help"
+   ],
+   "note": "the installed dispatch table",
+   "status": 0,
+   "stderr": "",
+   "stdout": "usage: baton-v12-stack\n                       [{attempt-diagnostics,bootstrap,disposition,identity,logs,manager,monitor,publish,record,repository,start,status,stop,view}]\n\nThe deployed v12 stack: one command, several subcommands.\n\npositional arguments:\n  {attempt-diagnostics,bootstrap,disposition,identity,logs,manager,monitor,publish,record,repository,start,status,stop,view}\n\nEvery operand after the subcommand is that subcommand's own.\n--version (-V) says what this build is and needs nothing else.\n"
+  },
+  "view": {
+   "argv": [
+    "view",
+    "--help"
+   ],
+   "note": "read-only help",
+   "status": 0,
+   "stderr": "",
+   "stdout": "usage: job_viewer [-h] --status STATUS [--job JOB] [--interval INTERVAL]\n                  [--stage STAGE] [--artifact ARTIFACT] [--ticks TICKS]\n\nRead-only view of submitted Jobs. Performs no act.\n\noptions:\n  -h, --help           show this help message and exit\n  --status STATUS      path to a status document written by `job_manager ...\n                       status`\n  --job JOB            show one Job in detail\n  --interval INTERVAL  seconds between bounded refreshes; finite and greater\n                       than zero\n  --stage STAGE        with --job and --artifact, the stage whose published\n                       artifact to read\n  --artifact ARTIFACT  the output_name of an artifact THIS SNAPSHOT publishes;\n                       the locator comes from the document, never from this\n                       operand\n  --ticks TICKS        number of bounded refreshes; the default reads once and\n                       exits\n"
+  }
+ },
+ "subcommands": [
+  "attempt-diagnostics",
+  "bootstrap",
+  "disposition",
+  "identity",
+  "logs",
+  "manager",
+  "monitor",
+  "publish",
+  "record",
+  "repository",
+  "start",
+  "status",
+  "stop",
+  "view"
+ ]
+}

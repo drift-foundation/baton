@@ -1,0 +1,185 @@
+diff --git a/v12/QUICKSTART.md b/v12/QUICKSTART.md
+new file mode 100644
+index 00000000..c52ef4bc
+--- /dev/null
++++ b/v12/QUICKSTART.md
+@@ -0,0 +1,179 @@
++# Operator quickstart — the native v12 coordination instance
++
++One deployment, one two-stage Job, one human owner. This page is the operating
++surface only; every procedure it points at is owned by its own record and is
++cited rather than repeated.
++
++* What this instance is, how it was prepared and every pinned identity:
++  `baton:work/records/2026/10/finding-v12-native-pilot-instance-packet/revision-4/INSTANCE-PACKET.md`
++* The ordered supported operations, the receipt boundary, retention and
++  rollback: `baton:work/records/2026/10/finding-v12-pilot-workflow-rehearsal/PACKET.md`
++  (§5, §7, §9)
++* The owner's disposition procedure, operand by operand:
++  `baton:work/records/2026/10/finding-v12-pilot-owner-disposition/PROCEDURE.md`
++* The deployment's own lifecycle, selector and runtime verification:
++  `v12/STACK.md`; the normative specification: `v12/DESIGN.md`
++
++Paths below are derived from the one destination, never configured twice
++(`v12/python/tools/instance.py`). With `DEST=/home/sl/baton-instances/native-coordination-pilot-w321608-1`:
++
++| What | Where |
++| --- | --- |
++| the command | `$DEST/distro/baton-v12-stack` |
++| the selector every lifecycle verb takes | `$DEST/instance.json` |
++| authority store / its identity | `$DEST/db/authority.sqlite3`, `$DEST/authority-identity.json` |
++| Job store / control store | `$DEST/db/jobs.sqlite3`, `$DEST/db/control.sqlite3` |
++| the published status document | `$DEST/state/status.json` |
++| an attempt's retained raw output | `$DEST/state/launch/logs` |
++| the supervisors' own output | `$DEST/logs` |
++
++The Job is `quickstart-a` with two stages, `implementation` then `review`, and
++no integration stage; its terminal policy is `report-and-hold`.
++
++## Supported commands
++
++Every line is `$DEST/distro/baton-v12-stack <subcommand>`, and every operand
++after the subcommand is that subcommand's own.
++
++| Subcommand | What an operator runs it for |
++| --- | --- |
++| `identity` | what this build IS, recorded before it is trusted; `--version` answers with nothing else available |
++| `start --instance $DEST/instance.json` | the scheduler and its snapshot publisher |
++| `status --instance $DEST/instance.json` | process health, snapshot freshness, Job count, and the runtime boundary |
++| `monitor --instance $DEST/instance.json [--interval 3]` | the read-only list view: each stage's kind, state, elapsed, activity and reason. Ctrl-C leaves it; leaving it does not stop scheduling |
++| `stop --instance $DEST/instance.json` | only the processes this deployment owns |
++| `manager --store $DEST/db/jobs.sqlite3 --incarnation <yours> --authority-uuid <uuid> submit --document <submission.json>` | admit the prepared two-stage submission, once |
++| `manager <the same three operands> status --control $DEST/db/control.sqlite3 --observe tools.stage_execution:observing_factory` | the status projection as JSON, which is the document the publisher writes |
++| `view --status $DEST/state/status.json --job quickstart-a` | one Job in detail: stage state, work, episode, offer, **attempt**, runtime, assignment, and the frozen result locators |
++| `logs --logs $DEST/state/launch/logs --attempt <attempt-id> …` | one attempt's retained raw output; opens no store and reaches no engine |
++| `record …` | the canonical dossier (`read`, `bind`, `cite`, `verify`) and the retained-instance recovery set (`recovery-manifest`, `recovery-check`) |
++| `disposition …` | the owner's own surface: `pending`, `approve`/`deny`, `integrated`, `close` |
++
++`<uuid>` is this instance's own authority identity as `$DEST/authority-identity.json`
++records it — never a preflight or fixture UUID. Nothing else in the bundle
++belongs to this loop: `bootstrap` installed this destination once and a prepared
++destination refuses reuse, and `publish` and the manager's serving loop are
++children `start` supervises rather than things to invoke by hand.
++
++This instance's bundle is built from the selected source
++`14e52d80679de5e844f72324df632da5e01cf393`, which is also the Job's declared
++base. Subcommands and verbs added to the source after it — `attempt-diagnostics`
++and `manager fresh-attempt` among them — are not in this build, and a
++source-level entry is not a deployed one until a new bundle is built, bound by
++independent review and installed.
++
++## Execution is not acceptance
++
++A stage state is a projection computed from receipts and the Worker Manager's
++public reads, written nowhere (`v12/python/src/baton_v12/job_manager/projection.py`).
++`completed` therefore says that this stage's execution ended and its output was
++frozen. It does not say the candidate is good, and nothing downstream of it
++treats it as approved: dependencies gate on `completed` and nothing else, and
++the review stage producing a verdict is the independent pickup of the
++candidate — not a judgment of it.
++
++The three judgments are separate people, and this deployment's are:
++
++| Judgment | Actor |
++| --- | --- |
++| verification receipt | `baton.verifier-pilot` |
++| review receipt | `baton.reviewer-receipt-pilot` |
++| approval, integration, closure | `baton.slaw`, the human owner |
++
++The owner holds neither `verify` nor `review`. The two receipts are authority
++acts by those configured actors on the published candidate, with the
++verification judge evaluating the requirement clauses itself; the installed
++command has no verb for either, by design. The sequence and the exact calls are
++PACKET §9 B — read them there.
++
++The approval cannot be reached any other way. The Job carries no integration
++stage, so nothing in it can write the three receipts that include the approval
++and make it immutable; composing an integration stage into a human-approved
++Work re-creates that call site and takes the decision away from the owner by
++configuration. Measured in
++`baton:work/records/2026/10/finding-v12-pilot-workflow-rehearsal/rehearsal-324985/RECEIPT-BOUNDARY.md`.
++
++Two reading traps worth keeping apart: `record verify` resolves the dossier's
++citations against a root and is *not* a verification receipt, and a passing
++verification command closes nothing. What the owner owes next is answered,
++read-only, by `disposition pending --work <id> --participant baton.slaw`; the
++acts themselves are PROCEDURE.md §§1–4.
++
++## Reading a failed attempt
++
++An `exceptional` stage is where this control plane stops owing an act. Its
++successors stay blocked, the gate that will never open is reported as closed
++rather than treated as satisfied, nothing silently retries, and nothing routes
++the failure to anybody automatically — that last part is selected policy, not a
++missing operation (PACKET §9 D). An empty provider turn cannot falsely
++complete it.
++
++1. See it. `monitor` shows each stage's state and its `reason` line. For the
++   identities, take the detail view: `view --status $DEST/state/status.json
++   --job quickstart-a`, which prints the stage's `attempt`, `runtime`, engine,
++   assignment and either its frozen results or an honest
++   `unavailable (no frozen output in this snapshot)`.
++2. Read its output. `logs --logs $DEST/state/launch/logs --attempt <attempt-id>
++   locators` names every stream, where it is and what it honestly is; then
++   `logs … read --stream provider.stderr --text` (or `worker.*`,
++   `provider.stdout`, `verification.*`), with `--from-byte`/`--limit` bounding
++   the window and `follow` for one that is still moving.
++3. Read it as evidence. The delivery root is the launch home's own `logs`
++   directory above, not `$DEST/logs`, which is the supervisors' output. Missing
++   is not empty: a stream never opened, one that could not be written, one
++   truncated at a ceiling and one cut short on a drain's clock are four
++   different facts and the capture state says which. Nothing in this manager
++   reads a log to decide anything.
++
++The retained attempt, its capacity and its evidence are held, which is what
++`report-and-hold` exists for. Giving the failure an owner is a deployment act on
++the dedicated diagnosis route (`baton.diagnostician-pilot`), performed without
++stealing the execution claim or clearing a runtime hold; one principal holds one
++active claim, which is why that participant exists. Both supported shapes —
++adding the diagnostic handler to the Work's route, or a dedicated diagnostic
++Work on its own route — are PACKET §9 D, with the evidence in
++`baton:work/records/2026/10/finding-v12-pilot-diagnostic-recovery-matrix/matrix-325259/MATRIX3.md`.
++
++## Cancelling or holding safely
++
++`stop` stops the supervisor processes this deployment owns. It is not cessation:
++the attempts the manager opened live in runtimes it does not own, so `status`
++and `stop` both print the runtime boundary, and an `unknown` there means
++precisely that what is still executing was not resolved. An open episode prints
++the sentence with it. Stopping admissions, positively accounting for every
++runtime and launch, and admitting one writable instance are the three
++obligations no command here discharges (PACKET §5).
++
++Cancelling the live assignment is an authority act by the configured owner of
++that assignment, not an installed verb, and what it leaves behind is exact: the
++handler is gone, the cancellation is in the assignment events, and **the Work is
++still `open` with no outcome** — a cancelled assignment is not a cancelled Work.
++The **runtime-quiescence gate survives the cancellation**: a re-claim is refused
++with `Work is blocked by 'runtime-quiescence:1'` until that gate is discharged,
++and discharging it needs the engine's own absence sentence naming that exact
++runtime identity. Uncertainty stays held; it is never advanced to make a
++re-claim possible (`matrix-325259` scenario 8, PACKET §7).
++
++An honest ending is a closure that claims nothing:
++
++    $DEST/distro/baton-v12-stack disposition close \
++        --authority-store $DEST/db/authority.sqlite3 --authority-uuid <uuid> \
++        --participant baton.slaw --work <work> \
++        --outcome non-satisfying --rationale "<the operator's own reason>" \
++        --operation-id <yours> [--expect-assignment <file>]
++
++It records no acceptance and refuses `--proposal`,
++`--expect-candidate-digest` and `--root`, because an ending that is not
++satisfying checks no candidate. If a Handler still holds the Work, the authority
++requires `--expect-assignment` naming that exact identity, which `disposition
++pending` reports under `work.assignment`. The rationale is the operator's own
++prose and is what the record keeps; the same request replays, a different one
++refuses and changes nothing. The Work stays the historical authority even when
++abandoned.
++
++Nothing in these commands deletes or rewrites evidence. This instance's
++retention disposition is `retain` (`v12/instance-retention.md`), proposals,
++receipts and citations are reported at closure either way, and the recovery set
++is `record recovery-manifest` with `record recovery-check` over a restored
++one — a clean check is a precondition for an operator's admission and never an
++admission itself. Slawomir owns backup, restore and every Git operation.

@@ -1,0 +1,28 @@
+{
+  "proof": {
+    "exit": 0,
+    "seconds": 0.19068358199729118
+  },
+  "syntax": {
+    "exit": 0,
+    "seconds": 0.015657095005735755
+  },
+  "preflight": {
+    "exit": 0,
+    "seconds": 0.16220292799698655
+  },
+  "pins": {
+    "install-inputs.json": true,
+    "configure-inputs.json": true,
+    "task.json": true,
+    "submission.json": true,
+    "fresh.py": true,
+    "prove.py": true,
+    "shell_syntax.py": true,
+    "COMMANDS.md": true,
+    "evidence/PROVE.json": true,
+    "evidence/SHELL-SYNTAX.txt": true,
+    "evidence/PROVE-358443-superseded.json": true
+  },
+  "index_sha256": "452f41ba3991d280f34d28101008473c09682e7be9d0caf236b1850d7682ca3d"
+}

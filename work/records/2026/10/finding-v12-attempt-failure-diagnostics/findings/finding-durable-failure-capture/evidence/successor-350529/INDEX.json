@@ -1,0 +1,19 @@
+{
+  "claim": 350529,
+  "copies": {
+    "DEFERRED-GUARD.json": "6e53a273ab5f0741246fef3822474c01be8b14ba4fc56dc9f84e5207b2d39285",
+    "EXECUTOR-CAPABILITY.json": "8b339144e0f16c8db717ad4c0d805ef62c1da7cda33f1420423ee5eb3c17a818",
+    "PROBES.json": "94aa6483421a802695caad377eb51074da96bf864d32385952e6d215d7b39008",
+    "SEAL.json": "2f8dd845a07a7ce145311cb30c695ac1f46a46c8d9dc6fd34db791af5607d383"
+  },
+  "not_included": "no run evidence, because no run was selected or started. The failed run348852 evidence is at ../run-348852/ and is untouched.",
+  "packet": "execution-350529",
+  "packet_manifest": "6be3fb90a1037c992e7e22510363953c51c99133a2a87572e5066aa3980bc6ff",
+  "schema": "baton.w341357-successor-evidence/2",
+  "what": {
+    "DEFERRED-GUARD.json": "the read-only demonstration that prepare.py and verify-inputs.py now REFUSE the exact 114-member binding run348852 staged. No root created, no staging, no extraction, 0.02s.",
+    "EXECUTOR-CAPABILITY.json": "the pre-stage structural capability check bound to THIS packet's manifest: capable, zero denials, 0.018s, two read-only engine calls, no credential value read, proposed root absent.",
+    "PROBES.json": "all 61 refusal and collection probes, behaving as intended in 2.381s, carried unchanged across the corrected binding.",
+    "SEAL.json": "the resultant seal, verified BOTH ways: every listed member present and verifying, and no unlisted file present."
+  }
+}

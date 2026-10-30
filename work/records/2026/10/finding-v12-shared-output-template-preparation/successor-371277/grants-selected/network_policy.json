@@ -1,0 +1,21 @@
+{
+ "authorized_by": null,
+ "derivation": "authored",
+ "egress": "not stated by any document this preparation can read; an owner binding this is accepting the network NAME and not an egress ruling",
+ "engine": "docker",
+ "for_selection": "f36bcd75ed22430355efe1b274b8f236cb591f6b",
+ "missing_selection_this_answers": "the network policy document for the `bridge` network this deployment pins. No such document is published with the pilot.",
+ "network": "bridge",
+ "proposed_for": "network_policy_digest",
+ "read_from": [
+  {
+   "path": "work/records/2026/10/finding-v12-native-pilot-instance-packet/fresh5-361402/configure-inputs.json",
+   "sha256": "f60b129baad7fc098be76af530a6705b96cd510aa4d8b2ff552cf3b9d6e2a494",
+   "what": "the reviewed pilot worker's network selection"
+  }
+ ],
+ "schema": "baton.v12.proposed-network-policy/1",
+ "selected_by": null,
+ "status": "proposed-not-granted",
+ "why_authored": "the product ships no network policy document; this states the network the reviewed deployment selects and nothing more"
+}

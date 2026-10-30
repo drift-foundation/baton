@@ -1,0 +1,100 @@
+HOW THESE WERE RUN — claim367234, W367232
+
+THE SCRATCH ROOT
+
+    /var/tmp/baton-w257624          (disk-backed, as the FINDING directs)
+
+with BATON_V12_DISK_ROOT and BATON_V12_STACK_TEST_ROOT both set to it. Every
+disposable destination and every extracted runtime lives under it and is
+removed by the cases' own cleanup.
+
+THE PROOF
+
+    cd v12/python
+    PYTHONPATH=src:. BATON_V12_DISK_ROOT=/var/tmp/baton-w257624 \
+        BATON_V12_STACK_TEST_ROOT=/var/tmp/baton-w257624 \
+        python3 -m unittest -v tests.tools.w367232_prove
+
+  11 cases, OK, 4.06s. PROOF.txt is that run.
+
+  `prove_admission.py` is copied to `v12/python/tests/tools/w367232_prove.py`
+  for the run and REMOVED afterwards -- it needs to import
+  `tests.tools.test_bootstrap`, and the canonical tree carries no file from
+  this child. `git status` reports no change under v12.
+
+THE PREFLIGHT ENTRYPOINT
+
+    cd v12/python
+    PYTHONPATH=src:. BATON_V12_DISK_ROOT=/var/tmp/baton-w257624 \
+        python3 <dossier>/compose_capacity.py preflight \
+            --evidence <dossier>/evidence/claim-367234
+
+  Exit 0, and its answer records `wrote_nothing: true`. preflight.json is that
+  answer. It verifies the artifact and the source, and reports the selection,
+  the derived paths and the composition's identities.
+
+WHAT EACH FILE IS
+
+  PROOF.txt           the 11-case run, verbose.
+  COMPOSITION.json    the actual emitted artifacts: the phase-2 input
+                      document, the emitted lanes and participants, whether
+                      every worker is bound to the instance uuid, the
+                      derivation's answer, the create answer, and the job
+                      bindings.
+  preflight.json      the read-only entrypoint's own answer.
+
+THE ARTIFACT, PINNED TWICE
+
+  archive sha256   1da85eed0a3a19a5da0b83253abbbb40ebeed01bfe90ee05a10055dec0057125
+  folder digest    0b7bc59213605489319e973a6a6cdf285c76513a00f75bf5e05d669df88beefd
+  files            81
+  executable       ba962a2086310df238ff25cf282a3298f71ae9289594e6f7c83222ee8f4571ef
+  build stamp      18e771f034d22fed40ae4c597aa606f50c169daa, dirty
+
+  Both pins are checked: the tarball against its recorded sha256, and the
+  EXTRACTED FOLDER through the product's own `instance.manifest` against
+  `BUNDLE-ARCHIVE.json`. A tarball that matched while its contents did not
+  would be a pin that proved nothing. The stamp is READ AND REPORTED and is
+  never relabelled: this bundle will keep saying 18e771f0 whatever it is used
+  for, and the parent packet discloses that.
+
+THE IDENTITY, STATED PRECISELY
+
+  The two-lane cases use the instance's own PERSISTED identity, not a freshly
+  minted one, and the proof does not call it minted. `ValidFixture` persists it
+  in `setUp` before anything is composed, and it must: a worker document's
+  `input_manifest` is digest-sealed over the authority uuid, so the accepted
+  stage fixture's workers can only be written against a root that already holds
+  the identity they were sealed for.
+
+  `ThePhaseOneMintGeneratesAFreshIdentity` shows the generation separately: a
+  worker-less phase-1 document, the real installer, and a uuid it GENERATES and
+  persists -- 32 hex, different from the fixture's constant -- with the emitted
+  phase-1 configuration carrying no workers, by design (`bootstrap.DEFERRED`).
+
+WHAT WAS NOT RUN, AND WHY
+
+  NO operational install. The proposed destination
+  /home/sl/baton-instances/useful-template-job-w366962 was never touched, and
+  no existing instance (1-4 or any pilot artifact) was read or written.
+
+  NO build, NO repository clone, NO network. Every install passes
+  `--no-repositories`.
+
+  NO engine and NO provider. No stage is served, no runtime started and no
+  credential resolved. `credential_profile` travels as a provider/reference
+  pair; NO SECRET appears in any file in this dossier or in any evidence here,
+  which was checked over the captured JSON.
+
+  NO version-control mutation. The only such calls are `rev-parse` and
+  `status`, both reads, and `rev-parse` is the one the proof uses to hold the
+  source to the selected commit.
+
+  `image_digest` and `adapter_digest` travel as PINS. Nothing here contacts a
+  container engine to resolve them, so confirming the worker image exists
+  remains an operator prerequisite before any execution selection.
+
+WHAT THE DISPOSABLE deployment.json IS NOT
+
+  A verification artifact. It proves the composition emits and resolves; it is
+  not an operational installation and nothing here selects one.

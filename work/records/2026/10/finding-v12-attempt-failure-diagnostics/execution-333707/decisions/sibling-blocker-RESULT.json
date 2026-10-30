@@ -1,0 +1,146 @@
+{
+  "limitations": "Scheduling/status/cancellation boundaries are simulated. This disproves a supervisor timing guarantee; it does not prove token expiry, runtime cessation, authority receipts, or availability of a safe replacement vehicle.",
+  "results": [
+    {
+      "bounds": {
+        "cleanup_seconds": 60,
+        "implementer_invocations": 1,
+        "retry": false,
+        "total_seconds": 4800,
+        "turn_seconds": 3600
+      },
+      "calls": [
+        {
+          "at": 1.0,
+          "delay": 600,
+          "kind": "simulated-blocking-sweep"
+        },
+        {
+          "at": 602.0,
+          "delay": 600,
+          "kind": "simulated-blocking-sweep"
+        },
+        {
+          "at": 1203.0,
+          "delay": 600,
+          "kind": "simulated-blocking-sweep"
+        },
+        {
+          "at": 1804.0,
+          "delay": 600,
+          "kind": "simulated-blocking-sweep"
+        },
+        {
+          "at": 2405.0,
+          "delay": 600,
+          "kind": "simulated-blocking-sweep"
+        },
+        {
+          "at": 3006.0,
+          "delay": 600,
+          "kind": "simulated-blocking-sweep"
+        },
+        {
+          "at": 3607.0,
+          "delay": 600,
+          "kind": "simulated-blocking-sweep"
+        },
+        {
+          "at": 4208.0,
+          "delay": 600,
+          "kind": "simulated-blocking-sweep"
+        },
+        {
+          "at": 4808.0,
+          "attempt": "simulated-attempt-w333485",
+          "delay": 0,
+          "kind": "cancel",
+          "runtime": "simulated-exact-runtime-w333485"
+        }
+      ],
+      "cancellation": {
+        "simulated-attempt-w333485": {
+          "answer": {
+            "requested": true
+          },
+          "execution_runtime": "running",
+          "requested": true,
+          "runtime_id": "simulated-exact-runtime-w333485",
+          "stage_state": "waiting"
+        }
+      },
+      "held_because": [
+        "this manager cannot prove positive cleanup for simulated-attempt-w333485",
+        "the run stopped 'overall-bound-exceeded' rather than completing its stages",
+        "simulation; no result"
+      ],
+      "name": "long-envelope",
+      "outstanding_cleanup": [
+        "simulated-attempt-w333485"
+      ],
+      "serve": [
+        {
+          "reclaim_supplied": false
+        }
+      ],
+      "served_seconds": 4808.0,
+      "simulated_elapsed_seconds": 4808.0,
+      "state": "held"
+    },
+    {
+      "bounds": {
+        "cleanup_seconds": 60,
+        "implementer_invocations": 1,
+        "retry": false,
+        "total_seconds": 300,
+        "turn_seconds": 180
+      },
+      "calls": [
+        {
+          "at": 1.0,
+          "delay": 600,
+          "kind": "simulated-blocking-sweep"
+        },
+        {
+          "at": 601.0,
+          "attempt": "simulated-attempt-w333485",
+          "delay": 600,
+          "kind": "cancel",
+          "runtime": "simulated-exact-runtime-w333485"
+        }
+      ],
+      "cancellation": {
+        "simulated-attempt-w333485": {
+          "execution_runtime": "running",
+          "requested": false,
+          "runtime_id": "simulated-exact-runtime-w333485",
+          "stage_state": "waiting",
+          "why": "TimeoutError: simulated cancellation adapter timeout; no cessation observation"
+        }
+      },
+      "held_because": [
+        "the cancellation of simulated-attempt-w333485 refused: TimeoutError: simulated cancellation adapter timeout; no cessation observation",
+        "execution on simulated-attempt-w333485 was not stopped: TimeoutError: simulated cancellation adapter timeout; no cessation observation",
+        "this manager cannot prove positive cleanup for simulated-attempt-w333485",
+        "the run stopped 'overall-bound-exceeded' rather than completing its stages",
+        "simulation; no result"
+      ],
+      "name": "short-envelope-slow-cancel",
+      "outstanding_cleanup": [
+        "simulated-attempt-w333485"
+      ],
+      "serve": [
+        {
+          "reclaim_supplied": false
+        }
+      ],
+      "served_seconds": 601.0,
+      "simulated_elapsed_seconds": 1201.0,
+      "state": "held"
+    }
+  ],
+  "retained_outcomes": "/tmp/w333485-enforcement-probe-_pyb8y2z",
+  "scope": "Preparation falsification, not token/engine acceptance.\nReal supervisor, serve loop and cancellation dispatch; simulated scheduling,\nstatus reads and cancellation adapter. No stores, Git, engine or provider.\n",
+  "staged_source": "/tmp/w333485-preflight-x4bdpfzp/instance-root",
+  "wall_seconds": 0.0003786140005104244
+}

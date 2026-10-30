@@ -1,0 +1,70 @@
+{
+  "manifest_sha256": "88a1ef8c6b624f8e10909de9268bb0f8d25e913f0de7805cdd5a765d9b45cfd3",
+  "pins": {
+    "v12/python/src/baton_v12/job_manager/__init__.py": true,
+    "v12/python/src/baton_v12/job_manager/documents.py": true,
+    "v12/python/src/baton_v12/job_manager/fresh_attempt.py": true,
+    "v12/python/src/baton_v12/job_manager/schema.py": true,
+    "v12/python/tests/job_manager/test_execution_limits.py": true,
+    "v12/python/tests/job_manager/test_fresh_attempt.py": true,
+    "v12/python/tests/job_manager/test_scheduling.py": true,
+    "v12/python/tests/job_manager/test_store.py": true,
+    "v12/python/tools/fresh_attempt_ports.py": true,
+    "v12/python/tools/job_manager.py": true,
+    "v12/python/tools/stage_execution.py": true
+  },
+  "real_binding": {
+    "outcome": "refused",
+    "type": "BootstrapRefusal",
+    "message": "this deployment cannot be prepared: nothing reads jobs[1].job_work_id. A selection this helper cannot carry is refused rather than accepted and dropped, because the two are indistinguishable to an operator until the deployment behaves differently from what they asked for. The supported optional selections are integration_target, integration_target_reference, integration_workspace, integration_observer, integration_instructions, integration_preparation, result_judgment_workers, owner_participant."
+  },
+  "same_prior_race": [
+    {
+      "outcome": "admitted",
+      "job_id": "retry-left"
+    },
+    {
+      "outcome": "admitted",
+      "job_id": "retry-right"
+    }
+  ],
+  "successors": [
+    "retry-left",
+    "retry-right"
+  ],
+  "binding_refusal": {
+    "type": "ContractRefusal",
+    "message": "no configured worker can serve Job 'quickstart-c-retry-2''s 'implementation' stage; a fresh attempt that cannot be selected is a Job that would sit queued forever",
+    "intents": [
+      {
+        "job_id": "quickstart-c-retry-2",
+        "state": "intended"
+      }
+    ],
+    "binding_effects": [
+      [
+        "quickstart-c-retry-2",
+        "quickstart-c",
+        "0000000a-W1"
+      ]
+    ]
+  },
+  "changed_partial_request": {
+    "type": "ContractRefusal",
+    "message": "operation 'fresh_attempt.intend:quickstart-c-retry-2' is already recorded with a different kind or signature; reusing an id with different operands changes nothing",
+    "created_work_before_collision": [
+      [
+        "0000000a-W77",
+        "fresh_attempt.admit:work:quickstart-c-retry-2"
+      ]
+    ]
+  },
+  "actual_input_mismatch": {
+    "adapter_reports": [
+      "implementation-worker"
+    ],
+    "actual_submitted_input": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+    "real_selector": "no worker this deployment configures for the 'implementation' stage can serve Job 'quickstart-c': {'implementation-worker': ['the submitted input']}. Assembly supplies coherent operands rather than reserving a worker that must then refuse them, which would hold that worker's capacity for a stage nobody can serve"
+  },
+  "seconds": 0.051040135999755876
+}

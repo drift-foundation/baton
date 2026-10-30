@@ -1,0 +1,121 @@
+{
+  "author_invocation_started": true,
+  "authoring_log": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-shutdown-deadline/review-338596/composition/delayed_snapshot/outcome.json.authoring.log",
+  "child_exited": true,
+  "child_started": true,
+  "child_status": 1,
+  "elapsed_seconds": 4.7515684960003455,
+  "enforcement": {
+    "attempts": {
+      "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {
+        "faults": [],
+        "observation": null,
+        "runtime": {
+          "assignment": {
+            "generation": 1,
+            "participant": "baton.claude",
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W1"
+            }
+          },
+          "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "cleanup": "pending",
+          "execution_runtime": "uncertain",
+          "runtime_id": null
+        },
+        "token": {
+          "acquired_at": "2026-10-20T12:27:43.709Z",
+          "acquired_expires_at": "2026-10-20T12:42:43.709Z",
+          "activating": false,
+          "activation_started": null,
+          "attempt": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "container": null,
+          "domain": "workspace:66306:3015070",
+          "execution": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "expired": false,
+          "expires_at": "2026-10-20T12:42:43.709Z",
+          "expiry_judged_at": null,
+          "generation": 1,
+          "launch": "runtime.start:50f34424d07465b28176ecba7eb295be455a6a6763fffd0f3402ffb12aeb823b",
+          "operation": "runtime.start:50f34424d07465b28176ecba7eb295be455a6a6763fffd0f3402ffb12aeb823b",
+          "owner": "73709af702db459acfaff6c793dd84597415b1bb44e18c2ec7b50d458b288cd8",
+          "renewals": 0,
+          "renewals_remaining": 4,
+          "renewed_at": null,
+          "returned": false,
+          "revision": 0,
+          "revoked": false,
+          "seconds": 900,
+          "timing_ambiguous": false,
+          "timing_decided_at": null,
+          "timing_observed_at": null,
+          "version": 1
+        }
+      }
+    },
+    "faults": [
+      "manager terminated without final enforcement report; retained observations do not resolve unknown effects"
+    ],
+    "state": "held"
+  },
+  "enforcement_path": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-shutdown-deadline/review-338596/composition/delayed_snapshot/outcome.json.enforcement-17-1792499267712629117.json",
+  "faults": [
+    "TimeoutError: shutdown step timed out: manager shutdown observation"
+  ],
+  "manager_report_path": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-shutdown-deadline/review-338596/composition/delayed_snapshot/outcome.json.manager-17-1792499262210123865.json",
+  "operator_signals": [],
+  "original_envelope": {
+    "authority": "0000000a000000000000000000000000",
+    "job": "job-a",
+    "packet": {
+      "bounds": {
+        "cleanup_seconds": 4,
+        "implementer_invocations": 1,
+        "retry": false,
+        "total_seconds": 8,
+        "turn_seconds": 20
+      },
+      "claim": 338472,
+      "code_boundary": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-shutdown-deadline/review-338596/composition/delayed_snapshot/checkout",
+      "context": {
+        "mode": "fresh"
+      },
+      "deployment": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "config_path": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-shutdown-deadline/review-338596/composition/delayed_snapshot/config.json",
+        "control_store": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-shutdown-deadline/review-338596/composition/delayed_snapshot/control.sqlite3",
+        "job_store": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-shutdown-deadline/review-338596/composition/delayed_snapshot/jobs.sqlite3"
+      },
+      "diagnostic_mode": "delayed_snapshot",
+      "manager_source": {
+        "files": {
+          "tools/authoring_enforcement.py": "d12769df863424c402757d925e5efb848e473e2877e62244af5595be56c8ebb7"
+        },
+        "path": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-shutdown-deadline/review-338596/candidate/v12/python"
+      },
+      "outcome_path": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-shutdown-deadline/review-338596/composition/delayed_snapshot/outcome.json",
+      "run_id": "shutdown-delayed_snapshot",
+      "schema": "baton.single-implementation-packet/2",
+      "submission": {
+        "job_id": "job-a",
+        "path": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-shutdown-deadline/review-338596/composition/delayed_snapshot/submission.json"
+      },
+      "work": "W338305"
+    },
+    "run": "shutdown-delayed_snapshot",
+    "started_at": "2026-10-20T12:27:42.612Z",
+    "stop_at": "2026-10-20T12:27:46.612000+00:00"
+  },
+  "recovery_only": false,
+  "shutdown_deadline": 3406.454317944,
+  "shutdown_progress": {
+    "deadline": 3402.473768328,
+    "faults": [],
+    "job_id": "job-a",
+    "run_id": "shutdown-delayed_snapshot",
+    "step": "guard stop/join",
+    "step_deadline": 3402.2737734355
+  },
+  "state": "held"
+}

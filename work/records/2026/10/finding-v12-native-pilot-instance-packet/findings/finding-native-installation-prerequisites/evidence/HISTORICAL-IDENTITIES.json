@@ -1,0 +1,44 @@
+{
+  "source": "../../recovery-5/CHANGE.json; historical pre-failure checkpoint only",
+  "destination": "/home/sl/baton-instances/native-coordination-pilot-w321608-1",
+  "stores": {
+    "authority_store": {
+      "device": 66306,
+      "inode": 43417213,
+      "path": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/db/authority.sqlite3"
+    },
+    "control_store": {
+      "device": 66306,
+      "inode": 43417303,
+      "path": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/db/control.sqlite3"
+    },
+    "job_store": {
+      "device": 66306,
+      "inode": 43417295,
+      "path": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/db/jobs.sqlite3"
+    }
+  },
+  "authority_uuid": "1cdb8d19feda47c0a209bd0669b16871",
+  "workspace_root": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/workspaces/implementation",
+  "job": {
+    "job_id": "quickstart-a",
+    "submission_id": "sub-w321608-quickstart-1",
+    "input_digest": "sha256:ee61953eebd8b1e9599b1fc398bce1a6e0f13f502b2b3fbbc454943a2922f5be",
+    "policy_digest": "sha256:837d7a03b2d92b9654cbc391daefcfa208f747bbd9ae7c528d54f528bd536357",
+    "episodes": [
+      {
+        "stage": "quickstart-a/implementation",
+        "attempt": "attempt-695f0b35db9f5a9419236e8c87352ea41ce8f3383f48fefcacf63b44f7da544e",
+        "episode": 1,
+        "offer": "offer-695f0b35db9f5a9419236e8c87352ea41ce8f3383f48fefcacf63b44f7da544e"
+      },
+      {
+        "stage": "quickstart-a/review",
+        "attempt": "attempt-2ea17286471490288e46e11a063ca12d5bb9108192d7df115cb0e1a6002b4e29",
+        "episode": 1,
+        "offer": "offer-2ea17286471490288e46e11a063ca12d5bb9108192d7df115cb0e1a6002b4e29"
+      }
+    ]
+  },
+  "current_state": "not inspected"
+}

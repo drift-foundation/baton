@@ -1,0 +1,14 @@
+{
+  "command": [
+    "python3",
+    "-B",
+    "-m",
+    "unittest",
+    "tests.manager.test_authoring_shutdown_deadline",
+    "tests.manager.test_authoring_enforcement",
+    "tests.manager.test_authoring_manager_guard"
+  ],
+  "status": 1,
+  "seconds": 60.51501777199974,
+  "timeout": 150
+}

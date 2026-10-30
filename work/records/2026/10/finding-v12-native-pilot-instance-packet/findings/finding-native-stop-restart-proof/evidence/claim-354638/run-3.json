@@ -1,0 +1,17 @@
+{
+  "command": [
+    "/home/sl/.local/state/baton-v12-venv/bin/python",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.job_manager.test_native_stop_restart"
+  ],
+  "seconds": 0.44341636799799744,
+  "exit": 1,
+  "cwd": "/tmp/w354630-354638/candidate/v12/python",
+  "environment": {
+    "PYTHONPATH": "src:.",
+    "BATON_V12_DISK_ROOT": "/home/sl/src/baton",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  }
+}

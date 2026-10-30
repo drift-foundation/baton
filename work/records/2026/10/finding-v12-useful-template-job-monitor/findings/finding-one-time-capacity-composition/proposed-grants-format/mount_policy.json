@@ -1,0 +1,32 @@
+{
+ "authorized_by": null,
+ "consumption": {
+  "baton.source-boundary/1": {
+   "delivery": "nominated-mount",
+   "profile": "git-line",
+   "workspace": "disk"
+  }
+ },
+ "derivation": "reused",
+ "destination": "source",
+ "for_selection": "42bed8bb04a53380e565b1a63fb2bc702677f0d0",
+ "missing_selection_this_answers": "the mount policy document governing the nominated-mount delivery. No such document is published with the pilot.",
+ "nominated_mount_is_read_only": "stated by the reviewed deployment's delivery kind 'nominated-mount'",
+ "proposed_for": "mount_policy_digest",
+ "read_from": [
+  {
+   "path": "work/records/2026/10/finding-v12-native-pilot-instance-packet/revision-4/inputs/deployment.json",
+   "sha256": "6a675445d361a5208f82dfc43593595cd2d5d9bcbb3e893842c03b5cb8587a3e",
+   "what": "the reviewed manifest's own source consumption"
+  },
+  {
+   "path": "v12/python/tools/single_worker.py",
+   "sha256": "677e6f0ba39d10a983d20b46fe1252b73ddb7839b8f7cdf1016b88f9111e991b",
+   "what": "the staged source destination"
+  }
+ ],
+ "schema": "baton.v12.proposed-mount-policy/1",
+ "selected_by": null,
+ "source_destination": "source",
+ "status": "proposed-not-granted"
+}

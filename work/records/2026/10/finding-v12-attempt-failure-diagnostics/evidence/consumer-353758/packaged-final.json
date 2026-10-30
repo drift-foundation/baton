@@ -1,0 +1,344 @@
+{
+  "deployment_obligation": "tools/stack_command.COMMANDS serves 'attempt-diagnostics' in source; an installed bundle must be rebuilt before the deployed command carries it, and this report rebuilds nothing",
+  "freshness_verdict": null,
+  "freshness_why": "no freshness policy has been selected for these facts, so this report states instants and declines to judge them",
+  "is_acceptance": false,
+  "opens_no_store": true,
+  "reads": "one status document, through tools/job_viewer.read_snapshot",
+  "reads_diagnostics": "baton.v12.attempt-failure-cause/1",
+  "rows": [
+    {
+      "absent_records": [
+        "attempt.cessation-*:expiry-reclaim",
+        "attempt.cessation-*:cancellation",
+        "runtime.start-failed",
+        "runtime.preparation-failed",
+        "resource-token.revoked:workspace:66306:1:1"
+      ],
+      "axes": {
+        "completion": {
+          "known": false,
+          "value": null,
+          "why": "the source document does not carry completion"
+        },
+        "domain": {
+          "known": false,
+          "value": null,
+          "why": "the source document does not carry domain"
+        },
+        "generation": {
+          "known": false,
+          "value": null,
+          "why": "the source document does not carry generation"
+        },
+        "lifetime_seconds": {
+          "known": false,
+          "value": null,
+          "why": "the source document does not carry lifetime_seconds"
+        },
+        "preparation_failure_recorded": {
+          "known": false,
+          "value": null,
+          "why": "the source document does not carry preparation_failure_recorded"
+        },
+        "preparation_failure_runtime_id": {
+          "known": false,
+          "value": null,
+          "why": "the source document does not carry preparation_failure_runtime_id"
+        },
+        "renewal_limit": {
+          "known": false,
+          "value": null,
+          "why": "the source document does not carry renewal_limit"
+        },
+        "revocation": {
+          "known": false,
+          "value": null,
+          "why": "the source document does not carry revocation"
+        },
+        "revoked_container": {
+          "known": false,
+          "value": null,
+          "why": "the source document does not carry revoked_container"
+        },
+        "revoked_expired_at": {
+          "known": false,
+          "value": null,
+          "why": "the source document does not carry revoked_expired_at"
+        },
+        "revoked_owner": {
+          "known": false,
+          "value": null,
+          "why": "the source document does not carry revoked_owner"
+        },
+        "start_failure_recorded": {
+          "known": false,
+          "value": null,
+          "why": "the source document does not carry start_failure_recorded"
+        },
+        "start_failure_runtime_id": {
+          "known": false,
+          "value": null,
+          "why": "the source document does not carry start_failure_runtime_id"
+        }
+      },
+      "cause": null,
+      "completeness": {
+        "is_acceptance": false,
+        "missing": [
+          "cause"
+        ],
+        "proves_cessation": false,
+        "state": "incomplete",
+        "why": "this diagnostic records no component having ordered a cessation for this attempt; which component ended it, if any did, is unknown, and an absent record is not proof that nothing happened"
+      },
+      "diagnostic_degradation": {
+        "known": false,
+        "value": null,
+        "why": "no recording-failure carrier is available in this snapshot; absence does not prove recording succeeded"
+      },
+      "diagnostics_unavailable": null,
+      "execution": null,
+      "locators": {
+        "attempt_id": {
+          "known": true,
+          "source": "status",
+          "value": "attempt-e78478c409a32c432d03b34b562a793ad607897e026de4b48330983c83d400d1"
+        },
+        "recorded_artifacts": {
+          "known": false,
+          "value": null,
+          "why": "this stage records no artifacts"
+        },
+        "supported_read": {
+          "command": "baton-v12-stack logs --logs <launch-home>/logs --attempt <attempt-id> locators",
+          "operator_must_supply": "<launch-home>",
+          "why": "the delivery root is a deployment fact and this report resolves no deployment document; a report that did would be a reader that can be pointed at a store"
+        },
+        "workspace_object": {
+          "device": {
+            "known": false,
+            "value": null,
+            "why": "the source document does not carry device"
+          },
+          "inode": {
+            "known": false,
+            "value": null,
+            "why": "the source document does not carry inode"
+          },
+          "is_a_locator": false,
+          "is_a_path": false,
+          "why": "a device and inode identify a workspace object; they are not a path and resolve no retained output on their own"
+        }
+      },
+      "stage": {
+        "attempt_id": {
+          "known": true,
+          "source": "status",
+          "value": "attempt-e78478c409a32c432d03b34b562a793ad607897e026de4b48330983c83d400d1"
+        },
+        "episode": {
+          "known": true,
+          "source": "status",
+          "value": 1
+        },
+        "job_id": {
+          "known": true,
+          "source": "status",
+          "value": "job-a"
+        },
+        "kind": {
+          "known": true,
+          "source": "status",
+          "value": "implementation"
+        },
+        "stage_id": {
+          "known": true,
+          "source": "status",
+          "value": "job-a/implementation"
+        },
+        "state": {
+          "known": true,
+          "source": "status",
+          "value": "claimed"
+        }
+      },
+      "token": null,
+      "unknown_why": null,
+      "unrecognised": []
+    },
+    {
+      "absent_records": null,
+      "axes": null,
+      "cause": null,
+      "completeness": {
+        "is_acceptance": false,
+        "missing": [],
+        "proves_cessation": false,
+        "state": "absent",
+        "why": "this status document carries no attempt diagnostics for this stage; nobody looked, which is not the same as nothing having happened"
+      },
+      "diagnostic_degradation": {
+        "known": false,
+        "value": null,
+        "why": "no recording-failure carrier is available in this snapshot; absence does not prove recording succeeded"
+      },
+      "diagnostics_unavailable": null,
+      "execution": null,
+      "locators": {
+        "attempt_id": {
+          "known": true,
+          "source": "status",
+          "value": "attempt-fd5b9a03db9560bf31ce9102651bbd58e08910a0f5cf2546673878741a2ea3a7"
+        },
+        "recorded_artifacts": {
+          "known": false,
+          "value": null,
+          "why": "this stage records no artifacts"
+        },
+        "supported_read": {
+          "command": "baton-v12-stack logs --logs <launch-home>/logs --attempt <attempt-id> locators",
+          "operator_must_supply": "<launch-home>",
+          "why": "the delivery root is a deployment fact and this report resolves no deployment document; a report that did would be a reader that can be pointed at a store"
+        },
+        "workspace_object": {
+          "device": {
+            "known": false,
+            "value": null,
+            "why": "the source document does not carry device"
+          },
+          "inode": {
+            "known": false,
+            "value": null,
+            "why": "the source document does not carry inode"
+          },
+          "is_a_locator": false,
+          "is_a_path": false,
+          "why": "a device and inode identify a workspace object; they are not a path and resolve no retained output on their own"
+        }
+      },
+      "stage": {
+        "attempt_id": {
+          "known": true,
+          "source": "status",
+          "value": "attempt-fd5b9a03db9560bf31ce9102651bbd58e08910a0f5cf2546673878741a2ea3a7"
+        },
+        "episode": {
+          "known": true,
+          "source": "status",
+          "value": 1
+        },
+        "job_id": {
+          "known": true,
+          "source": "status",
+          "value": "job-a"
+        },
+        "kind": {
+          "known": true,
+          "source": "status",
+          "value": "review"
+        },
+        "stage_id": {
+          "known": true,
+          "source": "status",
+          "value": "job-a/review"
+        },
+        "state": {
+          "known": true,
+          "source": "status",
+          "value": "blocked"
+        }
+      },
+      "token": null,
+      "unknown_why": null,
+      "unrecognised": []
+    },
+    {
+      "absent_records": null,
+      "axes": null,
+      "cause": null,
+      "completeness": {
+        "is_acceptance": false,
+        "missing": [],
+        "proves_cessation": false,
+        "state": "absent",
+        "why": "this status document carries no attempt diagnostics for this stage; nobody looked, which is not the same as nothing having happened"
+      },
+      "diagnostic_degradation": {
+        "known": false,
+        "value": null,
+        "why": "no recording-failure carrier is available in this snapshot; absence does not prove recording succeeded"
+      },
+      "diagnostics_unavailable": null,
+      "execution": null,
+      "locators": {
+        "attempt_id": {
+          "known": true,
+          "source": "status",
+          "value": "attempt-28ebc793c6af672ac8e38af2e9e2692d5df0b8db6f8e62f296ac72c9a21d1e86"
+        },
+        "recorded_artifacts": {
+          "known": false,
+          "value": null,
+          "why": "this stage records no artifacts"
+        },
+        "supported_read": {
+          "command": "baton-v12-stack logs --logs <launch-home>/logs --attempt <attempt-id> locators",
+          "operator_must_supply": "<launch-home>",
+          "why": "the delivery root is a deployment fact and this report resolves no deployment document; a report that did would be a reader that can be pointed at a store"
+        },
+        "workspace_object": {
+          "device": {
+            "known": false,
+            "value": null,
+            "why": "the source document does not carry device"
+          },
+          "inode": {
+            "known": false,
+            "value": null,
+            "why": "the source document does not carry inode"
+          },
+          "is_a_locator": false,
+          "is_a_path": false,
+          "why": "a device and inode identify a workspace object; they are not a path and resolve no retained output on their own"
+        }
+      },
+      "stage": {
+        "attempt_id": {
+          "known": true,
+          "source": "status",
+          "value": "attempt-28ebc793c6af672ac8e38af2e9e2692d5df0b8db6f8e62f296ac72c9a21d1e86"
+        },
+        "episode": {
+          "known": true,
+          "source": "status",
+          "value": 1
+        },
+        "job_id": {
+          "known": true,
+          "source": "status",
+          "value": "job-b"
+        },
+        "kind": {
+          "known": true,
+          "source": "status",
+          "value": "implementation"
+        },
+        "stage_id": {
+          "known": true,
+          "source": "status",
+          "value": "job-b/implementation"
+        },
+        "state": {
+          "known": true,
+          "source": "status",
+          "value": "queued"
+        }
+      },
+      "token": null,
+      "unknown_why": null,
+      "unrecognised": []
+    }
+  ],
+  "schema": "baton.v12.attempt-diagnostics/1"
+}

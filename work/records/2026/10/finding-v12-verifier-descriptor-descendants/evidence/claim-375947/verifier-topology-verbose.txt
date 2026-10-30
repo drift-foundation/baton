@@ -1,0 +1,112 @@
+test_a_path_is_not_a_selection (tests.manager.test_verifier_topology.TheAdapterBindsTheSelectionToItsOwnIdentity.test_a_path_is_not_a_selection) ... ok
+test_a_selection_under_another_resolved_identity_refuses (tests.manager.test_verifier_topology.TheAdapterBindsTheSelectionToItsOwnIdentity.test_a_selection_under_another_resolved_identity_refuses)
+EACH MEMBER, SEPARATELY, so none of the four is merely along for ... ok
+test_no_selection_is_the_unchanged_default (tests.manager.test_verifier_topology.TheAdapterBindsTheSelectionToItsOwnIdentity.test_no_selection_is_the_unchanged_default)
+Every existing construction path is byte-for-byte unaffected. ... ok
+test_the_matching_selection_is_held (tests.manager.test_verifier_topology.TheAdapterBindsTheSelectionToItsOwnIdentity.test_the_matching_selection_is_held) ... ok
+test_a_workspace_at_the_floor_still_refuses (tests.manager.test_verifier_topology.TheCapacityPartitionIsTheOneThePacketSelected.test_a_workspace_at_the_floor_still_refuses)
+The floor is strictly above the aggregate, as it was before. ... ok
+test_both_tables_hold_the_same_aggregate (tests.manager.test_verifier_topology.TheCapacityPartitionIsTheOneThePacketSelected.test_both_tables_hold_the_same_aggregate)
+So a deployment neither gains nor loses room by selecting the new ... ok
+test_every_per_root_limit_is_the_selected_one (tests.manager.test_verifier_topology.TheCapacityPartitionIsTheOneThePacketSelected.test_every_per_root_limit_is_the_selected_one) ... ok
+test_no_root_is_in_the_unconditional_restrictions (tests.manager.test_verifier_topology.TheCapacityPartitionIsTheOneThePacketSelected.test_no_root_is_in_the_unconditional_restrictions)
+Review [3]: `oci.RESTRICTIONS` is applied to EVERY run, so a ... ok
+test_the_aggregate_and_the_workspace_floor_are_unchanged (tests.manager.test_verifier_topology.TheCapacityPartitionIsTheOneThePacketSelected.test_the_aggregate_and_the_workspace_floor_are_unchanged) ... ok
+test_the_floor_is_derived_from_the_aggregate (tests.manager.test_verifier_topology.TheCapacityPartitionIsTheOneThePacketSelected.test_the_floor_is_derived_from_the_aggregate)
+And the aggregate is asserted equal across both tables, so the ... ok
+test_the_legacy_table_is_exactly_what_it_always_was (tests.manager.test_verifier_topology.TheCapacityPartitionIsTheOneThePacketSelected.test_the_legacy_table_is_exactly_what_it_always_was)
+The preserved path, by value: two mounts at their original sizes ... ok
+test_the_shared_scratch_gave_up_exactly_what_the_roots_took (tests.manager.test_verifier_topology.TheCapacityPartitionIsTheOneThePacketSelected.test_the_shared_scratch_gave_up_exactly_what_the_roots_took)
+A REDISTRIBUTION, not extra capacity -- and ON THE SELECTED PATH ... ok
+test_the_total_tmpfs_is_ninety_six_mebibytes (tests.manager.test_verifier_topology.TheCapacityPartitionIsTheOneThePacketSelected.test_the_total_tmpfs_is_ninety_six_mebibytes)
+80 MiB of scratch plus the existing 16 MiB legacy log decoy, which ... ok
+test_a_document_from_another_topology_refuses_at_the_worker (tests.manager.test_verifier_topology.TheComposedPairIsAcceptedAndIncompatibleOnesRefuse.test_a_document_from_another_topology_refuses_at_the_worker) ... ok
+test_a_marker_from_another_topology_refuses_at_the_worker (tests.manager.test_verifier_topology.TheComposedPairIsAcceptedAndIncompatibleOnesRefuse.test_a_marker_from_another_topology_refuses_at_the_worker) ... ok
+test_a_new_image_with_no_document_refuses (tests.manager.test_verifier_topology.TheComposedPairIsAcceptedAndIncompatibleOnesRefuse.test_a_new_image_with_no_document_refuses)
+A marker and no delivery: the gap absence used to swallow. ... ok
+test_a_truncated_document_is_not_legacy (tests.manager.test_verifier_topology.TheComposedPairIsAcceptedAndIncompatibleOnesRefuse.test_a_truncated_document_is_not_legacy) ... ok
+test_a_truncated_marker_is_not_an_old_image (tests.manager.test_verifier_topology.TheComposedPairIsAcceptedAndIncompatibleOnesRefuse.test_a_truncated_marker_is_not_an_old_image) ... ok
+test_an_old_image_with_a_new_document_refuses (tests.manager.test_verifier_topology.TheComposedPairIsAcceptedAndIncompatibleOnesRefuse.test_an_old_image_with_a_new_document_refuses)
+No marker: the image has no scaffolding to honour the selection. ... ok
+test_neither_document_is_legacy_and_reads_no_mount_table (tests.manager.test_verifier_topology.TheComposedPairIsAcceptedAndIncompatibleOnesRefuse.test_neither_document_is_legacy_and_reads_no_mount_table)
+Supported, unchanged, and it costs nothing. ... ok
+test_the_manager_refuses_a_marker_from_another_topology (tests.manager.test_verifier_topology.TheComposedPairIsAcceptedAndIncompatibleOnesRefuse.test_the_manager_refuses_a_marker_from_another_topology)
+A new image built from a DIFFERENT topology, caught at compose. ... ok
+test_the_manager_refuses_a_named_identity (tests.manager.test_verifier_topology.TheComposedPairIsAcceptedAndIncompatibleOnesRefuse.test_the_manager_refuses_a_named_identity)
+THE REVIEW'S CORRECTION, DRIVEN: "Bind selected topology and ... ok
+test_the_manager_refuses_to_compose_for_an_old_image (tests.manager.test_verifier_topology.TheComposedPairIsAcceptedAndIncompatibleOnesRefuse.test_the_manager_refuses_to_compose_for_an_old_image)
+THE MANAGER-SIDE REFUSAL the review asked for by name. ... ok
+test_the_managers_document_carries_no_unexpected_member (tests.manager.test_verifier_topology.TheComposedPairIsAcceptedAndIncompatibleOnesRefuse.test_the_managers_document_carries_no_unexpected_member)
+The worker refuses extras, so the composer may not add one. ... ok
+test_the_managers_document_is_accepted_by_the_worker (tests.manager.test_verifier_topology.TheComposedPairIsAcceptedAndIncompatibleOnesRefuse.test_the_managers_document_is_accepted_by_the_worker)
+ONE SELECTION, END TO END, with nothing in between. ... ok
+test_the_trusted_identity_is_the_minted_one (tests.manager.test_verifier_topology.TheComposedPairIsAcceptedAndIncompatibleOnesRefuse.test_the_trusted_identity_is_the_minted_one)
+TASK.md: "not hardcoded 65532, not ambient login group." ... ok
+test_a_changed_selection_at_the_name_refuses (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_a_changed_selection_at_the_name_refuses)
+Live runtimes were started against the bytes on disk. ... ok
+test_a_consent_runtime_composes_no_root_either (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_a_consent_runtime_composes_no_root_either)
+It refuses the selection, so it cannot acquire the roots by a side ... ok
+test_a_consent_runtime_takes_no_selection (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_a_consent_runtime_takes_no_selection)
+It mounts nothing and runs no verifier, so a selection there is a ... ok
+test_a_delivery_whose_document_is_gone_refuses (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_a_delivery_whose_document_is_gone_refuses)
+The type proof is about the OBJECT and is taken when the vector is ... ok
+test_a_document_bound_to_another_image_refuses (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_a_document_bound_to_another_image_refuses) ... ok
+test_a_document_naming_another_identity_refuses (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_a_document_naming_another_identity_refuses)
+It would describe roots this container cannot own, and the worker ... ok
+test_a_link_at_the_name_refuses_rather_than_being_read_through (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_a_link_at_the_name_refuses_rather_than_being_read_through) ... ok
+test_a_pair_of_paths_is_not_a_delivery (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_a_pair_of_paths_is_not_a_delivery)
+A path operand would be a caller-selected locator for the one ... ok
+test_an_assignment_mount_over_the_document_refuses (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_an_assignment_mount_over_the_document_refuses)
+Nobody else may decide what the worker proves its roots against. ... ok
+test_no_delivery_composes_no_mount (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_no_delivery_composes_no_mount)
+An explicitly legacy deployment is argv-identical to today. ... ok
+test_the_delivered_document_is_readable_and_not_writable (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_the_delivered_document_is_readable_and_not_writable)
+The container's execution identity must be able to READ it, and ... ok
+test_the_delivery_is_the_fixed_target (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_the_delivery_is_the_fixed_target) ... ok
+test_the_document_names_the_identity_the_argv_composes (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_the_document_names_the_identity_the_argv_composes)
+THE ONE OPINION, NOT TWO. `--user` and the document's uid/gid come ... ok
+test_the_engine_binds_it_read_only (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_the_engine_binds_it_read_only)
+IMMUTABILITY IS NOT A PARAMETER: a worker that could rewrite its ... ok
+test_the_materialized_bytes_are_the_composed_ones (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_the_materialized_bytes_are_the_composed_ones) ... ok
+test_the_mode_is_the_one_the_worker_proves (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_the_mode_is_the_one_the_worker_proves) ... ok
+test_the_mounted_identity_is_the_one_the_document_names (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_the_mounted_identity_is_the_one_the_document_names)
+One capability, three places: the document, the `--user` flag and ... ok
+test_the_same_selection_twice_adopts_the_same_bytes (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_the_same_selection_twice_adopts_the_same_bytes)
+A per-deployment selection, not a per-attempt one: refusing the ... ok
+test_the_selected_roots_carry_the_identity_and_mode_promised (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_the_selected_roots_carry_the_identity_and_mode_promised)
+REVIEW [2], DRIVEN. The worker's `_proved_root` refuses a root ... ok
+test_the_selected_vector_redistributes_rather_than_adding_room (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_the_selected_vector_redistributes_rather_than_adding_room)
+The shared scratch gives up exactly what the roots take, so the ... ok
+test_the_unselected_vector_gains_no_root_and_keeps_its_scratch (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_the_unselected_vector_gains_no_root_and_keeps_its_scratch)
+REVIEW [3], DRIVEN: the legacy runtime is argv-identical to before ... ok
+test_every_launch_containment_list_also_carries_the_layout (tests.manager.test_verifier_topology.TheFixedTargetIsFIXEDForEveryFamily.test_every_launch_containment_list_also_carries_the_layout)
+THE SYMMETRY, STRUCTURALLY. A first cut composed the layout mount ... ok
+test_no_other_fixed_target_contains_the_document (tests.manager.test_verifier_topology.TheFixedTargetIsFIXEDForEveryFamily.test_no_other_fixed_target_contains_the_document)
+THE PROPERTY the containment entries protect, over the constants. ... ok
+test_the_four_verifier_roots_are_not_a_family_target_either (tests.manager.test_verifier_topology.TheFixedTargetIsFIXEDForEveryFamily.test_the_four_verifier_roots_are_not_a_family_target_either)
+The roots are MOUNTED BY THE IMAGE POSTURE, not by a delivery, so ... ok
+test_the_marker_bytes_are_the_composed_ones (tests.manager.test_verifier_topology.TheImageRecipeScaffoldsAndDeclaresTheTopology.test_the_marker_bytes_are_the_composed_ones)
+THE AGREEMENT, PROVED ON THE SHIPPED FILE. ... ok
+test_the_marker_is_copied_to_the_path_the_worker_reads (tests.manager.test_verifier_topology.TheImageRecipeScaffoldsAndDeclaresTheTopology.test_the_marker_is_copied_to_the_path_the_worker_reads) ... ok
+test_the_marker_is_not_owned_by_the_runtime_identity (tests.manager.test_verifier_topology.TheImageRecipeScaffoldsAndDeclaresTheTopology.test_the_marker_is_not_owned_by_the_runtime_identity)
+It is image bytes in a read-only rootfs, so a worker cannot ... ok
+test_the_recipe_scaffolds_every_root (tests.manager.test_verifier_topology.TheImageRecipeScaffoldsAndDeclaresTheTopology.test_the_recipe_scaffolds_every_root) ... ok
+test_the_scaffolding_is_made_before_privilege_drops (tests.manager.test_verifier_topology.TheImageRecipeScaffoldsAndDeclaresTheTopology.test_the_scaffolding_is_made_before_privilege_drops)
+Root-owned 0755 image directories: an unprivileged layer could not ... ok
+test_the_scaffolding_is_not_chowned_to_the_runtime_identity (tests.manager.test_verifier_topology.TheImageRecipeScaffoldsAndDeclaresTheTopology.test_the_scaffolding_is_not_chowned_to_the_runtime_identity)
+A writable ancestor is a directory a process sharing this uid can ... ok
+test_the_shipped_marker_is_accepted_by_the_worker (tests.manager.test_verifier_topology.TheImageRecipeScaffoldsAndDeclaresTheTopology.test_the_shipped_marker_is_accepted_by_the_worker)
+The adapter reads the file the image will actually carry. ... ok
+test_the_document_members_agree (tests.manager.test_verifier_topology.TheTopologyIsOneSelectionOnBothSides.test_the_document_members_agree) ... ok
+test_the_filesystem_options_and_mode_agree (tests.manager.test_verifier_topology.TheTopologyIsOneSelectionOnBothSides.test_the_filesystem_options_and_mode_agree) ... ok
+test_the_fixed_roots_are_the_same_four_paths_on_both_sides (tests.manager.test_verifier_topology.TheTopologyIsOneSelectionOnBothSides.test_the_fixed_roots_are_the_same_four_paths_on_both_sides) ... ok
+test_the_fixed_roots_are_the_topology_the_packet_names (tests.manager.test_verifier_topology.TheTopologyIsOneSelectionOnBothSides.test_the_fixed_roots_are_the_topology_the_packet_names)
+`preparation-325908/TASK.md`: fixed ... ok
+test_the_four_roots_are_disjoint (tests.manager.test_verifier_topology.TheTopologyIsOneSelectionOnBothSides.test_the_four_roots_are_disjoint)
+Review [R1]: "The same mounted directory could be named for all ... ok
+test_the_two_schemas_and_targets_agree (tests.manager.test_verifier_topology.TheTopologyIsOneSelectionOnBothSides.test_the_two_schemas_and_targets_agree) ... ok
+
+----------------------------------------------------------------------
+Ran 63 tests in 0.114s
+
+OK

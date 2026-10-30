@@ -1,0 +1,17 @@
+{
+  "schema": "baton.w339626.preparation-binding/1",
+  "work": "W339626",
+  "claim": 344532,
+  "status": "input-binding-only-not-executable",
+  "inputs": {
+    "v12/DESIGN.md": "ba6d754b11ec895b585555287ce340671b2491720b8ee48995f92c4387f7308b",
+    "work/records/2026/10/finding-v12-standard-next-run-path/TASK-344516.md": "12bf74c06c6229f5260e39221992722da1c68a8f81d4b4cfc5148f83cda3df36",
+    "work/records/2026/10/finding-v12-standard-next-run-path/OWNER-INSTALL-ONCE-20261021.md": "70e534ccf46bf98155ff9874c1671854b5b04e27598cf70f50fbec228309a19a",
+    "work/records/2026/10/finding-v12-standard-next-run-path/OWNER-RAPID-START-20261020.md": "70f4f50d1bac8a8ed9f7f5859433ec2528c8944e2c3d2833557c6870f8c8fe66"
+  },
+  "installed_selection": "w339626-custody-v3",
+  "installed_entry_sha256": "7547b27f88873e240f1a0666e6c1cdd7dfc5d2a9064974264aea4be6fcdf1d15",
+  "installed_selection_sha256": "436fe9b30f112f11ba50659883024d7cf60270497b59692251342163581febab",
+  "installer_source_sha256": "76da2696c37f41a1312cdf9e7d8ea322a608479ad802481659bdd4476be6f00c",
+  "launch_authorized": false
+}

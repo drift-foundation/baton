@@ -1,0 +1,17 @@
+{
+  "artifacts": {
+    "PACKET.json": "b43142e9afdc9302e085fdb4ebefc5df93786cdbe70055beabd75fe02ba7406c",
+    "adapter.json": "cbe3bb4ade990eb5411c64a40be74a10e46a79f48343c499b5f1a8453fabc9c7",
+    "commands.json": "c12d3f3101d445995dbf28a8d02edb9ec2e6b31ee82f228266ce7142a4190de9",
+    "deployment.json": "0bcf7c562d4ab12bcd976c13b321b6f5f049b2ff41f961d8888979bfe2a0f407",
+    "policy.json": "2b75b8208cd288418ea5a9af8ece0c443abdaa19fda80a1ea2725e43fdbc306c",
+    "runtime-profile.json": "70ca07c494c9660bfaf747772f2233ccaf77b4ef3a4da90c26121b7b59ff1d34",
+    "submission.json": "45841adb7d68cde106016e2052842b982e426b6d8d98ae62702b12703a017fb8",
+    "task.json": "63385332c68154041ad3cefcf42d88de22da6c98d90179415230f765ae0180e1"
+  },
+  "authority_uuid": "c749cf2510b64617bae5146e6213d645",
+  "independent_review": "an independent reviewer consumes the immutable retained proposal through v11 after exact runtime cessation; no automatic acceptance",
+  "packet_sha256": "b43142e9afdc9302e085fdb4ebefc5df93786cdbe70055beabd75fe02ba7406c",
+  "state": "prepared-not-executed",
+  "work": "W333485"
+}

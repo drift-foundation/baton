@@ -1,0 +1,25 @@
+test_create_unobserved_retains_name_not_false_absence (test_engine_proof.Runner.test_create_unobserved_retains_name_not_false_absence) ... ok
+test_faults_preserve_durable_identity (test_engine_proof.Runner.test_faults_preserve_durable_identity) ... ok
+test_receipt_deadline_and_cleanup_reserve (test_engine_proof.Runner.test_receipt_deadline_and_cleanup_reserve) ... ok
+test_selection_refuses_mismatch_before_engine (test_engine_proof.Runner.test_selection_refuses_mismatch_before_engine) ... ok
+test_success_and_no_ambient_identity (test_engine_proof.Runner.test_success_and_no_ambient_identity) ... ok
+test_changed_input_and_used_receipt_refuse (test_packet.Packet.test_changed_input_and_used_receipt_refuse) ... ok
+test_check_and_unselected_run_never_invoke_engine (test_packet.Packet.test_check_and_unselected_run_never_invoke_engine) ... ok
+test_selected_entry_composes_runner_and_spends_receipt_once (test_packet.Packet.test_selected_entry_composes_runner_and_spends_receipt_once) ... ok
+test_capacity_metrics_are_retained_without_untrusted_extras (test_successor.Composed.test_capacity_metrics_are_retained_without_untrusted_extras) ... ok
+test_full_work_deadline_preserves_cleanup_reserve (test_successor.Composed.test_full_work_deadline_preserves_cleanup_reserve) ... ok
+test_lost_create_and_later_exact_absence_stays_uncertain (test_successor.Composed.test_lost_create_and_later_exact_absence_stays_uncertain) ... ok
+test_lost_create_can_reconcile_exact_owned_object_only (test_successor.Composed.test_lost_create_can_reconcile_exact_owned_object_only) ... ok
+test_occupied_name_is_never_acquired_or_removed (test_successor.Composed.test_occupied_name_is_never_acquired_or_removed) ... ok
+test_present_object_with_mixed_stderr_or_duplicate_identity_refuses (test_successor.Composed.test_present_object_with_mixed_stderr_or_duplicate_identity_refuses) ... ok
+test_remove_failure_still_observes_absence_independently (test_successor.Composed.test_remove_failure_still_observes_absence_independently) ... ok
+test_sensitive_payload_extras_are_not_persisted (test_successor.Composed.test_sensitive_payload_extras_are_not_persisted) ... ok
+test_strict_identity_before_start_or_removal (test_successor.Composed.test_strict_identity_before_start_or_removal) ... ok
+test_supported_absence_at_both_consumers (test_successor.Composed.test_supported_absence_at_both_consumers) ... ok
+test_uncertain_responses_at_both_consumers (test_successor.Composed.test_uncertain_responses_at_both_consumers) ... ok
+test_used_receipt_refuses_before_any_call (test_successor.Composed.test_used_receipt_refuses_before_any_call) ... ok
+
+----------------------------------------------------------------------
+Ran 20 tests in 0.179s
+
+OK

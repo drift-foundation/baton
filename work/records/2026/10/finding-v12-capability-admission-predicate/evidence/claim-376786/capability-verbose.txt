@@ -1,0 +1,38 @@
+test_the_approved_bytes_validate (tests.job_manager.test_role_capability.TheApprovedVectorIsTheOneThisBuildCarries.test_the_approved_bytes_validate) ... ok
+test_the_approved_vector_names_the_accepted_contract (tests.job_manager.test_role_capability.TheApprovedVectorIsTheOneThisBuildCarries.test_the_approved_vector_names_the_accepted_contract)
+The link that makes the predicate meaningful: the capability was ... ok
+test_the_document_carries_no_digest_member_to_disagree_with (tests.job_manager.test_role_capability.TheApprovedVectorIsTheOneThisBuildCarries.test_the_document_carries_no_digest_member_to_disagree_with) ... ok
+test_the_record_still_holds_the_approved_digest (tests.job_manager.test_role_capability.TheApprovedVectorIsTheOneThisBuildCarries.test_the_record_still_holds_the_approved_digest) ... ok
+test_whitespace_is_not_identity (tests.job_manager.test_role_capability.TheApprovedVectorIsTheOneThisBuildCarries.test_whitespace_is_not_identity) ... ok
+test_a_document_over_the_ceiling_refuses (tests.job_manager.test_role_capability.TheClosedShapeRefusesEverythingElse.test_a_document_over_the_ceiling_refuses) ... ok
+test_a_missing_member_refuses (tests.job_manager.test_role_capability.TheClosedShapeRefusesEverythingElse.test_a_missing_member_refuses) ... ok
+test_a_non_document_refuses (tests.job_manager.test_role_capability.TheClosedShapeRefusesEverythingElse.test_a_non_document_refuses) ... ok
+test_an_unknown_member_refuses (tests.job_manager.test_role_capability.TheClosedShapeRefusesEverythingElse.test_an_unknown_member_refuses) ... ok
+test_an_unsupported_schema_refuses (tests.job_manager.test_role_capability.TheClosedShapeRefusesEverythingElse.test_an_unsupported_schema_refuses) ... ok
+test_duplicate_keys_refuse_before_canonicalization (tests.job_manager.test_role_capability.TheClosedShapeRefusesEverythingElse.test_duplicate_keys_refuse_before_canonicalization) ... ok
+test_each_approved_role_set_is_admitted (tests.job_manager.test_role_capability.TheClosedShapeRefusesEverythingElse.test_each_approved_role_set_is_admitted) ... ok
+test_every_identity_must_be_one_lower_case_digest (tests.job_manager.test_role_capability.TheClosedShapeRefusesEverythingElse.test_every_identity_must_be_one_lower_case_digest) ... ok
+test_malformed_and_non_utf8_bytes_refuse (tests.job_manager.test_role_capability.TheClosedShapeRefusesEverythingElse.test_malformed_and_non_utf8_bytes_refuse) ... ok
+test_only_the_three_approved_role_sets_are_admitted (tests.job_manager.test_role_capability.TheClosedShapeRefusesEverythingElse.test_only_the_three_approved_role_sets_are_admitted) ... ok
+test_text_is_not_bytes (tests.job_manager.test_role_capability.TheClosedShapeRefusesEverythingElse.test_text_is_not_bytes) ... ok
+test_a_malformed_contract_refuses_through_its_own_owner (tests.job_manager.test_role_capability.ThePredicateIsPureAndNarrow.test_a_malformed_contract_refuses_through_its_own_owner)
+The contract is not trusted as already-checked data. ... ok
+test_a_narrowed_contract_refuses_at_the_contract_owner (tests.job_manager.test_role_capability.ThePredicateIsPureAndNarrow.test_a_narrowed_contract_refuses_at_the_contract_owner)
+AND THE UNKNOWN-ROLE BRANCH IS DEFENCE IN DEPTH, which this says ... ok
+test_a_single_role_capability_agrees_on_that_role (tests.job_manager.test_role_capability.ThePredicateIsPureAndNarrow.test_a_single_role_capability_agrees_on_that_role) ... ok
+test_another_contract_refuses_with_both_digests_named (tests.job_manager.test_role_capability.ThePredicateIsPureAndNarrow.test_another_contract_refuses_with_both_digests_named)
+"a capability proves nothing about a contract it was not qualified ... ok
+test_no_carrier_or_deployment_word_appears_in_this_slice (tests.job_manager.test_role_capability.ThePredicateIsPureAndNarrow.test_no_carrier_or_deployment_word_appears_in_this_slice)
+So the slice cannot be read as more than it is: no deployment, ... ok
+test_nothing_is_mutated_by_either_check (tests.job_manager.test_role_capability.ThePredicateIsPureAndNarrow.test_nothing_is_mutated_by_either_check) ... ok
+test_the_answer_is_detached (tests.job_manager.test_role_capability.ThePredicateIsPureAndNarrow.test_the_answer_is_detached) ... ok
+test_the_approved_pair_agrees_on_both_roles (tests.job_manager.test_role_capability.ThePredicateIsPureAndNarrow.test_the_approved_pair_agrees_on_both_roles) ... ok
+test_the_predicate_grants_no_qualification (tests.job_manager.test_role_capability.ThePredicateIsPureAndNarrow.test_the_predicate_grants_no_qualification)
+THE BOUNDARY OF THIS SLICE. The qualification digest is required ... ok
+test_the_unknown_role_refusal_is_reachable_and_names_the_role (tests.job_manager.test_role_capability.ThePredicateIsPureAndNarrow.test_the_unknown_role_refusal_is_reachable_and_names_the_role)
+The branch driven directly, since no valid contract can reach it: ... ok
+
+----------------------------------------------------------------------
+Ran 26 tests in 0.006s
+
+OK

@@ -1,0 +1,46 @@
+[
+  {
+    "case": "foreign absence",
+    "answer": {
+      "name": "w325695-proof-376414",
+      "status": 1,
+      "stdout": "[]",
+      "stderr": "error: no such object: another-container",
+      "state": "absent",
+      "why": "exit 1 with no such object"
+    }
+  },
+  {
+    "case": "mixed stderr",
+    "answer": {
+      "name": "w325695-proof-376414",
+      "status": 1,
+      "stdout": "[]",
+      "stderr": "error: no such object: w325695-proof-376414\npermission denied",
+      "state": "absent",
+      "why": "exit 1 with no such object"
+    }
+  },
+  {
+    "case": "zero with denial",
+    "answer": {
+      "name": "w325695-proof-376414",
+      "status": 0,
+      "stdout": "[]",
+      "stderr": "permission denied",
+      "state": "absent",
+      "why": "exit 0 with an empty inspect array"
+    }
+  },
+  {
+    "case": "identity missing",
+    "answer": {
+      "name": "w325695-proof-376414",
+      "status": 0,
+      "stdout": "[{}]",
+      "stderr": "",
+      "state": "present",
+      "why": "exit 0 with this object's document"
+    }
+  }
+]

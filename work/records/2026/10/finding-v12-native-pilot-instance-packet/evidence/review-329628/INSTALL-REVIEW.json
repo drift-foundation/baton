@@ -1,0 +1,127 @@
+{
+  "repository_proof": {
+    "identities": {
+      "target": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/repo/target.git",
+      "workspace": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/repo/workspace/.git",
+      "source-implementation-pilot": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/repo/source-implementation-pilot/.git",
+      "source-review-pilot": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/repo/source-review-pilot/.git"
+    },
+    "declared_bases": [
+      "14e52d80679de5e844f72324df632da5e01cf393"
+    ],
+    "reference": null
+  },
+  "heads": {
+    "target": "14e52d80679de5e844f72324df632da5e01cf393",
+    "workspace": "14e52d80679de5e844f72324df632da5e01cf393",
+    "source-implementation-pilot": "14e52d80679de5e844f72324df632da5e01cf393",
+    "source-review-pilot": "14e52d80679de5e844f72324df632da5e01cf393"
+  },
+  "installed_identity": {
+    "build_stamp": {
+      "changed_entries": 0,
+      "commit": "14e52d80679de5e844f72324df632da5e01cf393",
+      "detail": null,
+      "dirty": false,
+      "excused_build_output": 0,
+      "schema": "baton.v12.build-stamp/1",
+      "source": "/home/sl/baton-builds/native-pilot-14e52d80"
+    },
+    "command": "baton-v12-stack",
+    "executable": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/distro/baton-v12-stack",
+    "frozen": true,
+    "machine": "x86_64",
+    "native_rpds": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/distro/_internal/rpds/rpds.cpython-313-x86_64-linux-gnu.so",
+    "platform": "Linux-6.17.0-41-generic-x86_64-with-glibc2.42",
+    "python": "3.13.7",
+    "resources": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/distro/_internal",
+    "schema_assets": {
+      "agent-session-1.0": 48212,
+      "worker-control-1.0": 51419
+    },
+    "sha256": "8f6d6f2257aadc6c1e0e4aaafc7e04e7e9ab1b89798f1a6fe4b6464490cc09ae",
+    "version": "12.0.0"
+  },
+  "bundle_files_match_prior_review": 81,
+  "installed_documents": {
+    "instance.json": {
+      "authority_uuid": "1cdb8d19feda47c0a209bd0669b16871",
+      "command": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/distro/baton-v12-stack",
+      "control_store": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/db/control.sqlite3",
+      "deployment": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/deployment.json",
+      "destination": "/home/sl/baton-instances/native-coordination-pilot-w321608-1",
+      "identity": {
+        "build_stamp": {
+          "changed_entries": 0,
+          "commit": "14e52d80679de5e844f72324df632da5e01cf393",
+          "detail": null,
+          "dirty": false,
+          "excused_build_output": 0,
+          "schema": "baton.v12.build-stamp/1",
+          "source": "/home/sl/baton-builds/native-pilot-14e52d80"
+        },
+        "command": "baton-v12-stack",
+        "executable": "/tmp/w325959-owner-build/out/distro/baton-v12-stack",
+        "frozen": true,
+        "machine": "x86_64",
+        "native_rpds": "/tmp/w325959-owner-build/out/distro/_internal/rpds/rpds.cpython-313-x86_64-linux-gnu.so",
+        "platform": "Linux-6.17.0-41-generic-x86_64-with-glibc2.42",
+        "python": "3.13.7",
+        "resources": "/tmp/w325959-owner-build/out/distro/_internal",
+        "schema_assets": {
+          "agent-session-1.0": 48212,
+          "worker-control-1.0": 51419
+        },
+        "sha256": "8f6d6f2257aadc6c1e0e4aaafc7e04e7e9ab1b89798f1a6fe4b6464490cc09ae",
+        "version": "12.0.0"
+      },
+      "job_store": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/db/jobs.sqlite3",
+      "logs": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/logs",
+      "prepared_at": null,
+      "repository": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/repo",
+      "runtime": {
+        "digest": "7639c07cfd0a73a22ca2395641f0327e74d7766150df91b7a040dae3554476e1",
+        "files": 81
+      },
+      "schema": "baton.v12.stack-instance/1",
+      "state": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/state"
+    },
+    "deployment.json": {
+      "authority_store": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/db/authority.sqlite3",
+      "authority_uuid": "1cdb8d19feda47c0a209bd0669b16871",
+      "checkpoint_profile": "git",
+      "integration_profile": {
+        "instructions_digest": "sha256:fafc35958002db5284b54f4d22cf59a7dccfb5ac05e15baa69db73fcff06d6f2",
+        "integrator_participant": "baton.integrator-pilot",
+        "profile_kind": "git",
+        "profile_version": 1
+      },
+      "integration_store": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/db/integration.sqlite3",
+      "integration_target": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/repo/target.git",
+      "integration_workspace": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/repo/workspace",
+      "job_bindings": [],
+      "policy_generation": 1,
+      "pool_generation": 1,
+      "receipt_participants": {
+        "approval": "baton.slaw",
+        "review": "baton.reviewer-receipt-pilot",
+        "verification": "baton.verifier-pilot"
+      },
+      "retention_disposition": "retain",
+      "retention_policy_digest": "sha256:0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a",
+      "schema": "baton.v12.stage-execution-deployment/2",
+      "state_root": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/deployment-state",
+      "workers": []
+    },
+    "authority-identity.json": {
+      "authority_uuid": "1cdb8d19feda47c0a209bd0669b16871",
+      "schema": "baton.v12.instance-identity/1"
+    },
+    "bootstrap.json": {
+      "authority_uuid": "1cdb8d19feda47c0a209bd0669b16871",
+      "bindings": {},
+      "schema": "baton.v12.stack-bootstrap-record/1"
+    }
+  },
+  "generated_configuration_absent": true
+}

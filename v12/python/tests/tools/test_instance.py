@@ -635,9 +635,10 @@ class TheDestinationIsAskedAboutAgain(BootstrapFixture):
             said = self.refused(admitted)
         self.assertIn("already an instance selector", said)
         self.assertEqual(Path(places["instance"]).read_text(), theirs)
-        # AND THIS ATTEMPT'S OWN COPY IS UNWOUND -- only ours, so nothing
-        # foreign is touched and a retry is not blocked by our leftovers.
-        self.assertFalse(os.path.exists(places["distro"]))
+        # W376956: AND THIS ATTEMPT'S OWN COPY IS RETAINED, not unwound.
+        # Nothing foreign is touched -- which is now true by construction,
+        # because nothing is deleted at all.
+        self.assertTrue(os.path.isdir(places["distro"]))
 
     def test_a_cooperating_bootstrap_holding_the_destination_is_waited_for(self):
         """Two attempts preparing one destination would interleave a copy and a
@@ -964,11 +965,18 @@ class TheDeploymentCarriesItsOwnJustfile(Fixture):
                     stream=named.pop("stream", quiet), admitted=admitted,
                     now=1.0, **named)
 
-    def test_a_FAILED_publication_unwinds_what_this_attempt_made(self):
+    def test_a_FAILED_publication_RETAINS_what_this_attempt_made(self):
         """[R3 remainder]: a transient publication failure left this attempt's
-        OWN justfile behind, removed the runtime, published no selector -- and
-        the retry then refused for that leftover, which this attempt had
-        created. Both are ours, both go."""
+        OWN justfile behind while removing the runtime, published no selector
+        -- so the two halves of one attempt were treated differently and the
+        retry then refused for the half that stayed.
+
+        W376956: BOTH ARE OURS AND BOTH STAY. The name said "unwinds" and the
+        last line of this docstring said "both go", which is no longer what
+        happens: under the selected pre-deletion retention neither is deleted,
+        and what this case holds is that one attempt's effects are accounted
+        for TOGETHER rather than one removed and one left.
+        """
         import io
 
         out = io.StringIO()
@@ -976,26 +984,64 @@ class TheDeploymentCarriesItsOwnJustfile(Fixture):
                                side_effect=OSError("the disk went away")):
             with self.assertRaises(OSError):
                 self.installing(stream=out)
-        self.assertFalse(os.path.exists(self.places["distro"]))
-        self.assertFalse(os.path.lexists(self.places["justfile"]))
+        # W376956: THE COPIED RUNTIME IS RETAINED, NOT REMOVED. A name-based
+        # `unlink`/`rmdir` cannot be bound to an inode, so the owner selected
+        # pre-deletion fail-closed retention: foreign bytes are never deleted
+        # and the residue is named. What this case is about is unchanged; the
+        # runtime's absence is not what it was ever protecting.
+        self.assertTrue(os.path.isdir(self.places["distro"]))
+        self.assertIn("RETAINED", out.getvalue())
+        self.assertIn(self.places["distro"], out.getvalue())
+        # W376956: NOTHING THIS ATTEMPT MADE IS DELETED. A name-based
+        # `unlink`/`rmdir` cannot be bound to an inode, so the owner selected
+        # pre-deletion fail-closed retention for EVERY effect: foreign bytes
+        # are never deleted, and the residue is named so an operator can act
+        # on it. These cases assert the retention and the naming.
+        self.assertTrue(os.path.lexists(self.places["justfile"]))
+        self.assertIn("RETAINED", out.getvalue())
+        self.assertIn(self.places["justfile"], out.getvalue())
         self.assertFalse(os.path.lexists(self.places["instance"]))
-        self.assertIn("unwound", out.getvalue())
+        # W376956: "retained", not "unwound" -- nothing is deleted now.
+        self.assertIn("retained", out.getvalue())
 
-    def test_and_the_retry_then_SUCCEEDS(self):
-        """Which is the point: an attempt that cleans up after itself leaves a
-        destination another attempt can use."""
+    def test_and_the_retry_then_REFUSES_THE_OCCUPIED_DESTINATION(self):
+        """W376956: THE TITLE CHANGED WITH THE BEHAVIOUR, and that is the
+        point rather than a detail.
+
+        This case used to read `test_and_the_retry_then_SUCCEEDS` and asserted
+        that a failed attempt leaves a destination another attempt can use.
+        Under the selected pre-deletion retention it does NOT: nothing this
+        attempt made is deleted, because a name-based removal cannot be bound
+        to an inode and preserving somebody else's bytes is the selected
+        priority. So the destination stays occupied and the retry REFUSES
+        through `custody`, naming what is there -- which is the
+        occupied-retry-refusal the review requires. A case whose name asserted
+        the opposite would be worse than a red one.
+        """
+        out = io.StringIO()
         with mock.patch.object(instance, "create",
                                side_effect=OSError("the disk went away")):
             with self.assertRaises(OSError):
-                self.installing()
-        selector = self.installing()
-        self.assertEqual(instance.read(self.places["instance"]), selector)
+                self.installing(stream=out)
+        self.assertIn("RETAINED", out.getvalue())
+        with self.assertRaises(self.bootstrap.BootstrapRefusal) as raised:
+            self.installing()
+        said = str(raised.exception)
+        self.assertIn("already", said)
+        self.assertIn(self.places["destination"], said)
+        # AND THE RETAINED EFFECTS ARE STILL THERE, untouched by the refusal.
+        self.assertTrue(os.path.isdir(self.places["distro"]))
         self.assertTrue(os.path.isfile(self.places["justfile"]))
 
-    def test_a_PARTIAL_write_is_still_this_attempt_s_to_unwind(self):
+    def test_a_PARTIAL_write_is_still_this_attempt_s_AND_IS_RETAINED(self):
         """[R3 remainder]: ownership was a flag set AFTER the write finished,
-        so a write that failed part-way left bytes nobody would remove -- and
-        the retry was then blocked by this attempt's own leftover."""
+        so a write that failed part-way left bytes nobody would account for.
+
+        W376956: "this attempt's to unwind" is now "this attempt's to retain
+        and name" -- the name changed with the behaviour. What is proved is
+        that a half-written file is not DISOWNED, which was always the point;
+        the disposal it is subject to is the selected retention.
+        """
         import io
 
         real = self.bootstrap.deployed_justfile
@@ -1009,13 +1055,30 @@ class TheDeploymentCarriesItsOwnJustfile(Fixture):
         with mock.patch.object(self.bootstrap, "deployed_justfile", partial):
             with self.assertRaises(OSError):
                 self.installing(stream=out)
-        self.assertFalse(os.path.lexists(self.places["justfile"]),
-                         "the partial justfile was left behind")
-        self.assertFalse(os.path.exists(self.places["distro"]))
-        self.assertIn("unwound", out.getvalue())
-        # AND THE RETRY WORKS, which is the point of unwinding at all.
-        selector = self.installing()
-        self.assertEqual(instance.read(self.places["instance"]), selector)
+        # W376956: A PARTIAL WRITE IS STILL THIS ATTEMPT'S, and under
+        # pre-deletion retention "its own" means RETAINED rather than removed.
+        # The case's subject -- that a half-written file is not disowned -- is
+        # asserted on the ledger's own report instead of on its absence.
+        self.assertTrue(os.path.lexists(self.places["justfile"]))
+        self.assertIn("retained " + self.places["justfile"], out.getvalue())
+        self.assertIn("this attempt made the justfile", out.getvalue())
+        # W376956: THE COPIED RUNTIME IS RETAINED, NOT REMOVED. A name-based
+        # `unlink`/`rmdir` cannot be bound to an inode, so the owner selected
+        # pre-deletion fail-closed retention: foreign bytes are never deleted
+        # and the residue is named. What this case is about is unchanged; the
+        # runtime's absence is not what it was ever protecting.
+        self.assertTrue(os.path.isdir(self.places["distro"]))
+        self.assertIn("RETAINED", out.getvalue())
+        self.assertIn(self.places["distro"], out.getvalue())
+        # W376956: "retained", not "unwound" -- nothing is deleted now.
+        self.assertIn("retained", out.getvalue())
+        # AND THE RETRY REFUSES THE OCCUPIED DESTINATION, which is what
+        # retention means: this attempt's own leftovers are not deleted, so a
+        # second attempt into the same destination is refused by `custody`
+        # rather than silently reusing it. W376956.
+        with self.assertRaises(self.bootstrap.BootstrapRefusal) as raised:
+            self.installing()
+        self.assertIn("already", str(raised.exception))
 
     def test_a_justfile_REPLACED_after_this_attempt_made_it_is_left(self):
         """The other half: cleanup deleted the foreign REPLACEMENT and then
@@ -1038,8 +1101,16 @@ class TheDeploymentCarriesItsOwnJustfile(Fixture):
         self.assertEqual(Path(self.places["justfile"]).read_text(), theirs)
         self.assertIn("no longer the justfile this attempt made",
                       out.getvalue())
-        # AND THE RUNTIME, which IS still ours, is unwound.
-        self.assertFalse(os.path.exists(self.places["distro"]))
+        # AND THE RUNTIME, which IS still ours, is retained and named as ours
+        # -- this line said "is unwound" before retention was selected.
+        # W376956: THE COPIED RUNTIME IS RETAINED, NOT REMOVED. A name-based
+        # `unlink`/`rmdir` cannot be bound to an inode, so the owner selected
+        # pre-deletion fail-closed retention: foreign bytes are never deleted
+        # and the residue is named. What this case is about is unchanged; the
+        # runtime's absence is not what it was ever protecting.
+        self.assertTrue(os.path.isdir(self.places["distro"]))
+        self.assertIn("RETAINED", out.getvalue())
+        self.assertIn(self.places["distro"], out.getvalue())
 
     def test_a_runtime_REPLACED_after_this_attempt_copied_it_is_left_too(self):
         import io
@@ -1058,11 +1129,134 @@ class TheDeploymentCarriesItsOwnJustfile(Fixture):
                 self.installing(stream=out)
         self.assertTrue(os.path.exists(
             os.path.join(self.places["distro"], "theirs")))
-        self.assertIn("no longer the runtime this attempt made", out.getvalue())
+        # W376956: the runtime is accounted for OBJECT BY OBJECT now, so every
+        # copied object carries one label and the root's reads "copied runtime
+        # object". What this case is about is unchanged and is asserted on the
+        # stable half of the sentence plus the path, so a later label does not
+        # break the property again.
+        self.assertIn("no longer the", out.getvalue())
+        self.assertIn("this attempt made", out.getvalue())
+        self.assertIn("retained " + self.places["distro"], out.getvalue())
 
-    def test_a_cleanup_that_cannot_remove_says_so_rather_than_raising(self):
+    def test_a_COPY_failure_RETAINS_exactly_what_the_copy_had_made(self):
+        """W376956: THE CONNECTED COPY FAILURE, against the per-object ledger.
+
+        The bulk copy took one identity AFTER it finished, so a failure
+        part-way left a partial tree that nothing owned and nothing accounted
+        for. The copy now records each object as it creates it, so a failure
+        mid-walk knows exactly what it made -- and under the selected
+        retention every one of those objects is kept and named rather than
+        removed. The ledger is what makes the accounting exact; it is no
+        longer what makes the deletion safe, because no deletion is attempted.
+        """
+        import io
+
+        real = self.bootstrap._runtime_entry
+        seen = []
+
+        def failing(parent, leaf, where, made, source, handles, keep, root):
+            kind = real(parent, leaf, where, made, source, handles, keep, root)
+            seen.append(where)
+            if len(seen) == 2:
+                raise OSError("the disk went away mid-copy")
+            return kind
+
+        out = io.StringIO()
+        with mock.patch.object(self.bootstrap, "_runtime_entry", failing):
+            with self.assertRaises(self.bootstrap.BootstrapRefusal):
+                self.installing(stream=out)
+        # SOMETHING WAS COPIED AND ALL OF IT IS STILL THERE AND NAMED.
+        self.assertGreaterEqual(len(seen), 2)
+        # W376956: THE COPIED RUNTIME IS RETAINED, NOT REMOVED. A name-based
+        # `unlink`/`rmdir` cannot be bound to an inode, so the owner selected
+        # pre-deletion fail-closed retention: foreign bytes are never deleted
+        # and the residue is named. What this case is about is unchanged; the
+        # runtime's absence is not what it was ever protecting.
+        self.assertTrue(os.path.isdir(self.places["distro"]))
+        self.assertIn("RETAINED", out.getvalue())
+        self.assertIn("cleanup", out.getvalue())
+
+    def test_a_STORE_failure_RETAINS_the_copied_runtime(self):
+        """The store step runs AFTER the copy, so its failure is the one with a
+        whole runtime to account for -- object by object.
+
+        W376956: the name said "unwinds" because this case was written in the
+        claim before retention was selected. Every one of those objects is now
+        retained and named instead.
+        """
+        import io
+
+        from baton_v12.worker_manager import store
+
+        out = io.StringIO()
+        # `initialize_control_store` WRAPS the failure in its own refusal --
+        # "an installation that cannot initialize its own store is not a
+        # prepared one" -- so the refusal asserted is the one that happens.
+        with mock.patch.object(store.ControlStore, "open",
+                               side_effect=OSError("the store would not open")):
+            with self.assertRaises(self.bootstrap.BootstrapRefusal):
+                self.installing(stream=out)
+        # W376956: THE COPIED RUNTIME IS RETAINED, NOT REMOVED. A name-based
+        # `unlink`/`rmdir` cannot be bound to an inode, so the owner selected
+        # pre-deletion fail-closed retention: foreign bytes are never deleted
+        # and the residue is named. What this case is about is unchanged; the
+        # runtime's absence is not what it was ever protecting.
+        self.assertTrue(os.path.isdir(self.places["distro"]))
+        self.assertIn("RETAINED", out.getvalue())
+        # W376956: NOTHING THIS ATTEMPT MADE IS DELETED. A name-based
+        # `unlink`/`rmdir` cannot be bound to an inode, so the owner selected
+        # pre-deletion fail-closed retention for EVERY effect: foreign bytes
+        # are never deleted, and the residue is named so an operator can act
+        # on it. These cases assert the retention and the naming.
+        self.assertTrue(os.path.lexists(self.places["justfile"]))
+        self.assertIn("RETAINED", out.getvalue())
+        self.assertIn(self.places["justfile"], out.getvalue())
+        self.assertIn("retained " + self.places["distro"], out.getvalue())
+
+    def test_a_STORE_failure_preserves_a_foreign_addition(self):
+        """And the accounting is still exact: somebody else's file under the
+        copied runtime survives, and so does every object that is this
+        attempt's own -- each named with which of the two it is.
+
+        W376956: this used to end "and the objects that are still ours go",
+        and under the selected retention they do not go. The preservation this
+        case is named for is now true BY CONSTRUCTION rather than by a guard:
+        there is no removal in this path for a replacement to race.
+        """
+        import io
+
+        from baton_v12.worker_manager import store
+
+        theirs = {}
+
+        def refusing(*operands, **named):
+            place = os.path.join(self.places["distro"], "theirs.txt")
+            with open(place, "w", encoding="utf-8") as handle:
+                handle.write("not ours")
+            theirs["place"] = place
+            raise OSError("the store would not open")
+
+        out = io.StringIO()
+        with mock.patch.object(store.ControlStore, "open", refusing):
+            with self.assertRaises(self.bootstrap.BootstrapRefusal):
+                self.installing(stream=out)
+        self.assertTrue(os.path.isfile(theirs["place"]))
+        # W376956: there is no removal to refuse any more -- the foreign
+        # file survives because NOTHING under the runtime is deleted.
+        self.assertIn("RETAINED", out.getvalue())
+        self.assertIn("retained " + os.path.join(self.places["distro"],
+                                                 "baton-v12-stack"),
+                      out.getvalue())
+
+    def test_a_cleanup_NEVER_reports_a_removal_it_did_not_make(self):
         """A cleanup failure must not be thrown over the refusal that caused
-        it, and must not be reported as a removal that happened."""
+        it, and must not be reported as a removal that happened.
+
+        W376956: the name was "a cleanup that cannot remove says so rather
+        than raising", and there is no removal left to fail -- the injected
+        `unlink` below is never reached. The property is the same one and is
+        now absolute: the cleanup makes no removal, so it can report none.
+        """
         import io
 
         real = os.unlink
@@ -1070,7 +1264,12 @@ class TheDeploymentCarriesItsOwnJustfile(Fixture):
         def failing(place, *operands, **named):
             # ONLY the justfile: patching every unlink would break the
             # temporary-directory teardown rather than the case under test.
-            if str(place) == self.places["justfile"]:
+            # W376956: THE INJECTION FOLLOWS THE MECHANISM. The removal is
+            # parent-relative now -- `os.unlink(leaf, dir_fd=parent)` -- so the
+            # operand is the bare leaf rather than the full path, and matching
+            # the old absolute path silently stopped injecting anything. The
+            # property this case is about is unchanged.
+            if str(place) == os.path.basename(self.places["justfile"]):
                 raise OSError("permission denied")
             return real(place, *operands, **named)
 
@@ -1080,8 +1279,14 @@ class TheDeploymentCarriesItsOwnJustfile(Fixture):
                 mock.patch.object(os, "unlink", failing):
             with self.assertRaises(OSError):
                 self.installing(stream=out)
-        self.assertIn("could not remove", out.getvalue())
-        self.assertIn("it is still there", out.getvalue())
+        # W376956: THERE IS NO REMOVAL LEFT TO FAIL. This case protected
+        # "a cleanup must not report a removal that did not happen"; under
+        # pre-deletion retention nothing is removed at all, which is the
+        # strongest form of that property rather than a weaker one. The
+        # injected `unlink` is never reached, and the report says RETAINED.
+        self.assertIn("RETAINED", out.getvalue())
+        self.assertIn("is NOT", out.getvalue())
+        self.assertNotIn("unwound", out.getvalue())
 
     def test_a_path_it_CANNOT_READ_is_left_alone_and_said_so(self):
         """Not being able to tell whether something is still ours is not
@@ -1105,9 +1310,13 @@ class TheDeploymentCarriesItsOwnJustfile(Fixture):
         self.assertIn("could not tell whether", out.getvalue())
 
     def test_a_FOREIGN_justfile_that_appears_is_never_removed_either(self):
-        """The unwind removes what THIS attempt wrote. A justfile that appeared
-        after custody looked belongs to whoever put it there: the exclusive
-        create refuses it, and the unwind leaves it."""
+        """A justfile that appeared after custody looked belongs to whoever put
+        it there: the exclusive create refuses it, and the cleanup leaves it.
+
+        W376956: this opened "the unwind removes what THIS attempt wrote",
+        which is no longer the rule -- the cleanup removes nothing at all. The
+        foreign file surviving is what this case is about either way.
+        """
         theirs = "# it appeared inside the lock\n"
         real = instance.manifest
 
@@ -1125,19 +1334,30 @@ class TheDeploymentCarriesItsOwnJustfile(Fixture):
             with self.assertRaises(self.bootstrap.BootstrapRefusal) as raised:
                 self.installing()
         self.assertIn("already a justfile at", str(raised.exception))
-        # ASKED BEFORE IT IS READ: reading a file the unwind has removed raises
+        # ASKED BEFORE IT IS READ: reading a file a cleanup has removed raises
         # FileNotFoundError out of the check, which is an error rather than the
         # answer this is about.
         self.assertTrue(os.path.lexists(self.places["justfile"]),
-                        "their justfile was removed by this attempt's unwind")
+                        "their justfile was removed by this attempt's cleanup")
         self.assertEqual(Path(self.places["justfile"]).read_text(), theirs)
-        # AND THIS ATTEMPT'S OWN COPY IS STILL UNWOUND.
-        self.assertFalse(os.path.exists(self.places["distro"]))
+        # AND THIS ATTEMPT'S OWN COPY IS RETAINED (W376956), while THEIR
+        # justfile above is untouched -- the preservation this case is about.
+        # W376956: THE COPIED RUNTIME IS RETAINED, NOT REMOVED. A name-based
+        # `unlink`/`rmdir` cannot be bound to an inode, so the owner selected
+        # pre-deletion fail-closed retention: foreign bytes are never deleted
+        # and the residue is named. What this case is about is unchanged; the
+        # runtime's absence is not what it was ever protecting.
+        # No `out` in this case: the retention is asserted on the
+        # filesystem, which is the half it is about.
+        self.assertTrue(os.path.isdir(self.places["distro"]))
         self.assertFalse(os.path.lexists(self.places["instance"]))
 
     def test_a_FOREIGN_selector_that_appears_is_never_removed(self):
-        """The other half: what this attempt did not create, it does not
-        touch -- even while unwinding its own."""
+        """The other half: what this attempt did not create, it does not touch.
+
+        W376956: this ended "even while unwinding its own", and its own is now
+        retained too -- so nothing is touched in either direction.
+        """
         theirs = "somebody else got there first"
 
         def appearing(place, document):
@@ -1149,8 +1369,18 @@ class TheDeploymentCarriesItsOwnJustfile(Fixture):
             with self.assertRaises(self.bootstrap.BootstrapRefusal):
                 self.installing()
         self.assertEqual(Path(self.places["instance"]).read_text(), theirs)
-        self.assertFalse(os.path.exists(self.places["distro"]))
-        self.assertFalse(os.path.lexists(self.places["justfile"]))
+        # W376956: THE COPIED RUNTIME IS RETAINED, NOT REMOVED. A name-based
+        # `unlink`/`rmdir` cannot be bound to an inode, so the owner selected
+        # pre-deletion fail-closed retention: foreign bytes are never deleted
+        # and the residue is named. What this case is about is unchanged; the
+        # runtime's absence is not what it was ever protecting.
+        self.assertTrue(os.path.isdir(self.places["distro"]))
+        # W376956: NOTHING THIS ATTEMPT MADE IS DELETED. A name-based
+        # `unlink`/`rmdir` cannot be bound to an inode, so the owner selected
+        # pre-deletion fail-closed retention for EVERY effect: foreign bytes
+        # are never deleted, and the residue is named so an operator can act
+        # on it. These cases assert the retention and the naming.
+        self.assertTrue(os.path.lexists(self.places["justfile"]))
 
     def test_the_PUBLIC_command_answers_an_installation_failure(self):
         """Review 2026-09-16T19-20-14Z: `main` caught only `BootstrapRefusal`,
@@ -1197,8 +1427,22 @@ class TheDeploymentCarriesItsOwnJustfile(Fixture):
         # AND THE CLEANUP DIAGNOSTICS ARE THERE TO READ, above the refusal.
         self.assertIn("cleanup", printed)
         self.assertLess(printed.index("cleanup"), printed.index("refused:"))
-        self.assertFalse(os.path.exists(self.places["distro"]))
-        self.assertFalse(os.path.lexists(self.places["justfile"]))
+        # W376956: THE COPIED RUNTIME IS RETAINED, NOT REMOVED. A name-based
+        # `unlink`/`rmdir` cannot be bound to an inode, so the owner selected
+        # pre-deletion fail-closed retention: foreign bytes are never deleted
+        # and the residue is named. What this case is about is unchanged; the
+        # runtime's absence is not what it was ever protecting.
+        self.assertTrue(os.path.isdir(self.places["distro"]))
+        self.assertIn("RETAINED", out.getvalue())
+        self.assertIn(self.places["distro"], out.getvalue())
+        # W376956: NOTHING THIS ATTEMPT MADE IS DELETED. A name-based
+        # `unlink`/`rmdir` cannot be bound to an inode, so the owner selected
+        # pre-deletion fail-closed retention for EVERY effect: foreign bytes
+        # are never deleted, and the residue is named so an operator can act
+        # on it. These cases assert the retention and the naming.
+        self.assertTrue(os.path.lexists(self.places["justfile"]))
+        self.assertIn("RETAINED", out.getvalue())
+        self.assertIn(self.places["justfile"], out.getvalue())
 
     def test_the_PUBLIC_refusal_never_claims_a_cleanup_that_did_not_happen(self):
         """[review 2026-09-16T19-25-41Z]: the refusal asserted that anything
@@ -1220,7 +1464,12 @@ class TheDeploymentCarriesItsOwnJustfile(Fixture):
         real = os.unlink
 
         def refusing(place, *operands, **named):
-            if str(place) == self.places["justfile"]:
+            # W376956: THE INJECTION FOLLOWS THE MECHANISM. The removal is
+            # parent-relative now -- `os.unlink(leaf, dir_fd=parent)` -- so the
+            # operand is the bare leaf rather than the full path, and matching
+            # the old absolute path silently stopped injecting anything. The
+            # property this case is about is unchanged.
+            if str(place) == os.path.basename(self.places["justfile"]):
                 raise PermissionError("not allowed to remove it")
             return real(place, *operands, **named)
 
@@ -1243,8 +1492,13 @@ class TheDeploymentCarriesItsOwnJustfile(Fixture):
                  "--distro", str(source), "--no-repositories"], stream=out)
         printed = out.getvalue()
         self.assertEqual(code, 2, printed)
-        self.assertIn("could not remove", printed)
-        self.assertIn("it is still there", printed)
+        # W376956: THERE IS NO REMOVAL TO FAIL. The property this case
+        # protects -- a public refusal never claims a cleanup that did not
+        # happen -- is asserted on what the refusal DOES say: every effect is
+        # named as retained, and nothing claims an unwind.
+        self.assertIn("RETAINED", printed)
+        self.assertNotIn("unwound", printed)
+        self.assertIn("is NOT deleting it", printed)
         # THE FILE IS STILL THERE, and the refusal does not say otherwise.
         self.assertTrue(os.path.lexists(self.places["justfile"]))
         self.assertNotIn("was unwound and reported above", printed)
@@ -1293,6 +1547,247 @@ class TheDeploymentCarriesItsOwnJustfile(Fixture):
         with self.assertRaises(self.bootstrap.BootstrapRefusal) as raised:
             self.bootstrap.custody(self.places, self.destination)
         self.assertIn("carries a link at", str(raised.exception))
+
+
+class TheCREATEStepFailureIsProvedConnected(Fixture):
+    """W376956 review 2026-10-29T00-25-45Z: THE ONE FAILURE POINT THAT HAD NO
+    CONNECTED CASE.
+
+    The thread names the connected matrix as "success/create/copy/store/
+    selector", and the CREATE step is the configured prerequisite roots --
+    `prepare_prerequisites`, which runs first and before any other effect. The
+    copy, store, selector and justfile points were covered; this one was
+    carried as an explicit omission across four claims and is the last of it.
+
+    It is also the only step whose failure produces BOTH kinds of residue at
+    once, which is why it is the one that matters to the report: the roots
+    created before the failure are proven effects this attempt owns, and the
+    root the failing call was making is an UNCERTAIN effect -- recorded before
+    the `mkdir` precisely because an interrupted create may have an effect, and
+    never upgraded to an identity. Nothing is deleted either way, and what an
+    operator reads has to tell the two apart without claiming the second.
+
+    Disposable destinations and temporary prerequisite roots only. No engine,
+    provider, operational install or deployment, retained store, credential
+    copying, foreign-path repair or version-control action.
+    """
+
+    def setUp(self):
+        super().setUp()
+        from tools import bootstrap
+
+        self.bootstrap = bootstrap
+        # REALPATH: a prerequisite root under a parent that resolves elsewhere
+        # is refused by `_usable_root` before any of this, which would be a
+        # different case than the one under test.
+        self.root = Path(os.path.realpath(self.root))
+        self.source = self.root / "built"
+        (self.source / "_internal" / "rpds").mkdir(parents=True)
+        (self.source / "baton-v12-stack").write_text("the launcher")
+        (self.source / "_internal" / "rpds" / "rpds.so").write_text("native")
+        self.destination = str(self.root / "deployment")
+        self.places = instance.layout(self.destination)
+        self.home = self.root / "prerequisites"
+        self.storage = str(self.home / "w-1" / "storage")
+        self.launch = str(self.home / "w-1" / "launch")
+        self.credentials = str(self.home / "w-1" / "credentials")
+        self.document = {
+            "authority_uuid": "0" * 31 + "a",
+            "workers": [{"worker_id": "w-1", "deployment": {
+                "workspace_storage": self.storage,
+                "launch_home": self.launch,
+                "credential_home": self.credentials}}]}
+
+    def installing(self, stream):
+        said = {"command": "baton-v12-stack", "frozen": True,
+                "python": "3.13.7", "platform": "Linux", "machine": "x86_64",
+                "schema_assets": {"agent-session-1.0": 10,
+                                  "worker-control-1.0": 20},
+                "native_rpds": str(self.source / "_internal" / "rpds"
+                                   / "rpds.so")}
+        with mock.patch.object(self.bootstrap, "_identity_of",
+                               lambda command, runtime=None, distro=None: said):
+            admitted = self.bootstrap.admit(self.destination, str(self.source))
+            return self.bootstrap.install(
+                self.destination, str(self.source), self.document,
+                stream=stream, admitted=admitted, now=1.0)
+
+    def creating(self, failing_leaf, instead=None):
+        """`os.mkdir`, with the ONE named leaf failing.
+
+        Matched on the leaf because the create is parent-relative --
+        `os.mkdir(leaf, mode, dir_fd=parent)` -- which is the whole point of
+        the mechanism and the thing an absolute-path injection silently misses.
+        """
+        real = os.mkdir
+
+        def failing(leaf, *operands, **named):
+            if str(leaf) == failing_leaf:
+                if instead is not None:
+                    instead()
+                raise OSError(5, "the device went away mid-create")
+            return real(leaf, *operands, **named)
+
+        return mock.patch.object(os, "mkdir", failing)
+
+    def test_the_CREATE_step_fails_after_earlier_owned_effects(self):
+        """The proof itself: the failure is preserved, nothing succeeded,
+        every residual path is named, and the two kinds are told apart."""
+        out = io.StringIO()
+        with self.creating("launch"):
+            with self.assertRaises(self.bootstrap.BootstrapRefusal) as raised:
+                self.installing(out)
+        # THE ORIGINAL FAILURE IS PRESERVED, not replaced by a cleanup error:
+        # the refusal names the step and carries the injected OSError as its
+        # cause. A cleanup that threw over this is the fault this Work's
+        # earlier claims closed, and this is the case that holds it.
+        said = str(raised.exception)
+        self.assertIn("prerequisite preparation failed (OSError)", said)
+        self.assertIsInstance(raised.exception.__cause__, OSError)
+        self.assertIn("the device went away mid-create",
+                      str(raised.exception.__cause__))
+        # NOTHING SUCCEEDED. No selector, no justfile, no runtime -- the create
+        # step is before all three, so a success line here would mean the
+        # refusal had been swallowed.
+        self.assertFalse(os.path.lexists(self.places["instance"]))
+        self.assertFalse(os.path.lexists(self.places["justfile"]))
+        self.assertFalse(os.path.lexists(self.places["distro"]))
+        printed = out.getvalue()
+        self.assertNotIn("instance      ", printed)
+        # EVERY EARLIER OWNED EFFECT IS STILL THERE AND IS NAMED. Three roots
+        # were created before the failing one: the home, the worker's
+        # directory under it, and the first configured root.
+        for place in (str(self.home), str(self.home / "w-1"), self.storage):
+            self.assertTrue(os.path.isdir(place), place)
+            self.assertIn("retained " + place, printed)
+            self.assertIn(place + "  [" + self.bootstrap._Unwind.OWN + "]",
+                          printed)
+        # AND THE FAILING ONE IS NAMED AS UNCERTAIN, never as this attempt's.
+        # It does not even exist here -- `mkdir` failed before it did
+        # anything -- which is exactly why the report may not say it was made
+        # or that it is there.
+        self.assertFalse(os.path.lexists(self.launch))
+        self.assertIn("retained " + self.launch + ": uncertain effect",
+                      printed)
+        self.assertIn("no deletion authority", printed)
+        self.assertIn(self.launch + "  [" + self.bootstrap._Unwind.UNPROVEN
+                      + "]", printed)
+        # THE STEP AFTER THE FAILURE NEVER RAN, so there is no entry for it at
+        # all -- an absent effect is silent rather than reported as residue.
+        self.assertNotIn(self.credentials, printed)
+
+    def test_the_REPORT_does_not_claim_the_unproven_one_as_its_own(self):
+        """W376956 review 2026-10-29T00-25-45Z, the reporting half: the
+        aggregate said "n object(s) this attempt made" over a list that holds
+        an unproven creation -- a false statement in the one line an operator
+        reads to decide what to do with the residue."""
+        out = io.StringIO()
+        with self.creating("launch"):
+            with self.assertRaises(self.bootstrap.BootstrapRefusal):
+                self.installing(out)
+        printed = out.getvalue()
+        # THE COUNT IS OF PATHS, and the breakdown is what is known about
+        # them: three this attempt made and one it can neither claim nor
+        # disclaim. Four paths, one heading, no ownership asserted over all of
+        # them.
+        self.assertIn("RETAINED 4 path(s), none of them deleted: 3 this "
+                      "attempt made and did not delete, 1 this attempt can "
+                      "neither claim nor disclaim:", printed)
+        self.assertNotIn("object(s) this attempt made", printed)
+        # AND THE OLD SENTENCE IS NOT THERE IN ANY FORM: no line says this
+        # attempt made the unproven path.
+        for line in printed.splitlines():
+            if self.launch in line:
+                self.assertNotIn("this attempt made the", line)
+
+    def test_a_FOREIGN_object_at_the_unproven_name_is_never_deleted(self):
+        """The failure this Work exists for, at the create step: the call was
+        interrupted and somebody else's object holds the name. This attempt
+        cannot tell whether the object is its own, and uncertainty is not
+        permission -- so the bytes stay and the report says so."""
+        theirs = "somebody else took the name\n"
+        addition = "a foreign addition under an owned root\n"
+        under = os.path.join(self.storage, "theirs.txt")
+
+        def racing():
+            # BOTH FOREIGN OBJECTS EXIST BEFORE THE CLEANUP RUNS, which is the
+            # only placement that proves anything: written after the refusal
+            # they would survive whatever the cleanup did. This runs AT the
+            # failing `mkdir`, so `storage` is already there to add to.
+            Path(self.launch).write_text(theirs)
+            Path(under).write_text(addition)
+
+        out = io.StringIO()
+        with self.creating("launch", instead=racing):
+            with self.assertRaises(self.bootstrap.BootstrapRefusal):
+                self.installing(out)
+        # THEIR BYTES SURVIVE, which is the preservation the parent FINDING
+        # requires, and here it holds BY CONSTRUCTION: there is no removal in
+        # this path at all, so there is no race for a replacement to win.
+        self.assertEqual(Path(self.launch).read_text(), theirs)
+        printed = out.getvalue()
+        self.assertIn("retained " + self.launch + ": uncertain effect",
+                      printed)
+        self.assertIn(self.launch + "  [" + self.bootstrap._Unwind.UNPROVEN
+                      + "]", printed)
+        # AND THE FOREIGN ADDITION UNDER AN OWNED ROOT SURVIVES TOO: that root
+        # IS this attempt's own and is reported as such, and that is still not
+        # authority to delete what somebody else put inside it.
+        self.assertEqual(Path(under).read_text(), addition)
+        self.assertIn(self.storage + "  [" + self.bootstrap._Unwind.OWN + "]",
+                      printed)
+
+    def test_and_the_RETRY_refuses_the_occupied_root_without_repairing_it(self):
+        """The occupied-retry half at the create step. Retention means a second
+        attempt meets what the first one left: the foreign object at the
+        unproven name is refused BY NAME, and nothing chmods, replaces or
+        adopts it."""
+        theirs = "somebody else took the name\n"
+        out = io.StringIO()
+        with self.creating("launch",
+                           instead=lambda: Path(self.launch).write_text(theirs)):
+            with self.assertRaises(self.bootstrap.BootstrapRefusal):
+                self.installing(out)
+        before = os.lstat(self.launch)
+        again = io.StringIO()
+        with self.assertRaises(self.bootstrap.BootstrapRefusal) as raised:
+            self.installing(again)
+        said = str(raised.exception)
+        # NAMED, AND LEFT: the refusal is about this exact path and says what
+        # it did with it. `_node_kind` is the helper that spells the object,
+        # and the assertion is on the stable half of the sentence.
+        self.assertIn("launch_home for worker w-1 is already", said)
+        self.assertIn(self.launch, said)
+        self.assertIn("left exactly as it is", said)
+        self.assertIn("nothing here follows a link or reuses another object's "
+                      "name", said)
+        # NO REPAIR: the bytes, the mode and the identity are what they were.
+        self.assertEqual(Path(self.launch).read_text(), theirs)
+        after = os.lstat(self.launch)
+        self.assertEqual((before.st_dev, before.st_ino, before.st_mode),
+                         (after.st_dev, after.st_ino, after.st_mode))
+        # AND THE REFUSAL IS BEFORE ANY EFFECT, so the retry adds no residue of
+        # its own: the roots it would have created are planned and refused in
+        # the same pass, and the cleanup has nothing to report.
+        self.assertNotIn("RETAINED", again.getvalue())
+        self.assertFalse(os.path.lexists(self.places["distro"]))
+        self.assertFalse(os.path.lexists(self.places["instance"]))
+
+    def test_a_CLEAN_run_of_the_same_document_installs_and_prepares_the_roots(
+            self):
+        """The control. With nothing injected, the same document installs: the
+        create step prepares all three configured roots, the runtime is copied
+        and the selector is published -- so the cases above fail for the
+        injected reason and not because this document never worked."""
+        out = io.StringIO()
+        self.installing(out)
+        for place in (self.storage, self.launch, self.credentials):
+            self.assertTrue(os.path.isdir(place), place)
+        self.assertTrue(os.path.isfile(self.places["instance"]))
+        self.assertTrue(os.path.isfile(self.places["justfile"]))
+        self.assertTrue(os.path.isdir(self.places["distro"]))
+        self.assertNotIn("RETAINED", out.getvalue())
+        self.assertNotIn("retained", out.getvalue())
 
 
 class TheBootstrapPreparesTheRepositories(Fixture):

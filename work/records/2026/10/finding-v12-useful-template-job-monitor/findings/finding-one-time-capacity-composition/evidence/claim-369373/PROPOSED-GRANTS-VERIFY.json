@@ -1,0 +1,80 @@
+{
+ "command": "verify",
+ "effects": {
+  "created": [],
+  "removed": [],
+  "wrote": []
+ },
+ "inventory": {
+  "authorized_by": null,
+  "for_selection": "42bed8bb04a53380e565b1a63fb2bc702677f0d0",
+  "members": {
+   "credential_policy_digest": {
+    "derivation": "reused",
+    "file": "credential_policy.json",
+    "file_sha256": "5399f947126ec7d031bced5895076657d24be21443e6db0c9ec86b51b14a9877",
+    "identity_if_granted": "sha256:c8278005e08e5feae9c7f22f259fd1625a51285b85df7bc623b45b77277a5662",
+    "read_from": "/home/sl/src/baton/work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants/credential_policy.json",
+    "status": "proposed-not-granted"
+   },
+   "mount_policy_digest": {
+    "derivation": "reused",
+    "file": "mount_policy.json",
+    "file_sha256": "40bbe54bfd29865a5c8d3319b6cc019ae23e2005ce9d733aa3cbb5db223ce49d",
+    "identity_if_granted": "sha256:a852ffa00f9f7f9ed447a4dd836c790aab15e0f2ee84219dc780f81d957cf9b5",
+    "read_from": "/home/sl/src/baton/work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants/mount_policy.json",
+    "status": "proposed-not-granted"
+   },
+   "network_policy_digest": {
+    "derivation": "authored",
+    "file": "network_policy.json",
+    "file_sha256": "fd23b28efadbe648ac43b0a1324de3dc5bfe873adfaa2c0d0ec60a777e3d9014",
+    "identity_if_granted": "sha256:06407bb4fb68082854e98e1db6737dbebee95255b90813a488ea058d0fd223ab",
+    "read_from": "/home/sl/src/baton/work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants/network_policy.json",
+    "status": "proposed-not-granted"
+   },
+   "resource_policy_digest": {
+    "derivation": "authored",
+    "file": "resource_policy.json",
+    "file_sha256": "eb99686f18e73701aa7db25b2f0c6e3044fb94e583d290e9b2c7a018bd27952c",
+    "identity_if_granted": "sha256:e34a1471ce962e1737392740ad13b23234af531755baf5be61c2678038df9b8c",
+    "read_from": "/home/sl/src/baton/work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants/resource_policy.json",
+    "status": "proposed-not-granted"
+   },
+   "role_instructions_digest": {
+    "derivation": "reused",
+    "file": "role_instructions.json",
+    "file_sha256": "8ac96cb65d446a41a570a9ffa499ba955aa9e8d137bbbed7356fbd2d68ae04e5",
+    "identity_if_granted": "sha256:7321d8dcfa4993bda8c1ac736297638ce34c49e2f22545b1a8be56cfae29ce7a",
+    "read_from": "/home/sl/src/baton/work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants/role_instructions.json",
+    "status": "proposed-not-granted"
+   },
+   "tool_policy_digest": {
+    "derivation": "reused",
+    "file": "tool_policy.json",
+    "file_sha256": "eabb731948b1391bec7ef0c95035710ab4cef6c145b783e7f77765c4347051d6",
+    "identity_if_granted": "sha256:27634ea683a0a554be5b44a6bf2192f25418a1b6dfc376e33e5ed77d01f51199",
+    "read_from": "/home/sl/src/baton/work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants/tool_policy.json",
+    "status": "proposed-not-granted"
+   },
+   "toolchain_digest": {
+    "derivation": "reused",
+    "file": "toolchain.json",
+    "file_sha256": "25920341783793832dc76dc14c2e67ba09b768737700b70122181da6eabe6507",
+    "identity_if_granted": "sha256:cd6ccc00aff63f9b01036d6a5f6eb67ba1eb98a9372c66e9788bc79841be5af3",
+    "read_from": "/home/sl/src/baton/work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants/toolchain.json",
+    "status": "proposed-not-granted"
+   }
+  },
+  "note": "a set is identified by the task it was composed for. The default and the format-selected variant are DIFFERENT SETS with different role instructions, and neither may be written over the other.",
+  "proposed_format": false,
+  "read_from": "/home/sl/src/baton/work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants/INVENTORY.json",
+  "schema": "baton.v12.proposed-grants-inventory/1",
+  "status": "PROPOSED, NOT GRANTED",
+  "task_id": "template-job-guide-42bed8bb",
+  "task_sha256": "c21e6b93bfe199ebb89b3ec7a75e70a5636c52f9986b1afa3709a381c6bd98d7"
+ },
+ "matches_the_task_composed_now": true,
+ "read_only": true,
+ "schema": "baton.v12.proposed-grants/2"
+}

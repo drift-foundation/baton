@@ -1,0 +1,15 @@
+{
+  "index_sha256": "5598dee5adcdf7c1de8d5a1d9f6c37cdb7cc57e460bc851151d1b3a489cdfa3a",
+  "copies": {
+    "affected.log": true,
+    "arm-CONNECTED.log": true,
+    "arm-MIDDLE1-operations_from.log": true,
+    "arm-MIDDLE2-worker_operations.log": true,
+    "arm-MIDDLE3-stage_operations_from.log": true,
+    "candidate-test_native_permission.py": true,
+    "progress-section.md": true
+  },
+  "initial_run": "12 tests/3 fixture setup failures, no writable disk-backed root selected;0.059s unittest/0.229966215s process",
+  "corrected_run": "BATON_V12_DISK_ROOT=/var/tmp/baton-w257624;12 pass;0.219s unittest/0.273120621s process",
+  "live_operations": 0
+}

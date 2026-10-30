@@ -257,3 +257,24 @@ cannot become a competing assignment writer without a valid activation.
 The existing `UNRESOLVED` stopgap remains the implemented behavior until this
 lifecycle is delivered. The lifecycle is follow-up hardening after the first
 standalone v12 pipeline proof, not a new gate on that proof.
+
+
+## 2026-10-28T00-44-30Z — bounded reassessment under owner E369982
+
+Review `review-2026-10-28T00-44-30Z.md` revalidates source 42bed8bb and later normative primary-lifecycle policy. The September 5 item is no longer the default instruction to implement the literal ready/check/cleanup/destroy handshake: the later September 28 owner primary lifecycle and current DESIGN govern; historical wording is retained as decision history. Delivered host inert-create/bind/activation, durable command receipts and restart holds do not establish automatic engine-operation settlement. custody._recovered and the original late-daemon regression still preserve UNRESOLVED. Do not close satisfying on that evidence.
+
+Independent20 focused tests:19 pass/1 stale-fixture failure, with a separately labelled fixture-compatible diagnostic passing unchanged late-binding assertions. Exact evidence in evidence/review-369985. Recommend the smallest test-fixture compatibility correction and retaining original engine-settlement limitation parked; no product implementation or new dependency selected. W275776 closed satisfying and W257624 open/parked were checked canonically. Owner disposition requested without interrupting active Work.
+
+
+## 2026-10-28 — separate coding preparation selected and allocated
+
+OwnerE370288 selects preparation only for the cancellation fixture keyword compatibility repair, after accepting the reassessment/parking atE370154. Under reviewerE370290, separate top-level W370302 was created and bound to baton:work/records/2026/10/finding-v12-cancellation-fixture-compatibility. FINDING/PLAN/TASK existed before successful creation. Task preserves every assertion; acceptance covers LateBindingCancellation and BeforeAttachmentCancellation including failed/ack-only stop and late activation.
+
+A canonical W370302-on-W370268 dependency installs the documentation-assessment sequencing gate. Route is reviewer planning, not implementation; no later Job execution inherits the documentation live grant. No test/product edits, model/engine run or active executor interruption. The original engine-operation settlement limitation remains UNRESOLVED; W44342 returns parked per owner, not closed satisfying. Preparation ownership is separate and no child gate keeps this residual active.
+
+
+## 2026-10-29 — delivery-plan reconciliation W383239
+
+Legacy engine custody settlement remains separately parked/deferred; unknown custody holds remain unresolved, not silently cleared. W370302 is now closed for future coding-fixture preparation only, not actual cleanup, cancellation execution or custody settlement. Native controls W383215/W383217 are distinct selected delivery. No historical engine operation, cleanup, or broad settlement service is authorized.
+
+Current PLAN supersedes prior scheduling; the entire prior PLAN is preserved byte-for-byte in PLAN-HISTORY-W383239.md. No source, tests, specification, acceptance result or claim ownership changed by this record update.

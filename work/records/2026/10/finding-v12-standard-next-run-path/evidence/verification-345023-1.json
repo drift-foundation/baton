@@ -1,0 +1,19 @@
+{
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_next_run_managed",
+    "tests.tools.test_next_run_recovery"
+  ],
+  "environment": {
+    "PYTHONPATH": "/tmp/baton-next-run-345023/v12/python/src:/tmp/baton-next-run-345023/v12/python"
+  },
+  "returncode": 1,
+  "tests": 29,
+  "unittest_seconds": 5.594,
+  "process_seconds": null,
+  "timeout_seconds": null,
+  "evidence_kind": "summary transcribed from exec session62147; raw log not retained",
+  "result": "3 errors and1 failure: inherited umask exposed group-writable partial bootstrap nodes; drift fixture had unsafe mode. Fixed with broker preparation umask and fixture mode, then verified in retained subsequent receipts."
+}

@@ -1,0 +1,7 @@
+inputs verified against bc925cf5c62d69426ed5862af4d41f4d2a967b0f: 115 manager files, 3 supervisor files, 2 preparation inputs, 68 task inputs, 59 decision snapshots, 4 checkout documents, 1 pinned authoring controller, 1 pinned shutdown helper, 2 pinned recovery inputs, 1 gate modules still owed
+
+DECISION-SOURCE DRIFT (reported, not fatal; the turn reads the snapshots, and review decides whether they still reflect accepted scope):
+  work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/FINDING.md: live d8bfc16229c886a17dedfd209734c392e1a9e81bd21cbc2ceba94ba8761857b9 != snapshot fa2ada0c6d05760e0f5ea9e5ea1698474c07d03cc52080fb658d88569706a0d8 (decisions/FINDING.md)
+  work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/PLAN.md: live 0ec5f2eb59690cf68252f4c0d2d8662ddc3e0db4bff6333867b9338f3ea55333 != snapshot d2ad49748089511295b29c566684304c0ff0ccab27eb0550770cca4383710034 (decisions/PLAN.md)
+
+START IS NOT SELECTED -- see ENFORCEMENT.md and SHUTDOWN.md. Every input gate is CLOSED; what remains is independent preparation review and then an exact execution selection. Use packet/AUTHORING-COMMAND.json, never commands.json start.

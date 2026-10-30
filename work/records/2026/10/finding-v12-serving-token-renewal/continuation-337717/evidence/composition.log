@@ -1,0 +1,1 @@
+{"accepted_hashes": 7, "attempts": 0, "cleanup_seconds": 60, "controller_refusals": 2, "jobs": 0, "lifetime_seconds": 900, "limits": {"provider_turn_seconds": 3600, "verification_command_seconds": 30}, "seconds": 0.30299731700506527, "start": "tools.authoring_enforcement", "state": "preparation-contract-passed", "total_seconds": 4800}

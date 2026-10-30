@@ -1,0 +1,54 @@
+{
+ "schema": "baton.w325959-native-control/1",
+ "claim": 354320,
+ "status": "ENGINEERING DETERMINATION WITH CITATIONS, plus an interruption checkpoint. This is NOT a request for disposition and NOT a policy question: the assigned question -- what owns the native deadline, and what is the supported native mechanism -- is ANSWERED below from the composed bytes. What is missing is the implementation and its deterministic proof, and the turn budget ran out before them.",
+
+ "CORRECTION_THE_REVIEWER_IS_RIGHT_ABOUT": {
+  "I_claimed": "the accepted supplier defines one native attempt's duration as provider_turn + ordinary_verification",
+  "the_reviewer_said": "authoring_enforcement.py:279 checks provider+verification <= total-cleanup and :292 checks remaining >= provider+verification; these are ADMISSION LOWER-BOUND CHECKS under an independently selected, persisted AUTHORING total. They do not derive that total, prove all native activity fits it, select a native cleanup reserve, or enforce stop_at.",
+  "verified": "re-read both sites in the composed bytes. Both are guards against an ALREADY-SELECTED total (packet['bounds']['total_seconds']); neither computes one. CONFIRMED.",
+  "status": "WITHDRAWN. I will not treat provider+verifier as a derivation of native duration, and DESIGN LIM-1/2/3's distinction between invocation, token and cumulative limits stands."
+ },
+
+ "THE_NATIVE_DEADLINE_OWNER_EXISTS_AND_HERE_IT_IS": {
+  "the_reviewer_warned_me_not_to_conclude_otherwise": "'Do not declare no native owner exists merely because the authoring controller is packet-specific.' That warning was correct and my previous claim was wrong to imply native has none.",
+  "the_owner": "tools/job_manager.py:425 _reclaiming(control, engine, run, custodian) -- 'one expiry pass over every attempt that has a runtime to reclaim'",
+  "how_it_is_driven": "tools/job_manager.py:1072-1079 -- serve(store, operations, clock=clock, sleep=time.sleep, should_continue=..., interval=taken.interval, reclaim=getattr(operations,'reclaim',None) or _reclaiming(control, taken.engine, _engine_runner, taken.custodian_image)). So it runs on the serving interval, bounded per tick by the number of live attempts, with a rotating cursor for fairness.",
+  "what_it_enforces": "tokens.py:1594 Governance.overdue -- 'this attempt's generation if it is overdue and unreturned, else None' -- returns the token ONLY when `current['expired']` is true and it is not returned.",
+  "therefore": "THE NATIVE STOP TRIGGER IS THE TOKEN'S OWN EXPIRY, and the native enforcer is the serving loop's reclaim pass. Native execution is bounded by the token lifetime, not by a separate execution deadline."
+ },
+
+ "WHY_THE_ENVELOPE_IS_THE_WRONG_NATIVE_MECHANISM": {
+  "what_an_envelope_asserts": "tokens.py:365 acquire(..., permission=...) requires started_at < stop_at < expires_at, and the comment at :384-385 states the division: 'The caller's independent execution controller owns stop_at; the token retains permission through expires_at for the required cleanup interval.'",
+  "what_native_consults": "nothing native reads stop_at. Governance.overdue decides solely on `expired`, which is the expires_at side. The authoring controller is what watches stop_at and ends its child.",
+  "so_composing_a_native_envelope_would": "assert an execution deadline that NO native party enforces -- a recorded claim with no owner behind it. That is the exact class of false claim this campaign has repeatedly caught, so I am not proposing it.",
+  "and_renewal_is_unavailable_for_envelopes": "tokens.py _extended refuses: 'an execution envelope has a fixed terminal deadline and cannot be renewed'. Legacy explicit eligible renewal (TOK-9) remains supported for NON-envelope tokens, as the reviewer notes, but it has no native caller either."
+ },
+
+ "THE_SMALLEST_NATIVE_CORRECTION_THIS_IMPLIES": {
+  "mechanism": "a BOUNDED INITIAL TOKEN LIFETIME at the prepared acquisition -- tokens.acquire's pre-existing `seconds` parameter -- enforced by the reclaim owner that already exists. acquire:386-391 makes the exclusivity explicit: `seconds` OR `permission`, never both.",
+  "the_one_site": "workspaces.py:3981 PreparedGovernance.reserve calls tokens.acquire(...) with neither seconds nor (natively) a permission, so it takes LIFETIME_SECONDS = 900. The supplier already parameterised this constructor for `permission`; the native correction is the `seconds` sibling, threaded from the Job's admitted resolution which _Composition already reads via self._job_execution(stage).",
+  "what_I_have_NOT_established_and_must_before_implementing": [
+   "the exact value. The reviewer's warning stands: 'do not assume provider+verifier alone bounds all native runtime work.' I have NOT yet enumerated the attempt's other bounded operations and overhead -- delivery, workspace preparation, custody, freezing, publication -- so I do not yet know what a correct lifetime must cover, and I will not pick a number before I do.",
+   "whether a lifetime long enough for the real work would constitute the cumulative attempt ceiling DESIGN LIM-3 distinguishes, which is the question that decides whether this stays engineering or becomes an owner selection"
+  ]
+ },
+
+ "INTERRUPTION_CHECKPOINT": {
+  "why": "the turn's working budget was exhausted after composing both suppliers, correcting three of my own claims and completing this trace. Implementing a lifetime before enumerating the bounded operations would be the guess the review forbids, and writing the deterministic proof after it needs budget I no longer have.",
+  "nothing_was_implemented": "the composed candidate's 31 paths are unchanged from claim354259; no product edit was made this claim",
+  "exact_next_steps_in_order": [
+   "1. enumerate every bounded operation and overhead inside one native attempt's lifecycle (delivery, preparation, provider turn, verification, custody/freeze, publication) with the seconds each is actually given, from the composed bytes",
+   "2. from that, pin the concrete native token lifetime policy, its origin (acquisition instant), persistence, stop trigger (expiry -> overdue -> reclaim), cleanup interval and restart treatment -- and state whether it is within LIM-2 token bounds or crosses into LIM-3 cumulative territory",
+   "3. implement the smallest connection: thread seconds from the Job's admitted resolution through prepared_workspace_governance into reserve, and supply it from stage_execution.factory",
+   "4. the focused deterministic proof with fake clock, engine and provider substitutes: both stages beyond the initial 900 under valid permission, 3600/900 per-invocation ceilings unchanged, host stop/cancel/expiry still governing the exact runtime, cleanup and unknown holds, replay/restart with durable original timing and no revival or duplicate effects",
+   "5. join one owner-produced failure through durable capture, /7 status and the packaged secret-free report"
+  ]
+ },
+
+ "RETAINED_AND_UNCHANGED": {
+  "combined_candidate": "31 paths, COMBINED-MANIFEST.json 21f98ff355b6d0d2693dc84c28605a765ea1728d813ee22b7aedab8ec3e60dd3, independently verified by the reviewer at claim354303",
+  "evidence": "evidence/composition-354165 and composition-354259 preserved; this claim adds only this trace",
+  "boundaries": "no product edit, no live instance, engine, provider or credential, no deployment, recovery, migration or shared import, no Git mutation -- version-control operations were reads only"
+ }
+}

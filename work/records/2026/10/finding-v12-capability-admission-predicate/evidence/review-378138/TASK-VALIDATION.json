@@ -1,0 +1,52 @@
+{
+  "seconds": 0.05773367499932647,
+  "results": {
+    "valid": {
+      "admission": [
+        "implementation",
+        "review"
+      ],
+      "worker_reader": "accepted"
+    },
+    "only_generation_and_profile": {
+      "admission": [
+        "implementation",
+        "review"
+      ],
+      "worker_reader": {
+        "exception": "TaskRefusal",
+        "message": "/synthetic/task.json is exactly schema, task_id, instructions, verification, source_root, source_profile, declared_base; missing declared_base, instructions, source_root, task_id, verification"
+      }
+    },
+    "verification_string": {
+      "admission": [
+        "implementation",
+        "review"
+      ],
+      "worker_reader": {
+        "exception": "TaskRefusal",
+        "message": "/synthetic/task.json carries a verification that is a non-empty list of words; a command this adapter has to assemble from a string is a shell, and there is no shell here"
+      }
+    },
+    "unknown_member": {
+      "admission": [
+        "implementation",
+        "review"
+      ],
+      "worker_reader": {
+        "exception": "TaskRefusal",
+        "message": "/synthetic/task.json is exactly schema, task_id, instructions, verification, source_root, source_profile, declared_base; unexpected unexpected"
+      }
+    },
+    "numeric_task_id": {
+      "admission": [
+        "implementation",
+        "review"
+      ],
+      "worker_reader": {
+        "exception": "TaskRefusal",
+        "message": "/synthetic/task.json carries no usable task identity"
+      }
+    }
+  }
+}

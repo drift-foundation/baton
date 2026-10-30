@@ -1,0 +1,15 @@
+{
+  "historical_evidence": {
+    "OUTCOME.json": "01e2acebd344b5558a96637c2dd8219bd2a2bf465c965ed96dde9f75125ee076",
+    "container-state.txt": "79020de184514c4bb85a8f05e7801598d185de901decdbb2631adaa25abe8a8b",
+    "sample-01.json": "03771d637faa61c914efb33b49280cebee805055b04c7715d8eb3ed0fd34d423",
+    "sample-02.json": "ac20309f797b4df9f0bacd1e3e376865de56ae5239838f129b124991f358ade5",
+    "sample-03.json": "77d0319898903a7977f251e58e099aaba5459c78c9b5a3e2d0b6dd235138d2e8",
+    "sample-04.json": "0c604f2137178288aa50acfb8a7ffe2e29c13ab9523a1354c70e32b464dfc4ca",
+    "sample-05.json": "e076ddec78733e930a5488677c6fcd8a0798fa58909ff01c26ec12af57e524c6",
+    "sample-06.json": "4d666ed8197d2229239e6cd9f4f5f75a225a7deda32f940d7dd6b258ab62d0ba",
+    "sample-07.json": "ffad0e246f5ba47acb7d894cbd9e4724229597cb4b3275bd890059e8c7b95e07"
+  },
+  "expected_assignment_sha256": "56836ce3ba5c484ff2e39e3304d11ed58b6d739f7cde4d416bae2337fab3a1ca",
+  "current_assignment_matches": true
+}

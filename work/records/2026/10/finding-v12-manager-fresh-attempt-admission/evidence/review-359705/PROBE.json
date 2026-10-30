@@ -1,0 +1,92 @@
+{
+  "manifest_sha256": "ad9a63db1fb83e015cfbe17f73d386d3f2a4ba92087e322cf9fb3d1cb43cab4d",
+  "pins": {
+    "v12/python/src/baton_v12/job_manager/__init__.py": true,
+    "v12/python/src/baton_v12/job_manager/documents.py": true,
+    "v12/python/src/baton_v12/job_manager/fresh_attempt.py": true,
+    "v12/python/src/baton_v12/job_manager/schema.py": true,
+    "v12/python/src/baton_v12/job_manager/submission.py": true,
+    "v12/python/src/baton_v12/worker_manager/workspaces.py": true,
+    "v12/python/tests/job_manager/fixtures.py": true,
+    "v12/python/tests/job_manager/test_execution_limits.py": true,
+    "v12/python/tests/job_manager/test_fresh_attempt.py": true,
+    "v12/python/tests/job_manager/test_scheduling.py": true,
+    "v12/python/tests/job_manager/test_store.py": true,
+    "v12/python/tools/fresh_attempt_ports.py": true,
+    "v12/python/tools/job_manager.py": true,
+    "v12/python/tools/stage_execution.py": true
+  },
+  "bases": {
+    "v12/python/src/baton_v12/job_manager/__init__.py": true,
+    "v12/python/src/baton_v12/job_manager/documents.py": true,
+    "v12/python/src/baton_v12/job_manager/fresh_attempt.py": true,
+    "v12/python/src/baton_v12/job_manager/schema.py": true,
+    "v12/python/src/baton_v12/job_manager/submission.py": true,
+    "v12/python/src/baton_v12/worker_manager/workspaces.py": true,
+    "v12/python/tests/job_manager/fixtures.py": true,
+    "v12/python/tests/job_manager/test_execution_limits.py": true,
+    "v12/python/tests/job_manager/test_fresh_attempt.py": true,
+    "v12/python/tests/job_manager/test_scheduling.py": true,
+    "v12/python/tests/job_manager/test_store.py": true,
+    "v12/python/tools/fresh_attempt_ports.py": true,
+    "v12/python/tools/job_manager.py": true,
+    "v12/python/tools/stage_execution.py": true
+  },
+  "focused": {
+    "run": 78,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 2.8207707010005834
+  },
+  "submission_id_collision": {
+    "ordinary": {
+      "submission_id": "sub-quickstart-c-retry-2",
+      "signature": "{\"kind\":\"submission.record\",\"operands\":{\"jobs\":[{\"input_digest\":\"sha256:1111111111111111111111111111111111111111111111111111111111111111\",\"job_id\":\"other-job\",\"policy_digest\":\"sha256:2222222222222222222222222222222222222222222222222222222222222222\",\"stages\":[{\"depends_on\":[],\"kind\":\"implementation\",\"profile_digest\":\"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"profile_name\":\"reference\",\"work_id\":\"0000000a-W1\"}],\"terminal_policy\":\"report-and-hold\",\"test_scope\":[\"v12/python/tests/job_manager\"]}],\"schema\":\"baton.v12.job-submission/1\",\"submission_id\":\"sub-quickstart-c-retry-2\"}}",
+      "jobs": [
+        "other-job"
+      ],
+      "stages": [
+        "other-job/implementation"
+      ],
+      "recorded_at": "2026-09-02T00:00:00.000Z"
+    },
+    "retry": "the submission for this fresh attempt was refused: operation 'submission.record:sub-quickstart-c-retry-2' is already recorded with a different kind or signature; reusing an id with different operands changes nothing. The fresh identity 'quickstart-c-retry-2' is already RESERVED in this store and this attempt is incomplete rather than undone: correct what is named above and run the same request again, which resumes from the reservation. A different request under this identity is refused as the collision it is",
+    "effects": [
+      [
+        "quickstart-c-retry-2",
+        "quickstart-c",
+        "0000000a-W1"
+      ]
+    ]
+  },
+  "overlapping_guard_lifetimes": {
+    "before": {
+      "outcome": "refused",
+      "message": "another manager is already active for workspace '/var/tmp/baton-w257624/v12-w71917-0n8dkl7h/storage', holding control store '/var/tmp/baton-w257624/v12-w71917-0n8dkl7h/bootstrap-deploy\u2026; only one Host manager may be active for one workspace and database, so this start is a configuration error rather than a standby -- point this manager at its own database and workspace, or stop the active one first"
+    },
+    "after_first_exit_while_second_active": {
+      "outcome": "held",
+      "message": null
+    }
+  },
+  "wrong_control": {
+    "actual": "/var/tmp/baton-w257624/v12-w71917-inpffk_3/bootstrap-deployment/unrelated-control.sqlite3",
+    "instance_control": "/var/tmp/baton-w257624/v12-w71917-inpffk_3/bootstrap-deployment/db/control.sqlite3",
+    "job_id": "job-a-retry-2",
+    "exclusion": {
+      "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {
+        "runtime": null,
+        "cleanup": null,
+        "resource": null,
+        "basis": "no attempt was ever recorded on this instance's own host, /var/tmp/baton-w257624/v12-w71917-inpffk_3/bootstrap-deployment/unrelated-control.sqlite3"
+      },
+      "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c": {
+        "runtime": null,
+        "cleanup": null,
+        "resource": null,
+        "basis": "no attempt was ever recorded on this instance's own host, /var/tmp/baton-w257624/v12-w71917-inpffk_3/bootstrap-deployment/unrelated-control.sqlite3"
+      }
+    }
+  },
+  "seconds": 3.359718742000041
+}

@@ -1933,6 +1933,13 @@ class TheOperatorAndTheWorkerAgreeOnTheTasksCONSTANTS(unittest.TestCase):
         profiles = (pathlib_worker().parent / "python" / "src" / "baton_v12")
         if str(profiles) not in sys.path:
             sys.path.insert(0, str(profiles))
+        # AND ITS SIBLINGS IN THE IMAGE'S OWN DIRECTORY. `Dockerfile.claude`
+        # copies `adapter_refusal.py` to `/opt/baton` beside the adapter, so
+        # inside the container it is an ordinary top-level import; loading the
+        # adapter by file location here has to offer that layout too, or the
+        # load fails on a sibling the image has always had.
+        if str(pathlib_worker()) not in sys.path:
+            sys.path.insert(0, str(pathlib_worker()))
         place = (pathlib_worker() / "claude_agent.py")
         spec = importlib.util.spec_from_file_location("claude_agent", place)
         module = importlib.util.module_from_spec(spec)

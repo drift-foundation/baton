@@ -1,0 +1,9 @@
+[
+  {
+    "path": "v12/python/tests/tools/test_stopped_settlement_joined.py",
+    "base_sha256": null,
+    "candidate_sha256": "beb1819899eeebfa43820ce97a1032fe375b82c7d017ceb51e78298c9de61a0d",
+    "bytes": 9158,
+    "snapshot": "work/records/2026/10/finding-v12-stopped-settlement-proof/evidence/claim-376756/test_stopped_settlement_joined.py"
+  }
+]

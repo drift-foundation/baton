@@ -1,0 +1,6 @@
+# canonical tree at HEAD, same test, same failure
+
+----------------------------------------------------------------------
+Ran 11 tests in 1.003s
+
+FAILED (failures=1)

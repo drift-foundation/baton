@@ -1,0 +1,90 @@
+{
+  "cumulative_measured_seconds": 22.21331526499756,
+  "exploratory_tool_reported_command_seconds": [
+    0.239711974,
+    0.099340015,
+    0.036638099,
+    0.085897914,
+    0.121486433,
+    0.035083059,
+    0.12961546,
+    0.124626087,
+    3.118547295,
+    3.136128518
+  ],
+  "exploratory_total_seconds": 7.127074854,
+  "focused_runs": {
+    "candidate": {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "tests.manager.test_authoring_enforcement",
+        "tests.job_manager.test_tool.TheStatusSurfaceMayReadIntegrationAndStillActOnNothing",
+        "tests.job_manager.test_tool.TheRecoveryPassVisitsTheUNCERTAINTokensToo",
+        "-v"
+      ],
+      "elapsed_seconds": 2.68350053299946,
+      "exit_code": 0,
+      "timeout_seconds": 45
+    },
+    "focused": {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "tests.manager.test_authoring_enforcement",
+        "tests.job_manager.test_tool.TheStatusSurfaceMayReadIntegrationAndStillActOnNothing",
+        "tests.job_manager.test_tool.TheRecoveryPassVisitsTheUNCERTAINTokensToo",
+        "-v"
+      ],
+      "elapsed_seconds": 3.3909413919991493,
+      "exit_code": 1,
+      "timeout_seconds": 45
+    },
+    "focused-corrected": {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "tests.manager.test_authoring_enforcement",
+        "tests.job_manager.test_tool.TheStatusSurfaceMayReadIntegrationAndStillActOnNothing",
+        "tests.job_manager.test_tool.TheRecoveryPassVisitsTheUNCERTAINTokensToo",
+        "-v"
+      ],
+      "elapsed_seconds": 2.664937565999935,
+      "exit_code": 0,
+      "timeout_seconds": 45
+    },
+    "focused-final": {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "tests.manager.test_authoring_enforcement",
+        "tests.job_manager.test_tool.TheStatusSurfaceMayReadIntegrationAndStillActOnNothing",
+        "tests.job_manager.test_tool.TheRecoveryPassVisitsTheUNCERTAINTokensToo",
+        "-v"
+      ],
+      "elapsed_seconds": 2.678214368999761,
+      "exit_code": 0,
+      "timeout_seconds": 45
+    },
+    "focused-fixture-restored": {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "tests.manager.test_authoring_enforcement",
+        "tests.job_manager.test_tool.TheStatusSurfaceMayReadIntegrationAndStillActOnNothing",
+        "tests.job_manager.test_tool.TheRecoveryPassVisitsTheUNCERTAINTokensToo",
+        "-v"
+      ],
+      "elapsed_seconds": 3.668646550999256,
+      "exit_code": 1,
+      "timeout_seconds": 45
+    }
+  },
+  "focused_total_seconds": 15.086240410997561,
+  "limitations": "Exploratory timings are tool-reported command wall times (including two fixture probes); focused timings are subprocess monotonic stopwatch measurements. Not a CPU total or a claim about unmeasured reading/editing time. Parent verification totals remain separately preserved."
+}

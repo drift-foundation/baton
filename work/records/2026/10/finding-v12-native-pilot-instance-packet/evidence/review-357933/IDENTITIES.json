@@ -1,0 +1,37 @@
+{
+  "credential_policy_digest": {
+    "matches": true,
+    "path": "revision-4/inputs/credential_policy.json"
+  },
+  "mount_policy_digest": {
+    "matches": true,
+    "path": "revision-4/inputs/mount_policy.json"
+  },
+  "network_policy_digest": {
+    "matches": true,
+    "path": "revision-4/inputs/network_policy.json"
+  },
+  "resource_policy_digest": {
+    "matches": true,
+    "path": "revision-4/inputs/resource_policy.json"
+  },
+  "role_instructions_digest": {
+    "matches": true,
+    "path": "revision-4/inputs/role_instructions.json"
+  },
+  "tool_policy_digest": {
+    "matches": true,
+    "path": "revision-4/inputs/tool_policy.json"
+  },
+  "toolchain_digest": {
+    "matches": true,
+    "path": "revision-4/inputs/toolchain.json"
+  },
+  "index_hashes_match": true,
+  "derived": {
+    "adapter_digest": true,
+    "runtime_profile_digest": true,
+    "policy_digest": true,
+    "retention_policy_digest": true
+  }
+}

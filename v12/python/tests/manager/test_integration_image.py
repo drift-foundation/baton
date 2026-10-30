@@ -118,7 +118,20 @@ class TheRecipeSaysWhatItWasReviewedToSay(unittest.TestCase):
         sources = [one[0] for one in copied]
         targets = [one[-1] for one in copied]
         self.assertEqual(sorted(sources), [
+            # W198667's shared capture format. THIS CASE WAS ALREADY RED for
+            # its absence here before W376586 touched the recipe: the layer has
+            # been in `Dockerfile.integration` since that Work and this
+            # exhaustive list was never told. Recorded rather than quietly
+            # folded in -- the list is an assertion about what the recipe says,
+            # and the recipe says this.
+            "python/src/baton_v12/attempt_log_format.py",
             "python/src/baton_v12/source_profiles",
+            # W376586: the shared typed declaration refusal, which
+            # `claude_agent` below imports at its top level. Review
+            # 2026-10-28T20-07-16Z: this overlay copied the adapter without
+            # copying what it imports, and `TheCopiedLayoutIsEnoughToStartTheEntry`
+            # was failing `ModuleNotFoundError` on exactly that.
+            "worker/adapter_refusal.py",
             "worker/baton_worker.py",
             "worker/claude_agent.py",
             "worker/integration_contract.py",

@@ -1,0 +1,237 @@
+diff --git a/v12/python/src/baton_v12/job_manager/role_capability.py b/v12/python/src/baton_v12/job_manager/role_capability.py
+new file mode 100644
+index 00000000..ccb06542
+--- /dev/null
++++ b/v12/python/src/baton_v12/job_manager/role_capability.py
+@@ -0,0 +1,231 @@
++"""THE INSTALLED ROLE CAPABILITY, and the pure predicate that matches it.
++
++W376723, the first bounded slice of W371295 under owner E371253. The approved
++shape is `PROPOSAL.md` SHA-256
++`ad0f2171f06f8da9e6e3c2784e50cab91d27f94c4d0727014e4520b00aa0b339`, whose
++`CAPABILITY.synthetic.json` canonicalizes to
++`sha256:4d6a3391facb990ac61090ab5e6b114203b27a27faeca1083458c7bd8f649601`.
++
++WHAT THIS IS. One closed document saying "this exact adapter, image and
++runtime profile was qualified for these roles against that exact role
++contract", and one PURE function that answers whether a capability and a
++contract are compatible.
++
++WHAT IT IS NOT, and the boundaries are the point:
++
++  * NOT A QUALIFICATION GRANT. `qualification_digest` is required, bounded
++    text and NOTHING here verifies what it refers to. The proposal is explicit
++    that it names independently reviewed conformance evidence resolved by
++    trusted installation tooling, and that "a self-authored worker
++    advertisement grants nothing". This module checks SHAPE and AGREEMENT; it
++    does not confer trust on either.
++  * NOT A CARRIER. No deployment `/3`, derivation `/1` or resolution `/2`
++    document is composed or read here, and no store, filesystem, engine or
++    provider is touched. Those are the next slices.
++  * NOT A DISPATCH DECISION. The predicate answers compatibility. Reservation,
++    authorization, binding and servability remain with their existing owners,
++    and this cannot certify any of them.
++"""
++
++import json
++import re
++
++from ..contracts import ContractRefusal, canonical_bytes, digest, own
++from ..contracts.errors import name_value
++from ..worker_manager import boundaries
++from . import role_contract
++
++__all__ = ["CAPABILITY_SCHEMA", "CAPABILITY_MEMBERS", "CAPABILITY_DIGESTS",
++           "ROLE_SETS", "MAX_CAPABILITY_BYTES", "capability_digest",
++           "check_role_capability", "role_capability_of_bytes",
++           "compatible_capability"]
++
++CAPABILITY_SCHEMA = "baton.v12.adapter-role-capability/1"
++# Closed, and in the order the proposal names them.
++CAPABILITY_DIGESTS = ("role_contract_digest", "adapter_digest", "image_digest",
++                      "runtime_profile_digest", "qualification_digest")
++CAPABILITY_MEMBERS = ("schema",) + CAPABILITY_DIGESTS + ("roles",)
++
++# THE THREE ADMITTED ROLE SETS, exactly: "No empty list, duplicates, wildcard
++# identity or additional field." Spelled as the closed vocabulary rather than
++# derived from a membership test, because "a non-empty subset of the contract's
++# roles" would also admit an order this contract does not name.
++ROLE_SETS = (["implementation"], ["review"], ["implementation", "review"])
++
++# The proposal's own bounds. The DEPTH bound of 3 is checked by descent rather
++# than restated as a number: this document is two levels deep by construction
++# and `own` already refuses anything past the frozen limit.
++MAX_CAPABILITY_BYTES = 2048
++
++_DIGEST = re.compile(r"\Asha256:[0-9a-f]{64}\Z")
++
++
++def _refuse(message):
++    raise ContractRefusal("integrity", "schema", message)
++
++
++def _denied(message):
++    raise ContractRefusal("policy", "denied", message)
++
++
++def capability_digest(document):
++    """The canonical identity of one capability, over the WHOLE object.
++
++    The same rule `role_contract.contract_digest` is under, for the same
++    reason: no embedded digest member, so the identity is a fact about the
++    bytes rather than a field the document asserts about itself.
++    """
++    return digest(own(document, what="an adapter role capability"))
++
++
++def check_role_capability(document, *, what="an adapter role capability"):
++    """The closed validator. Answers the owned document or refuses.
++
++    PURE: no store, no filesystem, no configuration, no engine or provider,
++    and no import of provider code. `own` comes first because every comparison
++    below depends on the value space -- it takes a fresh snapshot, refuses
++    floats and non-built-in objects, and keeps booleans and integers from
++    becoming each other.
++    """
++    taken = own(document, what=what)
++    if type(taken) is not dict:
++        _refuse(f"{what} is one closed object; this is "
++                f"{name_value(document)}")
++    missing = [one for one in CAPABILITY_MEMBERS if one not in taken]
++    extra = sorted(one for one in taken if one not in CAPABILITY_MEMBERS)
++    if missing or extra:
++        _refuse(f"{what} is exactly {', '.join(CAPABILITY_MEMBERS)}"
++                + (f"; missing {', '.join(missing)}" if missing else "")
++                + (f"; unexpected {', '.join(extra)}" if extra else ""))
++    # THE SCHEMA IS ASKED FIRST. A capability from another revision is not one
++    # to read the recognised parts out of.
++    if taken["schema"] != CAPABILITY_SCHEMA:
++        _denied(f"{what} says it is {name_value(taken['schema'])} and this "
++                f"build reads exactly {name_value(CAPABILITY_SCHEMA)}")
++    for name in CAPABILITY_DIGESTS:
++        value = taken[name]
++        # LOWER-CASE HEX WITH THE PREFIX, and a WILDCARD IS NOT AN IDENTITY.
++        # The proposal forbids one by name; what makes that enforceable is
++        # that nothing but this exact spelling is admitted at all.
++        if type(value) is not str or not _DIGEST.match(value):
++            _refuse(f"{what}'s {name} is {name_value(value)}; an installed "
++                    f"capability names each identity as one lower-case "
++                    f"sha256 digest, and there is no wildcard spelling",
++                    )
++    roles = taken["roles"]
++    if type(roles) is not list or roles not in [list(one)
++                                                for one in ROLE_SETS]:
++        _refuse(f"{what} declares roles {json.dumps(roles)[:120]}; an "
++                f"installed capability declares exactly one of "
++                f"{json.dumps([list(one) for one in ROLE_SETS])} -- no empty "
++                f"list, no duplicate and no other order")
++    if len(canonical_bytes(taken)) > MAX_CAPABILITY_BYTES:
++        _refuse(f"{what} is wider than {MAX_CAPABILITY_BYTES} canonical "
++                f"bytes")
++    return taken
++
++
++def role_capability_of_bytes(payload, *, what="an adapter role capability"):
++    """One capability read from BYTES, bounded, with duplicate keys refused.
++
++    DUPLICATE KEYS REFUSE BEFORE CANONICALIZATION, which is the same subtle
++    fault `role_contract.role_contract_of_bytes` closes: `json.loads` keeps
++    the LAST of two equal keys silently, so a document carrying `roles` twice
++    has two readings -- the one a reader sees and the one a digest is taken
++    over. Two parties could then agree on a digest and disagree on the grant.
++    """
++    if type(payload) is not bytes:
++        _refuse(f"{what} is read from bytes; this is {name_value(payload)}")
++    if len(payload) > MAX_CAPABILITY_BYTES:
++        _refuse(f"{what} is {len(payload)} encoded bytes and this contract "
++                f"admits {MAX_CAPABILITY_BYTES}")
++
++    def _pairs(pairs):
++        seen = {}
++        for name, value in pairs:
++            if name in seen:
++                _refuse(f"{what} carries the member {name_value(name)} "
++                        f"twice; a document with two readings has no "
++                        f"identity")
++            seen[name] = value
++        return seen
++
++    try:
++        document = json.loads(payload.decode("utf-8"),
++                              object_pairs_hook=_pairs)
++    except UnicodeDecodeError:
++        _refuse(f"{what} is UTF-8 text")
++    except ValueError:
++        _refuse(f"{what} is one readable JSON document")
++    return check_role_capability(document, what=what)
++
++
++def compatible_capability(capability, contract, *, what="this deployment"):
++    """THE PURE PREDICATE. Answers the agreed roles, or refuses with the
++    exact disagreement.
++
++    WHAT AGREEMENT MEANS HERE, and it is narrow on purpose:
++
++      * the capability is a valid `capability/1` and the contract is a valid
++        `development-role-contract/1` -- both through their own owners, so
++        neither is trusted as already-checked data;
++      * the capability's `role_contract_digest` IS the contract's canonical
++        digest, computed rather than compared to a claim the document carries
++        about itself;
++      * and every role the capability declares is a role the contract
++        declares, so a capability cannot grant a role the workflow has no
++        stage for.
++
++    WHAT IT DOES NOT MEAN. Nothing here says the adapter behind those digests
++    behaves as the contract declares -- that is the qualification evidence
++    `qualification_digest` refers to and W371296's actual adapter
++    qualification. And nothing here reserves, authorizes, binds or admits:
++    this is a predicate, and the existing owners still decide.
++    """
++    held = check_role_capability(capability)
++    agreed = role_contract.check_role_contract(contract)
++    mine = role_contract.contract_digest(agreed)
++    if held["role_contract_digest"] != mine:
++        _denied(f"{what}'s installed capability was qualified against role "
++                f"contract {name_value(held['role_contract_digest'])} and "
++                f"this Job resolves {name_value(mine)}; a capability proves "
++                f"nothing about a contract it was not qualified against")
++    declared = [one["role"] for one in agreed["roles"]]
++    unknown = [one for one in held["roles"] if one not in declared]
++    if unknown:
++        _denied(f"{what}'s installed capability declares the role(s) "
++                f"{', '.join(unknown)} and this contract declares "
++                f"{', '.join(declared)}; a capability cannot grant a role "
++                f"this workflow has no stage for")
++    return list(held["roles"])
++
++
++# WHAT THIS MODULE IS HELD TO AT IMPORT.
++#
++# The approved synthetic vector's canonical digest, from PROPOSAL.md. It is
++# SYNTHETIC -- its four repeated-digit hashes are explicitly not qualified
++# deployments or owner receipts -- so what this pins is the SHAPE and the
++# canonical form, never a grant.
++SYNTHETIC_DIGEST = (
++    "sha256:4d6a3391facb990ac61090ab5e6b114203b27a27faeca1083458c7bd8f649601")
++_SYNTHETIC = {
++    "schema": CAPABILITY_SCHEMA,
++    "role_contract_digest": role_contract.BASELINE_DIGEST,
++    "adapter_digest": "sha256:" + "1" * 64,
++    "image_digest": "sha256:" + "2" * 64,
++    "runtime_profile_digest": "sha256:" + "3" * 64,
++    "qualification_digest": "sha256:" + "4" * 64,
++    "roles": ["implementation", "review"],
++}
++assert capability_digest(_SYNTHETIC) == SYNTHETIC_DIGEST, \
++    capability_digest(_SYNTHETIC)
++# It validates, and it is compatible with the accepted baseline contract --
++# which is what makes the positive side of the predicate a reproduced fact
++# rather than a fixture of mine.
++assert check_role_capability(_SYNTHETIC) == _SYNTHETIC
++assert compatible_capability(
++    _SYNTHETIC, role_contract.baseline_document()) == [
++        "implementation", "review"]
++# And `boundaries` is imported for the refusal vocabulary this package shares;
++# naming it keeps the dependency visible rather than implicit.
++assert boundaries is not None

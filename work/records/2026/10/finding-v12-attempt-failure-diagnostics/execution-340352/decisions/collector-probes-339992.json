@@ -1,0 +1,256 @@
+{
+  "seal_count": 36,
+  "seal_failures": [],
+  "fixtures": "/tmp/w333486-review339992-ozeqtge_",
+  "results": {
+    "malformed-linked-path": {
+      "raised": "TypeError",
+      "message": "argument should be a str or an os.PathLike object where __fspath__ returns a str, not 'list'"
+    },
+    "unrelated-temp": {
+      "result": {
+        "schema": "baton.w333486-final-result-collection/2",
+        "collected_from": "/tmp/w333486-review339992-ozeqtge_/unrelated-temp",
+        "directory_listable": true,
+        "directory_reason": null,
+        "expected_identity": {
+          "state": "present",
+          "reason": null,
+          "identity_source": "composed PACKET.json",
+          "run_id": "r",
+          "work": null,
+          "claim": null,
+          "job_id": null,
+          "authority": null,
+          "outcome_path": null
+        },
+        "results": {
+          "workload": {
+            "artifact": "workload final report",
+            "who_writes_it": "the supervisor, post-stop, inside the workload-publication reservation (baseline.py:1450-1461)",
+            "resolved_by": "exact name outcome.json",
+            "paths": [],
+            "temporary_siblings": [
+              "/tmp/w333486-review339992-ozeqtge_/unrelated-temp/outcome.json.enforcement-1.tmp"
+            ],
+            "state": "pending",
+            "reason": "no final path, but a partial temporary exists: publication was entered and did not complete. NOT absent, and NOT a named cause."
+          },
+          "controller": {
+            "artifact": "controller final report",
+            "who_writes_it": "the outer controller, after supervise_process returns and after child cleanup (authoring_enforcement.py:552-591) -- which is after any worker inside the run has ended",
+            "resolved_by": "glob outcome.json.enforcement-*.json",
+            "identity_lives_in": "original_envelope {run, job, authority}, built at authoring_enforcement.py:40-52 and stored at :580. This report has NO top-level run_id.",
+            "paths": [],
+            "temporary_siblings": [
+              "/tmp/w333486-review339992-ozeqtge_/unrelated-temp/outcome.json.enforcement-1.tmp"
+            ],
+            "state": "pending",
+            "reason": "no final path, but a partial temporary exists: publication was entered and did not complete. NOT absent, and NOT a named cause."
+          },
+          "shutdown_progress": {
+            "artifact": "shutdown progress",
+            "who_writes_it": "each Shutdown.call, BEFORE running its step (authoring_shutdown.py:72-81)",
+            "resolved_by": "glob outcome.json.manager-*.json.progress.json",
+            "meaning": "the last step ENTERED. Entering is not finishing, and this is not a sampled stack and not a cessation receipt.",
+            "faults_do_reach_here": "Shutdown.call appends a step fault before re-raising (authoring_shutdown.py:84-86), so a child publication timeout CAN appear here.",
+            "paths": [],
+            "temporary_siblings": [
+              "/tmp/w333486-review339992-ozeqtge_/unrelated-temp/outcome.json.enforcement-1.tmp"
+            ],
+            "state": "pending",
+            "reason": "no final path, but a partial temporary exists: publication was entered and did not complete. NOT absent, and NOT a named cause."
+          },
+          "manager_snapshot": {
+            "artifact": "manager status snapshot",
+            "who_writes_it": "publish_guard, each observation (authoring_enforcement.py:387-395)",
+            "resolved_by": "glob outcome.json.manager-*.json",
+            "note": "an observation, never cessation and never a permission grant. A missing final snapshot is held.",
+            "paths": [],
+            "temporary_siblings": [
+              "/tmp/w333486-review339992-ozeqtge_/unrelated-temp/outcome.json.enforcement-1.tmp"
+            ],
+            "state": "pending",
+            "reason": "no final path, but a partial temporary exists: publication was entered and did not complete. NOT absent, and NOT a named cause."
+          },
+          "authoring_log": {
+            "artifact": "authoring log",
+            "who_writes_it": "the run",
+            "emitted": "presence, size and digest ONLY -- the bytes are provider-adjacent output and are not this program's to emit",
+            "paths": [],
+            "state": "absent",
+            "reason": "listed and not present; unavailable, cause unknown"
+          }
+        },
+        "available": [],
+        "unavailable": {
+          "workload": "pending",
+          "controller": "pending",
+          "shutdown_progress": "pending",
+          "manager_snapshot": "pending",
+          "authoring_log": "absent"
+        },
+        "isolated_failures": [],
+        "linked_artifacts": [],
+        "publication_timeout": {
+          "established": false,
+          "evidence": [],
+          "other_timeouts_observed": [],
+          "uncorrelated_timeouts": [],
+          "outer_publication_limit": "The outer controller publication timeout is NOT establishable from these artifacts. authoring_enforcement.py:592-595 catches its own TimeoutError and returns 1 WITHOUT adding that fault to the report it was trying to write, so no artifact records it. Its absence is EXPECTED and is not evidence either way. A partial .enforcement-*.tmp with no final path shows that publication was ENTERED and did not complete -- not why.",
+          "rule": "Only a correlated fault naming one of outer outcome publication, final enforcement publication, workload publication, workload-publication establishes a publication timeout.",
+          "note": "NOT ESTABLISHED, and for an absent outer report NOT ESTABLISHABLE. No correlated fault naming a publication step was read. An absent or inaccessible report is not evidence of a timeout: a run that never started, an import or startup failure (see FAILURE.md), process death, a failed read and non-timeout publication errors all leave no final report."
+        },
+        "acceptance": "A missing or partial final report is INCOMPLETE: never success, never acceptance and never proof of cessation. No startup success and no producer exit substitutes for final-result acceptance. An unavailable report retracts nothing already recorded, and one unreadable artifact does not invalidate the others.",
+        "owner": "the external operator and the independent reviewer. The worker inside the run cannot observe any of these artifacts; its own report covers what it saw before termination plus the retained candidate checkpoint -- see TASK.md item 6.",
+        "read_only": "this program opened no store, wrote nothing, started nothing, and read no credential, transcript or provider output"
+      }
+    },
+    "progress-is-not-manager": {
+      "result": {
+        "schema": "baton.w333486-final-result-collection/2",
+        "collected_from": "/tmp/w333486-review339992-ozeqtge_/progress-is-not-manager",
+        "directory_listable": true,
+        "directory_reason": null,
+        "expected_identity": {
+          "state": "present",
+          "reason": null,
+          "identity_source": "composed PACKET.json",
+          "run_id": "r",
+          "work": null,
+          "claim": null,
+          "job_id": null,
+          "authority": null,
+          "outcome_path": null
+        },
+        "results": {
+          "workload": {
+            "artifact": "workload final report",
+            "who_writes_it": "the supervisor, post-stop, inside the workload-publication reservation (baseline.py:1450-1461)",
+            "resolved_by": "exact name outcome.json",
+            "paths": [],
+            "temporary_siblings": [],
+            "state": "absent",
+            "reason": "the directory was listed and the path is not in it. The final result is UNAVAILABLE and its cause is UNKNOWN -- never that publication timed out, and never that nothing was written elsewhere."
+          },
+          "controller": {
+            "artifact": "controller final report",
+            "who_writes_it": "the outer controller, after supervise_process returns and after child cleanup (authoring_enforcement.py:552-591) -- which is after any worker inside the run has ended",
+            "resolved_by": "glob outcome.json.enforcement-*.json",
+            "identity_lives_in": "original_envelope {run, job, authority}, built at authoring_enforcement.py:40-52 and stored at :580. This report has NO top-level run_id.",
+            "paths": [],
+            "temporary_siblings": [],
+            "state": "absent",
+            "reason": "the directory was listed and the path is not in it. The final result is UNAVAILABLE and its cause is UNKNOWN -- never that publication timed out, and never that nothing was written elsewhere."
+          },
+          "shutdown_progress": {
+            "artifact": "shutdown progress",
+            "who_writes_it": "each Shutdown.call, BEFORE running its step (authoring_shutdown.py:72-81)",
+            "resolved_by": "glob outcome.json.manager-*.json.progress.json",
+            "meaning": "the last step ENTERED. Entering is not finishing, and this is not a sampled stack and not a cessation receipt.",
+            "faults_do_reach_here": "Shutdown.call appends a step fault before re-raising (authoring_shutdown.py:84-86), so a child publication timeout CAN appear here.",
+            "paths": [
+              "/tmp/w333486-review339992-ozeqtge_/progress-is-not-manager/outcome.json.manager-1-2.json.progress.json"
+            ],
+            "temporary_siblings": [],
+            "reports": [
+              {
+                "path": "/tmp/w333486-review339992-ozeqtge_/progress-is-not-manager/outcome.json.manager-1-2.json.progress.json",
+                "state": "present",
+                "reason": null,
+                "sha256": "cf9b6e960f94aa94b2c56d01b384c76e3fdde54923c5a39110b4a595d7db5ff6",
+                "identity": "matched",
+                "identity_detail": {
+                  "why": null,
+                  "carried": [
+                    {
+                      "field": "run_id",
+                      "value": "r",
+                      "expected": "r"
+                    }
+                  ],
+                  "correlated_on": [
+                    "run_id"
+                  ]
+                },
+                "read": {
+                  "step": "final enforcement publication",
+                  "deadline": null,
+                  "step_deadline": null,
+                  "faults": [],
+                  "run_id": "r",
+                  "job_id": null
+                }
+              }
+            ],
+            "state": "present"
+          },
+          "manager_snapshot": {
+            "artifact": "manager status snapshot",
+            "who_writes_it": "publish_guard, each observation (authoring_enforcement.py:387-395)",
+            "resolved_by": "glob outcome.json.manager-*.json",
+            "note": "an observation, never cessation and never a permission grant. A missing final snapshot is held.",
+            "paths": [
+              "/tmp/w333486-review339992-ozeqtge_/progress-is-not-manager/outcome.json.manager-1-2.json.progress.json"
+            ],
+            "temporary_siblings": [],
+            "reports": [
+              {
+                "path": "/tmp/w333486-review339992-ozeqtge_/progress-is-not-manager/outcome.json.manager-1-2.json.progress.json",
+                "state": "present",
+                "reason": null,
+                "sha256": "cf9b6e960f94aa94b2c56d01b384c76e3fdde54923c5a39110b4a595d7db5ff6",
+                "identity": "unresolved",
+                "identity_detail": {
+                  "carried": [],
+                  "why": "the manager status snapshot carries none of the identity fields this vehicle publishes for it"
+                },
+                "read": {
+                  "envelope": null,
+                  "recovery": null,
+                  "stopping": null,
+                  "finished": null,
+                  "author_invocation_started": null,
+                  "report": null
+                }
+              }
+            ],
+            "state": "present"
+          },
+          "authoring_log": {
+            "artifact": "authoring log",
+            "who_writes_it": "the run",
+            "emitted": "presence, size and digest ONLY -- the bytes are provider-adjacent output and are not this program's to emit",
+            "paths": [],
+            "state": "absent",
+            "reason": "listed and not present; unavailable, cause unknown"
+          }
+        },
+        "available": [
+          "manager_snapshot",
+          "shutdown_progress"
+        ],
+        "unavailable": {
+          "workload": "absent",
+          "controller": "absent",
+          "authoring_log": "absent"
+        },
+        "isolated_failures": [],
+        "linked_artifacts": [],
+        "publication_timeout": {
+          "established": false,
+          "evidence": [],
+          "other_timeouts_observed": [],
+          "uncorrelated_timeouts": [],
+          "outer_publication_limit": "The outer controller publication timeout is NOT establishable from these artifacts. authoring_enforcement.py:592-595 catches its own TimeoutError and returns 1 WITHOUT adding that fault to the report it was trying to write, so no artifact records it. Its absence is EXPECTED and is not evidence either way. A partial .enforcement-*.tmp with no final path shows that publication was ENTERED and did not complete -- not why.",
+          "rule": "Only a correlated fault naming one of outer outcome publication, final enforcement publication, workload publication, workload-publication establishes a publication timeout.",
+          "note": "NOT ESTABLISHED, and for an absent outer report NOT ESTABLISHABLE. No correlated fault naming a publication step was read. An absent or inaccessible report is not evidence of a timeout: a run that never started, an import or startup failure (see FAILURE.md), process death, a failed read and non-timeout publication errors all leave no final report."
+        },
+        "acceptance": "A missing or partial final report is INCOMPLETE: never success, never acceptance and never proof of cessation. No startup success and no producer exit substitutes for final-result acceptance. An unavailable report retracts nothing already recorded, and one unreadable artifact does not invalidate the others.",
+        "owner": "the external operator and the independent reviewer. The worker inside the run cannot observe any of these artifacts; its own report covers what it saw before termination plus the retained candidate checkpoint -- see TASK.md item 6.",
+        "read_only": "this program opened no store, wrote nothing, started nothing, and read no credential, transcript or provider output"
+      }
+    }
+  },
+  "measured_seconds": 0.001364245999866398
+}

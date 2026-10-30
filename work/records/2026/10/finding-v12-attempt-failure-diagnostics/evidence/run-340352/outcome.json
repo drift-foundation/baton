@@ -1,0 +1,118 @@
+{
+  "accounting_scope": "this run accounts for Job 'job-attempt-diagnostics-w333486-340352' and for nothing else. Attempt discovery, cancellation and cleanup all read the status projection filtered to that Job, so a runtime belonging to another Job in this store is NOT covered by this outcome and its absence is NOT established by it.",
+  "admissions": {
+    "implementation": 1
+  },
+  "admitted_attempts": [
+    "attempt-529201c5b3b5b785d93f95ecd7b23c2329bf5ea2d1a3c8795a22251adbf0660b"
+  ],
+  "attempt_origins": {
+    "attempt-529201c5b3b5b785d93f95ecd7b23c2329bf5ea2d1a3c8795a22251adbf0660b": "started"
+  },
+  "cancellation": {
+    "attempt-529201c5b3b5b785d93f95ecd7b23c2329bf5ea2d1a3c8795a22251adbf0660b": {
+      "execution_runtime": "destroyed",
+      "requested": true,
+      "runtime_id": "91f6e7dbbdb127db1701c23bb64942d5ded8870d09c687296bbfd401a2bb601f",
+      "why": "this manager observed the runtime destroyed"
+    }
+  },
+  "claim": 340352,
+  "cleanup": {
+    "attempt-529201c5b3b5b785d93f95ecd7b23c2329bf5ea2d1a3c8795a22251adbf0660b": {
+      "cleanup": null,
+      "why": "no committed cleanup"
+    }
+  },
+  "cleanup_sweeps": 44,
+  "final_canonical_read": true,
+  "finished_at": "2026-10-20T19:06:22.728Z",
+  "foreign_admissions": [],
+  "gate_refusals": [],
+  "held_because": [
+    "the run was interrupted: signal 15",
+    "this manager cannot prove positive cleanup for attempt-529201c5b3b5b785d93f95ecd7b23c2329bf5ea2d1a3c8795a22251adbf0660b",
+    "the run stopped 'exceptional' rather than completing its stages",
+    "attempt attempt-529201c5b3b5b785d93f95ecd7b23c2329bf5ea2d1a3c8795a22251adbf0660b froze no result at all, so its turn ended before it could answer. The adapter refuses a turn it cannot give an account of; the attempt's retained events carry the refusal.",
+    "this run published no proposal at all. Whether any turn nevertheless RETAINED a candidate is answered by `candidates`, and a retained candidate is not a published proposal, a verification or an acceptance"
+  ],
+  "interrupted": "signal 15",
+  "interruptions": [
+    "signal 15"
+  ],
+  "job_id": "job-attempt-diagnostics-w333486-340352",
+  "observed_attempts": [
+    "attempt-529201c5b3b5b785d93f95ecd7b23c2329bf5ea2d1a3c8795a22251adbf0660b"
+  ],
+  "outstanding_cleanup": [
+    "attempt-529201c5b3b5b785d93f95ecd7b23c2329bf5ea2d1a3c8795a22251adbf0660b"
+  ],
+  "preexisting_jobs": [],
+  "preexisting_stages": {},
+  "provider_turn": {
+    "default_seconds": 3600,
+    "origin": "job",
+    "seconds": 3600,
+    "setting": "provider_turn_seconds"
+  },
+  "retry": false,
+  "run_id": "attempt-diagnostics-w333486-340352",
+  "schema": "baton.single-implementation-outcome/1",
+  "served_seconds": 904.7793924179987,
+  "serving_failure": null,
+  "stage_states": {
+    "implementation": "exceptional"
+  },
+  "stalled_after": 6,
+  "stalled_ticks": 0,
+  "started_order": [
+    "attempt-529201c5b3b5b785d93f95ecd7b23c2329bf5ea2d1a3c8795a22251adbf0660b"
+  ],
+  "state": "held",
+  "stopped": "exceptional",
+  "submission_id": "attempt-diagnostics-w333486-340352-submission",
+  "submitted_at": "2026-10-20T18:50:33.946Z",
+  "unallocated_attempts": [],
+  "uncertainty": [],
+  "unexpected_attempts": [],
+  "work": "W333486",
+  "workload": {
+    "attribution": [],
+    "candidates": [
+      {
+        "acceptance": "no-candidate",
+        "assignment": null,
+        "attempt_id": "attempt-529201c5b3b5b785d93f95ecd7b23c2329bf5ea2d1a3c8795a22251adbf0660b",
+        "attribution": null,
+        "base": null,
+        "bytes": null,
+        "content_digest": null,
+        "disposition": null,
+        "generation": null,
+        "head": null,
+        "locator": null,
+        "state": "absent",
+        "transport": null,
+        "verification": "not-run",
+        "why": "the turn froze no result at all"
+      }
+    ],
+    "conversations": [],
+    "dispositions": [
+      {
+        "attempt_id": "attempt-529201c5b3b5b785d93f95ecd7b23c2329bf5ea2d1a3c8795a22251adbf0660b",
+        "disposition": null
+      }
+    ],
+    "generations": [],
+    "implementation_attempts": [
+      "attempt-529201c5b3b5b785d93f95ecd7b23c2329bf5ea2d1a3c8795a22251adbf0660b"
+    ],
+    "modes": [],
+    "proposals": [],
+    "shortfalls": [
+      "attempt attempt-529201c5b3b5b785d93f95ecd7b23c2329bf5ea2d1a3c8795a22251adbf0660b froze no result at all, so its turn ended before it could answer. The adapter refuses a turn it cannot give an account of; the attempt's retained events carry the refusal.",
+      "this run published no proposal at all. Whether any turn nevertheless RETAINED a candidate is answered by `candidates`, and a retained candidate is not a published proposal, a verification or an acceptance"
+    ]
+  }
+}

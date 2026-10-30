@@ -1,0 +1,24 @@
+{
+  "checks": {
+    "prepare.py": {
+      "corrected_binding": {
+        "declares_the_deferred_dependency": true,
+        "members": 115
+      },
+      "refusal": "the binding does not declare the deferred controller dependency, which is the defect that killed run348852: tools/authoring_baseline.py",
+      "superseded_binding_refused": true,
+      "what_this_shows": "pointed at the exact 114-member binding run348852 staged -- whose bytes and archive digest both still verify -- this program now REFUSES during preparation instead of composing a packet whose controller cannot import. Read-only: no root, no staging, no extraction, no product import."
+    },
+    "verify-inputs.py": {
+      "corrected_binding": {
+        "declares_the_deferred_dependency": true,
+        "members": 115
+      },
+      "refusal": "the binding does not declare the deferred controller dependency, which is the defect that killed run348852: tools/authoring_baseline.py",
+      "superseded_binding_refused": true,
+      "what_this_shows": "pointed at the exact 114-member binding run348852 staged -- whose bytes and archive digest both still verify -- this program now REFUSES during preparation instead of composing a packet whose controller cannot import. Read-only: no root, no staging, no extraction, no product import."
+    }
+  },
+  "claim": 350529,
+  "schema": "baton.w341357-deferred-dependency-guard/1"
+}

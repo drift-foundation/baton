@@ -1,0 +1,23 @@
+{
+ "bounded_correction_the_packet_needs": "sections 5 and 6 swap for a fresh installation: install -> START -> create -> observe.",
+ "cause": "job_manager._create opens the control store with ControlStore.open_readonly. The only supported writable open is job_manager._serve (ControlStore.open), which is what tools/stack.py:start launches with --control. So the control store is created by STARTING the deployment.",
+ "command": "manager --store <jobs> --incarnation operator-1 --authority-uuid <minted> create --instance <dest> --control <control> --authority <authority> ... (the packet's section 5, verbatim)",
+ "corroboration": "the installer's own closing message tells the operator to start next, and the emitted capacity note says a fresh instance 'serves a real idle scheduler and publisher over empty stores' -- starting before any Job is the designed path",
+ "db_at_the_time": {
+  "authority.sqlite3": "present (the install made it)",
+  "control.sqlite3": "ABSENT",
+  "jobs.sqlite3": "present (create made it before the control open)"
+ },
+ "exit": 1,
+ "how_this_execution_proceeds": "by starting first, which is the supported order. That reorders two already-authorized operations; it adds no operation, repairs no unrelated state, and re-admits no Job (none had been admitted).",
+ "nothing_was_repaired": true,
+ "raised_from": [
+  "tools/job_manager.py:854 _create",
+  "baton_v12/worker_manager/store.py:539 open_readonly"
+ ],
+ "reached_at": "2026-10-28T01:22:19Z",
+ "refusal": "baton_v12.contracts.errors.ContractRefusal: a read-only manager requires an existing regular store",
+ "schema": "baton.v12.execution-finding/1",
+ "what": "the accepted packet publishes `create` (section 5) BEFORE `start` (section 6). On a fresh installation that order cannot work: `create` opens the control store READ-ONLY and the control store does not exist until the serve loop creates it.",
+ "why_my_own_proof_did_not_catch_it": "prove_capacity.py:_create opened the control store itself with ControlStore.open before calling create. That harness step was never published in the packet, so the packet's order was never exercised as published."
+}

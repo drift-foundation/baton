@@ -1,0 +1,10 @@
+{
+  "schema": "baton.verifier-engine-proof-selection/1",
+  "image": "sha256:47e733834bb690fd4601e102f81e527a08b6ffe55da8b8cb345f45edfcb1517e",
+  "uid": 65532,
+  "gid": 65532,
+  "proof_id": "w325695-proof-377003",
+  "layout_sha256": "930a817469df98e7e2831c148661a5712115ff176ff184358c86a08d4daf5316",
+  "payload_sha256": "3d46d3726cdef294dce1b9f6e8f97d697bb0fcc766f9ac0244065dc537b3ea7e",
+  "runner_sha256": "b77dd441a925d483e22d44d979b0d04f8ead7ccb2a2d51fbce9239c0274eb5fc"
+}

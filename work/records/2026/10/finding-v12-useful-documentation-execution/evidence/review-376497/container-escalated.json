@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "docker",
+    "inspect",
+    "--format",
+    "{{json .State}}",
+    "a813a59f691c23022343cb25f3050df2c95386ae36b7dbab647fd4108d906ee6"
+  ],
+  "exit": 1,
+  "stdout": "",
+  "stderr": "error: no such object: a813a59f691c23022343cb25f3050df2c95386ae36b7dbab647fd4108d906ee6",
+  "capture_note": "Read-only retry outside sandbox after socket access denial; tool wall time 0.000007564 seconds; exact UTC endpoints not captured. No remove/stop executed."
+}

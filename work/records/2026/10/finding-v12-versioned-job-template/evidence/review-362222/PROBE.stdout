@@ -1,0 +1,73 @@
+{
+  "same_template": true,
+  "same_submission": true,
+  "resolved_before": {
+    "units": "seconds",
+    "scope": "per-invocation",
+    "compatibility_generation": 1,
+    "requested": {},
+    "boundaries": {
+      "host_verification": {
+        "seconds": 300,
+        "origin": "compatibility",
+        "setting": "verification_command_seconds",
+        "default_seconds": 300
+      },
+      "integration_verification": {
+        "seconds": 1800,
+        "origin": "compatibility",
+        "setting": "verification_command_seconds",
+        "default_seconds": 1800
+      },
+      "ordinary_verification": {
+        "seconds": 900,
+        "origin": "compatibility",
+        "setting": "verification_command_seconds",
+        "default_seconds": 900
+      },
+      "provider_turn": {
+        "seconds": 3600,
+        "origin": "compatibility",
+        "setting": "provider_turn_seconds",
+        "default_seconds": 3600
+      }
+    }
+  },
+  "resolved_after": {
+    "units": "seconds",
+    "scope": "per-invocation",
+    "compatibility_generation": 2,
+    "requested": {},
+    "boundaries": {
+      "host_verification": {
+        "seconds": 300,
+        "origin": "compatibility",
+        "setting": "verification_command_seconds",
+        "default_seconds": 300
+      },
+      "integration_verification": {
+        "seconds": 1800,
+        "origin": "compatibility",
+        "setting": "verification_command_seconds",
+        "default_seconds": 1800
+      },
+      "ordinary_verification": {
+        "seconds": 900,
+        "origin": "compatibility",
+        "setting": "verification_command_seconds",
+        "default_seconds": 900
+      },
+      "provider_turn": {
+        "seconds": 7200,
+        "origin": "compatibility",
+        "setting": "provider_turn_seconds",
+        "default_seconds": 7200
+      }
+    }
+  },
+  "saved_resolution_submitted_provider_seconds": 7200,
+  "public_template_lookup_changes_later_resolution": "not-the-reviewed-proposal",
+  "product_scope_becomes_test_scope": [
+    "v12/python/src/baton_v12/job_manager/templates.py"
+  ]
+}

@@ -1,0 +1,144 @@
+{
+  "accounting_scope": "this run accounts for Job 'job-durable-capture-w341357-345822' and for nothing else. Attempt discovery, cancellation and cleanup all read the status projection filtered to that Job, so a runtime belonging to another Job in this store is NOT covered by this outcome and its absence is NOT established by it.",
+  "admissions": {
+    "implementation": 1
+  },
+  "admitted_attempts": [
+    "attempt-784e7bd67b43ccab28b62f242281f716fc068ec30a87f4490fd910eca51086c4"
+  ],
+  "attempt_origins": {
+    "attempt-784e7bd67b43ccab28b62f242281f716fc068ec30a87f4490fd910eca51086c4": "started"
+  },
+  "cancellation": {
+    "attempt-784e7bd67b43ccab28b62f242281f716fc068ec30a87f4490fd910eca51086c4": {
+      "execution_runtime": "destroyed",
+      "requested": true,
+      "runtime_id": "4fa56cf5a90b45036e5b564a9d75aba1edd05c59da0c103a19c36480b4632f9c",
+      "why": "this manager observed the runtime destroyed"
+    }
+  },
+  "claim": 345822,
+  "cleanup": {
+    "attempt-784e7bd67b43ccab28b62f242281f716fc068ec30a87f4490fd910eca51086c4": {
+      "cleanup": "retained",
+      "state": "absent",
+      "why": "the engine answered that this exact identity does not exist"
+    }
+  },
+  "cleanup_sweeps": 0,
+  "final_canonical_read": true,
+  "finished_at": "2026-10-21T15:17:54.438Z",
+  "foreign_admissions": [],
+  "gate_refusals": [],
+  "held_because": [],
+  "interrupted": null,
+  "interruptions": [],
+  "job_id": "job-durable-capture-w341357-345822",
+  "observed_attempts": [
+    "attempt-784e7bd67b43ccab28b62f242281f716fc068ec30a87f4490fd910eca51086c4"
+  ],
+  "outstanding_cleanup": [],
+  "preexisting_jobs": [],
+  "preexisting_stages": {},
+  "provider_turn": {
+    "default_seconds": 3600,
+    "origin": "job",
+    "seconds": 3600,
+    "setting": "provider_turn_seconds"
+  },
+  "retry": false,
+  "run_id": "durable-capture-w341357-345822",
+  "schema": "baton.single-implementation-outcome/1",
+  "served_seconds": 733.2906772189999,
+  "serving_failure": null,
+  "stage_states": {
+    "implementation": "completed"
+  },
+  "stalled_after": 6,
+  "stalled_ticks": 0,
+  "started_order": [
+    "attempt-784e7bd67b43ccab28b62f242281f716fc068ec30a87f4490fd910eca51086c4"
+  ],
+  "state": "settled",
+  "stopped": "completed",
+  "submission_id": "durable-capture-w341357-345822-submission",
+  "submitted_at": "2026-10-21T15:05:41.137Z",
+  "unallocated_attempts": [],
+  "uncertainty": [],
+  "unexpected_attempts": [],
+  "work": "W341357",
+  "workload": {
+    "attribution": [
+      {
+        "attempt_id": "attempt-784e7bd67b43ccab28b62f242281f716fc068ec30a87f4490fd910eca51086c4",
+        "author": "Baton worker <worker@baton.invalid>",
+        "base": "bc925cf5c62d69426ed5862af4d41f4d2a967b0f",
+        "committer": "Baton worker <worker@baton.invalid>",
+        "head": "e9d292ede76ac4f93d4761e32779f0ea9f207648",
+        "line_id": "line-7fba2c6881ee47ca379a6ed1d205914350195d6626312679b1ab3982c4a6b9ab",
+        "line_path": "/home/sl/baton-instances/durable-capture-w341357-345822/packet/workspaces/.baton-review-lines/line-7fba2c6881ee47ca379a6ed1d205914350195d6626312679b1ab3982c4a6b9ab/checkout",
+        "parents": [
+          "bc925cf5c62d69426ed5862af4d41f4d2a967b0f"
+        ]
+      }
+    ],
+    "candidates": [
+      {
+        "acceptance": "unobserved",
+        "assignment": {
+          "authority_uuid": "0f62e22e9cdb43f2a35f4f0298732aac",
+          "effective_scope": "scope:deployment",
+          "generation": 1,
+          "participant": "baton.impl",
+          "principal": "principal:baton.impl",
+          "work_id": "0f62e22e-W1"
+        },
+        "attempt_id": "attempt-784e7bd67b43ccab28b62f242281f716fc068ec30a87f4490fd910eca51086c4",
+        "attribution": {
+          "attempt_id": "attempt-784e7bd67b43ccab28b62f242281f716fc068ec30a87f4490fd910eca51086c4",
+          "author": "Baton worker <worker@baton.invalid>",
+          "base": "bc925cf5c62d69426ed5862af4d41f4d2a967b0f",
+          "committer": "Baton worker <worker@baton.invalid>",
+          "head": "e9d292ede76ac4f93d4761e32779f0ea9f207648",
+          "line_id": "line-7fba2c6881ee47ca379a6ed1d205914350195d6626312679b1ab3982c4a6b9ab",
+          "line_path": "/home/sl/baton-instances/durable-capture-w341357-345822/packet/workspaces/.baton-review-lines/line-7fba2c6881ee47ca379a6ed1d205914350195d6626312679b1ab3982c4a6b9ab/checkout",
+          "parents": [
+            "bc925cf5c62d69426ed5862af4d41f4d2a967b0f"
+          ]
+        },
+        "base": "bc925cf5c62d69426ed5862af4d41f4d2a967b0f",
+        "bytes": 281836,
+        "content_digest": "sha256:59d666d9131eb3de7aec669eafc9be1a2dbb7c8c6a0ff8d60770b7d32109f854",
+        "disposition": "completed",
+        "generation": 1,
+        "head": "e9d292ede76ac4f93d4761e32779f0ea9f207648",
+        "locator": "file:///home/sl/baton-instances/durable-capture-w341357-345822/packet/workspaces/.baton-review-lines/line-7fba2c6881ee47ca379a6ed1d205914350195d6626312679b1ab3982c4a6b9ab/custody/attempt-784e7bd67b43ccab28b62f242281f716fc068ec30a87f4490fd910eca51086c4/proposal",
+        "state": "valid",
+        "transport": "objects.bundle",
+        "verification": "passed",
+        "why": null
+      }
+    ],
+    "conversations": [],
+    "dispositions": [
+      {
+        "attempt_id": "attempt-784e7bd67b43ccab28b62f242281f716fc068ec30a87f4490fd910eca51086c4",
+        "disposition": "completed"
+      }
+    ],
+    "generations": [],
+    "implementation_attempts": [
+      "attempt-784e7bd67b43ccab28b62f242281f716fc068ec30a87f4490fd910eca51086c4"
+    ],
+    "modes": [],
+    "proposals": [
+      {
+        "attempt_id": "attempt-784e7bd67b43ccab28b62f242281f716fc068ec30a87f4490fd910eca51086c4",
+        "base": "bc925cf5c62d69426ed5862af4d41f4d2a967b0f",
+        "head": "e9d292ede76ac4f93d4761e32779f0ea9f207648",
+        "transport": "objects.bundle"
+      }
+    ],
+    "shortfalls": []
+  }
+}

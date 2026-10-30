@@ -1,0 +1,59 @@
+{
+  "derived_at": "2026-10-20",
+  "derived_by": "baton.claude, claim341360",
+  "derived_from": {
+    "base": "bc925cf5c62d69426ed5862af4d41f4d2a967b0f",
+    "parent_evidence": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/evidence/run-340352/retained-partial",
+    "reviewer_evidence": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/evidence/review-341344/evidence.json",
+    "run": "attempt-diagnostics-w333486-340352",
+    "status_sha256": "840020f093f75b9fbec3ea8212718884e72d47d8a437fc8e98a04a4f5c80a064",
+    "status_sha256_agrees_with_reviewer": true,
+    "tracked_diff_sha256": "02cc4cb43d6235c871a6ed3bf7137c3c34acfa565f316165ba2f977f9a493a76",
+    "tracked_diff_sha256_agrees_with_reviewer": true,
+    "why_not_a_candidate": "run340352 hit its 900-second lease and froze no result, so there is no frozen candidate, no proposal and no verification. These bytes were never accepted by anything."
+  },
+  "left_for_the_parent": {
+    "paths": [
+      "v12/python/src/baton_v12/job_manager/delegation.py",
+      "v12/python/src/baton_v12/job_manager/documents.py",
+      "v12/python/src/baton_v12/job_manager/projection.py",
+      "v12/python/tools/attempt_diagnostics.py",
+      "v12/python/tools/stack_command.py",
+      "v12/python/tools/stack.py",
+      "v12/python/tools/worker_visibility.py",
+      "v12/python/tests/job_manager/test_delegation.py",
+      "v12/python/tests/job_manager/test_exchange.py",
+      "v12/python/tests/job_manager/test_execution_limits.py",
+      "v12/python/tests/job_manager/test_tool.py",
+      "v12/python/tests/tools/test_bootstrap.py",
+      "v12/python/tests/tools/test_worker_visibility.py",
+      "v12/python/tests/tools/test_attempt_diagnostics.py"
+    ],
+    "why": "ordinary-status seam and read-only report integration. FINDING assigns those to the parent, which is serially blocked on this child; carrying them here would take work the parent owns and would widen a bounded slice. They remain available, unchanged, in the parent evidence."
+  },
+  "producer_diff": {
+    "file": "producer.diff",
+    "how": "the preserved tracked.diff split per file on its `diff --git` headers and recombined for the producer paths only. No hunk was edited, reordered or regenerated.",
+    "paths": [
+      "v12/python/src/baton_v12/worker_manager/documents.py",
+      "v12/python/src/baton_v12/worker_manager/intake.py",
+      "v12/python/src/baton_v12/worker_manager/attempts.py"
+    ],
+    "sha256": "df78f9a0c01c8d48cfb177005c0e37317bb67a1286978417aea6cec1116aa9cc"
+  },
+  "producer_new_files": {
+    "v12/python/src/baton_v12/worker_manager/failure_cause.py": {
+      "sha256": "87a6264b266ed112c284d977d987c79256988f6cba04a770676432872c554935",
+      "source": "evidence/run-340352/retained-partial/v12/python/src/baton_v12/worker_manager/failure_cause.py",
+      "source_sha256": "87a6264b266ed112c284d977d987c79256988f6cba04a770676432872c554935"
+    },
+    "v12/python/tests/manager/test_attempt_failure_cause.py": {
+      "sha256": "279031824d0b478b2f1e3d5a48b60d6f0b78331356f7f9fd43ddbabaea4b407f",
+      "source": "evidence/run-340352/retained-partial/v12/python/tests/manager/test_attempt_failure_cause.py",
+      "source_sha256": "279031824d0b478b2f1e3d5a48b60d6f0b78331356f7f9fd43ddbabaea4b407f"
+    }
+  },
+  "read_only": "the parent evidence and the preserved instance were read, never written. No version-control operation of any kind was performed to derive this.",
+  "schema": "baton.w341357-recovery-input/1",
+  "what": "the PRODUCER-ONLY slice of the parent run340352 preserved partial work, derived read-only. This is UNVERIFIED RECOVERY INPUT and NOT a candidate, not a proposal and not accepted work."
+}

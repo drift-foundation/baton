@@ -1,0 +1,20 @@
+{
+  "exit": 0,
+  "seconds": 0.4383736529998714,
+  "files_verified": 1778,
+  "manifest_sha256": "3ea097ca231d580b3408dff49ca2776d84ab65c2d4a7cf7d0cba96017683bc3f",
+  "command": [
+    "/home/sl/.local/state/baton-v12-venv/bin/python",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.job_manager.test_native_stop_restart"
+  ],
+  "cwd": "/tmp/w354630-354939/candidate/v12/python",
+  "environment": {
+    "PYTHONPATH": "src:.",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "BATON_V12_DISK_ROOT": "/var/tmp/baton-w257624"
+  },
+  "candidate_preserved": true
+}

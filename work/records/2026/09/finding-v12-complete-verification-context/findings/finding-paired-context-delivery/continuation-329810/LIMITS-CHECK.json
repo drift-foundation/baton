@@ -1,0 +1,55 @@
+{
+  "additional_margin_seconds": 540,
+  "admission": "one implementation invocation, no automatic retry, report-and-hold; nothing submitted and nothing admitted",
+  "bounds": {
+    "cleanup_seconds": 60,
+    "implementer_invocations": 1,
+    "retry": false,
+    "total_seconds": 1500,
+    "turn_seconds": 900
+  },
+  "carried_from": "the accepted W321780 packet's own bounds table, as a selection rather than a correctness claim",
+  "cleanup_reserved_seconds": 60,
+  "requested": {
+    "provider_turn_seconds": 900,
+    "verification_command_seconds": 30
+  },
+  "resolved": {
+    "boundaries": {
+      "host_verification": {
+        "default_seconds": 300,
+        "origin": "job",
+        "seconds": 30,
+        "setting": "verification_command_seconds"
+      },
+      "integration_verification": {
+        "default_seconds": 1800,
+        "origin": "job",
+        "seconds": 30,
+        "setting": "verification_command_seconds"
+      },
+      "ordinary_verification": {
+        "default_seconds": 900,
+        "origin": "job",
+        "seconds": 30,
+        "setting": "verification_command_seconds"
+      },
+      "provider_turn": {
+        "default_seconds": 3600,
+        "origin": "job",
+        "seconds": 900,
+        "setting": "provider_turn_seconds"
+      }
+    },
+    "compatibility_generation": 1,
+    "requested": {
+      "provider_turn_seconds": 900,
+      "verification_command_seconds": 30
+    },
+    "scope": "per-invocation",
+    "units": "seconds"
+  },
+  "schema": "baton.w321776-continuation-limits-check/1",
+  "serving_seconds": 1440,
+  "stated_tension": "the comparable implementation Job in this campaign (W321528) selected provider_turn_seconds 3600 with a 4200s total and still spent its turn; a paired two-materializer change is larger than that slice, so 900/1500 may be too small. Raising an accepted bound is the owner act, so it is flagged here and not raised."
+}

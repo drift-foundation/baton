@@ -1,0 +1,67 @@
+{
+  "base": "fb48797903160aa764229d58f3a5beaf29648bfc",
+  "claim": 337453,
+  "not_an_authority": "A snapshot records what was accepted when it was taken. It is not a second authority and does not override a later decision. verify-inputs.py reports live-source drift explicitly.",
+  "preserves": "execution-333504, execution-333707 and execution-334663 are untouched, each with its own seal. The failed instance at /home/sl/baton-instances/attempt-diagnostics-w333486-334663 is preserved unchanged; read-only copies of its evidence are in the dossier.",
+  "schema": "baton.w333486-decision-snapshots/3",
+  "snapshots": {
+    "FINDING.md": {
+      "snapshot_sha256": "dd48d16c813422c267cfa9aaaba720420e217cbea4f384f5517c961079df3bd1",
+      "source_path": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/FINDING.md",
+      "source_sha256": "dd48d16c813422c267cfa9aaaba720420e217cbea4f384f5517c961079df3bd1"
+    },
+    "PLAN.md": {
+      "snapshot_sha256": "721c3a1a7a1a0f6b7a8749287431f1356b4a2fe81a416015649ff5370f3ada1f",
+      "source_path": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/PLAN.md",
+      "source_sha256": "721c3a1a7a1a0f6b7a8749287431f1356b4a2fe81a416015649ff5370f3ada1f"
+    },
+    "enforcement-integration.md": {
+      "snapshot_sha256": "f6d6aea39e2b90282d8c08d39a82c53ab8b7a9fbde27223705c5583b5576d889",
+      "source_path": "work/records/2026/10/finding-v12-authoring-expiry-enforcement/INTEGRATION-20261019.md",
+      "source_sha256": "f6d6aea39e2b90282d8c08d39a82c53ab8b7a9fbde27223705c5583b5576d889"
+    },
+    "enforcement-review.md": {
+      "snapshot_sha256": "22c6f3006d53976d5187dddd9c11545469c666e79be2e913239e20787f5c039a",
+      "source_path": "work/records/2026/10/finding-v12-authoring-expiry-enforcement/review-2026-10-19T17-25-12Z.md",
+      "source_sha256": "22c6f3006d53976d5187dddd9c11545469c666e79be2e913239e20787f5c039a"
+    },
+    "failed-run-INDEX.json": {
+      "snapshot_sha256": "1ece1fc297460a84b42864b5dfb10b6bfdd4b1de5a0e65ba341739781f3fcff0",
+      "source_path": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/evidence/execution-334663-failure/INDEX.json",
+      "source_sha256": "1ece1fc297460a84b42864b5dfb10b6bfdd4b1de5a0e65ba341739781f3fcff0"
+    },
+    "guard-integration-result.json": {
+      "snapshot_sha256": "eb2bd8e404adad63acd63002a0053d78ee4b38c4ec87eed436b64cd38bdd9e15",
+      "source_path": "work/records/2026/10/finding-v12-authoring-manager-guard/evidence/integration-337376/RESULT.json",
+      "source_sha256": "eb2bd8e404adad63acd63002a0053d78ee4b38c4ec87eed436b64cd38bdd9e15"
+    },
+    "guard-integration.md": {
+      "snapshot_sha256": "c7ec27fd38ab255277820c391aa787ad9eedec6d46df3e6318c0c16c8a61480e",
+      "source_path": "work/records/2026/10/finding-v12-authoring-manager-guard/INTEGRATION-337376.md",
+      "source_sha256": "c7ec27fd38ab255277820c391aa787ad9eedec6d46df3e6318c0c16c8a61480e"
+    },
+    "guard-review.md": {
+      "snapshot_sha256": "f28697c9f0b16dd2421d2a7e42941dc96c0892f938b2abe770a1b5b74b71d999",
+      "source_path": "work/records/2026/10/finding-v12-authoring-manager-guard/review-2026-10-19T20-01-02Z.md",
+      "source_sha256": "f28697c9f0b16dd2421d2a7e42941dc96c0892f938b2abe770a1b5b74b71d999"
+    },
+    "owner-failure-evidence.md": {
+      "snapshot_sha256": "c41ec181b51ed1fe8e6924744f6c61588b1493854392048a7cb973cc5d9622ea",
+      "source_path": "work/records/2026/10/finding-v12-native-pilot-instance-packet/OWNER-FAILURE-EVIDENCE-20261019.md",
+      "source_sha256": "c41ec181b51ed1fe8e6924744f6c61588b1493854392048a7cb973cc5d9622ea"
+    },
+    "review-333812.md": {
+      "snapshot_sha256": "9cefcfed7b8e8ee8ccbbbc416a51255889739e41ba7436bd84c28e5b7ba59d8a",
+      "source_path": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/review-2026-10-19T17-00-00Z.md",
+      "source_sha256": "9cefcfed7b8e8ee8ccbbbc416a51255889739e41ba7436bd84c28e5b7ba59d8a"
+    },
+    "review-334776.md": {
+      "snapshot_sha256": "f6332faf1e580450d0796e87f2624edb3f6f29acb4df8c377d98f13830ea7b09",
+      "source_path": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/review-2026-10-19T19-17-22Z.md",
+      "source_sha256": "f6332faf1e580450d0796e87f2624edb3f6f29acb4df8c377d98f13830ea7b09"
+    }
+  },
+  "snapshotted_at": "2026-10-20",
+  "snapshotted_by": "baton.claude",
+  "why": "Refreshed for the corrected checkpoint. NEW in this revision: the manager-guard review, its integration record and reusable real-process result, and the index of this Work first actual execution attempt and its startup failure. review-334776 (the acceptance of execution-334663) is carried because it contains the quiescent-versus-absent correction this revision applies. The first preparation review 333691 is DROPPED: its corrections are all carried in later accepted text and it remains in execution-333707."
+}

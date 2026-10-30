@@ -1,0 +1,43 @@
+{
+ "agreed": true,
+ "answers": {
+  "numeric_task_id": {
+   "pure_boundary": {
+    "refused": "a composed task carries no usable task identity; this is 7"
+   },
+   "worker_reader": {
+    "refused": "/tmp/tmpfxzaun5c/task.json carries no usable task identity"
+   }
+  },
+  "only_generation_and_profile": {
+   "pure_boundary": {
+    "refused": "a composed task is exactly schema, task_id, instructions, verification, source_root, source_profile, declared_base; missing declared_base, instruction"
+   },
+   "worker_reader": {
+    "refused": "/tmp/tmpon9ihzkn/task.json is exactly schema, task_id, instructions, verification, source_root, source_profile, declared_base; missing declared_base, "
+   }
+  },
+  "unknown_member": {
+   "pure_boundary": {
+    "refused": "a composed task is exactly schema, task_id, instructions, verification, source_root, source_profile, declared_base; unexpected mode"
+   },
+   "worker_reader": {
+    "refused": "/tmp/tmps60pb83v/task.json is exactly schema, task_id, instructions, verification, source_root, source_profile, declared_base; unexpected mode"
+   }
+  },
+  "valid": {
+   "pure_boundary": "accepted",
+   "worker_reader": "accepted"
+  },
+  "verification_as_a_string": {
+   "pure_boundary": {
+    "refused": "a composed task carries a verification that is a non-empty list of words; a command assembled from a string is a shell, and there is no shell here"
+   },
+   "worker_reader": {
+    "refused": "/tmp/tmpxmvxidcb/task.json carries a verification that is a non-empty list of words; a command this adapter has to assemble from a string is a shell, "
+   }
+  }
+ },
+ "note": "The probe admitted four digest-bound invalid tasks that the worker reader refused. The pure boundary now establishes the closed /2 shape and both readers answer the same for every vector; no provider adapter is imported by the product module.",
+ "replayed": "work/records/2026/10/finding-v12-capability-admission-predicate/evidence/review-378138/TASK-VALIDATION.json"
+}

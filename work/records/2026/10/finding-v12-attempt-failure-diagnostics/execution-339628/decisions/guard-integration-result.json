@@ -1,0 +1,17 @@
+{
+  "command": [
+    "python3",
+    "-B",
+    "-m",
+    "unittest",
+    "tests.manager.test_authoring_manager_guard",
+    "tests.manager.test_authoring_enforcement",
+    "tests.manager.test_attempts.CancellationFencesBeforeItStops",
+    "tests.job_manager.test_tool.TheStatusSurfaceMayReadIntegrationAndStillActOnNothing",
+    "tests.job_manager.test_tool.TheRecoveryPassVisitsTheUNCERTAINTokensToo",
+    "-v"
+  ],
+  "exit_code": 0,
+  "seconds": 15.27802191900264,
+  "authority": 337376
+}

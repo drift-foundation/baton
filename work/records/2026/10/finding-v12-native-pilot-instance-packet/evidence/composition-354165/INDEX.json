@@ -1,0 +1,80 @@
+{
+ "THE_ONE_MISMATCH_AND_ITS_RESOLUTION": {
+  "accepted_candidate": "f48c55193510ace5dd4a0571ffaf1f3cb78084966bb858c9bf37a7e2e7b7fc91",
+  "bc925cf5": "726197972a9b2558cbfa4eabfd877053a8ffbcd7c1b4c3f3f2b4c9372f85bbab",
+  "composed": "e929d7305a723e6e355079b120c6740d9d8ddf26fad89b771738e92e74688b45",
+  "current_baseline": "5c3cf84641bcbef5cf78c4bd058911dfc233b60242920ab30ebf6ce54fcdc7d",
+  "note": "git merge-file is unavailable in this environment, so the merge is a small explicit program that refuses rather than a hand-placed insertion. Its bytes are retained here for review.",
+  "path": "v12/python/src/baton_v12/worker_manager/attempts.py",
+  "resolution": "a REFUSING three-way merge, not an overwrite. threeway.py applies each side's edit regions against the common base and RAISES if the two sides touch overlapping base lines, because a silent pick is exactly the overwrite the review forbids. The regions are disjoint: the baseline inserts a new function after attempt_runtime_of, the candidate rewrites _order_quiescence branches. Both applied.",
+  "verified_both_survived": {
+   "baseline_contribution": "runtime_recovery_inventory present (1 definition)",
+   "candidate_contribution": "all 6 carry_degradation carriers present, equal to the candidate's own count",
+   "parses": true
+  },
+  "why_it_diverged": "d3a7a41c (the human's integration of W339626's candidate345109) added runtime_recovery_inventory to this file after the diagnostics candidate was based. This is the overlap M345516 declared."
+ },
+ "WHAT_IS_NOT_DONE_AND_IS_THE_REMAINING_SCOPE": {
+  "native_seam_proof": "NOT WRITTEN. The 900 ceiling is located by reading the pinned baseline and corroborated by the owner's own failure evidence, but no deterministic two-stage native acquisition/enforcement test was written this claim.",
+  "no_operational_work": "installation/recovery operands were not prepared; the review forbids building that on an unaccepted composition",
+  "permission_policy": "NOT PINNED, and no connection implemented. NATIVE-SEAM.json records the fork the next claim should settle first.",
+  "required_proofs_outstanding": [
+   "authorized work beyond the initial 900 for implementation AND review",
+   "expiry/cancellation still governing the exact runtime",
+   "cleanup/unknown holds persisting",
+   "stale/replayed/restarted decisions neither duplicating effects nor extending improperly",
+   "one real owner-produced expiry/failure joined through durable capture, /7 status and the packaged report"
+  ]
+ },
+ "answers_review": "review-2026-10-22T18-44-40Z.md (reviewer claim354131)",
+ "baseline": {
+  "commit": "d6881d8adbd567b6e92a4a2a1d0cb68ee781f70a",
+  "fixtures_carried": [
+   "work/records/2026/09/finding-v12-single-implementation-proof (test_authoring_enforcement resolves it from the checkout root)",
+   "work/records/2026/08/.../evidence/vectors.json"
+  ],
+  "how": "HEAD read and compared to the commit the review observed; the baseline was materialized from the COMMITTED tree, never the dirty shared working tree, and workspaces.py was re-hashed against HEAD's object to prove it",
+  "revalidated_before_composition": true
+ },
+ "boundaries_held": [
+  "no live instance, engine, provider or credential",
+  "no deployment, recovery, start or migration",
+  "no Git mutation -- the only version-control operations were reads (rev-parse, log, show, ls-tree, archive, diff) against the shared repository",
+  "no shared-tree import or edit: the composition exists only under /tmp",
+  "no expired-token revival, no deadline reset, no invented whole-Job cap -- nothing was implemented at all, so none was possible",
+  "the failed native episode and quickstart-a/sub-w321608-quickstart-1 identities untouched"
+ ],
+ "claim": 354165,
+ "composition_of_the_accepted_supplier_deltas": {
+  "accepted_candidate": "W333486 evidence/review-354068/CANDIDATE.json, 24 paths, base bc925cf5c62d69426ed5862af4d41f4d2a967b0f",
+  "base_equals_current_baseline": 19,
+  "base_mismatches": 1,
+  "byte_identical_to_the_accepted_candidate": 23,
+  "new_files_added": 4,
+  "three_way_merged": 1
+ },
+ "copies": {
+  "BASE-MISMATCH.json": "af7b33a98bd2881198ea22537a5e018a9389355fc0d6164683105c2576dc964f",
+  "MERGE-RESOLUTION.json": "d1d317f58575a4fdecb2e4afd8674f0c956a185980202cf82c29ced071f94b5d",
+  "NATIVE-SEAM.json": "820ec6da588693c78d5814faa8f294571fdeba74694db58ff6f0e920820f9488",
+  "joined-composed.log": "ac5a8a11d070d89b3f6386e7f1623eb5671700f7ae991ded1ef4fd2301aee557",
+  "merged-attempts.py": "e929d7305a723e6e355079b120c6740d9d8ddf26fad89b771738e92e74688b45",
+  "progress-section.md": "061912a384c0cfb6d844f9300225da96bb49696ee8bc999d8a8160ddec8ff5fe",
+  "threeway.py": "681234282901ff5dade0ed96ab5938bf72e27204fc301fd6d3724c09eaf5bdb6"
+ },
+ "isolated_root": "/tmp/w325959-354165 (base/ = pinned committed baseline, candidate/ = the composition)",
+ "progress_section": "PROGRESS.md \"2026-10-22 - baton.claude, claim354165\"",
+ "schema": "baton.w325959-composition/1",
+ "verification": {
+  "joined_gate_on_the_COMPOSED_CURRENT_BASELINE": {
+   "comparison": "the accepted candidate measured 1259 on the OLD bc925cf5 base; 1260 here on the current baseline. The composition does not regress the accepted suppliers on the newer tree, which is what this gate is for.",
+   "exit": 0,
+   "modules": 12,
+   "seconds": 14.213,
+   "skips": 0,
+   "tests": 1260,
+   "verdict": "OK"
+  },
+  "reused_not_rerun": "W333485's 171+37+46 permission proofs and W333486's 42 focused / packaged-command proofs are reused as accepted records attributed to their own Work, exactly as the review directs. No supplier research repeated."
+ }
+}

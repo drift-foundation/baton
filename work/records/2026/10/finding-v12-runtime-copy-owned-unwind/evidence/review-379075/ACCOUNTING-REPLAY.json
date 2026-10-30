@@ -1,0 +1,20 @@
+{
+  "retained": [
+    [
+      "/tmp/w376956-account-ont0zely/own",
+      "this attempt's own"
+    ],
+    [
+      "/tmp/w376956-account-ont0zely/foreign",
+      "not this attempt's"
+    ],
+    [
+      "/tmp/w376956-account-ont0zely/uncertain",
+      "unproven"
+    ]
+  ],
+  "report": "cleanup       retained /tmp/w376956-account-ont0zely/own: this attempt made the copied object and is NOT deleting it: a name-based removal cannot be bound to this object, so the bytes stay\ncleanup       retained /tmp/w376956-account-ont0zely/foreign: it is no longer the replaced object this attempt made, so it belongs to whoever replaced it\ncleanup       retained /tmp/w376956-account-ont0zely/uncertain: uncertain effect (creation outcome unknown); no deletion authority, and this attempt cannot say whether anything is there\ncleanup       RETAINED 3 path(s), none of them deleted: 1 this attempt made and did not delete, 1 left to whoever replaced it, 1 this attempt can neither claim nor disclaim:\ncleanup         /tmp/w376956-account-ont0zely/own  [this attempt's own]\ncleanup         /tmp/w376956-account-ont0zely/foreign  [not this attempt's]\ncleanup         /tmp/w376956-account-ont0zely/uncertain  [unproven]\n",
+  "own": "owned",
+  "foreign": "foreign",
+  "destructive_calls": 0
+}

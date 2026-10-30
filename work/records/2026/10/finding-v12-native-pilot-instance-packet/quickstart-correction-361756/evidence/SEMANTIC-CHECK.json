@@ -1,0 +1,431 @@
+{
+ "candidate_sha256": "65ba4fca90181cf60503ec7800bcb19b8325e1c5b39ce7a8fee73d88090dc215",
+ "checks": [
+  {
+   "check": "the retained patch still hashes to the digest this packet pins",
+   "outcome": true
+  },
+  {
+   "check": "the installed deployment supplies the current facts, which are NOT written into this checker",
+   "facts": {
+    "authority_uuid": "19b4f1459c2442e4aec8c7cd23e92312",
+    "base": "614668e0831e8c87cdae11ca43620e0d544a84d5",
+    "job": "quickstart-d",
+    "pool_generation": 1,
+    "work": "19b4f145-W1"
+   },
+   "outcome": true
+  },
+  {
+   "check": "the deployed task's structural check PASSES on the stale candidate -- which is why structure alone is not acceptance",
+   "outcome": true,
+   "said": "quickstart structure ok: 10943 bytes, 4 sections"
+  },
+  {
+   "check": "and it passes on the corrected candidate too",
+   "outcome": true,
+   "said": "quickstart structure ok: 16847 bytes, 4 sections"
+  },
+  {
+   "check": "the corrected candidate is ACCEPTED by the semantic check",
+   "outcome": true,
+   "reasons": []
+  },
+  {
+   "check": "the retained stale proposal is REJECTED",
+   "outcome": true,
+   "reasons": [
+    "the current destination /home/sl/baton-instances/native-coordination-pilot-w321608-4 is never named",
+    "the current Job quickstart-d is never named",
+    "the current Work 19b4f145-W1 is never named",
+    "the current authority uuid 19b4f1459c2442e4aec8c7cd23e92312 is never named",
+    "the current declared base 614668e0831e8c87cdae11ca43620e0d544a84d5 is never named",
+    "names instance 1's destination (native-coordination-pilot-w321608-1) as a current fact: With `DEST=/home/sl/baton-instances/native-coordination-pilot-w321608-1`:",
+    "names instance 1's Job (quickstart-a) as a current fact: The Job is `quickstart-a` with two stages, `implementation` then `review`, and no integration stage;",
+    "names instance 1's Job (quickstart-a) as a current fact: | `view --status $DEST/state/status.json --job quickstart-a` | one Job in detail: stage state, work, episode, offer, **attempt**, runtime, assignment,",
+    "names instance 1's Job (quickstart-a) as a current fact: `view --status $DEST/state/status.json --job quickstart-a`, which prints the stage's `attempt`, `runtime`, engine, assignment and either its frozen re",
+    "names instance 1's source (14e52d80679de5e844f72324df632da5e01cf393) as a current fact: This instance's bundle is built from the selected source `14e52d80679de5e844f72324df632da5e01cf393`, which is also the Job's declared base.",
+    "claims a verb is absent when attempt-diagnostics is in this build: attempt-diagnostics`\nand `manager fresh-attempt` among them \u2014 are not in this build",
+    "claims a verb is absent when manager fresh-attempt is in this build: fresh-attempt` among them \u2014 are not in this build",
+    "the installed subcommand repository is never mentioned",
+    "attempt-diagnostics is not shown with its ONE positional status document, which is its whole operand surface",
+    "fresh-attempt is not shown with --prior-job",
+    "the execution limits 3600/900 are not both stated",
+    "names the quiescence gate without saying it takes the assignment's generation",
+    "states runtime-quiescence:1 without labelling it an example for one assignment: a re-claim is refused with `Work is blocked by 'runtime-quiescence:1'` until that gate is discharged, and discharging it needs the engine's own absenc",
+    "names the participant baton.diagnostician-pilot, which this instance's configuration does not configure, without saying so or marking it historical: Giving the failure an owner is a deployment act on the dedicated diagnosis route (`baton.diagnostician-pilot`), performed without "
+   ]
+  },
+  {
+   "check": "and the rejection names native-coordination-pilot-w321608-1",
+   "outcome": true
+  },
+  {
+   "check": "and the rejection names quickstart-a",
+   "outcome": true
+  },
+  {
+   "check": "and the rejection names 14e52d80679de5e844f72324df632da5e01cf393",
+   "outcome": true
+  },
+  {
+   "check": "and the rejection names the false absence claim",
+   "outcome": true
+  },
+  {
+   "check": "ACCEPTS \u2014 the real instance: pool 1, review assignment 2 -- the corrected candidate is accepted",
+   "facts_used": "real",
+   "outcome": true,
+   "reasons": []
+  },
+  {
+   "check": "REJECTS \u2014 the same bytes against assignments {1,7}: the literal 2 is refused because no assignment carries it",
+   "facts_used": "pool 1, assignments [1, 7]",
+   "outcome": true,
+   "reasons": [
+    "runtime-quiescence:2 is not a generation any assignment in this instance's snapshot carries [1, 7]"
+   ]
+  },
+  {
+   "check": "ACCEPTS \u2014 the example moved to 7: accepted against {1,7}",
+   "facts_used": "pool 1, assignments [1, 7]",
+   "outcome": true,
+   "reasons": []
+  },
+  {
+   "check": "REJECTS \u2014 the false equivalence (gate = pool generation) is refused under BOTH fact sets",
+   "facts_used": "both",
+   "outcome": true,
+   "reasons": [
+    "names the quiescence gate without saying it takes the assignment's generation",
+    "ties the quiescence gate to the POOL generation, which is not what Authority.cancel fences: a re-claim is refused with `Work is blocked by 'runtime-quiescence:1'` \u2014 this deployment's pool generation is 1 \u2014 until that gate is discharged.",
+    "states runtime-quiescence:1 without labelling it an example for one assignment: a re-claim is refused with `Work is blocked by 'runtime-quiescence:1'` \u2014 this deployment's pool generation is 1 \u2014 until that gate is discharged."
+   ]
+  },
+  {
+   "allocations": [
+    1
+   ],
+   "assignments": [
+    1,
+    2
+   ],
+   "check": "the pool generation and an assignment generation really do differ on this instance, so the case is not hypothetical",
+   "outcome": true,
+   "pool": 1
+  },
+  {
+   "check": "the previous revision's candidate is refused by this rule",
+   "outcome": true
+  },
+  {
+   "check": "the variant 'the retained stale proposal' is REJECTED",
+   "mutated": true,
+   "outcome": true,
+   "reasons": [
+    "the current destination /home/sl/baton-instances/native-coordination-pilot-w321608-4 is never named",
+    "the current Job quickstart-d is never named",
+    "the current Work 19b4f145-W1 is never named",
+    "the current authority uuid 19b4f1459c2442e4aec8c7cd23e92312 is never named"
+   ]
+  },
+  {
+   "check": "the variant 'the previous candidate, quickstart-correction-361660' is REJECTED",
+   "mutated": true,
+   "outcome": true,
+   "reasons": [
+    "names the quiescence gate without saying it takes the assignment's generation",
+    "ties the quiescence gate to the POOL generation, which is not what Authority.cancel fences: a re-claim is refused with `Work is blocked by 'runtime-quiescence:1'` \u2014 this deployment's pool generation is 1 \u2014 until that gate is discharged, and d",
+    "states runtime-quiescence:1 without labelling it an example for one assignment: a re-claim is refused with `Work is blocked by 'runtime-quiescence:1'` \u2014 this deployment's pool generation is 1 \u2014 until that gate is discharged, and d"
+   ]
+  },
+  {
+   "check": "the variant 'a participant absence asserted about the AUTHORITY rather than the configuration' is REJECTED",
+   "mutated": true,
+   "outcome": true,
+   "reasons": [
+    "names the participant baton.diagnostician, which this instance's configuration does not configure, without saying so or marking it historical: Both supported shapes \u2014 adding a diagnostic handler to the Work's route, or a dedicated diagnostic Work on its own route \u2014 are PAC",
+    "asserts a participant's absence from the AUTHORITY, which configuration alone cannot establish: Both supported shapes \u2014 adding a diagnostic handler to the Work's route, or a dedicated diagnostic Work on its own route \u2014 are PAC"
+   ]
+  },
+  {
+   "check": "the variant 'wrong instance (destination 1)' is REJECTED",
+   "mutated": true,
+   "outcome": true,
+   "reasons": [
+    "the current destination /home/sl/baton-instances/native-coordination-pilot-w321608-4 is never named",
+    "names instance 1's destination (native-coordination-pilot-w321608-1) as a current fact: With `DEST=/home/sl/baton-instances/native-coordination-pilot-w321608-1`:"
+   ]
+  },
+  {
+   "check": "the variant 'wrong Job (quickstart-a)' is REJECTED",
+   "mutated": true,
+   "outcome": true,
+   "reasons": [
+    "the current Job quickstart-d is never named",
+    "names instance 1's Job (quickstart-a) as a current fact: The Job is `quickstart-a` with two stages, `implementation` then `review`, and no integration stage;",
+    "names instance 1's Job (quickstart-a) as a current fact: | `view --status $DEST/state/status.json --job quickstart-a` | one Job in detail: stage state, work, episode, offer, **attempt**, runtime, assignment,",
+    "names instance 1's Job (quickstart-a) as a current fact: `quickstart-a` ran both stages to `completed` with a review verdict of `ACCEPTED`, and the candidate it produced described the wrong deployment."
+   ]
+  },
+  {
+   "check": "the variant 'wrong base (14e52d80)' is REJECTED",
+   "mutated": true,
+   "outcome": true,
+   "reasons": [
+    "the current declared base 614668e0831e8c87cdae11ca43620e0d544a84d5 is never named",
+    "names instance 1's source (14e52d80679de5e844f72324df632da5e01cf393) as a current fact: This page describes **the installed instance 4**, built from `14e52d80679de5e844f72324df632da5e01cf393`.",
+    "names instance 1's source (14e52d80679de5e844f72324df632da5e01cf393) as a current fact: This instance's bundle is built from the selected source `14e52d80679de5e844f72324df632da5e01cf393`, which is also the Job's declared base, and `ident"
+   ]
+  },
+  {
+   "check": "the variant 'wrong authority and Work' is REJECTED",
+   "mutated": true,
+   "outcome": true,
+   "reasons": [
+    "the current Work 19b4f145-W1 is never named",
+    "the current authority uuid 19b4f1459c2442e4aec8c7cd23e92312 is never named",
+    "names instance 3's authority prefix (5a8fa4b4) as a current fact: Its Work is `5a8fa4b4-W1` under authority `5a8fa4b4000000000000000000000000`, and each invocation is bounded at **3600s of provider turn and 900s of v",
+    "names instance 3's authority prefix (5a8fa4b4) as a current fact: | `manager --store $DEST/db/jobs.sqlite3 --incarnation <yours> --authority-uuid 5a8fa4b4000000000000000000000000 submit --document <submission.json>` "
+   ]
+  },
+  {
+   "check": "the variant 'false command absence' is REJECTED",
+   "mutated": true,
+   "outcome": true,
+   "reasons": [
+    "claims a verb is absent when attempt-diagnostics is in this build: attempt-diagnostics` and `manager fresh-attempt` among them -- are not in this build",
+    "claims a verb is absent when manager fresh-attempt is in this build: fresh-attempt` among them -- are not in this build"
+   ]
+  },
+  {
+   "check": "the variant 'an invented diagnosis participant' is REJECTED",
+   "mutated": true,
+   "outcome": true,
+   "reasons": [
+    "names the participant baton.diagnostician, which this instance's configuration does not configure, without saying so or marking it historical: Both supported shapes \u2014 adding a diagnostic handler to the Work's route, or a dedicated diagnostic Work on its own route \u2014 are PAC",
+    "names the participant baton.diagnostician-pilot, which this instance's configuration does not configure, without saying so or marking it historical: This deployment's own handler is `baton.diagnostician-pilot`, and routing a failure to it is supported:"
+   ]
+  },
+  {
+   "check": "the variant 'limits dropped' is REJECTED",
+   "mutated": true,
+   "outcome": true,
+   "reasons": [
+    "the execution limits 3600/900 are not both stated"
+   ]
+  },
+  {
+   "check": "the variant 'pressure to repeat completed work' is REJECTED",
+   "mutated": true,
+   "outcome": true,
+   "reasons": [
+    "tells an operator to repeat completed work: completed job should be retried"
+   ]
+  }
+ ],
+ "claim": 361660,
+ "facts": {
+  "allocation_generations": [
+   1
+  ],
+  "assignment_generations": [
+   1,
+   2
+  ],
+  "authority_uuid": "19b4f1459c2442e4aec8c7cd23e92312",
+  "base": "614668e0831e8c87cdae11ca43620e0d544a84d5",
+  "canonical_target": "614668e0831e8c87cdae11ca43620e0d544a84d5",
+  "configuration_read": [
+   "/home/sl/baton-instances/native-coordination-pilot-w321608-4/deployment.json",
+   "/home/sl/baton-instances/native-coordination-pilot-w321608-4/authority-identity.json",
+   "/home/sl/baton-instances/native-coordination-pilot-w321608-4/generated/submission.json",
+   "/home/sl/baton-instances/native-coordination-pilot-w321608-4/state/status.json"
+  ],
+  "configured_participants": [
+   "baton.claude-pilot",
+   "baton.integrator-pilot",
+   "baton.reviewer-pilot",
+   "baton.reviewer-receipt-pilot",
+   "baton.slaw",
+   "baton.verifier-pilot"
+  ],
+  "destination": "/home/sl/baton-instances/native-coordination-pilot-w321608-4",
+  "integrator": "baton.integrator-pilot",
+  "job": "quickstart-d",
+  "launch_logs": "/home/sl/baton-instances/native-coordination-pilot-w321608-4/state/launch/logs",
+  "no_authority_store_opened": true,
+  "pool_generation": 1,
+  "provider_turn_seconds": 3600,
+  "receipts": {
+   "approval": "baton.slaw",
+   "review": "baton.reviewer-receipt-pilot",
+   "verification": "baton.verifier-pilot"
+  },
+  "retention": "retain",
+  "stage_participants": [
+   "implementation",
+   "review"
+  ],
+  "terminal_policy": "report-and-hold",
+  "verification_command_seconds": 900,
+  "work": "19b4f145-W1"
+ },
+ "failed": [],
+ "packet": "/home/sl/src/baton/work/records/2026/10/finding-v12-native-pilot-instance-packet/quickstart-correction-361756",
+ "retained_patch_sha256": "9468ec71a9a1e693e2d7718b1584ec60f82c9ffbda0ca9dc504c9e3887e1bdfd",
+ "seconds": 0.025597963998734485,
+ "semantic": {
+  "corrected_rejections": [],
+  "stale_rejections": [
+   "the current destination /home/sl/baton-instances/native-coordination-pilot-w321608-4 is never named",
+   "the current Job quickstart-d is never named",
+   "the current Work 19b4f145-W1 is never named",
+   "the current authority uuid 19b4f1459c2442e4aec8c7cd23e92312 is never named",
+   "the current declared base 614668e0831e8c87cdae11ca43620e0d544a84d5 is never named",
+   "names instance 1's destination (native-coordination-pilot-w321608-1) as a current fact: With `DEST=/home/sl/baton-instances/native-coordination-pilot-w321608-1`:",
+   "names instance 1's Job (quickstart-a) as a current fact: The Job is `quickstart-a` with two stages, `implementation` then `review`, and no integration stage;",
+   "names instance 1's Job (quickstart-a) as a current fact: | `view --status $DEST/state/status.json --job quickstart-a` | one Job in detail: stage state, work, episode, offer, **attempt**, runtime, assignment,",
+   "names instance 1's Job (quickstart-a) as a current fact: `view --status $DEST/state/status.json --job quickstart-a`, which prints the stage's `attempt`, `runtime`, engine, assignment and either its frozen re",
+   "names instance 1's source (14e52d80679de5e844f72324df632da5e01cf393) as a current fact: This instance's bundle is built from the selected source `14e52d80679de5e844f72324df632da5e01cf393`, which is also the Job's declared base.",
+   "claims a verb is absent when attempt-diagnostics is in this build: attempt-diagnostics`\nand `manager fresh-attempt` among them \u2014 are not in this build",
+   "claims a verb is absent when manager fresh-attempt is in this build: fresh-attempt` among them \u2014 are not in this build",
+   "the installed subcommand repository is never mentioned",
+   "attempt-diagnostics is not shown with its ONE positional status document, which is its whole operand surface",
+   "fresh-attempt is not shown with --prior-job",
+   "the execution limits 3600/900 are not both stated",
+   "names the quiescence gate without saying it takes the assignment's generation",
+   "states runtime-quiescence:1 without labelling it an example for one assignment: a re-claim is refused with `Work is blocked by 'runtime-quiescence:1'` until that gate is discharged, and discharging it needs the engine's own absenc",
+   "names the participant baton.diagnostician-pilot, which this instance's configuration does not configure, without saying so or marking it historical: Giving the failure an owner is a deployment act on the dedicated diagnosis route (`baton.diagnostician-pilot`), performed without "
+  ],
+  "variants": [
+   {
+    "reasons": [
+     "the current destination /home/sl/baton-instances/native-coordination-pilot-w321608-4 is never named",
+     "the current Job quickstart-d is never named",
+     "the current Work 19b4f145-W1 is never named",
+     "the current authority uuid 19b4f1459c2442e4aec8c7cd23e92312 is never named",
+     "the current declared base 614668e0831e8c87cdae11ca43620e0d544a84d5 is never named",
+     "names instance 1's destination (native-coordination-pilot-w321608-1) as a current fact: With `DEST=/home/sl/baton-instances/native-coordination-pilot-w321608-1`:",
+     "names instance 1's Job (quickstart-a) as a current fact: The Job is `quickstart-a` with two stages, `implementation` then `review`, and no integration stage;",
+     "names instance 1's Job (quickstart-a) as a current fact: | `view --status $DEST/state/status.json --job quickstart-a` | one Job in detail: stage state, work, episode, offer, **attempt**, runtime, assignment,",
+     "names instance 1's Job (quickstart-a) as a current fact: `view --status $DEST/state/status.json --job quickstart-a`, which prints the stage's `attempt`, `runtime`, engine, assignment and either its frozen re",
+     "names instance 1's source (14e52d80679de5e844f72324df632da5e01cf393) as a current fact: This instance's bundle is built from the selected source `14e52d80679de5e844f72324df632da5e01cf393`, which is also the Job's declared base.",
+     "claims a verb is absent when attempt-diagnostics is in this build: attempt-diagnostics`\nand `manager fresh-attempt` among them \u2014 are not in this build",
+     "claims a verb is absent when manager fresh-attempt is in this build: fresh-attempt` among them \u2014 are not in this build",
+     "the installed subcommand repository is never mentioned",
+     "attempt-diagnostics is not shown with its ONE positional status document, which is its whole operand surface",
+     "fresh-attempt is not shown with --prior-job",
+     "the execution limits 3600/900 are not both stated",
+     "names the quiescence gate without saying it takes the assignment's generation",
+     "states runtime-quiescence:1 without labelling it an example for one assignment: a re-claim is refused with `Work is blocked by 'runtime-quiescence:1'` until that gate is discharged, and discharging it needs the engine's own absenc",
+     "names the participant baton.diagnostician-pilot, which this instance's configuration does not configure, without saying so or marking it historical: Giving the failure an owner is a deployment act on the dedicated diagnosis route (`baton.diagnostician-pilot`), performed without "
+    ],
+    "rejected": true,
+    "variant": "the retained stale proposal"
+   },
+   {
+    "reasons": [
+     "names the quiescence gate without saying it takes the assignment's generation",
+     "ties the quiescence gate to the POOL generation, which is not what Authority.cancel fences: a re-claim is refused with `Work is blocked by 'runtime-quiescence:1'` \u2014 this deployment's pool generation is 1 \u2014 until that gate is discharged, and d",
+     "states runtime-quiescence:1 without labelling it an example for one assignment: a re-claim is refused with `Work is blocked by 'runtime-quiescence:1'` \u2014 this deployment's pool generation is 1 \u2014 until that gate is discharged, and d"
+    ],
+    "rejected": true,
+    "variant": "the previous candidate, quickstart-correction-361660"
+   },
+   {
+    "reasons": [
+     "names the participant baton.diagnostician, which this instance's configuration does not configure, without saying so or marking it historical: Both supported shapes \u2014 adding a diagnostic handler to the Work's route, or a dedicated diagnostic Work on its own route \u2014 are PAC",
+     "asserts a participant's absence from the AUTHORITY, which configuration alone cannot establish: Both supported shapes \u2014 adding a diagnostic handler to the Work's route, or a dedicated diagnostic Work on its own route \u2014 are PAC"
+    ],
+    "rejected": true,
+    "variant": "a participant absence asserted about the AUTHORITY rather than the configuration"
+   },
+   {
+    "reasons": [
+     "the current destination /home/sl/baton-instances/native-coordination-pilot-w321608-4 is never named",
+     "names instance 1's destination (native-coordination-pilot-w321608-1) as a current fact: With `DEST=/home/sl/baton-instances/native-coordination-pilot-w321608-1`:"
+    ],
+    "rejected": true,
+    "variant": "wrong instance (destination 1)"
+   },
+   {
+    "reasons": [
+     "the current Job quickstart-d is never named",
+     "names instance 1's Job (quickstart-a) as a current fact: The Job is `quickstart-a` with two stages, `implementation` then `review`, and no integration stage;",
+     "names instance 1's Job (quickstart-a) as a current fact: | `view --status $DEST/state/status.json --job quickstart-a` | one Job in detail: stage state, work, episode, offer, **attempt**, runtime, assignment,",
+     "names instance 1's Job (quickstart-a) as a current fact: `quickstart-a` ran both stages to `completed` with a review verdict of `ACCEPTED`, and the candidate it produced described the wrong deployment.",
+     "names instance 1's Job (quickstart-a) as a current fact: `quickstart-a`'s checked four headings, a byte floor and three markers, and passed on a document about another instance.",
+     "names instance 1's Job (quickstart-a) as a current fact: `view --status $DEST/state/status.json --job quickstart-a`, which prints the stage's `attempt`, `runtime`, engine, assignment and either its frozen re",
+     "names instance 1's Job (quickstart-a) as a current fact: `disposition pending` reports it under `work.assignment`, and `view --status $DEST/state/status.json --job quickstart-a` prints it with the runtime.",
+     "names instance 1's Job (quickstart-a) as a current fact: Both of `quickstart-a`'s stages have **completed**, so nothing here is an instruction to cancel either one;"
+    ],
+    "rejected": true,
+    "variant": "wrong Job (quickstart-a)"
+   },
+   {
+    "reasons": [
+     "the current declared base 614668e0831e8c87cdae11ca43620e0d544a84d5 is never named",
+     "names instance 1's source (14e52d80679de5e844f72324df632da5e01cf393) as a current fact: This page describes **the installed instance 4**, built from `14e52d80679de5e844f72324df632da5e01cf393`.",
+     "names instance 1's source (14e52d80679de5e844f72324df632da5e01cf393) as a current fact: This instance's bundle is built from the selected source `14e52d80679de5e844f72324df632da5e01cf393`, which is also the Job's declared base, and `ident"
+    ],
+    "rejected": true,
+    "variant": "wrong base (14e52d80)"
+   },
+   {
+    "reasons": [
+     "the current Work 19b4f145-W1 is never named",
+     "the current authority uuid 19b4f1459c2442e4aec8c7cd23e92312 is never named",
+     "names instance 3's authority prefix (5a8fa4b4) as a current fact: Its Work is `5a8fa4b4-W1` under authority `5a8fa4b4000000000000000000000000`, and each invocation is bounded at **3600s of provider turn and 900s of v",
+     "names instance 3's authority prefix (5a8fa4b4) as a current fact: | `manager --store $DEST/db/jobs.sqlite3 --incarnation <yours> --authority-uuid 5a8fa4b4000000000000000000000000 submit --document <submission.json>` ",
+     "names instance 3's authority prefix (5a8fa4b4) as a current fact: What the owner owes next is answered, read-only, by `disposition pending --work 5a8fa4b4-W1 --participant baton.slaw`;",
+     "names instance 3's authority prefix (5a8fa4b4) as a current fact: $DEST/distro/baton-v12-stack disposition close \\ --authority-store $DEST/db/authority.sqlite3 \\ --authority-uuid 5a8fa4b4000000000000000000000000 \\ --"
+    ],
+    "rejected": true,
+    "variant": "wrong authority and Work"
+   },
+   {
+    "reasons": [
+     "claims a verb is absent when attempt-diagnostics is in this build: attempt-diagnostics` and `manager fresh-attempt` among them -- are not in this build",
+     "claims a verb is absent when manager fresh-attempt is in this build: fresh-attempt` among them -- are not in this build"
+    ],
+    "rejected": true,
+    "variant": "false command absence"
+   },
+   {
+    "reasons": [
+     "names the participant baton.diagnostician, which this instance's configuration does not configure, without saying so or marking it historical: Both supported shapes \u2014 adding a diagnostic handler to the Work's route, or a dedicated diagnostic Work on its own route \u2014 are PAC",
+     "names the participant baton.diagnostician-pilot, which this instance's configuration does not configure, without saying so or marking it historical: This deployment's own handler is `baton.diagnostician-pilot`, and routing a failure to it is supported:"
+    ],
+    "rejected": true,
+    "variant": "an invented diagnosis participant"
+   },
+   {
+    "reasons": [
+     "the execution limits 3600/900 are not both stated"
+    ],
+    "rejected": true,
+    "variant": "limits dropped"
+   },
+   {
+    "reasons": [
+     "tells an operator to repeat completed work: completed job should be retried"
+    ],
+    "rejected": true,
+    "variant": "pressure to repeat completed work"
+   }
+  ]
+ },
+ "stale_sha256": "2b521594655188a6b686e9ac70155a0d51f3532f4302f254fdb481afee9fc710",
+ "structural": {
+  "corrected": {
+   "said": "quickstart structure ok: 16847 bytes, 4 sections",
+   "status": 0
+  },
+  "note": "the deployed Job ran exactly this and it passes on a document about another deployment",
+  "stale": {
+   "said": "quickstart structure ok: 10943 bytes, 4 sections",
+   "status": 0
+  }
+ }
+}

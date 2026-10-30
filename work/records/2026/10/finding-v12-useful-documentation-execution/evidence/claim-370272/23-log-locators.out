@@ -1,0 +1,76 @@
+{
+ "attempt_id": "attempt-16aa4dc348aa54aac84738be2f9caeac86ff4767d32aa59d88c48410d4fb9db9",
+ "log_root": "/home/sl/baton-instances/useful-template-job-w366962/state/launch/logs/attempt-16aa4dc348aa54aac84738be2f9caeac86ff4767d32aa59d88c48410d4fb9db9",
+ "native": {
+  "entries": [
+   ".credentials.json",
+   ".last-cleanup",
+   "backups%2F.claude.json.backup.1793150794556",
+   "projects%2F-output%2F0d9c2e92-5385-45f5-ae96-c83888cbd460%2Ftool-results%2Fbfcivgxvo.txt",
+   "projects%2F-output%2F0d9c2e92-5385-45f5-ae96-c83888cbd460.jsonl",
+   "sessions%2F33.e61d3a28d83cb6e01380a7e925bb16b7dabb22125bda79354b81fe661cb8def6.key",
+   "sessions%2F33.json",
+   "shell-snapshots%2Fsnapshot-bash-1793150801438-kga3cr.sh"
+  ],
+  "place": "/home/sl/baton-instances/useful-template-job-w366962/state/launch/logs/attempt-16aa4dc348aa54aac84738be2f9caeac86ff4767d32aa59d88c48410d4fb9db9/native",
+  "state": "captured",
+  "why": "the provider's own session files are here"
+ },
+ "streams": [
+  {
+   "bytes": 0,
+   "declaration": "none",
+   "file": "absent",
+   "place": "/home/sl/baton-instances/useful-template-job-w366962/state/launch/logs/attempt-16aa4dc348aa54aac84738be2f9caeac86ff4767d32aa59d88c48410d4fb9db9/worker.stdout.log",
+   "state": "absent",
+   "stream": "worker.stdout",
+   "why": "no log was created for this stream"
+  },
+  {
+   "bytes": 0,
+   "declaration": "none",
+   "file": "absent",
+   "place": "/home/sl/baton-instances/useful-template-job-w366962/state/launch/logs/attempt-16aa4dc348aa54aac84738be2f9caeac86ff4767d32aa59d88c48410d4fb9db9/worker.stderr.log",
+   "state": "absent",
+   "stream": "worker.stderr",
+   "why": "no log was created for this stream"
+  },
+  {
+   "bytes": 0,
+   "declaration": "none",
+   "file": "present",
+   "place": "/home/sl/baton-instances/useful-template-job-w366962/state/launch/logs/attempt-16aa4dc348aa54aac84738be2f9caeac86ff4767d32aa59d88c48410d4fb9db9/provider.stdout.log",
+   "state": "empty",
+   "stream": "provider.stdout",
+   "why": "the log exists and nothing has been written to it"
+  },
+  {
+   "bytes": 157,
+   "declaration": "none",
+   "file": "present",
+   "place": "/home/sl/baton-instances/useful-template-job-w366962/state/launch/logs/attempt-16aa4dc348aa54aac84738be2f9caeac86ff4767d32aa59d88c48410d4fb9db9/provider.stderr.log",
+   "state": "live",
+   "stream": "provider.stderr",
+   "why": "bytes are here and no writer has said this stream ended; completeness is unknown"
+  },
+  {
+   "bytes": 0,
+   "declaration": "none",
+   "file": "absent",
+   "place": "/home/sl/baton-instances/useful-template-job-w366962/state/launch/logs/attempt-16aa4dc348aa54aac84738be2f9caeac86ff4767d32aa59d88c48410d4fb9db9/verification.stdout.log",
+   "state": "absent",
+   "stream": "verification.stdout",
+   "why": "no log was created for this stream"
+  },
+  {
+   "bytes": 0,
+   "declaration": "none",
+   "file": "absent",
+   "place": "/home/sl/baton-instances/useful-template-job-w366962/state/launch/logs/attempt-16aa4dc348aa54aac84738be2f9caeac86ff4767d32aa59d88c48410d4fb9db9/verification.stderr.log",
+   "state": "absent",
+   "stream": "verification.stderr",
+   "why": "no log was created for this stream"
+  }
+ ],
+ "target": "/run/baton/attempt-logs"
+}

@@ -1,0 +1,5 @@
+{
+  "v12/python/tools/bootstrap.py": "37a562891e2a330e53d8de86d685d2cd8ac2c2b4c261fa5285d9be9c03f4ce67",
+  "v12/python/tests/tools/test_startup_prerequisites.py": "1e249ad09f882792916d96f4d7a07a77fbd82b3e9b99ef8a2be61c85e032e362",
+  "v12/python/tests/tools/test_instance.py": "e245fbc4dd451b457da5db14be2a8ce8560ad4d6ebe5bbe094a62274fa14ea30"
+}

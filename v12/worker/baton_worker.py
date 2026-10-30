@@ -88,6 +88,54 @@ import sys
 import threading
 import time
 
+# W376586: THE SHARED TYPED DECLARATION REFUSAL, AND WHY ITS ABSENCE CANNOT
+# SILENTLY DEFEAT THE CATCH.
+#
+# ONE MODULE SO ONE TYPE. The amendment requires the catch below to "exercise
+# actual package imports so a duplicate type definition cannot defeat it": a
+# second class defined here would make the `except` test identity against the
+# wrong object, and the adapter's typed refusal would escape as a generic
+# agent failure -- the exact outcome the four codes exist to replace.
+#
+# THE IMPORT IS GUARDED AND THAT IS NOT THE `attempt_log_format` COMPROMISE.
+# An optional capture module degrades to no diagnostics, which is a cost; an
+# optional exception class would ordinarily degrade to no catch, which would be
+# the packaging defect review 2026-10-28T20-07-16Z found, moved here and made
+# quiet. WHAT MAKES IT SAFE IS THAT THE PRODUCER CANNOT EXIST WITHOUT IT: every
+# role adapter imports this module at its top level, so an image carrying an
+# adapter and not this module cannot import the adapter at all -- it fails
+# loudly, before this program starts, which is precisely the failure the review
+# found. An image that carries NO adapter -- the reference and the preparation
+# images, which ship no provider -- has nothing that can raise a typed refusal,
+# so a dead clause there is the honest shape, and those two recipes keep the
+# exhaustive layer contents their own gates assert.
+#
+# `test_worker_packaging` holds the pairing as a rule DERIVED from the recipes:
+# a recipe must carry this module exactly when one of the programs it installs
+# imports it unconditionally. The module is standard-library-only and imports
+# nothing, including nothing from `baton_v12`.
+try:
+    import adapter_refusal
+except ImportError:                                        # pragma: no cover
+    class _NoTypedRefusal:
+        """The inert stand-in for an image that ships no role adapter.
+
+        NOT A SECOND DEFINITION OF THE SHARED CLASS. `AdapterDeclarationRefusal`
+        here is a private exception type nothing in this distribution raises,
+        constructs or exports -- so the `except` clause below is unreachable
+        rather than wrong. A class that could be raised would be the duplicate
+        definition the amendment forbids.
+        """
+
+        class AdapterDeclarationRefusal(Exception):
+            pass
+
+        COMPONENT = None
+        CODES = ()
+        ROLES = ()
+
+    adapter_refusal = _NoTypedRefusal
+
 PROTOCOL = "baton.worker-entry/1"
 
 # The frame ceiling, both directions. Large enough for a human contract and a
@@ -151,6 +199,24 @@ JOB_LAUNCH_SCHEMA = "baton.worker-launch/3"
 JOB_LAUNCH_MEMBERS = EXCHANGE_LAUNCH_MEMBERS + ("job_execution",)
 CONTEXT_LAUNCH_SCHEMA = "baton.worker-launch/4"
 CONTEXT_LAUNCH_MEMBERS = JOB_LAUNCH_MEMBERS + ("provider_context",)
+
+# W376586: /5 IS THE ONE CURRENT FILE-EXCHANGE WRAPPER, and it is a different
+# KIND of version from the four above.
+#
+# `/1`-`/4` each describe this container. `/5` describes the WIRE it and the
+# manager speak and carries one of those four as its payload --
+# `{schema, wire_profile, payload}` and nothing else. `AMENDMENT-376531.md`
+# selects exactly this wrapper and exactly one profile, and requires the typed
+# worker to refuse an unsupported or UNWRAPPED file-exchange launch before the
+# adapter is constructed, before the receipt is published and before any
+# provider runs. `serve` reaches none of those if this validation raises, which
+# is what makes "before" a property of the order rather than a claim.
+#
+# THE PROFILE IS CHECKED BY EQUALITY: no negotiation, no list, no default. A
+# profile this program cannot name is a wire it cannot speak.
+WRAPPER_LAUNCH_SCHEMA = "baton.worker-launch/5"
+WRAPPER_LAUNCH_MEMBERS = ("schema", "wire_profile", "payload")
+WIRE_PROFILE = "typed-adapter-file-exchange/1"
 
 # EVERY LAUNCH GENERATION THIS FILE READS, in one place, ordered oldest first.
 # W197661: the refusal for an unrecognised version spelled three of these by
@@ -247,7 +313,38 @@ EVENT_ROOT = "/run/baton/exchange/events"
 COMMAND_SCHEMA = "baton.worker-exchange.command/1"
 RECEIPT_SCHEMA = "baton.worker-exchange.receipt/1"
 STATE_SCHEMA = "baton.worker-exchange.state/1"
-TERMINAL_SCHEMA = "baton.worker-exchange.terminal/1"
+# W376586: THE TERMINAL MOVES TO `/2`, and the version is in the name for the
+# reason every other document here carries one -- a manager reading `/1` and a
+# worker writing `/2` disagree about a MANDATORY member, and an equality test
+# is how that is found at the boundary instead of inside a parser. The
+# amendment selects one current closed release: there is no dual `/1` support
+# at either end.
+TERMINAL_SCHEMA = "baton.worker-exchange.terminal/2"
+
+# WHAT `/2` ADDS, and it is MANDATORY rather than optional: the ten existing
+# members plus `adapter_failure`, null on every ending that was not a typed
+# pre-provider declaration refusal. Mandatory because an absent member and a
+# null one are different claims only if both are spellable, and the manager
+# must be able to tell "this worker says no typed failure happened" from "this
+# worker does not know about typed failures".
+ADAPTER_FAILURE_DOCUMENT = "adapter_failure"
+ADAPTER_FAILURE_MEMBERS = ("component", "code", "role", "operation",
+                           "operation_id")
+# The ONE operation a typed declaration cause may name. A declaration is
+# checked when the provider turn is composed, so `describe` -- which invokes
+# no provider -- cannot produce one, and a typed refusal raised there keeps the
+# safe generic agent failure.
+ADAPTER_FAILURE_OPERATION = "work"
+# The fault code the ending still carries. The typed object is ADDITIONAL
+# evidence about an `agent` fault and never a new ending or a new code: the
+# closed fault vocabulary is unchanged, so a manager that cannot read the added
+# member still reads the same ending it always did.
+ADAPTER_FAILURE_CODE = "agent"
+# The added object's own ceiling, separate from the whole document's. Five
+# bounded literals cannot approach it; a bound is here because this is the
+# first member of this document composed from an OBJECT the adapter raised
+# rather than from values this program authored.
+MAX_ADAPTER_FAILURE_BYTES = 1024
 
 COMMAND_MEMBERS = ("schema", "session", "attempt_id", "sequence_id",
                    "operations")
@@ -653,6 +750,38 @@ def read_launch(place=LAUNCH_DOCUMENT):
     return document
 
 
+def container_of(document):
+    """The CONTAINER document inside one launch delivery, wrapper or not.
+
+    W376586 review 2026-10-28T22-29-20Z, P1. `/5` moved every container member
+    one level down, and `serve` reads the session from the delivery BEFORE
+    validating it -- so every valid current file-exchange delivery lost its
+    session and the container exited 2 as uncorrelated before the new
+    validator or the exchange ran. The manager composed a document this
+    program could not start under, which is the worst direction: a correct
+    delivery looking like a broken one.
+
+    THE RULE IS NARROW ON PURPOSE. The review is explicit that this must not
+    become "accept arbitrary nested identity": the ONLY thing admitted here is
+    an outer document that DECLARES this wrapper and carries an object
+    payload. Everything else about the wrapper -- its member set, its profile,
+    a nested wrapper, the payload's own generation -- stays `launched`'s, which
+    runs next and reports a CORRELATED fault. This function decides one thing:
+    which document the session is read from.
+
+    A NESTED WRAPPER HAS NO CONTAINER SESSION, and exits 2 rather than
+    answering a fault. That is `session_of`'s own rule applied honestly: the
+    inner document carries no session, so there is no identity to correlate an
+    answer to, and the manager settles the start it already owns.
+    """
+    if type(document) is not dict:
+        return document
+    if document.get("schema") != WRAPPER_LAUNCH_SCHEMA:
+        return document
+    payload = document.get("payload")
+    return payload if type(payload) is dict else {}
+
+
 def session_of(document):
     """The identity the manager minted for THIS container session.
 
@@ -852,6 +981,70 @@ def _job_execution(document, place):
     return held
 
 
+def _unwrapped(document, place):
+    """One `/5` wrapper opened, or a refusal. ANSWERS THE PAYLOAD.
+
+    W376586. THE WRAPPER IS VALIDATED BEFORE THE PAYLOAD IS LOOKED AT, in the
+    order every other document here is under: the kind first, then the shape,
+    then the contents. A reader that went for the payload first would be
+    deciding what a document means before establishing what it is.
+
+    NO NESTED WRAPPER AND NO ARBITRARY PROFILE, both by the amendment and both
+    by equality: `wire_profile` must be the one profile this build speaks, and
+    the payload must name one of the four CONTAINER generations -- `/5` is
+    deliberately not among them, so a wrapper inside a wrapper is refused by a
+    membership test rather than by counting depth.
+
+    AND THE PAYLOAD MUST SELECT THE FILE EXCHANGE. The wrapper exists to say
+    which wire a file-exchange container is on; wrapped around a framed or
+    one-shot launch it would describe a wire nobody is on, which is the
+    silent-downgrade direction in reverse.
+    """
+    missing = sorted(one for one in WRAPPER_LAUNCH_MEMBERS
+                     if one not in document)
+    extra = sorted(one for one in document
+                   if one not in WRAPPER_LAUNCH_MEMBERS)
+    if missing or extra:
+        raise WorkerFault(
+            "launch",
+            f"{place} is exactly {', '.join(WRAPPER_LAUNCH_MEMBERS)}"
+            + (f"; missing {', '.join(missing)}" if missing else "")
+            + (f"; unexpected {', '.join(extra)}" if extra else ""))
+    if document["wire_profile"] != WIRE_PROFILE:
+        raise WorkerFault(
+            "launch",
+            f"{place} names wire profile {document['wire_profile']!r} and "
+            f"this worker speaks {WIRE_PROFILE!r}; a profile this program "
+            f"cannot name is a wire it cannot speak, and there is no "
+            f"negotiation")
+    payload = document["payload"]
+    if type(payload) is not dict:
+        raise WorkerFault(
+            "launch", f"{place} carries a payload that is not one document")
+    inside = payload.get("schema")
+    if inside == WRAPPER_LAUNCH_SCHEMA:
+        raise WorkerFault(
+            "launch",
+            f"{place} carries a {WRAPPER_LAUNCH_SCHEMA!r} inside a "
+            f"{WRAPPER_LAUNCH_SCHEMA!r}; this wrapper takes one container "
+            f"launch and never another wrapper")
+    if inside not in SUPPORTED_LAUNCH_SCHEMAS:
+        raise WorkerFault(
+            "launch",
+            f"{place} carries a payload saying it is {inside!r} and this "
+            f"worker reads "
+            f"{', '.join(repr(one) for one in SUPPORTED_LAUNCH_SCHEMAS)}")
+    if payload.get("transport") != EXCHANGE_TRANSPORT:
+        raise WorkerFault(
+            "launch",
+            f"{place} wraps a launch selecting transport "
+            f"{payload.get('transport')!r}; the "
+            f"{WIRE_PROFILE!r} wrapper carries a {EXCHANGE_TRANSPORT!r} "
+            f"launch, and wrapping one that selects no file exchange would "
+            f"describe a wire nothing is on")
+    return payload
+
+
 def launched(document, place=LAUNCH_DOCUMENT):
     """The launch document held to its own closed contract.
 
@@ -882,6 +1075,14 @@ def launched(document, place=LAUNCH_DOCUMENT):
     # transport and a `/2` document carrying none, and each of those is a
     # manager and a worker disagreeing silently about which channel is
     # authoritative.
+    # W376586: THE WIRE IS OPENED FIRST, AND WHETHER IT WAS THERE IS REMEMBERED.
+    # The payload is then held to exactly the rules it was held to before, so
+    # every reader downstream of `launched` sees the same four-to-six member
+    # container document it always saw.
+    wrapped = document.get("schema") == WRAPPER_LAUNCH_SCHEMA \
+        if type(document) is dict else False
+    if wrapped:
+        document = _unwrapped(document, place)
     given = document.get("schema")
     # W197661: AND THE VERSION IS DIAGNOSED FIRST, which is what the comment
     # here always claimed and the code never did. An unknown schema was held
@@ -932,6 +1133,23 @@ def launched(document, place=LAUNCH_DOCUMENT):
             f"{place} selects transport {document.get('transport')!r} and "
             f"this worker speaks {EXCHANGE_TRANSPORT!r}; a transport this "
             f"program cannot name is a channel nothing is listening to")
+    # W376586: AN UNWRAPPED FILE-EXCHANGE LAUNCH IS REFUSED, and this is the
+    # half that makes the wrapper a release rather than an option. It is asked
+    # once the transport has been validated above, so the answer is about a
+    # transport this program has established rather than about a member it
+    # happened to read -- and it is asked BEFORE `_job_execution`, the context
+    # delivery, the adapter, the receipt and any provider.
+    #
+    # `/1` AND A NULL-TRANSPORT `/3`/`/4` ARE UNTOUCHED. The framed transport
+    # is outside this feature, so a launch that selects no file exchange is
+    # read exactly as it was.
+    if not wrapped and document.get("transport") == EXCHANGE_TRANSPORT:
+        raise WorkerFault(
+            "launch",
+            f"{place} selects {EXCHANGE_TRANSPORT!r} without the "
+            f"{WRAPPER_LAUNCH_SCHEMA!r} wrapper; this release speaks the file "
+            f"exchange through {WIRE_PROFILE!r} and an unwrapped file-exchange "
+            f"launch is not one this worker executes")
     if given in (JOB_LAUNCH_SCHEMA, CONTEXT_LAUNCH_SCHEMA):
         _job_execution(document, place)
     if given == CONTEXT_LAUNCH_SCHEMA:
@@ -2307,6 +2525,35 @@ def serve_exchange(agent, seen, expected, command_root, event_root,
             _stopped(publisher)
             return _faulted(event_root, command, digested, operation,
                             one["operation_id"], answered, fault.code)
+        except adapter_refusal.AdapterDeclarationRefusal as refused:
+            # W376586: THE TYPED PRE-PROVIDER DECLARATION CAUSE, CAUGHT BEFORE
+            # THE GENERIC CLAUSE AND NOWHERE ELSE.
+            #
+            # It is ordered here and not earlier: `WorkerFault` is this
+            # program's own vocabulary and keeps its existing ending, and a
+            # typed adapter refusal is not one. It is ordered before
+            # `Exception` because that is the clause it would otherwise fall
+            # into -- which is the whole defect: a cause the adapter KNEW,
+            # established before any provider was invoked, reported as an
+            # anonymous agent failure an operator cannot act on.
+            #
+            # THE ENDING IS UNCHANGED. Same `faulted`, same `agent` code, same
+            # one terminal document; what is added is the revalidated typed
+            # object. `_adapter_failure` answers `None` for a wrong phase, a
+            # mutated or overridden object, or anything else it cannot hold to
+            # the closed literals, and that path is byte-identical to the
+            # generic clause below.
+            _stopped(publisher)
+            return _faulted(event_root, command, digested, operation,
+                            one["operation_id"], answered,
+                            ADAPTER_FAILURE_CODE,
+                            adapter_failure=_adapter_failure(
+                                refused, operation, one["operation_id"],
+                                # THE SELECTED LAUNCH ROLE, from the validated
+                                # launch document this container was started
+                                # under. `seen` is the manager's own
+                                # composition; the adapter is not asked.
+                                seen.get("role")))
         except Exception:                                  # noqa: BLE001
             # THE AGENT'S FAILURE IS NOT THIS PROGRAM'S CRASH, and it is not
             # this program's diagnostic either. The framed transport answers a
@@ -2364,7 +2611,11 @@ def serve_exchange(agent, seen, expected, command_root, event_root,
              _bound(command, digested, schema=TERMINAL_SCHEMA,
                     ending="answered", answered=answered,
                     disposition=disposition, fault_code=None,
-                    manifest_digest=manifest))
+                    manifest_digest=manifest,
+                    # W376586: AN ANSWERED ENDING HAS NO TYPED CAUSE, and says
+                    # so explicitly. The member is mandatory in `/2` precisely
+                    # so that this is a statement rather than an absence.
+                    adapter_failure=None))
     return 0
 
 
@@ -2406,8 +2657,96 @@ def _stopped(publisher):
         return False
 
 
+def _adapter_failure(failed, operation, operation_id, selected):
+    """The typed declaration cause, REVALIDATED HERE, or nothing at all.
+
+    THE ROLE IS THE SELECTED LAUNCH ROLE, AND NOT THE EXCEPTION'S CLAIM.
+    Review 2026-10-28T21-25-27Z reproduced the hole with the real worker and
+    the real manager: this function held the role to the two allowed literals
+    and NEVER compared it with the launch, so a container launched
+    `implementation` published a typed cause saying `review` -- a valid
+    vocabulary word standing in for an identity. "Vocabulary alone is not
+    identity" is exactly right, and the amendment already required a wrong
+    role to keep the generic failure.
+
+    `selected` is the role out of the VALIDATED LAUNCH DOCUMENT, which the
+    manager composes from the worker's configured launch role; it is the only
+    party here entitled to say which lane this container is. A disagreement
+    degrades, and so does a launch role outside the typed vocabulary -- the
+    integration workload runs under `integration`, which no development
+    declaration cause can name.
+
+    THIS IS THE SERIALIZATION BOUNDARY and it trusts the exception for exactly
+    one thing: being an instance of the shared class. Review
+    2026-10-28T20-07-16Z: "this exception retains message/args and mutable
+    code/role fields, so its `facts()` result is not inherently trusted
+    forever." Both halves of that are true of any live object --
+    `AdapterDeclarationRefusal` checks its code and role in `__init__` and
+    nothing stops a later assignment, and a SUBCLASS may override `facts` with
+    anything at all, including a method that returns host paths or raises.
+
+    SO `facts()` IS NEVER CALLED. The three values are read as attributes,
+    each one held to `type(...) is str` and to membership of this build's own
+    closed tuple, and what is stored is THE MATCHING LITERAL FROM THAT TUPLE
+    rather than the string the object handed over -- so even an equal-comparing
+    `str` subclass carrying a payload cannot reach the document. A `property`
+    that raises is a degradation, not a crash, which is why the reads are
+    guarded.
+
+    THE OPERATION AND ITS IDENTITY ARE THE COMMAND'S, and the ROLE IS THE
+    LAUNCH'S. They are the manager's own minted values, taken from the sequence
+    this program is answering and from the document it was started under, and
+    the exception is not asked about any of them -- a worker-asserted operation
+    identity is the one thing the manager's reader will not take, and a
+    worker-asserted role is the one the reviewer caught it taking.
+
+    DEGRADATION IS `None`, which the caller turns into the ordinary generic
+    `agent` fault that this transport already published before any of this
+    existed. Nothing about an unreadable, malicious or wrong-phase refusal
+    produces a typed cause, and nothing about it loses the ending.
+    """
+    if operation != ADAPTER_FAILURE_OPERATION:
+        return None
+    if not isinstance(failed, adapter_refusal.AdapterDeclarationRefusal):
+        return None
+    if type(operation_id) is not str or not operation_id:
+        return None
+    # THE TRUSTED ROLE FIRST, because every other check about the role is
+    # relative to it. A launch role this typed vocabulary does not contain is
+    # not a mismatch to report -- it is a container that cannot produce a
+    # development declaration cause at all.
+    if type(selected) is not str or selected not in adapter_refusal.ROLES:
+        return None
+    held = {"operation": ADAPTER_FAILURE_OPERATION,
+            "operation_id": operation_id,
+            # THE LITERAL FROM THIS BUILD'S OWN TUPLE, resolved from the
+            # LAUNCH's role rather than from anything the exception handed
+            # over. The exception still has to agree, below; what is published
+            # is the manager's selection.
+            "role": adapter_refusal.ROLES[
+                adapter_refusal.ROLES.index(selected)]}
+    for name, allowed in (("component", (adapter_refusal.COMPONENT,)),
+                          ("code", adapter_refusal.CODES),
+                          ("role", (held["role"],))):
+        try:
+            value = getattr(failed, name)
+        except BaseException:                              # noqa: BLE001
+            return None
+        if type(value) is not str or value not in allowed:
+            return None
+        held[name] = allowed[allowed.index(value)]
+    # THE MEMBER SET IS CHECKED RATHER THAN ASSUMED, so a member added above
+    # without a rule here cannot reach the document, and the bound is measured
+    # on the canonical bytes that will actually be published.
+    if sorted(held) != sorted(ADAPTER_FAILURE_MEMBERS):
+        return None
+    if len(canonical(held)) > MAX_ADAPTER_FAILURE_BYTES:
+        return None
+    return held
+
+
 def _faulted(event_root, command, digested, operation, operation_id, answered,
-             code):
+             code, adapter_failure=None):
     """One refused operation, ended once and correlated.
 
     THE FAULT CODE AND NOTHING ELSE. This program's codes are a closed set of
@@ -2415,6 +2754,12 @@ def _faulted(event_root, command, digested, operation, operation_id, answered,
     including the assignment, the agent's answer and the container's own paths,
     and none of those is material the finding permits in a durable exchange
     document.
+
+    W376586: `adapter_failure` IS PUBLISHED HERE AND IS NULL BY DEFAULT, so
+    every existing fault path keeps the ending it had and gains the member
+    saying no typed declaration cause was established. Only the typed catch in
+    `serve_exchange` passes one, and only after `_adapter_failure` has
+    revalidated it.
     """
     _publish(event_root, f"state-{operation}.json",
              _bound(command, digested, schema=STATE_SCHEMA,
@@ -2423,7 +2768,8 @@ def _faulted(event_root, command, digested, operation, operation_id, answered,
     _publish(event_root, TERMINAL_DOCUMENT,
              _bound(command, digested, schema=TERMINAL_SCHEMA,
                     ending="faulted", answered=answered, disposition=None,
-                    fault_code=code, manifest_digest=None))
+                    fault_code=code, manifest_digest=None,
+                    adapter_failure=adapter_failure))
     return 1
 
 
@@ -2521,7 +2867,11 @@ def serve(stdin, stdout, agent, place=LAUNCH_DOCUMENT,
     """
     try:
         document = read_launch(place)
-        expected = session_of(document)
+        # W376586: THE SESSION IS THE CONTAINER'S, and `/5` carries the
+        # container one level down. Asked through `container_of` so a valid
+        # wrapped delivery is correlatable BEFORE it is validated, which is
+        # the property this read exists for.
+        expected = session_of(container_of(document))
     except Uncorrelated:
         # NOTHING THIS PROGRAM SAYS COULD BE MATCHED TO A REQUEST. The ruling
         # hands this to the manager, which already owns the launched session.
@@ -2563,6 +2913,10 @@ def serve(stdin, stdout, agent, place=LAUNCH_DOCUMENT,
         # written frames costs a correlated fault and still leaves the same
         # sentence on stderr, while waiting where nobody will write costs the
         # whole Job and tells no one why.
+        # W376586: A `/5` DELIVERY IS NOT `/1` AND TAKES THE PROMPT PATH,
+        # which is the same conservative direction this policy already
+        # chose: the wrapper exists to carry a file-exchange launch, so
+        # nobody is writing frames to it.
         if document.get("schema") != ONE_SHOT_LAUNCH_SCHEMA:
             return _startup_refusal(sys.stderr if stderr is None else stderr,
                                     fault)
@@ -2572,6 +2926,26 @@ def serve(stdin, stdout, agent, place=LAUNCH_DOCUMENT,
     # a latched container -- one whose document is correlatable and wrong in
     # some other way -- has no validated transport at all and answers its one
     # correlated fault through the framing loop exactly as it did before.
+    # W376586: THE ADAPTER IS RESOLVED HERE, AFTER THE DELIVERY IS VALIDATED
+    # AND THE TRANSPORT SELECTED, and not before. `main` used to evaluate
+    # `_scripted_default()` as an argument, so the default existed before this
+    # function had read the launch at all; the amendment requires an
+    # unsupported or unwrapped file-exchange launch to refuse before adapter
+    # construction, and an argument evaluated by the caller cannot satisfy
+    # that however this function is ordered.
+    #
+    # EVERY REFUSAL ABOVE RETURNS WITHOUT REACHING THIS LINE, which is what
+    # makes "before the adapter" a property of the order rather than a claim.
+    #
+    # AND A LATCHED CONTAINER BUILDS NOTHING EITHER. The latched path answers
+    # one correlated fault frame and returns without reaching `handle`, so the
+    # agent is never used there -- resolving one would construct a provider
+    # for a container that is already refusing. `/1` is the framed transport
+    # and outside this feature, so this is a free uniformity rather than a
+    # requirement of the amendment; it is here because the alternative is
+    # building something nothing asks for.
+    if agent is None and latched is None:
+        agent = _scripted_default()
     if seen.get("transport") == EXCHANGE_TRANSPORT:
         return serve_exchange(agent, seen, expected, command_root, event_root,
                               sleep=sleep)
@@ -2910,10 +3284,17 @@ def main(argv=None, stdin=None, stdout=None, agent=None,
     # channel is written first in each case, and nothing reorders or re-encodes
     # a frame. A wrapper that writes nothing at all still leaves `worker.stdout`
     # ABSENT, which is the honest answer -- missing is not empty.
+    # W376586 review 2026-10-28T22-29-20Z, P1: THE AGENT IS PASSED THROUGH
+    # UNRESOLVED, including `None`. `_scripted_default()` was evaluated HERE,
+    # as an argument, so the reference image's adapter was constructed before
+    # `serve` had read the launch -- and the amendment requires an unsupported
+    # or unwrapped launch to refuse BEFORE adapter construction. `serve`
+    # resolves the default after it has validated the delivery and selected
+    # the transport. The injection seam is byte-unchanged for every caller
+    # that supplies an agent.
     with _WorkerCapture():
         return serve(stdin or sys.stdin.buffer, stdout or sys.stdout.buffer,
-                     _scripted_default() if agent is None else agent, place,
-                     command_root, event_root)
+                     agent, place, command_root, event_root)
 
 
 

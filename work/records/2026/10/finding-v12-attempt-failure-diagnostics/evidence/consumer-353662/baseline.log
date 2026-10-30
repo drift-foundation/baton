@@ -1,0 +1,56 @@
+....F.FE.F...F..................................................................
+======================================================================
+ERROR: test_a_NESTED_OBJECT_is_NOT_forwarded_wholesale (tests.tools.test_attempt_diagnostics.TheReportIsAPureProjection.test_a_NESTED_OBJECT_is_NOT_forwarded_wholesale)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353662/v12/python/tests/tools/test_attempt_diagnostics.py", line 108, in test_a_NESTED_OBJECT_is_NOT_forwarded_wholesale
+    self.assertFalse(row["rows"][0]["cause"]["component"]["known"])
+                     ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+======================================================================
+FAIL: test_DEVICE_AND_INODE_travel_labelled_and_are_NOT_a_locator (tests.tools.test_attempt_diagnostics.TheReportIsAPureProjection.test_DEVICE_AND_INODE_travel_labelled_and_are_NOT_a_locator)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353662/v12/python/tests/tools/test_attempt_diagnostics.py", line 116, in test_DEVICE_AND_INODE_travel_labelled_and_are_NOT_a_locator
+    self.assertEqual(workspace["device"]["value"], 7)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: None != 7
+
+======================================================================
+FAIL: test_a_DIAGNOSTIC_CAUSE_IS_NOT_AN_ACCEPTANCE (tests.tools.test_attempt_diagnostics.TheReportIsAPureProjection.test_a_DIAGNOSTIC_CAUSE_IS_NOT_AN_ACCEPTANCE)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353662/v12/python/tests/tools/test_attempt_diagnostics.py", line 57, in test_a_DIAGNOSTIC_CAUSE_IS_NOT_AN_ACCEPTANCE
+    self.assertEqual(row["completeness"]["state"], "complete")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'unavailable' != 'complete'
+- unavailable
++ complete
+
+
+======================================================================
+FAIL: test_an_INCOMPLETE_final_result_is_INCOMPLETE_and_nothing_more (tests.tools.test_attempt_diagnostics.TheReportIsAPureProjection.test_an_INCOMPLETE_final_result_is_INCOMPLETE_and_nothing_more)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353662/v12/python/tests/tools/test_attempt_diagnostics.py", line 74, in test_an_INCOMPLETE_final_result_is_INCOMPLETE_and_nothing_more
+    self.assertEqual(row["completeness"]["state"], "incomplete")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'unavailable' != 'incomplete'
+- unavailable
++ incomplete
+
+
+======================================================================
+FAIL: test_the_ALLOWLIST_IS_POSITIVE_and_an_unknown_member_is_NAMED_only (tests.tools.test_attempt_diagnostics.TheReportIsAPureProjection.test_the_ALLOWLIST_IS_POSITIVE_and_an_unknown_member_is_NAMED_only)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353662/v12/python/tests/tools/test_attempt_diagnostics.py", line 97, in test_the_ALLOWLIST_IS_POSITIVE_and_an_unknown_member_is_NAMED_only
+    self.assertIn("private_transcript", row["rows"][0]["unrecognised"])
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'private_transcript' not found in ()
+
+----------------------------------------------------------------------
+Ran 80 tests in 0.211s
+
+FAILED (failures=4, errors=1)

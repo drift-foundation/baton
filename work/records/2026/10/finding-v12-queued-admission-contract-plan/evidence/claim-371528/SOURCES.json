@@ -1,0 +1,46 @@
+[
+  {
+    "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-routine-startup-prerequisites-plan/evidence/review-371387/PROPOSAL-revision2.md",
+    "sha256": "c026b60d33930391a67b286064f69642cc2331bb89dfc65fd41ec747e4a4005d"
+  },
+  {
+    "path": "v12/DESIGN.md",
+    "sha256": "571738130e7cfedd33966c1e920488b629e6b877eef16b1a3c61ccb7ea7f2796"
+  },
+  {
+    "path": "v12/python/src/baton_v12/job_manager/creation.py",
+    "sha256": "b707227ebb794158497b33228089df91db7b6aa69c22f71134fa62a2c96a42ee"
+  },
+  {
+    "path": "v12/python/src/baton_v12/job_manager/schema.py",
+    "sha256": "38ba3ca2e79fe347a3e80c67304af6ccce59cc9100af59b9c0babf579f8747af"
+  },
+  {
+    "path": "v12/python/src/baton_v12/job_manager/store.py",
+    "sha256": "539daa267effea1a2ac17d344ec68b9e7b2e92efb484c3a4bb50fd0265168186"
+  },
+  {
+    "path": "v12/python/tools/fresh_attempt_ports.py",
+    "sha256": "c8a41e078769eb105440ed8fb71e6d66bf484cf292cd344cabefa8dc2c75a2a5"
+  },
+  {
+    "path": "v12/python/tools/job_manager.py",
+    "sha256": "9f9008fd68a3f00ed41516c0127655cd24a5518df15294f22282c0f0dc66018f"
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/workspaces.py",
+    "sha256": "e769da4557d0405edee8e17d4333bebd18bc713c07781250d45f10d0e8587dc4"
+  },
+  {
+    "path": "v12/worker/baton_worker.py",
+    "sha256": "56cdee824193834e9f1e8e974259575219a9223aa9b4f1946c99099b35c5cd34"
+  },
+  {
+    "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-template-adapter-admission-plan/PROPOSAL.md",
+    "sha256": "ad0f2171f06f8da9e6e3c2784e50cab91d27f94c4d0727014e4520b00aa0b339"
+  },
+  {
+    "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-template-adapter-admission-plan/FINDING.md",
+    "sha256": "ca961ff9957937c7ed5e61003e10fc08171207d843aead2eaac2c257c1825991"
+  }
+]

@@ -415,3 +415,45 @@ status is reported honestly, not confused with unknown termination. Result
 acceptance requirements remain at consumption, not execution release. No automatic
 cleanup/repair/copy, false accepted-result receipts, live run or Git operation.
 Recorded by baton.prompt from the owner's explicit selection.
+
+## 2026-10-22 — bounded native coordination is a v12 adoption outcome
+
+Owner explicitly approves clarifying DESIGN section 18: the bounded native v12 coordination workflow needed to prepare, execute, inspect and independently accept useful parallel Jobs belongs to the current v12 adoption target. The temporary v11-to-v12 preparation/collection bridge is transitional, not the target architecture. Generalized operator replacement means broader workflow/UI/organizational capability beyond that bounded path and remains later work. Any interpretation of section 18 that defers the bounded native coordination cutover is superseded.
+
+This consolidates AGENTS' October 18 native coordination priority and today's proportionate-review direction. Preserve explicit supported cutover, one coordination authority, existing Work/evidence, independent acceptance and concrete correctness/isolation/recovery/attribution requirements. No migration, deployment, new run, acceptance waiver or direct-host implementation exception follows. Broader cleanup and abandoning the current v11 workflow are being considered, not selected. Prompt owns only this documentation clarification; active product handlers retain their allocations.
+
+
+## 2026-10-23 — owner requires standard contracts for routine Jobs
+
+Owner confirms: ordinary v12 development Jobs must not require per-Job investigation or manual definition of implementation/review input-output interfaces. The user supplies task, source, scope and limits; the standard workflow supplies compatible, validated role contracts. Custom contracts are reserved for unusual outcomes requiring them. The quickstart-b proposal-only/review findings-and-logs mismatch illustrates the gap: routine setup must validate compatibility before live execution. This is a confirmed usability requirement, not permission to waive output custody or role acceptance. Revalidate against DESIGN and current standard preparation surfaces; record any concrete gap and bound implementation before changes. It does not select another live run or interrupt current claims.
+
+
+## 2026-10-23 — owner selects reusable versioned Job templates
+
+Owner approves Job templates as the approach for the preceding standard-contract requirement. Start with the ordinary implement-to-review development template. A template defines compatible role input/output contracts, expected outputs, stage dependencies and default limits; each Job supplies its task and source, with explicit overrides when needed. Templates are versioned and validated as a whole, and each Job records its exact template version. Preserve user-selected scope/limits and existing isolation, custody and independent acceptance. Do not build a general template framework before adoption or silently add it as a new pilot gate. This selects the approach; reconcile DESIGN and bounded owning Work before dependent implementation, preserving current active assignments. No live execution or deployment is authorized by this decision.
+
+
+## 2026-10-23 — owner selects deterministic Job driver next after pilot helper
+
+Owner requests the next work after the current W325959 pilot retry helper: routine Job creation, submission and fresh-attempt retry must be deterministic CLI operations requiring no model to prepare individual runs. A retry may allocate a new Job identity; it reuses selected task/configuration, resolves current credentials at launch, preserves and links prior evidence, and checks prior execution is stopped or fenced before permitting conflicting effects. Existing baton-v12-stack is the installed driver; extend/reuse its supported surfaces rather than require a new per-run script or installation. Exact command syntax is not yet selected. Coordinate this with the already selected versioned development Job template requirement. This supersedes any implication that the one-off pilot helper alone satisfies general model-free Job operation.
+
+Sequencing: finish the currently assigned pilot helper without interrupting its handler, then bound and schedule this CLI outcome as the next development work through W321608. Reviewer must reconcile DESIGN before dependent implementation, record the canonical owning Work and graph sequencing, and retain independent review. No new live run, deployment or acceptance waiver is selected here. Recorded by baton.prompt from the owner's explicit instruction.
+
+
+## 2026-10-23 — owner redirects retry work to the manager now
+
+Owner explicitly directs correction now: Job manager owns atomic Job uniqueness,
+fresh-attempt admission and replay; CLI requests the operation and displays its
+result. Work authority and host manager retain their own facts and enforcement;
+compose supported APIs without cross-store transaction assumptions. New Job IDs
+are acceptable; preserve task/configuration and prior evidence, and use current
+credentials at launch. DESIGN REC-7 pins this boundary.
+
+This explicitly supersedes the earlier same-day instruction to finish the pilot
+helper before general driver work, and W325959's helper-side safety-check milestone.
+Do not spend another correction cycle extending duplicate manager logic in the
+helper. Preserve partial implementation and evidence; current handler checkpoints
+and passes safely to review for bounded manager-operation/CLI scope. No claim
+release by proxy, live run, deployment or Git mutation is authorized. Owner also
+needs server shutdown: checkpoint first and prepare supported stop commands;
+shutdown is not itself executed by this instruction.

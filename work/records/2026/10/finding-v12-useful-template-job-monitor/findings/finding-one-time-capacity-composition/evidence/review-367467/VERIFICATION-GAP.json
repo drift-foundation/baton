@@ -1,0 +1,30 @@
+{
+  "template_guide_exists": false,
+  "inherited_verification_exit": 0,
+  "stdout": "quickstart structure ok: 16847 bytes, 4 sections\n",
+  "stderr": "",
+  "verification": [
+    "python3",
+    "-c",
+    "import io,os,sys\np='v12/QUICKSTART.md'\nif not os.path.isfile(p): sys.exit('no '+p)\nt=io.open(p,encoding='utf-8').read()\nneed=['## Supported commands','## Execution is not acceptance','## Reading a failed attempt','## Cancelling or holding safely']\nmiss=[h for h in need if h not in t]\nif miss: sys.exit('missing sections: '+', '.join(miss))\nif len(t)<1200: sys.exit('quickstart is shorter than its own contract')\nbad=[w for w in ['TODO','TBD','FIXME'] if w in t]\nif bad: sys.exit('unresolved markers: '+', '.join(bad))\nprint('quickstart structure ok: %d bytes, %d sections'%(len(t),len(need)))\n"
+  ],
+  "digest_fields": {
+    "role_instructions_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+    "policy_digest": "sha256:837d7a03b2d92b9654cbc391daefcfa208f747bbd9ae7c528d54f528bd536357",
+    "toolchain_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+    "worker_image_digest": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2",
+    "runtime_profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+    "resource_policy_digest": "sha256:7777777777777777777777777777777777777777777777777777777777777777",
+    "network_policy_digest": "sha256:8888888888888888888888888888888888888888888888888888888888888888",
+    "mount_policy_digest": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+    "tool_policy_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "credential_policy_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "retention_policy_digest": "sha256:0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a",
+    "manifest_digest": "sha256:5282b9bf824287d0662a058e4fe420034c7f74b7538abfd9deb78a9353afee33"
+  },
+  "files": {
+    "capacity.py": "bb6c24f7492af152823300e411dc9a267b19a9ceeb9e0dec35fd04e979e893b7",
+    "PROGRESS.md": "19086f6d4d35b66b04c31cd447b83baf0fc5b2d42420eeab0d6827b399fb043a",
+    "evidence/claim-367431/supported_sequence.py": "330027670bac0193469db2981f6169d853ad060305238c65ceeea71c0290eb3e"
+  }
+}

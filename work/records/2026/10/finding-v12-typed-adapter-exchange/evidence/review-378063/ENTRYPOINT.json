@@ -1,0 +1,10 @@
+{
+  "launch_schema": "baton.worker-launch/5",
+  "direct_launched_accepts": true,
+  "production_entry_exit": null,
+  "order": [
+    "adapter-constructed",
+    "read-launch"
+  ],
+  "injection": "fork branch and launch delivery reader simulated; real entry/main/serve/session_of executed; adapter is a recording fake; no provider or engine"
+}

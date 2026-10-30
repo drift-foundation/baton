@@ -1,0 +1,104 @@
+{
+  "attempt_id": "attempt-8c55834ec7f43a1acc8636164f9fd5e1fd1c6a1cfff0fea3ab31ba67da45afa5",
+  "authority_uuid": "529be25256444559bf3ac35ad4750c25",
+  "base": "bc925cf5c62d69426ed5862af4d41f4d2a967b0f",
+  "collected_at": "2026-10-20",
+  "collected_by": "baton.claude, claim342366",
+  "files": {
+    "COLLECTION.json": {
+      "sha256": "0107f5696d5483c73a88c98f543e508cb44d41c4b0f60c1357217b842f6f3bbe"
+    },
+    "EXECUTOR-PREFLIGHT.json": {
+      "sha256": "881324644b9cb70afb12264c59efdfe7aa63fa4cd5759de92d51967cdb432093"
+    },
+    "candidate-result.json": {
+      "sha256": "fa8b9e23e20ef404862539423156b3bb692f8509846eb5de3b90b46bc6aa33af"
+    },
+    "candidate-verification.txt": {
+      "sha256": "4825c3ea707b3ab41b2d72a0443ea35d3dd518252a6a673fac3fea418df9a133"
+    },
+    "outcome.json": {
+      "sha256": "f43bbbaa6fd38704bf00c08e850841ee30d0bfa090a50f9128acc3370799dd0a",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-341637/packet/outcome.json",
+      "source_sha256": "f43bbbaa6fd38704bf00c08e850841ee30d0bfa090a50f9128acc3370799dd0a"
+    },
+    "outcome.json.authoring.log": {
+      "sha256": "f169eaa0080550b704dd8a903b54a745c1703c6075b7297bdebd498f04f32573",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-341637/packet/outcome.json.authoring.log",
+      "source_sha256": "f169eaa0080550b704dd8a903b54a745c1703c6075b7297bdebd498f04f32573"
+    },
+    "outcome.json.enforcement-127878-1792532469941678113.json": {
+      "sha256": "4a0fde5731e0c0da1d6c86873b4e01c14e5877baad5ca74a2d83d6e61accb506",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-341637/packet/outcome.json.enforcement-127878-1792532469941678113.json",
+      "source_sha256": "4a0fde5731e0c0da1d6c86873b4e01c14e5877baad5ca74a2d83d6e61accb506"
+    },
+    "outcome.json.manager-127878-1792532458680972726.json": {
+      "sha256": "8ec3260aab43f2516f3eb2495a11df20c01befdca45e4a23257426291eddff76",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-341637/packet/outcome.json.manager-127878-1792532458680972726.json",
+      "source_sha256": "8ec3260aab43f2516f3eb2495a11df20c01befdca45e4a23257426291eddff76"
+    },
+    "outcome.json.manager-127878-1792532458680972726.json.progress.json": {
+      "sha256": "e1434a018fbfd0bb19672d7edcc733700c829f9b97986e9914bb85d111f9e2d5",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-341637/packet/outcome.json.manager-127878-1792532458680972726.json.progress.json",
+      "source_sha256": "e1434a018fbfd0bb19672d7edcc733700c829f9b97986e9914bb85d111f9e2d5"
+    },
+    "outcome.json.manager-127878-1792532458680972726.json.shutdown.json": {
+      "sha256": "8ac7780e2784c5091887e2807738291a3707761907d799a076ae347c10d722d6",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-341637/packet/outcome.json.manager-127878-1792532458680972726.json.shutdown.json",
+      "source_sha256": "8ac7780e2784c5091887e2807738291a3707761907d799a076ae347c10d722d6"
+    }
+  },
+  "instance": "/home/sl/baton-instances/durable-capture-w341357-341637",
+  "nothing_was_lost": "the review line's checkout is CLEAN -- a porcelain status reports nothing -- so no file was written, no partial work exists, and the recovery input in recovery-341360/ remains exactly as valid for the next run as it was for this one. This run consumed an invocation and produced no information about the slice.",
+  "outcome": {
+    "attempt_disposition": "unable",
+    "cancellation": {
+      "execution_runtime": "destroyed",
+      "requested": true,
+      "runtime_id": "84a0c110816da837a4af5729c3a581e37d560be07e5fdb2f2cde68fe3ead75fd",
+      "why": "this manager observed the runtime destroyed"
+    },
+    "candidate": {
+      "bytes": 920,
+      "note": "change.patch is ZERO BYTES and changed_paths is empty -- the refusal is correct and there is nothing in it to recover",
+      "state": "REFUSED",
+      "verification": "unreported",
+      "why": "the sealed candidate carries no readable baton.git-proposal/1 claim, so what it was built on is unstated"
+    },
+    "child_status": -15,
+    "cleanup": {
+      "cleanup": "retained",
+      "state": "absent",
+      "why": "the engine answered that this exact identity does not exist"
+    },
+    "cleanup_sweeps": 0,
+    "collection": "all six artifacts present, every correlatable one matched, no isolated failures",
+    "controller_elapsed_seconds": 10.509931264998158,
+    "controller_faults": [],
+    "controller_state": "held",
+    "served_seconds": 10.564425181000843,
+    "stage_states": {
+      "implementation": "exceptional"
+    },
+    "workload_state": "held",
+    "workload_stopped": "exceptional"
+  },
+  "preserved": "the instance is untouched. No rerun, no recovery, no mutation, no credential read, no test executed, no version-control write.",
+  "run": "durable-capture-w341357-341637",
+  "schema": "baton.w341357-run-evidence/2",
+  "the_failure": {
+    "adapter_disposition": "provider-failed",
+    "classification": "authentication_failed",
+    "diagnostic_schema": "baton.provider-diagnostic/1",
+    "explanation": "Failed to authenticate: OAuth session expired and could not be refreshed",
+    "explanation_status": "supported-constant",
+    "failure_reason": "api-error",
+    "provider_status": 1,
+    "this_is_an_attributed_diagnostic_not_an_inference": "the campaign FINDING says 'do not infer authentication failure from unrelated provider checks'. This is not an inference from an unrelated check: it is the provider's own supported non-secret diagnostic, carried in this exact attempt's own result document. Reporting it is the opposite of inferring it.",
+    "where": "the provider, reported by the adapter in the candidate's own result.json",
+    "why": "the provider exited 1 (api-error); its own unrestricted diagnostic is withheld; supported nonsecret detail is in provider.diagnostic"
+  },
+  "the_gate_is_still_unmeasured": "verification was never attempted (verification.txt reads \"no verification was attempted\"), so the five-module focused gate has STILL never been executed in any of the four runs.",
+  "what": "THE FOURTH RUN, AND THE FIRST TO FAIL FOR A PURELY ENVIRONMENTAL REASON. Owner reroute342358 selected execution-341637 and this is the run: launched 2026-10-20T21:40:58Z. It ended after 10.5 seconds because THE PROVIDER COULD NOT AUTHENTICATE. No work was attempted, nothing was lost, and the slice learned nothing about itself.",
+  "what_the_preflight_could_and_could_not_see": "the controller-boundary preflight passed with zero denials 0.337s before launch: engine reachable, image available AND digest-equal to the pin, and the credential reference present in the registry with its backing file present. It checked the credential STRUCTURE ONLY and deliberately read no credential value -- which is exactly why it could not see that the OAuth session behind that reference had expired. A structure check cannot detect an expired session; only using the credential can, and whether a preflight should do that is the owner's call rather than this author's."
+}

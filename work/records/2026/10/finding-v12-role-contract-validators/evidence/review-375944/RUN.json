@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_role_contract",
+    "tests.job_manager.test_templates",
+    "tests.job_manager.test_creation",
+    "tests.tools.test_creation_ports",
+    "tests.tools.test_job_task_delivery",
+    "tests.tools.test_connected_creation",
+    "tests.manager.test_contracts_inventory",
+    "tests.manager.test_frozen"
+  ],
+  "exit_code": 1,
+  "wall_seconds": 10.600835995000125
+}

@@ -1,0 +1,1 @@
+{"actual_timeout": 30, "command": ["docker", "version", "--format", "{{.Server.Version}}"], "elapsed": 0.007991679000042495, "expected": 1, "margin": 1, "phase_end": 6382.303906627, "returncode": 0, "state": "completed", "stderr": "", "stdout": "29.1.3\n", "timeout": 30, "total_end": 6442.303906627}

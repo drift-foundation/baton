@@ -17,6 +17,7 @@ from baton_v12.contracts import (ContractRefusal, digest, digest_of_bytes,
                                  job_input_identity)
 from baton_v12.job_manager import submit, sweep, ending, submission, episodes
 from baton_v12.worker_manager import provider_context as context, context_delivery as custody
+from baton_v12.worker_manager import launch
 from baton_v12.worker_manager import oci, frozen_output_of, load_manifest
 from baton_v12.worker_manager.workspaces import configure_workspace_storage
 from tests.manager.test_provider_context import profile
@@ -150,7 +151,7 @@ sys.exit(status)
         frozen = frozen_output_of(control, attempt)
         manifest = load_manifest(control, frozen["manifest_digest"], "resultManifest")
         output = next(one for one in manifest["outputs"] if one["name"] == "provider-context-receipt")
-        return json.loads(custody.read_context_receipt(control, attempt_id=attempt, artifact_id=output["artifact"]["artifact_id"], workspace_storage=self.storage))
+        return json.loads(custody.read_context_receipt(control, attempt_id=attempt, artifact_id=output["artifact"]["artifact_id"]))
 
     def calls_count(self):
         return len(self.calls.read_text().splitlines()) if self.calls.exists() else 0
@@ -294,7 +295,9 @@ class ServingBinding(ServingContextCase):
         self.assertEqual(context.context_prompt(json.loads(self.task_bytes)), claude_agent._prompt(json.loads(self.task_bytes)))
         self.assertEqual(bound["prompt_digest"], digest_of_bytes(claude_agent._prompt(json.loads(self.task_bytes)).encode()))
         worker = self.worker_of(composed, "implementation")
-        self.assertEqual(worker._adopted({"attempt_id": attempt, "job_id": "job-a"}).document["provider_context"], bound)
+        # W376586: the container document is the `/5` wrapper's payload, asked
+        # for through the product's own shared question rather than indexed.
+        self.assertEqual(launch.payload_of(worker._adopted({"attempt_id": attempt, "job_id": "job-a"}).document)["provider_context"], bound)
 
 
 class WorkerInvocation(ServingContextCase):
@@ -305,7 +308,7 @@ class WorkerInvocation(ServingContextCase):
         frozen = frozen_output_of(held.control, held.attempt_id)
         manifest = load_manifest(held.control, frozen["manifest_digest"], "resultManifest")
         receipt = next(one for one in manifest["outputs"] if one["name"] == "provider-context-receipt")
-        body = custody.read_context_receipt(held.control, attempt_id=held.attempt_id, artifact_id=receipt["artifact"]["artifact_id"], workspace_storage=self.storage)
+        body = custody.read_context_receipt(held.control, attempt_id=held.attempt_id, artifact_id=receipt["artifact"]["artifact_id"])
         value = json.loads(body)
         self.assertEqual(value["schema"], context.SERVING_RECEIPT_SCHEMA)
         self.assertTrue(value["complete"])
@@ -631,7 +634,7 @@ class RestoredCorrectionBoundary(ServingContextCase):
         self.drive(held.job, held.composed, "review", "waiting")
         reviewer = self.only_attempt(held.composed, "review")
         self.assertIsNone(context.context_invocation_of(held.control, reviewer))
-        review_launch = self.worker_of(held.composed, "review")._adopted({"attempt_id": reviewer, "job_id": "job-a"}).document
+        review_launch = launch.payload_of(self.worker_of(held.composed, "review")._adopted({"attempt_id": reviewer, "job_id": "job-a"}).document)
         self.assertNotIn("provider_context", review_launch)
         self.assertNotEqual(review_launch["session"], self.worker_of(held.composed, "implementation")._session_of(held.attempt_id))
         self.assertEqual(review_launch["job_execution"]["runtime_input_digest"], self.manifest["manifest_digest"])
@@ -1120,7 +1123,7 @@ class ManagedSessionResume(ServingContextCase):
     def test_measured_receipt_rejects_substituted_terminal_even_same_session(self):
         held = self.implemented()
         admitted = next(one for one in context._history(held.control, context.context_use_of(held.control, held.attempt_id)["context_id"]) if one["action"] == "admit")
-        reader = lambda attempt, artifact: custody.read_context_receipt(held.control, attempt_id=attempt, artifact_id=artifact, workspace_storage=self.storage)
+        reader = lambda attempt, artifact: custody.read_context_receipt(held.control, attempt_id=attempt, artifact_id=artifact)
         actual = self.provider_records[0]
         context._receipt(held.control, admitted, reader, terminal_record=actual)
         changed = dict(json.loads(actual), model="unmeasured-label")

@@ -1,0 +1,21 @@
+# Installed stopped-failure settlement commands
+
+W375445, child of W371074; reviewer allocation E375432.
+
+Authority: owner W371074 E375403, parent FINDING section “2026-10-28 — owner approves settlement behavior; development schema replacement”, and v12/DESIGN.md TOK-7. Parent PROPOSAL.md 44c4135b10c6fd2ebbbc8958571228e01664e89b66fc57a61591849a29926d03 and review-2026-10-28T03-54-17Z.md are reviewed design input. Owner amendment supersedes their migration/backward-compatibility gates and treats exact schema numbers, command syntax and records as implementation choices within approved behavior. Preserve historical bytes; do not implement upgrade-control or operate on retained instances.
+
+Direct development under v11 claim is authorized. Use disposable fresh current-schema stores and deterministic provider/engine boundaries, sensible per-run timeouts and truthful evidence. No live models, actual engine operations, deployment, install into an operational instance, retained-store conversion/deletion, cleanup campaign or Git mutation. Temporary packaged-command fixtures are verification, not deployment. Current W370560 observations supersede old retained-container facts: old token already returned by expiry reclamation; this generic implementation does not act on that Job. W44342 uncertainty remains unresolved; hold unknown late effects rather than solving it by assertion.
+
+Reviewer owns FINDING/PLAN and append-only reviews. Claimed implementation handler owns product changes, attributable PROGRESS and new evidence; record actual files and test expectation changes. Locations below are evidence and current overlap coordination, not an exclusive permitted-files list. Preserve existing dirty bytes. Coordinate before changing another active author's files; necessary additional paths within outcome need no separate file-permission gate. Candidate/base/path hashes and measured verification results accompany handoff to baton.bug; independent acceptance and human Git checkpoints remain required.
+
+## Bounded outcome and acceptance
+
+Consume independently accepted W375444 candidate/API and implement installed instance-bound command composition, read-only eligibility preview and settlement-status. The CLI calls public owners rather than duplicating token/cessation logic or reconstructing private store records. Match instance/package/store/authority/deployment and exact attempt/generation. Preserve HOST-8 busy refusal; do not introduce create-while-serving queue semantics from W371075. Existing committed settlement may resume through the same public owner; never select automatically on silence.
+
+Expected source ownership after dependency acceptance: tools/job_manager.py, tools/single_worker.py, instance/stack composition and focused CLI tests. W375444 owner files are read-only accepted input unless a defect is explicitly handed back or serial correction ownership is recorded. Coordinate shared manager/instance helpers with W371075/W371073 and W371295 when those execute. No concurrent author gets the same file. Implementer chooses necessary paths and actual closed syntax within accepted behavior.
+
+Acceptance: installed packaged argv reaches real settlement owner with ordinary instance selection; wrong instance/runtime/generation and malformed/changed request refuse before effects; preview/status have no application-data/schema changes, reconciliation or writable fallback (SQLite normal sidecars allowed); held/release-pending/released are truthful; failed stage and missing verdict remain failed/unaccepted; no Authority closure/cleanup completion fabricated. Exact request replay and current assignment race follow core contract. No provider/stop/destroy/normalization action is smuggled into composition. Return exact candidate and focused deterministic command evidence.
+
+## 2026-10-28T19:40:18Z — independent command review
+
+Confirmed bounded candidate acceptance by baton.codex under E376705. review-2026-10-28T19-40-18Z.md binds all seven paths, preserves verification limitations and records the 144-test independent pass. Existing core/command/joined-proof decomposition remains appropriate; W371074 retains integrated acceptance. Owner disposition and human Git checkpoint remain pending; no product scope or dependency changed.

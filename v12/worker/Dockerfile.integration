@@ -57,6 +57,16 @@ FROM ${PROVIDER_BASE}
 COPY python/src/baton_v12/attempt_log_format.py \
      /opt/baton/attempt_log_format.py
 COPY worker/baton_worker.py /opt/baton/baton_worker.py
+# W376586: THE SHARED TYPED DECLARATION REFUSAL, for the reason the fresh
+# recipe states. This overlay copies `claude_agent` without copying what it
+# imports -- review 2026-10-28T20-07-16Z named it beside the fresh recipe's
+# gap -- and a dependency satisfied by whatever a provider base happens to
+# carry is not a dependency this recipe states. `baton_worker`'s own import is
+# GUARDED, so it is the ADAPTER that makes this line mandatory here; review
+# 2026-10-28T21-25-27Z asked for that correction, because an earlier version of
+# this comment called the worker's import unconditional.
+# Standard-library-only, nothing from `baton_v12`.
+COPY worker/adapter_refusal.py /opt/baton/adapter_refusal.py
 COPY worker/claude_agent.py /opt/baton/claude_agent.py
 COPY worker/integration_contract.py /opt/baton/integration_contract.py
 COPY worker/integration_workload.py /opt/baton/integration_workload.py
@@ -71,6 +81,18 @@ COPY worker/worker-control-1.0.schema.json \
 # both directions. No `baton_v12` package directory is created here, so the
 # image still has no way to spell the manager's namespace.
 COPY python/src/baton_v12/source_profiles /opt/baton/source_profiles
+
+# W321776: AND THE SHARED VERIFICATION CONTRACT, for the same reason and under
+# the same rule. `claude_agent` imports `verification_context` -- the declared
+# context's grammar, its four refusal causes, its five legal outcome
+# combinations and Stage B's ordered questions, which this adapter and the
+# INDEPENDENT OPERATOR must agree about exactly. It imports nothing from
+# `baton_v12` and imports `re` alone, so carrying it creates no way for this
+# image to spell the manager's namespace; the fresh recipe already carries it,
+# and an overlay that copied the adapter without what it imports would be a
+# dependency satisfied by luck rather than stated by the recipe.
+COPY python/src/baton_v12/verification_context.py \
+     /opt/baton/verification_context.py
 
 # THE SAME FIXED NON-ROOT PAIR as every other image in this campaign and as the
 # adapter's `--user` restriction. Restated rather than inherited: the identity

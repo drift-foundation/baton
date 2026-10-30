@@ -61,11 +61,15 @@ class Home(unittest.TestCase):
                 os.rmdir(os.path.join(current, name))
         os.rmdir(self.home)
 
-    def delivered(self, attempt_id=None, session=None):
+    def delivered(self, attempt_id=None, session=None,
+                  role="implementation"):
+        """W376586: THE ROLE IS AN OPERAND, so a case can deliver the launch
+        document for the lane it is actually about. Every existing caller gets
+        the implementation launch it got before."""
         return launch.materialize(
             self.launch_home, attempt_id=attempt_id or self.ATTEMPT,
             session=session or self.SESSION, contract="do the thing",
-            role="implementation", transport=exchange.EXCHANGE_TRANSPORT,
+            role=role, transport=exchange.EXCHANGE_TRANSPORT,
             workspace_group=self.group)
 
     def adopted(self, attempt_id=None, session=None, **overrides):
@@ -160,7 +164,13 @@ class Home(unittest.TestCase):
                           ending="answered",
                           answered=list(exchange.OPERATIONS),
                           disposition="completed", fault_code=None,
-                          manifest_digest="sha256:" + "4" * 64)
+                          manifest_digest="sha256:" + "4" * 64,
+                          # W376586: `/2`'s MANDATORY added member, null here
+                          # because an answered ending has no typed
+                          # pre-provider declaration cause. Every case below
+                          # that overrides it is overriding a member a
+                          # conforming worker always writes.
+                          adapter_failure=None)
         held.update(overrides)
         return held
 
@@ -175,12 +185,25 @@ class TheLaunchDocumentSelectsTheTransport(Home):
     """
 
     def test_the_second_version_carries_exactly_one_more_member(self):
+        """W376586: THE `/2` DOCUMENT IS NOW THE PAYLOAD, and the assertion
+        moves with it rather than being relaxed. `/5` wraps a file-exchange
+        launch, so the two levels are asserted separately: the wrapper is
+        exactly its three members and the payload is exactly `/2`'s five."""
         document = launch.launch_document(
             session="s", contract="c", role="r",
             transport=exchange.EXCHANGE_TRANSPORT)
-        self.assertEqual(sorted(document), sorted(launch.EXCHANGE_MEMBERS))
-        self.assertEqual(document["schema"], "baton.worker-launch/2")
-        self.assertEqual(document["transport"], "baton.worker-exchange/1")
+        self.assertEqual(sorted(document), sorted(launch.WRAPPER_MEMBERS))
+        self.assertEqual(document["schema"], "baton.worker-launch/5")
+        self.assertEqual(document["wire_profile"],
+                         "typed-adapter-file-exchange/1")
+        payload = document["payload"]
+        self.assertEqual(sorted(payload), sorted(launch.EXCHANGE_MEMBERS))
+        self.assertEqual(payload["schema"], "baton.worker-launch/2")
+        self.assertEqual(payload["transport"], "baton.worker-exchange/1")
+        # AND THE TRANSPORT IS STILL ONE QUESTION with one answer, whichever
+        # level a reader starts from.
+        self.assertEqual(launch.selected_transport(document),
+                         exchange.EXCHANGE_TRANSPORT)
 
     def test_the_first_version_is_unchanged_and_carries_no_transport(self):
         document = launch.launch_document(session="s", contract="c", role="r")
@@ -573,8 +596,14 @@ class TheObservationIsTheDurableFilesAndNothingElse(Home):
         view = self.chain(held, document)
         self.assertEqual(view["state"], "answered")
         self.assertEqual(sorted(view["terminal"]),
-                         ["answered", "disposition", "ending", "fault_code",
-                          "manifest_digest"])
+                         # W376586 adds `adapter_failure`, null here, and
+                         # `terminal_digest`, which is THIS MANAGER'S OWN
+                         # measurement of the bytes it validated rather than
+                         # anything the worker wrote.
+                         ["adapter_failure", "answered", "disposition",
+                          "ending", "fault_code", "manifest_digest",
+                          "terminal_digest"])
+        self.assertIsNone(view["terminal"]["adapter_failure"])
 
     def test_a_faulted_terminal_keeps_its_code_and_carries_no_message(self):
         held, document = self.commanded()
@@ -909,7 +938,11 @@ class EveryWorkerDocumentIsHeldToItsOwnKind(Home):
              exchange.TERMINAL_SCHEMA),
             ("baton.worker-exchange.receipt/1",
              "baton.worker-exchange.state/1",
-             "baton.worker-exchange.terminal/1"))
+             # W376586: THE TERMINAL IS AT `/2`. The receipt and the state
+             # events did not move -- only the terminal gained a mandatory
+             # member -- and these literals are spelled rather than read from
+             # the module so a version change has to be stated here too.
+             "baton.worker-exchange.terminal/2"))
 
 
 class ATerminalNeedsTheSequenceThatProducedIt(Home):
@@ -2233,3 +2266,1235 @@ class TheWorkerPublishesTheOptionalCount(Home):
             thread.join(5)
             self.assertFalse(thread.is_alive())
         self.assertTrue(publisher.stop(0.01))
+
+
+class TheTypedDeclarationCauseAndNothingElseCrosses(Home):
+    """W376586 — `terminal/2`'s added member, at BOTH ends of the exchange.
+
+    THE WRITER AND THE READER MOVE TOGETHER, which is what "matched" means in
+    `AMENDMENT-376531.md`: one current closed release, `terminal/2` at both
+    ends and no `/1` branch anywhere. These cases drive the REAL worker over a
+    real exchange on disk and then read what it wrote with the REAL manager
+    reader, so neither end is standing in for the other.
+
+    AND THE PRODUCER IS THE REAL ONE. The exception an agent raises here is
+    `claude_agent.DeclarationRefusal` -- the class the shipped adapter raises
+    from its four existing check sites -- imported from the module the image
+    carries. Review 2026-10-28T20-07-16Z: "do not claim the direct selector
+    tests prove the worker catch." They do not; this is the catch, and what
+    makes it meaningful is that the type crossing it is the adapter's own.
+    """
+
+    def setUp(self):
+        super().setUp()
+        from .test_worker_image import staged
+
+        self.inputs, self.outputs = staged(self)
+
+    def worker(self, delivery, agent=None, role="implementation"):
+        import baton_worker
+        from scripted_agent import ScriptedAgent
+
+        return baton_worker.serve_exchange(
+            ScriptedAgent() if agent is None else agent, self.launched(role),
+            self.SESSION, delivery.command_root, delivery.event_root)
+
+    def launched(self, role="implementation"):
+        """THE SELECTED LAUNCH ROLE IS AN OPERAND NOW, and that is the whole
+        correction review 2026-10-28T21-25-27Z asked for in these cases: this
+        fixture used to launch `implementation` for every case, including the
+        ones labelled `review`, so the both-role coverage was a label rather
+        than a selection and a foreign-role typed cause was being ASSERTED
+        CORRECT."""
+        return {"schema": launch.EXCHANGE_SCHEMA, "session": self.SESSION,
+                "contract": "do the thing", "role": role,
+                "transport": exchange.EXCHANGE_TRANSPORT}
+
+    def refusal(self, code, role, *, message="the declaration is unusable"):
+        import claude_agent
+
+        return claude_agent.DeclarationRefusal(message, code=code, role=role)
+
+    def raising(self, failed):
+        """One agent whose `work` raises -- the frame the real adapter's own
+        declaration check raises from."""
+        from scripted_agent import ScriptedAgent
+
+        class Refusing(ScriptedAgent):
+            def work(self, seen, declared):
+                raise failed
+
+        return Refusing()
+
+    def ran(self, failed, attempt=None, role="implementation"):
+        """One real worker turn that raises `failed`, under its OWN attempt
+        and under an EXPLICITLY SELECTED launch role.
+
+        A fresh attempt id per turn rather than a re-entered fixture:
+        `launch.materialize` refuses an existing root on purpose, and an
+        exchange is per-attempt, so a case that drives several turns drives
+        several attempts -- which is also what a deployment does.
+        """
+        delivery = self.delivered(
+            attempt_id=self.ATTEMPT if attempt is None else attempt,
+            role=role).exchange
+        held, _document = self.commanded(delivery)
+        self.assertEqual(
+            self.worker(held, agent=self.raising(failed), role=role), 1)
+        return held, exchange.observation(held)
+
+    def published(self, delivery):
+        with open(os.path.join(delivery.event_root,
+                               exchange.TERMINAL_DOCUMENT), "rb") as reading:
+            return reading.read()
+
+    # -- the two copies of one contract ------------------------------------
+
+    def test_the_two_ends_agree_about_the_added_member(self):
+        """`baton_worker` cannot import this package, so the vocabulary exists
+        twice; these are the cases that keep the copies from drifting."""
+        import adapter_refusal
+        import baton_worker
+
+        self.assertEqual(baton_worker.ADAPTER_FAILURE_MEMBERS,
+                         exchange.ADAPTER_FAILURE_MEMBERS)
+        self.assertEqual(baton_worker.ADAPTER_FAILURE_OPERATION,
+                         exchange.ADAPTER_FAILURE_OPERATION)
+        self.assertEqual(baton_worker.ADAPTER_FAILURE_CODE,
+                         exchange.ADAPTER_FAILURE_CODE)
+        self.assertEqual(baton_worker.MAX_ADAPTER_FAILURE_BYTES,
+                         exchange.MAX_ADAPTER_FAILURE_BYTES)
+        self.assertEqual(adapter_refusal.COMPONENT,
+                         exchange.ADAPTER_COMPONENT)
+        self.assertEqual(adapter_refusal.CODES, exchange.ADAPTER_CODES)
+        self.assertEqual(adapter_refusal.ROLES, exchange.ADAPTER_ROLES)
+        self.assertEqual(baton_worker.TERMINAL_SCHEMA,
+                         exchange.TERMINAL_SCHEMA)
+        self.assertTrue(exchange.TERMINAL_SCHEMA.endswith("/2"))
+        self.assertIn("adapter_failure", exchange.TERMINAL_MEMBERS)
+
+    def test_the_catch_tests_identity_against_the_adapter_s_own_class(self):
+        """ONE MODULE SO ONE TYPE, proved by object identity rather than by
+        name: a duplicate definition in either program would make this
+        `except` miss."""
+        import adapter_refusal
+        import baton_worker
+        import claude_agent
+
+        self.assertIs(baton_worker.adapter_refusal, adapter_refusal)
+        self.assertTrue(issubclass(claude_agent.DeclarationRefusal,
+                                   adapter_refusal.AdapterDeclarationRefusal))
+        self.assertIs(claude_agent._SharedDeclarationRefusal,
+                      adapter_refusal.AdapterDeclarationRefusal)
+
+    # -- the ordinary ending is unchanged ----------------------------------
+
+    def test_an_answered_ending_says_there_was_no_typed_cause(self):
+        """A STATEMENT RATHER THAN AN ABSENCE, which is why the member is
+        mandatory: null means "no typed cause was established", and a `/1`
+        worker that cannot say either is refused by the schema instead."""
+        held, _document = self.commanded()
+        self.assertEqual(self.worker(held), 0)
+        view = exchange.observation(held)
+        self.assertEqual(view["state"], "answered")
+        self.assertIsNone(view["terminal"]["adapter_failure"])
+        self.assertIn(b'"adapter_failure":null', self.published(held))
+
+    def test_an_untyped_agent_failure_keeps_the_ending_it_had(self):
+        """The generic clause is byte-unchanged: same `faulted`, same `agent`
+        code, and the added member explicitly null."""
+        held, view = self.ran(ValueError("something else entirely"))
+        self.assertEqual(view["state"], "faulted")
+        self.assertEqual(view["terminal"]["fault_code"], "agent")
+        self.assertEqual(view["terminal"]["answered"], ["describe"])
+        self.assertIsNone(view["terminal"]["adapter_failure"])
+
+    # -- the four codes, both roles, through the real worker ---------------
+
+    def test_every_code_and_role_crosses_as_the_manager_s_own_identity(self):
+        import adapter_refusal
+
+        for index, code in enumerate(adapter_refusal.CODES):
+            for turn, role in enumerate(adapter_refusal.ROLES):
+                attempt = f"attempt-{index}-{turn}"
+                with self.subTest(code=code, role=role):
+                    # THE LANE IS SELECTED, not labelled: this turn is
+                    # launched as `role` and the adapter's refusal names the
+                    # same one.
+                    held, view = self.ran(self.refusal(code, role),
+                                          attempt=attempt, role=role)
+                    self.assertEqual(view["state"], "faulted")
+                    self.assertEqual(view["terminal"]["fault_code"], "agent")
+                    self.assertEqual(view["terminal"]["answered"],
+                                     ["describe"])
+                    self.assertEqual(
+                        view["terminal"]["adapter_failure"],
+                        {"component": "role-adapter", "code": code,
+                         "role": role, "operation": "work",
+                         # THE MANAGER'S OWN MINTED IDENTITY, not a value the
+                         # worker composed and not a grammar that looks right.
+                         "operation_id": exchange.worker_operation_id(
+                             attempt, "work")})
+                    self.assertEqual([one["state"]
+                                      for one in view["states"]],
+                                     ["answered", "faulted"])
+
+    def test_a_foreign_role_claim_never_becomes_typed_evidence(self):
+        """THE DEFECT REVIEW 2026-10-28T21-25-27Z REPRODUCED, both directions.
+
+        The serialization boundary held the role to the two allowed literals
+        and never compared it with the launch, so a container launched
+        `implementation` published a typed cause saying `review`. A valid
+        vocabulary word is not an identity. The ending is unchanged -- faulted,
+        `agent` -- and the typed evidence is null, which is what the amendment
+        already required of a wrong role.
+        """
+        import adapter_refusal
+
+        for launched, claimed in (("implementation", "review"),
+                                  ("review", "implementation")):
+            with self.subTest(launched=launched, claimed=claimed):
+                held, view = self.ran(
+                    self.refusal(adapter_refusal.ROLE_OUTPUT_MISSING,
+                                 claimed),
+                    attempt=f"attempt-foreign-{launched}", role=launched)
+                self.assertEqual(view["state"], "faulted")
+                self.assertEqual(view["terminal"]["fault_code"], "agent")
+                self.assertIsNone(view["terminal"]["adapter_failure"])
+                self.assertIn(b'"adapter_failure":null', self.published(held))
+                # AND THE FOREIGN ROLE IS NOWHERE IN THE DOCUMENT, which is
+                # the half a reader of a later report would have believed.
+                self.assertNotIn(claimed.encode("utf-8"),
+                                 self.published(held))
+
+    def test_the_published_role_is_the_launch_s_and_not_the_exception_s(self):
+        """The literal published is resolved from the SELECTED role. The two
+        agree in every admitted case, so the way to see which one is carried
+        is to check that it is the launch's in both lanes."""
+        import adapter_refusal
+
+        for role in adapter_refusal.ROLES:
+            with self.subTest(role=role):
+                _held, view = self.ran(
+                    self.refusal(adapter_refusal.SET_INVALID, role),
+                    attempt=f"attempt-published-{role}", role=role)
+                self.assertEqual(
+                    view["terminal"]["adapter_failure"]["role"], role)
+        # THE OBJECT IDENTITY IS A PROPERTY OF THE BOUNDARY, not of the
+        # document: the published value travels through JSON and comes back a
+        # different object with the same content. So it is asserted where it
+        # exists -- and with the exception carrying a `str` SUBCLASS that
+        # compares equal, which is exactly the vehicle a payload would ride.
+        import baton_worker
+
+        class Carrying(str):
+            payload = "/host/credentials"
+
+        for role in adapter_refusal.ROLES:
+            with self.subTest(role=role, vehicle="str subclass"):
+                failed = self.refusal(adapter_refusal.SET_INVALID, role)
+                failed.role = Carrying(role)
+                facts = baton_worker._adapter_failure(
+                    failed, "work", "work:attempt-1", role)
+                # The exception's own value is refused by `type(...) is str`,
+                # so there is no typed cause at all -- and the published role
+                # could not have been it either way.
+                self.assertIsNone(facts)
+                ok = self.refusal(adapter_refusal.SET_INVALID, role)
+                facts = baton_worker._adapter_failure(
+                    ok, "work", "work:attempt-1", role)
+                self.assertIs(facts["role"],
+                              adapter_refusal.ROLES[
+                                  adapter_refusal.ROLES.index(role)])
+
+    def test_a_launch_role_outside_the_typed_vocabulary_stays_generic(self):
+        """`integration` is a real launch role this deployment runs, and no
+        development declaration cause can name it -- so a container launched
+        that way produces the ordinary generic fault rather than a mismatch
+        report about a lane that does not exist here."""
+        import adapter_refusal
+        import baton_worker
+
+        failed = self.refusal(adapter_refusal.SET_INVALID, "implementation")
+        for selected in ("integration", "", None, 7, True, "Implementation"):
+            with self.subTest(selected=selected):
+                self.assertIsNone(baton_worker._adapter_failure(
+                    failed, "work", "work:attempt-1", selected))
+
+    def test_the_cause_arrives_beside_a_receipt_and_a_real_history(self):
+        """`_caused` is not relaxed for the typed path: the receipt that fenced
+        dispatch and the describe/work state events are still required, and the
+        typed cause additionally pins `answered` to the one reachable prefix."""
+        import adapter_refusal
+
+        held, view = self.ran(self.refusal(adapter_refusal.SET_INVALID,
+                                           "implementation"),
+                              role="implementation")
+        self.assertIsNotNone(view["receipt"])
+        self.assertEqual(view["states"],
+                         [{"operation": "describe", "state": "answered"},
+                          {"operation": "work", "state": "faulted"}])
+        self.assertEqual(view["foreign"], [])
+
+    # -- secrecy at the serialization boundary -----------------------------
+
+    def test_an_overridden_facts_method_is_never_called_or_carried(self):
+        """Review 2026-10-28T20-07-16Z: "do not serialize exception text" or
+        "invoke arbitrary overridden `facts` methods as trusted evidence".
+
+        This object's `facts()` would raise if it were called at all, and its
+        message and args carry secret-shaped values. The code and role are
+        VALID, so the typed cause is still established -- from this build's own
+        literals -- and nothing the object supplied reaches the document.
+        """
+        import adapter_refusal
+
+        planted = "/host/credentials/token-AKIAEXAMPLE"
+
+        import claude_agent
+
+        class Overridden(claude_agent.DeclarationRefusal):
+            def facts(self):
+                raise AssertionError("facts() was called at the boundary")
+
+        failed = Overridden(planted, code=adapter_refusal.SET_INVALID,
+                            role="review")
+        failed.extra = planted
+        held, view = self.ran(failed, role="review")
+        self.assertEqual(view["terminal"]["adapter_failure"]["code"],
+                         adapter_refusal.SET_INVALID)
+        raw = self.published(held)
+        self.assertNotIn(planted.encode("utf-8"), raw)
+        self.assertNotIn(b"Overridden", raw)
+        self.assertNotIn(b"extra", raw)
+
+    def test_a_mutated_code_or_role_degrades_to_the_generic_fault(self):
+        """The class checks its code and role in `__init__` and NOTHING stops a
+        later assignment, so the boundary asks again. A value it cannot hold to
+        the closed literals is not a cause -- and the ending is still the one
+        the generic clause would have published."""
+        import adapter_refusal
+
+        for name, value in (("code", "declaration-set-invalid-ish"),
+                            ("code", "/host/secret"),
+                            ("code", None),
+                            ("role", "integration"),
+                            ("role", True),
+                            ("component", "role-adapter-other"),
+                            ("component", "")):
+            with self.subTest(member=name, value=value):
+                failed = self.refusal(adapter_refusal.NAME_UNSUPPORTED,
+                                      "implementation")
+                setattr(failed, name, value)
+                held, view = self.ran(
+                    failed, attempt=f"attempt-mutated-{name}-{value!r}")
+                self.assertEqual(view["terminal"]["fault_code"], "agent")
+                self.assertIsNone(view["terminal"]["adapter_failure"])
+                self.assertIn(b'"adapter_failure":null', self.published(held))
+
+    def test_an_equal_comparing_string_subclass_is_not_a_literal(self):
+        """`type(...) is str` rather than `==`: a `str` subclass equal to a
+        valid code can carry an arbitrary payload, and what is stored is the
+        matching literal from this build's own tuple either way."""
+        import adapter_refusal
+        import baton_worker
+
+        class Carrying(str):
+            payload = "/host/credentials"
+
+        failed = self.refusal(adapter_refusal.ROLE_OUTPUT_MISSING, "review")
+        failed.code = Carrying(adapter_refusal.ROLE_OUTPUT_MISSING)
+        self.assertIsNone(baton_worker._adapter_failure(
+            failed, "work", "work:attempt-1", "review"))
+        ok = self.refusal(adapter_refusal.ROLE_OUTPUT_MISSING, "review")
+        facts = baton_worker._adapter_failure(ok, "work", "work:attempt-1",
+                                              "review")
+        for member in ("component", "code", "role"):
+            with self.subTest(member=member):
+                self.assertIs(type(facts[member]), str)
+
+    def test_a_missing_member_is_a_degradation_and_not_a_crash(self):
+        """A `property` that raises and a deleted attribute are the same answer
+        at this boundary: `None`, and the ordinary generic fault."""
+        import adapter_refusal
+        import baton_worker
+
+        failed = self.refusal(adapter_refusal.OTHER_ROLE_OUTPUT_REQUIRED,
+                              "review")
+        del failed.role
+        self.assertIsNone(baton_worker._adapter_failure(
+            failed, "work", "work:attempt-1", "review"))
+
+    def test_the_phase_is_the_operation_the_command_names(self):
+        """"Wrong phase keeps the safe generic agent failure." The phase is
+        asked at the boundary rather than inferred: this transport does not
+        reach an agent for `describe` at all -- `handle` answers it from the
+        protocol itself -- so the rule is proved where a cause would have to be
+        composed."""
+        import adapter_refusal
+        import baton_worker
+
+        failed = self.refusal(adapter_refusal.SET_INVALID, "implementation")
+        self.assertIsNone(baton_worker._adapter_failure(
+            failed, "describe", "describe:attempt-1", "implementation"))
+        self.assertIsNone(baton_worker._adapter_failure(
+            failed, "consider", "work:attempt-1", "implementation"))
+        self.assertIsNotNone(baton_worker._adapter_failure(
+            failed, "work", "work:attempt-1", "implementation"))
+
+    def test_an_unrelated_exception_type_never_becomes_a_cause(self):
+        """A bare `TaskRefusal`, an arbitrary exception and a worker fault are
+        not typed causes -- the amendment forbids reaching a code by
+        resemblance, and the only admission here is the shared class."""
+        import baton_worker
+        import claude_agent
+
+        for failed in (claude_agent.TaskRefusal("no"), ValueError("no"),
+                       RuntimeError("no"), Exception("no")):
+            with self.subTest(failed=type(failed).__name__):
+                self.assertIsNone(baton_worker._adapter_failure(
+                    failed, "work", "work:attempt-1", "implementation"))
+
+
+class TheReaderHoldsTheAddedMemberToTheWholeEnding(Home):
+    """W376586 — the manager's half, driven from bytes a worker could write.
+
+    A NON-NULL TYPED CAUSE IS A CLAIM ABOUT THE WHOLE ENDING, so every case
+    here writes a terminal whose ten original members and whose added member
+    disagree, and the answer is `unreadable` rather than a view with half of a
+    contradiction in it. The amendment's degrade-only-this-branch rule is the
+    REPORT's, downstream of here; a terminal that contradicts itself is not a
+    document to read either half of.
+    """
+
+    def cause(self, **overrides):
+        held = {"component": "role-adapter",
+                "code": "declaration-set-invalid",
+                "role": "implementation", "operation": "work",
+                "operation_id": exchange.worker_operation_id(self.ATTEMPT,
+                                                             "work")}
+        held.update(overrides)
+        return held
+
+    def faulted(self, **overrides):
+        """The one reachable typed history: receipt, describe answered, work
+        faulted, and a faulted terminal answering exactly `["describe"]`."""
+        delivery, document = self.one()
+        self.wrote(delivery, exchange.RECEIPT_DOCUMENT,
+                   self.receipt(document))
+        self.wrote(delivery, exchange.state_document("describe"),
+                   self.state(document, "describe", "answered"))
+        self.wrote(delivery, exchange.state_document("work"),
+                   self.state(document, "work", "faulted"))
+        body = {"ending": "faulted", "answered": ["describe"],
+                "disposition": None, "manifest_digest": None,
+                "fault_code": "agent", "adapter_failure": self.cause()}
+        body.update(overrides)
+        self.wrote(delivery, exchange.TERMINAL_DOCUMENT,
+                   self.terminal(document, **body))
+        return exchange.observation(delivery)
+
+    def test_the_one_reachable_history_reads(self):
+        view = self.faulted()
+        self.assertEqual(view["state"], "faulted")
+        self.assertIsNone(view["unreadable"])
+        self.assertEqual(view["terminal"]["adapter_failure"], self.cause())
+
+    def test_an_answered_ending_with_a_cause_is_unreadable(self):
+        delivery, document = self.one()
+        self.wrote(delivery, exchange.RECEIPT_DOCUMENT,
+                   self.receipt(document))
+        for operation in exchange.OPERATIONS:
+            self.wrote(delivery, exchange.state_document(operation),
+                       self.state(document, operation, "answered"))
+        self.wrote(delivery, exchange.TERMINAL_DOCUMENT,
+                   self.terminal(document, adapter_failure=self.cause()))
+        view = exchange.observation(delivery)
+        self.assertEqual(view["state"], "unreadable")
+        # THE REASON IS NOT DURABLE and is deliberately not asserted here:
+        # `_safe` keeps the category and the code, because a refusal's prose is
+        # composed from values a worker wrote. The message is checked directly
+        # against the validator below, where no durable surface is involved.
+        self.assertEqual(view["unreadable"],
+                         {"category": "refused", "code": "precondition"})
+        self.assertIsNone(view["terminal"])
+
+    def test_another_fault_code_with_a_cause_is_unreadable(self):
+        for code in ("output", "exchange", "protocol", "replay"):
+            with self.subTest(fault_code=code):
+                view = self.faulted(fault_code=code)
+                self.assertEqual(view["state"], "unreadable")
+
+    def test_a_history_the_cause_could_not_have_stopped_is_unreadable(self):
+        """"a declaration is checked when the provider turn is composed", so
+        the only prefix a typed cause can sit after is `["describe"]`."""
+        for answered in ([], ["describe", "work"]):
+            with self.subTest(answered=answered):
+                view = self.faulted(answered=answered)
+                self.assertEqual(view["state"], "unreadable")
+
+    def test_every_vocabulary_member_is_closed(self):
+        for name, value in (("component", "role-adapter-other"),
+                            ("component", ""),
+                            ("component", None),
+                            ("code", "declaration-set-invalid-ish"),
+                            ("code", "agent"),
+                            ("code", None),
+                            ("role", "integration"),
+                            ("role", "implementation,review"),
+                            ("role", True),
+                            ("operation", "describe"),
+                            ("operation", "consider")):
+            with self.subTest(member=name, value=value):
+                view = self.faulted(
+                    adapter_failure=self.cause(**{name: value}))
+                self.assertEqual(view["state"], "unreadable")
+                self.assertIsNone(view["terminal"])
+
+    def test_a_worker_composed_operation_identity_is_refused(self):
+        """The identity is held against the one THIS MANAGER minted, not
+        against a grammar: a worker-asserted operation id is the one thing this
+        reader will not take."""
+        for value in ("work:attempt-2", "work:" + "a" * 40, "work",
+                      "describe:attempt-1", "", None, 7):
+            with self.subTest(operation_id=value):
+                view = self.faulted(
+                    adapter_failure=self.cause(operation_id=value))
+                self.assertEqual(view["state"], "unreadable")
+
+    def test_the_added_object_is_exactly_its_five_members(self):
+        for spoiled in (self.cause(extra="x"),
+                        {one: value for one, value in self.cause().items()
+                         if one != "role"},
+                        [], "a cause", 7, True, {}):
+            with self.subTest(spoiled=spoiled):
+                view = self.faulted(adapter_failure=spoiled)
+                self.assertEqual(view["state"], "unreadable")
+
+    def test_the_added_object_is_bounded_on_its_own(self):
+        """A bound separate from the whole document's, because this is the
+        first member composed from an object the adapter raised."""
+        view = self.faulted(
+            adapter_failure=self.cause(
+                role="implementation" + " " * exchange.MAX_ADAPTER_FAILURE_BYTES))
+        self.assertEqual(view["state"], "unreadable")
+
+    def test_a_terminal_without_the_member_at_all_is_refused(self):
+        """MANDATORY, not optional. A worker that cannot state the member is a
+        worker from the generation before this release, and the closed member
+        set says so rather than defaulting it to null."""
+        delivery, document = self.one()
+        held = self.terminal(document)
+        del held["adapter_failure"]
+        self.wrote(delivery, exchange.RECEIPT_DOCUMENT,
+                   self.receipt(document))
+        for operation in exchange.OPERATIONS:
+            self.wrote(delivery, exchange.state_document(operation),
+                       self.state(document, operation, "answered"))
+        self.wrote(delivery, exchange.TERMINAL_DOCUMENT, held)
+        view = exchange.observation(delivery)
+        self.assertEqual(view["state"], "unreadable")
+        self.assertEqual(view["unreadable"],
+                         {"category": "refused", "code": "precondition"})
+
+    def test_the_previous_terminal_version_is_refused_as_another_protocol(self):
+        """One current closed release: there is no `/1` branch at either end,
+        and the version is asked by equality before anything else."""
+        delivery, document = self.one()
+        self.wrote(delivery, exchange.RECEIPT_DOCUMENT,
+                   self.receipt(document))
+        for operation in exchange.OPERATIONS:
+            self.wrote(delivery, exchange.state_document(operation),
+                       self.state(document, operation, "answered"))
+        held = self.terminal(document,
+                             schema="baton.worker-exchange.terminal/1")
+        del held["adapter_failure"]
+        self.wrote(delivery, exchange.TERMINAL_DOCUMENT, held)
+        view = exchange.observation(delivery)
+        self.assertEqual(view["state"], "unreadable")
+
+    def test_the_digest_is_of_the_exact_bytes_this_reader_validated(self):
+        """No reopen-for-digest race: the identity is taken over the one `raw`
+        the reader bounded and parsed, so two reads of a file the worker can
+        replace cannot be reported as one document."""
+        import hashlib
+
+        view = self.faulted()
+        delivery, _document = self.one()
+        place = os.path.join(delivery.event_root, exchange.TERMINAL_DOCUMENT)
+        with open(place, "rb") as reading:
+            raw = reading.read()
+        self.assertEqual(view["terminal"]["terminal_digest"],
+                         "sha256:" + hashlib.sha256(raw).hexdigest())
+        # AND IT FOLLOWS THE BYTES. A worker that rewrites its own terminal
+        # publishes a different document, and the identity says so.
+        with open(place, "wb") as writing:
+            writing.write(json.dumps(json.loads(raw),
+                                     separators=(",", ":"))
+                          .encode("utf-8"))
+        again = exchange.observation(delivery)
+        self.assertEqual(again["state"], "faulted")
+        self.assertNotEqual(again["terminal"]["terminal_digest"],
+                            view["terminal"]["terminal_digest"])
+        self.assertEqual(again["terminal"]["adapter_failure"],
+                         view["terminal"]["adapter_failure"])
+
+    def test_the_refusal_says_which_disagreement_it_was(self):
+        """The prose is checked HERE rather than off the projection, because
+        `_safe` keeps only the category and the code on a durable surface."""
+        delivery, _document = self.one()
+        for overrides, said in (
+                ({"ending": "answered"}, "is not an ending of its own"),
+                ({"answered": []}, "one reachable history"),
+                ({"adapter_failure": self.cause(role="integration")},
+                 "vocabulary is closed"),
+                ({"adapter_failure": self.cause(operation_id="work:other")},
+                 "not one this manager commanded"),
+                ({"adapter_failure": self.cause(extra="x")},
+                 "unexpected extra"),
+                ({"adapter_failure": 7}, "not one closed object or null")):
+            with self.subTest(said=said):
+                body = {"ending": "faulted", "answered": ["describe"],
+                        "disposition": None, "manifest_digest": None,
+                        "fault_code": "agent",
+                        "adapter_failure": self.cause()}
+                body.update(overrides)
+                with self.assertRaises(ContractRefusal) as caught:
+                    exchange._adapter_failure(
+                        body["adapter_failure"], delivery,
+                        ending=body["ending"], fault=body["fault_code"],
+                        answered=body["answered"])
+                self.assertIn(said, str(caught.exception))
+
+
+class TheFileExchangeLaunchIsWrapped(Home):
+    """W376586 — the matched `worker-launch/5` wrapper, at BOTH of its ends.
+
+    `AMENDMENT-376531.md`: "one current worker-launch/5 wrapper
+    {schema,wire_profile,payload}, wire_profile=typed-adapter-file-exchange/1.
+    Payload preserves current ordinary/context/role launch semantics in the
+    existing mode-specific /2-/4 payload shapes; these are internal payload
+    variants, not support for executing historical unwrapped file launches...
+    typed worker refuses unsupported/unwrapped file-exchange launch before
+    adapter construction/receipt/provider. No nested wrapper or arbitrary
+    profile... No silent downgrade."
+
+    THE MANAGER COMPOSES AND THE REAL WORKER READS. Nothing here asserts the
+    wrapper against a second copy of the rule: the documents are the ones
+    `launch_document` authors, and the validation is `baton_worker.launched`.
+    """
+
+    def setUp(self):
+        super().setUp()
+        # The worker directory reaches `sys.path` through this import, the same
+        # way `TheWorkerIsTheOtherEnd` reaches it; `staged` also gives the one
+        # case below that really runs a turn its `/input` and `/output`.
+        from .test_worker_image import staged
+
+        self.inputs, self.outputs = staged(self)
+
+    def wrapped(self, **changed):
+        held = launch.launch_document(
+            session=self.SESSION, contract="do the thing",
+            role="implementation",
+            transport=exchange.EXCHANGE_TRANSPORT)
+        held.update(changed)
+        return held
+
+    def refusing(self, document):
+        import baton_worker
+
+        with self.assertRaises(baton_worker.WorkerFault) as caught:
+            baton_worker.launched(document, place="/run/baton/launch.json")
+        return str(caught.exception)
+
+    # -- the two ends agree -------------------------------------------------
+
+    def test_the_two_ends_agree_about_the_wrapper(self):
+        import baton_worker
+
+        self.assertEqual(baton_worker.WRAPPER_LAUNCH_SCHEMA,
+                         launch.WRAPPER_SCHEMA)
+        self.assertEqual(baton_worker.WRAPPER_LAUNCH_MEMBERS,
+                         launch.WRAPPER_MEMBERS)
+        self.assertEqual(baton_worker.WIRE_PROFILE, launch.WIRE_PROFILE)
+        self.assertEqual(launch.WRAPPER_SCHEMA, "baton.worker-launch/5")
+        self.assertEqual(launch.WIRE_PROFILE,
+                         "typed-adapter-file-exchange/1")
+        # THE WRAPPER IS NOT A PAYLOAD GENERATION, which is what makes a
+        # nested wrapper refuse by a membership test rather than a depth count.
+        self.assertNotIn(launch.WRAPPER_SCHEMA, launch.PAYLOAD_SCHEMAS)
+        self.assertNotIn(launch.WRAPPER_SCHEMA,
+                         baton_worker.SUPPORTED_LAUNCH_SCHEMAS)
+
+    # -- the positives, through the real reader -----------------------------
+
+    def test_every_mode_specific_payload_is_carried_and_read(self):
+        """ORDINARY, JOB AND CONTEXT, each wrapped and each read back as the
+        container document it always was -- "internal payload variants"."""
+        import baton_worker
+
+        # ORDINARY `/2` through the composer, and the `/3` and `/4` variants
+        # through the fixtures that already build valid ones: `test_claude_
+        # context` drives a real `/4` context stage end to end and
+        # `test_single_worker` a real `/3`, both of which now go through this
+        # wrapper. What is asserted HERE is the carriage rule itself.
+        document = launch.launch_document(
+            session=self.SESSION, contract="do the thing",
+            role="implementation", transport=exchange.EXCHANGE_TRANSPORT)
+        self.assertEqual(document["schema"], launch.WRAPPER_SCHEMA)
+        self.assertEqual(document["payload"]["schema"],
+                         launch.EXCHANGE_SCHEMA)
+        seen = baton_worker.launched(document)
+        # WHAT THE WORKER SEES IS THE CONTAINER DOCUMENT, unchanged: every
+        # reader downstream of `launched` is untouched.
+        self.assertEqual(seen, document["payload"])
+        self.assertEqual(seen["transport"], exchange.EXCHANGE_TRANSPORT)
+        # AND EVERY PAYLOAD GENERATION IS ADMITTED BY THE READER, asked of the
+        # closed table rather than of one example: a `/3` or `/4` carrying the
+        # exchange is read exactly as a `/2` is.
+        for inside in launch.PAYLOAD_SCHEMAS:
+            with self.subTest(payload=inside):
+                self.assertIn(inside, baton_worker.SUPPORTED_LAUNCH_SCHEMAS)
+
+    def test_both_roles_are_carried_unchanged(self):
+        import baton_worker
+
+        for role in ("implementation", "review"):
+            with self.subTest(role=role):
+                document = launch.launch_document(
+                    session=self.SESSION, contract="do the thing", role=role,
+                    transport=exchange.EXCHANGE_TRANSPORT)
+                self.assertEqual(
+                    baton_worker.launched(document)["role"], role)
+
+    def test_the_delivery_on_disk_is_wrapped_and_still_composes_its_namespaces(self):
+        """THE DEFECT THIS WRAPPER COULD HAVE REINTRODUCED, and the case that
+        holds it closed. `_exchange_materialized` reads the DOCUMENT to decide
+        whether to compose the command and event namespaces; `/5` moved the
+        transport one level down, and a reader asking the top level would have
+        composed none -- which `_exchange_materialized`'s own comment records
+        costing 54 cases the last time the proxy went stale."""
+        import baton_worker
+
+        delivery = self.delivered()
+        self.assertIsNotNone(delivery.exchange)
+        self.assertEqual(delivery.document["schema"], launch.WRAPPER_SCHEMA)
+        with open(delivery.place, "rb") as reading:
+            raw = json.loads(reading.read().decode("utf-8"))
+        self.assertEqual(raw, delivery.document)
+        self.assertEqual(launch.selected_transport(raw),
+                         exchange.EXCHANGE_TRANSPORT)
+        # AND THE BYTES ON DISK ARE WHAT THE WORKER READS.
+        self.assertEqual(baton_worker.launched(raw), raw["payload"])
+
+    def test_adoption_re_derives_the_same_wrapped_bytes(self):
+        """`adopt` authors through the same owner and compares canonical
+        bytes, so a wrapped delivery is recovered by the one comparison that
+        already closed identity and value drift together."""
+        self.delivered()
+        adopted = self.adopted()
+        self.assertEqual(adopted.document["schema"], launch.WRAPPER_SCHEMA)
+        self.assertIsNotNone(adopted.exchange)
+
+    def test_the_framed_and_one_shot_launches_are_untouched(self):
+        """The amendment puts the framed transport outside this feature. A
+        `/1`, and a `/3` validly naming no transport, are composed and read
+        exactly as before -- unwrapped."""
+        import baton_worker
+
+        ordinary = launch.launch_document(session=self.SESSION,
+                                          contract="do the thing", role="r")
+        self.assertEqual(ordinary["schema"], launch.LAUNCH_SCHEMA)
+        self.assertEqual(baton_worker.launched(ordinary), ordinary)
+        self.assertIsNone(launch.selected_transport(ordinary))
+
+    # -- the refusals, all of them before anything starts -------------------
+
+    def test_an_unwrapped_file_exchange_launch_is_refused(self):
+        """THE HALF THAT MAKES THE WRAPPER A RELEASE RATHER THAN AN OPTION,
+        and the amendment's "no silent downgrade": a `/2`-`/4` document that
+        selects the file exchange and did not arrive wrapped is not executed."""
+        for payload in (self.wrapped()["payload"],
+                        dict(self.wrapped()["payload"],
+                             schema=launch.JOB_SCHEMA,
+                             job_execution={
+                                 "job_id": "job-a",
+                                 "attempt_id": self.ATTEMPT,
+                                 "job_input_digest": "sha256:" + "1" * 64,
+                                 "job_policy_digest": "sha256:" + "2" * 64,
+                                 "runtime_input_digest": "sha256:" + "1" * 64,
+                                 "runtime_policy_digest": "sha256:" + "2" * 64,
+                                 "execution_limits": None,
+                                 "execution_limits_digest": None})):
+            with self.subTest(schema=payload["schema"]):
+                said = self.refusing(payload)
+                self.assertIn("without the", said)
+                self.assertIn("baton.worker-launch/5", said)
+                self.assertIn("is not one this worker executes", said)
+
+    def test_an_arbitrary_wire_profile_is_refused(self):
+        for value in ("typed-adapter-file-exchange/2", "", None, 7, True,
+                      "TYPED-ADAPTER-FILE-EXCHANGE/1",
+                      "typed-adapter-file-exchange/1 "):
+            with self.subTest(profile=value):
+                said = self.refusing(self.wrapped(wire_profile=value))
+                self.assertIn("a profile this program cannot name", said)
+                self.assertIn("no", said)
+
+    def test_a_nested_wrapper_is_refused(self):
+        held = self.wrapped()
+        said = self.refusing(self.wrapped(payload=dict(held)))
+        self.assertIn("inside a", said)
+        self.assertIn("never another wrapper", said)
+
+    def test_a_wrapper_around_a_launch_selecting_no_exchange_is_refused(self):
+        """Wrapped around a framed or one-shot launch it would describe a wire
+        nobody is on -- the silent-downgrade direction in reverse."""
+        framed = launch.launch_document(session=self.SESSION,
+                                        contract="do the thing", role="r")
+        said = self.refusing(self.wrapped(payload=framed))
+        self.assertIn("describe a wire nothing is on", said)
+
+    def test_the_wrapper_is_exactly_its_three_members(self):
+        for spoiled in ({"schema": launch.WRAPPER_SCHEMA},
+                        dict(self.wrapped(), extra="x"),
+                        {one: value for one, value in self.wrapped().items()
+                         if one != "wire_profile"}):
+            with self.subTest(spoiled=sorted(spoiled)):
+                self.assertIn("is exactly schema, wire_profile, payload",
+                              self.refusing(spoiled))
+
+    def test_a_payload_that_is_not_a_document_or_is_from_elsewhere_refuses(self):
+        for value in (None, [], "a launch", 7, True):
+            with self.subTest(payload=value):
+                self.assertIn("payload that is not one document",
+                              self.refusing(self.wrapped(payload=value)))
+        said = self.refusing(self.wrapped(
+            payload={"schema": "baton.worker-launch/6", "session": "s",
+                     "contract": "c", "role": "r",
+                     "transport": exchange.EXCHANGE_TRANSPORT}))
+        self.assertIn("baton.worker-launch/6", said)
+
+    def test_the_whole_launch_bound_is_measured_on_the_wrapper(self):
+        """THE BOUND IS ON THE DOCUMENT THAT IS WRITTEN, which is now the
+        wrapper -- so the wrapper's own bytes are what the worker's ceiling
+        applies to.
+
+        Asserted against `_bytes` directly, and the reason is honest rather
+        than convenient: the closed `/2` member set at `MAX_LAUNCH_VALUE` each
+        cannot reach `MAX_LAUNCH_BYTES` through the composer at all, so a case
+        that drove the composer would be asserting a refusal no composition
+        can produce. What matters is that the writer bounds the OUTER
+        document, and that is exactly what this asks.
+        """
+        held = self.wrapped()
+        self.assertEqual(
+            launch._bytes(held),
+            json.dumps(held, ensure_ascii=False, sort_keys=True,
+                       separators=(",", ":")).encode("utf-8"))
+        fat = dict(held, payload=dict(
+            held["payload"],
+            contract="c" * (launch.MAX_LAUNCH_BYTES + 1)))
+        with self.assertRaises(ContractRefusal) as caught:
+            launch._bytes(fat)
+        self.assertIn(str(launch.MAX_LAUNCH_BYTES), str(caught.exception))
+        self.assertEqual(caught.exception.code, "denied")
+
+    def test_the_refusal_happens_before_any_receipt_or_provider(self):
+        """"before adapter construction/receipt/provider" is a property of the
+        ORDER, and this proves it the only way it can be proved: the real
+        worker is given an unwrapped exchange launch over a real delivery, and
+        the event namespace is still empty afterwards."""
+        import baton_worker
+        from scripted_agent import ScriptedAgent
+
+        delivery = self.delivered()
+        held, _document = self.commanded(delivery.exchange)
+        payload = launch.payload_of(delivery.document)
+        with self.assertRaises(baton_worker.WorkerFault):
+            baton_worker.launched(payload)
+        # NOTHING WAS PUBLISHED, because `launched` raises before `serve`
+        # reaches the receipt. The exchange namespace holds only what this
+        # manager wrote.
+        self.assertEqual(sorted(os.listdir(held.event_root)), [])
+        view = exchange.observation(held)
+        self.assertEqual(view["state"], "waiting")
+        self.assertIsNone(view["receipt"])
+        self.assertIsNone(view["terminal"])
+        # And the same delivery WRAPPED runs to an answer, so the refusal
+        # above is about the wrapper and not about the fixture.
+        self.assertEqual(
+            baton_worker.serve_exchange(
+                ScriptedAgent(), baton_worker.launched(delivery.document),
+                self.SESSION, held.command_root, held.event_root), 0)
+
+
+class TheWrapperReachesTheExchangeThroughRealStartup(Home):
+    """W376586 review 2026-10-28T22-29-20Z — the two P1s, at the owner.
+
+    THE REVIEW'S CENTRAL POINT, and it was right: `TheFileExchangeLaunchIsWrapped`
+    calls `launched` directly and its positive calls `serve_exchange` with an
+    ALREADY-UNWRAPPED document, so it never reaches `serve`'s `session_of`
+    ordering. Every valid current wrapper lost its session there and the
+    container exited 2 before the new validator or the exchange ran -- a
+    correct manager delivery looking like a broken image.
+
+    So these cases enter at `baton_worker.serve` with the launch document THIS
+    MANAGER WROTE, on disk, at the path it wrote it to; and at
+    `dogfood_entry._production` with a constructor spy, which is where "before
+    adapter construction" is actually decided.
+    """
+
+    def setUp(self):
+        super().setUp()
+        from .test_worker_image import staged
+
+        self.inputs, self.outputs = staged(self)
+
+    def execution(self, attempt):
+        """A `/3` Job context with REAL execution limits, resolved by the Job
+        owner's own rules. My first attempt passed `execution_limits: None`,
+        which the launch owner refuses -- correctly, since every member of
+        that context is required."""
+        from baton_v12.job_manager import execution_limits as rules
+
+        held = rules.resolved(rules.owned_execution_limits({}), 1)
+        return {"job_id": "job-a", "attempt_id": attempt,
+                "job_input_digest": "sha256:" + "1" * 64,
+                "job_policy_digest": "sha256:" + "2" * 64,
+                "runtime_input_digest": "sha256:" + "1" * 64,
+                "runtime_policy_digest": "sha256:" + "2" * 64,
+                "execution_limits": held,
+                "execution_limits_digest": launch._digest(held)}
+
+    def spoiled(self, delivery, payload, name=None):
+        """One deliberately wrong delivery, at ITS OWN path.
+
+        THE REAL LAUNCH FILE IS NOT OVERWRITTEN, and that is the launch
+        owner's property rather than an inconvenience: the document is created
+        read-only inside a read-only root precisely so a worker cannot rewrite
+        what it says it is. So a case about a wrong document writes its own
+        file and hands `serve` that path, which is the one operand `serve`
+        takes.
+        """
+        # A UNIQUE NAME PER CALL, because the file below is made read-only
+        # and a case that spoils several documents would otherwise be unable
+        # to write the second one -- which is how my first version of the
+        # multi-vector case failed.
+        place = os.path.join(
+            self.home,
+            f"spoiled-{delivery.attempt_id}-{name or len(payload)}.json")
+        with open(place, "wb") as writing:
+            writing.write(payload)
+        # READ-ONLY, because `read_launch` refuses a launch document the
+        # container could rewrite -- and it is right to. A fixture that left
+        # it writable would be testing that refusal instead of the one the
+        # case is about, which is what my first attempt did: every spoiled
+        # case answered 2 for the mode rather than for the document.
+        os.chmod(place, 0o444)
+        return place
+
+    def served(self, delivery, agent=None, place=None):
+        """THE REAL STARTUP OWNER, over the real document on disk.
+
+        `serve` reads the file itself, reads the session before validating,
+        latches, selects the transport and resolves the adapter. Nothing here
+        hands it a document: the only operand is the PATH this manager wrote.
+        """
+        import baton_worker
+        from scripted_agent import ScriptedAgent
+
+        return baton_worker.serve(
+            io.BytesIO(b""), io.BytesIO(),
+            ScriptedAgent() if agent is None else agent,
+            delivery.place if place is None else place,
+            delivery.exchange.command_root, delivery.exchange.event_root)
+
+    # -- P1: the session survives the wrapper at real startup --------------
+
+    def test_a_wrapped_delivery_reaches_the_exchange_from_real_startup(self):
+        """THE DEFECT, as a case. Before the correction this returned 2 as
+        uncorrelated; the exchange was never reached and the event namespace
+        stayed empty."""
+        delivery = self.delivered()
+        held, _document = self.commanded(delivery.exchange)
+        self.assertEqual(delivery.document["schema"], launch.WRAPPER_SCHEMA)
+        self.assertEqual(self.served(delivery), 0)
+        view = exchange.observation(held)
+        self.assertEqual(view["state"], "answered")
+        self.assertEqual(view["terminal"]["answered"], ["describe", "work"])
+
+    def test_the_session_read_before_validation_is_the_container_s(self):
+        """`session_of` runs BEFORE `launched`, deliberately -- so a document
+        that is correlatable and wrong in some other way can still answer.
+        That property has to hold through the wrapper, which is what broke."""
+        import baton_worker
+
+        document = launch.launch_document(
+            session=self.SESSION, contract="do the thing",
+            role="implementation",
+            transport=exchange.EXCHANGE_TRANSPORT)
+        self.assertNotIn("session", document)
+        self.assertEqual(
+            baton_worker.session_of(baton_worker.container_of(document)),
+            self.SESSION)
+        # AND THE RULE IS NARROW: only an outer document DECLARING this
+        # wrapper with an object payload is unwrapped. Nothing else is
+        # searched for a session.
+        for value in ({"schema": launch.LAUNCH_SCHEMA, "session": "s"},
+                      {"payload": {"session": "s"}},
+                      {"schema": "baton.worker-launch/6",
+                       "payload": {"session": "s"}}):
+            with self.subTest(document=value):
+                self.assertIs(baton_worker.container_of(value), value)
+
+    def test_a_nested_wrapper_has_no_container_session(self):
+        """It exits 2 rather than answering a fault, which is `session_of`'s
+        own rule applied honestly: there is no identity to correlate to."""
+        import baton_worker
+
+        delivery = self.delivered()
+        self.commanded(delivery.exchange)
+        place = self.spoiled(delivery, self.wrapped_bytes(nested=True))
+        self.assertEqual(self.served(delivery, place=place), 2)
+        self.assertEqual(sorted(os.listdir(delivery.exchange.event_root)), [])
+
+    def wrapped_bytes(self, *, nested=False, **changed):
+        held = launch.launch_document(
+            session=self.SESSION, contract="do the thing",
+            role="implementation", transport=exchange.EXCHANGE_TRANSPORT)
+        if nested:
+            held = dict(held, payload=dict(held))
+        held.update(changed)
+        return json.dumps(held, sort_keys=True,
+                          separators=(",", ":")).encode("utf-8")
+
+    def test_every_mode_specific_payload_starts_through_serve(self):
+        """ORDINARY `/2`, JOB `/3` AND CONTEXT-SHAPED `/3` deliveries, each
+        composed by the manager, each wrapped, each reaching the exchange from
+        the real startup owner. The review asked for real startup variants
+        rather than `/2` plus a membership assertion."""
+        for label, operands in (
+                ("ordinary", {}),
+                ("job", {"job_execution": self.execution("attempt-job")})):
+            with self.subTest(payload=label):
+                attempt = "attempt-job" if operands else "attempt-ordinary"
+                delivery = launch.materialize(
+                    self.launch_home, attempt_id=attempt,
+                    session=self.SESSION, contract="do the thing",
+                    role="implementation",
+                    transport=exchange.EXCHANGE_TRANSPORT,
+                    workspace_group=self.group, **operands)
+                held, _document = self.commanded(delivery.exchange)
+                self.assertEqual(delivery.document["schema"],
+                                 launch.WRAPPER_SCHEMA)
+                self.assertEqual(self.served(delivery), 0)
+                self.assertEqual(
+                    exchange.observation(held)["state"], "answered")
+
+    def test_an_unwrapped_exchange_delivery_refuses_at_real_startup(self):
+        """And it does NOT hang: `/5` is not `/1`, so the refusal takes the
+        prompt path rather than waiting on a stdin nobody writes."""
+        import baton_worker
+
+        delivery = self.delivered()
+        held, _document = self.commanded(delivery.exchange)
+        place = self.spoiled(delivery, json.dumps(
+            launch.payload_of(delivery.document), sort_keys=True,
+            separators=(",", ":")).encode("utf-8"))
+        errors = io.StringIO()
+        self.assertEqual(
+            baton_worker.serve(io.BytesIO(b""), io.BytesIO(),
+                               None, place,
+                               delivery.exchange.command_root,
+                               delivery.exchange.event_root, stderr=errors), 3)
+        self.assertIn("without the", errors.getvalue())
+        self.assertIn("baton.worker-launch/5", errors.getvalue())
+        # NOTHING WAS PUBLISHED: the refusal is before the receipt.
+        self.assertEqual(sorted(os.listdir(held.event_root)), [])
+        self.assertIsNone(exchange.observation(held)["receipt"])
+
+    # -- P1: the adapter is constructed after the boundary, not before -----
+
+    def test_the_scripted_default_is_resolved_after_validation(self):
+        """`main` evaluated `_scripted_default()` as an ARGUMENT, so the
+        reference image's adapter existed before `serve` had read anything. It
+        is passed through unresolved now and `serve` resolves it after the
+        delivery is validated and the transport selected."""
+        import baton_worker
+
+        delivery = self.delivered()
+        self.commanded(delivery.exchange)
+        place = self.spoiled(delivery,
+                             b'{"schema": "baton.worker-launch/9", '
+                             b'"session": "session-one"}')
+        errors = io.StringIO()
+        # `agent=None` and a refused delivery: if the default were resolved
+        # before the read this would construct one.
+        self.assertEqual(
+            baton_worker.serve(io.BytesIO(b""), io.BytesIO(), None,
+                               place,
+                               delivery.exchange.command_root,
+                               delivery.exchange.event_root,
+                               stderr=errors), 3)
+        self.assertIn("from another generation", errors.getvalue())
+
+    def test_a_latched_container_builds_no_default_either(self):
+        """`/1` IS THE FRAMED TRANSPORT AND OUTSIDE THIS FEATURE, so this is a
+        free uniformity rather than an amendment requirement -- but a latched
+        container answers one correlated fault and never reaches `handle`, so
+        resolving the reference default there would construct a provider for a
+        container that is already refusing.
+
+        Driven with `agent=None`, which is the only way to see it: the
+        existing latch cases inject an agent object, so they cannot tell
+        whether one would have been built.
+        """
+        import baton_worker
+
+        delivery = self.delivered(attempt_id="attempt-latched")
+        # A `/1` document that is correlatable and wrong in another way: it
+        # carries a member `/1` does not have, so it latches rather than
+        # taking the prompt path.
+        place = self.spoiled(delivery, json.dumps(
+            {"schema": launch.LAUNCH_SCHEMA, "session": self.SESSION,
+             "contract": "do the thing", "role": "implementation",
+             "posture": "leaked"},
+            sort_keys=True, separators=(",", ":")).encode("utf-8"),
+            name="latched")
+        built = []
+        held = baton_worker._scripted_default
+
+        def counting():
+            built.append("constructed")
+            return held()
+
+        baton_worker._scripted_default = counting
+        self.addCleanup(setattr, baton_worker, "_scripted_default", held)
+        answered = io.BytesIO()
+        # ONE IDENTITY ENVELOPE on stdin, which is what a latched container
+        # reads before answering its single fault.
+        request = json.dumps(
+            {"protocol": baton_worker.PROTOCOL, "session": self.SESSION,
+             "operation_id": "describe:attempt-latched",
+             "operation": "describe"}).encode("utf-8")
+        status = baton_worker.serve(
+            io.BytesIO(b"%d\n" % len(request) + request), answered, None,
+            place, delivery.exchange.command_root,
+            delivery.exchange.event_root)
+        self.assertEqual(status, 1)
+        self.assertEqual(built, [])
+        self.assertIn(b"launch", answered.getvalue())
+
+    def test_a_refused_delivery_builds_nothing_and_still_reports(self):
+        """THE SHIPPED ENTRY PATH, with a constructor spy AND the worker's own
+        reporting.
+
+        Two reviews meet in this case. 22-29-20Z: the entry evaluated
+        `ClaudeAgent()` before anything read the launch, so "before adapter
+        construction" was false. 23-07-14Z: my first correction then SWALLOWED
+        the refusal -- it returned 2 before `main`, losing the bounded stderr
+        sentence `serve` emits and misreporting a correlatable document as
+        uncorrelatable. My own case asserted that 2, which is why it passed;
+        the expectation was the defect.
+
+        So the assertion is now the one that matters: the entry answers
+        EXACTLY what `serve` answers for the same document, says the same
+        thing, and builds nothing.
+        """
+        import baton_worker
+        import dogfood_entry
+
+        built = []
+
+        class Spy:
+            def __init__(self):
+                built.append("constructed")
+
+        for label, document, status in (
+                ("unwrapped exchange",
+                 launch.payload_of(launch.launch_document(
+                     session=self.SESSION, contract="c",
+                     role="implementation",
+                     transport=exchange.EXCHANGE_TRANSPORT)),
+                 baton_worker.STARTUP_REFUSED),
+                ("wrong profile",
+                 dict(json.loads(self.wrapped_bytes()),
+                      wire_profile="typed-adapter-file-exchange/2"),
+                 baton_worker.STARTUP_REFUSED),
+                ("an unknown outer member",
+                 dict(json.loads(self.wrapped_bytes()), extra="x"),
+                 baton_worker.STARTUP_REFUSED),
+                ("nested wrapper",
+                 json.loads(self.wrapped_bytes(nested=True)), 2),
+                ("another generation",
+                 {"schema": "baton.worker-launch/9",
+                  "session": self.SESSION}, baton_worker.STARTUP_REFUSED),
+                ("no session anywhere",
+                 {"schema": launch.WRAPPER_SCHEMA}, 2)):
+            with self.subTest(delivery=label):
+                built.clear()
+                delivery = self.delivered(
+                    attempt_id="attempt-" + label.replace(" ", "-"))
+                place = self.spoiled(delivery, json.dumps(
+                    document, sort_keys=True,
+                    separators=(",", ":")).encode("utf-8"))
+                errors = io.StringIO()
+                # WHAT THE WORKER ITSELF ANSWERS for this document, measured
+                # rather than assumed, so the entry is compared with the owner
+                # instead of with a number I chose.
+                owned = baton_worker.serve(
+                    io.BytesIO(b""), io.BytesIO(), None, place,
+                    delivery.exchange.command_root,
+                    delivery.exchange.event_root, stderr=errors)
+                self.assertEqual(owned, status)
+                answered = dogfood_entry._production(
+                    place=place, build=Spy,
+                    command_root=delivery.exchange.command_root,
+                    event_root=delivery.exchange.event_root)
+                self.assertEqual(answered, owned)
+                self.assertEqual(built, [])
+                # AND THE CORRELATABLE REFUSALS STILL SAY WHY, which is the
+                # evidence my first correction destroyed. An uncorrelatable
+                # document says nothing, and stays distinct.
+                if status == baton_worker.STARTUP_REFUSED:
+                    self.assertTrue(
+                        errors.getvalue().startswith("baton-worker: "))
+                    self.assertIn("launch", errors.getvalue())
+                else:
+                    self.assertEqual(errors.getvalue(), "")
+                # NOTHING WAS PUBLISHED on either route.
+                self.assertEqual(
+                    sorted(os.listdir(delivery.exchange.event_root)), [])
+
+    def test_a_valid_delivery_does_construct_the_adapter(self):
+        """The other direction, so the case above is about the refusal and not
+        about a seam that never builds anything."""
+        import dogfood_entry
+
+        built, served = [], []
+        delivery = self.delivered()
+        held, _document = self.commanded(delivery.exchange)
+
+        class Answering:
+            def __init__(self):
+                built.append("constructed")
+
+            def work(self, seen, declared):
+                served.append(seen["session"])
+                raise RuntimeError("far enough: the adapter was reached")
+
+        # THE EXCHANGE ROOTS ARE THIS ATTEMPT'S. Without them `main` uses the
+        # image's fixed paths and `serve_exchange` waits for a command nobody
+        # published -- which is what my first version of this case did, and it
+        # hung rather than failed.
+        self.assertEqual(
+            dogfood_entry._production(
+                place=delivery.place, build=Answering,
+                command_root=held.command_root,
+                event_root=held.event_root), 1)
+        self.assertEqual(built, ["constructed"])
+        # AND IT WAS REACHED THROUGH THE REAL STARTUP, with the container's own
+        # session -- the member the wrapper moved.
+        self.assertEqual(served, [self.SESSION])

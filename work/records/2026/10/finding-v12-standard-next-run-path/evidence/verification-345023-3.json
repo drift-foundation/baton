@@ -1,0 +1,20 @@
+{
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_next_run_managed",
+    "tests.tools.test_next_run_recovery",
+    "tests.tools.test_next_run",
+    "tests.manager.test_authoring_enforcement"
+  ],
+  "environment": {
+    "PYTHONPATH": "/tmp/baton-next-run-345023/v12/python/src:/tmp/baton-next-run-345023/v12/python",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "timeout_seconds": 60,
+  "process_seconds": 10.015398542999947,
+  "returncode": 0,
+  "stdout": "",
+  "stderr": "...........................................................................\n----------------------------------------------------------------------\nRan 75 tests in 9.832s\n\nOK\n"
+}

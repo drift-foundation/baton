@@ -1,0 +1,10 @@
+{
+  "claim": 367189,
+  "handoff": 367186,
+  "files": {
+    "COMMANDS.md": "2cb3c4e7fc84a67aa0d759256f106600d9d1700d42340256500947c70423f91f",
+    "verify_commands.py": "942a70618b46da22b18834babf50055bc4bbd3ba3b37dd03e3dbfec7f8692966",
+    "PROGRESS.md": "37f7789a23d1c2e7c05567a51ba94cc2c2fea77f96b69be4caead1cf3387dfd3"
+  },
+  "verification": "Documentary partial-checkpoint review; no independent test rerun or complete acceptance."
+}

@@ -1,0 +1,61 @@
+{
+  "manifest_sha256": "5db5b9bad674f4b9ae3e6141c54d9551ade6644f9c2ebe52694c773db2857e6b",
+  "payload_members": 50,
+  "file_count": 52,
+  "extra": [],
+  "missing": [],
+  "sealed": {
+    "execution-341637": 48,
+    "execution-345039": 51
+  },
+  "unchanged": {
+    "TASK.md": true,
+    "RECOVERY.md": true,
+    "COMPLETION.md": true,
+    "ENFORCEMENT.md": true,
+    "SHUTDOWN.md": true,
+    "FAILURE.md": true,
+    "collect.py": true,
+    "probe.py": true
+  },
+  "prepare_executable_ast_identity_only": true,
+  "changed_members": [
+    "COMMANDS.md",
+    "GATE-CHECK.json",
+    "LIMITS-CHECK.json",
+    "OPERATOR.md",
+    "PACKET.md",
+    "PREFLIGHT.json",
+    "PREPARATION-PINS.json",
+    "PROVENANCE.json",
+    "decisions/FINDING.md",
+    "decisions/INDEX.json",
+    "decisions/PLAN.md",
+    "prepare.py",
+    "verify-inputs.py"
+  ],
+  "production_root_absent": true,
+  "input_check": {
+    "returncode": 0,
+    "seconds": 0.11820067899998321,
+    "stdout": "inputs verified against bc925cf5c62d69426ed5862af4d41f4d2a967b0f: 114 manager files, 3 supervisor files, 2 preparation inputs, 41 task inputs, 31 decision snapshots, 4 checkout documents, 1 pinned authoring controller, 1 pinned shutdown helper, 4 pinned recovery inputs, 1 gate modules still owed\nno decision-source drift: every live source still matches its snapshot\n\nSTART IS NOT SELECTED -- see ENFORCEMENT.md and SHUTDOWN.md. Every input gate is CLOSED; what remains is independent preparation review and then an exact execution selection. Use packet/AUTHORING-COMMAND.json, never commands.json start.\n",
+    "stderr": ""
+  },
+  "composed": {
+    "fixture_hashes_verified": 41,
+    "packet_sha256": "5b9bc4d7aba16075be3ea0b10440883e8b60490749f4aae357493f1a3d1682dd",
+    "verification_sha256": "2f7ed3dca95da498657a0e549e53107679fd7e8cf4503d5022555ba9e642176c",
+    "bounds": {
+      "cleanup_seconds": 60,
+      "implementer_invocations": 1,
+      "retry": false,
+      "total_seconds": 4800,
+      "turn_seconds": 3600
+    },
+    "run_id": "durable-capture-w341357-345039",
+    "work": "W341357",
+    "claim": 345039,
+    "job_id": "job-durable-capture-w341357-345039",
+    "note": "Preparation artifacts only; no Job submission or execution observed"
+  }
+}

@@ -1,0 +1,15 @@
+.........F.
+======================================================================
+FAIL: test_factory_supplies_a_lifetime_policy_at_the_native_entry_point (tests.job_manager.test_native_permission.NativeComposition.test_factory_supplies_a_lifetime_policy_at_the_native_entry_point)
+The caller that did not exist. Unwire it and this case fails.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w325959-354165/dis1/v12/python/tests/job_manager/test_native_permission.py", line 222, in test_factory_supplies_a_lifetime_policy_at_the_native_entry_point
+    self.assertIn('lifetime_policy', seen)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'lifetime_policy' not found in {}
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.063s
+
+FAILED (failures=1)

@@ -1,0 +1,12 @@
+{
+  "failure_identities_equal": true,
+  "static_gap_sets_equal": true,
+  "assertion_cause_differences": [],
+  "baseline_counts": {
+    "unowned": 688,
+    "orphans": 190,
+    "missing_probes": 266,
+    "extra_probes": 53
+  },
+  "normalization": "For stale-owner assertions compare missing entry, excluding the displayed entire receiving universe (which correctly gains new entries). Other final AssertionError messages compared exactly."
+}

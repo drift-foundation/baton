@@ -1,0 +1,50 @@
+{
+  "template:null": {
+    "type": "AttributeError",
+    "typed_refusal": false,
+    "message": "'NoneType' object has no attribute 'get'"
+  },
+  "task:{}": {
+    "type": "KeyError",
+    "typed_refusal": false,
+    "message": "'job_id'"
+  },
+  "scope:{}": {
+    "type": "KeyError",
+    "typed_refusal": false,
+    "message": "'work'"
+  },
+  "stages:[null]": {
+    "type": "TypeError",
+    "typed_refusal": false,
+    "message": "'NoneType' object is not subscriptable"
+  },
+  "stages:[{\"kind\": \"implementation\"}]": {
+    "type": "KeyError",
+    "typed_refusal": false,
+    "message": "'profile_name'"
+  },
+  "acceptance:null": {
+    "type": "TypeError",
+    "typed_refusal": false,
+    "message": "'NoneType' object is not iterable"
+  },
+  "overrides:{\"execution_limits\": null}": {
+    "type": "TypeError",
+    "typed_refusal": false,
+    "message": "'NoneType' object is not iterable"
+  },
+  "stale_limit": "refused",
+  "lookup_mutation": "refused",
+  "scope": {
+    "work": [
+      "v12/python/src/baton_v12/job_manager/templates.py"
+    ],
+    "tests": [
+      "v12/python/tests/job_manager/test_templates.py"
+    ]
+  },
+  "submission_test_scope": [
+    "v12/python/tests/job_manager/test_templates.py"
+  ]
+}

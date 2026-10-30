@@ -1,0 +1,26 @@
+{
+  "packet_sha256": "c4cf8e64d959a8345145812757be74255d40d744e58f9b1e90a5f739fbb3ecf7",
+  "argv": [
+    "docker",
+    "build",
+    "--pull=false",
+    "--memory",
+    "2g",
+    "--cpu-period",
+    "100000",
+    "--cpu-quota",
+    "100000",
+    "--iidfile",
+    "/home/sl/src/baton/work/records/2026/10/finding-v12-verifier-descriptor-descendants/preparation-376414/BUILD-RECEIPT/image.id",
+    "-f",
+    "/home/sl/src/baton/work/records/2026/10/finding-v12-verifier-descriptor-descendants/preparation-376414/context/worker/Dockerfile.claude",
+    "/home/sl/src/baton/work/records/2026/10/finding-v12-verifier-descriptor-descendants/preparation-376414/context"
+  ],
+  "timeout_seconds": 1800,
+  "status": "candidate-built",
+  "provider_invoked": false,
+  "exit_code": 0,
+  "image": "sha256:47e733834bb690fd4601e102f81e527a08b6ffe55da8b8cb345f45edfcb1517e",
+  "seconds": 0.41414267199979804
+}
+EXIT 0

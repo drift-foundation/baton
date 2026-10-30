@@ -1,0 +1,20 @@
+{
+  "base": "d3a7a41cc7347e4741706673c20f62b4a3190f65",
+  "files": [
+    "v12/NEXT-RUN.md"
+  ],
+  "instructions": "Bounded installation validation only. Read v12/NEXT-RUN.md. Create exactly one new root file NEXT-RUN-VALIDATION.txt with exactly the text W339626 managed startup validated followed by a newline. Do not edit any other file. Do not run live providers, Docker commands, install anything, or mutate Git. Return a concise report. This proves actual provider startup and a retained candidate, not independent acceptance.",
+  "limits": {
+    "cleanup": 60,
+    "provider": 300,
+    "total": 600,
+    "verification": 30
+  },
+  "run_id": "w339626-live-345599",
+  "schema": "baton.next-run-input/1",
+  "verification": [
+    "python3",
+    "-c",
+    "from pathlib import Path; assert Path('NEXT-RUN-VALIDATION.txt').read_text() == 'W339626 managed startup validated\\n'"
+  ]
+}

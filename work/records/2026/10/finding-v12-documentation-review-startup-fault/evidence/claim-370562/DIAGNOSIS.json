@@ -1,0 +1,93 @@
+{
+ "ABSENCE_OF_LOGS_vs_PROOF_OF_NO_MODEL_RUN": {
+  "what_CANNOT_be_recovered_from_retained_evidence": "the refusal MESSAGE. The product discards it by design at two layers: baton_worker keeps the exception type out of the durable document, and the manager's exchange projection carries only a safe category/code. So the cause above is established by reading the code against the retained declaration, NOT by reading a recorded message. That is a real observability gap and is the missing diagnostic capability this diagnosis reports.",
+  "what_is_PROVED": [
+   "the container's log driver is json-file (HostConfig.LogConfig) and the image sets PYTHONUNBUFFERED, so stdout/stderr WERE captured and would not be lost to buffering",
+   "docker logs on the retained exited container returns ZERO bytes on both streams",
+   "the container lived 2.102 seconds: started 01:43:30.175057747Z, finished 01:43:32.27722424Z, exit code 1, OOMKilled false, State.Error empty",
+   "the supported logs view reports the attempt's native room empty -- 'the room exists and the provider wrote nothing in it' -- and every worker/provider stream absent",
+   "the refusal sited above occurs at the FIRST statement of _review, before any prompt is composed and before _provider is called"
+  ],
+  "what_is_therefore_INFERRED_not_proved": "that no model was invoked. The inference is strong -- a 2.1-second lifetime, a refusal sited before the provider call, and no native session file where the implementation lane wrote 470 KB of them -- but it remains an inference from absence plus code reading, because no retained artifact records a provider call that did not happen. Labelled as the dossier requires."
+ },
+ "HEADLINE": "the exact cause IS recoverable and it is a DECLARATION defect in the accepted preparation, not a provider or credential failure. The review lane's input manifest declares only the IMPLEMENTATION lane's single output, so the review turn refused before it ever reached a model.",
+ "evidence_this_rests_on": {
+  "input_json": "/home/sl/baton-instances/useful-template-job-w366962/state/workspaces/attempt-793b51aabf70b8b4469e8db90b12c7ecbe606a8abbbd2c2cf39f9a7214f945e5/inputs/input.json",
+  "input_json_sha256": "f37556619e126760a0464e30564a7e80c4f945aaf8727392a014de220c9a63b2",
+  "review_declared_outputs": [
+   {
+    "constraints": {
+     "allowed_media_types": [
+      "application/octet-stream",
+      "text/plain"
+     ],
+     "link_policy": "forbid",
+     "max_bytes": 1048576,
+     "max_entries": 100,
+     "validator_digest": null
+    },
+    "name": "proposal",
+    "path": "proposal",
+    "required": true,
+    "type": "git-change-proposal"
+   }
+  ],
+  "source_sites": [
+   "v12/worker/claude_agent.py:464-466 COMMON_OUTPUTS / IMPLEMENTATION_OUTPUTS / REVIEW_OUTPUTS",
+   "v12/worker/claude_agent.py:2261 _review",
+   "v12/worker/claude_agent.py:4638 _selected",
+   "v12/worker/claude_agent.py:1818 TaskRefusal",
+   "v12/worker/baton_worker.py:2310-2318 the generic except Exception -> _faulted(..., 'agent')"
+  ],
+  "worker_state_work": {
+   "attempt_id": "attempt-793b51aabf70b8b4469e8db90b12c7ecbe606a8abbbd2c2cf39f9a7214f945e5",
+   "command_digest": "sha256:ddb64131d28507c578182f498c52d3a4640bb62298620e06714b553db4a8d17c",
+   "operation": "work",
+   "operation_id": "work:attempt-793b51aabf70b8b4469e8db90b12c7ecbe606a8abbbd2c2cf39f9a7214f945e5",
+   "schema": "baton.worker-exchange.state/1",
+   "sequence_id": "sequence-6cffd13797adec0217f00ff1c7b3f356",
+   "session": "session-f4664752e2f0594e14e19f94",
+   "state": "faulted"
+  },
+  "worker_terminal": {
+   "answered": [
+    "describe"
+   ],
+   "attempt_id": "attempt-793b51aabf70b8b4469e8db90b12c7ecbe606a8abbbd2c2cf39f9a7214f945e5",
+   "command_digest": "sha256:ddb64131d28507c578182f498c52d3a4640bb62298620e06714b553db4a8d17c",
+   "disposition": null,
+   "ending": "faulted",
+   "fault_code": "agent",
+   "manifest_digest": null,
+   "schema": "baton.worker-exchange.terminal/1",
+   "sequence_id": "sequence-6cffd13797adec0217f00ff1c7b3f356",
+   "session": "session-f4664752e2f0594e14e19f94"
+  }
+ },
+ "image_and_attempt_provenance": {
+  "assignment_input_manifest_digest": "sha256:dda286b03a1a264a91c8ca72fa2e1202bcdf7ec2252d91bcad37b49160788535",
+  "attempt": "attempt-793b51aabf70b8b4469e8db90b12c7ecbe606a8abbbd2c2cf39f9a7214f945e5",
+  "container": "a813a59f691c23022343cb25f3050df2c95386ae36b7dbab647fd4108d906ee6",
+  "container_user": "1000:1000 (the deployment overrides the image's own 65532:65532)",
+  "entrypoint": [
+   "python3",
+   "/opt/baton/dogfood_entry.py"
+  ],
+  "image": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2 -- the selected image, confirmed by inspecting the retained container's Image field",
+  "image_contents_NOT_inspected": "no container was started and no file was copied out of the image, so the worker code IN THE IMAGE is not verified byte-for-byte against the checkout read above. The checkout at 42bed8bb is the reference; a build drift between image and checkout would not be visible to this diagnosis.",
+  "mounts_all_present": "the review line checkout IS mounted at /input/source and DOES carry the candidate: head e6de29e5f945f692a42f689570d5c39edc4f61bc, v12/TEMPLATE-JOBS.md 48191 bytes. The inputs were correct; the declaration was not.",
+  "network": "bridge",
+  "readonly_rootfs": true
+ },
+ "schema": "baton.v12.review-fault-diagnosis/1",
+ "the_chain_in_full": [
+  "claude_agent._review (line 2261) opens with _selected(declared, REVIEW_OUTPUTS, 'review').",
+  "REVIEW_OUTPUTS is ('findings', 'logs') -- the review turn writes exactly those two. IMPLEMENTATION_OUTPUTS is ('proposal',). COMMON_OUTPUTS, the union a SHARED Job must declare, is ('proposal', 'findings', 'logs', provider-context-receipt).",
+  "the review assignment's declared outputs are EXACTLY ONE: {name: 'proposal', type: change-proposal, required: true} -- read from the attempt's own /input/input.json, retained on disk.",
+  "_selected (line 4638) therefore raises TaskRefusal: 'a review turn writes findings, logs and this assignment declares no findings, logs'. And even with those declared it would still refuse the next check: \"output 'proposal' is declared required and a review turn does not write it; a shared Job's stages each produce their own half and answer the rest missing-optional\".",
+  "TaskRefusal (claude_agent line 1818) is NOT a WorkerFault. Its own docstring says why: 'Raised rather than answered, because baton_worker turns an agent exception into a bounded correlated fault frame with no traceback'.",
+  "so it lands in baton_worker's generic except Exception (around line 2316) which writes _faulted(..., 'agent') -- and the comment there states the design: 'even the exception's type name stays out of the durable document'. That is precisely the terminal observed: ending faulted, fault_code agent, nothing else."
+ ],
+ "where_the_declaration_CAME_from_and_it_is_mine": "capacity.sealed_manifest takes `outputs` from the reviewed pilot manifest, and that manifest declares only [proposal] because the pilot ran ONE implementation worker and no review turn. tools/next_run_bindings.py says so in its own comment: 'findings and logs are the REVIEW turn's outputs and this Job runs no review turn, so declaring them would be declaring the next Job's half of a shared workload.' Correct for the pilot; wrong for a two-stage template Job, which needs the union. This is a defect in the accepted preparation I authored, inherited from a single-lane source.",
+ "why_the_implementation_lane_SUCCEEDED_on_the_same_manifest": "the implementation turn selects IMPLEMENTATION_OUTPUTS = ('proposal',). `missing` is empty because proposal IS declared, and `absent` is empty because nothing else is declared. The single-output declaration is exactly right for that lane and exactly wrong for the other. The asymmetry is fully explained."
+}

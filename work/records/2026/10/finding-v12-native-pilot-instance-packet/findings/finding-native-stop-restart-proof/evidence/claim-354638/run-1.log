@@ -1,0 +1,32 @@
+test_cancellation_stops_exact_runtime_before_expiry_without_releasing_hold (tests.job_manager.test_native_stop_restart.NativeStopRestart.test_cancellation_stops_exact_runtime_before_expiry_without_releasing_hold) ... ok
+test_native_deadline_drives_exact_runtime_stop_and_cleanup (tests.job_manager.test_native_stop_restart.NativeStopRestart.test_native_deadline_drives_exact_runtime_stop_and_cleanup) ... FAIL
+test_reopened_store_preserves_deadline_and_generation_without_revival (tests.job_manager.test_native_stop_restart.NativeStopRestart.test_reopened_store_preserves_deadline_and_generation_without_revival) ... FAIL
+test_stop_acknowledgement_without_cessation_holds_until_confirmed (tests.job_manager.test_native_stop_restart.NativeStopRestart.test_stop_acknowledgement_without_cessation_holds_until_confirmed) ... ok
+test_unavailable_engine_holds_across_restart_then_retries_exact_runtime (tests.job_manager.test_native_stop_restart.NativeStopRestart.test_unavailable_engine_holds_across_restart_then_retries_exact_runtime) ... ok
+test_wrong_runtime_observation_never_releases (tests.job_manager.test_native_stop_restart.NativeStopRestart.test_wrong_runtime_observation_never_releases) ... ok
+
+======================================================================
+FAIL: test_native_deadline_drives_exact_runtime_stop_and_cleanup (tests.job_manager.test_native_stop_restart.NativeStopRestart.test_native_deadline_drives_exact_runtime_stop_and_cleanup)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w354630-354638/candidate/v12/python/tests/job_manager/test_native_stop_restart.py", line 81, in test_native_deadline_drives_exact_runtime_stop_and_cleanup
+    self.assertEqual(self.row()['cleanup'], 'retained')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'pending' != 'retained'
+- pending
++ retained
+
+
+======================================================================
+FAIL: test_reopened_store_preserves_deadline_and_generation_without_revival (tests.job_manager.test_native_stop_restart.NativeStopRestart.test_reopened_store_preserves_deadline_and_generation_without_revival)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w354630-354638/candidate/v12/python/tests/job_manager/test_native_stop_restart.py", line 139, in test_reopened_store_preserves_deadline_and_generation_without_revival
+    self.assertFalse(tokens.effects_permitted(self.store, self.token))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.091s
+
+FAILED (failures=2)

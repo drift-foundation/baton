@@ -1,0 +1,111 @@
+test_a_boolean_where_a_limit_belongs_refuses (tests.job_manager.test_role_contract.EveryRefusalInTheApprovedMatrix.test_a_boolean_where_a_limit_belongs_refuses)
+REFUSED BY THE FROZEN SCHEMA, which runs first, and this asserts ... ok
+test_a_context_receipt_output_refuses (tests.job_manager.test_role_contract.EveryRefusalInTheApprovedMatrix.test_a_context_receipt_output_refuses)
+Named in the matrix: "context-receipt output... require another ... ok
+test_a_custom_validator_digest_refuses (tests.job_manager.test_role_contract.EveryRefusalInTheApprovedMatrix.test_a_custom_validator_digest_refuses) ... ok
+test_a_delivery_that_is_not_a_frozen_checkpoint_refuses (tests.job_manager.test_role_contract.EveryRefusalInTheApprovedMatrix.test_a_delivery_that_is_not_a_frozen_checkpoint_refuses)
+"consumption of a proposal means an exact immutable checkpoint... ... ok
+test_a_duplicated_media_type_refuses (tests.job_manager.test_role_contract.EveryRefusalInTheApprovedMatrix.test_a_duplicated_media_type_refuses) ... ok
+test_a_dynamic_consumer_name_refuses (tests.job_manager.test_role_contract.EveryRefusalInTheApprovedMatrix.test_a_dynamic_consumer_name_refuses)
+"Consumers are closed built-in development-profile IDs, never ... ok
+test_a_float_limit_refuses (tests.job_manager.test_role_contract.EveryRefusalInTheApprovedMatrix.test_a_float_limit_refuses) ... ok
+test_a_fourth_output_refuses (tests.job_manager.test_role_contract.EveryRefusalInTheApprovedMatrix.test_a_fourth_output_refuses) ... ok
+test_a_lower_limit_refuses_as_loudly_as_a_higher_one (tests.job_manager.test_role_contract.EveryRefusalInTheApprovedMatrix.test_a_lower_limit_refuses_as_loudly_as_a_higher_one)
+"changing limits needs a version, not guessed compatibility" — ... ok
+test_a_missing_member_refuses (tests.job_manager.test_role_contract.EveryRefusalInTheApprovedMatrix.test_a_missing_member_refuses) ... ok
+test_a_missing_output_refuses (tests.job_manager.test_role_contract.EveryRefusalInTheApprovedMatrix.test_a_missing_output_refuses) ... ok
+test_a_non_builtin_member_refuses (tests.job_manager.test_role_contract.EveryRefusalInTheApprovedMatrix.test_a_non_builtin_member_refuses) ... ok
+test_a_non_document_refuses (tests.job_manager.test_role_contract.EveryRefusalInTheApprovedMatrix.test_a_non_document_refuses) ... ok
+test_a_path_other_than_the_name_refuses (tests.job_manager.test_role_contract.EveryRefusalInTheApprovedMatrix.test_a_path_other_than_the_name_refuses) ... ok
+test_a_permissive_link_policy_refuses (tests.job_manager.test_role_contract.EveryRefusalInTheApprovedMatrix.test_a_permissive_link_policy_refuses)
+Also the frozen schema's, which pins `link_policy` as a const — ... ok
+test_a_reordered_media_set_refuses (tests.job_manager.test_role_contract.EveryRefusalInTheApprovedMatrix.test_a_reordered_media_set_refuses)
+Order is prescribed, so a reordering is a different document with a ... ok
+test_a_required_bit_that_is_an_integer_refuses (tests.job_manager.test_role_contract.EveryRefusalInTheApprovedMatrix.test_a_required_bit_that_is_an_integer_refuses)
+`0` is not `false`. `own` keeps booleans and integers apart in the ... ok
+test_a_required_output_refuses (tests.job_manager.test_role_contract.EveryRefusalInTheApprovedMatrix.test_a_required_output_refuses) ... ok
+test_a_review_that_consumes_nothing_refuses (tests.job_manager.test_role_contract.EveryRefusalInTheApprovedMatrix.test_a_review_that_consumes_nothing_refuses)
+The matrix row that matters most: an independent review that is ... ok
+test_a_task_three_workload_refuses_with_its_reason (tests.job_manager.test_role_contract.EveryRefusalInTheApprovedMatrix.test_a_task_three_workload_refuses_with_its_reason)
+The row the tree makes reachable: a context-enabled `/3` task ... ok
+test_a_third_role_refuses (tests.job_manager.test_role_contract.EveryRefusalInTheApprovedMatrix.test_a_third_role_refuses) ... ok
+test_a_wider_media_set_refuses (tests.job_manager.test_role_contract.EveryRefusalInTheApprovedMatrix.test_a_wider_media_set_refuses) ... ok
+test_a_wrong_output_type_refuses (tests.job_manager.test_role_contract.EveryRefusalInTheApprovedMatrix.test_a_wrong_output_type_refuses) ... ok
+test_an_emptied_required_for_success_refuses (tests.job_manager.test_role_contract.EveryRefusalInTheApprovedMatrix.test_an_emptied_required_for_success_refuses)
+The waiver the proposal forbids: a role that owes nothing because ... ok
+test_an_extra_constraint_member_refuses (tests.job_manager.test_role_contract.EveryRefusalInTheApprovedMatrix.test_an_extra_constraint_member_refuses)
+The frozen `outputConstraints` is `additionalProperties: false`, so ... ok
+test_an_extra_consume_member_refuses (tests.job_manager.test_role_contract.EveryRefusalInTheApprovedMatrix.test_an_extra_consume_member_refuses) ... ok
+test_an_implementation_that_consumes_something_refuses (tests.job_manager.test_role_contract.EveryRefusalInTheApprovedMatrix.test_an_implementation_that_consumes_something_refuses) ... ok
+test_an_unknown_member_refuses (tests.job_manager.test_role_contract.EveryRefusalInTheApprovedMatrix.test_an_unknown_member_refuses) ... ok
+test_an_unsupported_descriptor_version_refuses (tests.job_manager.test_role_contract.EveryRefusalInTheApprovedMatrix.test_an_unsupported_descriptor_version_refuses) ... ok
+test_another_source_profile_refuses (tests.job_manager.test_role_contract.EveryRefusalInTheApprovedMatrix.test_another_source_profile_refuses) ... ok
+test_another_template_refuses (tests.job_manager.test_role_contract.EveryRefusalInTheApprovedMatrix.test_another_template_refuses) ... ok
+test_consuming_another_output_refuses (tests.job_manager.test_role_contract.EveryRefusalInTheApprovedMatrix.test_consuming_another_output_refuses) ... ok
+test_findings_required_of_implementation_refuses (tests.job_manager.test_role_contract.EveryRefusalInTheApprovedMatrix.test_findings_required_of_implementation_refuses) ... ok
+test_missing_findings_for_review_refuses (tests.job_manager.test_role_contract.EveryRefusalInTheApprovedMatrix.test_missing_findings_for_review_refuses)
+The matrix row, by name: "Missing findings/logs, proposal required ... ok
+test_reordered_outputs_refuse (tests.job_manager.test_role_contract.EveryRefusalInTheApprovedMatrix.test_reordered_outputs_refuse) ... ok
+test_reordered_roles_refuse (tests.job_manager.test_role_contract.EveryRefusalInTheApprovedMatrix.test_reordered_roles_refuse) ... ok
+test_this_revisions_closed_set_is_reached_when_the_frozen_one_passes (tests.job_manager.test_role_contract.EveryRefusalInTheApprovedMatrix.test_this_revisions_closed_set_is_reached_when_the_frozen_one_passes)
+So the second line is shown to be live rather than dead code: the ... ok
+test_each_inspection_is_detached (tests.job_manager.test_role_contract.TheApprovedVectorIsTheOneThisBuildCarries.test_each_inspection_is_detached)
+`templates.template_document`'s rule: mutating what you were handed ... ok
+test_the_approved_bytes_validate (tests.job_manager.test_role_contract.TheApprovedVectorIsTheOneThisBuildCarries.test_the_approved_bytes_validate)
+Read as BYTES, through the bounded reader a carrier would use. ... ok
+test_the_canonical_digest_is_the_approved_one (tests.job_manager.test_role_contract.TheApprovedVectorIsTheOneThisBuildCarries.test_the_canonical_digest_is_the_approved_one) ... ok
+test_the_document_carries_no_digest_member_to_disagree_with (tests.job_manager.test_role_contract.TheApprovedVectorIsTheOneThisBuildCarries.test_the_document_carries_no_digest_member_to_disagree_with)
+"without any embedded digest member" — the identity is a fact about ... ok
+test_the_module_composes_the_approved_document (tests.job_manager.test_role_contract.TheApprovedVectorIsTheOneThisBuildCarries.test_the_module_composes_the_approved_document) ... ok
+test_the_proposal_is_the_pinned_one (tests.job_manager.test_role_contract.TheApprovedVectorIsTheOneThisBuildCarries.test_the_proposal_is_the_pinned_one)
+The specification itself, by digest. If the approved proposal were ... ok
+test_whitespace_in_a_file_is_not_identity (tests.job_manager.test_role_contract.TheApprovedVectorIsTheOneThisBuildCarries.test_whitespace_in_a_file_is_not_identity)
+The proposal says so in those words, so it is driven: the same ... ok
+test_a_document_nesting_past_the_frozen_depth_refuses (tests.job_manager.test_role_contract.TheBoundedReaderHoldsTheEncodedBounds.test_a_document_nesting_past_the_frozen_depth_refuses) ... ok
+test_a_document_over_the_encoded_ceiling_refuses (tests.job_manager.test_role_contract.TheBoundedReaderHoldsTheEncodedBounds.test_a_document_over_the_encoded_ceiling_refuses) ... ok
+test_duplicate_keys_refuse_before_canonicalization (tests.job_manager.test_role_contract.TheBoundedReaderHoldsTheEncodedBounds.test_duplicate_keys_refuse_before_canonicalization)
+THE SUBTLE ONE. `json.loads` keeps the LAST of two equal keys ... ok
+test_malformed_json_refuses (tests.job_manager.test_role_contract.TheBoundedReaderHoldsTheEncodedBounds.test_malformed_json_refuses) ... ok
+test_non_utf8_bytes_refuse (tests.job_manager.test_role_contract.TheBoundedReaderHoldsTheEncodedBounds.test_non_utf8_bytes_refuse) ... ok
+test_text_is_not_bytes (tests.job_manager.test_role_contract.TheBoundedReaderHoldsTheEncodedBounds.test_text_is_not_bytes) ... ok
+test_the_approved_document_is_well_inside_the_ceiling (tests.job_manager.test_role_contract.TheBoundedReaderHoldsTheEncodedBounds.test_the_approved_document_is_well_inside_the_ceiling) ... ok
+test_every_name_is_its_own_path (tests.job_manager.test_role_contract.TheExactBoundsAreTheApprovedOnes.test_every_name_is_its_own_path) ... ok
+test_every_output_is_the_shared_optional_declaration (tests.job_manager.test_role_contract.TheExactBoundsAreTheApprovedOnes.test_every_output_is_the_shared_optional_declaration) ... ok
+test_the_constraints_are_exact (tests.job_manager.test_role_contract.TheExactBoundsAreTheApprovedOnes.test_the_constraints_are_exact) ... ok
+test_the_four_literals (tests.job_manager.test_role_contract.TheExactBoundsAreTheApprovedOnes.test_the_four_literals) ... ok
+test_the_implementation_role (tests.job_manager.test_role_contract.TheExactBoundsAreTheApprovedOnes.test_the_implementation_role) ... ok
+test_the_literals_are_their_owners (tests.job_manager.test_role_contract.TheExactBoundsAreTheApprovedOnes.test_the_literals_are_their_owners)
+REQUIRED REUSE, driven. Each shared word comes from the module that ... ok
+test_the_review_role (tests.job_manager.test_role_contract.TheExactBoundsAreTheApprovedOnes.test_the_review_role) ... ok
+test_the_shared_optional_bits_do_not_decide_success (tests.job_manager.test_role_contract.TheExactBoundsAreTheApprovedOnes.test_the_shared_optional_bits_do_not_decide_success)
+The proposal's central distinction, asserted as a relationship ... ok
+test_the_three_outputs_in_proposal_findings_logs_order (tests.job_manager.test_role_contract.TheExactBoundsAreTheApprovedOnes.test_the_three_outputs_in_proposal_findings_logs_order) ... ok
+test_the_two_roles_implementation_then_review (tests.job_manager.test_role_contract.TheExactBoundsAreTheApprovedOnes.test_the_two_roles_implementation_then_review) ... ok
+test_a_bare_request_still_resolves_to_the_first_revision (tests.job_manager.test_role_contract.TheRegistryBindsTwoRevisionsAndPreservesTheFirst.test_a_bare_request_still_resolves_to_the_first_revision)
+THE PRESERVED LEGACY PATH, driven through the real resolver rather ... ok
+test_a_version_that_is_not_text_refuses (tests.job_manager.test_role_contract.TheRegistryBindsTwoRevisionsAndPreservesTheFirst.test_a_version_that_is_not_text_refuses) ... ok
+test_an_unregistered_version_carries_no_contract (tests.job_manager.test_role_contract.TheRegistryBindsTwoRevisionsAndPreservesTheFirst.test_an_unregistered_version_carries_no_contract)
+Absence is an ordinary answer, not a refusal: deciding that a ... ok
+test_both_revisions_are_registered (tests.job_manager.test_role_contract.TheRegistryBindsTwoRevisionsAndPreservesTheFirst.test_both_revisions_are_registered) ... ok
+test_only_the_second_revision_carries_a_contract (tests.job_manager.test_role_contract.TheRegistryBindsTwoRevisionsAndPreservesTheFirst.test_only_the_second_revision_carries_a_contract) ... ok
+test_the_configured_default_is_still_the_first_revision (tests.job_manager.test_role_contract.TheRegistryBindsTwoRevisionsAndPreservesTheFirst.test_the_configured_default_is_still_the_first_revision)
+"Do not change the configured default implicitly". ... ok
+test_the_contract_declares_no_qualification (tests.job_manager.test_role_contract.TheRegistryBindsTwoRevisionsAndPreservesTheFirst.test_the_contract_declares_no_qualification)
+THE BOUNDARY OF THIS SLICE, asserted so it cannot be read as more ... ok
+test_the_descriptor_and_the_registry_agree_on_every_output (tests.job_manager.test_role_contract.TheRegistryBindsTwoRevisionsAndPreservesTheFirst.test_the_descriptor_and_the_registry_agree_on_every_output)
+The drift this slice's import assertions exist to catch, driven ... ok
+test_the_resolution_carries_no_descriptor_member (tests.job_manager.test_role_contract.TheRegistryBindsTwoRevisionsAndPreservesTheFirst.test_the_resolution_carries_no_descriptor_member)
+THIS SLICE'S BOUNDARY AT THE RESOLVER: the resolution schema is ... ok
+test_the_second_revision_is_frozen_too (tests.job_manager.test_role_contract.TheRegistryBindsTwoRevisionsAndPreservesTheFirst.test_the_second_revision_is_frozen_too)
+Review 2026-10-26T17-46-15Z R2's property, for the new entry: the ... ok
+test_the_second_revision_resolves_when_a_request_names_it (tests.job_manager.test_role_contract.TheRegistryBindsTwoRevisionsAndPreservesTheFirst.test_the_second_revision_resolves_when_a_request_names_it)
+The new version is selectable with NO request-schema change, ... ok
+test_the_two_revisions_differ_only_in_their_version (tests.job_manager.test_role_contract.TheRegistryBindsTwoRevisionsAndPreservesTheFirst.test_the_two_revisions_differ_only_in_their_version)
+`/2` adds a descriptor binding, not a workflow change — so the ... ok
+test_the_two_revisions_resolve_to_the_same_stages (tests.job_manager.test_role_contract.TheRegistryBindsTwoRevisionsAndPreservesTheFirst.test_the_two_revisions_resolve_to_the_same_stages)
+Same graph, so the only difference a Job sees is the version it ... ok
+
+----------------------------------------------------------------------
+Ran 74 tests in 0.008s
+
+OK

@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "stack_command.py", line 313, in <module>
+  File "stack_command.py", line 309, in main
+  File "stack_command.py", line 82, in _manager
+  File "tools/job_manager.py", line 1443, in main
+  File "tools/job_manager.py", line 963, in _status
+  File "tools/job_manager.py", line 1065, in _observation_from
+  File "tools/stage_execution.py", line 7107, in observing_factory
+  File "tools/stage_execution.py", line 6935, in _configuration
+  File "tools/stage_execution.py", line 410, in _refuse
+baton_v12.contracts.errors.ContractRefusal: this deployment reads its configuration from BATON_V12_STAGE_EXECUTION_CONFIG and it is unset
+[PYI-170265:ERROR] Failed to execute script 'stack_command' due to unhandled exception!

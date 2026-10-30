@@ -1,0 +1,24 @@
+{
+  "authority": "owner E335045, new bounded isolated direct exception",
+  "base": "a9f4fa4da2323a357ae15aefbc5d7d22d41487b6",
+  "changes": [
+    {
+      "action": "modify",
+      "base_sha256": "2da6eb36b398d730c8cc07a9df0b604de678a3fd994d5019097fa023addfb88f",
+      "candidate_sha256": "bc8c0363e44fedeae09c15a9065733227f08e279164ed68dc4b0e9e058a7c50f",
+      "mode": "0644",
+      "path": "v12/python/tools/authoring_enforcement.py"
+    },
+    {
+      "action": "add",
+      "base_sha256": null,
+      "candidate_sha256": "085852ceea66efc359c1c27a76e102755ca3c55e367c035cf809c32c4cfa49a0",
+      "mode": "0644",
+      "path": "v12/python/tests/manager/test_authoring_manager_guard.py"
+    }
+  ],
+  "claim": 335047,
+  "participant": "baton.codxpc",
+  "source_files": 470,
+  "work": "W334910"
+}

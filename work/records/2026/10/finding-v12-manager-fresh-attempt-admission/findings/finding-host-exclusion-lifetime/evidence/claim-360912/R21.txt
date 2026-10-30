@@ -1,0 +1,14 @@
+test_a_manager_already_holding_this_instance_refuses (tests.job_manager.test_fresh_attempt.TheFinalReleaseIsOneTransition.test_a_manager_already_holding_this_instance_refuses)
+THE EXCLUSION, driven: a second holder is denied, not queued. ... ok
+test_a_new_holder_waits_and_gets_a_valid_guard (tests.job_manager.test_fresh_attempt.TheFinalReleaseIsOneTransition.test_a_new_holder_waits_and_gets_a_valid_guard) ... ok
+test_an_error_inside_a_borrow_retires_it_the_same_way (tests.job_manager.test_fresh_attempt.TheFinalReleaseIsOneTransition.test_an_error_inside_a_borrow_retires_it_the_same_way) ... ok
+test_the_cache_is_retired_with_the_descriptor (tests.job_manager.test_fresh_attempt.TheFinalReleaseIsOneTransition.test_the_cache_is_retired_with_the_descriptor) ... ok
+test_the_guard_is_released_when_the_admission_finishes (tests.job_manager.test_fresh_attempt.TheFinalReleaseIsOneTransition.test_the_guard_is_released_when_the_admission_finishes) ... ok
+test_the_guard_is_taken_from_the_instance_s_own_configuration (tests.job_manager.test_fresh_attempt.TheFinalReleaseIsOneTransition.test_the_guard_is_taken_from_the_instance_s_own_configuration) ... ok
+test_two_invocations_of_one_identity_cannot_overlap (tests.job_manager.test_fresh_attempt.TheFinalReleaseIsOneTransition.test_two_invocations_of_one_identity_cannot_overlap)
+R8 AT THE REAL LOCK, in two real processes. ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 3.197s
+
+OK

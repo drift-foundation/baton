@@ -1,0 +1,27 @@
+# red-to-green: the two new classes against the ACCEPTED candidate-359821 host bytes
+FAIL:  test_overlapping_lifetimes_in_either_exit_order   <- R13 reproduced behaviourally
+ERROR: test_a_forked_child_inherits_no_borrow            <- borrow API absent
+ERROR: test_the_borrow_count_returns_to_zero             <- borrow API absent
+ERROR: 11 TheHostIsThisInstanceS cases                   <- identity binding absent
+Ran 23 tests / FAILED (failures=1, errors=13)
+# the same 23 against this candidate: Ran 23 tests / OK
+
+# focused suite, four consecutive whole-package runs (flake check)
+ERROR: test_the_native_factory_delivers_the_policy_to_both_stage_workers (tests.job_manager.test_native_permission.NativeStageComposition.test_the_native_factory_delivers_the_policy_to_both_stage_workers)
+Ran 1131 tests in 20.199s
+FAILED (errors=1)
+ERROR: test_the_native_factory_delivers_the_policy_to_both_stage_workers (tests.job_manager.test_native_permission.NativeStageComposition.test_the_native_factory_delivers_the_policy_to_both_stage_workers)
+Ran 1131 tests in 20.342s
+FAILED (errors=1)
+ERROR: test_the_native_factory_delivers_the_policy_to_both_stage_workers (tests.job_manager.test_native_permission.NativeStageComposition.test_the_native_factory_delivers_the_policy_to_both_stage_workers)
+Ran 1131 tests in 20.267s
+FAILED (errors=1)
+ERROR: test_the_native_factory_delivers_the_policy_to_both_stage_workers (tests.job_manager.test_native_permission.NativeStageComposition.test_the_native_factory_delivers_the_policy_to_both_stage_workers)
+Ran 1131 tests in 20.148s
+FAILED (errors=1)
+
+# tests.tools.test_bootstrap + test_scheduler_trace + test_single_worker
+#   + tests.manager.test_custody + tests.manager.test_workspaces: Ran 780 in 96.711s,
+#   one failure, test_single_worker...test_a_real_observing_status_run_mutates_no_durable_state,
+#   pre-existing on canonical HEAD (../../evidence/claim-359459/PREEXISTING-SINGLE-WORKER.txt)
+# four inventory suites: 116 failures, identical to the canonical base; comm -13 empty

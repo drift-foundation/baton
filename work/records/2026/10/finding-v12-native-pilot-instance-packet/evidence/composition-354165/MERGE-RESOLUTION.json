@@ -1,0 +1,104 @@
+{
+ "file": "v12/python/src/baton_v12/worker_manager/attempts.py",
+ "base": "bc925cf5c62d69426ed5862af4d41f4d2a967b0f",
+ "current_baseline": "d6881d8adbd567b6e92a4a2a1d0cb68ee781f70a",
+ "base_lines": 3898,
+ "current_baseline_lines": 3919,
+ "candidate_lines": 4008,
+ "merged_lines": 4029,
+ "current_baseline_edit_regions": [
+  {
+   "base_lines": [
+    234,
+    234
+   ],
+   "tag": "insert",
+   "replacement_lines": 21
+  }
+ ],
+ "candidate_edit_regions": [
+  {
+   "base_lines": [
+    3511,
+    3511
+   ],
+   "tag": "insert",
+   "replacement_lines": 8
+  },
+  {
+   "base_lines": [
+    3520,
+    3522
+   ],
+   "tag": "replace",
+   "replacement_lines": 16
+  },
+  {
+   "base_lines": [
+    3529,
+    3533
+   ],
+   "tag": "replace",
+   "replacement_lines": 20
+  },
+  {
+   "base_lines": [
+    3556,
+    3556
+   ],
+   "tag": "insert",
+   "replacement_lines": 15
+  },
+  {
+   "base_lines": [
+    3562,
+    3562
+   ],
+   "tag": "insert",
+   "replacement_lines": 2
+  },
+  {
+   "base_lines": [
+    3566,
+    3566
+   ],
+   "tag": "insert",
+   "replacement_lines": 18
+  },
+  {
+   "base_lines": [
+    3569,
+    3569
+   ],
+   "tag": "insert",
+   "replacement_lines": 4
+  },
+  {
+   "base_lines": [
+    3570,
+    3575
+   ],
+   "tag": "replace",
+   "replacement_lines": 8
+  },
+  {
+   "base_lines": [
+    3576,
+    3577
+   ],
+   "tag": "replace",
+   "replacement_lines": 29
+  },
+  {
+   "base_lines": [
+    3581,
+    3585
+   ],
+   "tag": "replace",
+   "replacement_lines": 6
+  }
+ ],
+ "overlap": false,
+ "resolution": "BOTH SIDES APPLIED, no overlap. The current baseline adds runtime_recovery_inventory after attempt_runtime_of; the accepted candidate changes _order_quiescence branches to carry the recording degradation. Disjoint base regions, so neither overwrites the other.",
+ "merged_sha256": "e929d7305a723e6e355079b120c6740d9d8ddf26fad89b771738e92e74688b45"
+}

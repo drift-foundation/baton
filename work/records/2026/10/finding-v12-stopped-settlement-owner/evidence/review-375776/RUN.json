@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_stopped_settlement",
+    "tests.manager.test_store",
+    "tests.manager.test_maintenance",
+    "tests.manager.test_workspaces",
+    "tests.manager.test_attempts.CancellationFencesBeforeItStops",
+    "tests.manager.test_boundary_inventory.StoppedSettlementInventory",
+    "tests.manager.test_boundary_inventory.StatedRules.test_stopped_settlement_stated_owners"
+  ],
+  "exit_code": 0,
+  "wall_seconds": 11.372448882999834
+}

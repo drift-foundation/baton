@@ -1,0 +1,31 @@
+{
+ "headline": "the provider turn is REAL and running, and the manager nonetheless projects the implementation stage `exceptional` because it reports the worker exchange `unreadable (policy/denied)`. The review stage is blocked behind it. The exact denial is NOT established.",
+ "operator_actions_taken": "NONE beyond observation. No supervisor stopped while a runtime is live, no mode changed, no file in the attempt tree touched, no Job re-admitted, no retry.",
+ "schema": "baton.v12.execution-finding/3",
+ "what_is_NOT_established": {
+  "my_first_reproduction_was_CIRCULAR_and_is_withdrawn": "evidence 26-adoption-refusal.json called launch.adopt with the session and contract taken from the attempt's own launch.json, so it necessarily matched and reported ok:true. The serve loop compares against the MANAGER's own recorded operands, not the document's. That reproduction therefore proves nothing about the manager's comparison and must not be read as a diagnosis. Recorded rather than deleted.",
+  "the_exact_refusal": "the status projection carries only the safe category/code by design -- exchange.py says so in terms: 'WHAT COMES BACK IS SAFE. The category and the code and nothing else'. The prose is not in any file this operator can read.",
+  "whether_the_provider_output_will_be_collected": "unknown. A stage projecting exceptional owes no act, and single_worker.refresh_runtime's own docstring says reconciliation 'reconciles only after an answered terminal -- which an exceptional stage never reaches'."
+ },
+ "what_is_established": {
+  "activity_is_growing": [
+   "161253 B at 01:26:59",
+   "401306 B at 01:27:29",
+   "759500 B at 01:29:00",
+   "843554 B at 01:30:01",
+   "1095634 B at 01:33:05"
+  ],
+  "the_directory_modes_MATCH": {
+   "acls": "getfacl shows NO extended entries on either directory",
+   "command": "mode 755, and exchange.COMMAND_DIR is 0o755",
+   "events": "mode 2770, and workspaces.WORKSPACE_DIR is 0o2770",
+   "events_gid": "1000, and the deployment configures workspace_group 1000"
+  },
+  "the_episode_has_not_ended": "episodes[0].ended_state, ended_revision and ended_at are all null; corrections 0; the only receipts are admit(performed) and claim(performed)",
+  "the_provider_authenticated_and_ran": "the attempt's native log root carries the provider's own session files -- a 472KB+ project transcript, a tool-results file, a session key, a shell snapshot. This is a real model run, not a simulation.",
+  "the_review_stage": "blocked, 'held: waiting on job-template-job-guide-42bed8bb/implementation (exceptional)', with its own distinct attempt id and its own participant baton.reviewer-w366962",
+  "the_runtime_is_running": "execution_runtime: running throughout",
+  "the_worker_is_answering_properly": "state/launch/<attempt>/events/ carries receipt.json, state-describe.json, state-work.json and a current activity.json; command/ carries the manager's own sequence-<id>.json. Both namespaces exist with current files."
+ },
+ "why_no_earlier_proof_could_have_caught_this": "every prior proof in this campaign was inert: no container, no provider, no exchange. The exchange is written by a running worker and read by a running manager, so only a live run reaches it. This is precisely what the owner selected the live run to discover."
+}

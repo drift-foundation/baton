@@ -1,0 +1,26 @@
+{
+  "jobs": [
+    {
+      "execution_limits": {
+        "provider_turn_seconds": 3600,
+        "verification_command_seconds": 30
+      },
+      "input_digest": "sha256:c6056d8054e6012a3964a19d5677d7dcd1e28d158aa4836f920f222d77efeace",
+      "job_id": "job-serving-renewal-w333485-339444",
+      "policy_digest": "sha256:7057bdd0b1ef4f1c272ea22e357cadb2cac839fd7a10c45da8f3d72b7c9b9e11",
+      "stages": [
+        {
+          "depends_on": [],
+          "kind": "implementation",
+          "profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+          "profile_name": "claude-fresh-implementation",
+          "work_id": "98c6d6b7-W1"
+        }
+      ],
+      "terminal_policy": "report-and-hold",
+      "test_scope": []
+    }
+  ],
+  "schema": "baton.v12.job-submission/2",
+  "submission_id": "serving-renewal-w333485-339444-submission"
+}

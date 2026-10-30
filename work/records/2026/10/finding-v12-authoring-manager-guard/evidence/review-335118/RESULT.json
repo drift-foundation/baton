@@ -1,0 +1,20 @@
+{
+  "root": "/tmp/w334910-review-335118-19kj8lcy",
+  "manifest": "fd69976b517104355f6fc2bfd5136933964ce577f43c004b16c44279dad18eb7",
+  "members": 26,
+  "source_members": 470,
+  "command": [
+    "python3",
+    "-B",
+    "-m",
+    "unittest",
+    "tests.manager.test_authoring_manager_guard",
+    "tests.manager.test_authoring_enforcement",
+    "tests.manager.test_attempts.CancellationFencesBeforeItStops",
+    "tests.job_manager.test_tool.TheStatusSurfaceMayReadIntegrationAndStillActOnNothing",
+    "tests.job_manager.test_tool.TheRecoveryPassVisitsTheUNCERTAINTokensToo",
+    "-v"
+  ],
+  "exit_code": 0,
+  "seconds": 24.978061267000157
+}

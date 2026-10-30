@@ -1,0 +1,32 @@
+test_cancellation_stops_exact_runtime_before_expiry_without_releasing_hold (tests.job_manager.test_native_stop_restart.NativeStopRestart.test_cancellation_stops_exact_runtime_before_expiry_without_releasing_hold) ... ok
+test_native_deadline_drives_exact_runtime_stop_and_cleanup (tests.job_manager.test_native_stop_restart.NativeStopRestart.test_native_deadline_drives_exact_runtime_stop_and_cleanup) ... FAIL
+test_reopened_store_preserves_deadline_and_generation_without_revival (tests.job_manager.test_native_stop_restart.NativeStopRestart.test_reopened_store_preserves_deadline_and_generation_without_revival) ... FAIL
+test_stop_acknowledgement_without_cessation_holds_until_confirmed (tests.job_manager.test_native_stop_restart.NativeStopRestart.test_stop_acknowledgement_without_cessation_holds_until_confirmed) ... ok
+test_unavailable_engine_holds_across_restart_then_retries_exact_runtime (tests.job_manager.test_native_stop_restart.NativeStopRestart.test_unavailable_engine_holds_across_restart_then_retries_exact_runtime) ... ok
+test_wrong_runtime_observation_never_releases (tests.job_manager.test_native_stop_restart.NativeStopRestart.test_wrong_runtime_observation_never_releases) ... ok
+
+======================================================================
+FAIL: test_native_deadline_drives_exact_runtime_stop_and_cleanup (tests.job_manager.test_native_stop_restart.NativeStopRestart.test_native_deadline_drives_exact_runtime_stop_and_cleanup)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w354630-354638/candidate/v12/python/tests/job_manager/test_native_stop_restart.py", line 81, in test_native_deadline_drives_exact_runtime_stop_and_cleanup
+    self.assertEqual(self.row()['execution_runtime'], 'destroyed')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'running' != 'destroyed'
+- running
++ destroyed
+
+
+======================================================================
+FAIL: test_reopened_store_preserves_deadline_and_generation_without_revival (tests.job_manager.test_native_stop_restart.NativeStopRestart.test_reopened_store_preserves_deadline_and_generation_without_revival)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w354630-354638/candidate/v12/python/tests/job_manager/test_native_stop_restart.py", line 146, in test_reopened_store_preserves_deadline_and_generation_without_revival
+    self.assertFalse(tokens.effects_permitted(self.store, self.token), self.current())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not false : {'acquired_at': '2026-08-24T00:00:00.000Z', 'attempt': 'attempt-1', 'domain': 'workspace:43:446354', 'execution': 'attempt-1', 'expires_at': '2026-08-24T02:02:00.000Z', 'generation': 1, 'operation': 'runtime.start:af8e746e7acf861bdc0c086aab883a277f48dfb12c7c6fc3e787aa1d55f184fd', 'owner': 'cecebcfbd95c309f3963214ca6b2ff9a5ccf06f06c2e9493a661ab7c9dee439a', 'renewals': 0, 'seconds': 7320, 'version': 1, 'launch': 'runtime.start:af8e746e7acf861bdc0c086aab883a277f48dfb12c7c6fc3e787aa1d55f184fd', 'container': 'runtime-1', 'returned': False, 'activating': False, 'activation_started': True, 'acquired_expires_at': '2026-08-24T02:02:00.000Z', 'revision': 0, 'renewed_at': None, 'renewals_remaining': 4, 'expiry_judged_at': None, 'expired': False, 'timing_ambiguous': False, 'timing_observed_at': None, 'timing_decided_at': None, 'revoked': True}
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.088s
+
+FAILED (failures=2)

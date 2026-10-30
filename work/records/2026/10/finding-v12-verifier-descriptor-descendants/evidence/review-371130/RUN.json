@@ -1,0 +1,11 @@
+{
+  "command": [
+    "/home/sl/.local/state/baton-v12-venv/bin/python",
+    "-m",
+    "unittest",
+    "tests.manager.test_claude_agent.TheVerifierRootsReachDescendants"
+  ],
+  "exit": 0,
+  "seconds": 0.34912752500531496,
+  "candidate_hashes_match": true
+}

@@ -501,3 +501,87 @@ replay ~1 s. Candidate digests: `evidence/r1r2-2026-10-30/CANDIDATE-SHA256.txt`
 (parallel_test.py 50cbb06f…, source_identity.py 381152e3…, justfile 9f2bd32f…,
 TESTING.md ee9367f3…, test_parallel_runner.py a4d6308a…, test_source_identity.py
 d97bd14e…). Returned for independent verification; no full run. Next: S1.
+
+## 2026-10-30 — S1 attribution delivered (owner M384898); K under owner claim E384883
+
+Evidence: `evidence/s1-2026-10-30/` (S1-ATTRIBUTION.md with method, the 118
+delegations and their probes, the candidates reviewed and NOT added with
+reasons, measured effect; delegation-candidates.json and the reviewed listing;
+scans-group-after-s1.log). Edits confined to
+`tests/manager/test_boundary_inventory.py`: the `DELEGATED` block "W384870 S1"
+(generated from the inventory's own delegation walk, then reviewed one by one
+against each public function's signature and first statements), two
+`STATED_OWNERS` entries for the restoration `profile` operands (the file's
+existing rule for f-string capability labels), and `w384870_probes` registered
+in `all_probes`: one probe per delegated entry that spoils exactly that
+operand and requires the delegate's own label. `documents._emit` was not
+credited. No product edit.
+
+Measured (EveryReceivingEntryHasOneOwner / EveryProbeProvesItArrived): unowned
+receiving entries 696 → 597; unattributed boundary calls 190 → 182; owned
+entries without a probe 266 → 266 (S4's subject); declared probes not
+reaching their owner 0. Three delegations were withdrawn when their probe met
+an earlier precondition (recorded with reasons), and the nested
+execution-limits members were re-delegated to their actual owner
+(`_configuration`) rather than credited to the parent document.
+`just test-group scans 32`: collected 445 = executed 445, passed 435,
+optional skipped 2, failed 8 — the six remaining boundary-inventory ids (the
+three big lists, the two `port` double owners, the lane settlement assertion)
+plus the two B0 singletons in test_source_boundary and test_text_sweep,
+unchanged; test_dependencies 0 failures. Verification spending, measured:
+probe/owner classes ~11 s × 6 iterations, scans group ~2 min.
+Next: S4 probe authoring for the 266 already-owned entries, per module.
+
+## 2026-10-30 — S4 probe authoring, first delivery (owner M384898); K under owner claim E384883
+
+Evidence `evidence/s4-2026-10-30/` (S4-PROBES.md: method, probes, exemptions,
+measured effect, the 47 remaining classified; probe-class-after-s4.txt;
+scans-group-after-s4.log; CANDIDATE-SHA256.txt). Edits confined to
+`tests/manager/test_boundary_inventory.py`; no product edit. Owned-but-unprobed
+266 → 47; every declared probe reaches its owner; the scans group is
+unchanged (445 = 445, the same 8 pre-existing failures). One harness
+correction: wanted-versus-declared comparisons now use the `fragment in
+label` relation the probe test itself asserts (40 existing probes were keyed
+by label fragments the resolver has since spelled out). New exemptions follow
+the file's own two rules (count columns; select-by columns) plus one
+owned-twice-by-one-rule case, each justified in place. Residue of 47 is
+classified per entry in S4-PROBES.md; two are inventory limitations to
+report (the `WHERE` table-parsing artefact of `_one_by_attempt`, 15 entries;
+the start-request labels covering, 2), the rest are probes still to author
+with composed worlds (abandonment destroy, review verdict rows, held tokens,
+fenced attempt). Verification spending, measured: probe/owner classes ~11 s ×
+~14 iterations, scans group ~36 s ×2 (jobs=32).
+
+## 2026-10-30 — Resume after reboot; R2 remainder (consumed-input provenance); K under owner claim E384905
+
+Resume: owner reclaimed W384870 at `baton.decide` (handler `baton.slaw`,
+episode E384905, read back through `detail` before any edit); recovered state
+reported in M384906; owner authorized the R2 remainder in the interactive
+turn ("Owner claim established. Proceed with the R2 consumed-input
+provenance correction and focused verification."). Arrangement B unchanged:
+K edits as copilot, owner holds the claim; K holds none.
+
+R2 remainder delivered (review-2026-10-30T03-09-45Z.md, "R2 remaining").
+Evidence `evidence/r2-2026-10-30/` (R2-CONSUMED-INPUTS.md: defect, correction,
+the declaration, synthetic literals, measured verification, observations;
+source-identity-declared.json; refusal.stdout/.stderr; the focused log;
+CANDIDATE-SHA256.txt). Edits: `tools/parallel_test.py` (CONSUMED_INPUTS,
+consumed_inputs()), `tools/source_identity.py` (declared inputs hashed by
+content whether changed or not, MissingInput refusal exit 2, `--input`,
+`--declared`), `justfile` test-all (both identity calls `--declared`; pre-run
+refusal ends the recipe, post-run refusal fails it), `tests/tools/
+test_source_identity.py` (+10), `tests/tools/test_parallel_runner.py` (+3:
+AST sweep of record paths against the declaration, synthetic list, probe),
+`TESTING.md` §6/§9. No product edit outside tools/; no edit to any other
+Work's candidate bytes (git status of tools/ shows the pre-existing
+bootstrap/dogfood_operator/stage_execution modifications untouched).
+
+The review named two inputs; the sweep found seventeen declared paths
+(32 files; two untracked, bound by nothing before). Group affected:
+tools-pure. `just test-one tests.tools.test_source_identity
+tests.tools.test_parallel_runner`: 88 OK in 16.4 s (75 → 88). Four authoring
+iterations at ~16.5 s each (probe self-detection; my own prefix assertions,
+answered by the depth rule; stale synthetic entries). Refusal demonstrated on
+the real checkout (exit 2, empty stdout). No full-suite run, no engine, no
+live model. State: R2 awaiting independent review together with S1 and the
+first S4 delivery; S4 residue (47) and B3 next, per PLAN.

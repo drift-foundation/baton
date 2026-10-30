@@ -1,0 +1,25 @@
+# the locked build toolchain, as installed in the prepared interpreter
+altgraph==0.17.5
+attrs==26.1.0
+jsonschema==4.26.0
+jsonschema-specifications==2025.9.1
+packaging==26.3
+pyinstaller==6.16.0
+pyinstaller-hooks-contrib==2026.7
+referencing==0.37.0
+rpds-py==2026.6.3
+setuptools==84.0.0
+
+# requirements.build.lock
+altgraph==0.17.5 \
+packaging==26.3 \
+pyinstaller==6.16.0 \
+pyinstaller-hooks-contrib==2026.7 \
+setuptools==84.0.0 \
+
+# the two extra committed test modules, run once this claim
+Ran 337 tests in 15.568s / OK
+
+# v12 subtree vs the commit
+git status --porcelain --untracked-files=normal under v12/: 0 paths
+total changed entries in the tree at build time: 383 (all outside v12/)

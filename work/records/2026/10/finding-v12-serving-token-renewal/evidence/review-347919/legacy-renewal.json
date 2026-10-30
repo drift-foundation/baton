@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "python3",
+    "-B",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "/tmp/baton-review-347919/work/records/2026/09/finding-v12-token-renewal",
+    "-p",
+    "test_renewal_arbitration.py"
+  ],
+  "status": 0,
+  "seconds": 0.41677596799854655
+}

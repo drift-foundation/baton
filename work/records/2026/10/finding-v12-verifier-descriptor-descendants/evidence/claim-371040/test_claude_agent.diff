@@ -1,0 +1,414 @@
+diff --git a/v12/python/tests/manager/test_claude_agent.py b/v12/python/tests/manager/test_claude_agent.py
+index 70de399e..6d3e0bbc 100644
+--- a/v12/python/tests/manager/test_claude_agent.py
++++ b/v12/python/tests/manager/test_claude_agent.py
+@@ -4210,3 +4210,409 @@ class TheLineDeltaAdmitsTheRealRepositoryShape(LineDeltaCase):
+             with self.assertRaises(TaskRefusal) as caught:
+                 self.worked(act=flood)
+         self.assertIn("bound", str(caught.exception))
++
++
++class TheVerifierRootsReachDescendants(AdapterCase):
++    """W325695 — the descendant defect, and the mount-bound correction.
++
++    THE DEFECT, REPRODUCED AT THE REAL BOUNDARY. `/proc/self/fd/<n>` is
++    per-process. The immediate verifier child receives the descriptor through
++    `pass_fds`, but an ordinary grandchild spawned with Python's default
++    `close_fds=True` does not, so its `TMPDIR` names a path that does not
++    exist. These cases run REAL subprocesses and a REAL grandchild rather
++    than asserting the spelling.
++
++    AND THE MOUNT TABLE IS THE KERNEL'S, NOT A FIXTURE'S. `_mount_points`
++    is driven against this host's own `/proc/self/mountinfo` and against the
++    paths the kernel actually lists there. An unprivileged test cannot CREATE
++    a mount, so the positive mount-bound composition is exercised with the
++    mount table supplied as an operand -- which is honest about what is
++    simulated: the TOPOLOGY is substituted, the PARSING, the refusals, the
++    descendant resolution and the object checks are not.
++
++    WHAT THESE CASES DO NOT ESTABLISH, said once and plainly: that a real
++    corrected image provides these mounts, that the kernel's `EBUSY` on
++    renaming a mount point holds for the selected topology, or that the
++    proposed capacity partition fits. Those are the separately selected
++    corrected-image/kernel proof.
++    """
++
++    def agent(self):
++        held = claude_agent.ClaudeAgent.__new__(claude_agent.ClaudeAgent)
++        held._seen = {}
++        return held
++
++    def roots(self):
++        """A prepared verifier scratch, as `_child_environments` makes one."""
++        held = self.agent()
++        scratch = os.path.join(self.scratch, "verifier")
++        os.makedirs(scratch, exist_ok=True)
++        os.chmod(scratch, 0o700)
++        home = held._new_directory(scratch, claude_agent.VERIFICATION_HOME)
++        _root, ephemera = held._new_ephemera(
++            scratch, claude_agent.VERIFICATION_EPHEMERA)
++        environment = held._closed_environment(
++            home=home, roots=ephemera, scratch=scratch)
++        return held, scratch, environment
++
++    # -- the kernel's own mount table ---------------------------------------
++
++    def test_the_mount_table_is_read_from_the_kernel(self):
++        """REAL mountinfo, and the paths the kernel actually lists."""
++        points = claude_agent.ClaudeAgent._mount_points()
++        self.assertIn("/", points)
++        # Every entry must be an absolute path, or field 5 was mis-read.
++        for one in points:
++            self.assertTrue(one.startswith("/"), one)
++        # AND IT AGREES WITH THE KERNEL ON A SECOND READING of the same file,
++        # parsed independently here, so this is not the parser agreeing with
++        # itself.
++        with open("/proc/self/mountinfo", "r", encoding="utf-8") as table:
++            expected = {line.split(" ")[4] for line in table.read().splitlines()
++                        if len(line.split(" ")) >= 5}
++        decoded = set()
++        for one in expected:
++            for sequence, character in (("\\040", " "), ("\\011", "\t"),
++                                        ("\\012", "\n"), ("\\134", "\\")):
++                one = one.replace(sequence, character)
++            decoded.add(one)
++        self.assertEqual(points, decoded)
++
++    def test_an_ordinary_directory_is_not_a_mount_point(self):
++        """`os.path.ismount` cannot answer this and is not what is asked.
++
++        The scratch roots this adapter creates are ordinary directories on the
++        same filesystem, which is exactly the case a st_dev comparison gets
++        wrong for a bind mount -- so the mount table is consulted instead.
++        """
++        _held, _scratch, environment = self.roots()
++        points = claude_agent.ClaudeAgent._mount_points()
++        for name in ("HOME", "TMPDIR", "XDG_CACHE_HOME",
++                     "PYTHONPYCACHEPREFIX"):
++            self.assertNotIn(environment[name], points)
++
++    def test_an_unreadable_mount_table_refuses(self):
++        """The non-replaceability question is not answered by assumption."""
++        with self.assertRaises(claude_agent.TaskRefusal) as refused:
++            claude_agent.ClaudeAgent._mount_points(
++                os.path.join(self.home, "no-such-mountinfo"))
++        self.assertIn("mount table", str(refused.exception))
++
++    # -- the compatibility gate ---------------------------------------------
++
++    def test_an_image_without_the_layout_keeps_the_descriptor_form(self):
++        """TODAY'S DEPLOYMENTS ARE UNCHANGED, which is the whole gate.
++
++        No root is a mount point, so the mount-bound composition answers
++        `None` and `_pinned_environment` returns exactly what it returned
++        before this correction.
++        """
++        held, scratch, environment = self.roots()
++        self.assertIsNone(held._mount_bound_environment(scratch, environment))
++        pinned, directories = held._pinned_environment(scratch, environment)
++        self.addCleanup(lambda: [os.close(one) for _n, one in directories])
++        for name in ("HOME", "TMPDIR", "XDG_CACHE_HOME",
++                     "PYTHONPYCACHEPREFIX"):
++            self.assertRegex(pinned[name], r"\A/proc/self/fd/[0-9]+\Z")
++
++    def test_a_half_converted_layout_refuses_rather_than_choosing(self):
++        """NEITHER TOPOLOGY IS GUESSED AT.
++
++        One root listed as a mount point and the rest ordinary is not the old
++        shape and not the new one, and picking either would be picking a
++        security posture nobody selected.
++        """
++        held, scratch, environment = self.roots()
++        points = claude_agent.ClaudeAgent._mount_points() | {
++            environment["TMPDIR"]}
++        with mock.patch.object(claude_agent.ClaudeAgent, "_mount_points",
++                               classmethod(lambda cls, place=None: points)):
++            with self.assertRaises(claude_agent.TaskRefusal) as refused:
++                held._mount_bound_environment(scratch, environment)
++        said = str(refused.exception)
++        self.assertIn("half-converted", said)
++        self.assertIn("TMPDIR", said)
++        self.assertIn("HOME", said)
++
++    # -- the mount-bound composition ----------------------------------------
++
++    def mounted(self, environment):
++        """The kernel's real table plus the four prepared roots.
++
++        THE SUBSTITUTION IS THE TOPOLOGY AND NOTHING ELSE. An unprivileged
++        process cannot mount, so the one fact this cannot create is the fact
++        the separately selected kernel proof owns. Every other check --
++        `O_NOFOLLOW`, mode, owner, object identity, the environment the
++        verifier is handed, and what a real grandchild can resolve -- runs
++        against the real objects.
++        """
++        names = ("HOME", "TMPDIR", "XDG_CACHE_HOME", "PYTHONPYCACHEPREFIX")
++        return claude_agent.ClaudeAgent._mount_points() | {
++            environment[one] for one in names}
++
++    def bound(self, held, scratch, environment, points=None):
++        points = points or self.mounted(environment)
++        with mock.patch.object(claude_agent.ClaudeAgent, "_mount_points",
++                               classmethod(lambda cls, place=None: points)):
++            answered = held._mount_bound_environment(scratch, environment)
++        self.assertIsNotNone(answered)
++        pinned, directories = answered
++        self.addCleanup(lambda: [os.close(one) for _n, one in directories])
++        return pinned, directories
++
++    def test_the_bound_environment_gives_descendants_ordinary_paths(self):
++        """THE CORRECTION. No alias, so no per-process resolution."""
++        held, scratch, environment = self.roots()
++        pinned, _directories = self.bound(held, scratch, environment)
++        for name in ("HOME", "TMPDIR", "XDG_CACHE_HOME",
++                     "PYTHONPYCACHEPREFIX"):
++            self.assertEqual(pinned[name], environment[name])
++            self.assertNotIn("/proc/self/fd/", pinned[name])
++        self.assertEqual(pinned["PATH"], environment["PATH"])
++
++    def test_a_real_grandchild_resolves_the_bound_roots(self):
++        """THE DEFECT ITSELF, at the boundary that produced it.
++
++        A real child spawns a real grandchild with Python's DEFAULT
++        `close_fds`, and the grandchild creates and reads a file under
++        `TMPDIR`. Under the descriptor form this is the failure the dossier
++        reproduced; under the bound form it must work.
++        """
++        held, scratch, environment = self.roots()
++        pinned, _directories = self.bound(held, scratch, environment)
++        grandchild = (
++            "import os, subprocess, sys\n"
++            "inner = (\n"
++            "    'import os\\n'\n"
++            "    'place = os.path.join(os.environ[\"TMPDIR\"], \"nested\")\\n'\n"
++            "    'os.makedirs(place, exist_ok=True)\\n'\n"
++            "    'open(os.path.join(place, \"marker\"), \"w\").write(\"ok\")\\n'\n"
++            "    'print(os.path.realpath(place))\\n')\n"
++            "done = subprocess.run([sys.executable, '-c', inner],\n"
++            "                      capture_output=True, text=True)\n"
++            "sys.stdout.write(done.stdout)\n"
++            "sys.stderr.write(done.stderr)\n"
++            "sys.exit(done.returncode)\n")
++        done = subprocess.run([sys.executable, "-c", grandchild],
++                              env=pinned, capture_output=True, text=True,
++                              timeout=120)
++        self.assertEqual(done.returncode, 0, done.stderr)
++        # THE GRANDCHILD'S OWN CANONICAL ANSWER, and the marker on disk.
++        self.assertEqual(done.stdout.strip(),
++                         os.path.realpath(os.path.join(environment["TMPDIR"],
++                                                       "nested")))
++        with open(os.path.join(environment["TMPDIR"], "nested", "marker"),
++                  encoding="utf-8") as reading:
++            self.assertEqual(reading.read(), "ok")
++
++    def test_the_descriptor_form_is_what_a_grandchild_cannot_resolve(self):
++        """THE CONTROL. Without this the case above proves nothing.
++
++        The same grandchild program, under the environment today's images
++        produce, fails -- because `/proc/self/fd/<n>` is not its descriptor.
++        """
++        held, scratch, environment = self.roots()
++        pinned, directories = held._pinned_environment(scratch, environment)
++        self.addCleanup(lambda: [os.close(one) for _n, one in directories])
++        grandchild = (
++            "import os, subprocess, sys\n"
++            "inner = ('import os\\n'\n"
++            "         'os.makedirs(os.path.join(os.environ[\"TMPDIR\"], \"n\"))\\n')\n"
++            "done = subprocess.run([sys.executable, '-c', inner],\n"
++            "                      capture_output=True, text=True)\n"
++            "sys.exit(done.returncode)\n")
++        done = subprocess.run(
++            [sys.executable, "-c", grandchild], env=pinned,
++            pass_fds=tuple(one for _n, one in directories),
++            capture_output=True, text=True, timeout=120)
++        self.assertNotEqual(done.returncode, 0,
++                            "a grandchild resolved a per-process alias")
++
++    def test_a_nested_canonical_check_agrees_under_the_bound_form(self):
++        """LEXICAL AND CANONICAL AGREE, because there is no alias.
++
++        The nested adapter check the dossier names refuses a resolved path
++        that disagrees with its lexical spelling. An ordinary mount-bound
++        root has no such disagreement.
++        """
++        held, scratch, environment = self.roots()
++        pinned, _directories = self.bound(held, scratch, environment)
++        for name in ("HOME", "TMPDIR"):
++            self.assertEqual(os.path.realpath(pinned[name]),
++                             os.path.abspath(pinned[name]))
++
++    # -- the refusals, each one named ---------------------------------------
++
++    def refused(self, held, scratch, environment, *, points=None):
++        points = points or self.mounted(environment)
++        with mock.patch.object(claude_agent.ClaudeAgent, "_mount_points",
++                               classmethod(lambda cls, place=None: points)):
++            with self.assertRaises(claude_agent.TaskRefusal) as refused:
++                held._mount_bound_environment(scratch, environment)
++        return str(refused.exception)
++
++    def test_a_root_that_is_not_a_mount_point_refuses(self):
++        """The one fact that makes an ordinary pathname safe."""
++        held, scratch, environment = self.roots()
++        points = self.mounted(environment) - {environment["HOME"]}
++        # Every root but HOME is still listed, so this is the half-converted
++        # refusal -- which is the honest answer and names HOME.
++        said = self.refused(held, scratch, environment, points=points)
++        self.assertIn("HOME", said)
++
++    # THE FOUR BELOW ARE CAUGHT BY THE EXISTING COMPONENT GUARD, and that is
++    # the right answer rather than a gap in the new checks.
++    # `_mount_bound_environment` calls `_revalidated_environment` FIRST, so
++    # `_checked_directory` refuses a removed, linked, widened or non-directory
++    # root before the mount question is asked at all. These cases assert the
++    # refusal that actually happens -- which names the PATH -- so the new
++    # composition is shown to be a second line behind a guard that still
++    # works, not a replacement for it.
++
++    def test_a_removed_root_refuses(self):
++        held, scratch, environment = self.roots()
++        points = self.mounted(environment)
++        os.rmdir(environment["TMPDIR"])
++        said = self.refused(held, scratch, environment, points=points)
++        self.assertIn(environment["TMPDIR"], said)
++        self.assertIn("cannot be validated", said)
++
++    def test_a_root_replaced_by_a_link_refuses(self):
++        """A link at the name is refused, not followed."""
++        held, scratch, environment = self.roots()
++        points = self.mounted(environment)
++        elsewhere = os.path.join(self.home, "surrogate")
++        os.makedirs(elsewhere, exist_ok=True)
++        os.chmod(elsewhere, 0o700)
++        os.rmdir(environment["TMPDIR"])
++        os.symlink(elsewhere, environment["TMPDIR"])
++        said = self.refused(held, scratch, environment, points=points)
++        self.assertIn(environment["TMPDIR"], said)
++        self.assertIn("links and special files are refused", said)
++
++    def test_a_widened_mode_refuses(self):
++        held, scratch, environment = self.roots()
++        points = self.mounted(environment)
++        os.chmod(environment["XDG_CACHE_HOME"], 0o755)
++        said = self.refused(held, scratch, environment, points=points)
++        self.assertIn("0755", said)
++        self.assertIn(environment["XDG_CACHE_HOME"], said)
++
++    def test_a_root_that_is_a_file_refuses(self):
++        held, scratch, environment = self.roots()
++        points = self.mounted(environment)
++        os.rmdir(environment["PYTHONPYCACHEPREFIX"])
++        self.write(environment["PYTHONPYCACHEPREFIX"], "not a directory\n")
++        said = self.refused(held, scratch, environment, points=points)
++        self.assertIn(environment["PYTHONPYCACHEPREFIX"], said)
++        self.assertIn("not an ordinary directory", said)
++
++    def test_the_new_mode_and_owner_checks_refuse_on_their_own(self):
++        """AND THE NEW CHECKS, asked DIRECTLY so they are not dead code.
++
++        `_mount_bound_root` is the function the mount-bound form relies on,
++        and the component guard above would normally refuse first. Driving it
++        directly is how its own mode and object checks are shown to work.
++        """
++        held, _scratch, environment = self.roots()
++        points = self.mounted(environment)
++        place = environment["XDG_CACHE_HOME"]
++        os.chmod(place, 0o755)
++        with self.assertRaises(claude_agent.TaskRefusal) as refused:
++            held._mount_bound_root(place, points, name="XDG_CACHE_HOME")
++        said = str(refused.exception)
++        self.assertIn("XDG_CACHE_HOME", said)
++        self.assertIn("0755", said)
++        os.chmod(place, 0o700)
++        # AND THE MOUNT QUESTION ITSELF, with the name absent from the table.
++        with self.assertRaises(claude_agent.TaskRefusal) as refused:
++            held._mount_bound_root(place, points - {place},
++                                   name="XDG_CACHE_HOME")
++        self.assertIn("not a mount point", str(refused.exception))
++        # AND A LINK, refused by O_NOFOLLOW rather than followed.
++        elsewhere = os.path.join(self.home, "nofollow-target")
++        os.makedirs(elsewhere, exist_ok=True)
++        os.chmod(elsewhere, 0o700)
++        linked = os.path.join(self.home, "nofollow-link")
++        os.symlink(elsewhere, linked)
++        with self.assertRaises(claude_agent.TaskRefusal) as refused:
++            held._mount_bound_root(linked, points | {linked}, name="TMPDIR")
++        self.assertIn("cannot be opened as a directory",
++                      str(refused.exception))
++
++    def test_no_descriptor_leaks_when_a_later_root_refuses(self):
++        """THE UNWIND. A refusal on the fourth root closes the first three."""
++        held, scratch, environment = self.roots()
++        points = self.mounted(environment)
++        os.chmod(environment["XDG_CACHE_HOME"], 0o755)
++        before = len(os.listdir("/proc/self/fd"))
++        self.refused(held, scratch, environment, points=points)
++        self.assertLessEqual(len(os.listdir("/proc/self/fd")), before)
++
++    # -- the post-provider revalidation -------------------------------------
++
++    def test_the_bound_roots_are_revalidated_after_the_provider(self):
++        """BOTH FORMS ARE RE-ASKED, and the bound form passes honestly."""
++        held, scratch, environment = self.roots()
++        pinned, directories = self.bound(held, scratch, environment)
++        points = self.mounted(environment)
++        with mock.patch.object(claude_agent.ClaudeAgent, "_mount_points",
++                               classmethod(lambda cls, place=None: points)):
++            answered = held._revalidated_directories(pinned, directories)
++        self.assertEqual(sorted(answered),
++                         sorted(one for _n, one in directories))
++
++    def test_a_root_unmounted_while_the_provider_ran_refuses(self):
++        """LIFETIME. Non-replaceability expires when the mount goes away.
++
++        This is the exact failure the holder-alias workaround was refused
++        for, asked of the bound form: the object is still open and still
++        correct, and it is no longer protected.
++        """
++        held, scratch, environment = self.roots()
++        pinned, directories = self.bound(held, scratch, environment)
++        points = self.mounted(environment) - {environment["TMPDIR"]}
++        with mock.patch.object(claude_agent.ClaudeAgent, "_mount_points",
++                               classmethod(lambda cls, place=None: points)):
++            with self.assertRaises(claude_agent.TaskRefusal) as refused:
++                held._revalidated_directories(pinned, directories)
++        said = str(refused.exception)
++        self.assertIn("mount point", said)
++        self.assertIn("TMPDIR", said)
++
++    def test_a_root_swapped_for_another_object_after_the_provider_refuses(
++            self):
++        """ANTI-SUBSTITUTION, preserved. The held object decides."""
++        held, scratch, environment = self.roots()
++        pinned, directories = self.bound(held, scratch, environment)
++        points = self.mounted(environment)
++        # THE HELD OBJECT MUST SURVIVE, or the existing `st_nlink == 0`
++        # check refuses first and this case would be measuring that one. So
++        # the original root is RENAMED AWAY -- it keeps a link and the open
++        # descriptor stays valid -- and a surrogate takes its name. That is
++        # the exact substitution the pathname form cannot detect.
++        moved = os.path.join(self.home, "moved-away")
++        os.rename(environment["TMPDIR"], moved)
++        self.addCleanup(shutil.rmtree, moved, True)
++        surrogate = os.path.join(self.home, "swapped")
++        os.makedirs(surrogate, exist_ok=True)
++        os.chmod(surrogate, 0o700)
++        os.rename(surrogate, environment["TMPDIR"])
++        with mock.patch.object(claude_agent.ClaudeAgent, "_mount_points",
++                               classmethod(lambda cls, place=None: points)):
++            with self.assertRaises(claude_agent.TaskRefusal) as refused:
++                held._revalidated_directories(pinned, directories)
++        self.assertIn("different object", str(refused.exception))
++
++    def test_the_descriptor_form_revalidation_is_unchanged(self):
++        """PRESERVED. The old form still validates exactly as it did."""
++        held, scratch, environment = self.roots()
++        pinned, directories = held._pinned_environment(scratch, environment)
++        self.addCleanup(lambda: [os.close(one) for _n, one in directories])
++        answered = held._revalidated_directories(pinned, directories)
++        self.assertEqual(sorted(answered),
++                         sorted(one for _n, one in directories))
++        # AND A MOVED ENVIRONMENT STILL REFUSES.
++        moved = dict(pinned, TMPDIR="/proc/self/fd/99999")
++        with self.assertRaises(claude_agent.TaskRefusal):
++            held._revalidated_directories(moved, directories)

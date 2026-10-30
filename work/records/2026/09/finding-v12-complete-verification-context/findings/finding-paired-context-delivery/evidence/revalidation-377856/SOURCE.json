@@ -1,0 +1,21 @@
+{
+  "observational_only_not_candidate_acceptance": true,
+  "HEAD": "8876bf950ff1f8ab8767ce9786df268cc9d767c6",
+  "sha256": {
+    "v12/python/src/baton_v12/verification_context.py": "f599072ac1202e9b759d9e7850f76c98790e23710cf6181d5a6e8907dd51650e",
+    "v12/python/tests/manager/test_verification_context.py": "42dcbfc99ef97c5191461d901bc32630ac58641c77c73341cae9bea1b0f264ff",
+    "v12/worker/Dockerfile.claude": "a5ef0783770ba44f206a68c71c9570685294f62bde338b69722aada0326f18d0",
+    "v12/.dockerignore": "b7da7ead0d55e0df74be3b2df79d309fd3aa5455967e3a6bc1d705293cb57ca8",
+    "v12/python/tests/manager/test_claude_agent.py": "73ed8797304ba55116573e6802c9617e91033f161fc71dce6adb9bc06085315c",
+    "v12/worker/claude_agent.py": "017257c0cf50f02c01b2174eb7786df073b6bdf81b6819ad1cb4cde034fa57d8",
+    "v12/python/tools/dogfood_operator.py": "a3722e436cf559d8b602259baed9ed8413b8945f4a168485b6efa184740548b1",
+    "v12/worker/baton_worker.py": "6ba71b33a36fb111b7c0ed10ffb3a3b3c7f8a776571dc5c65573ddb48d211c00"
+  },
+  "stage_a_checkpoint_matches": {
+    "v12/python/src/baton_v12/verification_context.py": true,
+    "v12/python/tests/manager/test_verification_context.py": true,
+    "v12/worker/Dockerfile.claude": false,
+    "v12/.dockerignore": true,
+    "v12/python/tests/manager/test_claude_agent.py": false
+  }
+}

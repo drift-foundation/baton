@@ -1,0 +1,11 @@
+{
+  "command": [
+    "/usr/bin/python3",
+    "-m",
+    "unittest",
+    "-f",
+    "tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator"
+  ],
+  "seconds": 4.541447113999311,
+  "status": 1
+}

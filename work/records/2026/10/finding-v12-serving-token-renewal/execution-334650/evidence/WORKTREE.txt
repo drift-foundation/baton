@@ -1,0 +1,43 @@
+ M v12/.dockerignore
+ M v12/python/tests/manager/test_claude_agent.py
+ M v12/worker/Dockerfile.claude
+ M work/records/2026/09/finding-v12-complete-verification-context/findings/finding-paired-context-delivery/FINDING.md
+ M work/records/2026/09/finding-v12-complete-verification-context/findings/finding-paired-context-delivery/PLAN.md
+ M work/records/2026/09/finding-v12-complete-verification-context/findings/finding-paired-context-delivery/PROGRESS.md
+ M work/records/2026/10/finding-v12-native-pilot-instance-packet/FINDING.md
+ M work/records/2026/10/finding-v12-native-pilot-instance-packet/PLAN.md
+ M work/records/2026/10/finding-v12-native-pilot-instance-packet/PROGRESS.md
+?? v12/python/src/baton_v12/verification_context.py
+?? v12/python/tests/manager/test_verification_context.py
+?? work/records/2026/09/finding-v12-complete-verification-context/findings/finding-paired-context-delivery/continuation-329810/
+?? work/records/2026/09/finding-v12-complete-verification-context/findings/finding-paired-context-delivery/continuation-329953/
+?? work/records/2026/09/finding-v12-complete-verification-context/findings/finding-paired-context-delivery/evidence/
+?? work/records/2026/09/finding-v12-complete-verification-context/findings/finding-paired-context-delivery/review-2026-10-19T04-39-20Z.md
+?? work/records/2026/09/finding-v12-complete-verification-context/findings/finding-paired-context-delivery/review-2026-10-19T05-00-43Z.md
+?? work/records/2026/09/finding-v12-complete-verification-context/findings/finding-paired-context-delivery/review-2026-10-19T05-09-37Z.md
+?? work/records/2026/10/finding-v12-attempt-failure-diagnostics/
+?? work/records/2026/10/finding-v12-authoring-expiry-enforcement/FINDING.md
+?? work/records/2026/10/finding-v12-authoring-expiry-enforcement/PLAN.md
+?? work/records/2026/10/finding-v12-authoring-expiry-enforcement/PROGRESS.md
+?? work/records/2026/10/finding-v12-authoring-expiry-enforcement/candidate-333743/
+?? work/records/2026/10/finding-v12-authoring-expiry-enforcement/candidate-333964-final/
+?? work/records/2026/10/finding-v12-authoring-expiry-enforcement/candidate-333964/
+?? work/records/2026/10/finding-v12-authoring-expiry-enforcement/evidence/
+?? work/records/2026/10/finding-v12-authoring-expiry-enforcement/review-2026-10-19T17-18-01Z.md
+?? work/records/2026/10/finding-v12-authoring-expiry-enforcement/review-2026-10-19T17-25-12Z.md
+?? work/records/2026/10/finding-v12-authoring-expiry-enforcement/verification-333743/
+?? work/records/2026/10/finding-v12-authoring-expiry-enforcement/verification-333964/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/OWNER-FAILURE-EVIDENCE-20261019.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/review-328668/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/review-329628/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/review-329651/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/review-329774/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/recovery-5/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-19T02-33-30Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-19T04-20-52Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-19T04-24-06Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-19T04-27-19Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-19T04-30-14Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-19T04-37-09Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-19T16-17-06Z.md
+?? work/records/2026/10/finding-v12-serving-token-renewal/

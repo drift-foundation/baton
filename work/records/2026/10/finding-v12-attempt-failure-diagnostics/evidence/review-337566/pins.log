@@ -1,0 +1,4 @@
+inputs verified against fb48797903160aa764229d58f3a5beaf29648bfc: 113 manager files, 3 supervisor files, 2 preparation inputs, 15 task inputs, 11 decision snapshots, 4 checkout documents, 1 pinned authoring controller, 2 gate modules still owed
+no decision-source drift: every live source still matches its snapshot
+
+START IS NOT SELECTED -- see ENFORCEMENT.md. The enforcement prerequisite is CLOSED; what remains is independent preparation review and then an exact execution selection. Use packet/AUTHORING-COMMAND.json, never commands.json start.

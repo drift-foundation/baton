@@ -1,0 +1,18 @@
+{
+  "same_template": true,
+  "same_submission": true,
+  "before_provider_seconds": 3600,
+  "after_provider_seconds": 7200,
+  "saved_resolution_consumption": {
+    "refused": true,
+    "message": "this resolution reports the ceilings of compatibility generation 1 and the Job would be admitted under generation 2; a resolution that describes a Job the store would configure differently is refused rather than consumed, and re-resolving the request answers for generation 2. Nothing has been submitted"
+  },
+  "re_resolved_submitted_provider_seconds": 7200,
+  "re_resolved_reported_provider_seconds": 7200,
+  "public_template_lookup_assignment": "TypeError: 'mappingproxy' object does not support item assignment",
+  "delivers_after_attempted_mutation": "proposal",
+  "work_scope": [
+    "v12/python/src/baton_v12/job_manager/templates.py"
+  ],
+  "test_scope_in_submission": []
+}

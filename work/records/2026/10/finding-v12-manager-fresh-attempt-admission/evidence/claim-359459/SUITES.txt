@@ -1,0 +1,10 @@
+# whole job_manager suite (candidate-359459)
+ERROR: test_the_native_factory_delivers_the_policy_to_both_stage_workers (tests.job_manager.test_native_permission.NativeStageComposition.test_the_native_factory_delivers_the_policy_to_both_stage_workers)
+Ran 1084 tests in 14.964s
+FAILED (errors=1)
+
+# tests.tools.test_bootstrap + test_scheduler_trace + test_single_worker: Ran 522 in 91.998s
+#   one failure, test_single_worker...test_a_real_observing_status_run_mutates_no_durable_state,
+#   reproduced identically on the canonical tree at HEAD (see PREEXISTING-SINGLE-WORKER.txt)
+# tests.tools.test_stage_execution: Ran 477 tests in 252.127s / OK
+# four inventory suites: 116 failures, identical to the canonical base; comm -13 empty

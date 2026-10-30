@@ -1,0 +1,114 @@
+{
+  "root": "/tmp/w333486-review-334776-9_o7_umg/root",
+  "runs": [
+    {
+      "label": "pins",
+      "argv": [
+        "python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-attempt-failure-diagnostics/execution-334663/verify-inputs.py"
+      ],
+      "status": 0,
+      "seconds": 0.11771523199786316
+    },
+    {
+      "label": "unselected-refusal",
+      "argv": [
+        "python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-attempt-failure-diagnostics/execution-334663/prepare.py",
+        "stage",
+        "--root",
+        "/tmp/w333486-review-334776-9_o7_umg/root"
+      ],
+      "status": 1,
+      "seconds": 0.04751292999935686
+    },
+    {
+      "label": "stage",
+      "argv": [
+        "python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-attempt-failure-diagnostics/execution-334663/prepare.py",
+        "stage",
+        "--root",
+        "/tmp/w333486-review-334776-9_o7_umg/root",
+        "--acknowledge-unselected-start"
+      ],
+      "status": 0,
+      "seconds": 0.11710151200168184
+    },
+    {
+      "label": "bootstrap",
+      "argv": [
+        "python3",
+        "-B",
+        "-m",
+        "tools.bootstrap",
+        "--inputs",
+        "/tmp/w333486-review-334776-9_o7_umg/root/bootstrap-inputs.json",
+        "--destination",
+        "/tmp/w333486-review-334776-9_o7_umg/root/instance",
+        "--distro",
+        "/home/sl/baton-runs/managed-correction-236087/build/stack/out/distro",
+        "--no-repositories"
+      ],
+      "status": 0,
+      "seconds": 0.6017994709982304
+    },
+    {
+      "label": "bind",
+      "argv": [
+        "python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-attempt-failure-diagnostics/execution-334663/prepare.py",
+        "bind",
+        "--root",
+        "/tmp/w333486-review-334776-9_o7_umg/root"
+      ],
+      "status": 0,
+      "seconds": 0.3576279789995169
+    },
+    {
+      "label": "controller",
+      "argv": [
+        "python3",
+        "-B",
+        "-c",
+        "import json,sys,baseline; from tools import authoring_enforcement as a; p=baseline.held_packet(sys.argv[1]); baseline.verify_imported_sources(p);a.verify_controller(p);print('controller and imported source pins accepted')",
+        "/tmp/w333486-review-334776-9_o7_umg/root/packet/PACKET.json"
+      ],
+      "status": 0,
+      "seconds": 0.3288261260022409
+    }
+  ],
+  "seconds": 1.57058324999889,
+  "manifest_sha256": "380ea20addd910cfadd1a6f817d1b8623f8a2dddc5559c24b5976207eaf4985d",
+  "prepared": {
+    "artifacts": {
+      "PACKET.json": "05abd5b8399729e79be52a8312ed6152757ad2e9a333aa6e95168d80da42acee",
+      "adapter.json": "cbe3bb4ade990eb5411c64a40be74a10e46a79f48343c499b5f1a8453fabc9c7",
+      "commands.json": "43eb05da5c14ac6bf03973ebfb3166b6bedee1b6c3750df3b4c3185cb2ab44ec",
+      "deployment.json": "059e5cf0850d6cf516a2f1d1d6106189828dde7ef25ca7a649d37e8377a48df4",
+      "policy.json": "2b75b8208cd288418ea5a9af8ece0c443abdaa19fda80a1ea2725e43fdbc306c",
+      "runtime-profile.json": "70ca07c494c9660bfaf747772f2233ccaf77b4ef3a4da90c26121b7b59ff1d34",
+      "submission.json": "619f084f475c7dfe1b4bc2515892bb73a8b35ed267f5cff5b8a6dd97bd86832c",
+      "task.json": "3b22be10fc5bbfc7446681180ddc3ba2a2213223a141e1d0a98936e2c6d340ff"
+    },
+    "authoring_command": "/tmp/w333486-review-334776-9_o7_umg/root/packet/AUTHORING-COMMAND.json",
+    "authoring_controller": {
+      "relative": "tools/authoring_enforcement.py",
+      "sha256": "2da6eb36b398d730c8cc07a9df0b604de678a3fd994d5019097fa023addfb88f",
+      "staged": "/tmp/w333486-review-334776-9_o7_umg/root/code/v12/python/tools/authoring_enforcement.py"
+    },
+    "authority_uuid": "86b3f9e32ac0407a8be5d1f013388ded",
+    "composer_start_is_unenforced": true,
+    "enforcement": "ENFORCEMENT.md",
+    "independent_review": "an independent reviewer consumes this preparation packet through v11; execution awaits an exact separate selection, and there is no automatic acceptance",
+    "packet_sha256": "05abd5b8399729e79be52a8312ed6152757ad2e9a333aa6e95168d80da42acee",
+    "start_authorized": false,
+    "start_selected": false,
+    "state": "prepared-not-executed",
+    "work": "W333486"
+  }
+}

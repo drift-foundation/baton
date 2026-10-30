@@ -1,0 +1,34 @@
+REVIEW R10: admission may not release another owner's lifetime. ... ok
+test_a_borrowed_guard_survives_an_admission_that_fails (tests.job_manager.test_fresh_attempt.TheForkedChildIsNotStuck.test_a_borrowed_guard_survives_an_admission_that_fails) ... ok
+test_a_child_forked_while_the_mutex_is_held_can_still_borrow (tests.job_manager.test_fresh_attempt.TheForkedChildIsNotStuck.test_a_child_forked_while_the_mutex_is_held_can_still_borrow)
+THE REVIEWER'S BOUNDED PROBE, as a case. ... /home/sl/w359719-tree/v12/python/tests/job_manager/test_fresh_attempt.py:2487: DeprecationWarning: This process (pid=269976) is multi-threaded, use of fork() may lead to deadlocks in the child.
+  child = os.fork()
+ok
+test_a_child_inherits_no_holder_count (tests.job_manager.test_fresh_attempt.TheForkedChildIsNotStuck.test_a_child_inherits_no_holder_count) ... ok
+test_a_manager_already_holding_this_instance_refuses (tests.job_manager.test_fresh_attempt.TheForkedChildIsNotStuck.test_a_manager_already_holding_this_instance_refuses)
+THE EXCLUSION, driven: a second holder is denied, not queued. ... ok
+test_the_guard_is_released_when_the_admission_finishes (tests.job_manager.test_fresh_attempt.TheForkedChildIsNotStuck.test_the_guard_is_released_when_the_admission_finishes) ... ok
+test_the_guard_is_taken_from_the_instance_s_own_configuration (tests.job_manager.test_fresh_attempt.TheForkedChildIsNotStuck.test_the_guard_is_taken_from_the_instance_s_own_configuration) ... ok
+test_two_invocations_of_one_identity_cannot_overlap (tests.job_manager.test_fresh_attempt.TheForkedChildIsNotStuck.test_two_invocations_of_one_identity_cannot_overlap)
+R8 AT THE REAL LOCK, in two real processes. ... ok
+test_a_changed_request_refuses_before_any_other_owner_is_touched (tests.job_manager.test_fresh_attempt.TheJobStoreBelongsToTheInstance.test_a_changed_request_refuses_before_any_other_owner_is_touched)
+REVIEW R4: no Work is minted for an operation nobody admitted. ... ok
+test_a_fresh_attempt_is_admitted_bound_and_selectable (tests.job_manager.test_fresh_attempt.TheJobStoreBelongsToTheInstance.test_a_fresh_attempt_is_admitted_bound_and_selectable)
+THE WHOLE OUTCOME, with nothing between the parts faked. ... ok
+test_a_mismatched_submitted_input_refuses_before_admission (tests.job_manager.test_fresh_attempt.TheJobStoreBelongsToTheInstance.test_a_mismatched_submitted_input_refuses_before_admission)
+R3's case: the specification, not a worker compared with itself. ... ok
+test_a_selected_fresh_work_is_created_and_then_cannot_be_served (tests.job_manager.test_fresh_attempt.TheJobStoreBelongsToTheInstance.test_a_selected_fresh_work_is_created_and_then_cannot_be_served)
+WHY REUSING THE PRIOR WORK IS THE DEFAULT, measured. ... ok
+test_another_instance_s_ports_cannot_admit_this_store_s_job (tests.job_manager.test_fresh_attempt.TheJobStoreBelongsToTheInstance.test_another_instance_s_ports_cannot_admit_this_store_s_job) ... ok
+test_the_whole_thing_replays (tests.job_manager.test_fresh_attempt.TheJobStoreBelongsToTheInstance.test_the_whole_thing_replays) ... /home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/jsonschema/_keywords.py:282: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7cc34e1f1e40>
+  def type(validator, types, instance, schema):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_this_instance_s_own_store_still_admits (tests.job_manager.test_fresh_attempt.TheJobStoreBelongsToTheInstance.test_this_instance_s_own_store_still_admits) ... ok
+test_two_real_connections_cannot_fork_one_failure (tests.job_manager.test_fresh_attempt.TheJobStoreBelongsToTheInstance.test_two_real_connections_cannot_fork_one_failure)
+REVIEW R2's OWN PROBE, as a case. ... ok
+
+----------------------------------------------------------------------
+Ran 25 tests in 4.554s
+
+OK

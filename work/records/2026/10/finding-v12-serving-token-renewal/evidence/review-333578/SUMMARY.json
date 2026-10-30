@@ -1,0 +1,8 @@
+{
+  "manifest_sha256": "96e8d690fc03ff37246b17d5fb88854bf0d403182fd3d97e2fcd4fd02cfc3b10",
+  "manifest_members": 56,
+  "preparation_checks": 9,
+  "seconds": 2.7427920539994375,
+  "execution": "not-started",
+  "finding": "staged baseline serve call omits reclaim callback; no independent900-second host enforcement established"
+}

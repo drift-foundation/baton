@@ -1,0 +1,37 @@
+{
+  "environment": {
+    "BATON_V12_STAGE_EXECUTION_CONFIG": "/tmp/w333485-preflight-bq4_l1bg/instance-root/packet/deployment.json",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/tmp/w333485-preflight-bq4_l1bg/instance-root/code/v12/python/src:/tmp/w333485-preflight-bq4_l1bg/instance-root/code/v12/python:/tmp/w333485-preflight-bq4_l1bg/instance-root/supervisor"
+  },
+  "outcome": "/tmp/w333485-preflight-bq4_l1bg/instance-root/packet/outcome.json",
+  "schema": "baton.single-implementation-commands/1",
+  "start": [
+    "/usr/bin/python3",
+    "-B",
+    "-m",
+    "tools.authoring_enforcement",
+    "--packet",
+    "/tmp/w333485-preflight-bq4_l1bg/instance-root/packet/PACKET.json"
+  ],
+  "status": [
+    "/usr/bin/python3",
+    "-B",
+    "-m",
+    "tools.stack_command",
+    "manager",
+    "--store",
+    "/tmp/w333485-preflight-bq4_l1bg/instance-root/instance/db/jobs.sqlite3",
+    "--incarnation",
+    "serving-renewal-w333485-334650-read",
+    "--authority-uuid",
+    "1e06cc08888940028b4dc831f421351e",
+    "status",
+    "--control",
+    "/tmp/w333485-preflight-bq4_l1bg/instance-root/instance/db/control.sqlite3",
+    "--observe",
+    "tools.stage_execution:observing_factory"
+  ],
+  "submission_owner": "start; do not also submit manually",
+  "termination": "SIGINT/SIGTERM to the exact outer controller requests cancellation; unknown cessation holds; restart is recovery only, never another author invocation"
+}

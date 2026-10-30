@@ -1,0 +1,63 @@
+{
+  "claim": 353809,
+  "commit": "d6881d8adbd567b6e92a4a2a1d0cb68ee781f70a",
+  "candidate_checks": [
+    {
+      "path": "v12/python/tests/tools/next_run_flow_fixture.py",
+      "expected": "74f787ba822d4a90ab99624616506a216b1cb086c6c8dcf8f1f92819c41bf14b",
+      "commit_sha256": "74f787ba822d4a90ab99624616506a216b1cb086c6c8dcf8f1f92819c41bf14b",
+      "tree_sha256": "74f787ba822d4a90ab99624616506a216b1cb086c6c8dcf8f1f92819c41bf14b"
+    },
+    {
+      "path": "v12/python/tests/tools/test_next_run_flow.py",
+      "expected": "60a81c4e57d869ab3c4771cdecc8da9ac25a32605631ea799bd564ecde6effb0",
+      "commit_sha256": "60a81c4e57d869ab3c4771cdecc8da9ac25a32605631ea799bd564ecde6effb0",
+      "tree_sha256": "60a81c4e57d869ab3c4771cdecc8da9ac25a32605631ea799bd564ecde6effb0"
+    },
+    {
+      "path": "v12/python/tests/tools/test_next_run_managed.py",
+      "expected": "1a6cb8a25ede87636a50bc19fbfc677891283e80e3fd2a4557337a46459b81cc",
+      "commit_sha256": "1a6cb8a25ede87636a50bc19fbfc677891283e80e3fd2a4557337a46459b81cc",
+      "tree_sha256": "1a6cb8a25ede87636a50bc19fbfc677891283e80e3fd2a4557337a46459b81cc"
+    },
+    {
+      "path": "v12/python/tools/next_run_confinement.py",
+      "expected": "da028659e4b84e7a503b49b7a7e1a9ae5721fffbb41df31e75cca1afb439aa52",
+      "commit_sha256": "da028659e4b84e7a503b49b7a7e1a9ae5721fffbb41df31e75cca1afb439aa52",
+      "tree_sha256": "da028659e4b84e7a503b49b7a7e1a9ae5721fffbb41df31e75cca1afb439aa52"
+    }
+  ],
+  "source_hashes": {
+    "/opt/baton-next-run/code/tools/next_run_confinement.py": "317414e0246818f4507e5c3ab907e03b149151a9bb42acf2bf1b9ec9772b469e",
+    "/opt/baton-next-run/code/tools/next_run_recovery.py": "59502d0ea24707f211f8fc47bd07b3847a373de48da12939a8e93920cbc506f9",
+    "v12/python/tools/next_run_recovery.py": "59502d0ea24707f211f8fc47bd07b3847a373de48da12939a8e93920cbc506f9",
+    "v12/python/tools/next_run_managed.py": "b4e6261a6a56086fb4eabcc292713ce21ad0dabcac9a7d1f1ac1562895ae76a9",
+    "v12/python/src/baton_v12/worker_manager/attempts.py": "5c3cf84641bcbef5fcf78c4bd058911dfc233b60242920ab30ebf6ce54fcdc7d"
+  },
+  "retained_report_sha256": "da6fcb30bac7aff9d4f4299e85d24381c4fe4f6ac1a5566e111183a590d5fe10",
+  "retained_run": "w339626-live-345599",
+  "retained_attempt": "attempt-39ea7bcd743ef31185056766496bd0e72f2fc815fa75fbf73a32d10b0347a8a4",
+  "retained_uid997_processes": [],
+  "retained_engine_observation": {
+    "argv": [
+      "docker",
+      "ps",
+      "-a",
+      "--no-trunc",
+      "--filter",
+      "label=baton.v12.runtime_attempt_id=attempt-39ea7bcd743ef31185056766496bd0e72f2fc815fa75fbf73a32d10b0347a8a4",
+      "--format",
+      "{{json .}}"
+    ],
+    "exit": 0,
+    "containers": [],
+    "stderr_summary": {
+      "redacted_text_length": 0,
+      "exception_classes": [],
+      "errno": [],
+      "traceback_frames": []
+    }
+  },
+  "limitations": "Historical process/engine snapshot, not current cessation. No operational store read or product execution.",
+  "static_check_seconds": 0.0060207789993000915
+}

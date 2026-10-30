@@ -1,0 +1,71 @@
+{
+  "source": {
+    "root": "/tmp/w370688-f36bcd75-l1pmaqbu",
+    "commit": "f36bcd75ed22430355efe1b274b8f236cb591f6b",
+    "selected": "f36bcd75ed22430355efe1b274b8f236cb591f6b",
+    "at_selected_commit": true,
+    "verification": "every selected blob independently checked against committed tree"
+  },
+  "runtime_archive": {
+    "archive": "/tmp/w370688-f36bcd75-l1pmaqbu/work/records/2026/10/finding-v12-template-job-creation/findings/finding-packaged-template-creation/evidence/review-366382/verified-first-build.tar.gz",
+    "archive_sha256": "1da85eed0a3a19a5da0b83253abbbb40ebeed01bfe90ee05a10055dec0057125",
+    "files_in_archive": 81,
+    "pinned_folder_digest": "0b7bc59213605489319e973a6a6cdf285c76513a00f75bf5e05d669df88beefd",
+    "pinned_build_stamp": "18e771f0 dirty -- disclosed, never relabelled",
+    "verified_by": "digest now; the folder digest is verified when `materialize` extracts it"
+  },
+  "archive_single_worker_member": [],
+  "archive_single_worker_sha256": null,
+  "selected_single_worker_sha256": "29e569365e182f70372938c65115c1ff813e6b3105781733c24eb34cda924971",
+  "matches_selected_single_worker": null,
+  "policy_comparison": {
+    "credential_policy_digest": {
+      "old": "5399f947126ec7d031bced5895076657d24be21443e6db0c9ec86b51b14a9877",
+      "new": "de41b1520fa2584a62be04073b5de5662281bb2cb9a1571dce61fb1634ad050d",
+      "unchanged": false
+    },
+    "mount_policy_digest": {
+      "old": "40bbe54bfd29865a5c8d3319b6cc019ae23e2005ce9d733aa3cbb5db223ce49d",
+      "new": "c8852934329b0a25f34d2fbcce0d1930dd0138e4ccaa4292fbe3c20a5d4bb0a3",
+      "unchanged": false
+    },
+    "network_policy_digest": {
+      "old": "fd23b28efadbe648ac43b0a1324de3dc5bfe873adfaa2c0d0ec60a777e3d9014",
+      "new": "31fe791226ace829062d934164bd94783d6d6fe75f65e0c042a5d5ec9dc8e706",
+      "unchanged": false
+    },
+    "resource_policy_digest": {
+      "old": "eb99686f18e73701aa7db25b2f0c6e3044fb94e583d290e9b2c7a018bd27952c",
+      "new": "d776d56ac5b77867e70c5c2881b712e53b0eadc1bbfc14643510bc76810c7127",
+      "unchanged": false
+    },
+    "role_instructions_digest": {
+      "old": "8ac96cb65d446a41a570a9ffa499ba955aa9e8d137bbbed7356fbd2d68ae04e5",
+      "new": "f1a95b243fa1fa3464d14dd9e05d77b82ed8fd7797dc7fc96b9558344d202edb",
+      "unchanged": false
+    },
+    "tool_policy_digest": {
+      "old": "eabb731948b1391bec7ef0c95035710ab4cef6c145b783e7f77765c4347051d6",
+      "new": "56352093d95bc3cb76e849f77b8c7a06b0b4b92004483f0a5412b67f69eb30f7",
+      "unchanged": false
+    },
+    "toolchain_digest": {
+      "old": "25920341783793832dc76dc14c2e67ba09b768737700b70122181da6eabe6507",
+      "new": "918a426e3709c66492d85c84bbe02f054e0590bbd2e193441c9dc3c70944d4f4",
+      "unchanged": false
+    }
+  },
+  "worker_image": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2",
+  "worker_image_equivalence": "not inspected; not certified",
+  "prerequisite": "Before future operation, select/build and independently qualify a manager package containing selected source monitoring fix and establish exact worker image/adapter compatibility. This Work builds nothing.",
+  "packaged_build_stamp": {
+    "changed_entries": 418,
+    "commit": "18e771f034d22fed40ae4c597aa606f50c169daa",
+    "detail": null,
+    "dirty": true,
+    "excused_build_output": 0,
+    "schema": "baton.v12.build-stamp/1",
+    "source": "/home/sl/src/baton/.w366250-build"
+  },
+  "archive_comparison_limit": "Frozen executable has no standalone tools/single_worker.py member; direct source equality cannot be established by tar member comparison. Old build stamp is not selected-source provenance."
+}

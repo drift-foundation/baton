@@ -1,0 +1,83 @@
+{
+  "agrees_with_reviewer_digests": true,
+  "attempt": "attempt-784e7bd67b43ccab28b62f242281f716fc068ec30a87f4490fd910eca51086c4",
+  "base": "bc925cf5c62d69426ed5862af4d41f4d2a967b0f",
+  "candidate_content_digest": "sha256:59d666d9131eb3de7aec669eafc9be1a2dbb7c8c6a0ff8d60770b7d32109f854",
+  "candidate_patch": {
+    "bytes": 221732,
+    "relative": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/recovery-345822/candidate.patch",
+    "sections": 11,
+    "sha256": "294368c55fd468a95a4375c250e560def0f4cbc0a0c8a2a3a6f2658732e83856"
+  },
+  "changed_paths": [
+    "W341357-VERIFICATION.json",
+    "v12/python/src/baton_v12/worker_manager/attempts.py",
+    "v12/python/src/baton_v12/worker_manager/documents.py",
+    "v12/python/src/baton_v12/worker_manager/failure_cause.py",
+    "v12/python/src/baton_v12/worker_manager/intake.py",
+    "v12/python/tests/manager/disk_roots.py",
+    "v12/python/tests/manager/input_roots.py",
+    "v12/python/tests/manager/test_attempt_failure_cause.py",
+    "v12/python/tests/manager/test_intake.py",
+    "v12/python/tests/manager/test_maintenance.py",
+    "v12/python/tests/manager/test_output.py"
+  ],
+  "derived_by": "baton.claude, claim347396, read-only from work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/evidence/run-345822",
+  "derived_how": "candidate-change.patch copied VERBATIM. No hunk edited, reordered or regenerated. Verified against its source and against the reviewer's independently published digest, and the patch sections checked to name exactly the result document's own changed_paths.",
+  "head": "e9d292ede76ac4f93d4761e32779f0ea9f207648",
+  "reviewer_published_digests": {
+    "candidate_content": "59d666d9131eb3de7aec669eafc9be1a2dbb7c8c6a0ff8d60770b7d32109f854",
+    "candidate_objects_bundle": "806ef4006de0591755cf502bbdc2d2e743c79155a4ab115ffd5128abbcd41ec2",
+    "candidate_patch": "294368c55fd468a95a4375c250e560def0f4cbc0a0c8a2a3a6f2658732e83856"
+  },
+  "reviewer_published_in": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/review-2026-10-21T15-30-10Z.md",
+  "run": "durable-capture-w341357-345822",
+  "schema": "baton.w341357-recovery/3",
+  "status": "NOTHING IN THESE BYTES IS ACCEPTED. A passing gate is not acceptance.",
+  "transport_not_pinned": {
+    "file": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/evidence/run-345822/candidate-objects.bundle",
+    "sha256": "806ef4006de0591755cf502bbdc2d2e743c79155a4ab115ffd5128abbcd41ec2",
+    "why": "the TRANSPORT, recorded by digest and locator for provenance. Deliberately NOT a task input: this campaign creates no version-control object on this host and prepare.py still refuses a declared restored buffer."
+  },
+  "what": "THE EXACT RETAINED CANDIDATE from run durable-capture-w341357-345822 -- THE FIRST IN THIS CAMPAIGN WHOSE GATE PASSES. Sealed adapter gate: 864 tests, 12.631s, OK, exit 0, no skips. RETAINED AND STILL UNACCEPTED: review-2026-10-21T15-30-10Z.md withheld product acceptance on two producer defects.",
+  "what_is_NOT_accepted": {
+    "R1": "failure_cause.py:525-544 value-deduplicates every historical revision, so a fresh A->B->A settlement observation equal to revision 0 is discarded as a replay and the reader keeps answering the uncertain revision 1. _same_account compares FACTS, not an observation identity.",
+    "R2": "intake.py:5771-5775, 5788-5792 and the unresolved/positive/settlement branches DISCARD record_cessation_outcome's degradation return, so a post-intent outcome-write failure returns the ordinary result and the durable record silently loses the known fact. The contract already exists and is honoured elsewhere -- intake.py:5710-5711, 6058-6059 and attempts.py:3647 set answer[\"diagnostic_degradation\"].",
+    "R2_phrasing": "failure_cause.py:733-734 returns a phrase recording_degraded() does not test, so that one recording failure is invisible to the classifier.",
+    "status": "STATIC TRACES, code-derived, NOT host-executed reproductions. Producing the deterministic reproductions is the turn's first job."
+  },
+  "what_these_bytes_already_establish": {
+    "base_comparison": "the four modules both trees share give 801 tests with 2 failures AT THE PINNED BASE; the candidate adds 63 tests and changes no other outcome. Those 2 were an umask-dependent FIXTURE precondition and are fixed.",
+    "evidence_report": {
+      "path": "W341357-VERIFICATION.json",
+      "sha256": "a5b69ad30c2fc0be5c4c6dcb81daebba878a51d02e452ddf62d1dd3c179bc703",
+      "status": "EVIDENCE ONLY, excluded from any later product import",
+      "travels_in": "the candidate patch, as a changed path"
+    },
+    "fixture_work_to_PRESERVE": [
+      "realpath compatibility",
+      "six explicit cleanup-before-setup sites in test_intake",
+      "three ExitStack-scoped case cleanup registrations in test_maintenance",
+      "two explicit result-root ownership/mode preconditions",
+      "the existing empty-stdout child diagnostic"
+    ],
+    "sealed_adapter_gate": {
+      "ceiling_seconds": 30,
+      "exit_status": 0,
+      "seconds": 12.631,
+      "skips": 0,
+      "tests": 864,
+      "verdict": "OK"
+    },
+    "storage": "gate /tmp high-water 13303808 -> 2437120 bytes (81.7%), inodes 326 -> 63. Measured pressure reduction, NOT a retrospective proof of which mount filled run345388.",
+    "worker_in_turn_gate": {
+      "errors": 0,
+      "failures": 0,
+      "note": "a separate measurement of the same argv, not an independent repetition",
+      "skips": 0,
+      "tests": 864,
+      "unittest_seconds": 11.398,
+      "wall_seconds": 11.604
+    }
+  }
+}

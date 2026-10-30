@@ -1,0 +1,159 @@
+{
+ "authorization": {
+  "command": "python3 -B work/records/2026/10/finding-v12-verifier-descriptor-descendants/preparation-377003/packet.py run --owner-selected --selection-sha256 48bf5fc7a890c652f3a64f817b25279113e7617b85c3e2f59df812fe677753b2",
+  "invocations": 1,
+  "owner": "baton.slaw",
+  "owner_selection_seq": 377680,
+  "packet_sha256": "cdfd88a8cce5191251bae49a0ce28034a1cb2f69936eb659b1e03dbd6762dc53",
+  "retries": 0,
+  "selection_sha256": "48bf5fc7a890c652f3a64f817b25279113e7617b85c3e2f59df812fe677753b2"
+ },
+ "boundaries": {
+  "build": false,
+  "credentials": false,
+  "engine_invocations": 9,
+  "git_mutation": false,
+  "host_binds": false,
+  "network": "none",
+  "product_source_change": false,
+  "provider": false,
+  "pull": "never",
+  "rebuild": false,
+  "retry": false
+ },
+ "claim": 377728,
+ "engine_calls": [
+  {
+   "phase": "preflight",
+   "status": 1,
+   "verb": "inspect"
+  },
+  {
+   "phase": "create",
+   "status": 0,
+   "verb": "create"
+  },
+  {
+   "phase": "acquire-created",
+   "status": 0,
+   "verb": "inspect"
+  },
+  {
+   "phase": "start",
+   "status": 0,
+   "verb": "start"
+  },
+  {
+   "phase": "receipt",
+   "status": 0,
+   "verb": "logs"
+  },
+  {
+   "phase": "receipt",
+   "status": 0,
+   "verb": "logs"
+  },
+  {
+   "phase": "running",
+   "status": 0,
+   "verb": "inspect"
+  },
+  {
+   "phase": "remove",
+   "status": 0,
+   "verb": "rm"
+  },
+  {
+   "phase": "confirm-absence",
+   "status": 1,
+   "verb": "inspect"
+  }
+ ],
+ "inspection_classifications": [
+  {
+   "classification": "absent",
+   "phase": "preflight",
+   "reason": "exact-no-such-object",
+   "status": 1
+  },
+  {
+   "classification": "present",
+   "phase": "acquire-created",
+   "reason": "exact-object",
+   "status": 0
+  },
+  {
+   "classification": "present",
+   "phase": "running",
+   "reason": "exact-object",
+   "status": 0
+  },
+  {
+   "classification": "absent",
+   "phase": "confirm-absence",
+   "reason": "exact-no-such-object",
+   "status": 1
+  }
+ ],
+ "integrity_after_the_run": {
+  "packet_pins": "10/10 match",
+  "preserved_inputs": "42/42 match",
+  "receipt_guard": "packet.py check now raises 'successor receipt already used; no retry'"
+ },
+ "outcome": {
+  "cleanup_status": 0,
+  "container_id": "f901652af7aca4262d4de13ad5ad1be6dde77e414b37d152730e016f526e9667",
+  "create_intent": true,
+  "elapsed_seconds": 0.7101453889990808,
+  "errors": [],
+  "exact_absence": true,
+  "owned": true,
+  "proof_observed": true,
+  "provider_invoked": false,
+  "state": "finished",
+  "success": true
+ },
+ "payload": {
+  "capacity": {
+   "HOME": {
+    "bytes_written": 4190208,
+    "configured_bytes": 4194304,
+    "errno": "ENOSPC"
+   },
+   "PYTHONPYCACHEPREFIX": {
+    "bytes_written": 7520256,
+    "configured_bytes": 8388608,
+    "errno": "ENOSPC"
+   },
+   "TMPDIR": {
+    "bytes_written": 16773120,
+    "configured_bytes": 16777216,
+    "errno": "ENOSPC"
+   },
+   "XDG_CACHE_HOME": {
+    "bytes_written": 4190208,
+    "configured_bytes": 4194304,
+    "errno": "ENOSPC"
+   }
+  },
+  "capacity_enospc": "passed",
+  "descendant_started": 9,
+  "image_bytes": "passed",
+  "mount_binding": "passed",
+  "nested_validator": "passed",
+  "ordinary_grandchild": "passed",
+  "product_mount_checks": "passed"
+ },
+ "pre_run_check": {
+  "engine_invoked": false,
+  "packet_sha256": "cdfd88a8cce5191251bae49a0ce28034a1cb2f69936eb659b1e03dbd6762dc53",
+  "receipt_unused": true,
+  "selection_sha256": "48bf5fc7a890c652f3a64f817b25279113e7617b85c3e2f59df812fe677753b2"
+ },
+ "receipt": {
+  "bytes": 15152,
+  "path": "preparation-377003/ENGINE-RECEIPT/state.json",
+  "sha256": "992a374394a43d9ced6e7edc10d2ce97f1e3c2e25ae97d1a97fac3de3be29123"
+ },
+ "work": "2b077949-W325695"
+}

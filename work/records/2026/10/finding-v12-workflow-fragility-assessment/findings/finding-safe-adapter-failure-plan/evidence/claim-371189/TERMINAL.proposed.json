@@ -1,0 +1,21 @@
+{
+  "adapter_failure": {
+    "code": "other-role-output-required",
+    "component": "role-adapter",
+    "operation": "work",
+    "operation_id": "work:attempt-synthetic-371189",
+    "role": "implementation"
+  },
+  "answered": [
+    "describe"
+  ],
+  "attempt_id": "attempt-synthetic-371189",
+  "command_digest": "sha256:a61517d57dd502688440b52dc3a722828d41e7b10f357c3b0ec260cb6e5bb591",
+  "disposition": null,
+  "ending": "faulted",
+  "fault_code": "agent",
+  "manifest_digest": null,
+  "schema": "baton.worker-exchange.terminal/2",
+  "sequence_id": "sequence-800f1799258c64ace259dc380271b038",
+  "session": "session-synthetic-371189"
+}

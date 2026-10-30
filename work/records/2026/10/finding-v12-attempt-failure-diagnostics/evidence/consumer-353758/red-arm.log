@@ -1,0 +1,36 @@
+FF.........................
+======================================================================
+FAIL: test_EVERY_absent_record_the_PRODUCER_composes_reaches_the_report (tests.tools.test_attempt_diagnostics.RealStatusReportSeam.test_EVERY_absent_record_the_PRODUCER_composes_reaches_the_report)
+W333486 claim353758: the report's names held against the producer's.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353758/red/v12/python/tests/tools/test_attempt_diagnostics.py", line 335, in test_EVERY_absent_record_the_PRODUCER_composes_reaches_the_report
+    self.assertEqual(tuple(row["absent_records"] or ()), tuple(produced))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('att[59 chars]tion') != ('att[59 chars]tion', 'resource-token.revoked', 'runtime.star[35 chars]led')
+
+Second tuple contains 3 additional elements.
+First extra element 2:
+'resource-token.revoked'
+
+- ('attempt.cessation-*:settlement', 'attempt.cessation-*:cancellation')
++ ('attempt.cessation-*:settlement',
++  'attempt.cessation-*:cancellation',
++  'resource-token.revoked',
++  'runtime.start-failed',
++  'runtime.preparation-failed')
+
+======================================================================
+FAIL: test_an_absent_record_the_report_does_NOT_own_is_still_dropped (tests.tools.test_attempt_diagnostics.RealStatusReportSeam.test_an_absent_record_the_report_does_NOT_own_is_still_dropped)
+The allowlist stays POSITIVE: recognition widened, not removed.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353758/red/v12/python/tests/tools/test_attempt_diagnostics.py", line 350, in test_an_absent_record_the_report_does_NOT_own_is_still_dropped
+    self.assertNotIn("attempt.start-failed", reported)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'attempt.start-failed' unexpectedly found in ('attempt.cessation-*:settlement', 'attempt.cessation-*:cancellation', 'attempt.start-failed')
+
+----------------------------------------------------------------------
+Ran 27 tests in 0.103s
+
+FAILED (failures=2)

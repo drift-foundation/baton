@@ -1,0 +1,69 @@
+{
+  "boundary": "a child process spawned with the controller's exact cwd, PYTHONPATH and BATON_V12_STAGE_EXECUTION_CONFIG, calling the staged controller's own bounded_engine. The engine call is therefore a grandchild of this process, which is the depth the real run uses.",
+  "child": {
+    "controller_file": "/home/sl/baton-instances/durable-capture-w341357-341637/code/v12/python/tools/authoring_enforcement.py",
+    "engine_entry": "tools.authoring_enforcement.bounded_engine -> single_worker._engine_run -> subprocess.run",
+    "probes": [
+      {
+        "argv": [
+          "docker",
+          "version",
+          "--format",
+          "{{json .}}"
+        ],
+        "probe": "engine-version",
+        "seconds": 0.009,
+        "status": 0,
+        "stderr": "",
+        "stdout": "{\"Client\":{\"Version\":\"29.1.3\",\"ApiVersion\":\"1.52\",\"DefaultAPIVersion\":\"1.52\",\"GitCommit\":\"29.1.3-0ubuntu3~25.10.1\",\"GoVersion\":\"go1.24.4\",\"Os\":\"linux\",\"Arch\":\"amd64\",\"BuildTime\":\"Thu Mar  5 17:56:15 2026\",\"Context\":\"default\"},\"Server\":{\"Platform\":{\"Name\":\"\"},\"Version\":\"29.1.3\",\"ApiVersion\":\"1.52\",\"MinAPIVersion\":\"1.44\",\"Os\":\"linux\",\"Arch\":\"amd64\",\"Components\":[{\"Name\":\"Engine\",\"Version\":\"29.1.3\",\"Details\":{\"ApiVersion\":\"1.52\",\"Arch\":\"amd64\",\"BuildTime\":\"Thu Mar  5 17:56:15 2026\",\"Experimental\":\"false\",\"GitCommit\":\"29.1.3-0ubuntu3~25.10.1\",\"GoVersion\":\"go1.24.4\",\"KernelVersion\":\"6.17.0-41-generic\",\"MinAPIVersion\":\"1.44\",\"Os\":\"linux\"}},{\"Name\":\"containerd\",\"Version\":\"2.2.1\",\"Details\":{\"GitCommit\":\"\"}},{\"Name\":\"runc\",\"Version\":\"1.3.4-0ubuntu1~25.10.1\",\"Details\":{\"GitCommit\":\"\"}},{\"Name\":\"docker-init\",\"Version\":\"0.19.0\",\"Details\":{\"GitCommit\":\"\"}}],\"GitCommit\":\"29.1.3-0ubuntu3~25.10.1\",\"GoVersion\":\"go1.24.4\",\"KernelVersion\":\"6.17.0-41-generic\",\"BuildTime\":\"2026-03-05T17:56:15.000059530+00:00\"}}\n"
+      },
+      {
+        "argv": [
+          "docker",
+          "image",
+          "inspect",
+          "baton-v12-claude-worker:w239528-244216",
+          "--format",
+          "{{json .Id}}"
+        ],
+        "probe": "image-inspect",
+        "seconds": 0.006,
+        "status": 0,
+        "stderr": "",
+        "stdout": "\"sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2\"\n"
+      }
+    ]
+  },
+  "child_status": 0,
+  "child_stderr": "",
+  "credential": {
+    "backing_path": "/home/sl/.claude/.credentials.json",
+    "backing_present": true,
+    "note": "reference existence and backing-file presence only; no credential value was read, emitted or decoded",
+    "provider": "operator-file",
+    "reference": "w202663-development",
+    "reference_present": true,
+    "registry": "/home/sl/.baton/credential-sources.json",
+    "registry_present": true,
+    "value_read": false
+  },
+  "denials": [],
+  "engine": "docker",
+  "engine_reachable": true,
+  "environment_keys": [
+    "BATON_V12_STAGE_EXECUTION_CONFIG",
+    "PYTHONDONTWRITEBYTECODE",
+    "PYTHONPATH"
+  ],
+  "image_available": true,
+  "image_config_digest": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2",
+  "image_config_digest_inspected": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2",
+  "image_digest_matches_pin": true,
+  "image_reference": "baton-v12-claude-worker:w239528-244216",
+  "read_only": "engine version and image inspect only; no container created, no workload started, no Job submitted, no credential value read",
+  "schema": "baton.w341357-executor-preflight/2",
+  "seconds": 0.337,
+  "verdict": "available",
+  "what_a_denial_means": "Per reroute340145 a denial is reported and the turn STOPS. No escalation, no workaround, no alternative engine, no image build, no credential substitution.",
+  "working_directory": "/home/sl/baton-instances/durable-capture-w341357-341637/code/v12/python"
+}

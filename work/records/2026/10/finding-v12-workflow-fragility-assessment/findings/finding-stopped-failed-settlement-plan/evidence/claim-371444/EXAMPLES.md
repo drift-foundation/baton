@@ -1,0 +1,1 @@
+REQUEST.synthetic.json is a proposed schema example with synthetic identities. It is not a captured request, receipt, permission or executable command for any real instance. No primary lifecycle or cessation evidence is fabricated.

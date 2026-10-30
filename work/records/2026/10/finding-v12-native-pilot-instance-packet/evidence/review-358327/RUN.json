@@ -1,0 +1,12 @@
+{
+  "exit": 0,
+  "seconds": 0.41120503599813674,
+  "checks": 110,
+  "hashes": {
+    "configure.py": "b15280cc19aabca5bd519b88f57a34e7b7dabe7e67a40a28348befabf9d16333",
+    "prove.py": "a22302fc6ad9433b0a350664720cc022ccd364cb8cee726dbdeb015740d8d7ab",
+    "RECOVERY-358300.md": "257adf8a826158fa40c8ca260d3992c863f8034d10773982ac661d1d61a6f0e4",
+    "INDEX.json": "ae2fc12b7a7b962beb1c14d60104b929c4bdb714ff04c2d22106ddf14fe01f3e"
+  },
+  "index_match": true
+}

@@ -1,0 +1,141 @@
+{
+  "attempt": "attempt-5b3a73432204dc215833b3bf2c6b22d9dc47ddf733e9f66eafc445aea6d15083",
+  "candidate": {
+    "acceptance": "unobserved -- NOT ACCEPTED",
+    "adapter_disposition": "verification-failed",
+    "base": "bc925cf5c62d69426ed5862af4d41f4d2a967b0f",
+    "bytes": 223394,
+    "changed_paths": [
+      "v12/python/src/baton_v12/worker_manager/attempts.py",
+      "v12/python/src/baton_v12/worker_manager/documents.py",
+      "v12/python/src/baton_v12/worker_manager/failure_cause.py",
+      "v12/python/src/baton_v12/worker_manager/intake.py",
+      "v12/python/tests/manager/disk_roots.py",
+      "v12/python/tests/manager/input_roots.py",
+      "v12/python/tests/manager/test_attempt_failure_cause.py",
+      "v12/python/tests/manager/test_maintenance.py",
+      "v12/python/tests/manager/test_output.py"
+    ],
+    "content_digest": "sha256:5c0fca78e650ad9ff75b07e86a3d9b1c80e094d93087ab13c1c7566e0c3ca391",
+    "head": "5a7d5976ab48c2e66ad5ae610e526362a0990871",
+    "state": "valid",
+    "supersedes_candidate": "sha256:1599471c21d9427e83883a6346d9e846295c3f222296c320b68933f178b0b096 from run345039, which this candidate was built from and which stays preserved",
+    "transport": "objects.bundle",
+    "verification": "failed",
+    "worker_disposition": "unable"
+  },
+  "claim": 345571,
+  "controller_elapsed_seconds": 788.9717794490007,
+  "copies": {
+    "COLLECTION.json": {
+      "bytes": 51609,
+      "copy_sha256": "fc63cfa881bf5d3dfccbf217871e4b18e9f396691d1105610bbf5b9b97785733",
+      "source": "/tmp/w341357-345571/COLLECTION.json",
+      "source_sha256": "fc63cfa881bf5d3dfccbf217871e4b18e9f396691d1105610bbf5b9b97785733"
+    },
+    "EXECUTOR-PREFLIGHT.json": {
+      "bytes": 4166,
+      "copy_sha256": "9982c92d8f5b388dea4e95960d3f21e54a99d2846a792cd7c545aab9177121f8",
+      "source": "/tmp/w341357-345571/EXECUTOR-PREFLIGHT.json",
+      "source_sha256": "9982c92d8f5b388dea4e95960d3f21e54a99d2846a792cd7c545aab9177121f8"
+    },
+    "GATE-CLASSIFICATION.json": {
+      "copy_sha256": "d71f5a0b4a2b529a01a296cd0553547ba665ff94512a5ea2072ff0bda9fed98d",
+      "source": "derived read-only from /home/sl/baton-instances/durable-capture-w341357-345388/packet/launch/implementation/logs/attempt-5b3a73432204dc215833b3bf2c6b22d9dc47ddf733e9f66eafc445aea6d15083/verification.stderr.log",
+      "source_sha256": "99f7de5b0552142a8f2240c249ac260c561ac16b88da40f014a9d6716df4faea"
+    },
+    "candidate-change.patch": {
+      "bytes": 175064,
+      "copy_sha256": "5030be0867af2c7989638ca2cf369891672b876b80f6245e6344d0db793d3458",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-345388/packet/workspaces/.baton-review-lines/line-44dbd5b0d13f37a75be9f605bae4bc463012ca921ab2e7812601580256a4e2c4/checkout/proposal/change.patch",
+      "source_sha256": "5030be0867af2c7989638ca2cf369891672b876b80f6245e6344d0db793d3458"
+    },
+    "candidate-objects.bundle": {
+      "bytes": 45624,
+      "copy_sha256": "c6d1706d40fb0792b15b18a8606c156825e88fdc8ee23d50aef7285d6fb58eb9",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-345388/packet/workspaces/.baton-review-lines/line-44dbd5b0d13f37a75be9f605bae4bc463012ca921ab2e7812601580256a4e2c4/checkout/proposal/objects.bundle",
+      "source_sha256": "c6d1706d40fb0792b15b18a8606c156825e88fdc8ee23d50aef7285d6fb58eb9"
+    },
+    "candidate-output.json": {
+      "bytes": 2341,
+      "copy_sha256": "6191e0730b0325d8bf77f4dcd5a524f4a5c80bb3c932acd9b744e1d029b32e0b",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-345388/packet/workspaces/.baton-review-lines/line-44dbd5b0d13f37a75be9f605bae4bc463012ca921ab2e7812601580256a4e2c4/checkout/output.json",
+      "source_sha256": "6191e0730b0325d8bf77f4dcd5a524f4a5c80bb3c932acd9b744e1d029b32e0b"
+    },
+    "candidate-result.json": {
+      "bytes": 1598,
+      "copy_sha256": "af1cd487652eabac0176e332b8da062d097395a6a33ef60be3faab0fd08605c8",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-345388/packet/workspaces/.baton-review-lines/line-44dbd5b0d13f37a75be9f605bae4bc463012ca921ab2e7812601580256a4e2c4/checkout/proposal/result.json",
+      "source_sha256": "af1cd487652eabac0176e332b8da062d097395a6a33ef60be3faab0fd08605c8"
+    },
+    "candidate-sealed.json": {
+      "bytes": 3687,
+      "copy_sha256": "61f9ce99f755559d631fac6094a341e8dea3eaceb12140d49c0b70ff5742011d",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-345388/packet/workspaces/.baton-review-lines/line-44dbd5b0d13f37a75be9f605bae4bc463012ca921ab2e7812601580256a4e2c4/custody/attempt-5b3a73432204dc215833b3bf2c6b22d9dc47ddf733e9f66eafc445aea6d15083/sealed.json",
+      "source_sha256": "61f9ce99f755559d631fac6094a341e8dea3eaceb12140d49c0b70ff5742011d"
+    },
+    "candidate-verification.txt": {
+      "bytes": 1108,
+      "copy_sha256": "515943462833d6735e92b1d34576dd378f007c6140c8fd6fba86524321145729",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-345388/packet/workspaces/.baton-review-lines/line-44dbd5b0d13f37a75be9f605bae4bc463012ca921ab2e7812601580256a4e2c4/checkout/proposal/verification.txt",
+      "source_sha256": "515943462833d6735e92b1d34576dd378f007c6140c8fd6fba86524321145729"
+    },
+    "outcome.json": {
+      "bytes": 6199,
+      "copy_sha256": "1dce17e7b66c8dde531ce3c96814dffdf68929f764f339be9b58c4e7a1191d66",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-345388/packet/outcome.json",
+      "source_sha256": "1dce17e7b66c8dde531ce3c96814dffdf68929f764f339be9b58c4e7a1191d66"
+    },
+    "outcome.json.authoring.log": {
+      "bytes": 6308,
+      "copy_sha256": "bce80556b6aa6a9f2989019e535b0f1c7a512310fb407f1aec2c2fc3fe3bd043",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-345388/packet/outcome.json.authoring.log",
+      "source_sha256": "bce80556b6aa6a9f2989019e535b0f1c7a512310fb407f1aec2c2fc3fe3bd043"
+    },
+    "outcome.json.enforcement-38381-1792581769326128718.json": {
+      "bytes": 31404,
+      "copy_sha256": "8a08532a5e0900e34e62599ed5b598124aa204e62569cfde024c807041bd89e5",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-345388/packet/outcome.json.enforcement-38381-1792581769326128718.json",
+      "source_sha256": "8a08532a5e0900e34e62599ed5b598124aa204e62569cfde024c807041bd89e5"
+    },
+    "outcome.json.manager-38381-1792580979603543107.json": {
+      "bytes": 27827,
+      "copy_sha256": "85d687dbdd8f38d0714a2b255f0f6c0a962b921ee79be56b48781b0c0cabc3f0",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-345388/packet/outcome.json.manager-38381-1792580979603543107.json",
+      "source_sha256": "85d687dbdd8f38d0714a2b255f0f6c0a962b921ee79be56b48781b0c0cabc3f0"
+    },
+    "outcome.json.manager-38381-1792580979603543107.json.progress.json": {
+      "bytes": 208,
+      "copy_sha256": "483e576856056a2140240883d2469e78d5042b2e3b06910496b1fff817aedeff",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-345388/packet/outcome.json.manager-38381-1792580979603543107.json.progress.json",
+      "source_sha256": "483e576856056a2140240883d2469e78d5042b2e3b06910496b1fff817aedeff"
+    }
+  },
+  "ended": "ON ITS OWN -- provider.status 0, failure_reason null, no signal and no interruption. 789.14s served against a 900-second lease, so 110.86s of margin: INSIDE the lease and OVER the 720-second planning target by 69s.",
+  "finished_at": "2026-10-21T11:22:49.131Z",
+  "integration_overlap": {
+    "checked": "neither overlap path had an uncommitted working-tree change at launch; both differ between the pinned base bc925cf5 and the current HEAD d3a7a41c as COMMITTED differences. The packet stages every manager file from the base commit and the input check verified all 114, so no staged byte is affected.",
+    "declared_intersection": [
+      "v12/python/src/baton_v12/worker_manager/attempts.py",
+      "v12/python/tools/authoring_enforcement.py"
+    ],
+    "disposition": "pinned base UNCHANGED at bc925cf5. No rebase, no re-pinning, no weakening. The eventual integration is a serial independently reviewed rebase onto the integrated bytes, never an overwrite.",
+    "notice": "M345516: owner M345512 selected a 17-path main-tree import of W339626's candidate345109, owned by prompt."
+  },
+  "launched_at": "2026-10-21T11:09:39.981Z",
+  "lease_seconds": 900,
+  "line": "line-44dbd5b0d13f37a75be9f605bae4bc463012ca921ab2e7812601580256a4e2c4",
+  "not_copied": [
+    "/home/sl/baton-instances/durable-capture-w341357-345388/packet/launch/implementation/logs/attempt-5b3a73432204dc215833b3bf2c6b22d9dc47ddf733e9f66eafc445aea6d15083/verification.stderr.log",
+    "/home/sl/baton-instances/durable-capture-w341357-345388/packet/launch/implementation/logs/attempt-5b3a73432204dc215833b3bf2c6b22d9dc47ddf733e9f66eafc445aea6d15083/provider.stdout.log"
+  ],
+  "packet": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-345388",
+  "packet_manifest": "b895cc72c8458c7988a6c9182ab964ba5450a31dcc39c1af79eb48e3dc8b204d",
+  "provider_served_seconds": 789.1424403600004,
+  "read_only": "every file here is a byte copy of a live source, verified against it after writing, at mode 0444. No instance byte was written, no runtime re-run, no store opened for writing, no version-control object created.",
+  "root": "/home/sl/baton-instances/durable-capture-w341357-345388",
+  "run": "durable-capture-w341357-345388",
+  "schema": "baton.w341357-run-evidence/1",
+  "selection": "owner reroute345560",
+  "work": "W341357"
+}

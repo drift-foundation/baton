@@ -1,0 +1,30 @@
+{
+  "claim": 347743,
+  "receipt_sha256": "fb55cbef1d0b69f6c973fa2a25579f41124adbd68d5aefb8de9d44a1d01970a4",
+  "receipt": {
+    "schema": "w339626-serving-failure/1",
+    "run": "w339626-live-345599",
+    "source_sha256": "4d093c99c582c48af392077ca3b1ab5218170a7ba04da0f3e26ae12b7e215484",
+    "field": "serving_failure",
+    "original_characters": 125,
+    "sanitized_diagnostic": "ProfileRefusal: Git line materialization failed: fatal: could not open <operand> for reading and writing: Permission denied"
+  },
+  "exit": 0,
+  "stderr_bytes": 0,
+  "inference": "/dev/null O_RDWR denial matches source mechanism and exact125-character length; operand redacted, no dynamic reproduction by reviewer",
+  "source_checks": {
+    "tools/next_run_managed.py": {
+      "installed_sha256": "b4e6261a6a56086fb4eabcc292713ce21ad0dabcac9a7d1f1ac1562895ae76a9",
+      "checkout_equal": true
+    },
+    "tools/next_run_confinement.py": {
+      "installed_sha256": "317414e0246818f4507e5c3ab907e03b149151a9bb42acf2bf1b9ec9772b469e",
+      "checkout_equal": true
+    }
+  },
+  "upstream_sources": [
+    "https://raw.githubusercontent.com/git/git/master/run-command.c",
+    "https://raw.githubusercontent.com/git/git/master/wrapper.c"
+  ],
+  "product_tests": 0
+}

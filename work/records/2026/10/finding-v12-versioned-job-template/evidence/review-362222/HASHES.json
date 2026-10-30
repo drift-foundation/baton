@@ -1,0 +1,15 @@
+{
+  "v12/python/src/baton_v12/job_manager/__init__.py": {
+    "candidate_match": true,
+    "base_match": true
+  },
+  "v12/python/src/baton_v12/job_manager/templates.py": {
+    "candidate_match": true,
+    "base_match": true
+  },
+  "v12/python/tests/job_manager/test_templates.py": {
+    "candidate_match": true,
+    "base_match": true
+  },
+  "manifest": "834e88af1eb98106adbfe4799baac83de1b31d56a8f84502d93dd455c85a7277"
+}

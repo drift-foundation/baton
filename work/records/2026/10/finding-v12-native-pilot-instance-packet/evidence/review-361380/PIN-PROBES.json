@@ -1,0 +1,7 @@
+{
+  "nonpinned_bundle_and_unversioned_source_accepted": true,
+  "guarded_bundle_digest": "1b014603aec40e9f6d9c03a8b21ae74a02d9f1fef1ff95fc0f3e8a851a229c07",
+  "consumed_bundle": "/tmp/w325959-review-361380-ywbu9ph3/different-bundle",
+  "changed_task_adopted_as_expected_pin": true,
+  "readback_command": "KeyError: preparation (persisted readback has top-level workspace_storage)"
+}

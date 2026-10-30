@@ -1,0 +1,52 @@
+{
+  "seconds": 0.04842446299880976,
+  "results": {
+    "valid": {
+      "admission": [
+        "implementation",
+        "review"
+      ],
+      "worker_reader": "accepted"
+    },
+    "only_generation_and_profile": {
+      "admission": {
+        "exception": "ContractRefusal",
+        "message": "this deployment's implementation candidate's composed task is exactly schema, task_id, instructions, verification, source_root, source_profile, declared_base; missing declared_base, instructions, source_root, task_id, verification"
+      },
+      "worker_reader": {
+        "exception": "TaskRefusal",
+        "message": "/synthetic/task.json is exactly schema, task_id, instructions, verification, source_root, source_profile, declared_base; missing declared_base, instructions, source_root, task_id, verification"
+      }
+    },
+    "verification_string": {
+      "admission": {
+        "exception": "ContractRefusal",
+        "message": "this deployment's implementation candidate's composed task carries a verification that is a non-empty list of words; a command assembled from a string is a shell, and there is no shell here"
+      },
+      "worker_reader": {
+        "exception": "TaskRefusal",
+        "message": "/synthetic/task.json carries a verification that is a non-empty list of words; a command this adapter has to assemble from a string is a shell, and there is no shell here"
+      }
+    },
+    "unknown_member": {
+      "admission": {
+        "exception": "ContractRefusal",
+        "message": "this deployment's implementation candidate's composed task is exactly schema, task_id, instructions, verification, source_root, source_profile, declared_base; unexpected unexpected"
+      },
+      "worker_reader": {
+        "exception": "TaskRefusal",
+        "message": "/synthetic/task.json is exactly schema, task_id, instructions, verification, source_root, source_profile, declared_base; unexpected unexpected"
+      }
+    },
+    "numeric_task_id": {
+      "admission": {
+        "exception": "ContractRefusal",
+        "message": "this deployment's implementation candidate's composed task carries no usable task identity; this is 7"
+      },
+      "worker_reader": {
+        "exception": "TaskRefusal",
+        "message": "/synthetic/task.json carries no usable task identity"
+      }
+    }
+  }
+}

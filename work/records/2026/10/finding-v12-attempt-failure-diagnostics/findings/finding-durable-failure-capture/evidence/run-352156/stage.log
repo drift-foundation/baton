@@ -1,0 +1,6 @@
+This packet's START IS NOT SELECTED. Every input gate is closed (W333735 at a9f4fa4d, W334910 at fb487979, W338305 at bc925cf5, W333485 and W348979 both closed satisfying), so this is not a blocker -- but independent preparation review comes first, then an exact execution selection. Four things to know: THREE selected packets never produced a turn -- execution-334663 died at startup in 0.506s (FAILURE.md), execution-341637 failed provider authentication in 10.56s, and execution-348852 died at the controller's import of tools.authoring_baseline in about 2s, which is the binding defect THIS packet exists to consume the correction for; three invocations HAVE completed (461.10s, 789.14s, 733.29s) and NO CANDIDATE HAS BEEN ACCEPTED; the focused gate has been measured three times and the last measurement PASSED, which is not acceptance; and the composer generated commands.json start still names the UNENFORCED supervisor -- use AUTHORING-COMMAND.json. See ENFORCEMENT.md and SHUTDOWN.md.
+staged; bootstrap separately with --no-repositories, then bind. The start is not selected.
+
+real	0m0.076s
+user	0m0.065s
+sys	0m0.011s

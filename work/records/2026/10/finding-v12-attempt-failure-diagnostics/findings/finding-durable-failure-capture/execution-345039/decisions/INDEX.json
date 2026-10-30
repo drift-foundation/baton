@@ -1,0 +1,167 @@
+{
+  "base": "bc925cf5c62d69426ed5862af4d41f4d2a967b0f",
+  "claim": 345039,
+  "not_an_authority": "A snapshot records what was accepted when it was taken. It is not a second authority and does not override a later decision. verify-inputs.py REPORTS live-source drift and does not refuse it.",
+  "preserves": "every parent packet and both completed-run instances are untouched. This child adds its own packet and derives its recovery input read-only.",
+  "schema": "baton.w341357-decision-snapshots/2",
+  "snapshots": {
+    "FINDING.md": {
+      "snapshot_sha256": "f988dd28d9dcb1148bcdca96f126ec63ea7716520450d4414d479d0d63695953",
+      "source_path": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/FINDING.md",
+      "source_sha256": "f988dd28d9dcb1148bcdca96f126ec63ea7716520450d4414d479d0d63695953"
+    },
+    "PLAN.md": {
+      "snapshot_sha256": "1ac2afeaf212f35a84459d5cef25cf9059843e41b092699ccc700a2538daf9e6",
+      "source_path": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/PLAN.md",
+      "source_sha256": "1ac2afeaf212f35a84459d5cef25cf9059843e41b092699ccc700a2538daf9e6"
+    },
+    "enforcement-integration.md": {
+      "snapshot_sha256": "f6d6aea39e2b90282d8c08d39a82c53ab8b7a9fbde27223705c5583b5576d889",
+      "source_path": "work/records/2026/10/finding-v12-authoring-expiry-enforcement/INTEGRATION-20261019.md",
+      "source_sha256": "f6d6aea39e2b90282d8c08d39a82c53ab8b7a9fbde27223705c5583b5576d889"
+    },
+    "enforcement-review.md": {
+      "snapshot_sha256": "22c6f3006d53976d5187dddd9c11545469c666e79be2e913239e20787f5c039a",
+      "source_path": "work/records/2026/10/finding-v12-authoring-expiry-enforcement/review-2026-10-19T17-25-12Z.md",
+      "source_sha256": "22c6f3006d53976d5187dddd9c11545469c666e79be2e913239e20787f5c039a"
+    },
+    "failed-run-INDEX.json": {
+      "snapshot_sha256": "1ece1fc297460a84b42864b5dfb10b6bfdd4b1de5a0e65ba341739781f3fcff0",
+      "source_path": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/evidence/execution-334663-failure/INDEX.json",
+      "source_sha256": "1ece1fc297460a84b42864b5dfb10b6bfdd4b1de5a0e65ba341739781f3fcff0"
+    },
+    "guard-integration-result.json": {
+      "snapshot_sha256": "eb2bd8e404adad63acd63002a0053d78ee4b38c4ec87eed436b64cd38bdd9e15",
+      "source_path": "work/records/2026/10/finding-v12-authoring-manager-guard/evidence/integration-337376/RESULT.json",
+      "source_sha256": "eb2bd8e404adad63acd63002a0053d78ee4b38c4ec87eed436b64cd38bdd9e15"
+    },
+    "guard-integration.md": {
+      "snapshot_sha256": "c7ec27fd38ab255277820c391aa787ad9eedec6d46df3e6318c0c16c8a61480e",
+      "source_path": "work/records/2026/10/finding-v12-authoring-manager-guard/INTEGRATION-337376.md",
+      "source_sha256": "c7ec27fd38ab255277820c391aa787ad9eedec6d46df3e6318c0c16c8a61480e"
+    },
+    "guard-review.md": {
+      "snapshot_sha256": "f28697c9f0b16dd2421d2a7e42941dc96c0892f938b2abe770a1b5b74b71d999",
+      "source_path": "work/records/2026/10/finding-v12-authoring-manager-guard/review-2026-10-19T20-01-02Z.md",
+      "source_sha256": "f28697c9f0b16dd2421d2a7e42941dc96c0892f938b2abe770a1b5b74b71d999"
+    },
+    "owner-failure-evidence.md": {
+      "snapshot_sha256": "c41ec181b51ed1fe8e6924744f6c61588b1493854392048a7cb973cc5d9622ea",
+      "source_path": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/../../finding-v12-native-pilot-instance-packet/OWNER-FAILURE-EVIDENCE-20261019.md",
+      "source_sha256": "c41ec181b51ed1fe8e6924744f6c61588b1493854392048a7cb973cc5d9622ea"
+    },
+    "parent-FINDING.md": {
+      "snapshot_sha256": "00f024ce4921f09cd0e9bfbafd7549f165d447dac97411c67e940e59f544911e",
+      "source_path": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/FINDING.md",
+      "source_sha256": "00f024ce4921f09cd0e9bfbafd7549f165d447dac97411c67e940e59f544911e"
+    },
+    "parent-PLAN.md": {
+      "snapshot_sha256": "b7d987ed049d3b222294e1d7d2c06a0ef9de49c62a1ed2a923d338f8c684f2b2",
+      "source_path": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/PLAN.md",
+      "source_sha256": "b7d987ed049d3b222294e1d7d2c06a0ef9de49c62a1ed2a923d338f8c684f2b2"
+    },
+    "recovery-341360-INDEX.json": {
+      "snapshot_sha256": "e407577dc6cc7026ebf963410125b07785a9c5a898edb5c58842c3f27f5fbb9c",
+      "source_path": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/recovery-341360/INDEX.json",
+      "source_sha256": "e407577dc6cc7026ebf963410125b07785a9c5a898edb5c58842c3f27f5fbb9c"
+    },
+    "recovery-INDEX.json": {
+      "snapshot_sha256": "1f2034de6776e01b87c600fb88e793130125096782f27866b72be51aaafdfa89",
+      "source_path": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/recovery/INDEX.json",
+      "source_sha256": "1f2034de6776e01b87c600fb88e793130125096782f27866b72be51aaafdfa89"
+    },
+    "review-333812.md": {
+      "snapshot_sha256": "9cefcfed7b8e8ee8ccbbbc416a51255889739e41ba7436bd84c28e5b7ba59d8a",
+      "source_path": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/review-2026-10-19T17-00-00Z.md",
+      "source_sha256": "9cefcfed7b8e8ee8ccbbbc416a51255889739e41ba7436bd84c28e5b7ba59d8a"
+    },
+    "review-334776.md": {
+      "snapshot_sha256": "f6332faf1e580450d0796e87f2624edb3f6f29acb4df8c377d98f13830ea7b09",
+      "source_path": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/review-2026-10-19T19-17-22Z.md",
+      "source_sha256": "f6332faf1e580450d0796e87f2624edb3f6f29acb4df8c377d98f13830ea7b09"
+    },
+    "review-337566.md": {
+      "snapshot_sha256": "3d72960c83dd045280468ac9c432515aa346f6b57cc91f176f2fb3ae3e6ba01e",
+      "source_path": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/review-2026-10-20T02-05-28Z.md",
+      "source_sha256": "3d72960c83dd045280468ac9c432515aa346f6b57cc91f176f2fb3ae3e6ba01e"
+    },
+    "review-339623.md": {
+      "snapshot_sha256": "f01d359d769b05be7e6616ad7e73459a17898fbb65026e28022c55ec294819ae",
+      "source_path": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/review-2026-10-20T14-56-51Z.md",
+      "source_sha256": "f01d359d769b05be7e6616ad7e73459a17898fbb65026e28022c55ec294819ae"
+    },
+    "review-339861.md": {
+      "snapshot_sha256": "aa3a263267838f13dc80db0926a9ef8e53ae13058ce8de2ec5d741b4d96c0907",
+      "source_path": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/review-2026-10-20T15-38-05Z.md",
+      "source_sha256": "aa3a263267838f13dc80db0926a9ef8e53ae13058ce8de2ec5d741b4d96c0907"
+    },
+    "review-340012.md": {
+      "snapshot_sha256": "83f999f35b8a484f2925a501163fdcbbe517d0e20cd19bee373a1cfb06ec9efa",
+      "source_path": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/review-2026-10-20T15-56-00Z.md",
+      "source_sha256": "83f999f35b8a484f2925a501163fdcbbe517d0e20cd19bee373a1cfb06ec9efa"
+    },
+    "review-340349.md": {
+      "snapshot_sha256": "d595b1589c8eead1cedf722fddac3cac4b70e62ac805410ded6e4a9262734919",
+      "source_path": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/review-2026-10-20T16-40-37Z.md",
+      "source_sha256": "d595b1589c8eead1cedf722fddac3cac4b70e62ac805410ded6e4a9262734919"
+    },
+    "review-341344-evidence.json": {
+      "snapshot_sha256": "b29c0a51917d2cd86146a8ded67c48ed6c285cce0700f98c1d4dffe26b0e405e",
+      "source_path": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/evidence/review-341344/evidence.json",
+      "source_sha256": "b29c0a51917d2cd86146a8ded67c48ed6c285cce0700f98c1d4dffe26b0e405e"
+    },
+    "review-341441.md": {
+      "snapshot_sha256": "bed1a38f8801696888e44004a682c6e22180d630b6429e69f3fa8e4b8b9a2270",
+      "source_path": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/review-2026-10-20T19-26-13Z.md",
+      "source_sha256": "bed1a38f8801696888e44004a682c6e22180d630b6429e69f3fa8e4b8b9a2270"
+    },
+    "review-341628.md": {
+      "snapshot_sha256": "b9fc3152b4677645b7a114f1d6777639d266ad74fe89e311aa4cc958f3d3c528",
+      "source_path": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/review-2026-10-20T19-50-05Z.md",
+      "source_sha256": "b9fc3152b4677645b7a114f1d6777639d266ad74fe89e311aa4cc958f3d3c528"
+    },
+    "review-342415-evidence.json": {
+      "snapshot_sha256": "ea60b5a773c62dae891527a7c941fb738ab95c6e09eba5291677fb6fde0a82ec",
+      "source_path": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/evidence/review-342415/evidence.json",
+      "source_sha256": "ea60b5a773c62dae891527a7c941fb738ab95c6e09eba5291677fb6fde0a82ec"
+    },
+    "review-342415.md": {
+      "snapshot_sha256": "2470e7c9668fbf97be60cd25efbb0af87129e24d808bffaab18bbc9e345f3409",
+      "source_path": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/review-2026-10-20T21-46-50Z.md",
+      "source_sha256": "2470e7c9668fbf97be60cd25efbb0af87129e24d808bffaab18bbc9e345f3409"
+    },
+    "run-340352-INDEX.json": {
+      "snapshot_sha256": "d381348e1e67a551475862d4751efc35800192de11adb7c1f6a156195a9b84d1",
+      "source_path": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/evidence/run-340352/INDEX.json",
+      "source_sha256": "d381348e1e67a551475862d4751efc35800192de11adb7c1f6a156195a9b84d1"
+    },
+    "run-341360-INDEX.json": {
+      "snapshot_sha256": "9ce6d967d3a998cab80833975dfca9314ebe4369224af5b1ff7357d0ba2f10fc",
+      "source_path": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/evidence/run-341360/INDEX.json",
+      "source_sha256": "9ce6d967d3a998cab80833975dfca9314ebe4369224af5b1ff7357d0ba2f10fc"
+    },
+    "run-341637-INDEX.json": {
+      "snapshot_sha256": "f83c16090105f372c90b80f62f690d939b3270a751fd024aa73f938454b77637",
+      "source_path": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/evidence/run-341637/INDEX.json",
+      "source_sha256": "f83c16090105f372c90b80f62f690d939b3270a751fd024aa73f938454b77637"
+    },
+    "shutdown-finding.md": {
+      "snapshot_sha256": "c51449df66f682706274a8746d941dafa970a71331df9e59f80337b1d5de1719",
+      "source_path": "work/records/2026/10/finding-v12-authoring-shutdown-deadline/FINDING.md",
+      "source_sha256": "c51449df66f682706274a8746d941dafa970a71331df9e59f80337b1d5de1719"
+    },
+    "shutdown-integration.json": {
+      "snapshot_sha256": "c94021c319b7a5ca42c045d5e5b6196ff1e61e895d022690d2c6defcaf9804a5",
+      "source_path": "work/records/2026/10/finding-v12-authoring-shutdown-deadline/INTEGRATION-339397.json",
+      "source_sha256": "c94021c319b7a5ca42c045d5e5b6196ff1e61e895d022690d2c6defcaf9804a5"
+    },
+    "shutdown-review.md": {
+      "snapshot_sha256": "7b8a27d70a3aee340ec18968f92bf08c8e35ce288c4d80efd523c5c6aae54f8b",
+      "source_path": "work/records/2026/10/finding-v12-authoring-shutdown-deadline/review-2026-10-20T12-29-38Z.md",
+      "source_sha256": "7b8a27d70a3aee340ec18968f92bf08c8e35ce288c4d80efd523c5c6aae54f8b"
+    }
+  },
+  "snapshotted_at": "2026-10-21",
+  "snapshotted_by": "baton.claude",
+  "why": "Re-taken at claim345039 for the fresh identity/root binding. NEW: review-342415, the independent review of the authentication failure, which is also the authority for this rebinding; review-342415-evidence, that review's own evidence record; and run-341637-INDEX, the failed run's retained evidence index, carried so the turn can read what happened to the previous selection without touching the preserved root. FINDING and PLAN re-taken because the reviewer updated both after execution-341637 was sealed -- including the dated owner report that provider access is restored. Every other snapshot is carried unchanged and verified against its live source."
+}

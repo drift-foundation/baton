@@ -1,0 +1,6 @@
+[
+  "python3",
+  "-B",
+  "-c",
+  "import os,sys,unittest; os.chdir('v12/python'); roots=[os.getcwd(),os.path.join(os.getcwd(),'src')]; sys.path[:0]=roots; os.environ['PYTHONPATH']=os.pathsep.join(roots); names=[\"tests.manager.test_authoring_shutdown_deadline\", \"tests.manager.test_authoring_enforcement\", \"tests.manager.test_authoring_manager_guard\"]; r=unittest.TextTestRunner(verbosity=1).run(unittest.defaultTestLoader.loadTestsFromNames(names)); [print('SKIPPED '+str(one[0])) for one in r.skipped]; sys.exit(0 if r.wasSuccessful() and not r.skipped else 1)"
+]

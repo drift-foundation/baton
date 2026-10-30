@@ -1,0 +1,60 @@
+........................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................s....................baton-worker: launch: /tmp/v12-worker-launch-35gxtcty/launch-4.json is exactly schema, session, contract, role, transport; missing transport
+Fbaton-worker: launch: /tmp/v12-worker-launch-35gxtcty/launch-5.json says it is 'baton.worker-entry/1' and this worker reads 'baton.worker-launch/1', 'baton.worker-launch/2', 'baton.worker-launch/3', 'baton.worker-launch/4'; a launch document from another generation is not one to read the recognised parts out of
+Fbaton-worker: launch: /tmp/v12-worker-launch-35gxtcty/launch-6.json says it is '' and this worker reads 'baton.worker-launch/1', 'baton.worker-launch/2', 'baton.worker-launch/3', 'baton.worker-launch/4'; a launch document from another generation is not one to read the recognised parts out of
+Fbaton-worker: launch: /tmp/v12-worker-launch-35gxtcty/launch-7.json says it is 'BATON.WORKER-LAUNCH/1' and this worker reads 'baton.worker-launch/1', 'baton.worker-launch/2', 'baton.worker-launch/3', 'baton.worker-launch/4'; a launch document from another generation is not one to read the recognised parts out of
+Fbaton-worker: launch: /tmp/v12-worker-launch-35gxtcty/launch-8.json says it is 'baton.worker-launch/1 ' and this worker reads 'baton.worker-launch/1', 'baton.worker-launch/2', 'baton.worker-launch/3', 'baton.worker-launch/4'; a launch document from another generation is not one to read the recognised parts out of
+F........................................................................................................
+======================================================================
+FAIL: test_a_document_from_another_generation_latches (tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches) (schema='baton.worker-launch/2')
+W26291 REPLACED `test_an_invalid_posture_...`. The posture axis is
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_worker_image.py", line 1420, in test_a_document_from_another_generation_latches
+    self.assertEqual(status, 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+AssertionError: 3 != 1
+
+======================================================================
+FAIL: test_a_document_from_another_generation_latches (tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches) (schema='baton.worker-entry/1')
+W26291 REPLACED `test_an_invalid_posture_...`. The posture axis is
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_worker_image.py", line 1420, in test_a_document_from_another_generation_latches
+    self.assertEqual(status, 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+AssertionError: 3 != 1
+
+======================================================================
+FAIL: test_a_document_from_another_generation_latches (tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches) (schema='')
+W26291 REPLACED `test_an_invalid_posture_...`. The posture axis is
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_worker_image.py", line 1420, in test_a_document_from_another_generation_latches
+    self.assertEqual(status, 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+AssertionError: 3 != 1
+
+======================================================================
+FAIL: test_a_document_from_another_generation_latches (tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches) (schema='BATON.WORKER-LAUNCH/1')
+W26291 REPLACED `test_an_invalid_posture_...`. The posture axis is
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_worker_image.py", line 1420, in test_a_document_from_another_generation_latches
+    self.assertEqual(status, 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+AssertionError: 3 != 1
+
+======================================================================
+FAIL: test_a_document_from_another_generation_latches (tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches) (schema='baton.worker-launch/1 ')
+W26291 REPLACED `test_an_invalid_posture_...`. The posture axis is
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_worker_image.py", line 1420, in test_a_document_from_another_generation_latches
+    self.assertEqual(status, 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+AssertionError: 3 != 1
+
+----------------------------------------------------------------------
+Ran 886 tests in 65.511s
+
+FAILED (failures=5, skipped=1)

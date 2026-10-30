@@ -1,0 +1,42 @@
+{
+  "scope": "preparation-only static and declarative checks, not product tests or installed acceptance",
+  "bundle_members_verified": 206,
+  "tree_members": 205,
+  "unchanged_tree_members": 203,
+  "live_fixture_pins": 3,
+  "shell_blocks_bash_n": 13,
+  "gate_cases": [
+    "complete accepted",
+    "missing packet refused",
+    "consumed refused",
+    "uid overlap refused",
+    "wrong owner refused",
+    "symlink refused",
+    "loose mode refused"
+  ],
+  "source_checks": [
+    "existing arm refuses consumed",
+    "entry rejects uid reuse",
+    "controller log/status/shutdown/enforcement share packet parent",
+    "lock and DBs share instance/db"
+  ],
+  "elapsed_seconds": 0.04662218000157736,
+  "not_executed": [
+    "operator commands",
+    "installer or entry",
+    "product tests",
+    "Docker or providers",
+    "credential/store reads",
+    "arm/start"
+  ],
+  "operator_preconditions_unproved": [
+    "host quiescence",
+    "uid exclusivity and availability at execution",
+    "old private DB metadata/equality",
+    "actual v3 ownership/modes and parent existence",
+    "credential metadata/access",
+    "effective v3 sudo admission"
+  ],
+  "final_shell_blocks_bash_n": 14,
+  "final_shell_check_seconds": 0.0069532709967461415
+}

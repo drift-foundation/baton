@@ -1,0 +1,25 @@
+{
+  "partial_failure": {
+    "refusal": "this deployment's launch_home for worker x is already special file at /tmp/tmp2q26rpau/b. It was left exactly as it is; a prerequisite root is a directory this deployment owns, and nothing here follows a link or reuses another object's name.",
+    "earlier_root_left": true,
+    "foreign_bytes": "foreign"
+  },
+  "inaccessible_existing": {
+    "prepare_returned": {},
+    "report": [
+      [
+        "x",
+        "workspace_storage",
+        "/tmp/tmp93exo_v1/a",
+        "is not readable, writable and traversable by this account"
+      ]
+    ]
+  },
+  "ancestor_symlink": {
+    "prepare_returned": [
+      "/tmp/tmp5lhnkqpd/link/root"
+    ],
+    "wrote_through_link": true,
+    "report": []
+  }
+}

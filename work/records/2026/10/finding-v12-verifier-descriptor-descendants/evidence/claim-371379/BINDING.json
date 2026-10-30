@@ -1,0 +1,56 @@
+{
+  "schema": "baton.w325695.claim-binding/1",
+  "work": "2b077949-W325695",
+  "claim": 371379,
+  "authorization": "owner E371012; review 2026-10-28T03-25-24Z named the next bounded milestone",
+  "base": "f36bcd75ed22430355efe1b274b8f236cb591f6b",
+  "supersedes": {
+    "claim": 371184,
+    "binding_sha256": "40ebc5a74f3103d61da3d5163fcf7bdb8440c9668ce7d58a53ef271c8e81dbf3",
+    "note": "the reviewed two-path partial; both of its hashes matched at claim start and this continues from those bytes"
+  },
+  "candidate": {
+    "v12/python/src/baton_v12/worker_manager/oci.py": "d17be2eba60ef06e609ec90dc4aa2770a9d05533b4a50075a0224eea94e193e1",
+    "v12/python/src/baton_v12/worker_manager/source_boundary.py": "fbd1a070c6ea56e16aa46b36462d48d72597cd54f640d121fbe07eae9d0afe82",
+    "v12/worker/claude_agent.py": "cd7cee152af411e02043094ff0d6de838721209b08483960429480d9dfc90f0a",
+    "v12/worker/Dockerfile.claude": "200d0049692542fa9e85a5f7a23c9f09ed9d8cfc9511b383ea747c5ae7c4bfea",
+    "v12/worker/verifier-layout-marker.json": "3355c11a36044111f713d37a729e51f8b781801d655be5e0df14de7fb69c9648",
+    "v12/python/tests/manager/test_oci.py": "e7aaa9bad26d2d8c2a858691b3b21e08f79f5d9ee6afd35d9434ff58d7759104",
+    "v12/python/tests/manager/test_claude_agent.py": "73ed8797304ba55116573e6802c9617e91033f161fc71dce6adb9bc06085315c",
+    "v12/python/tests/manager/test_verifier_topology.py": "9cb4807664786f547c1cff91a167e54c1175b94c90c520ad9a8cdb39fdc09bd1"
+  },
+  "new_at_base": [
+    "v12/worker/verifier-layout-marker.json",
+    "v12/python/tests/manager/test_verifier_topology.py"
+  ],
+  "not_mine_in_v12_porcelain": {
+    "note": "the shared working tree carries CONCURRENT UNCOMMITTED WORK FROM ANOTHER OWNER. These paths are not this candidate and were not edited under this claim. They were present during this claim's test runs, which is why attribution was done by swapping the pristine committed bytes of THIS candidate's modules in and comparing failure name sets rather than by calling adjacent failures pre-existing.",
+    "paths": [
+      "v12/DESIGN.md",
+      "v12/python/src/baton_v12/worker_manager/schema.py",
+      "v12/python/src/baton_v12/worker_manager/tokens.py",
+      "v12/python/src/baton_v12/worker_manager/workspaces.py",
+      "v12/python/tests/manager/test_boundary_inventory.py",
+      "v12/python/src/baton_v12/worker_manager/stopped_settlement.py",
+      "v12/python/tests/manager/test_stopped_settlement.py"
+    ],
+    "checked": "the foreign workspaces.py edit is at preparation_completed and does not touch WorkspaceIdentity or identity_for, which this candidate now depends on"
+  },
+  "verification": {
+    "tests.manager.test_verifier_topology": "55 tests OK (new, joined manager/worker)",
+    "tests.manager.test_claude_agent": "279 tests OK, 1 skipped",
+    "tests.manager.test_oci": "143 tests OK",
+    "tests.manager.test_source_boundary": "75 tests, 1 failure, 2 skipped; the failure reproduces with the pristine committed source_boundary.py swapped in",
+    "tests.manager.test_boundary_inventory + tests.manager.test_workspaces": "465 tests, 28 failures; the failure NAME SETS are byte-identical with this candidate and with pristine committed oci.py and source_boundary.py swapped in",
+    "tests.tools.test_single_worker": "243 tests, 1 failure; reproduces with the pristine committed modules swapped in",
+    "abandoned": "one earlier full-tree unittest discover run is NOT reported: source files were swapped in for attribution while it ran, so its results describe no single tree"
+  },
+  "not_established": [
+    "no deployment configuration selects the layout: the operator member needs a new single-worker-deployment schema version, which an implementation claim may not mint",
+    "the kernel/mount proof remains separately selected",
+    "the mount table and the root-owned 0755 scaffolding are substituted at one labelled point each",
+    "the image is not built; the recipe and marker are asserted as text and bytes",
+    "per-root ENOSPC behaviour is not exercised",
+    "no engine, provider, deployment or live operation; preparation-325908 neither executed nor rewritten"
+  ]
+}

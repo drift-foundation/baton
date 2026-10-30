@@ -1,0 +1,33 @@
+diff --git a/v12/python/tests/manager/test_oci.py b/v12/python/tests/manager/test_oci.py
+index ceef9cad..7d639ada 100644
+--- a/v12/python/tests/manager/test_oci.py
++++ b/v12/python/tests/manager/test_oci.py
+@@ -28,7 +28,8 @@ from baton_v12.contracts import ContractRefusal
+ from baton_v12.worker_manager import (ControlStore, attempt_logs,
+                                       configure_workspace_group,
+                                       configured_workspace_group, documents,
+-                                      exchange, launch, oci, workspaces)
++                                      exchange, launch, oci, source_boundary,
++                                      workspaces)
+ 
+ from . import input_roots
+ from baton_v12.worker_manager.oci import (ENGINES, LABEL_PREFIX,
+@@ -227,7 +228,17 @@ class TheVectorsAreClosedAndOrdered(Configured):
+                 # given the deployment's configured workspace group, and one
+                 # without it refuses before the engine rather than starting a
+                 # worker that cannot write its own workspace.
+-                self.assertEqual(len(argv), 51)
++                # W325695 adds the four private verifier roots to
++                # `SCRATCH_MOUNTS`, so the restriction block carries four more
++                # `--tmpfs <target>:<options>` pairs -- EIGHT more words. The
++                # aggregate bytes are unchanged (the old shared `/tmp` 64 MiB
++                # became 32 MiB plus 4+16+4+8), and the count is derived from
++                # the table rather than written out again, so redistributing
++                # the partition again cannot leave this number behind.
++                self.assertEqual(len(argv),
++                                 51 + 2 * (len(source_boundary.SCRATCH_MOUNTS)
++                                           - 2))
++                self.assertEqual(len(argv), 59)
+ 
+     def test_every_restriction_is_present_and_unconditional(self):
+         """A policy a caller can turn off is a default."""

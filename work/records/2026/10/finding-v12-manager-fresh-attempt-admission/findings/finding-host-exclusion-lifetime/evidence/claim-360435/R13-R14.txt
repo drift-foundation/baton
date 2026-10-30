@@ -1,0 +1,30 @@
+    ...<4 lines>...
+        binding=DeploymentBinding(
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+            self.state, stream=io.StringIO()))["job_id"])
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/w359719-tree/v12/python/tests/job_manager/test_fresh_attempt.py", line 1095, in admit
+    return admit(self.jobs if store is None else store, self.acts, **held)
+  File "/home/sl/w359719-tree/v12/python/src/baton_v12/job_manager/fresh_attempt.py", line 255, in admit
+    return _owned(store, operations, prior=prior, operands=operands,
+                  document=document, exclusion=exclusion,
+                  authorization=authorization, binding=binding,
+                  owner=owner)
+  File "/home/sl/w359719-tree/v12/python/src/baton_v12/job_manager/fresh_attempt.py", line 271, in _owned
+    evidence = _excluded(exclusion, prior["attempt_ids"], when="before")
+  File "/home/sl/w359719-tree/v12/python/src/baton_v12/job_manager/fresh_attempt.py", line 505, in _excluded
+    held = exclusion.evidence_of(tuple(attempt_ids))
+  File "/home/sl/w359719-tree/v12/python/tests/job_manager/test_fresh_attempt.py", line 1209, in evidence_of
+    gate.wait()
+    ~~~~~~~~~^^
+  File "/usr/lib/python3.13/threading.py", line 720, in wait
+    self._enter() # Block while the barrier drains.
+    ~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/threading.py", line 744, in _enter
+    raise BrokenBarrierError
+threading.BrokenBarrierError
+
+----------------------------------------------------------------------
+Ran 23 tests in 4.158s
+
+FAILED (errors=1)

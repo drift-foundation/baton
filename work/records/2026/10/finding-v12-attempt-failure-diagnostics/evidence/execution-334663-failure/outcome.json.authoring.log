@@ -1,0 +1,47 @@
+Traceback (most recent call last):
+  File "/home/sl/baton-instances/attempt-diagnostics-w333486-334663/code/v12/python/src/baton_v12/worker_manager/workspaces.py", line 1079, in hold_manager_instance
+    fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BlockingIOError: [Errno 11] Resource temporarily unavailable
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/sl/baton-instances/attempt-diagnostics-w333486-334663/code/v12/python/tools/authoring_enforcement.py", line 439, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/home/sl/baton-instances/attempt-diagnostics-w333486-334663/code/v12/python/tools/authoring_enforcement.py", line 393, in main
+    return child_main(args.packet, args.child_of, args.lock_fd)
+  File "/home/sl/baton-instances/attempt-diagnostics-w333486-334663/code/v12/python/tools/authoring_enforcement.py", line 379, in child_main
+    return baseline.main(['--packet', packet_path, '--incarnation', 'authoring-child-' + str(os.getpid())], compose=child_compose)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/baton-instances/attempt-diagnostics-w333486-334663/supervisor/baseline.py", line 2832, in main
+    operations = (compose or _compose)(packet, job, control, stream)
+  File "/home/sl/baton-instances/attempt-diagnostics-w333486-334663/code/v12/python/tools/authoring_enforcement.py", line 245, in child_compose
+    operations = stage_execution.operations_from(config, job, control, engine_run=bounded_engine, checkout=packet['code_boundary'])
+  File "/home/sl/baton-instances/attempt-diagnostics-w333486-334663/code/v12/python/tools/stage_execution.py", line 6495, in operations_from
+    providers = [single_worker.worker_preflight(
+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        one["deployment"], control_store,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        credential_provider=credential_provider, engine_run=engine_run)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/baton-instances/attempt-diagnostics-w333486-334663/code/v12/python/tools/single_worker.py", line 3449, in worker_preflight
+    workspaces.hold_manager_instance(control_store, given["workspace_storage"])
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/baton-instances/attempt-diagnostics-w333486-334663/code/v12/python/src/baton_v12/worker_manager/workspaces.py", line 1084, in hold_manager_instance
+    _denied(f"another manager is already active for workspace "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{name_value(place)}{_guarding(descriptor)}; only one Host manager "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"may be active for one workspace and database, so this start is a "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"configuration error rather than a standby -- point this manager at "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"its own database and workspace, or stop the active one first")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/baton-instances/attempt-diagnostics-w333486-334663/code/v12/python/src/baton_v12/worker_manager/workspaces.py", line 4880, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: another manager is already active for workspace '/home/sl/baton-instances/attempt-diagnostics-w333486-334663…, holding control store '/home/sl/baton-instances/attempt-diagnostics-w333486-334663…; only one Host manager may be active for one workspace and database, so this start is a configuration error rather than a standby -- point this manager at its own database and workspace, or stop the active one first

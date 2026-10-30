@@ -1,0 +1,101 @@
+{
+  "baseline": "BASELINE-344617.json",
+  "baseline_sha256": "912531d5839d1d93326758597cbd18b5697a5759044754d29537eb4e419b6079",
+  "changed_this_claim": [
+    "v12/NEXT-RUN.md",
+    "v12/python/tests/tools/test_next_run_managed.py",
+    "v12/python/tools/next_run_managed.py"
+  ],
+  "claim": 345023,
+  "files": {
+    "v12/NEXT-RUN.md": {
+      "base_sha256": null,
+      "bytes": 14498,
+      "candidate_sha256": "9e584266f6bc7726aef7cb0ccafd9e8b6ed9ad78a366aea3e4cb7ee815d246cd"
+    },
+    "v12/python/src/baton_v12/worker_manager/attempts.py": {
+      "base_sha256": "726197972a9b2558cbfa4eabfd877053a8ffbcd7c1b4c3f3f2b4c9372f85bbab",
+      "bytes": 210898,
+      "candidate_sha256": "5c3cf84641bcbef5fcf78c4bd058911dfc233b60242920ab30ebf6ce54fcdc7d"
+    },
+    "v12/python/tests/manager/test_authoring_enforcement.py": {
+      "base_sha256": "947abaac77f3a0524c4c9f90e7f4a2ba3d76b643b72d3bec8a733955f7b9b823",
+      "bytes": 29550,
+      "candidate_sha256": "7f6ab4349250328a0ed6a6015a4f69e6e631c52be59a8fc132374d264638d28b"
+    },
+    "v12/python/tests/tools/test_next_run.py": {
+      "base_sha256": null,
+      "bytes": 10660,
+      "candidate_sha256": "b0123de44201c2d278ad04cec0f6173655768547afc131860be21cc7f10439cf"
+    },
+    "v12/python/tests/tools/test_next_run_managed.py": {
+      "base_sha256": null,
+      "bytes": 33620,
+      "candidate_sha256": "d3a90204964295c723898a1cb8fbe5c45fb25dab2eb287c3a614de7aa7cc9fb3"
+    },
+    "v12/python/tests/tools/test_next_run_recovery.py": {
+      "base_sha256": null,
+      "bytes": 2446,
+      "candidate_sha256": "c3bd2c230f8f1158c45cd8b7b5e15b7d00a6f6007fc3deaf4300f504b799404f"
+    },
+    "v12/python/tools/authoring_baseline.py": {
+      "base_sha256": null,
+      "bytes": 148926,
+      "candidate_sha256": "8e5987f56f8d5329c33a8e73f9df56f13213e134f2dade8180afabf80723efe9"
+    },
+    "v12/python/tools/authoring_enforcement.py": {
+      "base_sha256": "d12769df863424c402757d925e5efb848e473e2877e62244af5595be56c8ebb7",
+      "bytes": 31877,
+      "candidate_sha256": "5de01d96fac4bfb01e46ca5d84e40915f112518047fe77e111122c0e22b17cef"
+    },
+    "v12/python/tools/next_run.py": {
+      "base_sha256": null,
+      "bytes": 19156,
+      "candidate_sha256": "f32720fada8047b40d51f28931a4c2afcef7e8417d3356f097b8d9ffd3eae373"
+    },
+    "v12/python/tools/next_run_bindings.py": {
+      "base_sha256": null,
+      "bytes": 41470,
+      "candidate_sha256": "5f819a75d5cee75791371fd41cb3f3e53c8150be6d07484c69c0e64bb20fcf29"
+    },
+    "v12/python/tools/next_run_client.py": {
+      "base_sha256": null,
+      "bytes": 1354,
+      "candidate_sha256": "d1f4e42a50ed95a8e34069e525017b4d9feca3ac3bc31fe7b51d592223d3ce1d"
+    },
+    "v12/python/tools/next_run_confinement.py": {
+      "base_sha256": null,
+      "bytes": 1691,
+      "candidate_sha256": "317414e0246818f4507e5c3ab907e03b149151a9bb42acf2bf1b9ec9772b469e"
+    },
+    "v12/python/tools/next_run_entry.py": {
+      "base_sha256": null,
+      "bytes": 2316,
+      "candidate_sha256": "8290d5797267d02608180bd8539905be573ee6092ad8a04bd274a09c326a6bf4"
+    },
+    "v12/python/tools/next_run_managed.py": {
+      "base_sha256": null,
+      "bytes": 38173,
+      "candidate_sha256": "3346fbe59596cdef220ad955ebf15540380fadcc131b782450a19f27b283a92a"
+    },
+    "v12/python/tools/next_run_recovery.py": {
+      "base_sha256": null,
+      "bytes": 2887,
+      "candidate_sha256": "59502d0ea24707f211f8fc47bd07b3847a373de48da12939a8e93920cbc506f9"
+    }
+  },
+  "imported_origins": {
+    "v12/python/tools/authoring_baseline.py": "work/records/2026/09/finding-v12-single-implementation-proof/baseline.py",
+    "v12/python/tools/next_run_bindings.py": "work/records/2026/09/finding-v12-single-implementation-proof/baseline_bindings.py",
+    "v12/python/tools/next_run_confinement.py": {
+      "scope": "restrict_writes function; standalone imports and refusal function added",
+      "sha256": "7547b27f88873e240f1a0666e6c1cdd7dfc5d2a9064974264aea4be6fcdf1d15",
+      "source": "/opt/baton-managed-entry/entry.py"
+    }
+  },
+  "previous_candidate": "CANDIDATE-344881.json",
+  "restoration": "evidence/restoration-345023.json",
+  "source_copy": "/tmp/baton-next-run-345023",
+  "state": "interrupted-allocation continuation awaiting independent review; joined acceptance incomplete",
+  "work": "W339626"
+}

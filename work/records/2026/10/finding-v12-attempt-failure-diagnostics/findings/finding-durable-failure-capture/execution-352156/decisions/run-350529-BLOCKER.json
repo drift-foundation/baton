@@ -1,0 +1,104 @@
+{
+  "THE_BLOCKER": {
+    "it_is_a_path_mismatch_not_a_byte_mismatch": {
+      "byte_identical": true,
+      "cmp": "cmp(1) reports no difference",
+      "consequence": "the packet's supervisor sha256 pin verifies against EITHER path. Only the path equality fails, and _pin passes immediately before the refusal.",
+      "manager_source_baseline_sha256": "8e5987f56f8d5329c33a8e73f9df56f13213e134f2dade8180afabf80723efe9",
+      "supervisor_baseline_sha256": "8e5987f56f8d5329c33a8e73f9df56f13213e134f2dade8180afabf80723efe9"
+    },
+    "refusal": "tools.authoring_baseline.SupervisorRefusal: this process is running '<root>/code/v12/python/tools/authoring_baseline.py' and the packet binds '<root>/supervisor/baseline.py'",
+    "the_check": "verify_imported_sources asserts, after proving every manager_source package resolves inside the bound source, that os.path.realpath of ITS OWN __file__ equals os.path.realpath(packet['supervisor']['path']). Its docstring says it runs BEFORE ANY STORE IS OPENED, \"which is the only moment at which refusing is free\".",
+    "the_minimal_correction": "compose supervisor_path = <root>/code/v12/python/tools/authoring_baseline.py -- the module the accepted controller actually runs. One argument in prepare.py bind. The digest pin is unchanged (8e5987f5...) because the bytes are identical, verify_controller is unaffected, and the only other consumer is the forbidden composer start.",
+    "what_was_not_the_cause": [
+      "NOT the corrected 115-member binding: it is exactly what W348979 published and every member staged and verified. The import at line 554 that killed run348852 RESOLVED this time -- proved before launch and proved again by the traceback, which is two frames further on at line 564.",
+      "not authentication -- no provider was contacted",
+      "not the permission or the retired lease -- no envelope was composed",
+      "not the worker candidate, the recovery or the gate -- none was reached",
+      "not the executor boundary -- the preflight passed 0.332s earlier with the engine reachable, the image digest equal to the pin and zero denials"
+    ],
+    "where": "tools/authoring_enforcement.py:564 -> authoring_baseline.verify_imported_sources -> authoring_baseline.py:589-591",
+    "who_composes_the_path": "prepare.py bind, which passes supervisor_path=str(root / 'supervisor' / 'baseline.py') to baseline_bindings.compose. THIS IS THIS PACKET'S OWN COMPOSITION ARGUMENT, not the accepted host binding and not the accepted controller.",
+    "who_else_reads_it": {
+      "composer_commands_json": "supervisor/baseline_bindings.py:721 builds the commands.json `start` from packet['supervisor']['path']. That is the UNENFORCED start this packet already forbids, so repointing the supervisor path changes only the argv of a command nobody may use.",
+      "held_packet": "authoring_baseline.py:506-507 -- _document plus _pin on path and sha256 only. Satisfied by either path, because the bytes are identical.",
+      "verify_controller": "tools/authoring_enforcement.py:410-421 -- controller and shutdown helper must be inside the manager source and pinned by it. UNAFFECTED by the supervisor path."
+    },
+    "why": "THE PACKET BINDS THE SUPERVISOR PROGRAM BY PATH, AND THE ACCEPTED CONTROLLER NOW RUNS THAT PROGRAM FROM A DIFFERENT PATH. The old controller d12769df imported a top-level `baseline` from the staged supervisor directory on PYTHONPATH, so the running module was <root>/supervisor/baseline.py -- exactly what prepare.py composes as the supervisor path, and the check passed. The accepted controller 248ee9ed imports `tools.authoring_baseline` from the MANAGER SOURCE instead (lines 494, 506, 554), so the running module is <root>/code/v12/python/tools/authoring_baseline.py while the composition still names the supervisor directory copy."
+  },
+  "accepted_as_preparation": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/review-2026-10-21T23-28-31Z.md",
+  "cessation": {
+    "attempt": "none was ever admitted",
+    "cleanup": "NOTHING TO CLEAN, and this is not read off an empty listing: no effect was ever ordered, because the process refused before the first statement that could order one.",
+    "container": "no runtime container for this run exists in the engine listing",
+    "job": "none was ever submitted",
+    "lock": "no <control_store>.authoring.lock exists",
+    "runtime": "none was ever created",
+    "stores": "instance/db holds ONLY authority.sqlite3, written by step 2 bootstrap. There is no jobs.sqlite3 and no control.sqlite3, so no ControlStore was ever opened -- the refusal precedes the authoring lock, the store and verify_worker_image, which are main's next three statements.",
+    "token": "none was ever acquired"
+  },
+  "claim": 352156,
+  "consumed": "owner selection352153 is CONSUMED. One invocation, no retry, no recovery, and none attempted. The root is preserved unchanged.",
+  "final_results": {
+    "authoring_log": "absent",
+    "available": [],
+    "collected_with": "execution-350529/collect.py",
+    "controller": "absent",
+    "manager_snapshot": "absent",
+    "reading": "ALL SIX ABSENT because the refusal precedes every publication. Absence names no cause on its own -- the cause is the SupervisorRefusal above, read from the controller's own stderr.",
+    "shutdown_progress": "absent",
+    "shutdown_request": "absent",
+    "workload": "absent"
+  },
+  "launched_at": "2026-10-22T03:11:16Z",
+  "outcome": "THE CONTROLLER REFUSED AT STARTUP, about two seconds after launch, at the statement AFTER the one that killed run348852. No envelope, no Job, no attempt, no runtime, no token, no container, no provider call. The invocation is consumed.",
+  "packet": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-350529",
+  "packet_manifest": "6be3fb90a1037c992e7e22510363953c51c99133a2a87572e5066aa3980bc6ff",
+  "preflights": {
+    "actual_boundary_preflight": {
+      "child_status": 0,
+      "denials": [],
+      "seconds": 0.332,
+      "verdict": "available"
+    },
+    "author_deferred_import_check": {
+      "and_it_said_so": "this check explicitly declared that it \"does not establish that the controller RUNS; only that these imports resolve\". That disclaimer was correct and this run is what it was warning about.",
+      "failures": [],
+      "seconds": 0.321,
+      "verdict": "imports-resolve",
+      "what": "ran the exact statement from controller line 554 in a child with the controller's cwd, PYTHONPATH and BATON_V12_STAGE_EXECUTION_CONFIG. It resolved, and baseline.main was present."
+    },
+    "pre_stage_capability": {
+      "denials": [],
+      "seconds": 0.017,
+      "verdict": "capable"
+    },
+    "what_none_of_them_checked": "THAT THE COMPOSED PACKET SATISFIES THE CONTROLLER'S OWN STARTUP VERIFICATION. held_packet, verify_imported_sources and verify_controller are three functions the packet itself carries, they run before any store is opened, and NOTHING IN PREPARATION CALLS THEM AGAINST THE COMPOSED PACKET. Two consecutive selected invocations have now died inside that window -- run348852 at line 554 and run350529 at line 564."
+  },
+  "preparation": {
+    "all_status": 0,
+    "authority": "f838ae72c8d24c5db407c3e9c7f80978",
+    "bind_seconds": 0.37,
+    "bootstrap_seconds": 0.638,
+    "candidate_patch": "294368c55fd468a95a4375c250e560def0f4cbc0a0c8a2a3a6f2658732e83856",
+    "composed_packet": "37c487f5801e37390ca80c04540b8ee7256b048a574bf5c327b516ed320cc30c",
+    "controller": "248ee9edd72214efbdc77044a9af6ad2c382e2ca1dbd5b71ff0db720d9a5a5dc",
+    "equals_binding": true,
+    "fixtures": 66,
+    "gate_member_digest": "2f7ed3dca95da498657a0e549e53107679fd7e8cf4503d5022555ba9e642176c",
+    "generated_command_agrees_with_COMMANDS_md": true,
+    "manager_members": 115,
+    "note": "the preparation and the binding consumption were correct and independently accepted. The defect is one composition argument in this packet, demonstrated by the run.",
+    "packages": [
+      "baton_v12",
+      "tools"
+    ],
+    "stage_seconds": 0.077
+  },
+  "read_only": "the controller stderr, the collection and the packet directory were read; nothing in the instance was modified.",
+  "root": "/home/sl/baton-instances/durable-capture-w341357-350529",
+  "run": "durable-capture-w341357-350529",
+  "schema": "baton.w341357-run-blocker/2",
+  "selection": "owner reroute352153",
+  "work": "W341357"
+}

@@ -1,0 +1,58 @@
+E.EEE.E
+======================================================================
+ERROR: test_THE_PER_INVOCATION_CEILINGS_ARE_UNCHANGED_BY_IT (tests.job_manager.test_native_permission.NativeTaskTokenLifetime.test_THE_PER_INVOCATION_CEILINGS_ARE_UNCHANGED_BY_IT)
+A longer token does not lengthen a turn or a verification.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w325959-354165/red/v12/python/tests/job_manager/test_native_permission.py", line 66, in test_THE_PER_INVOCATION_CEILINGS_ARE_UNCHANGED_BY_IT
+    execution_limits.task_token_seconds(before)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'baton_v12.job_manager.execution_limits' has no attribute 'task_token_seconds'
+
+======================================================================
+ERROR: test_it_FOLLOWS_THE_JOBS_OWN_SELECTION_rather_than_a_constant (tests.job_manager.test_native_permission.NativeTaskTokenLifetime.test_it_FOLLOWS_THE_JOBS_OWN_SELECTION_rather_than_a_constant)
+A Job that selected smaller limits gets a smaller token.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w325959-354165/red/v12/python/tests/job_manager/test_native_permission.py", line 60, in test_it_FOLLOWS_THE_JOBS_OWN_SELECTION_rather_than_a_constant
+    self.assertLess(execution_limits.task_token_seconds(selected),
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'baton_v12.job_manager.execution_limits' has no attribute 'task_token_seconds'
+
+======================================================================
+ERROR: test_the_lifetime_covers_every_bounded_operation_it_names (tests.job_manager.test_native_permission.NativeTaskTokenLifetime.test_the_lifetime_covers_every_bounded_operation_it_names)
+Not a floor: each addend is a named bound, and the sum is exact.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w325959-354165/red/v12/python/tests/job_manager/test_native_permission.py", line 41, in test_the_lifetime_covers_every_bounded_operation_it_names
+    expected = (execution_limits.CHECKOUT_STEPS
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'baton_v12.job_manager.execution_limits' has no attribute 'CHECKOUT_STEPS'
+
+======================================================================
+ERROR: test_a_token_at_the_NATIVE_lifetime_is_not_overdue_before_it_expires (tests.job_manager.test_native_permission.TheAcquisitionTakesIt.test_a_token_at_the_NATIVE_lifetime_is_not_overdue_before_it_expires)
+Expiry is the native stop trigger, so the lifetime IS the bound.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w325959-354165/red/v12/python/tests/job_manager/test_native_permission.py", line 127, in test_a_token_at_the_NATIVE_lifetime_is_not_overdue_before_it_expires
+    seconds = execution_limits.task_token_seconds(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'baton_v12.job_manager.execution_limits' has no attribute 'task_token_seconds'
+
+======================================================================
+ERROR: test_the_governance_ACCEPTS_a_resolved_lifetime (tests.job_manager.test_native_permission.TheAcquisitionTakesIt.test_the_governance_ACCEPTS_a_resolved_lifetime)
+The one argument whose absence caused the pilot failure.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w325959-354165/red/v12/python/tests/job_manager/test_native_permission.py", line 107, in test_the_governance_ACCEPTS_a_resolved_lifetime
+    self.assertIsNotNone(self.governance(seconds=7320))
+                         ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/tmp/w325959-354165/red/v12/python/tests/job_manager/test_native_permission.py", line 97, in governance
+    held = workspaces.prepared_workspace_governance(
+        self.store, self.attempt["runtime_attempt_id"], seconds=seconds)
+TypeError: prepared_workspace_governance() got an unexpected keyword argument 'seconds'
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.008s
+
+FAILED (errors=5)

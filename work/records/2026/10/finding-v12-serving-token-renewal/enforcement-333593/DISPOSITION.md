@@ -1,0 +1,32 @@
+# Authoring enforcement prerequisite — W333485
+
+2026-10-19, baton.codxpc, claim333593. This supersedes the launch recommendation implicit in execution-333532/OPERATOR.md; that immutable packet and its passing preparation checks remain preserved. **Do not start execution-333532.** No safe superseding launch packet is asserted by this disposition.
+
+## Confirmed gap and bounded investigation
+
+The reviewer is correct: the selected baseline supervisor calls `manager.serve` without `reclaim` (baseline.py:1207). Its time predicate runs between synchronous passes; cancellation is requested only after serving returns. The600-second default engine call timeout in tools/single_worker.py:563 is separate from the supervisor's overall deadline. Its `cancel_attempt` at2537 builds the ordinary adapter and invokes request_cancellation without a remaining-time budget. The adapter stop path in worker_manager/oci.py:3299 calls its runner without an override. A60-second cleanup reserve does not clamp this preceding cancellation call; the cleanup-window loop is reached afterwards at baseline.py:1297.
+
+Inspected alternative: tools/job_manager.py:1072–1079 does supply a reclaim callback, unlike this supervisor. However it performs reclamation synchronously after sweep, and its documented engine allowance is1440 seconds per capped pass, excluding sweep/ending time. Substituting that entrypoint neither demonstrates timely enforcement under blocking work nor preserves the selected supervisor's invocation cap/accounting automatically. No fresh profile operand in the reused composer controls this missing scheduling/enforcement path. There is no demonstrated safe replacement among these two inspected compositions; this is not a claim to have searched every historical vehicle.
+
+## Deterministic evidence, with limits
+
+`probe.py` validates all112 staged manager-file and3 supervisor-file hashes against the immutable packet's pins before loading them. It executes real `baseline.supervise`, real `manager.serve`, real cancellation dispatch and real held-outcome accounting. Scheduling/store projections and cancellation adapter are simulated; no store, token, Git mutation, engine, provider or actual Job is used. These are preparation falsification probes, not runtime cessation acceptance.
+
+`RESULT.json` records two cases:
+
+1. Original3600/4800/60 envelope,600-second simulated sweeps: no reclaim callback is supplied, and cancellation occurs at simulated4808 seconds. Even a cancellation acknowledgement leaves the exact simulated runtime held because no positive cleanup was observed.
+2. Proposed short180/300/60 envelope, one600-second simulated blocking sweep and a600-second cancellation timeout: the supervisor exits serving at601 seconds, returns at1201 seconds, identifies the exact attempt/runtime, reports cancellation failure and retains outstanding cleanup. The shorter configuration does not enforce a900-second complete-execution envelope.
+
+The second case is a legal seam-level counterexample to the supervisor's own preemption guarantee, not an assertion that a real engine took exactly600 seconds or that a real token expired. Source inspection establishes that cancellation is not clamped to the reserve; the probe demonstrates the consequence at the supervisor boundary. Positive cessation and real token arbitration remain unproved. A provider timer cannot substitute for host-runtime termination. No production test result is claimed.
+
+Probe measured wall0.000382070s (whole command tool wall0.124725553s). Retained simulated outcome files: `/tmp/w333485-enforcement-probe-viajvl73`. Read-only source inputs remain at `/tmp/w333485-preflight-x4bdpfzp/instance-root` and are digest-checked by the probe. Existing nine-check preparation/refusal proofs still apply to the unchanged packet and were not redundantly rerun.
+
+## Exact prerequisite and owner disposition
+
+Before recommending an authoring run, select an independently reviewed host composition which enforces the committed token deadline despite blocking sweep/engine work, requests stop of the exact runtime, and retains ownership when cessation cannot be confirmed. For the proposed baseline vehicle the concrete missing integration is at `baseline._supervise`'s `serve` call and its synchronous cancellation path. A callback-only change is not sufficient evidence: the timing proof must include blocked scheduler work, slow/unreachable engine control, cancellation, restart and exact-runtime exclusion/unknown-hold outcomes. A safe short alternative must prove execution plus termination within the lease with the same latency accounting; lower numbers alone are insufficient.
+
+This prerequisite needs separately selected correction/execution authority or an already reviewed replacement vehicle with exact provenance. Current authority allows preparation but excludes direct-host product implementation and live execution; therefore this turn cannot insert the missing host enforcement code to bootstrap its own authoring run. Request reviewer/owner disposition of that concrete prerequisite, not approval of an unspecified configuration. No broad supervisor redesign, token-bound increase, host patch injection or pilot retry is proposed.
+
+All other operands are already concrete and preserved by execution-333532/PACKET-INPUTS.json, SHA-256 `96e8d690fc03ff37246b17d5fb88854bf0d403182fd3d97e2fcd4fd02cfc3b10`: basebbdacb5d38f6cf2d2461e9da103d28f9ab30cc6c; proposed root `/home/sl/baton-instances/serving-renewal-w333485-333532`; source archive305 files; worker config digestc862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2; /2 fresh git-line profile; bridge network; logical credential referencew202663-development; run/job/submission names and preparation commands in OPERATOR.md. These remain proposals, not spent grants. After a reviewed vehicle change, mint a new packet/run identity and revalidate generated commands and effective limits; do not silently replace bytes under this old seal.
+
+Production acceptance is unchanged: eligible3600-second execution through bounded renewal, finite exhaustion, exact expiry cessation, original Job limits and all FINDING race/restart/fairness cases. Sibling W333486 remains independently owned, with separate candidates and serial overlap integration. No implementation is accepted and no Job/attempt exists. Next action is independent review of this prerequisite evidence and owner disposition; preserve all candidate/evidence and the failed pilot.

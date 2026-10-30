@@ -1,0 +1,23 @@
+{
+  "claim": 354510,
+  "index_sha256": "0b8cfbb358875155c8e7dcbe1c37a4383438795419912d9e3f9bc55dfa8777d2",
+  "custody": {
+    "candidate-execution_limits.py": true,
+    "candidate-single_worker.py": true,
+    "candidate-stage_execution.py": true,
+    "candidate-test_native_permission.py": true,
+    "candidate-workspaces.py": true,
+    "focused.log": true,
+    "joined-final.log": true,
+    "progress-section.md": true,
+    "red-native.log": true
+  },
+  "candidate": {
+    "src/baton_v12/job_manager/execution_limits.py": true,
+    "src/baton_v12/worker_manager/workspaces.py": true,
+    "tests/job_manager/test_native_permission.py": true,
+    "tools/single_worker.py": true,
+    "tools/stage_execution.py": true
+  },
+  "verification": "7 focused tests passed independently; malformed resolved document refused with ContractRefusal; no live operations"
+}

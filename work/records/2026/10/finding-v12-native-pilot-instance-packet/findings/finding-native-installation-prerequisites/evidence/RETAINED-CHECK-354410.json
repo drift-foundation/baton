@@ -1,0 +1,29 @@
+{
+  "claim": 354410,
+  "scope": "Retained repository evidence only; no installed state, stores, provider, engine or credential access",
+  "packets": [
+    {
+      "path": "work/records/2026/10/finding-v12-native-pilot-instance-packet/revision-4/MANIFEST.json",
+      "sha256": "762ffd3007153833b1b102c1c45268c8a6931ac493ede6c412481fb27f519b24",
+      "members": 78,
+      "mismatches": []
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-native-pilot-instance-packet/recovery-5/MANIFEST.json",
+      "sha256": "0f377d2c469c53d7a313499b353f14c65454941da3cf809dfe33bb0212342e0c",
+      "members": 17,
+      "mismatches": []
+    }
+  ],
+  "references": {
+    "OWNER-FAILURE-EVIDENCE-20261019.md": "c41ec181b51ed1fe8e6924744f6c61588b1493854392048a7cb973cc5d9622ea",
+    "INPUTS-354131.json": "205cce53724b756ea550a0cdcee74055aa14a80fbd1ee9d04d9131ee248a037e",
+    "review-2026-10-19T02-23-47Z.md": "78d8b254df8ab72a1e2c9fcb873d17f460da54b0c4f1a12c4ed5a9c2337a5bab",
+    "review-2026-10-19T02-33-30Z.md": "aadbec1f37dd774ac6a3a7752d65ae30eeaf80226d255554d2081824d3c727d3",
+    "review-2026-10-19T04-37-09Z.md": "6ab95ef873fbf287e3b07f95966bc356091ffe1512736fefb9f1eab0e862fa69",
+    "evidence/review-328668/BUNDLE-FILES.json": "60bd426f99910cc3217bff5e03d8d8e77601c360dcb6b53f5cb47570e6f03873",
+    "evidence/review-328668/IDENTITY.json": "25f1997992db67a4fa5b7e15c7c5223df8ddd92abf09c32d748501a713bb2acc",
+    "recovery-5/CHANGE.json": "2c9f6030e25f583877cfef5460193cbc4c8d97815b5cd6c3f41b23d48e43ad08"
+  },
+  "seconds": 0.0013985379991936497
+}

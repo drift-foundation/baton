@@ -1,0 +1,37 @@
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-shutdown-deadline/candidate-338472/v12/python/tests/manager/shutdown_fixture.py", line 218, in <module>
+    raise SystemExit(fixture(Path(sys.argv[2]), sys.argv[3:]))
+                     ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-shutdown-deadline/candidate-338472/v12/python/tests/manager/shutdown_fixture.py", line 212, in fixture
+    return e.main(argv)
+           ~~~~~~^^^^^^
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-shutdown-deadline/candidate-338472/v12/python/tools/authoring_enforcement.py", line 505, in main
+    return child_main(args.packet, args.child_of, args.lock_fd, args.status_path)
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-shutdown-deadline/candidate-338472/v12/python/tools/authoring_enforcement.py", line 475, in child_main
+    return baseline.main(['--packet', packet_path, '--incarnation', 'authoring-child-' + str(os.getpid())], compose=child_compose, shutdown=shutdown)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-shutdown-deadline/candidate-338472/work/records/2026/09/finding-v12-single-implementation-proof/baseline.py", line 2847, in main
+    outcome = supervise(job, control, operations, packet,
+                        surveyed=surveyed, shutdown=shutdown)
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-shutdown-deadline/candidate-338472/work/records/2026/09/finding-v12-single-implementation-proof/baseline.py", line 1059, in supervise
+    return _supervise(job, control, operations, packet, clock=clock,
+                      sleep=sleep, monotonic=monotonic,
+                      termination=termination, inspect=inspect,
+                      surveyed=surveyed, shutdown=shutdown)
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-shutdown-deadline/candidate-338472/work/records/2026/09/finding-v12-single-implementation-proof/baseline.py", line 1460, in _supervise
+    bounded_call("workload publication", lambda: _publish(packet["outcome_path"], outcome))
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-shutdown-deadline/candidate-338472/work/records/2026/09/finding-v12-single-implementation-proof/baseline.py", line 1083, in bounded_call
+    return thunk() if shutdown is None else shutdown.call(phase, step, thunk)
+                                            ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-shutdown-deadline/candidate-338472/v12/python/tools/authoring_shutdown.py", line 83, in call
+    return thunk()
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-shutdown-deadline/candidate-338472/work/records/2026/09/finding-v12-single-implementation-proof/baseline.py", line 1460, in <lambda>
+    bounded_call("workload publication", lambda: _publish(packet["outcome_path"], outcome))
+                                                 ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-shutdown-deadline/candidate-338472/v12/python/tests/manager/shutdown_fixture.py", line 183, in workload_publish
+    time.sleep(60)
+    ~~~~~~~~~~^^^^
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-shutdown-deadline/candidate-338472/v12/python/tools/authoring_shutdown.py", line 27, in expired
+    raise TimeoutError('shutdown step timed out: ' + step)
+TimeoutError: shutdown step timed out: workload publication

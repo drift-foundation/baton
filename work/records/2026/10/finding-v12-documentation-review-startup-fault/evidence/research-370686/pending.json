@@ -1,0 +1,65 @@
+{
+  "authority_uuid": "6dcb60dce5cd485b8bf03c24bc4afc82",
+  "canonical_target": "42bed8bb04a53380e565b1a63fb2bc702677f0d0",
+  "close_decision": null,
+  "closure_acceptance": null,
+  "dossier": null,
+  "due": "the latest candidate has no passed verification, so execution has not produced a checkable result yet",
+  "evidence": [],
+  "latest_proposal": "integration-driver.proposal:4f11c905608c7b06eac7765d5ce65c817b72c2e252ea0fb760548846ce2bb819",
+  "owner_action": "awaiting-verification",
+  "policy_generation": 11,
+  "proposals": [
+    {
+      "assignment_ref": {
+        "generation": 1,
+        "participant": "baton.claude-w366962",
+        "work_ref": {
+          "authority_uuid": "6dcb60dce5cd485b8bf03c24bc4afc82",
+          "work_id": "6dcb60dc-W1"
+        }
+      },
+      "candidate_digest": "e6de29e5f945f692a42f689570d5c39edc4f61bc",
+      "decision": {
+        "effective_scope": "scope:deployment",
+        "endpoint": "baton.claude-w366962",
+        "grant": "direct",
+        "policy_generation": 11,
+        "principal": "principal:baton.claude-w366962",
+        "role": "impl"
+      },
+      "input_digest": "sha256:dda286b03a1a264a91c8ca72fa2e1202bcdf7ec2252d91bcad37b49160788535",
+      "owner_action": "awaiting-verification",
+      "policy_digest": "sha256:837d7a03b2d92b9654cbc391daefcfa208f747bbd9ae7c528d54f528bd536357",
+      "proposal_id": "integration-driver.proposal:4f11c905608c7b06eac7765d5ce65c817b72c2e252ea0fb760548846ce2bb819",
+      "published_at": "2026-10-28T01:43:19.628Z",
+      "receipts": {
+        "approval": null,
+        "integration": null,
+        "review": null,
+        "verification": null
+      },
+      "result_digest": "sha256:b8a440facd3520dad89421a7a750f36e0befc2555ce9b91889f9fd519e022d3f",
+      "result_id": "result-attempt-16aa4dc348aa54aac84738be2f9caeac86ff4767d32aa59d88c48410d4fb9db9",
+      "target": "42bed8bb04a53380e565b1a63fb2bc702677f0d0"
+    }
+  ],
+  "rationale": null,
+  "work": {
+    "assignment": {
+      "generation": 2,
+      "participant": "baton.reviewer-w366962",
+      "work_ref": {
+        "authority_uuid": "6dcb60dce5cd485b8bf03c24bc4afc82",
+        "work_id": "6dcb60dc-W1"
+      }
+    },
+    "handler": "baton.reviewer-w366962",
+    "outcome": null,
+    "phase": "active",
+    "route": "rview",
+    "scope": "scope:deployment",
+    "status": "open",
+    "work_id": "6dcb60dc-W1"
+  }
+}

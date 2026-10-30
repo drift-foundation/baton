@@ -1,0 +1,90 @@
+{
+  "agree": true,
+  "cleanup_seconds_is_load_bearing_twice": {
+    "cleanup_seconds": 60,
+    "inner": "authoring_shutdown.Shutdown derives its whole allowance from it: min(maximum, now + cleanup - min(12, cleanup / 2)), then subdivides the reserve across cleanup, accounting, workload-publication, guard-stop and guard-publication",
+    "outer": "the watchdog reserves this tail for kill and reap",
+    "why": "Lowering it would silently shrink the window in which a final report can still be written. See SHUTDOWN.md."
+  },
+  "composed_from": "/tmp/w341357-preflight7/packet",
+  "effective_permission": {
+    "accepted_by": "W333485, closed satisfying by owner348699",
+    "cleanup_seconds": 60,
+    "example_acquisition_at_120_seconds": {
+      "remaining_permission_seconds": 4680
+    },
+    "execution_stop": "origin + 4740 seconds",
+    "latest_full_invocation_admission": "origin + 1110 seconds; remaining execution must fit3600+30",
+    "legacy_tokens": "not converted; duration900 and legacy renewal unchanged",
+    "origin": "persisted authoring.envelope started_at before acquisition",
+    "permission_expiry": "origin + 4800 seconds",
+    "provider_turn_seconds": 3600,
+    "restart": "original absolute timestamps; authoring restart cancellation-only",
+    "source": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-348718/decisions/host-policy.json",
+    "total_seconds": 4800,
+    "verification_command_seconds": 30
+  },
+  "execution_policy": {
+    "automatic_retry": false,
+    "implementer_invocations": 1,
+    "provider_turn_seconds": 3600,
+    "source": "policy.json",
+    "verification_command_seconds": 30
+  },
+  "final_results": {
+    "authoring_log": "/tmp/w341357-preflight4/packet/outcome.json.authoring.log",
+    "controller": "/tmp/w341357-preflight4/packet/outcome.json.enforcement-<pid>-<ns>.json",
+    "manager_snapshot": "/tmp/w341357-preflight4/packet/outcome.json.manager-<pid>-<ns>.json",
+    "observed_in_the_last_run": "five of six present and all correlatable ones matched; shutdown_request ABSENT, correctly, because nothing interrupted that run. All four links found, no isolated failures.",
+    "rule": "A missing or partial final report is INCOMPLETE: never success, never acceptance, never proof of cessation. An unavailable report names NO cause. And THIS VEHICLE PERSISTS NO PUBLICATION FAULT RELIABLY -- Shutdown.call writes its snapshot with earlier faults before running its step, the controller final publication is the last such call, and the outer publication handler records nothing -- so the absence of a publication fault is EXPECTED and informative in neither direction.",
+    "shutdown_progress": "/tmp/w341357-preflight4/packet/outcome.json.manager-<pid>-<ns>.json.progress.json",
+    "shutdown_request": "/tmp/w341357-preflight4/packet/outcome.json.manager-<pid>-<ns>.json.shutdown.json",
+    "temporaries": "each artifact has its OWN temporary and they are not interchangeable: the workload writes outcome.json.partial (baseline.py:1006), the controller outcome.json.enforcement-<pid>-<ns>.tmp and the progress file ...json.progress.tmp. A temporary belonging to one artifact says nothing about another.",
+    "these_are_the_preflight_paths": "the throwaway root, not the proposed root. The proposed root does not exist.",
+    "who_collects": "the EXTERNAL OPERATOR AND REVIEWER after the run, with collect.py and COMMANDS.md step 5a-5e. The worker inside the run cannot observe any of them: the controller publishes after child cleanup (authoring_enforcement.py:552-591) and the supervisor post-stop (baseline.py:1450-1461), both after the worker is gone. TASK.md item 6 is the worker's half.",
+    "workload": "/tmp/w341357-preflight4/packet/outcome.json"
+  },
+  "fixture_files": 59,
+  "measured_at_claim": 348718,
+  "note": "Read from THIS claim's GENERATED documents under /tmp/w341357-preflight7/packet. No product test was executed to produce it.",
+  "residual_total_margin_definition": "total_seconds - turn_seconds - cleanup_seconds - verification_command_seconds = 4800 - 3600 - 60 - 30. The same definition every earlier revision used; recomputed from this claim's generated documents rather than copied.",
+  "residual_total_margin_seconds": 1110,
+  "schema": "baton.w341357-execution-limits-check/1",
+  "scratch_is_a_configured_capacity": {
+    "now_also_observed": "/tmp was READ as tmpfs with size=65536k and total_bytes 67108864, and the gate high-water was measured at 13303808 bytes falling to 2437120 after correction. The observation exists now; the configured figures are still not evidence of what filled run345388, which did not reproduce and remains unknown.",
+    "shm_bytes": 16777216,
+    "tmp_bytes": 67108864,
+    "workspace_min_bytes": 83886081
+  },
+  "submission": {
+    "execution_limits": {
+      "provider_turn_seconds": 3600,
+      "verification_command_seconds": 30
+    },
+    "source": "submission.json jobs[0]",
+    "terminal_policy": "report-and-hold"
+  },
+  "supervisor_bounds": {
+    "cleanup_seconds": 60,
+    "implementer_invocations": 1,
+    "retry": false,
+    "total_seconds": 4800,
+    "turn_seconds": 3600
+  },
+  "the_900_second_lease_is_retired": "EVERY EARLIER REVISION OF THIS DOCUMENT CARRIED A lease_disclosure BLOCK ASSERTING A 900-SECOND ENFORCED LEASE AND NAMING RENEWAL AS W333485'S UNFINISHED WORK. Both are superseded: the correction was supplied, independently accepted and closed satisfying. The block is REMOVED rather than edited, and the envelope-derived permission above replaces it. The 600/720/180 planning targets are historical and are not restated as policy anywhere in this packet. Existing tokens keep their old policy and are not converted; no live run has exercised this permission.",
+  "unchanged_by_the_identity_rebinding": "every figure above is identical to the one execution-341637 was accepted with. The rebinding changed the run id and the root; it changed no limit, and this document is re-derived rather than asserted.",
+  "unchanged_by_this_continuation": "provider 3600, verifier 30, total 4800, cleanup 60, one invocation, no retry, report-and-hold and the 1110 residual are identical to what execution-347396 was accepted with. What changed is the PERMISSION the host grants for them, not the figures themselves.",
+  "verification_ceiling": {
+    "fit_unproved": "decisions/review-334776.md is explicit that the 30-second fit for the new modules remains unproved and that no coverage may be removed to force a pass.",
+    "focused_for_this_slice": "five producer modules rather than the parent twelve. No measurement of this argv exists and none is claimed; the turn measures it and reports per-module seconds either way.",
+    "headroom_for_the_two_new_modules_seconds": 16.358,
+    "measured_by_the_completed_run": "the sealed gate ran once on real candidate work and EXITED 1, with its output withheld by design because it ran with the attempt credential mount readable. Whether the 30-second ceiling was material is UNCLASSIFIED; TASK.md item 7 makes classifying it a deliverable of the next run. The fit question is therefore still unproved, now with one real failing data point rather than none.",
+    "measured_existing_gate_seconds": 13.642,
+    "measured_existing_gate_tests": 1124,
+    "measurement_provenance": "the 13.642s / 1124-test figures were measured by direct host product execution at claim339421, outside that claim's preparation boundary (see GATE-CHECK.json measurement_provenance and PROGRESS.md), and were NOT re-measured here. The 30-second ceiling itself and the 16.358s remainder are composition facts and arithmetic, re-read from this claim's generated policy.json.",
+    "modules": 10,
+    "not_this_packets_to_set": true,
+    "seconds": 30,
+    "why": "baseline_bindings.py:345 composes \"verification_command_seconds\": 900 if contextual else 30 and :522 repeats the 30. The contextual branch discards this packet task and verification entirely in favour of the built-in TASK_INSTRUCTIONS and [\"python3\",\"harness.py\"] (lines 363 and 367), so a fresh-context packet is the only shape that can carry this task."
+  }
+}

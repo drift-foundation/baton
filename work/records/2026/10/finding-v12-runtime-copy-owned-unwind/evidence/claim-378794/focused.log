@@ -1,0 +1,10 @@
+................................................................................................................................................................................................................................................................................................................refused: the runtime at /tmp/v12-instance-vwnadlp0/a/distro is not the one this instance was prepared with: it holds 2 files digesting aebd9f0a1e35c2ae... and the instance records 2 digesting 7293e8241ae0d98a... Nothing here upgrades a deployment in place; prepare a new destination.
+.refused: the runtime at /tmp/v12-instance-3x4jr9zs/a/distro is not the one this instance was prepared with: it holds 2 files digesting 30f3d827fd48dd11... and the instance records 2 digesting 7293e8241ae0d98a... Nothing here upgrades a deployment in place; prepare a new destination.
+.refused: /tmp/v12-instance-qq6x2r2w/a/instance.json names state '/tmp/v12-instance-qq6x2r2w/b/state' and this destination derives '/tmp/v12-instance-qq6x2r2w/a/state'; every path an instance owns is DERIVED from its destination, so one that disagrees is describing a different deployment.
+.refused: the runtime at /tmp/v12-instance-s_v4n0jm/a/distro is not the one this instance was prepared with: it holds 3 files digesting 70f6a156483a85bd... and the instance records 2 digesting 7293e8241ae0d98a... Nothing here upgrades a deployment in place; prepare a new destination.
+.refused: there is no instance at /tmp/v12-instance-uay4kry6/nothing.json. `just bootstrap <inputs.json> <destination>` prepares one and writes it there.
+........
+----------------------------------------------------------------------
+Ran 316 tests in 18.749s
+
+OK

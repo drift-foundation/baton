@@ -145,6 +145,26 @@ COPY python/src/baton_v12/attempt_log_format.py \
 COPY python/src/baton_v12/verification_context.py \
      /opt/baton/verification_context.py
 COPY worker/baton_worker.py /opt/baton/baton_worker.py
+# W376586: THE SHARED TYPED DECLARATION REFUSAL, and it is NOT OPTIONAL.
+#
+# Review 2026-10-28T20-07-16Z found this exact layer missing: `claude_agent`
+# imports `adapter_refusal` unconditionally and no other line in this recipe
+# carried it, so the supported fresh image would have died
+# `ModuleNotFoundError` before the worker started -- the same failure
+# `scripted_agent` caused below, found by a build gate rather than by reading
+# the recipe. `baton_worker`'s own import is GUARDED -- the reference and
+# preparation images ship no role adapter and keep the exhaustive layer
+# contents their own gates assert -- so it is THE ADAPTER ABOVE that makes this
+# line mandatory here. Review 2026-10-28T21-25-27Z: an earlier version of this
+# comment said the worker import was unconditional, which it no longer is.
+#
+# W71917'S RULE IS KEPT INTACT. The module is standard-library-only and imports
+# nothing at all, including nothing from `baton_v12`; it is one class and seven
+# literals, shared so that the producer and the catcher test identity against
+# the same object. A second definition in either program would let a typed
+# refusal escape as a generic agent failure, which is the defect the four codes
+# exist to replace.
+COPY worker/adapter_refusal.py /opt/baton/adapter_refusal.py
 COPY worker/claude_agent.py /opt/baton/claude_agent.py
 COPY worker/dogfood_entry.py /opt/baton/dogfood_entry.py
 COPY worker/worker-control-1.0.schema.json \

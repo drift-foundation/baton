@@ -1,0 +1,179 @@
+{
+  "claim": 354242,
+  "custody_checks": {
+    "BASE-MISMATCH.json": true,
+    "MERGE-RESOLUTION.json": true,
+    "NATIVE-SEAM.json": true,
+    "joined-composed.log": true,
+    "merged-attempts.py": true,
+    "progress-section.md": true,
+    "threeway.py": true
+  },
+  "diagnostics": [
+    {
+      "path": "v12/python/src/baton_v12/job_manager/delegation.py",
+      "sha256": "a115e6edeb07fce7c73772e09b237a35645faf87b2aa7c849093ad853edad338",
+      "matches_supplier": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/documents.py",
+      "sha256": "7029d28c85eed30543d03acdbb0394d61765f4f704a7e6e3eeb41d2fb07e49c4",
+      "matches_supplier": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/projection.py",
+      "sha256": "02e0c80c8e468007a8666959e405468946463d815eb617331b0eb0dcdc68425a",
+      "matches_supplier": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/attempts.py",
+      "sha256": "e929d7305a723e6e355079b120c6740d9d8ddf26fad89b771738e92e74688b45",
+      "matches_supplier": false
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/documents.py",
+      "sha256": "376e62ab5bab0bcec8c4b662cd8b94935a1732f9ec2692a10bb9cb4af5a962c8",
+      "matches_supplier": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/failure_cause.py",
+      "sha256": "776f5932dc9c3d0f2df7ffed4e895078806def020d829a47563801da9621f1a3",
+      "matches_supplier": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/intake.py",
+      "sha256": "71f0ef60bd5b26409e9c24fe49bd2ace1382e8ef1cb0ab8b3e2a5a44deae3d97",
+      "matches_supplier": true
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_delegation.py",
+      "sha256": "337ab849613a68224f733712f1b11435b685d677763fe7923a3b76fb6666d949",
+      "matches_supplier": true
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_exchange.py",
+      "sha256": "c988c874775d09b579dc7390293807a1cc7d5f64a30f98419751dc8a81567876",
+      "matches_supplier": true
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_execution_limits.py",
+      "sha256": "04548669bfb666db2bbb9c8b52759877209affd1470500e0b7d69c670108eef9",
+      "matches_supplier": true
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_tool.py",
+      "sha256": "3c687ce3839406f3dddb96d96b073b7751ea790d80893486b1ba40b5a6c01618",
+      "matches_supplier": true
+    },
+    {
+      "path": "v12/python/tests/manager/disk_roots.py",
+      "sha256": "a1dd203287116ce60dfb6479f4ced25cccb106f3b775827c7e4f5409c779c4e4",
+      "matches_supplier": true
+    },
+    {
+      "path": "v12/python/tests/manager/input_roots.py",
+      "sha256": "86a01fae28809f1be541a6756653257354885fc9cc84957967836335b4db0fab",
+      "matches_supplier": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_attempt_failure_cause.py",
+      "sha256": "8371cbb8b28e16572defe0ef4c0a0efd09a4d41ea6ab22c92cdc1c6efcf94e30",
+      "matches_supplier": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_intake.py",
+      "sha256": "88bdda6bacb2b17c58ecdf9f7a8aaf1cec4fb300906960d26888040f87c23809",
+      "matches_supplier": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_maintenance.py",
+      "sha256": "e3c90ab294273fa9ff81709ecaae74c857f8a52d1db616b1de3237f411fc53af",
+      "matches_supplier": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_output.py",
+      "sha256": "b0e5d9839fcada66668eedca82a0912560cf13ec7ccf359e9b195a968c131b80",
+      "matches_supplier": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_attempt_diagnostics.py",
+      "sha256": "3882768c6c8a482c6a2df5b15552b1beef2c585a2c6ef3589127f300a9d75cca",
+      "matches_supplier": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_bootstrap.py",
+      "sha256": "c6b5ad3c0600904ed5965259e8b3549e35f193be6c90e02714e731768ffe6df6",
+      "matches_supplier": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_worker_visibility.py",
+      "sha256": "a27319c43edc1f962a008b113ed5114df8dcad047c76b35fb49687a9ba8f0a2e",
+      "matches_supplier": true
+    },
+    {
+      "path": "v12/python/tools/attempt_diagnostics.py",
+      "sha256": "6e02e22ef7ebd5cb4ae4725bc19a7c200b62897aba9f1f341435ceff2bb4fd12",
+      "matches_supplier": true
+    },
+    {
+      "path": "v12/python/tools/stack.py",
+      "sha256": "c0586c7f31abcb3d4e13b3dc0f2236a590802b3edbb6a107c32f933908ade009",
+      "matches_supplier": true
+    },
+    {
+      "path": "v12/python/tools/stack_command.py",
+      "sha256": "ad49c04fa609703f80e80e14156888ef118e876d7e8a4aef3414e959db92c707",
+      "matches_supplier": true
+    },
+    {
+      "path": "v12/python/tools/worker_visibility.py",
+      "sha256": "0689d32b90664ef1b3c63c8f8d94928b4545e0c5872a92a71557e0c17c54a80d",
+      "matches_supplier": true
+    }
+  ],
+  "permission": [
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/tokens.py",
+      "sha256": "c59c5d92352cbb2b225455b0c02cb625f1b4da6e9a4cc8cd65b0bc644e1fd5b4",
+      "matches_supplier": false,
+      "matches_base": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/workspaces.py",
+      "sha256": "d4fea18eab1d0f0e1ee8e197a006dc97274c021ed4dd6c548660a2e17ff08a03",
+      "matches_supplier": false,
+      "matches_base": true
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_serving_renewal.py",
+      "sha256": null,
+      "matches_supplier": false,
+      "matches_base": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_boundary_inventory.py",
+      "sha256": "3929186ac94e0e0d1f6c8590c112121e2d09831dfa2697e120b6ff37068f20fb",
+      "matches_supplier": false,
+      "matches_base": true
+    },
+    {
+      "path": "v12/python/tools/authoring_enforcement.py",
+      "sha256": "ac3640fe020fb69144a9c8b040bd73abed3eeff69a3f9a1ff0dd9462d08bcf93",
+      "matches_supplier": false,
+      "matches_base": true
+    },
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "sha256": "f634e02296ff05fd0f17c51b87a917252d61f9156eaaa83f5145b3ac46bfbcd5",
+      "matches_supplier": false,
+      "matches_base": true
+    },
+    {
+      "path": "v12/python/tools/stage_execution.py",
+      "sha256": "bad0a355abccf7838f2f4c3948947ace93ff7105a625ae2a866e74eec40d606d",
+      "matches_supplier": false,
+      "matches_base": true
+    }
+  ],
+  "tests_run": 0
+}

@@ -1,0 +1,31 @@
+F
+======================================================================
+FAIL: test_every_receiving_entry_has_an_owning_validator (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/baton-serving-envelope-347778/v12/python/tests/manager/test_boundary_inventory.py", line 7606, in test_every_receiving_entry_has_an_owning_validator
+    unowned = sorted(entry for entry in receiving_entries()
+                     if self.owner_of(entry)[0] is None)
+  File "/tmp/baton-serving-envelope-347778/v12/python/tests/manager/test_boundary_inventory.py", line 7607, in <genexpr>
+    if self.owner_of(entry)[0] is None)
+       ~~~~~~~~~~~~~^^^^^^^
+  File "/tmp/baton-serving-envelope-347778/v12/python/tests/manager/test_boundary_inventory.py", line 7595, in owner_of
+    if layer_labels(entry):
+       ~~~~~~~~~~~~^^^^^^^
+  File "/tmp/baton-serving-envelope-347778/v12/python/tests/manager/test_boundary_inventory.py", line 1883, in layer_labels
+    return _owned_here(entry[1], _claims(entry),
+                       covering=entry[0] != "injected")
+  File "/tmp/baton-serving-envelope-347778/v12/python/tests/manager/test_boundary_inventory.py", line 1866, in _owned_here
+    owners = owning_validators().get(site, ())
+             ~~~~~~~~~~~~~~~~~^^
+  File "/tmp/baton-serving-envelope-347778/v12/python/tests/manager/test_boundary_inventory.py", line 1504, in owning_validators
+    for found in _calls_in(node, origins, site, all_subjects=True):
+                 ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/baton-serving-envelope-347778/v12/python/tests/manager/test_boundary_inventory.py", line 1769, in _calls_in
+    raise AssertionError(f"{site}:{piece.lineno} names no label")
+AssertionError: tokens.py:acquire:394 names no label
+
+----------------------------------------------------------------------
+Ran 1 test in 4.218s
+
+FAILED (failures=1)

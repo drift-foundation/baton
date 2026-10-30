@@ -1,0 +1,7 @@
+{
+  "v12/python/tools/job_manager.py": "9f9008fd68a3f00ed41516c0127655cd24a5518df15294f22282c0f0dc66018f",
+  "v12/python/tools/single_worker.py": "4b834b33124cf8a751e9ca3bf3d3ca7a69991a81430da937a34ee3dd0d03f931",
+  "v12/python/src/baton_v12/worker_manager/stopped_settlement.py": "5837d72197af46dc6e1dbdd3925b4d79a2c2b76d4be1a64d0332d4e5ae4bc921",
+  "v12/python/tests/manager/test_boundary_inventory.py": "c6619b4a62478aa20f96563aa5f348d4479960730fe534301b9b171a8ce784b4",
+  "v12/QUICKSTART.md": "65ba4fca90181cf60503ec7800bcb19b8325e1c5b39ce7a8fee73d88090dc215"
+}

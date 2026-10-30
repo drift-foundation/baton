@@ -1,0 +1,43 @@
+# B0 attempt 3 — failure/error report blocks: 322 (subtest entries counted separately)
+
+## Repeated symptoms (last exception line; symptoms, not root causes)
+- 60 × `baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes`
+- 16 × `ImportError: cannot import name 'admit_candidate' from partially initialized module 'baton_v12.integration.admission' (most likely due to a circular i`
+- 14 × `AssertionError: Lists differ: [1000, 1000] != [65532, 65532]`
+- 13 × `AssertionError: [] is not true`
+- 10 × `AttributeError: 'function' object has no attribute 'execute'`
+- 7 × `AssertionError: 'retained' != 'complete'`
+- 6 × `AssertionError: 'component' not found in {'required', 'to_state', 'manifest', 'integration_delivered', 'reclaiming', 'session_ref', 'axis', 'input_dig`
+- 6 × `AssertionError: 'uuid' not found in {'hmac', 'unicodedata', 'json', 'contextlib', 'threading', 'sqlite3', 'types', 'functools', 'collections', 'jsonsc`
+- 5 × `AssertionError: 'running' != 'quiescent'`
+- 5 × `tools.authoring_baseline.SupervisorRefusal: the single-implementation packet names exactly schema, run_id, work, claim, note, worker_image, manager_ru`
+- 5 × `AssertionError: 'jobs' not found in {'required', 'to_state', 'manifest', 'integration_delivered', 'reclaiming', 'session_ref', 'axis', 'input_digest',`
+- 5 × `AssertionError: 3 != 1`
+- 4 × `AssertionError: 'authority' not found in {'required', 'to_state', 'manifest', 'integration_delivered', 'reclaiming', 'session_ref', 'axis', 'input_dig`
+- 4 × `KeyError: 'provider_context'`
+- 4 × `AssertionError: True is not false`
+- 3 × `AssertionError: 2 not less than or equal to 1 : owned more than once`
+- 3 × `AssertionError: 'context_id' not found in {'required', 'to_state', 'manifest', 'integration_delivered', 'reclaiming', 'session_ref', 'axis', 'input_di`
+- 3 × `AssertionError: 'job_execution' not found in {'required', 'to_state', 'manifest', 'integration_delivered', 'reclaiming', 'session_ref', 'axis', 'input`
+- 3 × `AssertionError: 'provider_context' not found in {'required', 'to_state', 'manifest', 'integration_delivered', 'reclaiming', 'session_ref', 'axis', 'in`
+- 3 × `AssertionError: 'urllib' not found in {'hmac', 'unicodedata', 'json', 'contextlib', 'threading', 'sqlite3', 'types', 'functools', 'collections', 'json`
+- 3 × `AssertionError: 1 != 0 : [`
+- 3 × `PermissionError: [Errno 13] Permission denied: 'nested'`
+- 3 × `baton_v12.contracts.errors.ContractRefusal: this manager has no configured workspace store; the deployment records the one directory attempts are allo`
+- 2 × `AssertionError: Lists differ: [(('adopted', 'attempts.py:_attempts', 'at[27438 chars]te")] != []`
+- 2 × `AssertionError: 'settlement' not found in {'required', 'to_state', 'manifest', 'integration_delivered', 'reclaiming', 'session_ref', 'axis', 'input_di`
+- 2 × `AssertionError: 'correlation_id' not found in {'required', 'to_state', 'manifest', 'integration_delivered', 'reclaiming', 'session_ref', 'axis', 'inpu`
+- 2 × `AssertionError: 'carrier' not found in {'required', 'to_state', 'manifest', 'integration_delivered', 'reclaiming', 'session_ref', 'axis', 'input_diges`
+- 2 × `AssertionError: 'run_id' not found in {'required', 'to_state', 'manifest', 'integration_delivered', 'reclaiming', 'session_ref', 'axis', 'input_digest`
+- 2 × `AssertionError: 'launcher' not found in {'required', 'to_state', 'manifest', 'integration_delivered', 'reclaiming', 'session_ref', 'axis', 'input_dige`
+- 2 × `AssertionError: 'permission' not found in {'required', 'to_state', 'manifest', 'integration_delivered', 'reclaiming', 'session_ref', 'axis', 'input_di`
+- 2 × `AssertionError: 'under' not found in {'required', 'to_state', 'manifest', 'integration_delivered', 'reclaiming', 'session_ref', 'axis', 'input_digest'`
+- 2 × `AssertionError: ContractRefusal not raised`
+- 2 × `AttributeError: 'types.SimpleNamespace' object has no attribute '_given_for'`
+- 2 × `baton_v12.contracts.errors.ContractRefusal: allocating attempt 'attempt-1''s execution roots is refused: removal 1 of this attempt's roots was admitte`
+- 2 × `AssertionError: [] is not true : [('refusal', "allocating an execution workspace has to ask this manager's journal whether a cleanup, a removal or a c`
+- 1 × `AssertionError: Lists differ: [('co[642 chars]', '_connect_readonly', 'failure'), ('store.py[233 chars]no')] != [('co[642 chars]', '_describe_target',`
+- 1 × `AssertionError: Lists differ: [('store.py', '_writable', 378, 'what'), ([176 chars]re')] != []`
+- 1 × `AssertionError: 'opt/baton' unexpectedly found in '/opt/baton/verifier-layout-marker.json'`
+- 1 × `AssertionError: Lists differ: [AttributeError("'function' object has no [81 chars]e'")] != []`
+- 1 × `baton_v12.contracts.errors.ContractRefusal: resource-token.launch for generation 1 of 'workspace:43:384201' is refused: that generation has been REVOK`

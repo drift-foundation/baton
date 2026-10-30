@@ -1,0 +1,27 @@
+Cloning into '/home/sl/baton-instances/native-coordination-pilot-w321608-2/repo/source-implementation-pilot'...
+Cloning into '/home/sl/baton-instances/native-coordination-pilot-w321608-2/repo/source-review-pilot'...
+{
+ "applied": false,
+ "authority_uuid": "673355e1f28e4b5683cbef09eb8f2658",
+ "destination": "/home/sl/baton-instances/native-coordination-pilot-w321608-2",
+ "input_digest": "sha256:819cf6f9bf11a5b8870922d2e99f92db71d621ed18bc40faf1666d26064103bf",
+ "manifest_digest": "sha256:6fc2db7a61c628b382982dc92e6f9bfb60ec81fdc54d250268bac5ca4534f641",
+ "planned": true,
+ "preflight_preservation": {
+  "compared": 7,
+  "preserved": [
+   "checkpoint_profile",
+   "integration_target",
+   "integration_workspace",
+   "policy_generation",
+   "pool_generation",
+   "retention_disposition",
+   "retention_policy_digest"
+  ]
+ },
+ "runtime_digest": "3dbc610e0c2a0e1165367871097bd2a5bb590e271fee729b94b436a04045e7ac",
+ "selected_work": "673355e1-W1",
+ "submission_id": "sub-w321608-quickstart-2",
+ "task_digest": "sha256:9d588235e058d043f2c2c2bcc50ecf560f0bddbe4358f5e0751bfe45a3437780",
+ "task_document": "/home/sl/baton-instances/native-coordination-pilot-w321608-2/state/task/w321608-native-operator-quickstart-2.json"
+}

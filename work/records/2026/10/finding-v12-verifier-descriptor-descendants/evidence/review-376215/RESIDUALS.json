@@ -1,0 +1,32 @@
+{
+  "candidate": {
+    "exit": 1,
+    "seconds": 0.2765956269995513,
+    "residual": [
+      {
+        "added": [
+          "control.sqlite3-shm",
+          "control.sqlite3-wal",
+          "jobs.sqlite3-shm",
+          "jobs.sqlite3-wal"
+        ],
+        "removed": []
+      }
+    ]
+  },
+  "baseline": {
+    "exit": 1,
+    "seconds": 0.2661640170008468,
+    "residual": [
+      {
+        "added": [
+          "control.sqlite3-shm",
+          "control.sqlite3-wal",
+          "jobs.sqlite3-shm",
+          "jobs.sqlite3-wal"
+        ],
+        "removed": []
+      }
+    ]
+  }
+}

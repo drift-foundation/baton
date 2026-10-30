@@ -1,0 +1,282 @@
+{
+ "caveat": "PROGRESS.md is digested as of this write and is appended to afterwards in this same claim.",
+ "changed_in_this_claim": [
+  "CLEAN-START.md",
+  "prove_custody.py"
+ ],
+ "delivered": {
+  "CLEAN-START.md": {
+   "bytes": 10734,
+   "sha256": "b76c22ca65b50b8bdb14627088f04ff69bdce2f51df849db00afe263c6bffaf9"
+  },
+  "capacity.py": {
+   "bytes": 59227,
+   "sha256": "1944c97d6868c12ae19a363cb88f6e50d539adca0f33b328a9eaf4415be7fda6"
+  },
+  "fixtures/qualifying-TEMPLATE-JOBS.md": {
+   "bytes": 3552,
+   "sha256": "bc7aee367d1fb1b229e0f667c4ee4c527f5327131b81852ed27e54cfdd159817"
+  },
+  "guide_contract.py": {
+   "bytes": 11402,
+   "sha256": "5b3959614a6abdfeb4661536f35c59dbdd77d9027e1f85cb7a750d1919ade80a"
+  },
+  "proposed_grants.py": {
+   "bytes": 25562,
+   "sha256": "f447fcb62eb665abb5e0bd445392926735c2f3763e4868cbdd8ec8fe76911857"
+  },
+  "prove_capacity.py": {
+   "bytes": 34606,
+   "sha256": "8c31bc2d0719a8a089a9ba881d3ecf292e0c45591560e8301da1e363bf0ff5e4"
+  },
+  "prove_custody.py": {
+   "bytes": 10869,
+   "sha256": "b89cf865be53e0e190e505531209f37d58e71d140d9062302841e07f59017200"
+  },
+  "prove_guide_contract.py": {
+   "bytes": 11502,
+   "sha256": "64e0e1b8711ef6021c62f575162b48aca0f4995e8513bde3dcba48e9411ccba2"
+  }
+ },
+ "evidence": {
+  "CUSTODY.json": "131faa266581f94034007c5c36d476fef00bfd73eedf9443a8b4da886c88415a",
+  "CUSTODY.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "PROPOSED-GRANTS-VERIFY.json": "71d9bc7da260cd5a2dc47e4e15fb70f89aac2015393ffd72b30619714abe2b92",
+  "example-a-default.json": "eed54b598cd18c74e1e7b5c3d9d45521f22c4aae9a3c8ff78a491af1264a3d85",
+  "example-a.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "example-b-formatted.json": "d7d739b67f45bfb91e3e042af80dbd47cb911255610eafe88069ad8a859780f8",
+  "example-b.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "example-c-mismatch.json": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "example-c-refusal.txt": "ca4ddd9e9e3966d3c8f7ad4d2ecf1330160baebaeb40048d37c1ae826a2c732e"
+ },
+ "external_inputs": {
+  "files": {
+   "v12/instance-inputs.json": {
+    "sha256": "e2eb35b222b67ac6fae77f361bc2a007623c7a4f2d7bc75c593f46ec2708137e",
+    "what": "canonical instance inputs"
+   },
+   "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json": {
+    "sha256": "fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903",
+    "what": "published conformance vectors"
+   },
+   "work/records/2026/10/finding-v12-native-pilot-instance-packet/fresh5-361402/configure-inputs.json": {
+    "sha256": "f60b129baad7fc098be76af530a6705b96cd510aa4d8b2ff552cf3b9d6e2a494",
+    "what": "reviewed pilot configuration"
+   },
+   "work/records/2026/10/finding-v12-native-pilot-instance-packet/fresh5-361402/task.json": {
+    "sha256": "91a13de94a23941b6653b9da40ae56e28046c7b30456def734638243185272f0",
+    "what": "reviewed pilot task"
+   },
+   "work/records/2026/10/finding-v12-native-pilot-instance-packet/revision-4/inputs/deployment.json": {
+    "sha256": "6a675445d361a5208f82dfc43593595cd2d5d9bcbb3e893842c03b5cb8587a3e",
+    "what": "reviewed pilot input manifest"
+   },
+   "work/records/2026/10/finding-v12-template-job-creation/findings/finding-packaged-template-creation/evidence/review-366382/BUNDLE-ARCHIVE.json": {
+    "sha256": "de9c669ce77819686f5043207151af5f6e1894940f87da70e16fde0c9dcbbad9",
+    "what": "retained runtime archive record"
+   },
+   "work/records/2026/10/finding-v12-template-job-creation/findings/finding-packaged-template-creation/evidence/review-366382/verified-first-build.tar.gz": {
+    "sha256": "1da85eed0a3a19a5da0b83253abbbb40ebeed01bfe90ee05a10055dec0057125",
+    "what": "retained runtime archive"
+   }
+  },
+  "note": "digests read now; a parent assembling on this result should re-read them and compare",
+  "source_revision": "42bed8bb04a53380e565b1a63fb2bc702677f0d0"
+ },
+ "outcomes_bound_here": {
+  "custody_ok": true,
+  "custody_refusals_driven": [
+   "binding_the_canonical_set_to_the_format_task",
+   "publishing_the_default_set_over_the_variant",
+   "publishing_the_variant_over_the_canonical_set"
+  ],
+  "documented_examples_run_verbatim": [
+   "capacity.py compose --minted-uuid a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4 --destination /var/tmp/baton-w257624/w367232-custody-aed7_fjv/never-created --proposed-grants",
+   "capacity.py compose --minted-uuid a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4 --destination /var/tmp/baton-w257624/w367232-custody-aed7_fjv/never-created --grants-from proposed-grants-format --proposed-format"
+  ],
+  "dossier_files_unchanged": true,
+  "files_digested": 113,
+  "preparation_is_complete": false,
+  "preparation_is_complete_with_either_set_bound": false,
+  "prior_bindings_verified": {
+   "evidence/claim-367503/BINDING.json": {
+    "drifted": [],
+    "proposal_members": 0
+   },
+   "evidence/claim-369192/BINDING.json": {
+    "drifted": [],
+    "proposal_members": 7
+   },
+   "evidence/claim-369298/BINDING.json": {
+    "drifted": [],
+    "proposal_members": 14
+   }
+  },
+  "public_runs": 13
+ },
+ "prior_binding": {
+  "path": "evidence/claim-369298/BINDING.json",
+  "preserved": true,
+  "sha256": "da14f9ba5b0a2b7997dc34bfbf4750361089a172142b8f918c091c741465c395"
+ },
+ "proposal_reads_from": {
+  "v12/python/src/baton_v12/worker_manager/provider_context.py": "ca54ecec366fde97390a873537d9fb430db90bfe21e39448450d79d6fa4d7835",
+  "v12/python/src/baton_v12/worker_manager/source_boundary.py": "6a6b0f7ecd29ee260e55d5abb93ebcf8891641a9cd1866109a9d291bf44e918f",
+  "v12/python/tools/single_worker.py": "677e6f0ba39d10a983d20b46fe1252b73ddb7839b8f7cdf1016b88f9111e991b",
+  "v12/worker/Dockerfile.claude": "487748a01c72906d3725b78ecafe060a4d290c070822ecb20c8373fe82589b49",
+  "v12/worker/claude_agent.py": "b014ea3f5f58af573a0cbaa4b8838a270953806a89ef274682d5cca6627efe7c"
+ },
+ "proposal_sets": {
+  "default": {
+   "inventory": "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants/INVENTORY.json",
+   "inventory_sha256": "6ae52f7b2b796fe1bae8323155513fb8f751e182f4a48a0dffbb577243284add",
+   "members": {
+    "credential_policy_digest": {
+     "derivation": "reused",
+     "file": "credential_policy.json",
+     "file_sha256": "5399f947126ec7d031bced5895076657d24be21443e6db0c9ec86b51b14a9877",
+     "identity_if_granted": "sha256:c8278005e08e5feae9c7f22f259fd1625a51285b85df7bc623b45b77277a5662",
+     "path": "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants/credential_policy.json",
+     "status": "proposed-not-granted"
+    },
+    "mount_policy_digest": {
+     "derivation": "reused",
+     "file": "mount_policy.json",
+     "file_sha256": "40bbe54bfd29865a5c8d3319b6cc019ae23e2005ce9d733aa3cbb5db223ce49d",
+     "identity_if_granted": "sha256:a852ffa00f9f7f9ed447a4dd836c790aab15e0f2ee84219dc780f81d957cf9b5",
+     "path": "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants/mount_policy.json",
+     "status": "proposed-not-granted"
+    },
+    "network_policy_digest": {
+     "derivation": "authored",
+     "file": "network_policy.json",
+     "file_sha256": "fd23b28efadbe648ac43b0a1324de3dc5bfe873adfaa2c0d0ec60a777e3d9014",
+     "identity_if_granted": "sha256:06407bb4fb68082854e98e1db6737dbebee95255b90813a488ea058d0fd223ab",
+     "path": "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants/network_policy.json",
+     "status": "proposed-not-granted"
+    },
+    "resource_policy_digest": {
+     "derivation": "authored",
+     "file": "resource_policy.json",
+     "file_sha256": "eb99686f18e73701aa7db25b2f0c6e3044fb94e583d290e9b2c7a018bd27952c",
+     "identity_if_granted": "sha256:e34a1471ce962e1737392740ad13b23234af531755baf5be61c2678038df9b8c",
+     "path": "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants/resource_policy.json",
+     "status": "proposed-not-granted"
+    },
+    "role_instructions_digest": {
+     "derivation": "reused",
+     "file": "role_instructions.json",
+     "file_sha256": "8ac96cb65d446a41a570a9ffa499ba955aa9e8d137bbbed7356fbd2d68ae04e5",
+     "identity_if_granted": "sha256:7321d8dcfa4993bda8c1ac736297638ce34c49e2f22545b1a8be56cfae29ce7a",
+     "path": "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants/role_instructions.json",
+     "status": "proposed-not-granted"
+    },
+    "tool_policy_digest": {
+     "derivation": "reused",
+     "file": "tool_policy.json",
+     "file_sha256": "eabb731948b1391bec7ef0c95035710ab4cef6c145b783e7f77765c4347051d6",
+     "identity_if_granted": "sha256:27634ea683a0a554be5b44a6bf2192f25418a1b6dfc376e33e5ed77d01f51199",
+     "path": "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants/tool_policy.json",
+     "status": "proposed-not-granted"
+    },
+    "toolchain_digest": {
+     "derivation": "reused",
+     "file": "toolchain.json",
+     "file_sha256": "25920341783793832dc76dc14c2e67ba09b768737700b70122181da6eabe6507",
+     "identity_if_granted": "sha256:cd6ccc00aff63f9b01036d6a5f6eb67ba1eb98a9372c66e9788bc79841be5af3",
+     "path": "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants/toolchain.json",
+     "status": "proposed-not-granted"
+    }
+   },
+   "proposed_format": false,
+   "task_sha256": "c21e6b93bfe199ebb89b3ec7a75e70a5636c52f9986b1afa3709a381c6bd98d7"
+  },
+  "format_selected": {
+   "inventory": "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants-format/INVENTORY.json",
+   "inventory_sha256": "e57d3ed180400a12b8fd4992cd1eafdae894101d4f93fe18415585bfd7fb9a18",
+   "members": {
+    "credential_policy_digest": {
+     "derivation": "reused",
+     "file": "credential_policy.json",
+     "file_sha256": "5399f947126ec7d031bced5895076657d24be21443e6db0c9ec86b51b14a9877",
+     "identity_if_granted": "sha256:c8278005e08e5feae9c7f22f259fd1625a51285b85df7bc623b45b77277a5662",
+     "path": "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants-format/credential_policy.json",
+     "status": "proposed-not-granted"
+    },
+    "mount_policy_digest": {
+     "derivation": "reused",
+     "file": "mount_policy.json",
+     "file_sha256": "40bbe54bfd29865a5c8d3319b6cc019ae23e2005ce9d733aa3cbb5db223ce49d",
+     "identity_if_granted": "sha256:a852ffa00f9f7f9ed447a4dd836c790aab15e0f2ee84219dc780f81d957cf9b5",
+     "path": "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants-format/mount_policy.json",
+     "status": "proposed-not-granted"
+    },
+    "network_policy_digest": {
+     "derivation": "authored",
+     "file": "network_policy.json",
+     "file_sha256": "fd23b28efadbe648ac43b0a1324de3dc5bfe873adfaa2c0d0ec60a777e3d9014",
+     "identity_if_granted": "sha256:06407bb4fb68082854e98e1db6737dbebee95255b90813a488ea058d0fd223ab",
+     "path": "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants-format/network_policy.json",
+     "status": "proposed-not-granted"
+    },
+    "resource_policy_digest": {
+     "derivation": "authored",
+     "file": "resource_policy.json",
+     "file_sha256": "eb99686f18e73701aa7db25b2f0c6e3044fb94e583d290e9b2c7a018bd27952c",
+     "identity_if_granted": "sha256:e34a1471ce962e1737392740ad13b23234af531755baf5be61c2678038df9b8c",
+     "path": "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants-format/resource_policy.json",
+     "status": "proposed-not-granted"
+    },
+    "role_instructions_digest": {
+     "derivation": "reused",
+     "file": "role_instructions.json",
+     "file_sha256": "68086264b2555f0552efc3d3f1f98fe990f339a5022c21bc36d1bbdb8cf4cb99",
+     "identity_if_granted": "sha256:374b89f61ac75ec2c41dc75ec70fb03027915cb2dff9eba61ebcbefa625b6891",
+     "path": "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants-format/role_instructions.json",
+     "status": "proposed-not-granted"
+    },
+    "tool_policy_digest": {
+     "derivation": "reused",
+     "file": "tool_policy.json",
+     "file_sha256": "eabb731948b1391bec7ef0c95035710ab4cef6c145b783e7f77765c4347051d6",
+     "identity_if_granted": "sha256:27634ea683a0a554be5b44a6bf2192f25418a1b6dfc376e33e5ed77d01f51199",
+     "path": "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants-format/tool_policy.json",
+     "status": "proposed-not-granted"
+    },
+    "toolchain_digest": {
+     "derivation": "reused",
+     "file": "toolchain.json",
+     "file_sha256": "25920341783793832dc76dc14c2e67ba09b768737700b70122181da6eabe6507",
+     "identity_if_granted": "sha256:cd6ccc00aff63f9b01036d6a5f6eb67ba1eb98a9372c66e9788bc79841be5af3",
+     "path": "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants-format/toolchain.json",
+     "status": "proposed-not-granted"
+    }
+   },
+   "proposed_format": true,
+   "task_sha256": "cb7001c74de828ab1afaf6674ddef23092a5338b3d00d3097d8b1d3cde7ccbdd"
+  },
+  "status": "PROPOSED, NOT GRANTED -- no owner has selected either set",
+  "they_differ_only_in": [
+   "role_instructions_digest",
+   "INVENTORY.json"
+  ]
+ },
+ "retained_record_files": {
+  "CLEAN-START.md": "b76c22ca65b50b8bdb14627088f04ff69bdce2f51df849db00afe263c6bffaf9",
+  "FINDING.md": "b53ee34accfec306c9bdc700c8362973c6427ba10d42c9e7e83bd5ea880cb783",
+  "INCIDENT-367234-scratch-deletion.md": "4bc3feffb7ae309a829391dbfda57f738284c02b544d383000a34264035d85c0",
+  "PLAN.md": "2296171ed0cdac7c0d16c4bc34162645757820dcbb8c5fe7b36fb54e573c2a9e",
+  "PROGRESS.md": "27d2671c8a40207b4d08fa974c2b8bb5f444d5f99960be198180156965695c33"
+ },
+ "reused_without_rerun": {
+  "guide_contract": "evidence/claim-369298/GUIDE-CONTRACT.json -- 18 cases, exit 0. guide_contract.py, prove_guide_contract.py and the fixture are byte-unchanged in this claim, so the review's 'no broad rerun for prose' applies.",
+  "joined_proof": "prove_capacity.py is byte-unchanged and is still run TWICE inside this claim's custody proof."
+ },
+ "schema": "baton.v12.capacity-binding/4",
+ "superseded": {
+  "compose_capacity.py": "7da8b79332ba331815d7bbbe6f307c7dd1bd53ac155678fb9dad3ca8ed8431cf",
+  "prove_admission.py": "919fe8f97707e3fc9f8e544011a84375f55703b695d3de7402c0d4e19bc33174"
+ },
+ "unchanged_proposal_bytes": true,
+ "what": "the rebind review 2026-10-27T23-11-07Z asks for after the operator guide correction. The proposal bytes are UNCHANGED from claim-369298 and are re-stated here with repository-relative paths; the delivered documentation and the custody prover changed."
+}

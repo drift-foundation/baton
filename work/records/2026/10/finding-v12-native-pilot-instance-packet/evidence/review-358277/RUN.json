@@ -1,0 +1,14 @@
+{
+  "exit": 0,
+  "seconds": 0.4101437060016906,
+  "adapter": "REVIEWED_ADAPTER=/home/sl/baton-builds/w325959-30245386-356981/src/v12/worker/claude_agent.py\n",
+  "checks": 109,
+  "hashes": {
+    "configure.py": "b15280cc19aabca5bd519b88f57a34e7b7dabe7e67a40a28348befabf9d16333",
+    "prove.py": "db0b5ce97b28b2075f3a1cf97ef5f9de4b8cdef14a24f368d5f3ccb7438dd1d0",
+    "RECOVERY-358239.md": "5909d2234a91c92eb49c4f46db05e51800ccb6d2d463b44eba583a4751cfe929",
+    "INDEX.json": "40abd25ea17dfb282c5b548eaa3d36c73972b31da6e3b27b5502f2f1d84a3046",
+    "evidence/PROVE.json": "1f238a3dd1479ca0fcb1162fad89b7de3207dc4c107b59a18c21348ee64fc868"
+  },
+  "index_match": true
+}

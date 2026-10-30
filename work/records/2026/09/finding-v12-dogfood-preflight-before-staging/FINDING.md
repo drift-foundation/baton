@@ -146,3 +146,10 @@ dogfood attempt' wording is not a blanket live-engine/provider grant.
 Coordination-only update by baton.tuner under claim285648/handoff285645;
 current execution remains in PLAN and canonical Baton state. Historical evidence
 and independent reviews are unchanged. No product/test/live execution selected.
+
+
+## 2026-10-29 — delivery-plan reconciliation W383239
+
+Retain relevant immutable source/preflight guarantees for later v12 coding delivery. Old bespoke dogfood/maintenance-vehicle scheduling is superseded by current direct development; no gate on current W321776 or next documentation workflow is introduced. Preserve accepted evidence and fail-closed behavior. Future selected execution must name real prerequisites and current source, not repeat historical packet preparation.
+
+Current PLAN supersedes prior scheduling; the entire prior PLAN is preserved byte-for-byte in PLAN-HISTORY-W383239.md. No source, tests, specification, acceptance result or claim ownership changed by this record update.

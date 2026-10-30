@@ -1,0 +1,1004 @@
+{
+  "all_passed": true,
+  "cases": [
+    {
+      "passed": true,
+      "probe": "no-acknowledgement",
+      "refusal": "RuntimeError: This packet's START IS NOT SELECTED. Every input gate is closed (W333735 at a9f4fa4d, W334910 at fb487979, W338305 at bc925cf5, W333485 and W348979 both closed satisfying), so this is not a blocker -- but independent preparati",
+      "refused": true,
+      "root_created": false,
+      "root_expected": false,
+      "seconds": 0.044,
+      "status": 1,
+      "substituted": null
+    },
+    {
+      "passed": true,
+      "probe": "superseded-controller",
+      "refusal": "RuntimeError: the accepted host binding and these pins disagree about authoring_controller",
+      "refused": true,
+      "root_created": false,
+      "root_expected": false,
+      "seconds": 0.048,
+      "status": 1,
+      "substituted": null
+    },
+    {
+      "passed": true,
+      "probe": "unpinned-shutdown-helper",
+      "refusal": "RuntimeError: these pins and the accepted host binding declare different manager source",
+      "refused": true,
+      "root_created": false,
+      "root_expected": false,
+      "seconds": 0.05,
+      "status": 1,
+      "substituted": null
+    },
+    {
+      "passed": true,
+      "probe": "drifted-shutdown-helper",
+      "refusal": "RuntimeError: the accepted host binding and these pins disagree about shutdown_helper",
+      "refused": true,
+      "root_created": false,
+      "root_expected": false,
+      "seconds": 0.048,
+      "status": 1,
+      "substituted": null
+    },
+    {
+      "passed": true,
+      "probe": "drifted-manager-source",
+      "refusal": "RuntimeError: these pins and the accepted host binding declare different manager source",
+      "refused": true,
+      "root_created": false,
+      "root_expected": false,
+      "seconds": 0.048,
+      "status": 1,
+      "substituted": null
+    },
+    {
+      "passed": true,
+      "probe": "drifted-supervisor-baseline",
+      "refusal": "RuntimeError: these pins and the accepted host binding declare different supervisor source",
+      "refused": true,
+      "root_created": false,
+      "root_expected": false,
+      "seconds": 0.049,
+      "status": 1,
+      "substituted": null
+    },
+    {
+      "passed": true,
+      "probe": "provenance-claims-selected-start",
+      "refusal": "RuntimeError: the provenance claims a start nobody has selected",
+      "refused": true,
+      "root_created": false,
+      "root_expected": false,
+      "seconds": 0.05,
+      "status": 1,
+      "substituted": null
+    },
+    {
+      "passed": true,
+      "probe": "provenance-claims-authorized-start",
+      "refusal": "RuntimeError: the provenance claims a start nobody has selected",
+      "refused": true,
+      "root_created": false,
+      "root_expected": false,
+      "seconds": 0.048,
+      "status": 1,
+      "substituted": null
+    },
+    {
+      "passed": true,
+      "probe": "provenance-declares-a-restored-buffer",
+      "refusal": "RuntimeError: this preparation carries no restored buffer, and the provenance declares one",
+      "refused": true,
+      "root_created": false,
+      "root_expected": false,
+      "seconds": 0.048,
+      "status": 1,
+      "substituted": null
+    },
+    {
+      "passed": true,
+      "probe": "damaged-shutdown-snapshot",
+      "refusal": "RuntimeError: decision snapshot damaged or absent: shutdown-review.md",
+      "refused": true,
+      "root_created": false,
+      "root_expected": false,
+      "seconds": 0.048,
+      "status": 1,
+      "substituted": null
+    },
+    {
+      "passed": true,
+      "probe": "damaged-new-review-snapshot",
+      "refusal": "RuntimeError: decision snapshot damaged or absent: review-339623.md",
+      "refused": true,
+      "root_created": false,
+      "root_expected": false,
+      "seconds": 0.05,
+      "status": 1,
+      "substituted": null
+    },
+    {
+      "passed": true,
+      "probe": "absent-decision-snapshot",
+      "refusal": "RuntimeError: decision snapshot damaged or absent: review-339623.md",
+      "refused": true,
+      "root_created": false,
+      "root_expected": false,
+      "seconds": 0.048,
+      "status": 1,
+      "substituted": null
+    },
+    {
+      "passed": true,
+      "probe": "absent-shutdown-document",
+      "refusal": "RuntimeError: a declared vehicle document is absent: SHUTDOWN.md",
+      "refused": true,
+      "root_created": false,
+      "root_expected": false,
+      "seconds": 0.051,
+      "status": 1,
+      "substituted": null
+    },
+    {
+      "passed": true,
+      "probe": "absent-task-input",
+      "refusal": "RuntimeError: declared task input is absent: work/records/this/does/not/exist.md",
+      "refused": true,
+      "root_created": false,
+      "root_expected": false,
+      "seconds": 0.051,
+      "status": 1,
+      "substituted": null
+    },
+    {
+      "passed": true,
+      "probe": "checkout-input-not-at-the-base",
+      "refusal": "RuntimeError: declared checkout input is not at the base: v12/NOT-AT-THE-BASE.md",
+      "refused": true,
+      "root_created": false,
+      "root_expected": false,
+      "seconds": 0.057,
+      "status": 1,
+      "substituted": null
+    },
+    {
+      "passed": true,
+      "probe": "drifted-preparation-input",
+      "refusal": "RuntimeError: selected preparation input drifted: work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json",
+      "refused": true,
+      "root_created": false,
+      "root_expected": false,
+      "seconds": 0.047,
+      "status": 1,
+      "substituted": null
+    },
+    {
+      "passed": true,
+      "probe": "root-inside-the-repository",
+      "refusal": "RuntimeError: select a fresh absolute external preparation root",
+      "refused": true,
+      "root_created": false,
+      "root_expected": false,
+      "seconds": 0.056,
+      "status": 1,
+      "substituted": null
+    },
+    {
+      "passed": true,
+      "probe": "relative-root",
+      "refusal": "RuntimeError: select a fresh absolute external preparation root",
+      "refused": true,
+      "root_created": false,
+      "root_expected": false,
+      "seconds": 0.053,
+      "status": 1,
+      "substituted": null
+    },
+    {
+      "passed": true,
+      "probe": "existing-root",
+      "refusal": "FileExistsError: [Errno 17] File exists: '/tmp/w341357-probe-350529/root-existing-root'",
+      "refused": true,
+      "root_created": true,
+      "root_expected": true,
+      "seconds": 0.096,
+      "status": 1,
+      "substituted": null
+    },
+    {
+      "passed": true,
+      "probe": "drifted-retained-candidate-patch",
+      "refusal": "RuntimeError: a recovery input is not its declared bytes: work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/recovery-345822/candidate.patch",
+      "refused": true,
+      "root_created": false,
+      "root_expected": false,
+      "seconds": 0.049,
+      "status": 1,
+      "substituted": null
+    },
+    {
+      "passed": true,
+      "probe": "drifted-recovery-index",
+      "refusal": "RuntimeError: a recovery input is not its declared bytes: work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/recovery-345822/INDEX.json",
+      "refused": true,
+      "root_created": false,
+      "root_expected": false,
+      "seconds": 0.048,
+      "status": 1,
+      "substituted": null
+    },
+    {
+      "passed": true,
+      "probe": "retained-candidate-not-a-task-input",
+      "refusal": "RuntimeError: a recovery input is not a task input, so the turn could not read it off the mount: work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/recovery-345822/candidate.patch",
+      "refused": true,
+      "root_created": false,
+      "root_expected": false,
+      "seconds": 0.047,
+      "status": 1,
+      "substituted": null
+    },
+    {
+      "passed": true,
+      "probe": "candidate-disagrees-with-the-reviewers-published-digest",
+      "refusal": "RuntimeError: the recovery index carries different reviewer digests than these pins",
+      "refused": true,
+      "root_created": false,
+      "root_expected": false,
+      "seconds": 0.049,
+      "status": 1,
+      "substituted": null
+    },
+    {
+      "passed": true,
+      "probe": "drifted-candidate-transport-bundle",
+      "refusal": "RuntimeError: the recovery index carries different reviewer digests than these pins",
+      "refused": true,
+      "root_created": false,
+      "root_expected": false,
+      "seconds": 0.048,
+      "status": 1,
+      "substituted": null
+    },
+    {
+      "passed": true,
+      "probe": "candidate-transport-pinned-as-a-task-input",
+      "refusal": "RuntimeError: the candidate transport must NOT be a task input: this campaign creates no version-control object on this host and restores nothing into the checkout",
+      "refused": true,
+      "root_created": false,
+      "root_expected": false,
+      "seconds": 0.05,
+      "status": 1,
+      "substituted": null
+    },
+    {
+      "passed": true,
+      "probe": "recovery-index-names-another-candidate-head",
+      "refusal": "RuntimeError: the recovery index names another candidate head",
+      "refused": true,
+      "root_created": false,
+      "root_expected": false,
+      "seconds": 0.048,
+      "status": 1,
+      "substituted": null
+    },
+    {
+      "passed": true,
+      "probe": "run-evidence-names-another-candidate",
+      "refusal": "RuntimeError: the recovery index names another candidate content",
+      "refused": true,
+      "root_created": false,
+      "root_expected": false,
+      "seconds": 0.046,
+      "status": 1,
+      "substituted": null
+    },
+    {
+      "passed": true,
+      "probe": "recovery-index-of-another-schema",
+      "refusal": "RuntimeError: the recovery index is not baton.w341357-recovery/2: 'baton.w341357-recovery/3'",
+      "refused": true,
+      "root_created": false,
+      "root_expected": false,
+      "seconds": 0.05,
+      "status": 1,
+      "substituted": null
+    },
+    {
+      "passed": true,
+      "probe": "absent-recovery-document",
+      "refusal": "RuntimeError: a worker-visible document this packet depends on is absent: RECOVERY.md",
+      "refused": true,
+      "root_created": false,
+      "root_expected": false,
+      "seconds": 0.047,
+      "status": 1,
+      "substituted": null
+    },
+    {
+      "passed": true,
+      "probe": "absent-completion-document",
+      "refusal": "RuntimeError: a worker-visible document this packet depends on is absent: COMPLETION.md",
+      "refused": true,
+      "root_created": false,
+      "root_expected": false,
+      "seconds": 0.048,
+      "status": 1,
+      "substituted": null
+    },
+    {
+      "passed": true,
+      "probe": "completion-document-not-a-task-input",
+      "refusal": "RuntimeError: a worker-visible document is not a task input, so the turn could not read it: COMPLETION.md",
+      "refused": true,
+      "root_created": false,
+      "root_expected": false,
+      "seconds": 0.048,
+      "status": 1,
+      "substituted": null
+    },
+    {
+      "passed": true,
+      "probe": "absent-fixture-document",
+      "refusal": "RuntimeError: a worker-visible document this packet depends on is absent: FIXTURE.md",
+      "refused": true,
+      "root_created": false,
+      "root_expected": false,
+      "seconds": 0.047,
+      "status": 1,
+      "substituted": null
+    },
+    {
+      "passed": true,
+      "probe": "fixture-document-not-a-task-input",
+      "refusal": "RuntimeError: a worker-visible document is not a task input, so the turn could not read it: FIXTURE.md",
+      "refused": true,
+      "root_created": false,
+      "root_expected": false,
+      "seconds": 0.048,
+      "status": 1,
+      "substituted": null
+    },
+    {
+      "passed": true,
+      "probe": "task-document-not-a-task-input",
+      "refusal": "RuntimeError: a worker-visible document is not a task input, so the turn could not read it: TASK.md",
+      "refused": true,
+      "root_created": false,
+      "root_expected": false,
+      "seconds": 0.05,
+      "status": 1,
+      "substituted": null
+    },
+    {
+      "passed": true,
+      "probe": "stage-for-the-bind-cases",
+      "refusal": "(staged on purpose; the two probes below use it)",
+      "refused": false,
+      "root_created": true,
+      "root_expected": true,
+      "seconds": 0.076,
+      "status": 0,
+      "substituted": null
+    },
+    {
+      "passed": true,
+      "probe": "bind-a-root-staged-for-another-run",
+      "refusal": "RuntimeError: the pins name another base or run",
+      "refused": true,
+      "root_created": true,
+      "root_expected": true,
+      "seconds": 0.043,
+      "status": 1,
+      "substituted": null
+    },
+    {
+      "passed": true,
+      "probe": "rebind-over-a-composed-packet",
+      "refusal": "RuntimeError: this root already holds a composed packet; composing a second one over it would replace the documents an owner may already have read",
+      "refused": true,
+      "root_created": true,
+      "root_expected": true,
+      "seconds": 0.053,
+      "status": 1,
+      "substituted": null
+    },
+    {
+      "passed": true,
+      "probe": "owed-gate-module-already-on-the-host",
+      "refusal": "RuntimeError: a gate module the turn must create already exists on the host: v12/python/tests/manager/test_intake.py",
+      "refused": true,
+      "root_created": false,
+      "root_expected": false,
+      "seconds": 0.054,
+      "status": 1,
+      "substituted": true
+    },
+    {
+      "expected": {
+        "available": [
+          "workload"
+        ],
+        "publication_timeout_established": false,
+        "workload": "present",
+        "workload_correlated_on": [
+          "run_id",
+          "job_id",
+          "work",
+          "claim"
+        ],
+        "workload_identity": "matched",
+        "workload_read_state": "settled"
+      },
+      "mismatched": [],
+      "observed": {
+        "available": [
+          "workload"
+        ],
+        "publication_timeout_established": false,
+        "workload": "present",
+        "workload_correlated_on": [
+          "run_id",
+          "job_id",
+          "work",
+          "claim"
+        ],
+        "workload_identity": "matched",
+        "workload_read_state": "settled"
+      },
+      "passed": true,
+      "probe": "present-workload-is-read",
+      "seconds": 0.015,
+      "status": 0,
+      "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+    },
+    {
+      "expected": {
+        "controller": "present",
+        "controller_correlated_on": [
+          "original_envelope.run",
+          "original_envelope.job",
+          "original_envelope.authority"
+        ],
+        "controller_identity": "matched",
+        "publication_timeout_established": false
+      },
+      "mismatched": [],
+      "observed": {
+        "controller": "present",
+        "controller_correlated_on": [
+          "original_envelope.run",
+          "original_envelope.job",
+          "original_envelope.authority"
+        ],
+        "controller_identity": "matched",
+        "publication_timeout_established": false
+      },
+      "passed": true,
+      "probe": "actual-controller-shape-correlates",
+      "seconds": 0.016,
+      "status": 0,
+      "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+    },
+    {
+      "expected": {
+        "controller": "present",
+        "controller_identity": "matched",
+        "other_timeouts_observed": 1,
+        "publication_timeout_established": false,
+        "uncorrelated_timeouts": 0
+      },
+      "mismatched": [],
+      "observed": {
+        "controller": "present",
+        "controller_identity": "matched",
+        "other_timeouts_observed": 1,
+        "publication_timeout_established": false,
+        "uncorrelated_timeouts": 0
+      },
+      "passed": true,
+      "probe": "unrelated-timeout-is-not-publication",
+      "seconds": 0.016,
+      "status": 0,
+      "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+    },
+    {
+      "expected": {
+        "available": [
+          "workload"
+        ],
+        "controller": "unknown-cause",
+        "publication_timeout_established": false,
+        "workload": "present"
+      },
+      "mismatched": [],
+      "observed": {
+        "available": [
+          "workload"
+        ],
+        "controller": "unknown-cause",
+        "publication_timeout_established": false,
+        "workload": "present"
+      },
+      "passed": true,
+      "probe": "nonobject-report-does-not-abort-collection",
+      "seconds": 0.016,
+      "status": 0,
+      "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+    },
+    {
+      "expected": {
+        "other_timeouts_observed": 0,
+        "parsed_found_how_labelled": true,
+        "parsed_publication_steps": [
+          "final enforcement publication"
+        ],
+        "producer_persistence_states_unreliable": true,
+        "publication_timeout_established": true,
+        "shutdown_progress": "present",
+        "shutdown_progress_identity": "matched"
+      },
+      "mismatched": [],
+      "observed": {
+        "other_timeouts_observed": 0,
+        "parsed_found_how_labelled": true,
+        "parsed_publication_steps": [
+          "final enforcement publication"
+        ],
+        "producer_persistence_states_unreliable": true,
+        "publication_timeout_established": true,
+        "shutdown_progress": "present",
+        "shutdown_progress_identity": "matched"
+      },
+      "passed": true,
+      "probe": "publication-fault-on-disk-is-parsed-not-producer-proof",
+      "seconds": 0.016,
+      "status": 0,
+      "timeout_note": "A correlated fault naming a publication step was FOUND ON DISK, so that step did time out. This is the one case where th"
+    },
+    {
+      "expected": {
+        "parsed_publication_steps": [],
+        "producer_persistence_states_unreliable": true,
+        "publication_timeout_established": false,
+        "shutdown_progress": "present"
+      },
+      "mismatched": [],
+      "observed": {
+        "parsed_publication_steps": [],
+        "producer_persistence_states_unreliable": true,
+        "publication_timeout_established": false,
+        "shutdown_progress": "present"
+      },
+      "passed": true,
+      "probe": "absent-publication-fault-stays-unknown",
+      "seconds": 0.015,
+      "status": 0,
+      "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+    },
+    {
+      "expected": {
+        "controller": "unknown-cause",
+        "controller_identity": "mismatch",
+        "publication_timeout_established": false
+      },
+      "mismatched": [],
+      "observed": {
+        "controller": "unknown-cause",
+        "controller_identity": "mismatch",
+        "publication_timeout_established": false
+      },
+      "passed": true,
+      "probe": "conflicting-identity-is-mismatch",
+      "seconds": 0.016,
+      "status": 0,
+      "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+    },
+    {
+      "expected": {
+        "controller": "present",
+        "controller_identity": "unresolved",
+        "publication_timeout_established": false
+      },
+      "mismatched": [],
+      "observed": {
+        "controller": "present",
+        "controller_identity": "unresolved",
+        "publication_timeout_established": false
+      },
+      "passed": true,
+      "probe": "no-envelope-is-unresolved",
+      "seconds": 0.016,
+      "status": 0,
+      "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+    },
+    {
+      "expected": {
+        "controller": "unknown-cause",
+        "controller_identity": "mismatch",
+        "other_timeouts_observed": 0,
+        "publication_timeout_established": false,
+        "uncorrelated_timeouts": 1
+      },
+      "mismatched": [],
+      "observed": {
+        "controller": "unknown-cause",
+        "controller_identity": "mismatch",
+        "other_timeouts_observed": 0,
+        "publication_timeout_established": false,
+        "uncorrelated_timeouts": 1
+      },
+      "passed": true,
+      "probe": "uncorrelated-timeout-is-not-evidence",
+      "seconds": 0.015,
+      "status": 0,
+      "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+    },
+    {
+      "expected": {
+        "controller": "present",
+        "linked_progress_found": [
+          "found"
+        ],
+        "manager_snapshot": "present",
+        "publication_timeout_established": false,
+        "shutdown_progress": "present",
+        "shutdown_progress_identity": "matched"
+      },
+      "mismatched": [],
+      "observed": {
+        "controller": "present",
+        "linked_progress_found": [
+          "found"
+        ],
+        "manager_snapshot": "present",
+        "publication_timeout_established": false,
+        "shutdown_progress": "present",
+        "shutdown_progress_identity": "matched"
+      },
+      "passed": true,
+      "probe": "linked-progress-resolves-from-the-report",
+      "seconds": 0.016,
+      "status": 0,
+      "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+    },
+    {
+      "expected": {
+        "available": [
+          "workload"
+        ],
+        "controller": "inaccessible",
+        "publication_timeout_established": false,
+        "workload": "present"
+      },
+      "mismatched": [],
+      "observed": {
+        "available": [
+          "workload"
+        ],
+        "controller": "inaccessible",
+        "publication_timeout_established": false,
+        "workload": "present"
+      },
+      "passed": true,
+      "probe": "read-failure-is-isolated",
+      "seconds": 0.015,
+      "status": 0,
+      "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+    },
+    {
+      "expected": {
+        "authoring_log": "absent",
+        "available": [],
+        "controller": "absent",
+        "publication_timeout_established": false,
+        "shutdown_progress": "absent",
+        "workload": "absent"
+      },
+      "mismatched": [],
+      "observed": {
+        "authoring_log": "absent",
+        "available": [],
+        "controller": "absent",
+        "publication_timeout_established": false,
+        "shutdown_progress": "absent",
+        "workload": "absent"
+      },
+      "passed": true,
+      "probe": "nothing-published",
+      "seconds": 0.015,
+      "status": 0,
+      "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+    },
+    {
+      "expected": {
+        "authoring_log": "inaccessible",
+        "controller": "inaccessible",
+        "publication_timeout_established": false,
+        "shutdown_progress": "inaccessible",
+        "workload": "inaccessible"
+      },
+      "mismatched": [],
+      "observed": {
+        "authoring_log": "inaccessible",
+        "controller": "inaccessible",
+        "publication_timeout_established": false,
+        "shutdown_progress": "inaccessible",
+        "workload": "inaccessible"
+      },
+      "passed": true,
+      "probe": "inaccessible-is-not-absent",
+      "seconds": 0.015,
+      "status": 0,
+      "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+    },
+    {
+      "expected": {
+        "controller": "pending",
+        "controller_own_temporaries": 1,
+        "manager_snapshot": "absent",
+        "publication_timeout_established": false,
+        "shutdown_progress": "absent",
+        "unclassified_entries": [],
+        "workload": "absent"
+      },
+      "mismatched": [],
+      "observed": {
+        "controller": "pending",
+        "controller_own_temporaries": 1,
+        "manager_snapshot": "absent",
+        "publication_timeout_established": false,
+        "shutdown_progress": "absent",
+        "unclassified_entries": [],
+        "workload": "absent"
+      },
+      "passed": true,
+      "probe": "controller-own-temporary-is-pending",
+      "seconds": 0.015,
+      "status": 0,
+      "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+    },
+    {
+      "expected": {
+        "controller": "absent",
+        "publication_timeout_established": false,
+        "unclassified_entries": [],
+        "workload": "pending",
+        "workload_own_temporaries": 1
+      },
+      "mismatched": [],
+      "observed": {
+        "controller": "absent",
+        "publication_timeout_established": false,
+        "unclassified_entries": [],
+        "workload": "pending",
+        "workload_own_temporaries": 1
+      },
+      "passed": true,
+      "probe": "workload-own-temporary-is-pending",
+      "seconds": 0.016,
+      "status": 0,
+      "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+    },
+    {
+      "expected": {
+        "controller": "pending",
+        "manager_snapshot": "absent",
+        "manager_snapshot_own_temporaries": 0,
+        "publication_timeout_established": false,
+        "shutdown_progress": "present",
+        "shutdown_request": "absent",
+        "workload": "absent",
+        "workload_own_temporaries": 0
+      },
+      "mismatched": [],
+      "observed": {
+        "controller": "pending",
+        "manager_snapshot": "absent",
+        "manager_snapshot_own_temporaries": 0,
+        "publication_timeout_established": false,
+        "shutdown_progress": "present",
+        "shutdown_request": "absent",
+        "workload": "absent",
+        "workload_own_temporaries": 0
+      },
+      "passed": true,
+      "probe": "unrelated-temporary-cannot-fabricate-pending",
+      "seconds": 0.016,
+      "status": 0,
+      "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+    },
+    {
+      "expected": {
+        "available": [
+          "shutdown_progress"
+        ],
+        "manager_snapshot": "absent",
+        "publication_timeout_established": false,
+        "shutdown_progress": "present",
+        "shutdown_request": "absent",
+        "unclassified_entries": []
+      },
+      "mismatched": [],
+      "observed": {
+        "available": [
+          "shutdown_progress"
+        ],
+        "manager_snapshot": "absent",
+        "publication_timeout_established": false,
+        "shutdown_progress": "present",
+        "shutdown_request": "absent",
+        "unclassified_entries": []
+      },
+      "passed": true,
+      "probe": "progress-is-not-a-manager-snapshot",
+      "seconds": 0.016,
+      "status": 0,
+      "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+    },
+    {
+      "expected": {
+        "available": [
+          "controller",
+          "workload"
+        ],
+        "controller": "present",
+        "isolated_failures": 0,
+        "link_states": {
+          "authoring_log": "malformed",
+          "enforcement_path": "named but not present",
+          "manager_report_path": "not named by the report",
+          "progress (manager_report_path + .progress.json)": "not named by the report"
+        },
+        "publication_timeout_established": false,
+        "workload": "present"
+      },
+      "mismatched": [],
+      "observed": {
+        "available": [
+          "controller",
+          "workload"
+        ],
+        "controller": "present",
+        "isolated_failures": 0,
+        "link_states": {
+          "authoring_log": "malformed",
+          "enforcement_path": "named but not present",
+          "manager_report_path": "not named by the report",
+          "progress (manager_report_path + .progress.json)": "not named by the report"
+        },
+        "publication_timeout_established": false,
+        "workload": "present"
+      },
+      "passed": true,
+      "probe": "malformed-link-does-not-lose-other-results",
+      "seconds": 0.016,
+      "status": 0,
+      "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+    },
+    {
+      "expected": {
+        "controller": "unknown-cause",
+        "publication_timeout_established": false
+      },
+      "mismatched": [],
+      "observed": {
+        "controller": "unknown-cause",
+        "publication_timeout_established": false
+      },
+      "passed": true,
+      "probe": "unparseable-report-is-unknown-cause",
+      "seconds": 0.017,
+      "status": 0,
+      "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+    },
+    {
+      "expected": {
+        "controller": "present",
+        "controller_identity": "unresolved",
+        "publication_timeout_established": false
+      },
+      "mismatched": [],
+      "observed": {
+        "controller": "present",
+        "controller_identity": "unresolved",
+        "publication_timeout_established": false
+      },
+      "passed": true,
+      "probe": "no-composed-packet-is-unresolved",
+      "seconds": 0.016,
+      "status": 0,
+      "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+    },
+    {
+      "expected": {
+        "controller_identity": "unresolved",
+        "expected_identity_state": "unknown-cause",
+        "publication_timeout_established": false
+      },
+      "mismatched": [],
+      "observed": {
+        "controller_identity": "unresolved",
+        "expected_identity_state": "unknown-cause",
+        "publication_timeout_established": false
+      },
+      "passed": true,
+      "probe": "expect-run-contradicting-the-packet-is-refused",
+      "seconds": 0.015,
+      "status": 0,
+      "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+    },
+    {
+      "expected": {
+        "authoring_log": "present",
+        "available": [
+          "authoring_log",
+          "controller"
+        ],
+        "controller": "present",
+        "controller_identity": "unresolved",
+        "publication_timeout_established": false,
+        "shutdown_progress": "absent",
+        "workload": "absent"
+      },
+      "mismatched": [],
+      "observed": {
+        "authoring_log": "present",
+        "available": [
+          "authoring_log",
+          "controller"
+        ],
+        "controller": "present",
+        "controller_identity": "unresolved",
+        "publication_timeout_established": false,
+        "shutdown_progress": "absent",
+        "workload": "absent"
+      },
+      "passed": true,
+      "probe": "real-retained-failure-evidence",
+      "seconds": 0.016,
+      "status": 0,
+      "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+    },
+    {
+      "expected": {
+        "authoring_log": "present",
+        "controller": "present",
+        "controller_correlated_on": [
+          "original_envelope.run"
+        ],
+        "controller_identity": "matched",
+        "identity_source": "--expect-run, supplied by the operator",
+        "publication_timeout_established": false,
+        "workload": "absent"
+      },
+      "mismatched": [],
+      "observed": {
+        "authoring_log": "present",
+        "controller": "present",
+        "controller_correlated_on": [
+          "original_envelope.run"
+        ],
+        "controller_identity": "matched",
+        "identity_source": "--expect-run, supplied by the operator",
+        "publication_timeout_established": false,
+        "workload": "absent"
+      },
+      "passed": true,
+      "probe": "real-retained-failure-evidence-correlated",
+      "seconds": 0.016,
+      "status": 0,
+      "timeout_note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is o"
+    }
+  ],
+  "passed": 61,
+  "schema": "baton.w333486-preparation-probes/1",
+  "seconds": 2.381,
+  "total": 61,
+  "work": "/tmp/w341357-probe-350529"
+}

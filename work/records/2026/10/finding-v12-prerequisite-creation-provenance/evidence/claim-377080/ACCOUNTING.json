@@ -1,0 +1,16 @@
+{
+  "prior_tool_wall_seconds": [
+    0.178546701,
+    0.162786796,
+    0.18548512
+  ],
+  "prior_results": [
+    "33 tests,3 stale injection failures",
+    "33 tests,1 diagnostic expectation failure",
+    "44 pass"
+  ],
+  "combined_seconds": 16.106335976999617,
+  "final_focused_seconds": 0.40118934600104694,
+  "claim_cumulative_seconds": 17.034343940000664,
+  "historical_parent_total": "unknown; prior evidence preserved"
+}

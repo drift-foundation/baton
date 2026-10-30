@@ -1,0 +1,29 @@
+{
+  "cwd": "/home/sl/src/baton",
+  "child": "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition",
+  "two_published_cd_commands_exit": 1,
+  "stderr": "probe: line 1: cd: work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition: No such file or directory\n",
+  "mint_references": [
+    {
+      "line": 139,
+      "text": "MINT=/home/sl/baton-instances/useful-template-job-w366962-mint.json"
+    },
+    {
+      "line": 144,
+      "text": "`$MINT`, `$COMPOSE` and `$PHASE2` are **outside `$DEST`** on purpose; \u00a74 step 1"
+    },
+    {
+      "line": 229,
+      "text": "`$MINT` carries the deployment's selections with **no `workers` and no `jobs`**"
+    },
+    {
+      "line": 234,
+      "text": "**Write `$MINT` outside `$DEST`.** The mint writes the destination's own"
+    },
+    {
+      "line": 243,
+      "text": "\"$DISTRO/baton-v12-stack\" bootstrap --inputs \"$MINT\""
+    }
+  ],
+  "effect": "directory changes in subprocess only; no install or write"
+}

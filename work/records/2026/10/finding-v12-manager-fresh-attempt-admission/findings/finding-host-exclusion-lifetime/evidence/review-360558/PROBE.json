@@ -1,0 +1,80 @@
+{
+  "focused": {
+    "run": 113,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 8.041699131999849
+  },
+  "unbound_real_host": {
+    "outcome": {
+      "job_id": "job-a-retry-2",
+      "prior_job_id": "job-a",
+      "prior_submission_id": "sub-job-a",
+      "prior_attempt_ids": [
+        "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c"
+      ],
+      "prior_states": {
+        "job-a/implementation": "exceptional",
+        "job-a/review": "blocked"
+      },
+      "work": {
+        "work_id": "0000000a-W1",
+        "disposition": "reused",
+        "status": "open"
+      },
+      "binding": {
+        "job_id": "job-a-retry-2",
+        "disposition": "added",
+        "job_work_id": "0000000a-W1",
+        "serving": {
+          "implementation": [
+            "impl-a"
+          ],
+          "review": [
+            "review-a"
+          ]
+        }
+      },
+      "submission_id": "sub-job-a-retry-2",
+      "stages": [
+        "job-a-retry-2/implementation",
+        "job-a-retry-2/review"
+      ],
+      "exclusion": {
+        "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {
+          "runtime": null,
+          "cleanup": null,
+          "resource": null,
+          "basis": "no attempt was ever recorded on this instance's own host, /tmp/w359719-elsewhere-byb7m7xb/control.sqlite3"
+        },
+        "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c": {
+          "runtime": null,
+          "cleanup": null,
+          "resource": null,
+          "basis": "no attempt was ever recorded on this instance's own host, /tmp/w359719-elsewhere-byb7m7xb/control.sqlite3"
+        }
+      },
+      "recorded_at": "2026-09-02T00:00:00.000Z"
+    },
+    "supplied": "/tmp/w359719-elsewhere-byb7m7xb/control.sqlite3",
+    "installed": "/var/tmp/baton-w257624/v12-w71917-dd6f58f8/bootstrap-deployment/db/control.sqlite3",
+    "published": {
+      "canonical_target_id": "target-1",
+      "job_id": "job-a-retry-2",
+      "job_work_id": "0000000a-W1",
+      "line_declared_base": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "review_work_id": "0000000a-W1",
+      "source_worker_id": "impl-a"
+    }
+  },
+  "concurrent_borrow_registration": {
+    "guard_descriptor": null,
+    "borrowers": 1,
+    "contender_while_second_active": {
+      "outcome": "held",
+      "message": null
+    }
+  },
+  "seconds": 8.348177432999364
+}

@@ -1,0 +1,29 @@
+{
+  "pins": [
+    {
+      "path": "v12/python/tests/manager/test_authoring_enforcement.py",
+      "working_sha256": "b89f9700781fc8d9fe70c59f05820aa82388dd73ffa99610d7c04f073702e3c8",
+      "checkpoint_sha256": "b89f9700781fc8d9fe70c59f05820aa82388dd73ffa99610d7c04f073702e3c8",
+      "same": true
+    },
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "working_sha256": "0df31ac8dc5d8b71699209be2378ae8232a435aa15fbdfb4f33866fef22806c4",
+      "checkpoint_sha256": "0df31ac8dc5d8b71699209be2378ae8232a435aa15fbdfb4f33866fef22806c4",
+      "same": true
+    }
+  ],
+  "command": [
+    "timeout",
+    "60",
+    "python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.manager.test_authoring_enforcement.LateBindingCancellation",
+    "tests.manager.test_authoring_enforcement.BeforeAttachmentCancellation"
+  ],
+  "returncode": 1,
+  "seconds": 0.30156336900108727,
+  "scope": "focused current-checkout baseline; two direct defect paths match pinned commit; not an isolated export run"
+}

@@ -1,0 +1,37 @@
+{
+  "authority_uuid": "1cdb8d19feda47c0a209bd0669b16871",
+  "dossier": {
+    "bound_at": "2026-10-19T04:21:47.463Z",
+    "locator": "native-pilot-quickstart-1cdb8d19",
+    "operation_id": "w325959-bind-dossier",
+    "work_id": "1cdb8d19-W1"
+  },
+  "policy_generation": 10,
+  "work": {
+    "assignment": null,
+    "authority_uuid": "1cdb8d19feda47c0a209bd0669b16871",
+    "close_decision": null,
+    "contract": "v12-assignment-1",
+    "creation": {
+      "at": "2026-10-19T04:21:47.460Z",
+      "kind": "trusted-bootstrap",
+      "operation_id": "w325959-create-pilot",
+      "scope": "scope:native-pilot-quickstart",
+      "work_id": "1cdb8d19-W1"
+    },
+    "fenced_generations": [],
+    "gate": null,
+    "generation_counter": 0,
+    "handler": null,
+    "labels": [],
+    "live_generation": null,
+    "outcome": null,
+    "phase": "queued",
+    "rationale": null,
+    "ready": true,
+    "route": "impl",
+    "scope": "scope:native-pilot-quickstart",
+    "status": "open",
+    "work_id": "1cdb8d19-W1"
+  }
+}

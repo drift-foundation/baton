@@ -1,0 +1,232 @@
+diff --git a/v12/python/tools/bootstrap.py b/v12/python/tools/bootstrap.py
+index 721dae20..bcdc96b5 100644
+--- a/v12/python/tools/bootstrap.py
++++ b/v12/python/tools/bootstrap.py
+@@ -2101,6 +2101,180 @@ def deployed_justfile(places):
+                                     justfile=places["justfile"])
+ 
+ 
++PREREQUISITE_ROOTS = ("workspace_storage", "launch_home", "credential_home")
++
++
++def prerequisite_places(document):
++    """Every configured root an installed worker needs BEFORE it first runs.
++
++    W375516. THE TRIPLE IS `stage_execution`'s, not a second spelling of it:
++    that module already names `workspace_storage`, `launch_home` and
++    `credential_home` together as the roots it holds inside the checkout, and
++    a deployment is unusable without all three. `storage_bound` derives only
++    the first and checks only the first, which is exactly the asymmetry a
++    first start used to discover.
++
++    ANSWERED AS AN ORDERED, DEDUPLICATED LIST so two workers legitimately
++    sharing a root are prepared once and reported once. Nothing here reads the
++    filesystem: this is what the input SAYS it needs.
++    """
++    held, seen = [], set()
++    for worker in document.get("workers") or []:
++        if type(worker) is not dict:
++            continue
++        deployment = worker.get("deployment")
++        if type(deployment) is not dict:
++            continue
++        for name in PREREQUISITE_ROOTS:
++            named = deployment.get(name)
++            if type(named) is not str or not named or named in seen:
++                continue
++            seen.add(named)
++            held.append((str(worker.get("worker_id")), name, named))
++    return held
++
++
++def prerequisite_report(document):
++    """Which configured prerequisites are missing or unusable, READ ONLY.
++
++    APPLICATION-READ-ONLY, which is the whole contract: this creates nothing,
++    initializes nothing, repairs nothing, chmods nothing and opens no store for
++    writing. It answers the exact path that is wrong and why, so an operator
++    reads one line instead of a first-start traceback.
++
++    A LINK IS UNUSABLE RATHER THAN FOLLOWED. `lstat` is deliberate: a root
++    reached through a link is a root whose real location this deployment did
++    not choose, which is the same rule `custody` applies to every owned name.
++    """
++    import stat
++
++    said = []
++    for who, name, place in prerequisite_places(document):
++        try:
++            held = os.lstat(place)
++        except FileNotFoundError:
++            said.append((who, name, place, "does not exist"))
++            continue
++        except OSError as failure:
++            said.append((who, name, place,
++                         "cannot be read (" + type(failure).__name__ + ")"))
++            continue
++        if stat.S_ISLNK(held.st_mode):
++            said.append((who, name, place, "is a symbolic link"))
++        elif not stat.S_ISDIR(held.st_mode):
++            said.append((who, name, place,
++                         "is a " + _node_kind(held.st_mode)
++                         + " and not a directory"))
++        elif not os.access(place, os.R_OK | os.W_OK | os.X_OK):
++            said.append((who, name, place,
++                         "is not readable, writable and traversable by this "
++                         "account"))
++    return said
++
++
++def prepare_prerequisites(document, places, *, stream=sys.stdout):
++    """Create the configured roots this install owes, and say which are ours.
++
++    Answers `{place: (device, inode)}` for the directories THIS ATTEMPT made,
++    so `install`'s existing exact-owned unwind can remove exactly those and
++    leave every foreign object alone. A root that already exists is LEFT
++    EXACTLY AS IT IS and is not in the answer: an occupied prerequisite is the
++    operator's, and repairing it is the behaviour this install does not have.
++
++    NO `chmod` AND NO RECURSIVE NORMALIZATION. The mode is the one the
++    creating process's umask gives, which is the same arrangement
++    `install` already uses for `stores`, `repository`, `logs` and `state`.
++
++    A LINK OR A NON-DIRECTORY AT AN OWED NAME REFUSES, before anything else is
++    created. Following it would put this deployment's mutable state somewhere
++    it did not choose, and silently reusing a file's name is how a first start
++    fails with nothing to read.
++    """
++    import stat
++
++    made = {}
++    for who, name, place in prerequisite_places(document):
++        try:
++            held = os.lstat(place)
++        except FileNotFoundError:
++            held = None
++        except OSError as failure:
++            raise BootstrapRefusal(
++                "this deployment's " + name + " for worker " + who + " at "
++                + place + " cannot be read (" + type(failure).__name__
++                + "); a prerequisite this install cannot inspect is not one "
++                "it prepares.")
++        if held is not None:
++            if stat.S_ISLNK(held.st_mode) or not stat.S_ISDIR(held.st_mode):
++                raise BootstrapRefusal(
++                    "this deployment's " + name + " for worker " + who
++                    + " is already " + _node_kind(held.st_mode) + " at "
++                    + place + ". It was left exactly as it is; a prerequisite "
++                    "root is a directory this deployment owns, and nothing "
++                    "here follows a link or reuses another object's name.")
++            continue
++        try:
++            os.makedirs(place)
++        except FileExistsError:
++            # Somebody else created it between the look and the make. That is
++            # their object now; it is not unwound and it is not repaired.
++            continue
++        except OSError as failure:
++            raise BootstrapRefusal(
++                "this deployment's " + name + " for worker " + who + " at "
++                + place + " could not be created (" + type(failure).__name__
++                + "); a destination whose prerequisites cannot be prepared is "
++                "not installed half-way.")
++        try:
++            held = os.lstat(place)
++        except OSError:
++            continue
++        made[place] = (held.st_dev, held.st_ino)
++        print("prerequisite  " + name + " " + place, file=stream)
++    return made
++
++
++def _initialized_at():
++    """This install's own instant, in the one spelling the stores use."""
++    from datetime import datetime, timezone
++
++    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z")
++
++
++def initialize_control_store(places, *, incarnation, clock):
++    """Open this instance's control store once, then CLOSE it.
++
++    W375516. `worker_manager.store.ControlStore.open` already owns empty-store
++    initialization and supported-store adoption, so this calls that public
++    opener and adds no schema behaviour of its own -- W375444 owns the
++    settlement store changes and nothing here touches them.
++
++    THE INCARNATION AND THE CLOCK ARE EXPLICIT OPERANDS. An opener that
++    defaulted them would be inventing the two facts every journalled row is
++    attributed to, at the one moment nobody is watching.
++
++    IT IS CLOSED, and that is not tidiness: an install that left a connection
++    open would leave this process holding a store the first start has to open,
++    and a prepared instance is one nothing is attached to.
++    """
++    from baton_v12.worker_manager.store import ControlStore
++
++    try:
++        store = ControlStore.open(places["control_store"],
++                                  incarnation=incarnation, clock=clock)
++    except Exception as failure:
++        raise BootstrapRefusal(
++            "this instance's control store at " + places["control_store"]
++            + " could not be initialized (" + type(failure).__name__ + ": "
++            + str(failure) + "); an installation that cannot initialize its "
++            "own store is not a prepared one.")
++    try:
++        return store.schema_version() if hasattr(store, "schema_version") \
++            else None
++    finally:
++        store.close()
++
++
+ def install(destination, distro, document, *, stream=sys.stdout, now=None,
+             admitted=None, wait=120.0):
+     """Prepare an external destination and emit the one selector for it.
+@@ -2149,6 +2323,20 @@ def install(destination, distro, document, *, stream=sys.stdout, now=None,
+         custody(places, destination)
+         for name in ("stores", "repository", "logs", "state"):
+             Path(places[name]).mkdir(parents=True, exist_ok=True)
++        # W375516: THE CONFIGURED PREREQUISITES, BEFORE SUCCESS.
++        #
++        # `install` created four directories of its own and published a
++        # selector, and the configured workspace, launch and credential roots
++        # a worker needs were nobody's: a prepared instance reported success
++        # and the first start was the thing that discovered them. They are
++        # prepared here, under this same lock, so the destination either has
++        # everything it was configured to need or is not installed.
++        #
++        # OUTSIDE THE `try` BELOW IS DELIBERATE FOR THE ROOTS ALREADY THERE
++        # and inside it for the ones made: `prepare_prerequisites` answers
++        # only what THIS attempt created, and those identities join the exact
++        # unwind beside the runtime, justfile and input document.
++        prerequisites = prepare_prerequisites(document, places, stream=stream)
+         shutil.copytree(distro, places["distro"], symlinks=True)
+         copied = os.lstat(places["distro"])
+         runtime_identity = (copied.st_dev, copied.st_ino)
+@@ -2248,6 +2436,13 @@ def install(destination, distro, document, *, stream=sys.stdout, now=None,
+             # is the input and not the derived configuration -- which is the
+             # distinction `_publish_install` states in as many words.
+             #
++            # W375516: AND THE CONTROL STORE IS INITIALIZED, through the
++            # public opener with an explicit incarnation and clock, and then
++            # CLOSED -- before the selector exists, so a destination carrying
++            # a selector carries a store that opened at least once.
++            initialize_control_store(
++                places, incarnation="bootstrap-" + document["authority_uuid"],
++                clock=lambda: now or _initialized_at())
+             try:
+                 instance.create(places["instance"], selector)
+             except instance.InstanceRefusal as refusal:
+@@ -2265,7 +2460,10 @@ def install(destination, distro, document, *, stream=sys.stdout, now=None,
+             # for that leftover, which this attempt had created. Nothing
+             # foreign is touched either way: the selector, if one appeared, is
+             # somebody else's and is left exactly as it is.
+-            said = [_remove_if_still_ours(places["install_inputs"],
++            said = [_remove_if_still_ours(place, identity,
++                                          "prepared prerequisite root")
++                    for place, identity in prerequisites.items()]
++            said += [_remove_if_still_ours(places["install_inputs"],
+                                           install_inputs_identity,
+                                           "installer input document"),
+                     _remove_if_still_ours(places["justfile"],

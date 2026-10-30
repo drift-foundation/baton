@@ -1,0 +1,85 @@
+{
+  "THE_BLOCKER": {
+    "authoring_baseline_in_the_binding": false,
+    "authoring_members_in_the_binding": [
+      "tools/authoring_enforcement.py",
+      "tools/authoring_shutdown.py"
+    ],
+    "controller_sha256": "248ee9edd72214efbdc77044a9af6ad2c382e2ca1dbd5b71ff0db720d9a5a5dc",
+    "error": "ImportError: cannot import name 'authoring_baseline' from 'tools'",
+    "the_exact_contradiction": "OPERATOR-DELTA.md says the binding \"exactly preserves [the consumer's] 114-file runtime path set\". It does -- and the accepted controller needs a 115th member that set never had. Preserving the old path set and shipping the new controller are incompatible.",
+    "the_module_does_exist": {
+      "and_that_digest_is": "EXACTLY the supervisor baseline.py digest 8e5987f56f8d5329c33a8e73f9df56f13213e134f2dade8180afabf80723efe9 -- at d3a7a41c the supervisor baseline was moved INTO the manager source as tools/authoring_baseline.py",
+      "at_host_base_d3a7a41c": true,
+      "at_worker_base_bc925cf5": false,
+      "sha256_at_d3a7a41c": "8e5987f56f8d5329c33a8e73f9df56f13213e134f2dade8180afabf80723efe9",
+      "why_that_matters": "the OLD consumer host (bc925cf5) had no such module and its controller d12769df imported `baseline` from the SUPERVISOR directory on PYTHONPATH. The accepted controller 248ee9ed, built on d3a7a41c, imports it from the MANAGER source instead."
+    },
+    "what_was_not_the_cause": [
+      "not authentication -- no provider was contacted",
+      "not the lease or the new permission -- the controller never composed an envelope",
+      "not the worker candidate, the recovery or the gate -- none was reached",
+      "not W339626's confinement correction -- different Work, different mechanism",
+      "not the boundary preflight, which passed: engine reachable, image digest equal to the pin, zero denials, 0.334s earlier."
+    ],
+    "where": "the accepted controller tools/authoring_enforcement.py line 554: \"from tools import authoring_baseline as baseline\"",
+    "why": "THE MODULE IT IMPORTS IS NOT IN THE ACCEPTED BINDING. HOST-POLICY.json declares 114 manager members, and the only authoring_* members are tools/authoring_enforcement.py and tools/authoring_shutdown.py. tools/authoring_baseline.py is ABSENT from the binding, so it is absent from the staged source, so the controller cannot start.",
+    "why_i_did_not_patch_it": "adding a member would change the independently accepted binding, which is not mine to do, and prepare.py refuses a member the binding does not declare -- correctly, and by design. Supplying it from the main tree or from d3a7a41c would be an unreviewed substitution into an accepted host runtime."
+  },
+  "cessation": {
+    "attempt": "none was ever admitted",
+    "cleanup": "NOTHING TO CLEAN, and this is NOT a cleanup claim derived from an empty listing: no effect was ever ordered, because the process exited at an import before any Job was composed.",
+    "container": "no runtime container for this run exists in the engine listing",
+    "job": "none was ever submitted",
+    "runtime": "none was ever created",
+    "token": "none was ever acquired"
+  },
+  "claim": 348929,
+  "consumed": "owner selection348925 is CONSUMED. One invocation, no retry, no recovery, and none attempted. The root is preserved unchanged.",
+  "final_results": {
+    "authoring_log": "absent",
+    "available": [],
+    "collected_with": "execution-348852/collect.py",
+    "controller": "absent",
+    "manager_snapshot": "absent",
+    "reading": "ALL SIX ABSENT because the controller died before establishing an envelope. Absence names no cause on its own -- the cause is the ImportError above, read from the controller's own stderr.",
+    "shutdown_progress": "absent",
+    "shutdown_request": "absent",
+    "workload": "absent"
+  },
+  "launched_at": "2026-10-21T19:06:22Z",
+  "outcome": "THE CONTROLLER DIED AT IMPORT. No envelope, no Job, no attempt, no runtime, no token, no container, no provider call. The invocation is consumed.",
+  "packet": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-348852",
+  "packet_manifest": "3bf3d7df222fd91b79527ea37f8e656ccbcc6fa507dae0f72bd878f54d043a5f",
+  "preflights": {
+    "actual_boundary_preflight": {
+      "child_status": 0,
+      "denials": [],
+      "seconds": 0.334,
+      "verdict": "available"
+    },
+    "pre_stage_capability": {
+      "denials": [],
+      "seconds": 0.017,
+      "verdict": "capable"
+    },
+    "what_neither_checked": "THAT THE STAGED MANAGER SOURCE CAN IMPORT THE CONTROLLER IT PINS. Neither preflight looks at that, and this run is the proof that one of them should: both passed and the controller still could not start. That is a gap in MY preflights, reported rather than quietly widened."
+  },
+  "preparation": {
+    "all_status": 0,
+    "authority": "29fea648719945f6b00c53b81c1242dc",
+    "bind_seconds": 0.38,
+    "bootstrap_seconds": 0.61,
+    "controller_sealed": "248ee9edd72214efbdc77044a9af6ad2c382e2ca1dbd5b71ff0db720d9a5a5dc",
+    "equals_binding": true,
+    "manager_members": 114,
+    "note": "the preparation, the seals and the binding equality were all CORRECT, and independently accepted. The packet composed exactly what the accepted binding declares. The defect is in what that binding declares, not in how this packet consumed it.",
+    "stage_seconds": 0.07
+  },
+  "read_only": "the controller stderr and the packet directory were read; nothing in the instance was modified.",
+  "root": "/home/sl/baton-instances/durable-capture-w341357-348852",
+  "run": "durable-capture-w341357-348852",
+  "schema": "baton.w341357-run-blocker/1",
+  "selection": "owner reroute348925",
+  "work": "W341357"
+}

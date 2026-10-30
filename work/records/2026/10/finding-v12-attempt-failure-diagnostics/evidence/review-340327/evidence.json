@@ -1,0 +1,24 @@
+{
+  "review_claim": 340327,
+  "base": "bc925cf5c62d69426ed5862af4d41f4d2a967b0f",
+  "checked_files": [
+    "COLLECTION.json",
+    "EXECUTOR-PREFLIGHT.json",
+    "candidate-change.patch",
+    "candidate-result.json",
+    "candidate-verification.txt",
+    "outcome.json",
+    "outcome.json.authoring.log",
+    "outcome.json.enforcement-27098-1792513927446507606.json",
+    "outcome.json.manager-27098-1792513057408252459.json",
+    "outcome.json.manager-27098-1792513057408252459.json.progress.json"
+  ],
+  "hashes": "all copied and source hashes match INDEX",
+  "candidate_patch_sha256": "3af1822dc0d08851466105f17cbf5e9e26248ff75dc3d9352a9a43b979058e3e",
+  "product_tests_executed": 0,
+  "execution_boundary": "AGENTS v11 preparation/v12 execution; no host exception selected",
+  "observations": [
+    "retained candidate disposition verification-failed, gate status1",
+    "candidate does not change Job projection/documents/delegation or bridge the failure_cause reader to Job status"
+  ]
+}

@@ -1,0 +1,710 @@
+diff --git a/v12/python/tests/job_manager/test_role_contract.py b/v12/python/tests/job_manager/test_role_contract.py
+new file mode 100644
+index 00000000..45319b6c
+--- /dev/null
++++ b/v12/python/tests/job_manager/test_role_contract.py
+@@ -0,0 +1,704 @@
++"""W371294 — the closed development role contract, its registry and its vectors.
++
++WHAT IS FROZEN HERE AND WHY IT IS NOT PARAPHRASED. The approved specification
++is `PROPOSAL.md` SHA-256
++`ad0f2171f06f8da9e6e3c2784e50cab91d27f94c4d0727014e4520b00aa0b339`, and the
++POSITIVE VECTOR is the exact `ROLE-CONTRACT.proposed.json` it carries, read
++from the record as bytes. So the positive case is not "whatever this module
++composes": it is the document the owner approved, compared against the module,
++with its canonical digest asserted on both sides. If either drifts, this fails.
++
++Nothing in this module is substituted. There is no store, no filesystem beyond
++reading that one approved vector, no engine, provider or deployment, and no
++qualification: this slice is a data contract and its validator.
++"""
++
++import copy
++import json
++import pathlib
++import sys
++import unittest
++
++sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2] / "src"))
++
++from baton_v12.contracts import ContractRefusal, canonical_bytes, digest  # noqa: E402
++from baton_v12.job_manager import role_contract, templates                # noqa: E402
++from baton_v12.job_manager import review_driver                           # noqa: E402
++
++# THE APPROVED VECTOR, from the record rather than from this test's own idea of
++# it. `parents[3]` is the repository's `v12`, so the record is beside it.
++RECORD = (pathlib.Path(__file__).resolve().parents[4] / "work" / "records"
++          / "2026" / "10" / "finding-v12-workflow-fragility-assessment"
++          / "findings" / "finding-template-adapter-admission-plan")
++APPROVED = RECORD / "ROLE-CONTRACT.proposed.json"
++PROPOSAL_DIGEST = (
++    "ad0f2171f06f8da9e6e3c2784e50cab91d27f94c4d0727014e4520b00aa0b339")
++
++
++class TheApprovedVectorIsTheOneThisBuildCarries(unittest.TestCase):
++    """THE FROZEN POSITIVE VECTOR, both directions.
++
++    The owner approved a document and a digest. This asserts that the module
++    composes that document, that the document validates, and that the record
++    the approval names has not moved under either.
++    """
++
++    def test_the_proposal_is_the_pinned_one(self):
++        """The specification itself, by digest. If the approved proposal were
++        edited, every bound below would be describing a different decision."""
++        self.assertEqual(
++            digest(json.loads(APPROVED.read_text(encoding="utf-8"))),
++            role_contract.BASELINE_DIGEST)
++        import hashlib
++        self.assertEqual(
++            hashlib.sha256((RECORD / "PROPOSAL.md").read_bytes()).hexdigest(),
++            PROPOSAL_DIGEST)
++
++    def test_the_module_composes_the_approved_document(self):
++        self.assertEqual(role_contract.baseline_document(),
++                         json.loads(APPROVED.read_text(encoding="utf-8")))
++
++    def test_the_approved_bytes_validate(self):
++        """Read as BYTES, through the bounded reader a carrier would use."""
++        taken = role_contract.role_contract_of_bytes(APPROVED.read_bytes())
++        self.assertEqual(taken, role_contract.baseline_document())
++
++    def test_the_canonical_digest_is_the_approved_one(self):
++        self.assertEqual(
++            role_contract.contract_digest(role_contract.baseline_document()),
++            "sha256:21b78036947430e3ae073a04fd5237b10a844471207a52c"
++            "ba9ea6186acdffdaf")
++
++    def test_whitespace_in_a_file_is_not_identity(self):
++        """The proposal says so in those words, so it is driven: the same
++        document re-encoded with different spacing has the same digest."""
++        held = role_contract.baseline_document()
++        wide = json.dumps(held, indent=4).encode("utf-8")
++        self.assertNotEqual(wide, canonical_bytes(held))
++        self.assertEqual(
++            role_contract.contract_digest(
++                role_contract.role_contract_of_bytes(wide)),
++            role_contract.BASELINE_DIGEST)
++
++    def test_the_document_carries_no_digest_member_to_disagree_with(self):
++        """"without any embedded digest member" — the identity is a fact about
++        the bytes rather than a field the document asserts about itself, so
++        there is nowhere for a lying digest to live."""
++        self.assertNotIn("digest", role_contract.baseline_document())
++        self.assertEqual(sorted(role_contract.baseline_document()),
++                         sorted(role_contract.CONTRACT_MEMBERS))
++
++    def test_each_inspection_is_detached(self):
++        """`templates.template_document`'s rule: mutating what you were handed
++        changes nothing for the next reader."""
++        first = role_contract.baseline_document()
++        first["outputs"][0]["constraints"]["max_bytes"] = 1
++        self.assertEqual(
++            role_contract.baseline_document()["outputs"][0]["constraints"]
++            ["max_bytes"], role_contract.MAX_OUTPUT_BYTES)
++
++
++class TheExactBoundsAreTheApprovedOnes(unittest.TestCase):
++    """The values, named one at a time, against the proposal's own table."""
++
++    def setUp(self):
++        self.held = role_contract.baseline_document()
++
++    def test_the_four_literals(self):
++        self.assertEqual(self.held["schema"],
++                         "baton.v12.development-role-contract/1")
++        self.assertEqual(self.held["template"],
++                         "baton.v12.job-template.implementation-review/2")
++        self.assertEqual(self.held["task_schema"], "baton.dogfood-task/2")
++        self.assertEqual(self.held["source_profile"], "git-line")
++
++    def test_the_three_outputs_in_proposal_findings_logs_order(self):
++        self.assertEqual([one["name"] for one in self.held["outputs"]],
++                         ["proposal", "findings", "logs"])
++        self.assertEqual([one["type"] for one in self.held["outputs"]],
++                         ["git-change-proposal", "directory-result",
++                          "directory-result"])
++
++    def test_every_name_is_its_own_path(self):
++        for one in self.held["outputs"]:
++            self.assertEqual(one["path"], one["name"])
++
++    def test_every_output_is_the_shared_optional_declaration(self):
++        for one in self.held["outputs"]:
++            self.assertIs(one["required"], False)
++
++    def test_the_constraints_are_exact(self):
++        for one in self.held["outputs"]:
++            limits = one["constraints"]
++            self.assertEqual(sorted(limits),
++                             sorted(role_contract.CONSTRAINT_MEMBERS))
++            self.assertEqual(limits["max_bytes"], 1048576)
++            self.assertEqual(limits["max_entries"], 100)
++            self.assertEqual(limits["link_policy"], "forbid")
++            self.assertIsNone(limits["validator_digest"])
++        self.assertEqual(
++            self.held["outputs"][0]["constraints"]["allowed_media_types"],
++            ["application/octet-stream", "text/plain"])
++        for one in self.held["outputs"][1:]:
++            self.assertEqual(one["constraints"]["allowed_media_types"],
++                             ["application/octet-stream"])
++
++    def test_the_two_roles_implementation_then_review(self):
++        self.assertEqual([one["role"] for one in self.held["roles"]],
++                         ["implementation", "review"])
++
++    def test_the_implementation_role(self):
++        one = self.held["roles"][0]
++        self.assertEqual(one["consumes"], [])
++        self.assertEqual(one["produces"], ["proposal"])
++        self.assertEqual(one["required_for_success"], ["proposal"])
++        self.assertEqual(one["consumer"], "git-proposal/1")
++
++    def test_the_review_role(self):
++        one = self.held["roles"][1]
++        self.assertEqual(one["consumes"],
++                         [{"role": "implementation", "output": "proposal",
++                           "delivery": "frozen-checkpoint"}])
++        self.assertEqual(one["produces"], ["findings", "logs"])
++        self.assertEqual(one["required_for_success"], ["findings", "logs"])
++        self.assertEqual(one["consumer"], "checkpoint-review/1")
++
++    def test_the_shared_optional_bits_do_not_decide_success(self):
++        """The proposal's central distinction, asserted as a relationship
++        rather than as prose: every `required` is false, and each role still
++        owes two or one named results. A reader who concluded from the false
++        bits that nothing is owed would be contradicted here."""
++        self.assertTrue(all(one["required"] is False
++                            for one in self.held["outputs"]))
++        owed = {one["role"]: set(one["required_for_success"])
++                for one in self.held["roles"]}
++        self.assertEqual(owed, {"implementation": {"proposal"},
++                                "review": {"findings", "logs"}})
++        # And what each role must answer ABSENT is the complement, which is
++        # the proposal's table: implementation owes no findings or logs.
++        declared = {one["name"] for one in self.held["outputs"]}
++        self.assertEqual(declared - owed["implementation"],
++                         {"findings", "logs"})
++        self.assertEqual(declared - owed["review"], {"proposal"})
++
++    def test_the_literals_are_their_owners(self):
++        """REQUIRED REUSE, driven. Each shared word comes from the module that
++        owns it, so a rename there cannot leave this descriptor describing
++        something nothing answers to."""
++        from baton_v12.source_profiles.checkout import GIT_LINE_PROFILE
++        from baton_v12.verification_context import LEGACY_TASK_SCHEMA
++        from baton_v12.worker_manager.schema import OUTPUT_TYPES
++        from baton_v12.worker_manager.sealing import DECLARED_OUTPUT_MEMBERS
++        from baton_v12.integration.driver import CLAIM_NAMESPACE
++        self.assertEqual(self.held["source_profile"], GIT_LINE_PROFILE)
++        self.assertEqual(self.held["task_schema"], LEGACY_TASK_SCHEMA)
++        self.assertEqual(self.held["outputs"][0]["type"], OUTPUT_TYPES[0])
++        self.assertEqual(self.held["outputs"][1]["type"], OUTPUT_TYPES[1])
++        self.assertEqual(sorted(self.held["outputs"][0]),
++                         sorted(DECLARED_OUTPUT_MEMBERS))
++        self.assertEqual(self.held["roles"][1]["produces"],
++                         [review_driver.FINDINGS_OUTPUT,
++                          review_driver.LOGS_OUTPUT])
++        self.assertEqual(CLAIM_NAMESPACE,
++                         f"baton.{self.held['roles'][0]['consumer']}")
++        self.assertEqual(review_driver.REVIEW_CLAIM_NAMESPACE,
++                         f"baton.{self.held['roles'][1]['consumer']}")
++
++
++class EveryRefusalInTheApprovedMatrix(unittest.TestCase):
++    """THE FROZEN INVALID VECTORS, each one a row of the proposal's matrix.
++
++    Every case starts from the approved document and changes ONE thing, so a
++    refusal here is attributable to that change and nothing else.
++    """
++
++    def refusing(self, **changed):
++        held = role_contract.baseline_document()
++        held.update(changed)
++        with self.assertRaises(ContractRefusal) as caught:
++            role_contract.check_role_contract(held)
++        return str(caught.exception)
++
++    def refusing_document(self, held):
++        with self.assertRaises(ContractRefusal) as caught:
++            role_contract.check_role_contract(held)
++        return str(caught.exception)
++
++    def altered(self, where, member, value):
++        held = role_contract.baseline_document()
++        held[where[0]][where[1]][member] = value
++        return held
++
++    # -- version and unknown members ----------------------------------------
++
++    def test_an_unsupported_descriptor_version_refuses(self):
++        said = self.refusing(schema="baton.v12.development-role-contract/2")
++        self.assertIn("another revision is not one to read the recognised "
++                      "parts out of", said)
++
++    def test_an_unknown_member_refuses(self):
++        held = role_contract.baseline_document()
++        held["capability"] = {}
++        self.assertIn("unexpected capability", self.refusing_document(held))
++
++    def test_a_missing_member_refuses(self):
++        held = role_contract.baseline_document()
++        del held["roles"]
++        self.assertIn("missing roles", self.refusing_document(held))
++
++    def test_another_template_refuses(self):
++        said = self.refusing(
++            template="baton.v12.job-template.implementation-review/1")
++        self.assertIn("implementation-review/2", said)
++
++    def test_a_task_three_workload_refuses_with_its_reason(self):
++        """The row the tree makes reachable: a context-enabled `/3` task
++        exists, and this descriptor refuses to qualify it rather than
++        reinterpreting it."""
++        from baton_v12.verification_context import TASK_SCHEMA
++        said = self.refusing(task_schema=TASK_SCHEMA)
++        self.assertIn("continues its own explicit path", said)
++        self.assertIn("baton.dogfood-task/2", said)
++
++    def test_another_source_profile_refuses(self):
++        self.assertIn("git-line", self.refusing(source_profile="hg-line"))
++
++    # -- the outputs ---------------------------------------------------------
++
++    def test_a_wrong_output_type_refuses(self):
++        self.assertIn(
++            "git-change-proposal",
++            self.refusing_document(
++                self.altered(("outputs", 0), "type", "record-output")))
++
++    def test_a_path_other_than_the_name_refuses(self):
++        self.assertIn(
++            "path", self.refusing_document(
++                self.altered(("outputs", 1), "path", "results/findings")))
++
++    def test_a_required_output_refuses(self):
++        said = self.refusing_document(
++            self.altered(("outputs", 0), "required", True))
++        self.assertIn("required_for_success", said)
++
++    def test_a_required_bit_that_is_an_integer_refuses(self):
++        """`0` is not `false`. `own` keeps booleans and integers apart in the
++        value space and the frozen fragment requires a boolean, so a
++        declaration carrying `0` is refused rather than read as absence."""
++        self.assertIsInstance(
++            self.refusing_document(
++                self.altered(("outputs", 0), "required", 0)), str)
++
++    def test_a_lower_limit_refuses_as_loudly_as_a_higher_one(self):
++        """"changing limits needs a version, not guessed compatibility" —
++        BOTH directions, because a validator that accepted the smaller number
++        would be deciding that tighter is safer on an owner's behalf."""
++        for value in (1024, 1048575, 1048577, 2097152):
++            with self.subTest(max_bytes=value):
++                held = role_contract.baseline_document()
++                held["outputs"][0]["constraints"]["max_bytes"] = value
++                self.assertIn("the integer 1048576",
++                              self.refusing_document(held))
++
++    def test_a_boolean_where_a_limit_belongs_refuses(self):
++        """REFUSED BY THE FROZEN SCHEMA, which runs first, and this asserts
++        the refusal that actually happens rather than the one I expected.
++        `outputConstraints` types `max_entries` as an integer, so the shared
++        contract catches a boolean before this revision's equality does — the
++        exact-value check below it is a second line, not the only one."""
++        held = role_contract.baseline_document()
++        held["outputs"][2]["constraints"]["max_entries"] = True
++        said = self.refusing_document(held)
++        self.assertIn("does not satisfy the frozen schema", said)
++        self.assertIn("max_entries", said)
++
++    def test_a_float_limit_refuses(self):
++        held = role_contract.baseline_document()
++        held["outputs"][0]["constraints"]["max_bytes"] = 1048576.0
++        self.assertIsInstance(self.refusing_document(held), str)
++
++    def test_a_wider_media_set_refuses(self):
++        held = role_contract.baseline_document()
++        held["outputs"][1]["constraints"]["allowed_media_types"] = [
++            "application/octet-stream", "text/plain"]
++        self.assertIn("allowed_media_types", self.refusing_document(held))
++
++    def test_a_reordered_media_set_refuses(self):
++        """Order is prescribed, so a reordering is a different document with a
++        different digest rather than the same contract spelled differently."""
++        held = role_contract.baseline_document()
++        held["outputs"][0]["constraints"]["allowed_media_types"] = [
++            "text/plain", "application/octet-stream"]
++        self.assertIn("in that order", self.refusing_document(held))
++
++    def test_a_duplicated_media_type_refuses(self):
++        held = role_contract.baseline_document()
++        held["outputs"][1]["constraints"]["allowed_media_types"] = [
++            "application/octet-stream", "application/octet-stream"]
++        self.assertIn("allowed_media_types", self.refusing_document(held))
++
++    def test_a_permissive_link_policy_refuses(self):
++        """Also the frozen schema's, which pins `link_policy` as a const —
++        so the shared contract and this revision agree, and the refusal names
++        the frozen one because it is reached first."""
++        held = role_contract.baseline_document()
++        held["outputs"][0]["constraints"]["link_policy"] = "allow"
++        said = self.refusing_document(held)
++        self.assertIn("link_policy", said)
++        self.assertIn("const", said)
++
++    def test_a_custom_validator_digest_refuses(self):
++        held = role_contract.baseline_document()
++        held["outputs"][0]["constraints"]["validator_digest"] = (
++            "sha256:" + "0" * 64)
++        said = self.refusing_document(held)
++        self.assertIn("no operator-supplied validator", said)
++
++    def test_an_extra_constraint_member_refuses(self):
++        """The frozen `outputConstraints` is `additionalProperties: false`, so
++        an invented limit is refused by the shared contract — which is a
++        better place for it than this module's own closed set."""
++        held = role_contract.baseline_document()
++        held["outputs"][0]["constraints"]["min_bytes"] = 1
++        self.assertIn("additionalProperties", self.refusing_document(held))
++
++    def test_this_revisions_closed_set_is_reached_when_the_frozen_one_passes(
++            self):
++        """So the second line is shown to be live rather than dead code: the
++        descriptor's own member check is what refuses an output object whose
++        shape the frozen fragment never sees."""
++        held = role_contract.baseline_document()
++        del held["outputs"][0]["constraints"]
++        self.assertIn("missing constraints", self.refusing_document(held))
++
++    def test_a_fourth_output_refuses(self):
++        held = role_contract.baseline_document()
++        held["outputs"].append(copy.deepcopy(held["outputs"][2]))
++        self.assertIn("exactly 3 outputs", self.refusing_document(held))
++
++    def test_a_missing_output_refuses(self):
++        held = role_contract.baseline_document()
++        del held["outputs"][1]
++        self.assertIn("exactly 3 outputs", self.refusing_document(held))
++
++    def test_reordered_outputs_refuse(self):
++        held = role_contract.baseline_document()
++        held["outputs"] = [held["outputs"][1], held["outputs"][0],
++                           held["outputs"][2]]
++        self.assertIn("name", self.refusing_document(held))
++
++    def test_a_context_receipt_output_refuses(self):
++        """Named in the matrix: "context-receipt output... require another
++        explicitly selected descriptor/template revision"."""
++        held = role_contract.baseline_document()
++        held["outputs"].append(
++            {"name": "provider-context-receipt", "type": "directory-result",
++             "path": "provider-context-receipt", "required": False,
++             "constraints": {"max_bytes": 16384, "max_entries": 1,
++                             "allowed_media_types":
++                                 ["application/octet-stream"],
++                             "link_policy": "forbid",
++                             "validator_digest": None}})
++        self.assertIn("exactly 3 outputs", self.refusing_document(held))
++
++    # -- the roles -----------------------------------------------------------
++
++    def test_a_third_role_refuses(self):
++        held = role_contract.baseline_document()
++        held["roles"].append(copy.deepcopy(held["roles"][0]))
++        self.assertIn("exactly 2 roles", self.refusing_document(held))
++
++    def test_reordered_roles_refuse(self):
++        held = role_contract.baseline_document()
++        held["roles"] = list(reversed(held["roles"]))
++        self.assertIn("role", self.refusing_document(held))
++
++    def test_a_review_that_consumes_nothing_refuses(self):
++        """The matrix row that matters most: an independent review that is
++        eligible and has no candidate to read cannot do its work."""
++        held = role_contract.baseline_document()
++        held["roles"][1]["consumes"] = []
++        self.assertIn("consumes exactly 1", self.refusing_document(held))
++
++    def test_an_implementation_that_consumes_something_refuses(self):
++        held = role_contract.baseline_document()
++        held["roles"][0]["consumes"] = copy.deepcopy(
++            held["roles"][1]["consumes"])
++        self.assertIn("consumes exactly 0", self.refusing_document(held))
++
++    def test_a_delivery_that_is_not_a_frozen_checkpoint_refuses(self):
++        """"consumption of a proposal means an exact immutable checkpoint...
++        not copying a producer's metadata into a reviewer verdict"."""
++        held = role_contract.baseline_document()
++        held["roles"][1]["consumes"][0]["delivery"] = "copy"
++        self.assertIn("frozen-checkpoint", self.refusing_document(held))
++
++    def test_consuming_another_output_refuses(self):
++        held = role_contract.baseline_document()
++        held["roles"][1]["consumes"][0]["output"] = "logs"
++        self.assertIn("output", self.refusing_document(held))
++
++    def test_an_extra_consume_member_refuses(self):
++        held = role_contract.baseline_document()
++        held["roles"][1]["consumes"][0]["optional"] = True
++        self.assertIn("unexpected optional", self.refusing_document(held))
++
++    def test_missing_findings_for_review_refuses(self):
++        """The matrix row, by name: "Missing findings/logs, proposal required
++        for review, findings required for implementation"."""
++        held = role_contract.baseline_document()
++        held["roles"][1]["produces"] = ["logs"]
++        self.assertIn("produces", self.refusing_document(held))
++
++    def test_findings_required_of_implementation_refuses(self):
++        held = role_contract.baseline_document()
++        held["roles"][0]["required_for_success"] = ["proposal", "findings"]
++        self.assertIn("required_for_success", self.refusing_document(held))
++
++    def test_an_emptied_required_for_success_refuses(self):
++        """The waiver the proposal forbids: a role that owes nothing because
++        every shared `required` bit is false."""
++        held = role_contract.baseline_document()
++        held["roles"][1]["required_for_success"] = []
++        self.assertIn("required_for_success", self.refusing_document(held))
++
++    def test_a_dynamic_consumer_name_refuses(self):
++        """"Consumers are closed built-in development-profile IDs, never
++        dynamic dispatch names"."""
++        for named in ("baton_v12.job_manager.review_driver:check",
++                      "checkpoint-review/2", "git-proposal/1"):
++            with self.subTest(consumer=named):
++                held = role_contract.baseline_document()
++                held["roles"][1]["consumer"] = named
++                self.assertIn("consumer", self.refusing_document(held))
++
++    # -- the document itself -------------------------------------------------
++
++    def test_a_non_document_refuses(self):
++        for named in (None, [], "a contract", 7, True):
++            with self.subTest(value=named):
++                with self.assertRaises(ContractRefusal):
++                    role_contract.check_role_contract(named)
++
++    def test_a_non_builtin_member_refuses(self):
++        class Carrier:
++            pass
++        held = role_contract.baseline_document()
++        held["roles"] = Carrier()
++        with self.assertRaises(ContractRefusal):
++            role_contract.check_role_contract(held)
++
++
++class TheBoundedReaderHoldsTheEncodedBounds(unittest.TestCase):
++    """Reading a descriptor from bytes: the ceiling, the encoding and the one
++    fault a careless reader cannot see."""
++
++    def test_duplicate_keys_refuse_before_canonicalization(self):
++        """THE SUBTLE ONE. `json.loads` keeps the LAST of two equal keys
++        silently, so a document carrying a member twice has two readings — the
++        one a reader sees and the one a digest is taken over. Two parties
++        could agree on a digest and disagree on the contract."""
++        payload = json.dumps(role_contract.baseline_document())
++        doubled = payload.replace(
++            '"source_profile": "git-line"',
++            '"source_profile": "hg-line", "source_profile": "git-line"', 1)
++        # Proof that the fault is INVISIBLE to an ordinary reader: plain
++        # `json.loads` accepts it and answers the valid-looking document.
++        self.assertEqual(json.loads(doubled)["source_profile"], "git-line")
++        with self.assertRaises(ContractRefusal) as caught:
++            role_contract.role_contract_of_bytes(doubled.encode("utf-8"))
++        self.assertIn("twice", str(caught.exception))
++
++    def test_a_document_over_the_encoded_ceiling_refuses(self):
++        payload = b" " * (role_contract.MAX_CONTRACT_BYTES + 1)
++        with self.assertRaises(ContractRefusal) as caught:
++            role_contract.role_contract_of_bytes(payload)
++        self.assertIn(str(role_contract.MAX_CONTRACT_BYTES),
++                      str(caught.exception))
++
++    def test_the_approved_document_is_well_inside_the_ceiling(self):
++        self.assertLess(
++            len(canonical_bytes(role_contract.baseline_document())),
++            role_contract.MAX_CONTRACT_BYTES)
++
++    def test_malformed_json_refuses(self):
++        with self.assertRaises(ContractRefusal):
++            role_contract.role_contract_of_bytes(b"{not json")
++
++    def test_non_utf8_bytes_refuse(self):
++        with self.assertRaises(ContractRefusal):
++            role_contract.role_contract_of_bytes(b"\xff\xfe{}")
++
++    def test_text_is_not_bytes(self):
++        with self.assertRaises(ContractRefusal):
++            role_contract.role_contract_of_bytes(
++                json.dumps(role_contract.baseline_document()))
++
++    def test_a_document_nesting_past_the_frozen_depth_refuses(self):
++        held = role_contract.baseline_document()
++        deep = {}
++        at = deep
++        for _ in range(12):
++            at["more"] = {}
++            at = at["more"]
++        held["roles"] = [deep]
++        with self.assertRaises(ContractRefusal):
++            role_contract.check_role_contract(held)
++
++
++class TheRegistryBindsTwoRevisionsAndPreservesTheFirst(unittest.TestCase):
++    """THE REGISTRY HALF. `/2` is registered, `/1` is untouched, and the
++    configured default did not move."""
++
++    def test_both_revisions_are_registered(self):
++        self.assertEqual(
++            sorted(templates.TEMPLATES),
++            ["baton.v12.job-template.implementation-review/1",
++             "baton.v12.job-template.implementation-review/2"])
++
++    def test_the_configured_default_is_still_the_first_revision(self):
++        """"Do not change the configured default implicitly"."""
++        self.assertEqual(templates.DEFAULT_TEMPLATE,
++                         templates.IMPLEMENTATION_REVIEW)
++        self.assertEqual(templates.DEFAULT_TEMPLATE,
++                         "baton.v12.job-template.implementation-review/1")
++
++    def request(self, **named):
++        held = {
++            "schema": templates.REQUEST_SCHEMA,
++            "task": {"job_id": "w371294-a", "work_id": "2b077949-W371294",
++                     "statement": "Resolve against the registered revisions."},
++            "source": {"input_digest": "sha256:" + "1" * 64,
++                       "policy_digest": "sha256:" + "2" * 64},
++            "scope": {
++                "work": ["v12/python/src/baton_v12/job_manager/"
++                         "role_contract.py"],
++                "tests": ["v12/python/tests/job_manager/"
++                          "test_role_contract.py"]},
++            "acceptance": ["The configured default did not move."]}
++        held.update(named)
++        return held
++
++    CONFIGURATION = {
++        "schema": templates.CONFIGURATION_SCHEMA,
++        "profiles": {"implementation": {"profile_name": "reference",
++                                        "profile_digest":
++                                            "sha256:" + "a" * 64},
++                     "review": {"profile_name": "reviewer",
++                                "profile_digest": "sha256:" + "b" * 64}}}
++
++    def test_a_bare_request_still_resolves_to_the_first_revision(self):
++        """THE PRESERVED LEGACY PATH, driven through the real resolver rather
++        than asserted from the constant."""
++        resolved = templates.resolve(self.request(),
++                                     configuration=self.CONFIGURATION)
++        self.assertEqual(resolved["template"]["version"],
++                         templates.IMPLEMENTATION_REVIEW)
++        self.assertEqual(resolved["template"]["origin"], "configured-default")
++
++    def test_the_second_revision_resolves_when_a_request_names_it(self):
++        """The new version is selectable with NO request-schema change,
++        because the `template` operand is already text — and the origin says
++        it was asked for rather than configured."""
++        resolved = templates.resolve(
++            self.request(template=templates.IMPLEMENTATION_REVIEW_2),
++            configuration=self.CONFIGURATION)
++        self.assertEqual(resolved["template"]["version"],
++                         templates.IMPLEMENTATION_REVIEW_2)
++        self.assertEqual(resolved["template"]["origin"], "request")
++
++    def test_the_resolution_carries_no_descriptor_member(self):
++        """THIS SLICE'S BOUNDARY AT THE RESOLVER: the resolution schema is
++        unchanged, so a `/2` Job resolves exactly as a `/1` one does today.
++        Retaining the contract in the resolution is the approved
++        `job-template-resolution/2` carrier, which is W371295's."""
++        resolved = templates.resolve(
++            self.request(template=templates.IMPLEMENTATION_REVIEW_2),
++            configuration=self.CONFIGURATION)
++        self.assertEqual(resolved["schema"], templates.RESOLUTION_SCHEMA)
++        self.assertEqual(sorted(resolved),
++                         sorted(templates.RESOLUTION_MEMBERS))
++        self.assertNotIn("role_contract", resolved)
++
++    def test_the_two_revisions_resolve_to_the_same_stages(self):
++        """Same graph, so the only difference a Job sees is the version it
++        records."""
++        one = templates.resolve(
++            self.request(template=templates.IMPLEMENTATION_REVIEW),
++            configuration=self.CONFIGURATION)
++        two = templates.resolve(
++            self.request(template=templates.IMPLEMENTATION_REVIEW_2),
++            configuration=self.CONFIGURATION)
++        self.assertEqual(one["stages"], two["stages"])
++        self.assertEqual(one["rules"], two["rules"])
++
++    def test_the_two_revisions_differ_only_in_their_version(self):
++        """`/2` adds a descriptor binding, not a workflow change — so the
++        graph, the gate and all three rules are the same, and this is what
++        makes one descriptor an honest statement about the workflow."""
++        one = templates.template_document(templates.IMPLEMENTATION_REVIEW)
++        two = templates.template_document(templates.IMPLEMENTATION_REVIEW_2)
++        self.assertNotEqual(one["version"], two["version"])
++        self.assertEqual(dict(two, version=one["version"]), one)
++
++    def test_the_second_revision_is_frozen_too(self):
++        """Review 2026-10-26T17-46-15Z R2's property, for the new entry: the
++        supported read cannot be written through."""
++        held = templates.template_of(templates.IMPLEMENTATION_REVIEW_2)
++        with self.assertRaises(TypeError):
++            held["completion"] = {}
++        with self.assertRaises(TypeError):
++            held["roles"][0]["produces"] = ()
++
++    def test_only_the_second_revision_carries_a_contract(self):
++        self.assertIsNone(
++            role_contract.contract_for(templates.IMPLEMENTATION_REVIEW))
++        self.assertEqual(
++            role_contract.contract_for(templates.IMPLEMENTATION_REVIEW_2),
++            role_contract.baseline_document())
++
++    def test_an_unregistered_version_carries_no_contract(self):
++        """Absence is an ordinary answer, not a refusal: deciding that a
++        legacy template is an error would make it one for every reader."""
++        self.assertIsNone(role_contract.contract_for(
++            "baton.v12.job-template.implementation-review/9"))
++
++    def test_a_version_that_is_not_text_refuses(self):
++        for named in (None, 7, ["/2"]):
++            with self.subTest(version=named):
++                with self.assertRaises(ContractRefusal):
++                    role_contract.contract_for(named)
++
++    def test_the_descriptor_and_the_registry_agree_on_every_output(self):
++        """The drift this slice's import assertions exist to catch, driven
++        here too so the relationship is visible in a test and not only in an
++        assert that passed at import."""
++        contract = role_contract.contract_for(
++            templates.IMPLEMENTATION_REVIEW_2)
++        declared = {one["name"] for one in contract["outputs"]}
++        registered = templates.template_document(
++            templates.IMPLEMENTATION_REVIEW_2)
++        produced = {one for role in registered["roles"]
++                    for one in role["produces"]}
++        self.assertEqual(declared, produced)
++        for role in registered["roles"]:
++            named = [one for one in contract["roles"]
++                     if one["role"] == role["role"]]
++            self.assertEqual(len(named), 1)
++            self.assertEqual(set(named[0]["produces"]), set(role["produces"]))
++            self.assertEqual({one["output"] for one in named[0]["consumes"]},
++                             set(role["consumes"]))
++
++    def test_the_contract_declares_no_qualification(self):
++        """THE BOUNDARY OF THIS SLICE, asserted so it cannot be read as more
++        than it is: no capability, adapter, image, profile or qualification
++        digest appears anywhere in this descriptor. Binding an installed
++        adapter to it is W371295's work."""
++        text = json.dumps(role_contract.baseline_document())
++        for word in ("capability", "adapter_digest", "image_digest",
++                     "runtime_profile_digest", "qualification_digest"):
++            self.assertNotIn(word, text)
++
++
++if __name__ == "__main__":
++    unittest.main()

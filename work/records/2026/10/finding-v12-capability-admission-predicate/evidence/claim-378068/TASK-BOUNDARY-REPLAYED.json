@@ -1,0 +1,38 @@
+{
+ "answers": {
+  "heterogeneous-lanes": {
+   "outcome": "ADMITTED",
+   "roles": [
+    "implementation",
+    "review"
+   ]
+  },
+  "no-actual-task-operand-is-not-a-member": {
+   "category": "integrity",
+   "code": "schema",
+   "outcome": "REFUSED",
+   "reason": "this deployment's review candidate is exactly worker_id, principal, capability, installed, task_document, input_manifest; missing task_document"
+  },
+  "real-composed-pair": {
+   "outcome": "ADMITTED",
+   "roles": [
+    "implementation",
+    "review"
+   ]
+  },
+  "text-markdown-task-delivery": {
+   "category": "policy",
+   "code": "denied",
+   "outcome": "REFUSED",
+   "reason": "this deployment's review candidate's task delivery declares media_type 'text/markdown' and its composed task is 'application/json'; an artifact that does not describe these bytes delivers a document nobody has"
+  },
+  "unsupported-task-generation": {
+   "category": "policy",
+   "code": "denied",
+   "outcome": "REFUSED",
+   "reason": "this deployment's review candidate's composed task is not one this build's task owner reads (static/invalid-layout: schema)"
+  }
+ },
+ "note": "The reviewer's probe admitted both roles with no task operand and a text/markdown human contract. The task is now a required candidate member and its artifact binding is checked, so that input refuses; a real pair composed through tools/job_task.py is admitted, including for heterogeneous lanes.",
+ "replayed": "work/records/2026/10/finding-v12-capability-admission-predicate/evidence/review-377631/TASK-BOUNDARY.json"
+}

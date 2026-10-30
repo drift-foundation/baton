@@ -1,0 +1,21 @@
+{
+  "shell_syntax": [
+    {
+      "block": 1,
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "block": 2,
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "block": 3,
+      "exit": 0,
+      "stderr": ""
+    }
+  ],
+  "credential_python_compiles": true,
+  "executed": false
+}

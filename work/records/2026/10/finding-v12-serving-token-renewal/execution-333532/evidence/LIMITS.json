@@ -1,0 +1,34 @@
+{
+  "bounds": {
+    "cleanup_seconds": 60,
+    "implementer_invocations": 1,
+    "retry": false,
+    "total_seconds": 4800,
+    "turn_seconds": 3600
+  },
+  "generated_limits": [
+    {
+      "path": "policy",
+      "value": {
+        "automatic_retry": false,
+        "implementer_invocations": 1,
+        "note": "the caps the admission gate enforces; W239528",
+        "provider_turn_seconds": 3600,
+        "schema": "baton.single-implementation-execution-policy/1",
+        "verification_command_seconds": 30
+      }
+    },
+    {
+      "path": "submission.jobs.0.execution_limits",
+      "value": {
+        "provider_turn_seconds": 3600,
+        "verification_command_seconds": 30
+      }
+    }
+  ],
+  "provider_invocations": 1,
+  "retry": false,
+  "gate_run": false,
+  "gate_fit_within_30_seconds": "unproved",
+  "old_host_900_second_lease": "unchanged; may stop authoring early"
+}

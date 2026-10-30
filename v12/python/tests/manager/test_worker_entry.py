@@ -960,8 +960,13 @@ class AnInvalidLaunchNeverWAITSForAChannelNobodyWrites(unittest.TestCase):
                 "baton.worker-launch/4",
                 transport=baton_worker.EXCHANGE_TRANSPORT,
                 job_execution={}, provider_context={}),
+            # W376586: `/5` IS THIS BUILD'S WRAPPER NOW, so the "after this
+            # one" slot moves to `/6`. The wrapper's own no-payload case is
+            # below, and it answers 2 rather than 3 because a wrapper carrying
+            # no payload carries no container session -- there is nothing to
+            # correlate an answer to, which is `session_of`'s own rule.
             "a generation after this one": self.document(
-                "baton.worker-launch/5"),
+                "baton.worker-launch/6"),
             "a schema that is not text at all": self.document(3),
             "a document that names no schema": {
                 "session": self.SESSION, "contract": "c", "role": "r"},
@@ -979,8 +984,17 @@ class AnInvalidLaunchNeverWAITSForAChannelNobodyWrites(unittest.TestCase):
                 self.assertEqual(os.listdir(self.command_root), [])
                 # AND IT SAID WHY, which is the whole difference from the
                 # incident: the container that hung wrote nothing anywhere.
-                self.assertTrue(answered["stderr"].startswith("baton-worker: "))
+                self.assertTrue(
+                    answered["stderr"].startswith("baton-worker: "))
                 self.assertIn("launch", answered["stderr"])
+        # AND THE WRAPPER WITH NO PAYLOAD, which is uncorrelatable rather than
+        # refusable: the same no-wire properties hold and the status is the one
+        # the manager settles on its own launched session. W376586.
+        answered = self.started(self.document("baton.worker-launch/5"))
+        self.assertEqual(answered["status"], 2)
+        self.assertEqual(answered["stdout"], b"")
+        self.assertEqual(os.listdir(self.event_root), [])
+        self.assertEqual(os.listdir(self.command_root), [])
 
     def test_an_unknown_generation_is_named_BEFORE_its_members(self):
         """The diagnostic the operator actually needs, and the one they got.
@@ -992,11 +1006,16 @@ class AnInvalidLaunchNeverWAITSForAChannelNobodyWrites(unittest.TestCase):
         first now, and the sentence lists EVERY version this worker reads,
         which the hand-written list did not: it named three and omitted `/4`.
         """
+        # W376586: THE FUTURE ARRIVED. This case named `/5` as the generation
+        # from a newer manager, and `/5` is now the file-exchange wrapper this
+        # worker reads -- so the unknown generation moves to `/6` and the
+        # PROPERTY is unchanged. The wrapper's own reading is asserted in
+        # `TheFileExchangeLaunchIsWrapped` below.
         said = self.started(self.document(
-            "baton.worker-launch/5",
+            "baton.worker-launch/6",
             transport=baton_worker.EXCHANGE_TRANSPORT,
             job_execution={}, something_from_the_future={}))["stderr"]
-        self.assertIn("baton.worker-launch/5", said)
+        self.assertIn("baton.worker-launch/6", said)
         self.assertIn("from another generation", said)
         for one in baton_worker.SUPPORTED_LAUNCH_SCHEMAS:
             self.assertIn(one, said)

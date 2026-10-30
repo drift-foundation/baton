@@ -1,0 +1,11 @@
+{
+  "assertions": 9,
+  "seconds": 0.12065322099806508,
+  "passed": true,
+  "scope": "current old bootstrap and instance schema rejection plus inert synthetic shape/digest consistency",
+  "new_contract_implemented": false,
+  "product_qualification": false,
+  "provider_calls": 0,
+  "engine_calls": 0,
+  "cumulative_measured_author_seconds": 0.3742592209980651
+}

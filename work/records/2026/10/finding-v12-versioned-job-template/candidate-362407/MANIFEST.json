@@ -1,0 +1,39 @@
+{
+  "ANSWERS": "work/records/2026/10/finding-v12-versioned-job-template/review-2026-10-26T18-08-59Z.md R4",
+  "BASE_COMMIT": "182c8f943cdfc12134ae2d082d9afe98189efe90",
+  "BASE_IS_CLEAN_FOR_THESE_PATHS": true,
+  "CLAIM": 362407,
+  "EARLIER": {
+    "candidate": "candidate-361943",
+    "manifest": "834e88af1eb98106adbfe4799baac83de1b31d56a8f84502d93dd455c85a7277",
+    "preserved_untouched": true
+  },
+  "MEMBERS": {
+    "v12/python/src/baton_v12/job_manager/__init__.py": {
+      "base": "7fa34e59a272ebe17054fe48963ac5dfc6dd74ef81fe7aacb44a642ba8cff8bc",
+      "candidate": "bfebb949e201c9de01075e98e3872fc2f761d460bd57308192c10a0795cf580c",
+      "candidate_362249": "dca5dfa59c02ddfa8806fd989723112aacda7134598c90dc35d3ea8c7331ca34",
+      "changed_since_362249": true,
+      "new": false
+    },
+    "v12/python/src/baton_v12/job_manager/templates.py": {
+      "base": null,
+      "candidate": "64f9f3412c673d7bac7ace6190e3f8ddebba7056f90a279f07fc70efc0975e16",
+      "candidate_362249": "8a93bd299f119620b741d71e11b44aac1bae8c7a972f26e50083962290ef8f3a",
+      "changed_since_362249": true,
+      "new": true
+    },
+    "v12/python/tests/job_manager/test_templates.py": {
+      "base": null,
+      "candidate": "a45389dedc4008c937bca139effa6c08cba852c5c8d1ebc6e8cbfa97d6caab13",
+      "candidate_362249": "46da84a8c150da327a97228461f365b2e5cf072b7973ad79264104c344aa7494",
+      "changed_since_362249": true,
+      "new": true
+    }
+  },
+  "SUPERSEDES": {
+    "candidate": "candidate-362249",
+    "manifest": "fd92f115bc32975efde567adfb2e1fa9b7273427297a84bce24884192b61f3b1",
+    "preserved_untouched": true
+  }
+}

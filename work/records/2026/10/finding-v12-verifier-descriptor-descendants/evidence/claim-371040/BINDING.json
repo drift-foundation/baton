@@ -1,0 +1,103 @@
+{
+ "NOT_established": [
+  "NO IMAGE PROVIDES THE LAYOUT. source_boundary is unchanged and no Dockerfile was touched, so on every current deployment the gate keeps the descriptor form and behaviour is UNCHANGED. The descendant fix activates only on a corrected image.",
+  "the kernel question is not answered: mount-point rename refusal under the selected topology, mount identity and options, and immutable ancestors all remain the separately selected corrected-image/kernel proof",
+  "the positive bound composition substitutes the mount TABLE, because an unprivileged test cannot mount. Substituted: the topology. Not substituted: the parsing, every refusal, the object checks, the real grandchild and the canonical agreement.",
+  "the capacity partition is NOT implemented: source_boundary still declares /tmp 64MiB plus /dev/shm 16MiB, and the proposed 32/16/4/16/4/8 split with its 96MiB total remains unproved and un-landed",
+  "no engine, provider, deployment or live operation; the historical ENGINE-PROOF procedure remains unselected"
+ ],
+ "base": "f36bcd75ed22430355efe1b274b8f236cb591f6b",
+ "base_matches_the_plan": true,
+ "candidate": {
+  "v12/python/tests/manager/test_claude_agent.py": {
+   "bytes": 232900,
+   "sha256": "9f5712b33950fcdeddd491396a7c788c8c9e963e410dee28af4c0c389d478b8b"
+  },
+  "v12/worker/claude_agent.py": {
+   "bytes": 292791,
+   "sha256": "6378897ea6080e25b866923d709fc7ddcad78a979b3bcbf02d37540dd15bf988"
+  }
+ },
+ "claim": "E371040",
+ "diffs": {
+  "claude_agent.diff": "0c6d74dc5a31e04f9cebace3ebdde9b9543cea2e20d38691aae2d7e573b46d3d",
+  "test_claude_agent.diff": "c5b86db5fbbceb5e1be065016c3eff7d24f0d3b60c04dd96a3ea7de0602a5c0c"
+ },
+ "human_checkpoint_due": "after independent acceptance; the PLAN proposes 'Fix verifier roots for descendant processes'. No agent performs any Git mutation.",
+ "record_files": {
+  "FINDING.md": "4337fd285038bfdbc6fd84b7868da2ff902b7bf9ba015b5705d17c38040955a7",
+  "PLAN.md": "8f7cf6705bc0a81deb01ca48c04b51cc31147dafde3d83c0eb1dd98ed369db31",
+  "PROGRESS.md": "5d5fa5a13b868c0572c96fb22c76539acce05ba475e884437b66f680e9abf98b",
+  "REVALIDATION-370978.md": "71e872066ed8f676d16ca8cd2a69ced5cae068cd467f2af8feb5f850f17c8b42"
+ },
+ "remaining_scope_for_this_Work": [
+  "the corrected image layout and its capacity partition",
+  "the separately selected kernel/mount proof with a digest-bound image and trusted identity",
+  "W321776's overlapping /3 paired-view work, which waits on this correction's accepted checkpoint via E371024"
+ ],
+ "retained_preparation_untouched": {
+  "note": "preparation-325806 / -325842 / -325908 and every prior evidence directory are unchanged; the packet was neither executed nor rewritten",
+  "preparation_325908_manifest_as_recorded": "34f80cd19db542f479545285555a8b5844260e9729c33e1c2fe13018c73414fb"
+ },
+ "schema": "baton.v12.verifier-root-binding/1",
+ "selected_by": "owner E371012 \u2014 bounded direct correction on the current accepted source",
+ "the_mechanism": {
+  "new_members": [
+   "ClaudeAgent._mount_points",
+   "ClaudeAgent._mount_bound_root",
+   "ClaudeAgent._mount_bound_environment"
+  ],
+  "preserved": [
+   "the descriptor form, unchanged, for every image without the layout",
+   "_checked_directory's component guard, which still refuses first",
+   "W321528's _verify timeout reporting, byte-unchanged",
+   "W321776's committed Stage-A additions, untouched"
+  ],
+  "why_a_mount_point": "the kernel refuses to rename or unlink a mount point while it is mounted (EBUSY) REGARDLESS OF UID, and uid is exactly what this worker cannot rely on because the provider shares it and can chmod back any parent mode the adapter sets. So a mount-bound root is safe under an ORDINARY pathname -- which is what descendants and nested canonical-path checks need.",
+  "why_detection_not_declaration": "the frozen task and launch shapes are closed and this correction may not extend them, so the layout is proved by the worker from the kernel's table and the objects, not announced to it.",
+  "wiring": [
+   "_pinned_environment tries the bound form first, else runs exactly its previous code",
+   "_revalidated_directories accepts either form and re-asks the mount and object questions for the bound one"
+  ]
+ },
+ "v12_working_tree": {
+  "only_the_two_candidate_paths": true,
+  "porcelain": [
+   "M v12/python/tests/manager/test_claude_agent.py",
+   " M v12/worker/claude_agent.py"
+  ]
+ },
+ "verification": {
+  "against_the_pristine_worker": "18 of the 20 error on the missing seam, which is weak evidence on its own -- the control case carries the demonstration",
+  "command": "cd v12/python && PYTHONPATH=src:.:../worker BATON_V12_DISK_ROOT=/var/tmp/baton-w257624 BATON_V12_STACK_TEST_ROOT=/var/tmp/baton-w257624 python3 -m unittest <module>",
+  "evidence": {
+   "claude_agent.diff": "0c6d74dc5a31e04f9cebace3ebdde9b9543cea2e20d38691aae2d7e573b46d3d",
+   "descendants.txt": "8c01a9fbc6407d661d4d5de8ebbb904cdae0846c501df6a5540e05f01eb02e53",
+   "test_claude_agent.diff": "c5b86db5fbbceb5e1be065016c3eff7d24f0d3b60c04dd96a3ea7de0602a5c0c"
+  },
+  "new_class": "TheVerifierRootsReachDescendants, 20 cases, all passing",
+  "pre_existing_failures_verified": "both adjacent suites produce identical results on the pristine committed worker, extracted with `git show HEAD:\u2026` to a temp file and swapped in",
+  "suites": {
+   "tests.manager.test_claude_agent": {
+    "result": "OK",
+    "tests": 261,
+    "was": 241
+   },
+   "tests.manager.test_source_boundary": {
+    "failures": 1,
+    "pre_existing": true,
+    "skipped": 2,
+    "tests": 75
+   },
+   "tests.manager.test_worker_image": {
+    "failures": 5,
+    "pre_existing": true,
+    "tests": 106
+   }
+  },
+  "the_control_case": "test_the_descriptor_form_is_what_a_grandchild_cannot_resolve reproduces the descendant failure on the code path today's images run, with a REAL grandchild. Without it the positive case would prove nothing. It passes under the candidate too, because the descriptor form is still there."
+ },
+ "work": "W325695",
+ "worker_before": "b014ea3f5f58af573a0cbaa4b8838a270953806a89ef274682d5cca6627efe7c",
+ "worker_before_matches_revalidation": true
+}

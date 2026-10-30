@@ -1,0 +1,667 @@
+diff --git a/v12/python/tests/tools/next_run_flow_fixture.py b/v12/python/tests/tools/next_run_flow_fixture.py
+--- a/v12/python/tests/tools/next_run_flow_fixture.py
++++ b/v12/python/tests/tools/next_run_flow_fixture.py
+@@ -38,6 +38,16 @@
+         record('simulated-git', list(argv))
+         argv = list(argv)
+         if 'clone' in argv:
++            # W339626: THE PRE-RUNTIME SOURCE-LINE REFUSAL, injected at the
++            # boundary and answered by the REAL product profile code. The live
++            # run w339626-live-345599 died here with a permission denial on the
++            # null device the Git launcher opens, so the denial is reproduced
++            # as the backend's own answer rather than by stubbing the refusal.
++            if deny_line:
++                record('simulated-git-line-denied', argv[-2:])
++                return dict(returncode=128, stdout='',
++                            stderr="fatal: could not open '/dev/null' for "
++                                   'reading and writing: Permission denied')
+             source, destination = argv[-2:]
+             shutil.copytree(source, destination)
+             (Path(destination) / '.git/info').mkdir(parents=True)
+@@ -80,6 +90,16 @@
+         return dict(returncode=0, stdout=output, stderr='')
+     fail_start = '--fixture-fail-start' in args
+     if fail_start: args.remove('--fixture-fail-start')
++    # W339626: THE FLAG HAS TO REACH THE PROCESS THAT ACTUALLY MATERIALIZES.
++    # `main` strips it before calling the controller, and the source line is
++    # composed in the WATCHDOG'S CHILD rather than here -- so without the
++    # explicit propagation in `Process` below the child parses no flag,
++    # `deny_line` is False there, and the clone succeeds. Measured before the
++    # correction: the production clone argv appeared in the trace while
++    # `simulated-git-line-denied` never did, and the run failed as "froze no
++    # result at all" instead of as a pre-runtime source refusal.
++    deny_line = '--fixture-deny-line' in args
++    if deny_line: args.remove('--fixture-deny-line')
+     worker_threads = []
+     def run_worker():
+         try:
+@@ -141,7 +161,12 @@
+     class Process(original_process):
+         def __init__(self, argv, **kwargs):
+             if fail_start: raise OSError('simulated controller child launch failure')
+-            super().__init__([argv[0], '-I', '-B', __file__, code, tests_root, trace, *argv[3:]], **kwargs)
++            # The fixture flag is RE-COMPOSED for the child, because `main`
++            # consumed it out of this process's argv and the child is where the
++            # product's own source line runs. It precedes `argv[3:]` so the
++            # child still sees the controller's operands in the same order.
++            carried = ['--fixture-deny-line'] if deny_line else []
++            super().__init__([argv[0], '-I', '-B', __file__, code, tests_root, trace, *carried, *argv[3:]], **kwargs)
+     enforcement.Process = Process
+     if args[0] == '--fixture-recover':
+         from tools import next_run_recovery
+diff --git a/v12/python/tests/tools/test_next_run_flow.py b/v12/python/tests/tools/test_next_run_flow.py
+--- a/v12/python/tests/tools/test_next_run_flow.py
++++ b/v12/python/tests/tools/test_next_run_flow.py
+@@ -41,6 +41,7 @@
+         self.host.dispatch = self.dispatch
+         self.host.recovery_evidence = self.recovery
+         self.fail_start = False
++        self.deny_line = False
+ 
+     def request(self, **data):
+         return managed.execute_request(self.broker, managed.read_request(io.BytesIO(json.dumps(data).encode())))
+@@ -63,6 +64,7 @@
+     def dispatch(self, record, packet, root):
+         args = ['--packet', str(root / 'runs' / record['run_id'] / 'PACKET.json')]
+         if self.fail_start: args.append('--fixture-fail-start')
++        if self.deny_line: args.append('--fixture-deny-line')
+         result = self.invoke(record, packet, root, args)
+         logs = {p.name: p.read_text() for p in (Path(record['storage']) / 'packet').glob('*') if p.is_file()}
+         from baton_v12.worker_manager import ControlStore, attempts
+@@ -79,6 +81,19 @@
+         task = self.fixture.fixture.task(name)
+         task['limits'] = dict(provider=3, verification=2, total=12, cleanup=4)
+         return task
++
++    def only(self, collection, what):
++        """The one member of a collection, proved to have exactly one.
++
++        W339626 R1: a walk over a collection that turned out to be empty is
++        the shape that let an earlier revision of the refusal case pass while
++        asserting nothing. This fails on an absent, empty or longer collection
++        instead, and returns the member so the caller correlates against it.
++        """
++        self.assertIsNotNone(collection, what)
++        self.assertEqual(len(collection), 1, f'{what}: {collection!r}')
++        return collection[0] if isinstance(collection, list) else \
++            sorted(collection)[0]
+ 
+     def start(self, name):
+         with patch.object(managed.baseline, 'verify_worker_image'):
+@@ -153,6 +168,120 @@
+                 json.dump(dict(kind='deterministic joined owner proof', simulated=['host privileges and process uid exclusion', 'engine', 'provider', 'Git command backend'], installed_once=True, receipts=receipts, recovery=self.recovery_receipt, runs=self.results), out, indent=2)
+                 out.write('\n')
+ 
++    def test_a_pre_runtime_source_refusal_is_accounted_and_not_cleaned(self):
++        """W339626: the live C failure's own shape, through real accounting.
++
++        Run w339626-live-345599 refused BEFORE any runtime with
++        `ProfileRefusal: Git line materialization failed: fatal: could not open
++        '/dev/null' for reading and writing: Permission denied` -- 125
++        characters, recorded in operator-error-347682/diagnostic.json. The
++        denial is injected at the Git boundary and answered by the REAL product
++        profile code and the REAL owner accounting; neither the refusal nor the
++        accounting is stubbed.
++
++        The assertions are the states that run actually recorded, read from
++        operator-diagnostics-347468/reports.json: runtime `not-started`,
++        cancellation requested with `state` None, `cleanup` None with the
++        attempt still in `outstanding_cleanup`, `retry` False, and a held
++        outcome carrying the actionable cause. Cleanup must NOT read as
++        complete and cessation must NOT be claimed.
++
++        W339626 R1, review-2026-10-21T16-30-13Z.md: an earlier revision of this
++        case asserted `workload.candidates == []`, and THAT WAS WRONG about the
++        product and about the production record. `authoring_baseline` emits ONE
++        entry per implementation attempt even when the turn froze nothing, so
++        the real report carries an attempt-correlated entry with `state`
++        "absent" and every result field null. The assertion below is that
++        entry, not its absence -- a no-result accounting is what this path must
++        produce, and an empty list would mean the attempt went unaccounted.
++        The collections are also asserted NONEMPTY first, because the loops
++        underneath them would otherwise pass on nothing at all.
++        """
++        self.request(action='prepare', task=self.task('denied'))
++        self.deny_line = True
++        try:
++            self.assertNotEqual(self.start('denied'), 0)
++        finally:
++            self.deny_line = False
++        result = self.results[-1]
++        outcome = result['outcome']
++
++        # 1. THE ORIGINAL ACTIONABLE CAUSE SURVIVES, in the owner's own report.
++        failure = outcome.get('serving_failure') or ''
++        self.assertIn('Permission denied', failure)
++        self.assertIn('could not open', failure)
++        self.assertNotEqual(outcome.get('state'), 'settled')
++        self.assertNotEqual(outcome.get('stage_states'),
++                            {'implementation': 'completed'})
++        self.assertTrue(outcome.get('held_because'))
++
++        # 1a. THE REFUSAL IS THE PRODUCTION FIELD, not merely a denial.
++        #     operator-error-347682/diagnostic.json recorded
++        #     original_characters 125 for this exact composed sentence.
++        self.assertEqual(
++            failure,
++            "ProfileRefusal: Git line materialization failed: fatal: could "
++            "not open '/dev/null' for reading and writing: Permission denied")
++        self.assertEqual(len(failure), 125)
++
++        # 1b. R1: THE ATTEMPT IS ACCOUNTED FOR WITH NO RESULT, not omitted.
++        attempt = self.only(outcome.get('admitted_attempts'),
++                            'exactly one attempt was admitted')
++        candidates = outcome.get('workload', {}).get('candidates')
++        entry = self.only(candidates, 'one candidate entry per attempt')
++        self.assertEqual(entry.get('attempt_id'), attempt)
++        self.assertEqual(entry.get('state'), 'absent')
++        for empty in ('base', 'head', 'content_digest', 'locator',
++                      'disposition', 'transport', 'bytes', 'generation',
++                      'assignment', 'attribution'):
++            self.assertIsNone(entry.get(empty),
++                              f'a turn that froze nothing has no {empty}')
++        self.assertNotEqual(entry.get('verification'), 'passed')
++
++        # 2. CLEANUP IS NOT REPORTED COMPLETE and cessation is not claimed.
++        #    R1: each collection is proved NONEMPTY and attempt-correlated
++        #    before it is walked, so no loop below can pass vacuously.
++        self.assertEqual(outcome.get('outstanding_cleanup'), [attempt],
++                         'a pre-runtime refusal must leave cleanup outstanding')
++        cleanup = outcome.get('cleanup') or {}
++        self.assertEqual(sorted(cleanup), [attempt])
++        for held in cleanup.values():
++            self.assertIsNone(held.get('cleanup'),
++                              'no committed cleanup may be claimed')
++        cancellation = outcome.get('cancellation') or {}
++        self.assertEqual(sorted(cancellation), [attempt])
++        for held in cancellation.values():
++            self.assertIs(held.get('requested'), True)
++            self.assertEqual(held.get('execution_runtime'), 'not-started')
++            self.assertIsNone(held.get('state'),
++                              'an unobserved runtime state is not absence')
++
++        # 3. CONSUMPTION AND NO-RETRY ARE PRESERVED.
++        self.assertIs(outcome.get('retry'), False)
++        with self.assertRaises(managed.nr.Refusal):
++            self.start('denied')
++
++        # 4. No fabricated runtime receipt for a runtime that never started.
++        for item in result['inventory'] or []:
++            self.assertIsNone(item['runtime'].get('runtime_id'))
++
++        # 5. THE LANE STILL WORKS AFTERWARDS, through a REAL completed run. A
++        #    consumed failure must not poison the installation; that is what
++        #    makes this a bounded failure path rather than a dead one.
++        #
++        #    The follow-on uses the task name `first` deliberately. The
++        #    fixture's simulated provider recognises only the instructions it
++        #    models and RAISES on anything else -- which is a real guard that
++        #    the instruction reached the provider, not an accident. An earlier
++        #    revision of this step named the task `after`, so the worker raised
++        #    `task instruction did not reach provider`, the turn froze no
++        #    result, and the follow-on could never have passed. Measured, then
++        #    corrected by using a modelled instruction rather than by weakening
++        #    the guard.
++        received = time.monotonic()
++        self.request(action='prepare', task=self.task('first'))
++        self.completed('first', received)
++
+     def test_initial_partial_preparation_continues_to_real_work(self):
+         received = time.monotonic()
+         task = self.task('first')
+diff --git a/v12/python/tests/tools/test_next_run_managed.py b/v12/python/tests/tools/test_next_run_managed.py
+--- a/v12/python/tests/tools/test_next_run_managed.py
++++ b/v12/python/tests/tools/test_next_run_managed.py
+@@ -563,6 +563,323 @@
+         self.assertEqual(outside.read_text(), 'preserved')
+         self.assertEqual((inside / 'allowed').read_text(), 'ok')
+ 
++    # -- W339626: THE CONFINED SOURCE LINE ------------------------------------
++    #
++    # The run w339626-live-345599 died before any runtime with
++    # `ProfileRefusal: Git line materialization failed: fatal: could not open
++    # '/dev/null' for reading and writing: Permission denied`. The case above
++    # proves an allowed file and a denied file; it never starts REAL Git under
++    # REAL confinement, and that combination is what failed. These do.
++    #
++    # They use the real kernel and the real `git` binary deliberately: a mocked
++    # Git cannot prove a Landlock boundary. `test_next_run_flow` replaces
++    # `Host.dispatch` and never calls `restrict_writes`, so it cannot either.
++
++    def _confined(self, script, *operands, timeout=30):
++        """Run `script` in a real child that applies the real confinement."""
++        code = Path(managed.__file__).resolve().parents[1]
++        return subprocess.run(
++            [sys.executable, '-I', '-B', '-c', script, str(code / 'src'),
++             str(code), *[str(one) for one in operands]],
++            capture_output=True, text=True, timeout=timeout,
++            env=dict(os.environ, GIT_CONFIG_GLOBAL='/dev/null',
++                     GIT_CONFIG_SYSTEM='/dev/null',
++                     GIT_AUTHOR_NAME='fixture',
++                     GIT_AUTHOR_EMAIL='fixture@invalid',
++                     GIT_COMMITTER_NAME='fixture',
++                     GIT_COMMITTER_EMAIL='fixture@invalid'))
++
++    def _line(self, place):
++        """A REAL one-commit repository, built here and thrown away."""
++        place.mkdir(parents=True, exist_ok=True)
++        for argv in (['git', 'init', '--quiet', '-b', 'main', str(place)],
++                     ['git', '-C', str(place), 'commit', '--quiet',
++                      '--allow-empty', '-m', 'fixture']):
++            done = subprocess.run(argv, capture_output=True, text=True,
++                                  timeout=30,
++                                  env=dict(os.environ,
++                                           GIT_CONFIG_GLOBAL='/dev/null',
++                                           GIT_CONFIG_SYSTEM='/dev/null',
++                                           GIT_AUTHOR_NAME='fixture',
++                                           GIT_AUTHOR_EMAIL='fixture@invalid',
++                                           GIT_COMMITTER_NAME='fixture',
++                                           GIT_COMMITTER_EMAIL='fixture@invalid'))
++            self.assertEqual(done.returncode, 0, done.stderr)
++        return place
++
++    # W339626 R3, review-2026-10-21T16-30-13Z.md: THE ARGV IS THE PRODUCT'S,
++    # NOT THIS FILE'S.
++    #
++    # The previous revision composed `git clone --quiet --no-hardlinks` by
++    # hand. Production composes `clone_vector`, which carries `--no-hardlinks`
++    # AND `--no-local`, and `--no-local` selects a DIFFERENT TRANSPORT inside
++    # Git -- so the earlier case established a local-clone symptom and not the
++    # production path. It also stopped at the clone, while the production plan
++    # is three steps: clone, detach to the DECLARED BASE, then verify the
++    # worktree really is that commit.
++    #
++    # So this runs `checkout_plan`'s own steps, in its own order, comparing
++    # each `expect_stdout` the plan supplies. A drift in any production vector
++    # changes what this case executes instead of silently diverging from it.
++    REAL_PLAN = ("import json,subprocess,sys;sys.path[:0]=sys.argv[1:3];"
++                 "from baton_v12.source_profiles.checkout import checkout_plan;"
++                 "from tools.next_run_confinement import restrict_writes;"
++                 "plan=checkout_plan(sys.argv[4],sys.argv[3],profile='git',"
++                 "declared=sys.argv[5]);"
++                 "restrict_writes(sys.argv[3]);"
++                 "ran=[]\n"
++                 "for step in plan['steps']:\n"
++                 "  d=subprocess.run(list(step['argv']),capture_output=True,text=True)\n"
++                 "  ran.append({'argv':list(step['argv']),'status':d.returncode,"
++                 "'stdout':d.stdout,'stderr':d.stderr,"
++                 "'expect_stdout':step['expect_stdout']})\n"
++                 "  if d.returncode!=0: break\n"
++                 "print(json.dumps({'source_root':plan['source_root'],"
++                 "'base':plan['base'],'base_kind':plan['base_kind'],'ran':ran}))\n"
++                 "sys.exit(0 if all(one['status']==0 for one in ran) else 1)")
++
++    def _head(self, place):
++        """The fixture line's own commit name, read from the disposable line."""
++        done = subprocess.run(['git', '-C', str(place), 'rev-parse', 'HEAD'],
++                              capture_output=True, text=True, timeout=30)
++        self.assertEqual(done.returncode, 0, done.stderr)
++        return done.stdout.strip()
++
++    def test_confined_production_plan_materializes_a_source_line(self):
++        """The REAL production source line, under the REAL confinement.
++
++        Every argv comes from `checkout_plan`, so `--no-local` is present
++        because production composes it and not because this case typed it.
++        """
++        inside = self.root / 'confined-git'
++        inside.mkdir()
++        line = self._line(self.root / 'line')
++        base = self._head(line)
++        done = self._confined(self.REAL_PLAN, inside, line, base)
++        # BEFORE the null-device allowance the FIRST step is status 128 with
++        # "could not open '/dev/null' for reading and writing: Permission
++        # denied" -- the exact production wording.
++        self.assertEqual(done.returncode, 0, done.stdout + done.stderr)
++        self.assertNotIn('Permission denied', done.stderr)
++        report = json.loads(done.stdout)
++
++        # THE PRODUCTION VECTOR, asserted rather than assumed.
++        self.assertEqual(len(report['ran']), 3, report)
++        clone = report['ran'][0]['argv']
++        self.assertEqual(clone[:4], ['git', 'clone', '--no-hardlinks',
++                                     '--no-local'])
++        self.assertEqual(clone[-2:], [str(line), str(inside / 'checkout')])
++
++        # THE DECLARED BASE IS CHECKED OUT AND THEN PROVED, by the plan's own
++        # expectation rather than by this case restating it.
++        self.assertEqual(report['base'], base)
++        self.assertEqual(report['base_kind'], 'sha1')
++        for step in report['ran']:
++            self.assertEqual(step['status'], 0, step)
++            if step['expect_stdout'] is not None:
++                self.assertEqual(step['stdout'].strip(),
++                                 step['expect_stdout'].strip(), step)
++
++        # AND THE CHECKOUT IS REAL AND READABLE at the plan's source root.
++        checkout = Path(report['source_root'])
++        self.assertEqual(checkout, inside / 'checkout')
++        self.assertTrue((checkout / '.git').is_dir())
++        self.assertEqual(self._head(checkout), base)
++
++    def test_the_null_allowance_denies_every_other_device_write(self):
++        """WRITE_FILE on one validated inode is not a /dev grant."""
++        inside = self.root / 'one-inode'
++        inside.mkdir()
++        script = ("import os,sys;sys.path[:0]=sys.argv[1:3];"
++                  "from tools.next_run_confinement import restrict_writes;"
++                  "restrict_writes(sys.argv[3]);"
++                  "os.close(os.open('/dev/null',os.O_RDWR));"
++                  "d={}\n"
++                  "for name in ('/dev/zero','/dev/full','/dev/random'):\n"
++                  "  try:\n"
++                  "    os.close(os.open(name,os.O_WRONLY)); d[name]='allowed'\n"
++                  "  except OSError as f: d[name]='denied'\n"
++                  "  except Exception: d[name]='absent'\n"
++                  "try:\n"
++                  "  os.close(os.open('/dev/w339626-probe',os.O_WRONLY|os.O_CREAT,0o600))\n"
++                  "  d['create']='allowed'\n"
++                  "except OSError: d['create']='denied'\n"
++                  "print(repr(d));sys.exit(0 if all(v!='allowed' for v in d.values()) else 3)")
++        done = self._confined(script, inside)
++        self.assertEqual(done.returncode, 0, done.stdout + done.stderr)
++        self.assertNotIn("'allowed'", done.stdout)
++
++    def test_confinement_still_denies_sibling_installation_and_credentials(self):
++        """The allowance widens nothing it was not asked to widen."""
++        inside = self.root / 'mine'
++        inside.mkdir()
++        sibling = self.root / 'sibling-run'
++        sibling.mkdir()
++        (sibling / 'held').write_text('preserved')
++        installation = self.install / 'code'
++        credential = self.root / 'credentials'
++        credential.mkdir()
++        (credential / 'token').write_text('preserved')
++        script = ("import sys;sys.path[:0]=sys.argv[1:3];from pathlib import Path;"
++                  "from tools.next_run_confinement import restrict_writes;"
++                  "restrict_writes(sys.argv[3]);"
++                  "bad=[]\n"
++                  "for one in sys.argv[4:]:\n"
++                  "  try:\n"
++                  "    Path(one).write_text('x'); bad.append(one)\n"
++                  "  except OSError: pass\n"
++                  "print(repr(bad));sys.exit(0 if not bad else 3)")
++        done = self._confined(script, inside, sibling / 'held',
++                              sibling / 'new', installation / 'intruded',
++                              credential / 'token', credential / 'new')
++        self.assertEqual(done.returncode, 0, done.stdout + done.stderr)
++        self.assertEqual((sibling / 'held').read_text(), 'preserved')
++        self.assertEqual((credential / 'token').read_text(), 'preserved')
++        self.assertFalse((sibling / 'new').exists())
++        self.assertFalse((credential / 'new').exists())
++
++    def test_a_grandchild_inherits_the_confinement(self):
++        """Descendants inherit, which is what a dispatched tree relies on."""
++        inside = self.root / 'inherited'
++        inside.mkdir()
++        outside = self.root / 'kept'
++        outside.write_text('preserved')
++        script = ("import subprocess,sys;sys.path[:0]=sys.argv[1:3];"
++                  "from tools.next_run_confinement import restrict_writes;"
++                  "restrict_writes(sys.argv[3]);"
++                  "d=subprocess.run([sys.executable,'-I','-B','-c',"
++                  "'import sys;open(sys.argv[1],\"w\").write(\"bad\")',"
++                  "sys.argv[4]],capture_output=True,text=True);"
++                  "sys.exit(0 if d.returncode!=0 else 3)")
++        done = self._confined(script, inside, outside)
++        self.assertEqual(done.returncode, 0, done.stderr)
++        self.assertEqual(outside.read_text(), 'preserved')
++
++    def test_an_unusable_null_facility_fails_closed(self):
++        """A wrong device refuses with NO boundary applied, never a weaker one."""
++        inside = self.root / 'closed'
++        inside.mkdir()
++        decoy = self.root / 'not-a-device'
++        decoy.write_text('regular file')
++        outside = self.root / 'still-mine'
++        outside.write_text('preserved')
++        script = ("import sys;sys.path[:0]=sys.argv[1:3];from pathlib import Path;"
++                  "from tools import next_run_confinement as c;"
++                  "c.NULL_DEVICE=sys.argv[4]\n"
++                  "try:\n"
++                  "  c.restrict_writes(sys.argv[3])\n"
++                  "except ValueError as f:\n"
++                  "  Path(sys.argv[5]).write_text('refused-and-unconfined')\n"
++                  "  print(str(f));sys.exit(0)\n"
++                  "sys.exit(3)")
++        for operand, expected in ((decoy, 'not a character device'),
++                                  (Path('/dev/zero'), 'not the null device'),
++                                  (self.root / 'absent-device',
++                                   'could not be opened')):
++            with self.subTest(operand=str(operand)):
++                outside.write_text('preserved')
++                done = self._confined(script, inside, operand, outside)
++                self.assertEqual(done.returncode, 0, done.stdout + done.stderr)
++                self.assertIn(expected, done.stdout)
++                # Nothing was applied: the refusal happened before
++                # landlock_restrict_self, so this write outside still works.
++                self.assertEqual(outside.read_text(),
++                                 'refused-and-unconfined')
++
++    def test_a_refused_preparation_closes_every_descriptor_it_opened(self):
++        """W339626 R2: a refusal must not leak what it refused to use.
++
++        review-2026-10-21T16-30-13Z.md: the ruleset and the parent were
++        acquired before `_null_device()` and outside any `finally`, so each
++        fail-closed refusal leaked them -- and the fail-closed path is the one
++        this module advertises, so repeated refusals in a long-lived process
++        accumulate descriptors until it cannot open anything.
++
++        MEASURED AT THE CANDIDATE BEFORE THE CORRECTION: 2 descriptors per
++        call for a wrong-type device, 2 for an absent one, 1 for a root that
++        cannot be opened. The assertion is zero growth over many calls, so a
++        single-descriptor regression is caught too.
++
++        THREE FAILURE SHAPES, all after at least one acquisition: a validation
++        refusal (`ValueError`), an acquisition failure on the root
++        (`OSError`), and a FAILED RULE INSTALLATION with all three descriptors
++        held, induced with an access right the kernel rejects. Then a real
++        confinement is applied LAST, proving the process is still able to
++        confine and that the boundary it installs is the right one.
++        """
++        inside = self.root / 'balanced'
++        inside.mkdir()
++        decoy = self.root / 'balanced-not-a-device'
++        decoy.write_text('regular file')
++        outside = self.root / 'balanced-outside'
++        outside.write_text('preserved')
++        rounds = 40
++        script = (
++            "import json,os,sys;sys.path[:0]=sys.argv[1:3];"
++            "from pathlib import Path;"
++            "from tools import next_run_confinement as c\n"
++            "root,decoy,absent,outside,rounds=sys.argv[3],sys.argv[4],"
++            "sys.argv[5],sys.argv[6],int(sys.argv[7])\n"
++            "def held():\n"
++            "  return len(os.listdir('/proc/self/fd'))\n"
++            "report={}\n"
++            "def sweep(name,setup,expected):\n"
++            "  setup()\n"
++            "  before=held();seen=set()\n"
++            "  for _ in range(rounds):\n"
++            "    try:\n"
++            "      c.restrict_writes(root);seen.add('APPLIED')\n"
++            "    except expected as f: seen.add(type(f).__name__)\n"
++            "  report[name]={'growth':held()-before,'raised':sorted(seen)}\n"
++            "def wrong_type():\n"
++            "  c.NULL_DEVICE=decoy\n"
++            "def absent_device():\n"
++            "  c.NULL_DEVICE=absent\n"
++            "sweep('wrong-type',wrong_type,ValueError)\n"
++            "sweep('absent-device',absent_device,ValueError)\n"
++            "c.NULL_DEVICE='/dev/null'\n"
++            "before=held();seen=set()\n"
++            "for _ in range(rounds):\n"
++            "  try: c.restrict_writes(absent)\n"
++            "  except OSError as f: seen.add(type(f).__name__)\n"
++            "report['absent-root']={'growth':held()-before,'raised':sorted(seen)}\n"
++            # A FAILED RULE INSTALLATION: every descriptor is already held when
++            # landlock_add_rule refuses an access right outside the handled set.
++            "original=c.WRITE_FILE;c.WRITE_FILE=1<<40\n"
++            "before=held();seen=set()\n"
++            "for _ in range(rounds):\n"
++            "  try: c.restrict_writes(root)\n"
++            "  except OSError as f: seen.add(type(f).__name__)\n"
++            "report['failed-rule']={'growth':held()-before,'raised':sorted(seen)}\n"
++            "c.WRITE_FILE=original\n"
++            # LAST, because confinement is irreversible: a normal success.
++            "c.restrict_writes(root)\n"
++            "Path(root+'/allowed').write_text('ok')\n"
++            "try:\n"
++            "  Path(outside).write_text('bad');report['outside']='allowed'\n"
++            "except OSError: report['outside']='denied'\n"
++            "print(json.dumps(report))\n"
++            "sys.exit(0)")
++        done = self._confined(script, inside, decoy,
++                              self.root / 'balanced-absent', outside, rounds)
++        self.assertEqual(done.returncode, 0, done.stdout + done.stderr)
++        report = json.loads(done.stdout)
++
++        for name, raised in (('wrong-type', ['ValueError']),
++                             ('absent-device', ['ValueError']),
++                             ('absent-root', ['FileNotFoundError']),
++                             ('failed-rule', ['OSError'])):
++            with self.subTest(failure=name):
++                # The refusal still happens, and it is still the same one.
++                self.assertEqual(report[name]['raised'], raised, report)
++                # And it costs nothing. NOT "few": none.
++                self.assertEqual(report[name]['growth'], 0, report)
++
++        # The process could still confine afterwards, and correctly.
++        self.assertEqual(report['outside'], 'denied', report)
++        self.assertEqual((inside / 'allowed').read_text(), 'ok')
++        self.assertEqual(outside.read_text(), 'preserved')
++
+     def test_installed_imports_bind_controller_and_helper(self):
+         self.broker.prepare(self.fixture.task())
+         code = self.install / 'code'
+diff --git a/v12/python/tools/next_run_confinement.py b/v12/python/tools/next_run_confinement.py
+--- a/v12/python/tools/next_run_confinement.py
++++ b/v12/python/tools/next_run_confinement.py
+@@ -2,9 +2,61 @@
+ import ctypes
+ import os
+ import platform
++import stat
++
++# THE ONE FACILITY REAL SOURCE-LINE MATERIALIZATION NEEDS, and nothing else.
++#
++# W339626, run w339626-live-345599: the live start failed before any runtime
++# with `ProfileRefusal: Git line materialization failed: fatal: could not open
++# '/dev/null' for reading and writing: Permission denied`. Git's subprocess
++# launcher opens the null device O_RDWR to suppress a child's streams, and the
++# sole rule below allowed writes only beneath the run root -- so the open was
++# denied and the clone never started. Reproduced with this module unchanged,
++# the real kernel and a real `git clone`: errno 13, and the composed message is
++# the recorded 125-character field exactly.
++#
++# WHAT THIS IS NOT. Not a /dev grant, not a writable-root expansion, not a
++# caller-selected path: the device is FIXED here, identified by TYPE and DEVICE
++# NUMBER rather than by its spelling, and it receives WRITE_FILE alone -- no
++# truncate, no create, no remove, no directory right. A null device cannot
++# carry data, so a write right over it leaks nothing; the point is only that
++# the open succeeds.
++#
++# AND IT FAILS CLOSED. If the path is absent, is not a character device, or is
++# not the null device's (1,3), confinement REFUSES rather than proceeding with
++# a weaker boundary or an unexamined inode.
++NULL_DEVICE = '/dev/null'
++NULL_DEVICE_NUMBER = (1, 3)
++WRITE_FILE = 2
+ 
+ def refuse(message):
+     raise ValueError(message)
++
++def _null_device():
++    """The null device's own inode, type-proved and device-number-proved.
++
++    O_PATH|O_NOFOLLOW: the descriptor is for naming an inode to Landlock and
++    never for reading or writing, and a symlink in its place is refused rather
++    than followed. The rule binds the INODE this returns, so a later path
++    substitution cannot redirect it -- the same reason the root rule binds a
++    descriptor and not a spelling.
++    """
++    try:
++        held = os.open(NULL_DEVICE, os.O_PATH | os.O_NOFOLLOW)
++    except OSError as failed:
++        refuse(f'the null device {NULL_DEVICE} could not be opened for '
++               f'confinement: {failed.strerror}')
++    try:
++        state = os.fstat(held)
++        if not stat.S_ISCHR(state.st_mode):
++            refuse(f'{NULL_DEVICE} is not a character device')
++        if (os.major(state.st_rdev), os.minor(state.st_rdev)) \
++                != NULL_DEVICE_NUMBER:
++            refuse(f'{NULL_DEVICE} is not the null device')
++    except BaseException:
++        os.close(held)
++        raise
++    return held
+ 
+ def restrict_writes(root):
+     """Linux Landlock ABI>=3; deny content writes/create/remove outside root.
+@@ -12,6 +64,10 @@
+     Rules bind inodes, not a checked path spelling. Descendants inherit the
+     restriction. Docker daemon is not a descendant, hence operational custody
+     above is separately mandatory. No namespace rewrites host mount paths.
++
++    TWO rules and no more: every handled write right beneath `root`, and
++    WRITE_FILE on the validated null device, which a real Git subprocess
++    launcher opens O_RDWR before it can start. See NULL_DEVICE above.
+     """
+     if platform.system() != 'Linux' or platform.machine() not in ('x86_64','aarch64'):
+         refuse('unsupported Landlock platform')
+@@ -29,15 +85,48 @@
+         _pack_ = 1
+         _fields_ = [('access',ctypes.c_uint64),('fd',ctypes.c_int32)]
+     rule = Ruleset(writes)
+-    ruleset = call(444, ctypes.byref(rule), ctypes.sizeof(rule), 0)
+-    parent = os.open(root, os.O_PATH | os.O_DIRECTORY | os.O_NOFOLLOW)
++    # EVERY DESCRIPTOR IS REGISTERED AS IT IS ACQUIRED, inside one try/finally
++    # that covers the whole acquisition.
++    #
++    # W339626 R2, review-2026-10-21T16-30-13Z.md: the previous revision opened
++    # the ruleset and the parent BEFORE calling `_null_device()` and outside
++    # any `finally`, so a missing, wrong-type or wrong-number null facility --
++    # exactly the fail-closed path this module advertises -- raised past both
++    # and leaked them. The same hole covered a failing `os.open` of the root,
++    # which leaked the ruleset. A refusal that leaks the resources it was
++    # refusing to use is a worse refusal, and repeated refusals in one process
++    # accumulate.
++    #
++    # The ORDER IS UNCHANGED and so is every refusal: the null device is still
++    # validated before `landlock_restrict_self`, so a bad device still refuses
++    # with NOTHING APPLIED rather than with a weaker boundary, and nothing is
++    # executed after a refusal. Only the lifetime moved.
++    held = []
+     try:
++        held.append(call(444, ctypes.byref(rule), ctypes.sizeof(rule), 0))
++        ruleset = held[0]
++        held.append(os.open(root, os.O_PATH | os.O_DIRECTORY | os.O_NOFOLLOW))
++        parent = held[1]
++        # VALIDATED BEFORE THE RULESET IS ENFORCED, so a bad or missing device
++        # refuses with nothing applied rather than leaving a half-built
++        # boundary.
++        held.append(_null_device())
++        null = held[2]
+         allowed = Beneath(writes,parent)
+         call(445,ruleset,1,ctypes.byref(allowed),0)
++        permitted = Beneath(WRITE_FILE,null)
++        call(445,ruleset,1,ctypes.byref(permitted),0)
+         if libc.prctl(38,1,0,0,0) != 0:
+             raise OSError(ctypes.get_errno(),'no_new_privs refusal')
+         call(446,ruleset,0)
+     finally:
+-        os.close(parent)
+-        os.close(ruleset)
++        # Reverse order, which is the previous revision's close order exactly.
++        # A close failure is swallowed so it cannot replace the refusal the
++        # caller has to see; these are descriptors this function just opened,
++        # and the refusal is the actionable fact.
++        for descriptor in reversed(held):
++            try:
++                os.close(descriptor)
++            except OSError:
++                pass
+ 

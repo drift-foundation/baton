@@ -1,0 +1,67 @@
+{
+  "credential": {
+    "backing_path": "/home/sl/.claude/.credentials.json",
+    "backing_present": true,
+    "note": "reference existence and backing-file presence only; no credential value was read, emitted or decoded",
+    "reference": "w202663-development",
+    "reference_present": true,
+    "registry": "/home/sl/.baton/credential-sources.json",
+    "registry_present": true,
+    "value_read": false
+  },
+  "denials": [],
+  "engine": "docker",
+  "engine_answers": true,
+  "image_available": true,
+  "image_config_digest_inspected": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2",
+  "image_config_digest_pinned": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2",
+  "image_digest_matches_pin": true,
+  "image_reference": "baton-v12-claude-worker:w239528-244216",
+  "packet": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-345822",
+  "packet_manifest": "6d4e875e3991aa084062985fb258ef60fa021123cd9b03ced6db20c4e71c3e87",
+  "probes": {
+    "engine-version": {
+      "argv": [
+        "docker",
+        "version",
+        "--format",
+        "{{json .}}"
+      ],
+      "seconds": 0.009,
+      "status": 0,
+      "stderr": ""
+    },
+    "image-inspect": {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "baton-v12-claude-worker:w239528-244216",
+        "--format",
+        "{{json .Id}}"
+      ],
+      "seconds": 0.006,
+      "status": 0,
+      "stderr": ""
+    }
+  },
+  "read_only": "engine version and image inspect only; no container created, no workload started, no Job submitted, no credential value read, nothing written anywhere",
+  "root": {
+    "absent": true,
+    "proposed": "/home/sl/baton-instances/durable-capture-w341357-345822"
+  },
+  "runtime": {
+    "binary_matches_pin": true,
+    "binary_present": true,
+    "binary_sha256": "04aa459aed61704971e98b9260929b19953c41caad906e28551aae0ba457a58a",
+    "distro": "/home/sl/baton-runs/managed-correction-236087/build/stack/out/distro",
+    "distro_present": true
+  },
+  "schema": "baton.w341357-executor-capability/1",
+  "seconds": 0.018,
+  "verdict": "capable",
+  "what_a_denial_means": "Per reroute340145 a denial is reported and the turn STOPS. No escalation, no workaround, no alternative engine, no image build, no credential substitution.",
+  "what_a_structural_check_cannot_do": "it cannot establish that a provider session is valid. run341637 failed on an expired OAuth session 0.337s after a clean check of this kind.",
+  "when": "BEFORE STAGING, as reroute347178 and the accepted PLAN require",
+  "why_not_the_boundary_preflight": "the boundary preflight reads packet/AUTHORING-COMMAND.json, which only exists after bind. This is the earlier check, against the packet pins; the boundary preflight still runs after bind and is the stronger one."
+}

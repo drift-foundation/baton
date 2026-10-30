@@ -1,0 +1,13 @@
+FAIL: test_the_entry_imports_with_nothing_but_the_copied_files (tests.manager.test_integration_image.TheCopiedLayoutIsEnoughToStartTheEntry.test_the_entry_imports_with_nothing_but_the_copied_files)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w376586-base/baton/v12/python/tests/manager/test_integration_image.py", line 225, in test_the_entry_imports_with_nothing_but_the_copied_files
+    self.assertEqual(status, 0, errors)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 2, in <module>
+    import integration_entry, integration_workload, integration_contract, claude_agent, baton_worker;print(integration_entry.main.__name__)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/v12-w110935-image-o9ii10jz/opt-baton/claude_agent.py", line 467, in <module>
+    from adapter_refusal import (  # noqa: E402
+    ...<4 lines>...

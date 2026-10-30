@@ -1,0 +1,34 @@
+{
+  "pins": [
+    {
+      "path": "v12/python/tools/bootstrap.py",
+      "sha256": "fe099d1e735addc2f76b951642f50887cca2e5e3d1eb8dc899b2efefa0b0ad53"
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-prerequisite-creation-provenance/evidence/claim-377080/candidate/v12/python/tools/bootstrap.py",
+      "sha256": "fe099d1e735addc2f76b951642f50887cca2e5e3d1eb8dc899b2efefa0b0ad53"
+    },
+    {
+      "path": "v12/python/tests/tools/test_startup_prerequisites.py",
+      "sha256": "fab422af36a257cfdd64e755cffda775f35f9368167d07aceba1a749888e70cf"
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-prerequisite-creation-provenance/evidence/claim-377080/candidate/v12/python/tests/tools/test_startup_prerequisites.py",
+      "sha256": "fab422af36a257cfdd64e755cffda775f35f9368167d07aceba1a749888e70cf"
+    }
+  ],
+  "command": [
+    "timeout",
+    "90",
+    "python3",
+    "-B",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.tools.test_startup_prerequisites",
+    "tests.tools.test_bootstrap"
+  ],
+  "fixture_root": "/var/tmp/baton-w257624",
+  "returncode": 0,
+  "seconds": 23.20785171800162
+}

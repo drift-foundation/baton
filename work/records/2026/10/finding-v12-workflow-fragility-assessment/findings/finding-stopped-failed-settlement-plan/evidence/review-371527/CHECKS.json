@@ -1,0 +1,8 @@
+{
+  "inventory_files": 6,
+  "all_match": true,
+  "synthetic_request_consistent": true,
+  "current_control_schema": 18,
+  "product_tests": 0,
+  "limits": "No new settlement or migration behavior implemented/exercised; no retained instance observation."
+}

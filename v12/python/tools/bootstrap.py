@@ -265,7 +265,16 @@ def _node_kind(mode):
     """What this descriptor actually is, said in the operator's words."""
     import stat
 
-    for asking, name in ((stat.S_ISDIR, "directory"), (stat.S_ISFIFO, "named "
+    # W376956: A REGULAR FILE AND A LINK ARE NOT SPECIAL FILES. Every refusal
+    # that spells an occupant reads through here, and the two commonest
+    # occupants of an owed name -- a plain file and a symlink -- both fell
+    # through to "special file", which is a false description of each. Found
+    # by the connected create-step retry refusal, whose occupant is a regular
+    # file. NO ARTICLE, because two of the four callers already write "is a ".
+    for asking, name in ((stat.S_ISDIR, "directory"),
+                         (stat.S_ISREG, "regular file"),
+                         (stat.S_ISLNK, "symbolic link"),
+                         (stat.S_ISFIFO, "named "
                          "pipe"), (stat.S_ISSOCK, "socket"),
                          (stat.S_ISCHR, "character device"),
                          (stat.S_ISBLK, "block device")):
@@ -2061,6 +2070,169 @@ def _identity_of_handle(handle):
     return (held.st_dev, held.st_ino)
 
 
+class _Unwind:
+    """One cleanup for a whole attempt: one stop, and complete accounting.
+
+    W376956 reviews 2026-10-29T00-07-31Z and 00-12-48Z. Two faults, both in
+    how the caller drove this rather than in what it decided:
+
+      * a per-group `break` stopped the group it was in and the LATER groups
+        still ran, so the stop halted nothing in particular; and
+      * the remaining entries of the stopped group were never recorded, and
+        the report counted retained objects without NAMING them -- so the
+        residue an operator has to act on was not in the evidence.
+
+    So the caller no longer iterates. It hands over the WHOLE plan, this object
+    walks it, and everything it does not remove is named. There is no break for
+    a caller to get wrong.
+    """
+
+    #: What is known about a retained path. A report that cannot tell these
+    #: apart is a report that asserts provenance it does not have.
+    OWN = "this attempt's own"
+    FOREIGN = "not this attempt's"
+    UNPROVEN = "unproven"
+    ACCOUNTED = {
+        OWN: "this attempt made and did not delete",
+        FOREIGN: "left to whoever replaced it",
+        UNPROVEN: "this attempt can neither claim nor disclaim",
+    }
+
+    def __init__(self):
+        self.said = []
+        # W376956 review 2026-10-29T00-25-45Z: `stopped` IS GONE WITH THE
+        # REMOVALS. It was the flag for "a removal this attempt could not
+        # prove was its own, so nothing further was deleted", and the report
+        # printed that sentence -- which nothing can set any more, because
+        # `run` attempts no removal at all. An unreachable line describing a
+        # cleanup this code does not perform is the same stale claim this
+        # review sent back, so it is deleted rather than left to read.
+        #: `(path, kind)`, one per retained entry -- never a bare path, so no
+        #: reader can summarize the list without saying which is which.
+        self.retained = []
+
+    def run(self, planned):
+        """Walk the whole plan: remove, retain, or record as residue."""
+        # EVERY EFFECT IS RETAINED. There is no removing branch here at all:
+        # once the custody rule is universal a `retain=False` path would be an
+        # escape with no caller, which is exactly what this Work removed
+        # `whole=` for.
+        for place, identity, what in planned:
+            self._retain(place, identity, what)
+        return self
+
+    def _retain(self, place, identity, what):
+        """PRE-DELETION FAIL-CLOSED RETENTION, which is what the owner
+        selected. `unlinkat` and `rmdir` name an entry and never an inode, so
+        the window between the last check and the destructive call cannot be
+        closed -- and mode 0700 does not exclude a same-UID replacement, so a
+        private directory is not a proof either. Preserving somebody else's
+        bytes is the selected priority over a clean destination, so nothing is
+        removed here and the residue is stated exactly."""
+        if identity is None:
+            return
+        if isinstance(identity, _UncertainPrerequisite):
+            self._residue(place, self.UNPROVEN,
+                          "uncertain effect (" + identity.reason
+                          + "); no deletion authority, and this attempt "
+                          "cannot say whether anything is there")
+            return
+        try:
+            held = os.lstat(place)
+        except FileNotFoundError:
+            return
+        except OSError as failure:
+            self._residue(place, self.UNPROVEN,
+                          "this attempt could not tell whether it is still "
+                          "the " + what + " it made ("
+                          + type(failure).__name__ + ")")
+            return
+        if (held.st_dev, held.st_ino) != tuple(identity):
+            self._residue(place, self.FOREIGN,
+                          "it is no longer the " + what + " this attempt "
+                          "made, so it belongs to whoever replaced it")
+            return
+        self._residue(place, self.OWN,
+                      "this attempt made the " + what + " and is NOT "
+                      "deleting it: a name-based removal cannot be bound to "
+                      "this object, so the bytes stay")
+
+    def _residue(self, place, kind, why):
+        # W376956 review 2026-10-29T00-25-45Z: THE CLASSIFICATION TRAVELS WITH
+        # THE PATH. The per-entry sentence was already differentiated, but the
+        # aggregate heading read "n object(s) this attempt made" over a list
+        # that could hold a foreign replacement and a creation whose effect is
+        # not even known to exist. A report may not assert provenance or
+        # existence it did not establish, so each entry carries which of the
+        # three it is and the heading is composed from them.
+        self.retained.append((place, kind))
+        self.said.append("retained " + place + ": " + why)
+
+    def report(self, stream):
+        for line in [one for one in self.said if one]:
+            print("cleanup       " + line, file=stream)
+        if self.retained:
+            # NAMED, not counted. The review: "report never lists retained
+            # names" -- a count is not something an operator can act on.
+            #
+            # AND THE AGGREGATE CLAIMS ONLY WHAT WAS ESTABLISHED. It used to
+            # say "object(s) this attempt made" over every entry, so a foreign
+            # replacement and an unproven creation were both reported as this
+            # attempt's own work -- a false statement in the one place an
+            # operator reads to decide what to do with the residue. The
+            # heading now counts the paths and breaks them down by what is
+            # actually known about each, and each line carries its own kind.
+            print("cleanup       RETAINED " + str(len(self.retained))
+                  + " path(s), none of them deleted: "
+                  + self._accounted() + ":", file=stream)
+            for place, kind in self.retained:
+                print("cleanup         " + place + "  [" + kind + "]",
+                      file=stream)
+
+    def _accounted(self):
+        """The retained paths counted BY WHAT IS KNOWN ABOUT THEM, in a fixed
+        order, with the kinds that did not occur left out rather than said as
+        zero."""
+        counted = {}
+        for _place, kind in self.retained:
+            counted[kind] = counted.get(kind, 0) + 1
+        return ", ".join(str(counted[kind]) + " " + self.ACCOUNTED[kind]
+                         for kind in (self.OWN, self.FOREIGN, self.UNPROVEN)
+                         if kind in counted)
+
+
+class _UnprovenRemoval(Exception):
+    """A removal that cannot be attributed to this attempt's own object.
+
+    W376956 review 2026-10-29T00-00-39Z. `_removed` used to RETURN a line
+    saying "nothing further is deleted" while the install's unwind carried on
+    through the rest of the ledger -- the sentence was not a guarantee and the
+    review reproduced a second owned file being removed immediately after it.
+
+    It is an exception so the stop is the caller's to handle rather than a
+    string nobody reads: the unwind records what happened, stops removing, and
+    reports the residue it is leaving behind.
+    """
+
+
+def _digest_of_file(place):
+    """The content digest of one ordinary file, read no-follow and bounded by
+    nothing but the file: it is a file this attempt wrote."""
+    import hashlib
+
+    held = hashlib.sha256()
+    handle = os.open(place, os.O_RDONLY | os.O_CLOEXEC)
+    try:
+        while True:
+            block = os.read(handle, 1 << 20)
+            if not block:
+                break
+            held.update(block)
+    finally:
+        os.close(handle)
+    return held.hexdigest()
+
+
 def _remove_if_still_ours(place, identity, what):
     """Remove `place` only while it IS the thing this attempt made.
 
@@ -2071,6 +2243,8 @@ def _remove_if_still_ours(place, identity, what):
     """
     if identity is None:
         return None
+    if isinstance(identity, _UncertainPrerequisite):
+        return "left " + place + " alone: uncertain prerequisite effect (" + identity.reason + "); no deletion authority"
     try:
         held = os.lstat(place)
     except FileNotFoundError:
@@ -2082,16 +2256,129 @@ def _remove_if_still_ours(place, identity, what):
     if (held.st_dev, held.st_ino) != identity:
         return ("left " + place + " alone: it is no longer the " + what
                 + " this attempt made, so it belongs to whoever replaced it")
+    # W376956: AND A MUTATION IS NOT AN ADDITION OR A REPLACEMENT, so identity
+    # cannot see it. A copied file somebody has since edited is the same inode
+    # this attempt created; removing it would delete their edit and report an
+    # ordinary unwind. The digest is asked where one travels.
+    carried = getattr(identity, "digest", None)
+    if carried is not None:
+        try:
+            now = _digest_of_file('/proc/self/fd/'
+                                  + str(identity.handle))
+        except OSError as failure:
+            return ("left " + place + " alone: this attempt made the " + what
+                    + " and could not read it back to tell whether it still "
+                    "holds what was written (" + type(failure).__name__ + ")")
+        if now != carried:
+            return ("left " + place + " alone: this attempt made the " + what
+                    + " and its content has changed since, so what is there "
+                    "now is somebody else's work")
+    # W376956 review 2026-10-28T23-50-44Z, blocker 2: THE DESTRUCTIVE CALL IS
+    # PARENT-RELATIVE AND IS PROVED AFTERWARDS.
+    #
+    # This checked `lstat` identity and then resolved the PATHNAME again for
+    # `unlink`/`rmdir`. A seam that renamed the original aside and installed a
+    # foreign object at the name between those two steps made the unwind
+    # delete the replacement and report success while the original survived.
+    # `unlinkat` cannot name an inode, so the window cannot be closed by
+    # ordering alone -- what can be done is to narrow it to one parent-relative
+    # operation and then ASK THE RETAINED HANDLE whether the object that went
+    # was ours. A removed object's link count reaches zero; an `O_PATH` handle
+    # still answers after the name is gone. If it did not go, this says so
+    # instead of reporting an unwind.
+    handle = getattr(identity, "handle", None)
+    if handle is None:
+        return ("left " + place + " alone: this attempt has no retained handle "
+                "for the " + what + " it made, so it cannot prove at the "
+                "removal that the object it would delete is still its own")
+    at, leaf = os.path.split(place)
     try:
-        if os.path.isdir(place) and not os.path.islink(place):
-            import shutil
+        parent = os.open(at, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+                         | os.O_CLOEXEC)
+    except OSError as failure:
+        return ("left " + place + " alone: this attempt could not hold the "
+                "directory containing the " + what + " it made ("
+                + type(failure).__name__ + ")")
+    try:
+        # RE-ASKED RELATIVE TO THE HELD PARENT, so no absolute prefix is
+        # resolved a second time between the check and the call.
+        try:
+            now = os.lstat(leaf, dir_fd=parent)
+        except FileNotFoundError:
+            return None
+        if (now.st_dev, now.st_ino) != tuple(identity):
+            return ("left " + place + " alone: it is no longer the " + what
+                    + " this attempt made, so it belongs to whoever replaced "
+                    "it")
+        return _removed(place, leaf, parent, handle, identity, what)
+    finally:
+        os.close(parent)
 
-            shutil.rmtree(place)
+
+def _removed(place, leaf, parent, handle, identity, what):
+    """Remove one owned object parent-relative, then prove it was ours.
+
+    Answers the same one-line record every other cleanup answer uses. Nothing
+    here raises: a cleanup that fails is reported, not re-thrown over the
+    refusal that caused it.
+    """
+    import stat as kinds
+
+    try:
+        if kinds.S_ISDIR(os.fstat(handle).st_mode):
+            # W376246: `rmtree` TOOK FOREIGN CHILDREN WITH IT. A directory
+            # this attempt created that somebody else has since written into
+            # is still ours by identity, and removing it wholesale would
+            # delete THEIR content -- the one thing an exact-owned unwind must
+            # never do. So an EMPTY one is removed and a populated one is left
+            # with the uncertainty reported, which is the honest answer: this
+            # attempt made the directory and no longer knows whether it may
+            # take what is inside.
+            # W376956: AND THERE IS NO LONGER A `whole=` ESCAPE.
+            #
+            # It existed because the copied runtime was owned as ONE root
+            # identity, so removing it wholesale was the only way to remove it
+            # at all -- and wholesale meant `rmtree`, which took foreign
+            # descendants with it. `copy_runtime` records every object it
+            # creates, so the runtime is now unwound through this same guard
+            # one object at a time and the escape has no caller. A subtree
+            # nobody enumerated is not a subtree anybody may delete.
+            # LISTED THROUGH THE PINNED OBJECT, not through the name: the
+            # name could be something else by now, and the question is about
+            # the directory this attempt made.
+            held_names = os.listdir('/proc/self/fd/' + str(handle))
+            if held_names:
+                return ("left " + place + " alone: this attempt made the "
+                        + what + " but it now holds " + str(len(held_names))
+                        + " entr" + ("y" if len(held_names) == 1 else "ies")
+                        + " this attempt did not create, and removing it "
+                        "would take somebody else's content with it")
+            os.rmdir(leaf, dir_fd=parent)
         else:
-            os.unlink(place)
+            os.unlink(leaf, dir_fd=parent)
     except OSError as failure:
         return ("could not remove " + place + ", which this attempt made ("
                 + type(failure).__name__ + "): it is still there")
+    # THE PROOF THE REVIEW ASKED FOR, at the destructive operation. The handle
+    # outlives the name; a link count of zero says the object this attempt
+    # created is the one that went.
+    try:
+        remaining = os.fstat(handle).st_nlink
+    except OSError as failure:
+        return ("removed " + place + " and cannot confirm it was the " + what
+                + " this attempt made (" + type(failure).__name__
+                + "): treat this as uncertain")
+    if remaining:
+        # W376956 review 2026-10-29T00-00-39Z: THE OLD TEXT SAID "nothing
+        # further is deleted" AND NOTHING ENFORCED IT. The install's unwind
+        # iterated the rest of the ledger and kept removing; a sentence is not
+        # control flow. So the claim is gone and the answer is raised as a
+        # STOP the caller must handle -- see `_UnprovenRemoval`.
+        raise _UnprovenRemoval(
+            "removed a name at " + place + " that was NOT the " + what
+            + " this attempt made: it was replaced between the last check and "
+            "the removal. This attempt's own object is still there, and no "
+            "further removal is attempted.")
     return "unwound " + place
 
 
@@ -2099,6 +2386,731 @@ def deployed_justfile(places):
     """The text of the destination's own justfile."""
     return DEPLOYED_JUSTFILE.format(destination=places["destination"],
                                     justfile=places["justfile"])
+
+
+PREREQUISITE_ROOTS = ("workspace_storage", "launch_home", "credential_home")
+# W376246: THE MODE A PREPARED ROOT GETS, named rather than inherited from the
+# umask. These hold a deployment's mutable worker state, and 0700 is the
+# private arrangement every other owned name of an instance is under. A
+# creation mode is umask-filtered. Only a proven creation handle may receive
+# the final mode; no existing or uncertain object is repaired.
+PREREQUISITE_MODE = 0o700
+
+
+def prerequisite_places(document):
+    """Every configured root an installed worker needs BEFORE it first runs.
+
+    W375516. THE TRIPLE IS `stage_execution`'s, not a second spelling of it:
+    that module already names `workspace_storage`, `launch_home` and
+    `credential_home` together as the roots it holds inside the checkout, and
+    a deployment is unusable without all three. `storage_bound` derives only
+    the first and checks only the first, which is exactly the asymmetry a
+    first start used to discover.
+
+    ANSWERED AS AN ORDERED, DEDUPLICATED LIST so two workers legitimately
+    sharing a root are prepared once and reported once. Nothing here reads the
+    filesystem: this is what the input SAYS it needs.
+    """
+    held, seen = [], set()
+    for worker in document.get("workers") or []:
+        if type(worker) is not dict:
+            continue
+        deployment = worker.get("deployment")
+        if type(deployment) is not dict:
+            continue
+        for name in PREREQUISITE_ROOTS:
+            named = deployment.get(name)
+            if type(named) is not str or not named or named in seen:
+                continue
+            seen.add(named)
+            held.append((str(worker.get("worker_id")), name, named))
+    return held
+
+
+def prerequisite_report(document):
+    """Which configured prerequisites are missing or unusable, READ ONLY.
+
+    APPLICATION-READ-ONLY, which is the whole contract: this creates nothing,
+    initializes nothing, repairs nothing, chmods nothing and opens no store for
+    writing. It answers the exact path that is wrong and why, so an operator
+    reads one line instead of a first-start traceback.
+
+    A LINK IS UNUSABLE RATHER THAN FOLLOWED. `lstat` is deliberate: a root
+    reached through a link is a root whose real location this deployment did
+    not choose, which is the same rule `custody` applies to every owned name.
+    """
+    import stat
+
+    said = []
+    for who, name, place in prerequisite_places(document):
+        # W376246: THE SAME ANCESTOR RULE THE PREPARATION APPLIES. The
+        # observation and the preparation disagreed -- a root under a linked
+        # parent refused at prepare and was reported as fine here, so an
+        # operator could be told a deployment was ready that an install would
+        # refuse to make.
+        parent = os.path.dirname(place.rstrip("/")) or "/"
+        if os.path.realpath(parent) != parent:
+            said.append((who, name, place,
+                         "lies under " + parent + ", which resolves to "
+                         + os.path.realpath(parent)))
+            continue
+        try:
+            held = os.lstat(place)
+        except FileNotFoundError:
+            said.append((who, name, place, "does not exist"))
+            continue
+        except OSError as failure:
+            said.append((who, name, place,
+                         "cannot be read (" + type(failure).__name__ + ")"))
+            continue
+        if stat.S_ISLNK(held.st_mode):
+            said.append((who, name, place, "is a symbolic link"))
+        elif not stat.S_ISDIR(held.st_mode):
+            said.append((who, name, place,
+                         "is a " + _node_kind(held.st_mode)
+                         + " and not a directory"))
+        else:
+            try:
+                usable = _prerequisite_access(place)
+            except (OSError, BootstrapRefusal, AttributeError) as failure:
+                said.append((who, name, place, "cannot be bound without following a changed ancestor (" + type(failure).__name__ + ")"))
+                continue
+            if not usable:
+                said.append((who, name, place, "is not readable, writable and traversable by this account"))
+    return said
+
+
+def _usable_root(who, name, place):
+    """What is at an owed name, or a refusal. Answers True when it must be made.
+
+    W375516 review 2026-10-28T18-34-43Z. Three corrections, all found by that
+    review and all real:
+
+      * AN INACCESSIBLE EXISTING ROOT IS REFUSED rather than accepted. A
+        directory this account cannot read, write and traverse is one the
+        worker cannot use, and reporting success over it moves the failure to
+        the first start -- the whole defect this Work exists to close.
+      * NO ANCESTOR MAY BE A LINK. `os.makedirs` creates missing parents and
+        traverses existing ones, so a link anywhere above an owed name puts
+        this deployment's mutable state somewhere it did not choose. The
+        canonical form of the parent must BE the parent.
+      * AND THE NAME ITSELF is still refused as a link or a non-directory.
+    """
+    import stat
+
+    parent = os.path.dirname(place.rstrip("/")) or "/"
+    if os.path.realpath(parent) != parent:
+        raise BootstrapRefusal(
+            "this deployment's " + name + " for worker " + who + " at "
+            + place + " lies under " + parent + ", which resolves to "
+            + os.path.realpath(parent) + ". Nothing here creates a "
+            "prerequisite through a link: a root reached that way is one this "
+            "deployment did not choose.")
+    # EVERY EXISTING ANCESTOR IS A DIRECTORY, OR THIS REFUSES. W376246 review
+    # 2026-10-28T18-59-24Z: the realpath comparison above catches a LINK
+    # anywhere in the ancestry, but a plain FILE at an intermediate resolves
+    # to itself -- so a file at `<home>/w-1` escaped the check a file at the
+    # leaf gets, and the `mkdir` beneath it failed with a bare OS error
+    # instead of this module's own refusal.
+    at = parent
+    while at and at != os.path.dirname(at):
+        try:
+            above = os.lstat(at)
+        except FileNotFoundError:
+            at = os.path.dirname(at)
+            continue
+        except OSError as failure:
+            raise BootstrapRefusal(
+                "this deployment's " + name + " for worker " + who
+                + " lies under " + at + ", which cannot be read ("
+                + type(failure).__name__ + "); an ancestor this install "
+                "cannot inspect is not one it creates beneath.")
+        if not stat.S_ISDIR(above.st_mode):
+            raise BootstrapRefusal(
+                "this deployment's " + name + " for worker " + who
+                + " at " + place + " lies under " + at + ", which is "
+                + "a " + _node_kind(above.st_mode) + " and not a directory. "
+                "It was left exactly as it is; nothing here creates a "
+                "prerequisite beneath another object's name.")
+        break
+    try:
+        held = os.lstat(place)
+    except FileNotFoundError:
+        return True
+    except OSError as failure:
+        raise BootstrapRefusal(
+            "this deployment's " + name + " for worker " + who + " at "
+            + place + " cannot be read (" + type(failure).__name__
+            + "); a prerequisite this install cannot inspect is not one it "
+            "prepares.")
+    if stat.S_ISLNK(held.st_mode) or not stat.S_ISDIR(held.st_mode):
+        raise BootstrapRefusal(
+            "this deployment's " + name + " for worker " + who
+            + " is already a " + _node_kind(held.st_mode) + " at " + place
+            + ". It was left exactly as it is; a prerequisite root is a "
+            "directory this deployment owns, and nothing here follows a link "
+            "or reuses another object's name.")
+    if not os.access(place, os.R_OK | os.W_OK | os.X_OK):
+        raise BootstrapRefusal(
+            "this deployment's " + name + " for worker " + who + " at "
+            + place + " is not readable, writable and traversable by this "
+            "account. It was left exactly as it is -- nothing here chmods a "
+            "root -- and a worker cannot use one it cannot enter.")
+    return False
+
+
+class _OwnedPrerequisite(tuple):
+    """Tuple-compatible identity retaining the inode until its ledger dies.
+
+    Closing the last handle immediately would allow unlink/recreate inode
+    reuse to make a different object compare equal during later unwind.
+    """
+    def __new__(cls, identity, handle):
+        result = super().__new__(cls, identity)
+        result.handle = os.dup(handle)
+        return result
+
+    def __del__(self):
+        handle = getattr(self, 'handle', None)
+        if handle is not None:
+            try:
+                os.close(handle)
+            except OSError:
+                pass
+
+
+class _OwnedCopy(tuple):
+    """A copied FILE's identity, plus the content this attempt wrote.
+
+    W376956. The parent FINDING requires an unwind to preserve foreign
+    "additions, same-name replacements and mutations", and identity answers
+    only the first two: a file somebody else EDITED is still the same inode
+    this attempt created, so identity alone would delete their edit and report
+    it as an ordinary unwind.
+
+    So the digest of the bytes this attempt wrote travels with the identity --
+    it is computed from the same buffers the copy streamed, not from a second
+    read -- and removal asks for both. Different content is an object this
+    attempt made and no longer recognises, which is honest uncertainty rather
+    than a deletion.
+    """
+    def __new__(cls, identity, digest, handle):
+        result = super().__new__(cls, identity)
+        result.digest = digest
+        # W376956 review 2026-10-28T23-50-44Z, blocker 2: THE HANDLE IS KEPT
+        # FOR THE REMOVAL, not only for the identity. `unlinkat` cannot name an
+        # inode, so the destructive call is parent-relative and the retained
+        # handle is what proves afterwards that the object that went was this
+        # one -- a removed object's link count reaches zero, and the handle can
+        # still be asked.
+        result.handle = os.dup(handle)
+        return result
+
+    def __del__(self):
+        handle = getattr(self, 'handle', None)
+        if handle is not None:
+            try:
+                os.close(handle)
+            except OSError:
+                pass
+
+
+class _UncertainPrerequisite:
+    """An attempted effect, explicitly NOT an identity or deletion capability."""
+    def __init__(self, reason):
+        self.reason = reason
+
+
+class _CreationWatch:
+    """Prove mkdir-to-open continuity, not just equality after a replacement.
+
+    Linux emits ordered directory-entry events before the mutating syscall
+    returns. Watch the held parent BEFORE mkdir; only one matching CREATE may
+    precede the opened handle. Rename, unlink, metadata changes, watch loss or
+    queue overflow refuse. A filesystem that supplies no event also refuses.
+    The opened handle then pins the proved object through permission changes.
+    """
+    def __init__(self, parent):
+        import ctypes
+        self.fd = -1
+        libc = ctypes.CDLL(None, use_errno=True)
+        initialize = libc.inotify_init1
+        initialize.argtypes, initialize.restype = [ctypes.c_int], ctypes.c_int
+        watch = libc.inotify_add_watch
+        watch.argtypes, watch.restype = [ctypes.c_int, ctypes.c_char_p, ctypes.c_uint32], ctypes.c_int
+        self.fd = initialize(os.O_CLOEXEC | os.O_NONBLOCK)
+        if self.fd < 0:
+            raise OSError(ctypes.get_errno(), 'cannot establish creation observation')
+        # IN_ATTRIB, MOVED_FROM/TO, CREATE, DELETE, DELETE_SELF, MOVE_SELF,
+        # ONLYDIR. UNMOUNT/OVERFLOW/IGNORED are always delivered.
+        self.wd = watch(self.fd, os.fsencode('/proc/self/fd/' + str(parent)), 0x01000fc4)
+        if self.wd < 0:
+            failure = OSError(ctypes.get_errno(), 'cannot watch prerequisite parent')
+            self.close()
+            raise failure
+
+    def close(self):
+        if self.fd >= 0:
+            os.close(self.fd)
+            self.fd = -1
+
+    def prove(self, leaf, mask=0x40000100):
+        """Exactly one matching CREATE for `leaf`, and nothing else.
+
+        W376956: `mask` is an operand because a symlink's creation is
+        `IN_CREATE` alone while a directory's is `IN_CREATE|IN_ISDIR`. The
+        default is the directory mask the prerequisite roots established, so
+        that caller is unchanged.
+        """
+        import struct
+        try:
+            raw = os.read(self.fd, 65536)
+        except BlockingIOError:
+            raw = b''
+        events = []
+        at = 0
+        while at < len(raw):
+            if len(raw) - at < 16:
+                raise BootstrapRefusal('incomplete prerequisite creation observation')
+            wd, mask, cookie, length = struct.unpack_from('iIII', raw, at)
+            at += 16
+            if at + length > len(raw):
+                raise BootstrapRefusal('incomplete prerequisite creation observation')
+            name = raw[at:at + length].split(b'\0', 1)[0]
+            events.append((wd, mask, cookie, name))
+            at += length
+        if events != [(self.wd, mask, 0, os.fsencode(leaf))]:
+            raise BootstrapRefusal('prerequisite creation identity is uncertain: missing or changed directory-entry history; no replacement is adopted')
+
+
+def _prerequisite_handle(parent, leaf):
+    # O_PATH can pin mode000 directories without changing the process umask.
+    return os.open(leaf, os.O_PATH | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC, dir_fd=parent)
+
+
+def _check_prerequisite_chain(handles):
+    for place, handle in handles.items():
+        if place == '/':
+            continue
+        parent, leaf = os.path.split(place)
+        held = os.stat(leaf, dir_fd=handles[parent], follow_symlinks=False)
+        if (held.st_dev, held.st_ino) != _identity_of_handle(handle):
+            raise BootstrapRefusal('prerequisite ancestor or root changed at ' + place + '; nothing here follows what took its place')
+
+
+def _prerequisite_access(place):
+    """Read-only no-follow path binding, shared access rule for reporting."""
+    handles = {}
+    with contextlib.ExitStack() as opened:
+        handle = _prerequisite_handle(None, '/')
+        handles['/'] = handle
+        opened.callback(os.close, handle)
+        at = ''
+        for leaf in place.split('/')[1:]:
+            parent = at or '/'
+            at += '/' + leaf
+            before = os.stat(leaf, dir_fd=handles[parent], follow_symlinks=False)
+            handle = _prerequisite_handle(handles[parent], leaf)
+            opened.callback(os.close, handle)
+            handles[at] = handle
+            if _identity_of_handle(handle) != (before.st_dev, before.st_ino):
+                raise BootstrapRefusal('prerequisite changed while reading: ' + at)
+        _check_prerequisite_chain(handles)
+        return os.access('/proc/self/fd/' + str(handles[place]), os.R_OK | os.W_OK | os.X_OK)
+
+
+def prepare_prerequisites(document, places, *, made, stream=sys.stdout):
+    """Prepare missing roots through pinned ancestry and observed creation.
+
+    Proven effects retain (device, inode); uncertain attempted effects carry
+    _UncertainPrerequisite, never deletion permission. Existing roots are only
+    read. Missing entries that appear after planning refuse, even if usable.
+    """
+    import stat
+    owed = []
+    missing = set()
+    for who, name, place in prerequisite_places(document):
+        if not os.path.isabs(place) or os.path.normpath(place) != place:
+            raise BootstrapRefusal('prerequisite root must be an absolute canonical path: ' + place)
+        if _usable_root(who, name, place):
+            owed.append((who, name, place))
+            missing.update(_components(place))
+            # Even if discovery raced, the root was absent when selected.
+            missing.add(place)
+    handles = {}
+    with contextlib.ExitStack() as opened:
+        def keep(place, handle):
+            opened.callback(os.close, handle)
+            handles[place] = handle
+            return handle
+        try:
+            keep('/', _prerequisite_handle(None, '/'))
+            # Bind all existing ancestors before any mutation. Never resolve a
+            # later operation through a potentially replaced absolute prefix.
+            planned = []
+            for _who, _name, place in prerequisite_places(document):
+                at = ''
+                for leaf in place.split('/')[1:]:
+                    at += '/' + leaf
+                    if at not in planned:
+                        planned.append(at)
+                    if at in handles or at in missing:
+                        continue
+                    parent = os.path.dirname(at)
+                    if parent not in handles:
+                        missing.add(at)
+                        continue
+                    before = os.stat(leaf, dir_fd=handles[parent], follow_symlinks=False)
+                    if not stat.S_ISDIR(before.st_mode):
+                        raise BootstrapRefusal('prerequisite ancestor is not a directory: ' + at)
+                    handle = keep(at, _prerequisite_handle(handles[parent], leaf))
+                    if _identity_of_handle(handle) != (before.st_dev, before.st_ino):
+                        raise BootstrapRefusal('prerequisite ancestor changed while opening: ' + at)
+            for part in planned:
+                if part in handles:
+                    continue
+                parent, leaf = os.path.split(part)
+                _check_prerequisite_chain(handles)
+                with contextlib.closing(_CreationWatch(handles[parent])) as watch:
+                    # Record intent before the call: even an interrupted mkdir
+                    # may have an effect, but an uncertain effect is not owned.
+                    made[part] = _UncertainPrerequisite('creation attempted; identity not established')
+                    try:
+                        os.mkdir(leaf, PREREQUISITE_MODE, dir_fd=handles[parent])
+                    except FileExistsError:
+                        del made[part]
+                        raise BootstrapRefusal('prerequisite component appeared at ' + part + '; nothing here follows a link or adopts an appearing object') from None
+                    handle = keep(part, _prerequisite_handle(handles[parent], leaf))
+                    identity = _identity_of_handle(handle)
+                    watch.prove(leaf)
+                    made[part] = _OwnedPrerequisite(identity, handle)
+                    # /proc/self/fd identifies THIS pinned O_PATH object. It
+                    # cannot redirect chmod to a later occupant of the name.
+                    os.chmod('/proc/self/fd/' + str(handle), PREREQUISITE_MODE)
+                    if stat.S_IMODE(os.fstat(handle).st_mode) != PREREQUISITE_MODE or not os.access('/proc/self/fd/' + str(handle), os.R_OK | os.W_OK | os.X_OK):
+                        raise BootstrapRefusal('prepared prerequisite is not private and accessible: ' + part)
+                _check_prerequisite_chain(handles)
+            _check_prerequisite_chain(handles)
+            for _who, _name, place in prerequisite_places(document):
+                if not os.access('/proc/self/fd/' + str(handles[place]), os.R_OK | os.W_OK | os.X_OK):
+                    raise BootstrapRefusal('prerequisite is not readable, writable and traversable: ' + place)
+            for _who, name, place in owed:
+                print('prerequisite  ' + name + ' ' + place, file=stream)
+        except (OSError, AttributeError) as failure:
+            raise BootstrapRefusal('prerequisite preparation failed (' + type(failure).__name__ + '); created or uncertain effects are recorded; access or identity failure is not evidence of replacement, and is not one it reports as ready') from failure
+    return made
+
+
+def _components(place):
+    """Every ancestor of `place` that does not exist yet, outermost first.
+
+    Answered from the path alone and in order, so the caller creates them one
+    at a time and owns each one it actually made. A component that already
+    exists is not in the answer: this attempt did not create it.
+    """
+    held, at = [], place.rstrip("/")
+    while at and at != os.path.dirname(at) and not os.path.lexists(at):
+        held.append(at)
+        at = os.path.dirname(at)
+    return list(reversed(held))
+
+
+# The runtime copy's own ceiling on how deep a source tree it will walk. A
+# bound is here because the source is an input: a pathological tree is refused
+# rather than recursed into until the interpreter says so.
+MAX_RUNTIME_DEPTH = 64
+
+
+def _runtime_source(parent, leaf):
+    """A READABLE no-follow directory handle on the source side.
+
+    `_prerequisite_handle` is `O_PATH`, which pins an identity and can be a
+    `dir_fd` -- and CANNOT be listed or read: `getdents` on an `O_PATH`
+    descriptor answers `EBADF`, which is how this was found. The destination
+    side keeps the `O_PATH` handles, because what it needs is exactly the
+    identity pin; the source side is only walked and read, so it takes an
+    ordinary read handle and no identity is retained for it -- nothing here
+    ever removes a source object.
+    """
+    return os.open(leaf, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+                   | os.O_CLOEXEC,
+                   **({} if parent is None else {'dir_fd': parent}))
+
+
+def _runtime_entry(parent, leaf, where, made, source, handles, keep, root):
+    """Create ONE copied object under a held parent, recording it as it exists.
+
+    W376956. `shutil.copytree` created every entry and this attempt learned
+    about none of them: ONE identity was taken, of the ROOT, AFTER the copy
+    finished. So a mid-copy failure owned nothing and removed nothing, and the
+    unwind then had to be told `whole=True` -- which deleted foreign
+    descendants with the subtree. The FINDING is exact: "whole=True/root
+    identity or scanning an inventory after copy cannot alone establish
+    ownership."
+
+    THE LEDGER IS THE ACCEPTED ONE, in its own vocabulary and for its own
+    reasons: intent recorded BEFORE the call because an interrupted syscall
+    may still have had an effect; `_UncertainPrerequisite` for an effect whose
+    identity was never established, which carries no deletion authority; and
+    `_OwnedPrerequisite` only after the object is proved, retaining its handle
+    so unlink/recreate inode reuse cannot make a later object compare equal.
+
+    A DIRECTORY IS PROVED THE WAY W376955 PROVES ONE -- a watch on the held
+    parent before `mkdir`, then exactly one CREATE|ISDIR before the handle is
+    accepted. A FILE needs no watch: `O_CREAT|O_EXCL|O_NOFOLLOW` fails if the
+    name exists at all, so the object the handle names is the one this call
+    created, and the handle is taken from the creating call rather than from a
+    second lookup.
+    """
+    import stat
+
+    # THE ROOT'S SOURCE IS THE SOURCE TREE ITSELF, not an entry named after
+    # the destination. `source` is the held source directory in both cases;
+    # for the root there is no entry to look up inside it.
+    held = (os.fstat(handles[source]) if root
+            else os.lstat(leaf, dir_fd=handles[source]))
+    # NO SEPARATE "IS THE ROOT A DIRECTORY" CHECK: `_runtime_source` opens the
+    # source with `O_DIRECTORY`, so a source that is not one has already
+    # refused before anything is created. A second check here would be an
+    # unreachable branch claiming to be a guard.
+    if stat.S_ISDIR(held.st_mode):
+        # NO ANCESTOR-CHAIN RE-CHECK HERE, and the reason is that there is no
+        # absolute prefix being re-resolved for one to protect: every create,
+        # open, read and chmod in this copy is relative to a parent HANDLE
+        # this attempt already holds, which is the stronger form of what the
+        # chain check approximates for pathname-resolved operations. The
+        # prerequisite roots need it because their ancestors are pre-existing
+        # directories somebody else owns.
+        with contextlib.closing(_CreationWatch(handles[parent])) as watch:
+            made[where] = _UncertainPrerequisite(
+                'runtime directory creation attempted; identity not '
+                'established')
+            try:
+                os.mkdir(leaf, 0o700, dir_fd=handles[parent])
+            except FileExistsError:
+                del made[where]
+                raise BootstrapRefusal(
+                    'a runtime entry appeared at ' + where + '; nothing here '
+                    'follows a link or adopts an appearing object') from None
+            handle = keep(where, _prerequisite_handle(handles[parent], leaf))
+            identity = _identity_of_handle(handle)
+            watch.prove(leaf)
+            made[where] = _OwnedPrerequisite(identity, handle)
+            # THE PINNED OBJECT, not the name: a later occupant of the name
+            # cannot receive this mode change. The source's own permission
+            # bits are applied, which is what `copytree` preserved.
+            os.chmod('/proc/self/fd/' + str(handle), stat.S_IMODE(held.st_mode))
+        return 'directory'
+    if stat.S_ISLNK(held.st_mode):
+        # A SYMLINK IS COPIED AS A SYMLINK and is never followed.
+        #
+        # W376956 review 2026-10-28T23-50-44Z, blocker 1: this did `symlink`
+        # then `lstat` and recorded whatever the name held by then. A seam that
+        # replaced the new link with a FOREIGN one in between made the ledger
+        # record the foreign object -- and the unwind then deleted it and
+        # reported `unwound`. That is exactly the provenance error W376955
+        # corrected for directories: post-create observation is not ownership.
+        #
+        # So the link is proved the way a directory is: a watch on the held
+        # parent BEFORE the call, one `IN_CREATE` for this leaf and nothing
+        # else, and the identity taken from an `O_PATH|O_NOFOLLOW` HANDLE on
+        # the link itself rather than from a second lookup of the name.
+        target = os.readlink(leaf, dir_fd=handles[source])
+        with contextlib.closing(_CreationWatch(handles[parent])) as watch:
+            made[where] = _UncertainPrerequisite(
+                'runtime symlink creation attempted; identity not established')
+            try:
+                os.symlink(target, leaf, dir_fd=handles[parent])
+            except FileExistsError:
+                del made[where]
+                raise BootstrapRefusal(
+                    'a runtime entry appeared at ' + where + '; nothing here '
+                    'follows a link or adopts an appearing object') from None
+            handle = keep(where, os.open(
+                leaf, os.O_PATH | os.O_NOFOLLOW | os.O_CLOEXEC,
+                dir_fd=handles[parent]))
+            identity = _identity_of_handle(handle)
+            watch.prove(leaf, mask=0x100)
+            made[where] = _OwnedPrerequisite(identity, handle)
+        return 'symlink'
+    if not stat.S_ISREG(held.st_mode):
+        raise BootstrapRefusal(
+            'the runtime at ' + where + ' is neither a directory, a symlink '
+            'nor an ordinary file; this install copies no device, socket or '
+            'pipe into a destination')
+    made[where] = _UncertainPrerequisite(
+        'runtime file creation attempted; identity not established')
+    try:
+        opened = os.open(leaf, os.O_WRONLY | os.O_CREAT | os.O_EXCL
+                         | os.O_NOFOLLOW | os.O_CLOEXEC,
+                         stat.S_IMODE(held.st_mode), dir_fd=handles[parent])
+    except FileExistsError:
+        del made[where]
+        raise BootstrapRefusal(
+            'a runtime entry appeared at ' + where + '; nothing here follows '
+            'a link or adopts an appearing object') from None
+    try:
+        import hashlib
+
+        # OWNED FROM THE MOMENT IT EXISTS, which is the rule the justfile is
+        # already under: a write that fails part-way still leaves a file this
+        # attempt created, and leaving it would block this attempt's retry.
+        # Until the copy finishes it is an IDENTITY ONLY -- there is no
+        # complete content to recognise yet, so a partial file is removable by
+        # identity and a finished one is held to its bytes as well.
+        identity = _identity_of_handle(opened)
+        made[where] = identity
+        written = hashlib.sha256()
+        reading = os.open(leaf, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC,
+                          dir_fd=handles[source])
+        try:
+            while True:
+                block = os.read(reading, 1 << 20)
+                if not block:
+                    break
+                written.update(block)
+                at = 0
+                while at < len(block):
+                    at += os.write(opened, block[at:])
+        finally:
+            os.close(reading)
+        os.fchmod(opened, stat.S_IMODE(held.st_mode))
+        # THE DIGEST IS THE BYTES THIS COPY STREAMED, not a second read of the
+        # file -- a second read is a second document, and the point is to
+        # recognise what was written.
+        made[where] = _OwnedCopy(identity, written.hexdigest(), opened)
+    finally:
+        os.close(opened)
+    return 'file'
+
+
+def copy_runtime(distro, destination, *, made):
+    """Copy one runtime, recording every object this attempt creates.
+
+    ANSWERS THE COUNT. The ledger `made` is the caller's and is filled as the
+    copy proceeds, so a failure part-way leaves exactly what happened in it --
+    which is the whole correction: the previous bulk copy left a partial tree
+    nothing owned.
+
+    THE SOURCE IS WALKED THROUGH HELD HANDLES, parent-relative, no-follow, so
+    a source entry replaced mid-walk cannot redirect a read through a prefix
+    this attempt resolved earlier.
+    """
+    import stat
+
+    counted = {'directory': 0, 'file': 0, 'symlink': 0}
+    with contextlib.ExitStack() as opened:
+        handles = {}
+
+        def keep(place, handle):
+            opened.callback(os.close, handle)
+            handles[place] = handle
+            return handle
+
+        try:
+            parent, leaf = os.path.split(destination)
+            keep(parent, _prerequisite_handle(None, parent))
+            keep('@' + str(distro), _runtime_source(None, str(distro)))
+            pending = [(parent, leaf, destination, '@' + str(distro), 0, True)]
+            while pending:
+                at, name, where, source, depth, root = pending.pop()
+                if depth > MAX_RUNTIME_DEPTH:
+                    raise BootstrapRefusal(
+                        'the runtime source is deeper than '
+                        + str(MAX_RUNTIME_DEPTH) + ' levels at ' + where)
+                kind = _runtime_entry(at, name, where, made, source,
+                                      handles, keep, root)
+                counted[kind] += 1
+                # THE KIND DECIDES THE DESCENT, not whether a handle was kept:
+                # a symlink keeps one too now, so the old `where not in
+                # handles` guard tried to open a link as a directory.
+                if kind != 'directory':
+                    continue
+                # THE SOURCE SIDE IS HELD TOO, parent-relative and no-follow,
+                # so a source entry replaced mid-walk cannot redirect a later
+                # read through a prefix this attempt already resolved.
+                # `keep` ANSWERS THE HANDLE, so the KEY is what the walk
+                # carries -- my first version passed the descriptor back as a
+                # key and the next iteration looked it up as one.
+                inside = source
+                if not root:
+                    inside = '@' + where
+                    keep(inside, _runtime_source(handles[source], name))
+                for entry in sorted(os.listdir(handles[inside]), reverse=True):
+                    pending.append((where, entry, os.path.join(where, entry),
+                                    inside, depth + 1, False))
+        except (OSError, AttributeError) as failure:
+            raise BootstrapRefusal(
+                'the runtime copy failed (' + type(failure).__name__
+                + '); created or uncertain effects are recorded') from failure
+    return counted
+
+
+def unwound_order(made):
+    """The prepared places, INNERMOST FIRST, for removal.
+
+    A parent cannot be removed before its child, and `_remove_if_still_ours`
+    deliberately refuses to remove a POPULATED directory -- so unwinding the
+    shallowest first would report every one of them as still holding entries
+    this attempt did not create, which would be false and would leave the
+    whole tree behind.
+    """
+    return sorted(made, key=lambda one: one.count(os.sep), reverse=True)
+
+
+def _initialized_at(now=None):
+    """This install's own instant, in the one spelling the stores use.
+
+    W376956: `now` IS ACCEPTED AND CONVERTED. `install` took a `now` operand
+    for `instance.emit`, which wants a POSIX number, and handed the same value
+    to the control store's clock, which wants durable TEXT -- so every
+    connected install case that pins time refused "the configured clock's
+    answer is durable text; this is 1.0" and the whole connected install path
+    was unreachable. Measured at the accepted base in an isolated snapshot:
+    14 `test_instance` cases, identical before this claim.
+
+    One operand, two spellings, converted where the difference is known rather
+    than at either caller.
+    """
+    from datetime import datetime, timezone
+
+    held = (datetime.now(timezone.utc) if now is None
+            else datetime.fromtimestamp(now, timezone.utc))
+    return held.strftime("%Y-%m-%dT%H:%M:%S.000Z")
+
+
+def initialize_control_store(places, *, incarnation, clock):
+    """Open this instance's control store once, then CLOSE it.
+
+    W375516. `worker_manager.store.ControlStore.open` already owns empty-store
+    initialization and supported-store adoption, so this calls that public
+    opener and adds no schema behaviour of its own -- W375444 owns the
+    settlement store changes and nothing here touches them.
+
+    THE INCARNATION AND THE CLOCK ARE EXPLICIT OPERANDS. An opener that
+    defaulted them would be inventing the two facts every journalled row is
+    attributed to, at the one moment nobody is watching.
+
+    IT IS CLOSED, and that is not tidiness: an install that left a connection
+    open would leave this process holding a store the first start has to open,
+    and a prepared instance is one nothing is attached to.
+    """
+    from baton_v12.worker_manager.store import ControlStore
+
+    try:
+        store = ControlStore.open(places["control_store"],
+                                  incarnation=incarnation, clock=clock)
+    except Exception as failure:
+        raise BootstrapRefusal(
+            "this instance's control store at " + places["control_store"]
+            + " could not be initialized (" + type(failure).__name__ + ": "
+            + str(failure) + "); an installation that cannot initialize its "
+            "own store is not a prepared one.")
+    try:
+        return store.schema_version() if hasattr(store, "schema_version") \
+            else None
+    finally:
+        store.close()
 
 
 def install(destination, distro, document, *, stream=sys.stdout, now=None,
@@ -2115,8 +3127,6 @@ def install(destination, distro, document, *, stream=sys.stdout, now=None,
     holding a different deployment is refused by the custody checks this module
     already keeps. Safe refusal is the whole answer the owner selected.
     """
-    import shutil
-
     from tools import instance
 
     # THE ADMISSION IS CARRIED, NOT REPEATED. [K3]: `main` admitted, threw the
@@ -2149,12 +3159,37 @@ def install(destination, distro, document, *, stream=sys.stdout, now=None,
         custody(places, destination)
         for name in ("stores", "repository", "logs", "state"):
             Path(places[name]).mkdir(parents=True, exist_ok=True)
-        shutil.copytree(distro, places["distro"], symlinks=True)
-        copied = os.lstat(places["distro"])
-        runtime_identity = (copied.st_dev, copied.st_ino)
+        # W375516: THE CONFIGURED PREREQUISITES, BEFORE SUCCESS.
+        #
+        # `install` created four directories of its own and published a
+        # selector, and the configured workspace, launch and credential roots
+        # a worker needs were nobody's: a prepared instance reported success
+        # and the first start was the thing that discovered them. They are
+        # prepared here, under this same lock, so the destination either has
+        # everything it was configured to need or is not installed.
+        #
+        # THE DICTIONARY IS OWNED OUT HERE AND FILLED INSIDE THE `try`, which
+        # is the review's correction: the previous cut prepared the roots and
+        # copied the runtime BEFORE the block whose `except` unwinds, so a
+        # failure in the copy, the store, the justfile or the selector left
+        # every prepared root behind. Now everything this attempt makes is
+        # created under the same protection and is removed by the same unwind.
+        prerequisites = {}
+        # W376956: THE COPIED RUNTIME IS A LEDGER, NOT ONE ROOT IDENTITY.
+        #
+        # This was `runtime_identity = None` plus `shutil.copytree`, with ONE
+        # identity taken of the root AFTER the copy finished. A failure
+        # part-way through left a partial tree that nothing owned and nothing
+        # removed -- and the retry then refused for leftovers this attempt had
+        # made. `copy_runtime` records each object as it creates it, so the
+        # ledger states exactly what happened however far the copy got.
+        copied = {}
         justfile_identity = None
         install_inputs_identity = None
         try:
+            prepare_prerequisites(document, places, made=prerequisites,
+                                  stream=stream)
+            counted = copy_runtime(distro, places["distro"], made=copied)
             runtime = instance.manifest(places["distro"])
             if runtime["digest"] != runtime_before["digest"]:
                 raise BootstrapRefusal(
@@ -2186,7 +3221,15 @@ def install(destination, distro, document, *, stream=sys.stdout, now=None,
             # finished: a write that fails part-way still leaves a file this
             # attempt created, and leaving it would block this attempt's own
             # retry.
-            justfile_identity = _identity_of_handle(handle)
+            # W376956: THE HANDLE IS RETAINED, not just the identity. The
+            # removal proves at the destructive call that the object it
+            # deleted was this one, and it cannot do that from a bare tuple.
+            # NO DIGEST for this one, deliberately: "owned from the moment it
+            # exists, not from the moment it is finished" -- a partial write is
+            # still this attempt's to unwind, and a content check would refuse
+            # to remove it.
+            justfile_identity = _OwnedPrerequisite(
+                _identity_of_handle(handle), handle)
             with os.fdopen(handle, "w") as writing:
                 writing.write(deployed_justfile(places))
             # W361912: THE INPUT DOCUMENT THIS INSTALL CONSUMED, kept the way
@@ -2223,7 +3266,8 @@ def install(destination, distro, document, *, stream=sys.stdout, now=None,
                     + places["install_inputs"] + ", which this install would "
                     "keep its own input at. It was left exactly as it is; a "
                     "destination is prepared once.")
-            install_inputs_identity = _identity_of_handle(opened)
+            install_inputs_identity = _OwnedPrerequisite(
+                _identity_of_handle(opened), opened)
             with os.fdopen(opened, "w") as writing:
                 writing.write(json.dumps(
                     {name: value for name, value in document.items()
@@ -2248,6 +3292,13 @@ def install(destination, distro, document, *, stream=sys.stdout, now=None,
             # is the input and not the derived configuration -- which is the
             # distinction `_publish_install` states in as many words.
             #
+            # W375516: AND THE CONTROL STORE IS INITIALIZED, through the
+            # public opener with an explicit incarnation and clock, and then
+            # CLOSED -- before the selector exists, so a destination carrying
+            # a selector carries a store that opened at least once.
+            initialize_control_store(
+                places, incarnation="bootstrap-" + document["authority_uuid"],
+                clock=lambda: _initialized_at(now))
             try:
                 instance.create(places["instance"], selector)
             except instance.InstanceRefusal as refusal:
@@ -2255,31 +3306,58 @@ def install(destination, distro, document, *, stream=sys.stdout, now=None,
                 # and exits 2 rather than raising through a setup command.
                 raise BootstrapRefusal(str(refusal))
         except (BootstrapRefusal, OSError) as failure:
-            # ONLY WHAT THIS ATTEMPT MADE IS UNWOUND, and ALL of it. `custody`
-            # proved the runtime, the selector and the justfile absent moments
-            # ago under this same lock, so both the copied distro and the
-            # justfile written here are provably ours.
+            # NOTHING IS UNWOUND: EVERY EFFECT IS RETAINED AND NAMED, which is
+            # the behaviour this Work delivered and is stated here first
+            # because the sentence that used to open this comment -- "only what
+            # this attempt made is unwound, and ALL of it" -- described the
+            # mechanism before the owner selected retention over removal.
+            # `custody` proved the runtime, the selector and the justfile
+            # absent moments ago under this same lock, so the copied distro and
+            # the justfile written here are provably this attempt's; what
+            # changed is that being provably ours is no longer authority to
+            # delete, because the destructive call cannot be bound to the
+            # object the proof was about.
             #
             # [R3 remainder]: the justfile was NOT unwound, so a transient
             # publication failure left it behind -- and the retry then refused
             # for that leftover, which this attempt had created. Nothing
             # foreign is touched either way: the selector, if one appeared, is
             # somebody else's and is left exactly as it is.
-            said = [_remove_if_still_ours(places["install_inputs"],
-                                          install_inputs_identity,
-                                          "installer input document"),
-                    _remove_if_still_ours(places["justfile"],
-                                          justfile_identity, "justfile"),
-                    _remove_if_still_ours(places["distro"],
-                                          runtime_identity, "runtime")]
-            for line in [one for one in said if one]:
-                print("cleanup       " + line, file=stream)
+            # W376956: ONE PLAN, ONE STOP, AND RETENTION FOR THE COPIED
+            # RUNTIME.
+            #
+            # The prepared roots and the two installer files keep the removal
+            # behaviour W376955 had independently accepted. The copied runtime
+            # is RETAINED rather than deleted -- the owner's selected answer,
+            # because no name-based removal can be bound to an inode. Nothing
+            # here iterates: `_Unwind.run` walks the whole plan so the residue
+            # accounting cannot be lost at a caller's `break`.
+            # W376956 review 2026-10-29T00-17-38Z: THE CUSTODY RULE IS
+            # UNIVERSAL, not runtime-only. The justfile probe deletes a
+            # foreign replacement by exactly the same final-name race, so
+            # every effect this attempt made is RETAINED rather than removed.
+            # A destructive call that cannot be bound to an inode is not made
+            # at all, so this plan has no removing entries and `_Unwind` has
+            # no removing branch.
+            planned = [(place, prerequisites[place],
+                        "prepared prerequisite root")
+                       for place in unwound_order(prerequisites)]
+            planned += [(places["install_inputs"], install_inputs_identity,
+                         "installer input document"),
+                        (places["justfile"], justfile_identity, "justfile")]
+            planned += [(place, copied[place], "copied runtime object")
+                        for place in unwound_order(copied)]
+            unwind = _Unwind().run(planned)
+            unwind.report(stream)
             raise
 
     print("instance      " + places["instance"], file=stream)
     print("install       " + places["install_inputs"], file=stream)
     print("runtime       %d files, digest %s"
           % (runtime["files"], runtime["digest"][:16] + "..."), file=stream)
+    print("copied        %d directories, %d files, %d symlinks, each owned"
+          % (counted["directory"], counted["file"], counted["symlink"]),
+          file=stream)
     print("stores        " + places["stores"], file=stream)
     print("repository    " + places["repository"], file=stream)
     print("justfile      " + places["justfile"], file=stream)
@@ -2430,13 +3508,18 @@ def main(argv=None, *, stream=sys.stdout, runner=None):
         # A POINTER, NOT A GUARANTEE. Review 2026-09-16T19-25-41Z: this said
         # "anything this attempt made was unwound" unconditionally -- and a
         # cleanup whose unlink is refused prints "could not remove ...: it is
-        # still there" and then that. The cleanup lines above say what was
-        # removed and what was retained; this refusal says where to read them.
+        # still there" and then that. The cleanup lines above say what is
+        # there; this refusal says where to read them.
+        #
+        # W376956: AND IT NO LONGER OFFERS "WHAT WAS REMOVED". Nothing is
+        # removed -- every effect is retained and named -- so a sentence
+        # inviting an operator to read about removals describes a cleanup this
+        # command does not perform.
         print("refused: the installation could not finish ("
-              + type(failure).__name__ + ": " + str(failure) + "). See the "
-              "cleanup messages above for what was removed and what was "
-              "retained; anything this attempt did not make was left exactly "
-              "as it is.", file=stream)
+              + type(failure).__name__ + ": " + str(failure) + "). Nothing was "
+              "deleted. See the cleanup messages above for every path this "
+              "attempt left behind and what is known about each; anything this "
+              "attempt did not make was left exactly as it is.", file=stream)
         return 2
 
 

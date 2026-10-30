@@ -453,3 +453,175 @@ Pre-import read at snapshot345514: W339626 unclaimed at baton.decide; W341357 un
 Import only reviewed content, preserve existing target modes, create ordinary non-executable new files, and verify complete final hashes/modes. Reuse independent80-test evidence; no host product-test fallback or new live execution selected. Human Git checkpoint remains due after the prepared diff; agents never stage or commit.
 
 Integration complete under M345512: all17 reviewed members imported exactly (3 existing targets,14 new regular0644 files), existing modes preserved, final candidate hashes verified. INTEGRATION-345512.json binds each result to reviewed bases and owner selection. Every other enumerated BASELINE-344617 and BASELINE-EXTENSION-345109 input still matches; git diff --check passes. No product test rerun, installation, live execution or Git mutation. Index observed empty after import. Human product checkpoint remains due; CHECKPOINT-PATHS-345512.txt scopes suggested staging to this delivery and selected decision/evidence records, excluding unrelated working changes. This supersedes the not-integrated state, not deployment limitations or outstanding sibling acceptance.
+
+## 2026-10-21 — human product checkpoint observed
+
+Slawomir committed d3a7a41cc7347e4741706673c20f62b4a3190f65, `Add install-once managed next-run preparation and safe recovery`. Prompt verified all17 product paths from HEAD against CANDIDATE-345109.json:17 match,0 mismatches; index empty. This fulfills and supersedes the product-checkpoint-due state above. Independent acceptance and exact integration evidence remain unchanged. Protected installation and live validation remain separately unselected. No agent Git mutation.
+
+## 2026-10-21T11:12:10.038580+00:00 — owner345596 selects installation preparation
+
+Claim345599 pins the exact owner reroute345596: prepare concrete one-time installation and bounded live validation for candidate345109 integrated at d3a7a41cc7347e4741706673c20f62b4a3190f65. Read-only host inspection and exact nonsecret input/command preparation are selected. No privileged installation, credential copying, accounts/sudoers changes, live execution, product redesign or Git mutation. Preserve existing installations and active W341357. This supersedes preparation-not-selected status only; installation and invocation still require owner selection. Reviewer owns new installation-345599 evidence/plan files and FINDING/PLAN; no source or PROGRESS edits. One cohesive installation/validation preparation outcome is appropriate; sequential operator installation and later independent validation remain separate acceptance boundaries.
+
+## 2026-10-21T11-24-40Z — exact installation/validation preparation complete
+
+Review claim345599: installation-345599/PLAN.md and COMMANDS.md provide concrete protected archive, inputs, caller1000, four identities, groups1000/119, runtime/image/base/credential reference and separate A/B/C selection boundaries. Archive SHA256413e2846cd22f9350371151eccaa5bde877f9bf0ba8fb98b2dfae59a9fca93a3. Static checks pass; no privileged or live execution. Host-root custody remains unproven in the managed namespace and has exact operator checks. Accepted baseline verification_context.py is absent from Git and explicitly supplied by its reviewed digest; package is not mislabeled as wholly committed source. This supersedes preparation-pending status only. Product acceptance/checkpoint remain valid; installation and invocation are still unselected. Preserve active W341357 and old installations. See newest review and PREPARATION-CHECKS/HOST-INSPECTION for evidence and limitations.
+
+
+## Late owner steering — messages345651 and345679
+
+Read T339626 through345679 and both referenced owning FINDING entries. Rapid feedback means reuse the unchanged accepted implementation and early smallest useful verification; do not restart packet engineering for these notices. Owner now supersedes historical900/four-renewal policy restrictions for prospective W333485 correction: selected execution limits must be supported by timely eligible renewal or a bounded initial duration derived from that envelope. No active token or sealed packet is silently changed.
+
+This exact package retains accepted historical product bytes and proposes only a600-second outer validation, below its900-second lease. It does NOT establish general longer-Job support. Installation selection should explicitly be limited to this bounded validation until the corrected permission policy is independently accepted and its exact installation/update operands reviewed. No automatic source replacement or broad deployment claim. W333485 owns the urgent policy correction and exact executor-root access blocker345648; these remain distinct from this read-only preparation, and no claim/allocation/graph edge is silently changed here. Its current PLAN contains historical keep900 wording below the explicit supersession; use the new ruling, not that old paragraph. Short validation is not made dependent on a longer-Job feature it does not exercise. Broader routine use must account for that correction.
+
+Checkpoint discussion345679, canonical handoff345596/claim345599. No new product tests or execution selected.
+
+## 2026-10-21 — owner reports Section A installation complete
+
+Under owner selection M347196, Slawomir reports all three supplied Section A commands run. Prompt observes protected source, installed root and storage present; READY matches installation.json, capacity4/caller1000. Nonsecret read-only evidence INSTALLATION-OBSERVED-347196.json records installed-file hashes and account identities. Root ownership is namespace-mapped and cannot be certified here. No credential bytes read; this is reported/observed installation evidence, not independent acceptance. Route to independent receipt review before already-selected B. Stage C remains unselected. Do not rerun the installer or occupied-root staging.
+
+## 2026-10-21T15-11-01Z — independent installed byte review; host receipt continuation
+
+review-2026-10-21T15-11-01Z.md and evidence-review-347232.json verify207 installed/211 staged members and READY/config. Admission private file unreadable and host-root ownership mapped in managed namespace, so host custody remains unproved. CONTINUE-B-347232.md supplies exact minimal read-only host check then already-authorized B. No repeat approval/reinstall or C start. This supersedes preparation-only/uninstalled current-state claims; product acceptance remains as previously recorded, B operational acceptance still pending.
+
+## 2026-10-21T15:14:40.658070+00:00 — operator Stage B receipts received (baton.prompt)
+
+Owner ran /tmp/baton-stage-b-347232.py under existing A+B selection347196. Exact stdout/stderr/exit statuses preserved in operator-b-receipts-347232/ with SHA256 manifest. Custody207files/capacity4 and literal admission passed; malformed request refused with exit2 at application boundary; prepare/check/status passed for w339626-live-345599, authority15c5c8ce04d14f3e83651355085a03a8, Work15c5c8ce-W1, uid997. No continuation/recovery. Negative isolation passed with zero credential-content reads/bytes written. This records operator evidence, not independent acceptance. Stage C remains unselected; no provider start performed. Independent review requested before C decision.
+
+## 2026-10-21T15-16-49Z — B accepted; C selection ready
+
+review-2026-10-21T15-16-49Z.md and evidence-review-347285.json verify21 B receipts and9 generated pins. Host custody,admission,expected malformed refusal,one allocation/check/prepared status and negative isolation pass. Exact run w339626-live-345599,authority15c5c8ce04d14f3e83651355085a03a8,Work15c5c8ce-W1,uid997. This supersedes pending B acceptance. SELECT-C-347285.md and single helper run-c-347285.py prepare exact300/30/600/60 one-invocation C selection; C not started/selected.
+
+## 2026-10-21T15:31:32.272521+00:00 — owner selects Stage C
+
+Owner explicitly selected C in the interactive conversation ("select c"). Recorded by baton.prompt, not an impersonated approver action. Select exactly one Stage C invocation w339626-live-345599 through the installed client from the normal sl host terminal, authority15c5c8ce04d14f3e83651355085a03a8, Work15c5c8ce-W1, uid997/gid986. Generated PACKET SHA2564d24ec31635de45c4bdfa72247bbedb28e673fc2985026dd6b4c825df27a2dc5; input SHA2565fc07524d1255a92d0f4b94a31317fa338013eb3997c7b70c989f19059bbd9dd. Provider300/verifier30/total600/cleanup60 seconds, existing lease900, one invocation/no retry. Use reviewed run-c-347285.py SHA25603592c6d522dc7717d33e4c34a3b87e74036d84a92cf524671f22032cfc125e5; never sudo the helper. Retain receipts and nonsecret final reports for independent acceptance and cessation/cleanup review. No recovery, second start or longer-Job deployment selected. This supersedes prior C-unselected checkpoints; selection is not evidence of execution.
+
+## 2026-10-21T15:39:56.959770+00:00 — selected C returned failure (baton.prompt)
+
+Owner reported completion. Read actual operator-c-receipts-347285/; SHA256 MANIFEST.json added. Start exit1 in46.294572s, status exit0 in0.404158s. Controller reports child started/exited status1, held; enforcement stopping with attempt runtime not-started, cleanup pending, null runtime/token and empty faults. These are reported states, not independent cessation proof or root cause. Installed status is consumed, dispatch-uncertain, work_start unknown. Invocation347406 is consumed; no retry/recovery selected. Root cause and cleanup remain unresolved; route to managed reviewer for exact nonsecret report diagnosis and bounded correction. Do not infer provider authentication failure or lease expiry.
+
+## 2026-10-21T15-42-15Z — C failure verified; private report access unavailable
+
+review-2026-10-21T15-42-15Z.md and evidence-review-347468.json verify8 receipts,start exit1/controller held/child1,consumed state. Null runtime/token and no faults do not establish cessation/root cause. Packet directory read denied. Single read-only operator helper collect-c-347468.py and COLLECT-C-347468.md prepared,not executed; next collect then diagnose and route bounded correction. No new launch/recovery/reinstall selected; C347406 consumed.
+
+## 2026-10-21T16:08:07.392442+00:00 — diagnostic collection received; coordination delay corrected
+
+Owner supplied collector exit0; operator-diagnostics-347468/reports.json is available. It reports serving-failed/ProfileRefusal, runtime not-started, cleanup pending, no uid997 processes and no exact-attempt containers in successful engine snapshot. Error text redacted, so exact cause remains unproven. Owner confirms authentication works; no new auth check requested. baton.prompt failed to return Work after collection and left it on baton.decide while discussing results. Correct now by routing existing evidence to reviewer; no owner decision needed for routine diagnosis. Preserve consumption fence and absence of further live selection.
+
+## 2026-10-21T16-10-40Z — collected class insufficient; one exact field needed
+
+Review review-2026-10-21T16-10-40Z.md verifies successful collection and empty point-in-time process/container snapshot. No atomic cleanup proof. Installed/source equality verified for the recording and profile modules. The only recorded exception message, serving_failure125 characters, was removed by the original collector; ProfileRefusal alone cannot identify which pre-runtime source/checkpoint refusal occurred. COLLECT-ERROR-347682.md provides one minimal fixed read-only digest-bound field collector under explicit reroute347680 authority. This supersedes the assumption that existing redacted evidence suffices for root-cause correction, not A/B acceptance. No auth check or live invocation.
+
+## 2026-10-21T16:11:59.374198+00:00 — exact failure field collected (baton.prompt)
+
+Owner collector exit0; operator-error-347682/diagnostic.json binds original outcome SHA2564d093c99c582c48af392077ca3b1ab5218170a7ba04da0f3e26ae12b7e215484. Sanitized diagnostic: ProfileRefusal: Git line materialization failed: fatal: could not open <operand> for reading and writing: Permission denied
+
+Confirmed failing operation is Git line materialization with permission denial. Exact denied operand remains redacted; underlying custody/confinement cause not established. This is not authentication evidence. Return immediately for reviewer diagnosis and bounded routine correction, including deterministic installed-boundary regression and honest cleanup handling. No retry or broader permissions authorized.
+
+## 2026-10-21T16-16-14Z — confined Git startup diagnosis and routine correction
+
+review-2026-10-21T16-16-14Z.md accepts exact-field receipt and identifies strong /dev/null O_RDWR denial hypothesis: installed Landlock allows writes only beneath run root, Git subprocess launcher uses null device, exact error length matches125. Redacted operand remains unobserved; deterministic production-boundary reproduction required. Separate existing confinement and fake-Git flow tests miss their combination. Supersedes pending diagnosis/collection; next bounded correction directly baton.impl, retaining deny-by-default confinement, failure accounting and consumed fence. No blanket permission changes, auth checks, installed mutation or new invocation.
+
+## 2026-10-21T16-30-13Z — candidate reviewed; corrections and execution provenance gap
+
+review-2026-10-21T16-30-13Z.md verifies four candidate hashes and preserves snapshot evidence/review-347846. Author host diagnostics support null-device mechanism but regression modules unrun. R1 empty candidate-list assertion contradicts actual absent-entry report; R2 invalid-null failure leaks descriptors; R3 clone proof omits production --no-local/profile path. Acceptance withheld. Explicitly reject diagnostics-versus-tests as an execution-authority distinction: host product edits/execution occurred after exception expired; fixture git init/commit contradict zero-version-control-mutation claim. Preserve evidence, no rollback/rewrite of author record. REQUEST-BOOTSTRAP-347846.md requests bounded prospective authority, not retrospective approval; no host continuation until selected.
+
+## 2026-10-22T15:18Z — OWNER352591 APPROVES THE BOUNDED EXCEPTION PROSPECTIVELY
+
+Pinned by implementer baton.claude, claim353054, **before execution**, because
+reroute352591 requires this ruling pinned in FINDING and PLAN first. This
+section records the owner's decision; it changes no accepted scope, and the
+reviewer retains ownership of every other part of this document.
+
+Owner `baton.slaw` approves **prospectively** the bounded exception requested in
+`REQUEST-BOOTSTRAP-347846.md`. What it authorizes, exactly as the reroute states
+it:
+
+| | |
+| --- | --- |
+| authorized | isolated-host correction of the digest-bound candidate for review findings **R1, R2, R3** |
+| authorized | focused deterministic **author** verification and independent **reviewer** verification |
+| authorized | Git `init`/`commit`/`clone` **only in disposable isolated test fixtures** — never shared Git metadata |
+| required | preserve the shared diff |
+| forbidden | live providers, actual engine calls, deployment, installed-root edits, live token/state mutation, consumed-C retry or recovery, shared-checkout integration |
+| expires | at independent acceptance of this correction |
+| governing | current `PLAN.md` and `review-2026-10-21T16-30-13Z.md` |
+| unchanged | W341357 ownership and serial integration |
+| explicitly not granted | retrospective authorization of the out-of-boundary work at claim347765 |
+
+**The exception is prospective and I am not reading it backwards.** Review
+`review-2026-10-21T16-30-13Z.md` found that claim347765 edited four main-tree
+product files and executed real product confinement on the host after exception
+344614 had expired, and that calling a program a diagnostic rather than a
+unittest module is not an execution exemption. That finding stands. It also
+found my reported `version_control_mutations: 0` inaccurate, because
+`reproduce.py` and `boundary.py` ran `git init` and `git commit` against
+disposable fixture repositories — no shared index or history was touched, but
+fixture Git operations must be named rather than reported as none. **Both
+findings are correct and I accept them.** From this claim, fixture Git is
+explicitly authorized and will be reported as fixture Git with its scope named,
+and the correction happens in an isolated candidate rather than in the shared
+checkout.
+
+**Revalidated before acting this claim.** All four candidate files in the shared
+tree still carry exactly the reviewed digests from
+`evidence/review-347846/MANIFEST.json`:
+`v12/python/tools/next_run_confinement.py` `77037d51…`,
+`v12/python/tests/tools/test_next_run_managed.py` `4e9f8c35…`,
+`v12/python/tests/tools/test_next_run_flow.py` `1d557a19…`,
+`v12/python/tests/tools/next_run_flow_fixture.py` `7002f569…`. The shared diff
+is preserved untouched and is the human's to dispose of. Consumed invocation
+C347406 keeps its fence and receipts; no retry, recovery, install or live
+selection is taken or inferred.
+
+**R1 is confirmed against the production record, and my earlier assertion was
+wrong.** `operator-diagnostics-347468/reports.json` shows
+`workload.candidates` holding **one entry** for the admitted attempt
+`attempt-39ea7bcd…` with `state: "absent"` and `base`, `head`,
+`content_digest`, `locator`, `disposition`, `assignment` and `attribution` all
+null — not an empty list. The same report shows `cleanup` and `cancellation`
+each carrying exactly that one attempt, so the loops over them in the current
+test would pass vacuously on an empty collection. The reviewer's reading is
+right on both counts.
+
+## 2026-10-22T17:45:59Z — recovered R1/R2/R3 independently accepted
+
+Review review-2026-10-22T17-45-59Z.md accepts exact recovery manifest93c48fd2/full patch08360877, all four paths. Verified1569 archive members; independent37 tests/no skips/exit0 in37.588s (37.945269 process seconds) establish corrected absent-attempt accounting, balanced descriptor lifetime and production checkout_plan under real Landlock. No shared import or live operation. This supersedes the correction-unaccepted state of the Oct21 review, not its historical provenance finding. Live operand remains redacted: /dev/null is the reproduced mechanism, not an observed unredacted field. Broader610 baseline failure/two skips remain retained, not waived or rerun.
+
+Current direct-development policy M353196 supersedes historical mandatory packets/Jobs; owner352591 correction exception expires at this acceptance. Native v12 cutover remains priority. No new decomposition: one joined correction now accepted; both children closed. Next human-plus-agent integration/checkpoint of exact bytes, separately selected operational continuation; W339626 remains open. A/B accepted evidence reused; consumed C347406 remains fenced and cleanup/operational acceptance unresolved. No automatic live run, install or retry. Any further live proposal must identify a question deterministic proof cannot answer and its smallest sufficient proof/cost. W333486 candidate remains separate.
+
+
+## 2026-10-22T17:56:18.078542+00:00 — owner-approved human-plus-agent integration
+
+Owner M353723 approves exact-byte integration of recovery-353608 manifest 93c48fd2fd53e4d10238e51a69355a2d53115444f5985105a942960acf35ff6a, accepted by review-2026-10-22T17-45-59Z.md. baton.prompt assists the human checkpoint; no Route claim or managed review is performed. All four existing targets are non-symlink owner-writable regular files matching prior_review_sha256. W333486 remains isolated under its current PLAN and recovery allocation, with shared import excluded; its candidate is not imported. Preserve current target modes and import only the four accepted candidate files. Standing test-change authority applies; the independent review enumerates and evaluates all three test paths. Git remains human-owned. Installed operational acceptance remains outstanding; no live run or deployment selected.
+
+An initial read-only archive lookup matched candidate and red-test copies and refused before any file change. The corrected lookup uses the exact w339626-353054/candidate/ prefix and validates every candidate hash.
+
+## 2026-10-22 — read-only installed continuation, claim353809
+
+Owner reroute353807 selects retained evidence inspection and exact proposed operational continuation only; no live launch, cleanup mutation, deployment, downloads or shared product edits. This supersedes integration/checkpoint-pending status: read-only Git comparison confirms all four accepted candidate paths in human commit d6881d8a and the current tree. Independent correction acceptance remains unchanged.
+
+OPERATIONAL-CONTINUATION-353809.md and evidence/operational-353809/ record the current findings: installed confinement still has the pre-correction hash; no managed update action exists and inventory plus old packet bindings prevent a blind module replacement. Existing recovery requires a returned token and exact absent runtime for each attempt, whereas retained C records neither. Therefore an owner-supported reconciliation/non-admission proof and a coherent selected installed update are prerequisites; no raw-store repair or manual receipt reset is proposed. Historical empty process/container snapshots are not current cessation. The exact supported commands, conditional draft input and stopping points are recorded, not executed. This is a diagnostic-only allocation; reviewer should select bounded technical continuation for the exposed gap before any live recovery selection.
+
+Canonical native consumer W325959 snapshot353821 is blocked by W333486, while W333485 and W338305 are closed satisfying; W339626 is not its graph dependency. Conditional shared correction consumption does not make C cleanup a prerequisite for a separately isolated native pilot. No new edge or sibling allocation change. C347406 remains fenced. No DESIGN change, product/test edit or live operation.
+
+## 2026-10-22T18:07:26Z — operational blockers independently confirmed
+
+Review review-2026-10-22T18-07-26Z.md verifies commit/current four correction hashes, installed-source mismatch and retained report. Correction checkpoint complete. Accept assessment353809, not executable recovery/update readiness. Existing prove requires returned token/exact absent runtime; null C evidence cannot satisfy it. Next finite technical preparation: resource-owner non-admission/reconciliation design with exact positive evidence and one coherent installed-consumption proposal. Identify existing supported operation or minimal missing capability before implementation; no raw-store/root-script shortcut or new product authority inferred from diagnostic353807. No extra owner receipt merely to restate blockers. C stays fenced; native pilot independently owned. This supersedes assessment-awaiting-review only; installed acceptance and separate execution selection remain owed. No new split/edge or product/live execution.
+
+## 2026-10-22 — concrete owner reconciliation/adoption proposal, claim353886
+
+Review353883 keeps diagnostic/preparation scope. RECONCILIATION-DESIGN-353886.md traces existing positive owners: original preparation release/completion, exact cancellation intent plus authority fence, committed start exclusion and complete resource inventory. Existing unstarted_cancellation_of is reusable but insufficient alone; current managed recovery lacks the combined typed prelaunch cessation path. Source hashes including installed comparisons are in evidence/design-353886/SOURCES.json. No current private owner records read, so C qualification remains unknown. New code may not fabricate missing historical releases or infer non-admission from null token.
+
+One coherent installed-consumption proposal replaces the open installation alternatives in assessment353809: a drained exact-manifest update of the existing fixed root, preserving accounts/credentials/storage, old payload generation and old packet pins. A version-aware recovery consumer validates original provenance separately from new reader imports. No separate installation, routine reprovisioning, broad rolling upgrade, raw store repair or packet rewrite. These are proposed missing capabilities, not owner-selected implementation or deployable commands. Finite delayed-writer, unlinked/token-bound runtime, stale evidence, ordinary cessation, replay and interrupted-adoption cases are specified for later deterministic verification.
+
+Reviewer can now assess the two concrete outcomes (owner cessation proof; drained adoption consuming that proof), then select bounded implementation/decomposition within accepted scope. No graph or sibling allocation changed. W333485 supplies bounded authoring-envelope policy; prior loose renewal wording is clarified, not an assertion of native renewal. W339626 remains independent from native-pilot gates. No product edits/tests or live operations this claim.
+
+## 2026-10-22T18:21:24.738340+00:00 — capability proposal reviewed; scope disposition
+
+Review review-2026-10-22T18-21-24Z.md verifies13 source/installed pairs and accepts design353886 as decision-ready only. A validated prelaunch cessation and B offline fixed-root adoption are concrete distinct outcomes; A precedes B drain, with protected pre-adoption execution explicitly required. Historical C feasibility remains unknown. Owner353807 was read-only preparation; permanent journalled reconciliation/adoption interfaces require concrete implementation scope selection, not automatic diagnostic continuation. Recommend A first if installation recovery remains priority, B held pending A; native pilot remains independent. No children/edges/product/live operations created. Owner may select both with A-to-B dependency and parent joined acceptance, or explicitly defer installation without closing unfinished W339626.
+
+## 2026-10-22T20:13:58Z — owner defers old-installation reconciliation and adoption
+
+**Confirmed:** owner baton.slaw reroute354876 directs: “Defer old-installation reconciliation and offline adoption. Record and park this unfinished Work; preserve C347406 consumed/held and all evidence. No cleanup or deployment authorized. Prioritize W325959 native adoption.” Reviewer claim354878 pins and applies that disposition. This explicitly supersedes the pending scope-choice milestone and recommendation to start A now; neither A nor B implementation is selected. The technical proposal and historical reviews remain retained for any later explicit resumption.
+
+W339626 remains unfinished/open and is parked, not accepted or closed. C347406 remains consumed/held; no cessation, cleanup, recovery, installed acceptance or deployment is inferred. Preserve all retained outputs, original receipts, candidate provenance and accepted correction checkpoint d6881d8a. No new children or dependency edges are appropriate while both proposed outcomes are deferred; W325959 native adoption remains independent and prioritized by the owner. This coordination-only turn changes FINDING/PLAN, not author PROGRESS or product/evidence bytes; no tests, engine/provider calls, cleanup or Git mutations. Current read positions and resumption boundary are in PLAN.

@@ -1,0 +1,45 @@
+{
+ "base_commit": "8876bf950ff1f8ab8767ce9786df268cc9d767c6",
+ "boundaries": {
+  "build": false,
+  "deployment": false,
+  "engine": false,
+  "git_mutation": false,
+  "io": false,
+  "provider": false,
+  "qualification_minted": false,
+  "src_imports_tools": false
+ },
+ "candidate": {
+  "v12/python/src/baton_v12/job_manager/role_capability.py": "9861727b1871b15be7200b427a8a80641e74922afe8a117341b4ba43283986f5",
+  "v12/python/tests/job_manager/test_role_capability.py": "38684c0df66fcad9c91388f0ea52c8e57c8874d033f847545e61f367bd671255"
+ },
+ "claim": 378068,
+ "focused": {
+  "failures": 0,
+  "modules": [
+   "tests.job_manager.test_role_capability",
+   "tests.job_manager.test_role_contract",
+   "tests.job_manager.test_templates",
+   "tests.job_manager.test_creation"
+  ],
+  "ran": 338,
+  "test_role_capability_cases": 66
+ },
+ "job_manager_discovery": {
+  "attribution": "the same three recorded under claim 377550; each was already failing in this shared checkout under this Work's pre-claim bytes and none imports role_capability",
+  "errors": 3,
+  "errors_named": [
+   "test_native_permission.NativeStageComposition.test_the_native_factory_delivers_the_policy_to_both_stage_workers",
+   "test_native_stop_restart.NativeStopRestart.test_reopened_store_preserves_deadline_and_generation_without_revival",
+   "test_serving_renewal.ServingPermission.test_expiry_is_not_revival_or_reuse_and_unknown_cessation_holds"
+  ],
+  "ran": 1515
+ },
+ "reused_owners_untouched": {
+  "v12/python/src/baton_v12/job_manager/role_contract.py": "691ed3a0e653a9705f181790c9565706902bd3958f2973e49e85cff586ca6967",
+  "v12/python/src/baton_v12/verification_context.py": "f599072ac1202e9b759d9e7850f76c98790e23710cf6181d5a6e8907dd51650e",
+  "v12/python/tools/job_task.py": "a9ce7948bd39e9e8b2981ad26f299f5e2ad388ad18c6a522337a1c7c27d6e919"
+ },
+ "work": "2b077949-W376723"
+}

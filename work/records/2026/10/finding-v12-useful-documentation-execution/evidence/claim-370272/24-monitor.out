@@ -1,0 +1,253 @@
+observed at 2026-10-28T01:27:55.004Z   (0s old, read 0s ago)
+
+JOB job-template-job-guide-42bed8bb   submission sub-job-template-job-guide-42bed8bb
+  implementation   exceptional      elapsed 1m39s    activity 496.66 KiB job-template-job-guide-42be
+      activity last at 2026-10-28T01:27:54.986Z
+      failed: stage ended exceptionally
+  review           blocked          elapsed 1m39s    activity unknown  job-template-job-guide-42bed8
+      held: waiting on job-template-job-guide-42bed8bb/implementation (exceptional)
+observed at 2026-10-28T01:27:55.004Z   (3s old, read 0s ago)
+
+JOB job-template-job-guide-42bed8bb   submission sub-job-template-job-guide-42bed8bb
+  implementation   exceptional      elapsed 1m39s    activity 496.66 KiB job-template-job-guide-42be
+      activity last at 2026-10-28T01:27:54.986Z
+      failed: stage ended exceptionally
+  review           blocked          elapsed 1m39s    activity unknown  job-template-job-guide-42bed8
+      held: waiting on job-template-job-guide-42bed8bb/implementation (exceptional)
+observed at 2026-10-28T01:28:00.259Z   (1s old, read 0s ago)
+
+JOB job-template-job-guide-42bed8bb   submission sub-job-template-job-guide-42bed8bb
+  implementation   exceptional      elapsed 1m44s    activity 513.52 KiB job-template-job-guide-42be
+      activity last at 2026-10-28T01:28:00.037Z
+      failed: stage ended exceptionally
+  review           blocked          elapsed 1m44s    activity unknown  job-template-job-guide-42bed8
+      held: waiting on job-template-job-guide-42bed8bb/implementation (exceptional)
+observed at 2026-10-28T01:28:00.259Z   (4s old, read 0s ago)
+
+JOB job-template-job-guide-42bed8bb   submission sub-job-template-job-guide-42bed8bb
+  implementation   exceptional      elapsed 1m44s    activity 513.52 KiB job-template-job-guide-42be
+      activity last at 2026-10-28T01:28:00.037Z
+      failed: stage ended exceptionally
+  review           blocked          elapsed 1m44s    activity unknown  job-template-job-guide-42bed8
+      held: waiting on job-template-job-guide-42bed8bb/implementation (exceptional)
+observed at 2026-10-28T01:28:05.512Z   (2s old, read 0s ago)
+
+JOB job-template-job-guide-42bed8bb   submission sub-job-template-job-guide-42bed8bb
+  implementation   exceptional      elapsed 1m50s    activity 537.51 KiB job-template-job-guide-42be
+      activity last at 2026-10-28T01:28:05.089Z
+      failed: stage ended exceptionally
+  review           blocked          elapsed 1m50s    activity unknown  job-template-job-guide-42bed8
+      held: waiting on job-template-job-guide-42bed8bb/implementation (exceptional)
+observed at 2026-10-28T01:28:05.512Z   (5s old, read 0s ago)
+
+JOB job-template-job-guide-42bed8bb   submission sub-job-template-job-guide-42bed8bb
+  implementation   exceptional      elapsed 1m50s    activity 537.51 KiB job-template-job-guide-42be
+      activity last at 2026-10-28T01:28:05.089Z
+      failed: stage ended exceptionally
+  review           blocked          elapsed 1m50s    activity unknown  job-template-job-guide-42bed8
+      held: waiting on job-template-job-guide-42bed8bb/implementation (exceptional)
+observed at 2026-10-28T01:28:10.768Z   (2s old, read 0s ago)
+
+JOB job-template-job-guide-42bed8bb   submission sub-job-template-job-guide-42bed8bb
+  implementation   exceptional      elapsed 1m55s    activity 537.51 KiB job-template-job-guide-42be
+      activity last at 2026-10-28T01:28:05.089Z
+      failed: stage ended exceptionally
+  review           blocked          elapsed 1m55s    activity unknown  job-template-job-guide-42bed8
+      held: waiting on job-template-job-guide-42bed8bb/implementation (exceptional)
+observed at 2026-10-28T01:28:16.026Z   (0s old, read 0s ago)
+
+JOB job-template-job-guide-42bed8bb   submission sub-job-template-job-guide-42bed8bb
+  implementation   exceptional      elapsed 2m00s    activity 552.37 KiB job-template-job-guide-42be
+      activity last at 2026-10-28T01:28:15.189Z
+      failed: stage ended exceptionally
+  review           blocked          elapsed 2m00s    activity unknown  job-template-job-guide-42bed8
+      held: waiting on job-template-job-guide-42bed8bb/implementation (exceptional)
+observed at 2026-10-28T01:28:16.026Z   (3s old, read 0s ago)
+
+JOB job-template-job-guide-42bed8bb   submission sub-job-template-job-guide-42bed8bb
+  implementation   exceptional      elapsed 2m00s    activity 552.37 KiB job-template-job-guide-42be
+      activity last at 2026-10-28T01:28:15.189Z
+      failed: stage ended exceptionally
+  review           blocked          elapsed 2m00s    activity unknown  job-template-job-guide-42bed8
+      held: waiting on job-template-job-guide-42bed8bb/implementation (exceptional)
+observed at 2026-10-28T01:28:21.281Z   (1s old, read 0s ago)
+
+JOB job-template-job-guide-42bed8bb   submission sub-job-template-job-guide-42bed8bb
+  implementation   exceptional      elapsed 2m05s    activity 599.61 KiB job-template-job-guide-42be
+      activity last at 2026-10-28T01:28:20.242Z
+      failed: stage ended exceptionally
+  review           blocked          elapsed 2m05s    activity unknown  job-template-job-guide-42bed8
+      held: waiting on job-template-job-guide-42bed8bb/implementation (exceptional)
+observed at 2026-10-28T01:28:21.281Z   (4s old, read 0s ago)
+
+JOB job-template-job-guide-42bed8bb   submission sub-job-template-job-guide-42bed8bb
+  implementation   exceptional      elapsed 2m05s    activity 599.61 KiB job-template-job-guide-42be
+      activity last at 2026-10-28T01:28:20.242Z
+      failed: stage ended exceptionally
+  review           blocked          elapsed 2m05s    activity unknown  job-template-job-guide-42bed8
+      held: waiting on job-template-job-guide-42bed8bb/implementation (exceptional)
+observed at 2026-10-28T01:28:26.542Z   (2s old, read 0s ago)
+
+JOB job-template-job-guide-42bed8bb   submission sub-job-template-job-guide-42bed8bb
+  implementation   exceptional      elapsed 2m11s    activity 623.01 KiB job-template-job-guide-42be
+      activity last at 2026-10-28T01:28:25.292Z
+      failed: stage ended exceptionally
+  review           blocked          elapsed 2m11s    activity unknown  job-template-job-guide-42bed8
+      held: waiting on job-template-job-guide-42bed8bb/implementation (exceptional)
+observed at 2026-10-28T01:28:26.542Z   (5s old, read 0s ago)
+
+JOB job-template-job-guide-42bed8bb   submission sub-job-template-job-guide-42bed8bb
+  implementation   exceptional      elapsed 2m11s    activity 623.01 KiB job-template-job-guide-42be
+      activity last at 2026-10-28T01:28:25.292Z
+      failed: stage ended exceptionally
+  review           blocked          elapsed 2m11s    activity unknown  job-template-job-guide-42bed8
+      held: waiting on job-template-job-guide-42bed8bb/implementation (exceptional)
+observed at 2026-10-28T01:28:31.806Z   (2s old, read 0s ago)
+
+JOB job-template-job-guide-42bed8bb   submission sub-job-template-job-guide-42bed8bb
+  implementation   exceptional      elapsed 2m16s    activity 668.13 KiB job-template-job-guide-42be
+      activity last at 2026-10-28T01:28:30.343Z
+      failed: stage ended exceptionally
+  review           blocked          elapsed 2m16s    activity unknown  job-template-job-guide-42bed8
+      held: waiting on job-template-job-guide-42bed8bb/implementation (exceptional)
+observed at 2026-10-28T01:28:37.069Z   (0s old, read 0s ago)
+
+JOB job-template-job-guide-42bed8bb   submission sub-job-template-job-guide-42bed8bb
+  implementation   exceptional      elapsed 2m21s    activity 673.47 KiB job-template-job-guide-42be
+      activity last at 2026-10-28T01:28:35.394Z
+      failed: stage ended exceptionally
+  review           blocked          elapsed 2m21s    activity unknown  job-template-job-guide-42bed8
+      held: waiting on job-template-job-guide-42bed8bb/implementation (exceptional)
+observed at 2026-10-28T01:28:37.069Z   (3s old, read 0s ago)
+
+JOB job-template-job-guide-42bed8bb   submission sub-job-template-job-guide-42bed8bb
+  implementation   exceptional      elapsed 2m21s    activity 673.47 KiB job-template-job-guide-42be
+      activity last at 2026-10-28T01:28:35.394Z
+      failed: stage ended exceptionally
+  review           blocked          elapsed 2m21s    activity unknown  job-template-job-guide-42bed8
+      held: waiting on job-template-job-guide-42bed8bb/implementation (exceptional)
+observed at 2026-10-28T01:28:42.330Z   (1s old, read 0s ago)
+
+JOB job-template-job-guide-42bed8bb   submission sub-job-template-job-guide-42bed8bb
+  implementation   exceptional      elapsed 2m26s    activity 704.32 KiB job-template-job-guide-42be
+      activity last at 2026-10-28T01:28:40.447Z
+      failed: stage ended exceptionally
+  review           blocked          elapsed 2m26s    activity unknown  job-template-job-guide-42bed8
+      held: waiting on job-template-job-guide-42bed8bb/implementation (exceptional)
+observed at 2026-10-28T01:28:42.330Z   (4s old, read 0s ago)
+
+JOB job-template-job-guide-42bed8bb   submission sub-job-template-job-guide-42bed8bb
+  implementation   exceptional      elapsed 2m26s    activity 704.32 KiB job-template-job-guide-42be
+      activity last at 2026-10-28T01:28:40.447Z
+      failed: stage ended exceptionally
+  review           blocked          elapsed 2m26s    activity unknown  job-template-job-guide-42bed8
+      held: waiting on job-template-job-guide-42bed8bb/implementation (exceptional)
+observed at 2026-10-28T01:28:47.589Z   (1s old, read 0s ago)
+
+JOB job-template-job-guide-42bed8bb   submission sub-job-template-job-guide-42bed8bb
+  implementation   exceptional      elapsed 2m32s    activity 710.35 KiB job-template-job-guide-42be
+      activity last at 2026-10-28T01:28:45.501Z
+      failed: stage ended exceptionally
+  review           blocked          elapsed 2m32s    activity unknown  job-template-job-guide-42bed8
+      held: waiting on job-template-job-guide-42bed8bb/implementation (exceptional)
+observed at 2026-10-28T01:28:47.589Z   (4s old, read 0s ago)
+
+JOB job-template-job-guide-42bed8bb   submission sub-job-template-job-guide-42bed8bb
+  implementation   exceptional      elapsed 2m32s    activity 710.35 KiB job-template-job-guide-42be
+      activity last at 2026-10-28T01:28:45.501Z
+      failed: stage ended exceptionally
+  review           blocked          elapsed 2m32s    activity unknown  job-template-job-guide-42bed8
+      held: waiting on job-template-job-guide-42bed8bb/implementation (exceptional)
+observed at 2026-10-28T01:28:52.849Z   (2s old, read 0s ago)
+
+JOB job-template-job-guide-42bed8bb   submission sub-job-template-job-guide-42bed8bb
+  implementation   exceptional      elapsed 2m37s    activity 737.88 KiB job-template-job-guide-42be
+      activity last at 2026-10-28T01:28:50.550Z
+      failed: stage ended exceptionally
+  review           blocked          elapsed 2m37s    activity unknown  job-template-job-guide-42bed8
+      held: waiting on job-template-job-guide-42bed8bb/implementation (exceptional)
+observed at 2026-10-28T01:28:58.106Z   (0s old, read 0s ago)
+
+JOB job-template-job-guide-42bed8bb   submission sub-job-template-job-guide-42bed8bb
+  implementation   exceptional      elapsed 2m42s    activity 746.74 KiB job-template-job-guide-42be
+      activity last at 2026-10-28T01:28:55.602Z
+      failed: stage ended exceptionally
+  review           blocked          elapsed 2m42s    activity unknown  job-template-job-guide-42bed8
+      held: waiting on job-template-job-guide-42bed8bb/implementation (exceptional)
+observed at 2026-10-28T01:28:58.106Z   (3s old, read 0s ago)
+
+JOB job-template-job-guide-42bed8bb   submission sub-job-template-job-guide-42bed8bb
+  implementation   exceptional      elapsed 2m42s    activity 746.74 KiB job-template-job-guide-42be
+      activity last at 2026-10-28T01:28:55.602Z
+      failed: stage ended exceptionally
+  review           blocked          elapsed 2m42s    activity unknown  job-template-job-guide-42bed8
+      held: waiting on job-template-job-guide-42bed8bb/implementation (exceptional)
+observed at 2026-10-28T01:29:03.371Z   (1s old, read 0s ago)
+
+JOB job-template-job-guide-42bed8bb   submission sub-job-template-job-guide-42bed8bb
+  implementation   exceptional      elapsed 2m48s    activity 759.50 KiB job-template-job-guide-42be
+      activity last at 2026-10-28T01:29:00.655Z
+      failed: stage ended exceptionally
+  review           blocked          elapsed 2m48s    activity unknown  job-template-job-guide-42bed8
+      held: waiting on job-template-job-guide-42bed8bb/implementation (exceptional)
+observed at 2026-10-28T01:29:03.371Z   (4s old, read 0s ago)
+
+JOB job-template-job-guide-42bed8bb   submission sub-job-template-job-guide-42bed8bb
+  implementation   exceptional      elapsed 2m48s    activity 759.50 KiB job-template-job-guide-42be
+      activity last at 2026-10-28T01:29:00.655Z
+      failed: stage ended exceptionally
+  review           blocked          elapsed 2m48s    activity unknown  job-template-job-guide-42bed8
+      held: waiting on job-template-job-guide-42bed8bb/implementation (exceptional)
+observed at 2026-10-28T01:29:08.630Z   (1s old, read 0s ago)
+
+JOB job-template-job-guide-42bed8bb   submission sub-job-template-job-guide-42bed8bb
+  implementation   exceptional      elapsed 2m53s    activity 759.50 KiB job-template-job-guide-42be
+      activity last at 2026-10-28T01:29:00.655Z
+      failed: stage ended exceptionally
+  review           blocked          elapsed 2m53s    activity unknown  job-template-job-guide-42bed8
+      held: waiting on job-template-job-guide-42bed8bb/implementation (exceptional)
+observed at 2026-10-28T01:29:08.630Z   (4s old, read 0s ago)
+
+JOB job-template-job-guide-42bed8bb   submission sub-job-template-job-guide-42bed8bb
+  implementation   exceptional      elapsed 2m53s    activity 759.50 KiB job-template-job-guide-42be
+      activity last at 2026-10-28T01:29:00.655Z
+      failed: stage ended exceptionally
+  review           blocked          elapsed 2m53s    activity unknown  job-template-job-guide-42bed8
+      held: waiting on job-template-job-guide-42bed8bb/implementation (exceptional)
+observed at 2026-10-28T01:29:13.886Z   (2s old, read 0s ago)
+
+JOB job-template-job-guide-42bed8bb   submission sub-job-template-job-guide-42bed8bb
+  implementation   exceptional      elapsed 2m58s    activity 759.50 KiB job-template-job-guide-42be
+      activity last at 2026-10-28T01:29:00.655Z
+      failed: stage ended exceptionally
+  review           blocked          elapsed 2m58s    activity unknown  job-template-job-guide-42bed8
+      held: waiting on job-template-job-guide-42bed8bb/implementation (exceptional)
+observed at 2026-10-28T01:29:19.142Z   (0s old, read 0s ago)
+
+JOB job-template-job-guide-42bed8bb   submission sub-job-template-job-guide-42bed8bb
+  implementation   exceptional      elapsed 3m03s    activity 759.50 KiB job-template-job-guide-42be
+      activity last at 2026-10-28T01:29:00.655Z
+      failed: stage ended exceptionally
+  review           blocked          elapsed 3m03s    activity unknown  job-template-job-guide-42bed8
+      held: waiting on job-template-job-guide-42bed8bb/implementation (exceptional)
+observed at 2026-10-28T01:29:19.142Z   (3s old, read 0s ago)
+
+JOB job-template-job-guide-42bed8bb   submission sub-job-template-job-guide-42bed8bb
+  implementation   exceptional      elapsed 3m03s    activity 759.50 KiB job-template-job-guide-42be
+      activity last at 2026-10-28T01:29:00.655Z
+      failed: stage ended exceptionally
+  review           blocked          elapsed 3m03s    activity unknown  job-template-job-guide-42bed8
+      held: waiting on job-template-job-guide-42bed8bb/implementation (exceptional)
+observed at 2026-10-28T01:29:24.397Z   (1s old, read 0s ago)
+
+JOB job-template-job-guide-42bed8bb   submission sub-job-template-job-guide-42bed8bb
+  implementation   exceptional      elapsed 3m09s    activity 759.50 KiB job-template-job-guide-42be
+      activity last at 2026-10-28T01:29:00.655Z
+      failed: stage ended exceptionally
+  review           blocked          elapsed 3m09s    activity unknown  job-template-job-guide-42bed8
+      held: waiting on job-template-job-guide-42bed8bb/implementation (exceptional)
+observed at 2026-10-28T01:29:24.397Z   (4s old, read 0s ago)
+
+JOB job-template-job-guide-42bed8bb   submission sub-job-template-job-guide-42bed8bb
+  implementation   exceptional      elapsed 3m09s    activity 759.50 KiB job-template-job-guide-42be
+      activity last at 2026-10-28T01:29:00.655Z

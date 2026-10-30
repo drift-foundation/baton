@@ -1,0 +1,20 @@
+F
+======================================================================
+FAIL: test_every_receiving_entry_has_an_owning_validator (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/baton-serving-envelope-347778/v12/python/tests/manager/test_boundary_inventory.py", line 7608, in test_every_receiving_entry_has_an_owning_validator
+    self.assertEqual(unowned, [], "receiving entries with no owner")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('adopted', 'attempts.py:_decide', 'obser[40749 chars]un')] != []
+
+First list contains 605 additional elements.
+First extra element 0:
+('adopted', 'attempts.py:_decide', 'observations.next')
+
+Diff is 43312 characters long. Set self.maxDiff to None to see it. : receiving entries with no owner
+
+----------------------------------------------------------------------
+Ran 1 test in 5.929s
+
+FAILED (failures=1)

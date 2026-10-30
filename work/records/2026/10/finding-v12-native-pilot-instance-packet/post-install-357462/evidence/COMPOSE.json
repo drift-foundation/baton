@@ -1,0 +1,120 @@
+{
+ "authority": "673355e1f28e4b5683cbef09eb8f2658",
+ "base": "302453869d07eb5579e79a6572586d3c3cf62a5c",
+ "checks": {
+  "checks": [
+   {
+    "check": "the plan names target, workspace and one source per worker",
+    "ok": true
+   },
+   {
+    "check": "exactly the two worker sources are missing",
+    "ok": true
+   },
+   {
+    "check": "prepare_repositories refuses an existing target rather than replacing it",
+    "ok": true,
+    "refusal": "there is already something at /tmp/w325959-compose-rt9k75d7/destination/repo/target.git, which this deployment's target repository would be. Nothing here replaces one; prepare a new destination."
+   },
+   {
+    "check": "and it changed nothing in the repository directory",
+    "ok": true
+   },
+   {
+    "check": "all four repositories are now present",
+    "ok": true
+   },
+   {
+    "check": "repositories_proved accepts the prepared set",
+    "ok": true
+   },
+   {
+    "check": "no two repositories share a common directory",
+    "ok": true
+   },
+   {
+    "check": "target borrows no objects",
+    "ok": true
+   },
+   {
+    "check": "workspace borrows no objects",
+    "ok": true
+   },
+   {
+    "check": "source-implementation-pilot borrows no objects",
+    "ok": true
+   },
+   {
+    "check": "source-review-pilot borrows no objects",
+    "ok": true
+   },
+   {
+    "check": "each worker source holds the declared base",
+    "ok": true
+   },
+   {
+    "check": "an unreviewed rerun cannot re-prepare the worker sources",
+    "ok": true,
+    "refusal": "there is already something at /tmp/w325959-compose-rt9k75d7/destination/repo/target.git, which this deployment's target repository would be. Nothing here replaces one; prepare a new destination."
+   },
+   {
+    "check": "a declared base the target does not hold is refused",
+    "ok": true,
+    "refusal": "proving the declared base 0000000000000000000000000000000000000000 is a commit in the target failed (git -C /tmp/w325959-compose-rt9k75d7/destination/repo/target.git cat-file -e 0000000000000000000000000000000000000000^{commit}):\nfatal: Not a valid object name 0000000000000000000000000000000000000000^{commit}"
+   },
+   {
+    "check": "the authored Job carries a READBACK Work, not W1",
+    "ok": true
+   },
+   {
+    "check": "every authored stage carries a READBACK Work",
+    "ok": true
+   },
+   {
+    "check": "the submission and Job identifiers are the NEW ones",
+    "ok": true
+   },
+   {
+    "check": "per-invocation limits are carried unchanged",
+    "ok": true
+   },
+   {
+    "check": "both stage workers are composed, implementation and review",
+    "ok": true
+   },
+   {
+    "check": "each worker nominates its OWN source repository",
+    "ok": true
+   },
+   {
+    "check": "every authored path lies under the installed destination",
+    "ok": true
+   },
+   {
+    "check": "the authored authority is the one the readback observed",
+    "ok": true
+   },
+   {
+    "check": "the authored base is the accepted build commit",
+    "ok": true
+   },
+   {
+    "check": "the task is the quickstart-only contract with a NEW id",
+    "ok": true
+   }
+  ],
+  "failed": [],
+  "total": 24
+ },
+ "disposable_root": "/tmp/w325959-compose-rt9k75d7/destination",
+ "packet": "/home/sl/src/baton/work/records/2026/10/finding-v12-native-pilot-instance-packet/post-install-357462",
+ "production_touched": false,
+ "production_untouched": true,
+ "repositories": {
+  "source-implementation-pilot": "/tmp/w325959-compose-rt9k75d7/destination/repo/source-implementation-pilot",
+  "source-review-pilot": "/tmp/w325959-compose-rt9k75d7/destination/repo/source-review-pilot",
+  "target": "/tmp/w325959-compose-rt9k75d7/destination/repo/target.git",
+  "workspace": "/tmp/w325959-compose-rt9k75d7/destination/repo/workspace"
+ },
+ "source_head": "c4d1dd98708170c70bdf503ee050348c1c94a199"
+}

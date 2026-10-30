@@ -1,0 +1,245 @@
+{
+  "job_id": "job-template-job-guide-42bed8bb",
+  "work_id": "6dcb60dc-W1",
+  "submission_id": "sub-job-template-job-guide-42bed8bb",
+  "resolution_digest": "sha256:2bf63ecea69c5091f49e22de842fe8daddca7c04a33465b40e0b3147cfa4dd98",
+  "template": {
+    "version": "baton.v12.job-template.implementation-review/1",
+    "origin": "request",
+    "permitted_overrides": [
+      "execution_limits"
+    ]
+  },
+  "task": {
+    "job_id": "job-template-job-guide-42bed8bb",
+    "work_id": "6dcb60dc-W1",
+    "submission_id": "sub-job-template-job-guide-42bed8bb",
+    "statement": "Write a reusable operator guide for ordinary v12 template Job creation and observation using the supported installed command. Explain the supplied task, source, scope and acceptance inputs, template version and limits, independent review and held results, failure/recovery boundary and human disposition. Verify all documented command examples against current supported parsers and behavior. Preserve the historical instance4 QUICKSTART facts; do not claim source features are installed there. Deliver documentation, not product redesign."
+  },
+  "source": {
+    "input_digest": "sha256:0b9fb0f05dad7c80ebdd4c16a05ff371110d3785f3bba4023e209f88a3e0dfab",
+    "policy_digest": "sha256:837d7a03b2d92b9654cbc391daefcfa208f747bbd9ae7c528d54f528bd536357"
+  },
+  "scope": {
+    "work": [
+      "v12/TEMPLATE-JOBS.md"
+    ],
+    "tests": []
+  },
+  "acceptance": [
+    "Examples use supported manager create with input-only operands and the exact template version; they do not author admission manifests or replace owner APIs.",
+    "Source/installed distinction, actual deployment identities, proposed versus executed operations and default/overridden limits remain explicit and truthful.",
+    "Monitoring is read-only; query time is not worker contact; unknown activity is not success; ending the monitor does not stop scheduling.",
+    "Implementation completion, independent verdict, held proposal, human acceptance and Git integration are distinguished. Failure/retry and runtime-cessation prerequisites are stated without silently retrying or claiming stop is cleanup.",
+    "Semantic evidence checks command order/options and statements against owning implementations, not only headings/byte count. Review binds the actual candidate."
+  ],
+  "overrides": {
+    "execution_limits": {
+      "provider_turn_seconds": 3600,
+      "verification_command_seconds": 900
+    }
+  },
+  "rules": {
+    "completion": {
+      "outcome": "accepted",
+      "deciding_role": "review",
+      "verdict_output": "findings",
+      "delivers": "proposal"
+    },
+    "correction": {
+      "outcome": "correction",
+      "episode_ending": "superseded-by-correction",
+      "repeats": [
+        "implementation",
+        "review"
+      ]
+    },
+    "failure": {
+      "outcome": "held",
+      "terminal_policy": "report-and-hold",
+      "stage_state": "exceptional",
+      "recovery_operation": "fresh_attempt.admit"
+    }
+  },
+  "execution_limits": {
+    "units": "seconds",
+    "scope": "per-invocation",
+    "compatibility_generation": 1,
+    "requested": {
+      "provider_turn_seconds": 3600,
+      "verification_command_seconds": 900
+    },
+    "boundaries": {
+      "host_verification": {
+        "seconds": 900,
+        "origin": "job",
+        "setting": "verification_command_seconds",
+        "default_seconds": 300
+      },
+      "integration_verification": {
+        "seconds": 900,
+        "origin": "job",
+        "setting": "verification_command_seconds",
+        "default_seconds": 1800
+      },
+      "ordinary_verification": {
+        "seconds": 900,
+        "origin": "job",
+        "setting": "verification_command_seconds",
+        "default_seconds": 900
+      },
+      "provider_turn": {
+        "seconds": 3600,
+        "origin": "job",
+        "setting": "provider_turn_seconds",
+        "default_seconds": 3600
+      }
+    }
+  },
+  "derivation": {
+    "work_id": "6dcb60dc-W1",
+    "input_digest": "sha256:0b9fb0f05dad7c80ebdd4c16a05ff371110d3785f3bba4023e209f88a3e0dfab",
+    "policy_digest": "sha256:837d7a03b2d92b9654cbc391daefcfa208f747bbd9ae7c528d54f528bd536357",
+    "profiles": {
+      "implementation": {
+        "profile_name": "claude-fresh-implementation",
+        "profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be"
+      },
+      "review": {
+        "profile_name": "claude-fresh-implementation",
+        "profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be"
+      }
+    },
+    "task_document": "{\"declared_base\":\"42bed8bb04a53380e565b1a63fb2bc702677f0d0\",\"instructions\":\"Write a reusable operator guide for ordinary v12 template Job creation and observation using the supported installed command. Explain the supplied task, source, scope and acceptance inputs, template version and limits, independent review and held results, failure/recovery boundary and human disposition. Verify all documented command examples against current supported parsers and behavior. Preserve the historical instance4 QUICKSTART facts; do not claim source features are installed there. Deliver documentation, not product redesign.\\n\\nAcceptance criteria:\\n  - Examples use supported manager create with input-only operands and the exact template version; they do not author admission manifests or replace owner APIs.\\n  - Source/installed distinction, actual deployment identities, proposed versus executed operations and default/overridden limits remain explicit and truthful.\\n  - Monitoring is read-only; query time is not worker contact; unknown activity is not success; ending the monitor does not stop scheduling.\\n  - Implementation completion, independent verdict, held proposal, human acceptance and Git integration are distinguished. Failure/retry and runtime-cessation prerequisites are stated without silently retrying or claiming stop is cleanup.\\n  - Semantic evidence checks command order/options and statements against owning implementations, not only headings/byte count. Review binds the actual candidate.\\n\\nSelected work scope (the paths this task covers):\\n  - v12/TEMPLATE-JOBS.md\\n\\nBounded test-change scope: none. This task changes no test.\\n\\nTemplate: baton.v12.job-template.implementation-review/1\\nWork: 6dcb60dc-W1\\n\",\"schema\":\"baton.dogfood-task/2\",\"source_profile\":\"git-line\",\"source_root\":\"source\",\"task_id\":\"job-template-job-guide-42bed8bb\",\"verification\":[\"python3\",\"-c\",\"\\nimport argparse, contextlib, io, os, re, shlex, sys\\n\\nGUIDE = 'v12/TEMPLATE-JOBS.md'\\nTEMPLATE = 'baton.v12.job-template.implementation-review/1'\\nSECTIONS = ()\\n\\ndef refuse(why):\\n    sys.exit(\\\"guide verification refused: \\\" + why)\\n\\nif not os.path.isfile(GUIDE):\\n    refuse(\\\"there is no \\\" + GUIDE + \\\"; this task delivers that guide and the \\\"\\n           \\\"pre-existing v12/QUICKSTART.md satisfies nothing here\\\")\\ntext = io.open(GUIDE, encoding=\\\"utf-8\\\").read()\\n\\nif SECTIONS:\\n    missing = [one for one in SECTIONS if one not in text]\\n    if missing:\\n        refuse(\\\"the task's own format addendum asks for these sections and \\\"\\n               \\\"they are missing: \\\" + \\\", \\\".join(missing))\\n    at = [text.index(one) for one in SECTIONS]\\n    if at != sorted(at):\\n        refuse(\\\"the task's own format addendum gives these sections an \\\"\\n               \\\"order and the guide does not follow it\\\")\\nif TEMPLATE not in text:\\n    refuse(\\\"the guide never names the exact template version \\\" + TEMPLATE)\\nmarks = [one for one in (\\\"TODO\\\", \\\"TBD\\\", \\\"FIXME\\\") if one in text]\\nif marks:\\n    refuse(\\\"unresolved markers: \\\" + \\\", \\\".join(marks))\\n\\ntry:\\n    sys.path[:0] = [\\\"v12/python/src\\\", \\\"v12/python\\\"]\\n    from tools import stack_command\\nexcept Exception as failure:\\n    refuse(\\\"the owning parsers could not be imported from this checkout \\\"\\n           \\\"(%s: %s); this contract will not pass a guide whose commands it \\\"\\n           \\\"could not check\\\" % (type(failure).__name__, failure))\\n\\nblocks = re.findall(r\\\"```sh\\\\n(.*?)```\\\", text, re.S)\\nnamed = {}\\nfor block in blocks:\\n    for line in block.splitlines():\\n        found = re.match(r\\\"^([A-Z][A-Z0-9_]*)=(.*)$\\\", line.strip())\\n        if found:\\n            named[found.group(1)] = found.group(2).strip().strip('\\\"')\\n\\ndef expanded(line):\\n    out = line\\n    for key in sorted(named, key=len, reverse=True):\\n        out = out.replace(\\\"${\\\" + key + \\\"}\\\", named[key])\\n        out = out.replace(\\\"$\\\" + key, named[key])\\n    return out\\n\\nclass Parsed(Exception):\\n    def __init__(self, taken):\\n        self.taken = taken\\n\\nheld = argparse.ArgumentParser.parse_args\\n\\ndef parsing(self, args=None, namespace=None):\\n    raise Parsed(held(self, args=args, namespace=namespace))\\n\\nchecked, created = 0, 0\\nargparse.ArgumentParser.parse_args = parsing\\ntry:\\n    for block in blocks:\\n        for line in block.splitlines():\\n            line = line.strip()\\n            if not line or line.startswith(\\\"#\\\"):\\n                continue\\n            if \\\"baton-v12-stack\\\" not in line:\\n                continue\\n            if line.endswith(\\\"\\\\\\\\\\\"):\\n                refuse(\\\"a documented invocation is continued across lines and \\\"\\n                       \\\"is not pasteable as published: \\\" + line)\\n            whole = expanded(line)\\n            if \\\"$\\\" in whole:\\n                refuse(\\\"a documented invocation still carries an undefined \\\"\\n                       \\\"expansion after the guide's own assignments: \\\" + whole)\\n            try:\\n                words = shlex.split(whole)\\n            except ValueError as failure:\\n                refuse(\\\"a documented invocation does not parse as a shell \\\"\\n                       \\\"command (%s): %s\\\" % (failure, line))\\n            where = [i for i, one in enumerate(words)\\n                     if one.endswith(\\\"baton-v12-stack\\\")]\\n            words = words[where[0] + 1:]\\n            if not words:\\n                refuse(\\\"a documented invocation names no subcommand: \\\" + line)\\n            verb, operands = words[0], words[1:]\\n            if verb not in stack_command.COMMANDS:\\n                refuse(\\\"the guide documents subcommand %r, which this build \\\"\\n                       \\\"does not serve; it serves %s\\\"\\n                       % (verb, \\\", \\\".join(sorted(stack_command.COMMANDS))))\\n            if verb == \\\"manager\\\" and \\\"create\\\" in operands:\\n                created += 1\\n                if \\\"--document\\\" in operands:\\n                    refuse(\\\"a documented create example supplies --document; \\\"\\n                           \\\"ordinary template creation takes input operands \\\"\\n                           \\\"only and authors no admission document\\\")\\n                for want in (\\\"--task\\\", \\\"--statement\\\", \\\"--acceptance\\\",\\n                             \\\"--work-scope\\\", \\\"--template\\\", \\\"--source\\\"):\\n                    if want not in operands:\\n                        refuse(\\\"the documented create example omits \\\" + want)\\n                if operands[operands.index(\\\"--template\\\") + 1] != TEMPLATE:\\n                    refuse(\\\"the documented create example names a template \\\"\\n                           \\\"version other than \\\" + TEMPLATE)\\n                if operands[operands.index(\\\"--source\\\") + 1] != \\\"installed\\\":\\n                    refuse(\\\"the documented create example does not select the \\\"\\n                           \\\"installed source\\\")\\n            if verb == \\\"identity\\\":\\n                if operands:\\n                    refuse(\\\"identity takes no operands; the guide gives it \\\"\\n                           + \\\" \\\".join(operands))\\n                checked += 1\\n                continue\\n            if verb == \\\"attempt-diagnostics\\\":\\n                positional = [one for one in operands\\n                              if not one.startswith(\\\"-\\\")]\\n                if len(operands) != 1 or len(positional) != 1:\\n                    refuse(\\\"attempt-diagnostics takes exactly one positional \\\"\\n                           \\\"status file; the guide gives it \\\"\\n                           + \\\" \\\".join(operands))\\n                checked += 1\\n                continue\\n            said = io.StringIO()\\n            try:\\n                with contextlib.redirect_stdout(said), \\\\\\n                        contextlib.redirect_stderr(said):\\n                    stack_command.main([verb] + operands)\\n            except Parsed:\\n                checked += 1\\n                continue\\n            except SystemExit:\\n                refuse(\\\"this build's own parser refuses a documented \\\"\\n                       \\\"invocation -- %s -- with: %s\\\"\\n                       % (line, \\\" \\\".join(said.getvalue().split())[:300]))\\n            except Exception as failure:\\n                refuse(\\\"a documented invocation could not be checked against \\\"\\n                       \\\"its parser (%s: %s): %s\\\"\\n                       % (type(failure).__name__, failure, line))\\n            refuse(\\\"a documented invocation reached no parser at all, so it \\\"\\n                   \\\"cannot be checked: \\\" + line)\\nfinally:\\n    argparse.ArgumentParser.parse_args = held\\n\\nif not created:\\n    refuse(\\\"the guide documents no `manager ... create` example, which is the \\\"\\n           \\\"command it exists to teach\\\")\\nprint(\\\"guide structure ok: %d bytes, %s, %d documented invocations parsed \\\"\\n      \\\"against this build, %d create examples. MECHANICAL ONLY -- the five \\\"\\n      \\\"acceptance criteria are the independent reviewer's judgment, not this \\\"\\n      \\\"command's.\\\"\\n      % (len(text),\\n         (\\\"%d ordered sections, from the task's own format addendum\\\"\\n          % len(SECTIONS)) if SECTIONS else\\n         \\\"no section format was selected, so none was checked\\\",\\n         checked, created))\\n\"]}",
+    "input_manifest": {
+      "assignment_contract": "v12-assignment-1",
+      "created_at": "2026-08-21T22:00:00.000Z",
+      "credential_policy_digest": "sha256:c8278005e08e5feae9c7f22f259fd1625a51285b85df7bc623b45b77277a5662",
+      "extensions": {},
+      "human_contract": {
+        "artifact_id": "template-job-guide-42bed8bb",
+        "bytes": 9232,
+        "content_digest": "sha256:5f60a631e567ddd955cbc6fa311f72d399c2ae6ad2d89d481248a8066d3da4c7",
+        "locator": "artifact://contracts/template-job-guide-42bed8bb",
+        "media_type": "application/json"
+      },
+      "manifest_digest": "sha256:dda286b03a1a264a91c8ca72fa2e1202bcdf7ec2252d91bcad37b49160788535",
+      "manifest_id": "input-manifest-1",
+      "mount_policy_digest": "sha256:a852ffa00f9f7f9ed447a4dd836c790aab15e0f2ee84219dc780f81d957cf9b5",
+      "network_policy_digest": "sha256:06407bb4fb68082854e98e1db6737dbebee95255b90813a488ea058d0fd223ab",
+      "outputs": [
+        {
+          "constraints": {
+            "allowed_media_types": [
+              "application/octet-stream",
+              "text/plain"
+            ],
+            "link_policy": "forbid",
+            "max_bytes": 1048576,
+            "max_entries": 100,
+            "validator_digest": null
+          },
+          "name": "proposal",
+          "path": "proposal",
+          "required": true,
+          "type": "git-change-proposal"
+        }
+      ],
+      "policy_digest": "sha256:837d7a03b2d92b9654cbc391daefcfa208f747bbd9ae7c528d54f528bd536357",
+      "record_binding": {
+        "finding_digest": "sha256:a3dc49c8c5869840be2840167d6c0d94a5b5cfb829ef4cdd8e7a0580ce85b2ac",
+        "path": "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition",
+        "plan_digest": "sha256:e47523f7bc9a9c21589479872040a42a16bf43648c15cad67197d6844a4bc5cc",
+        "root": "baton-repository"
+      },
+      "resource_policy_digest": "sha256:e34a1471ce962e1737392740ad13b23234af531755baf5be61c2678038df9b8c",
+      "retention_policy_digest": "sha256:0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a",
+      "role_instructions_digest": "sha256:7321d8dcfa4993bda8c1ac736297638ce34c49e2f22545b1a8be56cfae29ce7a",
+      "runtime_profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+      "schema": "baton.worker-manifest/input",
+      "sources": [
+        {
+          "consumption": {
+            "baton.source-boundary/1": {
+              "delivery": "nominated-mount",
+              "profile": "git-line",
+              "workspace": "disk"
+            }
+          },
+          "content_manifest": {
+            "entries": [],
+            "entry_count": 0,
+            "total_bytes": 0,
+            "tree_digest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "destination": "source",
+          "name": "source",
+          "required": true
+        }
+      ],
+      "tool_policy_digest": "sha256:27634ea683a0a554be5b44a6bf2192f25418a1b6dfc376e33e5ed77d01f51199",
+      "toolchain_digest": "sha256:cd6ccc00aff63f9b01036d6a5f6eb67ba1eb98a9372c66e9788bc79841be5af3",
+      "version": {
+        "major": 1,
+        "minor": 0
+      },
+      "work_ref": {
+        "authority_uuid": "6dcb60dce5cd485b8bf03c24bc4afc82",
+        "work_id": "6dcb60dc-W1"
+      },
+      "worker_image_digest": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2"
+    }
+  },
+  "work": {
+    "work_id": "6dcb60dc-W1",
+    "state": "reused",
+    "projection": {
+      "authority_uuid": "6dcb60dce5cd485b8bf03c24bc4afc82",
+      "work_id": "6dcb60dc-W1",
+      "route": "impl",
+      "status": "open",
+      "phase": "queued",
+      "outcome": null,
+      "rationale": null,
+      "handler": null,
+      "contract": "v12-assignment-1",
+      "scope": "scope:deployment",
+      "labels": [],
+      "creation": {
+        "work_id": "6dcb60dc-W1",
+        "operation_id": "bootstrap-job-template-job-guide-42bed8bb",
+        "kind": "trusted-bootstrap",
+        "scope": "scope:deployment",
+        "at": "2026-10-28T01:21:53.788Z"
+      },
+      "close_decision": null,
+      "generation_counter": 0,
+      "live_generation": null,
+      "assignment": null,
+      "gate": null,
+      "fenced_generations": [],
+      "ready": true
+    }
+  },
+  "binding": {
+    "canonical_target_id": "42bed8bb04a53380e565b1a63fb2bc702677f0d0",
+    "job_id": "job-template-job-guide-42bed8bb",
+    "job_work_id": "6dcb60dc-W1",
+    "line_declared_base": "42bed8bb04a53380e565b1a63fb2bc702677f0d0",
+    "review_work_id": "6dcb60dc-W1",
+    "source_worker_id": "impl-w366962"
+  },
+  "stages": [
+    "job-template-job-guide-42bed8bb/implementation",
+    "job-template-job-guide-42bed8bb/review"
+  ],
+  "servable": {
+    "implementation": [
+      "impl-w366962"
+    ],
+    "review": [
+      "review-w366962"
+    ]
+  },
+  "recorded_at": "2026-10-28T01:26:15.331Z"
+}

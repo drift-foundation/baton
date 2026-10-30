@@ -1,0 +1,146 @@
+[
+  {
+    "snapshot_seq": 371109,
+    "work": "W371072",
+    "binding": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-template-adapter-admission-plan",
+    "phase": "active",
+    "handler": {
+      "member": "codxpc",
+      "participant": "baton.codxpc",
+      "team": "baton"
+    },
+    "route": "baton.codx",
+    "parent": "2b077949-W370747",
+    "blocked_by": []
+  },
+  {
+    "snapshot_seq": 371109,
+    "work": "W371073",
+    "binding": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-safe-adapter-failure-plan",
+    "phase": "queued",
+    "handler": null,
+    "route": "baton.codx",
+    "parent": "2b077949-W370747",
+    "blocked_by": []
+  },
+  {
+    "snapshot_seq": 371109,
+    "work": "W371074",
+    "binding": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-stopped-failed-settlement-plan",
+    "phase": "queued",
+    "handler": null,
+    "route": "baton.codx",
+    "parent": "2b077949-W370747",
+    "blocked_by": []
+  },
+  {
+    "snapshot_seq": 371109,
+    "work": "W371075",
+    "binding": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-routine-startup-prerequisites-plan",
+    "phase": "queued",
+    "handler": null,
+    "route": "baton.impl",
+    "parent": "2b077949-W370747",
+    "blocked_by": []
+  },
+  {
+    "snapshot_seq": 371109,
+    "work": "W371076",
+    "binding": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-composed-workflow-proof-plan",
+    "phase": "block",
+    "handler": null,
+    "route": "baton.codx",
+    "parent": "2b077949-W370747",
+    "blocked_by": [
+      {
+        "handler": {
+          "member": "codxpc",
+          "participant": "baton.codxpc",
+          "team": "baton"
+        },
+        "id": "2b077949-W371072",
+        "outcome": null,
+        "route": {
+          "endpoint": "baton.codx",
+          "handlers": [
+            "codxpc"
+          ],
+          "role": "impl",
+          "route": "implpc"
+        },
+        "status": "open",
+        "team": "baton",
+        "title": "Plan residual template and adapter admission contracts",
+        "via_obligation": null
+      },
+      {
+        "handler": null,
+        "id": "2b077949-W371073",
+        "outcome": null,
+        "route": {
+          "endpoint": "baton.codx",
+          "handlers": [
+            "codxpc"
+          ],
+          "role": "impl",
+          "route": "implpc"
+        },
+        "status": "open",
+        "team": "baton",
+        "title": "Plan safe typed adapter failures through existing diagnostics",
+        "via_obligation": null
+      },
+      {
+        "handler": null,
+        "id": "2b077949-W371074",
+        "outcome": null,
+        "route": {
+          "endpoint": "baton.codx",
+          "handlers": [
+            "codxpc"
+          ],
+          "role": "impl",
+          "route": "implpc"
+        },
+        "status": "open",
+        "team": "baton",
+        "title": "Plan supported settlement of stopped failed executions",
+        "via_obligation": null
+      },
+      {
+        "handler": null,
+        "id": "2b077949-W371075",
+        "outcome": null,
+        "route": {
+          "endpoint": "baton.impl",
+          "handlers": [
+            "claude"
+          ],
+          "role": "impl",
+          "route": "impl"
+        },
+        "status": "open",
+        "team": "baton",
+        "title": "Plan routine create while serving and installer prerequisites",
+        "via_obligation": null
+      },
+      {
+        "handler": null,
+        "id": "2b077949-W370688",
+        "outcome": null,
+        "route": {
+          "endpoint": "baton.decide",
+          "handlers": [
+            "slaw"
+          ],
+          "role": "approv",
+          "route": "approv"
+        },
+        "status": "open",
+        "team": "baton",
+        "title": "Prepare corrected shared outputs for the two-role template Job",
+        "via_obligation": null
+      }
+    ]
+  }
+]

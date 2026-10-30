@@ -1,0 +1,73 @@
+{
+  "PACKET-PINS.json": {
+    "count": 10,
+    "mismatches": []
+  },
+  "PROVENANCE.json": {
+    "count": 42,
+    "mismatches": []
+  },
+  "hashes": {
+    "PACKET-PINS.json": "cdfd88a8cce5191251bae49a0ce28034a1cb2f69936eb659b1e03dbd6762dc53",
+    "SELECTION.json": "48bf5fc7a890c652f3a64f817b25279113e7617b85c3e2f59df812fe677753b2",
+    "ENGINE-RECEIPT/state.json": "992a374394a43d9ced6e7edc10d2ce97f1e3c2e25ae97d1a97fac3de3be29123"
+  },
+  "calls": [
+    {
+      "phase": "preflight",
+      "verb": "inspect",
+      "status": 1
+    },
+    {
+      "phase": "create",
+      "verb": "create",
+      "status": 0
+    },
+    {
+      "phase": "acquire-created",
+      "verb": "inspect",
+      "status": 0
+    },
+    {
+      "phase": "start",
+      "verb": "start",
+      "status": 0
+    },
+    {
+      "phase": "receipt",
+      "verb": "logs",
+      "status": 0
+    },
+    {
+      "phase": "receipt",
+      "verb": "logs",
+      "status": 0
+    },
+    {
+      "phase": "running",
+      "verb": "inspect",
+      "status": 0
+    },
+    {
+      "phase": "remove",
+      "verb": "rm",
+      "status": 0
+    },
+    {
+      "phase": "confirm-absence",
+      "verb": "inspect",
+      "status": 1
+    }
+  ],
+  "capacity_unwritten_bytes": {
+    "HOME": 4096,
+    "PYTHONPYCACHEPREFIX": 868352,
+    "TMPDIR": 4096,
+    "XDG_CACHE_HOME": 4096
+  },
+  "descendant_started_is_pid": 9,
+  "elapsed_seconds": 0.7101453889990808,
+  "selection_matches": true,
+  "executed_payload_matches": true,
+  "reviewer_engine_invoked": false
+}

@@ -1,0 +1,23 @@
+{
+  "focused": {
+    "run": 159,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 20.597196372000326
+  },
+  "final_release_vs_new_holder": {
+    "acquired_before_retirement": false,
+    "different_guard": true,
+    "live_descriptor": true,
+    "holders": 1,
+    "contender_while_new_holder_active": {
+      "outcome": "refused",
+      "message": "another manager is already active for workspace '/var/tmp/baton-w257624/v12-w71917-6bmqoq7m/storage', holding control store '/var/tmp/baton-w257624/v12-w71917-6bmqoq7m/bootstrap-deploy\u2026; only one Host manager may be active for one workspace and database, so this start is a configuration error rather than a standby -- point this manager at its own database and workspace, or stop the active one first"
+    },
+    "contender_after_release": {
+      "outcome": "held",
+      "message": null
+    }
+  },
+  "seconds": 21.282511633002287
+}

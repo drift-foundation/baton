@@ -1,0 +1,491 @@
+{
+  "root": "/tmp/w325959-owner-build/out/distro",
+  "files": {
+    "_internal/attrs-26.1.0.dist-info/INSTALLER": {
+      "bytes": 4,
+      "sha256": "ceebae7b8927a3227e5303cf5e0f1f7b34bb542ad7250ac03fbcde36ec2f1508",
+      "mode": "0o664",
+      "symlink": null
+    },
+    "_internal/attrs-26.1.0.dist-info/METADATA": {
+      "bytes": 8754,
+      "sha256": "4cd40e690f23bf37cbcad34efd6758e062df1df07c86833f7e3ce95bf1fa38cc",
+      "mode": "0o664",
+      "symlink": null
+    },
+    "_internal/attrs-26.1.0.dist-info/RECORD": {
+      "bytes": 3643,
+      "sha256": "40de9b239d81f3e4ff3b005e4749cda91549d56e10415ffce54a25c0c995df10",
+      "mode": "0o664",
+      "symlink": null
+    },
+    "_internal/attrs-26.1.0.dist-info/REQUESTED": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0o664",
+      "symlink": null
+    },
+    "_internal/attrs-26.1.0.dist-info/WHEEL": {
+      "bytes": 87,
+      "sha256": "41c708c5adba6e097513ab8ccb9f1d7865a2fb469e22491a9e01dcc64da459fc",
+      "mode": "0o664",
+      "symlink": null
+    },
+    "_internal/attrs-26.1.0.dist-info/licenses/LICENSE": {
+      "bytes": 1109,
+      "sha256": "882115c95dfc2af1eeb6714f8ec6d5cbcabf667caff8729f42420da63f714e9f",
+      "mode": "0o664",
+      "symlink": null
+    },
+    "_internal/base_library.zip": {
+      "bytes": 1401218,
+      "sha256": "4825133d2a7ecdd063be7230267820b2469c69b93ffd67adc8d7a8485afa08b2",
+      "mode": "0o664",
+      "symlink": null
+    },
+    "_internal/baton_v12/contracts/schema/agent-session-1.0.schema.json": {
+      "bytes": 48212,
+      "sha256": "22e6e61c8fbe4b4312b0bc5e33e5be23dff7ba944e213a2855106dc06b55202c",
+      "mode": "0o664",
+      "symlink": null
+    },
+    "_internal/baton_v12/contracts/schema/worker-control-1.0.schema.json": {
+      "bytes": 51419,
+      "sha256": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc",
+      "mode": "0o664",
+      "symlink": null
+    },
+    "_internal/build-stamp.json": {
+      "bytes": 239,
+      "sha256": "0186f1c5c158d7b0ed091486c9a05dfd532083e213ee41e7f7dde7097b8502ab",
+      "mode": "0o664",
+      "symlink": null
+    },
+    "_internal/jsonschema/benchmarks/issue232/issue.json": {
+      "bytes": 117105,
+      "sha256": "79a3ce663311bb9bbc4692abb00f6e93bb9c3d94b9b64286e03fe190e4d0dc79",
+      "mode": "0o664",
+      "symlink": null
+    },
+    "_internal/jsonschema-4.26.0.dist-info/INSTALLER": {
+      "bytes": 4,
+      "sha256": "ceebae7b8927a3227e5303cf5e0f1f7b34bb542ad7250ac03fbcde36ec2f1508",
+      "mode": "0o664",
+      "symlink": null
+    },
+    "_internal/jsonschema-4.26.0.dist-info/METADATA": {
+      "bytes": 7592,
+      "sha256": "05b189866ca98a96da3934bf6b83687ced3ff85325273b77e16b705f6d8b26d2",
+      "mode": "0o664",
+      "symlink": null
+    },
+    "_internal/jsonschema-4.26.0.dist-info/RECORD": {
+      "bytes": 6415,
+      "sha256": "473f7af882f4287adcd1747f4f2f85ccf410f3ca3e4ff9e50a5b59e8e507abf9",
+      "mode": "0o664",
+      "symlink": null
+    },
+    "_internal/jsonschema-4.26.0.dist-info/REQUESTED": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0o664",
+      "symlink": null
+    },
+    "_internal/jsonschema-4.26.0.dist-info/WHEEL": {
+      "bytes": 87,
+      "sha256": "58b82a17209f9bf2804afe161f2632d0fde933f9bb2792fd936b2474a2e2ac2f",
+      "mode": "0o664",
+      "symlink": null
+    },
+    "_internal/jsonschema-4.26.0.dist-info/entry_points.txt": {
+      "bytes": 51,
+      "sha256": "bceeeb5f816cff1215272da99c0b4a8134b17e99e8cc0550d038c29a93319d61",
+      "mode": "0o664",
+      "symlink": null
+    },
+    "_internal/jsonschema-4.26.0.dist-info/licenses/COPYING": {
+      "bytes": 1057,
+      "sha256": "4f92a015a13c4d1a040bef018aa13430b4f1bc73b41b16bb846c346766de7439",
+      "mode": "0o664",
+      "symlink": null
+    },
+    "_internal/jsonschema_specifications/schemas/draft201909/metaschema.json": {
+      "bytes": 1785,
+      "sha256": "7b761b3e121f0a0ca1ea2a0b8e2cc856bcf801604b8268d71bacaa202bc0c13b",
+      "mode": "0o664",
+      "symlink": null
+    },
+    "_internal/jsonschema_specifications/schemas/draft201909/vocabularies/applicator": {
+      "bytes": 1860,
+      "sha256": "6895100e99726fbb107058512bbec3ecfd4b24e8fd2facee3e505ee72b0d4c31",
+      "mode": "0o664",
+      "symlink": null
+    },
+    "_internal/jsonschema_specifications/schemas/draft201909/vocabularies/content": {
+      "bytes": 517,
+      "sha256": "9b7d4f55a4e2fdb02c430068fdffabc732addce238da3f1df2690249c3353274",
+      "mode": "0o664",
+      "symlink": null
+    },
+    "_internal/jsonschema_specifications/schemas/draft201909/vocabularies/core": {
+      "bytes": 1531,
+      "sha256": "b5a2c4957f6495d0a5081f0409ebe8a14e4139acb203fc748471f8ede2af5b2c",
+      "mode": "0o664",
+      "symlink": null
+    },
+    "_internal/jsonschema_specifications/schemas/draft201909/vocabularies/format": {
+      "bytes": 403,
+      "sha256": "50ebbfe790611a849b8cc400a09c1d0e0fb6ab5c0d43a0f22201fd3625056bf4",
+      "mode": "0o664",
+      "symlink": null
+    },
+    "_internal/jsonschema_specifications/schemas/draft201909/vocabularies/meta-data": {
+      "bytes": 892,
+      "sha256": "d47e2445dd6a82271a298d83cc6c6cb8d4ae1e15e0dc56becd37a163ecf01286",
+      "mode": "0o664",
+      "symlink": null
+    },
+    "_internal/jsonschema_specifications/schemas/draft201909/vocabularies/validation": {
+      "bytes": 2834,
+      "sha256": "1e526c1d335a734805fc82cf5798c12b960ad7da2517c66cda5a1b09359c3c1c",
+      "mode": "0o664",
+      "symlink": null
+    },
+    "_internal/jsonschema_specifications/schemas/draft202012/metaschema.json": {
+      "bytes": 2452,
+      "sha256": "41da76f5afb7ce062d248f762463a92f7ca47e4e0f905b224ba6afeef91ded0f",
+      "mode": "0o664",
+      "symlink": null
+    },
+    "_internal/jsonschema_specifications/schemas/draft202012/vocabularies/applicator": {
+      "bytes": 1659,
+      "sha256": "c4a6e4147b91fef7fea6dc058cb1bf93402f7414b76578a8b16aaf1dad6aacef",
+      "mode": "0o664",
+      "symlink": null
+    },
+    "_internal/jsonschema_specifications/schemas/draft202012/vocabularies/content": {
+      "bytes": 519,
+      "sha256": "08343747764e4a5814262793cf4d652057a7913863c5950d43297e8e1fdac5b6",
+      "mode": "0o664",
+      "symlink": null
+    },
+    "_internal/jsonschema_specifications/schemas/draft202012/vocabularies/core": {
+      "bytes": 1564,
+      "sha256": "c2d12a8e4dd11d336dfc83a3f663aa4c69f0b49b3beb094ffeb25b5316f4803d",
+      "mode": "0o664",
+      "symlink": null
+    },
+    "_internal/jsonschema_specifications/schemas/draft202012/vocabularies/format-annotation": {
+      "bytes": 448,
+      "sha256": "abc775adfefd89d22358170d9bf93f4ebd2349563bbbedd60f02bef7c812bcc0",
+      "mode": "0o664",
+      "symlink": null
+    },
+    "_internal/jsonschema_specifications/schemas/draft202012/vocabularies/format-assertion": {
+      "bytes": 445,
+      "sha256": "c52242b9a1bb786b26c3e82c7add428c31f9c96e575dce99e56ea5feaa6da20c",
+      "mode": "0o664",
+      "symlink": null
+    },
+    "_internal/jsonschema_specifications/schemas/draft202012/vocabularies/meta-data": {
+      "bytes": 892,
+      "sha256": "8f76d6e14f41b9b92ef933b708cdc5144c8b5268651ad11918485fb1754f1c76",
+      "mode": "0o664",
+      "symlink": null
+    },
+    "_internal/jsonschema_specifications/schemas/draft202012/vocabularies/unevaluated": {
+      "bytes": 506,
+      "sha256": "2dbfbcb73994b670b0976492adee1fffb46c21682784d2f5a4ca561f9e2d0cb4",
+      "mode": "0o664",
+      "symlink": null
+    },
+    "_internal/jsonschema_specifications/schemas/draft202012/vocabularies/validation": {
+      "bytes": 2834,
+      "sha256": "7010a31e541f32d2be721e2de348df75c9b36876a3ed304877fc0abda1d37a58",
+      "mode": "0o664",
+      "symlink": null
+    },
+    "_internal/jsonschema_specifications/schemas/draft3/metaschema.json": {
+      "bytes": 2600,
+      "sha256": "2cf75f64436fb5be374a2eaa27ab8b7e1fd651c9b46daea6c67b02fd64e2458b",
+      "mode": "0o664",
+      "symlink": null
+    },
+    "_internal/jsonschema_specifications/schemas/draft4/metaschema.json": {
+      "bytes": 4357,
+      "sha256": "e1489d0b4755f02793302591d3fcb8f07b6893a82a94f24895f8e4edf11b82e2",
+      "mode": "0o664",
+      "symlink": null
+    },
+    "_internal/jsonschema_specifications/schemas/draft6/metaschema.json": {
+      "bytes": 4437,
+      "sha256": "c29dfce9f54835c3a06c03b3c5d5ec0eda77706568f9c4df7cfbc7566a51006d",
+      "mode": "0o664",
+      "symlink": null
+    },
+    "_internal/jsonschema_specifications/schemas/draft7/metaschema.json": {
+      "bytes": 4819,
+      "sha256": "3d5392088261606c559b603f385329c9f1ab45b5d667eb990687453b055d405e",
+      "mode": "0o664",
+      "symlink": null
+    },
+    "_internal/libbz2.so.1.0": {
+      "bytes": 83192,
+      "sha256": "0e276ebe9060dc27ccff9d08e928127a1ee194c064e88b9262beb7f3ee76f3d7",
+      "mode": "0o755",
+      "symlink": null
+    },
+    "_internal/libcrypto.so.3": {
+      "bytes": 6353776,
+      "sha256": "4769ffaae2d5fcb04ab023d06370ee0481f03857de88356f565a85792de39d76",
+      "mode": "0o755",
+      "symlink": null
+    },
+    "_internal/libexpat.so.1": {
+      "bytes": 182608,
+      "sha256": "510dc18b54fcd0f6957974bf5019347218edc0f74a43522b6be72d686ed0a3a3",
+      "mode": "0o755",
+      "symlink": null
+    },
+    "_internal/libffi.so.8": {
+      "bytes": 47824,
+      "sha256": "f9e062f25194c7f4ecf0a58469cb6ab76b8a95f522c290e47a5c9dd688e7d6be",
+      "mode": "0o755",
+      "symlink": null
+    },
+    "_internal/libgcc_s.so.1": {
+      "bytes": 178928,
+      "sha256": "e21d29dd2609dff45f898b5002c9a2268a0e8eece4eff8417e5087e77d2a136c",
+      "mode": "0o755",
+      "symlink": null
+    },
+    "_internal/liblzma.so.5": {
+      "bytes": 215448,
+      "sha256": "bb0cc2b52f9602da45e3a5088e156b07548a79cf4c822e321a4c119b8c8b7650",
+      "mode": "0o755",
+      "symlink": null
+    },
+    "_internal/libncursesw.so.6": {
+      "bytes": 240008,
+      "sha256": "7dbbb6bea122614f846cad9e099550ce7f62b425057298da1586b2304dc79214",
+      "mode": "0o755",
+      "symlink": null
+    },
+    "_internal/libobjc.so.4": {
+      "bytes": 92192,
+      "sha256": "2d64c020c448724c2f063cf61ae6fa4f4629d99ef1ba1bb73e1e68e4882c15df",
+      "mode": "0o755",
+      "symlink": null
+    },
+    "_internal/libpython3.13.so.1.0": {
+      "bytes": 7508808,
+      "sha256": "1b7613e0039be781d480c4613041c68efcd8be52240e3baf1e09ae21775746a2",
+      "mode": "0o755",
+      "symlink": null
+    },
+    "_internal/libreadline.so.8": {
+      "bytes": 389304,
+      "sha256": "3183f28b78d21c148bd844c0b0e356ceb132de370c44591171aa7ea1488c8e60",
+      "mode": "0o755",
+      "symlink": null
+    },
+    "_internal/libsqlite3.so.0": {
+      "bytes": 1518056,
+      "sha256": "a19187db849e9a95b33f2e6fa6d7c3218f8de6f284865832409224bef741dd4a",
+      "mode": "0o755",
+      "symlink": null
+    },
+    "_internal/libssl.so.3": {
+      "bytes": 1106088,
+      "sha256": "e2f779425f91a9bbb2a5817d975b6ddb8f9fec40ad4c060ddae350c4e4986c5d",
+      "mode": "0o755",
+      "symlink": null
+    },
+    "_internal/libtinfo.so.6": {
+      "bytes": 212504,
+      "sha256": "51cdf4890364a45c5dea607d011caf2546f45acdfa036adaacb6a932ab641267",
+      "mode": "0o755",
+      "symlink": null
+    },
+    "_internal/libuuid.so.1": {
+      "bytes": 35184,
+      "sha256": "427e04ce400955eae6a5f3d737d1f5fed6bb2f7ad4dcea9d017a6e93c0b8d1bc",
+      "mode": "0o755",
+      "symlink": null
+    },
+    "_internal/libz.so.1": {
+      "bytes": 125440,
+      "sha256": "a83ec9e0fee275a2c2b1f2b3773fef6277d7d8fa57f6d50bf0806301b438e281",
+      "mode": "0o755",
+      "symlink": null
+    },
+    "_internal/libzstd.so.1": {
+      "bytes": 817376,
+      "sha256": "f501ac1465c6c254bade367fa5c079b5beb8a6f2c3e9a51da128ce7202f66ca1",
+      "mode": "0o755",
+      "symlink": null
+    },
+    "_internal/python3.13/lib-dynload/_bz2.cpython-313-x86_64-linux-gnu.so": {
+      "bytes": 32192,
+      "sha256": "1db37b946a0cdfe9d56b296d8616b71d8b85753001a1856769a7aa43c21796f5",
+      "mode": "0o755",
+      "symlink": null
+    },
+    "_internal/python3.13/lib-dynload/_codecs_cn.cpython-313-x86_64-linux-gnu.so": {
+      "bytes": 154240,
+      "sha256": "17f6cf505d7b35797b4886eafeba11913d53bdbbb9684f12663a614118e0486a",
+      "mode": "0o755",
+      "symlink": null
+    },
+    "_internal/python3.13/lib-dynload/_codecs_hk.cpython-313-x86_64-linux-gnu.so": {
+      "bytes": 162464,
+      "sha256": "f123c4ad45c9a845a2a73a2dd9a7ccab4ca12e53f930c696b66761f03c6396c8",
+      "mode": "0o755",
+      "symlink": null
+    },
+    "_internal/python3.13/lib-dynload/_codecs_iso2022.cpython-313-x86_64-linux-gnu.so": {
+      "bytes": 31392,
+      "sha256": "692b39a825400739b8f1dd28ad2c7ba021d9962cd1697cb8c2daef16afc3d360",
+      "mode": "0o755",
+      "symlink": null
+    },
+    "_internal/python3.13/lib-dynload/_codecs_jp.cpython-313-x86_64-linux-gnu.so": {
+      "bytes": 273024,
+      "sha256": "e65f9bdc1e9187272b57bbcbb411efb40538b1b6a7e31bcbf3de5ae445943aef",
+      "mode": "0o755",
+      "symlink": null
+    },
+    "_internal/python3.13/lib-dynload/_codecs_kr.cpython-313-x86_64-linux-gnu.so": {
+      "bytes": 141952,
+      "sha256": "6725f1d9756f0fc87107245c85662b63d2d22a005b837e146619bc3eead6b1af",
+      "mode": "0o755",
+      "symlink": null
+    },
+    "_internal/python3.13/lib-dynload/_codecs_tw.cpython-313-x86_64-linux-gnu.so": {
+      "bytes": 113280,
+      "sha256": "6b78f534cfb41ae6a75efe75e4a8941a57876b047212c5e04059a74404fd7de4",
+      "mode": "0o755",
+      "symlink": null
+    },
+    "_internal/python3.13/lib-dynload/_contextvars.cpython-313-x86_64-linux-gnu.so": {
+      "bytes": 14616,
+      "sha256": "6abe2beb3f377b5f1991deb39deeae277be17d44a0b02f8b9e1af191e3695a91",
+      "mode": "0o755",
+      "symlink": null
+    },
+    "_internal/python3.13/lib-dynload/_ctypes.cpython-313-x86_64-linux-gnu.so": {
+      "bytes": 154816,
+      "sha256": "c7f5c03cb9fe5abc8f246dce5cef71888ea44e27f0899ffa3f57d6b1c0e1a48c",
+      "mode": "0o755",
+      "symlink": null
+    },
+    "_internal/python3.13/lib-dynload/_curses.cpython-313-x86_64-linux-gnu.so": {
+      "bytes": 128664,
+      "sha256": "ae96e666f0a54a5f093f1c5e9bca3e45dcf54f7766ed1d81a1be07b999efba88",
+      "mode": "0o755",
+      "symlink": null
+    },
+    "_internal/python3.13/lib-dynload/_decimal.cpython-313-x86_64-linux-gnu.so": {
+      "bytes": 351352,
+      "sha256": "3a01f5030ca6beaa727166c8a562e859c7c955fa81625fbd7ab813fc9e159f1c",
+      "mode": "0o755",
+      "symlink": null
+    },
+    "_internal/python3.13/lib-dynload/_hashlib.cpython-313-x86_64-linux-gnu.so": {
+      "bytes": 68512,
+      "sha256": "b6b8f95a045e64adb9b862785089f688b236bd73734d0e8cc52af8bd69eed6e2",
+      "mode": "0o755",
+      "symlink": null
+    },
+    "_internal/python3.13/lib-dynload/_lzma.cpython-313-x86_64-linux-gnu.so": {
+      "bytes": 45184,
+      "sha256": "105d6f054f59bddd0ff06f4e5ee85ef75622bce9b319d4e4e0b629cd15fa2807",
+      "mode": "0o755",
+      "symlink": null
+    },
+    "_internal/python3.13/lib-dynload/_multibytecodec.cpython-313-x86_64-linux-gnu.so": {
+      "bytes": 50648,
+      "sha256": "7caaf2b15aa6535d32cec32b9e217238630171598928fab57cd8ed61c7dd0baa",
+      "mode": "0o755",
+      "symlink": null
+    },
+    "_internal/python3.13/lib-dynload/_multiprocessing.cpython-313-x86_64-linux-gnu.so": {
+      "bytes": 24328,
+      "sha256": "8c7d5e09db92e056bbf49f40ab9aa4f7862082c9bb125cb56e22f5773ecd2c04",
+      "mode": "0o755",
+      "symlink": null
+    },
+    "_internal/python3.13/lib-dynload/_posixshmem.cpython-313-x86_64-linux-gnu.so": {
+      "bytes": 14960,
+      "sha256": "9bbce1a1112c8edb655ad63e151518e254a5fd76bcda9a2b6645fa6b196a7962",
+      "mode": "0o755",
+      "symlink": null
+    },
+    "_internal/python3.13/lib-dynload/_queue.cpython-313-x86_64-linux-gnu.so": {
+      "bytes": 24000,
+      "sha256": "e5d33dbbe1a0b977680d81f28b7dbd209bf784d75bb3eab1a491dbf229515079",
+      "mode": "0o755",
+      "symlink": null
+    },
+    "_internal/python3.13/lib-dynload/_sqlite3.cpython-313-x86_64-linux-gnu.so": {
+      "bytes": 145048,
+      "sha256": "bc47aa134738716ee4789c86907bc13aa7e46369911571df6fd5ecc3add8343d",
+      "mode": "0o755",
+      "symlink": null
+    },
+    "_internal/python3.13/lib-dynload/_ssl.cpython-313-x86_64-linux-gnu.so": {
+      "bytes": 232128,
+      "sha256": "3bb0b8c0392d68b19915c0b975d39faaba2a5232fa823e2cbc406873d9f308a3",
+      "mode": "0o755",
+      "symlink": null
+    },
+    "_internal/python3.13/lib-dynload/_uuid.cpython-313-x86_64-linux-gnu.so": {
+      "bytes": 14800,
+      "sha256": "2f41fc9f3eb1a6f63c74a91b075b0f62627be926757bd85471c65df01c16ceb4",
+      "mode": "0o755",
+      "symlink": null
+    },
+    "_internal/python3.13/lib-dynload/mmap.cpython-313-x86_64-linux-gnu.so": {
+      "bytes": 32712,
+      "sha256": "2021518293aedf55a25372a1114de3dcdccb3b96bad8affa0ddd702fbc129e9c",
+      "mode": "0o755",
+      "symlink": null
+    },
+    "_internal/python3.13/lib-dynload/readline.cpython-313-x86_64-linux-gnu.so": {
+      "bytes": 40720,
+      "sha256": "2ed5141e320395b4659086a3340ae3a5ddbd7283afee7d0b3d90bba70986441d",
+      "mode": "0o755",
+      "symlink": null
+    },
+    "_internal/python3.13/lib-dynload/resource.cpython-313-x86_64-linux-gnu.so": {
+      "bytes": 23632,
+      "sha256": "ae7244a9624046d1d57ffbc79e9e8a45e566474fc49316926fce9f6c13eeff7a",
+      "mode": "0o755",
+      "symlink": null
+    },
+    "_internal/python3.13/lib-dynload/termios.cpython-313-x86_64-linux-gnu.so": {
+      "bytes": 35728,
+      "sha256": "a32df9cb3dc03642366408fe91f48fec32b0a87327d4323ce8463e90cd13d79e",
+      "mode": "0o755",
+      "symlink": null
+    },
+    "_internal/rpds/rpds.cpython-313-x86_64-linux-gnu.so": {
+      "bytes": 965608,
+      "sha256": "bddb35d7ceaef748a4661a73774e1ff8d5ae76969b31e1cc7f757fb424bd8ed5",
+      "mode": "0o755",
+      "symlink": null
+    },
+    "_internal/setuptools/_vendor/jaraco/text/Lorem ipsum.txt": {
+      "bytes": 1335,
+      "sha256": "37fedcffbf73c4eb9f058f47677cb33203a436ff9390e4d38a8e01c9dad28e0b",
+      "mode": "0o664",
+      "symlink": null
+    },
+    "baton-v12-stack": {
+      "bytes": 6146624,
+      "sha256": "8f6d6f2257aadc6c1e0e4aaafc7e04e7e9ab1b89798f1a6fe4b6464490cc09ae",
+      "mode": "0o755",
+      "symlink": null
+    }
+  }
+}

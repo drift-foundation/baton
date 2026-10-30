@@ -1,0 +1,15 @@
+{
+  "seconds": 0.0023600650019943714,
+  "result": {
+    "injected": true,
+    "foreign_replacement_survives": false,
+    "original_survives": true,
+    "subsequent_owned_file_survives": true,
+    "answers": [
+      {
+        "exception": "_UnprovenRemoval",
+        "message": "removed a name at /tmp/w376956-review-l27ae588/dest/a that was NOT the runtime object this attempt made: it was replaced between the last check and the removal. This attempt's own object is still there, and no further removal is attempted."
+      }
+    ]
+  }
+}

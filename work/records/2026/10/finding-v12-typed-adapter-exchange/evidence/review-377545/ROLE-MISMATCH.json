@@ -1,0 +1,20 @@
+{
+  "selected_launch_role": "implementation",
+  "accepted_terminal": {
+    "ending": "faulted",
+    "answered": [
+      "describe"
+    ],
+    "disposition": null,
+    "fault_code": "agent",
+    "manifest_digest": null,
+    "adapter_failure": {
+      "component": "role-adapter",
+      "code": "role-output-missing",
+      "role": "review",
+      "operation": "work",
+      "operation_id": "work:attempt-1"
+    },
+    "terminal_digest": "sha256:30a09e551a6c6460e76536c4400de76473340f289625a71adc0e50fef9597e96"
+  }
+}

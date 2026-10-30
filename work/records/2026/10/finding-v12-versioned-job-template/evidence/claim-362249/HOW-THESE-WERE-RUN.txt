@@ -1,0 +1,102 @@
+How the runs in this directory were produced — claim362249, W361910
+===================================================================
+
+Same recipe as evidence/claim-361943/HOW-THESE-WERE-RUN.txt. The canonical tree
+is not edited, so every run is on a disposable scratch root built from the
+canonical bytes at 182c8f94 with the candidate overlaid; the base root is built
+the same way with no overlay, so a base/candidate diff compares BYTES and not
+environments.
+
+  base root       /tmp/w361910-base        (retained from claim361943)
+  candidate root  /tmp/w361910-r2          (candidate-362249 overlaid)
+
+Each root is <root>/v12/python + <root>/v12/worker + <root>/v12/DESIGN.md and
+the v12 JSON files + <root>/AGENTS.md + the one published result-manifest
+vectors subtree under <root>/work/records/2026/08/... that
+tests/manager/test_output.py and tests/job_manager/test_review_driver.py read
+by `parents[4]`. Keeping the `v12` directory level matters: without it the
+repository root resolves one directory too high and ~354 suites fail on a
+missing vectors.json.
+
+Commands, from <root>/v12/python with PYTHONPATH=src:. —
+
+  python3 -m unittest tests.job_manager.test_templates -v
+  python3 -m unittest tests.job_manager.test_templates \
+      tests.job_manager.test_submission tests.job_manager.test_execution_limits
+  python3 -m unittest discover -s tests/job_manager -t . -p 'test_*.py'
+  python3 -m unittest tests.manager.test_dependencies \
+      tests.manager.test_text_sweep tests.manager.test_contracts_inventory
+  python3 -m unittest discover -s tests/manager -t . -p 'test_*.py'
+  python3 <this directory>/probe-corrected.py
+
+What each file is
+-----------------
+
+FOCUSED.txt                 tests.job_manager.test_templates, 108 cases, OK.
+                            Thirty more than candidate-361943's 78: three new
+                            classes for R1, R2 and R3, plus rewrites of the
+                            scope cases and of the two docstrings that
+                            overclaimed.
+REVIEWER-FOCUSED-SET.txt    the reviewer's own focused set — templates plus
+                            test_submission plus test_execution_limits —
+                            167 cases, OK, where review-362222 recorded 137.
+JOB-MANAGER-SUITE.txt       the whole tests/job_manager suite, 1285 OK. The
+                            same suite on the base root is 1177 OK.
+PROBE-CORRECTED.stdout      ../review-362222/probe.py's three constructions
+                            re-aimed at these bytes. probe-corrected.py says
+                            in its own header exactly which lines differ from
+                            the reviewer's and why.
+PROBE-CORRECTED.stderr      empty.
+INVENTORY-BASE.txt          the three package-surface sweeps on the base.
+INVENTORY-CANDIDATE.txt     the same three on the candidate. 89 failures each
+                            and the two files are IDENTICAL.
+MANAGER-BASE.txt            every FAIL/ERROR line from whole tests/manager on
+                            the base.
+MANAGER-CANDIDATE.txt       the same on the candidate. 259 lines each and the
+                            two files are IDENTICAL.
+MANAGER-TOTALS-*.txt        4786 cases, 169 failures and 90 errors, on both.
+
+The three counterexamples, before and after
+-------------------------------------------
+
+Read PROBE-CORRECTED.stdout beside ../review-362222/PROBE.stdout.
+
+  R1  before: saved_resolution_submitted_provider_seconds = 7200 for a
+              resolution reporting 3600, through a byte-identical submission.
+      after:  saved_resolution_consumption.refused = true, naming generation 1
+              against generation 2 and ending "Nothing has been submitted";
+              a re-resolved resolution reports 7200 and the store answers
+              7200, so the two agree.
+  R2  before: public_template_lookup_changes_later_resolution =
+              "not-the-reviewed-proposal".
+      after:  the assignment itself raises
+              "TypeError: 'mappingproxy' object does not support item
+              assignment", and a later resolve still delivers "proposal".
+  R3  before: product_scope_becomes_test_scope carried the product path.
+      after:  work_scope carries that product path and
+              test_scope_in_submission is empty.
+
+The 89 and the 259, stated the same way as last round
+-----------------------------------------------------
+
+They are PRE-EXISTING in this root and this candidate adds none: the base and
+candidate lists are byte-identical, which is what makes them a baseline rather
+than a claim. They are NOT asserted to be failures in the canonical checkout —
+a scratch root is not a checkout, has no container engine, no installed
+instance and no deployment state root, and much of tests/manager asks for one
+of those. The whole tests/manager run was not required by the review ("no
+broad suite required"); it is here because this round changes the package's
+exported surface and an identical baseline is cheap insurance.
+
+What was NOT run, and why
+-------------------------
+
+No provider, no container engine, no Authority, no installed instance, no
+deployment. The Job stores these cases open are the disposable SQLite files
+tests/job_manager/fixtures.JobManagerCase creates under a temporary directory.
+The compatibility generation is moved with unittest.mock.patch in the test
+process only — exactly as the reviewer's probe did — and no installed default,
+configuration file or live instance is touched. No Git operation of any kind,
+in the repository or in the scratch roots. tests/tools was not re-run this
+round: nothing in these bytes reaches tools/, and claim361943's evidence
+records that surface against the same base.

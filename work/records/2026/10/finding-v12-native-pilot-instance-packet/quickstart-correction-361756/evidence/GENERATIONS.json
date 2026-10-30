@@ -1,0 +1,36 @@
+{
+ "configuration_read": [
+  "/home/sl/baton-instances/native-coordination-pilot-w321608-4/deployment.json",
+  "/home/sl/baton-instances/native-coordination-pilot-w321608-4/authority-identity.json",
+  "/home/sl/baton-instances/native-coordination-pilot-w321608-4/generated/submission.json",
+  "/home/sl/baton-instances/native-coordination-pilot-w321608-4/state/status.json"
+ ],
+ "configured_participants": [
+  "baton.claude-pilot",
+  "baton.integrator-pilot",
+  "baton.reviewer-pilot",
+  "baton.reviewer-receipt-pilot",
+  "baton.slaw",
+  "baton.verifier-pilot"
+ ],
+ "generation_axes": {
+  "allocation_generations": [
+   1
+  ],
+  "assignment_generations": [
+   1,
+   2
+  ],
+  "pool_generation": 1
+ },
+ "not_claimed": "that instance 4 authority has no such participant; no store was opened and no v11 roster was consulted",
+ "observed_at": "2026-10-24T03:09:30.489Z",
+ "read_from": {
+  "allocation": "state/status.json jobs[].stages[].allocation.generation",
+  "assignment": "state/status.json jobs[].stages[].runtime.assignment.generation and .receipts[].detail.result.assignment.generation",
+  "pool": "deployment.json pool_generation",
+  "resource_token": "attempt-diagnostics axes.generation (tokens.generation_of)"
+ },
+ "rule": "authority.core.Authority.cancel fences gate_token(GATE_QUIESCENCE, str(expect[\"generation\"])) -- the exact assignment generation; an assignment with no generation is refused outright",
+ "stages_are_completed": "both; nothing was cancelled, reopened or retried to obtain these numbers"
+}

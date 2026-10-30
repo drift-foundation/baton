@@ -1,0 +1,18 @@
+{
+  "returncode": 1,
+  "seconds": 12.876287429000513,
+  "modules": [
+    "tests.job_manager.test_status",
+    "tests.job_manager.test_delegation",
+    "tests.job_manager.test_documents",
+    "tests.job_manager.test_tool",
+    "tests.manager.test_intake",
+    "tests.manager.test_maintenance",
+    "tests.manager.test_attempts",
+    "tests.manager.test_contracts_inventory",
+    "tests.manager.test_authoring_enforcement",
+    "tests.manager.test_attempt_failure_cause",
+    "tests.tools.test_worker_visibility",
+    "tests.tools.test_attempt_diagnostics"
+  ]
+}

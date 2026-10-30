@@ -1,0 +1,87 @@
+{
+  "asked_of": {
+    "launch_reader": "tools.dogfood_operator.held_task, staged from the declared base",
+    "pairing": "baton_v12.source_profiles.checkout.checkout_plan, staged from the declared base",
+    "stage_a": "the packet buffer of verification_context.held()"
+  },
+  "declared_context": {
+    "candidate": {
+      "declared_base": "bbdacb5d38f6cf2d2461e9da103d28f9ab30cc6c",
+      "pins": [
+        {
+          "content_digest": "sha256:fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903",
+          "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json"
+        }
+      ],
+      "profile": "git-line"
+    },
+    "candidate_destination": "candidate",
+    "import_roots": [
+      "src"
+    ],
+    "inputs": [
+      {
+        "bytes": 19351,
+        "content_digest": "sha256:fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903",
+        "destination": "sealed/worker-control-api-manifest-vectors/vectors.json",
+        "name": "worker-control-api-manifest-vectors"
+      }
+    ],
+    "required_paths": [
+      "src",
+      "tests",
+      "tests/tools",
+      "tests/manager"
+    ],
+    "working_directory": "candidate/v12/python"
+  },
+  "derived_import_path": [
+    "candidate/v12/python/src"
+  ],
+  "executed": "nothing; no view materialized, no store opened, no command run",
+  "generations": {
+    "acceptance_surface": "baton.dogfood-task/3",
+    "launch": "baton.dogfood-task/2"
+  },
+  "launch": {
+    "declared_base": "bbdacb5d38f6cf2d2461e9da103d28f9ab30cc6c",
+    "schema": "baton.dogfood-task/2",
+    "source_profile": "git-line",
+    "source_root": "source",
+    "staged": true,
+    "task_id": "paired-context-w321776-329810",
+    "verification_words": 3
+  },
+  "overlap": "the sealed input destination sealed/... is disjoint from the candidate destination candidate/; the in-candidate copy the gate reads is a candidate pin at the same digest, which is VER-2 satisfied in both directions",
+  "refusal_directions": {
+    "a_slash_2_task_asked_for_stage_a": {
+      "cause": "invalid-layout",
+      "detail": "schema",
+      "outcome": "refused",
+      "schema": "baton.dogfood-context/1",
+      "stage": "static"
+    },
+    "a_slash_2_task_carrying_the_member": {
+      "cause": "invalid-layout",
+      "detail": "verification_context",
+      "outcome": "refused",
+      "schema": "baton.dogfood-context/1",
+      "stage": "static"
+    },
+    "a_slash_3_task_lacking_the_member": {
+      "cause": "invalid-layout",
+      "detail": "verification_context",
+      "outcome": "refused",
+      "schema": "baton.dogfood-context/1",
+      "stage": "static"
+    }
+  },
+  "schema": "baton.w321776-continuation-context-check/1",
+  "stage_a_outcome": {
+    "cause": null,
+    "detail": null,
+    "outcome": "ready",
+    "schema": "baton.dogfood-context/1",
+    "stage": null
+  }
+}

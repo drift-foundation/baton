@@ -1,0 +1,61 @@
+{
+  "claim": 347682,
+  "reports_sha256": "da6fcb30bac7aff9d4f4299e85d24381c4fe4f6ac1a5566e111183a590d5fe10",
+  "collection_exit": 0,
+  "collection_stderr_bytes": 0,
+  "report_files": {
+    "outcome.json": {
+      "sha256": "4d093c99c582c48af392077ca3b1ab5218170a7ba04da0f3e26ae12b7e215484",
+      "bytes": 6221,
+      "absent": null
+    },
+    "outcome.json.authoring.log": {
+      "sha256": "f2e8ab59d8a21ea1799801e9c0a7bcb2e4570d76b0e16210dc0ea51e8559979c",
+      "bytes": 6318,
+      "absent": null
+    },
+    "outcome.json.enforcement-101230-1792596753835547451.json": {
+      "sha256": "2d6be6c762b374c6c949d3f9b083733a9aa61745f97d00946bbb60e2ce34fac3",
+      "bytes": 19595,
+      "absent": null
+    },
+    "outcome.json.manager-101230-1792596708311513233.json": {
+      "sha256": "8ec1bc3456d71d3bbdb362cfdeafb2a8b700a09de3a8904d383c0a491e11b936",
+      "bytes": 16754,
+      "absent": null
+    },
+    "outcome.json.manager-101230-1792596708311513233.json.progress.json": {
+      "sha256": "ec88681ce8157e074ef6881ec3436074b5577f9edebe920dbb6d67e297ebe60b",
+      "bytes": 188,
+      "absent": null
+    },
+    "outcome.json.manager-101230-1792596708311513233.json.shutdown.json": {
+      "sha256": null,
+      "bytes": null,
+      "absent": true
+    }
+  },
+  "processes": [],
+  "engine": {
+    "argv": [
+      "docker",
+      "ps",
+      "-a",
+      "--no-trunc",
+      "--filter",
+      "label=baton.v12.runtime_attempt_id=attempt-39ea7bcd743ef31185056766496bd0e72f2fc815fa75fbf73a32d10b0347a8a4",
+      "--format",
+      "{{json .}}"
+    ],
+    "exit": 0,
+    "containers": [],
+    "stderr_summary": {
+      "redacted_text_length": 0,
+      "exception_classes": [],
+      "errno": [],
+      "traceback_frames": []
+    }
+  },
+  "helper_sha256": "4f3d42c291c9eeeeb9cab1c37db1c59d58066721205d965036d81b1264c343ee",
+  "tests": "AST/embedded compile only; no product or privileged execution"
+}

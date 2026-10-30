@@ -1,0 +1,13 @@
+{
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_next_run_flow"
+  ],
+  "timeout_seconds": 45,
+  "process_seconds": 25.32463783000003,
+  "returncode": 1,
+  "stdout": "",
+  "stderr": "E\n======================================================================\nERROR: test_joined_flow (tests.tools.test_next_run_flow.JoinedFlow.test_joined_flow)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/tmp/baton-next-run-345023/v12/python/tests/tools/test_next_run_flow.py\", line 45, in test_joined_flow\n    result = self.broker.start(receipt['run_id'])\n  File \"/tmp/baton-next-run-345023/v12/python/tools/next_run_managed.py\", line 477, in start\n    return self.host.dispatch(record, packet, self.root)\n           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/baton-next-run-345023/v12/python/tests/tools/test_next_run_flow.py\", line 35, in dispatch\n    result = subprocess.run([sys.executable, '-I', '-B', str(helper), str(code), str(Path(__file__).resolve().parents[2]), str(self.trace), '--packet', str(root / 'runs' / record['run_id'] / 'PACKET.json')], env=managed.dispatch_environment(record, packet, root), cwd=code, capture_output=True, text=True, timeout=25)\n  File \"/usr/lib/python3.13/subprocess.py\", line 556, in run\n    stdout, stderr = process.communicate(input, timeout=timeout)\n                     ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/subprocess.py\", line 1222, in communicate\n    stdout, stderr = self._communicate(input, endtime, timeout)\n                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/subprocess.py\", line 2129, in _communicate\n    self._check_timeout(endtime, orig_timeout, stdout, stderr)\n    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/subprocess.py\", line 1269, in _check_timeout\n    raise TimeoutExpired(\n    ...<2 lines>...\n            stderr=b''.join(stderr_seq) if stderr_seq else None)\nsubprocess.TimeoutExpired: Command '['/usr/bin/python3', '-I', '-B', '/tmp/baton-next-run-345023/v12/python/tests/tools/next_run_flow_fixture.py', '/tmp/next-run-test-j_pfys6f/trusted/code', '/tmp/baton-next-run-345023/v12/python', '/tmp/next-run-test-j_pfys6f/flow-trace.jsonl', '--packet', '/tmp/next-run-test-j_pfys6f/trusted/runs/first/PACKET.json']' timed out after 25 seconds\n\n----------------------------------------------------------------------\nRan 1 test in 25.143s\n\nFAILED (errors=1)\n"
+}

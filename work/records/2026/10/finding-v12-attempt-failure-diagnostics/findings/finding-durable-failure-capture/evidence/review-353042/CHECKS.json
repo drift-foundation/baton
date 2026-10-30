@@ -1,0 +1,38 @@
+{
+  "claim": 353042,
+  "candidate_head": "2d313602e0a82a365f3b0239a9ce1ba91f62c56a",
+  "content_digest": "sha256:c509bd42d5430dcee4d1b12ded916cdfff903d31754df96867d9cb4a561a8d47",
+  "candidate_patch": "044d58bcbc2a63ddc165728f1476a5f07ab108a9559c31c5dd62f32a5f11dd54",
+  "indexed_copies_verified": 30,
+  "custody_member_source_pairs_verified": 4,
+  "changed_paths": [
+    "W341357-VERIFICATION.json",
+    "v12/python/src/baton_v12/worker_manager/attempts.py",
+    "v12/python/src/baton_v12/worker_manager/documents.py",
+    "v12/python/src/baton_v12/worker_manager/failure_cause.py",
+    "v12/python/src/baton_v12/worker_manager/intake.py",
+    "v12/python/tests/manager/disk_roots.py",
+    "v12/python/tests/manager/input_roots.py",
+    "v12/python/tests/manager/test_attempt_failure_cause.py",
+    "v12/python/tests/manager/test_intake.py",
+    "v12/python/tests/manager/test_maintenance.py",
+    "v12/python/tests/manager/test_output.py"
+  ],
+  "unchanged_patch_sections_from_recovery345822": [
+    "v12/python/tests/manager/disk_roots.py",
+    "v12/python/tests/manager/input_roots.py",
+    "v12/python/tests/manager/test_intake.py",
+    "v12/python/tests/manager/test_maintenance.py",
+    "v12/python/tests/manager/test_output.py"
+  ],
+  "static_counterexample": {
+    "source": "candidate failure_cause.py:626-640",
+    "setup": "Record fresh A(revision0,supersedes=None), B(revision1), A(revision2). Replay original A with observed_after=None and original facts.",
+    "actual_by_control_flow": "_same_account(tip,document) is true; returns revision2 and its operation identity at line631 before coordinate-aware _same_observation loop.",
+    "required": "Return original revision0 and identity; current reader stays revision2 and no write occurs.",
+    "test_gap": "Existing delayed replay uses distinct tip facts (A,B,C), and A,B,A test stops before replaying original A.",
+    "execution": "Static trace only; no host product code/test executed."
+  },
+  "verification_limits": "Sealed command exit0 verified; 892/no-skips/timing and wider194 failures are author report, not independent reruns.",
+  "product_tests_by_reviewer": 0
+}

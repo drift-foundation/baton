@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_startup_prerequisites"
+  ],
+  "exit_code": 0,
+  "wall_seconds": 0.17517643100018176
+}

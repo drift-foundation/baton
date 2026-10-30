@@ -1,0 +1,17 @@
+{
+  "root": "/tmp/w333735-review-333938-m24k6uhe",
+  "manifest_sha256": "dd23151885876c440b44793bf7e64f94e7a1d7f002fdf94aef1c82f703242592",
+  "manifest_members": 22,
+  "source_members": 456,
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_authoring_enforcement",
+    "tests.job_manager.test_tool.TheStatusSurfaceMayReadIntegrationAndStillActOnNothing",
+    "tests.job_manager.test_tool.TheRecoveryPassVisitsTheUNCERTAINTokensToo",
+    "-v"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 2.878483888000119
+}

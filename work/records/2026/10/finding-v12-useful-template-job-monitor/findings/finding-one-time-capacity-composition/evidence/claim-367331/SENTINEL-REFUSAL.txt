@@ -1,0 +1,1 @@
+refused: /var/tmp/baton-w257624/w367232-sentinel2 already exists; this preparation never removes or reuses a path it did not create. Name a fresh one.

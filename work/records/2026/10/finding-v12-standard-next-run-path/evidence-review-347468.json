@@ -1,0 +1,40 @@
+{
+  "claim": 347468,
+  "receipt_members": 8,
+  "hash_mismatches": [],
+  "helper_sha256": "7caed820d8c7927306e620661a872962df7228b47dfe1721edd875e031990893",
+  "start_exit": 1,
+  "helper_elapsed_seconds": 46.29457205500148,
+  "controller_elapsed_seconds": 44.77346343399768,
+  "controller_state": "held",
+  "child_status": 1,
+  "enforcement": {
+    "attempts": {
+      "attempt-39ea7bcd743ef31185056766496bd0e72f2fc815fa75fbf73a32d10b0347a8a4": {
+        "faults": [],
+        "observation": null,
+        "runtime": {
+          "assignment": {
+            "generation": 1,
+            "participant": "baton.impl",
+            "work_ref": {
+              "authority_uuid": "15c5c8ce04d14f3e83651355085a03a8",
+              "work_id": "15c5c8ce-W1"
+            }
+          },
+          "attempt_id": "attempt-39ea7bcd743ef31185056766496bd0e72f2fc815fa75fbf73a32d10b0347a8a4",
+          "cleanup": "pending",
+          "execution_runtime": "not-started",
+          "runtime_id": null
+        },
+        "token": null
+      }
+    },
+    "faults": [],
+    "state": "stopping"
+  },
+  "private_directory_access": "PermissionError",
+  "root_cause": "unknown",
+  "cessation": "unproved",
+  "helper_not_executed": true
+}

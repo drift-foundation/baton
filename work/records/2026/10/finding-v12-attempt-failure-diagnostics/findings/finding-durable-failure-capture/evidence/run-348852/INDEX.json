@@ -1,0 +1,13 @@
+{
+  "blocker": "BLOCKER-348929.json",
+  "claim": 348929,
+  "copies": {
+    "BLOCKER-348929.json": "f6d48cb7e5f950d02914dd7bf0c0b2908acd34dd519d2dce651739095c09ac61",
+    "COLLECTION.json": "13e3d88acc895118d1fd4b130463ffd3869586a4c15c799d3cd5f4a833f70e8a",
+    "EXECUTOR-CAPABILITY.json": "340565d77cbe37704fe8e16ba10d9b46459603cc31ee9de704b6d975e25c1942",
+    "EXECUTOR-PREFLIGHT.json": "095d086b8a86e8a10730aa8086215b2fba7104bb35194f65947df8d746965b4f",
+    "controller-stderr.log": "45c106bf909777ea606f46bacca87b81d1b47c3363094b918f89001994296666"
+  },
+  "run": "durable-capture-w341357-348852",
+  "schema": "baton.w341357-run-evidence/2"
+}

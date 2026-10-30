@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-serving-token-renewal/execution-334650/prepare.py", line 194, in <module>
+    {'stage': stage, 'bind': bind}[args.step](Path(args.root))
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-serving-token-renewal/execution-334650/prepare.py", line 75, in stage
+    root.mkdir(mode=0o700)  # refuse reuse, including symlinks
+    ~~~~~~~~~~^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 724, in mkdir
+    os.mkdir(self, mode)
+    ~~~~~~~~^^^^^^^^^^^^
+FileExistsError: [Errno 17] File exists: '/tmp/w333485-preflight-e36avd92/instance-root'

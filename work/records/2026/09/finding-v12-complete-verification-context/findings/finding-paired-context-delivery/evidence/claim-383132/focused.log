@@ -1,0 +1,27 @@
+=== the two new paired suites, re-measured together ===
+..................................................................................................................................................................................
+----------------------------------------------------------------------
+Ran 178 tests in 13.534s
+
+OK
+wall 13.72 s
+
+=== the named 102 gate on the HOST, baseline provenance only ===
+......................................................................................................
+----------------------------------------------------------------------
+Ran 102 tests in 0.228s
+
+OK
+wall 0.44 s
+
+=== the adapter and operator suites the candidate changes ===
+...............................................................................................................................................................................................................................................................................s...............................................................................................................................................................................................................................................................................................................................................baton-worker: launch: /tmp/v12-exchange-3w18ornh/spoiled-attempt-unwrapped-exchange-135.json selects 'baton.worker-exchange/1' without the 'baton.worker-launch/5' wrapper; this release speaks the file exchange through 'typed-adapter-file-exchange/1' and an unwrapped file-exchange launch is not one this worker executes
+baton-worker: launch: /tmp/v12-exchange-3w18ornh/spoiled-attempt-wrong-profile-238.json names wire profile 'typed-adapter-file-exchange/2' and this worker speaks 'typed-adapter-file-exchange/1'; a profile this program cannot name is a wire it cannot speak, and there is no negotiation
+baton-worker: launch: /tmp/v12-exchange-3w18ornh/spoiled-attempt-an-unknown-outer-member-250.json is exactly schema, wire_profile, payload; unexpected extra
+baton-worker: launch: /tmp/v12-exchange-3w18ornh/spoiled-attempt-another-generation-58.json says it is 'baton.worker-launch/9' and this worker reads 'baton.worker-launch/1', 'baton.worker-launch/2', 'baton.worker-launch/3', 'baton.worker-launch/4'; a launch document from another generation is not one to read the recognised parts out of
+..............................................................................................................................................................................................................................................................................................................................................................................
+----------------------------------------------------------------------
+Ran 973 tests in 70.451s
+
+OK (skipped=1)
+wall 70.77 s

@@ -1,0 +1,72 @@
+{
+  "work/records/2026/10/finding-v12-useful-template-job-monitor/evidence/claim-369970/BINDING.json": {
+    "expected": "0dac3124f490e3790665fe98fb3410c1168ead156f6ce9d41884cb443a5ca5a3",
+    "actual": "0dac3124f490e3790665fe98fb3410c1168ead156f6ce9d41884cb443a5ca5a3",
+    "ok": true
+  },
+  "work/records/2026/10/finding-v12-useful-template-job-monitor/COMMANDS.md": {
+    "expected": "42f26ba33f7f9afa41d1253e18febabbb1e12e84b982cc7bf5a7be85a94f325f",
+    "actual": "42f26ba33f7f9afa41d1253e18febabbb1e12e84b982cc7bf5a7be85a94f325f",
+    "ok": true
+  },
+  "work/records/2026/10/finding-v12-useful-template-job-monitor/verify_commands.py": {
+    "expected": "c97ac795a540dcca1e2421752829f2aaed663ac7c5b5160bd9cf264cfd8e3f7c",
+    "actual": "c97ac795a540dcca1e2421752829f2aaed663ac7c5b5160bd9cf264cfd8e3f7c",
+    "ok": true
+  },
+  "work/records/2026/10/finding-v12-useful-template-job-monitor/FINDING.md": {
+    "expected": "c4501760d78ef8a90a7833614d3cbcfb3de8b8509f922dad673150a3ed94047a",
+    "actual": "c4501760d78ef8a90a7833614d3cbcfb3de8b8509f922dad673150a3ed94047a",
+    "ok": true
+  },
+  "work/records/2026/10/finding-v12-useful-template-job-monitor/PLAN.md": {
+    "expected": "add1cbaeb90e23d3f2d404761f2d9c0b663c3f26b3adc4f8b6c9a9fdf1f838ea",
+    "actual": "add1cbaeb90e23d3f2d404761f2d9c0b663c3f26b3adc4f8b6c9a9fdf1f838ea",
+    "ok": true
+  },
+  "work/records/2026/10/finding-v12-useful-template-job-monitor/USEFUL-JOB.md": {
+    "expected": "2d2a060c4fdd652e5b64c33474c2694fc287d5ba9d04cee793d586c419c058ba",
+    "actual": "2d2a060c4fdd652e5b64c33474c2694fc287d5ba9d04cee793d586c419c058ba",
+    "ok": true
+  },
+  "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/evidence/claim-369373/BINDING.json": {
+    "expected": "92d9962a71b64b5d25142e22a3b5bd52a374093aa1a352c0c8594b2893765723",
+    "actual": "92d9962a71b64b5d25142e22a3b5bd52a374093aa1a352c0c8594b2893765723",
+    "ok": true
+  },
+  "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/capacity.py": {
+    "expected": "1944c97d6868c12ae19a363cb88f6e50d539adca0f33b328a9eaf4415be7fda6",
+    "actual": "1944c97d6868c12ae19a363cb88f6e50d539adca0f33b328a9eaf4415be7fda6",
+    "ok": true
+  },
+  "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed_grants.py": {
+    "expected": "f447fcb62eb665abb5e0bd445392926735c2f3763e4868cbdd8ec8fe76911857",
+    "actual": "f447fcb62eb665abb5e0bd445392926735c2f3763e4868cbdd8ec8fe76911857",
+    "ok": true
+  },
+  "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/prove_capacity.py": {
+    "expected": "8c31bc2d0719a8a089a9ba881d3ecf292e0c45591560e8301da1e363bf0ff5e4",
+    "actual": "8c31bc2d0719a8a089a9ba881d3ecf292e0c45591560e8301da1e363bf0ff5e4",
+    "ok": true
+  },
+  "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/prove_custody.py": {
+    "expected": "b89cf865be53e0e190e505531209f37d58e71d140d9062302841e07f59017200",
+    "actual": "b89cf865be53e0e190e505531209f37d58e71d140d9062302841e07f59017200",
+    "ok": true
+  },
+  "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/prove_guide_contract.py": {
+    "expected": "64e0e1b8711ef6021c62f575162b48aca0f4995e8513bde3dcba48e9411ccba2",
+    "actual": "64e0e1b8711ef6021c62f575162b48aca0f4995e8513bde3dcba48e9411ccba2",
+    "ok": true
+  },
+  "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants/INVENTORY.json": {
+    "expected": "6ae52f7b2b796fe1bae8323155513fb8f751e182f4a48a0dffbb577243284add",
+    "actual": "6ae52f7b2b796fe1bae8323155513fb8f751e182f4a48a0dffbb577243284add",
+    "ok": true
+  },
+  "work/records/2026/10/finding-v12-useful-template-job-monitor/evidence/claim-369970/verification.json": {
+    "expected": "e5284fea8bafdf012bc31281f9c3349915f91c8ce1138e174497f7f02570b7bc",
+    "actual": "e5284fea8bafdf012bc31281f9c3349915f91c8ce1138e174497f7f02570b7bc",
+    "ok": true
+  }
+}

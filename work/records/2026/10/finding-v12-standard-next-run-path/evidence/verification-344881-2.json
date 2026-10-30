@@ -1,0 +1,15 @@
+{
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_next_run_managed",
+    "tests.tools.test_next_run_recovery",
+    "tests.tools.test_next_run",
+    "tests.manager.test_authoring_enforcement"
+  ],
+  "returncode": 0,
+  "wall_seconds": 14.404279199996381,
+  "stdout": "",
+  "stderr": "...................................................................\n----------------------------------------------------------------------\nRan 67 tests in 14.031s\n\nOK\n"
+}

@@ -1,0 +1,86 @@
+{
+ "canonical_records_are_not_execution_inputs": true,
+ "claim": 370820,
+ "consumed_decision_inputs": {
+  "work/records/2026/10/finding-v12-shared-output-template-preparation/decision-inputs/370820/FINDING.md": "db2db5eba8d79c9f4fe66c181577fdb0c59cdbaec22c7ff6344bee7e50f5c77e",
+  "work/records/2026/10/finding-v12-shared-output-template-preparation/decision-inputs/370820/PLAN.md": "4413596f33e23af61d9e5df9adb2dd94f7a0d6b1fb0c0e350c854d75d483eec0"
+ },
+ "decision_revision": "370820",
+ "document_sha256": "a66a860f81e9964f259898a09f3a58f9ee9b91cf548e9bd55b325c1376826c75",
+ "files": {
+  "COMMANDS.md": {
+   "bytes": 4342,
+   "sha256": "d0d1c2d226646aa7e0da48e6432d85ae851729c8451bd543d10463e6bd48d5e1"
+  },
+  "PROGRESS.md": {
+   "bytes": 6231,
+   "sha256": "c90bb93f49c8cdf9adf1ef4d7d2d5eb16b86c60c4690254bf1d3a794b34cc83b"
+  },
+  "candidate-370820/BOOTSTRAP-FIXTURE.json": {
+   "bytes": 13040,
+   "sha256": "a66a860f81e9964f259898a09f3a58f9ee9b91cf548e9bd55b325c1376826c75"
+  },
+  "candidate-370820/COMPOSITION.json": {
+   "bytes": 25861,
+   "sha256": "cc664a132688be2d3f2bd889e6b1aa606af2834b4bc6c77dedf756f0c16b8d45"
+  },
+  "candidate-370820/task.json": {
+   "bytes": 8146,
+   "sha256": "c21e6b93bfe199ebb89b3ec7a75e70a5636c52f9986b1afa3709a381c6bd98d7"
+  },
+  "decision-inputs/370820/FINDING.md": {
+   "bytes": 3397,
+   "sha256": "db2db5eba8d79c9f4fe66c181577fdb0c59cdbaec22c7ff6344bee7e50f5c77e"
+  },
+  "decision-inputs/370820/PLAN.md": {
+   "bytes": 1688,
+   "sha256": "4413596f33e23af61d9e5df9adb2dd94f7a0d6b1fb0c0e350c854d75d483eec0"
+  },
+  "evidence/claim-370820/PROOF.json": {
+   "bytes": 59048,
+   "sha256": "d77078bd4aec6936d09b4ce6299018e6d90ccaccde02ce2adbc2e92d5f7e775d"
+  },
+  "evidence/claim-370820/RUNS.json": {
+   "bytes": 506,
+   "sha256": "b2ab6a4b2cd7f65744b2aaa6e3e2cdc073f3acf56db194bc58a67af515916ff0"
+  },
+  "evidence/claim-370820/prior/COMMANDS.md": {
+   "bytes": 3574,
+   "sha256": "7090ac4a3d4404ad87e0cc5c7dabd0cf5ae4ccc91883d9152434258639d57787"
+  },
+  "evidence/claim-370820/prior/INVENTORY.json": {
+   "bytes": 2369,
+   "sha256": "9b1eb2b2fe794d8bf837b0159010c3450be241ba43eaa0c7ffd404470ed3e562"
+  },
+  "evidence/claim-370820/prior/PROGRESS.md": {
+   "bytes": 3781,
+   "sha256": "1de7c822252fba410caad8a9c9c7935cdd59601bc815579fa5b52d4f92d8faa6"
+  },
+  "evidence/claim-370820/prior/prepare.py": {
+   "bytes": 4770,
+   "sha256": "d7d1a4b8ac3ea0bc8e137ea17ff4727705d03bb78994536e8cf9f9845ca7cf1d"
+  },
+  "evidence/claim-370820/prior/prove.py": {
+   "bytes": 12822,
+   "sha256": "40181b8a6a4a1122696407e3910abe0e90026aa78cf2b977a2b99a14708a4a52"
+  },
+  "prepare.py": {
+   "bytes": 5566,
+   "sha256": "4c72fd3bd85901e38586b262b926b29e16217643bfa0200f0bd79b428fbee503"
+  },
+  "prove.py": {
+   "bytes": 14121,
+   "sha256": "2156d9e25de4172c17e6c37e09606c4679c164fa4d01d15b680eacfe54d0701d"
+  }
+ },
+ "limitations": [
+  "Git and provider process responses simulated",
+  "transport fixture is not a valid Git bundle",
+  "no manager scheduling, installation, engine, native verdict or runtime cleanup claimed",
+  "real adapter, selected verification command, completion, seal, collection and role claim readers exercised"
+ ],
+ "manifest_digest": "sha256:ad4dc11574bdba2d796e1a3f30b81d9616e1d5e0354fd337aef22ca249a467c0",
+ "prior_inventory_sha256": "9b1eb2b2fe794d8bf837b0159010c3450be241ba43eaa0c7ffd404470ed3e562",
+ "status": "awaiting independent review",
+ "work": "W370688"
+}

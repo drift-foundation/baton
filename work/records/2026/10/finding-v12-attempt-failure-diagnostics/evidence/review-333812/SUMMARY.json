@@ -1,0 +1,60 @@
+{
+  "manifest": "a0414adb994b5bf354aa728d185bec8de6adb99954b8f54a417cc4b6b5246829",
+  "members": 19,
+  "root": "/tmp/w333486-review-333812-38f1u95t/root",
+  "runs": [
+    {
+      "label": "pins",
+      "returncode": 0,
+      "seconds": 0.11746452799889084
+    },
+    {
+      "label": "hold-refusal",
+      "returncode": 1,
+      "seconds": 0.04384687499987194
+    },
+    {
+      "label": "stage",
+      "returncode": 0,
+      "seconds": 0.11937195300015446
+    },
+    {
+      "label": "bootstrap",
+      "returncode": 0,
+      "seconds": 0.5984338990001561
+    },
+    {
+      "label": "bind",
+      "returncode": 0,
+      "seconds": 0.35770681699978013
+    }
+  ],
+  "prepared": {
+    "artifacts": {
+      "PACKET.json": "352cae7fc29494c5eb21d56ad46ac8ea7ccdaff75f3b22e6612caad87e46cabc",
+      "adapter.json": "cbe3bb4ade990eb5411c64a40be74a10e46a79f48343c499b5f1a8453fabc9c7",
+      "commands.json": "f8cc599fac87eb7d12abb302fb7238946d8d4bf911f72d0a00afee5bd605188b",
+      "deployment.json": "657302215c878b36231f8806fb66d187818d167b7588bf39163208f03b797638",
+      "policy.json": "2b75b8208cd288418ea5a9af8ece0c443abdaa19fda80a1ea2725e43fdbc306c",
+      "runtime-profile.json": "70ca07c494c9660bfaf747772f2233ccaf77b4ef3a4da90c26121b7b59ff1d34",
+      "submission.json": "2a1f34e9dc5be393c1699b3bf09f2a568e75b1b430c55233b342adb3085ddec3",
+      "task.json": "5f7e062252f03519ddc3d3000eca97374d79509978ec8ad5da1964ff70d411cf"
+    },
+    "authority_uuid": "794bd3fca9a643899fbad04197e09491",
+    "hold": "HOLD.md",
+    "independent_review": "an independent reviewer consumes this preparation packet through v11; actual execution awaits the separately selected safe authoring vehicle, and there is no automatic acceptance",
+    "packet_sha256": "352cae7fc29494c5eb21d56ad46ac8ea7ccdaff75f3b22e6612caad87e46cabc",
+    "start_authorized": false,
+    "state": "prepared-not-executed",
+    "work": "W333486"
+  },
+  "limits": {
+    "automatic_retry": false,
+    "implementer_invocations": 1,
+    "note": "the caps the admission gate enforces; W239528",
+    "provider_turn_seconds": 3600,
+    "schema": "baton.single-implementation-execution-policy/1",
+    "verification_command_seconds": 30
+  },
+  "reviewer_error": "initial manifest inspection assumed files wrapper; corrected to actual flat mapping before verification"
+}

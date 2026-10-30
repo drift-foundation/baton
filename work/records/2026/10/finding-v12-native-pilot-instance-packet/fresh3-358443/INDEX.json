@@ -1,0 +1,118 @@
+{
+  "WORK": "2b077949-W325959",
+  "CLAIM": 358517,
+  "SUPERSEDES_CLAIM": 358443,
+  "ANSWERS_REVIEW": "work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-23T05-00-27Z.md",
+  "UNDER_OWNER_DECISION": "358374, pinned in FRESH-JOB-PREPARATION-358384.md; this is authorized continuation, not a new gate",
+  "WHAT_THIS_IS": "The fresh corrected two-stage packet for a NEW instance 3. Nothing executed; instance 3 did not exist at authoring.",
+  "WHAT_CHANGED_AT_CLAIM_358517": {
+    "the_confirmed_blocker": "fresh.prepare returned `planned` immediately after mint(apply=False) -- BEFORE anything parsed task.json, configure-inputs.json or submission.json, BEFORE any contract was composed, and BEFORE --distro or --repository-source were examined. The reviewer's independent reproduction therefore got planned:true from a malformed task plus a nonexistent bundle, and the apply then CREATED THE DESTINATION and persisted authority-identity.json before raising JSONDecodeError. A partial installation from an error knowable without writing anything is exactly what a preflight exists to prevent.",
+    "the_fix": "A real pre-mint gate, fresh.static_refusals, which parses all four documents, enforces the packet pins AND a pin on the imported helper AND the inherited pins, checks isolation of every ACTUALLY CONSUMED path, requires an executable bundle and a usable repository source, and REHEARSES the whole manifest/submission cross-binding against a deliberately provisional authority. Nothing is minted until all of it answers.",
+    "pins_are_now_enforced_not_reported": "the previous revision printed packet_digests and compared none of them; a hash printed beside a document nobody compared is decoration",
+    "helper_drift_is_a_refusal": "post-install-357462/configure.py supplies the sealing, the cross-binding and the accepted shared two-stage output contract, so its bytes are an input like any document. HELPER_PINS binds it at sha256:b15280cc..., which is the accepted value and was re-verified unchanged this claim.",
+    "inherited_pins_now_bind_the_ACTUAL_consumption_site": "configure.sealed_manifest reads the prior deployment, both native records and the digest recipe from SIBLING.parent -- not from wherever the packet sits -- so the pins are compared there. The previous shape would have bound bytes nothing reads.",
+    "noninterference_now_covers_reads": "it asked only about instance.layout(destination), i.e. paths WRITTEN, so a packet, helper or bundle sitting inside instance 1 or 2 passed unexamined even though those bytes decide what gets installed",
+    "task_digest_now_describes_the_emitted_bytes": "it was computed before step 4 wrote the task document and was therefore always null; it is now taken from the emitted file and asserted equal to the composed bytes",
+    "pins_rechecked_after_the_mint": "a packet edited between validation and use cannot be installed",
+    "distro_no_longer_pending": "resolved by reading the build, not by assuming a subdirectory"
+  },
+  "IDENTIFIERS": {
+    "destination": "/home/sl/baton-instances/native-coordination-pilot-w321608-3",
+    "job": "quickstart-c",
+    "submission": "sub-w321608-quickstart-3",
+    "task": "w321608-native-operator-quickstart-3",
+    "incarnation": "w325959-owner-submit-3",
+    "authority": "minted by step 1 and read back from its own record; read into a quoted shell variable at selection 3",
+    "work": "composed as <minted uuid[:8]>-W1; NEVER 673355e1-W1, which the proof asserts"
+  },
+  "THE_RESOLVED_DISTRO": {
+    "path": "/home/sl/baton-builds/w325959-30245386-356981/build/out/distro",
+    "command": "baton-v12-stack, present and executable",
+    "verified_identity": "frozen true; schema_assets agent-session-1.0 and worker-control-1.0; native_rpds inside the bundle's own _internal; build_stamp.commit 302453869d07eb5579e79a6572586d3c3cf62a5c with dirty false",
+    "sha256": "9cda6dabe328ee800c2eb3cb6997d29dce179c857f9bb2968c33a4adbf043673",
+    "why_this_is_trustworthy": "it matches the executable digest already pinned by the accepted instance-2 INDEX, and it was read off the build rather than taken from the review's prose",
+    "was": "PENDING(...) at handoff358474 -- which was additionally shell-invalid, so the block could not have been pasted"
+  },
+  "THE_WORKSPACES_PREREQUISITE_MEASURED": {
+    "question": "does the supported preparation create state/workspaces, or must the owner?",
+    "measured_answer": "THE OWNER MUST. After a successful supported preparation in the disposable root, workspace_storage_present was false.",
+    "why": "bootstrap.storage_bound (bootstrap.py:1673) DERIVES workspace_storage when absent and REFUSES a path outside the destination, but creates no directory. The consumer workspaces.check_workspace_storage (workspaces.py:869) lstats the place and refuses 'is not a directory this manager can see'.",
+    "so_commands_carries_it": "selection 2b, which also asserts a real directory rather than a link, because that same consumer refuses a link at the name and a directory owned by another uid",
+    "evidence": "evidence/PROVE.json -> workspace_storage_present"
+  },
+  "THE_ORDERING_UNCHANGED_AND_STILL_ACCEPTED": [
+    "1. bootstrap --inputs install-inputs.json with NO --destination mints and persists the authority and an empty configuration, from a document carrying NO workers and NO jobs",
+    "2. read the minted authority_uuid back from authority-identity.json",
+    "3. compose the Work as <uuid[:8]>-W1 and seal the manifest and task against it",
+    "4. bootstrap --inputs --destination --distro --repository-source reuses that uuid and creates ALL FOUR repositories, the Work, the configuration and the selector",
+    "NO MANUAL CLONE: repository_plan derives one source per worker, so the instance-2 workaround is not carried forward"
+  ],
+  "IMMUTABLE_HASHES": {
+    "install-inputs.json": "sha256:bfe7f223dcef1eb2d5ecbb5f05d5c925f5d7b04b22d96e5a516fd19e6bd3e77d",
+    "configure-inputs.json": "sha256:b108d2189d15e77b0d7eb3cb1d9b9d61eb9ac3cb662ab91c2da1e34805b976ca",
+    "task.json": "sha256:2f87e9dc45b94eb4100d6127a5f6e9487cb7c6edb2bbac6f3653052f966a62d0",
+    "submission.json": "sha256:76013289a5b0d587c148add78ac93ec16272481f2b00680a077c3602bd507c7c",
+    "fresh.py": "sha256:682c6b094f259fd1114781dbe54b79c5bd88c9590162f18a92551ceac586521f",
+    "prove.py": "sha256:f682ec0675380a4573163fe880a21b544d011036cbce6f241d08031a41b90ad9",
+    "shell_syntax.py": "sha256:6ebe6b3009b63134204fb37745d5397f2ad4b06bfa2ea2e1a8eeb7b42630b58a",
+    "COMMANDS.md": "sha256:07c763f1b36bdfee026531d59e788f78a7a2dbe1eb80ad1f2f7cec6ffc4642b5",
+    "evidence/PROVE.json": "sha256:e8bfffc01f7566adc03f7ea0890dbed5535e8ae62a5dc43573a788e74d2ed26a",
+    "evidence/SHELL-SYNTAX.txt": "sha256:14145d62b4afd920d2c22a1c7053d52e7eb1a4767e41e2109150b60081bf2b05",
+    "evidence/PROVE-358443-superseded.json": "sha256:a0bc2ed5014da484bf872a7fc4201aef8f69ab90b7fc87aee9287b9af009efc8"
+  },
+  "THE_FOUR_DATA_DOCUMENTS_ARE_BYTE_UNCHANGED": "install-inputs.json, configure-inputs.json, task.json and submission.json still carry their handoff358474 digests. The correction is entirely in the driver, its proof and the commands -- which is also what makes PACKET_PINS checkable: the proof asserts each shipped pin IS the real digest of the real document.",
+  "DETERMINISTIC_PROOF": {
+    "file": "evidence/PROVE.json",
+    "script": "prove.py",
+    "result": "42 checks, 0 failed",
+    "was": "15 checks at handoff358474; all 15 positives are preserved",
+    "git_executed": false,
+    "the_reproduction_is_now_a_refusal": "the reviewer's exact input -- malformed task plus nonexistent bundle and source -- refuses at preflight AND at apply, and both assert the destination was NOT created",
+    "every_negative_asserts_no_destination": "the `refuses` helper fails the check if the destination exists after the refusal, so 'it refused' cannot be confused with 'it refused cleanly'",
+    "negatives_added": [
+      "malformed task, at preflight and at apply",
+      "a packet document that does not hash to its pin",
+      "an UNPINNED (None) pin -- refused rather than degrading to an existence check",
+      "helper drift: the imported configure.py is not the accepted bytes",
+      "an absent consumed document",
+      "a nonexistent bundle; a bundle with no baton-v12-stack; a NON-EXECUTABLE bundle command",
+      "a nonexistent repository source; a source tree with no v12 directory",
+      "a bundle inside a RETAINED instance; an instance-3 destination nested in one",
+      "a packet whose state_root names another destination",
+      "and after all of them, the destination still does not exist"
+    ],
+    "shipped_defaults_are_exercised": "HELPER_PINS and configure.INHERITED_PINS are used AS SHIPPED by every run, because they name the real helper and the real consumption site, which staging does not move. PACKET_PINS is additionally asserted to be the real digests of the real documents, and a None pin is proved to refuse. This applies the claim357900 lesson: a check that hands in its own values never tests the defaults.",
+    "positives_strengthened": [
+      "two checks that were literal `True` on the grounds that prepare refuses otherwise now READ THE INSTALLATION: every installed worker names the minted authority and the provisional uuid appears nowhere in the installed document; and stage_execution.held_configuration is called on the installed bytes",
+      "the installed manifest is asserted to carry the accepted shared two-stage output contract with every output optional",
+      "the readback task digest is asserted non-null and equal to the emitted file's bytes",
+      "the adapter is asserted to come from the clean reviewed build, with its sha256 recorded"
+    ],
+    "two_of_my_own_test_defects_caught_and_fixed_this_claim": [
+      "the 'tampered packet' case staged a BYTE-IDENTICAL copy, so it tampered with nothing and would have reported a pass for a refusal that never happened",
+      "the 'nested in a retained instance' case pointed a run at a destination its packet did not name, so the state_root refusal fired and hid the isolation refusal under test"
+    ],
+    "limits": "Deterministic and disposable. The repository boundary is SIMULATED through the product's injected runner and the bundle is a STUB satisfying admit's identity checks. Establishes composition, ordering, both role declaration contracts, the workspace measurement and every pre-mint refusal -- NOT that real clones, the real bundle's admission or a real provider turn succeed."
+  },
+  "COMMANDS_CORRECTED": {
+    "distro": "the resolved path plus `test -x` and an `identity` read, with the exact answer the owner must see",
+    "authority": "read out of authority-identity.json into a quoted shell variable $A, instead of a PENDING placeholder for someone to paste",
+    "workspaces": "selection 2b, required by measurement, asserting a real non-link directory",
+    "shell_syntax": "all 7 ```sh blocks pass `bash -n`; shell_syntax.py performs the check and evidence/SHELL-SYNTAX.txt is its output, so the claim is proved rather than asserted",
+    "simulation_boundary_named": "selection 2 is labelled as where simulation stops -- it runs real clones and really admits the bundle, and each of selections 2, 3 and 4 is the first execution of its own step",
+    "selections_still_separate": "preparation preflight, mint/compose/install, the workspace prerequisite, submission, and serving are five separate owner decisions"
+  },
+  "WHAT_IS_NOT_PROVED_AND_NOT_CLAIMED": [
+    "no real repository clone, no real bundle admission, no provider turn, no live serving, no submission",
+    "instance 3 was not created and nothing was executed against any instance",
+    "stage completion is not approval; no provider output or receipt is fabricated",
+    "same-checkpoint recovery remains unselected; RECOVERY-358300.md still names attach_review:2168 as the first blocking invariant"
+  ],
+  "UNTOUCHED": [
+    "instances 1 and 2, their authorities, stores and custody",
+    "quickstart-b's completed implementation, checkpoint and failed-review evidence",
+    "the accepted post-install-357462 packet: configure.py is unchanged at b15280cc and is consumed by import, not copied",
+    "the reviewer's records and evidence/review-358477"
+  ],
+  "OWNERSHIP": "author owns this packet, its helpers and PROGRESS.md; the reviewer owns FINDING.md, PLAN.md, the review records and evidence/review-*. Nothing under v12/ was edited and no Git operation was performed."
+}

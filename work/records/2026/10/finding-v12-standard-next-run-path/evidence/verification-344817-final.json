@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_next_run_managed"
+  ],
+  "cwd": "/tmp/baton-next-run-344617/v12/python",
+  "exit_code": 0,
+  "process_wall_seconds": 4.657222618996457,
+  "stdout": "",
+  "stderr": "............\n----------------------------------------------------------------------\nRan 12 tests in 4.311s\n\nOK\n",
+  "timeout_seconds": 60,
+  "boundary": "Final targeted run after disabling user-site import; poison HOME sitecustomize and caller PYTHONPATH/PYTHONHOME are not loaded."
+}

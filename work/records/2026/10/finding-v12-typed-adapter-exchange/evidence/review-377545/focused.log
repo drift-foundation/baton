@@ -1,0 +1,16 @@
+............................................................................................................................................................................................................................................................................................................................................................................................................................................................s...................E
+======================================================================
+ERROR: setUpClass (tests.manager.test_dogfood_image.TheDogfoodImageIsBuiltAndProbed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_dogfood_image.py", line 63, in setUpClass
+    raise AssertionError(
+    ...<2 lines>...
+        f"not a reason to pass without running it.")
+AssertionError: W39357's acceptance requires a built dogfood image and docker is installed and its daemon is not reachable: permission denied while trying to connect to the docker API at unix:///var/run/docker.sock
+. That is a failed prerequisite for a required gate, not a reason to pass without running it.
+
+----------------------------------------------------------------------
+Ran 464 tests in 16.919s
+
+FAILED (errors=1, skipped=1)

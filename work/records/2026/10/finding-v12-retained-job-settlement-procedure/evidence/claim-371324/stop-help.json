@@ -1,0 +1,13 @@
+{
+  "name": "stop-help",
+  "cmd": "/home/sl/baton-instances/useful-template-job-w366962/distro/baton-v12-stack stop --help",
+  "started": "2026-10-28T03:30:08.919Z",
+  "result": {
+    "chunk_id": "6851ba",
+    "wall_time_seconds": 0.000004919,
+    "exit_code": 0,
+    "original_token_count": 20,
+    "output": "usage: stack stop [-h]\n\noptions:\n  -h, --help  show this help message and exit\n"
+  },
+  "ended": "2026-10-28T03:30:09.053Z"
+}

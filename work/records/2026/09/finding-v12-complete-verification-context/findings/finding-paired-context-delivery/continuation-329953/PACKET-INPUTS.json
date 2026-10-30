@@ -1,0 +1,20 @@
+{
+  "CONTEXT-CHECK.json": "7be3e380de561c8db612e718ce1e8e46b9831768c0a229b9404359f738843efd",
+  "GATE-CHECK.json": "875200d1897905c97199b2d2b909efa8738507b9b4f934ff032f5226763b5515",
+  "LIMITS-CHECK.json": "b41be38a032ad39ba38ed64a26a26ad244972dfd6c4ba8af8660f5ad67708ac8",
+  "LOAD-COMMAND.txt": "8e5a9aca971d12afae93d298825416e0819565632f89686ec701b249f1f934b9",
+  "OPERATOR.md": "26f0252fca7620847aca653f7633ddfa538578dfc5b17684b69a3243dd0b4569",
+  "PACKET.md": "c76b5d2da945459cb1559a415f76823d1d7ed4a41aef832c2fc18c808f24c7aa",
+  "PREFLIGHT.json": "2dbb83b7813f26855c5f64eeb36aaf25be66c8f4e7d77ed5d8b4975a9fbcc417",
+  "PREPARATION-PINS.json": "d797a486aa19856fc5d3e067d713a8b531ade602d4c6da7abd8b5174b8e72e81",
+  "PROVENANCE.json": "062b154ddcba3da89c068113d7bdb55f187a9ff0df11b272bb4c890366a8eaec",
+  "TASK.md": "0ab4b22f3ca066f0ec850151f763e096758413245b945e1bf7c8b7346958c671",
+  "candidate-input/v12/.dockerignore": "b7da7ead0d55e0df74be3b2df79d309fd3aa5455967e3a6bc1d705293cb57ca8",
+  "candidate-input/v12/python/src/baton_v12/verification_context.py": "f599072ac1202e9b759d9e7850f76c98790e23710cf6181d5a6e8907dd51650e",
+  "candidate-input/v12/python/tests/manager/test_claude_agent.py": "215e9db278b9d87c971be970528646d2fd5fad5b74ef927a49036916ba37288e",
+  "candidate-input/v12/python/tests/manager/test_verification_context.py": "42dcbfc99ef97c5191461d901bc32630ac58641c77c73341cae9bea1b0f264ff",
+  "candidate-input/v12/worker/Dockerfile.claude": "487748a01c72906d3725b78ecafe060a4d290c070822ecb20c8373fe82589b49",
+  "prepare.py": "d2e9040f0dca96ce35eefa333f7ab498fd6157ec51a5d665eaf56219c8271a7f",
+  "restore.py": "4db9bfc9aed97cddb0425ace19cbb0364d20fbe2da66a8bc42e5486d272fb830",
+  "verify-inputs.py": "ecbab0fad5d0cf66620f8f267dd5e38e7e9f23fba5c7b9e95db3fa40a1be0da3"
+}

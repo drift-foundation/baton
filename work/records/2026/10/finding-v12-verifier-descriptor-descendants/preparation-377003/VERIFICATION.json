@@ -1,0 +1,36 @@
+{
+  "command": [
+    "python3",
+    "-B",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "work/records/2026/10/finding-v12-verifier-descriptor-descendants/preparation-377003",
+    "-p",
+    "test_*.py",
+    "-v"
+  ],
+  "timeout_seconds": 60,
+  "exit_code": 0,
+  "final_wall_seconds": 0.22436427200045728,
+  "earlier_runs": [
+    {
+      "tests": 5,
+      "seconds": 0.038694574001056026,
+      "basis": "runner monotonic"
+    },
+    {
+      "tests": 11,
+      "seconds": 0.117,
+      "basis": "unittest rounded report"
+    },
+    {
+      "tests": 3,
+      "seconds": 0.021,
+      "basis": "unittest rounded report"
+    }
+  ],
+  "engine_invoked": false,
+  "historical_aggregate": "unknown; preserved PROGRESS and earlier receipts; no reset"
+}

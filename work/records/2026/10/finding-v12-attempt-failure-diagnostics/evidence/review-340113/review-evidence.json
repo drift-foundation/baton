@@ -1,0 +1,535 @@
+{
+  "seals": 39,
+  "seal_failures": [],
+  "independent_fixtures": {
+    "malformed-linked-path": {
+      "schema": "baton.w333486-final-result-collection/3",
+      "collected_from": "/tmp/w333486-review339992-ozeqtge_/malformed-linked-path",
+      "directory_listable": true,
+      "directory_reason": null,
+      "directory_entries": [
+        "PACKET.json",
+        "outcome.json",
+        "outcome.json.enforcement-1.json"
+      ],
+      "directory_entries_note": "the whole listing, for your information. It is NEVER used to infer any artifact's state: each artifact above is classified only from files matching its own anchored name pattern.",
+      "composed_packet_members": [
+        "PACKET.json"
+      ],
+      "unclassified_entries": [],
+      "unclassified_entries_note": "names that are neither one of this vehicle's artifacts nor a known composed-packet member. Reported so nothing is silently swallowed; not used to infer any artifact's state.",
+      "expected_identity": {
+        "state": "present",
+        "reason": null,
+        "identity_source": "composed PACKET.json",
+        "run_id": "r",
+        "work": null,
+        "claim": null,
+        "job_id": null,
+        "authority": null,
+        "outcome_path": null
+      },
+      "results": {
+        "workload": {
+          "artifact": "workload final report",
+          "kind": "workload",
+          "who_writes_it": "the supervisor, post-stop, inside the workload-publication reservation (baseline.py:1450-1461)",
+          "final_pattern": "^outcome\\.json$",
+          "temporary_pattern": "^outcome\\.json\\.partial$",
+          "temporary_is": "outcome.json.partial, from baseline._publish (baseline.py:1006) -- NOT a .tmp",
+          "paths": [
+            "/tmp/w333486-review339992-ozeqtge_/malformed-linked-path/outcome.json"
+          ],
+          "own_temporaries": [],
+          "reports": [
+            {
+              "path": "/tmp/w333486-review339992-ozeqtge_/malformed-linked-path/outcome.json",
+              "state": "present",
+              "reason": null,
+              "sha256": "57bbc790c419f045c4b80c021c6c32e834c620352a02c7658759d5ddf3d616cc",
+              "identity": "matched",
+              "identity_detail": {
+                "why": null,
+                "carried": [
+                  {
+                    "field": "run_id",
+                    "value": "r",
+                    "expected": "r"
+                  }
+                ],
+                "correlated_on": [
+                  "run_id"
+                ]
+              },
+              "read": {
+                "state": null,
+                "stopped": null,
+                "held_because": null,
+                "uncertainty": null,
+                "outstanding_cleanup": null,
+                "cleanup_sweeps": null,
+                "finished_at": null,
+                "job_id": null,
+                "retry": null
+              }
+            }
+          ],
+          "state": "present"
+        },
+        "controller": {
+          "artifact": "controller final report",
+          "kind": "controller",
+          "who_writes_it": "the outer controller, after supervise_process returns and after child cleanup (authoring_enforcement.py:552-591) -- which is after any worker inside the run has ended",
+          "final_pattern": "^outcome\\.json\\.enforcement-([^.]+)\\.json$",
+          "temporary_pattern": "^outcome\\.json\\.enforcement-([^.]+)\\.tmp$",
+          "identity_lives_in": "original_envelope {run, job, authority}, built at authoring_enforcement.py:40-52 and stored at :580. This report has NO top-level run_id.",
+          "paths": [
+            "/tmp/w333486-review339992-ozeqtge_/malformed-linked-path/outcome.json.enforcement-1.json"
+          ],
+          "own_temporaries": [],
+          "reports": [
+            {
+              "path": "/tmp/w333486-review339992-ozeqtge_/malformed-linked-path/outcome.json.enforcement-1.json",
+              "state": "present",
+              "reason": null,
+              "sha256": "74e755d1fc4662c179250d8b44b0928ab59615d6b76edc798599c2f32f1dac84",
+              "identity": "matched",
+              "identity_detail": {
+                "why": null,
+                "carried": [
+                  {
+                    "field": "original_envelope.run",
+                    "value": "r",
+                    "expected": "r"
+                  }
+                ],
+                "correlated_on": [
+                  "original_envelope.run"
+                ]
+              },
+              "read": {
+                "state": null,
+                "faults": null,
+                "child_status": null,
+                "child_started": null,
+                "child_exited": null,
+                "elapsed_seconds": null,
+                "shutdown_deadline": null,
+                "shutdown_progress": null,
+                "operator_signals": null,
+                "author_invocation_started": null,
+                "recovery_only": null,
+                "manager_report_path": null,
+                "enforcement_path": null,
+                "authoring_log": []
+              }
+            }
+          ],
+          "state": "present"
+        },
+        "shutdown_progress": {
+          "artifact": "shutdown progress",
+          "kind": "shutdown_progress",
+          "who_writes_it": "each Shutdown.call, BEFORE running its step (authoring_shutdown.py:72-81)",
+          "final_pattern": "^outcome\\.json\\.manager-([^.]+)\\.json\\.progress\\.json$",
+          "temporary_pattern": "^outcome\\.json\\.manager-([^.]+)\\.json\\.progress\\.tmp$",
+          "meaning": "the last step ENTERED. Entering is not finishing, and this is not a sampled stack and not a cessation receipt.",
+          "faults_it_carries": "the faults of EARLIER steps only. A step's own fault is appended to memory after the write (authoring_shutdown.py:85) and reaches disk only if a LATER call writes successfully -- see publication_timeout.producer_persistence.",
+          "paths": [],
+          "own_temporaries": [],
+          "state": "absent",
+          "reason": "the directory was listed and no file matching this artifact's own name is in it. The final result is UNAVAILABLE and its cause is UNKNOWN -- never that publication timed out, and never that nothing was written elsewhere. Another artifact's temporary says nothing about this one."
+        },
+        "manager_snapshot": {
+          "artifact": "manager status snapshot",
+          "kind": "manager_snapshot",
+          "who_writes_it": "publish_guard, each observation (authoring_enforcement.py:387-395)",
+          "final_pattern": "^outcome\\.json\\.manager-([^.]+)\\.json$",
+          "temporary_pattern": "^outcome\\.json\\.manager-([^.]+)\\.tmp$",
+          "note": "an observation, never cessation and never a permission grant. A missing final snapshot is held. Its name ends at .json: the progress and shutdown-request files are NOT snapshots, which an earlier revision got wrong.",
+          "paths": [],
+          "own_temporaries": [],
+          "state": "absent",
+          "reason": "the directory was listed and no file matching this artifact's own name is in it. The final result is UNAVAILABLE and its cause is UNKNOWN -- never that publication timed out, and never that nothing was written elsewhere. Another artifact's temporary says nothing about this one."
+        },
+        "shutdown_request": {
+          "artifact": "shutdown request",
+          "kind": "shutdown_request",
+          "who_writes_it": "Process.request_shutdown, before terminate() (authoring_enforcement.py:342-349)",
+          "final_pattern": "^outcome\\.json\\.manager-([^.]+)\\.json\\.shutdown\\.json$",
+          "temporary_pattern": "^outcome\\.json\\.manager-([^.]+)\\.json\\.shutdown\\.tmp$",
+          "note": "the transmitted deadline, not a result. Its presence means a bounded shutdown was REQUESTED, not that it completed.",
+          "paths": [],
+          "own_temporaries": [],
+          "state": "absent",
+          "reason": "the directory was listed and no file matching this artifact's own name is in it. The final result is UNAVAILABLE and its cause is UNKNOWN -- never that publication timed out, and never that nothing was written elsewhere. Another artifact's temporary says nothing about this one."
+        },
+        "authoring_log": {
+          "artifact": "authoring log",
+          "kind": "authoring_log",
+          "who_writes_it": "the run",
+          "final_pattern": "^outcome\\.json\\.authoring\\.log$",
+          "temporary_pattern": null,
+          "emitted": "presence, size and digest ONLY -- the bytes are provider-adjacent output and are not this program's to emit",
+          "paths": [],
+          "own_temporaries": [],
+          "state": "absent",
+          "reason": "the directory was listed and no file matching this artifact's own name is in it. The final result is UNAVAILABLE and its cause is UNKNOWN -- never that publication timed out, and never that nothing was written elsewhere. Another artifact's temporary says nothing about this one."
+        }
+      },
+      "available": [
+        "controller",
+        "workload"
+      ],
+      "unavailable": {
+        "shutdown_progress": "absent",
+        "manager_snapshot": "absent",
+        "shutdown_request": "absent",
+        "authoring_log": "absent"
+      },
+      "isolated_failures": [],
+      "linked_artifacts": [
+        {
+          "source": "/tmp/w333486-review339992-ozeqtge_/malformed-linked-path/outcome.json.enforcement-1.json",
+          "link": "enforcement_path",
+          "path": null,
+          "state": "not named by the report",
+          "note": "the report does not carry a usable value for this member; for manager_report_path that is expected from a controller incarnation that never composed a child status path"
+        },
+        {
+          "source": "/tmp/w333486-review339992-ozeqtge_/malformed-linked-path/outcome.json.enforcement-1.json",
+          "link": "authoring_log",
+          "path": null,
+          "state": "malformed",
+          "carried_type": "list",
+          "note": "the report carries this member as a list rather than a path string. Reported as a malformed link and NOT followed; every other result in this collection is unaffected."
+        },
+        {
+          "source": "/tmp/w333486-review339992-ozeqtge_/malformed-linked-path/outcome.json.enforcement-1.json",
+          "link": "manager_report_path",
+          "path": null,
+          "state": "not named by the report",
+          "note": "the report does not carry a usable value for this member; for manager_report_path that is expected from a controller incarnation that never composed a child status path"
+        },
+        {
+          "source": "/tmp/w333486-review339992-ozeqtge_/malformed-linked-path/outcome.json.enforcement-1.json",
+          "link": "progress (manager_report_path + .progress.json)",
+          "path": null,
+          "state": "not named by the report",
+          "note": "the report does not carry a usable value for this member; for manager_report_path that is expected from a controller incarnation that never composed a child status path"
+        }
+      ],
+      "publication_timeout": {
+        "parsed_publication_faults": [],
+        "other_timeouts_observed": [],
+        "uncorrelated_timeouts": [],
+        "producer_persistence": "THIS VEHICLE PERSISTS NO PUBLICATION FAULT RELIABLY. Shutdown.call writes the snapshot with the faults from EARLIER calls (authoring_shutdown.py:76-81), then runs the step (:83) and appends its fault to memory only (:85), so a fault reaches disk only if a LATER Shutdown.call writes successfully. The controller final publication (authoring_enforcement.py:493) is the LAST such call, so its fault is never written; the outer publication (:588) is not a Shutdown.call and its handler at :592-595 records nothing; and a later write re-enters bounded() against the same exhausted deadline and will likely raise before writing. An exhausted deadline can also raise at :74 before the snapshot is written at all, so even the step name can be missing. ABSENCE OF A PUBLICATION FAULT IS EXPECTED AND MEANS NOTHING. Any verdict below rests on a fault FOUND ON DISK and is parsing, never proof that the producer records such faults.",
+        "rule": "A publication fault is reported only when a correlated artifact literally carries a TimeoutError naming one of outer outcome publication, final enforcement publication, workload publication, workload-publication. That is PARSING. Absence proves nothing, because the producers do not reliably record such faults.",
+        "established": false,
+        "note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is on disk -- which is the EXPECTED state even when a publication really did time out, because the producers do not persist those faults (producer_persistence). So this says nothing either way. An absent or inaccessible report is likewise not evidence of a timeout: a run that never started, an import or startup failure (see FAILURE.md), process death, a failed read and non-timeout publication errors all leave no final report."
+      },
+      "acceptance": "A missing or partial final report is INCOMPLETE: never success, never acceptance and never proof of cessation. No startup success and no producer exit substitutes for final-result acceptance. An unavailable report retracts nothing already recorded, and neither one unreadable artifact nor one malformed link invalidates the others.",
+      "owner": "the external operator and the independent reviewer. The worker inside the run cannot observe any of these artifacts; its own report covers what it saw before termination plus the retained candidate checkpoint -- see TASK.md item 6.",
+      "read_only": "this program opened no store, wrote nothing, started nothing, and read no credential, transcript or provider output"
+    },
+    "unrelated-temp": {
+      "schema": "baton.w333486-final-result-collection/3",
+      "collected_from": "/tmp/w333486-review339992-ozeqtge_/unrelated-temp",
+      "directory_listable": true,
+      "directory_reason": null,
+      "directory_entries": [
+        "PACKET.json",
+        "outcome.json.enforcement-1.tmp"
+      ],
+      "directory_entries_note": "the whole listing, for your information. It is NEVER used to infer any artifact's state: each artifact above is classified only from files matching its own anchored name pattern.",
+      "composed_packet_members": [
+        "PACKET.json"
+      ],
+      "unclassified_entries": [],
+      "unclassified_entries_note": "names that are neither one of this vehicle's artifacts nor a known composed-packet member. Reported so nothing is silently swallowed; not used to infer any artifact's state.",
+      "expected_identity": {
+        "state": "present",
+        "reason": null,
+        "identity_source": "composed PACKET.json",
+        "run_id": "r",
+        "work": null,
+        "claim": null,
+        "job_id": null,
+        "authority": null,
+        "outcome_path": null
+      },
+      "results": {
+        "workload": {
+          "artifact": "workload final report",
+          "kind": "workload",
+          "who_writes_it": "the supervisor, post-stop, inside the workload-publication reservation (baseline.py:1450-1461)",
+          "final_pattern": "^outcome\\.json$",
+          "temporary_pattern": "^outcome\\.json\\.partial$",
+          "temporary_is": "outcome.json.partial, from baseline._publish (baseline.py:1006) -- NOT a .tmp",
+          "paths": [],
+          "own_temporaries": [],
+          "state": "absent",
+          "reason": "the directory was listed and no file matching this artifact's own name is in it. The final result is UNAVAILABLE and its cause is UNKNOWN -- never that publication timed out, and never that nothing was written elsewhere. Another artifact's temporary says nothing about this one."
+        },
+        "controller": {
+          "artifact": "controller final report",
+          "kind": "controller",
+          "who_writes_it": "the outer controller, after supervise_process returns and after child cleanup (authoring_enforcement.py:552-591) -- which is after any worker inside the run has ended",
+          "final_pattern": "^outcome\\.json\\.enforcement-([^.]+)\\.json$",
+          "temporary_pattern": "^outcome\\.json\\.enforcement-([^.]+)\\.tmp$",
+          "identity_lives_in": "original_envelope {run, job, authority}, built at authoring_enforcement.py:40-52 and stored at :580. This report has NO top-level run_id.",
+          "paths": [],
+          "own_temporaries": [
+            "/tmp/w333486-review339992-ozeqtge_/unrelated-temp/outcome.json.enforcement-1.tmp"
+          ],
+          "state": "pending",
+          "reason": "no final path, but a temporary belonging to THIS artifact exists: its publication was entered and did not complete. NOT absent, and NOT a named cause."
+        },
+        "shutdown_progress": {
+          "artifact": "shutdown progress",
+          "kind": "shutdown_progress",
+          "who_writes_it": "each Shutdown.call, BEFORE running its step (authoring_shutdown.py:72-81)",
+          "final_pattern": "^outcome\\.json\\.manager-([^.]+)\\.json\\.progress\\.json$",
+          "temporary_pattern": "^outcome\\.json\\.manager-([^.]+)\\.json\\.progress\\.tmp$",
+          "meaning": "the last step ENTERED. Entering is not finishing, and this is not a sampled stack and not a cessation receipt.",
+          "faults_it_carries": "the faults of EARLIER steps only. A step's own fault is appended to memory after the write (authoring_shutdown.py:85) and reaches disk only if a LATER call writes successfully -- see publication_timeout.producer_persistence.",
+          "paths": [],
+          "own_temporaries": [],
+          "state": "absent",
+          "reason": "the directory was listed and no file matching this artifact's own name is in it. The final result is UNAVAILABLE and its cause is UNKNOWN -- never that publication timed out, and never that nothing was written elsewhere. Another artifact's temporary says nothing about this one."
+        },
+        "manager_snapshot": {
+          "artifact": "manager status snapshot",
+          "kind": "manager_snapshot",
+          "who_writes_it": "publish_guard, each observation (authoring_enforcement.py:387-395)",
+          "final_pattern": "^outcome\\.json\\.manager-([^.]+)\\.json$",
+          "temporary_pattern": "^outcome\\.json\\.manager-([^.]+)\\.tmp$",
+          "note": "an observation, never cessation and never a permission grant. A missing final snapshot is held. Its name ends at .json: the progress and shutdown-request files are NOT snapshots, which an earlier revision got wrong.",
+          "paths": [],
+          "own_temporaries": [],
+          "state": "absent",
+          "reason": "the directory was listed and no file matching this artifact's own name is in it. The final result is UNAVAILABLE and its cause is UNKNOWN -- never that publication timed out, and never that nothing was written elsewhere. Another artifact's temporary says nothing about this one."
+        },
+        "shutdown_request": {
+          "artifact": "shutdown request",
+          "kind": "shutdown_request",
+          "who_writes_it": "Process.request_shutdown, before terminate() (authoring_enforcement.py:342-349)",
+          "final_pattern": "^outcome\\.json\\.manager-([^.]+)\\.json\\.shutdown\\.json$",
+          "temporary_pattern": "^outcome\\.json\\.manager-([^.]+)\\.json\\.shutdown\\.tmp$",
+          "note": "the transmitted deadline, not a result. Its presence means a bounded shutdown was REQUESTED, not that it completed.",
+          "paths": [],
+          "own_temporaries": [],
+          "state": "absent",
+          "reason": "the directory was listed and no file matching this artifact's own name is in it. The final result is UNAVAILABLE and its cause is UNKNOWN -- never that publication timed out, and never that nothing was written elsewhere. Another artifact's temporary says nothing about this one."
+        },
+        "authoring_log": {
+          "artifact": "authoring log",
+          "kind": "authoring_log",
+          "who_writes_it": "the run",
+          "final_pattern": "^outcome\\.json\\.authoring\\.log$",
+          "temporary_pattern": null,
+          "emitted": "presence, size and digest ONLY -- the bytes are provider-adjacent output and are not this program's to emit",
+          "paths": [],
+          "own_temporaries": [],
+          "state": "absent",
+          "reason": "the directory was listed and no file matching this artifact's own name is in it. The final result is UNAVAILABLE and its cause is UNKNOWN -- never that publication timed out, and never that nothing was written elsewhere. Another artifact's temporary says nothing about this one."
+        }
+      },
+      "available": [],
+      "unavailable": {
+        "workload": "absent",
+        "controller": "pending",
+        "shutdown_progress": "absent",
+        "manager_snapshot": "absent",
+        "shutdown_request": "absent",
+        "authoring_log": "absent"
+      },
+      "isolated_failures": [],
+      "linked_artifacts": [],
+      "publication_timeout": {
+        "parsed_publication_faults": [],
+        "other_timeouts_observed": [],
+        "uncorrelated_timeouts": [],
+        "producer_persistence": "THIS VEHICLE PERSISTS NO PUBLICATION FAULT RELIABLY. Shutdown.call writes the snapshot with the faults from EARLIER calls (authoring_shutdown.py:76-81), then runs the step (:83) and appends its fault to memory only (:85), so a fault reaches disk only if a LATER Shutdown.call writes successfully. The controller final publication (authoring_enforcement.py:493) is the LAST such call, so its fault is never written; the outer publication (:588) is not a Shutdown.call and its handler at :592-595 records nothing; and a later write re-enters bounded() against the same exhausted deadline and will likely raise before writing. An exhausted deadline can also raise at :74 before the snapshot is written at all, so even the step name can be missing. ABSENCE OF A PUBLICATION FAULT IS EXPECTED AND MEANS NOTHING. Any verdict below rests on a fault FOUND ON DISK and is parsing, never proof that the producer records such faults.",
+        "rule": "A publication fault is reported only when a correlated artifact literally carries a TimeoutError naming one of outer outcome publication, final enforcement publication, workload publication, workload-publication. That is PARSING. Absence proves nothing, because the producers do not reliably record such faults.",
+        "established": false,
+        "note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is on disk -- which is the EXPECTED state even when a publication really did time out, because the producers do not persist those faults (producer_persistence). So this says nothing either way. An absent or inaccessible report is likewise not evidence of a timeout: a run that never started, an import or startup failure (see FAILURE.md), process death, a failed read and non-timeout publication errors all leave no final report."
+      },
+      "acceptance": "A missing or partial final report is INCOMPLETE: never success, never acceptance and never proof of cessation. No startup success and no producer exit substitutes for final-result acceptance. An unavailable report retracts nothing already recorded, and neither one unreadable artifact nor one malformed link invalidates the others.",
+      "owner": "the external operator and the independent reviewer. The worker inside the run cannot observe any of these artifacts; its own report covers what it saw before termination plus the retained candidate checkpoint -- see TASK.md item 6.",
+      "read_only": "this program opened no store, wrote nothing, started nothing, and read no credential, transcript or provider output"
+    },
+    "progress-is-not-manager": {
+      "schema": "baton.w333486-final-result-collection/3",
+      "collected_from": "/tmp/w333486-review339992-ozeqtge_/progress-is-not-manager",
+      "directory_listable": true,
+      "directory_reason": null,
+      "directory_entries": [
+        "PACKET.json",
+        "outcome.json.manager-1-2.json.progress.json"
+      ],
+      "directory_entries_note": "the whole listing, for your information. It is NEVER used to infer any artifact's state: each artifact above is classified only from files matching its own anchored name pattern.",
+      "composed_packet_members": [
+        "PACKET.json"
+      ],
+      "unclassified_entries": [],
+      "unclassified_entries_note": "names that are neither one of this vehicle's artifacts nor a known composed-packet member. Reported so nothing is silently swallowed; not used to infer any artifact's state.",
+      "expected_identity": {
+        "state": "present",
+        "reason": null,
+        "identity_source": "composed PACKET.json",
+        "run_id": "r",
+        "work": null,
+        "claim": null,
+        "job_id": null,
+        "authority": null,
+        "outcome_path": null
+      },
+      "results": {
+        "workload": {
+          "artifact": "workload final report",
+          "kind": "workload",
+          "who_writes_it": "the supervisor, post-stop, inside the workload-publication reservation (baseline.py:1450-1461)",
+          "final_pattern": "^outcome\\.json$",
+          "temporary_pattern": "^outcome\\.json\\.partial$",
+          "temporary_is": "outcome.json.partial, from baseline._publish (baseline.py:1006) -- NOT a .tmp",
+          "paths": [],
+          "own_temporaries": [],
+          "state": "absent",
+          "reason": "the directory was listed and no file matching this artifact's own name is in it. The final result is UNAVAILABLE and its cause is UNKNOWN -- never that publication timed out, and never that nothing was written elsewhere. Another artifact's temporary says nothing about this one."
+        },
+        "controller": {
+          "artifact": "controller final report",
+          "kind": "controller",
+          "who_writes_it": "the outer controller, after supervise_process returns and after child cleanup (authoring_enforcement.py:552-591) -- which is after any worker inside the run has ended",
+          "final_pattern": "^outcome\\.json\\.enforcement-([^.]+)\\.json$",
+          "temporary_pattern": "^outcome\\.json\\.enforcement-([^.]+)\\.tmp$",
+          "identity_lives_in": "original_envelope {run, job, authority}, built at authoring_enforcement.py:40-52 and stored at :580. This report has NO top-level run_id.",
+          "paths": [],
+          "own_temporaries": [],
+          "state": "absent",
+          "reason": "the directory was listed and no file matching this artifact's own name is in it. The final result is UNAVAILABLE and its cause is UNKNOWN -- never that publication timed out, and never that nothing was written elsewhere. Another artifact's temporary says nothing about this one."
+        },
+        "shutdown_progress": {
+          "artifact": "shutdown progress",
+          "kind": "shutdown_progress",
+          "who_writes_it": "each Shutdown.call, BEFORE running its step (authoring_shutdown.py:72-81)",
+          "final_pattern": "^outcome\\.json\\.manager-([^.]+)\\.json\\.progress\\.json$",
+          "temporary_pattern": "^outcome\\.json\\.manager-([^.]+)\\.json\\.progress\\.tmp$",
+          "meaning": "the last step ENTERED. Entering is not finishing, and this is not a sampled stack and not a cessation receipt.",
+          "faults_it_carries": "the faults of EARLIER steps only. A step's own fault is appended to memory after the write (authoring_shutdown.py:85) and reaches disk only if a LATER call writes successfully -- see publication_timeout.producer_persistence.",
+          "paths": [
+            "/tmp/w333486-review339992-ozeqtge_/progress-is-not-manager/outcome.json.manager-1-2.json.progress.json"
+          ],
+          "own_temporaries": [],
+          "reports": [
+            {
+              "path": "/tmp/w333486-review339992-ozeqtge_/progress-is-not-manager/outcome.json.manager-1-2.json.progress.json",
+              "state": "present",
+              "reason": null,
+              "sha256": "cf9b6e960f94aa94b2c56d01b384c76e3fdde54923c5a39110b4a595d7db5ff6",
+              "identity": "matched",
+              "identity_detail": {
+                "why": null,
+                "carried": [
+                  {
+                    "field": "run_id",
+                    "value": "r",
+                    "expected": "r"
+                  }
+                ],
+                "correlated_on": [
+                  "run_id"
+                ]
+              },
+              "read": {
+                "step": "final enforcement publication",
+                "deadline": null,
+                "step_deadline": null,
+                "faults": [],
+                "run_id": "r",
+                "job_id": null
+              }
+            }
+          ],
+          "state": "present"
+        },
+        "manager_snapshot": {
+          "artifact": "manager status snapshot",
+          "kind": "manager_snapshot",
+          "who_writes_it": "publish_guard, each observation (authoring_enforcement.py:387-395)",
+          "final_pattern": "^outcome\\.json\\.manager-([^.]+)\\.json$",
+          "temporary_pattern": "^outcome\\.json\\.manager-([^.]+)\\.tmp$",
+          "note": "an observation, never cessation and never a permission grant. A missing final snapshot is held. Its name ends at .json: the progress and shutdown-request files are NOT snapshots, which an earlier revision got wrong.",
+          "paths": [],
+          "own_temporaries": [],
+          "state": "absent",
+          "reason": "the directory was listed and no file matching this artifact's own name is in it. The final result is UNAVAILABLE and its cause is UNKNOWN -- never that publication timed out, and never that nothing was written elsewhere. Another artifact's temporary says nothing about this one."
+        },
+        "shutdown_request": {
+          "artifact": "shutdown request",
+          "kind": "shutdown_request",
+          "who_writes_it": "Process.request_shutdown, before terminate() (authoring_enforcement.py:342-349)",
+          "final_pattern": "^outcome\\.json\\.manager-([^.]+)\\.json\\.shutdown\\.json$",
+          "temporary_pattern": "^outcome\\.json\\.manager-([^.]+)\\.json\\.shutdown\\.tmp$",
+          "note": "the transmitted deadline, not a result. Its presence means a bounded shutdown was REQUESTED, not that it completed.",
+          "paths": [],
+          "own_temporaries": [],
+          "state": "absent",
+          "reason": "the directory was listed and no file matching this artifact's own name is in it. The final result is UNAVAILABLE and its cause is UNKNOWN -- never that publication timed out, and never that nothing was written elsewhere. Another artifact's temporary says nothing about this one."
+        },
+        "authoring_log": {
+          "artifact": "authoring log",
+          "kind": "authoring_log",
+          "who_writes_it": "the run",
+          "final_pattern": "^outcome\\.json\\.authoring\\.log$",
+          "temporary_pattern": null,
+          "emitted": "presence, size and digest ONLY -- the bytes are provider-adjacent output and are not this program's to emit",
+          "paths": [],
+          "own_temporaries": [],
+          "state": "absent",
+          "reason": "the directory was listed and no file matching this artifact's own name is in it. The final result is UNAVAILABLE and its cause is UNKNOWN -- never that publication timed out, and never that nothing was written elsewhere. Another artifact's temporary says nothing about this one."
+        }
+      },
+      "available": [
+        "shutdown_progress"
+      ],
+      "unavailable": {
+        "workload": "absent",
+        "controller": "absent",
+        "manager_snapshot": "absent",
+        "shutdown_request": "absent",
+        "authoring_log": "absent"
+      },
+      "isolated_failures": [],
+      "linked_artifacts": [],
+      "publication_timeout": {
+        "parsed_publication_faults": [],
+        "other_timeouts_observed": [],
+        "uncorrelated_timeouts": [],
+        "producer_persistence": "THIS VEHICLE PERSISTS NO PUBLICATION FAULT RELIABLY. Shutdown.call writes the snapshot with the faults from EARLIER calls (authoring_shutdown.py:76-81), then runs the step (:83) and appends its fault to memory only (:85), so a fault reaches disk only if a LATER Shutdown.call writes successfully. The controller final publication (authoring_enforcement.py:493) is the LAST such call, so its fault is never written; the outer publication (:588) is not a Shutdown.call and its handler at :592-595 records nothing; and a later write re-enters bounded() against the same exhausted deadline and will likely raise before writing. An exhausted deadline can also raise at :74 before the snapshot is written at all, so even the step name can be missing. ABSENCE OF A PUBLICATION FAULT IS EXPECTED AND MEANS NOTHING. Any verdict below rests on a fault FOUND ON DISK and is parsing, never proof that the producer records such faults.",
+        "rule": "A publication fault is reported only when a correlated artifact literally carries a TimeoutError naming one of outer outcome publication, final enforcement publication, workload publication, workload-publication. That is PARSING. Absence proves nothing, because the producers do not reliably record such faults.",
+        "established": false,
+        "note": "NOT ESTABLISHED, and for this vehicle NOT ESTABLISHABLE from absence. No correlated fault naming a publication step is on disk -- which is the EXPECTED state even when a publication really did time out, because the producers do not persist those faults (producer_persistence). So this says nothing either way. An absent or inaccessible report is likewise not evidence of a timeout: a run that never started, an import or startup failure (see FAILURE.md), process death, a failed read and non-timeout publication errors all leave no final report."
+      },
+      "acceptance": "A missing or partial final report is INCOMPLETE: never success, never acceptance and never proof of cessation. No startup success and no producer exit substitutes for final-result acceptance. An unavailable report retracts nothing already recorded, and neither one unreadable artifact nor one malformed link invalidates the others.",
+      "owner": "the external operator and the independent reviewer. The worker inside the run cannot observe any of these artifacts; its own report covers what it saw before termination plus the retained candidate checkpoint -- see TASK.md item 6.",
+      "read_only": "this program opened no store, wrote nothing, started nothing, and read no credential, transcript or provider output"
+    }
+  },
+  "input_check": {
+    "returncode": 0,
+    "stdout": "inputs verified against bc925cf5c62d69426ed5862af4d41f4d2a967b0f: 114 manager files, 3 supervisor files, 2 preparation inputs, 25 task inputs, 20 decision snapshots, 4 checkout documents, 1 pinned authoring controller, 1 pinned shutdown helper, 2 gate modules still owed\nno decision-source drift: every live source still matches its snapshot\n\nSTART IS NOT SELECTED -- see ENFORCEMENT.md and SHUTDOWN.md. Every input gate is CLOSED; what remains is independent preparation review and then an exact execution selection. Use packet/AUTHORING-COMMAND.json, never commands.json start.\n",
+    "stderr": ""
+  },
+  "seal_fixture_input_check_seconds": 0.12488579600039884,
+  "probe_run": {
+    "command": "python3 -B execution-340016/probe.py --work /tmp/w333486-review340113-probes",
+    "returncode": 0,
+    "passed": 46,
+    "total": 46,
+    "reported_seconds": 1.784,
+    "tool_wall_seconds": 1.66585521,
+    "note": "Independent clocks; stdout reported totals copied from tool result; full stdout was not saved. Temporary probe fixtures retained."
+  }
+}

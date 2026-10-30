@@ -1,0 +1,9 @@
+{
+  "manifest_sha256": "aae95b5d7dbdb5607af593056860b249ccb309140180be8331f261f783001789",
+  "seals": 43,
+  "preparation_seconds": 3.1378894170047715,
+  "copy_check_seconds": 0.1834085479786154,
+  "copy_root": "/tmp/w333485-overlay-b9f6h34f",
+  "helper_limitation": "Original check-overlay.py failed creating corrupted fixture because copytree preserves immutable input modes; independent reproduction changed only temporary copy_function to copyfile. Failed original duration unknown.",
+  "lookup": "Guessed load-partial.py absent; catalog resolves actual restore.py, fully reviewed."
+}

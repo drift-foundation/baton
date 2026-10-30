@@ -1,0 +1,17 @@
+{
+ "answers_review": "review-2026-10-22T19-42-43Z.md (reviewer claim354590)",
+ "claim": 354604,
+ "copies": {
+  "TWO-STAGE-SCOPE.json": "f97aebee8fadbe1c2c89eefe3f4282b902e8afb7558d380031e22ddf00a37415",
+  "candidate-test_native_permission.py": "4cdc1afcf954a4beacaa261aceb35f6458feb1c621b3b9d307b04b3969a80cef",
+  "focused.log": "c6e673c8b4527216554a5871dbd097696cf7ab7525c2d0ddfc734c09a8763cac",
+  "progress-section.md": "ee5f1a440b25652bd4dcbc78cac8f30fd19447a4ab29c0f756c9ad30873b1e9b"
+ },
+ "focused": {
+  "tests": 12,
+  "verdict": "OK"
+ },
+ "product_edits": 0,
+ "schema": "baton.w325959-checkpoint/1",
+ "test_file": "4cdc1afcf954a4beacaa261aceb35f6458feb1c621b3b9d307b04b3969a80cef"
+}

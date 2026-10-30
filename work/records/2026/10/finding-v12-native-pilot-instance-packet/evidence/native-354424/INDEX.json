@@ -1,0 +1,90 @@
+{
+ "STILL_OWED": [
+  "the full two-stage proof: my cases prove the lifetime composition, the acquisition accepting it, the seconds/permission exclusivity refusal, and that a native-lifetime token survives past 900 yet still expires and is not released. They do NOT yet drive both implementation and review stages end to end through the serving loop.",
+  "host stop/cancel still governing the exact runtime, and cleanup/unknown holds, beyond the expiry-is-not-release assertion",
+  "replay/restart with durable original timing, no revival and no duplicate effects",
+  "the joined owner-produced failure through durable capture, /7 status and the packaged report"
+ ],
+ "THE_COMMITTED_LIFETIME": {
+  "LIM_classification": "LIM-2 token bound, derived per attempt; each attempt acquires its own token so nothing accumulates across the Job's stages and no whole-Job ceiling is implied",
+  "composition": "CHECKOUT_STEPS * CHECKOUT_SECONDS + provider_turn + ordinary_verification + CLEANUP_RESERVE_SECONDS",
+  "each_addend_named": {
+   "checkout": "3 steps x 900 -- claude_agent.py:356 CHECKOUT_SECONDS per step, and the version-control checkout_plan is three steps (clone, detach, verify)",
+   "cleanup_reserve": "120, the pilot policy.json cleanup_observation_seconds",
+   "ordinary_verification": "the JOB's resolved boundary -- 900 for the pilot",
+   "provider_turn": "the JOB's resolved boundary, not a constant -- 3600 for the pilot"
+  },
+  "not_a_floor": "the value is the sum of named bounds rather than an estimate, and it FOLLOWS THE JOB: a Job selecting 120/45 resolves to 2985, proved by test",
+  "pilot_value": 7320,
+  "where": "baton_v12.job_manager.execution_limits.task_token_seconds(resolved)"
+ },
+ "THE_CONNECTION_IMPLEMENTED": [
+  "workspaces.prepared_workspace_governance gains seconds=None and reserve passes it to tokens.acquire only when resolved, so acquire's seconds/permission exclusivity is preserved and every pre-existing caller keeps the default",
+  "single_worker threads lifetime_policy through operations_from -> worker_operations -> _Composition and calls it beside the accepted permission_policy at the acquisition",
+  "stage_execution.native_lifetime_policy resolves the lifetime from the Job's admitted configuration THROUGH ITS OWNER (owned_execution_limits + owned_generation + resolved, refusing a document the owner would not produce), and factory now supplies it -- the caller that did not exist",
+  "NO envelope is supplied: nothing native reads stop_at, so an envelope would record a deadline no native party enforces"
+ ],
+ "THE_TWO_UNKNOWNS_CLOSED": {
+  "method": "enumerated every *_SECONDS constant in the worker adapter and the manager-side attempt path, then classified each by WHERE in the attempt lifecycle it applies",
+  "question": "do workspace preparation, custody or freezing/publication carry explicit seconds between acquisition and cessation, and what is the engine-call count?",
+  "result": "NO additional bounded operation sits between acquisition and cessation. The two candidates resolved against themselves: workspaces.TOKEN_SECONDS=900 is the REMOVAL token family ('how long a removal may hold the roots'), used only at workspaces.py:4246 and not the attempt's task token; custody.CUSTODY_SECONDS=1800 bounds a custodian discard, which is cleanup-side at/after cessation. maintenance.PREPARE_SECONDS and offers.OFFER_TTL/SETTLE are pre-acquisition. oci OBSERVE/LIST/REMOVE and tokens.STOP_GRACE are manager-side or cleanup-side and are not work the worker's permission must cover.",
+  "therefore": "the attempt's authorized in-workspace work is exactly checkout + provider turn + verification"
+ },
+ "answers_review": "review-2026-10-22T19-12-16Z.md and pass354404",
+ "boundaries": "no live instance, engine, provider or credential; no deployment, recovery, migration or shared import; no version-control mutation -- reads only. 31-path composition retained; my edits are 4 product files plus 1 new test file, all in the isolated root.",
+ "changed_by_this_claim": {
+  "src/baton_v12/job_manager/execution_limits.py": {
+   "from": "073ea7104df1aa4cf097cf12e7c7371a2cc918c95e2dd0c7de9225b734230442 (baseline)",
+   "to": "24f27d7769e7f1ddbc7ee5b3477245cd51833c5dda53ecf78cf8ebe309a3f1c6"
+  },
+  "src/baton_v12/worker_manager/workspaces.py": {
+   "from": "61e0e0b1e089ac498e0d5af8566bdd76e26ebabe56a81aa0ae7c64971005e94a (supplier)",
+   "to": "7db36ee60d5b32af70e25ba3fd6328b709475ad2f14a0b1b2de5230faa4e872d"
+  },
+  "tests/job_manager/test_native_permission.py": {
+   "from": "new",
+   "to": "0468e72cf5c213c3d122f72052fb9b023758201ad1f474f43a8548b28c602573"
+  },
+  "tools/single_worker.py": {
+   "from": "abb10d0ee6d90709cbaa3293d3cc5d207b384d5e22aac16e5983bab82a030c4f (supplier)",
+   "to": "70cc08066e73b7504c21eed395361c8153947177dddf5980857b6e199a339e4a"
+  },
+  "tools/stage_execution.py": {
+   "from": "920009ab6bb77284cd2107bb54a5ada76c3c56dc2588d1775907587f5cdaa6d2 (supplier)",
+   "to": "765c1567806c115feb1d15afde75b1099b23ba02b24fe7f7cedaec0ec7bea422"
+  }
+ },
+ "claim": 354424,
+ "copies": {
+  "candidate-execution_limits.py": "24f27d7769e7f1ddbc7ee5b3477245cd51833c5dda53ecf78cf8ebe309a3f1c6",
+  "candidate-single_worker.py": "70cc08066e73b7504c21eed395361c8153947177dddf5980857b6e199a339e4a",
+  "candidate-stage_execution.py": "765c1567806c115feb1d15afde75b1099b23ba02b24fe7f7cedaec0ec7bea422",
+  "candidate-test_native_permission.py": "0468e72cf5c213c3d122f72052fb9b023758201ad1f474f43a8548b28c602573",
+  "candidate-workspaces.py": "7db36ee60d5b32af70e25ba3fd6328b709475ad2f14a0b1b2de5230faa4e872d",
+  "focused.log": "86c967a00f06ad033ecab8fdfd48f0dfe4f7c54ecd2a5af426df39e10af79aa8",
+  "joined-final.log": "1cabfb96a55cc092b521f1453c10ddd05bf69f257b3f55909b47501d1e317156",
+  "progress-section.md": "5599af2505c431ed6bb61af5a3c086568bcde94c9b2fa391e345d4c5f5fc87c2",
+  "red-native.log": "8787ec62e8de1dc2546f01a0348ea69600c1bd2ea825856adc7cbb11a70a54ba"
+ },
+ "schema": "baton.w325959-native-connection/1",
+ "verification": {
+  "focused": {
+   "module": "tests.job_manager.test_native_permission",
+   "tests": 7,
+   "verdict": "OK"
+  },
+  "joined_plus_affected_seams": {
+   "ATTRIBUTION_ACROSS_THREE_ARMS": "fails identically on (1) my arm, (2) the composed arm with my edits reverted, and (3) the PURE PINNED BASELINE d6881d8a with no supplier at all. PRE-EXISTING AT THE BASELINE, not introduced by either supplier nor by me, and not fixed by me.",
+   "failures": 1,
+   "modules": 18,
+   "seconds": 288.769,
+   "tests": 2175,
+   "the_one_failure": "tests.tools.test_single_worker.AFaultedTerminalSurvivesTheContainerThatWroteIt.test_a_real_observing_status_run_mutates_no_durable_state"
+  },
+  "red_before_green": {
+   "arm": "my four product edits reverted to baseline/supplier bytes beside the new cases",
+   "log": "red-native.log",
+   "result": "7 tests, 5 errors"
+  }
+ }
+}

@@ -1,0 +1,9 @@
+v12/python/tests/job_manager/test_role_capability.py
+v12/python/tests/job_manager/test_role_contract.py
+v12/python/tests/manager/test_adapter_declaration.py
+v12/python/tests/manager/test_verification_views.py
+v12/python/tests/manager/test_worker_packaging.py
+v12/python/tests/tools/test_operator_verification_view.py
+v12/python/tests/tools/test_source_identity.py
+v12/python/tests/tools/test_startup_prerequisites.py
+v12/python/tests/tools/test_stopped_settlement_joined.py

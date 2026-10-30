@@ -1,0 +1,19 @@
+{
+  "cumulative_probe_process_seconds": 0.12446643,
+  "digest_example_timing": "not measured separately",
+  "historical_evidence": "reused without rerun; prior spending retained in owning dossiers",
+  "live_runs": 0,
+  "product_tests_run": 0,
+  "runs": [
+    {
+      "exit": 1,
+      "process_seconds": 0.061894551,
+      "reason": "probe passed parsed task dict where existing manifest_for requires delivered task text; fixture corrected"
+    },
+    {
+      "evidence": "CHECK.json",
+      "exit": 0,
+      "process_seconds": 0.062571879
+    }
+  ]
+}

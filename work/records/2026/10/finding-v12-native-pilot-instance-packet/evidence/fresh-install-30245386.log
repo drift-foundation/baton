@@ -1,0 +1,50 @@
+repositories  2 prepared under /home/sl/baton-instances/native-coordination-pilot-w321608-2/repo: target, workspace
+authority 673355e1...    generated for this instance
+job   none; no Work, grant or placeholder was created
+configuration /home/sl/baton-instances/native-coordination-pilot-w321608-2/deployment.json
+capacity      {"job_affinity": {}, "jobs": 0, "note": "this instance binds no Job and configures no execution capacity; it serves a real idle scheduler and publisher over empty stores, and a worker, a Work, a declared base, a canonical target and a producer are supplied together when a Job is created", "schema": "baton.v12.stage-execution-deployment/2", "targets": [], "workers_by_role": {"implementation": [], "integration": [], "review": []}}
+no Job was submitted and nothing was executed
+instance      /home/sl/baton-instances/native-coordination-pilot-w321608-2/instance.json
+runtime       81 files, digest 3dbc610e0c2a0e11...
+stores        /home/sl/baton-instances/native-coordination-pilot-w321608-2/db
+repository    /home/sl/baton-instances/native-coordination-pilot-w321608-2/repo
+justfile      /home/sl/baton-instances/native-coordination-pilot-w321608-2/justfile
+
+The deployment is operated from the destination, and needs nothing else:
+
+    cd /home/sl/baton-instances/native-coordination-pilot-w321608-2 && just status
+    just --justfile /home/sl/baton-instances/native-coordination-pilot-w321608-2/justfile start        # from anywhere
+
+or the command directly, which is the same program:
+
+    /home/sl/baton-instances/native-coordination-pilot-w321608-2/distro/baton-v12-stack status --instance /home/sl/baton-instances/native-coordination-pilot-w321608-2/instance.json
+{
+  "build_stamp": {
+    "changed_entries": 0,
+    "commit": "302453869d07eb5579e79a6572586d3c3cf62a5c",
+    "detail": null,
+    "dirty": false,
+    "excused_build_output": 0,
+    "schema": "baton.v12.build-stamp/1",
+    "source": "/home/sl/baton-builds/w325959-30245386-356981/src"
+  },
+  "command": "baton-v12-stack",
+  "executable": "/home/sl/baton-instances/native-coordination-pilot-w321608-2/distro/baton-v12-stack",
+  "frozen": true,
+  "machine": "x86_64",
+  "native_rpds": "/home/sl/baton-instances/native-coordination-pilot-w321608-2/distro/_internal/rpds/rpds.cpython-313-x86_64-linux-gnu.so",
+  "platform": "Linux-6.17.0-41-generic-x86_64-with-glibc2.42",
+  "python": "3.13.7",
+  "resources": "/home/sl/baton-instances/native-coordination-pilot-w321608-2/distro/_internal",
+  "schema_assets": {
+    "agent-session-1.0": 48212,
+    "worker-control-1.0": 51419
+  },
+  "sha256": "9cda6dabe328ee800c2eb3cb6997d29dce179c857f9bb2968c33a4adbf043673",
+  "version": "12.0.0"
+}
+manager    absent
+publisher  absent
+snapshot   absent (the publisher has not written one yet)
+jobs       absent
+runtime   unknown: no snapshot was ever published under /home/sl/baton-instances/native-coordination-pilot-w321608-2/state, so what is still executing was NOT resolved here

@@ -1,0 +1,3 @@
+v12/python/src/baton_v12/worker_manager/oci.py
+v12/python/tests/manager/test_worker_entry_engine.py
+v12/python/tests/tools/test_job_task_delivery.py

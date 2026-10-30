@@ -1,0 +1,1271 @@
+{
+  "simulation": "controlled clock and fake external engine; real token/preparation/enforcement owners",
+  "acquired": {
+    "acquired_at": "2026-08-24T00:02:00.000Z",
+    "attempt": "attempt-1",
+    "domain": "workspace:42:116524",
+    "execution": "attempt-1",
+    "expires_at": "2026-08-24T01:20:00.000Z",
+    "generation": 1,
+    "operation": "runtime.start:af8e746e7acf861bdc0c086aab883a277f48dfb12c7c6fc3e787aa1d55f184fd",
+    "owner": "7c83e45e5b723f74c4e611a3592b4c49b59aba0994561b8dc37a7d930e11d9b5",
+    "permission": {
+      "expires_at": "2026-08-24T01:20:00.000Z",
+      "policy": {
+        "cleanup_seconds": 60,
+        "execution_limits": {
+          "boundaries": {
+            "host_verification": {
+              "default_seconds": 300,
+              "origin": "job",
+              "seconds": 30,
+              "setting": "verification_command_seconds"
+            },
+            "integration_verification": {
+              "default_seconds": 1800,
+              "origin": "job",
+              "seconds": 30,
+              "setting": "verification_command_seconds"
+            },
+            "ordinary_verification": {
+              "default_seconds": 900,
+              "origin": "job",
+              "seconds": 30,
+              "setting": "verification_command_seconds"
+            },
+            "provider_turn": {
+              "default_seconds": 3600,
+              "origin": "job",
+              "seconds": 3600,
+              "setting": "provider_turn_seconds"
+            }
+          },
+          "compatibility_generation": 1,
+          "requested": {
+            "provider_turn_seconds": 3600,
+            "verification_command_seconds": 30
+          },
+          "scope": "per-invocation",
+          "units": "seconds"
+        },
+        "job": "job-one",
+        "run": "enforcement-case",
+        "total_seconds": 4800
+      },
+      "started_at": "2026-08-24T00:00:00.000Z",
+      "stop_at": "2026-08-24T01:19:00.000Z"
+    },
+    "renewals": 0,
+    "seconds": null,
+    "version": 1,
+    "launch": "runtime.start:af8e746e7acf861bdc0c086aab883a277f48dfb12c7c6fc3e787aa1d55f184fd",
+    "container": null,
+    "returned": false,
+    "activating": false,
+    "activation_started": null,
+    "acquired_expires_at": "2026-08-24T01:20:00.000Z",
+    "revision": 0,
+    "renewed_at": null,
+    "renewals_remaining": 0,
+    "expiry_judged_at": null,
+    "expired": false,
+    "timing_ambiguous": false,
+    "timing_observed_at": null,
+    "timing_decided_at": null,
+    "revoked": false
+  },
+  "job_context": {
+    "job_id": "job-one",
+    "attempt_id": "attempt-1",
+    "execution_limits": {
+      "units": "seconds",
+      "scope": "per-invocation",
+      "compatibility_generation": 1,
+      "requested": {
+        "provider_turn_seconds": 3600,
+        "verification_command_seconds": 30
+      },
+      "boundaries": {
+        "host_verification": {
+          "seconds": 30,
+          "origin": "job",
+          "setting": "verification_command_seconds",
+          "default_seconds": 300
+        },
+        "integration_verification": {
+          "seconds": 30,
+          "origin": "job",
+          "setting": "verification_command_seconds",
+          "default_seconds": 1800
+        },
+        "ordinary_verification": {
+          "seconds": 30,
+          "origin": "job",
+          "setting": "verification_command_seconds",
+          "default_seconds": 900
+        },
+        "provider_turn": {
+          "seconds": 3600,
+          "origin": "job",
+          "setting": "provider_turn_seconds",
+          "default_seconds": 3600
+        }
+      }
+    }
+  },
+  "observations": [
+    {
+      "envelope_elapsed_seconds": 901,
+      "engine_state": "running",
+      "token": {
+        "acquired_at": "2026-08-24T00:02:00.000Z",
+        "attempt": "attempt-1",
+        "domain": "workspace:42:116524",
+        "execution": "attempt-1",
+        "expires_at": "2026-08-24T01:20:00.000Z",
+        "generation": 1,
+        "operation": "runtime.start:af8e746e7acf861bdc0c086aab883a277f48dfb12c7c6fc3e787aa1d55f184fd",
+        "owner": "7c83e45e5b723f74c4e611a3592b4c49b59aba0994561b8dc37a7d930e11d9b5",
+        "permission": {
+          "expires_at": "2026-08-24T01:20:00.000Z",
+          "policy": {
+            "cleanup_seconds": 60,
+            "execution_limits": {
+              "boundaries": {
+                "host_verification": {
+                  "default_seconds": 300,
+                  "origin": "job",
+                  "seconds": 30,
+                  "setting": "verification_command_seconds"
+                },
+                "integration_verification": {
+                  "default_seconds": 1800,
+                  "origin": "job",
+                  "seconds": 30,
+                  "setting": "verification_command_seconds"
+                },
+                "ordinary_verification": {
+                  "default_seconds": 900,
+                  "origin": "job",
+                  "seconds": 30,
+                  "setting": "verification_command_seconds"
+                },
+                "provider_turn": {
+                  "default_seconds": 3600,
+                  "origin": "job",
+                  "seconds": 3600,
+                  "setting": "provider_turn_seconds"
+                }
+              },
+              "compatibility_generation": 1,
+              "requested": {
+                "provider_turn_seconds": 3600,
+                "verification_command_seconds": 30
+              },
+              "scope": "per-invocation",
+              "units": "seconds"
+            },
+            "job": "job-one",
+            "run": "enforcement-case",
+            "total_seconds": 4800
+          },
+          "started_at": "2026-08-24T00:00:00.000Z",
+          "stop_at": "2026-08-24T01:19:00.000Z"
+        },
+        "renewals": 0,
+        "seconds": null,
+        "version": 1,
+        "launch": "runtime.start:af8e746e7acf861bdc0c086aab883a277f48dfb12c7c6fc3e787aa1d55f184fd",
+        "container": "runtime-1",
+        "returned": false,
+        "activating": false,
+        "activation_started": null,
+        "acquired_expires_at": "2026-08-24T01:20:00.000Z",
+        "revision": 0,
+        "renewed_at": null,
+        "renewals_remaining": 0,
+        "expiry_judged_at": null,
+        "expired": false,
+        "timing_ambiguous": false,
+        "timing_observed_at": null,
+        "timing_decided_at": null,
+        "revoked": false
+      },
+      "report": {
+        "state": "stopping",
+        "attempts": {
+          "attempt-1": {
+            "runtime": {
+              "attempt_id": "attempt-1",
+              "runtime_id": "runtime-1",
+              "execution_runtime": "cancel-requested",
+              "cleanup": "pending",
+              "assignment": {
+                "work_ref": {
+                  "authority_uuid": "0000000000000000000000000000000a",
+                  "work_id": "0000000a-W1"
+                },
+                "participant": "baton.claude",
+                "generation": 1
+              }
+            },
+            "observation": {
+              "runtime_id": "runtime-1",
+              "state": "absent",
+              "why": "the engine answered 'Error: No such container: runtime-1'"
+            },
+            "token": {
+              "acquired_at": "2026-08-24T00:02:00.000Z",
+              "attempt": "attempt-1",
+              "domain": "workspace:42:116524",
+              "execution": "attempt-1",
+              "expires_at": "2026-08-24T01:20:00.000Z",
+              "generation": 1,
+              "operation": "runtime.start:af8e746e7acf861bdc0c086aab883a277f48dfb12c7c6fc3e787aa1d55f184fd",
+              "owner": "7c83e45e5b723f74c4e611a3592b4c49b59aba0994561b8dc37a7d930e11d9b5",
+              "permission": {
+                "expires_at": "2026-08-24T01:20:00.000Z",
+                "policy": {
+                  "cleanup_seconds": 60,
+                  "execution_limits": {
+                    "boundaries": {
+                      "host_verification": {
+                        "default_seconds": 300,
+                        "origin": "job",
+                        "seconds": 30,
+                        "setting": "verification_command_seconds"
+                      },
+                      "integration_verification": {
+                        "default_seconds": 1800,
+                        "origin": "job",
+                        "seconds": 30,
+                        "setting": "verification_command_seconds"
+                      },
+                      "ordinary_verification": {
+                        "default_seconds": 900,
+                        "origin": "job",
+                        "seconds": 30,
+                        "setting": "verification_command_seconds"
+                      },
+                      "provider_turn": {
+                        "default_seconds": 3600,
+                        "origin": "job",
+                        "seconds": 3600,
+                        "setting": "provider_turn_seconds"
+                      }
+                    },
+                    "compatibility_generation": 1,
+                    "requested": {
+                      "provider_turn_seconds": 3600,
+                      "verification_command_seconds": 30
+                    },
+                    "scope": "per-invocation",
+                    "units": "seconds"
+                  },
+                  "job": "job-one",
+                  "run": "enforcement-case",
+                  "total_seconds": 4800
+                },
+                "started_at": "2026-08-24T00:00:00.000Z",
+                "stop_at": "2026-08-24T01:19:00.000Z"
+              },
+              "renewals": 0,
+              "seconds": null,
+              "version": 1,
+              "launch": "runtime.start:af8e746e7acf861bdc0c086aab883a277f48dfb12c7c6fc3e787aa1d55f184fd",
+              "container": "runtime-1",
+              "returned": true,
+              "activating": false,
+              "activation_started": null,
+              "acquired_expires_at": "2026-08-24T01:20:00.000Z",
+              "revision": 0,
+              "renewed_at": null,
+              "renewals_remaining": 0,
+              "expiry_judged_at": null,
+              "expired": true,
+              "timing_ambiguous": false,
+              "timing_observed_at": null,
+              "timing_decided_at": null,
+              "revoked": true
+            },
+            "faults": [],
+            "reclaim": {
+              "reclaimed": "held",
+              "attempt_id": "attempt-1",
+              "state": "absent",
+              "why": "the runtime observed 'absent' and no writer-absence proof exists yet, so the revoked generation keeps the resource"
+            },
+            "settlement": {
+              "settled": "returned",
+              "attempt_id": "attempt-1",
+              "state": "absent",
+              "container": "runtime-1"
+            }
+          }
+        },
+        "faults": []
+      }
+    },
+    {
+      "envelope_elapsed_seconds": 1800,
+      "engine_state": "running",
+      "token": {
+        "acquired_at": "2026-08-24T00:02:00.000Z",
+        "attempt": "attempt-1",
+        "domain": "workspace:42:116524",
+        "execution": "attempt-1",
+        "expires_at": "2026-08-24T01:20:00.000Z",
+        "generation": 1,
+        "operation": "runtime.start:af8e746e7acf861bdc0c086aab883a277f48dfb12c7c6fc3e787aa1d55f184fd",
+        "owner": "7c83e45e5b723f74c4e611a3592b4c49b59aba0994561b8dc37a7d930e11d9b5",
+        "permission": {
+          "expires_at": "2026-08-24T01:20:00.000Z",
+          "policy": {
+            "cleanup_seconds": 60,
+            "execution_limits": {
+              "boundaries": {
+                "host_verification": {
+                  "default_seconds": 300,
+                  "origin": "job",
+                  "seconds": 30,
+                  "setting": "verification_command_seconds"
+                },
+                "integration_verification": {
+                  "default_seconds": 1800,
+                  "origin": "job",
+                  "seconds": 30,
+                  "setting": "verification_command_seconds"
+                },
+                "ordinary_verification": {
+                  "default_seconds": 900,
+                  "origin": "job",
+                  "seconds": 30,
+                  "setting": "verification_command_seconds"
+                },
+                "provider_turn": {
+                  "default_seconds": 3600,
+                  "origin": "job",
+                  "seconds": 3600,
+                  "setting": "provider_turn_seconds"
+                }
+              },
+              "compatibility_generation": 1,
+              "requested": {
+                "provider_turn_seconds": 3600,
+                "verification_command_seconds": 30
+              },
+              "scope": "per-invocation",
+              "units": "seconds"
+            },
+            "job": "job-one",
+            "run": "enforcement-case",
+            "total_seconds": 4800
+          },
+          "started_at": "2026-08-24T00:00:00.000Z",
+          "stop_at": "2026-08-24T01:19:00.000Z"
+        },
+        "renewals": 0,
+        "seconds": null,
+        "version": 1,
+        "launch": "runtime.start:af8e746e7acf861bdc0c086aab883a277f48dfb12c7c6fc3e787aa1d55f184fd",
+        "container": "runtime-1",
+        "returned": false,
+        "activating": false,
+        "activation_started": null,
+        "acquired_expires_at": "2026-08-24T01:20:00.000Z",
+        "revision": 0,
+        "renewed_at": null,
+        "renewals_remaining": 0,
+        "expiry_judged_at": null,
+        "expired": false,
+        "timing_ambiguous": false,
+        "timing_observed_at": null,
+        "timing_decided_at": null,
+        "revoked": false
+      },
+      "report": {
+        "state": "stopping",
+        "attempts": {
+          "attempt-1": {
+            "runtime": {
+              "attempt_id": "attempt-1",
+              "runtime_id": "runtime-1",
+              "execution_runtime": "cancel-requested",
+              "cleanup": "pending",
+              "assignment": {
+                "work_ref": {
+                  "authority_uuid": "0000000000000000000000000000000a",
+                  "work_id": "0000000a-W1"
+                },
+                "participant": "baton.claude",
+                "generation": 1
+              }
+            },
+            "observation": {
+              "runtime_id": "runtime-1",
+              "state": "absent",
+              "why": "the engine answered 'Error: No such container: runtime-1'"
+            },
+            "token": {
+              "acquired_at": "2026-08-24T00:02:00.000Z",
+              "attempt": "attempt-1",
+              "domain": "workspace:42:116524",
+              "execution": "attempt-1",
+              "expires_at": "2026-08-24T01:20:00.000Z",
+              "generation": 1,
+              "operation": "runtime.start:af8e746e7acf861bdc0c086aab883a277f48dfb12c7c6fc3e787aa1d55f184fd",
+              "owner": "7c83e45e5b723f74c4e611a3592b4c49b59aba0994561b8dc37a7d930e11d9b5",
+              "permission": {
+                "expires_at": "2026-08-24T01:20:00.000Z",
+                "policy": {
+                  "cleanup_seconds": 60,
+                  "execution_limits": {
+                    "boundaries": {
+                      "host_verification": {
+                        "default_seconds": 300,
+                        "origin": "job",
+                        "seconds": 30,
+                        "setting": "verification_command_seconds"
+                      },
+                      "integration_verification": {
+                        "default_seconds": 1800,
+                        "origin": "job",
+                        "seconds": 30,
+                        "setting": "verification_command_seconds"
+                      },
+                      "ordinary_verification": {
+                        "default_seconds": 900,
+                        "origin": "job",
+                        "seconds": 30,
+                        "setting": "verification_command_seconds"
+                      },
+                      "provider_turn": {
+                        "default_seconds": 3600,
+                        "origin": "job",
+                        "seconds": 3600,
+                        "setting": "provider_turn_seconds"
+                      }
+                    },
+                    "compatibility_generation": 1,
+                    "requested": {
+                      "provider_turn_seconds": 3600,
+                      "verification_command_seconds": 30
+                    },
+                    "scope": "per-invocation",
+                    "units": "seconds"
+                  },
+                  "job": "job-one",
+                  "run": "enforcement-case",
+                  "total_seconds": 4800
+                },
+                "started_at": "2026-08-24T00:00:00.000Z",
+                "stop_at": "2026-08-24T01:19:00.000Z"
+              },
+              "renewals": 0,
+              "seconds": null,
+              "version": 1,
+              "launch": "runtime.start:af8e746e7acf861bdc0c086aab883a277f48dfb12c7c6fc3e787aa1d55f184fd",
+              "container": "runtime-1",
+              "returned": true,
+              "activating": false,
+              "activation_started": null,
+              "acquired_expires_at": "2026-08-24T01:20:00.000Z",
+              "revision": 0,
+              "renewed_at": null,
+              "renewals_remaining": 0,
+              "expiry_judged_at": null,
+              "expired": true,
+              "timing_ambiguous": false,
+              "timing_observed_at": null,
+              "timing_decided_at": null,
+              "revoked": true
+            },
+            "faults": [],
+            "reclaim": {
+              "reclaimed": "held",
+              "attempt_id": "attempt-1",
+              "state": "absent",
+              "why": "the runtime observed 'absent' and no writer-absence proof exists yet, so the revoked generation keeps the resource"
+            },
+            "settlement": {
+              "settled": "returned",
+              "attempt_id": "attempt-1",
+              "state": "absent",
+              "container": "runtime-1"
+            }
+          }
+        },
+        "faults": []
+      }
+    },
+    {
+      "envelope_elapsed_seconds": 3600,
+      "engine_state": "running",
+      "token": {
+        "acquired_at": "2026-08-24T00:02:00.000Z",
+        "attempt": "attempt-1",
+        "domain": "workspace:42:116524",
+        "execution": "attempt-1",
+        "expires_at": "2026-08-24T01:20:00.000Z",
+        "generation": 1,
+        "operation": "runtime.start:af8e746e7acf861bdc0c086aab883a277f48dfb12c7c6fc3e787aa1d55f184fd",
+        "owner": "7c83e45e5b723f74c4e611a3592b4c49b59aba0994561b8dc37a7d930e11d9b5",
+        "permission": {
+          "expires_at": "2026-08-24T01:20:00.000Z",
+          "policy": {
+            "cleanup_seconds": 60,
+            "execution_limits": {
+              "boundaries": {
+                "host_verification": {
+                  "default_seconds": 300,
+                  "origin": "job",
+                  "seconds": 30,
+                  "setting": "verification_command_seconds"
+                },
+                "integration_verification": {
+                  "default_seconds": 1800,
+                  "origin": "job",
+                  "seconds": 30,
+                  "setting": "verification_command_seconds"
+                },
+                "ordinary_verification": {
+                  "default_seconds": 900,
+                  "origin": "job",
+                  "seconds": 30,
+                  "setting": "verification_command_seconds"
+                },
+                "provider_turn": {
+                  "default_seconds": 3600,
+                  "origin": "job",
+                  "seconds": 3600,
+                  "setting": "provider_turn_seconds"
+                }
+              },
+              "compatibility_generation": 1,
+              "requested": {
+                "provider_turn_seconds": 3600,
+                "verification_command_seconds": 30
+              },
+              "scope": "per-invocation",
+              "units": "seconds"
+            },
+            "job": "job-one",
+            "run": "enforcement-case",
+            "total_seconds": 4800
+          },
+          "started_at": "2026-08-24T00:00:00.000Z",
+          "stop_at": "2026-08-24T01:19:00.000Z"
+        },
+        "renewals": 0,
+        "seconds": null,
+        "version": 1,
+        "launch": "runtime.start:af8e746e7acf861bdc0c086aab883a277f48dfb12c7c6fc3e787aa1d55f184fd",
+        "container": "runtime-1",
+        "returned": false,
+        "activating": false,
+        "activation_started": null,
+        "acquired_expires_at": "2026-08-24T01:20:00.000Z",
+        "revision": 0,
+        "renewed_at": null,
+        "renewals_remaining": 0,
+        "expiry_judged_at": null,
+        "expired": false,
+        "timing_ambiguous": false,
+        "timing_observed_at": null,
+        "timing_decided_at": null,
+        "revoked": false
+      },
+      "report": {
+        "state": "stopping",
+        "attempts": {
+          "attempt-1": {
+            "runtime": {
+              "attempt_id": "attempt-1",
+              "runtime_id": "runtime-1",
+              "execution_runtime": "cancel-requested",
+              "cleanup": "pending",
+              "assignment": {
+                "work_ref": {
+                  "authority_uuid": "0000000000000000000000000000000a",
+                  "work_id": "0000000a-W1"
+                },
+                "participant": "baton.claude",
+                "generation": 1
+              }
+            },
+            "observation": {
+              "runtime_id": "runtime-1",
+              "state": "absent",
+              "why": "the engine answered 'Error: No such container: runtime-1'"
+            },
+            "token": {
+              "acquired_at": "2026-08-24T00:02:00.000Z",
+              "attempt": "attempt-1",
+              "domain": "workspace:42:116524",
+              "execution": "attempt-1",
+              "expires_at": "2026-08-24T01:20:00.000Z",
+              "generation": 1,
+              "operation": "runtime.start:af8e746e7acf861bdc0c086aab883a277f48dfb12c7c6fc3e787aa1d55f184fd",
+              "owner": "7c83e45e5b723f74c4e611a3592b4c49b59aba0994561b8dc37a7d930e11d9b5",
+              "permission": {
+                "expires_at": "2026-08-24T01:20:00.000Z",
+                "policy": {
+                  "cleanup_seconds": 60,
+                  "execution_limits": {
+                    "boundaries": {
+                      "host_verification": {
+                        "default_seconds": 300,
+                        "origin": "job",
+                        "seconds": 30,
+                        "setting": "verification_command_seconds"
+                      },
+                      "integration_verification": {
+                        "default_seconds": 1800,
+                        "origin": "job",
+                        "seconds": 30,
+                        "setting": "verification_command_seconds"
+                      },
+                      "ordinary_verification": {
+                        "default_seconds": 900,
+                        "origin": "job",
+                        "seconds": 30,
+                        "setting": "verification_command_seconds"
+                      },
+                      "provider_turn": {
+                        "default_seconds": 3600,
+                        "origin": "job",
+                        "seconds": 3600,
+                        "setting": "provider_turn_seconds"
+                      }
+                    },
+                    "compatibility_generation": 1,
+                    "requested": {
+                      "provider_turn_seconds": 3600,
+                      "verification_command_seconds": 30
+                    },
+                    "scope": "per-invocation",
+                    "units": "seconds"
+                  },
+                  "job": "job-one",
+                  "run": "enforcement-case",
+                  "total_seconds": 4800
+                },
+                "started_at": "2026-08-24T00:00:00.000Z",
+                "stop_at": "2026-08-24T01:19:00.000Z"
+              },
+              "renewals": 0,
+              "seconds": null,
+              "version": 1,
+              "launch": "runtime.start:af8e746e7acf861bdc0c086aab883a277f48dfb12c7c6fc3e787aa1d55f184fd",
+              "container": "runtime-1",
+              "returned": true,
+              "activating": false,
+              "activation_started": null,
+              "acquired_expires_at": "2026-08-24T01:20:00.000Z",
+              "revision": 0,
+              "renewed_at": null,
+              "renewals_remaining": 0,
+              "expiry_judged_at": null,
+              "expired": true,
+              "timing_ambiguous": false,
+              "timing_observed_at": null,
+              "timing_decided_at": null,
+              "revoked": true
+            },
+            "faults": [],
+            "reclaim": {
+              "reclaimed": "held",
+              "attempt_id": "attempt-1",
+              "state": "absent",
+              "why": "the runtime observed 'absent' and no writer-absence proof exists yet, so the revoked generation keeps the resource"
+            },
+            "settlement": {
+              "settled": "returned",
+              "attempt_id": "attempt-1",
+              "state": "absent",
+              "container": "runtime-1"
+            }
+          }
+        },
+        "faults": []
+      }
+    },
+    {
+      "envelope_elapsed_seconds": 3720,
+      "engine_state": "running",
+      "token": {
+        "acquired_at": "2026-08-24T00:02:00.000Z",
+        "attempt": "attempt-1",
+        "domain": "workspace:42:116524",
+        "execution": "attempt-1",
+        "expires_at": "2026-08-24T01:20:00.000Z",
+        "generation": 1,
+        "operation": "runtime.start:af8e746e7acf861bdc0c086aab883a277f48dfb12c7c6fc3e787aa1d55f184fd",
+        "owner": "7c83e45e5b723f74c4e611a3592b4c49b59aba0994561b8dc37a7d930e11d9b5",
+        "permission": {
+          "expires_at": "2026-08-24T01:20:00.000Z",
+          "policy": {
+            "cleanup_seconds": 60,
+            "execution_limits": {
+              "boundaries": {
+                "host_verification": {
+                  "default_seconds": 300,
+                  "origin": "job",
+                  "seconds": 30,
+                  "setting": "verification_command_seconds"
+                },
+                "integration_verification": {
+                  "default_seconds": 1800,
+                  "origin": "job",
+                  "seconds": 30,
+                  "setting": "verification_command_seconds"
+                },
+                "ordinary_verification": {
+                  "default_seconds": 900,
+                  "origin": "job",
+                  "seconds": 30,
+                  "setting": "verification_command_seconds"
+                },
+                "provider_turn": {
+                  "default_seconds": 3600,
+                  "origin": "job",
+                  "seconds": 3600,
+                  "setting": "provider_turn_seconds"
+                }
+              },
+              "compatibility_generation": 1,
+              "requested": {
+                "provider_turn_seconds": 3600,
+                "verification_command_seconds": 30
+              },
+              "scope": "per-invocation",
+              "units": "seconds"
+            },
+            "job": "job-one",
+            "run": "enforcement-case",
+            "total_seconds": 4800
+          },
+          "started_at": "2026-08-24T00:00:00.000Z",
+          "stop_at": "2026-08-24T01:19:00.000Z"
+        },
+        "renewals": 0,
+        "seconds": null,
+        "version": 1,
+        "launch": "runtime.start:af8e746e7acf861bdc0c086aab883a277f48dfb12c7c6fc3e787aa1d55f184fd",
+        "container": "runtime-1",
+        "returned": false,
+        "activating": false,
+        "activation_started": null,
+        "acquired_expires_at": "2026-08-24T01:20:00.000Z",
+        "revision": 0,
+        "renewed_at": null,
+        "renewals_remaining": 0,
+        "expiry_judged_at": null,
+        "expired": false,
+        "timing_ambiguous": false,
+        "timing_observed_at": null,
+        "timing_decided_at": null,
+        "revoked": false
+      },
+      "report": {
+        "state": "stopping",
+        "attempts": {
+          "attempt-1": {
+            "runtime": {
+              "attempt_id": "attempt-1",
+              "runtime_id": "runtime-1",
+              "execution_runtime": "cancel-requested",
+              "cleanup": "pending",
+              "assignment": {
+                "work_ref": {
+                  "authority_uuid": "0000000000000000000000000000000a",
+                  "work_id": "0000000a-W1"
+                },
+                "participant": "baton.claude",
+                "generation": 1
+              }
+            },
+            "observation": {
+              "runtime_id": "runtime-1",
+              "state": "absent",
+              "why": "the engine answered 'Error: No such container: runtime-1'"
+            },
+            "token": {
+              "acquired_at": "2026-08-24T00:02:00.000Z",
+              "attempt": "attempt-1",
+              "domain": "workspace:42:116524",
+              "execution": "attempt-1",
+              "expires_at": "2026-08-24T01:20:00.000Z",
+              "generation": 1,
+              "operation": "runtime.start:af8e746e7acf861bdc0c086aab883a277f48dfb12c7c6fc3e787aa1d55f184fd",
+              "owner": "7c83e45e5b723f74c4e611a3592b4c49b59aba0994561b8dc37a7d930e11d9b5",
+              "permission": {
+                "expires_at": "2026-08-24T01:20:00.000Z",
+                "policy": {
+                  "cleanup_seconds": 60,
+                  "execution_limits": {
+                    "boundaries": {
+                      "host_verification": {
+                        "default_seconds": 300,
+                        "origin": "job",
+                        "seconds": 30,
+                        "setting": "verification_command_seconds"
+                      },
+                      "integration_verification": {
+                        "default_seconds": 1800,
+                        "origin": "job",
+                        "seconds": 30,
+                        "setting": "verification_command_seconds"
+                      },
+                      "ordinary_verification": {
+                        "default_seconds": 900,
+                        "origin": "job",
+                        "seconds": 30,
+                        "setting": "verification_command_seconds"
+                      },
+                      "provider_turn": {
+                        "default_seconds": 3600,
+                        "origin": "job",
+                        "seconds": 3600,
+                        "setting": "provider_turn_seconds"
+                      }
+                    },
+                    "compatibility_generation": 1,
+                    "requested": {
+                      "provider_turn_seconds": 3600,
+                      "verification_command_seconds": 30
+                    },
+                    "scope": "per-invocation",
+                    "units": "seconds"
+                  },
+                  "job": "job-one",
+                  "run": "enforcement-case",
+                  "total_seconds": 4800
+                },
+                "started_at": "2026-08-24T00:00:00.000Z",
+                "stop_at": "2026-08-24T01:19:00.000Z"
+              },
+              "renewals": 0,
+              "seconds": null,
+              "version": 1,
+              "launch": "runtime.start:af8e746e7acf861bdc0c086aab883a277f48dfb12c7c6fc3e787aa1d55f184fd",
+              "container": "runtime-1",
+              "returned": true,
+              "activating": false,
+              "activation_started": null,
+              "acquired_expires_at": "2026-08-24T01:20:00.000Z",
+              "revision": 0,
+              "renewed_at": null,
+              "renewals_remaining": 0,
+              "expiry_judged_at": null,
+              "expired": true,
+              "timing_ambiguous": false,
+              "timing_observed_at": null,
+              "timing_decided_at": null,
+              "revoked": true
+            },
+            "faults": [],
+            "reclaim": {
+              "reclaimed": "held",
+              "attempt_id": "attempt-1",
+              "state": "absent",
+              "why": "the runtime observed 'absent' and no writer-absence proof exists yet, so the revoked generation keeps the resource"
+            },
+            "settlement": {
+              "settled": "returned",
+              "attempt_id": "attempt-1",
+              "state": "absent",
+              "container": "runtime-1"
+            }
+          }
+        },
+        "faults": []
+      }
+    },
+    {
+      "envelope_elapsed_seconds": 4740,
+      "engine_state": "quiescent",
+      "token": {
+        "acquired_at": "2026-08-24T00:02:00.000Z",
+        "attempt": "attempt-1",
+        "domain": "workspace:42:116524",
+        "execution": "attempt-1",
+        "expires_at": "2026-08-24T01:20:00.000Z",
+        "generation": 1,
+        "operation": "runtime.start:af8e746e7acf861bdc0c086aab883a277f48dfb12c7c6fc3e787aa1d55f184fd",
+        "owner": "7c83e45e5b723f74c4e611a3592b4c49b59aba0994561b8dc37a7d930e11d9b5",
+        "permission": {
+          "expires_at": "2026-08-24T01:20:00.000Z",
+          "policy": {
+            "cleanup_seconds": 60,
+            "execution_limits": {
+              "boundaries": {
+                "host_verification": {
+                  "default_seconds": 300,
+                  "origin": "job",
+                  "seconds": 30,
+                  "setting": "verification_command_seconds"
+                },
+                "integration_verification": {
+                  "default_seconds": 1800,
+                  "origin": "job",
+                  "seconds": 30,
+                  "setting": "verification_command_seconds"
+                },
+                "ordinary_verification": {
+                  "default_seconds": 900,
+                  "origin": "job",
+                  "seconds": 30,
+                  "setting": "verification_command_seconds"
+                },
+                "provider_turn": {
+                  "default_seconds": 3600,
+                  "origin": "job",
+                  "seconds": 3600,
+                  "setting": "provider_turn_seconds"
+                }
+              },
+              "compatibility_generation": 1,
+              "requested": {
+                "provider_turn_seconds": 3600,
+                "verification_command_seconds": 30
+              },
+              "scope": "per-invocation",
+              "units": "seconds"
+            },
+            "job": "job-one",
+            "run": "enforcement-case",
+            "total_seconds": 4800
+          },
+          "started_at": "2026-08-24T00:00:00.000Z",
+          "stop_at": "2026-08-24T01:19:00.000Z"
+        },
+        "renewals": 0,
+        "seconds": null,
+        "version": 1,
+        "launch": "runtime.start:af8e746e7acf861bdc0c086aab883a277f48dfb12c7c6fc3e787aa1d55f184fd",
+        "container": "runtime-1",
+        "returned": false,
+        "activating": false,
+        "activation_started": null,
+        "acquired_expires_at": "2026-08-24T01:20:00.000Z",
+        "revision": 0,
+        "renewed_at": null,
+        "renewals_remaining": 0,
+        "expiry_judged_at": null,
+        "expired": false,
+        "timing_ambiguous": false,
+        "timing_observed_at": null,
+        "timing_decided_at": null,
+        "revoked": false
+      },
+      "report": {
+        "state": "stopping",
+        "attempts": {
+          "attempt-1": {
+            "runtime": {
+              "attempt_id": "attempt-1",
+              "runtime_id": "runtime-1",
+              "execution_runtime": "cancel-requested",
+              "cleanup": "pending",
+              "assignment": {
+                "work_ref": {
+                  "authority_uuid": "0000000000000000000000000000000a",
+                  "work_id": "0000000a-W1"
+                },
+                "participant": "baton.claude",
+                "generation": 1
+              }
+            },
+            "observation": {
+              "runtime_id": "runtime-1",
+              "state": "absent",
+              "why": "the engine answered 'Error: No such container: runtime-1'"
+            },
+            "token": {
+              "acquired_at": "2026-08-24T00:02:00.000Z",
+              "attempt": "attempt-1",
+              "domain": "workspace:42:116524",
+              "execution": "attempt-1",
+              "expires_at": "2026-08-24T01:20:00.000Z",
+              "generation": 1,
+              "operation": "runtime.start:af8e746e7acf861bdc0c086aab883a277f48dfb12c7c6fc3e787aa1d55f184fd",
+              "owner": "7c83e45e5b723f74c4e611a3592b4c49b59aba0994561b8dc37a7d930e11d9b5",
+              "permission": {
+                "expires_at": "2026-08-24T01:20:00.000Z",
+                "policy": {
+                  "cleanup_seconds": 60,
+                  "execution_limits": {
+                    "boundaries": {
+                      "host_verification": {
+                        "default_seconds": 300,
+                        "origin": "job",
+                        "seconds": 30,
+                        "setting": "verification_command_seconds"
+                      },
+                      "integration_verification": {
+                        "default_seconds": 1800,
+                        "origin": "job",
+                        "seconds": 30,
+                        "setting": "verification_command_seconds"
+                      },
+                      "ordinary_verification": {
+                        "default_seconds": 900,
+                        "origin": "job",
+                        "seconds": 30,
+                        "setting": "verification_command_seconds"
+                      },
+                      "provider_turn": {
+                        "default_seconds": 3600,
+                        "origin": "job",
+                        "seconds": 3600,
+                        "setting": "provider_turn_seconds"
+                      }
+                    },
+                    "compatibility_generation": 1,
+                    "requested": {
+                      "provider_turn_seconds": 3600,
+                      "verification_command_seconds": 30
+                    },
+                    "scope": "per-invocation",
+                    "units": "seconds"
+                  },
+                  "job": "job-one",
+                  "run": "enforcement-case",
+                  "total_seconds": 4800
+                },
+                "started_at": "2026-08-24T00:00:00.000Z",
+                "stop_at": "2026-08-24T01:19:00.000Z"
+              },
+              "renewals": 0,
+              "seconds": null,
+              "version": 1,
+              "launch": "runtime.start:af8e746e7acf861bdc0c086aab883a277f48dfb12c7c6fc3e787aa1d55f184fd",
+              "container": "runtime-1",
+              "returned": true,
+              "activating": false,
+              "activation_started": null,
+              "acquired_expires_at": "2026-08-24T01:20:00.000Z",
+              "revision": 0,
+              "renewed_at": null,
+              "renewals_remaining": 0,
+              "expiry_judged_at": null,
+              "expired": true,
+              "timing_ambiguous": false,
+              "timing_observed_at": null,
+              "timing_decided_at": null,
+              "revoked": true
+            },
+            "faults": [],
+            "reclaim": {
+              "reclaimed": "held",
+              "attempt_id": "attempt-1",
+              "state": "absent",
+              "why": "the runtime observed 'absent' and no writer-absence proof exists yet, so the revoked generation keeps the resource"
+            },
+            "settlement": {
+              "settled": "returned",
+              "attempt_id": "attempt-1",
+              "state": "absent",
+              "container": "runtime-1"
+            }
+          }
+        },
+        "faults": []
+      }
+    },
+    {
+      "envelope_elapsed_seconds": 4800,
+      "engine_state": "absent",
+      "token": {
+        "acquired_at": "2026-08-24T00:02:00.000Z",
+        "attempt": "attempt-1",
+        "domain": "workspace:42:116524",
+        "execution": "attempt-1",
+        "expires_at": "2026-08-24T01:20:00.000Z",
+        "generation": 1,
+        "operation": "runtime.start:af8e746e7acf861bdc0c086aab883a277f48dfb12c7c6fc3e787aa1d55f184fd",
+        "owner": "7c83e45e5b723f74c4e611a3592b4c49b59aba0994561b8dc37a7d930e11d9b5",
+        "permission": {
+          "expires_at": "2026-08-24T01:20:00.000Z",
+          "policy": {
+            "cleanup_seconds": 60,
+            "execution_limits": {
+              "boundaries": {
+                "host_verification": {
+                  "default_seconds": 300,
+                  "origin": "job",
+                  "seconds": 30,
+                  "setting": "verification_command_seconds"
+                },
+                "integration_verification": {
+                  "default_seconds": 1800,
+                  "origin": "job",
+                  "seconds": 30,
+                  "setting": "verification_command_seconds"
+                },
+                "ordinary_verification": {
+                  "default_seconds": 900,
+                  "origin": "job",
+                  "seconds": 30,
+                  "setting": "verification_command_seconds"
+                },
+                "provider_turn": {
+                  "default_seconds": 3600,
+                  "origin": "job",
+                  "seconds": 3600,
+                  "setting": "provider_turn_seconds"
+                }
+              },
+              "compatibility_generation": 1,
+              "requested": {
+                "provider_turn_seconds": 3600,
+                "verification_command_seconds": 30
+              },
+              "scope": "per-invocation",
+              "units": "seconds"
+            },
+            "job": "job-one",
+            "run": "enforcement-case",
+            "total_seconds": 4800
+          },
+          "started_at": "2026-08-24T00:00:00.000Z",
+          "stop_at": "2026-08-24T01:19:00.000Z"
+        },
+        "renewals": 0,
+        "seconds": null,
+        "version": 1,
+        "launch": "runtime.start:af8e746e7acf861bdc0c086aab883a277f48dfb12c7c6fc3e787aa1d55f184fd",
+        "container": "runtime-1",
+        "returned": true,
+        "activating": false,
+        "activation_started": null,
+        "acquired_expires_at": "2026-08-24T01:20:00.000Z",
+        "revision": 0,
+        "renewed_at": null,
+        "renewals_remaining": 0,
+        "expiry_judged_at": null,
+        "expired": true,
+        "timing_ambiguous": false,
+        "timing_observed_at": null,
+        "timing_decided_at": null,
+        "revoked": true
+      },
+      "report": {
+        "state": "stopping",
+        "attempts": {
+          "attempt-1": {
+            "runtime": {
+              "attempt_id": "attempt-1",
+              "runtime_id": "runtime-1",
+              "execution_runtime": "cancel-requested",
+              "cleanup": "pending",
+              "assignment": {
+                "work_ref": {
+                  "authority_uuid": "0000000000000000000000000000000a",
+                  "work_id": "0000000a-W1"
+                },
+                "participant": "baton.claude",
+                "generation": 1
+              }
+            },
+            "observation": {
+              "runtime_id": "runtime-1",
+              "state": "absent",
+              "why": "the engine answered 'Error: No such container: runtime-1'"
+            },
+            "token": {
+              "acquired_at": "2026-08-24T00:02:00.000Z",
+              "attempt": "attempt-1",
+              "domain": "workspace:42:116524",
+              "execution": "attempt-1",
+              "expires_at": "2026-08-24T01:20:00.000Z",
+              "generation": 1,
+              "operation": "runtime.start:af8e746e7acf861bdc0c086aab883a277f48dfb12c7c6fc3e787aa1d55f184fd",
+              "owner": "7c83e45e5b723f74c4e611a3592b4c49b59aba0994561b8dc37a7d930e11d9b5",
+              "permission": {
+                "expires_at": "2026-08-24T01:20:00.000Z",
+                "policy": {
+                  "cleanup_seconds": 60,
+                  "execution_limits": {
+                    "boundaries": {
+                      "host_verification": {
+                        "default_seconds": 300,
+                        "origin": "job",
+                        "seconds": 30,
+                        "setting": "verification_command_seconds"
+                      },
+                      "integration_verification": {
+                        "default_seconds": 1800,
+                        "origin": "job",
+                        "seconds": 30,
+                        "setting": "verification_command_seconds"
+                      },
+                      "ordinary_verification": {
+                        "default_seconds": 900,
+                        "origin": "job",
+                        "seconds": 30,
+                        "setting": "verification_command_seconds"
+                      },
+                      "provider_turn": {
+                        "default_seconds": 3600,
+                        "origin": "job",
+                        "seconds": 3600,
+                        "setting": "provider_turn_seconds"
+                      }
+                    },
+                    "compatibility_generation": 1,
+                    "requested": {
+                      "provider_turn_seconds": 3600,
+                      "verification_command_seconds": 30
+                    },
+                    "scope": "per-invocation",
+                    "units": "seconds"
+                  },
+                  "job": "job-one",
+                  "run": "enforcement-case",
+                  "total_seconds": 4800
+                },
+                "started_at": "2026-08-24T00:00:00.000Z",
+                "stop_at": "2026-08-24T01:19:00.000Z"
+              },
+              "renewals": 0,
+              "seconds": null,
+              "version": 1,
+              "launch": "runtime.start:af8e746e7acf861bdc0c086aab883a277f48dfb12c7c6fc3e787aa1d55f184fd",
+              "container": "runtime-1",
+              "returned": true,
+              "activating": false,
+              "activation_started": null,
+              "acquired_expires_at": "2026-08-24T01:20:00.000Z",
+              "revision": 0,
+              "renewed_at": null,
+              "renewals_remaining": 0,
+              "expiry_judged_at": null,
+              "expired": true,
+              "timing_ambiguous": false,
+              "timing_observed_at": null,
+              "timing_decided_at": null,
+              "revoked": true
+            },
+            "faults": [],
+            "reclaim": {
+              "reclaimed": "held",
+              "attempt_id": "attempt-1",
+              "state": "absent",
+              "why": "the runtime observed 'absent' and no writer-absence proof exists yet, so the revoked generation keeps the resource"
+            },
+            "settlement": {
+              "settled": "returned",
+              "attempt_id": "attempt-1",
+              "state": "absent",
+              "container": "runtime-1"
+            }
+          }
+        },
+        "faults": []
+      }
+    }
+  ],
+  "seconds": 0.01511460499750683
+}

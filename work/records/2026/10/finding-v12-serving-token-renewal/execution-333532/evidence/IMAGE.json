@@ -1,0 +1,8 @@
+{
+  "observation": "read-only docker image inspect this claim",
+  "id": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2",
+  "platform": "linux/amd64",
+  "rebuilt": false,
+  "credential_read": false,
+  "proposed_root_exists": false
+}

@@ -252,8 +252,11 @@ test-all LOG JOBS='':
     export BATON_V12_STACK_PACKAGING_REQUIRED=1
     {
         echo "[test-all] started $(date -u +%FT%TZ)"
-        "$PREPARED" -m tools.source_identity --repo "$(git rev-parse --show-toplevel)" v12 > "${LOG%.log}.source.json"
-        echo "[test-all] source HEAD $("$PREPARED" -c 'import json,sys; d=json.load(open(sys.argv[1])); print(d["head"])' "${LOG%.log}.source.json") changed-files $("$PREPARED" -c 'import json,sys; print(json.load(open(sys.argv[1]))["changed_count"])' "${LOG%.log}.source.json") content-digest $("$PREPARED" -c 'import json,sys; print(json.load(open(sys.argv[1]))["content_digest"])' "${LOG%.log}.source.json") scope v12 (HEAD + sha256 of every modified/untracked file under v12; gitignored and out-of-scope paths excluded; per-file list in the .source.json beside this log)"
+        # The identity REFUSES (exit 2) when a declared consumed input is absent,
+        # and that ends this recipe before anything runs: a run that cannot
+        # find what it would consume cannot name the candidate it tested.
+        "$PREPARED" -m tools.source_identity --repo "$(git rev-parse --show-toplevel)" --declared v12 > "${LOG%.log}.source.json"
+        echo "[test-all] source HEAD $("$PREPARED" -c 'import json,sys; d=json.load(open(sys.argv[1])); print(d["head"])' "${LOG%.log}.source.json") changed-files $("$PREPARED" -c 'import json,sys; print(json.load(open(sys.argv[1]))["changed_count"])' "${LOG%.log}.source.json") consumed-input-files $("$PREPARED" -c 'import json,sys; print(json.load(open(sys.argv[1]))["consumed_count"])' "${LOG%.log}.source.json") content-digest $("$PREPARED" -c 'import json,sys; print(json.load(open(sys.argv[1]))["content_digest"])' "${LOG%.log}.source.json") scope v12 + declared inputs (HEAD + sha256 of every modified/untracked file under v12 + sha256 of every file of each consumed input tools.parallel_test declares; gitignored and other out-of-scope paths excluded; per-file lists in the .source.json beside this log)"
         echo "[test-all] python $("$PREPARED" -c 'import sys; print(sys.version.split()[0])') jsonschema $("$PREPARED" -c 'import importlib.metadata as m; print(m.version("jsonschema"))') docker $(docker version 2>/dev/null | awk '/Server:/{s=1} s && /Version:/{print $2; exit}') uid $(id -u) cpus $(nproc) userns $(unshare -rm true 2>/dev/null && echo yes || echo no) tmpfs-tmp $(findmnt -no FSTYPE /tmp 2>/dev/null || echo unknown)"
         echo "[test-all] image $BATON_W32577_IMAGE_DIGEST distro ${BATON_V12_STACK_DISTRO:-(fresh build)}"
     } | tee "$LOG"
@@ -268,14 +271,18 @@ test-all LOG JOBS='':
     CODE=${PIPESTATUS[0]}
     # DRIFT IS VISIBLE: the identity is taken again after the run; if the tested
     # bytes changed under the run, the evidence names it and the run fails.
-    "$PREPARED" -m tools.source_identity --repo "$(git rev-parse --show-toplevel)" v12 > "${LOG%.log}.source-after.json"
-    BEFORE=$("$PREPARED" -c 'import json,sys; print(json.load(open(sys.argv[1]))["content_digest"])' "${LOG%.log}.source.json")
-    AFTER=$("$PREPARED" -c 'import json,sys; print(json.load(open(sys.argv[1]))["content_digest"])' "${LOG%.log}.source-after.json")
-    if [[ "$BEFORE" != "$AFTER" ]]; then
-        echo "[test-all] SOURCE DRIFT during the run: content-digest $BEFORE -> $AFTER; compare the two .source*.json files; this run does not identify one candidate" | tee -a "$LOG"
+    if ! "$PREPARED" -m tools.source_identity --repo "$(git rev-parse --show-toplevel)" --declared v12 > "${LOG%.log}.source-after.json"; then
+        echo "[test-all] SOURCE IDENTITY REFUSED after the run (a declared consumed input is no longer present); this run does not identify one candidate" | tee -a "$LOG"
         CODE=1
     else
-        echo "[test-all] source unchanged during the run (content-digest $AFTER)" | tee -a "$LOG"
+        BEFORE=$("$PREPARED" -c 'import json,sys; print(json.load(open(sys.argv[1]))["content_digest"])' "${LOG%.log}.source.json")
+        AFTER=$("$PREPARED" -c 'import json,sys; print(json.load(open(sys.argv[1]))["content_digest"])' "${LOG%.log}.source-after.json")
+        if [[ "$BEFORE" != "$AFTER" ]]; then
+            echo "[test-all] SOURCE DRIFT during the run: content-digest $BEFORE -> $AFTER; compare the two .source*.json files; this run does not identify one candidate" | tee -a "$LOG"
+            CODE=1
+        else
+            echo "[test-all] source unchanged during the run (content-digest $AFTER)" | tee -a "$LOG"
+        fi
     fi
     echo "[test-all] finished $(date -u +%FT%TZ) exit $CODE" | tee -a "$LOG"
     exit "$CODE"

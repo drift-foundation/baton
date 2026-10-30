@@ -1,0 +1,37 @@
+{
+  "base": "bc925cf5c62d69426ed5862af4d41f4d2a967b0f",
+  "changes": [
+    "task instruction bytes",
+    "frozen approved TOK-9 delivered in task fixture",
+    "amendment manifest delivered in task fixture",
+    "one-expression task substitution and task-input augmentation adapter",
+    "partial buffers remain bound provenance; restoration/use conditional instead of mandatory algorithm"
+  ],
+  "claim": 345734,
+  "design_provenance_sha256": "c73a10e4b3797b9fc1be4a0a488d1b1a431baf43f4fc10810f9103de8819e637",
+  "files": {
+    "OPERATOR.md": "d867b231dd2c46aebb39cafbc13bc285015bd9e81691f93b19041f08e52a1bd2",
+    "TASK.md": "ce6be825bbfa613091c6e5d0961b16ff9da2c6fc0242a33a641ac4c92dad9895",
+    "TOK-9.md": "4f8d87b46f905940c05d1cc0486377867e585c9fbb785b0cf1e4e861a77fe4d8",
+    "prepare.py": "8e1ac0872466e7e810f0574543655a38b3c7d7d0c0629c4428e767e16e8f2bd5"
+  },
+  "owner_policy": 345677,
+  "parent": "W333485",
+  "predecessor": "baton:work/records/2026/10/finding-v12-serving-token-renewal/continuation-339444/PACKET-INPUTS.json",
+  "predecessor_sha256": "0f8eba8caa8eca82639f83b184c90dbafd7a19757be7fe6336c5494ce4329adb",
+  "root": "/home/sl/baton-instances/serving-renewal-w333485-339444",
+  "run": "serving-renewal-w333485-339444",
+  "schema": "w333485-task-amendment/1",
+  "state": "unlaunched-successor-requires-parent-joined-selection",
+  "unchanged": [
+    "all predecessor files",
+    "source archive/base",
+    "partial buffers and optional loader",
+    "host runtime/controller",
+    "run/root/image/credential reference",
+    "3600/30 invocation and4800/60 outer/cleanup",
+    "one invocation/no retry",
+    "four-module full verification gate"
+  ],
+  "work": "W345732"
+}

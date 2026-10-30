@@ -1,0 +1,12 @@
+test_author_exception_releases_process_guard_and_preserves_failure (tests.manager.test_authoring_manager_guard.ManagerComposition.test_author_exception_releases_process_guard_and_preserves_failure) ... ok
+test_blocked_author_keeps_exclusion_and_outer_deadline (tests.manager.test_authoring_manager_guard.ManagerComposition.test_blocked_author_keeps_exclusion_and_outer_deadline) ... ok
+test_manager_loss_retains_unknown_and_restart_does_not_repeat (tests.manager.test_authoring_manager_guard.ManagerComposition.test_manager_loss_retains_unknown_and_restart_does_not_repeat) ... ok
+test_operator_stop_preserves_partial_output_and_original_envelope (tests.manager.test_authoring_manager_guard.ManagerComposition.test_operator_stop_preserves_partial_output_and_original_envelope) ... ok
+test_parent_loss_kills_manager_without_inherited_workspace_guard (tests.manager.test_authoring_manager_guard.ManagerComposition.test_parent_loss_kills_manager_without_inherited_workspace_guard) ... ok
+test_preexisting_independent_manager_refuses_before_author_admission (tests.manager.test_authoring_manager_guard.ManagerComposition.test_preexisting_independent_manager_refuses_before_author_admission) ... ok
+test_real_composition_admits_action_and_restart_never_reinvokes (tests.manager.test_authoring_manager_guard.ManagerComposition.test_real_composition_admits_action_and_restart_never_reinvokes) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 21.136s
+
+OK

@@ -1,0 +1,10 @@
+{
+  "baton.v12.single-worker-deployment/5": {
+    "type": "ContractRefusal",
+    "reason": "a single-worker configuration has exactly schema, authority_store, authority_uuid, participant, principal, profile_name, profile_digest, policy_digest, adapter_name, adapter_digest, engine, image_digest, network, workspace_storage, workspace_group, launch_home, credential_home, credential_sources, credential_slots, credential_profile, nominated_source, workspace_capacity, input_manifest, task_document, launch_contract, launch_role, review_route, retention_policy_digest, retention_disposition, provider_context; unexpected verifier_layout"
+  },
+  "baton.v12.single-worker-deployment/6": {
+    "type": "ContractRefusal",
+    "reason": "a single-worker configuration has exactly schema, authority_store, authority_uuid, participant, principal, profile_name, profile_digest, policy_digest, adapter_name, adapter_digest, engine, image_digest, network, workspace_storage, workspace_group, launch_home, credential_home, credential_sources, credential_slots, credential_profile, nominated_source, workspace_capacity, input_manifest, task_document, launch_contract, launch_role, review_route, retention_policy_digest, retention_disposition, verifier_layout; unexpected provider_context"
+  }
+}

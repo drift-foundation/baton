@@ -1,0 +1,1 @@
+{"deadline": 3411.486494672, "faults": [], "job_id": "job-a", "run_id": "shutdown-stuck_snapshot", "step": "guard stop/join", "step_deadline": 3411.2864996232}

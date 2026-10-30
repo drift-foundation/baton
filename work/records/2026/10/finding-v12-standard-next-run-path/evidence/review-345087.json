@@ -1,0 +1,78 @@
+{
+  "candidate_sha256": "72f208fa67478f3d9c958915b5169c8104b66e708d1118757f47aa0653183c16",
+  "hashes": {
+    "v12/NEXT-RUN.md": {
+      "work/records/2026/10/finding-v12-standard-next-run-path/candidate-345023": "9e584266f6bc7726aef7cb0ccafd9e8b6ed9ad78a366aea3e4cb7ee815d246cd",
+      "/tmp/baton-next-run-345023": "9e584266f6bc7726aef7cb0ccafd9e8b6ed9ad78a366aea3e4cb7ee815d246cd"
+    },
+    "v12/python/src/baton_v12/worker_manager/attempts.py": {
+      "work/records/2026/10/finding-v12-standard-next-run-path/candidate-345023": "5c3cf84641bcbef5fcf78c4bd058911dfc233b60242920ab30ebf6ce54fcdc7d",
+      "/tmp/baton-next-run-345023": "5c3cf84641bcbef5fcf78c4bd058911dfc233b60242920ab30ebf6ce54fcdc7d"
+    },
+    "v12/python/tests/manager/test_authoring_enforcement.py": {
+      "work/records/2026/10/finding-v12-standard-next-run-path/candidate-345023": "7f6ab4349250328a0ed6a6015a4f69e6e631c52be59a8fc132374d264638d28b",
+      "/tmp/baton-next-run-345023": "7f6ab4349250328a0ed6a6015a4f69e6e631c52be59a8fc132374d264638d28b"
+    },
+    "v12/python/tests/tools/test_next_run.py": {
+      "work/records/2026/10/finding-v12-standard-next-run-path/candidate-345023": "b0123de44201c2d278ad04cec0f6173655768547afc131860be21cc7f10439cf",
+      "/tmp/baton-next-run-345023": "b0123de44201c2d278ad04cec0f6173655768547afc131860be21cc7f10439cf"
+    },
+    "v12/python/tests/tools/test_next_run_managed.py": {
+      "work/records/2026/10/finding-v12-standard-next-run-path/candidate-345023": "d3a90204964295c723898a1cb8fbe5c45fb25dab2eb287c3a614de7aa7cc9fb3",
+      "/tmp/baton-next-run-345023": "d3a90204964295c723898a1cb8fbe5c45fb25dab2eb287c3a614de7aa7cc9fb3"
+    },
+    "v12/python/tests/tools/test_next_run_recovery.py": {
+      "work/records/2026/10/finding-v12-standard-next-run-path/candidate-345023": "c3bd2c230f8f1158c45cd8b7b5e15b7d00a6f6007fc3deaf4300f504b799404f",
+      "/tmp/baton-next-run-345023": "c3bd2c230f8f1158c45cd8b7b5e15b7d00a6f6007fc3deaf4300f504b799404f"
+    },
+    "v12/python/tools/authoring_baseline.py": {
+      "work/records/2026/10/finding-v12-standard-next-run-path/candidate-345023": "8e5987f56f8d5329c33a8e73f9df56f13213e134f2dade8180afabf80723efe9",
+      "/tmp/baton-next-run-345023": "8e5987f56f8d5329c33a8e73f9df56f13213e134f2dade8180afabf80723efe9"
+    },
+    "v12/python/tools/authoring_enforcement.py": {
+      "work/records/2026/10/finding-v12-standard-next-run-path/candidate-345023": "5de01d96fac4bfb01e46ca5d84e40915f112518047fe77e111122c0e22b17cef",
+      "/tmp/baton-next-run-345023": "5de01d96fac4bfb01e46ca5d84e40915f112518047fe77e111122c0e22b17cef"
+    },
+    "v12/python/tools/next_run.py": {
+      "work/records/2026/10/finding-v12-standard-next-run-path/candidate-345023": "f32720fada8047b40d51f28931a4c2afcef7e8417d3356f097b8d9ffd3eae373",
+      "/tmp/baton-next-run-345023": "f32720fada8047b40d51f28931a4c2afcef7e8417d3356f097b8d9ffd3eae373"
+    },
+    "v12/python/tools/next_run_bindings.py": {
+      "work/records/2026/10/finding-v12-standard-next-run-path/candidate-345023": "5f819a75d5cee75791371fd41cb3f3e53c8150be6d07484c69c0e64bb20fcf29",
+      "/tmp/baton-next-run-345023": "5f819a75d5cee75791371fd41cb3f3e53c8150be6d07484c69c0e64bb20fcf29"
+    },
+    "v12/python/tools/next_run_client.py": {
+      "work/records/2026/10/finding-v12-standard-next-run-path/candidate-345023": "d1f4e42a50ed95a8e34069e525017b4d9feca3ac3bc31fe7b51d592223d3ce1d",
+      "/tmp/baton-next-run-345023": "d1f4e42a50ed95a8e34069e525017b4d9feca3ac3bc31fe7b51d592223d3ce1d"
+    },
+    "v12/python/tools/next_run_confinement.py": {
+      "work/records/2026/10/finding-v12-standard-next-run-path/candidate-345023": "317414e0246818f4507e5c3ab907e03b149151a9bb42acf2bf1b9ec9772b469e",
+      "/tmp/baton-next-run-345023": "317414e0246818f4507e5c3ab907e03b149151a9bb42acf2bf1b9ec9772b469e"
+    },
+    "v12/python/tools/next_run_entry.py": {
+      "work/records/2026/10/finding-v12-standard-next-run-path/candidate-345023": "8290d5797267d02608180bd8539905be573ee6092ad8a04bd274a09c326a6bf4",
+      "/tmp/baton-next-run-345023": "8290d5797267d02608180bd8539905be573ee6092ad8a04bd274a09c326a6bf4"
+    },
+    "v12/python/tools/next_run_managed.py": {
+      "work/records/2026/10/finding-v12-standard-next-run-path/candidate-345023": "3346fbe59596cdef220ad955ebf15540380fadcc131b782450a19f27b283a92a",
+      "/tmp/baton-next-run-345023": "3346fbe59596cdef220ad955ebf15540380fadcc131b782450a19f27b283a92a"
+    },
+    "v12/python/tools/next_run_recovery.py": {
+      "work/records/2026/10/finding-v12-standard-next-run-path/candidate-345023": "59502d0ea24707f211f8fc47bd07b3847a373de48da12939a8e93920cbc506f9",
+      "/tmp/baton-next-run-345023": "59502d0ea24707f211f8fc47bd07b3847a373de48da12939a8e93920cbc506f9"
+    }
+  },
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_next_run_managed",
+    "tests.tools.test_next_run_recovery"
+  ],
+  "cwd": "/tmp/baton-next-run-345023/v12/python",
+  "timeout_seconds": 60,
+  "process_seconds": 6.336841891000063,
+  "returncode": 0,
+  "stdout": "",
+  "stderr": "................................\n----------------------------------------------------------------------\nRan 32 tests in 6.157s\n\nOK\n"
+}

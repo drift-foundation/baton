@@ -1,0 +1,135 @@
+{
+ "accountable_after": {
+  "counted": 23,
+  "digest": "00a4d38f7814dbcd0a4f79ecacd299b6286b6a8903077b730e29267785543925"
+ },
+ "accountable_before": {
+  "counted": 23,
+  "digest": "00a4d38f7814dbcd0a4f79ecacd299b6286b6a8903077b730e29267785543925"
+ },
+ "authority": "5a8fa4b4275b4f7fa32efafc2c48f546",
+ "collisions": {
+  "configured_workers": [
+   "implementation-pilot",
+   "review-pilot"
+  ],
+  "new_workers": [
+   "implementation-pilot-d",
+   "review-pilot-d"
+  ],
+  "old_binding": {
+   "canonical_target_id": "302453869d07eb5579e79a6572586d3c3cf62a5c",
+   "job_id": "quickstart-c",
+   "job_work_id": "5a8fa4b4-W1",
+   "line_declared_base": "302453869d07eb5579e79a6572586d3c3cf62a5c",
+   "review_work_id": "5a8fa4b4-W1",
+   "source_worker_id": "implementation-pilot"
+  }
+ },
+ "destination": "/home/sl/baton-instances/native-coordination-pilot-w321608-3",
+ "destination_unchanged": true,
+ "failed_job": "quickstart-c",
+ "failed_work": "5a8fa4b4-W1",
+ "input_digest": "sha256:3f0a039610cfb02a2743af7137f8ed91b768e68f82808714dd2a87485f532d59",
+ "manifest_digest": "sha256:c4267040714e7f55558aedb1fec0dbab41a667b78367949898cb901b0ecff56a",
+ "mode": "check",
+ "new_job": "quickstart-d",
+ "new_submission": "sub-w321608-quickstart-4",
+ "new_task": "w321608-native-operator-quickstart-4",
+ "new_work": "5a8fa4b4-W2",
+ "next_commands": {
+  "1_check": "python3 /home/sl/src/baton/work/records/2026/10/finding-v12-native-pilot-instance-packet/fresh-attempt-358697/fresh_attempt.py",
+  "2_apply": "python3 /home/sl/src/baton/work/records/2026/10/finding-v12-native-pilot-instance-packet/fresh-attempt-358697/fresh_attempt.py --owner-selected",
+  "3_emit_submission": "python3 /home/sl/src/baton/work/records/2026/10/finding-v12-native-pilot-instance-packet/fresh-attempt-358697/fresh_attempt.py --emit-submission",
+  "4_submit": [
+   "C=\"/home/sl/baton-instances/native-coordination-pilot-w321608-3/distro/baton-v12-stack\"",
+   "A=\"5a8fa4b4275b4f7fa32efafc2c48f546\"",
+   "\"$C\" manager \\",
+   "    --store \"/home/sl/baton-instances/native-coordination-pilot-w321608-3/db/jobs.sqlite3\" \\",
+   "    --incarnation w325959-owner-submit-4 \\",
+   "    --authority-uuid \"$A\" \\",
+   "    submit --document \"/home/sl/baton-instances/native-coordination-pilot-w321608-3/generated/submission-quickstart-d.json\""
+  ],
+  "5_serving": [
+   "I=\"/home/sl/baton-instances/native-coordination-pilot-w321608-3/instance.json\"",
+   "\"$C\" status --instance \"$I\"",
+   "\"$C\" start  --instance \"$I\"      # live serving"
+  ],
+  "expected_readbacks": {
+   "job_bindings": "two entries: quickstart-c on 5a8fa4b4-W1 UNCHANGED, and quickstart-d on 5a8fa4b4-W2",
+   "selector": "all four stage/Job pairs select a worker; the failed Job stays servable rather than being orphaned",
+   "status": "after submit, quickstart-d appears alongside the retained quickstart-c, whose implementation stays `exceptional` and whose review stays `blocked`",
+   "workers": "four: the two existing ones unchanged, plus implementation-pilot-d and review-pilot-d"
+  },
+  "stop_on_mismatch": "any readback that differs from the above is a mismatch: stop and report it rather than re-running, because the apply is prepared once and a second one refuses by design"
+ },
+ "pins": {
+  "configure.py": "sha256:b15280cc19aabca5bd519b88f57a34e7b7dabe7e67a40a28348befabf9d16333",
+  "fresh3-358443/submission.json": "sha256:76013289a5b0d587c148add78ac93ec16272481f2b00680a077c3602bd507c7c",
+  "fresh3-358443/task.json": "sha256:2f87e9dc45b94eb4100d6127a5f6e9487cb7c6edb2bbac6f3653052f966a62d0"
+ },
+ "rehearsal": {
+  "bindings": [
+   {
+    "canonical_target_id": "302453869d07eb5579e79a6572586d3c3cf62a5c",
+    "job_id": "quickstart-c",
+    "job_work_id": "5a8fa4b4-W1",
+    "line_declared_base": "302453869d07eb5579e79a6572586d3c3cf62a5c",
+    "review_work_id": "5a8fa4b4-W1",
+    "source_worker_id": "implementation-pilot"
+   },
+   {
+    "canonical_target_id": "302453869d07eb5579e79a6572586d3c3cf62a5c",
+    "job_id": "quickstart-d",
+    "job_work_id": "5a8fa4b4-W2",
+    "line_declared_base": "302453869d07eb5579e79a6572586d3c3cf62a5c",
+    "review_work_id": "5a8fa4b4-W2",
+    "source_worker_id": "implementation-pilot-d"
+   }
+  ],
+  "exit": 0,
+  "note": "the REAL supported operation, against a disposable copy of this instance's metadata and stores",
+  "preserved": {
+   "binding_identical": true,
+   "compared": [
+    "implementation-pilot",
+    "review-pilot"
+   ],
+   "existing_workers_identical": true
+  },
+  "said": [
+   "Now export these and run `just start` from v12/:",
+   "",
+   "export BATON_V12_JOB_STORE=\"/tmp/w325959-rehearse-_kk9xx5m/instance/db/jobs.sqlite3\"",
+   "export BATON_V12_CONTROL_STORE=\"/tmp/w325959-rehearse-_kk9xx5m/instance/db/control.sqlite3\"",
+   "export BATON_V12_AUTHORITY_UUID=\"5a8fa4b4275b4f7fa32efafc2c48f546\"",
+   "export BATON_V12_STAGE_EXECUTION_CONFIG=\"/tmp/w325959-rehearse-_kk9xx5m/instance/deployment.json\""
+  ],
+  "selector": {
+   "quickstart-c/implementation": [
+    "implementation-pilot"
+   ],
+   "quickstart-c/review": [
+    "review-pilot"
+   ],
+   "quickstart-d/implementation": [
+    "implementation-pilot-d"
+   ],
+   "quickstart-d/review": [
+    "review-pilot-d"
+   ]
+  },
+  "workers": [
+   "implementation-pilot",
+   "review-pilot",
+   "implementation-pilot-d",
+   "review-pilot-d"
+  ]
+ },
+ "task_digest": "sha256:9fdb1dd4ada5908bbd1718c8dbc89eff0d4c7def98dab9f89834373d47b8876b",
+ "work_identity": {
+  "asked_against": "a disposable copy of the authority store",
+  "new_work_free": true,
+  "old_work_present": true
+ }
+}

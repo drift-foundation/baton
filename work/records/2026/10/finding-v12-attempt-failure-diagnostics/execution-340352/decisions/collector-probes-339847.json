@@ -1,0 +1,146 @@
+{
+  "scope": "preparation collector fixtures only; no product tests/stores/engine/provider",
+  "collector_sha256": "ad889ac73429025644ab8af8ac05e262da3e417791558e7c668f47660a23ad5e",
+  "packet_manifest_sha256": "bf25eecb0c30407b27fee071d077b2e977559a8b018a04d49149d85c6a204992",
+  "seal_count": 34,
+  "all_seals_match": true,
+  "fixture_root": "/tmp/w333486-review339847-o0iu4z8j",
+  "results": [
+    {
+      "case": "present-workload",
+      "workload": {
+        "artifact": "workload final report",
+        "paths": [
+          "/tmp/w333486-review339847-o0iu4z8j/present-workload/outcome.json"
+        ],
+        "temporary_siblings": [],
+        "state": "absent",
+        "reason": "the directory was listed and the path is not in it. This means the final result is UNAVAILABLE and its cause is UNKNOWN -- never that publication timed out, and never that nothing was written elsewhere.",
+        "who_writes_it": "the supervisor, post-stop, inside the workload-publication reservation (baseline.py:1450-1461)"
+      },
+      "controller": {
+        "artifact": "controller final report",
+        "paths": [],
+        "temporary_siblings": [],
+        "state": "absent",
+        "reason": "the directory was listed and the path is not in it. This means the final result is UNAVAILABLE and its cause is UNKNOWN -- never that publication timed out, and never that nothing was written elsewhere.",
+        "who_writes_it": "the outer controller, after supervise_process returns and after child cleanup (authoring_enforcement.py:552-591) -- which is after any worker inside the run has ended"
+      },
+      "publication_timeout": {
+        "established": false,
+        "evidence": [],
+        "note": "NOT ESTABLISHED. No correlated TimeoutError fault was read. An absent or inaccessible report is not evidence of a timeout: a run that never started, an import or startup failure (see FAILURE.md), process death, a failed read and non-timeout publication errors all leave no final report."
+      }
+    },
+    {
+      "case": "actual-controller-shape",
+      "workload": {
+        "artifact": "workload final report",
+        "paths": [],
+        "temporary_siblings": [],
+        "state": "absent",
+        "reason": "the directory was listed and the path is not in it. This means the final result is UNAVAILABLE and its cause is UNKNOWN -- never that publication timed out, and never that nothing was written elsewhere.",
+        "who_writes_it": "the supervisor, post-stop, inside the workload-publication reservation (baseline.py:1450-1461)"
+      },
+      "controller": {
+        "artifact": "controller final report",
+        "paths": [
+          "/tmp/w333486-review339847-o0iu4z8j/actual-controller-shape/outcome.json.enforcement-1-1.json"
+        ],
+        "temporary_siblings": [],
+        "state": "present",
+        "who_writes_it": "the outer controller, after supervise_process returns and after child cleanup (authoring_enforcement.py:552-591) -- which is after any worker inside the run has ended",
+        "reports": [
+          {
+            "path": "/tmp/w333486-review339847-o0iu4z8j/actual-controller-shape/outcome.json.enforcement-1-1.json",
+            "state": "present",
+            "reason": null,
+            "sha256": "e555bd8d7a4656910c6d39ff99a9f02100d3fa73501ff2148a912ac06928e604",
+            "identity": "unresolved",
+            "identity_note": "the controller report carries no run_id member to correlate",
+            "read": {
+              "state": "held",
+              "faults": [],
+              "child_status": null,
+              "child_started": null,
+              "child_exited": null,
+              "elapsed_seconds": null,
+              "shutdown_deadline": null,
+              "shutdown_progress": null,
+              "author_invocation_started": null,
+              "recovery_only": null,
+              "manager_report_path": null,
+              "enforcement_path": null
+            }
+          }
+        ]
+      },
+      "publication_timeout": {
+        "established": false,
+        "evidence": [],
+        "note": "NOT ESTABLISHED. No correlated TimeoutError fault was read. An absent or inaccessible report is not evidence of a timeout: a run that never started, an import or startup failure (see FAILURE.md), process death, a failed read and non-timeout publication errors all leave no final report."
+      }
+    },
+    {
+      "case": "unrelated-timeout",
+      "workload": {
+        "artifact": "workload final report",
+        "paths": [],
+        "temporary_siblings": [],
+        "state": "absent",
+        "reason": "the directory was listed and the path is not in it. This means the final result is UNAVAILABLE and its cause is UNKNOWN -- never that publication timed out, and never that nothing was written elsewhere.",
+        "who_writes_it": "the supervisor, post-stop, inside the workload-publication reservation (baseline.py:1450-1461)"
+      },
+      "controller": {
+        "artifact": "controller final report",
+        "paths": [
+          "/tmp/w333486-review339847-o0iu4z8j/unrelated-timeout/outcome.json.enforcement-1-1.json"
+        ],
+        "temporary_siblings": [],
+        "state": "present",
+        "who_writes_it": "the outer controller, after supervise_process returns and after child cleanup (authoring_enforcement.py:552-591) -- which is after any worker inside the run has ended",
+        "reports": [
+          {
+            "path": "/tmp/w333486-review339847-o0iu4z8j/unrelated-timeout/outcome.json.enforcement-1-1.json",
+            "state": "present",
+            "reason": null,
+            "sha256": "058a264b9e574ed7b6fb9c0c3453150ba42e7e5c0a3c06e00de04bfebb0eaf03",
+            "identity": "matched",
+            "identity_note": null,
+            "read": {
+              "state": "held",
+              "faults": [
+                "TimeoutError: manager startup snapshot"
+              ],
+              "child_status": null,
+              "child_started": null,
+              "child_exited": null,
+              "elapsed_seconds": null,
+              "shutdown_deadline": null,
+              "shutdown_progress": null,
+              "author_invocation_started": null,
+              "recovery_only": null,
+              "manager_report_path": null,
+              "enforcement_path": null
+            }
+          }
+        ]
+      },
+      "publication_timeout": {
+        "established": true,
+        "evidence": [
+          {
+            "path": "/tmp/w333486-review339847-o0iu4z8j/unrelated-timeout/outcome.json.enforcement-1-1.json",
+            "fault": "TimeoutError: manager startup snapshot"
+          }
+        ],
+        "note": "a TimeoutError fault was READ in a correlated controller report. Even so: the bound at authoring_enforcement.py:586-594 spans write_text, os.replace and print, so this does NOT establish that nothing was written -- check temporary_siblings."
+      }
+    },
+    {
+      "case": "nonobject-json",
+      "error": "AttributeError: 'list' object has no attribute 'get'"
+    }
+  ],
+  "elapsed_seconds": 0.0015896669999619917
+}

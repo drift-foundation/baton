@@ -1,0 +1,54 @@
+{
+ "answers": "evidence/review-353910/report-omission.json, member for member",
+ "binary_sha256": "a1ec84af1458ea96b3c9dc72d28942ad03980c89317489b18dff333dc484298d",
+ "freshness_verdict": null,
+ "input_observed_at": "2026-09-02T00:00:00.000Z",
+ "is_acceptance": false,
+ "opens_no_store": true,
+ "output_has_execution_limits": true,
+ "output_has_snapshot_observed_at": true,
+ "output_rows": 3,
+ "output_snapshot_observed_at": "2026-09-02T00:00:00.000Z",
+ "per_row": {
+  "job-a/implementation": {
+   "compatibility_generation": 1,
+   "ordinary_verification_seconds": 900,
+   "provider_turn_origin": "compatibility",
+   "provider_turn_seconds": 3600,
+   "requested_known": {
+    "provider_turn_seconds": false,
+    "verification_command_seconds": false
+   },
+   "scope": "per-invocation",
+   "units": "seconds"
+  },
+  "job-a/review": {
+   "compatibility_generation": 1,
+   "ordinary_verification_seconds": 900,
+   "provider_turn_origin": "compatibility",
+   "provider_turn_seconds": 3600,
+   "requested_known": {
+    "provider_turn_seconds": false,
+    "verification_command_seconds": false
+   },
+   "scope": "per-invocation",
+   "units": "seconds"
+  },
+  "job-b/implementation": {
+   "compatibility_generation": 1,
+   "ordinary_verification_seconds": 900,
+   "provider_turn_origin": "compatibility",
+   "provider_turn_seconds": 3600,
+   "requested_known": {
+    "provider_turn_seconds": false,
+    "verification_command_seconds": false
+   },
+   "scope": "per-invocation",
+   "units": "seconds"
+  }
+ },
+ "schema": "baton.w333486-omission-closed/1",
+ "source_report_sha256": "7bc304e7331421074a0478c3b516d26dbc12b7af33d9aca3ed967ffd573be299",
+ "status": 0,
+ "three_instants_distinguished": "`source_observed_at` is when the status document was composed; a row's `execution.observed_at` is when its runtime was looked at and a cause's `at` is when the cessation was ordered. Three different facts, and no freshness verdict is derived from any of them"
+}

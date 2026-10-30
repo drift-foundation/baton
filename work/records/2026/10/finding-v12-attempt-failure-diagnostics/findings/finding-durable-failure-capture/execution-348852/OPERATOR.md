@@ -1,0 +1,363 @@
+# Owner operations — W341357 — MAKE THE GATE USABLE
+
+**`COMMANDS.md` has the six exact commands with no placeholders.** This
+document is what each one does and what to expect. Read both.
+
+**The run before this one worked, and that changes what you are selecting.**
+You selected `../execution-345039` and it **completed on its own at 461.10
+seconds** — `provider.status 0`, no interruption, 439s of lease margin. It
+returned the first candidate this slice has produced and **measured the gate for
+the first time in this campaign: 864 tests in 12.817s, exit 1, 9 failures and 7
+errors, all 16 in `tests.manager.test_maintenance`.** The 30-second ceiling
+fits.
+
+**So this packet is one bounded correction, not more authoring.** Its task is to
+make the complete existing five-module gate usable under the actual verification
+environment, starting from that exact retained candidate, **without weakening
+any module, case, assertion, verifier boundary or production refusal.**
+`FIXTURE.md` carries the diagnosis with file-and-line citations; `PACKET.md` has
+the exact list of what changed and what did not.
+
+**Step 5 is yours.** Post-run collection of the final results belongs to you
+and to the reviewer, not to the worker inside the run — it is published after
+that worker is gone and cannot be asked for it. `collect.py` is executable.
+
+**The start is NOT SELECTED.** Every input gate this Work had is closed —
+W333735 at `a9f4fa4d`, W334910 at `fb487979`, W338305 at
+`bc925cf5c62d69426ed5862af4d41f4d2a967b0f`, and the W337955 scheduling edge
+removed at339410 as fulfilled. That is not a start. What remains is independent
+preparation review and then an exact execution selection. Steps 0 to 3 are
+authorized preparation and produce no execution.
+
+**Three things that will bite you if you skip the rest:**
+
+1. **Do not use `commands.json`'s `start`.** The accepted composer still
+   generates the unenforced supervisor invocation. Use step 4 /
+   `packet/AUTHORING-COMMAND.json`.
+2. **The 900-second lease is gone, and a 3600-second provider turn is now
+   within permission.** W333485's host permission correction was independently
+   accepted and owner348699 closed it **satisfying**; this packet stages that
+   accepted host from the bound archive. Permission derives from the persisted
+   envelope: **execution stop at origin + 4740**, **expiry at origin + 4800**,
+   latest full admission origin + 1110. `decisions/host-policy.json` is the
+   authority, not this sentence. It is still not a *promise* of a long run, and
+   existing tokens keep their old policy.
+3. **A missing or partial final report is incomplete, not success — and it
+   names no cause.** Absent, inaccessible, pending and unknown-cause are four
+   different facts; a publication timeout is named only on a `TimeoutError`
+   fault actually read in a correlated report. Run `collect.py` (step 5) rather
+   than eyeballing a directory listing: it keeps those states apart for you.
+
+Nothing below has been executed against the proposed root. Preparation was
+exercised once into `/tmp/w341357-preflight3`; the proposed root
+`/home/sl/baton-instances/durable-capture-w341357-348852` is untouched and
+**does not exist**, no Job is submitted, no engine or container was invoked, no
+provider was contacted, no credential was read, **and no product test was run**.
+
+This packet supersedes `../execution-345039` **as a task, not as evidence**.
+That packet's 51-member seal still verifies, its root is preserved, and its
+retained candidate is this packet's input. Every earlier packet stays sealed and
+unchanged, and **all six instance roots are preserved: never reused, rerun,
+recovered or re-bound.**
+
+**The credential authenticated and served 461 seconds last run.** That is a fact
+about that attempt, not a promise about the next one. This packet read no
+credential value, probed no provider and substituted no reference.
+
+## Why this packet exists — the record, and what finally moved
+
+| run | provider served | ended | result |
+| --- | --- | --- | --- |
+| parent run340016 | 869.45s | on its own | candidate `433692c5` retained, **`verification-failed`**, independently **rejected** |
+| parent run340352 | 904.78s | lease, signal 15 | **nothing frozen** |
+| run341360 | 905.18s | lease, signal 15 | **nothing frozen** |
+| run341637 | 10.56s | provider authentication failure | no work attempted; the turn never began |
+| **run345039** | **461.10s** | **on its own, 439s of margin** | **candidate `1599471c` retained; THE GATE MEASURED: 864 tests, 12.817s, exit 1, 16 failures all in `test_maintenance`** |
+
+**Two retained candidates, zero accepted. One gate measurement — the last
+run's.** Provider served ≈3151s; controller elapsed ≈3238s — separate figures,
+since controller elapsed includes the bounded shutdown, cleanup sweeps and
+publication.
+
+The lease is no longer the obstacle and the ceiling question is settled. **The
+obstacle is that the gate cannot currently pass in the environment it runs in**,
+and `review-2026-10-21T10-42-55Z.md` located it precisely: the fixture stores
+the `/proc/self/fd` spelling the verifier deliberately exports, and production
+requires a canonical path. `FIXTURE.md` has the four citations.
+
+`review-2026-10-20T19-50-05Z.md` confirmed the blocker: **repeated provider
+turns exhaust the 900-second lease before reaching supported completion.** It is
+not scope — the scope was already bounded by decomposition and the failure
+recurred. It also corrected two of my own claims, and both corrections matter to
+what you are selecting:
+
+1. I wrote "zero frozen candidates". The campaign has **zero ACCEPTED
+   candidates, not zero retained** — run340016 retained `433692c5`.
+2. I wrote that the slice was "very nearly finished", supported by line counts
+   and 62 test-case names. **That was not established.** `_authorizes`, the
+   versioned read API and all 62 cases are **unverified**, and the five-module
+   gate has **never been measured in any run**.
+
+So this packet is **one bounded fixture correction**:
+
+- **step 1** apply the exact retained candidate, then **confirm the two
+  diagnoses dynamically** — compare unchanged base against the candidate for
+  `test_maintenance` under the same pinned-root conditions, and confirm the
+  subprocess path problem instead of inferring it;
+- **step 2** correct the fixture, leaving every module, case, assertion, the
+  verifier's descriptor pinning and the production path and custody refusals
+  standing;
+- **step 3** run the **complete** five-module gate with **no skips**, and report
+  counts and timing;
+- **step 4** **R1 and R2 are OWED, green gate or not.** The gate passing in
+  run345822 is exactly why acceptance was withheld on the two producer defects
+  instead: a passing gate that never injects an outcome-write failure does not
+  establish the behaviour. Reproduce each one first, then correct it;
+- **step 5** leave the adapter room: stop with comfortable margin before the
+  execution stop, summarise, and let the provider return. **The 600/720 cutoffs
+  are history** — they existed to survive the retired 900-second lease and are
+  not restated as policy anywhere in this packet.
+
+**The permission reaches the worker.** `COMPLETION.md` is a pinned task input
+that names the actual supported completion mechanism read from the current
+protocol — the provider process returning is the only trigger; the adapter then
+measures, verifies, revalidates, commits the line whatever the disposition is,
+and publishes `/output/output.json` last and atomically as the completion signal
+— so **ending the turn IS freezing, there is nothing to submit twice**, and none
+of it happens if the turn is still working when permission ends. It carries the
+envelope-derived figures and records the old 600/720/180 cutoffs as history.
+`prepare.py` and `verify-inputs.py` refuse if that document is absent or is not
+a task input, and probes cover both refusals.
+
+**What the permission is not**: not a renewal, not a controller modification,
+not automatic termination, not a runtime guarantee, and not authorization to
+fabricate success. Existing tokens keep their old policy and are not
+converted.
+
+## Step 0 — read-only input check
+
+Opens no store, writes nothing, starts nothing. **Run this first.**
+
+It separates **refusals** — base bytes, the 114 pinned manager files, the
+pinned corrected controller and the pinned shutdown helper (each checked against
+the pin, the packet's manager source *and* the base), the bootstrap binary, a
+damaged decision snapshot, an absent task input, a checkout document missing
+from the base, an already-present gate module, a provenance claiming an
+authorized or selected start, an absent `ENFORCEMENT.md` or `SHUTDOWN.md` —
+from **reports**: a `DECISION-SOURCE DRIFT` section that exits 0, because the
+turn reads immutable snapshots and an ordinary update to the reviewer-owned
+`FINDING.md` or `PLAN.md` must not invalidate a sealed packet. **That is exactly
+what happened to revision 5** and why reporting rather than refusing was the
+right design: the reviewer appended to `FINDING.md` and rewrote `PLAN.md` after
+it was sealed, the check reported the drift and exited 0, and this revision
+re-took both snapshots.
+
+Measured here: 0.11s, clean, **61** task inputs, **52** decision
+snapshots, **2** pinned recovery inputs, **1** gate module still owed, **no
+drift** — after re-taking the `FINDING.md` and `PLAN.md` snapshots, which the
+reviewer updated after `../execution-348802` was sealed.
+
+`probe.py --work <fresh /tmp dir>` re-runs all **sixty-one** refusal and
+collection cases in about 2.5 seconds if you want them demonstrated rather than
+described — including **both** reviewers' collector fixture sets, the two that
+prove an existing root cannot be reused (`existing-root`,
+`rebind-over-a-composed-packet`), and the ten that guard the retained-candidate
+pins. **Not one probe needed editing this revision**: the cross-checks already
+bind a retained candidate at `baton.w341357-recovery/3`, so swapping the first
+retained candidate for the second changed no program. It writes only under that
+directory, and it derives the run id from `prepare.py`.
+
+## Step 1 — stage
+
+The `--acknowledge-unselected-start` flag is required and is not ceremony:
+without it this refuses and prints why, including the startup failure. It proves
+every base byte **before** creating anything, then creates the root `0700`,
+refuses an existing one, and writes the base's manager and supervisor source
+into it. A refused stage leaves the filesystem exactly as it found it — every
+probe that could create a root also asserts whether the root was created.
+
+## Step 2 — bootstrap this instance's own authority
+
+`--no-repositories` is deliberate. It generates this instance's own authority
+uuid, so **expect your composed packet digest to differ from the preflight's** —
+`bind` derives the Work id from that uuid and it travels into the submission.
+The preflight's uuid and packet digest are facts about the throwaway root, not
+proposed production identities; `PREFLIGHT.json` records them.
+
+## Step 3 — bind
+
+Composes the packet documents under `<root>/packet/`, proves them
+(`held_packet` re-pins every artifact including all 61 `fixture.files`;
+`verify_imported_sources` proves the process is running the staged code),
+refuses a root that already holds a composed packet, and writes
+`<root>/packet/AUTHORING-COMMAND.json`. Ends with `PREPARED.json: state
+prepared-not-executed, start_selected false, composer_start_is_unenforced
+true`. **No Job is submitted.**
+
+## Step 4 — start: NOT SELECTED YET
+
+`packet/AUTHORING-COMMAND.json` carries exactly the step 4 command,
+machine-readable, with the controller's and the shutdown helper's staged paths
+and digests. The invocation is unchanged by either correction; `--status-path`,
+`--child-of` and `--lock-fd` are internal, passed by the watchdog to the child.
+
+Measured in preparation, read-only: the corrected controller's own
+`verify_controller` **accepts** this packet from the staged source and
+**refuses** one imported from the host checkout. A packet pinning the
+**superseded** controller digest is refused before any root is created, and so
+is one that fails to pin the shutdown helper.
+
+`SIGINT`/`SIGTERM` sets the enforcement stop and begins the reserved cleanup
+window; the controller requests the child's bounded shutdown by writing its
+deadline, then terminates it, and reports `state: held`. **A held outcome is not
+proof of cessation**, and a missing final status snapshot is also held.
+
+Before starting, confirm the credential profile this packet names resolves in
+your own private registry (`/home/sl/.baton/credential-sources.json`, slot
+`claude`, reference `w202663-development`) and that the image reference is
+available. This packet reads no credential, carries no bearer and contacted no
+registry.
+
+## Five things to know before a start is selected
+
+1. **An invocation HAS now completed for this Work** — run345039, 461.10s,
+   on its own. The older claim that none ever had is withdrawn. What remains
+   true: **no invocation has ever produced an ACCEPTED candidate**, and two
+   selected packets never ran at all (`execution-334663` died 0.506s into
+   startup; `execution-341637` failed provider authentication at 10.56s). If
+   this one fails, the honest account of how far it got is the deliverable, and
+   the instance is preserved rather than retried.
+
+2. **Permission comes from the envelope now.** Execution stop at origin +
+   4740 and expiry at origin + 4800, with cessation ordered at the end,
+   partial output retained and a held outcome if it is reached. Replay does
+   not reset origin and restart is cancellation-only.
+   `TASK.md` item 6 asks the turn for its retained candidate checkpoint, its
+   progress per item and the expiry and cessation facts **it positively observed
+   from inside** — and explicitly forbids it from reporting the host-side final
+   results, which it cannot see. Those are step 5, and they are yours.
+
+3. **The verification ceiling is 30 seconds, it is not this packet's to set,
+   and IT FITS.** Measured in run345039: **864 tests in 12.817s** for the five
+   focused modules. That question is settled and this packet retires the
+   disclosure. Two qualifiers: unittest's self-reported interval is not the
+   adapter's whole wall clock, and the gate **exited 1**. What is still
+   unmeasured is the **base** comparison, which `TASK.md` step 1 asks for, and
+   no coverage may be removed to force a pass. Two real-process modules are
+   excluded for measured ceiling reasons — `test_authoring_shutdown_deadline` at
+   51.333s for 4 tests, over the whole ceiling by itself, and
+   `test_authoring_manager_guard` at 19.888s for 7 — with their coverage carried
+   by reused accepted proofs.
+
+   **Where those numbers come from matters.** All of them were measured by
+   direct host product test execution at claim339421, **outside** that claim's
+   preparation-only boundary; `PROGRESS.md` carries the author's correction and
+   `GATE-CHECK.json` the attribution. They were **not** re-measured here,
+   because re-running them to tidy their own provenance would repeat the
+   mistake. So two exclusion decisions rest on out-of-boundary measurements, and
+   this packet says so rather than presenting them as preparation evidence.
+
+4. **Two excluded test modules already fail at base**, both explicitly
+   unverified baseline reports with no cleanup selected:
+   `tests.manager.test_boundary_inventory` and `tests.tools.test_packaging`'s
+   subcommand case, which holds the source command table against the installed
+   bundle. A source-level case is **not** proof that a rebuilt bundle carries a
+   new verb.
+
+5. **A bounded first milestone is allowed.** PLAN permits delivering a coherent
+   slice that fits 900 seconds with the remaining work stated explicitly — but
+   not weakening final acceptance, and not promising full completion in one run.
+
+## Step 5 — after a run: the collection is yours
+
+Run `collect.py` (`COMMANDS.md` step 5a) before concluding anything. It is
+read-only — no store opened, nothing written, nothing started, no credential,
+transcript or provider output read — and it reports, for five artifacts (the
+workload report, the controller report, the shutdown progress file, the manager
+status snapshot and the authoring log):
+
+- the **state**: present, or one of `absent`, `inaccessible`, `pending`,
+  `unknown-cause`. Four different facts. Do not collapse them. `available` names
+  what was actually read; `isolated_failures` names anything that went wrong
+  inside one artifact — **or inside one link** — without costing you the rest.
+  **`pending` now means this artifact's own temporary exists**, never a sibling's:
+  the workload writes `outcome.json.partial`, the controller
+  `outcome.json.enforcement-<pid>-<ns>.tmp`, and they are not interchangeable.
+- the **identity correlation**, through the fields each artifact really
+  publishes, with `identity_detail.correlated_on` naming which one decided. The
+  controller has **no top-level `run_id`** — it carries `original_envelope`
+  (`run`, `job`, `authority`). A disagreeing field is a `mismatch` and the
+  artifact is downgraded: it is evidence about another run.
+- `linked_artifacts`: the paths the controller names **for itself** —
+  `enforcement_path`, `authoring_log`, `manager_report_path` and
+  `<manager_report_path>.progress.json` — and whether each was found. If the run
+  root moved, those absolute paths will not resolve; that is a fact about your
+  filesystem, not about the run.
+- that artifact's **own temporaries**, because a `TimeoutError` during the
+  controller's `print` follows an **already-completed** `os.replace` — so a
+  present report is not proof that publication finished cleanly.
+- `publication_timeout`, and read `producer_persistence` before the verdict:
+  **this vehicle persists no publication fault reliably**, so
+  `established: false` means *nothing on disk could tell you either way* and not
+  *no timeout happened*. Step 5d has the per-step table and the reasons.
+  `parsed_publication_faults` lists any publication-step fault that is literally
+  on disk, each labelled as parsed rather than as producer evidence;
+  `other_timeouts_observed` lists real timeouts of **other** steps, which are
+  genuine observations and not publication evidence; `uncorrelated_timeouts`
+  lists faults in artifacts about another run.
+- `linked_artifacts` states, per link: `found`, `named but not present`,
+  `inaccessible`, `malformed` (the report carried something that is not a path
+  string — reported and **not** followed) or `not named by the report`.
+
+Over a retained evidence copy rather than a live root, use `--packet-dir` plus
+`--expect-run`: such a directory has no composed `PACKET.json`, so without it
+every identity is `unresolved`. `--expect-run` is your assertion, labelled as
+one in the output, and refused if it contradicts a packet that *is* readable.
+
+`SHUTDOWN.md` has the rest: a missing or partial report is incomplete, never
+acceptance and never proof of cessation; an unavailable report names no cause;
+phase evidence names the last step *entered*, not finished; and an unavailable
+final report retracts nothing already recorded.
+
+Join the worker's report to yours on `run_id`. The worker's half covers what it
+saw before termination and the retained candidate; yours covers everything
+published after it ended. **The acceptance needs both halves**, and neither is a
+substitute for the other.
+
+## Retained temporary paths
+
+Left in place for you rather than removed. None is a selected root; none holds a
+credential or a submitted Job.
+
+- `/tmp/w341357-preflight9` — this revision's exercised preparation root
+- `/tmp/w341357-probe-348852` — this revision's 61 probe copies,
+  roots and fixtures
+- `/tmp/w341357-preflight8`, `/tmp/w341357-preflight7`,
+  `/tmp/w341357-preflight6` and their probe trees — the previous revisions'
+- `/tmp/w341357-preflight3`, `/tmp/w341357-probe-345039`,
+  `/tmp/w341357-preflight2`, `/tmp/w341357-preflight` — previous revisions'
+  exercised roots and probe trees
+- `/tmp/w333486-probe-339628` — the thirty probes' copies, roots and fixtures,
+  with `/tmp/probe-339628.json` as their report
+- `/tmp/w333486-helper-probe-339628` — the staged source with
+  `tools/authoring_shutdown.py` removed, which proves the import fails
+- `/tmp/w333486-binding-339628.py` — the read-only both-ways controller binding
+  check
+- the previous revision's roots: `/tmp/w333486-preflight-339421`,
+  `/tmp/w333486-base-339421` (the clean base export used for the
+  out-of-boundary gate measurements), `/tmp/w333486-probe-339421`,
+  `/tmp/w333486-helper-probe-339421`
+- the earlier revisions' roots: `/tmp/w333486-preflight-337453`,
+  `/tmp/w333486-probe-drift-453`, `/tmp/w333486-base-fb48`,
+  `/tmp/w333486-preflight-334663`, `/tmp/w333486-probe-drift-663`,
+  `/tmp/w333486-base-a9f4`, `/tmp/w333486-preflight-333707`,
+  `/tmp/w333486-probe-drift-707`, `/tmp/w333486-base-probe`,
+  `/tmp/w333486-preflight-333504`, `/tmp/w333486-probe-drift`
+
+The **selected runs** are not in this list. All six live under
+`/home/sl/baton-instances/` — `attempt-diagnostics-w333486-334663` (startup
+failure), `-340016` (completed, candidate rejected), `-340352` (cut off),
+`durable-capture-w341357-341360` (cut off), `-341637` (authentication failure)
+and **`-345039` (completed; the candidate this packet starts from)**. All are
+preserved as evidence rather than as temporary paths, and none is reused,
+rerun, recovered or re-bound.

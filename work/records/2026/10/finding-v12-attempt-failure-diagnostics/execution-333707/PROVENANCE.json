@@ -1,0 +1,116 @@
+{
+  "schema": "baton.w333486-execution-provenance/2",
+  "work": "W333486",
+  "claim": 333707,
+  "author": "baton.claude",
+  "role": "impl",
+  "dossier": "work/records/2026/10/finding-v12-attempt-failure-diagnostics",
+  "supersedes": {
+    "packet": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/execution-333504",
+    "preserved": true,
+    "preserved_seal": "bca87e931532560d6feebcaff36f59be82592841550d09807ad88f00c811fcf3",
+    "why": "Review 2026-10-19T16-44-00Z required a superseding packet. The superseded one is preserved byte-for-byte with its own seal, including the withdrawn 900-second lease claim HOLD.md corrects. No hash of it was edited.",
+    "what_changed": [
+      "TASK item 1 now covers the ACTUAL reclaim-to-settlement composition and both release paths, not only the reclaim's own govern.release, plus restart and replay at every external-effect cut including a crash after the engine stop.",
+      "TASK item 3 separates a KNOWN typed stop/engine failure from an UNKNOWN cessation instead of folding the former into the latter.",
+      "The 'nothing records' claim is narrowed to the missing causal/operation/outcome composition; tokens.revoke's durable revocation record and tokens.returned on both paths are named as evidence to read.",
+      "The retained-evidence locator is now a demonstrated round trip through the supported attempt_logs reader, not a device/inode pair asserted to be a locator.",
+      "The packaged-table obligation is stated as a source-level assertion plus an explicit remaining rebuilt-bundle obligation, because source proof alone is not bundle proof.",
+      "HOLD.md records the shared authoring hold explicitly and withdraws the superseded OPERATOR's unsupported 900-second transfer claim.",
+      "Decision inputs are immutable snapshots under decisions/ rather than pins on the mutable reviewer-owned FINDING.md and PLAN.md; three base-committed documents moved to the private checkout and are not fixture-pinned at all.",
+      "prepare.py refuses to stage while the hold stands unless an explicit acknowledgement operand is given, so preparation cannot drift into a start."
+    ]
+  },
+  "base": "bbdacb5d38f6cf2d2461e9da103d28f9ab30cc6c",
+  "run_id": "attempt-diagnostics-w333486-333707",
+  "accepted": false,
+  "state": "prepared-not-executed",
+  "start_authorized": false,
+  "hold": {
+    "document": "HOLD.md",
+    "scope": "step 4 (start) only; verify, stage, bootstrap and bind are authorized preparation",
+    "reason": "Shared authoring prerequisite: the selected baseline.py supervisor calls serve with no reclaim pass, so a 900-second workspace generation is not enforced across a 3600/4800 run.",
+    "evidence_reused": [
+      "decisions/sibling-review-333618.md",
+      "decisions/sibling-blocker-RESULT.json",
+      "decisions/sibling-blocker-SUMMARY.json"
+    ],
+    "evidence_rerun": false,
+    "revalidated_read_only_this_claim": [
+      "baseline.py:1207 serve call carries no reclaim argument (base bytes c1b0a10e609503df0ba7ebdc7455cc8518c9175882edd185b65f20c342c4bd2f)",
+      "job_manager/manager.py:833 reclaim=None, :859 and :879 run a reclaim pass only if reclaim is not None",
+      "baseline.py:1196 checks the overall bound only between passes; :1252ff cancels only after the loop returns",
+      "tools/job_manager.py:_serve supplies a reclaim pass, which this vehicle does not"
+    ],
+    "lifted_by": "an owner decision on the shared authoring prerequisite; not by this packet, not by a reviewer, not by time"
+  },
+  "checkpoint": {
+    "paths": {},
+    "why": "This correction starts from committed bytes alone. It carries no preserved candidate buffer and no restore step: the nominated source is read and never written back into the private checkout."
+  },
+  "input": {
+    "manager_files": 112,
+    "manager_roots": [
+      "v12/python/src/baton_v12",
+      "v12/python/tools"
+    ],
+    "supervisor_files": 3,
+    "supervisor_source": "work/records/2026/09/finding-v12-single-implementation-proof",
+    "overlay": "none",
+    "excluded_working_tree_changes": [
+      "v12/.dockerignore",
+      "v12/worker/Dockerfile.claude",
+      "v12/python/src/baton_v12/verification_context.py",
+      "v12/python/tests/manager/test_verification_context.py",
+      "v12/python/tests/manager/test_claude_agent.py"
+    ],
+    "excluded_why": "W321776's Stage-A slice, owned by another Work and another claim. Not selected, not staged, not overlaid, not referenced by the composed submission."
+  },
+  "execution": {
+    "job_submitted": false,
+    "attempts": 0,
+    "runtimes": 0,
+    "engine_invoked": false,
+    "provider_invoked": false,
+    "credential_read": false,
+    "falsification_rerun": false,
+    "actual_identities": "none; every identity in this packet is a PROPOSED generated identity. The authority uuid, Work id, Job id, submission id, attempt id and runtime id of an actual execution are derived by the owner's own bootstrap and start and do not exist yet. The preflight's own uuid and packet digest are facts about the throwaway preflight, not proposed production identities."
+  },
+  "pilot": {
+    "instance": "/home/sl/baton-instances/native-coordination-pilot-w321608-1",
+    "disposition": "preserved; not read, not mutated, not retried, not redeployed by this packet"
+  },
+  "unverified_baseline_reports": {
+    "why": "Review 2026-10-19T16-44-00Z records these as the author's explicitly unverified baseline observations. No cleanup, fix or test weakening is selected for either, and neither is attributable to this candidate.",
+    "items": [
+      "tests.manager.test_boundary_inventory does not pass at the declared base: 328 tests, 28 failures, 1 error, zero skips, 49.469s measured alone on base bytes.",
+      "tests.tools.test_packaging's subcommand case fails on this host because it holds the source stack_command.COMMANDS table against the installed bundle, built at 1e576ff2 before record and disposition joined that table. Source command-table proof is NOT proof that an eventual rebuilt bundle carries a new verb; that deployment obligation stays explicit in TASK.md."
+    ]
+  },
+  "sibling_overlap": {
+    "work": "W333485",
+    "declared_by_sibling": [
+      "v12/python/tools/job_manager.py",
+      "v12/python/src/baton_v12/job_manager/manager.py"
+    ],
+    "declared_here": [
+      "v12/python/src/baton_v12/worker_manager/documents.py",
+      "v12/python/src/baton_v12/worker_manager/attempts.py",
+      "v12/python/src/baton_v12/worker_manager/intake.py",
+      "v12/python/src/baton_v12/worker_manager/diagnostics.py",
+      "v12/python/src/baton_v12/job_manager/delegation.py",
+      "v12/python/src/baton_v12/job_manager/documents.py",
+      "v12/python/src/baton_v12/job_manager/projection.py",
+      "v12/python/tools/attempt_diagnostics.py",
+      "v12/python/tools/stack_command.py"
+    ],
+    "intersection": [],
+    "residual_risk": "worker_manager/intake.py, if the sibling's renewal integration reaches the reclaim or settlement paths. Declared before any combined candidate; integrate serially, never overwrite.",
+    "behavioural_dependency": "none in either direction. Existing records and the explicit-unknown fallback are independent inputs, and once renewal is integrated an attempt that is never reclaimed simply holds no reclaim record, which this correction must report as unknown naming the absent evidence while still reporting whatever the token journal does hold.",
+    "shared_prerequisite": "The authoring vehicle is shared and its enforcement gap is one blocker, not two. This packet takes no dependency on the sibling's production renewal OUTCOME; only the authoring prerequisite is common."
+  },
+  "review": {
+    "independent_review": "An independent reviewer consumes this preparation packet through v11. Actual execution awaits the separately selected safe authoring vehicle. There is no automatic integration and no self-acceptance.",
+    "human_checkpoint": "pending; the owner's Git checkpoint for the accepted combined correction is carried in the parent PLAN and is not fulfilled by this packet"
+  }
+}

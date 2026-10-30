@@ -1,0 +1,103 @@
+{
+  "archive_inventory_matches": 208,
+  "claim": 345599,
+  "credential_handling": "registry metadata and source stat only; credential contents not read or copied; archive contains only the single exact reference",
+  "direct_docker_reads": {
+    "docker_info": "[\"name=apparmor\",\"name=seccomp,profile=builtin\",\"name=cgroupns\"] /var/lib/docker 29.1.3",
+    "image_id": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2",
+    "provenance": "successful standalone tool commands earlier this claim"
+  },
+  "gid_map": "      1000          0          1\n",
+  "group_names": {
+    "docker": 119,
+    "sl": 1000
+  },
+  "host_ownership": "unproven: namespace remaps host identities",
+  "observed_at": "2026-10-21T11:15:14.900151+00:00",
+  "paths": {
+    "/etc/sudoers.d/baton-next-run": {
+      "error": "[Errno 2] No such file or directory: '/etc/sudoers.d/baton-next-run'"
+    },
+    "/home/sl": {
+      "mode": "0o750",
+      "namespace_gid": 1000,
+      "namespace_uid": 1000,
+      "size": 4096,
+      "symlink": false
+    },
+    "/home/sl/.claude/.credentials.json": {
+      "mode": "0o600",
+      "namespace_gid": 1000,
+      "namespace_uid": 1000,
+      "size": 509,
+      "symlink": false
+    },
+    "/opt": {
+      "mode": "0o755",
+      "namespace_gid": 65534,
+      "namespace_uid": 65534,
+      "size": 4096,
+      "symlink": false
+    },
+    "/opt/baton-managed-entry": {
+      "mode": "0o755",
+      "namespace_gid": 65534,
+      "namespace_uid": 65534,
+      "size": 4096,
+      "symlink": false
+    },
+    "/opt/baton-next-run": {
+      "error": "[Errno 2] No such file or directory: '/opt/baton-next-run'"
+    },
+    "/opt/baton-next-run-source-345599": {
+      "error": "[Errno 2] No such file or directory: '/opt/baton-next-run-source-345599'"
+    },
+    "/usr/bin/sudo": {
+      "mode": "0o777",
+      "namespace_gid": 65534,
+      "namespace_uid": 65534,
+      "size": 22,
+      "symlink": true
+    },
+    "/usr/sbin/useradd": {
+      "mode": "0o755",
+      "namespace_gid": 65534,
+      "namespace_uid": 65534,
+      "size": 143448,
+      "symlink": false
+    },
+    "/usr/sbin/visudo": {
+      "mode": "0o777",
+      "namespace_gid": 65534,
+      "namespace_uid": 65534,
+      "size": 24,
+      "symlink": true
+    },
+    "/var/lib": {
+      "mode": "0o755",
+      "namespace_gid": 65534,
+      "namespace_uid": 65534,
+      "size": 4096,
+      "symlink": false
+    },
+    "/var/lib/baton-managed-runs": {
+      "mode": "0o755",
+      "namespace_gid": 65534,
+      "namespace_uid": 65534,
+      "size": 4096,
+      "symlink": false
+    },
+    "/var/lib/baton-next-run": {
+      "error": "[Errno 2] No such file or directory: '/var/lib/baton-next-run'"
+    },
+    "/var/run/docker.sock": {
+      "mode": "0o660",
+      "namespace_gid": 65534,
+      "namespace_uid": 65534,
+      "size": 0,
+      "symlink": false
+    }
+  },
+  "restricted_probe": "Later Docker subprocess inside Python metadata collector was denied connecting socket. No escalation/retry; standalone inspection evidence does not prove managed execution-uid engine access.",
+  "uid_map": "      1000          0          1\n"
+}

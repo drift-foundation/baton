@@ -1,0 +1,329 @@
+--- base/v12/python/tools/bootstrap.py
++++ candidate/v12/python/tools/bootstrap.py
+@@ -2071,6 +2071,8 @@
+     """
+     if identity is None:
+         return None
++    if isinstance(identity, _UncertainPrerequisite):
++        return "left " + place + " alone: uncertain prerequisite effect (" + identity.reason + "); no deletion authority"
+     try:
+         held = os.lstat(place)
+     except FileNotFoundError:
+@@ -2130,8 +2132,8 @@
+ # W376246: THE MODE A PREPARED ROOT GETS, named rather than inherited from the
+ # umask. These hold a deployment's mutable worker state, and 0700 is the
+ # private arrangement every other owned name of an instance is under. A
+-# creation mode is umask-filtered, so it is also applied afterwards -- on the
+-# directory THIS call just created, never on an existing one.
++# creation mode is umask-filtered. Only a proven creation handle may receive
++# the final mode; no existing or uncertain object is repaired.
+ PREREQUISITE_MODE = 0o700
+ 
+ 
+@@ -2207,10 +2209,14 @@
+             said.append((who, name, place,
+                          "is a " + _node_kind(held.st_mode)
+                          + " and not a directory"))
+-        elif not os.access(place, os.R_OK | os.W_OK | os.X_OK):
+-            said.append((who, name, place,
+-                         "is not readable, writable and traversable by this "
+-                         "account"))
++        else:
++            try:
++                usable = _prerequisite_access(place)
++            except (OSError, BootstrapRefusal, AttributeError) as failure:
++                said.append((who, name, place, "cannot be bound without following a changed ancestor (" + type(failure).__name__ + ")"))
++                continue
++            if not usable:
++                said.append((who, name, place, "is not readable, writable and traversable by this account"))
+     return said
+ 
+ 
+@@ -2293,96 +2299,202 @@
+     return False
+ 
+ 
++class _OwnedPrerequisite(tuple):
++    """Tuple-compatible identity retaining the inode until its ledger dies.
++
++    Closing the last handle immediately would allow unlink/recreate inode
++    reuse to make a different object compare equal during later unwind.
++    """
++    def __new__(cls, identity, handle):
++        result = super().__new__(cls, identity)
++        result.handle = os.dup(handle)
++        return result
++
++    def __del__(self):
++        handle = getattr(self, 'handle', None)
++        if handle is not None:
++            try:
++                os.close(handle)
++            except OSError:
++                pass
++
++
++class _UncertainPrerequisite:
++    """An attempted effect, explicitly NOT an identity or deletion capability."""
++    def __init__(self, reason):
++        self.reason = reason
++
++
++class _CreationWatch:
++    """Prove mkdir-to-open continuity, not just equality after a replacement.
++
++    Linux emits ordered directory-entry events before the mutating syscall
++    returns. Watch the held parent BEFORE mkdir; only one matching CREATE may
++    precede the opened handle. Rename, unlink, metadata changes, watch loss or
++    queue overflow refuse. A filesystem that supplies no event also refuses.
++    The opened handle then pins the proved object through permission changes.
++    """
++    def __init__(self, parent):
++        import ctypes
++        self.fd = -1
++        libc = ctypes.CDLL(None, use_errno=True)
++        initialize = libc.inotify_init1
++        initialize.argtypes, initialize.restype = [ctypes.c_int], ctypes.c_int
++        watch = libc.inotify_add_watch
++        watch.argtypes, watch.restype = [ctypes.c_int, ctypes.c_char_p, ctypes.c_uint32], ctypes.c_int
++        self.fd = initialize(os.O_CLOEXEC | os.O_NONBLOCK)
++        if self.fd < 0:
++            raise OSError(ctypes.get_errno(), 'cannot establish creation observation')
++        # IN_ATTRIB, MOVED_FROM/TO, CREATE, DELETE, DELETE_SELF, MOVE_SELF,
++        # ONLYDIR. UNMOUNT/OVERFLOW/IGNORED are always delivered.
++        self.wd = watch(self.fd, os.fsencode('/proc/self/fd/' + str(parent)), 0x01000fc4)
++        if self.wd < 0:
++            failure = OSError(ctypes.get_errno(), 'cannot watch prerequisite parent')
++            self.close()
++            raise failure
++
++    def close(self):
++        if self.fd >= 0:
++            os.close(self.fd)
++            self.fd = -1
++
++    def prove(self, leaf):
++        import struct
++        try:
++            raw = os.read(self.fd, 65536)
++        except BlockingIOError:
++            raw = b''
++        events = []
++        at = 0
++        while at < len(raw):
++            if len(raw) - at < 16:
++                raise BootstrapRefusal('incomplete prerequisite creation observation')
++            wd, mask, cookie, length = struct.unpack_from('iIII', raw, at)
++            at += 16
++            if at + length > len(raw):
++                raise BootstrapRefusal('incomplete prerequisite creation observation')
++            name = raw[at:at + length].split(b'\0', 1)[0]
++            events.append((wd, mask, cookie, name))
++            at += length
++        if events != [(self.wd, 0x40000100, 0, os.fsencode(leaf))]:
++            raise BootstrapRefusal('prerequisite creation identity is uncertain: missing or changed directory-entry history; no replacement is adopted')
++
++
++def _prerequisite_handle(parent, leaf):
++    # O_PATH can pin mode000 directories without changing the process umask.
++    return os.open(leaf, os.O_PATH | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC, dir_fd=parent)
++
++
++def _check_prerequisite_chain(handles):
++    for place, handle in handles.items():
++        if place == '/':
++            continue
++        parent, leaf = os.path.split(place)
++        held = os.stat(leaf, dir_fd=handles[parent], follow_symlinks=False)
++        if (held.st_dev, held.st_ino) != _identity_of_handle(handle):
++            raise BootstrapRefusal('prerequisite ancestor or root changed at ' + place + '; nothing here follows what took its place')
++
++
++def _prerequisite_access(place):
++    """Read-only no-follow path binding, shared access rule for reporting."""
++    handles = {}
++    with contextlib.ExitStack() as opened:
++        handle = _prerequisite_handle(None, '/')
++        handles['/'] = handle
++        opened.callback(os.close, handle)
++        at = ''
++        for leaf in place.split('/')[1:]:
++            parent = at or '/'
++            at += '/' + leaf
++            before = os.stat(leaf, dir_fd=handles[parent], follow_symlinks=False)
++            handle = _prerequisite_handle(handles[parent], leaf)
++            opened.callback(os.close, handle)
++            handles[at] = handle
++            if _identity_of_handle(handle) != (before.st_dev, before.st_ino):
++                raise BootstrapRefusal('prerequisite changed while reading: ' + at)
++        _check_prerequisite_chain(handles)
++        return os.access('/proc/self/fd/' + str(handles[place]), os.R_OK | os.W_OK | os.X_OK)
++
++
+ def prepare_prerequisites(document, places, *, made, stream=sys.stdout):
+-    """Create the configured roots this install owes, and say which are ours.
+-
+-    Answers `{place: (device, inode)}` for the directories THIS ATTEMPT made,
+-    so `install`'s existing exact-owned unwind can remove exactly those and
+-    leave every foreign object alone. A root that already exists is LEFT
+-    EXACTLY AS IT IS and is not in the answer: an occupied prerequisite is the
+-    operator's, and repairing it is the behaviour this install does not have.
+-
+-    NO `chmod` AND NO RECURSIVE NORMALIZATION. The mode is the one the
+-    creating process's umask gives, which is the same arrangement
+-    `install` already uses for `stores`, `repository`, `logs` and `state`.
+-
+-    A LINK OR A NON-DIRECTORY AT AN OWED NAME REFUSES, before anything else is
+-    created. Following it would put this deployment's mutable state somewhere
+-    it did not choose, and silently reusing a file's name is how a first start
+-    fails with nothing to read.
+-    """
+-    # `made` IS THE CALLER'S DICTIONARY AND IS FILLED AS WE GO, which is the
+-    # review's first correction. The previous cut built its own and returned
+-    # it, so a refusal on the third root threw away the two this attempt had
+-    # already created and `install`'s unwind never saw them -- leaving exactly
+-    # the residue the exact-owned unwind exists to prevent, and blocking this
+-    # attempt's own retry.
+-    #
+-    # EVERY ROOT IS INSPECTED BEFORE ANY IS CREATED, so an install that is
+-    # going to refuse for an occupied or inaccessible root refuses with
+-    # NOTHING created at all.
++    """Prepare missing roots through pinned ancestry and observed creation.
++
++    Proven effects retain (device, inode); uncertain attempted effects carry
++    _UncertainPrerequisite, never deletion permission. Existing roots are only
++    read. Missing entries that appear after planning refuse, even if usable.
++    """
++    import stat
+     owed = []
++    missing = set()
+     for who, name, place in prerequisite_places(document):
++        if not os.path.isabs(place) or os.path.normpath(place) != place:
++            raise BootstrapRefusal('prerequisite root must be an absolute canonical path: ' + place)
+         if _usable_root(who, name, place):
+             owed.append((who, name, place))
+-    for who, name, place in owed:
+-        # EVERY COMPONENT THIS ATTEMPT CREATES IS OWNED. W376246:
+-        # `os.makedirs` creates missing PARENTS and only the leaf was
+-        # recorded, so the unwind left every intermediate it had made behind.
+-        for part in _components(place):
+-            try:
+-                os.mkdir(part, PREREQUISITE_MODE)
+-            except FileExistsError:
+-                # SOMEBODY ELSE GOT THERE FIRST, so it is REVALIDATED rather
+-                # than assumed usable: a link, a non-directory or a directory
+-                # this account cannot enter, appearing in that window, is the
+-                # same hazard as one that was there all along. It stays
+-                # theirs -- not owned, not unwound, not repaired.
+-                _usable_root(who, name, part)
+-                continue
+-            except OSError as failure:
+-                raise BootstrapRefusal(
+-                    "this deployment's " + name + " for worker " + who
+-                    + " at " + place + " could not be created at " + part
+-                    + " (" + type(failure).__name__ + "); a destination whose "
+-                    "prerequisites cannot be prepared is not installed "
+-                    "half-way.")
+-            # DESCRIPTOR-BOUND, NOT BY NAME. W376246 review
+-            # 2026-10-28T18-59-24Z: the mode was applied with `os.chmod(part)`
+-            # straight after the `mkdir`, so a racer replacing the new
+-            # directory with a link in that window had its FOREIGN target
+-            # chmodded from 0755 to 0700 and the replacement recorded as this
+-            # attempt's. `O_NOFOLLOW` refuses the link outright, and the
+-            # `fchmod`/`fstat` that follow are about THE OBJECT THIS CALL
+-            # CREATED rather than about whatever now answers to the name.
+-            #
+-            # AND AN ERROR HERE REFUSES. Both calls used to `continue`, so a
+-            # root that could not be made private was reported as prepared.
+-            # The directory is recorded as ours FIRST, so the unwind can try
+-            # to remove it however this leaves.
+-            try:
+-                handle = os.open(part, os.O_RDONLY | os.O_DIRECTORY
+-                                 | os.O_NOFOLLOW | os.O_CLOEXEC)
+-            except OSError as failure:
+-                raise BootstrapRefusal(
+-                    "this deployment's " + name + " for worker " + who
+-                    + " at " + part + " could not be opened as the directory "
+-                    "this install just created (" + type(failure).__name__
+-                    + "); something replaced it, and nothing here follows "
+-                    "what took its place.")
+-            try:
+-                held = os.fstat(handle)
+-                made[part] = (held.st_dev, held.st_ino)
+-                os.fchmod(handle, PREREQUISITE_MODE)
+-            except OSError as failure:
+-                raise BootstrapRefusal(
+-                    "this deployment's " + name + " for worker " + who
+-                    + " at " + part + " could not be made private ("
+-                    + type(failure).__name__ + "); a prepared root this "
+-                    "install cannot close is not one it reports as ready.")
+-            finally:
+-                os.close(handle)
+-        print("prerequisite  " + name + " " + place, file=stream)
++            missing.update(_components(place))
++            # Even if discovery raced, the root was absent when selected.
++            missing.add(place)
++    handles = {}
++    with contextlib.ExitStack() as opened:
++        def keep(place, handle):
++            opened.callback(os.close, handle)
++            handles[place] = handle
++            return handle
++        try:
++            keep('/', _prerequisite_handle(None, '/'))
++            # Bind all existing ancestors before any mutation. Never resolve a
++            # later operation through a potentially replaced absolute prefix.
++            planned = []
++            for _who, _name, place in prerequisite_places(document):
++                at = ''
++                for leaf in place.split('/')[1:]:
++                    at += '/' + leaf
++                    if at not in planned:
++                        planned.append(at)
++                    if at in handles or at in missing:
++                        continue
++                    parent = os.path.dirname(at)
++                    if parent not in handles:
++                        missing.add(at)
++                        continue
++                    before = os.stat(leaf, dir_fd=handles[parent], follow_symlinks=False)
++                    if not stat.S_ISDIR(before.st_mode):
++                        raise BootstrapRefusal('prerequisite ancestor is not a directory: ' + at)
++                    handle = keep(at, _prerequisite_handle(handles[parent], leaf))
++                    if _identity_of_handle(handle) != (before.st_dev, before.st_ino):
++                        raise BootstrapRefusal('prerequisite ancestor changed while opening: ' + at)
++            for part in planned:
++                if part in handles:
++                    continue
++                parent, leaf = os.path.split(part)
++                _check_prerequisite_chain(handles)
++                with contextlib.closing(_CreationWatch(handles[parent])) as watch:
++                    # Record intent before the call: even an interrupted mkdir
++                    # may have an effect, but an uncertain effect is not owned.
++                    made[part] = _UncertainPrerequisite('creation attempted; identity not established')
++                    try:
++                        os.mkdir(leaf, PREREQUISITE_MODE, dir_fd=handles[parent])
++                    except FileExistsError:
++                        del made[part]
++                        raise BootstrapRefusal('prerequisite component appeared at ' + part + '; nothing here follows a link or adopts an appearing object') from None
++                    handle = keep(part, _prerequisite_handle(handles[parent], leaf))
++                    identity = _identity_of_handle(handle)
++                    watch.prove(leaf)
++                    made[part] = _OwnedPrerequisite(identity, handle)
++                    # /proc/self/fd identifies THIS pinned O_PATH object. It
++                    # cannot redirect chmod to a later occupant of the name.
++                    os.chmod('/proc/self/fd/' + str(handle), PREREQUISITE_MODE)
++                    if stat.S_IMODE(os.fstat(handle).st_mode) != PREREQUISITE_MODE or not os.access('/proc/self/fd/' + str(handle), os.R_OK | os.W_OK | os.X_OK):
++                        raise BootstrapRefusal('prepared prerequisite is not private and accessible: ' + part)
++                _check_prerequisite_chain(handles)
++            _check_prerequisite_chain(handles)
++            for _who, _name, place in prerequisite_places(document):
++                if not os.access('/proc/self/fd/' + str(handles[place]), os.R_OK | os.W_OK | os.X_OK):
++                    raise BootstrapRefusal('prerequisite is not readable, writable and traversable: ' + place)
++            for _who, name, place in owed:
++                print('prerequisite  ' + name + ' ' + place, file=stream)
++        except (OSError, AttributeError) as failure:
++            raise BootstrapRefusal('prerequisite preparation failed (' + type(failure).__name__ + '); created or uncertain effects are recorded; access or identity failure is not evidence of replacement, and is not one it reports as ready') from failure
+     return made
+ 
+ 

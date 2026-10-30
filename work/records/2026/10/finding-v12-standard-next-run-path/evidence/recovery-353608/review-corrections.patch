@@ -1,0 +1,411 @@
+diff --git a/v12/python/tests/tools/next_run_flow_fixture.py b/v12/python/tests/tools/next_run_flow_fixture.py
+--- a/v12/python/tests/tools/next_run_flow_fixture.py
++++ b/v12/python/tests/tools/next_run_flow_fixture.py
+@@ -90,6 +90,14 @@
+         return dict(returncode=0, stdout=output, stderr='')
+     fail_start = '--fixture-fail-start' in args
+     if fail_start: args.remove('--fixture-fail-start')
++    # W339626: THE FLAG HAS TO REACH THE PROCESS THAT ACTUALLY MATERIALIZES.
++    # `main` strips it before calling the controller, and the source line is
++    # composed in the WATCHDOG'S CHILD rather than here -- so without the
++    # explicit propagation in `Process` below the child parses no flag,
++    # `deny_line` is False there, and the clone succeeds. Measured before the
++    # correction: the production clone argv appeared in the trace while
++    # `simulated-git-line-denied` never did, and the run failed as "froze no
++    # result at all" instead of as a pre-runtime source refusal.
+     deny_line = '--fixture-deny-line' in args
+     if deny_line: args.remove('--fixture-deny-line')
+     worker_threads = []
+@@ -153,7 +161,12 @@
+     class Process(original_process):
+         def __init__(self, argv, **kwargs):
+             if fail_start: raise OSError('simulated controller child launch failure')
+-            super().__init__([argv[0], '-I', '-B', __file__, code, tests_root, trace, *argv[3:]], **kwargs)
++            # The fixture flag is RE-COMPOSED for the child, because `main`
++            # consumed it out of this process's argv and the child is where the
++            # product's own source line runs. It precedes `argv[3:]` so the
++            # child still sees the controller's operands in the same order.
++            carried = ['--fixture-deny-line'] if deny_line else []
++            super().__init__([argv[0], '-I', '-B', __file__, code, tests_root, trace, *carried, *argv[3:]], **kwargs)
+     enforcement.Process = Process
+     if args[0] == '--fixture-recover':
+         from tools import next_run_recovery
+diff --git a/v12/python/tests/tools/test_next_run_flow.py b/v12/python/tests/tools/test_next_run_flow.py
+--- a/v12/python/tests/tools/test_next_run_flow.py
++++ b/v12/python/tests/tools/test_next_run_flow.py
+@@ -81,6 +81,19 @@
+         task = self.fixture.fixture.task(name)
+         task['limits'] = dict(provider=3, verification=2, total=12, cleanup=4)
+         return task
++
++    def only(self, collection, what):
++        """The one member of a collection, proved to have exactly one.
++
++        W339626 R1: a walk over a collection that turned out to be empty is
++        the shape that let an earlier revision of the refusal case pass while
++        asserting nothing. This fails on an absent, empty or longer collection
++        instead, and returns the member so the caller correlates against it.
++        """
++        self.assertIsNotNone(collection, what)
++        self.assertEqual(len(collection), 1, f'{what}: {collection!r}')
++        return collection[0] if isinstance(collection, list) else \
++            sorted(collection)[0]
+ 
+     def start(self, name):
+         with patch.object(managed.baseline, 'verify_worker_image'):
+@@ -172,6 +185,17 @@
+         attempt still in `outstanding_cleanup`, `retry` False, and a held
+         outcome carrying the actionable cause. Cleanup must NOT read as
+         complete and cessation must NOT be claimed.
++
++        W339626 R1, review-2026-10-21T16-30-13Z.md: an earlier revision of this
++        case asserted `workload.candidates == []`, and THAT WAS WRONG about the
++        product and about the production record. `authoring_baseline` emits ONE
++        entry per implementation attempt even when the turn froze nothing, so
++        the real report carries an attempt-correlated entry with `state`
++        "absent" and every result field null. The assertion below is that
++        entry, not its absence -- a no-result accounting is what this path must
++        produce, and an empty list would mean the attempt went unaccounted.
++        The collections are also asserted NONEMPTY first, because the loops
++        underneath them would otherwise pass on nothing at all.
+         """
+         self.request(action='prepare', task=self.task('denied'))
+         self.deny_line = True
+@@ -190,15 +214,44 @@
+         self.assertNotEqual(outcome.get('stage_states'),
+                             {'implementation': 'completed'})
+         self.assertTrue(outcome.get('held_because'))
+-        self.assertEqual(outcome.get('workload', {}).get('candidates', []), [])
++
++        # 1a. THE REFUSAL IS THE PRODUCTION FIELD, not merely a denial.
++        #     operator-error-347682/diagnostic.json recorded
++        #     original_characters 125 for this exact composed sentence.
++        self.assertEqual(
++            failure,
++            "ProfileRefusal: Git line materialization failed: fatal: could "
++            "not open '/dev/null' for reading and writing: Permission denied")
++        self.assertEqual(len(failure), 125)
++
++        # 1b. R1: THE ATTEMPT IS ACCOUNTED FOR WITH NO RESULT, not omitted.
++        attempt = self.only(outcome.get('admitted_attempts'),
++                            'exactly one attempt was admitted')
++        candidates = outcome.get('workload', {}).get('candidates')
++        entry = self.only(candidates, 'one candidate entry per attempt')
++        self.assertEqual(entry.get('attempt_id'), attempt)
++        self.assertEqual(entry.get('state'), 'absent')
++        for empty in ('base', 'head', 'content_digest', 'locator',
++                      'disposition', 'transport', 'bytes', 'generation',
++                      'assignment', 'attribution'):
++            self.assertIsNone(entry.get(empty),
++                              f'a turn that froze nothing has no {empty}')
++        self.assertNotEqual(entry.get('verification'), 'passed')
+ 
+         # 2. CLEANUP IS NOT REPORTED COMPLETE and cessation is not claimed.
+-        self.assertTrue(outcome.get('outstanding_cleanup'),
+-                        'a pre-runtime refusal must leave cleanup outstanding')
+-        for held in (outcome.get('cleanup') or {}).values():
++        #    R1: each collection is proved NONEMPTY and attempt-correlated
++        #    before it is walked, so no loop below can pass vacuously.
++        self.assertEqual(outcome.get('outstanding_cleanup'), [attempt],
++                         'a pre-runtime refusal must leave cleanup outstanding')
++        cleanup = outcome.get('cleanup') or {}
++        self.assertEqual(sorted(cleanup), [attempt])
++        for held in cleanup.values():
+             self.assertIsNone(held.get('cleanup'),
+                               'no committed cleanup may be claimed')
+-        for held in (outcome.get('cancellation') or {}).values():
++        cancellation = outcome.get('cancellation') or {}
++        self.assertEqual(sorted(cancellation), [attempt])
++        for held in cancellation.values():
++            self.assertIs(held.get('requested'), True)
+             self.assertEqual(held.get('execution_runtime'), 'not-started')
+             self.assertIsNone(held.get('state'),
+                               'an unobserved runtime state is not absence')
+@@ -212,12 +265,22 @@
+         for item in result['inventory'] or []:
+             self.assertIsNone(item['runtime'].get('runtime_id'))
+ 
+-        # 5. THE LANE STILL WORKS AFTERWARDS. A consumed failure must not
+-        #    poison the installation; that is what makes this a bounded failure
+-        #    path rather than a dead one.
++        # 5. THE LANE STILL WORKS AFTERWARDS, through a REAL completed run. A
++        #    consumed failure must not poison the installation; that is what
++        #    makes this a bounded failure path rather than a dead one.
++        #
++        #    The follow-on uses the task name `first` deliberately. The
++        #    fixture's simulated provider recognises only the instructions it
++        #    models and RAISES on anything else -- which is a real guard that
++        #    the instruction reached the provider, not an accident. An earlier
++        #    revision of this step named the task `after`, so the worker raised
++        #    `task instruction did not reach provider`, the turn froze no
++        #    result, and the follow-on could never have passed. Measured, then
++        #    corrected by using a modelled instruction rather than by weakening
++        #    the guard.
+         received = time.monotonic()
+-        self.request(action='prepare', task=self.task('after'))
+-        self.completed('after', received)
++        self.request(action='prepare', task=self.task('first'))
++        self.completed('first', received)
+ 
+     def test_initial_partial_preparation_continues_to_real_work(self):
+         received = time.monotonic()
+diff --git a/v12/python/tests/tools/test_next_run_managed.py b/v12/python/tests/tools/test_next_run_managed.py
+--- a/v12/python/tests/tools/test_next_run_managed.py
++++ b/v12/python/tests/tools/test_next_run_managed.py
+@@ -607,24 +607,84 @@
+             self.assertEqual(done.returncode, 0, done.stderr)
+         return place
+ 
+-    REAL_GIT = ("import subprocess,sys;sys.path[:0]=sys.argv[1:3];"
+-                "from tools.next_run_confinement import restrict_writes;"
+-                "restrict_writes(sys.argv[3]);"
+-                "d=subprocess.run(['git','clone','--quiet','--no-hardlinks',"
+-                "sys.argv[4],sys.argv[3]+'/checkout'],capture_output=True,"
+-                "text=True);sys.stderr.write(d.stderr);sys.exit(d.returncode)")
+-
+-    def test_confined_real_git_materializes_a_source_line(self):
++    # W339626 R3, review-2026-10-21T16-30-13Z.md: THE ARGV IS THE PRODUCT'S,
++    # NOT THIS FILE'S.
++    #
++    # The previous revision composed `git clone --quiet --no-hardlinks` by
++    # hand. Production composes `clone_vector`, which carries `--no-hardlinks`
++    # AND `--no-local`, and `--no-local` selects a DIFFERENT TRANSPORT inside
++    # Git -- so the earlier case established a local-clone symptom and not the
++    # production path. It also stopped at the clone, while the production plan
++    # is three steps: clone, detach to the DECLARED BASE, then verify the
++    # worktree really is that commit.
++    #
++    # So this runs `checkout_plan`'s own steps, in its own order, comparing
++    # each `expect_stdout` the plan supplies. A drift in any production vector
++    # changes what this case executes instead of silently diverging from it.
++    REAL_PLAN = ("import json,subprocess,sys;sys.path[:0]=sys.argv[1:3];"
++                 "from baton_v12.source_profiles.checkout import checkout_plan;"
++                 "from tools.next_run_confinement import restrict_writes;"
++                 "plan=checkout_plan(sys.argv[4],sys.argv[3],profile='git',"
++                 "declared=sys.argv[5]);"
++                 "restrict_writes(sys.argv[3]);"
++                 "ran=[]\n"
++                 "for step in plan['steps']:\n"
++                 "  d=subprocess.run(list(step['argv']),capture_output=True,text=True)\n"
++                 "  ran.append({'argv':list(step['argv']),'status':d.returncode,"
++                 "'stdout':d.stdout,'stderr':d.stderr,"
++                 "'expect_stdout':step['expect_stdout']})\n"
++                 "  if d.returncode!=0: break\n"
++                 "print(json.dumps({'source_root':plan['source_root'],"
++                 "'base':plan['base'],'base_kind':plan['base_kind'],'ran':ran}))\n"
++                 "sys.exit(0 if all(one['status']==0 for one in ran) else 1)")
++
++    def _head(self, place):
++        """The fixture line's own commit name, read from the disposable line."""
++        done = subprocess.run(['git', '-C', str(place), 'rev-parse', 'HEAD'],
++                              capture_output=True, text=True, timeout=30)
++        self.assertEqual(done.returncode, 0, done.stderr)
++        return done.stdout.strip()
++
++    def test_confined_production_plan_materializes_a_source_line(self):
++        """The REAL production source line, under the REAL confinement.
++
++        Every argv comes from `checkout_plan`, so `--no-local` is present
++        because production composes it and not because this case typed it.
++        """
+         inside = self.root / 'confined-git'
+         inside.mkdir()
+         line = self._line(self.root / 'line')
+-        done = self._confined(self.REAL_GIT, inside, line)
+-        # BEFORE the null-device allowance this is status 128 with
++        base = self._head(line)
++        done = self._confined(self.REAL_PLAN, inside, line, base)
++        # BEFORE the null-device allowance the FIRST step is status 128 with
+         # "could not open '/dev/null' for reading and writing: Permission
+         # denied" -- the exact production wording.
+-        self.assertEqual(done.returncode, 0, done.stderr)
++        self.assertEqual(done.returncode, 0, done.stdout + done.stderr)
+         self.assertNotIn('Permission denied', done.stderr)
+-        self.assertTrue((inside / 'checkout/.git').is_dir())
++        report = json.loads(done.stdout)
++
++        # THE PRODUCTION VECTOR, asserted rather than assumed.
++        self.assertEqual(len(report['ran']), 3, report)
++        clone = report['ran'][0]['argv']
++        self.assertEqual(clone[:4], ['git', 'clone', '--no-hardlinks',
++                                     '--no-local'])
++        self.assertEqual(clone[-2:], [str(line), str(inside / 'checkout')])
++
++        # THE DECLARED BASE IS CHECKED OUT AND THEN PROVED, by the plan's own
++        # expectation rather than by this case restating it.
++        self.assertEqual(report['base'], base)
++        self.assertEqual(report['base_kind'], 'sha1')
++        for step in report['ran']:
++            self.assertEqual(step['status'], 0, step)
++            if step['expect_stdout'] is not None:
++                self.assertEqual(step['stdout'].strip(),
++                                 step['expect_stdout'].strip(), step)
++
++        # AND THE CHECKOUT IS REAL AND READABLE at the plan's source root.
++        checkout = Path(report['source_root'])
++        self.assertEqual(checkout, inside / 'checkout')
++        self.assertTrue((checkout / '.git').is_dir())
++        self.assertEqual(self._head(checkout), base)
+ 
+     def test_the_null_allowance_denies_every_other_device_write(self):
+         """WRITE_FILE on one validated inode is not a /dev grant."""
+@@ -726,6 +786,100 @@
+                 self.assertEqual(outside.read_text(),
+                                  'refused-and-unconfined')
+ 
++    def test_a_refused_preparation_closes_every_descriptor_it_opened(self):
++        """W339626 R2: a refusal must not leak what it refused to use.
++
++        review-2026-10-21T16-30-13Z.md: the ruleset and the parent were
++        acquired before `_null_device()` and outside any `finally`, so each
++        fail-closed refusal leaked them -- and the fail-closed path is the one
++        this module advertises, so repeated refusals in a long-lived process
++        accumulate descriptors until it cannot open anything.
++
++        MEASURED AT THE CANDIDATE BEFORE THE CORRECTION: 2 descriptors per
++        call for a wrong-type device, 2 for an absent one, 1 for a root that
++        cannot be opened. The assertion is zero growth over many calls, so a
++        single-descriptor regression is caught too.
++
++        THREE FAILURE SHAPES, all after at least one acquisition: a validation
++        refusal (`ValueError`), an acquisition failure on the root
++        (`OSError`), and a FAILED RULE INSTALLATION with all three descriptors
++        held, induced with an access right the kernel rejects. Then a real
++        confinement is applied LAST, proving the process is still able to
++        confine and that the boundary it installs is the right one.
++        """
++        inside = self.root / 'balanced'
++        inside.mkdir()
++        decoy = self.root / 'balanced-not-a-device'
++        decoy.write_text('regular file')
++        outside = self.root / 'balanced-outside'
++        outside.write_text('preserved')
++        rounds = 40
++        script = (
++            "import json,os,sys;sys.path[:0]=sys.argv[1:3];"
++            "from pathlib import Path;"
++            "from tools import next_run_confinement as c\n"
++            "root,decoy,absent,outside,rounds=sys.argv[3],sys.argv[4],"
++            "sys.argv[5],sys.argv[6],int(sys.argv[7])\n"
++            "def held():\n"
++            "  return len(os.listdir('/proc/self/fd'))\n"
++            "report={}\n"
++            "def sweep(name,setup,expected):\n"
++            "  setup()\n"
++            "  before=held();seen=set()\n"
++            "  for _ in range(rounds):\n"
++            "    try:\n"
++            "      c.restrict_writes(root);seen.add('APPLIED')\n"
++            "    except expected as f: seen.add(type(f).__name__)\n"
++            "  report[name]={'growth':held()-before,'raised':sorted(seen)}\n"
++            "def wrong_type():\n"
++            "  c.NULL_DEVICE=decoy\n"
++            "def absent_device():\n"
++            "  c.NULL_DEVICE=absent\n"
++            "sweep('wrong-type',wrong_type,ValueError)\n"
++            "sweep('absent-device',absent_device,ValueError)\n"
++            "c.NULL_DEVICE='/dev/null'\n"
++            "before=held();seen=set()\n"
++            "for _ in range(rounds):\n"
++            "  try: c.restrict_writes(absent)\n"
++            "  except OSError as f: seen.add(type(f).__name__)\n"
++            "report['absent-root']={'growth':held()-before,'raised':sorted(seen)}\n"
++            # A FAILED RULE INSTALLATION: every descriptor is already held when
++            # landlock_add_rule refuses an access right outside the handled set.
++            "original=c.WRITE_FILE;c.WRITE_FILE=1<<40\n"
++            "before=held();seen=set()\n"
++            "for _ in range(rounds):\n"
++            "  try: c.restrict_writes(root)\n"
++            "  except OSError as f: seen.add(type(f).__name__)\n"
++            "report['failed-rule']={'growth':held()-before,'raised':sorted(seen)}\n"
++            "c.WRITE_FILE=original\n"
++            # LAST, because confinement is irreversible: a normal success.
++            "c.restrict_writes(root)\n"
++            "Path(root+'/allowed').write_text('ok')\n"
++            "try:\n"
++            "  Path(outside).write_text('bad');report['outside']='allowed'\n"
++            "except OSError: report['outside']='denied'\n"
++            "print(json.dumps(report))\n"
++            "sys.exit(0)")
++        done = self._confined(script, inside, decoy,
++                              self.root / 'balanced-absent', outside, rounds)
++        self.assertEqual(done.returncode, 0, done.stdout + done.stderr)
++        report = json.loads(done.stdout)
++
++        for name, raised in (('wrong-type', ['ValueError']),
++                             ('absent-device', ['ValueError']),
++                             ('absent-root', ['FileNotFoundError']),
++                             ('failed-rule', ['OSError'])):
++            with self.subTest(failure=name):
++                # The refusal still happens, and it is still the same one.
++                self.assertEqual(report[name]['raised'], raised, report)
++                # And it costs nothing. NOT "few": none.
++                self.assertEqual(report[name]['growth'], 0, report)
++
++        # The process could still confine afterwards, and correctly.
++        self.assertEqual(report['outside'], 'denied', report)
++        self.assertEqual((inside / 'allowed').read_text(), 'ok')
++        self.assertEqual(outside.read_text(), 'preserved')
++
+     def test_installed_imports_bind_controller_and_helper(self):
+         self.broker.prepare(self.fixture.task())
+         code = self.install / 'code'
+diff --git a/v12/python/tools/next_run_confinement.py b/v12/python/tools/next_run_confinement.py
+--- a/v12/python/tools/next_run_confinement.py
++++ b/v12/python/tools/next_run_confinement.py
+@@ -85,12 +85,33 @@
+         _pack_ = 1
+         _fields_ = [('access',ctypes.c_uint64),('fd',ctypes.c_int32)]
+     rule = Ruleset(writes)
+-    ruleset = call(444, ctypes.byref(rule), ctypes.sizeof(rule), 0)
+-    parent = os.open(root, os.O_PATH | os.O_DIRECTORY | os.O_NOFOLLOW)
+-    # VALIDATED BEFORE THE RULESET IS ENFORCED, so a bad or missing device
+-    # refuses with nothing applied rather than leaving a half-built boundary.
+-    null = _null_device()
++    # EVERY DESCRIPTOR IS REGISTERED AS IT IS ACQUIRED, inside one try/finally
++    # that covers the whole acquisition.
++    #
++    # W339626 R2, review-2026-10-21T16-30-13Z.md: the previous revision opened
++    # the ruleset and the parent BEFORE calling `_null_device()` and outside
++    # any `finally`, so a missing, wrong-type or wrong-number null facility --
++    # exactly the fail-closed path this module advertises -- raised past both
++    # and leaked them. The same hole covered a failing `os.open` of the root,
++    # which leaked the ruleset. A refusal that leaks the resources it was
++    # refusing to use is a worse refusal, and repeated refusals in one process
++    # accumulate.
++    #
++    # The ORDER IS UNCHANGED and so is every refusal: the null device is still
++    # validated before `landlock_restrict_self`, so a bad device still refuses
++    # with NOTHING APPLIED rather than with a weaker boundary, and nothing is
++    # executed after a refusal. Only the lifetime moved.
++    held = []
+     try:
++        held.append(call(444, ctypes.byref(rule), ctypes.sizeof(rule), 0))
++        ruleset = held[0]
++        held.append(os.open(root, os.O_PATH | os.O_DIRECTORY | os.O_NOFOLLOW))
++        parent = held[1]
++        # VALIDATED BEFORE THE RULESET IS ENFORCED, so a bad or missing device
++        # refuses with nothing applied rather than leaving a half-built
++        # boundary.
++        held.append(_null_device())
++        null = held[2]
+         allowed = Beneath(writes,parent)
+         call(445,ruleset,1,ctypes.byref(allowed),0)
+         permitted = Beneath(WRITE_FILE,null)
+@@ -99,7 +120,13 @@
+             raise OSError(ctypes.get_errno(),'no_new_privs refusal')
+         call(446,ruleset,0)
+     finally:
+-        os.close(null)
+-        os.close(parent)
+-        os.close(ruleset)
++        # Reverse order, which is the previous revision's close order exactly.
++        # A close failure is swallowed so it cannot replace the refusal the
++        # caller has to see; these are descriptors this function just opened,
++        # and the refusal is the actionable fact.
++        for descriptor in reversed(held):
++            try:
++                os.close(descriptor)
++            except OSError:
++                pass
+ 

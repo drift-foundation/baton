@@ -1,0 +1,2 @@
+staged; bootstrap separately with --no-repositories, then bind. The start is not selected.
+This packet's START IS NOT SELECTED. Both prerequisites are CLOSED (W333735 at a9f4fa4d, W334910 at fb487979), so this is not a blocker -- but independent preparation review comes first, then an exact execution selection. Two things to know: the previous packet WAS selected and died at startup in 0.506s (FAILURE.md), and the composer generated commands.json start still names the UNENFORCED supervisor -- use AUTHORING-COMMAND.json. See ENFORCEMENT.md.

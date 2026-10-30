@@ -1,0 +1,72 @@
+{
+  "manifest_sha256": "144bd443c96143513c09c5ded684635451961f337e3d43cca83c16be4a7d94be",
+  "artifact_count": 11,
+  "failures": [],
+  "fixture": {
+    "scope": "unprivileged preparation shell fixture, not product or installed acceptance",
+    "cases": [
+      {
+        "configuration": "sudoers-v3",
+        "scenario": "replacement-after-stage",
+        "passed": true
+      },
+      {
+        "configuration": "sudoers-v3",
+        "scenario": "mismatch",
+        "passed": true
+      },
+      {
+        "configuration": "sudoers-v3",
+        "scenario": "stage-collision",
+        "passed": true
+      },
+      {
+        "configuration": "sudoers-v3",
+        "scenario": "live-collision",
+        "passed": true
+      },
+      {
+        "configuration": "sudoers-v3",
+        "scenario": "live-symlink",
+        "passed": true
+      },
+      {
+        "configuration": "credential-sources-v3.json",
+        "scenario": "replacement-after-stage",
+        "passed": true
+      },
+      {
+        "configuration": "credential-sources-v3.json",
+        "scenario": "mismatch",
+        "passed": true
+      },
+      {
+        "configuration": "credential-sources-v3.json",
+        "scenario": "stage-collision",
+        "passed": true
+      },
+      {
+        "configuration": "credential-sources-v3.json",
+        "scenario": "live-collision",
+        "passed": true
+      },
+      {
+        "configuration": "credential-sources-v3.json",
+        "scenario": "live-symlink",
+        "passed": true
+      }
+    ],
+    "shell_blocks_bash_n": 15,
+    "retained_fixture": "/tmp/baton-publication-344059-39980h3d",
+    "elapsed_seconds": 0.0351868769939756,
+    "limitations": [
+      "root ownership/custody not simulated as proven",
+      "visudo not executed",
+      "no real sudoers or credential files read or written",
+      "no bearer material",
+      "live publication collision guards rely on trusted parent and exclusive operator interval"
+    ],
+    "bundle_rebuilt": false
+  },
+  "copy": "/tmp/w343989-review-344081-jkw9w6ad"
+}

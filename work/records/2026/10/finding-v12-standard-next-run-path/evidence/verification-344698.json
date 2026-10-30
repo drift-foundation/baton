@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_next_run_managed"
+  ],
+  "cwd": "/tmp/baton-next-run-344617/v12/python",
+  "timeout_seconds": 60,
+  "exit_code": 0,
+  "process_wall_seconds": 2.867968507001933,
+  "stdout": "",
+  "stderr": ".........\n----------------------------------------------------------------------\nRan 9 tests in 2.519s\n\nOK\n",
+  "boundary": "actual bootstrap/Authority/import and unprivileged Landlock; fake account/chown/admission/dispatch/image boundaries; no live installation/provider/engine/Git mutation"
+}

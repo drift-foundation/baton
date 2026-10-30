@@ -1,0 +1,225 @@
+{
+  "changes": {
+    "deployment.json": {
+      "after": "5b80f32a9e62262729f19adfbcca62b8934e773728a816d8dfcc444a0580e6ef",
+      "before": "dfc2c08ec5f07155ae008f6d2307e7dc0d307c1ebebe62f54272e64200885fa0",
+      "mode": 436
+    },
+    "generated/configuration.json": {
+      "after": "5b80f32a9e62262729f19adfbcca62b8934e773728a816d8dfcc444a0580e6ef",
+      "before": "dfc2c08ec5f07155ae008f6d2307e7dc0d307c1ebebe62f54272e64200885fa0",
+      "mode": 436
+    },
+    "generated/configure-inputs.json": {
+      "after": "4756c1dc916404f82e783df95ad87d196e84e41141e8520037f715e832bbc644",
+      "before": "6ff15885ca5309affc0db25439248818b41f94f36d7de1f5aa62a7d579539b2e",
+      "mode": 436
+    },
+    "inputs.json": {
+      "after": "4756c1dc916404f82e783df95ad87d196e84e41141e8520037f715e832bbc644",
+      "before": "6ff15885ca5309affc0db25439248818b41f94f36d7de1f5aa62a7d579539b2e",
+      "mode": 436
+    }
+  },
+  "destination": "/home/sl/baton-instances/native-coordination-pilot-w321608-1",
+  "guard_roots": [
+    "/home/sl/baton-instances/native-coordination-pilot-w321608-1/workspaces/implementation",
+    "/home/sl/baton-instances/native-coordination-pilot-w321608-1/workspaces/review"
+  ],
+  "preserved_files": {
+    "authority-identity.json": {
+      "mode": 420,
+      "sha256": "8fdf4f582a5a256835caa80225a42e2edb650bd5cdccbddce468bf6880ecca45"
+    },
+    "generated/authority-readback.json": {
+      "mode": 436,
+      "sha256": "b201c168a8223c5da89bee54698b56800b5ec32c253b610aecbbf1f20d6ab622"
+    },
+    "generated/dossiers/native-pilot-quickstart-1cdb8d19/FINDING.md": {
+      "mode": 436,
+      "sha256": "8e51f5ec4c0d8c1866412f1987e0b07f0a06c3c24969262c70ef4837f25b8947"
+    },
+    "generated/dossiers/native-pilot-quickstart-1cdb8d19/PLAN.md": {
+      "mode": 436,
+      "sha256": "39c50d05797f5ed0ea92ae27a44a6f18cbc95baf3210e361c3845a603c03d8ab"
+    },
+    "generated/installer.json": {
+      "mode": 436,
+      "sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed"
+    },
+    "generated/manifest.json": {
+      "mode": 436,
+      "sha256": "1b5de7f567b1a7dd7f3eb79bdbff97643423c629b13ece6344d3be99f21a9742"
+    },
+    "generated/ownership.json": {
+      "mode": 436,
+      "sha256": "4f42ddf069951f71d8390a2a93daba6a8d65343655279513549bbce0a9c21926"
+    },
+    "generated/preparation-readback.json": {
+      "mode": 436,
+      "sha256": "fc302e7e01b677baddf0dadf0cddb96c22b4363ad714d3d116699ee9c110b233"
+    },
+    "generated/repository.txt": {
+      "mode": 436,
+      "sha256": "be61d567a4e8a7a2a11455aa6ba2decba6bd46ec8475098cd82b73a11e15d9d8"
+    },
+    "generated/submission.json": {
+      "mode": 436,
+      "sha256": "72c5da000489e90a6ba3239da425d508b6ff77b34420adcdd9201ce7c9629f32"
+    },
+    "generated/task.json": {
+      "mode": 436,
+      "sha256": "5ec48d4baf2020a8ef972237444c5989cf8490dea23cc285dbfd3bc0508dc1bb"
+    },
+    "instance.json": {
+      "mode": 384,
+      "sha256": "c6ceb9e378b3dc11058717f4d622a27d2b7d9bf657490cab330f7e8785a33442"
+    }
+  },
+  "schema": "baton.w325959.workspace-recovery/1",
+  "state": {
+    "authority_uuid": "1cdb8d19feda47c0a209bd0669b16871",
+    "jobs": [
+      {
+        "execution_limits": {
+          "boundaries": {
+            "host_verification": {
+              "default_seconds": 300,
+              "origin": "job",
+              "seconds": 900,
+              "setting": "verification_command_seconds"
+            },
+            "integration_verification": {
+              "default_seconds": 1800,
+              "origin": "job",
+              "seconds": 900,
+              "setting": "verification_command_seconds"
+            },
+            "ordinary_verification": {
+              "default_seconds": 900,
+              "origin": "job",
+              "seconds": 900,
+              "setting": "verification_command_seconds"
+            },
+            "provider_turn": {
+              "default_seconds": 3600,
+              "origin": "job",
+              "seconds": 3600,
+              "setting": "provider_turn_seconds"
+            }
+          },
+          "compatibility_generation": 1,
+          "requested": {
+            "provider_turn_seconds": 3600,
+            "verification_command_seconds": 900
+          },
+          "scope": "per-invocation",
+          "units": "seconds"
+        },
+        "input_digest": "sha256:ee61953eebd8b1e9599b1fc398bce1a6e0f13f502b2b3fbbc454943a2922f5be",
+        "job_id": "quickstart-a",
+        "policy_digest": "sha256:837d7a03b2d92b9654cbc391daefcfa208f747bbd9ae7c528d54f528bd536357",
+        "stages": [
+          {
+            "allocation": null,
+            "allocations": [],
+            "artifacts": null,
+            "attempt_id": "attempt-695f0b35db9f5a9419236e8c87352ea41ce8f3383f48fefcacf63b44f7da544e",
+            "corrections": 0,
+            "deferral": null,
+            "episode": 1,
+            "episodes": [
+              {
+                "attempt_id": "attempt-695f0b35db9f5a9419236e8c87352ea41ce8f3383f48fefcacf63b44f7da544e",
+                "ended_at": null,
+                "ended_revision": null,
+                "ended_state": null,
+                "episode": 1,
+                "incarnation": "w325959-owner-submit-1",
+                "offer_id": "offer-695f0b35db9f5a9419236e8c87352ea41ce8f3383f48fefcacf63b44f7da544e",
+                "opened_at": "2026-10-19T04:28:46.749Z",
+                "stage_id": "quickstart-a/implementation"
+              }
+            ],
+            "exchange": null,
+            "gates": [],
+            "job_id": "quickstart-a",
+            "kind": "implementation",
+            "offer_id": "offer-695f0b35db9f5a9419236e8c87352ea41ce8f3383f48fefcacf63b44f7da544e",
+            "profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+            "profile_name": "claude-fresh-implementation",
+            "receipts": [],
+            "runtime": null,
+            "stage_id": "quickstart-a/implementation",
+            "state": "queued",
+            "work_id": "1cdb8d19-W1"
+          },
+          {
+            "allocation": null,
+            "allocations": [],
+            "artifacts": null,
+            "attempt_id": "attempt-2ea17286471490288e46e11a063ca12d5bb9108192d7df115cb0e1a6002b4e29",
+            "corrections": 0,
+            "deferral": null,
+            "episode": 1,
+            "episodes": [
+              {
+                "attempt_id": "attempt-2ea17286471490288e46e11a063ca12d5bb9108192d7df115cb0e1a6002b4e29",
+                "ended_at": null,
+                "ended_revision": null,
+                "ended_state": null,
+                "episode": 1,
+                "incarnation": "w325959-owner-submit-1",
+                "offer_id": "offer-2ea17286471490288e46e11a063ca12d5bb9108192d7df115cb0e1a6002b4e29",
+                "opened_at": "2026-10-19T04:28:46.749Z",
+                "stage_id": "quickstart-a/review"
+              }
+            ],
+            "exchange": null,
+            "gates": [
+              {
+                "open": false,
+                "stage_id": "quickstart-a/implementation",
+                "state": "queued"
+              }
+            ],
+            "job_id": "quickstart-a",
+            "kind": "review",
+            "offer_id": "offer-2ea17286471490288e46e11a063ca12d5bb9108192d7df115cb0e1a6002b4e29",
+            "profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+            "profile_name": "claude-fresh-implementation",
+            "receipts": [],
+            "runtime": null,
+            "stage_id": "quickstart-a/review",
+            "state": "blocked",
+            "work_id": "1cdb8d19-W1"
+          }
+        ],
+        "submission_id": "sub-w321608-quickstart-1",
+        "terminal_policy": "report-and-hold",
+        "test_scope": [
+          "v12/QUICKSTART.md"
+        ]
+      }
+    ],
+    "outstanding_offers": [],
+    "workspace_root": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/workspaces/implementation"
+  },
+  "stores": {
+    "authority_store": {
+      "device": 66306,
+      "inode": 43417213,
+      "path": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/db/authority.sqlite3"
+    },
+    "control_store": {
+      "device": 66306,
+      "inode": 43417303,
+      "path": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/db/control.sqlite3"
+    },
+    "job_store": {
+      "device": 66306,
+      "inode": 43417295,
+      "path": "/home/sl/baton-instances/native-coordination-pilot-w321608-1/db/jobs.sqlite3"
+    }
+  }
+}

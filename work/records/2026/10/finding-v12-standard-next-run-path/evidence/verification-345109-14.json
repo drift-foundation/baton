@@ -1,0 +1,17 @@
+{
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_next_run_flow",
+    "tests.tools.test_next_run",
+    "tests.tools.test_next_run_managed",
+    "tests.tools.test_next_run_recovery",
+    "tests.manager.test_authoring_enforcement"
+  ],
+  "timeout_seconds": 60,
+  "process_seconds": 32.52024996499995,
+  "returncode": 0,
+  "stdout": "",
+  "stderr": "................................................................................\n----------------------------------------------------------------------\nRan 80 tests in 32.336s\n\nOK\n"
+}

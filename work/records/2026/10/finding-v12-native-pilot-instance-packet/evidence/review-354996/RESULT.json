@@ -1,0 +1,23 @@
+{
+  "pins": {
+    "v12/python/src/baton_v12/worker_manager/tokens.py": "c341c2a5535a0dd015b8d0cb8594942303e5dca5e9518c7f9b45ed76d304e2ef",
+    "v12/python/src/baton_v12/job_manager/execution_limits.py": "24f27d7769e7f1ddbc7ee5b3477245cd51833c5dda53ecf78cf8ebe309a3f1c6",
+    "v12/python/src/baton_v12/worker_manager/workspaces.py": "7db36ee60d5b32af70e25ba3fd6328b709475ad2f14a0b1b2de5230faa4e872d",
+    "v12/python/tools/single_worker.py": "70cc08066e73b7504c21eed395361c8153947177dddf5980857b6e199a339e4a",
+    "v12/python/tools/stage_execution.py": "765c1567806c115feb1d15afde75b1099b23ba02b24fe7f7cedaec0ec7bea422",
+    "v12/python/tests/job_manager/test_native_permission.py": "2806305618e8e3145109af3d9a8b9c34f1c24fa46e3ec6c64241333da78a094b"
+  },
+  "exit": 0,
+  "seconds": 1.821982975998253,
+  "command": [
+    "/home/sl/.local/state/baton-v12-venv/bin/python",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.job_manager.test_native_permission"
+  ],
+  "cwd": "/tmp/w325959-354165/candidate/v12/python",
+  "disk_root": "/var/tmp/baton-w257624",
+  "pins_unchanged": true,
+  "child_test_present": false
+}

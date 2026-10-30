@@ -1,0 +1,48 @@
+{
+  "work": "W354630",
+  "claim": 354939,
+  "result": "6 tests passed; unchanged regression now passes on corrected supplier source",
+  "candidate": "/tmp/w354630-354939/candidate",
+  "source_composition": "1777 original files verified against prior BASE-MANIFEST, with only supplied tokens.py replaced; unchanged child test is the sole additional path; 1778 file hashes in MANIFEST.json",
+  "original_pin_count": 32,
+  "corrected_supplier_product_pin_count": 5,
+  "run": {
+    "command": [
+      "/home/sl/.local/state/baton-v12-venv/bin/python",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.job_manager.test_native_stop_restart"
+    ],
+    "cwd": "/tmp/w354630-354939/candidate/v12/python",
+    "environment": {
+      "PYTHONPATH": "src:.",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "BATON_V12_DISK_ROOT": "/tmp/w354630-354939"
+    },
+    "timeout_seconds": 60,
+    "exit": 0,
+    "seconds": 0.4640902589999314,
+    "cumulative_implementer_seconds": 1.8157482679998793,
+    "prior_reviewer_seconds": 0.318443649,
+    "combined_child_seconds": 2.134191916999879,
+    "candidate_and_original_unchanged_after_run": true
+  },
+  "files": {
+    "MANIFEST.json": "3ea097ca231d580b3408dff49ca2776d84ab65c2d4a7cf7d0cba96017683bc3f",
+    "run.json": "fd1de8b52bc67ecc5f54cfb94ab45e29c3fb5365952a9009e7b3831aa40e9481",
+    "run.log": "b544201d7680aacc0358bb0f919a7cf94c20c82ae1325ccb5c6bf8478aefe328",
+    "test_native_stop_restart.py": "f05726cfb92c6d2d8d35e2df859e7f540c4dfc0aa6703b3fe8cdfe08d35bfadf",
+    "tokens-correction.diff": "d419e517284e7528227091464d494a1fa427b12496bc655ef0f4dc4f66ab3c56",
+    "tokens.py": "c341c2a5535a0dd015b8d0cb8594942303e5dca5e9518c7f9b45ed76d304e2ef",
+    "verify.py": "4010e1d327207da3432cb721231438a956bc929a8a7fa3d041649d2db108baa6"
+  },
+  "limitations": [
+    "Deterministic engine/clock and real owner stores/APIs; no live engine/provider.",
+    "Initially reconciled runtime with owner reservation binding; parent production acquisition/two-stage/report proof remains separate.",
+    "Clock rollback regression proves revoked permission refusal, not prevention of an actually executed duplicate external effect.",
+    "Parent source docstring overstates actual execution; parent owns wording correction and any digest rebinding.",
+    "Parent out-of-claim authorship disclosure retained in parent FINDING and evidence/revoked-354829/INDEX.json; later verification supplies no retrospective authorization.",
+    "Independent review and parent joined acceptance pending; no shared-tree import."
+  ]
+}

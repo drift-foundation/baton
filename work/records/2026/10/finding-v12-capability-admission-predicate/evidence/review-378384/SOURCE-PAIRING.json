@@ -1,0 +1,26 @@
+{
+  "seconds": 0.018034941000223625,
+  "results": {
+    "valid": {
+      "profile": "git-line",
+      "declared_base": "0000000000000000000000000000000000000000",
+      "admission": [
+        "implementation",
+        "review"
+      ],
+      "source_profile_owner": "accepted"
+    },
+    "missing_base": {
+      "profile": "git-line",
+      "declared_base": null,
+      "admission": [
+        "implementation",
+        "review"
+      ],
+      "source_profile_owner": {
+        "exception": "ProfileRefusal",
+        "message": "a git-line profile verifies the base revision the assignment declared, and this one declares none; a checkout nobody can check against a base is a copy of whatever the mount happened to hold"
+      }
+    }
+  }
+}

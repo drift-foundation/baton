@@ -1,0 +1,37 @@
+test_original_replay_returns_original_record_after_fresh_A_B_A (tests.manager.test_attempt_failure_cause.TheRecordsAndTheirReaders.test_original_replay_returns_original_record_after_fresh_A_B_A) ... FAIL
+test_middle_replay_returns_middle_record_when_tip_has_equal_facts (tests.manager.test_attempt_failure_cause.TheRecordsAndTheirReaders.test_middle_replay_returns_middle_record_when_tip_has_equal_facts) ... FAIL
+
+======================================================================
+FAIL: test_original_replay_returns_original_record_after_fresh_A_B_A (tests.manager.test_attempt_failure_cause.TheRecordsAndTheirReaders.test_original_replay_returns_original_record_after_fresh_A_B_A)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w341357-353177/v12/python/tests/manager/test_attempt_failure_cause.py", line 322, in test_original_replay_returns_original_record_after_fresh_A_B_A
+    self.assertEqual(replay, first)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('att[82 chars]b342a:2', {'attempt_id': 'attempt-1', 'categor[487 chars]:1'}) != ('att[82 chars]b342a', {'attempt_id': 'attempt-1', 'expect': [395 chars]one})
+
+First differing element 0:
+'atte[26 chars]2552139d1445b690bfbff6e80263632f4e6891d497a259e6b9dc273b342a:2'
+'atte[26 chars]2552139d1445b690bfbff6e80263632f4e6891d497a259e6b9dc273b342a'
+
+Diff is 960 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_middle_replay_returns_middle_record_when_tip_has_equal_facts (tests.manager.test_attempt_failure_cause.TheRecordsAndTheirReaders.test_middle_replay_returns_middle_record_when_tip_has_equal_facts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w341357-353177/v12/python/tests/manager/test_attempt_failure_cause.py", line 344, in test_middle_replay_returns_middle_record_when_tip_has_equal_facts
+    self.assertEqual(replay, middle)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('att[83 chars]342a:3', {'attempt_id': 'attempt-1', 'category[477 chars]:2'}) != ('att[83 chars]342a:1', {'attempt_id': 'attempt-1', 'expect':[475 chars]2a'})
+
+First differing element 0:
+'atte[26 chars]2552139d1445b690bfbff6e80263632f4e6891d497a259e6b9dc273b342a:3'
+'atte[26 chars]2552139d1445b690bfbff6e80263632f4e6891d497a259e6b9dc273b342a:1'
+
+Diff is 1252 characters long. Set self.maxDiff to None to see it.
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.011s
+
+FAILED (failures=2)

@@ -1,0 +1,10 @@
+{
+  "command": [
+    "/usr/bin/python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_serving_renewal.ProductionLaunch"
+  ],
+  "seconds": 0.25518592099979287,
+  "status": 0
+}

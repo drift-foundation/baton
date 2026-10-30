@@ -1,0 +1,6 @@
+{
+  "exception": "ContractRefusal",
+  "reason": "a review terminal's completion manifest digest is durable text; this is none",
+  "seconds": 1.1219999578315765e-05,
+  "scope": "Pure validation of retained terminal against reviewed build; no store or execution."
+}

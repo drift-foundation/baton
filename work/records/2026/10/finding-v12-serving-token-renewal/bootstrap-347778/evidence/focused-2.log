@@ -1,0 +1,237 @@
+FFFFEE.EE.
+======================================================================
+ERROR: test_expiry_is_not_revival_or_reuse_and_unknown_cessation_holds (tests.job_manager.test_serving_renewal.ServingPermission.test_expiry_is_not_revival_or_reuse_and_unknown_cessation_holds)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/baton-serving-envelope-347778/v12/python/src/baton_v12/worker_manager/workspaces.py", line 7035, in governed_resource_identity
+    found = os.stat(root)
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/v12-worker-manager-8wy9440u/workspace-store/attempt-1/workspace'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/tmp/baton-serving-envelope-347778/v12/python/tests/job_manager/test_serving_renewal.py", line 122, in test_expiry_is_not_revival_or_reuse_and_unknown_cessation_holds
+    token = self.acquire()
+  File "/tmp/baton-serving-envelope-347778/v12/python/tests/job_manager/test_serving_renewal.py", line 61, in acquire
+    governance.reserve(self.store, row, operation=operation)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/baton-serving-envelope-347778/v12/python/src/baton_v12/worker_manager/workspaces.py", line 3975, in reserve
+    ordinary.identity(attempt))
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/tmp/baton-serving-envelope-347778/v12/python/src/baton_v12/worker_manager/tokens.py", line 1700, in <lambda>
+    lambda attempt: governed_workspace_identity(
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        control, attempt, mounted=mounted))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/baton-serving-envelope-347778/v12/python/src/baton_v12/worker_manager/tokens.py", line 1640, in governed_workspace_identity
+    argued = workspaces.governed_resource_identity(
+        control, attempt["runtime_attempt_id"], mounted=mounted)
+  File "/tmp/baton-serving-envelope-347778/v12/python/src/baton_v12/worker_manager/workspaces.py", line 7037, in governed_resource_identity
+    _refuse(f"attempt {name_value(assignment_id)}'s governed workspace could not "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"be read at {name_value(root)}: {fault.strerror or fault!r}; an "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"identity is not invented for a root this manager cannot see")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/baton-serving-envelope-347778/v12/python/src/baton_v12/worker_manager/workspaces.py", line 4880, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: attempt 'attempt-1''s governed workspace could not be read at '/tmp/v12-worker-manager-8wy9440u/workspace-store/attempt-1/…: 'No such file or directory'; an identity is not invented for a root this manager cannot see
+
+======================================================================
+ERROR: test_fixed_envelope_cannot_be_renewed_or_rebound (tests.job_manager.test_serving_renewal.ServingPermission.test_fixed_envelope_cannot_be_renewed_or_rebound)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/baton-serving-envelope-347778/v12/python/src/baton_v12/worker_manager/workspaces.py", line 7035, in governed_resource_identity
+    found = os.stat(root)
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/v12-worker-manager-an23gls8/workspace-store/attempt-1/workspace'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/tmp/baton-serving-envelope-347778/v12/python/tests/job_manager/test_serving_renewal.py", line 138, in test_fixed_envelope_cannot_be_renewed_or_rebound
+    token = self.acquire()
+  File "/tmp/baton-serving-envelope-347778/v12/python/tests/job_manager/test_serving_renewal.py", line 61, in acquire
+    governance.reserve(self.store, row, operation=operation)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/baton-serving-envelope-347778/v12/python/src/baton_v12/worker_manager/workspaces.py", line 3975, in reserve
+    ordinary.identity(attempt))
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/tmp/baton-serving-envelope-347778/v12/python/src/baton_v12/worker_manager/tokens.py", line 1700, in <lambda>
+    lambda attempt: governed_workspace_identity(
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        control, attempt, mounted=mounted))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/baton-serving-envelope-347778/v12/python/src/baton_v12/worker_manager/tokens.py", line 1640, in governed_workspace_identity
+    argued = workspaces.governed_resource_identity(
+        control, attempt["runtime_attempt_id"], mounted=mounted)
+  File "/tmp/baton-serving-envelope-347778/v12/python/src/baton_v12/worker_manager/workspaces.py", line 7037, in governed_resource_identity
+    _refuse(f"attempt {name_value(assignment_id)}'s governed workspace could not "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"be read at {name_value(root)}: {fault.strerror or fault!r}; an "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"identity is not invented for a root this manager cannot see")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/baton-serving-envelope-347778/v12/python/src/baton_v12/worker_manager/workspaces.py", line 4880, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: attempt 'attempt-1''s governed workspace could not be read at '/tmp/v12-worker-manager-an23gls8/workspace-store/attempt-1/…: 'No such file or directory'; an identity is not invented for a root this manager cannot see
+
+======================================================================
+ERROR: test_real_acquisition_and_enforcement_support_3600_then_cleanup (tests.job_manager.test_serving_renewal.ServingPermission.test_real_acquisition_and_enforcement_support_3600_then_cleanup)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/baton-serving-envelope-347778/v12/python/src/baton_v12/worker_manager/workspaces.py", line 7035, in governed_resource_identity
+    found = os.stat(root)
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/v12-worker-manager-td_nwnj4/workspace-store/attempt-1/workspace'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/tmp/baton-serving-envelope-347778/v12/python/tests/job_manager/test_serving_renewal.py", line 73, in test_real_acquisition_and_enforcement_support_3600_then_cleanup
+    token = self.acquire()
+  File "/tmp/baton-serving-envelope-347778/v12/python/tests/job_manager/test_serving_renewal.py", line 61, in acquire
+    governance.reserve(self.store, row, operation=operation)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/baton-serving-envelope-347778/v12/python/src/baton_v12/worker_manager/workspaces.py", line 3975, in reserve
+    ordinary.identity(attempt))
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/tmp/baton-serving-envelope-347778/v12/python/src/baton_v12/worker_manager/tokens.py", line 1700, in <lambda>
+    lambda attempt: governed_workspace_identity(
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        control, attempt, mounted=mounted))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/baton-serving-envelope-347778/v12/python/src/baton_v12/worker_manager/tokens.py", line 1640, in governed_workspace_identity
+    argued = workspaces.governed_resource_identity(
+        control, attempt["runtime_attempt_id"], mounted=mounted)
+  File "/tmp/baton-serving-envelope-347778/v12/python/src/baton_v12/worker_manager/workspaces.py", line 7037, in governed_resource_identity
+    _refuse(f"attempt {name_value(assignment_id)}'s governed workspace could not "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"be read at {name_value(root)}: {fault.strerror or fault!r}; an "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"identity is not invented for a root this manager cannot see")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/baton-serving-envelope-347778/v12/python/src/baton_v12/worker_manager/workspaces.py", line 4880, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: attempt 'attempt-1''s governed workspace could not be read at '/tmp/v12-worker-manager-td_nwnj4/workspace-store/attempt-1/…: 'No such file or directory'; an identity is not invented for a root this manager cannot see
+
+======================================================================
+ERROR: test_replay_and_restart_never_reset_the_deadline (tests.job_manager.test_serving_renewal.ServingPermission.test_replay_and_restart_never_reset_the_deadline)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/baton-serving-envelope-347778/v12/python/src/baton_v12/worker_manager/workspaces.py", line 7035, in governed_resource_identity
+    found = os.stat(root)
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/v12-worker-manager-kjav3zdh/workspace-store/attempt-1/workspace'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/tmp/baton-serving-envelope-347778/v12/python/tests/job_manager/test_serving_renewal.py", line 92, in test_replay_and_restart_never_reset_the_deadline
+    token = self.acquire()
+  File "/tmp/baton-serving-envelope-347778/v12/python/tests/job_manager/test_serving_renewal.py", line 61, in acquire
+    governance.reserve(self.store, row, operation=operation)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/baton-serving-envelope-347778/v12/python/src/baton_v12/worker_manager/workspaces.py", line 3975, in reserve
+    ordinary.identity(attempt))
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/tmp/baton-serving-envelope-347778/v12/python/src/baton_v12/worker_manager/tokens.py", line 1700, in <lambda>
+    lambda attempt: governed_workspace_identity(
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        control, attempt, mounted=mounted))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/baton-serving-envelope-347778/v12/python/src/baton_v12/worker_manager/tokens.py", line 1640, in governed_workspace_identity
+    argued = workspaces.governed_resource_identity(
+        control, attempt["runtime_attempt_id"], mounted=mounted)
+  File "/tmp/baton-serving-envelope-347778/v12/python/src/baton_v12/worker_manager/workspaces.py", line 7037, in governed_resource_identity
+    _refuse(f"attempt {name_value(assignment_id)}'s governed workspace could not "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"be read at {name_value(root)}: {fault.strerror or fault!r}; an "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"identity is not invented for a root this manager cannot see")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/baton-serving-envelope-347778/v12/python/src/baton_v12/worker_manager/workspaces.py", line 4880, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: attempt 'attempt-1''s governed workspace could not be read at '/tmp/v12-worker-manager-kjav3zdh/workspace-store/attempt-1/…: 'No such file or directory'; an identity is not invented for a root this manager cannot see
+
+======================================================================
+FAIL: test_closed_admission_competes_inside_acquisition (tests.job_manager.test_serving_renewal.ServingPermission.test_closed_admission_competes_inside_acquisition)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/baton-serving-envelope-347778/v12/python/src/baton_v12/worker_manager/workspaces.py", line 7035, in governed_resource_identity
+    found = os.stat(root)
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/v12-worker-manager-xikeku20/workspace-store/attempt-1/workspace'
+
+During handling of the above exception, another exception occurred:
+
+baton_v12.contracts.errors.ContractRefusal: attempt 'attempt-1''s governed workspace could not be read at '/tmp/v12-worker-manager-xikeku20/workspace-store/attempt-1/…: 'No such file or directory'; an identity is not invented for a root this manager cannot see
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/tmp/baton-serving-envelope-347778/v12/python/tests/job_manager/test_serving_renewal.py", line 110, in test_closed_admission_competes_inside_acquisition
+    with self.assertRaisesRegex(ContractRefusal, 'admission is closed'):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "admission is closed" does not match "attempt 'attempt-1''s governed workspace could not be read at '/tmp/v12-worker-manager-xikeku20/workspace-store/attempt-1/…: 'No such file or directory'; an identity is not invented for a root this manager cannot see"
+
+======================================================================
+FAIL: test_exhausted_or_regressed_clock_cannot_acquire (tests.job_manager.test_serving_renewal.ServingPermission.test_exhausted_or_regressed_clock_cannot_acquire) (instant=-1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/baton-serving-envelope-347778/v12/python/src/baton_v12/worker_manager/workspaces.py", line 7035, in governed_resource_identity
+    found = os.stat(root)
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/v12-worker-manager-te72pjpf/workspace-store/attempt-1/workspace'
+
+During handling of the above exception, another exception occurred:
+
+baton_v12.contracts.errors.ContractRefusal: attempt 'attempt-1''s governed workspace could not be read at '/tmp/v12-worker-manager-te72pjpf/workspace-store/attempt-1/…: 'No such file or directory'; an identity is not invented for a root this manager cannot see
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/tmp/baton-serving-envelope-347778/v12/python/tests/job_manager/test_serving_renewal.py", line 118, in test_exhausted_or_regressed_clock_cannot_acquire
+    with self.assertRaisesRegex(ContractRefusal, 'exhausted or its clock is ambiguous'):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "exhausted or its clock is ambiguous" does not match "attempt 'attempt-1''s governed workspace could not be read at '/tmp/v12-worker-manager-te72pjpf/workspace-store/attempt-1/…: 'No such file or directory'; an identity is not invented for a root this manager cannot see"
+
+======================================================================
+FAIL: test_exhausted_or_regressed_clock_cannot_acquire (tests.job_manager.test_serving_renewal.ServingPermission.test_exhausted_or_regressed_clock_cannot_acquire) (instant=4740)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/baton-serving-envelope-347778/v12/python/src/baton_v12/worker_manager/workspaces.py", line 7035, in governed_resource_identity
+    found = os.stat(root)
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/v12-worker-manager-te72pjpf/workspace-store/attempt-1/workspace'
+
+During handling of the above exception, another exception occurred:
+
+baton_v12.contracts.errors.ContractRefusal: attempt 'attempt-1''s governed workspace could not be read at '/tmp/v12-worker-manager-te72pjpf/workspace-store/attempt-1/…: 'No such file or directory'; an identity is not invented for a root this manager cannot see
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/tmp/baton-serving-envelope-347778/v12/python/tests/job_manager/test_serving_renewal.py", line 118, in test_exhausted_or_regressed_clock_cannot_acquire
+    with self.assertRaisesRegex(ContractRefusal, 'exhausted or its clock is ambiguous'):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "exhausted or its clock is ambiguous" does not match "attempt 'attempt-1''s governed workspace could not be read at '/tmp/v12-worker-manager-te72pjpf/workspace-store/attempt-1/…: 'No such file or directory'; an identity is not invented for a root this manager cannot see"
+
+======================================================================
+FAIL: test_exhausted_or_regressed_clock_cannot_acquire (tests.job_manager.test_serving_renewal.ServingPermission.test_exhausted_or_regressed_clock_cannot_acquire) (instant=4800)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/baton-serving-envelope-347778/v12/python/src/baton_v12/worker_manager/workspaces.py", line 7035, in governed_resource_identity
+    found = os.stat(root)
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/v12-worker-manager-te72pjpf/workspace-store/attempt-1/workspace'
+
+During handling of the above exception, another exception occurred:
+
+baton_v12.contracts.errors.ContractRefusal: attempt 'attempt-1''s governed workspace could not be read at '/tmp/v12-worker-manager-te72pjpf/workspace-store/attempt-1/…: 'No such file or directory'; an identity is not invented for a root this manager cannot see
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/tmp/baton-serving-envelope-347778/v12/python/tests/job_manager/test_serving_renewal.py", line 118, in test_exhausted_or_regressed_clock_cannot_acquire
+    with self.assertRaisesRegex(ContractRefusal, 'exhausted or its clock is ambiguous'):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "exhausted or its clock is ambiguous" does not match "attempt 'attempt-1''s governed workspace could not be read at '/tmp/v12-worker-manager-te72pjpf/workspace-store/attempt-1/…: 'No such file or directory'; an identity is not invented for a root this manager cannot see"
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.053s
+
+FAILED (failures=4, errors=4)

@@ -500,6 +500,83 @@ SUPERVISED_MODULES = ({
     "reason": "Requires the reviewed supervisor, preloaded immutable image and reserved cleanup; ordinary execution is not selected.",
 },)
 
+# W384870 R2 -- the INPUTS OUTSIDE `v12/` that the supported run consumes.
+#
+# The source identity a run reports (`tools/source_identity.py`) hashes the
+# changed bytes under `v12/`; `HEAD` binds the committed rest. But the suite
+# also EXECUTES, IMPORTS and READS files that live in Work records: the
+# reviewed supervisor, the captured image contexts a fixture puts on its import
+# path, the proposed contracts the role tests validate, the manifest vectors
+# and schemas. HEAD binds their committed versions only; an edited or untracked
+# input at one of these paths would otherwise change what a run tested without
+# changing its identity. So they are DECLARED here, by exact path, and the
+# identity hashes their bytes as they are in the checkout (tracked, modified or
+# untracked alike; gitignored files such as `__pycache__` excluded). A declared
+# input that is absent refuses the identity, and therefore the run.
+#
+# Declare the file or the smallest directory actually consumed -- an import
+# path is a directory, a document is a file -- never a whole dossier: the
+# records also hold the evidence runs produce, and that is exactly what must
+# stay OUT of the identity. `tests.tools.test_parallel_runner` sweeps the test
+# tree for record paths and fails when one is neither declared here nor
+# listed there as synthetic; the supervisor is derived from SUPERVISED_MODULES
+# above, not repeated.
+_LAUNCH_MISMATCH = "work/records/2026/09/finding-v12-worker-launch-version-mismatch"
+_WORKER_CONTRACT = ("work/records/2026/08/finding-v12-isolated-agent-workers/findings/"
+                    "finding-v12-worker-contract/findings")
+_ADMISSION_PLAN = ("work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/"
+                   "finding-template-adapter-admission-plan")
+CONSUMED_INPUTS = (
+    # import paths and executed programs
+    {"path": _LAUNCH_MISMATCH + "/instance-201492/context/worker",
+     "consumers": ("tests.manager.test_importing_fixture", "tests.manager.test_fixture_dispatch")},
+    {"path": _LAUNCH_MISMATCH + "/instance-201492/context/Dockerfile.fixture",
+     "consumers": ("tests.manager.test_fixture_dispatch",)},
+    {"path": _LAUNCH_MISMATCH + "/instance-201492/verify_lifecycle.py",
+     "consumers": ("tests.manager.test_w197661_verifier",)},
+    {"path": _LAUNCH_MISMATCH + "/instance-201492/compose_lifecycle.py",
+     "consumers": ("tests.manager.test_w197661_verifier (imported by verify_lifecycle)",)},
+    {"path": _LAUNCH_MISMATCH + "/instance-200564/context/worker",
+     "consumers": ("tests.manager.test_proposing_fixture",)},
+    {"path": "work/records/2026/09/finding-v12-single-implementation-proof/baseline.py",
+     "consumers": ("tests.manager.shutdown_fixture", "tests.manager.test_authoring_enforcement",
+                   "tests.manager.test_authoring_manager_guard")},
+    # documents read
+    {"path": _LAUNCH_MISMATCH + "/instance-200564/bootstrap_inputs.json",
+     "consumers": ("tests.manager.test_importing_fixture",)},
+    {"path": _LAUNCH_MISMATCH + "/instance-200564/install_inputs.json",
+     "consumers": ("tests.manager.test_importing_fixture",)},
+    {"path": _LAUNCH_MISMATCH + "/instance-200564/task.json",
+     "consumers": ("tests.manager.test_proposing_fixture",)},
+    {"path": _ADMISSION_PLAN + "/CAPABILITY.synthetic.json",
+     "consumers": ("tests.job_manager.test_role_capability",)},
+    {"path": _ADMISSION_PLAN + "/ROLE-CONTRACT.proposed.json",
+     "consumers": ("tests.job_manager.test_role_contract",)},
+    {"path": _WORKER_CONTRACT + "/finding-worker-control-api-manifests/evidence/vectors.json",
+     "consumers": ("tests.manager.verification_fixtures and the manifest, workspace, secrets, image, "
+                   "container, output, driver, stage-execution, review-driver and next-run cases",)},
+    {"path": _WORKER_CONTRACT + "/finding-worker-control-api-manifests/schema/worker-control-1.0.schema.json",
+     "consumers": ("tests.manager.test_frozen",)},
+    {"path": _WORKER_CONTRACT + "/finding-acp-agent-boundary/schema/agent-session-1.0.schema.json",
+     "consumers": ("tests.manager.test_frozen",)},
+    {"path": ("work/records/2026/08/finding-v12-isolated-agent-workers/findings/"
+              "finding-v12-assignment-state-machine/evidence/test_assignment_state_model.py"),
+     "consumers": ("tests.authority.test_catalog",)},
+    {"path": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-160959-composed.json",
+     "consumers": ("tests.tools.test_correction_restart",)},
+)
+
+
+def consumed_inputs():
+    """Every repository-relative input outside `v12/` the supported run consumes: the
+    declared paths plus each supervised module's supervisor, sorted, unique."""
+    found = {entry["path"] for entry in CONSUMED_INPUTS}
+    for entry in SUPERVISED_MODULES:
+        prefix, _, relative = entry["supervisor"].partition(":")
+        if prefix == "baton":
+            found.add(relative)
+    return sorted(found)
+
 STATUS_EVIDENCE_MODULE = "tests.tools.test_stage_execution_status_hardening"
 STATUS_EVIDENCE_VARIABLE = "BATON_STATUS_HARDENING_EVIDENCE"
 

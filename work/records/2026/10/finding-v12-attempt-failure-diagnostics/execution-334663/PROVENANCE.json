@@ -1,0 +1,142 @@
+{
+  "schema": "baton.w333486-execution-provenance/3",
+  "work": "W333486",
+  "claim": 334663,
+  "author": "baton.claude",
+  "role": "impl",
+  "dossier": "work/records/2026/10/finding-v12-attempt-failure-diagnostics",
+  "base": "a9f4fa4da2323a357ae15aefbc5d7d22d41487b6",
+  "base_why": "The human checkpoint that integrated the accepted authoring-enforcement correction (owner close334628 satisfying W333735). PLAN names it as the new preparation base.",
+  "run_id": "attempt-diagnostics-w333486-334663",
+  "accepted": false,
+  "state": "prepared-not-executed",
+  "start_authorized": false,
+  "start_selected": false,
+  "supersedes": [
+    {
+      "packet": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/execution-333504",
+      "preserved": true,
+      "preserved_seal": "bca87e931532560d6feebcaff36f59be82592841550d09807ad88f00c811fcf3"
+    },
+    {
+      "packet": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/execution-333707",
+      "preserved": true,
+      "preserved_seal": "a0414adb994b5bf354aa728d185bec8de6adb99954b8f54a417cc4b6b5246829",
+      "accepted_as_preparation": "review-2026-10-19T17-00-00Z.md verified 19 members and independently passed pins, hold refusal and disposable stage/bootstrap/bind"
+    }
+  ],
+  "supersedes_why": "Both earlier packets pin the old unenforced supervisor and are unlaunchable regardless of their preparation acceptance. No hash of either was edited and neither start_authorized flag was flipped. execution-333707/HOLD.md is historical: the blocker it records is closed.",
+  "what_changed": [
+    "Rebased to the accepted enforcement base a9f4fa4d; 113 pinned manager files, up from 112, the new one being tools/authoring_enforcement.py.",
+    "Binds the accepted authoring controller explicitly: authoring_controller in the pins, checked by prepare.py and verify-inputs.py against both the pinned manager source and the base, because the controller's own verify_controller requires exactly that.",
+    "bind now writes packet/AUTHORING-COMMAND.json with the ENFORCED invocation, because baseline_bindings.py is unchanged at this base and its generated commands.json start still names the unenforced baseline.py supervisor.",
+    "TASK revalidated against the committed intake.py/attempts.py changes: the runtime identity now resolves from the token's bound container rather than the attempt row; a replayed reclaim that observes an exact absence issues no effect; a new held outcome covers a ceased token-bound runtime whose attachment is unresolved; and Authority-fenced cancellation is a SECOND terminating component the composed cause must attribute.",
+    "Gate adds tests.manager.test_authoring_enforcement, because this candidate edits intake.py and attempts.py which that module now covers. Ten existing modules, 1124 tests, 14.230s, leaving about 15.8s of the fixed 30s ceiling for the two new modules.",
+    "HOLD.md is replaced by ENFORCEMENT.md: the prerequisite is closed, so the gate is now an unselected start rather than a blocker, and prepare.py stage requires --acknowledge-unselected-start.",
+    "Decision snapshots refreshed, adding the enforcement review and integration record and dropping the sibling blocker evidence whose prerequisite is closed."
+  ],
+  "enforcement": {
+    "document": "ENFORCEMENT.md",
+    "prerequisite": "W333735",
+    "closed_by": "owner close334628; human checkpoint a9f4fa4da2323a357ae15aefbc5d7d22d41487b6",
+    "controller": {
+      "relative": "tools/authoring_enforcement.py",
+      "sha256": "2da6eb36b398d730c8cc07a9df0b604de678a3fd994d5019097fa023addfb88f",
+      "pinned_in_manager_source": true
+    },
+    "composer_start_is_unenforced": {
+      "composer": "work/records/2026/09/finding-v12-single-implementation-proof/baseline_bindings.py",
+      "composer_sha256": "09fbf3c59820231b7199e24aa1cf64eee93f6ea2e60f3477fed5ca909e5fc379",
+      "location": "line 721",
+      "observed": "start = [python, -B, <supervisor>/baseline.py, --packet, <PACKET.json>, --incarnation, <run_id>]",
+      "why_wrong": "baseline.py:1207 calls serve with no reclaim argument; manager.py:833 declares reclaim=None and only runs a pass when one is supplied. The accepted entry point is python -m tools.authoring_enforcement --packet <PACKET.json>, run from the staged source.",
+      "disposition": "REPORTED for classification, not patched. Correcting the composer is host product work this Work does not own, and every later authoring packet inherits the defect until it is corrected.",
+      "mitigation": "prepare.py bind writes packet/AUTHORING-COMMAND.json beside commands.json; PREPARED.json carries composer_start_is_unenforced true."
+    },
+    "lease_disclosure": "tokens.LIFETIME_SECONDS is still 900 and production renewal remains W333485's unfinished work. The controller makes the initial lease ENFORCED rather than ignored; it does not extend it. The 3600 provider and 4800 supervisor ceilings are requested bounds, not a promise of a 3600-second authoring run.",
+    "withdrawn_claims": [
+      "execution-333504/OPERATOR.md: that the native pilot's 903-second termination transferred to the authoring vehicle. It did not; that vehicle had no reclaim at all.",
+      "execution-333707/HOLD.md: that the lease is unenforced on the authoring vehicle. True of that vehicle, and no longer true at this base."
+    ]
+  },
+  "checkpoint": {
+    "paths": {},
+    "why": "This correction starts from committed bytes alone. No preserved candidate buffer and no restore step: the nominated source is read and never written back into the private checkout."
+  },
+  "input": {
+    "manager_files": 113,
+    "manager_roots": [
+      "v12/python/src/baton_v12",
+      "v12/python/tools"
+    ],
+    "supervisor_files": 3,
+    "supervisor_source": "work/records/2026/09/finding-v12-single-implementation-proof",
+    "overlay": "none",
+    "excluded_working_tree_changes": [
+      "v12/.dockerignore",
+      "v12/worker/Dockerfile.claude",
+      "v12/python/src/baton_v12/verification_context.py",
+      "v12/python/tests/manager/test_verification_context.py",
+      "v12/python/tests/manager/test_claude_agent.py"
+    ],
+    "excluded_why": "W321776's Stage-A slice, owned by another Work and another claim. Not selected, not staged, not overlaid, not referenced by the composed submission."
+  },
+  "execution": {
+    "job_submitted": false,
+    "attempts": 0,
+    "runtimes": 0,
+    "engine_invoked": false,
+    "provider_invoked": false,
+    "credential_read": false,
+    "falsification_rerun": false,
+    "actual_identities": "none; every identity in this packet is a PROPOSED generated identity. The preflight's own authority uuid and packet digest are facts about the throwaway preflight, not proposed production identities: bind derives the Work id from the bootstrap's generated uuid, which travels into the submission."
+  },
+  "pilot": {
+    "instance": "/home/sl/baton-instances/native-coordination-pilot-w321608-1",
+    "disposition": "preserved; not read, not mutated, not retried, not redeployed by this packet"
+  },
+  "unverified_baseline_reports": {
+    "why": "Recorded by review as the author's explicitly unverified baseline observations. No cleanup, fix or test weakening is selected for either, and neither is attributable to this candidate.",
+    "items": [
+      "tests.manager.test_boundary_inventory does not pass at base: 328 tests, 28 failures, 1 error, zero skips, 49.469s measured alone on the previous base's bytes.",
+      "tests.tools.test_packaging's subcommand case fails on this host because it holds the source stack_command.COMMANDS table against the installed bundle, built at 1e576ff2 before record and disposition joined that table. Source command-table proof is NOT proof that an eventual rebuilt bundle carries a new verb; that deployment obligation stays explicit in TASK.md."
+    ]
+  },
+  "measured_gate_requirement": {
+    "module": "tests.manager.test_authoring_enforcement",
+    "needs": "work/records/2026/09/finding-v12-single-implementation-proof present at the checkout root; it spawns a real supervisor and resolves that directory from Path(__file__).resolve().parents[4]",
+    "measured_absent": "33 tests, 1 error, 0.439s \u2014 the child cannot import baseline, so the partial-output file is never written",
+    "measured_present": "33 tests, all passing, 2.194s",
+    "disposition": "pinned in read_from_checkout_at_base and stated in ENFORCEMENT.md so nobody rediscovers it inside a provider turn"
+  },
+  "sibling_overlap": {
+    "work": "W333485",
+    "state": "separately allocated to baton.codx for its own fresh preparation at334644; no diagnostics dependency on its completion",
+    "declared_by_sibling": [
+      "v12/python/tools/job_manager.py",
+      "v12/python/src/baton_v12/job_manager/manager.py"
+    ],
+    "declared_here": [
+      "v12/python/src/baton_v12/worker_manager/documents.py",
+      "v12/python/src/baton_v12/worker_manager/attempts.py",
+      "v12/python/src/baton_v12/worker_manager/intake.py",
+      "v12/python/src/baton_v12/worker_manager/diagnostics.py",
+      "v12/python/src/baton_v12/job_manager/delegation.py",
+      "v12/python/src/baton_v12/job_manager/documents.py",
+      "v12/python/src/baton_v12/job_manager/projection.py",
+      "v12/python/tools/attempt_diagnostics.py",
+      "v12/python/tools/stack_command.py"
+    ],
+    "intersection_with_sibling": [],
+    "intersection_with_accepted_enforcement": [
+      "v12/python/src/baton_v12/worker_manager/intake.py",
+      "v12/python/src/baton_v12/worker_manager/attempts.py"
+    ],
+    "accepted_enforcement_rule": "decisions/enforcement-integration.md requires any overlapping intake.py/attempts.py candidate to be rebased onto the integrated bytes with independent review, never overwritten and never silently conflict-resolved. TASK.md carries that as a boundary: this candidate adds attribution and preserves the accepted cessation semantics.",
+    "behavioural_dependency": "none in either direction on the sibling. Existing records and the explicit-unknown fallback are independent inputs; once renewal is integrated an attempt that is never reclaimed simply holds no reclaim record, which this correction must report as unknown naming the absent evidence while still reporting whatever the token journal holds."
+  },
+  "review": {
+    "independent_review": "An independent reviewer consumes this preparation packet through v11. Execution awaits an exact separate selection. There is no automatic integration and no self-acceptance.",
+    "human_checkpoint": "pending; the owner's Git checkpoint for the accepted combined correction is carried in the parent PLAN and is not fulfilled by this packet"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "command": [
+    "timeout",
+    "60",
+    "python3",
+    "-B",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.tools.test_startup_prerequisites"
+  ],
+  "seconds": 0.40118934600104694,
+  "exit_code": 0,
+  "simulation": "real local filesystem/inotify; injected syscall timing/failures, no engine/provider/install"
+}

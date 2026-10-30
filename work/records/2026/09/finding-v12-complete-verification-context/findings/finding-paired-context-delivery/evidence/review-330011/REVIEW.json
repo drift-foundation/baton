@@ -1,0 +1,78 @@
+{
+  "manifest_sha256": "356e8ef42295dcd5d7a966fb2a050bcba1d2991c9b074b945fa4572dd6d40fb0",
+  "members": 18,
+  "steps": [
+    {
+      "step": "pins",
+      "exit": 0,
+      "seconds": 0.025131369002338033,
+      "stdout": "{\"base\": \"bbdacb5d38f6cf2d2461e9da103d28f9ab30cc6c\", \"manager_files\": 112, \"run\": \"paired-context-w321776-329953\", \"state\": \"prelaunch-input-pins-match\", \"task_inputs\": 13, \"verification_names\": 10}\n",
+      "stderr": ""
+    },
+    {
+      "step": "stage",
+      "exit": 0,
+      "seconds": 0.12868858400179306,
+      "stdout": "staged; bootstrap separately with --no-repositories, then bind\n",
+      "stderr": ""
+    },
+    {
+      "step": "bootstrap",
+      "exit": 0,
+      "seconds": 0.5884501320033451,
+      "stdout": "repositories  not prepared: no source checkout was found or named, so the deployment has no target, workspace or worker sources yet and will schedule without reconciling\nauthority 282a72ec...    generated for this instance\njob   none; no Work, grant or placeholder was created\nconfiguration /tmp/w321776-review330011-js7c5729/instance/instance/deployment.json\ncapacity      {\"job_affinity\": {}, \"jobs\": 0, \"note\": \"this instance binds no Job and configures no execution capacity; it serves a real idle scheduler and publisher over empty stores, and a worker, a Work, a declared base, a canonical target and a producer are supplied together when a Job is created\", \"schema\": \"baton.v12.stage-execution-deployment/2\", \"targets\": [], \"workers_by_role\": {\"implementation\": [], \"integration\": [], \"review\": []}}\nno Job was submitted and nothing was executed\ninstance      /tmp/w321776-review330011-js7c5729/instance/instance/instance.json\nruntime       81 files, digest c1ef3d23394916c8...\nstores        /tmp/w321776-review330011-js7c5729/instance/instance/db\nrepository    /tmp/w321776-review330011-js7c5729/instance/instance/repo\njustfile      /tmp/w321776-review330011-js7c5729/instance/instance/justfile\n\nThe deployment is operated from the destination, and needs nothing else:\n\n    cd /tmp/w321776-review330011-js7c5729/instance/instance && just status\n    just --justfile /tmp/w321776-review330011-js7c5729/instance/instance/justfile start        # from anywhere\n\nor the command directly, which is the same program:\n\n    /tmp/w321776-review330011-js7c5729/instance/instance/distro/baton-v12-stack status --instance /tmp/w321776-review330011-js7c5729/instance/instance/instance.json\n",
+      "stderr": ""
+    },
+    {
+      "step": "bind",
+      "exit": 0,
+      "seconds": 0.3606506830037688,
+      "stdout": "prepared and validated; no job submitted, no engine/provider invoked\n",
+      "stderr": ""
+    }
+  ],
+  "bounds": {
+    "cleanup_seconds": 60,
+    "implementer_invocations": 1,
+    "retry": false,
+    "total_seconds": 4800,
+    "turn_seconds": 3600
+  },
+  "policy": {
+    "automatic_retry": false,
+    "implementer_invocations": 1,
+    "note": "the caps the admission gate enforces; W239528",
+    "provider_turn_seconds": 3600,
+    "schema": "baton.single-implementation-execution-policy/1",
+    "verification_command_seconds": 30
+  },
+  "submission": {
+    "jobs": [
+      {
+        "execution_limits": {
+          "provider_turn_seconds": 3600,
+          "verification_command_seconds": 30
+        },
+        "input_digest": "sha256:8ccfd605cad49e9cb87d54ae3da13eea3b86361fb3eb5b5edb28515c0999c65f",
+        "job_id": "job-paired-context-w321776-329953",
+        "policy_digest": "sha256:7057bdd0b1ef4f1c272ea22e357cadb2cac839fd7a10c45da8f3d72b7c9b9e11",
+        "stages": [
+          {
+            "depends_on": [],
+            "kind": "implementation",
+            "profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+            "profile_name": "claude-fresh-implementation",
+            "work_id": "282a72ec-W1"
+          }
+        ],
+        "terminal_policy": "report-and-hold",
+        "test_scope": []
+      }
+    ],
+    "schema": "baton.v12.job-submission/2",
+    "submission_id": "paired-context-w321776-329953-submission"
+  },
+  "gate_exit": 1,
+  "gate_expected_missing_modules": true,
+  "root": "/tmp/w321776-review330011-js7c5729/instance"
+}

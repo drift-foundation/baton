@@ -1,0 +1,11 @@
+{
+  "command": [
+    "/home/sl/.local/state/baton-v12-venv/bin/python",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.job_manager.test_native_stop_restart"
+  ],
+  "seconds": 0.4638094149995595,
+  "exit": 1
+}

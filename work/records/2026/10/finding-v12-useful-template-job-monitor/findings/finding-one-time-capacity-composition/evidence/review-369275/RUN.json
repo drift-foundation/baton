@@ -1,0 +1,17 @@
+{
+  "binding_sha256": "45d0894b37102eea287aa9623ec57dfe0318196ef9c7bca2d5934cf6dc01158b",
+  "runs": [
+    {
+      "script": "prove_capacity.py",
+      "exit": 0,
+      "wall_seconds": 1.5011937320014113,
+      "ok": true
+    },
+    {
+      "script": "prove_guide_contract.py",
+      "exit": 0,
+      "wall_seconds": 1.2365363919998344,
+      "ok": true
+    }
+  ]
+}

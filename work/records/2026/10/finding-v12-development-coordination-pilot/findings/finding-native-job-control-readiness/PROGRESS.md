@@ -1,0 +1,9 @@
+# Research progress — W378034
+
+## 2026-10-28 — baton.codxpc claim E378038
+
+Read canonical state then successful standalone claim; complete work-events through E378038 and T378034 through M378034, no pagination. Full bound FINDING/PLAN and accepted W376804 READINESS/COMMANDS/review consumed. Operational finding: PROGRESS.md initially absent (ENOENT); initialized this new attributable record. Own only new dossier research/probes/evidence, no product edits. Selected source remains8876bf950ff1f8ab8767ce9786df268cc9d767c6; targeted source snapshot and hashes retained in evidence/claim-378038, extracted from Git objects without Git mutation. Initial reconnaissance of current-tree names is not pinned behavioral evidence; all conclusions will revalidate against selected source. No engine/provider/build/install/retained-instance action or live selection. Verification spending initially zero; inherited evidence retains its own accounting.
+
+## Research disposition — completed, pending independent review
+
+CONTROL-378038.md maps installed surfaces and owner APIs; finite4800/9960/one-pair control remains unsupported. Found existing deployment correction_policy=decline (W239533), proved suppression preserves verdict without successor act; this refines prior blanket absence wording but is not installed per-Job control. Native derived task-token lifetime is7320s for3600/900 settings, not an aggregate limit. Recommend one finite-control decision/allocation through existing W321608, retaining W371075/W371296 and installer ownership. No product/spec/graph changes or live selection. Pinned-source parser/policy probe passed, measured0.40522233600131585s cumulative current research verification. Historical evidence not rerun or reaccounted. Source manifest19 files verified. Independent reviewer receives report, script/results and manifest; no remaining research execution required.

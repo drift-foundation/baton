@@ -1,0 +1,29 @@
+{
+  "seconds": 0.0006297799991443753,
+  "results": {
+    "unwrapped": {
+      "serve_exit": 3,
+      "serve_stderr": "baton-worker: launch: /run/baton/launch.json selects 'baton.worker-exchange/1' without the 'baton.worker-launch/5' wrapper; this release speaks the file exchange through 'typed-adapter-file-exchange/1' and an unwrapped file-exchange launch is not one this worker executes\n",
+      "production_exit": 2,
+      "production_stderr": "",
+      "adapter_constructions": [],
+      "worker_capture_entries": []
+    },
+    "wrong_profile": {
+      "serve_exit": 3,
+      "serve_stderr": "baton-worker: launch: /run/baton/launch.json names wire profile 'unsupported' and this worker speaks 'typed-adapter-file-exchange/1'; a profile this program cannot name is a wire it cannot speak, and there is no negotiation\n",
+      "production_exit": 2,
+      "production_stderr": "",
+      "adapter_constructions": [],
+      "worker_capture_entries": []
+    },
+    "unknown_outer_member": {
+      "serve_exit": 3,
+      "serve_stderr": "baton-worker: launch: /run/baton/launch.json is exactly schema, wire_profile, payload; unexpected unexpected\n",
+      "production_exit": 2,
+      "production_stderr": "",
+      "adapter_constructions": [],
+      "worker_capture_entries": []
+    }
+  }
+}

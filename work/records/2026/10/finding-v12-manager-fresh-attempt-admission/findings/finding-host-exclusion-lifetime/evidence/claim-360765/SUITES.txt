@@ -1,0 +1,30 @@
+# red-to-green: the three new classes against candidate-360582's bytes
+FAIL:  test_another_instance_s_ports_cannot_admit_this_store_s_job   <- R18
+FAIL:  test_a_serving_lifetime_taken_during_a_borrow_survives_it     <- R19
+FAIL:  test_a_borrow_survives_a_serving_lifetime_ending_under_it     <- R19 reciprocal
+ERROR: test_the_last_holder_of_either_kind_closes_it                 <- R19, holders_of absent
+FAIL:  test_a_child_forked_while_the_mutex_is_held_can_still_borrow  <- R20, the child hung
+ERROR: test_a_child_inherits_no_holder_count                         <- R20, holders_of absent
+Ran 25 tests / FAILED (failures=4, errors=2)
+# the same 25 against this candidate: Ran 25 tests / OK
+
+# focused suite
+Ran 150 tests in 13.498s
+OK
+
+# whole job_manager package, three consecutive runs
+ERROR: test_the_native_factory_delivers_the_policy_to_both_stage_workers (tests.job_manager.test_native_permission.NativeStageComposition.test_the_native_factory_delivers_the_policy_to_both_stage_workers)
+Ran 1168 tests in 27.107s
+FAILED (errors=1)
+ERROR: test_the_native_factory_delivers_the_policy_to_both_stage_workers (tests.job_manager.test_native_permission.NativeStageComposition.test_the_native_factory_delivers_the_policy_to_both_stage_workers)
+Ran 1168 tests in 27.091s
+FAILED (errors=1)
+ERROR: test_the_native_factory_delivers_the_policy_to_both_stage_workers (tests.job_manager.test_native_permission.NativeStageComposition.test_the_native_factory_delivers_the_policy_to_both_stage_workers)
+Ran 1168 tests in 27.437s
+FAILED (errors=1)
+
+# test_bootstrap + test_scheduler_trace + test_single_worker + test_custody
+#   + test_workspaces + job_manager.test_store: Ran 827 in 96.775s, one failure,
+#   test_single_worker...test_a_real_observing_status_run_mutates_no_durable_state,
+#   pre-existing on canonical HEAD (../../evidence/claim-359459/PREEXISTING-SINGLE-WORKER.txt)
+# four inventory suites: 116 failures, identical to the canonical base; comm -13 empty

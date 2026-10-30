@@ -1,0 +1,18 @@
+{
+  "pins": {
+    "v12/worker/adapter_refusal.py": "97f6d9f5edee922017ead4c6d6b116382e56a398c59aa9262f959033d45a3e35",
+    "v12/worker/claude_agent.py": "017257c0cf50f02c01b2174eb7786df073b6bdf81b6819ad1cb4cde034fa57d8",
+    "v12/python/tests/manager/test_adapter_declaration.py": "75d7e2f13812e35acfdcd6ca94b8df322e299e3dfc016b1f6b791ef575e0304d"
+  },
+  "command": [
+    "timeout",
+    "90",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_adapter_declaration",
+    "tests.manager.test_claude_agent"
+  ],
+  "returncode": 0,
+  "seconds": 15.90800398600004
+}

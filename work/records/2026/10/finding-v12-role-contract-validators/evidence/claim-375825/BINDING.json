@@ -1,0 +1,57 @@
+{
+  "schema": "baton.w371294.claim-binding/1",
+  "work": "2b077949-W371294",
+  "claim": 375825,
+  "authorization": "owner W371072 E371253; decomposition E371293; first finite slice named in T371294",
+  "base": "f36bcd75ed22430355efe1b274b8f236cb591f6b",
+  "specification": {
+    "PROPOSAL.md": "ad0f2171f06f8da9e6e3c2784e50cab91d27f94c4d0727014e4520b00aa0b339",
+    "INVENTORY-371102.json": "59eac72bce391142a6d05734bb6a910eb88a5f011a87ff534a8e0c2226a66a4c",
+    "ROLE-CONTRACT.proposed.json": "1c0809092a5798bbff6e2b0425a5cbdcb363cbdc8d2c72e78ff9d18ad56a557c",
+    "note": "both pins re-hashed at claim and MATCH the FINDING and the approval"
+  },
+  "canonical_digests": {
+    "role_contract_baseline": "sha256:21b78036947430e3ae073a04fd5237b10a844471207a52cba9ea6186acdffdaf",
+    "reproduced_from": "the approved ROLE-CONTRACT.proposed.json and this module's composed baseline, both through baton_v12.contracts.digest",
+    "canonical_bytes": 1247,
+    "capability_synthetic_checked": "sha256:4d6a3391facb990ac61090ab5e6b114203b27a27faeca1083458c7bd8f649601 reproduces too, but the capability document is NOT implemented in this slice"
+  },
+  "candidate": {
+    "v12/python/src/baton_v12/job_manager/role_contract.py": "691ed3a0e653a9705f181790c9565706902bd3958f2973e49e85cff586ca6967",
+    "v12/python/src/baton_v12/job_manager/templates.py": "f0f08e6318b2207bacbf5737f8324ca3a868b5673e58438333151bc467158ba6",
+    "v12/python/tests/job_manager/test_role_contract.py": "a853893b4fe3d091aa4a59f366dfdeb797a56021921b76a4c7fd9e8b91497d66",
+    "v12/python/tests/job_manager/test_templates.py": "696b99bda60f1a2f265f60ccf4583850c7ab37e07866dc6076bcae3e90be59af"
+  },
+  "new_at_base": [
+    "v12/python/src/baton_v12/job_manager/role_contract.py",
+    "v12/python/tests/job_manager/test_role_contract.py"
+  ],
+  "changed_test_reasons": {
+    "tests/job_manager/test_templates.py": "two assertions named the registered set as exactly one template. A second revision is the approved carrier change and this module's own stated shape ('a second revision is a second entry in the table'). Both were updated under standing test authority to name the COMPLETE set of two, so a third entry still fails; one also now drives the new entry's immutability."
+  },
+  "verification": {
+    "tests.job_manager.test_role_contract": "74 tests OK (new: frozen positive vector, exact bounds, every refusal row, the bounded reader, the registry)",
+    "tests.job_manager.test_templates + test_creation": "198 tests OK",
+    "tests.tools.test_creation_ports + test_job_task_delivery + test_connected_creation": "143 tests OK",
+    "tests.manager.test_contracts_inventory + test_frozen": "33 tests OK",
+    "tests/job_manager full discovery": "1449 tests, 3 errors in test_native_permission, test_native_stop_restart and test_serving_renewal; all three reproduce with pristine committed templates.py restored and role_contract.py removed, so none is attributable to this candidate"
+  },
+  "not_mine_in_tree": {
+    "note": "concurrent uncommitted work from other owners, named so this candidate cannot be read as including it",
+    "paths": [
+      "v12/DESIGN.md (the owner-approved SCH-1a delta, fragility-assessment record)",
+      "v12/python/src/baton_v12/worker_manager/{schema,tokens,workspaces,oci,source_boundary}.py",
+      "v12/python/src/baton_v12/worker_manager/stopped_settlement.py",
+      "v12/python/tests/manager/{test_boundary_inventory,test_claude_agent,test_oci,test_stopped_settlement,test_verifier_topology}.py",
+      "v12/worker/{claude_agent.py,Dockerfile.claude,verifier-layout-marker.json}"
+    ],
+    "read_only_dependency": "this candidate imports worker_manager.schema.OUTPUT_TYPES and worker_manager.sealing.DECLARED_OUTPUT_MEMBERS; schema.py is foreign-dirty and its diff moves SCHEMA_VERSION 18 to 19 only, leaving OUTPUT_TYPES untouched"
+  },
+  "not_in_this_slice": [
+    "the installed adapter-role-capability document, its qualification digest and any grant",
+    "stage-execution-deployment/3, role-contract-derivation/1 and job-template-resolution/2 carriers",
+    "the pre-creation admission predicate and the selector/serving recheck",
+    "the DeploymentDerivation._for_task whole-manifest correction",
+    "any DESIGN edit, deployment, provider, engine or live execution"
+  ]
+}

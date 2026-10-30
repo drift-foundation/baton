@@ -1,0 +1,35 @@
+..F.FF.....
+======================================================================
+FAIL: test_a_lifetime_BESIDE_a_permission_is_refused_by_the_acquisition (tests.job_manager.test_native_permission.NativeAcquisition.test_a_lifetime_BESIDE_a_permission_is_refused_by_the_acquisition)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w325959-354165/dis2/v12/python/tests/job_manager/test_native_permission.py", line 184, in test_a_lifetime_BESIDE_a_permission_is_refused_by_the_acquisition
+    with self.assertRaises(ContractRefusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+======================================================================
+FAIL: test_the_REAL_policy_feeds_the_REAL_reserve_and_the_token_takes_it (tests.job_manager.test_native_permission.NativeAcquisition.test_the_REAL_policy_feeds_the_REAL_reserve_and_the_token_takes_it)
+The whole chain: policy -> reserve -> acquire -> stored token.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w325959-354165/dis2/v12/python/tests/job_manager/test_native_permission.py", line 114, in test_the_REAL_policy_feeds_the_REAL_reserve_and_the_token_takes_it
+    self.assertEqual(token['seconds'], seconds)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 900 != 7320
+
+======================================================================
+FAIL: test_the_acquired_token_SURVIVES_PAST_900_and_is_still_bounded (tests.job_manager.test_native_permission.NativeAcquisition.test_the_acquired_token_SURVIVES_PAST_900_and_is_still_bounded)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w325959-354165/dis2/v12/python/tests/job_manager/test_native_permission.py", line 130, in test_the_acquired_token_SURVIVES_PAST_900_and_is_still_bounded
+    self.assertFalse(held['expired'],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+                     'a native token must outlive the old 900 default')
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not false : a native token must outlive the old 900 default
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.065s
+
+FAILED (failures=3)

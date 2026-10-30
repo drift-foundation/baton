@@ -1,0 +1,9 @@
+{
+  "state": "passed",
+  "provenance": "stdout of first standalone check-composition invocation; command tool wall0.190044340s, internal timer0.306005770s; different clocks are not interchangeable",
+  "seconds": 0.30600576999859186,
+  "accepted_hashes": 6,
+  "controller_refusals": 2,
+  "jobs": 0,
+  "attempts": 0
+}

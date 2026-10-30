@@ -1,0 +1,109 @@
+diff --git a/v12/python/src/baton_v12/worker_manager/failure_cause.py b/v12/python/src/baton_v12/worker_manager/failure_cause.py
+--- a/v12/python/src/baton_v12/worker_manager/failure_cause.py
++++ b/v12/python/src/baton_v12/worker_manager/failure_cause.py
+@@ -564,14 +564,15 @@
+     older record passes that record's own coordinate. The rule has four
+     branches and each is a different fact:
+ 
++    * THIS EXACT RECORD IS ARRIVING AGAIN -> the account already held is
++      returned and nothing is written, INCLUDING a delayed redelivery of a
++      revision something later superseded. Check this before value-only
++      deduplication: after A-B-A, replaying the first A must return that
++      original record, even though the current tip says the same thing.
+     * THE CURRENT ACCOUNT ALREADY SAYS THIS -> nothing changed and nothing is
+       written. This is what keeps a replaying reclaim from growing the chain
+       and it is asked of THE TIP, because "what this manager believes now" is
+       the tip and nothing else.
+-    * THIS EXACT RECORD IS ARRIVING AGAIN -> the account already held is
+-      returned and nothing is written, INCLUDING a delayed redelivery of a
+-      revision something later superseded. It does not become current: an
+-      observation taken before the current tip is older evidence.
+     * ANYTHING ELSE IS A NEW OBSERVATION and is appended at the next free
+       revision carrying `supersedes` -- both are kept and the tip is current.
+       A fresh sample that agrees with an older superseded revision lands here,
+@@ -617,27 +618,16 @@
+         correlation_id=correlation_id, effects=_effects(effects),
+         outcome=_outcome(outcome), cessation=OUTCOMES[outcome],
+         category=category, code=code, revision=0, supersedes=taken_after)
+-    # 1. THE CURRENT ACCOUNT ALREADY SAYS THIS, so there is nothing new to
+-    #    record. Asked of the TIP on the FACTS, deliberately ignoring which
+-    #    coordinate the arriving sample carries: a replaying reclaim that
+-    #    observes the same thing a third and a fourth time must not grow the
+-    #    chain towards its bound, and what it says is identical to what this
+-    #    manager already believes.
+-    if chain and _same_account(chain[-1][1], document):
+-        # THE ACCOUNT ALREADY HELD, returned as it was written and in the
+-        # same shape the writing branch answers. Nothing is added to it: a
+-        # replay that answered a differently-shaped document would make "was
+-        # this written now" visible to a caller that must not care.
+-        return chain[-1]
+-    # 2. THIS EXACT RECORD IS ARRIVING AGAIN. The whole chain is asked, not
+-    #    only its tip, so a delayed redelivery of a superseded revision is
+-    #    still recognised -- and it is asked through `_same_observation`, so
+-    #    recognising it requires the coordinate that record was taken under
+-    #    rather than only the facts it states. A FRESH sample agreeing with a
+-    #    superseded revision does not match here, which is R1's correction.
++    # 1. Exact replay preserves the original identity and document, including
++    #    when the current tip has equal facts after a fresh A-B-A sequence.
+     for operation_id, held in chain:
+         if _same_observation(held, document):
+             return operation_id, held
++    # 2. A fresh sample agreeing with the current tip adds no new facts.
++    #    Deduplicate it only after checking the explicit replay coordinate,
++    #    so repeated observations stay bounded without misattributing replay.
++    if chain and _same_account(chain[-1][1], document):
++        return chain[-1]
+     # 3. A NEW OBSERVATION, appended at the next free revision. It supersedes
+     #    THE TIP rather than whatever coordinate it arrived claiming: the
+     #    chain stays linear, so the reader's "the highest occupied revision is
+diff --git a/v12/python/tests/manager/test_attempt_failure_cause.py b/v12/python/tests/manager/test_attempt_failure_cause.py
+--- a/v12/python/tests/manager/test_attempt_failure_cause.py
++++ b/v12/python/tests/manager/test_attempt_failure_cause.py
+@@ -307,6 +307,47 @@
+         self.assertEqual(replayed["revision"], 1)
+         self.assertEqual(self.chain(), before)
+ 
++    def test_original_replay_returns_original_record_after_fresh_A_B_A(self):
++        first = self.outcome(outcome="uncertain-observation")
++        self.outcome(outcome="ceased-absent")
++        latest = self.outcome(outcome="uncertain-observation")
++        self.assertNotEqual(first[0], latest[0])
++        before = failure_cause.attempt_cessation_outcome_of(
++            self.store, ATTEMPT, "expiry-reclaim")
++        self.assertEqual(before["revision"], 2)
++        self.assertEqual([one["outcome"] for one in before["superseded"]],
++                         ["uncertain-observation", "ceased-absent"])
++        replay = self.outcome(outcome="uncertain-observation",
++                              observed_after=first[1]["supersedes"])
++        self.assertEqual(replay, first)
++        self.assertEqual(failure_cause.attempt_cessation_outcome_of(
++            self.store, ATTEMPT, "expiry-reclaim"), before)
++        # Fresh matching samples still deduplicate against the current tip.
++        self.assertEqual(self.outcome(outcome="uncertain-observation"), latest)
++        self.assertEqual(failure_cause.attempt_cessation_outcome_of(
++            self.store, ATTEMPT, "expiry-reclaim"), before)
++
++    def test_middle_replay_returns_middle_record_when_tip_has_equal_facts(self):
++        first = self.outcome(outcome="uncertain-observation")
++        middle = self.outcome(outcome="ceased-absent")
++        self.outcome(outcome="uncertain-observation")
++        latest = self.outcome(outcome="ceased-absent")
++        self.assertEqual(middle[1]["supersedes"], first[0])
++        before = failure_cause.attempt_cessation_outcome_of(
++            self.store, ATTEMPT, "expiry-reclaim")
++        self.assertEqual(before["revision"], 3)
++        self.assertEqual([one["outcome"] for one in before["superseded"]],
++                         ["uncertain-observation", "ceased-absent",
++                          "uncertain-observation"])
++        replay = self.outcome(outcome="ceased-absent",
++                              observed_after=middle[1]["supersedes"])
++        self.assertEqual(replay, middle)
++        self.assertEqual(failure_cause.attempt_cessation_outcome_of(
++            self.store, ATTEMPT, "expiry-reclaim"), before)
++        self.assertEqual(self.outcome(outcome="ceased-absent"), latest)
++        self.assertEqual(failure_cause.attempt_cessation_outcome_of(
++            self.store, ATTEMPT, "expiry-reclaim"), before)
++
+     def test_a_REDELIVERY_COORDINATE_is_OWNED_before_it_is_recorded(self):
+         """It is an operation identity or nothing, and it is bounded."""
+         for bad in (b"x", 7, True, "", "z" * (failure_cause.FIELD_BOUND + 1)):

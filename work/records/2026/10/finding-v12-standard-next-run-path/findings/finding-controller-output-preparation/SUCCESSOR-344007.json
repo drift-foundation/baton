@@ -1,0 +1,192 @@
+{
+  "bundle": "/tmp/baton-output-preparation-344007/bundle",
+  "changes": [
+    {
+      "after": "5dd0195f6958e32889cd30261f0d1de86283d6bd28c2353743ea198473fed795",
+      "before": "7fa243deaad910fe21baea9bc29be80c0081071088ab5625a4df342acadb4ba5",
+      "field": "selection.json/files/config/PACKET.json"
+    },
+    {
+      "after": "e19800ab83225e98cb8887879716f8084cf89d32392307d308527adc39e38bbd",
+      "before": "deae4e77fc3e0a01e988e2b26650068f7f46df4225c679f7c1388c8213858e6d",
+      "field": "selection.json/files/config/deployment.json"
+    },
+    {
+      "after": 61235,
+      "before": 61234,
+      "field": "selection.json/gid"
+    },
+    {
+      "after": "/var/lib/baton-managed-runs/w339626-custody-v3/home",
+      "before": "/var/lib/baton-managed-runs/w339626-custody-v2/home",
+      "field": "selection.json/home"
+    },
+    {
+      "after": "w339626-custody-v3",
+      "before": "w339626-custody-v2",
+      "field": "selection.json/selection"
+    },
+    {
+      "after": "/var/lib/baton-managed-runs/w339626-custody-v3",
+      "before": "/var/lib/baton-managed-runs/w339626-custody-v2",
+      "field": "selection.json/storage"
+    },
+    {
+      "after": 61235,
+      "before": 61234,
+      "field": "selection.json/uid"
+    },
+    {
+      "after": "/opt/baton-managed-entry/selections/w339626-custody-v3/tree/manager",
+      "before": "/opt/baton-managed-entry/selections/w339626-custody-v2/tree/manager",
+      "field": "tree/config/PACKET.json/code_boundary"
+    },
+    {
+      "after": "/var/lib/baton-managed-runs/w339626-custody-v3/instance/db/authority.sqlite3",
+      "before": "/var/lib/baton-managed-runs/w339626-custody-v2/instance/db/authority.sqlite3",
+      "field": "tree/config/PACKET.json/deployment/authority_store"
+    },
+    {
+      "after": "/opt/baton-managed-entry/selections/w339626-custody-v3/tree/config/deployment.json",
+      "before": "/opt/baton-managed-entry/selections/w339626-custody-v2/tree/config/deployment.json",
+      "field": "tree/config/PACKET.json/deployment/config_path"
+    },
+    {
+      "after": "e19800ab83225e98cb8887879716f8084cf89d32392307d308527adc39e38bbd",
+      "before": "deae4e77fc3e0a01e988e2b26650068f7f46df4225c679f7c1388c8213858e6d",
+      "field": "tree/config/PACKET.json/deployment/config_sha256"
+    },
+    {
+      "after": "/var/lib/baton-managed-runs/w339626-custody-v3/instance/db/control.sqlite3",
+      "before": "/var/lib/baton-managed-runs/w339626-custody-v2/instance/db/control.sqlite3",
+      "field": "tree/config/PACKET.json/deployment/control_store"
+    },
+    {
+      "after": "/var/lib/baton-managed-runs/w339626-custody-v3/instance/db/jobs.sqlite3",
+      "before": "/var/lib/baton-managed-runs/w339626-custody-v2/instance/db/jobs.sqlite3",
+      "field": "tree/config/PACKET.json/deployment/job_store"
+    },
+    {
+      "after": "/var/lib/baton-managed-runs/w339626-custody-v3/packet/deployment-state",
+      "before": "/var/lib/baton-managed-runs/w339626-custody-v2/packet/deployment-state",
+      "field": "tree/config/PACKET.json/deployment/state_root"
+    },
+    {
+      "after": "/opt/baton-managed-entry/selections/w339626-custody-v3/tree/runtime",
+      "before": "/opt/baton-managed-entry/selections/w339626-custody-v2/tree/runtime",
+      "field": "tree/config/PACKET.json/manager_runtime/path"
+    },
+    {
+      "after": "/opt/baton-managed-entry/selections/w339626-custody-v3/tree/manager",
+      "before": "/opt/baton-managed-entry/selections/w339626-custody-v2/tree/manager",
+      "field": "tree/config/PACKET.json/manager_source/path"
+    },
+    {
+      "after": "/var/lib/baton-managed-runs/w339626-custody-v3/packet/outcome.json",
+      "before": "/var/lib/baton-managed-runs/w339626-custody-v2/packet/outcome.json",
+      "field": "tree/config/PACKET.json/outcome_path"
+    },
+    {
+      "after": "/opt/baton-managed-entry/selections/w339626-custody-v3/tree/config/submission.json",
+      "before": "/opt/baton-managed-entry/selections/w339626-custody-v2/tree/config/submission.json",
+      "field": "tree/config/PACKET.json/submission/path"
+    },
+    {
+      "after": "/opt/baton-managed-entry/selections/w339626-custody-v3/tree/supervisor/baseline.py",
+      "before": "/opt/baton-managed-entry/selections/w339626-custody-v2/tree/supervisor/baseline.py",
+      "field": "tree/config/PACKET.json/supervisor/path"
+    },
+    {
+      "after": "/var/lib/baton-managed-runs/w339626-custody-v3/instance/db/authority.sqlite3",
+      "before": "/var/lib/baton-managed-runs/w339626-custody-v2/instance/db/authority.sqlite3",
+      "field": "tree/config/deployment.json/authority_store"
+    },
+    {
+      "after": "/var/lib/baton-managed-runs/w339626-custody-v3/instance/db/integration.sqlite3",
+      "before": "/var/lib/baton-managed-runs/w339626-custody-v2/instance/db/integration.sqlite3",
+      "field": "tree/config/deployment.json/integration_store"
+    },
+    {
+      "after": "/var/lib/baton-managed-runs/w339626-custody-v3/packet/deployment-state",
+      "before": "/var/lib/baton-managed-runs/w339626-custody-v2/packet/deployment-state",
+      "field": "tree/config/deployment.json/state_root"
+    },
+    {
+      "after": "/var/lib/baton-managed-runs/w339626-custody-v3/instance/db/authority.sqlite3",
+      "before": "/var/lib/baton-managed-runs/w339626-custody-v2/instance/db/authority.sqlite3",
+      "field": "tree/config/deployment.json/workers/0/deployment/authority_store"
+    },
+    {
+      "after": "/var/lib/baton-managed-runs/w339626-custody-v3/packet/credentials/implementation",
+      "before": "/var/lib/baton-managed-runs/w339626-custody-v2/packet/credentials/implementation",
+      "field": "tree/config/deployment.json/workers/0/deployment/credential_home"
+    },
+    {
+      "after": "/etc/baton-managed-entry/w339626-v3-credential-sources.json",
+      "before": "/etc/baton-managed-entry/w339626-credential-sources.json",
+      "field": "tree/config/deployment.json/workers/0/deployment/credential_sources"
+    },
+    {
+      "after": "/var/lib/baton-managed-runs/w339626-custody-v3/packet/launch/implementation",
+      "before": "/var/lib/baton-managed-runs/w339626-custody-v2/packet/launch/implementation",
+      "field": "tree/config/deployment.json/workers/0/deployment/launch_home"
+    },
+    {
+      "after": "/opt/baton-managed-entry/selections/w339626-custody-v3/tree/config/task.json",
+      "before": "/opt/baton-managed-entry/selections/w339626-custody-v2/tree/config/task.json",
+      "field": "tree/config/deployment.json/workers/0/deployment/task_document"
+    },
+    {
+      "after": 61235,
+      "before": 61234,
+      "field": "tree/config/deployment.json/workers/0/deployment/workspace_group"
+    },
+    {
+      "after": "/var/lib/baton-managed-runs/w339626-custody-v3/packet/workspaces",
+      "before": "/var/lib/baton-managed-runs/w339626-custody-v2/packet/workspaces",
+      "field": "tree/config/deployment.json/workers/0/deployment/workspace_storage"
+    },
+    {
+      "after": "/var/lib/baton-managed-runs/w339626-custody-v3/instance/db/authority.sqlite3",
+      "before": "/var/lib/baton-managed-runs/w339626-custody-v2/instance/db/authority.sqlite3",
+      "field": "tree/config/deployment.json/workers/1/deployment/authority_store"
+    },
+    {
+      "after": "/var/lib/baton-managed-runs/w339626-custody-v3/packet/credentials/review",
+      "before": "/var/lib/baton-managed-runs/w339626-custody-v2/packet/credentials/review",
+      "field": "tree/config/deployment.json/workers/1/deployment/credential_home"
+    },
+    {
+      "after": "/etc/baton-managed-entry/w339626-v3-credential-sources.json",
+      "before": "/etc/baton-managed-entry/w339626-credential-sources.json",
+      "field": "tree/config/deployment.json/workers/1/deployment/credential_sources"
+    },
+    {
+      "after": "/var/lib/baton-managed-runs/w339626-custody-v3/packet/launch/review",
+      "before": "/var/lib/baton-managed-runs/w339626-custody-v2/packet/launch/review",
+      "field": "tree/config/deployment.json/workers/1/deployment/launch_home"
+    },
+    {
+      "after": "/opt/baton-managed-entry/selections/w339626-custody-v3/tree/config/task.json",
+      "before": "/opt/baton-managed-entry/selections/w339626-custody-v2/tree/config/task.json",
+      "field": "tree/config/deployment.json/workers/1/deployment/task_document"
+    },
+    {
+      "after": 61235,
+      "before": 61234,
+      "field": "tree/config/deployment.json/workers/1/deployment/workspace_group"
+    },
+    {
+      "after": "/var/lib/baton-managed-runs/w339626-custody-v3/packet/workspaces",
+      "before": "/var/lib/baton-managed-runs/w339626-custody-v2/packet/workspaces",
+      "field": "tree/config/deployment.json/workers/1/deployment/workspace_storage"
+    }
+  ],
+  "manifest_sha256": "f1c3e2d11ec5557c86273a6abc0c0ccb99b61f98acde3dddfcd5b737057f1265",
+  "packet_sha256": "5dd0195f6958e32889cd30261f0d1de86283d6bd28c2353743ea198473fed795",
+  "predecessor_selection_sha256": "04cc16db980abb8c10dbbdcf2d3e589f524c768f2ba1982f479615a232f52227",
+  "selection_sha256": "436fe9b30f112f11ba50659883024d7cf60270497b59692251342163581febab",
+  "source_execution": false,
+  "tree_members": 205,
+  "unchanged_tree_members": 203
+}

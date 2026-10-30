@@ -1,0 +1,11 @@
+{
+  "at": "2026-10-28T01:39:24.921019+00:00",
+  "evidence_count": 64,
+  "mismatches": [],
+  "command": [
+    "/home/sl/baton-instances/useful-template-job-w366962/distro/baton-v12-stack",
+    "attempt-diagnostics",
+    "/home/sl/baton-instances/useful-template-job-w366962/state/status.json"
+  ],
+  "exit": 0
+}

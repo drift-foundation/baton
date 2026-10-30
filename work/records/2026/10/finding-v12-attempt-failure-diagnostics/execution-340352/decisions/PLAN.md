@@ -1,0 +1,9 @@
+# Current milestone — connect retained diagnostic candidate and verify in v12
+
+Selected execution340016 completed under owner340145, author340149. Retained candidate head433692c5003d7f3a91a1acab7efdb471d5597235 on base bc925cf5c62d69426ed5862af4d41f4d2a967b0f failed its gate (status1); no proposal or product acceptance. Review review-2026-10-20T16-40-37Z.md under340327 supersedes preparation-only milestone. Evidence: evidence/run-340016/INDEX.json and evidence/review-340327/evidence.json.
+
+baton.impl prepares continuation from retained candidate: connect owner-backed cause into ordinary versioned status, make report consume the same typed shape and required facts, establish durable pre-effect capture and truthful replay/recording-failure behavior. One bounded demonstration is a real failed-attempt status row and report carrying the same facts. Verify production boundaries, historical unknown, secret canaries, identity/episode separation, both release paths and interruption/replay; classify the failed gate and30s fit with safe evidence.
+
+No host product-test exception applies. Owner340145's one invocation is consumed. Prepare exact isolated v12 continuation/verification operands for required execution selection; do not rerun the old invocation, launch a new provider, mutate the preserved instance or Git by inference. Avoid unchanged preparation re-proofs. Later installed-bundle and complete diagnostic acceptance remain owed.
+
+Keep this shared-contract correction cohesive. W333485 is independent; actual intake.py/attempts.py overlap remains serial integration, not a completion dependency. W325959 consumes joined delivery and human checkpoint. Author owns PROGRESS/preparation/separate candidate; reviewer FINDING/PLAN/reviews/evidence. Preserve old evidence and immutable packets. Read checkpoint: events through340327, thread334829.

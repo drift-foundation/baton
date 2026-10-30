@@ -1,0 +1,258 @@
+--- base/v12/python/tests/tools/test_startup_prerequisites.py
++++ candidate/v12/python/tests/tools/test_startup_prerequisites.py
+@@ -329,20 +329,20 @@
+ 
+         def mkdir(path, *args, **named):
+             original(path, *args, **named)
+-            if path == places[0][2]:
+-                os.rmdir(path)
+-                os.symlink(foreign, path)
++            if path == os.path.basename(places[0][2]):
++                os.rmdir(path, dir_fd=named["dir_fd"])
++                os.symlink(foreign, path, dir_fd=named["dir_fd"])
+ 
+         from unittest import mock
+         with mock.patch("os.mkdir", mkdir):
+             with self.assertRaises(bootstrap.BootstrapRefusal) as caught:
+                 self.prepared(made)
+-        self.assertIn("nothing here follows what took its place",
++        self.assertIn("identity failure is not evidence of replacement",
+                       str(caught.exception))
+         self.assertEqual(stat.S_IMODE(os.lstat(foreign).st_mode), 0o755,
+                          "the foreign target's mode must be untouched")
+-        self.assertNotIn(places[0][2], made,
+-                         "the replacement is never recorded as ours")
++        self.assertIsInstance(made[places[0][2]], bootstrap._UncertainPrerequisite,
++                              "uncertain effects never grant deletion authority")
+ 
+     def test_a_mode_that_cannot_be_applied_refuses_and_is_owned(self):
+         """It used to `continue`, so a root that could not be made private was
+@@ -350,7 +350,7 @@
+         so the unwind can try to remove it."""
+         made = {}
+         from unittest import mock
+-        with mock.patch("os.fchmod", side_effect=OSError(1, "nope")):
++        with mock.patch("os.chmod", side_effect=OSError(1, "nope")):
+             with self.assertRaises(bootstrap.BootstrapRefusal) as caught:
+                 self.prepared(made)
+         self.assertIn("is not one it reports as ready", str(caught.exception))
+@@ -387,7 +387,7 @@
+ 
+         def mkdir(path, *args, **named):
+             original(path, *args, **named)
+-            if not racing["done"] and path == os.path.dirname(places[0][2]):
++            if not racing["done"] and path == os.path.basename(os.path.dirname(places[0][2])):
+                 racing["done"] = True
+                 os.symlink(real, places[0][2])
+ 
+@@ -425,6 +425,210 @@
+                         "attempt's and must survive the unwind")
+ 
+ 
++class TheCreationHasProvenance(unittest.TestCase):
++    def setUp(self):
++        self.temp = tempfile.TemporaryDirectory()
++        self.addCleanup(self.temp.cleanup)
++        self.home = pathlib.Path(self.temp.name)
++        self.root = self.home / 'root'
++        self.document = {'workers': [{'worker_id': 'probe', 'deployment': {'workspace_storage': str(self.root)}}]}
++        self.made = {}
++
++    def prepare(self):
++        import io
++        return bootstrap.prepare_prerequisites(self.document, {}, made=self.made, stream=io.StringIO())
++
++    def test_ordinary_replacement_cannot_be_chmodded_or_adopted(self):
++        from unittest import mock
++        foreign = self.home / 'foreign'
++        foreign.mkdir(mode=0o755)
++        identity = (foreign.stat().st_dev, foreign.stat().st_ino)
++        mkdir = os.mkdir
++        def replace(leaf, mode, *, dir_fd):
++            mkdir(leaf, mode, dir_fd=dir_fd)
++            os.rmdir(leaf, dir_fd=dir_fd)
++            os.rename(foreign, leaf, dst_dir_fd=dir_fd)
++        with mock.patch.object(os, 'mkdir', side_effect=replace), mock.patch.object(os, 'chmod', side_effect=AssertionError('foreign permission mutation')):
++            with self.assertRaisesRegex(bootstrap.BootstrapRefusal, 'creation identity is uncertain'):
++                self.prepare()
++        self.assertEqual((self.root.stat().st_dev, self.root.stat().st_ino), identity)
++        self.assertEqual(stat.S_IMODE(self.root.stat().st_mode), 0o755)
++        effect = self.made[str(self.root)]
++        self.assertIsInstance(effect, bootstrap._UncertainPrerequisite)
++        with mock.patch.object(os, 'lstat', side_effect=AssertionError('uncertainty must not inspect for deletion')):
++            self.assertIn('no deletion authority', bootstrap._remove_if_still_ours(str(self.root), effect, 'root'))
++        self.assertTrue(self.root.exists())
++
++    def test_replacement_after_proof_cannot_redirect_permission_change(self):
++        from unittest import mock
++        foreign = self.home / 'foreign'
++        foreign.mkdir(mode=0o755)
++        original = self.home / 'created'
++        prove = bootstrap._CreationWatch.prove
++        def replace(watch, leaf):
++            prove(watch, leaf)
++            self.root.rename(original)
++            foreign.rename(self.root)
++        with mock.patch.object(bootstrap._CreationWatch, 'prove', replace):
++            with self.assertRaisesRegex(bootstrap.BootstrapRefusal, 'changed at'):
++                self.prepare()
++        self.assertEqual(stat.S_IMODE(self.root.stat().st_mode), 0o755)
++        self.assertEqual(self.made[str(self.root)], (original.stat().st_dev, original.stat().st_ino))
++        self.assertIn('no longer', bootstrap._remove_if_still_ours(str(self.root), self.made[str(self.root)], 'root'))
++        self.assertTrue(self.root.exists())
++
++    def test_ancestor_replacement_does_not_redirect_creation(self):
++        from unittest import mock
++        parent = self.home / 'parent'
++        parent.mkdir()
++        self.root = parent / 'root'
++        self.document['workers'][0]['deployment']['workspace_storage'] = str(self.root)
++        moved = self.home / 'moved-parent'
++        foreign = self.home / 'foreign'
++        foreign.mkdir(mode=0o755)
++        mkdir = os.mkdir
++        def replace(leaf, mode, *, dir_fd):
++            parent.rename(moved)
++            foreign.rename(parent)
++            return mkdir(leaf, mode, dir_fd=dir_fd)
++        with mock.patch.object(os, 'mkdir', side_effect=replace):
++            with self.assertRaises(bootstrap.BootstrapRefusal):
++                self.prepare()
++        self.assertEqual(list(parent.iterdir()), [])
++        self.assertEqual(stat.S_IMODE(parent.stat().st_mode), 0o755)
++        self.assertTrue((moved / 'root').is_dir())
++        self.assertIsInstance(self.made[str(self.root)], bootstrap._UncertainPrerequisite)
++
++    def test_component_appearance_during_discovery_refuses(self):
++        from unittest import mock
++        components = bootstrap._components
++        def appear(place):
++            self.root.mkdir(mode=0o755)
++            return components(place)
++        with mock.patch.object(bootstrap, '_components', side_effect=appear):
++            with self.assertRaisesRegex(bootstrap.BootstrapRefusal, 'appeared'):
++                self.prepare()
++        self.assertEqual(self.made, {})
++        self.assertEqual(stat.S_IMODE(self.root.stat().st_mode), 0o755)
++
++    def test_open_failure_records_uncertainty_without_replacement_claim(self):
++        from unittest import mock
++        opening = bootstrap._prerequisite_handle
++        def denied(parent, leaf):
++            if leaf == 'root':
++                raise PermissionError('injected access refusal')
++            return opening(parent, leaf)
++        with mock.patch.object(bootstrap, '_prerequisite_handle', side_effect=denied):
++            with self.assertRaisesRegex(bootstrap.BootstrapRefusal, 'PermissionError') as caught:
++                self.prepare()
++        self.assertIn('not evidence of replacement', str(caught.exception))
++        self.assertTrue(self.root.exists())
++        self.assertIsInstance(self.made[str(self.root)], bootstrap._UncertainPrerequisite)
++
++    def test_identity_failure_records_uncertainty(self):
++        from unittest import mock
++        identity = bootstrap._identity_of_handle
++        def fail(handle):
++            if os.readlink('/proc/self/fd/' + str(handle)) == str(self.root):
++                raise OSError('injected fstat refusal')
++            return identity(handle)
++        with mock.patch.object(bootstrap, '_identity_of_handle', side_effect=fail):
++            with self.assertRaises(bootstrap.BootstrapRefusal):
++                self.prepare()
++        self.assertIsInstance(self.made[str(self.root)], bootstrap._UncertainPrerequisite)
++        self.assertTrue(self.root.exists())
++
++    def test_missing_events_and_overflow_never_grant_ownership(self):
++        import struct
++        from unittest import mock
++        for raw in (b'', struct.pack('iIII', -1, 0x4000, 0, 0), b'incomplete'):
++            with self.subTest(raw=raw):
++                with mock.patch.object(os, 'read', return_value=raw):
++                    with self.assertRaises(bootstrap.BootstrapRefusal):
++                        self.prepare()
++                self.assertIsInstance(self.made[str(self.root)], bootstrap._UncertainPrerequisite)
++                self.root.rmdir()
++                self.made.clear()
++
++    def test_observer_failure_precedes_any_creation(self):
++        from unittest import mock
++        with mock.patch.object(bootstrap, '_CreationWatch', side_effect=PermissionError('watch denied')):
++            with self.assertRaises(bootstrap.BootstrapRefusal):
++                self.prepare()
++        self.assertEqual(self.made, {})
++        self.assertFalse(self.root.exists())
++
++    def test_partial_mkdir_failure_has_no_unproved_deletion_authority(self):
++        from unittest import mock
++        mkdir = os.mkdir
++        def failed(leaf, mode, *, dir_fd):
++            mkdir(leaf, mode, dir_fd=dir_fd)
++            raise OSError('lost completion')
++        with mock.patch.object(os, 'mkdir', side_effect=failed):
++            with self.assertRaises(bootstrap.BootstrapRefusal):
++                self.prepare()
++        self.assertTrue(self.root.exists())
++        self.assertIsInstance(self.made[str(self.root)], bootstrap._UncertainPrerequisite)
++
++    def test_restrictive_umask_without_global_umask_changes(self):
++        # Set only in this test; the implementation never changes global umask.
++        from unittest import mock
++        prior = os.umask(0o777)
++        try:
++            with mock.patch.object(os, 'umask', side_effect=AssertionError('global umask mutation')):
++                self.prepare()
++            self.assertEqual(stat.S_IMODE(self.root.stat().st_mode), 0o700)
++            self.assertEqual(bootstrap.prerequisite_report(self.document), [])
++        finally:
++            os.umask(prior)
++
++    def test_identity_remains_pinned_for_later_unwind(self):
++        self.prepare()
++        identity = self.made[str(self.root)]
++        self.assertIsInstance(identity, bootstrap._OwnedPrerequisite)
++        self.root.rmdir()
++        self.assertEqual(os.fstat(identity.handle).st_nlink, 0)
++        self.root.mkdir()
++        self.assertNotEqual(identity, (self.root.stat().st_dev, self.root.stat().st_ino))
++        self.assertIn('no longer', bootstrap._remove_if_still_ours(str(self.root), identity, 'root'))
++        self.assertTrue(self.root.exists())
++
++    def test_readonly_report_refuses_raced_ancestor_link(self):
++        from unittest import mock
++        self.root.mkdir()
++        foreign = self.home / 'foreign'
++        foreign.mkdir()
++        opening = bootstrap._prerequisite_handle
++        def replace(parent, leaf):
++            if leaf == 'root':
++                self.root.rmdir()
++                self.root.symlink_to(foreign, target_is_directory=True)
++            return opening(parent, leaf)
++        with mock.patch.object(bootstrap, '_prerequisite_handle', side_effect=replace):
++            report = bootstrap.prerequisite_report(self.document)
++        self.assertEqual(len(report), 1)
++        self.assertIn('cannot be bound', report[0][3])
++        self.assertEqual(list(foreign.iterdir()), [])
++
++    def test_failed_later_root_keeps_proven_intermediates(self):
++        from unittest import mock
++        self.root = self.home / 'parent' / 'root'
++        self.document['workers'][0]['deployment']['workspace_storage'] = str(self.root)
++        opening = bootstrap._prerequisite_handle
++        def denied(parent, leaf):
++            if leaf == 'root':
++                raise PermissionError('later refusal')
++            return opening(parent, leaf)
++        with mock.patch.object(bootstrap, '_prerequisite_handle', side_effect=denied):
++            with self.assertRaises(bootstrap.BootstrapRefusal):
++                self.prepare()
++        parent = self.home / 'parent'
++        self.assertEqual(self.made[str(parent)], (parent.stat().st_dev, parent.stat().st_ino))
++        self.assertIsInstance(self.made[str(self.root)], bootstrap._UncertainPrerequisite)
++        self.assertEqual(bootstrap.unwound_order(self.made), [str(self.root), str(parent)])
++
++
++
+ class TheControlStoreIsInitializedThroughItsOwnOpener(unittest.TestCase):
+ 
+     def setUp(self):

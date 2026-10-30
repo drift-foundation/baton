@@ -1,0 +1,716 @@
+{
+  "tests": 5,
+  "failures": 0,
+  "errors": 0,
+  "seconds": 0.038694574001056026,
+  "engine_invoked": false,
+  "cases": [
+    {
+      "case": "create-unobserved",
+      "success": false,
+      "id": null,
+      "owned": false,
+      "exact_absence": false,
+      "errors": [
+        {
+          "phase": "execution",
+          "type": "OSError"
+        }
+      ],
+      "elapsed": 0.0,
+      "calls": [
+        [
+          "inspect",
+          10
+        ],
+        [
+          "create",
+          10
+        ],
+        [
+          "inspect",
+          5
+        ]
+      ]
+    },
+    {
+      "case": "create-loss",
+      "success": false,
+      "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "owned": true,
+      "exact_absence": true,
+      "errors": [
+        {
+          "phase": "execution",
+          "type": "TimeoutExpired"
+        }
+      ],
+      "elapsed": 0.0,
+      "calls": [
+        [
+          "inspect",
+          10
+        ],
+        [
+          "create",
+          10
+        ],
+        [
+          "inspect",
+          5
+        ],
+        [
+          "rm",
+          25
+        ],
+        [
+          "inspect",
+          10
+        ]
+      ]
+    },
+    {
+      "case": "start-error",
+      "success": false,
+      "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "owned": true,
+      "exact_absence": true,
+      "errors": [
+        {
+          "phase": "execution",
+          "type": "OSError"
+        }
+      ],
+      "elapsed": 0.0,
+      "calls": [
+        [
+          "inspect",
+          10
+        ],
+        [
+          "create",
+          10
+        ],
+        [
+          "inspect",
+          10
+        ],
+        [
+          "start",
+          10
+        ],
+        [
+          "rm",
+          25
+        ],
+        [
+          "inspect",
+          10
+        ]
+      ]
+    },
+    {
+      "case": "logs-error",
+      "success": false,
+      "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "owned": true,
+      "exact_absence": true,
+      "errors": [
+        {
+          "phase": "execution",
+          "type": "ValueError"
+        }
+      ],
+      "elapsed": 0.0,
+      "calls": [
+        [
+          "inspect",
+          10
+        ],
+        [
+          "create",
+          10
+        ],
+        [
+          "inspect",
+          10
+        ],
+        [
+          "start",
+          10
+        ],
+        [
+          "logs",
+          10
+        ],
+        [
+          "rm",
+          25
+        ],
+        [
+          "inspect",
+          10
+        ]
+      ]
+    },
+    {
+      "case": "rm-timeout",
+      "success": false,
+      "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "owned": true,
+      "exact_absence": false,
+      "errors": [
+        {
+          "phase": "remove",
+          "type": "TimeoutExpired"
+        }
+      ],
+      "elapsed": 25.0,
+      "calls": [
+        [
+          "inspect",
+          10
+        ],
+        [
+          "create",
+          10
+        ],
+        [
+          "inspect",
+          10
+        ],
+        [
+          "start",
+          10
+        ],
+        [
+          "logs",
+          10
+        ],
+        [
+          "inspect",
+          10
+        ],
+        [
+          "rm",
+          25
+        ],
+        [
+          "inspect",
+          10
+        ]
+      ]
+    },
+    {
+      "case": "rm-oserror",
+      "success": false,
+      "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "owned": true,
+      "exact_absence": false,
+      "errors": [
+        {
+          "phase": "remove",
+          "type": "OSError"
+        }
+      ],
+      "elapsed": 0.0,
+      "calls": [
+        [
+          "inspect",
+          10
+        ],
+        [
+          "create",
+          10
+        ],
+        [
+          "inspect",
+          10
+        ],
+        [
+          "start",
+          10
+        ],
+        [
+          "logs",
+          10
+        ],
+        [
+          "inspect",
+          10
+        ],
+        [
+          "rm",
+          25
+        ],
+        [
+          "inspect",
+          10
+        ]
+      ]
+    },
+    {
+      "case": "invalid-inspect",
+      "success": false,
+      "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "owned": false,
+      "exact_absence": false,
+      "errors": [
+        {
+          "phase": "execution",
+          "type": "ValueError"
+        },
+        {
+          "phase": "reconcile-create",
+          "type": "ValueError"
+        }
+      ],
+      "elapsed": 0.0,
+      "calls": [
+        [
+          "inspect",
+          10
+        ],
+        [
+          "create",
+          10
+        ],
+        [
+          "inspect",
+          10
+        ],
+        [
+          "inspect",
+          5
+        ]
+      ]
+    },
+    {
+      "case": "invalid-json",
+      "success": false,
+      "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "owned": false,
+      "exact_absence": false,
+      "errors": [
+        {
+          "phase": "execution",
+          "type": "ValueError"
+        },
+        {
+          "phase": "reconcile-create",
+          "type": "ValueError"
+        }
+      ],
+      "elapsed": 0.0,
+      "calls": [
+        [
+          "inspect",
+          10
+        ],
+        [
+          "create",
+          10
+        ],
+        [
+          "inspect",
+          10
+        ],
+        [
+          "inspect",
+          5
+        ]
+      ]
+    },
+    {
+      "case": "unknown-inspect",
+      "success": false,
+      "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "owned": false,
+      "exact_absence": false,
+      "errors": [
+        {
+          "phase": "execution",
+          "type": "ValueError"
+        },
+        {
+          "phase": "reconcile-create",
+          "type": "ValueError"
+        }
+      ],
+      "elapsed": 0.0,
+      "calls": [
+        [
+          "inspect",
+          10
+        ],
+        [
+          "create",
+          10
+        ],
+        [
+          "inspect",
+          10
+        ],
+        [
+          "inspect",
+          5
+        ]
+      ]
+    },
+    {
+      "case": "identity-mismatch",
+      "success": false,
+      "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "owned": false,
+      "exact_absence": false,
+      "errors": [
+        {
+          "phase": "execution",
+          "type": "ValueError"
+        },
+        {
+          "phase": "reconcile-create",
+          "type": "ValueError"
+        }
+      ],
+      "elapsed": 0.0,
+      "calls": [
+        [
+          "inspect",
+          10
+        ],
+        [
+          "create",
+          10
+        ],
+        [
+          "inspect",
+          10
+        ],
+        [
+          "inspect",
+          5
+        ]
+      ]
+    },
+    {
+      "case": "cleanup-inspect-invalid",
+      "success": false,
+      "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "owned": true,
+      "exact_absence": false,
+      "errors": [
+        {
+          "phase": "confirm-absence",
+          "type": "ValueError"
+        }
+      ],
+      "elapsed": 0.0,
+      "calls": [
+        [
+          "inspect",
+          10
+        ],
+        [
+          "create",
+          10
+        ],
+        [
+          "inspect",
+          10
+        ],
+        [
+          "start",
+          10
+        ],
+        [
+          "logs",
+          10
+        ],
+        [
+          "inspect",
+          10
+        ],
+        [
+          "rm",
+          25
+        ],
+        [
+          "inspect",
+          10
+        ]
+      ]
+    },
+    {
+      "case": "cleanup-inspect-unknown",
+      "success": false,
+      "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "owned": true,
+      "exact_absence": false,
+      "errors": [
+        {
+          "phase": "confirm-absence",
+          "type": "ValueError"
+        }
+      ],
+      "elapsed": 0.0,
+      "calls": [
+        [
+          "inspect",
+          10
+        ],
+        [
+          "create",
+          10
+        ],
+        [
+          "inspect",
+          10
+        ],
+        [
+          "start",
+          10
+        ],
+        [
+          "logs",
+          10
+        ],
+        [
+          "inspect",
+          10
+        ],
+        [
+          "rm",
+          25
+        ],
+        [
+          "inspect",
+          10
+        ]
+      ]
+    },
+    {
+      "case": "bad-receipt",
+      "success": false,
+      "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "owned": true,
+      "exact_absence": true,
+      "errors": [
+        {
+          "phase": "execution",
+          "type": "ValueError"
+        }
+      ],
+      "elapsed": 0.0,
+      "calls": [
+        [
+          "inspect",
+          10
+        ],
+        [
+          "create",
+          10
+        ],
+        [
+          "inspect",
+          10
+        ],
+        [
+          "start",
+          10
+        ],
+        [
+          "logs",
+          10
+        ],
+        [
+          "rm",
+          25
+        ],
+        [
+          "inspect",
+          10
+        ]
+      ]
+    },
+    {
+      "case": "missing-capacity",
+      "success": false,
+      "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "owned": true,
+      "exact_absence": true,
+      "errors": [
+        {
+          "phase": "execution",
+          "type": "ValueError"
+        }
+      ],
+      "elapsed": 0.0,
+      "calls": [
+        [
+          "inspect",
+          10
+        ],
+        [
+          "create",
+          10
+        ],
+        [
+          "inspect",
+          10
+        ],
+        [
+          "start",
+          10
+        ],
+        [
+          "logs",
+          10
+        ],
+        [
+          "rm",
+          25
+        ],
+        [
+          "inspect",
+          10
+        ]
+      ]
+    },
+    {
+      "case": "slow-logs",
+      "success": false,
+      "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "owned": true,
+      "exact_absence": true,
+      "errors": [
+        {
+          "phase": "execution",
+          "type": "TimeoutError"
+        }
+      ],
+      "elapsed": 20.0,
+      "calls": [
+        [
+          "inspect",
+          10
+        ],
+        [
+          "create",
+          10
+        ],
+        [
+          "inspect",
+          10
+        ],
+        [
+          "start",
+          10
+        ],
+        [
+          "logs",
+          10
+        ],
+        [
+          "logs",
+          9.5
+        ],
+        [
+          "rm",
+          25
+        ],
+        [
+          "inspect",
+          10
+        ]
+      ]
+    },
+    {
+      "case": "hung-logs",
+      "success": false,
+      "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "owned": true,
+      "exact_absence": true,
+      "errors": [
+        {
+          "phase": "execution",
+          "type": "TimeoutExpired"
+        }
+      ],
+      "elapsed": 10.0,
+      "calls": [
+        [
+          "inspect",
+          10
+        ],
+        [
+          "create",
+          10
+        ],
+        [
+          "inspect",
+          10
+        ],
+        [
+          "start",
+          10
+        ],
+        [
+          "logs",
+          10
+        ],
+        [
+          "rm",
+          25
+        ],
+        [
+          "inspect",
+          10
+        ]
+      ]
+    },
+    {
+      "case": "success",
+      "success": true,
+      "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "owned": true,
+      "exact_absence": true,
+      "errors": [],
+      "elapsed": 0.0,
+      "calls": [
+        [
+          "inspect",
+          10
+        ],
+        [
+          "create",
+          10
+        ],
+        [
+          "inspect",
+          10
+        ],
+        [
+          "start",
+          10
+        ],
+        [
+          "logs",
+          10
+        ],
+        [
+          "inspect",
+          10
+        ],
+        [
+          "rm",
+          25
+        ],
+        [
+          "inspect",
+          10
+        ]
+      ]
+    }
+  ]
+}

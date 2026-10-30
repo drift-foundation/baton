@@ -1,0 +1,32 @@
+{
+  "exit": 0,
+  "elapsed_seconds": 6.196492135000881,
+  "hash_checks": 47,
+  "ok": true,
+  "files": 116,
+  "runs": 13,
+  "refusals": {
+    "binding_the_canonical_set_to_the_format_task": 2,
+    "publishing_the_default_set_over_the_variant": 2,
+    "publishing_the_variant_over_the_canonical_set": 2
+  },
+  "bindings": {
+    "evidence/claim-367503/BINDING.json": {
+      "drifted": [],
+      "proposal_members": 0
+    },
+    "evidence/claim-369192/BINDING.json": {
+      "drifted": [],
+      "proposal_members": 7
+    },
+    "evidence/claim-369298/BINDING.json": {
+      "drifted": [],
+      "proposal_members": 14
+    },
+    "evidence/claim-369373/BINDING.json": {
+      "drifted": [],
+      "proposal_members": 14
+    }
+  },
+  "failures": []
+}

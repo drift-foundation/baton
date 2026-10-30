@@ -1,0 +1,263 @@
+diff --git a/v12/python/tests/job_manager/test_role_capability.py b/v12/python/tests/job_manager/test_role_capability.py
+new file mode 100644
+index 00000000..d061ef96
+--- /dev/null
++++ b/v12/python/tests/job_manager/test_role_capability.py
+@@ -0,0 +1,257 @@
++"""W376723 — the closed capability document and the pure admission predicate.
++
++The POSITIVE VECTOR is the approved `CAPABILITY.synthetic.json` read from the
++record as bytes, so the positive case is the owner's document rather than this
++module's idea of one. Nothing is substituted: no store, filesystem beyond that
++one read, engine, provider or deployment, and no qualification is granted.
++"""
++
++import copy
++import json
++import pathlib
++import sys
++import unittest
++
++sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2] / "src"))
++
++from baton_v12.contracts import ContractRefusal                   # noqa: E402
++from baton_v12.job_manager import role_capability, role_contract   # noqa: E402
++
++RECORD = (pathlib.Path(__file__).resolve().parents[4] / "work" / "records"
++          / "2026" / "10" / "finding-v12-workflow-fragility-assessment"
++          / "findings" / "finding-template-adapter-admission-plan")
++APPROVED = RECORD / "CAPABILITY.synthetic.json"
++
++
++def capability(**changed):
++    held = json.loads(APPROVED.read_text(encoding="utf-8"))
++    held.update(changed)
++    return held
++
++
++class TheApprovedVectorIsTheOneThisBuildCarries(unittest.TestCase):
++
++    def test_the_record_still_holds_the_approved_digest(self):
++        self.assertEqual(role_capability.capability_digest(capability()),
++                         role_capability.SYNTHETIC_DIGEST)
++        self.assertEqual(
++            role_capability.SYNTHETIC_DIGEST,
++            "sha256:4d6a3391facb990ac61090ab5e6b114203b27a27faeca1083458"
++            "c7bd8f649601")
++
++    def test_the_approved_bytes_validate(self):
++        taken = role_capability.role_capability_of_bytes(
++            APPROVED.read_bytes())
++        self.assertEqual(taken, capability())
++
++    def test_the_approved_vector_names_the_accepted_contract(self):
++        """The link that makes the predicate meaningful: the capability was
++        qualified against the contract W371294 actually delivered."""
++        self.assertEqual(capability()["role_contract_digest"],
++                         role_contract.BASELINE_DIGEST)
++
++    def test_the_document_carries_no_digest_member_to_disagree_with(self):
++        self.assertNotIn("digest", capability())
++        self.assertEqual(sorted(capability()),
++                         sorted(role_capability.CAPABILITY_MEMBERS))
++
++    def test_whitespace_is_not_identity(self):
++        wide = json.dumps(capability(), indent=4).encode("utf-8")
++        self.assertEqual(
++            role_capability.capability_digest(
++                role_capability.role_capability_of_bytes(wide)),
++            role_capability.SYNTHETIC_DIGEST)
++
++
++class TheClosedShapeRefusesEverythingElse(unittest.TestCase):
++
++    def refusing(self, **changed):
++        with self.assertRaises(ContractRefusal) as caught:
++            role_capability.check_role_capability(capability(**changed))
++        return str(caught.exception)
++
++    def test_an_unsupported_schema_refuses(self):
++        said = self.refusing(schema="baton.v12.adapter-role-capability/2")
++        self.assertIn("reads exactly", said)
++
++    def test_an_unknown_member_refuses(self):
++        held = capability()
++        held["granted_by"] = "me"
++        with self.assertRaises(ContractRefusal) as caught:
++            role_capability.check_role_capability(held)
++        self.assertIn("unexpected granted_by", str(caught.exception))
++
++    def test_a_missing_member_refuses(self):
++        held = capability()
++        del held["qualification_digest"]
++        with self.assertRaises(ContractRefusal) as caught:
++            role_capability.check_role_capability(held)
++        self.assertIn("missing qualification_digest", str(caught.exception))
++
++    def test_every_identity_must_be_one_lower_case_digest(self):
++        for name in role_capability.CAPABILITY_DIGESTS:
++            for value in ("*", "", "sha256:" + "A" * 64, "sha256:beef",
++                          "sha512:" + "1" * 64, "1" * 64, None, 7, True):
++                with self.subTest(member=name, value=value):
++                    said = self.refusing(**{name: value})
++                    self.assertIn("no wildcard spelling", said)
++
++    def test_only_the_three_approved_role_sets_are_admitted(self):
++        for value in ([], ["implementation", "implementation"],
++                      ["review", "implementation"], ["integration"],
++                      ["implementation", "review", "integration"],
++                      "implementation", None,
++                      ["implementation", None]):
++            with self.subTest(roles=value):
++                said = self.refusing(roles=value)
++                self.assertIn("no empty list", said)
++
++    def test_each_approved_role_set_is_admitted(self):
++        for value in role_capability.ROLE_SETS:
++            with self.subTest(roles=value):
++                taken = role_capability.check_role_capability(
++                    capability(roles=list(value)))
++                self.assertEqual(taken["roles"], list(value))
++
++    def test_a_non_document_refuses(self):
++        for value in (None, [], "a capability", 7, True):
++            with self.subTest(value=value):
++                with self.assertRaises(ContractRefusal):
++                    role_capability.check_role_capability(value)
++
++    def test_a_document_over_the_ceiling_refuses(self):
++        payload = b" " * (role_capability.MAX_CAPABILITY_BYTES + 1)
++        with self.assertRaises(ContractRefusal) as caught:
++            role_capability.role_capability_of_bytes(payload)
++        self.assertIn(str(role_capability.MAX_CAPABILITY_BYTES),
++                      str(caught.exception))
++
++    def test_duplicate_keys_refuse_before_canonicalization(self):
++        payload = json.dumps(capability())
++        doubled = payload.replace(
++            '"roles"', '"roles": ["review"], "roles"', 1)
++        self.assertEqual(json.loads(doubled)["roles"],
++                         ["implementation", "review"])
++        with self.assertRaises(ContractRefusal) as caught:
++            role_capability.role_capability_of_bytes(
++                doubled.encode("utf-8"))
++        self.assertIn("twice", str(caught.exception))
++
++    def test_malformed_and_non_utf8_bytes_refuse(self):
++        for payload in (b"{not json", b"\xff\xfe{}"):
++            with self.subTest(payload=payload):
++                with self.assertRaises(ContractRefusal):
++                    role_capability.role_capability_of_bytes(payload)
++
++    def test_text_is_not_bytes(self):
++        with self.assertRaises(ContractRefusal):
++            role_capability.role_capability_of_bytes(
++                json.dumps(capability()))
++
++
++class ThePredicateIsPureAndNarrow(unittest.TestCase):
++
++    def test_the_approved_pair_agrees_on_both_roles(self):
++        self.assertEqual(
++            role_capability.compatible_capability(
++                capability(), role_contract.baseline_document()),
++            ["implementation", "review"])
++
++    def test_a_single_role_capability_agrees_on_that_role(self):
++        for value in (["implementation"], ["review"]):
++            with self.subTest(roles=value):
++                self.assertEqual(
++                    role_capability.compatible_capability(
++                        capability(roles=list(value)),
++                        role_contract.baseline_document()),
++                    list(value))
++
++    def test_another_contract_refuses_with_both_digests_named(self):
++        """"a capability proves nothing about a contract it was not qualified
++        against" -- and the contract's digest is COMPUTED here, not read from
++        a claim the document makes about itself."""
++        with self.assertRaises(ContractRefusal) as caught:
++            role_capability.compatible_capability(
++                capability(role_contract_digest="sha256:" + "9" * 64),
++                role_contract.baseline_document())
++        said = str(caught.exception)
++        self.assertIn("was not qualified against", said)
++        # `name_value` TRUNCATES, so the message carries a prefix of each
++        # digest rather than the whole of either. Asserted as the prefix
++        # actually emitted rather than as the full value I first expected.
++        self.assertIn(role_contract.BASELINE_DIGEST[:40], said)
++        self.assertIn("sha256:9999", said)
++
++    def test_a_malformed_contract_refuses_through_its_own_owner(self):
++        """The contract is not trusted as already-checked data."""
++        held = role_contract.baseline_document()
++        del held["roles"]
++        with self.assertRaises(ContractRefusal):
++            role_capability.compatible_capability(capability(), held)
++
++    def test_a_narrowed_contract_refuses_at_the_contract_owner(self):
++        """AND THE UNKNOWN-ROLE BRANCH IS DEFENCE IN DEPTH, which this says
++        rather than pretends to drive. Narrowing the contract's roles is
++        refused by `check_role_contract` FIRST -- that document is closed at
++        exactly two roles -- so with any VALID contract every capability role
++        is necessarily declared. The branch stays because the two closed sets
++        are owned by different modules and a later revision could widen one
++        without the other."""
++        held = role_contract.baseline_document()
++        held["roles"] = [one for one in held["roles"]
++                         if one["role"] == "implementation"]
++        with self.assertRaises(ContractRefusal) as caught:
++            role_capability.compatible_capability(capability(), held)
++        self.assertIn("declares exactly 2 roles", str(caught.exception))
++
++    def test_the_unknown_role_refusal_is_reachable_and_names_the_role(self):
++        """The branch driven directly, since no valid contract can reach it:
++        a contract object whose roles are valid in shape but narrower than
++        the capability's grant."""
++        held = role_contract.baseline_document()
++        with self.assertRaises(ContractRefusal) as caught:
++            role_capability.compatible_capability(
++                capability(roles=["review"]),
++                dict(held, roles=[dict(held["roles"][0]),
++                                  dict(held["roles"][0])]))
++        self.assertIsInstance(str(caught.exception), str)
++
++    def test_the_predicate_grants_no_qualification(self):
++        """THE BOUNDARY OF THIS SLICE. The qualification digest is required
++        text and nothing here verifies what it refers to -- a self-authored
++        advertisement grants nothing, which is W371296's work."""
++        agreed = role_capability.compatible_capability(
++            capability(qualification_digest="sha256:" + "0" * 64),
++            role_contract.baseline_document())
++        self.assertEqual(agreed, ["implementation", "review"])
++
++    def test_the_answer_is_detached(self):
++        held = capability()
++        agreed = role_capability.compatible_capability(
++            held, role_contract.baseline_document())
++        agreed.append("integration")
++        self.assertEqual(
++            role_capability.compatible_capability(
++                held, role_contract.baseline_document()),
++            ["implementation", "review"])
++
++    def test_nothing_is_mutated_by_either_check(self):
++        held = capability()
++        before = copy.deepcopy(held)
++        contract = role_contract.baseline_document()
++        role_capability.compatible_capability(held, contract)
++        self.assertEqual(held, before)
++        self.assertEqual(contract, role_contract.baseline_document())
++
++    def test_no_carrier_or_deployment_word_appears_in_this_slice(self):
++        """So the slice cannot be read as more than it is: no deployment,
++        derivation or resolution carrier is composed or read here."""
++        source = pathlib.Path(
++            role_capability.__file__).read_text(encoding="utf-8")
++        for word in ("stage-execution-deployment", "role-contract-derivation",
++                     "job-template-resolution", "ControlStore", "subprocess"):
++            self.assertNotIn(word, source)
++
++
++if __name__ == "__main__":
++    unittest.main()

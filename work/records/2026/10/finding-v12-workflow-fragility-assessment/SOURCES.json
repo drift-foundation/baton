@@ -1,0 +1,13 @@
+{
+  "at": "2026-10-28T02:27:05.305314+00:00",
+  "note": "Read-only source snapshot, not an acceptance of concurrent implementer candidate. No tests or live actions performed. Active correction scopes read at canonical370761.",
+  "sha256": {
+    "v12/DESIGN.md": "500fa602410be8fe125be56140685c696ebd653f68abbc87a4b0d4e512bc0751",
+    "v12/python/src/baton_v12/job_manager/templates.py": "64f9f3412c673d7bac7ace6190e3f8ddebba7056f90a279f07fc70efc0975e16",
+    "v12/python/src/baton_v12/job_manager/projection.py": "02e0c80c8e468007a8666959e405468946463d815eb617331b0eb0dcdc68425a",
+    "v12/python/tools/single_worker.py": "29e569365e182f70372938c65115c1ff813e6b3105781733c24eb34cda924971",
+    "v12/python/tools/disposition_command.py": "e78de139e5a64988a6be7a0a0e2f5a8b77f25b1b2213842b5135489f249aeaba",
+    "v12/worker/claude_agent.py": "b014ea3f5f58af573a0cbaa4b8838a270953806a89ef274682d5cca6627efe7c"
+  },
+  "assessment_sha256": "a466e41c3ce338b3e4f53bbfda4d064e103bee284e95297ef7f6c13e64489609"
+}

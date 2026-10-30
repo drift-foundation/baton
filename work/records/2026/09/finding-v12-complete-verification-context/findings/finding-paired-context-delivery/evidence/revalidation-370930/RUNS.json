@@ -1,0 +1,29 @@
+[
+  {
+    "label": "original102",
+    "command": [
+      "/home/sl/.local/state/baton-v12-venv/bin/python",
+      "-m",
+      "unittest",
+      "tests.tools.test_user_credentials",
+      "tests.tools.test_dogfood_operator.TheDocumentedCommandIsOneGrantsFile.test_help_names_the_credential_source_the_launcher_requires",
+      "tests.tools.test_dogfood_operator.ThePublicRecoveryEndsAnInterruptedAttempt.test_a_recovery_asks_for_no_credential",
+      "tests.tools.test_dogfood_operator.TheArcMaterializesBetweenActivationAndRuntimeCreation.test_the_factory_runs_after_activation_and_before_runtime_start",
+      "tests.tools.test_dogfood_operator.TheDocumentedRecoveryEndsRealAttachedState.test_an_uncertain_runtime_settles_nothing_and_keeps_the_bearer",
+      "tests.manager.test_credentials.TheTrustedProfileMapsEverySlot.test_the_reference_is_opaque"
+    ],
+    "exit": 0,
+    "seconds": 0.4030869159978465
+  },
+  {
+    "label": "stage-a",
+    "command": [
+      "/home/sl/.local/state/baton-v12-venv/bin/python",
+      "-m",
+      "unittest",
+      "tests.manager.test_verification_context"
+    ],
+    "exit": 0,
+    "seconds": 0.18196415500278817
+  }
+]

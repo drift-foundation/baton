@@ -1,0 +1,329 @@
+{
+  "attempts": 0,
+  "composer_start_measured": {
+    "authoring_command": [
+      "/usr/bin/python3",
+      "-m",
+      "tools.authoring_enforcement",
+      "--packet",
+      "/tmp/w333486-preflight-337453/packet/PACKET.json"
+    ],
+    "composer_start": [
+      "/usr/bin/python3",
+      "-B",
+      "/tmp/w333486-preflight-337453/supervisor/baseline.py",
+      "--packet",
+      "/tmp/w333486-preflight-337453/packet/PACKET.json",
+      "--incarnation",
+      "attempt-diagnostics-w333486-337453"
+    ],
+    "why": "Measured, not inferred: the accepted composer generated start still names baseline.py, the unenforced supervisor."
+  },
+  "controller_binding": {
+    "negative": "the same call REFUSED when the controller was imported from the host checkout: \"authoring controller is outside the pinned manager source\"",
+    "positive": "the CORRECTED controller own verify_controller ACCEPTED this packet composed documents, imported from the staged source",
+    "superseded_digest_probe": "pinning the previous controller digest (2da6eb36...) refuses before any root is created",
+    "why": "The vehicle binding proved rather than asserted, in both directions, plus a guard against silently rebinding the controller that failed at startup. None of these calls starts anything or opens a store."
+  },
+  "credential_read": false,
+  "enforcement": "ENFORCEMENT.md",
+  "engine_invoked": false,
+  "falsification_rerun": false,
+  "guard_proof_rerun": false,
+  "job_submitted": false,
+  "measured_seconds": {
+    "probes": 0.927419,
+    "steps": 1.195324
+  },
+  "note": "Preparation exercised once into this THROWAWAY root. No selected root exists, no Job submitted, no engine or container invoked, no provider contacted, no credential read. Neither the enforcement falsification nor the manager-guard real-process proof was re-run; both are reused.",
+  "prepared": {
+    "artifacts": {
+      "PACKET.json": "a0bb3a6e6afa2d6babd766a69b506d7969f7bb4264ae8028f6bfc3ef95a4ad83",
+      "adapter.json": "cbe3bb4ade990eb5411c64a40be74a10e46a79f48343c499b5f1a8453fabc9c7",
+      "commands.json": "cef4f26cce6faf5ca44a1546099bc2138e51eeec5bff8ccb872f2ec9909043dd",
+      "deployment.json": "4db7ea4a6a3981c72ce53c0e112e96a8dcbeb1704022f74d6c4d8514f79d8321",
+      "policy.json": "2b75b8208cd288418ea5a9af8ece0c443abdaa19fda80a1ea2725e43fdbc306c",
+      "runtime-profile.json": "70ca07c494c9660bfaf747772f2233ccaf77b4ef3a4da90c26121b7b59ff1d34",
+      "submission.json": "9902ced58513077019886c9a393d277c63307f0525de0a4e8892cea063e16691",
+      "task.json": "0728de8e5c75be9c478e01e016034c5fc78a8499dba093260e9273141df42101"
+    },
+    "authoring_command": "/tmp/w333486-preflight-337453/packet/AUTHORING-COMMAND.json",
+    "authoring_controller": {
+      "relative": "tools/authoring_enforcement.py",
+      "sha256": "bc8c0363e44fedeae09c15a9065733227f08e279164ed68dc4b0e9e058a7c50f",
+      "staged": "/tmp/w333486-preflight-337453/code/v12/python/tools/authoring_enforcement.py"
+    },
+    "authority_uuid": "52e0f34a13204a6285fa279412c5ba1d",
+    "composer_start_is_unenforced": true,
+    "enforcement": "ENFORCEMENT.md",
+    "independent_review": "an independent reviewer consumes this preparation packet through v11; execution awaits an exact separate selection, and there is no automatic acceptance",
+    "packet_sha256": "a0bb3a6e6afa2d6babd766a69b506d7969f7bb4264ae8028f6bfc3ef95a4ad83",
+    "start_authorized": false,
+    "start_selected": false,
+    "state": "prepared-not-executed",
+    "work": "W333486"
+  },
+  "probes": [
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-attempt-failure-diagnostics/execution-337453/prepare.py",
+        "stage",
+        "--root",
+        "/tmp/w333486-probe-unsel-453"
+      ],
+      "expected_fragment": "START IS NOT SELECTED",
+      "left_no_root": true,
+      "probe": "stage refuses without the unselected-start acknowledgement",
+      "refused_as_expected": true,
+      "seconds": 0.0466163380042417,
+      "status": 1,
+      "tail": [
+        "RuntimeError: This packet's START IS NOT SELECTED. Both prerequisites are CLOSED (W333735 at a9f4fa4d, W334910 at fb487979), so this is not a blocker -- but independent preparation review comes first, then an exact execution selection. Two things to know: the previous packet WAS selected and died at startup in 0.506s (FAILURE.md), and the composer generated commands.json start still names the UNENFORCED supervisor -- use AUTHORING-COMMAND.json. See ENFORCEMENT.md. Re-run with --acknowledge-unselected-start to prepare anyway; preparation produces no execution."
+      ]
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-attempt-failure-diagnostics/execution-337453/prepare.py",
+        "bind",
+        "--root",
+        "/tmp/w333486-probe-drift-453"
+      ],
+      "expected_fragment": "staged manager drifted",
+      "left_no_root": true,
+      "probe": "bind refuses a drifted staged authoring controller",
+      "refused_as_expected": true,
+      "seconds": 0.054665497002133634,
+      "status": 1,
+      "tail": [
+        "RuntimeError: staged manager drifted: tools/authoring_enforcement.py"
+      ]
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "/tmp/w333486-probe-packet-453/prepare.py",
+        "stage",
+        "--root",
+        "/tmp/w333486-probe-453a",
+        "--acknowledge-unselected-start"
+      ],
+      "expected_fragment": "authoring controller is not pinned",
+      "left_no_root": true,
+      "probe": "pinning the SUPERSEDED controller digest refuses and leaves no root",
+      "refused_as_expected": true,
+      "seconds": 0.04818243599584093,
+      "status": 1,
+      "tail": [
+        "RuntimeError: the authoring controller is not pinned by this packet manager source"
+      ]
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "/tmp/w333486-probe-packet-453/prepare.py",
+        "stage",
+        "--root",
+        "/tmp/w333486-probe-453b",
+        "--acknowledge-unselected-start"
+      ],
+      "expected_fragment": "decision snapshot damaged",
+      "left_no_root": true,
+      "probe": "a damaged guard-review snapshot refuses and leaves no root",
+      "refused_as_expected": true,
+      "seconds": 0.04602737400273327,
+      "status": 1,
+      "tail": [
+        "RuntimeError: decision snapshot damaged or absent: guard-review.md"
+      ]
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "/tmp/w333486-probe-packet-453/prepare.py",
+        "stage",
+        "--root",
+        "/tmp/w333486-probe-453c",
+        "--acknowledge-unselected-start"
+      ],
+      "expected_fragment": "claims a start nobody has selected",
+      "left_no_root": true,
+      "probe": "a provenance claiming a selected start refuses and leaves no root",
+      "refused_as_expected": true,
+      "seconds": 0.04878563699458027,
+      "status": 1,
+      "tail": [
+        "RuntimeError: the provenance claims a start nobody has selected"
+      ]
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-attempt-failure-diagnostics/execution-337453/prepare.py",
+        "stage",
+        "--root",
+        "/tmp/w333486-preflight-337453",
+        "--acknowledge-unselected-start"
+      ],
+      "expected_fragment": "File exists",
+      "left_no_root": true,
+      "probe": "stage refuses an existing root",
+      "refused_as_expected": true,
+      "seconds": 0.14883394099888392,
+      "status": 1,
+      "tail": [
+        "FileExistsError: [Errno 17] File exists: '/tmp/w333486-preflight-337453'"
+      ]
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-attempt-failure-diagnostics/execution-337453/prepare.py",
+        "bind",
+        "--root",
+        "/tmp/w333486-preflight-337453"
+      ],
+      "expected_fragment": "already holds a composed packet",
+      "left_no_root": true,
+      "probe": "bind refuses a root that already holds a packet",
+      "refused_as_expected": true,
+      "seconds": 0.05287392999889562,
+      "status": 1,
+      "tail": [
+        "RuntimeError: this root already holds a composed packet; composing a second one over it would replace the documents an owner may already have read"
+      ]
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "-c",
+        "import json;from tools import authoring_enforcement as ae;ae.verify_controller(json.load(open('/tmp/w333486-preflight-337453/packet/PACKET.json')));print('verify_controller ACCEPTED', ae.__file__)"
+      ],
+      "expected_fragment": "verify_controller ACCEPTED",
+      "left_no_root": true,
+      "probe": "the CORRECTED controller accepts this packet from the staged source",
+      "refused_as_expected": true,
+      "seconds": 0.3120763929982786,
+      "status": 0,
+      "tail": [
+        "verify_controller ACCEPTED /tmp/w333486-preflight-337453/code/v12/python/tools/authoring_enforcement.py"
+      ]
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "-c",
+        "import json;from tools import authoring_enforcement as ae;ae.verify_controller(json.load(open('/tmp/w333486-preflight-337453/packet/PACKET.json')))"
+      ],
+      "expected_fragment": "outside the pinned manager source",
+      "left_no_root": true,
+      "probe": "the same check refuses a controller outside the pinned source",
+      "refused_as_expected": true,
+      "seconds": 0.16935733799618902,
+      "status": 1,
+      "tail": [
+        "RuntimeError: authoring controller is outside the pinned manager source"
+      ]
+    }
+  ],
+  "product_tests": 0,
+  "provider_invoked": false,
+  "retained_roots": [
+    "/tmp/w333486-preflight-337453",
+    "/tmp/w333486-probe-drift-453",
+    "/tmp/w333486-base-fb48",
+    "/tmp/w333486-preflight-334663",
+    "/tmp/w333486-probe-drift-663",
+    "/tmp/w333486-base-a9f4",
+    "/tmp/w333486-preflight-333707",
+    "/tmp/w333486-probe-drift-707",
+    "/tmp/w333486-base-probe",
+    "/tmp/w333486-preflight-333504",
+    "/tmp/w333486-probe-drift"
+  ],
+  "retained_why": "Left for the operator rather than removed: a managed turn does not issue a destructive shell command merely to tidy its own reproduction. None is a selected root and none holds a credential or a submitted Job. The later entries belong to superseded packets and are preserved with them.",
+  "root": "/tmp/w333486-preflight-337453",
+  "runtimes": 0,
+  "schema": "baton.w333486-execution-preflight/4",
+  "start_authorized": false,
+  "start_selected": false,
+  "steps": [
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-attempt-failure-diagnostics/execution-337453/prepare.py",
+        "stage",
+        "--root",
+        "/tmp/w333486-probe-drift-453",
+        "--acknowledge-unselected-start"
+      ],
+      "seconds": 0.1272580000004382,
+      "status": 0,
+      "stderr": "This packet's START IS NOT SELECTED. Both prerequisites are CLOSED (W333735 at a9f4fa4d, W334910 at fb487979), so this is not a blocker -- but independent preparation review comes first, then an exact execution selection. Two things to know: the previous packet WAS selected and died at startup in 0.506s (FAILURE.md), and the composer generated commands.json start still names the UNENFORCED supervisor -- use AUTHORING-COMMAND.json. See ENFORCEMENT.md.\n",
+      "stdout": "staged; bootstrap separately with --no-repositories, then bind. The start is not selected.\n",
+      "step": "stage (drift probe root)"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-attempt-failure-diagnostics/execution-337453/prepare.py",
+        "stage",
+        "--root",
+        "/tmp/w333486-preflight-337453",
+        "--acknowledge-unselected-start"
+      ],
+      "seconds": 0.12324166000325931,
+      "status": 0,
+      "stderr": "This packet's START IS NOT SELECTED. Both prerequisites are CLOSED (W333735 at a9f4fa4d, W334910 at fb487979), so this is not a blocker -- but independent preparation review comes first, then an exact execution selection. Two things to know: the previous packet WAS selected and died at startup in 0.506s (FAILURE.md), and the composer generated commands.json start still names the UNENFORCED supervisor -- use AUTHORING-COMMAND.json. See ENFORCEMENT.md.\n",
+      "stdout": "staged; bootstrap separately with --no-repositories, then bind. The start is not selected.\n",
+      "step": "stage"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "-m",
+        "tools.bootstrap",
+        "--inputs",
+        "/tmp/w333486-preflight-337453/bootstrap-inputs.json",
+        "--destination",
+        "/tmp/w333486-preflight-337453/instance",
+        "--distro",
+        "/home/sl/baton-runs/managed-correction-236087/build/stack/out/distro",
+        "--no-repositories"
+      ],
+      "seconds": 0.5905075679984293,
+      "status": 0,
+      "stderr": "",
+      "stdout": "repositories  not prepared: no source checkout was found or named, so the deployment has no target, workspace or worker sources yet and will schedule without reconciling\nauthority 52e0f34a...    generated for this instance\njob   none; no Work, grant or placeholder was created\nconfiguration /tmp/w333486-preflight-337453/instance/deployment.json\ncapacity      {\"job_affinity\": {}, \"jobs\": 0, \"note\": \"this instance binds no Job and configures no execution capacity; it serves a real idle scheduler and publisher over empty stores, and a worker, a Work, a declared base, a canonical target and a producer are supplied together when a Job is created\", \"schema\": \"baton.v12.stage-execution-deployment/2\", \"targets\": [], \"workers_by_role\": {\"implementation\": [], \"integration\": [], \"review\": []}}\nno Job was submitted and nothing was executed\ninstance      /tmp/w333486-preflight-337453/instance/instance.json\nruntime       81 files, digest c1ef3d23394916c8...\nstores        /tmp/w333486-preflight-337453/instance/db\nrepository    /tmp/w333486-preflight-337453/instance/repo\njustfile      /tmp/w333486-preflight-337453/instance/justfile\n\nThe deployment is operated from the destination, and needs nothing else:\n\n    cd /tmp/w333486-preflight-337453/instance && just status\n    just --justfile /tmp/w333486-preflight-337453/instance/justfile start        # from anywhere\n\nor the command directly, which is the same program:\n\n    /tmp/w333486-preflight-337453/instance/distro/baton-v12-stack status --instance /tmp/w333486-preflight-337453/instance/instance.json\n",
+      "step": "bootstrap"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-attempt-failure-diagnostics/execution-337453/prepare.py",
+        "bind",
+        "--root",
+        "/tmp/w333486-preflight-337453"
+      ],
+      "seconds": 0.3543167829993763,
+      "status": 0,
+      "stderr": "",
+      "stdout": "prepared and validated; no job submitted, no engine/provider invoked. Start not selected. Use packet/AUTHORING-COMMAND.json, NOT commands.json start -- see ENFORCEMENT.md.\n",
+      "step": "bind"
+    }
+  ]
+}

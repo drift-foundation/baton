@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "python3",
+    "-B",
+    "-c",
+    "import unittest,sys;r=unittest.TextTestRunner(verbosity=1).run(unittest.defaultTestLoader.loadTestsFromNames(['tests.job_manager.test_status', 'tests.job_manager.test_delegation', 'tests.job_manager.test_documents', 'tests.job_manager.test_tool', 'tests.manager.test_intake', 'tests.manager.test_maintenance', 'tests.manager.test_attempts', 'tests.manager.test_contracts_inventory', 'tests.manager.test_authoring_enforcement', 'tests.manager.test_attempt_failure_cause', 'tests.tools.test_worker_visibility', 'tests.tools.test_attempt_diagnostics']));sys.exit(0 if r.wasSuccessful() and not r.skipped else 1)"
+  ],
+  "cwd": "/tmp/w333486-review353910/v12/python",
+  "disk_root": "/home/sl/src/baton/.w333486-review353910-disk",
+  "status": 0,
+  "seconds": 14.777003557999706,
+  "timeout": 60,
+  "reaped": true,
+  "fixture_correction": "copied original isolated work fixtures; no product change"
+}

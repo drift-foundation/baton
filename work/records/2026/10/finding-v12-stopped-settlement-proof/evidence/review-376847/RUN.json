@@ -1,0 +1,15 @@
+{
+  "command": [
+    "timeout",
+    "90",
+    "python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.tools.test_stopped_settlement_joined.JoinedSettlement",
+    "tests.manager.test_stopped_settlement"
+  ],
+  "PYTHONPATH": "v12/python/src:v12/python",
+  "returncode": 0,
+  "seconds": 3.1023381689992675
+}

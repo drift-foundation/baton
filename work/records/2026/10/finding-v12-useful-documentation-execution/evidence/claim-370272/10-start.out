@@ -1,0 +1,13 @@
+refused: manager did not stay up (gone). Its log says:
+      File "stack_command.py", line 82, in _manager
+      File "tools/job_manager.py", line 1443, in main
+      File "tools/job_manager.py", line 1185, in _serve
+      File "tools/job_manager.py", line 1134, in _operations_from
+      File "tools/stage_execution.py", line 6995, in factory
+      File "tools/stage_execution.py", line 6606, in operations_from
+      File "tools/single_worker.py", line 3682, in worker_preflight
+      File "baton_v12/worker_manager/workspaces.py", line 1097, in hold_manager_instance
+      File "baton_v12/worker_manager/workspaces.py", line 874, in check_workspace_storage
+      File "baton_v12/worker_manager/workspaces.py", line 5067, in _refuse
+    baton_v12.contracts.errors.ContractRefusal: the configured workspace store '/home/sl/baton-instances/useful-template-job-w366962/state/… is not a directory this manager can see
+    [PYI-169425:ERROR] Failed to execute script 'stack_command' due to unhandled exception!

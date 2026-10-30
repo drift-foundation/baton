@@ -1,0 +1,14 @@
+{
+  "command": [
+    "timeout",
+    "60",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_startup_prerequisites",
+    "tests.tools.test_bootstrap"
+  ],
+  "fixture_root": "/var/tmp/baton-w257624",
+  "returncode": 0,
+  "seconds": 17.906691561000116
+}

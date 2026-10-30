@@ -1,0 +1,26 @@
+..F..F..
+======================================================================
+FAIL: test_expiry_is_not_revival_or_reuse_and_unknown_cessation_holds (tests.job_manager.test_serving_renewal.ServingPermission.test_expiry_is_not_revival_or_reuse_and_unknown_cessation_holds)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/baton-serving-envelope-347778/v12/python/tests/job_manager/test_serving_renewal.py", line 129, in test_expiry_is_not_revival_or_reuse_and_unknown_cessation_holds
+    with self.assertRaises(ContractRefusal):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+======================================================================
+FAIL: test_real_acquisition_and_enforcement_support_3600_then_cleanup (tests.job_manager.test_serving_renewal.ServingPermission.test_real_acquisition_and_enforcement_support_3600_then_cleanup)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/baton-serving-envelope-347778/v12/python/tests/job_manager/test_serving_renewal.py", line 87, in test_real_acquisition_and_enforcement_support_3600_then_cleanup
+    self.assertEqual(self.engine.state, 'absent', report)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'running' != 'absent'
+- running
++ absent
+ : {'state': 'stopping', 'attempts': {'attempt-1': {'runtime': {'attempt_id': 'attempt-1', 'runtime_id': 'runtime-1', 'execution_runtime': 'running', 'cleanup': 'pending', 'assignment': {'work_ref': {'authority_uuid': '0000000000000000000000000000000a', 'work_id': '0000000a-W1'}, 'participant': 'baton.claude', 'generation': 1}}, 'observation': {'runtime_id': 'runtime-1', 'state': 'running', 'why': 'the engine described this exact identity'}, 'token': {'acquired_at': '2026-08-24T00:02:00.000Z', 'attempt': 'attempt-1', 'domain': 'workspace:42:106254', 'execution': 'attempt-1', 'expires_at': '2026-08-24T01:20:00.000Z', 'generation': 1, 'operation': 'runtime.start:af8e746e7acf861bdc0c086aab883a277f48dfb12c7c6fc3e787aa1d55f184fd', 'owner': 'ad282f75ceb23e715c6cd650d9f9c897f6f59ee0ea8e82a1c34b8bb985cde054', 'permission': {'expires_at': '2026-08-24T01:20:00.000Z', 'policy': {'cleanup_seconds': 60, 'execution_limits': {'boundaries': {'host_verification': {'default_seconds': 300, 'origin': 'job', 'seconds': 30, 'setting': 'verification_command_seconds'}, 'integration_verification': {'default_seconds': 1800, 'origin': 'job', 'seconds': 30, 'setting': 'verification_command_seconds'}, 'ordinary_verification': {'default_seconds': 900, 'origin': 'job', 'seconds': 30, 'setting': 'verification_command_seconds'}, 'provider_turn': {'default_seconds': 3600, 'origin': 'job', 'seconds': 3600, 'setting': 'provider_turn_seconds'}}, 'compatibility_generation': 1, 'requested': {'provider_turn_seconds': 3600, 'verification_command_seconds': 30}, 'scope': 'per-invocation', 'units': 'seconds'}, 'job': 'job-one', 'run': 'enforcement-case', 'total_seconds': 4800}, 'started_at': '2026-08-24T00:00:00.000Z', 'stop_at': '2026-08-24T01:19:00.000Z'}, 'renewals': 0, 'seconds': None, 'version': 1, 'launch': 'runtime.start:af8e746e7acf861bdc0c086aab883a277f48dfb12c7c6fc3e787aa1d55f184fd', 'container': 'runtime-1', 'returned': False, 'activating': False, 'activation_started': None, 'acquired_expires_at': '2026-08-24T01:20:00.000Z', 'revision': 0, 'renewed_at': None, 'renewals_remaining': 0, 'expiry_judged_at': None, 'expired': False, 'timing_ambiguous': False, 'timing_observed_at': None, 'timing_decided_at': None, 'revoked': False}, 'faults': []}}, 'faults': []}
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.070s
+
+FAILED (failures=2)

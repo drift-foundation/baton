@@ -1,0 +1,55 @@
+{
+  "MEASURED_TWICE": {
+    "ceiling_seconds": 30,
+    "first": {
+      "all_in": "tests.manager.test_maintenance",
+      "errors": 7,
+      "exit_status": 1,
+      "failures": 9,
+      "run": "durable-capture-w341357-345039",
+      "tests": 864,
+      "unittest_seconds": 12.817
+    },
+    "fits_the_ceiling": true,
+    "not_settled": [
+      "which filesystem filled and its available bytes AND inodes",
+      "the peak usage and which method reaches the high-water mark",
+      "the same-environment pinned base versus candidate counts",
+      "that every assertion in a setup-failing subtest reaches and passes -- an equal test count proves nothing about assertion coverage"
+    ],
+    "second": {
+      "errors": 16,
+      "errors_are": "16 failing SUBTEST outcomes in FOUR methods, not 16 independent methods and not 864 concurrent stores",
+      "exit_status": 1,
+      "failures": 0,
+      "one_cause": "sqlite3.OperationalError: database or disk is full",
+      "run": "durable-capture-w341357-345388",
+      "tests": 864,
+      "unittest_seconds": 12.515
+    },
+    "settled": "the 30-second ceiling FITS, twice measured. That question is closed."
+  },
+  "ceiling": 30,
+  "composed_from": "/tmp/w341357-preflight5/packet/task.json",
+  "executed_by_this_preparation": false,
+  "identity_rebinding_did_not_move_the_gate": "RE-DERIVED FROM THIS CLAIM'S COMPOSED task.json AND THE DIGEST IS IDENTICAL to the one execution-341637 was accepted with. The fresh run id and root travel in the submission and the packet, not in the verification argv, so the gate is provably the same gate -- not merely described as unchanged.",
+  "member_digest_unchanged": true,
+  "member_digest_unchanged_since_claim339421": true,
+  "modules": [
+    "tests.manager.test_intake",
+    "tests.manager.test_attempts",
+    "tests.manager.test_maintenance",
+    "tests.manager.test_contracts_inventory",
+    "tests.manager.test_attempt_failure_cause"
+  ],
+  "names_all_five": true,
+  "owed": [
+    "v12/python/tests/manager/test_attempt_failure_cause.py"
+  ],
+  "parent_baseline_for_context": "the parent's twelve-module argv measured 1124 tests / 13.642s of EXISTING modules at claim339421, obtained by direct host product execution OUTSIDE that claim's preparation-only boundary -- an operational finding recorded in the parent PROGRESS and in review-2026-10-20T14-56-51Z. Carried here only as context; this slice measures nothing and claims nothing.",
+  "schema": "baton.w341357-execution-gate-check/1",
+  "still_never_measured": "four runs; zero measurements of this argv. run340016 ran the PARENT's twelve-module argv on real work and exited 1 with its output withheld; run340352 and run341360 were cut off before verification; run341637 never began. TASK.md step 2 makes measuring it the turn's first substantive act, and forbids buying a pass by weakening, deleting, relaxing or narrowing any case.",
+  "unchanged_by_this_continuation": "THE SAME FIVE MODULES and the same argv. The member digest re-derived from this claim's composed task.json is IDENTICAL to the one every accepted packet since claim339421 carried. This turn corrects FIXTURE LIFETIME AND STORAGE, not the gate. No module, case or assertion may be dropped, skipped, narrowed or relaxed, and every negative and refusal case must still REACH its refusal.",
+  "verification_member_sha256": "2f7ed3dca95da498657a0e549e53107679fd7e8cf4503d5022555ba9e642176c",
+  "why_not": "no product-test authority for this author, and the measurement belongs inside the isolated run. This claim executed no product test at all."
+}

@@ -1,0 +1,13 @@
+{
+  "name": "status",
+  "cmd": "/home/sl/baton-instances/useful-template-job-w366962/distro/baton-v12-stack status --instance /home/sl/baton-instances/useful-template-job-w366962/instance.json",
+  "started": "2026-10-28T03:30:08.919Z",
+  "result": {
+    "chunk_id": "443f82",
+    "wall_time_seconds": 0.000006592,
+    "exit_code": 0,
+    "original_token_count": 86,
+    "output": "manager    stale pid 169781\npublisher  stale pid 169782\nsnapshot   fresh (observed 1.4s ago, written 1.4s ago)\njobs       1 observed (canonical=True)\nruntime   2 open episode(s), 2 with a recorded runtime, observed 1.4s ago\n          stopping a supervisor does not stop a runtime, and this is the last RECORDED answer rather than a fresh one\n"
+  },
+  "ended": "2026-10-28T03:30:09.067Z"
+}

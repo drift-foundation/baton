@@ -1,0 +1,85 @@
+{
+ "schema": "baton.w325959-native-token-policy/1",
+ "claim": 354357,
+ "status": "STEP 1 COMPLETE (the acquisition-to-cessation enumeration) and STEP 2 PINNED (the policy that follows from it). Steps 3 and 4 -- the connection and the deterministic proof -- are NOT done; the turn budget ended here. This is the concise delta and next executable step the review asked for on interruption.",
+ "settled_by_the_reviewer_at_354354": "existing tools/job_manager._reclaiming and tokens.Governance.overdue enforce token expiry; bounded initial lifetime is supported; the envelope alone lacks native stop_at enforcement and is not to be pursued. My claim354320 determination is confirmed, so the mechanism question is closed.",
+
+ "STEP_1_THE_ACQUISITION_TO_CESSATION_ENUMERATION": {
+  "scope_as_the_review_set_it": "only work BETWEEN acquisition and cessation; pre-acquisition and post-cessation work excluded; existing operation bounds used rather than a timing audit; unknowns documented.",
+  "bounded_operations_inside_one_native_attempt": [
+   {
+    "operation": "source checkout",
+    "site": "v12/worker/claude_agent.py:2429 `for step in plan['steps']`, each run at :2432 with timeout=CHECKOUT_SECONDS",
+    "bound_each": 900,
+    "bound_constant": "claude_agent.py:356 CHECKOUT_SECONDS = 900, documented as 'How long ONE source-checkout step is given'",
+    "count": 3,
+    "count_evidence": "the production plan is baton_v12.source_profiles.checkout.checkout_plan, whose git-profile steps are clone_vector, detach_vector and verify_vector -- three argv steps, each one bounded call",
+    "worst_case_total": 2700
+   },
+   {
+    "operation": "provider turn",
+    "site": "the adapter's provider dispatch under the Job's resolved boundary",
+    "bound_each": 3600,
+    "bound_constant": "execution_limits generation 1 provider_turn = 3600; the pilot's policy.json selects provider_turn_seconds 3600",
+    "count": 1,
+    "count_evidence": "v12/worker/baton_worker.py:2216 serve_exchange -- the receipt published before dispatch IS the durable replay fence, and 'a manager restart during the turn, and a re-entry of this program after a crash all find it and NONE OF THEM STARTS A SECOND PROVIDER TURN'. One attempt is one provider turn, enforced by the product rather than assumed by me.",
+    "worst_case_total": 3600
+   },
+   {
+    "operation": "task verification",
+    "site": "claude_agent.py:2153 -- the single `self._verify(...)` call site, run at :4151 under its bound",
+    "bound_each": 900,
+    "bound_constant": "claude_agent.py:349 VERIFICATION_SECONDS = 900, and the Job's verification_command_seconds resolves to 900 for the pilot",
+    "count": 1,
+    "count_evidence": "one call site, reached once per turn and only when the provider succeeded and produced a patch",
+    "worst_case_total": 900
+   },
+   {
+    "operation": "engine calls",
+    "site": "the adapter/manager engine boundary",
+    "bound_each": "already individually bounded and short by nature",
+    "count": "small and bounded",
+    "worst_case_total": "not separately summed; see UNKNOWNS",
+    "note": "tools/job_manager.py:130 records the same reasoning for the reclaim side -- 'a reclaim's engine calls are short by nature'"
+   }
+  ],
+  "THE_REVIEWERS_WARNING_WAS_CORRECT_AND_THIS_IS_THE_PROOF": "provider + verifier alone is 4500, but the checkout adds up to 2700 MORE inside the same token's life. So 4500 would expire mid-attempt during a legitimate checkout, and my earlier instinct to size on provider+verifier would have produced a token that dies doing authorized work. The enumeration, not the instinct, is what settles it.",
+  "UNKNOWNS_DOCUMENTED_RATHER_THAN_GUESSED": [
+   "engine-call overhead is not summed here: each call is individually bounded and short, but I did not enumerate how many a single attempt makes, and the review explicitly did not ask for a global runtime proof",
+   "workspace preparation, custody and freezing/publication were not separately enumerated; whether any of them carries its own explicit seconds between acquisition and cessation is NOT established, and a lifetime that ignores them could still be short",
+   "therefore the figure below is a FLOOR derived from the three enumerated operations, not a proved sufficient total"
+  ]
+ },
+
+ "STEP_2_THE_PINNED_POLICY": {
+  "mechanism": "bounded initial token lifetime at the prepared acquisition -- tokens.acquire's pre-existing `seconds`, mutually exclusive with `permission` by acquire:386-391",
+  "origin": "the acquisition instant. tokens.acquire composes the deadline from the store clock at acquisition, which is also what makes it durable across a manager restart: the record carries the deadline rather than recomputing it.",
+  "persistence": "the acquired token record in the control store; nothing recomputes it later",
+  "stop_trigger": "expiry -> tokens.Governance.overdue (tokens.py:1594, which answers only when `expired` and unreturned) -> tools/job_manager.py:425 _reclaiming, driven by serve(...) on the serving interval",
+  "cleanup_interval": "the pilot's policy.json names cleanup_observation_seconds 120 and labels it 'Proposed observation allowance, not cessation bound. Unknown runtime retains hold.' A reserve is therefore owed ON TOP of the operation floor, and EXPIRY IS NOT RELEASE -- the reviewer restated this at 354354: cleanup and unknown holds remain owed.",
+  "restart_treatment": "durable original timing. The deadline is in the record, so a manager restart re-reads it and neither resets nor revives it; the worker's own receipt fence independently prevents a second provider turn.",
+  "LIM_classification": "LIM-2, a TOKEN bound. It is derived per attempt from that attempt's own enumerated operation bounds, and each attempt acquires its own token, so nothing accumulates across the Job's two stages. It is NOT the LIM-3 cumulative limit the pilot declined, and it is not an invocation-count policy: the counts above are the product's own enforced invariants, not selections I made.",
+  "the_floor_this_yields": {
+   "checkout": 2700, "provider_turn": 3600, "verification": 900,
+   "operation_floor": 7200,
+   "plus": "a cleanup reserve and engine-call overhead",
+   "and_explicitly": "A FLOOR, NOT A PROVED TOTAL. The unknowns above must be closed before a number is committed in code, and I am not committing one here."
+  }
+ },
+
+ "STEP_3_AND_4_NOT_DONE": {
+  "step_3_the_connection": "thread `seconds` from the Job's admitted resolution through prepared_workspace_governance into PreparedGovernance.reserve -- the one site that today passes neither seconds nor a native permission -- and supply it from stage_execution.factory. The supplier already parameterised that constructor for `permission`; this is its `seconds` sibling. NOT IMPLEMENTED.",
+  "step_4_the_proof": "focused deterministic two-stage proof with fake clock and engine/provider substitutes: both stages beyond the initial 900 under valid permission, 3600/900 per-invocation ceilings unchanged, host stop/cancel/expiry still governing the exact runtime, cleanup and unknown holds preserved (expiry is not release), replay/restart with durable original timing and no revival or duplicate effects. NOT WRITTEN.",
+  "step_5": "join one owner-produced failure through durable capture, /7 status and the packaged secret-free report. NOT DONE."
+ },
+
+ "NEXT_EXECUTABLE_STEP": "close the two documented unknowns -- enumerate whether workspace preparation, custody and freezing/publication carry explicit seconds between acquisition and cessation, and bound the engine-call count for one attempt -- then commit the lifetime value, implement the `seconds` thread, and write the step-4 proof.",
+
+ "UNCHANGED_THIS_CLAIM": {
+  "product_edits": 0,
+  "candidate": "the 31-path composition is untouched; COMBINED-MANIFEST 21f98ff355b6d0d2693dc84c28605a765ea1728d813ee22b7aedab8ec3e60dd3",
+  "tests_run": 0,
+  "reason_none_run": "nothing changed that would warrant one, and the review demanded no new tests for this checkpoint",
+  "boundaries": "no live instance, engine, provider or credential; no deployment, recovery, migration or shared import; no Git mutation -- reads only"
+ }
+}

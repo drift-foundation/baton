@@ -1,0 +1,11 @@
+{
+  "archive_regular_members": 211,
+  "closed_hash_inventory_entries": 210,
+  "source_payload_members": 207,
+  "source_digest_verified": "2bab26b6840faa6bae6e273b34652fbc97b47d07aba68000bb17f24112db1c59",
+  "all_python_ast_parse": true,
+  "compose_required_arguments_present": true,
+  "shell_syntax_blocks": 6,
+  "duration_seconds": 0.27177530500011926,
+  "execution": "static preparation checks only; no product test, installer, credential read, privileged operation or live execution"
+}

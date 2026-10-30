@@ -1,0 +1,117 @@
+test_an_explicit_submission_id_is_kept_and_an_absent_one_derived (tests.job_manager.test_templates.TheAnswerIsSelfDescribing.test_an_explicit_submission_id_is_kept_and_an_absent_one_derived) ... ok
+test_the_answer_is_detached_from_the_frozen_table (tests.job_manager.test_templates.TheAnswerIsSelfDescribing.test_the_answer_is_detached_from_the_frozen_table)
+A CALLER CANNOT REACH THE TABLE THROUGH AN ANSWER. ... ok
+test_the_request_four_are_preserved_exactly (tests.job_manager.test_templates.TheAnswerIsSelfDescribing.test_the_request_four_are_preserved_exactly)
+TASK, SOURCE, SCOPE AND ACCEPTANCE SURVIVE THE RESOLUTION. ... ok
+test_the_resolution_carries_a_canonical_digest (tests.job_manager.test_templates.TheAnswerIsSelfDescribing.test_the_resolution_carries_a_canonical_digest)
+WHICH PROVES IT IS WITHIN THE FROZEN STRUCTURAL BOUNDS. ... ok
+test_the_resolution_names_its_own_schema_and_closed_members (tests.job_manager.test_templates.TheAnswerIsSelfDescribing.test_the_resolution_names_its_own_schema_and_closed_members) ... ok
+test_the_rules_report_the_vocabularies_their_owners_decide (tests.job_manager.test_templates.TheAnswerIsSelfDescribing.test_the_rules_report_the_vocabularies_their_owners_decide)
+EACH MEMBER IS A WORD AN OWNING MODULE ALREADY DECIDED. ... ok
+test_a_changed_deployment_cannot_reinterpret_a_submitted_job (tests.job_manager.test_templates.TheConsumerBoundary.test_a_changed_deployment_cannot_reinterpret_a_submitted_job)
+THE ACCEPTANCE SENTENCE, DRIVEN AT THE STORE. ... ok
+test_a_resolution_with_a_ceiling_records_its_limits (tests.job_manager.test_templates.TheConsumerBoundary.test_a_resolution_with_a_ceiling_records_its_limits)
+AND THE STORE'S OWN READER REPORTS WHAT THE REQUEST OVERRODE. ... ok
+test_a_resolution_without_a_ceiling_submits_as_a_legacy_document (tests.job_manager.test_templates.TheConsumerBoundary.test_a_resolution_without_a_ceiling_submits_as_a_legacy_document)
+A `/1` DOCUMENT IS STILL A `/1` DOCUMENT. ... ok
+test_an_exact_resubmission_of_one_resolution_replays (tests.job_manager.test_templates.TheConsumerBoundary.test_an_exact_resubmission_of_one_resolution_replays)
+IDEMPOTENCE IS THE SUBMISSION'S AND IS NOT RE-EARNED HERE. ... ok
+test_the_legacy_submission_contract_is_untouched (tests.job_manager.test_templates.TheConsumerBoundary.test_the_legacy_submission_contract_is_untouched)
+PRESERVE OLD SUBMISSION CONTRACTS, proved by submitting one. ... ok
+test_the_projection_holds_the_review_behind_its_implementation (tests.job_manager.test_templates.TheConsumerBoundary.test_the_projection_holds_the_review_behind_its_implementation)
+THE GATE IS THE WHOLE POINT OF THE DEPENDENCY. ... ok
+test_the_recorded_stages_carry_the_resolved_intent (tests.job_manager.test_templates.TheConsumerBoundary.test_the_recorded_stages_carry_the_resolved_intent) ... ok
+test_the_resolution_records_into_a_real_job_store (tests.job_manager.test_templates.TheConsumerBoundary.test_the_resolution_records_into_a_real_job_store) ... ok
+test_the_submission_is_already_normalized_by_its_real_owner (tests.job_manager.test_templates.TheConsumerBoundary.test_the_submission_is_already_normalized_by_its_real_owner)
+`resolve` RUNS IT THROUGH `owned_submission` BEFORE ANSWERING. ... ok
+test_the_submission_survives_a_round_trip_through_text (tests.job_manager.test_templates.TheConsumerBoundary.test_the_submission_survives_a_round_trip_through_text)
+BECAUSE THAT IS HOW THE CLI ACTUALLY DELIVERS ONE. ... ok
+test_a_declaration_that_is_not_a_sequence_refuses (tests.job_manager.test_templates.TheFrozenTable.test_a_declaration_that_is_not_a_sequence_refuses) ... ok
+test_a_missing_or_extra_declaration_member_refuses (tests.job_manager.test_templates.TheFrozenTable.test_a_missing_or_extra_declaration_member_refuses) ... ok
+test_a_probe_definition_is_accepted_so_the_faults_are_the_faults (tests.job_manager.test_templates.TheFrozenTable.test_a_probe_definition_is_accepted_so_the_faults_are_the_faults) ... ok
+test_a_repeated_role_name_refuses (tests.job_manager.test_templates.TheFrozenTable.test_a_repeated_role_name_refuses) ... ok
+test_a_role_consuming_a_result_nobody_upstream_produces_refuses (tests.job_manager.test_templates.TheFrozenTable.test_a_role_consuming_a_result_nobody_upstream_produces_refuses)
+THE SECOND, AND THE WORSE ONE. ... ok
+test_a_role_consuming_from_a_role_it_does_not_depend_on_refuses (tests.job_manager.test_templates.TheFrozenTable.test_a_role_consuming_from_a_role_it_does_not_depend_on_refuses)
+A PRODUCER THAT EXISTS IS NOT A GATE. ... ok
+test_a_role_declaration_missing_a_member_refuses (tests.job_manager.test_templates.TheFrozenTable.test_a_role_declaration_missing_a_member_refuses) ... ok
+test_a_role_gating_on_a_role_the_template_does_not_carry_refuses (tests.job_manager.test_templates.TheFrozenTable.test_a_role_gating_on_a_role_the_template_does_not_carry_refuses)
+THE FIRST OF THE TWO MISMATCHES: a gate nothing can open. ... ok
+test_a_role_gating_on_itself_refuses (tests.job_manager.test_templates.TheFrozenTable.test_a_role_gating_on_itself_refuses) ... ok
+test_a_stage_kind_outside_the_submission_vocabulary_refuses (tests.job_manager.test_templates.TheFrozenTable.test_a_stage_kind_outside_the_submission_vocabulary_refuses) ... ok
+test_a_template_with_no_role_refuses (tests.job_manager.test_templates.TheFrozenTable.test_a_template_with_no_role_refuses) ... ok
+test_a_terminal_policy_outside_the_vocabulary_refuses (tests.job_manager.test_templates.TheFrozenTable.test_a_terminal_policy_outside_the_vocabulary_refuses) ... ok
+test_every_registered_template_satisfies_the_rule (tests.job_manager.test_templates.TheFrozenTable.test_every_registered_template_satisfies_the_rule)
+CHECKED AT IMPORT TOO, and asserted again here. ... ok
+test_more_roles_than_a_job_has_stages_refuses (tests.job_manager.test_templates.TheFrozenTable.test_more_roles_than_a_job_has_stages_refuses) ... ok
+test_permitting_an_override_nothing_applies_refuses (tests.job_manager.test_templates.TheFrozenTable.test_permitting_an_override_nothing_applies_refuses)
+AN OVERRIDE NOBODY RESOLVES IS A CHOICE A REQUEST WOULD BE TOLD IT ... ok
+test_two_roles_of_one_stage_kind_refuse (tests.job_manager.test_templates.TheFrozenTable.test_two_roles_of_one_stage_kind_refuse)
+BECAUSE THAT IS WHAT A STAGE IDENTITY IS. ... ok
+test_the_candidate_output_is_the_host_sides_own_spelling (tests.job_manager.test_templates.TheOutputNamesAgreeWithTheirOwners.test_the_candidate_output_is_the_host_sides_own_spelling) ... ok
+test_the_candidate_output_is_the_worker_adapters_own_spelling (tests.job_manager.test_templates.TheOutputNamesAgreeWithTheirOwners.test_the_candidate_output_is_the_worker_adapters_own_spelling)
+READ FROM THE ADAPTER'S SOURCE RATHER THAN IMPORTED. ... ok
+test_the_review_output_names_come_from_the_review_driver (tests.job_manager.test_templates.TheOutputNamesAgreeWithTheirOwners.test_the_review_output_names_come_from_the_review_driver) ... ok
+test_the_two_resolved_kinds_are_the_pools_two_lanes (tests.job_manager.test_templates.TheOutputNamesAgreeWithTheirOwners.test_the_two_resolved_kinds_are_the_pools_two_lanes)
+A STAGE IS ALLOCATED BY ITS LANE, and this template's two kinds are ... ok
+test_a_ceiling_outside_the_supported_range_refuses (tests.job_manager.test_templates.TheOverrides.test_a_ceiling_outside_the_supported_range_refuses) ... ok
+test_a_ceiling_that_is_not_a_whole_number_refuses (tests.job_manager.test_templates.TheOverrides.test_a_ceiling_that_is_not_a_whole_number_refuses) ... ok
+test_a_forbidden_override_refuses_rather_than_being_dropped (tests.job_manager.test_templates.TheOverrides.test_a_forbidden_override_refuses_rather_than_being_dropped)
+DROPPING IT WOULD ANSWER A CHOICE THE CALLER DID NOT GET. ... ok
+test_a_partial_override_leaves_the_other_boundary_alone (tests.job_manager.test_templates.TheOverrides.test_a_partial_override_leaves_the_other_boundary_alone) ... ok
+test_a_present_null_override_is_not_an_omitted_one (tests.job_manager.test_templates.TheOverrides.test_a_present_null_override_is_not_an_omitted_one)
+THE CORRECTION `documents._job` ALREADY CARRIES, one level up. ... ok
+test_a_present_null_overrides_member_is_not_an_absent_one (tests.job_manager.test_templates.TheOverrides.test_a_present_null_overrides_member_is_not_an_absent_one)
+AN ABSENT MEMBER AND A PRESENT NULL ARE DIFFERENT INTENTS. ... ok
+test_an_empty_override_object_resolves_the_preserved_defaults (tests.job_manager.test_templates.TheOverrides.test_an_empty_override_object_resolves_the_preserved_defaults) ... ok
+test_an_explicit_ceiling_moves_its_boundary_and_says_so (tests.job_manager.test_templates.TheOverrides.test_an_explicit_ceiling_moves_its_boundary_and_says_so)
+AND THE ORIGIN IS WHERE THE OVERRIDE'S PROVENANCE LIVES. ... ok
+test_an_omitted_override_preserves_every_runner_default (tests.job_manager.test_templates.TheOverrides.test_an_omitted_override_preserves_every_runner_default) ... ok
+test_an_unknown_limit_setting_refuses_rather_than_being_ignored (tests.job_manager.test_templates.TheOverrides.test_an_unknown_limit_setting_refuses_rather_than_being_ignored) ... ok
+test_the_generation_this_build_admits_is_pinned_in_the_answer (tests.job_manager.test_templates.TheOverrides.test_the_generation_this_build_admits_is_pinned_in_the_answer)
+A LATER DEFAULT CHANGE CANNOT MOVE THESE NUMBERS. ... ok
+test_a_configuration_that_is_not_a_document_refuses (tests.job_manager.test_templates.TheRequestIsOwned.test_a_configuration_that_is_not_a_document_refuses) ... ok
+test_a_duplicated_acceptance_criterion_refuses (tests.job_manager.test_templates.TheRequestIsOwned.test_a_duplicated_acceptance_criterion_refuses) ... ok
+test_a_missing_required_member_is_named (tests.job_manager.test_templates.TheRequestIsOwned.test_a_missing_required_member_is_named) ... ok
+test_a_missing_source_digest_is_named (tests.job_manager.test_templates.TheRequestIsOwned.test_a_missing_source_digest_is_named) ... ok
+test_a_missing_task_member_is_named (tests.job_manager.test_templates.TheRequestIsOwned.test_a_missing_task_member_is_named) ... ok
+test_a_request_carrying_a_secret_is_refused_as_one (tests.job_manager.test_templates.TheRequestIsOwned.test_a_request_carrying_a_secret_is_refused_as_one)
+THE SECRET CHECK RUNS BEFORE THE STRUCTURAL ONES. ... ok
+test_a_request_that_is_not_a_document_refuses (tests.job_manager.test_templates.TheRequestIsOwned.test_a_request_that_is_not_a_document_refuses) ... ok
+test_a_scope_naming_one_place_twice_refuses (tests.job_manager.test_templates.TheRequestIsOwned.test_a_scope_naming_one_place_twice_refuses) ... ok
+test_a_scope_path_that_climbs_out_of_the_repository_refuses (tests.job_manager.test_templates.TheRequestIsOwned.test_a_scope_path_that_climbs_out_of_the_repository_refuses) ... ok
+test_an_absent_acceptance_criterion_refuses (tests.job_manager.test_templates.TheRequestIsOwned.test_an_absent_acceptance_criterion_refuses)
+A JOB WITH NOTHING TO BE JUDGED AGAINST CANNOT BE REVIEWED. ... ok
+test_an_empty_scope_is_a_work_that_changes_no_test (tests.job_manager.test_templates.TheRequestIsOwned.test_an_empty_scope_is_a_work_that_changes_no_test) ... ok
+test_an_unrecognised_request_member_refuses (tests.job_manager.test_templates.TheRequestIsOwned.test_an_unrecognised_request_member_refuses) ... ok
+test_no_configuration_at_all_resolves_nothing_and_says_why (tests.job_manager.test_templates.TheRequestIsOwned.test_no_configuration_at_all_resolves_nothing_and_says_why)
+AN ABSENT CONFIGURATION IS NOT AN EMPTY ONE WITH DEFAULTS. ... ok
+test_the_prose_members_are_bounded (tests.job_manager.test_templates.TheRequestIsOwned.test_the_prose_members_are_bounded) ... ok
+test_a_configured_kind_this_template_does_not_carry_is_admitted (tests.job_manager.test_templates.TheResolvedStages.test_a_configured_kind_this_template_does_not_carry_is_admitted)
+A DEPLOYMENT CONFIGURES ITS POOL ONCE. ... ok
+test_a_deployment_that_installed_no_reviewer_refuses (tests.job_manager.test_templates.TheResolvedStages.test_a_deployment_that_installed_no_reviewer_refuses)
+REFUSED HERE RATHER THAN AT RESERVATION. ... ok
+test_a_profile_key_that_is_not_a_stage_kind_refuses (tests.job_manager.test_templates.TheResolvedStages.test_a_profile_key_that_is_not_a_stage_kind_refuses) ... ok
+test_both_stages_name_the_one_work_the_task_named (tests.job_manager.test_templates.TheResolvedStages.test_both_stages_name_the_one_work_the_task_named)
+THE DEFECT A GENERIC PARSER CANNOT REFUSE. ... ok
+test_each_stage_declares_what_it_consumes_and_produces (tests.job_manager.test_templates.TheResolvedStages.test_each_stage_declares_what_it_consumes_and_produces) ... ok
+test_each_stage_requests_the_profile_its_deployment_installed (tests.job_manager.test_templates.TheResolvedStages.test_each_stage_requests_the_profile_its_deployment_installed) ... ok
+test_the_review_gates_on_the_implementation_of_its_own_job (tests.job_manager.test_templates.TheResolvedStages.test_the_review_gates_on_the_implementation_of_its_own_job) ... ok
+test_the_stages_are_implementation_then_independent_review (tests.job_manager.test_templates.TheResolvedStages.test_the_stages_are_implementation_then_independent_review) ... ok
+test_a_deployment_may_configure_the_default_explicitly (tests.job_manager.test_templates.TheSelection.test_a_deployment_may_configure_the_default_explicitly) ... ok
+test_a_deployment_whose_default_is_unknown_refuses_every_request (tests.job_manager.test_templates.TheSelection.test_a_deployment_whose_default_is_unknown_refuses_every_request)
+AND IT REFUSES ONE THAT NAMED A VERSION, which is the point. ... ok
+test_a_version_that_is_not_text_refuses (tests.job_manager.test_templates.TheSelection.test_a_version_that_is_not_text_refuses) ... ok
+test_an_explicit_selection_is_recorded_as_the_requests_own (tests.job_manager.test_templates.TheSelection.test_an_explicit_selection_is_recorded_as_the_requests_own) ... ok
+test_an_omitted_selection_resolves_the_configured_default (tests.job_manager.test_templates.TheSelection.test_an_omitted_selection_resolves_the_configured_default)
+A DEFAULT SAVES TYPING AND HIDES NOTHING. ... ok
+test_an_unknown_explicit_version_refuses_and_names_what_exists (tests.job_manager.test_templates.TheSelection.test_an_unknown_explicit_version_refuses_and_names_what_exists) ... ok
+test_the_configuration_schema_is_an_equality_test (tests.job_manager.test_templates.TheSelection.test_the_configuration_schema_is_an_equality_test) ... ok
+test_the_request_schema_is_an_equality_test (tests.job_manager.test_templates.TheSelection.test_the_request_schema_is_an_equality_test) ... ok
+test_the_two_selections_of_one_version_resolve_identically (tests.job_manager.test_templates.TheSelection.test_the_two_selections_of_one_version_resolve_identically)
+WHICH IS WHAT MAKES A PINNED VERSION REPRODUCIBLE. ... ok
+
+----------------------------------------------------------------------
+Ran 78 tests in 0.037s
+
+OK

@@ -1,0 +1,284 @@
+{
+  "work": "W371076",
+  "claim": 383351,
+  "participant": "baton.codxpc",
+  "captured_at": "2026-10-29T12:30:23.288106+00:00",
+  "meaning": "Current source/reference pins for planning; not runtime acceptance or historical reviewed-byte equivalence",
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "6af9adaf4fc5f0377b1442c8dbf0e582265a6386b108c5c85e1a5eb19dd39ccf",
+      "bytes": 48000
+    },
+    {
+      "path": "docs/AGENTS-MAILBOX-PROTO.md",
+      "sha256": "61b75e9fd7a7a257c5525aa13892e079efc51257e48fe661ab5189c4beea93e5",
+      "bytes": 12911
+    },
+    {
+      "path": "docs/EFFECTIVE-BATON.md",
+      "sha256": "fc0cc07bd335d910939bd498570d06306352246d98bd251b7b7395c3c8070b73",
+      "bytes": 26278
+    },
+    {
+      "path": "v12/DESIGN.md",
+      "sha256": "bc89a24b378934a9930a2e249bdfc2886497a01f0cb06281e5e646f014af4eb8",
+      "bytes": 85444
+    },
+    {
+      "path": "v12/python/src/baton_v12/integration/driver.py",
+      "sha256": "6b3e0ab90b0c840151df72462dbf593b03a327ffe62d5ee6935a41246b97fb19",
+      "bytes": 103888
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/creation.py",
+      "sha256": "b707227ebb794158497b33228089df91db7b6aa69c22f71134fa62a2c96a42ee",
+      "bytes": 57229
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/documents.py",
+      "sha256": "b7ee4bb9def4eb26e14ee3a38bbab55000b6e8f897c67a632ba2711640f27350",
+      "bytes": 40494
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/projection.py",
+      "sha256": "02e0c80c8e468007a8666959e405468946463d815eb617331b0eb0dcdc68425a",
+      "bytes": 56349
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/review_driver.py",
+      "sha256": "d784215400821af1c704b896f4fc2cacb5519ad096c518f3072d8611df4f7a25",
+      "bytes": 101557
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/role_contract.py",
+      "sha256": "691ed3a0e653a9705f181790c9565706902bd3958f2973e49e85cff586ca6967",
+      "bytes": 25369
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/store.py",
+      "sha256": "539daa267effea1a2ac17d344ec68b9e7b2e92efb484c3a4bb50fd0265168186",
+      "bytes": 57054
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/templates.py",
+      "sha256": "f0f08e6318b2207bacbf5737f8324ca3a868b5673e58438333151bc467158ba6",
+      "bytes": 75135
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/exchange.py",
+      "sha256": "684f2cf4df4cc5dbe0e012b3e6b73ab2de59d9aebc05d0d94f506ee625becca8",
+      "bytes": 79447
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/intake.py",
+      "sha256": "71f0ef60bd5b26409e9c24fe49bd2ace1382e8ef1cb0ab8b3e2a5a44deae3d97",
+      "bytes": 345152
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/review_cycles.py",
+      "sha256": "3b466c902ff4f9e9c89643a2769aed2f98f69fc6716edaca8e0c078e999b8bfc",
+      "bytes": 255175
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/stopped_settlement.py",
+      "sha256": "4f335989c29ccf25329d4a711c8a58c7b8b757da182ba90f3ad5cf7e55bfeef4",
+      "bytes": 14606
+    },
+    {
+      "path": "v12/python/tests/tools/test_connected_startup.py",
+      "sha256": "feb11ba89a9d5c8197a511a86904af076fe3b18f13a65dd04938bc224deaa016",
+      "bytes": 36285
+    },
+    {
+      "path": "v12/python/tests/tools/test_joined_workflow.py",
+      "sha256": "09f1415b412a60d0613c5ec2cb761ec0419ac41b3da7575e5c0c78379c04b5bc",
+      "bytes": 31730
+    },
+    {
+      "path": "v12/python/tests/tools/test_packaged_creation.py",
+      "sha256": "c72fe6af79f6d53f10c1d6c3cc682b47370b51c2843865d71deae4327a3d0109",
+      "bytes": 23797
+    },
+    {
+      "path": "v12/python/tests/tools/test_stopped_settlement_joined.py",
+      "sha256": "beb1819899eeebfa43820ce97a1032fe375b82c7d017ceb51e78298c9de61a0d",
+      "bytes": 9158
+    },
+    {
+      "path": "v12/python/tools/attempt_diagnostics.py",
+      "sha256": "6e02e22ef7ebd5cb4ae4725bc19a7c200b62897aba9f1f341435ceff2bb4fd12",
+      "bytes": 40125
+    },
+    {
+      "path": "v12/python/tools/bootstrap.py",
+      "sha256": "507c96fb58538dcade749fbadf55759666022f07fd018eac2c183a5b083368b0",
+      "bytes": 181135
+    },
+    {
+      "path": "v12/python/tools/creation_ports.py",
+      "sha256": "a9fc808a63f4d1e78b3ae5bc31937bc450380639cffc6b2057e9249af46a8933",
+      "bytes": 19251
+    },
+    {
+      "path": "v12/python/tools/job_task.py",
+      "sha256": "a9ce7948bd39e9e8b2981ad26f299f5e2ad388ad18c6a522337a1c7c27d6e919",
+      "bytes": 17284
+    },
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "sha256": "0df31ac8dc5d8b71699209be2378ae8232a435aa15fbdfb4f33866fef22806c4",
+      "bytes": 245363
+    },
+    {
+      "path": "v12/python/tools/stage_execution.py",
+      "sha256": "3410e33f45bfe8d681e9264fbbe3559f5553d6bd99a15353d4bf41294aa17877",
+      "bytes": 401817
+    },
+    {
+      "path": "v12/python/tools/stopped_settlement.py",
+      "sha256": "03dac7113b6c229bac4181cebeb9485aec54c28643e998584ff3e238d5ea28e6",
+      "bytes": 11250
+    },
+    {
+      "path": "v12/worker/adapter_refusal.py",
+      "sha256": "97f6d9f5edee922017ead4c6d6b116382e56a398c59aa9262f959033d45a3e35",
+      "bytes": 3740
+    },
+    {
+      "path": "v12/worker/baton_worker.py",
+      "sha256": "9596a1292da3f55fba118e4aecff5af3e5ddf545c7d47c0167e9455abf0cdd4e",
+      "bytes": 168320
+    },
+    {
+      "path": "v12/worker/claude_agent.py",
+      "sha256": "941b5f9c2ea617229667e3f764bb12bb4c19b8096b18cdbff6d2952019d35e75",
+      "bytes": 349698
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-queued-admission-contract-plan/PROPOSAL.md",
+      "sha256": "3aee843672879335c8395900f8268c506ef587cf192f123a6b9db0004b75a800",
+      "bytes": 25251
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/INVENTORY-371277.json",
+      "sha256": "00add5d1b3fba1ca655abbdff9640f4a20134bd05cb00803c9acb5e1b55bec38",
+      "bytes": 11554
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-shared-output-template-preparation/review-2026-10-28T03-35-08Z.md",
+      "sha256": "041c96556e6d9f0a215530ff2ea8f64db68bcd5333b2fc4e11d93d832ddde0be",
+      "bytes": 3924
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-template-job-observation-identity/review-2026-10-28T02-38-50Z.md",
+      "sha256": "0878287216f50f17918257891659a3edb194e299a027251cb920aa966a79dda7",
+      "bytes": 4371
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/ASSESSMENT.md",
+      "sha256": "a466e41c3ce338b3e4f53bbfda4d064e103bee284e95297ef7f6c13e64489609",
+      "bytes": 17363
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/FINDING.md",
+      "sha256": "0f5cd07dd131352f2de0c9c3f8f61a6710dde60092725a5cf62b392bc854edd3",
+      "bytes": 6536
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/PLAN.md",
+      "sha256": "ac6be1cddc8496e415dd1361806476d20bddf61dfbcd334605fc94d0eea9829b",
+      "bytes": 986
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-composed-workflow-proof-plan/FINDING.md",
+      "sha256": "75790a3565a0026404753b7fa253c2f8d1123caf0f97bb088bbc97f5d4664f1d",
+      "bytes": 4918
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-composed-workflow-proof-plan/PLAN.md",
+      "sha256": "70f5909bc5c488088558eaa8293f884ae531eb1227e3085856da0ca1401825a9",
+      "bytes": 1309
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-composed-workflow-proof-plan/PROPOSAL.md",
+      "sha256": "98587c60c4a2f6f455e50b424d32f0631fd73d66137c61e2fc02069ac79fe137",
+      "bytes": 25782
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-routine-startup-prerequisites-plan/FINDING.md",
+      "sha256": "c286a77699baf86c9bc82f6fd123382ee5841199cc91d829a4e95684c7999eae",
+      "bytes": 13098
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-routine-startup-prerequisites-plan/JOINED-PROPOSAL.md",
+      "sha256": "eec22c06ca548a4da14107fce18e6029887909413d196c060a0a1fa7e6fb7dd0",
+      "bytes": 11208
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-routine-startup-prerequisites-plan/PLAN.md",
+      "sha256": "ea2e24f9d77bc975eaed6233f89f9c1a6021c12e9de03d861098f6a425f9f071",
+      "bytes": 945
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-routine-startup-prerequisites-plan/PROPOSAL.md",
+      "sha256": "c026b60d33930391a67b286064f69642cc2331bb89dfc65fd41ec747e4a4005d",
+      "bytes": 23795
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-safe-adapter-failure-plan/AMENDMENT-376531.md",
+      "sha256": "ced2e81f031e7f56c060963d2724cca524e1a7e17e3e5f18d1c5fc777c38f68e",
+      "bytes": 7949
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-safe-adapter-failure-plan/FINDING.md",
+      "sha256": "3f12c8ee26bf3de5d9ba81ee3058813c04f9f6ad398c5f69bc38b1a1a5232486",
+      "bytes": 6731
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-safe-adapter-failure-plan/PLAN.md",
+      "sha256": "c36189aa6b6128e02c2161c6aa1ce41c5f57fe770be13476fdd794c46037f17b",
+      "bytes": 829
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-safe-adapter-failure-plan/PROPOSAL.md",
+      "sha256": "b7a1e91b8c07f8c73d37d147bee5fd4789c08649961b20ede76abce79d65e671",
+      "bytes": 33872
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-stopped-failed-settlement-plan/FINDING.md",
+      "sha256": "39f3da170d3643a23cd33d2b5c3290e55301ff48416e0834e1435372bf653781",
+      "bytes": 9275
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-stopped-failed-settlement-plan/PLAN.md",
+      "sha256": "52eefdce386dbc2805b10e7bf12a50ce927c45c572abe08206193f6b4521b654",
+      "bytes": 3236
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-stopped-failed-settlement-plan/PROPOSAL.md",
+      "sha256": "44c4135b10c6fd2ebbbc8958571228e01664e89b66fc57a61591849a29926d03",
+      "bytes": 28866
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-stopped-failed-settlement-plan/review-2026-10-28T21-40-29Z.md",
+      "sha256": "015b332fa8d920de3a65101be5a3acc397985cc1d5522851e5ab3964f185edd9",
+      "bytes": 4991
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-template-adapter-admission-plan/FINDING.md",
+      "sha256": "fe29be88640685369a898147dfb81988177f58cc9ae9013138b280e4b352f663",
+      "bytes": 6453
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-template-adapter-admission-plan/PLAN.md",
+      "sha256": "ccc94d69f12d1502d2317b6e08e6ef32b9bce11ec26225a622abdd2541d448ec",
+      "bytes": 856
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-template-adapter-admission-plan/PROPOSAL.md",
+      "sha256": "ad0f2171f06f8da9e6e3c2784e50cab91d27f94c4d0727014e4520b00aa0b339",
+      "bytes": 23426
+    }
+  ]
+}

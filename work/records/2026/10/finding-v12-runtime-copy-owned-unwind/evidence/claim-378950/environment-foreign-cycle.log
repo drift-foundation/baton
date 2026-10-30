@@ -1,0 +1,36 @@
+/usr/lib/python3.13/traceback.py:269: ResourceWarning: unclosed file <_io.TextIOWrapper name='/dev/null' mode='w' encoding='UTF-8'>
+  tb.tb_frame.clear()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+../usr/lib/python3.13/traceback.py:269: ResourceWarning: unclosed file <_io.TextIOWrapper name='/dev/null' mode='w' encoding='UTF-8'>
+  tb.tb_frame.clear()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./usr/lib/python3.13/traceback.py:269: ResourceWarning: unclosed file <_io.TextIOWrapper name='/dev/null' mode='w' encoding='UTF-8'>
+  tb.tb_frame.clear()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/tests/tools/test_environment.py:988: ResourceWarning: unclosed file <_io.TextIOWrapper name='/dev/null' mode='w' encoding='UTF-8'>
+  environment.setup(self.root, self.environ, runner=self.creating([]),
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./usr/lib/python3.13/traceback.py:269: ResourceWarning: unclosed file <_io.TextIOWrapper name='/dev/null' mode='w' encoding='UTF-8'>
+  tb.tb_frame.clear()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+......../home/sl/src/baton/v12/python/tests/tools/test_environment.py:202: ResourceWarning: unclosed file <_io.TextIOWrapper name='/dev/null' mode='w' encoding='UTF-8'>
+  environment.setup(self.root, self.environ, runner=self.runner(),
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+...../home/sl/src/baton/v12/python/tests/tools/test_environment.py:190: ResourceWarning: unclosed file <_io.TextIOWrapper name='/dev/null' mode='w' encoding='UTF-8'>
+  environment.setup(self.root, self.environ, runner=self.runner(),
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.F........................................................
+======================================================================
+FAIL: test_a_named_distribution_that_is_absent_is_refused_BY_NAME (tests.tools.test_environment.TheBootstrapRecipeReachesTheHelper.test_a_named_distribution_that_is_absent_is_refused_BY_NAME)
+With two operands the recipe BUILDS, so the missing-runtime refusal
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_environment.py", line 620, in test_a_named_distribution_that_is_absent_is_refused_BY_NAME
+    self.assertIn("no built runtime at", done.stdout)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'no built runtime at' not found in ''
+
+----------------------------------------------------------------------
+Ran 75 tests in 0.674s
+
+FAILED (failures=1)

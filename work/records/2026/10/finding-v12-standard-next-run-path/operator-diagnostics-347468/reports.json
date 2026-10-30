@@ -1,0 +1,2439 @@
+{
+  "schema": "w339626-private-diagnostics/1",
+  "run": "w339626-live-345599",
+  "attempt": "attempt-39ea7bcd743ef31185056766496bd0e72f2fc815fa75fbf73a32d10b0347a8a4",
+  "reports": {
+    "outcome.json": {
+      "path": "/var/lib/baton-next-run/w339626-live-345599/packet/outcome.json",
+      "sha256": "4d093c99c582c48af392077ca3b1ab5218170a7ba04da0f3e26ae12b7e215484",
+      "bytes": 6221,
+      "uid": 997,
+      "mode": "0o600",
+      "structured": {
+        "accounting_scope": {
+          "redacted_text_length": 295,
+          "exception_classes": [],
+          "errno": [],
+          "traceback_frames": []
+        },
+        "admissions": {
+          "implementation": 1
+        },
+        "admitted_attempts": [
+          {
+            "redacted_text_length": 72,
+            "exception_classes": [],
+            "errno": [],
+            "traceback_frames": []
+          }
+        ],
+        "attempt_origins": {
+          "attempt-39ea7bcd743ef31185056766496bd0e72f2fc815fa75fbf73a32d10b0347a8a4": {
+            "redacted_text_length": 7,
+            "exception_classes": [],
+            "errno": [],
+            "traceback_frames": []
+          }
+        },
+        "cancellation": {
+          "attempt-39ea7bcd743ef31185056766496bd0e72f2fc815fa75fbf73a32d10b0347a8a4": {
+            "execution_runtime": "not-started",
+            "requested": true,
+            "state": null,
+            "why": {
+              "redacted_text_length": 73,
+              "exception_classes": [],
+              "errno": [],
+              "traceback_frames": []
+            }
+          }
+        },
+        "claim": 345599,
+        "cleanup": {
+          "attempt-39ea7bcd743ef31185056766496bd0e72f2fc815fa75fbf73a32d10b0347a8a4": {
+            "cleanup": null,
+            "why": {
+              "redacted_text_length": 20,
+              "exception_classes": [],
+              "errno": [],
+              "traceback_frames": []
+            }
+          }
+        },
+        "cleanup_sweeps": 44,
+        "final_canonical_read": true,
+        "finished_at": {
+          "redacted_text_length": 24,
+          "exception_classes": [],
+          "errno": [],
+          "traceback_frames": []
+        },
+        "foreign_admissions": [],
+        "gate_refusals": [],
+        "held_because": [
+          {
+            "redacted_text_length": 36,
+            "exception_classes": [],
+            "errno": [],
+            "traceback_frames": []
+          },
+          {
+            "redacted_text_length": 1522,
+            "exception_classes": [],
+            "errno": [],
+            "traceback_frames": []
+          },
+          {
+            "redacted_text_length": 119,
+            "exception_classes": [],
+            "errno": [],
+            "traceback_frames": []
+          },
+          {
+            "redacted_text_length": 66,
+            "exception_classes": [],
+            "errno": [],
+            "traceback_frames": []
+          },
+          {
+            "redacted_text_length": 252,
+            "exception_classes": [],
+            "errno": [],
+            "traceback_frames": []
+          },
+          {
+            "redacted_text_length": 204,
+            "exception_classes": [],
+            "errno": [],
+            "traceback_frames": []
+          }
+        ],
+        "interrupted": null,
+        "interruptions": [],
+        "job_id": "job-w339626-live-345599",
+        "observed_attempts": [
+          {
+            "redacted_text_length": 72,
+            "exception_classes": [],
+            "errno": [],
+            "traceback_frames": []
+          }
+        ],
+        "outstanding_cleanup": [
+          {
+            "redacted_text_length": 72,
+            "exception_classes": [],
+            "errno": [],
+            "traceback_frames": []
+          }
+        ],
+        "preexisting_jobs": [],
+        "preexisting_stages": {},
+        "provider_turn": {
+          "default_seconds": 3600,
+          "origin": {
+            "redacted_text_length": 3,
+            "exception_classes": [],
+            "errno": [],
+            "traceback_frames": []
+          },
+          "seconds": 300,
+          "setting": {
+            "redacted_text_length": 21,
+            "exception_classes": [],
+            "errno": [],
+            "traceback_frames": []
+          }
+        },
+        "retry": false,
+        "run_id": "w339626-live-345599",
+        "schema": {
+          "redacted_text_length": 37,
+          "exception_classes": [],
+          "errno": [],
+          "traceback_frames": []
+        },
+        "served_seconds": 1.0365253990021301,
+        "serving_failure": {
+          "redacted_text_length": 125,
+          "exception_classes": [
+            "ProfileRefusal"
+          ],
+          "errno": [],
+          "traceback_frames": []
+        },
+        "stage_states": {
+          "implementation": {
+            "redacted_text_length": 7,
+            "exception_classes": [],
+            "errno": [],
+            "traceback_frames": []
+          }
+        },
+        "stalled_after": 6,
+        "stalled_ticks": 0,
+        "started_order": [
+          {
+            "redacted_text_length": 72,
+            "exception_classes": [],
+            "errno": [],
+            "traceback_frames": []
+          }
+        ],
+        "state": "held",
+        "stopped": "serving-failed",
+        "submission_id": {
+          "redacted_text_length": 30,
+          "exception_classes": [],
+          "errno": [],
+          "traceback_frames": []
+        },
+        "submitted_at": {
+          "redacted_text_length": 24,
+          "exception_classes": [],
+          "errno": [],
+          "traceback_frames": []
+        },
+        "unallocated_attempts": [],
+        "uncertainty": [],
+        "unexpected_attempts": [],
+        "work": {
+          "redacted_text_length": 7,
+          "exception_classes": [],
+          "errno": [],
+          "traceback_frames": []
+        },
+        "workload": {
+          "attribution": [],
+          "candidates": [
+            {
+              "acceptance": {
+                "redacted_text_length": 12,
+                "exception_classes": [],
+                "errno": [],
+                "traceback_frames": []
+              },
+              "assignment": null,
+              "attempt_id": "attempt-39ea7bcd743ef31185056766496bd0e72f2fc815fa75fbf73a32d10b0347a8a4",
+              "attribution": null,
+              "base": null,
+              "bytes": null,
+              "content_digest": null,
+              "disposition": null,
+              "generation": null,
+              "head": null,
+              "locator": null,
+              "state": "absent",
+              "transport": null,
+              "verification": {
+                "redacted_text_length": 7,
+                "exception_classes": [],
+                "errno": [],
+                "traceback_frames": []
+              },
+              "why": {
+                "redacted_text_length": 31,
+                "exception_classes": [],
+                "errno": [],
+                "traceback_frames": []
+              }
+            }
+          ],
+          "conversations": [],
+          "dispositions": [
+            {
+              "attempt_id": "attempt-39ea7bcd743ef31185056766496bd0e72f2fc815fa75fbf73a32d10b0347a8a4",
+              "disposition": null
+            }
+          ],
+          "generations": [],
+          "implementation_attempts": [
+            {
+              "redacted_text_length": 72,
+              "exception_classes": [],
+              "errno": [],
+              "traceback_frames": []
+            }
+          ],
+          "modes": [],
+          "proposals": [],
+          "shortfalls": [
+            {
+              "redacted_text_length": 252,
+              "exception_classes": [],
+              "errno": [],
+              "traceback_frames": []
+            },
+            {
+              "redacted_text_length": 204,
+              "exception_classes": [],
+              "errno": [],
+              "traceback_frames": []
+            }
+          ]
+        }
+      }
+    },
+    "outcome.json.authoring.log": {
+      "path": "/var/lib/baton-next-run/w339626-live-345599/packet/outcome.json.authoring.log",
+      "sha256": "f2e8ab59d8a21ea1799801e9c0a7bcb2e4570d76b0e16210dc0ea51e8559979c",
+      "bytes": 6318,
+      "uid": 997,
+      "mode": "0o600",
+      "diagnostic_summary": {
+        "redacted_text_length": 6318,
+        "exception_classes": [
+          "ProfileRefusal"
+        ],
+        "errno": [],
+        "traceback_frames": []
+      }
+    },
+    "outcome.json.enforcement-101230-1792596753835547451.json": {
+      "path": "/var/lib/baton-next-run/w339626-live-345599/packet/outcome.json.enforcement-101230-1792596753835547451.json",
+      "sha256": "2d6be6c762b374c6c949d3f9b083733a9aa61745f97d00946bbb60e2ce34fac3",
+      "bytes": 19595,
+      "uid": 997,
+      "mode": "0o600",
+      "structured": {
+        "author_invocation_started": true,
+        "authoring_log": {
+          "redacted_text_length": 77,
+          "exception_classes": [],
+          "errno": [],
+          "traceback_frames": []
+        },
+        "child_exited": true,
+        "child_started": true,
+        "child_status": 1,
+        "elapsed_seconds": 44.77346343399768,
+        "enforcement": {
+          "attempts": {
+            "attempt-39ea7bcd743ef31185056766496bd0e72f2fc815fa75fbf73a32d10b0347a8a4": {
+              "faults": [],
+              "observation": null,
+              "runtime": {
+                "assignment": {
+                  "generation": 1,
+                  "participant": {
+                    "redacted_text_length": 10,
+                    "exception_classes": [],
+                    "errno": [],
+                    "traceback_frames": []
+                  },
+                  "work_ref": {
+                    "authority_uuid": "15c5c8ce04d14f3e83651355085a03a8",
+                    "work_id": "15c5c8ce-W1"
+                  }
+                },
+                "attempt_id": "attempt-39ea7bcd743ef31185056766496bd0e72f2fc815fa75fbf73a32d10b0347a8a4",
+                "cleanup": "pending",
+                "execution_runtime": "not-started",
+                "runtime_id": null
+              },
+              "token": null
+            }
+          },
+          "faults": [],
+          "state": "stopping"
+        },
+        "enforcement_path": {
+          "redacted_text_length": 107,
+          "exception_classes": [],
+          "errno": [],
+          "traceback_frames": []
+        },
+        "faults": [],
+        "manager_report_path": {
+          "redacted_text_length": 103,
+          "exception_classes": [],
+          "errno": [],
+          "traceback_frames": []
+        },
+        "operator_signals": [],
+        "original_envelope": {
+          "authority": {
+            "redacted_text_length": 32,
+            "exception_classes": [],
+            "errno": [],
+            "traceback_frames": []
+          },
+          "job": {
+            "redacted_text_length": 23,
+            "exception_classes": [],
+            "errno": [],
+            "traceback_frames": []
+          },
+          "packet": {
+            "bounds": {
+              "cleanup_seconds": 60,
+              "implementer_invocations": 1,
+              "retry": false,
+              "total_seconds": 600,
+              "turn_seconds": 300
+            },
+            "claim": 345599,
+            "code_boundary": {
+              "redacted_text_length": 24,
+              "exception_classes": [],
+              "errno": [],
+              "traceback_frames": []
+            },
+            "context": {
+              "mode": {
+                "redacted_text_length": 5,
+                "exception_classes": [],
+                "errno": [],
+                "traceback_frames": []
+              }
+            },
+            "deployment": {
+              "authority_store": {
+                "redacted_text_length": 73,
+                "exception_classes": [],
+                "errno": [],
+                "traceback_frames": []
+              },
+              "authority_uuid": "15c5c8ce04d14f3e83651355085a03a8",
+              "config_path": {
+                "redacted_text_length": 60,
+                "exception_classes": [],
+                "errno": [],
+                "traceback_frames": []
+              },
+              "config_sha256": {
+                "redacted_text_length": 64,
+                "exception_classes": [],
+                "errno": [],
+                "traceback_frames": []
+              },
+              "control_store": {
+                "redacted_text_length": 71,
+                "exception_classes": [],
+                "errno": [],
+                "traceback_frames": []
+              },
+              "job_store": {
+                "redacted_text_length": 68,
+                "exception_classes": [],
+                "errno": [],
+                "traceback_frames": []
+              },
+              "state_root": {
+                "redacted_text_length": 60,
+                "exception_classes": [],
+                "errno": [],
+                "traceback_frames": []
+              }
+            },
+            "fixture": {
+              "files": {
+                "v12/NEXT-RUN.md": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                }
+              },
+              "source_root": {
+                "redacted_text_length": 18,
+                "exception_classes": [],
+                "errno": [],
+                "traceback_frames": []
+              }
+            },
+            "manager_runtime": {
+              "build_commit": {
+                "redacted_text_length": 40,
+                "exception_classes": [],
+                "errno": [],
+                "traceback_frames": []
+              },
+              "executable_sha256": {
+                "redacted_text_length": 64,
+                "exception_classes": [],
+                "errno": [],
+                "traceback_frames": []
+              },
+              "path": {
+                "redacted_text_length": 27,
+                "exception_classes": [],
+                "errno": [],
+                "traceback_frames": []
+              }
+            },
+            "manager_source": {
+              "file_count": 123,
+              "files": {
+                "src/baton_v12/__init__.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/attempt_log_format.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/authority/__init__.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/authority/api.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/authority/core.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/authority/dossier.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/authority/errors.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/authority/identity.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/authority/labels.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/authority/principals.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/authority/schema.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/authority/session.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/authority/store.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/checkpoint_profiles.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/contracts/__init__.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/contracts/canonical.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/contracts/errors.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/contracts/frozen.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/contracts/manifest.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/contracts/pod.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/contracts/schema/agent-session-1.0.schema.json": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/contracts/schema/worker-control-1.0.schema.json": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/contracts/secrets.py": {
+                  "redacted": true
+                },
+                "src/baton_v12/contracts/validate.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/eventing.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/integration/__init__.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/integration/admission.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/integration/driver.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/integration/execution.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/integration/git_profile.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/integration/managed_execution.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/integration/oci_delivery.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/integration/queue.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/integration/reconciliation.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/integration/recovery.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/integration/runtime.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/integration/schema.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/integration/store.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/job_manager/__init__.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/job_manager/delegation.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/job_manager/documents.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/job_manager/ending.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/job_manager/episodes.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/job_manager/execution_limits.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/job_manager/integration_capacity.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/job_manager/manager.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/job_manager/projection.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/job_manager/review_driver.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/job_manager/scheduler.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/job_manager/schema.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/job_manager/store.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/job_manager/submission.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/source_profiles/__init__.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/source_profiles/checkout.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/verification_context.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/version.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/__init__.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/attempt_logs.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/attempts.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/authority_port.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/boundaries.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/context_delivery.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/credentials.py": {
+                  "redacted": true
+                },
+                "src/baton_v12/worker_manager/custody.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/deadlines.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/documents.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/events.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/exchange.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/handshake.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/intake.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/interrogation.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/lanes.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/launch.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/maintenance.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/manifests.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/oci.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/offers.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/output.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/posture_slots.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/provider_context.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/review_cycles.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/schema.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/sealing.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/sessions.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/source_boundary.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/store.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/tokens.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/worker_entry.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/workspaces.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/__init__.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/accepted_base.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/attempt_logs_command.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/authoring_baseline.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/authoring_enforcement.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/authoring_shutdown.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/bootstrap.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/build_stamp.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/disposition_command.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/dogfood_operator.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/dossier_command.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/environment.py": {
+                  "redacted": true
+                },
+                "tools/instance.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/integration_bundle.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/integration_placement.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/integration_worker.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/job_manager.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/job_viewer.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/next_run.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/next_run_bindings.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/next_run_client.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/next_run_confinement.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/next_run_entry.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/next_run_managed.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/next_run_recovery.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/parallel_test.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/pool.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/single_worker.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/stack.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/stack_command.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/stage_execution.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/user_credentials.py": {
+                  "redacted": true
+                },
+                "tools/worker_image.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/worker_visibility.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                }
+              },
+              "packages": [
+                {
+                  "redacted_text_length": 9,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                {
+                  "redacted_text_length": 5,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                }
+              ],
+              "path": {
+                "redacted_text_length": 24,
+                "exception_classes": [],
+                "errno": [],
+                "traceback_frames": []
+              }
+            },
+            "note": {
+              "redacted_text_length": 103,
+              "exception_classes": [],
+              "errno": [],
+              "traceback_frames": []
+            },
+            "outcome_path": {
+              "redacted_text_length": 63,
+              "exception_classes": [],
+              "errno": [],
+              "traceback_frames": []
+            },
+            "run_id": "w339626-live-345599",
+            "schema": {
+              "redacted_text_length": 36,
+              "exception_classes": [],
+              "errno": [],
+              "traceback_frames": []
+            },
+            "submission": {
+              "job_id": "job-w339626-live-345599",
+              "path": {
+                "redacted_text_length": 60,
+                "exception_classes": [],
+                "errno": [],
+                "traceback_frames": []
+              },
+              "sha256": {
+                "redacted_text_length": 64,
+                "exception_classes": [],
+                "errno": [],
+                "traceback_frames": []
+              }
+            },
+            "supervisor": {
+              "path": {
+                "redacted_text_length": 52,
+                "exception_classes": [],
+                "errno": [],
+                "traceback_frames": []
+              },
+              "sha256": {
+                "redacted_text_length": 64,
+                "exception_classes": [],
+                "errno": [],
+                "traceback_frames": []
+              }
+            },
+            "work": {
+              "redacted_text_length": 7,
+              "exception_classes": [],
+              "errno": [],
+              "traceback_frames": []
+            },
+            "worker_image": {
+              "config_digest": {
+                "redacted_text_length": 71,
+                "exception_classes": [],
+                "errno": [],
+                "traceback_frames": []
+              },
+              "reference": {
+                "redacted_text_length": 38,
+                "exception_classes": [],
+                "errno": [],
+                "traceback_frames": []
+              },
+              "worker_files": {
+                "opt/baton/attempt_log_format.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "opt/baton/baton_worker.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "opt/baton/claude_agent.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "opt/baton/dogfood_entry.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "opt/baton/source_profiles/__init__.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "opt/baton/source_profiles/checkout.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "opt/baton/worker-control-1.0.schema.json": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                }
+              }
+            }
+          },
+          "run": {
+            "redacted_text_length": 19,
+            "exception_classes": [],
+            "errno": [],
+            "traceback_frames": []
+          },
+          "started_at": {
+            "redacted_text_length": 24,
+            "exception_classes": [],
+            "errno": [],
+            "traceback_frames": []
+          },
+          "stop_at": {
+            "redacted_text_length": 32,
+            "exception_classes": [],
+            "errno": [],
+            "traceback_frames": []
+          }
+        },
+        "recovery_only": false,
+        "shutdown_deadline": 21259.768993328,
+        "shutdown_progress": {
+          "deadline": 20708.828754554,
+          "faults": [],
+          "job_id": "job-w339626-live-345599",
+          "run_id": "w339626-live-345599",
+          "step": "final enforcement publication",
+          "step_deadline": 20708.628754554
+        },
+        "state": "held"
+      }
+    },
+    "outcome.json.manager-101230-1792596708311513233.json": {
+      "path": "/var/lib/baton-next-run/w339626-live-345599/packet/outcome.json.manager-101230-1792596708311513233.json",
+      "sha256": "8ec1bc3456d71d3bbdb362cfdeafb2a8b700a09de3a8904d383c0a491e11b936",
+      "bytes": 16754,
+      "uid": 997,
+      "mode": "0o600",
+      "structured": {
+        "author_invocation_started": true,
+        "envelope": {
+          "authority": {
+            "redacted_text_length": 32,
+            "exception_classes": [],
+            "errno": [],
+            "traceback_frames": []
+          },
+          "job": {
+            "redacted_text_length": 23,
+            "exception_classes": [],
+            "errno": [],
+            "traceback_frames": []
+          },
+          "packet": {
+            "bounds": {
+              "cleanup_seconds": 60,
+              "implementer_invocations": 1,
+              "retry": false,
+              "total_seconds": 600,
+              "turn_seconds": 300
+            },
+            "claim": 345599,
+            "code_boundary": {
+              "redacted_text_length": 24,
+              "exception_classes": [],
+              "errno": [],
+              "traceback_frames": []
+            },
+            "context": {
+              "mode": {
+                "redacted_text_length": 5,
+                "exception_classes": [],
+                "errno": [],
+                "traceback_frames": []
+              }
+            },
+            "deployment": {
+              "authority_store": {
+                "redacted_text_length": 73,
+                "exception_classes": [],
+                "errno": [],
+                "traceback_frames": []
+              },
+              "authority_uuid": "15c5c8ce04d14f3e83651355085a03a8",
+              "config_path": {
+                "redacted_text_length": 60,
+                "exception_classes": [],
+                "errno": [],
+                "traceback_frames": []
+              },
+              "config_sha256": {
+                "redacted_text_length": 64,
+                "exception_classes": [],
+                "errno": [],
+                "traceback_frames": []
+              },
+              "control_store": {
+                "redacted_text_length": 71,
+                "exception_classes": [],
+                "errno": [],
+                "traceback_frames": []
+              },
+              "job_store": {
+                "redacted_text_length": 68,
+                "exception_classes": [],
+                "errno": [],
+                "traceback_frames": []
+              },
+              "state_root": {
+                "redacted_text_length": 60,
+                "exception_classes": [],
+                "errno": [],
+                "traceback_frames": []
+              }
+            },
+            "fixture": {
+              "files": {
+                "v12/NEXT-RUN.md": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                }
+              },
+              "source_root": {
+                "redacted_text_length": 18,
+                "exception_classes": [],
+                "errno": [],
+                "traceback_frames": []
+              }
+            },
+            "manager_runtime": {
+              "build_commit": {
+                "redacted_text_length": 40,
+                "exception_classes": [],
+                "errno": [],
+                "traceback_frames": []
+              },
+              "executable_sha256": {
+                "redacted_text_length": 64,
+                "exception_classes": [],
+                "errno": [],
+                "traceback_frames": []
+              },
+              "path": {
+                "redacted_text_length": 27,
+                "exception_classes": [],
+                "errno": [],
+                "traceback_frames": []
+              }
+            },
+            "manager_source": {
+              "file_count": 123,
+              "files": {
+                "src/baton_v12/__init__.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/attempt_log_format.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/authority/__init__.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/authority/api.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/authority/core.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/authority/dossier.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/authority/errors.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/authority/identity.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/authority/labels.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/authority/principals.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/authority/schema.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/authority/session.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/authority/store.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/checkpoint_profiles.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/contracts/__init__.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/contracts/canonical.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/contracts/errors.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/contracts/frozen.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/contracts/manifest.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/contracts/pod.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/contracts/schema/agent-session-1.0.schema.json": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/contracts/schema/worker-control-1.0.schema.json": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/contracts/secrets.py": {
+                  "redacted": true
+                },
+                "src/baton_v12/contracts/validate.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/eventing.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/integration/__init__.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/integration/admission.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/integration/driver.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/integration/execution.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/integration/git_profile.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/integration/managed_execution.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/integration/oci_delivery.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/integration/queue.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/integration/reconciliation.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/integration/recovery.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/integration/runtime.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/integration/schema.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/integration/store.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/job_manager/__init__.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/job_manager/delegation.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/job_manager/documents.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/job_manager/ending.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/job_manager/episodes.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/job_manager/execution_limits.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/job_manager/integration_capacity.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/job_manager/manager.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/job_manager/projection.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/job_manager/review_driver.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/job_manager/scheduler.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/job_manager/schema.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/job_manager/store.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/job_manager/submission.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/source_profiles/__init__.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/source_profiles/checkout.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/verification_context.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/version.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/__init__.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/attempt_logs.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/attempts.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/authority_port.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/boundaries.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/context_delivery.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/credentials.py": {
+                  "redacted": true
+                },
+                "src/baton_v12/worker_manager/custody.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/deadlines.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/documents.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/events.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/exchange.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/handshake.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/intake.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/interrogation.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/lanes.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/launch.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/maintenance.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/manifests.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/oci.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/offers.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/output.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/posture_slots.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/provider_context.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/review_cycles.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/schema.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/sealing.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/sessions.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/source_boundary.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/store.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/tokens.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/worker_entry.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "src/baton_v12/worker_manager/workspaces.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/__init__.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/accepted_base.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/attempt_logs_command.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/authoring_baseline.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/authoring_enforcement.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/authoring_shutdown.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/bootstrap.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/build_stamp.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/disposition_command.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/dogfood_operator.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/dossier_command.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/environment.py": {
+                  "redacted": true
+                },
+                "tools/instance.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/integration_bundle.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/integration_placement.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/integration_worker.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/job_manager.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/job_viewer.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/next_run.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/next_run_bindings.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/next_run_client.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/next_run_confinement.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/next_run_entry.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/next_run_managed.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/next_run_recovery.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/parallel_test.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/pool.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/single_worker.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/stack.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/stack_command.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/stage_execution.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/user_credentials.py": {
+                  "redacted": true
+                },
+                "tools/worker_image.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "tools/worker_visibility.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                }
+              },
+              "packages": [
+                {
+                  "redacted_text_length": 9,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                {
+                  "redacted_text_length": 5,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                }
+              ],
+              "path": {
+                "redacted_text_length": 24,
+                "exception_classes": [],
+                "errno": [],
+                "traceback_frames": []
+              }
+            },
+            "note": {
+              "redacted_text_length": 103,
+              "exception_classes": [],
+              "errno": [],
+              "traceback_frames": []
+            },
+            "outcome_path": {
+              "redacted_text_length": 63,
+              "exception_classes": [],
+              "errno": [],
+              "traceback_frames": []
+            },
+            "run_id": "w339626-live-345599",
+            "schema": {
+              "redacted_text_length": 36,
+              "exception_classes": [],
+              "errno": [],
+              "traceback_frames": []
+            },
+            "submission": {
+              "job_id": "job-w339626-live-345599",
+              "path": {
+                "redacted_text_length": 60,
+                "exception_classes": [],
+                "errno": [],
+                "traceback_frames": []
+              },
+              "sha256": {
+                "redacted_text_length": 64,
+                "exception_classes": [],
+                "errno": [],
+                "traceback_frames": []
+              }
+            },
+            "supervisor": {
+              "path": {
+                "redacted_text_length": 52,
+                "exception_classes": [],
+                "errno": [],
+                "traceback_frames": []
+              },
+              "sha256": {
+                "redacted_text_length": 64,
+                "exception_classes": [],
+                "errno": [],
+                "traceback_frames": []
+              }
+            },
+            "work": {
+              "redacted_text_length": 7,
+              "exception_classes": [],
+              "errno": [],
+              "traceback_frames": []
+            },
+            "worker_image": {
+              "config_digest": {
+                "redacted_text_length": 71,
+                "exception_classes": [],
+                "errno": [],
+                "traceback_frames": []
+              },
+              "reference": {
+                "redacted_text_length": 38,
+                "exception_classes": [],
+                "errno": [],
+                "traceback_frames": []
+              },
+              "worker_files": {
+                "opt/baton/attempt_log_format.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "opt/baton/baton_worker.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "opt/baton/claude_agent.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "opt/baton/dogfood_entry.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "opt/baton/source_profiles/__init__.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "opt/baton/source_profiles/checkout.py": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                },
+                "opt/baton/worker-control-1.0.schema.json": {
+                  "redacted_text_length": 64,
+                  "exception_classes": [],
+                  "errno": [],
+                  "traceback_frames": []
+                }
+              }
+            }
+          },
+          "run": {
+            "redacted_text_length": 19,
+            "exception_classes": [],
+            "errno": [],
+            "traceback_frames": []
+          },
+          "started_at": {
+            "redacted_text_length": 24,
+            "exception_classes": [],
+            "errno": [],
+            "traceback_frames": []
+          },
+          "stop_at": {
+            "redacted_text_length": 32,
+            "exception_classes": [],
+            "errno": [],
+            "traceback_frames": []
+          }
+        },
+        "finished": true,
+        "recovery": false,
+        "report": {
+          "attempts": {
+            "attempt-39ea7bcd743ef31185056766496bd0e72f2fc815fa75fbf73a32d10b0347a8a4": {
+              "faults": [],
+              "observation": null,
+              "runtime": {
+                "assignment": {
+                  "generation": 1,
+                  "participant": {
+                    "redacted_text_length": 10,
+                    "exception_classes": [],
+                    "errno": [],
+                    "traceback_frames": []
+                  },
+                  "work_ref": {
+                    "authority_uuid": "15c5c8ce04d14f3e83651355085a03a8",
+                    "work_id": "15c5c8ce-W1"
+                  }
+                },
+                "attempt_id": "attempt-39ea7bcd743ef31185056766496bd0e72f2fc815fa75fbf73a32d10b0347a8a4",
+                "cleanup": "pending",
+                "execution_runtime": "not-started",
+                "runtime_id": null
+              },
+              "token": null
+            }
+          },
+          "faults": [],
+          "state": "stopping"
+        },
+        "stopping": true
+      }
+    },
+    "outcome.json.manager-101230-1792596708311513233.json.progress.json": {
+      "path": "/var/lib/baton-next-run/w339626-live-345599/packet/outcome.json.manager-101230-1792596708311513233.json.progress.json",
+      "sha256": "ec88681ce8157e074ef6881ec3436074b5577f9edebe920dbb6d67e297ebe60b",
+      "bytes": 188,
+      "uid": 997,
+      "mode": "0o600",
+      "structured": {
+        "deadline": 20708.828754554,
+        "faults": [],
+        "job_id": "job-w339626-live-345599",
+        "run_id": "w339626-live-345599",
+        "step": "final enforcement publication",
+        "step_deadline": 20708.628754554
+      }
+    },
+    "outcome.json.manager-101230-1792596708311513233.json.shutdown.json": {
+      "absent": true
+    }
+  },
+  "uid997_processes": [],
+  "exact_attempt_engine_listing": {
+    "argv": [
+      "docker",
+      "ps",
+      "-a",
+      "--no-trunc",
+      "--filter",
+      "label=baton.v12.runtime_attempt_id=attempt-39ea7bcd743ef31185056766496bd0e72f2fc815fa75fbf73a32d10b0347a8a4",
+      "--format",
+      "{{json .}}"
+    ],
+    "exit": 0,
+    "containers": [],
+    "stderr_summary": {
+      "redacted_text_length": 0,
+      "exception_classes": [],
+      "errno": [],
+      "traceback_frames": []
+    }
+  },
+  "limits": "Read-only snapshot,not an atomic cessation proof. No provider transcript,credential or SQLite read. Free-form report text redacted; missing output is not success."
+}

@@ -1,0 +1,119 @@
+test_author_exception_releases_process_guard_and_preserves_failure (tests.manager.test_authoring_manager_guard.ManagerComposition.test_author_exception_releases_process_guard_and_preserves_failure) ... FAIL
+test_blocked_author_keeps_exclusion_and_outer_deadline (tests.manager.test_authoring_manager_guard.ManagerComposition.test_blocked_author_keeps_exclusion_and_outer_deadline) ... FAIL
+test_parent_loss_kills_manager_without_inherited_workspace_guard (tests.manager.test_authoring_manager_guard.ManagerComposition.test_parent_loss_kills_manager_without_inherited_workspace_guard) ... FAIL
+test_real_composition_admits_action_and_restart_never_reinvokes (tests.manager.test_authoring_manager_guard.ManagerComposition.test_real_composition_admits_action_and_restart_never_reinvokes) ... FAIL
+
+======================================================================
+FAIL: test_author_exception_releases_process_guard_and_preserves_failure (tests.manager.test_authoring_manager_guard.ManagerComposition.test_author_exception_releases_process_guard_and_preserves_failure)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/baton-w334910-335047/v12/python/tests/manager/test_authoring_manager_guard.py", line 91, in test_author_exception_releases_process_guard_and_preserves_failure
+    self.assertTrue((root / 'action.json').exists(), self.log(output))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : {"authoring_log": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-manager-guard/test-storage-335047/v12-w71917-j5aqcndt/outcome.json.authoring.log", "child_exited": true, "child_started": true, "child_status": 1, "elapsed_seconds": 0.00013606300126411952, "enforcement": {"attempts": {}, "faults": [], "state": "stopping"}, "enforcement_path": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-manager-guard/test-storage-335047/v12-w71917-j5aqcndt/outcome.json.enforcement-5-1792439656162404091.json", "faults": [], "manager_report_path": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-manager-guard/test-storage-335047/v12-w71917-j5aqcndt/outcome.json.manager-5-1792439655411659334.json", "operator_signals": [], "original_envelope": {"authority": "0000000a000000000000000000000000", "job": "job-a", "packet": {"bounds": {"cleanup_seconds": 2, "implementer_invocations": 1, "retry": false, "total_seconds": 5, "turn_seconds": 3}, "code_boundary": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-manager-guard/test-storage-335047/v12-w71917-j5aqcndt/checkout", "deployment": {"authority_uuid": "0000000a000000000000000000000000", "config_path": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-manager-guard/test-storage-335047/v12-w71917-j5aqcndt/config.json", "control_store": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-manager-guard/test-storage-335047/v12-w71917-j5aqcndt/control.sqlite3", "job_store": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-manager-guard/test-storage-335047/v12-w71917-j5aqcndt/jobs.sqlite3"}, "outcome_path": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-manager-guard/test-storage-335047/v12-w71917-j5aqcndt/outcome.json", "run_id": "guard-regression", "submission": {"job_id": "job-a"}, "test_mode": "exception", "test_submission": {"jobs": [{"input_digest": "sha256:a55259380523b2540778abbad98e6ba519357eabc0a9472635292acd1b559b1c", "job_id": "job-a", "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222", "stages": [{"depends_on": [], "kind": "implementation", "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "profile_name": "reference", "work_id": "0000000a-W1"}], "terminal_policy": "report-and-hold", "test_scope": ["v12/python/tests/job_manager"]}], "schema": "baton.v12.job-submission/1", "submission_id": "sub-1"}}, "run": "guard-regression", "started_at": "2026-10-19T19:54:15.885Z", "stop_at": "2026-10-19T19:54:18.885000+00:00"}, "recovery_only": false, "state": "held"}
+Traceback (most recent call last):
+  File "/tmp/baton-w334910-335047/v12/python/tests/manager/test_authoring_manager_guard.py", line 188, in <module>
+    raise SystemExit(fixture_main())
+                     ~~~~~~~~~~~~^^
+  File "/tmp/baton-w334910-335047/v12/python/tests/manager/test_authoring_manager_guard.py", line 184, in fixture_main
+    return e.main(sys.argv[1:])
+           ~~~~~~^^^^^^^^^^^^^^
+  File "/tmp/baton-w334910-335047/v12/python/tools/authoring_enforcement.py", line 459, in main
+    return child_main(args.packet, args.child_of, args.lock_fd, args.status_path)
+  File "/tmp/baton-w334910-335047/v12/python/tools/authoring_enforcement.py", line 438, in child_main
+    return baseline.main(['--packet', packet_path, '--incarnation', 'authoring-child-' + str(os.getpid())], compose=child_compose)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/baton-w334910-335047/v12/python/tests/manager/test_authoring_manager_guard.py", line 154, in workload
+    with JobStore.open(value['deployment']['job_store'], authority_uuid=value['deployment']['authority_uuid'], incarnation='author', clock=e.utc) as job, ControlStore.open(value['deployment']['control_store'], incarnation='author') as control:
+                                                                                                                                                          ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: ControlStore.open() missing 1 required keyword-only argument: 'clock'
+
+
+======================================================================
+FAIL: test_blocked_author_keeps_exclusion_and_outer_deadline (tests.manager.test_authoring_manager_guard.ManagerComposition.test_blocked_author_keeps_exclusion_and_outer_deadline)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/baton-w334910-335047/v12/python/tests/manager/test_authoring_manager_guard.py", line 72, in test_blocked_author_keeps_exclusion_and_outer_deadline
+    self.await_file(root / 'action.json', child, output)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/baton-w334910-335047/v12/python/tests/manager/test_authoring_manager_guard.py", line 51, in await_file
+    self.assertTrue(path.exists(), self.log(output))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : {"authoring_log": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-manager-guard/test-storage-335047/v12-w71917-83g9sbbg/outcome.json.authoring.log", "child_exited": true, "child_started": true, "child_status": 1, "elapsed_seconds": 0.00016915499872993678, "enforcement": {"attempts": {}, "faults": [], "state": "stopping"}, "enforcement_path": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-manager-guard/test-storage-335047/v12-w71917-83g9sbbg/outcome.json.enforcement-9-1792439657442732251.json", "faults": [], "manager_report_path": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-manager-guard/test-storage-335047/v12-w71917-83g9sbbg/outcome.json.manager-9-1792439656691959085.json", "operator_signals": [], "original_envelope": {"authority": "0000000a000000000000000000000000", "job": "job-a", "packet": {"bounds": {"cleanup_seconds": 2, "implementer_invocations": 1, "retry": false, "total_seconds": 5, "turn_seconds": 3}, "code_boundary": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-manager-guard/test-storage-335047/v12-w71917-83g9sbbg/checkout", "deployment": {"authority_uuid": "0000000a000000000000000000000000", "config_path": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-manager-guard/test-storage-335047/v12-w71917-83g9sbbg/config.json", "control_store": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-manager-guard/test-storage-335047/v12-w71917-83g9sbbg/control.sqlite3", "job_store": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-manager-guard/test-storage-335047/v12-w71917-83g9sbbg/jobs.sqlite3"}, "outcome_path": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-manager-guard/test-storage-335047/v12-w71917-83g9sbbg/outcome.json", "run_id": "guard-regression", "submission": {"job_id": "job-a"}, "test_mode": "blocked", "test_submission": {"jobs": [{"input_digest": "sha256:a55259380523b2540778abbad98e6ba519357eabc0a9472635292acd1b559b1c", "job_id": "job-a", "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222", "stages": [{"depends_on": [], "kind": "implementation", "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "profile_name": "reference", "work_id": "0000000a-W1"}], "terminal_policy": "report-and-hold", "test_scope": ["v12/python/tests/job_manager"]}], "schema": "baton.v12.job-submission/1", "submission_id": "sub-1"}}, "run": "guard-regression", "started_at": "2026-10-19T19:54:17.163Z", "stop_at": "2026-10-19T19:54:20.163000+00:00"}, "recovery_only": false, "state": "held"}
+Traceback (most recent call last):
+  File "/tmp/baton-w334910-335047/v12/python/tests/manager/test_authoring_manager_guard.py", line 188, in <module>
+    raise SystemExit(fixture_main())
+                     ~~~~~~~~~~~~^^
+  File "/tmp/baton-w334910-335047/v12/python/tests/manager/test_authoring_manager_guard.py", line 184, in fixture_main
+    return e.main(sys.argv[1:])
+           ~~~~~~^^^^^^^^^^^^^^
+  File "/tmp/baton-w334910-335047/v12/python/tools/authoring_enforcement.py", line 459, in main
+    return child_main(args.packet, args.child_of, args.lock_fd, args.status_path)
+  File "/tmp/baton-w334910-335047/v12/python/tools/authoring_enforcement.py", line 438, in child_main
+    return baseline.main(['--packet', packet_path, '--incarnation', 'authoring-child-' + str(os.getpid())], compose=child_compose)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/baton-w334910-335047/v12/python/tests/manager/test_authoring_manager_guard.py", line 154, in workload
+    with JobStore.open(value['deployment']['job_store'], authority_uuid=value['deployment']['authority_uuid'], incarnation='author', clock=e.utc) as job, ControlStore.open(value['deployment']['control_store'], incarnation='author') as control:
+                                                                                                                                                          ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: ControlStore.open() missing 1 required keyword-only argument: 'clock'
+
+
+======================================================================
+FAIL: test_parent_loss_kills_manager_without_inherited_workspace_guard (tests.manager.test_authoring_manager_guard.ManagerComposition.test_parent_loss_kills_manager_without_inherited_workspace_guard)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/baton-w334910-335047/v12/python/tests/manager/test_authoring_manager_guard.py", line 100, in test_parent_loss_kills_manager_without_inherited_workspace_guard
+    self.await_file(root / 'action.json', child, output)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/baton-w334910-335047/v12/python/tests/manager/test_authoring_manager_guard.py", line 51, in await_file
+    self.assertTrue(path.exists(), self.log(output))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : {"authoring_log": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-manager-guard/test-storage-335047/v12-w71917-1a5sz3bs/outcome.json.authoring.log", "child_exited": true, "child_started": true, "child_status": 1, "elapsed_seconds": 0.00015621999773429707, "enforcement": {"attempts": {}, "faults": [], "state": "stopping"}, "enforcement_path": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-manager-guard/test-storage-335047/v12-w71917-1a5sz3bs/outcome.json.enforcement-13-1792439658682424889.json", "faults": [], "manager_report_path": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-manager-guard/test-storage-335047/v12-w71917-1a5sz3bs/outcome.json.manager-13-1792439657931651211.json", "operator_signals": [], "original_envelope": {"authority": "0000000a000000000000000000000000", "job": "job-a", "packet": {"bounds": {"cleanup_seconds": 2, "implementer_invocations": 1, "retry": false, "total_seconds": 5, "turn_seconds": 3}, "code_boundary": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-manager-guard/test-storage-335047/v12-w71917-1a5sz3bs/checkout", "deployment": {"authority_uuid": "0000000a000000000000000000000000", "config_path": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-manager-guard/test-storage-335047/v12-w71917-1a5sz3bs/config.json", "control_store": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-manager-guard/test-storage-335047/v12-w71917-1a5sz3bs/control.sqlite3", "job_store": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-manager-guard/test-storage-335047/v12-w71917-1a5sz3bs/jobs.sqlite3"}, "outcome_path": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-manager-guard/test-storage-335047/v12-w71917-1a5sz3bs/outcome.json", "run_id": "guard-regression", "submission": {"job_id": "job-a"}, "test_mode": "blocked", "test_submission": {"jobs": [{"input_digest": "sha256:a55259380523b2540778abbad98e6ba519357eabc0a9472635292acd1b559b1c", "job_id": "job-a", "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222", "stages": [{"depends_on": [], "kind": "implementation", "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "profile_name": "reference", "work_id": "0000000a-W1"}], "terminal_policy": "report-and-hold", "test_scope": ["v12/python/tests/job_manager"]}], "schema": "baton.v12.job-submission/1", "submission_id": "sub-1"}}, "run": "guard-regression", "started_at": "2026-10-19T19:54:18.404Z", "stop_at": "2026-10-19T19:54:21.404000+00:00"}, "recovery_only": false, "state": "held"}
+Traceback (most recent call last):
+  File "/tmp/baton-w334910-335047/v12/python/tests/manager/test_authoring_manager_guard.py", line 188, in <module>
+    raise SystemExit(fixture_main())
+                     ~~~~~~~~~~~~^^
+  File "/tmp/baton-w334910-335047/v12/python/tests/manager/test_authoring_manager_guard.py", line 184, in fixture_main
+    return e.main(sys.argv[1:])
+           ~~~~~~^^^^^^^^^^^^^^
+  File "/tmp/baton-w334910-335047/v12/python/tools/authoring_enforcement.py", line 459, in main
+    return child_main(args.packet, args.child_of, args.lock_fd, args.status_path)
+  File "/tmp/baton-w334910-335047/v12/python/tools/authoring_enforcement.py", line 438, in child_main
+    return baseline.main(['--packet', packet_path, '--incarnation', 'authoring-child-' + str(os.getpid())], compose=child_compose)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/baton-w334910-335047/v12/python/tests/manager/test_authoring_manager_guard.py", line 154, in workload
+    with JobStore.open(value['deployment']['job_store'], authority_uuid=value['deployment']['authority_uuid'], incarnation='author', clock=e.utc) as job, ControlStore.open(value['deployment']['control_store'], incarnation='author') as control:
+                                                                                                                                                          ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: ControlStore.open() missing 1 required keyword-only argument: 'clock'
+
+
+======================================================================
+FAIL: test_real_composition_admits_action_and_restart_never_reinvokes (tests.manager.test_authoring_manager_guard.ManagerComposition.test_real_composition_admits_action_and_restart_never_reinvokes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/baton-w334910-335047/v12/python/tests/manager/test_authoring_manager_guard.py", line 56, in test_real_composition_admits_action_and_restart_never_reinvokes
+    self.assertEqual(child.wait(timeout=12), 0, self.log(output))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : {"authoring_log": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-manager-guard/test-storage-335047/v12-w71917-qxixtor1/outcome.json.authoring.log", "child_exited": true, "child_started": true, "child_status": 1, "elapsed_seconds": 0.00015307500143535435, "enforcement": {"attempts": {}, "faults": [], "state": "stopping"}, "enforcement_path": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-manager-guard/test-storage-335047/v12-w71917-qxixtor1/outcome.json.enforcement-17-1792439659925611448.json", "faults": [], "manager_report_path": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-manager-guard/test-storage-335047/v12-w71917-qxixtor1/outcome.json.manager-17-1792439659174832491.json", "operator_signals": [], "original_envelope": {"authority": "0000000a000000000000000000000000", "job": "job-a", "packet": {"bounds": {"cleanup_seconds": 2, "implementer_invocations": 1, "retry": false, "total_seconds": 5, "turn_seconds": 3}, "code_boundary": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-manager-guard/test-storage-335047/v12-w71917-qxixtor1/checkout", "deployment": {"authority_uuid": "0000000a000000000000000000000000", "config_path": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-manager-guard/test-storage-335047/v12-w71917-qxixtor1/config.json", "control_store": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-manager-guard/test-storage-335047/v12-w71917-qxixtor1/control.sqlite3", "job_store": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-manager-guard/test-storage-335047/v12-w71917-qxixtor1/jobs.sqlite3"}, "outcome_path": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-manager-guard/test-storage-335047/v12-w71917-qxixtor1/outcome.json", "run_id": "guard-regression", "submission": {"job_id": "job-a"}, "test_mode": "normal", "test_submission": {"jobs": [{"input_digest": "sha256:a55259380523b2540778abbad98e6ba519357eabc0a9472635292acd1b559b1c", "job_id": "job-a", "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222", "stages": [{"depends_on": [], "kind": "implementation", "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "profile_name": "reference", "work_id": "0000000a-W1"}], "terminal_policy": "report-and-hold", "test_scope": ["v12/python/tests/job_manager"]}], "schema": "baton.v12.job-submission/1", "submission_id": "sub-1"}}, "run": "guard-regression", "started_at": "2026-10-19T19:54:19.650Z", "stop_at": "2026-10-19T19:54:22.650000+00:00"}, "recovery_only": false, "state": "held"}
+Traceback (most recent call last):
+  File "/tmp/baton-w334910-335047/v12/python/tests/manager/test_authoring_manager_guard.py", line 188, in <module>
+    raise SystemExit(fixture_main())
+                     ~~~~~~~~~~~~^^
+  File "/tmp/baton-w334910-335047/v12/python/tests/manager/test_authoring_manager_guard.py", line 184, in fixture_main
+    return e.main(sys.argv[1:])
+           ~~~~~~^^^^^^^^^^^^^^
+  File "/tmp/baton-w334910-335047/v12/python/tools/authoring_enforcement.py", line 459, in main
+    return child_main(args.packet, args.child_of, args.lock_fd, args.status_path)
+  File "/tmp/baton-w334910-335047/v12/python/tools/authoring_enforcement.py", line 438, in child_main
+    return baseline.main(['--packet', packet_path, '--incarnation', 'authoring-child-' + str(os.getpid())], compose=child_compose)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/baton-w334910-335047/v12/python/tests/manager/test_authoring_manager_guard.py", line 154, in workload
+    with JobStore.open(value['deployment']['job_store'], authority_uuid=value['deployment']['authority_uuid'], incarnation='author', clock=e.utc) as job, ControlStore.open(value['deployment']['control_store'], incarnation='author') as control:
+                                                                                                                                                          ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: ControlStore.open() missing 1 required keyword-only argument: 'clock'
+
+
+----------------------------------------------------------------------
+Ran 4 tests in 5.046s
+
+FAILED (failures=4)

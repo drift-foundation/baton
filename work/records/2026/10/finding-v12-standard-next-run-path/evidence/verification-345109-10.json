@@ -1,0 +1,14 @@
+{
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_next_run_flow",
+    "tests.manager.test_authoring_enforcement.OwnerLane"
+  ],
+  "timeout_seconds": 60,
+  "process_seconds": 10.797941393999963,
+  "returncode": 1,
+  "stdout": "",
+  "stderr": "E............\n======================================================================\nERROR: test_two_tasks_and_failed_start_recovery_after_one_installation (tests.tools.test_next_run_flow.JoinedFlow.test_two_tasks_and_failed_start_recovery_after_one_installation)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/tmp/baton-next-run-345023/v12/python/tests/tools/test_next_run_flow.py\", line 117, in test_two_tasks_and_failed_start_recovery_after_one_installation\n    self.completed(name, received)\n    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"/tmp/baton-next-run-345023/v12/python/tests/tools/test_next_run_flow.py\", line 81, in completed\n    self.assertEqual(self.start(name), 0, json.dumps(self.results, indent=2))\n                     ~~~~~~~~~~^^^^^^\n  File \"/tmp/baton-next-run-345023/v12/python/tests/tools/test_next_run_flow.py\", line 78, in start\n    return self.request(action='start', run=name)\n           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/baton-next-run-345023/v12/python/tests/tools/test_next_run_flow.py\", line 46, in request\n    return managed.execute_request(self.broker, managed.read_request(io.BytesIO(json.dumps(data).encode())))\n           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/baton-next-run-345023/v12/python/tools/next_run_managed.py\", line 639, in execute_request\n    result = getattr(broker, action)(request['run'])\n  File \"/tmp/baton-next-run-345023/v12/python/tools/next_run_managed.py\", line 477, in start\n    return self.host.dispatch(record, packet, self.root)\n           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/baton-next-run-345023/v12/python/tests/tools/test_next_run_flow.py\", line 67, in dispatch\n    sources = {c['attempt_id']: (Path(c['attribution']['line_path'])/'subject.py').read_text() for c in outcome.get('workload', {}).get('candidates', [])}\n                                      ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^\nTypeError: 'NoneType' object is not subscriptable\n\n----------------------------------------------------------------------\nRan 13 tests in 10.577s\n\nFAILED (errors=1)\n"
+}

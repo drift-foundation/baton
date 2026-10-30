@@ -1,0 +1,139 @@
+{
+  "WORK": "2b077949-W325959",
+  "CLAIM": 358697,
+  "ANSWERS_REVIEW": "work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-23T05-27-08Z.md",
+  "UNDER_OWNER_REROUTE": "358671 -- owner ran the accepted fresh3 packet, quickstart-c failed on expired OAuth, and asked for a supported fresh-attempt path preferring the existing instance and bundle",
+  "WHAT_THIS_IS": "The owner helper and its proof for a FRESH ATTEMPT after the quickstart-c credential failure: a new Job on a new Work inside the EXISTING instance 3, with the failed Job preserved. Read-only check mode by default; apply, submission and submit are separate owner selections.",
+  "THE_OWNER_HELPER": {
+    "owner_path": "/tmp/w325959-fresh-attempt.py",
+    "durable_canonical_copy": "fresh-attempt-358697/fresh_attempt.py",
+    "sha256": "64d4442c445d85a8002f2d98e5069abf229e2f0204c27eb46e1638ba47aff621",
+    "byte_identical": "both paths hash to the same value; the /tmp copy is the dossier copy"
+  },
+  "WHAT_FAILED": {
+    "job": "quickstart-c",
+    "stage": "implementation",
+    "state": "exceptional",
+    "cause": "expired OAuth credential -- provider duration_api_ms 0, cost 0",
+    "runtime": "89fa956ad87d034b0f39051baa4c8f4ebd8e28da702fdc36aa99870feafa1bec, destroyed",
+    "allocation": "released, cleanup-retained, token returned",
+    "review_stage": "blocked",
+    "attribution": "these credential and provider facts are the owner's at 358671 and the reviewer's read-only status copy; no secret was read here and refreshed authentication is NOT independently proved",
+    "it_is_not_a_product_defect": "nothing here repairs, retries or revives it, and quickstart-c with its Work, binding, workers, attempt logs and published status is preserved as the record"
+  },
+  "WHY_THERE_IS_NO_RETRY_AND_NONE_WAS_INVENTED": {
+    "identical_resubmission": "submission.submit journals by submission identity, so it is a REPLAY rather than a reset",
+    "new_submission_old_job": "submission._unclaimed refuses an existing Job claimed by another submission",
+    "restart_abandoned_correction": "requires explicit abandonment, fence, restored-line and excluded-writer receipts, which an expired credential does not produce and which this will not manufacture",
+    "so": "the supported path is a NEW Job on a NEW Work in the SAME instance"
+  },
+  "THE_SHAPE_DECIDED_BY_MEASUREMENT": {
+    "candidates": [
+      "A. add the new Job and RE-POINT the two existing workers' input_manifest",
+      "B. add the new Job AND TWO NEW WORKERS carrying the new manifest"
+    ],
+    "both_configure": "the supported in-place call accepted BOTH; a schema-level probe cannot tell them apart, which is exactly why the review required runtime binding proof rather than schema validity",
+    "what_separates_them": "stage_execution._job_workers, whose _disagreements compares 'the Work' between a worker's manifest and the Job's binding. Under A the OLD Job's stages become UNSERVABLE -- measured, both roles refused with {'implementation-pilot': ['the Work']}. Under B all four stage/Job pairs select a worker.",
+    "chosen": "B",
+    "a_job_names_its_own_producer": "_job_workers narrows the implementation lane to binding['source_worker_id'], so the new Job names the new implementation worker. The first measurement left the old one and the new Job's implementation stage refused even though the new worker agreed on EVERY operand -- the disagreement set was literally empty and it was still excluded.",
+    "no_new_repository_needed": "the new workers reuse the existing source-implementation-pilot and source-review-pilot, and the in-place operation prepares no repositories -- so the instance-2 gap ('no supported operation adds a worker source repository to a prepared destination') does not arise here, and nothing clones",
+    "publication_is_safe": "StageDeployment.publications is keyed by PARTICIPANT and _sole_producer dedupes by participant; both implementation workers share baton.claude-pilot, so there is exactly one producer and the refusing _PerJobPublication seam is not reached"
+  },
+  "IDENTIFIERS": {
+    "destination": "/home/sl/baton-instances/native-coordination-pilot-w321608-3 (EXISTING, reused)",
+    "authority": "5a8fa4b4275b4f7fa32efafc2c48f546 (existing, reused)",
+    "failed_job": "quickstart-c on Work 5a8fa4b4-W1 -- PRESERVED",
+    "new_job": "quickstart-d",
+    "new_work": "5a8fa4b4-W2",
+    "new_submission": "sub-w321608-quickstart-4",
+    "new_task": "w321608-native-operator-quickstart-4",
+    "new_incarnation": "w325959-owner-submit-4",
+    "new_workers": "implementation-pilot-d, review-pilot-d",
+    "bundle": "the installed, admitted one is reused; no bundle replacement"
+  },
+  "COMPOSED_DIGESTS_FROM_THE_LIVE_CHECK": {
+    "manifest_digest": "sha256:c4267040714e7f55558aedb1fec0dbab41a667b78367949898cb901b0ecff56a",
+    "input_digest": "sha256:3f0a039610cfb02a2743af7137f8ed91b768e68f82808714dd2a87485f532d59",
+    "task_digest": "sha256:9fdb1dd4ada5908bbd1718c8dbc89eff0d4c7def98dab9f89834373d47b8876b",
+    "note": "input_digest is contracts.job_input_identity -- the PUBLIC projection -- not the manifest digest"
+  },
+  "CHECK_MODE_IS_A_REHEARSAL": {
+    "what_it_does": "copies the instance's metadata, stores and task documents into a disposable directory and runs the REAL supported operation there, then drives the real selector over the result",
+    "why_not_a_schema_opinion": "both candidate shapes passed schema validation and only one of them works; the operation's own answer is the only one worth reporting",
+    "why_the_live_stores_are_never_opened": "opening sqlite writes -wal and -shm beside it, so a check that promised unchanged bytes and then opened the authority would break its own promise. The new-Work collision question is asked against a COPY of the authority store.",
+    "what_is_not_copied": "repo/ is 2.5G of clones and distro/ is the admitted bundle; an in-place configuration prepares neither, so the rehearsal creates the repository names only",
+    "measured_result": "23 accountable entries, digest 00a4d38f7814dbcd0a4f79ecacd299b6286b6a8903077b730e29267785543925, IDENTICAL before and after -- and that set includes db/, where the attempt history lives"
+  },
+  "DETERMINISTIC_PROOF": {
+    "file": "evidence/PROVE.json",
+    "script": "prove.py",
+    "result": "39 checks, 0 failed",
+    "git_executed": false,
+    "two_scenarios_and_why_both": {
+      "live_read_only": "check is run against the ACTUAL failed instance with the helper's SHIPPED identities, so what is proved is the defaults rather than values the proof handed in. Applies the claim357900 lesson directly.",
+      "disposable": "apply, repeat-apply, submission emission and every refusal are exercised where mutation is safe, on an instance built by the ACCEPTED fresh3 packet so it has the real shape"
+    },
+    "live_scenario_proves": [
+      "the real supported operation rehearses clean on the actual instance",
+      "the failed Job's binding and BOTH its workers survive byte-exact",
+      "all four stage/Job pairs select a worker -- the failed Job is not orphaned",
+      "the new Work is free and the failed Work is present, asked against a store COPY",
+      "every accountable byte identical before and after, db/ included"
+    ],
+    "disposable_scenario_proves": [
+      "check is read-only there too",
+      "apply: both Jobs bound, the failed one byte-unchanged, four workers, the new Job on the NEW Work naming its OWN producer",
+      "the product's own selector serves all four pairs after a real apply",
+      "the emitted task digest describes its own bytes",
+      "no new repository was needed",
+      "repeat apply refuses on the already-bound Job with the instance byte-unchanged, and produced no duplicate Job or worker",
+      "repeat check also refuses rather than re-planning",
+      "the submission is written, validated by documents.owned_submission, names NEITHER the failed Job nor its Work anywhere including stage dependencies, binds both stages to the new Work, keeps 3600/900, and refuses to be overwritten"
+    ],
+    "refusals_all_asserting_the_instance_is_UNCHANGED": [
+      "the new Job colliding with the failed Job",
+      "the new Work colliding with the failed Work",
+      "an empty worker suffix, which would reuse a name already serving something",
+      "a wrong authority -- a fresh attempt belongs to the instance that failed",
+      "a wrong recorded Work for the failed Job",
+      "an absent instance",
+      "helper drift: the imported configure.py is not the accepted bytes",
+      "a STALE retained binding, refused in rehearsal before any write here",
+      "emitting the submission BEFORE the apply",
+      "a pre-existing emitted input, which is left byte-untouched"
+    ],
+    "one_of_my_own_expectations_was_wrong_and_the_product_was_right": "I predicted repeat apply would refuse on the emitted-output collision. It refuses EARLIER, on the already-bound Job, because apply rehearses before it writes. That ordering is the better one -- 'this Job already exists' is a stronger statement than 'a file is in the way' -- so the check now asserts the real ordering and the output-collision ordering is exercised separately, before the apply, where it is reachable.",
+    "limits": "Scenario 1 is read-only measurement of the real instance. Scenario 2 is disposable with a SIMULATED repository runner and a STUB bundle, and its retained Job was configured but never ran. That the new Job will SUCCEED is not proved -- only that it is configured, bound, collision-free and selectable."
+  },
+  "COMMANDS": {
+    "file": "COMMANDS.md",
+    "five_separate_owner_selections": [
+      "check (read-only)",
+      "apply in place",
+      "emit the submission",
+      "submit",
+      "serving"
+    ],
+    "shell_syntax": "all 6 sh blocks pass bash -n; shell_syntax.py performs the check and evidence/SHELL-SYNTAX.txt is its output",
+    "expected_readbacks_named": "job_bindings, workers, selector and preserved, with an explicit instruction to report a mismatch rather than re-run, because a second apply refuses by design"
+  },
+  "THE_CREDENTIAL_PREREQUISITE": {
+    "stated": "the original failure was an expired OAuth credential; the owner reports the selected source refreshed 2026-10-23T05:22:04Z expiring 13:22:04Z, metadata only",
+    "not_tested_here": "nothing in this packet reads a credential or tests authentication, and a fresh attempt launched after that expiry would fail the same way",
+    "so": "confirm validity at submit time, not at authoring time"
+  },
+  "IMMUTABLE_HASHES": {
+    "fresh_attempt.py": "sha256:64d4442c445d85a8002f2d98e5069abf229e2f0204c27eb46e1638ba47aff621",
+    "prove.py": "sha256:5f6de97467f30cd0bcaadfaa112b77fb3ec3649c10b93879f6397d2a2c6a14d4",
+    "evidence/PROVE.json": "sha256:e8ea6dce3aa3b3bdd7429bbbcb26cbfd47af425f7fa88034931ba70696a9d956",
+    "evidence/LIVE-CHECK.json": "sha256:e459f2bac032ccafae1a2aa1b777b2f29e75419ec49d5600504aa8e43fbca325"
+  },
+  "WHAT_WAS_NOT_DONE": [
+    "no submit, serve, start, engine, provider, model or credential read",
+    "no raw store edit, no store copied INTO the live instance, no bundle replacement, no recovery receipt",
+    "no Git, and no change under v12/",
+    "quickstart-c is untouched and so are instances 1 and 2",
+    "same-checkpoint recovery remains unselected; RECOVERY-358300.md still names attach_review:2168 as the first blocking invariant"
+  ],
+  "OWNERSHIP": "author owns this packet, its helper and PROGRESS.md; the reviewer owns FINDING.md, PLAN.md, the review records and evidence/review-*. The accepted fresh3-358443 packet and post-install-357462/configure.py are consumed by import and pin, unchanged."
+}

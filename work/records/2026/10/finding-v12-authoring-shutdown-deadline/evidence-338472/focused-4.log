@@ -1,0 +1,14 @@
+..........................................F.
+======================================================================
+FAIL: test_preexisting_independent_manager_refuses_before_author_admission (tests.manager.test_authoring_manager_guard.ManagerComposition.test_preexisting_independent_manager_refuses_before_author_admission)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-shutdown-deadline/candidate-338472/v12/python/tests/manager/test_authoring_manager_guard.py", line 156, in test_preexisting_independent_manager_refuses_before_author_admission
+    self.assertIn('another manager is already active', str(report['enforcement']))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'another manager is already active' not found in "{'attempts': {}, 'faults': ['manager has not reported', 'manager terminated without final enforcement report; retained observations do not resolve unknown effects'], 'state': 'held'}"
+
+----------------------------------------------------------------------
+Ran 44 tests in 73.119s
+
+FAILED (failures=1)

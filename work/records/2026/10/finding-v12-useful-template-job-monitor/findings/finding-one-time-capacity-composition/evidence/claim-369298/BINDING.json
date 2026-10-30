@@ -1,0 +1,269 @@
+{
+ "caveat": "PROGRESS.md is digested as of this write and is appended to afterwards in this same claim.",
+ "delivered": {
+  "CLEAN-START.md": {
+   "bytes": 7899,
+   "sha256": "c39e1f4635ea2fc5f8377c4dc3b50fa4371725c5e7b5bb3815e82e901cd24c8c"
+  },
+  "capacity.py": {
+   "bytes": 59227,
+   "sha256": "1944c97d6868c12ae19a363cb88f6e50d539adca0f33b328a9eaf4415be7fda6"
+  },
+  "fixtures/qualifying-TEMPLATE-JOBS.md": {
+   "bytes": 3552,
+   "sha256": "bc7aee367d1fb1b229e0f667c4ee4c527f5327131b81852ed27e54cfdd159817"
+  },
+  "guide_contract.py": {
+   "bytes": 11402,
+   "sha256": "5b3959614a6abdfeb4661536f35c59dbdd77d9027e1f85cb7a750d1919ade80a"
+  },
+  "proposed_grants.py": {
+   "bytes": 25562,
+   "sha256": "f447fcb62eb665abb5e0bd445392926735c2f3763e4868cbdd8ec8fe76911857"
+  },
+  "prove_capacity.py": {
+   "bytes": 34606,
+   "sha256": "8c31bc2d0719a8a089a9ba881d3ecf292e0c45591560e8301da1e363bf0ff5e4"
+  },
+  "prove_custody.py": {
+   "bytes": 8708,
+   "sha256": "5931076750736c9aa44b061c15eacaabe5466eb00943edd5930908f2ecb4cdad"
+  },
+  "prove_guide_contract.py": {
+   "bytes": 11502,
+   "sha256": "64e0e1b8711ef6021c62f575162b48aca0f4995e8513bde3dcba48e9411ccba2"
+  }
+ },
+ "evidence": {
+  "CUSTODY.json": "a146df3d1f2c2ab0b8d61ce3b831a335186b1bf576042ef53593b16c205a5dd8",
+  "CUSTODY.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "GUIDE-CONTRACT.json": "3f3445d1a24392dcab77f0e8ab19003547a5f307b1d2c934b9dc9981e888dd70",
+  "GUIDE-CONTRACT.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "PROOF.json": "ed53d38bd10c287ae41b08b105b22e25a7b6b3da8a54b9784d2945f5f7566bd9",
+  "PROOF.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "PROPOSED-GRANTS-FORMAT.json": "c787eedfe609a1b20d36d57eb2046f8da9f2a4f371f953d7e23691216e6042d6",
+  "PROPOSED-GRANTS-VERIFY.json": "71d9bc7da260cd5a2dc47e4e15fb70f89aac2015393ffd72b30619714abe2b92",
+  "verify.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+ },
+ "external_inputs": {
+  "files": {
+   "v12/instance-inputs.json": {
+    "sha256": "e2eb35b222b67ac6fae77f361bc2a007623c7a4f2d7bc75c593f46ec2708137e",
+    "what": "canonical instance inputs"
+   },
+   "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json": {
+    "sha256": "fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903",
+    "what": "published conformance vectors"
+   },
+   "work/records/2026/10/finding-v12-native-pilot-instance-packet/fresh5-361402/configure-inputs.json": {
+    "sha256": "f60b129baad7fc098be76af530a6705b96cd510aa4d8b2ff552cf3b9d6e2a494",
+    "what": "reviewed pilot configuration"
+   },
+   "work/records/2026/10/finding-v12-native-pilot-instance-packet/fresh5-361402/task.json": {
+    "sha256": "91a13de94a23941b6653b9da40ae56e28046c7b30456def734638243185272f0",
+    "what": "reviewed pilot task"
+   },
+   "work/records/2026/10/finding-v12-native-pilot-instance-packet/revision-4/inputs/deployment.json": {
+    "sha256": "6a675445d361a5208f82dfc43593595cd2d5d9bcbb3e893842c03b5cb8587a3e",
+    "what": "reviewed pilot input manifest"
+   },
+   "work/records/2026/10/finding-v12-template-job-creation/findings/finding-packaged-template-creation/evidence/review-366382/BUNDLE-ARCHIVE.json": {
+    "sha256": "de9c669ce77819686f5043207151af5f6e1894940f87da70e16fde0c9dcbbad9",
+    "what": "retained runtime archive record"
+   },
+   "work/records/2026/10/finding-v12-template-job-creation/findings/finding-packaged-template-creation/evidence/review-366382/verified-first-build.tar.gz": {
+    "sha256": "1da85eed0a3a19a5da0b83253abbbb40ebeed01bfe90ee05a10055dec0057125",
+    "what": "retained runtime archive"
+   }
+  },
+  "note": "digests read now; a parent assembling on this result should re-read them and compare",
+  "source_revision": "42bed8bb04a53380e565b1a63fb2bc702677f0d0"
+ },
+ "outcomes_bound_here": {
+  "both_proposal_variants_bound_read_only": true,
+  "create_exit": 0,
+  "custody_over_the_public_command_set": true,
+  "custody_over_the_whole_proof_run": true,
+  "custody_refusals_driven": [
+   "binding_the_canonical_set_to_the_format_task",
+   "publishing_the_default_set_over_the_variant",
+   "publishing_the_variant_over_the_canonical_set"
+  ],
+  "document_digest": "sha256:e8a5f779a25a9d9c2b3d157bb09d736c247fd782d802eb40523442da027a03f5",
+  "guide_contract_cases": 18,
+  "guide_contract_ok": true,
+  "joined_proof_ok": true,
+  "manifest_digest": "sha256:ccc516dbabf986aba00d67f11e35405e9c3fdf98046ef9a66a1f2804b2129551",
+  "preflight_no_mutation": true,
+  "preparation_is_complete": false,
+  "preparation_is_complete_with_either_set_bound": false,
+  "public_runs_in_the_custody_proof": 11,
+  "valid_foreign_identity_refused": true
+ },
+ "prior_bindings_still_hold": {
+  "evidence/claim-367503/BINDING.json": {
+   "drifted": [],
+   "proposal_members": 0
+  },
+  "evidence/claim-369192/BINDING.json": {
+   "drifted": [],
+   "proposal_members": 7
+  }
+ },
+ "proposal_reads_from": {
+  "v12/python/src/baton_v12/worker_manager/provider_context.py": "ca54ecec366fde97390a873537d9fb430db90bfe21e39448450d79d6fa4d7835",
+  "v12/python/src/baton_v12/worker_manager/source_boundary.py": "6a6b0f7ecd29ee260e55d5abb93ebcf8891641a9cd1866109a9d291bf44e918f",
+  "v12/python/tools/single_worker.py": "677e6f0ba39d10a983d20b46fe1252b73ddb7839b8f7cdf1016b88f9111e991b",
+  "v12/worker/Dockerfile.claude": "487748a01c72906d3725b78ecafe060a4d290c070822ecb20c8373fe82589b49",
+  "v12/worker/claude_agent.py": "b014ea3f5f58af573a0cbaa4b8838a270953806a89ef274682d5cca6627efe7c"
+ },
+ "proposal_sets": {
+  "default": {
+   "inventory": "proposed-grants/INVENTORY.json",
+   "inventory_sha256": "6ae52f7b2b796fe1bae8323155513fb8f751e182f4a48a0dffbb577243284add",
+   "members": {
+    "credential_policy_digest": {
+     "derivation": "reused",
+     "file": "credential_policy.json",
+     "file_sha256": "5399f947126ec7d031bced5895076657d24be21443e6db0c9ec86b51b14a9877",
+     "identity_if_granted": "sha256:c8278005e08e5feae9c7f22f259fd1625a51285b85df7bc623b45b77277a5662",
+     "path": "proposed-grants/credential_policy.json",
+     "status": "proposed-not-granted"
+    },
+    "mount_policy_digest": {
+     "derivation": "reused",
+     "file": "mount_policy.json",
+     "file_sha256": "40bbe54bfd29865a5c8d3319b6cc019ae23e2005ce9d733aa3cbb5db223ce49d",
+     "identity_if_granted": "sha256:a852ffa00f9f7f9ed447a4dd836c790aab15e0f2ee84219dc780f81d957cf9b5",
+     "path": "proposed-grants/mount_policy.json",
+     "status": "proposed-not-granted"
+    },
+    "network_policy_digest": {
+     "derivation": "authored",
+     "file": "network_policy.json",
+     "file_sha256": "fd23b28efadbe648ac43b0a1324de3dc5bfe873adfaa2c0d0ec60a777e3d9014",
+     "identity_if_granted": "sha256:06407bb4fb68082854e98e1db6737dbebee95255b90813a488ea058d0fd223ab",
+     "path": "proposed-grants/network_policy.json",
+     "status": "proposed-not-granted"
+    },
+    "resource_policy_digest": {
+     "derivation": "authored",
+     "file": "resource_policy.json",
+     "file_sha256": "eb99686f18e73701aa7db25b2f0c6e3044fb94e583d290e9b2c7a018bd27952c",
+     "identity_if_granted": "sha256:e34a1471ce962e1737392740ad13b23234af531755baf5be61c2678038df9b8c",
+     "path": "proposed-grants/resource_policy.json",
+     "status": "proposed-not-granted"
+    },
+    "role_instructions_digest": {
+     "derivation": "reused",
+     "file": "role_instructions.json",
+     "file_sha256": "8ac96cb65d446a41a570a9ffa499ba955aa9e8d137bbbed7356fbd2d68ae04e5",
+     "identity_if_granted": "sha256:7321d8dcfa4993bda8c1ac736297638ce34c49e2f22545b1a8be56cfae29ce7a",
+     "path": "proposed-grants/role_instructions.json",
+     "status": "proposed-not-granted"
+    },
+    "tool_policy_digest": {
+     "derivation": "reused",
+     "file": "tool_policy.json",
+     "file_sha256": "eabb731948b1391bec7ef0c95035710ab4cef6c145b783e7f77765c4347051d6",
+     "identity_if_granted": "sha256:27634ea683a0a554be5b44a6bf2192f25418a1b6dfc376e33e5ed77d01f51199",
+     "path": "proposed-grants/tool_policy.json",
+     "status": "proposed-not-granted"
+    },
+    "toolchain_digest": {
+     "derivation": "reused",
+     "file": "toolchain.json",
+     "file_sha256": "25920341783793832dc76dc14c2e67ba09b768737700b70122181da6eabe6507",
+     "identity_if_granted": "sha256:cd6ccc00aff63f9b01036d6a5f6eb67ba1eb98a9372c66e9788bc79841be5af3",
+     "path": "proposed-grants/toolchain.json",
+     "status": "proposed-not-granted"
+    }
+   },
+   "proposed_format": false,
+   "task_sha256": "c21e6b93bfe199ebb89b3ec7a75e70a5636c52f9986b1afa3709a381c6bd98d7"
+  },
+  "format_selected": {
+   "inventory": "proposed-grants-format/INVENTORY.json",
+   "inventory_sha256": "e57d3ed180400a12b8fd4992cd1eafdae894101d4f93fe18415585bfd7fb9a18",
+   "members": {
+    "credential_policy_digest": {
+     "derivation": "reused",
+     "file": "credential_policy.json",
+     "file_sha256": "5399f947126ec7d031bced5895076657d24be21443e6db0c9ec86b51b14a9877",
+     "identity_if_granted": "sha256:c8278005e08e5feae9c7f22f259fd1625a51285b85df7bc623b45b77277a5662",
+     "path": "proposed-grants-format/credential_policy.json",
+     "status": "proposed-not-granted"
+    },
+    "mount_policy_digest": {
+     "derivation": "reused",
+     "file": "mount_policy.json",
+     "file_sha256": "40bbe54bfd29865a5c8d3319b6cc019ae23e2005ce9d733aa3cbb5db223ce49d",
+     "identity_if_granted": "sha256:a852ffa00f9f7f9ed447a4dd836c790aab15e0f2ee84219dc780f81d957cf9b5",
+     "path": "proposed-grants-format/mount_policy.json",
+     "status": "proposed-not-granted"
+    },
+    "network_policy_digest": {
+     "derivation": "authored",
+     "file": "network_policy.json",
+     "file_sha256": "fd23b28efadbe648ac43b0a1324de3dc5bfe873adfaa2c0d0ec60a777e3d9014",
+     "identity_if_granted": "sha256:06407bb4fb68082854e98e1db6737dbebee95255b90813a488ea058d0fd223ab",
+     "path": "proposed-grants-format/network_policy.json",
+     "status": "proposed-not-granted"
+    },
+    "resource_policy_digest": {
+     "derivation": "authored",
+     "file": "resource_policy.json",
+     "file_sha256": "eb99686f18e73701aa7db25b2f0c6e3044fb94e583d290e9b2c7a018bd27952c",
+     "identity_if_granted": "sha256:e34a1471ce962e1737392740ad13b23234af531755baf5be61c2678038df9b8c",
+     "path": "proposed-grants-format/resource_policy.json",
+     "status": "proposed-not-granted"
+    },
+    "role_instructions_digest": {
+     "derivation": "reused",
+     "file": "role_instructions.json",
+     "file_sha256": "68086264b2555f0552efc3d3f1f98fe990f339a5022c21bc36d1bbdb8cf4cb99",
+     "identity_if_granted": "sha256:374b89f61ac75ec2c41dc75ec70fb03027915cb2dff9eba61ebcbefa625b6891",
+     "path": "proposed-grants-format/role_instructions.json",
+     "status": "proposed-not-granted"
+    },
+    "tool_policy_digest": {
+     "derivation": "reused",
+     "file": "tool_policy.json",
+     "file_sha256": "eabb731948b1391bec7ef0c95035710ab4cef6c145b783e7f77765c4347051d6",
+     "identity_if_granted": "sha256:27634ea683a0a554be5b44a6bf2192f25418a1b6dfc376e33e5ed77d01f51199",
+     "path": "proposed-grants-format/tool_policy.json",
+     "status": "proposed-not-granted"
+    },
+    "toolchain_digest": {
+     "derivation": "reused",
+     "file": "toolchain.json",
+     "file_sha256": "25920341783793832dc76dc14c2e67ba09b768737700b70122181da6eabe6507",
+     "identity_if_granted": "sha256:cd6ccc00aff63f9b01036d6a5f6eb67ba1eb98a9372c66e9788bc79841be5af3",
+     "path": "proposed-grants-format/toolchain.json",
+     "status": "proposed-not-granted"
+    }
+   },
+   "proposed_format": true,
+   "task_sha256": "cb7001c74de828ab1afaf6674ddef23092a5338b3d00d3097d8b1d3cde7ccbdd"
+  },
+  "status": "PROPOSED, NOT GRANTED -- no owner has selected either set",
+  "they_differ_only_in": [
+   "role_instructions_digest",
+   "INVENTORY.json"
+  ]
+ },
+ "retained_record_files": {
+  "CLEAN-START.md": "c39e1f4635ea2fc5f8377c4dc3b50fa4371725c5e7b5bb3815e82e901cd24c8c",
+  "FINDING.md": "cfc20fcef75a6beb99a56aefe88f2bf812df9bd3c75408cbb041f255566a684e",
+  "INCIDENT-367234-scratch-deletion.md": "4bc3feffb7ae309a829391dbfda57f738284c02b544d383000a34264035d85c0",
+  "PLAN.md": "a0faa5595dccbcece8747b3a0754a7f18193b2286de9ddd4104fa0362f5bbc21",
+  "PROGRESS.md": "3f26c98e1ed5bcb3a955e0ebb695cfe6126e9d779e3dcc142e368bc45d7cb57f"
+ },
+ "schema": "baton.v12.capacity-binding/3",
+ "superseded": {
+  "compose_capacity.py": "7da8b79332ba331815d7bbbe6f307c7dd1bd53ac155678fb9dad3ca8ed8431cf",
+  "note": "compose_capacity's entrypoint refuses; both retained as the record of earlier attempts",
+  "prove_admission.py": "919fe8f97707e3fc9f8e544011a84375f55703b695d3de7402c0d4e19bc33174"
+ },
+ "what": "the corrected exact binding review 2026-10-27T22-59-54Z asks for. Two proposal SETS with distinct identities, each pinned by its own inventory; the composition reads them and writes nothing."
+}

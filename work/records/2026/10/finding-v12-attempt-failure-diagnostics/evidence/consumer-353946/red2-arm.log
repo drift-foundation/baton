@@ -1,0 +1,150 @@
+EEEEEEFEEEEEEEE.E...........................
+======================================================================
+ERROR: test_ABSENT_or_MALFORMED_limits_stay_HONEST_and_invent_no_default (tests.tools.test_attempt_diagnostics.JobFactsAndObservationTimeReachTheReport.test_ABSENT_or_MALFORMED_limits_stay_HONEST_and_invent_no_default) (why='carries no execution limits')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353758/red2/v12/python/tests/tools/test_attempt_diagnostics.py", line 501, in test_ABSENT_or_MALFORMED_limits_stay_HONEST_and_invent_no_default
+    held = rows["job-a/implementation"]["execution_limits"]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+KeyError: 'execution_limits'
+
+======================================================================
+ERROR: test_ABSENT_or_MALFORMED_limits_stay_HONEST_and_invent_no_default (tests.tools.test_attempt_diagnostics.JobFactsAndObservationTimeReachTheReport.test_ABSENT_or_MALFORMED_limits_stay_HONEST_and_invent_no_default) (why='carries no execution limits')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353758/red2/v12/python/tests/tools/test_attempt_diagnostics.py", line 501, in test_ABSENT_or_MALFORMED_limits_stay_HONEST_and_invent_no_default
+    held = rows["job-a/implementation"]["execution_limits"]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+KeyError: 'execution_limits'
+
+======================================================================
+ERROR: test_ABSENT_or_MALFORMED_limits_stay_HONEST_and_invent_no_default (tests.tools.test_attempt_diagnostics.JobFactsAndObservationTimeReachTheReport.test_ABSENT_or_MALFORMED_limits_stay_HONEST_and_invent_no_default) (why=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353758/red2/v12/python/tests/tools/test_attempt_diagnostics.py", line 501, in test_ABSENT_or_MALFORMED_limits_stay_HONEST_and_invent_no_default
+    held = rows["job-a/implementation"]["execution_limits"]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+KeyError: 'execution_limits'
+
+======================================================================
+ERROR: test_EVERY_owned_boundary_is_reported_for_every_row (tests.tools.test_attempt_diagnostics.JobFactsAndObservationTimeReachTheReport.test_EVERY_owned_boundary_is_reported_for_every_row) (stage='job-a/implementation')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353758/red2/v12/python/tests/tools/test_attempt_diagnostics.py", line 454, in test_EVERY_owned_boundary_is_reported_for_every_row
+    self.assertEqual(sorted(row["execution_limits"]["boundaries"]),
+                            ~~~^^^^^^^^^^^^^^^^^^^^
+KeyError: 'execution_limits'
+
+======================================================================
+ERROR: test_EVERY_owned_boundary_is_reported_for_every_row (tests.tools.test_attempt_diagnostics.JobFactsAndObservationTimeReachTheReport.test_EVERY_owned_boundary_is_reported_for_every_row) (stage='job-b/implementation')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353758/red2/v12/python/tests/tools/test_attempt_diagnostics.py", line 454, in test_EVERY_owned_boundary_is_reported_for_every_row
+    self.assertEqual(sorted(row["execution_limits"]["boundaries"]),
+                            ~~~^^^^^^^^^^^^^^^^^^^^
+KeyError: 'execution_limits'
+
+======================================================================
+ERROR: test_a_MALFORMED_boundary_member_is_unknown_and_not_coerced (tests.tools.test_attempt_diagnostics.JobFactsAndObservationTimeReachTheReport.test_a_MALFORMED_boundary_member_is_unknown_and_not_coerced)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353758/red2/v12/python/tests/tools/test_attempt_diagnostics.py", line 512, in test_a_MALFORMED_boundary_member_is_unknown_and_not_coerced
+    fact = rows["job-a/implementation"]["execution_limits"]["boundaries"]["provider_turn"]["seconds"]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+KeyError: 'execution_limits'
+
+======================================================================
+ERROR: test_an_ABSENT_or_MALFORMED_time_stays_HONEST (tests.tools.test_attempt_diagnostics.JobFactsAndObservationTimeReachTheReport.test_an_ABSENT_or_MALFORMED_time_stays_HONEST) (value=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353758/red2/v12/python/tests/tools/test_attempt_diagnostics.py", line 487, in test_an_ABSENT_or_MALFORMED_time_stays_HONEST
+    fact = held["source_observed_at"]["observed_at"]
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'source_observed_at'
+
+======================================================================
+ERROR: test_an_ABSENT_or_MALFORMED_time_stays_HONEST (tests.tools.test_attempt_diagnostics.JobFactsAndObservationTimeReachTheReport.test_an_ABSENT_or_MALFORMED_time_stays_HONEST) (value={'a': 1})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353758/red2/v12/python/tests/tools/test_attempt_diagnostics.py", line 487, in test_an_ABSENT_or_MALFORMED_time_stays_HONEST
+    fact = held["source_observed_at"]["observed_at"]
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'source_observed_at'
+
+======================================================================
+ERROR: test_an_ABSENT_or_MALFORMED_time_stays_HONEST (tests.tools.test_attempt_diagnostics.JobFactsAndObservationTimeReachTheReport.test_an_ABSENT_or_MALFORMED_time_stays_HONEST) (value=[1])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353758/red2/v12/python/tests/tools/test_attempt_diagnostics.py", line 487, in test_an_ABSENT_or_MALFORMED_time_stays_HONEST
+    fact = held["source_observed_at"]["observed_at"]
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'source_observed_at'
+
+======================================================================
+ERROR: test_an_OLD_snapshot_reports_its_own_time_UNJUDGED (tests.tools.test_attempt_diagnostics.JobFactsAndObservationTimeReachTheReport.test_an_OLD_snapshot_reports_its_own_time_UNJUDGED)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353758/red2/v12/python/tests/tools/test_attempt_diagnostics.py", line 473, in test_an_OLD_snapshot_reports_its_own_time_UNJUDGED
+    self.assertEqual(held["source_observed_at"]["observed_at"]["value"],
+                     ~~~~^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'source_observed_at'
+
+======================================================================
+ERROR: test_an_UNOWNED_boundary_or_member_is_NAMED_and_never_forwarded (tests.tools.test_attempt_diagnostics.JobFactsAndObservationTimeReachTheReport.test_an_UNOWNED_boundary_or_member_is_NAMED_and_never_forwarded)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353758/red2/v12/python/tests/tools/test_attempt_diagnostics.py", line 522, in test_an_UNOWNED_boundary_or_member_is_NAMED_and_never_forwarded
+    row = rows["job-a/implementation"]["execution_limits"]
+          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+KeyError: 'execution_limits'
+
+======================================================================
+ERROR: test_each_row_carries_ITS_OWN_JOBS_limits_and_never_a_SIBLINGS (tests.tools.test_attempt_diagnostics.JobFactsAndObservationTimeReachTheReport.test_each_row_carries_ITS_OWN_JOBS_limits_and_never_a_SIBLINGS)
+The defect this closes: one Job selected, the other defaulted.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353758/red2/v12/python/tests/tools/test_attempt_diagnostics.py", line 412, in test_each_row_carries_ITS_OWN_JOBS_limits_and_never_a_SIBLINGS
+    mine = rows["job-a/implementation"]["execution_limits"]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+KeyError: 'execution_limits'
+
+======================================================================
+ERROR: test_owned_execution_limit_vocabulary_does_not_drift (tests.tools.test_attempt_diagnostics.JobFactsAndObservationTimeReachTheReport.test_owned_execution_limit_vocabulary_does_not_drift)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353758/red2/v12/python/tests/tools/test_attempt_diagnostics.py", line 548, in test_owned_execution_limit_vocabulary_does_not_drift
+    self.assertEqual(sorted(attempt_diagnostics.SOURCE_LIMIT_BOUNDARIES),
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'tools.attempt_diagnostics' has no attribute 'SOURCE_LIMIT_BOUNDARIES'
+
+======================================================================
+ERROR: test_the_SNAPSHOT_time_is_reported_and_is_NOT_the_other_two_instants (tests.tools.test_attempt_diagnostics.JobFactsAndObservationTimeReachTheReport.test_the_SNAPSHOT_time_is_reported_and_is_NOT_the_other_two_instants)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353758/red2/v12/python/tests/tools/test_attempt_diagnostics.py", line 464, in test_the_SNAPSHOT_time_is_reported_and_is_NOT_the_other_two_instants
+    self.assertEqual(held["source_observed_at"]["observed_at"]["value"], NOW)
+                     ~~~~^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'source_observed_at'
+
+======================================================================
+ERROR: test_the_units_the_scope_and_the_generation_travel (tests.tools.test_attempt_diagnostics.JobFactsAndObservationTimeReachTheReport.test_the_units_the_scope_and_the_generation_travel)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353758/red2/v12/python/tests/tools/test_attempt_diagnostics.py", line 443, in test_the_units_the_scope_and_the_generation_travel
+    envelope = rows["job-a/implementation"]["execution_limits"]["envelope"]
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+KeyError: 'execution_limits'
+
+======================================================================
+FAIL: test_a_SECRET_nested_anywhere_in_the_limits_does_not_travel (tests.tools.test_attempt_diagnostics.JobFactsAndObservationTimeReachTheReport.test_a_SECRET_nested_anywhere_in_the_limits_does_not_travel)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353758/red2/v12/python/tests/tools/test_attempt_diagnostics.py", line 537, in test_a_SECRET_nested_anywhere_in_the_limits_does_not_travel
+    self.assertEqual(json.dumps(held).count(SECRET), 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1
+
+----------------------------------------------------------------------
+Ran 39 tests in 0.126s
+
+FAILED (failures=1, errors=15)

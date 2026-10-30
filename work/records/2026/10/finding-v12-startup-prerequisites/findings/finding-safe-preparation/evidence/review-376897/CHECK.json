@@ -1,0 +1,41 @@
+{
+  "runs": [
+    {
+      "command": [
+        "timeout",
+        "60",
+        "python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_startup_prerequisites",
+        "tests.tools.test_bootstrap"
+      ],
+      "returncode": 1,
+      "seconds": 0.30149057500057097
+    },
+    {
+      "command": [
+        "timeout",
+        "15",
+        "python3",
+        "work/records/2026/10/finding-v12-startup-prerequisites/findings/finding-safe-preparation/evidence/review-376396/probe.py"
+      ],
+      "returncode": 0,
+      "seconds": 0.10154291799881321
+    },
+    {
+      "command": [
+        "timeout",
+        "15",
+        "python3",
+        "work/records/2026/10/finding-v12-startup-prerequisites/findings/finding-safe-preparation/evidence/review-376368/probe.py"
+      ],
+      "returncode": 0,
+      "seconds": 0.10142606099907425
+    }
+  ],
+  "pins": {
+    "v12/python/tools/bootstrap.py": "46b5b29d017f42643be01a2e2d9cfd7433861e1e777ef5ae8f0f2a39f27d1120",
+    "v12/python/tests/tools/test_startup_prerequisites.py": "cdf5afd5cb6bee66224d64e46179293ecc90cb150c64c2a32962d958237c4c92"
+  }
+}

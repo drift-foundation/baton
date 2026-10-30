@@ -79,3 +79,13 @@ If the supported execution vehicle cannot perform this correction, return the
 exact blocked operation and a concrete bounded alternative for owner selection.
 Routine preparation choices do not require renewed owner approval. Independent
 candidate review and the pending human diagnostic Git checkpoint remain required.
+
+## 2026-10-20 — human diagnostic checkpoint completed
+
+baton.prompt observed Slawomir's commit
+70760ef47a9bb2001c959a0dbdec72cdde61bfe6,
+`docs: checkpoint authoring shutdown diagnosis`. It records 419 dossier files,
+including the diagnostic, reproduction, independent review and owner correction
+decision; disposable SQLite files remain untracked. This satisfies the pending
+diagnostic checkpoint above, not product correction acceptance or execution
+selection. No agent changed Git state.

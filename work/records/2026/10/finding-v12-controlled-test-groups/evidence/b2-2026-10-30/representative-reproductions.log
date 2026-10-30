@@ -1,0 +1,12 @@
+R1 admit_context_use attempt_id=123 (non-text): ContractRefusal(integrity,schema): provider context identity is durable text; this is 123
+R2 admit_context_use jobs=None, text ids: ESCAPED AttributeError: 'NoneType' object has no attribute 'replay'
+R3 launch_document job_execution='bad': ESCAPED TypeError: launch_document() takes 0 positional arguments but 4 positional arguments (and 2 keyword-only arguments) were 
+R4 record_and_raise_cessation_intent component='bad': ESCAPED AttributeError: 'NoneType' object has no attribute '_connection'
+R5 exchange.activity_identities delivery='x': ContractRefusal(policy,denied): an activity expectation is composed over this component's own typed delivery; this is 'x'
+R6 configure_context_storage excluded_roots='x': ContractRefusal(refused,precondition): provider context: storage exclusion roots must be explicit
+R7 attempt_logs.named stream='../x': ContractRefusal(policy,denied): '../x' is not a stream this delivery names; it names worker.stdout, worker.stderr, provider.stdout, provider.s
+R8 workspaces.settle_cleanup connection=None: ContractRefusal(integrity,schema): settling a cleanup needs the admission this act was given
+R9 custody.adopted_directory_custody prepared_store='x': ContractRefusal(integrity,schema): the custodian image identity this act is signed with is durable text; this is none
+R3b launch_document(job_execution='bad') keyword form: ContractRefusal(integrity,schema): a launch document value is durable text; this is a dict
+R4b failure_cause._component('bad') direct: ContractRefusal(integrity,schema): this build named cessation component 'bad'; the components that order a cessation are expiry-reclaim, settleme
+R10 provider_context._hash('nope') direct: ContractRefusal(refused,precondition): provider context: invalid digest

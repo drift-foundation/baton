@@ -8,4 +8,9 @@ htmlcov/
 .claude/settings.local.json
 node_modules/
 v12/python/v12-w71917-*
-work/scratch
+# Disk-backed disposable development scratch; never the sole copy of evidence.
+/work/scratch/
+
+# Reconstructible expanded copies; retained archive and instructions in dossier.
+/work/records/2026/10/finding-v12-authoring-shutdown-deadline/candidate-338472/
+/work/records/2026/10/finding-v12-authoring-shutdown-deadline/review-338596/candidate/

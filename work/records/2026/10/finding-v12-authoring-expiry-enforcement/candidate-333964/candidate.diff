@@ -1,0 +1,1197 @@
+--- a/v12/python/src/baton_v12/worker_manager/intake.py
++++ b/v12/python/src/baton_v12/worker_manager/intake.py
+@@ -5646,7 +5646,11 @@
+     overdue = govern.overdue(store, attempt, operation=operation_id)
+     if overdue is None:
+         return {"reclaimed": "not-overdue", "attempt_id": attempt_id}
+-    if attempt["runtime_id"] is None:
++    runtime_id = overdue.get("container")
++    if attempt["runtime_id"] is not None and runtime_id != attempt["runtime_id"]:
++        raise ContractRefusal("runtime-observation", "identity-mismatch",
++                              "the token and attempt do not name the same runtime; expiry cannot choose a different execution")
++    if runtime_id is None:
+         # W275774 review 17:09:10Z [P1]: NO ATTACHED IDENTITY IS NOT "NEVER LAUNCHED".
+         #
+         # I wrote that inference and it is wrong in the one direction that matters: a
+@@ -5684,13 +5688,20 @@
+     # The removal is a separate verb because stopping and removing are separate facts:
+     # a container that stopped but could not be removed is still holding its mounts,
+     # and reporting them together would lose exactly that distinction.
+-    reclaim_id = reclaim_operation_id(attempt, overdue["generation"])
++    reclaim_id = reclaim_operation_id(dict(attempt, runtime_id=runtime_id), overdue["generation"])
+     try:
+-        adapter.stop_expired({"runtime_id": attempt["runtime_id"],
+-                              "operation_id": reclaim_id})
++        # Replayed reclaim observes first: an exact absence needs no second
++        # stop/remove effect. Acknowledgement or an unknown observation never
++        # satisfies this test; the same correlated operation may retry then.
++        before = None
++        if overdue["revoked"]:
++            before, _value, _why = attempts._observed(adapter, runtime_id)
++        if before not in ("absent", "quiescent"):
++            adapter.stop_expired({"runtime_id": runtime_id,
++                                  "operation_id": reclaim_id})
+         remove = getattr(adapter, "remove", None)
+-        if remove is not None:
+-            remove({"runtime_id": attempt["runtime_id"],
++        if before != "absent" and remove is not None:
++            remove({"runtime_id": runtime_id,
+                     "operation_id": reclaim_id})
+     except ContractRefusal as refusal:
+         # A REFUSED STOP IS NOT A CESSATION. The revocation stands, the resource
+@@ -5698,7 +5709,7 @@
+         return {"reclaimed": "held", "attempt_id": attempt_id, "state": "uncertain",
+                 "why": f"the stop was refused: {refusal.message}"}
+     # 3. AND WHAT THAT EXACT IDENTITY NOW IS, asked of the adapter.
+-    state, _value, why = attempts._observed(adapter, attempt["runtime_id"])
++    state, _value, why = attempts._observed(adapter, runtime_id)
+     # THE OBSERVATION'S OWN VOCABULARY: `attempts.OBSERVED_RUNTIME` names the four
+     # states an adapter may answer, and `absent` is the positive "this exact identity
+     # does not exist". My first cut compared against the mapped VALUE `destroyed`
+@@ -5707,6 +5718,13 @@
+     if state not in ("absent", "quiescent"):
+         return {"reclaimed": "held", "attempt_id": attempt_id, "state": state,
+                 "why": f"cessation is not positively proved: {why}"}
++    if attempt["runtime_id"] is None:
++        # The token may bind a container before the attempt attaches it. It
++        # is still this generation's exact writer and must be stopped, but
++        # an absent/quiescent observation does not settle a delayed launch.
++        return {"reclaimed": "held", "attempt_id": attempt_id, "state": state,
++                "container": runtime_id,
++                "why": "the token-bound runtime ceased; attachment/activation remains unresolved and the resource stays held"}
+     cessation = _resource_cessation(
+         store,
+         {"state": "absent",
+--- a/v12/python/src/baton_v12/worker_manager/attempts.py
++++ b/v12/python/src/baton_v12/worker_manager/attempts.py
+@@ -3505,15 +3505,32 @@
+     repeat one act rather than two.
+     """
+     attempt = _require_attempt(store, attempt_id)
++    # Cancellation has already fenced this exact assignment at the Authority.
++    # A governed launch binds its container before the attempt attaches it; that
++    # interval still has a known writer. Resolve it from the token owner's
++    # execution/start-operation binding, never from caller-supplied identity.
++    runtime_id = attempt["runtime_id"]
++    if attempt["workspace_device"] is not None and attempt["workspace_inode"] is not None:
++        from . import tokens
++        domain = tokens.domain_of("workspace", tokens.workspace_identity(attempt))
++        generation = tokens.generation_of(store, domain, execution=attempt_id, operation=_start_operation_id(attempt))
++        if generation is not None:
++            token = tokens.token_of(store, domain, generation)
++            bound = token["container"]
++            if runtime_id is not None and bound is not None and bound != runtime_id:
++                raise ContractRefusal("runtime-observation", "identity-mismatch",
++                                      "the attempt and its token name different runtimes; cancellation cannot choose another execution")
++            if runtime_id is None and not token["returned"]:
++                runtime_id = bound
+     current = attempt["execution_runtime"]
+     if "cancel-requested" in TRANSITIONS["execution_runtime"][current]:
+         observe(store, attempt_id=attempt_id, axis="execution_runtime",
+                 value="cancel-requested")
+-    if attempt["runtime_id"] is None:
++    if runtime_id is None:
+         return documents.quiescence_not_ordered(
+             ordered=False,
+-            why=f"no runtime is attached to attempt {name_value(attempt_id)}, "
+-                f"so there is no agent inside one and nothing to stop")
++            why=f"attempt {name_value(attempt_id)} has no attached or token-bound runtime identity; "
++                f"the assignment is fenced but an unresolved launch is not proof of cessation")
+     if current == "destroyed":
+         return documents.quiescence_not_ordered(
+             ordered=False,
+@@ -3540,12 +3557,12 @@
+     try:
+         agent_settlement = agent.cancel({
+             "attempt_id": attempt_id, "assignment": assignment,
+-            "runtime_id": attempt["runtime_id"], "operation_id": operation_id})
++            "runtime_id": runtime_id, "operation_id": operation_id})
+     except BaseException as failure:
+         agent_failure.append(failure)
+     try:
+         runtime_settlement = adapter.stop({
+-            "runtime_id": attempt["runtime_id"], "operation_id": operation_id})
++            "runtime_id": runtime_id, "operation_id": operation_id})
+     except BaseException as failure:
+         # Both boundaries failed. Neither is allowed to hide the other, and
+         # choosing between them would be this boundary deciding which failure
+@@ -3563,7 +3580,7 @@
+     # about the world, and normalizing "returned nothing" into "returned null"
+     # is a smaller version of the same mistake.
+     return documents.quiescence_ordered(
+-        ordered=True, runtime_id=attempt["runtime_id"],
++        ordered=True, runtime_id=runtime_id,
+         agent_settlement=agent_settlement,
+         runtime_settlement=runtime_settlement)
+ 
+--- /dev/null
++++ b/v12/python/tools/authoring_enforcement.py
+@@ -0,0 +1,439 @@
++"""Independent enforcement lane for the one-invocation authoring supervisor.
++
++The lane owns its own connections and cancellation adapter. It never dispatches
++work. A scheduler blocked in filesystem/provider/engine work cannot block this
++lane. Engine availability is an assumption for physical cessation, never a fact
++inferred from the timer. Restart is cancellation-only, not a fresh budget.
++"""
++from contextlib import ExitStack
++from datetime import datetime, timedelta, timezone
++import json
++import hashlib
++import os
++import signal
++import subprocess
++from pathlib import Path
++import threading
++import time
++
++from baton_v12.worker_manager.store import manager_signature
++from baton_v12.worker_manager import ControlStore, attempts, intake, tokens
++from baton_v12.job_manager import JobStore
++from baton_v12.job_manager.submission import stages_of
++from baton_v12.job_manager.episodes import episodes_of
++from tools import job_manager, single_worker, stage_execution
++
++POLL_SECONDS = 0.25
++ENGINE_SECONDS = 2
++KIND = 'authoring.envelope'
++HALT_KIND = 'authoring.halt'
++
++
++def instant(value):
++    return datetime.fromisoformat(value.replace('Z', '+00:00'))
++
++
++def utc():
++    return datetime.now(timezone.utc).isoformat(timespec='milliseconds').replace('+00:00', 'Z')
++
++
++def envelope(control, packet):
++    operands = {'run': packet['run_id'], 'job': packet['submission']['job_id'],
++                'authority': packet['deployment']['authority_uuid'],
++                'packet': packet}
++    identity = KIND + ':' + packet['run_id']
++    prior = control.operation_record(identity)
++    def commit(connection):
++        del connection
++        now = control._now()
++        stop = instant(now) + timedelta(seconds=packet['bounds']['total_seconds'] - packet['bounds']['cleanup_seconds'])
++        return dict(operands, started_at=now, stop_at=stop.isoformat())
++    held = control.transact(identity, KIND, manager_signature(KIND, operands), commit)
++    return held, prior is not None
++
++
++def halt(control, run):
++    operands = {'run': run}
++    return control.transact(HALT_KIND + ':' + run, HALT_KIND,
++                            manager_signature(HALT_KIND, operands), lambda connection: operands)
++
++
++def selected_attempts(job, job_id):
++    return sorted({episode['attempt_id'] for stage in stages_of(job, job_id)
++                   for episode in episodes_of(job, stage['stage_id']) if episode['attempt_id'] is not None})
++
++
++def bounded_engine(argv, *, seconds=None):
++    if seconds is not None and seconds <= 0:
++        from baton_v12.contracts import ContractRefusal
++        raise ContractRefusal('refused', 'precondition', 'engine allowance exhausted; no subprocess started')
++    return single_worker._engine_run(argv, seconds=min(ENGINE_SECONDS, seconds) if seconds is not None else ENGINE_SECONDS)
++
++
++class Lane:
++    """One decision/cessation pass, also usable with deterministic owner seams."""
++    def __init__(self, control, job, operations, packet, *, engine_run=bounded_engine,
++                 clock=utc, monotonic=time.monotonic, stopping=None, recovery=False):
++        self.control, self.job, self.operations, self.packet = control, job, operations, packet
++        self.clock, self.monotonic = clock, monotonic
++        self.stopping = stopping or threading.Event()
++        self.held, previous = envelope(control, packet)
++        self.deadline = monotonic() + max(0, (instant(self.held['stop_at']) - instant(clock())).total_seconds())
++        self.previous_clock = instant(clock())
++        self.governance = tokens.workspace_governance()
++        engines = {worker['deployment']['engine'] for worker in operations.configuration['workers']}
++        if len(engines) != 1:
++            raise RuntimeError('authoring enforcement requires one configured engine; cannot guess an attempt runtime owner')
++        engine = engines.pop()
++        self.adapter = job_manager._Reclaiming(job_manager._ReclaimAdapter(engine, engine_run))
++        self.report = {'state': 'watching', 'attempts': {}, 'faults': []}
++        self.recovery = recovery or previous
++        self.cancelled = set()
++        if recovery or previous or control.operation_record(HALT_KIND + ':' + packet['run_id']) is not None:
++            self.stopping.set()
++
++    def tick(self):
++        now = instant(self.clock())
++        if now < self.previous_clock or now >= instant(self.held['stop_at']) or self.monotonic() >= self.deadline:
++            self.stopping.set()
++        self.previous_clock = now
++        ids = selected_attempts(self.job, self.packet['submission']['job_id'])
++        # Public token decisions own expiry. Candidate enumeration performs only
++        # local owner-store reads, before any adapter call or other-store access.
++        rows = {row['runtime_attempt_id']: row for row in job_manager._governed_rows(self.control, self.governance) if row['runtime_attempt_id'] in ids}
++        overdue = {identity for identity, row in rows.items() if self.governance.overdue(self.control, row, operation=attempts._start_operation_id(row)) is not None}
++        if overdue:
++            self.stopping.set()
++        if self.stopping.is_set():
++            halt(self.control, self.packet['run_id'])
++        for attempt in ids:
++            evidence = {'runtime': None, 'observation': None, 'token': None, 'faults': []}
++            try:
++                generation = None
++                runtime = attempts.attempt_runtime_of(self.control, attempt)
++                evidence['runtime'] = runtime
++                row = rows.get(attempt)
++                if row is not None:
++                    domain = tokens.domain_of('workspace', self.governance.identity(row))
++                    generation = tokens.generation_of(self.control, domain, execution=attempt, operation=attempts._start_operation_id(row))
++                    if generation is not None:
++                        evidence['token'] = tokens.token_of(self.control, domain, generation)
++                token = evidence['token']
++                if token is not None and token['container'] is not None and runtime['runtime_id'] not in (None, token['container']):
++                    raise RuntimeError('token and attempt disagree on exact runtime; no cancellation or settlement issued')
++                if attempt in overdue:
++                    answer = intake.reclaim_expired_resource(self.control, self.adapter, attempt_id=attempt, govern=self.governance)
++                    evidence['reclaim'] = answer
++                    if answer.get('reclaimed') in ('held', 'returned'):
++                        evidence['settlement'] = intake.settle_revoked_resource(self.control, self.adapter, attempt_id=attempt, govern=self.governance)
++                elif self.stopping.is_set() and runtime is not None:
++                    exact = runtime['runtime_id'] or (token or {}).get('container')
++                    observed = self.adapter.observe(exact) if exact is not None else None
++                    evidence['observation'] = observed
++                    if attempt not in self.cancelled or (observed is not None and observed['state'] not in ('absent', 'quiescent')):
++                        # Fence even before any identity is known. Revisit a late
++                        # bound/running effect under the same cancellation identity;
++                        # an acknowledgement cannot suppress a subsequent stop.
++                        self.operations.cancel_attempt(attempt_id=attempt, reason='authoring-enforcement')
++                        self.cancelled.add(attempt)
++                exact = runtime['runtime_id'] if runtime is not None else None
++                exact = exact or (token or {}).get('container')
++                if self.stopping.is_set() and exact is not None:
++                    evidence['observation'] = self.adapter.observe(exact)
++            except Exception as fault:
++                evidence['faults'].append(type(fault).__name__ + ': ' + str(fault))
++            if generation is not None:
++                evidence['token'] = tokens.token_of(self.control, domain, generation)
++            self.report['attempts'][attempt] = evidence
++            if self.stopping.is_set():
++                # Journal observations outside every engine call. This preserves
++                # uncertainty even if the authoring process never returns.
++                signature = manager_signature('authoring.observation', evidence)
++                self.control.transact('authoring.observation:' + signature, 'authoring.observation', signature, lambda connection: evidence)
++        self.report['state'] = 'stopping' if self.stopping.is_set() else 'watching'
++        return self.report
++
++
++class Guard:
++    """Own a separate enforcement thread; no connection crosses threads."""
++    def __init__(self, packet, *, factory=None, clock=utc, lock_fd=None):
++        self.packet, self.factory, self.clock = packet, factory, clock
++        self.lock_fd = None if lock_fd is None else os.dup(lock_fd)
++        self.recovery = False
++        self.envelope = None
++        self.stopping = threading.Event()
++        self.ready, self.finished, self.shutdown = threading.Event(), threading.Event(), threading.Event()
++        self.report = {'state': 'starting', 'attempts': {}, 'faults': []}
++        self.thread = threading.Thread(target=self._run, name='authoring-enforcement', daemon=True)
++
++    def _run(self):
++        try:
++            with ExitStack() as stack:
++                dep = self.packet['deployment']
++                control = stack.enter_context(ControlStore.open(dep['control_store'], incarnation=self.packet['run_id'] + '-enforcement', clock=self.clock))
++                job = stack.enter_context(JobStore.open(dep['job_store'], authority_uuid=dep['authority_uuid'], incarnation=self.packet['run_id'] + '-enforcement', clock=self.clock))
++                with open(dep['config_path'], encoding='utf-8') as handle:
++                    config = json.load(handle)
++                operations = (self.factory or stage_execution.operations_from)(config, job, control, engine_run=bounded_engine, checkout=self.packet['code_boundary'])
++                stack.callback(operations.close)
++                lane = Lane(control, job, operations, self.packet, clock=self.clock, stopping=self.stopping)
++                self.envelope = lane.held
++                self.recovery = lane.recovery
++                self.report = lane.tick()
++                self.ready.set()
++                while not self.shutdown.wait(POLL_SECONDS):
++                    self.report = lane.tick()
++                self.report = lane.tick()
++        except Exception as fault:
++            self.stopping.set()
++            self.report = {'state': 'held', 'attempts': dict(self.report.get('attempts', {})), 'faults': [type(fault).__name__ + ': ' + str(fault)]}
++        finally:
++            if self.lock_fd is not None:
++                os.close(self.lock_fd)
++            self.ready.set()
++            self.finished.set()
++
++    def start(self):
++        self.thread.start()
++        if not self.ready.wait(30) or self.finished.is_set():
++            self.stopping.set()
++            self.shutdown.set()
++            raise RuntimeError('authoring enforcement unavailable: ' + str(self.report))
++        return self
++
++    def stop(self, *, timeout=ENGINE_SECONDS * 4 + 2):
++        self.shutdown.set()
++        self.thread.join(timeout=max(0, timeout))
++        if self.thread.is_alive():
++            return {'state': 'held', 'attempts': dict(self.report.get('attempts', {})), 'faults': ['enforcement did not finish; ownership remains unresolved']}
++        return self.report
++
++
++
++class Operations:
++    """Gate dispatch at the durable halt, using the author's own connection."""
++    def __init__(self, operations, control, run):
++        self.operations, self.control, self.run = operations, control, run
++
++    def __getattr__(self, name):
++        return getattr(self.operations, name)
++
++    def _dispatch(self, name, *args, **kwargs):
++        from baton_v12.contracts import ContractRefusal
++        if self.control.operation_record(HALT_KIND + ':' + self.run) is not None:
++            raise ContractRefusal('refused', 'precondition', 'authoring enforcement closed admission')
++        return getattr(self.operations, name)(*args, **kwargs)
++
++    def admit(self, *args, **kwargs):
++        return self._dispatch('admit', *args, **kwargs)
++
++    def claim(self, *args, **kwargs):
++        return self._dispatch('claim', *args, **kwargs)
++
++    def launch(self, *args, **kwargs):
++        return self._dispatch('launch', *args, **kwargs)
++
++    def cancel_attempt(self, *, attempt_id, reason):
++        # Both controllers retry the same canonical cancellation intent.
++        return self.operations.cancel_attempt(attempt_id=attempt_id, reason='authoring-enforcement')
++
++
++def child_compose(packet, job, control, stream):
++    del stream
++    with open(packet['deployment']['config_path'], encoding='utf-8') as handle:
++        config = json.load(handle)
++    operations = stage_execution.operations_from(config, job, control, engine_run=bounded_engine, checkout=packet['code_boundary'])
++    return Operations(operations, control, packet['run_id'])
++
++
++def supervise_process(packet, guard, launch, *, clock=time.monotonic, sleep=time.sleep):
++    """The outer deadline never calls the authoring sweep or cancellation engine.
++
++    `launch` supplies one owned process with poll/terminate/kill/wait. Process
++    exit is not runtime cessation. Recovery gets cleanup time, no new authoring.
++    """
++    started = clock()
++    child = None
++    report = {'state': 'held', 'child_started': False, 'child_exited': False, 'faults': []}
++    reserve = packet['bounds']['cleanup_seconds']
++    total = max(0, (instant(guard.envelope['stop_at']) - instant(guard.clock())).total_seconds()) + reserve
++    deadline = started + total
++    try:
++        if not guard.recovery and not guard.stopping.is_set():
++            child = launch()
++            report['child_started'] = True
++        else:
++            guard.stopping.set()
++            deadline = started + reserve
++        terminating = False
++        tail = min(12, reserve / 2)
++        while clock() < deadline - tail:
++            if child is not None and child.poll() is not None:
++                report['child_exited'] = True
++                report['child_status'] = child.poll()
++                guard.stopping.set()
++                observed = guard.report.get('attempts', {}).values()
++                if guard.finished.is_set() or all((row.get('observation') or {}).get('state') in ('absent', 'quiescent') and not (row.get('token') or {}).get('activating') for row in observed):
++                    break
++            if guard.finished.is_set() or clock() >= deadline - reserve:
++                guard.stopping.set()
++            if guard.stopping.is_set() and child is not None and not terminating:
++                if not report['child_exited']:
++                    child.terminate()
++                deadline = min(deadline, clock() + reserve)
++                terminating = True
++            sleep(min(POLL_SECONDS, max(0, deadline - tail - clock())))
++    except BaseException as fault:
++        report['faults'].append(type(fault).__name__ + ': ' + str(fault))
++    finally:
++        guard.stopping.set()
++        if child is not None:
++            try:
++                child.kill()
++                report['child_status'] = child.wait(timeout=min(2, max(0, deadline - clock())))
++                report['child_exited'] = True
++            except Exception as fault:
++                report['faults'].append('authoring process cessation unknown: ' + str(fault))
++        report['enforcement'] = guard.stop(timeout=max(0, deadline - clock()))
++        report['elapsed_seconds'] = clock() - started
++    # Success requires the workload supervisor's own success. The enforcement
++    # record cannot turn a held/absent author outcome into an accepted result.
++    if report.get('child_status') == 0 and not report['faults'] and not report['enforcement']['faults']:
++        observed = report['enforcement']['attempts'].values()
++        if all((row.get('observation') or {}).get('state') == 'absent' and not row.get('faults') and (row.get('token') is None or row['token']['returned']) for row in observed):
++            report['state'] = 'completed'
++    return report
++
++
++class Process:
++    def __init__(self, command, *, output, lock_fd):
++        self.child = subprocess.Popen(command, stdout=output, stderr=subprocess.STDOUT,
++                                      start_new_session=True, pass_fds=(lock_fd,))
++
++    def poll(self):
++        # Do not reap the session leader before its last group signal: the
++        # unreaped PID cannot be recycled into an unrelated process group.
++        info = os.waitid(os.P_PID, self.child.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT)
++        if info is None:
++            return None
++        return info.si_status if info.si_code == os.CLD_EXITED else -info.si_status
++
++    def _signal(self, number):
++        try:
++            os.killpg(self.child.pid, number)
++        except ProcessLookupError:
++            pass
++
++    def terminate(self):
++        self._signal(signal.SIGTERM)
++
++    def kill(self):
++        self._signal(signal.SIGKILL)
++
++    def wait(self, timeout):
++        return self.child.wait(timeout=timeout)
++
++
++def verify_controller(packet):
++    source = packet['manager_source']
++    here = Path(__file__).resolve()
++    try:
++        relative = str(here.relative_to(Path(source['path']).resolve()))
++    except ValueError as error:
++        raise RuntimeError('authoring controller is outside the pinned manager source') from error
++    expected = source['files'].get(relative)
++    if expected is None or hashlib.sha256(here.read_bytes()).hexdigest() != expected:
++        raise RuntimeError('authoring controller bytes are not pinned by this packet')
++
++
++def admit_child(control, packet, parent, pid):
++    from baton_v12.contracts import ContractRefusal
++    # Reusing a packet is recovery, including a crash after this intent but
++    # before the first submission. No automatic replacement child is allowed.
++    envelope(control, packet)
++    identity = 'authoring.child:' + packet['run_id']
++    if control.operation_record(identity) is not None:
++        raise ContractRefusal('refused', 'precondition', 'this authoring invocation was already consumed; recovery never launches another')
++    if control.operation_record(HALT_KIND + ':' + packet['run_id']) is not None:
++        raise ContractRefusal('refused', 'precondition', 'authoring admission is closed')
++    operands = {'parent': parent, 'pid': pid, 'run': packet['run_id']}
++    return control.transact(identity, 'authoring.child', manager_signature('authoring.child', operands), lambda connection: operands)
++
++
++def child_main(packet_path, parent, lock_fd):
++    # Linux is the selected OCI host. The inherited flock also prevents a new
++    # controller while this child remains alive following parent loss.
++    import ctypes
++    import baseline
++    libc = ctypes.CDLL(None, use_errno=True)
++    if libc.prctl(1, signal.SIGKILL, 0, 0, 0) != 0 or os.getppid() != parent:
++        raise RuntimeError('cannot bind authoring lifetime to its controller')
++    packet = baseline.held_packet(packet_path)
++    verify_controller(packet)
++    if lock_fd is None or os.fstat(lock_fd).st_ino != os.stat(packet['deployment']['control_store'] + '.authoring.lock').st_ino:
++        raise RuntimeError('authoring child lacks its inherited controller lock')
++    with ControlStore.open(packet['deployment']['control_store'], incarnation='authoring-child-admission', clock=utc) as control:
++        if control.operation_record(KIND + ':' + packet['run_id']) is None:
++            raise RuntimeError('no committed authoring controller envelope')
++        admit_child(control, packet, parent, os.getpid())
++    return baseline.main(['--packet', packet_path, '--incarnation', 'authoring-child-' + str(os.getpid())], compose=child_compose)
++
++
++def main(argv=None):
++    import argparse
++    import fcntl
++    import sys
++    import baseline
++    parser = argparse.ArgumentParser(description='One isolated authoring invocation with independent deadline and expiry enforcement')
++    parser.add_argument('--packet', required=True)
++    parser.add_argument('--child-of', type=int)
++    parser.add_argument('--lock-fd', type=int)
++    args = parser.parse_args(argv)
++    if args.child_of is not None:
++        return child_main(args.packet, args.child_of, args.lock_fd)
++    packet = baseline.held_packet(args.packet)
++    baseline.verify_imported_sources(packet)
++    verify_controller(packet)
++    with open(packet['deployment']['control_store'] + '.authoring.lock', 'a') as lock:
++        # Never unlink the lock inode; the child inherits the same open lock.
++        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
++        existing = None
++        if os.path.exists(packet['deployment']['control_store']):
++            with ControlStore.open_readonly(packet['deployment']['control_store'], incarnation='authoring-recovery-check', clock=utc) as control:
++                existing = control.operation_record(KIND + ':' + packet['run_id'])
++        if existing is None:
++            baseline.verify_worker_image(packet, image_inspect=baseline._engine_inspect)
++        with ControlStore.open(packet['deployment']['control_store'], incarnation='authoring-prepare', clock=utc) as control:
++            baseline.prepare(control, packet)
++        guard = Guard(packet, lock_fd=lock.fileno()).start()
++        output_path = packet['outcome_path'] + '.authoring.log'
++        received = []
++        def stop(number, frame):
++            del frame
++            received.append(number)
++            guard.stopping.set()
++        previous = {number: signal.signal(number, stop) for number in (signal.SIGTERM, signal.SIGINT)}
++        try:
++            with open(output_path, 'ab', buffering=0) as output:
++                report = supervise_process(packet, guard, lambda: Process(
++                    [sys.executable, '-m', 'tools.authoring_enforcement', '--packet', args.packet, '--child-of', str(os.getpid()), '--lock-fd', str(lock.fileno())], output=output, lock_fd=lock.fileno()))
++        finally:
++            for number, handler in previous.items():
++                signal.signal(number, handler)
++        report['operator_signals'] = received
++        if received:
++            report['state'] = 'held'
++        report['authoring_log'] = output_path
++        report['original_envelope'] = guard.envelope
++        report['recovery_only'] = guard.recovery
++        result = Path(packet['outcome_path'] + f'.enforcement-{os.getpid()}-{time.time_ns()}.json')
++        report['enforcement_path'] = str(result)
++        temporary = result.with_suffix('.tmp')
++        temporary.write_text(json.dumps(report, indent=2, sort_keys=True) + '\n')
++        os.replace(temporary, result)
++        print(json.dumps(report, sort_keys=True))
++        return 0 if report['state'] == 'completed' else 1
++
++
++if __name__ == '__main__':
++    raise SystemExit(main())
+--- /dev/null
++++ b/v12/python/tests/manager/test_authoring_enforcement.py
+@@ -0,0 +1,591 @@
++"""Focused fake-engine evidence; real owner journals, no Git or live provider."""
++from datetime import datetime, timedelta, timezone
++from pathlib import Path
++from types import SimpleNamespace
++import json
++import tempfile
++import threading
++import unittest
++from unittest.mock import Mock, patch
++
++from baton_v12.contracts import ContractRefusal
++from baton_v12.worker_manager import ControlStore, activate_assignment, pin_boundary_identity, reconcile_runtime, request_cancellation
++from baton_v12.worker_manager import attempts, tokens
++from tools import authoring_enforcement as enforcement
++from .test_attempts import AttemptCase, Adapter, Agent, ATTEMPT
++from .test_offers import NOW
++
++
++class Clock:
++    def __init__(self):
++        self.seconds = 0
++        self.origin = datetime.fromisoformat(NOW.replace('Z', '+00:00'))
++
++    def utc(self):
++        return (self.origin + timedelta(seconds=self.seconds)).isoformat(timespec='milliseconds').replace('+00:00', 'Z')
++
++    def monotonic(self):
++        return self.seconds
++
++    def advance(self, seconds):
++        self.seconds += seconds
++
++
++def packet():
++    return {'run_id': 'enforcement-case', 'submission': {'job_id': 'job-one'},
++            'deployment': {'authority_uuid': 'authority-one'},
++            'bounds': {'total_seconds': 300, 'cleanup_seconds': 60, 'implementer_invocations': 1, 'retry': False}}
++
++
++class Engine:
++    def __init__(self, store):
++        self.store = store
++        self.state = 'running'
++        self.calls = []
++        self.stop_ack_only = False
++        self.unavailable = False
++        self.wrong_identity = False
++
++    def __call__(self, argv, *, seconds):
++        assert not self.store._connection.in_transaction, 'engine I/O inside transaction'
++        self.calls.append((list(argv), seconds))
++        if self.unavailable:
++            raise TimeoutError('fake engine unavailable')
++        if argv[1] == 'stop':
++            if not self.stop_ack_only:
++                self.state = 'quiescent'
++            return {'status': 0, 'stdout': '', 'stderr': ''}
++        if argv[1] == 'rm':
++            if not self.stop_ack_only:
++                self.state = 'absent'
++            return {'status': 0, 'stdout': '', 'stderr': ''}
++        if 'inspect' in argv:
++            runtime = argv[-1]
++            if self.state == 'absent':
++                return {'status': 1, 'stdout': '', 'stderr': 'Error: No such container: ' + runtime}
++            return {'status': 0, 'stdout': json.dumps([{'Id': 'wrong-runtime' if self.wrong_identity else runtime, 'State': {'Running': self.state == 'running'}}]), 'stderr': ''}
++        raise AssertionError(argv)
++
++
++class LaneFixture(AttemptCase):
++    def setUp(self):
++        super().setUp()
++        self.clock = Clock()
++        self.store.close()
++        self.store = ControlStore.open(self.path, incarnation='enforcement-case', clock=self.clock.utc)
++        self.addCleanup(self.store.close)
++        self.claimed()
++        activate_assignment(self.store, self.port, attempt_id=ATTEMPT, expect=self.expect())
++        pin_boundary_identity(self.store, attempt_id=ATTEMPT, source=(11, 111), workspace=(22, 222))
++        self.runtime_adapter = Adapter('runtime-1')
++        self.runtime_adapter.listing = [{'runtime_id': 'runtime-1', 'labels': attempts._runtime_labels(self.row())}]
++        if getattr(self, 'attach', True):
++            reconcile_runtime(self.store, self.runtime_adapter, attempt_id=ATTEMPT)
++        self.governance = tokens.workspace_governance()
++        self.row_value = self.row()
++        self.operation = attempts._start_operation_id(self.row_value)
++        self.domain = tokens.domain_of('workspace', self.governance.identity(self.row_value))
++        self.token = tokens.acquire(self.store, self.domain, operation=self.operation, execution=ATTEMPT, attempt=ATTEMPT)
++        tokens.journal_launch(self.store, self.token, self.operation)
++        if getattr(self, 'bind', True):
++            tokens.bind_container(self.store, self.token, 'runtime-1', launch=self.operation)
++        self.engine = Engine(self.store)
++        self.cancellations = []
++        def cancel(**kwargs):
++            self.cancellations.append(kwargs)
++            return request_cancellation(self.store, self.port, Agent(), self.runtime_adapter, **kwargs)
++        self.operations = SimpleNamespace(configuration={'workers': [{'deployment': {'engine': 'docker'}}]}, cancel_attempt=cancel)
++        selection = patch.object(enforcement, 'selected_attempts', return_value=[ATTEMPT])
++        selection.start()
++        self.addCleanup(selection.stop)
++
++    def lane(self, value=None):
++        return enforcement.Lane(self.store, object(), self.operations, value or packet(), engine_run=self.engine, clock=self.clock.utc, monotonic=self.clock.monotonic)
++
++    def current(self):
++        return tokens.token_of(self.store, self.domain, self.token['generation'])
++
++
++
++class OwnerLane(LaneFixture):
++    def test_expiry_reclaims_exact_runtime_without_a_serving_tick(self):
++        value = packet()
++        value['bounds']['total_seconds'] = 4800
++        lane = self.lane(value)
++        self.clock.advance(900)
++        report = lane.tick()
++        self.assertTrue(lane.stopping.is_set())
++        self.assertTrue(self.current()['revoked'])
++        self.assertTrue(self.current()['returned'])
++        self.assertEqual(report['attempts'][ATTEMPT]['observation']['state'], 'absent')
++        self.assertEqual(report['attempts'][ATTEMPT]['settlement']['settled'], 'returned')
++        self.assertTrue(all(call[0][-1] == 'runtime-1' for call in self.engine.calls))
++        calls = len(self.engine.calls)
++        lane.tick()
++        self.assertEqual(sum(call[0][1] == 'stop' for call in self.engine.calls), 1)
++        self.assertGreaterEqual(len(self.engine.calls), calls)
++
++    def test_acknowledgement_without_cessation_keeps_token_held(self):
++        lane = self.lane()
++        self.engine.stop_ack_only = True
++        self.clock.advance(900)
++        report = lane.tick()['attempts'][ATTEMPT]
++        self.assertTrue(self.current()['revoked'])
++        self.assertFalse(self.current()['returned'])
++        self.assertEqual(report['observation']['state'], 'running')
++        self.assertEqual(report['settlement']['settled'], 'held')
++
++    def test_wrong_runtime_observation_cannot_release(self):
++        lane = self.lane()
++        self.engine.wrong_identity = True
++        self.clock.advance(900)
++        self.engine.stop_ack_only = True
++        report = lane.tick()['attempts'][ATTEMPT]
++        self.assertEqual(report['observation']['state'], 'uncertain')
++        self.assertFalse(self.current()['returned'])
++
++    def test_slow_or_refused_engine_retains_exact_actionable_hold(self):
++        lane = self.lane()
++        self.engine.unavailable = True
++        self.clock.advance(900)
++        report = lane.tick()['attempts'][ATTEMPT]
++        self.assertFalse(self.current()['returned'])
++        self.assertEqual(report['token']['container'], 'runtime-1')
++        self.assertEqual(report['observation']['state'], 'uncertain')
++
++    def test_early_deadline_uses_cancellation_not_token_renewal_or_early_revoke(self):
++        lane = self.lane()
++        self.clock.advance(240)
++        report = lane.tick()['attempts'][ATTEMPT]
++        self.assertEqual(len(self.cancellations), 1)
++        self.assertFalse(self.current()['revoked'])
++        self.assertFalse(self.current()['returned'])
++        self.assertEqual(report['observation']['state'], 'running')
++        lane.tick()
++        self.assertEqual(len(self.cancellations), 2)
++        self.assertEqual(len(self.runtime_adapter.stopped), 2)
++        self.assertEqual(len({call['operation_id'] for call in self.runtime_adapter.stopped}), 1)
++
++    def test_restart_reuses_original_envelope_and_never_grants_more_time(self):
++        first = self.lane()
++        self.clock.advance(30)
++        second = self.lane()
++        self.assertEqual(first.held, second.held)
++        self.assertTrue(second.recovery)
++        self.assertTrue(second.stopping.is_set())
++        changed = packet()
++        changed['bounds']['total_seconds'] = 4800
++        with self.assertRaises(ContractRefusal):
++            self.lane(changed)
++
++    def test_regressed_wall_clock_closes_admission(self):
++        lane = self.lane()
++        self.clock.advance(-1)
++        lane.tick()
++        self.assertTrue(lane.stopping.is_set())
++
++    def test_halt_fences_all_three_dispatch_boundaries_but_preserves_reads(self):
++        raw = Mock()
++        operations = enforcement.Operations(raw, self.store, 'enforcement-case')
++        operations.admit('stage', 'job')
++        enforcement.halt(self.store, 'enforcement-case')
++        for action in ('admit', 'claim', 'launch'):
++            with self.assertRaises(ContractRefusal):
++                getattr(operations, action)('stage', 'job')
++        operations.observe('stage')
++        self.assertEqual(raw.admit.call_count, 1)
++        raw.observe.assert_called_once_with('stage')
++        operations.cancel_attempt(attempt_id=ATTEMPT, reason='overall-bound-exceeded')
++        raw.cancel_attempt.assert_called_once_with(attempt_id=ATTEMPT, reason='authoring-enforcement')
++
++    def test_child_admission_is_consumed_once_even_before_submission(self):
++        self.lane()
++        enforcement.admit_child(self.store, packet(), 100, 101)
++        with self.assertRaises(ContractRefusal):
++            enforcement.admit_child(self.store, packet(), 200, 201)
++        with self.assertRaises(ContractRefusal):
++            enforcement.admit_child(self.store, packet(), 100, 101)
++
++    def test_multiple_engine_names_refuse_instead_of_observing_the_wrong_engine(self):
++        self.operations.configuration['workers'].append({'deployment': {'engine': 'podman'}})
++        with self.assertRaises(RuntimeError):
++            self.lane()
++        self.assertEqual(self.engine.calls, [])
++
++    def test_halt_refuses_first_child_admission(self):
++        self.lane()
++        enforcement.halt(self.store, packet()['run_id'])
++        with self.assertRaises(ContractRefusal):
++            enforcement.admit_child(self.store, packet(), 100, 101)
++
++
++class Child:
++    def __init__(self, clock, *, returns=None, resist=False):
++        self.clock, self.returns, self.resist = clock, returns, resist
++        self.events = []
++        self.done = False
++
++    def poll(self):
++        return self.returns if self.done else None
++
++    def terminate(self):
++        self.events.append(('terminate', self.clock.seconds))
++
++    def kill(self):
++        self.events.append(('kill', self.clock.seconds))
++        self.done = not self.resist
++
++    def wait(self, timeout):
++        if not self.done:
++            self.clock.advance(timeout)
++            raise TimeoutError('unobserved process cessation')
++        return -9
++
++
++class OuterDeadline(unittest.TestCase):
++    def setUp(self):
++        self.clock = Clock()
++        self.guard = SimpleNamespace(envelope={'stop_at': (self.clock.origin + timedelta(seconds=240)).isoformat()},
++                                     clock=self.clock.utc, recovery=False, stopping=threading.Event(), finished=threading.Event(),
++                                     report={'attempts': {}}, stop=lambda **kwargs: {'state': 'held', 'faults': ['unknown runtime'], 'attempts': {}})
++        self.child = Child(self.clock)
++        self.launches = 0
++
++    def launch(self):
++        self.launches += 1
++        return self.child
++
++    def run_outer(self, sleep=None):
++        return enforcement.supervise_process(packet(), self.guard, self.launch, clock=self.clock.monotonic, sleep=sleep or self.clock.advance)
++
++    def test_stalled_authoring_sweep_cannot_extend_committed_deadline(self):
++        report = self.run_outer()
++        self.assertEqual(self.child.events, [('terminate', 240.0), ('kill', 288.0)])
++        self.assertTrue(report['child_exited'])
++        self.assertEqual(report['state'], 'held')
++        self.assertEqual(self.launches, 1)
++        self.assertEqual(packet()['bounds']['implementer_invocations'], 1)
++        self.assertFalse(packet()['bounds']['retry'])
++
++    def test_expiry_stops_child_early_even_when_enforcement_engine_never_answers(self):
++        def advance(seconds):
++            self.clock.advance(seconds)
++            if self.clock.seconds >= 20:
++                self.guard.stopping.set()
++        report = self.run_outer(advance)
++        self.assertEqual(self.child.events, [('terminate', 20.0), ('kill', 68.0)])
++        self.assertEqual(report['state'], 'held')
++
++    def test_failed_enforcement_never_leaves_authoring_running(self):
++        self.guard.finished.set()
++        report = self.run_outer()
++        self.assertEqual(self.child.events, [('terminate', 0), ('kill', 48.0)])
++        self.assertEqual(report['state'], 'held')
++
++    def test_restart_launches_nothing(self):
++        self.guard.recovery = True
++        report = self.run_outer()
++        self.assertEqual(self.launches, 0)
++        self.assertEqual(report['elapsed_seconds'], 48)
++        self.assertEqual(report['state'], 'held')
++
++    def test_unknown_child_cessation_is_not_reported_as_exit(self):
++        self.child.resist = True
++        report = self.run_outer()
++        self.assertFalse(report['child_exited'])
++        self.assertIn('cessation unknown', report['faults'][0])
++        self.assertEqual(report['elapsed_seconds'], 290)
++
++    def test_engine_subprocess_timeout_is_clamped(self):
++        with patch.object(enforcement.single_worker, '_engine_run', return_value={}) as run:
++            enforcement.bounded_engine(['fake', 'stop'], seconds=600)
++            run.assert_called_once_with(['fake', 'stop'], seconds=2)
++
++
++class LateLaunch(LaneFixture):
++    attach = False
++
++    # Only these cuts belong to this fixture; inherited attached-runtime cases
++    # remain selected on OwnerLane, not duplicated with changed expectations.
++    def test_token_bound_before_attempt_attachment_is_stopped_but_held(self):
++        lane = self.lane()
++        self.clock.advance(900)
++        report = lane.tick()['attempts'][ATTEMPT]
++        self.assertEqual(report['reclaim']['state'], 'absent')
++        self.assertEqual(report['observation']['state'], 'absent')
++        self.assertFalse(self.current()['returned'])
++        self.assertTrue(self.current()['revoked'])
++        self.assertIsNone(attempts.attempt_runtime_of(self.store, ATTEMPT)['runtime_id'])
++
++    def test_late_binding_after_expiry_is_refused_and_no_new_launch_is_granted(self):
++        lane = self.lane()
++        tokens.admit_activation(self.store, self.token, container='runtime-1')
++        self.clock.advance(900)
++        lane.tick()
++        self.assertTrue(self.current()['activating'])
++        self.assertFalse(self.current()['returned'])
++        with self.assertRaises(ContractRefusal):
++            tokens.bind_container(self.store, self.token, 'late-other', launch=self.operation)
++
++
++class ProcessComposition(unittest.TestCase):
++    def test_real_supervisor_blocked_sweep_is_terminated_and_partial_output_retained(self):
++        import os
++        import sys
++        import time
++        from .test_offers import UUID
++        root_source = Path(__file__).resolve().parents[4]
++        supervisor = root_source / 'work/records/2026/09/finding-v12-single-implementation-proof'
++        with tempfile.TemporaryDirectory(prefix='authoring-composition-') as temporary:
++            root = Path(temporary)
++            script = root / 'blocked_author.py'
++            partial = root / 'partial.txt'
++            script.write_text('''
++import sys, time, json
++from pathlib import Path
++from unittest.mock import patch
++from contextlib import ExitStack
++sys.path.insert(0, sys.argv[1])
++import baseline
++from baton_v12.job_manager import manager
++import baton_v12.job_manager as api
++from baton_v12.worker_manager import attempts
++root = Path(sys.argv[2])
++(root/'submission.json').write_text('{}')
++packet = {'schema':baseline.FRESH_PACKET_SCHEMA,'run_id':'blocked-case','work':'case','claim':1,
++          'bounds':{'total_seconds':300,'cleanup_seconds':60,'turn_seconds':180,'implementer_invocations':1,'retry':False},
++          'submission':{'path':str(root/'submission.json'),'job_id':'case'},'outcome_path':str(root/'outcome.json')}
++class Operations:
++    def cancel_attempt(self, **kwargs): return {'requested':True}
++def sweep(*args, **kwargs):
++    (root/'partial.txt').write_text('retained before blocked serving sweep')
++    time.sleep(60)
++    return {}
++limits={'boundaries':{'provider_turn':{'seconds':180,'origin':'job'}}}
++with ExitStack() as stack:
++    for owner, name, answer in [
++        (api,'read_submission',lambda value:{}),(api,'submit',lambda *args:{'submission_id':'case'}),
++        (api,'sweep',sweep),(manager,'sweep',sweep),(manager,'reconcile',lambda *args,**kwargs:{}),
++        (baseline,'_attempts_of',lambda *args:({'attempt':'implementation'},{'implementation':'waiting'},limits)),
++        (baseline,'_cleanups',lambda *args:{'cleanup':{},'outstanding':['attempt']}),
++        (baseline,'_workload_evidence',lambda *args,**kwargs:{'shortfalls':['fake provider; partial only']}),
++        (attempts,'attempt_runtime_of',lambda *args:{'runtime_id':'runtime','execution_runtime':'running'})]:
++        stack.enter_context(patch.object(owner,name,answer))
++    baseline.supervise(object(),object(),Operations(),packet,
++        surveyed={'preexisting_jobs':[],'preexisting_stages':{},'accounting_scope':'fake scheduling and provider'})
++''')
++            value = packet()
++            value['bounds'].update(total_seconds=2, cleanup_seconds=1)
++            value['deployment'].update(control_store=str(root/'control.sqlite3'), job_store=str(root/'job.sqlite3'),
++                                       authority_uuid=UUID, config_path=str(root/'config.json'))
++            value['code_boundary'] = str(root_source)
++            (root/'config.json').write_text(json.dumps({'workers':[{'deployment':{'engine':'docker'}}]}))
++            created = []
++            def factory(config, job, control, **kwargs):
++                created.append((threading.get_ident(), kwargs))
++                return SimpleNamespace(configuration=config, close=lambda:None, cancel_attempt=Mock())
++            guard = enforcement.Guard(value, factory=factory).start()
++            with open(root/'child.log','wb') as output, open(root/'lock','w') as lock:
++                report = enforcement.supervise_process(value, guard, lambda: enforcement.Process(
++                    [sys.executable, str(script), str(supervisor), str(root)], output=output, lock_fd=lock.fileno()))
++            self.assertTrue(report['child_started'], report)
++            self.assertTrue(report['child_exited'], report)
++            self.assertEqual(report['state'], 'held')
++            self.assertLess(report['elapsed_seconds'], 5, report)
++            self.assertEqual(partial.read_text(), 'retained before blocked serving sweep', (root/'child.log').read_text())
++            self.assertNotEqual(created[0][0], threading.get_ident())
++            self.assertIs(created[0][1]['engine_run'], enforcement.bounded_engine)
++            # Restart consumes the journalled envelope without another process.
++            replay = enforcement.Guard(value, factory=factory).start()
++            launch = Mock(side_effect=AssertionError('no second authoring invocation'))
++            again = enforcement.supervise_process(value, replay, launch)
++            launch.assert_not_called()
++            self.assertFalse(again['child_started'])
++            self.assertEqual(replay.envelope, guard.envelope)
++
++
++class UnboundLaunch(LaneFixture):
++    attach = False
++    bind = False
++
++    def test_expired_unbound_launch_stays_revoked_and_has_no_invented_stop_target(self):
++        lane = self.lane()
++        self.clock.advance(900)
++        report = lane.tick()['attempts'][ATTEMPT]
++        self.assertTrue(report['token']['revoked'])
++        self.assertFalse(report['token']['returned'])
++        self.assertIsNone(report['token']['container'])
++        self.assertIsNotNone(report['token']['launch'])
++        self.assertEqual(self.engine.calls, [])
++        self.assertEqual(report['reclaim']['reclaimed'], 'held')
++        self.assertEqual(report['settlement']['settled'], 'held')
++        with self.assertRaises(ContractRefusal):
++            tokens.bind_container(self.store, self.token, 'late-runtime', launch=self.operation)
++        self.assertEqual(self.current()['renewals'], 0)
++
++
++class SelectedJob(unittest.TestCase):
++    def test_attempt_selection_uses_real_job_episodes_and_excludes_siblings(self):
++        from baton_v12.job_manager import JobStore, submit
++        from tests.job_manager.fixtures import UUID, submission
++        with tempfile.TemporaryDirectory() as root:
++            with JobStore.open(str(Path(root)/'jobs.sqlite3'), authority_uuid=UUID, incarnation='selection', clock=lambda:NOW) as job:
++                submit(job, submission())
++                selected = enforcement.selected_attempts(job, 'job-a')
++                foreign = enforcement.selected_attempts(job, 'job-b')
++                self.assertEqual(len(selected), 2)
++                self.assertEqual(len(foreign), 1)
++                self.assertFalse(set(selected) & set(foreign))
++                self.assertEqual(enforcement.selected_attempts(job, 'missing-job'), [])
++
++
++class ControllerInputs(unittest.TestCase):
++    def test_unpinned_controller_refuses_before_execution(self):
++        import hashlib
++        source = Path(enforcement.__file__).resolve()
++        value = {'manager_source': {'path': str(source.parent.parent), 'files': {}}}
++        with self.assertRaises(RuntimeError):
++            enforcement.verify_controller(value)
++        value['manager_source']['files']['tools/authoring_enforcement.py'] = hashlib.sha256(source.read_bytes()).hexdigest()
++        enforcement.verify_controller(value)
++        value['manager_source']['files']['tools/authoring_enforcement.py'] = '0'*64
++        with self.assertRaises(RuntimeError):
++            enforcement.verify_controller(value)
++
++    def test_exhausted_engine_allowance_starts_no_process(self):
++        with patch.object(enforcement.single_worker, '_engine_run') as run:
++            with self.assertRaises(ContractRefusal):
++                enforcement.bounded_engine(['docker','stop','exact'], seconds=0)
++            run.assert_not_called()
++
++
++class CancellationFixture(LaneFixture):
++    attach = False
++
++    def setUp(self):
++        super().setUp()
++        from tools import single_worker, stage_execution
++        # Use the production pooled routing and worker cancellation composition.
++        # The workspace and OCI adapter are the controlled external boundaries;
++        # assignment, token, cancellation intent and AuthorityPort remain real.
++        worker = single_worker._SingleWorker.__new__(single_worker._SingleWorker)
++        worker.control, worker.port, worker.group = self.store, self.port, self.group
++        worker.given = {'workspace_storage': self.storage, 'participant': self.port.participant}
++        worker._adapter = lambda *args: self.runtime_adapter
++        native_stop = self.runtime_adapter.stop
++        def stop(command):
++            self.assertFalse(self.store._connection.in_transaction)
++            self.assertTrue([call for call in self.session.calls if call[0] == 'cancel'], 'stop preceded Authority fence')
++            self.assertEqual(command['runtime_id'], 'runtime-1')
++            native_stop(command)
++            return self.engine(['docker', 'stop', command['runtime_id']], seconds=2)
++        self.runtime_adapter.stop = stop
++        self.operations = stage_execution.StageExecution(SimpleNamespace(store=object()), authority=None, integration=None,
++            workers=[{'worker_id':'selected-owner','operations':worker}], given={'workers':[{'deployment':{'engine':'docker'}}]})
++        for patcher in (patch.object(stage_execution, 'allocation_of', return_value={'worker_id':'selected-owner'}),
++                        patch.object(single_worker.workspaces, 'assignment_workspace', return_value={'test':'external roots seam'})):
++            patcher.start()
++            self.addCleanup(patcher.stop)
++
++    def held_before_expiry(self, report):
++        self.assertFalse(self.current()['revoked'])
++        self.assertFalse(self.current()['returned'])
++        self.assertEqual(self.current()['renewals'], 0)
++        self.assertIsNone(attempts.attempt_runtime_of(self.store, ATTEMPT)['runtime_id'])
++        self.assertEqual(report['observation']['state'], 'quiescent')
++        self.assertEqual(self.runtime_adapter.started, [])
++        self.assertEqual({command['runtime_id'] for command in self.runtime_adapter.stopped}, {'runtime-1'})
++
++
++class BeforeAttachmentCancellation(CancellationFixture):
++    def cancel_for(self, cause):
++        lane = self.lane()
++        if cause == 'deadline':
++            self.clock.advance(240)
++        elif cause == 'operator':
++            lane.stopping.set()
++        else:
++            lane = self.lane()
++        return lane, lane.tick()['attempts'][ATTEMPT]
++
++    def test_deadline_stops_token_bound_writer_through_production_cancellation(self):
++        lane, report = self.cancel_for('deadline')
++        self.held_before_expiry(report)
++        lane.tick()
++        self.assertEqual(len(self.runtime_adapter.stopped), 1, 'positive cessation must not repeat stop')
++
++    def test_operator_cancellation_stops_token_bound_writer(self):
++        _, report = self.cancel_for('operator')
++        self.held_before_expiry(report)
++
++    def test_recovery_stops_token_bound_writer_without_renewed_time(self):
++        lane, report = self.cancel_for('recovery')
++        self.assertTrue(lane.recovery)
++        self.held_before_expiry(report)
++
++    def test_unknown_engine_stop_preserves_fence_and_hold_then_retries(self):
++        self.engine.unavailable = True
++        lane, report = self.cancel_for('deadline')
++        self.assertTrue(report['faults'])
++        self.assertFalse(self.current()['returned'])
++        self.assertFalse(self.current()['revoked'])
++        self.engine.unavailable = False
++        self.held_before_expiry(lane.tick()['attempts'][ATTEMPT])
++        self.assertEqual(len({command['operation_id'] for command in self.runtime_adapter.stopped}), 1)
++
++    def test_refused_authority_fence_never_stops_a_runtime(self):
++        self.session.fence_answer = ContractRefusal('refused', 'precondition', 'fake Authority refused exact fence')
++        _, report = self.cancel_for('deadline')
++        self.assertTrue(report['faults'])
++        self.assertEqual(self.runtime_adapter.stopped, [])
++        self.assertFalse(self.current()['returned'])
++
++    def test_refused_runtime_stop_remains_held_after_authority_fence(self):
++        self.runtime_adapter.stop_failure = ContractRefusal('runtime-observation', 'quiescence-unknown', 'fake engine refused stop')
++        _, report = self.cancel_for('deadline')
++        self.assertTrue(report['faults'])
++        self.assertTrue([call for call in self.session.calls if call[0] == 'cancel'])
++        self.assertFalse(self.current()['returned'])
++        self.assertFalse(self.current()['revoked'])
++        self.assertEqual(self.engine.state, 'running')
++
++    def test_cancellation_owner_refuses_token_and_attachment_identity_disagreement(self):
++        self.runtime_adapter.runtime_id = 'foreign-runtime'
++        self.runtime_adapter.listing = [{'runtime_id': 'foreign-runtime', 'labels': attempts._runtime_labels(self.row())}]
++        reconcile_runtime(self.store, self.runtime_adapter, attempt_id=ATTEMPT)
++        with self.assertRaises(ContractRefusal) as refused:
++            self.operations.cancel_attempt(attempt_id=ATTEMPT, reason='authoring-enforcement')
++        self.assertEqual(refused.exception.code, 'identity-mismatch')
++        self.assertEqual(self.runtime_adapter.stopped, [])
++        self.assertFalse(self.current()['returned'])
++
++    def test_acknowledged_stop_is_retried_if_writer_still_runs(self):
++        self.engine.stop_ack_only = True
++        lane, report = self.cancel_for('deadline')
++        self.assertEqual(report['observation']['state'], 'running')
++        self.engine.stop_ack_only = False
++        self.held_before_expiry(lane.tick()['attempts'][ATTEMPT])
++        self.assertEqual(len(self.runtime_adapter.stopped), 2)
++        self.assertEqual(len({command['operation_id'] for command in self.runtime_adapter.stopped}), 1)
++
++
++class LateBindingCancellation(CancellationFixture):
++    bind = False
++
++    def test_late_bind_and_later_activation_are_stopped_under_the_original_fence(self):
++        lane = self.lane()
++        self.clock.advance(240)
++        lane.tick()
++        self.assertEqual(self.runtime_adapter.stopped, [])
++        self.assertTrue([call for call in self.session.calls if call[0]=='cancel'])
++        tokens.bind_container(self.store, self.token, 'runtime-1', launch=self.operation)
++        tokens.admit_activation(self.store, self.token, container='runtime-1')
++        self.held_before_expiry(lane.tick()['attempts'][ATTEMPT])
++        self.assertTrue(self.current()['activating'])
++        # A start already admitted before cancellation may complete after the
++        # first stop. Re-observation must trigger the same stop intent again.
++        self.engine.state = 'running'
++        self.held_before_expiry(lane.tick()['attempts'][ATTEMPT])
++        self.assertEqual(len(self.runtime_adapter.stopped), 2)
++        self.assertEqual(len({command['operation_id'] for command in self.runtime_adapter.stopped}), 1)
++        self.assertEqual(len({call[1]['operation_id'] for call in self.session.calls if call[0]=='cancel'}), 1)
+--- a/v12/python/tests/manager/test_attempts.py
++++ b/v12/python/tests/manager/test_attempts.py
+@@ -1817,7 +1817,7 @@
+         answer = request_cancellation(self.store, self.port, agent, adapter,
+                                       attempt_id=ATTEMPT)
+         self.assertIs(answer["quiescence"]["ordered"], False)
+-        self.assertIn("nothing to stop", answer["quiescence"]["why"])
++        self.assertIn("unresolved launch is not proof of cessation", answer["quiescence"]["why"])
+         self.assertEqual(agent.cancelled, [])
+ 
+     def test_an_unactivated_attempt_has_no_generation_to_fence(self):
+--- a/v12/python/tests/job_manager/test_tool.py
++++ b/v12/python/tests/job_manager/test_tool.py
+@@ -1426,14 +1426,13 @@
+             tokens.release = honest
+         self.assertEqual(tokens.outstanding(control, case["domain"]), [],
+                          "the retry returns the original generation")
+-        # AND WHAT "WITHOUT REPEATING" MEANS HERE, measured rather than assumed. The retry DOES
+-        # re-issue its removal -- `rm` appears twice -- and that is the accepted design this
+-        # module states in its own words: a destroy is force-removal followed by an inspection
+-        # of the exact identity, and an identity already gone answers absent, which is why a
+-        # retry is safe. What must not repeat is a STATE CHANGE, so the assertion is that the
+-        # retry performed no second start and the resource returned exactly ONCE.
+-        self.assertEqual([one[1] for one, _ in vectors].count("rm"), 2,
+-                         "the retry did not re-issue its idempotent removal")
++        # W333735: replay observes the already-revoked exact runtime before
++        # ordering another effect. Positive absence needs no repeated removal;
++        # an unknown/running observation still retries the correlated operation.
++        self.assertEqual([one[1] for one, _ in vectors].count("rm"), 1,
++                         "the retry repeated removal despite positive exact absence")
++        self.assertEqual([one[1] for one, _ in vectors].count("stop"), 1,
++                         "the retry repeated stop despite positive exact absence")
+         self.assertNotIn("run", [one[1] for one, _ in vectors],
+                          "the retry started something")
+         # AND THE RETURN IS COUNTED, not asserted in prose. Review 2026-09-28T11-09-51Z is right

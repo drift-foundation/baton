@@ -1,0 +1,13 @@
+{
+  "PROGRESS.md": true,
+  "PROPOSAL.md": true,
+  "v12/DESIGN.md": true,
+  "v12/python/src/baton_v12/job_manager/creation.py": true,
+  "v12/python/src/baton_v12/worker_manager/store.py": true,
+  "v12/python/src/baton_v12/worker_manager/workspaces.py": true,
+  "v12/python/tools/bootstrap.py": true,
+  "v12/python/tools/fresh_attempt_ports.py": true,
+  "v12/python/tools/instance.py": true,
+  "v12/python/tools/job_manager.py": true,
+  "v12/python/tools/stack.py": true
+}

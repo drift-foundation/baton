@@ -1,0 +1,9 @@
+{
+  "binding_sha256": "d91260acf2181b1f3b41233b43eea39283d07475916e14e558001f0c63cc4f32",
+  "candidate": {
+    "v12/python/src/baton_v12/job_manager/role_contract.py": "691ed3a0e653a9705f181790c9565706902bd3958f2973e49e85cff586ca6967",
+    "v12/python/src/baton_v12/job_manager/templates.py": "f0f08e6318b2207bacbf5737f8324ca3a868b5673e58438333151bc467158ba6",
+    "v12/python/tests/job_manager/test_role_contract.py": "a853893b4fe3d091aa4a59f366dfdeb797a56021921b76a4c7fd9e8b91497d66",
+    "v12/python/tests/job_manager/test_templates.py": "696b99bda60f1a2f265f60ccf4583850c7ab37e07866dc6076bcae3e90be59af"
+  }
+}

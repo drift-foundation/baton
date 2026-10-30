@@ -1,0 +1,15 @@
+{
+  "at": "2026-10-28T01:40:07.467661+00:00",
+  "comparison": [
+    {
+      "role": "implementation",
+      "contract_equal": true,
+      "role_equal": true,
+      "installed_manifest": "sha256:91828f1eb671cddd7ee47f3bd987d8d2093794059e3ab16da2b7a0888f4491ab",
+      "launch_runtime_input": "sha256:dda286b03a1a264a91c8ca72fa2e1202bcdf7ec2252d91bcad37b49160788535",
+      "policy_equal": true
+    }
+  ],
+  "docker_exit": 1,
+  "docker_state": null
+}

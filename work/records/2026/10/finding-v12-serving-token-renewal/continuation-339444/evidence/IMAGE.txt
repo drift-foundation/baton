@@ -1,0 +1,2 @@
+Read-only local image inspect: sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2 linux/amd64
+No credential read or provider/engine execution. Tool wall resolution is not a measured command duration.

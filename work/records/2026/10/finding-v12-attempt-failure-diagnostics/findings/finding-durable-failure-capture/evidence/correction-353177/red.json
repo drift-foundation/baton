@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.manager.test_attempt_failure_cause.TheRecordsAndTheirReaders.test_original_replay_returns_original_record_after_fresh_A_B_A",
+    "tests.manager.test_attempt_failure_cause.TheRecordsAndTheirReaders.test_middle_replay_returns_middle_record_when_tip_has_equal_facts"
+  ],
+  "status": 1,
+  "seconds": 0.31119181499980186
+}

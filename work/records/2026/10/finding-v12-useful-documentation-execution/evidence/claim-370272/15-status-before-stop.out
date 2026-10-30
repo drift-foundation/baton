@@ -1,0 +1,6 @@
+manager    running pid 169569
+publisher  running pid 169570
+snapshot   fresh (observed 3.7s ago, written 3.7s ago)
+jobs       0 observed (canonical=True)
+serving    acknowledged
+runtime   0 open episode(s), 0 with a recorded runtime, observed 3.7s ago

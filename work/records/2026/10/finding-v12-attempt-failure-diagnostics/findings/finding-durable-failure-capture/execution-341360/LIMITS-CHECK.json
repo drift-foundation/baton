@@ -1,0 +1,72 @@
+{
+  "agree": true,
+  "cleanup_seconds_is_load_bearing_twice": {
+    "cleanup_seconds": 60,
+    "inner": "authoring_shutdown.Shutdown derives its whole allowance from it: min(maximum, now + cleanup - min(12, cleanup / 2)), then subdivides the reserve across cleanup, accounting, workload-publication, guard-stop and guard-publication",
+    "outer": "the watchdog reserves this tail for kill and reap",
+    "why": "Lowering it would silently shrink the window in which a final report can still be written. See SHUTDOWN.md."
+  },
+  "composed_from": "/tmp/w341357-preflight/packet",
+  "execution_policy": {
+    "automatic_retry": false,
+    "implementer_invocations": 1,
+    "provider_turn_seconds": 3600,
+    "source": "policy.json",
+    "verification_command_seconds": 30
+  },
+  "final_results": {
+    "authoring_log": "/tmp/w333486-preflight-340016/packet/outcome.json.authoring.log",
+    "controller": "/tmp/w333486-preflight-340016/packet/outcome.json.enforcement-<pid>-<ns>.json",
+    "manager_snapshot": "/tmp/w333486-preflight-340016/packet/outcome.json.manager-<pid>-<ns>.json",
+    "rule": "A missing or partial final report is INCOMPLETE: never success, never acceptance, never proof of cessation. An unavailable report names NO cause. And THIS VEHICLE PERSISTS NO PUBLICATION FAULT RELIABLY -- Shutdown.call writes its snapshot with earlier faults before running its step, the controller final publication is the last such call, and the outer publication handler records nothing -- so the absence of a publication fault is EXPECTED and informative in neither direction.",
+    "shutdown_progress": "/tmp/w333486-preflight-340016/packet/outcome.json.manager-<pid>-<ns>.json.progress.json",
+    "shutdown_request": "/tmp/w333486-preflight-340016/packet/outcome.json.manager-<pid>-<ns>.json.shutdown.json",
+    "temporaries": "each artifact has its OWN temporary and they are not interchangeable: the workload writes outcome.json.partial (baseline.py:1006), the controller outcome.json.enforcement-<pid>-<ns>.tmp and the progress file ...json.progress.tmp. A temporary belonging to one artifact says nothing about another.",
+    "who_collects": "the EXTERNAL OPERATOR AND REVIEWER after the run, with collect.py and COMMANDS.md step 5a-5e. The worker inside the run cannot observe any of them: the controller publishes after child cleanup (authoring_enforcement.py:552-591) and the supervisor post-stop (baseline.py:1450-1461), both after the worker is gone. TASK.md item 6 is the worker's half.",
+    "workload": "/tmp/w333486-preflight-340016/packet/outcome.json"
+  },
+  "fixture_files": 33,
+  "lease_disclosure": {
+    "enforced": true,
+    "lifetime_seconds": 900,
+    "measured_at_this_base": "worker_manager/tokens.py:37 LIFETIME_SECONDS = 900",
+    "measured_both_ways": "parent run340016 ended on its own at 869.3s with 30.5s of margin; parent run340352 was cut off at 904.78s by signal 15 and froze no result. The lease has now both held and fired on turns of the same scope, so no prediction is made in either direction and TASK tells the turn to freeze early and often.",
+    "measured_by_the_completed_run": "the run at claim340149 served 869.4529s against the 900s lease and ended ON ITS OWN (provider.status 0, failure_reason null) -- 30.5 seconds of margin. The lease did NOT fire. It remains 900s and enforced, so it still may; but the standing prediction that it would cut a turn short is withdrawn rather than restated.",
+    "no_completed_run": "No authoring invocation has ever completed for this Work. The one actual execution, execution-334663, failed at startup in 0.506s; see FAILURE.md.",
+    "renewals_at_this_base": 0,
+    "why": "W333735 made the initial lease ENFORCED rather than ignored and W338305 made the ENDING bounded with deadline-aware reports. NEITHER extends the lease, and production renewal remains W333485 unfinished work separately allocated to baton.codx. These ceilings are requested bounds and NOT a promise of a 3600-second authoring run."
+  },
+  "measured_at_claim": 341360,
+  "note": "Read from THIS claim's GENERATED documents rather than from prose: policy.json, submission.json and PACKET.json under /tmp/w333486-preflight-339628/packet. No product test was executed to produce it.",
+  "residual_total_margin_definition": "total_seconds - turn_seconds - cleanup_seconds - verification_command_seconds = 4800 - 3600 - 60 - 30. The same definition every earlier revision used; recomputed from this claim's generated documents rather than copied.",
+  "residual_total_margin_seconds": 1110,
+  "schema": "baton.w341357-execution-limits-check/1",
+  "submission": {
+    "execution_limits": {
+      "provider_turn_seconds": 3600,
+      "verification_command_seconds": 30
+    },
+    "source": "submission.json jobs[0]",
+    "terminal_policy": "report-and-hold"
+  },
+  "supervisor_bounds": {
+    "cleanup_seconds": 60,
+    "implementer_invocations": 1,
+    "retry": false,
+    "total_seconds": 4800,
+    "turn_seconds": 3600
+  },
+  "verification_ceiling": {
+    "fit_unproved": "decisions/review-334776.md is explicit that the 30-second fit for the new modules remains unproved and that no coverage may be removed to force a pass.",
+    "focused_for_this_slice": "five producer modules rather than the parent twelve. No measurement of this argv exists and none is claimed; the turn measures it and reports per-module seconds either way.",
+    "headroom_for_the_two_new_modules_seconds": 16.358,
+    "measured_by_the_completed_run": "the sealed gate ran once on real candidate work and EXITED 1, with its output withheld by design because it ran with the attempt credential mount readable. Whether the 30-second ceiling was material is UNCLASSIFIED; TASK.md item 7 makes classifying it a deliverable of the next run. The fit question is therefore still unproved, now with one real failing data point rather than none.",
+    "measured_existing_gate_seconds": 13.642,
+    "measured_existing_gate_tests": 1124,
+    "measurement_provenance": "the 13.642s / 1124-test figures were measured by direct host product execution at claim339421, outside that claim's preparation boundary (see GATE-CHECK.json measurement_provenance and PROGRESS.md), and were NOT re-measured here. The 30-second ceiling itself and the 16.358s remainder are composition facts and arithmetic, re-read from this claim's generated policy.json.",
+    "modules": 10,
+    "not_this_packets_to_set": true,
+    "seconds": 30,
+    "why": "baseline_bindings.py:345 composes \"verification_command_seconds\": 900 if contextual else 30 and :522 repeats the 30. The contextual branch discards this packet task and verification entirely in favour of the built-in TASK_INSTRUCTIONS and [\"python3\",\"harness.py\"] (lines 363 and 367), so a fresh-context packet is the only shape that can carry this task."
+  }
+}

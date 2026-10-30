@@ -1,4 +1,10 @@
-# Current checkpoint — per-instance host-manager scope clarified
+# Current checkpoint — 2026-10-22 native coordination boundary clarified
+
+Owner-approved clarification recorded in FINDING's October 22 entry and implemented in v12/DESIGN.md section 18: bounded native v12 coordination is a current adoption outcome; generalized operator replacement remains later work. Temporary v11-to-v12 orchestration is not the target. This documentation change preserves current acceptance, cutover and execution authority; it selects no run, deployment, migration or broad cleanup. Prompt owns this amendment only. Existing independent reviews remain historical signoffs on their named bytes, not this amendment. Carry the clarification into the current native-cutover review and planning; do not introduce another live execution merely to validate this text.
+
+The earlier checkpoints below are historical and superseded as current scheduling guidance. Their technical decisions remain subject to the later chronological FINDING entries and current DESIGN. In particular, their September 26 next-action instructions are not a new assignment.
+
+## Historical checkpoint — per-instance host-manager scope clarified
 
 Owner clarification 2026-09-26: one active Host manager per workspace/DB; many
 independent managers with separate DBs/workspaces may share a machine. The final

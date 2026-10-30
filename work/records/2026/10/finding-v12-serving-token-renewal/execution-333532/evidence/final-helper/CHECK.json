@@ -1,0 +1,119 @@
+{
+  "root": "/tmp/w333485-preflight-x4bdpfzp/instance-root",
+  "runs": [
+    {
+      "label": "pins",
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-serving-token-renewal/execution-333532/verify-inputs.py"
+      ],
+      "returncode": 0,
+      "seconds": 0.26998901099977957
+    },
+    {
+      "label": "stage",
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-serving-token-renewal/execution-333532/prepare.py",
+        "stage",
+        "--root",
+        "/tmp/w333485-preflight-x4bdpfzp/instance-root"
+      ],
+      "returncode": 0,
+      "seconds": 0.34645355900011054
+    },
+    {
+      "label": "reuse-refused",
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-serving-token-renewal/execution-333532/prepare.py",
+        "stage",
+        "--root",
+        "/tmp/w333485-preflight-x4bdpfzp/instance-root"
+      ],
+      "returncode": 1,
+      "seconds": 0.28995413099983125
+    },
+    {
+      "label": "staged-drift-refused",
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-serving-token-renewal/execution-333532/prepare.py",
+        "bind",
+        "--root",
+        "/tmp/w333485-preflight-x4bdpfzp/instance-root"
+      ],
+      "returncode": 1,
+      "seconds": 0.29790836600022885
+    },
+    {
+      "label": "base-refused",
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "/tmp/w333485-preflight-x4bdpfzp/negative-packet/verify-inputs.py"
+      ],
+      "returncode": 1,
+      "seconds": 0.04284944700066262
+    },
+    {
+      "label": "digest-refused",
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "/tmp/w333485-preflight-x4bdpfzp/negative-packet/verify-inputs.py"
+      ],
+      "returncode": 1,
+      "seconds": 0.04471591499986971
+    },
+    {
+      "label": "bootstrap",
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "-m",
+        "tools.bootstrap",
+        "--inputs",
+        "/tmp/w333485-preflight-x4bdpfzp/instance-root/bootstrap-inputs.json",
+        "--destination",
+        "/tmp/w333485-preflight-x4bdpfzp/instance-root/instance",
+        "--distro",
+        "/home/sl/baton-runs/managed-correction-236087/build/stack/out/distro",
+        "--no-repositories"
+      ],
+      "returncode": 0,
+      "seconds": 0.5957781500001147
+    },
+    {
+      "label": "bind",
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-serving-token-renewal/execution-333532/prepare.py",
+        "bind",
+        "--root",
+        "/tmp/w333485-preflight-x4bdpfzp/instance-root"
+      ],
+      "returncode": 0,
+      "seconds": 0.6034308640000745
+    },
+    {
+      "label": "rebind-refused",
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-serving-token-renewal/execution-333532/prepare.py",
+        "bind",
+        "--root",
+        "/tmp/w333485-preflight-x4bdpfzp/instance-root"
+      ],
+      "returncode": 1,
+      "seconds": 0.3062393609998253
+    }
+  ],
+  "total_seconds": 2.797318804000497
+}

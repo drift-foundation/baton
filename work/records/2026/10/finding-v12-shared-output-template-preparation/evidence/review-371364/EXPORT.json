@@ -1,0 +1,1 @@
+{"root": "/tmp/w370688-f36bcd75-vd12jq35", "commit": "f36bcd75ed22430355efe1b274b8f236cb591f6b", "files": 1262, "method": "git ls-tree + cat-file; verified Git blob identities; no Git mutation"}

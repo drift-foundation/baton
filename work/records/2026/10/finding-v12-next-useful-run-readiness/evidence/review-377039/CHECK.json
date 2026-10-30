@@ -1,0 +1,10 @@
+{
+  "readiness_sha256": "31f7d81595a663b87be995cc19fae0e0bc2231e92e2d0f256cbb5e8e2d9362c0",
+  "template_jobs_at_8876bf95": "git ls-tree exact v12/TEMPLATE-JOBS.md returned no entry",
+  "settlement_source_commands": [
+    "settlement-preview",
+    "settle-stopped",
+    "settlement-status"
+  ],
+  "scope": "read-only source review; no operational-store or engine access"
+}

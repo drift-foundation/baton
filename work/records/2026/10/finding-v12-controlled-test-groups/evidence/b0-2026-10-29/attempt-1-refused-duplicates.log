@@ -1,0 +1,334 @@
+[test-all] started 2026-10-29T23:24:23Z
+[test-all] source HEAD 8876bf950ff1f8ab8767ce9786df268cc9d767c6 dirty-paths 558 dirty-digest 805107010f7ff56c
+[test-all] python 3.13.7 jsonschema 4.26.0 docker 29.1.3 uid 1000 cpus 32 userns no tmpfs-tmp tmpfs
+[test-all] image sha256:9b8c98820877e33d38d33352d86cc3810e5b72d4935a181b82b512b4d3291de8 distro (fresh build)
+[test-all] building a fresh bundle
+5916 INFO: Building COLLECT because COLLECT-00.toc is non existent
+5916 INFO: Removing dir /home/sl/src/baton/v12/python/build/out/distro
+5918 INFO: Building COLLECT COLLECT-00.toc
+5928 INFO: Building COLLECT COLLECT-00.toc completed successfully.
+5929 INFO: Build complete! The results are available in: /home/sl/src/baton/v12/python/build/out
+[collect] start 1/161 tests.tools.test_stack
+[collect] start 2/161 tests.tools.test_environment
+[collect] start 3/161 tests.tools.test_bootstrap
+[collect] start 4/161 tests.tools.test_instance
+[collect] start 5/161 tests.tools.test_packaging
+[collect] start 6/161 tests.tools.test_version
+[collect] start 7/161 tests.authority.test_assignment
+[collect] start 8/161 tests.authority.test_boundary
+[collect] start 9/161 tests.authority.test_catalog
+[collect] start 10/161 tests.authority.test_claim_result
+[collect] start 11/161 tests.authority.test_contract
+[collect] start 12/161 tests.authority.test_identity
+[collect] start 13/161 tests.authority.test_operations
+[collect] start 14/161 tests.authority.test_principal_scope
+[collect] start 15/161 tests.authority.test_session
+[collect] start 16/161 tests.authority.test_work_labels
+[collect] start 17/161 tests.authority.test_work_label_exposure
+[collect] start 18/161 tests.authority.test_store
+[collect] start 19/161 tests.manager.test_attempts
+[collect] start 20/161 tests.manager.test_boundary_inventory
+[collect] start 21/161 tests.manager.test_canonical
+[collect] start 22/161 tests.manager.test_contracts_inventory
+[collect] start 23/161 tests.manager.test_dependencies
+[collect] start 24/161 tests.manager.test_diagnostic_rendering
+[collect] start 25/161 tests.manager.test_failed_start_destroy
+[collect] start 26/161 tests.manager.test_refused_session_cleanup
+[collect] start 27/161 tests.manager.test_custody
+[collect] start 28/161 tests.manager.test_frozen
+[collect] start 29/161 tests.manager.test_handshake
+[collect] start 30/161 tests.manager.test_credentials
+[collect] start 31/161 tests.manager.test_intake
+[collect] start 32/161 tests.manager.test_launch
+[collect] done  1/161 tests.authority.test_boundary rc=0 in 0.29s
+[collect] start 33/161 tests.manager.test_exchange
+[collect] done  2/161 tests.authority.test_claim_result rc=0 in 0.32s
+[collect] done  3/161 tests.authority.test_identity rc=0 in 0.32s
+[collect] done  4/161 tests.authority.test_session rc=0 in 0.32s
+[collect] done  5/161 tests.manager.test_contracts_inventory rc=0 in 0.32s
+[collect] done  6/161 tests.manager.test_diagnostic_rendering rc=0 in 0.32s
+[collect] start 34/161 tests.manager.test_sealing
+[collect] start 35/161 tests.manager.test_interrogation
+[collect] start 36/161 tests.manager.test_manifest_rules
+[collect] start 37/161 tests.manager.test_oci
+[collect] start 38/161 tests.manager.test_oci_integration
+[collect] done  7/161 tests.authority.test_work_labels rc=0 in 0.32s
+[collect] start 39/161 tests.manager.test_offers
+[collect] done  8/161 tests.manager.test_handshake rc=0 in 0.33s
+[collect] start 40/161 tests.manager.test_output
+[collect] done  9/161 tests.tools.test_environment rc=0 in 0.35s
+[collect] done  10/161 tests.tools.test_instance rc=0 in 0.35s
+[collect] done  11/161 tests.tools.test_version rc=0 in 0.35s
+[collect] done  12/161 tests.manager.test_dependencies rc=0 in 0.34s
+[collect] start 41/161 tests.manager.test_pod
+[collect] start 42/161 tests.manager.test_principal_context
+[collect] start 43/161 tests.manager.test_runtime_lane
+[collect] start 44/161 tests.manager.test_secrets
+[collect] done  13/161 tests.authority.test_store rc=0 in 0.36s
+[collect] done  14/161 tests.manager.test_boundary_inventory rc=0 in 0.36s
+[collect] done  15/161 tests.manager.test_refused_session_cleanup rc=0 in 0.36s
+[collect] start 45/161 tests.manager.test_sessions
+[collect] start 46/161 tests.manager.test_store
+[collect] start 47/161 tests.manager.test_text_sweep
+[collect] done  16/161 tests.tools.test_packaging rc=0 in 0.36s
+[collect] start 48/161 tests.manager.test_validate
+[collect] done  17/161 tests.manager.test_intake rc=0 in 0.36s
+[collect] start 49/161 tests.manager.test_claude_agent
+[collect] done  18/161 tests.authority.test_operations rc=0 in 0.36s
+[collect] done  19/161 tests.authority.test_principal_scope rc=0 in 0.36s
+[collect] done  20/161 tests.manager.test_canonical rc=0 in 0.36s
+[collect] start 50/161 tests.manager.test_worker_entry
+[collect] start 51/161 tests.manager.test_worker_image
+[collect] start 52/161 tests.manager.test_workspaces
+[collect] done  21/161 tests.authority.test_contract rc=0 in 0.36s
+[collect] start 53/161 tests.tools.test_dogfood_operator
+[collect] done  22/161 tests.authority.test_catalog rc=0 in 0.37s
+[collect] start 54/161 tests.tools.test_user_credentials
+[collect] done  23/161 tests.authority.test_assignment rc=0 in 0.38s
+[collect] done  24/161 tests.manager.test_failed_start_destroy rc=0 in 0.37s
+[collect] done  25/161 tests.manager.test_frozen rc=0 in 0.37s
+[collect] done  26/161 tests.manager.test_credentials rc=0 in 0.37s
+[collect] start 55/161 tests.tools.test_parallel_runner
+[collect] start 56/161 tests.tools.test_worker_image_build
+[collect] start 57/161 tests.job_manager.test_delegation
+[collect] start 58/161 tests.job_manager.test_documents
+[collect] done  27/161 tests.manager.test_launch rc=0 in 0.37s
+[collect] start 59/161 tests.job_manager.test_ending
+[collect] done  28/161 tests.authority.test_work_label_exposure rc=0 in 0.38s
+[collect] start 60/161 tests.job_manager.test_exchange
+[collect] done  29/161 tests.manager.test_attempts rc=0 in 0.40s
+[collect] done  30/161 tests.manager.test_custody rc=0 in 0.40s
+[collect] start 61/161 tests.job_manager.test_launch
+[collect] start 62/161 tests.job_manager.test_recovery
+[collect] done  31/161 tests.tools.test_stack rc=0 in 0.43s
+[collect] done  32/161 tests.tools.test_bootstrap rc=0 in 0.43s
+[collect] start 63/161 tests.job_manager.test_restart
+[collect] start 64/161 tests.job_manager.test_scheduling
+[collect] done  33/161 tests.manager.test_exchange rc=0 in 0.30s
+[collect] start 65/161 tests.job_manager.test_status
+[collect] done  34/161 tests.manager.test_manifest_rules rc=0 in 0.31s
+[collect] done  35/161 tests.manager.test_offers rc=0 in 0.31s
+[collect] start 66/161 tests.job_manager.test_store
+[collect] start 67/161 tests.job_manager.test_submission
+[collect] done  36/161 tests.manager.test_sealing rc=0 in 0.32s
+[collect] start 68/161 tests.job_manager.test_sweep
+[collect] done  37/161 tests.manager.test_principal_context rc=0 in 0.30s
+[collect] start 69/161 tests.job_manager.test_tool
+[collect] done  38/161 tests.manager.test_oci rc=0 in 0.32s
+[collect] start 70/161 tests.job_manager.test_final_allocation_release
+[collect] done  39/161 tests.manager.test_oci_integration rc=0 in 0.33s
+[collect] done  40/161 tests.manager.test_pod rc=0 in 0.31s
+[collect] start 71/161 tests.tools.test_single_worker
+[collect] start 72/161 tests.tools.test_stage_execution
+[collect] done  41/161 tests.manager.test_output rc=0 in 0.33s
+[collect] done  42/161 tests.manager.test_validate rc=0 in 0.31s
+[collect] start 73/161 tests.manager.test_integration_worker
+[collect] start 74/161 tests.manager.test_integration_image
+[collect] done  43/161 tests.manager.test_interrogation rc=0 in 0.36s
+[collect] done  44/161 tests.manager.test_secrets rc=0 in 0.33s
+[collect] start 75/161 tests.tools.test_integration_bundle
+[collect] start 76/161 tests.tools.test_integration_worker
+[collect] done  45/161 tests.manager.test_runtime_lane rc=0 in 0.34s
+[collect] start 77/161 tests.manager.test_source_boundary
+[collect] done  46/161 tests.manager.test_store rc=0 in 0.33s
+[collect] done  47/161 tests.job_manager.test_ending rc=0 in 0.32s
+[collect] start 78/161 tests.tools.test_quiescent_assignment_finalization
+[collect] start 79/161 tests.manager.test_checkpoint_profiles
+[collect] done  48/161 tests.tools.test_user_credentials rc=0 in 0.33s
+[collect] start 80/161 tests.manager.test_review_cycles
+[collect] done  49/161 tests.manager.test_sessions rc=0 in 0.35s
+[collect] done  50/161 tests.manager.test_text_sweep rc=0 in 0.35s
+[collect] start 81/161 tests.integration.test_coordinator
+[collect] start 82/161 tests.integration.test_runtime
+[collect] done  51/161 tests.tools.test_dogfood_operator rc=0 in 0.36s
+[collect] done  52/161 tests.job_manager.test_delegation rc=0 in 0.34s
+[collect] start 83/161 tests.integration.test_admission
+[collect] start 84/161 tests.integration.test_execution
+[collect] done  53/161 tests.job_manager.test_documents rc=0 in 0.35s
+[collect] done  54/161 tests.job_manager.test_exchange rc=0 in 0.35s
+[collect] start 85/161 tests.integration.test_recovery
+[collect] start 86/161 tests.integration.test_managed_execution
+[collect] done  55/161 tests.manager.test_workspaces rc=0 in 0.39s
+[collect] done  56/161 tests.tools.test_worker_image_build rc=0 in 0.37s
+[collect] done  57/161 tests.job_manager.test_launch rc=0 in 0.35s
+[collect] start 87/161 tests.integration.test_managed_storage
+[collect] start 88/161 tests.integration.test_reconciliation
+[collect] start 89/161 tests.job_manager.test_execution_limits
+[collect] done  58/161 tests.manager.test_worker_entry rc=0 in 0.39s
+[collect] done  59/161 tests.manager.test_worker_image rc=0 in 0.39s
+[collect] start 90/161 tests.job_manager.test_managed_integration_capacity
+[collect] start 91/161 tests.manager.test_execution_limits
+[collect] done  60/161 tests.job_manager.test_restart rc=0 in 0.32s
+[collect] start 92/161 tests.manager.test_reconciliation_task
+[collect] done  61/161 tests.tools.test_parallel_runner rc=0 in 0.39s
+[collect] done  62/161 tests.job_manager.test_scheduling rc=0 in 0.33s
+[collect] start 93/161 tests.manager.test_reconciliation_worker
+[collect] start 94/161 tests.manager.test_runtime_deadline_engine_budget
+[collect] done  63/161 tests.manager.test_claude_agent rc=0 in 0.42s
+[collect] start 95/161 tests.manager.test_runtime_deadlines
+[collect] done  64/161 tests.job_manager.test_recovery rc=0 in 0.39s
+[collect] start 96/161 tests.tools.test_execution_limits
+[collect] done  65/161 tests.job_manager.test_status rc=0 in 0.29s
+[collect] start 97/161 tests.tools.test_job_viewer
+[collect] done  66/161 tests.job_manager.test_submission rc=0 in 0.29s
+[collect] start 98/161 tests.tools.test_live_ab
+[collect] done  67/161 tests.job_manager.test_final_allocation_release rc=0 in 0.29s
+[collect] start 99/161 tests.tools.test_managed_integration
+[collect] done  68/161 tests.job_manager.test_sweep rc=0 in 0.30s
+[collect] start 100/161 tests.tools.test_managed_preparation
+[collect] done  69/161 tests.job_manager.test_store rc=0 in 0.32s
+[collect] done  70/161 tests.manager.test_integration_image rc=0 in 0.28s
+[collect] start 101/161 tests.tools.test_scheduler_trace
+[collect] start 102/161 tests.tools.test_stage_execution_hardening
+[collect] done  71/161 tests.job_manager.test_tool rc=0 in 0.32s
+[collect] start 103/161 tests.tools.test_stage_execution_status_hardening
+[collect] done  72/161 tests.tools.test_single_worker rc=0 in 0.32s
+[collect] done  73/161 tests.manager.test_integration_worker rc=0 in 0.31s
+[collect] start 104/161 tests.tools.test_standalone_ab
+[collect] start 105/161 tests.authority.test_dossier
+[collect] done  74/161 tests.tools.test_integration_bundle rc=0 in 0.32s
+[collect] start 106/161 tests.job_manager.test_creation
+[collect] done  75/161 tests.tools.test_integration_worker rc=0 in 0.33s
+[collect] done  76/161 tests.tools.test_quiescent_assignment_finalization rc=0 in 0.32s
+[collect] done  77/161 tests.manager.test_checkpoint_profiles rc=0 in 0.31s
+[collect] done  78/161 tests.integration.test_runtime rc=0 in 0.30s
+[collect] start 107/161 tests.job_manager.test_fresh_attempt
+[collect] start 108/161 tests.job_manager.test_native_permission
+[collect] start 109/161 tests.job_manager.test_native_stop_restart
+[collect] start 110/161 tests.job_manager.test_role_capability
+[collect] done  79/161 tests.manager.test_review_cycles rc=0 in 0.32s
+[collect] start 111/161 tests.job_manager.test_role_contract
+[collect] done  80/161 tests.tools.test_stage_execution rc=0 in 0.38s
+[collect] start 112/161 tests.job_manager.test_serving_renewal
+[collect] done  81/161 tests.integration.test_admission rc=0 in 0.32s
+[collect] start 113/161 tests.job_manager.test_store_readonly
+[collect] done  82/161 tests.manager.test_source_boundary rc=0 in 0.37s
+[collect] start 114/161 tests.job_manager.test_templates
+[collect] done  83/161 tests.integration.test_managed_execution rc=0 in 0.34s
+[collect] done  84/161 tests.integration.test_reconciliation rc=0 in 0.32s
+[collect] start 115/161 tests.manager.test_adapter_declaration
+[collect] start 116/161 tests.manager.test_attempt_failure_cause
+[collect] done  85/161 tests.integration.test_coordinator rc=0 in 0.37s
+[collect] done  86/161 tests.job_manager.test_execution_limits rc=0 in 0.33s
+[collect] start 117/161 tests.manager.test_attempt_logs
+[collect] start 118/161 tests.manager.test_authoring_enforcement
+[collect] done  87/161 tests.manager.test_execution_limits rc=0 in 0.34s
+[collect] start 119/161 tests.manager.test_authoring_manager_guard
+[collect] done  88/161 tests.integration.test_execution rc=0 in 0.38s
+[collect] done  89/161 tests.integration.test_recovery rc=0 in 0.38s
+[collect] start 120/161 tests.manager.test_authoring_shutdown_deadline
+[collect] start 121/161 tests.manager.test_claude_context
+[collect] done  90/161 tests.job_manager.test_managed_integration_capacity rc=0 in 0.36s
+[collect] done  91/161 tests.manager.test_reconciliation_task rc=0 in 0.36s
+[collect] start 122/161 tests.manager.test_dogfood_entry
+[collect] start 123/161 tests.manager.test_fixture_dispatch
+[collect] done  92/161 tests.integration.test_managed_storage rc=0 in 0.38s
+[collect] done  93/161 tests.manager.test_reconciliation_worker rc=0 in 0.36s
+[collect] done  94/161 tests.tools.test_execution_limits rc=0 in 0.34s
+[collect] start 124/161 tests.manager.test_importing_fixture
+[collect] start 125/161 tests.manager.test_integration_generation
+[collect] start 126/161 tests.manager.test_maintenance
+[collect] done  95/161 tests.manager.test_runtime_deadline_engine_budget rc=0 in 0.37s
+[collect] done  96/161 tests.manager.test_runtime_deadlines rc=0 in 0.36s
+[collect] start 127/161 tests.manager.test_proposing_fixture
+[collect] start 128/161 tests.manager.test_provider_context
+[collect] done  97/161 tests.tools.test_job_viewer rc=0 in 0.32s
+[collect] start 129/161 tests.manager.test_provider_context_delivery
+[collect] done  98/161 tests.tools.test_live_ab rc=0 in 0.30s
+[collect] start 130/161 tests.manager.test_stopped_settlement
+[collect] done  99/161 tests.tools.test_managed_integration rc=0 in 0.32s
+[collect] done  100/161 tests.tools.test_managed_preparation rc=0 in 0.31s
+[collect] start 131/161 tests.manager.test_verification_context
+[collect] start 132/161 tests.manager.test_verification_views
+[collect] done  101/161 tests.tools.test_stage_execution_hardening rc=0 in 0.31s
+[collect] start 133/161 tests.manager.test_verifier_topology
+[collect] done  102/161 tests.authority.test_dossier rc=0 in 0.29s
+[collect] start 134/161 tests.manager.test_w197661_verifier
+[collect] done  103/161 tests.tools.test_scheduler_trace rc=0 in 0.34s
+[collect] done  104/161 tests.tools.test_standalone_ab rc=0 in 0.32s
+[collect] done  105/161 tests.job_manager.test_creation rc=0 in 0.29s
+[collect] start 135/161 tests.manager.test_worker_packaging
+[collect] start 136/161 tests.tools.test_accepted_base
+[collect] start 137/161 tests.tools.test_attempt_diagnostics
+[collect] done  106/161 tests.tools.test_stage_execution_status_hardening rc=0 in 0.34s
+[collect] done  107/161 tests.job_manager.test_role_contract rc=0 in 0.29s
+[collect] start 138/161 tests.tools.test_attempt_logs_command
+[collect] start 139/161 tests.tools.test_connected_creation
+[collect] done  108/161 tests.job_manager.test_role_capability rc=0 in 0.30s
+[collect] start 140/161 tests.tools.test_connected_startup
+[collect] done  109/161 tests.job_manager.test_native_stop_restart rc=0 in 0.33s
+[collect] start 141/161 tests.tools.test_correction_restart
+[collect] done  110/161 tests.job_manager.test_native_permission rc=0 in 0.34s
+[collect] start 142/161 tests.tools.test_creation_ports
+[collect] done  111/161 tests.job_manager.test_fresh_attempt rc=0 in 0.35s
+[collect] done  112/161 tests.job_manager.test_store_readonly rc=0 in 0.32s
+[collect] start 143/161 tests.tools.test_disposition_command
+[collect] start 144/161 tests.tools.test_dossier_command
+[collect] done  113/161 tests.job_manager.test_templates rc=0 in 0.32s
+[collect] start 145/161 tests.tools.test_dossier_recovery
+[collect] done  114/161 tests.job_manager.test_serving_renewal rc=0 in 0.38s
+[collect] done  115/161 tests.manager.test_attempt_failure_cause rc=0 in 0.35s
+[collect] start 146/161 tests.tools.test_fresh_retry_line_recovery
+[collect] start 147/161 tests.tools.test_job_task_delivery
+[collect] done  116/161 tests.manager.test_maintenance rc=0 in 0.30s
+[collect] start 148/161 tests.tools.test_joined_workflow
+[collect] done  117/161 tests.manager.test_adapter_declaration rc=0 in 0.37s
+[collect] done  118/161 tests.manager.test_attempt_logs rc=0 in 0.36s
+[collect] start 149/161 tests.tools.test_managed_apply
+[collect] start 150/161 tests.tools.test_next_run
+[collect] done  119/161 tests.manager.test_authoring_enforcement rc=0 in 0.36s
+[collect] start 151/161 tests.tools.test_next_run_flow
+[collect] done  120/161 tests.manager.test_importing_fixture rc=0 in 0.32s
+[collect] start 152/161 tests.tools.test_next_run_managed
+[collect] done  121/161 tests.manager.test_authoring_shutdown_deadline rc=0 in 0.36s
+[collect] done  122/161 tests.manager.test_integration_generation rc=0 in 0.33s
+[collect] done  123/161 tests.manager.test_proposing_fixture rc=0 in 0.32s
+[collect] start 153/161 tests.tools.test_next_run_recovery
+[collect] start 154/161 tests.tools.test_operator_verification_view
+[collect] start 155/161 tests.tools.test_packaged_creation
+[collect] done  124/161 tests.manager.test_fixture_dispatch rc=0 in 0.36s
+[collect] start 156/161 tests.tools.test_pool
+[collect] done  125/161 tests.manager.test_authoring_manager_guard rc=0 in 0.40s
+[collect] start 157/161 tests.tools.test_retry_task_lineage
+[collect] done  126/161 tests.manager.test_dogfood_entry rc=0 in 0.38s
+[collect] start 158/161 tests.tools.test_startup_prerequisites
+[collect] done  127/161 tests.manager.test_stopped_settlement rc=0 in 0.29s
+[collect] start 159/161 tests.tools.test_stopped_settlement_command
+[collect] done  128/161 tests.manager.test_provider_context rc=0 in 0.37s
+[collect] done  129/161 tests.manager.test_provider_context_delivery rc=0 in 0.32s
+[collect] start 160/161 tests.tools.test_stopped_settlement_joined
+[collect] start 161/161 tests.tools.test_worker_visibility
+[collect] done  130/161 tests.manager.test_claude_context rc=0 in 0.41s
+[collect] done  131/161 tests.manager.test_verification_context rc=0 in 0.28s
+[collect] done  132/161 tests.manager.test_verification_views rc=0 in 0.29s
+[collect] done  133/161 tests.manager.test_w197661_verifier rc=0 in 0.31s
+[collect] done  134/161 tests.tools.test_accepted_base rc=0 in 0.29s
+[collect] done  135/161 tests.tools.test_attempt_logs_command rc=0 in 0.27s
+[collect] done  136/161 tests.manager.test_verifier_topology rc=0 in 0.33s
+[collect] done  137/161 tests.manager.test_worker_packaging rc=0 in 0.30s
+[collect] done  138/161 tests.tools.test_attempt_diagnostics rc=0 in 0.31s
+[collect] done  139/161 tests.tools.test_dossier_command rc=0 in 0.26s
+[collect] done  140/161 tests.tools.test_connected_creation rc=0 in 0.32s
+[collect] done  141/161 tests.tools.test_connected_startup rc=0 in 0.32s
+[collect] done  142/161 tests.tools.test_creation_ports rc=0 in 0.29s
+[collect] done  143/161 tests.tools.test_disposition_command rc=0 in 0.29s
+[collect] done  144/161 tests.tools.test_correction_restart rc=0 in 0.34s
+[collect] done  145/161 tests.tools.test_dossier_recovery rc=0 in 0.31s
+[collect] done  146/161 tests.tools.test_joined_workflow rc=0 in 0.25s
+[collect] done  147/161 tests.tools.test_managed_apply rc=0 in 0.24s
+[collect] done  148/161 tests.tools.test_operator_verification_view rc=0 in 0.21s
+[collect] done  149/161 tests.tools.test_next_run rc=0 in 0.28s
+[collect] done  150/161 tests.tools.test_startup_prerequisites rc=0 in 0.24s
+[collect] done  151/161 tests.tools.test_stopped_settlement_command rc=0 in 0.24s
+[collect] done  152/161 tests.tools.test_fresh_retry_line_recovery rc=0 in 0.34s
+[collect] done  153/161 tests.tools.test_job_task_delivery rc=0 in 0.34s
+[collect] done  154/161 tests.tools.test_next_run_flow rc=0 in 0.32s
+[collect] done  155/161 tests.tools.test_next_run_managed rc=0 in 0.31s
+[collect] done  156/161 tests.tools.test_retry_task_lineage rc=0 in 0.28s
+[collect] done  157/161 tests.tools.test_next_run_recovery rc=0 in 0.31s
+[collect] done  158/161 tests.tools.test_packaged_creation rc=0 in 0.32s
+[collect] done  159/161 tests.tools.test_pool rc=0 in 0.31s
+[collect] done  160/161 tests.tools.test_stopped_settlement_joined rc=0 in 0.28s
+[collect] done  161/161 tests.tools.test_worker_visibility rc=0 in 0.28s
+[runner] refused: collection produced duplicate test ids: ['tests.tools.test_job_task_delivery.TheCreatedJobRunsThroughThePoolServingLoop.test_a_job_with_no_own_task_is_served_the_installed_one', 'tests.tools.test_job_task_delivery.TheCreatedJobRunsThroughThePoolServingLoop.test_the_created_jobs_own_task_reaches_a_started_runtime', 'tests.tools.test_job_task_delivery.TheCreatedJobRunsThroughThePoolServingLoop.test_the_stageless_adapter_over_the_pool_attempt_is_the_delivered_one', 'tests.tools.test_job_task_delivery.TheReviewStageRunsThroughThePoolServingLoop.test_the_review_attempt_is_recorded_and_adapted_on_the_delivered_input', 'tests.tools.test_job_task_delivery.TheReviewStageRunsThroughThePoolServingLoop.test_the_review_mount_is_the_checkpoint_the_round_froze']
+[test-all] finished 2026-10-29T23:24:33Z exit 2

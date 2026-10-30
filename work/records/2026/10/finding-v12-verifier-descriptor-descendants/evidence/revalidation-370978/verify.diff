@@ -1,0 +1,19 @@
+--- old _verify
++++ current _verify
+@@ -42,11 +42,14 @@
+                 seconds=seconds,
+                 env=environment, pass_fds=pass_fds)
+         except subprocess.TimeoutExpired:
++            # W321528: THE BOUND THE CHILD WAS GIVEN, not a second resolution
++            # of it. `seconds` is bound before `_ran` can raise this, and
++            # re-deriving it here is how a sentence and the number beside it
++            # came to disagree one layer up.
+             return {"status": None,
+                     "text": _transcript(
+                         task,
+-                        f"did not finish within "
+-                        f"{self._bound(self._seen, 'ordinary_verification', VERIFICATION_SECONDS)}s")}
++                        f"did not finish within {seconds}s")}
+         except OSError as failed:
+             return {"status": None,
+                     "text": _transcript(task, f"could not be started "

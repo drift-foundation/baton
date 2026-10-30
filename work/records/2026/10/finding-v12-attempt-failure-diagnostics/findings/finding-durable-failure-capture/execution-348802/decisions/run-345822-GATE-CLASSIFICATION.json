@@ -1,0 +1,90 @@
+{
+  "THE_GATE_PASSED": {
+    "adapter_disposition": "candidate",
+    "ceiling_seconds": 30,
+    "exit_status": 0,
+    "failing_cases": 0,
+    "fits_the_ceiling": true,
+    "skipped_reported": [],
+    "tests": 864,
+    "the_workers_own_in_turn_run": "864 tests / 0 failures / 0 errors / 0 skips in 11.398s unittest and 11.604s wall, reported in W341357-VERIFICATION.json. A DIFFERENT run of the same argv, inside the turn. Both are real and they are not the same measurement; the adapter's is the one that decided the outcome.",
+    "unittest_seconds": 12.631,
+    "verdict": "OK",
+    "whose_run_this_is": "THE ADAPTER'S. This is the sealed verification command the adapter ran AFTER the provider returned, and its exit 0 is what decided the disposition. 864 tests, 0 failures, 0 errors, 0 skips, OK, 12.631s."
+  },
+  "THE_OPERAND_FINDING": {
+    "disk_backed_root_selected": "<checkout>/v12/python on overlay, 644867325952 bytes available -- never a constraint",
+    "gate_high_water_after": "2437120 bytes / 63 inodes",
+    "gate_high_water_before": "13303808 bytes / 326 inodes",
+    "measured": "mount line read from /proc/mounts; statvfs sampled 563 and 566 times across two full gate runs",
+    "reduction": "10866688 bytes, 81.7%",
+    "reported_not_acted_on": "no limit was changed and no TMPDIR was moved. A resource-limit change needs measured rationale and explicit new execution operands.",
+    "what": "/tmp inside the verifier is a 64 MiB tmpfs (size=65536k, total_bytes 67108864) SHARED with the provider's own ephemera, and nothing bounds what else consumes it. Every ordinary SQLite store and maintenance root lands there because the fixtures use tempfile.TemporaryDirectory."
+  },
+  "THE_THREE_MEASUREMENTS": [
+    {
+      "errors": 7,
+      "exit_status": 1,
+      "failures": 9,
+      "run": "durable-capture-w341357-345039",
+      "seconds": 12.817,
+      "tests": 864
+    },
+    {
+      "errors": 16,
+      "exit_status": 1,
+      "failures": 0,
+      "run": "durable-capture-w341357-345388",
+      "seconds": 12.515,
+      "tests": 864
+    },
+    {
+      "errors": 0,
+      "exit_status": 0,
+      "failures": 0,
+      "note": "FIRST PASSING GATE IN THIS CAMPAIGN. Two measurements of the same argv: the worker's own in-turn run at 11.398s and the adapter's sealed run at 12.631s, both 864/0/0/0.",
+      "run": "durable-capture-w341357-345822",
+      "seconds_adapter_sealed_run": 12.631,
+      "seconds_worker_in_turn": 11.398,
+      "skips": 0,
+      "tests": 864
+    }
+  ],
+  "WHAT_IS_ESTABLISHED": [
+    "the complete five-module sealed gate PASSED TWICE in this run: the worker's own in-turn run at 864/0/0/0 in 11.398s, and the ADAPTER'S sealed run at 864/0/0/0 in 12.631s with exit 0 -- the latter is what decided the disposition. Both well inside the 30-second ceiling.",
+    "the adapter disposition is CANDIDATE and verification PASSED; the workload settled and stopped completed, the first time in this campaign",
+    "the same-environment base/candidate comparison was finally run: the four modules both trees share give 801 tests with 2 failures AT THE PINNED BASE and the candidate adds 63 tests and changes no other outcome",
+    "those 2 base failures were diagnosed to an umask-dependent FIXTURE precondition, not a product defect -- the product read is correct in both arms",
+    "assertion EXECUTIONS were counted per method in both arms rather than argued from the test count, and they went UP for the two corrected methods (1 -> 5 and 5 -> 12) because they previously failed early in setup",
+    "measured sub-case lifetime: 13, 17, 10 and 22 simultaneous temporary roots with zero releases before the final open, corrected by draining cleanups per sub-case"
+  ],
+  "WHAT_IS_NOT_ESTABLISHED": [
+    "WHY run 345388 saw sqlite3 'database or disk is full' and this run did not. The outcome did not reproduce here, in isolation or in the full gate, at the base or under the candidate as given. The strongest supported explanation -- and it is not proven -- is that /tmp is a 64 MiB tmpfs SHARED with the provider's own ephemera, that run 345388 worked for 789 seconds before its gate ran, and that the gate's then-13.3 MB peak met a /tmp that the turn had already largely consumed. This run observed 56-57 MB available at gate time; what 345388 had available at its gate time was never recorded and cannot now be recovered. THIS IS THE ONE OPERAND FINDING: /tmp is 67108864 bytes total, it is not the gate's alone, and nothing bounds what else consumes it. Reported with numbers and NOT acted on -- no limit was changed and no TMPDIR was moved.",
+    "that the correction would have been sufficient in 345388's environment. It reduces the gate's peak /tmp demand by 10866688 bytes (81.7%), which is the right direction and a large margin, but the environment it would have had to survive was not measured.",
+    "the candidate head. The adapter names it after this turn returns.",
+    "anything about the controller report, the workload outcome or the shutdown progress file. They are published AFTER this turn ends and are STRUCTURALLY UNAVAILABLE to the worker -- reported here as unavailable rather than as present or absent.",
+    "independent producer byte acceptance. Still owed. The producer's 63 focused cases report no failure, which is evidence and not signoff.",
+    "that the two umask-dependent cases pass under a different umask. 0o022 was not exercised; the fix establishes the mode explicitly, so it should not depend on one, but that was not measured.",
+    "the correlation keys run_id, work, claim, outcome_path and status_path. No environment variable or file carrying them was present in this worker's environment; only the work reference W341357 was given in the task text. Named absent-by-structure rather than guessed."
+  ],
+  "derived_by": "baton.claude, claim347182, read-only from the retained attempt stream",
+  "raw_stream": {
+    "bytes": 965,
+    "not_copied_why": "the gate's own output from a tree the provider edited with the attempt credential mount readable; the proposal's verification.txt refuses to reproduce it and a grep is not a proof of absence.",
+    "place": "/home/sl/baton-instances/durable-capture-w341357-345822/packet/launch/implementation/logs/attempt-784e7bd67b43ccab28b62f242281f716fc068ec30a87f4490fd910eca51086c4/verification.stderr.log",
+    "reader": "baton-v12-stack logs --logs /home/sl/baton-instances/durable-capture-w341357-345822/packet/launch/implementation/logs --attempt attempt-784e7bd67b43ccab28b62f242281f716fc068ec30a87f4490fd910eca51086c4 locators",
+    "sha256": "1031c25bca6d011d67b3d11e68ee27ff7f6df9cebecc2459bca5c76c05fac876"
+  },
+  "schema": "baton.w341357-gate-classification/3",
+  "the_candidate_is_still_unaccepted": "verification PASSED is not acceptance. Independent producer byte review and the parent joined acceptance remain owed, and acceptance reads unobserved.",
+  "the_worker_report": {
+    "bytes": 35070,
+    "in_candidate_tree": true,
+    "not_for_import": "THIS FILE MUST BE EXCLUDED FROM ANY LATER PRODUCT IMPORT.",
+    "path": "W341357-VERIFICATION.json",
+    "sha256": "a5b69ad30c2fc0be5c4c6dcb81daebba878a51d02e452ddf62d1dd3c179bc703",
+    "status": "EVIDENCE ONLY. NOTHING HERE IS ACCEPTED OR ACCEPTS ANYTHING.",
+    "travels_as": "a changed path in the candidate change.patch -- the existing proposal mechanism, no new output protocol",
+    "why": "the previous run was asked for the base/candidate counts and had no channel but the provider transcript, so its numbers reached nobody. That was the author's defect and this is the fix the review prescribed."
+  }
+}

@@ -1,0 +1,105 @@
+.....................................................EEEFF.....F.E.............F............................refused: the runtime at /tmp/v12-instance-l93j9aar/a/distro is not the one this instance was prepared with: it holds 2 files digesting aebd9f0a1e35c2ae... and the instance records 2 digesting 7293e8241ae0d98a... Nothing here upgrades a deployment in place; prepare a new destination.
+.refused: the runtime at /tmp/v12-instance-qu7nubmj/a/distro is not the one this instance was prepared with: it holds 2 files digesting 30f3d827fd48dd11... and the instance records 2 digesting 7293e8241ae0d98a... Nothing here upgrades a deployment in place; prepare a new destination.
+.refused: /tmp/v12-instance-egmur0o7/a/instance.json names state '/tmp/v12-instance-egmur0o7/b/state' and this destination derives '/tmp/v12-instance-egmur0o7/a/state'; every path an instance owns is DERIVED from its destination, so one that disagrees is describing a different deployment.
+.refused: the runtime at /tmp/v12-instance-a3ug86aq/a/distro is not the one this instance was prepared with: it holds 3 files digesting 70f6a156483a85bd... and the instance records 2 digesting 7293e8241ae0d98a... Nothing here upgrades a deployment in place; prepare a new destination.
+.refused: there is no instance at /tmp/v12-instance-gzrjwo1f/nothing.json. `just bootstrap <inputs.json> <destination>` prepares one and writes it there.
+........
+======================================================================
+ERROR: test_a_FOREIGN_justfile_that_appears_is_never_removed_either (tests.tools.test_instance.TheDeploymentCarriesItsOwnJustfile.test_a_FOREIGN_justfile_that_appears_is_never_removed_either)
+The unwind removes what THIS attempt wrote. A justfile that appeared
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_instance.py", line 1261, in test_a_FOREIGN_justfile_that_appears_is_never_removed_either
+    self.assertIn("RETAINED", out.getvalue())
+                              ^^^
+NameError: name 'out' is not defined. Did you mean: 'oct'?
+
+======================================================================
+ERROR: test_a_FOREIGN_selector_that_appears_is_never_removed (tests.tools.test_instance.TheDeploymentCarriesItsOwnJustfile.test_a_FOREIGN_selector_that_appears_is_never_removed)
+The other half: what this attempt did not create, it does not
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_instance.py", line 1285, in test_a_FOREIGN_selector_that_appears_is_never_removed
+    self.assertIn("RETAINED", out.getvalue())
+                              ^^^
+NameError: name 'out' is not defined. Did you mean: 'oct'?
+
+======================================================================
+ERROR: test_a_PARTIAL_write_is_still_this_attempt_s_to_unwind (tests.tools.test_instance.TheDeploymentCarriesItsOwnJustfile.test_a_PARTIAL_write_is_still_this_attempt_s_to_unwind)
+[R3 remainder]: ownership was a flag set AFTER the write finished,
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_instance.py", line 1031, in test_a_PARTIAL_write_is_still_this_attempt_s_to_unwind
+    selector = self.installing()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_instance.py", line 959, in installing
+    admitted = self.bootstrap.admit(self.destination, str(source))
+  File "/home/sl/src/baton/v12/python/tools/bootstrap.py", line 1829, in admit
+    custody(places, destination)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/bootstrap.py", line 1891, in custody
+    raise BootstrapRefusal(
+    ...<2 lines>...
+        "prepare a new destination if you mean a different runtime.")
+tools.bootstrap.BootstrapRefusal: there is already a runtime at /tmp/v12-instance-e5ytbjce/deployment/distro; nothing here upgrades a deployment in place. Stop that instance and prepare a new destination if you mean a different runtime.
+
+======================================================================
+ERROR: test_and_the_retry_then_SUCCEEDS (tests.tools.test_instance.TheDeploymentCarriesItsOwnJustfile.test_and_the_retry_then_SUCCEEDS)
+Which is the point: an attempt that cleans up after itself leaves a
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_instance.py", line 998, in test_and_the_retry_then_SUCCEEDS
+    selector = self.installing()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_instance.py", line 959, in installing
+    admitted = self.bootstrap.admit(self.destination, str(source))
+  File "/home/sl/src/baton/v12/python/tools/bootstrap.py", line 1829, in admit
+    custody(places, destination)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/bootstrap.py", line 1891, in custody
+    raise BootstrapRefusal(
+    ...<2 lines>...
+        "prepare a new destination if you mean a different runtime.")
+tools.bootstrap.BootstrapRefusal: there is already a runtime at /tmp/v12-instance-s_4ze1ka/deployment/distro; nothing here upgrades a deployment in place. Stop that instance and prepare a new destination if you mean a different runtime.
+
+======================================================================
+FAIL: test_a_STORE_failure_preserves_a_foreign_addition (tests.tools.test_instance.TheDeploymentCarriesItsOwnJustfile.test_a_STORE_failure_preserves_a_foreign_addition)
+And the unwind is still exact: somebody else's file under the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_instance.py", line 1173, in test_a_STORE_failure_preserves_a_foreign_addition
+    self.assertIn("would take somebody else's content", out.getvalue())
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "would take somebody else's content" not found in 'cleanup       unwound /tmp/v12-instance-x54h11uj/deployment/install-inputs.json\ncleanup       unwound /tmp/v12-instance-x54h11uj/deployment/justfile\ncleanup       retained /tmp/v12-instance-x54h11uj/deployment/distro/_internal/rpds/rpds.so: this attempt made the copied runtime object and is NOT deleting it: a name-based removal cannot be bound to this object, so the bytes stay\ncleanup       retained /tmp/v12-instance-x54h11uj/deployment/distro/_internal/rpds: this attempt made the copied runtime object and is NOT deleting it: a name-based removal cannot be bound to this object, so the bytes stay\ncleanup       retained /tmp/v12-instance-x54h11uj/deployment/distro/_internal: this attempt made the copied runtime object and is NOT deleting it: a name-based removal cannot be bound to this object, so the bytes stay\ncleanup       retained /tmp/v12-instance-x54h11uj/deployment/distro/baton-v12-stack: this attempt made the copied runtime object and is NOT deleting it: a name-based removal cannot be bound to this object, so the bytes stay\ncleanup       retained /tmp/v12-instance-x54h11uj/deployment/distro: this attempt made the copied runtime object and is NOT deleting it: a name-based removal cannot be bound to this object, so the bytes stay\ncleanup       RETAINED 5 object(s) this attempt made, which are NOT removed:\ncleanup         /tmp/v12-instance-x54h11uj/deployment/distro/_internal/rpds/rpds.so\ncleanup         /tmp/v12-instance-x54h11uj/deployment/distro/_internal/rpds\ncleanup         /tmp/v12-instance-x54h11uj/deployment/distro/_internal\ncleanup         /tmp/v12-instance-x54h11uj/deployment/distro/baton-v12-stack\ncleanup         /tmp/v12-instance-x54h11uj/deployment/distro\n'
+
+======================================================================
+FAIL: test_a_STORE_failure_unwinds_the_copied_runtime (tests.tools.test_instance.TheDeploymentCarriesItsOwnJustfile.test_a_STORE_failure_unwinds_the_copied_runtime)
+The store step runs AFTER the copy, so its failure is the one that
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_instance.py", line 1149, in test_a_STORE_failure_unwinds_the_copied_runtime
+    self.assertIn("unwound " + self.places["distro"], out.getvalue())
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'unwound /tmp/v12-instance-lbjxvjle/deployment/distro' not found in 'cleanup       unwound /tmp/v12-instance-lbjxvjle/deployment/install-inputs.json\ncleanup       unwound /tmp/v12-instance-lbjxvjle/deployment/justfile\ncleanup       retained /tmp/v12-instance-lbjxvjle/deployment/distro/_internal/rpds/rpds.so: this attempt made the copied runtime object and is NOT deleting it: a name-based removal cannot be bound to this object, so the bytes stay\ncleanup       retained /tmp/v12-instance-lbjxvjle/deployment/distro/_internal/rpds: this attempt made the copied runtime object and is NOT deleting it: a name-based removal cannot be bound to this object, so the bytes stay\ncleanup       retained /tmp/v12-instance-lbjxvjle/deployment/distro/_internal: this attempt made the copied runtime object and is NOT deleting it: a name-based removal cannot be bound to this object, so the bytes stay\ncleanup       retained /tmp/v12-instance-lbjxvjle/deployment/distro/baton-v12-stack: this attempt made the copied runtime object and is NOT deleting it: a name-based removal cannot be bound to this object, so the bytes stay\ncleanup       retained /tmp/v12-instance-lbjxvjle/deployment/distro: this attempt made the copied runtime object and is NOT deleting it: a name-based removal cannot be bound to this object, so the bytes stay\ncleanup       RETAINED 5 object(s) this attempt made, which are NOT removed:\ncleanup         /tmp/v12-instance-lbjxvjle/deployment/distro/_internal/rpds/rpds.so\ncleanup         /tmp/v12-instance-lbjxvjle/deployment/distro/_internal/rpds\ncleanup         /tmp/v12-instance-lbjxvjle/deployment/distro/_internal\ncleanup         /tmp/v12-instance-lbjxvjle/deployment/distro/baton-v12-stack\ncleanup         /tmp/v12-instance-lbjxvjle/deployment/distro\n'
+
+======================================================================
+FAIL: test_a_runtime_REPLACED_after_this_attempt_copied_it_is_left_too (tests.tools.test_instance.TheDeploymentCarriesItsOwnJustfile.test_a_runtime_REPLACED_after_this_attempt_copied_it_is_left_too)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_instance.py", line 1089, in test_a_runtime_REPLACED_after_this_attempt_copied_it_is_left_too
+    self.assertIn(self.places["distro"] + " alone", out.getvalue())
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '/tmp/v12-instance-8lvdvmbl/deployment/distro alone' not found in 'cleanup       unwound /tmp/v12-instance-8lvdvmbl/deployment/install-inputs.json\ncleanup       unwound /tmp/v12-instance-8lvdvmbl/deployment/justfile\ncleanup       retained /tmp/v12-instance-8lvdvmbl/deployment/distro: it is no longer the copied runtime object this attempt made, so it belongs to whoever replaced it\ncleanup       RETAINED 1 object(s) this attempt made, which are NOT removed:\ncleanup         /tmp/v12-instance-8lvdvmbl/deployment/distro\n'
+
+======================================================================
+FAIL: test_a_selector_appearing_BETWEEN_custody_and_publication_is_refused (tests.tools.test_instance.TheDestinationIsAskedAboutAgain.test_a_selector_appearing_BETWEEN_custody_and_publication_is_refused)
+The interval no check can cover, and the reason publication itself
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_instance.py", line 640, in test_a_selector_appearing_BETWEEN_custody_and_publication_is_refused
+    self.assertFalse(os.path.exists(places["distro"]))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 120 tests in 0.496s
+
+FAILED (failures=4, errors=4)

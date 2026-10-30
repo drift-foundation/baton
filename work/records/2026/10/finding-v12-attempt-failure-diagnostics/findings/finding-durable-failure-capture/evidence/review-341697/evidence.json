@@ -1,0 +1,15 @@
+{
+  "claim": 341697,
+  "manifest_sha256": "1f191e7b2f0f0ac033550a3fb235ec48624171d714c0cfb02e47124dcea3e3df",
+  "seals": 48,
+  "fixture_hashes": 38,
+  "recovery_new_files": "match run341360",
+  "preparation_probes": {
+    "passed": 55,
+    "reported_seconds": 2.231,
+    "scratch": "/tmp/w341357-review-341697-probes"
+  },
+  "input_check": "exit0 no drift",
+  "product_tests": 0,
+  "launches": 0
+}

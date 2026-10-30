@@ -1,0 +1,13 @@
+{
+  "seconds": 0.0019963090016972274,
+  "result": {
+    "injected": true,
+    "foreign_replacement_survives": false,
+    "original_survives": true,
+    "subsequent_owned_file_survives": false,
+    "answers": [
+      "removed a name at /tmp/w376956-review-ebyy4rrb/dest/a that was NOT the runtime object this attempt made -- it was replaced between the check and the removal, and this attempt's own object is still there; nothing further is deleted",
+      "unwound /tmp/w376956-review-ebyy4rrb/dest/b"
+    ]
+  }
+}

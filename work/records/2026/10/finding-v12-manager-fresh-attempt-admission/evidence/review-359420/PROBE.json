@@ -1,0 +1,73 @@
+{
+  "manifest_sha256": "7ee13790535c2ecf43f25ffbd2526c448a9fd17ec42be4638813bc3636d1e1cb",
+  "pins": {
+    "v12/python/src/baton_v12/job_manager/__init__.py": true,
+    "v12/python/src/baton_v12/job_manager/documents.py": true,
+    "v12/python/src/baton_v12/job_manager/fresh_attempt.py": true,
+    "v12/python/src/baton_v12/job_manager/schema.py": true,
+    "v12/python/tests/job_manager/fixtures.py": true,
+    "v12/python/tests/job_manager/test_execution_limits.py": true,
+    "v12/python/tests/job_manager/test_fresh_attempt.py": true,
+    "v12/python/tests/job_manager/test_scheduling.py": true,
+    "v12/python/tests/job_manager/test_store.py": true,
+    "v12/python/tools/fresh_attempt_ports.py": true,
+    "v12/python/tools/job_manager.py": true,
+    "v12/python/tools/stage_execution.py": true
+  },
+  "focused": {
+    "run": 55,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 0.7714104609995047
+  },
+  "same_request_race": [
+    {
+      "outcome": "admitted",
+      "job_id": "quickstart-c-retry-2"
+    },
+    {
+      "outcome": "admitted",
+      "job_id": "quickstart-c-retry-2"
+    }
+  ],
+  "same_request_bind_effects": [
+    [
+      "quickstart-c-retry-2",
+      "quickstart-c",
+      "0000000a-W1"
+    ],
+    [
+      "quickstart-c-retry-2",
+      "quickstart-c",
+      "0000000a-W1"
+    ]
+  ],
+  "ordinary_collision_after_reserve": {
+    "retry_outcome": "'quickstart-c-retry-2' is already recorded by another submission; one Job identity names one pipeline, and a second submission reusing it would silently take over the first one's stages",
+    "ordinary_submission": {
+      "submission_id": "ordinary-competitor",
+      "signature": "{\"kind\":\"submission.record\",\"operands\":{\"jobs\":[{\"input_digest\":\"sha256:1111111111111111111111111111111111111111111111111111111111111111\",\"job_id\":\"quickstart-c-retry-2\",\"policy_digest\":\"sha256:2222222222222222222222222222222222222222222222222222222222222222\",\"stages\":[{\"depends_on\":[],\"kind\":\"implementation\",\"profile_digest\":\"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"profile_name\":\"reference\",\"work_id\":\"0000000a-W1\"}],\"terminal_policy\":\"report-and-hold\",\"test_scope\":[\"v12/python/tests/job_manager\"]}],\"schema\":\"baton.v12.job-submission/1\",\"submission_id\":\"ordinary-competitor\"}}",
+      "jobs": [
+        "quickstart-c-retry-2"
+      ],
+      "stages": [
+        "quickstart-c-retry-2/implementation"
+      ],
+      "recorded_at": "2026-09-02T00:00:00.000Z"
+    },
+    "binding_effects": [
+      [
+        "quickstart-c-retry-2",
+        "quickstart-c",
+        "0000000a-W1"
+      ]
+    ],
+    "intents": [
+      {
+        "job_id": "quickstart-c-retry-2",
+        "state": "intended"
+      }
+    ]
+  },
+  "seconds": 0.7799202679998416
+}

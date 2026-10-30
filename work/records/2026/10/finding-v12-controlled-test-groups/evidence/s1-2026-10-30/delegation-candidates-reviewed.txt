@@ -1,0 +1,230 @@
+## attempts.py:assignment_of(store, attempt_id)  line 701
+   first statements: ['attempt = _require_attempt(store, attempt_id)', "if attempt['assignment_generation'] is None:\n    raise ContractRefusal"]
+   - attempt_id -> attempts.py:_attempt_row [caller:attempt_id] labels=['a runtime attempt id']
+## attempts.py:attempt_activity_of(store, attempt_id)  line 419
+   first statements: ['found = _attempt_row(store, attempt_id)', 'if found is None:\n    return None']
+   - attempt_id -> attempts.py:_attempt_row [caller:attempt_id] labels=['a runtime attempt id']
+## attempts.py:attempt_runtime_of(store, attempt_id)  line 193
+   first statements: ['found = _attempt_row(store, attempt_id)', 'if found is None:\n    return None']
+   - attempt_id -> attempts.py:_attempt_row [caller:attempt_id] labels=['a runtime attempt id']
+## attempts.py:attempt_start_failure_of(store, attempt_id)  line 314
+   first statements: ['found = _attempt_row(store, attempt_id)', 'if found is None:\n    return None']
+   - attempt_id -> attempts.py:_attempt_row [caller:attempt_id] labels=['a runtime attempt id']
+## attempts.py:authorize_input_root(store, *, attempt_id, inputs)  line 1442
+   first statements: ['attempt = _require_attempt(store, attempt_id)', 'expected = _fixed_assignment(attempt)']
+   - attempt_id -> attempts.py:_attempt_row [caller:attempt_id] labels=['a runtime attempt id']
+## attempts.py:label_context(store, attempt_id)  line 1255
+   first statements: ['attempt = _require_attempt(store, attempt_id)', "if attempt['assignment_principal'] is None:\n    raise ContractRefusal("]
+   - attempt_id -> attempts.py:_attempt_row [caller:attempt_id] labels=['a runtime attempt id']
+## attempts.py:observe_activity(store, *, attempt_id, bytes_observed)  line 449
+   first statements: ['_require_attempt(store, attempt_id)', 'if type(bytes_observed) is not int or bytes_observed < 0:\n    raise Co']
+   - attempt_id -> attempts.py:_attempt_row [caller:attempt_id] labels=['a runtime attempt id']
+## attempts.py:recorded_input_of(store, attempt_id)  line 648
+   first statements: ['found = _attempt_row(store, attempt_id)', "return None if found is None else found['input_digest']"]
+   - attempt_id -> attempts.py:_attempt_row [caller:attempt_id] labels=['a runtime attempt id']
+## attempts.py:unstarted_cancellation_of(store, port, attempt_id)  line 3320
+   first statements: ['with store.snapshot():\n    attempt = _require_attempt(store, attempt_i', "work_id = assignment['work_ref']['work_id']"]
+   - attempt_id -> attempts.py:_attempt_row [caller:attempt_id] labels=['a runtime attempt id']
+## exchange.py:command_document(*, session, attempt_id)  line 363
+   first statements: ["held = _value(session, 'session')", "attempt = _value(attempt_id, 'attempt_id')"]
+   - session -> exchange.py:_value [caller:given] labels=['an exchange document value']
+## launch.py:launch_document(*, session, contract, role, transport, job_execution, provider_context)  line 469
+   first statements: ["document = {'schema': LAUNCH_SCHEMA, 'session': _value(session, 'sessi", 'if transport is not None:\n    if transport != exchange.EXCHANGE_TRANSP']
+   - job_execution -> launch.py:_job_execution [caller:given] labels=["a launch document's job execution"]
+   - job_execution.attempt_id -> launch.py:_job_execution [caller:given] labels=["a launch document's job execution"]
+   - job_execution.execution_limits -> launch.py:_job_execution [caller:given] labels=["a launch document's job execution"]
+   - job_execution.execution_limits.compatibility_generation -> launch.py:_job_execution [caller:given] labels=["a launch document's job execution"]
+   - job_execution.execution_limits.requested -> launch.py:_job_execution [caller:given] labels=["a launch document's job execution"]
+   - job_execution.execution_limits_digest -> launch.py:_job_execution [caller:given] labels=["a launch document's job execution"]
+   - job_execution.job_id -> launch.py:_job_execution [caller:given] labels=["a launch document's job execution"]
+   - job_execution.job_input_digest -> launch.py:_job_execution [caller:given] labels=["a launch document's job execution"]
+   - job_execution.job_policy_digest -> launch.py:_job_execution [caller:given] labels=["a launch document's job execution"]
+   - job_execution.runtime_input_digest -> launch.py:_job_execution [caller:given] labels=["a launch document's job execution"]
+   - job_execution.runtime_policy_digest -> launch.py:_job_execution [caller:given] labels=["a launch document's job execution"]
+   - transport -> launch.py:_value [caller:given] labels=['a launch document value']
+## oci.py:OciAdapter.__init__(self, engine, run, *, identity, assignment_roots, posture, mounts, outputs, input_manifest_digest, credential_delivery, credential_home, credential_orphan, launch_delivery, layout_delivery, source_delivery, integration_delivery, context_delivery, scratch_delivery, context_execution, workspace_group, network, interactive)  line 2219
+   first statements: ['self.engine = _engine(engine)', 'self.run = run if isinstance(run, EnginePort) else EnginePort(run)']
+   - network -> oci.py:_network [caller:network] labels=['an engine network']
+## oci.py:OciAdapter.stop(self, request)  line 3492
+   first statements: ["return self._stopped(request, 'a stop request')"]
+   - request -> oci.py:OciAdapter._stopped [caller:request] labels=['{what}']
+   - request.operation_id -> oci.py:OciAdapter._stopped [caller:request] labels=['{what}']
+   - request.runtime_id -> oci.py:OciAdapter._stopped [caller:request] labels=['{what}']
+## oci.py:OciAdapter.stop_expired(self, request)  line 3508
+   first statements: ["return self._stopped(request, 'an expiry stop request')"]
+   - request -> oci.py:OciAdapter._stopped [caller:request] labels=['{what}']
+   - request.operation_id -> oci.py:OciAdapter._stopped [caller:request] labels=['{what}']
+   - request.runtime_id -> oci.py:OciAdapter._stopped [caller:request] labels=['{what}']
+## oci.py:activation_vector(engine, *, runtime_id)  line 1323
+   first statements: ['engine = _engine(engine)', "boundaries.identity(runtime_id, 'a created runtime id')"]
+   - engine -> oci.py:_engine [caller:engine] labels=['an engine name']
+## oci.py:exec_vector(engine, *, runtime_id, program)  line 1820
+   first statements: ['engine = _engine(engine)', "boundaries.identity(runtime_id, 'a runtime id')"]
+   - engine -> oci.py:_engine [caller:engine] labels=['an engine name']
+## oci.py:run_vector(engine, *, image_digest, labels, assignment_roots, posture, mounts, credentials_delivered, launch_delivered, layout_delivered, exchange_delivered, source_delivered, logs_delivered, scratch_delivered, integration_delivered, context_delivered, name, workspace_group, network, interactive, activation)  line 1335
+   first statements: ['engine = _engine(engine)', "boundaries.text(image_digest, 'an image digest')"]
+   - logs_delivered -> oci.py:_log_mounts [caller:logs_delivered] labels=['an attempt-log delivery target']
+## provider_context.py:admit_context_use(control, jobs, authority, *, attempt_id, writer_id, profile_digest)  line 757
+   first statements: ['_text(attempt_id)', '_text(writer_id)']
+   - attempt_id -> provider_context.py:_text [caller:value] labels=['provider context identity']
+   - writer_id -> provider_context.py:_text [caller:value] labels=['provider context identity']
+## provider_context.py:authorize_qualification_run(control, *, run_id, profile_digest, storage_path, authority_uuid, job_id, note)  line 150
+   first statements: ["boundaries.identity(run_id, 'a qualification run identity')", '_hash(profile_digest)']
+   - job_id -> provider_context.py:_text [caller:value] labels=['provider context identity']
+   - storage_path -> provider_context.py:_text [caller:value] labels=['provider context identity']
+## provider_context.py:bind_context_invocation(control, jobs, authority, *, attempt_id, writer_id, profile_digest, task_bytes)  line 1222
+   first statements: ['if type(task_bytes) is not bytes or len(task_bytes) > 65536:\n    _refu', 'chain, admitted = _use(control, attempt_id)']
+   - attempt_id -> provider_context.py:_text [caller:value] labels=['provider context identity']
+## provider_context.py:certify_context_profile(control, profile)  line 110
+   first statements: ['held = _profile(profile)', 'key = digest(held)']
+   - profile -> provider_context.py:_document [caller:value] labels=['provider context metadata']
+   - profile.adapter_digest -> provider_context.py:_document [caller:value] labels=['provider context metadata']
+   - profile.argv_policy_digest -> provider_context.py:_document [caller:value] labels=['provider context metadata']
+   - profile.cli_build -> provider_context.py:_document [caller:value] labels=['provider context metadata']
+   - profile.cwd -> provider_context.py:_document [caller:value] labels=['provider context metadata']
+   - profile.environment_policy_digest -> provider_context.py:_document [caller:value] labels=['provider context metadata']
+   - profile.evidence_digest -> provider_context.py:_document [caller:value] labels=['provider context metadata']
+   - profile.image_digest -> provider_context.py:_document [caller:value] labels=['provider context metadata']
+   - profile.layout_version -> provider_context.py:_document [caller:value] labels=['provider context metadata']
+   - profile.max_bytes -> provider_context.py:_document [caller:value] labels=['provider context metadata']
+   - profile.max_entries -> provider_context.py:_document [caller:value] labels=['provider context metadata']
+   - profile.model -> provider_context.py:_document [caller:value] labels=['provider context metadata']
+   - profile.qualification -> provider_context.py:_document [caller:value] labels=['provider context metadata']
+   - profile.reported_model -> provider_context.py:_document [caller:value] labels=['provider context metadata']
+   - profile.retention_policy_digest -> provider_context.py:_document [caller:value] labels=['provider context metadata']
+   - profile.runtime_profile_digest -> provider_context.py:_document [caller:value] labels=['provider context metadata']
+   - profile.schema -> provider_context.py:_document [caller:value] labels=['provider context metadata']
+   - profile.state_paths -> provider_context.py:_document [caller:value] labels=['provider context metadata']
+## provider_context.py:certify_production_profile(control, profile, evidence)  line 303
+   first statements: ['held = _profile(profile)', "if held['qualification'] != 'production':\n    _refuse('certification r"]
+   - evidence -> provider_context.py:_document [caller:value] labels=['provider context metadata']
+   - evidence.context_id -> provider_context.py:_document [caller:value] labels=['provider context metadata']
+   - evidence.continuity -> provider_context.py:_document [caller:value] labels=['provider context metadata']
+   - evidence.continuity.report_digest -> provider_context.py:_document [caller:value] labels=['provider context metadata']
+   - evidence.continuity.verdict_id -> provider_context.py:_document [caller:value] labels=['provider context metadata']
+   - evidence.evidence_refs -> provider_context.py:_document [caller:value] labels=['provider context metadata']
+   - evidence.run_id -> provider_context.py:_document [caller:value] labels=['provider context metadata']
+   - profile -> provider_context.py:_document [caller:value] labels=['provider context metadata']
+   - profile.adapter_digest -> provider_context.py:_document [caller:value] labels=['provider context metadata']
+   - profile.argv_policy_digest -> provider_context.py:_document [caller:value] labels=['provider context metadata']
+   - profile.cli_build -> provider_context.py:_document [caller:value] labels=['provider context metadata']
+   - profile.cwd -> provider_context.py:_document [caller:value] labels=['provider context metadata']
+   - profile.environment_policy_digest -> provider_context.py:_document [caller:value] labels=['provider context metadata']
+   - profile.evidence_digest -> provider_context.py:_document [caller:value] labels=['provider context metadata']
+   - profile.image_digest -> provider_context.py:_document [caller:value] labels=['provider context metadata']
+   - profile.layout_version -> provider_context.py:_document [caller:value] labels=['provider context metadata']
+   - profile.max_bytes -> provider_context.py:_document [caller:value] labels=['provider context metadata']
+   - profile.max_entries -> provider_context.py:_document [caller:value] labels=['provider context metadata']
+   - profile.model -> provider_context.py:_document [caller:value] labels=['provider context metadata']
+   - profile.qualification -> provider_context.py:_document [caller:value] labels=['provider context metadata']
+   - profile.reported_model -> provider_context.py:_document [caller:value] labels=['provider context metadata']
+   - profile.retention_policy_digest -> provider_context.py:_document [caller:value] labels=['provider context metadata']
+   - profile.runtime_profile_digest -> provider_context.py:_document [caller:value] labels=['provider context metadata']
+   - profile.schema -> provider_context.py:_document [caller:value] labels=['provider context metadata']
+   - profile.state_paths -> provider_context.py:_document [caller:value] labels=['provider context metadata']
+## provider_context.py:context_invocation_of(control, attempt_id)  line 1203
+   first statements: ["row = control.operation_record(_id('context-serving-invocation', attem", 'if row is None:\n    return None']
+   - attempt_id -> provider_context.py:_text [caller:value] labels=['provider context identity']
+## provider_context.py:context_of(control, context_id)  line 704
+   first statements: ['_text(context_id)', 'chain = _history(control, context_id)']
+   - context_id -> provider_context.py:_text [caller:value] labels=['provider context identity']
+## provider_context.py:context_use_of(control, attempt_id)  line 693
+   first statements: ['result, admitted, owned = _journal_use(control, attempt_id)', "if owned[-1]['action'] == 'finalize':\n    from .context_delivery impor"]
+   - attempt_id -> provider_context.py:_text [caller:value] labels=['provider context identity']
+## provider_context.py:correction_feedback_of(control, jobs, attempt_id)  line 1097
+   first statements: ['chain, admitted = _use(control, attempt_id)', "facts = admitted['payload']"]
+   - attempt_id -> provider_context.py:_text [caller:value] labels=['provider context identity']
+## provider_context.py:finalize_context_use(control, jobs, authority, *, attempt_id, storage, receipt_reader, checkpoint_reader)  line 1044
+   first statements: ['try:\n    return _finalize_context_use(control, jobs, authority, attemp']
+   - attempt_id -> provider_context.py:_text [caller:value] labels=['provider context identity']
+   - checkpoint_reader -> provider_context.py:_finalize_context_use [caller:checkpoint_reader] labels=['the historical checkpoint identity reader']
+   - receipt_reader -> provider_context.py:_receipt [caller:reader] labels=['the retained context receipt byte reader']
+## provider_context.py:hold_context_use(control, *, attempt_id, reason, evidence_refs)  line 877
+   first statements: ['if type(reason) is not str or reason not in REASONS or type(evidence_r', 'for value in evidence_refs:\n    _hash(value)']
+   - attempt_id -> provider_context.py:_text [caller:value] labels=['provider context identity']
+## provider_context.py:prove_context_execution(control, attempt_id)  line 478
+   first statements: ['chain, admitted = _use(control, attempt_id)', "facts = admitted['payload']"]
+   - attempt_id -> provider_context.py:_text [caller:value] labels=['provider context identity']
+## provider_context.py:qualification_deployment(control, authority_uuid)  line 137
+   first statements: ['from . import context_delivery, workspaces', '_text(authority_uuid)']
+   - authority_uuid -> provider_context.py:_text [caller:value] labels=['provider context identity']
+## provider_context.py:revalidate_context_start(control, jobs, authority, *, attempt_id)  line 1296
+   first statements: ['from .context_delivery import adopt_context_use, configured_context_st', 'binding = context_invocation_of(control, attempt_id)']
+   - attempt_id -> provider_context.py:_text [caller:value] labels=['provider context identity']
+## review_cycles.py:abandoned_correction_of(store, *, attempt_id, generation)  line 3168
+   first statements: ['attempt_id, generation = _requested_pair(attempt_id, generation)', "what = f'the abandoned-correction recovery for attempt {name_value(att"]
+   - attempt_id -> review_cycles.py:_requested_pair [caller:attempt_id] labels=['a runtime attempt id']
+   - generation -> review_cycles.py:_requested_pair [caller:generation] labels=['an assignment generation']
+## review_cycles.py:restore_abandoned_correction(store, *, attempt_id, generation, retention_policy_digest, profile, launcher, cessation)  line 3315
+   first statements: ['attempt_id, generation = _requested_pair(attempt_id, generation)', "boundaries.text(retention_policy_digest, 'a retention policy digest')"]
+   - attempt_id -> review_cycles.py:_requested_pair [caller:attempt_id] labels=['a runtime attempt id']
+   - generation -> review_cycles.py:_requested_pair [caller:generation] labels=['an assignment generation']
+   - profile -> review_cycles.py:_profile [caller:profile] labels=['a checkpoint profile name', "a checkpoint profile's {method} capability"]
+## review_cycles.py:review_for_attempt(store, *, attempt_id, generation)  line 1042
+   first statements: ['attempt_id, generation = _requested_pair(attempt_id, generation)', "what = f'the review attachment for attempt {name_value(attempt_id)} ge"]
+   - attempt_id -> review_cycles.py:_requested_pair [caller:attempt_id] labels=['a runtime attempt id']
+   - generation -> review_cycles.py:_requested_pair [caller:generation] labels=['an assignment generation']
+## review_cycles.py:settle_restoration_execution(store, *, attempt_id, generation, profile, cessation, launcher)  line 3973
+   first statements: ['attempt_id, generation = _requested_pair(attempt_id, generation)', "what = f'the abandoned correction for attempt {name_value(attempt_id)}"]
+   - attempt_id -> review_cycles.py:_requested_pair [caller:attempt_id] labels=['a runtime attempt id']
+   - generation -> review_cycles.py:_requested_pair [caller:generation] labels=['an assignment generation']
+   - profile -> review_cycles.py:_profile [caller:profile] labels=['a checkpoint profile name', "a checkpoint profile's {method} capability"]
+## review_cycles.py:writer_for_attempt(store, *, attempt_id, generation)  line 936
+   first statements: ['attempt_id, generation = _requested_pair(attempt_id, generation)', "what = f'the line writer for attempt {name_value(attempt_id)} generati"]
+   - attempt_id -> review_cycles.py:_requested_pair [caller:attempt_id] labels=['a runtime attempt id']
+   - generation -> review_cycles.py:_requested_pair [caller:generation] labels=['an assignment generation']
+## sessions.py:close_agent_session(store, session_ref, reason)  line 571
+   first statements: ['ref = _session_ref(session_ref)', "boundaries.text(reason, 'a session close reason')"]
+   - session_ref.posture -> sessions.py:_session_ref [caller:session_ref] labels=['an agent session reference']
+   - session_ref.session_epoch -> sessions.py:_session_ref [caller:session_ref] labels=['an agent session reference']
+## sessions.py:handle_transport_loss(store, session_ref, *, turn_in_flight)  line 619
+   first statements: ['ref = _session_ref(session_ref)', "if type(turn_in_flight) is not bool:\n    raise ContractRefusal('integr"]
+   - session_ref.posture -> sessions.py:_session_ref [caller:session_ref] labels=['an agent session reference']
+   - session_ref.session_epoch -> sessions.py:_session_ref [caller:session_ref] labels=['an agent session reference']
+## sessions.py:observe_session_state(store, session_ref, state)  line 505
+   first statements: ['connection = store._connection', "connection.execute('BEGIN IMMEDIATE')"]
+   - session_ref.posture -> sessions.py:_session_ref [caller:session_ref] labels=['an agent session reference']
+   - session_ref.provider_session_id -> sessions.py:_session_ref [caller:session_ref] labels=['an agent session reference']
+   - session_ref.runtime_attempt_id -> sessions.py:_session_ref [caller:session_ref] labels=['an agent session reference']
+   - session_ref.session_epoch -> sessions.py:_session_ref [caller:session_ref] labels=['an agent session reference']
+## workspaces.py:adopted_assignment_workspace(storage, assignment_id, *, control, preparing)  line 6254
+   first statements: ['_assignment_identity(assignment_id)', 'root = _real(storage, "the manager\'s workspace storage")']
+   - assignment_id -> workspaces.py:_assignment_identity [caller:assignment_id] labels=['an assignment identity']
+## workspaces.py:assignment_workspace(workspace_group, storage, assignment_id, *, control, preparing)  line 5482
+   first statements: ['_assignment_identity(assignment_id)', 'if type(workspace_group) is not WorkspaceGroup:\n    _denied(f"an assig']
+   - assignment_id -> workspaces.py:_assignment_identity [caller:assignment_id] labels=['an assignment identity']
+## workspaces.py:borrow_manager_instance(store, place)  line 1161
+   first statements: ["place = _real(check_workspace_storage(place), 'a managed workspace roo", 'guard = hold_manager_instance(store, place)']
+   - place -> workspaces.py:_real [caller:path] labels=['a filesystem root']
+## workspaces.py:borrowers_of(place)  line 1219
+   first statements: ["return _BORROWED.get(_real(check_workspace_storage(place), 'a managed "]
+   - place -> workspaces.py:_real [caller:path] labels=['a filesystem root']
+## workspaces.py:copied_manifest(root, into, *, max_entries, max_bytes, admits)  line 5237
+   first statements: ["what = 'a source directory'", 'real = _real(root, what)']
+   - root -> workspaces.py:_real [caller:path] labels=['a filesystem root']
+## workspaces.py:discard_execution_roots(storage, assignment_id, *, control, under)  line 6500
+   first statements: ['_refuse_nested_removal(control, "removing this attempt\'s execution roo', '_assignment_identity(assignment_id)']
+   - assignment_id -> workspaces.py:_assignment_identity [caller:assignment_id] labels=['an assignment identity']
+   - control -> workspaces.py:_token_terms [caller:execution] labels=['a token execution identity']
+## workspaces.py:discard_workspace(storage, assignment_id, *, control)  line 6199
+   first statements: ['_refuse_nested_removal(control, "removing this attempt\'s workspace hom', '_assignment_identity(assignment_id)']
+   - assignment_id -> workspaces.py:_assignment_identity [caller:assignment_id] labels=['an assignment identity']
+   - control -> workspaces.py:_token_terms [caller:execution] labels=['a token execution identity']
+## workspaces.py:held_manager_instance(place)  line 1246
+   first statements: ["place = _real(check_workspace_storage(place), 'a managed workspace roo", 'standing = _HELD_GUARDS.get(place)']
+   - place -> workspaces.py:_real [caller:path] labels=['a filesystem root']
+## workspaces.py:holders_of(place)  line 1225
+   first statements: ["return _HOLDERS.get(_real(check_workspace_storage(place), 'a managed w"]
+   - place -> workspaces.py:_real [caller:path] labels=['a filesystem root']
+## workspaces.py:line_assignment_workspace(storage, assignment_id, place, pinned, *, control, preparing)  line 6393
+   first statements: ['roots = adopted_assignment_workspace(storage, assignment_id, control=c', 'try:\n    return _composed_line_roots(roots, storage, assignment_id, pl']
+   - place -> workspaces.py:_composed_line_roots [caller:place] labels=['a persistent development-line path']
+## workspaces.py:read_input_root(inputs)  line 6114
+   first statements: ['root = _real(inputs, "the assignment\'s inputs root")', 'if not os.path.isdir(root):\n    _refuse("the assignment\'s inputs root ']
+   - inputs -> workspaces.py:_real [caller:path] labels=['a filesystem root']
+## workspaces.py:refuse_if_held(control, storage, assignment_id, what, under, preparing)  line 4940
+   first statements: ['from . import custody', "boundaries.identity(assignment_id, 'an assignment identity')"]
+   - storage -> workspaces.py:_real [caller:path] labels=['a filesystem root']
+## workspaces.py:restoration_lock_path(storage, line_id)  line 2203
+   first statements: ["boundaries.text(line_id, 'a development line identity')", 'if os.sep in line_id or line_id in (os.curdir, os.pardir):\n    _denied']
+   - storage -> workspaces.py:_real [caller:path] labels=['a filesystem root']

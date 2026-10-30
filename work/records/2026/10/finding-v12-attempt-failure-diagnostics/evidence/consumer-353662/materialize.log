@@ -1,0 +1,12 @@
+patching file v12/python/src/baton_v12/job_manager/delegation.py
+patching file v12/python/src/baton_v12/job_manager/documents.py
+patching file v12/python/src/baton_v12/job_manager/projection.py
+patching file v12/python/tests/job_manager/test_delegation.py
+patching file v12/python/tests/job_manager/test_exchange.py
+patching file v12/python/tests/job_manager/test_execution_limits.py
+patching file v12/python/tests/job_manager/test_tool.py
+patching file v12/python/tests/tools/test_bootstrap.py
+patching file v12/python/tests/tools/test_worker_visibility.py
+patching file v12/python/tools/stack.py
+patching file v12/python/tools/stack_command.py
+patching file v12/python/tools/worker_visibility.py

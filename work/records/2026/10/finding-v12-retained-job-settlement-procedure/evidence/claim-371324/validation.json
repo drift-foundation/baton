@@ -1,0 +1,59 @@
+{
+  "checked_at": "2026-10-28T03:33:10Z",
+  "checks": [
+    {
+      "block": 1,
+      "bash_n_exit": 0,
+      "stderr": ""
+    },
+    {
+      "block": 2,
+      "bash_n_exit": 0,
+      "stderr": ""
+    },
+    {
+      "block": 3,
+      "bash_n_exit": 0,
+      "stderr": ""
+    },
+    {
+      "block": 4,
+      "bash_n_exit": 0,
+      "stderr": ""
+    },
+    {
+      "block": 5,
+      "bash_n_exit": 0,
+      "stderr": ""
+    },
+    {
+      "block": 6,
+      "bash_n_exit": 0,
+      "stderr": ""
+    },
+    {
+      "block": 7,
+      "bash_n_exit": 0,
+      "stderr": ""
+    },
+    {
+      "block": 8,
+      "bash_n_exit": 0,
+      "stderr": ""
+    },
+    {
+      "block": 9,
+      "bash_n_exit": 0,
+      "stderr": ""
+    }
+  ],
+  "close_matches_prior_command": true,
+  "assignment_matches_pending": true,
+  "referenced_paths_exist": true,
+  "pins": {
+    "work/records/2026/10/finding-v12-documentation-review-startup-fault/evidence/research-370686/expected-assignment.json": "56836ce3ba5c484ff2e39e3304d11ed58b6d739f7cde4d416bae2337fab3a1ca",
+    "/home/sl/baton-instances/useful-template-job-w366962/distro/baton-v12-stack": "ba962a2086310df238ff25cf282a3298f71ae9289594e6f7c83222ee8f4571ef"
+  },
+  "elapsed_seconds": 0.008422615996096283,
+  "limits": "Shell syntax and composition only; no effect command executed, no installed source equivalence or operational settlement proof."
+}

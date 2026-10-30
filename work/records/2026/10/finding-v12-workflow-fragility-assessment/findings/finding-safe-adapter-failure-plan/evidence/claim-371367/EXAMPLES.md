@@ -1,0 +1,1 @@
+These documents are inert synthetic schema examples only. Repeated digit digests identify no real package/image or test artifact. The passed literals illustrate the proposed closed shape; they are not executed checks or qualification evidence. Never select or install these examples. The read-only check.py validates shape/current old gates, not new behavior.

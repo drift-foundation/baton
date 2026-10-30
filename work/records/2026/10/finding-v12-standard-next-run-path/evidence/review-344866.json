@@ -1,0 +1,117 @@
+{
+  "claim": 344866,
+  "candidate_sha256": "8f4c18293b454d7ba5e1f3fc1a995be153dacaea98881ffa39620273bbb4e46a",
+  "hash_checks": [
+    {
+      "path": "/home/sl/src/baton/work/records/2026/10/finding-v12-standard-next-run-path/candidate-344817/v12/NEXT-RUN.md",
+      "matches": true
+    },
+    {
+      "path": "/tmp/baton-next-run-344617/v12/NEXT-RUN.md",
+      "matches": true
+    },
+    {
+      "path": "/home/sl/src/baton/work/records/2026/10/finding-v12-standard-next-run-path/candidate-344817/v12/python/tests/manager/test_authoring_enforcement.py",
+      "matches": true
+    },
+    {
+      "path": "/tmp/baton-next-run-344617/v12/python/tests/manager/test_authoring_enforcement.py",
+      "matches": true
+    },
+    {
+      "path": "/home/sl/src/baton/work/records/2026/10/finding-v12-standard-next-run-path/candidate-344817/v12/python/tests/tools/test_next_run.py",
+      "matches": true
+    },
+    {
+      "path": "/tmp/baton-next-run-344617/v12/python/tests/tools/test_next_run.py",
+      "matches": true
+    },
+    {
+      "path": "/home/sl/src/baton/work/records/2026/10/finding-v12-standard-next-run-path/candidate-344817/v12/python/tests/tools/test_next_run_managed.py",
+      "matches": true
+    },
+    {
+      "path": "/tmp/baton-next-run-344617/v12/python/tests/tools/test_next_run_managed.py",
+      "matches": true
+    },
+    {
+      "path": "/home/sl/src/baton/work/records/2026/10/finding-v12-standard-next-run-path/candidate-344817/v12/python/tools/authoring_baseline.py",
+      "matches": true
+    },
+    {
+      "path": "/tmp/baton-next-run-344617/v12/python/tools/authoring_baseline.py",
+      "matches": true
+    },
+    {
+      "path": "/home/sl/src/baton/work/records/2026/10/finding-v12-standard-next-run-path/candidate-344817/v12/python/tools/authoring_enforcement.py",
+      "matches": true
+    },
+    {
+      "path": "/tmp/baton-next-run-344617/v12/python/tools/authoring_enforcement.py",
+      "matches": true
+    },
+    {
+      "path": "/home/sl/src/baton/work/records/2026/10/finding-v12-standard-next-run-path/candidate-344817/v12/python/tools/next_run.py",
+      "matches": true
+    },
+    {
+      "path": "/tmp/baton-next-run-344617/v12/python/tools/next_run.py",
+      "matches": true
+    },
+    {
+      "path": "/home/sl/src/baton/work/records/2026/10/finding-v12-standard-next-run-path/candidate-344817/v12/python/tools/next_run_bindings.py",
+      "matches": true
+    },
+    {
+      "path": "/tmp/baton-next-run-344617/v12/python/tools/next_run_bindings.py",
+      "matches": true
+    },
+    {
+      "path": "/home/sl/src/baton/work/records/2026/10/finding-v12-standard-next-run-path/candidate-344817/v12/python/tools/next_run_client.py",
+      "matches": true
+    },
+    {
+      "path": "/tmp/baton-next-run-344617/v12/python/tools/next_run_client.py",
+      "matches": true
+    },
+    {
+      "path": "/home/sl/src/baton/work/records/2026/10/finding-v12-standard-next-run-path/candidate-344817/v12/python/tools/next_run_confinement.py",
+      "matches": true
+    },
+    {
+      "path": "/tmp/baton-next-run-344617/v12/python/tools/next_run_confinement.py",
+      "matches": true
+    },
+    {
+      "path": "/home/sl/src/baton/work/records/2026/10/finding-v12-standard-next-run-path/candidate-344817/v12/python/tools/next_run_entry.py",
+      "matches": true
+    },
+    {
+      "path": "/tmp/baton-next-run-344617/v12/python/tools/next_run_entry.py",
+      "matches": true
+    },
+    {
+      "path": "/home/sl/src/baton/work/records/2026/10/finding-v12-standard-next-run-path/candidate-344817/v12/python/tools/next_run_managed.py",
+      "matches": true
+    },
+    {
+      "path": "/tmp/baton-next-run-344617/v12/python/tools/next_run_managed.py",
+      "matches": true
+    }
+  ],
+  "verification": {
+    "argv": [
+      "python3",
+      "-B",
+      "-m",
+      "unittest",
+      "tests.tools.test_next_run_managed"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "............\n----------------------------------------------------------------------\nRan 12 tests in 4.355s\n\nOK\n",
+    "process_wall_seconds": 4.717445251000754,
+    "timeout_seconds": 60
+  },
+  "limits": "Fixture stores and simulated privileged/engine/dispatch boundary. Real child import, Landlock and visudo syntax; no live installation/admission/provider proof."
+}

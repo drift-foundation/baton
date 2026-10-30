@@ -1,0 +1,10 @@
+{
+  "files_verified": 13,
+  "shell_blocks_syntax_only": 9,
+  "prior_close_identical": true,
+  "assignment_matches_captured_pending": true,
+  "assignment_sha256": "56836ce3ba5c484ff2e39e3304d11ed58b6d739f7cde4d416bae2337fab3a1ca",
+  "current_executable_sha256": "ba962a2086310df238ff25cf282a3298f71ae9289594e6f7c83222ee8f4571ef",
+  "validation_seconds": 0.008040868000534829,
+  "limits": "No effect executed, no new runtime/state observation; captured receipts remain time-bound."
+}

@@ -1,0 +1,48 @@
+test_a_foreign_owned_ancestor_refuses (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_a_foreign_owned_ancestor_refuses)
+With the SHIPPED policy in force, a test-owned ancestor fails. ... ok
+test_a_malformed_selection_is_not_legacy (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_a_malformed_selection_is_not_legacy) ... ok
+test_a_new_image_with_a_missing_mount_refuses (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_a_new_image_with_a_missing_mount_refuses)
+New image, layout selected, topology absent. ... ok
+test_a_real_grandchild_resolves_the_selected_roots (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_a_real_grandchild_resolves_the_selected_roots)
+THE DEFECT ITSELF, at the boundary that produced it. ... ok
+test_a_relative_selected_root_refuses (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_a_relative_selected_root_refuses) ... ok
+test_a_root_owned_by_another_identity_refuses (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_a_root_owned_by_another_identity_refuses)
+The trusted identity is the SELECTION's, never the ambient one. ... ok
+test_a_root_remounted_writable_while_the_provider_ran_refuses (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_a_root_remounted_writable_while_the_provider_ran_refuses)
+LIFETIME. The selected binding expires when the topology does. ... ok
+test_a_root_replaced_by_a_link_refuses (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_a_root_replaced_by_a_link_refuses) ... ok
+test_a_root_unmounted_while_the_provider_ran_refuses (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_a_root_unmounted_while_the_provider_ran_refuses) ... ok
+test_a_selection_missing_a_member_refuses (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_a_selection_missing_a_member_refuses) ... ok
+test_a_selection_naming_other_roots_refuses (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_a_selection_naming_other_roots_refuses) ... ok
+test_a_widened_root_mode_refuses (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_a_widened_root_mode_refuses) ... ok
+test_a_writable_ancestor_mount_refuses (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_a_writable_ancestor_mount_refuses)
+The immutable-ancestor requirement, on a real directory tree. ... ok
+test_a_wrong_filesystem_refuses (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_a_wrong_filesystem_refuses) ... ok
+test_an_old_image_with_a_new_layout_selection_refuses (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_an_old_image_with_a_new_layout_selection_refuses)
+A selection this worker does not read is not a fallback. ... ok
+test_missing_mount_options_refuse (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_missing_mount_options_refuse) ... ok
+test_no_descriptor_leaks_when_a_later_root_refuses (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_no_descriptor_leaks_when_a_later_root_refuses) ... ok
+test_no_selection_is_legacy_and_reads_no_mount_table (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_no_selection_is_legacy_and_reads_no_mount_table)
+EXPLICITLY LEGACY, and not by consulting the new table. ... ok
+test_the_agreement_happens_before_either_child (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_the_agreement_happens_before_either_child)
+TASK.md: agree before provider launch, not at verification. ... ok
+test_the_ancestor_proof_accepts_a_real_root_owned_chain (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_the_ancestor_proof_accepts_a_real_root_owned_chain)
+AND IT ACCEPTS ONE. `/run` on this host is root-owned 0755. ... skipped 'this host has no root-owned /run to prove against'
+test_the_descriptor_form_is_what_a_grandchild_cannot_resolve (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_the_descriptor_form_is_what_a_grandchild_cannot_resolve)
+THE CONTROL. Without this the case above proves nothing. ... ok
+test_the_descriptor_form_revalidation_is_unchanged (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_the_descriptor_form_revalidation_is_unchanged)
+PRESERVED. The legacy form still validates exactly as it did. ... ok
+test_the_preflight_releases_what_it_proved (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_the_preflight_releases_what_it_proved)
+It proves and lets go; the verifier's descriptors are its own. ... ok
+test_the_selected_layout_supplies_ordinary_stable_paths (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_the_selected_layout_supplies_ordinary_stable_paths)
+THE CORRECTION. The selection's own fixed paths, no alias. ... ok
+test_the_selected_roots_are_reproved_after_the_provider (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_the_selected_roots_are_reproved_after_the_provider) ... ok
+test_an_unreadable_mount_table_refuses (tests.manager.test_claude_agent.TheSelectedPolicyConstants.test_an_unreadable_mount_table_refuses) ... ok
+test_the_real_mount_table_parses_with_every_field (tests.manager.test_claude_agent.TheSelectedPolicyConstants.test_the_real_mount_table_parses_with_every_field)
+REAL mountinfo, and the fields review [R2] required kept. ... ok
+test_the_selected_topology_is_the_one_the_packet_names (tests.manager.test_claude_agent.TheSelectedPolicyConstants.test_the_selected_topology_is_the_one_the_packet_names) ... ok
+
+----------------------------------------------------------------------
+Ran 28 tests in 0.333s
+
+OK (skipped=1)

@@ -1,0 +1,10 @@
+{
+ "fresh_imported": true,
+ "fresh_JOB": "quickstart-c",
+ "has_compose": true,
+ "phase1_exit": 2,
+ "phase1_said": [
+  "refused: installing into /var/tmp/w366962-inert-aju7sxyz/disposable needs a built runtime; name it with --distro, or build one with `just build` from v12/."
+ ],
+ "disposable_root": "/var/tmp/w366962-inert-aju7sxyz"
+}

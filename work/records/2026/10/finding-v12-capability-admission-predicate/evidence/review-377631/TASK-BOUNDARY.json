@@ -1,0 +1,11 @@
+{
+  "predicate_answer": [
+    "implementation",
+    "review"
+  ],
+  "actual_task_operand_present": false,
+  "candidate_task_schema_label": "baton.dogfood-task/2",
+  "candidate_source_profile_label": "git-line",
+  "actual_human_contract_media_type": "text/markdown",
+  "task_composer_refusal": "this profile's task document is the input manifest's human contract and that artifact is 'text/markdown' rather than 'application/json'; a composed task cannot claim a media type the delivery would refuse"
+}

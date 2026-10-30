@@ -1,0 +1,21 @@
+{
+  "work": "W371320",
+  "claim": "E371324",
+  "author": "baton.tuner",
+  "files": {
+    "PROCEDURE.md": "0470870ba8ec2d06239cb621cd275449cab3edd7c01ce811ecfb01dc60cf1cc7",
+    "PROGRESS.md": "b6e78318504ff5067942378613121673fb29e586f28d4ce83b6f743a47395103",
+    "evidence/claim-371324/close-help.json": "97b14ecb270058aae935d2b3ef87d56e008e66b98015107bf8f7eb37a1137fde",
+    "evidence/claim-371324/container.json": "e231293ef8ca4886a6a02201d85398eafd8f597c981e261169f314c9a8049a60",
+    "evidence/claim-371324/diagnostics.json": "4ee8a42548ebb8e8ea4fcbce5b6c22326ed3040e30b4b350e086454928bec89f",
+    "evidence/claim-371324/manager-help.json": "d21f330e24b5902317d3ceefc3b3e4228c7c8f9a74829cdce2375959c61523cb",
+    "evidence/claim-371324/pending.json": "fea251ac51a23aca6bd7dc9a024ba20857e63722d3aa56967e629391761be17f",
+    "evidence/claim-371324/processes.json": "6d6acb8bb333c9df62d8e2823ac64456682ba82fa39c932aad43561508ff314e",
+    "evidence/claim-371324/stack-help.json": "136744434dc7bc4193ef7bfe09815ea297a6f02674fa6986b3c8f0ab91a7527a",
+    "evidence/claim-371324/status.json": "dad7ff10824846b494abda2b6de53c310f4545b2676e00ab13cc2a03da9dabdb",
+    "evidence/claim-371324/stop-help.json": "263fdfefd5fb58c0cb7c99d94065a7ec65442e1b11c184b94c3dbc292e74e321",
+    "evidence/claim-371324/validation.json": "7a4693259a9d1cd414639309e92fbc8e6758bc40659409349ca453c29f9107bd",
+    "evidence/claim-371324/version.json": "6e4342030578e58b320e57786e1587b05f8fad5205aed940e13d8a1ec17f7cc5"
+  },
+  "limits": "Preparation and read-only evidence; independent review pending; no operational effect selected or executed."
+}

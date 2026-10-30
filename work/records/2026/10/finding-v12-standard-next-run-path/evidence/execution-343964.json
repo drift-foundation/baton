@@ -1,0 +1,22 @@
+{
+  "work": "W339626",
+  "participant": "baton.codxpc",
+  "claim": 343964,
+  "selection_event": 343960,
+  "command": "/usr/bin/sudo -n /opt/baton-managed-entry/entry.py start w339626-custody-v2",
+  "result": {
+    "chunk_id": "14ffd8",
+    "wall_time_seconds": 0.262026465,
+    "exit_code": 1,
+    "original_token_count": 644,
+    "output": "<frozen runpy>:128: RuntimeWarning: 'tools.authoring_enforcement' found in sys.modules after import of package 'tools', but prior to execution of 'tools.authoring_enforcement'; this may result in unpredictable behaviour\nTraceback (most recent call last):\n  File \"<string>\", line 13, in <module>\n    runpy.run_module('tools.authoring_enforcement', run_name='__main__')\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen runpy>\", line 229, in run_module\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/opt/baton-managed-entry/selections/w339626-custody-v2/tree/manager/tools/authoring_enforcement.py\", line 599, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/opt/baton-managed-entry/selections/w339626-custody-v2/tree/manager/tools/authoring_enforcement.py\", line 535, in main\n    with open(output_path, 'ab', buffering=0) as output:\n         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: '/var/lib/baton-managed-runs/w339626-custody-v2/packet/outcome.json.authoring.log'\nError in sys.excepthook:\nTraceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/apport_python_hook.py\", line 238, in partial_apport_excepthook\n    return apport_excepthook(binary, exc_type, exc_obj, exc_tb)\n  File \"/usr/lib/python3/dist-packages/apport_python_hook.py\", line 122, in apport_excepthook\n    report[\"ExecutableTimestamp\"] = str(int(os.stat(binary).st_mtime))\n                                            ~~~~~~~^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: '/opt/baton-managed-entry/selections/w339626-custody-v2/tree/manager/-c'\n\nOriginal exception was:\nTraceback (most recent call last):\n  File \"<string>\", line 13, in <module>\n    runpy.run_module('tools.authoring_enforcement', run_name='__main__')\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen runpy>\", line 229, in run_module\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/opt/baton-managed-entry/selections/w339626-custody-v2/tree/manager/tools/authoring_enforcement.py\", line 599, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/opt/baton-managed-entry/selections/w339626-custody-v2/tree/manager/tools/authoring_enforcement.py\", line 535, in main\n    with open(output_path, 'ab', buffering=0) as output:\n         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: '/var/lib/baton-managed-runs/w339626-custody-v2/packet/outcome.json.authoring.log'\n"
+  },
+  "observed_call_elapsed_seconds": 0.417,
+  "elapsed_basis": "Wall clock around awaited exec_command, including tool overhead; tool wall retained separately.",
+  "retry": false,
+  "rearmed": false,
+  "manager_child": "Not constructed: failure at authoring_enforcement.py:535 precedes Process at536.",
+  "job_attempt": "None created by this invocation according to controller ordering; private stores not inspected.",
+  "consumption": "Entry consumes before exec; treat selection as consumed, no reset permitted.",
+  "private_evidence": "No private output/store reads; missing parent inferred from ENOENT opening append-mode log."
+}

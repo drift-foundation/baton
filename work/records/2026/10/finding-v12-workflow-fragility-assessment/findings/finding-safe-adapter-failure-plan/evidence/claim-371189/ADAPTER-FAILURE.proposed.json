@@ -1,0 +1,55 @@
+{
+  "facts": {
+    "code": {
+      "known": true,
+      "source": "worker-exchange.terminal",
+      "value": "other-role-output-required"
+    },
+    "command_digest": {
+      "known": true,
+      "source": "worker-exchange.command",
+      "value": "sha256:a61517d57dd502688440b52dc3a722828d41e7b10f357c3b0ec260cb6e5bb591"
+    },
+    "component": {
+      "known": true,
+      "source": "worker-exchange.terminal",
+      "value": "role-adapter"
+    },
+    "observed_at": {
+      "known": true,
+      "source": "job-status.observed_at",
+      "value": "2026-10-28T03:20:00.000Z"
+    },
+    "operation": {
+      "known": true,
+      "source": "worker-exchange.terminal",
+      "value": "work"
+    },
+    "operation_id": {
+      "known": true,
+      "source": "worker-exchange.command",
+      "value": "work:attempt-synthetic-371189"
+    },
+    "role": {
+      "known": true,
+      "source": "worker-exchange.terminal",
+      "value": "implementation"
+    },
+    "sequence_id": {
+      "known": true,
+      "source": "worker-exchange.command",
+      "value": "sequence-800f1799258c64ace259dc380271b038"
+    },
+    "session": {
+      "known": true,
+      "source": "worker-exchange.command",
+      "value": "session-synthetic-371189"
+    },
+    "terminal_digest": {
+      "known": true,
+      "source": "worker-exchange.terminal-bytes",
+      "value": "sha256:80379a94be9a0cdcc6c66e9c8c83cd35cd240765e78c6952e68d90e5f8989e95"
+    }
+  },
+  "state": "known"
+}

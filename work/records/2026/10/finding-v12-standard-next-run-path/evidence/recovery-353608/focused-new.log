@@ -1,0 +1,22 @@
+test_a_refused_preparation_closes_every_descriptor_it_opened (tests.tools.test_next_run_managed.ManagedAllocation.test_a_refused_preparation_closes_every_descriptor_it_opened)
+W339626 R2: a refusal must not leak what it refused to use. ... ok
+test_a_pre_runtime_source_refusal_is_accounted_and_not_cleaned (tests.tools.test_next_run_flow.JoinedFlow.test_a_pre_runtime_source_refusal_is_accounted_and_not_cleaned)
+W339626: the live C failure's own shape, through real accounting. ... FAIL
+
+======================================================================
+FAIL: test_a_pre_runtime_source_refusal_is_accounted_and_not_cleaned (tests.tools.test_next_run_flow.JoinedFlow.test_a_pre_runtime_source_refusal_is_accounted_and_not_cleaned)
+W339626: the live C failure's own shape, through real accounting.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w339626-353608/v12/python/tests/tools/test_next_run_flow.py", line 32, in setUp
+    disk = disk_roots.disk_backed_root()
+  File "/tmp/w339626-353608/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/w339626-353608/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.103s
+
+FAILED (failures=1)

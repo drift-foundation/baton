@@ -1,0 +1,7 @@
+manager    running pid 169781
+publisher  running pid 169782
+snapshot   fresh (observed 4.0s ago, written 4.0s ago)
+jobs       1 observed (canonical=True)
+serving    acknowledged
+runtime   2 open episode(s), 1 with a recorded runtime, observed 4.0s ago
+          stopping a supervisor does not stop a runtime, and this is the last RECORDED answer rather than a fresh one

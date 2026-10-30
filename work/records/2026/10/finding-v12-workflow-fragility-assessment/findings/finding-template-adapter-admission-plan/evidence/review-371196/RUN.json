@@ -1,0 +1,9 @@
+{
+  "inventory_sha256": "59eac72bce391142a6d05734bb6a910eb88a5f011a87ff534a8e0c2226a66a4c",
+  "files_verified": 8,
+  "exit": 0,
+  "seconds": 0.16047875700314762,
+  "selector_AST_matches_committed_f36bcd75": true,
+  "worker_current_sha256": "6378897ea6080e25b866923d709fc7ddcad78a979b3bcbf02d37540dd15bf988",
+  "scope": "inert proposal consistency/current selector probe, not product/image qualification"
+}

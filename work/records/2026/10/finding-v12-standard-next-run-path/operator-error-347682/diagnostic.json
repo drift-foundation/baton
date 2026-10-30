@@ -1,0 +1,8 @@
+{
+  "schema": "w339626-serving-failure/1",
+  "run": "w339626-live-345599",
+  "source_sha256": "4d093c99c582c48af392077ca3b1ab5218170a7ba04da0f3e26ae12b7e215484",
+  "field": "serving_failure",
+  "original_characters": 125,
+  "sanitized_diagnostic": "ProfileRefusal: Git line materialization failed: fatal: could not open <operand> for reading and writing: Permission denied"
+}

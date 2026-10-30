@@ -1,0 +1,116 @@
+{
+  "author_invocation_started": true,
+  "authoring_log": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-shutdown-deadline/evidence-338472/composition-1/snapshot_before/outcome.json.authoring.log",
+  "child_exited": true,
+  "child_started": true,
+  "child_status": 1,
+  "elapsed_seconds": 2.001258396999674,
+  "enforcement": {
+    "attempts": {
+      "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {
+        "faults": [],
+        "observation": null,
+        "runtime": {
+          "assignment": {
+            "generation": 1,
+            "participant": "baton.claude",
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W1"
+            }
+          },
+          "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "cleanup": "pending",
+          "execution_runtime": "uncertain",
+          "runtime_id": null
+        },
+        "token": {
+          "acquired_at": "2026-10-20T12:14:43.222Z",
+          "acquired_expires_at": "2026-10-20T12:29:43.222Z",
+          "activating": false,
+          "activation_started": null,
+          "attempt": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "container": null,
+          "domain": "workspace:66306:2919931",
+          "execution": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "expired": false,
+          "expires_at": "2026-10-20T12:29:43.222Z",
+          "expiry_judged_at": null,
+          "generation": 1,
+          "launch": "runtime.start:50f34424d07465b28176ecba7eb295be455a6a6763fffd0f3402ffb12aeb823b",
+          "operation": "runtime.start:50f34424d07465b28176ecba7eb295be455a6a6763fffd0f3402ffb12aeb823b",
+          "owner": "85dd4180c4f8a7cdde8b342e3e80e2d4772f2d73e13fef4576647397343cada7",
+          "renewals": 0,
+          "renewals_remaining": 4,
+          "renewed_at": null,
+          "returned": false,
+          "revision": 0,
+          "revoked": false,
+          "seconds": 900,
+          "timing_ambiguous": false,
+          "timing_decided_at": null,
+          "timing_observed_at": null,
+          "version": 1
+        }
+      }
+    },
+    "faults": [],
+    "state": "stopping"
+  },
+  "enforcement_path": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-shutdown-deadline/evidence-338472/composition-1/snapshot_before/outcome.json.enforcement-21-1792498484474317636.json",
+  "faults": [],
+  "manager_report_path": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-shutdown-deadline/evidence-338472/composition-1/snapshot_before/outcome.json.manager-21-1792498481722149906.json",
+  "operator_signals": [],
+  "original_envelope": {
+    "authority": "0000000a000000000000000000000000",
+    "job": "job-a",
+    "packet": {
+      "bounds": {
+        "cleanup_seconds": 4,
+        "implementer_invocations": 1,
+        "retry": false,
+        "total_seconds": 8,
+        "turn_seconds": 20
+      },
+      "claim": 338073,
+      "code_boundary": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-shutdown-deadline/evidence-338472/composition-1/snapshot_before/checkout",
+      "context": {
+        "mode": "fresh"
+      },
+      "deployment": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "config_path": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-shutdown-deadline/evidence-338472/composition-1/snapshot_before/config.json",
+        "control_store": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-shutdown-deadline/evidence-338472/composition-1/snapshot_before/control.sqlite3",
+        "job_store": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-shutdown-deadline/evidence-338472/composition-1/snapshot_before/jobs.sqlite3"
+      },
+      "diagnostic_mode": "snapshot_before",
+      "manager_source": {
+        "files": {
+          "tools/authoring_enforcement.py": "0b5c1052670e27a8ceebad649d7438c0d636c5da27f0f7a4223dc971de2671d9"
+        },
+        "path": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-shutdown-deadline/candidate-338472/v12/python"
+      },
+      "outcome_path": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-shutdown-deadline/evidence-338472/composition-1/snapshot_before/outcome.json",
+      "run_id": "diagnostic-snapshot_before",
+      "schema": "baton.single-implementation-packet/2",
+      "submission": {
+        "job_id": "job-a",
+        "path": "/home/sl/src/baton/work/records/2026/10/finding-v12-authoring-shutdown-deadline/evidence-338472/composition-1/snapshot_before/submission.json"
+      },
+      "work": "W337955"
+    },
+    "run": "diagnostic-snapshot_before",
+    "started_at": "2026-10-20T12:14:42.124Z",
+    "stop_at": "2026-10-20T12:14:46.124000+00:00"
+  },
+  "recovery_only": false,
+  "shutdown_progress": {
+    "deadline": 2621.986574612,
+    "faults": [],
+    "job_id": "job-a",
+    "run_id": "diagnostic-snapshot_before",
+    "step": "final enforcement publication",
+    "step_deadline": 2621.9365758821
+  },
+  "state": "held"
+}

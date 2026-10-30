@@ -1,0 +1,12 @@
+{
+  "archive_members": 211,
+  "archive_sha256": "413e2846cd22f9350371151eccaa5bde877f9bf0ba8fb98b2dfae59a9fca93a3",
+  "installation_inputs_sha256": "c49fe2e6c5f71f044646e6fdc900f274ad352b56ac39a67b22e84d210d80896f",
+  "installation_selected": false,
+  "installed_root": "/opt/baton-next-run",
+  "live_invocation_selected": false,
+  "protected_source": "/opt/baton-next-run-source-345599",
+  "source_digest": "2bab26b6840faa6bae6e273b34652fbc97b47d07aba68000bb17f24112db1c59",
+  "storage_root": "/var/lib/baton-next-run",
+  "task_sha256": "5fc07524d1255a92d0f4b94a31317fa338013eb3997c7b70c989f19059bbd9dd"
+}

@@ -1,0 +1,46 @@
+{
+  "packet_inputs_sha256": "1afddeeb3db646f5f574a41898a7084e3cbe192fd724202afca33f656507efdc",
+  "members": 17,
+  "root": "/tmp/w321776-review329943-d0b465hc/instance",
+  "steps": [
+    {
+      "step": "stage",
+      "exit": 0,
+      "seconds": 0.12771900299412664,
+      "stdout": "staged; bootstrap separately with --no-repositories, then bind\n",
+      "stderr": ""
+    },
+    {
+      "step": "bootstrap",
+      "exit": 0,
+      "seconds": 0.5932969630011939,
+      "stdout": "repositories  not prepared: no source checkout was found or named, so the deployment has no target, workspace or worker sources yet and will schedule without reconciling\nauthority 4e0774e7...    generated for this instance\njob   none; no Work, grant or placeholder was created\nconfiguration /tmp/w321776-review329943-d0b465hc/instance/instance/deployment.json\ncapacity      {\"job_affinity\": {}, \"jobs\": 0, \"note\": \"this instance binds no Job and configures no execution capacity; it serves a real idle scheduler and publisher over empty stores, and a worker, a Work, a declared base, a canonical target and a producer are supplied together when a Job is created\", \"schema\": \"baton.v12.stage-execution-deployment/2\", \"targets\": [], \"workers_by_role\": {\"implementation\": [], \"integration\": [], \"review\": []}}\nno Job was submitted and nothing was executed\ninstance      /tmp/w321776-review329943-d0b465hc/instance/instance/instance.json\nruntime       81 files, digest c1ef3d23394916c8...\nstores        /tmp/w321776-review329943-d0b465hc/instance/instance/db\nrepository    /tmp/w321776-review329943-d0b465hc/instance/instance/repo\njustfile      /tmp/w321776-review329943-d0b465hc/instance/instance/justfile\n\nThe deployment is operated from the destination, and needs nothing else:\n\n    cd /tmp/w321776-review329943-d0b465hc/instance/instance && just status\n    just --justfile /tmp/w321776-review329943-d0b465hc/instance/instance/justfile start        # from anywhere\n\nor the command directly, which is the same program:\n\n    /tmp/w321776-review329943-d0b465hc/instance/instance/distro/baton-v12-stack status --instance /tmp/w321776-review329943-d0b465hc/instance/instance/instance.json\n",
+      "stderr": ""
+    },
+    {
+      "step": "bind",
+      "exit": 0,
+      "seconds": 0.36111015699862037,
+      "stdout": "prepared and validated; no job submitted, no engine/provider invoked\n",
+      "stderr": ""
+    }
+  ],
+  "restore_exact_five_files": true,
+  "prepared": {
+    "artifacts": {
+      "PACKET.json": "f3750fddb5c72950e75edb16a597e8d6d43bb371355d42e54d5c094612338aea",
+      "adapter.json": "cbe3bb4ade990eb5411c64a40be74a10e46a79f48343c499b5f1a8453fabc9c7",
+      "commands.json": "98d32077d4f43dd4137dc09d1be335fc077d6d1f99fe25845abaf146d4da2043",
+      "deployment.json": "6c3ee70d5e1e4f1e02c11f51fce5091f7d6884df8f5abf5a0da31920ffd4c657",
+      "policy.json": "d067a1a6fedc701501280564772c356f3cb8320de55460caf46e5fdfd5f40cd4",
+      "runtime-profile.json": "70ca07c494c9660bfaf747772f2233ccaf77b4ef3a4da90c26121b7b59ff1d34",
+      "submission.json": "68a8dcb5b8aced381027061a44f436b48fe09b5bebfa54eff2cbe0378b690843",
+      "task.json": "243bda221c6100dff83257a87abb9a8217dabd2e18deb62bcb61fb6ff664b5d5"
+    },
+    "authority_uuid": "4e0774e748c84bc7992bc2abc4749225",
+    "independent_review": "an independent reviewer consumes the immutable retained proposal through v11 after exact runtime cessation; no automatic acceptance",
+    "packet_sha256": "f3750fddb5c72950e75edb16a597e8d6d43bb371355d42e54d5c094612338aea",
+    "state": "prepared-not-executed",
+    "work": "W321776"
+  }
+}

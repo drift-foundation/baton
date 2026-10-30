@@ -1,0 +1,14 @@
+{
+  "initial_preparation_seconds": 3.066401747002601,
+  "final_preparation_seconds": 3.174655252001685,
+  "overlay_five_command_seconds": 0.185313698997561,
+  "this_claim_measured_command_seconds": 6.426370698001847,
+  "prior_author_preparation_seconds": 18.408396806999,
+  "cumulative_author_preparation_seconds": 24.834767505000848,
+  "prior_selected_run_seconds": [
+    955.09899421,
+    954.1050321840012
+  ],
+  "inner_provider_and_product_test_seconds": "unknown; not zero",
+  "other": "historical reviewer/prerequisite spending separately retained in their records; read/hash/archive/copy overhead unmeasured; nested composition timing not added twice"
+}

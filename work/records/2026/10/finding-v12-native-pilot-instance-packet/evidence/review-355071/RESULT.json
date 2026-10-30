@@ -1,0 +1,25 @@
+{
+  "manifest_sha256": "080ab4f454d65583f689b476302b2ce118f8bc23a217eee3880252c80f5f735d",
+  "delta_sha256": "cf84e58a11a687db33a49b2cce8e6c3229e65d9bd2a11e37a7af0c074e4b71b8",
+  "retained_delta_sha256": "e497831c865f1aa3cb771706a7403370fb50f685815a440109c0ac80cff46382",
+  "all_files_verified": 1778,
+  "delta_verified": 34,
+  "tokens_behavior_ast_unchanged": true,
+  "exit": 0,
+  "seconds": 1.8784348720000708,
+  "command": [
+    "/home/sl/.local/state/baton-v12-venv/bin/python",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.job_manager.test_native_permission",
+    "tests.job_manager.test_native_stop_restart"
+  ],
+  "cwd": "/tmp/w325959-354165/candidate/v12/python",
+  "environment": {
+    "PYTHONPATH": "src:.",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "BATON_V12_DISK_ROOT": "/var/tmp/baton-w257624"
+  },
+  "candidate_unchanged": true
+}

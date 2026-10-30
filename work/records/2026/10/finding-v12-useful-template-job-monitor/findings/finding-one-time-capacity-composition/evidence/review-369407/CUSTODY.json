@@ -1,0 +1,237 @@
+{
+ "appeared": [],
+ "claim_bindings": {
+  "evidence/claim-367503/BINDING.json": {
+   "drifted": [],
+   "proposal_members": 0
+  },
+  "evidence/claim-369192/BINDING.json": {
+   "drifted": [],
+   "proposal_members": 7
+  },
+  "evidence/claim-369298/BINDING.json": {
+   "drifted": [],
+   "proposal_members": 14
+  },
+  "evidence/claim-369373/BINDING.json": {
+   "drifted": [],
+   "proposal_members": 14
+  }
+ },
+ "documented_examples_run_verbatim": [
+  "capacity.py compose --minted-uuid a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4 --destination /var/tmp/baton-w257624/w367232-custody-45pe66xu/never-created --proposed-grants",
+  "capacity.py compose --minted-uuid a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4 --destination /var/tmp/baton-w257624/w367232-custody-45pe66xu/never-created --grants-from proposed-grants-format --proposed-format"
+ ],
+ "effects": {
+  "created": [
+   "/var/tmp/baton-w257624/w367232-custody-45pe66xu"
+  ],
+  "removed": [],
+  "retained": [
+   "/var/tmp/baton-w257624/w367232-custody-45pe66xu"
+  ]
+ },
+ "failures": [],
+ "files_digested": 116,
+ "ok": true,
+ "public_runs": [
+  {
+   "argv": [
+    "proposed_grants.py",
+    "--proposed-format",
+    "--into",
+    "/var/tmp/baton-w257624/w367232-custody-45pe66xu/format-variant"
+   ],
+   "exit": 0,
+   "said": "ue, \"schema\": \"baton.v12.proposed-grants/2\", \"status\": \"PROPOSED, NOT GRANTED -- an owner selects these or names others; nothing here authorizes anything\", \"task_sha256\": \"cb7001c74de828ab1afaf6674ddef23092a5338b3d00d3097d8b1d3cde7ccbdd\", \"task_this_was_composed_for\": \"template-job-guide-42bed8bb\" }"
+  },
+  {
+   "argv": [
+    "proposed_grants.py",
+    "--proposed-format",
+    "--into",
+    "/var/tmp/baton-w257624/w367232-custody-45pe66xu/format-variant"
+   ],
+   "exit": 0,
+   "said": "ue, \"schema\": \"baton.v12.proposed-grants/2\", \"status\": \"PROPOSED, NOT GRANTED -- an owner selects these or names others; nothing here authorizes anything\", \"task_sha256\": \"cb7001c74de828ab1afaf6674ddef23092a5338b3d00d3097d8b1d3cde7ccbdd\", \"task_this_was_composed_for\": \"template-job-guide-42bed8bb\" }"
+  },
+  {
+   "argv": [
+    "capacity.py",
+    "compose",
+    "--minted-uuid",
+    "a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4",
+    "--destination",
+    "/var/tmp/baton-w257624/w367232-custody-45pe66xu/never-created",
+    "--proposed-grants"
+   ],
+   "exit": 0,
+   "said": "provenance.members` names the exact selection missing for each. This preparation is reusable and the connected proof is real, but it is NOT a finished operational configuration until an OWNER grants them -- a proposal this preparation composed is not a grant it received.\", \"work_id\": \"a1b2c3d4-W1\" }"
+  },
+  {
+   "argv": [
+    "capacity.py",
+    "compose",
+    "--minted-uuid",
+    "a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4",
+    "--destination",
+    "/var/tmp/baton-w257624/w367232-custody-45pe66xu/never-created",
+    "--grants-from",
+    "/var/tmp/baton-w257624/w367232-custody-45pe66xu/format-variant",
+    "--proposed-format"
+   ],
+   "exit": 0,
+   "said": "provenance.members` names the exact selection missing for each. This preparation is reusable and the connected proof is real, but it is NOT a finished operational configuration until an OWNER grants them -- a proposal this preparation composed is not a grant it received.\", \"work_id\": \"a1b2c3d4-W1\" }"
+  },
+  {
+   "argv": [
+    "capacity.py",
+    "compose",
+    "--minted-uuid",
+    "a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4",
+    "--destination",
+    "/var/tmp/baton-w257624/w367232-custody-45pe66xu/never-created",
+    "--grants-from",
+    "/var/tmp/baton-w257624/w367232-custody-45pe66xu/format-variant",
+    "--proposed-format"
+   ],
+   "exit": 0,
+   "said": "provenance.members` names the exact selection missing for each. This preparation is reusable and the connected proof is real, but it is NOT a finished operational configuration until an OWNER grants them -- a proposal this preparation composed is not a grant it received.\", \"work_id\": \"a1b2c3d4-W1\" }"
+  },
+  {
+   "argv": [
+    "capacity.py",
+    "compose",
+    "--minted-uuid",
+    "a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4",
+    "--destination",
+    "/var/tmp/baton-w257624/w367232-custody-45pe66xu/never-created",
+    "--proposed-grants"
+   ],
+   "exit": 0,
+   "said": "provenance.members` names the exact selection missing for each. This preparation is reusable and the connected proof is real, but it is NOT a finished operational configuration until an OWNER grants them -- a proposal this preparation composed is not a grant it received.\", \"work_id\": \"a1b2c3d4-W1\" }"
+  },
+  {
+   "argv": [
+    "capacity.py",
+    "compose",
+    "--minted-uuid",
+    "a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4",
+    "--destination",
+    "/var/tmp/baton-w257624/w367232-custody-45pe66xu/never-created",
+    "--proposed-grants"
+   ],
+   "exit": 0,
+   "said": "provenance.members` names the exact selection missing for each. This preparation is reusable and the connected proof is real, but it is NOT a finished operational configuration until an OWNER grants them -- a proposal this preparation composed is not a grant it received.\", \"work_id\": \"a1b2c3d4-W1\" }"
+  },
+  {
+   "argv": [
+    "capacity.py",
+    "compose",
+    "--minted-uuid",
+    "a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4",
+    "--destination",
+    "/var/tmp/baton-w257624/w367232-custody-45pe66xu/never-created",
+    "--grants-from",
+    "/var/tmp/baton-w257624/w367232-custody-45pe66xu/format-variant",
+    "--proposed-format"
+   ],
+   "exit": 0,
+   "said": "provenance.members` names the exact selection missing for each. This preparation is reusable and the connected proof is real, but it is NOT a finished operational configuration until an OWNER grants them -- a proposal this preparation composed is not a grant it received.\", \"work_id\": \"a1b2c3d4-W1\" }"
+  },
+  {
+   "argv": [
+    "capacity.py",
+    "compose",
+    "--minted-uuid",
+    "a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4",
+    "--destination",
+    "/var/tmp/baton-w257624/w367232-custody-45pe66xu/never-created",
+    "--proposed-grants"
+   ],
+   "exit": 0,
+   "said": "provenance.members` names the exact selection missing for each. This preparation is reusable and the connected proof is real, but it is NOT a finished operational configuration until an OWNER grants them -- a proposal this preparation composed is not a grant it received.\", \"work_id\": \"a1b2c3d4-W1\" }"
+  },
+  {
+   "argv": [
+    "capacity.py",
+    "compose",
+    "--minted-uuid",
+    "a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4",
+    "--destination",
+    "/var/tmp/baton-w257624/w367232-custody-45pe66xu/never-created",
+    "--grants-from",
+    "proposed-grants-format",
+    "--proposed-format"
+   ],
+   "exit": 0,
+   "said": "provenance.members` names the exact selection missing for each. This preparation is reusable and the connected proof is real, but it is NOT a finished operational configuration until an OWNER grants them -- a proposal this preparation composed is not a grant it received.\", \"work_id\": \"a1b2c3d4-W1\" }"
+  },
+  {
+   "argv": [
+    "prove_capacity.py",
+    "--scratch",
+    "/var/tmp/baton-w257624"
+   ],
+   "exit": 0,
+   "said": "\", \"well_formed\": true }, \"test_substitutions\": [ { \"not_operational\": true, \"what\": \"the two nominated source directories are created empty\", \"why\": \"the installer lstats them; an operator obtains them with --repository-source, which clones, and cloning is outside this preparation's boundary\" } ] }"
+  },
+  {
+   "argv": [
+    "prove_capacity.py",
+    "--scratch",
+    "/var/tmp/baton-w257624"
+   ],
+   "exit": 0,
+   "said": "\", \"well_formed\": true }, \"test_substitutions\": [ { \"not_operational\": true, \"what\": \"the two nominated source directories are created empty\", \"why\": \"the installer lstats them; an operator obtains them with --repository-source, which clones, and cloning is outside this preparation's boundary\" } ] }"
+  },
+  {
+   "argv": [
+    "proposed_grants.py",
+    "--verify"
+   ],
+   "exit": 0,
+   "said": "aton.v12.proposed-grants-inventory/1\", \"status\": \"PROPOSED, NOT GRANTED\", \"task_id\": \"template-job-guide-42bed8bb\", \"task_sha256\": \"c21e6b93bfe199ebb89b3ec7a75e70a5636c52f9986b1afa3709a381c6bd98d7\" }, \"matches_the_task_composed_now\": true, \"read_only\": true, \"schema\": \"baton.v12.proposed-grants/2\" }"
+  }
+ ],
+ "published_inventory_unchanged": true,
+ "refusals": {
+  "binding_the_canonical_set_to_the_format_task": {
+   "argv": [
+    "capacity.py",
+    "compose",
+    "--minted-uuid",
+    "a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4",
+    "--destination",
+    "/var/tmp/baton-w257624/w367232-custody-45pe66xu/never-created",
+    "--proposed-grants",
+    "--proposed-format"
+   ],
+   "exit": 2,
+   "said": "ng task digest cb7001c74de828ab (proposed_format=True). Their role instructions differ, so these are different sets. Publish the one you want and point at it: `python3 proposed_grants.py --proposed-format --into <a fresh directory>` then `compose --grants-from <that directory>`. Nothing was written."
+  },
+  "publishing_the_default_set_over_the_variant": {
+   "argv": [
+    "proposed_grants.py",
+    "--into",
+    "/var/tmp/baton-w257624/w367232-custody-45pe66xu/format-variant"
+   ],
+   "exit": 2,
+   "said": "for task digest cb7001c74de828ab (proposed_format=True) and this one is for c21e6b93bfe199eb (proposed_format=False). These are different sets with different role instructions, and nothing here writes over a set awaiting selection. Publish this one somewhere of its own: `--into <a fresh directory>`."
+  },
+  "publishing_the_variant_over_the_canonical_set": {
+   "argv": [
+    "proposed_grants.py",
+    "--proposed-format"
+   ],
+   "exit": 2,
+   "said": "for task digest c21e6b93bfe199eb (proposed_format=False) and this one is for cb7001c74de828ab (proposed_format=True). These are different sets with different role instructions, and nothing here writes over a set awaiting selection. Publish this one somewhere of its own: `--into <a fresh directory>`."
+  }
+ },
+ "repeated_publication_is_byte_identical": true,
+ "rewritten": [],
+ "schema": "baton.v12.custody-proof/1",
+ "vanished": [],
+ "what_this_adds": "prove_capacity's step 11 guards ONE invocation of itself. This guards the public commands as a SET, run twice and in both opt-in orders, because the defect being corrected was an ordering effect: whichever variant ran last won, silently.",
+ "wrote_into_the_child_directory": []
+}

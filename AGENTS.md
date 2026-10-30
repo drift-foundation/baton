@@ -1,5 +1,14 @@
 # Baton repository agent rules
 
+## Development storage
+
+Follow [docs/DEVELOPMENT-STORAGE.md](docs/DEVELOPMENT-STORAGE.md). Preserve
+required development inputs and evidence for recovery on another computer.
+Use ignored, disk-backed `work/scratch/` for disposable development scratch;
+avoid `/tmp` except for short-lived temporary files. Never leave the only
+copy of a checkpoint or required evidence in scratch, and never blanket-ignore
+or delete unclassified dossier contents to make Git status clean.
+
 ## Git usage (strict)
 
 - Use `git` only for reviewing history, status, and diffs (for example,

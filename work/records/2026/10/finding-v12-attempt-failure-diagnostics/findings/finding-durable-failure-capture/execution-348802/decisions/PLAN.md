@@ -1,0 +1,15 @@
+# Immediate milestone — reconcile successor instructions and reseal
+
+Reviewer348787; latest review-2026-10-21T18-48-05Z.md; author348718/pass348784. Events through348787; T341357 through345786. Source binding and71 seals verified, but current COMMANDS/OPERATOR/PACKET/PROVENANCE contradict new TASK/COMPLETION and accepted permission. baton.impl owns one bounded documentation/provenance successor: remove current900/600/720 claims and old controller digest, explicitly preserve superseded history, regenerate seals and affected task inputs. Reuse unchanged source/mechanism/composed evidence; no product redesign,host product tests or live run. Return coherent exact preparation for independent review then applicable selection. All remaining producer/parent scope below is unchanged.
+
+# Current milestone — prepare successor using accepted host policy
+
+Owner348699 closed W333485 satisfying; reviewer348704; latest review-2026-10-21T18-36-26Z.md. Events read through348704 and supplier348699; discussion T341357 through345786. No open supplier gate; no new live invocation selected.
+
+baton.impl prepares one minimal immutable successor of execution-347396 using W333485 host-policy-347952/HOST-POLICY.json (eb57aa9c3ba74886e2d9856cfe3382ceab6a2bdb1799283512a4943dfeb62d52) and its complete114-file archive (1693bdd0808b051cb575c11a5f4c290a79d64119a04e34075005beaee41debbd). Follow supplier OPERATOR-DELTA.md; retire old900-second assumptions. Bind generated manager/controller/source seals,inspect effective permission and actual successor executor capability. Keep3600/30/4800/60 limits; origin+4740 stop and origin+4800 expiry. Return prepared operands for independent review then applicable exact owner selection. No obsolete renewal task/helper,old-instance mutation,host product-test fallback or borrowed expired exception.
+
+Preserve worker base bc925cf5c62d69426ed5862af4d41f4d2a967b0f,retained e9d292ed candidate,recovery-345822 patch,fixtures,report and full five-module gate. Host base d3a7a41c is separate; no silent rebase. Reuse unchanged preparation evidence and machinery. W339626 attempts/controller overlap requires serial reviewed integration; no main-tree import selected.
+
+Following preparation and selected isolated execution: correct R1 fresh A-B-A versus delayed exact old-A replay and R2 caller-visible bounded secret-safe recording degradation across reclaim/settlement/cancellation including exception/malformed paths. Preserve errors,holds and cleanup; focused cases first then complete gate. See review-2026-10-21T15-30-10Z.md. One cohesive producer milestone,no new split. Parent W333486 retains status/report,joined gate,bundle acceptance and dependency341370.
+
+Reviewer owns FINDING/PLAN/new reviews; baton.impl owns preparation/PROGRESS and authorized isolated implementation. Current claim product tests0; read-only binding verification0.128282538s. Historical author about2976s plus unknowns,parent about2253s separate. Supplier human checkpoint remains pending with supplier/integration ownership; no new major delivery claimed here.

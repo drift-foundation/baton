@@ -1,0 +1,128 @@
+{
+ "a_defect_I_CLAIMED_AND_WITHDREW": {
+  "claim": "that the report dropped a caller-visible diagnostic_degradation",
+  "lesson_recorded": "I fixed the product to accept a shape my own fixture invented. The existing test is what caught it.",
+  "why": "my composing harness supplied the carrier as a RAW STRING. The real path (delegation.py:1118) emits {'known': True, 'value': True, 'source': 'ManagerOperations carrier observation; process-local'} -- a BOOLEAN wrapper, deliberately, so the carrier's private text never travels into status or the report. The original reader matched that exactly and was CORRECT. My 'fix' would have forwarded arbitrary carrier text and broken test_returned_and_exception_carriers_are_reported_without_private_text, which proves a secret canary does not travel. Fully reverted; no trace remains in the candidate.",
+  "withdrawn": true
+ },
+ "base": "bc925cf5c62d69426ed5862af4d41f4d2a967b0f",
+ "candidate_changed_by_this_claim": {
+  "v12/python/tests/tools/test_attempt_diagnostics.py": {
+   "now": "e7a7b9293000601ff2cc1198700c651c8ccffc574fc1aa05623d37dd6a8a1d4f"
+  },
+  "v12/python/tools/attempt_diagnostics.py": {
+   "now": "7b83221617097c4da0be3f0218c62f6c694691f2fc8fd04448836eda3999025b",
+   "recovered": "b2e460ed61421418088b0f12eaa34497eeeb0e8764b9f1c65416d44a3433e332"
+  }
+ },
+ "claim": 353758,
+ "copies": {
+  "build-final.log": "936b1f5491562b1d66d2b9e80388b8a7dadbb3dbffb4a26e720c434230cabf1e",
+  "candidate-attempt_diagnostics.py": "7b83221617097c4da0be3f0218c62f6c694691f2fc8fd04448836eda3999025b",
+  "candidate-test_attempt_diagnostics.py": "e7a7b9293000601ff2cc1198700c651c8ccffc574fc1aa05623d37dd6a8a1d4f",
+  "compose_real_status.py": "1797db0c604d47be8597a675c5dcd586c34a6dfa077aa9bcd6c6805a25f03881",
+  "composed-status.json": "7bc304e7331421074a0478c3b516d26dbc12b7af33d9aca3ed967ffd573be299",
+  "joined-final.log": "082b63085ba727004490fedb7a017ab29ffe56a15439d83f1b9f45b8df6495c5",
+  "packaged-final.json": "1f3e750ffcc715a062056e64783d8eedfd99630e37568e4bb12a68dadc0e9935",
+  "packaging-final.log": "ac4fc93c731e2275ac8725de77a955303b5030908bfeb4b60e4a5b0e97773035",
+  "red-arm.log": "d58709e38e1ec734a0dc5628d2689434d3a20c421581f9a6da392285549991b0",
+  "seam_absent_probe.py": "9cd943ab7ef9b16b7ece3894d1a2203c5a19352163bd6ab27be9ca6f205b94b1"
+ },
+ "joined_gate": {
+  "exit": 0,
+  "modules": 12,
+  "recovered_arm_was": "1242 tests, 1 error (the supervision case)",
+  "seconds": 14.218,
+  "skips": 0,
+  "tests": 1244,
+  "verdict": "OK"
+ },
+ "leftover_processes_checked_before_continuation": {
+  "result": "none from the interrupted turn: no python under /tmp, no running container (every baton-runtime container Exited weeks ago), load average 0.64. Only the standing Baton bridges/dispatchers and this session were live. Nothing to clean.",
+  "when": "first act of this claim, per reroute353746"
+ },
+ "not_done": [
+  "shared-tree integration: none. No product file outside the isolated root was edited, and W339626's candidate is untouched.",
+  "live provider, engine, deployment, installed-root edit, token or state mutation, consumed-C retry or recovery: none taken or inferred.",
+  "the /6-to-/7 compatibility question for operators holding older snapshots is REPORTED, not decided: no migration or dual-version reader was selected.",
+  "the broad 194-failure campaign, authentication and envelope proofs: not repeated."
+ ],
+ "packaged_command_proof": {
+  "built_from": "the isolated candidate, PyInstaller 6.16.0 already present in the prepared environment; no pip install and no network install",
+  "bundle": "88c737e0891bb05a28c7a41312e5b49932b1c84bf4b82b453c3f85c374099004",
+  "designed_proof": "tests.tools.test_packaging bound to this bundle with BATON_V12_STACK_PACKAGING_REQUIRED=1 so a skip cannot pass: 11 tests, 10 ok, ZERO skips, 1 failure",
+  "frozen": true,
+  "input_provenance": "composed by baton_v12.job_manager.projection.status -- the production composer -- over a real JobStore holding a real submitted Job; NOT a handwritten document. The owned diagnostic shape was read from product code after the production seam REFUSED a hand-typed schema string, which is the seam working.",
+  "legacy_document": "the only real published snapshot on this host is baton.v12.job-status/6 (base's version; the candidate bumped to /7 for the new member) and the packaged command REFUSES it by name with exit 2 rather than decoding it. Correct and intended: job_viewer refuses a version it was not written against.",
+  "subcommand_table_from_the_bundle_includes": "attempt-diagnostics",
+  "the_command_actually_run": "baton-v12-stack attempt-diagnostics <document> -> exit 0 in 0.301s, schema baton.v12.attempt-diagnostics/1, 3 rows, opens_no_store true, is_acceptance false",
+  "the_one_failure": {
+   "case": "test_it_says_its_version_with_NO_checkout_and_NO_repository_tool",
+   "not_worked_around": "creating version-control metadata in the isolated root was NOT done: this Work holds no such exception, and W339626's fixture-only allowance belongs to W339626 and expires at its acceptance. Reported rather than evaded.",
+   "what_still_passed": "test_every_subcommand_this_command_serves_is_offered and test_an_unknown_subcommand_is_refused_by_name -- the two that carry this milestone's obligation that the INSTALLED bundle serves the new verb",
+   "why": "the isolated candidate root is not a version-control work tree, so the build stamp cannot name a commit and --version says 'source commit unknown'. AN ARTIFACT OF BUILDING FROM AN ISOLATED TREE, not a product defect."
+  }
+ },
+ "producer_manifest": "0143f146b8f7562ef60f22c4f0984670301f338e2687af806ebff6df2e08b807",
+ "progress_section": "PROGRESS.md \"2026-10-22 - baton.claude, claim353758\"",
+ "recovered_from": "/tmp/w333486-353662 (baton.codxpc claim353662, released353745 incidents79/80)",
+ "schema": "baton.w333486-consumer-evidence/1",
+ "the_candidate_tree_was_complete_all_along": {
+  "base_files": 294,
+  "candidate_tracked_files": 298,
+  "checked": "every tracked file of base bc925cf5 under v12/python",
+  "correction_of_my_own_first_reading": "13 files are absent versus HEAD and I first read that as an incomplete materialization. All 13 are legitimately absent at base bc925cf5 -- the next_run family and tools/authoring_baseline.py all arrived after it. The materialization was sound.",
+  "extra_vs_base": [
+   "v12/python/src/baton_v12/worker_manager/failure_cause.py",
+   "v12/python/tests/manager/test_attempt_failure_cause.py",
+   "v12/python/tools/attempt_diagnostics.py",
+   "v12/python/tests/tools/test_attempt_diagnostics.py"
+  ],
+  "missing_vs_base": 0
+ },
+ "the_consumer_defect_this_turn_FOUND_AND_FIXED": {
+  "fix": "_absent_record recognises the producer's kinds, including the revoked record bare or separator-suffixed. The allowlist stays POSITIVE.",
+  "measured_through_the_real_seam": {
+   "dropped_after": [],
+   "dropped_before": [
+    "resource-token.revoked",
+    "runtime.start-failed",
+    "runtime.preparation-failed"
+   ],
+   "producer_absent_of": [
+    "attempt.cessation-*:settlement",
+    "attempt.cessation-*:cancellation",
+    "resource-token.revoked",
+    "runtime.start-failed",
+    "runtime.preparation-failed"
+   ]
+  },
+  "producer_emits": [
+   "attempt.cessation-*:<component>",
+   "resource-token.revoked (bare AND suffixed :<domain>:<generation>)",
+   "runtime.start-failed",
+   "runtime.preparation-failed"
+  ],
+  "reader_allowlisted": [
+   "attempt.cessation-*:<component>",
+   "resource.revoked",
+   "attempt.start-failed",
+   "attempt.preparation-failed"
+  ],
+  "red_before_green": "both cases FAIL against the recovered reader; see red-arm.log",
+  "regression": [
+   "test_EVERY_absent_record_the_PRODUCER_composes_reaches_the_report -- expectation derived from failure_cause.absent_of over the SAME document, so a producer rename fails the case",
+   "test_an_absent_record_the_report_does_NOT_own_is_still_dropped"
+  ],
+  "what": "the report silently dropped three of the five absent-record kinds a real composed diagnostic carries",
+  "why_it_matters": "failure_cause._compose's own note: a reader that discards a record quietly hides that the producer has moved. The review requires absent_of's names to reach the operator."
+ },
+ "the_focused_supervision_failure": {
+  "case": "tests.manager.test_authoring_enforcement.ProcessComposition.test_real_supervisor_blocked_sweep_is_terminated_and_partial_output_retained",
+  "cause": "AN ISOLATION GAP, NOT A PRODUCT DEFECT. The case resolves work/records/2026/09/finding-v12-single-implementation-proof from the checkout root and puts it on sys.path to `import baseline`; the isolated root did not carry it, so the real supervisor child died at import before writing its partial output.",
+  "measured_after": "ProcessComposition 1 test OK in 2.010s",
+  "note": "execution-352156/prepare.py already recorded this exact behaviour: '1 error without it, 33 passing with it'.",
+  "resolution": "supplied that read-only fixture directory in the isolated root; baseline.py there is 8e5987f56f8d5329c33a8e73f9df56f13213e134f2dade8180afabf80723efe9, byte-identical to the shared checkout's. NO PRODUCT BYTE CHANGED.",
+  "symptom_recovered": "FileNotFoundError on <temp>/partial.txt"
+ }
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_matches": {
+    "v12/python/tests/manager/test_claude_agent.py": true,
+    "v12/worker/claude_agent.py": true
+  },
+  "returncode": 1,
+  "duration_seconds": 0.02679793300194433,
+  "scope": "28 focused worker tests; mocked mount/scaffold facts, not connected topology or kernel proof"
+}

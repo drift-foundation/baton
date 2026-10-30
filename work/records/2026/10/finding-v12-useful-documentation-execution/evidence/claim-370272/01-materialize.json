@@ -1,0 +1,30 @@
+{
+ "archive": {
+  "archive": "/home/sl/src/baton/work/records/2026/10/finding-v12-template-job-creation/findings/finding-packaged-template-creation/evidence/review-366382/verified-first-build.tar.gz",
+  "archive_sha256": "1da85eed0a3a19a5da0b83253abbbb40ebeed01bfe90ee05a10055dec0057125",
+  "files_in_archive": 81,
+  "pinned_build_stamp": "18e771f0 dirty -- disclosed, never relabelled",
+  "pinned_folder_digest": "0b7bc59213605489319e973a6a6cdf285c76513a00f75bf5e05d669df88beefd",
+  "verified_by": "digest now; the folder digest is verified when `materialize` extracts it"
+ },
+ "command": "materialize",
+ "distro": "/home/sl/baton-instances/useful-template-job-w366962-distro/distro",
+ "effects": {
+  "created": [
+   "/home/sl/baton-instances/useful-template-job-w366962-distro"
+  ],
+  "extracted": [
+   "/home/sl/baton-instances/useful-template-job-w366962-distro/distro"
+  ],
+  "removed": [],
+  "retained": [
+   "/home/sl/baton-instances/useful-template-job-w366962-distro"
+  ]
+ },
+ "executable_sha256": "ba962a2086310df238ff25cf282a3298f71ae9289594e6f7c83222ee8f4571ef",
+ "files": 81,
+ "folder_digest": "0b7bc59213605489319e973a6a6cdf285c76513a00f75bf5e05d669df88beefd",
+ "note": "retained deliberately; only the caller that created this may remove it",
+ "ownership": "created by this invocation at the named path",
+ "schema": "baton.v12.one-time-capacity/2"
+}

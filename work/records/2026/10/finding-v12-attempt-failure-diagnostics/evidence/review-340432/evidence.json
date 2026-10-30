@@ -1,0 +1,26 @@
+{
+  "claim": 340432,
+  "manifest_sha256": "fe18c5f23b7bf8f4196cbac8daaf73ad5ad88ec159d0fe36e3fabef4b27c8682",
+  "seals": 44,
+  "all_seals_match": true,
+  "preparation_probes": {
+    "passed": 52,
+    "total": 52,
+    "reported_seconds": 2.108,
+    "scratch": "/tmp/w333486-review-340432-probes"
+  },
+  "input_check": "exit0, no drift at check time",
+  "composed_task_input_hashes": 31,
+  "retained_patch_sha256": "3af1822dc0d08851466105f17cbf5e9e26248ff75dc3d9352a9a43b979058e3e",
+  "collector": "byte-identical to accepted execution340016",
+  "bounds": {
+    "cleanup_seconds": 60,
+    "implementer_invocations": 1,
+    "retry": false,
+    "total_seconds": 4800,
+    "turn_seconds": 3600
+  },
+  "product_tests": 0,
+  "launches": 0,
+  "limits": "read-only composed packet inspection, no bootstrap re-proof or root installation"
+}

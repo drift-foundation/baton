@@ -1,0 +1,110 @@
+{
+ "caveat": "PROGRESS.md is digested as of this write and is appended to afterwards in this same claim; the record files are listed so a reviewer can see which revision the proof was taken against.",
+ "delivered": {
+  "CLEAN-START.md": {
+   "bytes": 3723,
+   "sha256": "f125583bc17c20179658f11c98fff6d532d348307a2f66b105418a26e23bf4fa"
+  },
+  "capacity.py": {
+   "bytes": 50115,
+   "sha256": "34fb83314dcc1f3d8373ff010b8ccc36a78e6d9d172a36c01bff2d4bfafb6784"
+  },
+  "fixtures/qualifying-TEMPLATE-JOBS.md": {
+   "bytes": 3552,
+   "sha256": "bc7aee367d1fb1b229e0f667c4ee4c527f5327131b81852ed27e54cfdd159817"
+  },
+  "guide_contract.py": {
+   "bytes": 9673,
+   "sha256": "19f596a20b4fd54cef7939cbe949bf55870b1eee668da33bd4ced9fdeb8ad4d6"
+  },
+  "prove_capacity.py": {
+   "bytes": 18638,
+   "sha256": "6e9f0ee53e976abad6105d9f8d16a890640c0f773a868900c329999a15eae57a"
+  },
+  "prove_guide_contract.py": {
+   "bytes": 8829,
+   "sha256": "650af023c32551443523ce95888fbdf0adef66f7ba43f7bac076e2042db7290a"
+  }
+ },
+ "evidence": {
+  "GUIDE-CONTRACT.json": "9fd9e217866d69d56c3d7af623451c5d7c1268ecbb3fca6a28f3890e19abac77",
+  "GUIDE-CONTRACT.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "PROOF.json": "a243763a418a8c9bf534ad33b30c00058264ac17c92a80cf25a4ab9b13d7fd3b",
+  "PROOF.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "cli-compose-refused.json": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "cli-compose-refused.txt": "865ecb57b6fa20f923c4dafe7b9b2011e9ada9dafc9b2f7b2678e506e04a0027",
+  "cli-compose.json": "5436ed5724b37b2e87efd975febc43299ac94c670dc5716774394b0d78324093",
+  "cli-compose.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "cli-materialize.json": "979c708dbe156e53d1fcdbbbd01d60921c2ba141c43257a0a703b71e71caf1e6",
+  "cli-materialize.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "cli-preflight.json": "d51a3872e44f05b0109d9692c87f548ac53bc864861723fa609b56f33492327c",
+  "cli-preflight.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "materialize.json": "2ae30a334005b590d304367a8277802d025f959946663f53e312dac415be4339",
+  "preflight.json": "738d3e0b4b184c7bce4a114878cd9667df486e74ab76521d4e95066a341f84b1"
+ },
+ "external_inputs": {
+  "files": {
+   "v12/instance-inputs.json": {
+    "sha256": "e2eb35b222b67ac6fae77f361bc2a007623c7a4f2d7bc75c593f46ec2708137e",
+    "what": "canonical instance inputs"
+   },
+   "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json": {
+    "sha256": "fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903",
+    "what": "published conformance vectors"
+   },
+   "work/records/2026/10/finding-v12-native-pilot-instance-packet/fresh5-361402/configure-inputs.json": {
+    "sha256": "f60b129baad7fc098be76af530a6705b96cd510aa4d8b2ff552cf3b9d6e2a494",
+    "what": "reviewed pilot configuration"
+   },
+   "work/records/2026/10/finding-v12-native-pilot-instance-packet/fresh5-361402/task.json": {
+    "sha256": "91a13de94a23941b6653b9da40ae56e28046c7b30456def734638243185272f0",
+    "what": "reviewed pilot task"
+   },
+   "work/records/2026/10/finding-v12-native-pilot-instance-packet/revision-4/inputs/deployment.json": {
+    "sha256": "6a675445d361a5208f82dfc43593595cd2d5d9bcbb3e893842c03b5cb8587a3e",
+    "what": "reviewed pilot input manifest"
+   },
+   "work/records/2026/10/finding-v12-template-job-creation/findings/finding-packaged-template-creation/evidence/review-366382/BUNDLE-ARCHIVE.json": {
+    "sha256": "de9c669ce77819686f5043207151af5f6e1894940f87da70e16fde0c9dcbbad9",
+    "what": "retained runtime archive record"
+   },
+   "work/records/2026/10/finding-v12-template-job-creation/findings/finding-packaged-template-creation/evidence/review-366382/verified-first-build.tar.gz": {
+    "sha256": "1da85eed0a3a19a5da0b83253abbbb40ebeed01bfe90ee05a10055dec0057125",
+    "what": "retained runtime archive"
+   }
+  },
+  "note": "digests read now; a parent assembling on this result should re-read them and compare",
+  "source_revision": "42bed8bb04a53380e565b1a63fb2bc702677f0d0"
+ },
+ "outcomes_bound_here": {
+  "create_exit": 0,
+  "document_digest": "sha256:4677bcf8f20e43b5bc9bb5eb44e11af6f3dea2dfc4851d6ded814acde6b80c69",
+  "guide_contract_cases": 15,
+  "guide_contract_ok": true,
+  "joined_proof_ok": true,
+  "manifest_digest": "sha256:fa0a76bda38f7b81cb8c947c0ffb266fc13d5bcfd03916efc0b68a75d88076b5",
+  "preparation_is_complete": false,
+  "unresolved_operator_grants": [
+   "credential_policy_digest",
+   "mount_policy_digest",
+   "network_policy_digest",
+   "resource_policy_digest",
+   "role_instructions_digest",
+   "tool_policy_digest",
+   "toolchain_digest"
+  ]
+ },
+ "retained_record_files": {
+  "FINDING.md": "c95c923120cad2b861534f7d8438d5bdb3e6541bdb4dba5462a8aa00b0732227",
+  "INCIDENT-367234-scratch-deletion.md": "4bc3feffb7ae309a829391dbfda57f738284c02b544d383000a34264035d85c0",
+  "PLAN.md": "60481d0ab9054df13ec52edcd8aa1ef092f22d1a160234aa9fc08612757ea0a1",
+  "PROGRESS.md": "63caea6d3aff1068b95522de152eae6b9a7d8292dcd4ebbd7eecbdfe454ecfc1"
+ },
+ "schema": "baton.v12.capacity-binding/1",
+ "superseded": {
+  "compose_capacity.py": "7da8b79332ba331815d7bbbe6f307c7dd1bd53ac155678fb9dad3ca8ed8431cf",
+  "note": "entrypoint refuses; body retained as the record of the attempt",
+  "prove_admission.py": "919fe8f97707e3fc9f8e544011a84375f55703b695d3de7402c0d4e19bc33174"
+ },
+ "what": "the digest binding review 2026-10-27T18-27-26Z [R3] asks for: the artifacts this child delivers and the external inputs they depend on, so a parent assembling on this result consumes the reviewed bytes and not whatever is on disk later."
+}

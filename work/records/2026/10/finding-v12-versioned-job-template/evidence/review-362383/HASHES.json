@@ -1,0 +1,18 @@
+{
+  "v12/python/src/baton_v12/job_manager/__init__.py": {
+    "candidate": "dca5dfa59c02ddfa8806fd989723112aacda7134598c90dc35d3ea8c7331ca34",
+    "matches": true,
+    "base_matches": true
+  },
+  "v12/python/src/baton_v12/job_manager/templates.py": {
+    "candidate": "8a93bd299f119620b741d71e11b44aac1bae8c7a972f26e50083962290ef8f3a",
+    "matches": true,
+    "base_matches": true
+  },
+  "v12/python/tests/job_manager/test_templates.py": {
+    "candidate": "46da84a8c150da327a97228461f365b2e5cf072b7973ad79264104c344aa7494",
+    "matches": true,
+    "base_matches": true
+  },
+  "manifest": "fd92f115bc32975efde567adfb2e1fa9b7273427297a84bce24884192b61f3b1"
+}

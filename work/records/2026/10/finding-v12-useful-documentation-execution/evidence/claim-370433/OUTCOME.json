@@ -1,0 +1,87 @@
+{
+ "cessation_and_cleanup": {
+  "cessation": "ESTABLISHED. The implementation container is gone and the review container is exited; neither is running.",
+  "cleanup": "NOT SETTLED. The installed diagnostic reports the cleanup axis unknown, the review runtime still projects `quiescent` rather than destroyed, and the exited review container is still present in the engine.",
+  "supervisor_pids": "169781 (manager), 169782 (publisher)",
+  "therefore_the_supervisors_are_STILL_RUNNING": "the grant requires actual cessation AND settled cleanup before any supervisor stop. Cessation holds; cleanup does not. So nothing was stopped."
+ },
+ "headline": "the implementation lane SUCCEEDED and produced a real verified candidate. The review lane FAULTED with no provider output and produced NO verdict. The `exceptional` projection the previous handoff reported was an observation artifact on the implementation lane -- serving was never broken.",
+ "implementation_lane": {
+  "artifact": {
+   "bytes": 82420,
+   "content_digest": "sha256:40c8b565f419000b454641f0e1231484bb1aae738efa949307f2a65915d736b8",
+   "custody_locator": "/home/sl/baton-instances/useful-template-job-w366962/state/workspaces/.baton-review-lines/line-5f0938d736aa879b6a97eec30df41bb7c063ad376c42b5b98358d35a52a5e316/custody/attempt-16aa4dc348aa54aac84738be2f9caeac86ff4767d32aa59d88c48410d4fb9db9/proposal",
+   "output_name": "proposal"
+  },
+  "attempt": "attempt-16aa4dc348aa54aac84738be2f9caeac86ff4767d32aa59d88c48410d4fb9db9",
+  "base": "42bed8bb04a53380e565b1a63fb2bc702677f0d0",
+  "changed_paths": [
+   "v12/TEMPLATE-JOBS.md"
+  ],
+  "container": "061f34d2cbcfce41d498cba9e3e2e13791e0773c99e9ded3f4a88bfbaaccf6b6 -- no longer present (removed)",
+  "disposition": "candidate",
+  "head": "e6de29e5f945f692a42f689570d5c39edc4f61bc",
+  "its_own_verification_passed": "verification.txt records `exit: 0`. That command is guide_contract.SCRIPT, composed in the accepted preparation -- so the contract this campaign wrote ran inside the worker against the candidate and passed.",
+  "patch_bytes": 49185,
+  "provider": {
+   "failure_reason": null,
+   "seconds_bound": 3600,
+   "status": 0
+  },
+  "runtime": "destroyed",
+  "state": "completed",
+  "the_candidate_is_exactly_in_scope": true,
+  "the_verification_output_is_deliberately_withheld_by_the_product": "verification.txt says so: the command is code from the candidate tree the provider edited and runs with the credential mount readable, so its stdout/stderr are not reproduced. An operator reruns it from the collected tree instead. Not a gap in this execution.",
+  "why": "the candidate changed the source and its own verification passed"
+ },
+ "not_established": [
+  "no independent verdict exists and none can be inferred",
+  "why the review agent faulted",
+  "the exact exchange denial, which the projection withholds by design",
+  "no owner acceptance, no integration, no OBS-0 endpoint"
+ ],
+ "review_lane": {
+  "attempt": "attempt-793b51aabf70b8b4469e8db90b12c7ecbe606a8abbbd2c2cf39f9a7214f945e5",
+  "container": "a813a59f691c23022343cb25f3050df2c95386ae36b7dbab647fd4108d906ee6 -- exited, exit code 1, not OOM-killed, finished 2026-10-28T01:43:32.277Z",
+  "gate": "the implementation gate OPENED (state completed, open true), so the review was correctly released",
+  "generation": 2,
+  "independence_established": "its own attempt, its own container, its own participant and its own generation -- distinct from the implementation lane",
+  "no_correction_opened": "episodes 1, corrections 0. A `changes-requested` VERDICT opens a correction; a FAULTED review is an exceptional stage and there is no verdict to correct against. The owner's no-ceiling correction grant is therefore not engaged.",
+  "participant": "baton.reviewer-w366962",
+  "provider_output": "NONE. The supported logs view reports the native room `empty` -- 'the room exists and the provider wrote nothing in it' -- and every worker/provider stream is `absent`. The review never reached a model turn.",
+  "runtime": "quiescent",
+  "state": "exceptional",
+  "verdict": null,
+  "why_it_faulted": "NOT ESTABLISHED. fault_code `agent` and exit 1 with no provider output is all the retained evidence carries, and the review worker wrote no stream to explain it.",
+  "worker_terminal": {
+   "answered": [
+    "describe"
+   ],
+   "attempt_id": "attempt-793b51aabf70b8b4469e8db90b12c7ecbe606a8abbbd2c2cf39f9a7214f945e5",
+   "command_digest": "sha256:ddb64131d28507c578182f498c52d3a4640bb62298620e06714b553db4a8d17c",
+   "disposition": null,
+   "ending": "faulted",
+   "fault_code": "agent",
+   "manifest_digest": null,
+   "schema": "baton.worker-exchange.terminal/1",
+   "sequence_id": "sequence-6cffd13797adec0217f00ff1c7b3f356",
+   "session": "session-f4664752e2f0594e14e19f94"
+  }
+ },
+ "samples": [
+  "sample-01.json",
+  "sample-02.json",
+  "sample-03.json",
+  "sample-04.json",
+  "sample-05.json",
+  "sample-06.json",
+  "sample-07.json"
+ ],
+ "schema": "baton.v12.execution-outcome/1",
+ "the_reviewers_hypothesis_is_CONFIRMED": {
+  "the_operational_consequence": "for ~18 minutes the only supported views told an operator this Job had failed while it was in fact working normally. That is the defect worth fixing, and it is a reporting defect rather than a serving one.",
+  "therefore": "`exceptional` plus `exchange: unreadable` did NOT mean the serving execution had failed. The observation reconstruction the reviewer located -- _Observation._job_execution rebuilding the installed manifest where serving uses _given_for(stage) -- is consistent with exactly this: a projection defect that cannot distinguish a healthy stage from a failed one.",
+  "what_actually_happened_at_01:44": "the same stage resolved to `completed` with a real artifact and a destroyed runtime, with no intervention of any kind",
+  "what_was_reported_at_01:37": "implementation `exceptional`, exchange `unreadable (policy/denied)`, runtime running, review `blocked`"
+ }
+}

@@ -1,0 +1,13 @@
+{
+  "command": [
+    "python3",
+    "-B",
+    "-m",
+    "unittest",
+    "tests.manager.test_authoring_enforcement",
+    "tests.manager.test_authoring_manager_guard"
+  ],
+  "status": 1,
+  "seconds": 11.722782778999772,
+  "timeout": 120
+}

@@ -1,0 +1,12 @@
+{
+  "prior_product_tests_seconds": 0,
+  "preparation_checks_measured_seconds": 5.613677427000766,
+  "initial_pin_probe_tool_wall_seconds": 0.113412535,
+  "status_probe_seconds": "unknown (combined tool wall0.182334313s)",
+  "limits_inspection_failed_attempts": 2,
+  "limits_inspection_note": "first expected missing-store status; second looked for policy limits in deployment instead of policy.json; corrected read-only inspection without changing generated documents",
+  "product_tests_run": false,
+  "provider_runs": 0,
+  "actual_jobs": 0,
+  "actual_attempts": 0
+}

@@ -1,0 +1,1 @@
+refused: a minted authority identity is 32 hex characters read back from the destination; this is 'nope'. This composition will not invent one.

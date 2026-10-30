@@ -1,0 +1,20 @@
+{
+  "failure_identities_equal": true,
+  "residual_sets_equal": true,
+  "cause_differences": [
+    "test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('adopted', 'review_cycles.py:create_line', 'review_lines'))",
+    "test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'review_cycles.py:attach_review', 'answer.authority_uuid'))",
+    "test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'review_cycles.py:attach_review', 'answer.generation'))",
+    "test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'review_cycles.py:attach_review', 'answer.participant'))",
+    "test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'review_cycles.py:attach_review', 'answer.principal'))",
+    "test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'review_cycles.py:attach_review', 'answer.work_id'))",
+    "test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'review_cycles.py:grant_writer', 'answer.authority_uuid'))",
+    "test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'review_cycles.py:grant_writer', 'answer.generation'))",
+    "test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'review_cycles.py:grant_writer', 'answer.participant'))",
+    "test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'review_cycles.py:grant_writer', 'answer.principal'))",
+    "test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'review_cycles.py:grant_writer', 'answer.work_id'))",
+    "test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'review_cycles.py:writer_boundary', 'answer.authority_uuid'))",
+    "test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'review_cycles.py:writer_boundary', 'answer.generation'))",
+    "test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'review_cycles.py:writer_boundary', 'answer.work_id'))"
+  ]
+}

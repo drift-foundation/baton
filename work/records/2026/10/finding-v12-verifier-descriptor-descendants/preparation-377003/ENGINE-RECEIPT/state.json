@@ -1,0 +1,309 @@
+{
+  "calls": [
+    {
+      "args": [
+        "inspect",
+        "w325695-proof-377003"
+      ],
+      "phase": "preflight",
+      "status": 1,
+      "stderr": {
+        "bytes": 44,
+        "sha256": "aa1cc25c5c08f8bb4c4ef91c3bd699c03200a0ac77c161be4ec549794a710a23"
+      },
+      "stdout": {
+        "bytes": 3,
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "timeout_seconds": 10
+    },
+    {
+      "args": [
+        "create",
+        "--name",
+        "w325695-proof-377003",
+        "--label",
+        "baton.proof=w325695-proof-377003",
+        "--pull",
+        "never",
+        "--read-only",
+        "--network",
+        "none",
+        "--cap-drop",
+        "ALL",
+        "--security-opt",
+        "no-new-privileges",
+        "--user",
+        "65532:65532",
+        "--pids-limit",
+        "64",
+        "--memory",
+        "2g",
+        "--cpus",
+        "1",
+        "--entrypoint",
+        "/usr/bin/python3",
+        "--tmpfs",
+        "/tmp:rw,noexec,nosuid,nodev,size=33554432,mode=1777,uid=65532,gid=65532",
+        "--tmpfs",
+        "/dev/shm:rw,noexec,nosuid,nodev,size=16777216,mode=1777,uid=65532,gid=65532",
+        "--tmpfs",
+        "/run/baton-verifier/home:rw,noexec,nosuid,nodev,size=4194304,mode=0700,uid=65532,gid=65532",
+        "--tmpfs",
+        "/run/baton-verifier/pycache:rw,noexec,nosuid,nodev,size=8388608,mode=0700,uid=65532,gid=65532",
+        "--tmpfs",
+        "/run/baton-verifier/tmp:rw,noexec,nosuid,nodev,size=16777216,mode=0700,uid=65532,gid=65532",
+        "--tmpfs",
+        "/run/baton-verifier/cache:rw,noexec,nosuid,nodev,size=4194304,mode=0700,uid=65532,gid=65532",
+        "sha256:47e733834bb690fd4601e102f81e527a08b6ffe55da8b8cb345f45edfcb1517e",
+        "-c",
+        "PROOF_IMAGE='sha256:47e733834bb690fd4601e102f81e527a08b6ffe55da8b8cb345f45edfcb1517e';PROOF_UID=65532;PROOF_GID=65532\n\"\"\"For the separately selected non-provider engine proof ONLY.\"\"\"\nimport ast,errno,json,os,pathlib,stat,subprocess,sys,tempfile,time\nimport hashlib\nEXPECTED_IMAGE_FILES = {'/opt/baton/baton_worker.py': '56cdee824193834e9f1e8e974259575219a9223aa9b4f1946c99099b35c5cd34', '/opt/baton/claude_agent.py': 'cd7cee152af411e02043094ff0d6de838721209b08483960429480d9dfc90f0a', '/opt/baton/dogfood_entry.py': '8012e5d8581e43fbfbef245c60901501e588f1dbc8a0a57b9ca2cdcdae2369c2', '/opt/baton/worker-control-1.0.schema.json': '22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc', '/opt/baton/verifier-layout-marker.json': '3355c11a36044111f713d37a729e51f8b781801d655be5e0df14de7fb69c9648', '/opt/baton/attempt_log_format.py': '304152a5760e0ecf1c4e5947df3a402f3f141e3ccf3ebc9306fd7fc8f749de1f', '/opt/baton/verification_context.py': 'f599072ac1202e9b759d9e7850f76c98790e23710cf6181d5a6e8907dd51650e', '/opt/baton/source_profiles/checkout.py': '037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7', '/opt/baton/source_profiles/__init__.py': 'c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad'}\nfor path, expected in EXPECTED_IMAGE_FILES.items():\n assert hashlib.sha256(pathlib.Path(path).read_bytes()).hexdigest() == expected, path\nassert os.getuid() == PROOF_UID and os.getgid() == PROOF_GID\n# Diagnostic selection uses the accepted topology and selected explicit UID/GID.\n# It is not an installed manager-delivery receipt.\nfrom claude_agent import ClaudeAgent\nagent = ClaudeAgent.__new__(ClaudeAgent)\nagent._seen = {}\nmarker = json.loads(pathlib.Path('/opt/baton/verifier-layout-marker.json').read_text())\nselection = dict(schema=agent.LAYOUT_SCHEMA, layout_digest=marker['layout_digest'], roots=agent.LAYOUT_ROOTS,\n                 filesystem=agent.LAYOUT_FILESYSTEM, options=list(agent.LAYOUT_OPTIONS), mode=agent.LAYOUT_MODE,\n                 uid=PROOF_UID, gid=PROOF_GID, image_digest=PROOF_IMAGE,\n                 profile_digest='sha256:'+'1'*64, policy_digest='sha256:'+'2'*64, adapter_digest='sha256:'+'3'*64)\nselection_path='/tmp/kernel-diagnostic-selection.json'\npathlib.Path(selection_path).write_text(json.dumps(selection))\nagent.LAYOUT_DOCUMENT=selection_path\nassert agent._selected_layout() == selection\npinned, held_roots=agent._pinned_environment('/tmp', {'PATH':'/usr/local/bin:/usr/bin:/bin'})\nagent._revalidated_directories(pinned, held_roots)\n\nroots={name:'/run/baton-verifier/'+leaf for name,leaf in [('HOME','home'),('TMPDIR','tmp'),('XDG_CACHE_HOME','cache'),('PYTHONPYCACHEPREFIX','pycache')]}\nparent=pathlib.Path('/run/baton-verifier');s=parent.stat();assert s.st_uid==0 and stat.S_IMODE(s.st_mode)==0o755 and not os.access(parent,os.W_OK)\nfor name,root in roots.items():\n s=os.lstat(root);assert stat.S_ISDIR(s.st_mode) and s.st_uid==os.getuid() and stat.S_IMODE(s.st_mode)==0o700\n assert os.path.realpath(root)==root\n assert os.path.ismount(root)\n before=(s.st_dev,s.st_ino)\n for op in ('rename','remove'):\n  try:\n   if op=='rename':os.rename(root,root+'-replaced')\n   else:os.rmdir(root)\n  except OSError as e:assert e.errno in (errno.EBUSY,errno.EROFS,errno.EACCES,errno.EPERM)\n  else:raise AssertionError('mount root replaced')\n try:os.symlink('/tmp',root)\n except FileExistsError:pass\n else:raise AssertionError('mount replaced by link')\n assert (os.stat(root).st_dev,os.stat(root).st_ino)==before\n# Ordinary children/grandchildren, default close_fds, with a closed private env.\nenv={'PATH':'/usr/local/bin:/usr/bin:/bin',**roots}\nleaf=\"import os,pathlib; [pathlib.Path(os.environ[k],'child-marker').write_text('inert') for k in ['HOME','TMPDIR','XDG_CACHE_HOME','PYTHONPYCACHEPREFIX']]\"\nchild='import subprocess,sys;subprocess.run([sys.executable,\"-c\",'+repr(leaf)+'],check=True)'\nsubprocess.run([sys.executable,'-c',child],env=env,check=True,timeout=10)\nraw=pathlib.Path('/opt/baton/claude_agent.py').read_bytes();tree=ast.parse(raw);cls=next(n for n in tree.body if isinstance(n,ast.ClassDef) and n.name=='ClaudeAgent');fn=next(n for n in cls.body if isinstance(n,ast.FunctionDef) and n.name=='_checked_directory');fn.decorator_list=[]\nclass TaskRefusal(Exception):pass\nns={'os':os,'TaskRefusal':TaskRefusal};exec(compile(ast.Module(body=[fn],type_ignores=[]),'<candidate validator>','exec'),ns)\nwith tempfile.TemporaryDirectory(dir=roots['TMPDIR']) as scratch:\n home=pathlib.Path(scratch)/'home';home.mkdir(mode=0o700);assert ns['_checked_directory'](scratch,str(home))==str(home)\n# Real bounded allocation, one private root at a time. Never grow or fall back.\ncapacity={\"HOME\":4194304,\"TMPDIR\":16777216,\"XDG_CACHE_HOME\":4194304,\"PYTHONPYCACHEPREFIX\":8388608}\ncapacity_result={}\nfor key, bound in capacity.items():\n root=roots[key];v=os.statvfs(root);assert v.f_blocks*v.f_frsize <= bound\n target=pathlib.Path(root)/'capacity-probe'\n written=0;failed=False\n try:\n  with target.open('wb',buffering=0) as stream:\n   while written <= bound+1048576:\n    try:\n     count=stream.write(b'x'*65536)\n     if not count:raise AssertionError('zero write without ENOSPC')\n     written+=count\n    except OSError as err:\n     assert err.errno==errno.ENOSPC;failed=True;break\n  assert failed and written <= bound\n  capacity_result[key]={'bytes_written':written,'errno':'ENOSPC','configured_bytes':bound}\n finally:\n  target.unlink(missing_ok=True)\nagent._revalidated_directories(pinned,held_roots)\nfor _name, fd in held_roots:os.close(fd)\n\n# Detached verifier-like descendant remains until exact container teardown.\np=subprocess.Popen([sys.executable,'-c','import time;time.sleep(120)'],env=env,start_new_session=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)\nprint(json.dumps({'image_bytes':'passed','product_mount_checks':'passed','capacity_enospc':'passed','capacity':capacity_result,'mount_binding':'passed','ordinary_grandchild':'passed','nested_validator':'passed','descendant_started':p.pid,'cleanup':'not-yet-observed'}),flush=True)\ntime.sleep(120)\n"
+      ],
+      "phase": "create",
+      "status": 0,
+      "stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 65,
+        "sha256": "7ec860095966e218e1632dce808c706701d959436c1dfe7a16117149ceb6e2ae"
+      },
+      "timeout_seconds": 10
+    },
+    {
+      "args": [
+        "inspect",
+        "f901652af7aca4262d4de13ad5ad1be6dde77e414b37d152730e016f526e9667"
+      ],
+      "phase": "acquire-created",
+      "status": 0,
+      "stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 21222,
+        "sha256": "f1c037ff5940a01e3215608e6ec72c361b8186375a6475208e489be08b01d21c"
+      },
+      "timeout_seconds": 10
+    },
+    {
+      "args": [
+        "start",
+        "f901652af7aca4262d4de13ad5ad1be6dde77e414b37d152730e016f526e9667"
+      ],
+      "phase": "start",
+      "status": 0,
+      "stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 65,
+        "sha256": "7ec860095966e218e1632dce808c706701d959436c1dfe7a16117149ceb6e2ae"
+      },
+      "timeout_seconds": 10
+    },
+    {
+      "args": [
+        "logs",
+        "f901652af7aca4262d4de13ad5ad1be6dde77e414b37d152730e016f526e9667"
+      ],
+      "phase": "receipt",
+      "status": 0,
+      "stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "timeout_seconds": 10
+    },
+    {
+      "args": [
+        "logs",
+        "f901652af7aca4262d4de13ad5ad1be6dde77e414b37d152730e016f526e9667"
+      ],
+      "phase": "receipt",
+      "status": 0,
+      "stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 614,
+        "sha256": "3101b5e49df86d1c9c8f8d8edd7d7a41438ed2f695f2c42ca22c0ddefefb2275"
+      },
+      "timeout_seconds": 10
+    },
+    {
+      "args": [
+        "inspect",
+        "f901652af7aca4262d4de13ad5ad1be6dde77e414b37d152730e016f526e9667"
+      ],
+      "phase": "running",
+      "status": 0,
+      "stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 21940,
+        "sha256": "5266765657973babfc08dbf29dfb24eac3416afc10c99b6f69a738e85b3a1feb"
+      },
+      "timeout_seconds": 10
+    },
+    {
+      "args": [
+        "rm",
+        "--force",
+        "f901652af7aca4262d4de13ad5ad1be6dde77e414b37d152730e016f526e9667"
+      ],
+      "phase": "remove",
+      "status": 0,
+      "stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 65,
+        "sha256": "7ec860095966e218e1632dce808c706701d959436c1dfe7a16117149ceb6e2ae"
+      },
+      "timeout_seconds": 24.999998838000465
+    },
+    {
+      "args": [
+        "inspect",
+        "f901652af7aca4262d4de13ad5ad1be6dde77e414b37d152730e016f526e9667"
+      ],
+      "phase": "confirm-absence",
+      "status": 1,
+      "stderr": {
+        "bytes": 88,
+        "sha256": "66807403fa13061fdb62ce62947f0da66fe0d4d840a7fb80a23f02ebcf20274b"
+      },
+      "stdout": {
+        "bytes": 3,
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "timeout_seconds": 10
+    }
+  ],
+  "cleanup_status": 0,
+  "container_id": "f901652af7aca4262d4de13ad5ad1be6dde77e414b37d152730e016f526e9667",
+  "create_intent": true,
+  "elapsed_seconds": 0.7101453889990808,
+  "errors": [],
+  "exact_absence": true,
+  "inspections": [
+    {
+      "classification": "absent",
+      "phase": "preflight",
+      "reason": "exact-no-such-object",
+      "reference": "w325695-proof-377003",
+      "status": 1,
+      "stderr": {
+        "bytes": 44,
+        "sha256": "aa1cc25c5c08f8bb4c4ef91c3bd699c03200a0ac77c161be4ec549794a710a23"
+      },
+      "stdout": {
+        "bytes": 3,
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      }
+    },
+    {
+      "classification": "present",
+      "phase": "acquire-created",
+      "reason": "exact-object",
+      "reference": "f901652af7aca4262d4de13ad5ad1be6dde77e414b37d152730e016f526e9667",
+      "status": 0,
+      "stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 21222,
+        "sha256": "f1c037ff5940a01e3215608e6ec72c361b8186375a6475208e489be08b01d21c"
+      }
+    },
+    {
+      "classification": "present",
+      "phase": "running",
+      "reason": "exact-object",
+      "reference": "f901652af7aca4262d4de13ad5ad1be6dde77e414b37d152730e016f526e9667",
+      "status": 0,
+      "stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 21940,
+        "sha256": "5266765657973babfc08dbf29dfb24eac3416afc10c99b6f69a738e85b3a1feb"
+      }
+    },
+    {
+      "classification": "absent",
+      "phase": "confirm-absence",
+      "reason": "exact-no-such-object",
+      "reference": "f901652af7aca4262d4de13ad5ad1be6dde77e414b37d152730e016f526e9667",
+      "status": 1,
+      "stderr": {
+        "bytes": 88,
+        "sha256": "66807403fa13061fdb62ce62947f0da66fe0d4d840a7fb80a23f02ebcf20274b"
+      },
+      "stdout": {
+        "bytes": 3,
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      }
+    }
+  ],
+  "owned": true,
+  "payload": {
+    "capacity": {
+      "HOME": {
+        "bytes_written": 4190208,
+        "configured_bytes": 4194304,
+        "errno": "ENOSPC"
+      },
+      "PYTHONPYCACHEPREFIX": {
+        "bytes_written": 7520256,
+        "configured_bytes": 8388608,
+        "errno": "ENOSPC"
+      },
+      "TMPDIR": {
+        "bytes_written": 16773120,
+        "configured_bytes": 16777216,
+        "errno": "ENOSPC"
+      },
+      "XDG_CACHE_HOME": {
+        "bytes_written": 4190208,
+        "configured_bytes": 4194304,
+        "errno": "ENOSPC"
+      }
+    },
+    "capacity_enospc": "passed",
+    "descendant_started": 9,
+    "image_bytes": "passed",
+    "mount_binding": "passed",
+    "nested_validator": "passed",
+    "ordinary_grandchild": "passed",
+    "product_mount_checks": "passed"
+  },
+  "proof_observed": true,
+  "provider_invoked": false,
+  "selection": {
+    "gid": 65532,
+    "image": "sha256:47e733834bb690fd4601e102f81e527a08b6ffe55da8b8cb345f45edfcb1517e",
+    "layout_sha256": "930a817469df98e7e2831c148661a5712115ff176ff184358c86a08d4daf5316",
+    "payload_sha256": "3d46d3726cdef294dce1b9f6e8f97d697bb0fcc766f9ac0244065dc537b3ea7e",
+    "proof_id": "w325695-proof-377003",
+    "runner_sha256": "b77dd441a925d483e22d44d979b0d04f8ead7ccb2a2d51fbce9239c0274eb5fc",
+    "schema": "baton.verifier-engine-proof-selection/1",
+    "uid": 65532
+  },
+  "state": "finished",
+  "success": true
+}

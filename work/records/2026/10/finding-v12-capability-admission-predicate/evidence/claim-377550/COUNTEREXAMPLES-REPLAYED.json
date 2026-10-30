@@ -1,0 +1,31 @@
+{
+ "answers": {
+  "empty-projection": {
+   "category": "policy",
+   "code": "denied",
+   "outcome": "REFUSED",
+   "reason": "this deployment's implementation candidate's composed input manifest is not one this Job can admit: this deployment's implementation candidate's composed input does not satisfy the frozen schema: the document breaks type; the document breaks type"
+  },
+  "integer-required": {
+   "category": "policy",
+   "code": "denied",
+   "outcome": "REFUSED",
+   "reason": "this deployment's review candidate's composed input manifest is not one this Job can admit: this deployment's review candidate's composed input does not satisfy the frozen schema: 'outputs'.[1].'required' breaks type; the document breaks unevaluatedProperties"
+  },
+  "one-shared-tuple-heterogeneous-lanes": {
+   "outcome": "ADMITTED",
+   "roles": [
+    "implementation",
+    "review"
+   ]
+  },
+  "single-role-only": {
+   "category": "policy",
+   "code": "denied",
+   "outcome": "REFUSED",
+   "reason": "this deployment's contract requires implementation, review and no candidate was composed for review; a required role with no independently eligible lane cannot be served, and another role's capability does not supply one"
+  }
+ },
+ "note": "The reviewer's three probes against the corrected boundary, plus the heterogeneous positive the fourth observation asked for. The first three were ADMITTED by the previous candidate.",
+ "replayed": "work/records/2026/10/finding-v12-capability-admission-predicate/evidence/review-377024/COUNTEREXAMPLES.json"
+}

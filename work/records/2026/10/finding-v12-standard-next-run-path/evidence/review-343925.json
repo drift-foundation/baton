@@ -1,0 +1,18 @@
+{
+  "fixtures": {
+    "v12/DESIGN.md": {
+      "expected": "b7d5c84aaf107ad6768d4fa806f6720b03c1905608c002d5ee636887851739f5",
+      "actual": "b7d5c84aaf107ad6768d4fa806f6720b03c1905608c002d5ee636887851739f5"
+    },
+    "work/records/2026/10/finding-v12-standard-next-run-path/OWNER-RAPID-START-20261020.md": {
+      "expected": "70f4f50d1bac8a8ed9f7f5859433ec2528c8944e2c3d2833557c6870f8c8fe66",
+      "actual": "70f4f50d1bac8a8ed9f7f5859433ec2528c8944e2c3d2833557c6870f8c8fe66"
+    },
+    "work/records/2026/10/finding-v12-standard-next-run-path/TASK-339833.md": {
+      "expected": "a31ecf151e4aec0ff26c89512665df0384e92185108648ed0c2def2583ad4138",
+      "actual": "a31ecf151e4aec0ff26c89512665df0384e92185108648ed0c2def2583ad4138"
+    }
+  },
+  "bundle_members": 205,
+  "bundle_failures": []
+}

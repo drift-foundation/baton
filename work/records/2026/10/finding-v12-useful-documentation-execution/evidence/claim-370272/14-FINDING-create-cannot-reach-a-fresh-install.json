@@ -1,0 +1,33 @@
+{
+ "authorization_note": "every command in that order is one this grant already authorizes. No operation is added, no unrelated state is repaired, and no Job is re-admitted -- none has been admitted yet. The stop happens with the stores empty and nothing executing.",
+ "bounded_correction_the_packet_needs": "sections 5 and 6 must publish start -> stop -> create -> start for a fresh installation, and section 4 must publish the workspace_storage prerequisite.",
+ "headline": "ordinary template `create` cannot be reached on a FRESH installation without starting and then stopping the deployment first. Neither order the packet could publish works on its own.",
+ "schema": "baton.v12.execution-finding/2",
+ "the_supported_order_this_execution_uses": [
+  "install (done)",
+  "mkdir the configured workspace_storage -- the pilot packet publishes this as 'Selection 2b', the accepted packet omits it (separate finding)",
+  "start   -> creates db/control.sqlite3",
+  "stop    -> releases the manager instance guard; nothing is running, no Job exists, no runtime to cease",
+  "create  -> takes the guard it needs",
+  "start   -> serves the admitted Job",
+  "observe"
+ ],
+ "the_two_refusals": [
+  {
+   "exit": 1,
+   "order": "create BEFORE start (what the accepted packet publishes)",
+   "reached_at": "2026-10-28T01:22:19Z",
+   "refusal": "ContractRefusal: a read-only manager requires an existing regular store",
+   "why": "job_manager._create opens the control store with ControlStore.open_readonly, and on a fresh install db/control.sqlite3 does not exist. The ONLY writable open in job_manager is _serve (line 1168); _submit, _create and _status all open read-only. So the control store is created by SERVING."
+  },
+  {
+   "exit": 1,
+   "order": "create AFTER start",
+   "reached_at": "2026-10-28T01:24:50Z",
+   "refusal": "ContractRefusal: another manager is already active for workspace '\u2026/state/workspaces', holding control store '\u2026/db/control.sqlite3'; only one Host manager may be active for one workspace and database, so this start is a configuration error rather than a standby -- point this manager at its own database and workspace, or stop the active one first",
+   "why": "create_template_job -> fresh_attempt_ports.held -> borrow_manager_instance -> hold_manager_instance takes an EXCLUSIVE flock on the workspace instance guard. The running `manager serve` holds it."
+  }
+ ],
+ "why_my_own_proof_never_hit_it": "prove_capacity.py:_create opened the control store itself with ControlStore.open and closed it before calling create, and it never started the deployment. Both refusals need a real fresh install plus a real serve loop; no inert proof reaches either.",
+ "why_the_pilot_never_hit_this": "the pilot packet's Selection 3 uses `manager \u2026 submit --document \u2026`, which takes NO --control operand and never opens the control store. The template `create` path does take --control. So this is new with template creation and the pilot precedent does not cover it."
+}

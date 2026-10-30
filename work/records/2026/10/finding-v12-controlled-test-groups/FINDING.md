@@ -446,7 +446,21 @@ Git deferred.
 
 ## Decisions pending (owner)
 
-1. Independent verification of the R1/R2 harness corrections when K returns them.
+1. Independent verification of the R1/R2 harness corrections and the S1 attribution (evidence/s1-2026-10-30/).
 2. Review of S1 attribution evidence (per helper, with negative probes) and S4 probes as K returns them.
 3. Cases H and I remain per-case investigation (S5), not authorized for change.
 4. Git checkpoint remains deferred by the owner.
+
+## 2026-10-30 — Owner selects scheduled-reboot stop after K handoff
+
+Slawomir confirmed stopping after K handed over (latest M384903) and requested shutdown preparation. Execution stops pending explicit resume; no implementation or tests are selected during preparation. RESTART-20261030.md pins accepted versus reported outcomes, unfinished R2/S1/S4/B3-B5 work, persistent evidence, exact owner release/reclaim commands and observed runtime state. Owner-held arrangement B remains selected. The copilot does not release as baton.slaw, stop the unrelated MariaDB container, mutate Git, or initiate reboot. Older PLAN text is superseded for the immediate next action by this restart checkpoint; historical decisions remain intact.
+
+## 2026-10-30 — Owner clarifies top-level development status
+
+Slawomir explicitly directs the top-level README to state that v11 is development-frozen, v12 is the active development version, and readers should consult v12/README.md. This is documentation of the selected development direction; it does not switch the running coordination authority or authorize deployment. Interactive Codex copilot added that status and link near the top of README.md.
+
+## 2026-10-30 — Owner selects portable development records and disk-backed scratch
+
+Slawomir directs classification of outstanding files so development can resume on another computer: preserve source, tests, decisions and required evidence in version control; keep genuinely reproducible disposable outputs in explicitly ignored storage. This machine is not the sole trusted copy. Clarification: avoid `/tmp` by default because it is reboot-volatile and consumes memory on this host; reserve it for short-lived temporary files such as compiler side effects. Prefer ignored, disk-backed `work/scratch/` for disposable development scratch. Reboot persistence does not make scratch durable evidence.
+
+Interactive copilot owns only this housekeeping documentation and inventory; K retains active source/test ownership. No Git mutation, deletion, dossier relocation or broad evidence ignore is authorized by this classification. Existing dossier files are preserved pending artifact-specific disposition. Large or sensitive required artifacts need a verified durable external copy and a checked-in locator/digest before their local copy can be treated as disposable; no such external backup is claimed here.

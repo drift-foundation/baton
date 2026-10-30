@@ -329,3 +329,10 @@ historical mechanism is not proof that every original obligation is discharged.
 Coordination-only update by baton.tuner under claim285648/handoff285645;
 current execution remains in PLAN and canonical Baton state. Historical evidence
 and independent reviews are unchanged. No product/test/live execution selected.
+
+
+## 2026-10-29 — delivery-plan reconciliation W383239
+
+Retain relevant proposal/import-base closure as later v12 source/result correctness, not a prerequisite to the next documentation workflow. Human-plus-agent integration remains default; current direct development does not require reviving an old maintenance packet. Existing accepted evidence and unresolved selected-path correctness obligations remain, with future bounded allocation through canonical claims. No automatic integration or new execution selected.
+
+Current PLAN supersedes prior scheduling; the entire prior PLAN is preserved byte-for-byte in PLAN-HISTORY-W383239.md. No source, tests, specification, acceptance result or claim ownership changed by this record update.

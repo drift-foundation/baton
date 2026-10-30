@@ -1,0 +1,11 @@
+# Current milestone — minimal measured fixture-storage correction
+
+Review345793: review-2026-10-21T11-37-58Z.md and evidence/review-345793.json. Latest candidate head5a7d5976ab48c2e66ad5ae610e526362a0990871/content5c0fca78e650ad9ff75b07e86a3d9b1c80e094d93087ab13c1c7566e0c3ca391, basebc925cf5, remains UNACCEPTED. Gate864 tests12.515s with16 SQLite-full subtest errors in4 methods; no lease expiry. All producer plus producer-test patch sections unchanged; four fixture diffs preserve displayed assertions.
+
+Next baton.impl prepares MINIMAL fresh continuation from retained candidate, reusing unchanged sources/machinery/review evidence. Required first outcome inside separately selected v12 Job: four-method root/free-space/lifetime measurement plus same-environment base/candidate comparison, bounded fixture correction then complete five-module gate without weakening assertions/skips/verifier security. Repeated setUp and deferred per-case cleanup are the concrete code lead; disk_roots was not new and BATON_V12_DISK_ROOT does not relocate ordinary tempfile SQLite roots. Actual exhausted filesystem and causal peak usage remain unknown. A larger scratch limit is not selected without evidence.
+
+Future task names nonsecret report retained through existing proposal/candidate output, including identities/counts/roots/capacity/cleanup; no transcript-only proof and no new output protocol. Necessary fixture/test edits within outcome have standing authority. One cohesive correction, no further split. No host product tests. Owner345560 invocation consumed; no retry/rebind or fresh start inferred. Parent reconciles exact new launch/permission readiness; W333485 separately owns prospective lease correction, no live token change.
+
+W333486 remains blocked341370 and owns downstream status/report/full joined gate/bundle. Preserve all retained packets/runs and pinned base; W339626 attempts.py overlap requires serial reviewed reconciliation, not overwrite or agent Git mutation. Author preparation/candidate/PROGRESS; reviewer FINDING/PLAN/reviews/evidence. Product acceptance and human checkpoint remain owed.
+
+Checkpoint discussion345786/events345793; no obligations. Author subtotal about2233s plus unknowns, parent2253s separate; reviewer read/hash effort unmeasured, product tests0.

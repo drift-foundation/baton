@@ -64,7 +64,22 @@ STANDARD_LIBRARY = {"json", "pathlib", "hashlib", "re", "os", "typing",
                     # check and the read. `stat.S_ISREG` is how that mode is
                     # read, and it is the standard library's own -- the
                     # ruled-validator rule is about third-party packages.
-                    "stat"}
+                    "stat",
+                    # W384870 (B2) audit of the imports that arrived with
+                    # W275774/W71917/W177936-era modules. None is a third-party
+                    # dependency; each is named here with what it is for, so
+                    # the next reader can check the reason still holds:
+                    # `uuid` mints owner/claimant identities (uuid4) and the
+                    # context conversation id (uuid5) in workspaces, custody and
+                    # provider_context; `urllib` is `quote`/`unquote` of a
+                    # `file:` URI (the read-only SQLite URI in store.py, the
+                    # custody locator path in provider_context.py) and NOT a
+                    # locator parser -- the canonical grammar stays parser-free;
+                    # `fcntl` and `errno` are the advisory lock and the exact
+                    # error classification in workspaces' restoration lock;
+                    # `dataclasses` is the frozen record shape in
+                    # context_delivery.
+                    "uuid", "urllib", "fcntl", "errno", "dataclasses"}
 
 # The complete ruled runtime closure, written out. A closure that is merely
 # "whatever pip resolved" is not pinned, and item 4bh named the version.
@@ -232,8 +247,17 @@ class TheHashesAreTheArtifactsOwn(unittest.TestCase):
         # The ruling, as a case. A wheel or sdist reappearing anywhere under the
         # distribution is the thing item 4bp forbids, and "we removed it once"
         # is not a property.
+        # W384870 (B2): `just build` writes PyInstaller's `base_library.zip`
+        # under `build/`, which `v12/.gitignore` keeps out of the repository.
+        # The rule is about what the REPOSITORY carries, so the ignored build
+        # output is excluded here -- and the ignore rule itself is asserted, so
+        # the exclusion cannot outlive it.
+        ignore = (DISTRIBUTION.parent / ".gitignore").read_text(encoding="utf-8").splitlines()
+        self.assertIn("/python/build/", ignore)
+        build = DISTRIBUTION / "build"
         found = [path.name for pattern in ("*.whl", "*.tar.gz", "*.zip")
-                 for path in DISTRIBUTION.rglob(pattern)]
+                 for path in DISTRIBUTION.rglob(pattern)
+                 if build not in path.parents]
         self.assertEqual(found, [])
         self.assertFalse((DISTRIBUTION / "wheelhouse").exists())
 
@@ -905,6 +929,61 @@ class NoPublicOperationTakesInternalState(unittest.TestCase):
         # change before it is read. The composition opens the record itself
         # now, so there is no operand to declare -- and this gate's
         # stale-declaration half is what caught the leftover.
+        #
+        # W384870 (B2): the audit of 2026-10-30 over every public parameter the
+        # tree had grown since this catalog was last kept. Each group names the
+        # facts a caller SUPPLIES; nothing here is a cursor, a cache or a
+        # position. Where a name smelled of bookkeeping it was read at its
+        # function before it was declared, and one was refused instead:
+        # `read_context_receipt`'s `workspace_storage` was a parameter nothing
+        # read, so it was removed from the function rather than declared (the
+        # entry above records why that name must not come back as a held
+        # capability).
+        # Attempts and gates: the deadline policy a start is governed by, the
+        # exact gate a discharge names.
+        "deadline_policy", "gate",
+        # Context delivery and provider contexts (W177936): the roots excluded
+        # from a context storage, the runtime uid it is configured for, the
+        # artifact being read back, the cleanup exclusion a seal honours, the
+        # context identity, the Jobs and Authority stores a context use is
+        # admitted against, the task bytes and feedback a prompt is composed
+        # from, the facts a serving argv is composed from, the injected readers
+        # a finalization consults, the evidence refs of a hold, and the
+        # qualification run's identity, note, storage path and Job.
+        "excluded_roots", "runtime_uid", "artifact_id", "exclusion", "context_id",
+        "jobs", "authority", "task_bytes", "task", "feedback", "facts",
+        "receipt_reader", "checkpoint_reader", "evidence_refs", "run_id", "note",
+        "storage_path", "job_id",
+        # Custody and failure cause (W285465/W275774): the prepared store a
+        # receipt is read back against, the bound of an allowance, the exact
+        # uncertainty episode, helper identity, observation and enclosing
+        # settlement a clearance is bound to, the component and revision a
+        # cessation record names, the correlation id, launched/effects/observed
+        # facts it records, the carrier a degradation is put on, and one wrapped
+        # leaf member.
+        "prepared_store", "most", "episode", "helper_identity", "observed",
+        "settlement", "component", "revision", "correlation_id", "launched",
+        "effects", "observed_after", "carrier", "member",
+        # Launch documents and the run vector: the job execution and provider
+        # context a launch carries, and the three delivery facts the argv
+        # mounts (layout, scratch, context), beside the deliveries already
+        # declared.
+        "job_execution", "provider_context", "layout_delivered",
+        "scratch_delivered", "context_delivered",
+        # Review cycles, source boundary, store, tokens: the injected launcher
+        # a restoration uses, the verifier-layout marker an image carries, the
+        # failure a reading refusal reports, and the permission a token is
+        # acquired under.
+        "launcher", "marker", "failure", "permission",
+        # Workspaces (W71917/W275774): the token the caller owns, the physical
+        # proof mode, the roots an act touches (`under`), the minted group, the
+        # preparation condition and its eligibility predicate, the prepared
+        # store, the injected stop capability, the admission being settled and
+        # the caller's own open transaction connection (`settle_cleanup` runs
+        # inside the ending's transaction by contract; the connection is the
+        # same injected-capability shape as `control`).
+        "owned", "physical", "under", "group", "permission_eligible",
+        "prepared", "stop", "admitted", "connection",
     }
 
     # Names that are BOOKKEEPING whatever they are attached to. This is the

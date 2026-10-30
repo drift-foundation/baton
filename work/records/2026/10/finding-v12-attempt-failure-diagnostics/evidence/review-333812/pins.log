@@ -1,0 +1,4 @@
+inputs verified against bbdacb5d38f6cf2d2461e9da103d28f9ab30cc6c: 112 manager files, 3 supervisor files, 2 preparation inputs, 9 task inputs, 7 decision snapshots, 3 checkout documents, 2 gate modules still owed
+no decision-source drift: every live source still matches its snapshot
+
+START IS HELD -- see HOLD.md. Preparation is authorized; starting is an owner decision on the shared authoring prerequisite.

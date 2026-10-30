@@ -1,0 +1,32 @@
+{
+  "claim": 341344,
+  "copied_files_verified": [
+    "COLLECTION.json",
+    "EXECUTOR-PREFLIGHT.json",
+    "outcome.json",
+    "outcome.json.authoring.log",
+    "outcome.json.enforcement-59784-1792523182849368431.json",
+    "outcome.json.manager-59784-1792522233536377899.json",
+    "outcome.json.manager-59784-1792522233536377899.json.progress.json",
+    "outcome.json.manager-59784-1792522233536377899.json.shutdown.json",
+    "retained-partial/status.txt",
+    "retained-partial/tracked.diff",
+    "retained-partial/v12/python/src/baton_v12/worker_manager/failure_cause.py",
+    "retained-partial/v12/python/tests/manager/test_attempt_failure_cause.py",
+    "retained-partial/v12/python/tests/tools/test_attempt_diagnostics.py",
+    "retained-partial/v12/python/tools/attempt_diagnostics.py"
+  ],
+  "source_pairs_verified": [
+    "outcome.json",
+    "outcome.json.authoring.log",
+    "outcome.json.enforcement-59784-1792523182849368431.json",
+    "outcome.json.manager-59784-1792522233536377899.json",
+    "outcome.json.manager-59784-1792522233536377899.json.progress.json",
+    "outcome.json.manager-59784-1792522233536377899.json.shutdown.json"
+  ],
+  "partial_diff_sha256": "02cc4cb43d6235c871a6ed3bf7137c3c34acfa565f316165ba2f977f9a493a76",
+  "partial_status_sha256": "840020f093f75b9fbec3ea8212718884e72d47d8a437fc8e98a04a4f5c80a064",
+  "product_tests": 0,
+  "new_execution": false,
+  "candidate": "none; partial bytes are unverified recovery input only"
+}

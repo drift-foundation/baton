@@ -1,0 +1,61 @@
+{
+ "base_commit": "8876bf950ff1f8ab8767ce9786df268cc9d767c6",
+ "boundaries": {
+  "build": false,
+  "checkout_performed": false,
+  "deployment": false,
+  "engine": false,
+  "git_mutation": false,
+  "io_in_predicate": false,
+  "provider_import_in_host": false,
+  "qualification_minted": false
+ },
+ "candidate": {
+  "v12/python/src/baton_v12/job_manager/role_capability.py": "7b3db27c0f400d66f678ad714fe12aba5db80b47c94a38e22833d4d4c2b5456c",
+  "v12/python/tests/job_manager/test_role_capability.py": "128cf227ffbf82d1406992580e40147ce0a25ad505d46bedf56b134fdf0eb7ca"
+ },
+ "claim": 378520,
+ "focused": {
+  "cases_run": 344,
+  "failures": 0,
+  "modules": [
+   "tests.job_manager.test_role_capability",
+   "tests.job_manager.test_role_contract",
+   "tests.job_manager.test_templates",
+   "tests.job_manager.test_creation"
+  ],
+  "test_role_capability_cases": 72
+ },
+ "job_manager_discovery": {
+  "cases_run": 1521,
+  "causes_established": [
+   {
+    "case": "test_native_permission.NativeStageComposition.test_the_native_factory_delivers_the_policy_to_both_stage_workers",
+    "cause": "stage_execution.held_configuration refuses a configured integration_store path the fixture composes under v12/python itself, inside the checkout"
+   },
+   {
+    "case": "test_native_stop_restart.NativeStopRestart.test_reopened_store_preserves_deadline_and_generation_without_revival",
+    "cause": "resource-token.launch refused for a REVOKED generation of workspace:43:<n> inside that suite's own fixture"
+   },
+   {
+    "case": "test_serving_renewal.ServingPermission.test_expiry_is_not_revival_or_reuse_and_unknown_cessation_holds",
+    "cause": "the same revoked-generation token refusal in that suite's own fixture"
+   }
+  ],
+  "failing_cases": 3,
+  "independence_of_this_candidate": "each fails IN ISOLATION, so none is cross-test interference, and nothing in src/ or tools/ imports role_capability at all -- the importer set is empty, so this candidate is not in their execution path. Structural, not name-matching."
+ },
+ "reused_owners_untouched": {
+  "v12/python/src/baton_v12/job_manager/role_contract.py": "691ed3a0e653a9705f181790c9565706902bd3958f2973e49e85cff586ca6967",
+  "v12/python/src/baton_v12/source_profiles/checkout.py": "037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7",
+  "v12/python/src/baton_v12/verification_context.py": "f599072ac1202e9b759d9e7850f76c98790e23710cf6181d5a6e8907dd51650e",
+  "v12/python/tools/job_task.py": "a9ce7948bd39e9e8b2981ad26f299f5e2ad388ad18c6a522337a1c7c27d6e919",
+  "v12/worker/claude_agent.py": "017257c0cf50f02c01b2174eb7786df073b6bdf81b6819ad1cb4cde034fa57d8"
+ },
+ "the_relation_this_boundary_holds": {
+  "no_false_admission": "nothing admitted here is refused by either the consumer or the package; measured in PAIRING-REPLAYED.json",
+  "with_the_profile_package": "EQUAL on every pairing vector -- the rule is asked through checkout_plan, not restated",
+  "with_the_worker_reader": "AT LEAST AS STRICT, never laxer. Three pairing vectors refuse here and are accepted there, because that reader defers the pairing to checkout_plan later in its own turn and a pre-effect predicate has no later turn"
+ },
+ "work": "2b077949-W376723"
+}

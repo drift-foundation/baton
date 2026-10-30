@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/tmp/w333485-preflight-bq4_l1bg/negative-packet/verify-inputs.py", line 16, in <module>
+    doc = module.pins()
+  File "/tmp/w333485-preflight-bq4_l1bg/negative-packet/prepare.py", line 55, in pins
+    raise RuntimeError('the pins name another base')
+RuntimeError: the pins name another base

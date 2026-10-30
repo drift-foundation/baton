@@ -1,0 +1,27 @@
+{
+  "claim": 345793,
+  "indexed_copies_verified": 14,
+  "literal_source_pairs_verified": 13,
+  "raw_gate_sha256": "99f7de5b0552142a8f2240c249ac260c561ac16b88da40f014a9d6716df4faea",
+  "tests": 864,
+  "seconds": 12.515,
+  "subtest_errors": 16,
+  "distinct_test_methods": [
+    "test_a_COMMITTED_cessation_for_ANOTHER_subject_moves_nothing (tests.manager.test_maintenance.TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_a_COMMITTED_cessation_for_ANOTHER_subject_moves_nothing)",
+    "test_a_journalled_receipt_that_is_not_a_discharge_is_refused (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_journalled_receipt_that_is_not_a_discharge_is_refused)",
+    "test_a_receipt_about_something_else_is_refused_by_both_exits (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_receipt_about_something_else_is_refused_by_both_exits)",
+    "test_an_UNREADABLE_listing_ANSWER_is_not_a_confirmed_absence (tests.manager.test_maintenance.TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_an_UNREADABLE_listing_ANSWER_is_not_a_confirmed_absence)"
+  ],
+  "sqlite_full_occurrences": 16,
+  "secondary_rollback_occurrences": 1,
+  "producer_and_producer_test_patch_sections_unchanged": true,
+  "changed_sections": [
+    "disk_roots.py",
+    "input_roots.py",
+    "test_maintenance.py",
+    "test_output.py"
+  ],
+  "base_disk_roots_sha256": "53dc1fa9b99697c8b6ea0597579ba05135a6a7707f798d15d9a8da2b5dd85c08",
+  "runtime_storage_measurement": "not established",
+  "host_product_tests": 0
+}

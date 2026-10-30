@@ -1,0 +1,16 @@
+{
+  "False": {
+    "unlink_calls": [
+      "justfile"
+    ],
+    "path_survives": false,
+    "original_survives": true,
+    "report": "cleanup       removed a name at /tmp/w376956-retain-xzbcn7wp/justfile that was NOT the justfile this attempt made: it was replaced between the last check and the removal. This attempt's own object is still there, and no further removal is attempted.\ncleanup       stopped: no further removal was attempted after a removal this attempt could not prove was its own\n"
+  },
+  "True": {
+    "unlink_calls": [],
+    "path_survives": true,
+    "original_survives": false,
+    "report": "cleanup       retained /tmp/w376956-retain-xndkmsft/justfile: this attempt made the justfile and is NOT deleting it: a name-based removal cannot be bound to this object, so the bytes stay\ncleanup       RETAINED 1 object(s) this attempt made, which are NOT removed:\ncleanup         /tmp/w376956-retain-xndkmsft/justfile\n"
+  }
+}

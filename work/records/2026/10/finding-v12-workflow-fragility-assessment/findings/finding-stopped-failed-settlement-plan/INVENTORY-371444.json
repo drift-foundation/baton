@@ -1,0 +1,36 @@
+{
+  "work": "W371074",
+  "claim": "E371444",
+  "files": [
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-stopped-failed-settlement-plan/PROPOSAL.md",
+      "sha256": "44c4135b10c6fd2ebbbc8958571228e01664e89b66fc57a61591849a29926d03",
+      "bytes": 28866
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-stopped-failed-settlement-plan/PROGRESS.md",
+      "sha256": "366c56689611a7c4426478d9d7f7687b7c420a6a9670dfacb5aa7bb99845d5cd",
+      "bytes": 2990
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-stopped-failed-settlement-plan/evidence/claim-371444/CHECKS.json",
+      "sha256": "cb67d5a2c6e7d8e1a5cec340a64b63e5bd95d5edc44871e12db385f5ee600975",
+      "bytes": 259
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-stopped-failed-settlement-plan/evidence/claim-371444/EXAMPLES.md",
+      "sha256": "34a0608d61aac03eea05af776bcfecfe956053a776f89096c0c532492e566487",
+      "bytes": 232
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-stopped-failed-settlement-plan/evidence/claim-371444/REQUEST.synthetic.json",
+      "sha256": "22b76358aff16ea7e92b6149bb62a56a069512c94d71282c52575f801d281e52",
+      "bytes": 1282
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-stopped-failed-settlement-plan/evidence/claim-371444/SOURCES.json",
+      "sha256": "eaabdc7b21f8a6d0c3e80837e8db6616ef2cbc56c3a40f0c50ab42e4d2677f4c",
+      "bytes": 3116
+    }
+  ]
+}

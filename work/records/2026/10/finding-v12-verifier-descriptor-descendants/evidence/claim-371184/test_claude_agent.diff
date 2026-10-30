@@ -1,0 +1,510 @@
+diff --git a/v12/python/tests/manager/test_claude_agent.py b/v12/python/tests/manager/test_claude_agent.py
+index 70de399e..457272a8 100644
+--- a/v12/python/tests/manager/test_claude_agent.py
++++ b/v12/python/tests/manager/test_claude_agent.py
+@@ -20,6 +20,7 @@ literal text `not-a-credential`, and one case asserts the adapter never opens
+ it.
+ """
+ 
++import contextlib
+ import json
+ import os
+ import pathlib
+@@ -4210,3 +4211,497 @@ class TheLineDeltaAdmitsTheRealRepositoryShape(LineDeltaCase):
+             with self.assertRaises(TaskRefusal) as caught:
+                 self.worked(act=flood)
+         self.assertIn("bound", str(caught.exception))
++
++
++class TheVerifierLayoutIsSelectedAndProved(AdapterCase):
++    """W325695 — the SELECTED trusted layout, and what it refuses.
++
++    THE FIRST CUT OF THIS CLASS TESTED AUTO-DETECTION AND IS GONE. Review
++    2026-10-28T03-09-09Z refused that design: choosing ordinary paths because
++    the existing scratch roots happened to appear in the mount table let an
++    arbitrary mounted directory opt into new semantics with no profile, image
++    or adapter agreement, while a broken new-layout deployment degraded
++    silently to the known defective path. The retained packet TASK.md says
++    "No auto-detection of arbitrary directories" and requires an explicit
++    versioned trusted runtime-layout selection. These cases test that.
++
++    WHAT IS SUBSTITUTED, AND WHY IT HAS TO BE. Two facts belong to the
++    corrected image and the kernel, and an unprivileged test can create
++    neither: the private `tmpfs` mounts themselves, and the root-owned 0755
++    image scaffolding above them. So the positive cases supply the MOUNT
++    TABLE as an operand and relax the ancestor identity to this process's
++    own, each at the single point that reads it. Everything else is real: the
++    selection document on disk, every refusal, the object and mode checks,
++    the ordinary pathnames handed out, and a REAL grandchild resolving them.
++
++    WHAT IS NOT SUBSTITUTED AND NOT CLAIMED. That the selected topology holds
++    in a corrected image, that the kernel refuses to rename a mount point
++    under it, or that the capacity partition fits. Those are the separately
++    selected corrected-image/kernel proof, and `TheSelectedPolicyConstants`
++    below pins the constants this test relaxes so the relaxation cannot hide
++    a changed policy.
++    """
++
++    ROOTS = ("HOME", "TMPDIR", "XDG_CACHE_HOME", "PYTHONPYCACHEPREFIX")
++
++    def agent(self):
++        held = claude_agent.ClaudeAgent.__new__(claude_agent.ClaudeAgent)
++        held._seen = {}
++        return held
++
++    def scratch_roots(self):
++        """A prepared verifier scratch, as `_child_environments` makes one."""
++        held = self.agent()
++        scratch = os.path.join(self.scratch, "verifier")
++        os.makedirs(scratch, exist_ok=True)
++        os.chmod(scratch, 0o700)
++        home = held._new_directory(scratch, claude_agent.VERIFICATION_HOME)
++        _root, ephemera = held._new_ephemera(
++            scratch, claude_agent.VERIFICATION_EPHEMERA)
++        environment = held._closed_environment(
++            home=home, roots=ephemera, scratch=scratch)
++        return held, scratch, environment
++
++    def selected_roots(self):
++        """Four directories standing in for the image's mounted roots."""
++        base = os.path.join(self.home, "selected")
++        os.makedirs(base, exist_ok=True)
++        os.chmod(base, 0o755)
++        held = {}
++        for name in self.ROOTS:
++            place = os.path.join(base, name.lower())
++            os.makedirs(place, exist_ok=True)
++            os.chmod(place, 0o700)
++            held[name] = place
++        return held
++
++    def selection(self, roots=None, **changed):
++        held = {"schema": claude_agent.ClaudeAgent.LAYOUT_SCHEMA,
++                "roots": roots if roots is not None else self.selected_roots(),
++                "filesystem": "tmpfs",
++                "options": ["rw", "noexec", "nosuid", "nodev"],
++                "uid": os.getuid(), "gid": os.getgid(),
++                "image_digest": "sha256:" + "a" * 64,
++                "adapter_digest": "sha256:" + "b" * 64,
++                "policy_digest": "sha256:" + "c" * 64}
++        held.update(changed)
++        return held
++
++    def written(self, document):
++        place = os.path.join(self.home, "verifier-layout.json")
++        if document is None:
++            if os.path.lexists(place):
++                os.unlink(place)
++        else:
++            with open(place, "w", encoding="utf-8") as handle:
++                if isinstance(document, str):
++                    handle.write(document)
++                else:
++                    json.dump(document, handle)
++        return place
++
++    def facts_for(self, selection, *, omit=(), **changed):
++        """A mount table carrying the selected roots. SUBSTITUTED."""
++        held = {}
++        for name, place in selection["roots"].items():
++            if name in omit:
++                continue
++            held[place] = dict(
++                {"mount_id": "1", "parent_id": "0", "device": "0:99",
++                 "root": "/", "point": place,
++                 "options": set(selection["options"]),
++                 "filesystem": selection["filesystem"],
++                 "super_options": set(selection["options"])}, **changed)
++        return held
++
++    def under(self, selection, facts=None, *, ancestors=True):
++        """Run with the substituted table and, optionally, scaffolding."""
++        facts = facts if facts is not None else self.facts_for(selection)
++        held = [mock.patch.object(claude_agent.ClaudeAgent, "_mount_facts",
++                                  classmethod(lambda cls, place=None: facts))]
++        if ancestors:
++            # THE IMAGE SCAFFOLDING IS SUBSTITUTED, and this is the only
++            # place that does it. An unprivileged test cannot create
++            # root-owned 0755 ancestors in a read-only rootfs, so the
++            # ancestor proof is stood down for the positive compositions and
++            # driven DIRECTLY against real paths by the two ancestor cases
++            # below. `TheSelectedPolicyConstants` pins the constants.
++            held.append(mock.patch.object(claude_agent.ClaudeAgent,
++                                          "_proved_ancestors",
++                                          lambda self, place, facts: None))
++        return held
++
++    def composed(self, selection, facts=None, *, ancestors=True):
++        held, _scratch, environment = self.scratch_roots()
++        place = self.written(selection)
++        with mock.patch.object(claude_agent.ClaudeAgent, "LAYOUT_DOCUMENT",
++                               place):
++            with contextlib.ExitStack() as stack:
++                for one in self.under(selection, facts, ancestors=ancestors):
++                    stack.enter_context(one)
++                answered = held._pinned_environment("ignored", environment)
++        pinned, directories = answered
++        self.addCleanup(lambda: [os.close(one) for _n, one in directories])
++        return held, environment, pinned, directories
++
++    def refusing(self, selection, facts=None, *, ancestors=True):
++        held, _scratch, environment = self.scratch_roots()
++        place = self.written(selection)
++        with mock.patch.object(claude_agent.ClaudeAgent, "LAYOUT_DOCUMENT",
++                               place):
++            with contextlib.ExitStack() as stack:
++                standin = (selection if isinstance(selection, dict)
++                           else self.selection())
++                for one in self.under(standin, facts,
++                                      ancestors=ancestors):
++                    stack.enter_context(one)
++                with self.assertRaises(claude_agent.TaskRefusal) as caught:
++                    held._pinned_environment("ignored", environment)
++        return str(caught.exception)
++
++    # -- the selected legacy case, which must cost nothing ------------------
++
++    def test_no_selection_is_legacy_and_reads_no_mount_table(self):
++        """EXPLICITLY LEGACY, and not by consulting the new table.
++
++        Review [R1] asked for this by name: a legacy deployment must not
++        acquire a new-table dependency merely to be told it is legacy. The
++        mount reader is replaced with one that fails the test if called.
++        """
++        held, scratch, environment = self.scratch_roots()
++        place = self.written(None)
++
++        def refuse(cls, place=None):
++            raise AssertionError("legacy read the mount table")
++
++        with mock.patch.object(claude_agent.ClaudeAgent, "LAYOUT_DOCUMENT",
++                               place):
++            with mock.patch.object(claude_agent.ClaudeAgent, "_mount_facts",
++                                   classmethod(refuse)):
++                self.assertIsNone(held._selected_layout())
++                pinned, directories = held._pinned_environment(scratch,
++                                                               environment)
++        self.addCleanup(lambda: [os.close(one) for _n, one in directories])
++        for name in self.ROOTS:
++            self.assertRegex(pinned[name], r"\A/proc/self/fd/[0-9]+\Z")
++
++    # -- the compatible pair ------------------------------------------------
++
++    def test_the_selected_layout_supplies_ordinary_stable_paths(self):
++        """THE CORRECTION. The selection's own fixed paths, no alias."""
++        _held, environment, pinned, _d = self.composed(self.selection())
++        with open(os.path.join(self.home, "verifier-layout.json"),
++                  encoding="utf-8") as reading:
++            selected = json.load(reading)
++        for name in self.ROOTS:
++            self.assertEqual(pinned[name], selected["roots"][name])
++            self.assertNotIn("/proc/self/fd/", pinned[name])
++            # AND NOT THE MUTABLE SCRATCH ENVIRONMENT, which is review [R2]'s
++            # other half: the scratch roots are not the input to this path.
++            self.assertNotEqual(pinned[name], environment[name])
++        self.assertEqual(pinned["PATH"], environment["PATH"])
++
++    def test_a_real_grandchild_resolves_the_selected_roots(self):
++        """THE DEFECT ITSELF, at the boundary that produced it."""
++        _held, _environment, pinned, _d = self.composed(self.selection())
++        program = (
++            "import os, subprocess, sys\n"
++            "inner = ('import os\\n'\n"
++            "         'p = os.path.join(os.environ[\"TMPDIR\"], \"nested\")\\n'\n"
++            "         'os.makedirs(p, exist_ok=True)\\n'\n"
++            "         'open(os.path.join(p, \"marker\"), \"w\").write(\"ok\")\\n'\n"
++            "         'print(os.path.realpath(p))\\n')\n"
++            "done = subprocess.run([sys.executable, '-c', inner],\n"
++            "                      capture_output=True, text=True)\n"
++            "sys.stdout.write(done.stdout)\n"
++            "sys.stderr.write(done.stderr)\n"
++            "sys.exit(done.returncode)\n")
++        done = subprocess.run([sys.executable, "-c", program], env=pinned,
++                              capture_output=True, text=True, timeout=120)
++        self.assertEqual(done.returncode, 0, done.stderr)
++        self.assertEqual(done.stdout.strip(),
++                         os.path.realpath(os.path.join(pinned["TMPDIR"],
++                                                       "nested")))
++        self.assertEqual(os.path.realpath(pinned["TMPDIR"]),
++                         os.path.abspath(pinned["TMPDIR"]))
++
++    def test_the_descriptor_form_is_what_a_grandchild_cannot_resolve(self):
++        """THE CONTROL. Without this the case above proves nothing."""
++        held, scratch, environment = self.scratch_roots()
++        with mock.patch.object(claude_agent.ClaudeAgent, "LAYOUT_DOCUMENT",
++                               self.written(None)):
++            pinned, directories = held._pinned_environment(scratch,
++                                                           environment)
++        self.addCleanup(lambda: [os.close(one) for _n, one in directories])
++        program = (
++            "import os, subprocess, sys\n"
++            "inner = ('import os\\n'\n"
++            "         'os.makedirs(os.path.join(os.environ[\"TMPDIR\"], \"n\"))\\n')\n"
++            "done = subprocess.run([sys.executable, '-c', inner],\n"
++            "                      capture_output=True, text=True)\n"
++            "sys.exit(done.returncode)\n")
++        done = subprocess.run(
++            [sys.executable, "-c", program], env=pinned,
++            pass_fds=tuple(one for _n, one in directories),
++            capture_output=True, text=True, timeout=120)
++        self.assertNotEqual(done.returncode, 0,
++                            "a grandchild resolved a per-process alias")
++
++    # -- the two incompatibility directions ---------------------------------
++
++    def test_an_old_image_with_a_new_layout_selection_refuses(self):
++        """A selection this worker does not read is not a fallback."""
++        said = self.refusing(self.selection(
++            schema="baton.v12.verifier-layout/2"))
++        self.assertIn("baton.v12.verifier-layout/2", said)
++        self.assertIn("refuses here rather than at the provider", said)
++
++    def test_a_new_image_with_a_missing_mount_refuses(self):
++        """New image, layout selected, topology absent."""
++        selection = self.selection()
++        said = self.refusing(selection,
++                             self.facts_for(selection, omit=("TMPDIR",)))
++        self.assertIn("not a mount point", said)
++        self.assertIn("TMPDIR", said)
++
++    def test_a_malformed_selection_is_not_legacy(self):
++        said = self.refusing("{not json")
++        self.assertIn("cannot be read", said)
++
++    def test_a_selection_missing_a_member_refuses(self):
++        held = self.selection()
++        del held["image_digest"]
++        self.assertIn("missing image_digest", self.refusing(held))
++
++    def test_a_selection_naming_other_roots_refuses(self):
++        roots = dict(self.selected_roots())
++        roots.pop("TMPDIR")
++        self.assertIn("verifier environment is exactly",
++                      self.refusing(self.selection(roots=roots)))
++
++    def test_a_relative_selected_root_refuses(self):
++        roots = dict(self.selected_roots())
++        roots["TMPDIR"] = "relative/tmp"
++        self.assertIn("canonical absolute path",
++                      self.refusing(self.selection(roots=roots)))
++
++    # -- the topology facts, each one -------------------------------------
++
++    def test_a_wrong_filesystem_refuses(self):
++        selection = self.selection()
++        said = self.refusing(selection,
++                             self.facts_for(selection, filesystem="ext4"))
++        self.assertIn("ext4", said)
++        self.assertIn("tmpfs", said)
++
++    def test_missing_mount_options_refuse(self):
++        selection = self.selection()
++        facts = self.facts_for(selection, options={"rw", "nosuid"},
++                               super_options={"rw", "nosuid"})
++        said = self.refusing(selection, facts)
++        self.assertIn("mounted without", said)
++        self.assertIn("noexec", said)
++
++    # THE ANCESTOR PROOF, DRIVEN DIRECTLY against real paths, because the
++    # positive compositions stand it down and a stood-down check must still
++    # be shown to work.
++
++    def test_a_writable_ancestor_mount_refuses(self):
++        """The immutable-ancestor requirement, on a real directory tree."""
++        held = self.agent()
++        selection = self.selection()
++        place = selection["roots"]["TMPDIR"]
++        ancestor = os.path.dirname(place)
++        facts = {ancestor: {"mount_id": "2", "parent_id": "1",
++                            "device": "0:98", "root": "/", "point": ancestor,
++                            "options": {"rw"}, "filesystem": "tmpfs",
++                            "super_options": {"rw"}}}
++        with mock.patch.object(claude_agent.ClaudeAgent,
++                               "LAYOUT_ANCESTOR_UID", os.getuid()):
++            with mock.patch.object(claude_agent.ClaudeAgent,
++                                   "LAYOUT_ANCESTOR_MODE", 0o755):
++                with self.assertRaises(claude_agent.TaskRefusal) as caught:
++                    held._proved_ancestors(place, facts)
++        said = str(caught.exception)
++        self.assertIn("WRITABLE mount", said)
++        self.assertIn("mutable ancestor", said)
++
++    def test_a_foreign_owned_ancestor_refuses(self):
++        """With the SHIPPED policy in force, a test-owned ancestor fails."""
++        held = self.agent()
++        selection = self.selection()
++        with self.assertRaises(claude_agent.TaskRefusal) as caught:
++            held._proved_ancestors(selection["roots"]["TMPDIR"], {})
++        said = str(caught.exception)
++        self.assertIn("ancestor", said)
++        self.assertIn("image material owned by 0", said)
++
++    def test_the_ancestor_proof_accepts_a_real_root_owned_chain(self):
++        """AND IT ACCEPTS ONE. `/run` on this host is root-owned 0755.
++
++        A refusal-only proof could be a function that refuses everything, so
++        the positive direction is driven against a real path whose ancestors
++        this host genuinely owns as image-like scaffolding.
++        """
++        held = self.agent()
++        if not os.path.isdir("/run") or os.stat("/run").st_uid != 0:
++            self.skipTest("this host has no root-owned /run to prove against")
++        held._proved_ancestors("/run/anything", {})
++
++    def test_a_widened_root_mode_refuses(self):
++        selection = self.selection()
++        os.chmod(selection["roots"]["XDG_CACHE_HOME"], 0o750)
++        said = self.refusing(selection, self.facts_for(selection))
++        self.assertIn("0750", said)
++        self.assertIn("XDG_CACHE_HOME", said)
++
++    def test_a_root_owned_by_another_identity_refuses(self):
++        """The trusted identity is the SELECTION's, never the ambient one."""
++        selection = self.selection(uid=os.getuid() + 4242,
++                                   gid=os.getgid() + 4242)
++        said = self.refusing(selection, self.facts_for(selection))
++        self.assertIn("trusted identity", said)
++
++    def test_a_root_replaced_by_a_link_refuses(self):
++        selection = self.selection()
++        place = selection["roots"]["TMPDIR"]
++        elsewhere = os.path.join(self.home, "surrogate")
++        os.makedirs(elsewhere, exist_ok=True)
++        os.chmod(elsewhere, 0o700)
++        os.rmdir(place)
++        os.symlink(elsewhere, place)
++        said = self.refusing(selection, self.facts_for(selection))
++        self.assertIn("cannot be opened as a directory", said)
++
++    def test_no_descriptor_leaks_when_a_later_root_refuses(self):
++        selection = self.selection()
++        os.chmod(selection["roots"]["XDG_CACHE_HOME"], 0o755)
++        before = len(os.listdir("/proc/self/fd"))
++        self.refusing(selection, self.facts_for(selection))
++        self.assertLessEqual(len(os.listdir("/proc/self/fd")), before)
++
++    # -- before the provider ------------------------------------------------
++
++    def test_the_agreement_happens_before_either_child(self):
++        """TASK.md: agree before provider launch, not at verification."""
++        held, _scratch, _environment = self.scratch_roots()
++        with mock.patch.object(claude_agent.ClaudeAgent, "LAYOUT_DOCUMENT",
++                               self.written(self.selection(
++                                   schema="baton.v12.verifier-layout/9"))):
++            with self.assertRaises(claude_agent.TaskRefusal) as caught:
++                held._layout_preflight()
++        self.assertIn("refuses here rather than at the provider",
++                      str(caught.exception))
++
++    def test_the_preflight_releases_what_it_proved(self):
++        """It proves and lets go; the verifier's descriptors are its own."""
++        held, _scratch, _environment = self.scratch_roots()
++        selection = self.selection()
++        before = len(os.listdir("/proc/self/fd"))
++        with mock.patch.object(claude_agent.ClaudeAgent, "LAYOUT_DOCUMENT",
++                               self.written(selection)):
++            with contextlib.ExitStack() as stack:
++                for one in self.under(selection):
++                    stack.enter_context(one)
++                self.assertIsNotNone(held._layout_preflight())
++        self.assertLessEqual(len(os.listdir("/proc/self/fd")), before)
++
++    # -- after the provider -------------------------------------------------
++
++    def test_the_selected_roots_are_reproved_after_the_provider(self):
++        selection = self.selection()
++        held, _environment, pinned, directories = self.composed(selection)
++        with mock.patch.object(claude_agent.ClaudeAgent, "LAYOUT_DOCUMENT",
++                               os.path.join(self.home,
++                                            "verifier-layout.json")):
++            with contextlib.ExitStack() as stack:
++                for one in self.under(selection):
++                    stack.enter_context(one)
++                answered = held._revalidated_directories(pinned, directories)
++        self.assertEqual(sorted(answered),
++                         sorted(one for _n, one in directories))
++
++    def test_a_root_remounted_writable_while_the_provider_ran_refuses(self):
++        """LIFETIME. The selected binding expires when the topology does."""
++        selection = self.selection()
++        held, _environment, pinned, directories = self.composed(selection)
++        facts = self.facts_for(selection, options={"rw"},
++                               super_options={"rw"})
++        with mock.patch.object(claude_agent.ClaudeAgent, "LAYOUT_DOCUMENT",
++                               os.path.join(self.home,
++                                            "verifier-layout.json")):
++            with contextlib.ExitStack() as stack:
++                for one in self.under(selection, facts):
++                    stack.enter_context(one)
++                with self.assertRaises(claude_agent.TaskRefusal) as caught:
++                    held._revalidated_directories(pinned, directories)
++        self.assertIn("now mounted without", str(caught.exception))
++
++    def test_a_root_unmounted_while_the_provider_ran_refuses(self):
++        selection = self.selection()
++        held, _environment, pinned, directories = self.composed(selection)
++        facts = self.facts_for(selection, omit=("TMPDIR",))
++        with mock.patch.object(claude_agent.ClaudeAgent, "LAYOUT_DOCUMENT",
++                               os.path.join(self.home,
++                                            "verifier-layout.json")):
++            with contextlib.ExitStack() as stack:
++                for one in self.under(selection, facts):
++                    stack.enter_context(one)
++                with self.assertRaises(claude_agent.TaskRefusal) as caught:
++                    held._revalidated_directories(pinned, directories)
++        self.assertIn("no longer a mount point", str(caught.exception))
++
++    def test_the_descriptor_form_revalidation_is_unchanged(self):
++        """PRESERVED. The legacy form still validates exactly as it did."""
++        held, scratch, environment = self.scratch_roots()
++        with mock.patch.object(claude_agent.ClaudeAgent, "LAYOUT_DOCUMENT",
++                               self.written(None)):
++            pinned, directories = held._pinned_environment(scratch,
++                                                           environment)
++            self.addCleanup(lambda: [os.close(one) for _n, one in directories])
++            answered = held._revalidated_directories(pinned, directories)
++            self.assertEqual(sorted(answered),
++                             sorted(one for _n, one in directories))
++            moved = dict(pinned, TMPDIR="/proc/self/fd/99999")
++            with self.assertRaises(claude_agent.TaskRefusal):
++                held._revalidated_directories(moved, directories)
++
++
++class TheSelectedPolicyConstants(unittest.TestCase):
++    """W325695 — the policy the cases above relax, pinned here.
++
++    `TheVerifierLayoutIsSelectedAndProved` substitutes the root-owned 0755
++    scaffolding because an unprivileged test cannot create it. That
++    substitution must not be able to hide a changed policy, so the shipped
++    constants are asserted directly.
++    """
++
++    def test_the_selected_topology_is_the_one_the_packet_names(self):
++        held = claude_agent.ClaudeAgent
++        self.assertEqual(held.LAYOUT_FILESYSTEM, "tmpfs")
++        self.assertEqual(sorted(held.LAYOUT_OPTIONS),
++                         sorted(("rw", "noexec", "nosuid", "nodev")))
++        self.assertEqual(held.LAYOUT_ANCESTOR_UID, 0)
++        self.assertEqual(held.LAYOUT_ANCESTOR_MODE, 0o755)
++        self.assertEqual(held.LAYOUT_SCHEMA, "baton.v12.verifier-layout/1")
++        self.assertEqual(held.LAYOUT_DOCUMENT,
++                         "/run/baton/verifier-layout.json")
++
++    def test_the_real_mount_table_parses_with_every_field(self):
++        """REAL mountinfo, and the fields review [R2] required kept."""
++        facts = claude_agent.ClaudeAgent._mount_facts()
++        self.assertIn("/", facts)
++        for place, one in facts.items():
++            self.assertTrue(place.startswith("/"), place)
++            for member in ("mount_id", "parent_id", "root", "filesystem"):
++                self.assertTrue(one[member], (place, member))
++            self.assertIsInstance(one["options"], set)
++            self.assertIsInstance(one["super_options"], set)
++        # The root filesystem's own options must include a mode, which is a
++        # fact about this host rather than about the parser.
++        self.assertTrue(facts["/"]["options"] & {"rw", "ro"})
++
++    def test_an_unreadable_mount_table_refuses(self):
++        with self.assertRaises(claude_agent.TaskRefusal) as caught:
++            claude_agent.ClaudeAgent._mount_facts("/nonexistent-mountinfo")
++        self.assertIn("mount table", str(caught.exception))

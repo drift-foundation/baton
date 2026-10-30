@@ -1,0 +1,9 @@
+{
+  "claim": 354131,
+  "diagnostics_manifest": "31fc139cd293cc88816c60cf5c63230616a682b28c4c1d8b2b04ab573c4822fb",
+  "diagnostics_paths_verified": 24,
+  "host_policy": "eb57aa9c3ba74886e2d9856cfe3382ceab6a2bdb1799283512a4943dfeb62d52",
+  "host_archive_verified": true,
+  "product_tests": 0,
+  "live_operations": 0
+}

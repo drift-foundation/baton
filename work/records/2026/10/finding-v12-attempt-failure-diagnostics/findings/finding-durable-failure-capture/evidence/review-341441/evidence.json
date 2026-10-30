@@ -1,0 +1,24 @@
+{
+  "claim": 341441,
+  "manifest_sha256": "0c4730e7e8757dd873517c7744577b949702d55d066dd44a7984064e708b0fa5",
+  "seals": 43,
+  "preparation_probes": {
+    "pass": 52,
+    "total": 52,
+    "reported_seconds": 2.13,
+    "scratch": "/tmp/w341357-review-341441-probes"
+  },
+  "input_check": "exit0, no drift",
+  "composed_fixture_hashes": 33,
+  "derivation": "all three per-file diff sections byte-identical; two new files byte-identical",
+  "note": "Per-file section order differs from original full diff; no within-file hunk change. Initial order-sensitive comparison rejected this before per-section validation.",
+  "bounds": {
+    "cleanup_seconds": 60,
+    "implementer_invocations": 1,
+    "retry": false,
+    "total_seconds": 4800,
+    "turn_seconds": 3600
+  },
+  "product_tests": 0,
+  "launches": 0
+}

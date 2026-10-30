@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_verifier_topology",
+    "tests.manager.test_claude_agent",
+    "tests.manager.test_oci"
+  ],
+  "exit_code": 0,
+  "wall_seconds": 17.087297040000067
+}

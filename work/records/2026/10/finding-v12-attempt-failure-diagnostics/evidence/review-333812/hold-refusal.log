@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-attempt-failure-diagnostics/execution-333707/prepare.py", line 349, in <module>
+    stage(Path(args.root), acknowledged=args.acknowledge_hold)
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-attempt-failure-diagnostics/execution-333707/prepare.py", line 203, in stage
+    raise RuntimeError(HOLD + ' Re-run with --acknowledge-hold to prepare '
+                              'anyway; preparation produces no execution.')
+RuntimeError: This packet's START is HELD -- see HOLD.md. The selected baseline.py supervisor calls serve with no reclaim pass (baseline.py:1207; manager.py:833 reclaim=None, :879 runs a pass only if reclaim is not None), so the 900-second workspace generation is not enforced across the requested 3600/4800 run. Preparation is authorized; starting is an owner decision on the shared authoring prerequisite. Re-run with --acknowledge-hold to prepare anyway; preparation produces no execution.

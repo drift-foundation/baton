@@ -1,0 +1,33 @@
+{
+ "base": "bc925cf5c62d69426ed5862af4d41f4d2a967b0f",
+ "changed_paths": [
+  "v12/python/src/baton_v12/worker_manager/attempts.py",
+  "v12/python/src/baton_v12/worker_manager/documents.py",
+  "v12/python/src/baton_v12/worker_manager/failure_cause.py",
+  "v12/python/src/baton_v12/worker_manager/intake.py",
+  "v12/python/tests/manager/test_attempt_failure_cause.py",
+  "v12/python/tests/tools/test_attempt_diagnostics.py",
+  "v12/python/tools/attempt_diagnostics.py",
+  "v12/python/tools/stack_command.py"
+ ],
+ "collection": null,
+ "disposition": "verification-failed",
+ "entry_head": "bc925cf5c62d69426ed5862af4d41f4d2a967b0f",
+ "head": "433692c5003d7f3a91a1acab7efdb471d5597235",
+ "provider": {
+  "failure_reason": null,
+  "seconds_bound": 3600,
+  "status": 0
+ },
+ "schema": "baton.dogfood-proposal/2",
+ "task_id": "attempt-diagnostics-w333486-340016",
+ "verification": {
+  "argv": [
+   "python3",
+   "-c",
+   "import os,sys,unittest; os.chdir('v12/python'); roots=[os.getcwd(),os.path.join(os.getcwd(),'src')]; sys.path[:0]=roots; os.environ['PYTHONPATH']=os.pathsep.join(roots); names=[\"tests.job_manager.test_status\", \"tests.job_manager.test_delegation\", \"tests.job_manager.test_documents\", \"tests.job_manager.test_tool\", \"tests.manager.test_intake\", \"tests.manager.test_maintenance\", \"tests.manager.test_attempts\", \"tests.tools.test_worker_visibility\", \"tests.manager.test_contracts_inventory\", \"tests.manager.test_authoring_enforcement\", \"tests.manager.test_attempt_failure_cause\", \"tests.tools.test_attempt_diagnostics\"]; r=unittest.TextTestRunner(verbosity=1).run(unittest.defaultTestLoader.loadTestsFromNames(names)); [print('SKIPPED '+str(one[0])) for one in r.skipped]; sys.exit(0 if r.wasSuccessful() and not r.skipped else 1)"
+  ],
+  "status": 1
+ },
+ "why": "the task's own command ended 1"
+}

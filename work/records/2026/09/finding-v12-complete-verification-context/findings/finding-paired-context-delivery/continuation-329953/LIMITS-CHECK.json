@@ -1,0 +1,96 @@
+{
+  "additional_margin_seconds": 1110,
+  "admission": "one implementation invocation, no automatic retry, report-and-hold; nothing submitted and nothing admitted",
+  "agreement": {
+    "packet_bounds_turn_equals_policy_provider_turn": true,
+    "packet_bounds_turn_equals_submission_provider_turn": true,
+    "policy_digest_recomputed_from_policy_json": true,
+    "policy_invocations_equals_packet_bounds": true,
+    "policy_verification_equals_submission_verification": true,
+    "retry_refused_in_both": true,
+    "terminal_policy_holds": true
+  },
+  "bounds": {
+    "cleanup_seconds": 60,
+    "implementer_invocations": 1,
+    "retry": false,
+    "total_seconds": 4800,
+    "turn_seconds": 3600
+  },
+  "cleanup_reserved_seconds": 60,
+  "policy": {
+    "automatic_retry": false,
+    "implementer_invocations": 1,
+    "note": "the caps the admission gate enforces; W239528",
+    "provider_turn_seconds": 3600,
+    "schema": "baton.single-implementation-execution-policy/1",
+    "verification_command_seconds": 30
+  },
+  "policy_digest": "sha256:7057bdd0b1ef4f1c272ea22e357cadb2cac839fd7a10c45da8f3d72b7c9b9e11",
+  "proposed_this_revision": "provider turn 3600s, total 4800s, cleanup 60s reserved; one invocation, no automatic retry, report-and-hold. An estimate for one invocation, not a correctness guarantee and not an authorization.",
+  "read_from": {
+    "packet": "/tmp/w321776-preflight-329953/packet/PACKET.json",
+    "policy": "/tmp/w321776-preflight-329953/packet/policy.json",
+    "submission": "/tmp/w321776-preflight-329953/packet/submission.json"
+  },
+  "resolved": {
+    "boundaries": {
+      "host_verification": {
+        "default_seconds": 300,
+        "origin": "job",
+        "seconds": 30,
+        "setting": "verification_command_seconds"
+      },
+      "integration_verification": {
+        "default_seconds": 1800,
+        "origin": "job",
+        "seconds": 30,
+        "setting": "verification_command_seconds"
+      },
+      "ordinary_verification": {
+        "default_seconds": 900,
+        "origin": "job",
+        "seconds": 30,
+        "setting": "verification_command_seconds"
+      },
+      "provider_turn": {
+        "default_seconds": 3600,
+        "origin": "job",
+        "seconds": 3600,
+        "setting": "provider_turn_seconds"
+      }
+    },
+    "compatibility_generation": 1,
+    "requested": {
+      "provider_turn_seconds": 3600,
+      "verification_command_seconds": 30
+    },
+    "scope": "per-invocation",
+    "units": "seconds"
+  },
+  "schema": "baton.w321776-continuation-limits-check/2",
+  "serving_seconds": 4740,
+  "submission_execution_limits": {
+    "provider_turn_seconds": 3600,
+    "verification_command_seconds": 30
+  },
+  "verification_ceiling_not_ours_to_set": {
+    "generated": 30,
+    "measured_instead": {
+      "and_without_the_derived_PYTHONPATH": {
+        "failures": 1,
+        "tests": 209,
+        "which": "tests.tools.test_dogfood_operator.TheDocumentedCommandIsOneGrantsFile.test_help_names_the_credential_source_the_launcher_requires",
+        "why": "it spawns the operator as a subprocess, and sys.path does not cross a process boundary"
+      },
+      "errors": 0,
+      "failures": 0,
+      "seconds": 0.248,
+      "skipped": 0,
+      "tests": 209,
+      "what": "the eight sealed gate names that exist at the declared base, run on the host"
+    },
+    "requested_by_review": 900,
+    "why": "in fresh mode the composer fixes it at 30 in both places it appears -- baseline_bindings.py:345 (the execution policy whose digest the submission carries) and :522 (the submission's own execution_limits) -- with no compose parameter and no bounds member. Reaching 900 would mean editing accepted supervisor product this claim does not own, or switching to contextual mode, which changes the packet schema, the runtime profile and drops the member from the submission entirely."
+  }
+}

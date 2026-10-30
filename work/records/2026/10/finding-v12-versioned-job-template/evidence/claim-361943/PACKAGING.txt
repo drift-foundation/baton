@@ -1,0 +1,16 @@
+# tests.tools.test_packaging + test_version
+
+## base scratch root
+FAIL: test_the_checkout_is_found_from_THIS_file_not_the_cwd (tests.tools.test_version.TheStampIsCapturedFromTheCheckout.test_the_checkout_is_found_from_THIS_file_not_the_cwd)
+Ran 38 tests in 0.002s
+FAILED (failures=1, skipped=11)
+
+## candidate scratch root
+FAIL: test_the_checkout_is_found_from_THIS_file_not_the_cwd (tests.tools.test_version.TheStampIsCapturedFromTheCheckout.test_the_checkout_is_found_from_THIS_file_not_the_cwd)
+Ran 38 tests in 0.002s
+FAILED (failures=1, skipped=11)
+
+## canonical checkout (unmodified product bytes)
+FAIL: test_every_subcommand_this_command_serves_is_offered (tests.tools.test_packaging.WhatTheBundleSaysItIs.test_every_subcommand_this_command_serves_is_offered)
+Ran 38 tests in 2.240s
+FAILED (failures=1)

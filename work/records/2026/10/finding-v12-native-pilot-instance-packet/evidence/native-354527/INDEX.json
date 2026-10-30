@@ -1,0 +1,83 @@
+{
+ "A_DISCONNECTED_PATH_NOW_FAILS_THE_PROOF": {
+  "arm_A_factory_stops_supplying_the_policy": {
+   "log": "disconnected-A-factory.log",
+   "result": "11 tests, 1 FAILURE -- test_factory_supplies_a_lifetime_policy_at_the_native_entry_point"
+  },
+  "arm_B_reserve_stops_forwarding_seconds_to_acquire": {
+   "log": "disconnected-B-reserve.log",
+   "result": "11 tests, 3 FAILURES -- the real-policy-through-reserve case, the survives-past-900 case, and the seconds-beside-permission refusal"
+  },
+  "connected": {
+   "log": "connected.log",
+   "result": "11 tests, OK"
+  },
+  "requirement": "review: 'A disconnected native forwarding path must fail proof.'",
+  "so": "each link is load-bearing and independently proved so; unwiring either end is caught"
+ },
+ "POLICY_INPUTS_CLARIFIED_AS_THE_REVIEW_REQUIRED": {
+  "what_follows_from_the_Job": "the two invocation boundaries, which come from the Job's admitted resolution through its owner and are never re-derived",
+  "what_they_are": "the three checkout steps, the 900-second per-step allowance and the 120-second cleanup reserve are SELECTED NATIVE POLICY INPUTS, chosen from this build's own constants (claude_agent.CHECKOUT_SECONDS, the three-step version-control checkout_plan) and the pilot's own policy.json cleanup_observation_seconds.",
+  "what_they_are_NOT": "a universal elapsed-time proof. Nothing here asserts that every possible native runtime fits the composed lifetime, and the test docstring says so in those words."
+ },
+ "STILL_OWED": [
+  "BOTH NATIVE STAGES END TO END THROUGH THE SERVING LOOP. The composition and acquisition are proved per attempt and the forwarding is proved for every worker signature, but no case yet drives an implementation stage AND a review stage through serve() to their own acquisitions.",
+  "exact host cancel: expiry/reclaim is proved through the real overdue owner, cancellation is not",
+  "cleanup and unknown holds beyond the expiry-is-not-release and resource-stays-held assertions",
+  "the joined owner-produced cause through durable capture, /7 status and the packaged secret-free report"
+ ],
+ "THE_BLOCKER_AND_THE_FIX": {
+  "accepted": "correct, and it was the defect in that revision -- the cases proved the arithmetic, not the connection",
+  "finding": "test_native_permission constructed a governance and then called tokens.acquire DIRECTLY; no case drove factory, the lifetime callback, or reserve. A disconnected wiring path would have evaded the coverage.",
+  "rewritten": "every case now goes through the REAL act: reserve for the acquisition, operations_from/_SingleWorker for the composition, and stage_execution.factory for the entry point. 11 cases."
+ },
+ "answers_review": "review-2026-10-22T19-32-18Z.md (reviewer claim354510)",
+ "boundaries": "no live instance, engine, provider or credential; no deployment, recovery, migration or shared import; no version-control mutation -- reads only. The two disconnection arms are throwaway copies under /tmp and were not kept as candidates.",
+ "changed_by_this_claim_relative_to_claim354424": {
+  "tests/job_manager/test_native_permission.py": {
+   "from": "0468e72cf5c213c3d122f72052fb9b023758201ad1f474f43a8548b28c602573",
+   "to": "a94903feba74212ec486eb0c442ca0b8e23eaf55deeddb29cd568b8ff7813e64",
+   "why": "rewritten to drive the real composition instead of acquiring directly"
+  },
+  "the_four_product_paths": "UNCHANGED from claim354424 -- execution_limits 24f27d77, workspaces 7db36ee6, single_worker 70cc0806, stage_execution 765c1567. No defect was exposed by the rewritten proof, so none was corrected."
+ },
+ "claim": 354527,
+ "copies": {
+  "affected.log": "b680bc8dbc8dd25ef046a6bdec822ecf3bd14db441a67e6d56c0a7bc37279dd3",
+  "candidate-test_native_permission.py": "a94903feba74212ec486eb0c442ca0b8e23eaf55deeddb29cd568b8ff7813e64",
+  "connected.log": "0425da758091e8842112419f7319287e9dbe791cba62c926673e96371661666a",
+  "disconnected-A-factory.log": "648bed3abf14804ad6f61c29412859a7eb8c4c5fbd9e97ca5ccb79fcd0780c8a",
+  "disconnected-B-reserve.log": "1f6d347a1bcef5bcbe76e5ef643e1a22a5b91ab9c9661a50685d9d235352ca22",
+  "progress-section.md": "2a17d2d1bfebb96cbe5e9f97714f7f9c3c61e771251e7cfd6763a246d4695257"
+ },
+ "schema": "baton.w325959-native-wiring-proof/1",
+ "verification": {
+  "affected_modules_only": {
+   "exit": 0,
+   "modules": 6,
+   "note": "the review directed no routine repeat of the 2175-test/288s sweep; these are the modules my five paths actually touch",
+   "seconds": 5.385,
+   "tests": 695,
+   "verdict": "OK"
+  },
+  "focused": {
+   "module": "tests.job_manager.test_native_permission",
+   "tests": 11,
+   "verdict": "OK"
+  },
+  "reused_not_rerun": "the prior 2175-test/288.769s run and its three-arm attribution of the single pre-existing baseline failure (tests.tools.test_single_worker...test_a_real_observing_status_run_mutates_no_durable_state) remain author evidence from claim354424, as the review states"
+ },
+ "what_the_11_cases_cover": [
+  "the real policy feeding the real reserve, with the STORED token carrying the value (not one the case computed)",
+  "WITHOUT the policy the same real reserve still takes 900 -- the recorded pilot defect reproduced through the real act",
+  "the acquired token survives past 900 and is still bounded, and expiry is not release",
+  "expiry makes it reclaimable through tokens.workspace_governance().overdue -- the owner _reclaiming actually consults",
+  "REPLAY of the same acquisition returns the same generation with the same expires_at: durable timing, no reset, no duplicate generation",
+  "the per-invocation 3600/900 ceilings unchanged by the lifetime",
+  "a lifetime beside a permission refused at the acquisition",
+  "the policy refusing a resolution its owner would not produce",
+  "the policy answering None when there is nothing to resolve, leaving the default where it was",
+  "factory supplying a callable lifetime policy at the native entry point",
+  "the composition accepting and RETAINING it, with lifetime_policy present in every forwarding signature and seconds present in prepared_workspace_governance"
+ ]
+}

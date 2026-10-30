@@ -1,0 +1,7 @@
+{
+  "log": "/home/sl/baton-instances/attempt-diagnostics-w333486-334663/packet/outcome.json.authoring.log",
+  "log_sha256": "e929fe99352fe421b60922ae02ff39b3287d4a2e651b948af0b58b11cca0fa09",
+  "report": "/home/sl/baton-instances/attempt-diagnostics-w333486-334663/packet/outcome.json.enforcement-61598-1792437988247611207.json",
+  "report_sha256": "cf013cd23a5f9613180576eb59250cf8aa9f016d714e25d0d453cad3357969ca",
+  "summary_omits": "original_envelope; original retained in selected instance"
+}

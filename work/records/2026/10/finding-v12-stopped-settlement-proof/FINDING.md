@@ -1,0 +1,21 @@
+# Joined deterministic stopped-failure settlement proof
+
+W375446, child of W371074; reviewer allocation E375432.
+
+Authority: owner W371074 E375403, parent FINDING section “2026-10-28 — owner approves settlement behavior; development schema replacement”, and v12/DESIGN.md TOK-7. Parent PROPOSAL.md 44c4135b10c6fd2ebbbc8958571228e01664e89b66fc57a61591849a29926d03 and review-2026-10-28T03-54-17Z.md are reviewed design input. Owner amendment supersedes their migration/backward-compatibility gates and treats exact schema numbers, command syntax and records as implementation choices within approved behavior. Preserve historical bytes; do not implement upgrade-control or operate on retained instances.
+
+Direct development under v11 claim is authorized. Use disposable fresh current-schema stores and deterministic provider/engine boundaries, sensible per-run timeouts and truthful evidence. No live models, actual engine operations, deployment, install into an operational instance, retained-store conversion/deletion, cleanup campaign or Git mutation. Temporary packaged-command fixtures are verification, not deployment. Current W370560 observations supersede old retained-container facts: old token already returned by expiry reclamation; this generic implementation does not act on that Job. W44342 uncertainty remains unresolved; hold unknown late effects rather than solving it by assertion.
+
+Reviewer owns FINDING/PLAN and append-only reviews. Claimed implementation handler owns product changes, attributable PROGRESS and new evidence; record actual files and test expectation changes. Locations below are evidence and current overlap coordination, not an exclusive permitted-files list. Preserve existing dirty bytes. Coordinate before changing another active author's files; necessary additional paths within outcome need no separate file-permission gate. Candidate/base/path hashes and measured verification results accompany handoff to baton.bug; independent acceptance and human Git checkpoints remain required.
+
+## Bounded outcome and acceptance
+
+Consume accepted W375444 and W375445 candidates. Deliver a retained deterministic installed-command proof connecting the real faulted adapter/exchange, disposable Job/control/Authority stores, trusted fake engine at the normal runtime boundary, settlement intent/fence/outcome, exact token return and read-only status. Simulation is explicitly labelled; no authentication, real-container or live-latency claim follows.
+
+Initial owner baton.codxpc owns new focused proof/tests/fixtures and this dossier PROGRESS/evidence after claim. Source is accepted input; a discovered product defect goes to the relevant source owner under coordinated serial correction, not an unreviewed parallel edit. Record actual added/changed test paths and rationale under standing test authority. Do not weaken genuine late-effect, activation or cancellation coverage to obtain a pass.
+
+Acceptance: exact stopped fault with no verdict releases only bound execution generation and preserves all files/result and Authority facts; output access failure does not invent a live writer; running/unknown/unsettled launch/activation/helper effects stay held; crash each durable cut, duplicate/changed requests and two callers, concurrent renewal/activation/cancellation/expiry, stale/new assignment and successor generation; after return before receipt replay has no repeated engine effect. Preview/status do not mutate application state. Spies/real owner readbacks prove zero settlement stop/destroy/provider/normalize/native-close calls. No old-package or migration proof required by owner amendment. Report negative and not-run cases honestly. Parent W371074 independently judges integrated settlement; W371076 owns broader workflow proof planning and W370747 roll-up.
+
+## 2026-10-28T19:53:19Z — independent proof accepted
+
+Claim E376847 accepts the exact one-test candidate in review-2026-10-28T19-53-19Z.md. Independent 37-test focused run passed; eleven accepted inputs unchanged. Simulation and owner-level race limitations are recorded explicitly. Parent W371074 retains integrated acceptance; no native/live/retained-instance operation is selected. Reviewer owns this review and evidence/review-376847 only; no product or author PROGRESS edits.

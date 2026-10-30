@@ -1,0 +1,38 @@
+{
+  "agree": true,
+  "composed_from": "/tmp/w333486-preflight-333504/packet",
+  "execution_policy": {
+    "implementer_invocations": 1,
+    "provider_turn_seconds": 3600,
+    "source": "policy.json",
+    "verification_command_seconds": 30
+  },
+  "note": "Read from the GENERATED documents rather than from prose. The two places a verification ceiling appears must agree, and they do.",
+  "residual_total_margin_seconds": 1110,
+  "schema": "baton.w333486-execution-limits-check/1",
+  "submission": {
+    "execution_limits": {
+      "provider_turn_seconds": 3600,
+      "verification_command_seconds": 30
+    },
+    "source": "submission.json jobs[0]",
+    "terminal_policy": "report-and-hold"
+  },
+  "supervisor_bounds": {
+    "cleanup_seconds": 60,
+    "implementer_invocations": 1,
+    "retry": false,
+    "total_seconds": 4800,
+    "turn_seconds": 3600
+  },
+  "unchanged_host_lease_warning": "This base does not carry sibling W333485 renewal correction, so the host workspace lease is still 900 seconds with no renewal. A 3600-second provider ceiling is what this packet REQUESTS; it is not a claim that the turn will be allowed to use it. TASK.md carries that warning and the honest-partial obligation.",
+  "verification_ceiling": {
+    "disclosed": "TASK.md states this as a real design constraint on the two new test modules and requires an honest measured report rather than deleted coverage if the gate cannot be made to fit.",
+    "headroom_for_the_two_new_modules_seconds": 18.17,
+    "measured_existing_gate_seconds": 11.83,
+    "measured_existing_gate_tests": 1091,
+    "not_this_packets_to_set": true,
+    "seconds": 30,
+    "why": "The composer FIXES it at 30 in both places it appears (baseline_bindings.py:345, the execution policy whose digest the submission carries, and :522, the submission own execution_limits), with no compose parameter and no bounds member. A different ceiling would require editing accepted supervisor product this packet does not own."
+  }
+}

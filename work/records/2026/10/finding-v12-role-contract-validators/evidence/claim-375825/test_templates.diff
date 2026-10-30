@@ -1,0 +1,40 @@
+diff --git a/v12/python/tests/job_manager/test_templates.py b/v12/python/tests/job_manager/test_templates.py
+index dc6104d9..9189bd5f 100644
+--- a/v12/python/tests/job_manager/test_templates.py
++++ b/v12/python/tests/job_manager/test_templates.py
+@@ -664,8 +664,16 @@ class TheFrozenTable(unittest.TestCase):
+         The import-time loop is what makes a bad table entry fail where it is
+         written; this case is what makes that loop's absence visible if
+         somebody removes it.
++
++        W371294: THE TABLE NOW CARRIES TWO REVISIONS, which is this module's
++        own stated shape -- "a second revision is a second entry in the table
++        below rather than an edit to this one". The assertion is updated
++        rather than relaxed: it still names the complete registered set, so a
++        third entry appearing without a decision still fails here.
+         """
+-        self.assertEqual(sorted(TEMPLATES), [IMPLEMENTATION_REVIEW])
++        self.assertEqual(sorted(TEMPLATES),
++                         [IMPLEMENTATION_REVIEW,
++                          templates.IMPLEMENTATION_REVIEW_2])
+         for version, definition in TEMPLATES.items():
+             self.assertEqual(version, definition["version"])
+             check_template(definition)
+@@ -1146,7 +1154,16 @@ class TheRegisteredTemplateCannotBeWrittenTo(ResolverCase):
+         definition = templates.template_of(IMPLEMENTATION_REVIEW)
+         with self.assertRaises(TypeError):
+             del definition["failure"]
+-        self.assertEqual(sorted(TEMPLATES), [IMPLEMENTATION_REVIEW])
++        # W371294: both registered revisions, and neither added nor removed by
++        # anything above. The second entry is derived from the first at
++        # authoring time, so this also proves the derivation did not leave the
++        # two sharing a mutable member.
++        self.assertEqual(sorted(TEMPLATES),
++                         [IMPLEMENTATION_REVIEW,
++                          templates.IMPLEMENTATION_REVIEW_2])
++        with self.assertRaises(TypeError):
++            del templates.template_of(
++                templates.IMPLEMENTATION_REVIEW_2)["failure"]
+ 
+     def test_a_declared_sequence_cannot_be_appended_to(self):
+         definition = templates.template_of(IMPLEMENTATION_REVIEW)

@@ -1,0 +1,43 @@
+{
+ "base_commit": "8876bf950ff1f8ab8767ce9786df268cc9d767c6",
+ "boundaries": {
+  "build": false,
+  "deployment": false,
+  "engine": false,
+  "git_mutation": false,
+  "provider": false,
+  "qualification_minted": false
+ },
+ "candidate": {
+  "v12/python/src/baton_v12/job_manager/role_capability.py": "09fdc0e278d16a72d79ff26f9e1523b93aae6b423ebb11fc73ff6741472a90a0",
+  "v12/python/tests/job_manager/test_role_capability.py": "0d296dcf23f013a6f9aceb459db6078b928fdf9d37daf2311433bfc47c4ab1b8"
+ },
+ "claim": 377550,
+ "focused": {
+  "modules": [
+   "tests.job_manager.test_role_capability",
+   "tests.job_manager.test_role_contract",
+   "tests.job_manager.test_templates",
+   "tests.job_manager.test_creation"
+  ],
+  "ok": true,
+  "ran": 328,
+  "seconds": 0.672,
+  "test_role_capability_cases": 56
+ },
+ "job_manager_discovery": {
+  "attribution": "all three were already failing in this shared checkout under W376723's PRE-CLAIM bytes (role_capability.py 7d6aec76), measured during W376586 claim 377048 about an hour earlier; two of the three also fail in an isolated snapshot outside the checkout. None imports role_capability.",
+  "errors": 3,
+  "errors_named": [
+   "tests.job_manager.test_native_permission.NativeStageComposition.test_the_native_factory_delivers_the_policy_to_both_stage_workers",
+   "tests.job_manager.test_native_stop_restart.NativeStopRestart.test_reopened_store_preserves_deadline_and_generation_without_revival",
+   "tests.job_manager.test_serving_renewal.ServingPermission.test_expiry_is_not_revival_or_reuse_and_unknown_cessation_holds"
+  ],
+  "ran": 1505
+ },
+ "unchanged_inputs": {
+  "v12/python/src/baton_v12/job_manager/role_contract.py": "691ed3a0e653a9705f181790c9565706902bd3958f2973e49e85cff586ca6967",
+  "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-template-adapter-admission-plan/PROPOSAL.md": "ad0f2171f06f8da9e6e3c2784e50cab91d27f94c4d0727014e4520b00aa0b339"
+ },
+ "work": "2b077949-W376723"
+}

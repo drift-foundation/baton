@@ -1,0 +1,18 @@
+{
+  "answers": "review-2026-10-28T19-55-29Z.md (supersedes 19-49-07Z)",
+  "claim": 376896,
+  "engine_invoked": false,
+  "files": {
+    "absence.py": "55461a9ffdcbc7bf45c19d5a50578ebf33508ac2620c3b60975eaf6808413410",
+    "test_absence.py": "086f14e0d58c16975896a27e8424e3c47dd07555e071692990bb80bb9587b34d"
+  },
+  "preserved": {
+    "image": "sha256:47e733834bb690fd4601e102f81e527a08b6ffe55da8b8cb345f45edfcb1517e",
+    "note": "preparation-376414 and its BUILD-RECEIPT/ENGINE-RECEIPT are READ-ONLY references and were not edited",
+    "packet_sha256": "c4cf8e64d959a8345145812757be74255d40d744e58f9b1e90a5f739fbb3ecf7",
+    "selection_sha256": "7ab020e2d08f74296fb08bf1d0a44b8bfd1b8d8b76a34f96727502520fd6eac1",
+    "spent_run": "E376729 Selection B is spent; corrected execution needs a later exact owner selection"
+  },
+  "schema": "baton.w325695.absence-harness-pins/1",
+  "work": "2b077949-W325695"
+}

@@ -1,0 +1,19 @@
+{
+  "work": "W343989",
+  "claim": 344007,
+  "status": "prepared, uninstalled and unselected",
+  "artifacts": {
+    "OPERATOR-344007.md": "dc10505f53ad71da1b4b4c548e77b80182bd8087827fc5c0f5d9df83c472913f",
+    "SUCCESSOR-344007.json": "6b69e94a32352c5da6cfd6d02c2aaf7af35f29d93cb305ad7bce51c5e1b244f5",
+    "VALIDATION-344007.json": "5216d3681e67c94ebc4c561638cbcdcb1b2ca020aace34305bc5cff58ac38284",
+    "credential-sources-v3.json": "8249bc4a85657a9694db893b86c8875a7f76b90480b39fabac1f58e28426b400",
+    "sudoers-v3": "f103256d2f78f9571d86ada51a6457380038d8e5f2f81aa2ee92f704268e4b48",
+    "successor-selection.json": "436fe9b30f112f11ba50659883024d7cf60270497b59692251342163581febab",
+    "successor-PACKET.json": "5dd0195f6958e32889cd30261f0d1de86283d6bd28c2353743ea198473fed795",
+    "successor-deployment.json": "e19800ab83225e98cb8887879716f8084cf89d32392307d308527adc39e38bbd",
+    "successor-manifest.json": "f1c3e2d11ec5557c86273a6abc0c0ccb99b61f98acde3dddfcd5b737057f1265",
+    "SHA256SUMS": "69887d3472869bead4650e64c05b99bb886efebc2e7403ef61800015878392c2"
+  },
+  "bundle": "/tmp/baton-output-preparation-344007/bundle",
+  "bundle_manifest_sha256": "f1c3e2d11ec5557c86273a6abc0c0ccb99b61f98acde3dddfcd5b737057f1265"
+}

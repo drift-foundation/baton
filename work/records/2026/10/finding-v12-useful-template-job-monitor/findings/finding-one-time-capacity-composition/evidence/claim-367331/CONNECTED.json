@@ -1,0 +1,27 @@
+{
+ "owned_destination": "/var/tmp/baton-w257624/w367232-dest-ztw06w93/instance",
+ "distro": "/var/tmp/baton-w257624/w367232-runtime-mz93ue0v/distro",
+ "phase1_exit": 0,
+ "minted_authority_uuid": "cd9fa7ff70114f70977f9047c2a4e9b5",
+ "minted_is_not_the_fixture_constant": true,
+ "composed": {
+  "work_id": "cd9fa7ff-W1",
+  "lanes": [
+   "implementation",
+   "review"
+  ],
+  "participants": [
+   "baton.claude-w366962",
+   "baton.reviewer-w366962"
+  ],
+  "document_digest": "sha256:bb5d7fecc3744f96a2fb0229dfe56a53f0b7f65d17ec502401bbdbf12df93ed7",
+  "declared_base": "42bed8bb04a53380e565b1a63fb2bc702677f0d0",
+  "every_worker_uuid": [
+   "cd9fa7ff70114f70977f9047c2a4e9b5"
+  ]
+ },
+ "phase2_exit": 2,
+ "phase2_said": [
+  "refused: there is already a runtime at /var/tmp/baton-w257624/w367232-dest-ztw06w93/instance/distro; nothing here upgrades a deployment in place. Stop that instance and prepare a new destination if you mean a different runtime."
+ ]
+}

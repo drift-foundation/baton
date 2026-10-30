@@ -1,0 +1,60 @@
+{
+  "r1": "PASS",
+  "matrix": {
+    "collected": [
+      "review_matrix.Matrix.test_both_error",
+      "review_matrix.Matrix.test_both_failure",
+      "review_matrix.Matrix.test_both_skip",
+      "review_matrix.Matrix.test_message_error",
+      "review_matrix.Matrix.test_message_failure",
+      "review_matrix.Matrix.test_message_skip",
+      "review_matrix.Matrix.test_parameters_error",
+      "review_matrix.Matrix.test_parameters_failure",
+      "review_matrix.Matrix.test_parameters_skip"
+    ],
+    "executed": [
+      "review_matrix.Matrix.test_both_error",
+      "review_matrix.Matrix.test_both_failure",
+      "review_matrix.Matrix.test_both_skip",
+      "review_matrix.Matrix.test_message_error",
+      "review_matrix.Matrix.test_message_failure",
+      "review_matrix.Matrix.test_message_skip",
+      "review_matrix.Matrix.test_parameters_error",
+      "review_matrix.Matrix.test_parameters_failure",
+      "review_matrix.Matrix.test_parameters_skip"
+    ],
+    "passed": [],
+    "optional_skipped": {},
+    "required_skipped": {
+      "review_matrix.Matrix.test_both_skip": "probe",
+      "review_matrix.Matrix.test_message_skip": "probe",
+      "review_matrix.Matrix.test_parameters_skip": "probe"
+    },
+    "fixture_skipped": {},
+    "fixture_errors": {},
+    "failed": [
+      "review_matrix.Matrix.test_both_failure",
+      "review_matrix.Matrix.test_message_failure",
+      "review_matrix.Matrix.test_parameters_failure"
+    ],
+    "errors": [
+      "review_matrix.Matrix.test_both_error",
+      "review_matrix.Matrix.test_message_error",
+      "review_matrix.Matrix.test_parameters_error"
+    ],
+    "stray_errors": [],
+    "expected_failures": [],
+    "unexpected_successes": [],
+    "duplicates": [],
+    "unaccounted": [],
+    "uncollected": [],
+    "ok": false
+  }
+}
+{
+  "r2_same_status_bytes": "PASS",
+  "out_of_scope_fixture_change_detected": false,
+  "before": "f8429164c32e4a84097b23317b3da02cc46991955433090322aa588f55421530",
+  "after_code": "6c98f1644fde9af26213a854000c941dd6567a12131c50631394a685dcfccf1d",
+  "after_fixture": "6c98f1644fde9af26213a854000c941dd6567a12131c50631394a685dcfccf1d"
+}

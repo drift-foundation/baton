@@ -1,0 +1,17 @@
+{
+  "checked_files": 140,
+  "mismatches": [],
+  "held_packet": "passed",
+  "import_binding": "passed",
+  "controller_binding": "passed",
+  "configuration": "passed",
+  "runtime_manifest": {
+    "files": 81,
+    "digest": "c1ef3d23394916c8dd2aa8def162144b621ea2acbbfa289c4525bd9dc249b915"
+  },
+  "job_store_exists": false,
+  "control_store_exists": false,
+  "preparation_sha256": "26f81736d4a8d10b942753964cc6b53857f822c5db97246973f2cb0f6de5d0eb",
+  "packet_sha256": "41973dea7204b24bda6095bf8437d6d57d75cb66380f6978217a92197394cb07",
+  "elapsed_seconds": 0.031483079000054204
+}

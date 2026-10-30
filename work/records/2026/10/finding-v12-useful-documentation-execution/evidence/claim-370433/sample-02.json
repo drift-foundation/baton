@@ -1,0 +1,102 @@
+{
+ "attempt_diagnostics": [
+  {
+   "attempt": null,
+   "cause": null,
+   "cleanup": null,
+   "completion": true,
+   "revocation": null
+  },
+  {
+   "attempt": null,
+   "cause": null,
+   "cleanup": null,
+   "completion": null,
+   "revocation": null
+  }
+ ],
+ "attempt_diagnostics_exit": 0,
+ "label": "02",
+ "log_native_entries": 8,
+ "log_native_state": "captured",
+ "logs_exit": 0,
+ "runtime_processes": "169781 169782 178693",
+ "sampled_at": "2026-10-28T01:44:26Z",
+ "snapshot_observed_at": "2026-10-28T01:44:23.842Z",
+ "stack_status": {
+  "exit": 0,
+  "lines": [
+   "manager    running pid 169781",
+   "publisher  running pid 169782",
+   "snapshot   fresh (observed 2.6s ago, written 2.6s ago)",
+   "jobs       1 observed (canonical=True)",
+   "serving    acknowledged",
+   "runtime   2 open episode(s), 2 with a recorded runtime, observed 2.6s ago",
+   "          stopping a supervisor does not stop a runtime, and this is the last RECORDED answer rather than a fresh one"
+  ]
+ },
+ "stages": {
+  "implementation": {
+   "activity_observed_at": "2026-10-28T01:42:59.132Z",
+   "artifacts": [
+    {
+     "artifact_id": "attempt-16aa4dc348aa54aac84738be2f9caeac86ff4767d32aa59d88c48410d4fb9db9:proposal",
+     "bytes": 82420,
+     "content_digest": "sha256:40c8b565f419000b454641f0e1231484bb1aae738efa949307f2a65915d736b8",
+     "locator": "file:///home/sl/baton-instances/useful-template-job-w366962/state/workspaces/.baton-review-lines/line-5f0938d736aa879b6a97eec30df41bb7c063ad376c42b5b98358d35a52a5e316/custody/attempt-16aa4dc348aa54aac84738be2f9caeac86ff4767d32aa59d88c48410d4fb9db9/proposal",
+     "media_type": "application/octet-stream",
+     "output_name": "proposal"
+    }
+   ],
+   "attempt_id": "attempt-16aa4dc348aa54aac84738be2f9caeac86ff4767d32aa59d88c48410d4fb9db9",
+   "bytes_observed": 1640629,
+   "corrections": 0,
+   "deferral": null,
+   "episode_ended_at": null,
+   "episode_ended_state": null,
+   "exchange_state": null,
+   "exchange_unreadable": null,
+   "execution_runtime": "destroyed",
+   "receipts": [
+    [
+     "admit",
+     "performed"
+    ],
+    [
+     "claim",
+     "performed"
+    ]
+   ],
+   "runtime_id": "061f34d2cbcfce41d498cba9e3e2e13791e0773c99e9ded3f4a88bfbaaccf6b6",
+   "state": "completed"
+  },
+  "review": {
+   "activity_observed_at": null,
+   "artifacts": null,
+   "attempt_id": "attempt-793b51aabf70b8b4469e8db90b12c7ecbe606a8abbbd2c2cf39f9a7214f945e5",
+   "bytes_observed": null,
+   "corrections": 0,
+   "deferral": null,
+   "episode_ended_at": null,
+   "episode_ended_state": null,
+   "exchange_state": "unreadable",
+   "exchange_unreadable": {
+    "category": "policy",
+    "code": "denied"
+   },
+   "execution_runtime": "quiescent",
+   "receipts": [
+    [
+     "admit",
+     "performed"
+    ],
+    [
+     "claim",
+     "performed"
+    ]
+   ],
+   "runtime_id": "a813a59f691c23022343cb25f3050df2c95386ae36b7dbab647fd4108d906ee6",
+   "state": "exceptional"
+  }
+ }
+}

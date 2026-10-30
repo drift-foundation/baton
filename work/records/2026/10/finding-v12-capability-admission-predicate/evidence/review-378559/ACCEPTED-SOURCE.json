@@ -1,0 +1,14 @@
+{
+  "claim": 378559,
+  "files": {
+    "v12/python/src/baton_v12/job_manager/role_capability.py": "7b3db27c0f400d66f678ad714fe12aba5db80b47c94a38e22833d4d4c2b5456c",
+    "v12/python/src/baton_v12/job_manager/role_contract.py": "691ed3a0e653a9705f181790c9565706902bd3958f2973e49e85cff586ca6967",
+    "v12/python/src/baton_v12/source_profiles/checkout.py": "037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7",
+    "v12/python/src/baton_v12/verification_context.py": "f599072ac1202e9b759d9e7850f76c98790e23710cf6181d5a6e8907dd51650e",
+    "v12/python/tests/job_manager/test_role_capability.py": "128cf227ffbf82d1406992580e40147ce0a25ad505d46bedf56b134fdf0eb7ca",
+    "v12/python/tools/job_task.py": "a9ce7948bd39e9e8b2981ad26f299f5e2ad388ad18c6a522337a1c7c27d6e919",
+    "v12/worker/claude_agent.py": "017257c0cf50f02c01b2174eb7786df073b6bdf81b6819ad1cb4cde034fa57d8"
+  },
+  "scope": "closed capability validation and pure admission predicate; no connected admission or qualification grant",
+  "work": "W376723"
+}

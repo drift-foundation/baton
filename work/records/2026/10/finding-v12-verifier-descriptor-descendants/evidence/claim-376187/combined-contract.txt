@@ -1,0 +1,21 @@
+test_a_combined_deployment_keeps_the_context_rules (tests.tools.test_single_worker.TheLayoutSelectionIsIndependentOfTheContextMode.test_a_combined_deployment_keeps_the_context_rules)
+The context half is still held to retained implementation only -- ... ok
+test_a_context_deployment_may_also_select_a_layout (tests.tools.test_single_worker.TheLayoutSelectionIsIndependentOfTheContextMode.test_a_context_deployment_may_also_select_a_layout)
+REVIEW 2026-10-28T18-40-44Z: the two were mutually exclusive, so a ... ok
+test_a_fresh_implementation_deployment_is_admitted (tests.tools.test_single_worker.TheLayoutSelectionIsIndependentOfTheContextMode.test_a_fresh_implementation_deployment_is_admitted) ... ok
+test_a_legacy_deployment_may_not_carry_the_member (tests.tools.test_single_worker.TheLayoutSelectionIsIndependentOfTheContextMode.test_a_legacy_deployment_may_not_carry_the_member)
+`/4` and `/5` are closed member lists and stay that way. ... ok
+test_a_malformed_context_beside_a_layout_still_refuses (tests.tools.test_single_worker.TheLayoutSelectionIsIndependentOfTheContextMode.test_a_malformed_context_beside_a_layout_still_refuses) ... ok
+test_a_null_selection_is_explicitly_legacy_and_admitted (tests.tools.test_single_worker.TheLayoutSelectionIsIndependentOfTheContextMode.test_a_null_selection_is_explicitly_legacy_and_admitted) ... ok
+test_a_review_deployment_is_admitted_too (tests.tools.test_single_worker.TheLayoutSelectionIsIndependentOfTheContextMode.test_a_review_deployment_is_admitted_too)
+The role is not a context mode, and a reviewer selects a layout for ... ok
+test_a_selection_that_is_not_a_marker_document_refuses (tests.tools.test_single_worker.TheLayoutSelectionIsIndependentOfTheContextMode.test_a_selection_that_is_not_a_marker_document_refuses) ... ok
+test_the_admitted_selection_reaches_a_real_delivery (tests.tools.test_single_worker.TheLayoutSelectionIsIndependentOfTheContextMode.test_the_admitted_selection_reaches_a_real_delivery)
+And the configuration that `_held` admitted is one ... ok
+test_the_supported_context_deployment_keeps_its_own_rules (tests.tools.test_single_worker.TheLayoutSelectionIsIndependentOfTheContextMode.test_the_supported_context_deployment_keeps_its_own_rules)
+`/5` is untouched: its context member is still required and still ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.295s
+
+OK

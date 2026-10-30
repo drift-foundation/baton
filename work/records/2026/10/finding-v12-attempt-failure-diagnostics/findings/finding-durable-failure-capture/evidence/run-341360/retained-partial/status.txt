@@ -1,0 +1,5 @@
+ M v12/python/src/baton_v12/worker_manager/attempts.py
+ M v12/python/src/baton_v12/worker_manager/documents.py
+ M v12/python/src/baton_v12/worker_manager/intake.py
+?? v12/python/src/baton_v12/worker_manager/failure_cause.py
+?? v12/python/tests/manager/test_attempt_failure_cause.py

@@ -1,0 +1,59 @@
+{
+  "checks": {
+    "baseline_module": "/home/sl/baton-instances/durable-capture-w341357-350529/code/v12/python/tools/authoring_baseline.py",
+    "controller_module": "/home/sl/baton-instances/durable-capture-w341357-350529/code/v12/python/tools/authoring_enforcement.py",
+    "held_packet": {
+      "accepted": true,
+      "members": 115,
+      "packages": [
+        "baton_v12",
+        "tools"
+      ],
+      "supervisor": "/home/sl/baton-instances/durable-capture-w341357-350529/supervisor/baseline.py"
+    },
+    "verify_controller": {
+      "attempted": false,
+      "why": "main stops at the first refusal, so this was never called. Absence of a verdict here is not a verdict."
+    },
+    "verify_imported_sources": {
+      "accepted": false,
+      "refusal": "SupervisorRefusal(\"this process is running '/home/sl/baton-instances/durable-capture-w341357-350529/code/v12/python/tools/authoring_baseline.py' and the packet binds '/home/sl/baton-instances/durable-capture-w341357-350529/supervisor/baseline.py'\")"
+    }
+  },
+  "child_status": 1,
+  "child_stderr": "",
+  "claim": 352156,
+  "composed_supervisor": {
+    "path": "/home/sl/baton-instances/durable-capture-w341357-350529/supervisor/baseline.py",
+    "sha256": "8e5987f56f8d5329c33a8e73f9df56f13213e134f2dade8180afabf80723efe9"
+  },
+  "composed_supervisor_is_the_manager_source_member": true,
+  "is_author_evidence": "probe.py, verify-inputs.py and collect.py are unchanged; this check is not packet machinery.",
+  "not_reached": [
+    "verify_controller"
+  ],
+  "not_reached_note": "main stops at the first refusal, so a check after it was never called. NOT REACHED IS NOT REFUSED.",
+  "refused": [
+    "verify_imported_sources"
+  ],
+  "root": "/home/sl/baton-instances/durable-capture-w341357-350529",
+  "schema": "baton.w341357-startup-verification-check/1",
+  "seconds": 0.328,
+  "stops_at": "main's next statement, the authoring lock. No lock taken, no store opened, no image inspected, no Job submitted, no container started, no provider contacted, no credential read.",
+  "supervisor_directory_copy": {
+    "byte_identical": true,
+    "note": "still staged, still pinned as supervisor provenance, and still on PYTHONPATH because the HOST preparation imports baseline_bindings and prepare_instance from there. It is no longer the composed supervisor program.",
+    "path": "/home/sl/baton-instances/durable-capture-w341357-350529/supervisor/baseline.py",
+    "sha256": "8e5987f56f8d5329c33a8e73f9df56f13213e134f2dade8180afabf80723efe9"
+  },
+  "the_refusal_it_targets": "SupervisorRefusal: this process is running '<root>/code/v12/python/tools/authoring_baseline.py' and the packet binds '<root>/supervisor/baseline.py'",
+  "verdict": "denied",
+  "what": "main's first three statements, in order, in a child with the controller's exact cwd, PYTHONPATH and BATON_V12_STAGE_EXECUTION_CONFIG: held_packet, verify_imported_sources, verify_controller.",
+  "what_it_does_not_establish": [
+    "that the controller starts",
+    "that a provider session is valid",
+    "that a Job is admitted",
+    "that a turn completes"
+  ],
+  "why": "run348852 died at authoring_enforcement.py:554 and run350529 at :564, both inside this window, and no preparation check called these functions against the composed packet."
+}

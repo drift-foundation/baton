@@ -1,0 +1,20 @@
+{
+  "BASE.json": "b5034f3611d99ec16fae1008b269f162f450d01ac7fc5875b6219199faa8105e",
+  "CANDIDATE.json": "5bc48791501313b0831ee108fafee7fe899c0b204defe505c5273cbad71f778b",
+  "FIXTURES.json": "f47cfdf1cfc8c96db2b967d7f9ad259a15a4405ff561d632b8a0a552bed3b12b",
+  "README.md": "048e141d19a4567a69019be9b87ffcbd041bc5034f4b05614d524e7d362dcc8d",
+  "SOURCE-MANIFEST.json": "4af11631733298e2f6caa23f1b31c019e24a05379693affaad3794f6238a0f0b",
+  "candidate.diff": "7088b4e0f049d81dd79fd48cd2747c9d1de4b34d09fc768e352ff2d698f79ffa",
+  "evidence/SPENDING.json": "bccbd86d7a8bf8a484c9b3fdec2e3fb1188b64677242f2a4c7c6b294a80208d2",
+  "evidence/focused-1.json": "9897569dc7a9ea48621074b4d2828236643775179e802f32a6070a1e534d59e1",
+  "evidence/focused-1.log": "8f82b4292bbb7c268325451680609f73734a435992aee53b983e9d6013fc1e21",
+  "evidence/focused-final.json": "631e581673fb6e550f7d40ff4f05e45e159d2c9349f348a64eca9091e923925c",
+  "evidence/focused-final.log": "e9350cca7a24f40568226a466e87c27d5bafc07e9df16b7a33fd5cf9fb43c91e",
+  "files/v12/python/src/baton_v12/worker_manager/attempts.py": "726197972a9b2558cbfa4eabfd877053a8ffbcd7c1b4c3f3f2b4c9372f85bbab",
+  "files/v12/python/src/baton_v12/worker_manager/intake.py": "1f23b03ef404d7f7803f425b126b968e08a7fa9658ff218770e8e47bb6f1ae9d",
+  "files/v12/python/tests/job_manager/test_tool.py": "a1510af9ea4afcac39cbdc5f447c6e0caf583b6c5a485e679dcca2adeb5ca7cc",
+  "files/v12/python/tests/manager/test_attempts.py": "3b1dd4468a714104ec1ecb8314ea2889d4e4ad94e7c2282a3535c1d7a67eacb2",
+  "files/v12/python/tests/manager/test_authoring_enforcement.py": "947abaac77f3a0524c4c9f90e7f4a2ba3d76b643b72d3bec8a733955f7b9b823",
+  "files/v12/python/tools/authoring_enforcement.py": "2da6eb36b398d730c8cc07a9df0b604de678a3fd994d5019097fa023addfb88f",
+  "verification-source.tar.gz": "675c0d050b3ea5ce0de8f1fda6977c8d1b66bcad10af2f9869e2009167e7c882"
+}

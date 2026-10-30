@@ -1,0 +1,28 @@
+# Implement bounded production serving token renewal (W333485)
+
+Work only in the isolated private candidate at declared base bbdacb5d38f6cf2d2461e9da103d28f9ab30cc6c. There is no checkpoint overlay. Read v12/DESIGN.md and preserve its requirements. Implement the required behavior below, add focused deterministic coverage and report actual changes, tests, limitations and retained candidate. Do not modify host state, use live test providers, increase token constants, or implement sibling diagnostics. Test changes needed for this outcome are authorized. No Git mutations are requested. Framework-managed source preparation remains owned by the selected runtime.
+
+## Revalidated observations and implementation policy proposal
+
+Source search of v12/python/src and tools finds no tokens.renew invocation. tokens.py:496 supplies the atomic API; its public reader supplies committed revision/deadline. tools/job_manager.py:425 composes expiry reclamation, and manager.py:832 serves reconcile, sleep, sweep, reclaim. Token constants remain 900 seconds, four renewals and 30-second stop grace.
+
+Proposed scheduling target: inspect eligible permissions at most every 30 seconds, renew with 120 seconds remaining, requesting 900 seconds from trusted host time. Four nominal renewals at elapsed 780, 1560, 2340 and 3120 seconds yield a final deadline of 4020 seconds, enough for a 3600-second invocation plus finite lifecycle margin. This is permission, not a cumulative Job allowance. Never renew early on every scan or reset invocation settings on restart. The implementation must pin actual timing guarantees before execution; these figures are a design proposal, not measured compliance.
+
+Critical latency constraint: tools/job_manager.py:135 documents three engine calls times 30 seconds times 16 candidates = 1440 seconds of command allowance alone, excluding ending/DB work. A renewal callback after that pass cannot satisfy even the initial 900-second lease. A callback before it still cannot protect the next renewal. The candidate must separate timely renewal decisions from blocking engine/sweep work or otherwise bound their interference below the selected lead. Do not claim a whole-loop bound from the tick interval. Test stalled engine operations while unrelated eligible attempts cross renewal thresholds. No scheduling lead can compensate for an unbounded outage; overdue recovery must refuse renewal and enforce expiry.
+
+Eligibility to implement and demonstrate: exact current assignment generation and active attempt; same resource/domain/generation and launch operation; uniquely bound current runtime; no ending/cancellation/supersession/revocation/return/expiry or ambiguous timing. Activity is not eligibility. Validate authoritative eligibility at the relevant owner boundaries and fence cross-store races without external I/O in transactions. Unknown correspondence holds/refuses. Pass current expected deadline revision into the public atomic API, then consume committed state after reply loss or restart. Exhaustion leaves the existing final deadline intact and reports finite permission exhaustion; it never extends limits or releases an uncertain runtime.
+
+## Focused acceptance inside the Job
+
+Use controlled host clocks and fake provider/engine boundaries with real serving composition and public token decisions. Demonstrate execution past 900 seconds and through the selected 3600-second allowance; cancellation/end before renewal; stale and competing observations; expiry versus renewal in both orders; changed execution/generation; same-operation lost-reply replay; restart before/after commit; timing ambiguity; four-renewal exhaustion; exact-runtime stop and uncertain cessation; fairness during slow/unreachable engine calls. Populate both Job invocation limits and assert preservation across renewal and restart. Instrument affected transaction boundaries for external I/O.
+
+Likely focused test surfaces are tests/job_manager/test_tool.py, test_sweep.py, test_execution_limits.py and dedicated renewal-composition coverage chosen by the Job. Test-path recording supplies coordination, not an extra approval gate. No test files changed yet. Preserve existing defect coverage.
+
+
+## Verification and completion contract
+
+Create tests/job_manager/test_serving_renewal.py under v12/python as the dedicated production-composition acceptance suite; the sealed gate discovers this module plus existing test_tool, test_sweep and test_execution_limits. This is a test-entry convention, not an exclusive edit list. Keep tests deterministic, no wall-clock 3600-second waits. The command has a 30-second ceiling fixed by this composer. A timeout is non-acceptance; preserve the candidate and report it, never weaken tests or modify TMPDIR to conceal a verifier failure. The formal wrapper derives cwd/import roots and overwrites ambient PYTHONPATH. Supplemental focused tests may run inside the same invocation and must be reported honestly.
+
+One provider invocation is proposed at3600s, supervisor total4800s with60s cleanup reserve; no retry. These are ceilings, not promised useful time. The host running this authoring Job has the pre-correction900s token behavior: the proposed run may itself be stopped early; it must preserve partial output and report non-acceptance. Do not patch or bypass the running host. Do not claim successful3600s authoring execution from configured limits.
+
+Return an immutable retained proposal with base, changed paths/digests, measured verification and precise continuation checkpoint if incomplete. Independent technical review happens outside this producer through v11. No self-acceptance or automatic integration.

@@ -1,0 +1,415 @@
+.EE.EEFFEEE...........................................................................................F.E..............................
+======================================================================
+ERROR: test_historical_unknown_is_not_an_empty_success (tests.tools.test_attempt_diagnostics.RealStatusReportSeam.test_historical_unknown_is_not_an_empty_success)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353662/v12/python/tests/tools/test_attempt_diagnostics.py", line 240, in test_historical_unknown_is_not_an_empty_success
+    row = self.row()
+  File "/tmp/w333486-353662/v12/python/tests/tools/test_attempt_diagnostics.py", line 208, in row
+    return attempt_diagnostics.report(json.dumps(snapshot or self.snapshot()).encode())["rows"][0]
+                                                             ~~~~~~~~~~~~~^^
+  File "/tmp/w333486-353662/v12/python/tests/tools/test_attempt_diagnostics.py", line 205, in snapshot
+    return status(self.jobs, operations or self.acts, observed_at=NOW)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/job_manager/projection.py", line 920, in status
+    held = stage_states(store, operations, snapshot=snapshot)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/job_manager/projection.py", line 668, in stage_states
+    observed=(delegation.observation_of(
+              ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        operations, owned["attempt"], owned["job"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/job_manager/delegation.py", line 376, in observation_of
+    return _bound(operations.observe(stage), stage)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/job_manager/delegation.py", line 391, in _bound
+    held = boundaries.document(observed, "a canonical observation",
+                               required=OBSERVATION_MEMBERS,
+                               optional=OBSERVATION_OPTIONAL)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/pod.py", line 106, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries {name_value(value)}, which is not JSON data; this "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"boundary takes exact built-in documents and nothing that carries "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"behaviour")
+        ^^^^^^^^^^^^^
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: a canonical observation carries a tuple, which is not JSON data; this boundary takes exact built-in documents and nothing that carries behaviour
+
+======================================================================
+ERROR: test_other_episode_and_runtime_evidence_cannot_be_reported_as_current (tests.tools.test_attempt_diagnostics.RealStatusReportSeam.test_other_episode_and_runtime_evidence_cannot_be_reported_as_current)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353662/v12/python/tests/tools/test_attempt_diagnostics.py", line 259, in test_other_episode_and_runtime_evidence_cannot_be_reported_as_current
+    snapshot = self.snapshot()
+  File "/tmp/w333486-353662/v12/python/tests/tools/test_attempt_diagnostics.py", line 205, in snapshot
+    return status(self.jobs, operations or self.acts, observed_at=NOW)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/job_manager/projection.py", line 920, in status
+    held = stage_states(store, operations, snapshot=snapshot)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/job_manager/projection.py", line 668, in stage_states
+    observed=(delegation.observation_of(
+              ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        operations, owned["attempt"], owned["job"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/job_manager/delegation.py", line 376, in observation_of
+    return _bound(operations.observe(stage), stage)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/job_manager/delegation.py", line 391, in _bound
+    held = boundaries.document(observed, "a canonical observation",
+                               required=OBSERVATION_MEMBERS,
+                               optional=OBSERVATION_OPTIONAL)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 1 more time]
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/pod.py", line 106, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries {name_value(value)}, which is not JSON data; this "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"boundary takes exact built-in documents and nothing that carries "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"behaviour")
+        ^^^^^^^^^^^^^
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: a canonical observation carries a tuple, which is not JSON data; this boundary takes exact built-in documents and nothing that carries behaviour
+
+======================================================================
+ERROR: test_private_keys_provenance_and_unknown_reasons_are_not_forwarded (tests.tools.test_attempt_diagnostics.RealStatusReportSeam.test_private_keys_provenance_and_unknown_reasons_are_not_forwarded)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353662/v12/python/tests/tools/test_attempt_diagnostics.py", line 303, in test_private_keys_provenance_and_unknown_reasons_are_not_forwarded
+    snapshot = self.snapshot()
+  File "/tmp/w333486-353662/v12/python/tests/tools/test_attempt_diagnostics.py", line 205, in snapshot
+    return status(self.jobs, operations or self.acts, observed_at=NOW)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/job_manager/projection.py", line 920, in status
+    held = stage_states(store, operations, snapshot=snapshot)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/job_manager/projection.py", line 668, in stage_states
+    observed=(delegation.observation_of(
+              ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        operations, owned["attempt"], owned["job"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/job_manager/delegation.py", line 376, in observation_of
+    return _bound(operations.observe(stage), stage)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/job_manager/delegation.py", line 391, in _bound
+    held = boundaries.document(observed, "a canonical observation",
+                               required=OBSERVATION_MEMBERS,
+                               optional=OBSERVATION_OPTIONAL)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 1 more time]
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/pod.py", line 106, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries {name_value(value)}, which is not JSON data; this "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"boundary takes exact built-in documents and nothing that carries "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"behaviour")
+        ^^^^^^^^^^^^^
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: a canonical observation carries a tuple, which is not JSON data; this boundary takes exact built-in documents and nothing that carries behaviour
+
+======================================================================
+ERROR: test_real_durable_expiry_reaches_status_and_report_unchanged (tests.tools.test_attempt_diagnostics.RealStatusReportSeam.test_real_durable_expiry_reaches_status_and_report_unchanged)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353662/v12/python/tests/tools/test_attempt_diagnostics.py", line 220, in test_real_durable_expiry_reaches_status_and_report_unchanged
+    snapshot = self.snapshot()
+  File "/tmp/w333486-353662/v12/python/tests/tools/test_attempt_diagnostics.py", line 205, in snapshot
+    return status(self.jobs, operations or self.acts, observed_at=NOW)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/job_manager/projection.py", line 920, in status
+    held = stage_states(store, operations, snapshot=snapshot)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/job_manager/projection.py", line 668, in stage_states
+    observed=(delegation.observation_of(
+              ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        operations, owned["attempt"], owned["job"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/job_manager/delegation.py", line 376, in observation_of
+    return _bound(operations.observe(stage), stage)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/job_manager/delegation.py", line 391, in _bound
+    held = boundaries.document(observed, "a canonical observation",
+                               required=OBSERVATION_MEMBERS,
+                               optional=OBSERVATION_OPTIONAL)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 1 more time]
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/pod.py", line 106, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries {name_value(value)}, which is not JSON data; this "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"boundary takes exact built-in documents and nothing that carries "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"behaviour")
+        ^^^^^^^^^^^^^
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: a canonical observation carries a tuple, which is not JSON data; this boundary takes exact built-in documents and nothing that carries behaviour
+
+======================================================================
+ERROR: test_stale_snapshot_preserves_recorded_time_without_inventing_freshness (tests.tools.test_attempt_diagnostics.RealStatusReportSeam.test_stale_snapshot_preserves_recorded_time_without_inventing_freshness)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353662/v12/python/tests/tools/test_attempt_diagnostics.py", line 269, in test_stale_snapshot_preserves_recorded_time_without_inventing_freshness
+    snapshot = self.snapshot()
+  File "/tmp/w333486-353662/v12/python/tests/tools/test_attempt_diagnostics.py", line 205, in snapshot
+    return status(self.jobs, operations or self.acts, observed_at=NOW)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/job_manager/projection.py", line 920, in status
+    held = stage_states(store, operations, snapshot=snapshot)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/job_manager/projection.py", line 668, in stage_states
+    observed=(delegation.observation_of(
+              ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        operations, owned["attempt"], owned["job"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/job_manager/delegation.py", line 376, in observation_of
+    return _bound(operations.observe(stage), stage)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/job_manager/delegation.py", line 391, in _bound
+    held = boundaries.document(observed, "a canonical observation",
+                               required=OBSERVATION_MEMBERS,
+                               optional=OBSERVATION_OPTIONAL)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/pod.py", line 106, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries {name_value(value)}, which is not JSON data; this "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"boundary takes exact built-in documents and nothing that carries "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"behaviour")
+        ^^^^^^^^^^^^^
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: a canonical observation carries a tuple, which is not JSON data; this boundary takes exact built-in documents and nothing that carries behaviour
+
+======================================================================
+ERROR: test_typed_engine_failure_is_known_while_cessation_remains_unknown (tests.tools.test_attempt_diagnostics.RealStatusReportSeam.test_typed_engine_failure_is_known_while_cessation_remains_unknown)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353662/v12/python/tests/tools/test_attempt_diagnostics.py", line 234, in test_typed_engine_failure_is_known_while_cessation_remains_unknown
+    row = self.row()
+  File "/tmp/w333486-353662/v12/python/tests/tools/test_attempt_diagnostics.py", line 208, in row
+    return attempt_diagnostics.report(json.dumps(snapshot or self.snapshot()).encode())["rows"][0]
+                                                             ~~~~~~~~~~~~~^^
+  File "/tmp/w333486-353662/v12/python/tests/tools/test_attempt_diagnostics.py", line 205, in snapshot
+    return status(self.jobs, operations or self.acts, observed_at=NOW)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/job_manager/projection.py", line 920, in status
+    held = stage_states(store, operations, snapshot=snapshot)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/job_manager/projection.py", line 668, in stage_states
+    observed=(delegation.observation_of(
+              ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        operations, owned["attempt"], owned["job"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/job_manager/delegation.py", line 376, in observation_of
+    return _bound(operations.observe(stage), stage)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/job_manager/delegation.py", line 391, in _bound
+    held = boundaries.document(observed, "a canonical observation",
+                               required=OBSERVATION_MEMBERS,
+                               optional=OBSERVATION_OPTIONAL)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 1 more time]
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/pod.py", line 106, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries {name_value(value)}, which is not JSON data; this "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"boundary takes exact built-in documents and nothing that carries "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"behaviour")
+        ^^^^^^^^^^^^^
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: a canonical observation carries a tuple, which is not JSON data; this boundary takes exact built-in documents and nothing that carries behaviour
+
+======================================================================
+ERROR: test_unreadable_diagnostic_does_not_erase_independent_status (tests.tools.test_attempt_diagnostics.RealStatusReportSeam.test_unreadable_diagnostic_does_not_erase_independent_status)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353662/v12/python/tests/tools/test_attempt_diagnostics.py", line 247, in test_unreadable_diagnostic_does_not_erase_independent_status
+    expected = self.snapshot()["jobs"][0]["stages"][0]["state"]
+               ~~~~~~~~~~~~~^^
+  File "/tmp/w333486-353662/v12/python/tests/tools/test_attempt_diagnostics.py", line 205, in snapshot
+    return status(self.jobs, operations or self.acts, observed_at=NOW)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/job_manager/projection.py", line 920, in status
+    held = stage_states(store, operations, snapshot=snapshot)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/job_manager/projection.py", line 668, in stage_states
+    observed=(delegation.observation_of(
+              ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        operations, owned["attempt"], owned["job"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/job_manager/delegation.py", line 376, in observation_of
+    return _bound(operations.observe(stage), stage)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/job_manager/delegation.py", line 391, in _bound
+    held = boundaries.document(observed, "a canonical observation",
+                               required=OBSERVATION_MEMBERS,
+                               optional=OBSERVATION_OPTIONAL)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/pod.py", line 106, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries {name_value(value)}, which is not JSON data; this "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"boundary takes exact built-in documents and nothing that carries "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"behaviour")
+        ^^^^^^^^^^^^^
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: a canonical observation carries a tuple, which is not JSON data; this boundary takes exact built-in documents and nothing that carries behaviour
+
+======================================================================
+ERROR: test_the_refresh_answer_is_an_exact_document_with_exactly_one_member (tests.job_manager.test_delegation.Observation.test_the_refresh_answer_is_an_exact_document_with_exactly_one_member)
+W85500 re-review 2026-09-04T19:08:40Z [P1].
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353662/v12/python/tests/job_manager/test_delegation.py", line 209, in test_the_refresh_answer_is_an_exact_document_with_exactly_one_member
+    acts.refresh_runtime(stage)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/job_manager/delegation.py", line 976, in refresh_runtime
+    return _refreshed(self._diagnostic_call(stage, self._refresh_runtime, stage), stage)
+                      ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/job_manager/delegation.py", line 1045, in _diagnostic_call
+    if degradation_of(answer) is not None:
+       ~~~~~~~~~~~~~~^^^^^^^^
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/worker_manager/failure_cause.py", line 807, in degradation_of
+    found = carrier.get(DEGRADATION_MEMBER)
+  File "/tmp/w333486-353662/v12/python/tests/job_manager/test_delegation.py", line 201, in get
+    raise RuntimeError("a subclass method ran inside the boundary")
+RuntimeError: a subclass method ran inside the boundary
+
+======================================================================
+FAIL: test_returned_and_exception_carriers_are_reported_without_private_text (tests.tools.test_attempt_diagnostics.RealStatusReportSeam.test_returned_and_exception_carriers_are_reported_without_private_text) (raises=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353662/v12/python/tests/tools/test_attempt_diagnostics.py", line 279, in test_returned_and_exception_carriers_are_reported_without_private_text
+    original = ContractRefusal("runtime-observation", "engine-timeout", SECRET)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/errors.py", line 276, in __init__
+    raise AssertionError(_defect(
+    ...<2 lines>...
+        f"the pairing is closed", live))
+AssertionError: this build raised a refusal whose code is 'engine-timeout', which is not a runtime-observation code; the pairing is closed
+
+======================================================================
+FAIL: test_returned_and_exception_carriers_are_reported_without_private_text (tests.tools.test_attempt_diagnostics.RealStatusReportSeam.test_returned_and_exception_carriers_are_reported_without_private_text) (raises=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353662/v12/python/tests/tools/test_attempt_diagnostics.py", line 279, in test_returned_and_exception_carriers_are_reported_without_private_text
+    original = ContractRefusal("runtime-observation", "engine-timeout", SECRET)
+  File "/tmp/w333486-353662/v12/python/src/baton_v12/contracts/errors.py", line 276, in __init__
+    raise AssertionError(_defect(
+    ...<2 lines>...
+        f"the pairing is closed", live))
+AssertionError: this build raised a refusal whose code is 'engine-timeout', which is not a runtime-observation code; the pairing is closed
+
+======================================================================
+FAIL: test_an_unstarted_stage_observes_absence_rather_than_a_guess (tests.job_manager.test_delegation.Observation.test_an_unstarted_stage_observes_absence_rather_than_a_guess)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/w333486-353662/v12/python/tests/job_manager/test_delegation.py", line 144, in test_an_unstarted_stage_observes_absence_rather_than_a_guess
+    self.assertEqual(observed, {"claimed_by": None, "runtime": None,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                "activity": None, "output": None,
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<8 lines>...
+                                # integration read, for the same reason.
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                "integration": None, "diagnostics": None})
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'cla[147 chars]on': None, 'diagnostics': None, 'diagnostic_degradation': None} != {'cla[147 chars]on': None, 'diagnostics': None}
+  {'activity': None,
+   'claimed_by': None,
+-  'diagnostic_degradation': None,
+   'diagnostics': None,
+   'exchange': None,
+   'integration': None,
+   'output': None,
+   'preparation_failure': None,
+   'runtime': None,
+   'start_failure': None}
+
+----------------------------------------------------------------------
+Ran 134 tests in 0.288s
+
+FAILED (failures=3, errors=8)

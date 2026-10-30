@@ -1,0 +1,43 @@
+{
+  "claim": 371102,
+  "decision_inputs": {
+    "FINDING.md": "93653957b7a1a610efe8482e0d3fe88dd0abf84313d8309eb6be94b8ea3709bf",
+    "PLAN.md": "893d3cbc189e55aaeaac74d412e42954b4794675540375ed0fa260166b88a908"
+  },
+  "files": {
+    "CAPABILITY.synthetic.json": {
+      "bytes": 600,
+      "sha256": "3ac58bc32180c4362cd005664a7de4b8ae00c18081a787de406f04e439226b1d"
+    },
+    "PROGRESS.md": {
+      "bytes": 2759,
+      "sha256": "3a144b064bf91201d2b6ec0c1f2c381c481b94e7fc328f30e60d70a3dad6fa31"
+    },
+    "PROPOSAL.md": {
+      "bytes": 23426,
+      "sha256": "ad0f2171f06f8da9e6e3c2784e50cab91d27f94c4d0727014e4520b00aa0b339"
+    },
+    "ROLE-CONTRACT.proposed.json": {
+      "bytes": 1914,
+      "sha256": "1c0809092a5798bbff6e2b0425a5cbdcb363cbdc8d2c72e78ff9d18ad56a557c"
+    },
+    "evidence/claim-371102/CHECK.json": {
+      "bytes": 1926,
+      "sha256": "6e52b22d9ee926a006c3731c702a1578571b7268b306d6b8a2bf66cc869fd01f"
+    },
+    "evidence/claim-371102/RUNS.json": {
+      "bytes": 551,
+      "sha256": "61dcef81747c03015d0abfdb64c22d016bc707db77812d1a5b5be8817608fbc3"
+    },
+    "evidence/claim-371102/SOURCES.json": {
+      "bytes": 3544,
+      "sha256": "ce006b219f8a06d07e0cb17ccc27bb0039d726eb6ce1181577b8d9f849ff9d6f"
+    },
+    "evidence/claim-371102/check.py": {
+      "bytes": 2876,
+      "sha256": "ef5caabd511a71af81b94b5e4646d9f2bdbee48d03cce8b4e412435ff835577c"
+    }
+  },
+  "status": "planning proposal awaiting independent review and owner approval",
+  "work": "W371072"
+}

@@ -1,0 +1,157 @@
+{
+  "indexed_hash_checks": {
+    "COLLECTION.json": {
+      "copy_match": true,
+      "source_match": true
+    },
+    "EXECUTOR-PREFLIGHT.json": {
+      "copy_match": true,
+      "source_match": true
+    },
+    "GATE-CLASSIFICATION.json": {
+      "copy_match": true,
+      "source_match": null
+    },
+    "candidate-change.patch": {
+      "copy_match": true,
+      "source_match": true
+    },
+    "candidate-objects.bundle": {
+      "copy_match": true,
+      "source_match": true
+    },
+    "candidate-output.json": {
+      "copy_match": true,
+      "source_match": true
+    },
+    "candidate-result.json": {
+      "copy_match": true,
+      "source_match": true
+    },
+    "candidate-sealed.json": {
+      "copy_match": true,
+      "source_match": true
+    },
+    "candidate-verification.txt": {
+      "copy_match": true,
+      "source_match": true
+    },
+    "outcome.json": {
+      "copy_match": true,
+      "source_match": true
+    },
+    "outcome.json.authoring.log": {
+      "copy_match": true,
+      "source_match": true
+    },
+    "outcome.json.enforcement-18036-1792578564128853617.json": {
+      "copy_match": true,
+      "source_match": true
+    },
+    "outcome.json.manager-18036-1792578102487231383.json": {
+      "copy_match": true,
+      "source_match": true
+    },
+    "outcome.json.manager-18036-1792578102487231383.json.progress.json": {
+      "copy_match": true,
+      "source_match": true
+    }
+  },
+  "raw_stream_hash_matches": true,
+  "failure_headers": [
+    [
+      "ERROR",
+      "test_a_LINE_composed_preparation_is_REVALIDATED_and_not_refused",
+      "tests.manager.test_maintenance.THEREVALIDATIONComparesTheLayoutItsRecordIsAbout.test_a_LINE_composed_preparation_is_REVALIDATED_and_not_refused"
+    ],
+    [
+      "ERROR",
+      "test_a_LINE_home_NAMED_workspace_is_still_the_line_layout",
+      "tests.manager.test_maintenance.THEREVALIDATIONComparesTheLayoutItsRecordIsAbout.test_a_LINE_home_NAMED_workspace_is_still_the_line_layout"
+    ],
+    [
+      "ERROR",
+      "test_a_REPLACED_LINE_object_is_refused_by_the_COMPOSED_boundary",
+      "tests.manager.test_maintenance.THEREVALIDATIONComparesTheLayoutItsRecordIsAbout.test_a_REPLACED_LINE_object_is_refused_by_the_COMPOSED_boundary"
+    ],
+    [
+      "ERROR",
+      "test_a_REPLACED_inputs_root_under_the_LINE_layout_still_refuses",
+      "tests.manager.test_maintenance.THEREVALIDATIONComparesTheLayoutItsRecordIsAbout.test_a_REPLACED_inputs_root_under_the_LINE_layout_still_refuses"
+    ],
+    [
+      "ERROR",
+      "test_the_RECORD_STATES_which_layout_each_path_completed_over",
+      "tests.manager.test_maintenance.THEREVALIDATIONComparesTheLayoutItsRecordIsAbout.test_the_RECORD_STATES_which_layout_each_path_completed_over"
+    ],
+    [
+      "ERROR",
+      "test_a_second_preparation_finds_it_established_rather_than_replacing_it",
+      "tests.manager.test_maintenance.ThePreparationEffectHappensInsideTheExecution.test_a_second_preparation_finds_it_established_rather_than_replacing_it"
+    ],
+    [
+      "ERROR",
+      "test_the_real_programs_document_is_the_one_this_module_accounts_for",
+      "tests.manager.test_maintenance.TheVocabularyAndTheSchemaAreOneContract.test_the_real_programs_document_is_the_one_this_module_accounts_for"
+    ],
+    [
+      "FAIL",
+      "test_an_ATTEMPT_layout_record_is_compared_whole",
+      "tests.manager.test_maintenance.THEREVALIDATIONComparesTheLayoutItsRecordIsAbout.test_an_ATTEMPT_layout_record_is_compared_whole"
+    ],
+    [
+      "FAIL",
+      "test_the_HOLDER_adopts_with_its_own_capability",
+      "tests.manager.test_maintenance.TheADOPTIONTakesTheCapabilityAndNotANumber.test_the_HOLDER_adopts_with_its_own_capability"
+    ],
+    [
+      "FAIL",
+      "test_the_LEGAL_second_run_is_arbitrated_through_the_REAL_caller",
+      "tests.manager.test_maintenance.TheEXECUTIONAllowanceIsTheAttemptsOwnCurrentRun.test_the_LEGAL_second_run_is_arbitrated_through_the_REAL_caller"
+    ],
+    [
+      "FAIL",
+      "test_exactly_one_mount_is_composed_and_it_is_the_workspace",
+      "tests.manager.test_maintenance.TheMountIsTheDerivedRootAndNeverTheHome.test_exactly_one_mount_is_composed_and_it_is_the_workspace"
+    ],
+    [
+      "FAIL",
+      "test_the_home_and_its_credential_siblings_are_not_mounted",
+      "tests.manager.test_maintenance.TheMountIsTheDerivedRootAndNeverTheHome.test_the_home_and_its_credential_siblings_are_not_mounted"
+    ],
+    [
+      "FAIL",
+      "test_the_EXPECTED_root_is_composed_from_configuration_and_the_attempt",
+      "tests.manager.test_maintenance.TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_the_EXPECTED_root_is_composed_from_configuration_and_the_attempt"
+    ],
+    [
+      "FAIL",
+      "test_INACCESSIBLE_output_names_the_exact_entry_and_preserves_it",
+      "tests.manager.test_maintenance.TheSELECTEDOutputIsAccessibleOrItIsAnError.test_INACCESSIBLE_output_names_the_exact_entry_and_preserves_it"
+    ],
+    [
+      "FAIL",
+      "test_a_TRAVERSAL_FAILURE_is_an_answer_and_not_silence",
+      "tests.manager.test_maintenance.TheSELECTEDOutputIsAccessibleOrItIsAnError.test_a_TRAVERSAL_FAILURE_is_an_answer_and_not_silence"
+    ],
+    [
+      "FAIL",
+      "test_an_UNREACHABLE_ROOT_is_the_first_thing_that_is_inaccessible",
+      "tests.manager.test_maintenance.TheSELECTEDOutputIsAccessibleOrItIsAnError.test_an_UNREACHABLE_ROOT_is_the_first_thing_that_is_inaccessible"
+    ]
+  ],
+  "summary": [
+    "Ran 864 tests in 12.817s",
+    "FAILED (failures=9, errors=7)"
+  ],
+  "static_base_checks": {
+    "v12/python/tests/manager/test_maintenance.py": {
+      "base_sha256": "648a6724fd3311a2f6908e1ee7ffba310b5bd23062365902d2cc478d167bdb7b",
+      "checkout_matches_base": true
+    },
+    "v12/python/src/baton_v12/worker_manager/workspaces.py": {
+      "base_sha256": "d4fea18eab1d0f0e1ee8e197a006dc97274c021ed4dd6c548660a2e17ff08a03",
+      "checkout_matches_base": true
+    }
+  }
+}

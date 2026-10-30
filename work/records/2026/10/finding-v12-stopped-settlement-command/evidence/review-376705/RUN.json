@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/usr/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stopped_settlement_command",
+    "tests.manager.test_stopped_settlement",
+    "tests.manager.test_boundary_inventory.StoppedSettlementInventory",
+    "tests.manager.test_boundary_inventory.StatedRules",
+    "tests.tools.test_stage_execution.TheObservationSurfaceIsSeparateAndReadOnly"
+  ],
+  "seconds": 9.950619281999025,
+  "exit_code": 0,
+  "cwd": "v12/python",
+  "provider_engine": "deterministic fixtures only"
+}

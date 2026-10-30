@@ -1,0 +1,43 @@
+{
+  "inventory": [
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-safe-adapter-failure-plan/PROPOSAL.md",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-safe-adapter-failure-plan/PROGRESS.md",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-safe-adapter-failure-plan/evidence/claim-371189/ADAPTER-FAILURE.proposed.json",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-safe-adapter-failure-plan/evidence/claim-371189/COMMAND.synthetic.json",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-safe-adapter-failure-plan/evidence/claim-371189/SOURCES.json",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-safe-adapter-failure-plan/evidence/claim-371189/TERMINAL.proposed.json",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-safe-adapter-failure-plan/evidence/claim-371189/VERIFICATION.json",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-safe-adapter-failure-plan/evidence/claim-371189/probe.py",
+      "matches": true
+    }
+  ],
+  "source_drift": [
+    "v12/DESIGN.md"
+  ],
+  "example_checks": 5,
+  "selected_AST_matches_committed_base": true,
+  "product_tests": 0,
+  "note": "DESIGN drift is approved E371253 addition; worker candidate not certified here."
+}

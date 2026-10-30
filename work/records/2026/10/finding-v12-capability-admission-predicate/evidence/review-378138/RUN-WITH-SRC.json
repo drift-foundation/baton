@@ -1,0 +1,14 @@
+{
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_role_capability",
+    "tests.job_manager.test_role_contract",
+    "tests.job_manager.test_templates",
+    "tests.job_manager.test_creation"
+  ],
+  "PYTHONPATH": "src",
+  "seconds": 1.459312545001012,
+  "returncode": 0
+}

@@ -1,0 +1,98 @@
+{
+  "WORK": "2b077949-W325959",
+  "CLAIM": 355012,
+  "ANSWERS_REVIEW": "work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-22T20-30-29Z.md",
+  "WHAT_THIS_IS": "THE COMPLETE COMBINED CANDIDATE the review asked for: one exact base/candidate manifest, one fully attributed delta, the accepted child test imported unchanged, and the parent prose correction with its source hash rebound.",
+
+  "THE_FOUR_REQUIRED_CHANGES_AND_NOTHING_ELSE": {
+    "1_child_test_imported": {
+      "path": "v12/python/tests/job_manager/test_native_stop_restart.py",
+      "sha256": "f05726cfb92c6d2d8d35e2df859e7f540c4dfc0aa6703b3fe8cdfe08d35bfadf",
+      "source": "W354630 child evidence/claim-354939/test_native_stop_restart.py",
+      "verified": "the target was ABSENT before this claim, exactly as the review said; `cmp` against the reviewed bytes reports IDENTICAL, so nothing was edited, re-authored or reformatted on the way in",
+      "cross_check": "the same digest is in the child's claim-354638 and claim-354939 evidence, so the accepted bytes and the originally-proposed bytes are one file"
+    },
+    "2_parent_prose_corrected": {
+      "path": "v12/python/src/baton_v12/worker_manager/tokens.py",
+      "was": "c341c2a5535a0dd015b8d0cb8594942303e5dca5e9518c7f9b45ed76d304e2ef",
+      "now": "adb773a8b65609c11d8ed0ffec77ecb72b1fd8db52efecd124d13a971b3067e1",
+      "what_was_wrong": "the effects_permitted docstring said a revoked generation 'answered True and WAS HANDED THE RESOURCE AGAIN'. That overstates what was demonstrated. The proven fact is FALSE PERMISSION -- the gate said yes -- and neither proof executed a duplicate external effect. The review is right, and a docstring claiming the stronger thing would have the product's own source asserting an effect nobody observed.",
+      "what_it_says_now": "ANSWERED TRUE, and a caller that trusts this gate would have been cleared to hand it the resource again; WHAT WAS DEMONSTRATED IS THE PERMISSION, not an executed duplicate effect -- naming the review that corrected it, and keeping why the permission alone is the defect: the closed start/dispatch sequence is built on this answer",
+      "exact_delta": "tokens-prose-correction.diff",
+      "PROVED_PROSE_ONLY": "prose_only.py parses both files, strips EVERY docstring at module, class and function level, and compares the full AST dump: IDENTICAL (prose-only.log). This is a stronger check than reading the diff, because it would catch a behaviour change hidden anywhere else in the file.",
+      "behaviour_rechecked_anyway": "the child's 6 accepted cases and my 20 all pass against the REBOUND digest, not only against c341c2a5 -- see joined-26.log"
+    },
+    "3_no_store_claim_corrected": {
+      "path": "v12/python/tests/job_manager/test_native_permission.py",
+      "was": "2806305618e8e3145109af3d9a8b9c34f1c24fa46e3ec6c64241333da78a094b",
+      "now": "0569c29093d010e3714ea23f2a5bc7c1c3d47a6ab77ad0e942e7cb07497bfd32",
+      "what_changed": "a comment, nothing else. The review is right that `report['opens_no_store']` is the report's SELF-DESCRIPTION and not independent proof of no I/O. The assertion STAYS -- a report that stopped declaring its own no-store contract would be a real regression -- but it is no longer labelled as proof of no I/O, and the comment now says the property is carried by the accepted supplier read-only/package evidence instead.",
+      "not_done": "no supplier evidence was re-run and no new I/O proof was built; the review asked for the claim to be attributed correctly, not for a new campaign"
+    },
+    "4_manifest_and_delta_emitted": "CANDIDATE-MANIFEST.json and DELTA.json, described below"
+  },
+
+  "THE_COMBINED_MANIFEST": {
+    "file": "CANDIDATE-MANIFEST.json",
+    "sha256": "080ab4f454d65583f689b476302b2ce118f8bc23a217eee3880252c80f5f735d",
+    "candidate_root": "/tmp/w325959-354165/candidate",
+    "candidate_file_count": 1778,
+    "coverage": "EVERY file in the candidate tree, not only the changed ones, so an exact-byte reviewer can check the whole thing rather than trusting a changed-file list",
+    "excluded": "__pycache__ only",
+    "base_commit": "d6881d8adbd567b6e92a4a2a1d0cb68ee781f70a",
+    "how_the_base_was_read": "`git cat-file -p <commit>:<path>` per path -- the COMMITTED bytes out of the object store, never the dirty shared working tree. That is the same choice the claim354165 composition evidence pinned, and it matters because the shared tree currently carries unrelated uncommitted work.",
+    "reproducible": "manifest.py and attribute.py are retained here and take no operands"
+  },
+
+  "THE_ATTRIBUTED_DELTA": {
+    "file": "DELTA.json",
+    "sha256": "cf84e58a11a687db33a49b2cce8e6c3229e65d9bd2a11e37a7af0c074e4b71b8",
+    "paths_differing_from_the_committed_baseline": 34,
+    "added_by_this_work": 7,
+    "UNATTRIBUTED": 0,
+    "by_origin": {
+      "W333486 supplier (failure diagnostics), 24 paths": "23 BYTE-IDENTICAL to its accepted candidate (review-354068/CANDIDATE.json, base bc925cf5) and 1 -- attempts.py -- three-way merged by the parent at claim354165, which is the single base mismatch that composition evidence already recorded",
+      "W333485 supplier (serving token renewal), 6 paths": "test_serving_renewal.py, test_boundary_inventory.py and authoring_enforcement.py byte-identical to its accepted candidate (bootstrap-347778/CANDIDATE.json, base d3a7a41c); workspaces.py, single_worker.py and stage_execution.py taken from that supplier and then changed by the parent for the native lifetime, with the supplier's own digest recorded beside each",
+      "tokens.py, 1 path": "the full chain in one entry -- W333485 supplier base 389ea0ff, parent revoked-gate correction c341c2a5, parent prose-only correction adb773a8",
+      "parent-owned native lifetime work, 2 paths": "execution_limits.py and the new test_native_permission.py",
+      "W354630 child, 1 path": "test_native_stop_restart.py, accepted bytes imported unchanged"
+    },
+    "why_attribution_matters_here": "the review asked for a delta TYING supplier resolutions, the current parent test and the child evidence. Every one of the 34 names where its bytes came from and, where the parent changed a supplier's file, what the supplier's own digest was -- so no path is left looking like it appeared from nowhere."
+  },
+
+  "VERIFICATION": {
+    "joined_packaging_and_import": {
+      "log": "joined-26.log",
+      "command": "python -m unittest -v tests.job_manager.test_native_permission tests.job_manager.test_native_stop_restart",
+      "result": "26 tests, OK, 1.698s unittest / 1.89s process",
+      "why_one_process": "the review asked for joined packaging/import coherence. Both modules in ONE interpreter is the check that matters: the imported child module and my own resolve their shared fixtures together without collision, which neither module proves alone.",
+      "composition": "20 parent cases + the child's 6, and the child's 6 now run against the REBOUND tokens.py adb773a8 rather than the c341c2a5 they were accepted against -- which the prose-only AST proof says is the same program"
+    },
+    "not_repeated": "no broad campaign. The accepted 20 parent and 6 child results and the supplier results are reused as the review directed; the only new runs are the joined 26 and the AST prose check.",
+    "environment": "PYTHONPATH=src:. PYTHONDONTWRITEBYTECODE=1 BATON_V12_DISK_ROOT=/var/tmp/baton-w257624, /home/sl/.local/state/baton-v12-venv/bin/python"
+  },
+
+  "PRESERVED": {
+    "original_red_evidence": "the child's claim-354638 run-3.log and its 5-pass/1-failure record are untouched, as is my evidence/revoked-354829 directory with the three pre-existing-failure lists and the original correction diff",
+    "out_of_claim_authorship_disclosure": "stands unchanged in FINDING and in evidence/revoked-354829/INDEX.json. The revoked correction was first authored 19:57:21-19:58:46Z outside any held claim and unjournalled; it was re-derived and re-verified under claim354829. Later verification does not retroactively authorize that window and nothing here treats it as if it does.",
+    "child_ownership": "the child's test path was imported, never edited; its dossier was read, never written"
+  },
+
+  "A_WORDING_CORRECTION_IN_MY_OWN_PRIOR_RECORD": {
+    "what": "evidence/revoked-354829 and that PROGRESS entry describe the third boundary-inventory failure list as the 'committed working tree'. That phrase is self-contradictory.",
+    "exact": "that run was against the SHARED WORKING TREE at /home/sl/src/baton/v12/python, which carries unrelated uncommitted work. The finding itself is unchanged -- 28 identical failures there, on the candidate base and on the corrected candidate -- but the tree should be named for what it is.",
+    "additional_fact_from_this_claim": "DELTA.json shows test_boundary_inventory.py is byte-identical to W333485's ACCEPTED candidate and differs from the baseline commit, so those 28 failures are present in accepted supplier bytes as well. Still not caused by this Work, still not in its scope, and still no repair attempted."
+  },
+
+  "STILL_OWED": [
+    "nothing in this Work's implementation scope: the combined candidate is complete and returned for independent exact-byte review",
+    "after acceptance, and owned elsewhere: human-reviewed integration and the Git checkpoint, plus the W354389 retained-native installation/recovery operand finalization, then separately selected operational execution"
+  ],
+
+  "BOUNDARIES": {
+    "live": "none -- no live instance, engine, provider, model or credential",
+    "operations": "no deployment, installation, recovery, migration or shared-tree import; the candidate stays isolated under /tmp",
+    "version_control": "read-only. `git cat-file` to read committed baseline bytes; no staging, no commit, no index or history mutation of any kind",
+    "no_readiness_claim": "these are deterministic proofs. They do not certify installed readiness or useful live delivery, and no duplicate external effect is alleged anywhere."
+  }
+}

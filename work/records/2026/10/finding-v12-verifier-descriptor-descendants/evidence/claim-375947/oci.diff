@@ -1,0 +1,350 @@
+diff --git a/v12/python/src/baton_v12/worker_manager/oci.py b/v12/python/src/baton_v12/worker_manager/oci.py
+index a5c79921..a15a3ab2 100644
+--- a/v12/python/src/baton_v12/worker_manager/oci.py
++++ b/v12/python/src/baton_v12/worker_manager/oci.py
+@@ -874,6 +874,42 @@ def _credential_mounts(pairs):
+ # something else.
+ 
+ 
++def _selected_scratch(identity):
++    """The tmpfs operands a runtime holding a layout selection gets.
++
++    W325695 review 2026-10-28T17-58-14Z [2]: "Mount creation does not carry
++    the root identity or mode it promises." It did not. The worker's
++    `_proved_root` refuses a root whose mode is not 0700 or whose owner is not
++    the selection's uid AND gid -- and the composed operands carried only
++    `rw,noexec,nosuid,nodev,size`, so every one of those checks was being
++    asked of a root nothing had been told to create that way. Setting the
++    process `--user` is not a declaration of filesystem-root ownership, and
++    the image's root-owned 0755 MOUNTPOINT is not the mounted root: a fresh
++    tmpfs gets its own root inode with its own mode and owner.
++
++    SO THE FACTS THE WORKER CHECKS ARE THE FACTS THE ENGINE IS ASKED FOR,
++    `uid`, `gid` and `mode` on each of the four roots, from the SAME minted
++    identity this vector composes into `--user` and the same
++    `source_boundary.VERIFIER_MODE` the document names. The check is not
++    weakened anywhere; the creation is completed.
++
++    `/tmp` AND `/dev/shm` KEEP THEIR OWN SPELLING, with no identity options:
++    they are the ordinary shared scratch every runtime has always had, their
++    legacy mode is what tools expect of `/tmp`, and narrowing them here would
++    be a change nobody selected riding along with this one.
++    """
++    composed = []
++    private = {target for _name, target, _size
++               in source_boundary.VERIFIER_ROOTS}
++    for target, size in source_boundary.SELECTED_SCRATCH_MOUNTS:
++        held = f"{target}:rw,noexec,nosuid,nodev,size={size >> 20}m"
++        if target in private:
++            held += (f",uid={identity.uid},gid={identity.gid}"
++                     f",mode={source_boundary.VERIFIER_MODE:04o}")
++        composed.append(held)
++    return tuple(composed)
++
++
+ def _launch_mount(pair):
+     """The one read-only bind a launch delivery authorizes.
+ 
+@@ -907,6 +943,37 @@ def _launch_mount(pair):
+     return source, target
+ 
+ 
++def _layout_mount(delivered):
++    """The one read-only bind a verifier-layout delivery authorizes.
++
++    A TYPED DELIVERY AND NEVER A PAIR, which is where this deliberately
++    differs from `_launch_mount`: the launch document's pair comes off a
++    `LaunchDelivery` the adapter already holds, and this one is composed from
++    the delivery itself because `run_vector` has a PROOF to make about the
++    document -- that its uid/gid is the identity being composed into `--user`
++    -- and a pair of paths carries no document to prove anything about.
++    """
++    if type(delivered) is not source_boundary.LayoutDelivery:
++        _refuse(f"a verifier-layout delivery is one this manager "
++                f"materialized; this is {name_value(delivered)}")
++    pair = delivered.mount()
++    source = canonical_source(pair[0], "a verifier-layout document source")
++    target = boundaries.text(pair[1], "a verifier-layout document target")
++    if target != source_boundary.LAYOUT_TARGET:
++        _denied(f"a verifier-layout delivery lands on {name_value(target)}; "
++                f"the worker reads its trusted layout selection at "
++                f"{name_value(source_boundary.LAYOUT_TARGET)}, which is a "
++                f"constant of this contract rather than an operand")
++    if not os.path.isfile(source):
++        _refuse(f"a verifier-layout delivery names {name_value(source)}, "
++                f"which is not a regular file; the trusted layout selection "
++                f"is one document at one path -- a directory bound over it is "
++                f"a path no document can be read from, and a link is a source "
++                f"this manager would be resolving on the worker's behalf",
++                code="path")
++    return source, target
++
++
+ def _exchange_mounts(exchange_delivered):
+     """The TWO binds an exchange delivery authorizes, and nothing else.
+ 
+@@ -1264,6 +1331,7 @@ def activation_vector(engine, *, runtime_id):
+ 
+ def run_vector(engine, *, image_digest, labels, assignment_roots, posture,
+                mounts=(), credentials_delivered=(), launch_delivered=None,
++               layout_delivered=None,
+                exchange_delivered=None, source_delivered=None,
+                logs_delivered=None, scratch_delivered=None,
+                integration_delivered=None, context_delivered=None,
+@@ -1387,7 +1455,51 @@ def run_vector(engine, *, image_digest, labels, assignment_roots, posture,
+     identity = None
+     if posture == "execution" and type(workspace_group) is workspaces.WorkspaceGroup:
+         identity = workspaces.identity_for(workspace_group)
++    # W325695: THE SELECTED SCRATCH TABLE, OR EXACTLY TODAY'S.
++    #
++    # Review [3]: the first cut put the four verifier roots and a reduced
++    # `/tmp` into `source_boundary.SCRATCH_MOUNTS`, which this table composes
++    # for EVERY run -- so an unselected runtime got the new topology with
++    # nothing selecting it. The redistribution is now a property of the
++    # SELECTION: a runtime with no layout delivery is composed from the legacy
++    # table and is argv-identical to today, and one with a delivery gets the
++    # selected table whose `/tmp` gives up exactly what the roots take.
++    if layout_delivered is not None:
++        # THE AGREEMENTS COME FIRST, BEFORE ANY OPERAND IS COMPOSED FROM THE
++        # SELECTION, because the scratch table below is composed from the
++        # minted identity and a vector that reached that line without one
++        # would be building mounts for a runtime it could not describe.
++        #
++        # EXECUTION ONLY. A consent runtime mounts nothing and runs no
++        # verifier, so a layout selection there is a grant with no object --
++        # and it has no execution identity for the document to name.
++        if posture != "execution":
++            _denied(f"a verifier-layout selection is delivered to an "
++                    f"execution runtime and this start is "
++                    f"{name_value(posture)}; a consent runtime mounts nothing "
++                    f"and runs no verifier")
++        if identity is None:
++            _denied("a verifier-layout selection names this runtime's "
++                    "trusted execution identity and this start composes "
++                    "none; the deployment's minted workspace group is what "
++                    "that identity is derived from")
++    selected = (_selected_scratch(identity) if layout_delivered is not None
++                else ())
++    legacy_scratch = tuple(
++        f"{target}:rw,noexec,nosuid,nodev,size={size >> 20}m"
++        for target, size in source_boundary.SCRATCH_MOUNTS)
++    emitted = 0
+     for flag, value in RESTRICTIONS:
++        if flag == "--tmpfs" and value in legacy_scratch and selected:
++            # ONE OPERAND REPLACED IN PLACE, for the reason the `--network`
++            # substitution below gives: appending a second `--tmpfs` for the
++            # same target would leave two in one vector and let the engine
++            # decide which won.
++            if emitted < len(selected):
++                argv.append(flag)
++                argv.append(selected[emitted])
++                emitted += 1
++                continue
+         argv.append(flag)
+         if flag == "--network":
+             value = network
+@@ -1404,6 +1516,13 @@ def run_vector(engine, *, image_digest, labels, assignment_roots, posture,
+                 identity, f"{identity.uid}:{identity.gid}")
+         if value is not None:
+             argv.append(value)
++    # AND THE REST OF THE SELECTED TABLE, which is the four private roots.
++    # They are appended rather than substituted because the legacy table has
++    # no operand for them -- that is what makes them new -- and they are
++    # emitted here, inside the restrictions, so a reader meets the whole
++    # memory-filesystem posture in one place.
++    for one in selected[emitted:]:
++        argv += ["--tmpfs", one]
+     roots, posture = held, posture
+     if posture == "execution":
+         if workspace_group is None:
+@@ -1463,6 +1582,67 @@ def run_vector(engine, *, image_digest, labels, assignment_roots, posture,
+                         f"nor the engine says which")
+         argv += ["--mount",
+                  f"type=bind,source={source},target={target},readonly=true"]
++    # W325695: THE TRUSTED VERIFIER-LAYOUT SELECTION, ALWAYS READ-ONLY at the
++    # fixed target `source_boundary.LAYOUT_TARGET`. The same shape and the
++    # same reason as the launch document above: the worker PROVES its verifier
++    # roots against this document, so a worker that could rewrite it could
++    # name its own roots and the proof would be about whatever it chose. The
++    # review asked for the document's "delivery, type, ownership and
++    # immutability" to be protected; read-only is the immutability, the
++    # regular-file proof is the type, and containment is the delivery.
++    #
++    # CONTAINMENT IS SYMMETRIC WITH THE LAUNCH DOCUMENT'S, and that symmetry
++    # is the point rather than a convenience. The families composed BEFORE
++    # this one are checked here; the families composed AFTER it carry this
++    # target in their own lists, exactly as they carry the launch document's.
++    # A first cut composed the mount here and added it to nobody's list, so
++    # an exchange, log, scratch, source, integration or context target could
++    # land over the one document the verifier roots are proved against -- a
++    # fixed target that only some families respect is not a fixed target.
++    if layout_delivered is not None:
++        source, target = _layout_mount(layout_delivered)
++        selection = layout_delivered.document
++        # THE IDENTITY THE DOCUMENT NAMES IS THE IDENTITY THIS ARGV COMPOSES.
++        # `identity` is `workspaces.identity_for(workspace_group)` -- the
++        # pair written into `--user` a few lines above -- so this is not a
++        # second opinion about who the runtime is: it is the one opinion,
++        # compared against the document the worker will prove its root
++        # OWNERSHIP against. A document naming anybody else describes roots
++        # the container cannot own, and the worker would refuse mid-run on
++        # ownership rather than here with nothing started.
++        # AND THE IDENTITY THE DOCUMENT NAMES IS THE ONE THIS ARGV COMPOSES,
++        # which is now also the one the four root operands above were created
++        # with -- so the fact the worker proves and the fact the engine was
++        # asked for are the same fact, taken from one capability.
++        if (selection["uid"], selection["gid"]) != (identity.uid, identity.gid):
++            _denied(f"a verifier-layout selection names execution identity "
++                    f"{selection['uid']}:{selection['gid']} and this runtime is started "
++                    f"as {identity.uid}:{identity.gid}; the verifier proves "
++                    f"its roots are owned by the identity the document names, "
++                    f"so a document naming another one describes roots this "
++                    f"container cannot own")
++        if selection["image_digest"] != image_digest:
++            _denied(f"a verifier-layout selection is bound to image "
++                    f"{name_value(selection['image_digest'])} and this runtime is "
++                    f"started from {name_value(image_digest)}; the image's own "
++                    f"marker is what the worker proves the selection against, "
++                    f"so a selection composed for another image is one no "
++                    f"marker in this one will agree with")
++        for _source, taken, _writable in assigned:
++            if taken == target or _within(target, taken):
++                _denied(f"a verifier-layout selection lands on "
++                        f"{name_value(target)}, which this assignment already "
++                        f"mounts; the worker would prove its verifier roots "
++                        f"against one of the two and neither this manager nor "
++                        f"the engine says which")
++        if launch_delivered is not None:
++            taken = _launch_mount(launch_delivered)[1]
++            if taken == target or _within(target, taken):
++                _denied(f"a verifier-layout selection lands on "
++                        f"{name_value(target)}, which this launch delivery "
++                        f"already mounts")
++        argv += ["--mount",
++                 f"type=bind,source={source},target={target},readonly=true"]
+     # W81857: THE FILE EXCHANGE, composed after every other family and refused
+     # outright if any of them would contain either target. The command
+     # namespace is what the manager's authority over this container's work
+@@ -1474,7 +1654,9 @@ def run_vector(engine, *, image_digest, labels, assignment_roots, posture,
+                       + [one[1] for one in
+                          _credential_mounts(credentials_delivered)]
+                       + ([_launch_mount(launch_delivered)[1]]
+-                         if launch_delivered is not None else [])):
++                         if launch_delivered is not None else [])
++                      + ([_layout_mount(layout_delivered)[1]]
++                         if layout_delivered is not None else [])):
+             if taken == target or _within(target, taken):
+                 _denied(f"an exchange namespace lands on "
+                         f"{name_value(target)}, which this start already "
+@@ -1493,6 +1675,8 @@ def run_vector(engine, *, image_digest, labels, assignment_roots, posture,
+                          _credential_mounts(credentials_delivered)]
+                       + ([_launch_mount(launch_delivered)[1]]
+                          if launch_delivered is not None else [])
++                      + ([_layout_mount(layout_delivered)[1]]
++                         if layout_delivered is not None else [])
+                       + [one[1] for one in
+                          _exchange_mounts(exchange_delivered)]):
+             if taken == target or _within(target, taken) \
+@@ -1520,6 +1704,8 @@ def run_vector(engine, *, image_digest, labels, assignment_roots, posture,
+                          _credential_mounts(credentials_delivered)]
+                       + ([_launch_mount(launch_delivered)[1]]
+                          if launch_delivered is not None else [])
++                      + ([_layout_mount(layout_delivered)[1]]
++                         if layout_delivered is not None else [])
+                       + [one[1] for one in
+                          _exchange_mounts(exchange_delivered)]
+                       + [one[1] for one in _log_mounts(logs_delivered)]):
+@@ -1545,6 +1731,8 @@ def run_vector(engine, *, image_digest, labels, assignment_roots, posture,
+                        _credential_mounts(credentials_delivered)]
+                       + ([_launch_mount(launch_delivered)[1]]
+                          if launch_delivered is not None else [])
++                      + ([_layout_mount(layout_delivered)[1]]
++                         if layout_delivered is not None else [])
+                       + [one[1] for one in
+                          _exchange_mounts(exchange_delivered)]):
+             if taken == target or _within(target, taken) \
+@@ -1579,6 +1767,8 @@ def run_vector(engine, *, image_digest, labels, assignment_roots, posture,
+                                in _credential_mounts(credentials_delivered))
+                        + ((_launch_mount(launch_delivered) + (False,),)
+                           if launch_delivered is not None else ())
++                       + ((_layout_mount(layout_delivered) + (False,),)
++                          if layout_delivered is not None else ())
+                        + tuple(_exchange_mounts(exchange_delivered))
+                        + tuple(_source_mount(source_delivered, assigned,
+                                              roots)))])
+@@ -1588,6 +1778,8 @@ def run_vector(engine, *, image_digest, labels, assignment_roots, posture,
+                          _credential_mounts(credentials_delivered)]
+                       + ([_launch_mount(launch_delivered)[1]]
+                          if launch_delivered is not None else [])
++                      + ([_layout_mount(layout_delivered)[1]]
++                         if layout_delivered is not None else [])
+                       + [one[1] for one in
+                          _exchange_mounts(exchange_delivered)]
+                       + [one[1] for one in
+@@ -1605,6 +1797,7 @@ def run_vector(engine, *, image_digest, labels, assignment_roots, posture,
+     if context_delivered is not None:
+         others = list(assigned) + [(source, target, False) for source, target in _credential_mounts(credentials_delivered)]
+         others += ([_launch_mount(launch_delivered) + (False,)] if launch_delivered else [])
++        others += ([_layout_mount(layout_delivered) + (False,)] if layout_delivered else [])
+         others += list(_exchange_mounts(exchange_delivered)) + list(_source_mount(source_delivered, assigned, roots)) + list(integration_composed)
+         others += [(source, None, False) for unused, source in roots.items()]
+         for source, target, writable in _context_mounts(context_delivered, posture, others):
+@@ -2029,6 +2222,7 @@ class OciAdapter:
+                  posture, mounts=(), outputs=(), input_manifest_digest=None,
+                  credential_delivery=None, credential_home=None,
+                  credential_orphan=None, launch_delivery=None,
++                 layout_delivery=None,
+                  source_delivery=None, integration_delivery=None, context_delivery=None,
+                  scratch_delivery=None, context_execution=None,
+                  workspace_group=None, network=NETWORK_NONE,
+@@ -2161,6 +2355,37 @@ class OciAdapter:
+             _refuse(f"a launch delivery is one this manager materialized; "
+                     f"this is {name_value(launch_delivery)}")
+         self.launch_delivery = launch_delivery
++        # W325695: THE TRUSTED VERIFIER-LAYOUT SELECTION, owned at
++        # construction on the same rule as every delivery above, and BOUND TO
++        # THIS ADAPTER'S RESOLVED IDENTITY here rather than anywhere else.
++        #
++        # Review 2026-10-28T03-25-24Z: "Bind selected topology and effective
++        # UID/GID through the actual owner composition, not self-assertion in
++        # an arbitrary document." This is the owner composition. One adapter
++        # holds ONE resolved identity, owned at construction and never
++        # re-supplied per request, and it is what the argv names and what the
++        # labels must agree with. So a layout document carrying a different
++        # image, profile, policy or adapter digest is a selection composed for
++        # a runtime other than the one this adapter starts -- refused before
++        # anything is started, not carried as a claim the worker is asked to
++        # believe about itself. The uid/gid half is `run_vector`'s, because
++        # the identity it compares against is the one it composes into
++        # `--user`.
++        if layout_delivery is not None:
++            if type(layout_delivery) is not source_boundary.LayoutDelivery:
++                _refuse(f"a verifier-layout delivery is one this manager "
++                        f"materialized; this is "
++                        f"{name_value(layout_delivery)}")
++            for name in RESOLVED_IDENTITY:
++                if layout_delivery.document[name] != self.identity[name]:
++                    _denied(f"this verifier-layout delivery is bound to "
++                            f"{name} {name_value(layout_delivery.document[name])} "
++                            f"and this adapter's resolved identity is "
++                            f"{name_value(self.identity[name])}; one delivery "
++                            f"carries one identity, and a selection composed "
++                            f"under another one describes a runtime this "
++                            f"adapter does not start")
++        self.layout_delivery = layout_delivery
+         self.context_delivery = context_delivery
+         # W177936: the launch boundary's grant, absent by default -- see
+         # `_context_execution`. Owned at construction like every delivery.
+@@ -2565,6 +2790,12 @@ class OciAdapter:
+                 launch_delivered=(self.launch_delivery.mount()
+                                   if self.launch_delivery is not None
+                                   else None),
++                # W325695: AND THE TRUSTED LAYOUT SELECTION, passed WHOLE
++                # rather than as its mount pair. `run_vector` has a proof to
++                # make about the document -- that the identity it names is the
++                # one being composed into `--user` -- and a pair of paths
++                # carries nothing to prove that against.
++                layout_delivered=self.layout_delivery,
+                 exchange_delivered=(
+                     self.launch_delivery.exchange.mounts()
+                     if self.launch_delivery is not None

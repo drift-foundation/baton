@@ -1,0 +1,51 @@
+{
+  "checks": {
+    "evidence/claim-369373/BINDING.json": {
+      "expected": "92d9962a71b64b5d25142e22a3b5bd52a374093aa1a352c0c8594b2893765723",
+      "actual": "92d9962a71b64b5d25142e22a3b5bd52a374093aa1a352c0c8594b2893765723",
+      "ok": true
+    },
+    "proposed-grants/INVENTORY.json": {
+      "expected": "6ae52f7b2b796fe1bae8323155513fb8f751e182f4a48a0dffbb577243284add",
+      "actual": "6ae52f7b2b796fe1bae8323155513fb8f751e182f4a48a0dffbb577243284add",
+      "ok": true
+    },
+    "credential_policy_digest": {
+      "expected": "5399f947126ec7d031bced5895076657d24be21443e6db0c9ec86b51b14a9877",
+      "actual": "5399f947126ec7d031bced5895076657d24be21443e6db0c9ec86b51b14a9877",
+      "ok": true
+    },
+    "mount_policy_digest": {
+      "expected": "40bbe54bfd29865a5c8d3319b6cc019ae23e2005ce9d733aa3cbb5db223ce49d",
+      "actual": "40bbe54bfd29865a5c8d3319b6cc019ae23e2005ce9d733aa3cbb5db223ce49d",
+      "ok": true
+    },
+    "network_policy_digest": {
+      "expected": "fd23b28efadbe648ac43b0a1324de3dc5bfe873adfaa2c0d0ec60a777e3d9014",
+      "actual": "fd23b28efadbe648ac43b0a1324de3dc5bfe873adfaa2c0d0ec60a777e3d9014",
+      "ok": true
+    },
+    "resource_policy_digest": {
+      "expected": "eb99686f18e73701aa7db25b2f0c6e3044fb94e583d290e9b2c7a018bd27952c",
+      "actual": "eb99686f18e73701aa7db25b2f0c6e3044fb94e583d290e9b2c7a018bd27952c",
+      "ok": true
+    },
+    "role_instructions_digest": {
+      "expected": "8ac96cb65d446a41a570a9ffa499ba955aa9e8d137bbbed7356fbd2d68ae04e5",
+      "actual": "8ac96cb65d446a41a570a9ffa499ba955aa9e8d137bbbed7356fbd2d68ae04e5",
+      "ok": true
+    },
+    "tool_policy_digest": {
+      "expected": "eabb731948b1391bec7ef0c95035710ab4cef6c145b783e7f77765c4347051d6",
+      "actual": "eabb731948b1391bec7ef0c95035710ab4cef6c145b783e7f77765c4347051d6",
+      "ok": true
+    },
+    "toolchain_digest": {
+      "expected": "25920341783793832dc76dc14c2e67ba09b768737700b70122181da6eabe6507",
+      "actual": "25920341783793832dc76dc14c2e67ba09b768737700b70122181da6eabe6507",
+      "ok": true
+    }
+  },
+  "source_head": "42bed8bb04a53380e565b1a63fb2bc702677f0d0",
+  "all_match": true
+}

@@ -1,0 +1,34 @@
+{
+ "base": "bc925cf5c62d69426ed5862af4d41f4d2a967b0f",
+ "changed_paths": [
+  "v12/python/src/baton_v12/worker_manager/attempts.py",
+  "v12/python/src/baton_v12/worker_manager/documents.py",
+  "v12/python/src/baton_v12/worker_manager/failure_cause.py",
+  "v12/python/src/baton_v12/worker_manager/intake.py",
+  "v12/python/tests/manager/disk_roots.py",
+  "v12/python/tests/manager/input_roots.py",
+  "v12/python/tests/manager/test_attempt_failure_cause.py",
+  "v12/python/tests/manager/test_maintenance.py",
+  "v12/python/tests/manager/test_output.py"
+ ],
+ "collection": null,
+ "disposition": "verification-failed",
+ "entry_head": "bc925cf5c62d69426ed5862af4d41f4d2a967b0f",
+ "head": "5a7d5976ab48c2e66ad5ae610e526362a0990871",
+ "provider": {
+  "failure_reason": null,
+  "seconds_bound": 3600,
+  "status": 0
+ },
+ "schema": "baton.dogfood-proposal/2",
+ "task_id": "durable-capture-w341357-345388",
+ "verification": {
+  "argv": [
+   "python3",
+   "-c",
+   "import os,sys,unittest; os.chdir('v12/python'); roots=[os.getcwd(),os.path.join(os.getcwd(),'src')]; sys.path[:0]=roots; os.environ['PYTHONPATH']=os.pathsep.join(roots); names=[\"tests.manager.test_intake\", \"tests.manager.test_attempts\", \"tests.manager.test_maintenance\", \"tests.manager.test_contracts_inventory\", \"tests.manager.test_attempt_failure_cause\"]; r=unittest.TextTestRunner(verbosity=1).run(unittest.defaultTestLoader.loadTestsFromNames(names)); [print('SKIPPED '+str(one[0])) for one in r.skipped]; sys.exit(0 if r.wasSuccessful() and not r.skipped else 1)"
+  ],
+  "status": 1
+ },
+ "why": "the task's own command ended 1"
+}

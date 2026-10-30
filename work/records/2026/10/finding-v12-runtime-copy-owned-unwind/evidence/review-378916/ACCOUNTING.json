@@ -1,0 +1,11 @@
+{
+  "retained": [
+    "/tmp/w376956-account-xk5t610f/own",
+    "/tmp/w376956-account-xk5t610f/foreign",
+    "/tmp/w376956-account-xk5t610f/uncertain"
+  ],
+  "report": "cleanup       retained /tmp/w376956-account-xk5t610f/own: this attempt made the copied object and is NOT deleting it: a name-based removal cannot be bound to this object, so the bytes stay\ncleanup       retained /tmp/w376956-account-xk5t610f/foreign: it is no longer the replaced object this attempt made, so it belongs to whoever replaced it\ncleanup       retained /tmp/w376956-account-xk5t610f/uncertain: uncertain effect (creation outcome unknown); no deletion authority\ncleanup       RETAINED 3 object(s) this attempt made, which are NOT removed:\ncleanup         /tmp/w376956-account-xk5t610f/own\ncleanup         /tmp/w376956-account-xk5t610f/foreign\ncleanup         /tmp/w376956-account-xk5t610f/uncertain\n",
+  "own": "owned",
+  "foreign": "foreign",
+  "destructive_calls": 0
+}

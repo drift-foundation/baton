@@ -1,0 +1,61 @@
+{
+  "observed_at": "2026-10-28T01:12:03.446952+00:00",
+  "owner_selection": "E370206",
+  "reviewer_claim": "E370208",
+  "image": {
+    "initial_sandbox_exit": 1,
+    "initial_sandbox_result": "Docker socket permission denied",
+    "read_only_escalated_inspect_exit": 0,
+    "Id": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2",
+    "Os": "linux",
+    "Architecture": "amd64",
+    "Entrypoint": [
+      "python3",
+      "/opt/baton/dogfood_entry.py"
+    ],
+    "User": "65532:65532",
+    "image_contents_or_authentication_verified": false
+  },
+  "credential": {
+    "resolver": "tools.user_credentials.UserCredentialSources.resolve",
+    "exit": 0,
+    "receipt": "credential_resolution_ok; remote_authentication_not_tested",
+    "secret_disclosed_or_retained": false
+  },
+  "source": {
+    "expected": "42bed8bb04a53380e565b1a63fb2bc702677f0d0",
+    "head": "42bed8bb04a53380e565b1a63fb2bc702677f0d0",
+    "matches": true,
+    "v12_status": "",
+    "commit_object_exit": 0,
+    "clone_performed": false
+  },
+  "fresh_paths": {
+    "/home/sl/baton-instances/useful-template-job-w366962": {
+      "lexists": false
+    },
+    "/home/sl/baton-instances/useful-template-job-w366962-distro": {
+      "lexists": false
+    },
+    "/home/sl/baton-instances/useful-template-job-w366962-mint.json": {
+      "lexists": false
+    },
+    "/home/sl/baton-instances/useful-template-job-w366962-compose": {
+      "lexists": false
+    },
+    "/home/sl/baton-instances/useful-template-job-w366962-phase2.json": {
+      "lexists": false
+    }
+  },
+  "packet_binding_sha256": "29375db1f141bb4b64b3be38a9429264590d3a3d2a41dd196461d7c977eaf34f",
+  "operations_not_performed": [
+    "install",
+    "pull",
+    "build",
+    "clone",
+    "container start",
+    "model call",
+    "repair",
+    "Git mutation"
+  ]
+}

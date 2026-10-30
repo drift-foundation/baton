@@ -1,0 +1,15 @@
+test_a_settled_refusal_refuses_the_retry_before_any_effect (tests.job_manager.test_fresh_attempt.TheJournalOwnsTheSubmissionIdentity.test_a_settled_refusal_refuses_the_retry_before_any_effect) ... ok
+test_an_incompatible_committed_submission_refuses_the_same_way (tests.job_manager.test_fresh_attempt.TheJournalOwnsTheSubmissionIdentity.test_an_incompatible_committed_submission_refuses_the_same_way) ... ok
+test_another_submission_identity_admits_the_same_retry (tests.job_manager.test_fresh_attempt.TheJournalOwnsTheSubmissionIdentity.test_another_submission_identity_admits_the_same_retry)
+THE ACTIONABLE OUTCOME IS ACTIONABLE. ... ok
+test_it_does_not_promise_a_repair_that_cannot_happen (tests.job_manager.test_fresh_attempt.TheJournalOwnsTheSubmissionIdentity.test_it_does_not_promise_a_repair_that_cannot_happen)
+THE ADVICE IS THE DEFECT'S OTHER HALF. ... ok
+test_the_earlier_outcome_is_preserved_rather_than_freed (tests.job_manager.test_fresh_attempt.TheJournalOwnsTheSubmissionIdentity.test_the_earlier_outcome_is_preserved_rather_than_freed)
+NOTHING IS ERASED OR RENAMED TO MAKE THE NAME AVAILABLE. ... ok
+test_the_retrys_own_committed_submission_replays (tests.job_manager.test_fresh_attempt.TheJournalOwnsTheSubmissionIdentity.test_the_retrys_own_committed_submission_replays)
+A LOST COMPLETION, which is the case this must NOT refuse. ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.018s
+
+OK

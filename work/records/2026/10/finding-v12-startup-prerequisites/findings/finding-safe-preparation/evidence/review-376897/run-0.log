@@ -1,0 +1,1413 @@
+.................................FFFFFFFF...FFEEEEEEEFFFFFFF.....FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEEEEEEEEE.....FFFF.............FFFFFFFFFFFFFFF.........FF
+======================================================================
+ERROR: test_SERVE_itself_refuses_a_pool_that_arrives_mid_run (tests.tools.test_bootstrap.AnInstanceWithNoCapacityREFUSES_WORK_IT_CANNOT_SERVE.test_SERVE_itself_refuses_a_pool_that_arrives_mid_run)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 1635, in setUp
+    self.temp = tempfile.TemporaryDirectory(prefix="v12-unserved-",
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                                            dir=outside)
+                                            ^^^^^^^^^^^^
+  File "/usr/lib/python3.13/tempfile.py", line 1078, in __init__
+    self.name = mkdtemp(suffix, prefix, dir)
+                ~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/tempfile.py", line 576, in mkdtemp
+    _os.mkdir(file, 0o700)
+    ~~~~~~~~~^^^^^^^^^^^^^
+OSError: [Errno 30] Read-only file system: '/var/tmp/v12-unserved-hogb9c6z'
+
+======================================================================
+ERROR: test_SERVE_itself_refuses_an_offer_that_arrives_mid_run (tests.tools.test_bootstrap.AnInstanceWithNoCapacityREFUSES_WORK_IT_CANNOT_SERVE.test_SERVE_itself_refuses_an_offer_that_arrives_mid_run)
+[P1], review 2026-09-16T23-16-06Z, and my claim was the wrong one.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 1635, in setUp
+    self.temp = tempfile.TemporaryDirectory(prefix="v12-unserved-",
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                                            dir=outside)
+                                            ^^^^^^^^^^^^
+  File "/usr/lib/python3.13/tempfile.py", line 1078, in __init__
+    self.name = mkdtemp(suffix, prefix, dir)
+                ~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/tempfile.py", line 576, in mkdtemp
+    _os.mkdir(file, 0o700)
+    ~~~~~~~~~^^^^^^^^^^^^^
+OSError: [Errno 30] Read-only file system: '/var/tmp/v12-unserved-pe7k028i'
+
+======================================================================
+ERROR: test_a_POOL_activated_after_attachment_is_not_ignored (tests.tools.test_bootstrap.AnInstanceWithNoCapacityREFUSES_WORK_IT_CANNOT_SERVE.test_a_POOL_activated_after_attachment_is_not_ignored)
+The reviewer's third case: capacity that arrives naming workers this
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 1635, in setUp
+    self.temp = tempfile.TemporaryDirectory(prefix="v12-unserved-",
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                                            dir=outside)
+                                            ^^^^^^^^^^^^
+  File "/usr/lib/python3.13/tempfile.py", line 1078, in __init__
+    self.name = mkdtemp(suffix, prefix, dir)
+                ~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/tempfile.py", line 576, in mkdtemp
+    _os.mkdir(file, 0o700)
+    ~~~~~~~~~^^^^^^^^^^^^^
+OSError: [Errno 30] Read-only file system: '/var/tmp/v12-unserved-79jgqg7f'
+
+======================================================================
+ERROR: test_control_work_ALREADY_HERE_refuses_at_startup (tests.tools.test_bootstrap.AnInstanceWithNoCapacityREFUSES_WORK_IT_CANNOT_SERVE.test_control_work_ALREADY_HERE_refuses_at_startup)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 1635, in setUp
+    self.temp = tempfile.TemporaryDirectory(prefix="v12-unserved-",
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                                            dir=outside)
+                                            ^^^^^^^^^^^^
+  File "/usr/lib/python3.13/tempfile.py", line 1078, in __init__
+    self.name = mkdtemp(suffix, prefix, dir)
+                ~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/tempfile.py", line 576, in mkdtemp
+    _os.mkdir(file, 0o700)
+    ~~~~~~~~~^^^^^^^^^^^^^
+OSError: [Errno 30] Read-only file system: '/var/tmp/v12-unserved-z9edm8i9'
+
+======================================================================
+ERROR: test_control_work_ARRIVING_AFTER_attachment_refuses_on_resume (tests.tools.test_bootstrap.AnInstanceWithNoCapacityREFUSES_WORK_IT_CANNOT_SERVE.test_control_work_ARRIVING_AFTER_attachment_refuses_on_resume)
+The half a constructor check cannot answer: the deployment composed
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 1635, in setUp
+    self.temp = tempfile.TemporaryDirectory(prefix="v12-unserved-",
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                                            dir=outside)
+                                            ^^^^^^^^^^^^
+  File "/usr/lib/python3.13/tempfile.py", line 1078, in __init__
+    self.name = mkdtemp(suffix, prefix, dir)
+                ~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/tempfile.py", line 576, in mkdtemp
+    _os.mkdir(file, 0o700)
+    ~~~~~~~~~^^^^^^^^^^^^^
+OSError: [Errno 30] Read-only file system: '/var/tmp/v12-unserved-n4cenys3'
+
+======================================================================
+ERROR: test_serve_over_genuinely_empty_stores_just_ticks (tests.tools.test_bootstrap.AnInstanceWithNoCapacityREFUSES_WORK_IT_CANNOT_SERVE.test_serve_over_genuinely_empty_stores_just_ticks)
+The control for both: with nothing there, nothing is refused.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 1635, in setUp
+    self.temp = tempfile.TemporaryDirectory(prefix="v12-unserved-",
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                                            dir=outside)
+                                            ^^^^^^^^^^^^
+  File "/usr/lib/python3.13/tempfile.py", line 1078, in __init__
+    self.name = mkdtemp(suffix, prefix, dir)
+                ~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/tempfile.py", line 576, in mkdtemp
+    _os.mkdir(file, 0o700)
+    ~~~~~~~~~^^^^^^^^^^^^^
+OSError: [Errno 30] Read-only file system: '/var/tmp/v12-unserved-rsi_d637'
+
+======================================================================
+ERROR: test_the_READER_itself_changes_nothing (tests.tools.test_bootstrap.AnInstanceWithNoCapacityREFUSES_WORK_IT_CANNOT_SERVE.test_the_READER_itself_changes_nothing)
+`unconfigured_work` is the question WITHOUT the actions.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 1635, in setUp
+    self.temp = tempfile.TemporaryDirectory(prefix="v12-unserved-",
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                                            dir=outside)
+                                            ^^^^^^^^^^^^
+  File "/usr/lib/python3.13/tempfile.py", line 1078, in __init__
+    self.name = mkdtemp(suffix, prefix, dir)
+                ~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/tempfile.py", line 576, in mkdtemp
+    _os.mkdir(file, 0o700)
+    ~~~~~~~~~^^^^^^^^^^^^^
+OSError: [Errno 30] Read-only file system: '/var/tmp/v12-unserved-8gqdmg7h'
+
+======================================================================
+ERROR: test_it_COMPOSES_and_then_STARTS_STATUS_MONITOR_STOPS (tests.tools.test_bootstrap.TheGUIDES_OWN_EXAMPLE_COMPOSES_AND_SERVES_FROM_SOURCE.test_it_COMPOSES_and_then_STARTS_STATUS_MONITOR_STOPS)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 1297, in setUp
+    self.temp = tempfile.TemporaryDirectory(prefix="v12-idle-", dir=outside)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/tempfile.py", line 1078, in __init__
+    self.name = mkdtemp(suffix, prefix, dir)
+                ~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/tempfile.py", line 576, in mkdtemp
+    _os.mkdir(file, 0o700)
+    ~~~~~~~~~^^^^^^^^^^^^^
+OSError: [Errno 30] Read-only file system: '/var/tmp/v12-idle-45ee90fq'
+
+======================================================================
+ERROR: test_the_guides_example_is_a_document_that_PARSES (tests.tools.test_bootstrap.TheGUIDES_OWN_EXAMPLE_COMPOSES_AND_SERVES_FROM_SOURCE.test_the_guides_example_is_a_document_that_PARSES)
+[F2]: the previous example did not, and a check that compared member
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 1297, in setUp
+    self.temp = tempfile.TemporaryDirectory(prefix="v12-idle-", dir=outside)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/tempfile.py", line 1078, in __init__
+    self.name = mkdtemp(suffix, prefix, dir)
+                ~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/tempfile.py", line 576, in mkdtemp
+    _os.mkdir(file, 0o700)
+    ~~~~~~~~~^^^^^^^^^^^^^
+OSError: [Errno 30] Read-only file system: '/var/tmp/v12-idle-kdnmtp1v'
+
+======================================================================
+ERROR: test_the_zeros_are_READ_rather_than_asserted (tests.tools.test_bootstrap.TheGUIDES_OWN_EXAMPLE_COMPOSES_AND_SERVES_FROM_SOURCE.test_the_zeros_are_READ_rather_than_asserted)
+"Never replace real store observation with constant zero." The
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 1297, in setUp
+    self.temp = tempfile.TemporaryDirectory(prefix="v12-idle-", dir=outside)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/tempfile.py", line 1078, in __init__
+    self.name = mkdtemp(suffix, prefix, dir)
+                ~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/tempfile.py", line 576, in mkdtemp
+    _os.mkdir(file, 0o700)
+    ~~~~~~~~~^^^^^^^^^^^^^
+OSError: [Errno 30] Read-only file system: '/var/tmp/v12-idle-beg_btu6'
+
+======================================================================
+ERROR: test_RECONFIGURING_an_installed_instance_keeps_everything_else (tests.tools.test_bootstrap.TheINSTALLED_INSTANCE_SERVES_THE_SAME_WAY.test_RECONFIGURING_an_installed_instance_keeps_everything_else)
+The supported later-configuration path, run rather than described.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 1427, in setUp
+    self.temp = tempfile.TemporaryDirectory(prefix="v12-installed-",
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+                                            dir=outside)
+                                            ^^^^^^^^^^^^
+  File "/usr/lib/python3.13/tempfile.py", line 1078, in __init__
+    self.name = mkdtemp(suffix, prefix, dir)
+                ~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/tempfile.py", line 576, in mkdtemp
+    _os.mkdir(file, 0o700)
+    ~~~~~~~~~^^^^^^^^^^^^^
+OSError: [Errno 30] Read-only file system: '/var/tmp/v12-installed-h2_jmpwx'
+
+======================================================================
+ERROR: test_a_repeat_that_would_DROP_a_derived_selection_is_refused (tests.tools.test_bootstrap.TheINSTALLED_INSTANCE_SERVES_THE_SAME_WAY.test_a_repeat_that_would_DROP_a_derived_selection_is_refused)
+Review 2026-09-16T23-16-06Z [P2], and the reviewer's own case.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 1427, in setUp
+    self.temp = tempfile.TemporaryDirectory(prefix="v12-installed-",
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+                                            dir=outside)
+                                            ^^^^^^^^^^^^
+  File "/usr/lib/python3.13/tempfile.py", line 1078, in __init__
+    self.name = mkdtemp(suffix, prefix, dir)
+                ~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/tempfile.py", line 576, in mkdtemp
+    _os.mkdir(file, 0o700)
+    ~~~~~~~~~^^^^^^^^^^^^^
+OSError: [Errno 30] Read-only file system: '/var/tmp/v12-installed-79z4dght'
+
+======================================================================
+ERROR: test_the_INSTALLED_SELECTOR_drives_the_empty_lifecycle (tests.tools.test_bootstrap.TheINSTALLED_INSTANCE_SERVES_THE_SAME_WAY.test_the_INSTALLED_SELECTOR_drives_the_empty_lifecycle)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 1427, in setUp
+    self.temp = tempfile.TemporaryDirectory(prefix="v12-installed-",
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+                                            dir=outside)
+                                            ^^^^^^^^^^^^
+  File "/usr/lib/python3.13/tempfile.py", line 1078, in __init__
+    self.name = mkdtemp(suffix, prefix, dir)
+                ~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/tempfile.py", line 576, in mkdtemp
+    _os.mkdir(file, 0o700)
+    ~~~~~~~~~^^^^^^^^^^^^^
+OSError: [Errno 30] Read-only file system: '/var/tmp/v12-installed-yowtmgn_'
+
+======================================================================
+ERROR: test_the_guides_document_INSTALLS_into_a_destination (tests.tools.test_bootstrap.TheINSTALLED_INSTANCE_SERVES_THE_SAME_WAY.test_the_guides_document_INSTALLS_into_a_destination)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 1427, in setUp
+    self.temp = tempfile.TemporaryDirectory(prefix="v12-installed-",
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+                                            dir=outside)
+                                            ^^^^^^^^^^^^
+  File "/usr/lib/python3.13/tempfile.py", line 1078, in __init__
+    self.name = mkdtemp(suffix, prefix, dir)
+                ~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/tempfile.py", line 576, in mkdtemp
+    _os.mkdir(file, 0o700)
+    ~~~~~~~~~^^^^^^^^^^^^^
+OSError: [Errno 30] Read-only file system: '/var/tmp/v12-installed-nz91j007'
+
+======================================================================
+ERROR: test_the_two_operand_installer_REFUSES_an_installed_destination (tests.tools.test_bootstrap.TheINSTALLED_INSTANCE_SERVES_THE_SAME_WAY.test_the_two_operand_installer_REFUSES_an_installed_destination)
+And it says so, which is why the form above exists.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 1427, in setUp
+    self.temp = tempfile.TemporaryDirectory(prefix="v12-installed-",
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+                                            dir=outside)
+                                            ^^^^^^^^^^^^
+  File "/usr/lib/python3.13/tempfile.py", line 1078, in __init__
+    self.name = mkdtemp(suffix, prefix, dir)
+                ~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/tempfile.py", line 576, in mkdtemp
+    _os.mkdir(file, 0o700)
+    ~~~~~~~~~^^^^^^^^^^^^^
+OSError: [Errno 30] Read-only file system: '/var/tmp/v12-installed-pkgb0sw5'
+
+======================================================================
+ERROR: test_two_destinations_are_two_instances (tests.tools.test_bootstrap.TheINSTALLED_INSTANCE_SERVES_THE_SAME_WAY.test_two_destinations_are_two_instances)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 1427, in setUp
+    self.temp = tempfile.TemporaryDirectory(prefix="v12-installed-",
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+                                            dir=outside)
+                                            ^^^^^^^^^^^^
+  File "/usr/lib/python3.13/tempfile.py", line 1078, in __init__
+    self.name = mkdtemp(suffix, prefix, dir)
+                ~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/tempfile.py", line 576, in mkdtemp
+    _os.mkdir(file, 0o700)
+    ~~~~~~~~~^^^^^^^^^^^^^
+OSError: [Errno 30] Read-only file system: '/var/tmp/v12-installed-j31n7tv7'
+
+======================================================================
+FAIL: test_EVERY_job_rule_still_holds_when_jobs_ARE_supplied (tests.tools.test_bootstrap.AFreshInstallHasZeroJobs.test_EVERY_job_rule_still_holds_when_jobs_ARE_supplied)
+"Preserve validation when real Jobs are later supplied." The rules
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_NO_placeholder_work_job_grant_or_binding_is_composed (tests.tools.test_bootstrap.AFreshInstallHasZeroJobs.test_NO_placeholder_work_job_grant_or_binding_is_composed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_a_JOB_ADDED_LATER_is_bound_and_the_instance_is_not_rebuilt (tests.tools.test_bootstrap.AFreshInstallHasZeroJobs.test_a_JOB_ADDED_LATER_is_bound_and_the_instance_is_not_rebuilt)
+The subsequent-Job path, which is the other half of the boundary:
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_an_input_naming_no_jobs_is_accepted (tests.tools.test_bootstrap.AFreshInstallHasZeroJobs.test_an_input_naming_no_jobs_is_accepted)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_it_is_a_document_the_MANAGER_accepts (tests.tools.test_bootstrap.AFreshInstallHasZeroJobs.test_it_is_a_document_the_MANAGER_accepts)
+`prepare` calls the accepted validator itself, so reaching this line
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_it_says_out_loud_that_it_composed_no_job (tests.tools.test_bootstrap.AFreshInstallHasZeroJobs.test_it_says_out_loud_that_it_composed_no_job)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_the_emitted_configuration_binds_NOTHING_and_says_so (tests.tools.test_bootstrap.AFreshInstallHasZeroJobs.test_the_emitted_configuration_binds_NOTHING_and_says_so)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_the_guides_minimal_block_NAMES_what_is_required_and_no_more (tests.tools.test_bootstrap.AFreshInstallHasZeroJobs.test_the_guides_minimal_block_NAMES_what_is_required_and_no_more)
+WHAT THIS PROVES AND WHAT IT DOES NOT, said here because review
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_a_store_with_an_ACTIVE_POOL_refuses_an_empty_composition (tests.tools.test_bootstrap.AnInstanceWithNoCAPACITY_FAILS_CLOSED.test_a_store_with_an_ACTIVE_POOL_refuses_an_empty_composition)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_an_attached_deployment_with_no_worker_answers_no_operation (tests.tools.test_bootstrap.AnInstanceWithNoCAPACITY_FAILS_CLOSED.test_an_attached_deployment_with_no_worker_answers_no_operation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_a_selected_false_is_carried_as_false_rather_than_omitted (tests.tools.test_bootstrap.AnOptionalSelectionTravelsOrIsRefused.test_a_selected_false_is_carried_as_false_rather_than_omitted)
+Omission and an explicit `false` reach the same serving behaviour,
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_a_selected_true_is_carried_as_true (tests.tools.test_bootstrap.AnOptionalSelectionTravelsOrIsRefused.test_a_selected_true_is_carried_as_true)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_an_absent_selection_is_omitted (tests.tools.test_bootstrap.AnOptionalSelectionTravelsOrIsRefused.test_an_absent_selection_is_omitted)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_an_accepted_form_of_another_optional_member_travels (tests.tools.test_bootstrap.AnOptionalSelectionTravelsOrIsRefused.test_an_accepted_form_of_another_optional_member_travels)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_an_explicit_null_is_refused_in_the_consumers_own_words (tests.tools.test_bootstrap.AnOptionalSelectionTravelsOrIsRefused.test_an_explicit_null_is_refused_in_the_consumers_own_words)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_another_optional_member_in_an_unusable_form_is_refused (tests.tools.test_bootstrap.AnOptionalSelectionTravelsOrIsRefused.test_another_optional_member_in_an_unusable_form_is_refused)
+`result_judgment_workers` is held by `held_configuration` too, so an
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_where_each_optional_member_is_actually_validated_is_recorded (tests.tools.test_bootstrap.AnOptionalSelectionTravelsOrIsRefused.test_where_each_optional_member_is_actually_validated_is_recorded)
+THE HONEST LIMIT OF THIS PREFLIGHT, stated rather than implied.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_a_changed_declared_base_is_refused_too (tests.tools.test_bootstrap.RepeatingIt.test_a_changed_declared_base_is_refused_too)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_a_configuration_with_no_record_is_refused (tests.tools.test_bootstrap.RepeatingIt.test_a_configuration_with_no_record_is_refused)
+Its identity is unknown, not proven absent.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_a_conflicting_binding_is_refused_and_nothing_is_rewritten (tests.tools.test_bootstrap.RepeatingIt.test_a_conflicting_binding_is_refused_and_nothing_is_rewritten)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_a_corrupt_record_is_refused_rather_than_overwritten (tests.tools.test_bootstrap.RepeatingIt.test_a_corrupt_record_is_refused_rather_than_overwritten)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_a_document_may_not_NAME_an_authority_at_all (tests.tools.test_bootstrap.RepeatingIt.test_a_document_may_not_NAME_an_authority_at_all)
+OWNER-FRESH-INSTALL-20260916.md: the identity is generated once and
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_a_record_naming_ANOTHER_authority_than_this_root_is_refused (tests.tools.test_bootstrap.RepeatingIt.test_a_record_naming_ANOTHER_authority_than_this_root_is_refused)
+The conflict that can still happen: the persisted identity and the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_a_record_of_another_schema_is_refused (tests.tools.test_bootstrap.RepeatingIt.test_a_record_of_another_schema_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_a_removed_job_is_refused_across_a_schema_change (tests.tools.test_bootstrap.RepeatingIt.test_a_removed_job_is_refused_across_a_schema_change)
+The case that used to pass: `/2` repeated as `/1` compared `None`
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_an_identical_repeat_is_idempotent (tests.tools.test_bootstrap.RepeatingIt.test_an_identical_repeat_is_idempotent)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_an_unreadable_persisted_identity_is_refused_rather_than_replaced (tests.tools.test_bootstrap.RepeatingIt.test_an_unreadable_persisted_identity_is_refused_rather_than_replaced)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_both_documents_are_published_atomically (tests.tools.test_bootstrap.RepeatingIt.test_both_documents_are_published_atomically)
+An interrupted write must not turn a known configuration into
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_growing_from_one_job_to_two_is_also_refused_rather_than_migrated (tests.tools.test_bootstrap.RepeatingIt.test_growing_from_one_job_to_two_is_also_refused_rather_than_migrated)
+A many-to-one and a one-to-many repeat are the same question, and
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_the_conflict_is_found_before_the_authority_is_composed (tests.tools.test_bootstrap.RepeatingIt.test_the_conflict_is_found_before_the_authority_is_composed)
+Validated before durable mutation: the refusal must not arrive after
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_a_binding_of_the_wrong_type_is_refused_rather_than_traversed (tests.tools.test_bootstrap.TheCustodyRecordIsEvidenceOrItIsNothing.test_a_binding_of_the_wrong_type_is_refused_rather_than_traversed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_a_binding_that_says_nothing_is_refused_rather_than_trusted (tests.tools.test_bootstrap.TheCustodyRecordIsEvidenceOrItIsNothing.test_a_binding_that_says_nothing_is_refused_rather_than_trusted)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_a_changed_review_work_in_the_configuration_is_refused (tests.tools.test_bootstrap.TheCustodyRecordIsEvidenceOrItIsNothing.test_a_changed_review_work_in_the_configuration_is_refused)
+H1: the review Work was dropped by a projection of my own, so a
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_a_changed_sole_producer_is_refused (tests.tools.test_bootstrap.TheCustodyRecordIsEvidenceOrItIsNothing.test_a_changed_sole_producer_is_refused)
+`/1` names no producer, so the accepted validator DERIVES it from the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_a_complete_and_agreeing_pair_still_repeats (tests.tools.test_bootstrap.TheCustodyRecordIsEvidenceOrItIsNothing.test_a_complete_and_agreeing_pair_still_repeats)
+The distinction only matters if the ordinary repeat still works.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_a_configuration_binding_a_different_number_of_jobs_is_refused (tests.tools.test_bootstrap.TheCustodyRecordIsEvidenceOrItIsNothing.test_a_configuration_binding_a_different_number_of_jobs_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_a_configuration_naming_another_authority_is_refused (tests.tools.test_bootstrap.TheCustodyRecordIsEvidenceOrItIsNothing.test_a_configuration_naming_another_authority_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_a_configuration_that_disagrees_with_its_record_is_refused (tests.tools.test_bootstrap.TheCustodyRecordIsEvidenceOrItIsNothing.test_a_configuration_that_disagrees_with_its_record_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_a_corrupt_emitted_configuration_is_refused_beside_a_good_record (tests.tools.test_bootstrap.TheCustodyRecordIsEvidenceOrItIsNothing.test_a_corrupt_emitted_configuration_is_refused_beside_a_good_record)
+The original F2 case that survived: the record was trusted and the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_a_malformed_nested_binding_is_refused_rather_than_escaping (tests.tools.test_bootstrap.TheCustodyRecordIsEvidenceOrItIsNothing.test_a_malformed_nested_binding_is_refused_rather_than_escaping)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_a_missing_emitted_configuration_is_refused (tests.tools.test_bootstrap.TheCustodyRecordIsEvidenceOrItIsNothing.test_a_missing_emitted_configuration_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_a_multi_job_configuration_binding_another_set_is_refused (tests.tools.test_bootstrap.TheCustodyRecordIsEvidenceOrItIsNothing.test_a_multi_job_configuration_binding_another_set_is_refused)
+The `/2` counterpart of the Job-count case: a configuration edited to
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_a_record_naming_no_readable_authority_is_refused (tests.tools.test_bootstrap.TheCustodyRecordIsEvidenceOrItIsNothing.test_a_record_naming_no_readable_authority_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_a_record_whose_bindings_are_not_a_mapping_is_refused (tests.tools.test_bootstrap.TheCustodyRecordIsEvidenceOrItIsNothing.test_a_record_whose_bindings_are_not_a_mapping_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_an_EMPTY_binding_mapping_is_an_answer_and_is_still_compared (tests.tools.test_bootstrap.TheCustodyRecordIsEvidenceOrItIsNothing.test_an_EMPTY_binding_mapping_is_an_answer_and_is_still_compared)
+OWNER-FRESH-INSTALL-20260916.md: an installed instance binds zero
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_an_unchanged_multi_job_deployment_still_repeats (tests.tools.test_bootstrap.TheCustodyRecordIsEvidenceOrItIsNothing.test_an_unchanged_multi_job_deployment_still_repeats)
+The `/2` half of the pair, so the comparison is exercised in both
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_an_unsupported_schema_in_the_configuration_is_refused (tests.tools.test_bootstrap.TheCustodyRecordIsEvidenceOrItIsNothing.test_an_unsupported_schema_in_the_configuration_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_a_FRESH_root_still_refuses_two_bases (tests.tools.test_bootstrap.TheEstablishedRootAdmitsNewJobsAtTheCurrentTarget.test_a_FRESH_root_still_refuses_two_bases)
+The first-establishment protection, byte for byte at a new site.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_a_new_base_unlike_the_current_target_is_ADMITTED_as_opaque (tests.tools.test_bootstrap.TheEstablishedRootAdmitsNewJobsAtTheCurrentTarget.test_a_new_base_unlike_the_current_target_is_ADMITTED_as_opaque)
+Owner 2026-09-20T14:57:48Z (the generic-reference ruling): the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_a_new_job_at_the_established_current_target_is_ADMITTED (tests.tools.test_bootstrap.TheEstablishedRootAdmitsNewJobsAtTheCurrentTarget.test_a_new_job_at_the_established_current_target_is_ADMITTED)
+THE CASE THE AMENDMENT EXISTS FOR: the retained binding keeps its
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_a_retained_binding_may_NOT_move_to_the_new_base (tests.tools.test_bootstrap.TheEstablishedRootAdmitsNewJobsAtTheCurrentTarget.test_a_retained_binding_may_NOT_move_to_the_new_base)
+`conflicts`' protection is untouched: rewriting history is refused
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_disagreeing_NEW_jobs_are_now_independently_admitted (tests.tools.test_bootstrap.TheEstablishedRootAdmitsNewJobsAtTheCurrentTarget.test_disagreeing_NEW_jobs_are_now_independently_admitted)
+The same ruling's concurrency half: independent Jobs run from
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_JOBS_THAT_DISAGREE_are_refused_by_name (tests.tools.test_bootstrap.TheFIRSTCanonicalTargetIsESTABLISHED.test_JOBS_THAT_DISAGREE_are_refused_by_name)
+One Authority holds ONE canonical target, so bases that cannot all
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_REPEATING_the_setup_leaves_it_exactly_as_it_is (tests.tools.test_bootstrap.TheFIRSTCanonicalTargetIsESTABLISHED.test_REPEATING_the_setup_leaves_it_exactly_as_it_is)
+Repeatable, like everything else here.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_a_deployment_with_NO_JOBS_establishes_nothing (tests.tools.test_bootstrap.TheFIRSTCanonicalTargetIsESTABLISHED.test_a_deployment_with_NO_JOBS_establishes_nothing)
+A fresh install binds no Job, so it has been told no base. Writing
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_a_target_that_has_ADVANCED_is_never_rewound (tests.tools.test_bootstrap.TheFIRSTCanonicalTargetIsESTABLISHED.test_a_target_that_has_ADVANCED_is_never_rewound)
+Integration moves the target when it accepts a proposal. A setup
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_an_EXISTING_authority_is_untouched_by_that_refusal (tests.tools.test_bootstrap.TheFIRSTCanonicalTargetIsESTABLISHED.test_an_EXISTING_authority_is_untouched_by_that_refusal)
+The dangerous case is a second run over a deployment that already
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_it_SAYS_SO_rather_than_advancing_silently (tests.tools.test_bootstrap.TheFIRSTCanonicalTargetIsESTABLISHED.test_it_SAYS_SO_rather_than_advancing_silently)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_it_is_refused_BEFORE_the_authority_is_even_OPENED (tests.tools.test_bootstrap.TheFIRSTCanonicalTargetIsESTABLISHED.test_it_is_refused_BEFORE_the_authority_is_even_OPENED)
+A writable Authority is itself a durable effect: opening one creates
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_it_is_the_JOBS_declared_base_and_not_the_placeholder (tests.tools.test_bootstrap.TheFIRSTCanonicalTargetIsESTABLISHED.test_it_is_the_JOBS_declared_base_and_not_the_placeholder)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_that_refusal_LEAVES_NOTHING_DURABLE_BEHIND (tests.tools.test_bootstrap.TheFIRSTCanonicalTargetIsESTABLISHED.test_that_refusal_LEAVES_NOTHING_DURABLE_BEHIND)
+Review200179 [R2]: the refusal lived past routes, Work and grants,
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_a_worker_sealed_to_another_identity_is_refused_BY_NAME (tests.tools.test_bootstrap.TheFreshInstallStillNeedsTheWORKERSToBeSeparable.test_a_worker_sealed_to_another_identity_is_refused_BY_NAME)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_the_manifest_is_the_reason_and_it_is_SEALED (tests.tools.test_bootstrap.TheFreshInstallStillNeedsTheWORKERSToBeSeparable.test_the_manifest_is_the_reason_and_it_is_SEALED)
+Not a member this helper could fill in, the way it fills in
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_a_fresh_multi_base_install_changes_NOTHING (tests.tools.test_bootstrap.TheInstallPathRefusesBadBasesBeforeAnyEffect.test_a_fresh_multi_base_install_changes_NOTHING)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_the_superseded_member_is_refused_with_the_reason (tests.tools.test_bootstrap.TheInstallerOperandNeverReachesTheManager.test_the_superseded_member_is_refused_with_the_reason)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_the_whole_command_prepares_and_exits_zero (tests.tools.test_bootstrap.TheInstallerOperandNeverReachesTheManager.test_the_whole_command_prepares_and_exits_zero)
+The full `main`: inputs on disk, a destination, a stand-in
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_what_IS_composed_carries_no_installer_operand (tests.tools.test_bootstrap.TheInstallerOperandNeverReachesTheManager.test_what_IS_composed_carries_no_installer_operand)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_each_job_gets_its_routes_and_its_four_grants (tests.tools.test_bootstrap.WhatItComposesOnTheAuthority.test_each_job_gets_its_routes_and_its_four_grants)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_no_job_is_submitted_and_nothing_is_executed (tests.tools.test_bootstrap.WhatItComposesOnTheAuthority.test_no_job_is_submitted_and_nothing_is_executed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_omitting_the_owner_grants_nothing_and_changes_nothing (tests.tools.test_bootstrap.WhatItComposesOnTheAuthority.test_omitting_the_owner_grants_nothing_and_changes_nothing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_the_owner_selection_never_reaches_the_emitted_configuration (tests.tools.test_bootstrap.WhatItComposesOnTheAuthority.test_the_owner_selection_never_reaches_the_emitted_configuration)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_the_selected_owner_gets_approve_integrate_and_close (tests.tools.test_bootstrap.WhatItComposesOnTheAuthority.test_the_selected_owner_gets_approve_integrate_and_close)
+W321689. The grant the composition did not make.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_capacity_is_what_is_configured_rather_than_a_concurrency_claim (tests.tools.test_bootstrap.WhatItDerives.test_capacity_is_what_is_configured_rather_than_a_concurrency_claim)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_each_binding_carries_one_work_on_both_axes (tests.tools.test_bootstrap.WhatItDerives.test_each_binding_carries_one_work_on_both_axes)
+`_held_bindings` requires the implementation and review Work IDs to
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_every_principal_is_derived_rather_than_configured (tests.tools.test_bootstrap.WhatItDerives.test_every_principal_is_derived_rather_than_configured)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_one_job_and_one_worker_per_role_is_the_one_job_schema (tests.tools.test_bootstrap.WhatItDerives.test_one_job_and_one_worker_per_role_is_the_one_job_schema)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_one_job_with_a_larger_pool_is_still_the_multi_job_schema (tests.tools.test_bootstrap.WhatItDerives.test_one_job_with_a_larger_pool_is_still_the_multi_job_schema)
+F1: `/1` permits only one worker per role, so the POOL is half the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_several_jobs_are_written_as_the_multi_job_schema_with_bindings (tests.tools.test_bootstrap.WhatItDerives.test_several_jobs_are_written_as_the_multi_job_schema_with_bindings)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_the_derived_principals_are_the_authoritys_own_answer (tests.tools.test_bootstrap.WhatItDerives.test_the_derived_principals_are_the_authoritys_own_answer)
+They are read without building anything, so this holds the shortcut
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_the_generated_deployment_is_one_the_manager_accepts (tests.tools.test_bootstrap.WhatItDerives.test_the_generated_deployment_is_one_the_manager_accepts)
+F1's core: the emitted document passes the REAL validator.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_the_layout_is_one_root_and_every_store_is_under_it (tests.tools.test_bootstrap.WhatItDerives.test_the_layout_is_one_root_and_every_store_is_under_it)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_the_operator_commands_name_the_four_operands_start_needs (tests.tools.test_bootstrap.WhatItDerives.test_the_operator_commands_name_the_four_operands_start_needs)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_installing_is_not (tests.tools.test_bootstrap.WhatItTELLSYouToDoNext.test_installing_is_not)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+======================================================================
+FAIL: test_running_from_the_checkout_is_told_what_to_export (tests.tools.test_bootstrap.WhatItTELLSYouToDoNext.test_running_from_the_checkout_is_told_what_to_export)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_bootstrap.py", line 118, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stack.py", line 1939, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<3 lines>...
+        + checkout + ".")
+AssertionError: no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is not a directory this process can write), /home/sl/.cache (it is not a directory this process can write), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton.
+
+----------------------------------------------------------------------
+Ran 168 tests in 0.039s
+
+FAILED (failures=84, errors=16)

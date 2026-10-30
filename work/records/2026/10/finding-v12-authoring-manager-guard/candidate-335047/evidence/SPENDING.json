@@ -1,0 +1,121 @@
+{
+  "cumulative_author_verification_seconds": 119.23179936300585,
+  "final_seconds": 24.741176038001868,
+  "final_tests": 79,
+  "predecessors": "W333735 author28.000166608s/reviewer6.239093370s; W333485 author preparation11.913523775s plus disclosed prior tool/unknown times remain separate.",
+  "runs": {
+    "final": {
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.manager.test_authoring_manager_guard",
+        "tests.manager.test_authoring_enforcement",
+        "tests.manager.test_attempts.CancellationFencesBeforeItStops",
+        "tests.job_manager.test_tool.TheStatusSurfaceMayReadIntegrationAndStillActOnNothing",
+        "tests.job_manager.test_tool.TheRecoveryPassVisitsTheUNCERTAINTokensToo",
+        "-v"
+      ],
+      "returncode": 0,
+      "seconds": 24.233752004998678
+    },
+    "final2": {
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.manager.test_authoring_manager_guard",
+        "tests.manager.test_authoring_enforcement",
+        "tests.manager.test_attempts.CancellationFencesBeforeItStops",
+        "tests.job_manager.test_tool.TheStatusSurfaceMayReadIntegrationAndStillActOnNothing",
+        "tests.job_manager.test_tool.TheRecoveryPassVisitsTheUNCERTAINTokensToo",
+        "-v"
+      ],
+      "returncode": 0,
+      "seconds": 24.741176038001868
+    },
+    "run1": {
+      "returncode": 1,
+      "seconds": 0.4593307230024948
+    },
+    "run2": {
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.manager.test_authoring_manager_guard",
+        "-v"
+      ],
+      "returncode": 1,
+      "seconds": 5.562115754000843
+    },
+    "run3": {
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.manager.test_authoring_manager_guard.ManagerComposition.test_real_composition_admits_action_and_restart_never_reinvokes",
+        "-v"
+      ],
+      "returncode": 1,
+      "seconds": 1.773365968001599
+    },
+    "run4": {
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.manager.test_authoring_manager_guard",
+        "-v"
+      ],
+      "returncode": 1,
+      "seconds": 5.501722461998725
+    },
+    "run5": {
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.manager.test_authoring_manager_guard",
+        "-v"
+      ],
+      "returncode": 1,
+      "seconds": 12.550350728000922
+    },
+    "run6": {
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.manager.test_authoring_manager_guard",
+        "tests.manager.test_authoring_enforcement",
+        "tests.manager.test_attempts.CancellationFencesBeforeItStops",
+        "tests.job_manager.test_tool.TheStatusSurfaceMayReadIntegrationAndStillActOnNothing",
+        "tests.job_manager.test_tool.TheRecoveryPassVisitsTheUNCERTAINTokensToo",
+        "-v"
+      ],
+      "returncode": 0,
+      "seconds": 22.816918191001605
+    },
+    "run7": {
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.manager.test_authoring_manager_guard",
+        "-v"
+      ],
+      "returncode": 0,
+      "seconds": 21.593067493999115
+    }
+  },
+  "unknowns": "No unknown test duration this Work. Source snapshot, read/edit/packaging time is not counted as verification."
+}

@@ -1,0 +1,54 @@
+{
+  "work": "W333485",
+  "claim": 347778,
+  "author": "baton.codxpc",
+  "authority": "OWNER-BOOTSTRAP-347746.md",
+  "base": "d3a7a41cc7347e4741706673c20f62b4a3190f65",
+  "isolated_source": "/tmp/baton-serving-envelope-347778",
+  "paths": [
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/tokens.py",
+      "base_sha256": "c59c5d92352cbb2b225455b0c02cb625f1b4da6e9a4cc8cd65b0bc644e1fd5b4",
+      "candidate_sha256": "389ea0ff9205aa1d53552eb61f3d468deb7033ecac8b362fef4586007dccb2b5",
+      "main_matches_base": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/workspaces.py",
+      "base_sha256": "d4fea18eab1d0f0e1ee8e197a006dc97274c021ed4dd6c548660a2e17ff08a03",
+      "candidate_sha256": "61e0e0b1e089ac498e0d5af8566bdd76e26ebabe56a81aa0ae7c64971005e94a",
+      "main_matches_base": true
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_serving_renewal.py",
+      "base_sha256": null,
+      "candidate_sha256": "92c77ce12181f958fd3ca5b41d5d47cdb9c878e0d61785fc7fcdb195bb5f0182",
+      "main_matches_base": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_boundary_inventory.py",
+      "base_sha256": "3929186ac94e0e0d1f6c8590c112121e2d09831dfa2697e120b6ff37068f20fb",
+      "candidate_sha256": "39c371207c53029c6429c2df3042497b69191b40e65204e438f2295f4ef006bf",
+      "main_matches_base": true
+    },
+    {
+      "path": "v12/python/tools/authoring_enforcement.py",
+      "base_sha256": "ac3640fe020fb69144a9c8b040bd73abed3eeff69a3f9a1ff0dd9462d08bcf93",
+      "candidate_sha256": "248ee9edd72214efbdc77044a9af6ad2c382e2ca1dbd5b71ff0db720d9a5a5dc",
+      "main_matches_base": true
+    },
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "base_sha256": "f634e02296ff05fd0f17c51b87a917252d61f9156eaaa83f5145b3ac46bfbcd5",
+      "candidate_sha256": "abb10d0ee6d90709cbaa3293d3cc5d207b384d5e22aac16e5983bab82a030c4f",
+      "main_matches_base": true
+    },
+    {
+      "path": "v12/python/tools/stage_execution.py",
+      "base_sha256": "bad0a355abccf7838f2f4c3948947ace93ff7105a625ae2a866e74eec40d606d",
+      "candidate_sha256": "920009ab6bb77284cd2107bb54a5ada76c3c56dc2588d1775907587f5cdaa6d2",
+      "main_matches_base": true
+    }
+  ],
+  "scope": "prospective authoring-envelope acquisition; no existing token or deployment mutation",
+  "main_product_paths_unchanged": true
+}

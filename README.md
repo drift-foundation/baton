@@ -2,6 +2,12 @@
 
 ### Multiplex engineering work across people, agents, teams, and models
 
+**Development status:** v11 is development-frozen. v12 is the active development
+version. See [v12/README.md](v12/README.md) for v12 documentation and guidance.
+
+See [development storage and recovery](docs/DEVELOPMENT-STORAGE.md) for what
+must be preserved and where disposable scratch belongs.
+
 Baton coordinates engineering work across repositories for teams of humans
 and agents. It answers three questions without anybody guessing: **what is
 being worked on, who is executing it right now, and why it got that way.**

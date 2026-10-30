@@ -1,0 +1,14 @@
+{
+  "attempts": 0,
+  "cumulative_author_measured_preparation_seconds": 11.913523775003142,
+  "current_preparation_seconds": 6.299464278003143,
+  "final_ten_checks_seconds": 3.1688549970021995,
+  "initial_composition_seconds": 0.30600576999859186,
+  "initial_nine_checks_seconds": 2.8246035110023513,
+  "jobs": 0,
+  "live_provider_calls": 0,
+  "prerequisite": "W333735 author28.000166608s and independent reviewer6.239093370s remain separately attributed, not added to this Work.",
+  "prior_author_measured_preparation_seconds": 5.614059497,
+  "prior_unknowns": "Prior pin tool wall0.113412535s and status exact duration unknown/tool wall0.182334313s remain separate; no fabricated upper bound. Current internal stopwatch and tool clocks differ; sums use internal stopwatch only.",
+  "product_tests": 0
+}

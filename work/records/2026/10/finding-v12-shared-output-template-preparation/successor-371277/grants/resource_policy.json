@@ -1,0 +1,33 @@
+{
+ "authorized_by": null,
+ "automatic_retry": false,
+ "derivation": "authored",
+ "for_selection": "42bed8bb04a53380e565b1a63fb2bc702677f0d0",
+ "missing_selection_this_answers": "the resource policy document the operator grants this deployment. The Job's own provider/verification limits travel on the submission instead and are selected; this identity is not.",
+ "proposed_for": "resource_policy_digest",
+ "provider_turn_seconds": 3600,
+ "read_from": [
+  {
+   "path": "work/records/2026/10/finding-v12-native-pilot-instance-packet/fresh5-361402/configure-inputs.json",
+   "sha256": "f60b129baad7fc098be76af530a6705b96cd510aa4d8b2ff552cf3b9d6e2a494",
+   "what": "the reviewed pilot worker's workspace capacity"
+  },
+  {
+   "path": "v12/python/src/baton_v12/worker_manager/source_boundary.py",
+   "sha256": "6a6b0f7ecd29ee260e55d5abb93ebcf8891641a9cd1866109a9d291bf44e918f",
+   "what": "the workspace minimum"
+  }
+ ],
+ "schema": "baton.v12.proposed-resource-policy/1",
+ "scratch_bytes": 67108864,
+ "selected_by": null,
+ "shared_memory_bytes": 16777216,
+ "status": "proposed-not-granted",
+ "verification_command_seconds": 900,
+ "why_authored": "the product ships no resource policy document; these are the documented values the deployment and this Job already carry, collected into one",
+ "workspace_capacity": {
+  "max_bytes": 83886081
+ },
+ "workspace_group": 1000,
+ "workspace_min_bytes": 83886080
+}

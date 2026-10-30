@@ -1,0 +1,46 @@
+{
+  "work": "W371073",
+  "claim": "E371189",
+  "files": [
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-safe-adapter-failure-plan/PROPOSAL.md",
+      "sha256": "8dc78023942424cd56ffd8f0278387ccc628c80886d84892f3687a35ffb8bd7e",
+      "bytes": 19019
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-safe-adapter-failure-plan/PROGRESS.md",
+      "sha256": "b1c4cb90ac1b0aadb10223b877c91bb338d9e5dbc7b6cc90257628794b2447f4",
+      "bytes": 2427
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-safe-adapter-failure-plan/evidence/claim-371189/ADAPTER-FAILURE.proposed.json",
+      "sha256": "3dfadb842f8355950cbef86939c53bc84e63556be981175964508c98cdaf539a",
+      "bytes": 1452
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-safe-adapter-failure-plan/evidence/claim-371189/COMMAND.synthetic.json",
+      "sha256": "a61517d57dd502688440b52dc3a722828d41e7b10f357c3b0ec260cb6e5bb591",
+      "bytes": 339
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-safe-adapter-failure-plan/evidence/claim-371189/SOURCES.json",
+      "sha256": "7a6e940f64c2024ebb314250271e38dcb5c06ffc2cc08f016a6fa4ca0169bc75",
+      "bytes": 5734
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-safe-adapter-failure-plan/evidence/claim-371189/TERMINAL.proposed.json",
+      "sha256": "80379a94be9a0cdcc6c66e9c8c83cd35cd240765e78c6952e68d90e5f8989e95",
+      "bytes": 637
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-safe-adapter-failure-plan/evidence/claim-371189/VERIFICATION.json",
+      "sha256": "3b6e7a61d2a82a8974f1fe6c9ef945403e4b02383c1abdd944cb1f6333748935",
+      "bytes": 593
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-safe-adapter-failure-plan/evidence/claim-371189/probe.py",
+      "sha256": "154168102c29efadd3d05b36e5cfad53512c11c266d88a6c7d5f9343da9a4756",
+      "bytes": 2740
+    }
+  ]
+}

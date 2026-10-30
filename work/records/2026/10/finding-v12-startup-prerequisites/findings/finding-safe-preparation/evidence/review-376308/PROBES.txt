@@ -1,0 +1,18 @@
+{
+  "between_precheck_and_components": {
+    "success": true,
+    "kind": "file",
+    "owned": {}
+  },
+  "replacement_chmod": {
+    "success": true,
+    "foreign_mode_before": "0o755",
+    "foreign_mode_after": "0o700",
+    "replacement_link_recorded_owned": true
+  },
+  "postcreate_error": {
+    "success": true,
+    "created_root_left": true,
+    "owned": {}
+  }
+}

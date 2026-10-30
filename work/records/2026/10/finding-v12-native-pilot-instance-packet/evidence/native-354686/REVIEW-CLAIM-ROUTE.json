@@ -1,0 +1,44 @@
+{
+ "schema": "baton.w325959-review-claim-route/1",
+ "claim": 354686,
+ "status": "THE EXACT, PRODUCT-ENFORCED REASON an independent review drive cannot simply be submitted, measured through the legitimate composition. No product edit, no relaxed check, no bypassed authorization. The candidate is byte-unchanged and its 12 focused cases remain OK.",
+
+ "your_clarification_I_acted_on": "review354682: 'legitimate independent drives of actual native implementation AND review acquisition suffice ... if real admission/preparation checks remain, each token correlates to its own attempt/runtime/admitted limits, and both remain valid beyond900' and 'Do not relax bootstrap role checks or bypass authorization.' I took the independent-drive route and kept every check.",
+
+ "WHAT_I_BUILT_AND_HOW_FAR_IT_GOT": {
+  "base": "ServingCase, whose composed review worker is the only one the product will launch in that role -- confirmed: roles composed are implementation, review and integration, and the review worker's own given['launch_role'] reads 'review'",
+  "drive": "submitted a review-kind Job stage with no predecessor into that store and drove reconcile(job, review_operations) exactly as SingleWorkerCase.commanded does for the implementation worker",
+  "reached": "tick 0 ADMITS the stage -- act 'admit', outcome 'performed', a real offer issued (offer.issue:offer-9e961a44...). So admission works and the review worker is legitimately composed for the role.",
+  "stopped_at": "every subsequent tick DEFERS the claim and the stage stays 'offered'; zero attempt rows and therefore no token"
+ },
+
+ "THE_REFUSAL_VERBATIM": {
+  "act": "claim",
+  "outcome": "deferred",
+  "category": "refused",
+  "code": "precondition",
+  "message": "the authority refused this claim: route 'baton.impl' does not resolve to 'baton.reviewer'",
+  "what_it_means": "the review worker IS baton.reviewer, but the WORK is still on the baton.impl route. A reviewer-authorized claim requires the Work's own route to resolve to that participant.",
+  "why_that_is_correct": "in the real pipeline a review stage becomes claimable because the IMPLEMENTATION stage's ending hands the Work on to its configured review_route -- ServingCase.setUp already adds the rview route handler for baton.reviewer, but nothing has moved the WORK onto that route. The check is the authorization boundary doing its job, not a fixture gap I should paper over."
+ },
+
+ "WHY_I_DID_NOT_FORCE_IT": "the two ways past this are (a) relax or bypass the authority check, which you forbade in terms, or (b) move the Work onto the review route myself. (b) is the one that might be legitimate -- it is the state the real ending produces, reached through the Authority's own API rather than by weakening a check -- but whether doing it directly still counts as a 'legitimate independent drive' or becomes the bypass you ruled out is YOUR call, not mine to assume. I stopped rather than guess, and I did not fabricate a token.",
+
+ "THE_ONE_QUESTION_THAT_DECIDES_THE_NEXT_FIXTURE": "may the review drive move the Work onto its configured review route through the Authority -- the state the implementation stage's ending would produce -- and then claim and acquire legitimately? If YES, the fixture is small and I finish it next claim. If NO, then an independent review drive is not reachable at all and the review half necessarily needs the sequenced implementation ending, which is the full freeze/intake/retention build and a materially bigger fixture.",
+
+ "WHAT_IS_PROVED_AND_RETAINED": {
+  "implementation_stage": "reaches an ACTUAL acquired token at the Job's composed lifetime, above 900, no envelope, bound to the engine's runtime -- claim354566 NativeProductionLaunch, retained",
+  "review_stage": "legitimately composed and ADMITTED with a real offer; its claim and therefore its acquisition are NOT proved",
+  "wiring": "all five link-reversion arms retained from claims354527 and 354566; not repeated",
+  "also_owed": "the joined owner-produced cause through durable capture, /7 status and the packaged secret-free report"
+ },
+
+ "unchanged": {
+  "product_paths": "execution_limits 24f27d7769e7f1dd, workspaces 7db36ee60d5b32af, single_worker 70cc08066e73b750, stage_execution 765c1567806c115f -- all byte-unchanged",
+  "test_file": "4cdc1afcf954a4beacaa261aceb35f6458feb1c621b3b9d307b04b3969a80cef -- unchanged; the probe was a scratch script under /tmp and was never added to the candidate",
+  "combined_candidate": "the 31-path supplier composition plus my five paths; manifest and delta unchanged",
+  "child": "W354630 remains codxpc's for stop/cancel/cleanup/restart; no duplication and no overlap",
+  "boundaries": "no live instance, engine, provider or credential; no deployment, recovery, migration or shared import; no version-control mutation -- reads only"
+ },
+ "measured_this_claim": {"probe_runs": 2, "product_tests": 0, "product_edits": 0}
+}

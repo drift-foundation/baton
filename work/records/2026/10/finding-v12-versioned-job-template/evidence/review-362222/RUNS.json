@@ -1,0 +1,29 @@
+{
+  "cwd": "/tmp/w361910-review-362222/v12/python",
+  "PYTHONPATH": "src:.",
+  "runs": [
+    {
+      "name": "FOCUSED",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "tests.job_manager.test_templates",
+        "tests.job_manager.test_submission",
+        "tests.job_manager.test_execution_limits"
+      ],
+      "exit": 0,
+      "seconds": 0.27064979699935066
+    },
+    {
+      "name": "PROBE",
+      "argv": [
+        "python3",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-versioned-job-template/evidence/review-362222/probe.py"
+      ],
+      "exit": 0,
+      "seconds": 0.1699530469995807
+    }
+  ],
+  "prior_runs": "Same focused suite passed 137 tests in0.137s; initial probe also succeeded. Retained rerun below captures outputs; no broad rerun."
+}

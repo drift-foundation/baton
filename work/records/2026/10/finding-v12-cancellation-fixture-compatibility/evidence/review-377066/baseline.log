@@ -1,0 +1,121 @@
+test_late_bind_and_later_activation_are_stopped_under_the_original_fence (tests.manager.test_authoring_enforcement.LateBindingCancellation.test_late_bind_and_later_activation_are_stopped_under_the_original_fence) ... FAIL
+test_acknowledged_stop_is_retried_if_writer_still_runs (tests.manager.test_authoring_enforcement.BeforeAttachmentCancellation.test_acknowledged_stop_is_retried_if_writer_still_runs) ... FAIL
+test_cancellation_owner_refuses_token_and_attachment_identity_disagreement (tests.manager.test_authoring_enforcement.BeforeAttachmentCancellation.test_cancellation_owner_refuses_token_and_attachment_identity_disagreement) ... ERROR
+test_deadline_stops_token_bound_writer_through_production_cancellation (tests.manager.test_authoring_enforcement.BeforeAttachmentCancellation.test_deadline_stops_token_bound_writer_through_production_cancellation) ... FAIL
+test_operator_cancellation_stops_token_bound_writer (tests.manager.test_authoring_enforcement.BeforeAttachmentCancellation.test_operator_cancellation_stops_token_bound_writer) ... FAIL
+test_recovery_stops_token_bound_writer_without_renewed_time (tests.manager.test_authoring_enforcement.BeforeAttachmentCancellation.test_recovery_stops_token_bound_writer_without_renewed_time) ... FAIL
+test_refused_authority_fence_never_stops_a_runtime (tests.manager.test_authoring_enforcement.BeforeAttachmentCancellation.test_refused_authority_fence_never_stops_a_runtime) ... ok
+test_refused_runtime_stop_remains_held_after_authority_fence (tests.manager.test_authoring_enforcement.BeforeAttachmentCancellation.test_refused_runtime_stop_remains_held_after_authority_fence) ... FAIL
+test_unknown_engine_stop_preserves_fence_and_hold_then_retries (tests.manager.test_authoring_enforcement.BeforeAttachmentCancellation.test_unknown_engine_stop_preserves_fence_and_hold_then_retries) ... FAIL
+
+======================================================================
+ERROR: test_cancellation_owner_refuses_token_and_attachment_identity_disagreement (tests.manager.test_authoring_enforcement.BeforeAttachmentCancellation.test_cancellation_owner_refuses_token_and_attachment_identity_disagreement)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_authoring_enforcement.py", line 582, in test_cancellation_owner_refuses_token_and_attachment_identity_disagreement
+    self.operations.cancel_attempt(attempt_id=ATTEMPT, reason='authoring-enforcement')
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 4800, in cancel_attempt
+    return cancel(attempt_id=attempt_id, reason=reason)
+  File "/home/sl/src/baton/v12/python/tools/single_worker.py", line 2830, in cancel_attempt
+    self._adapter(roots, None, None, None, attempt_id=attempt_id),
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: CancellationFixture.setUp.<locals>.<lambda>() got an unexpected keyword argument 'attempt_id'
+
+======================================================================
+FAIL: test_late_bind_and_later_activation_are_stopped_under_the_original_fence (tests.manager.test_authoring_enforcement.LateBindingCancellation.test_late_bind_and_later_activation_are_stopped_under_the_original_fence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_authoring_enforcement.py", line 605, in test_late_bind_and_later_activation_are_stopped_under_the_original_fence
+    self.assertTrue([call for call in self.session.calls if call[0]=='cancel'])
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_acknowledged_stop_is_retried_if_writer_still_runs (tests.manager.test_authoring_enforcement.BeforeAttachmentCancellation.test_acknowledged_stop_is_retried_if_writer_still_runs)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_authoring_enforcement.py", line 592, in test_acknowledged_stop_is_retried_if_writer_still_runs
+    self.held_before_expiry(lane.tick()['attempts'][ATTEMPT])
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_authoring_enforcement.py", line 520, in held_before_expiry
+    self.assertEqual(report['observation']['state'], 'quiescent')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'running' != 'quiescent'
+- running
++ quiescent
+
+
+======================================================================
+FAIL: test_deadline_stops_token_bound_writer_through_production_cancellation (tests.manager.test_authoring_enforcement.BeforeAttachmentCancellation.test_deadline_stops_token_bound_writer_through_production_cancellation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_authoring_enforcement.py", line 538, in test_deadline_stops_token_bound_writer_through_production_cancellation
+    self.held_before_expiry(report)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_authoring_enforcement.py", line 520, in held_before_expiry
+    self.assertEqual(report['observation']['state'], 'quiescent')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'running' != 'quiescent'
+- running
++ quiescent
+
+
+======================================================================
+FAIL: test_operator_cancellation_stops_token_bound_writer (tests.manager.test_authoring_enforcement.BeforeAttachmentCancellation.test_operator_cancellation_stops_token_bound_writer)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_authoring_enforcement.py", line 544, in test_operator_cancellation_stops_token_bound_writer
+    self.held_before_expiry(report)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_authoring_enforcement.py", line 520, in held_before_expiry
+    self.assertEqual(report['observation']['state'], 'quiescent')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'running' != 'quiescent'
+- running
++ quiescent
+
+
+======================================================================
+FAIL: test_recovery_stops_token_bound_writer_without_renewed_time (tests.manager.test_authoring_enforcement.BeforeAttachmentCancellation.test_recovery_stops_token_bound_writer_without_renewed_time)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_authoring_enforcement.py", line 549, in test_recovery_stops_token_bound_writer_without_renewed_time
+    self.held_before_expiry(report)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_authoring_enforcement.py", line 520, in held_before_expiry
+    self.assertEqual(report['observation']['state'], 'quiescent')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'running' != 'quiescent'
+- running
++ quiescent
+
+
+======================================================================
+FAIL: test_refused_runtime_stop_remains_held_after_authority_fence (tests.manager.test_authoring_enforcement.BeforeAttachmentCancellation.test_refused_runtime_stop_remains_held_after_authority_fence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_authoring_enforcement.py", line 572, in test_refused_runtime_stop_remains_held_after_authority_fence
+    self.assertTrue([call for call in self.session.calls if call[0] == 'cancel'])
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_unknown_engine_stop_preserves_fence_and_hold_then_retries (tests.manager.test_authoring_enforcement.BeforeAttachmentCancellation.test_unknown_engine_stop_preserves_fence_and_hold_then_retries)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_authoring_enforcement.py", line 558, in test_unknown_engine_stop_preserves_fence_and_hold_then_retries
+    self.held_before_expiry(lane.tick()['attempts'][ATTEMPT])
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_authoring_enforcement.py", line 520, in held_before_expiry
+    self.assertEqual(report['observation']['state'], 'quiescent')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'running' != 'quiescent'
+- running
++ quiescent
+
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.061s
+
+FAILED (failures=7, errors=1)

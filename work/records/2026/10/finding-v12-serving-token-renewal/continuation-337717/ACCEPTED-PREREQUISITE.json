@@ -1,0 +1,60 @@
+{
+  "base": "fb48797903160aa764229d58f3a5beaf29648bfc",
+  "changes": [
+    {
+      "action": "modify",
+      "base_sha256": "b79a307bfe41bd502c54adf6bd6792a431e408b88ea0479a7950d83d6346e63c",
+      "candidate_sha256": "1f23b03ef404d7f7803f425b126b968e08a7fa9658ff218770e8e47bb6f1ae9d",
+      "mode": "0644",
+      "path": "v12/python/src/baton_v12/worker_manager/intake.py"
+    },
+    {
+      "action": "modify",
+      "base_sha256": "b55045ebf7a617af662da191306f4ebc06711fe27a70b69a5a256cba11bd6bc4",
+      "candidate_sha256": "726197972a9b2558cbfa4eabfd877053a8ffbcd7c1b4c3f3f2b4c9372f85bbab",
+      "mode": "0644",
+      "path": "v12/python/src/baton_v12/worker_manager/attempts.py"
+    },
+    {
+      "action": "modify",
+      "base_sha256": "2da6eb36b398d730c8cc07a9df0b604de678a3fd994d5019097fa023addfb88f",
+      "candidate_sha256": "bc8c0363e44fedeae09c15a9065733227f08e279164ed68dc4b0e9e058a7c50f",
+      "mode": "0644",
+      "path": "v12/python/tools/authoring_enforcement.py"
+    },
+    {
+      "action": "add",
+      "base_sha256": null,
+      "candidate_sha256": "947abaac77f3a0524c4c9f90e7f4a2ba3d76b643b72d3bec8a733955f7b9b823",
+      "mode": "0644",
+      "path": "v12/python/tests/manager/test_authoring_enforcement.py"
+    },
+    {
+      "action": "modify",
+      "base_sha256": "27492cf99f876ee4a636e16393182fe514d3ddb7619ac448799f30b984484591",
+      "candidate_sha256": "3b1dd4468a714104ec1ecb8314ea2889d4e4ad94e7c2282a3535c1d7a67eacb2",
+      "mode": "0644",
+      "path": "v12/python/tests/manager/test_attempts.py"
+    },
+    {
+      "action": "modify",
+      "base_sha256": "e2cf65ee280448714b479c4ed5a5450e49a6387c055c6f3cc31f1bab8709de57",
+      "candidate_sha256": "a1510af9ea4afcac39cbdc5f447c6e0caf583b6c5a485e679dcca2adeb5ca7cc",
+      "mode": "0644",
+      "path": "v12/python/tests/job_manager/test_tool.py"
+    },
+    {
+      "action": "add",
+      "base_sha256": null,
+      "candidate_sha256": "085852ceea66efc359c1c27a76e102755ca3c55e367c035cf809c32c4cfa49a0",
+      "mode": "0644",
+      "path": "v12/python/tests/manager/test_authoring_manager_guard.py"
+    }
+  ],
+  "provenance": "Merged accepted W333735 and superseding W334910 hashes; owner close337414",
+  "sources": [
+    "W333735 review-2026-10-19T17-25-12Z.md",
+    "W334910 review-2026-10-19T20-01-02Z.md",
+    "W334910 INTEGRATION-337376.md"
+  ]
+}

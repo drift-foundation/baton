@@ -1,0 +1,59 @@
+{
+ "agree": true,
+ "cleanup_seconds_is_load_bearing_twice": {
+  "cleanup_seconds": 60,
+  "inner": "authoring_shutdown.Shutdown derives its whole allowance from it: min(maximum, now + cleanup - min(12, cleanup / 2)), then subdivides the reserve across cleanup, accounting, workload-publication, guard-stop and guard-publication",
+  "outer": "the watchdog reserves this tail for kill and reap",
+  "why": "Lowering it would silently shrink the window in which a final report can still be written. See SHUTDOWN.md."
+ },
+ "composed_from": "/tmp/w333486-preflight-339421/packet",
+ "execution_policy": {
+  "automatic_retry": false,
+  "implementer_invocations": 1,
+  "provider_turn_seconds": 3600,
+  "source": "policy.json",
+  "verification_command_seconds": 30
+ },
+ "final_results": {
+  "controller": "/tmp/w333486-preflight-339421/packet/outcome.json.enforcement-<pid>-<ns>.json",
+  "rule": "A missing or partial final report is INCOMPLETE: never success, never acceptance, never proof of cessation. TASK.md item 6 requires the turn to report all three by presence and content.",
+  "shutdown_progress": "/tmp/w333486-preflight-339421/packet/outcome.json.manager-<pid>-<ns>.json.progress.json",
+  "workload": "/tmp/w333486-preflight-339421/packet/outcome.json"
+ },
+ "lease_disclosure": {
+  "enforced": true,
+  "lifetime_seconds": 900,
+  "measured_at_this_base": "worker_manager/tokens.py:37 LIFETIME_SECONDS = 900",
+  "no_completed_run": "No authoring invocation has ever completed for this Work. The one actual execution, execution-334663, failed at startup in 0.506s; see FAILURE.md.",
+  "renewals_at_this_base": 0,
+  "why": "W333735 made the initial lease ENFORCED rather than ignored and W338305 made the ENDING bounded with deadline-aware reports. NEITHER extends the lease, and production renewal remains W333485 unfinished work separately allocated to baton.codx. These ceilings are requested bounds and NOT a promise of a 3600-second authoring run."
+ },
+ "note": "Read from the GENERATED documents rather than from prose.",
+ "residual_total_margin_seconds": 1110,
+ "schema": "baton.w333486-execution-limits-check/5",
+ "submission": {
+  "execution_limits": {
+   "provider_turn_seconds": 3600,
+   "verification_command_seconds": 30
+  },
+  "source": "submission.json jobs[0]",
+  "terminal_policy": "report-and-hold"
+ },
+ "supervisor_bounds": {
+  "cleanup_seconds": 60,
+  "implementer_invocations": 1,
+  "retry": false,
+  "total_seconds": 4800,
+  "turn_seconds": 3600
+ },
+ "verification_ceiling": {
+  "fit_unproved": "decisions/review-334776.md is explicit that the 30-second fit for the new modules remains unproved and that no coverage may be removed to force a pass.",
+  "headroom_for_the_two_new_modules_seconds": 16.358,
+  "measured_existing_gate_seconds": 13.642,
+  "measured_existing_gate_tests": 1124,
+  "modules": 10,
+  "not_this_packets_to_set": true,
+  "seconds": 30,
+  "why": "baseline_bindings.py:345 composes \"verification_command_seconds\": 900 if contextual else 30 and :522 repeats the 30. The contextual branch discards this packet task and verification entirely in favour of the built-in TASK_INSTRUCTIONS and [\"python3\",\"harness.py\"] (lines 363 and 367), so a fresh-context packet is the only shape that can carry this task."
+ }
+}

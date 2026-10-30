@@ -64,9 +64,12 @@ __all__ = ["EXCHANGE_MEMBERS", "EXCHANGE_SCHEMA", "JOB_EXECUTION_MEMBERS",
            "JOB_MEMBERS", "JOB_SCHEMA", "LAUNCH_MEMBERS",
            "LAUNCH_SCHEMA", "LAUNCH_TARGET",
            "MAX_LAUNCH_BYTES", "MAX_LAUNCH_VALUE", "MAX_SESSION",
+           "PAYLOAD_SCHEMAS",
            "READ_ONLY_DIR", "READ_ONLY_FILE", "SCHEMAS", "TRANSPORTS",
+           "WIRE_PROFILE", "WRAPPER_MEMBERS", "WRAPPER_SCHEMA",
            "LaunchDelivery",
-           "adopt", "launch_document", "materialize", "members_for"]
+           "adopt", "launch_document", "materialize", "members_for",
+           "payload_of", "selected_transport"]
 
 # THE FIXED CONTAINER PATH, a constant of the contract at BOTH ends. A path a
 # caller could vary is a path a runtime can be pointed at wrongly, so there is
@@ -126,6 +129,36 @@ JOB_MEMBERS = LAUNCH_MEMBERS + ("transport", "job_execution")
 CONTEXT_SCHEMA = "baton.worker-launch/4"
 CONTEXT_MEMBERS = JOB_MEMBERS + ("provider_context",)
 
+# W376586: /5 IS THE ONE CURRENT FILE-EXCHANGE WRAPPER, and it is a different
+# KIND of version from the four above.
+#
+# `/1`-`/4` each describe a container. `/5` describes the WIRE the container
+# and this manager speak, and carries one of those four as its payload --
+# `{schema, wire_profile, payload}` and nothing else. `AMENDMENT-376531.md`
+# selects exactly this: "one current worker-launch/5 wrapper ... Payload
+# preserves current ordinary/context/role launch semantics in the existing
+# mode-specific /2-/4 payload shapes; these are internal payload variants, not
+# support for executing historical unwrapped file launches."
+#
+# WHY A WRAPPER AND NOT A FIFTH MEMBER. The typed adapter exchange is a
+# property of the CHANNEL, not of the container: the same `/3` payload is the
+# same container whether it is spoken to over the typed file exchange or not.
+# Putting the profile inside the payload would make every payload generation
+# carry a member about the wire, and a reader would have to parse a version to
+# find out which wire it was on -- which is the shape this campaign retired.
+#
+# AND THE FRAMED TRANSPORT IS OUTSIDE IT. `/1` and a `/3`/`/4` validly naming
+# no transport are NOT wrapped: the amendment says the framed transport is
+# outside this feature, and wrapping a launch that selects no file exchange
+# would be a wrapper describing a wire nobody is on.
+WRAPPER_SCHEMA = "baton.worker-launch/5"
+WRAPPER_MEMBERS = ("schema", "wire_profile", "payload")
+
+# THE ONE PROFILE, by equality. There is no negotiation, no list and no
+# default: a profile this build cannot name is a wire it cannot speak, and the
+# amendment forbids "no nested wrapper or arbitrary profile".
+WIRE_PROFILE = "typed-adapter-file-exchange/1"
+
 # WHAT THE JOB CONTEXT NAMES, closed. The Job and the attempt it is running,
 # the identities the JOB was submitted with, the identities this RUNTIME was
 # actually given, and the effective configuration with its own canonical digest.
@@ -151,7 +184,57 @@ TRANSPORTS = {LAUNCH_SCHEMA: None,
 # so a reader asking "is this one of ours" cannot ask it there. W156162: it was
 # asked there, and the composed integration bundle refused the `/3` its own port
 # had just authored.
-SCHEMAS = (LAUNCH_SCHEMA, EXCHANGE_SCHEMA, JOB_SCHEMA, CONTEXT_SCHEMA)
+SCHEMAS = (LAUNCH_SCHEMA, EXCHANGE_SCHEMA, JOB_SCHEMA, CONTEXT_SCHEMA,
+           WRAPPER_SCHEMA)
+
+# THE PAYLOAD GENERATIONS, which is a THIRD question again: `SCHEMAS` says
+# which documents this build authors, and this says which of them may sit
+# INSIDE the wrapper. The wrapper is deliberately absent, so a nested wrapper
+# is refused by a membership test rather than by a depth count.
+PAYLOAD_SCHEMAS = (LAUNCH_SCHEMA, EXCHANGE_SCHEMA, JOB_SCHEMA, CONTEXT_SCHEMA)
+
+
+def selected_transport(document):
+    """The transport ONE document selects, wrapper or not.
+
+    W376586. `/5` moves `transport` one level down, and every reader that asked
+    `document.get("transport")` would have silently answered "none" for a
+    wrapped exchange launch. `_exchange_materialized` records what that costs:
+    "THE TRANSPORT DECIDES THIS, NOT THE VERSION ... a /3 exchange delivery
+    composed NO namespaces, the worker had no delivery to read, and every such
+    stage projected `unreadable` and then `exceptional`... Measured, not
+    reasoned about: 54 cases in the one-worker pipeline failed exactly this
+    way." The same proxy failing a second time one level up is the same defect,
+    so the question is asked in ONE place and every reader asks it here.
+    """
+    if type(document) is not dict:
+        return None
+    if document.get("schema") == WRAPPER_SCHEMA:
+        payload = document.get("payload")
+        return payload.get("transport") if type(payload) is dict else None
+    return document.get("transport")
+
+
+def payload_of(document):
+    """The CONTAINER document inside one launch delivery, wrapper or not.
+
+    W376586, and the companion of `selected_transport` for the same reason:
+    `/5` moves every container member one level down, so a reader asking the
+    top level for `provider_context`, `role` or `job_execution` would answer
+    "absent" for a wrapped exchange launch. `oci.OciAdapter` asked exactly
+    that and refused a valid context delivery with "context launch and mount
+    must both be present" -- a reader looking in the wrong place, reported as
+    a missing mount.
+
+    SO THERE ARE TWO SHARED QUESTIONS AND NO `get` AT A CALL SITE: which
+    transport a delivery selects, and which container document it carries.
+    """
+    if type(document) is not dict:
+        return {}
+    if document.get("schema") == WRAPPER_SCHEMA:
+        payload = document.get("payload")
+        return payload if type(payload) is dict else {}
+    return document
 
 
 def members_for(document):
@@ -164,6 +247,8 @@ def members_for(document):
     disagreeing silently about which channel is authoritative.
     """
     schema = document.get("schema") if type(document) is dict else None
+    if schema == WRAPPER_SCHEMA:
+        return WRAPPER_MEMBERS
     if schema == CONTEXT_SCHEMA:
         return CONTEXT_MEMBERS
     if schema == JOB_SCHEMA:
@@ -426,6 +511,22 @@ def launch_document(*, session, contract, role, transport=None,
             _denied("provider context requires the implementation Job exchange")
         document["schema"] = CONTEXT_SCHEMA
         document["provider_context"] = _context_delivery(provider_context, document["job_execution"])
+    # W376586: THE WRAPPER, APPLIED EXACTLY WHEN THE FILE EXCHANGE IS SELECTED.
+    #
+    # Composed here and nowhere else, because this function is the single
+    # authoring point every writer and `adopt` both go through -- so the
+    # delivery on disk, the bytes adoption re-derives and the document a bundle
+    # carries cannot disagree about whether a launch is wrapped.
+    #
+    # THE CONDITION IS THE TRANSPORT, not the payload version. `/2` always
+    # selects the exchange and `/3`/`/4` may; a `/3` naming no transport is the
+    # one-shot integration launch and stays unwrapped, which is the framed
+    # transport this feature does not reach.
+    if document.get("transport") == exchange.EXCHANGE_TRANSPORT:
+        document = {"schema": WRAPPER_SCHEMA, "wire_profile": WIRE_PROFILE,
+                    "payload": document}
+    # §13 WALKS THE WHOLE RESULT, wrapper included, so the payload is covered
+    # by the same walk it was covered by before.
     check_no_durable_secret(document, what="a worker launch document")
     return document
 
@@ -690,7 +791,10 @@ def _exchange_materialized(root, attempt, document, workspace_group):
     # projected `unreadable` and then `exceptional` -- a container running with
     # nothing to say to it. Measured, not reasoned about: 54 cases in the
     # one-worker pipeline failed exactly this way.
-    if document.get("transport") != exchange.EXCHANGE_TRANSPORT:
+    # W376586: ASKED THROUGH `selected_transport`, so a `/5`-wrapped exchange
+    # launch is not read as selecting nothing. See that function for why this
+    # is one shared question rather than a `get` in each reader.
+    if selected_transport(document) != exchange.EXCHANGE_TRANSPORT:
         return None
     if workspace_group is None:
         _denied(f"attempt {name_value(attempt)}'s launch document selects "

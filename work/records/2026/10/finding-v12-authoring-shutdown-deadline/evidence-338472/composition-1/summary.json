@@ -1,0 +1,114 @@
+[
+  {
+    "case": "normal",
+    "code": 1,
+    "seconds": 3.119783686000119,
+    "managers_reaped": [
+      6
+    ],
+    "manager_pids_absent": [
+      6
+    ],
+    "guard_reacquired": true,
+    "outcome_present": true,
+    "final_snapshot": true
+  },
+  {
+    "case": "blocked_sweep",
+    "code": 1,
+    "seconds": 5.370228491999569,
+    "managers_reaped": [
+      10
+    ],
+    "manager_pids_absent": [
+      10
+    ],
+    "guard_reacquired": true,
+    "outcome_present": true,
+    "final_snapshot": true
+  },
+  {
+    "case": "absent_cleanup",
+    "code": 1,
+    "seconds": 5.420399457000258,
+    "managers_reaped": [
+      14
+    ],
+    "manager_pids_absent": [
+      14
+    ],
+    "guard_reacquired": true,
+    "outcome_present": true,
+    "final_snapshot": true
+  },
+  {
+    "case": "delayed_snapshot",
+    "code": 1,
+    "seconds": 5.87018778599986,
+    "managers_reaped": [
+      18
+    ],
+    "manager_pids_absent": [
+      18
+    ],
+    "guard_reacquired": true,
+    "outcome_present": true,
+    "final_snapshot": false
+  },
+  {
+    "case": "snapshot_before",
+    "code": 1,
+    "seconds": 3.117645478999748,
+    "managers_reaped": [
+      22
+    ],
+    "manager_pids_absent": [
+      22
+    ],
+    "guard_reacquired": true,
+    "outcome_present": true,
+    "final_snapshot": true
+  },
+  {
+    "case": "stuck_snapshot",
+    "code": 1,
+    "seconds": 5.870149066000067,
+    "managers_reaped": [
+      26
+    ],
+    "manager_pids_absent": [
+      26
+    ],
+    "guard_reacquired": true,
+    "outcome_present": true,
+    "final_snapshot": false
+  },
+  {
+    "case": "stuck_workload",
+    "code": 1,
+    "seconds": 3.618314163999912,
+    "managers_reaped": [
+      30
+    ],
+    "manager_pids_absent": [
+      30
+    ],
+    "guard_reacquired": true,
+    "outcome_present": false,
+    "final_snapshot": true
+  },
+  {
+    "case": "pre_signal",
+    "code": 1,
+    "seconds": 1.9169976910002333,
+    "managers_reaped": [
+      38
+    ],
+    "manager_pids_absent": [
+      38
+    ],
+    "guard_reacquired": true,
+    "outcome_present": false,
+    "final_snapshot": true
+  }
+]

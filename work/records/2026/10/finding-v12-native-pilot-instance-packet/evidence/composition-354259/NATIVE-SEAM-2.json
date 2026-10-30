@@ -1,0 +1,81 @@
+{
+ "schema": "baton.w325959-native-seam-map/2",
+ "claim": 354259,
+ "supersedes": "evidence/composition-354165/NATIVE-SEAM.json, whose route-B reasoning was WRONG. Both of its errors are corrected below rather than quietly dropped.",
+
+ "TWO_CORRECTIONS_TO_MY_OWN_PRIOR_CLAIM": {
+  "error_1_the_renewal_arithmetic": {
+   "I_said": "900 x (1 + 4) covers 3600 + 900 without declaring a total",
+   "the_reviewer_said": "tokens.py _extended computes expires_at from the CURRENT CLOCK plus seconds, not prior expiry plus seconds, so four timely early renewals do not guarantee 4500s",
+   "verified_in_the_composed_bytes": "tokens.py _extended: `taken = control._now()` and the new deadline is composed from it. CONFIRMED -- my arithmetic was wrong.",
+   "status": "WITHDRAWN"
+  },
+  "error_2_what_tokens_renew_IS": {
+   "I_said": "tokens.renew with RENEWAL_LIMIT = 4 is the accepted W333485 supplier",
+   "the_reviewer_said": "W333485 accepted prospective authoring-envelope acquisition, not the older W275775 tokens.renew API already present",
+   "verified_in_the_composed_bytes": "renew/_extended carry W275775 review citations throughout, and the ACCEPTED supplier adds something different: an execution-envelope `permission` on acquisition. Worse for my claim, the supplier's own _extended REFUSES renewal for an envelope-bearing token: `if held.get('permission') is not None: raise ContractRefusal('policy','denied','an execution envelope has a fixed terminal deadline and cannot be renewed')`.",
+   "status": "WITHDRAWN. Renewal was never the route -- the accepted mechanism EXCLUDES it for the tokens it governs."
+  },
+  "and_the_omission_the_reviewer_found": {
+   "what": "all seven W333485 bootstrap-347778 paths were still at base bytes in my candidate; I composed only the 24 diagnostics paths and called it the composition of both suppliers",
+   "status": "CORRECTED THIS CLAIM -- all 7 are now composed, digests verified, and the two suppliers are provably disjoint (intersection of their path sets is EMPTY)"
+  }
+ },
+
+ "THE_MECHANISM_IS_ALREADY_BUILT_AND_ACCEPTED": {
+  "what_the_permission_supplier_actually_delivers": "bounded initial permission through an EXECUTION ENVELOPE, threaded end to end",
+  "the_thread": [
+   "tools/stage_execution.py:6396 operations_from(..., permission_policy=None)",
+   "-> :6585 single_worker.worker_operations(..., permission_policy=permission_policy)",
+   "-> tools/single_worker.py:3496 worker_operations(..., permission_policy=None) -> :3544 _Composition(..., permission_policy=...)",
+   "-> :2231 permission, permission_eligible = self.permission_policy(self.control, stage, self._job_execution(stage))",
+   "-> :2237 workspaces.prepared_workspace_governance(..., permission=permission, permission_eligible=permission_eligible)",
+   "-> workspaces.py:3878 gains (*, permission=None, permission_eligible=None); :3981 reserve passes permission= into tokens.acquire",
+   "-> tokens.py:365 acquire(..., permission=None)"
+  ],
+  "what_acquire_does_with_it": {
+   "permission_is_None": "seconds = LIFETIME_SECONDS -- 900. THIS IS THE NATIVE PATH TODAY.",
+   "permission_is_given": "`choose a duration or an execution envelope, not both`; the envelope must carry started_at < stop_at < expires_at and a policy, and the deadline comes from the envelope rather than from a lifetime"
+  },
+  "so_the_gap_is_NOT_a_missing_seconds_argument": "my prior map called it one missing argument. That was imprecise: the argument exists, is accepted, and is plumbed. What is missing is a CALLER."
+ },
+
+ "THE_DEMONSTRATED_MISSING_NATIVE_CONNECTION": {
+  "exactly_one_caller_supplies_a_policy": "tools/authoring_enforcement.py:304 -- stage_execution.operations_from(..., permission_policy=permission_policy(packet))",
+  "the_native_entry_point_does_not": "tools/stage_execution.py factory(job_store, control_store) -- the `module:attribute` entry tools.job_manager loads -- calls operations_from(_configuration(), job_store, control_store) with NO permission_policy, so it defaults None, so permission stays None, so acquire falls back to 900.",
+  "searched": "grep for permission_policy= across tools/, src/ and tests/ finds the authoring caller, the two pass-through sites, and one test. No native caller exists.",
+  "consistent_with_the_owner_failure": "OWNER-FAILURE-EVIDENCE-20261019.md -- the pilot's implementation token expired at 900s with zero renewals while the Job allowed 3600s."
+ },
+
+ "THE_SIZING_RULE_IS_THE_SUPPLIERS_OWN_AND_NEEDS_NO_OWNER_CHOICE": {
+  "from_authoring_enforcement.permission_policy": [
+   "refuses unless limits == execution_limits.resolved(owned_execution_limits(requested), generation) -- the Job's own admitted resolution, rebuilt through its owner",
+   "refuses if provider_turn.seconds + ordinary_verification.seconds > total - cleanup",
+   "its eligibility predicate refuses acquisition when remaining < provider_turn + ordinary_verification"
+  ],
+  "therefore": "the ACCEPTED, independently reviewed mechanism already defines one attempt's need as provider_turn + ordinary_verification, with a positive cleanup reserve. That is not an invocation-count assumption I would be adding -- it is the supplier's own rule, and my earlier framing of this as a possible owner decision was premature.",
+  "and_it_is_NOT_a_cumulative_Job_cap": "it is PER ATTEMPT. Two stages are two attempts with two independent envelopes and nothing accumulates, so it does not contradict revision-4/inputs/policy.json's 'No product cumulative ceiling' -- that sentence is about the Job, and the 9000/9900 figures are an operator observation window."
+ },
+
+ "THE_REAL_REMAINING_ENGINEERING_QUESTION_AND_IT_IS_NOT_A_POLICY_CHOICE": {
+  "the_constraint_verbatim_from_the_composed_acquire": "the comment at tokens.py:384-385 -- 'The caller's independent execution controller owns stop_at; the token retains permission through expires_at for the required cleanup interval.'",
+  "so_an_envelope_requires_a_DEADLINE_OWNER": "something that produces started_at, stop_at and expires_at for the attempt and owns the execution clock. Authoring has one: the controller persists its envelope and permission_policy(packet) reads it back.",
+  "native_has_no_such_controller": "the authoring policy is NOT transplantable and the review forbids transplanting it: it binds packet['run_id'], the persisted KIND:run_id operation record, packet['bounds']['total_seconds']/['cleanup_seconds'] and a HALT record -- all authoring-controller concepts, and its fixed 4800/60 is explicitly not a native policy.",
+  "therefore_the_next_concrete_step": "identify or compose the NATIVE deadline owner -- which party owns a native stage's started_at/stop_at/expires_at, derived from the Job's own resolved limits plus a cleanup reserve -- and then supply a native permission_policy from stage_execution.factory. This is engineering within the accepted lease-compatibility scope, NOT an owner decision, and I am NOT returning one.",
+  "what_I_did_not_establish": "whether a suitable native deadline owner already exists in the serving loop or must be composed. That is the first thing to settle and it decides the size of the remaining change."
+ },
+
+ "VERIFICATION_THIS_CLAIM": {
+  "joined_12_module_gate_on_BOTH_suppliers_composed": {"tests": 1260, "seconds": 14.254, "verdict": "OK", "exit": 0, "skips": 0},
+  "the_permission_suppliers_own_module": {"module": "tests.job_manager.test_serving_renewal", "tests": 14, "seconds": 0.213, "verdict": "OK", "exit": 0},
+  "note": "test_serving_renewal is the supplier's new file and could not run at all before this claim composed it; it passing on the current baseline is what shows the permission contribution actually exists in this candidate rather than being cited as history."
+ },
+
+ "STILL_NOT_DONE": [
+  "no native deadline owner identified or composed, and no native permission_policy supplied from factory -- so the connection is still missing and the 900 ceiling still stands on the native path",
+  "no focused deterministic native two-stage seam proof: the ceiling is established by reading the composed bytes and by the owner's recorded failure, not by an executed reproduction at the acquisition boundary",
+  "no proof of authorized work beyond 900 for implementation AND review, no expiry/cancellation/cleanup or unknown-hold proof, no replay/restart/no-revival proof at the native seam",
+  "no new owner-produced expiry joined through durable capture, /7 status and the packaged report this claim -- the accepted diagnostics evidence is reused as composed bytes and re-run as the joined gate only",
+  "no installation or recovery operands: the review forbids building them on an unaccepted composition"
+ ]
+}

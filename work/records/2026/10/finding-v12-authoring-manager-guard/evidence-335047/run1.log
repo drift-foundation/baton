@@ -1,0 +1,97 @@
+test_author_exception_releases_process_guard_and_preserves_failure (tests.manager.test_authoring_manager_guard.ManagerComposition.test_author_exception_releases_process_guard_and_preserves_failure) ... FAIL
+test_blocked_author_keeps_exclusion_and_outer_deadline (tests.manager.test_authoring_manager_guard.ManagerComposition.test_blocked_author_keeps_exclusion_and_outer_deadline) ... FAIL
+test_parent_loss_kills_manager_without_inherited_workspace_guard (tests.manager.test_authoring_manager_guard.ManagerComposition.test_parent_loss_kills_manager_without_inherited_workspace_guard) ... FAIL
+test_real_composition_admits_action_and_restart_never_reinvokes (tests.manager.test_authoring_manager_guard.ManagerComposition.test_real_composition_admits_action_and_restart_never_reinvokes) ... FAIL
+
+======================================================================
+FAIL: test_author_exception_releases_process_guard_and_preserves_failure (tests.manager.test_authoring_manager_guard.ManagerComposition.test_author_exception_releases_process_guard_and_preserves_failure)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/baton-w334910-335047/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/baton-w334910-335047/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/baton-w334910-335047/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/baton-w334910-335047/v12/python/tests/manager/disk_roots.py", line 105, in disk_backed_under
+    place = tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root())
+                                                       ~~~~~~~~~~~~~~~~^^
+  File "/tmp/baton-w334910-335047/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/baton-w334910-335047/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_blocked_author_keeps_exclusion_and_outer_deadline (tests.manager.test_authoring_manager_guard.ManagerComposition.test_blocked_author_keeps_exclusion_and_outer_deadline)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/baton-w334910-335047/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/baton-w334910-335047/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/baton-w334910-335047/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/baton-w334910-335047/v12/python/tests/manager/disk_roots.py", line 105, in disk_backed_under
+    place = tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root())
+                                                       ~~~~~~~~~~~~~~~~^^
+  File "/tmp/baton-w334910-335047/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/baton-w334910-335047/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_parent_loss_kills_manager_without_inherited_workspace_guard (tests.manager.test_authoring_manager_guard.ManagerComposition.test_parent_loss_kills_manager_without_inherited_workspace_guard)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/baton-w334910-335047/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/baton-w334910-335047/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/baton-w334910-335047/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/baton-w334910-335047/v12/python/tests/manager/disk_roots.py", line 105, in disk_backed_under
+    place = tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root())
+                                                       ~~~~~~~~~~~~~~~~^^
+  File "/tmp/baton-w334910-335047/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/baton-w334910-335047/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+======================================================================
+FAIL: test_real_composition_admits_action_and_restart_never_reinvokes (tests.manager.test_authoring_manager_guard.ManagerComposition.test_real_composition_admits_action_and_restart_never_reinvokes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/baton-w334910-335047/v12/python/tests/tools/test_stage_execution.py", line 3504, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/baton-w334910-335047/v12/python/tests/tools/test_stage_execution.py", line 143, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/baton-w334910-335047/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/baton-w334910-335047/v12/python/tests/manager/disk_roots.py", line 105, in disk_backed_under
+    place = tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root())
+                                                       ~~~~~~~~~~~~~~~~^^
+  File "/tmp/baton-w334910-335047/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/baton-w334910-335047/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.003s
+
+FAILED (failures=4)

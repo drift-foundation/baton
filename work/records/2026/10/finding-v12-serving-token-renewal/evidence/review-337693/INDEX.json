@@ -1,0 +1,23 @@
+{
+  "controller.json": {
+    "source": "/home/sl/baton-instances/serving-renewal-w333485-337440/packet/outcome.json.enforcement-92296-1792462527943919287.json",
+    "sha256": "138262e1f66d6b37c81f0d7c579b601cf45beb036f10e7639559f35c9e0ba1f1"
+  },
+  "manager.json": {
+    "source": "/home/sl/baton-instances/serving-renewal-w333485-337440/packet/outcome.json.manager-92296-1792461572094362187.json",
+    "sha256": "5a57d30221c750488121e74b384b91de908a2a2c2a9c4ba97ba5bbba9a895c63"
+  },
+  "v12/python/src/baton_v12/job_manager/manager.py": {
+    "source": "/home/sl/baton-instances/serving-renewal-w333485-337440/packet/workspaces/.baton-review-lines/line-1484de365720d1d27a16c140537c821e459955cb2748fccd42c5d616c0a4aed1/checkout/v12/python/src/baton_v12/job_manager/manager.py",
+    "sha256": "a3160a5e0939054b772486d2bfb1bc949e2c5ca4644a643a3f117818d05982f2"
+  },
+  "v12/python/src/baton_v12/job_manager/renewal.py": {
+    "source": "/home/sl/baton-instances/serving-renewal-w333485-337440/packet/workspaces/.baton-review-lines/line-1484de365720d1d27a16c140537c821e459955cb2748fccd42c5d616c0a4aed1/checkout/v12/python/src/baton_v12/job_manager/renewal.py",
+    "sha256": "b1a661c5cf97e0b54873743d56acfb12f068c9e088107396170631c4bb0a5926"
+  },
+  "v12/python/tools/job_manager.py": {
+    "source": "/home/sl/baton-instances/serving-renewal-w333485-337440/packet/workspaces/.baton-review-lines/line-1484de365720d1d27a16c140537c821e459955cb2748fccd42c5d616c0a4aed1/checkout/v12/python/tools/job_manager.py",
+    "sha256": "73c1d041cf08e545225da0adc740e7c771f4ca2193ad10ad8a507e650fdbbd09"
+  },
+  "head": "fb48797903160aa764229d58f3a5beaf29648bfc"
+}

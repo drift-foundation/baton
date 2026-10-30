@@ -1,0 +1,31 @@
+{
+  "base": "bc925cf5c62d69426ed5862af4d41f4d2a967b0f",
+  "changes": [
+    {
+      "candidate_sha256": "bb1dcd4a1e19dca9869a9ca067250234ad04ef880543461169d009528e2c7432",
+      "path": "v12/python/tests/manager/shutdown_fixture.py"
+    },
+    {
+      "candidate_sha256": "9fe4c32424bed14f9bd7cd19d5e677f747411db845c76208139fce459150858b",
+      "path": "v12/python/tests/manager/test_authoring_manager_guard.py"
+    },
+    {
+      "candidate_sha256": "bd00443891602e2aee7a4640b41a050d33a017ba7724e35ca4ebe67751a5f767",
+      "path": "v12/python/tests/manager/test_authoring_shutdown_deadline.py"
+    },
+    {
+      "candidate_sha256": "d12769df863424c402757d925e5efb848e473e2877e62244af5595be56c8ebb7",
+      "path": "v12/python/tools/authoring_enforcement.py"
+    },
+    {
+      "candidate_sha256": "af9e5ea6b140d772cdb143c73bccf7c321869b4707245ba7e8ca79ab855fab2e",
+      "path": "v12/python/tools/authoring_shutdown.py"
+    },
+    {
+      "candidate_sha256": "8e5987f56f8d5329c33a8e73f9df56f13213e134f2dade8180afabf80723efe9",
+      "path": "work/records/2026/09/finding-v12-single-implementation-proof/baseline.py"
+    }
+  ],
+  "integration": "baton:work/records/2026/10/finding-v12-authoring-shutdown-deadline/INTEGRATION-339397.json",
+  "review": "baton:work/records/2026/10/finding-v12-authoring-shutdown-deadline/review-2026-10-20T12-29-38Z.md"
+}

@@ -1,0 +1,7 @@
+{
+  "cause": "Published prove_capacity step10 calls compose(proposed_grants=True, proposed_format=True), which calls proposal.write into delivered directory. This reviewer run triggered the write.",
+  "observed_sha256": "68086264b2555f0552efc3d3f1f98fe990f339a5022c21bc36d1bbdb8cf4cb99",
+  "restored_sha256": "8ac96cb65d446a41a570a9ffa499ba955aa9e8d137bbbed7356fbd2d68ae04e5",
+  "binding_expected": "8ac96cb65d446a41a570a9ffa499ba955aa9e8d137bbbed7356fbd2d68ae04e5",
+  "restoration_checks": "Current bytes equal exact formatted variant; restored bytes independently regenerated default variant equal author binding. No other source files changed."
+}

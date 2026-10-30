@@ -1,0 +1,13 @@
+{
+  "prior_measured_seconds": 128.408208405,
+  "this_claim_recorded_test_seconds": [
+    0.494,
+    6.808,
+    6.907,
+    4.349674264,
+    53.742050016
+  ],
+  "cumulative_measured_seconds": 200.708932685,
+  "unknown": "AST projection comparisons, failed import harness and shell/setup overhead not stopwatch recorded; parent historical total unknown",
+  "independent_review_seconds_separate": 0.604779577
+}

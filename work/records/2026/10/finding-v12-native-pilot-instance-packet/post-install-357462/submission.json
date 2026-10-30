@@ -1,0 +1,40 @@
+{
+ "jobs": [
+  {
+   "execution_limits": {
+    "provider_turn_seconds": 3600,
+    "verification_command_seconds": 900
+   },
+   "input_digest": "READBACK: contracts.job_input_identity(the composed input manifest) -- the PUBLIC projection, not the manifest digest",
+   "job_id": "quickstart-b",
+   "policy_digest": "sha256:837d7a03b2d92b9654cbc391daefcfa208f747bbd9ae7c528d54f528bd536357",
+   "stages": [
+    {
+     "depends_on": [],
+     "kind": "implementation",
+     "profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+     "profile_name": "claude-fresh-implementation",
+     "work_id": "READBACK: the Work id the native registration readback reports -- NEVER presumed, and not W1"
+    },
+    {
+     "depends_on": [
+      {
+       "job_id": "quickstart-b",
+       "kind": "implementation"
+      }
+     ],
+     "kind": "review",
+     "profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+     "profile_name": "claude-fresh-implementation",
+     "work_id": "READBACK: the Work id the native registration readback reports -- NEVER presumed, and not W1"
+    }
+   ],
+   "terminal_policy": "report-and-hold",
+   "test_scope": [
+    "v12/QUICKSTART.md"
+   ]
+  }
+ ],
+ "schema": "baton.v12.job-submission/2",
+ "submission_id": "sub-w321608-quickstart-2"
+}

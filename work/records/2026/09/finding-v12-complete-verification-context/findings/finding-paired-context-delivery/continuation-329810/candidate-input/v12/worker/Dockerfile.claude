@@ -1,0 +1,241 @@
+# The v12 DOGFOOD worker image: the reference worker, with a real provider.
+#
+# W39357. Every line carries the decision behind it, like W6633's recipe does,
+# because each one is either inherited from a measured fact or is a deliberate
+# departure from the reference image.
+#
+# THIS IS NOT `Dockerfile` AND NOT `Dockerfile.claude` IN THE SPIKE. W6633's
+# reference image runs `ScriptedAgent`, carries no network client and pins its
+# base by digest; the spike's image runs `trial.mjs` on its own Docker
+# lifecycle. This one runs W6633's OWN PROGRAM -- `baton_worker.py`, unmodified
+# -- with a real provider injected at its documented seam, and it speaks the
+# accepted worker-entry protocol rather than the spike's result shape.
+#
+# THE BASE IS W17110's, and that is a reuse of measured installation facts
+# rather than of its protocol. A real agent runtime is a Node program, so the
+# reference image's `python:3.13-slim` cannot host it.
+#
+# THIS RECIPE IS NOT REPRODUCIBLE ACROSS DAYS, and W55361 measured it rather
+# than predicting it: two builds of an unchanged tree produced
+# `sha256:b471399a…` and `sha256:8af96742…`, identical in the base layers,
+# in the four `COPY` layers carrying this repository's own code and in
+# `useradd`,
+# and differing ONLY in the `npm install` and `apt-get install` layers below.
+# The three moving inputs are named where they occur: this `FROM` is a TAG
+# rather than a digest, `apt-get` takes whatever the mirror serves today, and
+# the pinned provider version runs a `postinstall` that fetches its own native
+# binary.
+#
+# SO THE ARTEFACT IS SELECTED, NOT REBUILT. Approver event 55641: the owning
+# Work's record selects a validated digest, a new attempt reuses the current
+# selection, and a build here is a CANDIDATE until a recorded upgrade, source,
+# security, platform or refresh event validates and explicitly selects it.
+# Locking these three inputs is a supply-chain design that was presented and
+# deliberately NOT selected for the MVP; it remains available and is not
+# authorized by this comment.
+#
+# THE SUITE IS TRIXIE AND THAT IS THE WHOLE W85497 CORRECTION. `v12/python/
+# pyproject.toml` declares `requires-python >= 3.13`, and Debian BOOKWORM's
+# unversioned `python3` is 3.11 -- so the first ordinary self-hosted W71917
+# retry ran a provider that succeeded and a verification that could not, with
+# `python3 -m compileall` reporting an unterminated string at
+# `worker_manager/custody.py:752` in source no candidate had touched. The
+# image was rejecting syntax this distribution's floor makes legal.
+#
+# WHY THE SUITE AND NOT A SECOND INTERPRETER. Installing `python3.13` beside
+# Debian's own, or importing one from `python:3.13-slim` in a second stage,
+# both leave TWO Pythons in the artefact and make "which one ran" a question
+# the evidence has to answer for every future probe. Moving the suite leaves
+# exactly one `python3`, keeps every apt package NAME in this recipe unchanged,
+# and keeps Node 22 -- which is the provider runtime and the reason this image
+# is not the reference image's `python:3.13-slim`.
+#
+# MEASURED, NOT INFERRED: `node:22-trixie-slim` plus this recipe's own
+# `apt-get install python3` answers `Python 3.13.5` on Debian 13.6. The gate
+# in `tests/manager/test_dogfood_image.py` asks the built ARTEFACT rather than
+# trusting this comment, because a recipe naming a suite and an image carrying
+# an interpreter are two facts and only the second one runs.
+FROM node:22-trixie-slim
+
+# THE PROVIDER RUNTIME, BY EXACT VERSION. "Which agent answered" is a fact the
+# evidence has to carry, and a floating tag makes that unanswerable the day
+# after the trial. This is W17110's pinned version.
+ARG CLAUDE_VERSION=2.1.247
+RUN npm install -g "@anthropic-ai/claude-code@${CLAUDE_VERSION}" \
+    && npm cache clean --force
+
+# THE SYSTEM TRUST STORE, and W17110 paid two review rounds to learn why.
+# `node:22-bookworm-slim` ships no `/etc/ssl/certs/ca-certificates.crt`, and a
+# runtime that is a NATIVE BINARY uses the system store rather than Node's
+# bundled one -- so every TLS handshake fails and surfaces as a connection
+# error that reads exactly like a network fault. The classifier was right and
+# was describing a defect in the recipe.
+#
+# PYTHON COMES WITH IT, because `baton_worker.py` is the program in this image
+# and the base is a Node image. The reference image's rule -- no build
+# toolchain, no package manager state, no network client -- cannot hold here:
+# a provider-backed worker IS a network client, and that is the whole point of
+# the milestone. What is kept from the rule is that nothing else is added.
+#
+# W71917 ADDS `git`, AND IT IS NOT AN EXCEPTION TO THAT RULE BUT AN INSTANCE
+# OF IT. The Git source profile's plan is `git clone`, `git checkout --detach`
+# and `git rev-parse`, run BY THIS WORKER inside this container -- that is the
+# whole point of the profile living outside the manager, which stays
+# Git-agnostic and runs none of them. An image that carried the profile package
+# and not the program it names would compose a plan it cannot execute, which is
+# the run7 defect one layer down: a capability that exists everywhere except
+# where it runs. Measured rather than assumed -- the image was built and
+# `command -v git` answered nothing.
+#
+# It is a version-control client and not a network one for the traffic that
+# matters here: the clone's source is the read-only bind mount, and the
+# container's ordinary launch has no route to a remote.
+# W202663 (claim225590) ADDS `python3-jsonschema`, AND IT IS THE `git` RULE'S
+# SECOND INSTANCE, NOT A DEPARTURE. The dogfood worker VERIFIES candidates by
+# running the repository's own frozen test command inside this container, and
+# that suite imports the product under test -- whose single declared
+# third-party dependency is `jsonschema` (`v12/python/pyproject.toml`: the
+# Worker Manager consumes frozen JSON Schema and a handwritten substitute is
+# forbidden). An image that carries the verifier and not the verified code's
+# one dependency composes a gate it cannot execute: measured, not assumed --
+# the frozen `unittest` argv died `ModuleNotFoundError: jsonschema` at
+# collection inside this artefact before any test ran. The Debian package
+# brings its own closure (attrs, referencing, rpds); no pip and no build
+# toolchain appear.
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y ca-certificates git python3 \
+       python3-jsonschema \
+    && rm -rf /var/lib/apt/lists/*
+
+# THE WORKER, UNMODIFIED, AND ITS FROZEN CONTRACT AS DATA.
+#
+# `baton_worker.py` is W6633's file and is copied rather than adapted: this
+# checkpoint does not own it, and an image that carried a forked copy would be
+# running a protocol nobody reviewed. `worker-control-1.0.schema.json` travels
+# for the reason W6633 gives -- the closed member sets are DERIVED from it at
+# startup instead of being a hand-typed second copy.
+#
+# NOTHING FROM `baton_v12` IS COPIED IN, exactly as in the reference image: a
+# worker that could import the manager is a worker one bug away from holding
+# the manager's capabilities.
+# W71917: THE BUILD CONTEXT IS `v12`, NOT `v12/worker`, and every path below
+# is spelled from there. The image needs material from two sibling directories
+# now -- this one and the distribution's profile package -- and a context
+# cannot reach above itself. The reference `Dockerfile` keeps the narrower
+# `v12/worker` context on purpose: it ships no profile package and widening it
+# would grant a reach it has no use for.
+# W198667: THE SHARED CAPTURE FORMAT, carried as a TOP-LEVEL module.
+# `baton_v12.attempt_log_format` imports nothing from `baton_v12`, so it travels
+# under its own name exactly as `source_profiles` does -- a worker that could
+# import the manager is a worker one bug away from holding the manager's
+# capabilities. Without this layer the worker degrades to NO capture, which is
+# honest and useless: review 2026-09-18T02-31-51Z [1] found the private fixture
+# carrying it while neither supported recipe did, so a green fixture smoke
+# proved nothing about either production image.
+COPY python/src/baton_v12/attempt_log_format.py \
+     /opt/baton/attempt_log_format.py
+# W321776: THE DECLARED VERIFICATION CONTEXT, carried the same way and for the
+# same reason. `baton_v12.verification_context` imports nothing but `re`, so it
+# travels under its own name beside the two above. It is the half of the paired
+# correction BOTH holders decide -- the worker here and the independent operator
+# outside -- and a contract each of them spelled separately is two rules that
+# can disagree, which is the defect the pair exists to remove. Without this
+# layer the worker cannot read a `/3` task at all, and the refusal direction
+# requires it to answer rather than ignore the member.
+COPY python/src/baton_v12/verification_context.py \
+     /opt/baton/verification_context.py
+COPY worker/baton_worker.py /opt/baton/baton_worker.py
+COPY worker/claude_agent.py /opt/baton/claude_agent.py
+COPY worker/dogfood_entry.py /opt/baton/dogfood_entry.py
+COPY worker/worker-control-1.0.schema.json \
+     /opt/baton/worker-control-1.0.schema.json
+
+# W71917: THE SOURCE PROFILES TRAVEL, AND THE RULE ABOVE IS KEPT INTACT.
+#
+# The paragraph above says nothing from `baton_v12` is copied in, because a
+# worker that could import the manager is a worker one bug away from holding
+# the manager's capabilities. That rule is about the MANAGER, and this package
+# is not it: `baton_v12.source_profiles` imports nothing from `baton_v12`, and
+# `baton_v12.worker_manager` imports nothing from it -- a separation
+# `tests/manager/test_source_boundary` holds in both directions rather than
+# leaving to a docstring.
+#
+# So it is copied to a TOP-LEVEL name and no `baton_v12` package directory is
+# created here. The image still has no way to spell `baton_v12.worker_manager`,
+# which is the property that paragraph is protecting; what it gains is the
+# vocabulary for turning its read-only mount into a checkout, which is the
+# worker's own half of the boundary and has always been meant to run here.
+COPY python/src/baton_v12/source_profiles /opt/baton/source_profiles
+
+# `scripted_agent.py` DELIBERATELY DOES NOT TRAVEL, and the reason is history
+# worth keeping rather than an absence nobody has to explain.
+#
+# W39357's build gate found what recipe inspection could not: `main(agent=...)`
+# opened with an UNCONDITIONAL `from scripted_agent import ScriptedAgent`, so
+# the documented injection seam could not be used by an image that did not also
+# ship the default it was overriding, and the entrypoint died
+# `ModuleNotFoundError` before the worker started. `COPY scripted_agent.py` was
+# the stated stopgap for two rounds.
+#
+# W39770 is the real correction and is CLOSED SATISFYING: the scripted default
+# is constructed lazily by `_scripted_default()` and only for `agent is None`.
+# Its rationale assigns this removal to W39357, so the stopgap goes here, and
+# `test_dogfood_image` asserts the module's ABSENCE from the artefact — a real
+# provider image has no business carrying a scripted provider.
+
+# THE SAME FIXED NON-ROOT USER, by numeric id, as the reference image and as
+# the adapter's `--user` restriction. Two places agreeing because they were
+# written from one decision.
+#
+# THE HOME IS CREATED AND OWNED AT BUILD TIME, which W17110 measured the need
+# for: Docker creates a missing bind-mount parent as ROOT, so a container
+# running as an unprivileged uid was left unable to write beside its own
+# credential -- "Permission denied" before it ever reached an authentication
+# decision. This image's credential does NOT arrive as a mount there (the
+# adapter links it into private `/tmp` space, because the root filesystem is
+# read-only), and the owned home is kept anyway so the provider has somewhere
+# valid to fall back to for its own state.
+RUN useradd --uid 65532 --create-home nonroot \
+    && mkdir -p /home/nonroot/.claude \
+    && chown -R 65532:65532 /home/nonroot
+USER 65532:65532
+
+# The entrypoint is the REFERENCE WORKER's program with this image's agent
+# injected -- one line of composition in `dogfood_entry.py`, so the injection
+# is a reviewable artefact rather than a shell incantation.
+#
+# No shell form, so there is no shell in the process tree and nothing to
+# interpret a signal or a metacharacter on the worker's behalf. The manager
+# stops this container by signalling PID 1, and PID 1 is Python.
+ENTRYPOINT ["python3", "/opt/baton/dogfood_entry.py"]
+
+# Deterministic bytes and an explicit module path, as in the reference image.
+#
+# `PYTHONDONTWRITEBYTECODE` IS NOT THE CACHE BOUNDARY AND MUST NOT BE READ AS
+# ONE. W85497 measured both halves of why. `compileall` writes bytecode as its
+# PURPOSE and ignores this variable -- a local 3.13 reproduction produced
+# `__pycache__/probe.cpython-313.pyc` with it set -- and `claude_agent`
+# composes its children's environments member by member rather than inheriting
+# this process's, so an image-level `ENV` reaches neither child in the first
+# place. The boundary is `PYTHONPYCACHEPREFIX` on the composed environments in
+# `claude_agent.py`, and it is written there. This line stays for the
+# interpreter's OWN imports inside the container, which is all it ever did.
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/opt/baton \
+    PYTHONHASHSEED=0 \
+    NODE_NO_WARNINGS=1
+
+# THERE IS DELIBERATELY NO `ENV ANTHROPIC_*` OF ANY KIND, and the reason is
+# sharper than "secrets don't belong in images". The provider resolves its
+# credential from the environment FIRST: an `ANTHROPIC_API_KEY` present here
+# would silently outrank the mounted slot and decide which account every
+# container built from this image ran as. The adapter composes the child's
+# environment itself and forwards nothing.
+#
+# There is also no `ENV BATON_WORKER_*`: that transport was retired with no
+# fallback (W26291), and this image's worker does not read those names at all.
+#
+# No `VOLUME`, no `EXPOSE`, no `HEALTHCHECK`: the writable output is a mount
+# the manager names per assignment, and this container's health is observed by
+# the adapter through the engine rather than announced by the container.

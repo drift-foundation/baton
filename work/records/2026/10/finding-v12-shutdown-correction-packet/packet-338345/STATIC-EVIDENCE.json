@@ -1,0 +1,35 @@
+{
+  "base": "fb48797903160aa764229d58f3a5beaf29648bfc",
+  "bootstrap_bind_executed": false,
+  "bounds": {
+    "cleanup_seconds": 60,
+    "implementer_invocations": 1,
+    "retry": false,
+    "total_seconds": 4800,
+    "turn_seconds": 3600
+  },
+  "formal_verifier_seconds": 30,
+  "gate": [
+    "tests.manager.test_authoring_shutdown_deadline.FastContract",
+    "tests.manager.test_authoring_enforcement.OwnerLane",
+    "tests.manager.test_authoring_enforcement.LateLaunch",
+    "tests.manager.test_authoring_enforcement.UnboundLaunch"
+  ],
+  "image_auth_availability": "unverified",
+  "manager_files": 118,
+  "measured_static_check_seconds": 0.35350400799984527,
+  "new_gate_class": "required-author-deliverable-unrun",
+  "observed_head": "70760ef47a9bb2001c959a0dbdec72cdde61bfe6",
+  "observed_utc": "2026-10-20T11:59:09.408940+00:00",
+  "packet_input_files": 14,
+  "product_execution_seconds": 0,
+  "proposed_root_absent": true,
+  "provider_engine_invoked": false,
+  "run": "shutdown-deadline-w338305-prep338308",
+  "source_files": 306,
+  "state": "static-preparation-checks-passed",
+  "stores_opened": false,
+  "supervisor_files": 3,
+  "supplemental_command_seconds": 120,
+  "supplemental_termination_seconds": 5
+}

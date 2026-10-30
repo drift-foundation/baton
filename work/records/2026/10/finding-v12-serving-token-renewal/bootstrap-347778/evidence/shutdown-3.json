@@ -1,0 +1,10 @@
+{
+  "command": [
+    "/usr/bin/python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_authoring_enforcement.ProcessComposition"
+  ],
+  "seconds": 2.1827708489981887,
+  "status": 0
+}

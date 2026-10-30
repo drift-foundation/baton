@@ -1,0 +1,32 @@
+{
+  "head": "bbdacb5d38f6cf2d2461e9da103d28f9ab30cc6c",
+  "files": {
+    "v12/python/src/baton_v12/verification_context.py": {
+      "bytes": 26520,
+      "sha256": "f599072ac1202e9b759d9e7850f76c98790e23710cf6181d5a6e8907dd51650e"
+    },
+    "v12/python/tests/manager/test_verification_context.py": {
+      "bytes": 35250,
+      "sha256": "42dcbfc99ef97c5191461d901bc32630ac58641c77c73341cae9bea1b0f264ff"
+    },
+    "v12/worker/Dockerfile.claude": {
+      "bytes": 14206,
+      "sha256": "487748a01c72906d3725b78ecafe060a4d290c070822ecb20c8373fe82589b49"
+    },
+    "v12/.dockerignore": {
+      "bytes": 2931,
+      "sha256": "b7da7ead0d55e0df74be3b2df79d309fd3aa5455967e3a6bc1d705293cb57ca8"
+    },
+    "v12/python/tests/manager/test_claude_agent.py": {
+      "bytes": 211808,
+      "sha256": "215e9db278b9d87c971be970528646d2fd5fad5b74ef927a49036916ba37288e"
+    }
+  },
+  "acceptance": "preservation only; no integration or paired acceptance",
+  "focused_tests": {
+    "count": 96,
+    "result": "pass",
+    "test_seconds": 0.023,
+    "command_wall_seconds": 0.04350569
+  }
+}

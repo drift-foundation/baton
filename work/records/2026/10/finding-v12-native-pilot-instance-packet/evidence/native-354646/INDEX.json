@@ -1,0 +1,16 @@
+{
+ "answers_review": "review-2026-10-22T19-47-41Z.md (reviewer claim354629)",
+ "claim": 354646,
+ "copies": {
+  "REVIEW-STAGE-ROUTE.json": "6702e954f82852e3d836af301ab2ab8cd5d8e3b34988b9d050a3026e738d237a",
+  "focused.log": "50fe9787d03a2a023898300654daf92786d132bd2327d41ec3f21ad75e4328d9",
+  "progress-section.md": "110c3461477ef847e638483e0df2ade79ea03ce7e7ff310f2f46cce440eff8d7"
+ },
+ "focused": {
+  "tests": 12,
+  "verdict": "OK"
+ },
+ "product_edits": 0,
+ "schema": "baton.w325959-review-route/1",
+ "test_file": "4cdc1afcf954a4beacaa261aceb35f6458feb1c621b3b9d307b04b3969a80cef"
+}

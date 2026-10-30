@@ -1,0 +1,124 @@
+{
+  "attempt": "attempt-3161b3636a90e93369568ede26d259ff607bd976a63c02e59a40fa16af310f78",
+  "candidate": {
+    "acceptance": "unobserved -- NOT ACCEPTED. A retained candidate is not a published proposal, not a verification pass and not an acceptance.",
+    "adapter_disposition": "verification-failed",
+    "base": "bc925cf5c62d69426ed5862af4d41f4d2a967b0f",
+    "bytes": 214423,
+    "changed_paths": [
+      "v12/python/src/baton_v12/worker_manager/attempts.py",
+      "v12/python/src/baton_v12/worker_manager/documents.py",
+      "v12/python/src/baton_v12/worker_manager/failure_cause.py",
+      "v12/python/src/baton_v12/worker_manager/intake.py",
+      "v12/python/tests/manager/test_attempt_failure_cause.py"
+    ],
+    "content_digest": "sha256:1599471c21d9427e83883a6346d9e846295c3f222296c320b68933f178b0b096",
+    "head": "370a0aebd6a491cca49a1e2c84587c802b1afc54",
+    "state": "valid",
+    "transport": "objects.bundle",
+    "verification": "failed",
+    "worker_disposition": "unable"
+  },
+  "claim": 345209,
+  "controller_elapsed_seconds": 460.8909075490001,
+  "copies": {
+    "COLLECTION.json": {
+      "bytes": 50683,
+      "copy_sha256": "9d71e38476d7a6f8bc758036f7128016a0c2973e1860704fcd5fc850e9be83ab",
+      "source": "/tmp/w341357-345039/COLLECTION.json",
+      "source_sha256": "9d71e38476d7a6f8bc758036f7128016a0c2973e1860704fcd5fc850e9be83ab"
+    },
+    "EXECUTOR-PREFLIGHT.json": {
+      "bytes": 4166,
+      "copy_sha256": "776750be3ee6fb1feceef3b4fc07a047a8ac81ad3e17086b9b874d7d4990122c",
+      "source": "/tmp/w341357-345039/EXECUTOR-PREFLIGHT.json",
+      "source_sha256": "776750be3ee6fb1feceef3b4fc07a047a8ac81ad3e17086b9b874d7d4990122c"
+    },
+    "GATE-CLASSIFICATION.json": {
+      "copy_sha256": "0c9bd1f15ae5b50ba4b7766ae8e8fe4ec03335219cd329ef18c862e7927fc74f",
+      "source": "derived read-only from /home/sl/baton-instances/durable-capture-w341357-345039/packet/launch/implementation/logs/attempt-3161b3636a90e93369568ede26d259ff607bd976a63c02e59a40fa16af310f78/verification.stderr.log",
+      "source_sha256": "d3c37969f1a83ede1c9871481064670522f7c35cc222ca901cbcb9264b3743a1"
+    },
+    "candidate-change.patch": {
+      "bytes": 168606,
+      "copy_sha256": "f9e68939c17871a475daa133cf6f9a6dc53ad11e9405b95d2644e83254a000a9",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-345039/packet/workspaces/.baton-review-lines/line-1fa78a8283f02d9ef43cbd27cb3eb5b0a43f8c718c950df85a77b4265bb19aef/checkout/proposal/change.patch",
+      "source_sha256": "f9e68939c17871a475daa133cf6f9a6dc53ad11e9405b95d2644e83254a000a9"
+    },
+    "candidate-objects.bundle": {
+      "bytes": 43295,
+      "copy_sha256": "9dfce290142ec0e4e8b62871dd315d08d7f6780509de0cd502567369ac4c2c89",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-345039/packet/workspaces/.baton-review-lines/line-1fa78a8283f02d9ef43cbd27cb3eb5b0a43f8c718c950df85a77b4265bb19aef/checkout/proposal/objects.bundle",
+      "source_sha256": "9dfce290142ec0e4e8b62871dd315d08d7f6780509de0cd502567369ac4c2c89"
+    },
+    "candidate-output.json": {
+      "bytes": 2341,
+      "copy_sha256": "b61dba7ea5041dad13fa1768b5cc9d8fb6884d567d618531cd7abe966f7596cc",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-345039/packet/workspaces/.baton-review-lines/line-1fa78a8283f02d9ef43cbd27cb3eb5b0a43f8c718c950df85a77b4265bb19aef/checkout/output.json",
+      "source_sha256": "b61dba7ea5041dad13fa1768b5cc9d8fb6884d567d618531cd7abe966f7596cc"
+    },
+    "candidate-result.json": {
+      "bytes": 1414,
+      "copy_sha256": "4a019d25da5c53900620ff3b7b5d72dc98e100fe136541ef31de5ca45e5849d5",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-345039/packet/workspaces/.baton-review-lines/line-1fa78a8283f02d9ef43cbd27cb3eb5b0a43f8c718c950df85a77b4265bb19aef/checkout/proposal/result.json",
+      "source_sha256": "4a019d25da5c53900620ff3b7b5d72dc98e100fe136541ef31de5ca45e5849d5"
+    },
+    "candidate-sealed.json": {
+      "bytes": 3687,
+      "copy_sha256": "3873d39c282124aa337828d0c1ab630a4ee0ebe309cbd9c5aa5f52e12315a62e",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-345039/packet/workspaces/.baton-review-lines/line-1fa78a8283f02d9ef43cbd27cb3eb5b0a43f8c718c950df85a77b4265bb19aef/custody/attempt-3161b3636a90e93369568ede26d259ff607bd976a63c02e59a40fa16af310f78/sealed.json",
+      "source_sha256": "3873d39c282124aa337828d0c1ab630a4ee0ebe309cbd9c5aa5f52e12315a62e"
+    },
+    "candidate-verification.txt": {
+      "bytes": 1108,
+      "copy_sha256": "515943462833d6735e92b1d34576dd378f007c6140c8fd6fba86524321145729",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-345039/packet/workspaces/.baton-review-lines/line-1fa78a8283f02d9ef43cbd27cb3eb5b0a43f8c718c950df85a77b4265bb19aef/checkout/proposal/verification.txt",
+      "source_sha256": "515943462833d6735e92b1d34576dd378f007c6140c8fd6fba86524321145729"
+    },
+    "outcome.json": {
+      "bytes": 6200,
+      "copy_sha256": "d6d22cf160a1de0bf506d62c9d1b8d4364ed92db013518b2839ba1ab8f7ac7df",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-345039/packet/outcome.json",
+      "source_sha256": "d6d22cf160a1de0bf506d62c9d1b8d4364ed92db013518b2839ba1ab8f7ac7df"
+    },
+    "outcome.json.authoring.log": {
+      "bytes": 6309,
+      "copy_sha256": "1481274fd82de59df910af17d05758bbf507f9daba8e10ed944c589c989101b5",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-345039/packet/outcome.json.authoring.log",
+      "source_sha256": "1481274fd82de59df910af17d05758bbf507f9daba8e10ed944c589c989101b5"
+    },
+    "outcome.json.enforcement-18036-1792578564128853617.json": {
+      "bytes": 30518,
+      "copy_sha256": "c9d4476747e5c66146167f118e905cb5059ff3d3a7cae849b9b8d1faeab47099",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-345039/packet/outcome.json.enforcement-18036-1792578564128853617.json",
+      "source_sha256": "c9d4476747e5c66146167f118e905cb5059ff3d3a7cae849b9b8d1faeab47099"
+    },
+    "outcome.json.manager-18036-1792578102487231383.json": {
+      "bytes": 26984,
+      "copy_sha256": "eff0f0d53a824dc57d9af98d6062a3bff18d8e6df5fe45148adb19864208e5a8",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-345039/packet/outcome.json.manager-18036-1792578102487231383.json",
+      "source_sha256": "eff0f0d53a824dc57d9af98d6062a3bff18d8e6df5fe45148adb19864208e5a8"
+    },
+    "outcome.json.manager-18036-1792578102487231383.json.progress.json": {
+      "bytes": 208,
+      "copy_sha256": "35e59015051cd731644c66f4c51336729af055348958d42dea369f9d2fd3958e",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-345039/packet/outcome.json.manager-18036-1792578102487231383.json.progress.json",
+      "source_sha256": "35e59015051cd731644c66f4c51336729af055348958d42dea369f9d2fd3958e"
+    }
+  },
+  "ended": "ON ITS OWN -- provider.status 0, failure_reason null. No signal, no interruption, no lease expiry. 461.1s served against a 900-second lease and against the 720-second planning target.",
+  "finished_at": "2026-10-21T10:29:23.972Z",
+  "launched_at": "2026-10-21T10:21:42.839Z",
+  "lease_seconds": 900,
+  "line": "line-1fa78a8283f02d9ef43cbd27cb3eb5b0a43f8c718c950df85a77b4265bb19aef",
+  "packet": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-345039",
+  "packet_manifest": "5db5b9bad674f4b9ae3e6141c54d9551ade6644f9c2ebe52694c773db2857e6b",
+  "provider_served_seconds": 461.10191228199983,
+  "raw_verification_stream_not_copied": "/home/sl/baton-instances/durable-capture-w341357-345039/packet/launch/implementation/logs/attempt-3161b3636a90e93369568ede26d259ff607bd976a63c02e59a40fa16af310f78/verification.stderr.log",
+  "read_only": "every file here is a byte copy of a live source, verified against it after writing, at mode 0444. No instance byte was written, no runtime re-run, no store opened for writing, no version-control object created.",
+  "root": "/home/sl/baton-instances/durable-capture-w341357-345039",
+  "run": "durable-capture-w341357-345039",
+  "schema": "baton.w341357-run-evidence/1",
+  "selection": "owner reroute345206",
+  "work": "W341357"
+}

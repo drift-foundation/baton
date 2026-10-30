@@ -1,0 +1,667 @@
+{
+ "archived_bundle": {
+  "archive": "verified-first-build.tar.gz",
+  "archive_sha256": "1da85eed0a3a19a5da0b83253abbbb40ebeed01bfe90ee05a10055dec0057125",
+  "built_from_candidate": "candidate-366250",
+  "embedded_build_stamp_commit": "18e771f034d22fed40ae4c597aa606f50c169daa",
+  "embedded_build_stamp_dirty": true,
+  "folder_digest": "0b7bc59213605489319e973a6a6cdf285c76513a00f75bf5e05d669df88beefd",
+  "integration_paths_not_in_that_candidate": [],
+  "integration_product_paths_changed": 17,
+  "product_bytes_compatible_with_prepared_commit": true,
+  "product_members_compared": 23,
+  "product_members_drifted": [],
+  "stamp_predates_prepared_commit": true
+ },
+ "checked": [
+  {
+   "line": "\"$DISTRO/baton-v12-stack\" identity",
+   "operands": [],
+   "outcome": "parserless; covered by the parserless check",
+   "subcommand": "identity"
+  },
+  {
+   "line": "\"$DISTRO/baton-v12-stack\" bootstrap --inputs \"$MINT\"",
+   "operands": [
+    "--inputs",
+    "/home/sl/baton-instances/useful-template-job-w366962-mint.json"
+   ],
+   "outcome": "parsed",
+   "parsed_members": [
+    "destination",
+    "distro",
+    "inputs",
+    "no_repositories",
+    "repository_source"
+   ],
+   "subcommand": "bootstrap"
+  },
+  {
+   "line": "\"$DISTRO/baton-v12-stack\" bootstrap --inputs \"$PHASE2\" --destination \"$DEST\" --distro \"$DISTRO\" --repository-source /home/sl/src/baton",
+   "operands": [
+    "--inputs",
+    "/home/sl/baton-instances/useful-template-job-w366962-phase2.json",
+    "--destination",
+    "/home/sl/baton-instances/useful-template-job-w366962",
+    "--distro",
+    "/home/sl/baton-instances/useful-template-job-w366962-distro",
+    "--repository-source",
+    "/home/sl/src/baton"
+   ],
+   "outcome": "parsed",
+   "parsed_members": [
+    "destination",
+    "distro",
+    "inputs",
+    "no_repositories",
+    "repository_source"
+   ],
+   "subcommand": "bootstrap"
+  },
+  {
+   "line": "\"$DISTRO/baton-v12-stack\" manager --store \"$DEST/db/jobs.sqlite3\" --incarnation operator-1 --authority-uuid \"$UUID\" create --instance \"$DEST\" --control \"$DEST/db/control.sqlite3\" --authority \"$DEST/db/authority.sqlite3\" --task template-job-guide-42bed8bb --template baton.v12.job-template.implementation-review/1 --source installed --provider-turn-seconds 3600 --verification-command-seconds 900 --statement \"Write a reusable operator guide for ordinary v12 template Job creation and observation using the supported installed command. Explain the supplied task, source, scope and acceptance inputs, template version and limits, independent review and held results, failure/recovery boundary and human disposition. Verify all documented command examples against current supported parsers and behavior. Preserve the historical instance4 QUICKSTART facts; do not claim source features are installed there. Deliver documentation, not product redesign.\" --acceptance \"Examples use supported manager create with input-only operands and the exact template version; they do not author admission manifests or replace owner APIs.\" --acceptance \"Source/installed distinction, actual deployment identities, proposed versus executed operations and default/overridden limits remain explicit and truthful.\" --acceptance \"Monitoring is read-only; query time is not worker contact; unknown activity is not success; ending the monitor does not stop scheduling.\" --acceptance \"Implementation completion, independent verdict, held proposal, human acceptance and Git integration are distinguished. Failure/retry and runtime-cessation prerequisites are stated without silently retrying or claiming stop is cleanup.\" --acceptance \"Semantic evidence checks command order/options and statements against owning implementations, not only headings/byte count. Review binds the actual candidate.\" --work-scope v12/TEMPLATE-JOBS.md",
+   "operands": [
+    "--store",
+    "/home/sl/baton-instances/useful-template-job-w366962/db/jobs.sqlite3",
+    "--incarnation",
+    "operator-1",
+    "--authority-uuid",
+    "$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1]))[\"authority_uuid\"])' \"$DEST/authority-identity.json\")",
+    "create",
+    "--instance",
+    "/home/sl/baton-instances/useful-template-job-w366962",
+    "--control",
+    "/home/sl/baton-instances/useful-template-job-w366962/db/control.sqlite3",
+    "--authority",
+    "/home/sl/baton-instances/useful-template-job-w366962/db/authority.sqlite3",
+    "--task",
+    "template-job-guide-42bed8bb",
+    "--template",
+    "baton.v12.job-template.implementation-review/1",
+    "--source",
+    "installed",
+    "--provider-turn-seconds",
+    "3600",
+    "--verification-command-seconds",
+    "900",
+    "--statement",
+    "Write a reusable operator guide for ordinary v12 template Job creation and observation using the supported installed command. Explain the supplied task, source, scope and acceptance inputs, template version and limits, independent review and held results, failure/recovery boundary and human disposition. Verify all documented command examples against current supported parsers and behavior. Preserve the historical instance4 QUICKSTART facts; do not claim source features are installed there. Deliver documentation, not product redesign.",
+    "--acceptance",
+    "Examples use supported manager create with input-only operands and the exact template version; they do not author admission manifests or replace owner APIs.",
+    "--acceptance",
+    "Source/installed distinction, actual deployment identities, proposed versus executed operations and default/overridden limits remain explicit and truthful.",
+    "--acceptance",
+    "Monitoring is read-only; query time is not worker contact; unknown activity is not success; ending the monitor does not stop scheduling.",
+    "--acceptance",
+    "Implementation completion, independent verdict, held proposal, human acceptance and Git integration are distinguished. Failure/retry and runtime-cessation prerequisites are stated without silently retrying or claiming stop is cleanup.",
+    "--acceptance",
+    "Semantic evidence checks command order/options and statements against owning implementations, not only headings/byte count. Review binds the actual candidate.",
+    "--work-scope",
+    "v12/TEMPLATE-JOBS.md"
+   ],
+   "outcome": "parsed",
+   "parsed_members": [
+    "acceptance",
+    "authority",
+    "authority_uuid",
+    "command",
+    "control",
+    "incarnation",
+    "instance",
+    "job_id",
+    "provider_turn_seconds",
+    "route",
+    "run",
+    "source",
+    "statement",
+    "store",
+    "submission_id",
+    "task",
+    "template",
+    "test_scope",
+    "verification_command_seconds",
+    "work_scope"
+   ],
+   "subcommand": "manager"
+  },
+  {
+   "line": "\"$DISTRO/baton-v12-stack\" start --instance \"$DEST/instance.json\"",
+   "operands": [
+    "--instance",
+    "/home/sl/baton-instances/useful-template-job-w366962/instance.json"
+   ],
+   "outcome": "parsed",
+   "parsed_members": [
+    "command",
+    "instance",
+    "root"
+   ],
+   "subcommand": "start"
+  },
+  {
+   "line": "\"$DISTRO/baton-v12-stack\" status --instance \"$DEST/instance.json\"",
+   "operands": [
+    "--instance",
+    "/home/sl/baton-instances/useful-template-job-w366962/instance.json"
+   ],
+   "outcome": "parsed",
+   "parsed_members": [
+    "command",
+    "instance",
+    "root"
+   ],
+   "subcommand": "status"
+  },
+  {
+   "line": "\"$DISTRO/baton-v12-stack\" monitor --instance \"$DEST/instance.json\" --interval 3 --ticks 400",
+   "operands": [
+    "--instance",
+    "/home/sl/baton-instances/useful-template-job-w366962/instance.json",
+    "--interval",
+    "3",
+    "--ticks",
+    "400"
+   ],
+   "outcome": "parsed",
+   "parsed_members": [
+    "command",
+    "instance",
+    "interval",
+    "root",
+    "ticks"
+   ],
+   "subcommand": "monitor"
+  },
+  {
+   "line": "\"$DISTRO/baton-v12-stack\" view --status \"$DEST/state/status.json\" --ticks 1",
+   "operands": [
+    "--status",
+    "/home/sl/baton-instances/useful-template-job-w366962/state/status.json",
+    "--ticks",
+    "1"
+   ],
+   "outcome": "parsed",
+   "parsed_members": [
+    "artifact",
+    "interval",
+    "job",
+    "stage",
+    "status",
+    "ticks"
+   ],
+   "subcommand": "view"
+  },
+  {
+   "line": "\"$DISTRO/baton-v12-stack\" manager --store \"$DEST/db/jobs.sqlite3\" --incarnation operator-1 --authority-uuid \"$UUID\" status --control \"$DEST/db/control.sqlite3\" --observe tools.stage_execution:observing_factory",
+   "operands": [
+    "--store",
+    "/home/sl/baton-instances/useful-template-job-w366962/db/jobs.sqlite3",
+    "--incarnation",
+    "operator-1",
+    "--authority-uuid",
+    "$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1]))[\"authority_uuid\"])' \"$DEST/authority-identity.json\")",
+    "status",
+    "--control",
+    "/home/sl/baton-instances/useful-template-job-w366962/db/control.sqlite3",
+    "--observe",
+    "tools.stage_execution:observing_factory"
+   ],
+   "outcome": "parsed",
+   "parsed_members": [
+    "authority_uuid",
+    "command",
+    "control",
+    "incarnation",
+    "observe",
+    "run",
+    "store"
+   ],
+   "subcommand": "manager"
+  },
+  {
+   "line": "\"$DISTRO/baton-v12-stack\" record read --authority-store \"$DEST/db/authority.sqlite3\" --authority-uuid \"$UUID\" --work \"$WORK\"",
+   "operands": [
+    "read",
+    "--authority-store",
+    "/home/sl/baton-instances/useful-template-job-w366962/db/authority.sqlite3",
+    "--authority-uuid",
+    "$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1]))[\"authority_uuid\"])' \"$DEST/authority-identity.json\")",
+    "--work",
+    "SLICED-W1"
+   ],
+   "outcome": "parsed",
+   "parsed_members": [
+    "authority_store",
+    "authority_uuid",
+    "locator",
+    "verb",
+    "work"
+   ],
+   "subcommand": "record"
+  },
+  {
+   "line": "\"$DISTRO/baton-v12-stack\" attempt-diagnostics \"$DEST/state/status.json\"",
+   "operands": [
+    "/home/sl/baton-instances/useful-template-job-w366962/state/status.json"
+   ],
+   "outcome": "parserless; covered by the parserless check",
+   "subcommand": "attempt-diagnostics"
+  },
+  {
+   "line": "\"$DISTRO/baton-v12-stack\" logs --logs \"$DEST/state/launch/logs\" --attempt \"$ATTEMPT\" locators",
+   "operands": [
+    "--logs",
+    "/home/sl/baton-instances/useful-template-job-w366962/state/launch/logs",
+    "--attempt",
+    "$ATTEMPT",
+    "locators"
+   ],
+   "outcome": "parsed",
+   "parsed_members": [
+    "attempt",
+    "command",
+    "logs",
+    "run"
+   ],
+   "subcommand": "logs"
+  },
+  {
+   "line": "\"$DISTRO/baton-v12-stack\" disposition pending --authority-store \"$DEST/db/authority.sqlite3\" --authority-uuid \"$UUID\" --work \"$WORK\" --root \"$DEST\"",
+   "operands": [
+    "pending",
+    "--authority-store",
+    "/home/sl/baton-instances/useful-template-job-w366962/db/authority.sqlite3",
+    "--authority-uuid",
+    "$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1]))[\"authority_uuid\"])' \"$DEST/authority-identity.json\")",
+    "--work",
+    "SLICED-W1",
+    "--root",
+    "/home/sl/baton-instances/useful-template-job-w366962"
+   ],
+   "outcome": "parsed",
+   "parsed_members": [
+    "authority_store",
+    "authority_uuid",
+    "participant",
+    "root",
+    "verb",
+    "work"
+   ],
+   "subcommand": "disposition"
+  },
+  {
+   "line": "\"$DISTRO/baton-v12-stack\" manager --store \"$DEST/db/jobs.sqlite3\" --incarnation operator-1 --authority-uuid \"$UUID\" status --control \"$DEST/db/control.sqlite3\" --observe tools.stage_execution:observing_factory",
+   "operands": [
+    "--store",
+    "/home/sl/baton-instances/useful-template-job-w366962/db/jobs.sqlite3",
+    "--incarnation",
+    "operator-1",
+    "--authority-uuid",
+    "$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1]))[\"authority_uuid\"])' \"$DEST/authority-identity.json\")",
+    "status",
+    "--control",
+    "/home/sl/baton-instances/useful-template-job-w366962/db/control.sqlite3",
+    "--observe",
+    "tools.stage_execution:observing_factory"
+   ],
+   "outcome": "parsed",
+   "parsed_members": [
+    "authority_uuid",
+    "command",
+    "control",
+    "incarnation",
+    "observe",
+    "run",
+    "store"
+   ],
+   "subcommand": "manager"
+  },
+  {
+   "line": "\"$DISTRO/baton-v12-stack\" attempt-diagnostics \"$DEST/state/status.json\"",
+   "operands": [
+    "/home/sl/baton-instances/useful-template-job-w366962/state/status.json"
+   ],
+   "outcome": "parserless; covered by the parserless check",
+   "subcommand": "attempt-diagnostics"
+  },
+  {
+   "line": "\"$DISTRO/baton-v12-stack\" stop --instance \"$DEST/instance.json\"",
+   "operands": [
+    "--instance",
+    "/home/sl/baton-instances/useful-template-job-w366962/instance.json"
+   ],
+   "outcome": "parsed",
+   "parsed_members": [
+    "command",
+    "instance",
+    "root"
+   ],
+   "subcommand": "stop"
+  }
+ ],
+ "child_helper_invocations": [
+  {
+   "line": "python3 capacity.py materialize --into \"$DISTRO\"",
+   "operands": [
+    "materialize",
+    "--into",
+    "/home/sl/baton-instances/useful-template-job-w366962-distro"
+   ],
+   "outcome": "parsed",
+   "verb": "materialize"
+  },
+  {
+   "line": "python3 capacity.py compose --minted-uuid \"$UUID\" --destination \"$DEST\" --distro \"$DISTRO\" --proposed-grants --evidence \"$COMPOSE\"",
+   "operands": [
+    "compose",
+    "--minted-uuid",
+    "00000000000000000000000000000000",
+    "--destination",
+    "/home/sl/baton-instances/useful-template-job-w366962",
+    "--distro",
+    "/home/sl/baton-instances/useful-template-job-w366962-distro",
+    "--proposed-grants",
+    "--evidence",
+    "/home/sl/baton-instances/useful-template-job-w366962-compose"
+   ],
+   "outcome": "parsed",
+   "verb": "compose"
+  }
+ ],
+ "closure_outcomes": [
+  "cancelled",
+  "non-satisfying",
+  "rejected",
+  "satisfying"
+ ],
+ "counts": {
+  "checked": 16,
+  "failures": 0,
+  "published_invocations": 16
+ },
+ "depends_on": {
+  "COMMANDS.md": "42f26ba33f7f9afa41d1253e18febabbb1e12e84b982cc7bf5a7be85a94f325f",
+  "v12/QUICKSTART.md": "65ba4fca90181cf60503ec7800bcb19b8325e1c5b39ce7a8fee73d88090dc215",
+  "v12/justfile": "8f893710b6650df3acb5d48360043d4feae3a186dd1b27e3c936a1667d5b0e18",
+  "v12/python/tools/attempt_diagnostics.py": "6e02e22ef7ebd5cb4ae4725bc19a7c200b62897aba9f1f341435ceff2bb4fd12",
+  "v12/python/tools/bootstrap.py": "3bc26bb0a71cf980ae9f37e813d52fd125a0dbed30d0a43e66e36dd0bcf0bc02",
+  "v12/python/tools/creation_ports.py": "a9fc808a63f4d1e78b3ae5bc31937bc450380639cffc6b2057e9249af46a8933",
+  "v12/python/tools/disposition_command.py": "e78de139e5a64988a6be7a0a0e2f5a8b77f25b1b2213842b5135489f249aeaba",
+  "v12/python/tools/dossier_command.py": "43b25a6725594e0890c686135af1026a8739ec6081bddf29080aa6c7ed415c95",
+  "v12/python/tools/instance.py": "ee59b95ca4f4a9753058ad48d4215f3a18be395290e8924b762311392dbad433",
+  "v12/python/tools/job_manager.py": "9f9008fd68a3f00ed41516c0127655cd24a5518df15294f22282c0f0dc66018f",
+  "v12/python/tools/job_viewer.py": "70fe513789786565c2ddf4d4748f830478e53f89d4a9df13fedf213153a86b6e",
+  "v12/python/tools/pool.py": "efd71561121529c615dac8847a1bd15df48dc8bba81675b0411add606832de82",
+  "v12/python/tools/stack.py": "c0586c7f31abcb3d4e13b3dc0f2236a590802b3edbb6a107c32f933908ade009",
+  "v12/python/tools/stack_command.py": "ad49c04fa609703f80e80e14156888ef118e876d7e8a4aef3414e959db92c707",
+  "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/capacity.py": "1944c97d6868c12ae19a363cb88f6e50d539adca0f33b328a9eaf4415be7fda6",
+  "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/evidence/claim-369373/BINDING.json": "92d9962a71b64b5d25142e22a3b5bd52a374093aa1a352c0c8594b2893765723",
+  "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed_grants.py": "f447fcb62eb665abb5e0bd445392926735c2f3763e4868cbdd8ec8fe76911857",
+  "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/prove_capacity.py": "8c31bc2d0719a8a089a9ba881d3ecf292e0c45591560e8301da1e363bf0ff5e4",
+  "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/prove_custody.py": "b89cf865be53e0e190e505531209f37d58e71d140d9062302841e07f59017200"
+ },
+ "derived_paths": {
+  "destination": "/home/sl/baton-instances/useful-template-job-w366962",
+  "layout_members": [
+   "authority_store",
+   "command",
+   "control_store",
+   "deployment",
+   "deployment_state",
+   "destination",
+   "distro",
+   "identity",
+   "install_inputs",
+   "install_inputs_temporary",
+   "instance",
+   "integration_store",
+   "job_store",
+   "justfile",
+   "lock",
+   "logs",
+   "record",
+   "repository",
+   "state",
+   "stores"
+  ],
+  "not_published_as_derived": []
+ },
+ "disposition_contracts": {
+  "approve": {
+   "exit": 2,
+   "required": [
+    "--approval-id",
+    "--authority-store",
+    "--authority-uuid",
+    "--expect-candidate-digest",
+    "--expect-review",
+    "--operation-id",
+    "--participant",
+    "--policy-generation",
+    "--proposal",
+    "--work"
+   ]
+  },
+  "close": {
+   "exit": 2,
+   "required": [
+    "--authority-store",
+    "--authority-uuid",
+    "--operation-id",
+    "--outcome",
+    "--participant",
+    "--rationale",
+    "--work"
+   ]
+  },
+  "deny": {
+   "exit": 2,
+   "required": [
+    "--approval-id",
+    "--authority-store",
+    "--authority-uuid",
+    "--expect-candidate-digest",
+    "--expect-review",
+    "--operation-id",
+    "--participant",
+    "--policy-generation",
+    "--proposal",
+    "--work"
+   ]
+  },
+  "integrated": {
+   "exit": 2,
+   "required": [
+    "--authority-store",
+    "--authority-uuid",
+    "--commit",
+    "--evidence-operation-id",
+    "--expect-candidate-digest",
+    "--integration-id",
+    "--operation-id",
+    "--participant",
+    "--proposal",
+    "--reference",
+    "--root",
+    "--work"
+   ]
+  },
+  "pending": {
+   "exit": 2,
+   "required": [
+    "--authority-store",
+    "--authority-uuid",
+    "--work"
+   ]
+  }
+ },
+ "failures": [],
+ "install_sequence": {
+  "bootstrap_invocations": 2,
+  "destination_installs": [
+   [
+    "--inputs",
+    "/home/sl/baton-instances/useful-template-job-w366962-phase2.json",
+    "--destination",
+    "/home/sl/baton-instances/useful-template-job-w366962",
+    "--distro",
+    "/home/sl/baton-instances/useful-template-job-w366962-distro",
+    "--repository-source",
+    "/home/sl/src/baton"
+   ]
+  ],
+  "faults": [],
+  "mint_only": [
+   [
+    "--inputs",
+    "/home/sl/baton-instances/useful-template-job-w366962-mint.json"
+   ]
+  ]
+ },
+ "no_capacity": {
+  "deferred_by_a_fresh_install": [
+   "jobs",
+   "workers"
+  ],
+  "note": "this is the gap COMMANDS.md section 2 reports, reproduced rather than described",
+  "refusal": "this instance configures no 'implementation' worker, and a Job with a implementation stage that no worker can serve would never run. Install one before creating a Job that owes that stage",
+  "unserved_by_the_deployed_command": [
+   "pool"
+  ],
+  "worker_document_members": [
+   "worker_id",
+   "role",
+   "participant",
+   "deployment"
+  ]
+ },
+ "owner_selection": {
+  "child_binding": "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/evidence/claim-369373/BINDING.json",
+  "child_binding_sha256": "92d9962a71b64b5d25142e22a3b5bd52a374093aa1a352c0c8594b2893765723",
+  "faults": [],
+  "proposal_members": {
+   "credential_policy_digest": {
+    "authorized_by": null,
+    "file_sha256": "5399f947126ec7d031bced5895076657d24be21443e6db0c9ec86b51b14a9877",
+    "status": "proposed-not-granted"
+   },
+   "mount_policy_digest": {
+    "authorized_by": null,
+    "file_sha256": "40bbe54bfd29865a5c8d3319b6cc019ae23e2005ce9d733aa3cbb5db223ce49d",
+    "status": "proposed-not-granted"
+   },
+   "network_policy_digest": {
+    "authorized_by": null,
+    "file_sha256": "fd23b28efadbe648ac43b0a1324de3dc5bfe873adfaa2c0d0ec60a777e3d9014",
+    "status": "proposed-not-granted"
+   },
+   "resource_policy_digest": {
+    "authorized_by": null,
+    "file_sha256": "eb99686f18e73701aa7db25b2f0c6e3044fb94e583d290e9b2c7a018bd27952c",
+    "status": "proposed-not-granted"
+   },
+   "role_instructions_digest": {
+    "authorized_by": null,
+    "file_sha256": "8ac96cb65d446a41a570a9ffa499ba955aa9e8d137bbbed7356fbd2d68ae04e5",
+    "status": "proposed-not-granted"
+   },
+   "tool_policy_digest": {
+    "authorized_by": null,
+    "file_sha256": "eabb731948b1391bec7ef0c95035710ab4cef6c145b783e7f77765c4347051d6",
+    "status": "proposed-not-granted"
+   },
+   "toolchain_digest": {
+    "authorized_by": null,
+    "file_sha256": "25920341783793832dc76dc14c2e67ba09b768737700b70122181da6eabe6507",
+    "status": "proposed-not-granted"
+   }
+  },
+  "proposed_format": false,
+  "selected_inventory_sha256": "6ae52f7b2b796fe1bae8323155513fb8f751e182f4a48a0dffbb577243284add",
+  "selected_task_sha256": "c21e6b93bfe199ebb89b3ec7a75e70a5636c52f9986b1afa3709a381c6bd98d7"
+ },
+ "packet": "work/records/2026/10/finding-v12-useful-template-job-monitor/COMMANDS.md",
+ "parserless": {
+  "attempt_diagnostics_dash_status_exit": 2,
+  "attempt_diagnostics_positional_exit": 0,
+  "identity": "served by this build; no operands and no parser, so it is not invoked here",
+  "note": "the positional form is what the packet publishes; the --status form is the mistake review R2 found, kept as a driven counterexample"
+ },
+ "prepared_against_commit": "42bed8bb04a53380e565b1a63fb2bc702677f0d0",
+ "recipes": {
+  "missing": [],
+  "named": [
+   "setup",
+   "build",
+   "bootstrap",
+   "start",
+   "stop",
+   "status",
+   "monitor"
+  ]
+ },
+ "runtime_standins": {
+  "ATTEMPT": "attempt-1",
+  "UUID": "00000000000000000000000000000000",
+  "WORK": "00000000-W1",
+  "why": "these are derived at run time -- $UUID by the mint -- so a parse check substitutes a declared well-formed stand-in rather than the assignment's own command substitution text"
+ },
+ "schema": "baton.v12.command-packet-verification/3",
+ "shell_syntax": {
+  "assignments": [
+   "CHILD",
+   "COMPOSE",
+   "DEST",
+   "DISTRO",
+   "MINT",
+   "PHASE2",
+   "UUID",
+   "WORK"
+  ],
+  "blocks": 17,
+  "unparseable": []
+ },
+ "subcommands_this_build_serves": [
+  "attempt-diagnostics",
+  "bootstrap",
+  "disposition",
+  "identity",
+  "logs",
+  "manager",
+  "monitor",
+  "publish",
+  "record",
+  "repository",
+  "start",
+  "status",
+  "stop",
+  "view"
+ ],
+ "supersedes": "the claim-366970 verification, which held its own copy of the command list and so checked the copy",
+ "two_lanes": {
+  "compose_wrote": [],
+  "faults": [],
+  "mismatch_said": "the published proposal set at /home/sl/src/baton/work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/proposed-grants was composed for task digest c21e6b93bfe199eb (proposed_format=False) and this composition is binding task digest cb7001c74de82",
+  "mismatched_set_refused": true,
+  "occupied_path_refused": true,
+  "occupied_said": "/tmp/w366962-lanes-iazplbst/occupied already exists; this preparation never removes or reuses a path it did not create. Name a fresh one.",
+  "one_input_manifest_digest": 1,
+  "participants": [
+   "baton.claude-w366962",
+   "baton.reviewer-w366962"
+  ],
+  "preparation_is_complete": false,
+  "principals": [
+   "principal:baton.claude-w366962",
+   "principal:baton.reviewer-w366962"
+  ],
+  "review_routes": {
+   "implementation": "rview",
+   "review": "owner"
+  },
+  "roles": [
+   "implementation",
+   "review"
+  ]
+ }
+}

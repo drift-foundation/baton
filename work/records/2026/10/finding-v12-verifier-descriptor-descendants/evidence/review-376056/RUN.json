@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_verifier_topology"
+  ],
+  "exit_code": 0,
+  "wall_seconds": 0.32325805600066815
+}

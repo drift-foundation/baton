@@ -1,0 +1,10 @@
+{
+  "v12/python/tools/parallel_test.py": "983614552df09e939a37988256bb18e641c2876f566f842320a6e7df84bbcc64",
+  "v12/python/justfile": "d956e220c66e4b431e7c91c4dfe0cd0d007e84419c94e70b5858fce6714d62cd",
+  "v12/python/tests/tools/test_parallel_runner.py": "c8e542d6fa2be516fe286a54e07ae3eb5096218b6689064b7accb44b883584f2",
+  "v12/python/src/baton_v12/job_manager/role_contract.py": "fd1906e7ace2863becf5e472e91b0f6ee5b518456154ed661114092c6eca51a6",
+  "v12/python/tests/job_manager/test_role_contract.py": "a7ad11af5b3b7ce334af75ce729b8dab23bf0b3c547173483b02d5eb7f231e8f",
+  "v12/python/tests/integration/test_admission.py": "50e5072bbbb4404c329bedb2cdc0c1acc08364474983cdeaa0905aa66805f838",
+  "v12/python/src/baton_v12/integration/admission.py": "9bf4cab3831255e341c01c2d06dc3f5ac07a817e5bb3ece197b4e365c97ea131",
+  "v12/python/TESTING.md": "3e71311cc8477c97e4958aedb2f89cefa10c23d7aff8e893200fc8a488d487cb"
+}

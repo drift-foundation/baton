@@ -1,0 +1,17 @@
+{
+  "current_preparation_seconds": 0.7079350359999808,
+  "build_seconds": 0.458107492999261,
+  "first_readonly_verification_seconds": 0.1286081580001337,
+  "final_readonly_verification_seconds": 0.12121938500058604,
+  "prior_author_measured_seconds": 135.10971959600838,
+  "cumulative_author_measured_seconds": 135.81765463200836,
+  "product_tests_this_claim": 0,
+  "independent_reviewer_bootstrap_verification_seconds_separate": 4.704084767,
+  "amendment_child_preparation_seconds_separate": 0.587729208,
+  "prior_live_elapsed_seconds_separate": [
+    955.09899421,
+    954.105032184
+  ],
+  "prior_inner_provider_test_seconds": "unknown; preserved, not zero",
+  "other_historical_costs": "prior PROGRESS and bootstrap-347778/SPENDING.json remain authoritative"
+}

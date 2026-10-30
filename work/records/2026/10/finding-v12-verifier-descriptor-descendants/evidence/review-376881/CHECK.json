@@ -1,0 +1,9 @@
+{
+  "returncode": 0,
+  "seconds": 0.10166173899960995,
+  "pins": {
+    "PINS.json": "aa10d888619c41a04394a6d7830e0e542ac15c459885888f1a0781bd153850b7",
+    "absence.py": "5666e981f94a255801846eb8557dbbf1f1552f3bc20fd4ae0696830745fee8ac",
+    "test_absence.py": "4ec0a3e70e477e1087dfe265991578627fbcfdf1e44c6d5e6ec7e9e6c841e7cf"
+  }
+}

@@ -1,0 +1,42 @@
+test_a_half_converted_layout_refuses_rather_than_choosing (tests.manager.test_claude_agent.TheVerifierRootsReachDescendants.test_a_half_converted_layout_refuses_rather_than_choosing)
+NEITHER TOPOLOGY IS GUESSED AT. ... ok
+test_a_nested_canonical_check_agrees_under_the_bound_form (tests.manager.test_claude_agent.TheVerifierRootsReachDescendants.test_a_nested_canonical_check_agrees_under_the_bound_form)
+LEXICAL AND CANONICAL AGREE, because there is no alias. ... ok
+test_a_real_grandchild_resolves_the_bound_roots (tests.manager.test_claude_agent.TheVerifierRootsReachDescendants.test_a_real_grandchild_resolves_the_bound_roots)
+THE DEFECT ITSELF, at the boundary that produced it. ... ok
+test_a_removed_root_refuses (tests.manager.test_claude_agent.TheVerifierRootsReachDescendants.test_a_removed_root_refuses) ... ok
+test_a_root_replaced_by_a_link_refuses (tests.manager.test_claude_agent.TheVerifierRootsReachDescendants.test_a_root_replaced_by_a_link_refuses)
+A link at the name is refused, not followed. ... ok
+test_a_root_swapped_for_another_object_after_the_provider_refuses (tests.manager.test_claude_agent.TheVerifierRootsReachDescendants.test_a_root_swapped_for_another_object_after_the_provider_refuses)
+ANTI-SUBSTITUTION, preserved. The held object decides. ... ok
+test_a_root_that_is_a_file_refuses (tests.manager.test_claude_agent.TheVerifierRootsReachDescendants.test_a_root_that_is_a_file_refuses) ... ok
+test_a_root_that_is_not_a_mount_point_refuses (tests.manager.test_claude_agent.TheVerifierRootsReachDescendants.test_a_root_that_is_not_a_mount_point_refuses)
+The one fact that makes an ordinary pathname safe. ... ok
+test_a_root_unmounted_while_the_provider_ran_refuses (tests.manager.test_claude_agent.TheVerifierRootsReachDescendants.test_a_root_unmounted_while_the_provider_ran_refuses)
+LIFETIME. Non-replaceability expires when the mount goes away. ... ok
+test_a_widened_mode_refuses (tests.manager.test_claude_agent.TheVerifierRootsReachDescendants.test_a_widened_mode_refuses) ... ok
+test_an_image_without_the_layout_keeps_the_descriptor_form (tests.manager.test_claude_agent.TheVerifierRootsReachDescendants.test_an_image_without_the_layout_keeps_the_descriptor_form)
+TODAY'S DEPLOYMENTS ARE UNCHANGED, which is the whole gate. ... ok
+test_an_ordinary_directory_is_not_a_mount_point (tests.manager.test_claude_agent.TheVerifierRootsReachDescendants.test_an_ordinary_directory_is_not_a_mount_point)
+`os.path.ismount` cannot answer this and is not what is asked. ... ok
+test_an_unreadable_mount_table_refuses (tests.manager.test_claude_agent.TheVerifierRootsReachDescendants.test_an_unreadable_mount_table_refuses)
+The non-replaceability question is not answered by assumption. ... ok
+test_no_descriptor_leaks_when_a_later_root_refuses (tests.manager.test_claude_agent.TheVerifierRootsReachDescendants.test_no_descriptor_leaks_when_a_later_root_refuses)
+THE UNWIND. A refusal on the fourth root closes the first three. ... ok
+test_the_bound_environment_gives_descendants_ordinary_paths (tests.manager.test_claude_agent.TheVerifierRootsReachDescendants.test_the_bound_environment_gives_descendants_ordinary_paths)
+THE CORRECTION. No alias, so no per-process resolution. ... ok
+test_the_bound_roots_are_revalidated_after_the_provider (tests.manager.test_claude_agent.TheVerifierRootsReachDescendants.test_the_bound_roots_are_revalidated_after_the_provider)
+BOTH FORMS ARE RE-ASKED, and the bound form passes honestly. ... ok
+test_the_descriptor_form_is_what_a_grandchild_cannot_resolve (tests.manager.test_claude_agent.TheVerifierRootsReachDescendants.test_the_descriptor_form_is_what_a_grandchild_cannot_resolve)
+THE CONTROL. Without this the case above proves nothing. ... ok
+test_the_descriptor_form_revalidation_is_unchanged (tests.manager.test_claude_agent.TheVerifierRootsReachDescendants.test_the_descriptor_form_revalidation_is_unchanged)
+PRESERVED. The old form still validates exactly as it did. ... ok
+test_the_mount_table_is_read_from_the_kernel (tests.manager.test_claude_agent.TheVerifierRootsReachDescendants.test_the_mount_table_is_read_from_the_kernel)
+REAL mountinfo, and the paths the kernel actually lists. ... ok
+test_the_new_mode_and_owner_checks_refuse_on_their_own (tests.manager.test_claude_agent.TheVerifierRootsReachDescendants.test_the_new_mode_and_owner_checks_refuse_on_their_own)
+AND THE NEW CHECKS, asked DIRECTLY so they are not dead code. ... ok
+
+----------------------------------------------------------------------
+Ran 20 tests in 0.328s
+
+OK

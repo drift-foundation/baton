@@ -1,0 +1,25 @@
+................................................................................................EE.................................................................................................................
+======================================================================
+ERROR: test_verification_views (unittest.loader._FailedTest.test_verification_views)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_verification_views
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 137, in loadTestsFromName
+    module = __import__(module_name)
+ModuleNotFoundError: No module named 'tests.manager.test_verification_views'
+
+
+======================================================================
+ERROR: test_operator_verification_view (unittest.loader._FailedTest.test_operator_verification_view)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_operator_verification_view
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 137, in loadTestsFromName
+    module = __import__(module_name)
+ModuleNotFoundError: No module named 'tests.tools.test_operator_verification_view'
+
+
+----------------------------------------------------------------------
+Ran 211 tests in 0.247s
+
+FAILED (errors=2)

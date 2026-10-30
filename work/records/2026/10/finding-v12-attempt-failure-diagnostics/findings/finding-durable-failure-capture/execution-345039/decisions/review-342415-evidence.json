@@ -1,0 +1,26 @@
+{
+  "checks": {
+    "COLLECTION.json": true,
+    "EXECUTOR-PREFLIGHT.json": true,
+    "candidate-result.json": true,
+    "candidate-verification.txt": true,
+    "outcome.json": true,
+    "source:outcome.json": true,
+    "outcome.json.authoring.log": true,
+    "source:outcome.json.authoring.log": true,
+    "outcome.json.enforcement-127878-1792532469941678113.json": true,
+    "source:outcome.json.enforcement-127878-1792532469941678113.json": true,
+    "outcome.json.manager-127878-1792532458680972726.json": true,
+    "source:outcome.json.manager-127878-1792532458680972726.json": true,
+    "outcome.json.manager-127878-1792532458680972726.json.progress.json": true,
+    "source:outcome.json.manager-127878-1792532458680972726.json.progress.json": true,
+    "outcome.json.manager-127878-1792532458680972726.json.shutdown.json": true,
+    "source:outcome.json.manager-127878-1792532458680972726.json.shutdown.json": true
+  },
+  "seal_count": 47,
+  "seal_failures": [],
+  "extras": [
+    "SHA256SUMS"
+  ],
+  "manifest": "1f191e7b2f0f0ac033550a3fb235ec48624171d714c0cfb02e47124dcea3e3df"
+}

@@ -1,0 +1,13 @@
+{
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.tools.test_stopped_settlement_joined.JoinedSettlement",
+    "tests.manager.test_stopped_settlement"
+  ],
+  "seconds": 3.0667908230025205,
+  "returncode": 0,
+  "exchange_pins_unchanged": true
+}

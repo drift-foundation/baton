@@ -1,0 +1,466 @@
+{
+  "accepted": false,
+  "author": "baton.claude",
+  "base": "bc925cf5c62d69426ed5862af4d41f4d2a967b0f",
+  "base_why": "The human checkpoint that integrated the accepted authoring-shutdown-deadline correction (W338305, closed satisfying339412 after review-2026-10-20T12-29-38Z and INTEGRATION-339397.json), which sits on the manager-guard correction (W334910, fb487979), which sits on the authoring-enforcement correction (W333735, a9f4fa4d). PLAN names it as the preparation base; remove_dependency339410 and wake339414 cleared the last input gate.",
+  "campaign_record": {
+    "accepted_candidates": 0,
+    "gate_measurements": 1,
+    "narrative_correction": "the campaign has ZERO ACCEPTED candidates. Two have been retained: parent run340016 (rejected on its merits) and run345039 (retained, unaccepted, and the input to this packet).",
+    "retained_candidates": 2,
+    "runs": [
+      {
+        "controller_elapsed_seconds": 869.2875037370004,
+        "ended": "on its own",
+        "provider_served_seconds": 869.4529082979998,
+        "result": "candidate 433692c5 retained, verification-failed, independently REJECTED",
+        "run": "attempt-diagnostics-w333486-340016"
+      },
+      {
+        "controller_elapsed_seconds": 948.5622579390001,
+        "ended": "lease, signal 15",
+        "provider_served_seconds": 904.7793924179987,
+        "result": "nothing frozen",
+        "run": "attempt-diagnostics-w333486-340352"
+      },
+      {
+        "controller_elapsed_seconds": 948.8808754800011,
+        "ended": "lease, signal 15",
+        "provider_served_seconds": 905.1834081710003,
+        "result": "nothing frozen",
+        "run": "durable-capture-w341357-341360"
+      },
+      {
+        "controller_elapsed_seconds": 10.509931265,
+        "ended": "provider authentication failure",
+        "provider_served_seconds": 10.564425181,
+        "result": "no candidate; the turn never began and nothing was lost",
+        "run": "durable-capture-w341357-341637"
+      },
+      {
+        "controller_elapsed_seconds": 460.8909075490001,
+        "ended": "ON ITS OWN -- provider status 0, no interruption, 439s of lease margin",
+        "provider_served_seconds": 461.10191228199983,
+        "result": "candidate 1599471c RETAINED and UNACCEPTED; THE FIRST GATE MEASUREMENT IN THE CAMPAIGN, 864 tests in 12.817s, exit 1, 16 failures all in test_maintenance",
+        "run": "durable-capture-w341357-345039"
+      }
+    ],
+    "time_attribution": "provider served and controller elapsed are SEPARATE figures. Provider about 3151s, controller elapsed about 3238s. This author previously conflated them once and the correction stands."
+  },
+  "checkpoint": {
+    "paths": {},
+    "why": "This correction starts from committed bytes alone. No preserved candidate buffer and no restore step: the nominated source is read and never written back into the private checkout."
+  },
+  "claim": 345388,
+  "cutoffs": {
+    "gate_first": "run the focused five-module gate immediately after applying the recovery, before any further design or test expansion",
+    "margin_preserved_seconds": 180,
+    "monotonic_start": "the turn records one as its first act",
+    "provider_return_target_seconds": 720,
+    "stop_optional_edits_seconds": 600,
+    "what_they_are_not": "not a lease change, not a renewal, not a controller modification, not automatic termination, not a runtime guarantee, and not authorization to fabricate success. Planning cutoffs inside the limits already selected.",
+    "where": "COMPLETION.md and TASK.md, both pinned as task inputs so they travel as fixture.files and reach the worker. review341628 is explicit that placing them only in PROGRESS is insufficient, and prepare.py and verify-inputs.py REFUSE if either document is absent or is not a task input."
+  },
+  "dossier": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture",
+  "enforcement": {
+    "composer_start_is_unenforced": {
+      "composer": "work/records/2026/09/finding-v12-single-implementation-proof/baseline_bindings.py",
+      "composer_sha256": "09fbf3c59820231b7199e24aa1cf64eee93f6ea2e60f3477fed5ca909e5fc379",
+      "disposition": "REPORTED for classification, not patched; review-334776 accepts ONLY the enforced invocation and records no broad composer rewrite as selected. Every later authoring packet inherits the defect until the composer is corrected.",
+      "location": "line 721",
+      "mitigation": "prepare.py bind writes packet/AUTHORING-COMMAND.json beside commands.json; PREPARED.json carries composer_start_is_unenforced true.",
+      "why_wrong": "baseline.py:1207 calls serve with no reclaim argument. The accepted entry point is the controller, run from the staged source."
+    },
+    "controller": {
+      "pinned_in_manager_source": true,
+      "previous_sha256": "bc8c0363e44fedeae09c15a9065733227f08e279164ed68dc4b0e9e058a7c50f",
+      "relative": "tools/authoring_enforcement.py",
+      "sha256": "d12769df863424c402757d925e5efb848e473e2877e62244af5595be56c8ebb7"
+    },
+    "document": "ENFORCEMENT.md",
+    "exceptions_expired": "Both temporary direct-implementation exceptions have expired and neither ever covered diagnostics.",
+    "lease_disclosure": "tokens.LIFETIME_SECONDS is still 900 and production renewal remains W333485's unfinished work, separately allocated to baton.codx. The controller makes the initial lease ENFORCED rather than ignored; it does not extend it. The 3600 provider, 30 verification, 4800 total and 60 cleanup limits are requested bounds, not a promise of a 3600-second authoring run.",
+    "no_completed_run": "No authoring invocation has ever completed for this Work. One corrected startup refusal is not a demonstration that a full provider-backed invocation completes on this vehicle.",
+    "operator_invocation_unchanged": "python -m tools.authoring_enforcement --packet <PACKET.json>, from the staged source. --status-path is internal: the watchdog passes it to the child.",
+    "prerequisites": [
+      {
+        "checkpoint": "a9f4fa4da2323a357ae15aefbc5d7d22d41487b6",
+        "closed_by": "owner close334628",
+        "supplied": "the independent enforcement lane",
+        "work": "W333735"
+      },
+      {
+        "checkpoint": "fb48797903160aa764229d58f3a5beaf29648bfc",
+        "closed_by": "owner close337414",
+        "supplied": "single-manager ownership: the child holds the workspace guard for both the enforcement thread and the author, and the outer process becomes a RemoteGuard watchdog composing no manager",
+        "work": "W334910"
+      },
+      {
+        "checkpoint": "bc925cf5c62d69426ed5862af4d41f4d2a967b0f",
+        "closed_by": "closed satisfying339412 after independent review",
+        "supplied": "bounded coordinated shutdown: one process-local deadline derived from cleanup_seconds and capped by the outer watchdog, phase reservations across cleanup/accounting/workload-publication/guard-stop/guard-publication, interruptible main-thread steps, and deadline-aware controller and workload final reports",
+        "work": "W338305"
+      }
+    ]
+  },
+  "execution": {
+    "actual_identities": "none for THIS packet; every identity in it is a PROPOSED generated identity. The five actual executions this campaign has had are recorded in campaign_record, and run345039 is the one this packet continues from.",
+    "attempts": 0,
+    "credential_read": false,
+    "engine_invoked": false,
+    "falsification_rerun": false,
+    "guard_proof_rerun": false,
+    "job_submitted": false,
+    "old_instances_touched": 0,
+    "product_tests_executed": 0,
+    "provider_invoked": false,
+    "runtimes": 0,
+    "shutdown_proof_rerun": false
+  },
+  "execution_boundary_correction": {
+    "accounting_note": "review-339861 asks for the discarded first preparation pass to be labelled rather than excluded. PROGRESS now states the cumulative figure as a MEASURED SUBTOTAL plus an UNKNOWN discarded-pass cost. Nothing was re-run to reconstruct it.",
+    "authority": "review-2026-10-20T14-56-51Z.md item 3; an operational finding, not a product defect",
+    "disposition": "not re-run, not re-measured, and review339623 is not treated as retroactive authority. The numbers are carried as author measurements obtained outside the preparation boundary at claim339421, and the two gate-exclusion decisions resting on them say so where they are stated.",
+    "misleading_wording": "the same claim339421 entry reported \"shutdown-proof re-runs 0\" and \"neither was re-run as verification\" beside the 51.333s and 19.888s figures. Accurate statement: the shutdown and guard modules WERE re-run to measure them; the accepted falsification and the accepted 44-test and 79-test proofs were not.",
+    "this_claim": "zero product tests executed. Preparation only: the read-only input check, one disposable stage/bootstrap/bind, the refusal probes and the read-only controller binding check.",
+    "what_happened": "under claim339421 this author executed product test modules directly on the host from a clean base export -- the ten gate modules (1124 tests, 13.642s unittest / 14.007s measured), tests.manager.test_authoring_shutdown_deadline alone (4 tests, 51.333s), tests.manager.test_authoring_manager_guard alone (7 tests, 19.888s) and the composed sealed argv three times (14.156s, one untimed run estimated at 14.1s, 14.18s) -- about 127.7s of direct product test execution.",
+    "why_outside": "handoff339418 and the PLAN it pointed at scoped that claim to preparation pin/composition checks with the accepted shutdown proof REUSED, and both direct-implementation exceptions had expired. Measuring a module is still running it."
+  },
+  "failed_run_instances": [
+    {
+      "disposition": "preserved unchanged",
+      "instance": "/home/sl/baton-instances/attempt-diagnostics-w333486-334663",
+      "what": "startup failure in 0.506s, no workload outcome"
+    },
+    {
+      "disposition": "preserved unchanged",
+      "instance": "/home/sl/baton-instances/durable-capture-w341357-341637",
+      "what": "provider authentication failure at 10.56s, no work attempted"
+    },
+    {
+      "disposition": "preserved unchanged; read-only evidence copies in work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/evidence/run-345039. No rerun, no second bind, no reuse of that root.",
+      "instance": "/home/sl/baton-instances/durable-capture-w341357-345039",
+      "what": "COMPLETED ON ITS OWN at 461.10s; retained the candidate this packet starts from and measured the gate"
+    }
+  ],
+  "focused_gate": {
+    "ceiling": "this is the first honest chance this campaign has had of fitting the 30-second verification_command_seconds ceiling, since the parent's twelve-module argv measured 13.642s of EXISTING modules before the two new ones existed. TASK requires the measurement either way and forbids buying a pass by deletion.",
+    "modules": [
+      "tests.manager.test_intake",
+      "tests.manager.test_attempts",
+      "tests.manager.test_maintenance",
+      "tests.manager.test_contracts_inventory",
+      "tests.manager.test_attempt_failure_cause"
+    ],
+    "the_owed_module_arrives_with_the_recovery": "tests.manager.test_attempt_failure_cause does not exist at the base; it comes in with the recovery input and is the turn's to extend, so the gate fails until the recovery is applied and made to pass.",
+    "unchanged": "the same five producer modules, unweakened and unnarrowed. review341628: keep the five-module gate and all child acceptance. It has still never been measured.",
+    "why": "FINDING keeps the full joined gate with the parent: \"Keep tests focused to this slice\". Five producer modules rather than the parent's twelve -- the three paths this slice edits, the contracts inventory the documents change must keep honest, and the focused producer module the recovery input brings."
+  },
+  "input": {
+    "excluded_why": "W321776's Stage-A slice, owned by another Work and another claim. Not selected, not staged, not overlaid, not referenced by the composed submission.",
+    "excluded_working_tree_changes": [
+      "v12/.dockerignore",
+      "v12/worker/Dockerfile.claude",
+      "v12/python/src/baton_v12/verification_context.py",
+      "v12/python/tests/manager/test_verification_context.py",
+      "v12/python/tests/manager/test_claude_agent.py"
+    ],
+    "manager_files": 114,
+    "manager_roots": [
+      "v12/python/src/baton_v12",
+      "v12/python/tools"
+    ],
+    "overlay": "none",
+    "supervisor_files": 3,
+    "supervisor_source": "work/records/2026/09/finding-v12-single-implementation-proof"
+  },
+  "lease": {
+    "enforced": true,
+    "measured_both_ways": "run340016 ended on its own at 869.3s with 30.5s of margin; run340352 was cut off at 904.78s by signal 15 and froze no result. The lease has now both held and fired on turns of the same scope, so TASK forbids pre-writing a narrative in either direction and tells the turn to freeze early and often.",
+    "seconds": 900
+  },
+  "measured_gate_decisions": [
+    {
+      "condition": "this candidate edits neither tools/authoring_enforcement.py, tools/authoring_shutdown.py nor the supervisor baseline; if that ever changes, the module must be run as a focused check outside the sealed argv and reported",
+      "coverage_carried_by": "decisions/shutdown-review.md - the reused accepted proof, 44 tests with no skips in 72.891s unittest time under authority338596, plus the six-path INTEGRATION-339397.json",
+      "decision": "excluded from the sealed gate",
+      "measurement_provenance": "author measurement obtained by DIRECT HOST PRODUCT TEST EXECUTION at claim339421, outside that claim's preparation-only boundary -- see execution_boundary_correction and PROGRESS. Carried forward with that attribution, NOT re-measured at claim339628 and not independent product acceptance. The exclusion decision therefore rests on an out-of-boundary measurement.",
+      "module": "tests.manager.test_authoring_shutdown_deadline",
+      "reason": "MEASURED CEILING, not coverage judgement: 51.333s for 4 real-process tests at this base, which exceeds the composer-fixed 30s ceiling on its own, before the ten existing modules and the two the turn must create."
+    },
+    {
+      "condition": "same condition as above",
+      "coverage_carried_by": "decisions/guard-integration-result.json - the reused accepted proof, 79 tests PASS in 15.278s under authority337376",
+      "decision": "excluded from the sealed gate",
+      "measurement_provenance": "author measurement obtained by DIRECT HOST PRODUCT TEST EXECUTION at claim339421, outside that claim's preparation-only boundary -- see execution_boundary_correction and PROGRESS. Carried forward with that attribution, NOT re-measured at claim339628 and not independent product acceptance. The exclusion decision therefore rests on an out-of-boundary measurement.",
+      "module": "tests.manager.test_authoring_manager_guard",
+      "reason": "MEASURED CEILING: re-measured here at 19.888s for 7 real-process tests. With the ten gate modules\u2019 13.642s that is 33.5s against a ceiling of 30, before the two new modules exist."
+    },
+    {
+      "decision": "INCLUDED in the sealed gate",
+      "measurement_provenance": "author measurement obtained by DIRECT HOST PRODUCT TEST EXECUTION at claim339421, outside that claim's preparation-only boundary -- see execution_boundary_correction and PROGRESS. Carried forward with that attribution, NOT re-measured at claim339628 and not independent product acceptance. The exclusion decision therefore rests on an out-of-boundary measurement.",
+      "module": "tests.manager.test_authoring_enforcement",
+      "reason": "this candidate edits worker_manager/intake.py and worker_manager/attempts.py, which that module exercises through the enforcement lane cancellation path. Measured 2.2s of the ten modules\u2019 13.642s.",
+      "requires": "work/records/2026/09/finding-v12-single-implementation-proof present at the checkout root: it spawns a real supervisor. Measured 1 error without it, 33 passing with it."
+    }
+  ],
+  "parent": {
+    "dossier": "work/records/2026/10/finding-v12-attempt-failure-diagnostics",
+    "owns": "ordinary status/report integration, the full joined twelve-module gate, the installed-bundle proof and final acceptance",
+    "packets_preserved": [
+      "execution-333504",
+      "execution-333707",
+      "execution-334663",
+      "execution-337453",
+      "execution-339421",
+      "execution-339628",
+      "execution-339868",
+      "execution-340016",
+      "execution-340352"
+    ],
+    "state": "serially blocked on this child, so there is no concurrent edit owner",
+    "work": "W333486"
+  },
+  "pilot": {
+    "disposition": "preserved; not read, not mutated, not retried, not redeployed by this packet",
+    "instance": "/home/sl/baton-instances/native-coordination-pilot-w321608-1"
+  },
+  "post_run_collection": {
+    "acceptance_unchanged": "full final-result collection acceptance is retained. No startup success and no producer exit substitutes for it, and an incomplete final report is never acceptance.",
+    "commands": "COMMANDS.md step 5 -- exact read-only commands, identity correlation and missing-evidence handling",
+    "owner": "the external operator and the independent reviewer, NOT the worker inside the run",
+    "timeout_rule": "a publication timeout may be named only on correlated positive evidence -- a TimeoutError fault in the controller report, or a shutdown_progress step entered and not completed with the matching run id. Absence alone never names it.",
+    "unavailability_states": [
+      "absent",
+      "inaccessible",
+      "pending",
+      "unknown-cause"
+    ],
+    "why": "the controller publishes its final report after supervise_process returns and after child cleanup (authoring_enforcement.py:552-591); the workload outcome is published post-stop (baseline.py:1450-1461). A worker terminated at lease expiry cannot observe or report either, and a producer cannot be the evidence source for its own cessation.",
+    "worker_reports": "only observations available to it before its own termination, plus the retained candidate checkpoint, with host observations it cannot make named as structurally unavailable rather than reported as absent."
+  },
+  "recovery_input": {
+    "from": "durable-capture-w341357-341360, the run cut off at 905.18s",
+    "index": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/recovery-341360/INDEX.json",
+    "new_files": "that run's own failure_cause.py (86be4114, 926->1208 lines) and test_attempt_failure_cause.py (fb9f8e77, 332->1374 lines, 26->62 cases), both binding to the digests the reviewer independently published",
+    "producer_diff": "carried UNCHANGED from the first recovery set, because run341360's three applied files came back byte-identical per diff section",
+    "status": "UNVERIFIED RECOVERY INPUT. Nothing in it has ever been executed."
+  },
+  "remaining_ceiling": {
+    "existing_modules_seconds": 13.642,
+    "fit": "UNPROVED. No coverage may be removed to force a pass; if the gate cannot be made to fit, the turn reports it with the measured numbers.",
+    "fixed_by": "baseline_bindings.py:345 and :522, with no compose parameter; not this packet\u2019s to set",
+    "measurement_provenance": "the 13.642s figure is the same out-of-boundary claim339421 measurement; the 16.358s remainder is arithmetic on it. Not re-measured this claim.",
+    "remaining_for_two_new_modules_seconds": 16.358,
+    "verification_command_seconds": 30
+  },
+  "review": {
+    "human_checkpoint": "pending; the owner's Git checkpoint for the accepted combined correction is carried in the parent PLAN and is not fulfilled by this packet",
+    "independent_review": "An independent reviewer consumes this preparation packet through v11. Execution awaits an exact separate selection. There is no automatic integration and no self-acceptance."
+  },
+  "role": "impl",
+  "run_id": "durable-capture-w341357-345388",
+  "schema": "baton.w341357-execution-provenance/4",
+  "shutdown": {
+    "document": "SHUTDOWN.md",
+    "final_results": {
+      "controller": "<outcome_path>.enforcement-<pid>-<ns>.json; the report names itself in enforcement_path and now also carries shutdown_deadline and shutdown_progress",
+      "progress": "<status_path>.progress.json, the last shutdown step entered",
+      "publication_timeout_truth": "authoring_enforcement.py:586-594 bounds write_text, os.replace AND print together. A TimeoutError raised during print therefore follows a COMPLETED os.replace, and one raised during write_text may leave a partial .tmp. The handler returns 1 without renewing budget; it guarantees no filesystem non-effect. The earlier \"returns 1 and writes nothing\" wording is WITHDRAWN as false.",
+      "rule": "A missing or partial final report is INCOMPLETE. It is never success, never acceptance and never proof of cessation. Neither a successful startup nor a producer exit substitutes for final-result acceptance.",
+      "workload": "<outcome_path>, published by the supervisor inside the workload-publication reservation"
+    },
+    "helper": {
+      "imported_by": "tools/authoring_enforcement.py line 26",
+      "new_at_this_base": true,
+      "relative": "tools/authoring_shutdown.py",
+      "sha256": "af9e5ea6b140d772cdb143c73bccf7c321869b4707245ba7e8ca79ab855fab2e"
+    },
+    "independently_accepted": "work/records/2026/10/finding-v12-authoring-shutdown-deadline/review-2026-10-20T12-29-38Z.md (44 tests, no skips, 72.891s unittest under authority338596), integrated and verified six ways in INTEGRATION-339397.json",
+    "reused_not_rerun": "This packet REUSES that accepted proof. The shutdown regressions were not re-run here and the correction was not re-verified by this author.",
+    "supervisor": {
+      "previous_sha256": "c1b0a10e609503df0ba7ebdc7455cc8518c9175882edd185b65f20c342c4bd2f",
+      "relative": "work/records/2026/09/finding-v12-single-implementation-proof/baseline.py",
+      "sha256": "8e5987f56f8d5329c33a8e73f9df56f13213e134f2dade8180afabf80723efe9"
+    }
+  },
+  "sibling_overlap": {
+    "accepted_correction_rule": "decisions/enforcement-integration.md requires any overlapping intake.py/attempts.py candidate to be rebased onto the integrated bytes with independent review, never overwritten and never silently conflict-resolved. TASK.md carries that: this candidate adds attribution and preserves the accepted cessation semantics.",
+    "actual_candidate_overlap": "the returned candidate touched worker_manager/intake.py and attempts.py -- the already-declared overlap with the accepted corrections -- and touched NEITHER tools/job_manager.py NOR job_manager/manager.py, so the intersection with W333485 is empirically empty. Item A will add job_manager/delegation.py and/or projection.py, which are NOT sibling-declared surfaces; the declared overlap stays intake.py and attempts.py for serial integration and actual byte review.",
+    "behavioural_dependency": "none in either direction on the sibling.",
+    "declared_by_sibling": [
+      "v12/python/tools/job_manager.py",
+      "v12/python/src/baton_v12/job_manager/manager.py"
+    ],
+    "declared_here": [
+      "v12/python/src/baton_v12/worker_manager/documents.py",
+      "v12/python/src/baton_v12/worker_manager/attempts.py",
+      "v12/python/src/baton_v12/worker_manager/intake.py",
+      "v12/python/src/baton_v12/worker_manager/diagnostics.py",
+      "v12/python/src/baton_v12/job_manager/delegation.py",
+      "v12/python/src/baton_v12/job_manager/documents.py",
+      "v12/python/src/baton_v12/job_manager/projection.py",
+      "v12/python/tools/attempt_diagnostics.py",
+      "v12/python/tools/stack_command.py"
+    ],
+    "intersection_with_accepted_corrections": [
+      "v12/python/src/baton_v12/worker_manager/intake.py",
+      "v12/python/src/baton_v12/worker_manager/attempts.py"
+    ],
+    "intersection_with_sibling": [],
+    "not_touched_here": "tools/authoring_enforcement.py is NOT in this candidate's surfaces. The manager-guard correction is a prerequisite this packet binds, not a file it edits.",
+    "note_for_this_slice": "the producer paths worker_manager/intake.py and attempts.py remain the declared overlap with the accepted corrections, for serial integration and actual byte review. W333485 remains independent with no completion dependency. This slice touches no job_manager file at all, so its intersection with the sibling is empty by construction.",
+    "policy": "actual overlap declaration and serial reviewed integration, NOT an immutable file prohibition. review-339623 item 4 required this: both candidates are isolated, so a necessary accepted-outcome edit to a sibling-declared file is permitted provided the exact overlap is declared to W333485 before the combined candidate exists and integration is serial and independently reviewed. No shared-tree changes. Vehicle repair remains outside this diagnostics outcome.",
+    "previously_banned_now_declarable": [
+      "v12/python/tools/job_manager.py",
+      "v12/python/src/baton_v12/job_manager/manager.py"
+    ],
+    "state": "separately allocated to baton.codx for its own fresh preparation; no diagnostics dependency on its completion",
+    "work": "W333485"
+  },
+  "stale_prose_corrected": {
+    "disposition": "corrected in THIS packet and reported here and in PROGRESS. execution-341637 is preserved unchanged, stale text included: it is accepted history and editing it would rewrite what a reviewer signed.",
+    "instances": [
+      "PACKET.md described execution-340352 -- a retained candidate 433692c5, a CONTINUATION.md that packet did not carry, \"24 decision snapshots\", \"31 task inputs\", \"two gate modules owed\", and both \"forty-one\" and \"fifty-two\" probe counts in the same document.",
+      "OPERATOR.md carried the same stale counts, a three-run table, and a supersedes list ending at execution-340016.",
+      "PROVENANCE.json what_changed described execution-340352 throughout.",
+      "LIMITS-CHECK.json note named claim339628's preflight root and its final_results paths named claim340016's.",
+      "COMMANDS.md pointed at \"TASK.md item 7\" and \"item 6\" after TASK.md was restructured into five ordered steps, and gave two evidence copies at ../evidence/ when they live in the parent dossier at ../../../evidence/."
+    ],
+    "what": "prose inside execution-341637 that was carried forward unrefreshed and described an earlier packet. The seal and the pins were correct; the narrative was not, and this author did not notice when sealing it.",
+    "why_it_matters": "every one of these was a document an operator reads before selecting a start. None of them changed a byte that would be built, which is exactly why the seal did not catch them -- sha256sum -c verifies that the listed files are what the manifest says, never that what they say is true."
+  },
+  "start_authorized": false,
+  "start_selected": false,
+  "state": "prepared-not-executed",
+  "structural_preflight_gap": {
+    "disposition": "REPORTED, NOT WIDENED. review-2026-10-20T21-46-50Z.md: \"Structural preflight never promised authentication validity; do not widen it into a live probe as an incidental correction.\" The preflight is unchanged in this packet.",
+    "observation": "the controller-boundary preflight passed with zero denials 0.337s before the authentication failure, and it was not wrong: it checks that the registry names the reference and that the backing file exists, and it DELIBERATELY READS NO CREDENTIAL VALUE. A structure check cannot detect an expired session; only using the credential can."
+  },
+  "supersedes": [
+    {
+      "accepted_as_preparation": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/review-2026-10-21T10-13-48Z.md",
+      "packet": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-345039",
+      "preserved": true,
+      "preserved_seal": "5db5b9bad674f4b9ae3e6141c54d9551ade6644f9c2ebe52694c773db2857e6b",
+      "selected_and_run": "owner reroute345206 selected it and author claim345209 ran it once. It COMPLETED ON ITS OWN at 461.10s and returned the candidate this packet starts from.",
+      "why_superseded": "its task is done: the gate was measured and the failure located. This packet carries the next bounded step with the gate, the limits and the vehicle unchanged. Its root is preserved and is neither re-run nor re-bound."
+    }
+  ],
+  "supersedes_why": "execution-345039 is superseded as a TASK, not as evidence. Its 51-member seal still verifies, its root is preserved, and its retained candidate is this packet's input. Every earlier packet and all six instance roots stay unchanged.",
+  "supported_completion_mechanism": {
+    "consequences": [
+      "ending the turn IS freezing: there is no submit call and nothing to submit twice, so repeated terminal submissions are neither possible nor wanted",
+      "the post-return steps need wall-clock time and NONE of them happen if the lease kills the turn first, which is exactly what happened twice",
+      "verification-failed is a real published committed result, and is incomparably more than the nothing the last two runs produced"
+    ],
+    "dispositions": {
+      "adapter": [
+        "candidate",
+        "verification-failed",
+        "no-candidate",
+        "provider-failed"
+      ],
+      "note": "every one of them is an honest ending",
+      "worker": [
+        "completed",
+        "unable",
+        "plan-rejected",
+        "cancelled"
+      ]
+    },
+    "mechanism": "THE PROVIDER PROCESS RETURNING IS THE ONLY TRIGGER. After it returns the adapter measures the line delta, runs the task's own verification command (separately bounded at 30s), revalidates the measurement, chooses a disposition, COMMITS THE LINE WHATEVER THE DISPOSITION IS -- deliberately, because the manager freezes a checkpoint after every ending and its profile refuses a dirty worktree -- and publishes the proposal. baton_worker then measures the declared outputs and publish_completion writes /output/output.json LAST and ATOMICALLY, whose presence under its final name IS the completion signal.",
+    "read_from": [
+      "claude_agent.ClaudeAgent.work",
+      "claude_agent._disposition",
+      "baton_worker.handle",
+      "baton_worker.publish_completion",
+      "baton_worker.DISPOSITIONS"
+    ]
+  },
+  "the_fixture_conflict": {
+    "author_argument": "canonicalising the FIXTURE-OWNED derived root is not a weakening: the verifier's authority is the descriptors it opened BEFORE the provider ran, re-checked by _revalidated_directories; a directory a test creates inside those roots DURING verification is the fixture's own object, and resolving it gives the provider no name to swap because the provider is already gone. The production refusal is untouched and must still fire. STATED AS THE AUTHOR'S REASONING FOR THE TURN TO CONFIRM OR REJECT, NOT as an established fact, and TASK.md says so.",
+    "both_files_unchanged": "test_maintenance.py and workspaces.py are byte-identical to the committed base and neither is among the candidate's changed paths",
+    "four": "tests/manager/test_maintenance.py:249-252 -- MaintenanceCase.executed discards the child returncode and stderr and returns stdout only, so a child that cannot resolve a parent-descriptor path becomes an empty-output IndexError at lines 331 and 821. NOT YET CONFIRMED DYNAMICALLY; confirming it is step 1.",
+    "mechanism_is_the_implementers": "the review is explicit that canonicalising fixture-owned derived paths is a SUGGESTION and not a prescribed edit. The files and the mechanism are the turn's to choose.",
+    "one": "tests/manager/test_maintenance.py:135-137 -- setUp stores tempfile.TemporaryDirectory().name, i.e. whatever spelling tempfile returns, and every derived path is built from it",
+    "revalidated_by": "baton.claude, claim345388, read in the tree rather than carried from the review",
+    "test_authority": "standing test authority covers the necessary fixture corrections, documented with a path and ownership record rather than another per-test approval gate.",
+    "three": "worker_manager/workspaces.py:6221-6228 -- _composed_line_roots requires realpath(place) == place and refuses otherwise with \"the writable line is its own directory in the reserved manager namespace\". A /proc-aliased place can never satisfy it. THIS IS A PRODUCTION SECURITY CHECK AND STAYS.",
+    "two": "v12/worker/claude_agent.py:3262-3301 -- _pinned_environment opens each verifier root BEFORE the provider runs and exports it as /proc/self/fd/<n>, deliberately, because checking a pathname just before launch leaves a check/use interval. TMPDIR is one of EPHEMERA_ROOTS (line 3129). THIS BOUNDARY IS CORRECT AND STAYS."
+  },
+  "the_measured_gate": {
+    "all_failures_in": "tests.manager.test_maintenance",
+    "ceiling_question_settled": "YES, and it fits with room. This was explicitly unproved in every packet for this Work since the parent's second revision.",
+    "ceiling_seconds": 30,
+    "changed_paths_in_any_traceback": 0,
+    "classification": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/evidence/run-345039/GATE-CLASSIFICATION.json",
+    "errors": 7,
+    "exit_status": 1,
+    "failing_cases": 16,
+    "failures": 9,
+    "modules_with_no_failure": [
+      "tests.manager.test_intake",
+      "tests.manager.test_attempts",
+      "tests.manager.test_contracts_inventory",
+      "tests.manager.test_attempt_failure_cause"
+    ],
+    "qualifiers": [
+      "unittest's self-reported interval is not the adapter's whole wall clock",
+      "the gate EXITED 1, so nothing about the candidate is accepted",
+      "no base measurement of this argv exists in any run, so \"pre-existing\" is a HYPOTHESIS. TASK.md step 1 asks the turn to produce that comparison rather than assume its answer",
+      "absence of the changed paths from every traceback is a real mechanical fact and still not a general exoneration -- the review says so"
+    ],
+    "run": "durable-capture-w341357-345039",
+    "tests": 864,
+    "traceback_frames": {
+      "src/baton_v12/worker_manager/workspaces.py": 15,
+      "tests/manager/test_maintenance.py": 21
+    },
+    "unittest_seconds": 12.817
+  },
+  "unverified_baseline_reports": {
+    "items": [
+      "tests.manager.test_boundary_inventory does not pass at base: 328 tests, 28 failures, 1 error, zero skips, 49.469s measured alone on an earlier base's bytes.",
+      "tests.tools.test_packaging's subcommand case fails on this host because it holds the source stack_command.COMMANDS table against the installed bundle, built at 1e576ff2 before record and disposition joined that table. Source command-table proof is NOT proof that an eventual rebuilt bundle carries a new verb; that deployment obligation stays explicit in TASK.md."
+    ],
+    "why": "Recorded by review as the author's explicitly unverified baseline observations. No cleanup, fix or test weakening is selected for either, and neither is attributable to this candidate."
+  },
+  "what_changed": [
+    "THE INPUT IS A REAL CANDIDATE FOR THE FIRST TIME. Every earlier packet in this campaign started from committed bytes or from a producer split out of an unfrozen working tree. This one starts from the exact candidate a completed run returned, pinned by digest and bound to the digests the reviewer published independently, and held additionally against the run's own retained evidence index.",
+    "THE TASK IS THE FIXTURE, NOT THE PRODUCER. The gate ran and the failure is located; TASK.md asks for the base-versus-candidate comparison first, then the correction, then the complete gate with no skips. The producer obligations stay owed and explicitly out of scope unless this turn's gate demonstrates a defect.",
+    "FIXTURE.md is a new worker-visible pinned task input, and prepare.py and verify-inputs.py REFUSE if it is absent or is not a task input -- the same structural rule review341628 required for COMPLETION.md, applied to the document that defines this turn.",
+    "TEN NEW PROBES, one per new refusal: a drifted candidate patch, a drifted recovery index, a candidate that is not a task input, a candidate disagreeing with the reviewer's published digest, a drifted transport bundle, THE TRANSPORT PINNED AS A TASK INPUT (which must be refused), an index naming another head, an index naming another content, an index of another schema, and an absent or unpinned FIXTURE.md.",
+    "VEHICLE PINS UNCHANGED for the eighth consecutive packet."
+  ],
+  "what_this_continuation_is": {
+    "authority": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/review-2026-10-21T10-42-55Z.md and pass345385",
+    "changed_from_the_previous_packet": [
+      "THE RECOVERY INPUT. recovery-341360 (a producer split out of an unfrozen working tree, never executed) is replaced as INPUT by recovery-345039 -- the exact retained candidate a completed run returned, whose gate actually ran. recovery-341360 stays in place as history and its pins are dropped from this packet, not edited.",
+      "TASK.md is restructured around the fixture correction: confirm the two diagnoses dynamically (base-versus-candidate under the same pinned-root conditions, and the subprocess path), correct the fixture, then run the COMPLETE five-module gate with no skips.",
+      "FIXTURE.md is NEW and is a pinned task input: the measured gate result, the four places the conflict lives with file and line citations read from the tree, the full list of all 16 cases, and the five things the correction must leave standing.",
+      "RECOVERY.md is rewritten for the retained candidate and is explicit that it is retained and UNACCEPTED.",
+      "the recovery cross-checks in prepare.py and verify-inputs.py are retargeted at baton.w341357-recovery/3 and now hold the candidate against FOUR independent records.",
+      "ten new probes, one per new refusal, plus three retargeted.",
+      "decision snapshots 31 -> 36; task inputs 41 -> 45."
+    ],
+    "forbidden": [
+      "dropping, skipping, narrowing, weakening or deleting any gate module, case or assertion -- including the two replacement-refusal cases, which must still REACH and prove their refusal",
+      "relaxing the production canonical-path or object-identity refusals in workspaces._composed_line_roots",
+      "widening, disabling or working around the verifier descriptor pinning in claude_agent._pinned_environment",
+      "a host product-test rerun, a host product edit, or a live provider probe",
+      "reopening the producer design, or adding producer features without a demonstrated gate failure",
+      "treating provider return as acceptance"
+    ],
+    "one_thing": "make the COMPLETE EXISTING five-module gate usable under the actual verifier environment, starting from the EXACT RETAINED CANDIDATE run345039 returned.",
+    "unchanged": [
+      "the five gate modules, every case and every assertion. The sealed verification argv and its member digest 2f7ed3dc are byte-identical.",
+      "900s lease, 3600s provider, 30s verification, 4800s total, 60s cleanup, one invocation, no retry, report-and-hold.",
+      "the 600/720/180 planning cutoffs and COMPLETION.md verbatim (c8c5d4dd).",
+      "the vehicle: controller d12769df, supervisor baseline 8e5987f5, shutdown helper af9e5ea6, 114 manager files, base bc925cf5.",
+      "the producer acceptance in decisions/FINDING.md."
+    ],
+    "why": "run345039 completed on its own at 461.10s and measured the gate for the first time in this campaign: 864 tests in 12.817s, exit 1, 9 failures and 7 errors, ALL 16 in tests.manager.test_maintenance. The review verified that evidence, WITHHELD ACCEPTANCE, and required one bounded continuation rather than another round of open-ended authoring: \"do not discard this retained candidate\"."
+  },
+  "work": "W341357"
+}

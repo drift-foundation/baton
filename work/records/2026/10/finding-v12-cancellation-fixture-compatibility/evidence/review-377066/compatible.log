@@ -1,0 +1,15 @@
+Diagnostic in-memory fixture-only adaptation; all original assertions retained. Not an unmodified-suite pass.
+test_late_bind_and_later_activation_are_stopped_under_the_original_fence (tests.manager.test_authoring_enforcement.LateBindingCancellation.test_late_bind_and_later_activation_are_stopped_under_the_original_fence) ... ok
+test_acknowledged_stop_is_retried_if_writer_still_runs (tests.manager.test_authoring_enforcement.BeforeAttachmentCancellation.test_acknowledged_stop_is_retried_if_writer_still_runs) ... ok
+test_cancellation_owner_refuses_token_and_attachment_identity_disagreement (tests.manager.test_authoring_enforcement.BeforeAttachmentCancellation.test_cancellation_owner_refuses_token_and_attachment_identity_disagreement) ... ok
+test_deadline_stops_token_bound_writer_through_production_cancellation (tests.manager.test_authoring_enforcement.BeforeAttachmentCancellation.test_deadline_stops_token_bound_writer_through_production_cancellation) ... ok
+test_operator_cancellation_stops_token_bound_writer (tests.manager.test_authoring_enforcement.BeforeAttachmentCancellation.test_operator_cancellation_stops_token_bound_writer) ... ok
+test_recovery_stops_token_bound_writer_without_renewed_time (tests.manager.test_authoring_enforcement.BeforeAttachmentCancellation.test_recovery_stops_token_bound_writer_without_renewed_time) ... ok
+test_refused_authority_fence_never_stops_a_runtime (tests.manager.test_authoring_enforcement.BeforeAttachmentCancellation.test_refused_authority_fence_never_stops_a_runtime) ... ok
+test_refused_runtime_stop_remains_held_after_authority_fence (tests.manager.test_authoring_enforcement.BeforeAttachmentCancellation.test_refused_runtime_stop_remains_held_after_authority_fence) ... ok
+test_unknown_engine_stop_preserves_fence_and_hold_then_retries (tests.manager.test_authoring_enforcement.BeforeAttachmentCancellation.test_unknown_engine_stop_preserves_fence_and_hold_then_retries) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.074s
+
+OK

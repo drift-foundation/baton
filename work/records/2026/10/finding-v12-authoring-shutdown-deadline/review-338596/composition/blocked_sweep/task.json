@@ -1,0 +1,1 @@
+{"declared_base": null, "instructions": "write one bounded proposal", "schema": "baton.dogfood-task/2", "source_profile": "generic", "source_root": "source", "task_id": "w81115-bootstrap", "verification": ["python3", "-c", "raise SystemExit(0)"]}

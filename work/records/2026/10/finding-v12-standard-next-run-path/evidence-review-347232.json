@@ -1,0 +1,41 @@
+{
+  "claim": 347232,
+  "archive_sha256": "413e2846cd22f9350371151eccaa5bde877f9bf0ba8fb98b2dfae59a9fca93a3",
+  "installation_sha256": "342587c532c9a6aa03ca65d2a664bb79b815812b43619a5a907e0a65a9b0c4ac",
+  "ready_matches": true,
+  "installed_count": 207,
+  "installed_mismatches": [],
+  "staging_count": 211,
+  "staging_mismatches": [],
+  "accounts": [
+    {
+      "uid": 997,
+      "gid": 986,
+      "name": "bnr-2c07736f06-0",
+      "shell": "/usr/sbin/nologin"
+    },
+    {
+      "uid": 995,
+      "gid": 984,
+      "name": "bnr-2c07736f06-1",
+      "shell": "/usr/sbin/nologin"
+    },
+    {
+      "uid": 994,
+      "gid": 983,
+      "name": "bnr-2c07736f06-2",
+      "shell": "/usr/sbin/nologin"
+    },
+    {
+      "uid": 993,
+      "gid": 982,
+      "name": "bnr-2c07736f06-3",
+      "shell": "/usr/sbin/nologin"
+    }
+  ],
+  "uid_map": "      1000          0          1\n",
+  "host_custody_verified": false,
+  "unreadable": "/opt/baton-next-run/admission.sudoers",
+  "credential_contents_read": false,
+  "stage_B_executed": false
+}

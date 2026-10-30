@@ -1,0 +1,26 @@
+# red-to-green: the new class against candidate-360765's workspaces.py
+FAIL: test_a_new_holder_waits_and_gets_a_valid_guard   <- R21 reproduced
+Ran 9 tests / FAILED (failures=1)
+# the same 9 against this candidate: Ran 9 tests / OK
+# the other two cases in the class already held; they are regression cover.
+
+# focused suite
+Ran 159 tests in 16.644s
+OK
+
+# whole job_manager package, three consecutive runs
+ERROR: test_the_native_factory_delivers_the_policy_to_both_stage_workers (tests.job_manager.test_native_permission.NativeStageComposition.test_the_native_factory_delivers_the_policy_to_both_stage_workers)
+Ran 1177 tests in 30.183s
+FAILED (errors=1)
+ERROR: test_the_native_factory_delivers_the_policy_to_both_stage_workers (tests.job_manager.test_native_permission.NativeStageComposition.test_the_native_factory_delivers_the_policy_to_both_stage_workers)
+Ran 1177 tests in 30.486s
+FAILED (errors=1)
+ERROR: test_the_native_factory_delivers_the_policy_to_both_stage_workers (tests.job_manager.test_native_permission.NativeStageComposition.test_the_native_factory_delivers_the_policy_to_both_stage_workers)
+Ran 1177 tests in 30.372s
+FAILED (errors=1)
+
+# test_bootstrap + test_scheduler_trace + test_single_worker + test_custody
+#   + test_workspaces: Ran 780 in 96.454s, one failure,
+#   test_single_worker...test_a_real_observing_status_run_mutates_no_durable_state,
+#   pre-existing on canonical HEAD (../../evidence/claim-359459/PREEXISTING-SINGLE-WORKER.txt)
+# four inventory suites: 116 failures, identical to the canonical base; comm -13 empty

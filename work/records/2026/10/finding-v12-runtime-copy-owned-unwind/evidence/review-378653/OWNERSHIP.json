@@ -1,0 +1,17 @@
+{
+  "seconds": 0.0066199290013173595,
+  "results": {
+    "replacement_between_symlink_and_lstat": {
+      "target_before_unwind": "FOREIGN-TARGET",
+      "ledger_type": "tuple",
+      "outcome": "unwound /tmp/w376956-review-eurifylk/dest/link",
+      "foreign_link_survives": false
+    },
+    "replacement_after_identity_check": {
+      "injected": true,
+      "outcome": "unwound /tmp/w376956-review-814zz5un/dest/file",
+      "foreign_replacement_survives": false,
+      "original_retained": true
+    }
+  }
+}

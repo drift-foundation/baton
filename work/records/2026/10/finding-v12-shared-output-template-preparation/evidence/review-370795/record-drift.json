@@ -1,0 +1,21 @@
+{
+  "probe": "in-memory PLAN digest substitution; no file mutation",
+  "same_explicit_inputs": true,
+  "accepted_changed_plan": true,
+  "old_manifest": "sha256:694e823e80335c087b6246b3d2fd1e85607e0ee28bb32e82e22e9490546774d1",
+  "new_manifest": "sha256:2d0a6ceb304a28af8bab03f27fde22ca6a9003d64a3c74c722c72a651d843988",
+  "old_document": "c78d05a6ba4594259c7dcef6582f71af67deac96a8b051dc3d9478e705da876e",
+  "new_document": "588f3b32c3c2184e9e5bc4d2d72d996b5b1fede5dece3071bca940ceff023933",
+  "record_before": {
+    "root": "baton-repository",
+    "path": "work/records/2026/10/finding-v12-shared-output-template-preparation",
+    "finding_digest": "sha256:3d6459458e3da197104ce9b0f34f1251aa5025ccb6d2543346259a3c313614a9",
+    "plan_digest": "sha256:3f55d6bd9c209df5147b972a46e39ca083a0f9d8fed9c64144c49ce27079001c"
+  },
+  "record_after": {
+    "root": "baton-repository",
+    "path": "work/records/2026/10/finding-v12-shared-output-template-preparation",
+    "finding_digest": "sha256:3d6459458e3da197104ce9b0f34f1251aa5025ccb6d2543346259a3c313614a9",
+    "plan_digest": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+  }
+}

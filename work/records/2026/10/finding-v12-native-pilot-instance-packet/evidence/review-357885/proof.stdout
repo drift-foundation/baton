@@ -1,0 +1,401 @@
+{
+ "authority": "673355e1f28e4b5683cbef09eb8f2658",
+ "base": "302453869d07eb5579e79a6572586d3c3cf62a5c",
+ "checks": {
+  "checks": [
+   {
+    "check": "the disposable selector validates through the product",
+    "ok": true
+   },
+   {
+    "check": "the disposable installation has NO configured workers or jobs",
+    "ok": true
+   },
+   {
+    "check": "the plan names target, workspace and one source per worker",
+    "ok": true
+   },
+   {
+    "check": "exactly the two worker sources are missing",
+    "ok": true
+   },
+   {
+    "check": "prepare_repositories refuses an INSTALLED destination at custody, before any repository is considered",
+    "label": "SIMULATED repository boundary -- no git was executed",
+    "ok": true,
+    "refusal": "there is already a runtime at /tmp/w325959-prove-wbtfvadk/destination/distro; nothing here upgrades a deployment in place. Stop that instance and prepare a new destination if you mean a different runtime."
+   },
+   {
+    "check": "the repository tree is BYTE-unchanged by that refusal",
+    "ok": true
+   },
+   {
+    "check": "the whole destination is BYTE-unchanged by that refusal",
+    "ok": true
+   },
+   {
+    "check": "and the refusal created nothing",
+    "ok": true
+   },
+   {
+    "check": "with no installed runtime, an existing target repository is itself refused",
+    "label": "SIMULATED repository boundary; shape has NO installed runtime",
+    "ok": true,
+    "refusal": "there is already something at /tmp/w325959-prove-wbtfvadk/bare-destination/repo/target.git, which this deployment's target repository would be. Nothing here replaces one; prepare a new destination."
+   },
+   {
+    "check": "that refusal also created nothing",
+    "ok": true
+   },
+   {
+    "check": "grant readback: baton.verifier-pilot/verify",
+    "ok": true
+   },
+   {
+    "check": "grant readback: baton.reviewer-receipt-pilot/review",
+    "ok": true
+   },
+   {
+    "check": "grant readback: baton.slaw/approve",
+    "ok": true
+   },
+   {
+    "check": "grant readback: baton.slaw/integrate",
+    "ok": true
+   },
+   {
+    "check": "the dossier binding reads back",
+    "ok": true
+   },
+   {
+    "check": "the Work is OPEN on the implementation route",
+    "ok": true
+   },
+   {
+    "check": "the readback names a Work this authority really holds",
+    "ok": true
+   },
+   {
+    "check": "a second create_work for the same Work refuses",
+    "ok": true,
+    "refusal": "Work '673355e1-W1' already exists"
+   },
+   {
+    "check": "the re-sealed manifest passes the MANAGER's structure check",
+    "label": "PARTIAL adaptation: work_ref and seal only",
+    "ok": true
+   },
+   {
+    "check": "input_digest is the PUBLIC projection, not a whole-manifest hash",
+    "ok": true
+   },
+   {
+    "check": "every submission readback is now resolved",
+    "ok": true
+   },
+   {
+    "check": "every stage carries the one SELECTED Work id, and the authority's collision refusal is what makes that safe",
+    "label": "SELECTED identifier, not an authority allocation",
+    "ok": true
+   },
+   {
+    "check": "per-invocation limits survive resolution",
+    "ok": true
+   },
+   {
+    "check": "the review stage depends on the implementation stage",
+    "ok": true
+   },
+   {
+    "check": "a manifest whose digest no longer matches its bytes is refused",
+    "ok": true,
+    "refusal": "an input manifest declares a manifest digest its own bytes do not produce; a manifest that does not identify itself is not one"
+   },
+   {
+    "check": "a selector naming another destination is refused",
+    "ok": true,
+    "refusal": "the runtime this instance names is not usable: there is no bundled runtime at /tmp/w325959-prove-wbtfvadk/destination-elsewhere/distro. Nothing was started."
+   },
+   {
+    "check": "a selector whose runtime digest disagrees with the bundle is refused",
+    "ok": true,
+    "refusal": "the runtime at /tmp/w325959-prove-wbtfvadk/destination/distro is not the one this instance was prepared with: it holds 1 files digesting 66eec7f0a4ed2255... and the instance records 1 digesting 0000000000000000... Nothing here upgrades a deployment in place; prepare a new destination."
+   },
+   {
+    "check": "the disposable selector validates through the product",
+    "ok": true
+   },
+   {
+    "check": "the disposable installation has NO configured workers or jobs",
+    "ok": true
+   },
+   {
+    "check": "the REVIEWED packet still matches configure.py's own pins",
+    "ok": true
+   },
+   {
+    "check": "preflight passes and plan mode writes nothing",
+    "ok": true
+   },
+   {
+    "check": "plan mode left the installation BYTE-unchanged",
+    "ok": true
+   },
+   {
+    "check": "the SELECTED Work is a real identifier, not a marker",
+    "ok": true
+   },
+   {
+    "check": "the supported operation ran and was captured",
+    "ok": true
+   },
+   {
+    "check": "the INSTALLED deployment composes both stage workers",
+    "ok": true
+   },
+   {
+    "check": "the installed deployment binds the Job",
+    "ok": true
+   },
+   {
+    "check": "the REAL runtime consumer accepted the installed configuration",
+    "ok": true
+   },
+   {
+    "check": "policy_digest is the RECOMPUTED one, not the inherited 3a532add",
+    "ok": true
+   },
+   {
+    "check": "retention is the real digest, NOT the cccc placeholder",
+    "ok": true
+   },
+   {
+    "check": "accountability digest replaced: credential_policy_digest",
+    "ok": true
+   },
+   {
+    "check": "accountability digest replaced: mount_policy_digest",
+    "ok": true
+   },
+   {
+    "check": "accountability digest replaced: network_policy_digest",
+    "ok": true
+   },
+   {
+    "check": "accountability digest replaced: resource_policy_digest",
+    "ok": true
+   },
+   {
+    "check": "accountability digest replaced: role_instructions_digest",
+    "ok": true
+   },
+   {
+    "check": "accountability digest replaced: tool_policy_digest",
+    "ok": true
+   },
+   {
+    "check": "accountability digest replaced: toolchain_digest",
+    "ok": true
+   },
+   {
+    "check": "worker and manifest AGREE on policy and retention",
+    "ok": true
+   },
+   {
+    "check": "the human contract digest IS the task document's bytes",
+    "ok": true
+   },
+   {
+    "check": "the consumer's identity projection agrees with input_digest",
+    "ok": true
+   },
+   {
+    "check": "the MANAGER's own owned_submission accepts it",
+    "ok": true
+   },
+   {
+    "check": "a second apply refuses on the emitted outputs, before opening the authority",
+    "ok": true,
+    "refusal": "REFUSED: these outputs already exist under /tmp/w325959-prove-wbtfvadk/owner-destination/generated: bootstrap-inputs.json, configure-inputs.json, submission.json, configuration-readback.json. A previous attempt left them; inspect and move them rather than having this overwrite evidence"
+   },
+   {
+    "check": "the refused repeat left the installation BYTE-unchanged",
+    "ok": true
+   },
+   {
+    "check": "with outputs moved aside, the already-created Work is what refuses",
+    "ok": true,
+    "refusal": "REFUSED: the selected Work 673355e1-W1 already exists on this authority. The supported operation would refuse it, and a second registration is not a repeat of the first: inspect it and continue from its projection."
+   },
+   {
+    "check": "and THAT refusal also left the installation BYTE-unchanged, so a partial repeat strands nothing",
+    "ok": true
+   },
+   {
+    "check": "the disposable selector validates through the product",
+    "ok": true
+   },
+   {
+    "check": "the disposable installation has NO configured workers or jobs",
+    "ok": true
+   },
+   {
+    "check": "an existing generated output refuses rather than being overwritten",
+    "ok": true,
+    "refusal": "REFUSED: these outputs already exist under /tmp/w325959-prove-wbtfvadk/output-conflict/generated: submission.json. A previous attempt left them; inspect and move them rather than having this overwrite evidence"
+   },
+   {
+    "check": "and that refusal wrote no deployment document",
+    "ok": true
+   },
+   {
+    "check": "the SUPPORTED two-operand install succeeds",
+    "label": "SIMULATED repository boundary -- no git was executed",
+    "ok": true
+   },
+   {
+    "check": "the install wrote its own deployment document",
+    "ok": true
+   },
+   {
+    "check": "the install wrote its own bootstrap record",
+    "ok": true
+   },
+   {
+    "check": "and that installed configuration is EMPTY -- no workers, no job bindings",
+    "ok": true
+   },
+   {
+    "check": "the authority REFUSES a Work id that does not carry its own prefix, so the selected identifier is validated too",
+    "ok": true
+   },
+   {
+    "check": "the real install's own selections are READABLE, so preservation is a real comparison and not compared:0",
+    "ok": true
+   },
+   {
+    "check": "preflight compared the install's selections BEFORE any write",
+    "ok": true
+   },
+   {
+    "check": "and the installed configuration still carries every one of them",
+    "ok": true
+   },
+   {
+    "check": "the real install is now configured with both stage workers",
+    "ok": true
+   },
+   {
+    "check": "the SUPPORTED two-operand install succeeds",
+    "label": "SIMULATED repository boundary -- no git was executed",
+    "ok": true
+   },
+   {
+    "check": "the install wrote its own deployment document",
+    "ok": true
+   },
+   {
+    "check": "the install wrote its own bootstrap record",
+    "ok": true
+   },
+   {
+    "check": "and that installed configuration is EMPTY -- no workers, no job bindings",
+    "ok": true
+   },
+   {
+    "check": "a configuration that would CHANGE an installed selection refuses in preflight",
+    "ok": true,
+    "refusal": "REFUSED: this configuration input changes selections the installation had already made: retention_disposition 'retain' -> 'discard'"
+   },
+   {
+    "check": "and that refusal left the installation BYTE-unchanged -- no task, no authority write, no output",
+    "ok": true
+   },
+   {
+    "check": "the disposable selector validates through the product",
+    "ok": true
+   },
+   {
+    "check": "the disposable installation has NO configured workers or jobs",
+    "ok": true
+   },
+   {
+    "check": "WRITES names every file the procedure emits, including the staged bootstrap input",
+    "ok": true
+   },
+   {
+    "check": "a pre-existing generated/bootstrap-inputs.json REFUSES rather than being overwritten",
+    "ok": true,
+    "refusal": "REFUSED: these outputs already exist under /tmp/w325959-prove-wbtfvadk/staging-conflict/generated: bootstrap-inputs.json. A previous attempt left them; inspect and move them rather than having this overwrite evidence"
+   },
+   {
+    "check": "and the occupying bytes are UNTOUCHED",
+    "ok": true
+   },
+   {
+    "check": "and no deployment document was written",
+    "ok": true
+   },
+   {
+    "check": "the disposable selector validates through the product",
+    "ok": true
+   },
+   {
+    "check": "the disposable installation has NO configured workers or jobs",
+    "ok": true
+   },
+   {
+    "check": "a DANGLING LINK at an output name is refused, not treated as free",
+    "ok": true,
+    "refusal": "REFUSED: these outputs already exist under /tmp/w325959-prove-wbtfvadk/link-conflict/generated: submission.json. A previous attempt left them; inspect and move them rather than having this overwrite evidence"
+   },
+   {
+    "check": "a tampered inherited manifest recipe is refused by its pin",
+    "ok": true,
+    "refusal": "REFUSED: revision-4/configuration/manifest-inputs.json is sha256:4c924188e853cc457e57ae405bce4e7ab06ddbe9f3b461ba7eeafa00f7fb30ab and this procedure is bound to sha256:0000000000000000000000000000000000000000000000000000000000000000"
+   },
+   {
+    "check": "the disposable selector validates through the product",
+    "ok": true
+   },
+   {
+    "check": "the disposable installation has NO configured workers or jobs",
+    "ok": true
+   },
+   {
+    "check": "the procedure refuses when the worker repositories are absent",
+    "ok": true,
+    "refusal": "REFUSED: these repositories are not prepared: source-implementation-pilot, source-review-pilot. NO supported operation adds a worker source repository to a prepared destination -- run PROPOSAL.md step 1 by hand first. This procedure does not clone."
+   },
+   {
+    "check": "and that refusal wrote nothing",
+    "ok": true
+   }
+  ],
+  "failed": [],
+  "total": 87
+ },
+ "disposable_root": "/tmp/w325959-prove-wbtfvadk/destination",
+ "git_executed": false,
+ "input_digest": "sha256:201811508e6b75b907ade35dca321f0810a60e4bb7fc10efdcabd62fdc6a67c0",
+ "owner_procedure": {
+  "input_digest": "sha256:819cf6f9bf11a5b8870922d2e99f92db71d621ed18bc40faf1666d26064103bf",
+  "installed_workers": [
+   "implementation",
+   "review"
+  ],
+  "manifest_digest": "sha256:6fc2db7a61c628b382982dc92e6f9bfb60ec81fdc54d250268bac5ca4534f641",
+  "selected_work": "673355e1-W1",
+  "submission_id": "sub-w321608-quickstart-2",
+  "task_digest": "sha256:9d588235e058d043f2c2c2bcc50ecf560f0bddbe4358f5e0751bfe45a3437780"
+ },
+ "packet": "/home/sl/src/baton/work/records/2026/10/finding-v12-native-pilot-instance-packet/post-install-357462",
+ "production_paths_touched": [],
+ "production_untouched_claim": "this proof opened no path under /home/sl/baton-instances; it is a statement about what this script does, not a scan of production",
+ "repository_boundary": "SIMULATED repository boundary -- no git was executed",
+ "work_readback": {
+  "policy_generation": 9,
+  "scope": "scope:native-pilot-quickstart",
+  "work_id": "673355e1-W1"
+ }
+}

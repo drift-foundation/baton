@@ -1,0 +1,22 @@
+REVIEW R10: admission may not release another owner's lifetime. ... ok
+test_a_borrowed_guard_survives_an_admission_that_fails (tests.job_manager.test_fresh_attempt.TheBorrowIsAtomic.test_a_borrowed_guard_survives_an_admission_that_fails) ... ok
+test_a_final_release_cannot_run_through_a_registration (tests.job_manager.test_fresh_attempt.TheBorrowIsAtomic.test_a_final_release_cannot_run_through_a_registration)
+THE PROBE'S OWN INTERLEAVING, at the real function boundary. ... ok
+test_a_manager_already_holding_this_instance_refuses (tests.job_manager.test_fresh_attempt.TheBorrowIsAtomic.test_a_manager_already_holding_this_instance_refuses)
+THE EXCLUSION, driven: a second holder is denied, not queued. ... ok
+test_many_concurrent_borrowers_hold_one_instance (tests.job_manager.test_fresh_attempt.TheBorrowIsAtomic.test_many_concurrent_borrowers_hold_one_instance)
+THE SAME QUESTION WITHOUT A PAUSE: real threads, real contention. ... ok
+test_the_guard_is_released_when_the_admission_finishes (tests.job_manager.test_fresh_attempt.TheBorrowIsAtomic.test_the_guard_is_released_when_the_admission_finishes) ... ok
+test_the_guard_is_taken_from_the_instance_s_own_configuration (tests.job_manager.test_fresh_attempt.TheBorrowIsAtomic.test_the_guard_is_taken_from_the_instance_s_own_configuration) ... ok
+test_two_invocations_of_one_identity_cannot_overlap (tests.job_manager.test_fresh_attempt.TheBorrowIsAtomic.test_two_invocations_of_one_identity_cannot_overlap)
+R8 AT THE REAL LOCK, in two real processes. ... ok
+test_a_real_host_port_cannot_be_built_without_one (tests.job_manager.test_fresh_attempt.EveryOwnerSaysWhichInstance.test_a_real_host_port_cannot_be_built_without_one)
+THE PRODUCTION CONSTRUCTOR, not only the manager's check. ... ok
+test_a_real_host_port_proves_the_store_it_wraps_at_birth (tests.job_manager.test_fresh_attempt.EveryOwnerSaysWhichInstance.test_a_real_host_port_proves_the_store_it_wraps_at_birth) ... ok
+test_an_unbound_port_refuses_before_anything_is_read (tests.job_manager.test_fresh_attempt.EveryOwnerSaysWhichInstance.test_an_unbound_port_refuses_before_anything_is_read) ... ok
+test_each_of_the_four_is_required_to_declare (tests.job_manager.test_fresh_attempt.EveryOwnerSaysWhichInstance.test_each_of_the_four_is_required_to_declare) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 4.356s
+
+OK

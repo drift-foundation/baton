@@ -1,0 +1,54 @@
+{
+  "claim": 347990,
+  "binding_sha256": "eb57aa9c3ba74886e2d9856cfe3382ceab6a2bdb1799283512a4943dfeb62d52",
+  "archive_sha256": "1693bdd0808b051cb575c11a5f4c290a79d64119a04e34075005beaee41debbd",
+  "all_114_members_equal_independently_tested_source": true,
+  "verify_seconds": 0.12058599699957995,
+  "product_tests": 0,
+  "extracted": false,
+  "staged": false,
+  "changed_paths": [
+    {
+      "base_sha256": "5c3cf84641bcbef5fcf78c4bd058911dfc233b60242920ab30ebf6ce54fcdc7d",
+      "old_host_sha256": "726197972a9b2558cbfa4eabfd877053a8ffbcd7c1b4c3f3f2b4c9372f85bbab",
+      "origin": "accepted-candidate-base",
+      "path": "src/baton_v12/worker_manager/attempts.py",
+      "sha256": "5c3cf84641bcbef5fcf78c4bd058911dfc233b60242920ab30ebf6ce54fcdc7d"
+    },
+    {
+      "base_sha256": "c59c5d92352cbb2b225455b0c02cb625f1b4da6e9a4cc8cd65b0bc644e1fd5b4",
+      "old_host_sha256": "c59c5d92352cbb2b225455b0c02cb625f1b4da6e9a4cc8cd65b0bc644e1fd5b4",
+      "origin": "independently-accepted-candidate",
+      "path": "src/baton_v12/worker_manager/tokens.py",
+      "sha256": "389ea0ff9205aa1d53552eb61f3d468deb7033ecac8b362fef4586007dccb2b5"
+    },
+    {
+      "base_sha256": "d4fea18eab1d0f0e1ee8e197a006dc97274c021ed4dd6c548660a2e17ff08a03",
+      "old_host_sha256": "d4fea18eab1d0f0e1ee8e197a006dc97274c021ed4dd6c548660a2e17ff08a03",
+      "origin": "independently-accepted-candidate",
+      "path": "src/baton_v12/worker_manager/workspaces.py",
+      "sha256": "61e0e0b1e089ac498e0d5af8566bdd76e26ebabe56a81aa0ae7c64971005e94a"
+    },
+    {
+      "base_sha256": "ac3640fe020fb69144a9c8b040bd73abed3eeff69a3f9a1ff0dd9462d08bcf93",
+      "old_host_sha256": "d12769df863424c402757d925e5efb848e473e2877e62244af5595be56c8ebb7",
+      "origin": "independently-accepted-candidate",
+      "path": "tools/authoring_enforcement.py",
+      "sha256": "248ee9edd72214efbdc77044a9af6ad2c382e2ca1dbd5b71ff0db720d9a5a5dc"
+    },
+    {
+      "base_sha256": "f634e02296ff05fd0f17c51b87a917252d61f9156eaaa83f5145b3ac46bfbcd5",
+      "old_host_sha256": "f634e02296ff05fd0f17c51b87a917252d61f9156eaaa83f5145b3ac46bfbcd5",
+      "origin": "independently-accepted-candidate",
+      "path": "tools/single_worker.py",
+      "sha256": "abb10d0ee6d90709cbaa3293d3cc5d207b384d5e22aac16e5983bab82a030c4f"
+    },
+    {
+      "base_sha256": "bad0a355abccf7838f2f4c3948947ace93ff7105a625ae2a866e74eec40d606d",
+      "old_host_sha256": "bad0a355abccf7838f2f4c3948947ace93ff7105a625ae2a866e74eec40d606d",
+      "origin": "independently-accepted-candidate",
+      "path": "tools/stage_execution.py",
+      "sha256": "920009ab6bb77284cd2107bb54a5ada76c3c56dc2588d1775907587f5cdaa6d2"
+    }
+  ]
+}

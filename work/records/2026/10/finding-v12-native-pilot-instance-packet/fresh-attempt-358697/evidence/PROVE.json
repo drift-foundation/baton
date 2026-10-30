@@ -1,0 +1,321 @@
+{
+ "checks": {
+  "checks": [
+   {
+    "check": "the accepted helper and templates match their shipped pins",
+    "ok": true,
+    "pins": [
+     "configure.py",
+     "fresh3-358443/submission.json",
+     "fresh3-358443/task.json"
+    ]
+   },
+   {
+    "check": "LIVE: check leaves every accountable byte of the failed instance identical",
+    "counted": 23,
+    "digest": "00a4d38f7814dbcd0a4f79ecacd299b6286b6a8903077b730e29267785543925",
+    "ok": true
+   },
+   {
+    "check": "LIVE: the accountable set includes db/, where the attempt history lives",
+    "ok": true
+   },
+   {
+    "check": "LIVE: the real supported operation rehearses clean on this instance",
+    "ok": true,
+    "said": [
+     "Now export these and run `just start` from v12/:",
+     ""
+    ]
+   },
+   {
+    "check": "LIVE: the failed Job's binding and workers survive byte-exact",
+    "compared": [
+     "implementation-pilot",
+     "review-pilot"
+    ],
+    "ok": true
+   },
+   {
+    "check": "LIVE: all FOUR stage/Job pairs select a worker -- the failed Job is not orphaned",
+    "ok": true,
+    "selector": {
+     "quickstart-c/implementation": [
+      "implementation-pilot"
+     ],
+     "quickstart-c/review": [
+      "review-pilot"
+     ],
+     "quickstart-d/implementation": [
+      "implementation-pilot-d"
+     ],
+     "quickstart-d/review": [
+      "review-pilot-d"
+     ]
+    }
+   },
+   {
+    "asked": "a disposable copy of the authority store",
+    "check": "LIVE: the new Work is free and the failed Work is present",
+    "ok": true
+   },
+   {
+    "check": "LIVE: the new submission carries the fresh identities and the 3600/900 limits",
+    "ok": true
+   },
+   {
+    "check": "DISPOSABLE: an instance-3 analogue is installed by the ACCEPTED packet",
+    "ok": true
+   },
+   {
+    "check": "DISPOSABLE: check leaves the instance byte-identical",
+    "ok": true
+   },
+   {
+    "check": "the new Job colliding with the failed Job refuses",
+    "destination_unchanged": true,
+    "ok": true,
+    "refusal": "REFUSED: Job quickstart-c is ALREADY bound here, to Work '7027d234-W1'. A fresh attempt is prepared once: inspect that Job and continue from its projection rather than binding a second one under the same name."
+   },
+   {
+    "check": "the new Work colliding with the failed Work refuses",
+    "destination_unchanged": true,
+    "ok": true,
+    "refusal": "REFUSED: Work 7027d234-W1 is already bound by Job 'quickstart-c'"
+   },
+   {
+    "check": "an empty worker suffix refuses rather than reusing a serving name",
+    "destination_unchanged": true,
+    "ok": true,
+    "refusal": "REFUSED: these worker ids already exist: implementation-pilot, review-pilot; a fresh attempt adds its own workers rather than reusing a name already serving something"
+   },
+   {
+    "check": "a wrong authority refuses: a fresh attempt belongs to the failed instance",
+    "destination_unchanged": true,
+    "ok": true,
+    "refusal": "REFUSED: this instance's authority is 7027d2347de043eab2803e379e40223a and this procedure is bound to 00000000000000000000000000000000; a fresh attempt belongs to the instance that failed"
+   },
+   {
+    "check": "a wrong recorded Work for the failed Job refuses",
+    "destination_unchanged": true,
+    "ok": true,
+    "refusal": "REFUSED: Job quickstart-c is bound to Work '7027d234-W1' and this procedure recorded deadbeef-W9"
+   },
+   {
+    "check": "an absent instance refuses",
+    "ok": true,
+    "refusal": "REFUSED: there is no instance at /tmp/fresh-attempt-prove-hgd6ka6q/nope; this continues an EXISTING installation"
+   },
+   {
+    "check": "helper drift refuses: the imported module is not the accepted one",
+    "destination_unchanged": true,
+    "ok": true,
+    "refusal": "REFUSED: the accepted helper configure.py is sha256:b15280cc19aabca5bd519b88f57a34e7b7dabe7e67a40a28348befabf9d16333 and this procedure is bound to sha256:0000000000000000000000000000000000000000000000000000000000000000; this is not the reviewed module"
+   },
+   {
+    "check": "a STALE retained binding refuses in rehearsal, before any write here",
+    "destination_unchanged": true,
+    "ok": true,
+    "refusal": "REFUSED: the supported operation REFUSED this additive configuration in rehearsal (exit 2):\nauthority 7027d234...    reused from this root's record\nrefused: this root already holds a different deployment and nothing was changed: job 'quickstart-c' is already bound with line_declared_base '302453869d"
+   },
+   {
+    "check": "DISPOSABLE: the instance is back to its clean bytes after the stale case",
+    "ok": true
+   },
+   {
+    "check": "emitting the submission BEFORE the apply refuses",
+    "destination_unchanged": true,
+    "ok": true,
+    "refusal": "REFUSED: Job quickstart-d is not configured here yet; apply the additive preparation first, or the submit would name a Job this deployment cannot bind"
+   },
+   {
+    "check": "a pre-existing emitted input refuses rather than being overwritten",
+    "destination_unchanged": true,
+    "ok": true,
+    "refusal": "REFUSED: generated/additive-inputs.json already exists at /tmp/fresh-attempt-prove-hgd6ka6q/native-coordination-pilot-w321608-3/generated/additive-inputs.json; a previous attempt left it. Inspect and move it rather than having this overwrite evidence."
+   },
+   {
+    "check": "the pre-existing emitted input is byte-untouched",
+    "ok": true
+   },
+   {
+    "check": "DISPOSABLE: back to clean bytes after the occupied-output case",
+    "ok": true
+   },
+   {
+    "check": "APPLY: the supported in-place operation accepted the additive document",
+    "ok": true
+   },
+   {
+    "bindings": [
+     {
+      "canonical_target_id": "302453869d07eb5579e79a6572586d3c3cf62a5c",
+      "job_id": "quickstart-c",
+      "job_work_id": "7027d234-W1",
+      "line_declared_base": "302453869d07eb5579e79a6572586d3c3cf62a5c",
+      "review_work_id": "7027d234-W1",
+      "source_worker_id": "implementation-pilot"
+     },
+     {
+      "canonical_target_id": "302453869d07eb5579e79a6572586d3c3cf62a5c",
+      "job_id": "quickstart-d",
+      "job_work_id": "7027d234-W2",
+      "line_declared_base": "302453869d07eb5579e79a6572586d3c3cf62a5c",
+      "review_work_id": "7027d234-W2",
+      "source_worker_id": "implementation-pilot-d"
+     }
+    ],
+    "check": "APPLY: both Jobs are bound and the failed one is UNCHANGED",
+    "ok": true
+   },
+   {
+    "check": "APPLY: the new Job is bound to the NEW Work, not the failed one",
+    "ok": true
+   },
+   {
+    "check": "APPLY: the new Job names its OWN producer",
+    "ok": true
+   },
+   {
+    "check": "APPLY: four workers -- the two existing ones plus two new",
+    "ok": true
+   },
+   {
+    "check": "APPLY: the product's own selector serves all four stage/Job pairs",
+    "ok": true,
+    "selector": {
+     "quickstart-c/implementation": [
+      "implementation-pilot"
+     ],
+     "quickstart-c/review": [
+      "review-pilot"
+     ],
+     "quickstart-d/implementation": [
+      "implementation-pilot-d"
+     ],
+     "quickstart-d/review": [
+      "review-pilot-d"
+     ]
+    }
+   },
+   {
+    "check": "APPLY: the new task document is emitted and its digest describes its bytes",
+    "ok": true,
+    "task_digest": "sha256:9fdb1dd4ada5908bbd1718c8dbc89eff0d4c7def98dab9f89834373d47b8876b"
+   },
+   {
+    "check": "APPLY: no new repository was needed -- the existing sources are reused",
+    "ok": true
+   },
+   {
+    "check": "REPEAT APPLY refuses on the already-bound Job, instance byte-unchanged",
+    "destination_unchanged": true,
+    "ok": true,
+    "refusal": "REFUSED: Job quickstart-d is ALREADY bound here, to Work '7027d234-W2'. A fresh attempt is prepared once: inspect that Job and continue from its projection rather than binding a second one under the same name."
+   },
+   {
+    "check": "REPEAT APPLY produced no duplicate Job or worker",
+    "ok": true
+   },
+   {
+    "check": "REPEAT CHECK also refuses once the Job is bound, rather than re-planning",
+    "destination_unchanged": true,
+    "ok": true,
+    "refusal": "REFUSED: Job quickstart-d is ALREADY bound here, to Work '7027d234-W2'. A fresh attempt is prepared once: inspect that Job and continue from its projection rather than binding a second one under the same name."
+   },
+   {
+    "check": "EMIT: the submission document is written and validated by the manager",
+    "ok": true,
+    "wrote": "submission-quickstart-d.json"
+   },
+   {
+    "check": "EMIT: the submission names NEITHER the failed Job nor its Work",
+    "ok": true
+   },
+   {
+    "check": "EMIT: both stages bind the NEW Work and the per-invocation limits hold",
+    "ok": true
+   },
+   {
+    "check": "EMIT: the new Job's input digest is the PUBLIC projection of its manifest",
+    "ok": true
+   },
+   {
+    "check": "re-emitting the submission refuses rather than overwriting it",
+    "ok": true,
+    "refusal": "REFUSED: the submission document already exists at /tmp/fresh-attempt-prove-hgd6ka6q/native-coordination-pilot-w321608-3/generated/submission-quickstart-d.json; inspect it rather than having this overwrite it"
+   }
+  ],
+  "failed": [],
+  "total": 39
+ },
+ "claim": 358697,
+ "disposable": {
+  "authority": "7027d2347de043eab2803e379e40223a",
+  "bindings": [
+   {
+    "canonical_target_id": "302453869d07eb5579e79a6572586d3c3cf62a5c",
+    "job_id": "quickstart-c",
+    "job_work_id": "7027d234-W1",
+    "line_declared_base": "302453869d07eb5579e79a6572586d3c3cf62a5c",
+    "review_work_id": "7027d234-W1",
+    "source_worker_id": "implementation-pilot"
+   },
+   {
+    "canonical_target_id": "302453869d07eb5579e79a6572586d3c3cf62a5c",
+    "job_id": "quickstart-d",
+    "job_work_id": "7027d234-W2",
+    "line_declared_base": "302453869d07eb5579e79a6572586d3c3cf62a5c",
+    "review_work_id": "7027d234-W2",
+    "source_worker_id": "implementation-pilot-d"
+   }
+  ],
+  "input_digest": "sha256:7d904d8979c3c173b08f4602583aaa874a6cf1431b2d90e4a8a0fa1c04b17138",
+  "selector": {
+   "quickstart-c/implementation": [
+    "implementation-pilot"
+   ],
+   "quickstart-c/review": [
+    "review-pilot"
+   ],
+   "quickstart-d/implementation": [
+    "implementation-pilot-d"
+   ],
+   "quickstart-d/review": [
+    "review-pilot-d"
+   ]
+  },
+  "workers": [
+   "implementation-pilot",
+   "review-pilot",
+   "implementation-pilot-d",
+   "review-pilot-d"
+  ]
+ },
+ "git_executed": false,
+ "limits": "Scenario 1 is a read-only rehearsal against the real failed instance and is measurement of it. Scenario 2 is disposable, built with a SIMULATED repository runner and a STUB bundle, and its retained Job was configured but never ran. Neither scenario submits, serves, starts, or touches a provider, engine, model or credential, and no Git ran. That the new Job will actually SUCCEED is not proved here -- only that it is configured, bound, collision-free and selectable.",
+ "live": {
+  "accountable": {
+   "counted": 23,
+   "digest": "00a4d38f7814dbcd0a4f79ecacd299b6286b6a8903077b730e29267785543925"
+  },
+  "input_digest": "sha256:3f0a039610cfb02a2743af7137f8ed91b768e68f82808714dd2a87485f532d59",
+  "manifest_digest": "sha256:c4267040714e7f55558aedb1fec0dbab41a667b78367949898cb901b0ecff56a",
+  "selector": {
+   "quickstart-c/implementation": [
+    "implementation-pilot"
+   ],
+   "quickstart-c/review": [
+    "review-pilot"
+   ],
+   "quickstart-d/implementation": [
+    "implementation-pilot-d"
+   ],
+   "quickstart-d/review": [
+    "review-pilot-d"
+   ]
+  },
+  "task_digest": "sha256:9fdb1dd4ada5908bbd1718c8dbc89eff0d4c7def98dab9f89834373d47b8876b"
+ },
+ "live_instance_read_only": "/home/sl/baton-instances/native-coordination-pilot-w321608-3"
+}

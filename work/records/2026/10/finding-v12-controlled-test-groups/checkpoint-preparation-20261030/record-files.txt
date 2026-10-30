@@ -1,0 +1,5 @@
+work/records/2026/10/finding-v12-controlled-test-groups/FINDING.md
+work/records/2026/10/finding-v12-controlled-test-groups/PLAN.md
+work/records/2026/10/finding-v12-controlled-test-groups/PROGRESS.md
+work/records/2026/10/finding-v12-controlled-test-groups/review-2026-10-30T02-52-46Z.md
+work/records/2026/10/finding-v12-controlled-test-groups/evidence/PODMAN-REMOVAL-2026-10-30.md

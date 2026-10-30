@@ -1,0 +1,350 @@
+--- recovery/v12/python/src/baton_v12/worker_manager/failure_cause.py	2026-10-20 13:15:56.232791701 -0600
++++ /home/sl/baton-instances/durable-capture-w341357-341360/packet/workspaces/.baton-review-lines/line-0ec52ec6b73621a0dd8205f07b4c391f62aad6062e9a6c55613666bf0b5fe46a/checkout/v12/python/src/baton_v12/worker_manager/failure_cause.py	2026-10-20 13:43:45.453274888 -0600
+@@ -36,6 +36,35 @@
+    mounts, and is still removed. So `effects` names what this pass actually
+    ordered rather than what the act is for.
+ 
++W341357 ITEM 4 -- THE PUBLISHED PRODUCER SHAPE AND READ API, in one place
++because the parent composes ordinary status and the shareable report over
++exactly this and must not re-derive any of it:
++
++  VERSION      `DIAGNOSTIC_SCHEMA` is the emitted `schema` member;
++               `READ_SCHEMAS` is what this build's readers accept. An
++               unsupported version is REFUSED (`refused/unsupported-version`)
++               rather than read as though it agreed.
++  DOCUMENTS    `ATTEMPT_CESSATION_INTENT` and `ATTEMPT_CESSATION_OUTCOME` in
++               `documents` are the two durable member sets. Both are closed
++               and neither has a member prose could ride.
++  WRITERS      `ensure_cessation_intent` (RAISES -- durable or no effect),
++               `record_cessation_outcome` (never raises, reports).
++  RECORD READS `attempt_cessation_intent_of`, `attempt_cessation_outcome_of`
++               (the chain tip, with `superseded`), `token_bound_runtime`.
++  COMPOSITION  `attempt_failure_cause_of` -> the versioned document. EVERY
++               leaf is a wrapper; `decode` is the ONE decoder.
++  ANSWER       `answer_of` -> one of `ANSWERS`: `unknown`,
++               `known-typed-outcome`, `intent-only`, `ceased`. FOUR, not
++               three: `intent-only` is the crash case the durable intent
++               exists for and is not `unknown`. `ANSWER_OF_OUTCOME` publishes
++               the per-outcome mapping so no reader recomputes it.
++  ABSENCES     `absent_of` -> which records this document positively says are
++               not there, answerable beside a known cause as well.
++  BOUNDS       `CAUSE_MEMBERS` allowlists the composed cause; `FIELD_BOUND`
++               bounds every emitted string. No credential, environment value,
++               private transcript, provider text or exception repr is emitted,
++               and EVERY READ MUTATES NOTHING.
++
+ AND NOTHING HERE INFERS A CESSATION. `review-333812` fixes the semantics: an
+ exact correlated positive runtime observation can prove cessation; an intent
+ cannot, and neither can an uncorrelated absence. A historical attempt carrying
+@@ -58,7 +87,15 @@
+            "record_cessation_outcome",
+            "attempt_cessation_intent_of", "attempt_cessation_outcome_of",
+            "attempt_failure_cause_of", "token_bound_runtime",
+-           "DEGRADED", "recording_degraded"]
++           "DEGRADED", "recording_degraded",
++           # W341357 item 4: THE PUBLISHED READ API. The parent composes
++           # ordinary status and the shareable report over exactly these, so
++           # they are exported rather than left for a reader to re-derive --
++           # a second decoder would be a second answer to "is this member
++           # known", which is the mistake the wrapper rule exists to stop.
++           "READ_SCHEMAS", "ANSWERS", "ANSWER_OF_OUTCOME",
++           "CAUSE_MEMBERS", "FIELD_BOUND",
++           "decode", "answer_of", "absent_of"]
+ 
+ # W333486 review340349 item 2: THE ONE OWNED, VERSIONED DIAGNOSTIC SHAPE, and
+ # it is one shape on all THREE sides -- this producer, the ordinary versioned
+@@ -82,6 +119,145 @@
+ # past anything the acting paths can produce.
+ OUTCOME_REVISIONS = 16
+ 
++# W341357 item 4: THE DOCUMENT VERSIONS THIS READER SUPPORTS, and an
++# unsupported one is REFUSED rather than silently accepted. A newer producer
++# must not satisfy an older reader by accident: the member set and the meaning
++# of `cause` are part of the version, so reading an unrecognised shape through
++# this decoder would report somebody else's facts under this contract's name.
++READ_SCHEMAS = (DIAGNOSTIC_SCHEMA,)
++
++# FOUR ANSWERS AND NOT THREE. The distinction that keeps being lost is the
++# third one: an attempt whose cessation this manager ORDERED and whose outcome
++# was never recorded is not the same as an attempt nobody ordered stopped.
++# That is the crash case the durable intent exists for, and collapsing it into
++# `unknown` throws away the one fact the intent was written to preserve.
++ANSWERS = (
++    # No component recorded ordering a cessation and no start or preparation
++    # failure is recorded either. The answer NAMES which records are absent.
++    "unknown",
++    # An outcome record exists, it carries a TYPED outcome, and the cessation
++    # it establishes is `unknown`. This is the read contract's "known typed
++    # failure": the manager knows WHAT went wrong, or at least what it asked
++    # for, and does NOT know whether the runtime ceased. `stop-failed` and
++    # `ordered` both land here because that is the fact they share; a reader
++    # that needs to tell them apart reads `cause["outcome"]`, which is exactly
++    # where the typed vocabulary lives.
++    "known-typed-outcome",
++    # An intent is durable and NO outcome was ever recorded. The manager
++    # ordered this exact container stopped; what happened is unrecorded.
++    # Inferring a stop from this would be inferring an effect from an intent.
++    "intent-only",
++    # Cessation POSITIVELY established by an exact correlated observation --
++    # `absent`, `quiescent`, or the two-fact `quiescent-or-absent`.
++    "ceased",
++)
++
++
++# THE CLOSED MEMBER SET OF A COMPOSED CAUSE. Allowlisted, so a producer that
++# grew a member a reader does not own is caught by a case rather than
++# published. Every one of these is an identity, a typed token from a closed
++# vocabulary, a count or a boolean.
++CAUSE_MEMBERS = ("component", "operation_id", "outcome", "cessation",
++                 "correlation_id", "runtime_id", "effects", "category",
++                 "code", "superseded", "intent_recorded")
++
++# EVERY EMITTED STRING IS BOUNDED. Nothing here composes a value out of
++# somebody else's text, so this is a backstop rather than a truncation point:
++# a case walks the whole document and refuses anything longer, which is how a
++# member that started carrying prose is found before it ships.
++FIELD_BOUND = 512
++
++
++def decode(member):
++    """One wrapped leaf as `(known, value)`, and NOTHING ELSE IS A LEAF.
++
++    The wrapper rule has no exceptions, so a bare scalar reaching here is a
++    producer defect and is refused rather than guessed at. A reader that fell
++    back to "treat it as the value" would report an unknown as a known, which
++    is the exact mistake the rejected candidate's report made.
++
++    A KNOWN ZERO IS A KNOWN ZERO. `decode` answers `(True, 0)` for an observed
++    zero and `(False, None)` for an absence, and the caller branches on the
++    first member rather than on the truthiness of the second.
++    """
++    if not isinstance(member, dict) or "known" not in member \
++            or not isinstance(member["known"], bool):
++        raise ContractRefusal(
++            "integrity", "schema",
++            f"a diagnostic member is {name_value(member)}; every leaf fact in "
++            f"{DIAGNOSTIC_SCHEMA} is a wrapper carrying `known` and either a "
++            f"`value` with its `source` or a `why`")
++    if member["known"]:
++        if not member.get("source"):
++            raise ContractRefusal(
++                "integrity", "schema",
++                "a known diagnostic member names no source; a fact without "
++                "its owner is a fact nobody can check")
++        return True, member["value"]
++    if not member.get("why"):
++        raise ContractRefusal(
++            "integrity", "schema",
++            "an unknown diagnostic member names no reason; an unknown that "
++            "does not say what is absent is not an answer")
++    return False, member["value"]
++
++
++def _supported(document):
++    """The version gate, and an unsupported version is NOT silently accepted."""
++    if not isinstance(document, dict):
++        raise ContractRefusal(
++            "integrity", "schema",
++            f"a composed cause is {name_value(document)}; this reader decodes "
++            f"a {DIAGNOSTIC_SCHEMA} document")
++    found = document.get("schema")
++    if found not in READ_SCHEMAS:
++        raise ContractRefusal(
++            "refused", "unsupported-version",
++            f"this diagnostic document names schema {name_value(found)} and "
++            f"this reader supports {', '.join(READ_SCHEMAS)}; a document whose "
++            f"shape this build does not own is refused rather than read as "
++            f"though it agreed")
++    return document
++
++
++def answer_of(document):
++    """WHICH OF THE FOUR ANSWERS a composed cause is, and the version is proved first.
++
++    W341357 item 4. `unknown`, `known-typed-outcome`, `intent-only` and
++    `ceased` are four different facts, and the parent's ordinary status and
++    report branch on exactly this. Deriving it here rather than in each reader
++    means the four cannot become three in one of them.
++
++    AN OLDER RECORD THAT HONESTLY LACKS DIAGNOSTICS READS `unknown`, and
++    `absent_of` names which records are missing. That is a bounded answer
++    about an absence, not a manufactured cause.
++    """
++    _supported(document)
++    cause = document.get("cause")
++    if cause is None:
++        return "unknown"
++    _known, outcome = decode(cause["outcome"])
++    answer = ANSWER_OF_OUTCOME.get(outcome)
++    if answer is None:
++        raise ContractRefusal(
++            "integrity", "schema",
++            f"a composed cause names outcome {name_value(outcome)}, which "
++            f"this build maps to no answer; the typed outcomes are "
++            f"{', '.join(sorted(ANSWER_OF_OUTCOME))}")
++    return answer
++
++
++def absent_of(document):
++    """The records this document positively says are NOT there.
++
++    Always answerable, including beside a known cause: an unknown cause is not
++    an unknown everything, and a cause that IS known can still sit beside a
++    revocation nobody journalled.
++    """
++    _supported(document)
++    return tuple(document.get("absent_records") or ())
++
++
+ 
+ # THE COMPONENTS THAT ORDER A CESSATION. Three, and cancellation is here for
+ # the reason `attempts._order_quiescence` exists at all: an Authority-fenced
+@@ -131,6 +307,19 @@
+ # What a record may say about CESSATION, separately from its outcome.
+ CESSATION = ("absent", "quiescent", "quiescent-or-absent", "unknown")
+ 
++# WHICH ANSWER EACH TYPED OUTCOME REACHES, published rather than recomputed by
++# every reader. Derived from `OUTCOMES` so the two cannot drift: a cessation
++# this manager established reads `ceased`, and everything else is a typed
++# outcome whose cessation is unknown.
++ANSWER_OF_OUTCOME = {
++    outcome: ("known-typed-outcome" if cessation == "unknown" else "ceased")
++    for outcome, cessation in OUTCOMES.items()
++}
++# AND THE SYNTHETIC ONE THE COMPOSITION ITSELF NAMES for an intent with no
++# outcome. It is not in `OUTCOMES` because no acting path can record it: it is
++# what the ABSENCE of an outcome record beside a present intent means.
++ANSWER_OF_OUTCOME["ordered-without-outcome"] = "intent-only"
++
+ 
+ def _component(component):
+     if component not in COMPONENTS:
+@@ -400,6 +589,81 @@
+     return isinstance(reported, str) and DEGRADED in reported
+ 
+ 
++def _differing(held, document):
++    """Which facts a committed account and an arriving one disagree about.
++
++    Named members and their values only. Every member of an
++    `attempt.cessation-intent` is an identity, a generation, a domain or a
++    boolean -- the closed set is asserted by a case -- so there is nothing
++    here for prose, engine text or a secret to travel in, and the comparison
++    is bounded by that set rather than by a scan.
++    """
++    mine = {name: value for name, value in document.items()
++            if name not in ("revision", "supersedes")}
++    return tuple(
++        f"{name}: the committed intent names {name_value(held.get(name))} "
++        f"and this effect carries {name_value(value)}"
++        for name, value in sorted(mine.items())
++        if held.get(name) != value)
++
++
++def _authorizes(store, attempt_id, operation_id, document, collision):
++    """Whether the intent ALREADY COMMITTED under this id describes THIS effect.
++
++    W341357 item 1, and this is the correction. The recovered recorder read a
++    `refused/operation-collision` out of the journal as proof that a durable
++    intent existed and as PERMISSION TO ORDER THE EFFECT. Read against the
++    committed store that is backwards:
++
++    * `store.transact` calls `store.replay` and RETURNS THE RECORDED VALUE
++      when the row exists with a matching signature, so AN EXACT REPLAY NEVER
++      RAISES -- it leaves through the success path and never reaches here.
++    * `replay` raises `operation-collision` ONLY when the row exists with a
++      DIFFERENT signature or a different kind.
++    * `_identity` deliberately keeps the runtime OUT of the operation id, so
++      the token-bound runtime and the correlation ride the SIGNATURE.
++
++    So a collision on this path means exactly one thing: AN INTENT FOR THIS
++    ACT EXISTS AND IT DESCRIBES DIFFERENT OPERANDS. That is the one case in
++    which the durable record provably does not describe the effect about to be
++    ordered, and the recovered branch granted authorization in precisely it.
++
++    THE MISMATCH IS RESOLVED ON THE FACTS, through `_same_account` -- the
++    comparison this file already applies to the outcome chain and did not
++    apply here. A second comparison idiom would be a second answer to "does
++    this record say what is arriving now".
++
++    Two answers and no silent third:
++
++    * THE COMMITTED ACCOUNT SAYS EXACTLY THIS -> it authorizes the effect, and
++      the caller proceeds against the record already held. A signature
++      difference that is not an account difference is a canonicalisation
++      disagreement rather than a different act, and refusing on it would lose
++      a perfectly honest replay.
++    * IT SAYS SOMETHING ELSE -> this REFUSES, naming the facts compared, and
++      NO EFFECT IS ORDERED. The committed intent stands unrewritten; it simply
++      does not authorize this one.
++    """
++    held = _committed(store, attempt_id, operation_id,
++                      "attempt.cessation-intent",
++                      documents.ATTEMPT_CESSATION_INTENT)
++    if held is not None and _same_account(held, document):
++        return True
++    differ = _differing(held, document) if held is not None else ()
++    raise ContractRefusal(
++        "refused", "operation-collision",
++        f"attempt {name_value(attempt_id)} already holds a durable "
++        f"{name_value(document['component'])} cessation intent under "
++        f"operation {name_value(operation_id)}, and it does not describe the "
++        f"effect being ordered now"
++        + (f" -- {'; '.join(differ)}" if differ else
++           "; this manager committed that identity as something other than a "
++           "cessation intent")
++        + "; a committed intent naming other operands is not authorization "
++          "for this one, so no effect is ordered and the first account "
++          "stands") from collision
++
++
+ def ensure_cessation_intent(store, attempt_id, **facts):
+     """THE INTENT IS DURABLE BEFORE THE EFFECT IS ORDERED, or no effect is ordered.
+ 
+@@ -411,13 +675,15 @@
+     and did not deliver. Promising durability and delivering best-effort is
+     the defect; this answers it by refusing.
+ 
+-    THE RULE HAS EXACTLY TWO OUTCOMES and no silent third:
++    THE RULE HAS EXACTLY THREE OUTCOMES and no silent fourth:
+ 
+-    * A DURABLE INTENT EXISTS -> the caller proceeds, and the sentence
+-      answered here is appended to what it reports. A COLLISION SATISFIES
+-      THIS: the journal refusing because this act already holds a different
+-      intent record means an intent for this act IS durable, the first
+-      account stands, and the effect may be ordered. Replay stays honest.
++    * A DURABLE INTENT FOR THIS EFFECT EXISTS -> the caller proceeds, and the
++      sentence answered here is appended to what it reports. An EXACT REPLAY
++      reaches this through `store.replay`'s success path, which returns the
++      recorded value rather than raising.
++    * A DURABLE INTENT EXISTS AND DESCRIBES A DIFFERENT ACT -> this RAISES
++      and the effect is not ordered. W341357 item 1: the recovered branch read
++      that collision as authorization, which inverted it. See `_authorizes`.
+     * NOTHING WAS MADE DURABLE -> this RAISES, and the effect is not ordered.
+       The failure is observable because it propagates; it is not stepped over.
+ 
+@@ -437,7 +703,23 @@
+             store, attempt_id, **facts)
+     except ContractRefusal as failed:
+         if failed.code == "operation-collision":
+-            return _reported("cessation intent", None, failed)
++            # THE FACTS ARE COMPARED, and the id and document are rebuilt the
++            # one way the recorder builds them so the comparison is against
++            # the same act rather than a restatement of it.
++            attempt = _attempts._require_attempt(store, attempt_id)
++            operation_id = cessation_intent_operation_id(
++                attempt, facts["component"], facts["generation"])
++            document = documents.attempt_cessation_intent(
++                attempt_id=attempt_id,
++                expect=_attempts._fixed_assignment(attempt),
++                start_operation_id=_attempts._start_operation_id(attempt),
++                component=facts["component"], domain=facts["domain"],
++                generation=facts["generation"],
++                launched=bool(facts["launched"]),
++                runtime_id=facts["runtime_id"],
++                correlation_id=facts["correlation_id"])
++            _authorizes(store, attempt_id, operation_id, document, failed)
++            return _reported("cessation intent", operation_id, None)
+         raise
+     return _reported("cessation intent", operation_id, None)
+ 

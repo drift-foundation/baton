@@ -1,0 +1,12 @@
+authority 6dcb60dc...    generated for this instance
+job   none; no Work, grant or placeholder was created
+configuration /home/sl/baton-instances/useful-template-job-w366962/deployment.json
+capacity      {"job_affinity": {}, "jobs": 0, "note": "this instance binds no Job and configures no execution capacity; it serves a real idle scheduler and publisher over empty stores, and a worker, a Work, a declared base, a canonical target and a producer are supplied together when a Job is created", "schema": "baton.v12.stage-execution-deployment/2", "targets": [], "workers_by_role": {"implementation": [], "integration": [], "review": []}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/home/sl/baton-instances/useful-template-job-w366962/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/home/sl/baton-instances/useful-template-job-w366962/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="6dcb60dce5cd485b8bf03c24bc4afc82"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/home/sl/baton-instances/useful-template-job-w366962/deployment.json"

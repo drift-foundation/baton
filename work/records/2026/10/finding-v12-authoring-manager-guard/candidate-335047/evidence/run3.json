@@ -1,0 +1,1 @@
+{"returncode": 1, "seconds": 1.773365968001599, "command": ["python3", "-B", "-m", "unittest", "tests.manager.test_authoring_manager_guard.ManagerComposition.test_real_composition_admits_action_and_restart_never_reinvokes", "-v"]}

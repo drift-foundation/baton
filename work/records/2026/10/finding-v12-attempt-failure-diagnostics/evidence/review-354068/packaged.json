@@ -1,0 +1,28 @@
+{
+  "binary_sha256": "5c8aa0af8376ec9a26846f6b0d1e7862392411f0496fe5807028e5d88f0900f0",
+  "seconds": 0.46989369499897293,
+  "results": [
+    {
+      "case": "original",
+      "exit": 0,
+      "origin": {
+        "known": true,
+        "source": "status.boundaries",
+        "value": "compatibility"
+      },
+      "canary_absent": true,
+      "limits_time_preserved": true
+    },
+    {
+      "case": "private-origin",
+      "exit": 0,
+      "origin": {
+        "known": false,
+        "value": null,
+        "why": "origin carries a value this report does not own; the owned values are 'compatibility', 'job', and the received one is omitted rather than echoed"
+      },
+      "canary_absent": true,
+      "limits_time_preserved": true
+    }
+  ]
+}

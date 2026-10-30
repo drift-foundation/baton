@@ -1,0 +1,17 @@
+{
+  "raced_file": {
+    "returned_success": true,
+    "foreign_bytes": "foreign",
+    "owned": {}
+  },
+  "intermediate": {
+    "parent_left": true,
+    "root_left": false,
+    "tracked": [
+      "/tmp/tmpiui4hhlb/nested/root"
+    ]
+  },
+  "report_link_ancestor": [],
+  "new_root_mode_under_umask_zero": "0o777",
+  "foreign_child_survives_cleanup": false
+}

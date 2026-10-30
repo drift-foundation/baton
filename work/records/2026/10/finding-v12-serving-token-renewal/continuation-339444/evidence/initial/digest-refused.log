@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/tmp/w333485-preflight-gbmc0o84/negative-packet/verify-inputs.py", line 16, in <module>
+    doc = module.pins()
+  File "/tmp/w333485-preflight-gbmc0o84/negative-packet/prepare.py", line 58, in pins
+    raise RuntimeError('selected preparation input drifted: ' + name)
+RuntimeError: selected preparation input drifted: work/records/2026/10/finding-v12-serving-token-renewal/continuation-339444/TASK.md

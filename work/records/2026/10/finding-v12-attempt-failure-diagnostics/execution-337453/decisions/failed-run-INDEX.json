@@ -1,0 +1,39 @@
+{
+  "base": "a9f4fa4da2323a357ae15aefbc5d7d22d41487b6",
+  "cause": "The enforcement parent held the workspace manager instance; the child composition reached single_worker.worker_preflight -> workspaces.hold_manager_instance for the SAME workspace and control store and was refused policy/denied: \"another manager is already active for workspace ...; only one Host manager may be active for one workspace and database\". Owner reroute334895 recorded it; reviewer allocated W334910.",
+  "claim": 337453,
+  "copied_at": "2026-10-20",
+  "copied_by": "baton.claude",
+  "corrected_by": {
+    "checkpoint": "fb48797903160aa764229d58f3a5beaf29648bfc",
+    "how": "authoring_enforcement now runs ONE manager process (the child) holding the workspace guard for both the enforcement thread and the author, with the outer process reduced to a RemoteGuard watchdog that observes a published status file and composes no manager.",
+    "work": "W334910"
+  },
+  "files": {
+    "AUTHORING-COMMAND.json": {
+      "sha256": "f448e73109a3e9d91a52a04234eae4043ff5b89b52f845f40b2469d9149fa9e2",
+      "source": "/home/sl/baton-instances/attempt-diagnostics-w333486-334663/packet/AUTHORING-COMMAND.json"
+    },
+    "outcome.json.authoring.log": {
+      "sha256": "e929fe99352fe421b60922ae02ff39b3287d4a2e651b948af0b58b11cca0fa09",
+      "source": "/home/sl/baton-instances/attempt-diagnostics-w333486-334663/packet/outcome.json.authoring.log"
+    },
+    "outcome.json.enforcement-61598-1792437988247611207.json": {
+      "sha256": "cf013cd23a5f9613180576eb59250cf8aa9f016d714e25d0d453cad3357969ca",
+      "source": "/home/sl/baton-instances/attempt-diagnostics-w333486-334663/packet/outcome.json.enforcement-61598-1792437988247611207.json"
+    }
+  },
+  "instance": "/home/sl/baton-instances/attempt-diagnostics-w333486-334663",
+  "outcome": {
+    "child_exited": true,
+    "child_started": true,
+    "child_status": 1,
+    "elapsed_seconds": 0.5057386530024814,
+    "recovery_only": false,
+    "state": "held"
+  },
+  "preserved": "The instance itself is preserved unchanged at the path above; these are read-only copies taken into the dossier so the evidence survives independently of that directory. Nothing was rerun, recovered or mutated.",
+  "run": "attempt-diagnostics-w333486-334663",
+  "schema": "baton.w333486-failed-execution-evidence/1",
+  "what": "The FIRST actual v12 execution selected for this Work. Owner accepted execution-334663 (thread seq334822/334825/334829) and started it with packet/AUTHORING-COMMAND.json. It FAILED DURING STARTUP."
+}

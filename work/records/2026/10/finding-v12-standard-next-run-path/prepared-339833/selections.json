@@ -1,0 +1,80 @@
+{
+  "compose": {
+    "instance": {
+      "authority_store": "/tmp/baton-standard-next-run-w339626-339782/instance/db/authority.sqlite3",
+      "authority_uuid": "5a2f5ddc15f247e68f1cbe93b4de93d3",
+      "job_store": "/tmp/baton-standard-next-run-w339626-339782/instance/db/jobs.sqlite3",
+      "control_store": "/tmp/baton-standard-next-run-w339626-339782/instance/db/control.sqlite3",
+      "integration_store": "/tmp/baton-standard-next-run-w339626-339782/instance/db/integration.sqlite3",
+      "integration_profile": {
+        "profile_kind": "git",
+        "profile_version": 1,
+        "integrator_participant": "baton.merge",
+        "instructions_digest": "sha256:fafc35958002db5284b54f4d22cf59a7dccfb5ac05e15baa69db73fcff06d6f2"
+      },
+      "retention_policy_digest": "sha256:0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a",
+      "runtime_path": "/tmp/baton-standard-next-run-w339626-339782/instance/distro",
+      "build_commit": "1e576ff2186db69e8b44da9d38874ff7e99ebbe3"
+    },
+    "source_root": "/home/sl/src/baton",
+    "image_reference": "baton-v12-claude-worker:w239528-244216",
+    "image_digest": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2",
+    "cli_build": "2.1.247",
+    "manager_source": "/tmp/baton-standard-next-run-w339626-339782/code/v12/python",
+    "supervisor_path": "/tmp/baton-standard-next-run-w339626-339782/supervisor/baseline.py",
+    "vectors": "/home/sl/src/baton/work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json",
+    "participants": {
+      "implementation": "baton.impl",
+      "implementation_principal": "principal:baton.impl",
+      "review": "baton.review",
+      "review_principal": "principal:baton.review",
+      "receipts": {
+        "verification": "baton.verifier",
+        "review": "baton.approver-review",
+        "approval": "baton.approver"
+      },
+      "work_id": "5a2f5ddc-W1",
+      "worker_files": {
+        "opt/baton/attempt_log_format.py": "304152a5760e0ecf1c4e5947df3a402f3f141e3ccf3ebc9306fd7fc8f749de1f",
+        "opt/baton/baton_worker.py": "56cdee824193834e9f1e8e974259575219a9223aa9b4f1946c99099b35c5cd34",
+        "opt/baton/claude_agent.py": "18c34ff52faa150237df0c8d0206b805801ee71cb9e7a4ec6e84e4379d7f9d8d",
+        "opt/baton/dogfood_entry.py": "8012e5d8581e43fbfbef245c60901501e588f1dbc8a0a57b9ca2cdcdae2369c2",
+        "opt/baton/source_profiles/__init__.py": "c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad",
+        "opt/baton/source_profiles/checkout.py": "037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7",
+        "opt/baton/worker-control-1.0.schema.json": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+      },
+      "fixture_files": {
+        "work/records/2026/10/finding-v12-standard-next-run-path/TASK-339833.md": "a31ecf151e4aec0ff26c89512665df0384e92185108648ed0c2def2583ad4138",
+        "work/records/2026/10/finding-v12-standard-next-run-path/OWNER-RAPID-START-20261020.md": "70f4f50d1bac8a8ed9f7f5859433ec2528c8944e2c3d2833557c6870f8c8fe66",
+        "v12/DESIGN.md": "b7d5c84aaf107ad6768d4fa806f6720b03c1905608c002d5ee636887851739f5"
+      }
+    },
+    "credential_sources": "/home/sl/.baton/credential-sources.json",
+    "credential_profile": {
+      "claude": {
+        "provider": "operator-file",
+        "reference": "w202663-development"
+      }
+    },
+    "evidence_digest": "sha256:70f4f50d1bac8a8ed9f7f5859433ec2528c8944e2c3d2833557c6870f8c8fe66",
+    "provider_network": "bridge",
+    "run_id": "baton-standard-next-run-w339626-339782",
+    "work": "W339626",
+    "claim": 339833,
+    "note": "Rapid reusable preparation; preparation only, launch unselected, independent candidate acceptance required.",
+    "bounds": {
+      "turn_seconds": 3600,
+      "total_seconds": 4800,
+      "cleanup_seconds": 60,
+      "implementer_invocations": 1,
+      "retry": false
+    },
+    "context_mode": "fresh",
+    "task_instructions": "Implement W339626: a supported reusable rapid next-run path. Consume a task description and a few selected files with accepted base/runtime/limits. Reuse existing bootstrap, baseline_bindings composition, validation and authoring_enforcement owners; move durable product code into tools where appropriate. Emit bound configuration, compact delta/evidence-reference receipts, and one authoritative enforced launch/read-only status command set. Never launch merely by preparing. Never use the current composer unenforced baseline start. Bind the controller AND authoring_shutdown helper and actual loaded sources.\nOwner requirement 2026-10-20: routine preparation/startup <=60 seconds from receipt of description/selected files to observed substantive agent work. Include all routine input assembly, validation and launch. No routine script authoring, test writing or bespoke packet engineering. Do not hide such engineering outside the interval. State interval endpoints and supported-environment assumptions. Missing work-start evidence is unknown, never success. Task thinking/coding/testing after startup can take30 minutes. One-time development/bootstrap is not routine-startup evidence.\nProve two different input-only tasks/runs using unchanged preparer code and no copied histories, exact base/task/runtime/helper binding and consistent resolved limits, generated enforced command reaching controller, stale/missing/foreign-import/incompatible-input/collision/partial-preparation/consumed-run refusal. Use deterministic provider/engine boundaries with real affected owners; label simulation and do not invent live startup evidence or authority receipts. Retain partial and uncertain outcomes. Preparation success is separate from candidate acceptance.\nNo renewal, token, acceptance, permission or context-reuse semantics changes. No native coordination/cutover or broad framework. Do not alter sibling packets or host repository. Existing Work W333485/W333486 remain independent. Choose necessary source/tests/docs within this outcome; record actual paths and evidence. Preserve source/base provenance and independent reviewer handback.\nCurrent bootstrap vehicle has provider ceiling3600, total4800, cleanup60, one invocation/no retry, verification30, and an enforced900-second resource lease. Do not change these or assume renewal. The delivered preparer must resolve new-run verification limits consistently or refuse unsupported choices; never silently alter old runs. Create focused tests in tests.tools.test_next_run; passing tests must include new behavior, not empty registry. Final fixed gate also includes tests.manager.test_authoring_enforcement; longer focused checks inside the Job may be recorded separately. No live provider tests or extra Docker operations for verification.\nDeliver retained candidate and exact measured verification/limitations for independent review; do not self-accept. The owner rapid-start ruling and current DESIGN OBS-0 are supplied as declared fixtures, because the committed source predates that ruling. Apply that normative requirement without weakening it to current implementation.\n",
+    "verification": [
+      "python3",
+      "-c",
+      "import os,sys,unittest; os.chdir('v12/python'); roots=[os.getcwd(),os.path.join(os.getcwd(),'src')]; sys.path[:0]=roots; os.environ['PYTHONPATH']=os.pathsep.join(roots); r=unittest.TextTestRunner(verbosity=1).run(unittest.defaultTestLoader.loadTestsFromNames(['tests.tools.test_next_run','tests.manager.test_authoring_enforcement'])); sys.exit(0 if r.wasSuccessful() and not r.skipped else 1)"
+    ]
+  }
+}

@@ -1,0 +1,18 @@
+{
+ "answers": {
+  "launch_schema": "baton.worker-launch/5",
+  "session_at_top_level": false,
+  "session_read_through_container_of": "session-one",
+  "unwrapped_entry_constructed": false,
+  "unwrapped_entry_order": [
+   "read-launch"
+  ],
+  "wrapped_entry_constructed": true,
+  "wrapped_entry_order": [
+   "read-launch",
+   "adapter-constructed"
+  ]
+ },
+ "note": "The probe recorded production_entry_exit 2 for a valid wrapper and the order adapter-constructed then read-launch. The session is now read from the container document, and the launch boundary is established before the adapter on the shipped entry path.",
+ "replayed": "work/records/2026/10/finding-v12-typed-adapter-exchange/evidence/review-378063/ENTRYPOINT-FINAL.json"
+}

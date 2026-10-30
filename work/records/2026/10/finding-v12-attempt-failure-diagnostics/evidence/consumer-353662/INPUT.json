@@ -1,0 +1,97 @@
+{
+  "base": "bc925cf5c62d69426ed5862af4d41f4d2a967b0f",
+  "producer_manifest": "0143f146b8f7562ef60f22c4f0984670301f338e2687af806ebff6df2e08b807",
+  "producer_files": [
+    {
+      "path": "W341357-VERIFICATION.json",
+      "sha256": "957e6c104a6468822c66c999815136dca586ee437eaffb944781a0933ea25079",
+      "base_sha256": null,
+      "bytes": 91468
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/attempts.py",
+      "sha256": "f48c55193510ace5dd4a0571ffaf1f3cb78084966bb858c9bf37a7e2e7b7fc91",
+      "base_sha256": "726197972a9b2558cbfa4eabfd877053a8ffbcd7c1b4c3f3f2b4c9372f85bbab",
+      "bytes": 216569
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/documents.py",
+      "sha256": "376e62ab5bab0bcec8c4b662cd8b94935a1732f9ec2692a10bb9cb4af5a962c8",
+      "base_sha256": "898b8a65e99f8a289d5a460b74fca080d7cc6ede35c2bd48fe76e8d49e7a9fde",
+      "bytes": 55434
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/failure_cause.py",
+      "sha256": "776f5932dc9c3d0f2df7ffed4e895078806def020d829a47563801da9621f1a3",
+      "base_sha256": null,
+      "bytes": 76756
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/intake.py",
+      "sha256": "71f0ef60bd5b26409e9c24fe49bd2ace1382e8ef1cb0ab8b3e2a5a44deae3d97",
+      "base_sha256": "1f23b03ef404d7f7803f425b126b968e08a7fa9658ff218770e8e47bb6f1ae9d",
+      "bytes": 345152
+    },
+    {
+      "path": "v12/python/tests/manager/disk_roots.py",
+      "sha256": "a1dd203287116ce60dfb6479f4ced25cccb106f3b775827c7e4f5409c779c4e4",
+      "base_sha256": "53dc1fa9b99697c8b6ea0597579ba05135a6a7707f798d15d9a8da2b5dd85c08",
+      "bytes": 5373
+    },
+    {
+      "path": "v12/python/tests/manager/input_roots.py",
+      "sha256": "86a01fae28809f1be541a6756653257354885fc9cc84957967836335b4db0fab",
+      "base_sha256": "6d6fae239a3b01c72fefc01650ca198d2c46c24f14eb04528123c45210403590",
+      "bytes": 7956
+    },
+    {
+      "path": "v12/python/tests/manager/test_attempt_failure_cause.py",
+      "sha256": "8371cbb8b28e16572defe0ef4c0a0efd09a4d41ea6ab22c92cdc1c6efcf94e30",
+      "base_sha256": null,
+      "bytes": 112720
+    },
+    {
+      "path": "v12/python/tests/manager/test_intake.py",
+      "sha256": "88bdda6bacb2b17c58ecdf9f7a8aaf1cec4fb300906960d26888040f87c23809",
+      "base_sha256": "0ef804dc6d6ab1ed763d5ab948b4dd21c7cac0c6ca8818ee33827b36d14ff4ca",
+      "bytes": 212423
+    },
+    {
+      "path": "v12/python/tests/manager/test_maintenance.py",
+      "sha256": "e3c90ab294273fa9ff81709ecaae74c857f8a52d1db616b1de3237f411fc53af",
+      "base_sha256": "648a6724fd3311a2f6908e1ee7ffba310b5bd23062365902d2cc478d167bdb7b",
+      "bytes": 194367
+    },
+    {
+      "path": "v12/python/tests/manager/test_output.py",
+      "sha256": "b0e5d9839fcada66668eedca82a0912560cf13ec7ccf359e9b195a968c131b80",
+      "base_sha256": "3d5507c5bf4233359a104b8040814397c0a5031afc86b4ef1b534bd4136c72b5",
+      "bytes": 43691
+    }
+  ],
+  "downstream": [
+    "v12/python/src/baton_v12/job_manager/delegation.py",
+    "v12/python/src/baton_v12/job_manager/documents.py",
+    "v12/python/src/baton_v12/job_manager/projection.py",
+    "v12/python/tests/job_manager/test_delegation.py",
+    "v12/python/tests/job_manager/test_exchange.py",
+    "v12/python/tests/job_manager/test_execution_limits.py",
+    "v12/python/tests/job_manager/test_tool.py",
+    "v12/python/tests/tools/test_bootstrap.py",
+    "v12/python/tests/tools/test_worker_visibility.py",
+    "v12/python/tools/stack.py",
+    "v12/python/tools/stack_command.py",
+    "v12/python/tools/worker_visibility.py",
+    "v12/python/tools/attempt_diagnostics.py",
+    "v12/python/tests/tools/test_attempt_diagnostics.py"
+  ],
+  "omitted_obsolete_producer": [
+    "v12/python/src/baton_v12/worker_manager/attempts.py",
+    "v12/python/src/baton_v12/worker_manager/documents.py",
+    "v12/python/src/baton_v12/worker_manager/intake.py"
+  ],
+  "recovery_sha256": "02cc4cb43d6235c871a6ed3bf7137c3c34acfa565f316165ba2f977f9a493a76",
+  "index_locator": "evidence/run-340352/INDEX.json",
+  "verified_recovery_members": 14,
+  "root": "/tmp/w333486-353662"
+}

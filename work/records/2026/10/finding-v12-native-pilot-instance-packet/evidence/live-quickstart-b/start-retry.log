@@ -1,0 +1,12 @@
+started: manager pid 383171
+started: publisher pid 383172
+ready: every manager this start ran acknowledged that its deployment composed, and the publisher wrote a valid, freshly observed snapshot
+state root: /home/sl/baton-instances/native-coordination-pilot-w321608-2/state
+no Job was submitted; an empty configured stack is a valid idle state
+manager    running pid 383171
+publisher  running pid 383172
+snapshot   fresh (observed 0.2s ago, written 0.2s ago)
+jobs       1 observed (canonical=True)
+serving    acknowledged
+runtime   2 open episode(s), 0 with a recorded runtime, observed 0.2s ago
+          stopping a supervisor does not stop a runtime, and this is the last RECORDED answer rather than a fresh one

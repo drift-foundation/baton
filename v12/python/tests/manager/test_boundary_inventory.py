@@ -2332,11 +2332,19 @@ STATED_OWNERS = {
     ("caller", "review_cycles.py:audit_checkpoint", "profile"): "the same",
     ("caller", "review_cycles.py:review_boundary", "profile"):
         "an injected profile aggregate whose validate capability is typed before use",
+    # W384870 S1: the two restoration entries type their profile aggregate
+    # through `_profile` (name text, then the restore_checkpoint/validate
+    # capabilities) under the same rule; probed indirectly by the restoration
+    # tests, stated here because the capability label is an f-string.
+    ("caller", "review_cycles.py:restore_abandoned_correction", "profile"): "the same",
+    ("caller", "review_cycles.py:settle_restoration_execution", "profile"): "the same",
     ("caller", "review_cycles.py:record_verdict", "disposition"):
         "compared against the closed review disposition vocabulary before use",
     ("caller", "review_cycles.py:record_progress", "document"):
         "canonicalized before it reaches either the signature or durable row",
-    ("adopted", "review_cycles.py:create_line", "review_lines"):
+    # W384870 (B2): W301404 moved create_line's read into `_reserved_line`,
+    # which still forwards the row through line_of; the claim moves with it.
+    ("adopted", "review_cycles.py:_reserved_line", "review_lines"):
         "the complete row is forwarded through line_of's canonical row decoder",
     ("adopted", "review_cycles.py:attach_review", "line_writers"):
         "a SELECT 1 existence answer; no row member crosses into this manager",
@@ -2355,16 +2363,12 @@ STATED_OWNERS = {
         "forwarded to the shared input-root topology proof",
     ("caller", "source_boundary.py:compose_runtime_storage_boundary", "roots.workspace"):
         "forwarded to the shared disk-backed workspace object proof",
-    # Assignment facts returned by assignment_of are already-owned adopted
-    # attempt-row values. Each consumer compares them; none is caller input.
-    **{("caller", f"review_cycles.py:{site}", f"answer.{member}"):
-       "an already-owned activated-attempt projection from assignment_of"
-       for site in ("grant_writer", "attach_review")
-       for member in ("authority_uuid", "work_id", "generation",
-                      "participant", "principal")},
-    **{("caller", "review_cycles.py:writer_boundary", f"answer.{member}"):
-       "an already-owned activated-attempt projection from assignment_of"
-       for member in ("authority_uuid", "work_id", "generation")},
+    # W384870 (B2): the thirteen `answer.<member>` claims for grant_writer,
+    # attach_review and writer_boundary are gone. Those functions no longer
+    # project assignment facts through an `answer`; they call `assignment_of`
+    # and compare through `_same_assignment`, and the discovered universe holds
+    # no such crossings any more. A claim over an entry that does not exist is
+    # exactly what `test_no_declared_owner_is_stale` refuses.
     # -- W71917: the source/workspace boundary -------------------------------
     #
     # THREE SHAPES, AND EACH IS A DIFFERENT REASON. None of them is a caller
@@ -3273,8 +3277,54 @@ NO_PROBE = {
         "the one read of this table SELECTS BY this column, so a spoiled value "
         "makes the row unfindable and a probe would prove absence rather than "
         "the rule; the contract still owns it for any later reader",
+    # W384870 (B2): the inventory now attributes the same crossing to the two
+    # other modules that select an attempt by its id; the same absence
+    # argument holds at each of them (the probe reached "no runtime attempt",
+    # the precondition, never the row validator).
+    ("adopted", "intake.py:_attempt_of", "attempts.runtime_attempt_id"):
+        "the same: this module's one read SELECTS BY this column",
+    ("adopted", "output.py:_attempt_of", "attempts.runtime_attempt_id"):
+        "the same: this module's one read SELECTS BY this column",
     ("adopted", "interrogation.py:_row", "interrogations.session_epoch"):
         "the same: a session epoch column SQLite will not let a writer spoil",
+    # W384870 S4: `count` columns are INTEGER STRICT -- SQLite refuses what a
+    # corruption probe would write, so there is no probe to drive
+    # (`owned_by_sqlite`); each is named here, at the read that adopts it, as
+    # the attempt probes' derivation requires.
+    ("adopted", "attempts.py:_attempts", "attempts.activity_bytes"):
+        "a count column SQLite will not let a writer spoil",
+    ("adopted", "sessions.py:_attempt", "attempts.assignment_generation"):
+        "the same: a count column SQLite will not let a writer spoil",
+    ("adopted", "output.py:_attempt_of", "attempts.assignment_generation"):
+        "the same: a count column SQLite will not let a writer spoil",
+    ("adopted", "intake.py:_attempt_of", "attempts.assignment_generation"):
+        "the same: a count column SQLite will not let a writer spoil",
+    ("adopted", "sessions.py:_session_row", "agent_sessions.generation"):
+        "the same: a count column SQLite will not let a writer spoil",
+    ("adopted", "interrogation.py:_row", "interrogations.assignment_generation"):
+        "the same: a count column SQLite will not let a writer spoil",
+    ("adopted", "interrogation.py:interrogations_of", "interrogations.assignment_generation"):
+        "the same: a count column SQLite will not let a writer spoil",
+    ("adopted", "interrogation.py:interrogations_of", "interrogations.session_epoch"):
+        "the same: a count column SQLite will not let a writer spoil",
+    ("caller", "exchange.py:command_document", "attempt_id"):
+        "owned twice by one rule: `_value` refuses under 'an exchange document "
+        "value' every operand `boundaries.identity` would refuse after it, so "
+        "the identity label is unreachable; the probe of `_value` stands",
+    ("adopted", "sessions.py:_session_row", "agent_sessions.posture"):
+        "_session_row SELECTS BY this column; the same absence argument",
+    ("adopted", "sessions.py:_session_row", "agent_sessions.runtime_attempt_id"):
+        "_session_row SELECTS BY this column; the same absence argument",
+    ("adopted", "interrogation.py:_row", "interrogations.runtime_attempt_id"):
+        "interrogation_of's row is selected by this attempt; the same absence argument",
+    # W384870 S4: the columns each interrogation read SELECTS BY, at that read.
+    ("adopted", "interrogation.py:_row", "interrogations.operation_id"):
+        "interrogation_of SELECTS BY this column, so a spoiled value makes the "
+        "row unfindable and a probe would prove absence rather than the rule",
+    ("adopted", "interrogation.py:interrogations_of", "interrogations.runtime_attempt_id"):
+        "interrogations_of SELECTS BY this column; the same absence argument",
+    ("adopted", "interrogation.py:interrogations_of", "interrogations.posture"):
+        "interrogations_of SELECTS BY this column; the same absence argument",
     # -- W6629: intake, retention and cleanup --------------------------------
     ("adopted", "intake.py:intake_receipt_of", "intake_artifacts.bytes"):
         "the same: an artifact byte count SQLite will not let a writer spoil",
@@ -3633,8 +3683,9 @@ DELEGATED = {
     # W6627 re-review [P1]: the probe observation's members are owned before
     # any of them is returned or persisted. `_diagnostics` is where the
     # provider's free-form report becomes an exact bounded document.
-    ("injected", "interrogation.py:probe", "agent.probe.diagnostics"):
-        ("interrogation.py:_diagnostics", "caller:given"),
+    # W384870 (B2): the inventory now DISCOVERS that owner by itself, so the
+    # stated claim here made the entry owned twice; removed, the discovered
+    # owner stands alone.
     # -- W6628: the output freeze and the sealed receiver --------------------
     #
     # TWO SHARED OWNERS, each written once. The kind a retained document must
@@ -3823,6 +3874,83 @@ DELEGATED = {
     # same rule, at the site that has always owned it.
     ("caller", "worker_entry.py:converse", "channel_port"):
         ("worker_entry.py:ChannelPort.__init__", "caller:open_channel"),
+    # -- W384870 S1 (owner M384898): attribution of DEMONSTRATED existing
+    # validation. Each entry names the private owner that calls `boundaries`
+    # on exactly this operand; `delegated_labels` reads that owner's code, and
+    # `w384870_probes` drives each public entry with the operand spoiled and
+    # requires the owner's own label -- the negative evidence that removing or
+    # bypassing the check is detected. Generated from the inventory's own
+    # delegation walk (`_delegations` + `_owned_here`) and reviewed one by one;
+    # candidates whose owner is not reachable from the public entry without a
+    # composed world were NOT added and remain per-case (S2/S3).
+    **{("caller", f"attempts.py:{site}", "attempt_id"):
+       ("attempts.py:_attempt_row", "caller:attempt_id")
+       for site in ("assignment_of", "attempt_activity_of", "attempt_runtime_of",
+                    "attempt_start_failure_of", "authorize_input_root", "label_context",
+                    "observe_activity", "recorded_input_of", "unstarted_cancellation_of")},
+    ("caller", "exchange.py:command_document", "session"):
+        ("exchange.py:_value", "caller:given"),
+    **{("caller", f"review_cycles.py:{site}", subject):
+       ("review_cycles.py:_requested_pair", f"caller:{subject}")
+       for site in ("abandoned_correction_of", "restore_abandoned_correction",
+                    "review_for_attempt", "settle_restoration_execution", "writer_for_attempt")
+       for subject in ("attempt_id", "generation")},
+    # The two restoration entries' `profile` operands are NOT delegated here:
+    # `_profile`'s second label is an f-string over the method name, which the
+    # probe harness cannot assert as a fragment, so -- like record_verdict and
+    # review_boundary before them -- they are STATED (see STATED_OWNERS).
+    **{("caller", f"provider_context.py:{site}", subject):
+       ("provider_context.py:_text", "caller:value")
+       for site, subject in (("admit_context_use", "attempt_id"), ("admit_context_use", "writer_id"),
+                             ("authorize_qualification_run", "job_id"),
+                             ("authorize_qualification_run", "storage_path"),
+                             ("bind_context_invocation", "attempt_id"),
+                             ("context_of", "context_id"),
+                             ("correction_feedback_of", "attempt_id"),
+                             ("hold_context_use", "attempt_id"),
+                             ("prove_context_execution", "attempt_id"),
+                             ("qualification_deployment", "authority_uuid"))},
+    **{("caller", "provider_context.py:certify_context_profile", subject):
+       ("provider_context.py:_document", "caller:value")
+       for subject in ("profile",) + tuple(f"profile.{member}" for member in (
+           "schema", "qualification", "evidence_digest", "cli_build", "image_digest", "adapter_digest",
+           "runtime_profile_digest", "argv_policy_digest", "environment_policy_digest", "layout_version",
+           "reported_model", "model", "cwd", "state_paths", "max_entries", "max_bytes",
+           "retention_policy_digest"))},
+    **{("caller", "provider_context.py:certify_production_profile", subject):
+       ("provider_context.py:_document", "caller:value")
+       for subject in ("profile",) + tuple(f"profile.{member}" for member in (
+           "schema", "qualification", "evidence_digest", "cli_build", "image_digest", "adapter_digest",
+           "runtime_profile_digest", "argv_policy_digest", "environment_policy_digest", "layout_version",
+           "reported_model", "model", "cwd", "state_paths", "max_entries", "max_bytes",
+           "retention_policy_digest"))},
+    # W384870 S1 batch 2: launch, oci, sessions, workspaces.
+    ("caller", "launch.py:launch_document", "job_execution"):
+        ("launch.py:_job_execution", "caller:given"),
+    **{("caller", "launch.py:launch_document", f"job_execution.{member}"):
+       ("launch.py:_job_execution", "caller:given")
+       for member in ("attempt_id", "execution_limits", "execution_limits_digest", "job_id", "job_input_digest",
+                      "job_policy_digest", "runtime_input_digest", "runtime_policy_digest")},
+    # The execution-limits document inside it has ITS OWN owner and label.
+    **{("caller", "launch.py:launch_document", f"job_execution.execution_limits.{member}"):
+       ("launch.py:_configuration", "caller:given")
+       for member in ("compatibility_generation", "requested")},
+    **{("caller", f"oci.py:{site}", "engine"): ("oci.py:_engine", "caller:engine")
+       for site in ("activation_vector", "exec_vector", "run_vector")},
+    **{("caller", f"sessions.py:{site}", f"session_ref.{member}"):
+       ("sessions.py:_session_ref", "caller:session_ref")
+       for site, members in (("close_agent_session", ("posture", "session_epoch")),
+                             ("handle_transport_loss", ("posture", "session_epoch")),
+                             ("observe_session_state", ("posture", "provider_session_id",
+                                                        "runtime_attempt_id", "session_epoch")))
+       for member in members},
+    **{("caller", f"workspaces.py:{site}", "assignment_id"):
+       ("workspaces.py:_assignment_identity", "caller:assignment_id")
+       for site in ("adopted_assignment_workspace", "assignment_workspace",
+                    "discard_execution_roots", "discard_workspace")},
+    **{("caller", f"workspaces.py:{site}", subject): ("workspaces.py:_real", "caller:path")
+       for site, subject in (("copied_manifest", "root"), ("read_input_root", "inputs"),
+                             ("refuse_if_held", "storage"), ("restoration_lock_path", "storage"))},
 }
 
 
@@ -3830,6 +3958,46 @@ def delegated_labels(entry):
     """The labels the delegate owns, read from the DELEGATE's own code."""
     site, stem = DELEGATED[entry]
     return _owned_here(site, stem)
+
+
+def _probe_covers(fragment, label):
+    """Does a probe keyed by `fragment` answer for the owner's `label`?
+
+    W384870 S4: the owners' labels are RESOLVED through the caller's context
+    now (`the claim answer's identity`, `the live assignment's generation`),
+    while the probe tables were keyed by the fragment the code says (`'s
+    identity`) -- exactly what `test_every_declared_probe_reaches_its_named_
+    boundary` asserts of every probe (`fragment in full`). A label the
+    resolver could not finish keeps its placeholders (`{what}, when it is
+    given,`), and the fragment is the text around them. Either way the probe
+    is the same probe, driving the same owner; only the key's spelling moved.
+    """
+    if fragment == label:
+        return True
+    if fragment and fragment in label:
+        return True
+    if "{" in label:
+        pieces = re.split(r"\{[^}]*\}", label)
+        return fragment in pieces or fragment == "".join(pieces)
+    return False
+
+
+def _unprobed(wanted, declared):
+    """The wanted (entry, label) pairs no declared probe answers for."""
+    by_entry = {}
+    for entry, fragment in declared:
+        by_entry.setdefault(entry, []).append(fragment)
+    return {pair for pair in wanted
+            if not any(_probe_covers(fragment, pair[1]) for fragment in by_entry.get(pair[0], ()))}
+
+
+def _unowned_probes(wanted, declared):
+    """The declared (entry, fragment) pairs that answer for no wanted label."""
+    by_entry = {}
+    for entry, label in wanted:
+        by_entry.setdefault(entry, []).append(label)
+    return {pair for pair in declared
+            if not any(_probe_covers(pair[1], label) for label in by_entry.get(pair[0], ()))}
 
 
 class BoundaryCase(unittest.TestCase):
@@ -4278,6 +4446,17 @@ class BoundaryCase(unittest.TestCase):
                "a persisted interrogation")] = (
             "a persisted interrogation",
             self.spoiling_interrogation("kind", driver="many"))
+        # W384870 S4: every other column each reading site adopts. `count`
+        # columns are SQLite's own (`owned_by_sqlite`), and the columns a site
+        # SELECTS BY are NO_PROBE there, for the reason that table gives.
+        for column in ("assignment_participant", "deadline_at", "requested_at", "settled_at"):
+            found[(at(f"{I}:_row", f"interrogations.{column}", "adopted"), "a persisted interrogation")] = (
+                "a persisted interrogation", self.spoiling_interrogation(column))
+        for column in ("answer", "assignment_participant", "authority_uuid", "deadline_at", "kind",
+                       "observation", "operation_id", "outcome", "published_at", "requested_at",
+                       "settled_at", "work_id"):
+            found[(at(f"{I}:interrogations_of", f"interrogations.{column}", "adopted"), "a persisted interrogation")] = (
+                "a persisted interrogation", self.spoiling_interrogation(column, driver="many"))
         return found
 
     # -- W6632: the constrained OCI adapter core -----------------------------
@@ -5878,6 +6057,13 @@ class BoundaryCase(unittest.TestCase):
                 "a persisted attempt",
                 lambda name=name: derive[name](
                     dict(row, runtime_attempt_id=SURROGATE)))
+            # W384870 S4: the four assignment members these two identities
+            # also read, each spoiled on its own, as retain/destroy below.
+            for member in ("work_id", "authority_uuid", "assignment_participant",
+                           "assignment_generation"):
+                found[(at(f"{I}:{name}", f"attempt.{member}"), "a persisted attempt")] = (
+                    "a persisted attempt",
+                    lambda name=name, member=member: derive[name](dict(row, **{member: SURROGATE})))
         for name in ("retain_operation", "destroy_operation"):
             members = ("runtime_attempt_id", "work_id", "authority_uuid",
                        "assignment_participant", "assignment_generation")
@@ -8125,7 +8311,19 @@ class EveryProbeProvesItArrived(BoundaryCase):
             body.update(overrides)
             engine = body.pop("engine")
             run = body.pop("run")
-            return lambda: custody.custody_act(engine, run, **body)
+
+            def act():
+                # W384870 (B2): `custody_act` now resolves the DEPLOYMENT's
+                # configured workspace store before it composes anything
+                # (W71917), so a probe world without one is refused at that
+                # precondition and never reaches the operand owners these
+                # probes prove. Configured at RUN time, in this probe's own
+                # world, the way every other store-dependent probe does it.
+                place = os.path.join(self.root, "custody-storage")
+                os.makedirs(place, exist_ok=True)
+                workspaces.configure_workspace_storage(self.store, place)
+                return custody.custody_act(engine, run, **body)
+            return act
 
         class Seam:
             custodian_image_digest = "sha256:" + "c" * 64
@@ -8276,7 +8474,476 @@ class EveryProbeProvesItArrived(BoundaryCase):
                 **self.source_boundary_probes(),
                 **self.review_cycle_probes(),
                 **self.worker_entry_probes(),
-                **self.token_probes()}
+                **self.token_probes(),
+                **self.w384870_probes()}
+
+    PROFILE_MEMBERS = ("schema", "qualification", "evidence_digest", "cli_build", "image_digest",
+                       "adapter_digest", "runtime_profile_digest", "argv_policy_digest",
+                       "environment_policy_digest", "layout_version", "reported_model", "model", "cwd",
+                       "state_paths", "max_entries", "max_bytes", "retention_policy_digest")
+
+    def w384870_probes(self):
+        """W384870 S1: one probe per delegated entry added under M384898.
+
+        EACH PROBE SPOILS EXACTLY ONE OPERAND and leaves the rest well-formed,
+        so the refusal that arrives is the delegate's own label and not an
+        earlier precondition's. A probe that reaches another refusal fails,
+        which is the point: the claim "this helper owns this operand at this
+        entry" is then shown false, not papered over.
+        """
+        from baton_v12.worker_manager import attempts, exchange, provider_context
+        store, port = self.store, self.port
+        DIGEST = "sha256:" + "a" * 64
+        found = {}
+
+        def at(site, subject):
+            return ("caller", site, subject)
+
+        def probe(site, subject, label, run):
+            found[(at(site, subject), label)] = (label, run)
+
+        # attempts: `_attempt_row` refuses an id that is not an id before any read.
+        for name in ("assignment_of", "attempt_activity_of", "attempt_runtime_of",
+                     "attempt_start_failure_of", "label_context", "recorded_input_of"):
+            probe(f"attempts.py:{name}", "attempt_id", "a runtime attempt id",
+                  (lambda fn: lambda: fn(store, SURROGATE))(getattr(attempts, name)))
+        probe("attempts.py:authorize_input_root", "attempt_id", "a runtime attempt id",
+              lambda: attempts.authorize_input_root(store, attempt_id=SURROGATE, inputs=None))
+        probe("attempts.py:observe_activity", "attempt_id", "a runtime attempt id",
+              lambda: attempts.observe_activity(store, attempt_id=SURROGATE, bytes_observed=0))
+        probe("attempts.py:unstarted_cancellation_of", "attempt_id", "a runtime attempt id",
+              lambda: attempts.unstarted_cancellation_of(store, port, SURROGATE))
+        # exchange: the command document's session value.
+        probe("exchange.py:command_document", "session", "an exchange document value",
+              lambda: exchange.command_document(session=SURROGATE, attempt_id="attempt-1"))
+        # review_cycles: `_requested_pair` types the pair before any selection.
+        pairs = {"abandoned_correction_of": {}, "review_for_attempt": {}, "writer_for_attempt": {},
+                 "restore_abandoned_correction": {"retention_policy_digest": RETENTION_POLICY, "profile": None,
+                                                  "launcher": None, "cessation": None},
+                 # settle_restoration_execution demands a cessation observer and a
+                 # launcher before it types the profile; any objects serve here.
+                 "settle_restoration_execution": {"profile": None, "cessation": object(), "launcher": object()}}
+        for name, extra in pairs.items():
+            fn = getattr(review_cycles, name)
+            probe(f"review_cycles.py:{name}", "attempt_id", "a runtime attempt id",
+                  (lambda fn, extra: lambda: fn(store, attempt_id=SURROGATE, generation=1, **extra))(fn, extra))
+            probe(f"review_cycles.py:{name}", "generation", "an assignment generation",
+                  (lambda fn, extra: lambda: fn(store, attempt_id="attempt-1", generation=SURROGATE, **extra))(fn, extra))
+        # provider_context: `_text` refuses before any store is touched.
+        text = "provider context identity"
+        probe("provider_context.py:admit_context_use", "attempt_id", text,
+              lambda: provider_context.admit_context_use(None, None, None, attempt_id=SURROGATE, writer_id="w", profile_digest=DIGEST))
+        probe("provider_context.py:admit_context_use", "writer_id", text,
+              lambda: provider_context.admit_context_use(None, None, None, attempt_id="attempt-1", writer_id=SURROGATE, profile_digest=DIGEST))
+        probe("provider_context.py:authorize_qualification_run", "job_id", text,
+              lambda: provider_context.authorize_qualification_run(None, run_id="run-1", profile_digest=DIGEST, storage_path="/x", authority_uuid=AUTHORITY, job_id=SURROGATE, note="n"))
+        probe("provider_context.py:authorize_qualification_run", "storage_path", text,
+              lambda: provider_context.authorize_qualification_run(None, run_id="run-1", profile_digest=DIGEST, storage_path=SURROGATE, authority_uuid=AUTHORITY, job_id="job", note="n"))
+        probe("provider_context.py:bind_context_invocation", "attempt_id", text,
+              lambda: provider_context.bind_context_invocation(None, None, None, attempt_id=SURROGATE, writer_id="w", profile_digest=DIGEST, task_bytes=b"x"))
+        probe("provider_context.py:context_of", "context_id", text,
+              lambda: provider_context.context_of(None, SURROGATE))
+        probe("provider_context.py:correction_feedback_of", "attempt_id", text,
+              lambda: provider_context.correction_feedback_of(None, None, SURROGATE))
+        probe("provider_context.py:hold_context_use", "attempt_id", text,
+              lambda: provider_context.hold_context_use(None, attempt_id=SURROGATE, reason=sorted(provider_context.REASONS)[0], evidence_refs=[]))
+        probe("provider_context.py:prove_context_execution", "attempt_id", text,
+              lambda: provider_context.prove_context_execution(None, SURROGATE))
+        probe("provider_context.py:qualification_deployment", "authority_uuid", text,
+              lambda: provider_context.qualification_deployment(None, SURROGATE))
+        # provider_context: `_document` owns the profile document and its members.
+        meta = "provider context metadata"
+        full = {member: "x" for member in self.PROFILE_MEMBERS}
+        probe("provider_context.py:certify_context_profile", "profile", meta,
+              lambda: provider_context.certify_context_profile(None, SURROGATE))
+        probe("provider_context.py:certify_production_profile", "profile", meta,
+              lambda: provider_context.certify_production_profile(None, SURROGATE, {}))
+        for member in self.PROFILE_MEMBERS:
+            lacking = {k: v for k, v in full.items() if k != member}
+            probe("provider_context.py:certify_context_profile", f"profile.{member}", meta,
+                  (lambda doc: lambda: provider_context.certify_context_profile(None, doc))(lacking))
+            probe("provider_context.py:certify_production_profile", f"profile.{member}", meta,
+                  (lambda doc: lambda: provider_context.certify_production_profile(None, doc, {}))(lacking))
+        # launch: the job execution document and its required members.
+        from baton_v12.worker_manager import launch, oci, sessions
+        job = "a launch document's job execution"
+        def launching(**over):
+            given = {"session": "session-1", "contract": "contract-1", "role": "implementation",
+                     "transport": exchange.EXCHANGE_TRANSPORT, "job_execution": SURROGATE}
+            given.update(over)
+            return lambda: launch.launch_document(**given)
+        probe("launch.py:launch_document", "job_execution", job, launching())
+        complete = {member: "x" for member in launch.JOB_EXECUTION_MEMBERS}
+        for member in launch.JOB_EXECUTION_MEMBERS:
+            lacking = {k: v for k, v in complete.items() if k != member}
+            probe("launch.py:launch_document", f"job_execution.{member}", job, launching(job_execution=lacking))
+        limits = "a launch document's execution limits"
+        for member in ("compatibility_generation", "requested"):
+            inner = {other: 1 for other in ("compatibility_generation", "requested") if other != member}
+            probe("launch.py:launch_document", f"job_execution.execution_limits.{member}", limits,
+                  launching(job_execution=dict(complete, execution_limits=inner)))
+        # oci: `_engine` refuses a name outside ENGINES before anything is composed.
+        probe("oci.py:activation_vector", "engine", "an engine name",
+              lambda: oci.activation_vector(SURROGATE, runtime_id="runtime-1"))
+        probe("oci.py:exec_vector", "engine", "an engine name",
+              lambda: oci.exec_vector(SURROGATE, runtime_id="runtime-1", program=["true"]))
+        probe("oci.py:run_vector", "engine", "an engine name",
+              lambda: oci.run_vector(SURROGATE, image_digest=None, labels=None, assignment_roots=None, posture=None,
+                                     mounts=None, credentials_delivered=None, launch_delivered=None,
+                                     layout_delivered=None, exchange_delivered=None, source_delivered=None,
+                                     logs_delivered=None, scratch_delivered=None, integration_delivered=None,
+                                     context_delivered=None, name=None, workspace_group=None, network=None,
+                                     interactive=None, activation=None))
+        # sessions: `_session_ref` proves all four components before any query.
+        reference = {"runtime_attempt_id": "attempt-1", "posture": "execution", "session_epoch": 1,
+                     "provider_session_id": None}
+        ref = "an agent session reference"
+        for member in ("posture", "session_epoch"):
+            spoiled = dict(reference, **{member: SURROGATE})
+            probe("sessions.py:close_agent_session", f"session_ref.{member}", ref,
+                  (lambda r: lambda: sessions.close_agent_session(store, r, "closing"))(spoiled))
+            probe("sessions.py:handle_transport_loss", f"session_ref.{member}", ref,
+                  (lambda r: lambda: sessions.handle_transport_loss(store, r, turn_in_flight=False))(spoiled))
+        for member in ("posture", "provider_session_id", "runtime_attempt_id", "session_epoch"):
+            spoiled = dict(reference, **{member: SURROGATE})
+            probe("sessions.py:observe_session_state", f"session_ref.{member}", ref,
+                  (lambda r: lambda: sessions.observe_session_state(store, r, "running"))(spoiled))
+        # workspaces: the assignment identity and the filesystem-root owner.
+        storage = os.path.join(self.root, "w384870-storage")
+        os.makedirs(storage, exist_ok=True)
+        probe("workspaces.py:adopted_assignment_workspace", "assignment_id", "an assignment identity",
+              lambda: workspaces.adopted_assignment_workspace(storage, SURROGATE, control=store, preparing=None))
+        probe("workspaces.py:assignment_workspace", "assignment_id", "an assignment identity",
+              lambda: workspaces.assignment_workspace(None, storage, SURROGATE, control=store, preparing=None))
+        probe("workspaces.py:discard_execution_roots", "assignment_id", "an assignment identity",
+              lambda: workspaces.discard_execution_roots(storage, SURROGATE, control=store, under=None))
+        probe("workspaces.py:discard_workspace", "assignment_id", "an assignment identity",
+              lambda: workspaces.discard_workspace(storage, SURROGATE, control=store))
+        root = "a filesystem root"
+        probe("workspaces.py:copied_manifest", "root", root,
+              lambda: workspaces.copied_manifest(SURROGATE, storage, max_entries=1, max_bytes=1, admits=None))
+        probe("workspaces.py:read_input_root", "inputs", root, lambda: workspaces.read_input_root(SURROGATE))
+        def held_refusal():
+            # `refuse_if_held` consults the deployment's configured store before
+            # it reads its storage operand; configured at run time, in this
+            # probe's own world, the way the custody probes do it.
+            workspaces.configure_workspace_storage(store, storage)
+            return workspaces.refuse_if_held(store, SURROGATE, "attempt-1", "what", None, None)
+        probe("workspaces.py:refuse_if_held", "storage", root, held_refusal)
+        probe("workspaces.py:restoration_lock_path", "storage", root,
+              lambda: workspaces.restoration_lock_path(SURROGATE, "line-1"))
+        # -- S4: intake's own public doors, each spoiling the one operand it owns
+        from baton_v12.worker_manager import intake
+        aid, rpd = "a runtime attempt id", "a retention policy digest"
+        for name in ("cleanup_of", "abandonment_cleanup_of"):
+            probe(f"intake.py:{name}", "attempt_id", aid,
+                  (lambda fn: lambda: fn(store, attempt_id=SURROGATE, retention_policy_digest=RETENTION_POLICY))(getattr(intake, name)))
+            probe(f"intake.py:{name}", "retention_policy_digest", rpd,
+                  (lambda fn: lambda: fn(store, attempt_id="attempt-1", retention_policy_digest=SURROGATE))(getattr(intake, name)))
+        for name in ("gate_discharge_of", "abandoned_gate_discharge_of"):
+            probe(f"intake.py:{name}", "attempt_id", aid, (lambda fn: lambda: fn(store, SURROGATE))(getattr(intake, name)))
+        gate = "the authority session's gate discharge"
+        for name in ("discharge_quiescence_gate", "discharge_abandoned_quiescence_gate"):
+            fn = getattr(intake, name)
+            probe(f"intake.py:{name}", "attempt_id", aid,
+                  (lambda fn: lambda: fn(store, port, attempt_id=SURROGATE, retention_policy_digest=RETENTION_POLICY))(fn))
+            probe(f"intake.py:{name}", "retention_policy_digest", rpd,
+                  (lambda fn: lambda: fn(store, port, attempt_id="attempt-1", retention_policy_digest=SURROGATE))(fn))
+            probe(f"intake.py:{name}", "port", gate,
+                  (lambda fn: lambda: fn(store, object(), attempt_id="attempt-1", retention_policy_digest=RETENTION_POLICY))(fn))
+        probe("intake.py:fence_pre_attach_abandonment", "attempt_id", aid,
+              lambda: intake.fence_pre_attach_abandonment(store, port, attempt_id=SURROGATE, reason="why"))
+        probe("intake.py:fence_pre_attach_abandonment", "reason", "an abandonment reason",
+              lambda: intake.fence_pre_attach_abandonment(store, port, attempt_id="attempt-1", reason=SURROGATE))
+        probe("intake.py:abandon_attempt", "attempt_id", aid,
+              lambda: intake.abandon_attempt(store, port, FakeAdapter(self), attempt_id=SURROGATE, reason="why",
+                                             retention_policy_digest=RETENTION_POLICY, seconds=1, reclaim=None, govern=None))
+        probe("intake.py:abandon_attempt", "reason", "an abandonment reason",
+              lambda: intake.abandon_attempt(store, port, FakeAdapter(self), attempt_id="attempt-1", reason=SURROGATE,
+                                             retention_policy_digest=RETENTION_POLICY, seconds=1, reclaim=None, govern=None))
+        probe("intake.py:abandon_attempt", "retention_policy_digest", rpd,
+              lambda: intake.abandon_attempt(store, port, FakeAdapter(self), attempt_id="attempt-1", reason="why",
+                                             retention_policy_digest=SURROGATE, seconds=1, reclaim=None, govern=None))
+        probe("intake.py:abandon_attempt", "adapter", "the runtime adapter's abandoned-attempt destroy",
+              lambda: intake.abandon_attempt(store, port, object(), attempt_id="attempt-1", reason="why",
+                                             retention_policy_digest=RETENTION_POLICY, seconds=1, reclaim=None, govern=None))
+        probe("intake.py:inaccessible_output", "attempt_id", "an assignment identity",
+              lambda: intake.inaccessible_output(store, SURROGATE, None))
+        probe("intake.py:reclaim_expired_resource", "adapter", "the runtime adapter's expiry stop",
+              lambda: intake.reclaim_expired_resource(store, object(), attempt_id="attempt-1", govern=None))
+        probe("intake.py:settle_revoked_resource", "adapter", "the runtime adapter's observe",
+              lambda: intake.settle_revoked_resource(store, object(), attempt_id="attempt-1", govern=None, seconds=1, reclaim=None))
+        attempt = {"runtime_attempt_id": "attempt-1", "runtime_id": "runtime-1"}
+        probe("intake.py:reclaim_operation_id", "attempt.runtime_attempt_id", "an attempt identity",
+              lambda: intake.reclaim_operation_id(dict(attempt, runtime_attempt_id=SURROGATE), 1))
+        probe("intake.py:reclaim_operation_id", "attempt.runtime_id", "a runtime identity",
+              lambda: intake.reclaim_operation_id(dict(attempt, runtime_id=SURROGATE), 1))
+        found[(at("intake.py:reclaim_operation_id", "attempt"), "an attempt identity")] = (
+            "an attempt identity", lambda: intake.reclaim_operation_id({"runtime_attempt_id": SURROGATE, "runtime_id": "runtime-1"}, 1))
+        found[(at("intake.py:reclaim_operation_id", "attempt"), "a runtime identity")] = (
+            "a runtime identity", lambda: intake.reclaim_operation_id({"runtime_attempt_id": "attempt-1", "runtime_id": SURROGATE}, 1))
+        # -- S4 batch 2: tokens --------------------------------------------------
+        from baton_v12.worker_manager import tokens, maintenance, attempt_logs, custody, source_boundary, documents
+        from baton_v12.worker_manager.store import ControlStore
+        domain = tokens.domain_of("workspace", "line-7/workspace")
+        probe("tokens.py:Governance.__init__", "resource_kind", "a governed resource kind",
+              lambda: tokens.Governance(SURROGATE, lambda: None))
+        probe("tokens.py:Governance.__init__", "identity", "a governed resource identity",
+              lambda: tokens.Governance("workspace", None))
+        envelope = {"started_at": NOW, "stop_at": NOW, "expires_at": NOW, "policy": "p"}
+        def acquiring(permission):
+            # An envelope REPLACES the duration; naming both is refused first.
+            return lambda: tokens.acquire(store, domain, operation="runtime.start:probe", execution="attempt-probe",
+                                          attempt="attempt-probe", eligible=None, permission=permission)
+        probe("tokens.py:acquire", "permission", "a token execution envelope", acquiring("not a document"))
+        for member, label in (("started_at", "a token envelope origin"), ("stop_at", "a token envelope execution deadline"),
+                              ("expires_at", "a token envelope cleanup deadline")):
+            probe("tokens.py:acquire", f"permission.{member}", label, acquiring(dict(envelope, **{member: "not-an-instant"})))
+        probe("tokens.py:admit_activation", "container", "a bound container identity",
+              lambda: tokens.admit_activation(store, None, container=SURROGATE))
+        probe("tokens.py:settle_activation", "container", "a bound container identity",
+              lambda: tokens.settle_activation(store, None, container=SURROGATE, started=None))
+        probe("tokens.py:renew", "execution", "a token execution identity",
+              lambda: tokens.renew(store, None, execution=SURROGATE, operation="op", expected_revision=1, seconds=1))
+        probe("tokens.py:renew", "operation", "a token operation identity",
+              lambda: tokens.renew(store, None, execution="attempt-probe", operation=SURROGATE, expected_revision=1, seconds=1))
+        probe("tokens.py:unresolved", "domain", "a governed conflict domain", lambda: tokens.unresolved(store, SURROGATE))
+        # -- workspaces ------------------------------------------------------------
+        ident = "an assignment identity"
+        probe("workspaces.py:admit_preparation", "assignment_id", ident,
+              lambda: workspaces.admit_preparation(store, SURROGATE, "what", "attempt-1", None))
+        probe("workspaces.py:governed_resource_identity", "assignment_id", ident,
+              lambda: workspaces.governed_resource_identity(store, SURROGATE, None))
+        probe("workspaces.py:preparation_completed", "assignment_id", ident,
+              lambda: workspaces.preparation_completed(store, SURROGATE))
+        probe("workspaces.py:record_preparation", "assignment_id", ident,
+              lambda: workspaces.record_preparation(store, SURROGATE, None, None))
+        probe("workspaces.py:refuse_if_held", "assignment_id", ident,
+              lambda: workspaces.refuse_if_held(store, storage, SURROGATE, "what", None, None))
+        probe("workspaces.py:require_prepared", "assignment_id", ident,
+              lambda: workspaces.require_prepared(store, SURROGATE, None, "what"))
+        probe("workspaces.py:bind_token_container", "container", "a bound container identity",
+              lambda: workspaces.bind_token_container(store, "attempt-1", 1, None, SURROGATE))
+        probe("workspaces.py:check_workspace_storage", "place", "the configured workspace store",
+              lambda: workspaces.check_workspace_storage(SURROGATE, what="what", physical=False))
+        probe("workspaces.py:restoration_lock_path", "line_id", "a development line identity",
+              lambda: workspaces.restoration_lock_path(storage, SURROGATE))
+        # -- maintenance -----------------------------------------------------------
+        probe("maintenance.py:check_preparation", "operation", "a maintenance preparation",
+              lambda: maintenance.check_preparation(SURROGATE))
+        for name in ("maintenance_failure", "maintenance_orphan", "maintenance_settlement"):
+            fn = getattr(maintenance, name)
+            probe(f"maintenance.py:{name}", "assignment_id", ident, (lambda fn: lambda: fn(store, SURROGATE, "workspace", 1))(fn))
+            probe(f"maintenance.py:{name}", "which", "a custody root name", (lambda fn: lambda: fn(store, "attempt-1", SURROGATE, 1))(fn))
+        probe("maintenance.py:standing_maintenance", "assignment_id", ident,
+              lambda: maintenance.standing_maintenance(store, SURROGATE, "workspace"))
+        probe("maintenance.py:standing_maintenance", "which", "a custody root name",
+              lambda: maintenance.standing_maintenance(store, "attempt-1", SURROGATE))
+        def preparing(**over):
+            given = {"engine": "docker", "run": lambda argv, seconds=None: {"status": 0, "stdout": "", "stderr": ""},
+                     "image_digest": self.OCI_IMAGE, "store": store, "assignment_id": "attempt-1",
+                     "operation": sorted(maintenance.PREPARATIONS)[0], "which": "workspace", "seconds": 1}
+            given.update(over)
+            engine, run = given.pop("engine"), given.pop("run")
+
+            def run_prepare():
+                # `prepare` consults the deployment's configured workspace group
+                # before it types its engine and image; configured at run time
+                # in this probe's own world, as the store-dependent probes do.
+                # A gid this process is a member of, as the rule requires; the
+                # configuration is a record in this probe's disposable store.
+                workspaces.configure_workspace_group(store, os.getgid())
+                workspaces.configure_workspace_storage(store, storage)
+                os.makedirs(os.path.join(storage, "attempt-1", "workspace"), exist_ok=True)
+                return maintenance.prepare(engine, run, **given)
+            return run_prepare
+        probe("maintenance.py:prepare", "operation", "a maintenance preparation", preparing(operation=SURROGATE))
+        probe("maintenance.py:prepare", "engine", "an engine name", preparing(engine=SURROGATE))
+        probe("maintenance.py:prepare", "image_digest", "an image digest", preparing(image_digest=SURROGATE))
+        probe("maintenance.py:prepare", "assignment_id", ident, preparing(assignment_id=SURROGATE))
+        probe("maintenance.py:prepare", "which", "a custody root name", preparing(which=SURROGATE))
+        probe("maintenance.py:prepare", "run", "the engine's run operation", preparing(run="not callable"))
+        # -- exchange / attempt logs -----------------------------------------------
+        probe("exchange.py:ExchangeDelivery.__init__", "attempt_id", "an exchange attempt id",
+              lambda: exchange.ExchangeDelivery(attempt_id=SURROGATE, root=storage))
+        probe("exchange.py:ExchangeDelivery.__init__", "root", "an exchange delivery root",
+              lambda: exchange.ExchangeDelivery(attempt_id="attempt-1", root=SURROGATE))
+        for name in ("adopt", "materialize"):
+            probe(f"exchange.py:{name}", "root", "an exchange delivery root",
+                  (lambda fn: lambda: fn(SURROGATE, attempt_id="attempt-1", workspace_group=None))(getattr(exchange, name)))
+            probe(f"attempt_logs.py:{name}", "root", "an attempt log delivery root",
+                  (lambda fn: lambda: fn(SURROGATE, attempt_id="attempt-1", workspace_group=None))(getattr(attempt_logs, name)))
+        # exchange.command_document's attempt_id is NO_PROBE: `_value` applies the
+        # same text rule first under its own label, so the identity label after it
+        # cannot be reached with any operand (see NO_PROBE).
+        probe("exchange.py:sequence_of", "attempt_id", "an exchange attempt id", lambda: exchange.sequence_of(SURROGATE))
+        probe("exchange.py:worker_operation_id", "attempt_id", "an exchange attempt id",
+              lambda: exchange.worker_operation_id(SURROGATE, "collect"))
+        delivery = exchange.ExchangeDelivery(attempt_id="attempt-1", root=storage)
+        probe("exchange.py:publish_command", "document", "an exchange command",
+              lambda: exchange.publish_command(delivery, "not a document"))
+        for member in ("attempt_id", "sequence_id"):
+            lacking = {m: "x" for m in exchange.COMMAND_MEMBERS if m != member}
+            probe("exchange.py:publish_command", f"document.{member}", "an exchange command",
+                  (lambda doc: lambda: exchange.publish_command(delivery, doc))(lacking))
+        probe("attempt_logs.py:AttemptLogs.__init__", "attempt_id", "an attempt id",
+              lambda: attempt_logs.AttemptLogs(attempt_id=SURROGATE, root=storage))
+        probe("attempt_logs.py:AttemptLogs.__init__", "root", "an attempt log root",
+              lambda: attempt_logs.AttemptLogs(attempt_id="attempt-1", root=SURROGATE))
+        # -- store / custody / source boundary / provider context / review cycles --
+        probe("store.py:ControlStore.open_readonly", "path", "a read-only control store path",
+              lambda: ControlStore.open_readonly(SURROGATE, incarnation="inc-1", clock=lambda: NOW))
+        probe("store.py:ControlStore.open_readonly", "incarnation", "a manager incarnation",
+              lambda: ControlStore.open_readonly(self.path, incarnation=SURROGATE, clock=lambda: NOW))
+        probe("store.py:ControlStore.open_readonly", "clock", "the manager's instant source",
+              lambda: ControlStore.open_readonly(self.path, incarnation="inc-1", clock=None))
+        probe("custody.py:clear_custody_hold", "attempt_id", ident,
+              lambda: custody.clear_custody_hold(store, attempt_id=SURROGATE, which="workspace", episode=1,
+                                                 observed="x", helper_identity="h", settlement="s"))
+        probe("source_boundary.py:compose_verifier_layout", "marker", "a verifier-layout marker",
+              lambda: source_boundary.compose_verifier_layout(marker="not a document", identity=None, image_digest=None,
+                                                             profile_digest=None, policy_digest=None, adapter_digest=None))
+        for member in ("schema", "layout_digest"):
+            lacking = {m: "x" for m in source_boundary.MARKER_MEMBERS if m != member}
+            probe("source_boundary.py:compose_verifier_layout", f"marker.{member}", "a verifier-layout marker",
+                  (lambda doc: lambda: source_boundary.compose_verifier_layout(marker=doc, identity=None, image_digest=None,
+                                                                              profile_digest=None, policy_digest=None, adapter_digest=None))(lacking))
+        probe("source_boundary.py:materialize_verifier_layout", "storage", "the manager's verifier-layout storage",
+              lambda: source_boundary.materialize_verifier_layout(SURROGATE, document={}))
+        probe("source_boundary.py:materialize_verifier_layout", "document", "a verifier-layout document",
+              lambda: source_boundary.materialize_verifier_layout(storage, document="not a document"))
+        probe("source_boundary.py:materialize_verifier_layout", "document.schema", "a verifier-layout document",
+              lambda: source_boundary.materialize_verifier_layout(storage, document={}))
+        probe("provider_context.py:authorize_qualification_run", "run_id", "a qualification run identity",
+              lambda: provider_context.authorize_qualification_run(None, run_id=SURROGATE, profile_digest=DIGEST, storage_path="/x",
+                                                                   authority_uuid=AUTHORITY, job_id="job", note="n"))
+        probe("review_cycles.py:release_writer", "generation", "a writer release assignment generation",
+              lambda: review_cycles.release_writer(store, writer_id="writer-1", generation=SURROGATE, port=port, reason="why"))
+        probe("review_cycles.py:release_writer", "reason", "a writer release reason",
+              lambda: review_cycles.release_writer(store, writer_id="writer-1", generation=1, port=port, reason=SURROGATE))
+        probe("review_cycles.py:restore_abandoned_correction", "retention_policy_digest", "a retention policy digest",
+              lambda: review_cycles.restore_abandoned_correction(store, attempt_id="attempt-1", generation=1,
+                                                                 retention_policy_digest=SURROGATE, profile=None, launcher=None, cessation=None))
+        # -- sessions: the agent-session row, column by column ---------------------
+        for column in ("authority_uuid", "participant", "profile_digest", "work_id"):
+            found[(("adopted", "sessions.py:_session_row", f"agent_sessions.{column}"), "a persisted agent session")] = (
+                "a persisted agent session", self.spoiling_session(column))
+        # -- oci: command documents and vectors ------------------------------------
+        from baton_v12.worker_manager import oci
+        assignment = {"work_ref": {"authority_uuid": "u" * 32, "work_id": "u" * 32 + "-W1"},
+                      "participant": "baton.claude", "generation": 1}
+        for method, label, digest_member in (("destroy", "a destroy command", "intake_receipt_digest"),
+                                             ("destroy_failed_start", "a failed-start destroy command", "failed_start_record_digest"),
+                                             ("destroy_refused_session", "a refused-session destroy command", "refusal_record_digest")):
+            body = {"assignment_ref": assignment, "runtime_attempt_id": SURROGATE, "runtime_id": "runtime-1",
+                    digest_member: RECEIPT, "retention_policy_digest": RETENTION_POLICY}
+            probe(f"oci.py:OciAdapter.{method}", "command.runtime_attempt_id", label, self.seam(method, body))
+        abandoned = {m: "x" for m in documents.ABANDONED_DESTROY_COMMAND}
+        abandoned.update(assignment_ref=assignment, runtime_attempt_id="attempt-1", runtime_id="runtime-1")
+        probe("oci.py:OciAdapter.destroy_abandoned", "command", "an abandoned-attempt destroy command",
+              self.seam("destroy_abandoned", "not a document"))
+        for member in ("runtime_attempt_id", "runtime_id"):
+            probe("oci.py:OciAdapter.destroy_abandoned", f"command.{member}", "an abandoned-attempt destroy command",
+                  self.seam("destroy_abandoned", {k: v for k, v in abandoned.items() if k != member}))
+        deadline = {m: "x" for m in documents.CONTRACTS["deadline.destroy"][0]}
+        deadline.update(assignment_ref=assignment, runtime_attempt_id="attempt-1", runtime_id="runtime-1")
+        probe("oci.py:OciAdapter.destroy_deadline", "command", "a deadline destroy command",
+              self.seam("destroy_deadline", "not a document"))
+        for member in ("runtime_attempt_id", "runtime_id"):
+            probe("oci.py:OciAdapter.destroy_deadline", f"command.{member}", "a deadline destroy command",
+                  self.seam("destroy_deadline", {k: v for k, v in deadline.items() if k != member}))
+        retain = {"assignment_ref": assignment, "runtime_attempt_id": "attempt-1", "artifact_ids": ["artifact-1"],
+                  "disposition": "retain", "retention_policy_digest": RETENTION_POLICY}
+        probe("oci.py:OciAdapter.retain", "command", "a retain command", self.seam("retain", "not a document"))
+        probe("oci.py:OciAdapter.retain", "command.artifact_ids", "a retain command",
+              self.seam("retain", {k: v for k, v in retain.items() if k != "artifact_ids"}))
+        probe("oci.py:OciAdapter.retain", "command.disposition", "a retention disposition",
+              self.seam("retain", dict(retain, disposition=7)))
+        probe("oci.py:OciAdapter.retain", "command.runtime_attempt_id", "a runtime attempt id",
+              self.seam("retain", dict(retain, runtime_attempt_id="")))
+        start = {"labels": dict(self.OCI_LABELS), "operation_id": "runtime.start:1"}
+        probe("oci.py:OciAdapter.start", "request.input_root", "a start request",
+              self.seam("start", dict(start, input_root=SURROGATE)))
+        # request.labels.{participant,runtime_attempt_id} are refused by the labels
+        # rule ("a runtime's labels needs ..."), which the inventory covers under
+        # the request's label; a probe cannot assert the covering label there.
+        # Left unprobed and recorded (W384870 S4), not papered over.
+        probe("oci.py:activation_vector", "runtime_id", "a created runtime id",
+              lambda: oci.activation_vector("docker", runtime_id=SURROGATE))
+        probe("oci.py:exec_vector", "runtime_id", "a runtime id",
+              lambda: oci.exec_vector("docker", runtime_id=SURROGATE, program=["true"]))
+        probe("oci.py:logs_vector", "engine", "an engine name", lambda: oci.logs_vector(SURROGATE, runtime_id="runtime-1"))
+        probe("oci.py:logs_vector", "runtime_id", "a runtime id", lambda: oci.logs_vector("docker", runtime_id=SURROGATE))
+        probe("oci.py:wait_vector", "engine", "an engine name", lambda: oci.wait_vector(SURROGATE, runtime_id="runtime-1"))
+        probe("oci.py:wait_vector", "runtime_id", "a runtime id", lambda: oci.wait_vector("docker", runtime_id=SURROGATE))
+        probe("oci.py:canonical_source", "place", "a host path", lambda: oci.canonical_source(SURROGATE, "a probe"))
+        probe("oci.py:canonical_target", "place", "a container path", lambda: oci.canonical_target(SURROGATE, "a probe"))
+        probe("oci.py:run_vector", "activation", "a runtime activation", self.running_vector(activation=SURROGATE))
+        # -- S4 batch 3: tokens release, input root, governance predicate ----------
+        cess = "a container cessation answer"
+        def releasing(cessation):
+            return lambda: tokens.release(store, "line-7/workspace", "workspace", execution="attempt-probe",
+                                          operation="runtime.stop:probe", cessation=cessation, reclaiming=False)
+        probe("tokens.py:release", "cessation", cess, releasing("not a document"))
+        whole = {"container": "container-probe", "stopped": True, "helpers": []}
+        for member in ("container", "stopped", "helpers"):
+            probe("tokens.py:release", f"cessation.{member}", cess, releasing({k: v for k, v in whole.items() if k != member}))
+        inputs = os.path.join(self.root, "w384870-inputs"); os.makedirs(inputs, exist_ok=True)
+        probe("workspaces.py:compose_input_root", "assignment", "the manager's own assignment",
+              lambda: workspaces.compose_input_root(inputs, None, None, assignment="not a document", runtime_attempt_id="attempt-1"))
+        probe("workspaces.py:compose_input_root", "runtime_attempt_id", "a runtime attempt identity",
+              lambda: workspaces.compose_input_root(inputs, None, None, assignment=dict(assignment), runtime_attempt_id=SURROGATE))
+        probe("workspaces.py:prepared_workspace_governance", "permission_eligible", "an execution envelope admission predicate",
+              lambda: workspaces.prepared_workspace_governance(store, "attempt-1", None, permission=None, permission_eligible="not callable", seconds=None))
+        # prepared_workspace_governance's `permission` is owned only inside a
+        # governance state this probe world does not compose; left unprobed
+        # and recorded (W384870 S4), not papered over.
+        # -- sessions: the attempt row the session module adopts ------------------
+        found[(("adopted", "sessions.py:_attempt", "attempts.assignment_participant"), "a persisted attempt")] = (
+            "a persisted attempt", self.spoiling_session_attempt("assignment_participant"))
+        # -- custody: the operator's clearance operands ----------------------------
+        probe("custody.py:clear_custody_hold", "observed", "what the operator observed",
+              lambda: custody.clear_custody_hold(store, attempt_id="attempt-1", which="workspace", episode=1,
+                                                 observed=SURROGATE, helper_identity="helper-1", settlement="settle-1"))
+        probe("custody.py:clear_custody_hold", "helper_identity", "the helper identity reconciled",
+              lambda: custody.clear_custody_hold(store, attempt_id="attempt-1", which="workspace", episode=1,
+                                                 observed="seen it", helper_identity=SURROGATE, settlement="settle-1"))
+        # -- intake: the three destroy endings' provider members -------------------
+        for site, driving in (("_destroyed", self.destroying), ("_destroyed_failed_start", self.destroying_failed_start),
+                              ("_destroyed_refused_session", self.destroying_refused_session)):
+            verb = {"_destroyed": "destroy", "_destroyed_failed_start": "destroy_failed_start",
+                    "_destroyed_refused_session": "destroy_refused_session"}[site]
+            # The destroy observation's envelope is closed over runtime_id, state
+            # and why as well as the two provider endings; every member but the
+            # probed one is well-formed, and the spoiled lifecycle state is a
+            # non-text value so the envelope's own encodability rule passes it
+            # through to the member's rule.
+            whole = {"runtime_id": "runtime-1", "state": "absent", "why": "gone"}
+            for provider in ("credentials", "launch"):
+                found[(("injected", f"intake.py:{site}", f"adapter.{verb}.{provider}"), f"a {provider} teardown ending")] = (
+                    f"a {provider} teardown ending", driving(**whole, **{provider: "not a document"}))
+                found[(("injected", f"intake.py:{site}", f"adapter.{verb}.{provider}.lifecycle_state"),
+                       f"a {provider} teardown ending's state")] = (
+                    f"a {provider} teardown ending's state", driving(**whole, **{provider: {"lifecycle_state": 7}}))
+        # -- handshake: the retained profile's postures ----------------------------
+        import json as _json
+        def retained(body):
+            def run():
+                profile = acp_profile()
+                worker_manager.certify_agent_session_profile(store, profile)
+                self.corrupt("UPDATE profiles SET body = ?", _json.dumps(body(profile)))
+                worker_manager.certified_agent_session_profile(store, profile["document_digest"])
+            return run
+        H = "handshake.py:certified_agent_session_profile"
+        found[(("adopted", H, "profiles.body.postures"), "a retained agent-session profile")] = (
+            "a retained agent-session profile", retained(lambda profile: dict(profile, postures="not an object")))
+        for member in ("declared_output", "policy", "workspace"):
+            def lacking(profile, member=member):
+                postures = {name: {k: v for k, v in posture.items() if k != member} for name, posture in profile["postures"].items()}
+                return dict(profile, postures=postures)
+            found[(("adopted", H, f"profiles.body.postures.{member}"), "a retained agent-session profile")] = (
+                "a retained agent-session profile", retained(lacking))
+        return found
 
     def settlement_probes(self):
         """Negative probes cross the public API, with the exact named owner failing."""
@@ -9376,8 +10043,8 @@ class EveryProbeProvesItArrived(BoundaryCase):
     def test_every_owned_entry_has_exactly_one_probe(self):
         declared = set(self.all_probes())
         wanted = self.expected()
-        self.assertEqual(sorted(wanted - declared), [], "owned, never probed")
-        self.assertEqual(sorted(declared - wanted), [], "probed, never owned")
+        self.assertEqual(sorted(_unprobed(wanted, declared)), [], "owned, never probed")
+        self.assertEqual(sorted(_unowned_probes(wanted, declared)), [], "probed, never owned")
 
     def test_every_declared_probe_reaches_its_named_boundary(self):
         # THE KEY UNIVERSE ONCE, THE FIXTURE-BOUND CATALOG PER PROBE. W54182:
@@ -9440,9 +10107,9 @@ class EveryProbeProvesItArrived(BoundaryCase):
         # diagnostic prints and nothing else, where a global setting would be
         # the output normalization the same ruling excludes.
         self.maxDiff = None
-        self.assertEqual(sorted(wanted - declared), [])
+        self.assertEqual(sorted(_unprobed(wanted, declared)), [])
         dropped = sorted(declared)[0]
-        self.assertEqual(wanted - (declared - {dropped}), {dropped})
+        self.assertEqual({pair[0] for pair in _unprobed(wanted, declared - {dropped})}, {dropped[0]})
 
     def test_a_probe_that_is_refused_earlier_fails(self):
         """The vacuity guard, proved rather than promised.
@@ -13354,9 +14021,9 @@ class TheWorkerEntryTransportIsFullyInventoried(BoundaryCase):
                 for label in delegated_labels(entry):
                     wanted.add((entry, label))
         self.assertGreaterEqual(len(wanted), 6)
-        self.assertEqual(sorted(wanted - declared), [],
+        self.assertEqual(sorted(_unprobed(wanted, declared)), [],
                          "owned in this slice, never probed")
-        self.assertEqual(sorted(declared - wanted), [],
+        self.assertEqual(sorted(_unowned_probes(wanted, declared)), [],
                          "probed in this slice, never owned under that label")
 
     def test_no_entry_in_the_slice_is_exempted_from_probing(self):
@@ -15593,11 +16260,14 @@ class LanesHaveCompleteReceivingCoverage(BoundaryCase):
         self.assertIn(("identity", "a runtime attempt id", "caller:attempt_id"), owning_validators()["attempts.py:_attempt_row"])
         recordless = [(site, c) for site, node in functions.items() for c in ast.walk(node)
                       if isinstance(c, ast.Call) and isinstance(c.func, ast.Name) and c.func.id == "_settle_recordless_cleanup"]
-        self.assertEqual(len(recordless), 3)
+        # W384870 (B2): W285465 added the deadline ending's recordless cleanup
+        # on the same rule; the pinned table grows by that one site.
+        self.assertEqual(len(recordless), 4)
         self.assertEqual({site: next(k.value.value for k in c.keywords if k.arg == "why") for site, c in recordless},
                          {"intake.py:authorize_failed_start_cleanup": "failed-start cleanup settled retained",
                           "intake.py:authorize_refused_session_cleanup": "refused-session cleanup settled retained",
-                          "intake.py:abandon_attempt": "abandonment cleanup settled retained"})
+                          "intake.py:abandon_attempt": "abandonment cleanup settled retained",
+                          "intake.py:_authorize_deadline_cleanup": "deadline cleanup settled retained"})
 
     def test_public_start_and_cleanup_supply_owned_lane_values(self):
         from .test_runtime_lane import LaneCase

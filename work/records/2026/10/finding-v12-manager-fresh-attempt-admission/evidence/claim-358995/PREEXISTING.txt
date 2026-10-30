@@ -1,0 +1,5 @@
+# the one pre-existing failure, baselined on the canonical tree at HEAD
+----------------------------------------------------------------------
+Ran 20 tests in 1.526s
+
+FAILED (errors=1)

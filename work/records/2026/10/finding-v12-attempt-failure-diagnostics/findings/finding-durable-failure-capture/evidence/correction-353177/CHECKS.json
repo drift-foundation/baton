@@ -1,0 +1,13 @@
+{
+  "full_patch_applied_without_fuzz": true,
+  "exact_candidate_paths_verified": 11,
+  "existing_test_methods_unchanged": 91,
+  "added_tests": [
+    "TheRecordsAndTheirReaders.test_middle_replay_returns_middle_record_when_tip_has_equal_facts",
+    "TheRecordsAndTheirReaders.test_original_replay_returns_original_record_after_fresh_A_B_A"
+  ],
+  "source_delta_paths": [
+    "v12/python/src/baton_v12/worker_manager/failure_cause.py",
+    "v12/python/tests/manager/test_attempt_failure_cause.py"
+  ]
+}

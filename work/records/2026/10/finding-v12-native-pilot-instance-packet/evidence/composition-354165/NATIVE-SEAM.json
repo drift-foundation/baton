@@ -1,0 +1,55 @@
+{
+ "schema": "baton.w325959-native-seam-map/1",
+ "claim": 354165,
+ "what_this_is": "Item (1) of the current PLAN -- map the native policy/factory/admission inputs -- carried out by reading the pinned current baseline. It is a MAP WITH CITATIONS, not a proof: no deterministic seam test was written and no connection was implemented this claim. Both are named as remaining scope.",
+ "baseline": {
+  "commit": "d6881d8adbd567b6e92a4a2a1d0cb68ee781f70a",
+  "revalidated": "HEAD equals the commit the review observed; checked before composition rather than taken from the review"
+ },
+
+ "the_native_path_as_the_review_names_it": {
+  "entry": "tools/stage_execution.py:6820 factory(job_store, control_store) -> operations_from(_configuration(), ...) at :6396",
+  "serving": "tools/job_manager.py:438 governance = tokens.workspace_governance()",
+  "acquisition": "tools/single_worker.py:2233 request_runtime_start(..., govern=workspaces.prepared_workspace_governance(self.control, attempt_id, mounted=roots['workspace']))",
+  "governance": "src/baton_v12/worker_manager/workspaces.py:3878 prepared_workspace_governance -> PreparedGovernance.reserve at :3968"
+ },
+
+ "THE_GAP_LOCATED_EXACTLY": {
+  "site": "src/baton_v12/worker_manager/workspaces.py:3972-3976, PreparedGovernance.reserve",
+  "what_it_does": "tokens.acquire(asking, domain, operation=operation, execution=..., attempt=..., eligible=eligible) -- with NO seconds= argument",
+  "consequence": "the acquisition takes tokens.acquire's default seconds=LIFETIME_SECONDS (src/baton_v12/worker_manager/tokens.py:37, = 900), so the Job's admitted per-invocation provider ceiling never reaches the token",
+  "matches_the_observed_pilot_failure": "OWNER-FAILURE-EVIDENCE-20261019.md: the implementation attempt's workspace token expired at 900s with zero renewals while the Job allowed 3600s provider execution",
+  "searched_and_absent": "no reference to provider_turn or execution_limits exists anywhere in tokens.py or workspaces.py, so nothing on this path derives a lifetime from the Job's configuration"
+ },
+
+ "WHAT_IS_ALREADY_AVAILABLE_AND_UNUSED": {
+  "the_jobs_effective_limits_at_serving_depth": "tools/stage_execution.py:5876 limits(stage, job, job_id) already resolves them through single_worker.job_execution_reader(self._deployment.jobs), and uses them for the integration worker request at :5873 -- NOT for token acquisition. The reader lives in the same module as the acquisition call site.",
+  "the_renewal_mechanism": "tokens.renew at tokens.py:496 with RENEWAL_LIMIT = 4 at tokens.py:39 -- the W333485 supplier, independently accepted and closed satisfying",
+  "the_owners_resolution_rule": "job_manager/execution_limits.py resolved()/boundary_default(); generation 1 pins provider_turn 3600 and ordinary_verification 900 (execution_limits.py:88)"
+ },
+
+ "THE_POLICY_QUESTION_THIS_RAISES": {
+  "status": "STATED, NOT ANSWERED. The review authorises returning a finite owner choice only if one is genuinely unavoidable, and I have NOT yet established that it is -- that depends on a fact about the native serving loop I did not prove this claim. Both routes are recorded here so the next claim starts from the fork rather than rediscovering it.",
+  "route_A_bounded_initial_permission": {
+   "mechanism": "pass seconds= into PreparedGovernance.reserve, derived from the Job's own resolved boundaries",
+   "the_obstacle": "a single number per attempt has to assume HOW MANY invocations one attempt may make. 3600 + 900 = 4500 is only correct for one provider turn plus one verification.",
+   "and_the_project_says_that_count_is_an_ASSUMPTION": "revision-4/inputs/policy.json, verbatim: \"No product cumulative ceiling. Operator observes a proposed 9900s window; 9000s assumes one provider and one verification invocation per stage.\" The review repeats it: neither 9000 nor 9900 can become an absolute execution cap.",
+   "therefore": "choosing a per-attempt total means pinning an invocation-count policy nobody has pinned. That is the shape of decision the review says to return rather than invent."
+  },
+  "route_B_timely_eligible_renewal": {
+   "mechanism": "the accepted W333485 renewal: the token starts at its ordinary lifetime and is renewed while the attempt is legitimately still working, bounded by RENEWAL_LIMIT",
+   "why_it_may_need_NO_new_policy": "it declares no total and assumes no invocation count; the bound is the existing renewal limit, and 900 x (1 + 4) covers 3600 + 900 WITHOUT anyone declaring 4500 as a cap",
+   "what_it_requires_and_I_DID_NOT_PROVE": "a renewer on the native serving path -- something in tools/job_manager serving that calls tokens.renew on a timely basis for a live attempt, the way the authoring controller's Lane.tick did. Whether the native loop has that, or whether it is the demonstrated missing connection, is UNVERIFIED by me.",
+   "and_the_PLAN_already_permits_it": "current PLAN: \"Renewal is optional as a mechanism; actual timely eligible renewal OR appropriate bounded initial permission satisfies TOK-9.\""
+  },
+  "my_reading_without_claiming_it_as_a_result": "route B looks like the one that uses existing accepted semantics and needs no new owner policy, which is what the review prefers. Route A appears to need an invocation-count decision. I am NOT asserting that as established: it turns on whether the native serving loop can renew, which is the first thing the next claim should settle."
+ },
+
+ "WHAT_I_DID_NOT_DO": [
+  "no deterministic native two-stage seam test was written, so the 900 ceiling is located by reading the code and by the owner's own failure evidence, NOT by an executed reproduction at the seam",
+  "no permission policy was pinned and no connection was implemented",
+  "no proof of authorized work beyond 900, and no expiry/cancellation/cleanup, replay/restart or no-revival proof at the native seam",
+  "the accepted diagnostics /7 status and packaged report evidence was REUSED as composed bytes and re-run as the joined gate; no new owner-produced expiry/failure was captured and joined through it this claim",
+  "no live instance, engine, provider, credential, deployment, recovery, migration or Git mutation -- none selected and none taken"
+ ]
+}

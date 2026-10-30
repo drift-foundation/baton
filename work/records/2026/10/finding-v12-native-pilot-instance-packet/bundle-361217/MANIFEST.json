@@ -1,0 +1,59 @@
+{
+  "ANSWERS": "review-2026-10-24T02-09-29Z.md",
+  "BUNDLE": {
+    "build_stamp": {
+      "changed_entries": 383,
+      "commit": "614668e0831e8c87cdae11ca43620e0d544a84d5",
+      "detail": null,
+      "dirty": true,
+      "excused_build_output": 0,
+      "schema": "baton.v12.build-stamp/1",
+      "source": "/home/sl/src/baton"
+    },
+    "built_at": "/home/sl/w325959-bundle/out/distro",
+    "built_from": "614668e0831e8c87cdae11ca43620e0d544a84d5",
+    "executable_sha256": "f4e9cecf0ccb7211b5c36691a35d8499cff94c7e64f1aff18c36bb50b13206d3",
+    "files": 81,
+    "folder_digest": "1b014603aec40e9f6d9c03a8b21ae74a02d9f1fef1ff95fc0f3e8a851a229c07",
+    "note": "the bundle itself is NOT a packet member: it is 81 files of build output outside the repository. Its whole-folder digest and every file digest are pinned here instead."
+  },
+  "CHECKS": {
+    "failed": 0,
+    "run": 27,
+    "seconds": 0.6782593349998933
+  },
+  "CLAIM": 361217,
+  "MEMBERS": {
+    "BUNDLE.md": "619711f05b4659a998ab4febf689d82dcbc9122a709d175218b5d023143b7cf8",
+    "compatibility.py": "7e8d39c1855e2307b3800cb47f2b331b14a225fa153c09996fe83a41ba23851b",
+    "evidence/BUILD-PROVENANCE.txt": "9767091828ce0b39e3504d055b5030e86555720b9a7ece8cdf8c8f1277db560a",
+    "evidence/BUNDLE-FILES.txt": "ba0033fc4c99db563652f9fc7536061b61218aa1edc9d257c134c12f92fb8d9f",
+    "evidence/COMPATIBILITY.json": "d5519f537c140b24ea5b1b3fdc97ae34f0b8585296746d809971282f59382641"
+  },
+  "RETAINED_INSTANCE": {
+    "documents": {
+      "bootstrap.json": {
+        "present": true,
+        "sha256": "4ac7e1c2dbae69c5e1394bf033ed264ec282f0dbded7e4930de8794eb850f6b3"
+      },
+      "deployment.json": {
+        "present": true,
+        "sha256": "2edca104db85648a3a88329b0a7fbf569ff343b7e5be10094249602b8b2c50d3"
+      },
+      "install-inputs.json": {
+        "present": true,
+        "sha256": "bfe7f223dcef1eb2d5ecbb5f05d5c925f5d7b04b22d96e5a516fd19e6bd3e77d"
+      },
+      "instance.json": {
+        "present": true,
+        "sha256": "626856df465421de933abdb11fa7b45e7c61f32ba95025cf0fc9976ab3429384"
+      }
+    },
+    "records_command": "/home/sl/baton-instances/native-coordination-pilot-w321608-3/distro/baton-v12-stack",
+    "records_runtime_digest": "3dbc610e0c2a0e1165367871097bd2a5bb590e271fee729b94b436a04045e7ac",
+    "root": "/home/sl/baton-instances/native-coordination-pilot-w321608-3"
+  },
+  "SOURCE_COMMIT": "614668e0831e8c87cdae11ca43620e0d544a84d5",
+  "WHAT_THIS_IS": "a source-pinned bundle and its compatibility evidence for the retained instance 3, plus a measured disposition of the runtime-update gap. Preparation only: nothing installed, deployed, started or retried.",
+  "WORK": "2b077949-W325959"
+}

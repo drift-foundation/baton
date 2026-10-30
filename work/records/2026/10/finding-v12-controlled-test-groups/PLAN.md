@@ -1,4 +1,44 @@
-# Current milestone — R1/R2 delivered for independent verification; S1 attribution next, then S4; B3 in the disjoint scope
+# R2 remainder delivered; owner resumed — 2026-10-30
+
+Owner resumed after the reboot and reclaimed W384870 (`baton.slaw`, E384905);
+the "no further execution" line in the reboot section below is history. R2's
+consumed-input provenance correction is delivered (PROGRESS 2026-10-30 "Resume
+after reboot; R2 remainder"; evidence/r2-2026-10-30/R2-CONSUMED-INPUTS.md,
+CANDIDATE-SHA256.txt). Awaiting independent review: R2 remainder, S1, S4 first
+delivery. Next executable: S4 residue (47, S4-PROBES.md) and B3 in its recorded
+non-overlap scope; no full suite before B5. Owner Git checkpoint remains
+pending (deferred by owner).
+
+# Storage housekeeping — owner 2026-10-30
+
+Storage policy and conservative untracked inventory prepared by the interactive
+copilot: `docs/DEVELOPMENT-STORAGE.md` and `storage-inventory-20261030/`.
+Disk-backed ignored `work/scratch/` is the scratch default; `/tmp` is reserved
+for short-lived temporary files. No deletion or Git mutation. Artifact-specific
+dossier review and owner Git checkpoint remain pending; this does not change
+K's implementation scope or the execution checkpoint below.
+
+# Execution stopped for scheduled reboot — owner 2026-10-30
+
+Read [RESTART-20261030.md](RESTART-20261030.md) before resuming. Latest author handoff M384903; S1/S4 await independent review, R1 is accepted, R2 retains the external-input provenance correction (M384901). No further execution until owner resumes. The owner claim release remains pending; repository prose does not change ledger state. Earlier milestone text below is preserved history and may be stale.
+
+# Current milestone — R1/R2, S1 and S4 (first delivery) for review; S4 residue and B3 next
+
+S4 first delivery done (PROGRESS 2026-10-30 "S4 probe authoring, first delivery";
+evidence/s4-2026-10-30/): unprobed 266 → 47, all probes reach their owners,
+scans group unchanged. Residue classified in S4-PROBES.md: two inventory
+limitations to decide (the `_one_by_attempt` dynamic-table parse, 15 entries;
+the start-request labels covering, 2) and ~30 probes needing composed worlds.
+
+S1 done (PROGRESS 2026-10-30 "S1 attribution delivered"; evidence/s1-2026-10-30/):
+118 delegations with probes, unowned 696 → 597, orphans 190 → 182, every probe
+reaches its owner; scans group 445 = 445, 8 failures all pre-existing. S4 next:
+probes for the 266 owned-but-unprobed entries, by module (authority_port
+injected 36, intake 53, oci 25, interrogation adopted 23, review_cycles 26,
+tokens 18, maintenance 15, workspaces 16, exchange 10, sessions 9, attempts
+10, source_boundary 6, handshake 4, attempt_logs 4, custody 3, store 3,
+output 1, provider_context 1, sessions 1), each exercising the named owner's
+refusal.
 
 R1/R2 done (PROGRESS 2026-10-30 "Harness corrections R1 and R2"; digests in
 evidence/r1r2-2026-10-30/CANDIDATE-SHA256.txt). Awaiting independent

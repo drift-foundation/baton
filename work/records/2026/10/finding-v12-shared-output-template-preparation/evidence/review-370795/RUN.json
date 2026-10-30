@@ -1,0 +1,9 @@
+{
+  "command": [
+    "python3",
+    "work/records/2026/10/finding-v12-shared-output-template-preparation/prove.py"
+  ],
+  "exit": 0,
+  "seconds": 0.7463896429981105,
+  "hash_mismatches": []
+}

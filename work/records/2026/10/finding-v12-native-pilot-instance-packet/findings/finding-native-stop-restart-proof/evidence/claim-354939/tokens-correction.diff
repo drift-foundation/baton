@@ -1,0 +1,34 @@
+--- original/tokens.py
++++ corrected/tokens.py
+@@ -994,13 +994,27 @@
+     binding after the reply is not sufficient on its own: between those two moments
+     the container may already exist. So permission to expose the resource is a
+     separate, positive question, and it answers True only when THIS generation is
+-    current, unreturned, unexpired and has a bound container. A caller that cannot
+-    get True here must not hand the resource to the execution -- the closed
+-    start/dispatch sequence at the production seam is what enforces that, and it is
+-    the next G1 step.
++    current, unreturned, UNREVOKED, unexpired and has a bound container. A caller
++    that cannot get True here must not hand the resource to the execution -- the
++    closed start/dispatch sequence at the production seam is what enforces that, and
++    it is the next G1 step.
++
++    AND `revoked` IS IN THAT LIST BECAUSE OF W354630 review354690. This asked four
++    questions and not revocation, so a REVOKED generation whose expiry judgement no
++    longer reads true -- a failed expiry cleanup, a restart, a clock that went
++    backwards -- answered True and was handed the resource again. `revoke`'s own
++    contract is the refutation: "what it does is record that this generation may no
++    longer act", and TOK-5's "revoked rather than replaced" keeps the resource held
++    BY the revoked generation until its cessation is confirmed. A withdrawn
++    entitlement that permits effects is the revival those rules exist to prevent,
++    and expiry is not a substitute for it: revocation is the durable fact and the
++    expiry judgement is a clock reading.
+     """
+     current = token_of(control, token["domain"], token["generation"])
+     if current is None or current["returned"] or current["expired"]:
++        return False
++    # THE DURABLE WITHDRAWAL, asked separately from the clock.
++    if current["revoked"]:
+         return False
+     if current["owner"] != token["owner"] or current["container"] is None:
+         return False

@@ -1,0 +1,14 @@
+{
+  "recorded_measured_intervals_sum_seconds": 128.40820840499975,
+  "unmeasured": "Additional AST diagnostic probes and harness/setup overhead were not stopwatch-recorded; parent historical total unknown. No live execution.",
+  "final_focused": "focused-final.json",
+  "baseline_inventory": "baseline-inventory.json",
+  "candidate_inventory_initial": {
+    "tests": 328,
+    "failures": 28,
+    "errors": 0,
+    "unittest_seconds": 51.819,
+    "log": "Tool output only; truncated, not retained as a full dossier log."
+  },
+  "remaining": "INVENTORY-REMAINING.json"
+}

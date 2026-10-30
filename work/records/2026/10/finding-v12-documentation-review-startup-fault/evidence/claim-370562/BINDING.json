@@ -1,0 +1,35 @@
+{
+ "claim": "E370562",
+ "diagnosis": {
+  "file": "evidence/claim-370562/DIAGNOSIS.json",
+  "sha256": "a5f86056661879d122041807754347ca5a5b8756f5c64718ad535bd2120dff7b"
+ },
+ "evidence": {
+  "DIAGNOSIS.json": "a5f86056661879d122041807754347ca5a5b8756f5c64718ad535bd2120dff7b",
+  "SETTLEMENT.json": "f266057d92409f1758d81384de21249531cd4a29e057341c7904eb230a2888df",
+  "container-stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "container-stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+ },
+ "parent_evidence_consumed_read_only": {
+  "OUTCOME.json": "01e2acebd344b5558a96637c2dd8219bd2a2bf465c965ed96dde9f75125ee076",
+  "claim-370272 BINDING.json": "3f6e27eb88986fbc703c7eb7642cd12ec76d160e5170fdae672dc43442e17970",
+  "claim-370433 BINDING.json": "1ec3160d3529b486ec4a999970e49bc9ac8c20fbab49e700e59b140a848137cd"
+ },
+ "record_files": {
+  "FINDING.md": "ae6fda1d781a688a4aef7a077c26b03f3c627e362d1b89d85b5ace6bd8df3244",
+  "PLAN.md": "ce98ac0c57fac97857ebd5bf12f3a7c23e6d2f36bca608c0bc2af59c3fd78abf",
+  "PROGRESS.md": "6abaf2fc014de867ad28bf866cc46aa354239e753a8791ca680cb03a0f86128d"
+ },
+ "schema": "baton.v12.review-fault-binding/1",
+ "settlement": {
+  "file": "evidence/claim-370562/SETTLEMENT.json",
+  "sha256": "f266057d92409f1758d81384de21249531cd4a29e057341c7904eb230a2888df"
+ },
+ "the_candidate_is_preserved": {
+  "artifact_digest": "sha256:40c8b565f419000b454641f0e1231484bb1aae738efa949307f2a65915d736b8",
+  "guide_bytes": 48191,
+  "head": "e6de29e5f945f692a42f689570d5c39edc4f61bc"
+ },
+ "the_missing_verdict_is_preserved_as_missing": true,
+ "work": "W370560"
+}

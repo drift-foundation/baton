@@ -264,6 +264,32 @@ class TheInstallerInputIsOwnedOrRefused(ConnectedCreationCase):
             self.assertFalse(
                 os.path.lexists(os.path.join(self.state, name)), name)
 
+    def no_selector_and_every_effect_retained(self, said):
+        """The ending of an install that DID have effects before it refused.
+
+        W376956: `nothing_was_published` is the right question for a refusal
+        that comes before any effect, and the wrong one after it. Under the
+        selected pre-deletion retention a failure past the copy leaves its own
+        runtime and justfile in place, so what has to hold is that no SELECTOR
+        was published, that every effect is named as retained, and that the
+        report claims no removal.
+        """
+        self.assertFalse(
+            os.path.lexists(os.path.join(self.state, "instance.json")),
+            "a selector was published by a refused install")
+        for name in ("distro", "justfile"):
+            place = os.path.join(self.state, name)
+            self.assertTrue(os.path.lexists(place), place)
+            self.assertIn("retained " + place, said)
+        self.assertIn("RETAINED", said)
+        # NO REMOVAL IS CLAIMED ANYWHERE in the output -- not by the cleanup
+        # lines and not by the refusal. ("Nothing was deleted." belongs to the
+        # OSError refusal `main` prints; these cases end in a BootstrapRefusal
+        # with its own sentence, so the property is asserted on the absence of
+        # a removal claim rather than on that one pointer.)
+        self.assertNotIn("unwound", said)
+        self.assertNotIn("could not remove", said)
+
     def test_a_foreign_regular_input_document_is_refused_untouched(self):
         self.foreign(self.inputs_place())
         code, said = self.refused_install()
@@ -312,8 +338,25 @@ class TheInstallerInputIsOwnedOrRefused(ConnectedCreationCase):
         self.assertFalse(os.path.lexists(self.inputs_place()))
         self.nothing_was_published()
 
-    def test_a_selector_failure_removes_only_what_this_attempt_made(self):
-        """The third consequence: the unwind now covers the input document."""
+    def test_a_selector_failure_RETAINS_what_this_attempt_made(self):
+        """The third consequence: the cleanup now covers the input document.
+
+        W376956: AND COVERING IT MEANS RETAINING AND NAMING IT. This case read
+        `..._removes_only_what_this_attempt_made` and asserted
+        `unwound <input document>`, the absent runtime and a SUCCEEDING retry.
+        The owner selected pre-deletion fail-closed retention instead --
+        `unlinkat` names an entry and never an inode, so the destructive call
+        cannot be bound to the object the ownership proof was about -- and
+        under it the input document is kept, named, and the destination stays
+        occupied so the retry refuses. The name moved with the behaviour
+        because a case whose title asserts a removal that no longer happens is
+        worse than a red one.
+
+        This is the FOURTH file of this outcome. The three pinned ones were
+        converted in earlier claims; these two cases are the same conversion
+        in the suite that drives `main` end to end, and they were red until
+        now.
+        """
         from tools import instance as instances
 
         def refusing(place, selector):
@@ -322,16 +365,21 @@ class TheInstallerInputIsOwnedOrRefused(ConnectedCreationCase):
         with mock.patch.object(instances, "create", refusing):
             code, said = self.refused_install()
         self.assertEqual(code, 2, said)
-        self.assertIn("unwound " + self.inputs_place(), said)
-        # ONLY OWNED STATE IS GONE, and the destination carries no half
-        # install: no input document, no justfile, no runtime, no selector.
-        self.assertFalse(os.path.lexists(self.inputs_place()))
-        self.nothing_was_published()
-        # AND THE RETRY WORKS, which is what cleaning up is for.
-        self.installed()
+        # THE INPUT DOCUMENT IS THIS ATTEMPT'S, AND IT STAYS, named as ours.
+        self.assertIn("retained " + self.inputs_place(), said)
+        self.assertIn("this attempt made the installer input document", said)
         self.assertTrue(os.path.isfile(self.inputs_place()))
-        held = self.answered()
-        self.assertEqual(held["job_id"], "job-cli-first")
+        # NO HALF INSTALL IS PUBLISHED: no selector, and the runtime and
+        # justfile that were made are named rather than deleted.
+        self.no_selector_and_every_effect_retained(said)
+        # AND THE RETRY REFUSES THE OCCUPIED DESTINATION, naming what is
+        # there. That is what retention means operationally: a failed attempt
+        # does not clear the ground for the next one, and nothing repairs or
+        # replaces the residue.
+        code, again = self.refused_install()
+        self.assertEqual(code, 2, again)
+        self.assertIn("already", again)
+        self.assertTrue(os.path.isfile(self.inputs_place()))
 
     def test_an_input_replaced_during_the_failure_is_left_alone(self):
         """A path is not an identity, and the unwind knows the difference.
@@ -358,7 +406,13 @@ class TheInstallerInputIsOwnedOrRefused(ConnectedCreationCase):
         self.assertEqual(Path(self.inputs_place()).read_text(),
                          "SOMEBODY ELSE\n")
         self.assertIn("no longer the installer input document", said)
-        self.nothing_was_published()
+        # W376956: THEIR BYTES SURVIVE EITHER WAY, and now by construction:
+        # the cleanup makes no removal at all, so there is no window for a
+        # replacement to be deleted in. The identity check that used to be the
+        # protection still runs, and what it decides is which of the three
+        # things the report SAYS about the path -- not whether it is deleted.
+        self.assertIn("not this attempt's", said)
+        self.no_selector_and_every_effect_retained(said)
 
     def test_a_stale_tmp_link_cannot_be_followed_because_none_is_used(self):
         """The reviewer's exact second setup, and why it is now inert.

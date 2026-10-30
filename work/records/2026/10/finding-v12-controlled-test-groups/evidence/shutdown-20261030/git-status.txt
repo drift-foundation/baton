@@ -1,0 +1,573 @@
+ M v12/DESIGN.md
+ M v12/python/src/baton_v12/job_manager/templates.py
+ M v12/python/src/baton_v12/verification_context.py
+ M v12/python/src/baton_v12/worker_manager/context_delivery.py
+ M v12/python/src/baton_v12/worker_manager/exchange.py
+ M v12/python/src/baton_v12/worker_manager/launch.py
+ M v12/python/src/baton_v12/worker_manager/provider_context.py
+ M v12/python/tests/job_manager/test_templates.py
+ M v12/python/tests/manager/test_boundary_inventory.py
+ M v12/python/tests/manager/test_claude_context.py
+ M v12/python/tests/manager/test_dependencies.py
+ M v12/python/tests/manager/test_exchange.py
+ M v12/python/tests/manager/test_integration_image.py
+ M v12/python/tests/manager/test_worker_entry.py
+ M v12/python/tests/tools/correction_restart_trace.py
+ M v12/python/tests/tools/test_connected_creation.py
+ M v12/python/tests/tools/test_connected_startup.py
+ M v12/python/tests/tools/test_dogfood_operator.py
+ M v12/python/tests/tools/test_execution_limits.py
+ M v12/python/tests/tools/test_instance.py
+ M v12/python/tests/tools/test_single_worker.py
+ M v12/python/tests/tools/test_stage_execution.py
+ M v12/python/tools/bootstrap.py
+ M v12/python/tools/dogfood_operator.py
+ M v12/python/tools/stage_execution.py
+ M v12/worker/Dockerfile.claude
+ M v12/worker/Dockerfile.integration
+ M v12/worker/baton_worker.py
+ M v12/worker/claude_agent.py
+ M v12/worker/dogfood_entry.py
+ M work/records/2026/08/finding-custody-engine-operation-settlement/FINDING.md
+ M work/records/2026/08/finding-custody-engine-operation-settlement/PLAN.md
+ M work/records/2026/08/finding-v12-flat-dossier-storage/FINDING.md
+ M work/records/2026/08/finding-v12-flat-dossier-storage/PLAN.md
+ M work/records/2026/08/finding-v12-isolated-agent-workers/FINDING.md
+ M work/records/2026/08/finding-v12-isolated-agent-workers/PLAN.md
+ M work/records/2026/09/finding-v12-complete-verification-context/FINDING.md
+ M work/records/2026/09/finding-v12-complete-verification-context/PLAN.md
+ M work/records/2026/09/finding-v12-complete-verification-context/findings/finding-paired-context-delivery/FINDING.md
+ M work/records/2026/09/finding-v12-complete-verification-context/findings/finding-paired-context-delivery/PLAN.md
+ M work/records/2026/09/finding-v12-complete-verification-context/findings/finding-paired-context-delivery/PROGRESS.md
+ M work/records/2026/09/finding-v12-dogfood-preflight-before-staging/FINDING.md
+ M work/records/2026/09/finding-v12-dogfood-preflight-before-staging/PLAN.md
+ M work/records/2026/09/finding-v12-normative-design/FINDING.md
+ M work/records/2026/09/finding-v12-normative-design/PLAN.md
+ M work/records/2026/09/finding-v12-proposal-import-base-closure/FINDING.md
+ M work/records/2026/09/finding-v12-proposal-import-base-closure/PLAN.md
+ M work/records/2026/10/finding-v12-authoring-expiry-finalization/FINDING.md
+ M work/records/2026/10/finding-v12-authoring-expiry-finalization/PLAN.md
+ M work/records/2026/10/finding-v12-controlled-test-groups/FINDING.md
+ M work/records/2026/10/finding-v12-controlled-test-groups/PLAN.md
+ M work/records/2026/10/finding-v12-controlled-test-groups/PROGRESS.md
+ M work/records/2026/10/finding-v12-development-coordination-pilot/FINDING.md
+ M work/records/2026/10/finding-v12-development-coordination-pilot/PLAN.md
+ M work/records/2026/10/finding-v12-native-pilot-instance-packet/FINDING.md
+ M work/records/2026/10/finding-v12-native-pilot-instance-packet/PLAN.md
+ M work/records/2026/10/finding-v12-native-pilot-instance-packet/PROGRESS.md
+ M work/records/2026/10/finding-v12-standard-next-run-path/FINDING.md
+ M work/records/2026/10/finding-v12-standard-next-run-path/PLAN.md
+ M work/records/2026/10/finding-v12-verifier-descriptor-descendants/FINDING.md
+ M work/records/2026/10/finding-v12-verifier-descriptor-descendants/PLAN.md
+ M work/records/2026/10/finding-v12-verifier-descriptor-descendants/PROGRESS.md
+?? v12/python/src/baton_v12/job_manager/role_capability.py
+?? v12/python/src/baton_v12/job_manager/role_contract.py
+?? v12/python/tests/job_manager/test_role_capability.py
+?? v12/python/tests/job_manager/test_role_contract.py
+?? v12/python/tests/manager/test_adapter_declaration.py
+?? v12/python/tests/manager/test_verification_views.py
+?? v12/python/tests/manager/test_worker_packaging.py
+?? v12/python/tests/manager/verification_fixtures.py
+?? v12/python/tests/tools/test_operator_verification_view.py
+?? v12/python/tests/tools/test_startup_prerequisites.py
+?? v12/python/tests/tools/test_stopped_settlement_joined.py
+?? v12/worker/adapter_refusal.py
+?? work/open/finding-v12-controlled-test-groups
+?? work/records/2026/08/finding-custody-engine-operation-settlement/PLAN-HISTORY-W383239.md
+?? work/records/2026/08/finding-custody-engine-operation-settlement/evidence/
+?? work/records/2026/08/finding-custody-engine-operation-settlement/review-2026-10-28T00-44-30Z.md
+?? work/records/2026/08/finding-v12-flat-dossier-storage/PLAN-HISTORY-W383239.md
+?? work/records/2026/08/finding-v12-isolated-agent-workers/PLAN-HISTORY-W383239.md
+?? work/records/2026/09/finding-v12-complete-verification-context/PLAN-HISTORY-W383239.md
+?? work/records/2026/09/finding-v12-complete-verification-context/findings/finding-paired-context-delivery/PLAN-HISTORY-W383239.md
+?? work/records/2026/09/finding-v12-complete-verification-context/findings/finding-paired-context-delivery/REVALIDATION-370930.md
+?? work/records/2026/09/finding-v12-complete-verification-context/findings/finding-paired-context-delivery/continuation-329810/
+?? work/records/2026/09/finding-v12-complete-verification-context/findings/finding-paired-context-delivery/continuation-329953/
+?? work/records/2026/09/finding-v12-complete-verification-context/findings/finding-paired-context-delivery/evidence/
+?? work/records/2026/09/finding-v12-complete-verification-context/findings/finding-paired-context-delivery/review-2026-10-19T04-39-20Z.md
+?? work/records/2026/09/finding-v12-complete-verification-context/findings/finding-paired-context-delivery/review-2026-10-19T05-00-43Z.md
+?? work/records/2026/09/finding-v12-complete-verification-context/findings/finding-paired-context-delivery/review-2026-10-19T05-09-37Z.md
+?? work/records/2026/09/finding-v12-complete-verification-context/findings/finding-paired-context-delivery/review-2026-10-28T22-02-18Z.md
+?? work/records/2026/09/finding-v12-dogfood-preflight-before-staging/PLAN-HISTORY-W383239.md
+?? work/records/2026/09/finding-v12-proposal-import-base-closure/PLAN-HISTORY-W383239.md
+?? work/records/2026/10/finding-v12-attempt-failure-diagnostics/
+?? work/records/2026/10/finding-v12-authoring-expiry-enforcement/FINDING.md
+?? work/records/2026/10/finding-v12-authoring-expiry-enforcement/PLAN.md
+?? work/records/2026/10/finding-v12-authoring-expiry-enforcement/PROGRESS.md
+?? work/records/2026/10/finding-v12-authoring-expiry-enforcement/candidate-333743/
+?? work/records/2026/10/finding-v12-authoring-expiry-enforcement/candidate-333964-final/
+?? work/records/2026/10/finding-v12-authoring-expiry-enforcement/candidate-333964/
+?? work/records/2026/10/finding-v12-authoring-expiry-enforcement/evidence/
+?? work/records/2026/10/finding-v12-authoring-expiry-enforcement/review-2026-10-19T17-18-01Z.md
+?? work/records/2026/10/finding-v12-authoring-expiry-enforcement/review-2026-10-19T17-25-12Z.md
+?? work/records/2026/10/finding-v12-authoring-expiry-enforcement/verification-333743/
+?? work/records/2026/10/finding-v12-authoring-expiry-enforcement/verification-333964/
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/absent_cleanup/authority.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/absent_cleanup/authority.sqlite3-shm
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/absent_cleanup/authority.sqlite3-wal
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/absent_cleanup/control.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/absent_cleanup/control.sqlite3.authoring.lock
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/absent_cleanup/integration.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/absent_cleanup/integration.sqlite3-shm
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/absent_cleanup/integration.sqlite3-wal
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/absent_cleanup/jobs.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/absent_cleanup/jobs.sqlite3-shm
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/absent_cleanup/jobs.sqlite3-wal
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/blocked_sweep/authority.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/blocked_sweep/authority.sqlite3-shm
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/blocked_sweep/authority.sqlite3-wal
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/blocked_sweep/control.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/blocked_sweep/control.sqlite3.authoring.lock
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/blocked_sweep/integration.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/blocked_sweep/integration.sqlite3-shm
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/blocked_sweep/integration.sqlite3-wal
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/blocked_sweep/jobs.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/blocked_sweep/jobs.sqlite3-shm
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/blocked_sweep/jobs.sqlite3-wal
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/delayed_snapshot/authority.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/delayed_snapshot/control.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/delayed_snapshot/control.sqlite3.authoring.lock
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/delayed_snapshot/integration.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/delayed_snapshot/jobs.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/normal/authority.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/normal/control.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/normal/control.sqlite3.authoring.lock
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/normal/integration.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/normal/jobs.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/pre_signal/authority.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/pre_signal/control.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/pre_signal/control.sqlite3.authoring.lock
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/pre_signal/integration.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/pre_signal/jobs.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/snapshot_before/authority.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/snapshot_before/control.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/snapshot_before/control.sqlite3.authoring.lock
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/snapshot_before/integration.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/snapshot_before/jobs.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/unknown/authority.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/unknown/control.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/unknown/control.sqlite3.authoring.lock
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/unknown/integration.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons1/unknown/jobs.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/absent_cleanup/authority.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/absent_cleanup/authority.sqlite3-shm
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/absent_cleanup/authority.sqlite3-wal
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/absent_cleanup/control.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/absent_cleanup/control.sqlite3.authoring.lock
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/absent_cleanup/integration.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/absent_cleanup/integration.sqlite3-shm
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/absent_cleanup/integration.sqlite3-wal
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/absent_cleanup/jobs.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/absent_cleanup/jobs.sqlite3-shm
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/absent_cleanup/jobs.sqlite3-wal
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/blocked_sweep/authority.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/blocked_sweep/authority.sqlite3-shm
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/blocked_sweep/authority.sqlite3-wal
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/blocked_sweep/control.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/blocked_sweep/control.sqlite3.authoring.lock
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/blocked_sweep/integration.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/blocked_sweep/integration.sqlite3-shm
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/blocked_sweep/integration.sqlite3-wal
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/blocked_sweep/jobs.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/blocked_sweep/jobs.sqlite3-shm
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/blocked_sweep/jobs.sqlite3-wal
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/delayed_snapshot/authority.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/delayed_snapshot/control.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/delayed_snapshot/control.sqlite3.authoring.lock
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/delayed_snapshot/integration.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/delayed_snapshot/jobs.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/normal/authority.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/normal/control.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/normal/control.sqlite3.authoring.lock
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/normal/integration.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/normal/jobs.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/pre_signal/authority.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/pre_signal/control.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/pre_signal/control.sqlite3.authoring.lock
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/pre_signal/integration.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/pre_signal/jobs.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/snapshot_before/authority.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/snapshot_before/control.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/snapshot_before/control.sqlite3.authoring.lock
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/snapshot_before/integration.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/snapshot_before/jobs.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/unknown/authority.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/unknown/control.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/unknown/control.sqlite3.authoring.lock
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/unknown/integration.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/comparisons2/unknown/jobs.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/probe4/normal/authority.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/probe4/normal/authority.sqlite3-shm
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/probe4/normal/authority.sqlite3-wal
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/probe4/normal/control.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/probe4/normal/control.sqlite3-shm
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/probe4/normal/control.sqlite3-wal
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/probe4/normal/control.sqlite3.authoring.lock
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/probe4/normal/integration.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/probe4/normal/integration.sqlite3-shm
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/probe4/normal/integration.sqlite3-wal
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/probe4/normal/jobs.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/probe4/normal/jobs.sqlite3-shm
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/probe4/normal/jobs.sqlite3-wal
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/absent_cleanup/authority.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/absent_cleanup/authority.sqlite3-shm
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/absent_cleanup/authority.sqlite3-wal
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/absent_cleanup/control.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/absent_cleanup/control.sqlite3.authoring.lock
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/absent_cleanup/integration.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/absent_cleanup/integration.sqlite3-shm
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/absent_cleanup/integration.sqlite3-wal
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/absent_cleanup/jobs.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/absent_cleanup/jobs.sqlite3-shm
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/absent_cleanup/jobs.sqlite3-wal
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/blocked_sweep/authority.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/blocked_sweep/authority.sqlite3-shm
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/blocked_sweep/authority.sqlite3-wal
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/blocked_sweep/control.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/blocked_sweep/control.sqlite3.authoring.lock
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/blocked_sweep/integration.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/blocked_sweep/integration.sqlite3-shm
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/blocked_sweep/integration.sqlite3-wal
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/blocked_sweep/jobs.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/blocked_sweep/jobs.sqlite3-shm
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/blocked_sweep/jobs.sqlite3-wal
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/delayed_snapshot/authority.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/delayed_snapshot/control.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/delayed_snapshot/control.sqlite3.authoring.lock
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/delayed_snapshot/integration.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/delayed_snapshot/jobs.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/normal/authority.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/normal/control.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/normal/control.sqlite3.authoring.lock
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/normal/integration.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/normal/jobs.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/pre_signal/authority.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/pre_signal/control.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/pre_signal/control.sqlite3.authoring.lock
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/pre_signal/integration.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/pre_signal/jobs.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/snapshot_before/authority.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/snapshot_before/control.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/snapshot_before/control.sqlite3.authoring.lock
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/snapshot_before/integration.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/snapshot_before/jobs.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/unknown/authority.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/unknown/control.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/unknown/control.sqlite3.authoring.lock
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/unknown/integration.sqlite3
+?? work/records/2026/10/finding-v12-authoring-expiry-finalization/evidence/review-338248/unknown/jobs.sqlite3
+?? work/records/2026/10/finding-v12-authoring-manager-guard/BASE-335047.json
+?? work/records/2026/10/finding-v12-authoring-manager-guard/CANDIDATE-NOTES-335047.md
+?? work/records/2026/10/finding-v12-authoring-manager-guard/FINDING.md
+?? work/records/2026/10/finding-v12-authoring-manager-guard/PLAN.md
+?? work/records/2026/10/finding-v12-authoring-manager-guard/PROGRESS.md
+?? work/records/2026/10/finding-v12-authoring-manager-guard/candidate-335047/
+?? work/records/2026/10/finding-v12-authoring-manager-guard/evidence-335047/
+?? work/records/2026/10/finding-v12-authoring-manager-guard/evidence/SOURCE.json
+?? work/records/2026/10/finding-v12-authoring-manager-guard/evidence/controller-summary.json
+?? work/records/2026/10/finding-v12-authoring-manager-guard/evidence/review-335118/
+?? work/records/2026/10/finding-v12-authoring-manager-guard/evidence/startup.log
+?? work/records/2026/10/finding-v12-authoring-manager-guard/review-2026-10-19T20-01-02Z.md
+?? work/records/2026/10/finding-v12-authoring-shutdown-deadline/
+?? work/records/2026/10/finding-v12-cancellation-fixture-compatibility/
+?? work/records/2026/10/finding-v12-capability-admission-predicate/
+?? work/records/2026/10/finding-v12-controlled-test-groups/checkpoint-preparation-20261030/
+?? work/records/2026/10/finding-v12-controlled-test-groups/config/
+?? work/records/2026/10/finding-v12-controlled-test-groups/evidence/b0-2026-10-29/
+?? work/records/2026/10/finding-v12-controlled-test-groups/evidence/b1-2026-10-30-manager-engine-group.log
+?? work/records/2026/10/finding-v12-controlled-test-groups/evidence/b2-2026-10-30/
+?? work/records/2026/10/finding-v12-controlled-test-groups/evidence/baseline-2026-10-29/
+?? work/records/2026/10/finding-v12-controlled-test-groups/evidence/leftover-test-directories-2026-10-29.txt
+?? work/records/2026/10/finding-v12-controlled-test-groups/evidence/r1r2-2026-10-30/
+?? work/records/2026/10/finding-v12-controlled-test-groups/evidence/review-b1-accounting-20261030/
+?? work/records/2026/10/finding-v12-controlled-test-groups/evidence/review-r1r2-20261030/
+?? work/records/2026/10/finding-v12-controlled-test-groups/evidence/s1-2026-10-30/
+?? work/records/2026/10/finding-v12-controlled-test-groups/evidence/s4-2026-10-30/
+?? work/records/2026/10/finding-v12-controlled-test-groups/evidence/shutdown-20261030/
+?? work/records/2026/10/finding-v12-controlled-test-groups/review-2026-10-30T03-09-45Z.md
+?? work/records/2026/10/finding-v12-delivery-plan-reconciliation/
+?? work/records/2026/10/finding-v12-development-coordination-pilot/CONTROL-SELECTION-383131.md
+?? work/records/2026/10/finding-v12-development-coordination-pilot/PLAN-HISTORY-366958.md
+?? work/records/2026/10/finding-v12-development-coordination-pilot/READINESS-SELECTION-370157.md
+?? work/records/2026/10/finding-v12-development-coordination-pilot/evidence/readiness-370208/
+?? work/records/2026/10/finding-v12-development-coordination-pilot/evidence/review-370157/
+?? work/records/2026/10/finding-v12-development-coordination-pilot/evidence/review-383131/
+?? work/records/2026/10/finding-v12-development-coordination-pilot/findings/
+?? work/records/2026/10/finding-v12-development-coordination-pilot/review-2026-10-28T01-07-28Z.md
+?? work/records/2026/10/finding-v12-development-coordination-pilot/review-2026-10-28T01-12-57Z.md
+?? work/records/2026/10/finding-v12-development-coordination-pilot/review-2026-10-28T19-47-00Z.md
+?? work/records/2026/10/finding-v12-development-coordination-pilot/review-2026-10-28T22-24-51Z.md
+?? work/records/2026/10/finding-v12-development-coordination-pilot/review-2026-10-29T11-58-58Z.md
+?? work/records/2026/10/finding-v12-development-coordination-pilot/review-2026-10-29T12-03-25Z.md
+?? work/records/2026/10/finding-v12-documentation-review-startup-fault/
+?? work/records/2026/10/finding-v12-manager-fresh-attempt-admission/
+?? work/records/2026/10/finding-v12-native-job-cancellation/
+?? work/records/2026/10/finding-v12-native-job-finite-policy/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/CHECKPOINT-361642.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/CONTINUATION-361102.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/FRESH-JOB-PREPARATION-358384.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/FRESH-ORDERING-358401.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/INPUTS-354131.json
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/OPERANDS-356784.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/OPERATIONAL-PROPOSAL-356877.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/OWNER-FAILURE-EVIDENCE-20261019.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/PLAN-HISTORY-358954.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/REVIEW-INPUTS-354242.json
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/REVIEW-INPUTS-354303.json
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/REVIEW-INPUTS-354510.json
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/REVIEW-INPUTS-354560.json
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/REVIEW-INPUTS-354590.json
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/bundle-361217/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/build-30245386.json
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/combined-355012/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/composition-354165/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/composition-354259/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/fresh-install-30245386.log
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/integration-356736.json
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/integration-356784/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/live-quickstart-b/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/native-354424/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/native-354527/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/native-354566/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/native-354604/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/native-354646/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/native-354686/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/policy-354357/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/review-328668/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/review-329628/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/review-329651/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/review-329774/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/review-354996/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/review-355071/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/review-357437/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/review-357763/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/review-357885/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/review-357933/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/review-358092/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/review-358277/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/review-358327/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/review-358427/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/review-358477/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/review-358611/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/review-358674/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/review-358808/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/review-361292/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/review-361380/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/review-361473/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/review-361632/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/review-361741/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/review-361810/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/revoked-354829/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/evidence/trace-354320/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/findings/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/fresh-357134/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/fresh-attempt-358697/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/fresh3-358443/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/fresh4-361320/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/fresh5-361402/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/post-install-357462/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/quickstart-correction-361660/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/quickstart-correction-361756/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/recovery-5/
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-19T02-33-30Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-19T04-20-52Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-19T04-24-06Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-19T04-27-19Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-19T04-30-14Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-19T04-37-09Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-19T16-17-06Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-22T18-44-40Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-22T18-59-23Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-22T19-07-40Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-22T19-12-16Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-22T19-32-18Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-22T19-38-15Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-22T19-42-43Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-22T19-47-41Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-22T19-52-36Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-22T19-57-26Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-22T20-30-29Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-22T20-41-13Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-23T01-09-52Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-23T01-19-06Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-23T01-25-43Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-23T02-34-20Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-23T02-45-08Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-23T02-56-19Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-23T03-04-01Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-23T03-11-26Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-23T03-19-52Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-23T03-26-00Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-23T03-36-50Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-23T03-42-44Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-23T04-08-43Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-23T04-34-12Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-23T04-41-08Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-23T04-52-43Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-23T05-00-27Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-23T05-17-50Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-23T05-27-08Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-23T05-45-38Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-23T20-53-36Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-24T02-00-16Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-24T02-09-29Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-24T02-23-00Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-24T02-35-41Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-24T02-48-54Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-24T03-10-08Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-24T03-24-47Z.md
+?? work/records/2026/10/finding-v12-native-pilot-instance-packet/review-2026-10-24T03-33-50Z.md
+?? work/records/2026/10/finding-v12-next-useful-run-readiness/
+?? work/records/2026/10/finding-v12-ordinary-startup-proof/
+?? work/records/2026/10/finding-v12-prerequisite-creation-provenance/
+?? work/records/2026/10/finding-v12-queued-admission-contract-plan/
+?? work/records/2026/10/finding-v12-retained-job-settlement-procedure/
+?? work/records/2026/10/finding-v12-role-admission-carriers/
+?? work/records/2026/10/finding-v12-role-admission-enforcement/
+?? work/records/2026/10/finding-v12-role-contract-admission/
+?? work/records/2026/10/finding-v12-role-contract-qualification/
+?? work/records/2026/10/finding-v12-role-contract-validators/
+?? work/records/2026/10/finding-v12-runtime-copy-owned-unwind/
+?? work/records/2026/10/finding-v12-serving-creation-commands/
+?? work/records/2026/10/finding-v12-serving-token-renewal/
+?? work/records/2026/10/finding-v12-shared-creation-admission/
+?? work/records/2026/10/finding-v12-shared-output-template-preparation/
+?? work/records/2026/10/finding-v12-shutdown-correction-packet/
+?? work/records/2026/10/finding-v12-standard-next-run-path/BOOTSTRAP-DECISION-344558.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/CANDIDATE-344617.json
+?? work/records/2026/10/finding-v12-standard-next-run-path/CANDIDATE-344698.json
+?? work/records/2026/10/finding-v12-standard-next-run-path/CANDIDATE-344817.json
+?? work/records/2026/10/finding-v12-standard-next-run-path/CANDIDATE-344881.json
+?? work/records/2026/10/finding-v12-standard-next-run-path/CANDIDATE-345023.json
+?? work/records/2026/10/finding-v12-standard-next-run-path/COLLECT-C-347468.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/COLLECT-ERROR-347682.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/CONTINUATION-343925.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/CONTINUATION-344617.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/CONTINUATION-344698.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/CONTINUATION-344817.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/CONTINUATION-344881.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/CONTINUATION-345023.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/CONTINUATION-345109.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/CONTINUE-B-347232.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/INPUT-BINDING-344532.json
+?? work/records/2026/10/finding-v12-standard-next-run-path/INSTALLATION-OBSERVED-347196.json
+?? work/records/2026/10/finding-v12-standard-next-run-path/JOB-339782.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/JOB-INPUTS-339782.json
+?? work/records/2026/10/finding-v12-standard-next-run-path/OPERATIONAL-CONTINUATION-353809.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/OWNER-INSTALL-ONCE-20261021.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/OWNER-RAPID-START-20261020.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/POLICY-PREPARATION-339937.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/PREPARATION-339833.json
+?? work/records/2026/10/finding-v12-standard-next-run-path/PREPARATION-344532.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/PREPARED-339833.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/PROGRESS.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/RECONCILIATION-DESIGN-353886.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/RECOVERY-TASK-353809.json
+?? work/records/2026/10/finding-v12-standard-next-run-path/REQUEST-BOOTSTRAP-347846.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/RESTART-20261021.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/SELECT-C-347285.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/TASK-339833.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/TASK-344516.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/candidate-344617/
+?? work/records/2026/10/finding-v12-standard-next-run-path/candidate-344698/
+?? work/records/2026/10/finding-v12-standard-next-run-path/candidate-344817/
+?? work/records/2026/10/finding-v12-standard-next-run-path/candidate-344881/
+?? work/records/2026/10/finding-v12-standard-next-run-path/candidate-345023/
+?? work/records/2026/10/finding-v12-standard-next-run-path/candidate-345109/
+?? work/records/2026/10/finding-v12-standard-next-run-path/collect-c-347468.py
+?? work/records/2026/10/finding-v12-standard-next-run-path/collect-error-347682.py
+?? work/records/2026/10/finding-v12-standard-next-run-path/evidence-review-347232.json
+?? work/records/2026/10/finding-v12-standard-next-run-path/evidence-review-347285.json
+?? work/records/2026/10/finding-v12-standard-next-run-path/evidence-review-347468.json
+?? work/records/2026/10/finding-v12-standard-next-run-path/evidence-review-347682.json
+?? work/records/2026/10/finding-v12-standard-next-run-path/evidence-review-347743.json
+?? work/records/2026/10/finding-v12-standard-next-run-path/evidence/
+?? work/records/2026/10/finding-v12-standard-next-run-path/findings/finding-controller-output-preparation/
+?? work/records/2026/10/finding-v12-standard-next-run-path/inputs-345109/
+?? work/records/2026/10/finding-v12-standard-next-run-path/installation-345599/
+?? work/records/2026/10/finding-v12-standard-next-run-path/operator-b-helper-347232/
+?? work/records/2026/10/finding-v12-standard-next-run-path/operator-b-receipts-347232/
+?? work/records/2026/10/finding-v12-standard-next-run-path/operator-c-receipts-347285/
+?? work/records/2026/10/finding-v12-standard-next-run-path/operator-diagnostics-347468/
+?? work/records/2026/10/finding-v12-standard-next-run-path/operator-error-347682/
+?? work/records/2026/10/finding-v12-standard-next-run-path/prepared-339833/
+?? work/records/2026/10/finding-v12-standard-next-run-path/review-2026-10-20T15-16-45Z.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/review-2026-10-20T15-34-00Z.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/review-2026-10-20T15-40-43Z.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/review-2026-10-20T15-45-40Z.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/review-2026-10-20T15-53-00Z.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/review-2026-10-21T01-32-19Z.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/review-2026-10-21T01-39-01Z.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/review-2026-10-21T02-52-42Z.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/review-2026-10-21T02-58-30Z.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/review-2026-10-21T03-15-49Z.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/review-2026-10-21T03-32-57Z.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/review-2026-10-21T03-41-54Z.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/review-2026-10-21T03-54-04Z.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/review-2026-10-21T10-03-50Z.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/review-2026-10-21T11-24-40Z.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/review-2026-10-21T11-25-34Z.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/review-2026-10-21T15-11-01Z.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/review-2026-10-21T15-16-49Z.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/review-2026-10-21T15-42-15Z.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/review-2026-10-21T16-10-40Z.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/review-2026-10-21T16-16-14Z.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/review-2026-10-21T16-30-13Z.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/review-2026-10-22T17-45-59Z.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/review-2026-10-22T18-07-26Z.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/review-2026-10-22T18-21-24Z.md
+?? work/records/2026/10/finding-v12-standard-next-run-path/run-c-347285.py
+?? work/records/2026/10/finding-v12-startup-prerequisites/
+?? work/records/2026/10/finding-v12-stopped-settlement-command/
+?? work/records/2026/10/finding-v12-stopped-settlement-owner/
+?? work/records/2026/10/finding-v12-stopped-settlement-proof/
+?? work/records/2026/10/finding-v12-typed-adapter-diagnostics/
+?? work/records/2026/10/finding-v12-typed-adapter-exchange/
+?? work/records/2026/10/finding-v12-typed-adapter-proof/
+?? work/records/2026/10/finding-v12-useful-documentation-execution/
+?? work/records/2026/10/finding-v12-useful-template-job-monitor/
+?? work/records/2026/10/finding-v12-verifier-descriptor-descendants/REVALIDATION-370978.md
+?? work/records/2026/10/finding-v12-verifier-descriptor-descendants/evidence/claim-371040/
+?? work/records/2026/10/finding-v12-verifier-descriptor-descendants/evidence/claim-371184/
+?? work/records/2026/10/finding-v12-verifier-descriptor-descendants/evidence/claim-371379/
+?? work/records/2026/10/finding-v12-verifier-descriptor-descendants/evidence/claim-375947/
+?? work/records/2026/10/finding-v12-verifier-descriptor-descendants/evidence/claim-376027/
+?? work/records/2026/10/finding-v12-verifier-descriptor-descendants/evidence/claim-376107/
+?? work/records/2026/10/finding-v12-verifier-descriptor-descendants/evidence/claim-376187/
+?? work/records/2026/10/finding-v12-verifier-descriptor-descendants/evidence/claim-376735/
+?? work/records/2026/10/finding-v12-verifier-descriptor-descendants/evidence/claim-377728/
+?? work/records/2026/10/finding-v12-verifier-descriptor-descendants/evidence/revalidation-370978/
+?? work/records/2026/10/finding-v12-verifier-descriptor-descendants/evidence/review-371130/
+?? work/records/2026/10/finding-v12-verifier-descriptor-descendants/evidence/review-371265/
+?? work/records/2026/10/finding-v12-verifier-descriptor-descendants/evidence/review-375793/
+?? work/records/2026/10/finding-v12-verifier-descriptor-descendants/evidence/review-375996/
+?? work/records/2026/10/finding-v12-verifier-descriptor-descendants/evidence/review-376056/
+?? work/records/2026/10/finding-v12-verifier-descriptor-descendants/evidence/review-376146/
+?? work/records/2026/10/finding-v12-verifier-descriptor-descendants/evidence/review-376215/
+?? work/records/2026/10/finding-v12-verifier-descriptor-descendants/evidence/review-376674/
+?? work/records/2026/10/finding-v12-verifier-descriptor-descendants/evidence/review-376827/
+?? work/records/2026/10/finding-v12-verifier-descriptor-descendants/evidence/review-376881/
+?? work/records/2026/10/finding-v12-verifier-descriptor-descendants/evidence/review-376939/
+?? work/records/2026/10/finding-v12-verifier-descriptor-descendants/evidence/review-376996/
+?? work/records/2026/10/finding-v12-verifier-descriptor-descendants/evidence/review-377085/
+?? work/records/2026/10/finding-v12-verifier-descriptor-descendants/evidence/review-377756/
+?? work/records/2026/10/finding-v12-verifier-descriptor-descendants/preparation-376414/
+?? work/records/2026/10/finding-v12-verifier-descriptor-descendants/preparation-376852/
+?? work/records/2026/10/finding-v12-verifier-descriptor-descendants/preparation-377003/
+?? work/records/2026/10/finding-v12-verifier-descriptor-descendants/review-2026-10-28T03-09-09Z.md
+?? work/records/2026/10/finding-v12-verifier-descriptor-descendants/review-2026-10-28T03-25-24Z.md
+?? work/records/2026/10/finding-v12-verifier-descriptor-descendants/review-2026-10-28T17-58-14Z.md
+?? work/records/2026/10/finding-v12-verifier-descriptor-descendants/review-2026-10-28T18-21-11Z.md
+?? work/records/2026/10/finding-v12-verifier-descriptor-descendants/review-2026-10-28T18-29-29Z.md
+?? work/records/2026/10/finding-v12-verifier-descriptor-descendants/review-2026-10-28T18-40-44Z.md
+?? work/records/2026/10/finding-v12-verifier-descriptor-descendants/review-2026-10-28T18-49-59Z.md
+?? work/records/2026/10/finding-v12-verifier-descriptor-descendants/review-2026-10-28T19-17-18Z.md
+?? work/records/2026/10/finding-v12-verifier-descriptor-descendants/review-2026-10-28T19-36-25Z.md
+?? work/records/2026/10/finding-v12-verifier-descriptor-descendants/review-2026-10-28T19-49-07Z.md
+?? work/records/2026/10/finding-v12-verifier-descriptor-descendants/review-2026-10-28T19-55-29Z.md
+?? work/records/2026/10/finding-v12-verifier-descriptor-descendants/review-2026-10-28T20-00-26Z.md
+?? work/records/2026/10/finding-v12-verifier-descriptor-descendants/review-2026-10-28T20-05-27Z.md
+?? work/records/2026/10/finding-v12-verifier-descriptor-descendants/review-2026-10-28T20-14-59Z.md
+?? work/records/2026/10/finding-v12-verifier-descriptor-descendants/review-2026-10-28T21-48-41Z.md
+?? work/records/2026/10/finding-v12-versioned-job-template/
+?? work/records/2026/10/finding-v12-workflow-fragility-assessment/

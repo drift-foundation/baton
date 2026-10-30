@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-shared-output-template-preparation/prove.py", line 251, in <module>
+    main()
+    ~~~~^^
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-shared-output-template-preparation/prove.py", line 189, in main
+    packet = prepare.compose(UUID, '/tmp/w370688-fixture-destination')
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-shared-output-template-preparation/prepare.py", line 51, in compose
+    old = capacity.compose(authority, destination=destination, proposed_grants=True)
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/capacity.py", line 820, in compose
+    raise Refused("the selected source is at %s and this preparation is "
+                  "for %s; nothing was composed"
+                  % (held["commit"], held["selected"]))
+capacity.Refused: the selected source is at f36bcd75ed22430355efe1b274b8f236cb591f6b and this preparation is for 42bed8bb04a53380e565b1a63fb2bc702677f0d0; nothing was composed

@@ -1,0 +1,23 @@
+{
+  "ANSWERS": "DESIGN SCH-1a and work/records/2026/10/finding-v12-versioned-job-template/FINDING.md",
+  "BASE_COMMIT": "182c8f943cdfc12134ae2d082d9afe98189efe90",
+  "BASE_IS_CLEAN_FOR_THESE_PATHS": true,
+  "CLAIM": 361943,
+  "MEMBERS": {
+    "v12/python/src/baton_v12/job_manager/__init__.py": {
+      "base": "7fa34e59a272ebe17054fe48963ac5dfc6dd74ef81fe7aacb44a642ba8cff8bc",
+      "candidate": "41e31dc0ef9b9a4e4d4e54e42f938e503db6136fc2bc520c79f4930b865c99f1",
+      "new": false
+    },
+    "v12/python/src/baton_v12/job_manager/templates.py": {
+      "base": null,
+      "candidate": "765c583f27a407bebce2b5979c76ecccb922a600058cbc05413c5ded93e26624",
+      "new": true
+    },
+    "v12/python/tests/job_manager/test_templates.py": {
+      "base": null,
+      "candidate": "ee2903ff855312907b3c3aae3fd8cbf3a9edc27956c203f173b907131a4596d9",
+      "new": true
+    }
+  }
+}

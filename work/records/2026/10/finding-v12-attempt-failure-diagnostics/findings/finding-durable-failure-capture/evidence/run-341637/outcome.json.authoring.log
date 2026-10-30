@@ -1,0 +1,116 @@
+{
+  "accounting_scope": "this run accounts for Job 'job-durable-capture-w341357-341637' and for nothing else. Attempt discovery, cancellation and cleanup all read the status projection filtered to that Job, so a runtime belonging to another Job in this store is NOT covered by this outcome and its absence is NOT established by it.",
+  "admissions": {
+    "implementation": 1
+  },
+  "admitted_attempts": [
+    "attempt-8c55834ec7f43a1acc8636164f9fd5e1fd1c6a1cfff0fea3ab31ba67da45afa5"
+  ],
+  "attempt_origins": {
+    "attempt-8c55834ec7f43a1acc8636164f9fd5e1fd1c6a1cfff0fea3ab31ba67da45afa5": "started"
+  },
+  "cancellation": {
+    "attempt-8c55834ec7f43a1acc8636164f9fd5e1fd1c6a1cfff0fea3ab31ba67da45afa5": {
+      "execution_runtime": "destroyed",
+      "requested": true,
+      "runtime_id": "84a0c110816da837a4af5729c3a581e37d560be07e5fdb2f2cde68fe3ead75fd",
+      "why": "this manager observed the runtime destroyed"
+    }
+  },
+  "claim": 341637,
+  "cleanup": {
+    "attempt-8c55834ec7f43a1acc8636164f9fd5e1fd1c6a1cfff0fea3ab31ba67da45afa5": {
+      "cleanup": "retained",
+      "state": "absent",
+      "why": "the engine answered that this exact identity does not exist"
+    }
+  },
+  "cleanup_sweeps": 0,
+  "final_canonical_read": true,
+  "finished_at": "2026-10-20T21:41:09.665Z",
+  "foreign_admissions": [],
+  "gate_refusals": [],
+  "held_because": [
+    "the run stopped 'exceptional' rather than completing its stages",
+    "attempt attempt-8c55834ec7f43a1acc8636164f9fd5e1fd1c6a1cfff0fea3ab31ba67da45afa5 ended 'unable' rather than 'completed', so it published no proposal. An implementation turn that could not do its work is an ANSWER -- the attempt's retained provider log carries what the provider reported -- and it is not a proposal this run may count. WHETHER IT RETAINED A CANDIDATE ANYWAY is a separate question and `candidates` answers it.",
+    "this run published no proposal at all. Whether any turn nevertheless RETAINED a candidate is answered by `candidates`, and a retained candidate is not a published proposal, a verification or an acceptance",
+    "attempt attempt-8c55834ec7f43a1acc8636164f9fd5e1fd1c6a1cfff0fea3ab31ba67da45afa5 has a REFUSED retained candidate: the sealed candidate carries no readable baton.git-proposal/1 claim, so what it was built on is unstated"
+  ],
+  "interrupted": null,
+  "interruptions": [],
+  "job_id": "job-durable-capture-w341357-341637",
+  "observed_attempts": [
+    "attempt-8c55834ec7f43a1acc8636164f9fd5e1fd1c6a1cfff0fea3ab31ba67da45afa5"
+  ],
+  "outstanding_cleanup": [],
+  "preexisting_jobs": [],
+  "preexisting_stages": {},
+  "provider_turn": {
+    "default_seconds": 3600,
+    "origin": "job",
+    "seconds": 3600,
+    "setting": "provider_turn_seconds"
+  },
+  "retry": false,
+  "run_id": "durable-capture-w341357-341637",
+  "schema": "baton.single-implementation-outcome/1",
+  "served_seconds": 10.564425181000843,
+  "serving_failure": null,
+  "stage_states": {
+    "implementation": "exceptional"
+  },
+  "stalled_after": 6,
+  "stalled_ticks": 0,
+  "started_order": [
+    "attempt-8c55834ec7f43a1acc8636164f9fd5e1fd1c6a1cfff0fea3ab31ba67da45afa5"
+  ],
+  "state": "held",
+  "stopped": "exceptional",
+  "submission_id": "durable-capture-w341357-341637-submission",
+  "submitted_at": "2026-10-20T21:40:59.095Z",
+  "unallocated_attempts": [],
+  "uncertainty": [],
+  "unexpected_attempts": [],
+  "work": "W341357",
+  "workload": {
+    "attribution": [],
+    "candidates": [
+      {
+        "acceptance": "unobserved",
+        "assignment": null,
+        "attempt_id": "attempt-8c55834ec7f43a1acc8636164f9fd5e1fd1c6a1cfff0fea3ab31ba67da45afa5",
+        "attribution": null,
+        "base": null,
+        "bytes": 920,
+        "content_digest": "sha256:5237c51c69eda6779e47efa29ecedc199ca69f36d1e8572d4172e6078ee73ee0",
+        "disposition": "unable",
+        "generation": null,
+        "head": null,
+        "locator": "file:///home/sl/baton-instances/durable-capture-w341357-341637/packet/workspaces/.baton-review-lines/line-ddb908cb0bd12d23b246028ddc898e26f733a876264a13c27e6b0ce4e6a76e4e/custody/attempt-8c55834ec7f43a1acc8636164f9fd5e1fd1c6a1cfff0fea3ab31ba67da45afa5/proposal",
+        "state": "refused",
+        "transport": null,
+        "verification": "unreported",
+        "why": "the sealed candidate carries no readable baton.git-proposal/1 claim, so what it was built on is unstated"
+      }
+    ],
+    "conversations": [],
+    "dispositions": [
+      {
+        "attempt_id": "attempt-8c55834ec7f43a1acc8636164f9fd5e1fd1c6a1cfff0fea3ab31ba67da45afa5",
+        "disposition": "unable"
+      }
+    ],
+    "generations": [],
+    "implementation_attempts": [
+      "attempt-8c55834ec7f43a1acc8636164f9fd5e1fd1c6a1cfff0fea3ab31ba67da45afa5"
+    ],
+    "modes": [],
+    "proposals": [],
+    "shortfalls": [
+      "attempt attempt-8c55834ec7f43a1acc8636164f9fd5e1fd1c6a1cfff0fea3ab31ba67da45afa5 ended 'unable' rather than 'completed', so it published no proposal. An implementation turn that could not do its work is an ANSWER -- the attempt's retained provider log carries what the provider reported -- and it is not a proposal this run may count. WHETHER IT RETAINED A CANDIDATE ANYWAY is a separate question and `candidates` answers it.",
+      "this run published no proposal at all. Whether any turn nevertheless RETAINED a candidate is answered by `candidates`, and a retained candidate is not a published proposal, a verification or an acceptance",
+      "attempt attempt-8c55834ec7f43a1acc8636164f9fd5e1fd1c6a1cfff0fea3ab31ba67da45afa5 has a REFUSED retained candidate: the sealed candidate carries no readable baton.git-proposal/1 claim, so what it was built on is unstated"
+    ]
+  }
+}
+held: the outcome is retained at /home/sl/baton-instances/durable-capture-w341357-341637/packet/outcome.json

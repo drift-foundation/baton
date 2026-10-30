@@ -1,0 +1,37 @@
+{
+  "claim": 354448,
+  "delivery_sha256": "edaaa467468257ad6e836671335d4f8da1f40aa374d4c8e9f2621940ac63e002",
+  "delivery_files": {
+    "FINDING.md": true,
+    "PLAN.md": true,
+    "PROGRESS.md": true,
+    "PREPARATION-354410.md": true,
+    "evidence/RETAINED-CHECK-354410.json": true,
+    "evidence/HISTORICAL-IDENTITIES.json": true
+  },
+  "packets": [
+    {
+      "packet": "revision-4",
+      "members": 78,
+      "mismatches": []
+    },
+    {
+      "packet": "recovery-5",
+      "members": 17,
+      "mismatches": []
+    }
+  ],
+  "references": {
+    "OWNER-FAILURE-EVIDENCE-20261019.md": true,
+    "INPUTS-354131.json": true,
+    "review-2026-10-19T02-23-47Z.md": true,
+    "review-2026-10-19T02-33-30Z.md": true,
+    "review-2026-10-19T04-37-09Z.md": true,
+    "evidence/review-328668/BUNDLE-FILES.json": true,
+    "evidence/review-328668/IDENTITY.json": true,
+    "recovery-5/CHANGE.json": true
+  },
+  "seconds": 0.001428804996976396,
+  "product_tests": 0,
+  "live_operations": 0
+}

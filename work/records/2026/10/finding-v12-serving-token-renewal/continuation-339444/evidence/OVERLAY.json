@@ -1,0 +1,20 @@
+{
+  "root": "/tmp/w333485-overlay-t_sftz_9",
+  "checks": [
+    "exact-copy",
+    "reuse-refused",
+    "base-refused",
+    "buffer-refused-before-any-write",
+    "symlink-refused"
+  ],
+  "result": "5 PASS; every refusal leaves fixture snapshot unchanged",
+  "command_seconds": [
+    0.011959424999076873,
+    0.04376293199857173,
+    0.04122090999953798,
+    0.044301132000327925,
+    0.044069300000046496
+  ],
+  "total_seconds": 0.185313698997561,
+  "limitation": "Only three disposable base-file fixtures, no candidate or product test execution"
+}

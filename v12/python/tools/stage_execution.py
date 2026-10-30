@@ -1693,7 +1693,7 @@ class StageComposition:
                     _refuse("historical context checkpoint is missing")
                 return answered["checkpoint_id"]
             try:
-                provider_context.finalize_context_use(deployment.control, deployment.jobs, worker.port, attempt_id=attempt_id, storage=context_delivery.configured_context_storage(deployment.control), receipt_reader=lambda original, artifact: context_delivery.read_context_receipt(deployment.control, attempt_id=original, artifact_id=artifact, workspace_storage=worker.given["workspace_storage"]), checkpoint_reader=checkpoint_reader)
+                provider_context.finalize_context_use(deployment.control, deployment.jobs, worker.port, attempt_id=attempt_id, storage=context_delivery.configured_context_storage(deployment.control), receipt_reader=lambda original, artifact: context_delivery.read_context_receipt(deployment.control, attempt_id=original, artifact_id=artifact), checkpoint_reader=checkpoint_reader)
             except ContractRefusal:
                 return dict(answered, outcome="held", reason="provider-context-unproved")
         return self._finished(worker, stage, assignment, answered)

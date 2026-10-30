@@ -1,0 +1,8 @@
+{
+  "preparation_seconds": 3.1349624550057342,
+  "overlay_seconds": 0.17863379799382528,
+  "current_seconds": 3.3135962529995595,
+  "cumulative_author_preparation_seconds": 18.40839680699881,
+  "original_run_elapsed_seconds": 955.0989942099986,
+  "inner_provider_and_verification_seconds": "unknown; elapsed controller time is not provider/test time"
+}

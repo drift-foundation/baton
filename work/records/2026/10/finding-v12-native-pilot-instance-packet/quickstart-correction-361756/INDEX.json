@@ -1,0 +1,109 @@
+{
+ "answers": "review-2026-10-24T03-24-47Z.md",
+ "claim": 361756,
+ "configuration_read": [
+  "/home/sl/baton-instances/native-coordination-pilot-w321608-4/deployment.json",
+  "/home/sl/baton-instances/native-coordination-pilot-w321608-4/authority-identity.json",
+  "/home/sl/baton-instances/native-coordination-pilot-w321608-4/generated/submission.json",
+  "/home/sl/baton-instances/native-coordination-pilot-w321608-4/state/status.json"
+ ],
+ "configured_participants": [
+  "baton.claude-pilot",
+  "baton.integrator-pilot",
+  "baton.reviewer-pilot",
+  "baton.reviewer-receipt-pilot",
+  "baton.slaw",
+  "baton.verifier-pilot"
+ ],
+ "corrections": {
+  "R1": "the quiescence gate takes the CANCELLED ASSIGNMENT's generation, not the pool generation. Authority.cancel fences gate_token(GATE_QUIESCENCE, str(expect['generation'])). Corrected in the candidate, the fact sheet and the checker's own rule; any literal gate number is now a labelled example for one assignment and is validated against the generations the published snapshot records.",
+  "R2": "the participant claim is now made from instance 4's own configuration and says only what it supports -- this configuration configures no diagnostic handler. The prior revision's inference from the v11 coordination roster is withdrawn; the checker reads no v11 roster and refuses a document asserting absence from the AUTHORITY."
+ },
+ "current_facts": {
+  "allocation_generations": [
+   1
+  ],
+  "assignment_generations": [
+   1,
+   2
+  ],
+  "authority_uuid": "19b4f1459c2442e4aec8c7cd23e92312",
+  "base": "614668e0831e8c87cdae11ca43620e0d544a84d5",
+  "canonical_target": "614668e0831e8c87cdae11ca43620e0d544a84d5",
+  "configured_participants": [
+   "baton.claude-pilot",
+   "baton.integrator-pilot",
+   "baton.reviewer-pilot",
+   "baton.reviewer-receipt-pilot",
+   "baton.slaw",
+   "baton.verifier-pilot"
+  ],
+  "destination": "/home/sl/baton-instances/native-coordination-pilot-w321608-4",
+  "integrator": "baton.integrator-pilot",
+  "job": "quickstart-d",
+  "launch_logs": "/home/sl/baton-instances/native-coordination-pilot-w321608-4/state/launch/logs",
+  "no_authority_store_opened": true,
+  "pool_generation": 1,
+  "provider_turn_seconds": 3600,
+  "receipts": {
+   "approval": "baton.slaw",
+   "review": "baton.reviewer-receipt-pilot",
+   "verification": "baton.verifier-pilot"
+  },
+  "retention": "retain",
+  "stage_participants": [
+   "implementation",
+   "review"
+  ],
+  "terminal_policy": "report-and-hold",
+  "verification_command_seconds": 900,
+  "work": "19b4f145-W1"
+ },
+ "generation_axes": {
+  "allocation_generations": [
+   1
+  ],
+  "assignment_generations": [
+   1,
+   2
+  ],
+  "note": "read from a retained snapshot of two COMPLETED stages; nothing was cancelled, reopened or retried",
+  "pool_generation": 1
+ },
+ "members": {
+  "CONTEXT.md": "sha256:b98e0e620fce75139ff263ea8f93dde5044ea1a4b73a9765e213ead230721e4e",
+  "QUICKSTART.md": "sha256:65ba4fca90181cf60503ec7800bcb19b8325e1c5b39ce7a8fee73d88090dc215",
+  "evidence/CLI-READBACK.json": "sha256:73988fb492efe9df0255d5a599bd9545723fdcd5141d0d5cdbb409fec480e5c1",
+  "evidence/GENERATIONS.json": "sha256:43b96edac80b668fc17c500d0eb08620ebf9fe62f320517f402e67b086b000bc",
+  "evidence/SEMANTIC-CHECK.json": "sha256:56280a0f82996d44da33062d1c220c58b133801b66c63d13e9d11af078b079f8",
+  "semantic_check.py": "sha256:f77221f13e15e922c6760358a6c3543d2dea63815f648d7684eb8a99821efded"
+ },
+ "not_done": "no cancellation, re-open, retry, new live run, import, closure, store inspection, product redesign or Git mutation",
+ "packet": "quickstart-correction-361756",
+ "supersedes": "quickstart-correction-361660 (preserved); carries its corrections forward unchanged",
+ "verification": {
+  "checks": 27,
+  "evidence": "evidence/SEMANTIC-CHECK.json",
+  "failed": 0,
+  "file": "semantic_check.py",
+  "repeated_identically": 4,
+  "seconds": 0.026,
+  "structural_note": "the deployed Job's OWN verification command is run verbatim and PASSES on the stale candidate; kept and labelled insufficient",
+  "unequal_generation_cases": "see checks 11-16",
+  "variants_rejected": [
+   "the retained stale proposal",
+   "the previous candidate, quickstart-correction-361660",
+   "a participant absence asserted about the AUTHORITY rather than the configuration",
+   "wrong instance (destination 1)",
+   "wrong Job (quickstart-a)",
+   "wrong base (14e52d80)",
+   "wrong authority and Work",
+   "false command absence",
+   "an invented diagnosis participant",
+   "limits dropped",
+   "pressure to repeat completed work"
+  ]
+ },
+ "what_this_is": "a DIRECT DEVELOPMENT correction of one document, not another v12 Job, not an amended live receipt, and not permission to execute anything",
+ "work": "W325959"
+}

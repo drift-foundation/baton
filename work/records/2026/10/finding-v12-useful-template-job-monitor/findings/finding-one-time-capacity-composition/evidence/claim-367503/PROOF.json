@@ -1,0 +1,469 @@
+{
+ "delivered_artifacts": {
+  "CLEAN-START.md": {
+   "bytes": 3723,
+   "sha256": "f125583bc17c20179658f11c98fff6d532d348307a2f66b105418a26e23bf4fa"
+  },
+  "capacity.py": {
+   "bytes": 50115,
+   "sha256": "34fb83314dcc1f3d8373ff010b8ccc36a78e6d9d172a36c01bff2d4bfafb6784"
+  },
+  "fixtures/qualifying-TEMPLATE-JOBS.md": {
+   "bytes": 3552,
+   "sha256": "bc7aee367d1fb1b229e0f667c4ee4c527f5327131b81852ed27e54cfdd159817"
+  },
+  "guide_contract.py": {
+   "bytes": 9673,
+   "sha256": "19f596a20b4fd54cef7939cbe949bf55870b1eee668da33bd4ced9fdeb8ad4d6"
+  },
+  "prove_capacity.py": {
+   "bytes": 18638,
+   "sha256": "6e9f0ee53e976abad6105d9f8d16a890640c0f773a868900c329999a15eae57a"
+  },
+  "prove_guide_contract.py": {
+   "bytes": 8829,
+   "sha256": "650af023c32551443523ce95888fbdf0adef66f7ba43f7bac076e2042db7290a"
+  }
+ },
+ "destination": "/var/tmp/baton-w257624/w367232-proof-73ebk3h0/instance",
+ "effects": {
+  "created": [
+   "/var/tmp/baton-w257624/w367232-runtime-npzfzf61",
+   "/var/tmp/baton-w257624/w367232-proof-73ebk3h0"
+  ],
+  "removed": []
+ },
+ "inputs_this_composition_depends_on": {
+  "files": {
+   "v12/instance-inputs.json": {
+    "sha256": "e2eb35b222b67ac6fae77f361bc2a007623c7a4f2d7bc75c593f46ec2708137e",
+    "what": "canonical instance inputs"
+   },
+   "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json": {
+    "sha256": "fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903",
+    "what": "published conformance vectors"
+   },
+   "work/records/2026/10/finding-v12-native-pilot-instance-packet/fresh5-361402/configure-inputs.json": {
+    "sha256": "f60b129baad7fc098be76af530a6705b96cd510aa4d8b2ff552cf3b9d6e2a494",
+    "what": "reviewed pilot configuration"
+   },
+   "work/records/2026/10/finding-v12-native-pilot-instance-packet/fresh5-361402/task.json": {
+    "sha256": "91a13de94a23941b6653b9da40ae56e28046c7b30456def734638243185272f0",
+    "what": "reviewed pilot task"
+   },
+   "work/records/2026/10/finding-v12-native-pilot-instance-packet/revision-4/inputs/deployment.json": {
+    "sha256": "6a675445d361a5208f82dfc43593595cd2d5d9bcbb3e893842c03b5cb8587a3e",
+    "what": "reviewed pilot input manifest"
+   },
+   "work/records/2026/10/finding-v12-template-job-creation/findings/finding-packaged-template-creation/evidence/review-366382/BUNDLE-ARCHIVE.json": {
+    "sha256": "de9c669ce77819686f5043207151af5f6e1894940f87da70e16fde0c9dcbbad9",
+    "what": "retained runtime archive record"
+   },
+   "work/records/2026/10/finding-v12-template-job-creation/findings/finding-packaged-template-creation/evidence/review-366382/verified-first-build.tar.gz": {
+    "sha256": "1da85eed0a3a19a5da0b83253abbbb40ebeed01bfe90ee05a10055dec0057125",
+    "what": "retained runtime archive"
+   }
+  },
+  "note": "digests read now; a parent assembling on this result should re-read them and compare",
+  "source_revision": "42bed8bb04a53380e565b1a63fb2bc702677f0d0"
+ },
+ "installed_task_written": {
+  "bytes": 7999,
+  "content_digest": "sha256:e0a71cc1e299f3b724e554faad5e83ba588dc72e1a2d4391d95ed007ff2c1a48",
+  "digest_agrees": true,
+  "place": "/var/tmp/baton-w257624/w367232-proof-73ebk3h0/instance/state/task/template-job-guide-42bed8bb.json"
+ },
+ "not_established": [
+  "no provider authentication, container start, model output or live latency: nothing here contacts an engine or a provider",
+  "no repository was cloned and no build ran",
+  "the emitted deployment.json is a verification artifact, not an operational installation",
+  "the input manifest's seven operator grants remain unresolved, so this is a reusable preparation and not a finished configuration"
+ ],
+ "ok": true,
+ "proposed_destination_untouched": {
+  "exists": false,
+  "proposed": "/home/sl/baton-instances/useful-template-job-w366962"
+ },
+ "provenance": {
+  "canonical_instance_inputs": {
+   "path": "v12/instance-inputs.json",
+   "sha256": "e2eb35b222b67ac6fae77f361bc2a007623c7a4f2d7bc75c593f46ec2708137e"
+  },
+  "members": {
+   "assignment_contract": {
+    "kind": "inherited-contract",
+    "source": "structural, from the published conformance vector at work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json (sha256 fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903)",
+    "value": "v12-assignment-1"
+   },
+   "created_at": {
+    "kind": "inherited-contract",
+    "source": "structural, from the published conformance vector at work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json (sha256 fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903)",
+    "value": "2026-08-21T22:00:00.000Z"
+   },
+   "credential_policy_digest": {
+    "kind": "unresolved-grant",
+    "missing_selection": "the credential policy covering the `claude` slot that resolves through reference `w202663-development`. Resolving it means reading an operator credential registry, which this preparation does not do.",
+    "source": "the published conformance vector at work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json (sha256 fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903), carried unchanged -- the same baseline tools/next_run_bindings.py reads and leaves",
+    "value": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "what_it_names": "the credential profile; the owner ruling names it separate from the shared Job identity"
+   },
+   "extensions": {
+    "kind": "inherited-contract",
+    "source": "structural, from the published conformance vector at work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json (sha256 fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903)",
+    "value": {}
+   },
+   "human_contract": {
+    "kind": "selected",
+    "note": "its verification argv is guide_contract.SCRIPT, driven to real refusals in prove_guide_contract.py",
+    "source": "sha256 of the task document bytes this composition writes; the same bytes the installer opens",
+    "value": {
+     "artifact_id": "template-job-guide-42bed8bb",
+     "bytes": 7999,
+     "content_digest": "sha256:e0a71cc1e299f3b724e554faad5e83ba588dc72e1a2d4391d95ed007ff2c1a48",
+     "locator": "artifact://contracts/template-job-guide-42bed8bb",
+     "media_type": "application/json"
+    }
+   },
+   "manifest_digest": {
+    "kind": "selected",
+    "source": "the seal, computed last over the finished document by baton_v12.contracts.digest",
+    "value": "sha256:fa0a76bda38f7b81cb8c947c0ffb266fc13d5bcfd03916efc0b68a75d88076b5"
+   },
+   "manifest_id": {
+    "kind": "inherited-contract",
+    "source": "structural, from the published conformance vector at work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json (sha256 fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903)",
+    "value": "input-manifest-1"
+   },
+   "mount_policy_digest": {
+    "kind": "unresolved-grant",
+    "missing_selection": "the mount policy document governing the nominated-mount delivery. No such document is published with the pilot.",
+    "source": "the published conformance vector at work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json (sha256 fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903), carried unchanged -- the same baseline tools/next_run_bindings.py reads and leaves",
+    "value": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+    "what_it_names": "a Job-wide bound, compared across every worker"
+   },
+   "network_policy_digest": {
+    "kind": "unresolved-grant",
+    "missing_selection": "the network policy document for the `bridge` network this deployment pins. No such document is published with the pilot.",
+    "source": "the published conformance vector at work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json (sha256 fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903), carried unchanged -- the same baseline tools/next_run_bindings.py reads and leaves",
+    "value": "sha256:8888888888888888888888888888888888888888888888888888888888888888",
+    "what_it_names": "a Job-wide bound, compared across every worker"
+   },
+   "outputs": {
+    "kind": "inherited-contract",
+    "source": "the reviewed pilot deployment's own input manifest at work/records/2026/10/finding-v12-native-pilot-instance-packet/revision-4/inputs/deployment.json (sha256 6a675445d361a5208f82dfc43593595cd2d5d9bcbb3e893842c03b5cb8587a3e)",
+    "value": [
+     {
+      "constraints": {
+       "allowed_media_types": [
+        "application/octet-stream",
+        "text/plain"
+       ],
+       "link_policy": "forbid",
+       "max_bytes": 1048576,
+       "max_entries": 100,
+       "validator_digest": null
+      },
+      "name": "proposal",
+      "path": "proposal",
+      "required": true,
+      "type": "git-change-proposal"
+     }
+    ]
+   },
+   "policy_digest": {
+    "kind": "inherited-contract",
+    "note": "identical to the worker that carries this manifest, which is what the installer checks; the document behind the digest is not published, so this is an accepted contract and not a content check",
+    "source": "the reviewed pilot worker deployment's policy_digest at work/records/2026/10/finding-v12-native-pilot-instance-packet/fresh5-361402/configure-inputs.json (sha256 f60b129baad7fc098be76af530a6705b96cd510aa4d8b2ff552cf3b9d6e2a494)",
+    "value": "sha256:837d7a03b2d92b9654cbc391daefcfa208f747bbd9ae7c528d54f528bd536357"
+   },
+   "record_binding": {
+    "kind": "selected",
+    "source": "this child's own dossier: FINDING.md and PLAN.md, digested now",
+    "value": {
+     "finding_digest": "sha256:c95c923120cad2b861534f7d8438d5bdb3e6541bdb4dba5462a8aa00b0732227",
+     "path": "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition",
+     "plan_digest": "sha256:60481d0ab9054df13ec52edcd8aa1ef092f22d1a160234aa9fc08612757ea0a1",
+     "root": "baton-repository"
+    }
+   },
+   "resource_policy_digest": {
+    "kind": "unresolved-grant",
+    "missing_selection": "the resource policy document the operator grants this deployment. The Job's own provider/verification limits travel on the submission instead and are selected; this identity is not.",
+    "source": "the published conformance vector at work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json (sha256 fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903), carried unchanged -- the same baseline tools/next_run_bindings.py reads and leaves",
+    "value": "sha256:7777777777777777777777777777777777777777777777777777777777777777",
+    "what_it_names": "a Job-wide bound, compared across every worker"
+   },
+   "retention_policy_digest": {
+    "kind": "inherited-contract",
+    "note": "identical to the worker that carries this manifest, which is what the installer checks; the document behind the digest is not published, so this is an accepted contract and not a content check",
+    "source": "the reviewed pilot worker deployment's retention_policy_digest at work/records/2026/10/finding-v12-native-pilot-instance-packet/fresh5-361402/configure-inputs.json (sha256 f60b129baad7fc098be76af530a6705b96cd510aa4d8b2ff552cf3b9d6e2a494)",
+    "value": "sha256:0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a"
+   },
+   "role_instructions_digest": {
+    "kind": "unresolved-grant",
+    "missing_selection": "the two role-instruction documents this deployment would hand its implementation and review lanes. The parent selects neither, and authoring them here would be making the grant.",
+    "source": "the published conformance vector at work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json (sha256 fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903), carried unchanged -- the same baseline tools/next_run_bindings.py reads and leaves",
+    "value": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+    "what_it_names": "the ROLE's own instructions; contracts/manifest.py classifies it per-role, because an implementer and a reviewer are told different things"
+   },
+   "runtime_profile_digest": {
+    "kind": "inherited-contract",
+    "note": "identical to the worker that carries this manifest, which is what the installer checks; the document behind the digest is not published, so this is an accepted contract and not a content check",
+    "source": "the reviewed pilot worker deployment's profile_digest at work/records/2026/10/finding-v12-native-pilot-instance-packet/fresh5-361402/configure-inputs.json (sha256 f60b129baad7fc098be76af530a6705b96cd510aa4d8b2ff552cf3b9d6e2a494)",
+    "value": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be"
+   },
+   "schema": {
+    "kind": "inherited-contract",
+    "source": "structural, from the published conformance vector at work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json (sha256 fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903)",
+    "value": "baton.worker-manifest/input"
+   },
+   "sources": {
+    "kind": "inherited-contract",
+    "source": "the reviewed pilot deployment's own input manifest at work/records/2026/10/finding-v12-native-pilot-instance-packet/revision-4/inputs/deployment.json (sha256 6a675445d361a5208f82dfc43593595cd2d5d9bcbb3e893842c03b5cb8587a3e)",
+    "value": [
+     {
+      "consumption": {
+       "baton.source-boundary/1": {
+        "delivery": "nominated-mount",
+        "profile": "git-line",
+        "workspace": "disk"
+       }
+      },
+      "content_manifest": {
+       "entries": [],
+       "entry_count": 0,
+       "total_bytes": 0,
+       "tree_digest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "destination": "source",
+      "name": "source",
+      "required": true
+     }
+    ]
+   },
+   "tool_policy_digest": {
+    "kind": "unresolved-grant",
+    "missing_selection": "the tool policy document for the workload's permitted tools. No such document is published with the pilot.",
+    "source": "the published conformance vector at work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json (sha256 fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903), carried unchanged -- the same baseline tools/next_run_bindings.py reads and leaves",
+    "value": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "what_it_names": "a Job-wide bound, compared across every worker"
+   },
+   "toolchain_digest": {
+    "kind": "unresolved-grant",
+    "missing_selection": "the toolchain inventory of image sha256:c862c055...; reading it means contacting a container engine, which this preparation does not do.",
+    "source": "the published conformance vector at work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json (sha256 fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903), carried unchanged -- the same baseline tools/next_run_bindings.py reads and leaves",
+    "value": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+    "what_it_names": "the toolchain travelling with the worker image"
+   },
+   "version": {
+    "kind": "inherited-contract",
+    "source": "structural, from the published conformance vector at work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json (sha256 fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903)",
+    "value": {
+     "major": 1,
+     "minor": 0
+    }
+   },
+   "work_ref": {
+    "kind": "selected",
+    "source": "the authority identity minted at the destination and read back, with the Work derived from it",
+    "value": {
+     "authority_uuid": "d11bfa6a557047b0ad8000c204cef76b",
+     "work_id": "d11bfa6a-W1"
+    }
+   },
+   "worker_image_digest": {
+    "kind": "inherited-contract",
+    "note": "identical to the worker that carries this manifest, which is what the installer checks; the document behind the digest is not published, so this is an accepted contract and not a content check",
+    "source": "the reviewed pilot worker deployment's image_digest at work/records/2026/10/finding-v12-native-pilot-instance-packet/fresh5-361402/configure-inputs.json (sha256 f60b129baad7fc098be76af530a6705b96cd510aa4d8b2ff552cf3b9d6e2a494)",
+    "value": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2"
+   }
+  },
+  "preparation_is_complete": false,
+  "published_vector": {
+   "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json",
+   "read_the_way": "tools/next_run_bindings.py reads it",
+   "sha256": "fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903"
+  },
+  "reviewed_pilot_manifest": {
+   "path": "work/records/2026/10/finding-v12-native-pilot-instance-packet/revision-4/inputs/deployment.json",
+   "sha256": "6a675445d361a5208f82dfc43593595cd2d5d9bcbb3e893842c03b5cb8587a3e"
+  },
+  "reviewed_pilot_worker": {
+   "member": "workers[].deployment",
+   "path": "work/records/2026/10/finding-v12-native-pilot-instance-packet/fresh5-361402/configure-inputs.json",
+   "sha256": "f60b129baad7fc098be76af530a6705b96cd510aa4d8b2ff552cf3b9d6e2a494"
+  },
+  "rule": "tools/dogfood_operator.input_manifest: 'EVERY POLICY IDENTITY IS AN OPERAND ... A tool that filled one in would be making a grant on an operator's behalf.' So these are carried and named, never invented.",
+  "unaccounted_members": [],
+  "unresolved_operator_grants": [
+   "credential_policy_digest",
+   "mount_policy_digest",
+   "network_policy_digest",
+   "resource_policy_digest",
+   "role_instructions_digest",
+   "tool_policy_digest",
+   "toolchain_digest"
+  ]
+ },
+ "runtime": {
+  "archive_sha256": "1da85eed0a3a19a5da0b83253abbbb40ebeed01bfe90ee05a10055dec0057125",
+  "distro": "/var/tmp/baton-w257624/w367232-runtime-npzfzf61/distro",
+  "folder_digest": "0b7bc59213605489319e973a6a6cdf285c76513a00f75bf5e05d669df88beefd",
+  "obtained": "materialized by this run from the retained archive, both pins verified"
+ },
+ "schema": "baton.v12.capacity-proof/1",
+ "scratch_root": "/var/tmp/baton-w257624",
+ "step1_mint": {
+  "exit": 0,
+  "inputs": "/var/tmp/baton-w257624/w367232-proof-73ebk3h0/phase1-install-inputs.json",
+  "said": [
+   "export BATON_V12_JOB_STORE=\"/var/tmp/baton-w257624/w367232-proof-73ebk3h0/instance/db/jobs.sqlite3\"",
+   "export BATON_V12_CONTROL_STORE=\"/var/tmp/baton-w257624/w367232-proof-73ebk3h0/instance/db/control.sqlite3\"",
+   "export BATON_V12_AUTHORITY_UUID=\"d11bfa6a557047b0ad8000c204cef76b\"",
+   "export BATON_V12_STAGE_EXECUTION_CONFIG=\"/var/tmp/baton-w257624/w367232-proof-73ebk3h0/instance/deployment.json\""
+  ]
+ },
+ "step2_readback": {
+  "authority_uuid": "d11bfa6a557047b0ad8000c204cef76b",
+  "generated": true,
+  "mint_configured_no_workers": true
+ },
+ "step3_compose": {
+  "declared_base": "42bed8bb04a53380e565b1a63fb2bc702677f0d0",
+  "document_digest": "sha256:4677bcf8f20e43b5bc9bb5eb44e11af6f3dea2dfc4851d6ded814acde6b80c69",
+  "integration_instructions_digest": "sha256:fafc35958002db5284b54f4d22cf59a7dccfb5ac05e15baa69db73fcff06d6f2",
+  "lane_bases": {
+   "implementation": {
+    "from": "the reviewed pilot's own implementation worker",
+    "profile_name": "claude-fresh-implementation",
+    "review_route": "rview"
+   },
+   "review": {
+    "from": "the reviewed pilot's own review worker",
+    "profile_name": "claude-fresh-implementation",
+    "review_route": "owner"
+   }
+  },
+  "lanes": [
+   "implementation",
+   "review"
+  ],
+  "manifest_digest": "sha256:fa0a76bda38f7b81cb8c947c0ffb266fc13d5bcfd03916efc0b68a75d88076b5",
+  "participants": [
+   "baton.claude-w366962",
+   "baton.reviewer-w366962"
+  ],
+  "preparation_is_complete": false,
+  "unaccounted_manifest_members": [],
+  "unresolved_operator_grants": [
+   "credential_policy_digest",
+   "mount_policy_digest",
+   "network_policy_digest",
+   "resource_policy_digest",
+   "role_instructions_digest",
+   "tool_policy_digest",
+   "toolchain_digest"
+  ],
+  "why_not_complete": "7 operator grants in the input manifest have no selected source and are carried at the published vector's constants: credential_policy_digest, mount_policy_digest, network_policy_digest, resource_policy_digest, role_instructions_digest, tool_policy_digest, toolchain_digest. `provenance.members` names the exact selection missing for each. This preparation is reusable and the connected proof is real, but it is NOT a finished operational configuration until an operator grants them.",
+  "work_id": "d11bfa6a-W1"
+ },
+ "step4_install": {
+  "exit": 0,
+  "inputs": "/var/tmp/baton-w257624/w367232-proof-73ebk3h0/instance/phase2-inputs.json",
+  "said": [
+   "",
+   "or the command directly, which is the same program:",
+   "",
+   "    /var/tmp/baton-w257624/w367232-proof-73ebk3h0/instance/distro/baton-v12-stack status --instance /var/tmp/baton-w257624/w367232-proof-73ebk3h0/instance/instance.json"
+  ]
+ },
+ "step5_derivation": {
+  "every_worker_bound_to_the_mint": true,
+  "input_digest": "sha256:6541701a8deae962b560d2b17d010a9f394678a6ab5afac3101c989238613d14",
+  "lanes": [
+   [
+    "implementation",
+    "baton.claude-w366962"
+   ],
+   [
+    "review",
+    "baton.reviewer-w366962"
+   ]
+  ],
+  "profiles": [
+   "implementation",
+   "review"
+  ],
+  "review_routes": {
+   "implementation": "rview",
+   "review": "owner"
+  },
+  "work_id": "d11bfa6a-W1"
+ },
+ "step6_create": {
+  "acceptance_count": 5,
+  "acceptance_is_the_selected_one": true,
+  "exit": 0,
+  "job_id": "job-template-job-guide-42bed8bb",
+  "scope": {
+   "tests": [],
+   "work": [
+    "v12/TEMPLATE-JOBS.md"
+   ]
+  },
+  "servable": {
+   "implementation": [
+    "impl-w366962"
+   ],
+   "review": [
+    "review-w366962"
+   ]
+  },
+  "statement_is_the_selected_one": true,
+  "template": "baton.v12.job-template.implementation-review/1",
+  "work_id": "d11bfa6a-W1"
+ },
+ "step7_ok": true,
+ "step7_refusals": {
+  "archive_pin_restored": true,
+  "foreign_uuid_absent": {
+   "refused": true,
+   "said": "a minted authority identity is 32 hex characters read back from the destination; this is None. This composition will not invent one."
+  },
+  "foreign_uuid_not_hex": {
+   "refused": true,
+   "said": "a minted authority identity is 32 hex characters read back from the destination; this is 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz'. This composition will not invent one."
+  },
+  "foreign_uuid_wrong_length": {
+   "refused": true,
+   "said": "a minted authority identity is 32 hex characters read back from the destination; this is 'd11bfa6a557047b0ad8000c204cef76'. This composition will not invent one."
+  },
+  "occupied_path": {
+   "nothing_else_appeared": true,
+   "path": "/var/tmp/baton-w257624/w367232-occupied-t2t7lmk2",
+   "refused": true,
+   "said": "/var/tmp/baton-w257624/w367232-occupied-t2t7lmk2 already exists; this preparation never removes or reuses a path it did not create. Name a fresh one.",
+   "sentinel_unchanged": true
+  },
+  "seal_detects_a_moved_member": {
+   "differs": true,
+   "reseal_of_the_altered_document": "sha256:5b05ae97a4388b8b19337d0116380fcbd22448b63445ba87ab775901cdc26d03",
+   "sealed_digest": "sha256:fcecf2a12c97763e9cd0dfa7c8fbba71c4217e9db8ea8cf8bc7b12d96aa35407"
+  },
+  "stale_source": {
+   "refused": true,
+   "said": "the selected source is at 0000000000000000000000000000000000000000 and this preparation is for 42bed8bb04a53380e565b1a63fb2bc702677f0d0; nothing was composed"
+  },
+  "wrong_artifact": {
+   "refused": true,
+   "said": "the retained archive digests 1da85eed0a3a19a5da0b83253abbbb40ebeed01bfe90ee05a10055dec0057125 and this preparation pins ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff; nothing was read further"
+  }
+ },
+ "test_substitutions": [
+  {
+   "not_operational": true,
+   "what": "the two nominated source directories are created empty",
+   "why": "the installer lstats them; an operator obtains them with --repository-source, which clones, and cloning is outside this preparation's boundary"
+  }
+ ]
+}

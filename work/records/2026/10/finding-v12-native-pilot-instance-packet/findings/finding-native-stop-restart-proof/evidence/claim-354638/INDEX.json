@@ -1,0 +1,58 @@
+{
+  "work": "W354630",
+  "claim": 354638,
+  "proposed_path": "v12/python/tests/job_manager/test_native_stop_restart.py",
+  "candidate_sha256": "f05726cfb92c6d2d8d35e2df859e7f540c4dfc0aa6703b3fe8cdfe08d35bfadf",
+  "base": "new path; existing 1777 files unchanged",
+  "pins_verified": 32,
+  "runs": [
+    {
+      "command": [
+        "/home/sl/.local/state/baton-v12-venv/bin/python",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.job_manager.test_native_stop_restart"
+      ],
+      "seconds": 0.4638094149995595,
+      "exit": 1
+    },
+    {
+      "command": [
+        "/home/sl/.local/state/baton-v12-venv/bin/python",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.job_manager.test_native_stop_restart"
+      ],
+      "seconds": 0.44443222600239096,
+      "exit": 1,
+      "cwd": "/tmp/w354630-354638/candidate/v12/python",
+      "environment": {
+        "PYTHONPATH": "src:.",
+        "BATON_V12_DISK_ROOT": "/home/sl/src/baton",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      }
+    },
+    {
+      "command": [
+        "/home/sl/.local/state/baton-v12-venv/bin/python",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.job_manager.test_native_stop_restart"
+      ],
+      "seconds": 0.44341636799799744,
+      "exit": 1,
+      "cwd": "/tmp/w354630-354638/candidate/v12/python",
+      "environment": {
+        "PYTHONPATH": "src:.",
+        "BATON_V12_DISK_ROOT": "/home/sl/src/baton",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      }
+    }
+  ],
+  "cumulative_verification_seconds": 1.351658008999948,
+  "final_result": "6 tests: 5 passed, 1 failed (revoked token permits effects after clock regression)",
+  "product_edits": []
+}

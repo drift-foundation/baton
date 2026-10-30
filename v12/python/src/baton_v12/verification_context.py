@@ -30,6 +30,19 @@ WHAT IT IS EMPHATICALLY NOT:
   direction runs the right way -- an older holder REFUSES the new member rather
   than ignoring it.
 
+AMENDED 2026-10-29 (W321776 claim 383132). The "NOT A MATERIALIZER" line above
+is kept rather than rewritten, because the amendment is narrower than it looks.
+Stage B's RULES are now here too, as `held_seal`, `held_observation`,
+`view_plan` and `answered`: an ordered collection of questions over
+VIEW-RELATIVE paths, answered by three readers the HOLDER injects. What still
+belongs to the party that built a view is the materializing and the reading --
+this module still creates nothing, opens nothing and imports `re` alone, and
+the structural case over its imports is what says so rather than this
+paragraph. The rules moved because the two holders must ask the SAME Stage-B
+questions in the SAME order, and a preflight each one spelled separately is two
+rules that can disagree while each half believes it agreed. That is the
+identical argument the Stage-A paragraph above makes, one stage over.
+
 WHY IT TRAVELS AS A TOP-LEVEL MODULE. It imports nothing from `baton_v12`, so
 the worker image copies it under its own name exactly as
 `baton_v12.source_profiles` and `baton_v12.attempt_log_format` do
@@ -80,14 +93,20 @@ how a bounded structural fact becomes a channel.
 
 import re
 
-__all__ = ["CAUSES", "COMMANDS", "CONTEXT_SCHEMA", "ContextRefusal",
-           "EVIDENCE_SCHEMA", "FAILED", "INVALID_LAYOUT", "LEGACY_PROPOSAL",
-           "LEGACY_TASK_SCHEMA", "MATERIALIZATION", "MISSING_INPUT",
-           "MalformedOutcome", "NOT_RUN", "OBSERVATION_MEMBERS", "PASSED",
-           "PROPOSAL_SCHEMA", "READY", "REFUSED", "START_FAILURE",
-           "STATIC_STAGE", "TASK_SCHEMA", "TIMED_OUT", "VIEW_STAGE",
-           "check_outcome", "generation", "held", "import_path", "ready",
-           "refused", "reported_command", "verdict"]
+__all__ = ["ABSENT", "ANCESTRY_DETAIL", "BASE_SOURCE_DETAIL", "BYTES",
+           "CAUSES", "COMMANDS", "CONTEXT_SCHEMA", "ContextRefusal",
+           "DIRECTORY", "EVIDENCE_MEMBERS", "EVIDENCE_SCHEMA", "FAILED",
+           "INVALID_LAYOUT", "LEGACY_PROPOSAL", "LEGACY_TASK_SCHEMA",
+           "MATERIALIZATION", "MISSING_INPUT", "MalformedOutcome", "NOT_RUN",
+           "OBSERVATION_MEMBERS", "PASSED", "PRESENT",
+           "PROPOSAL_CONTEXT_MEMBERS", "PROPOSAL_SCHEMA", "READY", "REFUSED",
+           "RESULT_DETAIL", "SEAL_SCHEMA", "SEALED_MEMBERS", "SEAL_MEMBERS",
+           "START_FAILURE", "STATIC_STAGE", "TASK_SCHEMA",
+           "TIMED_OUT", "TRANSPORT_DETAIL", "VIEW_QUESTIONS", "VIEW_STAGE",
+           "answered", "check_outcome", "generation", "held",
+           "held_evidence", "held_observation", "held_seal", "import_path",
+           "ready",
+           "refused", "reported_command", "verdict", "view_plan"]
 
 # THE TASK GENERATIONS. `/2` is frozen and untouched; `/3` is `/2` plus one
 # member. Both constants live here because the refusal direction is a statement
@@ -122,6 +141,52 @@ PASSED = "passed"
 FAILED = "failed"
 TIMED_OUT = "timed-out"
 COMMANDS = (NOT_RUN, PASSED, FAILED, TIMED_OUT)
+
+# THE SEAL. One document both holders read, so that "the sealed set" the
+# packet names on every Stage-A row is one set of bytes rather than two
+# holders' separate ideas of it. See `held_seal`.
+SEAL_SCHEMA = "baton.dogfood-seal/1"
+SEAL_MEMBERS = ("schema", "inputs", "pins")
+SEALED_MEMBERS = ("name", "place", "content_digest", "bytes")
+
+# THE VIEW QUESTIONS. Stage B's rules are an ordered collection of these over
+# view-relative paths, and the holder that materialized the view answers them;
+# see `view_plan`. Four kinds because four are what the packet's Stage-B table
+# actually asks: is this a directory, is this there, is this NOT there, and are
+# these the bytes that were declared or measured.
+DIRECTORY = "directory"
+PRESENT = "present"
+ABSENT = "absent"
+BYTES = "bytes"
+VIEW_QUESTIONS = (DIRECTORY, PRESENT, ABSENT, BYTES)
+
+# The Stage-B members only ONE holder can be asked about, named here so both
+# holders spell them identically in a durable refusal. The worker's candidate
+# is already local, so the accepted-base object source and the object transport
+# are the independent operator's questions alone -- but a refusal naming them
+# is read by whoever consumes the record, and two spellings of one member is
+# the defect this module exists to prevent one layer up.
+BASE_SOURCE_DETAIL = "candidate.declared_base"
+TRANSPORT_DETAIL = "candidate.transport"
+ANCESTRY_DETAIL = "candidate.entry_head"
+RESULT_DETAIL = "result.candidate"
+
+# The members the fresh proposal generation adds to `/2`'s set. `context`,
+# `command` and `exit_status` are the new outcome axes; the two observations
+# are the measured candidate facts `/2` could not carry -- it has no `removed`
+# member at all, and its `changed_paths` is a path inventory with no digests
+# for a view to be bound to.
+PROPOSAL_CONTEXT_MEMBERS = ("context", "command", "exit_status",
+                            "candidate_changed", "candidate_removed")
+
+# The independent operator's own result, closed. Measured rather than restated:
+# evidence that copied the declaration would agree with the task by
+# construction and prove nothing about the view.
+EVIDENCE_MEMBERS = ("schema", "task_id", "task_digest", "candidate_profile",
+                    "candidate_base", "candidate_entry", "result_head",
+                    "result_digest", "transport", "candidate_changed",
+                    "candidate_removed", "inputs", "context", "command",
+                    "exit_status")
 
 # The members a SEALED task may not carry, by name. Each one is something only
 # the finished turn knows.
@@ -299,6 +364,299 @@ def held(task, *, sealed, pinned, pairing):
     _pins(candidate["pins"], pinned=pinned)
     _inputs(context["inputs"], destination=destination, sealed=sealed)
     return ready()
+
+
+def held_seal(document):
+    """THE SEAL, as a document, answering the two maps `held()` asks against.
+
+    The packet names "the sealed set" on every Stage-A row and never says what
+    it is on disk, because a preparation packet binds a contract rather than a
+    layout. This is that layout, and it is THIS DELIVERY'S READING -- recorded
+    as an interpretation in the dossier rather than quoted:
+
+      `inputs` carries the declared immutable set, each member naming where its
+      bytes live relative to the seal root, the digest they were sealed at and
+      their size; `pins` carries the candidate-relative paths whose bytes the
+      task requires unchanged, at the digests they were measured at WHEN THE
+      TASK WAS SEALED.
+
+    WHY THE PINS ARE HERE AND NOT MEASURED FROM A TREE. Stage A answers before
+    materialization AND before provider work, so a holder that re-measured the
+    candidate to decide a pin would be deciding at a different time from the
+    party that sealed it -- and on the worker, after the provider, against
+    bytes the provider could have changed. The packet says it plainly: a pin is
+    "decided against the seal, at sealing time, like every other Stage-A input
+    question". Stage B then asks the materialized view whether it still holds
+    those bytes, which is the question that needs a tree.
+
+    ONE SEAL, TWO HOLDERS. Both the worker and the independent operator read
+    this same document, so a disagreement between them is a disagreement about
+    bytes rather than about which bytes were meant.
+    """
+    if not isinstance(document, dict):
+        raise MalformedOutcome("a seal is one document")
+    if document.get("schema") != SEAL_SCHEMA:
+        raise MalformedOutcome(f"a seal is {SEAL_SCHEMA}")
+    missing = sorted(one for one in SEAL_MEMBERS if one not in document)
+    extra = sorted(one for one in document if one not in SEAL_MEMBERS)
+    if missing or extra:
+        raise MalformedOutcome(
+            "a seal is exactly its closed member set"
+            + (f"; missing {', '.join(missing)}" if missing else "")
+            + (f"; unexpected {', '.join(extra)}" if extra else ""))
+    sealed = {}
+    if not isinstance(document["inputs"], list):
+        raise MalformedOutcome("a seal's inputs are an ordered collection")
+    for one in document["inputs"]:
+        if not isinstance(one, dict) or set(one) != set(SEALED_MEMBERS):
+            raise MalformedOutcome("a sealed input is exactly its name, its "
+                                   "place, its digest and its size")
+        name = one["name"]
+        if not isinstance(name, str) or not _NAME.match(name) or name in sealed:
+            raise MalformedOutcome("a sealed input is named once")
+        if not isinstance(one["content_digest"], str) \
+                or not _DIGEST.match(one["content_digest"]):
+            raise MalformedOutcome("a sealed input carries a sha256 digest")
+        if not isinstance(one["bytes"], int) or isinstance(one["bytes"], bool) \
+                or one["bytes"] < 0:
+            raise MalformedOutcome("a sealed input carries its size")
+        # THE PLACE IS HELD BY THE SAME PATH GRAMMAR as every declared path,
+        # because a seal that could name an absolute or escaping place would
+        # be a document deciding what a holder reads off its own host.
+        try:
+            _contained(one["place"], "seal.inputs[].place")
+        except ContextRefusal:
+            raise MalformedOutcome("a sealed input's place is a relative, "
+                                   "canonical, contained path") from None
+        sealed[name] = {"place": one["place"],
+                        "content_digest": one["content_digest"],
+                        "bytes": one["bytes"]}
+    pinned = {}
+    if not isinstance(document["pins"], list):
+        raise MalformedOutcome("a seal's pins are an ordered collection")
+    for one in document["pins"]:
+        if not isinstance(one, dict) or set(one) != set(PIN_MEMBERS):
+            raise MalformedOutcome("a sealed pin is exactly a path and the "
+                                   "digest it was sealed at")
+        path = one["path"]
+        if not isinstance(path, str) or not path or path in pinned:
+            raise MalformedOutcome("a sealed pin names one path once")
+        if not isinstance(one["content_digest"], str) \
+                or not _DIGEST.match(one["content_digest"]):
+            raise MalformedOutcome("a sealed pin carries a sha256 digest")
+        pinned[path] = one["content_digest"]
+    return sealed, pinned
+
+
+def held_observation(observation):
+    """The RETAINED RESULT's candidate observation, held before it is believed.
+
+    This is the other half of the constraint/observation split, read rather
+    than written: `changed` and `removed` are what the finished turn MEASURED,
+    and Stage B binds each holder's view to them so "an unchanged base was
+    substituted for the changed candidate" refuses -- the view does not hold
+    the paths the result says were changed.
+
+    IT IS A PEER'S DOCUMENT, so a malformed one is `MalformedOutcome` rather
+    than a `ContextRefusal`: this holder has not refused its own context, it
+    has declined to interpret somebody else's record. Conflating the two would
+    publish a refusal about this run for a fault in another party's bytes.
+
+    `changed` carries digests and that is this module's reading, recorded as
+    such in the dossier. Stage B's own row is "a path the retained result
+    reports changed is absent, OR PRESENT AT OTHER BYTES", and no amount of
+    path names decides the second half -- so the measured digest travels with
+    the path it was measured for. `/2` carried neither member: it has no
+    `removed` at all and its `changed_paths` is a path inventory, which is why
+    these arrive on the fresh generation rather than as a re-reading of the
+    old one.
+    """
+    if not isinstance(observation, dict):
+        raise MalformedOutcome("a candidate observation is a document")
+    for name in ("changed", "removed"):
+        if name not in observation:
+            raise MalformedOutcome(f"a candidate observation names {name}")
+    changed = observation["changed"]
+    if not isinstance(changed, list):
+        raise MalformedOutcome("changed is an ordered collection")
+    seen = set()
+    for one in changed:
+        if not isinstance(one, dict) or set(one) != set(PIN_MEMBERS):
+            raise MalformedOutcome("a changed path is exactly a path and the "
+                                   "digest it was measured at")
+        path = one["path"]
+        if not isinstance(path, str) or not path:
+            raise MalformedOutcome("a changed path is a path")
+        if not isinstance(one["content_digest"], str) \
+                or not _DIGEST.match(one["content_digest"]):
+            raise MalformedOutcome("a changed path carries a sha256 digest")
+        if path in seen:
+            raise MalformedOutcome("one path is measured once")
+        seen.add(path)
+    removed = observation["removed"]
+    if not isinstance(removed, list) \
+            or not all(isinstance(one, str) and one for one in removed):
+        raise MalformedOutcome("removed is an ordered collection of paths")
+    for one in removed:
+        if one in seen:
+            raise MalformedOutcome("a path is changed or removed, not both")
+    return observation
+
+
+def view_plan(context, *, observation):
+    """STAGE B AS QUESTIONS, so that the two holders cannot answer different
+    ones.
+
+    WHY A PLAN AND NOT A CHECK. Stage B is decidable only once a view exists,
+    and a view is a place on a host -- so a function that performed it would
+    have to read the filesystem, and this module would stop being the thing
+    both holders can agree about without either one building anything. The
+    split is therefore: the RULES live here, once, as an ordered collection of
+    questions over view-relative paths; the READING lives at the holder that
+    materialized the view, injected into `answered` below. Neither holder gets
+    to spell a rule, and neither has to hand this module its host.
+
+    `held()` STILL CANNOT MATERIALIZE OR READ ANYTHING, and the structural case
+    over this module's imports is what says so rather than this paragraph.
+
+    THE ORDER IS THE CONTRACT'S PRECEDENCE, not a convenience. Layout faults
+    come first, then a missing required path, then every byte question -- so
+    the one cause a refusal carries is the one the packet's table assigns to
+    the first thing actually wrong, rather than whichever check happened to be
+    written first.
+
+    `observation` is the retained result's measured candidate observation,
+    held by `held_observation`. The view is bound to it: that is how a base
+    tree offered in place of the changed candidate refuses.
+    """
+    working = context["working_directory"]
+    destination = context["candidate_destination"]
+    plan = [{"kind": DIRECTORY, "path": working, "digest": None,
+             "cause": INVALID_LAYOUT,
+             "detail": "verification_context.working_directory"}]
+    for index, root in enumerate(context["import_roots"]):
+        plan.append({"kind": DIRECTORY, "path": f"{working}/{root}",
+                     "digest": None, "cause": INVALID_LAYOUT,
+                     "detail": f"verification_context.import_roots[{index}]"})
+    for index, path in enumerate(context["required_paths"]):
+        plan.append({"kind": PRESENT, "path": f"{working}/{path}",
+                     "digest": None, "cause": MISSING_INPUT,
+                     "detail": f"verification_context.required_paths[{index}]"})
+    for index, one in enumerate(context["inputs"]):
+        plan.append({"kind": BYTES, "path": one["destination"],
+                     "digest": one["content_digest"],
+                     "cause": MATERIALIZATION,
+                     "detail": f"verification_context.inputs[{index}].name"})
+    for index, pin in enumerate(context["candidate"]["pins"]):
+        plan.append({
+            "kind": BYTES, "path": f"{destination}/{pin['path']}",
+            "digest": pin["content_digest"], "cause": MATERIALIZATION,
+            "detail": f"verification_context.candidate.pins[{index}].path"})
+    held = held_observation(observation)
+    for index, one in enumerate(held["changed"]):
+        plan.append({"kind": BYTES, "path": f"{destination}/{one['path']}",
+                     "digest": one["content_digest"],
+                     "cause": MATERIALIZATION,
+                     "detail": f"{RESULT_DETAIL}.changed[{index}]"})
+    for index, path in enumerate(held["removed"]):
+        plan.append({"kind": ABSENT, "path": f"{destination}/{path}",
+                     "digest": None, "cause": MATERIALIZATION,
+                     "detail": f"{RESULT_DETAIL}.removed[{index}]"})
+    return tuple(plan)
+
+
+def answered(plan, *, isdir, exists, digest):
+    """The plan, answered by the holder's own three readers.
+
+    `ready()` or a `ContextRefusal` AT THE VIEW STAGE -- and the stage is not
+    the caller's to choose, because a Stage-A cause published as a view refusal
+    would say the view had been built when nothing was.
+
+    `digest(path)` answers `None` for a path that is not there, which is why an
+    absent declared input, an absent pin and an absent reported change all land
+    on `materialization` rather than on three readings of one row: each of them
+    is "the bytes this view was supposed to hold are not the bytes it holds".
+
+    AND THE COMMAND HAS NOT STARTED YET. Every refusal from here is
+    `command: not-run` at the caller, the holder's own view is cleaned up and
+    nothing else is, and no verdict about the candidate is supplied.
+    """
+    for question in plan:
+        kind = question["kind"]
+        if kind not in VIEW_QUESTIONS:
+            raise MalformedOutcome(f"{kind!r} is not a view question")
+        path = question["path"]
+        if kind == DIRECTORY:
+            wrong = not isdir(path)
+        elif kind == PRESENT:
+            wrong = not exists(path)
+        elif kind == ABSENT:
+            wrong = exists(path)
+        else:
+            wrong = digest(path) != question["digest"]
+        if wrong:
+            raise ContextRefusal(question["cause"], question["detail"],
+                                 stage=VIEW_STAGE)
+    return ready()
+
+
+def held_evidence(document):
+    """`baton.dogfood-operator-evidence/1`, held by the closed set it is.
+
+    THE EVIDENCE IS ABOUT A RETAINED OUTPUT. `result_digest` names the exact
+    published result the operator independently verified and `result_head`/
+    `transport` name where it got the bytes; a document that named a task and
+    nothing else could be read as evidence about some other result of the same
+    task. A generic candidate has no commit and no transport, so those two and
+    `candidate_base` are null there -- nothing asks for a head it cannot have.
+
+    Held at the writer and at every reader, for the same reason the task's hold
+    is one function applied three times: a second spelling of a closed set is a
+    second set.
+    """
+    if not isinstance(document, dict):
+        raise MalformedOutcome("the operator's evidence is one document")
+    if document.get("schema") != EVIDENCE_SCHEMA:
+        raise MalformedOutcome(f"the operator's evidence is {EVIDENCE_SCHEMA}")
+    missing = sorted(one for one in EVIDENCE_MEMBERS if one not in document)
+    extra = sorted(one for one in document if one not in EVIDENCE_MEMBERS)
+    if missing or extra:
+        raise MalformedOutcome(
+            "the operator's evidence is exactly its closed member set"
+            + (f"; missing {', '.join(missing)}" if missing else "")
+            + (f"; unexpected {', '.join(extra)}" if extra else ""))
+    for name in ("task_id", "task_digest", "candidate_profile",
+                 "result_digest"):
+        if not isinstance(document[name], str) or not document[name]:
+            raise MalformedOutcome(f"the evidence's {name} is bounded text")
+    for name in ("task_digest", "result_digest"):
+        if not _DIGEST.match(document[name]):
+            raise MalformedOutcome(f"the evidence's {name} is a sha256 digest")
+    for name in ("candidate_base", "candidate_entry", "result_head",
+                 "transport"):
+        if document[name] is not None \
+                and (not isinstance(document[name], str)
+                     or not document[name]):
+            raise MalformedOutcome(f"the evidence's {name} is text or null")
+    # MEASURED, NOT COPIED. The whole reason there are two holders is that
+    # their measurements can disagree, so these carry the same shape the
+    # worker's own observation does and a reader compares them directly.
+    held_observation({"changed": document["candidate_changed"],
+                      "removed": document["candidate_removed"]})
+    if not isinstance(document["inputs"], list):
+        raise MalformedOutcome("the evidence's inputs are an ordered "
+                               "collection")
+    for one in document["inputs"]:
+        if not isinstance(one, dict) or set(one) != {"name", "content_digest"}:
+            raise MalformedOutcome("a materialized input is exactly its name "
+                                   "and the digest it was measured at")
+        if not isinstance(one["content_digest"], str) \
+                or not _DIGEST.match(one["content_digest"]):
+            raise MalformedOutcome("a materialized input carries a sha256 "
+                                   "digest")
+    check_outcome(document["context"], document["command"],
+                  document["exit_status"])
+    return document
 
 
 def import_path(context):

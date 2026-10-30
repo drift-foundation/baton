@@ -1,0 +1,17 @@
+{
+  "manifest_sha256": "0f8eba8caa8eca82639f83b184c90dbafd7a19757be7fe6336c5494ce4329adb",
+  "seals": 55,
+  "runs": [
+    {
+      "label": "preparation",
+      "returncode": 0,
+      "seconds": 3.2266092099998787
+    },
+    {
+      "label": "overlay",
+      "returncode": 0,
+      "seconds": 0.21209477599950333
+    }
+  ],
+  "reviewer_setup_error": "Initial manifest iteration used top-level keys rather than files; failed before any checks/execution. Corrected reader; packet unchanged. Failed setup duration unmeasured."
+}

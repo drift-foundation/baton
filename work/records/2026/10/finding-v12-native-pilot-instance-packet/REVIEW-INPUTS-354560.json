@@ -1,0 +1,13 @@
+{
+  "claim": 354560,
+  "index_sha256": "4a8c11adfbe96fba354dcca14530e353a8b503461bd7087d0957fbd84cd0fc77",
+  "copies": {
+    "affected.log": true,
+    "candidate-test_native_permission.py": true,
+    "connected.log": true,
+    "disconnected-A-factory.log": true,
+    "disconnected-B-reserve.log": true,
+    "progress-section.md": true
+  },
+  "test_sha256": "a94903feba74212ec486eb0c442ca0b8e23eaf55deeddb29cd568b8ff7813e64"
+}

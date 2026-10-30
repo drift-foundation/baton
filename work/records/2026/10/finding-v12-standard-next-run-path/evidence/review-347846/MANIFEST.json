@@ -1,0 +1,18 @@
+{
+  "candidate_files": {
+    "v12/python/tests/tools/next_run_flow_fixture.py": "7002f5697cd64c09b80c902ce68eb7394174d1da0d897b9782e088f620f45118",
+    "v12/python/tests/tools/test_next_run_flow.py": "1d557a19a7bbbb70051f30e0befc302ba9df276a769a89af9efc38e5ad2d4e3f",
+    "v12/python/tests/tools/test_next_run_managed.py": "4e9f8c35d8ea4f204319344b65fe7fbd783b7d18df7de238e9f919a1cf979139",
+    "v12/python/tools/next_run_confinement.py": "77037d51fd24848fdbe91a2888e13e08a4778a3136259acdf2351ecd7cb45e65"
+  },
+  "author_evidence": {
+    "boundary-after.json": "f1d5cac44ac9afb788116c32126f7235a77973c84ef283eec4fdccc6e3ace3b8",
+    "after.json": "6153095457d819e04618108dde2ac945016748b00b3c1ee718a53fc937878c93",
+    "reproduce.py": "aea26f6b083303e4e4b0cd47d4ccdd185f92b3d2d5002f860b1b1125be448850",
+    "before.json": "ca6a6c9789bdce728b4ad0dfa79b085291609c7bbcbe36636a804c12f289cd19",
+    "boundary-before.json": "d207da26a5e366716d639dc7dee97ad409a2a84c64a7fc8eb08cf839dfb2874d",
+    "CORRECTION-347765.json": "c4c2e94132ff7c095723a8a7ea20d60fbb4d0de265d96ccaf173f53be5005cd9",
+    "boundary.py": "16c63b490d089b5e7ad5f91a0d7201e13ccf3f77a98612bcb7c073e322c1bcf7"
+  },
+  "execution": "read-only static review; no product execution"
+}

@@ -1,0 +1,92 @@
+{
+  "manifest_sha256": "b7287b7b72f191679c033ec1cb180e2f93cce18a767c253d4d2117af00f94c7b",
+  "pins": {
+    "v12/python/src/baton_v12/job_manager/__init__.py": true,
+    "v12/python/src/baton_v12/job_manager/documents.py": true,
+    "v12/python/src/baton_v12/job_manager/fresh_attempt.py": true,
+    "v12/python/src/baton_v12/job_manager/schema.py": true,
+    "v12/python/src/baton_v12/job_manager/submission.py": true,
+    "v12/python/src/baton_v12/worker_manager/workspaces.py": true,
+    "v12/python/tests/job_manager/fixtures.py": true,
+    "v12/python/tests/job_manager/test_execution_limits.py": true,
+    "v12/python/tests/job_manager/test_fresh_attempt.py": true,
+    "v12/python/tests/job_manager/test_scheduling.py": true,
+    "v12/python/tests/job_manager/test_store.py": true,
+    "v12/python/tools/fresh_attempt_ports.py": true,
+    "v12/python/tools/job_manager.py": true,
+    "v12/python/tools/stage_execution.py": true
+  },
+  "bases": {
+    "v12/python/src/baton_v12/job_manager/__init__.py": true,
+    "v12/python/src/baton_v12/job_manager/documents.py": true,
+    "v12/python/src/baton_v12/job_manager/fresh_attempt.py": true,
+    "v12/python/src/baton_v12/job_manager/schema.py": true,
+    "v12/python/src/baton_v12/job_manager/submission.py": true,
+    "v12/python/src/baton_v12/worker_manager/workspaces.py": true,
+    "v12/python/tests/job_manager/fixtures.py": true,
+    "v12/python/tests/job_manager/test_execution_limits.py": true,
+    "v12/python/tests/job_manager/test_fresh_attempt.py": true,
+    "v12/python/tests/job_manager/test_scheduling.py": true,
+    "v12/python/tests/job_manager/test_store.py": true,
+    "v12/python/tools/fresh_attempt_ports.py": true,
+    "v12/python/tools/job_manager.py": true,
+    "v12/python/tools/stage_execution.py": true
+  },
+  "changed_from_parent": [
+    "v12/python/src/baton_v12/job_manager/fresh_attempt.py",
+    "v12/python/src/baton_v12/job_manager/submission.py",
+    "v12/python/tests/job_manager/test_fresh_attempt.py"
+  ],
+  "focused": {
+    "run": 84,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 2.8012084109996067
+  },
+  "earlier_refusal": {
+    "message": "'quickstart-c' is already recorded by another submission; one Job identity names one pipeline, and a second submission reusing it would silently take over the first one's stages",
+    "durable": true
+  },
+  "earlier_submission_row": null,
+  "retry": "the submission for this fresh attempt was refused: operation 'submission.record:sub-quickstart-c-retry-2' is already recorded with a different kind or signature; reusing an id with different operands changes nothing. The fresh identity 'quickstart-c-retry-2' is already RESERVED in this store and this attempt is incomplete rather than undone: correct what is named above and run the same request again, which resumes from the reservation. A different request under this identity is refused as the collision it is",
+  "effects_after_prior_refusal": [
+    [
+      "quickstart-c-retry-2",
+      "quickstart-c",
+      "0000000a-W1"
+    ]
+  ],
+  "intent_after_prior_refusal": {
+    "job_id": "quickstart-c-retry-2",
+    "prior_job_id": "quickstart-c",
+    "prior_attempt_ids": "[\"attempt-113d7744b434cd901c16f48b2e63aa2bdd06821f7d1e785027bcb865acaef6ad\", \"attempt-ec4bdf73a1febf8c0dc439fd264e157f19929dc99547c674ada5aea08ab05e65\"]",
+    "work_id": "0000000a-W1",
+    "submission_id": "sub-quickstart-c-retry-2",
+    "state": "intended",
+    "request": "{\"job_id\": \"quickstart-c-retry-2\", \"prior_job_id\": \"quickstart-c\", \"submission_id\": \"sub-quickstart-c-retry-2\", \"work_id\": \"0000000a-W1\"}",
+    "submission_signature": "{\"kind\":\"submission.record\",\"operands\":{\"jobs\":[{\"input_digest\":\"sha256:1111111111111111111111111111111111111111111111111111111111111111\",\"job_id\":\"quickstart-c-retry-2\",\"policy_digest\":\"sha256:2222222222222222222222222222222222222222222222222222222222222222\",\"stages\":[{\"depends_on\":[],\"kind\":\"implementation\",\"profile_digest\":\"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"profile_name\":\"reference\",\"work_id\":\"0000000a-W1\"},{\"depends_on\":[{\"job_id\":\"quickstart-c-retry-2\",\"kind\":\"implementation\"}],\"kind\":\"review\",\"profile_digest\":\"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"profile_name\":\"reference\",\"work_id\":\"0000000a-W1\"}],\"terminal_policy\":\"report-and-hold\",\"test_scope\":[\"v12/python/tests/job_manager\"]}],\"schema\":\"baton.v12.job-submission/1\",\"submission_id\":\"sub-quickstart-c-retry-2\"}}",
+    "intended_at": "2026-09-02T00:00:00.000Z",
+    "admitted_at": null,
+    "incarnation": "jobs-1",
+    "holder": "jobs-1@control.sqlite3"
+  },
+  "concurrent_retry_names": [
+    {
+      "prior": "quickstart-c",
+      "outcome": "admitted",
+      "effects": [
+        [
+          "quickstart-c-retry-2",
+          "quickstart-c",
+          "0000000a-W1"
+        ]
+      ]
+    },
+    {
+      "prior": "quickstart-x",
+      "outcome": "submission 'same-submission' is already reserved by the fresh attempt for Job 'quickstart-c-retry-2' and carries a different document; one submission identity names one intent",
+      "effects": []
+    }
+  ],
+  "seconds": 2.8147627919988736
+}

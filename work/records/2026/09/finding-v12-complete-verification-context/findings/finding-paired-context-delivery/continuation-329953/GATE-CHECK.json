@@ -1,0 +1,23 @@
+{
+  "ambient_pythonpath_offered": "/nonexistent-ambient-value",
+  "argv_source": "/tmp/w321776-preflight-329953/packet/task.json verification member, verbatim",
+  "argv_words": 3,
+  "expected": "non-zero, failing ONLY on the two modules the turn must write (tests.manager.test_verification_views and tests.tools.test_operator_verification_view). A failure of any credential-gate case would mean the derived import path still does not reach a child process.",
+  "note": "run against the host working tree, which holds exactly the five restored checkpoint buffers over the declared base; the ambient PYTHONPATH offered above is deliberately useless, and the gate overwrites it from its own derived roots",
+  "reported": [
+    "ERROR: test_verification_views (unittest.loader._FailedTest.test_verification_views)",
+    "ERROR: test_operator_verification_view (unittest.loader._FailedTest.test_operator_verification_view)"
+  ],
+  "run_from": "/home/sl/src/baton",
+  "schema": "baton.w321776-continuation-gate-check/1",
+  "seconds": 0.4310658859976684,
+  "status": 1,
+  "tail": [
+    "",
+    "",
+    "----------------------------------------------------------------------",
+    "Ran 211 tests in 0.245s",
+    "",
+    "FAILED (errors=2)"
+  ]
+}

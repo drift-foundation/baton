@@ -1,0 +1,10 @@
+{
+  "command": "docker image inspect sha256:47e733834bb690fd4601e102f81e527a08b6ffe55da8b8cb345f45edfcb1517e --format '{{json .Id}} {{json .Created}} {{json .Config.User}}'",
+  "result": {
+    "chunk_id": "f8e3d3",
+    "wall_time_seconds": 0.000007885,
+    "exit_code": 0,
+    "original_token_count": 31,
+    "output": "\"sha256:47e733834bb690fd4601e102f81e527a08b6ffe55da8b8cb345f45edfcb1517e\" \"2026-10-28T19:20:32.634149399Z\" \"65532:65532\"\n"
+  }
+}

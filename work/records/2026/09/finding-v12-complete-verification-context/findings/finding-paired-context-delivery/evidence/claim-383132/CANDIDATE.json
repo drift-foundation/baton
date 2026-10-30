@@ -1,0 +1,41 @@
+{
+ "accepted_input_manifest": "work/records/2026/10/finding-v12-typed-adapter-exchange/evidence/review-378517/ACCEPTED-SOURCE.json",
+ "candidate": {
+  "v12/python/src/baton_v12/verification_context.py": {
+   "bytes": 45865,
+   "sha256": "692d121682363ba519752fe78e64d3c0842da3dd3b4190131ee364ba75f0a1b0"
+  },
+  "v12/python/tests/manager/test_verification_views.py": {
+   "bytes": 36918,
+   "sha256": "9ddb2a6e50dbb5f2693d7768631fc515bee644ed7e41b393a13e2e07262a19ca"
+  },
+  "v12/python/tests/manager/verification_fixtures.py": {
+   "bytes": 7699,
+   "sha256": "198a811582b5d21b1313efc42a763f3fba394cb35553c2859204be466918b345"
+  },
+  "v12/python/tests/tools/test_dogfood_operator.py": {
+   "bytes": 391061,
+   "sha256": "a5f88ab38457767b7ae45bb0e66a2838ed17088cc6fbe79765eda16e2cee4d09"
+  },
+  "v12/python/tests/tools/test_operator_verification_view.py": {
+   "bytes": 32836,
+   "sha256": "76fc43e018f971da9513f00e1bc642d738dfec49c449a0cfc59455ef2b44037a"
+  },
+  "v12/python/tools/dogfood_operator.py": {
+   "bytes": 292316,
+   "sha256": "81fadc2bd8b467c72454447bf92513d96172e03eb2e59e9606ce333c64b9d87e"
+  },
+  "v12/worker/Dockerfile.integration": {
+   "bytes": 7931,
+   "sha256": "f18d6352b3062632bcecd8e46027db62f0aa9685fe6d2f7189cb4d4cf20f2d55"
+  },
+  "v12/worker/claude_agent.py": {
+   "bytes": 349698,
+   "sha256": "941b5f9c2ea617229667e3f764bb12bb4c19b8096b18cdbff6d2952019d35e75"
+  }
+ },
+ "claim": 383132,
+ "head": "8876bf950ff1f8ab8767ce9786df268cc9d767c6",
+ "participant": "baton.claude",
+ "work": "2b077949-W321776"
+}

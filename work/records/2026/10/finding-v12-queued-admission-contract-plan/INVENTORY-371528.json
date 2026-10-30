@@ -1,0 +1,31 @@
+{
+  "work": "W371396",
+  "claim": "E371528",
+  "files": [
+    {
+      "path": "work/records/2026/10/finding-v12-queued-admission-contract-plan/PROPOSAL.md",
+      "bytes": 25251,
+      "sha256": "3aee843672879335c8395900f8268c506ef587cf192f123a6b9db0004b75a800"
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-queued-admission-contract-plan/PROGRESS.md",
+      "bytes": 3283,
+      "sha256": "fe5f484e10b927ceb1a6cc00cecad1959a29616d61a8d20289c6f04ba8f8ea31"
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-queued-admission-contract-plan/evidence/claim-371528/CHECKS.json",
+      "bytes": 1167,
+      "sha256": "fd5c493c02ba110d5c94542ab534cf3849be3dbc5447af8fe0247def3632e37f"
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-queued-admission-contract-plan/evidence/claim-371528/REQUEST.synthetic.json",
+      "bytes": 324,
+      "sha256": "8abb9cd89355d32e3dc0af32dec2ad324cd91a6a014075fca2206d841476c845"
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-queued-admission-contract-plan/evidence/claim-371528/SOURCES.json",
+      "bytes": 1874,
+      "sha256": "b94154d9df80cd358d2734133919a933ecd8c5dafed96675e8fc90ad6d058c9a"
+    }
+  ]
+}

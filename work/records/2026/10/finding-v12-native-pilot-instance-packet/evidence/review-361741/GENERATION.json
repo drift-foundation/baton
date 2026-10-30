@@ -1,0 +1,48 @@
+{
+  "snapshot_observed_at": "2026-10-24T03:09:30.489Z",
+  "pool_generation": 1,
+  "assignments": [
+    {
+      "stage": "implementation",
+      "assignment": {
+        "work_ref": {
+          "authority_uuid": "19b4f1459c2442e4aec8c7cd23e92312",
+          "work_id": "19b4f145-W1"
+        },
+        "participant": "baton.claude-pilot",
+        "generation": 1
+      },
+      "allocation_generation": 1
+    },
+    {
+      "stage": "review",
+      "assignment": {
+        "work_ref": {
+          "authority_uuid": "19b4f1459c2442e4aec8c7cd23e92312",
+          "work_id": "19b4f145-W1"
+        },
+        "participant": "baton.reviewer-pilot",
+        "generation": 2
+      },
+      "allocation_generation": 1
+    }
+  ],
+  "rule": "authority.core.cancel uses expect[\"generation\"], not pool_generation; source lines1920-1930",
+  "receipt_participants": {
+    "approval": "baton.slaw",
+    "review": "baton.reviewer-receipt-pilot",
+    "verification": "baton.verifier-pilot"
+  },
+  "workers": [
+    {
+      "worker_id": "implementation-pilot",
+      "role": "implementation",
+      "participant": "baton.claude-pilot"
+    },
+    {
+      "worker_id": "review-pilot",
+      "role": "review",
+      "participant": "baton.reviewer-pilot"
+    }
+  ]
+}

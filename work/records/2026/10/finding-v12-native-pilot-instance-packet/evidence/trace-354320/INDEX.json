@@ -1,0 +1,10 @@
+{
+ "answers_review": "review-2026-10-22T19-07-40Z.md (reviewer claim354303)",
+ "candidate_unchanged_from": "claim354259, COMBINED-MANIFEST 21f98ff355b6d0d2",
+ "claim": 354320,
+ "copies": {
+  "NATIVE-CONTROL.json": "32574e8c858eb0802c89d2338f5e00d031cd470b2d90e66a2e951e45183789c2"
+ },
+ "product_edits_this_claim": 0,
+ "schema": "baton.w325959-trace/1"
+}

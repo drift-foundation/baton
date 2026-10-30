@@ -1,0 +1,82 @@
+{
+ "THE_OPERATIONAL_CONCLUSION_THAT_MATTERS": "this Job can NEVER produce a verdict on this installation, and retry is therefore not a settlement option. The declaration is sealed into the installed input manifest; both stages of one Job must carry the SAME outputs because every stage matches that Job's ONE input digest; so a fresh-attempt would relaunch the review under the identical declaration and refuse identically. Nothing short of a corrected composition can change that.",
+ "runtime_and_cleanup_facts_as_read": {
+  "cessation": "ESTABLISHED for both lanes",
+  "cleanup": "NOT SETTLED for the review lane, and no retained record explains why reclamation did not run",
+  "implementation": {
+   "container": "061f34d2... -- no such object; REMOVED from the engine",
+   "runtime": "destroyed",
+   "stage": "completed"
+  },
+  "read_at": "2026-10-28T02:03:37Z",
+  "review": {
+   "container": "a813a59f... -- exited, exit 1, RETAINED",
+   "runtime": "quiescent",
+   "stage": "exceptional"
+  },
+  "supervisors": "169781 manager / 169782 publisher -- still running, deliberately"
+ },
+ "schema": "baton.v12.review-fault-settlement/1",
+ "settlement_options_as_they_actually_stand": [
+  {
+   "needs_owner_selection": false,
+   "note": "READING it needs nothing. ACCEPTING it is an owner act and is option C. An independent human review of the guide is available today without any v12 operation.",
+   "option": "A -- read the candidate now",
+   "supported": true,
+   "what": "the candidate is intact, sealed in custody, and passed its own verification: v12/TEMPLATE-JOBS.md, 48191 bytes, at head e6de29e5f945f692a42f689570d5c39edc4f61bc, reachable read-only from the retained review line checkout and from the sealed proposal directory."
+  },
+  {
+   "needs_owner_selection": false,
+   "option": "B -- retry / fresh-attempt",
+   "supported": false,
+   "what": "NOT AVAILABLE and should not be selected. See the operational conclusion above: the same sealed declaration would refuse the review again. Selecting it would spend a provider turn to reproduce a known refusal."
+  },
+  {
+   "needs_owner_selection": true,
+   "option": "C -- close the existing Job honestly",
+   "preserves": "closing deletes and rewrites nothing; the candidate and every log stay retained.",
+   "supported": true,
+   "what": "`disposition close` through the installed command, with --outcome from the closed vocabulary. `satisfying` WOULD REFUSE: it requires an accepted independent review and there is none. The honest values are `non-satisfying` or `cancelled`.",
+   "who": "Slawomir. This is the owner's own surface and no operator may perform it."
+  },
+  {
+   "needs_owner_selection": true,
+   "note": "the implementation lane is already proved end to end on this exact path, so a corrected run is testing the review lane only.",
+   "option": "D -- recover the capability",
+   "supported": true,
+   "what": "correct capacity.sealed_manifest to declare the shared union, prove it deterministically for both roles, then ONE new destination install at a FRESH path and ONE new Job. An installed deployment is not upgraded in place, so the existing instance cannot take the corrected manifest.",
+   "who": "the owner selects whether to spend another installation and provider turn. The preparation correction itself is ordinary bounded work and needs no live grant."
+  },
+  {
+   "needs_owner_selection": true,
+   "option": "E -- cleanup and supervisors",
+   "supported": true,
+   "the_one_remaining_engine_resource": "container a813a59f691c23022343cb25f3050df2c95386ae36b7dbab647fd4108d906ee6, exited 1, retained",
+   "what": "the supervisors are still running and I left them running. Cessation IS established -- neither container is running -- but reclamation is asymmetric and unexplained: the implementation container was REMOVED from the engine while the review container is still retained exited. The installed diagnostic's cleanup axis is unknown and the manager log carries no reconcile record after 01:25:59Z.",
+   "who": "stopping supervisors requires settled cleanup under the standing grant, and cleanup is not settled. Whether to stop anyway, or to wait for reconciliation, is the owner's call."
+  }
+ ],
+ "the_fix_is_exact_and_the_product_ships_the_reference": {
+  "it_is_deterministically_testable": "a fixture that composes the template Job's manifest and asserts _selected accepts it for BOTH roles needs no container, provider or model. The reviewer already made this point about the observation defect and it applies here too.",
+  "the_one_line_change": "capacity.sealed_manifest currently takes `outputs` from the reviewed pilot manifest. For the two-stage template it must compose the shared union instead. That is a preparation change, not a product change.",
+  "what_a_shared_Job_must_declare": "the UNION, each half non-required. v12/python/tests/manager/test_claude_agent.py:2976 states it and says why: 'The shared Job's declaration set: the union both stages are launched under, because every stage of one Job matches that Job's ONE input digest.' SHARED_DECLARED is proposal / findings / logs with required False on each.",
+  "what_my_composition_declared": [
+   {
+    "name": "proposal",
+    "required": true
+   }
+  ],
+  "why_non_required_on_all_three": "_selected refuses a declared output that THIS role does not write when it is marked required -- 'a shared Job's stages each produce their own half and answer the rest missing-optional'. proposal is the implementation's half, findings and logs are the review's, so each is required False in the shared declaration."
+ },
+ "what_this_diagnosis_did_NOT_do": [
+  "no container started and none removed",
+  "no file in the live instance written or changed",
+  "no store opened directly",
+  "no product or deployment edit",
+  "no retry, fresh attempt or second Job",
+  "no supervisor stopped",
+  "no provider invoked",
+  "no deletion",
+  "no integration and no owner act"
+ ]
+}

@@ -1,0 +1,214 @@
+{
+ "bundle": "/home/sl/w325959-bundle/out/distro",
+ "bundle_digest": "1b014603aec40e9f6d9c03a8b21ae74a02d9f1fef1ff95fc0f3e8a851a229c07",
+ "checks": [
+  {
+   "check": "the literal pin for install-inputs.json is the real digest of the real document",
+   "outcome": true
+  },
+  {
+   "check": "the literal pin for configure-inputs.json is the real digest of the real document",
+   "outcome": true
+  },
+  {
+   "check": "the literal pin for task.json is the real digest of the real document",
+   "outcome": true
+  },
+  {
+   "check": "the literal pin for submission.json is the real digest of the real document",
+   "outcome": true
+  },
+  {
+   "check": "the literal pin for the accepted helper is its real digest",
+   "outcome": true
+  },
+  {
+   "bases": [
+    "614668e0831e8c87cdae11ca43620e0d544a84d5"
+   ],
+   "check": "the declared base, the canonical target and the recorded source are ONE commit",
+   "outcome": true
+  },
+  {
+   "check": "and that commit is the one the real source is at",
+   "outcome": true
+  },
+  {
+   "check": "a VALID edit to a packet document refuses before the mint",
+   "destination_exists": false,
+   "detail": "REFUSED: the packet document: task.json is sha256:54e7cfdb55ce8325a8e8056572b313f43d5ba7df397c4eb80a9eca7bc95f9ad8 and this packet pins sha256:91a13de94a23941b6653b9da40ae56e28046c7b30456def734638243185272f0; an edited document is not the r",
+   "outcome": true
+  },
+  {
+   "check": "and the shipped entrypoint carries LITERAL pins rather than hashing its own documents at import",
+   "outcome": true
+  },
+  {
+   "check": "the two stub bundles are both admissible and NOT the same bytes",
+   "first": "bd5b094a5f50868e",
+   "outcome": true,
+   "second": "e9c3d2ad4f20a3ce"
+  },
+  {
+   "check": "selecting a DIFFERENT admissible bundle while expecting the first refuses",
+   "destination_exists": false,
+   "detail": "REFUSED: the SELECTED bundle at /tmp/w325959-r5-bundle-xtysupbp/distro-two holds 2 files digesting e9c3d2ad4f20a3ce2fe3b161b918675082f94ddd5edf83fff8da475f65c48180 and this run expects 2 digesting bd5b094a5f50868e5cbc4fb97495689dd7737e31b60",
+   "outcome": true
+  },
+  {
+   "check": "and selecting another bundle against the SHIPPED expectation refuses too",
+   "destination_exists": false,
+   "detail": "REFUSED: the SELECTED bundle at /tmp/w325959-r5-bundle-xtysupbp/distro-two holds 2 files digesting e9c3d2ad4f20a3ce2fe3b161b918675082f94ddd5edf83fff8da475f65c48180 and this run expects 81 digesting 1b014603aec40e9f6d9c03a8b21ae74a02d9f1fef1",
+   "outcome": true
+  },
+  {
+   "check": "an unversioned directory carrying v12 refuses before the mint",
+   "destination_exists": false,
+   "detail": "REFUSED: the selected source at /tmp/w325959-r5-source-3qauw2ir/plain is not a repository this run can name a revision for: fatal: not a git repository (or any parent up to mount point /)\nStopping at filesystem boundary (GIT_DISCOVERY_ACROS",
+   "outcome": true
+  },
+  {
+   "check": "a real repository at ANOTHER revision refuses before the mint",
+   "destination_exists": false,
+   "detail": "REFUSED: the selected source at /home/sl/src/baton is at 614668e0831e8c87cdae11ca43620e0d544a84d5 and this packet pins 0000000000000000000000000000000000000000; a later commit silently changes what is cloned",
+   "outcome": true
+  },
+  {
+   "check": "and the revision is obtained by a READ -- the shipped entrypoint's only repository call is rev-parse, with no mutating verb",
+   "outcome": true
+  },
+  {
+   "check": "and a source with no v12 tree refuses",
+   "destination_exists": false,
+   "detail": "REFUSED: the selected source at /tmp/w325959-r5-source-3qauw2ir carries no v12 tree",
+   "outcome": true
+  },
+  {
+   "authority": "935aec2959c5478aa42aa1d753588cbe",
+   "check": "the apply mints an authority and reads it back",
+   "outcome": true
+  },
+  {
+   "check": "the Work carries THIS authority's prefix and is not instance 3's",
+   "outcome": true,
+   "work": "935aec29-W1"
+  },
+  {
+   "check": "both stages, one binding, four repositories",
+   "outcome": true,
+   "repositories": [
+    "source-implementation-pilot",
+    "source-review-pilot",
+    "target.git",
+    "workspace"
+   ]
+  },
+  {
+   "check": "the installed configuration is one this build accepts",
+   "outcome": true
+  },
+  {
+   "check": "the submission keeps 3600/900 and names neither quickstart-c nor 5a8fa4b4-W1",
+   "outcome": true
+  },
+  {
+   "check": "the preparation emitted its readback",
+   "outcome": true
+  },
+  {
+   "check": "the emitted readback has NO `preparation` member -- which is what the previous command indexed",
+   "outcome": true,
+   "top_level": [
+    "applied",
+    "authority_uuid",
+    "bundle",
+    "destination",
+    "input_digest",
+    "installed_job_bindings",
+    "installed_workers",
+    "job"
+   ]
+  },
+  {
+   "check": "the CORRECTED selection-2b command extracts a path from the real document",
+   "outcome": true,
+   "path": "/tmp/w325959-r5-apply-drta8sah/destination/state/workspaces",
+   "stderr": ""
+  },
+  {
+   "check": "and that path is the workspace storage the installed workers name",
+   "outcome": true
+  },
+  {
+   "check": "it is inside this instance's own destination, and does not exist yet -- which is why selection 2b exists",
+   "outcome": true
+  },
+  {
+   "check": "the PREVIOUS packet's command raises on the same document, which is the defect R1 names",
+   "outcome": true,
+   "stderr": [
+    "KeyError: 'preparation'"
+   ]
+  },
+  {
+   "check": "a second apply of the same destination refuses",
+   "destination_exists": false,
+   "detail": "REFUSED: the destination /tmp/w325959-r5-apply-drta8sah/destination already exists; a fresh instance is prepared once. Inspect it rather than having this write into somebody else's tree.",
+   "outcome": true
+  },
+  {
+   "check": "a destination inside retained instance 1 refuses",
+   "destination_exists": false,
+   "detail": "REFUSED: instance 3's destination at /home/sl/baton-instances/native-coordination-pilot-w321608-1/inside lies inside /home/sl/baton-instances/native-coordination-pilot-w321608-1; a fresh instance isolates its own state",
+   "outcome": true
+  },
+  {
+   "check": "a destination inside retained instance 2 refuses",
+   "destination_exists": false,
+   "detail": "REFUSED: instance 3's destination at /home/sl/baton-instances/native-coordination-pilot-w321608-2/inside lies inside /home/sl/baton-instances/native-coordination-pilot-w321608-2; a fresh instance isolates its own state",
+   "outcome": true
+  },
+  {
+   "check": "a destination inside retained instance 3 refuses",
+   "destination_exists": false,
+   "detail": "REFUSED: instance 3's destination at /home/sl/baton-instances/native-coordination-pilot-w321608-3/inside lies inside /home/sl/baton-instances/native-coordination-pilot-w321608-3; a fresh instance isolates its own state",
+   "outcome": true
+  },
+  {
+   "check": "the preflight validates, plans the mint and creates NOTHING",
+   "outcome": true
+  },
+  {
+   "check": "and it still reports the selected bundle and the read revision",
+   "outcome": true
+  },
+  {
+   "check": "a DRIFTED accepted helper refuses",
+   "destination_exists": false,
+   "detail": "REFUSED: the accepted helper: fresh.py is sha256:559e9bc3ebe390e2cc8cd9c2e9db93e6d4996c17772e05a9d195dfccb4ff4e72 and this packet pins sha256:682c6b094f259fd1114781dbe54b79c5bd88c9590162f18a92551ceac586521f; an edited document is not the re",
+   "outcome": true
+  },
+  {
+   "check": "and the real accepted helper still hashes to its pin after that",
+   "outcome": true
+  },
+  {
+   "check": "an absent bundle refuses -- through the PRODUCT's own refusal, not a restatement of it",
+   "destination_exists": false,
+   "detail": "there is no bundled runtime at /tmp/w325959-r5-carried-i0rzyuei/no-such-bundle",
+   "outcome": true
+  }
+ ],
+ "corrected": "claim361402",
+ "disposable_apply": {
+  "authority": "935aec2959c5478aa42aa1d753588cbe",
+  "root": "/tmp/w325959-r5-apply-drta8sah/destination",
+  "work": "935aec29-W1",
+  "workspace_storage": "/tmp/w325959-r5-apply-drta8sah/destination/state/workspaces"
+ },
+ "failed": [],
+ "packet": "/home/sl/src/baton/work/records/2026/10/finding-v12-native-pilot-instance-packet/fresh5-361402",
+ "revision": 4,
+ "seconds": 0.20043734800128732,
+ "source_commit": "614668e0831e8c87cdae11ca43620e0d544a84d5"
+}

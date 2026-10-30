@@ -1,0 +1,460 @@
+{
+ "schema": "baton.v12.job-status/7",
+ "observed_at": "2026-10-23T05:26:09.971Z",
+ "incarnation": "v12-stack-publisher",
+ "canonical": true,
+ "jobs": [
+  {
+   "job_id": "quickstart-c",
+   "submission_id": "sub-w321608-quickstart-3",
+   "input_digest": "sha256:13b8833b0b88a40a610936f201c9afec0a85528b5b993cc2fef9e55563d0d808",
+   "policy_digest": "sha256:837d7a03b2d92b9654cbc391daefcfa208f747bbd9ae7c528d54f528bd536357",
+   "test_scope": [
+    "v12/QUICKSTART.md"
+   ],
+   "terminal_policy": "report-and-hold",
+   "execution_limits": {
+    "units": "seconds",
+    "scope": "per-invocation",
+    "compatibility_generation": 1,
+    "requested": {
+     "provider_turn_seconds": 3600,
+     "verification_command_seconds": 900
+    },
+    "boundaries": {
+     "host_verification": {
+      "seconds": 900,
+      "origin": "job",
+      "setting": "verification_command_seconds",
+      "default_seconds": 300
+     },
+     "integration_verification": {
+      "seconds": 900,
+      "origin": "job",
+      "setting": "verification_command_seconds",
+      "default_seconds": 1800
+     },
+     "ordinary_verification": {
+      "seconds": 900,
+      "origin": "job",
+      "setting": "verification_command_seconds",
+      "default_seconds": 900
+     },
+     "provider_turn": {
+      "seconds": 3600,
+      "origin": "job",
+      "setting": "provider_turn_seconds",
+      "default_seconds": 3600
+     }
+    }
+   },
+   "stages": [
+    {
+     "stage_id": "quickstart-c/implementation",
+     "job_id": "quickstart-c",
+     "kind": "implementation",
+     "state": "exceptional",
+     "work_id": "5a8fa4b4-W1",
+     "profile_name": "claude-fresh-implementation",
+     "profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+     "episode": 1,
+     "offer_id": "offer-ec6555e0dc9d776cbc7c42e597f4d664f292978d0a0321855d9099594ffbf3c2",
+     "attempt_id": "attempt-ec6555e0dc9d776cbc7c42e597f4d664f292978d0a0321855d9099594ffbf3c2",
+     "episodes": [
+      {
+       "stage_id": "quickstart-c/implementation",
+       "episode": 1,
+       "offer_id": "offer-ec6555e0dc9d776cbc7c42e597f4d664f292978d0a0321855d9099594ffbf3c2",
+       "attempt_id": "attempt-ec6555e0dc9d776cbc7c42e597f4d664f292978d0a0321855d9099594ffbf3c2",
+       "opened_at": "2026-10-23T05:19:51.879Z",
+       "incarnation": "w325959-owner-submit-3",
+       "ended_state": null,
+       "ended_revision": null,
+       "ended_at": null
+      }
+     ],
+     "corrections": 0,
+     "allocation": {
+      "assignment_id": "attempt-ec6555e0dc9d776cbc7c42e597f4d664f292978d0a0321855d9099594ffbf3c2",
+      "stage_id": "quickstart-c/implementation",
+      "episode": 1,
+      "generation": 1,
+      "worker_id": "implementation-pilot",
+      "lane": "implementation",
+      "participant": "baton.claude-pilot",
+      "canonical_principal": "principal:baton.claude-pilot",
+      "preferred_worker_id": null,
+      "selection_outcome": "initial",
+      "allocation_state": "released",
+      "reserved_at": "2026-10-23T05:20:22.269Z",
+      "recovery_required_at": null,
+      "released_at": "2026-10-23T05:20:35.499Z",
+      "release_reason": "cleanup-retained",
+      "variant": "baton.v12.stage-execution-deployment/1",
+      "separation_class": "provider-diverse",
+      "generation_digest": "sha256:cbba5a35675f1e1df6138ca8332b9ab8cb0913b47e8915285cec0619a43414be",
+      "worker_profile_name": "claude-fresh-implementation",
+      "worker_profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be"
+     },
+     "allocations": [
+      {
+       "assignment_id": "attempt-ec6555e0dc9d776cbc7c42e597f4d664f292978d0a0321855d9099594ffbf3c2",
+       "stage_id": "quickstart-c/implementation",
+       "episode": 1,
+       "generation": 1,
+       "worker_id": "implementation-pilot",
+       "lane": "implementation",
+       "participant": "baton.claude-pilot",
+       "canonical_principal": "principal:baton.claude-pilot",
+       "preferred_worker_id": null,
+       "selection_outcome": "initial",
+       "allocation_state": "released",
+       "reserved_at": "2026-10-23T05:20:22.269Z",
+       "recovery_required_at": null,
+       "released_at": "2026-10-23T05:20:35.499Z",
+       "release_reason": "cleanup-retained",
+       "variant": "baton.v12.stage-execution-deployment/1",
+       "separation_class": "provider-diverse",
+       "generation_digest": "sha256:cbba5a35675f1e1df6138ca8332b9ab8cb0913b47e8915285cec0619a43414be",
+       "worker_profile_name": "claude-fresh-implementation",
+       "worker_profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be"
+      }
+     ],
+     "gates": [],
+     "receipts": [
+      {
+       "stage_id": "quickstart-c/implementation",
+       "episode": 1,
+       "act": "admit",
+       "operation_id": "offer.issue:offer-ec6555e0dc9d776cbc7c42e597f4d664f292978d0a0321855d9099594ffbf3c2",
+       "state": "performed",
+       "recorded_at": "2026-10-23T05:20:22.274Z",
+       "detail": {
+        "canonical_state": "committed",
+        "refusal": null,
+        "result": {
+         "expires_at": "2026-10-23T05:22:22.272Z",
+         "issued_at": "2026-10-23T05:20:22.272Z",
+         "offer_id": "offer-ec6555e0dc9d776cbc7c42e597f4d664f292978d0a0321855d9099594ffbf3c2",
+         "participant": "baton.claude-pilot",
+         "runtime_attempt_id": "attempt-ec6555e0dc9d776cbc7c42e597f4d664f292978d0a0321855d9099594ffbf3c2",
+         "verifier": "sha256:bef242a7fdaf62d8263bd439d658698c6809bdda523ad7cf9c3a2fe9349ef2c5",
+         "work_id": "5a8fa4b4-W1"
+        },
+        "settled_at": "2026-10-23T05:20:22.273Z"
+       }
+      },
+      {
+       "stage_id": "quickstart-c/implementation",
+       "episode": 1,
+       "act": "claim",
+       "operation_id": "offer.settle:offer-ec6555e0dc9d776cbc7c42e597f4d664f292978d0a0321855d9099594ffbf3c2",
+       "state": "performed",
+       "recorded_at": "2026-10-23T05:20:27.320Z",
+       "detail": {
+        "canonical_state": "committed",
+        "refusal": null,
+        "result": {
+         "assignment": {
+          "generation": 1,
+          "participant": "baton.claude-pilot",
+          "work_ref": {
+           "authority_uuid": "5a8fa4b4275b4f7fa32efafc2c48f546",
+           "work_id": "5a8fa4b4-W1"
+          }
+         },
+         "claim_event": 1,
+         "decision": {
+          "effective_scope": "scope:deployment",
+          "endpoint": "baton.claude-pilot",
+          "grant": "direct",
+          "policy_generation": 11,
+          "principal": "principal:baton.claude-pilot",
+          "role": "impl"
+         },
+         "offer_id": "offer-ec6555e0dc9d776cbc7c42e597f4d664f292978d0a0321855d9099594ffbf3c2",
+         "state": "claimed"
+        },
+        "settled_at": "2026-10-23T05:20:27.319Z"
+       }
+      }
+     ],
+     "deferral": null,
+     "runtime": {
+      "runtime_id": "89fa956ad87d034b0f39051baa4c8f4ebd8e28da702fdc36aa99870feafa1bec",
+      "execution_runtime": "destroyed",
+      "assignment": {
+       "work_ref": {
+        "authority_uuid": "5a8fa4b4275b4f7fa32efafc2c48f546",
+        "work_id": "5a8fa4b4-W1"
+       },
+       "participant": "baton.claude-pilot",
+       "generation": 1
+      },
+      "activity": {
+       "attempt_id": "attempt-ec6555e0dc9d776cbc7c42e597f4d664f292978d0a0321855d9099594ffbf3c2",
+       "bytes_observed": null,
+       "observed_at": null
+      }
+     },
+     "exchange": null,
+     "artifacts": [
+      {
+       "output_name": "proposal",
+       "artifact_id": "attempt-ec6555e0dc9d776cbc7c42e597f4d664f292978d0a0321855d9099594ffbf3c2:proposal",
+       "media_type": "application/octet-stream",
+       "bytes": 926,
+       "content_digest": "sha256:3c6d068076b1ab93c41d7655e5b91bb724d0217bd7ce1a6cc731c0cd4f6be600",
+       "locator": "file:///home/sl/baton-instances/native-coordination-pilot-w321608-3/state/workspaces/.baton-review-lines/line-0c8a1c2db5a36bfbe9b7028b8a2c87cc073aba7175e14c549e776ec3b055958a/custody/attempt-ec6555e0dc9d776cbc7c42e597f4d664f292978d0a0321855d9099594ffbf3c2/proposal"
+      }
+     ],
+     "attempt_diagnostics": {
+      "schema": "baton.v12.attempt-failure-cause/1",
+      "attempt_id": "attempt-ec6555e0dc9d776cbc7c42e597f4d664f292978d0a0321855d9099594ffbf3c2",
+      "cause": null,
+      "unknown": {
+       "why": "no component of this manager recorded ordering a cessation for this attempt, and no start or preparation failure is recorded either; which component ended it, if any did, is unknown",
+       "absent": [
+        "attempt.cessation-*:expiry-reclaim",
+        "attempt.cessation-*:settlement",
+        "attempt.cessation-*:cancellation",
+        "resource-token.revoked:workspace:66306:4075640:1",
+        "runtime.start-failed",
+        "runtime.preparation-failed"
+       ]
+      },
+      "absent_records": [
+       "attempt.cessation-*:expiry-reclaim",
+       "attempt.cessation-*:settlement",
+       "attempt.cessation-*:cancellation",
+       "resource-token.revoked:workspace:66306:4075640:1",
+       "runtime.start-failed",
+       "runtime.preparation-failed"
+      ],
+      "start_failure_recorded": {
+       "known": true,
+       "value": false,
+       "source": "attempts.attempt_start_failure_of"
+      },
+      "start_failure_runtime_id": {
+       "known": false,
+       "value": null,
+       "why": "this manager recorded no failed start naming a runtime for this attempt"
+      },
+      "preparation_failure_recorded": {
+       "known": true,
+       "value": false,
+       "source": "attempts.attempt_preparation_failure_of"
+      },
+      "preparation_failure_runtime_id": {
+       "known": false,
+       "value": null,
+       "why": "this manager recorded no failed preparation naming a runtime for this attempt"
+      },
+      "revocation": {
+       "known": false,
+       "value": null,
+       "why": "no revocation is journalled for this attempt's governed generation"
+      },
+      "revoked_expired_at": {
+       "known": false,
+       "value": null,
+       "why": "no revocation is journalled for this attempt's governed generation"
+      },
+      "revoked_container": {
+       "known": false,
+       "value": null,
+       "why": "no revocation naming a bound container is journalled for this generation"
+      },
+      "revoked_owner": {
+       "known": false,
+       "value": null,
+       "why": "no revocation naming an owner is journalled for this generation"
+      },
+      "completion": {
+       "known": true,
+       "value": true,
+       "source": "tokens:resource-token.returned"
+      },
+      "domain": {
+       "known": true,
+       "value": "workspace:66306:4075640",
+       "source": "tokens.domain_of"
+      },
+      "generation": {
+       "known": true,
+       "value": 1,
+       "source": "tokens.generation_of"
+      },
+      "token": {
+       "owner": {
+        "known": true,
+        "value": "2c7f4f3e248f8620316f01f884e65cef04000bfb1e369dd4793273bbacac37dc",
+        "source": "tokens.token_of"
+       },
+       "container": {
+        "known": true,
+        "value": "89fa956ad87d034b0f39051baa4c8f4ebd8e28da702fdc36aa99870feafa1bec",
+        "source": "tokens.token_of"
+       },
+       "expires_at": {
+        "known": true,
+        "value": "2026-10-23T07:22:29.940Z",
+        "source": "tokens.token_of"
+       },
+       "acquired_expires_at": {
+        "known": true,
+        "value": "2026-10-23T07:22:29.940Z",
+        "source": "tokens.token_of"
+       },
+       "renewed_at": {
+        "known": false,
+        "value": null,
+        "why": "this attempt's governed generation records no renewed_at"
+       },
+       "renewals": {
+        "known": true,
+        "value": 0,
+        "source": "tokens.token_of"
+       },
+       "renewals_remaining": {
+        "known": true,
+        "value": 4,
+        "source": "tokens.token_of"
+       },
+       "expired": {
+        "known": true,
+        "value": false,
+        "source": "tokens.token_of"
+       },
+       "expiry_judged_at": {
+        "known": false,
+        "value": null,
+        "why": "this attempt's governed generation records no expiry_judged_at"
+       },
+       "returned": {
+        "known": true,
+        "value": true,
+        "source": "tokens.token_of"
+       },
+       "activating": {
+        "known": true,
+        "value": false,
+        "source": "tokens.token_of"
+       },
+       "launch": {
+        "known": true,
+        "value": "runtime.start:9f8220691e42f1997efb7c1a3a7f201c257d0ac2d7c6f1b301575f8c7984c32f",
+        "source": "tokens.token_of"
+       }
+      },
+      "renewal_limit": {
+       "known": true,
+       "value": 4,
+       "source": "tokens.RENEWAL_LIMIT"
+      },
+      "lifetime_seconds": {
+       "known": true,
+       "value": 900,
+       "source": "tokens.LIFETIME_SECONDS"
+      },
+      "execution": {
+       "execution_runtime": {
+        "known": true,
+        "value": "destroyed",
+        "source": "attempts"
+       },
+       "cleanup": {
+        "known": true,
+        "value": "retained",
+        "source": "attempts"
+       },
+       "observed_at": {
+        "known": true,
+        "value": "2026-10-23T05:20:35.487Z",
+        "source": "attempts"
+       },
+       "runtime_id": {
+        "known": true,
+        "value": "89fa956ad87d034b0f39051baa4c8f4ebd8e28da702fdc36aa99870feafa1bec",
+        "source": "attempts"
+       },
+       "token_bound_runtime_id": {
+        "known": true,
+        "value": "89fa956ad87d034b0f39051baa4c8f4ebd8e28da702fdc36aa99870feafa1bec",
+        "source": "tokens.token_of"
+       },
+       "activity_bytes": {
+        "known": false,
+        "value": null,
+        "why": "no session stream has been observed"
+       },
+       "activity_at": {
+        "known": false,
+        "value": null,
+        "why": "no session stream has been observed"
+       }
+      },
+      "workspace_object": {
+       "device": {
+        "known": true,
+        "value": 66306,
+        "source": "attempts"
+       },
+       "inode": {
+        "known": true,
+        "value": 4075640,
+        "source": "attempts"
+       },
+       "is_a_locator": false,
+       "why": "a device and inode identify a workspace object; they are not a path and resolve no retained output on their own"
+      }
+     },
+     "diagnostic_degradation": null
+    },
+    {
+     "stage_id": "quickstart-c/review",
+     "job_id": "quickstart-c",
+     "kind": "review",
+     "state": "blocked",
+     "work_id": "5a8fa4b4-W1",
+     "profile_name": "claude-fresh-implementation",
+     "profile_digest": "sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be",
+     "episode": 1,
+     "offer_id": "offer-dfa0d175050d820a9f25a9b9eec221fb8fbe2e65517ccca638e55098ee2066b8",
+     "attempt_id": "attempt-dfa0d175050d820a9f25a9b9eec221fb8fbe2e65517ccca638e55098ee2066b8",
+     "episodes": [
+      {
+       "stage_id": "quickstart-c/review",
+       "episode": 1,
+       "offer_id": "offer-dfa0d175050d820a9f25a9b9eec221fb8fbe2e65517ccca638e55098ee2066b8",
+       "attempt_id": "attempt-dfa0d175050d820a9f25a9b9eec221fb8fbe2e65517ccca638e55098ee2066b8",
+       "opened_at": "2026-10-23T05:19:51.879Z",
+       "incarnation": "w325959-owner-submit-3",
+       "ended_state": null,
+       "ended_revision": null,
+       "ended_at": null
+      }
+     ],
+     "corrections": 0,
+     "allocation": null,
+     "allocations": [],
+     "gates": [
+      {
+       "stage_id": "quickstart-c/implementation",
+       "state": "exceptional",
+       "open": false
+      }
+     ],
+     "receipts": [],
+     "deferral": null,
+     "runtime": null,
+     "exchange": null,
+     "artifacts": null,
+     "attempt_diagnostics": null,
+     "diagnostic_degradation": null
+    }
+   ]
+  }
+ ]
+}

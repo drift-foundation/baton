@@ -1,0 +1,8 @@
+{
+  "manifest_sha256": "d3b9bc7ca0eb0f60f0cee5718ca5ca282781abee3ddaeb88f95a00c7f0ddd1fc",
+  "sealed_members": 35,
+  "archive_files": 306,
+  "checks": 10,
+  "measured_seconds": 3.1411223959948984,
+  "operational_lookup": "Initial guessed execution-337436 path absent; canonical handoff resolves execution-337440, fully read and verified."
+}

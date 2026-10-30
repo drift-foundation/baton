@@ -1,0 +1,8 @@
+{
+  "preflight_accepted": true,
+  "preflight_created_root": false,
+  "error_type": "JSONDecodeError",
+  "error": "Expecting value: line 1 column 1 (char 0)",
+  "authority_persisted": true,
+  "root_created": true
+}

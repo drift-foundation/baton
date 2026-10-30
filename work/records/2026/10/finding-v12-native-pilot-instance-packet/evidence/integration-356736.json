@@ -1,0 +1,178 @@
+{
+  "time": "2026-10-23T00:52:57.963313+00:00",
+  "authority": "M356736",
+  "delta_sha256": "cf84e58a11a687db33a49b2cce8e6c3229e65d9bd2a11e37a7af0c074e4b71b8",
+  "files": [
+    {
+      "path": "v12/python/src/baton_v12/job_manager/delegation.py",
+      "sha256": "a115e6edeb07fce7c73772e09b237a35645faf87b2aa7c849093ad853edad338",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/documents.py",
+      "sha256": "7029d28c85eed30543d03acdbb0394d61765f4f704a7e6e3eeb41d2fb07e49c4",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/execution_limits.py",
+      "sha256": "24f27d7769e7f1ddbc7ee5b3477245cd51833c5dda53ecf78cf8ebe309a3f1c6",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/projection.py",
+      "sha256": "02e0c80c8e468007a8666959e405468946463d815eb617331b0eb0dcdc68425a",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/attempts.py",
+      "sha256": "e929d7305a723e6e355079b120c6740d9d8ddf26fad89b771738e92e74688b45",
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/documents.py",
+      "sha256": "376e62ab5bab0bcec8c4b662cd8b94935a1732f9ec2692a10bb9cb4af5a962c8",
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/failure_cause.py",
+      "sha256": "776f5932dc9c3d0f2df7ffed4e895078806def020d829a47563801da9621f1a3",
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/intake.py",
+      "sha256": "71f0ef60bd5b26409e9c24fe49bd2ace1382e8ef1cb0ab8b3e2a5a44deae3d97",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/tokens.py",
+      "sha256": "adb773a8b65609c11d8ed0ffec77ecb72b1fd8db52efecd124d13a971b3067e1",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/workspaces.py",
+      "sha256": "7db36ee60d5b32af70e25ba3fd6328b709475ad2f14a0b1b2de5230faa4e872d",
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_delegation.py",
+      "sha256": "337ab849613a68224f733712f1b11435b685d677763fe7923a3b76fb6666d949",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_exchange.py",
+      "sha256": "c988c874775d09b579dc7390293807a1cc7d5f64a30f98419751dc8a81567876",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_execution_limits.py",
+      "sha256": "04548669bfb666db2bbb9c8b52759877209affd1470500e0b7d69c670108eef9",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_native_permission.py",
+      "sha256": "0569c29093d010e3714ea23f2a5bc7c1c3d47a6ab77ad0e942e7cb07497bfd32",
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_native_stop_restart.py",
+      "sha256": "f05726cfb92c6d2d8d35e2df859e7f540c4dfc0aa6703b3fe8cdfe08d35bfadf",
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_serving_renewal.py",
+      "sha256": "92c77ce12181f958fd3ca5b41d5d47cdb9c878e0d61785fc7fcdb195bb5f0182",
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_tool.py",
+      "sha256": "3c687ce3839406f3dddb96d96b073b7751ea790d80893486b1ba40b5a6c01618",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/tests/manager/disk_roots.py",
+      "sha256": "a1dd203287116ce60dfb6479f4ced25cccb106f3b775827c7e4f5409c779c4e4",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/tests/manager/input_roots.py",
+      "sha256": "86a01fae28809f1be541a6756653257354885fc9cc84957967836335b4db0fab",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/tests/manager/test_attempt_failure_cause.py",
+      "sha256": "8371cbb8b28e16572defe0ef4c0a0efd09a4d41ea6ab22c92cdc1c6efcf94e30",
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/python/tests/manager/test_boundary_inventory.py",
+      "sha256": "39c371207c53029c6429c2df3042497b69191b40e65204e438f2295f4ef006bf",
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/python/tests/manager/test_intake.py",
+      "sha256": "88bdda6bacb2b17c58ecdf9f7a8aaf1cec4fb300906960d26888040f87c23809",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/tests/manager/test_maintenance.py",
+      "sha256": "e3c90ab294273fa9ff81709ecaae74c857f8a52d1db616b1de3237f411fc53af",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/tests/manager/test_output.py",
+      "sha256": "b0e5d9839fcada66668eedca82a0912560cf13ec7ccf359e9b195a968c131b80",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/tests/tools/test_attempt_diagnostics.py",
+      "sha256": "3882768c6c8a482c6a2df5b15552b1beef2c585a2c6ef3589127f300a9d75cca",
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/python/tests/tools/test_bootstrap.py",
+      "sha256": "c6b5ad3c0600904ed5965259e8b3549e35f193be6c90e02714e731768ffe6df6",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/tests/tools/test_worker_visibility.py",
+      "sha256": "a27319c43edc1f962a008b113ed5114df8dcad047c76b35fb49687a9ba8f0a2e",
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/python/tools/attempt_diagnostics.py",
+      "sha256": "6e02e22ef7ebd5cb4ae4725bc19a7c200b62897aba9f1f341435ceff2bb4fd12",
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/python/tools/authoring_enforcement.py",
+      "sha256": "248ee9edd72214efbdc77044a9af6ad2c382e2ca1dbd5b71ff0db720d9a5a5dc",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "sha256": "70cc08066e73b7504c21eed395361c8153947177dddf5980857b6e199a339e4a",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/tools/stack.py",
+      "sha256": "c0586c7f31abcb3d4e13b3dc0f2236a590802b3edbb6a107c32f933908ade009",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/tools/stack_command.py",
+      "sha256": "ad49c04fa609703f80e80e14156888ef118e876d7e8a4aef3414e959db92c707",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/tools/stage_execution.py",
+      "sha256": "765c1567806c115feb1d15afde75b1099b23ba02b24fe7f7cedaec0ec7bea422",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/tools/worker_visibility.py",
+      "sha256": "0689d32b90664ef1b3c63c8f8d94928b4545e0c5872a92a71557e0c17c54a80d",
+      "mode": "0o644"
+    }
+  ],
+  "verification": "All 34 candidate hashes and expected modes verified. Independent 26-case acceptance reused. No Git mutation."
+}

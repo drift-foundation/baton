@@ -1,0 +1,34 @@
+{
+  "module": "/home/sl/baton-builds/w325959-30245386-356981/src/v12/worker/claude_agent.py",
+  "cases": [
+    {
+      "case": "delivered",
+      "result": {
+        "exception": "TaskRefusal",
+        "reason": "a review turn writes findings, logs and this assignment declares no findings, logs"
+      },
+      "seconds": 1.988699659705162e-05
+    },
+    {
+      "case": "findings_logs_added_but_proposal_required",
+      "result": {
+        "exception": "TaskRefusal",
+        "reason": "output 'proposal' is declared required and a review turn does not write it; a shared Job's stages each produce their own half and answer the rest missing-optional"
+      },
+      "seconds": 1.5398996765725315e-05
+    },
+    {
+      "case": "shared_optional_outputs",
+      "result": {
+        "produces": [
+          "findings",
+          "logs"
+        ],
+        "absent": [
+          "proposal"
+        ]
+      },
+      "seconds": 1.0809999366756529e-05
+    }
+  ]
+}

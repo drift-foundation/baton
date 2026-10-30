@@ -1,0 +1,48 @@
+test_an_absent_store_is_initialized_and_closed (tests.tools.test_startup_prerequisites.TheControlStoreIsInitializedThroughItsOwnOpener.test_an_absent_store_is_initialized_and_closed) ... ok
+test_an_unopenable_store_refuses_in_this_commands_voice (tests.tools.test_startup_prerequisites.TheControlStoreIsInitializedThroughItsOwnOpener.test_an_unopenable_store_refuses_in_this_commands_voice)
+So `main` prints "refused:" rather than raising a traceback out of ... ok
+test_initializing_twice_adopts_rather_than_refusing (tests.tools.test_startup_prerequisites.TheControlStoreIsInitializedThroughItsOwnOpener.test_initializing_twice_adopts_rather_than_refusing)
+A second install of the same destination is refused elsewhere; the ... ok
+test_nothing_holds_the_store_afterwards (tests.tools.test_startup_prerequisites.TheControlStoreIsInitializedThroughItsOwnOpener.test_nothing_holds_the_store_afterwards)
+A prepared instance is one nothing is attached to: the first start ... ok
+test_a_file_at_an_owed_name_refuses (tests.tools.test_startup_prerequisites.ThePrepareOwnsOnlyWhatItMade.test_a_file_at_an_owed_name_refuses) ... ok
+test_a_link_at_an_owed_name_refuses (tests.tools.test_startup_prerequisites.ThePrepareOwnsOnlyWhatItMade.test_a_link_at_an_owed_name_refuses) ... ok
+test_a_linked_ancestor_refuses (tests.tools.test_startup_prerequisites.ThePrepareOwnsOnlyWhatItMade.test_a_linked_ancestor_refuses)
+THE REVIEW'S THIRD BLOCKER. `os.makedirs` creates missing parents ... ok
+test_a_populated_root_this_attempt_made_is_not_removed (tests.tools.test_startup_prerequisites.ThePrepareOwnsOnlyWhatItMade.test_a_populated_root_this_attempt_made_is_not_removed)
+W376246: the unwind used `rmtree`, so a directory this attempt ... ok
+test_a_prepared_root_is_private_whatever_the_umask (tests.tools.test_startup_prerequisites.ThePrepareOwnsOnlyWhatItMade.test_a_prepared_root_is_private_whatever_the_umask)
+W376246: a creation mode is umask-filtered, so under `umask 000` a ... ok
+test_a_racing_link_at_an_owed_name_is_revalidated (tests.tools.test_startup_prerequisites.ThePrepareOwnsOnlyWhatItMade.test_a_racing_link_at_an_owed_name_is_revalidated)
+W376246: `FileExistsError` was accepted without revalidation, so an ... ok
+test_a_refusal_still_hands_back_what_was_already_created (tests.tools.test_startup_prerequisites.ThePrepareOwnsOnlyWhatItMade.test_a_refusal_still_hands_back_what_was_already_created)
+THE REVIEW'S FIRST BLOCKER. A link at the third owed name used to ... ok
+test_a_replaced_root_is_no_longer_ours_and_survives (tests.tools.test_startup_prerequisites.ThePrepareOwnsOnlyWhatItMade.test_a_replaced_root_is_no_longer_ours_and_survives) ... ok
+test_an_existing_root_is_left_alone_and_is_not_ours (tests.tools.test_startup_prerequisites.ThePrepareOwnsOnlyWhatItMade.test_an_existing_root_is_left_alone_and_is_not_ours)
+An occupied prerequisite is the operator's: not repaired, and NOT ... ok
+test_an_inaccessible_existing_root_refuses (tests.tools.test_startup_prerequisites.ThePrepareOwnsOnlyWhatItMade.test_an_inaccessible_existing_root_refuses)
+THE REVIEW'S SECOND BLOCKER: it used to be accepted, which moved ... ok
+test_every_configured_root_is_created_and_owned (tests.tools.test_startup_prerequisites.ThePrepareOwnsOnlyWhatItMade.test_every_configured_root_is_created_and_owned)
+EVERY COMPONENT, not just the leaf. W376246: `os.makedirs` creates ... ok
+test_nothing_is_created_when_a_later_root_refuses (tests.tools.test_startup_prerequisites.ThePrepareOwnsOnlyWhatItMade.test_nothing_is_created_when_a_later_root_refuses)
+Every root is inspected before any is created, so an install that ... ok
+test_the_owned_unwind_removes_exactly_what_was_made (tests.tools.test_startup_prerequisites.ThePrepareOwnsOnlyWhatItMade.test_the_owned_unwind_removes_exactly_what_was_made)
+`install`'s existing helper, driven over this answer. ... ok
+test_a_file_at_an_owed_name_is_reported_as_what_it_is (tests.tools.test_startup_prerequisites.TheReportIsApplicationReadOnly.test_a_file_at_an_owed_name_is_reported_as_what_it_is) ... ok
+test_a_link_is_unusable_rather_than_followed (tests.tools.test_startup_prerequisites.TheReportIsApplicationReadOnly.test_a_link_is_unusable_rather_than_followed) ... ok
+test_a_linked_ancestor_is_reported_too (tests.tools.test_startup_prerequisites.TheReportIsApplicationReadOnly.test_a_linked_ancestor_is_reported_too)
+W376246: the observation and the preparation disagreed -- a root ... ok
+test_a_prepared_deployment_reports_nothing (tests.tools.test_startup_prerequisites.TheReportIsApplicationReadOnly.test_a_prepared_deployment_reports_nothing) ... ok
+test_an_unusable_mode_is_reported_without_repair (tests.tools.test_startup_prerequisites.TheReportIsApplicationReadOnly.test_an_unusable_mode_is_reported_without_repair) ... ok
+test_every_missing_root_is_reported_by_exact_path (tests.tools.test_startup_prerequisites.TheReportIsApplicationReadOnly.test_every_missing_root_is_reported_by_exact_path) ... ok
+test_it_creates_nothing (tests.tools.test_startup_prerequisites.TheReportIsApplicationReadOnly.test_it_creates_nothing) ... ok
+test_a_malformed_worker_entry_names_nothing (tests.tools.test_startup_prerequisites.TheTripleIsTheOneStageExecutionNames.test_a_malformed_worker_entry_names_nothing) ... ok
+test_a_shared_root_is_named_once (tests.tools.test_startup_prerequisites.TheTripleIsTheOneStageExecutionNames.test_a_shared_root_is_named_once)
+Two workers of one instance sharing a root is the operator's ... ok
+test_every_configured_root_of_every_worker_is_named (tests.tools.test_startup_prerequisites.TheTripleIsTheOneStageExecutionNames.test_every_configured_root_of_every_worker_is_named) ... ok
+test_the_three_names (tests.tools.test_startup_prerequisites.TheTripleIsTheOneStageExecutionNames.test_the_three_names) ... ok
+
+----------------------------------------------------------------------
+Ran 28 tests in 0.016s
+
+OK

@@ -1,0 +1,10 @@
+{
+  "command": [
+    "/usr/bin/python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_serving_renewal"
+  ],
+  "seconds": 0.24564619500233675,
+  "status": 1
+}

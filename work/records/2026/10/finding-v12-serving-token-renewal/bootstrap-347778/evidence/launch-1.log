@@ -1,0 +1,21 @@
+F
+======================================================================
+FAIL: test_job_serving_reaches_envelope_acquisition_and_dispatch (tests.job_manager.test_serving_renewal.ProductionLaunch.test_job_serving_reaches_envelope_acquisition_and_dispatch)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/baton-serving-envelope-347778/v12/python/tests/tools/test_single_worker.py", line 287, in setUp
+    self.root = disk_roots.disk_backed_under(self)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/baton-serving-envelope-347778/v12/python/tests/manager/disk_roots.py", line 105, in disk_backed_under
+    place = tempfile.mkdtemp(prefix="v12-w71917-", dir=disk_backed_root())
+                                                       ~~~~~~~~~~~~~~~~^^
+  File "/tmp/baton-serving-envelope-347778/v12/python/tests/manager/disk_roots.py", line 89, in disk_backed_root
+    raise AssertionError(
+    ...<4 lines>...
+        f"report this Work's refusal as its result.")
+AssertionError: no disk-backed directory was found for a W71917 workspace; tried /tmp (tmpfs), /tmp/baton-serving-envelope-347778/v12/python (tmpfs), /var/tmp (not writable). Set BATON_V12_DISK_ROOT to a directory on real storage. A workspace on a memory filesystem is refused by `source_boundary.check_disk_backed`, so a run without one would report this Work's refusal as its result.
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (failures=1)

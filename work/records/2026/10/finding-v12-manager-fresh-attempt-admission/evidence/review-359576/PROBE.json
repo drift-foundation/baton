@@ -1,0 +1,97 @@
+{
+  "manifest_sha256": "b99ba986ddbd849ef3f92e4edcdeaf722433be0ccf63addd7c175de3d8ed0359",
+  "pins": {
+    "v12/python/src/baton_v12/job_manager/__init__.py": true,
+    "v12/python/src/baton_v12/job_manager/documents.py": true,
+    "v12/python/src/baton_v12/job_manager/fresh_attempt.py": true,
+    "v12/python/src/baton_v12/job_manager/schema.py": true,
+    "v12/python/src/baton_v12/job_manager/submission.py": true,
+    "v12/python/tests/job_manager/fixtures.py": true,
+    "v12/python/tests/job_manager/test_execution_limits.py": true,
+    "v12/python/tests/job_manager/test_fresh_attempt.py": true,
+    "v12/python/tests/job_manager/test_scheduling.py": true,
+    "v12/python/tests/job_manager/test_store.py": true,
+    "v12/python/tools/fresh_attempt_ports.py": true,
+    "v12/python/tools/job_manager.py": true,
+    "v12/python/tools/stage_execution.py": true
+  },
+  "bases": {
+    "v12/python/src/baton_v12/job_manager/__init__.py": true,
+    "v12/python/src/baton_v12/job_manager/documents.py": true,
+    "v12/python/src/baton_v12/job_manager/fresh_attempt.py": true,
+    "v12/python/src/baton_v12/job_manager/schema.py": true,
+    "v12/python/src/baton_v12/job_manager/submission.py": true,
+    "v12/python/tests/job_manager/fixtures.py": true,
+    "v12/python/tests/job_manager/test_execution_limits.py": true,
+    "v12/python/tests/job_manager/test_fresh_attempt.py": true,
+    "v12/python/tests/job_manager/test_scheduling.py": true,
+    "v12/python/tests/job_manager/test_store.py": true,
+    "v12/python/tools/fresh_attempt_ports.py": true,
+    "v12/python/tools/job_manager.py": true,
+    "v12/python/tools/stage_execution.py": true
+  },
+  "focused": {
+    "run": 66,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 1.3020634829999835
+  },
+  "same_incarnation": [
+    "quickstart-c-retry-2",
+    "quickstart-c-retry-2"
+  ],
+  "same_incarnation_bind_effects": [
+    [
+      "quickstart-c-retry-2",
+      "quickstart-c",
+      "0000000a-W1"
+    ],
+    [
+      "quickstart-c-retry-2",
+      "quickstart-c",
+      "0000000a-W1"
+    ]
+  ],
+  "same_submission_name": {
+    "ordinary": {
+      "submission_id": "sub-quickstart-c-retry-2",
+      "signature": "{\"kind\":\"submission.record\",\"operands\":{\"jobs\":[{\"input_digest\":\"sha256:1111111111111111111111111111111111111111111111111111111111111111\",\"job_id\":\"quickstart-c-retry-2\",\"policy_digest\":\"sha256:2222222222222222222222222222222222222222222222222222222222222222\",\"stages\":[{\"depends_on\":[],\"kind\":\"implementation\",\"profile_digest\":\"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"profile_name\":\"reference\",\"work_id\":\"0000000a-W1\"}],\"terminal_policy\":\"report-and-hold\",\"test_scope\":[\"v12/python/tests/job_manager\"]}],\"schema\":\"baton.v12.job-submission/1\",\"submission_id\":\"sub-quickstart-c-retry-2\"}}",
+      "jobs": [
+        "quickstart-c-retry-2"
+      ],
+      "stages": [
+        "quickstart-c-retry-2/implementation"
+      ],
+      "recorded_at": "2026-09-02T00:00:00.000Z"
+    },
+    "retry": "the submission for this fresh attempt was refused: operation 'submission.record:sub-quickstart-c-retry-2' is already recorded with a different kind or signature; reusing an id with different operands changes nothing. The fresh identity 'quickstart-c-retry-2' is already RESERVED in this store and this attempt is incomplete rather than undone: correct what is named above and run the same request again, which resumes from the reservation. A different request under this identity is refused as the collision it is",
+    "binding_effects": [
+      [
+        "quickstart-c-retry-2",
+        "quickstart-c",
+        "0000000a-W1"
+      ]
+    ],
+    "persisted": {
+      "job_id": "quickstart-c-retry-2",
+      "submission_id": "sub-quickstart-c-retry-2",
+      "ordinal": 0,
+      "input_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "test_scope": "[\"v12/python/tests/job_manager\"]",
+      "terminal_policy": "report-and-hold"
+    }
+  },
+  "borrowed_guard": {
+    "same_object": true,
+    "before": {
+      "outcome": "refused",
+      "message": "another manager is already active for workspace '/var/tmp/baton-w257624/v12-w71917-p91edlnr/storage', holding control store '/var/tmp/baton-w257624/v12-w71917-p91edlnr/bootstrap-deploy\u2026; only one Host manager may be active for one workspace and database, so this start is a configuration error rather than a standby -- point this manager at its own database and workspace, or stop the active one first"
+    },
+    "after": {
+      "outcome": "held",
+      "message": null
+    }
+  },
+  "seconds": 1.7619355529996028
+}

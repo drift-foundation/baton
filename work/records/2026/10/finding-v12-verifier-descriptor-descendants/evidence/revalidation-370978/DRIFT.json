@@ -1,0 +1,56 @@
+{
+  "old_base": "14e52d80679de5e844f72324df632da5e01cf393",
+  "selected_input_checks": {
+    "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json": {
+      "expected": "fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903",
+      "actual": "fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903",
+      "same": true
+    },
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/review-2026-09-29T16-58-33Z.md": {
+      "expected": "71cb05072ee43c3e4e2cea36706f05e017b41de822773cc83778e815fd992e9a",
+      "actual": "71cb05072ee43c3e4e2cea36706f05e017b41de822773cc83778e815fd992e9a",
+      "same": true
+    },
+    "work/records/2026/09/finding-v12-single-implementation-proof/IMAGE-ARTIFACT-244216.json": {
+      "expected": "8cf90edcabc39150b47f3e59a5a2378941d237c0a86ad1b99dffc079f3c2e374",
+      "actual": "8cf90edcabc39150b47f3e59a5a2378941d237c0a86ad1b99dffc079f3c2e374",
+      "same": true
+    },
+    "work/records/2026/09/finding-v12-single-implementation-proof/baseline.py": {
+      "expected": "248e570d8f9d459550b0aa5e92d1674c3226fe540ba987cae916a4a334606771",
+      "actual": "8e5987f56f8d5329c33a8e73f9df56f13213e134f2dade8180afabf80723efe9",
+      "same": false
+    },
+    "work/records/2026/09/finding-v12-single-implementation-proof/baseline_bindings.py": {
+      "expected": "09fbf3c59820231b7199e24aa1cf64eee93f6ea2e60f3477fed5ca909e5fc379",
+      "actual": "09fbf3c59820231b7199e24aa1cf64eee93f6ea2e60f3477fed5ca909e5fc379",
+      "same": true
+    },
+    "work/records/2026/09/finding-v12-single-implementation-proof/prepare_instance.py": {
+      "expected": "d08514cbca34d1fd6993ee8fe32fdf5e7865da8f2b83c04e03a2f680cfce3749",
+      "actual": "d08514cbca34d1fd6993ee8fe32fdf5e7865da8f2b83c04e03a2f680cfce3749",
+      "same": true
+    },
+    "work/records/2026/10/finding-v12-verifier-descriptor-descendants/preparation-325908/LAYOUT.json": {
+      "expected": "9be0d0c294200036ae4ad2cec87b4b4a1c36f50def0fb1b0944402f967d300c8",
+      "actual": "9be0d0c294200036ae4ad2cec87b4b4a1c36f50def0fb1b0944402f967d300c8",
+      "same": true
+    },
+    "work/records/2026/10/finding-v12-verifier-descriptor-descendants/preparation-325908/TASK.md": {
+      "expected": "026fe412e2523bfafcb091203f78d773907febd1cdb97451c442db6838e07d66",
+      "actual": "026fe412e2523bfafcb091203f78d773907febd1cdb97451c442db6838e07d66",
+      "same": true
+    },
+    "work/records/2026/10/finding-v12-verifier-descriptor-descendants/preparation-325908/prepare.py": {
+      "expected": "5ffea5150663ac69c0cab60bdb75341536c78cb0e0981831b28b9e3b24f766f2",
+      "actual": "5ffea5150663ac69c0cab60bdb75341536c78cb0e0981831b28b9e3b24f766f2",
+      "same": true
+    }
+  },
+  "method_ast_unchanged": {
+    "_pinned_environment": true,
+    "_revalidated_directories": true,
+    "_checked_directory": true,
+    "_verify": false
+  }
+}

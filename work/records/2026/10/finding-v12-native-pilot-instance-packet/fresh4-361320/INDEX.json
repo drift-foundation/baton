@@ -1,0 +1,92 @@
+{
+  "ANSWERS": "review-2026-10-24T02-23-00Z.md, under owner M361302",
+  "BUNDLE": {
+    "at": "/home/sl/w325959-bundle/out/distro",
+    "build_stamp_dirty": true,
+    "dirty_means": "383 changed entries, NONE under v12/: the subtree is byte-identical to the commit and the dirt is records outside it. Disclosed, not explained away.",
+    "files": 81,
+    "folder_digest": "1b014603aec40e9f6d9c03a8b21ae74a02d9f1fef1ff95fc0f3e8a851a229c07",
+    "pinned_by": "../bundle-361217/MANIFEST.json"
+  },
+  "CLAIM": 361320,
+  "COMMANDS": {
+    "file": "COMMANDS.md",
+    "restart_checkpoints": [
+      "interrupted selection 2: inspect, do not delete or re-run blindly",
+      "interrupted selection 3: the submission replays by its identity",
+      "a failed quickstart-d: `manager fresh-attempt --prior-job quickstart-d`, which this build supports and quickstart-c did not"
+    ],
+    "selections": [
+      "1 preflight",
+      "2 mint/compose/install",
+      "2b workspace storage",
+      "3 submission",
+      "4 start/observe/stop"
+    ],
+    "shell_syntax": "8 blocks, 0 errors; evidence/SHELL-SYNTAX.txt"
+  },
+  "CORRECTED_ACCOUNTING": "bundle-361217/BUNDLE.md said the unreferenced verification_context module 'travels in the bundle'. It does NOT: PYZ-00.toc has no entry for it, and package membership is not PyInstaller inclusion. The reviewer was right; a check in prove4.py now asserts its absence and the presence of fresh_attempt_ports and job_manager.fresh_attempt. The worker-image claim is separate and unchanged: Dockerfile.claude copies it into an IMAGE, which this packet does not build.",
+  "IDENTIFIERS": {
+    "authority": "minted by step 1 and read back from its own record; never instance 3's 5a8fa4b4275b4f7fa32efafc2c48f546",
+    "destination": "/home/sl/baton-instances/native-coordination-pilot-w321608-4",
+    "incarnation": "w325959-owner-submit-4",
+    "job": "quickstart-d",
+    "limits": {
+      "provider_turn_seconds": 3600,
+      "verification_command_seconds": 900
+    },
+    "stages": [
+      "implementation",
+      "review (gated on implementation)"
+    ],
+    "submission": "sub-w321608-quickstart-4",
+    "task": "w321608-native-operator-quickstart-4",
+    "work": "composed as <minted uuid[:8]>-W1; the proof asserts it is not 5a8fa4b4-W1"
+  },
+  "MEMBERS": {
+    "COMMANDS.md": "sha256:d3625ddd39ea57baba1c6aa4bec4e59ead1c19a97ab89790782df284b6274e6b",
+    "configure-inputs.json": "sha256:6d7263f0352e1e9b2d4809a7874ef9e3184a8fad62c42921d7581ad47ec2be85",
+    "evidence/PROVE4.json": "sha256:e479ec54ee4fe03e9cbecdeba2a29966282f5cb0b61ae8e5edb7604a60bb4155",
+    "evidence/SHELL-SYNTAX.txt": "sha256:4d8a9da19d43f46327517b2deca6cd9c3d58a21f22a80291dbfba48a5247b336",
+    "fresh4.py": "sha256:8a1435e201e6f1b8964d8ca30fb89766b81bd6a427b8f2e707af829649886640",
+    "install-inputs.json": "sha256:6f544c461007ec85faa884b2d4843f431f96f1835d65e91a55ae4cd38807b937",
+    "prove4.py": "sha256:1fa17d228fcb36d11b368200e8bfc2b10c6060afbde9c18d61c698605e2f6605",
+    "shell_syntax.py": "sha256:6ebe6b3009b63134204fb37745d5397f2ad4b06bfa2ea2e1a8eeb7b42630b58a",
+    "submission.json": "sha256:863073a4db40e20490fcef782622d63f94d9267230ce0d86c3e0f769fb86b26a",
+    "task.json": "sha256:9fdb1dd4ada5908bbd1718c8dbc89eff0d4c7def98dab9f89834373d47b8876b"
+  },
+  "PROOF": {
+    "checks": 28,
+    "establishes": [
+      "the real bundle recomputes to the pinned digest through the product's own instance.manifest",
+      "the frozen command carries the fresh-attempt verb, so a failure of THIS revision has a supported retry",
+      "the preflight validates and creates nothing",
+      "a disposable apply mints its own authority, composes the Work under its prefix, installs both stages, one Job binding and four repositories, and emits a task document digesting its own bytes",
+      "the submission names neither quickstart-c nor 5a8fa4b4-W1 and keeps 3600/900",
+      "a second apply of the same destination refuses and the first installation is untouched",
+      "refusals: malformed document, changed pin, absent bundle, a destination inside instance 1, 2 or 3, and a drifted accepted helper"
+    ],
+    "failed": 0,
+    "file": "evidence/PROVE4.json",
+    "git_executed": false,
+    "limits": "the apply is DISPOSABLE, with a simulated repository runner and a stub bundle. It establishes composition, ordering, identity and refusal -- not that a real clone, a real runtime or a real provider turn succeeds.",
+    "script": "prove4.py",
+    "seconds": 0.43149066000114544
+  },
+  "REUSE": {
+    "RETAINED_grew": "the accepted module names instances 1 and 2, which were all that existed when it was written. Instance 3 holds the failed quickstart-c the owner is preserving, so it is added -- WITHOUT it a destination inside instance 3 was not refused, which this packet's own proof caught.",
+    "fresh3-358443/fresh.py": "IMPORTED and pinned, not copied. It resolved the four-step ordering, the pre-mint gate and the refusals, and was accepted at review-2026-10-23T05-17-50Z.md.",
+    "post-install-357462/configure.py": "imported and pinned transitively by that helper, unchanged at b15280cc.",
+    "what_is_rebound": "that module's declared JOB, SUBMISSION, TASK and RETAINED constants. Its bytes are unchanged and pinned; the rebinding is verified by asserting the answer carries this revision's identities."
+  },
+  "SOURCE_COMMIT": "614668e0831e8c87cdae11ca43620e0d544a84d5",
+  "WHAT_THIS_IS": "The fresh REVISION-4 installation and pilot packet, on the bundle pinned by ../bundle-361217/. Owner M361302 selects a new destination and a fresh workload rather than an updated retained instance: no updater, no migration gate, instances 1-3 preserved. Nothing was executed; instance 4 does not exist.",
+  "WHAT_WAS_NOT_DONE": [
+    "no install, deployment, start, submission, serving or retry",
+    "no engine, provider, model or credential read",
+    "no Git mutation; the repository source is CLONED by the supported preparation, so committed history travels and the dirty tree does not",
+    "no store opened, copied or traversed outside the disposable fixture",
+    "instances 1, 2 and 3 and every prior packet are untouched"
+  ],
+  "WORK": "2b077949-W325959"
+}

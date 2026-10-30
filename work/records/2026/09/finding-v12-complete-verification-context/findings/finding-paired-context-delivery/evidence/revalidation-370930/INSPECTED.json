@@ -1,0 +1,9 @@
+{
+  "AGENTS.md": "6af9adaf4fc5f0377b1442c8dbf0e582265a6386b108c5c85e1a5eb19dd39ccf",
+  "v12/DESIGN.md": "500fa602410be8fe125be56140685c696ebd653f68abbc87a4b0d4e512bc0751",
+  "v12/worker/claude_agent.py": "b014ea3f5f58af573a0cbaa4b8838a270953806a89ef274682d5cca6627efe7c",
+  "v12/python/tools/dogfood_operator.py": "a3722e436cf559d8b602259baed9ed8413b8945f4a168485b6efa184740548b1",
+  "v12/python/tools/job_task.py": "a9ce7948bd39e9e8b2981ad26f299f5e2ad388ad18c6a522337a1c7c27d6e919",
+  "v12/python/tools/job_manager.py": "9f9008fd68a3f00ed41516c0127655cd24a5518df15294f22282c0f0dc66018f",
+  "work/records/2026/09/finding-v12-single-implementation-proof/baseline_bindings.py": "09fbf3c59820231b7199e24aa1cf64eee93f6ea2e60f3477fed5ca909e5fc379"
+}

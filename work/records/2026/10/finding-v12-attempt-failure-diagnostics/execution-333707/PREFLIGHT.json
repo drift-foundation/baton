@@ -1,0 +1,322 @@
+{
+  "attempts": 0,
+  "credential_read": false,
+  "engine_invoked": false,
+  "falsification_rerun": false,
+  "hold": "HOLD.md",
+  "job_submitted": false,
+  "measured_seconds": {
+    "probes": 0.922784,
+    "steps": 1.191588
+  },
+  "note": "Preparation exercised once into this THROWAWAY root. The selected root named in OPERATOR.md is untouched and does not exist. No Job submitted, no engine or container invoked, no provider contacted, no credential read, and the shared-authoring falsification was REUSED from W333485 rather than re-run.",
+  "prepared": {
+    "artifacts": {
+      "PACKET.json": "8ea714a51e5460b4ac7c9055ba72663c6a5c5fd5fcae2ac0297f84f0f43f3f75",
+      "adapter.json": "cbe3bb4ade990eb5411c64a40be74a10e46a79f48343c499b5f1a8453fabc9c7",
+      "commands.json": "3788c775254393aba2bcc8f876322cf39f5c30e9b465161dfb39b1259205df4c",
+      "deployment.json": "103ba98f454f6fcbfd8d814377b0d7d112175d15e4e8ee2a9f31c9c1223c4b3b",
+      "policy.json": "2b75b8208cd288418ea5a9af8ece0c443abdaa19fda80a1ea2725e43fdbc306c",
+      "runtime-profile.json": "70ca07c494c9660bfaf747772f2233ccaf77b4ef3a4da90c26121b7b59ff1d34",
+      "submission.json": "f3cac8edca4c6a090f6d5a6d577047a3ae95458a1c28b72611446ffa3c3a8a84",
+      "task.json": "5f7e062252f03519ddc3d3000eca97374d79509978ec8ad5da1964ff70d411cf"
+    },
+    "authority_uuid": "2443f602a6b14ba89faedb7b5dd41004",
+    "hold": "HOLD.md",
+    "independent_review": "an independent reviewer consumes this preparation packet through v11; actual execution awaits the separately selected safe authoring vehicle, and there is no automatic acceptance",
+    "packet_sha256": "8ea714a51e5460b4ac7c9055ba72663c6a5c5fd5fcae2ac0297f84f0f43f3f75",
+    "start_authorized": false,
+    "state": "prepared-not-executed",
+    "work": "W333486"
+  },
+  "probes": [
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-attempt-failure-diagnostics/execution-333707/prepare.py",
+        "stage",
+        "--root",
+        "/tmp/w333486-probe-hold"
+      ],
+      "expected_fragment": "START is HELD",
+      "left_no_root": true,
+      "probe": "stage refuses without --acknowledge-hold and leaves no root",
+      "refused_as_expected": true,
+      "seconds": 0.04356818799897155,
+      "status": 1,
+      "tail": [
+        "RuntimeError: This packet's START is HELD -- see HOLD.md. The selected baseline.py supervisor calls serve with no reclaim pass (baseline.py:1207; manager.py:833 reclaim=None, :879 runs a pass only if reclaim is not None), so the 900-second workspace generation is not enforced across the requested 3600/4800 run. Preparation is authorized; starting is an owner decision on the shared authoring prerequisite. Re-run with --acknowledge-hold to prepare anyway; preparation produces no execution."
+      ]
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-attempt-failure-diagnostics/execution-333707/prepare.py",
+        "bind",
+        "--root",
+        "/tmp/w333486-probe-drift-707"
+      ],
+      "expected_fragment": "staged manager drifted",
+      "left_no_root": true,
+      "probe": "bind refuses drifted staged manager source",
+      "refused_as_expected": true,
+      "seconds": 0.05224854900006903,
+      "status": 1,
+      "tail": [
+        "RuntimeError: staged manager drifted: src/baton_v12/worker_manager/intake.py"
+      ]
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "/tmp/w333486-probe-packet-707/prepare.py",
+        "stage",
+        "--root",
+        "/tmp/w333486-probe-root-707a",
+        "--acknowledge-hold"
+      ],
+      "expected_fragment": "supervisor source drifted",
+      "left_no_root": true,
+      "probe": "a wrong supervisor digest refuses and leaves no root",
+      "refused_as_expected": true,
+      "seconds": 0.14442197599964857,
+      "status": 1,
+      "tail": [
+        "RuntimeError: supervisor source drifted: baseline.py"
+      ]
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "/tmp/w333486-probe-packet-707/prepare.py",
+        "stage",
+        "--root",
+        "/tmp/w333486-probe-root-707b",
+        "--acknowledge-hold"
+      ],
+      "expected_fragment": "decision snapshot damaged",
+      "left_no_root": true,
+      "probe": "a damaged decision snapshot refuses and leaves no root",
+      "refused_as_expected": true,
+      "seconds": 0.047549686998536345,
+      "status": 1,
+      "tail": [
+        "RuntimeError: decision snapshot damaged or absent: FINDING.md"
+      ]
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "/tmp/w333486-probe-packet-707/prepare.py",
+        "stage",
+        "--root",
+        "/tmp/w333486-probe-root-707c",
+        "--acknowledge-hold"
+      ],
+      "expected_fragment": "claims a start this packet holds",
+      "left_no_root": true,
+      "probe": "a provenance claiming an authorized start refuses",
+      "refused_as_expected": true,
+      "seconds": 0.04718298599982518,
+      "status": 1,
+      "tail": [
+        "RuntimeError: the provenance claims a start this packet holds"
+      ]
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-attempt-failure-diagnostics/execution-333707/prepare.py",
+        "stage",
+        "--root",
+        "/tmp/w333486-preflight-333707",
+        "--acknowledge-hold"
+      ],
+      "expected_fragment": "File exists",
+      "left_no_root": true,
+      "probe": "stage refuses an existing root",
+      "refused_as_expected": true,
+      "seconds": 0.14550233299996762,
+      "status": 1,
+      "tail": [
+        "FileExistsError: [Errno 17] File exists: '/tmp/w333486-preflight-333707'"
+      ]
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-attempt-failure-diagnostics/execution-333707/prepare.py",
+        "bind",
+        "--root",
+        "/tmp/w333486-preflight-333707"
+      ],
+      "expected_fragment": "already holds a composed packet",
+      "left_no_root": true,
+      "probe": "bind refuses a root that already holds a packet",
+      "refused_as_expected": true,
+      "seconds": 0.05087940500015975,
+      "status": 1,
+      "tail": [
+        "RuntimeError: this root already holds a composed packet; composing a second one over it would replace the documents an owner may already have read"
+      ]
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "/tmp/w333486-probe-packet-707/verify-inputs.py"
+      ],
+      "expected_fragment": "DECISION-SOURCE DRIFT",
+      "left_no_root": true,
+      "probe": "verify-inputs REPORTS decision-source drift and still exits 0",
+      "refused_as_expected": true,
+      "seconds": 0.11509033500078658,
+      "status": 0,
+      "tail": [
+        "START IS HELD -- see HOLD.md. Preparation is authorized; starting is an owner decision on the shared authoring prerequisite."
+      ]
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-attempt-failure-diagnostics/execution-333707/verify-inputs.py"
+      ],
+      "expected_fragment": "already exists on the host",
+      "left_no_root": true,
+      "probe": "verify-inputs refuses an already-present gate module",
+      "refused_as_expected": true,
+      "seconds": 0.11177952199977881,
+      "status": 1,
+      "tail": [
+        "DRIFTED: a gate module the turn must create already exists on the host: v12/python/tests/manager/test_attempt_failure_cause.py"
+      ]
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-attempt-failure-diagnostics/execution-333707/prepare.py",
+        "stage",
+        "--root",
+        "/tmp/w333486-probe-root-707d",
+        "--acknowledge-hold"
+      ],
+      "expected_fragment": "already exists on the host",
+      "left_no_root": true,
+      "probe": "stage refuses an already-present gate module",
+      "refused_as_expected": true,
+      "seconds": 0.05165725100050622,
+      "status": 1,
+      "tail": [
+        "RuntimeError: a gate module the turn must create already exists on the host: v12/python/tests/manager/test_attempt_failure_cause.py"
+      ]
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-attempt-failure-diagnostics/execution-333707/verify-inputs.py"
+      ],
+      "expected_fragment": "no decision-source drift",
+      "left_no_root": true,
+      "probe": "verify-inputs passes clean, reports no drift and states the hold",
+      "refused_as_expected": true,
+      "seconds": 0.11290352200012421,
+      "status": 0,
+      "tail": [
+        "START IS HELD -- see HOLD.md. Preparation is authorized; starting is an owner decision on the shared authoring prerequisite."
+      ]
+    }
+  ],
+  "product_tests": 0,
+  "provider_invoked": false,
+  "retained_roots": [
+    "/tmp/w333486-preflight-333707",
+    "/tmp/w333486-probe-drift-707",
+    "/tmp/w333486-base-probe",
+    "/tmp/w333486-preflight-333504",
+    "/tmp/w333486-probe-drift"
+  ],
+  "retained_why": "Left for the operator rather than removed: a managed turn does not issue a destructive shell command merely to tidy its own temporary reproduction. None is the selected root and none holds a credential or a submitted Job. The last two belong to the superseded packet and are preserved with it.",
+  "root": "/tmp/w333486-preflight-333707",
+  "runtimes": 0,
+  "schema": "baton.w333486-execution-preflight/2",
+  "start_authorized": false,
+  "steps": [
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-attempt-failure-diagnostics/execution-333707/prepare.py",
+        "stage",
+        "--root",
+        "/tmp/w333486-probe-drift-707",
+        "--acknowledge-hold"
+      ],
+      "seconds": 0.1244077510000352,
+      "status": 0,
+      "stderr": "This packet's START is HELD -- see HOLD.md. The selected baseline.py supervisor calls serve with no reclaim pass (baseline.py:1207; manager.py:833 reclaim=None, :879 runs a pass only if reclaim is not None), so the 900-second workspace generation is not enforced across the requested 3600/4800 run. Preparation is authorized; starting is an owner decision on the shared authoring prerequisite.\n",
+      "stdout": "staged; bootstrap separately with --no-repositories, then bind. The start remains held.\n",
+      "step": "stage (drift probe root)"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-attempt-failure-diagnostics/execution-333707/prepare.py",
+        "stage",
+        "--root",
+        "/tmp/w333486-preflight-333707",
+        "--acknowledge-hold"
+      ],
+      "seconds": 0.1149430420009594,
+      "status": 0,
+      "stderr": "This packet's START is HELD -- see HOLD.md. The selected baseline.py supervisor calls serve with no reclaim pass (baseline.py:1207; manager.py:833 reclaim=None, :879 runs a pass only if reclaim is not None), so the 900-second workspace generation is not enforced across the requested 3600/4800 run. Preparation is authorized; starting is an owner decision on the shared authoring prerequisite.\n",
+      "stdout": "staged; bootstrap separately with --no-repositories, then bind. The start remains held.\n",
+      "step": "stage"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "-m",
+        "tools.bootstrap",
+        "--inputs",
+        "/tmp/w333486-preflight-333707/bootstrap-inputs.json",
+        "--destination",
+        "/tmp/w333486-preflight-333707/instance",
+        "--distro",
+        "/home/sl/baton-runs/managed-correction-236087/build/stack/out/distro",
+        "--no-repositories"
+      ],
+      "seconds": 0.597393744999863,
+      "status": 0,
+      "stderr": "",
+      "stdout": "repositories  not prepared: no source checkout was found or named, so the deployment has no target, workspace or worker sources yet and will schedule without reconciling\nauthority 2443f602...    generated for this instance\njob   none; no Work, grant or placeholder was created\nconfiguration /tmp/w333486-preflight-333707/instance/deployment.json\ncapacity      {\"job_affinity\": {}, \"jobs\": 0, \"note\": \"this instance binds no Job and configures no execution capacity; it serves a real idle scheduler and publisher over empty stores, and a worker, a Work, a declared base, a canonical target and a producer are supplied together when a Job is created\", \"schema\": \"baton.v12.stage-execution-deployment/2\", \"targets\": [], \"workers_by_role\": {\"implementation\": [], \"integration\": [], \"review\": []}}\nno Job was submitted and nothing was executed\ninstance      /tmp/w333486-preflight-333707/instance/instance.json\nruntime       81 files, digest c1ef3d23394916c8...\nstores        /tmp/w333486-preflight-333707/instance/db\nrepository    /tmp/w333486-preflight-333707/instance/repo\njustfile      /tmp/w333486-preflight-333707/instance/justfile\n\nThe deployment is operated from the destination, and needs nothing else:\n\n    cd /tmp/w333486-preflight-333707/instance && just status\n    just --justfile /tmp/w333486-preflight-333707/instance/justfile start        # from anywhere\n\nor the command directly, which is the same program:\n\n    /tmp/w333486-preflight-333707/instance/distro/baton-v12-stack status --instance /tmp/w333486-preflight-333707/instance/instance.json\n",
+      "step": "bootstrap"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/10/finding-v12-attempt-failure-diagnostics/execution-333707/prepare.py",
+        "bind",
+        "--root",
+        "/tmp/w333486-preflight-333707"
+      ],
+      "seconds": 0.3548437970002851,
+      "status": 0,
+      "stderr": "",
+      "stdout": "prepared and validated; no job submitted, no engine/provider invoked. The start remains held -- see HOLD.md.\n",
+      "step": "bind"
+    }
+  ]
+}

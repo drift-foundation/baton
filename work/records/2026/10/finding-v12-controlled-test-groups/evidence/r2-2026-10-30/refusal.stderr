@@ -1,0 +1,2 @@
+source identity refused: declared consumed input 'work/records/2026/10/finding-v12-controlled-test-groups/ABSENT.json' has no file in this checkout (absent, or gitignored); the run cannot identify what it would consume
+exit 2

@@ -1,0 +1,28 @@
+planned roots:
+    w-1 workspace_storage /tmp/v12-create-step-uvb_lbg8/prerequisites/w-1/storage
+    w-1 launch_home /tmp/v12-create-step-uvb_lbg8/prerequisites/w-1/launch
+    w-1 credential_home /tmp/v12-create-step-uvb_lbg8/prerequisites/w-1/credentials
+
+RAISED BootstrapRefusal : prerequisite preparation failed (OSError); created or uncertain effects are recorded; access or identity failure is not evidence of replacement, and is not one it reports as ready
+CAUSE  OSError : [Errno 5] the device went away mid-create
+
+mkdir leaves seen: ['/tmp/v12-create-step-uvb_lbg8/deployment', '/tmp/v12-create-step-uvb_lbg8/deployment/db', '/tmp/v12-create-step-uvb_lbg8/deployment/repo', '/tmp/v12-create-step-uvb_lbg8/deployment/logs', '/tmp/v12-create-step-uvb_lbg8/deployment/state', 'prerequisites', 'w-1', 'storage', 'launch']
+
+--- stream ---
+cleanup       retained /tmp/v12-create-step-uvb_lbg8/prerequisites/w-1/storage: this attempt made the prepared prerequisite root and is NOT deleting it: a name-based removal cannot be bound to this object, so the bytes stay
+cleanup       retained /tmp/v12-create-step-uvb_lbg8/prerequisites/w-1/launch: uncertain effect (creation attempted; identity not established); no deletion authority, and this attempt cannot say whether anything is there
+cleanup       retained /tmp/v12-create-step-uvb_lbg8/prerequisites/w-1: this attempt made the prepared prerequisite root and is NOT deleting it: a name-based removal cannot be bound to this object, so the bytes stay
+cleanup       retained /tmp/v12-create-step-uvb_lbg8/prerequisites: this attempt made the prepared prerequisite root and is NOT deleting it: a name-based removal cannot be bound to this object, so the bytes stay
+cleanup       RETAINED 4 path(s), none of them deleted: 3 this attempt made and did not delete, 1 this attempt can neither claim nor disclaim:
+cleanup         /tmp/v12-create-step-uvb_lbg8/prerequisites/w-1/storage  [this attempt's own]
+cleanup         /tmp/v12-create-step-uvb_lbg8/prerequisites/w-1/launch  [unproven]
+cleanup         /tmp/v12-create-step-uvb_lbg8/prerequisites/w-1  [this attempt's own]
+cleanup         /tmp/v12-create-step-uvb_lbg8/prerequisites  [this attempt's own]
+
+--- end ---
+lexists False /tmp/v12-create-step-uvb_lbg8/deployment/distro
+lexists False /tmp/v12-create-step-uvb_lbg8/deployment/justfile
+lexists False /tmp/v12-create-step-uvb_lbg8/deployment/instance.json
+lexists True /tmp/v12-create-step-uvb_lbg8/prerequisites/w-1/storage
+lexists False /tmp/v12-create-step-uvb_lbg8/prerequisites/w-1/launch
+lexists False /tmp/v12-create-step-uvb_lbg8/prerequisites/w-1/credentials

@@ -1,0 +1,16 @@
+{
+  "provenance": "Owner pasted actual preflight output in interactive conversation; recorded by baton.prompt",
+  "schema": "w345730-readonly-preflight/1",
+  "root": "/home/sl/baton-instances/serving-renewal-w333485-339444",
+  "checks": {
+    "uid_is_sl_1000": true,
+    "root_absent_including_symlink": true,
+    "parent_is_canonical_directory": true,
+    "parent_writable_and_searchable": true,
+    "amendment_manifest_matches": true,
+    "all_preparation_pins_match": true
+  },
+  "writes_performed": false,
+  "launch_selected": false,
+  "note": "Access is this invoking process only. A pass is not proof of another executor boundary or authorization to stage/start."
+}

@@ -1,0 +1,5 @@
+{
+  "v12/python/src/baton_v12/job_manager/role_capability.py": "09fdc0e278d16a72d79ff26f9e1523b93aae6b423ebb11fc73ff6741472a90a0",
+  "v12/python/tests/job_manager/test_role_capability.py": "0d296dcf23f013a6f9aceb459db6078b928fdf9d37daf2311433bfc47c4ab1b8",
+  "v12/python/src/baton_v12/job_manager/role_contract.py": "691ed3a0e653a9705f181790c9565706902bd3958f2973e49e85cff586ca6967"
+}

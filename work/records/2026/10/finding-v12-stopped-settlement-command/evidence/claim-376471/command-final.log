@@ -1,0 +1,16 @@
+test_foreign_selection_and_changed_request_refuse (tests.tools.test_stopped_settlement_command.InstalledSettlement.test_foreign_selection_and_changed_request_refuse) ... ok
+test_installed_argv_preview_and_settle_with_package_identity (tests.tools.test_stopped_settlement_command.InstalledSettlement.test_installed_argv_preview_and_settle_with_package_identity) ... ok
+test_instance_busy_refuses_and_invocation_is_exclusive (tests.tools.test_stopped_settlement_command.InstalledSettlement.test_instance_busy_refuses_and_invocation_is_exclusive) ... ok
+test_malformed_request_and_changed_package_refuse_before_writes (tests.tools.test_stopped_settlement_command.InstalledSettlement.test_malformed_request_and_changed_package_refuse_before_writes) ... ok
+test_packaged_manager_dispatch_reads_status (tests.tools.test_stopped_settlement_command.InstalledSettlement.test_packaged_manager_dispatch_reads_status) ... ok
+test_preview_settle_status_and_exact_replay (tests.tools.test_stopped_settlement_command.InstalledSettlement.test_preview_settle_status_and_exact_replay) ... ok
+test_readonly_surfaces_never_open_writable_handles_or_runtime_status (tests.tools.test_stopped_settlement_command.InstalledSettlement.test_readonly_surfaces_never_open_writable_handles_or_runtime_status) ... ok
+test_return_pending_recovery_and_operation_collision (tests.tools.test_stopped_settlement_command.InstalledSettlement.test_return_pending_recovery_and_operation_collision) ... ok
+test_running_preview_and_settlement_hold_without_selection (tests.tools.test_stopped_settlement_command.InstalledSettlement.test_running_preview_and_settlement_hold_without_selection) ... ok
+test_stale_assignment_refuses_new_selection_but_committed_replay_survives (tests.tools.test_stopped_settlement_command.InstalledSettlement.test_stale_assignment_refuses_new_selection_but_committed_replay_survives) ... ok
+test_unknown_and_foreign_engine_answers_hold_exact_generation (tests.tools.test_stopped_settlement_command.InstalledSettlement.test_unknown_and_foreign_engine_answers_hold_exact_generation) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 1.369s
+
+OK

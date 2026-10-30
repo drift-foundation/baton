@@ -1,0 +1,114 @@
+{
+  "attempt_id": "attempt-529201c5b3b5b785d93f95ecd7b23c2329bf5ea2d1a3c8795a22251adbf0660b",
+  "authority_uuid": "97e4a8911d3e4432bde5fa87791e34b4",
+  "base": "bc925cf5c62d69426ed5862af4d41f4d2a967b0f",
+  "cleanup_uncertainty_is_itself_the_subject": "outstanding_cleanup names this attempt and cleanup is null with \"no committed cleanup\", while cancellation separately records the runtime destroyed and observed. A manager that ordered cessation, observed destruction, and still cannot prove positive cleanup is precisely the kind of state this Work exists to make legible in ordinary status.",
+  "collected_at": "2026-10-20",
+  "collected_by": "baton.claude, claim341198, acting as the external operator per TASK item 6",
+  "files": {
+    "COLLECTION.json": {
+      "sha256": "77823cf49d67d6a8f525333826758193369463cd64b12390d2d123110b98f781"
+    },
+    "EXECUTOR-PREFLIGHT.json": {
+      "sha256": "8b569a16d05ca19c3e8871ab6dbad1d8a6d3deb50e009f99f1c74ef1e3c783c1"
+    },
+    "outcome.json": {
+      "sha256": "6baabd7e257fef243bc1acb1cde29c983fc8b1757769f5e3d7c8e1560fd8ce2a",
+      "source": "/home/sl/baton-instances/attempt-diagnostics-w333486-340352/packet/outcome.json",
+      "source_sha256": "6baabd7e257fef243bc1acb1cde29c983fc8b1757769f5e3d7c8e1560fd8ce2a"
+    },
+    "outcome.json.authoring.log": {
+      "sha256": "d17231db5a0cb304529c199850ff1fc9124dcb6f90d3007801b0cef8477f08ef",
+      "source": "/home/sl/baton-instances/attempt-diagnostics-w333486-340352/packet/outcome.json.authoring.log",
+      "source_sha256": "d17231db5a0cb304529c199850ff1fc9124dcb6f90d3007801b0cef8477f08ef"
+    },
+    "outcome.json.enforcement-59784-1792523182849368431.json": {
+      "sha256": "b0cdfbcd790ae2c2130c496589496ab4b960c864b51465b59f3778b744cc7258",
+      "source": "/home/sl/baton-instances/attempt-diagnostics-w333486-340352/packet/outcome.json.enforcement-59784-1792523182849368431.json",
+      "source_sha256": "b0cdfbcd790ae2c2130c496589496ab4b960c864b51465b59f3778b744cc7258"
+    },
+    "outcome.json.manager-59784-1792522233536377899.json": {
+      "sha256": "809dcc49c15b869a20a591335e9174b4e156922d90d5509336f2547ee5ceabf0",
+      "source": "/home/sl/baton-instances/attempt-diagnostics-w333486-340352/packet/outcome.json.manager-59784-1792522233536377899.json",
+      "source_sha256": "809dcc49c15b869a20a591335e9174b4e156922d90d5509336f2547ee5ceabf0"
+    },
+    "outcome.json.manager-59784-1792522233536377899.json.progress.json": {
+      "sha256": "c8b7e79194ba9dbfd00a003fbb110f1aac87ad7196a05a0a096f40379bbe458c",
+      "source": "/home/sl/baton-instances/attempt-diagnostics-w333486-340352/packet/outcome.json.manager-59784-1792522233536377899.json.progress.json",
+      "source_sha256": "c8b7e79194ba9dbfd00a003fbb110f1aac87ad7196a05a0a096f40379bbe458c"
+    },
+    "outcome.json.manager-59784-1792522233536377899.json.shutdown.json": {
+      "sha256": "4d1738f39b296f486819011d7b730db5db586e4ef309012704c304fb0bc1535a",
+      "source": "/home/sl/baton-instances/attempt-diagnostics-w333486-340352/packet/outcome.json.manager-59784-1792522233536377899.json.shutdown.json",
+      "source_sha256": "4d1738f39b296f486819011d7b730db5db586e4ef309012704c304fb0bc1535a"
+    },
+    "retained-partial/status.txt": {
+      "sha256": "840020f093f75b9fbec3ea8212718884e72d47d8a437fc8e98a04a4f5c80a064"
+    },
+    "retained-partial/tracked.diff": {
+      "sha256": "02cc4cb43d6235c871a6ed3bf7137c3c34acfa565f316165ba2f977f9a493a76"
+    },
+    "retained-partial/v12/python/src/baton_v12/worker_manager/failure_cause.py": {
+      "sha256": "87a6264b266ed112c284d977d987c79256988f6cba04a770676432872c554935"
+    },
+    "retained-partial/v12/python/tests/manager/test_attempt_failure_cause.py": {
+      "sha256": "279031824d0b478b2f1e3d5a48b60d6f0b78331356f7f9fd43ddbabaea4b407f"
+    },
+    "retained-partial/v12/python/tests/tools/test_attempt_diagnostics.py": {
+      "sha256": "0c191731d921c5d73e5553f98791021dc4e267abd6f37d92c793f6c029a75748"
+    },
+    "retained-partial/v12/python/tools/attempt_diagnostics.py": {
+      "sha256": "a1a59265b4d8fe62c4b74ad118720e42332f037bdad4c4798eab529c5eb52db1"
+    }
+  },
+  "gate_not_classified": "TASK item 7 required the turn to run the sealed gate and classify the failure. verification is \"not-run\": the turn never reached it. So the historical gate failure from run-340016 REMAINS UNCLASSIFIED and the 30-second fit question remains unproved, exactly as review-2026-10-20T16-55-52Z warned it would unless new evidence established it.",
+  "instance": "/home/sl/baton-instances/attempt-diagnostics-w333486-340352",
+  "no_candidate_but_partial_work_survives": "This is the axis \"missing artifacts do not prove there are no retained partial edits\", demonstrated for real. The frozen-result boundary was never reached, so there is no candidate, no proposal, no verification and nothing to review AS a candidate. But the review line checkout holds 19 changed paths -- 15 modified, 4 new -- and they are copied into retained-partial/ here. retained-partial/tracked.diff is `diff` over the tracked files (447 insertions, 36 deletions across 15 files) and the four new files are copied verbatim because an unstaged-new file does not appear in a diff. status.txt is the inventory. NOTHING WAS COMMITTED, STAGED OR OTHERWISE MUTATED in that instance to produce these copies; they came from read-only `diff`, `status` and file reads.",
+  "outcome": {
+    "attempt_disposition": null,
+    "cancellation": {
+      "execution_runtime": "destroyed",
+      "requested": true,
+      "runtime_id": "91f6e7dbbdb127db1701c23bb64942d5ded8870d09c687296bbfd401a2bb601f",
+      "why": "this manager observed the runtime destroyed"
+    },
+    "candidate": {
+      "acceptance": "no-candidate",
+      "state": "absent",
+      "verification": "not-run",
+      "why": "the turn froze no result at all"
+    },
+    "child_exited": true,
+    "child_status": 130,
+    "cleanup": {
+      "attempt-529201c5b3b5b785d93f95ecd7b23c2329bf5ea2d1a3c8795a22251adbf0660b": {
+        "cleanup": null,
+        "why": "no committed cleanup"
+      }
+    },
+    "cleanup_sweeps": 44,
+    "controller_elapsed_seconds": 948.5622579390001,
+    "controller_faults": [],
+    "controller_state": "held",
+    "interrupted": "signal 15",
+    "outstanding_cleanup": [
+      "attempt-529201c5b3b5b785d93f95ecd7b23c2329bf5ea2d1a3c8795a22251adbf0660b"
+    ],
+    "proposals": 0,
+    "served_seconds": 904.7793924179987,
+    "shutdown_progress_step": "final enforcement publication",
+    "shutdown_request_written": true,
+    "stage_states": {
+      "implementation": "exceptional"
+    },
+    "workload_state": "held",
+    "workload_stopped": "exceptional"
+  },
+  "packet_digest": "b8a58b04d0530d14bfab6ef929957a1069d3af5ac8910a90ea67f037efceb5fb",
+  "preserved": "the instance, its review line, its logs and its partial work are untouched. No rerun, no recovery, no mutation, no credential read, no test executed, no version-control write of any kind.",
+  "run": "attempt-diagnostics-w333486-340352",
+  "schema": "baton.w333486-selected-run-evidence/2",
+  "the_lease_fired_this_time": "served_seconds 904.78 against a 900-second lease, interrupted by signal 15, controller elapsed 948.56 including its bounded shutdown, and a shutdown request WAS written (outcome.json.manager-*.shutdown.json) -- none of which happened in run-340016. The previous run ended on its own at 869.3s with 30.5s of margin. So the campaign's standing expiry disclosure came true on this run, one run after it was withdrawn as a prediction. Both facts are now measured rather than assumed: a turn of this scope CAN finish inside the lease and CAN fail to.",
+  "what": "THE SECOND COMPLETED RUN, and the one where THE LEASE ACTUALLY FIRED. Owner reroute341187 selected the accepted continuation execution-340352 (manifest fe18c5f2) and this is the run: launched 2026-10-20T18:50:33Z, controller pid 59784. It was cut off by the 900-second lease before the turn could freeze any result, so IT RETAINED NO CANDIDATE -- but substantial partial work survives in the run root and is copied here.",
+  "what_the_partial_work_shows": "it was working on the right thing. The three job_manager files the seam blocker asked for are all modified -- delegation.py +85, documents.py +17, projection.py +9 -- which is exactly blocker A, and no earlier candidate touched job_manager at all. worker_manager intake.py is +153 (was +103 in the rejected candidate), attempts.py +79 (was +63) and documents.py +87 (was +68), consistent with blocker C work on top of the applied patch. Six existing test modules are touched, consistent with adding a status member that they assert over. The four new files from the applied candidate patch are present. This is UNACCEPTED, UNVERIFIED, UNFROZEN work -- it is not a candidate and must not be read as one -- but it is a materially better starting point than 433692c5 for the next continuation."
+}

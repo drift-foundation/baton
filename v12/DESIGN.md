@@ -352,6 +352,19 @@ options, not authority to launch them on this path. This supersedes the former
 blanket maintenance-container requirement. Docker lifecycle and control-store
 operations remain host duties; all external I/O obeys DB-1.
 
+Owner clarification 2026-10-28 (W371074): the manager provides an explicit,
+replayable settlement operation for a failed execution whose exact confined
+runtime has positively ceased. It durably fences that execution's permission,
+records its failure and returns only its bound resource generation, preserving
+private storage and outstanding result-consumption evidence. Settlement does not
+require output inspection, a successful review verdict, Authority assignment
+closure, normalization or resource destruction. Unknown launch, activation,
+writer or engine-effect state keeps ownership held. A committed settlement remains
+recoverable across independent Authority disposition without affecting a replacement
+assignment or generation. This development work targets fresh current-schema
+instances; backward compatibility and old-store migration are not required.
+Decision: [W371074 owner ruling](../work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-stopped-failed-settlement-plan/FINDING.md).
+
 **TOK-8.** Authority fences and physical cessation are complementary. A stale
 container cannot publish a result, but it may still damage a mounted workspace;
 therefore a DB fence alone is not adequate for filesystem reuse. Conversely,
@@ -678,6 +691,38 @@ DB-3 through DB-7, REC-7 and OBS-0/OBS-0a continue to apply. This extends SCH-1;
 it does not authorize live execution, deployment or authority cutover. Decision:
 [template-first creation](../work/records/2026/10/finding-v12-development-coordination-pilot/FINDING.md#2026-10-24t003647z--template-based-job-creation-follows-accepted-retry).
 
+**Development role-contract admission (owner 2026-10-28).**
+A versioned development template MUST bind its supported task/source and
+role-specific consumed and produced result contracts, including concrete output
+declarations and results required for successful stage consumption. Before fresh
+creation effects, the Job manager MUST validate that contract against trusted,
+versioned capabilities of the installed role adapters and the actual composed
+inputs. The selected contract and capabilities MUST be retained with the Job's
+resolved provenance and checked against the selected execution before dispatch.
+Unsupported or changed contracts MUST refuse without silently reinterpreting
+admitted Jobs. Shared optional declarations MUST NOT waive role-required result
+validation. This compatibility validation uses closed data and owning APIs,
+without provider imports into the generic host or external callbacks inside
+database transactions. Job-scoped identity and per-execution runtime identity
+remain distinct; execution cessation is not result acceptance.
+Decision: [selected admission contract](../work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-template-adapter-admission-plan/FINDING.md).
+
+**Ordinary creation while serving (owner 2026-10-28, W371075).**
+Ordinary creation MUST work while the single instance manager serves, through
+shared direct/queued admission ownership. Before new admission effects, retain
+the complete owned request and its validated immutable selected contract and
+configuration snapshot. Direct and queued entrypoints share eligibility, replay
+and permanent retirement of pending request identities; a retired identity MUST
+NOT later execute. A wait timeout does not cancel the request. Partial creation
+effects recover under their original identities and selections rather than
+rederiving changed defaults. Admission, configuration publication and dispatch
+use a common ownership fence; while serving, configuration changes are limited
+to unrelated additive Job bindings that preserve existing selections. HOST-8's
+single-manager exclusion and the role-contract checks above remain required.
+This development targets fresh supported schemas, with no migration or
+backward-compatibility work; replay and identity safety within the supported
+schema remain mandatory. Decision: [joined startup ruling](../work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-routine-startup-prerequisites-plan/FINDING.md).
+
 **SCH-2.** Persistent scheduling advances eligible stages without a human manually
 driving each ordinary handoff. Admission reserves real principal capacity and checks
 stage gates atomically. Capacity uncertainty remains occupied; liveness timeout
@@ -850,6 +895,42 @@ owed on task timeout. A timed-out test is not passing evidence. Ordinary develop
 verification accounting must not become an extra owner gate merely because an
 old cumulative stopwatch allowance is exhausted or historically unknown.
 
+**LIM-5. Finite native Job control (owner 2026-10-29, W321608).**
+A versioned per-Job contract MUST persist the admitted correction-round allowance
+and stage/Job wall deadlines. The selected first documentation profile permits
+one implementation and one independent review with zero correction rounds,
+4800 seconds per stage, 9960 seconds per Job, 3600 seconds per provider invocation
+and 900 seconds per verification command. Stage time starts at execution admission,
+before preparation; Job time starts at durable accepted creation and includes
+queue time. These explicitly selected limits may end an otherwise valid long
+invocation earlier than its native resource-token expiry; they do not enlarge or
+replace that expiry. A changes-requested verdict remains a verdict, not acceptance
+or authority to open a prohibited successor. Reuse existing correction-policy
+owners where applicable.
+
+The first deadline or explicit cancellation MUST durably fence future admission
+and order cessation of the exact active execution through existing owning APIs.
+Expose installed instance/Job-addressed cancellation: pending/queued cancellation
+retires admission; active cancellation targets the exact generation. Persist stable
+request identity and fences before external effects. Replay, late launch replies,
+concurrent admission and restart MUST NOT reopen cancelled work or stop a
+replacement generation. Supervisor stop is not cancellation.
+
+Allow 120 seconds for a bounded shutdown attempt after the trigger, reported
+separately. If cessation cannot be proved, report unresolved shutdown, retain the
+hold and continue supported reconciliation. Neither that interval nor a manager
+outage proves cessation, frees capacity, deletes output or supplies a hard shutdown
+guarantee. Persist trusted elapsed-time evidence across restart and correction;
+never reset admitted deadlines. Ambiguous timing or runtime state holds admission
+and reports uncertainty. Independent review, human acceptance, retained results
+and stopped-failure settlement remain distinct.
+
+This explicitly selects bounded aggregate Job control under LIM-3, superseding
+its previously unselected status for this contract only. General cumulative cost
+accounting, role pools and advanced shared-capacity scheduling remain separately
+scoped. It authorizes development, not build, installation, live execution or
+cutover. Decision: [W321608 owner ruling](../work/records/2026/10/finding-v12-development-coordination-pilot/FINDING.md#2026-10-29--owner-selects-finite-native-job-control-e383183).
+
 ## 15. Operator surfaces and durable records
 
 **OBS-0. Routine task startup (owner 2026-10-20).** Routine preparation and
@@ -882,6 +963,19 @@ this product outcome. This supersedes interpreting those procedures as the
 routine workflow; it does not authorize a live invocation, clearing consumed
 receipts or weakening isolation. Decision: [install once](../work/records/2026/10/finding-v12-standard-next-run-path/OWNER-INSTALL-ONCE-20261021.md).
 
+Owner clarification 2026-10-28 (W371075): fresh installation prepares and
+validates the configured launch/storage prerequisites and initializes required
+stores through their owning APIs before reporting success. Existing-instance
+prerequisite validation is application-read-only and reports failures without
+repair or implicit migration. Standalone observation accepts the installed
+instance selection without operator-authored environment setup; conflicting
+selections refuse. Whole-path startup measurement includes work before queue
+insertion and ends only at attributable substantive task activity. Dispatch,
+receipt and query timestamps alone are insufficient; absent endpoints remain
+unknown, and simulated evidence does not certify live startup latency. These
+requirements preserve OBS-0's 60-second bound and OBS-1's SQLite sidecar allowance.
+Decision: [joined startup ruling](../work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-routine-startup-prerequisites-plan/FINDING.md).
+
 **OBS-1.** Structured command/JSON surfaces own mutation. The initial v12 monitor
 is read-only and shows Jobs, stages, workers, attempts, tokens/expiry, gates,
 activity, results, diagnostics and outstanding cleanup. Merely viewing status
@@ -906,6 +1000,21 @@ component, observed time and safe diagnostic locator. Missing authority, engine
 unavailability, malformed worker output, provider failure and genuine code defects
 must not all become an unexplained “failed”. The manager must report failures even
 when the agent cannot send a final message.
+
+**OBS-3a.** Known role-adapter declaration failures cross the current matched
+worker/host boundary as a closed versioned payload: declaration-set-invalid,
+declaration-name-unsupported, role-output-missing or other-role-output-required.
+Bind the payload to the exact commanded operation and validated attempt history;
+arbitrary exception text, provider content and rejected values never become public
+diagnostic prose or identifiers. Existing attempt diagnostics and read-only reports
+expose this evidence separately from cessation, token release, cleanup and acceptance.
+Observation time is not failure occurrence time. Missing evidence stays absent or
+unavailable; unsupported formats refuse without downgrade. This delivery targets
+fresh development instances with independently evidenced current worker/host pairs,
+not legacy execution, historical-format compatibility or migration. Existing artifact
+identity and release evidence bind the matched pair; no separate general qualification
+framework is required. A refusal report neither proves cessation nor authorizes retry,
+resource release, acceptance or success.
 
 **OBS-4.** New v12 dossiers are a flat set of stable canonical locations. Work
 containment, dependency, promotion and routing live in authority, not directory

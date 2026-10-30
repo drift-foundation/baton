@@ -1,0 +1,19 @@
+{
+  "focused": {
+    "run": 150,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 16.656979883999156
+  },
+  "final_release_vs_new_holder": {
+    "same_guard": true,
+    "before_descriptor": 4,
+    "after_descriptor": null,
+    "holders": 2,
+    "contender": {
+      "outcome": "held",
+      "message": null
+    }
+  },
+  "seconds": 16.915970271998958
+}

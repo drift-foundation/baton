@@ -1,0 +1,49 @@
+{
+  "work": "W376246",
+  "claim": 383014,
+  "files": {
+    "v12/python/tests/tools/test_connected_creation.py": "33bcba4f3d47768c363e58b88c35d1319c6b32dca381b8fcf0a7b0bc13d16a28",
+    "v12/python/tests/tools/test_instance.py": "cd6c5502331b41a5e77f80269a178ea6a555be95dfde844191cf40937e640803",
+    "v12/python/tests/tools/test_startup_prerequisites.py": "140b04338479e3ce39cdc73212fab53a22bca7a3b4cb962035d2294d041b9512",
+    "v12/python/tools/bootstrap.py": "507c96fb58538dcade749fbadf55759666022f07fd018eac2c183a5b083368b0"
+  },
+  "match_child_manifest": true,
+  "after": {
+    "v12/python/tests/tools/test_connected_creation.py": "33bcba4f3d47768c363e58b88c35d1319c6b32dca381b8fcf0a7b0bc13d16a28",
+    "v12/python/tests/tools/test_instance.py": "cd6c5502331b41a5e77f80269a178ea6a555be95dfde844191cf40937e640803",
+    "v12/python/tests/tools/test_startup_prerequisites.py": "140b04338479e3ce39cdc73212fab53a22bca7a3b4cb962035d2294d041b9512",
+    "v12/python/tools/bootstrap.py": "507c96fb58538dcade749fbadf55759666022f07fd018eac2c183a5b083368b0"
+  },
+  "pins_unchanged": true,
+  "runs": [
+    {
+      "command": [
+        "python3",
+        "-c",
+        "from baton_v12.integration import IntegrationStore"
+      ],
+      "returncode": 1,
+      "seconds": 0.17211572399537545,
+      "log": "run-0.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_startup_prerequisites",
+        "tests.tools.test_instance",
+        "tests.tools.test_connected_creation",
+        "tests.tools.test_environment"
+      ],
+      "returncode": 1,
+      "seconds": 3.1112901380110998,
+      "log": "run-1.log"
+    }
+  ],
+  "environment": {
+    "PYTHONPATH": "src:.",
+    "BATON_V12_STACK_TEST_ROOT": "/var/tmp/baton-w257624",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  }
+}

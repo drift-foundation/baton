@@ -2989,3 +2989,24 @@ Owner assigns bounded planning to the configured reviewer. W321608, routed throu
 ## 2026-10-18 — owner confirms parallel advancement
 
 Owner selects concurrent progress: W321608 pilot preparation and W61981 contract/design/packet preparation may proceed alongside W321528. Do not serialize whole Jobs merely for a partial overlap. Preserve actual shared-file ownership and integration ordering; W61981 overlapping worker implementation remains serial per owner M321686, while disjoint preparation can proceed. This is not new live-run authority or permission to mutate another active packet. Reviewer establishes actual bounded dependency edges when execution slices are selected.
+
+
+## 2026-10-29 — delivery-plan reconciliation W383239
+
+Owner W383239 selects this reconciliation. [Full classification and graph evidence](../../10/finding-v12-delivery-plan-reconciliation/DELIVERY-MAP.md) is the current inventory; the October 18 adoption reconciliation is historical scheduling, not a new prerequisite list.
+
+| Delivery | Current executable allocation and acceptance |
+| --- | --- |
+| Next useful native documentation workflow | W321608 joins W383215 cancellation then W383217 persisted finite controls. Approved CONTROL-SELECTION-383131 and DESIGN LIM-5 remain selected. Native implementation/review, zero correction retries, 4800s stage and 9960s Job limits, 3600s provider and 900s verification bounds; 120s shutdown attempt never means unproved cessation. No automatic live/deployment authority. |
+| Startup prerequisite delivery | W376246 accepted safe preparation and non-destructive retention; W376254 queued at implementation for read-only command/store validation, then W375516 joined review. Current fresh-process role-contract import failure must be resolved before claiming host qualification. These larger implementation contracts do not automatically become gates on the first supported /1 documentation workflow. |
+| Useful coding verification | W321776 actively belongs to baton.claude: finish both /3 holders, original102 in EACH private view and all VER negatives. W61981 joins; no interruption or old packet prerequisite. |
+| Selected remaining v12 implementation | W376731 carriers -> W376741 enforcement -> W371295 acceptance -> W371296 actual-role qualification. W376587 diagnostics -> W376588 proof -> W371073 acceptance. W375517 admission/queue -> W375518 commands -> W375519 whole-path startup -> W371075 acceptance, retaining their actual input gates. Shared schema/CLI/stage changes remain serial. |
+| Safe parallel planning | W371076 at baton.codx prepares only the composed deterministic proof plan against approved contracts. Completed contract selection satisfies its old planning waits; no product/proof execution granted. W370747 retains all delivery children and joined acceptance. |
+| Later v12 completion | Required context reuse remains required under September23 ruling; serial restore/correction evidence is not general or parallel reuse qualification. W2 retains selection and integrated acceptance of the useful parallel workflow with reuse. W62098/W62535 relevant source/result/preflight obligations remain; obsolete bespoke vehicle instructions do not govern direct development. Existing milestone W3/W7/W8/W9/W10 relationships are retained, not interpreted as blockers of initial native adoption. |
+| Beyond v12 | W165786 holds broader hardening classification: inventory/stress, richer telemetry, Podman, hierarchy/labels, general bridge/legacy recovery. Exact per-Work reasons in linked inventory. Concrete selected-path safety defects cannot be deferred by this label. |
+
+Accepted evidence to reuse: W247941 proved two independent fresh Jobs with 86.433s overlap; W236087 proved bounded serial restore/correction; W319114 source status/concurrent-submission correction is closed and committed. W370688 is preparation only; W370302 is future coding-fixture preparation only. W371074 stopped-failure settlement and W376586 typed exchange are accepted source, not operational rollout. No whole system or current installed pairing is certified by this plan.
+
+Continue current direct development under v11 claims and deterministic verification. baton.impl owns queued source slices serially after its current claim; baton.codx owns disjoint proof-planning documents once released. Reviewer joins exact evidence; human owns integration/Git checkpoints. No migration of backlog/coordination authority, new scope, forced owner gate, live run, build or deployment is selected. W2 remains open through integrated delivery and its open children.
+
+Current PLAN supersedes prior scheduling; the entire prior PLAN is preserved byte-for-byte in PLAN-HISTORY-W383239.md. No source, tests, specification, acceptance result or claim ownership changed by this record update.

@@ -1,0 +1,8 @@
+{
+  "base": "bc925cf5c62d69426ed5862af4d41f4d2a967b0f",
+  "retained_head": "2d313602e0a82a365f3b0239a9ce1ba91f62c56a",
+  "patch_sha256": "044d58bcbc2a63ddc165728f1476a5f07ab108a9559c31c5dd62f32a5f11dd54",
+  "verified_evidence_files": 30,
+  "base_paths": 1102,
+  "root": "/tmp/w341357-353177"
+}

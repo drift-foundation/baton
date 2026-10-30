@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "python3",
+    "-B",
+    "-m",
+    "unittest",
+    "tests.manager.test_authoring_enforcement",
+    "tests.tools.test_single_worker.TheTaskTOKENIsAcquiredUnderThePreparationCondition"
+  ],
+  "status": 0,
+  "seconds": 2.7735226989971125
+}

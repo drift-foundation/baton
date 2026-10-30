@@ -1,0 +1,11 @@
+{
+ "body_seconds": 0.5338060049980413,
+ "command": "PYTHONDONTWRITEBYTECODE=1 timeout 120 python3 work/records/2026/10/finding-v12-shared-output-template-preparation/prove.py",
+ "cumulative_implementer_proof_process_seconds": 3.730322258,
+ "exit": 0,
+ "historical_spending": "predecessor records retained; no reconstruction",
+ "independent_review_process_seconds": 0.74639,
+ "prior_implementer_proof_process_seconds": 3.067959753,
+ "prior_preflight_seconds": 0.027183819,
+ "process_seconds": 0.662362505
+}

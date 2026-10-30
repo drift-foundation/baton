@@ -1,0 +1,158 @@
+{
+  "attempt": "attempt-784e7bd67b43ccab28b62f242281f716fc068ec30a87f4490fd910eca51086c4",
+  "candidate": {
+    "acceptance": "unobserved -- STILL NOT ACCEPTED. A passing gate is not acceptance; independent producer byte review and the parent joined acceptance remain owed.",
+    "adapter_disposition": "candidate",
+    "base": "bc925cf5c62d69426ed5862af4d41f4d2a967b0f",
+    "bytes": 281836,
+    "changed_paths": [
+      "W341357-VERIFICATION.json",
+      "v12/python/src/baton_v12/worker_manager/attempts.py",
+      "v12/python/src/baton_v12/worker_manager/documents.py",
+      "v12/python/src/baton_v12/worker_manager/failure_cause.py",
+      "v12/python/src/baton_v12/worker_manager/intake.py",
+      "v12/python/tests/manager/disk_roots.py",
+      "v12/python/tests/manager/input_roots.py",
+      "v12/python/tests/manager/test_attempt_failure_cause.py",
+      "v12/python/tests/manager/test_intake.py",
+      "v12/python/tests/manager/test_maintenance.py",
+      "v12/python/tests/manager/test_output.py"
+    ],
+    "content_digest": "sha256:59d666d9131eb3de7aec669eafc9be1a2dbb7c8c6a0ff8d60770b7d32109f854",
+    "head": "e9d292ede76ac4f93d4761e32779f0ea9f207648",
+    "state": "valid",
+    "supersedes_candidate": "sha256:5c0fca78e650ad9ff75b07e86a3d9b1c80e094d93087ab13c1c7566e0c3ca391 from run345388, preserved",
+    "transport": "objects.bundle",
+    "verification": "passed",
+    "worker_disposition": "completed"
+  },
+  "claim": 347182,
+  "controller_elapsed_seconds": 732.9735084759996,
+  "copies": {
+    "COLLECTION.json": {
+      "bytes": 52088,
+      "copy_sha256": "1527b8e910e2ce02e0d8a03f6c9b83aa8ddac085cde3234a245b5a3e99c78e34",
+      "source": "/tmp/w341357-347182/COLLECTION.json",
+      "source_sha256": "1527b8e910e2ce02e0d8a03f6c9b83aa8ddac085cde3234a245b5a3e99c78e34"
+    },
+    "EXECUTOR-CAPABILITY.json": {
+      "bytes": 2872,
+      "copy_sha256": "194ec748b428bd95171e1956443275bc67cafbd11f206942bfd3f46bb715de5d",
+      "source": "/tmp/w341357-347182/EXECUTOR-CAPABILITY.json",
+      "source_sha256": "194ec748b428bd95171e1956443275bc67cafbd11f206942bfd3f46bb715de5d"
+    },
+    "EXECUTOR-PREFLIGHT.json": {
+      "bytes": 4166,
+      "copy_sha256": "8c2cf982162cd0d8763fb065538e96b9f638fccb0588e10dd4b671827d6e0fa8",
+      "source": "/tmp/w341357-347182/EXECUTOR-PREFLIGHT.json",
+      "source_sha256": "8c2cf982162cd0d8763fb065538e96b9f638fccb0588e10dd4b671827d6e0fa8"
+    },
+    "GATE-CLASSIFICATION.json": {
+      "copy_sha256": "d5f5c3168d30e8086fba582dd67f1680873563278b5fca0ba5e14708deb8a3bc",
+      "source": "derived read-only from /home/sl/baton-instances/durable-capture-w341357-345822/packet/launch/implementation/logs/attempt-784e7bd67b43ccab28b62f242281f716fc068ec30a87f4490fd910eca51086c4/verification.stderr.log",
+      "source_sha256": "1031c25bca6d011d67b3d11e68ee27ff7f6df9cebecc2459bca5c76c05fac876"
+    },
+    "W341357-VERIFICATION.json": {
+      "bytes": 35070,
+      "copy_sha256": "a5b69ad30c2fc0be5c4c6dcb81daebba878a51d02e452ddf62d1dd3c179bc703",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-345822/packet/workspaces/.baton-review-lines/line-7fba2c6881ee47ca379a6ed1d205914350195d6626312679b1ab3982c4a6b9ab/checkout/W341357-VERIFICATION.json",
+      "source_sha256": "a5b69ad30c2fc0be5c4c6dcb81daebba878a51d02e452ddf62d1dd3c179bc703"
+    },
+    "candidate-change.patch": {
+      "bytes": 221732,
+      "copy_sha256": "294368c55fd468a95a4375c250e560def0f4cbc0a0c8a2a3a6f2658732e83856",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-345822/packet/workspaces/.baton-review-lines/line-7fba2c6881ee47ca379a6ed1d205914350195d6626312679b1ab3982c4a6b9ab/checkout/proposal/change.patch",
+      "source_sha256": "294368c55fd468a95a4375c250e560def0f4cbc0a0c8a2a3a6f2658732e83856"
+    },
+    "candidate-objects.bundle": {
+      "bytes": 57298,
+      "copy_sha256": "806ef4006de0591755cf502bbdc2d2e743c79155a4ab115ffd5128abbcd41ec2",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-345822/packet/workspaces/.baton-review-lines/line-7fba2c6881ee47ca379a6ed1d205914350195d6626312679b1ab3982c4a6b9ab/checkout/proposal/objects.bundle",
+      "source_sha256": "806ef4006de0591755cf502bbdc2d2e743c79155a4ab115ffd5128abbcd41ec2"
+    },
+    "candidate-output.json": {
+      "bytes": 2372,
+      "copy_sha256": "e3a236082c1c98419e66a2e8887b55265df6e0940e347d0812e83508a64b704a",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-345822/packet/workspaces/.baton-review-lines/line-7fba2c6881ee47ca379a6ed1d205914350195d6626312679b1ab3982c4a6b9ab/checkout/output.json",
+      "source_sha256": "e3a236082c1c98419e66a2e8887b55265df6e0940e347d0812e83508a64b704a"
+    },
+    "candidate-result.json": {
+      "bytes": 1698,
+      "copy_sha256": "349edc4033a3e1e1c9792ad9e9dffd5321753648169733657904d9837ec01538",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-345822/packet/workspaces/.baton-review-lines/line-7fba2c6881ee47ca379a6ed1d205914350195d6626312679b1ab3982c4a6b9ab/checkout/proposal/result.json",
+      "source_sha256": "349edc4033a3e1e1c9792ad9e9dffd5321753648169733657904d9837ec01538"
+    },
+    "candidate-sealed.json": {
+      "bytes": 3715,
+      "copy_sha256": "730fbccc330b7c7d2be2d7f58c5be1ab0df67202d874992f37dc908e73eff75d",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-345822/packet/workspaces/.baton-review-lines/line-7fba2c6881ee47ca379a6ed1d205914350195d6626312679b1ab3982c4a6b9ab/custody/attempt-784e7bd67b43ccab28b62f242281f716fc068ec30a87f4490fd910eca51086c4/sealed.json",
+      "source_sha256": "730fbccc330b7c7d2be2d7f58c5be1ab0df67202d874992f37dc908e73eff75d"
+    },
+    "candidate-verification.txt": {
+      "bytes": 1108,
+      "copy_sha256": "2b49d85afa9a365fb93ceb13b49fbaa9390061cf3cf13f313a83c1adab0473f7",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-345822/packet/workspaces/.baton-review-lines/line-7fba2c6881ee47ca379a6ed1d205914350195d6626312679b1ab3982c4a6b9ab/checkout/proposal/verification.txt",
+      "source_sha256": "2b49d85afa9a365fb93ceb13b49fbaa9390061cf3cf13f313a83c1adab0473f7"
+    },
+    "outcome.json": {
+      "bytes": 5839,
+      "copy_sha256": "18ceb894493fabb610904881dd8b14c297a1f6df81485a28e6eedc803470c5e9",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-345822/packet/outcome.json",
+      "source_sha256": "18ceb894493fabb610904881dd8b14c297a1f6df81485a28e6eedc803470c5e9"
+    },
+    "outcome.json.authoring.log": {
+      "bytes": 5839,
+      "copy_sha256": "18ceb894493fabb610904881dd8b14c297a1f6df81485a28e6eedc803470c5e9",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-345822/packet/outcome.json.authoring.log",
+      "source_sha256": "18ceb894493fabb610904881dd8b14c297a1f6df81485a28e6eedc803470c5e9"
+    },
+    "outcome.json.enforcement-78519-1792595874483442512.json": {
+      "bytes": 32586,
+      "copy_sha256": "d9e0e82c1bb4173c55baadcc045fc877abf542efe6e39f939059cd125d1b734b",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-345822/packet/outcome.json.enforcement-78519-1792595874483442512.json",
+      "source_sha256": "d9e0e82c1bb4173c55baadcc045fc877abf542efe6e39f939059cd125d1b734b"
+    },
+    "outcome.json.manager-78519-1792595140759217326.json": {
+      "bytes": 28957,
+      "copy_sha256": "218fef046e52eb0b889118c6cc469a8bcf7acf13cd8311055435a61d128f27cb",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-345822/packet/outcome.json.manager-78519-1792595140759217326.json",
+      "source_sha256": "218fef046e52eb0b889118c6cc469a8bcf7acf13cd8311055435a61d128f27cb"
+    },
+    "outcome.json.manager-78519-1792595140759217326.json.progress.json": {
+      "bytes": 212,
+      "copy_sha256": "7894a10815ef449168f29c63331e013f6b45c4bb249e52177685c03a2276e0ae",
+      "source": "/home/sl/baton-instances/durable-capture-w341357-345822/packet/outcome.json.manager-78519-1792595140759217326.json.progress.json",
+      "source_sha256": "7894a10815ef449168f29c63331e013f6b45c4bb249e52177685c03a2276e0ae"
+    }
+  },
+  "ended": "ON ITS OWN -- provider.status 0, no interruption, token returned and not expired, 166.71s of lease margin. 13.29s over the 720-second planning target.",
+  "finished_at": "2026-10-21T15:17:54.438Z",
+  "integration_overlap": {
+    "disposition": "pinned base UNCHANGED at bc925cf5; no rebase, no re-pinning. Later reconciliation is independently reviewed work and human-owned version control.",
+    "notice": "M345516: a 17-path main-tree import of W339626 candidate345109, owned by prompt. Declared intersection: worker_manager/attempts.py and the shared input tools/authoring_enforcement.py."
+  },
+  "launched_at": "2026-10-21T15:05:41.137Z",
+  "lease_seconds": 900,
+  "line": "line-7fba2c6881ee47ca379a6ed1d205914350195d6626312679b1ab3982c4a6b9ab",
+  "not_copied": [
+    "/home/sl/baton-instances/durable-capture-w341357-345822/packet/launch/implementation/logs/attempt-784e7bd67b43ccab28b62f242281f716fc068ec30a87f4490fd910eca51086c4/verification.stderr.log",
+    "/home/sl/baton-instances/durable-capture-w341357-345822/packet/launch/implementation/logs/attempt-784e7bd67b43ccab28b62f242281f716fc068ec30a87f4490fd910eca51086c4/provider.stdout.log"
+  ],
+  "packet": "work/records/2026/10/finding-v12-attempt-failure-diagnostics/findings/finding-durable-failure-capture/execution-345822",
+  "packet_manifest": "6d4e875e3991aa084062985fb258ef60fa021123cd9b03ced6db20c4e71c3e87",
+  "provider_served_seconds": 733.2906772189999,
+  "read_only": "every file here is a byte copy of a live source, verified against it after writing, at mode 0444. No instance byte was written, no runtime re-run, no store opened for writing, no version-control object created.",
+  "root": "/home/sl/baton-instances/durable-capture-w341357-345822",
+  "run": "durable-capture-w341357-345822",
+  "schema": "baton.w341357-run-evidence/1",
+  "selection": "owner reroute347178",
+  "work": "W341357",
+  "workload": {
+    "note": "FIRST settled/completed workload in this campaign",
+    "stage_states": {
+      "implementation": "completed"
+    },
+    "state": "settled",
+    "stopped": "completed"
+  }
+}

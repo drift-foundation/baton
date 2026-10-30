@@ -139,6 +139,56 @@ TASK_MEMBERS = ("schema", "task_id", "instructions", "verification",
 # is reproducing the image's layout rather than relaxing the rule.
 import source_profiles as _profiles
 
+# W321776: THE SHARED VERIFICATION CONTRACT, under the name the image gives it.
+#
+# `Dockerfile.claude` copies `src/baton_v12/verification_context.py` to
+# `/opt/baton/verification_context.py`, so inside the container it is a
+# top-level module and this imports it as one -- the same rule that admitted
+# `source_profiles` and `attempt_log_format`, and for the same reason: it
+# imports nothing from `baton_v12`, so carrying it does not make this module
+# able to spell the manager's namespace.
+#
+# WHY IT IS IMPORTED RATHER THAN RESTATED. The declared context's grammar, its
+# four refusal causes, its five legal outcome combinations and Stage B's
+# ordered questions are things this adapter and the INDEPENDENT OPERATOR must
+# agree about exactly. A second copy here would be a second decision-maker,
+# and the two holders' whole purpose is that their MEASUREMENTS can disagree
+# while their rules cannot.
+import verification_context as _verification
+
+# W321776: THE DECLARED VERIFICATION CONTEXT, as a SECOND generation beside the
+# frozen one.
+#
+# `/2` above is untouched: its member tuple, its equality check and its
+# `source_profile`/`declared_base` meaning are exactly what they were, because
+# DESIGN VER-1 freezes it and widening a shape whose name is already occupied
+# is the defect that rule exists to prevent. `/3` is `/2` plus one member, and
+# the refusal direction runs the right way at BOTH ends -- a `/2` task
+# carrying the new member refuses rather than ignoring it, and a `/3` task
+# without it refuses too.
+CONTEXT_TASK_SCHEMA = _verification.TASK_SCHEMA
+CONTEXT_TASK_MEMBERS = TASK_MEMBERS + ("verification_context",)
+TASK_GENERATIONS = (TASK_SCHEMA, CONTEXT_TASK_SCHEMA)
+
+# WHERE THE SEAL IS, inside the read-only input mount. One document naming the
+# declared immutable set and the pinned candidate bytes, and one root holding
+# those bytes at the places the document names. Constants of the workload
+# contract exactly as `TASK_DOCUMENT` is: a `/3` task that could point a holder
+# at some other seal would be a task choosing its own evidence.
+SEAL_DOCUMENT = "seal.json"
+SEAL_ROOT = "sealed"
+
+# The private verification view this adapter materializes, owns and destroys.
+# Under the private scratch rather than in the workspace: the view is NOT
+# candidate material, is never collected, and a cleanup that reached the
+# workspace would be reaching the candidate.
+VIEW_NAME = "verification-view"
+
+# How much of a seal document is ever read. The seal names declarations and
+# digests, not payload, so this is the same discipline the layout selection is
+# under rather than a number chosen for this file.
+MAX_SEAL_BYTES = 256 * 1024
+
 # Where the checkout and the editable copy live. BOTH ARE IN THE WORKSPACE,
 # which is W71917's whole subject: the workspace is disk-backed and the tmpfs
 # is 64 MiB, so a real build or test pass cannot happen anywhere else.
@@ -462,6 +512,15 @@ REVIEW_ROLE = "review"
 # half `missing-optional`. The assembly owns constructing that manifest; this
 # adapter owns knowing which half is its.
 COMMON_OUTPUTS = ("proposal", "findings", "logs", CONTEXT_RECEIPT)
+# W376586: the SHARED typed declaration refusal and its four closed codes,
+# imported rather than redefined -- a duplicate class would defeat the catch.
+from adapter_refusal import (  # noqa: E402
+    AdapterDeclarationRefusal as _SharedDeclarationRefusal,
+    NAME_UNSUPPORTED as _NAME_UNSUPPORTED,
+    OTHER_ROLE_OUTPUT_REQUIRED as _OTHER_ROLE_OUTPUT_REQUIRED,
+    ROLE_OUTPUT_MISSING as _ROLE_OUTPUT_MISSING,
+    SET_INVALID as _SET_INVALID)
+
 IMPLEMENTATION_OUTPUTS = ("proposal",)
 REVIEW_OUTPUTS = ("findings", "logs")
 
@@ -2081,6 +2140,23 @@ class ClaudeAgent:
         plan = self._checkout(task, source)
         baseline = plan["source_root"]
         line = plan["profile"] == _profiles.checkout.GIT_LINE_PROFILE
+        # W321776: STAGE A HAPPENS HERE, WHICH IS BEFORE THE PROVIDER.
+        #
+        # The packet's rule is "before materialization AND before provider
+        # work", and both halves matter. Nothing is materialized because this
+        # branch has no way to materialize anything, and the provider has not
+        # been reached -- so a declaration fault costs a declaration refusal
+        # rather than a model invocation spent against a context that could
+        # never have been honoured.
+        declared_context = _verification.generation(task) \
+            == CONTEXT_TASK_SCHEMA
+        sealed, held_context = None, None
+        if declared_context:
+            sealed, pinned = self._seal()
+            held_context = self._static_stage(task, sealed, pinned)
+            if held_context["outcome"] == _verification.REFUSED:
+                return self._refused_statically(one, proposal, task, plan,
+                                                held_context, absent)
         if contextual is not None and not line:
             raise TaskRefusal("context serving requires the private implementation line")
         if line:
@@ -2150,10 +2226,47 @@ class ClaudeAgent:
                 written = _checked_tree(candidate, what=what, skip=walk_skip)
                 removed = None
                 patch, measured = _diff(baseline, candidate, written, skip=skip)
-            verification = (self._verify(
-                task, candidate, verification_environment,
-                verification_directories)
-                            if provider["ok"] and patch else None)
+                if declared_context:
+                    # The copy profiles never collected their deletions; the
+                    # fresh generation's view is bound to them, so they are
+                    # collected now. See `_removed_from`.
+                    removed = _removed_from(baseline, written, skip=skip)
+            observation = {
+                "changed": _measured_changes(measured,
+                                             measured if line else patch),
+                "removed": list(removed or [])}
+            if not declared_context:
+                verification = (self._verify(
+                    task, candidate, verification_environment,
+                    verification_directories)
+                                if provider["ok"] and patch else None)
+            else:
+                # W321776: THE COMMAND RUNS IN A VIEW THIS ADAPTER OWNS, and
+                # the view is destroyed whatever happens -- which is the
+                # difference VER-3 is about rather than a tidiness measure.
+                verification, view = None, None
+                if provider["ok"] and patch:
+                    try:
+                        view = self._view(scratch, task, candidate,
+                                          observation, sealed,
+                                          skip=walk_skip)
+                    except _verification.ContextRefusal as refusal:
+                        verification = {
+                            "status": None,
+                            "text": _transcript(
+                                task, f"did not run: the verification "
+                                      f"context was refused at the "
+                                      f"{refusal.stage} stage"),
+                            "context": refusal.document(),
+                            "command": _verification.NOT_RUN,
+                            "exit_status": None}
+                    else:
+                        try:
+                            verification = self._verified_context(
+                                task, view, verification_environment,
+                                verification_directories)
+                        finally:
+                            _discard_view(view)
             # THE VERIFICATION COMMAND IS THE PAYLOAD'S, and it ran between
             # the measurement and the publication. Review [P1]: proving the
             # paths were still regular held their TYPE and not their BYTES, so
@@ -2177,9 +2290,7 @@ class ClaudeAgent:
                 head = self._commit(candidate, task, entry, measured,
                                     removed=removed) if patch else None
                 changed = self._changed(candidate, plan["base"], head)
-                self._publish_line(proposal, candidate, plan["base"], head,
-                                   verification,
-                                   result={"schema": LINE_RESULT_SCHEMA,
+                record = {"schema": LINE_RESULT_SCHEMA,
                                       "task_id": task["task_id"],
                                       "disposition": disposition,
                                       "why": why,
@@ -2202,12 +2313,15 @@ class ClaudeAgent:
                                           {"status": verification["status"],
                                            "argv": list(task["verification"])}
                                           if verification is not None
-                                          else None)})
+                                          else None)}
+                if declared_context:
+                    record = _context_result(record, verification, observation,
+                                             source_entries=None)
+                self._publish_line(proposal, candidate, plan["base"], head,
+                                   verification, result=record)
             else:
                 head, changed = None, sorted(patch)
-                _publish(proposal, candidate, written, measured, patch,
-                         verification,
-                         result={"schema": "baton.dogfood-proposal/1",
+                record = {"schema": "baton.dogfood-proposal/1",
                                  "task_id": task["task_id"],
                                  "disposition": disposition,
                                  "why": why,
@@ -2226,7 +2340,12 @@ class ClaudeAgent:
                                  "verification": (
                                      {"status": verification["status"],
                                       "argv": list(task["verification"])}
-                                     if verification is not None else None)})
+                                     if verification is not None else None)}
+                if declared_context:
+                    record = _context_result(record, verification, observation,
+                                             source_entries=copied)
+                _publish(proposal, candidate, written, measured, patch,
+                         verification, result=record)
         finally:
             for _name, descriptor in verification_directories:
                 os.close(descriptor)
@@ -4773,6 +4892,251 @@ class ClaudeAgent:
             os.symlink(slot, link)
         return home
 
+    # -- W321776: the declared verification context, and the private view ----
+
+    def _refused_statically(self, one, proposal, task, plan, held, absent):
+        """A STAGE-A REFUSAL, published as the outcome it is.
+
+        NOTHING WAS MATERIALIZED AND NO PROVIDER RAN, so there is no candidate
+        to publish and no verdict to supply -- and that is exactly what the
+        record says. The declared members are still written, because an
+        operator reading a declared output that is simply absent cannot tell a
+        refusal from a worker that died; what they carry is a refusal, an empty
+        patch and a transcript saying the command did not run.
+
+        `disposition: no-candidate` rather than `verification-failed`: a
+        context fault reported as a failing candidate is precisely the
+        confusion the two-stage split exists to prevent.
+        """
+        _made(proposal)
+        _written(os.path.join(proposal, PATCH), "")
+        _written(os.path.join(proposal, VERIFICATION),
+                 _transcript(task, "did not run: the declared verification "
+                                   "context was refused before any view was "
+                                   "materialized and before any provider "
+                                   "work"))
+        record = _context_result(
+            {"task_id": task["task_id"], "disposition": "no-candidate",
+             "why": "the declared verification context was refused",
+             "changed_paths": [], "collection": None,
+             "base": plan.get("base"),
+             "entry_head": None, "head": None, "provider": None,
+             "verification": None},
+            {"status": None, "context": held,
+             "command": _verification.NOT_RUN, "exit_status": None},
+            {"changed": [], "removed": []}, source_entries=None)
+        _written(os.path.join(proposal, RESULT),
+                 json.dumps(record, indent=1, sort_keys=True) + "\n")
+        return {"disposition": "unable",
+                "outputs": [{"name": one["name"], "status": "present",
+                             "result_metadata": {}}] + _absent(absent),
+                "recap": (f"no-candidate: the declared verification context "
+                          f"was refused at the {held['stage']} stage "
+                          f"({held['cause']})")[:MAX_RECAP]}
+
+    def _seal(self):
+        """THE SEALED SET, read once from the read-only input mount.
+
+        Two facts the task declares and this adapter must not invent: the
+        immutable inputs, by name, and the candidate paths whose bytes the task
+        requires unchanged. Both are answered from the document the manager
+        sealed BEFORE the claim, which is what makes a Stage-A refusal a
+        statement about the seal rather than about whatever happens to be on a
+        host when a holder looks.
+
+        BOUNDED AND NO-REPAIR, exactly as `_bounded_document` is: a document
+        this adapter would not write is not one to read the recognised parts
+        out of.
+        """
+        place = os.path.join(INPUT_ROOT, SEAL_DOCUMENT)
+        try:
+            with open(place, "rb") as reading:
+                raw = reading.read(MAX_SEAL_BYTES + 1)
+        except OSError:
+            raise TaskRefusal(
+                f"this assignment declares a verification context and has no "
+                f"readable seal at {place}; the declared inputs and the "
+                f"pinned candidate bytes are sealed before the claim and are "
+                f"not re-derived here") from None
+        if len(raw) > MAX_SEAL_BYTES:
+            raise TaskRefusal(
+                f"{place} is larger than {MAX_SEAL_BYTES} bytes; a seal this "
+                f"manager would not write is not one to read")
+        try:
+            document = json.loads(raw.decode("utf-8"))
+        except (UnicodeDecodeError, ValueError, RecursionError):
+            raise TaskRefusal(f"{place} is not a readable document") from None
+        try:
+            return _verification.held_seal(document)
+        except _verification.MalformedOutcome as failed:
+            raise TaskRefusal(f"{place} is not one sealed set ({failed})") \
+                from None
+
+    def _static_stage(self, task, sealed, pinned):
+        """STAGE A, answered by the shared contract and published either way.
+
+        A refusal here is a DURABLE OUTCOME rather than a fault, which is why
+        this returns a document instead of raising: nothing is materialized,
+        the provider does not run, the command does not run, and the record
+        says which declared member failed and that no verdict about the
+        candidate exists. A `TaskRefusal` would have thrown that away and
+        reported a context fault as an unexplained worker failure.
+        """
+        try:
+            return _verification.held(task, sealed=sealed, pinned=pinned,
+                                      pairing=self._pairing)
+        except _verification.ContextRefusal as refusal:
+            return refusal.document()
+
+    def _pairing(self, profile, declared):
+        """`checkout_plan`'s own pairing rule, asked rather than copied.
+
+        The profile vocabulary, the base grammar and the two disagreements the
+        package refuses -- generic with a base, a version-control profile
+        without one -- belong to `source_profiles`. Both holders ask the same
+        package, which is what makes "both holders agree" a fact about one rule
+        rather than a hope about two.
+        """
+        return _profiles.checkout_plan(
+            os.path.join(INPUT_ROOT, SOURCE_ROOT), OUTPUT_ROOT,
+            profile=profile, declared=declared)
+
+    def _view(self, scratch, task, candidate, observation, sealed, *,
+              skip=None):
+        """A FRESH PRIVATE VIEW, materialized, preflighted, and OWNED.
+
+        DESIGN VER-3, and the reason it is new work rather than a rename. Until
+        this existed the task's command ran with `cwd` set to the candidate
+        itself -- which for a line profile is the RETAINED WORKTREE. Two
+        concrete consequences, and an identity comparison afterwards is no
+        substitute for either: a command that wrote or deleted a source path
+        altered the retained candidate and a post-run digest noticed only after
+        the damage; and a timeout cleanup that removed that "view" would have
+        removed the candidate.
+
+        So the view is built under the private scratch from the candidate's own
+        measured bytes and the sealed inputs, Stage B asks the shared
+        questions of it, and the only thing this adapter may delete is the
+        thing it created. ON ANY FAILURE -- a refusal, a half-built view, an
+        OS error -- the view is discarded here and nothing else is touched.
+        """
+        context = task["verification_context"]
+        root = self._new_directory(scratch, VIEW_NAME)
+        try:
+            self._materialized(root, context, candidate, sealed, skip=skip)
+            _verification.answered(
+                _verification.view_plan(context, observation=observation),
+                isdir=lambda one: os.path.isdir(os.path.join(root, one)),
+                exists=lambda one: os.path.lexists(os.path.join(root, one)),
+                digest=lambda one: _view_digest(root, one))
+        except BaseException:
+            # PARTIAL MATERIALIZATION LEAVES NO HALF-BUILT VIEW, and the
+            # sweep is this wide on purpose: a refusal, an `OSError`, a
+            # `TaskRefusal` and an interruption all leave the same residue,
+            # and a cleanup that covered three of them would be the fourth
+            # one's bug.
+            _discard_view(root)
+            raise
+        return root
+
+    def _materialized(self, root, context, candidate, sealed, *, skip=None):
+        """The candidate's bytes and the sealed inputs, placed as DECLARED.
+
+        NOTHING IS INFERRED FROM THE HOST. The candidate lands at the declared
+        `candidate_destination` and each input at its own declared destination,
+        which Stage A already proved is disjoint from the candidate -- so
+        verification cannot feed its own fixtures into the proposal, which is
+        VER-2's overlap rule being enforced rather than described.
+
+        THE CHANGES AND THE DELETIONS ARE REFLECTED BY CONSTRUCTION. The bytes
+        copied are the candidate's own, after the provider and after the
+        measurement, so a path the turn changed arrives changed and a path it
+        deleted is simply not there. Stage B then PROVES both against the
+        retained observation, which is how a base tree substituted for the
+        changed candidate refuses.
+        """
+        destination = os.path.join(root, context["candidate_destination"])
+        parent = os.path.dirname(destination)
+        if parent and parent != root:
+            os.makedirs(parent, 0o700, exist_ok=True)
+        try:
+            _copy_view_tree(candidate, destination, skip=skip)
+        except TaskRefusal:
+            raise _verification.ContextRefusal(
+                _verification.MATERIALIZATION,
+                "verification_context.candidate_destination",
+                stage=_verification.VIEW_STAGE) from None
+        for index, one in enumerate(context["inputs"]):
+            # STAGE A PROVED THE NAME IS SEALED, so a name absent here would be
+            # this adapter reading a different seal from the one it validated.
+            held = sealed[one["name"]]
+            place = os.path.join(root, one["destination"])
+            os.makedirs(os.path.dirname(place), 0o700, exist_ok=True)
+            try:
+                shutil.copyfile(
+                    os.path.join(INPUT_ROOT, SEAL_ROOT, held["place"]), place)
+            except OSError:
+                raise _verification.ContextRefusal(
+                    _verification.MATERIALIZATION,
+                    f"verification_context.inputs[{index}].name",
+                    stage=_verification.VIEW_STAGE) from None
+
+    def _verified_context(self, task, root, environment, directories):
+        """The task's own command, IN THE VIEW, with the derived import path.
+
+        `PYTHONPATH` IS DERIVED AND CLOSED, which is the whole of why the
+        declaration exists. September reached `PYTHONPATH=src` with a hand-set
+        shell variable, and a hand-set variable is not a contract: nothing
+        stated what it should be, so nothing could disagree with it. This is
+        `import_roots` joined to `working_directory` joined to the view this
+        adapter materialized, and NOTHING ELSE -- no ambient entry can be
+        inherited, because `_closed_environment` composes the whole environment
+        member by member and never consults `os.environ`.
+
+        AND THE ARGV STILL CARRIES NO ENVIRONMENT ASSIGNMENT. An argv that
+        carried one would be a second, disagreeing source of one fact.
+        """
+        context = task["verification_context"]
+        working = os.path.join(root, context["working_directory"])
+        composed = dict(environment)
+        composed["PYTHONPATH"] = ":".join(
+            os.path.join(root, one) for one in _verification.import_path(context))
+        try:
+            pass_fds = self._revalidated_directories(environment, directories)
+            seconds = self._bound(self._seen, "ordinary_verification",
+                                  VERIFICATION_SECONDS)
+            status = self._ran(list(task["verification"]), cwd=working,
+                               seconds=seconds, env=composed,
+                               pass_fds=pass_fds)
+        except subprocess.TimeoutExpired:
+            # READY, AND NO VERDICT. The context was fine; the command ran out
+            # of time. A timeout published as a context refusal would blame
+            # the declaration for the command's behaviour, and one published
+            # as `failed` would be a verdict about code nobody finished
+            # measuring.
+            return {"status": None,
+                    "text": _transcript(task, f"did not finish within "
+                                              f"{seconds}s"),
+                    "context": _verification.ready(),
+                    "command": _verification.TIMED_OUT, "exit_status": None}
+        except OSError as failed:
+            # START FAILURE IS A CONTEXT CAUSE, by VER-4's own list. The child
+            # never ran, so there is no command outcome to report and no
+            # status any child supplied.
+            return {"status": None,
+                    "text": _transcript(task, f"could not be started "
+                                              f"({type(failed).__name__})"),
+                    "context": _verification.refused(
+                        _verification.START_FAILURE, "verification",
+                        stage=_verification.VIEW_STAGE),
+                    "command": _verification.NOT_RUN, "exit_status": None}
+        return {"status": status,
+                "text": _transcript(task, f"exit: {status}"),
+                "context": _verification.ready(),
+                "command": (_verification.PASSED if status == 0
+                            else _verification.FAILED),
+                "exit_status": status}
+
     def _verify(self, task, candidate, environment, directories):
         """The task's OWN command, in the candidate copy, bounded.
 
@@ -5298,6 +5662,15 @@ def _claim(base, head, recap):
                               "recap": recap[:MAX_RECAP]}}
 
 
+# W376586: THE TYPED REFUSAL THIS WORKLOAD RAISES, bound to the SHARED class
+# so the catcher's `except` tests identity against the same object. It also
+# subclasses this workload's own `TaskRefusal`, so every existing caller and
+# case that handles the generic refusal is unchanged byte for byte and what is
+# ADDED is the three trusted facts a report may carry.
+class DeclarationRefusal(_SharedDeclarationRefusal, TaskRefusal):
+    pass
+
+
 def _selected(declared, produce, what):
     """Which declared outputs this role writes, and which it answers absent.
 
@@ -5320,33 +5693,39 @@ def _selected(declared, produce, what):
     declaration rather than the answer.
     """
     if type(declared) is not list or not declared:
-        raise TaskRefusal(
+        raise DeclarationRefusal(
             f"a {what} turn needs its declared outputs and this assignment "
             f"declares "
-            f"{len(declared) if type(declared) is list else 0}")
+            f"{len(declared) if type(declared) is list else 0}",
+            code=_SET_INVALID, role=what)
     names = [one["name"] for one in declared]
     if len(set(names)) != len(names):
-        raise TaskRefusal("this assignment declares one output name twice; a "
-                          "declaration answered twice is answered by neither")
+        raise DeclarationRefusal(
+            "this assignment declares one output name twice; a declaration "
+            "answered twice is answered by neither",
+            code=_SET_INVALID, role=what)
     unknown = sorted(one for one in names if one not in COMMON_OUTPUTS)
     if unknown:
-        raise TaskRefusal(
+        raise DeclarationRefusal(
             f"this assignment declares {', '.join(unknown)} and a shared Job "
             f"declares {', '.join(COMMON_OUTPUTS)}; an unrecognised "
-            f"declaration is not one this workload writes to")
+            f"declaration is not one this workload writes to",
+            code=_NAME_UNSUPPORTED, role=what)
     by = {one["name"]: one for one in declared}
     missing = [one for one in produce if one not in by]
     if missing:
-        raise TaskRefusal(
+        raise DeclarationRefusal(
             f"a {what} turn writes {', '.join(produce)} and this assignment "
-            f"declares no {', '.join(missing)}")
+            f"declares no {', '.join(missing)}",
+            code=_ROLE_OUTPUT_MISSING, role=what)
     absent = [by[one] for one in names if one not in produce]
     for one in absent:
         if one["required"]:
-            raise TaskRefusal(
+            raise DeclarationRefusal(
                 f"output {one['name']!r} is declared required and a {what} "
                 f"turn does not write it; a shared Job's stages each produce "
-                f"their own half and answer the rest missing-optional")
+                f"their own half and answer the rest missing-optional",
+                code=_OTHER_ROLE_OUTPUT_REQUIRED, role=what)
     return [by[one] for one in produce], absent
 
 
@@ -5598,18 +5977,34 @@ def _read_task(place=None):
         raise TaskRefusal(f"{place} is not a readable document") from None
     if type(document) is not dict:
         raise TaskRefusal(f"{place} is one JSON object")
-    missing = sorted(one for one in TASK_MEMBERS if one not in document)
-    extra = sorted(one for one in document if one not in TASK_MEMBERS)
+    # W321776: THE GENERATION IS DECIDED BEFORE THE MEMBER SET, because the
+    # member set depends on it. The equality discipline is unchanged -- a
+    # document from a generation this adapter does not read is still refused
+    # rather than parsed for its recognised parts -- and `generation()` is
+    # asked rather than re-spelled, so the refusal DIRECTION is the shared
+    # contract's and not a second copy of it: a `/2` document carrying
+    # `verification_context` refuses, and a `/3` document without it refuses.
+    if document.get("schema") not in TASK_GENERATIONS:
+        raise TaskRefusal(
+            f"{place} says it is {document.get('schema')!r} and this adapter "
+            f"reads {' and '.join(TASK_GENERATIONS)}; a task from another "
+            f"generation is not one to read the recognised parts out of")
+    try:
+        generation = _verification.generation(document)
+    except _verification.ContextRefusal as refusal:
+        raise TaskRefusal(
+            f"{place} declares {document['schema']!r} and its verification "
+            f"context does not agree with it ({refusal.cause}: "
+            f"{refusal.detail})") from None
+    members = (CONTEXT_TASK_MEMBERS
+               if generation == CONTEXT_TASK_SCHEMA else TASK_MEMBERS)
+    missing = sorted(one for one in members if one not in document)
+    extra = sorted(one for one in document if one not in members)
     if missing or extra:
         raise TaskRefusal(
-            f"{place} is exactly {', '.join(TASK_MEMBERS)}"
+            f"{place} is exactly {', '.join(members)}"
             + (f"; missing {', '.join(missing)}" if missing else "")
             + (f"; unexpected {', '.join(extra)}" if extra else ""))
-    if document["schema"] != TASK_SCHEMA:
-        raise TaskRefusal(
-            f"{place} says it is {document['schema']!r} and this adapter "
-            f"reads {TASK_SCHEMA!r}; a task from another generation is not "
-            f"one to read the recognised parts out of")
     # W44424: TEXT BEFORE IT IS MATCHED. This read `_TASK_ID.match(str(...))`,
     # so a JSON number reached the regex as its decimal spelling and passed --
     # the identity of a versioned document decided by a coercion this module
@@ -5955,6 +6350,203 @@ def _copy_tree(source, into, *, skip=None):
     if not copied:
         raise TaskRefusal(f"the staged source at {source} is empty")
     return copied
+
+
+# W321776: THE VIEW'S OWN CEILING, and it is deliberately not the staged
+# source's.
+#
+# `MAX_SOURCE_ENTRIES`/`MAX_SOURCE_BYTES` bound what the MANAGER staged into
+# the read-only mount. A verification view is a copy of the CANDIDATE, and for
+# a line profile the candidate is a whole prepared repository rather than a
+# staged subtree -- so holding the view to the staging ceiling would refuse
+# every line candidate and call it a materialization fault. The discipline is
+# identical: counted the same way, no-follow, regular files and directories
+# only, and a refusal rather than a silent truncation.
+MAX_VIEW_ENTRIES = 50000
+MAX_VIEW_BYTES = 512 * 1024 * 1024
+
+
+def _copy_view_tree(candidate, into, *, skip=None):
+    """The candidate's own bytes, into a view this adapter owns.
+
+    REGULAR FILES AND DIRECTORIES ONLY, AND A LINK REFUSES. A copied link is
+    how a view reaches outside itself -- at the credential mount, at the
+    retained proposal, at anything else this uid can read -- and the adapter
+    already refuses a link among the turn's own changes for that reason. The
+    refusal is widened to the whole copied view here, which is a REAL
+    LIMITATION and is recorded as one: a candidate carrying a committed link
+    anywhere cannot be verified under `/3` until a declared handling for it is
+    selected. Silently skipping it was rejected: a view that quietly lacks a
+    path the command may read is a view nobody can reason about.
+    """
+    if not os.path.isdir(candidate):
+        raise TaskRefusal(f"there is no candidate tree at {candidate}")
+    what = "the candidate view"
+    entries, total, copied = 0, 0, 0
+    for base, directories, files in os.walk(candidate, followlinks=False):
+        if skip is not None:
+            for name in [one for one in directories if one in skip]:
+                directories.remove(name)
+        for name in directories:
+            if os.path.islink(os.path.join(base, name)):
+                raise TaskRefusal(
+                    f"{what} carries a link at "
+                    f"{os.path.relpath(os.path.join(base, name), candidate)}")
+            entries += 1
+            _view_bounded(entries, total, what)
+            os.makedirs(os.path.join(
+                into, os.path.relpath(os.path.join(base, name), candidate)),
+                exist_ok=True)
+        for name in files:
+            full = os.path.join(base, name)
+            if os.path.islink(full) or not os.path.isfile(full):
+                raise TaskRefusal(
+                    f"{what} carries a non-regular entry at "
+                    f"{os.path.relpath(full, candidate)}")
+            entries += 1
+            copied += 1
+            total += os.path.getsize(full)
+            _view_bounded(entries, total, what)
+            landing = os.path.join(into,
+                                   os.path.relpath(full, candidate))
+            os.makedirs(os.path.dirname(landing), exist_ok=True)
+            shutil.copyfile(full, landing)
+    if not copied:
+        raise TaskRefusal(f"the candidate at {candidate} is empty")
+    return copied
+
+
+def _view_bounded(entries, total, what):
+    if entries > MAX_VIEW_ENTRIES or total > MAX_VIEW_BYTES:
+        raise TaskRefusal(
+            f"{what} exceeds this adapter's view ceiling of "
+            f"{MAX_VIEW_ENTRIES} entries and {MAX_VIEW_BYTES} bytes")
+
+
+def _view_digest(root, relative):
+    """One view path's declared digest spelling, or `None` when it is absent.
+
+    `None` RATHER THAN A RAISE, because Stage B's byte questions are all one
+    question -- "are the bytes this view was supposed to hold the bytes it
+    holds" -- and an absent path, a directory where a file was declared and a
+    drifted file are three ways of answering it no. The shared contract maps
+    all three onto `materialization`; this reader must not pre-empt that by
+    deciding which one happened.
+    """
+    place = os.path.join(root, relative)
+    try:
+        with open(place, "rb") as reading:
+            raw = reading.read()
+    except OSError:
+        return None
+    return "sha256:" + hashlib.sha256(raw).hexdigest()
+
+
+def _discard_view(root):
+    """Remove the view THIS RUN CREATED, and nothing else.
+
+    VER-4's cleanup boundary, and the boundary is the point rather than the
+    removal: the retained candidate and the sealed inputs are not this step's
+    to touch, on success, on a test failure, on a timeout, on a failed start
+    and on a partial materialization alike. A residue is reported rather than
+    retried, because a cleanup that escalated would be the thing with the
+    broader reach.
+    """
+    shutil.rmtree(root, ignore_errors=True)
+
+
+# W321776: THE FRESH PROPOSAL GENERATION'S CLOSED MEMBER SET.
+#
+# ONE generation across both branches, with the members a profile cannot speak
+# set to null -- and that is this delivery's reading, recorded as one. The
+# packet writes `/3` as "every `/2` member, unchanged" plus the three outcome
+# axes, and two facts make that incomplete rather than wrong:
+#
+#   `/2` carries no `removed` member AT ALL, and `CONTEXT-CONTRACTS.md` lists
+#   the deletions among the observations a result publishes; and its
+#   `changed_paths` is a PATH INVENTORY, while Stage B's own row is "a path the
+#   retained result reports changed is absent OR PRESENT AT OTHER BYTES", which
+#   no collection of paths can decide.
+#
+# So the fresh generation adds the five `PROPOSAL_CONTEXT_MEMBERS` and spans
+# both profile branches, which keeps `/1` and `/2` frozen: a `/2` task still
+# produces exactly the record it always did, byte for byte.
+CONTEXT_RESULT_MEMBERS = ("schema", "task_id", "disposition", "why",
+                          "changed_paths", "source_entries", "collection",
+                          "base", "entry_head", "head", "provider",
+                          "verification", "context", "command", "exit_status",
+                          "candidate_changed", "candidate_removed")
+
+
+def _context_result(record, verification, observation, *, source_entries):
+    """The `/3` record, composed once so both branches publish one shape.
+
+    HELD BEFORE IT IS WRITTEN. `check_outcome` is the shared contract's own
+    reading of the five legal combinations, and asking it here means a
+    malformed combination cannot become durable -- a `passed` with a null
+    status, a `refused` carrying a command verdict. A publisher that wrote the
+    record and left the holding to a reader would be publishing the thing the
+    reader is supposed to be protected from.
+    """
+    composed = {name: record.get(name) for name in CONTEXT_RESULT_MEMBERS}
+    composed["schema"] = _verification.PROPOSAL_SCHEMA
+    composed["source_entries"] = source_entries
+    if verification is None:
+        # NO COMMAND WAS ATTEMPTED, which is `ready`/`not-run`: the context was
+        # never the problem -- the provider failed or the turn changed nothing,
+        # so there was nothing to verify. Saying `refused` here would blame a
+        # declaration for a provider's ending.
+        context = _verification.ready()
+        command, status = _verification.NOT_RUN, None
+    else:
+        context = verification["context"]
+        command = verification["command"]
+        status = verification["exit_status"]
+    composed["context"] = context
+    composed["command"] = command
+    composed["exit_status"] = status
+    composed["candidate_changed"] = list(observation["changed"])
+    composed["candidate_removed"] = list(observation["removed"])
+    _verification.check_outcome(context, command, status)
+    return composed
+
+
+def _measured_changes(measured, changed):
+    """The turn's measured changes, as the observation a view is bound to.
+
+    The digests are the ones the MEASUREMENT took, not a second read: binding
+    a view to bytes re-read at publication time would be binding it to
+    whatever the verification command had done to them.
+    """
+    return [{"path": one, "content_digest": "sha256:" + measured[one].hex()}
+            for one in sorted(changed) if one in measured]
+
+
+def _removed_from(baseline, written, *, skip=None):
+    """What the baseline held and the candidate does not, for a COPY profile.
+
+    W321776. The copy profiles' existing measurement walks the CANDIDATE, so a
+    path the provider deleted is simply absent from it and no member of the
+    published result ever said so. That is fine for a patch -- `difflib`
+    against an absent file produces the removal -- and not fine for a view: the
+    Stage-B row "a path the retained result reports removed is PRESENT in the
+    view" has nothing to check against, so a base tree substituted for the
+    changed candidate would satisfy a view bound only to changes.
+
+    So the deletions are collected for the fresh generation, from the baseline
+    the copy was made from. The line profile already collects its own; this is
+    the same fact for the other two profiles.
+    """
+    held = set(written)
+    removed = []
+    for base, directories, files in os.walk(baseline, followlinks=False):
+        if skip is not None and skip in directories:
+            directories.remove(skip)
+        for name in files:
+            relative = os.path.relpath(os.path.join(base, name), baseline)
+            if relative not in held:
+                removed.append(relative)
+    return sorted(removed)
 
 
 def _diff(source, candidate, written, *, skip=None):

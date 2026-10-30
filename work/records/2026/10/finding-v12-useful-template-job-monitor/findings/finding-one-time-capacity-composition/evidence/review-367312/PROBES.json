@@ -1,0 +1,25 @@
+{
+  "scratch_created_by_this_review": "/var/tmp/baton-w257624/review-367312-hz1_pzpq",
+  "before_entries": 0,
+  "after_files": 81,
+  "preflight_wrote_nothing_claim": true,
+  "prove_callable_exists": false,
+  "wall_seconds": 0.14378737799961527,
+  "captured_binding": {
+    "canonical_target_id": "target-1",
+    "job_id": "job-template-job-guide-42bed8bb",
+    "job_work_id": "0000000a-W1",
+    "line_declared_base": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "review_work_id": "0000000a-W1",
+    "source_worker_id": "impl-w366962"
+  },
+  "captured_acceptance": [
+    "Examples use supported manager create with input-only operands and the exact template version."
+  ],
+  "source_files": {
+    "compose_capacity.py": "860e2e2f3b3e9e286d9b0b48b81f04d95f47d76563297710d826539a1e903758",
+    "prove_admission.py": "919fe8f97707e3fc9f8e544011a84375f55703b695d3de7402c0d4e19bc33174",
+    "PROGRESS.md": "ada86c3186ed93cf2622587ce0ec8716d65ad257353d1eab4ae293fe1c02cab1"
+  },
+  "cleanup": "Private scratch preserved; no other scratch touched."
+}

@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_next_run",
+    "tests.tools.test_next_run_managed",
+    "tests.manager.test_authoring_enforcement"
+  ],
+  "cwd": "/tmp/baton-next-run-344617/v12/python",
+  "exit_code": 0,
+  "process_wall_seconds": 12.458084685997164,
+  "stdout": "",
+  "stderr": "........................................................\n----------------------------------------------------------------------\nRan 56 tests in 12.093s\n\nOK\n",
+  "timeout_seconds": 90,
+  "limitations": "No privileged installation or effective live sudo receipt; actual visudo parsing, literal request parser/broker, installed fresh Process child/import verifier, real bootstrap/Authority and unprivileged Landlock; OS privilege/dispatch/provider/engine boundaries simulated."
+}

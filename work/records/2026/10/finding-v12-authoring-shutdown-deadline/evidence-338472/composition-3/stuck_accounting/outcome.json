@@ -1,0 +1,113 @@
+{
+  "accounting_scope": "this run accounts for Job 'job-a' and for nothing else. Attempt discovery, cancellation and cleanup all read the status projection filtered to that Job, so a runtime belonging to another Job in this store is NOT covered by this outcome and its absence is NOT established by it.",
+  "admissions": {
+    "implementation": 1
+  },
+  "admitted_attempts": [
+    "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"
+  ],
+  "attempt_origins": {
+    "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": "started"
+  },
+  "cancellation": {
+    "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {
+      "answer": {
+        "fenced": {
+          "assignment": "{'work_ref': {'authority_uuid': '0000000a000000000000000000000000', 'work_id': '0000000a-W1'}, 'participant': 'baton.claude', 'generation': 1}",
+          "cause": "cancelled",
+          "fenced": true,
+          "gate": "runtime-quiescence:1",
+          "phase": "block"
+        },
+        "intent": {
+          "assignment": "{'work_ref': {'authority_uuid': '0000000a000000000000000000000000', 'work_id': '0000000a-W1'}, 'participant': 'baton.claude', 'generation': 1}",
+          "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "authority_operation_id": "authority.attempt.cancel:5216d33ac31b80877f9d9633afccdfea6c91568f5337c9fae4ea7aba14e000c1",
+          "reason": "authoring-enforcement"
+        },
+        "quiescence": {
+          "agent_settlement": "{'cooperative': False, 'participant': 'baton.claude', 'attempt_id': 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571', 'operation_id': 'attempt.cancel:5216d33ac31b80877f9d9633afccdfea6c91568f5337c9fae4ea7aba14e000c1', 'why': \"this deployment's worker is driven through a durable file exchange and carries no cooperative cancellation channel; the runtime stop below is the whole of the order this attempt receives\"}",
+          "ordered": true,
+          "runtime_id": "runtime-single-1",
+          "runtime_settlement": "{'runtime_id': 'runtime-single-1', 'ordered': True, 'state': 'absent', 'why': 'the engine answered that this exact identity does not exist'}"
+        },
+        "session_quiescence": {
+          "agent_session_ref": null,
+          "requested": false,
+          "state": null,
+          "why": "no execution session holds the posture of attempt 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be1\u2026; there is no conversation to interrupt"
+        }
+      },
+      "execution_runtime": "running",
+      "requested": true,
+      "runtime_id": "runtime-single-1",
+      "stage_state": "waiting"
+    }
+  },
+  "claim": 338472,
+  "cleanup": {
+    "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {
+      "cleanup": null,
+      "why": "no committed cleanup"
+    }
+  },
+  "cleanup_sweeps": 1,
+  "final_canonical_read": true,
+  "finished_at": "2026-10-20T12:18:55.000Z",
+  "foreign_admissions": [],
+  "gate_refusals": [],
+  "held_because": [
+    "the workload evidence did not complete: TimeoutError: shutdown step timed out: the workload evidence",
+    "the run was interrupted: KeyboardInterrupt: signal 15",
+    "this manager cannot prove positive cleanup for attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+    "the run stopped 'interrupted' rather than completing its stages",
+    "the workload evidence could not be read"
+  ],
+  "interrupted": "KeyboardInterrupt: signal 15",
+  "interruptions": [
+    "signal 15"
+  ],
+  "job_id": "job-a",
+  "observed_attempts": [
+    "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"
+  ],
+  "outstanding_cleanup": [
+    "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"
+  ],
+  "preexisting_jobs": [],
+  "preexisting_stages": {},
+  "provider_turn": {
+    "default_seconds": 3600,
+    "origin": "job",
+    "seconds": 20,
+    "setting": "provider_turn_seconds"
+  },
+  "retry": false,
+  "run_id": "shutdown-stuck_accounting",
+  "schema": "baton.single-implementation-outcome/1",
+  "served_seconds": 3.331929761000083,
+  "serving_failure": null,
+  "stage_states": {
+    "implementation": "exceptional"
+  },
+  "stalled_after": 6,
+  "stalled_ticks": 0,
+  "started_order": [
+    "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"
+  ],
+  "state": "held",
+  "stopped": "interrupted",
+  "submission_id": "sub-1",
+  "submitted_at": "2026-10-20T12:18:50.368Z",
+  "unallocated_attempts": [],
+  "uncertainty": [
+    "the workload evidence did not complete: TimeoutError: shutdown step timed out: the workload evidence"
+  ],
+  "unexpected_attempts": [],
+  "work": "W338305",
+  "workload": {
+    "shortfalls": [
+      "the workload evidence could not be read"
+    ]
+  }
+}

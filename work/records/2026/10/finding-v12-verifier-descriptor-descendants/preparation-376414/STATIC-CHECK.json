@@ -1,0 +1,7 @@
+{
+  "syntax": "four scripts parsed",
+  "engine_invoked": false,
+  "historical_packet_executed": false,
+  "image_digest": "unknown until selected build",
+  "no_provider": "payload entrypoint is python; no credentials or provider calls"
+}

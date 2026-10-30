@@ -1,0 +1,38 @@
+{
+  "work": "W339626",
+  "author": "baton.claude claim353054",
+  "recovery_author": "baton.codxpc claim353608",
+  "acceptance": "unobserved",
+  "files": [
+    {
+      "path": "v12/python/tests/tools/next_run_flow_fixture.py",
+      "base_sha256": "c0cab3ed413561602303a4a3cd270614915e98ce136f74d9c24b7f1f3edc09c2",
+      "prior_review_sha256": "7002f5697cd64c09b80c902ce68eb7394174d1da0d897b9782e088f620f45118",
+      "candidate_sha256": "74f787ba822d4a90ab99624616506a216b1cb086c6c8dcf8f1f92819c41bf14b"
+    },
+    {
+      "path": "v12/python/tests/tools/test_next_run_flow.py",
+      "base_sha256": "73fcf2a9039108934514b96e123f0f3baaecdf8a9520c2e97a7a7b670243483c",
+      "prior_review_sha256": "1d557a19a7bbbb70051f30e0befc302ba9df276a769a89af9efc38e5ad2d4e3f",
+      "candidate_sha256": "60a81c4e57d869ab3c4771cdecc8da9ac25a32605631ea799bd564ecde6effb0"
+    },
+    {
+      "path": "v12/python/tests/tools/test_next_run_managed.py",
+      "base_sha256": "070dfa9286d3b3ecd2800fb17f19520d15cef60979584e687af22bce0867185a",
+      "prior_review_sha256": "4e9f8c35d8ea4f204319344b65fe7fbd783b7d18df7de238e9f919a1cf979139",
+      "candidate_sha256": "1a6cb8a25ede87636a50bc19fbfc677891283e80e3fd2a4557337a46459b81cc"
+    },
+    {
+      "path": "v12/python/tools/next_run_confinement.py",
+      "base_sha256": "317414e0246818f4507e5c3ab907e03b149151a9bb42acf2bf1b9ec9772b469e",
+      "prior_review_sha256": "77037d51fd24848fdbe91a2888e13e08a4778a3136259acdf2351ecd7cb45e65",
+      "candidate_sha256": "da028659e4b84e7a503b49b7a7e1a9ae5721fffbb41df31e75cca1afb439aa52"
+    }
+  ],
+  "patch_sha256": "08360877cc9289672cd8d3b902d3387a0233d978bad0f57243990e0fe1715d57",
+  "review_delta_sha256": "7ed79eb54115401107fbe6b6131c98aeb35d514fc3fc13c187a07d8099270314",
+  "provenance": "exact recovered files; no product edits in recovery claim; base bytes match CORRECTION-347765",
+  "base_source": "recovered.tar.gz w339626-353054/base",
+  "prior_review": "review-2026-10-21T16-30-13Z.md",
+  "manifest_digest": "93c48fd2fd53e4d10238e51a69355a2d53115444f5985105a942960acf35ff6a"
+}

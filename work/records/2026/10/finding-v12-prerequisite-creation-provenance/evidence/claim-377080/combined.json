@@ -1,0 +1,15 @@
+{
+  "command": [
+    "timeout",
+    "90",
+    "python3",
+    "-B",
+    "-m",
+    "unittest",
+    "tests.tools.test_startup_prerequisites",
+    "tests.tools.test_bootstrap"
+  ],
+  "fixture_root": "/tmp",
+  "seconds": 16.106335976999617,
+  "exit_code": 1
+}

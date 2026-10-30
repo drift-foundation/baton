@@ -1,0 +1,15 @@
+test_a_nonoverlapping_job_cannot_take_the_reserved_submission_id (tests.job_manager.test_fresh_attempt.TheSubmissionIdentityIsOwnedToo.test_a_nonoverlapping_job_cannot_take_the_reserved_submission_id) ... ok
+test_an_ordinary_submission_that_came_first_refuses_the_retry (tests.job_manager.test_fresh_attempt.TheSubmissionIdentityIsOwnedToo.test_an_ordinary_submission_that_came_first_refuses_the_retry)
+THE OTHER ORDER, on the submission name rather than the Job. ... ok
+test_an_unrelated_submission_is_untouched_by_the_reservation (tests.job_manager.test_fresh_attempt.TheSubmissionIdentityIsOwnedToo.test_an_unrelated_submission_is_untouched_by_the_reservation)
+THE RULE IS NARROW: it owns two names, not every submission. ... ok
+test_the_exact_intended_document_is_still_admissible (tests.job_manager.test_fresh_attempt.TheSubmissionIdentityIsOwnedToo.test_the_exact_intended_document_is_still_admissible)
+THE ONE SUBMISSION THE RESERVATION EXISTS FOR. ... ok
+test_the_retry_still_completes_after_that_rejection (tests.job_manager.test_fresh_attempt.TheSubmissionIdentityIsOwnedToo.test_the_retry_still_completes_after_that_rejection)
+THE REJECTION MUST NOT POISON THE OPERATION IT PROTECTS. ... ok
+test_two_retry_intents_cannot_share_one_submission_identity (tests.job_manager.test_fresh_attempt.TheSubmissionIdentityIsOwnedToo.test_two_retry_intents_cannot_share_one_submission_identity) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.021s
+
+OK

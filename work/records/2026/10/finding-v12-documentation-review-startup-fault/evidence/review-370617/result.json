@@ -1,0 +1,54 @@
+{
+  "checked_evidence_files": 4,
+  "retained_input_hash_matches": true,
+  "source_sha256": "b014ea3f5f58af573a0cbaa4b8838a270953806a89ef274682d5cca6627efe7c",
+  "results": [
+    {
+      "case": "retained",
+      "role": "implementation",
+      "accepted": true,
+      "produced": [
+        "proposal"
+      ],
+      "absent": []
+    },
+    {
+      "case": "retained",
+      "role": "review",
+      "accepted": false,
+      "refusal": "a review turn writes findings, logs and this assignment declares no findings, logs"
+    },
+    {
+      "case": "union-but-proposal-required",
+      "role": "review",
+      "accepted": false,
+      "refusal": "output 'proposal' is declared required and a review turn does not write it; a shared Job's stages each produce their own half and answer the rest missing-optional"
+    },
+    {
+      "case": "proposed-optional-union",
+      "role": "implementation",
+      "accepted": true,
+      "produced": [
+        "proposal"
+      ],
+      "absent": [
+        "findings",
+        "logs"
+      ]
+    },
+    {
+      "case": "proposed-optional-union",
+      "role": "review",
+      "accepted": true,
+      "produced": [
+        "findings",
+        "logs"
+      ],
+      "absent": [
+        "proposal"
+      ]
+    }
+  ],
+  "seconds": 0.00035263499739812687,
+  "limits": "Source selector only; no image-byte equivalence, provider, deployment correction, output validation or cleanup proof."
+}

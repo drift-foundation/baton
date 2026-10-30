@@ -1,0 +1,90 @@
+{
+  "runs": [
+    {
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.manager.test_authoring_enforcement",
+        "tests.manager.test_authoring_manager_guard"
+      ],
+      "status": 1,
+      "seconds": 11.722782778999772,
+      "timeout": 120
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.manager.test_authoring_shutdown_deadline",
+        "tests.manager.test_authoring_enforcement",
+        "tests.manager.test_authoring_manager_guard"
+      ],
+      "status": 1,
+      "seconds": 60.51501777199974,
+      "timeout": 150
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.manager.test_authoring_shutdown_deadline",
+        "tests.manager.test_authoring_enforcement",
+        "tests.manager.test_authoring_manager_guard"
+      ],
+      "status": 1,
+      "seconds": 73.42230225399999,
+      "timeout": 150
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.manager.test_authoring_shutdown_deadline",
+        "tests.manager.test_authoring_enforcement",
+        "tests.manager.test_authoring_manager_guard"
+      ],
+      "status": 0,
+      "seconds": 73.77297493300011,
+      "timeout": 150
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.manager.test_authoring_shutdown_deadline",
+        "tests.manager.test_authoring_enforcement",
+        "tests.manager.test_authoring_manager_guard"
+      ],
+      "status": 1,
+      "seconds": 73.62281929200026,
+      "timeout": 150
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.manager.test_authoring_shutdown_deadline",
+        "tests.manager.test_authoring_enforcement",
+        "tests.manager.test_authoring_manager_guard"
+      ],
+      "status": 0,
+      "seconds": 73.67665608699963,
+      "timeout": 150
+    }
+  ],
+  "cumulative_command_seconds": 366.7325531169995,
+  "overhead": "unmeasured; component case times not counted twice",
+  "final_result": "44 tests passed; 11 real composition cases; no skips"
+}

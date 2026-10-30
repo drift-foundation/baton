@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "python3",
+    "-B",
+    "-c",
+    "import unittest,sys; r=unittest.TextTestRunner(verbosity=2).run(unittest.defaultTestLoader.loadTestsFromNames(['tests.tools.test_next_run_managed','tests.tools.test_next_run_flow'])); sys.exit(0 if r.wasSuccessful() and not r.skipped else 1)"
+  ],
+  "cwd": "/tmp/w339626-review353661/v12/python",
+  "pythonpath": "/tmp/w339626-review353661/v12/python/src:/tmp/w339626-review353661/v12/python",
+  "disk_root": "/home/sl/src/baton/.w339626-review353661-scratch",
+  "status": 0,
+  "timeout_seconds": 60,
+  "elapsed_seconds": 37.94526904399936,
+  "reaped": true
+}

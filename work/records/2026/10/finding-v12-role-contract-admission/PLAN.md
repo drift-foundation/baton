@@ -1,0 +1,5 @@
+# Current delivery checkpoint — 2026-10-29, W383239
+
+W371294 validators and W376723 predicate are accepted. W376731 carriers is queued at baton.impl; W376741 enforcement follows, then this joined acceptance and W371296 qualification. W375517 retains its actual gate on this parent. Preserve source compatibility/provenance and distinct per-role runtime identity. Fresh-process IntegrationStore import currently fails through role_contract._namespaces -> integration.driver -> partially initialized integration.admission; M383070 records this concrete defect. Resolve/revalidate it within the admission source outcome before claiming qualification, without broader redesign or blanket /2 gate on first /1 documentation use. No build/live/deploy selection.
+
+This checkpoint supersedes all scheduling instructions in [the complete prior plan](PLAN-HISTORY-W383239.md). Historical acceptance, restrictions and evidence remain valid within their recorded scope; this changes no specification. Current allocation is governed by canonical v11 claims.

@@ -1,0 +1,98 @@
+How the runs in this directory were produced — claim362407, W361910
+===================================================================
+
+Same recipe as the two earlier claim directories. The canonical tree is not
+edited, so the runs are on a disposable scratch root built from the canonical
+bytes at 182c8f94 with candidate-362407 overlaid.
+
+  candidate root  /tmp/w361910-r4
+
+The root is <root>/v12/python + <root>/v12/worker + <root>/v12/DESIGN.md and
+the v12 JSON files + <root>/AGENTS.md + the one published result-manifest
+vectors subtree under <root>/work/records/2026/08/... that
+tests/manager/test_output.py and tests/job_manager/test_review_driver.py read
+by `parents[4]`. Keeping the `v12` directory level matters: without it the
+repository root resolves one directory too high and ~354 suites fail on a
+missing vectors.json.
+
+Commands, from <root>/v12/python with PYTHONPATH=src:. —
+
+  python3 -m unittest tests.job_manager.test_templates -v
+  python3 -m unittest tests.job_manager.test_templates \
+      tests.job_manager.test_submission tests.job_manager.test_execution_limits
+  python3 -m unittest discover -s tests/job_manager -t . -p 'test_*.py'
+  python3 <repo>/work/records/2026/10/finding-v12-versioned-job-template/\
+evidence/review-362383/probe.py
+
+What each file is
+-----------------
+
+REVIEWER-PROBE-UNMODIFIED.stdout
+                            THE REVIEWER'S OWN probe.py, run UNCHANGED
+                            against these bytes — not adapted, not re-aimed,
+                            not copied into this directory. All seven inputs
+                            now answer `"typed_refusal": true` with a
+                            `ContractRefusal` naming the thing it is about,
+                            where review-362383 recorded AttributeError,
+                            KeyError (x2), TypeError (x2) and KeyError again.
+                            `stale_limit` is still "refused",
+                            `lookup_mutation` still "refused", and the two
+                            scopes are still separate — so R1, R2 and R3 stay
+                            resolved in the same run that proves R4.
+REVIEWER-PROBE-UNMODIFIED.stderr   empty (0 bytes).
+FOCUSED.txt                 tests.job_manager.test_templates, 122 cases, OK.
+                            Fourteen more than candidate-362249's 108: one new
+                            class, TheResolutionInputIsOwned.
+REVIEWER-FOCUSED-SET.txt    the reviewer's own focused set — templates plus
+                            test_submission plus test_execution_limits —
+                            181 cases, OK, where review-362383 recorded 167.
+JOB-MANAGER-SUITE.txt       the whole tests/job_manager suite, 1299 OK. The
+                            base root for this series is 1177 OK.
+
+The seven, before and after
+---------------------------
+
+Read REVIEWER-PROBE-UNMODIFIED.stdout beside ../review-362383/PROBE.stdout.
+
+  template:null        AttributeError "'NoneType' object has no attribute
+                       'get'"                    ->  ContractRefusal
+                       "a resolution's template selection is one exact
+                       document; this is none"
+  task:{}              KeyError('job_id')        ->  "a resolution's task
+                       needs job_id, work_id, statement, submission_id"
+  scope:{}             KeyError('work')          ->  "a resolution's scope
+                       needs work, tests"
+  stages:[null]        TypeError "not
+                       subscriptable"            ->  "a resolved stage is one
+                       exact document; this is none"
+  stages:[{kind}]      KeyError('profile_name')  ->  "a resolved stage needs
+                       role, stage_id, work_id, profile_name, profile_digest,
+                       depends_on, consumes, produces"
+  acceptance:null      TypeError "not
+                       iterable"                 ->  "a resolution's
+                       acceptance is a list; this is none"
+  overrides.execution_limits:null
+                       TypeError "not
+                       iterable"                 ->  "a resolution's
+                       execution_limits override is one exact document; this
+                       is none"
+
+What was NOT run this round, and why
+------------------------------------
+
+The review is explicit: "Focused tests suffice; do not repeat broad
+environment-dependent suites merely as insurance for this small correction."
+So the three package-surface sweeps and the whole tests/manager discovery were
+NOT repeated. evidence/claim-362249/ holds them against this same base commit
+with byte-identical base/candidate failure lists, and this round changes no
+behaviour those suites reach — it adds one validator and one export name.
+tests/tools was likewise not repeated; evidence/claim-361943/ records that
+surface against the same base.
+
+No provider, no container engine, no Authority, no installed instance, no
+deployment. The Job stores the cases open are the disposable SQLite files
+tests/job_manager/fixtures.JobManagerCase creates under a temporary directory.
+The compatibility generation is moved with unittest.mock.patch in the test
+process only, as in both earlier rounds and as the reviewer's probes do; no
+installed default, configuration file or live instance is touched. No Git
+operation of any kind, in the repository or in the scratch root.

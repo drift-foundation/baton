@@ -1,0 +1,37 @@
+{
+  "manifest_sha256": "6d4e875e3991aa084062985fb258ef60fa021123cd9b03ced6db20c4e71c3e87",
+  "members": 61,
+  "files": 63,
+  "bad": [],
+  "extras": [],
+  "normalized_programs": {
+    "prepare.py": true,
+    "verify-inputs.py": true,
+    "probe.py": true,
+    "collect.py": true
+  },
+  "proposed_root_exists": false,
+  "input_check": {
+    "status": 0,
+    "seconds": 0.11616727500040724,
+    "stdout": "inputs verified against bc925cf5c62d69426ed5862af4d41f4d2a967b0f: 114 manager files, 3 supervisor files, 2 preparation inputs, 50 task inputs, 41 decision snapshots, 4 checkout documents, 1 pinned authoring controller, 1 pinned shutdown helper, 2 pinned recovery inputs, 1 gate modules still owed\nno decision-source drift: every live source still matches its snapshot\n\nSTART IS NOT SELECTED -- see ENFORCEMENT.md and SHUTDOWN.md. Every input gate is CLOSED; what remains is independent preparation review and then an exact execution selection. Use packet/AUTHORING-COMMAND.json, never commands.json start.\n",
+    "stderr": ""
+  },
+  "composed": {
+    "run": "durable-capture-w341357-345822",
+    "work": "W341357",
+    "claim": 345822,
+    "bounds": {
+      "cleanup_seconds": 60,
+      "implementer_invocations": 1,
+      "retry": false,
+      "total_seconds": 4800,
+      "turn_seconds": 3600
+    },
+    "fixture_files_count": 50,
+    "bundle_absent": true,
+    "gate_unchanged": true,
+    "task_report_named": true,
+    "base": "bc925cf5c62d69426ed5862af4d41f4d2a967b0f"
+  }
+}

@@ -1,0 +1,1 @@
+{"returncode": 1, "seconds": 12.550350728000922, "command": ["python3", "-B", "-m", "unittest", "tests.manager.test_authoring_manager_guard", "-v"]}

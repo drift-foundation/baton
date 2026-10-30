@@ -1,0 +1,21 @@
+Traceback (most recent call last):
+  File "baton_v12/worker_manager/workspaces.py", line 1127, in hold_manager_instance
+BlockingIOError: [Errno 11] Resource temporarily unavailable
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "stack_command.py", line 313, in <module>
+  File "stack_command.py", line 309, in main
+  File "stack_command.py", line 82, in _manager
+  File "tools/job_manager.py", line 1443, in main
+  File "tools/job_manager.py", line 860, in _create
+  File "baton_v12/job_manager/creation.py", line 225, in create_template_job
+  File "contextlib.py", line 141, in __enter__
+  File "tools/fresh_attempt_ports.py", line 163, in held
+  File "contextlib.py", line 141, in __enter__
+  File "baton_v12/worker_manager/workspaces.py", line 1202, in borrow_manager_instance
+  File "baton_v12/worker_manager/workspaces.py", line 1132, in hold_manager_instance
+  File "baton_v12/worker_manager/workspaces.py", line 5071, in _denied
+baton_v12.contracts.errors.ContractRefusal: another manager is already active for workspace '/home/sl/baton-instances/useful-template-job-w366962/state/…, holding control store '/home/sl/baton-instances/useful-template-job-w366962/db/con…; only one Host manager may be active for one workspace and database, so this start is a configuration error rather than a standby -- point this manager at its own database and workspace, or stop the active one first
+[PYI-169599:ERROR] Failed to execute script 'stack_command' due to unhandled exception!

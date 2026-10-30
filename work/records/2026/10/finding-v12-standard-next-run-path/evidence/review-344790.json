@@ -1,0 +1,110 @@
+{
+  "claim": 344790,
+  "candidate_sha256": "c695e8f8a1708b899cb5435dde9785099c66256cc594cee5863476295262c5f6",
+  "hash_checks": [
+    {
+      "path": "work/records/2026/10/finding-v12-standard-next-run-path/candidate-344698/v12/NEXT-RUN.md",
+      "matches": true
+    },
+    {
+      "path": "/tmp/baton-next-run-344617/v12/NEXT-RUN.md",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-standard-next-run-path/candidate-344698/v12/python/tests/manager/test_authoring_enforcement.py",
+      "matches": true
+    },
+    {
+      "path": "/tmp/baton-next-run-344617/v12/python/tests/manager/test_authoring_enforcement.py",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-standard-next-run-path/candidate-344698/v12/python/tests/tools/test_next_run.py",
+      "matches": true
+    },
+    {
+      "path": "/tmp/baton-next-run-344617/v12/python/tests/tools/test_next_run.py",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-standard-next-run-path/candidate-344698/v12/python/tests/tools/test_next_run_managed.py",
+      "matches": true
+    },
+    {
+      "path": "/tmp/baton-next-run-344617/v12/python/tests/tools/test_next_run_managed.py",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-standard-next-run-path/candidate-344698/v12/python/tools/authoring_baseline.py",
+      "matches": true
+    },
+    {
+      "path": "/tmp/baton-next-run-344617/v12/python/tools/authoring_baseline.py",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-standard-next-run-path/candidate-344698/v12/python/tools/authoring_enforcement.py",
+      "matches": true
+    },
+    {
+      "path": "/tmp/baton-next-run-344617/v12/python/tools/authoring_enforcement.py",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-standard-next-run-path/candidate-344698/v12/python/tools/next_run.py",
+      "matches": true
+    },
+    {
+      "path": "/tmp/baton-next-run-344617/v12/python/tools/next_run.py",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-standard-next-run-path/candidate-344698/v12/python/tools/next_run_bindings.py",
+      "matches": true
+    },
+    {
+      "path": "/tmp/baton-next-run-344617/v12/python/tools/next_run_bindings.py",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-standard-next-run-path/candidate-344698/v12/python/tools/next_run_confinement.py",
+      "matches": true
+    },
+    {
+      "path": "/tmp/baton-next-run-344617/v12/python/tools/next_run_confinement.py",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-standard-next-run-path/candidate-344698/v12/python/tools/next_run_entry.py",
+      "matches": true
+    },
+    {
+      "path": "/tmp/baton-next-run-344617/v12/python/tools/next_run_entry.py",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/10/finding-v12-standard-next-run-path/candidate-344698/v12/python/tools/next_run_managed.py",
+      "matches": true
+    },
+    {
+      "path": "/tmp/baton-next-run-344617/v12/python/tools/next_run_managed.py",
+      "matches": true
+    }
+  ],
+  "child_import_probe": {
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "-m",
+      "tools.authoring_enforcement",
+      "--help"
+    ],
+    "cwd": "/tmp/baton-next-run-344617/v12/python",
+    "environment": "fixed dispatch environment without PYTHONPATH; task config omitted because import fails first",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/tmp/baton-next-run-344617/v12/python/tools/authoring_enforcement.py\", line 20, in <module>\n    from baton_v12.worker_manager.store import manager_signature\nModuleNotFoundError: No module named 'baton_v12'\n",
+    "seconds": 0.04651866499625612
+  },
+  "limitations": "Import-only subprocess; no privileged operation, engine, provider, installation or operational store access. Does not execute full dispatch."
+}

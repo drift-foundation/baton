@@ -1,0 +1,299 @@
+{
+  "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+  "participant": "baton.prompt",
+  "projection_version": "12.8",
+  "protocol_version": 11,
+  "result": {
+    "id": "2b077949-T384870",
+    "labels": [
+      {
+        "status": "open",
+        "team": "baton",
+        "work": "2b077949-W384870"
+      }
+    ],
+    "last_seq": 384903,
+    "local_id": "T384870",
+    "messages": [
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "Owner selects interactive-only work coordinated in this v11 ledger. Slawomir owns planning, review and acceptance with the interactive baton.prompt copilot; K (Claude) implements in her interactive session. Manual handoffs only between baton.decide and baton.impl. No other agents, managed reviewers, background readiness consumers or delegation. Do not resume global dispatch or bypass claim rules; establish a supported manual claim path before execution. Initial owner-held planning milestone: inventory the current v12 Python suite and existing just/parallel runner, propose one unambiguous just full-test entry and logical test-group entries plus focused individual-test usage, classify Docker/build/environment requirements, and cluster the retained baseline failures before product edits. Baseline /tmp/baton-v12-python-tests.log: 11136 tests in 1334.733 seconds, failures=220, errors=148, skipped=21; preserve this evidence in the canonical dossier when execution begins, no discovery full-suite rerun. Implementation follows owner approval of the group map and repair plan. Every supported test must be accounted for; new work declares affected groups and runs focused verification by default. Full-suite execution occurs at explicit integration checkpoints, not every edit or handoff. Reuse the existing runner where suitable. Repair product defects and incorrect tests; remove obsolete tests only with documented rationale and review, preserving genuine coverage. Investigate every skip and define required environment so missing prerequisites or skipped required coverage cannot yield a false green. Final acceptance requires a complete clean supported full-suite run with no failures or errors and no silently omitted required tests; retain logs, exact source identity, durations and environment. Existing failures are not waived merely as pre-existing. Keep the legacy Node reference suite explicitly distinguished from the current Python product suite; any exclusion needs a documented reviewed classification. Test changes within this scope are authorized. No product/design requirement weakening, live-model execution, deployment changes or Git mutation. K authors implementation and progress; Slawomir accepts with copilot assistance, without routing to baton.bug, baton.tune, baton.codx or baton.merge. Preserve existing uncommitted W321776 and other candidate bytes and coordinate overlap. Create a permanent bound dossier before implementation. This Work does not authorize implementation or tests to start automatically.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 384870,
+        "ts": "2026-10-29 16:10:02"
+      },
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "Preparation checkpoint 2026-10-29 (K, baton.prompt; no tests, no implementation, no claim). Dossier created at baton:work/records/2026/10/finding-v12-controlled-test-groups: FINDING.md pins the owner ruling, the lost-log observation and the claim-admission facts; PLAN.md carries the proposed nine test groups, three just entries (test-all, test-group, test-one), environment classification, ten failure clusters C1-C10 and the B0-B5 repair sequence; evidence/baseline-2026-10-29 preserves the recovered partial baseline (316 of 368 exact ids, all per-module counts, run command). The original /tmp log was lost to the 21:50Z reboot; no rerun was performed. Binding refused for baton.prompt (not a baton.decide handler): owner bind needed, command given in the session. Dispatch resumed 22:12:38Z generation 133 with all managed services stopped. Pending owner decisions: agree/amend groups and sequence; select implementation claim identity (config regen for an interactive impl participant, or owner-held baton.decide claim); approve one-time cleanup of 61 leftover v12/python/v12-w71917-* directories; classify the legacy Node suite.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 384872,
+        "ts": "2026-10-29 22:16:09"
+      },
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "Slawomir agrees with the proposed test-group and repair-batch direction, subject to resolving the three clarifications discussed before execution. K: update the owning FINDING and PLAN to pin this agreement and make the following explicit. (1) B0 execution: resolve the contradiction between controlled per-group baselines and the later B0 full-suite checkpoint; propose one clear scope, with no discovery full-suite rerun. (2) Coverage accounting: define how overlapping groups avoid duplicate execution in test-all and how collected versus executed test identities prove that no required tests are omitted. (3) Skips and exclusions: classify required versus optional proofs and explicitly settle the legacy Node suite classification; separation from Python alone does not authorize exclusion from acceptance. Preserve the six-batch direction and final acceptance of a clean complete supported run with retained evidence. The manual implementation claim arrangement remains unresolved: present the supported choice separately from test strategy. This message authorizes the planning clarification, not tests or implementation before the execution scope and claim arrangement are settled. Manual handoffs with interactive K only; no other agents or background dispatch. Return the clarified plan and remaining concrete owner choices under this Work.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 384874,
+        "ts": "2026-10-29 22:34:13"
+      },
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "Clarified plan recorded (K, baton.prompt, 2026-10-29; planning only, no tests, no implementation, no claim). FINDING.md pins M384874 agreement and the three clarifications as proposed; PLAN.md revised. (1) B0 scope, PLAN section 3: harness and hygiene first (register 57 modules into an exact module partition, add test-all/test-group/test-one, fix cwd temp roots, prepared environment), focused verification only on G6 and a G1 smoke, then ONE test-all as B0's closing checkpoint; that retained log is the controlled baseline; no other full run before B5 unless owner-selected. (2) Accounting, section 5: groups are a disjoint partition checked mechanically; test-all runs each runner class once so every id is scheduled once; collected set E (child-interpreter collection over all modules incl. supervised and packaged) must equal result set R; unaccounted or duplicate ids fail; a one-off B0 cross-check proves E equals the serial discover id set; skips listed by id and reason, required skips fail. (3) Section 7: all G1-G9 required by default; packaged G7 required (build or name a distro, REQUIRED variable so absence fails); G8 required via the W32577 supervisor as a distinct step; engine G4 required; stage-fixture import guards required; optional only the userns bind-mount proof (sibling covers the boundary) and the large-workspace proof. Node suite: superseded Node-host proof-of-concept per v12/DESIGN.md, no product dependency, last run 691 tests 88 failing; owner choice N1 (recommended: out of acceptance by recorded rationale, retained unchanged until a separate retirement decision) or N2 (frozen reference gate, failures repaired or explicitly accepted, Node becomes required environment). Six batches and final clean complete run preserved. Separate, section 10: claim arrangement A (recommended: regen adding interactive impl participant baton.k, owner claims and passes to baton.impl, K claims as baton.k, passes back each batch) or B (owner holds baton.decide claim, K edits under it). Remaining owner choices: settle sections 3, 5, 7; N1 or N2; A or B; approve one-time cleanup of 61 leftover v12/python/v12-w71917-* directories; bind the dossier as baton.slaw (prompt refused).",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 384875,
+        "ts": "2026-10-29 22:36:59"
+      },
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "Owner approval pinned (K, baton.prompt, 2026-10-29): FINDING section 'Owner approves the clarified plan with selections' and PLAN updated (B0 single controlled run; disjoint groups; corrected summary passed + optional skipped = collected, zero failures/errors/duplicates/unaccounted; G4/G7/G8 required, userns and large-workspace proofs optional and enumerated; N1 Node exclusion with recorded rationale, files retained; claim arrangement A; cleanup approved; stale bind action withdrawn). Leftover directories confirmed disposable: 61 untracked v12/python/v12-w71917-* fixtures (authority/control sqlite, checkouts, fixture credentials, storage roots; 117828 KiB; cause: tests/manager/disk_roots.py falls through tmpfs /tmp to the distribution dir before /var/tmp); paths recorded in evidence/leftover-test-directories-2026-10-29.txt; removal and chooser fix scheduled in B0 under the claim. Generation-15 packet prepared at baton:work/records/2026/10/finding-v12-controlled-test-groups/config (baton-generation15.json adds participant k 'K interactive' roles [impl] and names baton.k in the impl instructions; validated with baton_work.config.loads; base live sha256 e38db7b3...deb438; install.py drift-checks and backs up generation 14; activate.sh installs, regen as baton.slaw, reads back instructions as baton.k; starts no service). Owner commands, each standalone: (1) bash .../config/activate.sh; (2) baton.slaw claim work=W384870; (3) baton.slaw pass work=W384870 to=baton.impl comment=... Then K claims as baton.k and starts B0; B0 evidence returns via pass to baton.decide. Nothing executed yet; no tests, no implementation.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 384876,
+        "ts": "2026-10-29 22:46:58"
+      },
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "Route investigation (K, baton.prompt, 2026-10-29): eligibility in this configuration is the explicit routes.<name>.handlers list, not role membership. routes.impl is {role impl, handlers [claude]}; routes.implpc is {role impl, handlers [codxpc]}. Generation 15 added participant k with role impl but changed no route, so baton.k holds the role and no route; not a Baton defect. Bounded correction prepared, owner-only: generation 16 changes exactly routes.impl.handlers from [claude] to [claude, k]. Packet at baton:work/records/2026/10/finding-v12-controlled-test-groups/config: baton-generation16.json (validated with baton_work.config.loads; diff vs live = generation number + that one list), base16.json (live gen-15 sha256 3cf5fde6...944f46), install16.py (drift-checked, backs up generation 15), activate16.sh (install, regen as baton.slaw, read-only detail as baton.k). No claim or pass is repeated: W384870 stays queued at baton.impl and route resolution is re-evaluated inside the claim transaction. baton.claude remains listed but its service is stopped, so only baton.k can claim. A dedicated implk alternate route was considered and not selected (needs a reroute; larger than the outcome requires). FINDING/PLAN pinned. Owner command: bash .../config/activate16.sh. On acceptance K claims as baton.k and starts B0.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 384880,
+        "ts": "2026-10-29 22:51:36"
+      },
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "Arrangement B pinned (K, baton.prompt, 2026-10-29): FINDING section 'Owner selects arrangement B, superseding arrangement A' and PLAN section 10 updated; arrangement-A history preserved and marked superseded; generation 16 NOT activated; config/activate.sh and activate16.sh now refuse to run and are retained as record; generation 15 participant k stays as accepted history with no route. K will not claim as baton.k. Owner commands, each standalone, as baton.slaw: (1) reroute work=W384870 to=baton.decide reason=\"Arrangement B: owner-held claim; K implements as interactive copilot\"; (2) claim work=W384870. Once the claim is yours, K proceeds with the approved B0 scope as your interactive copilot with authorship recorded in PROGRESS.md, and returns B0 evidence for review. Test, accounting and acceptance requirements unchanged; no impersonation, no background services.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 384881,
+        "ts": "2026-10-29 23:07:24"
+      },
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "B0 complete (K, interactive copilot under owner claim E384883; no claim or identity of my own; no live models, no Git mutation). Evidence: baton:work/records/2026/10/finding-v12-controlled-test-groups/evidence/b0-2026-10-29/ (test-all.log, test-all.summary.json ledger, ACCOUNTING.md per group/module, SYMPTOMS.md, supervised-00 gate run dir, B0-CANDIDATE-SHA256.txt). Controlled baseline: just test-all on the prepared interpreter (python 3.13.7, jsonschema 4.26.0), HEAD 8876bf95 with 559 dirty paths (digest ba01e9d589bbf03b), fresh bundle, supervised gate via its reviewed supervisor with image sha256:9b8c9882...1de8; 23:39:02Z-23:45:07Z, 6 min 5 s wall, jobs=32. Accounting: collected 11239 = executed 11239; passed 11037; optional skipped 2; required skipped 11; failed 102; errors 89 (+2 stray setUpClass errors); duplicates 0; unaccounted 0 -> FAILED as a baseline must. Per group: authority 3F; job_manager 2E; manager-pure 28F 69E 1 skip; manager-engine 27F 7E 9 skips; integration 4F 8E; tools-pure 14F 2E; tools-packaged 12F; supervised 1/1 pass; scans 14F. Harness delivered: 57 modules registered; exact 9-group partition with --group; exact id accounting (--account, --summary); OPTIONAL_SKIPS registry; composed supervised step; --keep-going; just test-all/test-group/test-one; disk_roots tries /var/tmp before the checkout; 61 leftover dirs removed. Two defects found and fixed in B0: (a) 3 modules bound sibling TestCase classes so discover ran 26 tests twice (now module imports + collector refusal by name); (b) my first alias choice shadowed product imports (attempt 2, 138 errors of mine; fixed, five modules 170 tests OK). Attempts 1 (refused) and 2 are retained as history; attempt 3 is the baseline. Cluster picture: C4 mode 0o775 vs 0o700 is now the biggest (60); C1 16; C6 14; C2 10; C7 ~15; C3/C9 ~45; C8 12 against a fresh bundle; C5 nearly gone; FileNotFound half of C4 gone. Overlap disclosure: tests/tools/test_job_task_delivery.py already carried another Work's uncommitted candidate lines and tests/tools/test_stopped_settlement_joined.py is an untracked candidate file; my edits there are import lines only. Owner decisions: accept B0; classify 11 required skips (podman x7, initial-access private-line engine x4, retained-destination fixture x1); human Git checkpoint 'B0: controlled v12 test groups and accounted baseline'; release B1 (C1+C2). PROGRESS/PLAN/FINDING updated.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 384884,
+        "ts": "2026-10-29 23:47:49"
+      },
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "Owner/copilot readback of M384884: B0 is reported complete, with the harness, nine-group partition, accounting, temp-root fix and cleanup delivered. The retained baseline reports 11239 collected/executed, 11037 passed, 102 failed, 89 errors, 11 required skips, 2 optional skips, zero duplicate or unaccounted ids, plus two separately reported setup-class errors. This is a failing repair baseline, not final acceptance. Before B0 acceptance, please reconcile two review points in the dossier and reply here: (1) execution exceeded the agreed single controlled full run: attempt 1 refused at collection, then attempts 2 and 3 executed full runs; attempt 2 exposed your import-alias regression. Record that deviation explicitly and preserve all attempts; do not describe the history as one full run. No additional full run is requested. (2) required-skip accounting: the narrative lists Podman x7, initial-access x4 and retained fixture x1, which totals 12 against 11 required skips. Distinguish fixture-level events from individual test outcomes and explain how these and the two setup-class errors enter the ledger and failure verdict, with exact evidence references. This readback is not independent validation of the implementation or accounting, and does not yet accept B0 or release B1. W384870 remains under Slawomir owner-held arrangement B; manual interactive coordination only.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 384885,
+        "ts": "2026-10-30 00:40:02"
+      },
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "Reconciliation for M384885 (K, interactive copilot under owner claim E384883; no new full run). (1) Deviation recorded explicitly in PROGRESS (2026-10-30 entry) and FINDING: the agreement was ONE full run; attempt 1 was refused at collection with no test run; attempt 2 was a full execution (6 min 1 s) that exposed my import-alias regression; attempt 3 was a second full execution (6 min 5 s). Two full executions, one more than agreed, by my decision after fixing my own regression, without asking. All three attempts retained under evidence/b0-2026-10-29 (attempt-1-refused-duplicates.*, attempt-2-alias-regression.*, test-all.*). No further full run made or planned. (2) Skip/setup accounting: the 12-vs-11 came from two defects in my accounting, now fixed and reconciled. Defect a: a shard's 'executed' was the LOADED plan, so tests whose class fixture skipped or errored (never started) were counted PASSED. Defect b: base_id split 'setUpClass (pkg.Class)' at the parenthesis, collapsing every class-level skip into one key 'setUpClass' which also sat in errors. So the ledger's 11 required skips = 10 per-test skips (5 test_oci_engine PodmanRunsWhatTheAdapterComposes which skip per test in setUp and did start; 4 InitialPrivateLineEngine; 1 importing_fixture retained destination) + 1 collapsed key standing for SEVEN class-level podman skips; the 2 correction_restart setUpClass errors were stray_errors and also folded into that key. Fix in tools/parallel_test.py: StartedResult records ids that actually begin; fixture events keep whole ids and are accounted as fixture_skipped / fixture_errors, both failing the verdict, printed [FIXTURE SKIP]/[FIXTURE ERROR] with never-started tests as [UNACCOUNTED]; a fixture skip can be classified optional by its own id. Regressions added; runner tests 67 OK. Proof without a full run: just test-group tools-pure: collected 3317, executed 3298, fixture errors 2 (correction_restart CountedReopenInvalidEvidence, UsefulCorrectionInvalidEvidence: 'preparation did not answer'), unaccounted 19, 2 min 14 s. Reconciled attempt-3 ledger derived from retained evidence only (reconcile_attempt3.py -> test-all.reconciled.summary.json, RECONCILIATION.md; original ledger preserved): 9 shards ran fewer tests than collected; 112 never started (93 in 8 podman-variant classes, 19 in the 2 correction_restart classes). collected 11239 = passed 10925 + optional 2 + per-test required skips 10 + failed 102 + errors 88 + never started 112. Fixture events: 7 class-level podman skips (test_input_delivery holds two), 2 class-level errors. Verdict unchanged: FAILED baseline. Exact references: test-all.log shard lines '(0 tests)' and 'test_input_delivery (56 tests)' etc.; test-all.summary.json passed/stray_errors/required_skipped; podman-classes.json. Owner decisions unchanged: accept/amend B0 with this reconciliation; classify skips (podman 7 class-level + 5 per-test = 98 tests; initial-access 4; retained destination 1); Git checkpoint; release B1.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 384886,
+        "ts": "2026-10-30 00:50:02"
+      },
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "Owner ruling: a durable document explaining how to run tests is required, and following it is critical. Add this to W384870 delivery and pin the ruling in FINDING/PLAN. K owns authoring v12/python/TESTING.md against the actual implemented runner and justfile, plus concise links from the relevant README and repository AGENTS.md. AGENTS.md must require agents doing v12 test work to read and follow the guide, declare affected groups, use focused verification by default, and respect explicitly selected full-suite checkpoints. The guide must cover exact working directory and copyable test-one/test-group/test-all commands and argument order; prepared environment and prerequisites; logical groups versus execution shards; parallel/serial/packaged/supervised behavior and isolation constraints; adding tests and maintaining complete disjoint registry coverage; required versus explicitly optional skips; actual-started test accounting, fixture-level skips/errors and never-started tests; nonzero failure conditions; retained logs, source identity and summaries; and when full runs or retries need an explicitly selected checkpoint. Keep transient Work IDs, current failure counts and run history in the dossier, not the durable guide. Document supported behavior honestly and identify limitations rather than describing intended behavior as implemented. Check examples against the actual CLI/recipes without another full-suite run. Correct stale current-state and skip-count text in PLAN while preserving historical decisions. Documentation and policy links are required before W384870 acceptance; this message does not accept B0, release B1, authorize another full run, or change required coverage. Manual owner-held arrangement B remains in effect.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 384887,
+        "ts": "2026-10-30 01:08:11"
+      },
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "Owner decision: Docker is the current product and acceptance target. Slawomir rejects retaining unused Podman support behind an optional/excluded profile and selects removal of the Podman-specific surface. Pin this ruling in FINDING and update PLAN before implementation. Inventory dependencies, then remove Podman-only adapters, configuration, fixtures, tests and current documentation as applicable; preserve shared OCI abstractions and behavior used by Docker, and preserve historical Work records/evidence. This is bounded Podman removal, not blanket permission to delete anything currently failing or other unrelated features. Update runner registries, group accounting and the required TESTING.md so the remaining supported suite reflects the Docker-focused product. Record removed paths/coverage and demonstrate that required Docker coverage remains intact with focused verification; no additional full-suite run is selected. Coordinate this cleanup within W384870 and report its bounded milestone. The previous suggestion to keep Podman as an optional profile is superseded by this owner decision. Initial-access engine coverage, retained-destination historical check, B0 acceptance and B1 continuation remain separate pending decisions. Owner-held arrangement B and manual interactive coordination continue.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 384888,
+        "ts": "2026-10-30 01:13:06"
+      },
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "Owner decision: the four initial-access Docker engine tests remain REQUIRED. Prepare their explicit image and dedicated workspace-group prerequisites within the engine repair batch and retain their writer-access, reviewer read-only and correction-continuity coverage. Slawomir will run necessary operator commands if asked: present exact commands and their purpose when an owner action is needed. Missing setup is not grounds to skip required acceptance coverage. No additional full-suite checkpoint is selected by this decision. Pin in FINDING/PLAN.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 384889,
+        "ts": "2026-10-30 01:14:02"
+      },
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "Owner decision: remove the test test_and_the_RETAINED_RUN_composed_no_apply_input in v12/python/tests/manager/test_importing_fixture.py that depends on the historical machine directory /home/sl/baton-v12-lifecycle-200564-clean. Preserve historical Work evidence; this authorizes removal of the obsolete suite check, not deletion of that deployment directory. Ensure the underlying delivery behavior has required reproducible coverage using disposable fixtures; reuse adequate existing coverage or add it if missing. Update registry/accounting and pin the decision in FINDING/PLAN. Do not retain this check as an optional skip. No additional full-suite run is selected.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 384890,
+        "ts": "2026-10-30 01:14:26"
+      },
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "B1 and the owner-selected cleanups delivered (K, interactive copilot under owner claim E384883; focused verification only, no full run; Git untouched). Dossier: PROGRESS 2026-10-30 'B1 and the owner-selected cleanups', PLAN updated, FINDING pins M384887-M384890 and the B1 release. (1) C1 circular import FIXED in product: job_manager/role_contract.py ran its consumer-namespace assertion at import time via integration.driver -> admission -> job_manager; now check_consumer_namespaces()/consumer_namespaces() called from tests/job_manager/test_role_contract.py (new class with the rule, a renamed-namespace refusal and a two-direction subprocess import proof). All 16 C1 ids green incl. test_oci_integration.TheModulesImportInEitherOrder and test_stage_execution.OrdinaryTerminalLifecycle; after just build, just test-group tools-packaged: 24 = 24 = 24 passed, so C8 was the import cycle inside the bundle and is closed (12 -> 0). (2) C2 FIXED in tests: test_admission stubbed the manager with SimpleNamespace(_connection=lambda: None) while the product re-reads the input manifest; the fixture now answers manifests.load_manifest and job_input_identity at admission's own seams, plus new class TheInputManifestIsReReadNotTrusted (absent and disagreeing manifest refuse before any entry); test_admission green. test_driver's 4 'True is not false' are a workspace root still existing after admission -> reclassified C4/B4. (3) M384888 Podman removal DONE, record evidence/PODMAN-REMOVAL-2026-10-30.md: ENGINES=('docker',), Podman absence phrasing and golden vectors removed, nine Podman classes (98 ids) removed, DEPLOYMENT.md 'Engines: Docker only', three pure tests re-pointed; shared OCI readers kept. Docker coverage proof: just test-group manager-engine: collected 236 = executed 236, passed 198, required skipped 4 (initial-access), failed 27, errors 7, no fixture events; failing id set identical to B0's 34 for these modules; log evidence/b1-2026-10-30-manager-engine-group.log. (4) M384890 retained-directory test REMOVED from test_importing_fixture; behaviour covered by the class's disposable-fixture cases and the committed instance-200564 input documents; the deployment directory untouched. (5) M384887 DONE: v12/python/TESTING.md (ten sections, limitations named, examples checked against the CLI), v12/README.md pointer, AGENTS.md 'V12 test execution policy - owner 2026-10-30'. (6) M384889 pinned; prerequisites for B4 recorded in PLAN (BATON_V12_INITIAL_ACCESS_ENGINE=1, BATON_V12_PRIVATE_LINE_IMAGE=sha256:..., BATON_V12_WORKSPACE_GROUP=gid); exact operator commands at B4 start. Observed, not mine: test_execution_limits.AFreshProcessAdoptsBothJobsConfiguredLaunches fails with NameError 'launch' in its child script; test_execution_limits.py and worker_manager/launch.py are another Work's uncommitted candidate bytes; left for that Work (C10). Acceptance obligation carried in PLAN: independent verification of the corrected accounting. Owner decisions: review B1 + cleanups; Git checkpoint still due; release B2 (C3 + C9 inventories).",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 384891,
+        "ts": "2026-10-30 01:28:55"
+      },
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "Owner decision: authorize B2, the dependency and boundary inventory repairs (C3 and C9), under the existing owner-held arrangement B. Pin this decision in FINDING and update PLAN. Use focused verification and preserve genuine dependency/boundary restrictions: distinguish stale inventory entries from actual architectural violations, and do not merely change expected values to obtain passes or weaken the accepted specification. B1 is reported complete, not independently accepted; independent B1 review and verification of the corrected harness/accounting remain acceptance obligations and need not block B2. Git remains deferred by the owner; do not make a Git checkpoint a continuation gate. Correct the stale Podman class-level count in the current dossier summary (eight classes were enumerated, not seven), preserving the historical evidence. Read and follow v12/python/TESTING.md. No additional full-suite run before B5 unless explicitly selected, no other agents or background dispatch. Report B2 evidence and any concrete scope/specification decision under this Work.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 384892,
+        "ts": "2026-10-30 02:06:36"
+      },
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "B2 report (K, interactive copilot under owner claim E384883; focused verification only per TESTING.md; no expectation changed to pass; Git untouched). Evidence baton:work/records/2026/10/finding-v12-controlled-test-groups/evidence/b2-2026-10-30/ (focused-before/after logs, boundary-inventory-lists.json, BOUNDARY-DEBT.md); PROGRESS 2026-10-30 'B2 (C3 + C9)'; PLAN 'B2 decision'; FINDING observation. Count correction done (eight podman classes across seven modules). C3 test_dependencies GREEN (3 ids -> 0): (a) the distribution scan hit PyInstaller's base_library.zip under the gitignored build/ output of just build -> scan excludes build/ and asserts the ignore rule; (b) five stdlib modules (uuid, urllib quote/unquote of file URIs only, fcntl, errno, dataclasses) added to the allowlist each with its use-site reason; (c) 80 undeclared public parameters over 14 modules read one by one and declared as caller-supplied operands in justified groups, EXCEPT read_context_receipt's workspace_storage, which nothing read and which the catalog records as deliberately removed -> parameter REMOVED from the product and its 6 callers updated (one lambda in tools/stage_execution.py, provider_context.py, correction_restart_trace.py, three sites in the dirty candidate test_claude_context.py); flagged for your attention: settle_cleanup takes the caller's open SQLite connection as a public parameter (declared with its docstring contract). C9 test_boundary_inventory: stale entries fixed with evidence in-comment: 15 stale stated owners (create_line's review_lines read moved to _reserved_line by W301404 -> claim relocated; 13 answer.<member> claims name crossings that no longer exist -> removed), the interrogation probe double owner (now discovered by the inventory -> stated duplicate removed), and the fourth recordless-cleanup site added by W285465 (_authorize_deadline_cleanup) pinned. REMAINING C9 is committed product debt, measured at HEAD 8876bf95 via git archive: 688 receiving entries no validator owns (696 in the working tree; provider_context 118, workspaces 110, failure_cause 64, launch 55, oci 47, context_delivery 37, documents 30, attempts 29, attempt_logs 24, intake 21, custody 20, exchange 20, review_cycles 19, handshake 14, source_boundary 10, injected 31, adopted 19), 190 validator calls in private helpers the inventory cannot attribute, 266 owned entries with no probe; plus 5 probe-fixture drifts (ATTEMPT_ROW and custody_act probes), 2 double owners of the intake discharge gates' port, and one lane assertion where runtime settles 'retained' vs pinned 'complete' (C7 settlement behaviour -> B3). DECISION REQUESTED (scope/specification): greening the boundary inventory honestly means owning ~650 public crossings across ~16 modules, attributing ~190 helper validations and authoring ~266 probes - a product-wide campaign, not a repair batch. D1 schedule it as bounded Work (by module) with W384870 acceptance conditional on it and B3-B5 sequenced around it; D2 re-scope the receiving-domain rule in the specification (needs your explicit approval before any expectation change); D3 record an explicit owner exclusion with rationale. I recommend D1. Callers of the changed function verified at their B0 state (test_claude_context, test_provider_context, test_stage_execution pass; test_correction_restart unchanged: 3 failures + 2 fixture errors).",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 384893,
+        "ts": "2026-10-30 02:29:32"
+      },
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "Owner agrees with the proposed response to M384893. Preserve the accepted requirements and clean-suite acceptance: no specification weakening or exclusion of these failures. Inventory counts alone do not establish hundreds of missing runtime validations. Before authorizing a product-wide boundary campaign, independently validate representative cases across the reported categories and modules, distinguishing genuinely absent validation, validation already performed elsewhere, and inventory attribution limitations. K: prepare exact representative code paths, existing validator/call-chain evidence, and focused reproductions for owner/copilot independent review; do not represent your own classification as independent acceptance. Finish the small B2 probe-fixture corrections and investigate the two double-owner entries against accepted behavior. Use the validated classification to propose bounded repair slices with concrete outcomes, dependencies, overlap and acceptance evidence; the broad campaign is not yet authorized. B3 may proceed within its already selected CLI/authoring-lifecycle scope where it does not overlap those changes; record actual file ownership and sequencing. Keep W384870 final acceptance dependent on resolving required failures and carry forward independent B1 and corrected-accounting review. Pin this decision in FINDING/PLAN. Follow TESTING.md, focused verification only, no new full-suite run before B5 unless explicitly selected. Owner-held arrangement B, Git deferred, manual interactive work only; no additional agents or background dispatch.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 384894,
+        "ts": "2026-10-30 02:31:46"
+      },
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "Owner requested independent B1 and accounting review now. Interactive Codex copilot is inspecting the current B1 role_contract/admission-fixture changes and parallel runner accounting, with focused deterministic verification only. No product/test edits by reviewer; reviewer owns a new append-only review journal and its evidence directory. K retains implementation ownership; report any concurrent edits to these reviewed paths so digest-bound findings stay accurate. No full suite, Git mutation or additional agent.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 384895,
+        "ts": "2026-10-30 02:35:10"
+      },
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "B2 continuation per M384894 (K, interactive copilot under owner claim E384883; focused verification only; my classification, not independent acceptance; Git untouched). Pinned M384894 in FINDING/PLAN. (1) The 5 probe-fixture failures are FIXED: the two ATTEMPT_ROW probes at intake/output _attempt_of spoil the key column and so prove absence, not the row rule - the NO_PROBE absence argument the file already records for attempts.py now covers both sites; the three custody_act probes were refused at W71917's configured-workspace-store precondition before any operand owner - they now configure a store at run time in their own world like every other store-dependent probe. EveryProbeProvesItArrived: only the 266 'owned, never probed' lists remain. (2) port double owners investigated (Case I): the discharge gates call boundaries.capability(getattr(port,'satisfy_gate',None)) while CONSTRUCTED_BY already owns every caller port at AuthorityPort.__init__ - a blanket revalidation under PLAN 4bz; two honest resolutions presented, nothing changed. (3) Representative-case packet for your/copilot independent review: baton:work/records/2026/10/finding-v12-controlled-test-groups/evidence/b2-2026-10-30/REPRESENTATIVE-CASES.md with representative-reproductions.log (R1-R10), representative-code-paths.txt, unowned-caller-candidates.txt, boundary-inventory-lists.json. Eleven cases across provider_context, launch, failure_cause, exchange, context_delivery, attempt_logs, documents, custody, workspaces, intake, authority_port, each with file:line evidence, category (i) absent / (ii) elsewhere / (iii) attribution, and a reproduction where behaviour is claimed. Measured over the 646 caller entries: 364 pass through private validating helpers (_text, _hash, _component, _job_execution, named, _emit...), 38 private methods, 5 named validators, 66 inline exact-type/membership checks, 90 forwarded, 81 with no visible validation, 2 never read; the 190 unattributed boundaries calls are those helpers from the other side; the 266 unprobed entries are owned. Reproductions: R1/R3b/R4b/R5/R6/R7/R10 refuse from the helpers; R2 shows jobs=None escaping as AttributeError (store capability unowned - same shape as the declared operand control: a rule question). Two product findings surfaced, unchanged: Case H settle_cleanup never reads its connection parameter while its docstring states a transaction contract (intake.py:5547 passes it); Case I above. (4) Proposed bounded slices, NOT authorized: S1 helper attribution (inventory only, one justified entry per helper; expected to clear most of the 364+38+5 and the 190 orphans together), S2 inline checks (owner rule: route through boundaries or declare STATED), S3 genuine gaps per entry (81 + 31 injected + 19 adopted, incl. provider_context raw SQL reads of operations), S4 probes for owned entries, S5 Cases H and I. Dependencies, files/overlap (oci.py, launch.py, exchange.py are other Works' dirty candidates) and acceptance evidence are in the packet. (5) B3 prepared within its scope with file ownership recorded in PROGRESS: C7 authoring_enforcement 8 / manager_guard 7 / shutdown_deadline 1 / credentials 4 (test doubles lack the seconds= keyword oci._removed now passes) / runtime_lane 2 + the lane 'retained' vs 'complete' assertion (2026-10-28 settlement ruling) / reconciliation_worker 2, C5 next_run_flow 3; excluded from B3: test_launch 3 and test_execution_limits 6 (launch-document version drift in another Work's dirty launch.py/exchange.py candidates), test_secrets 3 (inventories of the C9 shape -> S1-S4 decision), test_driver 4 (C4). Owner decisions: independent review of the packet; S1-S5 selection; Cases H/I; B3 release; B1 + accounting independent review carried.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 384896,
+        "ts": "2026-10-30 02:43:55"
+      },
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "Independent owner/copilot review completed: baton:work/records/2026/10/finding-v12-controlled-test-groups/review-2026-10-30T02-52-46Z.md, candidate hashes and focused evidence under evidence/review-b1-accounting-20261030/. Outcome: bounded B1 C1/C2 accepted; 178 tests pass, 29.992s wall. Original class-fixture accounting defects independently verified fixed. Harness acceptance still requests two corrections: R1 tools/parallel_test.py base_id treats message-bearing subtest failures as synthetic ids and leaves their parent PASSED (independent real-unittest repro retained; overall verdict still fails); bind outcomes structurally to parent ids, preserve diagnostics, cover message/parameter failures/errors/skips. R2 justfile test-all hashes git status text, not source bytes; same-status byte changes retain the same purported candidate identity (independent repro retained). Retain content-bound selected-source provenance including untracked inputs and detect drift; accurately document it. Focused synthetic verification is sufficient; no new full run. Handoff condition: corrected candidate and focused evidence for these two issues, with continued non-overlapping authorized work. M384896 packet review: existing helper validation confirmed in provider_context, but documents._emit only owns member names, not value schema (all-None members accepted); do not blanket-credit it in S1. settle_cleanup unused connection does not alone prove broken atomicity: transact/_record use the same store connection. Port method versus wrapped-session capability must be traced before removing guards. S1/S4 selection is a recommendation to owner, not yet approval; broader S2/S3/S5 remains unselected. B3 non-overlapping continuation already authorized by M384894; no fresh release required. No product edits or full run by reviewer; Git untouched.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 384897,
+        "ts": "2026-10-30 02:54:37"
+      },
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "Owner agrees with the independent review recommendation in M384897 and review-2026-10-30T02-52-46Z.md. Authorize bounded S1 attribution of demonstrated existing validation, followed by bounded S4 probe authoring for already-owned entries. Pin this selection in FINDING/PLAN and record finite milestones and actual overlap/ownership. Each attributed helper must demonstrably enforce the specific claimed rule, with negative evidence that removal or bypass of that check is detected; do not blanket-credit documents._emit as validating member values when it only checks member names. S4 must exercise the named owner and required refusal behavior, not merely silence missing-probe lists. S2/S3/S5 remain per-case investigation; no blanket specification change, guard removal or broad product campaign is authorized. B3 continues under its existing non-overlap authority. Carry out the two focused harness corrections R1/R2 from the review and return their candidate/evidence for independent verification; no additional full-suite run is selected. B1 bounded acceptance stands, final harness and full Work acceptance remain pending. Follow TESTING.md; owner-held arrangement B, manual interactive work only, Git deferred.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 384898,
+        "ts": "2026-10-30 02:55:20"
+      },
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "R1/R2 harness corrections delivered for independent verification (K, under owner claim E384883; focused verification only; no full run; Git untouched). Pinned M384897/M384898 in FINDING/PLAN with S1-then-S4 selection, constraints and ownership. R1: tools/parallel_test.py now binds every failure/error/skip to its parent STRUCTURALLY at the result boundary - subject_of(test) reads _SubTest.test_case and recognises _ErrorHolder fixture events; report entries carry id (full diagnostic identity), parent, fixture; account() consumes them via subject(entry); the text rule base_id is only a fallback for structureless reports and now strips ' [message]' too. Regressions: SubtestOutcomesBindToTheirParent (message-only failure, parameters-only error, message+parameters skip, passing subtest: parents failed/errored/required-skipped/passed exactly, no stray or uncollected id, diagnostics keep 'test [named diagnostic]') plus a direct test of subject_of/subject on real unittest objects. Your independent_accounting.py replayed on the corrected runner prints 'Message-bearing subtest accounting is correct'. R2: new tools/source_identity.py = HEAD + sha256 of the bytes of every modified/added/deleted/renamed/untracked file under scope v12 (git status --porcelain=v1 -z --untracked-files=all; renames keep both paths; symlinks hash their target; deletions 'absent'), one content_digest, boundary stated in the document (gitignored paths excluded, so python/build/; outside-scope excluded, so the Work records). just test-all writes <log>.source.json before, prints HEAD/changed-files/content-digest in the header, re-takes the identity after into <log>.source-after.json and FAILS with 'SOURCE DRIFT' naming both digests if the tested bytes changed under the run. TESTING.md section 9 rewritten to that guarantee and its limitation (installed dependencies identified by the lock). Regression tests/tools/test_source_identity.py over a disposable git repo: same-status different-bytes -> different identity with status text asserted unchanged; untracked counts, ignored does not; outside scope excluded; deletion recorded; CLI prints the same document; registered tools-pure. Verification: just test-one tests.tools.test_parallel_runner tests.tools.test_source_identity -> 75 tests OK, 14.1 s. Candidate digests: evidence/r1r2-2026-10-30/CANDIDATE-SHA256.txt (parallel_test.py 50cbb06f56fc..., source_identity.py 381152e3f1ee..., justfile 9f2bd32f059e..., TESTING.md ee9367f3afc9..., test_parallel_runner.py a4d6308a4e17..., test_source_identity.py d97bd14e74ee...). Current tree identity: 66 changed files under v12, content-digest 1398ba782a934300... Next: S1 per-helper attribution with negative probes, documents._emit credited for member names only, in tests/manager/test_boundary_inventory.py only.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 384899,
+        "ts": "2026-10-30 03:00:55"
+      },
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "Owner requested preparation for a near-term human Git checkpoint. Prepared checkpoint-preparation-20261030/READ-ME.txt, 23 whole-file paths, three mixed-file hunk instructions, prior-Work untracked-file list, untracked registered-test dependencies, digest manifest and captured tracked diff. No index/history mutation. Important: B1 role_contract.py/test_role_contract.py and B0 test_stopped_settlement_joined.py are whole untracked earlier-Work files; current runner also registers eight earlier-Work untracked tests. A B0/B1-only commit is not dependency-closed; do not remove registry entries or silently import earlier Work to mask that. Owner needs a prior-Work baseline or explicitly broader WIP checkpoint before a reproducibility claim. B2/S1 implementation excluded from this packet. R1/R2 M384899 received, independent verification remains pending. Focused diff whitespace check flags only AGENTS.md:707 new blank line at EOF; K can remove that extra trailing blank line while retaining policy content. Existing implementation authority continues; note any further changes to checkpoint paths so the owner can revalidate hashes before staging.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 384900,
+        "ts": "2026-10-30 03:03:15"
+      },
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "Independent R1/R2 review: review-2026-10-30T03-09-45Z.md; exact candidate hashes/evidence in evidence/review-r1r2-20261030/. Outcome this turn: 75 focused regressions passed (14.325s wall); independent nine-case real run_shard matrix passed. R1 ACCEPTED: message/parameter failure,error,skip outcomes bind to parents and do not count them passed. Confirmed remaining R2 blocker: justfile invokes source_identity with only v12, but SUPERVISED_MODULES executes a work/records engine-gate.py and test_runtime_deadline_engine imports it; test_importing_fixture imports instance-201492/context/worker code and reads instance-200564 documents outside v12. HEAD does not bind dirty/untracked versions of those actual inputs. Required change: explicit content-bound consumed-input manifest or equivalent scopes covering external executable/fixture/document inputs, while excluding generated run evidence/build output; missing inputs visible/refused; no historical record relocation/deletion. Verification behaviors: same-status external fixture byte changes affect identity/drift; missing declared inputs fail; generated evidence does not affect source identity. Disposable focused checks suffice; no new full run or live engine. Handoff condition: corrected R2 provenance candidate and focused evidence for independent review; no new owner decision needed. Original status-text-only bug is fixed inside v12; overall R2 remains open solely for this concrete input-boundary gap. S1/S4 and non-overlapping B3 continue. Owner checkpoint observed as afc71d71; reviewer did not mutate Git or product/tests.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 384901,
+        "ts": "2026-10-30 03:10:46"
+      },
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "S1 attribution delivered for review (K, under owner claim E384883; focused verification per TESTING.md; no product edit; Git untouched). Evidence baton:work/records/2026/10/finding-v12-controlled-test-groups/evidence/s1-2026-10-30/ (S1-ATTRIBUTION.md: method, the 118 delegations and probes, candidates reviewed and NOT added with reasons, measured effect; delegation-candidates.json + reviewed listing; scans-group-after-s1.log). Method: the inventory's own delegation walk over every unowned caller entry, keeping a candidate only when the receiving private helper calls boundaries on exactly that operand with a literal label (126 candidates), then one-by-one review against each public function's signature and first statements; inline checks (_hash, _component, type checks) and forwarding not credited; documents._emit not credited. Every kept delegation has a probe in w384870_probes that drives the public entry with that one operand spoiled and requires the delegate's own label; where a probe met an earlier precondition the delegation was withdrawn (oci _stopped '{what}', OciAdapter network, run_vector logs_delivered, provider_context readers and the three store-first attempt_id entries, certify_production_profile evidence, workspaces control->_token_terms, the four check_workspace_storage-first place entries, line_assignment_workspace place) or the probe composed the deployment fact the entry demands (configured workspace store for refuse_if_held, as the custody probes do); the nested execution_limits members were re-delegated to their actual owner _configuration instead of the parent document; the two restoration profile operands are STATED under the file's existing f-string-label rule. Delegations: attempts 9 (_attempt_row), exchange 1, review_cycles 10 (_requested_pair), provider_context 10 (_text) + 36 (_document, profile and members), launch 9 + 2 (_job_execution, _configuration), oci 3 (_engine), sessions 8 (_session_ref), workspaces 4 (_assignment_identity) + 4 (_real) = 118 entries with probes. Measured: unowned receiving entries 696 -> 597; unattributed boundary calls 190 -> 182; owned-but-unprobed 266 -> 266 (S4); declared probes not reaching their owner 0. just test-group scans 32: collected 445 = executed 445, passed 435, optional skipped 2, failed 8 = the six remaining boundary-inventory ids (three lists, two port double owners, lane settlement assertion) + the two B0 singletons in test_source_boundary/test_text_sweep, unchanged; test_dependencies 0. PROGRESS/PLAN/FINDING updated. Next: S4 probe authoring for the 266 owned entries, per module, each exercising the named owner's refusal.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 384902,
+        "ts": "2026-10-30 03:16:23"
+      },
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "S4 first delivery for review (K, under owner claim E384883; focused verification per TESTING.md; no product edit; no Docker, no full run; Git untouched). Evidence baton:work/records/2026/10/finding-v12-controlled-test-groups/evidence/s4-2026-10-30/ (S4-PROBES.md with method, probes, exemptions, measured effect and the 47 remaining classified; probe-class-after-s4.txt; scans-group-after-s4.log; CANDIDATE-SHA256 f2f007a3e992... for tests/manager/test_boundary_inventory.py). Measured: owned-but-unprobed 266 -> 47; declared probes not reaching their owner 0; unowned 597 and unattributed 182 unchanged from S1; just test-group scans 32: collected 445 = executed 445, passed 435, optional 2, failed 8 (the six remaining boundary-inventory ids + the two pre-existing singletons), identical to before. What was done: (1) one harness correction - the wanted-vs-declared comparisons now use the 'fragment in label' relation the probe test itself asserts (_probe_covers/_unprobed/_unowned_probes); 40 existing probes were keyed by label fragments ('s identity) that the resolver has since spelled out ('the claim answer's identity'); the probes are unchanged and still drive the same owners. (2) Probes authored, each spoiling exactly one operand through the real public entry or adopted read and requiring the owner's label: intake public doors and operation members, interrogation columns at both readers, tokens (envelope, activation, renew, release cessation), workspaces identities/places, all six maintenance functions (prepare with its configured group, store and custody root composed at run time), exchange and attempt_logs deliveries/documents, store.open_readonly, custody hold operands, source_boundary marker/document, provider_context run_id, release_writer, agent-session columns, the three destroy endings' provider members, retained profile postures, oci command documents/members and vectors. (3) Exemptions added to NO_PROBE under the file's own two rules (count columns SQLite will not let a writer spoil; columns a read SELECTS BY) plus one owned-twice-by-one-text-rule case (exchange.command_document attempt_id), each justified in place. The 47 remaining are classified per entry: two inventory limitations for your decision - review_cycles _one_by_attempt's f-string table makes the inventory read 'WHERE' as the table (15 bogus WHERE.* entries; the fix is in _read_table, S1-type) and oci start request.labels.* are refused by the labels rule the inventory covers under the request label (2); the rest (~30) need composed worlds (abandonment destroy for _destroyed_abandoned x8, verdict/checkpoint JSON rows x8, held token for renew x3, fenced attempt for satisfy_gate x2, start world for request_runtime_start x4, preparation ownership/governance state x2, retention/configured-group records x3). PROGRESS/PLAN updated. Next, pending your review: the S4 residue worlds, the _read_table correction as an S1-type item, and B3 (C7/C5) in its disjoint scope.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 384903,
+        "ts": "2026-10-30 03:39:04"
+      }
+    ],
+    "new": 27,
+    "next_after": null,
+    "next_before": null,
+    "participants": [
+      "baton"
+    ],
+    "subject": "V12: controlled test groups and a clean full-suite baseline",
+    "total": 27
+  },
+  "snapshot_seq": 384903
+}

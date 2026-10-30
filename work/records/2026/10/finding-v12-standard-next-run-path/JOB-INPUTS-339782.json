@@ -1,0 +1,86 @@
+{
+  "actual_attempt_id": null,
+  "actual_job_id": null,
+  "base": "bc925cf5c62d69426ed5862af4d41f4d2a967b0f",
+  "context_mode": "fresh",
+  "destination_exists": false,
+  "launch_selected": false,
+  "limits_proposal": {
+    "cleanup_seconds": 60,
+    "fresh_verification_seconds_existing_vehicle": 30,
+    "implementer_invocations": 1,
+    "lease_seconds_existing_vehicle": 900,
+    "retry": false,
+    "total_seconds": 4800,
+    "turn_seconds": 3600
+  },
+  "missing_operation": "Existing parameterized command to stage this new run and produce composer selections from its newly bootstrapped authority; diagnostic prepare.py hardcodes another Work/run/task. No replacement helper created.",
+  "preparation_claim": 339782,
+  "preparation_complete": false,
+  "provider_proposal": {
+    "cli_build": "2.1.247",
+    "credential_provider": "operator-file",
+    "credential_reference": "w202663-development",
+    "credential_registry": "/home/sl/.baton/credential-sources.json",
+    "credential_slot": "claude",
+    "engine": "docker",
+    "image_digest": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2",
+    "image_reference": "baton-v12-claude-worker:w239528-244216",
+    "model": "opus",
+    "network": "bridge",
+    "profile": "claude-fresh-implementation"
+  },
+  "read_only_source_check_seconds": 0.013627,
+  "record_kind": "proposed-job-inputs-not-a-launch-packet",
+  "run_id": "baton-standard-next-run-w339626-339782",
+  "run_root": "/tmp/baton-standard-next-run-w339626-339782",
+  "runtime_availability": "not checked; historical reference only",
+  "runtime_binary_sha256_reference": "04aa459aed61704971e98b9260929b19953c41caad906e28551aae0ba457a58a",
+  "runtime_build_commit": "1e576ff2186db69e8b44da9d38874ff7e99ebbe3",
+  "runtime_path": "/home/sl/baton-runs/managed-correction-236087/build/stack/out/distro",
+  "source_checks": {
+    "v12/DESIGN.md": {
+      "matches_base": true,
+      "sha256": "a103e054dba664c0441ce74c69ba5be6366eb716f8bcd111eadd142f7c9b1e3b"
+    },
+    "v12/python/src/baton_v12/worker_manager/tokens.py": {
+      "matches_base": true,
+      "sha256": "c59c5d92352cbb2b225455b0c02cb625f1b4da6e9a4cc8cd65b0bc644e1fd5b4"
+    },
+    "v12/python/tools/authoring_enforcement.py": {
+      "matches_base": true,
+      "sha256": "d12769df863424c402757d925e5efb848e473e2877e62244af5595be56c8ebb7"
+    },
+    "v12/python/tools/authoring_shutdown.py": {
+      "matches_base": true,
+      "sha256": "af9e5ea6b140d772cdb143c73bccf7c321869b4707245ba7e8ca79ab855fab2e"
+    },
+    "v12/python/tools/bootstrap.py": {
+      "matches_base": true,
+      "sha256": "a429914792f98d18a7b14b06a378a683746c3f32de0dbfb99053fcde8e07cec7"
+    },
+    "v12/python/tools/stage_execution.py": {
+      "matches_base": true,
+      "sha256": "bad0a355abccf7838f2f4c3948947ace93ff7105a625ae2a866e74eec40d606d"
+    },
+    "work/records/2026/09/finding-v12-single-implementation-proof/IMAGE-ARTIFACT-244216.json": {
+      "matches_base": true,
+      "sha256": "8cf90edcabc39150b47f3e59a5a2378941d237c0a86ad1b99dffc079f3c2e374"
+    },
+    "work/records/2026/09/finding-v12-single-implementation-proof/baseline.py": {
+      "matches_base": true,
+      "sha256": "8e5987f56f8d5329c33a8e73f9df56f13213e134f2dade8180afabf80723efe9"
+    },
+    "work/records/2026/09/finding-v12-single-implementation-proof/baseline_bindings.py": {
+      "matches_base": true,
+      "sha256": "09fbf3c59820231b7199e24aa1cf64eee93f6ea2e60f3477fed5ca909e5fc379"
+    },
+    "work/records/2026/09/finding-v12-single-implementation-proof/prepare_instance.py": {
+      "matches_base": true,
+      "sha256": "d08514cbca34d1fd6993ee8fe32fdf5e7865da8f2b83c04e03a2f680cfce3749"
+    }
+  },
+  "source_root": "/home/sl/src/baton",
+  "verification_seconds": 0,
+  "work": "W339626"
+}

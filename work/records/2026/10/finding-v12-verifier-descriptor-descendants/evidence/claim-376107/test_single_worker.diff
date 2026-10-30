@@ -1,0 +1,109 @@
+diff --git a/v12/python/tests/tools/test_single_worker.py b/v12/python/tests/tools/test_single_worker.py
+index aa4d1dbd..d62a353b 100644
+--- a/v12/python/tests/tools/test_single_worker.py
++++ b/v12/python/tests/tools/test_single_worker.py
+@@ -277,6 +277,104 @@ class TheContextConfigurationIsRequiredAndClosed(unittest.TestCase):
+         self.assertNotIn("provider_context", single_worker._held(case.worker("review")["deployment"], roles=("review",)))
+ 
+ 
++class TheLayoutSelectionIsIndependentOfTheContextMode(unittest.TestCase):
++    """W325695 review 2026-10-28T18-29-29Z, driven through the REAL `_held`
++    with a COMPLETE configuration document rather than a helper and a partial
++    dictionary -- which is what let the first cut's defect through.
++
++    My first cut treated `/6` as contextual, so `provider_context` became a
++    required member and every `/6` deployment went through the
++    retained-implementation-only rule: a fresh one refused for a context it
++    never selected, and a review-role one refused outright.
++    """
++
++    def configuration(self, role):
++        from tests.manager.test_claude_context import ServingContextCase
++        case = ServingContextCase()
++        self.addCleanup(case.doCleanups)
++        case.setUp()
++        held = case.worker(role)["deployment"]
++        held.pop("provider_context", None)
++        # A FRESH `/6` DEPLOYMENT DECLARES NO CONTEXT RECEIPT. The context
++        # fixture's implementation manifest does, and the existing
++        # "reserved context receipt requires context implementation
++        # deployment" rule correctly refuses one without a context mode -- so
++        # the fixture drops that output and re-digests, rather than the
++        # product relaxing a check that is right.
++        manifest = dict(held["input_manifest"])
++        manifest["outputs"] = [one for one in manifest["outputs"]
++                               if one["name"] != "provider-context-receipt"]
++        manifest.pop("manifest_digest", None)
++        manifest["manifest_digest"] = digest(manifest)
++        held["input_manifest"] = manifest
++        held["schema"] = single_worker.LAYOUT_CONFIG_SCHEMA
++        held["verifier_layout"] = source_boundary.image_layout_marker()
++        return held
++
++    def test_a_fresh_implementation_deployment_is_admitted(self):
++        held = single_worker._held(self.configuration("implementation"))
++        self.assertEqual(held["schema"], single_worker.LAYOUT_CONFIG_SCHEMA)
++        self.assertEqual(held["verifier_layout"],
++                         source_boundary.image_layout_marker())
++        self.assertNotIn("provider_context", held)
++
++    def test_a_review_deployment_is_admitted_too(self):
++        """The role is not a context mode, and a reviewer selects a layout for
++        the same reason a producer does: its verifier runs descendants."""
++        held = single_worker._held(self.configuration("review"),
++                                   roles=("review",))
++        self.assertEqual(held["launch_role"], "review")
++        self.assertIn("verifier_layout", held)
++
++    def test_a_null_selection_is_explicitly_legacy_and_admitted(self):
++        held = dict(self.configuration("implementation"),
++                    verifier_layout=None)
++        self.assertIsNone(single_worker._held(held)["verifier_layout"])
++
++    def test_a_selection_that_is_not_a_marker_document_refuses(self):
++        for named in ("marker", 7, [], True):
++            with self.subTest(verifier_layout=named):
++                held = dict(self.configuration("implementation"),
++                            verifier_layout=named)
++                with self.assertRaises(ContractRefusal):
++                    single_worker._held(held)
++
++    def test_a_legacy_deployment_may_not_carry_the_member(self):
++        """`/4` and `/5` are closed member lists and stay that way."""
++        held = dict(self.configuration("implementation"),
++                    schema=single_worker.CONFIG_SCHEMA)
++        with self.assertRaises(ContractRefusal):
++            single_worker._held(held)
++
++    def test_the_supported_context_deployment_keeps_its_own_rules(self):
++        """`/5` is untouched: its context member is still required and still
++        retained-implementation only."""
++        from tests.manager.test_claude_context import ServingContextCase
++        case = ServingContextCase()
++        self.addCleanup(case.doCleanups)
++        case.setUp()
++        held = case.worker("implementation")["deployment"]
++        self.assertEqual(held["schema"],
++                         single_worker.CONTEXT_CONFIG_SCHEMA)
++        self.assertEqual(
++            single_worker._held(held)["provider_context"]["mode"], "required")
++
++    def test_the_admitted_selection_reaches_a_real_delivery(self):
++        """And the configuration that `_held` admitted is one
++        `layout_delivery` can actually compose and materialize."""
++        held = single_worker._held(self.configuration("implementation"))
++        store = ControlStore.open(
++            os.path.join(tempfile.mkdtemp(), "c.sqlite3"),
++            incarnation="w325695-cfg",
++            clock=lambda: "2026-10-28T00:00:00.000Z")
++        self.addCleanup(store.close)
++        configure_workspace_group(store, os.getgid())
++        delivery = single_worker.layout_delivery(
++            held, configured_workspace_group(store))
++        self.assertEqual(delivery.document["image_digest"],
++                         held["image_digest"])
++
++
+ class SingleWorkerCase(unittest.TestCase):
+     def setUp(self):
+         # W71917: A DISK-BACKED ROOT, because the boundary this composition

@@ -1,0 +1,15 @@
+{
+ "answers_review": "review-2026-10-22T18-59-23Z.md (reviewer claim354242)",
+ "claim": 354259,
+ "copies": {
+  "COMBINED-MANIFEST.json": "21f98ff355b6d0d2693dc84c28605a765ea1728d813ee22b7aedab8ec3e60dd3",
+  "NATIVE-SEAM-2.json": "246ff9fc45dae4ac770a3b251991cce4ac6ba15ffba7a1c33798570cad0044dd",
+  "SUPPLIER-MISMATCH.json": "acf1cffbb53a7b0993149ebcbd46b9cb2168219d16c88868e081e9069f708e90",
+  "joined-both.log": "af869ddd3d8a1707dced8826d1bba4055689f63637fbb0da68a35c58b8448343",
+  "progress-section.md": "5f905515e07d071ccdc98c6a058d7d21ee6b5d59393b08a6d85a0c9ae93d2cf6",
+  "serving-renewal.log": "174712d22a80a21bfa61e4aa7a92c8c4d502e59b68618f250f652f903dd0c907"
+ },
+ "progress_section": "PROGRESS.md \"2026-10-22 - baton.claude, claim354259\"",
+ "schema": "baton.w325959-composition/2",
+ "supersedes": "evidence/composition-354165 -- its composition is reused, its route-B reasoning is withdrawn in NATIVE-SEAM-2.json"
+}

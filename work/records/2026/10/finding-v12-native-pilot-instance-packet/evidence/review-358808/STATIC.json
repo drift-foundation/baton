@@ -1,0 +1,5 @@
+{
+  "helper_sha256": "64d4442c445d85a8002f2d98e5069abf229e2f0204c27eb46e1638ba47aff621",
+  "tmp_sha256": "64d4442c445d85a8002f2d98e5069abf229e2f0204c27eb46e1638ba47aff621",
+  "execution": "NOT RUN: live database byte reads/copy outside accepted handoff"
+}

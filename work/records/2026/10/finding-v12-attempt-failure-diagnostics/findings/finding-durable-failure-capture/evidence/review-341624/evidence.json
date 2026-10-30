@@ -1,0 +1,11 @@
+{
+  "claim": 341624,
+  "copy_hashes": 14,
+  "source_pairs": 6,
+  "status": "all match",
+  "new_source_sha256": "86be4114206e379d5f15d65268b5e5e8e55b5ce51d90704d0ea40b22eba452c6",
+  "new_tests_sha256": "fb9f8e77bde9ceecfe8bf2fd61baa3b73b8a9802f7b3e64fd2b7b0adc65fb539",
+  "product_tests": 0,
+  "launches": 0,
+  "finding": "no frozen candidate this run; preserved source/tests not proof of correctness"
+}

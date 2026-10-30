@@ -473,3 +473,155 @@ evidence. Exact-byte integration and bounded verification are complete. Human
 Git checkpoint remains due, then the umbrella returns for useful-Job/monitor
 preparation. Candidate-provided trailing whitespace remains unchanged. No broader
 suite, deployment, live-provider or cutover claim is made.
+
+## 2026-10-27 — human Git checkpoint confirmed
+
+Slawomir committed `42bed8bb04a53380e565b1a63fb2bc702677f0d0`
+(`feat(v12): create template Jobs with verified delivery and startup`).
+baton.prompt verified all 32 committed product blobs against the reviewed
+candidate hashes. The passing 18-test integration evidence is preserved.
+This supersedes the pending-Git checkpoint. W321608 still belongs to Slawomir
+at readback sequence 366947; return to baton.bug for useful-Job/lightweight-monitor
+preparation remains the next action. No deployment or live run selected.
+
+## 2026-10-27 — integrated checkpoint consumed; useful-Job preparation split
+
+**Confirmed:** E366949 returns after human commit42bed8bb04a53380e565b1a63fb2bc702677f0d0
+and18 passing integration tests. This supersedes pending-integration/checkpoint
+status. Under claimE366958, reviewer read updated owner entries and exact handoff,
+current source command/parser/template/monitor contracts and W324214 acceptance.
+
+**Proposed bounded useful outcome:** a reusable current-source template Job guide,
+produced through one ordinary implementation/review Job and observed through the
+existing monitor. Historical instance4 QUICKSTART remains truthful. New dossier
+../finding-v12-useful-template-job-monitor (W366962) records concrete task inputs,
+acceptance, proposed limits and preparation ownership. No build, deployment or
+live execution is selected; exact operations return for owner selection after
+independent preparation review.
+
+**Decomposition:** W366962 is one independently reviewable preparation result,
+separating one-time supported deployment prerequisites from ordinary input-only
+creation. It must not recreate per-Job packet engineering. Parent retains joined
+acceptance and stays open. Reviewer owns parent/child FINDING/PLAN and reviews;
+implementer owns child preparation evidence/PROGRESS, with product/deployments
+read-only. No separate monitor implementation justified by existing evidence.
+Accepted W324214 projection is reused, not confused with the installed monitor.
+A later actual monitor defect can be independently allocated with explicit
+ownership; broad W39649 hardening is not a gate.
+
+Read positions E366958/M361944 and W324214 closure325838. No product tests repeated
+in this planning turn; no live process/store/credential inspected. Search guesses
+v12/docs and v12/python/QUICKSTART.md were absent; actual guide v12/QUICKSTART.md
+was found and read. No required policy or dossier remains unreadable.
+
+Canonical allocation readback snapshot366986: W321608 is blocked on W366962,
+handler null; E366986 released parent claimE366958. Child is actively claimed
+by baton.claude through baton.impl (E366970). Handoff M366985 names current
+records and independent-review return condition. Existing six closed children
+remain unchanged. CLI help guesses send/post were unsupported; supported say
+used successfully after replacing participant include with endpoint baton.impl.
+No rejected operation changed state.
+
+## 2026-10-28 — owner selects incremental useful-Job adoption sequence
+
+Slawomir explicitly agreed to the interactive proposal: documentation Job, then
+two bounded independent coding Jobs, then repeatable parallel development toward
+production work and v13. Finish W366962's independently reviewed operator packet
+first, establish selected-installation readiness (actual image, credentials,
+finite execution/correction limits), and select the concrete operations before
+running the documentation Job. Assess real task delivery, independent review,
+monitor visibility, retained result and human acceptance, fixing concrete failures
+without turning this into broad certification.
+
+Following that evidence, prepare two coding outcomes with independent ownership
+and focused verification. W44342 reassessment may supply one; it is not yet a
+selected coding payload. Preserve human-plus-agent integration and human Git
+ownership. Production work can start when its relevant execution path has been
+demonstrated; broader v13 execution follows useful parallel development. Required
+context reuse retains its separate acceptance obligation; supported fresh-context
+adoption does not wait on it, consistent with the September 23 ruling.
+
+Keep v11 as coordination authority and preserve Work identities, canonical
+records and evidence. Execute selected Jobs in v12 and link their results to
+the owning Work; do not copy the backlog or introduce a second authority.
+W33755 and broad W103525 certification remain parked and off this adoption path
+unless a concrete correctness defect requires a bounded part. No unfinished
+requirement is declared passed.
+
+This confirms the documentation payload previously proposed and extends the
+selected adoption sequence beyond that first Job; it does not supersede required
+review, readiness or explicit execution selection. No specific build, deployment,
+live run, two coding payloads, graph change or authority cutover is authorized
+by this sequence alone. Current W321608-on-W366962 gate remains unchanged.
+
+
+## 2026-10-28T01-07-28Z — preparation gate complete; bounded readiness selection next
+
+OwnerE370152 closed W366962 satisfying on exact binding29375db1f141bb4b64b3be38a9429264590d3a3d2a41dd196461d7c977eaf34f, without deployment/live authority. UnderE370157, review `review-2026-10-28T01-07-28Z.md` consumes the completed graph and rechecks binding, source HEAD and fresh path absence. This supersedes the prior waiting-for-W366962/current-child-active checkpoint.
+
+READINESS-SELECTION-370157.md proposes concrete bounded read-only image metadata and source checks plus non-disclosing local credential resolution; commands validated syntactically but not executed. Recommend owner select that readiness scope, then decide actual execution with automatic correction exposure explicit. No finite round ceiling exists in the prepared native start; observation does not cap work. Selected documentation payload remains first; no two coding Jobs or authority cutover allocated. Umbrella stays open, existing v11/direct-development policy remains.
+
+
+## 2026-10-28 — owner selects bounded readiness checks, E370206
+
+OwnerE370206 selects READINESS-SELECTION-370157.md exact local image metadata, local credential resolution without disclosure, source revision and fresh-path checks, with redacted durable results. This supersedes the prior unselected readiness-check status only. No installation, pull, build, clone, container/model start or automatic repair. Reviewer claimE370208 executes only these checks and returns findings plus concrete execution choice.
+
+
+## 2026-10-28T01-12-57Z — selected local readiness passed; execution choice returned
+
+ReviewerE370208 executed ownerE370206 exact checks. Selected immutable image exists with expected metadata; production local credential resolution succeeds without disclosure; source42bed8bb/clean v12/commit object and all5 fresh paths checked. Packet binding unchanged. Redacted evidence/readiness-370208/READINESS.json and review `review-2026-10-28T01-12-57Z.md` retain results/limits. Initial Docker socket sandbox denial was resolved by approved read-only escalation, not a product readiness failure.
+
+This supersedes unknown local readiness only. No install/build/pull/clone/container/model/repair/Git operation occurred. Concrete owner choice is the prepared native one-Job installation/serving path with explicit acceptance of automatic corrections under per-invocation3600/900 limits and NO fixed round/cumulative ceiling, or selected bounded cancellation preparation before serving. Review supplies exact grant boundary; no execution implicitly follows.
+
+
+## 2026-10-28 — owner selects live execution; W370268 allocated
+
+OwnerE370247 explicitly selects retained-archive materialization, mint/composition, ONE fresh installation at /home/sl/baton-instances/useful-template-job-w366962, selected clone/credential delivery and ONE template-job-guide-42bed8bb Job under default policies. Independent implementation/review and report-and-hold; automatic corrections explicitly accepted with NO total-time or round-count ceiling, provider3600/verification900 per invocation. Observe while work remains, preserve artifacts/logs, require actual runtime cessation before supervisor stop. No automatic integration/deletion/discretionary fresh retry/unrelated Job/cutover. This supersedes pending execution/correction-exposure selection, not acceptance or operational limits.
+
+ReviewerE370258 allocated W370268 at baton:work/records/2026/10/finding-v12-useful-documentation-execution after publishing FINDING/PLAN/initial PROGRESS. This is a finite installation/observation evidence outcome with implementation handler sole operator and independent reviewer, not a second authority for the documentation worker assignment. Roster confirmed baton.claude idle with no claim; no active Work interrupted. Child owns new instance/execution evidence/PROGRESS; reviewer owns records/reviews; closed preparation immutable. W321608 remains joined adoption consumer and will be gated on W370268. No operation was executed by this allocation turn.
+
+## 2026-10-28 — owner reports Claude authentication renewed
+
+Slawomir reports one failure was caused by expired Claude authentication and
+that he renewed it. The affected Work/attempt and credential context were not
+specified in the interactive report. Record as owner-reported operational
+information, not independently verified remote authentication or attribution
+of the retained documentation review fault. No credential material was read.
+The confirmed shared-output declaration incompatibility remains valid evidence;
+auth renewal does not supersede that finding or authorize a new live retry.
+
+## 2026-10-28 — owner direction: frequent useful execution feedback
+
+Slawomir clarified that he is not insisting on an immediate run, but wants frequent real test runs because these have been the most useful issue-discovery mechanism so far. Plan repeated bounded execution checkpoints after meaningful fixes, rather than postponing all real execution until the whole improvement backlog is complete. Each checkpoint should identify the question to learn from, the smallest required readiness subset, exact candidate and execution limits, and failure/settlement handling. Preserve failed-run evidence and feed discovered issues into existing Work or bounded follow-ups.
+
+Deterministic verification remains the ordinary development default and prepares these checkpoints; it does not replace real execution evidence for questions requiring the actual installed/provider path. This cadence direction supersedes any interpretation that every workflow improvement must finish before another useful run. It does not itself select an immediate run, grant an unspecified retry/build/deployment, weaken acceptance, or change canonical dependency edges. The reviewer should prepare the next concrete checkpoint within existing scope and bring only its actual execution selection or substantive decision to the owner.
+
+## 2026-10-28 — failed useful-run assessment and next readiness allocation E376779
+
+Owner E376711 closes W370268 non-satisfying, explicitly accepting review-2026-10-28T19-34-00Z.md and its readback limitations. Native close is owner-receipt evidence; candidate retained, acceptance receipts absent, historical cleanup stays with owner. This supersedes the active W370268 execution checkpoint, not the preserved historical grant/evidence. Native useful delivery, adoption, live review success, routine startup timing and parallel readiness remain unproved. All eight direct preparation/execution children now terminal is not a successful umbrella outcome.
+
+M376659 selects frequent meaningful bounded feedback preparation. Allocate W376804 for the next concrete documentation readiness inventory, not another product implementation or live run. Exact learning question: does one useful task with corrected shared role-output declarations and trustworthy observation reach independent review and retained proposal through a qualified installed pair? Keep report-and-hold and human acceptance. Reassess the guide task against current source before proposing unchanged payload; do not claim an old task label fixes its base.
+
+Candidate references observed: human commit8876bf950ff1f8ab8767ce9786df268cc9d767c6 follows verifier checkpointef703336 and observation fixf36bcd75; existing image47e733834bb690fd4601e102f81e527a08b6ffe55da8b8cb345f45edfcb1517e has accepted build binding under W325695, not yet accepted kernel behavior. Source checkpoint and image equivalence are distinct. W375445 is closed satisfying atE376744 on command/preview/status source and fixture package proof; W375446 is still executing joined deterministic settlement proof. No installed host artifact containing these fixes has been established by this review. W370688 inventory00add5d1 remains accepted source preparation with simulated Git/provider and invalid-bundle limitations; never relabel inherited package1da85eed as fixed source.
+
+Minimal readiness is task-specific corrected outputs, actual role compatibility/transport evidence, qualified fixed-observation host and matching worker, relevant selected verifier topology, isolated fresh resources and actionable failure/settlement/retention. Existing W371296 qualification and W325695/W375446 proofs retain ownership; reuse exact applicable evidence rather than starting competing implementations. Queue/startup redesign, the whole W370747 campaign, richer diagnostics, broad hardening, reuse completion and authority migration are not automatic gates for a bounded fresh-context learning run. A concrete safety or false-success defect on the selected path still blocks it.
+
+Only W376804 preparation becomes a new parent dependency. W370302 remains independently ready for its already-selected preparation after failed-run assessment, not authorized live execution. No retry/build/deployment/cutover or change to another Work's gates. Existing failed instance is not repaired or reused; any later historical settlement remains separately selected. One preparer owns only its new dossier/evidence; parent reviewer owns adoption assessment and independent review. Return any required artifact-build and actual-run choice as concrete commands after readiness review, with no reusable historical grant assumption.
+
+## 2026-10-28T22-24-51Z — readiness preparation consumed; two bounded next outcomes
+
+review-2026-10-28T22-24-51Z.md preserves not-ready adoption status after W376804 closure. Reuse its exact source/image/task evidence; no build/run granted. Existing W376246 owns connected safe install; new research-only W378034 resolves supported finite native cancellation/deadline/correction/cessation controls, without duplicate product implementation or launcher. Install both actual parent dependency edges. This supersedes waiting-for-W376804 as current scheduling; full startup/backlog is not added as a gate. W321608 integrates and returns only concrete operational or substantive decisions to owner.
+
+## 2026-10-29 — preparation joined; concrete finite-control decision E383131
+
+review-2026-10-29T11-58-58Z.md consumes closed W376246/W378034 without claiming runnable readiness. Safe failure retention is accepted, automatic cleanup is not. The installed cancel/finite Job contract remains missing; owner E383126 accepts research only. CONTROL-SELECTION-383131.md proposes exact per-Job cancellation/correction/deadline semantics and a smaller different-exposure alternative. This is proposed, not a specification ruling. Pass owner for this actual product choice; no product or live operations authorized. W371295 import correction and exact artifact qualification remain concrete readiness obligations, not a blanket campaign dependency. Prior waiting-for-two-prerequisites checkpoint is superseded.
+
+## 2026-10-29 — owner selects finite native Job control, E383183
+
+Owner baton.slaw E383183 approves CONTROL-SELECTION-383131.md (SHA256 4af2b7d214bad390f6501d87ae3cd5b3e335f9fc49b25afcf456de72d5e6b25c), including clock origins, first-profile limits and unresolved-shutdown semantics. The proposal's pending/unselected wording and prior PLAN owner-decision checkpoint are explicitly superseded by this ruling. The smaller different-exposure alternative is not selected. Preserve the original proposal as decision history.
+
+Selected: versioned persisted per-Job controls; first profile one implementation and independent review with zero corrections, stage4800s from execution admission before preparation, Job9960s from durable accepted creation including queue time, provider3600s/verification900s per invocation,120s bounded shutdown attempt after trigger. Expiry/cancel fences successor admission and orders exact active cessation; unresolved shutdown retains holds and reconciliation. Preserve elapsed time across restart/correction; uncertainty fails closed. Installed cancellation composes existing owners with durable replay and exact-generation protection. No success/acceptance from cessation, no deletion/reset authority.
+
+Owner explicitly requires FINDING/DESIGN pinning before dependent implementation and two serial cancellation/fence then persisted-policy outcomes with actual graph edges and coordinated ownership. W321608 retains joined acceptance. No build, installation, live execution or cutover is selected. This is a bounded exception to LIM-3's previously unselected aggregate-control status, not selection of general cumulative cost accounting or shared-capacity scheduling.
+
+Allocation reason: cancellation/fencing is independently testable and supplies the ending mechanism consumed by policy; common scheduler/CLI/composition files require serial editing. Reviewer owns this dossier, the new child FINDING/PLAN/reviews and this exact DESIGN addition. Implementing claimant owns attributable PROGRESS, candidate and tests after claim; child2 waits for accepted child1. Existing W375517/W375518 queued-admission owners retain their outcomes; coordinate actual shared files and schema via their owners, without duplicating their ledger. No active executor is interrupted.

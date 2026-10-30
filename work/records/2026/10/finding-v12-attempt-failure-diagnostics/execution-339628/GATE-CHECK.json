@@ -1,0 +1,65 @@
+{
+  "ambient_pythonpath_offered": "/nonexistent-ambient-value",
+  "argv_source": "execution-339421 sealed argv, measured from /tmp/w333486-preflight-339421/packet/task.json. Re-derived at claim339628 from /tmp/w333486-preflight-339628/packet/task.json and byte-identical -- see verification_member_identical_at_this_claim.",
+  "argv_words": 3,
+  "excluded_for_measured_ceiling": [
+    {
+      "coverage_carried_by": "decisions/shutdown-review.md, the reused accepted proof: 44 tests, no skips, 72.891s unittest under authority338596, plus the six-path decisions/shutdown-integration.json",
+      "measured_seconds": 51.333,
+      "measured_tests": 4,
+      "measurement_provenance": "same out-of-boundary claim339421 execution; not re-measured",
+      "module": "tests.manager.test_authoring_shutdown_deadline",
+      "why": "Exceeds the composer-fixed 30s ceiling BY ITSELF, before the ten existing modules and the two the turn must create. Excluded for the ceiling, not for coverage."
+    },
+    {
+      "coverage_carried_by": "decisions/guard-integration-result.json, the reused accepted proof: 79 tests PASS in 15.278s under authority337376",
+      "measured_seconds": 19.888,
+      "measured_tests": 7,
+      "measurement_provenance": "same out-of-boundary claim339421 execution; not re-measured",
+      "module": "tests.manager.test_authoring_manager_guard",
+      "why": "With the ten gate modules 13.642s this would put the sealed gate at 33.5s against a ceiling of 30, before the two new modules exist."
+    }
+  ],
+  "exclusion_condition": "This candidate edits none of tools/authoring_enforcement.py, tools/authoring_shutdown.py or the supervisor baseline. TASK.md requires a focused check outside the sealed argv if a turn ever does.",
+  "existing_modules": {
+    "errors": 0,
+    "failures": 0,
+    "measured_seconds": 14.007,
+    "modules": 10,
+    "note": "measured separately against the same clean export at claim339421, outside the preparation boundary; not re-measured here",
+    "skips": 0,
+    "tests": 1124,
+    "unittest_seconds": 13.642
+  },
+  "expected": "non-zero, failing ONLY on the two modules the turn must write.",
+  "measured_at_claim": 339421,
+  "measurement_provenance": "EVERY NUMBER IN THIS DOCUMENT was obtained by DIRECT HOST PRODUCT TEST EXECUTION AT CLAIM339421, OUTSIDE that claim's preparation-only boundary. decisions/review-339623.md item 3 is the finding; PROGRESS.md carries the author's additive correction naming the exact commands and costs. It is carried forward here unchanged and was deliberately NOT re-measured at claim339628: re-running these modules to tidy the provenance of their own numbers would repeat the same mistake. Claim339628 ran NO product test. These are author measurements with a known defect in how they were obtained, not independent product acceptance, and the two ceiling exclusions below therefore rest on out-of-boundary measurements.",
+  "note": "Run at claim339421 against a clean export of the declared base bc925cf5, including work/records/2026/09/finding-v12-single-implementation-proof because tests.manager.test_authoring_enforcement spawns a real supervisor and resolves it from the checkout root. The ambient PYTHONPATH offered is deliberately useless and the gate overwrites it. See measurement_provenance: author evidence obtained outside the preparation boundary, not independent product acceptance, and not re-run this claim.",
+  "re_measured_this_claim": false,
+  "reported": [
+    "ERROR: test_attempt_failure_cause (unittest.loader._FailedTest.test_attempt_failure_cause)",
+    "ERROR: test_attempt_diagnostics (unittest.loader._FailedTest.test_attempt_diagnostics)"
+  ],
+  "run_from": "/tmp/w333486-base-339421",
+  "schema": "baton.w333486-execution-gate-check/6",
+  "seconds": 14.180494358999567,
+  "skipped": [],
+  "status": 1,
+  "tail": [
+    "",
+    "",
+    "----------------------------------------------------------------------",
+    "Ran 1126 tests in 13.777s",
+    "",
+    "FAILED (errors=2)"
+  ],
+  "verification_member_identical_at_this_claim": {
+    "checked_how": "read from the composed task.json of THIS claim's preparation root; no test executed",
+    "composed_from": "/tmp/w333486-preflight-339628/packet/task.json",
+    "member": "verification",
+    "names_both_owed_modules": true,
+    "sha256": "9841127b9d13e32d6c5bb3c3e5eb315c6684f2d5c7f235c4dbd3c337027b1b11",
+    "words": 3
+  },
+  "what_still_holds": "the sealed argv, the gate membership, the two owed module names and the 30s ceiling are composition facts re-derived from THIS packet's composed task.json at claim339628 and verified to match this document's argv_source shape; only the TIMINGS and COUNTS are the carried-over measurements."
+}

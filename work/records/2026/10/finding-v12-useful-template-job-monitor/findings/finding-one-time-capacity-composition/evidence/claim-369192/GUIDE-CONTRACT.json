@@ -1,0 +1,138 @@
+{
+ "cases": {
+  "create_example_authors_a_document": {
+   "exit": 1,
+   "format_selected": false,
+   "said": "guide verification refused: a documented create example supplies --document; ordinary template creation takes input operands only and authors no admission document"
+  },
+  "differently_organised_guide_passes_by_default": {
+   "exit": 0,
+   "format_selected": false,
+   "said": "guide structure ok: 3528 bytes, no section format was selected, so none was checked, 11 documented invocations parsed against this build, 1 create examples. MECHANICAL ONLY -- the five acceptance criteria are the independent reviewer's judgment, not this command's."
+  },
+  "differently_organised_guide_refused_when_format_selected": {
+   "exit": 1,
+   "format_selected": true,
+   "said": "guide verification refused: the task's own format addendum asks for these sections and they are missing: ## Creating the Job, ## What the inputs mean, ## Watching it without touching it, ## Independent review and the held result, ## When an attempt fails, ## The human disposition"
+  },
+  "inherited_pilot_contract_on_a_tree_without_the_guide": {
+   "exit": 0,
+   "guide_present": false,
+   "meaning": "exit 0 with the deliverable absent -- R1's false success",
+   "said": "quickstart structure ok: 16847 bytes, 4 sections"
+  },
+  "qualifying_guide": {
+   "exit": 0,
+   "format_selected": false,
+   "said": "guide structure ok: 3552 bytes, no section format was selected, so none was checked, 11 documented invocations parsed against this build, 1 create examples. MECHANICAL ONLY -- the five acceptance criteria are the independent reviewer's judgment, not this command's."
+  },
+  "qualifying_guide_with_the_format_selected": {
+   "exit": 0,
+   "format_selected": true,
+   "said": "guide structure ok: 3552 bytes, 6 ordered sections, from the task's own format addendum, 11 documented invocations parsed against this build, 1 create examples. MECHANICAL ONLY -- the five acceptance criteria are the independent reviewer's judgment, not this command's."
+  },
+  "sections_missing": {
+   "exit": 1,
+   "format_selected": true,
+   "said": "guide verification refused: the task's own format addendum asks for these sections and they are missing: ## Creating the Job, ## What the inputs mean, ## Watching it without touching it, ## Independent review and the held result, ## When an attempt fails, ## The human disposition"
+  },
+  "sections_out_of_order": {
+   "exit": 1,
+   "format_selected": true,
+   "said": "guide verification refused: the task's own format addendum gives these sections an order and the guide does not follow it"
+  },
+  "selected_contract_missing_guide": {
+   "exit": 1,
+   "format_selected": false,
+   "said": "guide verification refused: there is no v12/TEMPLATE-JOBS.md; this task delivers that guide and the pre-existing v12/QUICKSTART.md satisfies nothing here"
+  },
+  "selected_contract_quickstart_only": {
+   "exit": 1,
+   "format_selected": false,
+   "said": "guide verification refused: there is no v12/TEMPLATE-JOBS.md; this task delivers that guide and the pre-existing v12/QUICKSTART.md satisfies nothing here"
+  },
+  "stale_create_option_refused_by_the_parser": {
+   "exit": 1,
+   "format_selected": false,
+   "said": "guide verification refused: this build's own parser refuses a documented invocation -- \"$DISTRO/baton-v12-stack\" manager --store \"$DEST/db/jobs.sqlite3\" --incarnation operator-1 --authority-uuid \"$UUID\" create --instance \"$DEST\" --control \"$DEST/db/control.sqlite3\" --authority \"$DEST/db/authority.sqlite3\" --task template-job-guide-42bed8bb --template baton.v12.job-template.implementation-review/1 "
+  },
+  "stale_monitor_option_refused_by_the_parser": {
+   "exit": 1,
+   "format_selected": false,
+   "said": "guide verification refused: this build's own parser refuses a documented invocation -- \"$DISTRO/baton-v12-stack\" monitor --follow --instance \"$DEST/instance.json\" --interval 3 --ticks 400 -- with: usage: stack [-h] [--instance INSTANCE] [--root ROOT] {start,stop,status,publish,repository,monitor} ... stack: error: unrecognized arguments: --follow --instance /home/sl/baton-instances/useful-template"
+  },
+  "stale_option": {
+   "exit": 1,
+   "format_selected": false,
+   "said": "guide verification refused: the documented create example omits --work-scope"
+  },
+  "stale_subcommand": {
+   "exit": 1,
+   "format_selected": false,
+   "said": "guide verification refused: the guide documents subcommand 'job-status', which this build does not serve; it serves attempt-diagnostics, bootstrap, disposition, identity, logs, manager, monitor, publish, record, repository, start, status, stop, view"
+  },
+  "template_version_absent": {
+   "exit": 1,
+   "format_selected": false,
+   "said": "guide verification refused: the guide never names the exact template version baton.v12.job-template.implementation-review/1"
+  },
+  "undefined_expansion": {
+   "exit": 1,
+   "format_selected": false,
+   "said": "guide verification refused: a documented invocation still carries an undefined expansion after the guide's own assignments: \"/home/sl/baton-instances/useful-template-job-w366962/distro/baton-v12-stack\" start --instance \"$UNDEFINED/instance.json\""
+  },
+  "unresolved_marker": {
+   "exit": 1,
+   "format_selected": false,
+   "said": "guide verification refused: unresolved markers: TODO"
+  },
+  "wrong_template_version_in_the_example": {
+   "exit": 1,
+   "format_selected": false,
+   "said": "guide verification refused: the documented create example names a template version other than baton.v12.job-template.implementation-review/1"
+  }
+ },
+ "effects": {
+  "created": [
+   "/var/tmp/baton-w257624/w367232-guidecases-9he3iqgx"
+  ],
+  "removed": [],
+  "retained": [
+   "/var/tmp/baton-w257624/w367232-guidecases-9he3iqgx"
+  ]
+ },
+ "failures": [],
+ "fixture": {
+  "path": "work/records/2026/10/finding-v12-useful-template-job-monitor/findings/finding-one-time-capacity-composition/fixtures/qualifying-TEMPLATE-JOBS.md",
+  "sha256": "bc7aee367d1fb1b229e0f667c4ee4c527f5327131b81852ed27e54cfdd159817",
+  "this_is_not_the_deliverable": "a verification fixture only; writing v12/TEMPLATE-JOBS.md is the Job's own work"
+ },
+ "ok": true,
+ "refusals_required": [
+  "create_example_authors_a_document",
+  "differently_organised_guide_refused_when_format_selected",
+  "sections_missing",
+  "sections_out_of_order",
+  "selected_contract_missing_guide",
+  "selected_contract_quickstart_only",
+  "stale_create_option_refused_by_the_parser",
+  "stale_monitor_option_refused_by_the_parser",
+  "stale_option",
+  "stale_subcommand",
+  "template_version_absent",
+  "undefined_expansion",
+  "unresolved_marker",
+  "wrong_template_version_in_the_example"
+ ],
+ "schema": "baton.v12.guide-contract-proof/1",
+ "semantic_judgment": "this contract is mechanical; the five acceptance criteria remain the independent reviewer's",
+ "the_format_is_a_selection": {
+  "default": "no heading is checked; a differently organised guide passes",
+  "selected": "the six headings are checked AND the task's own instructions carry the addendum that announces them (capacity.FORMAT_ADDENDUM)",
+  "withdrawn": "the previous cut claimed the parent enumerates these headings. It does not; USEFUL-JOB.md enumerates topics."
+ },
+ "verification_argv_sha256": {
+  "default": "b78bb645abebf01817e56cadce17e324014295cdf34bd59e3baa06ab96daa894",
+  "format_selected": "e7161e410ef9274b3e67e2b3bec58faaca87642acb1e280c06a8d716aec280d7"
+ }
+}

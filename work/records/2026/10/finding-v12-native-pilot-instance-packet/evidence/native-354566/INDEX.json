@@ -1,0 +1,73 @@
+{
+ "EVERY_MIDDLE_LINK_IS_NOW_LOAD_BEARING": {
+  "CONNECTED": {
+   "log": "arm-CONNECTED.log",
+   "result": "12 tests OK"
+  },
+  "MIDDLE1_single_worker_operations_from_to_worker_operations": {
+   "log": "arm-MIDDLE1-operations_from.log",
+   "result": "1 FAILURE -- the acquisition case"
+  },
+  "MIDDLE2_worker_operations_to_the_worker_composition": {
+   "log": "arm-MIDDLE2-worker_operations.log",
+   "result": "2 FAILURES -- the acquisition case and the both-stage-workers case"
+  },
+  "MIDDLE3_stage_execution_operations_from_to_worker_operations": {
+   "log": "arm-MIDDLE3-stage_operations_from.log",
+   "result": "1 FAILURE -- the both-stage-workers case"
+  },
+  "method": "one-line reversion per link, then run the same 12 cases",
+  "plus_the_two_endpoint_arms_from_claim354527": "factory unwired (1 failure) and reserve unwired (3 failures), retained in evidence/native-354527",
+  "so": "all five links -- factory, stage operations_from, single_worker operations_from, worker_operations, reserve -- are individually proved to be load-bearing, and the proof rests on actual acquired tokens rather than on any source-text or signature surrogate"
+ },
+ "STILL_OWED_and_the_review_named_each": [
+  "EXACT STOP/CANCEL. I prove expiry through the real overdue owner; the review is right that overdue SELECTION is not exact stop or cleanup, and cancellation is not proved at all.",
+  "CLEANUP AND UNKNOWN HOLDS beyond expiry-is-not-release and resource-stays-held.",
+  "PERSISTED RESTART. My replay case reuses the same open store, and the review is right that same-store replay is not restart: a reopened store proving durable original timing is still owed.",
+  "THE JOINED OWNER-PRODUCED FAILURE through durable capture, /7 status and the packaged secret-free report."
+ ],
+ "THE_BLOCKER_AND_THE_FIX": {
+  "accepted": "correct on every count; the surrogate class is DELETED, not supplemented",
+  "finding": "NativeComposition proved the middle with inspect.signature/getsource and the factory case mocked operations_from. Both are surrogates: a source-text assertion passes while the value is dropped at runtime, and a mocked composer never composes. The endpoint arms did not establish MIDDLE forwarding.",
+  "fix": "two real-composition cases that OBSERVE THE ACQUIRED TOKEN -- single_worker.operations_from driven through self.commanded to an actual dispatch, with token['seconds'] read out of the store the serving pass wrote; and stage_execution.factory composing REAL stage workers whose lifetime_policy is asserted by object identity, not source text"
+ },
+ "and_its_negative": "the same real serving WITHOUT the policy acquires exactly 900 -- the recorded pilot defect, reproduced through the real composition",
+ "answers_review": "review-2026-10-22T19-38-15Z.md (reviewer claim354560)",
+ "boundaries": "no live instance, engine, provider or credential; no deployment, recovery, migration or shared import; no version-control mutation. The three middle arms are throwaway /tmp copies, not candidates.",
+ "claim": 354566,
+ "copies": {
+  "affected.log": "6352a8a76a80af66d14814de62cd4fb7d45b4c11c44f0ee2c4586a7792908c39",
+  "arm-CONNECTED.log": "50fe9787d03a2a023898300654daf92786d132bd2327d41ec3f21ad75e4328d9",
+  "arm-MIDDLE1-operations_from.log": "b0b68b401a2ff1c25b796f59dd4300b5f7834eefb4c7526c1a7de3fd5fc5e469",
+  "arm-MIDDLE2-worker_operations.log": "694849f1c5906dd834245bd2902dac5f355ff8091632a1f70cebe39745eb6f52",
+  "arm-MIDDLE3-stage_operations_from.log": "0b2627c5356dd18a32c687ee1a33558ab39e4d25cda55cc15eb9e6eea1619766",
+  "candidate-test_native_permission.py": "6de864895755625e6f9cb0921ae3aeb50e3d5c74528cd747f5a5b147b53cee00",
+  "progress-section.md": "ca5f809dc798b7ed6526f86d06def3b951d71a9d3fa9beb905090801d076559d"
+ },
+ "product_paths_UNCHANGED": {
+  "execution_limits.py": "24f27d7769e7f1ddbc7ee5b3477245cd51833c5dda53ecf78cf8ebe309a3f1c6",
+  "note": "no defect was exposed by the real-composition proof, so none was corrected",
+  "single_worker.py": "70cc08066e73b7504c21eed395361c8153947177dddf5980857b6e199a339e4a",
+  "stage_execution.py": "765c1567806c115feb1d15afde75b1099b23ba02b24fe7f7cedaec0ec7bea422",
+  "workspaces.py": "7db36ee60d5b32af70e25ba3fd6328b709475ad2f14a0b1b2de5230faa4e872d"
+ },
+ "schema": "baton.w325959-middle-forwarding/1",
+ "test_file": {
+  "from": "a94903feba74212ec486eb0c442ca0b8e23eaf55deeddb29cd568b8ff7813e64",
+  "to": "6de864895755625e6f9cb0921ae3aeb50e3d5c74528cd747f5a5b147b53cee00"
+ },
+ "verification": {
+  "affected_modules": {
+   "modules": 4,
+   "verdict": "see affected.log"
+  },
+  "focused": {
+   "module": "tests.job_manager.test_native_permission",
+   "seconds": 0.212,
+   "tests": 12,
+   "verdict": "OK"
+  },
+  "scope": "focused deterministic boundary proof only, as the review directed -- no broad sweep and no live run"
+ },
+ "what_the_acquisition_case_observes": "the REAL serving pass acquires a token whose stored seconds equal execution_limits.task_token_seconds for the Job's own selected limits, is NOT LIFETIME_SECONDS, exceeds 900, carries no permission envelope (nothing native enforces stop_at), and is bound to the engine's runtime"
+}

@@ -1,0 +1,65 @@
+{
+  "accepted": false,
+  "base": "bbdacb5d38f6cf2d2461e9da103d28f9ab30cc6c",
+  "base_title": "fix(v12): report retained failed-run candidates and effective timeouts",
+  "base_compared_this_claim": {
+    "claim": 329810,
+    "how": "read with rev-parse at the start of this claim and again before sealing; the preserved checkpoint's declared head is the same commit",
+    "unaccepted_candidates_bound": "none; W321528's 2c89d3aa and the W321776 host working tree are NOT bound as a base"
+  },
+  "checkpoint": {
+    "what": "the independently reviewed Stage-A slice of W321776, preserved by review 329794 and returned for isolated continuation",
+    "reviewer_evidence": "work/records/2026/09/finding-v12-complete-verification-context/findings/finding-paired-context-delivery/evidence/review-329794/",
+    "reviewer_manifest": "evidence/review-329794/CHECKPOINT.json",
+    "acceptance": "preservation only; no integration and no paired acceptance",
+    "focused_tests_at_review": {
+      "count": 96,
+      "result": "pass",
+      "module": "tests.manager.test_verification_context"
+    },
+    "paths": {
+      "v12/.dockerignore": {
+        "base_sha256": "7aae9bcf1a62bf98ef26c6c7ac284430d4d253da456283cda018db39f9fa96c6",
+        "bytes": 2931,
+        "restored_sha256": "b7da7ead0d55e0df74be3b2df79d309fd3aa5455967e3a6bc1d705293cb57ca8"
+      },
+      "v12/python/src/baton_v12/verification_context.py": {
+        "base_sha256": null,
+        "bytes": 26520,
+        "restored_sha256": "f599072ac1202e9b759d9e7850f76c98790e23710cf6181d5a6e8907dd51650e"
+      },
+      "v12/python/tests/manager/test_claude_agent.py": {
+        "base_sha256": "42191d077e411f9e0a08b82b69c7e2b06e8583a6a0acd6c8da6a4fa8b703492d",
+        "bytes": 211808,
+        "restored_sha256": "215e9db278b9d87c971be970528646d2fd5fad5b74ef927a49036916ba37288e"
+      },
+      "v12/python/tests/manager/test_verification_context.py": {
+        "base_sha256": null,
+        "bytes": 35250,
+        "restored_sha256": "42dcbfc99ef97c5191461d901bc32630ac58641c77c73341cae9bea1b0f264ff"
+      },
+      "v12/worker/Dockerfile.claude": {
+        "base_sha256": "9f7e439babafabb5303aac0c17a2ac5179390c5a63fb74824b6c851ea4ab12ef",
+        "bytes": 14206,
+        "restored_sha256": "487748a01c72906d3725b78ecafe060a4d290c070822ecb20c8373fe82589b49"
+      }
+    },
+    "triple_agreement": "every digest above was compared this claim against THREE holders -- the reviewer's CHECKPOINT.json declaration, the reviewer's byte-for-byte copies under evidence/review-329794/checkpoint/, and the live host working tree -- and all three agree",
+    "two_files_the_base_does_not_carry": "verification_context.py and test_verification_context.py are new, so their base digest is null and restore refuses if the checkout already holds a file there"
+  },
+  "delivery": "the existing read-only nominated-source bind at /input/source; exact file buffers restored by a digest-verified script, never model-transcribed and never treated as an accepted base",
+  "restore_sha256": "4db9bfc9aed97cddb0425ace19cbb0364d20fbe2da66a8bc42e5486d272fb830",
+  "governing_packet": {
+    "path": "work/records/2026/09/finding-v12-complete-verification-context/findings/finding-context-packet",
+    "checkpoint_commit": "6348161e608187393e45454db63c192a93f6deb3",
+    "members": ["PACKET.md", "CONTEXT-CONTRACTS.md", "VERIFICATION.md", "TASK-INSTRUCTIONS.md", "PINS-321780.json"]
+  },
+  "returned_by": {
+    "review": "review-2026-10-19T04-39-20Z.md",
+    "seq": 329803,
+    "ruling": "the delivered slice is preserved, but host working-tree product edits lack selected v12 Job/attempt provenance; prepare a digest-bound isolated continuation packet consuming this exact checkpoint as explicit input. No launch authorized."
+  },
+  "schema": "baton.w321776-continuation-provenance/1",
+  "state": "prepared-not-executed",
+  "work": "2b077949-W321776"
+}

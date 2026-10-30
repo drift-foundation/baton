@@ -1,0 +1,17 @@
+{
+  "authoring_log": "/home/sl/baton-instances/attempt-diagnostics-w333486-334663/packet/outcome.json.authoring.log",
+  "child_exited": true,
+  "child_started": true,
+  "child_status": 1,
+  "elapsed_seconds": 0.5057386530024814,
+  "enforcement": {
+    "attempts": {},
+    "faults": [],
+    "state": "stopping"
+  },
+  "enforcement_path": "/home/sl/baton-instances/attempt-diagnostics-w333486-334663/packet/outcome.json.enforcement-61598-1792437988247611207.json",
+  "faults": [],
+  "operator_signals": [],
+  "recovery_only": false,
+  "state": "held"
+}

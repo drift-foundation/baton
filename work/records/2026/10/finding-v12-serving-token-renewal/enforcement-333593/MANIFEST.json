@@ -1,0 +1,8 @@
+{
+  "files": {
+    "DISPOSITION.md": "f34bf3dd36ec26ee3f08dbb9c23eb60ab330d322b742e14aab1b9f4acae94b07",
+    "RESULT.json": "ff7694f0b84cc495b9c8cbb3443903514ac33e6a39b3e3b042725d19ef13f133",
+    "probe.py": "192021d4902b67e5ce9c65733eed18da3828f458153e4522a8bcb22b3a9a2569"
+  },
+  "state": "blocked-authoring-enforcement-prerequisite"
+}

@@ -1,0 +1,10 @@
+{
+  "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+  "executable": "/usr/bin/python3",
+  "platform": "Linux-6.17.0-41-generic-x86_64-with-glibc2.42",
+  "verification": "direct disposable candidate; fake engine/provider; no v12 execution",
+  "bytecode_writes": false,
+  "command_timeout_seconds": 150,
+  "composition_case_timeout_seconds": 20,
+  "composition_case_reap_seconds": 5
+}

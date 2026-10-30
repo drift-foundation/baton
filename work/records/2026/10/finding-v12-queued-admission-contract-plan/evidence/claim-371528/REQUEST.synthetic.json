@@ -1,0 +1,17 @@
+{
+  "schema": "baton.v12.job-template-request/1",
+  "task": {
+    "task_id": "synthetic-queue-371528",
+    "statement": "Inspect synthetic source."
+  },
+  "source_selection": "installed",
+  "scope": {
+    "work": [
+      "synthetic.md"
+    ],
+    "tests": []
+  },
+  "acceptance": [
+    "Report only fixture evidence."
+  ]
+}

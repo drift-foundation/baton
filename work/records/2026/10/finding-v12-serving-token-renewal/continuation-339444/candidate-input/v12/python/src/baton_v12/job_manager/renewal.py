@@ -1,0 +1,876 @@
+"""W333485: the bounded serving renewal pass, and the permission it may extend.
+
+TOK-9 and section 19 policy 2 under `v12/DESIGN.md`: "The host MAY explicitly
+renew a still-unexpired, unrevoked token for the same resource, generation,
+operation and execution under the selected bounded policy." The grant authority
+is `worker_manager.tokens` and it is unchanged by this module: `tokens.renew` is
+the atomic conditional decision, it owns the deadline revision, the replay rule,
+the renewal bound and the expiry/ambiguity judgements, and nothing here recomputes
+any of them.
+
+WHAT WAS MISSING WAS THE CALLER. Measured on this candidate's base before a line
+was written: `grep -rn "tokens.renew" v12/python/src v12/python/tools`
+finds the definition, the tests and no production invocation at all -- so every
+granted permission in a serving deployment ran to its initial lifetime and then
+became the expiry pass's problem, however healthy the execution was. This module
+is that caller, and it is deliberately only a caller.
+
+WHY IT LIVES IN THE JOB MANAGER. The decision needs facts from two owners at
+once -- the Host Worker Manager's attempt rows and token records, and this
+store's own episodes and ending obligations -- and the package that may import
+both is this one (the Worker Manager may not import upwards). The DESIGN's
+component table puts "eligibility" and "ending obligations" here and "token
+ownership" there, which is exactly the split this file composes: this module
+asks, `tokens.renew` decides.
+
+THE SELECTED POLICY, AND WHAT ITS STANDING ACTUALLY IS. `SCAN_SECONDS = 30`
+and `LEAD_SECONDS = 120` are AN UNACCEPTED PROPOSAL of this candidate, not an
+owner selection and not a measured compliance claim. DESIGN section 19 says
+renewal policy bounds are "concrete implementation/profile selections to pin
+before execution", and pinning them is this module's job -- but nothing here
+may call them accepted, and the acceptance suite therefore does two separate
+things: it DERIVES their consequences (`schedule`) and it DEMONSTRATES, on a
+controlled clock that charges every interleaved delay, that the derived ladder
+is actually reached (`tests/job_manager/test_serving_renewal.py`). The residual
+interference budget is stated by `interference_budget`, which refuses to answer
+when the terms do not fit inside the lead instead of returning a number that
+looks like a guarantee. The two TOKEN constants are CONSUMED, not raised:
+`RENEWAL_SECONDS is tokens.LIFETIME_SECONDS` and
+`NOMINAL_RENEWALS is tokens.RENEWAL_LIMIT`.
+
+WHAT THIS PASS WILL NOT DO, each because a requirement says so:
+
+  * No external I/O, at all. Every act here is a read or one short write on one
+    of the two stores -- no engine, no filesystem, no subprocess, no provider.
+    That is what makes it safe to ask BETWEEN a reclaim's engine calls, which is
+    how a 1440-second command allowance is kept from eating a 120-second lead
+    (`tools/job_manager.py:_pumping`), and it is why DB-1 is satisfied by
+    construction rather than by inspection.
+  * No renewal on every scan. A scan that is not within the lead answers
+    `not-due` and writes nothing; "renew early because we happen to be looking"
+    is how a bounded four-renewal allowance is spent in the first two minutes.
+  * No reset of anything on restart. A restarted pass holds no scan history and
+    no cached token view: it reads committed state, so a renewal already
+    committed is seen as committed and a Job's invocation ceilings are not
+    touched by any path here (`execution_limits` is read by its own owner at
+    launch preparation and this module writes nothing it reads).
+  * No revival. An overdue generation is REFUSED and its expiry is enforced --
+    see `_overdue` -- because no scheduling lead can compensate for an outage,
+    and a pass that renewed whatever it found late would be exactly the
+    "clock adjustment revives the token" TOK-9 forbids.
+  * No release of an uncertain runtime, and no extension of a limit, when the
+    four-renewal allowance is spent: `exhausted` leaves the existing final
+    deadline standing and says so.
+  * No extension decided by a read that happened before the write. See
+    `_fenced` and `Fencing`: the authoritative control-store eligibility is
+    re-proved INSIDE the token owner's own renewal transaction, under its write
+    lock, so a cancellation, an ending, a supersession, a revocation or a
+    rebinding that committed after this pass looked REFUSES the extension
+    rather than being reported after it succeeded.
+
+THE ONE RESIDUAL WINDOW, STATED RATHER THAN PAPERED OVER. Two SQLite stores
+have two connections and no shared transaction, and DB-1 forbids reaching the
+second one from inside the first one's transaction -- so the Job store's own
+facts cannot be conditions of a control-store write. Three of them do not need
+to be: cancellation lands on the control store's `worker_disposition`, an
+ending lands on its `output`/`cleanup` axes and its token return, and a
+supersession lands on a later `assignment_generation` there -- all fenced
+atomically below. What is NOT fenced is a composed ending INTENT, which
+`ending.register_ending` commits to the Job store before any of those axes
+move. For that one fact the gate is a read taken as late as this composition
+can take it -- immediately before the fenced transaction, with no engine,
+filesystem or provider work in between -- and the post-write re-ask is
+REPORTING, not the mechanism. Closing it completely would require the Job-side
+writer to take a control-store fence of its own, which is a change to an
+accepted owner this Work was not scoped to make; it is recorded as a limitation
+instead of described as covered.
+"""
+
+from ..contracts import ContractRefusal
+from ..contracts.errors import name_value
+from ..worker_manager import attempts, boundaries, tokens
+from . import ending, episodes, schema
+
+__all__ = ["DECISIONS", "Fencing", "LEAD_SECONDS", "NOMINAL_RENEWALS",
+           "RENEWAL_SECONDS", "SCAN_SECONDS", "ServingRenewal", "decide",
+           "interference_budget", "job_eligibility", "job_refusal",
+           "schedule", "serving_renewal"]
+
+# -- the pinned policy, with its consequences derived ------------------------
+#
+# NEITHER OF THE FIRST TWO IS ACCEPTED. They are this candidate's proposal and
+# they are retained as one until an owner selects them; what the candidate does
+# own is that their consequences are derived rather than asserted and that the
+# derived ladder is demonstrated on a controlled clock.
+#
+# SCAN_SECONDS   the floor between two inspections of the eligible set. A floor
+#                rather than a cadence: the pass is asked more often than this
+#                (every tick, before every delegated canonical act of a
+#                reconcile or a sweep, and between a reclaim's engine calls)
+#                and answers `scanned: False` until the floor has passed, so
+#                the DB cost of being asked often is bounded while the LATENCY
+#                of a decision stays small.
+# LEAD_SECONDS   how much permission must remain before a renewal is due. It is
+#                the budget for everything that can delay a decision: the scan
+#                floor, one bounded blocking act in whichever pass interleaves
+#                this one, and the database and ending work around them. The
+#                terms are named and added up by `interference_budget`, which
+#                refuses rather than returning a negative residual.
+# RENEWAL_SECONDS  what is requested from the host's trusted clock. The token
+#                owner's own lifetime, unchanged -- a renewal asking for more
+#                than an acquisition would be a token constant raised here.
+# NOMINAL_RENEWALS the token owner's bound, consumed rather than restated.
+SCAN_SECONDS = 30
+LEAD_SECONDS = 120
+RENEWAL_SECONDS = tokens.LIFETIME_SECONDS
+NOMINAL_RENEWALS = tokens.RENEWAL_LIMIT
+
+# What one candidate's visit can answer, as a closed vocabulary. A reader that
+# cannot tell `not-due` from `held` cannot tell a healthy execution from one
+# whose permission this manager has stopped being able to extend.
+DECISIONS = ("renewed", "replayed", "not-due", "ineligible", "held",
+             "fenced", "exhausted", "expiry-enforced")
+
+
+def schedule(*, lifetime=RENEWAL_SECONDS, lead=LEAD_SECONDS,
+             renewals=NOMINAL_RENEWALS, scan=SCAN_SECONDS):
+    """The ladder this policy produces, COMPUTED from the four numbers.
+
+    The figures in the Work's proposal -- renewals due at 780, 1560, 2340 and
+    3120 elapsed seconds and a final deadline at 4020 -- are consequences of
+    (900, 120, 4), not independent facts to be maintained beside them. So they
+    are derived here and asserted in the acceptance suite against the elapsed
+    instants a controlled clock actually reaches, which is the difference
+    between a pinned guarantee and a comment that used to be true.
+
+    `final_deadline_seconds` is the elapsed second at which permission ends if
+    every renewal is taken at the earliest instant the lead allows. It is not a
+    promise of useful provider time and it is not a cumulative Job allowance:
+    it is one resource permission's last deadline.
+    """
+    if type(lifetime) is not int or lifetime <= 0:
+        raise ContractRefusal("integrity", "schema",
+                              f"a renewal lifetime is a positive whole number "
+                              f"of seconds; this is {name_value(lifetime)}")
+    if type(lead) is not int or lead <= 0 or lead >= lifetime:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"a renewal lead is a positive whole number of seconds inside the "
+            f"lifetime it protects; this is {name_value(lead)} against a "
+            f"lifetime of {name_value(lifetime)}")
+    if type(renewals) is not int or renewals < 0:
+        raise ContractRefusal("integrity", "schema",
+                              f"a renewal bound is a whole number of "
+                              f"extensions; this is {name_value(renewals)}")
+    due, deadlines, deadline = [], [lifetime], lifetime
+    for _ in range(renewals):
+        due.append(deadline - lead)
+        deadline = (deadline - lead) + lifetime
+        deadlines.append(deadline)
+    return {"lifetime_seconds": lifetime, "lead_seconds": lead,
+            "scan_seconds": scan, "renewals": renewals,
+            "renews_after_seconds": tuple(due),
+            "deadlines_seconds": tuple(deadlines),
+            "final_deadline_seconds": deadline}
+
+
+# The interference terms this composition does NOT measure, named so that the
+# budget below is a sum of declared inputs rather than a sum of the two that
+# happened to be convenient. Review correction: the earlier arithmetic was
+# `lead - scan - engine`, which silently valued the database and ending work at
+# zero and was then described as a latency bound.
+BUDGET_TERMS = ("scan_seconds", "blocking_seconds", "database_seconds",
+                "ending_seconds")
+
+
+def interference_budget(*, blocking_seconds, database_seconds,
+                        ending_seconds, scan=SCAN_SECONDS, lead=LEAD_SECONDS):
+    """What is left of the lead after EVERY declared delay, or a refusal.
+
+    THIS IS AN ACCOUNTING OF DECLARED INPUTS AND IT IS NOT A TIMING PROOF.
+    Said first because the previous version of this function was taken for one.
+    It adds up the terms a caller states and reports the residual; it measures
+    nothing, and a caller that understates a term gets a cheerful answer. The
+    actual demonstration that a renewal lands before its deadline is the
+    controlled-clock acceptance suite, which charges the clock for each of
+    these delays at every seam and then asserts the instants the renewals
+    actually happen at.
+
+    WHY A TICK INTERVAL IS NOT ONE OF THE TERMS. Nothing in the serving loop is
+    bounded by its interval: `tools/job_manager.py:135` records a reclaim
+    command allowance of 3 engine calls x 30 seconds x 16 candidates = 1440
+    seconds, a reconcile or a sweep delegates canonical acts whose duration
+    belongs to somebody else, and a deployment's own reclaim pass is opaque to
+    this one. So the loop's cadence buys nothing and the composition does not
+    claim it: what bounds the gap between two inspections is WHERE the question
+    is asked -- before every delegated canonical act, before every engine
+    command the composed reclaim issues, and at the tick boundaries -- leaving
+    the scan floor plus ONE such act as the structural delay.
+
+      scan_seconds      the pass's own floor; a decision can be deferred by it
+      blocking_seconds  the longest single blocking act a pumped seam precedes
+                        (`_RECLAIM_SECONDS` for the composed reclaim's engine
+                        commands; a deployment's own bound for its own acts)
+      database_seconds  the caller's allowance for the control-store and
+                        Job-store work around that act. NOT measured here.
+      ending_seconds    the caller's allowance for the ending/custody work a
+                        reclaim performs beside its engine commands. NOT
+                        measured here either.
+
+    A non-positive residual is a REFUSAL rather than a negative number, because
+    a composition whose declared delays do not fit inside its own lead has no
+    schedule to report -- it has a policy to change. An outage longer than the
+    whole lead is not this function's business at all: `_overdue` refuses the
+    renewal and makes the expiry judgement durable, which is the only honest
+    answer to "no scheduling lead can compensate for an unbounded outage".
+    """
+    taken = {"scan_seconds": scan, "blocking_seconds": blocking_seconds,
+             "database_seconds": database_seconds,
+             "ending_seconds": ending_seconds}
+    for term in BUDGET_TERMS:
+        value = taken[term]
+        if type(value) is not int or type(value) is bool or value < 0:
+            raise ContractRefusal(
+                "integrity", "schema",
+                f"{term} is a whole number of seconds this composition may "
+                f"spend before a renewal decision; this is "
+                f"{name_value(value)}")
+    if type(lead) is not int or lead <= 0:
+        raise ContractRefusal("integrity", "schema",
+                              f"a renewal lead is a positive whole number of "
+                              f"seconds; this is {name_value(lead)}")
+    spent = sum(taken[term] for term in BUDGET_TERMS)
+    residual = lead - spent
+    if residual <= 0:
+        raise ContractRefusal(
+            "policy", "denied",
+            f"the declared delays before a renewal decision total {spent} "
+            f"seconds and the renewal lead is {lead}; this composition cannot "
+            f"claim a timely decision, and raising the lead or lowering a term "
+            f"is a policy change rather than something to round off")
+    return dict(taken, lead_seconds=lead, declared_seconds=spent,
+                residual_seconds=residual)
+
+
+# -- the JOB store's own half of eligibility ---------------------------------
+
+
+def job_refusal(store, attempt_id):
+    """None when THIS store's records permit continued permission, else why not.
+
+    ASKED AT THE OWNER'S BOUNDARY. Whether a Job's episode is still the live one,
+    whether it ended, and whether a composed ending has been registered for it
+    are this store's facts; the Worker Manager cannot answer them and a renewal
+    pass that guessed would renew permission for an execution this control plane
+    has already finished with.
+
+    UNKNOWN CORRESPONDENCE REFUSES. A control store legitimately carries attempts
+    belonging to other Job stores, so "no episode here names this attempt" is an
+    ordinary answer -- and it is a REFUSAL rather than a pass, because this
+    deployment cannot establish that the execution is still wanted. The honest
+    consequence is that the permission runs to its current deadline and the
+    expiry path owns it, which is the same outcome as before any renewal existed.
+    """
+    boundaries.identity(attempt_id, "a runtime attempt id")
+    found = [boundaries.row(record, "a persisted stage episode",
+                            schema.EPISODE_COLUMNS)
+             for record in store._connection.execute(
+                 "SELECT * FROM episodes WHERE attempt_id = ? "
+                 "ORDER BY stage_id, episode", (attempt_id,)).fetchall()]
+    if not found:
+        return (f"no episode of this Job store asked for attempt "
+                f"{name_value(attempt_id)}; an execution whose correspondence "
+                f"this control plane cannot establish is held at its current "
+                f"deadline rather than extended")
+    if len(found) > 1:
+        return (f"{len(found)} episodes name attempt {name_value(attempt_id)}; "
+                f"one episode asks for one attempt, and choosing between them "
+                f"would be inventing which one this permission serves")
+    episode = found[0]
+    if episode["ended_state"] is not None:
+        return (f"stage {name_value(episode['stage_id'])} episode "
+                f"{episode['episode']} ended as "
+                f"{name_value(episode['ended_state'])}; an ended episode's "
+                f"execution is not extended")
+    # AND IT MUST BE THE STAGE'S CURRENT EPISODE. `ended_state IS NULL` on this
+    # row and a different live episode on the same stage is the supersession
+    # case: a correction opens the successor, and the predecessor's permission
+    # is the expiry path's business rather than this pass's.
+    live = episodes.live_of(store, episode["stage_id"])
+    if live is None or live["episode"] != episode["episode"]:
+        return (f"stage {name_value(episode['stage_id'])} is now attempted by "
+                f"episode {None if live is None else live['episode']} and this "
+                f"attempt belongs to episode {episode['episode']}; a superseded "
+                f"episode holds no current assignment generation")
+    if ending.intent_of(store, episode["stage_id"],
+                        episode["episode"]) is not None:
+        return (f"stage {name_value(episode['stage_id'])} episode "
+                f"{episode['episode']} has a registered composed ending; the "
+                f"obligation to finish it is not a reason to extend it")
+    return None
+
+
+def job_eligibility(store):
+    """`job_refusal` as the capability the pass is composed with.
+
+    A capability rather than the store itself, for the reason
+    `tools/job_manager.py` takes its reads by name: a pass handed a whole Job
+    store could write to it, and this one has no business doing so.
+    """
+    def eligible(attempt_id):
+        return job_refusal(store, attempt_id)
+
+    return eligible
+
+
+# -- the HOST's half of eligibility ------------------------------------------
+#
+# Every axis read here is a durable fact about the execution's lifecycle. ACTIVITY
+# IS NOT AMONG THEM, deliberately: `activity_bytes`/`activity_at` are a liveness
+# PROJECTION, and TOK-9's first sentence is that liveness does not extend a token.
+# A busy cancelled attempt is refused below and a silent running one is renewed,
+# which is the asymmetry that sentence asks for.
+_LIFECYCLE = (("execution_runtime", "running"),
+              ("worker_disposition", "none"),
+              ("output", "open"),
+              ("cleanup", "pending"))
+
+
+def _attempt_refusal(control, row):
+    """None when this attempt row may still hold renewable permission."""
+    attempt_id = row["runtime_attempt_id"]
+    if row["assignment_generation"] is None:
+        return (f"attempt {name_value(attempt_id)} has fixed no assignment; "
+                f"permission is extended for a current assignment generation "
+                f"and an unactivated attempt names none")
+    for axis, required in _LIFECYCLE:
+        if row[axis] != required:
+            return (f"attempt {name_value(attempt_id)} has {axis}="
+                    f"{name_value(row[axis])} rather than "
+                    f"{name_value(required)}; an ending, cancellation or "
+                    f"settled execution is not renewed")
+    if row["runtime_id"] is None:
+        return (f"attempt {name_value(attempt_id)} has no attached runtime; "
+                f"permission is extended for one uniquely bound current "
+                f"execution")
+    # SUPERSESSION, AT THE IDENTITY THE AUTHORITY MINTS. A later generation of
+    # the same (authority, Work, participant) means this attempt's authority has
+    # moved on even if its own axes have not been observed yet -- and extending
+    # the older one would be renewing permission for a stale assignment.
+    later = attempts._attempts(
+        control,
+        "WHERE authority_uuid = ? AND work_id = ? AND "
+        "assignment_participant = ? AND assignment_generation > ? "
+        "ORDER BY assignment_generation",
+        (row["authority_uuid"], row["work_id"],
+         row["assignment_participant"], row["assignment_generation"]))
+    if later:
+        return (f"attempt {name_value(attempt_id)} holds assignment generation "
+                f"{row['assignment_generation']} and generation "
+                f"{later[-1]['assignment_generation']} has since been fixed; a "
+                f"superseded generation's permission is not extended")
+    return None
+
+
+def _token_refusal(control, row, state, *, operation):
+    """None when this generation is the one renewable permission of its domain.
+
+    The lifecycle facts are read from the token owner's own public reader, so
+    this compares rather than decides -- and every comparison here is one the
+    Work's eligibility list names: same domain and generation, same launch
+    operation, uniquely bound current runtime, no return, revocation or timing
+    ambiguity, and no unresolved activation.
+    """
+    attempt_id = row["runtime_attempt_id"]
+    if state["returned"]:
+        return (f"generation {state['generation']} of "
+                f"{name_value(state['domain'])} has been returned")
+    if state["revoked"]:
+        return (f"generation {state['generation']} of "
+                f"{name_value(state['domain'])} has been revoked; a withdrawn "
+                f"entitlement is not extended")
+    if state["timing_ambiguous"]:
+        return (f"this manager's timing for generation {state['generation']} of "
+                f"{name_value(state['domain'])} is AMBIGUOUS and held; "
+                f"ambiguous timing is reconciled, never resolved by renewing")
+    if state["launch"] != operation:
+        return (f"generation {state['generation']} of "
+                f"{name_value(state['domain'])} journalled launch "
+                f"{name_value(state['launch'])} and this attempt's start "
+                f"operation is {name_value(operation)}; a renewal is for the "
+                f"same launch operation")
+    if state["attempt"] != attempt_id:
+        return (f"generation {state['generation']} of "
+                f"{name_value(state['domain'])} was acquired for attempt "
+                f"{name_value(state['attempt'])} and this row is "
+                f"{name_value(attempt_id)}")
+    if state["container"] is None:
+        return (f"generation {state['generation']} of "
+                f"{name_value(state['domain'])} has bound no container, so "
+                f"whether its launch produced an execution is UNKNOWN")
+    if state["container"] != row["runtime_id"]:
+        return (f"generation {state['generation']} of "
+                f"{name_value(state['domain'])} governs container "
+                f"{name_value(state['container'])} and the attempt is attached "
+                f"to {name_value(row['runtime_id'])}; the two names disagree "
+                f"and the disagreement is held rather than resolved by picking "
+                f"one")
+    if state["activation_started"] is not True:
+        return (f"the activation of container {name_value(state['container'])} "
+                f"is not positively settled, so whether it is running is "
+                f"UNKNOWN; an unresolved activation is held")
+    held = tokens.outstanding(control, state["domain"])
+    if [one["generation"] for one in held] != [state["generation"]]:
+        return (f"{name_value(state['domain'])} has outstanding generations "
+                f"{[one['generation'] for one in held]} and this renewal names "
+                f"{state['generation']}; permission is extended only for the "
+                f"one current generation of a domain")
+    return None
+
+
+# -- the fence: the composing owner's conditions, proved under the write lock --
+
+
+class Fencing:
+    """The control store, handed to `tokens.renew` with ONE condition added.
+
+    WHY THIS SHAPE. The correction this answers is exact: "define and test
+    serialization/fencing that prevents extension after
+    cancellation/end/supersession; a post-write ineligible report is
+    insufficient." A read taken before a write proves only its own instant, so
+    the first version of this pass -- read eligibility, renew, re-read, report
+    `ineligible_after_renewal` -- could extend a cancelled execution's
+    permission and then say so. Saying so is not preventing it.
+
+    What prevents it is proving the condition INSIDE the transaction that
+    commits the extension, under the same write lock, which is where
+    `tokens.renew` already re-proves its own: `_owning`, the expected revision
+    and the renewal bound. `control` is an INJECTED CAPABILITY there -- "a
+    capability proven by use, reached only through its own owner APIs" -- so
+    the way to add a condition to that transaction without touching the grant
+    authority is to hand it a control store whose `transact` wraps the action
+    the token owner supplies. Everything else is the real store, by delegation.
+
+    WHAT IT MAY AND MAY NOT DO, and both are structural rather than promised:
+
+      * It may only REFUSE. The wrapper calls the condition and then the token
+        owner's own action, unchanged; it cannot alter what is written, cannot
+        write anything itself, and cannot turn a refusal into a success.
+      * It performs CONTROL-STORE READS ONLY -- the attempt row, the token
+        documents and the outstanding generations of the domain, all through
+        their owners' own readers on the connection the transaction holds. No
+        Job store, no filesystem, no engine, no subprocess: DB-1 forbids
+        external I/O inside a transaction, and the acceptance suite instruments
+        this boundary rather than trusting the sentence.
+      * IT DOES NOT RUN ON REPLAY. `ControlStore.transact` answers a committed
+        record without reaching the action at all, so a retry after a lost
+        reply returns the extension that already happened instead of being
+        re-fenced against state that has moved since. That is TOK-9's "a lost
+        renewal reply grants nothing beyond the committed authority state", and
+        it would have been broken by a fence placed in front of the call.
+
+    THE TOKEN OWNER STILL DECIDES EVERY TOKEN FACT. Expiry, revocation, return,
+    the revision condition, the replay and the four-renewal bound are proved by
+    `tokens` in its own code; this adds the composing owner's eligibility to
+    the same instant and nothing else.
+    """
+
+    def __init__(self, control, condition):
+        self._control = control
+        self._condition = boundaries.capability(
+            condition, "a renewal fence proved inside the renewal transaction")
+        self.fenced = 0
+        self.refused = None
+
+    def __getattr__(self, name):
+        # EVERYTHING ELSE IS THE REAL STORE. `tokens.renew` reads documents,
+        # asks the store's clock and journals through members this composition
+        # has no opinion about, and a proxy that re-implemented any of them
+        # would be a second control store.
+        return getattr(self._control, name)
+
+    def transact(self, operation_id, kind, signature, action):
+        def fenced(connection):
+            self.fenced += 1
+            try:
+                self._condition(connection)
+            except ContractRefusal as refusal:
+                self.refused = refusal.message
+                raise
+            return action(connection)
+
+        return self._control.transact(operation_id, kind, signature, fenced)
+
+
+def _fence(control, row, *, domain, generation, operation):
+    """The condition re-proved under the renewal's write lock.
+
+    THE SAME TWO REFUSALS THE PASS ALREADY ASKED, asked again where it counts.
+    Not a narrower restatement of them: a fence that proved a subset would be a
+    fence with a hole in exactly the axis nobody thought of, so this calls the
+    same `_token_refusal` and `_attempt_refusal` the pre-flight called and
+    turns whatever they answer into a refusal.
+
+    `connection` is accepted and deliberately UNUSED. The readers below reach
+    the store through its own owners, which read `control._connection` -- the
+    same connection the transaction holds, so these reads see the locked state
+    and a competing commit is visible NOW. Taking the parameter keeps the
+    signature honest about what the token owner hands a journalled action.
+    """
+    def condition(connection):                             # noqa: ARG001
+        current = attempts._attempt_row(control, row["runtime_attempt_id"])
+        if current is None:
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"attempt {name_value(row['runtime_attempt_id'])} is no longer "
+                f"a row of this control store; permission is not extended for "
+                f"an execution this manager has stopped holding")
+        state = tokens.token_of(control, domain, generation)
+        if state is None:
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"generation {generation} of {name_value(domain)} is no longer "
+                f"readable; a renewal is not committed against a generation "
+                f"this manager cannot read")
+        refusal = _token_refusal(control, current, state, operation=operation)
+        if refusal is None:
+            refusal = _attempt_refusal(control, current)
+        if refusal is not None:
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"the renewal fence refuses this extension: {refusal}")
+        return None
+
+    return condition
+
+
+# -- one candidate's visit ---------------------------------------------------
+
+
+def _due(now, expires_at, *, lead):
+    """Whether `now` is inside the lead before `expires_at`.
+
+    Composed as `now + lead >= deadline` rather than `deadline - lead <= now`
+    because the owned arithmetic this build has moves an instant FORWARD by a
+    positive number of seconds, and instants are compared as text.
+    """
+    return boundaries.deadline(now, lead, "a renewal lead") >= expires_at
+
+
+def _overdue(control, state, *, execution, operation, seconds):
+    """Refuse a late renewal, and make the timing judgement DURABLE.
+
+    The lead is a schedule and not a guarantee: an outage, a suspended process
+    or an engine that would not answer can carry a generation past its deadline,
+    and TOK-9 is explicit that nothing revives it. So this does not quietly skip
+    an overdue generation -- it asks the public atomic API, which refuses and, on
+    the way, records the expiry judgement that makes the fact un-arguable for
+    every later act. The reclaim pass then owns revocation, stop and confirmed
+    cessation; this pass owns refusing to extend.
+
+    A generation already judged expired is not asked again: the record exists and
+    a second request would answer the same refusal for nothing.
+
+    UNFENCED, DELIBERATELY. `Fencing` exists to stop an extension; this call is
+    asked in order to be REFUSED and to leave the expiry judgement behind, and
+    a condition that refused first would replace the token owner's authoritative
+    expiry answer with this composition's eligibility prose. `_owning` refuses an
+    expired generation before the transaction is even opened, so there is no
+    write here for a fence to guard.
+    """
+    if state["expiry_judged_at"] is not None:
+        return (f"generation {state['generation']} of "
+                f"{name_value(state['domain'])} was judged expired at "
+                f"{name_value(state['expiry_judged_at'])}; expiry has won and "
+                f"no renewal revives it")
+    try:
+        tokens.renew(control, state, execution=execution, operation=operation,
+                     expected_revision=state["revision"], seconds=seconds)
+    except ContractRefusal as refusal:
+        return refusal.message
+    # A RENEWAL THAT SUCCEEDED AGAINST AN EXPIRED READ means the state moved
+    # under this pass -- somebody renewed between the read and the request -- and
+    # the honest answer is the committed one rather than this read's.
+    return None
+
+
+def decide(control, governance, row, *, now, eligible=None,
+           lead=LEAD_SECONDS, seconds=RENEWAL_SECONDS):
+    """Visit one attempt's permission and answer exactly what was decided.
+
+    THE ORDER IS THE CONTRACT. The token's lifecycle is resolved first, because
+    an overdue or settled generation is not a candidate for any amount of
+    eligibility; then both owners' eligibility; then the lead; then one
+    conditional write through `tokens.renew`, carrying the revision this pass
+    OBSERVED. A caller that passed the revision it wished for rather than the one
+    it read would be asking the token owner to skip the state it claims to have
+    seen, and the owner refuses exactly that.
+
+    AND THE AUTHORITATIVE ELIGIBILITY IS PROVED AGAIN UNDER THE WRITE LOCK.
+    Everything above this line is a read, and a read proves only its own
+    instant. So the control store is handed to `tokens.renew` through `Fencing`
+    with `_fence` as its condition, and the whole of `_token_refusal` and
+    `_attempt_refusal` is re-asked inside the transaction that commits the
+    extension -- which is what makes a cancellation, an ending, a supersession,
+    a revocation, a rebinding or a second outstanding generation that committed
+    after the pre-flight REFUSE the renewal (`decision: "fenced"`) instead of
+    being reported after it succeeded.
+
+    THE JOB-SIDE GATE IS A LATE READ, AND THAT IS ITS EXACT STANDING. Two
+    stores, two connections, no shared transaction, and DB-1 forbids reaching
+    the second one from inside the first one's transaction -- so an episode's
+    liveness and a registered composed ending cannot be conditions of a
+    control-store write. They are asked TWICE instead: once with the rest of
+    the pre-flight, and again immediately before the fenced transaction with
+    nothing but database work in between. The post-write re-ask that follows is
+    REPORTING (`ineligible_after_renewal`), and the module docstring records why
+    the remaining window cannot be closed from inside this composition.
+    """
+    attempt_id = row["runtime_attempt_id"]
+    answer = {"attempt_id": attempt_id, "domain": None, "generation": None,
+              "decision": None, "why": None, "expires_at": None,
+              "revision": None, "renewals_remaining": None}
+    domain = tokens.domain_of(governance.resource_kind,
+                              governance.identity(row))
+    operation = attempts._start_operation_id(row)
+    answer["domain"] = domain
+    generation = tokens.generation_of(control, domain, execution=attempt_id,
+                                      operation=operation)
+    if generation is None:
+        return dict(answer, decision="ineligible",
+                    why=f"no generation of {name_value(domain)} was reserved by "
+                        f"attempt {name_value(attempt_id)} under its own start "
+                        f"operation")
+    state = tokens.token_of(control, domain, generation)
+    answer.update(generation=generation, expires_at=state["expires_at"],
+                  revision=state["revision"],
+                  renewals_remaining=state["renewals_remaining"])
+    if state["expired"]:
+        return dict(answer, decision="expiry-enforced",
+                    why=_overdue(control, state, execution=attempt_id,
+                                 operation=operation, seconds=seconds))
+    refusal = _token_refusal(control, row, state, operation=operation)
+    if refusal is None:
+        refusal = _attempt_refusal(control, row)
+    if refusal is not None:
+        # HELD RATHER THAN MERELY INELIGIBLE when what stands is an UNKNOWN this
+        # manager must reconcile instead of an ordinary end: the two are
+        # different operator actions and a reader cannot infer which from prose.
+        decision = "held" if ("UNKNOWN" in refusal or "AMBIGUOUS" in refusal) \
+            else "ineligible"
+        return dict(answer, decision=decision, why=refusal)
+    if eligible is not None:
+        refusal = eligible(attempt_id)
+        if refusal is not None:
+            return dict(answer, decision="ineligible", why=refusal)
+    if not _due(now, state["expires_at"], lead=lead):
+        return dict(answer, decision="not-due",
+                    why=f"permission stands until "
+                        f"{name_value(state['expires_at'])} and the renewal "
+                        f"lead is {lead} seconds")
+    if state["renewals_remaining"] <= 0:
+        # EXHAUSTION IS NOT AN EXTENSION AND NOT A RELEASE. The existing final
+        # deadline is left exactly where the last renewal put it, the resource
+        # stays held, and the holder finishes or is revoked.
+        return dict(answer, decision="exhausted",
+                    why=f"generation {generation} of {name_value(domain)} has "
+                        f"taken its {state['renewals']} renewals and the "
+                        f"bounded policy allows {NOMINAL_RENEWALS}; permission "
+                        f"ends at {name_value(state['expires_at'])} and is not "
+                        f"extended")
+    if eligible is not None:
+        # THE LATE READ. The pre-flight above happened before the lead check
+        # and the exhaustion check; this is the last instant at which this
+        # composition can ask the other store anything, and there is no engine,
+        # filesystem or provider work between here and the commit below.
+        refusal = eligible(attempt_id)
+        if refusal is not None:
+            return dict(answer, decision="ineligible", why=refusal)
+    fencing = Fencing(control, _fence(control, row, domain=domain,
+                                      generation=generation,
+                                      operation=operation))
+    try:
+        committed = tokens.renew(fencing, state, execution=attempt_id,
+                                 operation=operation,
+                                 expected_revision=state["revision"],
+                                 seconds=seconds)
+    except ContractRefusal as refusal:
+        if fencing.refused is None:
+            raise
+        # FENCED: the extension was refused by this composition's own condition
+        # inside the token owner's transaction, so the deadline did not move.
+        # Reported as its own decision rather than as `ineligible`, because the
+        # operator fact is different -- the pre-flight PASSED and the state
+        # changed under it, which is a race that happened rather than a
+        # candidate that was never eligible.
+        fresh = tokens.token_of(control, domain, generation)
+        return dict(answer, decision="fenced", why=fencing.refused,
+                    expires_at=fresh["expires_at"],
+                    revision=fresh["revision"],
+                    renewals_remaining=fresh["renewals_remaining"])
+    fresh = tokens.token_of(control, domain, generation)
+    answer.update(expires_at=fresh["expires_at"], revision=fresh["revision"],
+                  renewals_remaining=fresh["renewals_remaining"])
+    # REPLAYED, NOT RENEWED, when the committed record is not the revision this
+    # request would have written: a lost reply's retry answers the extension that
+    # already happened, and reporting that as a fresh renewal would double-count
+    # an allowance nobody spent twice.
+    decision = ("renewed" if committed["revision"] == state["revision"] + 1
+                else "replayed")
+    answer = dict(answer, decision=decision,
+                  why=f"generation {generation} of {name_value(domain)} now "
+                      f"stands at revision {committed['revision']} until "
+                      f"{name_value(committed['expires_at'])}")
+    if eligible is not None:
+        after = eligible(attempt_id)
+        if after is not None:
+            answer["ineligible_after_renewal"] = after
+    return answer
+
+
+# -- the pass a serving deployment runs --------------------------------------
+
+
+class ServingRenewal:
+    """One inspection of every governed permission this manager may extend.
+
+    ASKED OFTEN, SCANNING RARELY, DECIDING IMMEDIATELY. The serving loop asks
+    this at every tick boundary and the reclaim composition asks it before every
+    engine command; the scan floor turns most of those asks into a cheap
+    `scanned: False`, and the ones that do scan reach a decision in database work
+    alone. That is what separates a timely renewal decision from the blocking
+    engine and sweep work around it -- see `interference_budget` for the terms
+    that accounting takes and for what it explicitly does not measure.
+
+    NO CAP AND NO ROTATION, which is the opposite of the reclaim pass's choice
+    and for the opposite reason. A capped reclaim is fair because its cost is
+    engine calls; a capped renewal would be a deadline nobody looked at before it
+    passed. Every candidate is visited on every scan, each inside its own fault
+    boundary, and the cost of that is database reads over this manager's own
+    attempts.
+    """
+
+    def __init__(self, control, governance, *, eligible=None,
+                 scan_seconds=SCAN_SECONDS, lead=LEAD_SECONDS,
+                 seconds=RENEWAL_SECONDS):
+        self.control = control
+        self.governance = governance
+        self.eligible = (None if eligible is None
+                         else boundaries.capability(
+                             eligible, "a Job-side renewal eligibility read"))
+        self.scan_seconds = scan_seconds
+        self.lead = lead
+        self.seconds = seconds
+        # CUMULATIVE COUNTERS, carried in every answer. A scan that happened
+        # inside a reclaim's engine loop is reported nowhere else, so the counts
+        # are how a tick's report accounts for renewals this process performed
+        # between its own ticks.
+        self.scans = 0
+        self.asks = 0
+        self.renewals = 0
+        self.fenced = 0
+        self.scanned_at = None
+        self.next_scan_at = None
+
+    def _deferred(self, why, *, now):
+        return {"scanned": False, "scanned_at": self.scanned_at,
+                "asked_at": now, "next_scan_at": self.next_scan_at,
+                "why": why, "scans": self.scans, "asks": self.asks,
+                "renewals": self.renewals, "fenced": self.fenced,
+                "decisions": [], "refused": []}
+
+    def __call__(self, *, now):
+        now = boundaries.instant(now, "a renewal scan instant")
+        # HOW OFTEN THIS WAS ASKED, counted separately from how often it
+        # SCANNED. The difference is the whole latency argument: a tick that
+        # asked twelve times and scanned twice spent two scans' worth of
+        # database work and had twelve chances to notice a deadline.
+        self.asks += 1
+        if self.scanned_at is not None and now < self.scanned_at:
+            # THE CLOCK WENT BACKWARDS, AND THAT IS NOT A LICENCE TO LOOK AGAIN.
+            # TOK-9: ambiguous timing is held and reconciled. A scan taken on a
+            # clock this manager cannot trust would be deciding deadlines from
+            # it; the per-generation ambiguity record is the durable half, and
+            # it is written by the token owner when a renewal is actually asked.
+            return self._deferred(
+                f"this manager's clock read {name_value(now)} after a scan at "
+                f"{name_value(self.scanned_at)}; a scan is not taken on a clock "
+                f"that moved backwards", now=now)
+        if self.next_scan_at is not None and now < self.next_scan_at:
+            return self._deferred(
+                f"the scan floor of {self.scan_seconds} seconds stands until "
+                f"{name_value(self.next_scan_at)}", now=now)
+        if self.control._connection.in_transaction:
+            # ASKED FROM INSIDE A TRANSACTION, which is a caller defect and not
+            # something to work around: this pass writes, and a write nested in
+            # somebody else's transaction would be rolled back with it. Reported
+            # rather than raised, because the caller that asked is usually an
+            # engine-call seam whose own act must not fail for this.
+            return self._deferred(
+                "a transaction is open on this manager's control connection, so "
+                "no renewal decision is taken inside it", now=now)
+        self.scans += 1
+        self.scanned_at = now
+        self.next_scan_at = boundaries.deadline(now, self.scan_seconds,
+                                                "the next renewal scan")
+        decisions, refused = [], []
+        for row in self._candidates():
+            try:
+                answer = decide(self.control, self.governance, row, now=now,
+                                eligible=self.eligible, lead=self.lead,
+                                seconds=self.seconds)
+            except (KeyboardInterrupt, SystemExit):
+                raise
+            except ContractRefusal as refusal:
+                refused.append({"attempt_id": row["runtime_attempt_id"],
+                                "why": refusal.message})
+                continue
+            except Exception as fault:                     # noqa: BLE001
+                # ONE PERMISSION'S FAULT DOES NOT END THE SCAN, for the reason
+                # the reclaim pass collects its own: a scan that died on one
+                # unreadable record would leave every other deadline unvisited.
+                refused.append({"attempt_id": row["runtime_attempt_id"],
+                                "why": f"the renewal decision faulted: "
+                                       f"{fault!r}"})
+                continue
+            if answer["decision"] == "renewed":
+                self.renewals += 1
+            elif answer["decision"] == "fenced":
+                self.fenced += 1
+            decisions.append(answer)
+        return {"scanned": True, "scanned_at": now, "asked_at": now,
+                "next_scan_at": self.next_scan_at, "why": None,
+                "scans": self.scans, "asks": self.asks,
+                "renewals": self.renewals, "fenced": self.fenced,
+                "decisions": decisions, "refused": refused}
+
+    def _candidates(self):
+        """Every attempt row with a pinned boundary object, by identity.
+
+        THE SAME DISCOVERY THE RECLAIM PASS MAKES, and asked here rather than
+        imported from the tool: a package may not import a tool, and the attempt
+        table's own reader belongs to its owner. An attempt with no pinned
+        workspace object names no governed resource, so `decide` refuses it at
+        `governance.identity` and the fault boundary above records it.
+        """
+        return attempts._attempts(
+            self.control,
+            "WHERE workspace_device IS NOT NULL AND workspace_inode IS NOT NULL "
+            "ORDER BY runtime_attempt_id")
+
+
+def serving_renewal(control, store, *, governance=None,
+                    scan_seconds=SCAN_SECONDS, lead=LEAD_SECONDS,
+                    seconds=RENEWAL_SECONDS):
+    """The production composition: both owners' stores, one pass.
+
+    The one place a deployment's two stores meet for this decision. Composed by
+    `tools/job_manager.py serve`, and handed to the serving loop AND to the
+    reclaim pass -- the first for the tick boundary, the second so a long engine
+    pass cannot sit on a lead.
+    """
+    return ServingRenewal(
+        control, governance if governance is not None
+        else tokens.workspace_governance(),
+        eligible=job_eligibility(store), scan_seconds=scan_seconds, lead=lead,
+        seconds=seconds)

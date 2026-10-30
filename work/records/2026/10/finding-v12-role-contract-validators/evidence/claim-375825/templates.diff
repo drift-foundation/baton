@@ -1,0 +1,117 @@
+diff --git a/v12/python/src/baton_v12/job_manager/templates.py b/v12/python/src/baton_v12/job_manager/templates.py
+index 8bacb63a..c537251b 100644
+--- a/v12/python/src/baton_v12/job_manager/templates.py
++++ b/v12/python/src/baton_v12/job_manager/templates.py
+@@ -89,7 +89,8 @@ requests it, are W361912's.
+ 
+ from types import MappingProxyType
+ 
+-from . import documents, execution_limits, fresh_attempt, review_driver
++from . import (documents, execution_limits, fresh_attempt,
++               review_driver, role_contract)
+ from ..contracts import ContractRefusal, check_relative_path, digest, own
+ from ..contracts.errors import name_value
+ from ..contracts.secrets import check_no_durable_secret
+@@ -104,6 +105,7 @@ __all__ = ["ACCEPTANCE_LIMIT", "CANDIDATE_OUTPUT", "CONFIGURATION_MEMBERS",
+            "RESOLVED_TASK_MEMBERS", "ROLE_MEMBERS", "RULE_MEMBERS",
+            "SELECTION_MEMBERS", "SELECTION_ORIGINS", "SOURCE_MEMBERS",
+            "SCOPE_MEMBERS", "TASK_MEMBERS", "TASK_OPTIONAL", "TEMPLATES",
++           "IMPLEMENTATION_REVIEW_2",
+            "check_template", "owned_resolution", "resolution_digest",
+            "resolve", "submission_for_admission", "submission_id_for",
+            "template_document", "template_of"]
+@@ -123,6 +125,10 @@ RESOLUTION_SCHEMA = "baton.v12.job-template-resolution/1"
+ # reason: an edited entry is the reinterpretation the structure exists to
+ # prevent.
+ IMPLEMENTATION_REVIEW = "baton.v12.job-template.implementation-review/1"
++# AND ITS SECOND REVISION, W371294. The version is `role_contract`'s own,
++# because that module's descriptor NAMES the template it describes -- so there
++# is one spelling of this string rather than two that agree until they don't.
++IMPLEMENTATION_REVIEW_2 = role_contract.BASELINE_TEMPLATE
+ 
+ # WHICH DECLARED OUTPUT CARRIES THE CANDIDATE, spelled here and held to its
+ # owners by a case rather than by this sentence. `v12/worker/claude_agent.py`
+@@ -234,6 +240,34 @@ _AUTHORED = {
+     },
+ }
+ 
++# -- the second revision -----------------------------------------------------
++#
++# W371294, owner W371072 E371253. `/2` DIFFERS FROM `/1` IN EXACTLY TWO WAYS:
++# its version, and the development role contract bound to it in
++# `role_contract.TEMPLATE_CONTRACTS`. The stages, the dependency, the consumed
++# result, the produced outputs and all three rules are the same workflow.
++#
++# SO THE BODY IS DERIVED FROM `/1` RATHER THAN RETYPED, and that is the
++# correction rather than a saving. A second literal would let the two
++# revisions' graphs drift apart silently while one descriptor claimed to
++# describe the workflow both run -- and the descriptor is exactly a statement
++# about THIS graph's outputs. `_frozen` below copies every mapping into a
++# fresh one at every depth, so the two entries share no mutable member.
++#
++# WHAT `/2` DOES NOT DO, because the approved carrier change says "keep /1
++# unchanged" and "do not change the configured default implicitly": `/1`'s
++# declaration is byte-for-byte what it was, `DEFAULT_TEMPLATE` still names it,
++# and nothing resolves `/2` unless a request selects it by name. The request
++# schema needs no change for that -- its `template` operand is already text.
++#
++# AND THE DESCRIPTOR IS NOT A MEMBER HERE. `TEMPLATE_MEMBERS` is closed, so a
++# `role_contract` member on this entry would have had to exist on `/1` too,
++# which is the silent reinterpretation of an already admitted Job that the
++# whole admission slice exists to prevent. The binding lives with the
++# descriptor, whose owner is `role_contract`.
++_AUTHORED[IMPLEMENTATION_REVIEW_2] = dict(
++    _AUTHORED[IMPLEMENTATION_REVIEW], version=IMPLEMENTATION_REVIEW_2)
++
+ # WHICH TEMPLATE A BARE REQUEST MEANS WHEN A DEPLOYMENT CONFIGURES NOTHING.
+ # It is still RESOLVED and still SHOWN: the saving is typing, not visibility.
+ DEFAULT_TEMPLATE = IMPLEMENTATION_REVIEW
+@@ -474,6 +508,48 @@ for _version, _definition in TEMPLATES.items():
+     check_template(_definition)
+ del _version, _definition
+ 
++# W371294: THE DESCRIPTOR AND THE REGISTRY, HELD TOGETHER AT IMPORT.
++#
++# The binding lives in `role_contract` and the graph lives here, so these are
++# the two places that could disagree -- and a disagreement would mean a
++# descriptor describing outputs some other template's roles produce. Each
++# assertion below is one such drift, failing where it is written rather than
++# at the first Job that selects `/2`.
++#
++# `/1` CARRIES NO CONTRACT, asserted rather than assumed: that absence IS the
++# preserved legacy path, and a descriptor that acquired `/1` would reinterpret
++# every Job already resolved against it.
++assert role_contract.contract_for(IMPLEMENTATION_REVIEW) is None
++assert set(role_contract.TEMPLATE_CONTRACTS) <= set(TEMPLATES)
++assert DEFAULT_TEMPLATE == IMPLEMENTATION_REVIEW
++
++for _version in role_contract.TEMPLATE_CONTRACTS:
++    _contract = role_contract.contract_for(_version)
++    # The descriptor names the template it describes, and that template is
++    # the one it is registered under.
++    assert _contract["template"] == _version, _version
++    _declared = {one["name"] for one in _contract["outputs"]}
++    _produced = {one for _role in TEMPLATES[_version]["roles"]
++                 for one in _role["produces"]}
++    # EVERY PRODUCED OUTPUT IS DECLARED AND EVERY DECLARED OUTPUT IS
++    # PRODUCED. One direction alone is not enough: an undeclared output is a
++    # result with no concrete contract, and a declared output no role
++    # produces is a contract about something this workflow never makes.
++    assert _declared == _produced, (_declared, _produced)
++    # And the candidate output this table already names is the one the
++    # descriptor declares for it -- the same cross-check this module's
++    # `CANDIDATE_OUTPUT` comment describes against the worker image's copy,
++    # applied to the descriptor's.
++    assert role_contract.CANDIDATE_OUTPUT == CANDIDATE_OUTPUT
++    for _role in TEMPLATES[_version]["roles"]:
++        _named = [one for one in _contract["roles"]
++                  if one["role"] == _role["role"]]
++        assert len(_named) == 1, _role["role"]
++        assert set(_named[0]["produces"]) == set(_role["produces"]), _role
++        assert set(one["output"] for one in _named[0]["consumes"]) == set(
++            _role["consumes"]), _role
++del _version, _contract, _declared, _produced, _role, _named
++
+ 
+ def template_of(version):
+     """One template this build carries, selected by its exact version.

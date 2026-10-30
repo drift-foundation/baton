@@ -1,0 +1,154 @@
+{
+  "THE_FIRST_MEASUREMENT": {
+    "ceiling_seconds": 30,
+    "errors": 7,
+    "failures": 9,
+    "fits_the_ceiling": true,
+    "skipped_reported": [],
+    "tests": 864,
+    "unittest_seconds": 12.817,
+    "verdict": "FAILED (failures=9, errors=7)",
+    "what_this_does_not_settle": "unittest self-reported seconds are not the adapter wall clock, and the exit was 1, so nothing here is acceptance.",
+    "what_this_settles": "the five-module focused gate had NEVER been measured in any run. It now has, and the composed 30-second verification ceiling FITS with room: unittest reported 12.817s. That question is answered; the gate still exited 1."
+  },
+  "THE_PREPARATION_CONCERN_THIS_RAISES": "tests.manager.test_maintenance is in the sealed five-module argv because I put it there, and this is the first evidence that it may not be able to pass inside the worker verification sandbox at all. If that is so, this gate can never go green there, and that is a defect in MY preparation rather than in the producer work. It is reported for the reviewer and the owner to judge; I have not changed the gate, narrowed it, or re-run it, because weakening a gate to obtain a pass is exactly what TASK.md forbids and because the measurement that would settle it is not mine to take.",
+  "WHAT_IS_ESTABLISHED": [
+    "the gate ran to completion inside the selected isolated execution and exited 1",
+    "all 16 failing cases are in tests.manager.test_maintenance; the other four gate modules contributed none, including the new producer module tests.manager.test_attempt_failure_cause that the recovery brings",
+    "every traceback frame is in tests/manager/test_maintenance.py or src/baton_v12/worker_manager/workspaces.py. NEITHER IS A PATH THIS CANDIDATE CHANGED, and no changed path appears in any traceback at all",
+    "the visible assertions compare sandbox filesystem paths and the errors are ContractRefusal from workspaces.py about the reserved manager namespace, which is layout-shaped rather than producer-shaped"
+  ],
+  "WHAT_IS_NOT_ESTABLISHED": [
+    "that these 16 cases pass at the base in this same environment. NO BASE MEASUREMENT OF THIS ARGV EXISTS in any run, so \"pre-existing\" is a hypothesis and not a finding",
+    "that the candidate is definitely not implicated through documents.py or intake.py by some path that does not appear in a traceback",
+    "anything about producer acceptance. The gate exited 1, so the disposition is verification-failed and the candidate is not accepted",
+    "any host-side rerun of the gate, which is NOT authorized -- decisions/review-340349.md and COMMANDS.md are explicit, and no rerun was performed"
+  ],
+  "adapter_disposition": "verification-failed",
+  "by_module": {
+    "tests.manager.test_maintenance": {
+      "errors": 7,
+      "failures": 9,
+      "total": 16
+    }
+  },
+  "candidate_changed_paths": [
+    "v12/python/src/baton_v12/worker_manager/attempts.py",
+    "v12/python/src/baton_v12/worker_manager/documents.py",
+    "v12/python/src/baton_v12/worker_manager/failure_cause.py",
+    "v12/python/src/baton_v12/worker_manager/intake.py",
+    "v12/python/tests/manager/test_attempt_failure_cause.py"
+  ],
+  "changed_paths_appearing_in_any_traceback": [],
+  "derived_by": "baton.claude, claim345209, read-only from the retained attempt stream",
+  "exit_status": 1,
+  "failing_case_count": 16,
+  "failing_cases": [
+    {
+      "case": "test_a_LINE_composed_preparation_is_REVALIDATED_and_not_refused",
+      "kind": "ERROR",
+      "qualified": "tests.manager.test_maintenance.THEREVALIDATIONComparesTheLayoutItsRecordIsAbout.test_a_LINE_composed_preparation_is_REVALIDATED_and_not_refused"
+    },
+    {
+      "case": "test_a_LINE_home_NAMED_workspace_is_still_the_line_layout",
+      "kind": "ERROR",
+      "qualified": "tests.manager.test_maintenance.THEREVALIDATIONComparesTheLayoutItsRecordIsAbout.test_a_LINE_home_NAMED_workspace_is_still_the_line_layout"
+    },
+    {
+      "case": "test_a_REPLACED_LINE_object_is_refused_by_the_COMPOSED_boundary",
+      "kind": "ERROR",
+      "qualified": "tests.manager.test_maintenance.THEREVALIDATIONComparesTheLayoutItsRecordIsAbout.test_a_REPLACED_LINE_object_is_refused_by_the_COMPOSED_boundary"
+    },
+    {
+      "case": "test_a_REPLACED_inputs_root_under_the_LINE_layout_still_refuses",
+      "kind": "ERROR",
+      "qualified": "tests.manager.test_maintenance.THEREVALIDATIONComparesTheLayoutItsRecordIsAbout.test_a_REPLACED_inputs_root_under_the_LINE_layout_still_refuses"
+    },
+    {
+      "case": "test_the_RECORD_STATES_which_layout_each_path_completed_over",
+      "kind": "ERROR",
+      "qualified": "tests.manager.test_maintenance.THEREVALIDATIONComparesTheLayoutItsRecordIsAbout.test_the_RECORD_STATES_which_layout_each_path_completed_over"
+    },
+    {
+      "case": "test_a_second_preparation_finds_it_established_rather_than_replacing_it",
+      "kind": "ERROR",
+      "qualified": "tests.manager.test_maintenance.ThePreparationEffectHappensInsideTheExecution.test_a_second_preparation_finds_it_established_rather_than_replacing_it"
+    },
+    {
+      "case": "test_the_real_programs_document_is_the_one_this_module_accounts_for",
+      "kind": "ERROR",
+      "qualified": "tests.manager.test_maintenance.TheVocabularyAndTheSchemaAreOneContract.test_the_real_programs_document_is_the_one_this_module_accounts_for"
+    },
+    {
+      "case": "test_an_ATTEMPT_layout_record_is_compared_whole",
+      "kind": "FAIL",
+      "qualified": "tests.manager.test_maintenance.THEREVALIDATIONComparesTheLayoutItsRecordIsAbout.test_an_ATTEMPT_layout_record_is_compared_whole"
+    },
+    {
+      "case": "test_the_HOLDER_adopts_with_its_own_capability",
+      "kind": "FAIL",
+      "qualified": "tests.manager.test_maintenance.TheADOPTIONTakesTheCapabilityAndNotANumber.test_the_HOLDER_adopts_with_its_own_capability"
+    },
+    {
+      "case": "test_the_LEGAL_second_run_is_arbitrated_through_the_REAL_caller",
+      "kind": "FAIL",
+      "qualified": "tests.manager.test_maintenance.TheEXECUTIONAllowanceIsTheAttemptsOwnCurrentRun.test_the_LEGAL_second_run_is_arbitrated_through_the_REAL_caller"
+    },
+    {
+      "case": "test_exactly_one_mount_is_composed_and_it_is_the_workspace",
+      "kind": "FAIL",
+      "qualified": "tests.manager.test_maintenance.TheMountIsTheDerivedRootAndNeverTheHome.test_exactly_one_mount_is_composed_and_it_is_the_workspace"
+    },
+    {
+      "case": "test_the_home_and_its_credential_siblings_are_not_mounted",
+      "kind": "FAIL",
+      "qualified": "tests.manager.test_maintenance.TheMountIsTheDerivedRootAndNeverTheHome.test_the_home_and_its_credential_siblings_are_not_mounted"
+    },
+    {
+      "case": "test_the_EXPECTED_root_is_composed_from_configuration_and_the_attempt",
+      "kind": "FAIL",
+      "qualified": "tests.manager.test_maintenance.TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_the_EXPECTED_root_is_composed_from_configuration_and_the_attempt"
+    },
+    {
+      "case": "test_INACCESSIBLE_output_names_the_exact_entry_and_preserves_it",
+      "kind": "FAIL",
+      "qualified": "tests.manager.test_maintenance.TheSELECTEDOutputIsAccessibleOrItIsAnError.test_INACCESSIBLE_output_names_the_exact_entry_and_preserves_it"
+    },
+    {
+      "case": "test_a_TRAVERSAL_FAILURE_is_an_answer_and_not_silence",
+      "kind": "FAIL",
+      "qualified": "tests.manager.test_maintenance.TheSELECTEDOutputIsAccessibleOrItIsAnError.test_a_TRAVERSAL_FAILURE_is_an_answer_and_not_silence"
+    },
+    {
+      "case": "test_an_UNREACHABLE_ROOT_is_the_first_thing_that_is_inaccessible",
+      "kind": "FAIL",
+      "qualified": "tests.manager.test_maintenance.TheSELECTEDOutputIsAccessibleOrItIsAnError.test_an_UNREACHABLE_ROOT_is_the_first_thing_that_is_inaccessible"
+    }
+  ],
+  "gate_modules": [
+    "tests.manager.test_intake",
+    "tests.manager.test_attempts",
+    "tests.manager.test_maintenance",
+    "tests.manager.test_contracts_inventory",
+    "tests.manager.test_attempt_failure_cause"
+  ],
+  "modules_with_no_failure": [
+    "tests.manager.test_intake",
+    "tests.manager.test_attempts",
+    "tests.manager.test_contracts_inventory",
+    "tests.manager.test_attempt_failure_cause"
+  ],
+  "raw_stream": {
+    "author_scan": "searched for sk-ant / bearer / authorization: / refresh_token / access_token / oauth / credential: two matches, both the name of the test case test_the_home_and_its_credential_siblings_are_not_mounted and its traceback line. REPORTED AS A SCAN, NOT AS A PROOF.",
+    "bytes": 21100,
+    "not_copied_why": "the gate ran inside the attempt, over a tree the provider edited, with the attempt credential mount readable. The proposal's own verification.txt refuses to reproduce this stream for exactly that reason and says nothing in it can be told from anything else without reading the bearer. A grep is not a proof of absence, so the raw bytes stay in the instance and only this derivation enters the dossier.",
+    "place": "/home/sl/baton-instances/durable-capture-w341357-345039/packet/launch/implementation/logs/attempt-3161b3636a90e93369568ede26d259ff607bd976a63c02e59a40fa16af310f78/verification.stderr.log",
+    "reader": "baton-v12-stack logs --logs /home/sl/baton-instances/durable-capture-w341357-345039/packet/launch/implementation/logs --attempt attempt-3161b3636a90e93369568ede26d259ff607bd976a63c02e59a40fa16af310f78 locators",
+    "sha256": "d3c37969f1a83ede1c9871481064670522f7c35cc222ca901cbcb9264b3743a1"
+  },
+  "schema": "baton.w341357-gate-classification/1",
+  "traceback_files": {
+    "/output/v12/python/src/baton_v12/worker_manager/workspaces.py": 15,
+    "/output/v12/python/tests/manager/test_maintenance.py": 21
+  }
+}

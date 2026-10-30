@@ -1,0 +1,51 @@
+{
+  "observed_at": "2026-10-24T03:09:30.489Z",
+  "source": "published snapshot, not fresh engine observation",
+  "stages": [
+    {
+      "job": "quickstart-d",
+      "stage": "implementation",
+      "state": "completed",
+      "work": "19b4f145-W1",
+      "attempt": "attempt-7ac4a88986068973ddd30e2275d0daf26b1d18c9d6dda26cccc1ab0bf3b933fe",
+      "allocation": "released",
+      "runtime": "destroyed",
+      "token_returned": {
+        "known": true,
+        "value": true,
+        "source": "tokens.token_of"
+      }
+    },
+    {
+      "job": "quickstart-d",
+      "stage": "review",
+      "state": "completed",
+      "work": "19b4f145-W1",
+      "attempt": "attempt-cbb72b41783f1ee47f7d42989a001eef9fbaf890e54a746a328d8115cec294d3",
+      "allocation": "released",
+      "runtime": "destroyed",
+      "token_returned": {
+        "known": true,
+        "value": true,
+        "source": "tokens.token_of"
+      }
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "/home/sl/baton-instances/native-coordination-pilot-w321608-4/state/workspaces/.baton-review-lines/line-c9eea20bf942cc00a1f2ebfd31d60201da5dfb4c203a5f84cb547b3c92cd296c/custody/attempt-7ac4a88986068973ddd30e2275d0daf26b1d18c9d6dda26cccc1ab0bf3b933fe/proposal/change.patch",
+      "sha256": "9468ec71a9a1e693e2d7718b1584ec60f82c9ffbda0ca9dc504c9e3887e1bdfd",
+      "bytes": 11317
+    },
+    {
+      "path": "/home/sl/baton-instances/native-coordination-pilot-w321608-4/state/workspaces/.baton-review-lines/line-c9eea20bf942cc00a1f2ebfd31d60201da5dfb4c203a5f84cb547b3c92cd296c/custody/attempt-7ac4a88986068973ddd30e2275d0daf26b1d18c9d6dda26cccc1ab0bf3b933fe/proposal/result.json",
+      "sha256": "af9df6dc7a1da3f20ed6e2ef1f0c26671470cb5f7a318f97b502df19509187e9",
+      "bytes": 1203
+    },
+    {
+      "path": "/home/sl/baton-instances/native-coordination-pilot-w321608-4/state/workspaces/attempt-cbb72b41783f1ee47f7d42989a001eef9fbaf890e54a746a328d8115cec294d3/custody/attempt-cbb72b41783f1ee47f7d42989a001eef9fbaf890e54a746a328d8115cec294d3/findings/report.json",
+      "sha256": "f1b569316d97fb0803f912af1d83916e353198352d7b14fbf537842bb9ee41ff",
+      "bytes": 7888
+    }
+  ]
+}

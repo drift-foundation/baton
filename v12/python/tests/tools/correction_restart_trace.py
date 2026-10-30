@@ -311,7 +311,7 @@ class World(ServingContextCase):
         frozen = frozen_output_of(held.control, attempt)
         result = load_manifest(held.control, frozen["manifest_digest"], "resultManifest")
         receipt = next(one for one in result["outputs"] if one["name"] == "provider-context-receipt")
-        body = custody.read_context_receipt(held.control, attempt_id=attempt, artifact_id=receipt["artifact"]["artifact_id"], workspace_storage=self.storage)
+        body = custody.read_context_receipt(held.control, attempt_id=attempt, artifact_id=receipt["artifact"]["artifact_id"])
         settlement = self.record(held.job, attempt)["settlement"]
         checkpoint = review_cycles.checkpoint_of(held.control, settlement["evidence"]["checkpoint_id"])
         workspace = next(one["source"] for one in self.mounts_for(attempt) if one["target"] == "/output")

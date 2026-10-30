@@ -1,0 +1,1 @@
+Initial Docker inspect in sandbox denied socket access. Repeated exact-ID read-only docker inspect through approved escalation: exit1, No such container a42c5de9d5358b5da9f862382fa9784c81630df5fcc33386c24654ee87841c3b. ps -o pid,ppid,stat,comm -p 128845,128858: header only, exit1. No signal, recovery or mutation.
