@@ -29,7 +29,25 @@ SCENARIO = 'live-ab-v1'
 SCOPE = 'scope:' + UUID
 PROFILE = 'live-ab-' + UUID[:8]
 PROVIDER_BASE = SETTINGS['provider_base']
-REGISTRY = '/home/sl/.baton/credential-sources.json'
+
+
+def credential_registry(settings):
+    """The operator's credential-sources registry: an EXPLICIT run input.
+
+    W384870 (M384918): this used to be a personal-home constant, so the live
+    package only composed on one operator's machine and the mechanical test
+    pinned that home. The registry is named per run by the operator
+    (`scenario.py --credential-registry`), carried in settings.json, and only
+    its SHAPE is checked here: nothing in this composer reads it, because the
+    registry and credential payloads are read only by the execution owner.
+    """
+    place = settings.get('credential_registry')
+    if not isinstance(place, str) or not place or not Path(place).is_absolute() or place != os.path.normpath(place):
+        raise RuntimeError('live A/B requires settings.credential_registry: the absolute, normalized path of the operator credential-sources registry (scenario.py --credential-registry)')
+    return place
+
+
+REGISTRY = credential_registry(SETTINGS)
 CREDENTIAL = {'provider': 'operator-file', 'reference': 'w64268-run1'}
 ACTORS = {name: 'baton.live-' + name for name in
           ('impl-a', 'impl-b', 'review-a', 'review-b', 'integrator',

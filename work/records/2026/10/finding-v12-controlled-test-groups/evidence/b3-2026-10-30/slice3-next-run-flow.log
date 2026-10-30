@@ -1,0 +1,13 @@
+test_a_pre_runtime_source_refusal_is_accounted_and_not_cleaned (tests.tools.test_next_run_flow.JoinedFlow.test_a_pre_runtime_source_refusal_is_accounted_and_not_cleaned)
+W339626: the live C failure's own shape, through real accounting. ... ok
+test_initial_partial_preparation_continues_to_real_work (tests.tools.test_next_run_flow.JoinedFlow.test_initial_partial_preparation_continues_to_real_work) ... ok
+test_two_tasks_and_failed_start_recovery_after_one_installation (tests.tools.test_next_run_flow.JoinedFlow.test_two_tasks_and_failed_start_recovery_after_one_installation) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 25.480s
+
+OK
+
+real	0m25.676s
+user	0m7.036s
+sys	0m0.386s

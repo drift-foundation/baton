@@ -1,0 +1,20 @@
+test_a_closure_that_rebinds_the_name_owns_its_own_parameter_not_the_callers (tests.manager.test_boundary_inventory.CallerResolvedReadsClosuresAndReplays.test_a_closure_that_rebinds_the_name_owns_its_own_parameter_not_the_callers) ... ok
+test_a_dynamic_read_is_named_by_every_caller_and_the_placeholder_retired (tests.manager.test_boundary_inventory.CallerResolvedReadsClosuresAndReplays.test_a_dynamic_read_is_named_by_every_caller_and_the_placeholder_retired) ... ok
+test_a_replayed_document_is_an_adopted_read_its_reader_owns_or_does_not (tests.manager.test_boundary_inventory.CallerResolvedReadsClosuresAndReplays.test_a_replayed_document_is_an_adopted_read_its_reader_owns_or_does_not) ... ok
+test_a_twice_nested_closure_is_visited_once_with_its_own_bindings (tests.manager.test_boundary_inventory.CallerResolvedReadsClosuresAndReplays.test_a_twice_nested_closure_is_visited_once_with_its_own_bindings) ... ok
+test_an_owner_inside_a_closure_is_the_enclosing_functions_owner (tests.manager.test_boundary_inventory.CallerResolvedReadsClosuresAndReplays.test_an_owner_inside_a_closure_is_the_enclosing_functions_owner) ... ok
+test_one_unnamed_caller_keeps_the_placeholder_as_visible_debt (tests.manager.test_boundary_inventory.CallerResolvedReadsClosuresAndReplays.test_one_unnamed_caller_keeps_the_placeholder_as_visible_debt) ... ok
+test_the_placeholder_resolver_only_fills_from_literals (tests.manager.test_boundary_inventory.CallerResolvedReadsClosuresAndReplays.test_the_placeholder_resolver_only_fills_from_literals) ... ok
+test_the_real_tree_pins_all_three (tests.manager.test_boundary_inventory.CallerResolvedReadsClosuresAndReplays.test_the_real_tree_pins_all_three) ... ok
+test_a_dynamic_from_resolves_through_a_literal_binding (tests.manager.test_boundary_inventory.DynamicTableReadsStayVisible.test_a_dynamic_from_resolves_through_a_literal_binding) ... ok
+test_a_static_from_keeps_its_table_under_a_dynamic_predicate (tests.manager.test_boundary_inventory.DynamicTableReadsStayVisible.test_a_static_from_keeps_its_table_under_a_dynamic_predicate) ... ok
+test_an_unresolved_dynamic_from_is_a_read_with_a_placeholder_table (tests.manager.test_boundary_inventory.DynamicTableReadsStayVisible.test_an_unresolved_dynamic_from_is_a_read_with_a_placeholder_table) ... ok
+test_the_real_one_by_attempt_read_is_inventoried_and_pinned (tests.manager.test_boundary_inventory.DynamicTableReadsStayVisible.test_the_real_one_by_attempt_read_is_inventoried_and_pinned)
+The row read and every column its callers take from the returned ... ok
+test_what_is_not_a_select_is_not_a_read (tests.manager.test_boundary_inventory.DynamicTableReadsStayVisible.test_what_is_not_a_select_is_not_a_read) ... ok
+test_entries_calls_and_probes_are_owned (tests.manager.test_boundary_inventory.StoppedSettlementInventory.test_entries_calls_and_probes_are_owned) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 8.444s
+
+OK

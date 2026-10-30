@@ -1,0 +1,15 @@
+test_a_pre_runtime_source_refusal_is_accounted_and_not_cleaned (tests.tools.test_next_run_flow.JoinedFlow.test_a_pre_runtime_source_refusal_is_accounted_and_not_cleaned)
+W339626: the live C failure's own shape, through real accounting. ... ok
+test_initial_partial_preparation_continues_to_real_work (tests.tools.test_next_run_flow.JoinedFlow.test_initial_partial_preparation_continues_to_real_work) ... ok
+test_two_tasks_and_failed_start_recovery_after_one_installation (tests.tools.test_next_run_flow.JoinedFlow.test_two_tasks_and_failed_start_recovery_after_one_installation) ... ok
+test_a_dynamic_from_resolves_through_a_literal_binding (tests.manager.test_boundary_inventory.DynamicTableReadsStayVisible.test_a_dynamic_from_resolves_through_a_literal_binding) ... ok
+test_a_static_from_keeps_its_table_under_a_dynamic_predicate (tests.manager.test_boundary_inventory.DynamicTableReadsStayVisible.test_a_static_from_keeps_its_table_under_a_dynamic_predicate) ... ok
+test_an_unresolved_dynamic_from_is_a_read_with_a_placeholder_table (tests.manager.test_boundary_inventory.DynamicTableReadsStayVisible.test_an_unresolved_dynamic_from_is_a_read_with_a_placeholder_table) ... ok
+test_the_real_one_by_attempt_read_is_inventoried_and_pinned (tests.manager.test_boundary_inventory.DynamicTableReadsStayVisible.test_the_real_one_by_attempt_read_is_inventoried_and_pinned)
+The row read and every column its callers take from the returned ... ok
+test_what_is_not_a_select_is_not_a_read (tests.manager.test_boundary_inventory.DynamicTableReadsStayVisible.test_what_is_not_a_select_is_not_a_read) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 30.224s
+
+OK

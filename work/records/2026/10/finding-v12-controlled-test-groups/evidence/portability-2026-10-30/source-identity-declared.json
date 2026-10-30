@@ -1,0 +1,322 @@
+{
+ "boundary": "HEAD plus the SHA-256 of every modified, added, deleted, renamed or untracked file under the scope, plus the SHA-256 of every non-ignored file of each declared consumed input whether changed or not; gitignored paths excluded; other paths outside the scope excluded; an absent declared input refuses",
+ "changed": [
+  {
+   "path": "v12/python/tests/manager/test_attempt_logs.py",
+   "sha256": "7ed99c1225b33a5d3071667be32e63fda0ab3a1c8764d5b5e82189f3f616b943",
+   "status": "M"
+  },
+  {
+   "path": "v12/python/tests/manager/test_boundary_inventory.py",
+   "sha256": "cc93a5a05b4f211ec066fb662347d8867584f2c276c9ab967bc7bb30d69e51f2",
+   "status": "M"
+  },
+  {
+   "path": "v12/python/tests/manager/test_claude_agent.py",
+   "sha256": "0098482679121989e4c5820a253e02d1af868c2522f8541b9f5eadb8dcae56c1",
+   "status": "M"
+  },
+  {
+   "path": "v12/python/tests/manager/test_fixture_dispatch.py",
+   "sha256": "1c1191e75123bca6acc9a382b135f31498a53811c5d7cf8fc66dd3f5d57b0d68",
+   "status": "M"
+  },
+  {
+   "path": "v12/python/tests/manager/test_importing_fixture.py",
+   "sha256": "b47ad1898f62258a711f95124718bc92d133a50122f40576abfb6474b538c2f8",
+   "status": "M"
+  },
+  {
+   "path": "v12/python/tests/manager/test_proposing_fixture.py",
+   "sha256": "7959000e68faa6f9f07de9b8e70a7f34f7d062d4f457dfce0bf49ab5c9a35c53",
+   "status": "M"
+  },
+  {
+   "path": "v12/python/tests/manager/test_w197661_verifier.py",
+   "sha256": "ab1b3921f4dff50590a365f918ab8595cc20fb32d681c0609196e26eacb4e991",
+   "status": "M"
+  },
+  {
+   "path": "v12/python/tools/parallel_test.py",
+   "sha256": "1274c8cbec8b16e34b257a85ff886a5f6f803eedbbae268900e598109de1ab9e",
+   "status": "M"
+  }
+ ],
+ "changed_count": 8,
+ "consumed": [
+  {
+   "git": "tracked",
+   "input": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-assignment-state-machine/evidence/test_assignment_state_model.py",
+   "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-assignment-state-machine/evidence/test_assignment_state_model.py",
+   "sha256": "2542b6fe1f1202204c37e1cbccda952709209e821878a6b47fa86c8f334884e8"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-acp-agent-boundary/schema/agent-session-1.0.schema.json",
+   "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-acp-agent-boundary/schema/agent-session-1.0.schema.json",
+   "sha256": "22e6e61c8fbe4b4312b0bc5e33e5be23dff7ba944e213a2855106dc06b55202c"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json",
+   "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json",
+   "sha256": "fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/schema/worker-control-1.0.schema.json",
+   "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/schema/worker-control-1.0.schema.json",
+   "sha256": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/engine-gate.py",
+   "path": "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/engine-gate.py",
+   "sha256": "980911451d33acfae889a09c4ec519b355267e6466b0138e60575587bfb77a8e"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-160959-composed.json",
+   "path": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-160959-composed.json",
+   "sha256": "5a3ead46c46b5586cbd3a74d7454b402fd04dfbe34414e33a061ac9e90fb9303"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-single-implementation-proof/baseline.py",
+   "path": "work/records/2026/09/finding-v12-single-implementation-proof/baseline.py",
+   "sha256": "8e5987f56f8d5329c33a8e73f9df56f13213e134f2dade8180afabf80723efe9"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/bootstrap_inputs.json",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/bootstrap_inputs.json",
+   "sha256": "45fb54e87ba44655212810d4e41544f7a66fcf696d526ed56dba25a9c4627a31"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context/Dockerfile.fixture",
+   "sha256": "bf5dfe7085d0c38fecfcf9e1e61de30497485fe6f5aad1b9270b33c0bd8b7348"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context/python/src/baton_v12/source_profiles/__init__.py",
+   "sha256": "c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context/python/src/baton_v12/source_profiles/checkout.py",
+   "sha256": "037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context/worker/attempt_log_format.py",
+   "sha256": "b138410504336969eebdb05ebcd544b9eed896c4e1c293a633f6cf4ab4e45f42"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context/worker/baton_worker.py",
+   "sha256": "198a6fe96f93c27f539cfcfeee0206643048d3045fc94f3701603c36a749192f"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context/worker/proposing_agent.py",
+   "sha256": "a532009efcbbc135c3aa707c03fd99ab280b196ce749e3c5936ae7531b9f78dd"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context/worker/proposing_entry.py",
+   "sha256": "0af0a7ad36e5d26c6c1b13b6f1537fcfc67cfd76c820c3eb81228b3fc5b19760"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context/worker/worker-control-1.0.schema.json",
+   "sha256": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/install_inputs.json",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/install_inputs.json",
+   "sha256": "9faea351b19e6940d7148bd560d04608ba8119e9ec3f755d56ecd49d0196b54d"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/task.json",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/task.json",
+   "sha256": "303eb9107d1494deb5cb42c7f8eff7fb370254a0d90f856e90c012b90c2e7134"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/CAPTURED-records.json",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/CAPTURED-records.json",
+   "sha256": "f06f382418f526bc7afaf675a449d7bcfc1f284a1be17e439c3cd97cb92b97c4"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/CAPTURED-terminal.json",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/CAPTURED-terminal.json",
+   "sha256": "7c4a3114af403e6e45b3ebf101d63d78d3e3b54600aa27acd42084adf0c81ad8"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/EXPECTED.json",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/EXPECTED.json",
+   "sha256": "fbde136dece3b907c49626a1c5bf6e103fef0e8b50b6daad51b94f627164fff1"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/fixture.iid",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/fixture.iid",
+   "sha256": "7a2efacb941b183574edeebbe7c2515d90c589bebce6f47b84b25746b932142e"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/compose_lifecycle.py",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/compose_lifecycle.py",
+   "sha256": "dfcccb586bd6b3f9fa88edd781cad65af87407cf310620d4545abba210b9353b"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context/Dockerfile.fixture",
+   "sha256": "636bec58cef2e3397254de5e952797354dc2f4ac596bc05e0d39e3ba571cd0b1"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context/python/src/baton_v12/source_profiles/__init__.py",
+   "sha256": "c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context/python/src/baton_v12/source_profiles/checkout.py",
+   "sha256": "037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context/worker/attempt_log_format.py",
+   "sha256": "8c701e1c2438189677dd653363c0f0616743f91818688d6cd035e7dc385fb68b"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context/worker/baton_worker.py",
+   "sha256": "56cdee824193834e9f1e8e974259575219a9223aa9b4f1946c99099b35c5cd34"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context/worker/claude_agent.py",
+   "sha256": "cb380fd9931a60a74d27efd974a716f79df39a4c8aaba54628dc99821eb0c092"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context/worker/fixture_entry.py",
+   "sha256": "b3b2e731c42deea6f2122d68a31d00691521b8297e18edf4d635ab909363de5f"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context/worker/importing_agent.py",
+   "sha256": "6e01c65b2e485a94e332af51df8e16676325d333cb5b2912638836aebf34da17"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context/worker/importing_entry.py",
+   "sha256": "c9001be6fa7dedc51f72fd8c52b5d95e119629ac6c1282155f1d2041ca93e7f1"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context/worker/integration_contract.py",
+   "sha256": "12f3beec00a1d98f8828bb9a18a6565fa2fe8c49eb056846fe4c118ba4e1fc0d"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context/worker/integration_entry.py",
+   "sha256": "edc9379e965c795d2edc8bb6a31eee82b3fef4186992d15e6c1ee86e76befd9e"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context/worker/integration_workload.py",
+   "sha256": "001896a4f3a9b20199ccbaf2e89183f0cf650d295b09e8e64263caca5cd0a64a"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context/worker/proposing_agent.py",
+   "sha256": "a532009efcbbc135c3aa707c03fd99ab280b196ce749e3c5936ae7531b9f78dd"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context/worker/proposing_entry.py",
+   "sha256": "0af0a7ad36e5d26c6c1b13b6f1537fcfc67cfd76c820c3eb81228b3fc5b19760"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context/worker/worker-control-1.0.schema.json",
+   "sha256": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/verify_lifecycle.py",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/verify_lifecycle.py",
+   "sha256": "d73337d3bc7cb632788aef0a6a50baf932d3fb40cf1aa98ef2a6276f660ede46"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-template-adapter-admission-plan/CAPABILITY.synthetic.json",
+   "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-template-adapter-admission-plan/CAPABILITY.synthetic.json",
+   "sha256": "3ac58bc32180c4362cd005664a7de4b8ae00c18081a787de406f04e439226b1d"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-template-adapter-admission-plan/ROLE-CONTRACT.proposed.json",
+   "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-template-adapter-admission-plan/ROLE-CONTRACT.proposed.json",
+   "sha256": "1c0809092a5798bbff6e2b0425a5cbdcb363cbdc8d2c72e78ff9d18ad56a557c"
+  }
+ ],
+ "consumed_count": 41,
+ "content_digest": "f89b4f5c4971e21a6acdefce9cae16db81bc0ba723f1da4102fc6c1d3ef40ef7",
+ "head": "84f66f43b87ee265843b45785162c9f0bf0c19c3",
+ "inputs": [
+  "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-assignment-state-machine/evidence/test_assignment_state_model.py",
+  "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-acp-agent-boundary/schema/agent-session-1.0.schema.json",
+  "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json",
+  "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/schema/worker-control-1.0.schema.json",
+  "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/engine-gate.py",
+  "work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-160959-composed.json",
+  "work/records/2026/09/finding-v12-single-implementation-proof/baseline.py",
+  "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/bootstrap_inputs.json",
+  "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context",
+  "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/install_inputs.json",
+  "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/task.json",
+  "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/CAPTURED-records.json",
+  "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/CAPTURED-terminal.json",
+  "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/EXPECTED.json",
+  "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/fixture.iid",
+  "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/compose_lifecycle.py",
+  "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context",
+  "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/verify_lifecycle.py",
+  "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-template-adapter-admission-plan/CAPABILITY.synthetic.json",
+  "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-template-adapter-admission-plan/ROLE-CONTRACT.proposed.json"
+ ],
+ "scope": [
+  "v12"
+ ]
+}

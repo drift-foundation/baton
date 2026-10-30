@@ -1,0 +1,12 @@
+test_restore_abandoned_correction_profile_owner (tests.manager.test_boundary_inventory.StatedRules.test_restore_abandoned_correction_profile_owner) ... ok
+test_settle_restoration_execution_profile_owner (tests.manager.test_boundary_inventory.StatedRules.test_settle_restoration_execution_profile_owner) ... ok
+test_every_stated_owner_names_a_witness_that_exists (tests.manager.test_boundary_inventory.EveryStatedOwnerHasAWitness.test_every_stated_owner_names_a_witness_that_exists) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.038s
+
+OK
+
+real	0m0.297s
+user	0m0.270s
+sys	0m0.027s

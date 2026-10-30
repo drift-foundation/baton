@@ -15,6 +15,7 @@ import io
 import itertools
 import json
 import os
+import pathlib
 import shutil
 import stat
 import tempfile
@@ -32,7 +33,9 @@ from baton_v12.worker_manager import (configure_workspace_group,
                                       configured_workspace_group)
 
 
-REPO = "/home/sl/src/baton"
+# W384870 (owner 2026-10-30): the checkout UNDER TEST, never a developer's
+# home; this module is v12/python/tests/manager/<file>, five parents up.
+REPO = str(pathlib.Path(__file__).resolve().parents[4])
 
 
 def _as_the_image_lays_it_out(case):

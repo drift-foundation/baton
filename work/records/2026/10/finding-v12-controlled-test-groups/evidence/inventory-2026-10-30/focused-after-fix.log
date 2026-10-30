@@ -1,0 +1,50 @@
+test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) ... ok
+test_every_owned_entry_has_exactly_one_probe (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe) ... FAIL
+test_entries_calls_and_probes_are_owned (tests.manager.test_boundary_inventory.StoppedSettlementInventory.test_entries_calls_and_probes_are_owned) ... 
+  test_entries_calls_and_probes_are_owned (tests.manager.test_boundary_inventory.StoppedSettlementInventory.test_entries_calls_and_probes_are_owned) (entry=('adopted', 'stopped_settlement.py:settle_stopped', 'replay')) ... FAIL
+  test_entries_calls_and_probes_are_owned (tests.manager.test_boundary_inventory.StoppedSettlementInventory.test_entries_calls_and_probes_are_owned) (entry=('adopted', 'stopped_settlement.py:status', 'replay')) ... FAIL
+test_a_closure_that_rebinds_the_name_owns_its_own_parameter_not_the_callers (tests.manager.test_boundary_inventory.CallerResolvedReadsClosuresAndReplays.test_a_closure_that_rebinds_the_name_owns_its_own_parameter_not_the_callers) ... ok
+test_a_dynamic_read_is_named_by_every_caller_and_the_placeholder_retired (tests.manager.test_boundary_inventory.CallerResolvedReadsClosuresAndReplays.test_a_dynamic_read_is_named_by_every_caller_and_the_placeholder_retired) ... ok
+test_a_replayed_document_is_an_adopted_read_its_reader_owns_or_does_not (tests.manager.test_boundary_inventory.CallerResolvedReadsClosuresAndReplays.test_a_replayed_document_is_an_adopted_read_its_reader_owns_or_does_not) ... ok
+test_an_owner_inside_a_closure_is_the_enclosing_functions_owner (tests.manager.test_boundary_inventory.CallerResolvedReadsClosuresAndReplays.test_an_owner_inside_a_closure_is_the_enclosing_functions_owner) ... ok
+test_one_unnamed_caller_keeps_the_placeholder_as_visible_debt (tests.manager.test_boundary_inventory.CallerResolvedReadsClosuresAndReplays.test_one_unnamed_caller_keeps_the_placeholder_as_visible_debt) ... ok
+test_the_placeholder_resolver_only_fills_from_literals (tests.manager.test_boundary_inventory.CallerResolvedReadsClosuresAndReplays.test_the_placeholder_resolver_only_fills_from_literals) ... ok
+test_the_real_tree_pins_all_three (tests.manager.test_boundary_inventory.CallerResolvedReadsClosuresAndReplays.test_the_real_tree_pins_all_three) ... ok
+
+======================================================================
+FAIL: test_every_owned_entry_has_exactly_one_probe (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 10276, in test_every_owned_entry_has_exactly_one_probe
+    self.assertEqual({"owned, never probed": sorted(_unprobed(wanted, declared)),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      "probed, never owned": sorted(_unowned_probes(wanted, declared))},
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     {"owned, never probed": [], "probed, never owned": []})
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'own[15 chars]d': [(('adopted', 'attempts.py:_committed_reco[26990 chars]t')]} != {'own[15 chars]d': [], 'probed, never owned': []}
+Diff is 54081 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_entries_calls_and_probes_are_owned (tests.manager.test_boundary_inventory.StoppedSettlementInventory.test_entries_calls_and_probes_are_owned) (entry=('adopted', 'stopped_settlement.py:settle_stopped', 'replay'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 17264, in test_entries_calls_and_probes_are_owned
+    self.assertIsNotNone(owner.owner_of(entry)[0])
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: unexpectedly None
+
+======================================================================
+FAIL: test_entries_calls_and_probes_are_owned (tests.manager.test_boundary_inventory.StoppedSettlementInventory.test_entries_calls_and_probes_are_owned) (entry=('adopted', 'stopped_settlement.py:status', 'replay'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 17264, in test_entries_calls_and_probes_are_owned
+    self.assertIsNotNone(owner.owner_of(entry)[0])
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: unexpectedly None
+
+----------------------------------------------------------------------
+Ran 10 tests in 24.405s
+
+FAILED (failures=3)
+error: Recipe `test-one` failed with exit code 1

@@ -1,0 +1,119 @@
+wanted 1137 declared 1091 entries 2306
+owned-never-probed 52
+   (('adopted', 'intake.py:retentions_of', 'retentions.retain_operation_id'), 'a persisted retention')
+   (('adopted', 'review_cycles.py:_one_by_attempt', 'line_writers'), 'the line writer for attempt {name_value(attempt_id)} generation {generation}')
+   (('adopted', 'review_cycles.py:_one_by_attempt', 'line_writers.assignment_generation'), 'the line writer for attempt {name_value(attempt_id)} generation {generation}')
+   (('adopted', 'review_cycles.py:_one_by_attempt', 'line_writers.based_checkpoint_id'), 'the line writer for attempt {name_value(attempt_id)} generation {generation}')
+   (('adopted', 'review_cycles.py:_one_by_attempt', 'line_writers.line_id'), 'the line writer for attempt {name_value(attempt_id)} generation {generation}')
+   (('adopted', 'review_cycles.py:_one_by_attempt', 'line_writers.participant'), 'the line writer for attempt {name_value(attempt_id)} generation {generation}')
+   (('adopted', 'review_cycles.py:_one_by_attempt', 'line_writers.principal'), 'the line writer for attempt {name_value(attempt_id)} generation {generation}')
+   (('adopted', 'review_cycles.py:_one_by_attempt', 'line_writers.revocation_reason'), 'the line writer for attempt {name_value(attempt_id)} generation {generation}')
+   (('adopted', 'review_cycles.py:_one_by_attempt', 'line_writers.runtime_attempt_id'), 'the line writer for attempt {name_value(attempt_id)} generation {generation}')
+   (('adopted', 'review_cycles.py:_one_by_attempt', 'line_writers.state'), 'the line writer for attempt {name_value(attempt_id)} generation {generation}')
+   (('adopted', 'review_cycles.py:_one_by_attempt', 'line_writers.worker_id'), 'the line writer for attempt {name_value(attempt_id)} generation {generation}')
+   (('adopted', 'review_cycles.py:_one_by_attempt', 'line_writers.writer_id'), 'the line writer for attempt {name_value(attempt_id)} generation {generation}')
+   (('adopted', 'review_cycles.py:_one_by_attempt', 'review_attachments'), 'the review attachment for attempt {name_value(attempt_id)} generation {generation}')
+   (('adopted', 'review_cycles.py:_one_by_attempt', 'review_attachments.assignment_generation'), 'the review attachment for attempt {name_value(attempt_id)} generation {generation}')
+   (('adopted', 'review_cycles.py:_one_by_attempt', 'review_attachments.attachment_id'), 'the review attachment for attempt {name_value(attempt_id)} generation {generation}')
+   (('adopted', 'review_cycles.py:_one_by_attempt', 'review_attachments.checkpoint_id'), 'the review attachment for attempt {name_value(attempt_id)} generation {generation}')
+   (('adopted', 'review_cycles.py:_one_by_attempt', 'review_attachments.line_id'), 'the review attachment for attempt {name_value(attempt_id)} generation {generation}')
+   (('adopted', 'review_cycles.py:_one_by_attempt', 'review_attachments.reviewer_participant'), 'the review attachment for attempt {name_value(attempt_id)} generation {generation}')
+   (('adopted', 'review_cycles.py:_one_by_attempt', 'review_attachments.reviewer_principal'), 'the review attachment for attempt {name_value(attempt_id)} generation {generation}')
+   (('adopted', 'review_cycles.py:_one_by_attempt', 'review_attachments.runtime_attempt_id'), 'the review attachment for attempt {name_value(attempt_id)} generation {generation}')
+   (('adopted', 'review_cycles.py:_verdict_row', 'checkpoint_verdicts.review_fence.intent'), 'a persisted checkpoint verdict')
+   (('adopted', 'review_cycles.py:_verdict_row', 'checkpoint_verdicts.review_result.artifacts'), 'a persisted checkpoint verdict')
+   (('adopted', 'review_cycles.py:_verdict_row', 'checkpoint_verdicts.review_result.artifacts.artifact_id'), 'a persisted checkpoint verdict')
+   (('adopted', 'review_cycles.py:_verdict_row', 'checkpoint_verdicts.review_result.artifacts.locator'), 'a persisted checkpoint verdict')
+   (('adopted', 'review_cycles.py:_verdict_row', 'checkpoint_verdicts.review_result.artifacts.output_name'), 'a persisted checkpoint verdict')
+   (('adopted', 'review_cycles.py:_verdict_row', 'checkpoint_verdicts.review_result.manifest_digest'), 'a persisted checkpoint verdict')
+   (('adopted', 'review_cycles.py:checkpoint_of', 'line_checkpoints.fence.intent'), 'a persisted assignment fence')
+   (('adopted', 'review_cycles.py:checkpoint_of', 'line_checkpoints.fence.intent'), 'a persisted line checkpoint')
+   (('adopted', 'workspaces.py:_configured_gid', 'meta'), "the configured workspace group's record")
+   (('adopted', 'workspaces.py:_configured_gid', 'meta.value'), "the configured workspace group's record")
+   (('caller', 'attempts.py:request_runtime_start', 'adapter.mounts.source'), "the runtime adapter's start")
+   (('caller', 'attempts.py:request_runtime_start', 'adapter.mounts.target'), "the runtime adapter's start")
+   (('caller', 'attempts.py:request_runtime_start', 'adapter.mounts.writable'), "the runtime adapter's start")
+   (('caller', 'attempts.py:request_runtime_start', 'govern'), 'a resource-token reservation')
+   (('caller', 'oci.py:OciAdapter.start', 'request.labels.participant'), 'a start request')
+   (('caller', 'oci.py:OciAdapter.start', 'request.labels.runtime_attempt_id'), 'a start request')
+   (('caller', 'oci.py:OciAdapter.stop', 'request'), '{what}')
+   (('caller', 'tokens.py:renew', 'seconds'), 'a renewed resource token expiry')
+   (('caller', 'tokens.py:renew', 'token'), 'a governed conflict domain')
+   (('caller', 'tokens.py:renew', 'token.domain'), 'a governed conflict domain')
+   (('caller', 'workspaces.py:prepared_workspace_governance', 'permission'), 'a token execution envelope')
+   (('caller', 'workspaces.py:release_preparation', 'why'), 'a preparation release reason')
+   (('injected', 'authority_port.py:AuthorityPort.satisfy_gate', 'satisfy_gate'), "the session's gate-discharge answer")
+   (('injected', 'authority_port.py:AuthorityPort.satisfy_gate', 'satisfy_gate.kind'), "the discharged gate's kind")
+   (('injected', 'intake.py:_destroyed_abandoned', 'adapter.destroy_abandoned'), 'an abandoned-attempt destroy observation')
+   (('injected', 'intake.py:_destroyed_abandoned', 'adapter.destroy_abandoned.credentials'), 'a credentials teardown ending')
+   (('injected', 'intake.py:_destroyed_abandoned', 'adapter.destroy_abandoned.credentials.lifecycle_state'), "a credentials teardown ending's state")
+   (('injected', 'intake.py:_destroyed_abandoned', 'adapter.destroy_abandoned.launch'), 'a launch teardown ending')
+   (('injected', 'intake.py:_destroyed_abandoned', 'adapter.destroy_abandoned.launch.lifecycle_state'), "a launch teardown ending's state")
+   (('injected', 'intake.py:_destroyed_abandoned', 'adapter.destroy_abandoned.runtime_id'), 'an observed runtime id')
+   (('injected', 'intake.py:_destroyed_abandoned', 'adapter.destroy_abandoned.state'), "a destroy observation's state")
+   (('injected', 'intake.py:_destroyed_abandoned', 'adapter.destroy_abandoned.why'), "a destroy observation's reason")
+probed-never-owned 6
+   (('caller', 'attempts.py:_committed_record', 'committed'), 'a committed ending record')
+   (('caller', 'interrogation.py:inquire', 'agent'), "the agent adapter's ")
+   (('caller', 'interrogation.py:inquire', 'deadline_seconds'), 'an interrogation deadline')
+   (('caller', 'interrogation.py:probe', 'agent'), "the agent adapter's ")
+   (('caller', 'interrogation.py:probe', 'deadline_seconds'), 'an interrogation deadline')
+   (('caller', 'oci.py:OciAdapter.stop', 'request'), 'a stop request')
+unowned entries 759
+   22 launch.py:launch_document
+   11 failure_cause.py:record_and_raise_cessation_outcome
+   11 handshake.py:settle_unsupported_version
+   10 custody.py:clear_custody_hold
+   10 oci.py:OciAdapter.__init__
+   9 attempts.py:start_submission_returned
+   9 failure_cause.py:ensure_cessation_intent
+   9 oci.py:run_vector
+   8 context_delivery.py:validate_generation
+   8 exchange.py:observed_activity
+   8 failure_cause.py:record_and_raise_cessation_intent
+   8 provider_context.py:certify_production_profile
+   7 attempts.py:start_failure_operation_id
+   7 provider_context.py:finalize_context_use
+   7 workspaces.py:bind_token_container
+   7 workspaces.py:settle_cleanup
+   6 authority_port.py:AuthorityPort.satisfy_gate
+   6 failure_cause.py:record_cessation_outcome
+   6 intake.py:authorize_refused_session_cleanup
+   6 provider_context.py:bind_context_invocation
+   6 provider_context.py:context_output_declaration
+   6 provider_context.py:serving_argv
+   6 workspaces.py:admit_cleanup
+   5 authority_port.py:AuthorityPort.claim
+   5 authority_port.py:AuthorityPort.settle_operation
+=== entries at _one_by_attempt / writer_for_attempt / review_for_attempt
+   ('adopted', 'review_cycles.py:_one_by_attempt', 'line_writers') ['the line writer for attempt {name_value(attempt_id)} generation {generation}']
+   ('adopted', 'review_cycles.py:_one_by_attempt', 'line_writers.assignment_generation') ['the line writer for attempt {name_value(attempt_id)} generation {generation}']
+   ('adopted', 'review_cycles.py:_one_by_attempt', 'line_writers.based_checkpoint_id') ['the line writer for attempt {name_value(attempt_id)} generation {generation}']
+   ('adopted', 'review_cycles.py:_one_by_attempt', 'line_writers.line_id') ['the line writer for attempt {name_value(attempt_id)} generation {generation}']
+   ('adopted', 'review_cycles.py:_one_by_attempt', 'line_writers.participant') ['the line writer for attempt {name_value(attempt_id)} generation {generation}']
+   ('adopted', 'review_cycles.py:_one_by_attempt', 'line_writers.principal') ['the line writer for attempt {name_value(attempt_id)} generation {generation}']
+   ('adopted', 'review_cycles.py:_one_by_attempt', 'line_writers.revocation_reason') ['the line writer for attempt {name_value(attempt_id)} generation {generation}']
+   ('adopted', 'review_cycles.py:_one_by_attempt', 'line_writers.runtime_attempt_id') ['the line writer for attempt {name_value(attempt_id)} generation {generation}']
+   ('adopted', 'review_cycles.py:_one_by_attempt', 'line_writers.state') ['the line writer for attempt {name_value(attempt_id)} generation {generation}']
+   ('adopted', 'review_cycles.py:_one_by_attempt', 'line_writers.worker_id') ['the line writer for attempt {name_value(attempt_id)} generation {generation}']
+   ('adopted', 'review_cycles.py:_one_by_attempt', 'line_writers.writer_id') ['the line writer for attempt {name_value(attempt_id)} generation {generation}']
+   ('adopted', 'review_cycles.py:_one_by_attempt', 'review_attachments') ['the review attachment for attempt {name_value(attempt_id)} generation {generation}']
+   ('adopted', 'review_cycles.py:_one_by_attempt', 'review_attachments.assignment_generation') ['the review attachment for attempt {name_value(attempt_id)} generation {generation}']
+   ('adopted', 'review_cycles.py:_one_by_attempt', 'review_attachments.attachment_id') ['the review attachment for attempt {name_value(attempt_id)} generation {generation}']
+   ('adopted', 'review_cycles.py:_one_by_attempt', 'review_attachments.checkpoint_id') ['the review attachment for attempt {name_value(attempt_id)} generation {generation}']
+   ('adopted', 'review_cycles.py:_one_by_attempt', 'review_attachments.line_id') ['the review attachment for attempt {name_value(attempt_id)} generation {generation}']
+   ('adopted', 'review_cycles.py:_one_by_attempt', 'review_attachments.reviewer_participant') ['the review attachment for attempt {name_value(attempt_id)} generation {generation}']
+   ('adopted', 'review_cycles.py:_one_by_attempt', 'review_attachments.reviewer_principal') ['the review attachment for attempt {name_value(attempt_id)} generation {generation}']
+   ('adopted', 'review_cycles.py:_one_by_attempt', 'review_attachments.runtime_attempt_id') ['the review attachment for attempt {name_value(attempt_id)} generation {generation}']
+   ('caller', 'review_cycles.py:review_for_attempt', 'attempt_id') []
+   ('caller', 'review_cycles.py:review_for_attempt', 'generation') []
+   ('caller', 'review_cycles.py:review_for_attempt', 'store') []
+   ('caller', 'review_cycles.py:writer_for_attempt', 'attempt_id') []
+   ('caller', 'review_cycles.py:writer_for_attempt', 'generation') []
+   ('caller', 'review_cycles.py:writer_for_attempt', 'store') []
+=== owners recorded at review_cycles.py:writer_for_attempt
+   ('row', 'the line writer for attempt {name_value(attempt_id)} generation {generation}', 'read:review_cycles.py:_one_by_attempt|line_writers')
+=== owners recorded at review_cycles.py:review_for_attempt
+   ('row', 'the review attachment for attempt {name_value(attempt_id)} generation {generation}', 'read:review_cycles.py:_one_by_attempt|review_attachments')
+=== owners recorded at review_cycles.py:_one_by_attempt
+   ('row', '{what}', 'read:review_cycles.py:_one_by_attempt|{table}')

@@ -45,7 +45,11 @@ import subprocess
 import sys
 
 HERE = Path(__file__).resolve().parent
-REPO = Path("/home/sl/src/baton")
+# W384870 (owner 2026-10-30): the checkout this record lives in, derived from
+# this file's own place (work/records/YYYY/MM/<finding>/<instance>/), never a
+# developer's home. DEST below remains the retained live instance this episode
+# verified; it is an external resource, not a repository input.
+REPO = Path(__file__).resolve().parents[6]
 
 # THIS EPISODE'S IDENTITIES. Nothing here is inherited from an earlier one, and
 # instance-200254's and instance-200000's image digests keep their own

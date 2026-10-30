@@ -15,13 +15,16 @@ container gets, and the case can be deterministic.
 import hashlib
 import json
 import os
+import pathlib
 import shutil
 import subprocess
 import sys
 import tempfile
 import unittest
 
-REPO = "/home/sl/src/baton"
+# W384870 (owner 2026-10-30): the checkout UNDER TEST, never a developer's
+# home; this module is v12/python/tests/manager/<file>, five parents up.
+REPO = str(pathlib.Path(__file__).resolve().parents[4])
 CONTEXT = os.path.join(
     REPO, "work/records/2026/09/finding-v12-worker-launch-version-mismatch",
     "instance-200564/context/worker")

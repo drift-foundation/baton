@@ -12,7 +12,7 @@ do not describe the complete current `v12/` subtree or supersede DESIGN.md.
 
 The current product is the Python distribution under `python/`. How to run,
 select and account its tests — `just test-one`, `just test-group GROUP`,
-`just test-all LOG` from `v12/python`, the nine logical groups, the prepared
+`just test` (full suite) and `just test-all LOG` from `v12/`, the nine logical groups, the prepared
 environment, required versus optional skips and what a retained log must
 carry — is in [python/TESTING.md](python/TESTING.md). Agents doing v12 test
 work are required to follow it (repository `AGENTS.md`, "V12 test execution
@@ -119,11 +119,11 @@ Use a fresh evidence label so this run cannot replace a previous generated
 pack under the external state root:
 
     just install
-    just test
+    npm test
     just proof operator-20260821
 
 `just install` (or `npm ci --no-fund --no-audit`) materializes only the pinned
-Node dependency under `v12/node_modules/`. `just test` is the fast, offline
+Node dependency under `v12/node_modules/`. `npm test` is the prototype's fast, offline
 fail-closed unit and placement gate. `just proof <label>` runs that gate again,
 then creates a fresh disposable authority and exercises, in order, the happy
 path, expired and replayed token fences, and the post-claim compensation case.

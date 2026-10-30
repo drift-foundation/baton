@@ -2193,7 +2193,9 @@ class TheRecipeIsInspectableWithoutADaemon(unittest.TestCase):
         """
         import ast
 
-        root = pathlib.Path("/home/sl/src/baton/v12/python/src/baton_v12")
+        # W384870 (owner 2026-10-30): the package of the checkout UNDER TEST,
+        # never a developer's home.
+        root = pathlib.Path(__file__).resolve().parents[2] / "src" / "baton_v12"
         for name, expected in (("attempt_log_format.py",
                                 ["itertools", "json", "os", "stat"]),
                                ("verification_context.py", ["re"])):

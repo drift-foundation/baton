@@ -23,3 +23,44 @@ This is first of two serial slices. Initial shared ownership for this slice: can
 W375517/W375518 retain shared creation/queued-serving outcomes; do not invent a second admission ledger. Their current source gates remain. Coordinate schema and common CLI/composition files with these owners and W371295 role-provenance work before overlap. Route this slice through baton.impl, the same serial implementer as related composition work; do not interrupt active W321776 verification-context delivery. W375517 at baton.codx must coordinate any shared source editing if it becomes ready during this slice.
 
 Acceptance must establish installed command-to-owner behavior for idle/pending/queued, preparation, active runtime, uncertain launch, and already ended selections; exact/changed request replay, cancel-vs-admit races, restart/lost replies, stale generation/instance/authority refusal, no successor after fence, retained candidate/verdict and honest unknown state. Exercise real public owner boundaries, not only parser mocks. No external I/O or cross-store callbacks while holding DB transactions. Expose exact operation/status and refusal semantics for the finite-policy consumer. Author chooses appropriate tests; retained research and existing core proofs are inputs, not completion.
+
+## 2026-10-30 — Owner selects next assignment and focused test strategy
+
+Slawomir selects existing W383215 as the next target after W384870's test,
+cleanup and portability work is completed and independently accepted. This is
+selection of the existing cancellation/admission-fence outcome, not duplicate
+Work, a current execution start, or authority for background dispatch. Keep
+interactive manual coordination; arrange the supported owner-held assignment
+before execution, without borrowing a route-handler identity. Canonical readback
+still shows W383215 queued at baton.impl, unclaimed; no dependency or route
+transition is installed by this prose. Revalidate live state at handoff.
+
+Tests belong in the regular v12 Python suite beside the affected owners and
+command/composition behavior, registered under the required TESTING.md policy.
+Author identifies a small named focused set, provides exact just test-one commands
+and measured durations, and exercises real stores and owner boundaries with
+deterministic engine/provider fixtures. Required cases include queued and active
+cancellation, replay, restart, late launch, uncertain termination, cancellation
+versus admission, and the existing identity/refusal obligations. Include a small
+connected command-to-admission/settlement proof; parser mocks alone do not suffice.
+
+Ordinary author/reviewer iterations run this selected set. Broaden to an affected
+group only with a concrete change-related reason. No automatic full suite per
+Job; full-suite integration remains a separately selected checkpoint. Aim for
+seconds to a few minutes; investigate a focused set approaching twenty minutes
+instead of normalizing that feedback cost. This is a feedback-time target, not a
+new cumulative execution budget or permission gate. No live engine/model, build,
+installation or cutover is selected. W383217 remains the recorded successor;
+its implementation is not started by this next-target selection.
+
+## 2026-10-30 — Owner requires closure and complete Git checkpoint before switching
+
+Slawomir clarifies the next-assignment boundary: W383215 must not start until
+W384870 is independently accepted, formally closed on Baton, and all its final
+changes, reviews, decisions and required evidence are checked in by the owner.
+The checkout must be ready for handoff with no outstanding current-Job files.
+This supersedes any earlier wording permitting a switch after acceptance alone,
+or treating the final checkpoint as optional. Closure alone is insufficient;
+a commit alone is insufficient. Revalidate canonical closure and the final Git
+checkpoint/status before releasing the next assignment. Planning ahead remains
+allowed. Agents do not mutate Git or impersonate the owner to satisfy this gate.

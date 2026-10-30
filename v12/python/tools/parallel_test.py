@@ -528,19 +528,31 @@ _ADMISSION_PLAN = ("work/records/2026/10/finding-v12-workflow-fragility-assessme
                    "finding-template-adapter-admission-plan")
 CONSUMED_INPUTS = (
     # import paths and executed programs
-    {"path": _LAUNCH_MISMATCH + "/instance-201492/context/worker",
+    # The two captured IMAGE CONTEXTS are consumed whole: `context/worker` is
+    # the fixtures' import path, `Dockerfile.fixture` is read, and every COPY
+    # source it names (including `python/src/baton_v12/source_profiles`) is
+    # checked to exist. Found by the portability check (owner 2026-10-30).
+    {"path": _LAUNCH_MISMATCH + "/instance-201492/context",
      "consumers": ("tests.manager.test_importing_fixture", "tests.manager.test_fixture_dispatch")},
-    {"path": _LAUNCH_MISMATCH + "/instance-201492/context/Dockerfile.fixture",
-     "consumers": ("tests.manager.test_fixture_dispatch",)},
     {"path": _LAUNCH_MISMATCH + "/instance-201492/verify_lifecycle.py",
      "consumers": ("tests.manager.test_w197661_verifier",)},
     {"path": _LAUNCH_MISMATCH + "/instance-201492/compose_lifecycle.py",
      "consumers": ("tests.manager.test_w197661_verifier (imported by verify_lifecycle)",)},
-    {"path": _LAUNCH_MISMATCH + "/instance-200564/context/worker",
+    # W384870 portability check (owner 2026-10-30): found by running the suite
+    # from a checkout holding ONLY v12/ and the declared inputs -- the verifier
+    # reads these four beside itself (`HERE / ...`), so they are inputs too.
+    {"path": _LAUNCH_MISMATCH + "/instance-201492/CAPTURED-records.json",
+     "consumers": ("tests.manager.test_w197661_verifier",)},
+    {"path": _LAUNCH_MISMATCH + "/instance-201492/CAPTURED-terminal.json",
+     "consumers": ("tests.manager.test_w197661_verifier",)},
+    {"path": _LAUNCH_MISMATCH + "/instance-201492/EXPECTED.json",
+     "consumers": ("tests.manager.test_w197661_verifier (verify_lifecycle.classify_provenance)",)},
+    {"path": _LAUNCH_MISMATCH + "/instance-201492/build/fixture.iid",
+     "consumers": ("tests.manager.test_w197661_verifier (verify_lifecycle.classify_provenance)",)},
+    {"path": _LAUNCH_MISMATCH + "/instance-200564/context",
      "consumers": ("tests.manager.test_proposing_fixture",)},
     {"path": "work/records/2026/09/finding-v12-single-implementation-proof/baseline.py",
-     "consumers": ("tests.manager.shutdown_fixture", "tests.manager.test_authoring_enforcement",
-                   "tests.manager.test_authoring_manager_guard")},
+     "consumers": ("tests.manager.test_authoring_enforcement (ProcessComposition's child imports it)",)},
     # documents read
     {"path": _LAUNCH_MISMATCH + "/instance-200564/bootstrap_inputs.json",
      "consumers": ("tests.manager.test_importing_fixture",)},

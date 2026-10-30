@@ -1,0 +1,85 @@
+{"child": false, "event": "process_entry", "monotonic": 1543.870363398, "pid": 7708, "thread": 132241512591680}
+{"event": "trace", "function": "main", "kind": "call", "monotonic": 1543.870614263, "pid": 7708, "thread": 132241512591680}
+{"event": "manager_started", "manager": 7717, "monotonic": 1543.872054765, "pid": 7708, "thread": 132241512591680}
+{"child": true, "event": "process_entry", "monotonic": 1544.030112125, "pid": 7717, "thread": 136016876310848}
+{"event": "trace", "function": "main", "kind": "call", "monotonic": 1544.030340399, "pid": 7717, "thread": 136016876310848}
+{"event": "trace", "function": "child_main", "kind": "call", "monotonic": 1544.031230349, "pid": 7717, "thread": 136016876310848}
+{"event": "trace", "function": "start", "kind": "call", "monotonic": 1544.03254598, "pid": 7717, "thread": 136016876310848}
+{"event": "trace", "function": "_run", "kind": "call", "monotonic": 1544.032727918, "pid": 7717, "thread": 136016836204224}
+{"event": "manager_guard_held", "guard_pid": 7717, "monotonic": 1544.048700388, "pid": 7717, "thread": 136016836204224}
+{"event": "snapshot_begin", "finished": false, "monotonic": 1544.069867935, "pid": 7717, "report": {"attempts": {}, "faults": [], "state": "watching"}, "stopping": false, "thread": 136016836204224}
+{"event": "trace", "function": "publish_guard", "kind": "call", "monotonic": 1544.06990822, "pid": 7717, "thread": 136016836204224}
+{"event": "trace", "function": "publish_guard", "kind": "return", "monotonic": 1544.070007645, "pid": 7717, "thread": 136016836204224}
+{"event": "snapshot_replaced", "finished": false, "monotonic": 1544.070023825, "pid": 7717, "thread": 136016836204224}
+{"event": "trace", "function": "start", "kind": "return", "monotonic": 1544.070058289, "pid": 7717, "thread": 136016876310848}
+{"event": "trace", "function": "main", "kind": "call", "monotonic": 1544.071939188, "pid": 7717, "thread": 136016876310848}
+{"event": "trace", "function": "supervise", "kind": "call", "monotonic": 1544.086757587, "pid": 7717, "thread": 136016876310848}
+{"event": "trace", "function": "install", "kind": "call", "monotonic": 1544.086794666, "pid": 7717, "thread": 136016876310848}
+{"event": "trace", "function": "install", "kind": "return", "monotonic": 1544.086817258, "pid": 7717, "thread": 136016876310848}
+{"event": "trace", "function": "_supervise", "kind": "call", "monotonic": 1544.086875245, "pid": 7717, "thread": 136016876310848}
+{"event": "snapshot_begin", "finished": false, "monotonic": 1544.320241169, "pid": 7717, "report": {"attempts": {"attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {"faults": [], "observation": null, "runtime": null, "token": null}}, "faults": [], "state": "watching"}, "stopping": false, "thread": 136016836204224}
+{"event": "trace", "function": "publish_guard", "kind": "call", "monotonic": 1544.320289048, "pid": 7717, "thread": 136016836204224}
+{"event": "trace", "function": "publish_guard", "kind": "return", "monotonic": 1544.320421654, "pid": 7717, "thread": 136016836204224}
+{"event": "snapshot_replaced", "finished": false, "monotonic": 1544.320444756, "pid": 7717, "thread": 136016836204224}
+{"event": "snapshot_begin", "finished": false, "monotonic": 1544.570620544, "pid": 7717, "report": {"attempts": {"attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {"faults": [], "observation": null, "runtime": null, "token": null}}, "faults": [], "state": "watching"}, "stopping": false, "thread": 136016836204224}
+{"event": "trace", "function": "publish_guard", "kind": "call", "monotonic": 1544.570655339, "pid": 7717, "thread": 136016836204224}
+{"event": "trace", "function": "publish_guard", "kind": "return", "monotonic": 1544.570770813, "pid": 7717, "thread": 136016836204224}
+{"event": "snapshot_replaced", "finished": false, "monotonic": 1544.570788857, "pid": 7717, "thread": 136016836204224}
+{"event": "snapshot_begin", "finished": false, "monotonic": 1544.820937673, "pid": 7717, "report": {"attempts": {"attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {"faults": [], "observation": null, "runtime": null, "token": null}}, "faults": [], "state": "watching"}, "stopping": false, "thread": 136016836204224}
+{"event": "trace", "function": "publish_guard", "kind": "call", "monotonic": 1544.820975112, "pid": 7717, "thread": 136016836204224}
+{"event": "trace", "function": "publish_guard", "kind": "return", "monotonic": 1544.821085737, "pid": 7717, "thread": 136016836204224}
+{"event": "snapshot_replaced", "finished": false, "monotonic": 1544.821104552, "pid": 7717, "thread": 136016836204224}
+{"event": "snapshot_begin", "finished": false, "monotonic": 1545.071281923, "pid": 7717, "report": {"attempts": {"attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {"faults": [], "observation": null, "runtime": null, "token": null}}, "faults": [], "state": "watching"}, "stopping": false, "thread": 136016836204224}
+{"event": "trace", "function": "publish_guard", "kind": "call", "monotonic": 1545.071321065, "pid": 7717, "thread": 136016836204224}
+{"event": "trace", "function": "publish_guard", "kind": "return", "monotonic": 1545.071418647, "pid": 7717, "thread": 136016836204224}
+{"event": "snapshot_replaced", "finished": false, "monotonic": 1545.071435257, "pid": 7717, "thread": 136016836204224}
+{"event": "fixture_materialize", "monotonic": 1545.131537392, "pid": 7717, "repository": "/home/sl/src/baton/work/scratch/w384870-c7/one4/blocked_sweep/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout", "thread": 136016876310848}
+{"event": "token_acquire", "monotonic": 1545.16301754, "operands": ["attempt", "eligible", "execution", "operation", "permission"], "permission": true, "pid": 7717, "thread": 136016876310848}
+{"event": "token_acquire_refused", "monotonic": 1545.163312167, "pid": 7717, "refusal": "ContractRefusal: remaining execution envelope cannot support the populated invocation limits", "thread": 136016876310848}
+{"argv": ["docker", "ps", "--all", "--no-trunc", "--format", "{{json .}}", "--filter", "label=baton.v12.runtime_attempt_id=attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"], "event": "fake_engine", "monotonic": 1545.163985185, "pid": 7717, "thread": 136016876310848}
+{"event": "start_refused", "monotonic": 1545.165703583, "pid": 7717, "refusal": "ContractRefusal: remaining execution envelope cannot support the populated invocation limits; the runtime was identified as 'uncertain'; the identification is committed as 'not-submitted' and this attempt's execution runtime is now 'destroyed'; the start failure is journalled as 'runtime.start-failed:5f8c0810404285f4c45d4e5b5da2663bbe15b2\u2026", "thread": 136016876310848}
+{"event": "trace", "function": "stop", "kind": "call", "monotonic": 1545.181104473, "pid": 7717, "thread": 136016876310848}
+{"event": "trace", "function": "stop", "kind": "return", "monotonic": 1545.181134559, "pid": 7717, "thread": 136016876310848}
+{"event": "trace", "function": "defer", "kind": "call", "monotonic": 1545.181148114, "pid": 7717, "thread": 136016876310848}
+{"event": "trace", "function": "defer", "kind": "return", "monotonic": 1545.181157882, "pid": 7717, "thread": 136016876310848}
+{"event": "snapshot_begin", "finished": false, "monotonic": 1545.321854957, "pid": 7717, "report": {"attempts": {"attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {"faults": [], "observation": null, "runtime": {"assignment": {"generation": 1, "participant": "baton.claude", "work_ref": {"authority_uuid": "0000000a000000000000000000000000", "work_id": "0000000a-W1"}}, "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571", "cleanup": "pending", "execution_runtime": "destroyed", "runtime_id": null}, "token": null}}, "faults": [], "state": "watching"}, "stopping": false, "thread": 136016836204224}
+{"event": "trace", "function": "publish_guard", "kind": "call", "monotonic": 1545.321891395, "pid": 7717, "thread": 136016836204224}
+{"event": "trace", "function": "publish_guard", "kind": "return", "monotonic": 1545.321987734, "pid": 7717, "thread": 136016836204224}
+{"event": "snapshot_replaced", "finished": false, "monotonic": 1545.32200725, "pid": 7717, "thread": 136016836204224}
+{"event": "snapshot_begin", "finished": false, "monotonic": 1545.572587317, "pid": 7717, "report": {"attempts": {"attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {"faults": [], "observation": null, "runtime": {"assignment": {"generation": 1, "participant": "baton.claude", "work_ref": {"authority_uuid": "0000000a000000000000000000000000", "work_id": "0000000a-W1"}}, "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571", "cleanup": "pending", "execution_runtime": "destroyed", "runtime_id": null}, "token": null}}, "faults": [], "state": "watching"}, "stopping": false, "thread": 136016836204224}
+{"event": "trace", "function": "publish_guard", "kind": "call", "monotonic": 1545.572639514, "pid": 7717, "thread": 136016836204224}
+{"event": "trace", "function": "publish_guard", "kind": "return", "monotonic": 1545.572766851, "pid": 7717, "thread": 136016836204224}
+{"event": "snapshot_replaced", "finished": false, "monotonic": 1545.572788761, "pid": 7717, "thread": 136016836204224}
+{"event": "snapshot_begin", "finished": false, "monotonic": 1545.823360915, "pid": 7717, "report": {"attempts": {"attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {"faults": [], "observation": null, "runtime": {"assignment": {"generation": 1, "participant": "baton.claude", "work_ref": {"authority_uuid": "0000000a000000000000000000000000", "work_id": "0000000a-W1"}}, "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571", "cleanup": "pending", "execution_runtime": "destroyed", "runtime_id": null}, "token": null}}, "faults": [], "state": "watching"}, "stopping": false, "thread": 136016836204224}
+{"event": "trace", "function": "publish_guard", "kind": "call", "monotonic": 1545.823400158, "pid": 7717, "thread": 136016836204224}
+{"event": "trace", "function": "publish_guard", "kind": "return", "monotonic": 1545.823497839, "pid": 7717, "thread": 136016836204224}
+{"event": "snapshot_replaced", "finished": false, "monotonic": 1545.82351437, "pid": 7717, "thread": 136016836204224}
+{"event": "snapshot_begin", "finished": false, "monotonic": 1546.074086972, "pid": 7717, "report": {"attempts": {"attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {"faults": [], "observation": null, "runtime": {"assignment": {"generation": 1, "participant": "baton.claude", "work_ref": {"authority_uuid": "0000000a000000000000000000000000", "work_id": "0000000a-W1"}}, "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571", "cleanup": "pending", "execution_runtime": "destroyed", "runtime_id": null}, "token": null}}, "faults": [], "state": "watching"}, "stopping": false, "thread": 136016836204224}
+{"event": "trace", "function": "publish_guard", "kind": "call", "monotonic": 1546.074136023, "pid": 7717, "thread": 136016836204224}
+{"event": "trace", "function": "publish_guard", "kind": "return", "monotonic": 1546.074261896, "pid": 7717, "thread": 136016836204224}
+{"event": "snapshot_replaced", "finished": false, "monotonic": 1546.074283306, "pid": 7717, "thread": 136016836204224}
+{"event": "trace", "function": "_publish", "kind": "call", "monotonic": 1546.18576242, "pid": 7717, "thread": 136016876310848}
+{"event": "trace", "function": "_publish", "kind": "return", "monotonic": 1546.186195383, "pid": 7717, "thread": 136016876310848}
+{"event": "trace", "function": "_supervise", "kind": "return", "monotonic": 1546.186218215, "pid": 7717, "thread": 136016876310848}
+{"event": "trace", "function": "restore", "kind": "call", "monotonic": 1546.186232472, "pid": 7717, "thread": 136016876310848}
+{"event": "trace", "function": "restore", "kind": "return", "monotonic": 1546.18624785, "pid": 7717, "thread": 136016876310848}
+{"event": "trace", "function": "supervise", "kind": "return", "monotonic": 1546.186255775, "pid": 7717, "thread": 136016876310848}
+{"event": "trace", "function": "main", "kind": "return", "monotonic": 1546.186829589, "pid": 7717, "thread": 136016876310848}
+{"event": "trace", "function": "stop", "kind": "call", "monotonic": 1546.186901092, "pid": 7717, "thread": 136016876310848}
+{"event": "snapshot_begin", "finished": true, "monotonic": 1546.202871879, "pid": 7717, "report": {"attempts": {"attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {"faults": [], "observation": null, "runtime": {"assignment": {"generation": 1, "participant": "baton.claude", "work_ref": {"authority_uuid": "0000000a000000000000000000000000", "work_id": "0000000a-W1"}}, "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571", "cleanup": "pending", "execution_runtime": "destroyed", "runtime_id": null}, "token": null}}, "faults": [], "state": "stopping"}, "stopping": true, "thread": 136016836204224}
+{"event": "trace", "function": "publish_guard", "kind": "call", "monotonic": 1546.202915851, "pid": 7717, "thread": 136016836204224}
+{"event": "trace", "function": "publish_guard", "kind": "return", "monotonic": 1546.203028259, "pid": 7717, "thread": 136016836204224}
+{"event": "snapshot_replaced", "finished": true, "monotonic": 1546.203048707, "pid": 7717, "thread": 136016836204224}
+{"event": "trace", "function": "_run", "kind": "return", "monotonic": 1546.203063535, "pid": 7717, "thread": 136016836204224}
+{"event": "trace", "function": "stop", "kind": "return", "monotonic": 1546.203121893, "pid": 7717, "thread": 136016876310848}
+{"event": "snapshot_begin", "finished": true, "monotonic": 1546.203233751, "pid": 7717, "report": {"attempts": {"attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {"faults": [], "observation": null, "runtime": {"assignment": {"generation": 1, "participant": "baton.claude", "work_ref": {"authority_uuid": "0000000a000000000000000000000000", "work_id": "0000000a-W1"}}, "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571", "cleanup": "pending", "execution_runtime": "destroyed", "runtime_id": null}, "token": null}}, "faults": [], "state": "stopping"}, "stopping": true, "thread": 136016876310848}
+{"event": "trace", "function": "publish_guard", "kind": "call", "monotonic": 1546.203260811, "pid": 7717, "thread": 136016876310848}
+{"event": "trace", "function": "publish_guard", "kind": "return", "monotonic": 1546.203328076, "pid": 7717, "thread": 136016876310848}
+{"event": "snapshot_replaced", "finished": true, "monotonic": 1546.203344175, "pid": 7717, "thread": 136016876310848}
+{"event": "trace", "function": "child_main", "kind": "return", "monotonic": 1546.203365355, "pid": 7717, "thread": 136016876310848}
+{"event": "trace", "function": "main", "kind": "return", "monotonic": 1546.203375263, "pid": 7717, "thread": 136016876310848}
+{"event": "outer_signal", "manager": 7717, "monotonic": 1546.373297312, "pid": 7708, "signal": 9, "thread": 132241512591680}
+{"event": "manager_reaped", "manager": 7717, "monotonic": 1546.373420982, "pid": 7708, "status": 1, "thread": 132241512591680}
+{"event": "trace", "function": "stop", "kind": "call", "monotonic": 1546.373448914, "pid": 7708, "thread": 132241512591680}
+{"event": "trace", "function": "stop", "kind": "return", "monotonic": 1546.373519755, "pid": 7708, "thread": 132241512591680}
+{"event": "trace", "function": "main", "kind": "return", "monotonic": 1546.373742709, "pid": 7708, "thread": 132241512591680}

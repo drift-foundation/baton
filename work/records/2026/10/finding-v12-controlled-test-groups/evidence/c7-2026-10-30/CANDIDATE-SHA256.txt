@@ -1,0 +1,2 @@
+392bc63a71222fcf67ef897c1fbc8c2e5cc288de2d662edc1ec9d4ac28aee010  v12/python/tests/manager/shutdown_fixture.py
+09eaea1fc27eb8f579325e31f4b30c13ce387e9ade63b397cde969e8d09e60f3  v12/python/tests/manager/test_authoring_shutdown_deadline.py

@@ -1,0 +1,50 @@
+test_real_baseline_shutdown_matrix (tests.manager.test_authoring_shutdown_deadline.Composition.test_real_baseline_shutdown_matrix) ... 
+  test_real_baseline_shutdown_matrix (tests.manager.test_authoring_shutdown_deadline.Composition.test_real_baseline_shutdown_matrix) (mode='blocked_sweep') ... ERROR
+  test_real_baseline_shutdown_matrix (tests.manager.test_authoring_shutdown_deadline.Composition.test_real_baseline_shutdown_matrix) (mode='absent_cleanup') ... ERROR
+  test_real_baseline_shutdown_matrix (tests.manager.test_authoring_shutdown_deadline.Composition.test_real_baseline_shutdown_matrix) (mode='unknown') ... FAIL
+test_blocking_step_is_interrupted_and_alarm_restored (tests.manager.test_authoring_shutdown_deadline.FastContract.test_blocking_step_is_interrupted_and_alarm_restored) ... ok
+test_exhausted_step_does_not_execute (tests.manager.test_authoring_shutdown_deadline.FastContract.test_exhausted_step_does_not_execute) ... ok
+test_one_deadline_reserves_each_finalization_phase_without_reset (tests.manager.test_authoring_shutdown_deadline.FastContract.test_one_deadline_reserves_each_finalization_phase_without_reset) ... ok
+
+======================================================================
+ERROR: test_real_baseline_shutdown_matrix (tests.manager.test_authoring_shutdown_deadline.Composition.test_real_baseline_shutdown_matrix) (mode='blocked_sweep')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_authoring_shutdown_deadline.py", line 112, in test_real_baseline_shutdown_matrix
+    self.assertTrue(all(row['token']['seconds'] == 2 and row['token']['renewals'] == 0 for row in rows))
+                    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_authoring_shutdown_deadline.py", line 112, in <genexpr>
+    self.assertTrue(all(row['token']['seconds'] == 2 and row['token']['renewals'] == 0 for row in rows))
+                        ~~~~~~~~~~~~^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+======================================================================
+ERROR: test_real_baseline_shutdown_matrix (tests.manager.test_authoring_shutdown_deadline.Composition.test_real_baseline_shutdown_matrix) (mode='absent_cleanup')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_authoring_shutdown_deadline.py", line 112, in test_real_baseline_shutdown_matrix
+    self.assertTrue(all(row['token']['seconds'] == 2 and row['token']['renewals'] == 0 for row in rows))
+                    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_authoring_shutdown_deadline.py", line 112, in <genexpr>
+    self.assertTrue(all(row['token']['seconds'] == 2 and row['token']['renewals'] == 0 for row in rows))
+                        ~~~~~~~~~~~~^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+======================================================================
+FAIL: test_real_baseline_shutdown_matrix (tests.manager.test_authoring_shutdown_deadline.Composition.test_real_baseline_shutdown_matrix) (mode='unknown')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_authoring_shutdown_deadline.py", line 126, in test_real_baseline_shutdown_matrix
+    self.assertTrue(any(row.get('token') and row['token']['revoked'] and not row['token']['returned'] for row in rows))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 4 tests in 35.012s
+
+FAILED (failures=1, errors=2)
+error: Recipe `test-one` failed with exit code 1
+
+real	0m35.207s
+user	0m5.297s
+sys	0m0.300s

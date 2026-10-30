@@ -82,7 +82,11 @@ def repositories(root):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--root', type=Path, help='new absolute disk-backed run root; default under ~/.local/state/baton/v12')
+    parser.add_argument('--credential-registry', type=Path, required=True, help='absolute path of the operator credential-sources registry file the execution owner reads (never read here)')
     args = parser.parse_args()
+    registry = args.credential_registry
+    if not registry.is_absolute() or registry != Path(os.path.normpath(registry)) or not registry.is_file():
+        raise ValueError('--credential-registry must be the absolute, normalized path of an existing registry file')
     if 1001 not in os.getgroups():
         raise RuntimeError('operator process must hold supplementary workspace gid1001')
     root = args.root
@@ -104,7 +108,7 @@ def main():
         base, tree = repositories(root)
         settings = {'authority_uuid': uuid.uuid4().hex, 'base': base, 'tree': tree,
                     'created_at': datetime.now(timezone.utc).isoformat(timespec='milliseconds').replace('+00:00', 'Z'),
-                    'provider_base': BASE_IMAGE, 'images': selected}
+                    'provider_base': BASE_IMAGE, 'images': selected, 'credential_registry': str(registry)}
         write(root / 'settings.json', settings)
         os.environ['BATON_LIVE_AB_RUN_ROOT'] = str(root)
         sys.path.insert(0, str(HERE))

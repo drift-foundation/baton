@@ -1,0 +1,14 @@
+test_a_missing_selected_injection_is_detected (tests.manager.test_authoring_shutdown_deadline.IntendedScenarioGuard.test_a_missing_selected_injection_is_detected) ... ok
+test_a_pre_invocation_signal_mode_must_invoke_nothing (tests.manager.test_authoring_shutdown_deadline.IntendedScenarioGuard.test_a_pre_invocation_signal_mode_must_invoke_nothing) ... ok
+test_an_early_start_refusal_cannot_pass_an_engine_reaching_mode (tests.manager.test_authoring_shutdown_deadline.IntendedScenarioGuard.test_an_early_start_refusal_cannot_pass_an_engine_reaching_mode) ... ok
+test_an_unscripted_refusal_cannot_pass_a_create_refusal_mode (tests.manager.test_authoring_shutdown_deadline.IntendedScenarioGuard.test_an_unscripted_refusal_cannot_pass_a_create_refusal_mode) ... ok
+test_every_matrix_mode_declares_a_scenario (tests.manager.test_authoring_shutdown_deadline.IntendedScenarioGuard.test_every_matrix_mode_declares_a_scenario) ... ok
+test_every_mode_passes_its_own_intended_journal (tests.manager.test_authoring_shutdown_deadline.IntendedScenarioGuard.test_every_mode_passes_its_own_intended_journal) ... ok
+test_blocking_step_is_interrupted_and_alarm_restored (tests.manager.test_authoring_shutdown_deadline.FastContract.test_blocking_step_is_interrupted_and_alarm_restored) ... ok
+test_exhausted_step_does_not_execute (tests.manager.test_authoring_shutdown_deadline.FastContract.test_exhausted_step_does_not_execute) ... ok
+test_one_deadline_reserves_each_finalization_phase_without_reset (tests.manager.test_authoring_shutdown_deadline.FastContract.test_one_deadline_reserves_each_finalization_phase_without_reset) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.051s
+
+OK

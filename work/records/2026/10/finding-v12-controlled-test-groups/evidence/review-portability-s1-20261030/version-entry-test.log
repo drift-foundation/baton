@@ -1,0 +1,6 @@
+test_every_stated_owner_names_a_witness_that_exists (tests.manager.test_boundary_inventory.EveryStatedOwnerHasAWitness.test_every_stated_owner_names_a_witness_that_exists) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.011s
+
+OK

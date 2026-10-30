@@ -1049,7 +1049,7 @@ class OneOrderedTeardownOnEveryEnding(CredentialCase):
     def test_destroy_tears_down_once_the_runtime_is_proved_gone(self):
         delivered = self.delivery()
         built = self.adapter(delivered)
-        built.observe = lambda runtime_id: {"state": "absent",
+        built.observe = lambda runtime_id, *, seconds=None: {"state": "absent",
                                             "why": "the engine says so"}
         answer = built.destroy(self.command())
         self.assertEqual(answer["credentials"]["lifecycle_state"],
@@ -1405,7 +1405,7 @@ class OneOrderedTeardownOnEveryEnding(CredentialCase):
         has not happened."""
         delivered = self.delivery()
         built = self.adapter(delivered)
-        built.observe = lambda runtime_id: {"state": "uncertain",
+        built.observe = lambda runtime_id, *, seconds=None: {"state": "uncertain",
                                             "why": "the engine said nothing"}
         answer = built.destroy(self.command())
         self.assertEqual(answer["credentials"]["lifecycle_state"],
@@ -1427,7 +1427,7 @@ class OneOrderedTeardownOnEveryEnding(CredentialCase):
         built = self.adapter(delivered)
         states = iter([{"state": "quiescent", "why": "the stop was accepted"},
                        {"state": "absent", "why": "the engine says so"}])
-        built.observe = lambda runtime_id: next(states)
+        built.observe = lambda runtime_id, *, seconds=None: next(states)
 
         ordered = built.stop({"runtime_id": "runtime-1",
                               "operation_id": "runtime.stop:1"})
@@ -1447,7 +1447,7 @@ class OneOrderedTeardownOnEveryEnding(CredentialCase):
         completed one does -- there is no second path to drift from."""
         delivered = self.delivery()
         built = self.adapter(delivered)
-        built.observe = lambda runtime_id: {"state": "absent",
+        built.observe = lambda runtime_id, *, seconds=None: {"state": "absent",
                                             "why": "the engine says so"}
         answer = built.destroy(self.command(
             intake_receipt_digest=DIGEST, retention_policy_digest=DIGEST))

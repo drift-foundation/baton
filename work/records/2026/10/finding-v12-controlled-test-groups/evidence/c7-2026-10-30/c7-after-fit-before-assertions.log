@@ -1,0 +1,40 @@
+test_real_baseline_shutdown_matrix (tests.manager.test_authoring_shutdown_deadline.Composition.test_real_baseline_shutdown_matrix) ... 
+  test_real_baseline_shutdown_matrix (tests.manager.test_authoring_shutdown_deadline.Composition.test_real_baseline_shutdown_matrix) (mode='blocked_sweep') ... FAIL
+  test_real_baseline_shutdown_matrix (tests.manager.test_authoring_shutdown_deadline.Composition.test_real_baseline_shutdown_matrix) (mode='absent_cleanup') ... FAIL
+  test_real_baseline_shutdown_matrix (tests.manager.test_authoring_shutdown_deadline.Composition.test_real_baseline_shutdown_matrix) (mode='unknown') ... FAIL
+test_blocking_step_is_interrupted_and_alarm_restored (tests.manager.test_authoring_shutdown_deadline.FastContract.test_blocking_step_is_interrupted_and_alarm_restored) ... ok
+test_exhausted_step_does_not_execute (tests.manager.test_authoring_shutdown_deadline.FastContract.test_exhausted_step_does_not_execute) ... ok
+test_one_deadline_reserves_each_finalization_phase_without_reset (tests.manager.test_authoring_shutdown_deadline.FastContract.test_one_deadline_reserves_each_finalization_phase_without_reset) ... ok
+
+======================================================================
+FAIL: test_real_baseline_shutdown_matrix (tests.manager.test_authoring_shutdown_deadline.Composition.test_real_baseline_shutdown_matrix) (mode='blocked_sweep')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_authoring_shutdown_deadline.py", line 119, in test_real_baseline_shutdown_matrix
+    self.assertTrue(all(row['observation']['state'] == 'absent' and row['token']['returned'] for row in rows))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_real_baseline_shutdown_matrix (tests.manager.test_authoring_shutdown_deadline.Composition.test_real_baseline_shutdown_matrix) (mode='absent_cleanup')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_authoring_shutdown_deadline.py", line 119, in test_real_baseline_shutdown_matrix
+    self.assertTrue(all(row['observation']['state'] == 'absent' and row['token']['returned'] for row in rows))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_real_baseline_shutdown_matrix (tests.manager.test_authoring_shutdown_deadline.Composition.test_real_baseline_shutdown_matrix) (mode='unknown')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_authoring_shutdown_deadline.py", line 132, in test_real_baseline_shutdown_matrix
+    self.assertTrue(any(row.get('token') and row['token']['revoked'] and not row['token']['returned'] for row in rows))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 4 tests in 60.211s
+
+FAILED (failures=3)
+error: Recipe `test-one` failed with exit code 1

@@ -41,6 +41,7 @@ import ast
 import functools
 import json
 import os
+import re
 import pathlib
 import shutil
 import sqlite3
@@ -467,13 +468,41 @@ def _member_read(node):
     return None
 
 
-def _read_table(node):
+# W384870 (review 2026-10-30T17:25:53Z): A REPLAYED JOURNAL DOCUMENT IS AN
+# ADOPTED READ. `_, committed = store.replay(operation_id, signature, kind=...)`
+# decodes one of this manager's own committed records through the journal's
+# signature check and hands the document back; what a reader then does with it
+# is a crossing from the store, exactly like a row a SELECT returns. It is
+# inventoried as a read of this pseudo-table, so each replay site is an
+# adopted entry, each member read of the document is a column entry, and an
+# owner that validates the document (`_committed_record`'s "a committed ending
+# record") is attributed to it. Sites that own nothing are visible debt.
+REPLAY_TABLE = "replay"
+
+
+def _replay_read(node):
+    return (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
+            and node.func.attr == "replay" and len(node.args) >= 2)
+
+
+def _read_table(node, origins=None):
     """The table this call reads, or None if it is not a SELECT.
 
     The SQL is assembled from its literal pieces, so a query built by
     concatenation -- which the offers reader is -- is still recognised. Nothing
     here executes anything; it reads the text the code will hand SQLite.
+
+    W384870 S4 (review 2026-10-30T09:29:47Z P2): a FORMATTED piece is resolved
+    through the bindings in force when they carry its literal, and otherwise
+    kept as a PLACEHOLDER `{expr}` in the text. So a static FROM with a dynamic
+    predicate still names its table, and a dynamic FROM (`_one_by_attempt`'s
+    `f"SELECT * FROM {table} WHERE ..."`) answers `{table}` -- a recognised
+    read whose table this scope cannot name -- rather than `WHERE` (the first
+    cut, which invented fifteen column entries of a table that does not exist)
+    or None (the second cut, which made a real read invisible).
     """
+    if _replay_read(node):
+        return REPLAY_TABLE
     if not (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
             and node.func.attr == "execute" and node.args):
         return None
@@ -487,6 +516,9 @@ def _read_table(node):
             stack[:0] = [item.left, item.right]
         elif isinstance(item, ast.JoinedStr):
             stack[:0] = list(item.values)
+        elif isinstance(item, ast.FormattedValue):
+            value = _literal_text(item.value, origins) if origins is not None else None
+            pieces.append(value if value is not None else "{" + ast.unparse(item.value) + "}")
     text = " ".join(pieces)
     if not text.lstrip().upper().startswith("SELECT"):
         return None
@@ -636,7 +668,7 @@ def _source(value, origins, site=None, returns=None):
     if isinstance(value, ast.Name):
         return _bindings_at(origins, value).get(value.id)
     if site is not None:
-        table = _read_table(value)
+        table = _read_table(value, origins)
         if table is not None:
             # THE SITE IS PART OF THE ORIGIN. `meta` is read at two places and a
             # crossing belongs where it happened, so an adopted origin names the
@@ -702,7 +734,7 @@ def _source(value, origins, site=None, returns=None):
             found = []
             for origin in _origin_values(returned):
                 if not origin.startswith("caller:"):
-                    found.append(origin)
+                    found.append(_resolved_placeholders(origin, value, positional, keywords, origins))
                     continue
                 # Identity helpers return THEIR argument, not a fresh caller
                 # named `row`. Preserve every possible actual member origin.
@@ -713,6 +745,27 @@ def _source(value, origins, site=None, returns=None):
                     found.append(_extend_origin(contextual, bracket + suffix if bracket else ""))
             return _join_origins(found)
     return None
+
+
+def _resolved_placeholders(origin, call, positional, keywords, origins):
+    """A helper's placeholder read, named through THIS call's literals.
+
+    W384870 (review 2026-10-30T17:25:53Z): `_one_by_attempt` reads
+    `f"SELECT * FROM {table} ..."` and hands the row back, so its return
+    origin is `read:<helper>|{table}` -- the helper cannot name the table.
+    Its CALLER can: `writer_for_attempt` passes the literal `"line_writers"`.
+    A caller's member reads on the returned row are reads of THAT table, so
+    the placeholder is filled from the call's literal bindings; a call that
+    binds no literal keeps the placeholder, which stays visible debt.
+    """
+    if not origin.startswith("read:") or "{" not in origin:
+        return origin
+    bound = _argument_bindings(call, positional, keywords)
+    for parameter, actual in bound.items():
+        literal = _literal_text(actual, origins)
+        if literal is not None:
+            origin = origin.replace("{" + parameter + "}", literal)
+    return origin
 
 
 def _returned_origins(sources):
@@ -920,7 +973,7 @@ def _origins(node, site, returns=None, seed=None, own_parameters=True):
                 # A missing local-list identity is an unknown alternative,
                 # not evidence that the known candidate is a definite alias.
                 missing = "unknown-list" if isinstance(name, tuple) and name[0] == "collection" else None
-                if isinstance(name, tuple) and name[0] == "literal":
+                if isinstance(name, tuple) and name[0] in ("literal", "label"):
                     missing = frozenset({None})
                 joined = _join_origins(state.get(name, missing) for state in states)
                 if joined is not None:
@@ -985,11 +1038,19 @@ def _origins(node, site, returns=None, seed=None, own_parameters=True):
             for target in piece.targets:
                 self.visit(target)
                 bind(target, origin)
+                if isinstance(target, ast.Tuple) and _replay_read(piece.value) and len(target.elts) == 2:
+                    # `found, document = store.replay(...)`: the flag is the
+                    # journal's answer about replay, the DOCUMENT is the read.
+                    bind(target.elts[0], None)
+                    bind(target.elts[1], origin)
                 if isinstance(target, ast.Name):
                     if callable_members is not None:
                         origins[("callable", target.id)] = callable_members
                     if literal is not None:
                         origins[("literal", target.id)] = literal
+                    origins.pop(("label", target.id), None)
+                    if literal is None and isinstance(piece.value, ast.JoinedStr):
+                        origins[("label", target.id)] = _label(piece.value, origins)
                     key = ("collection", target.id)
                     if collection is None:
                         origins.pop(key, None)
@@ -1275,6 +1336,7 @@ def receiving_entries():
     found = set()
     crossings = _crossings()
     _returns = _helper_returns()
+    resolutions = {"resolved": set(), "unresolved": set()}
     for source, tree in _sources():
         helpers = _helpers(tree, source.name)
         returns = _returns
@@ -1296,7 +1358,7 @@ def receiving_entries():
             for piece in ast.walk(node):
                 for member in _discovered_capabilities(piece, origins):
                     found.add(("injected", crossings[member], member))
-                table = _read_table(piece)
+                table = _read_table(piece, origins)
                 if table is not None:
                     found.add(("adopted", site, table))
                 for origin, member in _member_origins(piece, origins):
@@ -1322,8 +1384,16 @@ def receiving_entries():
             # crossing owned and its members invisible. The entry stays at the
             # CALLER's site, because that is where the value entered.
             found |= _through_helpers(crossings, site, node, origins,
-                                      helpers, returns=returns)
-    return frozenset(found)
+                                      helpers, returns=returns, resolutions=resolutions)
+    # A PLACEHOLDER READ IS RETIRED ONLY BY ITS CALLERS (W384870). The helper's
+    # own site still records `{table}`; when every delegation that reaches the
+    # read named the table, the resolved rows above ARE that read and the
+    # placeholder would count it twice. A read some caller leaves unnamed, or
+    # that no caller reaches, keeps its placeholder: visible debt, never silence.
+    retired = resolutions["resolved"] - resolutions["unresolved"]
+    return frozenset(entry for entry in found
+                     if not (entry[0] == "adopted" and "{" in entry[2]
+                             and (entry[1], entry[2].split(".")[0]) in retired))
 
 
 def _parameters(node):
@@ -1461,11 +1531,30 @@ def _helpers(tree, module):
     return found
 
 
-def _through_helpers(crossings, site, node, origins, helpers, returns=None):
-    """Member reads a private helper performs on a document handed to it."""
+def _through_helpers(crossings, site, node, origins, helpers, returns=None, resolutions=None):
+    """Member reads a private helper performs on a document handed to it.
+
+    AND THE HELPER'S OWN DYNAMIC READS, NAMED BY THE CALLER (W384870): a read
+    whose table is a parameter is a real read of the table each caller
+    passes. Seen through the delegation it is `line_writers` or
+    `review_attachments`, an adopted row at the helper's site. `resolutions`
+    records, per placeholder read, which delegations named it and which
+    did not, so the placeholder itself is retired only when EVERY caller
+    names the table.
+    """
     found = set()
     for where, helper, inside in _delegations(node, origins, helpers, site=site, returns=returns):
         for step in _scope_nodes(helper):
+            placeholder = _read_table(step)
+            if placeholder is not None and "{" in placeholder:
+                actual = _read_table(step, inside)
+                if "{" in actual:
+                    if resolutions is not None:
+                        resolutions["unresolved"].add((where, placeholder))
+                else:
+                    found.add(("adopted", where, actual))
+                    if resolutions is not None:
+                        resolutions["resolved"].add((where, placeholder))
             for found_origin, member in _member_origins(step, inside, where, returns):
                 if found_origin.startswith("session:"):
                     subject = _dotted(found_origin, member)
@@ -1527,6 +1616,8 @@ def _delegations(node, origins, helpers, *, site, returns=None, trail=()):
                 literal = _literal_text(argument, context)
                 if literal is not None:
                     inside[("literal", parameter)] = literal
+                elif isinstance(argument, ast.JoinedStr) or (isinstance(argument, ast.Name) and type(_bindings_at(context, argument).get(("label", argument.id))) is str):
+                    inside[("label", parameter)] = _label(argument, context)
             if inside:
                 local = _origins(helper, where, returns, seed=inside, own_parameters=False)
                 yield (where, helper, local)
@@ -1751,9 +1842,58 @@ MEMOISED = (_sources, _helper_returns, _crossings, receiving_entries,
             columns_read, owning_validators, propagated_owners, boundary_occurrences)
 
 
+def _closure_pieces(node, origins):
+    """(piece, contexts) for every node inside a nested function body.
+
+    W384870 (review 2026-10-30T17:25:53Z): `_ask` owns the agent adapter and
+    the interrogation deadline INSIDE the `act` closure it hands to
+    `transact`, and `_scope_nodes` never enters a nested body, so those owners
+    were invisible and their probes read as "probed, never owned". A closure
+    sees its enclosing function's bindings as they stood where it was
+    defined, minus the names it binds itself; that is the context its calls
+    are resolved in. Nested functions of nested functions follow the same
+    rule, one level at a time.
+    """
+    pending = [(piece, origins) for piece in _scope_nodes(node)
+               if isinstance(piece, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda))]
+    while pending:
+        inner, outer = pending.pop()
+        contexts = []
+        for context in _contexts_at(outer, inner) if not isinstance(outer, _OriginBindings) else ((outer.at.get(id(inner)),) if id(inner) in outer.at else ()):
+            if context is None:
+                continue
+            shadowed = set(_parameters(inner)) if not isinstance(inner, ast.Lambda) else {one.arg for one in inner.args.args + inner.args.kwonlyargs + inner.args.posonlyargs}
+            if not isinstance(inner, ast.Lambda):
+                shadowed |= _local_bindings(inner)
+            contexts.append(types.MappingProxyType({key: value for key, value in context.items()
+                                                    if (key[1] if isinstance(key, tuple) else key) not in shadowed}))
+        if not contexts:
+            continue
+        # THIS BODY ONLY (review 2026-10-30T18:07:52Z): `ast.walk` does not
+        # prune, so a twice-nested body was yielded under the enclosing
+        # bindings as well as its own, and an inner `agent` parameter was
+        # credited to the outer caller's. A nested scope is queued with the
+        # bindings as they stand HERE and visited once, with those.
+        body = [inner.body] if isinstance(inner, ast.Lambda) else list(inner.body)
+        stack = list(reversed(body))
+        while stack:
+            piece = stack.pop()
+            if isinstance(piece, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)):
+                for context in contexts:
+                    pending.append((piece, context))
+                continue
+            yield piece, contexts
+            stack.extend(reversed(list(ast.iter_child_nodes(piece))))
+
+
 def _calls_in(node, origins, site, *, all_subjects=False, lexical_labels=False):
     """The boundary calls a function makes, resolved through given bindings."""
-    for piece in _scope_nodes(node):
+    yield from _calls_among(((piece, None) for piece in _scope_nodes(node)), origins, site, all_subjects=all_subjects, lexical_labels=lexical_labels)
+    yield from _calls_among(_closure_pieces(node, origins), origins, site, all_subjects=all_subjects, lexical_labels=lexical_labels)
+
+
+def _calls_among(pieces, origins, site, *, all_subjects=False, lexical_labels=False):
+    for piece, closure_contexts in pieces:
         if not (isinstance(piece, ast.Call)
                 and isinstance(piece.func, ast.Attribute)
                 and isinstance(piece.func.value, ast.Name)
@@ -1763,7 +1903,7 @@ def _calls_in(node, origins, site, *, all_subjects=False, lexical_labels=False):
         subject_at, label_at = POSITIONS.get(piece.func.attr, (0, 1))
         if len(piece.args) <= label_at:
             raise AssertionError(f"{site}:{piece.lineno} names no label")
-        for context in _contexts_at(origins, piece):
+        for context in (_contexts_at(origins, piece) if closure_contexts is None else closure_contexts):
             label = _label(piece.args[label_at], {} if lexical_labels else context)
             if label is None:
                 raise AssertionError(f"{site}:{piece.lineno} names no label")
@@ -1778,6 +1918,14 @@ def _label(node, origins=None):
     literal = _literal_text(node, origins)
     if literal is not None:
         return literal
+    if isinstance(node, ast.Name):
+        # A LABEL BOUND FROM A FORMATTED STRING keeps its literal words and its
+        # placeholders (`the line writer for attempt {name_value(attempt_id)}
+        # generation {generation}`), which is what a probe's fragment matches
+        # (W384870); a name bound to nothing legible stays `{name}` below.
+        composed = _bindings_at(origins, node).get(("label", node.id))
+        if type(composed) is str:
+            return composed
     if isinstance(node, ast.JoinedStr):
         pieces = []
         for piece in node.values:
@@ -1864,6 +2012,21 @@ def _owned_here(site, stem, covering=False):
         row, _ = _column_check_relations(boundary_occurrences(), {entry})[entry]
         return [row.label]
     owners = owning_validators().get(site, ())
+    found = _labels_among(owners, stem, covering)
+    if found or not stem.startswith("read:"):
+        return found
+    # THE READ NAMES ITS OWN SITE, so when that site owns nothing for it the
+    # owner may be recorded wherever the read was RESOLVED: `writer_for_attempt`
+    # owns the `line_writers` row that `_one_by_attempt` read for it
+    # (W384870). The stem carries the read site, so no other site's read can
+    # answer for it; and this is a fallback, so a site's own owners keep every
+    # verdict they had.
+    elsewhere = frozenset(one for recorded_site, recorded in owning_validators().items()
+                          if recorded_site != site for one in recorded)
+    return _labels_among(elsewhere, stem, covering)
+
+
+def _labels_among(owners, stem, covering):
     exact = {label for _, label, subject in owners
              if subject == stem or subject.startswith(stem + ".")}
     if exact or not covering:
@@ -2334,8 +2497,12 @@ STATED_OWNERS = {
         "an injected profile aggregate whose validate capability is typed before use",
     # W384870 S1: the two restoration entries type their profile aggregate
     # through `_profile` (name text, then the restore_checkpoint/validate
-    # capabilities) under the same rule; probed indirectly by the restoration
-    # tests, stated here because the capability label is an f-string.
+    # capabilities) under the same rule; stated here because the capability
+    # label is an f-string. Review 2026-10-30T08:20:12Z: these two are NOT in
+    # the base lifecycle class, so each has its own negative witness below
+    # (StatedRules.test_restore_abandoned_correction_profile_owner and
+    # test_settle_restoration_execution_profile_owner) that reaches the entry
+    # with a valid world and proves a bypassed `_profile` is noticed.
     ("caller", "review_cycles.py:restore_abandoned_correction", "profile"): "the same",
     ("caller", "review_cycles.py:settle_restoration_execution", "profile"): "the same",
     ("caller", "review_cycles.py:record_verdict", "disposition"):
@@ -3200,6 +3367,14 @@ CONSTRUCTED_BY = {
 # Written down rather than skipped silently: an entry with no probe should be a
 # decision somebody made, and it is checked to be a real, owned entry.
 NO_PROBE = {
+    # W384870: the rows `_one_by_attempt` reads for its callers. The read
+    # SELECTS BY the attempt id and generation (a spoiled value makes the row
+    # unfindable: absence, not a bad row), and `assignment_generation` is a
+    # strict count SQLite will not let a writer spoil.
+    **{("adopted", "review_cycles.py:_one_by_attempt", f"{table}.{column}"): reason
+       for table in ("line_writers", "review_attachments")
+       for column, reason in (("runtime_attempt_id", "the read SELECTS BY this column; a spoiled value answers absence"),
+                              ("assignment_generation", "the read SELECTS BY this strict count column"))},
     # W71918: strict integer columns and lookup keys of the review-cycle rows.
     # The former cannot be spoiled past SQLite's type wall; changing the latter
     # makes the exact-id query return absence instead of adopting a bad row.
@@ -3952,6 +4127,17 @@ DELEGATED = {
        for site, subject in (("copied_manifest", "root"), ("read_input_root", "inputs"),
                              ("refuse_if_held", "storage"), ("restoration_lock_path", "storage"))},
 }
+
+# W384870 S4 residue (review 2026-10-30T08:20:12Z, "nine unmatched declarations"):
+# four probes already drove owners the inventory had not attributed. The stop
+# request is typed whole and member by member in `_stopped`, the line's place
+# in `_composed_line_roots`; both are this module's own private helpers.
+DELEGATED.update({
+    ("caller", "oci.py:OciAdapter.stop", "request"): ("oci.py:OciAdapter._stopped", "caller:request"),
+    ("caller", "oci.py:OciAdapter.stop", "request.runtime_id"): ("oci.py:OciAdapter._stopped", "caller:request[runtime_id]"),
+    ("caller", "oci.py:OciAdapter.stop", "request.operation_id"): ("oci.py:OciAdapter._stopped", "caller:request[operation_id]"),
+    ("caller", "workspaces.py:line_assignment_workspace", "place"): ("workspaces.py:_composed_line_roots", "caller:place"),
+})
 
 
 def delegated_labels(entry):
@@ -4712,6 +4898,10 @@ class BoundaryCase(unittest.TestCase):
         found[(at(f"{A}:OciAdapter.list", "request.labels"),
                "a list request")] = (
             "a list request", self.seam("list", {}))
+        # W384870 S4: `_stopped` labels this document with its `what` parameter
+        # and the delegation resolves to the placeholder `{what}`, which this
+        # fragment cannot cover; the pair stays listed in both debt lists until
+        # delegated labels resolve through the caller's literal (S4-RESIDUE.md).
         found[(at(f"{A}:OciAdapter.stop", "request"), "a stop request")] = (
             "a stop request", self.seam("stop", "not a document"))
         found[(at(f"{A}:OciAdapter.stop", "request.runtime_id"),
@@ -7553,7 +7743,9 @@ class BoundaryCase(unittest.TestCase):
              "a runtime attempt id"): ("a runtime attempt id",
                 lambda: worker_manager.attempt_preparation_failure_of(
                     store, SURROGATE)),
-            (at("attempts.py:_committed_record", "committed"),
+            # W384870: the replayed journal document is an ADOPTED read of
+            # the `replay` pseudo-table at the reader's site, not a caller operand.
+            (at("attempts.py:_committed_record", "replay", "adopted"),
              "a committed ending record"): ("a committed ending record",
                 self.spoiling_preparation_record()),
             (at("attempts.py:reconcile_runtime", "adapter"),
@@ -8475,7 +8667,50 @@ class EveryProbeProvesItArrived(BoundaryCase):
                 **self.review_cycle_probes(),
                 **self.worker_entry_probes(),
                 **self.token_probes(),
-                **self.w384870_probes()}
+                **self.w384870_probes(),
+                **self.dynamic_table_probes()}
+
+    def dynamic_table_probes(self):
+        """W384870: the rows `_one_by_attempt` reads for its two callers.
+
+        The read is `f"SELECT * FROM {table} ..."`; seen through each caller
+        it is the `line_writers` or `review_attachments` row, owned by
+        `boundaries.row` under the caller's composed label. Each probe spoils
+        ONE column of the real row and drives the public reader, so the
+        refusal must carry that composed label. Columns SQLite owns (`count`)
+        and the two the read SELECTS BY are exempt in NO_PROBE, by name.
+        """
+        entries = receiving_entries()
+        found = {}
+        H = "review_cycles.py:_one_by_attempt"
+        worlds = (("line_writers", schema.LINE_WRITER_COLUMNS, "the line writer for attempt", self.spoiling_line_writer),
+                  ("review_attachments", schema.REVIEW_ATTACHMENT_COLUMNS, "the review attachment for attempt", self.spoiling_review_attachment))
+        for table, columns, fragment, spoiling in worlds:
+            found[(("adopted", H, table), fragment)] = (fragment, spoiling("state", ""))
+            for name in sorted(columns):
+                entry = ("adopted", H, f"{table}.{name}")
+                if entry in entries and entry not in NO_PROBE:
+                    found[(entry, fragment)] = (fragment, spoiling(name, self.SPOILED[columns[name].kind]))
+        return found
+
+    # THE WORLD'S OWN ROWS: `review_cycle_world` holds the revoked writer
+    # 'writer-probe' (writer-attempt, generation 1) and the ended attachment
+    # 'attachment-probe' (review-attempt, generation 1). The reader owns the
+    # row FIRST (`boundaries.row` inside `_one_by_attempt`), before it binds
+    # the row to its act, so one spoiled column refuses under the composed label.
+    def spoiling_line_writer(self, column, value):
+        def run():
+            self.review_cycle_world()
+            self.corrupt(f"UPDATE line_writers SET {column} = ? WHERE writer_id = 'writer-probe'", value)
+            review_cycles.writer_for_attempt(self.store, attempt_id="writer-attempt", generation=1)
+        return run
+
+    def spoiling_review_attachment(self, column, value):
+        def run():
+            self.review_cycle_world()
+            self.corrupt(f"UPDATE review_attachments SET {column} = ? WHERE attachment_id = 'attachment-probe'", value)
+            review_cycles.review_for_attempt(self.store, attempt_id="review-attempt", generation=1)
+        return run
 
     PROFILE_MEMBERS = ("schema", "qualification", "evidence_digest", "cli_build", "image_digest",
                        "adapter_digest", "runtime_profile_digest", "argv_policy_digest",
@@ -10043,8 +10278,12 @@ class EveryProbeProvesItArrived(BoundaryCase):
     def test_every_owned_entry_has_exactly_one_probe(self):
         declared = set(self.all_probes())
         wanted = self.expected()
-        self.assertEqual(sorted(_unprobed(wanted, declared)), [], "owned, never probed")
-        self.assertEqual(sorted(_unowned_probes(wanted, declared)), [], "probed, never owned")
+        # BOTH LISTS AT ONCE (review 2026-10-30T08:20:12Z): asserting the
+        # unprobed list first hid the probed-never-owned list behind it, so
+        # the second debt was invisible while the first existed.
+        self.assertEqual({"owned, never probed": sorted(_unprobed(wanted, declared)),
+                          "probed, never owned": sorted(_unowned_probes(wanted, declared))},
+                         {"owned, never probed": [], "probed, never owned": []})
 
     def test_every_declared_probe_reaches_its_named_boundary(self):
         # THE KEY UNIVERSE ONCE, THE FIXTURE-BOUND CATALOG PER PROBE. W54182:
@@ -10827,6 +11066,11 @@ WITNESSES.update({
 
 
 WITNESSES[("adopted", "review_cycles.py:consumption_subject", "line_writers")] = "test_consumption_requires_one_live_writer_before_delegating"
+# W384870 S1 correction (review 2026-10-30T08:20:12Z): the two restoration
+# entries are outside the base lifecycle class the blanket witness runs; each
+# profile owner has its own negative witness that reaches the entry.
+WITNESSES[("caller", "review_cycles.py:restore_abandoned_correction", "profile")] = "test_restore_abandoned_correction_profile_owner"
+WITNESSES[("caller", "review_cycles.py:settle_restoration_execution", "profile")] = "test_settle_restoration_execution_profile_owner"
 
 for _entry in DEADLINE_OWNERS:
     if _entry[1].startswith("documents.py:"):
@@ -11577,6 +11821,77 @@ class StatedRules(BoundaryCase):
         suite.run(result)
         self.assertEqual(result.errors, [])
         self.assertEqual(result.failures, [])
+
+    # -- W384870 S1 correction (review 2026-10-30T08:20:12Z) -----------------
+    #
+    # The two restoration entries live in a SUBCLASS of the lifecycle suite
+    # that the witness above never loads, so a passing run of it called
+    # neither (the reviewer's spies: zero calls). These witnesses compose a
+    # world through that subclass's own accepted operations -- an abandoned,
+    # discharged correction with the accountable launcher/cessation pair -- so
+    # that each public entry is reached with every OTHER operand valid, then
+    # spoil the profile one capability at a time and require `_profile`'s own
+    # refusal. And they prove the witness is sensitive to the check: with
+    # `_profile` bypassed the same operand is no longer refused by that label
+    # (it either goes through or fails later and differently), which is what
+    # distinguishes "the intended check refused" from "something refused".
+
+    def _restoration_world(self):
+        from .test_review_cycles import AnAbandonedCorrectionIsRestoredToItsRetainedCheckpoint as Restoration
+        fixture = Restoration()
+        fixture.setUp()
+        self.addCleanup(fixture.doCleanups)
+        self.addCleanup(fixture.tearDown)
+        fixture.abandoned()
+        return fixture
+
+    def _spoiled_profiles(self, methods):
+        from .test_review_cycles import Profile
+        class Nameless(Profile):
+            name = None
+        found = [("a checkpoint profile name", Nameless())]
+        for method in methods:
+            broken = Profile()
+            setattr(broken, method, "not a capability")
+            found.append((f"a checkpoint profile's {method} capability", broken))
+        return found
+
+    def _profile_owner_witness(self, act, methods):
+        from baton_v12.worker_manager import review_cycles
+        for label, profile in self._spoiled_profiles(methods):
+            with self.subTest(label=label):
+                with self.assertRaises(ContractRefusal) as caught:
+                    act(profile)
+                self.assertIn(label, str(caught.exception))
+                # THE BYPASS IS NOTICED: skip `_profile` and the same operand
+                # is not refused by that label any more.
+                try:
+                    with patch.object(review_cycles, "_profile", lambda profile, methods: "bypassed"):
+                        act(profile)
+                except Exception as escaped:  # noqa: BLE001 -- whatever the next thing to fail is
+                    self.assertNotIn(label, str(escaped), "the refusal did not come from `_profile`")
+                    self.assertFalse(isinstance(escaped, ContractRefusal) and "checkpoint profile" in str(escaped),
+                                     f"a bypassed `_profile` still refused the profile: {escaped}")
+
+    def test_restore_abandoned_correction_profile_owner(self):
+        fixture = self._restoration_world()
+        # THE WORLD IS VALID: the sound profile restores the line end to end
+        # first, so what the spoiled ones meet below is the profile check and
+        # nothing about the world (the check is step one, before the replay).
+        self.assertIsInstance(fixture.restore(), dict)
+        self._profile_owner_witness(lambda profile: fixture.restore(profile=profile), ("validate", "restore_checkpoint"))
+
+    def test_settle_restoration_execution_profile_owner(self):
+        fixture = self._restoration_world()
+        # THE WORLD REACHES PAST THE CHECK: with the sound profile the entry is
+        # refused, if at all, for something other than the profile (there is no
+        # interrupted episode to settle), so the spoiled ones below are refused
+        # by the profile check alone.
+        try:
+            fixture.settled()
+        except ContractRefusal as refusal:
+            self.assertNotIn("checkpoint profile", str(refusal))
+        self._profile_owner_witness(lambda profile: fixture.settled(profile=profile), ("validate",))
 
     # -- W71917's source/workspace boundary ----------------------------------
 
@@ -15228,6 +15543,208 @@ def _forward(value, *, name):
                 self.assertIn(("injected", "intake.py:_destroyed", f"adapter.destroy.{provider}{suffix}"), entries)
 
 
+class DynamicTableReadsStayVisible(unittest.TestCase):
+    """W384870 S4: table discovery over formatted SQL (review 2026-10-30T09:29:47Z P2).
+
+    Three spellings, three answers, none of them silence: a static FROM keeps
+    its table whatever the predicate does; a dynamic FROM resolves through a
+    binding that names it; a dynamic FROM nobody names is a recognised read
+    with a placeholder table. And the real tree's `_one_by_attempt` read is
+    pinned, so removing the read cannot shrink a green inventory unnoticed.
+    """
+
+    @staticmethod
+    def call(source):
+        return ast.parse(source).body[0].value
+
+    def test_a_static_from_keeps_its_table_under_a_dynamic_predicate(self):
+        node = self.call('connection.execute(f"SELECT * FROM line_writers WHERE runtime_attempt_id = {attempt}")')
+        self.assertEqual(_read_table(node, {}), "line_writers")
+        self.assertEqual(_read_table(node), "line_writers")
+
+    def test_a_dynamic_from_resolves_through_a_literal_binding(self):
+        node = self.call('store._connection.execute(f"SELECT * FROM {table} WHERE runtime_attempt_id = ?", (attempt_id,))')
+        self.assertEqual(_read_table(node, {("literal", "table"): "line_writers"}), "line_writers")
+        self.assertEqual(_read_table(node, {("literal", "table"): "review_attachments"}), "review_attachments")
+
+    def test_an_unresolved_dynamic_from_is_a_read_with_a_placeholder_table(self):
+        node = self.call('store._connection.execute(f"SELECT * FROM {table} WHERE runtime_attempt_id = ?", (attempt_id,))')
+        self.assertEqual(_read_table(node, {}), "{table}")
+        self.assertEqual(_read_table(node), "{table}")
+
+    def test_what_is_not_a_select_is_not_a_read(self):
+        self.assertIsNone(_read_table(self.call('connection.execute(f"UPDATE {table} SET x = ?", (1,))'), {}))
+        self.assertIsNone(_read_table(self.call('other({})'), {}))
+
+    def test_the_real_one_by_attempt_read_is_inventoried_and_pinned(self):
+        """The row read and every column its callers take from the returned
+        row are visible, NAMED BY THE CALLERS (review 2026-10-30T17:25:53Z):
+        `writer_for_attempt` reads `line_writers`, `review_for_attempt` reads
+        `review_attachments`, each owned by the caller's composed label; the
+        placeholder is retired because both callers named it. Never silence
+        and never a table that does not exist."""
+        entries = receiving_entries()
+        found = sorted(entry for entry in entries if entry[1] == "review_cycles.py:_one_by_attempt")
+        tables = {entry[2].split(".")[0] for entry in found}
+        self.assertEqual(tables, {"line_writers", "review_attachments"}, found)
+        self.assertIn(("adopted", "review_cycles.py:_one_by_attempt", "line_writers.state"), found)
+        self.assertIn(("adopted", "review_cycles.py:_one_by_attempt", "review_attachments.attachment_id"), found)
+        for entry in found:
+            with self.subTest(entry=entry):
+                labels = layer_labels(entry)
+                self.assertEqual(len(labels), 1, labels)
+                self.assertTrue(labels[0].startswith("the line writer for attempt " if entry[2].startswith("line_writers") else "the review attachment for attempt "), labels)
+        self.assertFalse([entry for entry in entries if entry[2] == "WHERE" or entry[2].startswith("WHERE.") or "{" in entry[2] and entry[1] == "review_cycles.py:_one_by_attempt"])
+
+
+_DYNAMIC_TABLE_FRAGMENT = '''
+def _one(store, table, columns, what):
+    found = store._connection.execute(f"SELECT * FROM {table} WHERE x = ?", (1,)).fetchall()
+    return boundaries.row(found[0], what, columns)
+def named(store, attempt_id):
+    what = f"the writer for attempt {attempt_id}"
+    row = _one(store, "line_writers", COLUMNS, what)
+    return row["state"]
+def also_named(store):
+    row = _one(store, "review_attachments", COLUMNS, "the attachment")
+    return row["state"]
+'''
+
+_UNNAMED_CALLER_FRAGMENT = _DYNAMIC_TABLE_FRAGMENT + '''
+def unnamed(store, table):
+    row = _one(store, table, COLUMNS, "whatever")
+    return row["state"]
+'''
+
+_CLOSURE_FRAGMENT = '''
+def _ask(store, agent, deadline_seconds):
+    def act(connection):
+        boundaries.capability(getattr(agent, "probe", None), "the agent adapter's probe")
+        boundaries.deadline(store._now(), deadline_seconds, "an interrogation deadline")
+        return None
+    return store.transact("op", "kind", "sig", act)
+def probe(store, agent, deadline_seconds):
+    return _ask(store, agent, deadline_seconds)
+def shadowed(store, agent):
+    def act(connection, agent):
+        boundaries.capability(getattr(agent, "probe", None), "an inner agent")
+        return None
+    return store.transact("op", "kind", "sig", act)
+'''
+
+_REPLAY_FRAGMENT = '''
+def _record(store, operation_id):
+    held = store.operation_record(operation_id)
+    _, committed = store.replay(operation_id, held["signature"], kind="runtime.ending")
+    boundaries.document(committed, "a committed ending record")
+    return committed["runtime_id"]
+def unowned_reader(store, operation_id):
+    found, document = store.replay(operation_id, "sig", kind="other")
+    return document["member"]
+'''
+
+
+class CallerResolvedReadsClosuresAndReplays(unittest.TestCase):
+    """W384870 (review 2026-10-30T17:25:53Z): three discovery mechanisms.
+
+    A helper's dynamic read is NAMED BY ITS CALLERS and retired only when every
+    caller names it; an owner inside a nested closure is the enclosing
+    function's owner unless the closure rebinds the name; a replayed journal
+    document is an adopted read that its reader owns or visibly does not.
+    Each mechanism has a positive, a negative, and a pin on the real tree.
+    """
+
+    def model(self, text):
+        _clear_boundary_projections()
+        self.addCleanup(_clear_boundary_projections)
+        sources = ((pathlib.Path("sample.py"), ast.parse(text)),)
+        patched = patch.object(sys.modules[__name__], "_sources", lambda: sources)
+        patched.start()
+        self.addCleanup(patched.stop)
+        return receiving_entries()
+
+    def test_a_dynamic_read_is_named_by_every_caller_and_the_placeholder_retired(self):
+        entries = self.model(_DYNAMIC_TABLE_FRAGMENT)
+        at_helper = sorted(entry for entry in entries if entry[1] == "sample.py:_one")
+        self.assertEqual(at_helper, [("adopted", "sample.py:_one", "line_writers"), ("adopted", "sample.py:_one", "line_writers.state"),
+                                     ("adopted", "sample.py:_one", "review_attachments"), ("adopted", "sample.py:_one", "review_attachments.state")])
+        self.assertEqual(layer_labels(("adopted", "sample.py:_one", "line_writers.state")), ["the writer for attempt {attempt_id}"])
+        self.assertEqual(layer_labels(("adopted", "sample.py:_one", "review_attachments")), ["the attachment"])
+
+    def test_one_unnamed_caller_keeps_the_placeholder_as_visible_debt(self):
+        entries = self.model(_UNNAMED_CALLER_FRAGMENT)
+        self.assertIn(("adopted", "sample.py:_one", "{table}"), entries)
+        self.assertIn(("adopted", "sample.py:_one", "{table}.state"), entries)
+        self.assertIn(("adopted", "sample.py:_one", "line_writers.state"), entries, "the named callers still resolve theirs")
+        self.assertEqual(layer_labels(("adopted", "sample.py:_one", "{table}")), ["{what}"])
+
+    def test_the_placeholder_resolver_only_fills_from_literals(self):
+        call = ast.parse('_one(store, "line_writers", COLUMNS, what)').body[0].value
+        self.assertEqual(_resolved_placeholders("read:s:_one|{table}", call, ("store", "table", "columns", "what"), (), {}), "read:s:_one|line_writers")
+        dynamic = ast.parse('_one(store, table, COLUMNS, what)').body[0].value
+        self.assertEqual(_resolved_placeholders("read:s:_one|{table}", dynamic, ("store", "table", "columns", "what"), (), {}), "read:s:_one|{table}")
+        self.assertEqual(_resolved_placeholders("caller:table", call, ("store", "table"), (), {}), "caller:table")
+
+    def test_an_owner_inside_a_closure_is_the_enclosing_functions_owner(self):
+        # Seen at the helper's own site, which is what a DELEGATED entry reads
+        # (`interrogation.py:_ask` owns `inquire`'s and `probe`'s agent and deadline).
+        self.model(_CLOSURE_FRAGMENT)
+        self.assertEqual(_owned_here("sample.py:_ask", "caller:agent"), ["the agent adapter's probe"])
+        self.assertEqual(_owned_here("sample.py:_ask", "caller:deadline_seconds"), ["an interrogation deadline"])
+
+    def test_a_twice_nested_closure_is_visited_once_with_its_own_bindings(self):
+        # Review 2026-10-30T18:07:52Z: the inner body must not be re-walked
+        # under the enclosing bindings. `inner(agent)` rebinds the name, so its
+        # boundary call is not the caller's; `captured` keeps the enclosing
+        # `deadline_seconds`, so its call still is.
+        self.model('''
+def _ask(store, agent, deadline_seconds):
+    def act(connection):
+        def inner(agent):
+            boundaries.capability(getattr(agent, "probe", None), "an inner agent")
+        def captured(connection):
+            boundaries.deadline(store._now(), deadline_seconds, "a captured deadline")
+        inner(agent)
+        return captured(connection)
+    return store.transact("op", "kind", "sig", act)
+''')
+        owners = owning_validators()["sample.py:_ask"]
+        self.assertEqual([one for one in owners if one[1] == "an inner agent"], [("capability", "an inner agent", "?")])
+        self.assertEqual(_owned_here("sample.py:_ask", "caller:agent"), [])
+        self.assertEqual(_owned_here("sample.py:_ask", "caller:deadline_seconds"), ["a captured deadline"])
+
+    def test_a_closure_that_rebinds_the_name_owns_its_own_parameter_not_the_callers(self):
+        self.model(_CLOSURE_FRAGMENT)
+        self.assertEqual(_owned_here("sample.py:shadowed", "caller:agent"), [])
+        # The owner is still recorded, for a subject that is NOT the caller's.
+        self.assertEqual({label for _, label, subject in owning_validators()["sample.py:shadowed"] if subject != "caller:agent"}, {"an inner agent"})
+
+    def test_a_replayed_document_is_an_adopted_read_its_reader_owns_or_does_not(self):
+        entries = self.model(_REPLAY_FRAGMENT)
+        self.assertIn(("adopted", "sample.py:_record", "replay"), entries)
+        self.assertIn(("adopted", "sample.py:_record", "replay.runtime_id"), entries)
+        self.assertEqual(layer_labels(("adopted", "sample.py:_record", "replay")), ["a committed ending record"])
+        self.assertEqual(layer_labels(("adopted", "sample.py:_record", "replay.runtime_id")), ["a committed ending record"])
+        self.assertIn(("adopted", "sample.py:unowned_reader", "replay.member"), entries, "visible, unowned debt")
+        self.assertEqual(layer_labels(("adopted", "sample.py:unowned_reader", "replay.member")), [])
+        self.assertEqual(_read_table(ast.parse('store.replay(op, sig, kind="k")').body[0].value), REPLAY_TABLE)
+        self.assertIsNone(_read_table(ast.parse('store.replay(op)').body[0].value))
+
+    def test_the_real_tree_pins_all_three(self):
+        entries = receiving_entries()
+        for entry, label in ((("caller", "interrogation.py:probe", "agent"), "the agent adapter's {operation}"),
+                             (("caller", "interrogation.py:inquire", "agent"), "the agent adapter's {operation}"),
+                             (("caller", "interrogation.py:probe", "deadline_seconds"), "an interrogation deadline"),
+                             (("caller", "interrogation.py:inquire", "deadline_seconds"), "an interrogation deadline")):
+            with self.subTest(entry=entry):
+                self.assertIn(entry, DELEGATED)
+                self.assertEqual(delegated_labels(entry), [label], "owned inside _ask's transact closure")
+        self.assertEqual(layer_labels(("adopted", "attempts.py:_committed_record", "replay")), ["a committed ending record"])
+        replays = {entry for entry in entries if entry[0] == "adopted" and entry[2].split(".")[0] == REPLAY_TABLE}
+        self.assertGreaterEqual(len({entry[1] for entry in replays}), 40, "every replay site is a visible read")
+        self.assertIn(("adopted", "review_cycles.py:_one_by_attempt", "line_writers"), entries)
+
+
 class TheDiscoveryProjectionsAreBoundedAndImmutable(unittest.TestCase):
     """W54182: the inventory's discovery is pure, so it is computed once.
 
@@ -16757,11 +17274,25 @@ class StoppedSettlementInventory(BoundaryCase):
     def owns(site):
         return site.startswith("stopped_settlement.py:") or site in ("tokens.py:settlement_fence_of", "workspaces.py:settlement_preparation")
 
+    # W384870: replayed journal documents are adopted reads now, and `_read`
+    # hands `status`/`preview`/`settle_stopped` the outcome, receipt and
+    # selection documents WITHOUT a boundary owner. Visible debt, named exactly
+    # so a new unowned entry in this slice still fails here.
+    REPLAY_DEBT = frozenset({
+        ('adopted', 'stopped_settlement.py:_read', 'replay'),
+        ('adopted', 'stopped_settlement.py:_read', 'replay.operation_id'),
+        ('adopted', 'stopped_settlement.py:settle_stopped', 'replay'),
+        ('adopted', 'stopped_settlement.py:status', 'replay'),
+    })
+
     def test_entries_calls_and_probes_are_owned(self):
         entries = {entry for entry in receiving_entries() if self.owns(entry[1])}
-        self.assertEqual({entry[1] for entry in entries}, {"stopped_settlement.py:failure_digest", "stopped_settlement.py:settle_stopped", "stopped_settlement.py:status", "stopped_settlement.py:preview", "tokens.py:settlement_fence_of", "workspaces.py:settlement_preparation"})
+        self.assertEqual({entry[1] for entry in entries}, {"stopped_settlement.py:failure_digest", "stopped_settlement.py:settle_stopped", "stopped_settlement.py:status", "stopped_settlement.py:preview", "stopped_settlement.py:_read", "tokens.py:settlement_fence_of", "workspaces.py:settlement_preparation"})
+        self.assertEqual({entry for entry in entries if entry[2].split(".")[0] == REPLAY_TABLE and not layer_labels(entry)}, self.REPLAY_DEBT)
+        for entry in self.REPLAY_DEBT:
+            self.assertEqual(layer_labels(entry), [], "if this is owned now, retire it from REPLAY_DEBT")
         owner = EveryReceivingEntryHasOneOwner()
-        for entry in sorted(entries):
+        for entry in sorted(entries - self.REPLAY_DEBT):
             with self.subTest(entry=entry):
                 self.assertIsNotNone(owner.owner_of(entry)[0])
                 self.assertEqual(sum((bool(layer_labels(entry)), entry in STATED_OWNERS, entry in DELEGATED, entry[0] == "caller" and entry[2] in CONSTRUCTED_BY)), 1)

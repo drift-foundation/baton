@@ -25,7 +25,9 @@ import types
 import unittest
 from unittest import mock
 
-REPO = "/home/sl/src/baton"
+# W384870 (owner 2026-10-30): the checkout UNDER TEST, never a developer's
+# home; this module is v12/python/tests/manager/<file>, five parents up.
+REPO = str(pathlib.Path(__file__).resolve().parents[4])
 # THIS EPISODE'S VERIFIER. instance-200564's copy and its five retained
 # verification-*.json are PRESERVED untouched; what this suite exercises is the
 # one carrying review201732's corrections -- the terminal read through

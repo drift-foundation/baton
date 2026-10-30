@@ -1,0 +1,9 @@
+test_live_documents_use_pinned_images_real_reference_and_current_task_ids (tests.tools.test_live_ab.LiveProviderPreparation.test_live_documents_use_pinned_images_real_reference_and_current_task_ids) ... ok
+test_live_image_preflight_refuses_input_drift_before_engine_access (tests.tools.test_live_ab.LiveProviderPreparation.test_live_image_preflight_refuses_input_drift_before_engine_access) ... ok
+test_the_registry_is_an_explicit_run_input_and_a_bad_one_refuses_composition (tests.tools.test_live_ab.LiveProviderPreparation.test_the_registry_is_an_explicit_run_input_and_a_bad_one_refuses_composition) ... ok
+test_the_scenario_requires_the_registry_operand_before_any_preparation (tests.tools.test_live_ab.LiveProviderPreparation.test_the_scenario_requires_the_registry_operand_before_any_preparation) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.842s
+
+OK

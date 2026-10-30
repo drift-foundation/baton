@@ -464,3 +464,175 @@ Slawomir explicitly directs the top-level README to state that v11 is developmen
 Slawomir directs classification of outstanding files so development can resume on another computer: preserve source, tests, decisions and required evidence in version control; keep genuinely reproducible disposable outputs in explicitly ignored storage. This machine is not the sole trusted copy. Clarification: avoid `/tmp` by default because it is reboot-volatile and consumes memory on this host; reserve it for short-lived temporary files such as compiler side effects. Prefer ignored, disk-backed `work/scratch/` for disposable development scratch. Reboot persistence does not make scratch durable evidence.
 
 Interactive copilot owns only this housekeeping documentation and inventory; K retains active source/test ownership. No Git mutation, deletion, dossier relocation or broad evidence ignore is authorized by this classification. Existing dossier files are preserved pending artifact-specific disposition. Large or sensitive required artifacts need a verified durable external copy and a checked-in locator/digest before their local copy can be treated as disposable; no such external backup is claimed here.
+
+## 2026-10-30T08:20:12Z — Independent R2/S1/S4 review
+
+See review-2026-10-30T08-20-12Z.md and evidence/review-r2-s1-s4-20261030/.
+R2 remainder accepted for this checkout (88 focused tests OK, 16.469 s);
+S4 first delivery accepted as partial progress. S1 needs two actual profile
+witnesses: its newly stated restore_abandoned_correction and
+settle_restoration_execution owners map to a base-class suite that never calls
+either entry (independent spies: zero calls while witness passes). Correction
+stays in the accepted scope; no new owner decision. Existing 47 missing probe
+pairs and nine older unmatched declarations remain; do not confuse successful
+probe execution with complete attribution. Absolute fixture checkout paths remain
+a portability limitation. Owner checkpoint 84f66f43 now exists, superseding the
+prior pending-checkpoint statement for the candidate; this review is new work.
+
+## 2026-10-30 — Owner requires checkout portability; personal home paths are not prerequisites
+
+Slawomir rejects treating hard-coded `/home/sl` fixture dependencies as a
+permanent TESTING.md limitation: other developers do not have that home directory.
+Repository fixtures and source must resolve from the checkout actually under test;
+external resources need explicit configuration or private disposable fixtures,
+never an assumed developer home. This supersedes the previous option to merely
+refuse another checkout or document the limitation as a sufficient outcome.
+
+K owns the bounded test portability correction after the current S1 witness
+correction. Readback confirms the four reported REPO constants and two additional
+consumers: tests/manager/test_attempt_logs.py:35 and
+ tests/manager/test_claude_agent.py:2196. Audit other executable personal-home
+references and their loaded helpers for real dependencies; distinguish deliberately
+hostile path literals and historical prose from paths actually read. Do not rewrite
+permanent historical evidence or alter unrelated deployment state.
+
+Acceptance: affected fixtures use the selected checkout and its declared inputs;
+focused tests from a differently named checkout/root succeed without reading the
+original checkout or requiring `/home/sl`. Exercise resolution, not only a text
+search. Missing inputs remain honest failures. Keep provenance aligned with the
+bytes actually consumed, update TESTING.md when verified, and return exact evidence
+for independent review. No full suite or live provider/engine is selected here.
+
+## 2026-10-30 — Next target selected without interrupting current Work
+
+Owner selects existing W383215 (native installed Job cancellation/admission
+fencing) after this Work completes, with focused deterministic regular-suite
+tests and no automatic full run per Job. The selection and exact test strategy
+are pinned in ../finding-v12-native-job-cancellation/FINDING.md and PLAN.md.
+W384870 acceptance and current K corrections remain first. No claim, route or
+dependency change is implied by this planning entry.
+
+## 2026-10-30 — Owner requires closure and complete Git checkpoint before switching
+
+Slawomir clarifies the next-assignment boundary: W383215 must not start until
+W384870 is independently accepted, formally closed on Baton, and all its final
+changes, reviews, decisions and required evidence are checked in by the owner.
+The checkout must be ready for handoff with no outstanding current-Job files.
+This supersedes any earlier wording permitting a switch after acceptance alone,
+or treating the final checkpoint as optional. Closure alone is insufficient;
+a commit alone is insufficient. Revalidate canonical closure and the final Git
+checkpoint/status before releasing the next assignment. Planning ahead remains
+allowed. Agents do not mutate Git or impersonate the owner to satisfy this gate.
+
+## 2026-10-30 — Owner requires visible version-level test commands
+
+Slawomir directs v12/justfile to expose the supported test entries directly;
+users should not need to know the implementation language or discover a nested
+justfile. Interactive copilot owns the small forwarding recipes and guide/README
+edits while K retains implementation ownership elsewhere. Expose test-one,
+test-group and test-all with useful list descriptions, preserve the one existing
+runner and accounting rules, and make v12/ the documented command entry point.
+No full-suite run is selected by this usability change.
+
+## 2026-10-30 — Independent acceptance and remaining active-tool portability fix
+
+Review review-2026-10-30T08-51-30Z.md accepts S1 witness correction and the
+six-module portability correction. Independent 202 focused tests pass in20.829s;
+727 relocated tests pass in32.132s (48.921s traced wall), zero original-tree
+accesses. Active live_ab/deployment.py still renders a personal registry path;
+K must make that external input explicit and verify rendering/refusal
+without live execution. Existing S4/B3 work remains authorized; B4/B5 and full
+closure/check-in gate remain.
+
+## 2026-10-30 — Owner refines the version-level test interface
+
+Owner explicitly selects `just test` for the complete mega suite (a likely
+nightly use, not an instruction to install a schedule). Focused selection stays
+with test-one/test-group; expose group discovery as `list-test-groups` per owner
+naming preference. Remove obsolete prototype test recipes from the active
+interface. Agent execution-selection policy must not appear as a command usage
+restriction. Copilot implemented the three-file interface/doc change; bare just
+lists commands to avoid an implicit mega run. Full-run defaults retain logs on
+disk-backed ignored work/scratch/test-all; required evidence must be promoted
+before handoff. Existing prerequisites and accounting are unchanged. Small actual
+entry smoke test, dry runs and group listing checked; no mega run was performed.
+
+## 2026-10-30T09:29:47Z — Closure refused; B3 partial acceptance and C5 reproduced
+
+See review-2026-10-30T09-29-47Z.md. W384870 is NOT ready to close. Independent
+227 B3 focused tests pass (15.198s); bounded five-module fixes accepted. C5
+still fails all3 outside the tool sandbox with the same confined-Git /dev/null
+error (16.425s); owner also reports3 failures from the normal terminal. K must
+trace the actual confinement/fixture chain, not dismiss this as the tool sandbox.
+S4 _read_table changes request correction: actual unresolved SELECT crossings
+cannot vanish from the inventory; static FROM plus dynamic WHERE also regresses.
+Known cleanup/portability, C7, inventory, B4/B5 and final full-accounting work
+remain. No closure or next-Job execution; final all-files owner checkpoint remains.
+
+## 2026-10-30T16-20-31Z — restart review and corrected C5 diagnosis
+
+C5 fixture correction and S4 P2 read-visibility correction ACCEPTED: 8 focused
+tests pass in 30.224s. See review-2026-10-30T16-20-31Z.md. This supersedes the earlier C5
+confined-Git /dev/null diagnostic direction and the pending-review status below:
+the actual failure was reading the wire launch envelope as a decoded payload.
+Unresolved table placeholders remain explicit debt, not accepted complete coverage.
+
+K's next bounded milestone is C7's three shutdown modes/token settlement.
+Live A/B registry portability, caller/closure/replay discovery, S4 probes, B4 and
+B5 clean accounted full run remain required. Review the released version-level
+command/docs changes too. No new owner decision or claim needed under arrangement B.
+Close W384870 and check in all final files before starting W383215.
+
+
+## 2026-10-30T17-17-47Z — C7 independent review: bounded guard correction
+
+Read review-2026-10-30T17-17-47Z.md. Independent shutdown/enforcement run: 38 passed in 62.670s.
+Envelope fit and token expectations are supported; no owner specification decision
+needed. C7 still needs mode-specific reachability assertions so unintended early
+refusal cannot recreate vacuous passes. Correct the claim of runtime execution in
+all eleven modes: deliberate create-refusal and pre-invocation modes are distinct.
+K returns focused evidence for this bounded correction before C7 signoff. Remaining
+portability/inventory/B4/B5 and closure/check-in gates are unchanged.
+
+
+## 2026-10-30T17-25-53Z — C7 and registry corrections independently accepted
+
+Read review-2026-10-30T17-25-53Z.md: 14 focused tests passed in 61.019s.
+C7 guard/evidence correction and explicit live A/B registry input accepted.
+This supersedes their pending-review status and the C7 changes request below.
+Next bounded K milestone: dynamic-table caller resolution, closure/replay inventory
+discovery and S4 probes, preserving visible unresolved debt and genuine coverage.
+B4, B5 clean accounted full run, final command/docs review, formal closure and
+owner check-in remain required. W383215 is not released. No owner decision needed.
+
+
+## 2026-10-30T18-07-52Z — inventory review: nested closure correction required
+
+Read review-2026-10-30T18-07-52Z.md. Fourteen focused tests pass (18.998s), but an independent
+nested-shadowing reproduction proves false ownership: _closure_pieces visits a
+nested body's calls under the enclosing context as well as its own context.
+K corrects scope traversal and adds negative evidence before inventory signoff.
+New replay debt stays visible; counts await corrected discovery. This supersedes
+the pending-review status below, not the outstanding B4/B5 and closure/check-in gates.
+
+
+## 2026-10-30T18-13-59Z — discovery correction accepted; closure plan now required
+
+Read review-2026-10-30T18-13-59Z.md: unchanged nested-closure reproduction passes; 15 focused tests
+pass in 19.138s. This supersedes the closure changes request below. Whole Job
+acceptance remains pending: eight scans failures, inventory/probe debt, B4 and B5.
+Owner asks to finish the Job. K's next handoff supplies one finite closure plan
+with exact failures, grouped debt dispositions, remaining required runs and operator
+prerequisites, while continuing ordinary authorized repairs. No silent deferrals or
+coverage waivers. Formal closure and all-files owner check-in still gate W383215.
+
+
+## 2026-10-30T18:15:13+00:00 — fixed closure order and next K deliverable
+
+Owner requests more specific direction. CLOSURE-CHECKLIST.md now fixes the sequence.
+Next K handoff is only the bounded scratch-mount and exported-callable text-sweep
+failures, with focused evidence and digests. Return before inventory/replay/B4 work.
+Then six remaining scans failures in named groups, B4, B5, independent acceptance,
+closure and all-files owner check-in. No speculative discovery expansion or blanket
+coverage waiver. This supersedes the open-ended continuation in M384931.
+

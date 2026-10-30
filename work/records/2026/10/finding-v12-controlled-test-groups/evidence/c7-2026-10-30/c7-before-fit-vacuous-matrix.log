@@ -1,0 +1,43 @@
+test_real_baseline_shutdown_matrix (tests.manager.test_authoring_shutdown_deadline.Composition.test_real_baseline_shutdown_matrix) ... 
+  test_real_baseline_shutdown_matrix (tests.manager.test_authoring_shutdown_deadline.Composition.test_real_baseline_shutdown_matrix) (mode='blocked_sweep') ... ERROR
+  test_real_baseline_shutdown_matrix (tests.manager.test_authoring_shutdown_deadline.Composition.test_real_baseline_shutdown_matrix) (mode='absent_cleanup') ... ERROR
+  test_real_baseline_shutdown_matrix (tests.manager.test_authoring_shutdown_deadline.Composition.test_real_baseline_shutdown_matrix) (mode='unknown') ... FAIL
+
+======================================================================
+ERROR: test_real_baseline_shutdown_matrix (tests.manager.test_authoring_shutdown_deadline.Composition.test_real_baseline_shutdown_matrix) (mode='blocked_sweep')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_authoring_shutdown_deadline.py", line 112, in test_real_baseline_shutdown_matrix
+    self.assertTrue(all(row['token']['seconds'] == 2 and row['token']['renewals'] == 0 for row in rows))
+                    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_authoring_shutdown_deadline.py", line 112, in <genexpr>
+    self.assertTrue(all(row['token']['seconds'] == 2 and row['token']['renewals'] == 0 for row in rows))
+                        ~~~~~~~~~~~~^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+======================================================================
+ERROR: test_real_baseline_shutdown_matrix (tests.manager.test_authoring_shutdown_deadline.Composition.test_real_baseline_shutdown_matrix) (mode='absent_cleanup')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_authoring_shutdown_deadline.py", line 112, in test_real_baseline_shutdown_matrix
+    self.assertTrue(all(row['token']['seconds'] == 2 and row['token']['renewals'] == 0 for row in rows))
+                    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_authoring_shutdown_deadline.py", line 112, in <genexpr>
+    self.assertTrue(all(row['token']['seconds'] == 2 and row['token']['renewals'] == 0 for row in rows))
+                        ~~~~~~~~~~~~^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+======================================================================
+FAIL: test_real_baseline_shutdown_matrix (tests.manager.test_authoring_shutdown_deadline.Composition.test_real_baseline_shutdown_matrix) (mode='unknown')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_authoring_shutdown_deadline.py", line 126, in test_real_baseline_shutdown_matrix
+    self.assertTrue(any(row.get('token') and row['token']['revoked'] and not row['token']['returned'] for row in rows))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 1 test in 35.127s
+
+FAILED (failures=1, errors=2)
+error: Recipe `test-one` failed with exit code 1

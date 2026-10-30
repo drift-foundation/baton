@@ -1,0 +1,92 @@
+test_a_pre_runtime_source_refusal_is_accounted_and_not_cleaned (tests.tools.test_next_run_flow.JoinedFlow.test_a_pre_runtime_source_refusal_is_accounted_and_not_cleaned)
+W339626: the live C failure's own shape, through real accounting. ... ERROR
+test_initial_partial_preparation_continues_to_real_work (tests.tools.test_next_run_flow.JoinedFlow.test_initial_partial_preparation_continues_to_real_work) ... ERROR
+test_two_tasks_and_failed_start_recovery_after_one_installation (tests.tools.test_next_run_flow.JoinedFlow.test_two_tasks_and_failed_start_recovery_after_one_installation) ... ERROR
+
+======================================================================
+ERROR: test_a_pre_runtime_source_refusal_is_accounted_and_not_cleaned (tests.tools.test_next_run_flow.JoinedFlow.test_a_pre_runtime_source_refusal_is_accounted_and_not_cleaned)
+W339626: the live C failure's own shape, through real accounting.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_next_run_flow.py", line 200, in test_a_pre_runtime_source_refusal_is_accounted_and_not_cleaned
+    self.request(action='prepare', task=self.task('denied'))
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_next_run_flow.py", line 47, in request
+    return managed.execute_request(self.broker, managed.read_request(io.BytesIO(json.dumps(data).encode())))
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/next_run_managed.py", line 644, in execute_request
+    return broker.prepare(request['task'])
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/next_run_managed.py", line 326, in prepare
+    return self._continue_preparation(task, recovery_from=None)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/next_run_managed.py", line 541, in _continue_preparation
+    return self._prepare(selected_task, recovery_from=recovery_from, continuation_of=predecessor)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/next_run_managed.py", line 382, in _prepare
+    prepared = bootstrap.prepare(initial, stream=io.StringIO())
+  File "/home/sl/src/baton/v12/python/tools/bootstrap.py", line 1283, in prepare
+    raise BootstrapRefusal(
+    ...<3 lines>...
+        "deployment for the same reason after it had been created.")
+tools.bootstrap.BootstrapRefusal: the state root at /home/sl/src/baton/work/scratch/review-r2-s1-s4/next-run-test-lkzuxgfp/storage/denied/instance is inside the checkout at /home/sl/src/baton; mutable deployment state belongs outside the working tree, and `stage_execution` would refuse this deployment for the same reason after it had been created.
+
+======================================================================
+ERROR: test_initial_partial_preparation_continues_to_real_work (tests.tools.test_next_run_flow.JoinedFlow.test_initial_partial_preparation_continues_to_real_work)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_next_run_flow.py", line 293, in test_initial_partial_preparation_continues_to_real_work
+    with self.assertRaises(OSError): self.request(action='prepare', task=task)
+                                     ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_next_run_flow.py", line 47, in request
+    return managed.execute_request(self.broker, managed.read_request(io.BytesIO(json.dumps(data).encode())))
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/next_run_managed.py", line 644, in execute_request
+    return broker.prepare(request['task'])
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/next_run_managed.py", line 326, in prepare
+    return self._continue_preparation(task, recovery_from=None)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/next_run_managed.py", line 541, in _continue_preparation
+    return self._prepare(selected_task, recovery_from=recovery_from, continuation_of=predecessor)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/next_run_managed.py", line 382, in _prepare
+    prepared = bootstrap.prepare(initial, stream=io.StringIO())
+  File "/home/sl/src/baton/v12/python/tools/bootstrap.py", line 1283, in prepare
+    raise BootstrapRefusal(
+    ...<3 lines>...
+        "deployment for the same reason after it had been created.")
+tools.bootstrap.BootstrapRefusal: the state root at /home/sl/src/baton/work/scratch/review-r2-s1-s4/next-run-test-k8__y21o/storage/first/instance is inside the checkout at /home/sl/src/baton; mutable deployment state belongs outside the working tree, and `stage_execution` would refuse this deployment for the same reason after it had been created.
+
+======================================================================
+ERROR: test_two_tasks_and_failed_start_recovery_after_one_installation (tests.tools.test_next_run_flow.JoinedFlow.test_two_tasks_and_failed_start_recovery_after_one_installation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_next_run_flow.py", line 138, in test_two_tasks_and_failed_start_recovery_after_one_installation
+    receipt = self.request(action='prepare', task=self.task(name))
+  File "/home/sl/src/baton/v12/python/tests/tools/test_next_run_flow.py", line 47, in request
+    return managed.execute_request(self.broker, managed.read_request(io.BytesIO(json.dumps(data).encode())))
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/next_run_managed.py", line 644, in execute_request
+    return broker.prepare(request['task'])
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/next_run_managed.py", line 326, in prepare
+    return self._continue_preparation(task, recovery_from=None)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/next_run_managed.py", line 541, in _continue_preparation
+    return self._prepare(selected_task, recovery_from=recovery_from, continuation_of=predecessor)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/next_run_managed.py", line 382, in _prepare
+    prepared = bootstrap.prepare(initial, stream=io.StringIO())
+  File "/home/sl/src/baton/v12/python/tools/bootstrap.py", line 1283, in prepare
+    raise BootstrapRefusal(
+    ...<3 lines>...
+        "deployment for the same reason after it had been created.")
+tools.bootstrap.BootstrapRefusal: the state root at /home/sl/src/baton/work/scratch/review-r2-s1-s4/next-run-test-qw8593lx/storage/first/instance is inside the checkout at /home/sl/src/baton; mutable deployment state belongs outside the working tree, and `stage_execution` would refuse this deployment for the same reason after it had been created.
+
+----------------------------------------------------------------------
+Ran 3 tests in 1.070s
+
+FAILED (errors=3)
+error: Recipe `test-one` failed with exit code 1
+error: Recipe `test-one` failed on line 22 with exit code 1

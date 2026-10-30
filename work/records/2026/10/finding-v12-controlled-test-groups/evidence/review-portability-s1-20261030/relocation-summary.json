@@ -1,0 +1,32 @@
+{
+  "command": [
+    "timeout",
+    "-k",
+    "10s",
+    "120s",
+    "strace",
+    "-f",
+    "-qq",
+    "-e",
+    "trace=%file",
+    "-o",
+    "/var/tmp/baton-independent-portability-mq3jp2jc/files.trace",
+    "just",
+    "test-one",
+    "tests.manager.test_proposing_fixture",
+    "tests.manager.test_fixture_dispatch",
+    "tests.manager.test_importing_fixture",
+    "tests.manager.test_w197661_verifier",
+    "tests.manager.test_attempt_logs",
+    "tests.manager.test_claude_agent"
+  ],
+  "copied_files": 1134,
+  "declared_paths": 20,
+  "consumed_files": 41,
+  "exit_code": 0,
+  "wall_seconds": 48.921458924000035,
+  "trace_lines": 1009955,
+  "trace_sha256": "0c93056139760b9f87f087508a93bf7c8d8592893de01256e50bc64220b56982",
+  "original_checkout_accesses": [],
+  "limitations": "Observed file syscalls; original checkout was not bind-hidden. Prepared interpreter and PATH are explicitly supplied host tools. Raw trace and copy removed as disposable scratch."
+}

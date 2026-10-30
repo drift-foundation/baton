@@ -355,7 +355,11 @@ class ASuccessorWaitsForItsPredecessor(LaneCase):
             self):
         self.retained_ready("discard-after-intake")
         settled = self.cleanup_settled()
-        self.assertEqual(settled["cleanup"], "complete")
+        # W384870 B3: the ending an execution-only cleanup settles is `retained`
+        # (W285465 review 2026-09-28, intake._settled_ending: nothing is removed
+        # when no directory custody was taken, so `complete` would assert roots
+        # this manager no longer deletes). The lane release is this case's subject.
+        self.assertEqual(settled["cleanup"], "retained")
         self.assertEqual(self.lanes(), [])
         successor = self.successor_start()
         runtime = RuntimeAdapter()
@@ -1048,5 +1052,5 @@ class TheValidatedBoundaryLeavesEveryLifecycleCallerAlone(LaneCase):
         self.retained_ready("discard-after-intake")
         self.assertEqual(len(self.lanes()), 1)
         settled = self.cleanup_settled()
-        self.assertEqual(settled["cleanup"], "complete")
+        self.assertEqual(settled["cleanup"], "retained")  # W384870 B3: see above
         self.assertEqual(self.lanes(), [])

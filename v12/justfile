@@ -1,31 +1,45 @@
 set shell := ["bash", "-lc"]
 set quiet
 
-# The prototype's OWN recipes. `v12/` is a self-contained subtree of this
-# repository and nothing in the root justfile delegates to it: the v11
-# gate must not start depending on a disposable proof of concept, and
-# this proof must not start depending on the v11 gate.
-#
-# Run these from `v12/`:  just -f v12/justfile test   (or `cd v12 && just`)
+# Run from v12/. Use test for the full suite, test-one or test-group for the
+# focused development loop. See python/TESTING.md for prerequisites/accounting.
 
-default: test
+# List commands; the full suite runs only when explicitly requested.
+default:
+	just --justfile "{{justfile()}}" --list
+
+# Run every required test with accounting; LOG defaults to disk-backed work/scratch/test-all/.
+test LOG='' JOBS='':
+	#!/usr/bin/env bash
+	set -euo pipefail
+	LOG="{{LOG}}"
+	if [[ -z "$LOG" ]]; then LOG="{{justfile_directory()}}/../work/scratch/test-all/$(date -u +%Y%m%dT%H%M%SZ)-$$/test-all.log"; fi
+	echo "Full-suite evidence: $LOG"
+	exec just --justfile "{{justfile_directory()}}/python/justfile" test-all "$LOG" "{{JOBS}}"
+
+# Run selected test IDs on the prepared environment.
+test-one +IDS:
+	just --justfile "{{justfile_directory()}}/python/justfile" test-one {{IDS}}
+
+# Run one named test group with complete accounting; optionally limit workers.
+test-group GROUP JOBS='':
+	just --justfile "{{justfile_directory()}}/python/justfile" test-group "{{GROUP}}" "{{JOBS}}"
+
+# List the available test groups without running tests.
+list-test-groups:
+	#!/usr/bin/env bash
+	set -euo pipefail
+	cd "{{justfile_directory()}}/python"
+	python3 -c 'from tools.parallel_test import GROUPS; print("\n".join(GROUPS))'
+
+# Run the full acceptance suite with a retained absolute LOG.
+test-all LOG JOBS='':
+	just --justfile "{{justfile_directory()}}/python/justfile" test-all "{{LOG}}" "{{JOBS}}"
 
 # Resolve the pinned runtime from the committed lockfile. Nothing else
 # is fetched, and the prototype's dependencies never enter the v11 tree.
 install:
 	npm ci --no-fund --no-audit
-
-# The fast gate: the fail-closed boundary unit tests and the placement
-# regressions. No Docker, no authority, no network.
-test:
-	npm test
-
-# Just the v12 assignment-authority regressions (W2928). They need no
-# Docker, no v11 executable and no network — the authority is a
-# self-contained durable store — so this is the fast loop while working
-# on the assignment contract.
-test-authority:
-	node --test test/authority_*.test.mjs
 
 # The whole live proof, from a fresh disposable authority, with every
 # assertion. It needs Docker, the deployed v11 executable, the ACP

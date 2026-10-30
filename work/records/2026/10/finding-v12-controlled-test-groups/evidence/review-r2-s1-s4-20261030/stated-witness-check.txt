@@ -1,0 +1,3 @@
+witness errors [] failures [] seconds 0.456
+('caller', 'review_cycles.py:restore_abandoned_correction', 'profile') mapped witness test_review_cycle_stated_owners calls 0
+('caller', 'review_cycles.py:settle_restoration_execution', 'profile') mapped witness test_review_cycle_stated_owners calls 0

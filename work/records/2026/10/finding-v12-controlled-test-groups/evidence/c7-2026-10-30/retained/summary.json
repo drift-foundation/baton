@@ -1,0 +1,156 @@
+[
+  {
+    "case": "normal",
+    "code": 1,
+    "seconds": 2.719406546000073,
+    "managers_reaped": [
+      8831
+    ],
+    "manager_pids_absent": [
+      8831
+    ],
+    "guard_reacquired": true,
+    "outcome_present": true,
+    "final_snapshot": true
+  },
+  {
+    "case": "blocked_sweep",
+    "code": 1,
+    "seconds": 7.722648351000089,
+    "managers_reaped": [
+      8839
+    ],
+    "manager_pids_absent": [
+      8839
+    ],
+    "guard_reacquired": true,
+    "outcome_present": true,
+    "final_snapshot": true
+  },
+  {
+    "case": "absent_cleanup",
+    "code": 1,
+    "seconds": 7.722388636999995,
+    "managers_reaped": [
+      8843
+    ],
+    "manager_pids_absent": [
+      8843
+    ],
+    "guard_reacquired": true,
+    "outcome_present": true,
+    "final_snapshot": true
+  },
+  {
+    "case": "delayed_snapshot",
+    "code": 1,
+    "seconds": 5.469932509000046,
+    "managers_reaped": [
+      8848
+    ],
+    "manager_pids_absent": [
+      8848
+    ],
+    "guard_reacquired": true,
+    "outcome_present": true,
+    "final_snapshot": false
+  },
+  {
+    "case": "snapshot_before",
+    "code": 1,
+    "seconds": 2.71741106200011,
+    "managers_reaped": [
+      8852
+    ],
+    "manager_pids_absent": [
+      8852
+    ],
+    "guard_reacquired": true,
+    "outcome_present": true,
+    "final_snapshot": true
+  },
+  {
+    "case": "stuck_snapshot",
+    "code": 1,
+    "seconds": 5.470148418000008,
+    "managers_reaped": [
+      8856
+    ],
+    "manager_pids_absent": [
+      8856
+    ],
+    "guard_reacquired": true,
+    "outcome_present": true,
+    "final_snapshot": false
+  },
+  {
+    "case": "stuck_workload",
+    "code": 1,
+    "seconds": 3.218098826999949,
+    "managers_reaped": [
+      8863
+    ],
+    "manager_pids_absent": [
+      8863
+    ],
+    "guard_reacquired": true,
+    "outcome_present": false,
+    "final_snapshot": true
+  },
+  {
+    "case": "stuck_cleanup",
+    "code": 1,
+    "seconds": 7.722284704000003,
+    "managers_reaped": [
+      8867
+    ],
+    "manager_pids_absent": [
+      8867
+    ],
+    "guard_reacquired": true,
+    "outcome_present": true,
+    "final_snapshot": true
+  },
+  {
+    "case": "stuck_accounting",
+    "code": 1,
+    "seconds": 7.972347878000164,
+    "managers_reaped": [
+      8872
+    ],
+    "manager_pids_absent": [
+      8872
+    ],
+    "guard_reacquired": true,
+    "outcome_present": true,
+    "final_snapshot": true
+  },
+  {
+    "case": "unknown",
+    "code": 1,
+    "seconds": 7.722519183000031,
+    "managers_reaped": [
+      8876
+    ],
+    "manager_pids_absent": [
+      8876
+    ],
+    "guard_reacquired": true,
+    "outcome_present": true,
+    "final_snapshot": true
+  },
+  {
+    "case": "pre_signal",
+    "code": 1,
+    "seconds": 1.466464078999934,
+    "managers_reaped": [
+      8880
+    ],
+    "manager_pids_absent": [
+      8880
+    ],
+    "guard_reacquired": true,
+    "outcome_present": false,
+    "final_snapshot": true
+  }
+]

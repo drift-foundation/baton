@@ -496,7 +496,8 @@ class CancellationFixture(LaneFixture):
         worker = single_worker._SingleWorker.__new__(single_worker._SingleWorker)
         worker.control, worker.port, worker.group = self.store, self.port, self.group
         worker.given = {'workspace_storage': self.storage, 'participant': self.port.participant}
-        worker._adapter = lambda *args: self.runtime_adapter
+        # W384870 B3: the production `_adapter` now takes keyword operands too.
+        worker._adapter = lambda *args, **kwargs: self.runtime_adapter
         native_stop = self.runtime_adapter.stop
         def stop(command):
             self.assertFalse(self.store._connection.in_transaction)

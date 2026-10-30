@@ -1,0 +1,13 @@
+test_restore_abandoned_correction_profile_owner errors [] failures [] skipped []
+   restore_abandoned_correction calls 7
+   settle_restoration_execution calls 0
+   _profile calls 10
+test_settle_restoration_execution_profile_owner errors [] failures [] skipped []
+   restore_abandoned_correction calls 0
+   settle_restoration_execution calls 5
+   _profile calls 9
+OK: both witnesses reach their entries and the profile check
+
+real	0m0.206s
+user	0m0.192s
+sys	0m0.015s

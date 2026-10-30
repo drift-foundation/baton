@@ -50,6 +50,66 @@ class FastContract(unittest.TestCase):
         self.assertEqual(calls, [])
 
 
+class IntendedScenarioGuard(unittest.TestCase):
+    """W384870 C7: a journal that did not reach the mode's scenario cannot pass."""
+    ENVELOPE_REFUSAL = 'ContractRefusal: selected envelope cannot support the populated provider and verification limits'
+
+    def journal(self, mode, *, engine=('ps', 'create', 'start', 'ps', 'inspect', 'stop'), acquire=True, refusals=(), injections=True, extra=()):
+        rows = [dict(event='manager_started', manager=1)]
+        if acquire:
+            rows.append(dict(event='token_acquire', operands=['attempt', 'eligible', 'execution', 'operation', 'permission'], permission=True))
+        rows += [dict(event='fake_engine', argv=['docker', step, 'runtime-single-1']) for step in engine]
+        rows += [dict(event='start_refused', refusal=refusal) for refusal in refusals]
+        if injections and mode in shutdown_fixture.INJECTIONS:
+            rows.append(dict(event=shutdown_fixture.INJECTIONS[mode]))
+        return rows + list(extra)
+
+    def test_every_mode_passes_its_own_intended_journal(self):
+        for mode in shutdown_fixture.RUNTIME_MODES:
+            self.assertEqual(shutdown_fixture.unreached(mode, self.journal(mode)), [], mode)
+        for mode in shutdown_fixture.CREATE_REFUSAL_MODES:
+            scripted = "ContractRefusal: the engine refused to start this runtime: '" + shutdown_fixture.SCRIPTED_CREATE_REFUSAL + "; normal baseline return control'"
+            self.assertEqual(shutdown_fixture.unreached(mode, self.journal(mode, engine=('ps', 'create', 'ps'), refusals=[scripted])), [], mode)
+        self.assertEqual(shutdown_fixture.unreached('pre_signal', self.journal('pre_signal', engine=(), acquire=False)), [])
+
+    def test_an_early_start_refusal_cannot_pass_an_engine_reaching_mode(self):
+        # The eight-day vacuous journal: no create, no start, an envelope refusal.
+        vacuous = self.journal('blocked_sweep', engine=('ps',), refusals=[self.ENVELOPE_REFUSAL], injections=False)
+        missing = shutdown_fixture.unreached('blocked_sweep', vacuous)
+        self.assertTrue(any('never created' in fact for fact in missing), missing)
+        self.assertTrue(any('never started' in fact for fact in missing), missing)
+        self.assertTrue(any(self.ENVELOPE_REFUSAL in fact for fact in missing), missing)
+        self.assertTrue(any('blocked_serving_sweep' in fact for fact in missing), missing)
+        # A refused ACQUISITION (the remaining-window refusal) is named too.
+        refused = self.journal('unknown', engine=('ps',), injections=False, extra=[dict(event='token_acquire_refused', refusal='ContractRefusal: remaining execution envelope cannot support the populated invocation limits')])
+        self.assertTrue(any('remaining execution envelope' in fact for fact in shutdown_fixture.unreached('unknown', refused)))
+
+    def test_an_unscripted_refusal_cannot_pass_a_create_refusal_mode(self):
+        # The same vacuous journal satisfied the old `normal` branch: held outcome, final snapshot.
+        vacuous = self.journal('normal', engine=('ps',), refusals=[self.ENVELOPE_REFUSAL])
+        missing = shutdown_fixture.unreached('normal', vacuous)
+        self.assertTrue(any('scripted create refusal never reached' in fact for fact in missing), missing)
+        self.assertTrue(any('unscripted refusal' in fact and self.ENVELOPE_REFUSAL in fact for fact in missing), missing)
+        started = self.journal('stuck_workload', refusals=["ContractRefusal: the engine refused to start this runtime: '" + shutdown_fixture.SCRIPTED_CREATE_REFUSAL + "'"])
+        self.assertTrue(any('started although create was scripted to refuse' in fact for fact in shutdown_fixture.unreached('stuck_workload', started)))
+
+    def test_a_missing_selected_injection_is_detected(self):
+        for mode, injection in shutdown_fixture.INJECTIONS.items():
+            journal = self.journal(mode, injections=False, **({'engine': ('ps', 'create', 'ps'), 'refusals': ["x: '" + shutdown_fixture.SCRIPTED_CREATE_REFUSAL + "'"]} if mode in shutdown_fixture.CREATE_REFUSAL_MODES else {'engine': (), 'acquire': False} if mode == 'pre_signal' else {}))
+            self.assertIn('selected injection ' + injection + ' never happened', shutdown_fixture.unreached(mode, journal), mode)
+
+    def test_a_pre_invocation_signal_mode_must_invoke_nothing(self):
+        invoked = self.journal('pre_signal', engine=('ps', 'create'), acquire=True)
+        missing = shutdown_fixture.unreached('pre_signal', invoked)
+        self.assertIn('pre-invocation signal mode expected no token acquisition', missing)
+        self.assertIn('pre-invocation signal mode expected no engine create', missing)
+
+    def test_every_matrix_mode_declares_a_scenario(self):
+        modes = ('normal', 'blocked_sweep', 'absent_cleanup', 'delayed_snapshot', 'snapshot_before', 'stuck_snapshot', 'stuck_workload', 'stuck_cleanup', 'stuck_accounting', 'unknown', 'pre_signal')
+        self.assertEqual(sorted(modes), sorted(shutdown_fixture.RUNTIME_MODES + shutdown_fixture.CREATE_REFUSAL_MODES + ('pre_signal',)))
+        self.assertEqual(shutdown_fixture.unreached('unlisted', self.journal('unlisted')), ['mode unlisted declares no intended scenario'])
+
+
 class Composition(unittest.TestCase):
     def test_real_baseline_shutdown_matrix(self):
         source = Path(__file__).resolve().parents[4]
@@ -78,6 +138,9 @@ class Composition(unittest.TestCase):
                         child.wait(timeout=5)
                         self.fail('outer timeout; retained named manager evidence requires cleanup investigation')
                 events = [json.loads(line) for line in (root / 'events.jsonl').read_text().splitlines()]
+                # W384870 C7 review 17:17:47Z: the mode must reach ITS scenario; an early
+                # start refusal, a missing injection or an unstarted runtime fails it.
+                self.assertEqual(shutdown_fixture.unreached(mode, events), [])
                 managers = [row['manager'] for row in events if row['event'] == 'manager_started']
                 reaped = [row['manager'] for row in events if row['event'] == 'manager_reaped']
                 self.assertTrue(managers)
@@ -109,9 +172,27 @@ class Composition(unittest.TestCase):
                     if mode in ('blocked_sweep', 'absent_cleanup'):
                         rows = list(report['enforcement']['attempts'].values())
                         self.assertTrue(rows)
-                        self.assertTrue(all(row['token']['seconds'] == 2 and row['token']['renewals'] == 0 for row in rows))
-                        self.assertTrue(all(row['observation']['state'] == 'absent' and row['token']['returned'] for row in rows))
-                        self.assertTrue(workload['outstanding_cleanup'], 'pending output/cleanup does not prevent token settlement')
+                        # W384870 C7: the token's lifetime is the controller's permission
+                        # envelope (no bare duration, no renewals), not an injected 2 s.
+                        for row in rows:
+                            policy = row['token']['permission']['policy']
+                            self.assertEqual((policy['run'], policy['total_seconds'], policy['cleanup_seconds']), (packet['run_id'], packet['bounds']['total_seconds'], packet['bounds']['cleanup_seconds']))
+                            self.assertIsNone(row['token']['seconds'])
+                            self.assertEqual((row['token']['renewals'], row['token']['renewals_remaining']), (0, 0))
+                        # W384870 C7: the envelope's stop_at is enforced through PRODUCTION
+                        # CANCELLATION, not an early expiry reclaim (the controller's own
+                        # `held_before_expiry` contract, test_authoring_enforcement): the exact
+                        # runtime is stopped despite the blocked/absent serving side, and the
+                        # token stays held -- neither returned nor revoked -- for the
+                        # stopped-execution settlement owner. Before 30245386 this matrix
+                        # injected a 2 s token so expiry reclaim settled it inside the run.
+                        for row in rows:
+                            self.assertEqual((row['observation']['runtime_id'], row['observation']['state']), ('runtime-single-1', 'quiescent'))
+                            self.assertEqual((row['token']['container'], row['token']['returned'], row['token']['revoked']), ('runtime-single-1', False, False))
+                            self.assertEqual(row['faults'], [])
+                        stops = [row['argv'][-1] for row in events if row['event'] == 'fake_engine' and row['argv'][1] == 'stop']
+                        self.assertEqual(set(stops), {'runtime-single-1'}, 'the exact runtime is stopped despite the blocked serving side')
+                        self.assertTrue(workload['outstanding_cleanup'], 'pending output/cleanup is retained as an actionable hold')
                         request = json.loads(next(root.glob('*.shutdown.json')).read_text())
                         self.assertLessEqual(report['shutdown_progress']['deadline'], request['deadline'])
                         published = [row['monotonic'] for row in events if row['event'] == 'snapshot_replaced' and row['finished']]
@@ -123,8 +204,12 @@ class Composition(unittest.TestCase):
                         self.assertEqual(signals[0]['received'], ['signal 15', 'signal 15'])
                     if mode == 'unknown':
                         rows = list(report['enforcement']['attempts'].values())
-                        self.assertTrue(any(row.get('token') and row['token']['revoked'] and not row['token']['returned'] for row in rows))
+                        # W384870 C7: an engine that cannot be asked preserves the fence and the
+                        # hold (`test_unknown_engine_stop_preserves_fence_and_hold_then_retries`):
+                        # the token is neither returned nor revoked and the fault is carried.
+                        self.assertTrue(any(row.get('token') and row['token']['container'] == 'runtime-single-1' and not row['token']['returned'] and not row['token']['revoked'] for row in rows))
                         self.assertTrue(any((row.get('observation') or {}).get('state') == 'uncertain' for row in rows))
+                        self.assertTrue(any('selected fake engine uncertainty' in fault for row in rows for fault in row['faults']))
                 elif mode == 'pre_signal':
                     self.assertFalse(report['author_invocation_started'])
                     self.assertFalse(outcome)

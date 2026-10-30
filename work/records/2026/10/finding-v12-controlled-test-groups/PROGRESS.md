@@ -585,3 +585,196 @@ answered by the depth rule; stale synthetic entries). Refusal demonstrated on
 the real checkout (exit 2, empty stdout). No full-suite run, no engine, no
 live model. State: R2 awaiting independent review together with S1 and the
 first S4 delivery; S4 residue (47) and B3 next, per PLAN.
+
+## 2026-10-30 — S1 correction: real profile witnesses for the restoration entries; K under owner claim E384905
+
+Read review-2026-10-30T08-20-12Z.md (R2 remainder accepted; S4 first delivery
+accepted as partial; S1 P2 changes requested) and the owner's portability ruling
+(FINDING 2026-10-30, PLAN top). Owner claim confirmed through `detail` (active,
+`baton.slaw`). HEAD moved to the owner checkpoint 84f66f43, which carries the
+R2 candidate bytes; this correction edits one file,
+`tests/manager/test_boundary_inventory.py`.
+
+Delivered: `StatedRules.test_restore_abandoned_correction_profile_owner` and
+`test_settle_restoration_execution_profile_owner`, each composing the
+restoration subclass's own world, spoiling the profile one requirement at a
+time, requiring `_profile`'s exact refusal label at the public entry, and
+proving a bypassed `_profile` is noticed (the same call is no longer refused by
+that label). WITNESSES maps the two stated owners to them explicitly; keys
+unchanged. Evidence `evidence/s1-witness-2026-10-30/` (S1-WITNESS.md, logs,
+the reviewer's spy reproduction re-pointed: entries called 7 and 5 times while
+the witnesses pass; CANDIDATE-SHA256.txt). Measured: 3 focused OK 0.038 s;
+StatedRules + EveryStatedOwnerHasAWitness 114 OK 3.33 s; no scans-group rerun
+(reason in S1-WITNESS.md). Next: the owner's checkout-portability correction
+(six consumers plus the two consumed instance-201492 helpers), then S4 residue
+and B3.
+
+## 2026-10-30 — Checkout portability correction (owner ruling); K under owner claim E384905
+
+Delivered per FINDING "Owner requires checkout portability". Evidence
+`evidence/portability-2026-10-30/` (PORTABILITY.md: audit table, fix,
+measured verification, reproduction; logs; strace-summary.txt;
+strict-copy-inputs.txt; CANDIDATE-SHA256.txt). Edits: six test modules
+derive the checkout from their own location (five `REPO` constants,
+test_claude_agent's package path); the two consumed helpers in
+instance-201492 (verify_lifecycle.py, compose_lifecycle.py) derive `REPO`
+from their record location, `DEST` left as a documented external resource;
+`tools/parallel_test.py` CONSUMED_INPUTS corrected by the relocation runs
+(image contexts declared whole; the verifier's four beside-itself reads),
+17 → 20 paths / 32 → 41 files; TESTING.md §9 rule replaces the limitation.
+Verification: six modules 727 OK in the original (18.3 s) and 727 OK from a
+copy holding only v12/ plus the declared inputs (31.4 s), with zero accesses
+to the original checkout under strace; declaration tests 88 OK. Honest
+failures along the way (missing vectors.json, fixture.iid, source_profiles)
+each became a declaration. Observation left for the owner: the live A/B
+composer's `REGISTRY` default names an operator home (live tooling, not a
+fixture). Next: S4 residue (47 pairs + nine unmatched declarations) and B3.
+
+## 2026-10-30 — S4 residue first pass and B3 slices 1–2; K under owner claim E384905
+
+Reviewer handoff (owner relay): both corrections passed checks; S4 residue and
+B3 may continue; v12/justfile, TESTING.md and v12/README.md stay with the
+reviewer (not touched). Owner planning notes M384914/M384915 read: W383215 is
+next only after W384870 is accepted, closed and checked in; K stays here.
+
+S4 (evidence/s4-residue-2026-10-30/S4-RESIDUE.md): both debt lists asserted
+together; `_read_table` resolves formatted FROM operands and drops the fifteen
+bogus `WHERE.*` entries; four delegations attributed; latent `re` import fixed.
+Owned-never-probed 47 → 33, probed-never-owned 9 → 6, unowned 593. Scans group
+447/447, same eight pre-existing failures (one extra during a reverted probe
+re-key, recorded). Three inventory limitations pinned (closure bodies, replay
+results, delegated placeholder labels) for a decision rather than worked around.
+
+B3 (evidence/b3-2026-10-30/B3-SLICES.md): re-baselined C5 3 / C7 34 at HEAD;
+slice 1 (two test doubles) cleared 11 C7 failures including the seven
+cancellation ones; slice 2 (fixtures patched the historical dossier baseline
+instead of the controller's module; shutdown pins both controller programs;
+runtime-lane `retained` per the W285465 rule; reconciliation pair per ffc8a19b)
+cleared 20 more. Remaining: C7 3 shutdown modes (token settlement in the
+enforcement report; product-vs-expectation, not changed) and C5 3 (confined git
+cannot open /dev/null in this sandbox; needs an unsandboxed run to classify).
+Files: seven test modules/fixtures + tools/parallel_test.py consumer note;
+digests in both evidence folders. Next: owner/reviewer run of the three C5
+cases outside the sandbox; token-settlement reading for the three shutdown
+modes; S4 composed-world probes; B4 prerequisites; B5.
+
+## 2026-10-30 — C5 root cause fixed; S4 dynamic reads made visible (review 09:29:47Z); K under owner claim E384905
+
+C5: not the sandbox. The failing flow runs died in the fixture's worker thread
+(`KeyError: 'session'`): the manager now delivers a wire launch
+(`baton.worker-launch/5`: schema, wire_profile, payload) and the fixture
+indexed the raw file. Fixed by unwrapping through the worker's own
+`read_launch`/`launched`; a `worker-launch` trace record retained. 3 OK,
+25.5 s (evidence/b3-2026-10-30/B3-SLICES.md slice 3, c5-diagnostic.log,
+slice3-next-run-flow.log). My earlier "likely sandbox" classification was
+wrong; recorded as superseded. No product or confinement change.
+
+S4 P2: `_read_table` keeps unresolved formatted pieces as placeholders, so the
+`_one_by_attempt` read is visible as `{table}` plus fifteen `{table}.*` column
+reads (owned by `boundaries.row`, listed as unprobed debt), never None and never
+`WHERE`. Five discovery regressions incl. a pinned real-tree family
+(DynamicTableReadsStayVisible). Counts: owned-never-probed 48, probed-never-
+owned 6, unowned 593 (S4-RESIDUE.md second pass). Digests updated in both
+evidence folders. Next: shutdown token-settlement modes (3), live A/B registry
+portability (M384918), dynamic-table resolution through callers, closure/replay
+inventory gaps, S4 probes, B4, B5.
+
+## 2026-10-30 — C7 shutdown matrix: envelope fit and settlement contract (review 16:20:31Z); K under owner claim E384905
+
+The three failing modes were the visible part of a matrix that had measured
+nothing since 30245386: the controller's permission envelope refused every
+start (20 s provider turn inside a 4 s window), so each attempt was
+`not-started`, token None, and the eight "passing" modes passed vacuously.
+Found by three journal rows added to the fixture's own `events.jsonl`
+(`token_acquire`, `token_acquire_refused`, `start_refused`). Fixture fitted:
+Job limits 2 s turn + 1 s verification, packet `turn_seconds` 2, diagnostic
+bounds 10/4 s (4.7 s remain at acquisition), no injected token duration (the
+acquisition refuses one beside an envelope). Settlement assertions retargeted
+to the controller's accepted `stop_at` contract (`held_before_expiry` and its
+tests in test_authoring_enforcement; expiry reclaim stays covered there; the
+stopped-execution settlement is W375444's owner): exact runtime stopped
+through production cancellation, token held (not returned, not revoked),
+unknown engine preserves fence and hold with the fault carried; the token's
+envelope terms pinned. Matrix 4 OK in 60.2 s with real runtimes in all eleven
+modes; six C7 modules 231 OK in 75.4 s. C7 34 → 0. Files:
+`tests/manager/shutdown_fixture.py`, `tests/manager/test_authoring_shutdown_deadline.py`;
+evidence/c7-2026-10-30/ (C7-SETTLEMENT.md, logs, retained reports and
+journals, diagnosis scripts, CANDIDATE-SHA256.txt). No product change, no full
+suite, engine daemon, live model, Git mutation or agents. Next: live A/B
+registry portability (M384918), dynamic-table resolution through callers,
+closure/replay inventory gaps, S4 probes, B4, B5.
+
+## 2026-10-30 — C7 correction: wording and intended-scenario guard (review 17:17:47Z); K under owner claim E384905
+
+Correction: my previous entry's "real runtimes in all eleven modes" was false.
+Five modes select the scripted create refusal and never start a runtime,
+pre_signal never invokes the author, and every engine is the fixture's fake
+engine; only blocked_sweep, absent_cleanup, stuck_cleanup, stuck_accounting
+and unknown run a fake runtime. No engine-container coverage is established.
+Guard: `shutdown_fixture.unreached(mode, events)` names each mode's intended
+scenario (scripted create refusal / fake runtime start / pre-invocation
+signal, plus the selected injection) and the matrix asserts it empty per mode;
+`IntendedScenarioGuard` (6 tests) proves the vacuous journal cannot pass an
+engine-reaching or a create-refusal mode, a missing injection is detected and
+a pre_signal journal that invoked anything fails (evidence/c7-2026-10-30/
+C7-SETTLEMENT.md, correction section). Files unchanged in set:
+shutdown_fixture.py, test_authoring_shutdown_deadline.py; digests updated.
+
+## 2026-10-30 — Live A/B registry portability (M384918); K under owner claim E384905
+
+`v12/testing/live_ab`: the composer's personal-home registry constant replaced
+by `settings.credential_registry`, validated for shape only (absolute,
+normalized, non-empty; nothing reads it here); `scenario.py` gains the
+required `--credential-registry PATH` operand (absolute, normalized, existing
+file) and carries it into settings.json; README names the operand. The render
+test carries a fake non-existent registry path and proves all eight composed
+worker deployments carry exactly it, untouched, with no `/home/sl/` prefix
+surviving; two new tests prove missing/relative/unnormalized/empty settings
+refuse composition rendering nothing, and the scenario refuses to start
+without the operand. 4 OK, 0.84 s (evidence/live-ab-registry-2026-10-30/).
+No live execution. Files: deployment.py, scenario.py, README.md,
+tests/tools/test_live_ab.py (digests in the folder).
+
+## 2026-10-30 — Inventory milestone: caller-resolved reads, closure owners, replay results (review 17:25:53Z); K under owner claim E384905
+
+`tests/manager/test_boundary_inventory.py` only. (1) A helper's dynamic read
+is named by its callers: `_resolved_placeholders` fills `{table}` in a
+returned read from the call's literals; `_through_helpers` adds the resolved
+row at the helper's site and records which delegations named it; the
+placeholder family is retired only when EVERY caller named it (an unnamed
+caller keeps `{table}` as visible debt); `_owned_here` falls back, for a
+`read:` stem the read's own site owns nothing for, to owners recorded at the
+caller; labels composed from f-strings resolve (`the line writer for attempt
+{…} generation {…}`). (2) `_closure_pieces`: owners inside nested closures are
+the enclosing function's, minus the names the closure rebinds; the four
+interrogation DELEGATED entries resolve. (3) Replayed journal documents are
+adopted reads of the `replay` pseudo-table (result bytes are not
+signature-bound, so readers' owners are real); the `_committed_record` probe
+re-keyed. Measured by the inventory's own computation (evidence/inventory-
+2026-10-30/audit/): owned-never-probed 48 → 239 (206 are replay entries owned
+but unprobed, per site in the note), probed-never-owned 6 → 1 (the stop
+request placeholder), unowned 759 → 833 (+74 replay reads nobody owns, per
+site in audit/replay-unowned.txt), entries 2302 → 2545. Probes: 15 for the
+resolved `line_writers`/`review_attachments` rows and columns (4 NO_PROBE by
+name); regressions `CallerResolvedReadsClosuresAndReplays` (7) with
+synthetic positives/negatives and real-tree pins; S4 pin updated. W375444's
+slice test pins its four newly visible unowned replay entries as named debt.
+Verification: discovery classes 23 OK; every declared probe reaches its
+boundary; settlement slice 13 OK; scans group: evidence/inventory-2026-10-30/
+INVENTORY-MILESTONE.md. The two aggregate debt tests keep failing by design
+(known pre-existing ids). Remaining: 206 replay probes and 74 replay owners
+(product-side), the 33 S4 composed-world probes, B4, B5.
+
+## 2026-10-30 — Inventory correction: nested closures visited once (review 18:07:52Z); K under owner claim E384905
+
+Confirmed and fixed: `_closure_pieces` used an unpruned `ast.walk`, so a
+twice-nested body was also attributed under the enclosing bindings and an
+inner `agent` parameter was credited to the outer `caller:agent` (false
+coverage, reviewer's repro). Each nested scope is now visited once with its
+own filtered bindings via an explicit stack that stops at nested defs. New
+witness: twice-nested shadowing negative plus captured-argument positive. The
+reviewer's reproduction passes; the refreshed audit is identical to the
+previous stage (239 / 1 / 833, entries 2545), so no real-tree verdict moved.
+Discovery + slice 14 OK; scans group rerun recorded in
+evidence/inventory-2026-10-30/INVENTORY-MILESTONE.md (correction section);
+digest refreshed.

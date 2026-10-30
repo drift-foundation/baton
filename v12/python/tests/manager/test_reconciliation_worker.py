@@ -235,12 +235,16 @@ class TheFencedBeforeStartProof(AttemptCase):
             return starting(operands)
 
         adapter.start = delayed
-        # The later reconciliation refuses too, because a running observation
-        # after a cancellation is its own contradiction; that refusal does not
-        # unmake the journal-only judgment taken above.
-        with self.assertRaises(ContractRefusal):
-            request_runtime_start(self.store, adapter, attempt_id=ATTEMPT)
+        # W384870 B3: the later reconciliation no longer REFUSES a running
+        # observation after a cancellation; the one owner of identifications
+        # (ffc8a19b, `_identify`) records the exact runtime as `stopping` with
+        # an inconclusive note -- the cancellation stands and nothing here is
+        # evidence the runtime stopped. The journal-only judgment above is
+        # unchanged either way.
+        request_runtime_start(self.store, adapter, attempt_id=ATTEMPT)
         self.assertEqual(inside, [True])
+        self.assertEqual(self.row()["execution_runtime"], "stopping")
+        self.assertIsNotNone(self.row()["runtime_id"])
 
     def test_a_start_after_the_cancellation_is_refused_by_the_axis(self):
         """ORDER TWO: the cancellation won.
@@ -461,9 +465,10 @@ class TheFencedBeforeStartProof(AttemptCase):
             return starting(operands)
 
         adapter.start = delayed
-        with self.assertRaises(ContractRefusal):
-            request_runtime_start(self.store, adapter, attempt_id=ATTEMPT)
+        # W384870 B3: see the sibling above -- recorded as `stopping`, not refused.
+        request_runtime_start(self.store, adapter, attempt_id=ATTEMPT)
         self.assertEqual(inside, [True])
+        self.assertEqual(self.row()["execution_runtime"], "stopping")
 
     def test_an_exact_repeat_answers_the_same_document(self):
         """A reader has no act to replay, so two asks are one answer."""

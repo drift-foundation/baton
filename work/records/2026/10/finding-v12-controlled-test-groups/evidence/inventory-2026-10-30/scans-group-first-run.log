@@ -1,0 +1,1538 @@
+[collect] start 1/5 tests.manager.test_boundary_inventory
+[collect] start 2/5 tests.manager.test_contracts_inventory
+[collect] start 3/5 tests.manager.test_dependencies
+[collect] start 4/5 tests.manager.test_text_sweep
+[collect] start 5/5 tests.manager.test_source_boundary
+[collect] done  1/5 tests.manager.test_contracts_inventory rc=0 in 0.18s
+[collect] done  2/5 tests.manager.test_text_sweep rc=0 in 0.18s
+[collect] done  3/5 tests.manager.test_dependencies rc=0 in 0.19s
+[collect] done  4/5 tests.manager.test_source_boundary rc=0 in 0.19s
+[collect] done  5/5 tests.manager.test_boundary_inventory rc=0 in 0.20s
+[parallel] start 1/65 tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual
+[parallel] start 2/65 tests.manager.test_boundary_inventory.AnAdoptedRowIsAWholeRow
+[parallel] start 3/65 tests.manager.test_boundary_inventory.AnIdentityIsMoreThanAShape
+[parallel] start 4/65 tests.manager.test_boundary_inventory.CallerResolvedReadsClosuresAndReplays
+[parallel] start 5/65 tests.manager.test_boundary_inventory.ClosedShapesAreClosedBothWays
+[parallel] start 6/65 tests.manager.test_boundary_inventory.ConsumptionEntriesReachTheirOwners
+[parallel] start 7/65 tests.manager.test_boundary_inventory.DeadlineBoundaryOwnership
+[parallel] start 8/65 tests.manager.test_boundary_inventory.DeadlineForwardingInventory
+[parallel] start 9/65 tests.manager.test_boundary_inventory.DeclaredMountOriginsStayWithTheirElements
+[parallel] start 10/65 tests.manager.test_boundary_inventory.DuplicateColumnChecksRequireOwnedWitnesses
+[parallel] start 11/65 tests.manager.test_boundary_inventory.DynamicTableReadsStayVisible
+[parallel] start 12/65 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_a_probe_that_is_refused_earlier_fails
+[parallel] start 13/65 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary
+[parallel] start 14/65 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe
+[parallel] start 15/65 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_unprobed_entry_is_a_real_owned_entry
+[parallel] start 16/65 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_historical_cleanup_document_probe_reaches_its_named_boundary
+[parallel] start 17/65 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_historical_custody_journal_probes_reach_their_named_boundaries
+[parallel] start 18/65 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_line_launch_proof_has_an_exact_live_capability_probe
+[parallel] start 19/65 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_missing_probe_check_can_actually_fail
+[parallel] start 20/65 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared
+[parallel] start 21/65 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_named_constructor_exists_and_owns_what_it_holds
+[parallel] start 22/65 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator
+[parallel] start 23/65 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_site_is_lexical
+[parallel] start 24/65 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_exception_is_stale
+[parallel] start 25/65 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale
+[parallel] start 26/65 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_entry_is_owned_twice
+[parallel] start 27/65 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_double_ownership_check_can_actually_fail
+[parallel] start 28/65 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_is_not_derived_from_the_validators
+[parallel] start 29/65 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_every_persisted_column_that_is_read
+[parallel] start 30/65 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_the_engine_answer_and_every_consumed_member
+[parallel] start 31/65 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_variadic_public_parameters_are_receiving_entries_too
+[parallel] start 32/65 tests.manager.test_boundary_inventory.EveryStatedOwnerHasAWitness
+[parallel] done  1/65 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_a_probe_that_is_refused_earlier_fails rc=0 in 0.44s
+[parallel] start 33/65 tests.manager.test_boundary_inventory.HelperDeclarationsHaveExactAccounting
+[parallel] done  2/65 tests.manager.test_boundary_inventory.EveryStatedOwnerHasAWitness rc=0 in 0.44s
+[parallel] start 34/65 tests.manager.test_boundary_inventory.LanesHaveCompleteReceivingCoverage
+[parallel] done  3/65 tests.manager.test_boundary_inventory.AnAdoptedRowIsAWholeRow rc=0 in 0.54s
+[parallel] start 35/65 tests.manager.test_boundary_inventory.OptionalCapabilityAliasesKeepTheirCrossing
+[parallel] done  4/65 tests.manager.test_boundary_inventory.ClosedShapesAreClosedBothWays rc=0 in 0.63s
+[parallel] start 36/65 tests.manager.test_boundary_inventory.ProviderLabelsStayWithTheirSubdocuments
+[parallel] done  5/65 tests.manager.test_boundary_inventory.HelperDeclarationsHaveExactAccounting rc=0 in 0.35s
+[parallel] start 37/65 tests.manager.test_boundary_inventory.ReviewReaderIdentitiesReachTheirOwners
+[parallel] done  6/65 tests.manager.test_boundary_inventory.OptionalCapabilityAliasesKeepTheirCrossing rc=0 in 0.40s
+[parallel] start 38/65 tests.manager.test_boundary_inventory.StatedRules
+[parallel] done  7/65 tests.manager.test_boundary_inventory.DeclaredMountOriginsStayWithTheirElements rc=0 in 3.86s
+[parallel] start 39/65 tests.manager.test_boundary_inventory.StoppedSettlementInventory
+[parallel] done  8/65 tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual rc=0 in 6.51s
+[parallel] start 40/65 tests.manager.test_boundary_inventory.TheAttachmentKeyProbeReachesAdoption
+[parallel] done  9/65 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_double_ownership_check_can_actually_fail rc=0 in 9.06s
+[parallel] start 41/65 tests.manager.test_boundary_inventory.TheCollidingLaneKeyProbeReachesAdoption
+[parallel] done  10/65 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_historical_custody_journal_probes_reach_their_named_boundaries rc=0 in 10.20s
+[parallel] start 42/65 tests.manager.test_boundary_inventory.TheDiscoveryProjectionsAreBoundedAndImmutable
+[parallel] done  11/65 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_exception_is_stale rc=0 in 10.24s
+[parallel] start 43/65 tests.manager.test_boundary_inventory.TheInstantRuleIsThreeProperties
+[parallel] done  12/65 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_historical_cleanup_document_probe_reaches_its_named_boundary rc=0 in 10.48s
+[parallel] start 44/65 tests.manager.test_boundary_inventory.TheProbeDriverIsBounded
+[parallel] done  13/65 tests.manager.test_boundary_inventory.TheInstantRuleIsThreeProperties rc=0 in 0.37s
+[parallel] start 45/65 tests.manager.test_boundary_inventory.TheProjectionContractMatchesTheAuthorityItReads
+[parallel] done  14/65 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_variadic_public_parameters_are_receiving_entries_too rc=0 in 10.82s
+[parallel] start 46/65 tests.manager.test_boundary_inventory.TheWorkerEntryTransportIsFullyInventoried
+[parallel] done  15/65 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_site_is_lexical rc=0 in 10.94s
+[parallel] start 47/65 tests.manager.test_boundary_inventory.TheWriterKeyProbeReachesAdoption
+[parallel] done  16/65 tests.manager.test_boundary_inventory.TheProjectionContractMatchesTheAuthorityItReads rc=0 in 0.40s
+[parallel] start 48/65 tests.manager.test_contracts_inventory.EveryConstructionInputIsOwnedByItsAssertion
+[parallel] done  17/65 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_every_persisted_column_that_is_read rc=0 in 11.04s
+[parallel] start 49/65 tests.manager.test_contracts_inventory.EveryOwnerIsProvedByANonVacuousProbe
+[parallel] done  18/65 tests.manager.test_boundary_inventory.TheProbeDriverIsBounded rc=0 in 0.66s
+[parallel] start 50/65 tests.manager.test_contracts_inventory.ThePrivateBodyPathIsPinnedStructurally
+[parallel] done  19/65 tests.manager.test_contracts_inventory.EveryConstructionInputIsOwnedByItsAssertion rc=0 in 0.29s
+[parallel] start 51/65 tests.manager.test_contracts_inventory.TheUniverseIsDerivedNotDeclared
+[parallel] done  20/65 tests.manager.test_contracts_inventory.EveryOwnerIsProvedByANonVacuousProbe rc=0 in 0.31s
+[parallel] start 52/65 tests.manager.test_dependencies.AnExportedLabelIsCallerInput
+[parallel] done  21/65 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale rc=0 in 11.36s
+[parallel] start 53/65 tests.manager.test_dependencies.NoPublicOperationTakesInternalState
+[parallel] done  22/65 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_is_not_derived_from_the_validators rc=0 in 11.39s
+[parallel] start 54/65 tests.manager.test_dependencies.TheHashesAreTheArtifactsOwn
+[parallel] done  23/65 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_the_engine_answer_and_every_consumed_member rc=0 in 11.43s
+[parallel] done  24/65 tests.manager.test_contracts_inventory.ThePrivateBodyPathIsPinnedStructurally rc=0 in 0.29s
+[parallel] start 55/65 tests.manager.test_dependencies.TheLockPinsExactlyTheRuledClosure
+[parallel] start 56/65 tests.manager.test_dependencies.TheManagerReachesForExactlyOneDependency
+[parallel] done  25/65 tests.manager.test_contracts_inventory.TheUniverseIsDerivedNotDeclared rc=0 in 0.29s
+[parallel] start 57/65 tests.manager.test_source_boundary.ARestartAdoptsTheExactManagerOwnedWorkspace
+[parallel] done  26/65 tests.manager.test_dependencies.TheLockPinsExactlyTheRuledClosure rc=0 in 0.26s
+[parallel] start 58/65 tests.manager.test_source_boundary.CleanupNeverRemovesMaterialThisManagerDidNotCreate
+[parallel] done  27/65 tests.manager.test_dependencies.TheHashesAreTheArtifactsOwn rc=0 in 0.33s
+[parallel] start 59/65 tests.manager.test_source_boundary.ForeignSymlinkedOrReplacedPathsRefuseBeforeTheStart
+[parallel] done  28/65 tests.manager.test_boundary_inventory.ProviderLabelsStayWithTheirSubdocuments rc=0 in 11.21s
+[parallel] start 60/65 tests.manager.test_source_boundary.NothingReadsTheNominatedSource
+[parallel] done  29/65 tests.manager.test_source_boundary.ARestartAdoptsTheExactManagerOwnedWorkspace rc=0 in 0.53s
+[parallel] start 61/65 tests.manager.test_source_boundary.TheManagerTakesNoViewOfVersionControl
+[parallel] done  30/65 tests.manager.test_source_boundary.CleanupNeverRemovesMaterialThisManagerDidNotCreate rc=0 in 0.52s
+[parallel] start 62/65 tests.manager.test_source_boundary.TheProfilesAreOwnedOutsideTheManager
+[parallel] done  31/65 tests.manager.test_source_boundary.NothingReadsTheNominatedSource rc=0 in 0.40s
+[parallel] start 63/65 tests.manager.test_source_boundary.TheRuntimeReceivesOneMountedSourceAndOneWritableWorkspace
+[parallel] done  32/65 tests.manager.test_dependencies.NoPublicOperationTakesInternalState rc=0 in 0.87s
+[parallel] start 64/65 tests.manager.test_source_boundary.TheWorkspaceIsStorageAndScratchIsBounded
+[parallel] done  33/65 tests.manager.test_dependencies.AnExportedLabelIsCallerInput rc=0 in 0.92s
+[parallel] start 65/65 tests.manager.test_text_sweep.EveryExportedOperationRefusesUnstorableText
+[parallel] done  34/65 tests.manager.test_source_boundary.ForeignSymlinkedOrReplacedPathsRefuseBeforeTheStart rc=0 in 0.65s
+[parallel] done  35/65 tests.manager.test_text_sweep.EveryExportedOperationRefusesUnstorableText rc=1 in 0.32s
+[parallel] done  36/65 tests.manager.test_source_boundary.TheManagerTakesNoViewOfVersionControl rc=0 in 0.58s
+[parallel] done  37/65 tests.manager.test_source_boundary.TheWorkspaceIsStorageAndScratchIsBounded rc=1 in 0.89s
+[parallel] done  38/65 tests.manager.test_source_boundary.TheRuntimeReceivesOneMountedSourceAndOneWritableWorkspace rc=0 in 1.03s
+[parallel] done  39/65 tests.manager.test_dependencies.TheManagerReachesForExactlyOneDependency rc=0 in 1.84s
+[parallel] done  40/65 tests.manager.test_source_boundary.TheProfilesAreOwnedOutsideTheManager rc=0 in 1.25s
+[parallel] done  41/65 tests.manager.test_boundary_inventory.DeadlineForwardingInventory rc=0 in 13.95s
+[parallel] done  42/65 tests.manager.test_boundary_inventory.StoppedSettlementInventory rc=1 in 10.50s
+[parallel] done  43/65 tests.manager.test_boundary_inventory.DynamicTableReadsStayVisible rc=0 in 14.58s
+[parallel] done  44/65 tests.manager.test_boundary_inventory.DeadlineBoundaryOwnership rc=0 in 14.72s
+[parallel] done  45/65 tests.manager.test_boundary_inventory.StatedRules rc=0 in 13.88s
+[parallel] done  46/65 tests.manager.test_boundary_inventory.AnIdentityIsMoreThanAShape rc=0 in 15.07s
+[parallel] done  47/65 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_unprobed_entry_is_a_real_owned_entry rc=0 in 15.08s
+[parallel] done  48/65 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_named_constructor_exists_and_owns_what_it_holds rc=0 in 15.08s
+[parallel] done  49/65 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared rc=1 in 15.13s
+[parallel] done  50/65 tests.manager.test_boundary_inventory.CallerResolvedReadsClosuresAndReplays rc=0 in 15.20s
+[parallel] done  51/65 tests.manager.test_boundary_inventory.ConsumptionEntriesReachTheirOwners rc=0 in 15.25s
+[parallel] done  52/65 tests.manager.test_boundary_inventory.TheAttachmentKeyProbeReachesAdoption rc=0 in 8.91s
+[parallel] done  53/65 tests.manager.test_boundary_inventory.ReviewReaderIdentitiesReachTheirOwners rc=0 in 14.84s
+[parallel] done  54/65 tests.manager.test_boundary_inventory.TheCollidingLaneKeyProbeReachesAdoption rc=0 in 6.78s
+[parallel] done  55/65 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator rc=1 in 16.63s
+[parallel] done  56/65 tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_entry_is_owned_twice rc=1 in 16.84s
+[parallel] done  57/65 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe rc=1 in 16.96s
+[parallel] done  58/65 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_missing_probe_check_can_actually_fail rc=1 in 17.11s
+[parallel] done  59/65 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_line_launch_proof_has_an_exact_live_capability_probe rc=0 in 17.58s
+[parallel] done  60/65 tests.manager.test_boundary_inventory.DuplicateColumnChecksRequireOwnedWitnesses rc=0 in 17.79s
+[parallel] done  61/65 tests.manager.test_boundary_inventory.LanesHaveCompleteReceivingCoverage rc=1 in 17.78s
+[parallel] done  62/65 tests.manager.test_boundary_inventory.TheWriterKeyProbeReachesAdoption rc=0 in 8.48s
+[parallel] done  63/65 tests.manager.test_boundary_inventory.TheWorkerEntryTransportIsFullyInventoried rc=0 in 8.75s
+[parallel] done  64/65 tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary rc=1 in 26.49s
+[parallel] done  65/65 tests.manager.test_boundary_inventory.TheDiscoveryProjectionsAreBoundedAndImmutable rc=0 in 30.91s
+[group] scans: 5 parallel, 0 serial, 0 supervised modules
+[collect] 5 parallel modules -> 459 tests in 65 shards
+[parallel] jobs=32 (available CPUs 32)
+--- parallel source ---
+[pass] tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual (42 tests)
+[pass] tests.manager.test_boundary_inventory.AnAdoptedRowIsAWholeRow (3 tests)
+[pass] tests.manager.test_boundary_inventory.AnIdentityIsMoreThanAShape (6 tests)
+[pass] tests.manager.test_boundary_inventory.CallerResolvedReadsClosuresAndReplays (7 tests)
+[pass] tests.manager.test_boundary_inventory.ClosedShapesAreClosedBothWays (4 tests)
+[pass] tests.manager.test_boundary_inventory.ConsumptionEntriesReachTheirOwners (6 tests)
+[pass] tests.manager.test_boundary_inventory.DeadlineBoundaryOwnership (1 tests)
+[pass] tests.manager.test_boundary_inventory.DeadlineForwardingInventory (4 tests)
+[pass] tests.manager.test_boundary_inventory.DeclaredMountOriginsStayWithTheirElements (13 tests)
+[pass] tests.manager.test_boundary_inventory.DuplicateColumnChecksRequireOwnedWitnesses (11 tests)
+[pass] tests.manager.test_boundary_inventory.DynamicTableReadsStayVisible (5 tests)
+[pass] tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_a_probe_that_is_refused_earlier_fails (1 tests)
+[FAIL] tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary (1 tests)
+[FAIL] tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe (1 tests)
+[pass] tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_unprobed_entry_is_a_real_owned_entry (1 tests)
+[pass] tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_historical_cleanup_document_probe_reaches_its_named_boundary (1 tests)
+[pass] tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_historical_custody_journal_probes_reach_their_named_boundaries (1 tests)
+[pass] tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_line_launch_proof_has_an_exact_live_capability_probe (1 tests)
+[FAIL] tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_missing_probe_check_can_actually_fail (1 tests)
+[FAIL] tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared (1 tests)
+[pass] tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_named_constructor_exists_and_owns_what_it_holds (1 tests)
+[FAIL] tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator (1 tests)
+[pass] tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_site_is_lexical (1 tests)
+[pass] tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_exception_is_stale (1 tests)
+[pass] tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale (1 tests)
+[FAIL] tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_entry_is_owned_twice (1 tests)
+[pass] tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_double_ownership_check_can_actually_fail (1 tests)
+[pass] tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_is_not_derived_from_the_validators (1 tests)
+[pass] tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_every_persisted_column_that_is_read (1 tests)
+[pass] tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_the_engine_answer_and_every_consumed_member (1 tests)
+[pass] tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_variadic_public_parameters_are_receiving_entries_too (1 tests)
+[pass] tests.manager.test_boundary_inventory.EveryStatedOwnerHasAWitness (1 tests)
+[pass] tests.manager.test_boundary_inventory.HelperDeclarationsHaveExactAccounting (11 tests)
+[FAIL] tests.manager.test_boundary_inventory.LanesHaveCompleteReceivingCoverage (7 tests)
+[pass] tests.manager.test_boundary_inventory.OptionalCapabilityAliasesKeepTheirCrossing (29 tests)
+[pass] tests.manager.test_boundary_inventory.ProviderLabelsStayWithTheirSubdocuments (15 tests)
+[pass] tests.manager.test_boundary_inventory.ReviewReaderIdentitiesReachTheirOwners (6 tests)
+[pass] tests.manager.test_boundary_inventory.StatedRules (113 tests)
+[FAIL] tests.manager.test_boundary_inventory.StoppedSettlementInventory (1 tests)
+[pass] tests.manager.test_boundary_inventory.TheAttachmentKeyProbeReachesAdoption (7 tests)
+[pass] tests.manager.test_boundary_inventory.TheCollidingLaneKeyProbeReachesAdoption (6 tests)
+[pass] tests.manager.test_boundary_inventory.TheDiscoveryProjectionsAreBoundedAndImmutable (6 tests)
+[pass] tests.manager.test_boundary_inventory.TheInstantRuleIsThreeProperties (2 tests)
+[pass] tests.manager.test_boundary_inventory.TheProbeDriverIsBounded (5 tests)
+[pass] tests.manager.test_boundary_inventory.TheProjectionContractMatchesTheAuthorityItReads (2 tests)
+[pass] tests.manager.test_boundary_inventory.TheWorkerEntryTransportIsFullyInventoried (5 tests)
+[pass] tests.manager.test_boundary_inventory.TheWriterKeyProbeReachesAdoption (7 tests)
+[pass] tests.manager.test_contracts_inventory.EveryConstructionInputIsOwnedByItsAssertion (5 tests)
+[pass] tests.manager.test_contracts_inventory.EveryOwnerIsProvedByANonVacuousProbe (4 tests)
+[pass] tests.manager.test_contracts_inventory.ThePrivateBodyPathIsPinnedStructurally (2 tests)
+[pass] tests.manager.test_contracts_inventory.TheUniverseIsDerivedNotDeclared (4 tests)
+[pass] tests.manager.test_dependencies.AnExportedLabelIsCallerInput (2 tests)
+[pass] tests.manager.test_dependencies.NoPublicOperationTakesInternalState (4 tests)
+[pass] tests.manager.test_dependencies.TheHashesAreTheArtifactsOwn (6 tests)
+[pass] tests.manager.test_dependencies.TheLockPinsExactlyTheRuledClosure (4 tests)
+[pass] tests.manager.test_dependencies.TheManagerReachesForExactlyOneDependency (5 tests)
+[pass] tests.manager.test_source_boundary.ARestartAdoptsTheExactManagerOwnedWorkspace (10 tests)
+[pass] tests.manager.test_source_boundary.CleanupNeverRemovesMaterialThisManagerDidNotCreate (7 tests)
+[pass] tests.manager.test_source_boundary.ForeignSymlinkedOrReplacedPathsRefuseBeforeTheStart (17 tests)
+[pass] tests.manager.test_source_boundary.NothingReadsTheNominatedSource (4 tests)
+[pass] tests.manager.test_source_boundary.TheManagerTakesNoViewOfVersionControl (6 tests)
+[pass] tests.manager.test_source_boundary.TheProfilesAreOwnedOutsideTheManager (12 tests)
+[pass] tests.manager.test_source_boundary.TheRuntimeReceivesOneMountedSourceAndOneWritableWorkspace (10 tests)
+[FAIL] tests.manager.test_source_boundary.TheWorkspaceIsStorageAndScratchIsBounded (9 tests)
+[FAIL] tests.manager.test_text_sweep.EveryExportedOperationRefusesUnstorableText (3 tests)
+--- parallel source: failures ---
+=== FAILURE: tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary (entry=('adopted', 'review_cycles.py:_one_by_attempt', 'line_writers'), label='the line writer for attempt') ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6735, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 8692, in run
+    review_cycles.grant_writer(self.store, line_id="line-probe", attempt_id="writer-attempt", generation=1,
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                               worker_id="new-worker", profile=self.review_profile(), based_checkpoint_id="checkpoint-probe")
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 1886, in grant_writer
+    proved = _proved_line_object(store, line)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 1385, in _proved_line_object
+    workspaces.configured_workspace_group(store).gid)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 761, in configured_workspace_group
+    _denied("this manager has no configured workspace group; the "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "deployment provisions one dedicated non-authority group and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "records it before any execution workspace is allocated, and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "a group inferred from what the manager happens to hold is "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "not a workspace grant")
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5094, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: this manager has no configured workspace group; the deployment provisions one dedicated non-authority group and records it before any execution workspace is allocated, and a group inferred from what the manager happens to hold is not a workspace grant
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 10313, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6741, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'the line writer for attempt' not found in 'this manager has no configured workspace group; the deployment provisions one dedicated non-authority group and records it before any execution workspace is allocated, and a group inferred from what the manager happens to hold is not a workspace grant' : refused, but not at 'the line writer for attempt': this manager has no configured workspace group; the deployment provisions one dedicated non-authority group and records it before any execution workspace is allocated, and a group inferred from what the manager happens to hold is not a workspace grant
+=== FAILURE: tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary (entry=('adopted', 'review_cycles.py:_one_by_attempt', 'line_writers.based_checkpoint_id'), label='the line writer for attempt') ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6735, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 8692, in run
+    review_cycles.grant_writer(self.store, line_id="line-probe", attempt_id="writer-attempt", generation=1,
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                               worker_id="new-worker", profile=self.review_profile(), based_checkpoint_id="checkpoint-probe")
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 1886, in grant_writer
+    proved = _proved_line_object(store, line)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 1385, in _proved_line_object
+    workspaces.configured_workspace_group(store).gid)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 761, in configured_workspace_group
+    _denied("this manager has no configured workspace group; the "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "deployment provisions one dedicated non-authority group and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "records it before any execution workspace is allocated, and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "a group inferred from what the manager happens to hold is "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "not a workspace grant")
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5094, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: this manager has no configured workspace group; the deployment provisions one dedicated non-authority group and records it before any execution workspace is allocated, and a group inferred from what the manager happens to hold is not a workspace grant
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 10313, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6741, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'the line writer for attempt' not found in 'this manager has no configured workspace group; the deployment provisions one dedicated non-authority group and records it before any execution workspace is allocated, and a group inferred from what the manager happens to hold is not a workspace grant' : refused, but not at 'the line writer for attempt': this manager has no configured workspace group; the deployment provisions one dedicated non-authority group and records it before any execution workspace is allocated, and a group inferred from what the manager happens to hold is not a workspace grant
+=== FAILURE: tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary (entry=('adopted', 'review_cycles.py:_one_by_attempt', 'line_writers.line_id'), label='the line writer for attempt') ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6735, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 8692, in run
+    review_cycles.grant_writer(self.store, line_id="line-probe", attempt_id="writer-attempt", generation=1,
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                               worker_id="new-worker", profile=self.review_profile(), based_checkpoint_id="checkpoint-probe")
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 1886, in grant_writer
+    proved = _proved_line_object(store, line)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 1385, in _proved_line_object
+    workspaces.configured_workspace_group(store).gid)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 761, in configured_workspace_group
+    _denied("this manager has no configured workspace group; the "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "deployment provisions one dedicated non-authority group and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "records it before any execution workspace is allocated, and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "a group inferred from what the manager happens to hold is "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "not a workspace grant")
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5094, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: this manager has no configured workspace group; the deployment provisions one dedicated non-authority group and records it before any execution workspace is allocated, and a group inferred from what the manager happens to hold is not a workspace grant
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 10313, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6741, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'the line writer for attempt' not found in 'this manager has no configured workspace group; the deployment provisions one dedicated non-authority group and records it before any execution workspace is allocated, and a group inferred from what the manager happens to hold is not a workspace grant' : refused, but not at 'the line writer for attempt': this manager has no configured workspace group; the deployment provisions one dedicated non-authority group and records it before any execution workspace is allocated, and a group inferred from what the manager happens to hold is not a workspace grant
+=== FAILURE: tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary (entry=('adopted', 'review_cycles.py:_one_by_attempt', 'line_writers.participant'), label='the line writer for attempt') ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6735, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 8692, in run
+    review_cycles.grant_writer(self.store, line_id="line-probe", attempt_id="writer-attempt", generation=1,
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                               worker_id="new-worker", profile=self.review_profile(), based_checkpoint_id="checkpoint-probe")
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 1886, in grant_writer
+    proved = _proved_line_object(store, line)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 1385, in _proved_line_object
+    workspaces.configured_workspace_group(store).gid)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 761, in configured_workspace_group
+    _denied("this manager has no configured workspace group; the "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "deployment provisions one dedicated non-authority group and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "records it before any execution workspace is allocated, and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "a group inferred from what the manager happens to hold is "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "not a workspace grant")
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5094, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: this manager has no configured workspace group; the deployment provisions one dedicated non-authority group and records it before any execution workspace is allocated, and a group inferred from what the manager happens to hold is not a workspace grant
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 10313, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6741, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'the line writer for attempt' not found in 'this manager has no configured workspace group; the deployment provisions one dedicated non-authority group and records it before any execution workspace is allocated, and a group inferred from what the manager happens to hold is not a workspace grant' : refused, but not at 'the line writer for attempt': this manager has no configured workspace group; the deployment provisions one dedicated non-authority group and records it before any execution workspace is allocated, and a group inferred from what the manager happens to hold is not a workspace grant
+=== FAILURE: tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary (entry=('adopted', 'review_cycles.py:_one_by_attempt', 'line_writers.principal'), label='the line writer for attempt') ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6735, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 8692, in run
+    review_cycles.grant_writer(self.store, line_id="line-probe", attempt_id="writer-attempt", generation=1,
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                               worker_id="new-worker", profile=self.review_profile(), based_checkpoint_id="checkpoint-probe")
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 1886, in grant_writer
+    proved = _proved_line_object(store, line)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 1385, in _proved_line_object
+    workspaces.configured_workspace_group(store).gid)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 761, in configured_workspace_group
+    _denied("this manager has no configured workspace group; the "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "deployment provisions one dedicated non-authority group and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "records it before any execution workspace is allocated, and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "a group inferred from what the manager happens to hold is "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "not a workspace grant")
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5094, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: this manager has no configured workspace group; the deployment provisions one dedicated non-authority group and records it before any execution workspace is allocated, and a group inferred from what the manager happens to hold is not a workspace grant
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 10313, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6741, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'the line writer for attempt' not found in 'this manager has no configured workspace group; the deployment provisions one dedicated non-authority group and records it before any execution workspace is allocated, and a group inferred from what the manager happens to hold is not a workspace grant' : refused, but not at 'the line writer for attempt': this manager has no configured workspace group; the deployment provisions one dedicated non-authority group and records it before any execution workspace is allocated, and a group inferred from what the manager happens to hold is not a workspace grant
+=== FAILURE: tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary (entry=('adopted', 'review_cycles.py:_one_by_attempt', 'line_writers.revocation_reason'), label='the line writer for attempt') ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6735, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 8692, in run
+    review_cycles.grant_writer(self.store, line_id="line-probe", attempt_id="writer-attempt", generation=1,
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                               worker_id="new-worker", profile=self.review_profile(), based_checkpoint_id="checkpoint-probe")
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 1886, in grant_writer
+    proved = _proved_line_object(store, line)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 1385, in _proved_line_object
+    workspaces.configured_workspace_group(store).gid)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 761, in configured_workspace_group
+    _denied("this manager has no configured workspace group; the "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "deployment provisions one dedicated non-authority group and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "records it before any execution workspace is allocated, and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "a group inferred from what the manager happens to hold is "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "not a workspace grant")
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5094, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: this manager has no configured workspace group; the deployment provisions one dedicated non-authority group and records it before any execution workspace is allocated, and a group inferred from what the manager happens to hold is not a workspace grant
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 10313, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6741, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'the line writer for attempt' not found in 'this manager has no configured workspace group; the deployment provisions one dedicated non-authority group and records it before any execution workspace is allocated, and a group inferred from what the manager happens to hold is not a workspace grant' : refused, but not at 'the line writer for attempt': this manager has no configured workspace group; the deployment provisions one dedicated non-authority group and records it before any execution workspace is allocated, and a group inferred from what the manager happens to hold is not a workspace grant
+=== FAILURE: tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary (entry=('adopted', 'review_cycles.py:_one_by_attempt', 'line_writers.state'), label='the line writer for attempt') ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6735, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 8692, in run
+    review_cycles.grant_writer(self.store, line_id="line-probe", attempt_id="writer-attempt", generation=1,
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                               worker_id="new-worker", profile=self.review_profile(), based_checkpoint_id="checkpoint-probe")
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 1886, in grant_writer
+    proved = _proved_line_object(store, line)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 1385, in _proved_line_object
+    workspaces.configured_workspace_group(store).gid)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 761, in configured_workspace_group
+    _denied("this manager has no configured workspace group; the "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "deployment provisions one dedicated non-authority group and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "records it before any execution workspace is allocated, and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "a group inferred from what the manager happens to hold is "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "not a workspace grant")
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5094, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: this manager has no configured workspace group; the deployment provisions one dedicated non-authority group and records it before any execution workspace is allocated, and a group inferred from what the manager happens to hold is not a workspace grant
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 10313, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6741, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'the line writer for attempt' not found in 'this manager has no configured workspace group; the deployment provisions one dedicated non-authority group and records it before any execution workspace is allocated, and a group inferred from what the manager happens to hold is not a workspace grant' : refused, but not at 'the line writer for attempt': this manager has no configured workspace group; the deployment provisions one dedicated non-authority group and records it before any execution workspace is allocated, and a group inferred from what the manager happens to hold is not a workspace grant
+=== FAILURE: tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary (entry=('adopted', 'review_cycles.py:_one_by_attempt', 'line_writers.worker_id'), label='the line writer for attempt') ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6735, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 8692, in run
+    review_cycles.grant_writer(self.store, line_id="line-probe", attempt_id="writer-attempt", generation=1,
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                               worker_id="new-worker", profile=self.review_profile(), based_checkpoint_id="checkpoint-probe")
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 1886, in grant_writer
+    proved = _proved_line_object(store, line)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 1385, in _proved_line_object
+    workspaces.configured_workspace_group(store).gid)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 761, in configured_workspace_group
+    _denied("this manager has no configured workspace group; the "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "deployment provisions one dedicated non-authority group and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "records it before any execution workspace is allocated, and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "a group inferred from what the manager happens to hold is "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "not a workspace grant")
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5094, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: this manager has no configured workspace group; the deployment provisions one dedicated non-authority group and records it before any execution workspace is allocated, and a group inferred from what the manager happens to hold is not a workspace grant
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 10313, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6741, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'the line writer for attempt' not found in 'this manager has no configured workspace group; the deployment provisions one dedicated non-authority group and records it before any execution workspace is allocated, and a group inferred from what the manager happens to hold is not a workspace grant' : refused, but not at 'the line writer for attempt': this manager has no configured workspace group; the deployment provisions one dedicated non-authority group and records it before any execution workspace is allocated, and a group inferred from what the manager happens to hold is not a workspace grant
+=== FAILURE: tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary (entry=('adopted', 'review_cycles.py:_one_by_attempt', 'line_writers.writer_id'), label='the line writer for attempt') ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6735, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 8692, in run
+    review_cycles.grant_writer(self.store, line_id="line-probe", attempt_id="writer-attempt", generation=1,
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                               worker_id="new-worker", profile=self.review_profile(), based_checkpoint_id="checkpoint-probe")
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 1886, in grant_writer
+    proved = _proved_line_object(store, line)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 1385, in _proved_line_object
+    workspaces.configured_workspace_group(store).gid)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 761, in configured_workspace_group
+    _denied("this manager has no configured workspace group; the "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "deployment provisions one dedicated non-authority group and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "records it before any execution workspace is allocated, and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "a group inferred from what the manager happens to hold is "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "not a workspace grant")
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5094, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: this manager has no configured workspace group; the deployment provisions one dedicated non-authority group and records it before any execution workspace is allocated, and a group inferred from what the manager happens to hold is not a workspace grant
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 10313, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6741, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'the line writer for attempt' not found in 'this manager has no configured workspace group; the deployment provisions one dedicated non-authority group and records it before any execution workspace is allocated, and a group inferred from what the manager happens to hold is not a workspace grant' : refused, but not at 'the line writer for attempt': this manager has no configured workspace group; the deployment provisions one dedicated non-authority group and records it before any execution workspace is allocated, and a group inferred from what the manager happens to hold is not a workspace grant
+=== FAILURE: tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary (entry=('adopted', 'review_cycles.py:_one_by_attempt', 'review_attachments'), label='the review attachment for attempt') ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6735, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 8702, in run
+    review_cycles.attach_review(self.store, checkpoint_id="checkpoint-probe", attempt_id="review-probe", generation=2,
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                reviewer_worker_id="review-worker-2", profile=self.review_profile())
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 2381, in attach_review
+    raise ContractRefusal("refused", "precondition",
+                          "review attaches only to the current review-ready checkpoint")
+baton_v12.contracts.errors.ContractRefusal: review attaches only to the current review-ready checkpoint
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 10313, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6741, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'the review attachment for attempt' not found in 'review attaches only to the current review-ready checkpoint' : refused, but not at 'the review attachment for attempt': review attaches only to the current review-ready checkpoint
+=== FAILURE: tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary (entry=('adopted', 'review_cycles.py:_one_by_attempt', 'review_attachments.attachment_id'), label='the review attachment for attempt') ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6735, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 8702, in run
+    review_cycles.attach_review(self.store, checkpoint_id="checkpoint-probe", attempt_id="review-probe", generation=2,
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                reviewer_worker_id="review-worker-2", profile=self.review_profile())
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 2381, in attach_review
+    raise ContractRefusal("refused", "precondition",
+                          "review attaches only to the current review-ready checkpoint")
+baton_v12.contracts.errors.ContractRefusal: review attaches only to the current review-ready checkpoint
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 10313, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6741, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'the review attachment for attempt' not found in 'review attaches only to the current review-ready checkpoint' : refused, but not at 'the review attachment for attempt': review attaches only to the current review-ready checkpoint
+=== FAILURE: tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary (entry=('adopted', 'review_cycles.py:_one_by_attempt', 'review_attachments.checkpoint_id'), label='the review attachment for attempt') ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6735, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 8702, in run
+    review_cycles.attach_review(self.store, checkpoint_id="checkpoint-probe", attempt_id="review-probe", generation=2,
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                reviewer_worker_id="review-worker-2", profile=self.review_profile())
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 2381, in attach_review
+    raise ContractRefusal("refused", "precondition",
+                          "review attaches only to the current review-ready checkpoint")
+baton_v12.contracts.errors.ContractRefusal: review attaches only to the current review-ready checkpoint
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 10313, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6741, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'the review attachment for attempt' not found in 'review attaches only to the current review-ready checkpoint' : refused, but not at 'the review attachment for attempt': review attaches only to the current review-ready checkpoint
+=== FAILURE: tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary (entry=('adopted', 'review_cycles.py:_one_by_attempt', 'review_attachments.line_id'), label='the review attachment for attempt') ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6735, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 8702, in run
+    review_cycles.attach_review(self.store, checkpoint_id="checkpoint-probe", attempt_id="review-probe", generation=2,
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                reviewer_worker_id="review-worker-2", profile=self.review_profile())
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 2381, in attach_review
+    raise ContractRefusal("refused", "precondition",
+                          "review attaches only to the current review-ready checkpoint")
+baton_v12.contracts.errors.ContractRefusal: review attaches only to the current review-ready checkpoint
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 10313, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6741, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'the review attachment for attempt' not found in 'review attaches only to the current review-ready checkpoint' : refused, but not at 'the review attachment for attempt': review attaches only to the current review-ready checkpoint
+=== FAILURE: tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary (entry=('adopted', 'review_cycles.py:_one_by_attempt', 'review_attachments.reviewer_participant'), label='the review attachment for attempt') ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6735, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 8702, in run
+    review_cycles.attach_review(self.store, checkpoint_id="checkpoint-probe", attempt_id="review-probe", generation=2,
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                reviewer_worker_id="review-worker-2", profile=self.review_profile())
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 2381, in attach_review
+    raise ContractRefusal("refused", "precondition",
+                          "review attaches only to the current review-ready checkpoint")
+baton_v12.contracts.errors.ContractRefusal: review attaches only to the current review-ready checkpoint
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 10313, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6741, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'the review attachment for attempt' not found in 'review attaches only to the current review-ready checkpoint' : refused, but not at 'the review attachment for attempt': review attaches only to the current review-ready checkpoint
+=== FAILURE: tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary (entry=('adopted', 'review_cycles.py:_one_by_attempt', 'review_attachments.reviewer_principal'), label='the review attachment for attempt') ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6735, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 8702, in run
+    review_cycles.attach_review(self.store, checkpoint_id="checkpoint-probe", attempt_id="review-probe", generation=2,
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                reviewer_worker_id="review-worker-2", profile=self.review_profile())
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 2381, in attach_review
+    raise ContractRefusal("refused", "precondition",
+                          "review attaches only to the current review-ready checkpoint")
+baton_v12.contracts.errors.ContractRefusal: review attaches only to the current review-ready checkpoint
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 10313, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6741, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'the review attachment for attempt' not found in 'review attaches only to the current review-ready checkpoint' : refused, but not at 'the review attachment for attempt': review attaches only to the current review-ready checkpoint
+=== FAILURE: tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 10277, in test_every_owned_entry_has_exactly_one_probe
+    self.assertEqual({"owned, never probed": sorted(_unprobed(wanted, declared)),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      "probed, never owned": sorted(_unowned_probes(wanted, declared))},
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     {"owned, never probed": [], "probed, never owned": []})
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'own[15 chars]d': [(('adopted', 'attempts.py:_committed_reco[26990 chars]t')]} != {'own[15 chars]d': [], 'probed, never owned': []}
+Diff is 54081 characters long. Set self.maxDiff to None to see it.
+=== FAILURE: tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_missing_probe_check_can_actually_fail ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 10342, in test_the_missing_probe_check_can_actually_fail
+    self.assertEqual(sorted(_unprobed(wanted, declared)), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [(('adopted', 'attempts.py:_committed_reco[26895 chars]on")] != []
+
+First list contains 239 additional elements.
+First extra element 0:
+(('adopted', 'attempts.py:_committed_record', 'replay.runtime_id'), 'a committed ending record')
+
++ []
+- [(('adopted', 'attempts.py:_committed_record', 'replay.runtime_id'),
+-   'a committed ending record'),
+-  (('adopted', 'custody.py:historical_directory_custody', 'replay'),
+-   'a historical directory custody receipt'),
+-  (('adopted', 'custody.py:historical_directory_custody', 'replay.account'),
+-   'a historical directory custody receipt'),
+-  (('adopted', 'custody.py:historical_directory_custody', 'replay.attempt_id'),
+-   'a historical directory custody receipt'),
+-  (('adopted', 'custody.py:historical_directory_custody', 'replay.operation'),
+-   'a historical directory custody receipt'),
+-  (('adopted', 'custody.py:historical_directory_custody', 'replay.root'),
+-   'a historical directory custody receipt'),
+-  (('adopted', 'custody.py:historical_directory_custody', 'replay.verb'),
+-   'a historical directory custody receipt'),
+-  (('adopted', 'deadlines.py:_pin_of', 'replay'), 'a pinned runtime deadline'),
+-  (('adopted', 'deadlines.py:_pin_of', 'replay.policy'),
+-   'a runtime deadline policy'),
+-  (('adopted', 'deadlines.py:_pin_of', 'replay.policy.action'),
+-   'a pinned runtime deadline'),
+-  (('adopted', 'deadlines.py:_pin_of', 'replay.policy.action'),
+-   'a runtime deadline policy'),
+-  (('adopted', 'deadlines.py:_pin_of', 'replay.policy.duration_seconds'),
+-   'a pinned runtime deadline'),
+-  (('adopted', 'deadlines.py:_pin_of', 'replay.policy.policy_digest'),
+-   'a runtime deadline policy digest'),
+-  (('adopted', 'deadlines.py:_pin_of', 'replay.policy.policy_generation'),
+-   'a pinned runtime deadline'),
+-  (('adopted', 'deadlines.py:_pin_of', 'replay.policy.policy_generation'),
+-   'a runtime deadline policy'),
+-  (('adopted', 'deadlines.py:_record', 'replay'),
+-   'a committed runtime deadline document'),
+-  (('adopted', 'deadlines.py:_record', 'replay.assignment'),
+-   'a committed runtime deadline document'),
+-  (('adopted', 'deadlines.py:_record', 'replay.attempt_id'),
+-   'a committed runtime deadline document'),
+-  (('adopted', 'deadlines.py:_record', 'replay.authority_receipt'),
+-   'a committed runtime deadline document'),
+-  (('adopted', 'deadlines.py:_record', 'replay.cleanup'),
+-   'a committed runtime deadline document'),
+-  (('adopted', 'deadlines.py:_record', 'replay.command'),
+-   'a committed runtime deadline document'),
+-  (('adopted', 'deadlines.py:_record', 'replay.command.assignment_ref'),
+-   'a committed runtime deadline document'),
+-  (('adopted', 'deadlines.py:_record', 'replay.command.assignment_ref.work_ref'),
+-   'a committed runtime deadline document'),
+-  (('adopted',
+-    'deadlines.py:_record',
+-    'replay.command.assignment_ref.work_ref.work_id'),
+-   'a committed runtime deadline document'),
+-  (('adopted', 'deadlines.py:_record', 'replay.command.runtime_id'),
+-   'a committed runtime deadline document'),
+-  (('adopted', 'deadlines.py:_record', 'replay.deadline_at'),
+-   'a committed runtime deadline document'),
+-  (('adopted', 'deadlines.py:_record', 'replay.fence'),
+-   'a committed runtime deadline document'),
+-  (('adopted', 'deadlines.py:_record', 'replay.observed'),
+-   'a committed runtime deadline document'),
+-  (('adopted', 'deadlines.py:_record', 'replay.observed.credentials'),
+-   'a committed runtime deadline document'),
+-  (('adopted', 'deadlines.py:_record', 'replay.observed.launch'),
+-   'a committed runtime deadline document'),
+-  (('adopted', 'deadlines.py:_record', 'replay.observed.runtime_id'),
+-   'a committed runtime deadline document'),
+-  (('adopted', 'deadlines.py:_record', 'replay.observed.state'),
+-   'a committed runtime deadline document'),
+-  (('adopted', 'deadlines.py:_record', 'replay.observed.why'),
+-   'a committed runtime deadline document'),
+-  (('adopted', 'deadlines.py:_record', 'replay.observed_at'),
+-   'a committed runtime deadline document'),
+-  (('adopted', 'deadlines.py:_record', 'replay.policy'),
+-   'a committed runtime deadline document'),
+-  (('adopted', 'deadlines.py:_record', 'replay.started_at'),
+-   'a committed runtime deadline document'),
+-  (('adopted', 'failure_cause.py:_committed', 'replay'),
+-   'a committed cessation record'),
+-  (('adopted', 'failure_cause.py:_committed', 'replay.runtime_id'),
+-   'a committed cessation record'),
+-  (('adopted', 'failure_cause.py:_committed', 'replay.supersedes'),
+-   'a committed cessation record'),
+-  (('adopted', 'intake.py:_abandon_intent', 'replay'),
+-   'a committed abandonment record'),
+-  (('adopted', 'intake.py:_abandonment_declaration', 'replay'),
+-   "attempt {name_value(attempt_id)}'s committed abandonment"),
+-  (('adopted',
+-    'intake.py:_abandonment_declaration',
+-    'replay.authority_operation_id'),
+-   "{what}'s authority operation identity"),
+-  (('adopted', 'intake.py:_abandonment_declaration', 'replay.reason'),
+-   "{what}'s reason"),
+-  (('adopted', 'intake.py:_committed', 'replay'),
+-   "attempt {name_value(attempt_id)}'s committed abandoned cleanup"),
+-  (('adopted', 'intake.py:_committed', 'replay'),
+-   "attempt {name_value(attempt_id)}'s committed cleanup"),
+-  (('adopted', 'intake.py:_committed', 'replay.artifact_ids'),
+-   "attempt {name_value(attempt_id)}'s committed abandoned cleanup"),
+-  (('adopted', 'intake.py:_committed', 'replay.artifact_ids'),
+-   "attempt {name_value(attempt_id)}'s committed cleanup"),
+-  (('adopted', 'intake.py:_committed', 'replay.attempt_id'),
+-   "attempt {name_value(attempt_id)}'s committed abandoned cleanup"),
+-  (('adopted', 'intake.py:_committed', 'replay.attempt_id'),
+-   "attempt {name_value(attempt_id)}'s committed cleanup"),
+-  (('adopted', 'intake.py:_committed', 'replay.cleanup'),
+-   "{what}'s committed cleanup"),
+-  (('adopted', 'intake.py:_committed', 'replay.cleanup.attempt_id'),
+-   "attempt {name_value(attempt_id)}'s committed abandoned cleanup"),
+-  (('adopted', 'intake.py:_committed', 'replay.cleanup.attempt_id'),
+-   "attempt {name_value(attempt_id)}'s committed cleanup"),
+-  (('adopted', 'intake.py:_committed', 'replay.cleanup.attempt_id'),
+-   "{what}'s committed cleanup"),
+-  (('adopted', 'intake.py:_committed', 'replay.cleanup.cleanup'),
+-   "attempt {name_value(attempt_id)}'s committed abandoned cleanup"),
+-  (('adopted', 'intake.py:_committed', 'replay.cleanup.cleanup'),
+-   "attempt {name_value(attempt_id)}'s committed cleanup"),
+-  (('adopted', 'intake.py:_committed', 'replay.cleanup.cleanup'),
+-   "{what}'s committed cleanup"),
+-  (('adopted', 'intake.py:_committed', 'replay.cleanup.directory_custody'),
+-   "{what}'s directory custody"),
+-  (('adopted', 'intake.py:_committed', 'replay.cleanup.kept'),
+-   "attempt {name_value(attempt_id)}'s committed abandoned cleanup"),
+-  (('adopted', 'intake.py:_committed', 'replay.cleanup.kept'),
+-   "attempt {name_value(attempt_id)}'s committed cleanup"),
+-  (('adopted', 'intake.py:_committed', 'replay.cleanup.kept'),
+-   "{what}'s committed cleanup"),
+-  (('adopted', 'intake.py:_committed', 'replay.cleanup.operation'),
+-   "{what}'s cleanup operation"),
+-  (('adopted', 'intake.py:_committed', 'replay.cleanup.operation.operation_id'),
+-   "attempt {name_value(attempt_id)}'s committed abandoned cleanup"),
+-  (('adopted', 'intake.py:_committed', 'replay.cleanup.operation.operation_id'),
+-   "attempt {name_value(attempt_id)}'s committed cleanup"),
+-  (('adopted', 'intake.py:_committed', 'replay.cleanup.operation.operation_id'),
+-   "{what}'s cleanup operation"),
+-  (('adopted', 'intake.py:_committed', 'replay.cleanup.operation.operation_id'),
+-   "{what}'s committed cleanup"),
+-  (('adopted',
+-    'intake.py:_committed',
+-    'replay.cleanup.operation.signature_digest'),
+-   "attempt {name_value(attempt_id)}'s committed abandoned cleanup"),
+-  (('adopted',
+-    'intake.py:_committed',
+-    'replay.cleanup.operation.signature_digest'),
+-   "attempt {name_value(attempt_id)}'s committed cleanup"),
+-  (('adopted',
+-    'intake.py:_committed',
+-    'replay.cleanup.operation.signature_digest'),
+-   "{what}'s cleanup operation"),
+-  (('adopted',
+-    'intake.py:_committed',
+-    'replay.cleanup.operation.signature_digest'),
+-   "{what}'s committed cleanup"),
+-  (('adopted', 'intake.py:_committed', 'replay.cleanup.state'),
+-   "attempt {name_value(attempt_id)}'s committed abandoned cleanup"),
+-  (('adopted', 'intake.py:_committed', 'replay.cleanup.state'),
+-   "attempt {name_value(attempt_id)}'s committed cleanup"),
+-  (('adopted', 'intake.py:_committed', 'replay.cleanup.state'),
+-   "{what}'s committed cleanup"),
+-  (('adopted', 'intake.py:_committed', 'replay.cleanup.why'),
+-   "{what}'s account"),
+-  (('adopted', 'intake.py:_committed', 'replay.directory_custody'),
+-   "{what}'s directory custody"),
+-  (('adopted', 'intake.py:_committed', 'replay.disposition'),
+-   "attempt {name_value(attempt_id)}'s committed abandoned cleanup"),
+-  (('adopted', 'intake.py:_committed', 'replay.disposition'),
+-   "attempt {name_value(attempt_id)}'s committed cleanup"),
+-  (('adopted', 'intake.py:_committed', 'replay.fenced'),
+-   "{what}'s committed fence"),
+-  (('adopted', 'intake.py:_committed', 'replay.fenced.assignment'),
+-   "attempt {name_value(attempt_id)}'s committed abandoned cleanup"),
+-  (('adopted', 'intake.py:_committed', 'replay.fenced.assignment'),
+-   "attempt {name_value(attempt_id)}'s committed cleanup"),
+-  (('adopted', 'intake.py:_committed', 'replay.fenced.assignment'),
+-   "{what}'s committed fence"),
+-  (('adopted', 'intake.py:_committed', 'replay.fenced.fenced'),
+-   "attempt {name_value(attempt_id)}'s committed abandoned cleanup"),
+-  (('adopted', 'intake.py:_committed', 'replay.fenced.fenced'),
+-   "attempt {name_value(attempt_id)}'s committed cleanup"),
+-  (('adopted', 'intake.py:_committed', 'replay.fenced.fenced'),
+-   "{what}'s committed fence"),
+-  (('adopted', 'intake.py:_committed', 'replay.fenced.gate'),
+-   "attempt {name_value(attempt_id)}'s committed abandoned cleanup"),
+-  (('adopted', 'intake.py:_committed', 'replay.fenced.gate'),
+-   "attempt {name_value(attempt_id)}'s committed cleanup"),
+-  (('adopted', 'intake.py:_committed', 'replay.fenced.gate'),
+-   "{what}'s committed fence"),
+-  (('adopted', 'intake.py:_committed', 'replay.intent'),
+-   "attempt {name_value(attempt_id)}'s committed abandoned cleanup"),
+-  (('adopted', 'intake.py:_committed', 'replay.intent'),
+-   "attempt {name_value(attempt_id)}'s committed cleanup"),
+-  (('adopted', 'intake.py:_committed', 'replay.kept'),
+-   "attempt {name_value(attempt_id)}'s committed abandoned cleanup"),
+-  (('adopted', 'intake.py:_committed', 'replay.kept'),
+-   "attempt {name_value(attempt_id)}'s committed cleanup"),
+-  (('adopted', 'intake.py:_committed', 'replay.operation'),
+-   "a cleanup's operation"),
+-  (('adopted', 'intake.py:_committed', 'replay.operation'),
+-   "attempt {name_value(attempt_id)}'s committed cleanup operation"),
+-  (('adopted', 'intake.py:_committed', 'replay.operation'),
+-   "{what}'s operation"),
+-  (('adopted', 'intake.py:_committed', 'replay.operation.operation_id'),
+-   "a cleanup's operation"),
+-  (('adopted', 'intake.py:_committed', 'replay.operation.operation_id'),
+-   "attempt {name_value(attempt_id)}'s committed abandoned cleanup"),
+-  (('adopted', 'intake.py:_committed', 'replay.operation.operation_id'),
+-   "attempt {name_value(attempt_id)}'s committed cleanup"),
+-  (('adopted', 'intake.py:_committed', 'replay.operation.operation_id'),
+-   "attempt {name_value(attempt_id)}'s committed cleanup operation"),
+-  (('adopted', 'intake.py:_committed', 'replay.operation.operation_id'),
+-   "{what}'s operation"),
+-  (('adopted', 'intake.py:_committed', 'replay.operation.signature_digest'),
+-   "a cleanup's operation"),
+-  (('adopted', 'intake.py:_committed', 'replay.operation.signature_digest'),
+-   "attempt {name_value(attempt_id)}'s committed abandoned cleanup"),
+-  (('adopted', 'intake.py:_committed', 'replay.operation.signature_digest'),
+-   "attempt {name_value(attempt_id)}'s committed cleanup"),
+-  (('adopted', 'intake.py:_committed', 'replay.operation.signature_digest'),
+-   "attempt {name_value(attempt_id)}'s committed cleanup operation"),
+-  (('adopted', 'intake.py:_committed', 'replay.operation.signature_digest'),
+-   "{what}'s operation"),
+-  (('adopted', 'intake.py:_committed', 'replay.receipt_digest'),
+-   "attempt {name_value(attempt_id)}'s committed abandoned cleanup"),
+-  (('adopted', 'intake.py:_committed', 'replay.receipt_digest'),
+-   "attempt {name_value(attempt_id)}'s committed cleanup"),
+-  (('adopted', 'intake.py:_committed', 'replay.retention_policy_digest'),
+-   "attempt {name_value(attempt_id)}'s committed abandoned cleanup"),
+-  (('adopted', 'intake.py:_committed', 'replay.retention_policy_digest'),
+-   "attempt {name_value(attempt_id)}'s committed cleanup"),
+-  (('adopted', 'intake.py:_committed', 'replay.state'),
+-   "{what}'s observed runtime state"),
+-  (('adopted', 'intake.py:_committed', 'replay.why'), "{what}'s account"),
+-  (('adopted', 'intake.py:_failed_start_record', 'replay'),
+-   'a committed failed-start record'),
+-  (('adopted', 'intake.py:_refused_session_record', 'replay'),
+-   'a committed refusal record'),
+-  (('adopted',
+-    'intake.py:_refused_session_record',
+-    'replay.agent_protocol_version'),
+-   'a committed refusal record'),
+-  (('adopted',
+-    'intake.py:_refused_session_record',
+-    'replay.pinned_wire_version'),
+-   'a committed refusal record'),
+-  (('adopted', 'intake.py:_refused_session_record', 'replay.profile_digest'),
+-   'a committed refusal record'),
+-  (('adopted', 'intake.py:abandon_attempt', 'replay'), "a cleanup's operation"),
+-  (('adopted', 'intake.py:abandon_attempt', 'replay.cleanup'),
+-   "a cleanup's operation"),
+-  (('adopted', 'intake.py:abandon_attempt', 'replay.cleanup.operation'),
+-   "a cleanup's operation"),
+-  (('adopted', 'intake.py:authorize_cleanup', 'replay'),
+-   "a cleanup's operation"),
+-  (('adopted', 'intake.py:authorize_cleanup', 'replay.operation'),
+-   "a cleanup's operation"),
+-  (('adopted', 'intake.py:retentions_of', 'retentions.retain_operation_id'),
+-   'a persisted retention'),
+-  (('adopted', 'provider_context.py:admit_context_use', 'replay'),
+-   'provider context metadata'),
+-  (('adopted', 'provider_context.py:admit_context_use', 'replay.context_id'),
+-   'provider context metadata'),
+-  (('adopted', 'provider_context.py:admit_context_use', 'replay.payload'),
+-   'provider context metadata'),
+-  (('adopted',
+-    'provider_context.py:admit_context_use',
+-    'replay.payload.assignment'),
+-   'provider context metadata'),
+-  (('adopted',
+-    'provider_context.py:admit_context_use',
+-    'replay.payload.assignment.runtime_attempt_id'),
+-   'provider context metadata'),
+-  (('adopted',
+-    'provider_context.py:admit_context_use',
+-    'replay.payload.attempt_id'),
+-   'provider context identity'),
+-  (('adopted',
+-    'provider_context.py:admit_context_use',
+-    'replay.payload.checkpoint_digest'),
+-   'provider context metadata'),
+-  (('adopted',
+-    'provider_context.py:admit_context_use',
+-    'replay.payload.checkpoint_id'),
+-   'provider context identity'),
+-  (('adopted',
+-    'provider_context.py:admit_context_use',
+-    'replay.payload.conversation_id'),
+-   'provider context metadata'),
+-  (('adopted',
+-    'provider_context.py:admit_context_use',
+-    'replay.payload.delivery_digest'),
+-   'provider context metadata'),
+-  (('adopted',
+-    'provider_context.py:admit_context_use',
+-    'replay.payload.episode'),
+-   'provider context metadata'),
+-  (('adopted',
+-    'provider_context.py:admit_context_use',
+-    'replay.payload.evidence_refs'),
+-   'provider context metadata'),
+-  (('adopted',
+-    'provider_context.py:admit_context_use',
+-    'replay.payload.exclusion_digest'),
+-   'provider context metadata'),
+-  (('adopted',
+-    'provider_context.py:admit_context_use',
+-    'replay.payload.generation'),
+-   'provider context metadata'),
+-  (('adopted',
+-    'provider_context.py:admit_context_use',
+-    'replay.payload.generation_pins'),
+-   'provider context metadata'),
+-  (('adopted',
+-    'provider_context.py:admit_context_use',
+-    'replay.payload.identity'),
+-   'provider context metadata'),
+-  (('adopted',
+-    'provider_context.py:admit_context_use',
+-    'replay.payload.identity.purpose'),
+-   'provider context metadata'),
+-  (('adopted',
+-    'provider_context.py:admit_context_use',
+-    'replay.payload.input_digest'),
+-   'provider context metadata'),
+-  (('adopted',
+-    'provider_context.py:admit_context_use',
+-    'replay.payload.job_digest'),
+-   'provider context metadata'),
+-  (('adopted',
+-    'provider_context.py:admit_context_use',
+-    'replay.payload.limits_digest'),
+-   'provider context metadata'),
+-  (('adopted',
+-    'provider_context.py:admit_context_use',
+-    'replay.payload.manifest_digest'),
+-   'provider context metadata'),
+-  (('adopted', 'provider_context.py:admit_context_use', 'replay.payload.pins'),
+-   'provider context metadata'),
+-  (('adopted',
+-    'provider_context.py:admit_context_use',
+-    'replay.payload.policy_digest'),
+-   'provider context metadata'),
+-  (('adopted',
+-    'provider_context.py:admit_context_use',
+-    'replay.payload.predecessor'),
+-   'provider context metadata'),
+-  (('adopted',
+-    'provider_context.py:admit_context_use',
+-    'replay.payload.profile_digest'),
+-   'provider context metadata'),
+-  (('adopted',
+-    'provider_context.py:admit_context_use',
+-    'replay.payload.qualification_run'),
+-   'provider context identity'),
+-  (('adopted', 'provider_context.py:admit_context_use', 'replay.payload.reason'),
+-   'provider context metadata'),
+-  (('adopted',
+-    'provider_context.py:admit_context_use',
+-    'replay.payload.receipt_digest'),
+-   'provider context metadata'),
+-  (('adopted',
+-    'provider_context.py:admit_context_use',
+-    'replay.payload.repo_pin'),
+-   'provider context metadata'),
+-  (('adopted',
+-    'provider_context.py:admit_context_use',
+-    'replay.payload.source_pin'),
+-   'provider context metadata'),
+-  (('adopted',
+-    'provider_context.py:admit_context_use',
+-    'replay.payload.stage_id'),
+-   'provider context identity'),
+-  (('adopted',
+-    'provider_context.py:admit_context_use',
+-    'replay.payload.writer_id'),
+-   'provider context identity'),
+-  (('adopted', 'provider_context.py:admit_context_use', 'replay.revision'),
+-   'provider context metadata'),
+-  (('adopted', 'provider_context.py:admit_context_use', 'replay.use_id'),
+-   'provider context metadata'),
+-  (('adopted', 'review_cycles.py:_cleaned_review', 'replay'),
+-   'a historical review cleanup'),
+-  (('adopted', 'review_cycles.py:_cleaned_review', 'replay.attempt_id'),
+-   'a historical review cleanup'),
+-  (('adopted', 'review_cycles.py:_cleaned_review', 'replay.cleanup'),
+-   'a historical review cleanup'),
+-  (('adopted', 'review_cycles.py:_cleaned_review', 'replay.directory_custody'),
+-   'a historical review cleanup'),
+-  (('adopted', 'review_cycles.py:_cleaned_review', 'replay.kept'),
+-   'a historical review cleanup'),
+-  (('adopted', 'review_cycles.py:_cleaned_review', 'replay.operation'),
+-   'a historical review cleanup'),
+-  (('adopted', 'review_cycles.py:_cleaned_review', 'replay.state'),
+-   'a historical review cleanup'),
+-  (('adopted', 'review_cycles.py:_fixed_intent', 'replay'),
+-   "{what}'s recovery intent"),
+-  (('adopted', 'review_cycles.py:_fixed_intent', 'replay.assignment'),
+-   "{what}'s intent assignment"),
+-  (('adopted', 'review_cycles.py:_fixed_intent', 'replay.assignment.generation'),
+-   "{what}'s intent generation"),
+-  (('adopted', 'review_cycles.py:_fixed_intent', 'replay.assignment.work_ref'),
+-   "{what}'s intent Work reference"),
+-  (('adopted', 'review_cycles.py:_fixed_intent', 'replay.attempt_id'),
+-   "{what}'s intent attempt_id"),
+-  (('adopted', 'review_cycles.py:_fixed_intent', 'replay.checkpoint_digest'),
+-   "{what}'s intent checkpoint digest"),
+-  (('adopted', 'review_cycles.py:_fixed_intent', 'replay.checkpoint_id'),
+-   "{what}'s intent checkpoint_id"),
+-  (('adopted', 'review_cycles.py:_fixed_intent', 'replay.cleanup_operation'),
+-   "{what}'s intent cleanup operation"),
+-  (('adopted',
+-    'review_cycles.py:_fixed_intent',
+-    'replay.discharge_operation_id'),
+-   "{what}'s intent discharge_operation_id"),
+-  (('adopted', 'review_cycles.py:_fixed_intent', 'replay.executor_incarnation'),
+-   "{what}'s recovery intent"),
+-  (('adopted', 'review_cycles.py:_fixed_intent', 'replay.line_id'),
+-   "{what}'s intent line_id"),
+-  (('adopted',
+-    'review_cycles.py:_fixed_intent',
+-    'replay.retention_policy_digest'),
+-   "{what}'s intent retention policy digest"),
+-  (('adopted', 'review_cycles.py:_fixed_intent', 'replay.runtime_id'),
+-   "{what}'s intent runtime_id"),
+-  (('adopted', 'review_cycles.py:_fixed_intent', 'replay.schema'),
+-   "{what}'s recovery intent"),
+-  (('adopted', 'review_cycles.py:_fixed_intent', 'replay.writer_id'),
+-   "{what}'s intent writer_id"),
+-  (('adopted',
+-    'review_cycles.py:_verdict_row',
+-    'checkpoint_verdicts.review_fence.intent'),
+-   'a persisted checkpoint verdict'),
+-  (('adopted',
+-    'review_cycles.py:_verdict_row',
+-    'checkpoint_verdicts.review_result.artifacts'),
+-   'a persisted checkpoint verdict'),
+-  (('adopted',
+-    'review_cycles.py:_verdict_row',
+-    'checkpoint_verdicts.review_result.artifacts.artifact_id'),
+-   'a persisted checkpoint verdict'),
+-  (('adopted',
+-    'review_cycles.py:_verdict_row',
+-    'checkpoint_verdicts.review_result.artifacts.locator'),
+-   'a persisted checkpoint verdict'),
+-  (('adopted',
+-    'review_cycles.py:_verdict_row',
+-    'checkpoint_verdicts.review_result.artifacts.output_name'),
+-   'a persisted checkpoint verdict'),
+-  (('adopted',
+-    'review_cycles.py:_verdict_row',
+-    'checkpoint_verdicts.review_result.manifest_digest'),
+-   'a persisted checkpoint verdict'),
+-  (('adopted', 'review_cycles.py:abandoned_correction_of', 'replay'),
+-   'the abandoned-correction recovery for attempt {name_value(attempt_id)} '
+-   'generation {generation}'),
+-  (('adopted', 'review_cycles.py:abandoned_correction_of', 'replay.assignment'),
+-   "{what}'s assignment"),
+-  (('adopted',
+-    'review_cycles.py:abandoned_correction_of',
+-    'replay.assignment.generation'),
+-   "{what}'s generation"),
+-  (('adopted',
+-    'review_cycles.py:abandoned_correction_of',
+-    'replay.assignment.work_ref'),
+-   "{what}'s Work reference"),
+-  (('adopted', 'review_cycles.py:abandoned_correction_of', 'replay.attempt_id'),
+-   "{what}'s attempt_id"),
+-  (('adopted',
+-    'review_cycles.py:abandoned_correction_of',
+-    'replay.checkpoint_evidence'),
+-   'persisted checkpoint evidence'),
+-  (('adopted',
+-    'review_cycles.py:abandoned_correction_of',
+-    'replay.checkpoint_evidence.base'),
+-   "persisted checkpoint evidence's base"),
+-  (('adopted',
+-    'review_cycles.py:abandoned_correction_of',
+-    'replay.checkpoint_evidence.head'),
+-   "persisted checkpoint evidence's head"),
+-  (('adopted',
+-    'review_cycles.py:abandoned_correction_of',
+-    'replay.checkpoint_evidence.path_set_digest'),
+-   "persisted checkpoint evidence's path_set_digest"),
+-  (('adopted',
+-    'review_cycles.py:abandoned_correction_of',
+-    'replay.checkpoint_evidence.paths'),
+-   'a persisted checkpoint evidence path'),
+-  (('adopted',
+-    'review_cycles.py:abandoned_correction_of',
+-    'replay.checkpoint_evidence.profile'),
+-   "persisted checkpoint evidence's profile"),
+-  (('adopted',
+-    'review_cycles.py:abandoned_correction_of',
+-    'replay.checkpoint_evidence.reference'),
+-   "persisted checkpoint evidence's reference"),
+-  (('adopted',
+-    'review_cycles.py:abandoned_correction_of',
+-    'replay.checkpoint_evidence.tree'),
+-   "persisted checkpoint evidence's tree"),
+-  (('adopted',
+-    'review_cycles.py:abandoned_correction_of',
+-    'replay.checkpoint_id'),
+-   "{what}'s checkpoint_id"),
+-  (('adopted',
+-    'review_cycles.py:abandoned_correction_of',
+-    'replay.cleanup_operation'),
+-   "{what}'s cleanup operation"),
+-  (('adopted',
+-    'review_cycles.py:abandoned_correction_of',
+-    'replay.cleanup_operation.operation_id'),
+-   'the abandoned-correction recovery for attempt {name_value(attempt_id)} '
+-   'generation {generation}'),
+-  (('adopted',
+-    'review_cycles.py:abandoned_correction_of',
+-    'replay.cleanup_operation.operation_id'),
+-   "{what}'s cleanup operation"),
+-  (('adopted',
+-    'review_cycles.py:abandoned_correction_of',
+-    'replay.cleanup_operation.signature_digest'),
+-   'the abandoned-correction recovery for attempt {name_value(attempt_id)} '
+-   'generation {generation}'),
+-  (('adopted',
+-    'review_cycles.py:abandoned_correction_of',
+-    'replay.cleanup_operation.signature_digest'),
+-   "{what}'s cleanup operation"),
+-  (('adopted',
+-    'review_cycles.py:abandoned_correction_of',
+-    'replay.discharge_operation_id'),
+-   "{what}'s discharge_operation_id"),
+-  (('adopted', 'review_cycles.py:abandoned_correction_of', 'replay.line_id'),
+-   "{what}'s line_id"),
+-  (('adopted',
+-    'review_cycles.py:abandoned_correction_of',
+-    'replay.operation_id'),
+-   "{what}'s operation_id"),
+-  (('adopted',
+-    'review_cycles.py:abandoned_correction_of',
+-    'replay.retention_policy_digest'),
+-   "{what}'s retention policy digest"),
+-  (('adopted', 'review_cycles.py:abandoned_correction_of', 'replay.runtime_id'),
+-   "{what}'s runtime_id"),
+-  (('adopted', 'review_cycles.py:abandoned_correction_of', 'replay.schema'),
+-   'the abandoned-correction recovery for attempt {name_value(attempt_id)} '
+-   'generation {generation}'),
+-  (('adopted', 'review_cycles.py:abandoned_correction_of', 'replay.state'),
+-   'the abandoned-correction recovery for attempt {name_value(attempt_id)} '
+-   'generation {generation}'),
+-  (('adopted', 'review_cycles.py:abandoned_correction_of', 'replay.writer_id'),
+-   "{what}'s writer_id"),
+-  (('adopted',
+-    'review_cycles.py:checkpoint_of',
+-    'line_checkpoints.fence.intent'),
+-   'a persisted assignment fence'),
+-  (('adopted',
+-    'review_cycles.py:checkpoint_of',
+-    'line_checkpoints.fence.intent'),
+-   'a persisted line checkpoint'),
+-  (('adopted', 'workspaces.py:_committed_workspace_group', 'replay'),
+-   'the committed workspace group configuration'),
+-  (('adopted',
+-    'workspaces.py:_committed_workspace_group',
+-    'replay.workspace_group'),
+-   'the committed workspace group configuration'),
+-  (('adopted', 'workspaces.py:_committed_workspace_storage', 'replay'),
+-   'the committed workspace store configuration'),
+-  (('adopted',
+-    'workspaces.py:_committed_workspace_storage',
+-    'replay.workspace_storage'),
+-   'the committed workspace store configuration'),
+-  (('adopted', 'workspaces.py:_configured_gid', 'meta'),
+-   "the configured workspace group's record"),
+-  (('adopted', 'workspaces.py:_configured_gid', 'meta.value'),
+-   "the configured workspace group's record"),
+-  (('caller', 'attempts.py:request_runtime_start', 'adapter.mounts.source'),
+-   "the runtime adapter's start"),
+-  (('caller', 'attempts.py:request_runtime_start', 'adapter.mounts.target'),
+-   "the runtime adapter's start"),
+-  (('caller', 'attempts.py:request_runtime_start', 'adapter.mounts.writable'),
+-   "the runtime adapter's start"),
+-  (('caller', 'attempts.py:request_runtime_start', 'govern'),
+-   'a resource-token reservation'),
+-  (('caller', 'oci.py:OciAdapter.start', 'request.labels.participant'),
+-   'a start request'),
+-  (('caller', 'oci.py:OciAdapter.start', 'request.labels.runtime_attempt_id'),
+-   'a start request'),
+-  (('caller', 'oci.py:OciAdapter.stop', 'request'), '{what}'),
+-  (('caller', 'tokens.py:renew', 'seconds'), 'a renewed resource token expiry'),
+-  (('caller', 'tokens.py:renew', 'token'), 'a governed conflict domain'),
+-  (('caller', 'tokens.py:renew', 'token.domain'), 'a governed conflict domain'),
+-  (('caller', 'workspaces.py:prepared_workspace_governance', 'permission'),
+-   'a token execution envelope'),
+-  (('caller', 'workspaces.py:release_preparation', 'why'),
+-   'a preparation release reason'),
+-  (('injected', 'authority_port.py:AuthorityPort.satisfy_gate', 'satisfy_gate'),
+-   "the session's gate-discharge answer"),
+-  (('injected',
+-    'authority_port.py:AuthorityPort.satisfy_gate',
+-    'satisfy_gate.kind'),
+-   "the discharged gate's kind"),
+-  (('injected', 'intake.py:_destroyed_abandoned', 'adapter.destroy_abandoned'),
+-   'an abandoned-attempt destroy observation'),
+-  (('injected',
+-    'intake.py:_destroyed_abandoned',
+-    'adapter.destroy_abandoned.credentials'),
+-   'a credentials teardown ending'),
+-  (('injected',
+-    'intake.py:_destroyed_abandoned',
+-    'adapter.destroy_abandoned.credentials.lifecycle_state'),
+-   "a credentials teardown ending's state"),
+-  (('injected',
+-    'intake.py:_destroyed_abandoned',
+-    'adapter.destroy_abandoned.launch'),
+-   'a launch teardown ending'),
+-  (('injected',
+-    'intake.py:_destroyed_abandoned',
+-    'adapter.destroy_abandoned.launch.lifecycle_state'),
+-   "a launch teardown ending's state"),
+-  (('injected',
+-    'intake.py:_destroyed_abandoned',
+-    'adapter.destroy_abandoned.runtime_id'),
+-   'an observed runtime id'),
+-  (('injected',
+-    'intake.py:_destroyed_abandoned',
+-    'adapter.destroy_abandoned.state'),
+-   "a destroy observation's state"),
+-  (('injected',
+-    'intake.py:_destroyed_abandoned',
+-    'adapter.destroy_abandoned.why'),
+-   "a destroy observation's reason")]
+=== FAILURE: tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 8141, in test_every_boundary_call_belongs_to_an_entry_or_is_declared
+    self.assertEqual(orphans, [], "boundary calls attributed to no entry")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('attempts.py:_identified_within', 'ident[13112 chars]er')] != []
+
+First list contains 166 additional elements.
+First extra element 0:
+('attempts.py:_identified_within', 'identity', 'a runtime attempt id')
+
+Diff is 14235 characters long. Set self.maxDiff to None to see it. : boundary calls attributed to no entry
+=== FAILURE: tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 8017, in test_every_receiving_entry_has_an_owning_validator
+    self.assertEqual(unowned, [], "receiving entries with no owner")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('adopted', 'attempts.py:_decide', 'obser[43932 chars]un')] != []
+
+First list contains 663 additional elements.
+First extra element 0:
+('adopted', 'attempts.py:_decide', 'observations.next')
+
+Diff is 46525 characters long. Set self.maxDiff to None to see it. : receiving entries with no owner
+=== FAILURE: tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_entry_is_owned_twice (entry=('caller', 'intake.py:discharge_abandoned_quiescence_gate', 'port')) ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 8163, in test_no_entry_is_owned_twice
+    self.assertLessEqual(claims, 1, "owned more than once")
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 not less than or equal to 1 : owned more than once
+=== FAILURE: tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_entry_is_owned_twice (entry=('caller', 'intake.py:discharge_quiescence_gate', 'port')) ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 8163, in test_no_entry_is_owned_twice
+    self.assertLessEqual(claims, 1, "owned more than once")
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 not less than or equal to 1 : owned more than once
+=== FAILURE: tests.manager.test_boundary_inventory.LanesHaveCompleteReceivingCoverage.test_public_start_and_cleanup_supply_owned_lane_values ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 16792, in test_public_start_and_cleanup_supply_owned_lane_values
+    settled = fixture.cleanup_settled()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_runtime_lane.py", line 116, in cleanup_settled
+    return authorize_cleanup(
+        self.store, self.port,
+    ...<7 lines>...
+                             **endings}),
+        attempt_id=attempt_id, retention_policy_digest=RETENTION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 1424, in authorize_cleanup
+    settled = store.transact(
+        operation["operation_id"], "runtime.destroy", signature,
+    ...<4 lines>...
+                                   admitted_cleanup=admitted_cleanup,
+                                   preserved=preserved))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/store.py", line 810, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 1426, in <lambda>
+    lambda connection: _settle(store, connection, attempt_id, receipt,
+                       ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                               retention_policy_digest, observed,
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+                               admitted_cleanup=admitted_cleanup,
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                               preserved=preserved))
+                               ^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 5515, in _settle
+    lanes._release_lane(connection, attempt_id=attempt_id,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                       reference=lanes.lane_reference(attempt),
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                       why=f"cleanup settled {ending}")
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 16785, in run
+    self.assertEqual(kwargs["why"], "cleanup settled complete")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cleanup settled retained' != 'cleanup settled complete'
+- cleanup settled retained
+?                 ^  --- -
++ cleanup settled complete
+?                 ^^^^^
+=== FAILURE: tests.manager.test_boundary_inventory.StoppedSettlementInventory.test_entries_calls_and_probes_are_owned ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 17251, in test_entries_calls_and_probes_are_owned
+    self.assertEqual({entry[1] for entry in entries}, {"stopped_settlement.py:failure_digest", "stopped_settlement.py:settle_stopped", "stopped_settlement.py:status", "stopped_settlement.py:preview", "tokens.py:settlement_fence_of", "workspaces.py:settlement_preparation"})
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Items in the first set but not the second:
+'stopped_settlement.py:_read'
+=== FAILURE: tests.manager.test_source_boundary.TheWorkspaceIsStorageAndScratchIsBounded.test_the_runtime_gets_exactly_the_declared_bounded_scratch ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_source_boundary.py", line 781, in test_the_runtime_gets_exactly_the_declared_bounded_scratch
+    self.assertEqual(
+    ~~~~~~~~~~~~~~~~^
+        composed,
+        ^^^^^^^^^
+        [f"{target}:rw,noexec,nosuid,nodev,size={one >> 20}m"
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         for target, one in source_boundary.SCRATCH_MOUNTS])
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['/tm[67 chars]v,size=16m', '/run/baton/logs:rw,noexec,nosuid,nodev,size=16m'] != ['/tm[67 chars]v,size=16m']
+
+First list contains 1 additional elements.
+First extra element 2:
+'/run/baton/logs:rw,noexec,nosuid,nodev,size=16m'
+
+  ['/tmp:rw,noexec,nosuid,nodev,size=64m',
+-  '/dev/shm:rw,noexec,nosuid,nodev,size=16m',
+?                                            ^
+
++  '/dev/shm:rw,noexec,nosuid,nodev,size=16m']
+?                                            ^
+
+-  '/run/baton/logs:rw,noexec,nosuid,nodev,size=16m']
+=== FAILURE: tests.manager.test_text_sweep.EveryExportedOperationRefusesUnstorableText.test_the_table_names_every_exported_callable ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_text_sweep.py", line 569, in test_the_table_names_every_exported_callable
+    self.assertEqual(sorted(self.callable_table()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     sorted(self.exported_callables()))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['Aut[63 chars]', 'accept_offer', 'activate_assignment', 'ado[2120 chars]_of'] != ['Aut[63 chars]', 'abandoned_gate_discharge_of', 'abandonment[2422 chars]_of']
+
+First differing element 4:
+'accept_offer'
+'abandoned_gate_discharge_of'
+
+Second list contains 12 additional elements.
+First extra element 102:
+'satisfies_runtime_quiescence_gate'
+
+Diff is 2883 characters long. Set self.maxDiff to None to see it.
+[parallel source] 65 shards, 459 tests, 25 failures, 0 errors, 2 skipped -> FAILED
+[serial] 0 source modules, one at a time
+--- serial source ---
+[serial source] 0 shards, 0 tests, 0 failures, 0 errors, 0 skipped -> OK
+[summary] parallel source: 459 tests, 25 failed, 2 skipped | serial source: 0 tests, 0 failed, 0 skipped -> FAILED
+[groups] authority=0, job_manager=0, manager-pure=0, manager-engine=0, integration=0, tools-pure=0, tools-packaged=0, supervised=0, scans=459
+--- accounting ---
+[optional skip] tests.manager.test_source_boundary.CleanupNeverRemovesMaterialThisManagerDidNotCreate.test_a_real_same_filesystem_bind_mount_is_refused: this run cannot create a mount namespace, so the REAL same-filesystem bind mount is not exercised here; test_a_same_filesystem_mount_is_refused_though_its_device_matches proves the same boundary from the kernel's table without the capability
+[optional skip] tests.manager.test_source_boundary.TheWorkspaceIsStorageAndScratchIsBounded.test_more_than_the_scratch_bound_really_fits_in_the_workspace: the >64 MiB disk-workspace proof writes more than the bootstrap container's whole 64 MiB tmpfs; set BATON_V12_LARGE_WORKSPACE_PROOF=1 on a host with room to run it
+collected 459, executed 459, passed 447, optional skipped 2, required skipped 0, failed 10, errors 0, fixture skips 0, fixture errors 0, duplicates 0, unaccounted 0
+[accounting] passed 447 + optional skipped 2 = 449 of collected 459 -> FAILED
+error: Recipe `test-group` failed with exit code 1

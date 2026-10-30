@@ -1,0 +1,95 @@
+test_a_blocked_successor_authorizes_no_input_root (tests.manager.test_runtime_lane.ASuccessorWaitsForItsPredecessor.test_a_blocked_successor_authorizes_no_input_root)
+The lane is asked BEFORE anything durable, not merely before the ... ok
+test_a_cancelled_attempt_keeps_the_lane_until_cleanup_ends (tests.manager.test_runtime_lane.ASuccessorWaitsForItsPredecessor.test_a_cancelled_attempt_keeps_the_lane_until_cleanup_ends) ... ok
+test_a_failed_cleanup_keeps_the_lane (tests.manager.test_runtime_lane.ASuccessorWaitsForItsPredecessor.test_a_failed_cleanup_keeps_the_lane)
+A destroy the runtime survived is a settled FAILURE, not an ending. ... ok
+test_a_real_successor_claim_reaches_no_engine_or_delivery (tests.manager.test_runtime_lane.ASuccessorWaitsForItsPredecessor.test_a_real_successor_claim_reaches_no_engine_or_delivery)
+The bound acceptance's real offer/claim/activation arc. ... ok
+test_a_settled_cleanup_releases_the_lane_and_the_successor_starts (tests.manager.test_runtime_lane.ASuccessorWaitsForItsPredecessor.test_a_settled_cleanup_releases_the_lane_and_the_successor_starts) ... ok
+test_a_successor_reaches_no_engine_while_cleanup_is_open (tests.manager.test_runtime_lane.ASuccessorWaitsForItsPredecessor.test_a_successor_reaches_no_engine_while_cleanup_is_open)
+THE ACCEPTANCE'S FIRST CASE, and the engine is the witness. ... ok
+test_an_uncertain_observation_keeps_the_lane (tests.manager.test_runtime_lane.ASuccessorWaitsForItsPredecessor.test_an_uncertain_observation_keeps_the_lane) ... ok
+test_an_unresolved_provider_keeps_the_lane (tests.manager.test_runtime_lane.ASuccessorWaitsForItsPredecessor.test_an_unresolved_provider_keeps_the_lane)
+The predecessor whose CONTAINER is gone and whose delivery is not. ... ok
+test_retained_material_still_releases_the_lane (tests.manager.test_runtime_lane.ASuccessorWaitsForItsPredecessor.test_retained_material_still_releases_the_lane)
+`retained` and `failed` are different endings and are ruled apart. ... ok
+test_the_predecessor_check_owns_the_lane_relation_it_reads (tests.manager.test_runtime_lane.ASuccessorWaitsForItsPredecessor.test_the_predecessor_check_owns_the_lane_relation_it_reads)
+A corrupt capacity row is not ordinary predecessor contention. ... ok
+test_a_conflicting_persisted_row_is_owned_before_race_refusal (tests.manager.test_runtime_lane.OneWinnerAndEveryOtherFailsClosed.test_a_conflicting_persisted_row_is_owned_before_race_refusal)
+The primary-key loser path also adopts the whole stored lane. ... ok
+test_a_release_is_bound_to_the_holder (tests.manager.test_runtime_lane.OneWinnerAndEveryOtherFailsClosed.test_a_release_is_bound_to_the_holder)
+A sibling's late cleanup does not free the lane in use. ... ok
+test_concurrent_principals_still_produce_one_work_holder (tests.manager.test_runtime_lane.OneWinnerAndEveryOtherFailsClosed.test_concurrent_principals_still_produce_one_work_holder)
+The in-transaction Work interlock, not the lane primary key. ... ok
+test_concurrent_successors_produce_exactly_one_holder (tests.manager.test_runtime_lane.OneWinnerAndEveryOtherFailsClosed.test_concurrent_successors_produce_exactly_one_holder)
+The compare-and-swap, driven by real threads on one store file. ... ok
+test_an_unactivated_attempt_belongs_to_no_lane (tests.manager.test_runtime_lane.TheIdentityIsTheAssignmentAndNotTheAttempt.test_an_unactivated_attempt_belongs_to_no_lane) ... ok
+test_the_lane_is_not_keyed_on_the_endpoint_spelling (tests.manager.test_runtime_lane.TheIdentityIsTheAssignmentAndNotTheAttempt.test_the_lane_is_not_keyed_on_the_endpoint_spelling)
+The acceptance's own sentence, as a measurement. ... ok
+test_the_lane_is_the_four_authority_owned_parts (tests.manager.test_runtime_lane.TheIdentityIsTheAssignmentAndNotTheAttempt.test_the_lane_is_the_four_authority_owned_parts) ... ok
+test_the_name_is_derived_and_survives_a_restart (tests.manager.test_runtime_lane.TheIdentityIsTheAssignmentAndNotTheAttempt.test_the_name_is_derived_and_survives_a_restart)
+DERIVED rather than minted, so nothing has to be remembered. ... ok
+test_a_second_start_neither_double_takes_nor_leaks (tests.manager.test_runtime_lane.TheLaneIsTakenBeforeAnythingIsCreated.test_a_second_start_neither_double_takes_nor_leaks)
+Crash/retry must neither leak nor double-release capacity. ... ok
+test_a_start_occupies_the_lane_in_the_same_write (tests.manager.test_runtime_lane.TheLaneIsTakenBeforeAnythingIsCreated.test_a_start_occupies_the_lane_in_the_same_write) ... ok
+test_releasing_a_lane_twice_frees_nothing_extra (tests.manager.test_runtime_lane.TheLaneIsTakenBeforeAnythingIsCreated.test_releasing_a_lane_twice_frees_nothing_extra)
+The other half of "neither leak nor double-release". ... ok
+test_a_persisted_lane_must_derive_from_its_stored_identity (tests.manager.test_runtime_lane.TheProjectionExplainsTheHolderAndTheBlocker.test_a_persisted_lane_must_derive_from_its_stored_identity)
+The projection does not invent an answer from a split identity. ... ok
+test_a_whole_consistent_row_is_still_read (tests.manager.test_runtime_lane.TheProjectionExplainsTheHolderAndTheBlocker.test_a_whole_consistent_row_is_still_read)
+The other half: a guard that refuses everything is not a guard. ... ok
+test_it_names_the_blocking_predecessor_and_which_relation (tests.manager.test_runtime_lane.TheProjectionExplainsTheHolderAndTheBlocker.test_it_names_the_blocking_predecessor_and_which_relation)
+`blocked` without saying by WHICH relation is not a diagnosis. ... ok
+test_it_names_this_attempts_own_occupancy (tests.manager.test_runtime_lane.TheProjectionExplainsTheHolderAndTheBlocker.test_it_names_this_attempts_own_occupancy) ... ok
+test_no_caller_operand_selects_a_principal_or_a_scope (tests.manager.test_runtime_lane.TheProjectionExplainsTheHolderAndTheBlocker.test_no_caller_operand_selects_a_principal_or_a_scope)
+The acceptance's "without exposing a mutable caller-selected" ... ok
+test_the_relation_is_owned_on_the_by_work_path_too (tests.manager.test_runtime_lane.TheProjectionExplainsTheHolderAndTheBlocker.test_the_relation_is_owned_on_the_by_work_path_too)
+BOTH read paths, because they are two queries and one relation. ... ok
+test_a_complete_active_attempt_row_is_still_accepted_whole (tests.manager.test_runtime_lane.ThePublicLaneReferenceOwnsItsInput.test_a_complete_active_attempt_row_is_still_accepted_whole)
+The shape every production caller sends: `boundaries.row` answers a ... ok
+test_a_malformed_attempt_id_refuses_on_the_inactive_branch_too (tests.manager.test_runtime_lane.ThePublicLaneReferenceOwnsItsInput.test_a_malformed_attempt_id_refuses_on_the_inactive_branch_too)
+It was read only inside the inactive refusal, so an ACTIVE call with ... ok
+test_a_malformed_consumed_member_refuses_instead_of_travelling (tests.manager.test_runtime_lane.ThePublicLaneReferenceOwnsItsInput.test_a_malformed_consumed_member_refuses_instead_of_travelling)
+The four that came back INSIDE the answer, and the fifth that was ... ok
+test_a_malformed_member_beats_the_inactive_refusal (tests.manager.test_runtime_lane.ThePublicLaneReferenceOwnsItsInput.test_a_malformed_member_beats_the_inactive_refusal)
+Ordering, stated as its own case: an unactivated attempt carrying a ... ok
+test_a_member_this_build_does_not_name_is_refused (tests.manager.test_runtime_lane.ThePublicLaneReferenceOwnsItsInput.test_a_member_this_build_does_not_name_is_refused) ... ok
+test_a_non_document_is_refused_rather_than_subscripted (tests.manager.test_runtime_lane.ThePublicLaneReferenceOwnsItsInput.test_a_non_document_is_refused_rather_than_subscripted)
+`[]` produced `TypeError: list indices must be integers`, and an ... ok
+test_a_real_unactivated_row_with_null_parts_refuses_the_same_way (tests.manager.test_runtime_lane.ThePublicLaneReferenceOwnsItsInput.test_a_real_unactivated_row_with_null_parts_refuses_the_same_way)
+The row `record_attempt` writes carries null Work, Authority, scope ... ok
+test_a_well_shaped_unactivated_input_keeps_its_precondition_refusal (tests.manager.test_runtime_lane.ThePublicLaneReferenceOwnsItsInput.test_a_well_shaped_unactivated_input_keeps_its_precondition_refusal) ... ok
+test_an_activated_input_missing_a_reference_part_is_refused (tests.manager.test_runtime_lane.ThePublicLaneReferenceOwnsItsInput.test_an_activated_input_missing_a_reference_part_is_refused)
+A principal with no Work is a broken relation rather than an ... ok
+test_an_empty_document_names_every_member_it_needs (tests.manager.test_runtime_lane.ThePublicLaneReferenceOwnsItsInput.test_an_empty_document_names_every_member_it_needs)
+`{}` produced `KeyError: 'assignment_principal'` -- the name of the ... ok
+test_each_consumed_member_is_held_to_its_own_column_rule (tests.manager.test_runtime_lane.ThePublicLaneReferenceOwnsItsInput.test_each_consumed_member_is_held_to_its_own_column_rule)
+`lane_reference` spells `text` and `identity` out rather than ... ok
+test_each_required_member_is_named_when_it_is_the_missing_one (tests.manager.test_runtime_lane.ThePublicLaneReferenceOwnsItsInput.test_each_required_member_is_named_when_it_is_the_missing_one) ... ok
+test_every_consumed_member_stays_visible_to_the_inventory (tests.manager.test_runtime_lane.ThePublicLaneReferenceOwnsItsInput.test_every_consumed_member_stays_visible_to_the_inventory)
+The correction must not buy stronger checking with less discovery. ... ok
+test_known_attempt_metadata_is_optional_and_not_an_error (tests.manager.test_runtime_lane.ThePublicLaneReferenceOwnsItsInput.test_known_attempt_metadata_is_optional_and_not_an_error)
+A complete row carries far more than five members; the contract ... ok
+test_the_answer_is_a_fresh_document_the_caller_cannot_reach_back_into (tests.manager.test_runtime_lane.ThePublicLaneReferenceOwnsItsInput.test_the_answer_is_a_fresh_document_the_caller_cannot_reach_back_into) ... ok
+test_the_minimal_valid_input_answers_the_unchanged_projection (tests.manager.test_runtime_lane.ThePublicLaneReferenceOwnsItsInput.test_the_minimal_valid_input_answers_the_unchanged_projection) ... ok
+test_the_projection_touches_no_store_and_no_lane (tests.manager.test_runtime_lane.ThePublicLaneReferenceOwnsItsInput.test_the_projection_touches_no_store_and_no_lane)
+It resolves no Authority, consults no store and occupies nothing: a ... ok
+test_unstorable_text_is_refused_where_the_document_is_owned (tests.manager.test_runtime_lane.ThePublicLaneReferenceOwnsItsInput.test_unstorable_text_is_refused_where_the_document_is_owned)
+A lone surrogate is caught one step EARLIER than the member rules, ... ok
+test_a_start_still_occupies_the_lane_through_the_validated_input (tests.manager.test_runtime_lane.TheValidatedBoundaryLeavesEveryLifecycleCallerAlone.test_a_start_still_occupies_the_lane_through_the_validated_input) ... ok
+test_cleanup_still_releases_the_lane_through_the_same_helper (tests.manager.test_runtime_lane.TheValidatedBoundaryLeavesEveryLifecycleCallerAlone.test_cleanup_still_releases_the_lane_through_the_same_helper)
+The two intake release sites reach `lane_reference` with an ... ok
+test_the_public_projection_still_reads_the_same_lane (tests.manager.test_runtime_lane.TheValidatedBoundaryLeavesEveryLifecycleCallerAlone.test_the_public_projection_still_reads_the_same_lane) ... ok
+test_a_second_principal_on_this_work_still_waits (tests.manager.test_runtime_lane.TwoAddressesOneLaneAndTwoPrincipalsAreIsolated.test_a_second_principal_on_this_work_still_waits)
+The hole the KEY alone leaves, and the interlock that closes it. ... ok
+test_another_work_is_not_blocked_by_this_one (tests.manager.test_runtime_lane.TwoAddressesOneLaneAndTwoPrincipalsAreIsolated.test_another_work_is_not_blocked_by_this_one)
+The other half: a lane protects an assignment's MATERIAL. ... ok
+
+----------------------------------------------------------------------
+Ran 50 tests in 0.588s
+
+OK
+
+real	0m0.785s
+user	0m0.739s
+sys	0m0.047s

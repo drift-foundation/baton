@@ -1,0 +1,4 @@
+connection.execute("SELECT * FROM line_writers WHERE runtime_attempt_id = ?", (attempt,)) => line_writers
+connection.execute(f"SELECT * FROM line_writers WHERE runtime_attempt_id = {attempt}") => None
+connection.execute(f"SELECT * FROM {table} WHERE runtime_attempt_id = ?", (attempt,)) => None
+_one_by_attempt entries []

@@ -1,4 +1,4 @@
-# Testing the v12 Python distribution
+# Testing v12
 
 This is the durable guide to running, selecting and accounting the v12 Python
 test suite. Following it is required for anyone doing v12 test work (see the
@@ -9,18 +9,20 @@ Work dossier, not here.
 
 ## 1. Where to run
 
-Every command below is run from this directory, `v12/python`, or names this
-`justfile` explicitly from anywhere:
+Run the supported test commands from `v12/`. They are visible in `just --list`:
 
 ```sh
-cd /path/to/baton/v12/python
+cd /path/to/baton/v12
 just test-group authority
-# or, from anywhere in the checkout:
-just --justfile v12/python/justfile test-group authority
+# or, from the repository root:
+just --justfile v12/justfile test-group authority
 ```
 
-The recipes `cd` to the justfile's directory themselves; the working directory
-matters only for the relative paths you type.
+The version-level recipes forward to the existing runner, preserving selection,
+arguments, accounting and exit status. Existing focused commands from
+`v12/python/` remain supported. In `v12/`, `just test` runs the complete
+supported suite; bare `just` lists commands. Legacy prototype test recipes
+are no longer exposed by the version-level justfile.
 
 ## 2. Prepared environment and prerequisites
 
@@ -63,7 +65,11 @@ just test-one tests.manager.test_launch.TheContextLaunchIsClosed.test_owner_laun
 just test-group manager-pure
 just test-group manager-pure 8          # lower the worker count to 8
 
-# THE full supported run, with a retained log (absolute path, not under /tmp)
+# THE full supported run (normally an integration/nightly checkpoint)
+just test
+# Optional absolute log path and worker limit:
+just test /abs/path/evidence/test-all.log 16
+# Explicit log-oriented entry, using the same runner:
 BATON_W32577_IMAGE_DIGEST=sha256:… just test-all /abs/path/evidence/test-all.log
 BATON_W32577_IMAGE_DIGEST=sha256:… just test-all /abs/path/evidence/test-all.log 16
 ```
@@ -72,13 +78,26 @@ BATON_W32577_IMAGE_DIGEST=sha256:… just test-all /abs/path/evidence/test-all.l
 no registry check, useful while editing one module. `test-group` and `test-all`
 go through `tools/parallel_test.py` with `--account`.
 
-The older recipes remain: `just test` is the reference serial
+With no LOG argument, version-level `just test` creates a unique log directory
+under disk-backed, ignored `work/scratch/test-all/`. It retains the full log,
+ledger and provenance there. Promote required acceptance evidence to the owning
+dossier before relying on it for handoff; ignored scratch is not a backup.
+All full-suite prerequisites above still apply, including selected image inputs.
+The command does not install a nightly schedule.
+
+Inside the internal `python/` justfile, the older `test` recipe is reference serial
 `unittest discover` (no accounting, no partition; it is NOT the gate), and
 `just parallel-test` is the unaccounted parallel runner.
 
 ## 4. Logical groups versus execution shards
 
 Groups are what you SELECT and declare; shards are how the runner EXECUTES.
+
+Discover group names without running tests:
+
+```sh
+just list-test-groups
+```
 
 The nine groups form an exact partition of the test modules, encoded once in
 `tools/parallel_test.py` (`GROUP_MODULES`, `GROUP_PACKAGES`, `GROUPS`) and
@@ -235,15 +254,26 @@ tmpfs, and the selected image and bundle. Keep the log, the ledger, the two
 source documents and the header together; a passed count without its collected
 count and content-bound source identity is not evidence.
 
+Every fixture resolves THE CHECKOUT UNDER TEST from its own location
+(`Path(__file__).resolve().parents[n]`), never from a developer's home or an
+absolute path; the consumed record helpers do the same. So the declared inputs
+are exactly what a relocated checkout needs: a copy holding only `v12/` and
+the declared paths runs the fixture modules with no access to any other tree
+(verified by running them from such a copy under `strace`; the owning Work's
+evidence holds the recipe). A test that reads a file outside `v12/` through a
+path that is not declared fails honestly in such a copy; declare it (section
+6) rather than reaching for a known location. External resources a retained
+record once used (a live instance directory, a credential registry) are not
+repository inputs and are not assumed to exist.
+
 Limitations: the identity covers files git can see under `v12/` and the
 declared inputs; a dependency installed in the prepared environment is
 identified by the lock the environment was installed from (`just setup`
-records it), not by this digest. The declaration is checked against record
-paths spelled in test code (section 6); a test that reaches a record through
-a computed path would need to declare it by hand. Several fixture modules
-name this checkout by its absolute path rather than relative to themselves;
-the identity hashes the repository-relative paths, which coincide only while
-the checkout is the one those modules name.
+records it), not by this digest, and the environment itself lives in the XDG
+state directory, outside the checkout. The declaration is checked against
+record paths spelled in test code (section 6) and against relocation only when
+someone runs the copy check; a test that reaches a record through a computed
+path needs declaring by hand.
 
 ## 10. When a full run needs a selected checkpoint
 

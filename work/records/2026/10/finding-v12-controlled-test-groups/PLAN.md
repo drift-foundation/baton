@@ -1,3 +1,225 @@
+## 2026-10-30T18:15:13+00:00 — fixed closure order and next K deliverable
+
+Owner requests more specific direction. CLOSURE-CHECKLIST.md now fixes the sequence.
+Next K handoff is only the bounded scratch-mount and exported-callable text-sweep
+failures, with focused evidence and digests. Return before inventory/replay/B4 work.
+Then six remaining scans failures in named groups, B4, B5, independent acceptance,
+closure and all-files owner check-in. No speculative discovery expansion or blanket
+coverage waiver. This supersedes the open-ended continuation in M384931.
+
+## 2026-10-30T18-13-59Z — discovery correction accepted; closure plan now required
+
+Read review-2026-10-30T18-13-59Z.md: unchanged nested-closure reproduction passes; 15 focused tests
+pass in 19.138s. This supersedes the closure changes request below. Whole Job
+acceptance remains pending: eight scans failures, inventory/probe debt, B4 and B5.
+Owner asks to finish the Job. K's next handoff supplies one finite closure plan
+with exact failures, grouped debt dispositions, remaining required runs and operator
+prerequisites, while continuing ordinary authorized repairs. No silent deferrals or
+coverage waivers. Formal closure and all-files owner check-in still gate W383215.
+
+# Closure correction delivered — 2026-10-30 (after review 18:07:52Z)
+
+Nested closures are visited once with their own bindings (reviewer's
+reproduction passes; twice-nested negative and captured positive pinned);
+real-tree counts unchanged on corrected discovery. Awaiting independent review.
+Open before closure unchanged: replay debt (206 probes, 74 owners needing
+case-by-case behaviour analysis before any product change), 33 S4
+composed-world probes, B4, B5 clean full run, command/docs review, closure
+and owner check-in.
+
+## 2026-10-30T18-07-52Z — inventory review: nested closure correction required
+
+Read review-2026-10-30T18-07-52Z.md. Fourteen focused tests pass (18.998s), but an independent
+nested-shadowing reproduction proves false ownership: _closure_pieces visits a
+nested body's calls under the enclosing context as well as its own context.
+K corrects scope traversal and adds negative evidence before inventory signoff.
+New replay debt stays visible; counts await corrected discovery. This supersedes
+the pending-review status below, not the outstanding B4/B5 and closure/check-in gates.
+
+# Inventory milestone delivered — 2026-10-30 (after review 17:25:53Z)
+
+Caller-resolved dynamic reads (`_one_by_attempt` → `line_writers` /
+`review_attachments`, placeholder retired only when every caller names it),
+closure-body owners (interrogation DELEGATED entries resolve) and replayed
+journal documents as adopted reads, with synthetic positives/negatives, real
+pins, 15 new probes and W375444's slice debt pinned by name. Honest counts:
+owned-never-probed 239 (206 replay), probed-never-owned 1, unowned 833 (+74
+replay). Evidence: evidence/inventory-2026-10-30/INVENTORY-MILESTONE.md.
+Awaiting independent review. Open before closure: the replay debt (206
+probes, 74 product-side owners), the 33 S4 composed-world probes, B4
+prerequisites, B5 clean full run, final command/docs review, then ledger
+closure and owner check-in.
+
+## 2026-10-30T17-25-53Z — C7 and registry corrections independently accepted
+
+Read review-2026-10-30T17-25-53Z.md: 14 focused tests passed in 61.019s.
+C7 guard/evidence correction and explicit live A/B registry input accepted.
+This supersedes their pending-review status and the C7 changes request below.
+Next bounded K milestone: dynamic-table caller resolution, closure/replay inventory
+discovery and S4 probes, preserving visible unresolved debt and genuine coverage.
+B4, B5 clean accounted full run, final command/docs review, formal closure and
+owner check-in remain required. W383215 is not released. No owner decision needed.
+
+# C7 guard correction and live A/B registry delivered — 2026-10-30 (after review 17:17:47Z)
+
+C7: wording corrected (only five modes run a FAKE runtime; five select the
+scripted create refusal; pre_signal invokes nothing; no engine-container
+coverage). Per-mode intended-scenario guard `shutdown_fixture.unreached` asserted
+in the matrix, with six negative witnesses; module 10 OK/60.2 s
+(evidence/c7-2026-10-30/C7-SETTLEMENT.md, correction section).
+Live A/B registry (M384918): explicit validated `--credential-registry` operand
+and `settings.credential_registry`; fake-path propagation and missing/invalid
+refusal proven, 4 OK (evidence/live-ab-registry-2026-10-30/). Awaiting
+independent review of both. Open before closure: dynamic-table resolution
+through callers and the closure/replay inventory gaps, S4 probes (48/6/593),
+B4 prerequisites, B5 clean full run, then ledger closure and owner check-in.
+
+## 2026-10-30T17-17-47Z — C7 independent review: bounded guard correction
+
+Read review-2026-10-30T17-17-47Z.md. Independent shutdown/enforcement run: 38 passed in 62.670s.
+Envelope fit and token expectations are supported; no owner specification decision
+needed. C7 still needs mode-specific reachability assertions so unintended early
+refusal cannot recreate vacuous passes. Correct the claim of runtime execution in
+all eleven modes: deliberate create-refusal and pre-invocation modes are distinct.
+K returns focused evidence for this bounded correction before C7 signoff. Remaining
+portability/inventory/B4/B5 and closure/check-in gates are unchanged.
+
+# C7 delivered — 2026-10-30 (after review 16:20:31Z)
+
+The shutdown matrix's three modes are fixed and the matrix regained its subject:
+every mode had been refused by the controller's permission envelope since
+30245386 (vacuous passes). Fixture fitted to the envelope; settlement assertions
+retargeted to the controller's accepted stop_at contract (token held for the
+stopped-settlement owner; expiry reclaim covered in test_authoring_enforcement).
+Matrix 4 OK/60.2 s, six C7 modules 231 OK/75.4 s; C7 34 → 0
+(evidence/c7-2026-10-30/C7-SETTLEMENT.md). Awaiting independent review.
+Open before closure: live A/B registry portability (M384918), dynamic-table
+resolution through callers and the closure/replay inventory gaps, S4 probes
+(48/6/593), B4 prerequisites, B5 clean full run, then ledger closure and owner
+check-in of all files.
+
+# Current checkpoint — independent restart review 2026-10-30T16-20-31Z
+
+C5 fixture correction and S4 P2 read-visibility correction ACCEPTED: 8 focused
+tests pass in 30.224s. See review-2026-10-30T16-20-31Z.md. This supersedes the earlier C5
+confined-Git /dev/null diagnostic direction and the pending-review status below:
+the actual failure was reading the wire launch envelope as a decoded payload.
+Unresolved table placeholders remain explicit debt, not accepted complete coverage.
+
+K's next bounded milestone is C7's three shutdown modes/token settlement.
+Live A/B registry portability, caller/closure/replay discovery, S4 probes, B4 and
+B5 clean accounted full run remain required. Review the released version-level
+command/docs changes too. No new owner decision or claim needed under arrangement B.
+Close W384870 and check in all final files before starting W383215.
+
+# C5 fixed and S4 P2 corrected — 2026-10-30 (after review 09:29:47Z)
+
+C5's three flow cases pass (fixture now unwraps the wire launch; not a sandbox
+or confinement matter). S4's dynamic read is visible as placeholder debt with
+pinned regressions. Awaiting independent review. Open before closure: C7 three
+shutdown modes (token settlement), live A/B registry portability (M384918),
+dynamic-table resolution through callers and the closure/replay inventory gaps,
+S4 probes (48/6/593), B4 prerequisites, B5 clean full run, then ledger closure
+and owner check-in of all files.
+
+# NOT ready to close — independent review 2026-10-30T09:29:47Z
+
+Read review-2026-10-30T09-29-47Z.md. Five repaired B3 modules accepted (227
+focused tests pass). C5 three failures reproduced outside sandbox and by owner:
+next bounded K milestone is diagnosing/correcting the confined-Git /dev/null
+failure through the actual loaded fixture/enforcement path. No new owner decision
+is needed to investigate within existing scope.
+
+S4 changes requested: preserve real unresolved SELECT crossings and known static
+FROM tables; do not erase reads to remove invented WHERE entries. Existing
+closure/replay/placeholder discovery gaps remain required inventory work.
+C7 three shutdown modes, live A/B registry portability, B4 prerequisites/engine
+coverage and B5 singleton repairs plus clean full-accounted run remain outstanding.
+Copilot's version-level test/doc files were released in M384918; older ownership
+hold text below is superseded. Formal closure AND all final files checked in
+remain prerequisites to W383215. Current handoff is partial, not completion.
+
+# S4 residue pass and B3 slices 1–2 delivered — 2026-10-30
+
+S4: debt lists 47/9 → 33/6, three inventory limitations pinned for decision
+(evidence/s4-residue-2026-10-30/S4-RESIDUE.md). B3: C7 34 → 3, C5 3 (needs an
+unsandboxed run to classify; see evidence/b3-2026-10-30/B3-SLICES.md). Awaiting
+independent review. Next executable: the three shutdown-matrix modes (token
+settlement reading), S4 composed-world probes, then B4 prerequisites and B5.
+Reviewer owns v12/justfile, TESTING.md, v12/README.md until their handoff.
+
+# Current review and command interface — 2026-10-30
+
+Read review-2026-10-30T08-51-30Z.md. S1 witness correction and six-module
+checkout portability ACCEPTED (202 focused tests;727 relocated tests, no original
+checkout access). Remaining bounded portability correction: replace live A/B
+composer's personal-home registry default with explicit input and deterministic
+render/refusal coverage; no live execution. Existing S4 residue/B3 can continue.
+
+Copilot finished owner-directed v12/justfile + README + testing-guide edits:
+`test` full suite, `test-one`/`test-group` focused, `test-all LOG` explicit log,
+`list-test-groups` discovery. K can now read these files/diffs; copilot editing is
+finished. No nightly scheduler or full test run was started. Full Work acceptance,
+B4/B5, formal closure and all-files owner checkpoint remain before W383215 starts.
+
+# Portability correction delivered — 2026-10-30
+
+Fixtures and consumed helpers resolve the checkout under test; the six affected
+modules pass from a copy holding only v12/ and the declared inputs with zero
+accesses to the original tree (PROGRESS 2026-10-30 "Checkout portability
+correction"; evidence/portability-2026-10-30/PORTABILITY.md). CONSUMED_INPUTS
+grew to 20 paths from what relocation exposed; TESTING.md §9 updated. Awaiting
+independent review together with the S1 witness correction. Next executable:
+S4 residue and B3. A later owner Git checkpoint covers S1/portability candidate
+bytes plus review evidence.
+
+# Owner handoff gate — closure AND complete checkpoint
+
+Do not start W383215 until W384870 is independently accepted, formally closed
+on Baton, and all current-Job changes and required evidence are checked in by
+Slawomir, with the checkout ready for handoff. Verify both ledger and Git state;
+acceptance or closure alone does not release the next assignment. This owner
+clarification supersedes weaker transition wording below. Next-Job planning
+is permitted; implementation remains on W384870 until this gate is satisfied.
+
+# S1 witness correction delivered — 2026-10-30
+
+The two restoration profile owners now have their own negative witnesses that
+reach both public entries and detect a bypassed `_profile` (PROGRESS 2026-10-30
+"S1 correction"; evidence/s1-witness-2026-10-30/S1-WITNESS.md). Awaiting
+independent review. K proceeds to the owner's checkout-portability correction
+(section below), then S4 residue and B3. No full suite before B5.
+
+# Required checkout-portability correction — owner 2026-10-30
+
+After the S1 witness correction, K removes executable assumptions about the
+owner's home directory from affected test fixtures and their consumed helpers.
+Resolve repository data from the checkout under test; configure external inputs
+explicitly. Six confirmed consumers are named in the latest FINDING entry; the
+four previously reported modules are not the entire set. Verify affected tests
+from another checkout location without consulting the original tree, preserve
+missing-input refusal and source provenance, then update TESTING.md and return
+focused evidence. Merely documenting/refusing relocation is no longer sufficient.
+Historical prose and deliberate hostile-path test data are not runtime dependencies.
+Existing S4/B3 scope remains; no full-suite/live execution is selected.
+
+# Current review disposition — 2026-10-30T08:20:12Z
+
+Independent review: [review-2026-10-30T08-20-12Z.md](review-2026-10-30T08-20-12Z.md).
+R2 remainder accepted for this checkout; S4 first delivery accepted as partial
+progress. S1 changes requested: add real negative profile-validation witnesses
+for restore_abandoned_correction and settle_restoration_execution; the current
+mapped witness calls neither entry. Return focused evidence proving intended
+refusal and detection of a bypassed check. This is K's next bounded correction.
+S4's 47 missing probe pairs, nine pre-existing unmatched declarations, other
+inventory debt and non-overlapping B3 remain under existing scope. B4/B5 remain;
+no full-suite run is selected here. Four absolute-checkout fixtures must be
+corrected or refused before relying on provenance from another checkout.
+
+Owner checkpoint 84f66f43 exists. Review evidence/docs now require a later owner
+checkpoint. This section supersedes earlier awaiting-review and pending-Git
+statements below; those entries remain historical. Work is owner-held, E384905.
+
 # R2 remainder delivered; owner resumed — 2026-10-30
 
 Owner resumed after the reboot and reclaimed W384870 (`baton.slaw`, E384905);

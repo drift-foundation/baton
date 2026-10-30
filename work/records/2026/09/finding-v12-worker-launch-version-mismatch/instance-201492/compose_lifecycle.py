@@ -52,7 +52,9 @@ import sys
 
 HERE = Path(__file__).resolve().parent
 DOSSIER = HERE.parent
-REPO = Path("/home/sl/src/baton")
+# W384870 (owner 2026-10-30): the checkout this record lives in, derived from
+# this file's own place, never a developer's home (see verify_lifecycle.py).
+REPO = Path(__file__).resolve().parents[6]
 sys.path.insert(0, str(REPO / "v12/python"))
 sys.path.insert(0, str(REPO / "v12/python/src"))
 

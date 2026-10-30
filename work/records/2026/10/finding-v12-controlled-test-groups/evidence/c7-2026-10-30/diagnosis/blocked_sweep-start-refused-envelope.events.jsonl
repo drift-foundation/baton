@@ -1,0 +1,82 @@
+{"child": false, "event": "process_entry", "monotonic": 1423.815466093, "pid": 7296, "thread": 124560224956736}
+{"event": "trace", "function": "main", "kind": "call", "monotonic": 1423.8157175, "pid": 7296, "thread": 124560224956736}
+{"event": "manager_started", "manager": 7297, "monotonic": 1423.817192408, "pid": 7296, "thread": 124560224956736}
+{"child": true, "event": "process_entry", "monotonic": 1423.976727398, "pid": 7297, "thread": 132770772668736}
+{"event": "trace", "function": "main", "kind": "call", "monotonic": 1423.976943289, "pid": 7297, "thread": 132770772668736}
+{"event": "trace", "function": "child_main", "kind": "call", "monotonic": 1423.978246529, "pid": 7297, "thread": 132770772668736}
+{"event": "trace", "function": "start", "kind": "call", "monotonic": 1423.980001808, "pid": 7297, "thread": 132770772668736}
+{"event": "trace", "function": "_run", "kind": "call", "monotonic": 1423.980164761, "pid": 7297, "thread": 132770732914368}
+{"event": "manager_guard_held", "guard_pid": 7297, "monotonic": 1423.995647308, "pid": 7297, "thread": 132770732914368}
+{"event": "snapshot_begin", "finished": false, "monotonic": 1424.018140413, "pid": 7297, "report": {"attempts": {}, "faults": [], "state": "watching"}, "stopping": false, "thread": 132770732914368}
+{"event": "trace", "function": "publish_guard", "kind": "call", "monotonic": 1424.018184876, "pid": 7297, "thread": 132770732914368}
+{"event": "trace", "function": "publish_guard", "kind": "return", "monotonic": 1424.018289029, "pid": 7297, "thread": 132770732914368}
+{"event": "snapshot_replaced", "finished": false, "monotonic": 1424.018305019, "pid": 7297, "thread": 132770732914368}
+{"event": "trace", "function": "start", "kind": "return", "monotonic": 1424.018333502, "pid": 7297, "thread": 132770772668736}
+{"event": "trace", "function": "main", "kind": "call", "monotonic": 1424.020293942, "pid": 7297, "thread": 132770772668736}
+{"event": "trace", "function": "supervise", "kind": "call", "monotonic": 1424.035223182, "pid": 7297, "thread": 132770772668736}
+{"event": "trace", "function": "install", "kind": "call", "monotonic": 1424.035262385, "pid": 7297, "thread": 132770772668736}
+{"event": "trace", "function": "install", "kind": "return", "monotonic": 1424.035285167, "pid": 7297, "thread": 132770772668736}
+{"event": "trace", "function": "_supervise", "kind": "call", "monotonic": 1424.035343946, "pid": 7297, "thread": 132770772668736}
+{"event": "snapshot_begin", "finished": false, "monotonic": 1424.268566288, "pid": 7297, "report": {"attempts": {"attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {"faults": [], "observation": null, "runtime": null, "token": null}}, "faults": [], "state": "watching"}, "stopping": false, "thread": 132770732914368}
+{"event": "trace", "function": "publish_guard", "kind": "call", "monotonic": 1424.268608827, "pid": 7297, "thread": 132770732914368}
+{"event": "trace", "function": "publish_guard", "kind": "return", "monotonic": 1424.268743507, "pid": 7297, "thread": 132770732914368}
+{"event": "snapshot_replaced", "finished": false, "monotonic": 1424.268764206, "pid": 7297, "thread": 132770732914368}
+{"event": "snapshot_begin", "finished": false, "monotonic": 1424.518961064, "pid": 7297, "report": {"attempts": {"attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {"faults": [], "observation": null, "runtime": null, "token": null}}, "faults": [], "state": "watching"}, "stopping": false, "thread": 132770732914368}
+{"event": "trace", "function": "publish_guard", "kind": "call", "monotonic": 1424.518993935, "pid": 7297, "thread": 132770732914368}
+{"event": "trace", "function": "publish_guard", "kind": "return", "monotonic": 1424.51911489, "pid": 7297, "thread": 132770732914368}
+{"event": "snapshot_replaced", "finished": false, "monotonic": 1424.519132463, "pid": 7297, "thread": 132770732914368}
+{"event": "snapshot_begin", "finished": false, "monotonic": 1424.769299746, "pid": 7297, "report": {"attempts": {"attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {"faults": [], "observation": null, "runtime": null, "token": null}}, "faults": [], "state": "watching"}, "stopping": false, "thread": 132770732914368}
+{"event": "trace", "function": "publish_guard", "kind": "call", "monotonic": 1424.769332166, "pid": 7297, "thread": 132770732914368}
+{"event": "trace", "function": "publish_guard", "kind": "return", "monotonic": 1424.769433755, "pid": 7297, "thread": 132770732914368}
+{"event": "snapshot_replaced", "finished": false, "monotonic": 1424.769450085, "pid": 7297, "thread": 132770732914368}
+{"event": "snapshot_begin", "finished": false, "monotonic": 1425.019636474, "pid": 7297, "report": {"attempts": {"attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {"faults": [], "observation": null, "runtime": null, "token": null}}, "faults": [], "state": "watching"}, "stopping": false, "thread": 132770732914368}
+{"event": "trace", "function": "publish_guard", "kind": "call", "monotonic": 1425.019677169, "pid": 7297, "thread": 132770732914368}
+{"event": "trace", "function": "publish_guard", "kind": "return", "monotonic": 1425.01979603, "pid": 7297, "thread": 132770732914368}
+{"event": "snapshot_replaced", "finished": false, "monotonic": 1425.019813673, "pid": 7297, "thread": 132770732914368}
+{"event": "fixture_materialize", "monotonic": 1425.081212246, "pid": 7297, "repository": "/home/sl/src/baton/work/scratch/w384870-c7/one2/blocked_sweep/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout", "thread": 132770772668736}
+{"event": "start_refused", "monotonic": 1425.106063159, "pid": 7297, "refusal": "ContractRefusal: selected envelope cannot support the populated provider and verification limits", "thread": 132770772668736}
+{"event": "trace", "function": "stop", "kind": "call", "monotonic": 1425.122517761, "pid": 7297, "thread": 132770772668736}
+{"event": "trace", "function": "stop", "kind": "return", "monotonic": 1425.122550612, "pid": 7297, "thread": 132770772668736}
+{"event": "trace", "function": "defer", "kind": "call", "monotonic": 1425.122564207, "pid": 7297, "thread": 132770772668736}
+{"event": "trace", "function": "defer", "kind": "return", "monotonic": 1425.122573825, "pid": 7297, "thread": 132770772668736}
+{"event": "snapshot_begin", "finished": false, "monotonic": 1425.270378616, "pid": 7297, "report": {"attempts": {"attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {"faults": [], "observation": null, "runtime": {"assignment": {"generation": 1, "participant": "baton.claude", "work_ref": {"authority_uuid": "0000000a000000000000000000000000", "work_id": "0000000a-W1"}}, "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571", "cleanup": "pending", "execution_runtime": "not-started", "runtime_id": null}, "token": null}}, "faults": [], "state": "watching"}, "stopping": false, "thread": 132770732914368}
+{"event": "trace", "function": "publish_guard", "kind": "call", "monotonic": 1425.270426955, "pid": 7297, "thread": 132770732914368}
+{"event": "trace", "function": "publish_guard", "kind": "return", "monotonic": 1425.270540807, "pid": 7297, "thread": 132770732914368}
+{"event": "snapshot_replaced", "finished": false, "monotonic": 1425.270557838, "pid": 7297, "thread": 132770732914368}
+{"event": "snapshot_begin", "finished": false, "monotonic": 1425.521086284, "pid": 7297, "report": {"attempts": {"attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {"faults": [], "observation": null, "runtime": {"assignment": {"generation": 1, "participant": "baton.claude", "work_ref": {"authority_uuid": "0000000a000000000000000000000000", "work_id": "0000000a-W1"}}, "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571", "cleanup": "pending", "execution_runtime": "not-started", "runtime_id": null}, "token": null}}, "faults": [], "state": "watching"}, "stopping": false, "thread": 132770732914368}
+{"event": "trace", "function": "publish_guard", "kind": "call", "monotonic": 1425.521135635, "pid": 7297, "thread": 132770732914368}
+{"event": "trace", "function": "publish_guard", "kind": "return", "monotonic": 1425.521252142, "pid": 7297, "thread": 132770732914368}
+{"event": "snapshot_replaced", "finished": false, "monotonic": 1425.521270235, "pid": 7297, "thread": 132770732914368}
+{"event": "snapshot_begin", "finished": false, "monotonic": 1425.771759667, "pid": 7297, "report": {"attempts": {"attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {"faults": [], "observation": null, "runtime": {"assignment": {"generation": 1, "participant": "baton.claude", "work_ref": {"authority_uuid": "0000000a000000000000000000000000", "work_id": "0000000a-W1"}}, "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571", "cleanup": "pending", "execution_runtime": "not-started", "runtime_id": null}, "token": null}}, "faults": [], "state": "watching"}, "stopping": false, "thread": 132770732914368}
+{"event": "trace", "function": "publish_guard", "kind": "call", "monotonic": 1425.771797097, "pid": 7297, "thread": 132770732914368}
+{"event": "trace", "function": "publish_guard", "kind": "return", "monotonic": 1425.771903985, "pid": 7297, "thread": 132770732914368}
+{"event": "snapshot_replaced", "finished": false, "monotonic": 1425.7719227, "pid": 7297, "thread": 132770732914368}
+{"event": "snapshot_begin", "finished": false, "monotonic": 1426.022473547, "pid": 7297, "report": {"attempts": {"attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {"faults": [], "observation": null, "runtime": {"assignment": {"generation": 1, "participant": "baton.claude", "work_ref": {"authority_uuid": "0000000a000000000000000000000000", "work_id": "0000000a-W1"}}, "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571", "cleanup": "pending", "execution_runtime": "not-started", "runtime_id": null}, "token": null}}, "faults": [], "state": "watching"}, "stopping": false, "thread": 132770732914368}
+{"event": "trace", "function": "publish_guard", "kind": "call", "monotonic": 1426.022516286, "pid": 7297, "thread": 132770732914368}
+{"event": "trace", "function": "publish_guard", "kind": "return", "monotonic": 1426.022639184, "pid": 7297, "thread": 132770732914368}
+{"event": "snapshot_replaced", "finished": false, "monotonic": 1426.022659211, "pid": 7297, "thread": 132770732914368}
+{"event": "trace", "function": "_publish", "kind": "call", "monotonic": 1426.127156258, "pid": 7297, "thread": 132770772668736}
+{"event": "trace", "function": "_publish", "kind": "return", "monotonic": 1426.127579644, "pid": 7297, "thread": 132770772668736}
+{"event": "trace", "function": "_supervise", "kind": "return", "monotonic": 1426.127601314, "pid": 7297, "thread": 132770772668736}
+{"event": "trace", "function": "restore", "kind": "call", "monotonic": 1426.127616212, "pid": 7297, "thread": 132770772668736}
+{"event": "trace", "function": "restore", "kind": "return", "monotonic": 1426.127632492, "pid": 7297, "thread": 132770772668736}
+{"event": "trace", "function": "supervise", "kind": "return", "monotonic": 1426.127641208, "pid": 7297, "thread": 132770772668736}
+{"event": "trace", "function": "main", "kind": "return", "monotonic": 1426.128375942, "pid": 7297, "thread": 132770772668736}
+{"event": "trace", "function": "stop", "kind": "call", "monotonic": 1426.128442606, "pid": 7297, "thread": 132770772668736}
+{"event": "snapshot_begin", "finished": true, "monotonic": 1426.145555931, "pid": 7297, "report": {"attempts": {"attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {"faults": [], "observation": null, "runtime": {"assignment": {"generation": 1, "participant": "baton.claude", "work_ref": {"authority_uuid": "0000000a000000000000000000000000", "work_id": "0000000a-W1"}}, "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571", "cleanup": "pending", "execution_runtime": "not-started", "runtime_id": null}, "token": null}}, "faults": [], "state": "stopping"}, "stopping": true, "thread": 132770732914368}
+{"event": "trace", "function": "publish_guard", "kind": "call", "monotonic": 1426.145597428, "pid": 7297, "thread": 132770732914368}
+{"event": "trace", "function": "publish_guard", "kind": "return", "monotonic": 1426.145712552, "pid": 7297, "thread": 132770732914368}
+{"event": "snapshot_replaced", "finished": true, "monotonic": 1426.145732098, "pid": 7297, "thread": 132770732914368}
+{"event": "trace", "function": "_run", "kind": "return", "monotonic": 1426.145746675, "pid": 7297, "thread": 132770732914368}
+{"event": "trace", "function": "stop", "kind": "return", "monotonic": 1426.145800155, "pid": 7297, "thread": 132770772668736}
+{"event": "snapshot_begin", "finished": true, "monotonic": 1426.145925317, "pid": 7297, "report": {"attempts": {"attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {"faults": [], "observation": null, "runtime": {"assignment": {"generation": 1, "participant": "baton.claude", "work_ref": {"authority_uuid": "0000000a000000000000000000000000", "work_id": "0000000a-W1"}}, "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571", "cleanup": "pending", "execution_runtime": "not-started", "runtime_id": null}, "token": null}}, "faults": [], "state": "stopping"}, "stopping": true, "thread": 132770772668736}
+{"event": "trace", "function": "publish_guard", "kind": "call", "monotonic": 1426.145952658, "pid": 7297, "thread": 132770772668736}
+{"event": "trace", "function": "publish_guard", "kind": "return", "monotonic": 1426.146020594, "pid": 7297, "thread": 132770772668736}
+{"event": "snapshot_replaced", "finished": true, "monotonic": 1426.146033588, "pid": 7297, "thread": 132770772668736}
+{"event": "trace", "function": "child_main", "kind": "return", "monotonic": 1426.146054687, "pid": 7297, "thread": 132770772668736}
+{"event": "trace", "function": "main", "kind": "return", "monotonic": 1426.146063914, "pid": 7297, "thread": 132770772668736}
+{"event": "outer_signal", "manager": 7297, "monotonic": 1426.318695312, "pid": 7296, "signal": 9, "thread": 124560224956736}
+{"event": "manager_reaped", "manager": 7297, "monotonic": 1426.31882904, "pid": 7296, "status": 1, "thread": 124560224956736}
+{"event": "trace", "function": "stop", "kind": "call", "monotonic": 1426.318860499, "pid": 7296, "thread": 124560224956736}
+{"event": "trace", "function": "stop", "kind": "return", "monotonic": 1426.318938453, "pid": 7296, "thread": 124560224956736}
+{"event": "trace", "function": "main", "kind": "return", "monotonic": 1426.319193026, "pid": 7296, "thread": 124560224956736}

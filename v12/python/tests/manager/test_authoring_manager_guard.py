@@ -169,9 +169,10 @@ def fixture_main():
     from baton_v12.worker_manager import ControlStore, workspaces
     from baton_v12.job_manager import JobStore
     from tools import authoring_enforcement as e, single_worker
-    root_source = Path(__file__).resolve().parents[4]
-    sys.path.insert(0, str(root_source / 'work/records/2026/09/finding-v12-single-implementation-proof'))
-    import baseline
+    # W384870 B3: the baseline module THE CONTROLLER IMPORTS, not the
+    # historical proof's copy in its dossier (patches on that one never reached
+    # `tools/authoring_enforcement.py`).
+    from tools import authoring_baseline as baseline
     packet_path = sys.argv[sys.argv.index('--packet') + 1]
     value = json.loads(Path(packet_path).read_text()); root = Path(packet_path).parent
     config = json.loads((root / 'config.json').read_text())

@@ -1,0 +1,43 @@
+# strace summaries (raw traces removed: ~95 MB each, reproducible from the recipe in PORTABILITY.md)
+
+## other-checkout.strace
+lines: 957357
+accesses to /home/sl/src/baton (the original checkout): 1
+90:19619 newfstatat(AT_FDCWD, "/home/sl/src/baton", {st_mode=S_IFDIR|0775, st_size=4096, ...}, 0) = 0
+distinct /home/sl/* paths touched (count path):
+  14418 "/home/sl/.local/bin/git"
+   3272 "/home/sl/.gitconfig"
+   2432 "/home/sl/.nvm/...
+   2105 "/home/sl/.local/state/baton-v12-venv/...
+   1636 "/home/sl/.config/git/config"
+    243 "/home/sl/.config/git/attributes"
+    238 "/home/sl/.config/git/ignore"
+    120 "/home/sl/.local/bin/python3"
+     55 "/home/sl/.local/state/baton-v12-...
+     36 "/home/sl/.local/bin/tr"
+     12 "/home/sl/.local/bin/bash"
+     10 "/home/sl/.local/lib/python3.13/site-packages"
+      6 "/home/sl/.local/bin/dirname"
+      1 "/home/sl/src/baton"
+      1 "/home/sl/.local/state"
+      1 "/home/sl/.local"
+
+## strict-checkout.strace
+lines: 965724
+accesses to /home/sl/src/baton (the original checkout): 0
+distinct /home/sl/* paths touched (count path):
+  14688 "/home/sl/.local/bin/git"
+   3416 "/home/sl/.gitconfig"
+   2477 "/home/sl/.nvm/...
+   2148 "/home/sl/.local/state/baton-v12-venv/...
+   1708 "/home/sl/.config/git/config"
+    260 "/home/sl/.config/git/ignore"
+    250 "/home/sl/.config/git/attributes"
+    120 "/home/sl/.local/bin/python3"
+     56 "/home/sl/.local/state/baton-v12-...
+     36 "/home/sl/.local/bin/tr"
+     12 "/home/sl/.local/bin/bash"
+     10 "/home/sl/.local/lib/python3.13/site-packages"
+      6 "/home/sl/.local/bin/dirname"
+      1 "/home/sl/.local/state"
+      1 "/home/sl/.local"

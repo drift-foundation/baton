@@ -18,13 +18,16 @@ temporary directory.
 
 import json
 import os
+import pathlib
 import shutil
 import sys
 import tempfile
 import unittest
 from unittest import mock
 
-REPO = "/home/sl/src/baton"
+# W384870 (owner 2026-10-30): the checkout UNDER TEST, never a developer's
+# home; this module is v12/python/tests/manager/<file>, five parents up.
+REPO = str(pathlib.Path(__file__).resolve().parents[4])
 CONTEXT = os.path.join(
     REPO, "work/records/2026/09/finding-v12-worker-launch-version-mismatch",
     "instance-201492/context/worker")

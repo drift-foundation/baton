@@ -1,0 +1,171 @@
+{
+  "author_invocation_started": true,
+  "authoring_log": "/home/sl/src/baton/work/scratch/w384870-c7/matrix2/unknown/outcome.json.authoring.log",
+  "child_exited": true,
+  "child_started": true,
+  "child_status": 130,
+  "elapsed_seconds": 7.00401649399987,
+  "enforcement": {
+    "attempts": {
+      "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {
+        "faults": [
+          "TimeoutError: selected fake engine uncertainty"
+        ],
+        "observation": {
+          "runtime_id": "runtime-single-1",
+          "state": "uncertain",
+          "why": "the engine answered \"the engine could not be asked: TimeoutError('selected fake engine uncertainty')\""
+        },
+        "runtime": {
+          "assignment": {
+            "generation": 1,
+            "participant": "baton.claude",
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W1"
+            }
+          },
+          "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "cleanup": "pending",
+          "execution_runtime": "cancel-requested",
+          "runtime_id": "runtime-single-1"
+        },
+        "token": {
+          "acquired_at": "2026-10-30T16:35:51.570Z",
+          "acquired_expires_at": "2026-10-30T16:36:00.476Z",
+          "activating": false,
+          "activation_started": true,
+          "attempt": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "container": "runtime-single-1",
+          "domain": "workspace:66306:51155769",
+          "execution": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "expired": false,
+          "expires_at": "2026-10-30T16:36:00.476Z",
+          "expiry_judged_at": null,
+          "generation": 1,
+          "launch": "runtime.start:50f34424d07465b28176ecba7eb295be455a6a6763fffd0f3402ffb12aeb823b",
+          "operation": "runtime.start:50f34424d07465b28176ecba7eb295be455a6a6763fffd0f3402ffb12aeb823b",
+          "owner": "d97cf2f24c1a8d717bef393d061ae1de87a9dfc5833c9318d8d9ad06f3ac86e5",
+          "permission": {
+            "expires_at": "2026-10-30T16:36:00.476Z",
+            "policy": {
+              "cleanup_seconds": 4,
+              "execution_limits": {
+                "boundaries": {
+                  "host_verification": {
+                    "default_seconds": 300,
+                    "origin": "job",
+                    "seconds": 1,
+                    "setting": "verification_command_seconds"
+                  },
+                  "integration_verification": {
+                    "default_seconds": 1800,
+                    "origin": "job",
+                    "seconds": 1,
+                    "setting": "verification_command_seconds"
+                  },
+                  "ordinary_verification": {
+                    "default_seconds": 900,
+                    "origin": "job",
+                    "seconds": 1,
+                    "setting": "verification_command_seconds"
+                  },
+                  "provider_turn": {
+                    "default_seconds": 3600,
+                    "origin": "job",
+                    "seconds": 2,
+                    "setting": "provider_turn_seconds"
+                  }
+                },
+                "compatibility_generation": 1,
+                "requested": {
+                  "provider_turn_seconds": 2,
+                  "verification_command_seconds": 1
+                },
+                "scope": "per-invocation",
+                "units": "seconds"
+              },
+              "job": "job-a",
+              "run": "shutdown-unknown",
+              "total_seconds": 10
+            },
+            "started_at": "2026-10-30T16:35:50.476Z",
+            "stop_at": "2026-10-30T16:35:56.476Z"
+          },
+          "renewals": 0,
+          "renewals_remaining": 0,
+          "renewed_at": null,
+          "returned": false,
+          "revision": 0,
+          "revoked": false,
+          "seconds": null,
+          "settlement_fence": null,
+          "timing_ambiguous": false,
+          "timing_decided_at": null,
+          "timing_observed_at": null,
+          "version": 1
+        }
+      }
+    },
+    "faults": [],
+    "state": "stopping"
+  },
+  "enforcement_path": "/home/sl/src/baton/work/scratch/w384870-c7/matrix2/unknown/outcome.json.enforcement-8875-1793378157782717717.json",
+  "faults": [],
+  "manager_report_path": "/home/sl/src/baton/work/scratch/w384870-c7/matrix2/unknown/outcome.json.manager-8875-1793378150277943367.json",
+  "operator_signals": [],
+  "original_envelope": {
+    "authority": "0000000a000000000000000000000000",
+    "job": "job-a",
+    "packet": {
+      "bounds": {
+        "cleanup_seconds": 4,
+        "implementer_invocations": 1,
+        "retry": false,
+        "total_seconds": 10,
+        "turn_seconds": 2
+      },
+      "claim": 338472,
+      "code_boundary": "/home/sl/src/baton/work/scratch/w384870-c7/matrix2/unknown/checkout",
+      "context": {
+        "mode": "fresh"
+      },
+      "deployment": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "config_path": "/home/sl/src/baton/work/scratch/w384870-c7/matrix2/unknown/config.json",
+        "control_store": "/home/sl/src/baton/work/scratch/w384870-c7/matrix2/unknown/control.sqlite3",
+        "job_store": "/home/sl/src/baton/work/scratch/w384870-c7/matrix2/unknown/jobs.sqlite3"
+      },
+      "diagnostic_mode": "unknown",
+      "manager_source": {
+        "files": {
+          "tools/authoring_enforcement.py": "248ee9edd72214efbdc77044a9af6ad2c382e2ca1dbd5b71ff0db720d9a5a5dc",
+          "tools/authoring_shutdown.py": "af9e5ea6b140d772cdb143c73bccf7c321869b4707245ba7e8ca79ab855fab2e"
+        },
+        "path": "/home/sl/src/baton/v12/python"
+      },
+      "outcome_path": "/home/sl/src/baton/work/scratch/w384870-c7/matrix2/unknown/outcome.json",
+      "run_id": "shutdown-unknown",
+      "schema": "baton.single-implementation-packet/2",
+      "submission": {
+        "job_id": "job-a",
+        "path": "/home/sl/src/baton/work/scratch/w384870-c7/matrix2/unknown/submission.json"
+      },
+      "work": "W338305"
+    },
+    "run": "shutdown-unknown",
+    "started_at": "2026-10-30T16:35:50.476Z",
+    "stop_at": "2026-10-30T16:35:56.476000+00:00"
+  },
+  "recovery_only": false,
+  "shutdown_deadline": 1911.5995508590001,
+  "shutdown_progress": {
+    "deadline": 1909.598898076,
+    "faults": [],
+    "job_id": "job-a",
+    "run_id": "shutdown-unknown",
+    "step": "final enforcement publication",
+    "step_deadline": 1909.55030037135
+  },
+  "state": "held"
+}

@@ -131,7 +131,12 @@ def main():
                 if argv != ['python3', 'subject.py']: raise RuntimeError('unexpected verification command')
                 return subprocess.run(argv, **options)
             home = Path(os.environ['HOME']) / 'worker-home'; home.mkdir(exist_ok=True)
-            launch = json.loads(Path(mounts['/run/baton/launch.json']).read_text())
+            # W384870 B3: the manager delivers a WIRE launch (baton.worker-launch/5:
+            # schema, wire_profile, payload); read and unwrap it the way the real
+            # worker entry does, rather than re-deriving the document shape here.
+            place = mounts['/run/baton/launch.json']
+            launch = baton_worker.launched(baton_worker.read_launch(place), place)
+            record('worker-launch', {'schema': launch.get('schema'), 'members': sorted(launch)})
             answer = baton_worker.serve_exchange(claude_agent.ClaudeAgent(run=provider, home=str(home)), launch, launch['session'], mounts['/run/baton/exchange/command'], mounts['/run/baton/exchange/events'])
             record('worker-exit', answer)
         except BaseException as error:

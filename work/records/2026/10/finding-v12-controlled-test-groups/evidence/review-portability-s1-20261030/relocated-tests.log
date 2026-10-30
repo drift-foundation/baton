@@ -1,0 +1,1142 @@
+test_a_FAILING_command_is_reported_as_its_own_status (tests.manager.test_proposing_fixture.AnINTEGRATIONIsAdmittedBehindAnOrdinaryTestRun.test_a_FAILING_command_is_reported_as_its_own_status) ... ok
+test_a_command_that_CANNOT_START_is_UNRUN_and_not_a_failure (tests.manager.test_proposing_fixture.AnINTEGRATIONIsAdmittedBehindAnOrdinaryTestRun.test_a_command_that_CANNOT_START_is_UNRUN_and_not_a_failure)
+Absence of evidence is not evidence of failure, and a status would ... ok
+test_a_task_naming_NO_command_leaves_the_namespace_ABSENT (tests.manager.test_proposing_fixture.AnINTEGRATIONIsAdmittedBehindAnOrdinaryTestRun.test_a_task_naming_NO_command_leaves_the_namespace_ABSENT)
+Absent and empty are different answers: the consumer refuses an ... ok
+test_it_names_THIS_turns_base_and_head (tests.manager.test_proposing_fixture.AnINTEGRATIONIsAdmittedBehindAnOrdinaryTestRun.test_it_names_THIS_turns_base_and_head)
+An observation about another candidate is not this one's ... ok
+test_running_it_does_NOT_dirty_the_line (tests.manager.test_proposing_fixture.AnINTEGRATIONIsAdmittedBehindAnOrdinaryTestRun.test_running_it_does_NOT_dirty_the_line)
+The freeze refuses a line with tracked or untracked worktree ... ok
+test_the_COMPOSED_task_really_names_this_command (tests.manager.test_proposing_fixture.AnINTEGRATIONIsAdmittedBehindAnOrdinaryTestRun.test_the_COMPOSED_task_really_names_this_command)
+The argv these cases exercise is the one the episode composed, read ... ok
+test_the_DECLARED_FILE_says_what_ran_and_what_it_answered (tests.manager.test_proposing_fixture.AnINTEGRATIONIsAdmittedBehindAnOrdinaryTestRun.test_the_DECLARED_FILE_says_what_ran_and_what_it_answered) ... ok
+test_the_DIGEST_is_of_the_exact_task_bytes_it_read (tests.manager.test_proposing_fixture.AnINTEGRATIONIsAdmittedBehindAnOrdinaryTestRun.test_the_DIGEST_is_of_the_exact_task_bytes_it_read)
+A digest over a re-serialization would measure this file's JSON ... ok
+test_the_OBSERVATION_is_carried_on_the_proposal_output (tests.manager.test_proposing_fixture.AnINTEGRATIONIsAdmittedBehindAnOrdinaryTestRun.test_the_OBSERVATION_is_carried_on_the_proposal_output) ... ok
+test_the_command_is_a_REAL_CHECK_and_not_a_rubber_stamp (tests.manager.test_proposing_fixture.AnINTEGRATIONIsAdmittedBehindAnOrdinaryTestRun.test_the_command_is_a_REAL_CHECK_and_not_a_rubber_stamp)
+A required test that passes whatever the candidate contains proves ... ok
+test_the_command_runs_over_the_COMMITTED_candidate (tests.manager.test_proposing_fixture.AnINTEGRATIONIsAdmittedBehindAnOrdinaryTestRun.test_the_command_runs_over_the_COMMITTED_candidate)
+It runs after the commit, so what passed is the tree the candidate ... ok
+test_it_imports_nothing_from_baton_v12 (tests.manager.test_proposing_fixture.TheAgentCarriesNoManagerImport.test_it_imports_nothing_from_baton_v12)
+A worker that can import the manager is a worker one bug away from ... ok
+test_a_MISSING_CHECKPOINT_refuses_rather_than_falling_back (tests.manager.test_proposing_fixture.TheFixtureAlsoREVIEWSDeterministically.test_a_MISSING_CHECKPOINT_refuses_rather_than_falling_back) ... ok
+test_a_MISSING_TASK_refuses_and_never_reviews_the_output_root (tests.manager.test_proposing_fixture.TheFixtureAlsoREVIEWSDeterministically.test_a_MISSING_TASK_refuses_and_never_reviews_the_output_root)
+Falling back is exactly how the defect read correct. ... ok
+test_a_base_THE_LINE_HAS_NEVER_SEEN_is_refused (tests.manager.test_proposing_fixture.TheFixtureAlsoREVIEWSDeterministically.test_a_base_THE_LINE_HAS_NEVER_SEEN_is_refused)
+`rev-parse --verify` accepts a well-formed name as SYNTAX, so a base ... ok
+test_a_review_turn_WRITES_NOTHING_into_the_checkpoint (tests.manager.test_proposing_fixture.TheFixtureAlsoREVIEWSDeterministically.test_a_review_turn_WRITES_NOTHING_into_the_checkpoint)
+The arrangement says it rather than the intention: every observation ... ok
+test_a_review_turn_answers_a_VERDICT_CLAIM_over_THE_MOUNTED_LINE (tests.manager.test_proposing_fixture.TheFixtureAlsoREVIEWSDeterministically.test_a_review_turn_answers_a_VERDICT_CLAIM_over_THE_MOUNTED_LINE) ... ok
+test_a_source_root_THAT_LEAVES_the_input_root_is_refused (tests.manager.test_proposing_fixture.TheFixtureAlsoREVIEWSDeterministically.test_a_source_root_THAT_LEAVES_the_input_root_is_refused) ... ok
+test_the_base_is_THE_TASKS_and_never_guessed_from_the_shape (tests.manager.test_proposing_fixture.TheFixtureAlsoREVIEWSDeterministically.test_the_base_is_THE_TASKS_and_never_guessed_from_the_shape)
+`HEAD~1` was this fixture assuming the shape of a line. The verdict ... ok
+test_the_findings_and_logs_go_to_THE_OUTPUT_ROOT_only (tests.manager.test_proposing_fixture.TheFixtureAlsoREVIEWSDeterministically.test_the_findings_and_logs_go_to_THE_OUTPUT_ROOT_only) ... ok
+test_the_review_claim_names_NO_manager_identity_either (tests.manager.test_proposing_fixture.TheFixtureAlsoREVIEWSDeterministically.test_the_review_claim_names_NO_manager_identity_either) ... ok
+test_the_two_roots_are_NOT_the_same_directory_by_default (tests.manager.test_proposing_fixture.TheFixtureAlsoREVIEWSDeterministically.test_the_two_roots_are_NOT_the_same_directory_by_default)
+The container's own constants, which is what the defect conflated. ... ok
+test_a_STALE_transport_from_an_earlier_turn_is_removed_first (tests.manager.test_proposing_fixture.TheFixtureProducesARealCandidate.test_a_STALE_transport_from_an_earlier_turn_is_removed_first)
+On a persistent line the declared directory SURVIVES the turn that ... ok
+test_a_declaration_that_is_not_a_list_is_REFUSED (tests.manager.test_proposing_fixture.TheFixtureProducesARealCandidate.test_a_declaration_that_is_not_a_list_is_REFUSED) ... ok
+test_it_COMMITS_and_the_head_is_a_new_revision (tests.manager.test_proposing_fixture.TheFixtureProducesARealCandidate.test_it_COMMITS_and_the_head_is_a_new_revision) ... ok
+test_it_is_DETERMINISTIC_about_the_bytes_it_writes (tests.manager.test_proposing_fixture.TheFixtureProducesARealCandidate.test_it_is_DETERMINISTIC_about_the_bytes_it_writes) ... ok
+test_it_names_NO_manager_identity (tests.manager.test_proposing_fixture.TheFixtureProducesARealCandidate.test_it_names_NO_manager_identity)
+An artifact id, a content digest, a byte count or a custody locator ... ok
+test_the_OBJECTS_carry_the_commit_the_claim_names (tests.manager.test_proposing_fixture.TheFixtureProducesARealCandidate.test_the_OBJECTS_carry_the_commit_the_claim_names)
+A transport that did not carry the head would be a proposal nobody ... ok
+test_the_OTHER_outputs_carry_no_claim (tests.manager.test_proposing_fixture.TheFixtureProducesARealCandidate.test_the_OTHER_outputs_carry_no_claim) ... ok
+test_the_PROPOSAL_CLAIM_is_present_and_is_this_turns_own (tests.manager.test_proposing_fixture.TheFixtureProducesARealCandidate.test_the_PROPOSAL_CLAIM_is_present_and_is_this_turns_own)
+The four facts a proposal claim is made of, and no fifth. ... ok
+test_the_declared_PROPOSAL_TREE_is_written (tests.manager.test_proposing_fixture.TheFixtureProducesARealCandidate.test_the_declared_PROPOSAL_TREE_is_written) ... ok
+test_every_COPIED_input_exists_and_nothing_else_is_in_the_context (tests.manager.test_proposing_fixture.TheIMAGEActuallySELECTSThisAgent.test_every_COPIED_input_exists_and_nothing_else_is_in_the_context)
+Provenance is a list of bytes that went in, so a copy naming a file ... ok
+test_the_ENTRYPOINT_is_the_entry_module_and_not_the_worker (tests.manager.test_proposing_fixture.TheIMAGEActuallySELECTSThisAgent.test_the_ENTRYPOINT_is_the_entry_module_and_not_the_worker)
+The one line that decides which agent the built image runs. ... ok
+test_the_default_BRANCH_is_what_would_have_run (tests.manager.test_proposing_fixture.TheIMAGEActuallySELECTSThisAgent.test_the_default_BRANCH_is_what_would_have_run)
+Not an assumption about the defect: the worker program in this very ... ok
+test_the_entry_module_INJECTS_through_the_documented_seam (tests.manager.test_proposing_fixture.TheIMAGEActuallySELECTSThisAgent.test_the_entry_module_INJECTS_through_the_documented_seam)
+`baton_worker.main(agent=...)`, not a second serve loop. A fixture ... ok
+test_the_image_CARRIES_NO_second_agent_to_fall_back_to (tests.manager.test_proposing_fixture.TheIMAGEActuallySELECTSThisAgent.test_the_image_CARRIES_NO_second_agent_to_fall_back_to)
+`_scripted_default` imports `scripted_agent`, and an image that ... ok
+test_a_declared_output_with_NO_PATH_is_refused (tests.manager.test_proposing_fixture.TheLINEIsSTILLCLEANAfterTheTurn.test_a_declared_output_with_NO_PATH_is_refused)
+The reservation is derived from the declarations, so a declaration ... ok
+test_the_WORKERS_OWN_envelope_would_not_dirty_it_either (tests.manager.test_proposing_fixture.TheLINEIsSTILLCLEANAfterTheTurn.test_the_WORKERS_OWN_envelope_would_not_dirty_it_either)
+The wrapper writes `output.json` into this same workspace after the ... ok
+test_the_declared_OUTPUTS_are_still_there_and_unstaged (tests.manager.test_proposing_fixture.TheLINEIsSTILLCLEANAfterTheTurn.test_the_declared_OUTPUTS_are_still_there_and_unstaged)
+Reserved, not deleted: the manager collects them from this very ... ok
+test_the_exclusion_is_LOCAL_and_never_committed (tests.manager.test_proposing_fixture.TheLINEIsSTILLCLEANAfterTheTurn.test_the_exclusion_is_LOCAL_and_never_committed)
+A committed ignore file would be this turn proposing a change to ... ok
+test_the_reserved_set_is_REPLACED_rather_than_appended (tests.manager.test_proposing_fixture.TheLINEIsSTILLCLEANAfterTheTurn.test_the_reserved_set_is_REPLACED_rather_than_appended)
+A persistent line survives the turn that wrote it, so a resumed ... ok
+test_the_worktree_is_CLEAN_when_the_turn_ends (tests.manager.test_proposing_fixture.TheLINEIsSTILLCLEANAfterTheTurn.test_the_worktree_is_CLEAN_when_the_turn_ends) ... ok
+test_a_namespace_that_is_a_DANGLING_LINK_refuses (tests.manager.test_fixture_dispatch.ADeliveryItCannotCLASSIFYRefusesBOTHWorkloads.test_a_namespace_that_is_a_DANGLING_LINK_refuses)
+`lexists` is deliberate: the link is THERE, so this is not the ... baton-worker: this container was given an integration assignment namespace it cannot read, so it can be neither a producer nor an integrator; nothing was run
+ok
+test_a_namespace_that_is_a_FILE_refuses (tests.manager.test_fixture_dispatch.ADeliveryItCannotCLASSIFYRefusesBOTHWorkloads.test_a_namespace_that_is_a_FILE_refuses) ... baton-worker: this container was given an integration assignment namespace it cannot read, so it can be neither a producer nor an integrator; nothing was run
+ok
+test_an_EMPTY_assignment_namespace_refuses (tests.manager.test_fixture_dispatch.ADeliveryItCannotCLASSIFYRefusesBOTHWorkloads.test_an_EMPTY_assignment_namespace_refuses) ... baton-worker: this container was given an integration assignment namespace it cannot read, so it can be neither a producer nor an integrator; nothing was run
+ok
+test_an_assignment_MISSING_ITS_MEMBERS_refuses (tests.manager.test_fixture_dispatch.ADeliveryItCannotCLASSIFYRefusesBOTHWorkloads.test_an_assignment_MISSING_ITS_MEMBERS_refuses) ... baton-worker: this container was given an integration assignment namespace it cannot read, so it can be neither a producer nor an integrator; nothing was run
+ok
+test_an_assignment_that_is_NOT_A_DOCUMENT_refuses (tests.manager.test_fixture_dispatch.ADeliveryItCannotCLASSIFYRefusesBOTHWorkloads.test_an_assignment_that_is_NOT_A_DOCUMENT_refuses) ... baton-worker: this container was given an integration assignment namespace it cannot read, so it can be neither a producer nor an integrator; nothing was run
+ok
+test_an_assignment_with_ANOTHER_SCHEMA_refuses (tests.manager.test_fixture_dispatch.ADeliveryItCannotCLASSIFYRefusesBOTHWorkloads.test_an_assignment_with_ANOTHER_SCHEMA_refuses) ... baton-worker: this container was given an integration assignment namespace it cannot read, so it can be neither a producer nor an integrator; nothing was run
+ok
+test_the_refusal_SAYS_WHY_on_stderr (tests.manager.test_fixture_dispatch.ADeliveryItCannotCLASSIFYRefusesBOTHWorkloads.test_the_refusal_SAYS_WHY_on_stderr)
+W198667's whole lesson: a refusal nobody can read is the half of an ... ok
+test_NO_assignment_namespace_enters_the_worker (tests.manager.test_fixture_dispatch.TheDELIVERYSelectsTheWORKLOAD.test_NO_assignment_namespace_enters_the_worker) ... ok
+test_an_INTEGRATION_assignment_enters_the_integration_entry (tests.manager.test_fixture_dispatch.TheDELIVERYSelectsTheWORKLOAD.test_an_INTEGRATION_assignment_enters_the_integration_entry) ... ok
+test_the_two_answers_come_from_ONE_function (tests.manager.test_fixture_dispatch.TheDELIVERYSelectsTheWORKLOAD.test_the_two_answers_come_from_ONE_function)
+`delivery` is the whole decision, so a case can ask it directly and ... ok
+test_BOTH_workloads_and_their_agents_travel (tests.manager.test_fixture_dispatch.TheIMAGECarriesWhatBothWorkloadsNeed.test_BOTH_workloads_and_their_agents_travel) ... ok
+test_every_COPIED_input_exists (tests.manager.test_fixture_dispatch.TheIMAGECarriesWhatBothWorkloadsNeed.test_every_COPIED_input_exists) ... ok
+test_the_ENTRYPOINT_is_the_dispatching_entry (tests.manager.test_fixture_dispatch.TheIMAGECarriesWhatBothWorkloadsNeed.test_the_ENTRYPOINT_is_the_dispatching_entry) ... ok
+test_the_REVIEWED_LOGGING_BYTES_are_named_with_their_digests (tests.manager.test_fixture_dispatch.TheIMAGECarriesWhatBothWorkloadsNeed.test_the_REVIEWED_LOGGING_BYTES_are_named_with_their_digests)
+Review 2026-09-18T07-45-26Z: snapshot W198667's reviewed inputs with ... ok
+test_there_is_NO_scripted_fallback_agent (tests.manager.test_fixture_dispatch.TheIMAGECarriesWhatBothWorkloadsNeed.test_there_is_NO_scripted_fallback_agent)
+The module whose silent default ran the wrong agent. ... ok
+test_a_DIFFERENT_identity_in_the_prompt_is_what_is_reported (tests.manager.test_importing_fixture.TheAGENTReadsOnlyWhatItsOWNERSAnswer.test_a_DIFFERENT_identity_in_the_prompt_is_what_is_reported)
+Proving it is read rather than remembered. ... ok
+test_a_MISSING_member_is_a_HOLD_and_not_a_FAULT (tests.manager.test_importing_fixture.TheAGENTReadsOnlyWhatItsOWNERSAnswer.test_a_MISSING_member_is_a_HOLD_and_not_a_FAULT)
+The workload has words for a turn that could not complete; an ... ok
+test_a_prompt_that_states_NO_identity_is_refused (tests.manager.test_importing_fixture.TheAGENTReadsOnlyWhatItsOWNERSAnswer.test_a_prompt_that_states_NO_identity_is_refused) ... ok
+test_the_BUNDLE_DIGEST_comes_from_the_PROMPT (tests.manager.test_importing_fixture.TheAGENTReadsOnlyWhatItsOWNERSAnswer.test_the_BUNDLE_DIGEST_comes_from_the_PROMPT) ... ok
+test_the_REAL_reader_is_what_the_double_must_match (tests.manager.test_importing_fixture.TheAGENTReadsOnlyWhatItsOWNERSAnswer.test_the_REAL_reader_is_what_the_double_must_match)
+The calibration that was missing: the double's key set is the real ... ok
+test_THIS_DEPLOYMENT_selects_the_ORDINARY_delivery (tests.manager.test_importing_fixture.TheDISPATCHIsDecidedByTheDELIVERY.test_THIS_DEPLOYMENT_selects_the_ORDINARY_delivery)
+Measured from the composed documents rather than assumed. ... ok
+test_an_APPLY_REQUEST_reaches_the_MANAGED_owner_and_IGNORES_the_agent (tests.manager.test_importing_fixture.TheDISPATCHIsDecidedByTheDELIVERY.test_an_APPLY_REQUEST_reaches_the_MANAGED_owner_and_IGNORES_the_agent)
+The reviewer's point, as a regression: claiming ImportingAgent runs ... ok
+test_an_ORDINARY_delivery_reaches_the_workload_WITH_this_agent (tests.manager.test_importing_fixture.TheDISPATCHIsDecidedByTheDELIVERY.test_an_ORDINARY_delivery_reaches_the_workload_WITH_this_agent) ... ok
+test_an_UNREADABLE_delivery_REFUSES_rather_than_proposing (tests.manager.test_importing_fixture.TheDISPATCHIsDecidedByTheDELIVERY.test_an_UNREADABLE_delivery_REFUSES_rather_than_proposing)
+The fallback a one-image fixture must never have: an integration ... baton-worker: launch: the integration runtime cannot read its launch: this container has no readable /var/tmp/baton-independent-portability-mq3jp2jc/temporary/v12-w197661-dispatch-eezbzw2c/no-launch.json; the launch document is how a worker is told what it is
+ok
+test_the_agent_imports_NOTHING_from_the_manager (tests.manager.test_importing_fixture.TheENTRYInjectsThroughTheDocumentedSeam.test_the_agent_imports_NOTHING_from_the_manager)
+A worker that could import the manager is a worker one bug away ... ok
+test_the_entry_hands_the_REAL_entry_this_agent (tests.manager.test_importing_fixture.TheENTRYInjectsThroughTheDocumentedSeam.test_the_entry_hands_the_REAL_entry_this_agent) ... ok
+test_NOTHING_outside_the_scheduled_table_is_written (tests.manager.test_importing_fixture.TheFixtureIMPORTSTheApprovedRows.test_NOTHING_outside_the_scheduled_table_is_written) ... ok
+test_a_DELETED_path_is_ABSENT_afterwards (tests.manager.test_importing_fixture.TheFixtureIMPORTSTheApprovedRows.test_a_DELETED_path_is_ABSENT_afterwards)
+Absence is exactly what the workload's read-back looks for. ... ok
+test_a_DELETE_of_something_already_absent_is_not_a_failure (tests.manager.test_importing_fixture.TheFixtureIMPORTSTheApprovedRows.test_a_DELETE_of_something_already_absent_is_not_a_failure) ... ok
+test_a_NESTED_path_is_created_a_component_at_a_time (tests.manager.test_importing_fixture.TheFixtureIMPORTSTheApprovedRows.test_a_NESTED_path_is_created_a_component_at_a_time) ... ok
+test_a_STAGING_entry_is_never_left_behind (tests.manager.test_importing_fixture.TheFixtureIMPORTSTheApprovedRows.test_a_STAGING_entry_is_never_left_behind) ... ok
+test_a_TURN_THAT_CANNOT_COMPLETE_answers_rather_than_raising (tests.manager.test_importing_fixture.TheFixtureIMPORTSTheApprovedRows.test_a_TURN_THAT_CANNOT_COMPLETE_answers_rather_than_raising)
+The workload's vocabulary for a failed turn is a HOLD; an exception ... ok
+test_a_blob_that_is_not_its_own_ADDRESS_is_refused (tests.manager.test_importing_fixture.TheFixtureIMPORTSTheApprovedRows.test_a_blob_that_is_not_its_own_ADDRESS_is_refused)
+`bundle_blob` proves the content against the name the row declares; ... ok
+test_an_ADDED_path_carries_the_candidate_bytes (tests.manager.test_importing_fixture.TheFixtureIMPORTSTheApprovedRows.test_an_ADDED_path_carries_the_candidate_bytes) ... ok
+test_an_EDITED_path_is_REPLACED_and_not_appended (tests.manager.test_importing_fixture.TheFixtureIMPORTSTheApprovedRows.test_an_EDITED_path_is_REPLACED_and_not_appended) ... ok
+test_the_REVIEWED_MODE_is_what_the_file_gets (tests.manager.test_importing_fixture.TheFixtureIMPORTSTheApprovedRows.test_the_REVIEWED_MODE_is_what_the_file_gets)
+The workload compares the mode it approved, so the umask must not ... ok
+test_the_PATHS_are_the_WHOLE_scheduled_table (tests.manager.test_importing_fixture.TheREPORTDescribesACompletedTurn.test_the_PATHS_are_the_WHOLE_scheduled_table) ... ok
+test_the_PHASE_of_an_imported_report_is_verification (tests.manager.test_importing_fixture.TheREPORTDescribesACompletedTurn.test_the_PHASE_of_an_imported_report_is_verification) ... ok
+test_the_workloads_OWN_condition_holds_over_what_is_written (tests.manager.test_importing_fixture.TheREPORTDescribesACompletedTurn.test_the_workloads_OWN_condition_holds_over_what_is_written)
+The assertion the workload makes, made here over this report. ... ok
+test_a_SECOND_turn_does_not_overwrite_the_first_report (tests.manager.test_importing_fixture.TheREPORTIsTheContractsOwnDocument.test_a_SECOND_turn_does_not_overwrite_the_first_report)
+One integration answers once. ... ok
+test_a_prompt_naming_NO_report_place_is_refused (tests.manager.test_importing_fixture.TheREPORTIsTheContractsOwnDocument.test_a_prompt_naming_NO_report_place_is_refused) ... ok
+test_it_claims_NO_verification_it_did_not_run (tests.manager.test_importing_fixture.TheREPORTIsTheContractsOwnDocument.test_it_claims_NO_verification_it_did_not_run)
+The required test is the integrator's to run after the import, and ... ok
+test_it_is_written_WHERE_THE_PROMPT_ASKED (tests.manager.test_importing_fixture.TheREPORTIsTheContractsOwnDocument.test_it_is_written_WHERE_THE_PROMPT_ASKED)
+The workload composes the prompt with `report_place` and reads back ... ok
+test_it_names_THIS_assignment_and_THIS_bundle (tests.manager.test_importing_fixture.TheREPORTIsTheContractsOwnDocument.test_it_names_THIS_assignment_and_THIS_bundle)
+The workload holds a report that names another of either. ... ok
+test_the_report_PASSES_the_contracts_own_checker (tests.manager.test_importing_fixture.TheREPORTIsTheContractsOwnDocument.test_the_report_PASSES_the_contracts_own_checker)
+Which is the thing that makes this a report rather than a shape ... ok
+test_the_reported_paths_are_SORTED_and_UNIQUE (tests.manager.test_importing_fixture.TheREPORTIsTheContractsOwnDocument.test_the_reported_paths_are_SORTED_and_UNIQUE)
+`check_report` refuses anything else. ... ok
+test_a_MISSING_record_fails_the_content_check_and_not_the_read_one (tests.manager.test_w197661_verifier.AnUNREADRecordIsNotAMISSINGOne.test_a_MISSING_record_fails_the_content_check_and_not_the_read_one)
+Read, and genuinely absent: a different failure with a different ... ok
+test_an_UNREAD_record_fails_its_own_check (tests.manager.test_w197661_verifier.AnUNREADRecordIsNotAMISSINGOne.test_an_UNREAD_record_fails_its_own_check) ... ok
+test_the_CAPTURED_records_still_match_the_adapter (tests.manager.test_w197661_verifier.AnUNREADRecordIsNotAMISSINGOne.test_the_CAPTURED_records_still_match_the_adapter)
+The calibration, and what catches a reader that drifts from its ... ok
+test_the_captured_TERMINAL_is_honestly_unread (tests.manager.test_w197661_verifier.AnUNREADRecordIsNotAMISSINGOne.test_the_captured_TERMINAL_is_honestly_unread)
+`read_records` no longer OWNS the terminal, and says so instead of ... ok
+test_ANOTHER_submission_is_refused (tests.manager.test_w197661_verifier.EveryBROKENShapeIsREFUSED.test_ANOTHER_submission_is_refused) ... ok
+test_a_CONFIGURATION_that_changed_after_the_seal_is_refused (tests.manager.test_w197661_verifier.EveryBROKENShapeIsREFUSED.test_a_CONFIGURATION_that_changed_after_the_seal_is_refused) ... ok
+test_a_COPY_INPUT_that_moved_after_the_seal_is_refused (tests.manager.test_w197661_verifier.EveryBROKENShapeIsREFUSED.test_a_COPY_INPUT_that_moved_after_the_seal_is_refused) ... ok
+test_a_DIFFERENT_terminal_policy_is_refused (tests.manager.test_w197661_verifier.EveryBROKENShapeIsREFUSED.test_a_DIFFERENT_terminal_policy_is_refused) ... ok
+test_a_HELD_account_is_NOT_a_successful_terminal (tests.manager.test_w197661_verifier.EveryBROKENShapeIsREFUSED.test_a_HELD_account_is_NOT_a_successful_terminal)
+Review 2026-09-18T07-01-24Z: `managed_account` writes `held` for a ... ok
+test_a_MISSING_Work_is_refused (tests.manager.test_w197661_verifier.EveryBROKENShapeIsREFUSED.test_a_MISSING_Work_is_refused) ... ok
+test_a_MISSING_checkpoint_is_refused (tests.manager.test_w197661_verifier.EveryBROKENShapeIsREFUSED.test_a_MISSING_checkpoint_is_refused) ... ok
+test_a_WRONG_PREDICTION_of_the_policy_pin_is_REPORTED (tests.manager.test_w197661_verifier.EveryBROKENShapeIsREFUSED.test_a_WRONG_PREDICTION_of_the_policy_pin_is_REPORTED)
+Review 2026-09-18T06-19-15Z asked for a wrong prediction to be ... ok
+test_a_canonical_target_THIS_PROPOSAL_DID_NOT_PRODUCE_is_refused (tests.manager.test_w197661_verifier.EveryBROKENShapeIsREFUSED.test_a_canonical_target_THIS_PROPOSAL_DID_NOT_PRODUCE_is_refused)
+Review201732 [R3] replaced the old base-equality negative, which ... ok
+test_a_checkpoint_on_ANOTHER_BASE_is_refused (tests.manager.test_w197661_verifier.EveryBROKENShapeIsREFUSED.test_a_checkpoint_on_ANOTHER_BASE_is_refused) ... ok
+test_a_pin_check_that_was_NOT_RUN_is_reported (tests.manager.test_w197661_verifier.EveryBROKENShapeIsREFUSED.test_a_pin_check_that_was_NOT_RUN_is_reported)
+An unrun comparison is not a passing one. ... ok
+test_a_result_naming_ANOTHER_WORK_is_refused (tests.manager.test_w197661_verifier.EveryBROKENShapeIsREFUSED.test_a_result_naming_ANOTHER_WORK_is_refused) ... ok
+test_a_result_that_is_not_completed_is_refused (tests.manager.test_w197661_verifier.EveryBROKENShapeIsREFUSED.test_a_result_that_is_not_completed_is_refused) ... ok
+test_a_terminal_that_is_not_COMPLETED_is_refused (tests.manager.test_w197661_verifier.EveryBROKENShapeIsREFUSED.test_a_terminal_that_is_not_COMPLETED_is_refused) ... ok
+test_a_verdict_about_ANOTHER_ATTEMPT_is_refused (tests.manager.test_w197661_verifier.EveryBROKENShapeIsREFUSED.test_a_verdict_about_ANOTHER_ATTEMPT_is_refused)
+An accepted verdict is not evidence unless it is about this ... ok
+test_a_verdict_that_is_not_ACCEPTED_is_refused (tests.manager.test_w197661_verifier.EveryBROKENShapeIsREFUSED.test_a_verdict_that_is_not_ACCEPTED_is_refused) ... ok
+test_an_ABSENT_Job_is_refused (tests.manager.test_w197661_verifier.EveryBROKENShapeIsREFUSED.test_an_ABSENT_Job_is_refused) ... ok
+test_an_ANSWERED_account_is_not_completed_either (tests.manager.test_w197661_verifier.EveryBROKENShapeIsREFUSED.test_an_ANSWERED_account_is_not_completed_either)
+Imported and settled, but the integration receipt is what finishes ... ok
+test_an_EMPTY_observation_fails_rather_than_passing_vacuously (tests.manager.test_w197661_verifier.EveryBROKENShapeIsREFUSED.test_an_EMPTY_observation_fails_rather_than_passing_vacuously)
+The shape a verifier must never accept: nothing read at all. ... ok
+test_an_IMAGE_that_is_not_the_sealed_one_is_refused (tests.manager.test_w197661_verifier.EveryBROKENShapeIsREFUSED.test_an_IMAGE_that_is_not_the_sealed_one_is_refused) ... ok
+test_an_INSTALLED_runtime_that_is_not_the_built_one_is_refused (tests.manager.test_w197661_verifier.EveryBROKENShapeIsREFUSED.test_an_INSTALLED_runtime_that_is_not_the_built_one_is_refused) ... ok
+test_an_UNOBSERVED_projection_is_REFUSED (tests.manager.test_w197661_verifier.EveryBROKENShapeIsREFUSED.test_an_UNOBSERVED_projection_is_REFUSED)
+review200453 R1: the old verifier judged exactly this document and ... ok
+test_an_UNREACHED_stage_is_REFUSED_not_summarized (tests.manager.test_w197661_verifier.EveryBROKENShapeIsREFUSED.test_an_UNREACHED_stage_is_REFUSED_not_summarized) ... ok
+test_an_UNREAD_record_set_is_refused_rather_than_skipped (tests.manager.test_w197661_verifier.EveryBROKENShapeIsREFUSED.test_an_UNREAD_record_set_is_refused_rather_than_skipped)
+What the shell could not read must FAIL. The live shell answers ... ok
+test_an_UNSEALED_expectation_is_refused (tests.manager.test_w197661_verifier.EveryBROKENShapeIsREFUSED.test_an_UNSEALED_expectation_is_refused) ... ok
+test_custody_holding_ANOTHER_ATTEMPT_is_refused (tests.manager.test_w197661_verifier.EveryBROKENShapeIsREFUSED.test_custody_holding_ANOTHER_ATTEMPT_is_refused)
+review200453 R3: the old verifier counted one attempt and never ... ok
+test_custody_holding_MORE_THAN_ONE_attempt_is_refused (tests.manager.test_w197661_verifier.EveryBROKENShapeIsREFUSED.test_custody_holding_MORE_THAN_ONE_attempt_is_refused) ... ok
+test_the_WRONG_candidate_bytes_are_refused (tests.manager.test_w197661_verifier.EveryBROKENShapeIsREFUSED.test_the_WRONG_candidate_bytes_are_refused) ... ok
+test_ACCEPTANCE_TIME_generation_is_still_REQUIRED (tests.manager.test_w197661_verifier.HISTORICALCompletionIsSEPARATEFromFUTUREReadiness.test_ACCEPTANCE_TIME_generation_is_still_REQUIRED)
+A later advance cannot un-accept a receipt; a receipt accepted under ... ok
+test_GENERATION_ZERO_is_a_legitimate_value (tests.manager.test_w197661_verifier.HISTORICALCompletionIsSEPARATEFromFUTUREReadiness.test_GENERATION_ZERO_is_a_legitimate_value)
+`count` rather than truthiness: the type vocabulary had already ... ok
+test_a_MISMATCHED_pin_does_NOT_fail_the_completed_run (tests.manager.test_w197661_verifier.HISTORICALCompletionIsSEPARATEFromFUTUREReadiness.test_a_MISMATCHED_pin_does_NOT_fail_the_completed_run)
+The retained run4 shape exactly: pin 9, Authority 10, receipt 9. ... ok
+test_a_ONE_STEP_advance_is_NOT_treated_as_acceptance (tests.manager.test_w197661_verifier.HISTORICALCompletionIsSEPARATEFromFUTUREReadiness.test_a_ONE_STEP_advance_is_NOT_treated_as_acceptance)
+Review202028: "Do not ... infer acceptance from merely current == ... ok
+test_a_readiness_check_is_NEVER_a_required_one (tests.manager.test_w197661_verifier.HISTORICALCompletionIsSEPARATEFromFUTUREReadiness.test_a_readiness_check_is_NEVER_a_required_one) ... ok
+test_an_UNOWNED_receipt_still_fails_even_with_a_matching_pin (tests.manager.test_w197661_verifier.HISTORICALCompletionIsSEPARATEFromFUTUREReadiness.test_an_UNOWNED_receipt_still_fails_even_with_a_matching_pin)
+The pin moving out of the verdict must not take the owned bindings ... ok
+test_an_UNOWNED_terminal_still_fails_even_with_a_matching_pin (tests.manager.test_w197661_verifier.HISTORICALCompletionIsSEPARATEFromFUTUREReadiness.test_an_UNOWNED_terminal_still_fails_even_with_a_matching_pin) ... ok
+test_but_it_IS_reported_as_a_readiness_failure (tests.manager.test_w197661_verifier.HISTORICALCompletionIsSEPARATEFromFUTUREReadiness.test_but_it_IS_reported_as_a_readiness_failure)
+Visible, not swallowed. This is what "do not silently remove" ... ok
+test_the_one_step_shape_is_RECORDED_in_NEITHER_verdict (tests.manager.test_w197661_verifier.HISTORICALCompletionIsSEPARATEFromFUTUREReadiness.test_the_one_step_shape_is_RECORDED_in_NEITHER_verdict)
+It was a readiness requirement, which is what made `ready` ... ok
+test_the_readiness_detail_says_WHAT_IT_BEARS_ON (tests.manager.test_w197661_verifier.HISTORICALCompletionIsSEPARATEFromFUTUREReadiness.test_the_readiness_detail_says_WHAT_IT_BEARS_ON) ... ok
+test_the_two_verdicts_are_answered_SEPARATELY (tests.manager.test_w197661_verifier.HISTORICALCompletionIsSEPARATEFromFUTUREReadiness.test_the_two_verdicts_are_answered_SEPARATELY) ... ok
+test_EVERY_IDENTITY_REMOVED_is_REFUSED (tests.manager.test_w197661_verifier.MISSINGRequiredEvidenceCanNeverPASS.test_EVERY_IDENTITY_REMOVED_is_REFUSED)
+The reviewer's second probe: no stage attempt, no verdict attempt, ... ok
+test_SIMULTANEOUS_ABSENCE_of_both_sides_is_REFUSED (tests.manager.test_w197661_verifier.MISSINGRequiredEvidenceCanNeverPASS.test_SIMULTANEOUS_ABSENCE_of_both_sides_is_REFUSED)
+The reviewer's first probe, exactly. ... ok
+test_an_EMPTY_STRING_is_absent_too (tests.manager.test_w197661_verifier.MISSINGRequiredEvidenceCanNeverPASS.test_an_EMPTY_STRING_is_absent_too)
+The shape a stripped fixture and an unfilled record both produce. ... ok
+test_the_POSITIVE_shape_still_passes_with_the_stricter_rule (tests.manager.test_w197661_verifier.MISSINGRequiredEvidenceCanNeverPASS.test_the_POSITIVE_shape_still_passes_with_the_stricter_rule)
+A rule that also refused the real shape would be useless. ... ok
+test_EVERY_required_binding_fails_when_EITHER_side_goes (tests.manager.test_w197661_verifier.PRESENCEIsNotVALIDATION.test_EVERY_required_binding_fails_when_EITHER_side_goes)
+A required reference has two sides by definition. ... ok
+test_MALFORMED_scalars_are_refused_per_kind (tests.manager.test_w197661_verifier.PRESENCEIsNotVALIDATION.test_MALFORMED_scalars_are_refused_per_kind)
+A digest that is not one, an identity with a space, a manifest whose ... ok
+test_a_BOOLEAN_on_both_sides_is_REFUSED (tests.manager.test_w197661_verifier.PRESENCEIsNotVALIDATION.test_a_BOOLEAN_on_both_sides_is_REFUSED)
+The reviewer's probe exactly. ... ok
+test_a_ONE_SIDED_missing_reference_is_REFUSED (tests.manager.test_w197661_verifier.PRESENCEIsNotVALIDATION.test_a_ONE_SIDED_missing_reference_is_REFUSED)
+The reviewer's second probe: only `records.verdict.checkpoint_id` ... ok
+test_the_POSITIVE_shape_still_passes_under_the_typed_rule (tests.manager.test_w197661_verifier.PRESENCEIsNotVALIDATION.test_the_POSITIVE_shape_still_passes_under_the_typed_rule) ... ok
+test_INPUT_ATTESTATION_is_evidence_quality_and_not_readiness (tests.manager.test_w197661_verifier.READYIsSATISFIABLEAndTurnsOnlyOnPRECONDITIONS.test_INPUT_ATTESTATION_is_evidence_quality_and_not_readiness)
+Review202123: "Input attestation is separately documented evidence ... ok
+test_a_CONSISTENT_destination_reports_READY (tests.manager.test_w197661_verifier.READYIsSATISFIABLEAndTurnsOnlyOnPRECONDITIONS.test_a_CONSISTENT_destination_reports_READY) ... ok
+test_a_MISMATCHED_pin_still_turns_readiness_OFF (tests.manager.test_w197661_verifier.READYIsSATISFIABLEAndTurnsOnlyOnPRECONDITIONS.test_a_MISMATCHED_pin_still_turns_readiness_OFF)
+The negative: making ready reachable must not make it meaningless. ... ok
+test_and_it_is_ACCEPTED_too (tests.manager.test_w197661_verifier.READYIsSATISFIABLEAndTurnsOnlyOnPRECONDITIONS.test_and_it_is_ACCEPTED_too) ... ok
+test_changing_ONLY_the_diagnostic_cannot_flip_ACCEPTANCE (tests.manager.test_w197661_verifier.READYIsSATISFIABLEAndTurnsOnlyOnPRECONDITIONS.test_changing_ONLY_the_diagnostic_cannot_flip_ACCEPTANCE) ... ok
+test_changing_ONLY_the_diagnostic_cannot_flip_READINESS (tests.manager.test_w197661_verifier.READYIsSATISFIABLEAndTurnsOnlyOnPRECONDITIONS.test_changing_ONLY_the_diagnostic_cannot_flip_READINESS)
+Review202123: "ensure changing only the historical one-step ... ok
+test_readiness_does_NOT_claim_every_future_action_fails (tests.manager.test_w197661_verifier.READYIsSATISFIABLEAndTurnsOnlyOnPRECONDITIONS.test_readiness_does_NOT_claim_every_future_action_fails) ... ok
+test_the_ONE_STEP_observation_is_a_DIAGNOSTIC (tests.manager.test_w197661_verifier.READYIsSATISFIABLEAndTurnsOnlyOnPRECONDITIONS.test_the_ONE_STEP_observation_is_a_DIAGNOSTIC) ... ok
+test_the_REVIEWERS_FIRST_PROBE_now_reports_ready (tests.manager.test_w197661_verifier.READYIsSATISFIABLEAndTurnsOnlyOnPRECONDITIONS.test_the_REVIEWERS_FIRST_PROBE_now_reports_ready)
+configured 23 / current 23, image inputs corroborated: their probe ... ok
+test_the_REVIEWERS_SECOND_PROBE_fails_ONLY_readiness (tests.manager.test_w197661_verifier.READYIsSATISFIABLEAndTurnsOnlyOnPRECONDITIONS.test_the_REVIEWERS_SECOND_PROBE_fails_ONLY_readiness)
+configured 23 / current 24: their probe reported no required ... ok
+test_the_diagnostic_is_still_MEASURED_and_REPORTED (tests.manager.test_w197661_verifier.READYIsSATISFIABLEAndTurnsOnlyOnPRECONDITIONS.test_the_diagnostic_is_still_MEASURED_and_REPORTED)
+Outside both verdicts is not the same as discarded. ... ok
+test_the_provenance_diagnostic_keeps_the_STANDING_limitation (tests.manager.test_w197661_verifier.READYIsSATISFIABLEAndTurnsOnlyOnPRECONDITIONS.test_the_provenance_diagnostic_keeps_the_STANDING_limitation) ... ok
+test_the_two_generation_checks_are_NOT_both_preconditions (tests.manager.test_w197661_verifier.READYIsSATISFIABLEAndTurnsOnlyOnPRECONDITIONS.test_the_two_generation_checks_are_NOT_both_preconditions)
+The structural assertion, so this cannot regress by someone moving ... ok
+test_a_MISSING_checkpoint_is_reported_as_MISSING (tests.manager.test_w197661_verifier.TheADAPTERSAreExercisedAndNotJustRecorded.test_a_MISSING_checkpoint_is_reported_as_MISSING) ... ok
+test_a_MISSING_frozen_result_is_reported_as_MISSING (tests.manager.test_w197661_verifier.TheADAPTERSAreExercisedAndNotJustRecorded.test_a_MISSING_frozen_result_is_reported_as_MISSING) ... ok
+test_an_attachment_WITHOUT_that_member_answers_None (tests.manager.test_w197661_verifier.TheADAPTERSAreExercisedAndNotJustRecorded.test_an_attachment_WITHOUT_that_member_answers_None)
+So `judge` fails the binding rather than inventing an identity. ... ok
+test_the_RESULT_assignment_comes_from_the_RETAINED_MANIFEST (tests.manager.test_w197661_verifier.TheADAPTERSAreExercisedAndNotJustRecorded.test_the_RESULT_assignment_comes_from_the_RETAINED_MANIFEST)
+The frozen row answers `assignment_ref: null`; reading it there was ... ok
+test_the_TERMINAL_is_reported_UNREAD_with_its_reason (tests.manager.test_w197661_verifier.TheADAPTERSAreExercisedAndNotJustRecorded.test_the_TERMINAL_is_reported_UNREAD_with_its_reason) ... ok
+test_the_VERDICT_attempt_comes_from_the_ATTACHMENT (tests.manager.test_w197661_verifier.TheADAPTERSAreExercisedAndNotJustRecorded.test_the_VERDICT_attempt_comes_from_the_ATTACHMENT)
+`runtime_attempt_id`, not `attempt_id`: the member my first reader ... ok
+test_what_the_adapter_reads_JUDGES_as_the_captured_record_does (tests.manager.test_w197661_verifier.TheADAPTERSAreExercisedAndNotJustRecorded.test_what_the_adapter_reads_JUDGES_as_the_captured_record_does)
+The calibration the saved file alone could not provide: the adapter ... ok
+test_a_COLLIDING_run_is_REFUSED_and_the_bytes_survive (tests.manager.test_w197661_verifier.TheEVIDENCEOfAPreviousRunIsNeverOverwritten.test_a_COLLIDING_run_is_REFUSED_and_the_bytes_survive) ... refused: verification-collide.json already exists; a verification that overwrites the previous one destroys the evidence somebody would compare against. Name this run with --claim.
+ok
+test_the_claim_NAME_is_required_and_has_no_reusable_default (tests.manager.test_w197661_verifier.TheEVIDENCEOfAPreviousRunIsNeverOverwritten.test_the_claim_NAME_is_required_and_has_no_reusable_default)
+A reusable name plus an overwriting write is how the previous run's ... usage: verify_lifecycle [-h] [--seal] --claim CLAIM
+verify_lifecycle: error: the following arguments are required: --claim
+ok
+test_a_BOOLEAN_episode_is_refused (tests.manager.test_w197661_verifier.TheHOLESReview201853ProbedAreCLOSED.test_a_BOOLEAN_episode_is_refused)
+`True == 1` in Python, so an untyped comparison accepts it. ... ok
+test_a_MISSING_episode_is_refused (tests.manager.test_w197661_verifier.TheHOLESReview201853ProbedAreCLOSED.test_a_MISSING_episode_is_refused)
+Removing it was accepted, which is the worse half: a check that ... ok
+test_a_SECOND_episode_is_refused_as_not_this_proof (tests.manager.test_w197661_verifier.TheHOLESReview201853ProbedAreCLOSED.test_a_SECOND_episode_is_refused_as_not_this_proof)
+This proof is of a single-episode integration. A retried one may be ... ok
+test_a_STRING_episode_is_refused (tests.manager.test_w197661_verifier.TheHOLESReview201853ProbedAreCLOSED.test_a_STRING_episode_is_refused) ... ok
+test_a_WRONG_episode_is_refused (tests.manager.test_w197661_verifier.TheHOLESReview201853ProbedAreCLOSED.test_a_WRONG_episode_is_refused)
+`terminal.episode = 999` was accepted. ... ok
+test_a_proposal_and_OBSERVATION_that_disagree_are_refused (tests.manager.test_w197661_verifier.TheHOLESReview201853ProbedAreCLOSED.test_a_proposal_and_OBSERVATION_that_disagree_are_refused)
+Both name a well-formed Authority; they are not the same one. Only ... ok
+test_a_proposal_from_ANOTHER_AUTHORITY_is_refused (tests.manager.test_w197661_verifier.TheHOLESReview201853ProbedAreCLOSED.test_a_proposal_from_ANOTHER_AUTHORITY_is_refused)
+32 `f` characters was accepted. A proposal from another Authority ... ok
+test_a_proposal_with_NO_Authority_is_refused (tests.manager.test_w197661_verifier.TheHOLESReview201853ProbedAreCLOSED.test_a_proposal_with_NO_Authority_is_refused) ... ok
+test_the_two_episode_operands_must_AGREE_with_each_other (tests.manager.test_w197661_verifier.TheHOLESReview201853ProbedAreCLOSED.test_the_two_episode_operands_must_AGREE_with_each_other)
+Not merely each with the declared constant: a projection and an ... ok
+test_REPOINTING_a_link_changes_the_manifest (tests.manager.test_w197661_verifier.TheMANIFESTBindsWhatTheOldOneSKIPPED.test_REPOINTING_a_link_changes_the_manifest) ... ok
+test_a_CACHED_module_is_bound_too (tests.manager.test_w197661_verifier.TheMANIFESTBindsWhatTheOldOneSKIPPED.test_a_CACHED_module_is_bound_too) ... ok
+test_a_SYMLINK_is_bound_by_its_TARGET (tests.manager.test_w197661_verifier.TheMANIFESTBindsWhatTheOldOneSKIPPED.test_a_SYMLINK_is_bound_by_its_TARGET) ... ok
+test_it_does_NOT_claim_a_gap_when_BOTH_answer_the_same (tests.manager.test_w197661_verifier.TheOBSERVEOperandIsTheCONTROLLEDComparison.test_it_does_NOT_claim_a_gap_when_BOTH_answer_the_same)
+If the operand were not the cause, this must say so. ... ok
+test_read_status_passes_observe_AND_the_configuration_it_needs (tests.manager.test_w197661_verifier.TheOBSERVEOperandIsTheCONTROLLEDComparison.test_read_status_passes_observe_AND_the_configuration_it_needs) ... ok
+test_the_RETAINED_comparison_from_the_real_run_is_preserved (tests.manager.test_w197661_verifier.TheOBSERVEOperandIsTheCONTROLLEDComparison.test_the_RETAINED_comparison_from_the_real_run_is_preserved)
+The captured measurement, so the refutation of F1 survives as ... ok
+test_the_UNOBSERVED_form_passes_NEITHER (tests.manager.test_w197661_verifier.TheOBSERVEOperandIsTheCONTROLLEDComparison.test_the_UNOBSERVED_form_passes_NEITHER) ... ok
+test_the_gap_is_MEASURED_rather_than_asserted (tests.manager.test_w197661_verifier.TheOBSERVEOperandIsTheCONTROLLEDComparison.test_the_gap_is_MEASURED_rather_than_asserted) ... ok
+test_the_two_argv_differ_in_NOTHING_BUT_the_operand (tests.manager.test_w197661_verifier.TheOBSERVEOperandIsTheCONTROLLEDComparison.test_the_two_argv_differ_in_NOTHING_BUT_the_operand)
+A comparison whose two sides differ in the store, the incarnation or ... ok
+test_SQLITE_sidecars_alone_do_NOT_fail_the_run (tests.manager.test_w197661_verifier.TheOPENERIsTheREADONLYOwner.test_SQLITE_sidecars_alone_do_NOT_fail_the_run)
+The check must be satisfiable by a CORRECT read-only opener: on a ... ok
+test_a_read_that_CHANGED_THE_DATA_is_refused (tests.manager.test_w197661_verifier.TheOPENERIsTheREADONLYOwner.test_a_read_that_CHANGED_THE_DATA_is_refused) ... ok
+test_a_read_that_left_something_OTHER_than_a_sidecar_is_refused (tests.manager.test_w197661_verifier.TheOPENERIsTheREADONLYOwner.test_a_read_that_left_something_OTHER_than_a_sidecar_is_refused)
+SQLite's `-wal` and `-shm` are exempt because a mode=ro connection ... ok
+test_an_UNREPORTED_opener_is_refused (tests.manager.test_w197661_verifier.TheOPENERIsTheREADONLYOwner.test_an_UNREPORTED_opener_is_refused) ... ok
+test_an_opener_that_is_NOT_read_only_is_refused (tests.manager.test_w197661_verifier.TheOPENERIsTheREADONLYOwner.test_an_opener_that_is_NOT_read_only_is_refused) ... ok
+test_it_no_longer_claims_the_API_is_UNAVAILABLE (tests.manager.test_w197661_verifier.TheOPENERIsTheREADONLYOwner.test_it_no_longer_claims_the_API_is_UNAVAILABLE) ... ok
+test_refusals_made_by_THE_VERIFIER_rather_than_the_OWNER_are_refused (tests.manager.test_w197661_verifier.TheOPENERIsTheREADONLYOwner.test_refusals_made_by_THE_VERIFIER_rather_than_the_OWNER_are_refused)
+The interim guessed at SQLite's file header in this file. The point ... ok
+test_the_DATA_and_SIDECAR_questions_are_answered_SEPARATELY (tests.manager.test_w197661_verifier.TheOPENERIsTheREADONLYOwner.test_the_DATA_and_SIDECAR_questions_are_answered_SEPARATELY)
+One says the retained run is intact; the other says whether anything ... ok
+test_the_OBSOLETE_interim_guard_is_GONE (tests.manager.test_w197661_verifier.TheOPENERIsTheREADONLYOwner.test_the_OBSOLETE_interim_guard_is_GONE)
+A dead guard left beside the real owner is a second place for the ... ok
+test_the_named_READ_ONLY_owner_really_exists_in_this_tree (tests.manager.test_w197661_verifier.TheOPENERIsTheREADONLYOwner.test_the_named_READ_ONLY_owner_really_exists_in_this_tree)
+A pinned decision revalidated against the code rather than trusted: ... ok
+test_the_verifier_opens_the_Job_store_READ_ONLY (tests.manager.test_w197661_verifier.TheOPENERIsTheREADONLYOwner.test_the_verifier_opens_the_Job_store_READ_ONLY) ... ok
+test_the_verifier_uses_NO_RAW_SQL (tests.manager.test_w197661_verifier.TheOPENERIsTheREADONLYOwner.test_the_verifier_uses_NO_RAW_SQL) ... ok
+test_a_MISSING_deployment_document_is_UNREAD_and_named (tests.manager.test_w197661_verifier.TheOUTEROpenerIsExercisedAgainstALocalStore.test_a_MISSING_deployment_document_is_UNREAD_and_named) ... ok
+test_a_MISSING_store_is_REFUSED_BY_THE_OWNER (tests.manager.test_w197661_verifier.TheOUTEROpenerIsExercisedAgainstALocalStore.test_a_MISSING_store_is_REFUSED_BY_THE_OWNER)
+The refusal is `JobStore.open_readonly`'s now, not this file's ... ok
+test_a_REFUSAL_releases_every_handle_and_leaves_no_sidecar (tests.manager.test_w197661_verifier.TheOUTEROpenerIsExercisedAgainstALocalStore.test_a_REFUSAL_releases_every_handle_and_leaves_no_sidecar)
+A leaked handle holds a lock on a store the verifier has just said ... ok
+test_a_STALE_non_database_store_is_reported_UNREAD_not_ACCEPTED (tests.manager.test_w197661_verifier.TheOUTEROpenerIsExercisedAgainstALocalStore.test_a_STALE_non_database_store_is_reported_UNREAD_not_ACCEPTED)
+A refusal inside the adapter must surface as `unread` -- which ... ok
+test_a_stale_store_CANNOT_be_mistaken_for_a_completed_run (tests.manager.test_w197661_verifier.TheOUTEROpenerIsExercisedAgainstALocalStore.test_a_stale_store_CANNOT_be_mistaken_for_a_completed_run) ... ok
+test_a_store_that_is_a_DIRECTORY_is_refused (tests.manager.test_w197661_verifier.TheOUTEROpenerIsExercisedAgainstALocalStore.test_a_store_that_is_a_DIRECTORY_is_refused) ... ok
+test_an_EMPTY_store_file_does_not_become_an_INITIALIZED_one (tests.manager.test_w197661_verifier.TheOUTEROpenerIsExercisedAgainstALocalStore.test_an_EMPTY_store_file_does_not_become_an_INITIALIZED_one)
+THE CASE THAT FOUND THE REAL DEFECT. Written at claim201869 against ... ok
+test_and_the_missing_store_is_STILL_NOT_THERE_afterwards (tests.manager.test_w197661_verifier.TheOUTEROpenerIsExercisedAgainstALocalStore.test_and_the_missing_store_is_STILL_NOT_THERE_afterwards)
+The assertion that makes the one above mean something. ... ok
+test_the_REFUSAL_TEXT_is_kept_because_that_text_is_the_finding (tests.manager.test_w197661_verifier.TheOUTEROpenerIsExercisedAgainstALocalStore.test_the_REFUSAL_TEXT_is_kept_because_that_text_is_the_finding) ... ok
+test_BASE_EQUALITY_is_NOT_what_is_asserted (tests.manager.test_w197661_verifier.TheOWNEDChainBindsBASEToRESULTToTARGET.test_BASE_EQUALITY_is_NOT_what_is_asserted)
+The old check demanded the target still equal the declared base, ... ok
+test_a_REFUSED_disposition_is_refused (tests.manager.test_w197661_verifier.TheOWNEDChainBindsBASEToRESULTToTARGET.test_a_REFUSED_disposition_is_refused) ... ok
+test_a_TARGET_THAT_NEVER_ADVANCED_is_refused (tests.manager.test_w197661_verifier.TheOWNEDChainBindsBASEToRESULTToTARGET.test_a_TARGET_THAT_NEVER_ADVANCED_is_refused)
+A candidate identical to the base means nothing was imported, and ... ok
+test_a_proposal_from_ANOTHER_RESULT_is_refused (tests.manager.test_w197661_verifier.TheOWNEDChainBindsBASEToRESULTToTARGET.test_a_proposal_from_ANOTHER_RESULT_is_refused) ... ok
+test_a_proposal_made_from_ANOTHER_BASE_is_refused (tests.manager.test_w197661_verifier.TheOWNEDChainBindsBASEToRESULTToTARGET.test_a_proposal_made_from_ANOTHER_BASE_is_refused) ... ok
+test_a_proposal_owned_by_ANOTHER_WORK_is_refused (tests.manager.test_w197661_verifier.TheOWNEDChainBindsBASEToRESULTToTARGET.test_a_proposal_owned_by_ANOTHER_WORK_is_refused) ... ok
+test_a_proposal_the_COMPLETION_DOES_NOT_NAME_is_refused (tests.manager.test_w197661_verifier.TheOWNEDChainBindsBASEToRESULTToTARGET.test_a_proposal_the_COMPLETION_DOES_NOT_NAME_is_refused) ... ok
+test_a_receipt_that_settled_ANOTHER_CANDIDATE_is_refused (tests.manager.test_w197661_verifier.TheOWNEDChainBindsBASEToRESULTToTARGET.test_a_receipt_that_settled_ANOTHER_CANDIDATE_is_refused) ... ok
+test_a_receipt_the_COMPLETION_DOES_NOT_NAME_is_refused (tests.manager.test_w197661_verifier.TheOWNEDChainBindsBASEToRESULTToTARGET.test_a_receipt_the_COMPLETION_DOES_NOT_NAME_is_refused) ... ok
+test_an_UNREAD_owned_proposal_can_never_pass (tests.manager.test_w197661_verifier.TheOWNEDChainBindsBASEToRESULTToTARGET.test_an_UNREAD_owned_proposal_can_never_pass) ... ok
+test_an_UNRELATED_LATER_DESCENDANT_is_REFUSED (tests.manager.test_w197661_verifier.TheOWNEDChainBindsBASEToRESULTToTARGET.test_an_UNRELATED_LATER_DESCENDANT_is_REFUSED)
+THE NEGATIVE ANCESTRY CANNOT REJECT, and the reason the check is a ... ok
+test_a_WRONG_PREDICTION_answers_not_equal (tests.manager.test_w197661_verifier.TheREADONLYDefaultIsExercisedOnItsOwn.test_a_WRONG_PREDICTION_answers_not_equal) ... ok
+test_the_Authority_is_always_DISPOSED (tests.manager.test_w197661_verifier.TheREADONLYDefaultIsExercisedOnItsOwn.test_the_Authority_is_always_DISPOSED) ... ok
+test_the_DEFAULT_opener_is_the_READ_ONLY_one (tests.manager.test_w197661_verifier.TheREADONLYDefaultIsExercisedOnItsOwn.test_the_DEFAULT_opener_is_the_READ_ONLY_one)
+The defect was that `read_authority` was corrected and this second ... ok
+test_UNATTESTED_INPUTS_do_not_fail_the_completed_run (tests.manager.test_w197661_verifier.TheSEALIsCLASSIFIEDRatherThanRewritten.test_UNATTESTED_INPUTS_do_not_fail_the_completed_run)
+The run happened; this is how well it is attested. Folding the two ... ok
+test_a_MISSING_provenance_classification_is_refused (tests.manager.test_w197661_verifier.TheSEALIsCLASSIFIEDRatherThanRewritten.test_a_MISSING_provenance_classification_is_refused) ... ok
+test_but_the_INPUT_limitation_stays_VISIBLE (tests.manager.test_w197661_verifier.TheSEALIsCLASSIFIEDRatherThanRewritten.test_but_the_INPUT_limitation_stays_VISIBLE)
+As a DIAGNOSTIC, which is where review202123 placed it: "Input ... ok
+test_it_states_the_POST_BUILD_limitation_plainly (tests.manager.test_w197661_verifier.TheSEALIsCLASSIFIEDRatherThanRewritten.test_it_states_the_POST_BUILD_limitation_plainly) ... ok
+test_the_IMAGE_being_corroborated_is_REQUIRED (tests.manager.test_w197661_verifier.TheSEALIsCLASSIFIEDRatherThanRewritten.test_the_IMAGE_being_corroborated_is_REQUIRED) ... ok
+test_the_classification_reads_the_BUILD_S_OWN_record (tests.manager.test_w197661_verifier.TheSEALIsCLASSIFIEDRatherThanRewritten.test_the_classification_reads_the_BUILD_S_OWN_record)
+Not the seal read back to itself -- that is the current-to-current ... ok
+test_the_real_classification_matches_the_real_seal (tests.manager.test_w197661_verifier.TheSEALIsCLASSIFIEDRatherThanRewritten.test_the_real_classification_matches_the_real_seal)
+Run against this episode's actual files, so a drift in either is a ... ok
+test_the_recipe_digests_are_NOT_called_attestation (tests.manager.test_w197661_verifier.TheSEALIsCLASSIFIEDRatherThanRewritten.test_the_recipe_digests_are_NOT_called_attestation)
+They record what the author intended to carry. ... ok
+test_a_complete_lifecycle_passes_EVERY_check (tests.manager.test_w197661_verifier.TheSUCCESSFULShapeIsACCEPTED.test_a_complete_lifecycle_passes_EVERY_check) ... ok
+test_it_asserts_a_MEANINGFUL_number_of_things (tests.manager.test_w197661_verifier.TheSUCCESSFULShapeIsACCEPTED.test_it_asserts_a_MEANINGFUL_number_of_things)
+A verifier that accepts everything by checking almost nothing is the ... ok
+test_ANOTHER_Authoritys_observation_is_refused (tests.manager.test_w197661_verifier.TheTERMINALIsREADThroughItsEXISTINGOwner.test_ANOTHER_Authoritys_observation_is_refused) ... ok
+test_ANOTHER_Works_observation_is_refused (tests.manager.test_w197661_verifier.TheTERMINALIsREADThroughItsEXISTINGOwner.test_ANOTHER_Works_observation_is_refused) ... ok
+test_ANOTHER_attempts_observation_is_refused (tests.manager.test_w197661_verifier.TheTERMINALIsREADThroughItsEXISTINGOwner.test_ANOTHER_attempts_observation_is_refused) ... ok
+test_ANOTHER_stages_observation_is_refused (tests.manager.test_w197661_verifier.TheTERMINALIsREADThroughItsEXISTINGOwner.test_ANOTHER_stages_observation_is_refused) ... ok
+test_a_BARE_completed_with_NO_completion_references_is_refused (tests.manager.test_w197661_verifier.TheTERMINALIsREADThroughItsEXISTINGOwner.test_a_BARE_completed_with_NO_completion_references_is_refused)
+"A bare completed string or provider result is not an equivalent ... ok
+test_a_HELD_terminal_is_refused (tests.manager.test_w197661_verifier.TheTERMINALIsREADThroughItsEXISTINGOwner.test_a_HELD_terminal_is_refused) ... ok
+test_an_UNREAD_terminal_can_never_pass (tests.manager.test_w197661_verifier.TheTERMINALIsREADThroughItsEXISTINGOwner.test_an_UNREAD_terminal_can_never_pass)
+A refusal inside the reader is reported, never swallowed. ... ok
+test_the_named_owner_really_is_READ_ONLY_in_this_tree (tests.manager.test_w197661_verifier.TheTERMINALIsREADThroughItsEXISTINGOwner.test_the_named_owner_really_is_READ_ONLY_in_this_tree)
+The correction is revalidated against the current source rather than ... ok
+test_the_observation_CONTRACT_is_required_and_not_just_a_state (tests.manager.test_w197661_verifier.TheTERMINALIsREADThroughItsEXISTINGOwner.test_the_observation_CONTRACT_is_required_and_not_just_a_state) ... ok
+test_the_verifier_uses_observation_from_and_NOT_the_serving_factory (tests.manager.test_w197661_verifier.TheTERMINALIsREADThroughItsEXISTINGOwner.test_the_verifier_uses_observation_from_and_NOT_the_serving_factory)
+`operations_from`/`factory` compose a SERVING surface. The named ... ok
+test_a_CREDENTIAL_SYMLINK_is_never_followed_or_copied (tests.manager.test_attempt_logs.AChildThatNeverRanIsNOTACapture.test_a_CREDENTIAL_SYMLINK_is_never_followed_or_copied)
+The one symlink this adapter puts in that home is the credential ... ok
+test_a_MISSING_EXECUTABLE_leaves_both_streams_FAILED (tests.manager.test_attempt_logs.AChildThatNeverRanIsNOTACapture.test_a_MISSING_EXECUTABLE_leaves_both_streams_FAILED) ... ok
+test_a_PROVIDER_that_never_started_leaves_stderr_FAILED (tests.manager.test_attempt_logs.AChildThatNeverRanIsNOTACapture.test_a_PROVIDER_that_never_started_leaves_stderr_FAILED) ... ok
+test_a_PROVIDER_that_ran_retains_its_stdout_byte_identically (tests.manager.test_attempt_logs.AChildThatNeverRanIsNOTACapture.test_a_PROVIDER_that_ran_retains_its_stdout_byte_identically) ... ok
+test_a_TIMEOUT_leaves_both_streams_PARTIAL_rather_than_whole (tests.manager.test_attempt_logs.AChildThatNeverRanIsNOTACapture.test_a_TIMEOUT_leaves_both_streams_PARTIAL_rather_than_whole) ... ok
+test_a_child_that_RAN_and_FAILED_is_still_a_whole_capture (tests.manager.test_attempt_logs.AChildThatNeverRanIsNOTACapture.test_a_child_that_RAN_and_FAILED_is_still_a_whole_capture)
+An exit status is not an outcome here. A command that exits 1 wrote ... ok
+test_a_child_that_never_started_retains_NO_native_files (tests.manager.test_attempt_logs.AChildThatNeverRanIsNOTACapture.test_a_child_that_never_started_retains_NO_native_files) ... ok
+test_the_native_files_SURVIVE_the_scratch_being_removed (tests.manager.test_attempt_logs.AChildThatNeverRanIsNOTACapture.test_the_native_files_SURVIVE_the_scratch_being_removed)
+Which is the whole point: the provider's home goes away with the ... ok
+test_the_providers_NATIVE_session_files_are_RETAINED (tests.manager.test_attempt_logs.AChildThatNeverRanIsNOTACapture.test_the_providers_NATIVE_session_files_are_RETAINED)
+Review [3]: this was a constant and an empty directory. The fake ... ok
+test_a_FRESH_destination_is_CREATED_and_never_ADOPTED (tests.manager.test_attempt_logs.ADestinationThisCaptureDoesNotOWNIsNotOneItWritesTo.test_a_FRESH_destination_is_CREATED_and_never_ADOPTED)
+`O_CREAT` alone adopts whatever is already at the name, which is how ... ok
+test_a_corner_where_the_FRESH_name_is_also_unusable_STOPS (tests.manager.test_attempt_logs.ADestinationThisCaptureDoesNotOWNIsNotOneItWritesTo.test_a_corner_where_the_FRESH_name_is_also_unusable_STOPS)
+One rotation. A corner whose next generation is also aliased is not ... ok
+test_a_destination_LINKED_AFTER_it_was_created_is_caught_too (tests.manager.test_attempt_logs.ADestinationThisCaptureDoesNotOWNIsNotOneItWritesTo.test_a_destination_LINKED_AFTER_it_was_created_is_caught_too)
+The alias does not have to precede the capture: the check is on the ... ok
+test_a_name_with_the_records_own_PREFIX_is_retained_too (tests.manager.test_attempt_logs.ADestinationThisCaptureDoesNotOWNIsNotOneItWritesTo.test_a_name_with_the_records_own_PREFIX_is_retained_too)
+`_confined` refuses `.retention.json.` names as destinations -- the ... ok
+test_a_provider_file_named_LIKE_THE_RECORD_is_RETAINED (tests.manager.test_attempt_logs.ADestinationThisCaptureDoesNotOWNIsNotOneItWritesTo.test_a_provider_file_named_LIKE_THE_RECORD_is_RETAINED)
+The reviewer's probe: reached true, failed empty, corner empty. ... ok
+test_an_ALIASED_destination_is_REFUSED_before_a_byte_is_written (tests.manager.test_attempt_logs.ADestinationThisCaptureDoesNotOWNIsNotOneItWritesTo.test_an_ALIASED_destination_is_REFUSED_before_a_byte_is_written)
+The reviewer's probe: 19 bytes reached a file outside the native ... ok
+test_an_ORDINARY_single_link_append_is_UNAFFECTED (tests.manager.test_attempt_logs.ADestinationThisCaptureDoesNotOWNIsNotOneItWritesTo.test_an_ORDINARY_single_link_append_is_UNAFFECTED)
+The control. A rule that also refused the ordinary case would be a ... ok
+test_and_the_SOURCE_is_retained_SEPARATELY_rather_than_lost (tests.manager.test_attempt_logs.ADestinationThisCaptureDoesNotOWNIsNotOneItWritesTo.test_and_the_SOURCE_is_retained_SEPARATELY_rather_than_lost)
+A destination this capture cannot account for is a rotation like ... ok
+test_it_RESUMES_that_source_across_a_RESTART (tests.manager.test_attempt_logs.ADestinationThisCaptureDoesNotOWNIsNotOneItWritesTo.test_it_RESUMES_that_source_across_a_RESTART)
+Which is the half a skip could never have: the escaped name is a ... ok
+test_the_ESCAPE_stays_INJECTIVE (tests.manager.test_attempt_logs.ADestinationThisCaptureDoesNotOWNIsNotOneItWritesTo.test_the_ESCAPE_stays_INJECTIVE)
+A provider file really called `%2Eretention.json` must not land on ... ok
+test_the_RECORD_ITSELF_is_still_not_a_session_file (tests.manager.test_attempt_logs.ADestinationThisCaptureDoesNotOWNIsNotOneItWritesTo.test_the_RECORD_ITSELF_is_still_not_a_session_file)
+The escape is about SOURCES. The corner's own bookkeeping is still ... ok
+test_EVERY_prior_loss_state_survives_a_later_success (tests.manager.test_attempt_logs.ALaterSUCCESSCannotEraseAnEarlierLOSS.test_EVERY_prior_loss_state_survives_a_later_success)
+`partial`, `truncated` and `unknown-completeness` all became ... ok
+test_a_CLEAN_first_capture_writes_no_cumulative_record (tests.manager.test_attempt_logs.ALaterSUCCESSCannotEraseAnEarlierLOSS.test_a_CLEAN_first_capture_writes_no_cumulative_record)
+Only loss is carried, so the ordinary attempt costs nothing. ... ok
+test_a_DETECTED_SHORT_WRITE_survives_a_later_whole_capture (tests.manager.test_attempt_logs.ALaterSUCCESSCannotEraseAnEarlierLOSS.test_a_DETECTED_SHORT_WRITE_survives_a_later_whole_capture)
+The probe exactly: `first-MISSING-TAIL` with a boundary that accepts ... ok
+test_an_ACTIVE_second_writer_still_keeps_follow_ALIVE (tests.manager.test_attempt_logs.ALaterSUCCESSCannotEraseAnEarlierLOSS.test_an_ACTIVE_second_writer_still_keeps_follow_ALIVE)
+The accepted stale-finished correction must not be undone: while a ... ok
+test_an_UNREADABLE_cumulative_record_is_treated_as_the_WORST (tests.manager.test_attempt_logs.ALaterSUCCESSCannotEraseAnEarlierLOSS.test_an_UNREADABLE_cumulative_record_is_treated_as_the_WORST)
+It is not permission to claim completeness. ... ok
+test_and_the_READER_no_longer_calls_that_stream_captured (tests.manager.test_attempt_logs.ALaterSUCCESSCannotEraseAnEarlierLOSS.test_and_the_READER_no_longer_calls_that_stream_captured) ... ok
+test_the_ALL_SUCCESSFUL_restart_still_ends_CAPTURED (tests.manager.test_attempt_logs.ALaterSUCCESSCannotEraseAnEarlierLOSS.test_the_ALL_SUCCESSFUL_restart_still_ends_CAPTURED)
+finished -> reopen -> finished. A correction that made every stream ... ok
+test_the_LOSS_is_DURABLE_while_that_writer_is_open (tests.manager.test_attempt_logs.ALaterSUCCESSCannotEraseAnEarlierLOSS.test_the_LOSS_is_DURABLE_while_that_writer_is_open)
+A writer killed before it declares must not take the earlier loss ... ok
+test_the_RAW_BYTES_of_both_generations_are_preserved (tests.manager.test_attempt_logs.ALaterSUCCESSCannotEraseAnEarlierLOSS.test_the_RAW_BYTES_of_both_generations_are_preserved)
+Evidence is kept; what changes is the word over it. ... ok
+test_the_WORSE_of_the_two_is_what_is_published (tests.manager.test_attempt_logs.ALaterSUCCESSCannotEraseAnEarlierLOSS.test_the_WORSE_of_the_two_is_what_is_published)
+A later writer that ALSO fails does not improve on an earlier ... ok
+test_the_WRAPPERS_all_successful_restart_still_ends_CAPTURED (tests.manager.test_attempt_logs.ALaterSUCCESSCannotEraseAnEarlierLOSS.test_the_WRAPPERS_all_successful_restart_still_ends_CAPTURED) ... ok
+test_the_WRAPPERS_stream_carries_its_loss_across_a_reopen (tests.manager.test_attempt_logs.ALaterSUCCESSCannotEraseAnEarlierLOSS.test_the_WRAPPERS_stream_carries_its_loss_across_a_reopen) ... ok
+test_the_cumulative_record_is_NOT_one_of_the_streams (tests.manager.test_attempt_logs.ALaterSUCCESSCannotEraseAnEarlierLOSS.test_the_cumulative_record_is_NOT_one_of_the_streams)
+`locators` enumerates STREAMS by name; the bookkeeping is not one. ... ok
+test_DECLARED_STATE_is_the_one_place_that_decides (tests.manager.test_attempt_logs.AMALFORMEDCarriedStateCannotBreakTheCapture.test_DECLARED_STATE_is_the_one_place_that_decides) ... ok
+test_EVERY_JSON_VALUE_is_decoded_without_raising (tests.manager.test_attempt_logs.AMALFORMEDCarriedStateCannotBreakTheCapture.test_EVERY_JSON_VALUE_is_decoded_without_raising)
+Total over the value types a document may carry, and the two that ... ok
+test_NO_DESCRIPTOR_is_leaked_by_a_malformed_record (tests.manager.test_attempt_logs.AMALFORMEDCarriedStateCannotBreakTheCapture.test_NO_DESCRIPTOR_is_leaked_by_a_malformed_record)
+The construction opens the log before it reads the history; an ... ok
+test_WORST_answers_rather_than_raising_on_either_side (tests.manager.test_attempt_logs.AMALFORMEDCarriedStateCannotBreakTheCapture.test_WORST_answers_rather_than_raising_on_either_side) ... ok
+test_a_CLEAN_stream_with_no_record_is_untouched (tests.manager.test_attempt_logs.AMALFORMEDCarriedStateCannotBreakTheCapture.test_a_CLEAN_stream_with_no_record_is_untouched) ... ok
+test_a_VALID_state_still_reads_as_itself (tests.manager.test_attempt_logs.AMALFORMEDCarriedStateCannotBreakTheCapture.test_a_VALID_state_still_reads_as_itself)
+The control: a rule that refused the real record would make every ... ok
+test_the_CHILD_still_gets_a_usable_stream (tests.manager.test_attempt_logs.AMALFORMEDCarriedStateCannotBreakTheCapture.test_the_CHILD_still_gets_a_usable_stream)
+Containment: a malformed history is not a reason for the capture to ... ok
+test_the_WRAPPERS_real_stream_still_receives_the_text (tests.manager.test_attempt_logs.AMALFORMEDCarriedStateCannotBreakTheCapture.test_the_WRAPPERS_real_stream_still_receives_the_text)
+A tee that could break the thing it observes would be worse than no ... ok
+test_the_WRAPPERS_stream_is_contained_too (tests.manager.test_attempt_logs.AMALFORMEDCarriedStateCannotBreakTheCapture.test_the_WRAPPERS_stream_is_contained_too)
+It reaches this opener before its own startup diagnostic, so an ... ok
+test_an_operand_that_is_not_text_is_refused_as_that (tests.manager.test_attempt_logs.ANameIsHELDBeforeAnythingIsOpened.test_an_operand_that_is_not_text_is_refused_as_that) ... ok
+test_capture_state_cannot_be_asked_about_one_either (tests.manager.test_attempt_logs.ANameIsHELDBeforeAnythingIsOpened.test_capture_state_cannot_be_asked_about_one_either) ... ok
+test_follow_cannot_be_asked_for_one_either (tests.manager.test_attempt_logs.ANameIsHELDBeforeAnythingIsOpened.test_follow_cannot_be_asked_for_one_either) ... ok
+test_read_cannot_be_asked_for_a_log_outside_the_room (tests.manager.test_attempt_logs.ANameIsHELDBeforeAnythingIsOpened.test_read_cannot_be_asked_for_a_log_outside_the_room) ... ok
+test_record_capture_refuses_one_too (tests.manager.test_attempt_logs.ANameIsHELDBeforeAnythingIsOpened.test_record_capture_refuses_one_too) ... ok
+test_status_name_refuses_before_it_composes_a_name (tests.manager.test_attempt_logs.ANameIsHELDBeforeAnythingIsOpened.test_status_name_refuses_before_it_composes_a_name) ... ok
+test_the_ordinary_named_streams_are_untouched_by_the_rule (tests.manager.test_attempt_logs.ANameIsHELDBeforeAnythingIsOpened.test_the_ordinary_named_streams_are_untouched_by_the_rule) ... ok
+test_the_refusal_comes_BEFORE_any_filesystem_access (tests.manager.test_attempt_logs.ANameIsHELDBeforeAnythingIsOpened.test_the_refusal_comes_BEFORE_any_filesystem_access)
+A room that does not exist at all still refuses by name, which is ... ok
+test_a_FAILED_write_PRESERVES_the_declaration_already_recorded (tests.manager.test_attempt_logs.AShortWriteIsNeverASUCCESSFULDeclaration.test_a_FAILED_write_PRESERVES_the_declaration_already_recorded)
+The sharpest half: an operator's existing word must not be replaced ... ok
+test_a_failed_declaration_leaves_no_staging_entry_behind (tests.manager.test_attempt_logs.AShortWriteIsNeverASUCCESSFULDeclaration.test_a_failed_declaration_leaves_no_staging_entry_behind) ... ok
+test_a_short_write_that_CONTINUES_publishes_the_whole_declaration (tests.manager.test_attempt_logs.AShortWriteIsNeverASUCCESSFULDeclaration.test_a_short_write_that_CONTINUES_publishes_the_whole_declaration) ... ok
+test_a_short_write_that_never_completes_is_REFUSED (tests.manager.test_attempt_logs.AShortWriteIsNeverASUCCESSFULDeclaration.test_a_short_write_that_never_completes_is_REFUSED) ... ok
+test_a_write_that_ERRORS_after_a_prefix_publishes_nothing (tests.manager.test_attempt_logs.AShortWriteIsNeverASUCCESSFULDeclaration.test_a_write_that_ERRORS_after_a_prefix_publishes_nothing) ... ok
+test_the_refusal_says_the_log_AND_the_prior_word_are_unaffected (tests.manager.test_attempt_logs.AShortWriteIsNeverASUCCESSFULDeclaration.test_the_refusal_says_the_log_AND_the_prior_word_are_unaffected) ... ok
+test_a_refused_create_does_not_unlink_the_entry_it_refused (tests.manager.test_attempt_logs.CleanupOWNSOnlyWhatItMade.test_a_refused_create_does_not_unlink_the_entry_it_refused) ... ok
+test_a_staging_symlink_leaves_BOTH_the_link_and_its_target_alone (tests.manager.test_attempt_logs.CleanupOWNSOnlyWhatItMade.test_a_staging_symlink_leaves_BOTH_the_link_and_its_target_alone) ... ok
+test_an_ordinary_declaration_leaves_no_staging_entry_behind (tests.manager.test_attempt_logs.CleanupOWNSOnlyWhatItMade.test_an_ordinary_declaration_leaves_no_staging_entry_behind) ... ok
+test_two_declarations_in_one_process_do_not_share_a_staging_name (tests.manager.test_attempt_logs.CleanupOWNSOnlyWhatItMade.test_two_declarations_in_one_process_do_not_share_a_staging_name)
+The pid alone was the identity, and a tee is two threads in one ... ok
+test_two_attempts_have_two_rooms_and_two_streams (tests.manager.test_attempt_logs.ConcurrentAttemptsAreKeptApart.test_two_attempts_have_two_rooms_and_two_streams) ... ok
+test_an_oversized_reason_is_BOUNDED_rather_than_refused (tests.manager.test_attempt_logs.CorruptMetadataDoesNotTakeDownTheView.test_an_oversized_reason_is_BOUNDED_rather_than_refused)
+The prose is bounded the way every other diagnostic in this package ... ok
+test_every_malformed_shape_is_reported_rather_than_raised (tests.manager.test_attempt_logs.CorruptMetadataDoesNotTakeDownTheView.test_every_malformed_shape_is_reported_rather_than_raised) ... ok
+test_the_whole_operator_view_still_answers_with_corrupt_metadata (tests.manager.test_attempt_logs.CorruptMetadataDoesNotTakeDownTheView.test_the_whole_operator_view_still_answers_with_corrupt_metadata) ... ok
+test_NO_bounded_document_in_this_adapter_RAISES_on_DEPTH (tests.manager.test_attempt_logs.MALFORMEDMetadataAndNONREGULARFilesCannotSTRANDCapture.test_NO_bounded_document_in_this_adapter_RAISES_on_DEPTH)
+The sweep review 2026-09-18T04-53-08Z [R1] asked for, and it found ... ok
+test_a_DEEPLY_NESTED_record_is_treated_as_ABSENT_not_RAISED (tests.manager.test_attempt_logs.MALFORMEDMetadataAndNONREGULARFilesCannotSTRANDCapture.test_a_DEEPLY_NESTED_record_is_treated_as_ABSENT_not_RAISED)
+A bound on BYTES is not a bound on DEPTH: this document is a fifth ... ok
+test_a_DESTINATION_swapped_after_the_check_is_caught_by_the_OPEN (tests.manager.test_attempt_logs.MALFORMEDMetadataAndNONREGULARFilesCannotSTRANDCapture.test_a_DESTINATION_swapped_after_the_check_is_caught_by_the_OPEN)
+`_retained_size` checks a NAME, and a name checked and then opened ... ok
+test_a_DIRECTORY_where_a_retained_file_belongs_is_the_SAME_case (tests.manager.test_attempt_logs.MALFORMEDMetadataAndNONREGULARFilesCannotSTRANDCapture.test_a_DIRECTORY_where_a_retained_file_belongs_is_the_SAME_case)
+Not every non-file blocks; a destination this cannot account for is ... ok
+test_a_FIFO_where_a_RETAINED_FILE_belongs_is_DECLARED (tests.manager.test_attempt_logs.MALFORMEDMetadataAndNONREGULARFilesCannotSTRANDCapture.test_a_FIFO_where_a_RETAINED_FILE_belongs_is_DECLARED)
+The reviewer's probe, run in a child exactly as they ran it: this ... ok
+test_a_GENERATION_LONGER_than_any_conversion_is_DISCARDED (tests.manager.test_attempt_logs.MALFORMEDMetadataAndNONREGULARFilesCannotSTRANDCapture.test_a_GENERATION_LONGER_than_any_conversion_is_DISCARDED)
+4301 ASCII nines: within `MAX_RETENTION`, and refused by Python's ... ok
+test_a_LEGITIMATE_generation_entry_is_still_BELIEVED (tests.manager.test_attempt_logs.MALFORMEDMetadataAndNONREGULARFilesCannotSTRANDCapture.test_a_LEGITIMATE_generation_entry_is_still_BELIEVED)
+The correction must not refuse the records this actually writes. ... ok
+test_a_SOURCE_swapped_after_being_listed_is_caught_by_the_OPEN (tests.manager.test_attempt_logs.MALFORMEDMetadataAndNONREGULARFilesCannotSTRANDCapture.test_a_SOURCE_swapped_after_being_listed_is_caught_by_the_OPEN)
+A nonblocking open of a fifo with no writer SUCCEEDS and then reads ... ok
+test_a_UNICODE_digit_in_a_generation_is_DISCARDED_not_RAISED (tests.manager.test_attempt_logs.MALFORMEDMetadataAndNONREGULARFilesCannotSTRANDCapture.test_a_UNICODE_digit_in_a_generation_is_DISCARDED_not_RAISED)
+The reviewer's probe: `str.isdigit()` is true of `²` and `int()` ... ok
+test_and_a_SOURCE_fifo_WITH_a_writer_is_named_for_what_it_is (tests.manager.test_attempt_logs.MALFORMEDMetadataAndNONREGULARFilesCannotSTRANDCapture.test_and_a_SOURCE_fifo_WITH_a_writer_is_named_for_what_it_is)
+The other half, and the reversal probe corrected my description of ... ok
+test_and_the_SOURCES_BYTES_are_KEPT_rather_than_lost (tests.manager.test_attempt_logs.MALFORMEDMetadataAndNONREGULARFilesCannotSTRANDCapture.test_and_the_SOURCES_BYTES_are_KEPT_rather_than_lost)
+A destination nothing can account for is a rotation like any other: ... ok
+test_the_SHAPE_of_a_generation_is_decided_WITHOUT_converting_it (tests.manager.test_attempt_logs.MALFORMEDMetadataAndNONREGULARFilesCannotSTRANDCapture.test_the_SHAPE_of_a_generation_is_decided_WITHOUT_converting_it)
+The boundary, spelled out: greater than one, no leading zero, ASCII ... ok
+test_BYTES_ALONE_ARE_NOT_COMPLETENESS (tests.manager.test_attempt_logs.MissingIsNotEmpty.test_BYTES_ALONE_ARE_NOT_COMPLETENESS)
+R1: file existence and a momentary end of file prove neither. A ... ok
+test_a_declaration_SURVIVES_A_RESTART (tests.manager.test_attempt_logs.MissingIsNotEmpty.test_a_declaration_SURVIVES_A_RESTART) ... ok
+test_a_stream_created_and_never_written_is_EMPTY (tests.manager.test_attempt_logs.MissingIsNotEmpty.test_a_stream_created_and_never_written_is_EMPTY) ... ok
+test_a_stream_that_was_never_created_is_ABSENT (tests.manager.test_attempt_logs.MissingIsNotEmpty.test_a_stream_that_was_never_created_is_ABSENT) ... ok
+test_a_writer_that_could_not_OPEN_is_FAILED_with_no_file_at_all (tests.manager.test_attempt_logs.MissingIsNotEmpty.test_a_writer_that_could_not_OPEN_is_FAILED_with_no_file_at_all)
+R1, and it is the sharpest case. A writer whose open failed has ... ok
+test_an_INACCESSIBLE_stream_is_not_an_absent_one (tests.manager.test_attempt_logs.MissingIsNotEmpty.test_an_INACCESSIBLE_stream_is_not_an_absent_one)
+R1: a permission failure means 'I could not ask', which is a ... ok
+test_an_invented_state_is_refused_from_both_directions (tests.manager.test_attempt_logs.MissingIsNotEmpty.test_an_invented_state_is_refused_from_both_directions) ... ok
+test_the_writer_s_declaration_is_DURABLE_and_reaches_every_reader (tests.manager.test_attempt_logs.MissingIsNotEmpty.test_the_writer_s_declaration_is_DURABLE_and_reaches_every_reader)
+R1: a state held only in a return value was lost the moment anybody ... ok
+test_TICKING_AGAIN_after_a_rotation_makes_no_THIRD_generation (tests.manager.test_attempt_logs.NATIVECaptureKnowsWHICHSourceItRetained.test_TICKING_AGAIN_after_a_rotation_makes_no_THIRD_generation)
+The binding is the RECORD's, so a later tick resumes the generation ... ok
+test_a_CORRUPT_record_is_treated_as_ABSENT_rather_than_believed (tests.manager.test_attempt_logs.NATIVECaptureKnowsWHICHSourceItRetained.test_a_CORRUPT_record_is_treated_as_ABSENT_rather_than_believed)
+Input like any other. A record that cannot be read is not a record, ... ok
+test_a_DESTINATION_WITH_NO_RECORD_is_never_resumed_BY_LENGTH (tests.manager.test_attempt_logs.NATIVECaptureKnowsWHICHSourceItRetained.test_a_DESTINATION_WITH_NO_RECORD_is_never_resumed_BY_LENGTH)
+Review 2026-09-18T03-48-00Z, in its own words: after a restart never ... ok
+test_a_FRESH_map_after_a_rotation_resumes_from_the_RECORD (tests.manager.test_attempt_logs.NATIVECaptureKnowsWHICHSourceItRetained.test_a_FRESH_map_after_a_rotation_resumes_from_the_RECORD)
+Restart. The room is the same, the map remembers nothing, and the ... ok
+test_a_FRESH_offset_map_over_the_same_room_does_not_duplicate (tests.manager.test_attempt_logs.NATIVECaptureKnowsWHICHSourceItRetained.test_a_FRESH_offset_map_over_the_same_room_does_not_duplicate)
+The restart case: the resume position is the retained copy's own ... ok
+test_a_GENUINELY_absent_root_is_still_silent (tests.manager.test_attempt_logs.NATIVECaptureKnowsWHICHSourceItRetained.test_a_GENUINELY_absent_root_is_still_silent)
+The ordinary early tick, which must not be turned into a failure. ... ok
+test_a_REAL_source_named_like_a_GENERATION_does_not_collide (tests.manager.test_attempt_logs.NATIVECaptureKnowsWHICHSourceItRetained.test_a_REAL_source_named_like_a_GENERATION_does_not_collide)
+`%23` is disjoint from every name `_flat` can emit, so a provider ... ok
+test_a_REPLACED_source_is_a_new_generation_too (tests.manager.test_attempt_logs.NATIVECaptureKnowsWHICHSourceItRetained.test_a_REPLACED_source_is_a_new_generation_too) ... ok
+test_a_REWRITE_ACROSS_a_restart_is_caught_by_the_RECORD (tests.manager.test_attempt_logs.NATIVECaptureKnowsWHICHSourceItRetained.test_a_REWRITE_ACROSS_a_restart_is_caught_by_the_RECORD)
+The same thing with a map that remembers nothing, which is the form ... ok
+test_a_REWRITE_AT_THE_SAME_LENGTH_is_still_a_new_generation (tests.manager.test_attempt_logs.NATIVECaptureKnowsWHICHSourceItRetained.test_a_REWRITE_AT_THE_SAME_LENGTH_is_still_a_new_generation)
+Review 2026-09-18T03-48-00Z's second probe, exactly: `XY` becomes ... ok
+test_a_TRUNCATED_source_keeps_the_old_bytes_and_declares_the_break (tests.manager.test_attempt_logs.NATIVECaptureKnowsWHICHSourceItRetained.test_a_TRUNCATED_source_keeps_the_old_bytes_and_declares_the_break)
+Appending the new bytes onto the old would splice two generations ... ok
+test_a_new_generation_that_GROWS_PAST_the_old_one_never_splices (tests.manager.test_attempt_logs.NATIVECaptureKnowsWHICHSourceItRetained.test_a_new_generation_that_GROWS_PAST_the_old_one_never_splices)
+Review 2026-09-18T03-48-00Z names this second failure exactly: "once ... ok
+test_an_INACCESSIBLE_capture_root_is_not_reported_as_ABSENCE (tests.manager.test_attempt_logs.NATIVECaptureKnowsWHICHSourceItRetained.test_an_INACCESSIBLE_capture_root_is_not_reported_as_ABSENCE)
+`_descended` collapsed every OSError into None and its caller called ... ok
+test_an_ORDINARY_APPEND_is_not_mistaken_for_a_rewrite (tests.manager.test_attempt_logs.NATIVECaptureKnowsWHICHSourceItRetained.test_an_ORDINARY_APPEND_is_not_mistaken_for_a_rewrite)
+The digest covers the RETAINED head, so growth leaves it alone -- ... ok
+test_a_FAILURE_is_reported_rather_than_skipped (tests.manager.test_attempt_logs.NATIVERetentionIsIncrementalAndHonest.test_a_FAILURE_is_reported_rather_than_skipped)
+An empty corner must not read as 'the provider wrote nothing' when ... ok
+test_a_LARGE_file_is_streamed_rather_than_silently_truncated (tests.manager.test_attempt_logs.NATIVERetentionIsIncrementalAndHonest.test_a_LARGE_file_is_streamed_rather_than_silently_truncated)
+The earlier cut read a ceiling's worth and counted the file ... ok
+test_a_LINKED_DIRECTORY_is_not_walked_out_of (tests.manager.test_attempt_logs.NATIVERetentionIsIncrementalAndHonest.test_a_LINKED_DIRECTORY_is_not_walked_out_of)
+Every ancestor was followed before, not only the leaf. ... ok
+test_a_NESTED_name_cannot_collide_with_a_flattened_one (tests.manager.test_attempt_logs.NATIVERetentionIsIncrementalAndHonest.test_a_NESTED_name_cannot_collide_with_a_flattened_one)
+`a/b` and `a__b` both flattened to `a__b`: three files counted and ... ok
+test_a_SYMLINK_is_refused_by_the_OPEN_and_not_by_a_name_check (tests.manager.test_attempt_logs.NATIVERetentionIsIncrementalAndHonest.test_a_SYMLINK_is_refused_by_the_OPEN_and_not_by_a_name_check)
+`islink` then `open(path)` is a check on one object and an open of ... ok
+test_a_failed_retention_makes_the_PROVIDER_STREAM_say_so (tests.manager.test_attempt_logs.NATIVERetentionIsIncrementalAndHonest.test_a_failed_retention_makes_the_PROVIDER_STREAM_say_so)
+Where a reader will actually meet it: beside the provider record ... ok
+test_an_INTERRUPTED_turn_has_already_retained_what_arrived (tests.manager.test_attempt_logs.NATIVERetentionIsIncrementalAndHonest.test_an_INTERRUPTED_turn_has_already_retained_what_arrived)
+Killed before any `finally`: the bytes are in the room because the ... ok
+test_an_ORDINARY_retention_declares_nothing_extra (tests.manager.test_attempt_logs.NATIVERetentionIsIncrementalAndHonest.test_an_ORDINARY_retention_declares_nothing_extra) ... ok
+test_retention_is_INCREMENTAL_and_appends_only_what_is_new (tests.manager.test_attempt_logs.NATIVERetentionIsIncrementalAndHonest.test_retention_is_INCREMENTAL_and_appends_only_what_is_new)
+The property an end-of-turn copy cannot have: bytes already survive ... ok
+test_both_declarations_survive_a_restart (tests.manager.test_attempt_logs.ONEWritersWordCannotEraseANOTHERS.test_both_declarations_survive_a_restart) ... ok
+test_declaring_one_stream_leaves_the_others_alone (tests.manager.test_attempt_logs.ONEWritersWordCannotEraseANOTHERS.test_declaring_one_stream_leaves_the_others_alone) ... ok
+test_two_streams_declared_concurrently_both_survive (tests.manager.test_attempt_logs.ONEWritersWordCannotEraseANOTHERS.test_two_streams_declared_concurrently_both_survive) ... ok
+test_a_second_incarnation_appends_rather_than_clearing (tests.manager.test_attempt_logs.PartialEvidenceSURVIVES.test_a_second_incarnation_appends_rather_than_clearing) ... ok
+test_adopt_keeps_every_byte_a_previous_incarnation_wrote (tests.manager.test_attempt_logs.PartialEvidenceSURVIVES.test_adopt_keeps_every_byte_a_previous_incarnation_wrote) ... ok
+test_adopt_refuses_a_room_that_is_not_a_directory (tests.manager.test_attempt_logs.PartialEvidenceSURVIVES.test_adopt_refuses_a_room_that_is_not_a_directory) ... ok
+test_adopt_refuses_a_room_this_manager_did_not_make (tests.manager.test_attempt_logs.PartialEvidenceSURVIVES.test_adopt_refuses_a_room_this_manager_did_not_make) ... ok
+test_a_captured_stream_reaches_the_room_and_declares_finished (tests.manager.test_attempt_logs.TheADAPTERNoLongerDiscardsWhatItRuns.test_a_captured_stream_reaches_the_room_and_declares_finished) ... ok
+test_a_drain_that_ended_on_its_clock_declares_PARTIAL (tests.manager.test_attempt_logs.TheADAPTERNoLongerDiscardsWhatItRuns.test_a_drain_that_ended_on_its_clock_declares_PARTIAL) ... ok
+test_a_stream_whose_writes_were_LOST_declares_failed (tests.manager.test_attempt_logs.TheADAPTERNoLongerDiscardsWhatItRuns.test_a_stream_whose_writes_were_LOST_declares_failed) ... ok
+test_no_room_means_DEVNULL_exactly_as_before (tests.manager.test_attempt_logs.TheADAPTERNoLongerDiscardsWhatItRuns.test_no_room_means_DEVNULL_exactly_as_before) ... ok
+test_the_four_streams_are_kept_apart (tests.manager.test_attempt_logs.TheADAPTERNoLongerDiscardsWhatItRuns.test_the_four_streams_are_kept_apart) ... ok
+test_MANY_TICKS_over_one_file_retain_it_ONCE (tests.manager.test_attempt_logs.TheDRAINSOwnRetentionIsNotDuplicated.test_MANY_TICKS_over_one_file_retain_it_ONCE) ... ok
+test_a_LINK_at_the_ROOTS_OWN_ANCESTOR_is_refused (tests.manager.test_attempt_logs.TheDRAINSOwnRetentionIsNotDuplicated.test_a_LINK_at_the_ROOTS_OWN_ANCESTOR_is_refused)
+`os.open(a/b/c, O_NOFOLLOW)` holds only `c`; the earlier cut opened ... ok
+test_a_REAL_source_NAMED_LIKE_a_generation_is_kept_apart (tests.manager.test_attempt_logs.TheDRAINSOwnRetentionIsNotDuplicated.test_a_REAL_source_NAMED_LIKE_a_generation_is_kept_apart)
+`#2` was the suffix, and `session.jsonl#2` is a name a provider can ... ok
+test_a_RESTART_after_a_rotation_RESUMES_the_new_generation (tests.manager.test_attempt_logs.TheDRAINSOwnRetentionIsNotDuplicated.test_a_RESTART_after_a_rotation_RESUMES_the_new_generation)
+A second incarnation over the same durable room, with a map that ... ok
+test_a_ROTATION_then_MANY_TICKS_makes_exactly_TWO_generations (tests.manager.test_attempt_logs.TheDRAINSOwnRetentionIsNotDuplicated.test_a_ROTATION_then_MANY_TICKS_makes_exactly_TWO_generations)
+The reviewer's probe: retain `abcdef`, truncate to `XY`, keep ... ok
+test_a_source_CHANGED_BETWEEN_runs_is_retained_and_DECLARED (tests.manager.test_attempt_logs.TheDRAINSOwnRetentionIsNotDuplicated.test_a_source_CHANGED_BETWEEN_runs_is_retained_and_DECLARED)
+The restart half of the probe, which returned `failed: []` and ... ok
+test_a_source_REWRITTEN_BETWEEN_runs_at_the_SAME_length (tests.manager.test_attempt_logs.TheDRAINSOwnRetentionIsNotDuplicated.test_a_source_REWRITTEN_BETWEEN_runs_at_the_SAME_length)
+The restart probe at the actual caller. Nothing about the file ... ok
+test_an_APPEND_AFTER_a_rotation_continues_the_NEW_generation (tests.manager.test_attempt_logs.TheDRAINSOwnRetentionIsNotDuplicated.test_an_APPEND_AFTER_a_rotation_continues_the_NEW_generation)
+The new generation is a stream too, and the second tick after it ... ok
+test_an_APPEND_between_ticks_is_retained_exactly_once (tests.manager.test_attempt_logs.TheDRAINSOwnRetentionIsNotDuplicated.test_an_APPEND_between_ticks_is_retained_exactly_once) ... ok
+test_an_INTERMEDIATE_failure_survives_a_clean_final_tick (tests.manager.test_attempt_logs.TheDRAINSOwnRetentionIsNotDuplicated.test_an_INTERMEDIATE_failure_survives_a_clean_final_tick)
+The same loop discarded `failed`, so a mid-turn retention failure ... ok
+test_bytes_that_arrive_AFTER_the_last_tick_are_still_retained (tests.manager.test_attempt_logs.TheDRAINSOwnRetentionIsNotDuplicated.test_bytes_that_arrive_AFTER_the_last_tick_are_still_retained)
+The finalization pass, over the same offsets the drain kept. ... ok
+test_the_boundary_accepts_what_the_delivery_composes (tests.manager.test_attempt_logs.TheDeliveryComposesITSOWNMount.test_the_boundary_accepts_what_the_delivery_composes) ... ok
+test_the_delivery_authorizes_exactly_one_writable_bind (tests.manager.test_attempt_logs.TheDeliveryComposesITSOWNMount.test_the_delivery_authorizes_exactly_one_writable_bind) ... ok
+test_two_attempts_compose_two_different_sources_one_target (tests.manager.test_attempt_logs.TheDeliveryComposesITSOWNMount.test_two_attempts_compose_two_different_sources_one_target) ... ok
+test_DISCARD_removes_the_launch_and_LEAVES_the_evidence (tests.manager.test_attempt_logs.TheLAUNCHMakesTheRoomBeforeAnythingStarts.test_DISCARD_removes_the_launch_and_LEAVES_the_evidence) ... ok
+test_a_RESTART_adopts_the_room_a_previous_incarnation_made (tests.manager.test_attempt_logs.TheLAUNCHMakesTheRoomBeforeAnythingStarts.test_a_RESTART_adopts_the_room_a_previous_incarnation_made) ... ok
+test_a_launch_carries_a_log_room_beside_its_exchange (tests.manager.test_attempt_logs.TheLAUNCHMakesTheRoomBeforeAnythingStarts.test_a_launch_carries_a_log_room_beside_its_exchange) ... ok
+test_no_workspace_group_means_NO_ROOM_rather_than_an_unwritable_one (tests.manager.test_attempt_logs.TheLAUNCHMakesTheRoomBeforeAnythingStarts.test_no_workspace_group_means_NO_ROOM_rather_than_an_unwritable_one)
+A delivery that promised a writable log and delivered an unwritable ... ok
+test_the_room_is_OUTSIDE_the_launch_root_it_rides_with (tests.manager.test_attempt_logs.TheLAUNCHMakesTheRoomBeforeAnythingStarts.test_the_room_is_OUTSIDE_the_launch_root_it_rides_with)
+Which is what lets `discard` tear a launch down without taking the ... ok
+test_two_attempts_launched_together_get_two_rooms (tests.manager.test_attempt_logs.TheLAUNCHMakesTheRoomBeforeAnythingStarts.test_two_attempts_launched_together_get_two_rooms) ... ok
+test_a_log_that_cannot_be_read_is_INACCESSIBLE_not_empty (tests.manager.test_attempt_logs.TheOperatorSurfaceNeedsNoEngine.test_a_log_that_cannot_be_read_is_INACCESSIBLE_not_empty) ... ok
+test_a_read_answers_the_STATE_as_well_as_the_bytes (tests.manager.test_attempt_logs.TheOperatorSurfaceNeedsNoEngine.test_a_read_answers_the_STATE_as_well_as_the_bytes) ... ok
+test_a_read_is_bounded_and_positioned (tests.manager.test_attempt_logs.TheOperatorSurfaceNeedsNoEngine.test_a_read_is_bounded_and_positioned) ... ok
+test_follow_answers_the_next_byte_and_never_loops (tests.manager.test_attempt_logs.TheOperatorSurfaceNeedsNoEngine.test_follow_answers_the_next_byte_and_never_loops) ... ok
+test_locators_name_every_stream_with_its_honest_state (tests.manager.test_attempt_logs.TheOperatorSurfaceNeedsNoEngine.test_locators_name_every_stream_with_its_honest_state)
+R1 CORRECTED THIS CASE. It previously asserted that a stream ... ok
+test_native_session_output_is_its_own_fact (tests.manager.test_attempt_logs.TheOperatorSurfaceNeedsNoEngine.test_native_session_output_is_its_own_fact) ... ok
+test_ONE_BAD_ENTRY_does_not_lose_the_provable_ones (tests.manager.test_attempt_logs.TheRECORDIsINPUTAndTheWINDOWIsRECOVERABLE.test_ONE_BAD_ENTRY_does_not_lose_the_provable_ones)
+The record describes many sources; a single unreadable entry is not ... ok
+test_a_FAILED_record_write_is_DECLARED_and_not_swallowed (tests.manager.test_attempt_logs.TheRECORDIsINPUTAndTheWINDOWIsRECOVERABLE.test_a_FAILED_record_write_is_DECLARED_and_not_swallowed) ... ok
+test_a_FRESH_map_after_that_failure_does_NOT_duplicate (tests.manager.test_attempt_logs.TheRECORDIsINPUTAndTheWINDOWIsRECOVERABLE.test_a_FRESH_map_after_that_failure_does_NOT_duplicate)
+The reviewer's probe: this produced `abcdefdef`, with `failed` empty ... ok
+test_a_MALFORMED_head_or_identity_is_not_believed (tests.manager.test_attempt_logs.TheRECORDIsINPUTAndTheWINDOWIsRECOVERABLE.test_a_MALFORMED_head_or_identity_is_not_believed) ... ok
+test_a_MALFORMED_offset_is_not_believed (tests.manager.test_attempt_logs.TheRECORDIsINPUTAndTheWINDOWIsRECOVERABLE.test_a_MALFORMED_offset_is_not_believed) ... ok
+test_a_NONREGULAR_record_is_refused_rather_than_read (tests.manager.test_attempt_logs.TheRECORDIsINPUTAndTheWINDOWIsRECOVERABLE.test_a_NONREGULAR_record_is_refused_rather_than_read)
+`O_NOFOLLOW` refuses a symlink at the name and says nothing about a ... ok
+test_a_SHORT_WRITE_still_records_what_DID_reach_the_room (tests.manager.test_attempt_logs.TheRECORDIsINPUTAndTheWINDOWIsRECOVERABLE.test_a_SHORT_WRITE_still_records_what_DID_reach_the_room)
+Otherwise the next tick re-copies bytes that are already there -- ... ok
+test_a_TRAVERSING_destination_writes_NOTHING_outside_the_corner (tests.manager.test_attempt_logs.TheRECORDIsINPUTAndTheWINDOWIsRECOVERABLE.test_a_TRAVERSING_destination_writes_NOTHING_outside_the_corner)
+The reviewer's probe: `../escaped` had the source's bytes appended ... ok
+test_a_destination_naming_ANOTHER_SOURCES_file_is_refused (tests.manager.test_attempt_logs.TheRECORDIsINPUTAndTheWINDOWIsRECOVERABLE.test_a_destination_naming_ANOTHER_SOURCES_file_is_refused)
+A destination is either the flattened source itself or one of its ... ok
+test_a_reconciled_prefix_that_DISAGREES_starts_a_generation (tests.manager.test_attempt_logs.TheRECORDIsINPUTAndTheWINDOWIsRECOVERABLE.test_a_reconciled_prefix_that_DISAGREES_starts_a_generation)
+Ahead is believed only when the retained head and the SOURCE'S ... ok
+test_a_record_AHEAD_of_its_bytes_is_never_resumed (tests.manager.test_attempt_logs.TheRECORDIsINPUTAndTheWINDOWIsRECOVERABLE.test_a_record_AHEAD_of_its_bytes_is_never_resumed)
+The unrecoverable direction. Bytes the record counted and the ... ok
+test_a_staging_entry_THIS_CALL_DID_NOT_MAKE_is_never_removed (tests.manager.test_attempt_logs.TheRECORDIsINPUTAndTheWINDOWIsRECOVERABLE.test_a_staging_entry_THIS_CALL_DID_NOT_MAKE_is_never_removed)
+A handler that unlinked on any failure would delete somebody else's ... ok
+test_an_ABSOLUTE_destination_is_refused_the_same_way (tests.manager.test_attempt_logs.TheRECORDIsINPUTAndTheWINDOWIsRECOVERABLE.test_an_ABSOLUTE_destination_is_refused_the_same_way) ... ok
+test_an_ENTRY_WITH_AN_EXTRA_MEMBER_is_not_believed (tests.manager.test_attempt_logs.TheRECORDIsINPUTAndTheWINDOWIsRECOVERABLE.test_an_ENTRY_WITH_AN_EXTRA_MEMBER_is_not_believed)
+A closed document, because the members somebody would want to add ... ok
+test_an_INTERRUPTED_update_is_the_same_case_and_recovers (tests.manager.test_attempt_logs.TheRECORDIsINPUTAndTheWINDOWIsRECOVERABLE.test_an_INTERRUPTED_update_is_the_same_case_and_recovers)
+A process stopping between the append and the replace leaves ... ok
+test_an_OVERSIZED_record_is_treated_as_ABSENT (tests.manager.test_attempt_logs.TheRECORDIsINPUTAndTheWINDOWIsRECOVERABLE.test_an_OVERSIZED_record_is_treated_as_ABSENT)
+Metadata read back is input, and an unbounded read of a file ... ok
+test_it_recovers_through_the_ACTUAL_caller_too (tests.manager.test_attempt_logs.TheRECORDIsINPUTAndTheWINDOWIsRECOVERABLE.test_it_recovers_through_the_ACTUAL_caller_too)
+Review 2026-09-18T04-07-54Z asks for this through the capture ... ok
+test_the_STAGING_entry_is_CREATED_and_never_opened (tests.manager.test_attempt_logs.TheRECORDIsINPUTAndTheWINDOWIsRECOVERABLE.test_the_STAGING_entry_is_CREATED_and_never_opened)
+A fixed pid name opened `O_TRUNC` is not an exclusively owned ... ok
+test_the_record_cannot_name_ITSELF_or_its_own_staging (tests.manager.test_attempt_logs.TheRECORDIsINPUTAndTheWINDOWIsRECOVERABLE.test_the_record_cannot_name_ITSELF_or_its_own_staging)
+A destination of `.retention.json` would have the capture append a ... ok
+test_a_NATIVE_corner_that_is_a_link_is_refused_not_walked (tests.manager.test_attempt_logs.TheReaderCannotLEAVETheAttemptsOwnRoom.test_a_NATIVE_corner_that_is_a_link_is_refused_not_walked) ... ok
+test_a_stream_that_is_a_SYMLINK_is_refused_not_followed (tests.manager.test_attempt_logs.TheReaderCannotLEAVETheAttemptsOwnRoom.test_a_stream_that_is_a_SYMLINK_is_refused_not_followed) ... ok
+test_a_stream_that_is_not_a_REGULAR_FILE_is_refused (tests.manager.test_attempt_logs.TheReaderCannotLEAVETheAttemptsOwnRoom.test_a_stream_that_is_not_a_REGULAR_FILE_is_refused)
+A special file is not a log, and reading one could block a reader ... ok
+test_an_ordinary_partial_log_still_reads_normally (tests.manager.test_attempt_logs.TheReaderCannotLEAVETheAttemptsOwnRoom.test_an_ordinary_partial_log_still_reads_normally)
+The control: what is refused is an ESCAPE, not an ordinary read. ... ok
+test_a_bare_integer_is_not_this_deployment_s_group (tests.manager.test_attempt_logs.TheRoomIsMadeBeforeAnythingRuns.test_a_bare_integer_is_not_this_deployment_s_group) ... ok
+test_a_delivery_is_frozen_and_names_only_the_streams_it_has (tests.manager.test_attempt_logs.TheRoomIsMadeBeforeAnythingRuns.test_a_delivery_is_frozen_and_names_only_the_streams_it_has) ... ok
+test_a_second_materialize_over_one_attempt_REFUSES (tests.manager.test_attempt_logs.TheRoomIsMadeBeforeAnythingRuns.test_a_second_materialize_over_one_attempt_REFUSES)
+A fresh attempt writing into another attempt's evidence is the ... ok
+test_the_mode_is_the_one_its_establisher_sets (tests.manager.test_attempt_logs.TheRoomIsMadeBeforeAnythingRuns.test_the_mode_is_the_one_its_establisher_sets)
+A second constant here would be a second thing to keep true, and ... ok
+test_the_room_and_its_native_corner_exist_and_are_group_writable (tests.manager.test_attempt_logs.TheRoomIsMadeBeforeAnythingRuns.test_the_room_and_its_native_corner_exist_and_are_group_writable) ... ok
+test_the_room_is_NOT_the_result_or_protocol_surface (tests.manager.test_attempt_logs.TheRoomIsMadeBeforeAnythingRuns.test_the_room_is_NOT_the_result_or_protocol_surface)
+The whole reason this delivery exists rather than a subdirectory of ... ok
+test_a_DEVICE_or_directory_at_a_stream_is_refused_too (tests.manager.test_attempt_logs.TheSHAREDStreamBoundaryOwnsWhatItWritesTo.test_a_DEVICE_or_directory_at_a_stream_is_refused_too)
+A device opens perfectly well and swallows everything. ... ok
+test_a_FIFO_at_a_SHARED_stream_does_not_BLOCK (tests.manager.test_attempt_logs.TheSHAREDStreamBoundaryOwnsWhatItWritesTo.test_a_FIFO_at_a_SHARED_stream_does_not_BLOCK)
+In a bounded child, because the defect never returns at all and an ... ok
+test_a_FIFO_stream_is_DECLARED_failed_and_says_why (tests.manager.test_attempt_logs.TheSHAREDStreamBoundaryOwnsWhatItWritesTo.test_a_FIFO_stream_is_DECLARED_failed_and_says_why) ... ok
+test_a_RESTART_still_APPENDS_beside_the_first_incarnation (tests.manager.test_attempt_logs.TheSHAREDStreamBoundaryOwnsWhatItWritesTo.test_a_RESTART_still_APPENDS_beside_the_first_incarnation)
+The required outcome: partial evidence survives restart. A fresh ... ok
+test_a_SECOND_writer_does_not_INHERIT_the_first_word (tests.manager.test_attempt_logs.TheSHAREDStreamBoundaryOwnsWhatItWritesTo.test_a_SECOND_writer_does_not_INHERIT_the_first_word)
+A terminal word is about BYTES, not about a name. ... ok
+test_a_SECOND_writer_that_FINISHES_says_so (tests.manager.test_attempt_logs.TheSHAREDStreamBoundaryOwnsWhatItWritesTo.test_a_SECOND_writer_that_FINISHES_says_so)
+Not a pass obtained by declaring every stream incomplete forever. ... ok
+test_a_declaration_that_CANNOT_be_cleared_REFUSES_the_handle (tests.manager.test_attempt_logs.TheSHAREDStreamBoundaryOwnsWhatItWritesTo.test_a_declaration_that_CANNOT_be_cleared_REFUSES_the_handle)
+Appending under a word that describes other bytes would report ... ok
+test_an_ALIASED_shared_stream_writes_NOTHING_outside_the_room (tests.manager.test_attempt_logs.TheSHAREDStreamBoundaryOwnsWhatItWritesTo.test_an_ALIASED_shared_stream_writes_NOTHING_outside_the_room)
+The reviewer's probe: `raw provider bytes` reached a file outside ... ok
+test_an_INTERRUPTED_second_writer_leaves_LIVE_and_not_finished (tests.manager.test_attempt_logs.TheSHAREDStreamBoundaryOwnsWhatItWritesTo.test_an_INTERRUPTED_second_writer_leaves_LIVE_and_not_finished)
+The stop before the new declaration, which is the case an operator ... ok
+test_an_ORDINARY_stream_is_UNAFFECTED (tests.manager.test_attempt_logs.TheSHAREDStreamBoundaryOwnsWhatItWritesTo.test_an_ORDINARY_stream_is_UNAFFECTED)
+The control. A rule that also refused the ordinary case would be a ... ok
+test_clearing_NOTHING_is_an_ordinary_success (tests.manager.test_attempt_logs.TheSHAREDStreamBoundaryOwnsWhatItWritesTo.test_clearing_NOTHING_is_an_ordinary_success)
+The first writer of a stream meets this on every attempt. ... ok
+test_clearing_touches_the_METADATA_and_never_the_BYTES (tests.manager.test_attempt_logs.TheSHAREDStreamBoundaryOwnsWhatItWritesTo.test_clearing_touches_the_METADATA_and_never_the_BYTES) ... ok
+test_the_EARLIER_BYTES_are_never_touched (tests.manager.test_attempt_logs.TheSHAREDStreamBoundaryOwnsWhatItWritesTo.test_the_EARLIER_BYTES_are_never_touched) ... ok
+test_the_OPERATOR_sees_an_honest_state_while_it_is_open (tests.manager.test_attempt_logs.TheSHAREDStreamBoundaryOwnsWhatItWritesTo.test_the_OPERATOR_sees_an_honest_state_while_it_is_open)
+The reviewer read this through the real reader: `captured`, "the ... ok
+test_the_WRAPPERS_OWN_stream_is_acquired_the_same_way (tests.manager.test_attempt_logs.TheSHAREDStreamBoundaryOwnsWhatItWritesTo.test_the_WRAPPERS_OWN_stream_is_acquired_the_same_way)
+`_TeeStream` reaches the same opener BEFORE the startup diagnostic, ... ok
+test_a_staging_SYMLINK_does_not_overwrite_what_it_points_at (tests.manager.test_attempt_logs.TheSIDECARIsInsideTheBoundaryToo.test_a_staging_SYMLINK_does_not_overwrite_what_it_points_at) ... ok
+test_a_status_SYMLINK_does_not_supply_another_attempts_word (tests.manager.test_attempt_logs.TheSIDECARIsInsideTheBoundaryToo.test_a_status_SYMLINK_does_not_supply_another_attempts_word) ... ok
+test_a_status_that_is_a_SPECIAL_FILE_is_corrupt_not_a_blocked_read (tests.manager.test_attempt_logs.TheSIDECARIsInsideTheBoundaryToo.test_a_status_that_is_a_SPECIAL_FILE_is_corrupt_not_a_blocked_read) ... ok
+test_a_room_that_is_not_there_captures_NOTHING_and_fails_nothing (tests.manager.test_attempt_logs.TheWORKERWritesItsOwnEarliestOutput.test_a_room_that_is_not_there_captures_NOTHING_and_fails_nothing)
+A worker whose RUN failed because its LOGGING was unavailable would ... ok
+test_a_wrapper_that_said_nothing_leaves_the_stream_ABSENT (tests.manager.test_attempt_logs.TheWORKERWritesItsOwnEarliestOutput.test_a_wrapper_that_said_nothing_leaves_the_stream_ABSENT)
+Missing is not empty, and an empty file would assert a run that had ... ok
+test_an_image_without_the_format_module_captures_nothing (tests.manager.test_attempt_logs.TheWORKERWritesItsOwnEarliestOutput.test_an_image_without_the_format_module_captures_nothing) ... ok
+test_the_protocol_channel_is_NOT_teed (tests.manager.test_attempt_logs.TheWORKERWritesItsOwnEarliestOutput.test_the_protocol_channel_is_NOT_teed)
+`worker.stdout` is the framed transport's exact bytes. The review ... ok
+test_the_wrappers_stderr_reaches_the_room_and_the_real_stream (tests.manager.test_attempt_logs.TheWORKERWritesItsOwnEarliestOutput.test_the_wrappers_stderr_reaches_the_room_and_the_real_stream) ... ok
+test_both_streams_reach_the_room_and_the_real_streams (tests.manager.test_attempt_logs.TheWRAPPERRetainsBOTHOfItsOwnStreams.test_both_streams_reach_the_room_and_the_real_streams) ... ok
+test_the_PROTOCOL_buffer_is_not_what_this_wraps (tests.manager.test_attempt_logs.TheWRAPPERRetainsBOTHOfItsOwnStreams.test_the_PROTOCOL_buffer_is_not_what_this_wraps)
+`serve` frames on `sys.stdout.buffer`, passed as an operand, so a ... ok
+test_the_caller_visible_bytes_are_IDENTICAL_to_the_persisted_ones (tests.manager.test_attempt_logs.TheWRAPPERRetainsBOTHOfItsOwnStreams.test_the_caller_visible_bytes_are_IDENTICAL_to_the_persisted_ones) ... ok
+test_a_CORRUPT_prior_declaration_is_unknown_too (tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_a_CORRUPT_prior_declaration_is_unknown_too)
+A corrupt sidecar carries no `declared` member, so it reached the ... ok
+test_a_FAILED_carry_REFUSES_the_handle_and_keeps_the_evidence (tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_a_FAILED_carry_REFUSES_the_handle_and_keeps_the_evidence)
+The reviewer's probe models `_write_carried`'s ordinary `OSError` ... ok
+test_a_GENUINELY_absent_record_is_still_absence (tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_a_GENUINELY_absent_record_is_still_absence)
+The control for R3: the ordinary stream has no history and must not ... ok
+test_a_NONREGULAR_carried_record_is_not_ABSENCE_either (tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_a_NONREGULAR_carried_record_is_not_ABSENCE_either) ... ok
+test_a_READ_failure_on_the_record_is_not_ABSENCE_either (tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_a_READ_failure_on_the_record_is_not_ABSENCE_either) ... ok
+test_an_ACTIVE_second_writer_still_keeps_follow_ALIVE (tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_an_ACTIVE_second_writer_still_keeps_follow_ALIVE) ... ok
+test_an_EMPTY_new_stream_is_still_a_CLEAN_start (tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_an_EMPTY_new_stream_is_still_a_CLEAN_start)
+The distinction that keeps the ordinary capture free: what makes it ... ok
+test_an_INACCESSIBLE_carried_record_is_not_ABSENCE (tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_an_INACCESSIBLE_carried_record_is_not_ABSENCE)
+The reviewer injected `PermissionError` at the carried record only. ... ok
+test_an_UNKNOWN_ending_then_a_success_is_NOT_captured (tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_an_UNKNOWN_ending_then_a_success_is_NOT_captured)
+The reviewer's probe: `first-prefix`, `declare(None)`, then a whole ... ok
+test_that_refusal_does_NOT_stop_the_child_from_running (tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_that_refusal_does_NOT_stop_the_child_from_running)
+Logging contains its own failure: a refused handle leaves the ... ok
+test_the_ALL_SUCCESSFUL_restart_is_still_CAPTURED (tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_the_ALL_SUCCESSFUL_restart_is_still_CAPTURED)
+finished -> reopen -> finished, with bytes present at the reopen. ... ok
+test_the_BYTES_a_refused_writer_had_are_not_written_anywhere (tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_the_BYTES_a_refused_writer_had_are_not_written_anywhere) ... ok
+test_the_WRAPPERS_stream_treats_an_unknown_ending_the_same (tests.manager.test_attempt_logs.UNKNOWNAndUNREADABLEHistoryCannotBecomeCOMPLETE.test_the_WRAPPERS_stream_treats_an_unknown_ending_the_same) ... ok
+test_a_candidate_whose_verification_failed_is_not_completed (tests.manager.test_claude_agent.FailureIsHonest.test_a_candidate_whose_verification_failed_is_not_completed) ... ok
+test_a_clean_turn_that_changed_nothing_is_not_completed (tests.manager.test_claude_agent.FailureIsHonest.test_a_clean_turn_that_changed_nothing_is_not_completed) ... ok
+test_a_failed_turn_still_publishes_the_required_output (tests.manager.test_claude_agent.FailureIsHonest.test_a_failed_turn_still_publishes_the_required_output)
+The declaration says the proposal is required, and the worker ... ok
+test_a_failed_verification_reports_the_bound_and_stays_unable (tests.manager.test_claude_agent.FailureIsHonest.test_a_failed_verification_reports_the_bound_and_stays_unable)
+A candidate WAS produced and the turn still failed. Reporting the ... ok
+test_a_provider_that_did_not_finish_is_not_completed (tests.manager.test_claude_agent.FailureIsHonest.test_a_provider_that_did_not_finish_is_not_completed) ... ok
+test_a_provider_that_exits_nonzero_is_not_completed (tests.manager.test_claude_agent.FailureIsHonest.test_a_provider_that_exits_nonzero_is_not_completed) ... ok
+test_a_provider_that_never_started_is_not_completed (tests.manager.test_claude_agent.FailureIsHonest.test_a_provider_that_never_started_is_not_completed) ... ok
+test_a_provider_that_never_started_still_reports_its_bound (tests.manager.test_claude_agent.FailureIsHonest.test_a_provider_that_never_started_still_reports_its_bound)
+A turn with no child at all still ran under a ceiling, and the ... ok
+test_a_timed_out_turn_names_one_bound_in_its_sentence_and_record (tests.manager.test_claude_agent.FailureIsHonest.test_a_timed_out_turn_names_one_bound_in_its_sentence_and_record)
+What the two historic sealed results got wrong, reproduced in the ... ok
+test_the_verification_is_not_run_when_there_is_no_candidate (tests.manager.test_claude_agent.FailureIsHonest.test_the_verification_is_not_run_when_there_is_no_candidate)
+A verification against an unchanged tree would pass and mean ... ok
+test_a_child_given_this_environment_really_selects_those_roots (tests.manager.test_claude_agent.NeitherChildLeavesEphemeraInTheCandidate.test_a_child_given_this_environment_really_selects_those_roots)
+THE PROOF THE STRING CHECK CANNOT GIVE. ... ok
+test_a_descendant_cannot_redirect_a_root_after_final_validation (tests.manager.test_claude_agent.NeitherChildLeavesEphemeraInTheCandidate.test_a_descendant_cannot_redirect_a_root_after_final_validation)
+Review 2026-09-04T18-59-48Z: discriminate the TOCTOU. ... ok
+test_a_real_compileall_leaves_the_candidate_cache_free (tests.manager.test_claude_agent.NeitherChildLeavesEphemeraInTheCandidate.test_a_real_compileall_leaves_the_candidate_cache_free)
+THE DEFECT ITSELF, with a real interpreter rather than a double. ... ok
+test_every_ephemeral_root_is_outside_the_candidate (tests.manager.test_claude_agent.NeitherChildLeavesEphemeraInTheCandidate.test_every_ephemeral_root_is_outside_the_candidate) ... ok
+test_every_named_root_exists_before_either_child_starts (tests.manager.test_claude_agent.NeitherChildLeavesEphemeraInTheCandidate.test_every_named_root_exists_before_either_child_starts)
+W85497 review 2026-09-04T13-56-04Z [P1]: named is not created. ... ok
+test_provider_symlinks_cannot_replace_the_verifiers_owned_roots (tests.manager.test_claude_agent.NeitherChildLeavesEphemeraInTheCandidate.test_provider_symlinks_cannot_replace_the_verifiers_owned_roots)
+Review 2026-09-04T14:44:23Z: predictable is attacker-known. ... ok
+test_the_providers_home_is_still_the_prepared_credential_home (tests.manager.test_claude_agent.NeitherChildLeavesEphemeraInTheCandidate.test_the_providers_home_is_still_the_prepared_credential_home)
+The correction moves ephemera, not the credential. ... ok
+test_the_pycache_prefix_is_set_because_compileall_ignores_the_other (tests.manager.test_claude_agent.NeitherChildLeavesEphemeraInTheCandidate.test_the_pycache_prefix_is_set_because_compileall_ignores_the_other)
+`PYTHONDONTWRITEBYTECODE` cannot answer this and is not relied on. ... ok
+test_the_verification_home_is_not_the_candidate_and_holds_no_bearer (tests.manager.test_claude_agent.NeitherChildLeavesEphemeraInTheCandidate.test_the_verification_home_is_not_the_candidate_and_holds_no_bearer)
+It used to BE the candidate, so a command writing to its own home ... ok
+test_the_verifier_inherits_the_exact_held_directory_objects (tests.manager.test_claude_agent.NeitherChildLeavesEphemeraInTheCandidate.test_the_verifier_inherits_the_exact_held_directory_objects)
+The provider-writable names are no longer launch authority. ... ok
+test_a_shouting_provider_puts_nothing_in_the_proposal_or_the_answer (tests.manager.test_claude_agent.NoChildStreamByteReachesTheProposal.test_a_shouting_provider_puts_nothing_in_the_proposal_or_the_answer) ... ok
+test_a_shouting_verification_puts_nothing_in_the_transcript (tests.manager.test_claude_agent.NoChildStreamByteReachesTheProposal.test_a_shouting_verification_puts_nothing_in_the_transcript) ... ok
+test_the_module_keeps_no_ceiling_on_bytes_it_never_reads (tests.manager.test_claude_agent.NoChildStreamByteReachesTheProposal.test_the_module_keeps_no_ceiling_on_bytes_it_never_reads)
+The deletions asserted directly, so re-adding a capture ceiling is ... ok
+test_the_transcript_still_carries_the_operator_authored_evidence (tests.manager.test_claude_agent.NoChildStreamByteReachesTheProposal.test_the_transcript_still_carries_the_operator_authored_evidence)
+Withholding is not emptying. What is left is the frozen command, ... ok
+test_a_failed_provider_earns_no_verdict_even_with_a_report (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_failed_provider_earns_no_verdict_even_with_a_report)
+A turn that failed is a turn whose account is incomplete, and an ... ok
+test_a_provider_that_could_not_start_decides_nothing (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_provider_that_could_not_start_decides_nothing) ... ok
+test_a_provider_that_wrote_nothing_decided_nothing (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_provider_that_wrote_nothing_decided_nothing) ... ok
+test_a_report_answering_one_name_twice_decides_nothing (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_report_answering_one_name_twice_decides_nothing) ... ok
+test_a_report_from_another_generation_decides_nothing (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_report_from_another_generation_decides_nothing) ... ok
+test_a_report_naming_a_link_decides_nothing (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_report_naming_a_link_decides_nothing) ... ok
+test_a_report_that_is_a_directory_decides_nothing (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_report_that_is_a_directory_decides_nothing) ... ok
+test_a_report_that_is_a_fifo_decides_nothing_and_does_not_hang (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_report_that_is_a_fifo_decides_nothing_and_does_not_hang)
+REVIEW 2026-09-07T15-19-16Z [P1]: the report was opened blocking ... ok
+test_a_report_that_is_not_a_readable_document_decides_nothing (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_report_that_is_not_a_readable_document_decides_nothing) ... ok
+test_a_report_wider_than_the_ceiling_decides_nothing (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_report_wider_than_the_ceiling_decides_nothing) ... ok
+test_a_report_with_an_extra_member_decides_nothing (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_report_with_an_extra_member_decides_nothing) ... ok
+test_a_report_with_an_unknown_verdict_decides_nothing (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_report_with_an_unknown_verdict_decides_nothing) ... ok
+test_a_report_with_empty_findings_decides_nothing (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_report_with_empty_findings_decides_nothing) ... ok
+test_a_review_that_wrote_nothing_still_reports_the_default_bound (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_review_that_wrote_nothing_still_reports_the_default_bound) ... ok
+test_a_timed_out_provider_decides_nothing (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_timed_out_provider_decides_nothing) ... ok
+test_a_timed_out_review_names_its_effective_bound_and_no_verdict (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_a_timed_out_review_names_its_effective_bound_and_no_verdict)
+The log is the only account an unanswered review leaves, so the ... ok
+test_findings_no_encoder_will_accept_decide_nothing (tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll.test_findings_no_encoder_will_accept_decide_nothing)
+REVIEW [P1]: `json` decodes an escaped lone surrogate into a `str` ... ok
+test_line_proposal_retains_supported_detail_without_candidate (tests.manager.test_claude_agent.SupportedLineProviderDetail.test_line_proposal_retains_supported_detail_without_candidate) ... ok
+test_arbitrary_error_prose_is_withheld_but_http_status_survives (tests.manager.test_claude_agent.SupportedProviderDetail.test_arbitrary_error_prose_is_withheld_but_http_status_survives) ... ok
+test_fixed_explanation_survives_real_pipe_and_untrusted_siblings_do_not (tests.manager.test_claude_agent.SupportedProviderDetail.test_fixed_explanation_survives_real_pipe_and_untrusted_siblings_do_not) ... ok
+test_http_status_is_typed_bounded_and_never_an_authentication_cause (tests.manager.test_claude_agent.SupportedProviderDetail.test_http_status_is_typed_bounded_and_never_an_authentication_cause) ... ok
+test_partial_and_oversized_records_have_no_detail (tests.manager.test_claude_agent.SupportedProviderDetail.test_partial_and_oversized_records_have_no_detail) ... ok
+test_strict_parser_failures_cannot_leak_or_classify (tests.manager.test_claude_agent.SupportedProviderDetail.test_strict_parser_failures_cannot_leak_or_classify) ... ok
+test_supported_record_and_full_constant_are_required (tests.manager.test_claude_agent.SupportedProviderDetail.test_supported_record_and_full_constant_are_required) ... ok
+test_zero_exit_does_not_publish_even_recognized_error_record (tests.manager.test_claude_agent.SupportedProviderDetail.test_zero_exit_does_not_publish_even_recognized_error_record) ... ok
+test_review_log_retains_detail_without_a_verdict (tests.manager.test_claude_agent.SupportedReviewProviderDetail.test_review_log_retains_detail_without_a_verdict) ... ok
+test_consider_declines_rather_than_inventing_a_decision (tests.manager.test_claude_agent.TheAgentContractIsWholeAndTheWorkerOwnsTheRest.test_consider_declines_rather_than_inventing_a_decision)
+This runtime is not entitled to be asked; the object still answers ... ok
+test_exactly_one_declared_output_is_honoured (tests.manager.test_claude_agent.TheAgentContractIsWholeAndTheWorkerOwnsTheRest.test_exactly_one_declared_output_is_honoured) ... ok
+test_the_adapter_publishes_no_completion_manifest (tests.manager.test_claude_agent.TheAgentContractIsWholeAndTheWorkerOwnsTheRest.test_the_adapter_publishes_no_completion_manifest)
+`/output/output.json` is the WORKER's document, published after ... ok
+test_this_module_imports_nothing_from_the_manager (tests.manager.test_claude_agent.TheAgentContractIsWholeAndTheWorkerOwnsTheRest.test_this_module_imports_nothing_from_the_manager)
+The image's whole isolation rule, held as a property of the source ... ok
+test_a_final_link_is_refused_rather_than_followed (tests.manager.test_claude_agent.TheCheckedTreeIsProvedAtEveryComponent.test_a_final_link_is_refused_rather_than_followed) ... ok
+test_a_swapped_tree_refuses_before_one_output_byte_is_written (tests.manager.test_claude_agent.TheCheckedTreeIsProvedAtEveryComponent.test_a_swapped_tree_refuses_before_one_output_byte_is_written)
+`_open_under` makes each read safe on its own; the revalidation ... ok
+test_an_intermediate_link_is_refused_rather_than_followed (tests.manager.test_claude_agent.TheCheckedTreeIsProvedAtEveryComponent.test_an_intermediate_link_is_refused_rather_than_followed) ... ok
+test_a_deletion_is_proved_by_absence_and_not_by_a_blob (tests.manager.test_claude_agent.TheCommittedChangeIsTheMeasuredChange.test_a_deletion_is_proved_by_absence_and_not_by_a_blob) ... ok
+test_a_transforming_filter_refuses_before_anything_is_published (tests.manager.test_claude_agent.TheCommittedChangeIsTheMeasuredChange.test_a_transforming_filter_refuses_before_anything_is_published)
+A clean filter makes the committed blob differ from the bytes this ... ok
+test_an_edit_status_cannot_see_is_still_held_to_its_bytes (tests.manager.test_claude_agent.TheCommittedChangeIsTheMeasuredChange.test_an_edit_status_cannot_see_is_still_held_to_its_bytes)
+Equal path sets still permit different bytes. ... ok
+test_an_ignored_dependency_publishes_and_is_disclosed (tests.manager.test_claude_agent.TheCommittedChangeIsTheMeasuredChange.test_an_ignored_dependency_publishes_and_is_disclosed)
+Owner 2026-09-21T12:47:17Z superseded the veto this case held. ... ok
+test_every_measured_path_is_compared_and_not_only_the_changed_ones (tests.manager.test_claude_agent.TheCommittedChangeIsTheMeasuredChange.test_every_measured_path_is_compared_and_not_only_the_changed_ones)
+The unchanged files are in the comparison too, which is what makes ... ok
+test_the_bytes_committed_are_the_bytes_that_were_measured (tests.manager.test_claude_agent.TheCommittedChangeIsTheMeasuredChange.test_the_bytes_committed_are_the_bytes_that_were_measured) ... ok
+test_the_committed_tree_is_the_measured_tree_in_both_directions (tests.manager.test_claude_agent.TheCommittedChangeIsTheMeasuredChange.test_the_committed_tree_is_the_measured_tree_in_both_directions) ... ok
+test_actual_child_environment_verifier_and_public_outputs_exclude_private_state (tests.manager.test_claude_agent.TheContextEnvironmentRemainsPrivate.test_actual_child_environment_verifier_and_public_outputs_exclude_private_state) ... ok
+test_injected_context_is_unknown_for_activity_even_on_initial_open (tests.manager.test_claude_agent.TheContextEnvironmentRemainsPrivate.test_injected_context_is_unknown_for_activity_even_on_initial_open) ... ok
+test_a_provider_created_link_cannot_copy_the_bearer_to_the_proposal (tests.manager.test_claude_agent.TheCredentialIsLinkedAndNeverRead.test_a_provider_created_link_cannot_copy_the_bearer_to_the_proposal)
+The provider controls the candidate after the trusted source-copy ... ok
+test_an_absent_credential_refuses_rather_than_falling_back (tests.manager.test_claude_agent.TheCredentialIsLinkedAndNeverRead.test_an_absent_credential_refuses_rather_than_falling_back)
+The finding forbids a home-directory or ambient default. ... ok
+test_an_unreadable_credential_refuses_before_the_provider_runs (tests.manager.test_claude_agent.TheCredentialIsLinkedAndNeverRead.test_an_unreadable_credential_refuses_before_the_provider_runs)
+W52800, and it is the case that would have saved three attempts. ... ok
+test_no_bearer_reaches_the_argv_or_the_result (tests.manager.test_claude_agent.TheCredentialIsLinkedAndNeverRead.test_no_bearer_reaches_the_argv_or_the_result) ... ok
+test_provider_stderr_cannot_print_the_mounted_credential (tests.manager.test_claude_agent.TheCredentialIsLinkedAndNeverRead.test_provider_stderr_cannot_print_the_mounted_credential)
+A bounded provider diagnostic is still an untrusted secret sink. ... ok
+test_the_bearer_bytes_are_never_opened (tests.manager.test_claude_agent.TheCredentialIsLinkedAndNeverRead.test_the_bearer_bytes_are_never_opened)
+THE PROPERTY, measured rather than asserted about intent. ... ok
+test_the_providers_credential_path_points_at_the_mounted_slot (tests.manager.test_claude_agent.TheCredentialIsLinkedAndNeverRead.test_the_providers_credential_path_points_at_the_mounted_slot) ... ok
+test_verification_cannot_print_the_mounted_credential (tests.manager.test_claude_agent.TheCredentialIsLinkedAndNeverRead.test_verification_cannot_print_the_mounted_credential)
+The transcript cannot trust provider-edited verification output. ... ok
+test_verification_cannot_replace_checked_file_bytes_with_the_credential (tests.manager.test_claude_agent.TheCredentialIsLinkedAndNeverRead.test_verification_cannot_replace_checked_file_bytes_with_the_credential)
+Revalidation must hold CONTENT, not only path shape. ... ok
+test_verification_cannot_replace_its_capture_with_the_credential (tests.manager.test_claude_agent.TheCredentialIsLinkedAndNeverRead.test_verification_cannot_replace_its_capture_with_the_credential)
+Capture state must not be reachable by the verification command. ... ok
+test_verification_cannot_swap_a_checked_parent_for_the_credential_root (tests.manager.test_claude_agent.TheCredentialIsLinkedAndNeverRead.test_verification_cannot_swap_a_checked_parent_for_the_credential_root)
+Validation must remain true through the final candidate read. ... ok
+test_the_bundle_resolves_the_head_without_the_producers_objects (tests.manager.test_claude_agent.TheDeclaredObjectsResolveForAStrangerHoldingOnlyTheBase.test_the_bundle_resolves_the_head_without_the_producers_objects) ... ok
+test_the_second_rounds_bundle_carries_the_cumulative_range (tests.manager.test_claude_agent.TheDeclaredObjectsResolveForAStrangerHoldingOnlyTheBase.test_the_second_rounds_bundle_carries_the_cumulative_range) ... ok
+test_a_missing_member_refuses (tests.manager.test_claude_agent.TheFrozenTaskIsAClosedDocument.test_a_missing_member_refuses) ... ok
+test_a_source_root_other_than_the_fixed_one_refuses (tests.manager.test_claude_agent.TheFrozenTaskIsAClosedDocument.test_a_source_root_other_than_the_fixed_one_refuses)
+Review [P2]: containment was the wrong rule. ... ok
+test_a_task_from_another_generation_refuses (tests.manager.test_claude_agent.TheFrozenTaskIsAClosedDocument.test_a_task_from_another_generation_refuses) ... ok
+test_a_task_identity_is_text_before_it_is_matched (tests.manager.test_claude_agent.TheFrozenTaskIsAClosedDocument.test_a_task_identity_is_text_before_it_is_matched)
+`str(7)` matches the identity regex, but a JSON number is not the ... ok
+test_a_verification_that_is_a_string_refuses (tests.manager.test_claude_agent.TheFrozenTaskIsAClosedDocument.test_a_verification_that_is_a_string_refuses)
+There is no shell in this image, so a command this adapter would ... ok
+test_an_absent_task_refuses (tests.manager.test_claude_agent.TheFrozenTaskIsAClosedDocument.test_an_absent_task_refuses) ... ok
+test_an_extra_member_refuses (tests.manager.test_claude_agent.TheFrozenTaskIsAClosedDocument.test_an_extra_member_refuses) ... ok
+test_a_baseline_edit_is_measured_by_bytes_not_by_git (tests.manager.test_claude_agent.TheLineDeltaAdmitsTheRealRepositoryShape.test_a_baseline_edit_is_measured_by_bytes_not_by_git) ... ok
+test_a_small_patch_publishes_through_verification (tests.manager.test_claude_agent.TheLineDeltaAdmitsTheRealRepositoryShape.test_a_small_patch_publishes_through_verification) ... ok
+test_the_collection_bound_binds_the_change_list (tests.manager.test_claude_agent.TheLineDeltaAdmitsTheRealRepositoryShape.test_the_collection_bound_binds_the_change_list) ... ok
+test_the_payload_bound_still_binds_what_the_turn_authors (tests.manager.test_claude_agent.TheLineDeltaAdmitsTheRealRepositoryShape.test_the_payload_bound_still_binds_what_the_turn_authors) ... ok
+test_the_shape_is_actually_past_the_payload_bounds (tests.manager.test_claude_agent.TheLineDeltaAdmitsTheRealRepositoryShape.test_the_shape_is_actually_past_the_payload_bounds)
+The fixture proves it is the D10 shape, not a smaller stand-in. ... ok
+test_a_baseline_deletion_is_published_as_a_deletion (tests.manager.test_claude_agent.TheLineDeltaKeepsEveryProviderRule.test_a_baseline_deletion_is_published_as_a_deletion) ... ok
+test_a_link_replaced_by_a_file_still_refuses (tests.manager.test_claude_agent.TheLineDeltaKeepsEveryProviderRule.test_a_link_replaced_by_a_file_still_refuses)
+A type change is refused rather than interpreted -- the ... ok
+test_a_mode_only_change_is_measured_and_published (tests.manager.test_claude_agent.TheLineDeltaKeepsEveryProviderRule.test_a_mode_only_change_is_measured_and_published)
+The executable bit is a change Git commits, so it is candidate ... ok
+test_a_provider_authored_link_still_refuses (tests.manager.test_claude_agent.TheLineDeltaKeepsEveryProviderRule.test_a_provider_authored_link_still_refuses) ... ok
+test_a_retargeted_baseline_link_still_refuses (tests.manager.test_claude_agent.TheLineDeltaKeepsEveryProviderRule.test_a_retargeted_baseline_link_still_refuses) ... ok
+test_a_special_file_is_no_veto_and_is_never_delivered (tests.manager.test_claude_agent.TheLineDeltaKeepsEveryProviderRule.test_a_special_file_is_no_veto_and_is_never_delivered)
+Owner 12:47:17Z: an unrelated special file is not a collection ... ok
+test_a_verification_time_deletion_still_refuses (tests.manager.test_claude_agent.TheLineDeltaKeepsEveryProviderRule.test_a_verification_time_deletion_still_refuses) ... ok
+test_a_verification_time_edit_still_refuses (tests.manager.test_claude_agent.TheLineDeltaKeepsEveryProviderRule.test_a_verification_time_edit_still_refuses) ... ok
+test_an_untouched_linked_baseline_is_no_candidate_not_a_fault (tests.manager.test_claude_agent.TheLineDeltaKeepsEveryProviderRule.test_an_untouched_linked_baseline_is_no_candidate_not_a_fault)
+The exact D10 defect, inverted: committed links and all, a turn ... ok
+test_the_reviewers_unrelated_ignored_cache_probe_publishes (tests.manager.test_claude_agent.TheLineDeltaKeepsEveryProviderRule.test_the_reviewers_unrelated_ignored_cache_probe_publishes)
+Review230027's own R1 reproduction, kept as the positive it must ... ok
+test_a_link_verification_leaves_behind_is_refused_by_the_fresh_walk (tests.manager.test_claude_agent.TheMeasuredBytesAreWhatGetPublished.test_a_link_verification_leaves_behind_is_refused_by_the_fresh_walk) ... ok
+test_a_verification_that_deletes_a_checked_file_is_refused (tests.manager.test_claude_agent.TheMeasuredBytesAreWhatGetPublished.test_a_verification_that_deletes_a_checked_file_is_refused) ... ok
+test_a_verification_that_grows_a_checked_file_is_refused (tests.manager.test_claude_agent.TheMeasuredBytesAreWhatGetPublished.test_a_verification_that_grows_a_checked_file_is_refused)
+Appending needs no link and no new inode, and it makes the patch an ... ok
+test_a_verification_that_only_adds_is_not_a_fault (tests.manager.test_claude_agent.TheMeasuredBytesAreWhatGetPublished.test_a_verification_that_only_adds_is_not_a_fault)
+A command that leaves a cache behind has invalidated nobody's ... ok
+test_the_published_bytes_are_the_bytes_the_patch_describes (tests.manager.test_claude_agent.TheMeasuredBytesAreWhatGetPublished.test_the_published_bytes_are_the_bytes_the_patch_describes)
+The positive half, so the rule is not only proved by refusals. ... ok
+test_what_verification_adds_is_counted_against_the_ceiling (tests.manager.test_claude_agent.TheMeasuredBytesAreWhatGetPublished.test_what_verification_adds_is_counted_against_the_ceiling)
+A fixed list could not see what ran AFTER it, so the bound the ... ok
+test_a_directory_replaced_before_scanning_cannot_redirect_the_scan (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_directory_replaced_before_scanning_cannot_redirect_the_scan) ... ok
+test_a_disappearing_file_freezes_the_total (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_disappearing_file_freezes_the_total) ... ok
+test_a_home_that_does_not_exist_yet_is_unknown_and_not_a_zero (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_home_that_does_not_exist_yet_is_unknown_and_not_a_zero) ... ok
+test_a_link_pointing_at_a_large_file_is_not_followed (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_link_pointing_at_a_large_file_is_not_followed) ... ok
+test_a_real_turn_observes_growth_before_it_completes (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_real_turn_observes_growth_before_it_completes)
+THE NORMAL ADAPTER BOUNDARY, with a deterministic provider standing ... ok
+test_a_replaced_root_link_never_counts_foreign_activity (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_replaced_root_link_never_counts_foreign_activity) ... ok
+test_a_replaced_smaller_file_freezes_rather_than_going_backwards (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_replaced_smaller_file_freezes_rather_than_going_backwards)
+THE FORMULA THAT WOULD HAVE LIED. `sum(max(0, size - baseline))` ... ok
+test_a_scratch_this_process_made_counts_from_the_first_byte (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_scratch_this_process_made_counts_from_the_first_byte)
+PROVED BY CONSTRUCTION. `tempfile.mkdtemp` answers a directory this ... ok
+test_a_second_file_contributes_its_whole_size_once (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_second_file_contributes_its_whole_size_once) ... ok
+test_a_total_past_the_ceiling_is_unknown_rather_than_reported (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_total_past_the_ceiling_is_unknown_rather_than_reported)
+THE COUNT THIS READER COULD NOT COMPARE. A total outside the range ... ok
+test_an_agent_that_never_launched_a_provider_observes_nothing (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_an_agent_that_never_launched_a_provider_observes_nothing) ... ok
+test_an_injected_or_reused_home_is_unknown_for_the_whole_operation (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_an_injected_or_reused_home_is_unknown_for_the_whole_operation)
+AN UNPROVED HOME IS NEVER ESTIMATED. No scan reconstructs a baseline ... ok
+test_directory_acquisition_rejects_replacement_and_closes_descriptors (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_directory_acquisition_rejects_replacement_and_closes_descriptors) ... ok
+test_exceeding_the_depth_yields_unknown_rather_than_a_sample (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_exceeding_the_depth_yields_unknown_rather_than_a_sample) ... ok
+test_exceeding_the_entry_bound_yields_unknown (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_exceeding_the_entry_bound_yields_unknown)
+A SCAN THAT OVERRAN ITS BOUND REPORTS UNKNOWN RATHER THAN WHAT IT ... ok
+test_exceeding_the_tracked_file_bound_yields_unknown (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_exceeding_the_tracked_file_bound_yields_unknown) ... ok
+test_other_home_growth_is_not_activity (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_other_home_growth_is_not_activity) ... ok
+test_restored_history_under_an_unproved_home_fabricates_nothing (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_restored_history_under_an_unproved_home_fabricates_nothing) ... ok
+test_the_credential_symlink_is_never_counted (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_the_credential_symlink_is_never_counted)
+EXCLUDED TWICE OVER: it is a symlink, which the regular-file test ... ok
+test_the_launch_path_performs_no_scan_and_no_stat (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_the_launch_path_performs_no_scan_and_no_stat)
+THE BASELINE IS ADMITTED, NOT MEASURED. An earlier revision of this ... ok
+test_the_total_is_monotonic_across_growth (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_the_total_is_monotonic_across_growth) ... ok
+test_truncation_freezes_the_total (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_truncation_freezes_the_total)
+FROZEN, NOT MERELY UNREDUCED. A file truncated IN PLACE keeps its ... ok
+test_a_failing_command_keeps_its_nonzero_status (tests.manager.test_claude_agent.TheOrdinaryTestObservationIsTheActualOne.test_a_failing_command_keeps_its_nonzero_status)
+Failed stays failed: this adapter reports what `wait` answered and ... ok
+test_a_passing_command_is_reported_with_its_actual_status (tests.manager.test_claude_agent.TheOrdinaryTestObservationIsTheActualOne.test_a_passing_command_is_reported_with_its_actual_status) ... ok
+test_a_turn_that_published_nothing_carries_neither (tests.manager.test_claude_agent.TheOrdinaryTestObservationIsTheActualOne.test_a_turn_that_published_nothing_carries_neither)
+No candidate, so nothing for either document to be about. ... ok
+test_an_actual_failing_command_is_reported_with_its_real_status (tests.manager.test_claude_agent.TheOrdinaryTestObservationIsTheActualOne.test_an_actual_failing_command_is_reported_with_its_real_status)
+The command is made to fail by what the provider WROTE, so the ... ok
+test_an_actual_passing_command_is_reported_with_its_real_status (tests.manager.test_claude_agent.TheOrdinaryTestObservationIsTheActualOne.test_an_actual_passing_command_is_reported_with_its_real_status)
+The candidate's own `harness.py` is executed; nothing injects a ... ok
+test_the_digest_names_the_exact_task_bytes_this_turn_read (tests.manager.test_claude_agent.TheOrdinaryTestObservationIsTheActualOne.test_the_digest_names_the_exact_task_bytes_this_turn_read) ... ok
+test_the_observation_carries_no_boolean_and_no_verdict (tests.manager.test_claude_agent.TheOrdinaryTestObservationIsTheActualOne.test_the_observation_carries_no_boolean_and_no_verdict)
+There is no `passed` in it. A status is what a child exited with; ... ok
+test_the_proposal_claim_beside_it_is_unchanged (tests.manager.test_claude_agent.TheOrdinaryTestObservationIsTheActualOne.test_the_proposal_claim_beside_it_is_unchanged)
+The existing four-field namespace keeps exactly its members: this ... ok
+test_a_changed_and_verified_candidate_is_completed (tests.manager.test_claude_agent.ThePositiveTurnWritesTheDeclaredProposal.test_a_changed_and_verified_candidate_is_completed) ... ok
+test_a_delivery_naming_no_origin_is_unstated_and_not_a_default (tests.manager.test_claude_agent.ThePositiveTurnWritesTheDeclaredProposal.test_a_delivery_naming_no_origin_is_unstated_and_not_a_default)
+An origin this module does not know is reported as unread rather ... ok
+test_a_job_that_configured_nothing_is_not_an_operator_choice (tests.manager.test_claude_agent.ThePositiveTurnWritesTheDeclaredProposal.test_a_job_that_configured_nothing_is_not_an_operator_choice)
+The same NUMBER as the no-Job case and a different FACT: this ... ok
+test_an_operator_selected_bound_is_what_the_result_publishes (tests.manager.test_claude_agent.ThePositiveTurnWritesTheDeclaredProposal.test_an_operator_selected_bound_is_what_the_result_publishes)
+THE DEFECT, in the directory publisher. The turn ran under the ... ok
+test_the_four_declared_members_are_all_written (tests.manager.test_claude_agent.ThePositiveTurnWritesTheDeclaredProposal.test_the_four_declared_members_are_all_written) ... ok
+test_the_origin_words_are_the_execution_limit_owners_own (tests.manager.test_claude_agent.ThePositiveTurnWritesTheDeclaredProposal.test_the_origin_words_are_the_execution_limit_owners_own)
+The image carries no `baton_v12`, so the two mirrored words are ... ok
+test_the_patch_is_a_unified_diff_of_the_changed_paths (tests.manager.test_claude_agent.ThePositiveTurnWritesTheDeclaredProposal.test_the_patch_is_a_unified_diff_of_the_changed_paths) ... ok
+test_the_reported_bound_is_this_workers_own_default_with_no_job (tests.manager.test_claude_agent.ThePositiveTurnWritesTheDeclaredProposal.test_the_reported_bound_is_this_workers_own_default_with_no_job)
+No Job behind the launch is the ONE case the constant is correct ... ok
+test_the_staged_source_is_never_written (tests.manager.test_claude_agent.ThePositiveTurnWritesTheDeclaredProposal.test_the_staged_source_is_never_written)
+The read-only input is the evidence the result is measured against. ... ok
+test_the_verification_transcript_carries_the_command_and_status (tests.manager.test_claude_agent.ThePositiveTurnWritesTheDeclaredProposal.test_the_verification_transcript_carries_the_command_and_status) ... ok
+test_the_written_tree_is_group_readable_for_collection (tests.manager.test_claude_agent.ThePositiveTurnWritesTheDeclaredProposal.test_the_written_tree_is_group_readable_for_collection)
+A STATED COOPERATION, not custody. ... ok
+test_a_declared_path_that_is_a_pattern_refuses_before_reserving (tests.manager.test_claude_agent.ThePreparedLineRefusesWhatItCannotAccountFor.test_a_declared_path_that_is_a_pattern_refuses_before_reserving)
+A declared path is a path; an ignore entry is a pattern. ... ok
+test_a_dirty_line_refuses_before_the_provider_runs (tests.manager.test_claude_agent.ThePreparedLineRefusesWhatItCannotAccountFor.test_a_dirty_line_refuses_before_the_provider_runs) ... ok
+test_a_later_turns_bundle_replaces_the_earlier_one (tests.manager.test_claude_agent.ThePreparedLineRefusesWhatItCannotAccountFor.test_a_later_turns_bundle_replaces_the_earlier_one) ... ok
+test_a_line_that_does_not_descend_from_the_base_refuses (tests.manager.test_claude_agent.ThePreparedLineRefusesWhatItCannotAccountFor.test_a_line_that_does_not_descend_from_the_base_refuses) ... ok
+test_a_linked_repository_directory_is_never_written_through (tests.manager.test_claude_agent.ThePreparedLineRefusesWhatItCannotAccountFor.test_a_linked_repository_directory_is_never_written_through)
+The provider owns this workspace for part of the turn, and a `.git` ... ok
+test_a_no_op_correction_publishes_no_earlier_turns_objects (tests.manager.test_claude_agent.ThePreparedLineRefusesWhatItCannotAccountFor.test_a_no_op_correction_publishes_no_earlier_turns_objects)
+The declared output SURVIVES on a persistent line, so a member's ... ok
+test_a_provider_that_committed_refuses_rather_than_being_adopted (tests.manager.test_claude_agent.ThePreparedLineRefusesWhatItCannotAccountFor.test_a_provider_that_committed_refuses_rather_than_being_adopted) ... ok
+test_a_tracked_reserved_name_refuses_rather_than_being_ignored (tests.manager.test_claude_agent.ThePreparedLineRefusesWhatItCannotAccountFor.test_a_tracked_reserved_name_refuses_rather_than_being_ignored)
+An ignore rule cannot remove tracked content from a candidate. ... ok
+test_a_workspace_that_is_not_a_repository_is_never_rebuilt (tests.manager.test_claude_agent.ThePreparedLineRefusesWhatItCannotAccountFor.test_a_workspace_that_is_not_a_repository_is_never_rebuilt) ... ok
+test_an_unchanged_line_commits_nothing_and_claims_nothing (tests.manager.test_claude_agent.ThePreparedLineRefusesWhatItCannotAccountFor.test_an_unchanged_line_commits_nothing_and_claims_nothing) ... ok
+test_the_commit_identity_comes_from_the_argv_and_nowhere_else (tests.manager.test_claude_agent.ThePreparedLineRefusesWhatItCannotAccountFor.test_the_commit_identity_comes_from_the_argv_and_nowhere_else)
+The container has no Git configuration and this environment has no ... ok
+test_a_manager_created_result_root_never_enters_the_candidate (tests.manager.test_claude_agent.ThePreparedLineTurnCommitsAndDeclaresItsObjects.test_a_manager_created_result_root_never_enters_the_candidate) ... ok
+test_a_timed_out_line_turn_reports_one_bound_in_both_places (tests.manager.test_claude_agent.ThePreparedLineTurnCommitsAndDeclaresItsObjects.test_a_timed_out_line_turn_reports_one_bound_in_both_places)
+The sentence and the member come from the same resolution now. ... ok
+test_every_worker_vector_carries_its_ownership_override (tests.manager.test_claude_agent.ThePreparedLineTurnCommitsAndDeclaresItsObjects.test_every_worker_vector_carries_its_ownership_override)
+The runtime is uid 65532 and the line is the manager's. ... ok
+test_no_index_write_reaches_a_hook_either (tests.manager.test_claude_agent.ThePreparedLineTurnCommitsAndDeclaresItsObjects.test_no_index_write_reaches_a_hook_either)
+`post-index-change` runs on an INDEX WRITE, so a commit-only ... ok
+test_one_worker_commit_continues_the_admitted_entry_head (tests.manager.test_claude_agent.ThePreparedLineTurnCommitsAndDeclaresItsObjects.test_one_worker_commit_continues_the_admitted_entry_head) ... ok
+test_the_commit_runs_no_hook_at_all (tests.manager.test_claude_agent.ThePreparedLineTurnCommitsAndDeclaresItsObjects.test_the_commit_runs_no_hook_at_all)
+`--no-verify` would leave `prepare-commit-msg` running, so the ... ok
+test_the_complete_worker_ending_leaves_a_freezable_line (tests.manager.test_claude_agent.ThePreparedLineTurnCommitsAndDeclaresItsObjects.test_the_complete_worker_ending_leaves_a_freezable_line)
+The whole point, and the step a `work`-only proof would miss. ... ok
+test_the_declared_output_carries_objects_and_no_candidate_tree (tests.manager.test_claude_agent.ThePreparedLineTurnCommitsAndDeclaresItsObjects.test_the_declared_output_carries_objects_and_no_candidate_tree) ... ok
+test_the_line_result_reports_the_operator_selected_bound (tests.manager.test_claude_agent.ThePreparedLineTurnCommitsAndDeclaresItsObjects.test_the_line_result_reports_the_operator_selected_bound)
+THE DEFECT, in the Git-line publisher -- the one the two historic ... ok
+test_the_line_result_reports_this_workers_default_with_no_job (tests.manager.test_claude_agent.ThePreparedLineTurnCommitsAndDeclaresItsObjects.test_the_line_result_reports_this_workers_default_with_no_job) ... ok
+test_the_line_result_separates_a_job_default_from_no_job_at_all (tests.manager.test_claude_agent.ThePreparedLineTurnCommitsAndDeclaresItsObjects.test_the_line_result_separates_a_job_default_from_no_job_at_all) ... ok
+test_the_reserved_names_are_this_workers_and_never_the_candidates (tests.manager.test_claude_agent.ThePreparedLineTurnCommitsAndDeclaresItsObjects.test_the_reserved_names_are_this_workers_and_never_the_candidates) ... ok
+test_both_verification_streams_are_discarded_too (tests.manager.test_claude_agent.TheProviderArgvAndEnvironmentAreClosed.test_both_verification_streams_are_discarded_too)
+The sharper of the two, because this child is provider-EDITED code ... ok
+test_the_argv_is_exactly_the_pinned_vector_plus_one_prompt (tests.manager.test_claude_agent.TheProviderArgvAndEnvironmentAreClosed.test_the_argv_is_exactly_the_pinned_vector_plus_one_prompt)
+GOLDEN. The one operand a golden test cannot establish is whether ... ok
+test_the_environment_is_composed_and_never_inherited (tests.manager.test_claude_agent.TheProviderArgvAndEnvironmentAreClosed.test_the_environment_is_composed_and_never_inherited)
+A credential variable in this process must not reach the child. ... ok
+test_the_inner_permission_policy_is_bypassed_and_not_re_spelled (tests.manager.test_claude_agent.TheProviderArgvAndEnvironmentAreClosed.test_the_inner_permission_policy_is_bypassed_and_not_re_spelled)
+W64268's negative half. ... ok
+test_the_prompt_carries_the_task_and_names_nothing_protocol (tests.manager.test_claude_agent.TheProviderArgvAndEnvironmentAreClosed.test_the_prompt_carries_the_task_and_names_nothing_protocol) ... ok
+test_the_provider_runs_in_the_workspace_copy_and_not_the_source (tests.manager.test_claude_agent.TheProviderArgvAndEnvironmentAreClosed.test_the_provider_runs_in_the_workspace_copy_and_not_the_source)
+W71917 MOVED THE COPY, AND NOT THE RULE. ... ok
+test_the_provider_stderr_is_discarded_rather_than_captured (tests.manager.test_claude_agent.TheProviderArgvAndEnvironmentAreClosed.test_the_provider_stderr_is_discarded_rather_than_captured)
+W39357 review 2026-08-30T04:01:29Z [P1], and it is why the stderr ... ok
+test_the_provider_stdout_is_a_bounded_anonymous_pipe (tests.manager.test_claude_agent.TheProviderArgvAndEnvironmentAreClosed.test_the_provider_stdout_is_a_bounded_anonymous_pipe)
+W55360: read, but never through a name a child could reach. ... ok
+test_the_turn_is_bounded (tests.manager.test_claude_agent.TheProviderArgvAndEnvironmentAreClosed.test_the_turn_is_bounded) ... ok
+test_a_child_under_that_mask_cannot_create_a_readable_directory (tests.manager.test_claude_agent.TheProviderCreatesPrivateDirectories.test_a_child_under_that_mask_cannot_create_a_readable_directory)
+ESTABLISHED RATHER THAN ASSUMED, with a real child. ... ok
+test_no_other_child_has_its_creation_mask_narrowed (tests.manager.test_claude_agent.TheProviderCreatesPrivateDirectories.test_no_other_child_has_its_creation_mask_narrowed)
+A mask on this whole process would also narrow what the adapter ... ok
+test_the_provider_child_is_spawned_under_the_private_mask (tests.manager.test_claude_agent.TheProviderCreatesPrivateDirectories.test_the_provider_child_is_spawned_under_the_private_mask)
+The operand, at the boundary, on the provider and nowhere else. ... ok
+test_every_copy_lands_where_the_image_keeps_its_own_material (tests.manager.test_claude_agent.TheRecipeIsInspectableWithoutADaemon.test_every_copy_lands_where_the_image_keeps_its_own_material)
+The destination half, asked of EVERY COPY including the split one. ... ok
+test_no_provider_credential_is_named_in_the_image (tests.manager.test_claude_agent.TheRecipeIsInspectableWithoutADaemon.test_no_provider_credential_is_named_in_the_image)
+ASSERTED OVER THE INSTRUCTIONS, not the file. ... ok
+test_nothing_from_the_manager_is_copied_in (tests.manager.test_claude_agent.TheRecipeIsInspectableWithoutADaemon.test_nothing_from_the_manager_is_copied_in)
+The rule is about the MANAGER, and W71917 made that distinction ... ok
+test_the_entrypoint_is_the_reference_worker_with_the_agent_injected (tests.manager.test_claude_agent.TheRecipeIsInspectableWithoutADaemon.test_the_entrypoint_is_the_reference_worker_with_the_agent_injected) ... ok
+test_the_fixed_non_root_identity_matches_the_adapters_restriction (tests.manager.test_claude_agent.TheRecipeIsInspectableWithoutADaemon.test_the_fixed_non_root_identity_matches_the_adapters_restriction) ... ok
+test_the_profile_package_travels_under_its_own_name (tests.manager.test_claude_agent.TheRecipeIsInspectableWithoutADaemon.test_the_profile_package_travels_under_its_own_name)
+W71917: the worker's half of the source boundary has to be IN the ... ok
+test_the_program_the_git_profile_names_is_installed (tests.manager.test_claude_agent.TheRecipeIsInspectableWithoutADaemon.test_the_program_the_git_profile_names_is_installed)
+W71917: an image carrying the plan and not the program composes a ... ok
+test_the_provider_version_is_pinned (tests.manager.test_claude_agent.TheRecipeIsInspectableWithoutADaemon.test_the_provider_version_is_pinned) ... ok
+test_the_retired_environment_transport_is_absent (tests.manager.test_claude_agent.TheRecipeIsInspectableWithoutADaemon.test_the_retired_environment_transport_is_absent) ... ok
+test_the_reviewed_worker_and_its_frozen_contract_travel (tests.manager.test_claude_agent.TheRecipeIsInspectableWithoutADaemon.test_the_reviewed_worker_and_its_frozen_contract_travel)
+W71917 widened the build context to `v12`, so every source path in ... ok
+test_what_the_image_takes_from_the_distribution_IMPORTS_NO_MANAGER (tests.manager.test_claude_agent.TheRecipeIsInspectableWithoutADaemon.test_what_the_image_takes_from_the_distribution_IMPORTS_NO_MANAGER)
+The property the allowlist is a proxy for, held directly. ... ok
+test_a_valid_report_produces_findings_logs_and_one_claim (tests.manager.test_claude_agent.TheReviewTurnAuthorsAVerdictItDidNotDecide.test_a_valid_report_produces_findings_logs_and_one_claim) ... ok
+test_every_verdict_word_the_manager_records_is_carried (tests.manager.test_claude_agent.TheReviewTurnAuthorsAVerdictItDidNotDecide.test_every_verdict_word_the_manager_records_is_carried) ... ok
+test_the_claim_is_closed_and_carries_no_manager_identity (tests.manager.test_claude_agent.TheReviewTurnAuthorsAVerdictItDidNotDecide.test_the_claim_is_closed_and_carries_no_manager_identity) ... ok
+test_the_findings_output_carries_the_document_and_its_prose (tests.manager.test_claude_agent.TheReviewTurnAuthorsAVerdictItDidNotDecide.test_the_findings_output_carries_the_document_and_its_prose) ... ok
+test_the_logs_are_adapter_authored_and_name_no_child_stream (tests.manager.test_claude_agent.TheReviewTurnAuthorsAVerdictItDidNotDecide.test_the_logs_are_adapter_authored_and_name_no_child_stream) ... ok
+test_the_prompt_asks_for_an_assessment_and_names_no_protocol (tests.manager.test_claude_agent.TheReviewTurnAuthorsAVerdictItDidNotDecide.test_the_prompt_asks_for_an_assessment_and_names_no_protocol) ... ok
+test_the_provider_runs_outside_the_output_and_the_source (tests.manager.test_claude_agent.TheReviewTurnAuthorsAVerdictItDidNotDecide.test_the_provider_runs_outside_the_output_and_the_source) ... ok
+test_the_review_log_reports_the_operator_selected_bound (tests.manager.test_claude_agent.TheReviewTurnAuthorsAVerdictItDidNotDecide.test_the_review_log_reports_the_operator_selected_bound)
+THE DEFECT, in the review publisher. A review turn runs under the ... ok
+test_the_review_log_reports_this_workers_default_with_no_job (tests.manager.test_claude_agent.TheReviewTurnAuthorsAVerdictItDidNotDecide.test_the_review_log_reports_this_workers_default_with_no_job) ... ok
+test_the_review_log_separates_a_job_default_from_no_job_at_all (tests.manager.test_claude_agent.TheReviewTurnAuthorsAVerdictItDidNotDecide.test_the_review_log_separates_a_job_default_from_no_job_at_all) ... ok
+test_the_reviewed_source_is_never_written_to (tests.manager.test_claude_agent.TheReviewTurnAuthorsAVerdictItDidNotDecide.test_the_reviewed_source_is_never_written_to)
+The manager mounts it read-only; this proves the adapter does not ... ok
+test_a_declared_base_this_line_does_not_carry_is_refused (tests.manager.test_claude_agent.TheReviewedObjectsAreObservedAndNotAsserted.test_a_declared_base_this_line_does_not_carry_is_refused) ... ok
+test_a_line_that_moved_under_the_review_is_refused (tests.manager.test_claude_agent.TheReviewedObjectsAreObservedAndNotAsserted.test_a_line_that_moved_under_the_review_is_refused) ... ok
+test_a_task_with_no_declared_base_is_refused (tests.manager.test_claude_agent.TheReviewedObjectsAreObservedAndNotAsserted.test_a_task_with_no_declared_base_is_refused) ... ok
+test_another_source_profile_is_refused_rather_than_attempted (tests.manager.test_claude_agent.TheReviewedObjectsAreObservedAndNotAsserted.test_another_source_profile_is_refused_rather_than_attempted) ... ok
+test_the_second_rounds_proposal_is_still_offered_against_the_base (tests.manager.test_claude_agent.TheSamePrivateHistorySurvivesACorrectionRound.test_the_second_rounds_proposal_is_still_offered_against_the_base) ... ok
+test_two_turns_advance_one_line_against_an_unchanged_base (tests.manager.test_claude_agent.TheSamePrivateHistorySurvivesACorrectionRound.test_two_turns_advance_one_line_against_an_unchanged_base) ... ok
+test_an_unreadable_mount_table_refuses (tests.manager.test_claude_agent.TheSelectedPolicyConstants.test_an_unreadable_mount_table_refuses) ... ok
+test_the_real_mount_table_parses_with_every_field (tests.manager.test_claude_agent.TheSelectedPolicyConstants.test_the_real_mount_table_parses_with_every_field)
+REAL mountinfo, and the fields review [R2] required kept. ... ok
+test_the_selected_topology_is_the_one_the_packet_names (tests.manager.test_claude_agent.TheSelectedPolicyConstants.test_the_selected_topology_is_the_one_the_packet_names) ... ok
+test_a_declaration_this_workload_does_not_know_is_refused (tests.manager.test_claude_agent.TheSharedJobDeclaresBothStagesOutputs.test_a_declaration_this_workload_does_not_know_is_refused) ... ok
+test_a_review_turn_answers_the_proposal_absent (tests.manager.test_claude_agent.TheSharedJobDeclaresBothStagesOutputs.test_a_review_turn_answers_the_proposal_absent) ... ok
+test_a_review_turn_needs_both_of_its_own_outputs (tests.manager.test_claude_agent.TheSharedJobDeclaresBothStagesOutputs.test_a_review_turn_needs_both_of_its_own_outputs) ... ok
+test_the_other_stages_output_may_not_be_declared_required (tests.manager.test_claude_agent.TheSharedJobDeclaresBothStagesOutputs.test_the_other_stages_output_may_not_be_declared_required) ... ok
+test_a_link_in_the_staged_tree_refuses (tests.manager.test_claude_agent.TheSourceCopyIsBoundedAndFollowsNoLink.test_a_link_in_the_staged_tree_refuses) ... ok
+test_a_tree_past_the_entry_bound_refuses (tests.manager.test_claude_agent.TheSourceCopyIsBoundedAndFollowsNoLink.test_a_tree_past_the_entry_bound_refuses) ... ok
+test_an_absent_source_tree_refuses (tests.manager.test_claude_agent.TheSourceCopyIsBoundedAndFollowsNoLink.test_an_absent_source_tree_refuses) ... ok
+test_an_empty_source_tree_refuses (tests.manager.test_claude_agent.TheSourceCopyIsBoundedAndFollowsNoLink.test_an_empty_source_tree_refuses) ... ok
+test_provider_created_directories_count_against_the_entry_bound (tests.manager.test_claude_agent.TheSourceCopyIsBoundedAndFollowsNoLink.test_provider_created_directories_count_against_the_entry_bound)
+The candidate bound covers directories as well as regular files. ... ok
+test_staged_directories_count_against_the_entry_bound (tests.manager.test_claude_agent.TheSourceCopyIsBoundedAndFollowsNoLink.test_staged_directories_count_against_the_entry_bound)
+Review [P2], the other walk. A second party that counts differently ... ok
+test_a_descendant_holding_stdout_cannot_outlive_the_bound (tests.manager.test_claude_agent.TheStructuredRecordIsMappedAndNeverPublished.test_a_descendant_holding_stdout_cannot_outlive_the_bound)
+W55360 review (2026-09-01T03:35:56Z) [P1], at the seam. ... ok
+test_a_descendant_holding_stdout_publishes_only_the_fallback (tests.manager.test_claude_agent.TheStructuredRecordIsMappedAndNeverPublished.test_a_descendant_holding_stdout_publishes_only_the_fallback)
+End to end, and the retained bytes really do carry the marker. ... ok
+test_a_flood_beginning_with_a_good_record_is_unclassified (tests.manager.test_claude_agent.TheStructuredRecordIsMappedAndNeverPublished.test_a_flood_beginning_with_a_good_record_is_unclassified)
+Overflow is not a reason to trust the prefix. ... ok
+test_a_flood_is_drained_to_the_end_and_retained_bounded (tests.manager.test_claude_agent.TheStructuredRecordIsMappedAndNeverPublished.test_a_flood_is_drained_to_the_end_and_retained_bounded)
+The two properties together, against a real child. ... ok
+test_a_partial_record_is_unclassified_even_when_it_parses (tests.manager.test_claude_agent.TheStructuredRecordIsMappedAndNeverPublished.test_a_partial_record_is_unclassified_even_when_it_parses)
+The guard on its own, with the parser deliberately unable to help. ... ok
+test_a_record_the_parser_cannot_finish_is_unclassified (tests.manager.test_claude_agent.TheStructuredRecordIsMappedAndNeverPublished.test_a_record_the_parser_cannot_finish_is_unclassified)
+The same review's second half: `_failure_reason` was not TOTAL. ... ok
+test_a_success_publishes_no_reason_and_none_of_the_marker (tests.manager.test_claude_agent.TheStructuredRecordIsMappedAndNeverPublished.test_a_success_publishes_no_reason_and_none_of_the_marker)
+A clean turn writes its structured record too, and none of it is ... ok
+test_a_timed_out_provider_with_a_descendant_still_ends (tests.manager.test_claude_agent.TheStructuredRecordIsMappedAndNeverPublished.test_a_timed_out_provider_with_a_descendant_still_ends)
+The same hazard, reached from the timeout path. ... ok
+test_every_unusable_record_is_unclassified_and_says_nothing_more (tests.manager.test_claude_agent.TheStructuredRecordIsMappedAndNeverPublished.test_every_unusable_record_is_unclassified_and_says_nothing_more)
+One case per way the document can fail to earn a word. ... ok
+test_invalid_utf8_is_unclassified_rather_than_replaced (tests.manager.test_claude_agent.TheStructuredRecordIsMappedAndNeverPublished.test_invalid_utf8_is_unclassified_rather_than_replaced)
+Decoded strictly, so an undecodable record cannot become a ... ok
+test_pythons_non_standard_constants_are_not_json (tests.manager.test_claude_agent.TheStructuredRecordIsMappedAndNeverPublished.test_pythons_non_standard_constants_are_not_json)
+W55360 review (2026-09-01T03:35:56Z) [P1]: the parser was strict ... ok
+test_the_map_is_closed_and_matched_by_equality (tests.manager.test_claude_agent.TheStructuredRecordIsMappedAndNeverPublished.test_the_map_is_closed_and_matched_by_equality)
+No prefix, no substring, no pattern. A near miss is a miss. ... ok
+test_the_mapped_word_reaches_the_recap_and_the_status_survives (tests.manager.test_claude_agent.TheStructuredRecordIsMappedAndNeverPublished.test_the_mapped_word_reaches_the_recap_and_the_status_survives) ... ok
+test_the_observed_api_error_becomes_the_adapter_word (tests.manager.test_claude_agent.TheStructuredRecordIsMappedAndNeverPublished.test_the_observed_api_error_becomes_the_adapter_word)
+The whole point of the Work, end to end through a real child. ... ok
+test_the_provider_stderr_is_still_never_read (tests.manager.test_claude_agent.TheStructuredRecordIsMappedAndNeverPublished.test_the_provider_stderr_is_still_never_read)
+The child above writes the marker to BOTH streams. Stdout is read, ... ok
+test_the_providers_own_spelling_never_reaches_a_sink (tests.manager.test_claude_agent.TheStructuredRecordIsMappedAndNeverPublished.test_the_providers_own_spelling_never_reaches_a_sink)
+`api_error` earns `api-error`, and the underscore form is not what ... ok
+test_the_verification_streams_are_still_devnull (tests.manager.test_claude_agent.TheStructuredRecordIsMappedAndNeverPublished.test_the_verification_streams_are_still_devnull)
+W55360 must not weaken the sharper half: verification is ... ok
+test_the_claim_namespace_and_members_are_the_readers_own (tests.manager.test_claude_agent.TheTwoEndsAgreeOnTheReviewVocabulary.test_the_claim_namespace_and_members_are_the_readers_own) ... ok
+test_the_two_output_names_are_the_ones_a_verdict_requires (tests.manager.test_claude_agent.TheTwoEndsAgreeOnTheReviewVocabulary.test_the_two_output_names_are_the_ones_a_verdict_requires) ... ok
+test_the_verdict_words_are_the_managers_own_dispositions (tests.manager.test_claude_agent.TheTwoEndsAgreeOnTheReviewVocabulary.test_the_verdict_words_are_the_managers_own_dispositions) ... ok
+test_a_foreign_owned_ancestor_refuses (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_a_foreign_owned_ancestor_refuses)
+With the SHIPPED policy in force, a test-owned ancestor fails. ... ok
+test_a_malformed_selection_is_not_legacy (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_a_malformed_selection_is_not_legacy) ... ok
+test_a_marker_declaring_another_topology_refuses (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_a_marker_declaring_another_topology_refuses)
+The image's own statement is checked against this adapter too. ... ok
+test_a_new_image_with_a_missing_mount_refuses (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_a_new_image_with_a_missing_mount_refuses)
+New image, layout selected, topology absent. ... ok
+test_a_new_image_with_no_delivered_selection_refuses (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_a_new_image_with_no_delivered_selection_refuses)
+THE OTHER DIRECTION, and the one absence used to swallow. ... ok
+test_a_read_only_mount_over_a_writable_superblock_refuses (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_a_read_only_mount_over_a_writable_superblock_refuses)
+THE REVIEW'S OWN COUNTEREXAMPLE TO THE UNION, driven. ... ok
+test_a_read_only_superblock_under_a_writable_mount_refuses (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_a_read_only_superblock_under_a_writable_mount_refuses)
+The other direction, which the kernel also decides. ... ok
+test_a_real_grandchild_resolves_the_selected_roots (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_a_real_grandchild_resolves_the_selected_roots)
+THE DEFECT ITSELF, at the boundary that produced it. ... ok
+test_a_relative_selected_root_refuses (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_a_relative_selected_root_refuses) ... ok
+test_a_root_owned_by_another_identity_refuses (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_a_root_owned_by_another_identity_refuses)
+The trusted identity is the SELECTION's, never the ambient one. ... ok
+test_a_root_remounted_writable_while_the_provider_ran_refuses (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_a_root_remounted_writable_while_the_provider_ran_refuses)
+LIFETIME. The selected binding expires when the topology does. ... ok
+test_a_root_replaced_by_a_link_refuses (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_a_root_replaced_by_a_link_refuses) ... ok
+test_a_root_replaced_by_an_identical_mount_refuses (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_a_root_replaced_by_an_identical_mount_refuses)
+MOUNT IDENTITY, BOUND ACROSS THE TWO CHECKS. ... ok
+test_a_root_unmounted_while_the_provider_ran_refuses (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_a_root_unmounted_while_the_provider_ran_refuses) ... ok
+test_a_selection_missing_a_member_refuses (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_a_selection_missing_a_member_refuses) ... ok
+test_a_selection_naming_other_roots_refuses (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_a_selection_naming_other_roots_refuses)
+A root the ADAPTER does not prove is not a root it accepts. ... ok
+test_a_selection_wider_than_the_read_ceiling_refuses (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_a_selection_wider_than_the_read_ceiling_refuses)
+BOUNDED AT THE READ, like every other document this workload ... ok
+test_a_widened_root_mode_refuses (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_a_widened_root_mode_refuses) ... ok
+test_a_writable_ancestor_mount_refuses (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_a_writable_ancestor_mount_refuses)
+The immutable-ancestor requirement, on a real directory tree. ... ok
+test_a_wrong_filesystem_refuses (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_a_wrong_filesystem_refuses) ... ok
+test_an_old_image_with_a_new_layout_selection_refuses (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_an_old_image_with_a_new_layout_selection_refuses)
+A selection this worker does not read is not a fallback. ... ok
+test_missing_mount_options_refuse (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_missing_mount_options_refuse) ... ok
+test_no_descriptor_leaks_when_a_later_root_refuses (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_no_descriptor_leaks_when_a_later_root_refuses) ... ok
+test_no_selection_is_legacy_and_reads_no_mount_table (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_no_selection_is_legacy_and_reads_no_mount_table)
+EXPLICITLY LEGACY, and not by consulting the new table. ... ok
+test_per_mount_flags_are_not_satisfied_by_the_superblock (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_per_mount_flags_are_not_satisfied_by_the_superblock)
+`noexec` on the superblock does not make THIS mount noexec. ... ok
+test_roots_outside_the_fixed_topology_refuse (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_roots_outside_the_fixed_topology_refuse)
+Against the SHIPPED constants, with nothing substituted. ... ok
+test_the_agreement_happens_before_either_child (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_the_agreement_happens_before_either_child)
+TASK.md: agree before provider launch, not at verification. ... ok
+test_the_ancestor_proof_accepts_a_real_root_owned_chain (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_the_ancestor_proof_accepts_a_real_root_owned_chain)
+AND IT ACCEPTS ONE. `/run` on this host is root-owned 0755. ... ok
+test_the_ancestors_are_actually_reproved_after_the_provider (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_the_ancestors_are_actually_reproved_after_the_provider)
+The claim and the enforced lifecycle now MATCH. ... ok
+test_the_descriptor_form_is_what_a_grandchild_cannot_resolve (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_the_descriptor_form_is_what_a_grandchild_cannot_resolve)
+THE CONTROL. Without this the case above proves nothing. ... ok
+test_the_descriptor_form_revalidation_is_unchanged (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_the_descriptor_form_revalidation_is_unchanged)
+PRESERVED. The legacy form still validates exactly as it did. ... ok
+test_the_preflight_releases_what_it_proved (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_the_preflight_releases_what_it_proved)
+It proves and lets go; the verifier's descriptors are its own. ... ok
+test_the_same_directory_for_two_roles_refuses (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_the_same_directory_for_two_roles_refuses)
+THE REVIEW'S OWN COUNTEREXAMPLE, driven. ... ok
+test_the_selected_layout_supplies_ordinary_stable_paths (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_the_selected_layout_supplies_ordinary_stable_paths)
+THE CORRECTION. The selection's own fixed paths, no alias. ... ok
+test_the_selected_roots_are_reproved_after_the_provider (tests.manager.test_claude_agent.TheVerifierLayoutIsSelectedAndProved.test_the_selected_roots_are_reproved_after_the_provider) ... ok
+
+----------------------------------------------------------------------
+Ran 727 tests in 32.132s
+
+OK

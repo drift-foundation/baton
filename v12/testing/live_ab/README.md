@@ -18,7 +18,8 @@ and the established initial-target `sudo chown` permission.
 The package reuses the validated synthetic scenario's control flow, final
 committed view and early failure observation, with live-only provider inputs:
 the unchanged live images in `live-images.json`, bridge networking, and the
-existing registry `/home/sl/.baton/credential-sources.json`, selecting
+operator's credential-sources registry named per run by the required
+`--credential-registry /absolute/path/credential-sources.json` operand, selecting
 `operator-file` / `w64268-run1` for the `claude` slot. Registry and credential
 payloads are read only by the normal execution owner when delivering attempts.
 The package creates no substitute credentials and includes no synthetic provider

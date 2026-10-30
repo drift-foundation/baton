@@ -1,0 +1,3 @@
+outer caller agent labels: []
+owners: {'sample.py:outer': frozenset({('capability', 'inner only', '?')})}
+repro exit 0
