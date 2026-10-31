@@ -1,3 +1,15 @@
+## Shutdown ready for owner checkpoint — 2026-10-31T03:31:26.667239+00:00
+
+Both developers stopped: K M385025, codexpc handback E385020 and user-confirmed closed session. Child queued unclaimed at baton.decide; parent owner claim retained. Read SHUTDOWN-20261031.md before explicit resume. K M385024 and custody M385019 await independent review; owner decisions remain unselected. No new execution until resume. Final Git checkpoint belongs to Slawomir.
+
+## Scheduled shutdown hold — 2026-10-31
+
+Owner requests shutdown preparation. Read SHUTDOWN-20261031.md (parent dossier); M385017/M385018 supersede routine continuation until explicit resume. Stop new work, preserve durable evidence, clean exact resources and release child claim through its handler. Await final shutdown-ready reports; no automatic restart execution.
+
+## 2026-10-31T03-05-05Z — M384991 partial acceptance; two P1 corrections remain
+
+Read review-2026-10-31T03-05-05Z.md. Independent174 tests pass; cleanup-ordering and finite allowance fixes accepted separately. Stage C not accepted: new synthetic ownership bypasses pass without validators; corrupt renewal expiry still changes expired True to False. K next resolves those exact counterexamples and prepares concrete spec options only where necessary, including the outstanding settle_cleanup connection question. No broad discovery/B4/full run. Codexpc stays on its active worker-entry slice; cleanup-only stable overlay will be coordinated after handoff.
+
 # W384870 closure checklist — fixed continuation order
 
 Owner steering: finish this Job; make K's next deliverable specific. This replaces

@@ -283,8 +283,16 @@ def _qualified(control, jobs, facts, profile, generation, context_id, deployment
         row = control.operation_record(row_id["operation_id"])
         if row["state"] != "committed":
             continue
-        grant = json.loads(row["result"])
-        grant = qualification_grant_of(control, grant["run_id"])
+        listed = json.loads(row["result"])
+        # W384870 stage C (review 2026-10-31T03:05:05Z): THE LISTED ROW IS A LOOKUP KEY,
+        # not the grant. The grant is what `qualification_grant_of` verifies whole against
+        # its signature under the identity this key derives; a listing whose key reaches
+        # no committed grant is a journal that disagrees with itself, refused rather than
+        # dereferenced (it escaped as a TypeError before this guard).
+        grant = qualification_grant_of(control, listed["run_id"]) \
+            if type(listed) is dict and type(listed.get("run_id")) is str else None
+        if grant is None:
+            _refuse("a listed qualification row names no committed grant")
         if grant["profile_digest"] != facts["profile_digest"] \
                 or grant.get("deployment") != deployment \
                 or grant["job_id"] != identity["job_id"]:

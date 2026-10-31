@@ -14,6 +14,7 @@ IT FAILS RATHER THAN SKIPS WITHOUT A DAEMON, inheriting the container gate.
 """
 
 import json
+import re
 import os
 import subprocess
 import tempfile
@@ -24,10 +25,34 @@ from baton_v12.contracts import ContractRefusal
 from baton_v12.worker_manager import ControlStore, custody, workspaces
 
 from . import input_roots
-from .test_lifecycle_composition import Lifecycle, MARK
+from .test_lifecycle_composition import Lifecycle, MARK, reachable
 
 
 class CustodyRemovesWhatTheWorkerLeaves(Lifecycle):
+
+    @classmethod
+    def setUpClass(cls):
+        selected = os.environ.get("BATON_V12_CUSTODY_IMAGE")
+        if not selected:
+            return super().setUpClass()
+        # An explicitly selected installed artifact is used by this class;
+        # the selecting run owns its tag and cleanup, not either test class.
+        if not re.fullmatch(r"sha256:[0-9a-f]{64}", selected):
+            raise AssertionError("custody image must be an immutable local ID")
+        usable, why = reachable(cls.engine)
+        if not usable:
+            raise AssertionError(why)
+        cls.server = why
+        found = subprocess.run([cls.engine, "image", "inspect", selected],
+                               capture_output=True, text=True, timeout=30)
+        if found.returncode:
+            raise AssertionError(found.stderr)
+        image = json.loads(found.stdout)[0]
+        if image["Id"] != selected or image["Config"].get("Volumes"):
+            raise AssertionError("selected image identity or writable volumes differ")
+        cls.image = cls.image_digest = selected
+
+
 
     def setUp(self):
         self.home = tempfile.mkdtemp(prefix="v12-w36540-")
@@ -83,7 +108,7 @@ class CustodyRemovesWhatTheWorkerLeaves(Lifecycle):
             f"os.chmod('/workspace/worker-made-dir/nested', {mode})\n"
             "print(os.getuid(), os.getgid())\n")
         done = subprocess.run(
-            [self.engine, "run", "--rm", "--name", name, "--user", "65532:65532",
+            [self.engine, "run", "--rm", "--name", name, "--user", f"{os.geteuid()}:{self.group.gid}",
              "--group-add", str(self.group.gid),
              "--mount", f"type=bind,source={place},target=/workspace",
              "--entrypoint", "python3", self.image, "-c", program],
@@ -104,7 +129,7 @@ class CustodyRemovesWhatTheWorkerLeaves(Lifecycle):
             "os.chmod('/workspace/outer', 0o000)\n")
         done = subprocess.run(
             [self.engine, "run", "--rm", "--name", name,
-             "--user", "65532:65532", "--group-add", str(self.group.gid),
+             "--user", f"{os.geteuid()}:{self.group.gid}", "--group-add", str(self.group.gid),
              "--mount", f"type=bind,source={place},target=/workspace",
              "--entrypoint", "python3", self.image, "-c", program],
             capture_output=True, timeout=300)
@@ -163,7 +188,7 @@ class CustodyRemovesWhatTheWorkerLeaves(Lifecycle):
         self.made.append(name)
         done = subprocess.run(
             [self.engine, "run", "--detach", "--name", name,
-             "--user", "65532:65532", "--entrypoint", "python3", self.image,
+             "--user", f"{os.geteuid()}:{self.group.gid}", "--entrypoint", "python3", self.image,
              "-c", f"import time; time.sleep({seconds})"],
             capture_output=True, timeout=300)
         self.assertEqual(done.returncode, 0,
@@ -271,12 +296,21 @@ class CustodyRemovesWhatTheWorkerLeaves(Lifecycle):
         """
         roots = self.allocated()
         place = roots["workspace"]
-        self.worker_leaves(place)
+        self.worker_leaves(place, mode=0o000)
 
-        # BEFORE: the manager fails closed, naming the owner in the way.
-        with self.assertRaises(ContractRefusal) as caught:
-            workspaces.discard_workspace(self.storage, "attempt-1", control=self.store)
-        self.assertIn("owned by uid", caught.exception.message)
+        # Access denial is non-destructive: no removal ownership is admitted.
+        nested = os.path.join(place, "worker-made-dir", "nested")
+        before = os.stat(nested)
+        self.assertEqual(before.st_mode & 0o777, 0)
+        with self.assertRaises(PermissionError):
+            os.listdir(nested)
+        with self.assertRaises(PermissionError):
+            with open(os.path.join(nested, "deep.txt")):
+                pass
+        after = os.stat(nested)
+        self.assertEqual((after.st_dev, after.st_ino, after.st_mode),
+                         (before.st_dev, before.st_ino, before.st_mode))
+        self.assertEqual(workspaces.standing_removal(self.store, "attempt-1"), [])
 
         acted = self.custody("normalize")
         self.assertTrue(acted.ok, acted.diagnostic)
@@ -288,14 +322,58 @@ class CustodyRemovesWhatTheWorkerLeaves(Lifecycle):
         # JSON list is a tuple -- a guarded `list` subclass would still equal
         # a list here and `list.append` would still reach past it, which is
         # the shape this record spent six rounds learning not to accept.
-        self.assertEqual(answered["running_as"], (65532, 65532))
+        self.assertEqual(answered["running_as"], (os.geteuid(), self.group.gid))
         self.assertGreater(answered["entries"], 0, acted.rendered)
 
+        with open(os.path.join(place, "worker-made-dir", "nested", "deep.txt")) as handle:
+            self.assertEqual(handle.read(), "the worker got this far")
         # AFTER: the same call, unchanged, and the tree is gone.
         self.assertTrue(workspaces.discard_workspace(
             self.storage, "attempt-1", control=self.store))
         self.assertFalse(os.path.exists(os.path.join(self.storage,
                                                      "attempt-1")))
+
+    def test_failed_removal_ownership_excludes_custody_without_starting_a_helper(self):
+        """An unsuccessful admitted removal is held, not implicitly recovered."""
+        roots = self.allocated()
+        place = roots["workspace"]
+        self.worker_leaves(place, mode=0o000)
+        nested = os.path.join(place, "worker-made-dir", "nested")
+        before = os.stat(nested)
+        self.assertEqual(workspaces.standing_removal(self.store, "attempt-1"), [])
+        # The OS failure reproduces this path; it does not define the public
+        # product exception vocabulary. Ownership and exclusion are the contract.
+        with self.assertRaises(OSError):
+            workspaces.discard_workspace(self.storage, "attempt-1", control=self.store)
+        held = workspaces.standing_removal(self.store, "attempt-1")
+        self.assertEqual(len(held), 1)
+        ordinal, _record = held[0]
+        self.assertIsNone(self.store.operation_record(
+            workspaces._removal_complete_id("attempt-1", ordinal)))
+        calls = []
+
+        def observed(argv, *, seconds=None):
+            calls.append(list(argv))
+            return self.spawn(argv, seconds=seconds)
+
+        name = custody._custody_identity(self.storage, "attempt-1", "workspace", "normalize")
+        self.assertFalse(self.present(name))
+        with self.assertRaises(ContractRefusal) as caught:
+            custody.custody_act(self.engine, observed, image_digest=self.digest,
+                               store=self.store, assignment_id="attempt-1", operation="normalize")
+        self.assertIn("removal ownership", caught.exception.message)
+        self.assertIn("no completion", caught.exception.message)
+        self.assertFalse(any("run" in argv for argv in calls), calls)
+        self.assertFalse(self.present(name))
+        self.assertEqual(workspaces.standing_removal(self.store, "attempt-1"), held)
+        self.assertIsNone(self.store.operation_record(
+            workspaces._removal_complete_id("attempt-1", ordinal)))
+        self.assertTrue(os.path.isdir(place))
+        after = os.stat(nested)
+        self.assertEqual((after.st_dev, after.st_ino, after.st_mode),
+                         (before.st_dev, before.st_ino, before.st_mode))
+        # Fixture teardown disposes only this test's resources. It is not a
+        # product recovery and never clears the hold or fabricates completion.
 
     def test_it_holds_at_every_mode_the_worker_can_choose(self):
         """UNCONDITIONAL means the worker does not get a vote.
@@ -322,11 +400,33 @@ class CustodyRemovesWhatTheWorkerLeaves(Lifecycle):
             self.storage, "attempt-1", control=self.store))
 
     def test_the_custodian_touches_nothing_it_does_not_own(self):
-        """The manager's own directories are not the custodian's to change,
-        and the act reports how many it left alone."""
+        """Foreign-owned entries and objects outside the mount remain untouched."""
         roots = self.allocated()
         place = roots["workspace"]
         self.worker_leaves(place)
+        # Keep a genuinely foreign-owned object: shared execution does not
+        # authorize the custodian to widen files owned by another UID.
+        name = f"{MARK}-foreign-{uuid.uuid4().hex[:10]}"
+        self.made.append(name)
+        foreign = subprocess.run(
+            [self.engine, "run", "--rm", "--name", name,
+             "--user", "65532:65532", "--group-add", str(self.group.gid),
+             "--mount", f"type=bind,source={place},target=/workspace",
+             "--entrypoint", "python3", self.image, "-c",
+             "import os; open('/workspace/foreign','w').write('foreign'); "
+             "os.chmod('/workspace/foreign', 0o400)"],
+            capture_output=True, timeout=300)
+        self.assertEqual(foreign.returncode, 0, foreign.stderr)
+        foreign_path = os.path.join(place, "foreign")
+        foreign_before = os.stat(foreign_path)
+        self.assertNotEqual(foreign_before.st_uid, os.geteuid())
+        with self.assertRaises(PermissionError):
+            os.chmod(foreign_path, 0o600)
+        outside = os.path.join(self.home, "outside")
+        with open(outside, "w") as handle:
+            handle.write("outside remains")
+        os.chmod(outside, 0o400)
+        os.symlink(outside, os.path.join(place, "outside-link"))
         # THE DELIVERIES ARE NOT REACHABLE AT ALL NOW, which is the [P0]
         # correction: the mount is the workspace, not the assignment home. So
         # what this case can still measure is that the manager-owned roots
@@ -337,6 +437,13 @@ class CustodyRemovesWhatTheWorkerLeaves(Lifecycle):
         acted = self.custody("normalize")
         self.assertTrue(acted.ok, acted.diagnostic)
         self.assertGreater(acted.answer["entries"], 0, dict(acted.answer))
+        self.assertGreaterEqual(acted.answer["not_ours"], 1)
+        foreign_after = os.stat(foreign_path)
+        self.assertEqual((foreign_after.st_uid, foreign_after.st_mode),
+                         (foreign_before.st_uid, foreign_before.st_mode))
+        self.assertEqual(os.stat(outside).st_mode & 0o777, 0o400)
+        with open(outside) as handle:
+            self.assertEqual(handle.read(), "outside remains")
         for one, mode in before.items():
             self.assertEqual(os.lstat(roots[one]).st_mode & 0o7777, mode, one)
 
@@ -344,12 +451,13 @@ class CustodyRemovesWhatTheWorkerLeaves(Lifecycle):
         """SHORT-LIVED, measured: the engine is asked afterwards."""
         roots = self.allocated()
         self.worker_leaves(roots["workspace"])
-        name = f"{MARK}-custody-{uuid.uuid4().hex[:10]}"
+        name = custody._custody_identity(self.storage, "attempt-1", "workspace", "normalize")
         self.made.append(name)
-        custody.custody_act(
+        acted = custody.custody_act(
             self.engine, self.spawn, image_digest=self.digest,
             store=self.store, assignment_id="attempt-1",
             operation="normalize")
+        self.assertTrue(acted.ok, acted.diagnostic)
         found = subprocess.run(
             [self.engine, "ps", "--all", "--quiet", "--filter", f"name={name}"],
             capture_output=True, timeout=120)

@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "just",
+    "test-one",
+    "tests.manager.test_input_delivery.DockerDelivery",
+    "tests.manager.test_input_delivery.DockerConfiguredGroup"
+  ],
+  "exit": 0,
+  "timed_out": false,
+  "seconds": 5.820888306996494,
+  "source_drift": [],
+  "emergency_cleanup": [],
+  "task_containers_remaining": [],
+  "old_containers_preserved": true,
+  "temporary_root": "/var/tmp/baton-w384944-joined-h9hmnlwk",
+  "leftovers": [],
+  "root_removed": true
+}

@@ -1,0 +1,77 @@
+--- accepted/v12/python/tests/manager/test_custody_engine.py
++++ candidate/v12/python/tests/manager/test_custody_engine.py
+@@ -298,12 +298,19 @@
+         place = roots["workspace"]
+         self.worker_leaves(place, mode=0o000)
+ 
+-        # BEFORE: a real inaccessible directory stops admission without deletion.
+-        with self.assertRaises(PermissionError) as caught:
+-            workspaces.discard_workspace(self.storage, "attempt-1", control=self.store)
+-        self.assertEqual(caught.exception.errno, 13)
+-        self.assertTrue(os.path.isdir(place))
+-        self.assertEqual(os.stat(os.path.join(place, "worker-made-dir", "nested")).st_mode & 0o777, 0)
++        # Access denial is non-destructive: no removal ownership is admitted.
++        nested = os.path.join(place, "worker-made-dir", "nested")
++        before = os.stat(nested)
++        self.assertEqual(before.st_mode & 0o777, 0)
++        with self.assertRaises(PermissionError):
++            os.listdir(nested)
++        with self.assertRaises(PermissionError):
++            with open(os.path.join(nested, "deep.txt")):
++                pass
++        after = os.stat(nested)
++        self.assertEqual((after.st_dev, after.st_ino, after.st_mode),
++                         (before.st_dev, before.st_ino, before.st_mode))
++        self.assertEqual(workspaces.standing_removal(self.store, "attempt-1"), [])
+ 
+         acted = self.custody("normalize")
+         self.assertTrue(acted.ok, acted.diagnostic)
+@@ -325,6 +332,48 @@
+             self.storage, "attempt-1", control=self.store))
+         self.assertFalse(os.path.exists(os.path.join(self.storage,
+                                                      "attempt-1")))
++
++    def test_failed_removal_ownership_excludes_custody_without_starting_a_helper(self):
++        """An unsuccessful admitted removal is held, not implicitly recovered."""
++        roots = self.allocated()
++        place = roots["workspace"]
++        self.worker_leaves(place, mode=0o000)
++        nested = os.path.join(place, "worker-made-dir", "nested")
++        before = os.stat(nested)
++        self.assertEqual(workspaces.standing_removal(self.store, "attempt-1"), [])
++        # The OS failure reproduces this path; it does not define the public
++        # product exception vocabulary. Ownership and exclusion are the contract.
++        with self.assertRaises(OSError):
++            workspaces.discard_workspace(self.storage, "attempt-1", control=self.store)
++        held = workspaces.standing_removal(self.store, "attempt-1")
++        self.assertEqual(len(held), 1)
++        ordinal, _record = held[0]
++        self.assertIsNone(self.store.operation_record(
++            workspaces._removal_complete_id("attempt-1", ordinal)))
++        calls = []
++
++        def observed(argv, *, seconds=None):
++            calls.append(list(argv))
++            return self.spawn(argv, seconds=seconds)
++
++        name = custody._custody_identity(self.storage, "attempt-1", "workspace", "normalize")
++        self.assertFalse(self.present(name))
++        with self.assertRaises(ContractRefusal) as caught:
++            custody.custody_act(self.engine, observed, image_digest=self.digest,
++                               store=self.store, assignment_id="attempt-1", operation="normalize")
++        self.assertIn("removal ownership", caught.exception.message)
++        self.assertIn("no completion", caught.exception.message)
++        self.assertFalse(any("run" in argv for argv in calls), calls)
++        self.assertFalse(self.present(name))
++        self.assertEqual(workspaces.standing_removal(self.store, "attempt-1"), held)
++        self.assertIsNone(self.store.operation_record(
++            workspaces._removal_complete_id("attempt-1", ordinal)))
++        self.assertTrue(os.path.isdir(place))
++        after = os.stat(nested)
++        self.assertEqual((after.st_dev, after.st_ino, after.st_mode),
++                         (before.st_dev, before.st_ino, before.st_mode))
++        # Fixture teardown disposes only this test's resources. It is not a
++        # product recovery and never clears the hold or fabricates completion.
+ 
+     def test_it_holds_at_every_mode_the_worker_can_choose(self):
+         """UNCONDITIONAL means the worker does not get a vote.

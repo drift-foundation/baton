@@ -1,0 +1,16 @@
+{
+  "container_ids": [
+    "0274fbc914d785a8f56f30bfa5740964250162d3949991e802282fc23ce87fe4",
+    "ee2e7d8ea0d2050ff81efb70fbcc66339543974ec0fb8f935fd34b8b53fffda7",
+    "a5a8768018f2cfc9969ec7c6c84ea04cc2c4c8e805948ae28626f22c6c2f3413",
+    "5ea8435c98e8e096224878394ba4ef39d07b1567010937108afb35ea1dd9c83d",
+    "4950d0ed38605909b7acdfbcd98f7370998f22635f6ced2bacb63a9f182db7cd"
+  ],
+  "all_removed": true,
+  "old_containers_preserved": true,
+  "removed_tag": "baton-w384944-entry:a116c00a2a44",
+  "image": "sha256:dd3695db742425b98e20c5b54a02440b68557b98979cd5ab5bb9f88ad45869cf",
+  "image_preexisted": false,
+  "tag_cleanup_stdout": "Untagged: baton-w384944-entry:a116c00a2a44\nDeleted: sha256:dd3695db742425b98e20c5b54a02440b68557b98979cd5ab5bb9f88ad45869cf\nDeleted: sha256:caa95ef231d69d530ba0f289805d9dd9b7285fd82e45034899ff4444b69bf056\nDeleted: sha256:828a7a06e3ae4db1da2ee6dd25fd7b27b6683d0da9a9563958fac7b8cf6e0ea1\nDeleted: sha256:3adbafea1f3a33c7a1bc430eab4fb41052cac4e8ee821844f078c222b147f85e\nDeleted: sha256:87f493178f919c9704d653a326f78a3e76d0c44877eda001a077f0cb9de075e2\nDeleted: sha256:efa23d7ab5099154e2ee1b2cc5f5c31f3fb0c2b397a1ef0b1d121b2fba6e701f\nDeleted: sha256:bfc0f55aceb344567b01d5c26f3f751073cfddc81948e06e813e73f35f70c273\nDeleted: sha256:6628c9d7dbcf1c70665a5d66955abb3c13de9c1e42a14334dde16c0fb4f17763\nDeleted: sha256:db79c7fac5641f45087d1ec169bffe839253f042eac43596faa1f0989f1fabbf\n",
+  "preexisting_images_preserved": true
+}

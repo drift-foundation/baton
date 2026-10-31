@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "just",
+    "test-one",
+    "tests.manager.test_custody_engine.DockerCustody.test_the_manager_removes_the_tree_only_after_the_custody_act",
+    "tests.manager.test_custody_engine.DockerCustody.test_failed_removal_ownership_excludes_custody_without_starting_a_helper"
+  ],
+  "exit": 0,
+  "timed_out": false,
+  "seconds": 0.9645947520039044,
+  "source_drift": [],
+  "emergency_cleanup": [],
+  "task_containers_remaining": [],
+  "old_containers_preserved": true,
+  "temporary_root": "/var/tmp/baton-w384944-custody-final-o877lj86",
+  "leftovers": [],
+  "root_removed": true
+}

@@ -1,0 +1,151 @@
+{
+  "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+  "participant": "baton.prompt",
+  "projection_version": "12.8",
+  "protocol_version": 11,
+  "result": {
+    "agent": null,
+    "available_transitions": [
+      "prioritize",
+      "reroute"
+    ],
+    "binding": {
+      "actor": "baton.slaw",
+      "created_ts": "2026-10-31T02:14:10Z",
+      "git_provenance": null,
+      "path": "work/records/2026/10/finding-v12-controlled-test-groups/findings/finding-b4-docker-readiness",
+      "prior": 0,
+      "rationale": null,
+      "revision": 1,
+      "root": "baton",
+      "seq": 384944
+    },
+    "binding_count": 1,
+    "bindings": [
+      {
+        "actor": "baton.slaw",
+        "created_ts": "2026-10-31T02:14:10Z",
+        "git_provenance": null,
+        "path": "work/records/2026/10/finding-v12-controlled-test-groups/findings/finding-b4-docker-readiness",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 384944
+      }
+    ],
+    "bindings_next_after": null,
+    "bindings_truncated": false,
+    "blocking": false,
+    "breadcrumb": [
+      {
+        "id": "2b077949-W384870",
+        "title": "V12: controlled test groups and a clean full-suite baseline"
+      },
+      {
+        "id": "2b077949-W384944",
+        "title": "V12 B4: Docker and environment readiness for W384870"
+      }
+    ],
+    "claimed_at": null,
+    "classification": "confirmed-defect",
+    "duplicate_of": null,
+    "episode_seq": 385020,
+    "first_open_blocker": null,
+    "follow_up_of": null,
+    "gate": null,
+    "handler": null,
+    "handoff_at": "2026-10-31T03:18:19Z",
+    "heartbeat_at": null,
+    "id": "2b077949-W384944",
+    "last_change_seq": 385020,
+    "last_changed_at": "2026-10-31T03:18:19.066Z",
+    "links": {
+      "blocked_by": [],
+      "blocks": [],
+      "contains": [],
+      "duplicate_of": null,
+      "duplicates": [],
+      "follow_up_of": null,
+      "follow_ups": [],
+      "id": "2b077949-W384944",
+      "parent": {
+        "handler": {
+          "member": "slaw",
+          "participant": "baton.slaw",
+          "team": "baton"
+        },
+        "id": "2b077949-W384870",
+        "outcome": null,
+        "route": {
+          "endpoint": "baton.decide",
+          "handlers": [
+            "slaw"
+          ],
+          "role": "approv",
+          "route": "approv"
+        },
+        "status": "open",
+        "team": "baton",
+        "title": "V12: controlled test groups and a clean full-suite baseline"
+      }
+    },
+    "local_id": "W384944",
+    "message_count": 26,
+    "my_pending_obligations": 0,
+    "new": 26,
+    "new_breakdown": {
+      "children": [],
+      "id": "2b077949-W384944",
+      "overlap": 0,
+      "own": 26,
+      "snapshot_seq": 385025,
+      "subtree_total": 26
+    },
+    "next": null,
+    "obligations": [],
+    "open_blockers": 0,
+    "open_dependents": 0,
+    "origin": "decomposition",
+    "outcome": null,
+    "phase": "queued",
+    "pickup": "overdue",
+    "priority": "normal",
+    "progress": {
+      "children": 0,
+      "closed": 0
+    },
+    "rationale": null,
+    "ready": true,
+    "revision": null,
+    "revision_count": 0,
+    "revisions": [],
+    "revisions_next_after": null,
+    "revisions_truncated": false,
+    "route": {
+      "endpoint": "baton.decide",
+      "handlers": [
+        "slaw"
+      ],
+      "role": "approv",
+      "route": "approv"
+    },
+    "status": "open",
+    "team": "baton",
+    "thread_count": 1,
+    "threads": [
+      {
+        "added_seq": 384944,
+        "id": "2b077949-T384944",
+        "last_seq": 385023,
+        "new": 26,
+        "subject": "V12 B4: Docker and environment readiness for W384870"
+      }
+    ],
+    "threads_next_after": null,
+    "threads_truncated": false,
+    "title": "V12 B4: Docker and environment readiness for W384870",
+    "trials": []
+  },
+  "snapshot_seq": 385025
+}

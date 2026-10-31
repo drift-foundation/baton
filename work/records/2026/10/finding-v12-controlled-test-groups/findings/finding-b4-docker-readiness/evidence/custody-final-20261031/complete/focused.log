@@ -1,0 +1,27 @@
+test_a_same_prefix_stranger_is_left_running (tests.manager.test_custody_engine.DockerCustody.test_a_same_prefix_stranger_is_left_running)
+The engine's name filter is a substring match, so a stranger whose ... ok
+test_a_stranded_exited_helper_is_reclaimed_too (tests.manager.test_custody_engine.DockerCustody.test_a_stranded_exited_helper_is_reclaimed_too)
+`--rm` never ran for it, so an exited container answering to the ... ok
+test_a_stranded_running_helper_is_reclaimed_and_the_act_completes (tests.manager.test_custody_engine.DockerCustody.test_a_stranded_running_helper_is_reclaimed_and_the_act_completes)
+THE OUTCOME THIS CHILD EXISTS FOR, against a real daemon. ... ok
+test_a_verb_outside_the_vocabulary_never_reaches_the_engine (tests.manager.test_custody_engine.DockerCustody.test_a_verb_outside_the_vocabulary_never_reaches_the_engine) ... ok
+test_failed_removal_ownership_excludes_custody_without_starting_a_helper (tests.manager.test_custody_engine.DockerCustody.test_failed_removal_ownership_excludes_custody_without_starting_a_helper)
+An unsuccessful admitted removal is held, not implicitly recovered. ... ok
+test_it_holds_at_every_mode_the_worker_can_choose (tests.manager.test_custody_engine.DockerCustody.test_it_holds_at_every_mode_the_worker_can_choose)
+UNCONDITIONAL means the worker does not get a vote. ... ok
+test_nested_hostile_modes_do_not_hide_objects_from_custody (tests.manager.test_custody_engine.DockerCustody.test_nested_hostile_modes_do_not_hide_objects_from_custody) ... ok
+test_the_custodian_touches_nothing_it_does_not_own (tests.manager.test_custody_engine.DockerCustody.test_the_custodian_touches_nothing_it_does_not_own)
+Foreign-owned entries and objects outside the mount remain untouched. ... ok
+test_the_derived_identity_survives_a_new_manager_incarnation (tests.manager.test_custody_engine.DockerCustody.test_the_derived_identity_survives_a_new_manager_incarnation)
+RESTART DISCOVERY against a real store: a second manager opening ... ok
+test_the_helper_does_not_outlive_its_act (tests.manager.test_custody_engine.DockerCustody.test_the_helper_does_not_outlive_its_act)
+SHORT-LIVED, measured: the engine is asked afterwards. ... ok
+test_the_inspection_sees_the_attempt_and_nothing_above_it (tests.manager.test_custody_engine.DockerCustody.test_the_inspection_sees_the_attempt_and_nothing_above_it)
+ONE MOUNT: absent rather than denied. ... ok
+test_the_manager_removes_the_tree_only_after_the_custody_act (tests.manager.test_custody_engine.DockerCustody.test_the_manager_removes_the_tree_only_after_the_custody_act)
+THE ACCEPTANCE, in one case, and BOTH halves matter. ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 16.458s
+
+OK

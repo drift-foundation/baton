@@ -35,6 +35,7 @@ the failure mode this campaign is built against. (The Podman variant was removed
 """
 
 import json
+import re
 import os
 import subprocess
 import threading
@@ -46,7 +47,7 @@ from baton_v12.worker_manager.oci import EnginePort, OciAdapter
 from baton_v12.worker_manager.worker_entry import ChannelPort, converse
 
 from . import input_roots
-from .test_lifecycle_composition import Lifecycle
+from .test_lifecycle_composition import Lifecycle, reachable
 
 WORK_REF = {"authority_uuid": "43c55d4b" + "0" * 24,
             "work_id": "43c55d4b-W39356"}
@@ -108,6 +109,29 @@ class Session:
 
 
 class OneRealContainerAnswersTheTransport(Lifecycle):
+
+    @classmethod
+    def setUpClass(cls):
+        selected = os.environ.get("BATON_V12_WORKER_ENTRY_IMAGE")
+        if not selected:
+            return super().setUpClass()
+        # An explicitly selected installed artifact is shared by both classes;
+        # the selecting run owns its tag and cleanup, not either test class.
+        if not re.fullmatch(r"sha256:[0-9a-f]{64}", selected):
+            raise AssertionError("worker-entry image must be an immutable local ID")
+        usable, why = reachable(cls.engine)
+        if not usable:
+            raise AssertionError(why)
+        cls.server = why
+        found = subprocess.run([cls.engine, "image", "inspect", selected],
+                               capture_output=True, text=True, timeout=30)
+        if found.returncode:
+            raise AssertionError(found.stderr)
+        image = json.loads(found.stdout)[0]
+        if image["Id"] != selected or image["Config"].get("Volumes"):
+            raise AssertionError("selected image identity or writable volumes differ")
+        cls.image = cls.image_digest = selected
+
 
     def setUp(self):
         super().setUp()
@@ -222,9 +246,8 @@ class OneRealContainerAnswersTheTransport(Lifecycle):
         self.assertEqual(worked["outputs"], [declared["name"]])
 
         # THE WORKER REALLY WROTE, AND THE HOST REALLY READS IT. This is the
-        # inherited supplementary group proved through the arc rather than on
-        # a probe: an exec session that did not carry it could not have
-        # created anything under the `02770` manager-owned workspace.
+        # shared identity and configured group proved through the arc, with
+        # real output creation and host readback under the declared workspace.
         produced = os.path.join(roots["workspace"], declared["path"])
         self.assertTrue(os.path.isdir(produced), produced)
         envelope = os.path.join(roots["workspace"], "output.json")
@@ -245,25 +268,26 @@ class OneRealContainerAnswersTheTransport(Lifecycle):
         held = os.stat(produced)
         self.assertEqual(held.st_gid, self.group.gid)
         self.assertTrue(os.access(produced, os.R_OK | os.X_OK), produced)
-        # THE HOST-SIDE UID IS DELIBERATELY NOT ASSERTED, and the measurement
-        # is why rather than a hedge. Inside the container the worker is
-        # exactly `65532:65532` -- `--user` fixes it and the image asserts it.
-        # What the HOST sees for the same file depends on the daemon's uid
-        # mapping: on this development host `docker info` reports no
-        # `userns` security option and the host still sees uid 65534, the
-        # kernel's overflow id, for a file a container uid 65532 created.
-        #
-        # So a case pinning 65532 here would be pinning a deployment's mapping
-        # under the name of this transport's contract, and would fail on a
-        # correctly working host for a reason that has nothing to do with the
-        # channel. What this arc is entitled to require is that the write
-        # HAPPENED and that the manager can read it, which is what the two
-        # assertions above say. The fixed runtime identity is W6632's property
-        # and `test_worker_container` is where it is held.
-        self.assertNotEqual(held.st_uid, os.getuid(),
-                            "the worker's material is not the manager's own; "
-                            "if it were, nothing would have crossed a "
-                            "container boundary")
+        # HOST-5 shares the manager UID and workspace GID. The real exec
+        # exchange and the engine's mount table establish the container boundary;
+        # different file ownership is not the isolation mechanism.
+        self.assertEqual(held.st_uid, os.geteuid())
+        inspected = subprocess.run([self.engine, "inspect", runtime_id],
+                                   capture_output=True, text=True, timeout=30)
+        self.assertEqual(inspected.returncode, 0, inspected.stderr)
+        container = json.loads(inspected.stdout)[0]
+        self.assertEqual(container["Id"], runtime_id)
+        self.assertEqual(container["Image"], self.image_digest)
+        self.assertEqual(container["Config"]["User"], f"{os.geteuid()}:{self.group.gid}")
+        self.assertTrue(container["State"]["Running"])
+        self.assertFalse(container["HostConfig"]["Privileged"])
+        self.assertTrue(container["HostConfig"]["ReadonlyRootfs"])
+        mounts = {one["Destination"]: one for one in container["Mounts"]}
+        self.assertEqual(set(mounts), {"/input", "/output", "/run/baton/launch.json"})
+        for target in ("/input", "/run/baton/launch.json"):
+            self.assertFalse(mounts[target]["RW"], mounts[target])
+        self.assertTrue(mounts["/output"]["RW"])
+        self.assertEqual(mounts["/output"]["Source"], roots["workspace"])
 
     def test_stderr_stays_apart_from_the_answers(self):
         """Asked of the DAEMON, not of the absence of `--tty` in an argv.

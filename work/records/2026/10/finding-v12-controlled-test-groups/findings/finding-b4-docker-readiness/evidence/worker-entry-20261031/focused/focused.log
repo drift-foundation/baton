@@ -1,0 +1,15 @@
+test_a_frame_for_another_session_is_refused_by_the_real_worker (tests.manager.test_worker_entry_engine.DockerWorkerEntry.test_a_frame_for_another_session_is_refused_by_the_real_worker)
+The binding holds at the far end of a real container too. ... ok
+test_a_real_container_answers_describe_and_work_through_exec (tests.manager.test_worker_entry_engine.DockerWorkerEntry.test_a_real_container_answers_describe_and_work_through_exec)
+THE WHOLE ACCEPTANCE SENTENCE, in one case. ... ok
+test_an_exec_against_a_runtime_that_is_gone_is_lost (tests.manager.test_worker_entry_engine.DockerWorkerEntry.test_an_exec_against_a_runtime_that_is_gone_is_lost)
+Transport loss over a real daemon, and it is NOT runtime absence. ... ok
+test_stderr_stays_apart_from_the_answers (tests.manager.test_worker_entry_engine.DockerWorkerEntry.test_stderr_stays_apart_from_the_answers)
+Asked of the DAEMON, not of the absence of `--tty` in an argv. ... ok
+test_the_interactive_start_is_what_makes_the_container_reachable (tests.manager.test_worker_entry_engine.DockerWorkerEntry.test_the_interactive_start_is_what_makes_the_container_reachable)
+The other half of the same fact, and the reason the operand exists. ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 1.285s
+
+OK

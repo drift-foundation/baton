@@ -4499,6 +4499,19 @@ STAGE_C_PASSTHRU = (
 )
 
 # -- public doors over an attempts row the caller already owns ------------------------
+# Review 2026-10-31T03:05:05Z: the governor's overdue answer is an injected document the
+# inventory has no crossing for (the governor is a typed caller capability, not a port), so
+# the validators that own it where it lands are declared here, with their witness.
+NOT_AN_ENTRY.update({
+    ("intake.py:reclaim_expired_resource", "document", "the resource governor's overdue answer"):
+        "the answer of the typed governor capability's `overdue`, owned where it lands: a non-document "
+        "or one without `generation` refuses before anything is ordered; "
+        "StageCProtections.test_a_malformed_governor_answer_refuses_before_any_reclaim witnesses it",
+    ("intake.py:reclaim_expired_resource", "generation", "the resource governor's overdue generation"):
+        "the overdue answer's generation, which names the reclaim operation; a non-generation refuses "
+        "before anything is ordered; the same witness drives it",
+})
+
 STAGE_C_ADOPTED_ROW_DOORS = {
     "attempts.py:start_failure_operation_id": ("attempt", "attempt.assignment_generation", "attempt.assignment_participant",
                                                "attempt.authority_uuid", "attempt.profile_digest", "attempt.runtime_attempt_id", "attempt.work_id"),
@@ -4519,7 +4532,6 @@ STAGE_C_INTERNAL = {
     "launch.py:LaunchDelivery.__init__": ("delivery", "logs"),
     "provider_context.py:context_output_declaration": ("outputs", "outputs.constraints", "outputs.name", "outputs.path", "outputs.required", "outputs.type"),
     "provider_context.py:serving_argv": ("facts", "facts.conversation_id", "facts.mode", "profile", "profile.model", "prompt"),
-    "provider_context.py:qualification_grant_of": ("run_id",),
     "workspaces.py:adopt_workspace_group": ("roots", "roots.workspace"),
     "workspaces.py:copied_manifest": ("into", "admits", "max_bytes", "max_entries"),
     "workspaces.py:discard_tree": ("place",),
@@ -4542,7 +4554,20 @@ STAGE_C_MINTED = {
     "workspaces.py:WorkspaceStorage.__init__": ("_minted",),
 }
 
+# Review 2026-10-31T03:05:05Z: this row was stated as "composed owned at every call site" and the
+# sound trace found one call site where it is not -- `_qualified`'s candidate loop hands the run_id
+# PARSED from a listed qualification row's result. It is a LOOKUP KEY there, and what owns it is what
+# the lookup does with it: `qualification_grant_of` derives the record identity from it (`_id` ->
+# `operation_record` -> `boundaries.identity`), answers None for an unknown key, and verifies the
+# record it finds WHOLE against its signature (`manager_signature(QUALIFICATION_KIND, grant)`), so a
+# redirected key can only reach another signed grant that the same loop would have reached itself.
+_QUALIFICATION_KEY = ("a lookup key at one call site (`_qualified`'s candidate loop hands the run_id parsed from a listed "
+                      "qualification row): `qualification_grant_of` derives the journal identity from it, answers None for an "
+                      "unknown key and verifies the found grant whole against its signature; the other call sites hand values "
+                      "the owned-input trace proves (`StageCProtections.test_a_redirected_or_corrupted_qualification_row_grants_nothing`)")
+
 STAGE_C_STATED = {
+    ("caller", "provider_context.py:qualification_grant_of", "run_id"): _QUALIFICATION_KEY,
     # the control store at 44 doors
     **{("caller", site, "control"): _CONTROL for site in STAGE_C_CONTROL_SITES},
     # labels
@@ -5031,6 +5056,8 @@ def _stage_c_witness(entry):
         return "test_every_adopted_row_door_is_handed_an_owned_row"
     if site in STAGE_C_INTERNAL and subject in STAGE_C_INTERNAL[site] or site == "source_boundary.py:LayoutDelivery.__init__":
         return "test_every_internal_operand_arrives_owned"
+    if entry == ("caller", "provider_context.py:qualification_grant_of", "run_id"):
+        return "test_a_redirected_or_corrupted_qualification_row_grants_nothing"
     if site.startswith("documents.py:"):
         return "test_outbound_constructors_have_no_caller_outside_the_package"
     if subject == "control":
@@ -13569,24 +13596,38 @@ class StageCProtections(BoundaryCase):
             return
         if isinstance(expression, ast.Attribute):
             if isinstance(expression.value, ast.Name) and expression.value.id in ("self", "cls"):
+                self._owned_self_attribute(expression.attr, site, case, trail)
+                return
+            if isinstance(expression.value, ast.Name) and self._is_module(expression.value.id, site):
+                # `module.NAME`: a package module's own binding, or an external one
+                self._owned_module_attribute(expression.value.id, expression.attr, site, case, trail)
                 return
             recurse(expression.value)
             return
         if isinstance(expression, ast.Subscript):
+            if isinstance(expression.value, ast.Name) and isinstance(expression.slice, ast.Constant) \
+                    and expression.slice.value in self._signature_verified_members(expression.value.id, site):
+                return  # this member was compared, through manager_signature, with the record's own signature
             recurse(expression.value)
             if isinstance(expression.slice, ast.Name):
                 recurse(expression.slice)
             return
         if isinstance(expression, ast.Call):
             function = expression.func
-            if isinstance(function, ast.Attribute) and not (isinstance(function.value, ast.Name) and (function.value.id in ("self", "cls") or self._is_module(function.value.id, site))):
+            gap = self._callee_gap(function, site)
+            if gap is not None:
+                raise AssertionError(f"{site}: {gap}")
+            if isinstance(function, ast.Attribute) and isinstance(function.value, ast.Name) and function.value.id == "boundaries" \
+                    and self._import_kind(site.split(":")[0], "boundaries") == "package":
+                return  # THE RULED VALIDATOR: its result is the owned value, whatever it was given
+            if isinstance(function, ast.Attribute) and ast.unparse(function) not in self._COMPOSING_EXTERNAL \
+                    and not (isinstance(function.value, ast.Name) and (function.value.id in ("self", "cls") or self._is_module(function.value.id, site))):
                 recurse(function.value)
-            elif isinstance(function, ast.Name) and function.id not in dir(builtins) and _helper_site(function, site, _helper_returns()) is None and not self._module_binds(site, function.id):
-                raise AssertionError(f"{site}: {function.id} is not a package function, a builtin or a module binding")
+            doors = self._callee_doors(expression, site)
             for piece in expression.args:
-                recurse(piece.value if isinstance(piece, ast.Starred) else piece)
+                self._owned_argument(piece.value if isinstance(piece, ast.Starred) else piece, doors, site, origins, case, trail)
             for piece in expression.keywords:
-                recurse(piece.value)
+                self._owned_argument(piece.value, doors, site, origins, case, trail)
             return
         if isinstance(expression, (ast.ListComp, ast.SetComp, ast.GeneratorExp, ast.DictComp)):
             for piece in ([expression.key, expression.value] if isinstance(expression, ast.DictComp) else [expression.elt]):
@@ -13624,6 +13665,7 @@ class StageCProtections(BoundaryCase):
                 if self._owned_lambda_parameter(name, expression, site, origins, case, trail):
                     return
                 if self._module_binds(site, name):
+                    self._owned_module_binding(site.split(":")[0], name, site, case, trail)
                     return
                 raise AssertionError(f"{site}: {name} is bound by nothing this trace can follow ({' -> '.join(trail + (site,))})")
             finally:
@@ -13631,6 +13673,300 @@ class StageCProtections(BoundaryCase):
         raise AssertionError(f"{site}: cannot trace {type(expression).__name__} {ast.unparse(expression)[:60]}")
 
     _tracing = set()
+
+    # Review 2026-10-31T03:05:05Z P1: a parser, a module binding or an attribute is not an
+    # owner. These are the ONLY callees whose result the trace accepts without a further
+    # proof, each because it composes or aggregates its (traced) arguments and introduces
+    # no data of its own. `json.loads`, `os.environ.get`, `open(...).read()` and every
+    # other producer of new content fail closed.
+    _COMPOSING_BUILTINS = frozenset((
+        "dict", "tuple", "list", "set", "frozenset", "sorted", "reversed", "enumerate", "zip",
+        "len", "str", "int", "float", "bool", "repr", "max", "min", "sum", "abs", "range",
+        "any", "all", "isinstance", "type", "iter", "next", "hash", "id", "format", "bytes",
+        "divmod", "round", "map", "filter", "slice"))
+    _COMPOSING_EXTERNAL = frozenset((
+        # path text composed from traced parts; none of these reads the filesystem
+        "os.path.join", "os.path.dirname", "os.path.basename", "os.path.normpath",
+        "os.path.relpath", "os.path.splitext", "os.path.split", "os.fspath", "posixpath.join",
+        # the canonical spelling of a traced path: the manager's own storage roots are what it resolves,
+        # and no member the caller did not name is introduced (the root stays the traced root, re-spelled)
+        "os.path.realpath", "os.path.abspath",
+        # digests and encodings of traced bytes
+        "hashlib.sha256", "base64.b64encode", "base64.urlsafe_b64encode",
+        # a frozen view of a traced mapping
+        "MappingProxyType", "types.MappingProxyType",
+        # canonical text of a traced document
+        "json.dumps"))
+    _COMPOSING_METHODS = frozenset((
+        # a member or a re-spelling of the traced object, never new content
+        "get", "items", "keys", "values", "copy", "encode", "decode", "strip", "lstrip", "rstrip",
+        "split", "rsplit", "join", "lower", "upper", "startswith", "endswith", "replace", "format",
+        "hexdigest", "digest", "isdigit", "isalnum", "removeprefix", "removesuffix", "zfill",
+        "setdefault", "pop", "update", "append", "extend", "index", "count", "partition",
+        "rpartition", "splitlines", "casefold", "title"))
+
+    def _import_kind(self, module, name):
+        """'package' for this package's own import of `name` in `module`, 'external' for any other import, None if not imported."""
+        for source, tree in _sources():
+            if source.name != module:
+                continue
+            for piece in tree.body:
+                if isinstance(piece, ast.ImportFrom):
+                    for alias in piece.names:
+                        if (alias.asname or alias.name) == name:
+                            return "package" if piece.level or (piece.module or "").startswith("baton_v12") else "external"
+                elif isinstance(piece, ast.Import):
+                    for alias in piece.names:
+                        if (alias.asname or alias.name).split(".")[0] == name:
+                            return "package" if alias.name.startswith("baton_v12") else "external"
+        return None
+
+    def _callee_gap(self, function, site):
+        """Why a call's RESULT is not an owned value, or None when the callee only composes its arguments."""
+        module = site.split(":")[0]
+        dotted = ast.unparse(function)
+        if isinstance(function, ast.Name):
+            name = function.id
+            if name in self._COMPOSING_BUILTINS or name in self._COMPOSING_EXTERNAL:
+                return None
+            if name in dir(builtins):
+                return f"{dotted} is a builtin that produces content the trace cannot own"
+            if _helper_site(function, site, _helper_returns()) is not None and self._module_binds(site, name) and self._import_kind(module, name) is None:
+                return None  # this module's own function or class
+            kind = self._import_kind(module, name)
+            if kind == "package":
+                return None  # this package's own function, class or validator
+            if kind == "external":
+                return f"{dotted} is an external call whose result nothing here owns"
+            return f"{dotted} is not a package function, a composing builtin or a module binding"
+        if isinstance(function, ast.Attribute):
+            if dotted in self._COMPOSING_EXTERNAL:
+                return None
+            base = function.value
+            if isinstance(base, ast.Name):
+                if base.id in ("self", "cls"):
+                    return None  # a method of the same class: package code
+                kind = self._import_kind(module, base.id)
+                if kind == "package":
+                    return None  # `boundaries.x`, `documents.y`, `_attempts.z`: package code
+                if kind == "external":
+                    return f"{dotted} is an external call whose result nothing here owns"
+                if self._module_binds(site, base.id):
+                    return None  # a same-module class or object attribute
+            if isinstance(base, ast.Attribute) and ast.unparse(base) in self._COMPOSING_EXTERNAL:
+                return None
+            if function.attr in self._COMPOSING_METHODS:
+                return None  # the object itself is traced by the caller
+            return f"{dotted} is a method call whose result nothing here owns"
+        return f"cannot classify the callee {dotted[:60]}"
+
+    def _callee_doors(self, call, site):
+        """{id(argument): (callee site, parameter)} for a call of a public package function."""
+        callee = _helper_site(call.func, site, _helper_returns())
+        if callee is None or callee.split(":")[1].split(".")[-1].startswith("_"):
+            return {}
+        try:
+            node = self._function(callee)
+        except (StopIteration, KeyError, AssertionError, ValueError):
+            return {}
+        positional = tuple(one.arg for one in node.args.posonlyargs + node.args.args if one.arg not in NOT_INPUTS)
+        keywords = tuple(one.arg for one in node.args.kwonlyargs)
+        return {id(argument): (callee, parameter) for parameter, argument in _argument_bindings(call, positional, keywords).items()}
+
+    def _owned_argument(self, argument, doors, site, origins, case, trail):
+        """An argument is traced; failing that, the public callee's OWN door may own it -- unless that door's
+        ownership is the very claim this test makes (an internal-operand or adopted-row-door row), which
+        would be circular."""
+        try:
+            self._owned_value(argument, site, origins, case, trail)
+        except AssertionError:
+            door = doors.get(id(argument))
+            if door is None:
+                raise
+            entry = ("caller",) + door
+            witness = WITNESSES.get(entry)
+            circular = witness in ("test_every_internal_operand_arrives_owned", "test_every_adopted_row_door_is_handed_an_owned_row")
+            if entry not in receiving_entries() or circular or case.owner_of(entry)[0] is None:
+                raise
+
+    def _signature_verified_members(self, name, site):
+        """The members of a decoded journal result that `site` verifies against the record's signature.
+
+        The package's own integrity idiom, recognised exactly: `manager_signature(KIND, {..., "m":
+        name["m"], ...})` compared (`==`/`!=`) with a `...["signature"]` column inside an `if` whose body
+        refuses or raises. Those members -- and only those -- are bound to the signed operands, which is
+        what `store.replayed_as_signed` does for a whole result. Nothing else about `name` is owned by it.
+        """
+        node = self._function(site)
+        verified = set()
+        for piece in ast.walk(node):
+            if not isinstance(piece, ast.If) or not any(isinstance(inner, ast.Raise) or isinstance(inner, ast.Call)
+                                                            and "refuse" in ast.unparse(inner.func).lower() for inner in ast.walk(piece)
+                                                            if inner in piece.body or any(inner in ast.walk(statement) for statement in piece.body)):
+                continue
+            for compare in ast.walk(piece.test):
+                if not isinstance(compare, ast.Compare) or not all(isinstance(op, (ast.Eq, ast.NotEq)) for op in compare.ops):
+                    continue
+                sides = [compare.left] + compare.comparators
+                if not any(isinstance(side, ast.Subscript) and isinstance(side.slice, ast.Constant) and side.slice.value == "signature" for side in sides):
+                    continue
+                for side in sides:
+                    if isinstance(side, ast.Call) and ast.unparse(side.func).endswith("manager_signature") and len(side.args) == 2:
+                        operands = side.args[1]
+                        if isinstance(operands, ast.Name):
+                            operands = next((statement.value for statement in ast.walk(node) if isinstance(statement, ast.Assign)
+                                             and any(_binds_name(target, operands.id) for target in statement.targets)), None)
+                        if isinstance(operands, ast.Dict):
+                            for value in operands.values:
+                                if isinstance(value, ast.Subscript) and isinstance(value.value, ast.Name) and value.value.id == name \
+                                        and isinstance(value.slice, ast.Constant):
+                                    verified.add(value.slice.value)
+        return verified
+
+    def _class_node(self, module, lexical):
+        for source, tree in _sources():
+            if source.name != module:
+                continue
+            node = tree
+            for name in lexical.split("."):
+                node = next((piece for piece in node.body if isinstance(piece, ast.ClassDef) and piece.name == name), None)
+                if node is None:
+                    return None
+            return node
+        return None
+
+    def _owned_self_attribute(self, attr, site, case, trail):
+        """`self.attr` is whatever this class assigns it: every assignment is traced at its own method."""
+        module, lexical = site.split(":")
+        if "." not in lexical:
+            raise AssertionError(f"{site}: self.{attr} read outside a class")
+        klass = self._class_node(module, lexical.rsplit(".", 1)[0])
+        if klass is None:
+            raise AssertionError(f"{site}: the class of self.{attr} is not in the package")
+        hop = f"{module}:{klass.name}#self.{attr}"
+        if hop in trail:
+            return  # `self.x = own(self.x)`: the other leaves were traced on the first pass
+        returns = _helper_returns()
+        found = False
+        for piece in klass.body:
+            if isinstance(piece, ast.Assign) and any(_binds_name(target, attr) for target in piece.targets):
+                found = True
+                self._owned_module_value(piece.value, module, site, case, trail + (hop,))
+            if isinstance(piece, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                if piece.name == attr:
+                    return  # a method or property of the same class: package code
+                method = f"{module}:{lexical.rsplit('.', 1)[0]}.{piece.name}"
+                inside = None
+                for statement in ast.walk(piece):
+                    if isinstance(statement, ast.Assign) and any(isinstance(target, ast.Attribute) and isinstance(target.value, ast.Name)
+                                                                  and target.value.id in ("self", "cls") and target.attr == attr for target in statement.targets):
+                        found = True
+                        inside = inside or _origins(piece, method, returns)
+                        self._owned_value(statement.value, method, inside, case, trail + (hop,))
+        if not found:
+            raise AssertionError(f"{site}: self.{attr} is assigned by nothing in {klass.name}, so no owner answers for it")
+
+    def _owned_module_attribute(self, base, attr, site, case, trail):
+        module = site.split(":")[0]
+        kind = self._import_kind(module, base)
+        if kind == "external":
+            raise AssertionError(f"{site}: {base}.{attr} is an external module's value, owned by nothing here")
+        if kind == "package":
+            for source, tree in _sources():
+                if source.name[:-3] == base or source.name[:-3] == base.lstrip("_"):
+                    self._owned_module_binding(source.name, attr, site, case, trail)
+                    return
+            return  # a package module the inventory does not read (contracts): its constants are this build's
+        if self._module_binds(site, base):
+            return  # a same-module class's attribute
+        raise AssertionError(f"{site}: {base}.{attr} is bound by nothing this trace can follow")
+
+    def _owned_module_binding(self, module, name, site, case, trail):
+        """A module-level name is a value only when its own expression is traced; a function, class or package import is code."""
+        for source, tree in _sources():
+            if source.name != module:
+                continue
+            for piece in tree.body:
+                if isinstance(piece, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)) and piece.name == name:
+                    return
+                if isinstance(piece, (ast.Assign, ast.AnnAssign)):
+                    targets = piece.targets if isinstance(piece, ast.Assign) else [piece.target]
+                    if any(_binds_name(target, name) for target in targets):
+                        if piece.value is None:
+                            raise AssertionError(f"{site}: {name} is annotated and never assigned")
+                        self._owned_module_value(piece.value, module, site, case, trail + (f"{module}#{name}",))
+                        return
+            kind = self._import_kind(module, name)
+            if kind == "package":
+                return
+            if kind == "external":
+                raise AssertionError(f"{site}: {name} is an external import handed on as a value")
+        raise AssertionError(f"{site}: {name} is bound by nothing at module level")
+
+    def _owned_module_value(self, expression, module, site, case, trail):
+        """A module-level (or class-level) expression: literals, containers and compositions of other traced module bindings."""
+        if len(trail) > 12:
+            raise AssertionError("module-level provenance runs too deep: " + " -> ".join(trail))
+        again = lambda piece: self._owned_module_value(piece, module, site, case, trail)
+        if isinstance(expression, (ast.Constant, ast.Lambda)):
+            return
+        if isinstance(expression, ast.JoinedStr):
+            for piece in expression.values:
+                if isinstance(piece, ast.FormattedValue):
+                    again(piece.value)
+            return
+        if isinstance(expression, (ast.Tuple, ast.List, ast.Set)):
+            for piece in expression.elts:
+                again(piece.value if isinstance(piece, ast.Starred) else piece)
+            return
+        if isinstance(expression, ast.Dict):
+            for piece in expression.keys + expression.values:
+                if piece is not None:
+                    again(piece)
+            return
+        if isinstance(expression, (ast.BinOp, ast.BoolOp, ast.UnaryOp, ast.Compare, ast.IfExp)):
+            for piece in ast.iter_child_nodes(expression):
+                if not isinstance(piece, (ast.operator, ast.boolop, ast.unaryop, ast.cmpop)):
+                    again(piece)
+            return
+        if isinstance(expression, (ast.ListComp, ast.SetComp, ast.GeneratorExp, ast.DictComp)):
+            for piece in ([expression.key, expression.value] if isinstance(expression, ast.DictComp) else [expression.elt]):
+                if not (isinstance(piece, ast.Name) and any(_binds_name(generator.target, piece.id) for generator in expression.generators)):
+                    again(piece)
+            for generator in expression.generators:
+                again(generator.iter)
+            return
+        if isinstance(expression, ast.Subscript):
+            again(expression.value)
+            if not isinstance(expression.slice, ast.Constant):
+                again(expression.slice)
+            return
+        if isinstance(expression, ast.Name):
+            if expression.id in ("None", "True", "False", "__file__", "__name__"):
+                return
+            self._owned_module_binding(module, expression.id, site, case, trail)
+            return
+        if isinstance(expression, ast.Attribute):
+            if isinstance(expression.value, ast.Name):
+                kind = self._import_kind(module, expression.value.id)
+                if kind == "package":
+                    return  # another package module's own constant
+                if kind == "external":
+                    raise AssertionError(f"{site}: {ast.unparse(expression)} is an external module's value, owned by nothing here ({' -> '.join(trail)})")
+            again(expression.value)
+            return
+        if isinstance(expression, ast.Call):
+            gap = self._callee_gap(expression.func, f"{module}:*")
+            if gap is not None:
+                raise AssertionError(f"{site}: module-level {gap} ({' -> '.join(trail)})")
+            if isinstance(expression.func, ast.Attribute) and not (isinstance(expression.func.value, ast.Name) and self._import_kind(module, expression.func.value.id) is not None):
+                again(expression.func.value)
+            for piece in expression.args:
+                again(piece.value if isinstance(piece, ast.Starred) else piece)
+            for piece in expression.keywords:
+                again(piece.value)
+            return
+        raise AssertionError(f"{site}: cannot trace module-level {type(expression).__name__} {ast.unparse(expression)[:60]}")
 
     def _owned_lambda_parameter(self, name, expression, site, origins, case, trail):
         """A lambda's parameter is whatever the package call the lambda is handed to invokes it with.
@@ -13750,6 +14086,120 @@ def other(store):
             self._handed_owned("sample.py:_consume", "record", case, subtests=False)
         self.assertRegex(str(caught.exception), "hands its unowned value on|bound by nothing")
 
+    def test_the_owned_input_trace_rejects_an_attribute_a_module_value_and_a_parser(self):
+        """Review 2026-10-31T03:05:05Z P1: the three universes that passed with zero owning validators."""
+        for name, source, gap in (
+                ("attribute", '''
+def _consume(record):
+    return record["state"]
+class Door:
+    def door(self):
+        return _consume(self.unvalidated)
+''', "self.unvalidated is assigned by nothing in Door"),
+                ("assigned attribute from a raw read", '''
+def _consume(record):
+    return record["state"]
+class Door:
+    def __init__(self, store):
+        self.row = store._connection.execute("SELECT * FROM held").fetchone()
+    def door(self):
+        return _consume(self.row)
+''', "no owner answers"),
+                ("external call", '''
+import json
+def _consume(record):
+    return record["state"]
+def door(store):
+    return _consume(json.loads('{"state": 42}'))
+''', "json.loads is an external call whose result nothing here owns"),
+                ("module value", '''
+import os
+VALUE = os.environ.get('RAW')
+def _consume(record):
+    return record["state"]
+def door(store):
+    return _consume(VALUE)
+''', "os.environ is an external module's value, owned by nothing here"),
+                ("module value from an external constant", '''
+import sys
+VALUE = sys.argv
+def _consume(record):
+    return record["state"]
+def door(store):
+    return _consume(VALUE)
+''', "sys.argv is an external module's value"),
+                ("content-producing builtin", '''
+def _consume(record):
+    return record["state"]
+def door(store):
+    return _consume(open("/etc/passwd"))
+''', "open is a builtin that produces content"),
+                ("method result", '''
+def _consume(record):
+    return record["state"]
+def door(store, value):
+    boundaries.text(value, "a value")
+    return _consume(value.reader())
+''', "value.reader is a method call whose result nothing here owns")):
+            with self.subTest(universe=name):
+                case = self._synthetic(source)
+                self.assertEqual(dict(owning_validators()), {} if "boundaries" not in source else dict(owning_validators()))
+                with self.assertRaises(AssertionError) as caught:
+                    self._handed_owned("sample.py:_consume", "record", case, subtests=False)
+                self.assertIn(gap, str(caught.exception))
+
+    def test_the_owned_input_trace_accepts_a_typed_attribute_a_constant_and_a_composition_call(self):
+        case = self._synthetic('''
+import os
+from . import boundaries
+NAMES = ("a", "b")
+LIMITS = {"max": 7, "names": NAMES}
+def _consume(record):
+    return record["state"]
+class Door:
+    def __init__(self, value):
+        self.value = boundaries.text(value, "a value")
+    def door(self):
+        return _consume(self.value)
+def constant(store):
+    return _consume(LIMITS)
+def composed(store, value):
+    boundaries.text(value, "a value")
+    return _consume(os.path.join(value, "child", NAMES[0]))
+def spelled(store, value):
+    boundaries.text(value, "a value")
+    return _consume(value.encode("utf-8"))
+''')
+        self._handed_owned("sample.py:_consume", "record", case, subtests=False)
+
+    def test_the_owned_input_trace_binds_only_the_signature_compared_members_of_a_decoded_result(self):
+        """`_qualified`'s idiom: a decoded journal result whose named members are compared, through
+        manager_signature, with the record's signature. Those members are owned; the rest is not."""
+        source = '''
+import json
+from .store import manager_signature
+def _consume(record):
+    return record["state"]
+def door(store, digest):
+    boundaries.text(digest, "a digest")
+    record = store.operation_record(digest)
+    certified = json.loads(record["result"])
+    operands = {"profile": certified["profile"], "evidence": certified["evidence"]}
+    if record["signature"] != manager_signature("kind", operands):
+        _refuse("journal disagrees")
+    return _consume(certified["evidence"]["MEMBER"])
+'''
+        case = self._synthetic(source.replace("MEMBER", "run_id"))
+        self._handed_owned("sample.py:_consume", "record", case, subtests=False)
+        case = self._synthetic(source.replace('certified["evidence"]["MEMBER"]', 'certified["profile_digest"]'))
+        with self.assertRaises(AssertionError) as caught:
+            self._handed_owned("sample.py:_consume", "record", case, subtests=False)
+        self.assertIn("json.loads is an external call", str(caught.exception))
+        unguarded = source.replace("MEMBER", "run_id").replace('    if record["signature"] != manager_signature("kind", operands):\n        _refuse("journal disagrees")\n', "")
+        case = self._synthetic(unguarded)
+        with self.assertRaises(AssertionError):
+            self._handed_owned("sample.py:_consume", "record", case, subtests=False)
+
     def test_the_owned_input_trace_accepts_an_owned_read_operand_and_composition(self):
         case = self._synthetic('''
 def _consume(record):
@@ -13766,6 +14216,50 @@ def composed(store, value):
     return _consume({"state": value, "fixed": "x", "joined": f"{value}-1"})
 ''')
         self._handed_owned("sample.py:_consume", "record", case, subtests=False)
+
+    # -- review 2026-10-31T03:05:05Z P1: the renewal contract a correction must keep ----------
+
+    def test_an_honest_renewal_moves_the_deadline_once_and_a_lost_reply_replays_it(self):
+        """TOK-9's accepted renewal behaviour, pinned before the renewal-record correction.
+
+        Exactly one extension per committed revision; a retry of the same request (the
+        lost-reply case) answers the recorded renewal without extending again; a renewal
+        that skips the observed state refuses; and the expiry decision follows the
+        RENEWED deadline, not the acquisition's. The open gap -- a rewritten RENEWED
+        `expires_at` is not yet refused (reviewer's renewal-probe.py) -- is the W275775
+        decision packet in evidence/stage-c-2026-10-30/RENEWAL-DECISION.md; whichever
+        correction the owner selects must keep every assertion here.
+        """
+        from .token_support import TokenFixture
+        from baton_v12.worker_manager import tokens
+        fixture = TokenFixture(self)
+        held = fixture.held(seconds=900)
+        before = tokens.token_of(fixture.store, fixture.domain, held["generation"])
+        self.assertEqual((before["revision"], before["expires_at"]), (0, held["expires_at"]))
+        fixture.instant = "2026-09-26T14:10:00.000Z"
+        renew = lambda revision: tokens.renew(fixture.store, held, execution="attempt-support",
+                                              operation="runtime.start:support", expected_revision=revision)
+        first = renew(0)
+        self.assertEqual((first["revision"], first["renewed_at"], first["expires_at"]),
+                         (1, "2026-09-26T14:10:00.000Z", "2026-09-26T14:25:00.000Z"))
+        after = tokens.token_of(fixture.store, fixture.domain, held["generation"])
+        self.assertEqual((after["revision"], after["expires_at"], after["acquired_expires_at"]),
+                         (1, "2026-09-26T14:25:00.000Z", held["expires_at"]))
+        # the lost reply: the same request again, later, answers the SAME record
+        fixture.instant = "2026-09-26T14:12:00.000Z"
+        self.assertEqual(renew(0), first)
+        self.assertEqual(tokens.token_of(fixture.store, fixture.domain, held["generation"])["revision"], 1)
+        with self.assertRaises(ContractRefusal):
+            renew(5)  # a revision ahead of the state
+        # expiry is decided against the renewed deadline, honestly, in both directions
+        fixture.instant = "2026-09-26T14:20:00.000Z"
+        self.assertFalse(tokens.token_of(fixture.store, fixture.domain, held["generation"])["expired"])
+        fixture.instant = "2026-09-26T14:25:00.000Z"
+        self.assertTrue(tokens.token_of(fixture.store, fixture.domain, held["generation"])["expired"])
+        with self.assertRaises(ContractRefusal):
+            renew(1)  # expiry has won; no late request revives it
+        self.assertEqual(fixture.store._connection.execute(
+            "SELECT COUNT(*) FROM operations WHERE kind = ?", (tokens.RENEWED_KIND,)).fetchone()[0], 1)
 
     # -- M384941 P1: replay protection is DEMONSTRATED on corrupted records -----------------
 
@@ -13823,6 +14317,61 @@ def composed(store, value):
                 with self.assertRaises(ContractRefusal) as caught:
                     read()
                 self.assertIn("signed operands", caught.exception.message)
+
+    def test_a_redirected_or_corrupted_qualification_row_grants_nothing(self):
+        """The parsed run_id in `_qualified`'s candidate loop is a lookup key, owned by the lookup.
+
+        A listed row whose result names another run_id reaches no grant (the derived identity
+        is absent, or names a grant the loop would have reached itself); a grant whose result
+        is corrupted is refused by its whole-signature comparison; an unknown key answers None.
+        """
+        import json
+        from . import test_provider_context as suite
+        from baton_v12.worker_manager import provider_context as context
+        fixture = EveryProbeProvesItArrived.borrowed(self, suite.QualificationAdmissionRegression)
+        fixture.candidate()
+        row = fixture.control._connection.execute(
+            "SELECT operation_id, result FROM operations WHERE kind = ?", (context.QUALIFICATION_KIND,)).fetchone()
+        honest = json.loads(row["result"])
+        self.assertEqual(honest["run_id"], "qualification-regression")
+        self.assertIsNone(context.qualification_grant_of(fixture.control, "nobody-authorized-this"))
+        # the listed row is redirected to a key no grant answers: nothing is granted
+        fixture.control._connection.execute("UPDATE operations SET result = ? WHERE operation_id = ?",
+                                            (json.dumps(dict(honest, run_id="somebody-else"), sort_keys=True), row["operation_id"]))
+        with self.assertRaisesRegex(ContractRefusal, "names no committed grant"):
+            fixture.admit()  # escaped as a TypeError at provider_context.py:288 before the guard
+        # the grant's own result is corrupted in a member the signature covers: the lookup refuses
+        fixture.control._connection.execute("UPDATE operations SET result = ? WHERE operation_id = ?",
+                                            (json.dumps(dict(honest, profile_digest="sha256:" + "0" * 64), sort_keys=True), row["operation_id"]))
+        with self.assertRaisesRegex(ContractRefusal, "journal disagrees"):
+            context.qualification_grant_of(fixture.control, "qualification-regression")
+        with self.assertRaisesRegex(ContractRefusal, "journal disagrees"):
+            fixture.admit()
+        # restored, the honest grant is consumed exactly once
+        fixture.control._connection.execute("UPDATE operations SET result = ? WHERE operation_id = ?", (row["result"], row["operation_id"]))
+        fixture.admit()
+        self.assertIsNotNone(context._grant_consumer(fixture.control, "qualification-regression"))
+
+    def test_a_malformed_governor_answer_refuses_before_any_reclaim(self):
+        """Review 2026-10-31T03:05:05Z: the governor's `overdue` answer is owned where it lands."""
+        import types
+        from . import test_intake as suite
+        from baton_v12.worker_manager import intake
+        fixture = EveryProbeProvesItArrived.borrowed(self, suite.TheCommittedCleanupIsReadableWithoutActing)
+        fixture.attempt()
+        ordered = []
+        stopping = types.SimpleNamespace(stop_expired=lambda *arguments, **named: ordered.append(("stop", arguments, named)))
+        acting = lambda *arguments, **named: ordered.append(("act", arguments, named))
+        for answer, label in ((["not a document"], "the resource governor's overdue answer"),
+                              ({"container": "c"}, "the resource governor's overdue answer"),
+                              ({"generation": "one"}, "the resource governor's overdue generation"),
+                              ({"generation": -1}, "the resource governor's overdue generation")):
+            with self.subTest(answer=answer):
+                govern = types.SimpleNamespace(overdue=lambda *arguments, **named: answer, revoke=acting, release=acting)
+                with self.assertRaises(ContractRefusal) as caught:
+                    intake.reclaim_expired_resource(fixture.store, stopping, attempt_id=suite.ATTEMPT, govern=govern)
+                self.assertIn(label, caught.exception.message)
+        self.assertEqual(ordered, [], "a malformed answer ordered nothing")
 
     def test_a_forged_custody_member_releases_nothing(self):
         """A `directory_custody` member forged into a committed ending must not release the resource."""

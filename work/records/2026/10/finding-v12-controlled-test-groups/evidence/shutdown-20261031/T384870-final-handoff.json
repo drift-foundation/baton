@@ -1,0 +1,49 @@
+{
+  "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+  "participant": "baton.prompt",
+  "projection_version": "12.8",
+  "protocol_version": 11,
+  "result": {
+    "id": "2b077949-T384870",
+    "labels": [
+      {
+        "status": "open",
+        "team": "baton",
+        "work": "2b077949-W384870"
+      }
+    ],
+    "last_seq": 385025,
+    "local_id": "T384870",
+    "messages": [
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "Second Stage C correction for review (M384996; K under owner claim E384905, no claim held). Evidence: baton:work/records/2026/10/finding-v12-controlled-test-groups/evidence/stage-c-2026-10-30/STAGE-C.md \"Second correction after review 2026-10-31T03:05:05Z\", RENEWAL-DECISION.md, SETTLE-CLEANUP-DECISION.md.\nP1 trace: self/cls attributes are traced to every assignment in the class; a module binding is a value only when its module-level expression is traced (function/class/package import = code; external import or external module value fails); a call's result is owned only for package code, a short justified list of composing builtins/external callees (os.path.*, hashlib.sha256, base64 encode, MappingProxyType, json.dumps) and re-spelling methods on a traced object -- json.loads, os.environ.get, open(...), unknown methods fail closed. Two proofs made visible instead of assumed: the ruled validator's result is owned; a public package callee's own door may own an argument (except circular internal/adopted rows). The package's signature idiom (manager_signature compare inside a refusing if) binds exactly the compared members of a decoded result. Your three probes now REJECTED (reviewer-trace-probes-after.log); seven negative universes + positives + idiom witness added. Audit of the stated operands (operand-audit-m384996.txt): 28 of 28 operands traced at every call site, 0 failures. Findings: intake reclaim consumed the governor's overdue answer raw -> owned where it lands (document+generation, NOT_AN_ENTRY declared, witness with four malformed answers ordering nothing); qualification_grant_of run_id was NOT composed owned at _qualified's candidate loop (run_id parsed from a listed row) -> restated as a lookup-key row with witness; that witness found a product defect: a redirected listing row escaped as TypeError at provider_context.py:288 -> guarded with a refusal (\"names no committed grant\"). provider_context.py is an ADDITIONAL EDIT PATH (one guard; codexpc untouched). os.path.realpath admitted as a composer with stated justification.\nP1 renewal: regression test_an_honest_renewal_moves_the_deadline_once_and_a_lost_reply_replays_it pins TOK-9 behaviour (one extension per revision, lost-reply replay, skip refusal, expiry against renewed deadline). RENEWAL-DECISION.md: the gap, why the clock cannot be signed (Child A collision), judgement-variant audit (only RENEWED expires_at is a decision input), options A (recommended: self-signed decision record beside the renewal in the same transact; replay unchanged; no DESIGN text change; existing records fail closed), B (derive deadline from signed data; semantics/text change), C (sign the instant; rejected). Not implemented; expires_at not claimed protected; renewal-probe unchanged (reviewer-renewal-probe-still-open.log). Needs Slawomir's selection.\nsettle_cleanup connection: SETTLE-CLEANUP-DECISION.md with transact/_record/caller evidence (contract holds by store structure, checked by nothing); option 1 recommended (connection is control._connection and in_transaction, refuse otherwise), option 2 remove parameter; no atomicity/spec change. Needs selection.\nVerification (focused-m384996.log): gate classes + test_provider_context/intake/workspaces/custody/dependencies 761 run OK 163.8s. No scans rerun this round (focused first, per review); product.diff against a8cbc974 now 11 modules; digests CANDIDATE-SHA256.txt (two test files + 11 product). No B4/Docker/full run, no claim or Git change.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 385024,
+        "ts": "2026-10-31 03:29:39"
+      },
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "K shutdown-ready (M385017 / SHUTDOWN-20261031.md). Stopped and saved: no K-owned test, build or implementation process is running (pgrep over parallel_test/unittest/just/venv: none); K launched no containers, images or builds this session. All candidate bytes are in the working tree with digests in baton:work/records/2026/10/finding-v12-controlled-test-groups/evidence/stage-c-2026-10-30/CANDIDATE-SHA256.txt (two test files, eleven product modules), product.diff against a8cbc974, logs (focused-m384996.log, operand-audit-m384996.txt, reviewer-*-after.log, scans-group-run-3/4.log), the two decision packets (RENEWAL-DECISION.md, SETTLE-CLEANUP-DECISION.md) and evidence/cleanup-ordering-20261031/. Pending work is pinned at the top of PLAN.md and in the latest PROGRESS entries: review of M385024 (second Stage C correction); owner selections for the renewal correction (option A recommended) and settle_cleanup connection (option 1 recommended); scans group rerun after those; human Git checkpoint. Only disposable scratch under work/scratch/w384870-c/ (incl. the before-m384981 snapshot, reconstructible from git show 4989ce76) and older Works' /var/tmp roots (w236087, w247941, integration-366616 -- not this session's) remain; nothing of K's needs cleanup. K holds no claim; W384870 stays under owner arrangement E384905 (detail confirmed). No Git mutation. K starts nothing until explicit owner resume.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 385025,
+        "ts": "2026-10-31 03:30:42"
+      }
+    ],
+    "new": 90,
+    "next_after": null,
+    "next_before": null,
+    "participants": [
+      "baton"
+    ],
+    "subject": "V12: controlled test groups and a clean full-suite baseline",
+    "total": 90
+  },
+  "snapshot_seq": 385025
+}

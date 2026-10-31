@@ -1,0 +1,11 @@
+{"command": "version", "status": 0}
+{"command": "image", "status": 0}
+{"command": "run", "status": 0, "id": "ba7ac17f07564d11f09eebc04d0a950f7cfc3b21e444d0668a884fae68414e64", "stdout": "1000 1001\n", "stderr": ""}
+{"command": "ps", "status": 0}
+{"command": "run", "status": 0, "id": "dcfc3fb522cdb30f248bbf4692eb5e83d14d6aa21f88f54f5ee647e0dbe9d6d8", "stdout": "{\"custody\": \"normalize\", \"submission\": \"10bae8e48a1947b89de71891e6cec9d3\", \"entries\": 4, \"not_ours\": 0, \"running_as\": [1000, 1001]}\n", "stderr": ""}
+{"command": "rm", "status": 0, "id": "baton-w6636-lifecycle-w36540-c592f365e8", "stdout": "", "stderr": "Error response from daemon: No such container: baton-w6636-lifecycle-w36540-c592f365e8\n"}
+{"command": "rm", "status": 0, "id": "baton-custody-ca1aab9c095fdc1de8305b46bb5e6cd7", "stdout": "", "stderr": "Error response from daemon: No such container: baton-custody-ca1aab9c095fdc1de8305b46bb5e6cd7\n"}
+{"command": "run", "status": 0, "id": "1838e78ed116030de4b4935b25aff726f82374dcae5b797d3e395f72264b04e9", "stdout": "1000 1001\n", "stderr": ""}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "rm", "status": 0, "id": "baton-w6636-lifecycle-w36540-6989c08cb7", "stdout": "", "stderr": "Error response from daemon: No such container: baton-w6636-lifecycle-w36540-6989c08cb7\n"}

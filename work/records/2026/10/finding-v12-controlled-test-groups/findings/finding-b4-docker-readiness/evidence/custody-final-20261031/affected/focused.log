@@ -1,0 +1,9 @@
+test_the_manager_removes_the_tree_only_after_the_custody_act (tests.manager.test_custody_engine.DockerCustody.test_the_manager_removes_the_tree_only_after_the_custody_act)
+THE ACCEPTANCE, in one case, and BOTH halves matter. ... ok
+test_failed_removal_ownership_excludes_custody_without_starting_a_helper (tests.manager.test_custody_engine.DockerCustody.test_failed_removal_ownership_excludes_custody_without_starting_a_helper)
+An unsuccessful admitted removal is held, not implicitly recovered. ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.716s
+
+OK

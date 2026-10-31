@@ -1,0 +1,49 @@
+{
+  "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+  "participant": "baton.prompt",
+  "projection_version": "12.8",
+  "protocol_version": 11,
+  "result": {
+    "id": "2b077949-T384944",
+    "labels": [
+      {
+        "status": "open",
+        "team": "baton",
+        "work": "2b077949-W384944"
+      }
+    ],
+    "last_seq": 385023,
+    "local_id": "T384944",
+    "messages": [
+      {
+        "author": "codxpc",
+        "author_team": "baton",
+        "body": "E385016/M385013 complete: affected2/2 and full DockerCustody12/12 pass, no errors/skips. Existing positive case proves real000 denial non-destructively/no removal ownership, then normalizes/readbacks/discards. New negative preserves failed-removal reproduction, standing ownership/no completion and precise custody refusal before helper start, unchanged workspace/hold. No guard bypass, pre-thaw, fabricated receipt or recovery claim. All11 prior IDs and hostile/foreign-owner/confinement/helper coverage retained. Candidate2ac0806afb40faf5aeae1cec5dc9cdff3577d1d82dae065376a9482715b0f6e1 changes only test_custody_engine.py. Exact source/image/evidence at baton:work/records/2026/10/finding-v12-controlled-test-groups/findings/finding-b4-docker-readiness/evidence/custody-final-20261031/RESULT.md and SHA256.json. Source stable; one selected offline build0.113614s, focused wall17.644749s. All33 exact task containers captured via cidfiles and absent, roots/own image tag cleaned, prior resources preserved. Seven historical engine IDs remain; return green custody candidate for independent review, no broader B4 completion claimed.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 385019,
+        "ts": "2026-10-31 03:18:14"
+      },
+      {
+        "author": "prompt",
+        "author_team": "baton",
+        "body": "Shutdown checkpoint saved at baton:work/records/2026/10/finding-v12-controlled-test-groups/SHUTDOWN-20261031.md. Codexpc M385019/E385020 handback recorded, child unclaimed at baton.decide; custody12/12 is pending independent review after restart. No new assignment. K stopped-and-saved acknowledgment still pending. Resume only after explicit owner instruction and reading this checkpoint plus latest canonical messages; do not automatically start tests after reboot.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 385023,
+        "ts": "2026-10-31 03:19:09"
+      }
+    ],
+    "new": 26,
+    "next_after": null,
+    "next_before": null,
+    "participants": [
+      "baton"
+    ],
+    "subject": "V12 B4: Docker and environment readiness for W384870",
+    "total": 26
+  },
+  "snapshot_seq": 385025
+}

@@ -1,0 +1,95 @@
+{"command": "version", "status": 0}
+{"command": "image", "status": 0}
+{"command": "run", "status": 0, "id": "64a9e6db83719d3cdeb041741bfc4e0d48544665d306f76e10ed32a75d6f9af7", "stdout": "1000 1001\n", "stderr": ""}
+{"command": "run", "status": 0, "id": "6c9040cd96ff562589ed1fb10bac39c56d8fbdf58a42952a6acb9e98e014b3fe", "stdout": "6c9040cd96ff562589ed1fb10bac39c56d8fbdf58a42952a6acb9e98e014b3fe\n", "stderr": "", "inspect": {"Id": "6c9040cd96ff562589ed1fb10bac39c56d8fbdf58a42952a6acb9e98e014b3fe", "Image": "sha256:755e3cea9e3cc07f3487ba2e8f35ce054a09bf286c61f6c2c9bfe6aceee0f8f9", "State": {"Status": "running", "Running": true, "Paused": false, "Restarting": false, "OOMKilled": false, "Dead": false, "Pid": 128782, "ExitCode": 0, "Error": "", "StartedAt": "2026-10-31T03:17:09.061903654Z", "FinishedAt": "0001-01-01T00:00:00Z"}, "Mounts": [], "User": "65532:65532", "Labels": {"baton.w384944.run": "4592e6f1cb354563986184ede868a12f"}, "HostConfig": {"ReadonlyRootfs": false, "Privileged": false, "NetworkMode": "bridge", "CapDrop": null, "SecurityOpt": null, "GroupAdd": null}}}
+{"command": "ps", "status": 0}
+{"command": "run", "status": 0, "id": "2ad83211ad44b50524be665fa7d44537df130f12d160137d93bfbd7660fa4879", "stdout": "{\"custody\": \"normalize\", \"submission\": \"1d53d904f7d14678b9c77051250f3770\", \"entries\": 4, \"not_ours\": 0, \"running_as\": [1000, 1001]}\n", "stderr": ""}
+{"command": "ps", "status": 0}
+{"command": "rm", "status": 0, "id": "baton-w6636-lifecycle-w36540-4e343c72d8", "stdout": "", "stderr": "Error response from daemon: No such container: baton-w6636-lifecycle-w36540-4e343c72d8\n"}
+{"command": "rm", "status": 0, "id": "baton-custody-55e1fca2fa2ae7a09070c73bab0e6978-somebody-else", "stdout": "baton-custody-55e1fca2fa2ae7a09070c73bab0e6978-somebody-else\n", "stderr": ""}
+{"command": "rm", "status": 0, "id": "baton-custody-55e1fca2fa2ae7a09070c73bab0e6978", "stdout": "", "stderr": "Error response from daemon: No such container: baton-custody-55e1fca2fa2ae7a09070c73bab0e6978\n"}
+{"command": "run", "status": 0, "id": "22022c02d794ad981f22b1687eb89ce24e2de31e2f17ab4bed5c5134631971fc", "stdout": "1000 1001\n", "stderr": ""}
+{"command": "run", "status": 0, "id": "f5b0d52a43bd7a13291fce2093ccb82bf8c3b722251436829ad68f1d15085196", "stdout": "f5b0d52a43bd7a13291fce2093ccb82bf8c3b722251436829ad68f1d15085196\n", "stderr": "", "inspect": {"Id": "f5b0d52a43bd7a13291fce2093ccb82bf8c3b722251436829ad68f1d15085196", "Image": "sha256:755e3cea9e3cc07f3487ba2e8f35ce054a09bf286c61f6c2c9bfe6aceee0f8f9", "State": {"Status": "running", "Running": true, "Paused": false, "Restarting": false, "OOMKilled": false, "Dead": false, "Pid": 129172, "ExitCode": 0, "Error": "", "StartedAt": "2026-10-31T03:17:09.66125913Z", "FinishedAt": "0001-01-01T00:00:00Z"}, "Mounts": [], "User": "1000:1001", "Labels": {"baton.w384944.run": "4592e6f1cb354563986184ede868a12f"}, "HostConfig": {"ReadonlyRootfs": false, "Privileged": false, "NetworkMode": "bridge", "CapDrop": null, "SecurityOpt": null, "GroupAdd": null}}}
+{"command": "wait", "status": 0, "id": "baton-custody-a62e9c3a4454ddbbef92eabe6be891de", "stdout": "0\n", "stderr": ""}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "inspect", "status": 0}
+{"command": "stop", "status": 0}
+{"command": "rm", "status": 0, "id": "f5b0d52a43bd7a13291fce2093ccb82bf8c3b722251436829ad68f1d15085196", "stdout": "f5b0d52a43bd7a13291fce2093ccb82bf8c3b722251436829ad68f1d15085196\n", "stderr": ""}
+{"command": "inspect", "status": 1}
+{"command": "run", "status": 0, "id": "8e450bfcd81ee3be24fa491a1f5a5db0ce90ce898c45bf6971316c5ffee6b0e4", "stdout": "{\"custody\": \"normalize\", \"submission\": \"8e6192eba6c642c7bec2fecd84c32ed7\", \"entries\": 4, \"not_ours\": 0, \"running_as\": [1000, 1001]}\n", "stderr": ""}
+{"command": "ps", "status": 0}
+{"command": "rm", "status": 0, "id": "baton-w6636-lifecycle-w36540-3367c7bbe3", "stdout": "", "stderr": "Error response from daemon: No such container: baton-w6636-lifecycle-w36540-3367c7bbe3\n"}
+{"command": "rm", "status": 0, "id": "baton-custody-a62e9c3a4454ddbbef92eabe6be891de", "stdout": "", "stderr": "Error response from daemon: No such container: baton-custody-a62e9c3a4454ddbbef92eabe6be891de\n"}
+{"command": "rm", "status": 0, "id": "baton-custody-a62e9c3a4454ddbbef92eabe6be891de", "stdout": "", "stderr": "Error response from daemon: No such container: baton-custody-a62e9c3a4454ddbbef92eabe6be891de\n"}
+{"command": "run", "status": 0, "id": "8a12ad255312b1dc2a27ab4f66791bc818c81425c2616f6cb159de7e56f970a5", "stdout": "1000 1001\n", "stderr": ""}
+{"command": "run", "status": 0, "id": "59740f3cc5f51f1a4b647d297292fe90cff4277e8230d7a23677591b6916fb65", "stdout": "59740f3cc5f51f1a4b647d297292fe90cff4277e8230d7a23677591b6916fb65\n", "stderr": "", "inspect": {"Id": "59740f3cc5f51f1a4b647d297292fe90cff4277e8230d7a23677591b6916fb65", "Image": "sha256:755e3cea9e3cc07f3487ba2e8f35ce054a09bf286c61f6c2c9bfe6aceee0f8f9", "State": {"Status": "running", "Running": true, "Paused": false, "Restarting": false, "OOMKilled": false, "Dead": false, "Pid": 129627, "ExitCode": 0, "Error": "", "StartedAt": "2026-10-31T03:17:10.374045591Z", "FinishedAt": "0001-01-01T00:00:00Z"}, "Mounts": [], "User": "1000:1001", "Labels": {"baton.w384944.run": "4592e6f1cb354563986184ede868a12f"}, "HostConfig": {"ReadonlyRootfs": false, "Privileged": false, "NetworkMode": "bridge", "CapDrop": null, "SecurityOpt": null, "GroupAdd": null}}}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "inspect", "status": 0}
+{"command": "stop", "status": 0}
+{"command": "rm", "status": 0, "id": "59740f3cc5f51f1a4b647d297292fe90cff4277e8230d7a23677591b6916fb65", "stdout": "59740f3cc5f51f1a4b647d297292fe90cff4277e8230d7a23677591b6916fb65\n", "stderr": ""}
+{"command": "inspect", "status": 1}
+{"command": "run", "status": 0, "id": "e8bca594ea7c8a1b71f24aed09c6c945e58b6be573b7939bd91a4a329f4e8661", "stdout": "{\"custody\": \"normalize\", \"submission\": \"c2f319fc28f649428d4ff73736764524\", \"entries\": 4, \"not_ours\": 0, \"running_as\": [1000, 1001]}\n", "stderr": ""}
+{"command": "ps", "status": 0}
+{"command": "rm", "status": 0, "id": "baton-w6636-lifecycle-w36540-52e4c9bb15", "stdout": "", "stderr": "Error response from daemon: No such container: baton-w6636-lifecycle-w36540-52e4c9bb15\n"}
+{"command": "rm", "status": 0, "id": "baton-custody-7548f7e84bf9450eb73e3594f6f07a59", "stdout": "", "stderr": "Error response from daemon: No such container: baton-custody-7548f7e84bf9450eb73e3594f6f07a59\n"}
+{"command": "rm", "status": 0, "id": "baton-custody-7548f7e84bf9450eb73e3594f6f07a59", "stdout": "", "stderr": "Error response from daemon: No such container: baton-custody-7548f7e84bf9450eb73e3594f6f07a59\n"}
+{"command": "run", "status": 0, "id": "c35f3ca268e22dc6f1c4513e19d52bfe41267f0a53b32be14665e973173c9da2", "stdout": "1000 1001\n", "stderr": ""}
+{"command": "ps", "status": 0}
+{"command": "ps", "status": 0}
+{"command": "rm", "status": 0, "id": "baton-w6636-lifecycle-w36540-4dd2708424", "stdout": "", "stderr": "Error response from daemon: No such container: baton-w6636-lifecycle-w36540-4dd2708424\n"}
+{"command": "run", "status": 0, "id": "63a2888fa9bc0ee0f70a6b883e9cb2fd0da1c9c3ec9890f636bcc26ac6c8ab68", "stdout": "1000 1001\n", "stderr": ""}
+{"command": "ps", "status": 0}
+{"command": "run", "status": 0, "id": "3e0d6bb6c509a3e59ce73b74e37322c1ee8cec31b6418e1db068dc741c5eda43", "stdout": "{\"custody\": \"normalize\", \"submission\": \"8b47e263ab8f4adb90453c1c485040fc\", \"entries\": 4, \"not_ours\": 0, \"running_as\": [1000, 1001]}\n", "stderr": ""}
+{"command": "run", "status": 0, "id": "d1e919f10535afc873a1c710785bc9b6c791f4dec758ed1f0e1319dbb18016da", "stdout": "1000 1001\n", "stderr": ""}
+{"command": "ps", "status": 0}
+{"command": "run", "status": 0, "id": "a2c11c798442b4d928e652ec303c40fe587a0d85ce45056bdf3693cecccb2182", "stdout": "{\"custody\": \"normalize\", \"submission\": \"0d6c37ea7fb7455abdb30a298d0dabad\", \"entries\": 4, \"not_ours\": 0, \"running_as\": [1000, 1001]}\n", "stderr": ""}
+{"command": "run", "status": 0, "id": "50ef5807f0ff143d16713d14d022bd372d072b823250d2732d02a381ba9ba013", "stdout": "1000 1001\n", "stderr": ""}
+{"command": "ps", "status": 0}
+{"command": "run", "status": 0, "id": "1d9dcff9cea5fe0898dad6737b31f916d1b999c226ffa564f2d18f70ad7272f2", "stdout": "{\"custody\": \"normalize\", \"submission\": \"11b951ecd66640f893550a1f356e48b6\", \"entries\": 4, \"not_ours\": 0, \"running_as\": [1000, 1001]}\n", "stderr": ""}
+{"command": "rm", "status": 0, "id": "baton-w6636-lifecycle-w36540-f041ba66dc", "stdout": "", "stderr": "Error response from daemon: No such container: baton-w6636-lifecycle-w36540-f041ba66dc\n"}
+{"command": "rm", "status": 0, "id": "baton-custody-3b5070d5382b11742fc059b0d9df72c1", "stdout": "", "stderr": "Error response from daemon: No such container: baton-custody-3b5070d5382b11742fc059b0d9df72c1\n"}
+{"command": "rm", "status": 0, "id": "baton-w6636-lifecycle-w36540-4e9304c265", "stdout": "", "stderr": "Error response from daemon: No such container: baton-w6636-lifecycle-w36540-4e9304c265\n"}
+{"command": "rm", "status": 0, "id": "baton-custody-3b5070d5382b11742fc059b0d9df72c1", "stdout": "", "stderr": "Error response from daemon: No such container: baton-custody-3b5070d5382b11742fc059b0d9df72c1\n"}
+{"command": "rm", "status": 0, "id": "baton-w6636-lifecycle-w36540-c181fdefd3", "stdout": "", "stderr": "Error response from daemon: No such container: baton-w6636-lifecycle-w36540-c181fdefd3\n"}
+{"command": "rm", "status": 0, "id": "baton-custody-3b5070d5382b11742fc059b0d9df72c1", "stdout": "", "stderr": "Error response from daemon: No such container: baton-custody-3b5070d5382b11742fc059b0d9df72c1\n"}
+{"command": "run", "status": 0, "id": "11ecd42b276cb31f9ca82b57528b137a89b411121d418bc4d17280e06bafbf45", "stdout": "", "stderr": ""}
+{"command": "ps", "status": 0}
+{"command": "run", "status": 0, "id": "23e5dd5a95d96bc38b378474cd41aa36ebaadd85266ec014c0b35d99944c9cf2", "stdout": "{\"custody\": \"normalize\", \"submission\": \"add9800059e74134a66fa27dfb793f72\", \"entries\": 4, \"not_ours\": 0, \"running_as\": [1000, 1001]}\n", "stderr": ""}
+{"command": "rm", "status": 0, "id": "baton-w6636-lifecycle-w36540-24936ae6c1", "stdout": "", "stderr": "Error response from daemon: No such container: baton-w6636-lifecycle-w36540-24936ae6c1\n"}
+{"command": "rm", "status": 0, "id": "baton-custody-e82cc5479d33df626221fbaf720be5e3", "stdout": "", "stderr": "Error response from daemon: No such container: baton-custody-e82cc5479d33df626221fbaf720be5e3\n"}
+{"command": "run", "status": 0, "id": "15b4d71818a78e01581d61c9bc193f85270ca2fc7d3f2a8a4ef56844e9387a4c", "stdout": "1000 1001\n", "stderr": ""}
+{"command": "run", "status": 0, "id": "c1240fdc833f5f0615163460d4192379d51bde71afe447953014962f10a98469", "stdout": "", "stderr": ""}
+{"command": "ps", "status": 0}
+{"command": "run", "status": 0, "id": "6f27a60c28ed87750d024548374baa7f249ba949b2bac56b68286c8b89324a93", "stdout": "{\"custody\": \"normalize\", \"submission\": \"59ffa71181aa416c9e4954c6a0b77422\", \"entries\": 4, \"not_ours\": 1, \"running_as\": [1000, 1001]}\n", "stderr": ""}
+{"command": "rm", "status": 0, "id": "baton-w6636-lifecycle-w36540-acccd20dd5", "stdout": "", "stderr": "Error response from daemon: No such container: baton-w6636-lifecycle-w36540-acccd20dd5\n"}
+{"command": "rm", "status": 0, "id": "baton-w6636-lifecycle-foreign-8a7fa2512b", "stdout": "", "stderr": "Error response from daemon: No such container: baton-w6636-lifecycle-foreign-8a7fa2512b\n"}
+{"command": "rm", "status": 0, "id": "baton-custody-80acc80799a8527d8cac938e130ff926", "stdout": "", "stderr": "Error response from daemon: No such container: baton-custody-80acc80799a8527d8cac938e130ff926\n"}
+{"command": "run", "status": 0, "id": "c20f8206dd208b293bdd5baf3782a5fb6ba0fa8574c2ccbe41eb3454d64f2220", "stdout": "1000 1001\n", "stderr": ""}
+{"command": "run", "status": 0, "id": "89509e8f43e9345be149cdf63fb6cf2a1bd08d8e86635c531b8e0b3f1b3a803f", "stdout": "89509e8f43e9345be149cdf63fb6cf2a1bd08d8e86635c531b8e0b3f1b3a803f\n", "stderr": "", "inspect": {"Id": "89509e8f43e9345be149cdf63fb6cf2a1bd08d8e86635c531b8e0b3f1b3a803f", "Image": "sha256:755e3cea9e3cc07f3487ba2e8f35ce054a09bf286c61f6c2c9bfe6aceee0f8f9", "State": {"Status": "running", "Running": true, "Paused": false, "Restarting": false, "OOMKilled": false, "Dead": false, "Pid": 131664, "ExitCode": 0, "Error": "", "StartedAt": "2026-10-31T03:17:18.515647125Z", "FinishedAt": "0001-01-01T00:00:00Z"}, "Mounts": [], "User": "1000:1001", "Labels": {"baton.w384944.run": "4592e6f1cb354563986184ede868a12f"}, "HostConfig": {"ReadonlyRootfs": false, "Privileged": false, "NetworkMode": "bridge", "CapDrop": null, "SecurityOpt": null, "GroupAdd": null}}}
+{"command": "ps", "status": 0}
+{"command": "inspect", "status": 0}
+{"command": "stop", "status": 0}
+{"command": "rm", "status": 0, "id": "89509e8f43e9345be149cdf63fb6cf2a1bd08d8e86635c531b8e0b3f1b3a803f", "stdout": "89509e8f43e9345be149cdf63fb6cf2a1bd08d8e86635c531b8e0b3f1b3a803f\n", "stderr": ""}
+{"command": "inspect", "status": 1}
+{"command": "run", "status": 0, "id": "a3148c27947a51eee8b98c1a7c549f1bb672a1d3f7cece1f42ad7365f97b2c28", "stdout": "{\"custody\": \"normalize\", \"submission\": \"5722e74512b5481197cf07a3a9c8025f\", \"entries\": 4, \"not_ours\": 0, \"running_as\": [1000, 1001]}\n", "stderr": ""}
+{"command": "ps", "status": 0}
+{"command": "rm", "status": 0, "id": "baton-w6636-lifecycle-w36540-f3f5be1c48", "stdout": "", "stderr": "Error response from daemon: No such container: baton-w6636-lifecycle-w36540-f3f5be1c48\n"}
+{"command": "rm", "status": 0, "id": "baton-custody-7cfae6b255522f91edf8dce5f066d10d", "stdout": "", "stderr": "Error response from daemon: No such container: baton-custody-7cfae6b255522f91edf8dce5f066d10d\n"}
+{"command": "run", "status": 0, "id": "66e868779c50200e9b3cdd80106fd51e14d6ec1cbc718eb81fd9a42a950917ed", "stdout": "1000 1001\n", "stderr": ""}
+{"command": "ps", "status": 0}
+{"command": "run", "status": 0, "id": "95fa6ea55d8d2610ee37e71608babe62f0d1b2e207586edd0063300e70aeb118", "stdout": "{\"custody\": \"normalize\", \"submission\": \"aa8085fc9add4a56a99a3256f1afb250\", \"entries\": 4, \"not_ours\": 0, \"running_as\": [1000, 1001]}\n", "stderr": ""}
+{"command": "ps", "status": 0}
+{"command": "rm", "status": 0, "id": "baton-w6636-lifecycle-w36540-7189e357fd", "stdout": "", "stderr": "Error response from daemon: No such container: baton-w6636-lifecycle-w36540-7189e357fd\n"}
+{"command": "rm", "status": 0, "id": "baton-custody-39cdebf89a5acf7d93befae42417779a", "stdout": "", "stderr": "Error response from daemon: No such container: baton-custody-39cdebf89a5acf7d93befae42417779a\n"}
+{"command": "run", "status": 0, "id": "4a468389eb85c9f8ab7b8efc21db190938269a1f31de501a28d7bb09eed16629", "stdout": "1000 1001\n", "stderr": ""}
+{"command": "ps", "status": 0}
+{"command": "run", "status": 0, "id": "a92ed9563187f069d002e3e951f133426a20f61992054b474ef7281ddce496c3", "stdout": "{\"custody\": \"inspect\", \"submission\": \"b7101e686ae84fe88deef02ebaeea21f\", \"entries\": [{\"path\": \"result-attempt-1\", \"mode\": \"0o2770\", \"uid\": 1000, \"gid\": 1001, \"kind\": \"directory\"}, {\"path\": \"worker-made-dir\", \"mode\": \"0o2755\", \"uid\": 1000, \"gid\": 1001, \"kind\": \"directory\"}, {\"path\": \"worker-made-dir/nested\", \"mode\": \"0o700\", \"uid\": 1000, \"gid\": 1001, \"kind\": \"directory\"}, {\"path\": \"worker-made-dir/nested/deep.txt\", \"mode\": \"0o644\", \"uid\": 1000, \"gid\": 1001, \"kind\": \"file\"}], \"running_as\": [1000, 1001]}\n", "stderr": ""}
+{"command": "rm", "status": 0, "id": "baton-w6636-lifecycle-w36540-0693d8e8ec", "stdout": "", "stderr": "Error response from daemon: No such container: baton-w6636-lifecycle-w36540-0693d8e8ec\n"}
+{"command": "rm", "status": 0, "id": "baton-custody-390387ac6a77b57e939124a6517f7085", "stdout": "", "stderr": "Error response from daemon: No such container: baton-custody-390387ac6a77b57e939124a6517f7085\n"}
+{"command": "run", "status": 0, "id": "f1eded98289e6c6af677a4434dfb9a1c15d8223da80ced9071d50deedfd2ac6b", "stdout": "1000 1001\n", "stderr": ""}
+{"command": "ps", "status": 0}
+{"command": "run", "status": 0, "id": "5ddfef43ffb7e95ccde83eb5d452e8ede30dc8896ba443c0104e45672f6993f6", "stdout": "{\"custody\": \"normalize\", \"submission\": \"cf8f858322e640a7bdc1fe7cbea1e48c\", \"entries\": 4, \"not_ours\": 0, \"running_as\": [1000, 1001]}\n", "stderr": ""}
+{"command": "rm", "status": 0, "id": "baton-w6636-lifecycle-w36540-97dfeb01c8", "stdout": "", "stderr": "Error response from daemon: No such container: baton-w6636-lifecycle-w36540-97dfeb01c8\n"}
+{"command": "rm", "status": 0, "id": "baton-custody-ce303e4eec01569a432aaf3c0be9e32d", "stdout": "", "stderr": "Error response from daemon: No such container: baton-custody-ce303e4eec01569a432aaf3c0be9e32d\n"}

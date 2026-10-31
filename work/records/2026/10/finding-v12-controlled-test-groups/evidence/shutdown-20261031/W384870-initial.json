@@ -1,0 +1,173 @@
+{
+  "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+  "participant": "baton.prompt",
+  "projection_version": "12.8",
+  "protocol_version": 11,
+  "result": {
+    "agent": {
+      "action_owner": null,
+      "adapter": null,
+      "cause": null,
+      "detail": null,
+      "episode": null,
+      "expires_at": null,
+      "facts": [],
+      "incarnation": null,
+      "last_contact": null,
+      "model": null,
+      "note": "no runner has ever opened a lease here",
+      "provenance": "derived",
+      "provider": null,
+      "refresh_requested": null,
+      "session": null,
+      "since": null,
+      "stale": false,
+      "state": "offline",
+      "work": null
+    },
+    "available_transitions": [
+      "prioritize"
+    ],
+    "binding": {
+      "actor": "baton.slaw",
+      "created_ts": "2026-10-29T22:32:22Z",
+      "git_provenance": null,
+      "path": "work/records/2026/10/finding-v12-controlled-test-groups",
+      "prior": 0,
+      "rationale": "Attach the permanent W384870 dossier created 2026-10-29",
+      "revision": 1,
+      "root": "baton",
+      "seq": 384873
+    },
+    "binding_count": 1,
+    "bindings": [
+      {
+        "actor": "baton.slaw",
+        "created_ts": "2026-10-29T22:32:22Z",
+        "git_provenance": null,
+        "path": "work/records/2026/10/finding-v12-controlled-test-groups",
+        "prior": 0,
+        "rationale": "Attach the permanent W384870 dossier created 2026-10-29",
+        "revision": 1,
+        "root": "baton",
+        "seq": 384873
+      }
+    ],
+    "bindings_next_after": null,
+    "bindings_truncated": false,
+    "blocking": false,
+    "breadcrumb": [
+      {
+        "id": "2b077949-W384870",
+        "title": "V12: controlled test groups and a clean full-suite baseline"
+      }
+    ],
+    "claimed_at": "2026-10-30T07:56:07Z",
+    "classification": "confirmed-defect",
+    "duplicate_of": null,
+    "episode_seq": 384905,
+    "first_open_blocker": null,
+    "follow_up_of": null,
+    "gate": null,
+    "handler": {
+      "member": "slaw",
+      "participant": "baton.slaw",
+      "team": "baton"
+    },
+    "handoff_at": "2026-10-29T22:48:04Z",
+    "heartbeat_at": "2026-10-30T07:56:07Z",
+    "id": "2b077949-W384870",
+    "last_change_seq": 384907,
+    "last_changed_at": "2026-10-30T07:56:07.699Z",
+    "links": {
+      "blocked_by": [],
+      "blocks": [],
+      "contains": [
+        {
+          "handler": null,
+          "id": "2b077949-W384944",
+          "outcome": null,
+          "route": {
+            "endpoint": "baton.decide",
+            "handlers": [
+              "slaw"
+            ],
+            "role": "approv",
+            "route": "approv"
+          },
+          "status": "open",
+          "team": "baton",
+          "title": "V12 B4: Docker and environment readiness for W384870"
+        }
+      ],
+      "duplicate_of": null,
+      "duplicates": [],
+      "follow_up_of": null,
+      "follow_ups": [],
+      "id": "2b077949-W384870",
+      "parent": null
+    },
+    "local_id": "W384870",
+    "message_count": 87,
+    "my_pending_obligations": 0,
+    "new": 87,
+    "new_breakdown": {
+      "children": [
+        {
+          "id": "2b077949-W384944",
+          "new": 25
+        }
+      ],
+      "id": "2b077949-W384870",
+      "overlap": 0,
+      "own": 87,
+      "snapshot_seq": 385021,
+      "subtree_total": 112
+    },
+    "next": null,
+    "obligations": [],
+    "open_blockers": 0,
+    "open_dependents": 0,
+    "origin": "external-report",
+    "outcome": null,
+    "phase": "active",
+    "pickup": "claimed",
+    "priority": "high",
+    "progress": {
+      "children": 1,
+      "closed": 0
+    },
+    "rationale": null,
+    "ready": true,
+    "revision": null,
+    "revision_count": 0,
+    "revisions": [],
+    "revisions_next_after": null,
+    "revisions_truncated": false,
+    "route": {
+      "endpoint": "baton.decide",
+      "handlers": [
+        "slaw"
+      ],
+      "role": "approv",
+      "route": "approv"
+    },
+    "status": "open",
+    "team": "baton",
+    "thread_count": 1,
+    "threads": [
+      {
+        "added_seq": 384870,
+        "id": "2b077949-T384870",
+        "last_seq": 385021,
+        "new": 87,
+        "subject": "V12: controlled test groups and a clean full-suite baseline"
+      }
+    ],
+    "threads_next_after": null,
+    "threads_truncated": false,
+    "title": "V12: controlled test groups and a clean full-suite baseline",
+    "trials": []
+  },
+  "snapshot_seq": 385021
+}

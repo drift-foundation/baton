@@ -1,0 +1,358 @@
+{
+  "first": {
+    "started": [
+      "tests.manager.test_custody_engine.DockerCustody.test_a_same_prefix_stranger_is_left_running",
+      "tests.manager.test_custody_engine.DockerCustody.test_a_stranded_exited_helper_is_reclaimed_too",
+      "tests.manager.test_custody_engine.DockerCustody.test_a_stranded_running_helper_is_reclaimed_and_the_act_completes",
+      "tests.manager.test_custody_engine.DockerCustody.test_a_verb_outside_the_vocabulary_never_reaches_the_engine",
+      "tests.manager.test_custody_engine.DockerCustody.test_it_holds_at_every_mode_the_worker_can_choose",
+      "tests.manager.test_custody_engine.DockerCustody.test_nested_hostile_modes_do_not_hide_objects_from_custody",
+      "tests.manager.test_custody_engine.DockerCustody.test_the_custodian_touches_nothing_it_does_not_own",
+      "tests.manager.test_custody_engine.DockerCustody.test_the_derived_identity_survives_a_new_manager_incarnation",
+      "tests.manager.test_custody_engine.DockerCustody.test_the_helper_does_not_outlive_its_act",
+      "tests.manager.test_custody_engine.DockerCustody.test_the_inspection_sees_the_attempt_and_nothing_above_it",
+      "tests.manager.test_custody_engine.DockerCustody.test_the_manager_removes_the_tree_only_after_the_custody_act"
+    ],
+    "passed": [
+      "tests.manager.test_custody_engine.DockerCustody.test_a_same_prefix_stranger_is_left_running",
+      "tests.manager.test_custody_engine.DockerCustody.test_a_stranded_exited_helper_is_reclaimed_too",
+      "tests.manager.test_custody_engine.DockerCustody.test_a_stranded_running_helper_is_reclaimed_and_the_act_completes",
+      "tests.manager.test_custody_engine.DockerCustody.test_a_verb_outside_the_vocabulary_never_reaches_the_engine",
+      "tests.manager.test_custody_engine.DockerCustody.test_it_holds_at_every_mode_the_worker_can_choose",
+      "tests.manager.test_custody_engine.DockerCustody.test_nested_hostile_modes_do_not_hide_objects_from_custody",
+      "tests.manager.test_custody_engine.DockerCustody.test_the_custodian_touches_nothing_it_does_not_own",
+      "tests.manager.test_custody_engine.DockerCustody.test_the_derived_identity_survives_a_new_manager_incarnation",
+      "tests.manager.test_custody_engine.DockerCustody.test_the_helper_does_not_outlive_its_act",
+      "tests.manager.test_custody_engine.DockerCustody.test_the_inspection_sees_the_attempt_and_nothing_above_it"
+    ],
+    "errors": [
+      "tests.manager.test_custody_engine.DockerCustody.test_the_manager_removes_the_tree_only_after_the_custody_act"
+    ],
+    "failed": [],
+    "skipped": [],
+    "mode_subtests_passed": [
+      "0o700",
+      "0o500",
+      "0o0"
+    ],
+    "seconds": 15.979725632998452,
+    "custody_accounts": [
+      {
+        "custody": "normalize",
+        "submission": "89572bf07803414ba81948115c6c8325",
+        "entries": 4,
+        "not_ours": 0,
+        "running_as": [
+          1000,
+          1001
+        ]
+      },
+      {
+        "custody": "normalize",
+        "submission": "3672af5f135147229db140117bace715",
+        "entries": 4,
+        "not_ours": 0,
+        "running_as": [
+          1000,
+          1001
+        ]
+      },
+      {
+        "custody": "normalize",
+        "submission": "b9b0b3a5ada74f1db16460991e3cae18",
+        "entries": 4,
+        "not_ours": 0,
+        "running_as": [
+          1000,
+          1001
+        ]
+      },
+      {
+        "custody": "normalize",
+        "submission": "f1bbd9d6f1ce40428df920b1404b6ca9",
+        "entries": 4,
+        "not_ours": 0,
+        "running_as": [
+          1000,
+          1001
+        ]
+      },
+      {
+        "custody": "normalize",
+        "submission": "e19446d73e3d4aa995199ae81d0a63ac",
+        "entries": 4,
+        "not_ours": 0,
+        "running_as": [
+          1000,
+          1001
+        ]
+      },
+      {
+        "custody": "normalize",
+        "submission": "441b37eb17a549c6a801471ece28f4c1",
+        "entries": 4,
+        "not_ours": 0,
+        "running_as": [
+          1000,
+          1001
+        ]
+      },
+      {
+        "custody": "normalize",
+        "submission": "418693aa69f24bff9a96624ac48269cf",
+        "entries": 4,
+        "not_ours": 0,
+        "running_as": [
+          1000,
+          1001
+        ]
+      },
+      {
+        "custody": "normalize",
+        "submission": "30dfb28c8d994e82ba010250309cc808",
+        "entries": 4,
+        "not_ours": 0,
+        "running_as": [
+          1000,
+          1001
+        ]
+      },
+      {
+        "custody": "normalize",
+        "submission": "456a0a8791ab4422a173015aa571b118",
+        "entries": 4,
+        "not_ours": 0,
+        "running_as": [
+          1000,
+          1001
+        ]
+      },
+      {
+        "custody": "normalize",
+        "submission": "f435ac87c68c4a7aaafd72096e047c0e",
+        "entries": 4,
+        "not_ours": 0,
+        "running_as": [
+          1000,
+          1001
+        ]
+      },
+      {
+        "custody": "inspect",
+        "submission": "6970a4a36b354b4daffa3ea8fb658d56",
+        "entries": [
+          {
+            "path": "result-attempt-1",
+            "mode": "0o2770",
+            "uid": 1000,
+            "gid": 1001,
+            "kind": "directory"
+          },
+          {
+            "path": "worker-made-dir",
+            "mode": "0o2755",
+            "uid": 1000,
+            "gid": 1001,
+            "kind": "directory"
+          },
+          {
+            "path": "worker-made-dir/nested",
+            "mode": "0o700",
+            "uid": 1000,
+            "gid": 1001,
+            "kind": "directory"
+          },
+          {
+            "path": "worker-made-dir/nested/deep.txt",
+            "mode": "0o644",
+            "uid": 1000,
+            "gid": 1001,
+            "kind": "file"
+          }
+        ],
+        "running_as": [
+          1000,
+          1001
+        ]
+      }
+    ]
+  },
+  "final": {
+    "started": [
+      "tests.manager.test_custody_engine.DockerCustody.test_a_same_prefix_stranger_is_left_running",
+      "tests.manager.test_custody_engine.DockerCustody.test_a_stranded_exited_helper_is_reclaimed_too",
+      "tests.manager.test_custody_engine.DockerCustody.test_a_stranded_running_helper_is_reclaimed_and_the_act_completes",
+      "tests.manager.test_custody_engine.DockerCustody.test_a_verb_outside_the_vocabulary_never_reaches_the_engine",
+      "tests.manager.test_custody_engine.DockerCustody.test_it_holds_at_every_mode_the_worker_can_choose",
+      "tests.manager.test_custody_engine.DockerCustody.test_nested_hostile_modes_do_not_hide_objects_from_custody",
+      "tests.manager.test_custody_engine.DockerCustody.test_the_custodian_touches_nothing_it_does_not_own",
+      "tests.manager.test_custody_engine.DockerCustody.test_the_derived_identity_survives_a_new_manager_incarnation",
+      "tests.manager.test_custody_engine.DockerCustody.test_the_helper_does_not_outlive_its_act",
+      "tests.manager.test_custody_engine.DockerCustody.test_the_inspection_sees_the_attempt_and_nothing_above_it",
+      "tests.manager.test_custody_engine.DockerCustody.test_the_manager_removes_the_tree_only_after_the_custody_act"
+    ],
+    "passed": [
+      "tests.manager.test_custody_engine.DockerCustody.test_a_same_prefix_stranger_is_left_running",
+      "tests.manager.test_custody_engine.DockerCustody.test_a_stranded_exited_helper_is_reclaimed_too",
+      "tests.manager.test_custody_engine.DockerCustody.test_a_stranded_running_helper_is_reclaimed_and_the_act_completes",
+      "tests.manager.test_custody_engine.DockerCustody.test_a_verb_outside_the_vocabulary_never_reaches_the_engine",
+      "tests.manager.test_custody_engine.DockerCustody.test_it_holds_at_every_mode_the_worker_can_choose",
+      "tests.manager.test_custody_engine.DockerCustody.test_nested_hostile_modes_do_not_hide_objects_from_custody",
+      "tests.manager.test_custody_engine.DockerCustody.test_the_custodian_touches_nothing_it_does_not_own",
+      "tests.manager.test_custody_engine.DockerCustody.test_the_derived_identity_survives_a_new_manager_incarnation",
+      "tests.manager.test_custody_engine.DockerCustody.test_the_helper_does_not_outlive_its_act",
+      "tests.manager.test_custody_engine.DockerCustody.test_the_inspection_sees_the_attempt_and_nothing_above_it"
+    ],
+    "errors": [
+      "tests.manager.test_custody_engine.DockerCustody.test_the_manager_removes_the_tree_only_after_the_custody_act"
+    ],
+    "failed": [],
+    "skipped": [],
+    "mode_subtests_passed": [
+      "0o700",
+      "0o500",
+      "0o0"
+    ],
+    "seconds": 16.279499811003916,
+    "custody_accounts": [
+      {
+        "custody": "normalize",
+        "submission": "cb2b29730cf84e7196205241064c51dd",
+        "entries": 4,
+        "not_ours": 0,
+        "running_as": [
+          1000,
+          1001
+        ]
+      },
+      {
+        "custody": "normalize",
+        "submission": "e17ae13683064128a477fda115920ae2",
+        "entries": 4,
+        "not_ours": 0,
+        "running_as": [
+          1000,
+          1001
+        ]
+      },
+      {
+        "custody": "normalize",
+        "submission": "9fb282daae4a4486bd29a4bd8232c10d",
+        "entries": 4,
+        "not_ours": 0,
+        "running_as": [
+          1000,
+          1001
+        ]
+      },
+      {
+        "custody": "normalize",
+        "submission": "1a7bacb88f774da589327ddd29454415",
+        "entries": 4,
+        "not_ours": 0,
+        "running_as": [
+          1000,
+          1001
+        ]
+      },
+      {
+        "custody": "normalize",
+        "submission": "4cecc77a98754c62a91626590b871de8",
+        "entries": 4,
+        "not_ours": 0,
+        "running_as": [
+          1000,
+          1001
+        ]
+      },
+      {
+        "custody": "normalize",
+        "submission": "751eb4f5d6de4e349be16ce440e38431",
+        "entries": 4,
+        "not_ours": 0,
+        "running_as": [
+          1000,
+          1001
+        ]
+      },
+      {
+        "custody": "normalize",
+        "submission": "70b72e339bd841718c28c8dc7845050a",
+        "entries": 4,
+        "not_ours": 0,
+        "running_as": [
+          1000,
+          1001
+        ]
+      },
+      {
+        "custody": "normalize",
+        "submission": "13bfe1895b944ff8b4a275e3465328de",
+        "entries": 4,
+        "not_ours": 1,
+        "running_as": [
+          1000,
+          1001
+        ]
+      },
+      {
+        "custody": "normalize",
+        "submission": "b779e1b64f30498cbc46cf0c8440b39e",
+        "entries": 4,
+        "not_ours": 0,
+        "running_as": [
+          1000,
+          1001
+        ]
+      },
+      {
+        "custody": "normalize",
+        "submission": "67aa0937f60a435d8405c0365ac45b9f",
+        "entries": 4,
+        "not_ours": 0,
+        "running_as": [
+          1000,
+          1001
+        ]
+      },
+      {
+        "custody": "inspect",
+        "submission": "8aba122c1051444f9428dd954242633e",
+        "entries": [
+          {
+            "path": "result-attempt-1",
+            "mode": "0o2770",
+            "uid": 1000,
+            "gid": 1001,
+            "kind": "directory"
+          },
+          {
+            "path": "worker-made-dir",
+            "mode": "0o2755",
+            "uid": 1000,
+            "gid": 1001,
+            "kind": "directory"
+          },
+          {
+            "path": "worker-made-dir/nested",
+            "mode": "0o700",
+            "uid": 1000,
+            "gid": 1001,
+            "kind": "directory"
+          },
+          {
+            "path": "worker-made-dir/nested/deep.txt",
+            "mode": "0o644",
+            "uid": 1000,
+            "gid": 1001,
+            "kind": "file"
+          }
+        ],
+        "running_as": [
+          1000,
+          1001
+        ]
+      }
+    ]
+  }
+}

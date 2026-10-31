@@ -1,0 +1,6 @@
+attribute validators {}
+REJECTED sample.py:Door.door: self.unvalidated is assigned by nothing in Door, so no owner answers for it
+external_call validators {}
+REJECTED sample.py:door: json.loads is an external call whose result nothing here owns
+global validators {}
+REJECTED sample.py:door: os.environ is an external module's value, owned by nothing here (sample.py:_consume#record -> sample.py#VALUE)

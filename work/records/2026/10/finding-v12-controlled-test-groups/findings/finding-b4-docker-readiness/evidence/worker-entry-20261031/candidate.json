@@ -1,0 +1,13 @@
+{
+  "path": "v12/python/tests/manager/test_worker_entry_engine.py",
+  "base_sha256": "b927e0758e4750d87b6b35f50fb2b8490903bad9c4d036d7ae2cbbc5907c699a",
+  "candidate_sha256": "fd00cd2b53d349d6fcacea39cb569825354edb4a08af98bf196aa0b4bcad8535",
+  "snapshot_commit": "a8cbc9745d1eff51bcfb04d2fe4bb96a5ea3b12d",
+  "overlays": {
+    "v12/python/tests/manager/test_integration_worker.py": "a2ffd5dce0c41fb37c1f54f45589e992ad18bb3c9e2d9dd7df2e8a16a8c713f3",
+    "v12/python/tests/manager/test_private_line_access_engine.py": "537368420a756891689c2aa5449a77e6e28eb6efbb4331e93f7e8097a21c7d17",
+    "v12/python/tests/manager/test_input_delivery.py": "4d7a7067b9a652a84c1e2234dc73849194e98168b6a2cafa5e7eb0f72899156c",
+    "v12/python/tests/manager/test_worker_entry_engine.py": "fd00cd2b53d349d6fcacea39cb569825354edb4a08af98bf196aa0b4bcad8535"
+  },
+  "claim": "E384992"
+}

@@ -869,3 +869,80 @@ inventory work: the debt predates it), `lists-after-discovery.txt`,
   stated-owner witness registry and one synthetic accounting case whose expectation
   encoded the old claim path; both repaired, see STAGE-C.md "Scans group").
   Run 2: collected 480 = executed 480, passed 478, optional skipped 2, required skipped 0, failed 0, errors 0, fixture skips/errors 0, duplicates 0, unaccounted 0 -> accounting OK (the three new witness tests are the +3 collected).
+
+## 2026-10-31 — M384941 corrections and M384981 ordering fix delivered (K, copilot under owner claim E384905; K holds no claim)
+
+Owner checkpoint 4989ce76 observed mid-correction (recorded; `product.diff` stays against
+the Stage C base a8cbc974). Answers review 2026-10-31T02:06:09Z's three findings, nothing
+else, then the coordinator's M384981 assignment. Narrative: `evidence/stage-c-2026-10-30/STAGE-C.md`
+"Corrections after review 2026-10-31T02:06:09Z"; ordering fix: `evidence/cleanup-ordering-20261031/RESULT.md`.
+
+- P1 owned input: `_handed_owned` is a trace now (owned receiving entry for a read or
+  crossing, owned caller entry for a public operand, every caller for a private
+  parameter, every leaf for a composition; tuple unpacking, comprehensions, with/for
+  targets, nested-scope parameter reads and lambda parameters followed through the
+  package call that invokes them; per-hop loop guard). Three synthetic witnesses
+  (reviewer's raw-SELECT sample rejected, unowned public operand and unresolved name
+  rejected, owned read/typed operand/composition accepted). All 29 stated operands
+  re-proved; none un-stated. The forwarded `replayed_as_signed` operation_id row was not
+  provable and is now layer-owned (`boundaries.identity`) with a caller probe.
+- P1 replay: `store.replayed_as_signed` (result compared whole with the signature's
+  operands) is the one read for the self-signed token, workspace and settlement-selection
+  records; judgement records verify signed operands as a subset and own decided instants
+  by explicit labels (binding the decided instant itself is a W275775 owner question,
+  stated). Witness: the reviewer's token case refuses; five journal families refuse the
+  same corruption. Audit: intake's forged `directory_custody` member released the resource
+  (reproduced) -> re-proved through the committed normalizations, witnessed;
+  stopped_settlement outcome/receipt stay unbound (W375444 REPLAY_DEBT, stated);
+  remaining rows held by the compared/carried/re-read witness.
+- P2 `custody.allowed`: finite numeric contract on every path; None/floor/non-positive
+  unchanged; refusal table and positive rows. The first version imported `math`; scans run
+  3 failed the dependency rule, so the import was removed (rule kept).
+- M384981: `_removed_through_handles` thaws the parent before a child's `rmdir`
+  (regression added in test_workspaces.py, shown failing on 4989ce76 bytes and passing
+  now; the three input-delivery cleanup cases pass; 424 focused OK). test_workspaces.py is
+  an additional edit path, reported.
+- Verification: gate classes 191 OK; product modules 1557 OK; entries 2591, unowned 0,
+  orphans 0, probes 1473/1476 pairs 0/0; scans run 3 failed 1 (math import), run 4:
+  collected 485 = executed 485, passed 483, optional skipped 2, required skipped 0, failed 0, errors 0, fixture skips/errors 0, duplicates 0, unaccounted 0 -> accounting OK (+5 collected since run 2: the three synthetic trace witnesses, the corrupted-record and forged-member witnesses and the ordering regression, minus the retired tautological witness).. Digests: `CANDIDATE-SHA256.txt` (two test files, ten product modules).
+- No B4, no full suite, no new Job, no claim change, no Git mutation; settle_cleanup
+  `connection` question still undecided. Pending human checkpoint after review acceptance.
+- Handoff posted: T384870 seq 384991. Owner checkpoint f13f52c4 ("WIP: checkpoint W384870
+  test repairs and B4 Docker evidence") observed after the candidate bytes were final: it
+  carries the ten product modules, both test files and `evidence/cleanup-ordering-20261031/`
+  at the digests in `CANDIDATE-SHA256.txt`; PLAN, PROGRESS, STAGE-C.md and the completed
+  `scans-group-run-4.log` remain uncommitted for Slawomir. `detail`: W384870 active under
+  owner episode E384905; K holds no claim.
+
+## 2026-10-31 — second Stage C correction (review 03:05:05Z) delivered for review (K, copilot under owner claim E384905; no claim held)
+
+Partial acceptance noted (M384981 ordering fix and P2 allowance accepted separately).
+Narrative: `evidence/stage-c-2026-10-30/STAGE-C.md` "Second correction after review
+2026-10-31T03:05:05Z"; packets `RENEWAL-DECISION.md`, `SETTLE-CLEANUP-DECISION.md`.
+
+- Trace bypasses closed: self/cls attributes traced to their assignments; module bindings
+  traced through their module-level expressions; call results owned only for package code,
+  justified composing builtins/externals and re-spelling methods; validator results and
+  public callee doors recognised as proofs; the manager_signature idiom binds exactly the
+  compared members. Reviewer's three probes rejected; seven negative universes, positives
+  and the idiom witness added.
+- Operand audit: 28 of 28 operands traced at every call site, 0 failures. intake reclaim now owns the governor's overdue answer
+  (product; NOT_AN_ENTRY rows + witness). qualification_grant_of run_id restated as a
+  lookup-key row (witnessed); the witness exposed a TypeError on a redirected qualification
+  listing row at provider_context.py:288 -> guarded with a refusal (additional edit path,
+  reported). os.path.realpath admitted as a composer with justification.
+- Renewal: regression pinned; decision packet with options A/B/C (A recommended); not
+  implemented; gap stands as recorded.
+- settle_cleanup connection: decision packet with transaction evidence and two options.
+- Verification: gate classes + test_provider_context/intake/workspaces/custody/dependencies 761 run OK 163.8s; no scans rerun this round. Digests refreshed.
+- No B4, no full suite, no claim or Git change. Pending: owner selections (renewal,
+  settle_cleanup), review verdict, human checkpoint.
+- Handoff posted: T384870 seq 385024. detail: W384870 active under owner episode E384905; K holds no claim.
+
+## 2026-10-31 — K shutdown acknowledgment (M385017; SHUTDOWN-20261031.md)
+
+Stopped and saved. No K-owned processes, containers, images or builds; candidate bytes,
+digests, logs and the two decision packets are in the dossier (see the entry above);
+pending work pinned at the top of PLAN.md. K holds no claim; W384870 remains under owner
+arrangement E384905. K resumes only on explicit owner instruction, after reading
+SHUTDOWN-20261031.md and the latest canonical messages; no tests start automatically.

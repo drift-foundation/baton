@@ -1,6 +1,56 @@
+## Shutdown ready for owner checkpoint — 2026-10-31T03:31:26.667239+00:00
+
+Both developers stopped: K M385025, codexpc handback E385020 and user-confirmed closed session. Child queued unclaimed at baton.decide; parent owner claim retained. Read SHUTDOWN-20261031.md before explicit resume. K M385024 and custody M385019 await independent review; owner decisions remain unselected. No new execution until resume. Final Git checkpoint belongs to Slawomir.
+
+## Scheduled shutdown hold — 2026-10-31
+
+Owner requests shutdown preparation. Read SHUTDOWN-20261031.md (parent dossier); M385017/M385018 supersede routine continuation until explicit resume. Stop new work, preserve durable evidence, clean exact resources and release child claim through its handler. Await final shutdown-ready reports; no automatic restart execution.
+
+## 2026-10-31T03-15-49Z — custody10/11 partial acceptance; final sequence corrected
+
+Read child review-2026-10-31T03-15-49Z.md. Three historical custody failures cleared; eight historical engine IDs remain. Last case must separate normalization-before-removal from failed-removal ownership exclusion. Both proofs required; no product guard bypass or new automatic recovery. Codexpc continues same test module, expected additive negative case; K/shared paths untouched.
+
+## 2026-10-31T03-10-07Z — input-delivery56/56 accepted; custody next
+
+Read child review-2026-10-31T03-10-07Z.md. All four cleanup failures cleared on exact selected cleanup-only source; all56 pass, hashes/resources independently checked. Eleven historical engine IDs remain plus separate pure items. Codexpc next owns test_custody_engine.py focused11-case DockerCustody batch; no product/shared/K edits, same selected source and bounded offline image build. Final current-tree/full acceptance remains due.
+
+## 2026-10-31T03-06-27Z — worker-entry five cases accepted; input-delivery cleanup-only join next
+
+Read child review-2026-10-31T03-06-27Z.md. Candidate/evidence/source verified; five author cases pass and exact containers absent. Codexpc next applies only prepared evidence/cleanup-only-overlay-20261031 to isolated snapshot and verifies32 non-engine +24 Docker input-delivery cases. No shared/K product edit or broad Stage C import. Final current-tree/full acceptance remains due.
+
+## 2026-10-31T03-05-05Z — M384991 partial acceptance; two P1 corrections remain
+
+Read review-2026-10-31T03-05-05Z.md. Independent174 tests pass; cleanup-ordering and finite allowance fixes accepted separately. Stage C not accepted: new synthetic ownership bypasses pass without validators; corrupt renewal expiry still changes expired True to False. K next resolves those exact counterexamples and prepares concrete spec options only where necessary, including the outstanding settle_cleanup connection question. No broad discovery/B4/full run. Codexpc stays on its active worker-entry slice; cleanup-only stable overlay will be coordinated after handoff.
+
 ## 2026-10-31T02-58-25Z — Docker input-delivery partial correction accepted
 
 Review review-2026-10-31T02-58-25Z.md: author24 cases23 pass/1 known K cleanup error; independent code/evidence/hash/resource review completed, no new Docker rerun. Four total input-delivery cleanup cases await K product fix. Next codexpc allocation: test_worker_entry_engine.py five cases, same isolated source, one bounded offline reference-worker build, exact cleanup; no shared/K edits. Joined/full acceptance remains open.
+
+## 2026-10-31 — K: second Stage C correction (review 03:05:05Z) returned; two owner decisions pending
+
+Review 2026-10-31T03:05:05Z accepted the ordering fix and the allowance correction and required
+two P1 items. Delivered: the owned-input trace closes the attribute / module-binding / call-result
+bypasses with negative and positive witnesses; 28 of 28 stated operands traced (operand-audit);
+intake owns the governor's overdue answer; the qualification run_id row is restated as a
+lookup-key row and its witness found and guarded a TypeError on a corrupted qualification listing
+(`provider_context.py`, additional edit path). Renewal: regression pinned and
+`evidence/stage-c-2026-10-30/RENEWAL-DECISION.md` (options A recommended / B / C) -- NOT
+implemented, the rewritten-deadline gap stands. `SETTLE-CLEANUP-DECISION.md` (option 1
+recommended / 2). Focused: 761 OK; scans not rerun this round. Digests refreshed. Owner decisions
+needed: renewal option, settle_cleanup option. Then: review verdict, scans run, human checkpoint.
+
+## 2026-10-31 — K: M384941 corrections and M384981 ordering fix returned for review
+
+Stage C correction candidate (three review findings only) plus the coordinator's
+workspaces ordering fix are ready for independent review: `evidence/stage-c-2026-10-30/STAGE-C.md`
+("Corrections after review 2026-10-31T02:06:09Z"), `evidence/cleanup-ordering-20261031/RESULT.md`,
+digests `evidence/stage-c-2026-10-30/CANDIDATE-SHA256.txt`. Gate classes 191 OK, product
+modules 1557 OK, entries 2591 / unowned 0 / orphans 0 / probe pairs 0 missing, scans run 4
+collected 485 = executed 485, passed 483, optional skipped 2, required skipped 0, failed 0, errors 0, fixture skips/errors 0, duplicates 0, unaccounted 0 -> accounting OK (+5 collected since run 2: the three synthetic trace witnesses, the corrupted-record and forged-member witnesses and the ordering regression, minus the retired tautological witness).. Open: review verdict; W275775 owner question (binding a judgement's decided instant
+in its signed operands); settle_cleanup `connection` (B2 Case H); B4 joined-tree check on
+accepted overlays; human Git checkpoint due after acceptance (4989ce76 landed mid-work).
+K's exclusive paths: test_boundary_inventory.py, test_workspaces.py (new), the ten product
+modules in the digest file, parent PROGRESS, the two evidence directories.
 
 ## 2026-10-31T02-51-05Z — input-delivery fixture correction accepted; cleanup product defect assigned to K
 

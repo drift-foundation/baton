@@ -1,0 +1,6 @@
+attribute validators {}
+ACCEPTED
+external_call validators {}
+ACCEPTED
+global validators {}
+ACCEPTED

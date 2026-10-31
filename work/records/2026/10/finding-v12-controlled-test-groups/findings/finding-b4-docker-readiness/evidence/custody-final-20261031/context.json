@@ -1,0 +1,18 @@
+{
+  "verifier-layout-marker.json": "3355c11a36044111f713d37a729e51f8b781801d655be5e0df14de7fb69c9648",
+  "Dockerfile.claude": "a5ef0783770ba44f206a68c71c9570685294f62bde338b69722aada0326f18d0",
+  "claude_agent.py": "941b5f9c2ea617229667e3f764bb12bb4c19b8096b18cdbff6d2952019d35e75",
+  "dogfood_entry.py": "2b36f68faa0512db428d87ae705c03468417ba7d5d752133d81522a88ae4e807",
+  "baton_worker.py": "9596a1292da3f55fba118e4aecff5af3e5ddf545c7d47c0167e9455abf0cdd4e",
+  "integration_entry.py": "edc9379e965c795d2edc8bb6a31eee82b3fef4186992d15e6c1ee86e76befd9e",
+  "adapter_refusal.py": "97f6d9f5edee922017ead4c6d6b116382e56a398c59aa9262f959033d45a3e35",
+  "reconciliation_entry.py": "e595b44ba2c77a4b0b6b4f3c5eab5c2f0567f01ffe1f80140b41d5b8e16c03d4",
+  "Dockerfile": "0aa92e0b07c10e72bc6ca6c03c2c95f2e94da7fb9585c7a3969774f214d5cc0f",
+  "Dockerfile.reconciliation": "35279f5dcaa6c2c3b44df7e10aa491a35f92e1933d0b3d06bb6e61bc87f021d3",
+  "reconciliation_task.py": "a410f70bca3d94a5b37cb58c3213a33bc73869133fcd6ab908f3eb9378b07cb2",
+  "Dockerfile.integration": "f18d6352b3062632bcecd8e46027db62f0aa9685fe6d2f7189cb4d4cf20f2d55",
+  "scripted_agent.py": "f3a47fa86537d509fec58cdccefb4f0ffd53a55592cf08c75d7fafaa16c3b27c",
+  "integration_workload.py": "001896a4f3a9b20199ccbaf2e89183f0cf650d295b09e8e64263caca5cd0a64a",
+  "worker-control-1.0.schema.json": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc",
+  "integration_contract.py": "12f3beec00a1d98f8828bb9a18a6565fa2fe8c49eb056846fe4c118ba4e1fc0d"
+}

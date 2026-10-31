@@ -1,0 +1,31 @@
+every STAGE_C_INTERNAL and STAGE_C_ADOPTED_ROW_DOORS operand, traced at every call site by StageCProtections._handed_owned (review 2026-10-31T03:05:05Z trace)
+ok   failure_cause.py:cessation_intent_operation_id generation callers: failure_cause.py:ensure_cessation_intent, failure_cause.py:record_and_raise_cessation_intent
+ok   failure_cause.py:cessation_outcome_operation_id generation callers: failure_cause.py:attempt_cessation_outcome_of, failure_cause.py:record_and_raise_cessation_outcome
+ok   intake.py:reclaim_operation_id generation callers: intake.py:reclaim_expired_resource
+ok   launch.py:LaunchDelivery.__init__ delivery callers: launch.py:adopt, launch.py:materialize
+ok   launch.py:LaunchDelivery.__init__ logs callers: launch.py:adopt, launch.py:materialize
+ok   provider_context.py:context_output_declaration outputs callers: provider_context.py:bind_context_invocation
+ok   provider_context.py:serving_argv facts callers: provider_context.py:bind_context_invocation
+ok   provider_context.py:serving_argv profile callers: provider_context.py:bind_context_invocation
+ok   provider_context.py:serving_argv prompt callers: provider_context.py:bind_context_invocation
+ok   workspaces.py:adopt_workspace_group roots callers: attempt_logs.py:adopt, attempt_logs.py:materialize, exchange.py:materialize, workspaces.py:assignment_workspace
+ok   workspaces.py:copied_manifest into callers: sealing.py:_staged
+ok   workspaces.py:copied_manifest admits callers: sealing.py:_staged
+ok   workspaces.py:copied_manifest max_bytes callers: sealing.py:_staged
+ok   workspaces.py:copied_manifest max_entries callers: sealing.py:_staged
+ok   workspaces.py:discard_tree place callers: oci.py:OciAdapter.retain, sealing.py:_cleared
+ok   workspaces.py:material_is_offered assignment_id callers: workspaces.py:assignment_workspace
+ok   workspaces.py:settle_cleanup assignment_id callers: intake.py:_settle
+ok   workspaces.py:standing_adoption assignment_id callers: maintenance.py:_conflicting, workspaces.py:_admitted_removal, workspaces.py:admit_preparation, workspaces.py:prepared_workspace_governance, workspaces.py:require_prepared
+ok   workspaces.py:standing_allocation assignment_id callers: maintenance.py:_conflicting, workspaces.py:_competing_allocation, workspaces.py:admit_preparation, workspaces.py:prepared_workspace_governance, workspaces.py:require_prepared
+ok   workspaces.py:standing_cleanup assignment_id callers: maintenance.py:_conflicting, workspaces.py:_admitted_allocation, workspaces.py:_admitted_removal, workspaces.py:admit_cleanup, workspaces.py:admit_preparation, workspaces.py:prepared_workspace_governance, workspaces.py:refuse_if_held, workspaces.py:require_prepared
+ok   workspaces.py:standing_removal assignment_id callers: custody.py:_claim_episode, maintenance.py:_conflicting, review_cycles.py:attach_review, review_cycles.py:grant_writer, workspaces.py:_admitted_adoption, workspaces.py:_admitted_allocation, workspaces.py:_admitted_removal, workspaces.py:admit_preparation, workspaces.py:discard_workspace, workspaces.py:prepared_workspace_governance, workspaces.py:refuse_if_held, workspaces.py:require_prepared
+ok   workspaces.py:token_of assignment_id callers: workspaces.py:_admitted_removal, workspaces.py:revoke_expired_token
+ok   workspaces.py:token_of ordinal callers: workspaces.py:_admitted_removal, workspaces.py:revoke_expired_token
+ok   attempts.py:start_failure_operation_id attempt callers: attempts.py:_record_and_raise_start_failure, attempts.py:attempt_start_failure_of, intake.py:_failed_start_record
+ok   attempts.py:start_submission_returned attempt callers: intake.py:_settle, intake.py:_settle_recordless_cleanup, stopped_settlement.py:_state
+ok   failure_cause.py:cessation_intent_operation_id attempt callers: failure_cause.py:ensure_cessation_intent, failure_cause.py:record_and_raise_cessation_intent
+ok   failure_cause.py:cessation_outcome_operation_id attempt callers: failure_cause.py:attempt_cessation_outcome_of, failure_cause.py:record_and_raise_cessation_outcome
+ok   failure_cause.py:token_bound_runtime attempt callers: failure_cause.py:_read, failure_cause.py:attempt_failure_cause_of
+failures 0 of 28
+restated this round: ('caller', 'provider_context.py:qualification_grant_of', 'run_id') -> STAGE_C_STATED lookup-key row, witnessed by test_a_redirected_or_corrupted_qualification_row_grants_nothing

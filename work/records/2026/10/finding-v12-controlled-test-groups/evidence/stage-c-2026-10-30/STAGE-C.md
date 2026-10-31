@@ -327,8 +327,114 @@ CANDIDATE-SHA256.txt.
   dependency rule names its standard-library modules exactly. The rule was kept and
   the import removed (`_finite_seconds` tests NaN by self-inequality and the two
   infinities by equality). Run 4 (`scans-group-run-4.log`), after that removal and the
-  M384981 ordering correction (`evidence/cleanup-ordering-20261031/RESULT.md`): SCANS4
+  M384981 ordering correction (`evidence/cleanup-ordering-20261031/RESULT.md`): collected 485 = executed 485, passed 483, optional skipped 2, required skipped 0, failed 0, errors 0, fixture skips/errors 0, duplicates 0, unaccounted 0 -> accounting OK (+5 collected since run 2: the three synthetic trace witnesses, the corrupted-record and forged-member witnesses and the ordering regression, minus the retired tautological witness).
 - Owner Git checkpoint 4989ce76 ("WIP: checkpoint Stage C corrections and accepted B4
   integration-worker repairs") landed mid-correction; `product.diff` is against
   a8cbc974 (the Stage C base) and `CANDIDATE-SHA256.txt` names the current bytes of
   the two test files and ten product modules.
+
+## Second correction after review 2026-10-31T03:05:05Z (M384996)
+
+Partial acceptance recorded: the M384981 ordering fix and the P2 allowance correction
+are accepted separately; the two P1 items and the settle_cleanup packet are this round.
+Reviewer evidence: `evidence/review-stage-c-correction-20261031/` (trace-probes.py,
+renewal-probe.py, logs). Reruns against this tree: `reviewer-trace-probes-after.log`
+(all three REJECTED), `reviewer-renewal-probe-still-open.log` (unchanged: the gap stands
+until the owner selects a correction, see RENEWAL-DECISION.md).
+
+### P1 -- the trace no longer assumes an attribute, a module binding or a call result
+
+Three bypasses, each closed by a proof path rather than an exemption:
+
+- `self.attr` / `cls.attr` is traced to EVERY assignment of that attribute in the class
+  (each at its own method, with that method's origins) or to its class-level expression;
+  a method or property of the same class is package code; an attribute nothing in the
+  class assigns fails ("assigned by nothing in Door").
+- A module-level name is a value only when its own expression is traced
+  (`_owned_module_value`: literals, containers, comprehensions, compositions of other
+  traced module bindings and package constants); a function, class or package import is
+  code; an external import handed on as a value, or a value read from an external
+  module (`sys.argv`, `os.environ`), fails. `_module_binds` is now only the question
+  "does the module bind this name"; it no longer stands for ownership.
+- A call's result is owned only when the callee is classified (`_callee_gap`): the
+  package's own functions/classes/validators (relative or `baton_v12` imports, same
+  module, `self`/`cls` methods), a short list of COMPOSING builtins (`dict`, `tuple`,
+  `sorted`, `len`, `str`, ... -- no `open`, `getattr`, `vars`, `eval`, `input`), a short
+  list of COMPOSING external callees justified one by one (`os.path.join`/`dirname`/
+  `basename`/`normpath`/`relpath`/`splitext`/`split`/`realpath`/`abspath`/`fspath`,
+  `hashlib.sha256`, `base64.*encode`, `MappingProxyType`, `json.dumps`), and methods on
+  a traced object that re-spell or select from it (`get`, `items`, `encode`, `split`,
+  `hexdigest`, ...). `json.loads`, `os.environ.get`, `open(...)`, an unknown method
+  (`value.reader()`) and every other producer of content fail closed.
+- Two proofs the trace can now SEE instead of assuming: the ruled validator's result
+  (`boundaries.<rule>(...)`) is the owned value whatever it was given; and a public
+  package callee's OWN door may own an argument the trace cannot (`context_prompt`'s
+  inline-typed `task`), except when that door's ownership is this very test's claim
+  (an internal-operand or adopted-row-door row -- circular, refused).
+- The package's integrity idiom is recognised exactly (`_signature_verified_members`):
+  members of a decoded journal result that are compared, through `manager_signature`,
+  with the record's `signature` column inside a refusing `if` are bound to the signed
+  operands (`_qualified`'s `certified["profile"]`/`["evidence"]`); nothing else about the
+  decoded document is.
+
+Witnesses: `test_the_owned_input_trace_rejects_an_attribute_a_module_value_and_a_parser`
+(seven universes: the reviewer's three plus an attribute assigned from a raw read, a
+module value from `sys.argv`, `open(...)`, an unknown method result),
+`test_the_owned_input_trace_accepts_a_typed_attribute_a_constant_and_a_composition_call`,
+`test_the_owned_input_trace_binds_only_the_signature_compared_members_of_a_decoded_result`
+(the idiom both ways, and unguarded), plus the three earlier synthetic witnesses.
+
+Audit of the stated operands (`operand-audit-m384996.txt`): 28 operands (19 STAGE_C_INTERNAL after the run_id row moved to STAGE_C_STATED, 5 adopted-row doors with their row operand, plus member rows) traced at every call site, 0 failures; the sequence of audits is in scratch (m4: 8 failures -> m5: 5 -> m6: 1 -> m7: the lookup-key row -> 0). Findings:
+
+- `intake.reclaim_expired_resource`: the governor's `overdue` answer was consumed raw
+  (`overdue["generation"]`, `.get("container")`). PRODUCT: the answer is now owned where
+  it lands (`boundaries.document(..., required=("generation",))`,
+  `boundaries.generation`); the two validator calls are declared NOT_AN_ENTRY (the
+  governor is a typed caller capability, not a port, so the inventory has no crossing
+  for its answer) and witnessed by
+  `test_a_malformed_governor_answer_refuses_before_any_reclaim` (non-document, no
+  generation, text generation, negative generation: each refuses with its label and
+  orders nothing).
+- `provider_context.qualification_grant_of` `run_id`: stated as "composed owned at every
+  call site" and NOT so at one site -- `_qualified`'s candidate loop hands the run_id
+  parsed from a listed qualification row's result. Reclassified as a STAGE_C_STATED
+  lookup-key row (the lookup derives the identity, answers None for an unknown key and
+  verifies the found grant whole against its signature), removed from STAGE_C_INTERNAL,
+  witnessed by `test_a_redirected_or_corrupted_qualification_row_grants_nothing`. That
+  witness found a PRODUCT defect: a redirected listing row escaped as `TypeError:
+  'NoneType' object is not subscriptable` at `provider_context.py:288` (the None grant
+  was dereferenced). Guarded: a listed row whose key reaches no committed grant refuses
+  ("a listed qualification row names no committed grant"). `provider_context.py` is an
+  additional edit path, reported in the handoff.
+- `launch.materialize` `os.path.realpath(home)`: admitted as a composer with the
+  justification above (the canonical spelling of the traced storage root; no member the
+  caller did not name), not silently.
+- Everything else traced through unchanged.
+
+### P1 -- renewal: regression pinned, correction proposed, not implemented
+
+`RENEWAL-DECISION.md`: the gap exactly (the renewal signs the request; the decided
+deadline is answered, so a rewritten `expires_at` flips `expired`), why the renewal
+cannot sign the clock (Child A's `returned` collision; TOK-9 replay), the audit of the
+judgement variants (only RENEWED `expires_at` is a decision input), three options --
+A (recommended): a self-signed decision record beside the renewal, same transaction,
+replay unchanged, no DESIGN text change, existing records fail closed; B: derive the
+deadline from signed data (semantics change, needs TOK-9/W275775 text); C (rejected):
+sign the decided instant. The accepted behaviour a correction must keep is pinned by
+`test_an_honest_renewal_moves_the_deadline_once_and_a_lost_reply_replays_it`. Nothing
+is implemented; the renewal's `expires_at` is not claimed protected.
+
+### settle_cleanup `connection` -- decision packet
+
+`SETTLE-CLEANUP-DECISION.md`: transaction/caller evidence (`transact` hands its one
+connection to the callback; `_record` writes through that same connection; one caller,
+`intake._settle`, inside `transact`), the contract therefore holds by store structure
+and is checked by nothing; option 1 (recommended): prove it at the door
+(`connection is control._connection and connection.in_transaction`, refuse otherwise),
+option 2: remove the parameter; writing through the parameter rejected. No atomicity or
+specification change; awaiting the owner's selection.
+
+### Verification of the second correction
+
+- StageCProtections, EveryReceivingEntryHasOneOwner, EveryProbeProvesItArrived, EveryStatedOwnerHasAWitness, HelperDeclarationsHaveExactAccounting, StatedRules, LanesHaveCompleteReceivingCoverage, StoppedSettlementInventory, CallerResolvedReadsClosuresAndReplays, DynamicTableReadsStayVisible + test_provider_context, test_intake, test_workspaces, test_custody, test_dependencies: 761 run, OK, 163.8 s (`focused-m384996.log`); the reviewer's trace probes all REJECTED (`reviewer-trace-probes-after.log`); digests `CANDIDATE-SHA256.txt` (two test files, eleven product modules incl. provider_context.py)
+- Scans group: not rerun this round (focused verification first, per the review); run 4 stands for the previous bytes.

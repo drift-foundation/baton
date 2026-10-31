@@ -79,7 +79,7 @@ index 7266c20d..58d351c1 100644
      reason = boundaries.text(reason, "a finalization reason")
      # A BLANK SENTENCE IS A DECISION NOBODY MADE, on the rule `abandon_attempt`
 diff --git a/v12/python/src/baton_v12/worker_manager/custody.py b/v12/python/src/baton_v12/worker_manager/custody.py
-index c9723eea..228f443c 100644
+index c9723eea..ac736e79 100644
 --- a/v12/python/src/baton_v12/worker_manager/custody.py
 +++ b/v12/python/src/baton_v12/worker_manager/custody.py
 @@ -1455,6 +1455,8 @@ def custody_holds(store, assignment_id, which):
@@ -91,7 +91,7 @@ index c9723eea..228f443c 100644
      import json as _json
  
      held = []
-@@ -2430,26 +2432,32 @@ def allowed(seconds, most):
+@@ -2430,26 +2432,36 @@ def allowed(seconds, most):
      "do not start" rather than "wait forever" -- the caller checked before
      calling, and this is the second reading that makes the race harmless.
      """
@@ -126,11 +126,15 @@ index c9723eea..228f443c 100644
 +
 +
 +def _finite_seconds(value, which):
-+    """A finite int or float number of seconds, or a refusal in this module's words."""
-+    import math
++    """A finite int or float number of seconds, or a refusal in this module's words.
 +
++    Finiteness is decided without `math` (the manager's dependency rule names its
++    standard-library modules exactly): a NaN is the one float unequal to itself, and
++    the two infinities are the two floats that compare equal to `float("inf")` or its
++    negation.
++    """
 +    if type(value) is bool or type(value) not in (int, float) \
-+            or (type(value) is float and not math.isfinite(value)):
++            or (type(value) is float and (value != value or value in (float("inf"), float("-inf")))):
 +        raise ContractRefusal(
 +            "integrity", "schema",
 +            f"an engine {which} is a finite number of seconds; this is "
@@ -152,7 +156,7 @@ index d85aa577..ace049c8 100644
          place = os.path.join(root, name)
          if not os.path.lexists(place):
 diff --git a/v12/python/src/baton_v12/worker_manager/intake.py b/v12/python/src/baton_v12/worker_manager/intake.py
-index ddf4eced..2f12a944 100644
+index ddf4eced..3dab2d06 100644
 --- a/v12/python/src/baton_v12/worker_manager/intake.py
 +++ b/v12/python/src/baton_v12/worker_manager/intake.py
 @@ -1152,6 +1152,13 @@ def _resource_cessation(store, settled, attempt, attempt_id):
@@ -187,7 +191,7 @@ index ddf4eced..2f12a944 100644
      boundaries.identity(attempt_id, "a runtime attempt id")
      reason = boundaries.text(reason, "an abandonment reason")
      if not reason.strip():
-@@ -5641,6 +5652,11 @@ def reclaim_expired_resource(store, adapter, *, attempt_id, govern):
+@@ -5641,11 +5652,21 @@ def reclaim_expired_resource(store, adapter, *, attempt_id, govern):
      # is the shape this narrower verb exists to avoid.
      boundaries.capability(getattr(adapter, "stop_expired", None),
                            "the runtime adapter's expiry stop")
@@ -198,8 +202,20 @@ index ddf4eced..2f12a944 100644
 +        boundaries.capability(getattr(govern, act, None), f"the resource governor's {act}")
      attempt = _attempt_of(store._connection, attempt_id)
      operation_id = attempts._start_operation_id(attempt)
-     overdue = govern.overdue(store, attempt, operation=operation_id)
-@@ -5952,6 +5968,10 @@ def settle_revoked_resource(store, adapter, *, attempt_id, govern,
+-    overdue = govern.overdue(store, attempt, operation=operation_id)
+-    if overdue is None:
++    answered = govern.overdue(store, attempt, operation=operation_id)
++    if answered is None:
+         return {"reclaimed": "not-overdue", "attempt_id": attempt_id}
++    # W384870 stage C (review 2026-10-31T03:05:05Z): THE GOVERNOR'S ANSWER IS AN INJECTED
++    # DOCUMENT, owned where it lands -- its generation names the reclaim operation and
++    # its container is compared with the attempt's, so neither is taken on faith.
++    overdue = boundaries.document(answered, "the resource governor's overdue answer", required=("generation",))
++    boundaries.generation(overdue["generation"], "the resource governor's overdue generation")
+     runtime_id = overdue.get("container")
+     if attempt["runtime_id"] is not None and runtime_id != attempt["runtime_id"]:
+         # W333486: THE MISMATCH IS THIS MANAGER'S OWN TYPED FACT, recorded
+@@ -5952,6 +5973,10 @@ def settle_revoked_resource(store, adapter, *, attempt_id, govern,
  
      boundaries.capability(getattr(adapter, "observe", None),
                            "the runtime adapter's observe")
@@ -223,6 +239,29 @@ index a5aadbe3..33784c8f 100644
          # W194457, owner decision 2026-09-17 (OWNER-TRUSTED-IDENTITY): THERE IS
          # NO RUNTIME PROBE HERE AND THERE IS NOTHING TO ACTIVATE.
          #
+diff --git a/v12/python/src/baton_v12/worker_manager/provider_context.py b/v12/python/src/baton_v12/worker_manager/provider_context.py
+index bab5b593..3d6dae9f 100644
+--- a/v12/python/src/baton_v12/worker_manager/provider_context.py
++++ b/v12/python/src/baton_v12/worker_manager/provider_context.py
+@@ -283,8 +283,16 @@ def _qualified(control, jobs, facts, profile, generation, context_id, deployment
+         row = control.operation_record(row_id["operation_id"])
+         if row["state"] != "committed":
+             continue
+-        grant = json.loads(row["result"])
+-        grant = qualification_grant_of(control, grant["run_id"])
++        listed = json.loads(row["result"])
++        # W384870 stage C (review 2026-10-31T03:05:05Z): THE LISTED ROW IS A LOOKUP KEY,
++        # not the grant. The grant is what `qualification_grant_of` verifies whole against
++        # its signature under the identity this key derives; a listing whose key reaches
++        # no committed grant is a journal that disagrees with itself, refused rather than
++        # dereferenced (it escaped as a TypeError before this guard).
++        grant = qualification_grant_of(control, listed["run_id"]) \
++            if type(listed) is dict and type(listed.get("run_id")) is str else None
++        if grant is None:
++            _refuse("a listed qualification row names no committed grant")
+         if grant["profile_digest"] != facts["profile_digest"] \
+                 or grant.get("deployment") != deployment \
+                 or grant["job_id"] != identity["job_id"]:
 diff --git a/v12/python/src/baton_v12/worker_manager/stopped_settlement.py b/v12/python/src/baton_v12/worker_manager/stopped_settlement.py
 index 0e3a0759..115974fb 100644
 --- a/v12/python/src/baton_v12/worker_manager/stopped_settlement.py
@@ -363,7 +402,7 @@ index ab67d351..b2a8cddd 100644
  
  def outstanding(control, domain):
 diff --git a/v12/python/src/baton_v12/worker_manager/workspaces.py b/v12/python/src/baton_v12/worker_manager/workspaces.py
-index b56fbf20..5a1bf134 100644
+index b56fbf20..a62a9543 100644
 --- a/v12/python/src/baton_v12/worker_manager/workspaces.py
 +++ b/v12/python/src/baton_v12/worker_manager/workspaces.py
 @@ -2239,8 +2239,10 @@ def _restoration_lock_identity(control, line_id, observed, what):
@@ -463,3 +502,17 @@ index b56fbf20..5a1bf134 100644
          if held_by is None or held_by.get("owner") != owned["owner"]:
              raise ContractRefusal(
                  "runtime-observation", "identity-mismatch",
+@@ -6901,6 +6908,13 @@ def _removed_through_handles(root, what):
+                 else:
+                     os.unlink(member, dir_fd=handle)
+             if parent is not None:
++                # M384981 (child review 2026-10-31T02:51:05Z): the child's entry is removed
++                # FROM THE PARENT, so the parent must be writable NOW -- its own turn in this
++                # deepest-first pass comes later, and a delivery freezes every directory of
++                # the home (0o555), not only the leaves. The parent is an admitted handle of
++                # this same tree, so thawing it here changes nothing outside what is being
++                # removed; its own pass repeats the same mode, which is idempotent.
++                _thaw_handle(parent, what)
+                 os.rmdir(name, dir_fd=parent)
+     finally:
+         for held in opened:

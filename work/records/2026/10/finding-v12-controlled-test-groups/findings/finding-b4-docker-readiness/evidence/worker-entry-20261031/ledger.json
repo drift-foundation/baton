@@ -1,0 +1,57 @@
+{
+  "passed": [
+    "tests.manager.test_worker_entry_engine.DockerWorkerEntry.test_a_frame_for_another_session_is_refused_by_the_real_worker",
+    "tests.manager.test_worker_entry_engine.DockerWorkerEntry.test_a_real_container_answers_describe_and_work_through_exec",
+    "tests.manager.test_worker_entry_engine.DockerWorkerEntry.test_an_exec_against_a_runtime_that_is_gone_is_lost",
+    "tests.manager.test_worker_entry_engine.DockerWorkerEntry.test_stderr_stays_apart_from_the_answers",
+    "tests.manager.test_worker_entry_engine.DockerWorkerEntry.test_the_interactive_start_is_what_makes_the_container_reachable"
+  ],
+  "failures": [],
+  "errors": [],
+  "skipped": [],
+  "unaccounted": [],
+  "containers": [
+    "0274fbc914d785a8f56f30bfa5740964250162d3949991e802282fc23ce87fe4",
+    "ee2e7d8ea0d2050ff81efb70fbcc66339543974ec0fb8f935fd34b8b53fffda7",
+    "a5a8768018f2cfc9969ec7c6c84ea04cc2c4c8e805948ae28626f22c6c2f3413",
+    "5ea8435c98e8e096224878394ba4ef39d07b1567010937108afb35ea1dd9c83d",
+    "4950d0ed38605909b7acdfbcd98f7370998f22635f6ced2bacb63a9f182db7cd"
+  ],
+  "exec_invocations": [
+    [
+      "exec",
+      "--interactive",
+      "0274fbc914d785a8f56f30bfa5740964250162d3949991e802282fc23ce87fe4",
+      "python3",
+      "/opt/baton/baton_worker.py"
+    ],
+    [
+      "exec",
+      "--interactive",
+      "ee2e7d8ea0d2050ff81efb70fbcc66339543974ec0fb8f935fd34b8b53fffda7",
+      "python3",
+      "/opt/baton/baton_worker.py"
+    ],
+    [
+      "exec",
+      "--interactive",
+      "a5a8768018f2cfc9969ec7c6c84ea04cc2c4c8e805948ae28626f22c6c2f3413",
+      "python3",
+      "/opt/baton/baton_worker.py"
+    ],
+    [
+      "exec",
+      "--interactive",
+      "5ea8435c98e8e096224878394ba4ef39d07b1567010937108afb35ea1dd9c83d",
+      "python3",
+      "/opt/baton/baton_worker.py"
+    ],
+    [
+      "exec",
+      "--interactive",
+      "4950d0ed38605909b7acdfbcd98f7370998f22635f6ced2bacb63a9f182db7cd",
+      "python3",
+      "/opt/baton/baton_worker.py"
+    ]
+  ]
+}

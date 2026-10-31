@@ -1,0 +1,20 @@
+{
+  "base.py": "b927e0758e4750d87b6b35f50fb2b8490903bad9c4d036d7ae2cbbc5907c699a",
+  "build-plan.json": "b7e9d0d5900db311dba9748596877bec3775b2e6e2d983f4fe93d3e4a2020169",
+  "candidate.py": "fd00cd2b53d349d6fcacea39cb569825354edb4a08af98bf196aa0b4bcad8535",
+  "RESULT.md": "180d5fcb359810dbdcd7b74740a7c7716469773ec645a2aa5c242f9fb9dc1ff6",
+  "ledger.json": "93dc4cb62b186599349e5f9d04c9f46f9feacf99e22ea8f03420addff36c8e48",
+  "resource-cleanup.json": "959ae25701957fda9d6d319e2f2ef61b450aba95a3d788225763bbe32a154b05",
+  "build.log": "001df158e3f894bcb796f9b9a8dd74324346a766c766eaf6a67f76ddefa07815",
+  "candidate.json": "6eb3e95937c363ddef72fc4e67e235483d5131e06c312768d3184787e2d103a0",
+  "build-result.json": "79ed7298c2293d3f20a676e6a1c1626b0850ff5c592482891f64b3328364bbb2",
+  "context.json": "9ab82939baf989bbd6532cfb6f33e24683dab1e5a83d5d6c88617f655ef1a251",
+  "run-focused.py": "9defe00d7b18be34c290f6df56ba5c33ffa3c5ebb25335e6c819565528039668",
+  "candidate.diff": "a3709f6cba3c177d6ae13586fce5b2902a974167dee9045d8f2627c28678fc6f",
+  "focused/source-before.json": "a99ee58e10aa4914b252681b34361721cf9be3381676b95cbe9995a833f42c4b",
+  "focused/focused.log": "17febfb2897621ff13b5729f216a99d399ac6395c8acd20ba541a13275c7ee24",
+  "focused/preflight.json": "f949c58b56837d636b58d3532b5a6d43269a1e3a5e4753a337438cc34f4ade2d",
+  "focused/result.json": "ebdd78f2df39eebafe8975cee9fdd842686f2a12e1dd152160b7924b73556524",
+  "focused/source-after.json": "a99ee58e10aa4914b252681b34361721cf9be3381676b95cbe9995a833f42c4b",
+  "focused/engine.jsonl": "2b14beb2eefa0370a1b9016d620acbafdf1e789554445a526c0f1c7e8a56b32d"
+}

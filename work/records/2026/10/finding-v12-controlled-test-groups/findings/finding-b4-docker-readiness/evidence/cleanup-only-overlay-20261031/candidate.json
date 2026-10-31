@@ -1,0 +1,7 @@
+{
+  "target": "v12/python/src/baton_v12/worker_manager/workspaces.py",
+  "snapshot": "work/scratch/w384944-c4-a8cbc974-20261031",
+  "base_sha256": "ef9bc97a2c38b536ad725ee2f113d77b686bd5d56425874b839f9e20cad0197f",
+  "candidate_sha256": "6cd8850ba08562565656aa1dc50eb32868843cbb80a17d8db36ede07640e82ce",
+  "scope": "Only independently accepted frozen-parent ordering hunk from M384981; no other Stage C product edits. Apply only to isolated snapshot after own successful claim; shared target remains K-owned."
+}

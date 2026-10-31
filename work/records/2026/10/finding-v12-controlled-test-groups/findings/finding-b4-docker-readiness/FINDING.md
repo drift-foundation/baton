@@ -124,3 +124,18 @@ Read child review-2026-10-31T02-51-05Z.md. Independent32:29 pass/3 cleanup error
 
 Review review-2026-10-31T02-58-25Z.md: author24 cases23 pass/1 known K cleanup error; independent code/evidence/hash/resource review completed, no new Docker rerun. Four total input-delivery cleanup cases await K product fix. Next codexpc allocation: test_worker_entry_engine.py five cases, same isolated source, one bounded offline reference-worker build, exact cleanup; no shared/K edits. Joined/full acceptance remains open.
 
+
+## 2026-10-31T03-06-27Z — worker-entry five cases accepted; input-delivery cleanup-only join next
+
+Read child review-2026-10-31T03-06-27Z.md. Candidate/evidence/source verified; five author cases pass and exact containers absent. Codexpc next applies only prepared evidence/cleanup-only-overlay-20261031 to isolated snapshot and verifies32 non-engine +24 Docker input-delivery cases. No shared/K product edit or broad Stage C import. Final current-tree/full acceptance remains due.
+
+
+## 2026-10-31T03-10-07Z — input-delivery56/56 accepted; custody next
+
+Read child review-2026-10-31T03-10-07Z.md. All four cleanup failures cleared on exact selected cleanup-only source; all56 pass, hashes/resources independently checked. Eleven historical engine IDs remain plus separate pure items. Codexpc next owns test_custody_engine.py focused11-case DockerCustody batch; no product/shared/K edits, same selected source and bounded offline image build. Final current-tree/full acceptance remains due.
+
+
+## 2026-10-31T03-15-49Z — custody10/11 partial acceptance; final sequence corrected
+
+Read child review-2026-10-31T03-15-49Z.md. Three historical custody failures cleared; eight historical engine IDs remain. Last case must separate normalization-before-removal from failed-removal ownership exclusion. Both proofs required; no product guard bypass or new automatic recovery. Codexpc continues same test module, expected additive negative case; K/shared paths untouched.
+
