@@ -778,10 +778,24 @@ class TheWorkspaceIsStorageAndScratchIsBounded(BoundaryCase):
     def test_the_runtime_gets_exactly_the_declared_bounded_scratch(self):
         composed = [value for flag, value in oci.RESTRICTIONS
                     if flag == "--tmpfs"]
+        # THE DECLARED SCRATCH, AND ONE DECOY BESIDE IT. W202663 (owner
+        # 2026-09-21T05:54:40Z): the legacy attempt-log spelling is mounted as
+        # a 16 MiB private tmpfs so an old-byte writer lands in memory that
+        # dies with the container; it is deliberately NOT in `SCRATCH_MOUNTS`,
+        # which feeds the declared workspace-capacity floor
+        # (`test_verifier_topology` keeps the floor at 80 MiB and the total
+        # tmpfs at 96). W384870: this expectation named only the scratch
+        # table, so it failed on the accepted decoy; it now names the whole
+        # composed posture exactly, decoy included, with its size pinned.
+        from baton_v12.worker_manager import attempt_logs
+        decoy = f"{attempt_logs.LEGACY_LOG_TARGET}:rw,noexec,nosuid,nodev,size=16m"
         self.assertEqual(
             composed,
             [f"{target}:rw,noexec,nosuid,nodev,size={one >> 20}m"
-             for target, one in source_boundary.SCRATCH_MOUNTS])
+             for target, one in source_boundary.SCRATCH_MOUNTS] + [decoy])
+        self.assertNotIn(attempt_logs.LEGACY_LOG_TARGET,
+                         [target for target, _ in source_boundary.SCRATCH_MOUNTS],
+                         "the decoy is nobody's capacity")
         # AND IT IS SMALL, PRIVATE AND NON-EXECUTABLE, which is what makes it
         # scratch rather than a workspace.
         for value in composed:

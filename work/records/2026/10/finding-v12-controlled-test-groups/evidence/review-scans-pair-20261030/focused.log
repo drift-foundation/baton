@@ -1,0 +1,368 @@
+test_a_capacity_no_larger_than_the_scratch_bound_is_refused (tests.manager.test_source_boundary.TheWorkspaceIsStorageAndScratchIsBounded.test_a_capacity_no_larger_than_the_scratch_bound_is_refused)
+THE DETERMINISTIC >64 MiB PROOF, as a rule rather than a run. ... ok
+test_a_capacity_the_storage_cannot_meet_is_refused_before_the_start (tests.manager.test_source_boundary.TheWorkspaceIsStorageAndScratchIsBounded.test_a_capacity_the_storage_cannot_meet_is_refused_before_the_start) ... ok
+test_a_declared_capacity_carries_no_entry_ceiling (tests.manager.test_source_boundary.TheWorkspaceIsStorageAndScratchIsBounded.test_a_declared_capacity_carries_no_entry_ceiling)
+The [P1] the run7 review found, as a rule rather than a docstring. ... ok
+test_a_declared_capacity_is_one_positive_whole_number (tests.manager.test_source_boundary.TheWorkspaceIsStorageAndScratchIsBounded.test_a_declared_capacity_is_one_positive_whole_number) ... ok
+test_a_workspace_on_a_memory_filesystem_is_refused (tests.manager.test_source_boundary.TheWorkspaceIsStorageAndScratchIsBounded.test_a_workspace_on_a_memory_filesystem_is_refused)
+The ruled uses do not rely on scratch, and this is where that is ... ok
+test_more_than_the_scratch_bound_really_fits_in_the_workspace (tests.manager.test_source_boundary.TheWorkspaceIsStorageAndScratchIsBounded.test_more_than_the_scratch_bound_really_fits_in_the_workspace)
+The rule above, executed rather than argued. ... skipped "the >64 MiB disk-workspace proof writes more than the bootstrap container's whole 64 MiB tmpfs; set BATON_V12_LARGE_WORKSPACE_PROOF=1 on a host with room to run it"
+test_the_composed_workspace_is_proved_to_be_storage (tests.manager.test_source_boundary.TheWorkspaceIsStorageAndScratchIsBounded.test_the_composed_workspace_is_proved_to_be_storage) ... ok
+test_the_declared_capacity_is_proved_and_not_reserved (tests.manager.test_source_boundary.TheWorkspaceIsStorageAndScratchIsBounded.test_the_declared_capacity_is_proved_and_not_reserved)
+Admission evidence about an INSTANT, which is what the ruling says ... ok
+test_the_runtime_gets_exactly_the_declared_bounded_scratch (tests.manager.test_source_boundary.TheWorkspaceIsStorageAndScratchIsBounded.test_the_runtime_gets_exactly_the_declared_bounded_scratch) ... ok
+test_a_consent_container_mounts_nothing (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_a_consent_container_mounts_nothing)
+ROOTS ALONE CANNOT CHOOSE THE TOPOLOGY, which is why the posture is ... ok
+test_a_mount_reaches_the_engine_only_in_canonical_spelling (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_a_mount_reaches_the_engine_only_in_canonical_spelling) ... ok
+test_a_path_that_is_not_canonical_is_refused (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_a_path_that_is_not_canonical_is_refused) ... ok
+test_a_repository_outside_assignment_owned_roots_is_not_mountable (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_a_repository_outside_assignment_owned_roots_is_not_mountable)
+A denylist cannot prove that a host path belongs to this assignment. ... ok
+test_a_symlink_descendant_cannot_escape_an_assignment_root (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_a_symlink_descendant_cannot_escape_an_assignment_root)
+Lexical containment is not mount authority. ... ok
+test_a_symlinked_root_and_a_symlinked_source_agree (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_a_symlinked_root_and_a_symlinked_source_agree)
+Resolution is applied to BOTH sides or it decides nothing: a ... ok
+test_a_target_traversal_is_not_normalized_into_another_location (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_a_target_traversal_is_not_normalized_into_another_location)
+The spelling is checked before `normpath` erases the traversal. ... ok
+test_a_writable_and_a_read_only_mount_are_spelled_apart (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_a_writable_and_a_read_only_mount_are_spelled_apart) ... ok
+test_assignment_roots_cannot_overlap (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_assignment_roots_cannot_overlap)
+A source inside two roots has no unique posture authority. ... ok
+test_both_roots_and_posture_are_required_and_closed (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_both_roots_and_posture_are_required_and_closed) ... ok
+test_delivered_inputs_are_evidence_rather_than_scratch (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_delivered_inputs_are_evidence_rather_than_scratch)
+Read-only under `inputs`, read/write only under `workspace`. ... ok
+test_nested_mount_sources_and_targets_are_ambiguous (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_nested_mount_sources_and_targets_are_ambiguous)
+No mount may hide or alias a second mount by containment. ... ok
+test_only_this_assignments_own_material_is_mountable (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_only_this_assignments_own_material_is_mountable)
+PROVED TO BE OURS, not proved not to be theirs. ... ok
+test_the_assignment_root_contract_is_artifact_neutral (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_the_assignment_root_contract_is_artifact_neutral)
+The core adapter may know generic input and workspace roots, but ... ok
+test_the_engine_and_the_hosts_own_state_are_never_mounted (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_the_engine_and_the_hosts_own_state_are_never_mounted)
+Each of these is a way to hand a worker the manager's own authority ... ok
+test_the_engine_is_handed_what_this_adapter_proved (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_the_engine_is_handed_what_this_adapter_proved)
+The other half of resolving: proving the resolved path and then ... ok
+test_two_mounts_cannot_land_on_one_target (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_two_mounts_cannot_land_on_one_target) ... ok
+test_two_roots_that_are_the_same_place_are_refused (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_two_roots_that_are_the_same_place_are_refused)
+Equality is containment's degenerate case with the same defect: a ... ok
+test_a_recovered_orphan_ends_torn_down_after_positive_absence (tests.manager.test_oci.ARecoveryEndingNeverClaimsNoCredentialWasDelivered.test_a_recovered_orphan_ends_torn_down_after_positive_absence) ... ok
+test_a_runtime_not_proved_absent_stops_the_orphan_ending_too (tests.manager.test_oci.ARecoveryEndingNeverClaimsNoCredentialWasDelivered.test_a_runtime_not_proved_absent_stops_the_orphan_ending_too)
+The order is the approved one whichever object owns the ending. ... ok
+test_an_attempt_has_one_credential_ending_and_not_two (tests.manager.test_oci.ARecoveryEndingNeverClaimsNoCredentialWasDelivered.test_an_attempt_has_one_credential_ending_and_not_two) ... ok
+test_an_orphan_teardown_must_be_this_managers_own (tests.manager.test_oci.ARecoveryEndingNeverClaimsNoCredentialWasDelivered.test_an_orphan_teardown_must_be_this_managers_own) ... ok
+test_the_owned_home_is_the_home_this_adapter_uses (tests.manager.test_oci.ARecoveryEndingNeverClaimsNoCredentialWasDelivered.test_the_owned_home_is_the_home_this_adapter_uses)
+The one-owner correction, asked of the adapter directly. ... ok
+test_without_an_orphan_the_old_word_is_still_the_true_one (tests.manager.test_oci.ARecoveryEndingNeverClaimsNoCredentialWasDelivered.test_without_an_orphan_the_old_word_is_still_the_true_one)
+An attempt that really delivered nothing says so, unchanged. ... ok
+test_a_stop_orders_and_then_proves (tests.manager.test_oci.AbsenceIsProvedRatherThanInferred.test_a_stop_orders_and_then_proves)
+A stop acknowledgement is the engine saying it accepted an ORDER. ... ok
+test_a_stop_the_engine_refused_still_reports_what_is_true (tests.manager.test_oci.AbsenceIsProvedRatherThanInferred.test_a_stop_the_engine_refused_still_reports_what_is_true) ... ok
+test_an_absence_sentence_for_another_runtime_is_not_this_one_absent (tests.manager.test_oci.AbsenceIsProvedRatherThanInferred.test_an_absence_sentence_for_another_runtime_is_not_this_one_absent)
+The requested identity elsewhere in stderr is not association. ... ok
+test_an_empty_listing_is_never_death (tests.manager.test_oci.AbsenceIsProvedRatherThanInferred.test_an_empty_listing_is_never_death)
+It is one question answered about a filter. Absence is a question ... ok
+test_destruction_proves_absence_rather_than_assuming_it (tests.manager.test_oci.AbsenceIsProvedRatherThanInferred.test_destruction_proves_absence_rather_than_assuming_it) ... ok
+test_engine_confusion_is_uncertain_and_never_quiescent (tests.manager.test_oci.AbsenceIsProvedRatherThanInferred.test_engine_confusion_is_uncertain_and_never_quiescent)
+A manager that treated confusion as death would release an ... ok
+test_inspection_must_name_the_exact_runtime_it_describes (tests.manager.test_oci.AbsenceIsProvedRatherThanInferred.test_inspection_must_name_the_exact_runtime_it_describes)
+State without identity, or state for another identity, cannot ... ok
+test_the_diagnostic_is_bounded_however_loud_the_engine_is (tests.manager.test_oci.AbsenceIsProvedRatherThanInferred.test_the_diagnostic_is_bounded_however_loud_the_engine_is) ... ok
+test_the_four_states_are_distinct (tests.manager.test_oci.AbsenceIsProvedRatherThanInferred.test_the_four_states_are_distinct) ... ok
+test_unrelated_not_found_prose_is_not_positive_absence (tests.manager.test_oci.AbsenceIsProvedRatherThanInferred.test_unrelated_not_found_prose_is_not_positive_absence) ... ok
+test_a_recovered_orphan_ends_torn_down_after_positive_absence (tests.manager.test_oci.OneAttemptsEndingNeverRemovesAnothersCredential.test_a_recovered_orphan_ends_torn_down_after_positive_absence) ... ok
+test_a_removal_that_names_no_attempt_refuses_too (tests.manager.test_oci.OneAttemptsEndingNeverRemovesAnothersCredential.test_a_removal_that_names_no_attempt_refuses_too)
+An ending that cannot say whose material it is removing is not one ... ok
+test_a_runtime_not_proved_absent_stops_the_orphan_ending_too (tests.manager.test_oci.OneAttemptsEndingNeverRemovesAnothersCredential.test_a_runtime_not_proved_absent_stops_the_orphan_ending_too)
+The order is the approved one whichever object owns the ending. ... ok
+test_a_teardown_for_another_attempt_refuses_before_the_engine (tests.manager.test_oci.OneAttemptsEndingNeverRemovesAnothersCredential.test_a_teardown_for_another_attempt_refuses_before_the_engine) ... ok
+test_an_attempt_has_one_credential_ending_and_not_two (tests.manager.test_oci.OneAttemptsEndingNeverRemovesAnothersCredential.test_an_attempt_has_one_credential_ending_and_not_two) ... ok
+test_an_orphan_teardown_must_be_this_managers_own (tests.manager.test_oci.OneAttemptsEndingNeverRemovesAnothersCredential.test_an_orphan_teardown_must_be_this_managers_own) ... ok
+test_the_matching_attempt_still_ends (tests.manager.test_oci.OneAttemptsEndingNeverRemovesAnothersCredential.test_the_matching_attempt_still_ends)
+The positive half, so the refusal above is not passing because ... ok
+test_the_owned_home_is_the_home_this_adapter_uses (tests.manager.test_oci.OneAttemptsEndingNeverRemovesAnothersCredential.test_the_owned_home_is_the_home_this_adapter_uses)
+The one-owner correction, asked of the adapter directly. ... ok
+test_without_an_orphan_the_old_word_is_still_the_true_one (tests.manager.test_oci.OneAttemptsEndingNeverRemovesAnothersCredential.test_without_an_orphan_the_old_word_is_still_the_true_one)
+An attempt that really delivered nothing says so, unchanged. ... ok
+test_a_contradictory_candidate_stops_a_start_before_the_engine_creates (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_a_contradictory_candidate_stops_a_start_before_the_engine_creates)
+The reason the whole-record comparison matters: a candidate this ... ok
+test_a_foreign_authoritys_container_is_refused_and_stays_refused (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_a_foreign_authoritys_container_is_refused_and_stays_refused)
+W83781, the negative control that must NOT change. ... ok
+test_a_listing_that_names_no_image_is_refused (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_a_listing_that_names_no_image_is_refused)
+An engine that will not say which image is running has not proved ... ok
+test_a_namespaced_attempt_reaches_exactly_one_run (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_a_namespaced_attempt_reaches_exactly_one_run)
+The correction's own half, driven THROUGH `start`. ... ok
+test_a_resolved_identity_is_four_digests_and_nothing_else (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_a_resolved_identity_is_four_digests_and_nothing_else)
+FOUR, and the count is the case. ... ok
+test_a_restart_finds_the_runtime_by_the_identity_it_started_under (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_a_restart_finds_the_runtime_by_the_identity_it_started_under)
+The restart probe. A new adapter over the same resolved identity ... ok
+test_a_restart_refuses_a_runtime_from_another_resolved_image (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_a_restart_refuses_a_runtime_from_another_resolved_image)
+Labels alone cannot make a stale image this adapter's runtime. ... ok
+test_a_restart_refuses_a_runtime_labelled_for_another_policy (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_a_restart_refuses_a_runtime_labelled_for_another_policy)
+The labelled half of the identity, for the member no engine ... ok
+test_a_returned_candidate_must_match_the_requested_assignment (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_a_returned_candidate_must_match_the_requested_assignment)
+Engine filters select candidates; they do not prove their labels. ... ok
+test_a_stale_assignment_runtime_is_not_filtered_into_a_duplicate_start (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_a_stale_assignment_runtime_is_not_filtered_into_a_duplicate_start)
+Candidate discovery cannot pre-compare mutable assignment facts. ... ok
+test_a_stale_candidate_is_refused_rather_than_filtered_away (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_a_stale_candidate_is_refused_rather_than_filtered_away)
+The module's own sentence, now true of the listing too: a stale ... ok
+test_a_stale_candidate_stops_a_start_before_the_engine_creates (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_a_stale_candidate_stops_a_start_before_the_engine_creates)
+The reason the discovery half matters at all. `start` asks what ... ok
+test_a_stale_policy_runtime_is_not_filtered_into_a_duplicate_start (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_a_stale_policy_runtime_is_not_filtered_into_a_duplicate_start)
+The candidate query must be broader than the identity comparison. ... ok
+test_a_start_labelled_for_another_policy_is_refused (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_a_start_labelled_for_another_policy_is_refused)
+The mismatch probe, extended to the member review [P1] restored. ... ok
+test_a_tag_is_not_an_image_identity (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_a_tag_is_not_an_image_identity)
+A tag is a pointer that was true when somebody last pushed. The ... ok
+test_an_ordinary_start_still_finds_no_candidate_and_creates (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_an_ordinary_start_still_finds_no_candidate_and_creates)
+The other half. Broadening discovery must not make every start ... ok
+test_every_label_that_contradicts_the_request_is_refused (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_every_label_that_contradicts_the_request_is_refused)
+The complete returned record, member by member. Engine-side ... ok
+test_labels_that_disagree_with_the_identity_are_refused (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_labels_that_disagree_with_the_identity_are_refused)
+The mismatch probe. A runtime labelled with a profile or adapter ... ok
+test_nothing_is_started_when_the_identity_disagrees (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_nothing_is_started_when_the_identity_disagrees)
+Refused BEFORE the engine is asked to run anything: a start that ... ok
+test_the_engines_two_spellings_of_the_image_are_one_fact (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_the_engines_two_spellings_of_the_image_are_one_fact)
+Docker answers `Image`, and the id may arrive with or without the ... ok
+test_the_resolved_identity_includes_the_assignment_policy (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_the_resolved_identity_includes_the_assignment_policy)
+Image/profile/adapter is not the dossier's four-digest identity. ... ok
+test_the_started_image_comes_from_the_resolved_identity (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_the_started_image_comes_from_the_resolved_identity) ... ok
+test_copied_marker_with_crosswired_workspace_refuses_without_source_delivery (tests.manager.test_oci.StableLineLaunch.test_copied_marker_with_crosswired_workspace_refuses_without_source_delivery) ... ok
+test_current_line_launch_reaches_engine_with_fixed_identity (tests.manager.test_oci.StableLineLaunch.test_current_line_launch_reaches_engine_with_fixed_identity) ... ok
+test_incorrect_modes_never_launch_or_repair (tests.manager.test_oci.StableLineLaunch.test_incorrect_modes_never_launch_or_repair) ... ok
+test_ordinary_workspace_keeps_02770_launch_contract (tests.manager.test_oci.StableLineLaunch.test_ordinary_workspace_keeps_02770_launch_contract) ... ok
+test_plain_copy_cannot_select_development_mode (tests.manager.test_oci.StableLineLaunch.test_plain_copy_cannot_select_development_mode) ... ok
+test_stale_generation_and_revoked_grant_refuse_before_run (tests.manager.test_oci.StableLineLaunch.test_stale_generation_and_revoked_grant_refuse_before_run) ... ok
+test_a_cross_wired_workspace_refuses_before_it_is_read (tests.manager.test_oci.TheAdapterBindsConsumptionToTheResolvedLine.test_a_cross_wired_workspace_refuses_before_it_is_read) ... ok
+test_a_custody_sibling_that_is_not_the_resolved_one_refuses (tests.manager.test_oci.TheAdapterBindsConsumptionToTheResolvedLine.test_a_custody_sibling_that_is_not_the_resolved_one_refuses) ... ok
+test_a_retained_locator_inside_the_writers_mount_refuses (tests.manager.test_oci.TheAdapterBindsConsumptionToTheResolvedLine.test_a_retained_locator_inside_the_writers_mount_refuses)
+Bytes the worker can still reach are not retained. ... ok
+test_an_ordinary_attempt_root_is_not_a_line_and_says_so (tests.manager.test_oci.TheAdapterBindsConsumptionToTheResolvedLine.test_an_ordinary_attempt_root_is_not_a_line_and_says_so)
+Proof of the unused ordinary workspace cannot authorize the line. ... ok
+test_an_unreadable_line_refuses_and_is_not_repaired (tests.manager.test_oci.TheAdapterBindsConsumptionToTheResolvedLine.test_an_unreadable_line_refuses_and_is_not_repaired) ... ok
+test_lifecycle_movement_during_the_walk_refuses (tests.manager.test_oci.TheAdapterBindsConsumptionToTheResolvedLine.test_lifecycle_movement_during_the_walk_refuses) ... ok
+test_the_resolved_line_is_proved_readable_and_answered (tests.manager.test_oci.TheAdapterBindsConsumptionToTheResolvedLine.test_the_resolved_line_is_proved_readable_and_answered) ... ok
+test_a_READ_ONLY_room_is_refused (tests.manager.test_oci.TheAttemptLogRoomIsItsOwnMount.test_a_READ_ONLY_room_is_refused)
+A worker that cannot write its log cannot leave the evidence. ... ok
+test_a_bind_that_is_not_a_triple_is_refused (tests.manager.test_oci.TheAttemptLogRoomIsItsOwnMount.test_a_bind_that_is_not_a_triple_is_refused) ... ok
+test_a_room_landing_INSIDE_another_family_is_refused (tests.manager.test_oci.TheAttemptLogRoomIsItsOwnMount.test_a_room_landing_INSIDE_another_family_is_refused)
+Raw output and the surface it landed in would each be read as the ... ok
+test_a_room_that_is_not_a_directory_is_refused (tests.manager.test_oci.TheAttemptLogRoomIsItsOwnMount.test_a_room_that_is_not_a_directory_is_refused) ... ok
+test_more_or_fewer_than_one_bind_is_refused (tests.manager.test_oci.TheAttemptLogRoomIsItsOwnMount.test_more_or_fewer_than_one_bind_is_refused) ... ok
+test_no_delivery_mounts_nothing (tests.manager.test_oci.TheAttemptLogRoomIsItsOwnMount.test_no_delivery_mounts_nothing)
+The delivery is a capability. A start that was given none composes ... ok
+test_the_room_is_mounted_WRITABLE_at_its_own_target (tests.manager.test_oci.TheAttemptLogRoomIsItsOwnMount.test_the_room_is_mounted_WRITABLE_at_its_own_target) ... ok
+test_the_target_is_a_CONSTANT_and_never_an_operand (tests.manager.test_oci.TheAttemptLogRoomIsItsOwnMount.test_the_target_is_a_CONSTANT_and_never_an_operand)
+A target a caller could vary is a container pointed somewhere ... ok
+test_the_two_targets_are_DISTINCT_surfaces (tests.manager.test_oci.TheAttemptLogRoomIsItsOwnMount.test_the_two_targets_are_DISTINCT_surfaces)
+Said as a fact rather than left to the mount table: this is the ... ok
+test_exact_root_and_fixed_target_exclude_storage_and_generation (tests.manager.test_oci.TheContextMountIsAnExactUse.test_exact_root_and_fixed_target_exclude_storage_and_generation) ... ok
+test_observation_refuses_changed_or_missing_context_mount (tests.manager.test_oci.TheContextMountIsAnExactUse.test_observation_refuses_changed_or_missing_context_mount) ... ok
+test_untyped_wrong_purpose_and_both_overlap_directions_refuse (tests.manager.test_oci.TheContextMountIsAnExactUse.test_untyped_wrong_purpose_and_both_overlap_directions_refuse) ... ok
+test_a_run_operation_that_is_not_callable_is_refused (tests.manager.test_oci.TheEngineIsInjectedAndTyped.test_a_run_operation_that_is_not_callable_is_refused) ... ok
+test_an_engine_answer_that_is_not_one_is_refused (tests.manager.test_oci.TheEngineIsInjectedAndTyped.test_an_engine_answer_that_is_not_one_is_refused) ... ok
+test_an_engine_deadline_is_positive_whole_seconds (tests.manager.test_oci.TheEngineIsInjectedAndTyped.test_an_engine_deadline_is_positive_whole_seconds) ... ok
+test_the_surface_is_exported (tests.manager.test_oci.TheEngineIsInjectedAndTyped.test_the_surface_is_exported) ... ok
+test_a_duplicate_start_fails_closed_before_anything_is_created (tests.manager.test_oci.TheEngineReportsFactsAndDecidesNothing.test_a_duplicate_start_fails_closed_before_anything_is_created)
+Two runtimes for one assignment is the state no later ... ok
+test_a_hostile_listing_never_escapes_as_a_fault (tests.manager.test_oci.TheEngineReportsFactsAndDecidesNothing.test_a_hostile_listing_never_escapes_as_a_fault)
+Engine output is a caller input. Every one of these is ordinary. ... ok
+test_a_listing_whose_labels_are_not_the_whole_set_is_refused (tests.manager.test_oci.TheEngineReportsFactsAndDecidesNothing.test_a_listing_whose_labels_are_not_the_whole_set_is_refused)
+A runtime whose labels this adapter had to guess at is one ... ok
+test_a_refused_start_is_reported_with_bounded_prose (tests.manager.test_oci.TheEngineReportsFactsAndDecidesNothing.test_a_refused_start_is_reported_with_bounded_prose) ... ok
+test_a_start_answers_what_was_started (tests.manager.test_oci.TheEngineReportsFactsAndDecidesNothing.test_a_start_answers_what_was_started) ... ok
+test_an_ambiguous_listing_is_returned_whole_for_the_manager_to_judge (tests.manager.test_oci.TheEngineReportsFactsAndDecidesNothing.test_an_ambiguous_listing_is_returned_whole_for_the_manager_to_judge)
+The adapter does not choose. `attempts.py` already refuses when more ... ok
+test_an_engine_that_names_nothing_started_nothing_nameable (tests.manager.test_oci.TheEngineReportsFactsAndDecidesNothing.test_an_engine_that_names_nothing_started_nothing_nameable)
+Not "started something unnamed": an answer this adapter cannot turn ... ok
+test_an_extra_manager_owned_label_is_not_silently_ignored (tests.manager.test_oci.TheEngineReportsFactsAndDecidesNothing.test_an_extra_manager_owned_label_is_not_silently_ignored) ... ok
+test_both_engines_listings_read_into_one_vocabulary (tests.manager.test_oci.TheEngineReportsFactsAndDecidesNothing.test_both_engines_listings_read_into_one_vocabulary)
+RUNTIME-NEUTRAL: one vocabulary for the manager, two spellings read ... ok
+test_engine_output_this_adapter_cannot_read_is_refused (tests.manager.test_oci.TheEngineReportsFactsAndDecidesNothing.test_engine_output_this_adapter_cannot_read_is_refused) ... ok
+test_the_generation_label_comes_back_as_the_number_it_was (tests.manager.test_oci.TheEngineReportsFactsAndDecidesNothing.test_the_generation_label_comes_back_as_the_number_it_was)
+`1` and `"1"` are one fact spelled two ways, and a comparison that ... ok
+test_the_managers_real_operation_identity_makes_a_valid_runtime_name (tests.manager.test_oci.TheEngineReportsFactsAndDecidesNothing.test_the_managers_real_operation_identity_makes_a_valid_runtime_name)
+`attempts._start_operation_id` includes `runtime.start:`. The ... ok
+test_a_nominal_answer_is_accepted_without_being_flattened (tests.manager.test_oci.TheManagersProvedRootsSurviveToTheUse.test_a_nominal_answer_is_accepted_without_being_flattened) ... ok
+test_a_plain_mapping_is_still_proved_here (tests.manager.test_oci.TheManagersProvedRootsSurviveToTheUse.test_a_plain_mapping_is_still_proved_here)
+Callers outside the allocation path legitimately hold one, and ... ok
+test_the_adapter_retains_the_managers_nominal_answer (tests.manager.test_oci.TheManagersProvedRootsSurviveToTheUse.test_the_adapter_retains_the_managers_nominal_answer)
+A copied dict loses provenance and is re-resolved at start. ... ok
+test_the_answer_the_adapter_holds_is_the_one_it_was_given (tests.manager.test_oci.TheManagersProvedRootsSurviveToTheUse.test_the_answer_the_adapter_holds_is_the_one_it_was_given)
+No second resolution: what the adapter uses is what was proved. ... ok
+test_a_delivery_with_neither_starts_normally (tests.manager.test_oci.TheRootThatWasProvedIsTheRootThatIsMounted.test_a_delivery_with_neither_starts_normally)
+The runtime half of this adapter is constructible and startable ... ok
+test_a_plan_naming_the_sibling_workspace_never_reaches_the_engine (tests.manager.test_oci.TheRootThatWasProvedIsTheRootThatIsMounted.test_a_plan_naming_the_sibling_workspace_never_reaches_the_engine)
+The exact defect. `workspace` is this assignment's own root and ... ok
+test_a_plan_that_mounts_no_input_root_never_reaches_the_engine (tests.manager.test_oci.TheRootThatWasProvedIsTheRootThatIsMounted.test_a_plan_that_mounts_no_input_root_never_reaches_the_engine)
+Omission is a way to be wrong too: a container with nothing at ... ok
+test_a_spelling_that_normalizes_onto_the_fixed_path_is_not_it (tests.manager.test_oci.TheRootThatWasProvedIsTheRootThatIsMounted.test_a_spelling_that_normalizes_onto_the_fixed_path_is_not_it)
+W19784 third review [P1], at this boundary too. ... ok
+test_the_authorized_root_at_another_target_is_not_the_input_root (tests.manager.test_oci.TheRootThatWasProvedIsTheRootThatIsMounted.test_the_authorized_root_at_another_target_is_not_the_input_root)
+`/inputs` is a path this manager never fixes and the worker never ... ok
+test_the_authorized_root_is_never_mounted_writable (tests.manager.test_oci.TheRootThatWasProvedIsTheRootThatIsMounted.test_the_authorized_root_is_never_mounted_writable)
+The input is the evidence the result is measured against, so a ... ok
+test_the_authorized_root_reaches_the_engine_argv_exactly (tests.manager.test_oci.TheRootThatWasProvedIsTheRootThatIsMounted.test_the_authorized_root_reaches_the_engine_argv_exactly)
+The bytes, not the intention. This is the integration half the ... ok
+test_two_binds_on_the_fixed_path_leave_the_engine_deciding (tests.manager.test_oci.TheRootThatWasProvedIsTheRootThatIsMounted.test_two_binds_on_the_fixed_path_leave_the_engine_deciding) ... ok
+test_without_an_authorized_root_nothing_may_claim_the_fixed_path (tests.manager.test_oci.TheRootThatWasProvedIsTheRootThatIsMounted.test_without_an_authorized_root_nothing_may_claim_the_fixed_path)
+ABSENCE IS DECIDED TOO. With nothing proved there is nothing a ... ok
+test_a_consent_runtime_takes_no_scratch (tests.manager.test_oci.TheScratchDeliveryIsOneWritableDiskBind.test_a_consent_runtime_takes_no_scratch) ... ok
+test_a_missing_directory_refuses (tests.manager.test_oci.TheScratchDeliveryIsOneWritableDiskBind.test_a_missing_directory_refuses) ... ok
+test_absent_means_absent (tests.manager.test_oci.TheScratchDeliveryIsOneWritableDiskBind.test_absent_means_absent) ... ok
+test_the_adapter_owns_it_at_construction_and_consent_refuses (tests.manager.test_oci.TheScratchDeliveryIsOneWritableDiskBind.test_the_adapter_owns_it_at_construction_and_consent_refuses) ... ok
+test_the_bind_is_composed_writable_at_the_constant_target (tests.manager.test_oci.TheScratchDeliveryIsOneWritableDiskBind.test_the_bind_is_composed_writable_at_the_constant_target) ... ok
+test_a_posture_that_is_not_a_network_name_is_refused (tests.manager.test_oci.TheTwoExplicitStartOperands.test_a_posture_that_is_not_a_network_name_is_refused)
+The grammar is what keeps this operand a network NAME rather than an ... ok
+test_an_explicit_posture_reaches_the_argv_exactly_once (tests.manager.test_oci.TheTwoExplicitStartOperands.test_an_explicit_posture_reaches_the_argv_exactly_once)
+One `--network`, whatever was asked for. Two would leave the engine ... ok
+test_an_explicit_posture_survives_to_the_started_container (tests.manager.test_oci.TheTwoExplicitStartOperands.test_an_explicit_posture_survives_to_the_started_container) ... ok
+test_interactive_is_composed_only_when_it_is_asked_for (tests.manager.test_oci.TheTwoExplicitStartOperands.test_interactive_is_composed_only_when_it_is_asked_for) ... ok
+test_interactive_takes_a_boolean_and_not_a_number (tests.manager.test_oci.TheTwoExplicitStartOperands.test_interactive_takes_a_boolean_and_not_a_number)
+Review [P2]: this was `interactive not in (True, False)`, and ... ok
+test_naming_nothing_composes_exactly_the_accepted_vector (tests.manager.test_oci.TheTwoExplicitStartOperands.test_naming_nothing_composes_exactly_the_accepted_vector)
+The property that makes this operand safe to have added at all: an ... ok
+test_neither_operand_disturbs_any_other_restriction (tests.manager.test_oci.TheTwoExplicitStartOperands.test_neither_operand_disturbs_any_other_restriction)
+A widened network and a held-open stdin change those two things and ... ok
+test_the_adapter_refuses_a_bad_posture_before_it_is_built (tests.manager.test_oci.TheTwoExplicitStartOperands.test_the_adapter_refuses_a_bad_posture_before_it_is_built)
+At CONSTRUCTION, like every other assignment-scoped operand here: an ... ok
+test_a_label_carrying_a_line_break_is_refused (tests.manager.test_oci.TheVectorsAreClosedAndOrdered.test_a_label_carrying_a_line_break_is_refused) ... ok
+test_a_label_set_that_is_not_the_contracts_is_refused (tests.manager.test_oci.TheVectorsAreClosedAndOrdered.test_a_label_set_that_is_not_the_contracts_is_refused) ... ok
+test_an_engine_this_adapter_does_not_speak_is_refused (tests.manager.test_oci.TheVectorsAreClosedAndOrdered.test_an_engine_this_adapter_does_not_speak_is_refused) ... ok
+test_an_image_that_is_not_a_digest_is_refused (tests.manager.test_oci.TheVectorsAreClosedAndOrdered.test_an_image_that_is_not_a_digest_is_refused)
+A tag is a name somebody can move, and a runtime started from a ... ok
+test_digest_and_generation_labels_keep_their_semantic_types (tests.manager.test_oci.TheVectorsAreClosedAndOrdered.test_digest_and_generation_labels_keep_their_semantic_types)
+The adapter reconciles these values, so text-shaped substitutes ... ok
+test_every_restriction_is_present_and_unconditional (tests.manager.test_oci.TheVectorsAreClosedAndOrdered.test_every_restriction_is_present_and_unconditional)
+A policy a caller can turn off is a default. ... ok
+test_the_labels_are_the_frozen_contracts_own_set_in_its_own_order (tests.manager.test_oci.TheVectorsAreClosedAndOrdered.test_the_labels_are_the_frozen_contracts_own_set_in_its_own_order) ... ok
+test_the_listing_selects_candidates_and_never_pre_compares_identity (tests.manager.test_oci.TheVectorsAreClosedAndOrdered.test_the_listing_selects_candidates_and_never_pre_compares_identity)
+REVISED under review [P0]'s explicit case-specific confirmation. ... ok
+test_the_query_vectors_name_one_exact_identity (tests.manager.test_oci.TheVectorsAreClosedAndOrdered.test_the_query_vectors_name_one_exact_identity) ... ok
+test_the_run_vector_is_exact_for_both_engines (tests.manager.test_oci.TheVectorsAreClosedAndOrdered.test_the_run_vector_is_exact_for_both_engines) ... ok
+test_the_whole_label_set_is_still_owned_before_the_engine_is_asked (tests.manager.test_oci.TheVectorsAreClosedAndOrdered.test_the_whole_label_set_is_still_owned_before_the_engine_is_asked)
+Narrowing the FILTERS did not narrow the ownership. An invented or ... ok
+test_a_path_is_not_a_selection (tests.manager.test_verifier_topology.TheAdapterBindsTheSelectionToItsOwnIdentity.test_a_path_is_not_a_selection) ... ok
+test_a_selection_under_another_resolved_identity_refuses (tests.manager.test_verifier_topology.TheAdapterBindsTheSelectionToItsOwnIdentity.test_a_selection_under_another_resolved_identity_refuses)
+EACH MEMBER, SEPARATELY, so none of the four is merely along for ... ok
+test_no_selection_is_the_unchanged_default (tests.manager.test_verifier_topology.TheAdapterBindsTheSelectionToItsOwnIdentity.test_no_selection_is_the_unchanged_default)
+Every existing construction path is byte-for-byte unaffected. ... ok
+test_the_matching_selection_is_held (tests.manager.test_verifier_topology.TheAdapterBindsTheSelectionToItsOwnIdentity.test_the_matching_selection_is_held) ... ok
+test_a_workspace_at_the_floor_still_refuses (tests.manager.test_verifier_topology.TheCapacityPartitionIsTheOneThePacketSelected.test_a_workspace_at_the_floor_still_refuses)
+The floor is strictly above the aggregate, as it was before. ... ok
+test_both_tables_hold_the_same_aggregate (tests.manager.test_verifier_topology.TheCapacityPartitionIsTheOneThePacketSelected.test_both_tables_hold_the_same_aggregate)
+So a deployment neither gains nor loses room by selecting the new ... ok
+test_every_per_root_limit_is_the_selected_one (tests.manager.test_verifier_topology.TheCapacityPartitionIsTheOneThePacketSelected.test_every_per_root_limit_is_the_selected_one) ... ok
+test_no_root_is_in_the_unconditional_restrictions (tests.manager.test_verifier_topology.TheCapacityPartitionIsTheOneThePacketSelected.test_no_root_is_in_the_unconditional_restrictions)
+Review [3]: `oci.RESTRICTIONS` is applied to EVERY run, so a ... ok
+test_the_aggregate_and_the_workspace_floor_are_unchanged (tests.manager.test_verifier_topology.TheCapacityPartitionIsTheOneThePacketSelected.test_the_aggregate_and_the_workspace_floor_are_unchanged) ... ok
+test_the_floor_is_derived_from_the_aggregate (tests.manager.test_verifier_topology.TheCapacityPartitionIsTheOneThePacketSelected.test_the_floor_is_derived_from_the_aggregate)
+And the aggregate is asserted equal across both tables, so the ... ok
+test_the_legacy_table_is_exactly_what_it_always_was (tests.manager.test_verifier_topology.TheCapacityPartitionIsTheOneThePacketSelected.test_the_legacy_table_is_exactly_what_it_always_was)
+The preserved path, by value: two mounts at their original sizes ... ok
+test_the_shared_scratch_gave_up_exactly_what_the_roots_took (tests.manager.test_verifier_topology.TheCapacityPartitionIsTheOneThePacketSelected.test_the_shared_scratch_gave_up_exactly_what_the_roots_took)
+A REDISTRIBUTION, not extra capacity -- and ON THE SELECTED PATH ... ok
+test_the_total_tmpfs_is_ninety_six_mebibytes (tests.manager.test_verifier_topology.TheCapacityPartitionIsTheOneThePacketSelected.test_the_total_tmpfs_is_ninety_six_mebibytes)
+80 MiB of scratch plus the existing 16 MiB legacy log decoy, which ... ok
+test_a_document_from_another_topology_refuses_at_the_worker (tests.manager.test_verifier_topology.TheComposedPairIsAcceptedAndIncompatibleOnesRefuse.test_a_document_from_another_topology_refuses_at_the_worker) ... ok
+test_a_marker_from_another_topology_refuses_at_the_worker (tests.manager.test_verifier_topology.TheComposedPairIsAcceptedAndIncompatibleOnesRefuse.test_a_marker_from_another_topology_refuses_at_the_worker) ... ok
+test_a_new_image_with_no_document_refuses (tests.manager.test_verifier_topology.TheComposedPairIsAcceptedAndIncompatibleOnesRefuse.test_a_new_image_with_no_document_refuses)
+A marker and no delivery: the gap absence used to swallow. ... ok
+test_a_truncated_document_is_not_legacy (tests.manager.test_verifier_topology.TheComposedPairIsAcceptedAndIncompatibleOnesRefuse.test_a_truncated_document_is_not_legacy) ... ok
+test_a_truncated_marker_is_not_an_old_image (tests.manager.test_verifier_topology.TheComposedPairIsAcceptedAndIncompatibleOnesRefuse.test_a_truncated_marker_is_not_an_old_image) ... ok
+test_an_old_image_with_a_new_document_refuses (tests.manager.test_verifier_topology.TheComposedPairIsAcceptedAndIncompatibleOnesRefuse.test_an_old_image_with_a_new_document_refuses)
+No marker: the image has no scaffolding to honour the selection. ... ok
+test_neither_document_is_legacy_and_reads_no_mount_table (tests.manager.test_verifier_topology.TheComposedPairIsAcceptedAndIncompatibleOnesRefuse.test_neither_document_is_legacy_and_reads_no_mount_table)
+Supported, unchanged, and it costs nothing. ... ok
+test_the_manager_refuses_a_marker_from_another_topology (tests.manager.test_verifier_topology.TheComposedPairIsAcceptedAndIncompatibleOnesRefuse.test_the_manager_refuses_a_marker_from_another_topology)
+A new image built from a DIFFERENT topology, caught at compose. ... ok
+test_the_manager_refuses_a_named_identity (tests.manager.test_verifier_topology.TheComposedPairIsAcceptedAndIncompatibleOnesRefuse.test_the_manager_refuses_a_named_identity)
+THE REVIEW'S CORRECTION, DRIVEN: "Bind selected topology and ... ok
+test_the_manager_refuses_to_compose_for_an_old_image (tests.manager.test_verifier_topology.TheComposedPairIsAcceptedAndIncompatibleOnesRefuse.test_the_manager_refuses_to_compose_for_an_old_image)
+THE MANAGER-SIDE REFUSAL the review asked for by name. ... ok
+test_the_managers_document_carries_no_unexpected_member (tests.manager.test_verifier_topology.TheComposedPairIsAcceptedAndIncompatibleOnesRefuse.test_the_managers_document_carries_no_unexpected_member)
+The worker refuses extras, so the composer may not add one. ... ok
+test_the_managers_document_is_accepted_by_the_worker (tests.manager.test_verifier_topology.TheComposedPairIsAcceptedAndIncompatibleOnesRefuse.test_the_managers_document_is_accepted_by_the_worker)
+ONE SELECTION, END TO END, with nothing in between. ... ok
+test_the_trusted_identity_is_the_minted_one (tests.manager.test_verifier_topology.TheComposedPairIsAcceptedAndIncompatibleOnesRefuse.test_the_trusted_identity_is_the_minted_one)
+TASK.md: "not hardcoded 65532, not ambient login group." ... ok
+test_a_changed_selection_at_the_name_refuses (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_a_changed_selection_at_the_name_refuses)
+Live runtimes were started against the bytes on disk. ... ok
+test_a_consent_runtime_composes_no_root_either (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_a_consent_runtime_composes_no_root_either)
+It refuses the selection, so it cannot acquire the roots by a side ... ok
+test_a_consent_runtime_takes_no_selection (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_a_consent_runtime_takes_no_selection)
+It mounts nothing and runs no verifier, so a selection there is a ... ok
+test_a_delivery_whose_document_is_gone_refuses (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_a_delivery_whose_document_is_gone_refuses)
+The type proof is about the OBJECT and is taken when the vector is ... ok
+test_a_document_bound_to_another_image_refuses (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_a_document_bound_to_another_image_refuses) ... ok
+test_a_document_naming_another_identity_refuses (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_a_document_naming_another_identity_refuses)
+It would describe roots this container cannot own, and the worker ... ok
+test_a_link_at_the_name_refuses_rather_than_being_read_through (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_a_link_at_the_name_refuses_rather_than_being_read_through) ... ok
+test_a_pair_of_paths_is_not_a_delivery (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_a_pair_of_paths_is_not_a_delivery)
+A path operand would be a caller-selected locator for the one ... ok
+test_an_assignment_mount_over_the_document_refuses (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_an_assignment_mount_over_the_document_refuses)
+Nobody else may decide what the worker proves its roots against. ... ok
+test_no_delivery_composes_no_mount (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_no_delivery_composes_no_mount)
+An explicitly legacy deployment is argv-identical to today. ... ok
+test_the_delivered_document_is_readable_and_not_writable (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_the_delivered_document_is_readable_and_not_writable)
+The container's execution identity must be able to READ it, and ... ok
+test_the_delivery_is_the_fixed_target (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_the_delivery_is_the_fixed_target) ... ok
+test_the_document_names_the_identity_the_argv_composes (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_the_document_names_the_identity_the_argv_composes)
+THE ONE OPINION, NOT TWO. `--user` and the document's uid/gid come ... ok
+test_the_engine_binds_it_read_only (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_the_engine_binds_it_read_only)
+IMMUTABILITY IS NOT A PARAMETER: a worker that could rewrite its ... ok
+test_the_materialized_bytes_are_the_composed_ones (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_the_materialized_bytes_are_the_composed_ones) ... ok
+test_the_mode_is_the_one_the_worker_proves (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_the_mode_is_the_one_the_worker_proves) ... ok
+test_the_mounted_identity_is_the_one_the_document_names (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_the_mounted_identity_is_the_one_the_document_names)
+One capability, three places: the document, the `--user` flag and ... ok
+test_the_same_selection_twice_adopts_the_same_bytes (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_the_same_selection_twice_adopts_the_same_bytes)
+A per-deployment selection, not a per-attempt one: refusing the ... ok
+test_the_selected_roots_carry_the_identity_and_mode_promised (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_the_selected_roots_carry_the_identity_and_mode_promised)
+REVIEW [2], DRIVEN. The worker's `_proved_root` refuses a root ... ok
+test_the_selected_vector_redistributes_rather_than_adding_room (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_the_selected_vector_redistributes_rather_than_adding_room)
+The shared scratch gives up exactly what the roots take, so the ... ok
+test_the_unselected_vector_gains_no_root_and_keeps_its_scratch (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_the_unselected_vector_gains_no_root_and_keeps_its_scratch)
+REVIEW [3], DRIVEN: the legacy runtime is argv-identical to before ... ok
+test_every_launch_containment_list_also_carries_the_layout (tests.manager.test_verifier_topology.TheFixedTargetIsFIXEDForEveryFamily.test_every_launch_containment_list_also_carries_the_layout)
+THE SYMMETRY, STRUCTURALLY. A first cut composed the layout mount ... ok
+test_no_other_fixed_target_contains_the_document (tests.manager.test_verifier_topology.TheFixedTargetIsFIXEDForEveryFamily.test_no_other_fixed_target_contains_the_document)
+THE PROPERTY the containment entries protect, over the constants. ... ok
+test_the_four_verifier_roots_are_not_a_family_target_either (tests.manager.test_verifier_topology.TheFixedTargetIsFIXEDForEveryFamily.test_the_four_verifier_roots_are_not_a_family_target_either)
+The roots are MOUNTED BY THE IMAGE POSTURE, not by a delivery, so ... ok
+test_the_marker_bytes_are_the_composed_ones (tests.manager.test_verifier_topology.TheImageRecipeScaffoldsAndDeclaresTheTopology.test_the_marker_bytes_are_the_composed_ones)
+THE AGREEMENT, PROVED ON THE SHIPPED FILE. ... ok
+test_the_marker_is_copied_to_the_path_the_worker_reads (tests.manager.test_verifier_topology.TheImageRecipeScaffoldsAndDeclaresTheTopology.test_the_marker_is_copied_to_the_path_the_worker_reads) ... ok
+test_the_marker_is_not_owned_by_the_runtime_identity (tests.manager.test_verifier_topology.TheImageRecipeScaffoldsAndDeclaresTheTopology.test_the_marker_is_not_owned_by_the_runtime_identity)
+It is image bytes in a read-only rootfs, so a worker cannot ... ok
+test_the_recipe_scaffolds_every_root (tests.manager.test_verifier_topology.TheImageRecipeScaffoldsAndDeclaresTheTopology.test_the_recipe_scaffolds_every_root) ... ok
+test_the_scaffolding_is_made_before_privilege_drops (tests.manager.test_verifier_topology.TheImageRecipeScaffoldsAndDeclaresTheTopology.test_the_scaffolding_is_made_before_privilege_drops)
+Root-owned 0755 image directories: an unprivileged layer could not ... ok
+test_the_scaffolding_is_not_chowned_to_the_runtime_identity (tests.manager.test_verifier_topology.TheImageRecipeScaffoldsAndDeclaresTheTopology.test_the_scaffolding_is_not_chowned_to_the_runtime_identity)
+A writable ancestor is a directory a process sharing this uid can ... ok
+test_the_shipped_marker_is_accepted_by_the_worker (tests.manager.test_verifier_topology.TheImageRecipeScaffoldsAndDeclaresTheTopology.test_the_shipped_marker_is_accepted_by_the_worker)
+The adapter reads the file the image will actually carry. ... ok
+test_a_legacy_configuration_delivers_nothing (tests.manager.test_verifier_topology.TheSupportedDeploymentSelectsAndDeliversIt.test_a_legacy_configuration_delivers_nothing)
+EXPLICITLY LEGACY, and it costs nothing: no document is composed, ... ok
+test_a_marker_from_another_topology_refuses_at_the_deployment (tests.manager.test_verifier_topology.TheSupportedDeploymentSelectsAndDeliversIt.test_a_marker_from_another_topology_refuses_at_the_deployment)
+Before any runtime starts, rather than at a worker mid-run. ... ok
+test_the_configured_pair_delivers_the_document_the_worker_reads (tests.manager.test_verifier_topology.TheSupportedDeploymentSelectsAndDeliversIt.test_the_configured_pair_delivers_the_document_the_worker_reads)
+THE JOINED PATH: the deployment composes, materializes and delivers, ... ok
+test_the_delivered_identity_is_the_deployments_minted_one (tests.manager.test_verifier_topology.TheSupportedDeploymentSelectsAndDeliversIt.test_the_delivered_identity_is_the_deployments_minted_one) ... ok
+test_the_delivery_is_what_the_adapter_accepts (tests.manager.test_verifier_topology.TheSupportedDeploymentSelectsAndDeliversIt.test_the_delivery_is_what_the_adapter_accepts)
+The adapter binds it to its own resolved identity, so a delivery ... ok
+test_the_three_supported_schemas (tests.manager.test_verifier_topology.TheSupportedDeploymentSelectsAndDeliversIt.test_the_three_supported_schemas)
+`/4` and `/5` are untouched and `/6` is the one that selects. ... ok
+test_the_document_members_agree (tests.manager.test_verifier_topology.TheTopologyIsOneSelectionOnBothSides.test_the_document_members_agree) ... ok
+test_the_filesystem_options_and_mode_agree (tests.manager.test_verifier_topology.TheTopologyIsOneSelectionOnBothSides.test_the_filesystem_options_and_mode_agree) ... ok
+test_the_fixed_roots_are_the_same_four_paths_on_both_sides (tests.manager.test_verifier_topology.TheTopologyIsOneSelectionOnBothSides.test_the_fixed_roots_are_the_same_four_paths_on_both_sides) ... ok
+test_the_fixed_roots_are_the_topology_the_packet_names (tests.manager.test_verifier_topology.TheTopologyIsOneSelectionOnBothSides.test_the_fixed_roots_are_the_topology_the_packet_names)
+`preparation-325908/TASK.md`: fixed ... ok
+test_the_four_roots_are_disjoint (tests.manager.test_verifier_topology.TheTopologyIsOneSelectionOnBothSides.test_the_four_roots_are_disjoint)
+Review [R1]: "The same mounted directory could be named for all ... ok
+test_the_two_schemas_and_targets_agree (tests.manager.test_verifier_topology.TheTopologyIsOneSelectionOnBothSides.test_the_two_schemas_and_targets_agree) ... ok
+test_every_text_operand_refuses_a_lone_surrogate (tests.manager.test_text_sweep.EveryExportedOperationRefusesUnstorableText.test_every_text_operand_refuses_a_lone_surrogate) ... ok
+test_the_sweep_is_not_vacuous (tests.manager.test_text_sweep.EveryExportedOperationRefusesUnstorableText.test_the_sweep_is_not_vacuous) ... ok
+test_the_table_names_every_exported_callable (tests.manager.test_text_sweep.EveryExportedOperationRefusesUnstorableText.test_the_table_names_every_exported_callable)
+The completeness half, and the reason this file exists. ... ok
+
+----------------------------------------------------------------------
+Ran 224 tests in 1.680s
+
+OK (skipped=1)

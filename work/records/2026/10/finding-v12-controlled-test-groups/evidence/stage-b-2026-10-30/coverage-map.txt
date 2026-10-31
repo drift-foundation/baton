@@ -1,0 +1,95 @@
+wanted 1334 declared 1328 owned-never-probed 0 probed-never-owned 0
+
+STAGE B PROBES BY SITE (declared keys):
+     1 attempts.py:_committed_record
+     4 attempts.py:request_runtime_start
+     2 authority_port.py:AuthorityPort.satisfy_gate
+     6 custody.py:historical_directory_custody
+     8 deadlines.py:_pin_of
+    18 deadlines.py:_record
+     3 failure_cause.py:_committed
+     1 intake.py:_abandon_intent
+     3 intake.py:_abandonment_declaration
+    57 intake.py:_committed
+     8 intake.py:_destroyed_abandoned
+     1 intake.py:_failed_start_record
+     4 intake.py:_refused_session_record
+     3 intake.py:abandon_attempt
+     2 intake.py:authorize_cleanup
+     1 intake.py:retentions_of
+     2 oci.py:OciAdapter.start
+    33 provider_context.py:admit_context_use
+     7 review_cycles.py:_cleaned_review
+    15 review_cycles.py:_fixed_intent
+     6 review_cycles.py:_verdict_row
+    27 review_cycles.py:abandoned_correction_of
+     1 review_cycles.py:checkpoint_of
+     3 tokens.py:renew
+     2 workspaces.py:_committed_workspace_group
+     2 workspaces.py:_committed_workspace_storage
+     1 workspaces.py:prepared_workspace_governance
+     1 workspaces.py:release_preparation
+  ---- 222 total
+
+WANTED PAIRS NOW ANSWERED PER SITE (the former gap sites):
+     2 wanted (  2 replay)  attempts.py:_committed_record
+    10 wanted (  0 replay)  attempts.py:request_runtime_start
+     2 wanted (  0 replay)  authority_port.py:AuthorityPort.satisfy_gate
+     8 wanted (  6 replay)  custody.py:historical_directory_custody
+     8 wanted (  8 replay)  deadlines.py:_pin_of
+    18 wanted ( 18 replay)  deadlines.py:_record
+     3 wanted (  3 replay)  failure_cause.py:_committed
+     1 wanted (  1 replay)  intake.py:_abandon_intent
+     3 wanted (  3 replay)  intake.py:_abandonment_declaration
+    63 wanted ( 63 replay)  intake.py:_committed
+     8 wanted (  0 replay)  intake.py:_destroyed_abandoned
+     1 wanted (  1 replay)  intake.py:_failed_start_record
+     4 wanted (  4 replay)  intake.py:_refused_session_record
+     7 wanted (  3 replay)  intake.py:abandon_attempt
+     5 wanted (  2 replay)  intake.py:authorize_cleanup
+     7 wanted (  0 replay)  intake.py:retentions_of
+     6 wanted (  0 replay)  oci.py:OciAdapter.start
+     3 wanted (  0 replay)  oci.py:OciAdapter.stop
+    35 wanted ( 33 replay)  provider_context.py:admit_context_use
+     7 wanted (  7 replay)  review_cycles.py:_cleaned_review
+    15 wanted ( 15 replay)  review_cycles.py:_fixed_intent
+    25 wanted (  0 replay)  review_cycles.py:_verdict_row
+    29 wanted ( 27 replay)  review_cycles.py:abandoned_correction_of
+    22 wanted (  0 replay)  review_cycles.py:checkpoint_of
+     5 wanted (  0 replay)  tokens.py:renew
+     2 wanted (  2 replay)  workspaces.py:_committed_workspace_group
+     2 wanted (  2 replay)  workspaces.py:_committed_workspace_storage
+     0 wanted (  0 replay)  workspaces.py:_configured_gid
+     2 wanted (  0 replay)  workspaces.py:prepared_workspace_governance
+     1 wanted (  0 replay)  workspaces.py:release_preparation
+
+SHADOWED pairs (owned; an identical-or-stricter owner refuses first; each witnessed):
+  ('adopted', 'deadlines.py:_record', 'replay.deadline_at') / 'a committed runtime deadline document'  <- 'a pinned runtime deadline'  [test_the_pin_members_are_refused_by_the_pin_owner_first]
+  ('adopted', 'deadlines.py:_record', 'replay.policy') / 'a committed runtime deadline document'  <- 'a pinned runtime deadline'  [test_the_pin_members_are_refused_by_the_pin_owner_first]
+  ('adopted', 'deadlines.py:_record', 'replay.started_at') / 'a committed runtime deadline document'  <- 'a pinned runtime deadline'  [test_the_pin_members_are_refused_by_the_pin_owner_first]
+  ('adopted', 'intake.py:_committed', 'replay.operation') / "a cleanup's operation"  <- "'s operation"  [test_cleanup_of_refuses_a_spoiled_operation_under_its_own_label_first]
+  ('adopted', 'intake.py:_committed', 'replay.operation.operation_id') / "a cleanup's operation"  <- "'s operation"  [test_cleanup_of_refuses_a_spoiled_operation_under_its_own_label_first]
+  ('adopted', 'intake.py:_committed', 'replay.operation.signature_digest') / "a cleanup's operation"  <- "'s operation"  [test_cleanup_of_refuses_a_spoiled_operation_under_its_own_label_first]
+  ('adopted', 'provider_context.py:admit_context_use', 'replay.payload.checkpoint_id') / 'provider context identity'  <- 'provider context metadata'  [test_an_admission_request_refuses_a_checkpoint_id_as_an_extra_member_first]
+  ('adopted', 'review_cycles.py:checkpoint_of', 'line_checkpoints.fence.intent') / 'a persisted assignment fence'  <- "a persisted line checkpoint's fence"  [test_the_checkpoint_row_refuses_a_damaged_fence_before_the_fence_owner]
+
+NO_PROBE added this stage:
+   ('adopted', 'workspaces.py:_configured_gid', 'meta') :: STRICT TEXT column; the text rule is applied only to digit-like text, which always round-trips
+   ('adopted', 'workspaces.py:_configured_gid', 'meta.value') :: STRICT TEXT column; the text rule is applied only to digit-like text, which always round-trips
+
+DELEGATED added this stage:
+   ('caller', 'attempts.py:request_runtime_start', 'adapter.mounts.source') -> ('attempts.py:_plan_agrees', 'caller:adapter[mounts]') ['a declared runtime mount']
+   ('caller', 'attempts.py:request_runtime_start', 'adapter.mounts.target') -> ('attempts.py:_plan_agrees', 'caller:adapter[mounts]') ['a declared runtime mount']
+   ('caller', 'attempts.py:request_runtime_start', 'adapter.mounts.writable') -> ('attempts.py:_plan_agrees', 'caller:adapter[mounts]') ['a declared runtime mount']
+   ('caller', 'oci.py:OciAdapter.start', 'request.labels.participant') -> ('oci.py:_labels', 'caller:labels') ["a runtime's labels"]
+   ('caller', 'oci.py:OciAdapter.start', 'request.labels.runtime_attempt_id') -> ('oci.py:_labels', 'caller:labels') ["a runtime's labels"]
+
+stop request: ['a stop request']
+
+REAL-TREE EFFECT of the covering change (layer labels that differ from the previous rule):
+   (('caller', 'attempts.py:request_runtime_start', 'adapter.mounts.source'), ["the runtime adapter's start"], [])
+   (('caller', 'attempts.py:request_runtime_start', 'adapter.mounts.target'), ["the runtime adapter's start"], [])
+   (('caller', 'attempts.py:request_runtime_start', 'adapter.mounts.writable'), ["the runtime adapter's start"], [])
+   (('caller', 'oci.py:OciAdapter.start', 'request.labels.participant'), ['a start request'], [])
+   (('caller', 'oci.py:OciAdapter.start', 'request.labels.runtime_attempt_id'), ['a start request'], [])
+  count: 5

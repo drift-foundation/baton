@@ -1,3 +1,64 @@
+## 2026-10-31T00-30-29Z — Stage B accepted; Stage C then scans confirmation
+
+Read review-2026-10-31T00-30-29Z.md: 35 independent focused tests passed in 33.235s, including both
+Stage B gates and all declared-probe reachability. Missing/unmatched probe pairs zero.
+Stage C's two test ids remain: 165 orphan calls and 663 ownerless entries by its
+acceptance cut (833 in broader audit). K maps every failure to a supported causal
+disposition, completes both gates while preserving Stage B, then runs the one planned
+scans group. Return map/counts/logs/digests; no B4/full suite/live execution yet.
+Formal acceptance, closure and owner check-in remain before W383215.
+
+# Stage B delivered — 2026-10-30 (CLOSURE-CHECKLIST B)
+
+Owned-never-probed 239 -> 0 and probed-never-owned 1 -> 0: 222 probes by
+owning helper over real committed worlds, three attribution corrections with
+remaining-failure rationale (literal-resolved delegated labels; delegated
+entries not covered; per-pair SHADOWED with witnesses), NO_PROBE for the
+STRICT-TEXT meta read, negative self-test proved against the baseline.
+Completion gate 56 run / 54 OK, exactly Stage C's two remaining. Evidence:
+evidence/stage-b-2026-10-30/STAGE-B.md. Awaiting review. Next per checklist:
+Stage C, one scans run, B4, B5, final run, closure, owner check-in.
+
+## 2026-10-30T21-08-28Z — Stage A accepted; Stage B only next
+
+Read review-2026-10-30T21-08-28Z.md. Thirteen independent focused tests passed in 26.489s.
+Both Stage A failures accepted; four prior scans ids remain (B two, C two).
+K now completes the two named Stage B probe tests and declared-probe reachability:
+33 non-replay gaps first, then 206 replay gaps grouped by helper, plus unmatched
+stop-request attribution. Return coverage map/counts/logs/digests. No Stage C,
+B4, generic discovery expansion or broad run in this slice. Closure gates unchanged.
+
+# Stage A delivered — 2026-10-30 (CLOSURE-CHECKLIST A)
+
+Duplicate `port` owner at the two discharge gates resolved by actual validator
+execution (site capability requirement is the one owner; constructor states
+nothing for it; rule by validator kind, not by name; real-tree effect exactly
+the two entries) and the lane coverage case aligned to the accepted retained
+cleanup ending (W285465) with the reason checked against the real ending.
+Evidence: evidence/stage-a-2026-10-30/STAGE-A.md. Awaiting review. Remaining
+scans ids: Stage B (2), Stage C (2). Next per checklist: B, C, one scans run,
+B4, B5, final run, closure, owner check-in.
+
+## 2026-10-30T20-37-39Z — scans pair accepted; Stage A only next
+
+Read review-2026-10-30T20-37-39Z.md: 223 passed plus one optional skip (224 total, 1.680s);
+all 19 newly swept text operands independently refused for their intended cause.
+Both assigned failures accepted. Six prior scans failure ids remain; no group rerun.
+Next K handoff is exactly checklist Stage A: duplicate discharge-gate port ownership
+and lane coverage's complete-versus-retained cleanup expectation. Return for review
+before Stage B/C, B4 or full runs. Closure/check-in gates remain unchanged.
+
+# Scans pair delivered — 2026-10-30 (CLOSURE-CHECKLIST next handoff)
+
+The two isolated scans failures are repaired against their accepted behaviour:
+scratch-mount expectation names the composed posture including the W202663
+log decoy (221 OK with oci/topology); text sweep names all twelve missing
+exports with real text operands, each refused at its own owner (3 OK).
+Evidence: evidence/scans-pair-2026-10-30/SCANS-PAIR.md. Awaiting review.
+Next per checklist: stage A (duplicate port owner, lanes coverage), B (owned
+probes + negative self-test), C (ownership classification), then one scans
+run, B4, B5, final run, closure, owner check-in. Owner snapshot fdc66b4f noted.
+
 ## 2026-10-30T18:15:13+00:00 — fixed closure order and next K deliverable
 
 Owner requests more specific direction. CLOSURE-CHECKLIST.md now fixes the sequence.

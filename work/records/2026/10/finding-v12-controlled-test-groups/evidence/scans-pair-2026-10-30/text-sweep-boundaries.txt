@@ -1,0 +1,19 @@
+abandoned_gate_discharge_of(1): integrity/schema: a runtime attempt id carries text that is not encodable; a durable value round-trips or it is not one
+abandonment_cleanup_of(attempt_id): integrity/schema: a runtime attempt id carries text that is not encodable; a durable value round-trips or it is not one
+abandonment_cleanup_of(retention_policy_digest): integrity/schema: a retention policy digest carries text that is not encodable; a durable value round-trips or it is not one
+cleanup_of(attempt_id): integrity/schema: a runtime attempt id carries text that is not encodable; a durable value round-trips or it is not one
+cleanup_of(retention_policy_digest): integrity/schema: a retention policy digest carries text that is not encodable; a durable value round-trips or it is not one
+deadline_cleanup_of(attempt_id): integrity/schema: a runtime attempt id carries text that is not encodable; a durable value round-trips or it is not one
+deadline_cleanup_of(retention_policy_digest): integrity/schema: a deadline retention policy digest carries text that is not encodable; a durable value round-trips or it is not one
+deadline_of(attempt_id): integrity/schema: a runtime attempt id carries text that is not encodable; a durable value round-trips or it is not one
+observe_deadline(attempt_id): integrity/schema: a runtime attempt id carries text that is not encodable; a durable value round-trips or it is not one
+advance_deadline(attempt_id): integrity/schema: a runtime attempt id carries text that is not encodable; a durable value round-trips or it is not one
+advance_deadline(retention_policy_digest): integrity/schema: a deadline retention policy digest carries text that is not encodable; a durable value round-trips or it is not one
+discharge_abandoned_quiescence_gate(attempt_id): integrity/schema: a runtime attempt id carries text that is not encodable; a durable value round-trips or it is not one
+discharge_abandoned_quiescence_gate(retention_policy_digest): integrity/schema: a retention policy digest carries text that is not encodable; a durable value round-trips or it is not one
+discharge_deadline_quiescence_gate(attempt_id): integrity/schema: a runtime attempt id carries text that is not encodable; a durable value round-trips or it is not one
+discharge_deadline_quiescence_gate(retention_policy_digest): integrity/schema: a deadline retention policy digest carries text that is not encodable; a durable value round-trips or it is not one
+fence_pre_attach_abandonment(attempt_id): integrity/schema: a runtime attempt id carries text that is not encodable; a durable value round-trips or it is not one
+fence_pre_attach_abandonment(reason): integrity/schema: an abandonment reason carries text that is not encodable; a durable value round-trips or it is not one
+writer_for_attempt(attempt_id): integrity/schema: a runtime attempt id carries text that is not encodable; a durable value round-trips or it is not one
+review_for_attempt(attempt_id): integrity/schema: a runtime attempt id carries text that is not encodable; a durable value round-trips or it is not one

@@ -636,3 +636,34 @@ Then six remaining scans failures in named groups, B4, B5, independent acceptanc
 closure and all-files owner check-in. No speculative discovery expansion or blanket
 coverage waiver. This supersedes the open-ended continuation in M384931.
 
+
+## 2026-10-30T20-37-39Z — scans pair accepted; Stage A only next
+
+Read review-2026-10-30T20-37-39Z.md: 223 passed plus one optional skip (224 total, 1.680s);
+all 19 newly swept text operands independently refused for their intended cause.
+Both assigned failures accepted. Six prior scans failure ids remain; no group rerun.
+Next K handoff is exactly checklist Stage A: duplicate discharge-gate port ownership
+and lane coverage's complete-versus-retained cleanup expectation. Return for review
+before Stage B/C, B4 or full runs. Closure/check-in gates remain unchanged.
+
+
+## 2026-10-30T21-08-28Z — Stage A accepted; Stage B only next
+
+Read review-2026-10-30T21-08-28Z.md. Thirteen independent focused tests passed in 26.489s.
+Both Stage A failures accepted; four prior scans ids remain (B two, C two).
+K now completes the two named Stage B probe tests and declared-probe reachability:
+33 non-replay gaps first, then 206 replay gaps grouped by helper, plus unmatched
+stop-request attribution. Return coverage map/counts/logs/digests. No Stage C,
+B4, generic discovery expansion or broad run in this slice. Closure gates unchanged.
+
+
+## 2026-10-31T00-30-29Z — Stage B accepted; Stage C then scans confirmation
+
+Read review-2026-10-31T00-30-29Z.md: 35 independent focused tests passed in 33.235s, including both
+Stage B gates and all declared-probe reachability. Missing/unmatched probe pairs zero.
+Stage C's two test ids remain: 165 orphan calls and 663 ownerless entries by its
+acceptance cut (833 in broader audit). K maps every failure to a supported causal
+disposition, completes both gates while preserving Stage B, then runs the one planned
+scans group. Return map/counts/logs/digests; no B4/full suite/live execution yet.
+Formal acceptance, closure and owner check-in remain before W383215.
+

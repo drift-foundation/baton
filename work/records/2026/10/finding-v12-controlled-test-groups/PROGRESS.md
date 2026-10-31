@@ -778,3 +778,56 @@ previous stage (239 / 1 / 833, entries 2545), so no real-tree verdict moved.
 Discovery + slice 14 OK; scans group rerun recorded in
 evidence/inventory-2026-10-30/INVENTORY-MILESTONE.md (correction section);
 digest refreshed.
+
+## 2026-10-30 — The two isolated scans failures (CLOSURE-CHECKLIST next handoff); K under owner claim E384905
+
+Owner snapshot commit observed: fdc66b4f ("WIP: checkpoint v12 test repairs,
+inventory coverage and closure plan"). Scratch mount: the test predated the
+accepted W202663 legacy-log decoy (16 MiB tmpfs at the old log spelling,
+deliberately outside SCRATCH_MOUNTS and the capacity floor; test_oci counts
+it, test_verifier_topology pins 80 + 16); the expectation now names the whole
+composed posture exactly, decoy included with its size, and asserts the decoy
+is not capacity. 221 OK with test_oci and test_verifier_topology. Text sweep:
+twelve exported callables (intake 6, deadlines 5, review_cycles 2) added with
+their real text operands; 3 OK, every spoiled operand refused at its own
+owner label (evidence/scans-pair-2026-10-30/text-sweep-boundaries.txt). No
+product change, no scans rerun (once after the six). Files and digests:
+evidence/scans-pair-2026-10-30/.
+
+## 2026-10-30 — Stage A: duplicate port owner, lane cleanup ending (CLOSURE-CHECKLIST A); K under owner claim E384905
+
+Review 20:37:39Z accepted the scans pair; Stage A only. `port` at the two
+discharge gates: the site's `capability(getattr(port, "satisfy_gate", None))`
+is the one executing validator (probe hands `object()`, direct execution
+witnessed both ways); `AuthorityPort.__init__` owns only the claim signature
+and participant. One helper `ownership_claims` now feeds the three claim-count
+sites and drops the constructed default only where the site's owners for that
+subject are all capability-kind member requirements; a document/row check of
+a constructed operand still counts twice (synthetic negative). Real-tree
+effect: exactly the two gate entries, nothing else. Lane coverage: the ending
+is `retained` per W285465 (owner 2026-09-28; lane suite aligned under B3);
+the release reason is now checked against the ending `_settle` reached.
+Observation: `complete` is unreachable from `authorize_cleanup` today (sole
+caller passes preserved=True); no product edit. 12 OK focused; owner class
+13/15 with exactly the Stage C pair remaining; probe reach OK. No scans
+rerun. Evidence/digest: evidence/stage-a-2026-10-30/STAGE-A.md.
+
+## 2026-10-30 — Stage B: owned-probe completeness (CLOSURE-CHECKLIST B); K under owner claim E384905
+
+Review 21:08:28Z accepted Stage A; Stage B only. Owned-never-probed 239 -> 0,
+probed-never-owned 1 -> 0, declared 1106 -> 1328 (+222 probes grouped by
+owning helper, built on the suites that own the worlds: intake, deadlines,
+custody, failure cause, provider context, review cycles, review driver,
+restoration). Replayed results are corrupted behind the build's back
+(whole document, missing member, replaced or unrecognised member) and the
+public reader driven to the owner's own label. Three attribution
+corrections, each with a remaining-failure rationale: delegated labels
+resolve `{parameter}` through the delegating call's literal (the stop
+request); a DELEGATED entry is not covered by the whole's owner (five start
+members now owned by `_labels` / `_plan_agrees`); a per-PAIR SHADOWED table
+(8 pairs) for owners an identical-or-stricter rule at the same reader
+refuses first, each with a driving witness; NO_PROBE for `_configured_gid`'s
+STRICT TEXT meta read, witnessed. The negative self-test now proves omission
+against the current baseline. Completion gate: 56 run, 54 OK, exactly the
+Stage C pair remaining. No product change, no scans rerun.
+Evidence/digest: evidence/stage-b-2026-10-30/STAGE-B.md, coverage-map.txt.

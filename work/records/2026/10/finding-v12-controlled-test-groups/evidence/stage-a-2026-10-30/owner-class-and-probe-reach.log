@@ -1,0 +1,61 @@
+test_a_required_member_of_a_constructed_operand_is_owned_once_at_the_site (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_a_required_member_of_a_constructed_operand_is_owned_once_at_the_site)
+W384870 stage A: `port` at the two discharge gates. ... ok
+test_every_boundary_call_belongs_to_an_entry_or_is_declared (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared)
+Every exact source call has an entry claim or a named exception. ... FAIL
+test_every_named_constructor_exists_and_owns_what_it_holds (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_named_constructor_exists_and_owns_what_it_holds)
+An exception has to point at a constructor that is THERE. ... ok
+test_every_receiving_entry_has_an_owning_validator (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator) ... FAIL
+test_every_site_is_lexical (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_site_is_lexical)
+Module, class and function -- because a name alone collapses methods. ... ok
+test_no_declared_exception_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_exception_is_stale) ... ok
+test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) ... ok
+test_no_entry_is_owned_twice (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_entry_is_owned_twice)
+4bz forbids blanket revalidation, and this is where it shows. ... ok
+test_re_validating_a_constructed_operand_is_still_owned_twice (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_re_validating_a_constructed_operand_is_still_owned_twice)
+The negative for the rule above: only a member requirement coexists. ... ok
+test_the_double_ownership_check_can_actually_fail (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_double_ownership_check_can_actually_fail) ... ok
+test_the_universe_is_not_derived_from_the_validators (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_is_not_derived_from_the_validators)
+The property that distinguishes this from what it replaces. ... ok
+test_the_universe_sees_every_persisted_column_that_is_read (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_every_persisted_column_that_is_read)
+The anti-circularity check for the adopted member universe. ... ok
+test_the_universe_sees_the_engine_answer_and_every_consumed_member (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_universe_sees_the_engine_answer_and_every_consumed_member)
+The branch join must not hide members of an injected answer. ... ok
+test_variadic_public_parameters_are_receiving_entries_too (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_variadic_public_parameters_are_receiving_entries_too) ... ok
+test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) ... ok
+
+======================================================================
+FAIL: test_every_boundary_call_belongs_to_an_entry_or_is_declared (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared)
+Every exact source call has an entry claim or a named exception.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 8174, in test_every_boundary_call_belongs_to_an_entry_or_is_declared
+    self.assertEqual(orphans, [], "boundary calls attributed to no entry")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('attempts.py:_identified_within', 'ident[13112 chars]er')] != []
+
+First list contains 166 additional elements.
+First extra element 0:
+('attempts.py:_identified_within', 'identity', 'a runtime attempt id')
+
+Diff is 14235 characters long. Set self.maxDiff to None to see it. : boundary calls attributed to no entry
+
+======================================================================
+FAIL: test_every_receiving_entry_has_an_owning_validator (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 8050, in test_every_receiving_entry_has_an_owning_validator
+    self.assertEqual(unowned, [], "receiving entries with no owner")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('adopted', 'attempts.py:_decide', 'obser[43932 chars]un')] != []
+
+First list contains 663 additional elements.
+First extra element 0:
+('adopted', 'attempts.py:_decide', 'observations.next')
+
+Diff is 46525 characters long. Set self.maxDiff to None to see it. : receiving entries with no owner
+
+----------------------------------------------------------------------
+Ran 15 tests in 23.342s
+
+FAILED (failures=2)
+error: Recipe `test-one` failed with exit code 1

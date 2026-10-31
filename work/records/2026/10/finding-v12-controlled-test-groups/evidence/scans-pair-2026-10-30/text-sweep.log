@@ -1,0 +1,9 @@
+test_every_text_operand_refuses_a_lone_surrogate (tests.manager.test_text_sweep.EveryExportedOperationRefusesUnstorableText.test_every_text_operand_refuses_a_lone_surrogate) ... ok
+test_the_sweep_is_not_vacuous (tests.manager.test_text_sweep.EveryExportedOperationRefusesUnstorableText.test_the_sweep_is_not_vacuous) ... ok
+test_the_table_names_every_exported_callable (tests.manager.test_text_sweep.EveryExportedOperationRefusesUnstorableText.test_the_table_names_every_exported_callable)
+The completeness half, and the reason this file exists. ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.021s
+
+OK

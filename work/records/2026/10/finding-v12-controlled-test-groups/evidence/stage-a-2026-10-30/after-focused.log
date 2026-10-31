@@ -1,0 +1,20 @@
+test_no_entry_is_owned_twice (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_entry_is_owned_twice)
+4bz forbids blanket revalidation, and this is where it shows. ... ok
+test_a_required_member_of_a_constructed_operand_is_owned_once_at_the_site (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_a_required_member_of_a_constructed_operand_is_owned_once_at_the_site)
+W384870 stage A: `port` at the two discharge gates. ... ok
+test_re_validating_a_constructed_operand_is_still_owned_twice (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_re_validating_a_constructed_operand_is_still_owned_twice)
+The negative for the rule above: only a member requirement coexists. ... ok
+test_the_double_ownership_check_can_actually_fail (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_the_double_ownership_check_can_actually_fail) ... ok
+test_all_lane_probes_reach_their_named_boundary (tests.manager.test_boundary_inventory.LanesHaveCompleteReceivingCoverage.test_all_lane_probes_reach_their_named_boundary) ... ok
+test_lane_entries_have_exactly_one_owner_and_no_unaccounted_calls (tests.manager.test_boundary_inventory.LanesHaveCompleteReceivingCoverage.test_lane_entries_have_exactly_one_owner_and_no_unaccounted_calls) ... ok
+test_lane_probe_catalog_matches_every_actual_owner (tests.manager.test_boundary_inventory.LanesHaveCompleteReceivingCoverage.test_lane_probe_catalog_matches_every_actual_owner) ... ok
+test_lane_projection_and_lookup_positive_and_earlier_refusal_controls (tests.manager.test_boundary_inventory.LanesHaveCompleteReceivingCoverage.test_lane_projection_and_lookup_positive_and_earlier_refusal_controls) ... ok
+test_private_lane_checks_refuse_before_sql (tests.manager.test_boundary_inventory.LanesHaveCompleteReceivingCoverage.test_private_lane_checks_refuse_before_sql) ... ok
+test_private_lane_writer_provenance (tests.manager.test_boundary_inventory.LanesHaveCompleteReceivingCoverage.test_private_lane_writer_provenance) ... ok
+test_public_start_and_cleanup_supply_owned_lane_values (tests.manager.test_boundary_inventory.LanesHaveCompleteReceivingCoverage.test_public_start_and_cleanup_supply_owned_lane_values) ... ok
+test_entries_calls_and_probes_are_owned (tests.manager.test_boundary_inventory.StoppedSettlementInventory.test_entries_calls_and_probes_are_owned) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 16.038s
+
+OK

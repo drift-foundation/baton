@@ -1,0 +1,35 @@
+test_a_probe_that_is_refused_earlier_fails (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_a_probe_that_is_refused_earlier_fails)
+The vacuity guard, proved rather than promised. ... ok
+test_an_admission_request_refuses_a_checkpoint_id_as_an_extra_member_first (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_an_admission_request_refuses_a_checkpoint_id_as_an_extra_member_first) ... FAIL
+test_cleanup_of_refuses_a_spoiled_operation_under_its_own_label_first (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_cleanup_of_refuses_a_spoiled_operation_under_its_own_label_first) ... ok
+test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) ... ok
+test_every_owned_entry_has_exactly_one_probe (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe) ... ok
+test_every_shadowed_pair_is_real_and_its_shadow_refuses_first (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_shadowed_pair_is_real_and_its_shadow_refuses_first)
+A shadowed pair names a real owned label and a witness that drives it. ... ok
+test_every_unprobed_entry_is_a_real_owned_entry (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_unprobed_entry_is_a_real_owned_entry)
+An exemption has to name something that exists and IS owned. ... ok
+test_historical_cleanup_document_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_historical_cleanup_document_probe_reaches_its_named_boundary)
+The exact chained journal validator still needs a reaching probe. ... ok
+test_historical_custody_journal_probes_reach_their_named_boundaries (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_historical_custody_journal_probes_reach_their_named_boundaries) ... ok
+test_line_launch_proof_has_an_exact_live_capability_probe (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_line_launch_proof_has_an_exact_live_capability_probe) ... ok
+test_the_checkpoint_row_refuses_a_damaged_fence_before_the_fence_owner (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_checkpoint_row_refuses_a_damaged_fence_before_the_fence_owner) ... ok
+test_the_meta_group_record_owner_cannot_be_driven (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_meta_group_record_owner_cannot_be_driven)
+NO_PROBE witness: `meta.value` is STRICT TEXT, so the text rule over a digit-like value never refuses. ... ok
+test_the_missing_probe_check_can_actually_fail (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_missing_probe_check_can_actually_fail)
+Every entry has a probe today, so relaxing the check changes no ... ok
+test_the_pin_members_are_refused_by_the_pin_owner_first (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_pin_members_are_refused_by_the_pin_owner_first) ... ok
+
+======================================================================
+FAIL: test_an_admission_request_refuses_a_checkpoint_id_as_an_extra_member_first (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_an_admission_request_refuses_a_checkpoint_id_as_an_extra_member_first)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11184, in test_an_admission_request_refuses_a_checkpoint_id_as_an_extra_member_first
+    self.assertIn("checkpoint_id", refusal.message)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'checkpoint_id' not found in 'provider context metadata carries text that is not encodable; a durable value round-trips or it is not one'
+
+----------------------------------------------------------------------
+Ran 14 tests in 25.941s
+
+FAILED (failures=1)
+error: Recipe `test-one` failed with exit code 1

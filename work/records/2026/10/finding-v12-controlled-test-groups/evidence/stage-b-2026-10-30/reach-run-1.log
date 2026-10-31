@@ -1,0 +1,2350 @@
+test_every_owned_entry_has_exactly_one_probe (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe) ... ok
+test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) ... 
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'deadlines.py:_pin_of', 'replay.policy.policy_digest'), label='a runtime deadline policy digest') ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'intake.py:_abandonment_declaration', 'replay.authority_operation_id'), label="'s authority operation identity") ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'intake.py:_abandonment_declaration', 'replay.reason'), label="'s reason") ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'intake.py:_committed', 'replay.cleanup.operation.operation_id'), label="'s committed cleanup") ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'intake.py:_committed', 'replay.cleanup.operation.signature_digest'), label="'s committed cleanup") ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'intake.py:_committed', 'replay.cleanup.why'), label="'s account") ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'intake.py:_committed', 'replay.directory_custody'), label="'s directory custody") ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'intake.py:_committed', 'replay.state'), label="'s observed runtime state") ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'intake.py:_committed', 'replay.why'), label="'s account") ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'intake.py:_failed_start_record', 'replay'), label='a committed failed-start record') ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'intake.py:_refused_session_record', 'replay'), label='a committed refusal record') ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'intake.py:_refused_session_record', 'replay.agent_protocol_version'), label='a committed refusal record') ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'intake.py:_refused_session_record', 'replay.pinned_wire_version'), label='a committed refusal record') ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'intake.py:_refused_session_record', 'replay.profile_digest'), label='a committed refusal record') ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'provider_context.py:admit_context_use', 'replay.payload.attempt_id'), label='provider context identity') ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'provider_context.py:admit_context_use', 'replay.payload.qualification_run'), label='provider context identity') ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'provider_context.py:admit_context_use', 'replay.payload.stage_id'), label='provider context identity') ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'provider_context.py:admit_context_use', 'replay.payload.writer_id'), label='provider context identity') ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:_fixed_intent', 'replay.attempt_id'), label="'s intent attempt_id") ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:_fixed_intent', 'replay.checkpoint_digest'), label="'s intent checkpoint digest") ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:_fixed_intent', 'replay.checkpoint_id'), label="'s intent checkpoint_id") ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:_fixed_intent', 'replay.discharge_operation_id'), label="'s intent discharge_operation_id") ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:_fixed_intent', 'replay.line_id'), label="'s intent line_id") ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:_fixed_intent', 'replay.retention_policy_digest'), label="'s intent retention policy digest") ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:_fixed_intent', 'replay.runtime_id'), label="'s intent runtime_id") ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:_fixed_intent', 'replay.writer_id'), label="'s intent writer_id") ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:abandoned_correction_of', 'replay.attempt_id'), label="'s attempt_id") ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:abandoned_correction_of', 'replay.checkpoint_evidence.base'), label="persisted checkpoint evidence's base") ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:abandoned_correction_of', 'replay.checkpoint_evidence.head'), label="persisted checkpoint evidence's head") ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:abandoned_correction_of', 'replay.checkpoint_evidence.path_set_digest'), label="persisted checkpoint evidence's path_set_digest") ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:abandoned_correction_of', 'replay.checkpoint_evidence.paths'), label='a persisted checkpoint evidence path') ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:abandoned_correction_of', 'replay.checkpoint_evidence.profile'), label="persisted checkpoint evidence's profile") ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:abandoned_correction_of', 'replay.checkpoint_evidence.reference'), label="persisted checkpoint evidence's reference") ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:abandoned_correction_of', 'replay.checkpoint_evidence.tree'), label="persisted checkpoint evidence's tree") ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:abandoned_correction_of', 'replay.checkpoint_id'), label="'s checkpoint_id") ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:abandoned_correction_of', 'replay.discharge_operation_id'), label="'s discharge_operation_id") ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:abandoned_correction_of', 'replay.line_id'), label="'s line_id") ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:abandoned_correction_of', 'replay.operation_id'), label="'s operation_id") ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:abandoned_correction_of', 'replay.retention_policy_digest'), label="'s retention policy digest") ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:abandoned_correction_of', 'replay.runtime_id'), label="'s runtime_id") ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:abandoned_correction_of', 'replay.writer_id'), label="'s writer_id") ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:checkpoint_of', 'line_checkpoints.fence.intent'), label='a persisted assignment fence') ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('injected', 'authority_port.py:AuthorityPort.satisfy_gate', 'satisfy_gate.kind'), label="the discharged gate's kind") ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('injected', 'intake.py:_destroyed_abandoned', 'adapter.destroy_abandoned.credentials.lifecycle_state'), label="a credentials teardown ending's state") ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('injected', 'intake.py:_destroyed_abandoned', 'adapter.destroy_abandoned.launch.lifecycle_state'), label="a launch teardown ending's state") ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('injected', 'intake.py:_destroyed_abandoned', 'adapter.destroy_abandoned.runtime_id'), label='an observed runtime id') ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('injected', 'intake.py:_destroyed_abandoned', 'adapter.destroy_abandoned.state'), label="a destroy observation's state") ... FAIL
+  test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('injected', 'intake.py:_destroyed_abandoned', 'adapter.destroy_abandoned.why'), label="a destroy observation's reason") ... FAIL
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'deadlines.py:_pin_of', 'replay.policy.policy_digest'), label='a runtime deadline policy digest')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 8987, in run
+    worker_manager.deadline_of(fixture.store, attempt_id=suite.ATTEMPT)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/deadlines.py", line 103, in deadline_of
+    return _pin_of(store, row, assignment)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/deadlines.py", line 85, in _pin_of
+    held = boundaries.document(value, "a pinned runtime deadline", required=PIN)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 79, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries text that is not encodable; a durable value "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"round-trips or it is not one")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: a pinned runtime deadline carries text that is not encodable; a durable value round-trips or it is not one
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'a runtime deadline policy digest' not found in 'a pinned runtime deadline carries text that is not encodable; a durable value round-trips or it is not one' : refused, but not at 'a runtime deadline policy digest': a pinned runtime deadline carries text that is not encodable; a durable value round-trips or it is not one
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'intake.py:_abandonment_declaration', 'replay.authority_operation_id'), label="'s authority operation identity")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9096, in run
+    fixture.read()
+    ~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3700, in read
+    return abandonment_cleanup_of(self.store, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 3269, in abandonment_cleanup_of
+    declared = _abandonment_declaration(store, attempt, attempt_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 3031, in _abandonment_declaration
+    held = boundaries.document(committed, what,
+                               required=documents.ABANDON_INTENT)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 79, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries text that is not encodable; a durable value "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"round-trips or it is not one")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: attempt 'attempt-1''s committed abandonment carries text that is not encodable; a durable value round-trips or it is not one
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "'s authority operation identity" not found in "attempt 'attempt-1''s committed abandonment carries text that is not encodable; a durable value round-trips or it is not one" : refused, but not at "'s authority operation identity": attempt 'attempt-1''s committed abandonment carries text that is not encodable; a durable value round-trips or it is not one
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'intake.py:_abandonment_declaration', 'replay.reason'), label="'s reason")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9096, in run
+    fixture.read()
+    ~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3700, in read
+    return abandonment_cleanup_of(self.store, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 3269, in abandonment_cleanup_of
+    declared = _abandonment_declaration(store, attempt, attempt_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 3031, in _abandonment_declaration
+    held = boundaries.document(committed, what,
+                               required=documents.ABANDON_INTENT)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 79, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries text that is not encodable; a durable value "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"round-trips or it is not one")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: attempt 'attempt-1''s committed abandonment carries text that is not encodable; a durable value round-trips or it is not one
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "'s reason" not found in "attempt 'attempt-1''s committed abandonment carries text that is not encodable; a durable value round-trips or it is not one" : refused, but not at "'s reason": attempt 'attempt-1''s committed abandonment carries text that is not encodable; a durable value round-trips or it is not one
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'intake.py:_committed', 'replay.cleanup.operation.operation_id'), label="'s committed cleanup")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9096, in run
+    fixture.read()
+    ~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3700, in read
+    return abandonment_cleanup_of(self.store, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 3321, in abandonment_cleanup_of
+    "cleanup": _abandoned_absence(store, composite["cleanup"], attempt_id,
+               ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                  operation, what),
+                                  ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 3177, in _abandoned_absence
+    committed = boundaries.document(
+        cleanup["operation"], f"{what}'s cleanup operation",
+        required=("operation_id", "signature_digest"))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 227, in document
+    _members(taken, what, required, optional)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 198, in _members
+    _refuse(f"{what} needs {', '.join(missing)}")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: attempt 'attempt-1''s committed abandoned cleanup's cleanup operation needs operation_id
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "'s committed cleanup" not found in "attempt 'attempt-1''s committed abandoned cleanup's cleanup operation needs operation_id" : refused, but not at "'s committed cleanup": attempt 'attempt-1''s committed abandoned cleanup's cleanup operation needs operation_id
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'intake.py:_committed', 'replay.cleanup.operation.signature_digest'), label="'s committed cleanup")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9096, in run
+    fixture.read()
+    ~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3700, in read
+    return abandonment_cleanup_of(self.store, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 3321, in abandonment_cleanup_of
+    "cleanup": _abandoned_absence(store, composite["cleanup"], attempt_id,
+               ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                  operation, what),
+                                  ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 3177, in _abandoned_absence
+    committed = boundaries.document(
+        cleanup["operation"], f"{what}'s cleanup operation",
+        required=("operation_id", "signature_digest"))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 227, in document
+    _members(taken, what, required, optional)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 198, in _members
+    _refuse(f"{what} needs {', '.join(missing)}")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: attempt 'attempt-1''s committed abandoned cleanup's cleanup operation needs signature_digest
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "'s committed cleanup" not found in "attempt 'attempt-1''s committed abandoned cleanup's cleanup operation needs signature_digest" : refused, but not at "'s committed cleanup": attempt 'attempt-1''s committed abandoned cleanup's cleanup operation needs signature_digest
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'intake.py:_committed', 'replay.cleanup.why'), label="'s account")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9096, in run
+    fixture.read()
+    ~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3700, in read
+    return abandonment_cleanup_of(self.store, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 3299, in abandonment_cleanup_of
+    composite = boundaries.document(
+        settled, what, required=documents.CONTRACTS["attempt.abandonment"][0])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 79, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries text that is not encodable; a durable value "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"round-trips or it is not one")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: attempt 'attempt-1''s committed abandoned cleanup carries text that is not encodable; a durable value round-trips or it is not one
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "'s account" not found in "attempt 'attempt-1''s committed abandoned cleanup carries text that is not encodable; a durable value round-trips or it is not one" : refused, but not at "'s account": attempt 'attempt-1''s committed abandoned cleanup carries text that is not encodable; a durable value round-trips or it is not one
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'intake.py:_committed', 'replay.directory_custody'), label="'s directory custody")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9074, in run
+    fixture.read()
+    ~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3078, in read
+    return cleanup_of(self.store, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 2064, in cleanup_of
+    _settled_ending(store, attempt_id, receipt, retention_policy_digest,
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    taken, what)
+                    ^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 2143, in _settled_ending
+    _adopted_normalizations(store, attempt_id, taken, what)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 2216, in _adopted_normalizations
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"; a positive absence ends on exactly one of the two accounts of its roots")
+baton_v12.contracts.errors.ContractRefusal: attempt 'attempt-1''s committed cleanup records both directory custody and a writer cessation; a positive absence ends on exactly one of the two accounts of its roots
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "'s directory custody" not found in "attempt 'attempt-1''s committed cleanup records both directory custody and a writer cessation; a positive absence ends on exactly one of the two accounts of its roots" : refused, but not at "'s directory custody": attempt 'attempt-1''s committed cleanup records both directory custody and a writer cessation; a positive absence ends on exactly one of the two accounts of its roots
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'intake.py:_committed', 'replay.state'), label="'s observed runtime state")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9074, in run
+    fixture.read()
+    ~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3078, in read
+    return cleanup_of(self.store, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 2038, in cleanup_of
+    taken = boundaries.document(settled, what, required=CLEANUP_RECEIPT,
+                                optional=CLEANUP_EVIDENCE)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 79, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries text that is not encodable; a durable value "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"round-trips or it is not one")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: attempt 'attempt-1''s committed cleanup carries text that is not encodable; a durable value round-trips or it is not one
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "'s observed runtime state" not found in "attempt 'attempt-1''s committed cleanup carries text that is not encodable; a durable value round-trips or it is not one" : refused, but not at "'s observed runtime state": attempt 'attempt-1''s committed cleanup carries text that is not encodable; a durable value round-trips or it is not one
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'intake.py:_committed', 'replay.why'), label="'s account")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9074, in run
+    fixture.read()
+    ~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3078, in read
+    return cleanup_of(self.store, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 2038, in cleanup_of
+    taken = boundaries.document(settled, what, required=CLEANUP_RECEIPT,
+                                optional=CLEANUP_EVIDENCE)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 79, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries text that is not encodable; a durable value "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"round-trips or it is not one")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: attempt 'attempt-1''s committed cleanup carries text that is not encodable; a durable value round-trips or it is not one
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "'s account" not found in "attempt 'attempt-1''s committed cleanup carries text that is not encodable; a durable value round-trips or it is not one" : refused, but not at "'s account": attempt 'attempt-1''s committed cleanup carries text that is not encodable; a durable value round-trips or it is not one
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'intake.py:_failed_start_record', 'replay'), label='a committed failed-start record')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9163, in run
+    worker_manager.authorize_failed_start_cleanup(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.store, self.port, _Custodian(), attempt_id=attempt_id, retention_policy_digest=RETENTION_POLICY)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 2416, in authorize_failed_start_cleanup
+    boundaries.capability(getattr(adapter, "destroy_failed_start", None),
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          "the runtime adapter's failed-start destroy")
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 494, in capability
+    _refuse(f"{what} is a capability this manager calls; this is "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{name_value(value)}")
+            ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the runtime adapter's failed-start destroy is a capability this manager calls; this is none
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'a committed failed-start record' not found in "the runtime adapter's failed-start destroy is a capability this manager calls; this is none" : refused, but not at 'a committed failed-start record': the runtime adapter's failed-start destroy is a capability this manager calls; this is none
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'intake.py:_refused_session_record', 'replay'), label='a committed refusal record')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9171, in run
+    worker_manager.authorize_refused_session_cleanup(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.store, self.port, _Custodian(), session_ref=reference, retention_policy_digest=RETENTION_POLICY)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 2574, in authorize_refused_session_cleanup
+    boundaries.capability(getattr(adapter, "destroy_refused_session", None),
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          "the runtime adapter's refused-session destroy")
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 494, in capability
+    _refuse(f"{what} is a capability this manager calls; this is "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{name_value(value)}")
+            ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the runtime adapter's refused-session destroy is a capability this manager calls; this is none
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'a committed refusal record' not found in "the runtime adapter's refused-session destroy is a capability this manager calls; this is none" : refused, but not at 'a committed refusal record': the runtime adapter's refused-session destroy is a capability this manager calls; this is none
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'intake.py:_refused_session_record', 'replay.agent_protocol_version'), label='a committed refusal record')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9171, in run
+    worker_manager.authorize_refused_session_cleanup(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.store, self.port, _Custodian(), session_ref=reference, retention_policy_digest=RETENTION_POLICY)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 2574, in authorize_refused_session_cleanup
+    boundaries.capability(getattr(adapter, "destroy_refused_session", None),
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          "the runtime adapter's refused-session destroy")
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 494, in capability
+    _refuse(f"{what} is a capability this manager calls; this is "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{name_value(value)}")
+            ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the runtime adapter's refused-session destroy is a capability this manager calls; this is none
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'a committed refusal record' not found in "the runtime adapter's refused-session destroy is a capability this manager calls; this is none" : refused, but not at 'a committed refusal record': the runtime adapter's refused-session destroy is a capability this manager calls; this is none
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'intake.py:_refused_session_record', 'replay.pinned_wire_version'), label='a committed refusal record')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9171, in run
+    worker_manager.authorize_refused_session_cleanup(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.store, self.port, _Custodian(), session_ref=reference, retention_policy_digest=RETENTION_POLICY)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 2574, in authorize_refused_session_cleanup
+    boundaries.capability(getattr(adapter, "destroy_refused_session", None),
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          "the runtime adapter's refused-session destroy")
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 494, in capability
+    _refuse(f"{what} is a capability this manager calls; this is "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{name_value(value)}")
+            ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the runtime adapter's refused-session destroy is a capability this manager calls; this is none
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'a committed refusal record' not found in "the runtime adapter's refused-session destroy is a capability this manager calls; this is none" : refused, but not at 'a committed refusal record': the runtime adapter's refused-session destroy is a capability this manager calls; this is none
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'intake.py:_refused_session_record', 'replay.profile_digest'), label='a committed refusal record')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9171, in run
+    worker_manager.authorize_refused_session_cleanup(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.store, self.port, _Custodian(), session_ref=reference, retention_policy_digest=RETENTION_POLICY)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 2574, in authorize_refused_session_cleanup
+    boundaries.capability(getattr(adapter, "destroy_refused_session", None),
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          "the runtime adapter's refused-session destroy")
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 494, in capability
+    _refuse(f"{what} is a capability this manager calls; this is "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{name_value(value)}")
+            ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the runtime adapter's refused-session destroy is a capability this manager calls; this is none
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'a committed refusal record' not found in "the runtime adapter's refused-session destroy is a capability this manager calls; this is none" : refused, but not at 'a committed refusal record': the runtime adapter's refused-session destroy is a capability this manager calls; this is none
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'provider_context.py:admit_context_use', 'replay.payload.attempt_id'), label='provider context identity')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9191, in run
+    fixture.admit()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 115, in admit
+    return context.admit_context_use(control or self.control, self.jobs, self.port, **arguments)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/provider_context.py", line 765, in admit_context_use
+    request = _document(request, ("context_id", "use_id", "revision", "payload"))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/provider_context.py", line 50, in _document
+    return boundaries.document(value, "provider context metadata", required=required)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 79, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries text that is not encodable; a durable value "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"round-trips or it is not one")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: provider context metadata carries text that is not encodable; a durable value round-trips or it is not one
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'provider context identity' not found in 'provider context metadata carries text that is not encodable; a durable value round-trips or it is not one' : refused, but not at 'provider context identity': provider context metadata carries text that is not encodable; a durable value round-trips or it is not one
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'provider_context.py:admit_context_use', 'replay.payload.qualification_run'), label='provider context identity')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9191, in run
+    fixture.admit()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 115, in admit
+    return context.admit_context_use(control or self.control, self.jobs, self.port, **arguments)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/provider_context.py", line 765, in admit_context_use
+    request = _document(request, ("context_id", "use_id", "revision", "payload"))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/provider_context.py", line 50, in _document
+    return boundaries.document(value, "provider context metadata", required=required)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 79, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries text that is not encodable; a durable value "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"round-trips or it is not one")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: provider context metadata carries text that is not encodable; a durable value round-trips or it is not one
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'provider context identity' not found in 'provider context metadata carries text that is not encodable; a durable value round-trips or it is not one' : refused, but not at 'provider context identity': provider context metadata carries text that is not encodable; a durable value round-trips or it is not one
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'provider_context.py:admit_context_use', 'replay.payload.stage_id'), label='provider context identity')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9191, in run
+    fixture.admit()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 115, in admit
+    return context.admit_context_use(control or self.control, self.jobs, self.port, **arguments)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/provider_context.py", line 765, in admit_context_use
+    request = _document(request, ("context_id", "use_id", "revision", "payload"))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/provider_context.py", line 50, in _document
+    return boundaries.document(value, "provider context metadata", required=required)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 79, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries text that is not encodable; a durable value "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"round-trips or it is not one")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: provider context metadata carries text that is not encodable; a durable value round-trips or it is not one
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'provider context identity' not found in 'provider context metadata carries text that is not encodable; a durable value round-trips or it is not one' : refused, but not at 'provider context identity': provider context metadata carries text that is not encodable; a durable value round-trips or it is not one
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'provider_context.py:admit_context_use', 'replay.payload.writer_id'), label='provider context identity')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9191, in run
+    fixture.admit()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 115, in admit
+    return context.admit_context_use(control or self.control, self.jobs, self.port, **arguments)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/provider_context.py", line 765, in admit_context_use
+    request = _document(request, ("context_id", "use_id", "revision", "payload"))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/provider_context.py", line 50, in _document
+    return boundaries.document(value, "provider context metadata", required=required)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 79, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries text that is not encodable; a durable value "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"round-trips or it is not one")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: provider context metadata carries text that is not encodable; a durable value round-trips or it is not one
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'provider context identity' not found in 'provider context metadata carries text that is not encodable; a durable value round-trips or it is not one' : refused, but not at 'provider context identity': provider context metadata carries text that is not encodable; a durable value round-trips or it is not one
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:_fixed_intent', 'replay.attempt_id'), label="'s intent attempt_id")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9233, in run
+    fixture.restore()
+    ~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_review_cycles.py", line 2402, in restore
+    return restore_abandoned_correction(self.store, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3430, in restore_abandoned_correction
+    fixed = _fixed_intent(store, intent_id, recorded, attempt_id,
+                          generation, retention_policy_digest, what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3038, in _fixed_intent
+    fixed = boundaries.document(committed, f"{what}'s recovery intent",
+                                required=_RESTORE_INTENT)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 79, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries text that is not encodable; a durable value "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"round-trips or it is not one")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the abandoned correction for attempt 'writer-attempt-2' generation 2's recovery intent carries text that is not encodable; a durable value round-trips or it is not one
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "'s intent attempt_id" not found in "the abandoned correction for attempt 'writer-attempt-2' generation 2's recovery intent carries text that is not encodable; a durable value round-trips or it is not one" : refused, but not at "'s intent attempt_id": the abandoned correction for attempt 'writer-attempt-2' generation 2's recovery intent carries text that is not encodable; a durable value round-trips or it is not one
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:_fixed_intent', 'replay.checkpoint_digest'), label="'s intent checkpoint digest")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9233, in run
+    fixture.restore()
+    ~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_review_cycles.py", line 2402, in restore
+    return restore_abandoned_correction(self.store, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3430, in restore_abandoned_correction
+    fixed = _fixed_intent(store, intent_id, recorded, attempt_id,
+                          generation, retention_policy_digest, what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3038, in _fixed_intent
+    fixed = boundaries.document(committed, f"{what}'s recovery intent",
+                                required=_RESTORE_INTENT)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 79, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries text that is not encodable; a durable value "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"round-trips or it is not one")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the abandoned correction for attempt 'writer-attempt-2' generation 2's recovery intent carries text that is not encodable; a durable value round-trips or it is not one
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "'s intent checkpoint digest" not found in "the abandoned correction for attempt 'writer-attempt-2' generation 2's recovery intent carries text that is not encodable; a durable value round-trips or it is not one" : refused, but not at "'s intent checkpoint digest": the abandoned correction for attempt 'writer-attempt-2' generation 2's recovery intent carries text that is not encodable; a durable value round-trips or it is not one
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:_fixed_intent', 'replay.checkpoint_id'), label="'s intent checkpoint_id")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9233, in run
+    fixture.restore()
+    ~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_review_cycles.py", line 2402, in restore
+    return restore_abandoned_correction(self.store, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3430, in restore_abandoned_correction
+    fixed = _fixed_intent(store, intent_id, recorded, attempt_id,
+                          generation, retention_policy_digest, what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3038, in _fixed_intent
+    fixed = boundaries.document(committed, f"{what}'s recovery intent",
+                                required=_RESTORE_INTENT)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 79, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries text that is not encodable; a durable value "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"round-trips or it is not one")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the abandoned correction for attempt 'writer-attempt-2' generation 2's recovery intent carries text that is not encodable; a durable value round-trips or it is not one
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "'s intent checkpoint_id" not found in "the abandoned correction for attempt 'writer-attempt-2' generation 2's recovery intent carries text that is not encodable; a durable value round-trips or it is not one" : refused, but not at "'s intent checkpoint_id": the abandoned correction for attempt 'writer-attempt-2' generation 2's recovery intent carries text that is not encodable; a durable value round-trips or it is not one
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:_fixed_intent', 'replay.discharge_operation_id'), label="'s intent discharge_operation_id")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9233, in run
+    fixture.restore()
+    ~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_review_cycles.py", line 2402, in restore
+    return restore_abandoned_correction(self.store, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3430, in restore_abandoned_correction
+    fixed = _fixed_intent(store, intent_id, recorded, attempt_id,
+                          generation, retention_policy_digest, what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3038, in _fixed_intent
+    fixed = boundaries.document(committed, f"{what}'s recovery intent",
+                                required=_RESTORE_INTENT)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 79, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries text that is not encodable; a durable value "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"round-trips or it is not one")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the abandoned correction for attempt 'writer-attempt-2' generation 2's recovery intent carries text that is not encodable; a durable value round-trips or it is not one
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "'s intent discharge_operation_id" not found in "the abandoned correction for attempt 'writer-attempt-2' generation 2's recovery intent carries text that is not encodable; a durable value round-trips or it is not one" : refused, but not at "'s intent discharge_operation_id": the abandoned correction for attempt 'writer-attempt-2' generation 2's recovery intent carries text that is not encodable; a durable value round-trips or it is not one
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:_fixed_intent', 'replay.line_id'), label="'s intent line_id")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9233, in run
+    fixture.restore()
+    ~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_review_cycles.py", line 2402, in restore
+    return restore_abandoned_correction(self.store, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3430, in restore_abandoned_correction
+    fixed = _fixed_intent(store, intent_id, recorded, attempt_id,
+                          generation, retention_policy_digest, what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3038, in _fixed_intent
+    fixed = boundaries.document(committed, f"{what}'s recovery intent",
+                                required=_RESTORE_INTENT)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 79, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries text that is not encodable; a durable value "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"round-trips or it is not one")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the abandoned correction for attempt 'writer-attempt-2' generation 2's recovery intent carries text that is not encodable; a durable value round-trips or it is not one
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "'s intent line_id" not found in "the abandoned correction for attempt 'writer-attempt-2' generation 2's recovery intent carries text that is not encodable; a durable value round-trips or it is not one" : refused, but not at "'s intent line_id": the abandoned correction for attempt 'writer-attempt-2' generation 2's recovery intent carries text that is not encodable; a durable value round-trips or it is not one
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:_fixed_intent', 'replay.retention_policy_digest'), label="'s intent retention policy digest")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9233, in run
+    fixture.restore()
+    ~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_review_cycles.py", line 2402, in restore
+    return restore_abandoned_correction(self.store, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3430, in restore_abandoned_correction
+    fixed = _fixed_intent(store, intent_id, recorded, attempt_id,
+                          generation, retention_policy_digest, what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3038, in _fixed_intent
+    fixed = boundaries.document(committed, f"{what}'s recovery intent",
+                                required=_RESTORE_INTENT)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 79, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries text that is not encodable; a durable value "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"round-trips or it is not one")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the abandoned correction for attempt 'writer-attempt-2' generation 2's recovery intent carries text that is not encodable; a durable value round-trips or it is not one
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "'s intent retention policy digest" not found in "the abandoned correction for attempt 'writer-attempt-2' generation 2's recovery intent carries text that is not encodable; a durable value round-trips or it is not one" : refused, but not at "'s intent retention policy digest": the abandoned correction for attempt 'writer-attempt-2' generation 2's recovery intent carries text that is not encodable; a durable value round-trips or it is not one
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:_fixed_intent', 'replay.runtime_id'), label="'s intent runtime_id")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9233, in run
+    fixture.restore()
+    ~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_review_cycles.py", line 2402, in restore
+    return restore_abandoned_correction(self.store, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3430, in restore_abandoned_correction
+    fixed = _fixed_intent(store, intent_id, recorded, attempt_id,
+                          generation, retention_policy_digest, what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3038, in _fixed_intent
+    fixed = boundaries.document(committed, f"{what}'s recovery intent",
+                                required=_RESTORE_INTENT)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 79, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries text that is not encodable; a durable value "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"round-trips or it is not one")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the abandoned correction for attempt 'writer-attempt-2' generation 2's recovery intent carries text that is not encodable; a durable value round-trips or it is not one
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "'s intent runtime_id" not found in "the abandoned correction for attempt 'writer-attempt-2' generation 2's recovery intent carries text that is not encodable; a durable value round-trips or it is not one" : refused, but not at "'s intent runtime_id": the abandoned correction for attempt 'writer-attempt-2' generation 2's recovery intent carries text that is not encodable; a durable value round-trips or it is not one
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:_fixed_intent', 'replay.writer_id'), label="'s intent writer_id")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9233, in run
+    fixture.restore()
+    ~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_review_cycles.py", line 2402, in restore
+    return restore_abandoned_correction(self.store, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3430, in restore_abandoned_correction
+    fixed = _fixed_intent(store, intent_id, recorded, attempt_id,
+                          generation, retention_policy_digest, what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3038, in _fixed_intent
+    fixed = boundaries.document(committed, f"{what}'s recovery intent",
+                                required=_RESTORE_INTENT)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 79, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries text that is not encodable; a durable value "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"round-trips or it is not one")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the abandoned correction for attempt 'writer-attempt-2' generation 2's recovery intent carries text that is not encodable; a durable value round-trips or it is not one
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "'s intent writer_id" not found in "the abandoned correction for attempt 'writer-attempt-2' generation 2's recovery intent carries text that is not encodable; a durable value round-trips or it is not one" : refused, but not at "'s intent writer_id": the abandoned correction for attempt 'writer-attempt-2' generation 2's recovery intent carries text that is not encodable; a durable value round-trips or it is not one
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:abandoned_correction_of', 'replay.attempt_id'), label="'s attempt_id")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9255, in run
+    review_cycles.abandoned_correction_of(fixture.store, attempt_id=fixture.abandoned_attempt, generation=2)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3211, in abandoned_correction_of
+    taken = _adopted_correction(committed, what, operation_id=operation_id,
+                                attempt_id=attempt_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3126, in _adopted_correction
+    taken = boundaries.document(value, what, required=ABANDONED_CORRECTION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 79, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries text that is not encodable; a durable value "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"round-trips or it is not one")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "'s attempt_id" not found in "the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one" : refused, but not at "'s attempt_id": the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:abandoned_correction_of', 'replay.checkpoint_evidence.base'), label="persisted checkpoint evidence's base")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9255, in run
+    review_cycles.abandoned_correction_of(fixture.store, attempt_id=fixture.abandoned_attempt, generation=2)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3211, in abandoned_correction_of
+    taken = _adopted_correction(committed, what, operation_id=operation_id,
+                                attempt_id=attempt_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3126, in _adopted_correction
+    taken = boundaries.document(value, what, required=ABANDONED_CORRECTION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 79, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries text that is not encodable; a durable value "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"round-trips or it is not one")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "persisted checkpoint evidence's base" not found in "the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one" : refused, but not at "persisted checkpoint evidence's base": the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:abandoned_correction_of', 'replay.checkpoint_evidence.head'), label="persisted checkpoint evidence's head")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9255, in run
+    review_cycles.abandoned_correction_of(fixture.store, attempt_id=fixture.abandoned_attempt, generation=2)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3211, in abandoned_correction_of
+    taken = _adopted_correction(committed, what, operation_id=operation_id,
+                                attempt_id=attempt_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3126, in _adopted_correction
+    taken = boundaries.document(value, what, required=ABANDONED_CORRECTION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 79, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries text that is not encodable; a durable value "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"round-trips or it is not one")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "persisted checkpoint evidence's head" not found in "the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one" : refused, but not at "persisted checkpoint evidence's head": the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:abandoned_correction_of', 'replay.checkpoint_evidence.path_set_digest'), label="persisted checkpoint evidence's path_set_digest")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9255, in run
+    review_cycles.abandoned_correction_of(fixture.store, attempt_id=fixture.abandoned_attempt, generation=2)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3211, in abandoned_correction_of
+    taken = _adopted_correction(committed, what, operation_id=operation_id,
+                                attempt_id=attempt_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3126, in _adopted_correction
+    taken = boundaries.document(value, what, required=ABANDONED_CORRECTION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 79, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries text that is not encodable; a durable value "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"round-trips or it is not one")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "persisted checkpoint evidence's path_set_digest" not found in "the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one" : refused, but not at "persisted checkpoint evidence's path_set_digest": the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:abandoned_correction_of', 'replay.checkpoint_evidence.paths'), label='a persisted checkpoint evidence path')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9255, in run
+    review_cycles.abandoned_correction_of(fixture.store, attempt_id=fixture.abandoned_attempt, generation=2)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3211, in abandoned_correction_of
+    taken = _adopted_correction(committed, what, operation_id=operation_id,
+                                attempt_id=attempt_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3126, in _adopted_correction
+    taken = boundaries.document(value, what, required=ABANDONED_CORRECTION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 88, in _own
+    return [_own(entry, what, _depth + 1) for entry in value]
+            ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 79, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries text that is not encodable; a durable value "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"round-trips or it is not one")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'a persisted checkpoint evidence path' not found in "the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one" : refused, but not at 'a persisted checkpoint evidence path': the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:abandoned_correction_of', 'replay.checkpoint_evidence.profile'), label="persisted checkpoint evidence's profile")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9255, in run
+    review_cycles.abandoned_correction_of(fixture.store, attempt_id=fixture.abandoned_attempt, generation=2)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3211, in abandoned_correction_of
+    taken = _adopted_correction(committed, what, operation_id=operation_id,
+                                attempt_id=attempt_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3126, in _adopted_correction
+    taken = boundaries.document(value, what, required=ABANDONED_CORRECTION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 79, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries text that is not encodable; a durable value "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"round-trips or it is not one")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "persisted checkpoint evidence's profile" not found in "the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one" : refused, but not at "persisted checkpoint evidence's profile": the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:abandoned_correction_of', 'replay.checkpoint_evidence.reference'), label="persisted checkpoint evidence's reference")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9255, in run
+    review_cycles.abandoned_correction_of(fixture.store, attempt_id=fixture.abandoned_attempt, generation=2)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3211, in abandoned_correction_of
+    taken = _adopted_correction(committed, what, operation_id=operation_id,
+                                attempt_id=attempt_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3126, in _adopted_correction
+    taken = boundaries.document(value, what, required=ABANDONED_CORRECTION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 79, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries text that is not encodable; a durable value "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"round-trips or it is not one")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "persisted checkpoint evidence's reference" not found in "the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one" : refused, but not at "persisted checkpoint evidence's reference": the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:abandoned_correction_of', 'replay.checkpoint_evidence.tree'), label="persisted checkpoint evidence's tree")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9255, in run
+    review_cycles.abandoned_correction_of(fixture.store, attempt_id=fixture.abandoned_attempt, generation=2)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3211, in abandoned_correction_of
+    taken = _adopted_correction(committed, what, operation_id=operation_id,
+                                attempt_id=attempt_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3126, in _adopted_correction
+    taken = boundaries.document(value, what, required=ABANDONED_CORRECTION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 79, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries text that is not encodable; a durable value "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"round-trips or it is not one")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "persisted checkpoint evidence's tree" not found in "the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one" : refused, but not at "persisted checkpoint evidence's tree": the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:abandoned_correction_of', 'replay.checkpoint_id'), label="'s checkpoint_id")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9255, in run
+    review_cycles.abandoned_correction_of(fixture.store, attempt_id=fixture.abandoned_attempt, generation=2)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3211, in abandoned_correction_of
+    taken = _adopted_correction(committed, what, operation_id=operation_id,
+                                attempt_id=attempt_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3126, in _adopted_correction
+    taken = boundaries.document(value, what, required=ABANDONED_CORRECTION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 79, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries text that is not encodable; a durable value "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"round-trips or it is not one")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "'s checkpoint_id" not found in "the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one" : refused, but not at "'s checkpoint_id": the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:abandoned_correction_of', 'replay.discharge_operation_id'), label="'s discharge_operation_id")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9255, in run
+    review_cycles.abandoned_correction_of(fixture.store, attempt_id=fixture.abandoned_attempt, generation=2)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3211, in abandoned_correction_of
+    taken = _adopted_correction(committed, what, operation_id=operation_id,
+                                attempt_id=attempt_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3126, in _adopted_correction
+    taken = boundaries.document(value, what, required=ABANDONED_CORRECTION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 79, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries text that is not encodable; a durable value "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"round-trips or it is not one")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "'s discharge_operation_id" not found in "the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one" : refused, but not at "'s discharge_operation_id": the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:abandoned_correction_of', 'replay.line_id'), label="'s line_id")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9255, in run
+    review_cycles.abandoned_correction_of(fixture.store, attempt_id=fixture.abandoned_attempt, generation=2)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3211, in abandoned_correction_of
+    taken = _adopted_correction(committed, what, operation_id=operation_id,
+                                attempt_id=attempt_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3126, in _adopted_correction
+    taken = boundaries.document(value, what, required=ABANDONED_CORRECTION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 79, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries text that is not encodable; a durable value "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"round-trips or it is not one")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "'s line_id" not found in "the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one" : refused, but not at "'s line_id": the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:abandoned_correction_of', 'replay.operation_id'), label="'s operation_id")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9255, in run
+    review_cycles.abandoned_correction_of(fixture.store, attempt_id=fixture.abandoned_attempt, generation=2)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3211, in abandoned_correction_of
+    taken = _adopted_correction(committed, what, operation_id=operation_id,
+                                attempt_id=attempt_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3126, in _adopted_correction
+    taken = boundaries.document(value, what, required=ABANDONED_CORRECTION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 79, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries text that is not encodable; a durable value "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"round-trips or it is not one")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "'s operation_id" not found in "the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one" : refused, but not at "'s operation_id": the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:abandoned_correction_of', 'replay.retention_policy_digest'), label="'s retention policy digest")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9255, in run
+    review_cycles.abandoned_correction_of(fixture.store, attempt_id=fixture.abandoned_attempt, generation=2)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3211, in abandoned_correction_of
+    taken = _adopted_correction(committed, what, operation_id=operation_id,
+                                attempt_id=attempt_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3126, in _adopted_correction
+    taken = boundaries.document(value, what, required=ABANDONED_CORRECTION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 79, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries text that is not encodable; a durable value "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"round-trips or it is not one")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "'s retention policy digest" not found in "the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one" : refused, but not at "'s retention policy digest": the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:abandoned_correction_of', 'replay.runtime_id'), label="'s runtime_id")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9255, in run
+    review_cycles.abandoned_correction_of(fixture.store, attempt_id=fixture.abandoned_attempt, generation=2)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3211, in abandoned_correction_of
+    taken = _adopted_correction(committed, what, operation_id=operation_id,
+                                attempt_id=attempt_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3126, in _adopted_correction
+    taken = boundaries.document(value, what, required=ABANDONED_CORRECTION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 79, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries text that is not encodable; a durable value "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"round-trips or it is not one")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "'s runtime_id" not found in "the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one" : refused, but not at "'s runtime_id": the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:abandoned_correction_of', 'replay.writer_id'), label="'s writer_id")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9255, in run
+    review_cycles.abandoned_correction_of(fixture.store, attempt_id=fixture.abandoned_attempt, generation=2)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3211, in abandoned_correction_of
+    taken = _adopted_correction(committed, what, operation_id=operation_id,
+                                attempt_id=attempt_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 3126, in _adopted_correction
+    taken = boundaries.document(value, what, required=ABANDONED_CORRECTION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 79, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries text that is not encodable; a durable value "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"round-trips or it is not one")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "'s writer_id" not found in "the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one" : refused, but not at "'s writer_id": the abandoned-correction recovery for attempt 'writer-attempt-2' generation 2 carries text that is not encodable; a durable value round-trips or it is not one
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'review_cycles.py:checkpoint_of', 'line_checkpoints.fence.intent'), label='a persisted assignment fence')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9357, in fence_without_intent
+    review_cycles.checkpoint_of(self.store, "checkpoint-probe")
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 563, in checkpoint_of
+    taken = boundaries.row(row, "a persisted line checkpoint",
+                           schema.LINE_CHECKPOINT_COLUMNS)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 448, in row
+    document(json.loads(value), f"{what}'s {name}",
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+             required=contract.members)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 227, in document
+    _members(taken, what, required, optional)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 198, in _members
+    _refuse(f"{what} needs {', '.join(missing)}")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: a persisted line checkpoint's fence needs intent
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'a persisted assignment fence' not found in "a persisted line checkpoint's fence needs intent" : refused, but not at 'a persisted assignment fence': a persisted line checkpoint's fence needs intent
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('injected', 'authority_port.py:AuthorityPort.satisfy_gate', 'satisfy_gate.kind'), label="the discharged gate's kind")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9341, in run
+    worker_manager.discharge_abandoned_quiescence_gate(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        fixture.store, fixture.port, attempt_id=suite.ATTEMPT, retention_policy_digest=suite.RETENTION)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 3630, in discharge_abandoned_quiescence_gate
+    answered = port.satisfy_gate(expect["work_ref"]["work_id"], operation_id,
+                                 gate, evidence)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 357, in satisfy_gate
+    answer = boundaries.document(
+        performing({"work_id": work_id, "operation_id": operation_id,
+                    "gate": gate, "evidence": evidence}),
+        "the session's gate-discharge answer", required=GATE_DISCHARGE)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 79, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries text that is not encodable; a durable value "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"round-trips or it is not one")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the session's gate-discharge answer carries text that is not encodable; a durable value round-trips or it is not one
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "the discharged gate's kind" not found in "the session's gate-discharge answer carries text that is not encodable; a durable value round-trips or it is not one" : refused, but not at "the discharged gate's kind": the session's gate-discharge answer carries text that is not encodable; a durable value round-trips or it is not one
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('injected', 'intake.py:_destroyed_abandoned', 'adapter.destroy_abandoned.credentials.lifecycle_state'), label="a credentials teardown ending's state")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9317, in run
+    fixture.abandoned(abandoned={**whole, **spoiled})
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3686, in abandoned
+    answered = abandon_attempt(
+        self.store, self.port, adapter, attempt_id=ATTEMPT,
+        reason=self.REASON, retention_policy_digest=RETENTION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 2899, in abandon_attempt
+    observed = _destroyed_abandoned(adapter, settled, attempt_id, operation,
+                                    intent["digest"], retention_policy_digest,
+                                    seconds=seconds)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 4063, in _destroyed_abandoned
+    answer = boundaries.document(
+        adapter.destroy_abandoned(command) if seconds is None
+        else adapter.destroy_abandoned(command, seconds=seconds),
+        "an abandoned-attempt destroy observation",
+        required=_DESTROY_MEMBERS[0], optional=_DESTROY_MEMBERS[1])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 79, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries text that is not encodable; a durable value "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"round-trips or it is not one")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: an abandoned-attempt destroy observation carries text that is not encodable; a durable value round-trips or it is not one
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "a credentials teardown ending's state" not found in 'an abandoned-attempt destroy observation carries text that is not encodable; a durable value round-trips or it is not one' : refused, but not at "a credentials teardown ending's state": an abandoned-attempt destroy observation carries text that is not encodable; a durable value round-trips or it is not one
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('injected', 'intake.py:_destroyed_abandoned', 'adapter.destroy_abandoned.launch.lifecycle_state'), label="a launch teardown ending's state")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9317, in run
+    fixture.abandoned(abandoned={**whole, **spoiled})
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3686, in abandoned
+    answered = abandon_attempt(
+        self.store, self.port, adapter, attempt_id=ATTEMPT,
+        reason=self.REASON, retention_policy_digest=RETENTION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 2899, in abandon_attempt
+    observed = _destroyed_abandoned(adapter, settled, attempt_id, operation,
+                                    intent["digest"], retention_policy_digest,
+                                    seconds=seconds)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 4063, in _destroyed_abandoned
+    answer = boundaries.document(
+        adapter.destroy_abandoned(command) if seconds is None
+        else adapter.destroy_abandoned(command, seconds=seconds),
+        "an abandoned-attempt destroy observation",
+        required=_DESTROY_MEMBERS[0], optional=_DESTROY_MEMBERS[1])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 79, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries text that is not encodable; a durable value "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"round-trips or it is not one")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: an abandoned-attempt destroy observation carries text that is not encodable; a durable value round-trips or it is not one
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "a launch teardown ending's state" not found in 'an abandoned-attempt destroy observation carries text that is not encodable; a durable value round-trips or it is not one' : refused, but not at "a launch teardown ending's state": an abandoned-attempt destroy observation carries text that is not encodable; a durable value round-trips or it is not one
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('injected', 'intake.py:_destroyed_abandoned', 'adapter.destroy_abandoned.runtime_id'), label='an observed runtime id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9317, in run
+    fixture.abandoned(abandoned={**whole, **spoiled})
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3686, in abandoned
+    answered = abandon_attempt(
+        self.store, self.port, adapter, attempt_id=ATTEMPT,
+        reason=self.REASON, retention_policy_digest=RETENTION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 2899, in abandon_attempt
+    observed = _destroyed_abandoned(adapter, settled, attempt_id, operation,
+                                    intent["digest"], retention_policy_digest,
+                                    seconds=seconds)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 4063, in _destroyed_abandoned
+    answer = boundaries.document(
+        adapter.destroy_abandoned(command) if seconds is None
+        else adapter.destroy_abandoned(command, seconds=seconds),
+        "an abandoned-attempt destroy observation",
+        required=_DESTROY_MEMBERS[0], optional=_DESTROY_MEMBERS[1])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 79, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries text that is not encodable; a durable value "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"round-trips or it is not one")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: an abandoned-attempt destroy observation carries text that is not encodable; a durable value round-trips or it is not one
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'an observed runtime id' not found in 'an abandoned-attempt destroy observation carries text that is not encodable; a durable value round-trips or it is not one' : refused, but not at 'an observed runtime id': an abandoned-attempt destroy observation carries text that is not encodable; a durable value round-trips or it is not one
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('injected', 'intake.py:_destroyed_abandoned', 'adapter.destroy_abandoned.state'), label="a destroy observation's state")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9317, in run
+    fixture.abandoned(abandoned={**whole, **spoiled})
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3686, in abandoned
+    answered = abandon_attempt(
+        self.store, self.port, adapter, attempt_id=ATTEMPT,
+        reason=self.REASON, retention_policy_digest=RETENTION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 2899, in abandon_attempt
+    observed = _destroyed_abandoned(adapter, settled, attempt_id, operation,
+                                    intent["digest"], retention_policy_digest,
+                                    seconds=seconds)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 4063, in _destroyed_abandoned
+    answer = boundaries.document(
+        adapter.destroy_abandoned(command) if seconds is None
+        else adapter.destroy_abandoned(command, seconds=seconds),
+        "an abandoned-attempt destroy observation",
+        required=_DESTROY_MEMBERS[0], optional=_DESTROY_MEMBERS[1])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 79, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries text that is not encodable; a durable value "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"round-trips or it is not one")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: an abandoned-attempt destroy observation carries text that is not encodable; a durable value round-trips or it is not one
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "a destroy observation's state" not found in 'an abandoned-attempt destroy observation carries text that is not encodable; a durable value round-trips or it is not one' : refused, but not at "a destroy observation's state": an abandoned-attempt destroy observation carries text that is not encodable; a durable value round-trips or it is not one
+
+======================================================================
+FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('injected', 'intake.py:_destroyed_abandoned', 'adapter.destroy_abandoned.why'), label="a destroy observation's reason")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6867, in refusing
+    run()
+    ~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9317, in run
+    fixture.abandoned(abandoned={**whole, **spoiled})
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3686, in abandoned
+    answered = abandon_attempt(
+        self.store, self.port, adapter, attempt_id=ATTEMPT,
+        reason=self.REASON, retention_policy_digest=RETENTION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 2899, in abandon_attempt
+    observed = _destroyed_abandoned(adapter, settled, attempt_id, operation,
+                                    intent["digest"], retention_policy_digest,
+                                    seconds=seconds)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 4063, in _destroyed_abandoned
+    answer = boundaries.document(
+        adapter.destroy_abandoned(command) if seconds is None
+        else adapter.destroy_abandoned(command, seconds=seconds),
+        "an abandoned-attempt destroy observation",
+        required=_DESTROY_MEMBERS[0], optional=_DESTROY_MEMBERS[1])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 223, in document
+    taken = own(value, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 48, in own
+    return _own(value, label_of(what), 0)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 104, in _own
+    taken[name] = _own(member, what, _depth + 1)
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 79, in _own
+    _refuse(
+    ~~~~~~~^
+        f"{what} carries text that is not encodable; a durable value "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"round-trips or it is not one")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/pod.py", line 36, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: an abandoned-attempt destroy observation carries text that is not encodable; a durable value round-trips or it is not one
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 11068, in test_every_declared_probe_reaches_its_named_boundary
+    self.refusing(full, probe)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 6873, in refusing
+    self.assertIn(label, refusal.message,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                  f"refused, but not at {label!r}: {refusal.message}")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "a destroy observation's reason" not found in 'an abandoned-attempt destroy observation carries text that is not encodable; a durable value round-trips or it is not one' : refused, but not at "a destroy observation's reason": an abandoned-attempt destroy observation carries text that is not encodable; a durable value round-trips or it is not one
+
+----------------------------------------------------------------------
+Ran 2 tests in 25.781s
+
+FAILED (failures=48)
+error: Recipe `test-one` failed with exit code 1

@@ -1,0 +1,269 @@
+attempts.py:_committed_record (1)
+    document   'replay.runtime_id' -> 'a committed ending record'
+attempts.py:request_runtime_start (4)
+    capability 'adapter.mounts.source' -> "the runtime adapter's start"
+    capability 'adapter.mounts.target' -> "the runtime adapter's start"
+    capability 'adapter.mounts.writable' -> "the runtime adapter's start"
+    capability 'govern' -> 'a resource-token reservation'
+authority_port.py:AuthorityPort.satisfy_gate (2)
+    document   'satisfy_gate' -> "the session's gate-discharge answer"
+    text       'satisfy_gate.kind' -> "the discharged gate's kind"
+custody.py:historical_directory_custody (6)
+    document   'replay' -> 'a historical directory custody receipt'
+    document   'replay.account' -> 'a historical directory custody receipt'
+    document   'replay.attempt_id' -> 'a historical directory custody receipt'
+    document   'replay.operation' -> 'a historical directory custody receipt'
+    document   'replay.root' -> 'a historical directory custody receipt'
+    document   'replay.verb' -> 'a historical directory custody receipt'
+deadlines.py:_pin_of (8)
+    document   'replay' -> 'a pinned runtime deadline'
+    document   'replay.policy' -> 'a runtime deadline policy'
+    deadline/document 'replay.policy.action' -> 'a pinned runtime deadline'
+    document   'replay.policy.action' -> 'a runtime deadline policy'
+    deadline   'replay.policy.duration_seconds' -> 'a pinned runtime deadline'
+    text       'replay.policy.policy_digest' -> 'a runtime deadline policy digest'
+    deadline/document 'replay.policy.policy_generation' -> 'a pinned runtime deadline'
+    document   'replay.policy.policy_generation' -> 'a runtime deadline policy'
+deadlines.py:_record (21)
+    document   'replay' -> 'a committed runtime deadline document'
+    document   'replay.assignment' -> 'a committed runtime deadline document'
+    document   'replay.attempt_id' -> 'a committed runtime deadline document'
+    document   'replay.authority_receipt' -> 'a committed runtime deadline document'
+    document   'replay.cleanup' -> 'a committed runtime deadline document'
+    document   'replay.command' -> 'a committed runtime deadline document'
+    document   'replay.command.assignment_ref' -> 'a committed runtime deadline document'
+    document   'replay.command.assignment_ref.work_ref' -> 'a committed runtime deadline document'
+    document   'replay.command.assignment_ref.work_ref.work_id' -> 'a committed runtime deadline document'
+    document   'replay.command.runtime_id' -> 'a committed runtime deadline document'
+    document   'replay.deadline_at' -> 'a committed runtime deadline document'
+    document   'replay.fence' -> 'a committed runtime deadline document'
+    document   'replay.observed' -> 'a committed runtime deadline document'
+    document   'replay.observed.credentials' -> 'a committed runtime deadline document'
+    document   'replay.observed.launch' -> 'a committed runtime deadline document'
+    document   'replay.observed.runtime_id' -> 'a committed runtime deadline document'
+    document   'replay.observed.state' -> 'a committed runtime deadline document'
+    document   'replay.observed.why' -> 'a committed runtime deadline document'
+    document   'replay.observed_at' -> 'a committed runtime deadline document'
+    document   'replay.policy' -> 'a committed runtime deadline document'
+    document   'replay.started_at' -> 'a committed runtime deadline document'
+failure_cause.py:_committed (3)
+    document   'replay' -> 'a committed cessation record'
+    document   'replay.runtime_id' -> 'a committed cessation record'
+    document   'replay.supersedes' -> 'a committed cessation record'
+intake.py:_abandon_intent (1)
+    document   'replay' -> 'a committed abandonment record'
+intake.py:_abandonment_declaration (3)
+    document   'replay' -> "attempt {name_value(attempt_id)}'s committed abandonment"
+    identity   'replay.authority_operation_id' -> "{what}'s authority operation identity"
+    text       'replay.reason' -> "{what}'s reason"
+intake.py:_committed (66)
+               'replay' -> "attempt {name_value(attempt_id)}'s committed abandoned cleanup"
+               'replay' -> "attempt {name_value(attempt_id)}'s committed cleanup"
+               'replay.artifact_ids' -> "attempt {name_value(attempt_id)}'s committed abandoned cleanup"
+               'replay.artifact_ids' -> "attempt {name_value(attempt_id)}'s committed cleanup"
+               'replay.attempt_id' -> "attempt {name_value(attempt_id)}'s committed abandoned cleanup"
+               'replay.attempt_id' -> "attempt {name_value(attempt_id)}'s committed cleanup"
+               'replay.cleanup' -> "{what}'s committed cleanup"
+               'replay.cleanup.attempt_id' -> "attempt {name_value(attempt_id)}'s committed abandoned cleanup"
+               'replay.cleanup.attempt_id' -> "attempt {name_value(attempt_id)}'s committed cleanup"
+               'replay.cleanup.attempt_id' -> "{what}'s committed cleanup"
+               'replay.cleanup.cleanup' -> "attempt {name_value(attempt_id)}'s committed abandoned cleanup"
+               'replay.cleanup.cleanup' -> "attempt {name_value(attempt_id)}'s committed cleanup"
+               'replay.cleanup.cleanup' -> "{what}'s committed cleanup"
+               'replay.cleanup.directory_custody' -> "{what}'s directory custody"
+               'replay.cleanup.kept' -> "attempt {name_value(attempt_id)}'s committed abandoned cleanup"
+               'replay.cleanup.kept' -> "attempt {name_value(attempt_id)}'s committed cleanup"
+               'replay.cleanup.kept' -> "{what}'s committed cleanup"
+               'replay.cleanup.operation' -> "{what}'s cleanup operation"
+               'replay.cleanup.operation.operation_id' -> "attempt {name_value(attempt_id)}'s committed abandoned cleanup"
+               'replay.cleanup.operation.operation_id' -> "attempt {name_value(attempt_id)}'s committed cleanup"
+               'replay.cleanup.operation.operation_id' -> "{what}'s cleanup operation"
+               'replay.cleanup.operation.operation_id' -> "{what}'s committed cleanup"
+               'replay.cleanup.operation.signature_digest' -> "attempt {name_value(attempt_id)}'s committed abandoned cleanup"
+               'replay.cleanup.operation.signature_digest' -> "attempt {name_value(attempt_id)}'s committed cleanup"
+               'replay.cleanup.operation.signature_digest' -> "{what}'s cleanup operation"
+               'replay.cleanup.operation.signature_digest' -> "{what}'s committed cleanup"
+               'replay.cleanup.state' -> "attempt {name_value(attempt_id)}'s committed abandoned cleanup"
+               'replay.cleanup.state' -> "attempt {name_value(attempt_id)}'s committed cleanup"
+               'replay.cleanup.state' -> "{what}'s committed cleanup"
+               'replay.cleanup.why' -> "{what}'s account"
+               'replay.directory_custody' -> "{what}'s directory custody"
+               'replay.disposition' -> "attempt {name_value(attempt_id)}'s committed abandoned cleanup"
+               'replay.disposition' -> "attempt {name_value(attempt_id)}'s committed cleanup"
+               'replay.fenced' -> "{what}'s committed fence"
+               'replay.fenced.assignment' -> "attempt {name_value(attempt_id)}'s committed abandoned cleanup"
+               'replay.fenced.assignment' -> "attempt {name_value(attempt_id)}'s committed cleanup"
+               'replay.fenced.assignment' -> "{what}'s committed fence"
+               'replay.fenced.fenced' -> "attempt {name_value(attempt_id)}'s committed abandoned cleanup"
+               'replay.fenced.fenced' -> "attempt {name_value(attempt_id)}'s committed cleanup"
+               'replay.fenced.fenced' -> "{what}'s committed fence"
+               'replay.fenced.gate' -> "attempt {name_value(attempt_id)}'s committed abandoned cleanup"
+               'replay.fenced.gate' -> "attempt {name_value(attempt_id)}'s committed cleanup"
+               'replay.fenced.gate' -> "{what}'s committed fence"
+               'replay.intent' -> "attempt {name_value(attempt_id)}'s committed abandoned cleanup"
+               'replay.intent' -> "attempt {name_value(attempt_id)}'s committed cleanup"
+               'replay.kept' -> "attempt {name_value(attempt_id)}'s committed abandoned cleanup"
+               'replay.kept' -> "attempt {name_value(attempt_id)}'s committed cleanup"
+               'replay.operation' -> "a cleanup's operation"
+               'replay.operation' -> "attempt {name_value(attempt_id)}'s committed cleanup operation"
+               'replay.operation' -> "{what}'s operation"
+               'replay.operation.operation_id' -> "a cleanup's operation"
+               'replay.operation.operation_id' -> "attempt {name_value(attempt_id)}'s committed abandoned cleanup"
+               'replay.operation.operation_id' -> "attempt {name_value(attempt_id)}'s committed cleanup"
+               'replay.operation.operation_id' -> "attempt {name_value(attempt_id)}'s committed cleanup operation"
+               'replay.operation.operation_id' -> "{what}'s operation"
+               'replay.operation.signature_digest' -> "a cleanup's operation"
+               'replay.operation.signature_digest' -> "attempt {name_value(attempt_id)}'s committed abandoned cleanup"
+               'replay.operation.signature_digest' -> "attempt {name_value(attempt_id)}'s committed cleanup"
+               'replay.operation.signature_digest' -> "attempt {name_value(attempt_id)}'s committed cleanup operation"
+               'replay.operation.signature_digest' -> "{what}'s operation"
+               'replay.receipt_digest' -> "attempt {name_value(attempt_id)}'s committed abandoned cleanup"
+               'replay.receipt_digest' -> "attempt {name_value(attempt_id)}'s committed cleanup"
+               'replay.retention_policy_digest' -> "attempt {name_value(attempt_id)}'s committed abandoned cleanup"
+               'replay.retention_policy_digest' -> "attempt {name_value(attempt_id)}'s committed cleanup"
+               'replay.state' -> "{what}'s observed runtime state"
+               'replay.why' -> "{what}'s account"
+intake.py:_destroyed_abandoned (8)
+    document   'adapter.destroy_abandoned' -> 'an abandoned-attempt destroy observation'
+    document   'adapter.destroy_abandoned.credentials' -> 'a credentials teardown ending'
+    text       'adapter.destroy_abandoned.credentials.lifecycle_state' -> "a credentials teardown ending's state"
+    document   'adapter.destroy_abandoned.launch' -> 'a launch teardown ending'
+    text       'adapter.destroy_abandoned.launch.lifecycle_state' -> "a launch teardown ending's state"
+    identity   'adapter.destroy_abandoned.runtime_id' -> 'an observed runtime id'
+    text       'adapter.destroy_abandoned.state' -> "a destroy observation's state"
+    text       'adapter.destroy_abandoned.why' -> "a destroy observation's reason"
+intake.py:_failed_start_record (1)
+    document   'replay' -> 'a committed failed-start record'
+intake.py:_refused_session_record (4)
+    document   'replay' -> 'a committed refusal record'
+    document   'replay.agent_protocol_version' -> 'a committed refusal record'
+    document   'replay.pinned_wire_version' -> 'a committed refusal record'
+    document   'replay.profile_digest' -> 'a committed refusal record'
+intake.py:abandon_attempt (3)
+    document   'replay' -> "a cleanup's operation"
+    document   'replay.cleanup' -> "a cleanup's operation"
+    document   'replay.cleanup.operation' -> "a cleanup's operation"
+intake.py:authorize_cleanup (2)
+    document   'replay' -> "a cleanup's operation"
+    document   'replay.operation' -> "a cleanup's operation"
+intake.py:retentions_of (1)
+    row        'retentions.retain_operation_id' -> 'a persisted retention'
+oci.py:OciAdapter.start (2)
+    document   'request.labels.participant' -> 'a start request'
+    document   'request.labels.runtime_attempt_id' -> 'a start request'
+oci.py:OciAdapter.stop (1)
+               'request' -> '{what}'
+provider_context.py:admit_context_use (34)
+    document   'replay' -> 'provider context metadata'
+    document   'replay.context_id' -> 'provider context metadata'
+    document   'replay.payload' -> 'provider context metadata'
+    document   'replay.payload.assignment' -> 'provider context metadata'
+    document   'replay.payload.assignment.runtime_attempt_id' -> 'provider context metadata'
+    identity   'replay.payload.attempt_id' -> 'provider context identity'
+    document   'replay.payload.checkpoint_digest' -> 'provider context metadata'
+    identity   'replay.payload.checkpoint_id' -> 'provider context identity'
+    document   'replay.payload.conversation_id' -> 'provider context metadata'
+    document   'replay.payload.delivery_digest' -> 'provider context metadata'
+    document   'replay.payload.episode' -> 'provider context metadata'
+    document   'replay.payload.evidence_refs' -> 'provider context metadata'
+    document   'replay.payload.exclusion_digest' -> 'provider context metadata'
+    document   'replay.payload.generation' -> 'provider context metadata'
+    document   'replay.payload.generation_pins' -> 'provider context metadata'
+    document   'replay.payload.identity' -> 'provider context metadata'
+    document   'replay.payload.identity.purpose' -> 'provider context metadata'
+    document   'replay.payload.input_digest' -> 'provider context metadata'
+    document   'replay.payload.job_digest' -> 'provider context metadata'
+    document   'replay.payload.limits_digest' -> 'provider context metadata'
+    document   'replay.payload.manifest_digest' -> 'provider context metadata'
+    document   'replay.payload.pins' -> 'provider context metadata'
+    document   'replay.payload.policy_digest' -> 'provider context metadata'
+    document   'replay.payload.predecessor' -> 'provider context metadata'
+    document   'replay.payload.profile_digest' -> 'provider context metadata'
+    identity   'replay.payload.qualification_run' -> 'provider context identity'
+    document   'replay.payload.reason' -> 'provider context metadata'
+    document   'replay.payload.receipt_digest' -> 'provider context metadata'
+    document   'replay.payload.repo_pin' -> 'provider context metadata'
+    document   'replay.payload.source_pin' -> 'provider context metadata'
+    identity   'replay.payload.stage_id' -> 'provider context identity'
+    identity   'replay.payload.writer_id' -> 'provider context identity'
+    document   'replay.revision' -> 'provider context metadata'
+    document   'replay.use_id' -> 'provider context metadata'
+review_cycles.py:_cleaned_review (7)
+    document   'replay' -> 'a historical review cleanup'
+    document   'replay.attempt_id' -> 'a historical review cleanup'
+    document   'replay.cleanup' -> 'a historical review cleanup'
+    document   'replay.directory_custody' -> 'a historical review cleanup'
+    document   'replay.kept' -> 'a historical review cleanup'
+    document   'replay.operation' -> 'a historical review cleanup'
+    document   'replay.state' -> 'a historical review cleanup'
+review_cycles.py:_fixed_intent (15)
+    document   'replay' -> "{what}'s recovery intent"
+    document   'replay.assignment' -> "{what}'s intent assignment"
+    generation 'replay.assignment.generation' -> "{what}'s intent generation"
+    document   'replay.assignment.work_ref' -> "{what}'s intent Work reference"
+    identity   'replay.attempt_id' -> "{what}'s intent attempt_id"
+    text       'replay.checkpoint_digest' -> "{what}'s intent checkpoint digest"
+    identity   'replay.checkpoint_id' -> "{what}'s intent checkpoint_id"
+    document   'replay.cleanup_operation' -> "{what}'s intent cleanup operation"
+    identity   'replay.discharge_operation_id' -> "{what}'s intent discharge_operation_id"
+    document   'replay.executor_incarnation' -> "{what}'s recovery intent"
+    identity   'replay.line_id' -> "{what}'s intent line_id"
+    text       'replay.retention_policy_digest' -> "{what}'s intent retention policy digest"
+    identity   'replay.runtime_id' -> "{what}'s intent runtime_id"
+    document   'replay.schema' -> "{what}'s recovery intent"
+    identity   'replay.writer_id' -> "{what}'s intent writer_id"
+review_cycles.py:_verdict_row (6)
+    row        'checkpoint_verdicts.review_fence.intent' -> 'a persisted checkpoint verdict'
+    row        'checkpoint_verdicts.review_result.artifacts' -> 'a persisted checkpoint verdict'
+    row        'checkpoint_verdicts.review_result.artifacts.artifact_id' -> 'a persisted checkpoint verdict'
+    row        'checkpoint_verdicts.review_result.artifacts.locator' -> 'a persisted checkpoint verdict'
+    row        'checkpoint_verdicts.review_result.artifacts.output_name' -> 'a persisted checkpoint verdict'
+    row        'checkpoint_verdicts.review_result.manifest_digest' -> 'a persisted checkpoint verdict'
+review_cycles.py:abandoned_correction_of (27)
+    document   'replay' -> 'the abandoned-correction recovery for attempt {name_value(attempt_id)} generation {generation}'
+    document   'replay.assignment' -> "{what}'s assignment"
+    generation 'replay.assignment.generation' -> "{what}'s generation"
+    document   'replay.assignment.work_ref' -> "{what}'s Work reference"
+    identity   'replay.attempt_id' -> "{what}'s attempt_id"
+    document   'replay.checkpoint_evidence' -> 'persisted checkpoint evidence'
+    text       'replay.checkpoint_evidence.base' -> "persisted checkpoint evidence's base"
+    text       'replay.checkpoint_evidence.head' -> "persisted checkpoint evidence's head"
+    text       'replay.checkpoint_evidence.path_set_digest' -> "persisted checkpoint evidence's path_set_digest"
+    text       'replay.checkpoint_evidence.paths' -> 'a persisted checkpoint evidence path'
+    text       'replay.checkpoint_evidence.profile' -> "persisted checkpoint evidence's profile"
+    text       'replay.checkpoint_evidence.reference' -> "persisted checkpoint evidence's reference"
+    text       'replay.checkpoint_evidence.tree' -> "persisted checkpoint evidence's tree"
+    identity   'replay.checkpoint_id' -> "{what}'s checkpoint_id"
+    document   'replay.cleanup_operation' -> "{what}'s cleanup operation"
+    document   'replay.cleanup_operation.operation_id' -> 'the abandoned-correction recovery for attempt {name_value(attempt_id)} generation {generation}'
+    document   'replay.cleanup_operation.operation_id' -> "{what}'s cleanup operation"
+    document   'replay.cleanup_operation.signature_digest' -> 'the abandoned-correction recovery for attempt {name_value(attempt_id)} generation {generation}'
+    document   'replay.cleanup_operation.signature_digest' -> "{what}'s cleanup operation"
+    identity   'replay.discharge_operation_id' -> "{what}'s discharge_operation_id"
+    identity   'replay.line_id' -> "{what}'s line_id"
+    identity   'replay.operation_id' -> "{what}'s operation_id"
+    text       'replay.retention_policy_digest' -> "{what}'s retention policy digest"
+    identity   'replay.runtime_id' -> "{what}'s runtime_id"
+    document   'replay.schema' -> 'the abandoned-correction recovery for attempt {name_value(attempt_id)} generation {generation}'
+    document   'replay.state' -> 'the abandoned-correction recovery for attempt {name_value(attempt_id)} generation {generation}'
+    identity   'replay.writer_id' -> "{what}'s writer_id"
+review_cycles.py:checkpoint_of (2)
+    document   'line_checkpoints.fence.intent' -> 'a persisted assignment fence'
+    row        'line_checkpoints.fence.intent' -> 'a persisted line checkpoint'
+tokens.py:renew (3)
+               'seconds' -> 'a renewed resource token expiry'
+    text       'token' -> 'a governed conflict domain'
+    text       'token.domain' -> 'a governed conflict domain'
+workspaces.py:_committed_workspace_group (2)
+    document   'replay' -> 'the committed workspace group configuration'
+    document   'replay.workspace_group' -> 'the committed workspace group configuration'
+workspaces.py:_committed_workspace_storage (2)
+    document   'replay' -> 'the committed workspace store configuration'
+    document   'replay.workspace_storage' -> 'the committed workspace store configuration'
+workspaces.py:_configured_gid (2)
+    text       'meta' -> "the configured workspace group's record"
+    text       'meta.value' -> "the configured workspace group's record"
+workspaces.py:prepared_workspace_governance (1)
+               'permission' -> 'a token execution envelope'
+workspaces.py:release_preparation (1)
+    text       'why' -> 'a preparation release reason'

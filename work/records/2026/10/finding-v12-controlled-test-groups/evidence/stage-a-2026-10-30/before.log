@@ -1,0 +1,80 @@
+test_no_entry_is_owned_twice (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_entry_is_owned_twice)
+4bz forbids blanket revalidation, and this is where it shows. ... 
+  test_no_entry_is_owned_twice (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_entry_is_owned_twice) (entry=('caller', 'intake.py:discharge_abandoned_quiescence_gate', 'port'))
+4bz forbids blanket revalidation, and this is where it shows. ... FAIL
+  test_no_entry_is_owned_twice (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_entry_is_owned_twice) (entry=('caller', 'intake.py:discharge_quiescence_gate', 'port'))
+4bz forbids blanket revalidation, and this is where it shows. ... FAIL
+test_public_start_and_cleanup_supply_owned_lane_values (tests.manager.test_boundary_inventory.LanesHaveCompleteReceivingCoverage.test_public_start_and_cleanup_supply_owned_lane_values) ... FAIL
+
+======================================================================
+FAIL: test_no_entry_is_owned_twice (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_entry_is_owned_twice) (entry=('caller', 'intake.py:discharge_abandoned_quiescence_gate', 'port'))
+4bz forbids blanket revalidation, and this is where it shows.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 8171, in test_no_entry_is_owned_twice
+    self.assertLessEqual(claims, 1, "owned more than once")
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 not less than or equal to 1 : owned more than once
+
+======================================================================
+FAIL: test_no_entry_is_owned_twice (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_entry_is_owned_twice) (entry=('caller', 'intake.py:discharge_quiescence_gate', 'port'))
+4bz forbids blanket revalidation, and this is where it shows.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 8171, in test_no_entry_is_owned_twice
+    self.assertLessEqual(claims, 1, "owned more than once")
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 not less than or equal to 1 : owned more than once
+
+======================================================================
+FAIL: test_public_start_and_cleanup_supply_owned_lane_values (tests.manager.test_boundary_inventory.LanesHaveCompleteReceivingCoverage.test_public_start_and_cleanup_supply_owned_lane_values)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 16820, in test_public_start_and_cleanup_supply_owned_lane_values
+    settled = fixture.cleanup_settled()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_runtime_lane.py", line 116, in cleanup_settled
+    return authorize_cleanup(
+        self.store, self.port,
+    ...<7 lines>...
+                             **endings}),
+        attempt_id=attempt_id, retention_policy_digest=RETENTION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 1424, in authorize_cleanup
+    settled = store.transact(
+        operation["operation_id"], "runtime.destroy", signature,
+    ...<4 lines>...
+                                   admitted_cleanup=admitted_cleanup,
+                                   preserved=preserved))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/store.py", line 810, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 1426, in <lambda>
+    lambda connection: _settle(store, connection, attempt_id, receipt,
+                       ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                               retention_policy_digest, observed,
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+                               admitted_cleanup=admitted_cleanup,
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                               preserved=preserved))
+                               ^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 5515, in _settle
+    lanes._release_lane(connection, attempt_id=attempt_id,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                       reference=lanes.lane_reference(attempt),
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                       why=f"cleanup settled {ending}")
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 16813, in run
+    self.assertEqual(kwargs["why"], "cleanup settled complete")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cleanup settled retained' != 'cleanup settled complete'
+- cleanup settled retained
+?                 ^  --- -
++ cleanup settled complete
+?                 ^^^^^
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 7.156s
+
+FAILED (failures=3)
+error: Recipe `test-one` failed with exit code 1

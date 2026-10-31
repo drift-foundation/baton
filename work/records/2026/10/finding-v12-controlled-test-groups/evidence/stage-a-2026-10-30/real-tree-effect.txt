@@ -1,0 +1,8 @@
+receiving entries: 2545
+entries whose claim vector changed under ownership_claims: 2
+   ('caller', 'intake.py:discharge_abandoned_quiescence_gate', 'port') [True, False, False, True] -> [True, False, False, False]
+   ('caller', 'intake.py:discharge_quiescence_gate', 'port') [True, False, False, True] -> [True, False, False, False]
+entries owned more than once (old rule): [('caller', 'intake.py:discharge_abandoned_quiescence_gate', 'port'), ('caller', 'intake.py:discharge_quiescence_gate', 'port')]
+entries owned more than once (new rule): []
+constructed-operand entries with a site owner: [(('caller', 'intake.py:discharge_abandoned_quiescence_gate', 'port'), ["the authority session's gate discharge"]), (('caller', 'intake.py:discharge_quiescence_gate', 'port'), ["the authority session's gate discharge"])]
+unowned count (owner_of None): 663

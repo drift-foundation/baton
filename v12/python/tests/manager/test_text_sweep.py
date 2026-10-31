@@ -362,6 +362,56 @@ class EveryExportedOperationRefusesUnstorableText(unittest.TestCase):
                      retention_policy_digest="sha256:" + "7" * 64),
                 ["attempt_id", "retention_policy_digest"]),
             "gate_discharge_of": ((store, "attempt-1"), {}, [1]),
+            # W384870: the twelve exports the table had not named. Each takes
+            # caller text -- an attempt id, a retention policy digest, a
+            # reason -- that its owner refuses before any port, agent or
+            # adapter is consulted, which is why the no-op doubles suffice.
+            "abandoned_gate_discharge_of": ((store, "attempt-1"), {}, [1]),
+            "abandonment_cleanup_of": (
+                (store,),
+                dict(attempt_id="attempt-1",
+                     retention_policy_digest="sha256:" + "7" * 64),
+                ["attempt_id", "retention_policy_digest"]),
+            "cleanup_of": (
+                (store,),
+                dict(attempt_id="attempt-1",
+                     retention_policy_digest="sha256:" + "7" * 64),
+                ["attempt_id", "retention_policy_digest"]),
+            "deadline_cleanup_of": (
+                (store,),
+                dict(attempt_id="attempt-1",
+                     retention_policy_digest="sha256:" + "7" * 64),
+                ["attempt_id", "retention_policy_digest"]),
+            "deadline_of": ((store,), dict(attempt_id="attempt-1"),
+                            ["attempt_id"]),
+            "observe_deadline": ((store, port), dict(attempt_id="attempt-1"),
+                                 ["attempt_id"]),
+            "advance_deadline": (
+                (store, port, _NoAgent(), _NoAdapter()),
+                dict(attempt_id="attempt-1",
+                     retention_policy_digest="sha256:" + "7" * 64),
+                ["attempt_id", "retention_policy_digest"]),
+            "discharge_abandoned_quiescence_gate": (
+                (store, port),
+                dict(attempt_id="attempt-1",
+                     retention_policy_digest="sha256:" + "7" * 64),
+                ["attempt_id", "retention_policy_digest"]),
+            "discharge_deadline_quiescence_gate": (
+                (store, port),
+                dict(attempt_id="attempt-1",
+                     retention_policy_digest="sha256:" + "7" * 64),
+                ["attempt_id", "retention_policy_digest"]),
+            "fence_pre_attach_abandonment": (
+                (store, port),
+                dict(attempt_id="attempt-1",
+                     reason="the operator declared this attempt abandoned"),
+                ["attempt_id", "reason"]),
+            "writer_for_attempt": ((store,),
+                                   dict(attempt_id="writer-attempt", generation=1),
+                                   ["attempt_id"]),
+            "review_for_attempt": ((store,),
+                                   dict(attempt_id="review-attempt", generation=1),
+                                   ["attempt_id"]),
             # W55758: the two reads a public recovery branches on. Both take
             # one caller text -- the attempt id -- and answer off the row it
             # names.

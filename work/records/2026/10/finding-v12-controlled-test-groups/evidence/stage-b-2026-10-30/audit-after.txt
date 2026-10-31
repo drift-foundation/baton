@@ -1,0 +1,61 @@
+wanted 1334 declared 1328 entries 2545
+owned-never-probed 0
+probed-never-owned 0
+unowned entries 833
+   22 launch.py:launch_document
+   14 handshake.py:settle_unsupported_version
+   13 tokens.py:_document
+   11 failure_cause.py:record_and_raise_cessation_outcome
+   10 attempts.py:start_submission_returned
+   10 custody.py:clear_custody_hold
+   10 oci.py:OciAdapter.__init__
+   9 failure_cause.py:ensure_cessation_intent
+   9 oci.py:run_vector
+   8 context_delivery.py:validate_generation
+   8 exchange.py:observed_activity
+   8 failure_cause.py:record_and_raise_cessation_intent
+   8 provider_context.py:certify_production_profile
+   7 intake.py:abandon_attempt
+   7 intake.py:authorize_refused_session_cleanup
+   7 review_cycles.py:settle_restoration_execution
+   7 attempts.py:start_failure_operation_id
+   7 provider_context.py:finalize_context_use
+   7 workspaces.py:bind_token_container
+   7 workspaces.py:settle_cleanup
+   6 intake.py:authorize_cleanup
+   6 workspaces.py:_admitted_cleanup_document
+   6 authority_port.py:AuthorityPort.satisfy_gate
+   6 failure_cause.py:record_cessation_outcome
+   6 provider_context.py:bind_context_invocation
+=== entries at _one_by_attempt / writer_for_attempt / review_for_attempt
+   ('adopted', 'review_cycles.py:_one_by_attempt', 'line_writers') ['the line writer for attempt {name_value(attempt_id)} generation {generation}']
+   ('adopted', 'review_cycles.py:_one_by_attempt', 'line_writers.assignment_generation') ['the line writer for attempt {name_value(attempt_id)} generation {generation}']
+   ('adopted', 'review_cycles.py:_one_by_attempt', 'line_writers.based_checkpoint_id') ['the line writer for attempt {name_value(attempt_id)} generation {generation}']
+   ('adopted', 'review_cycles.py:_one_by_attempt', 'line_writers.line_id') ['the line writer for attempt {name_value(attempt_id)} generation {generation}']
+   ('adopted', 'review_cycles.py:_one_by_attempt', 'line_writers.participant') ['the line writer for attempt {name_value(attempt_id)} generation {generation}']
+   ('adopted', 'review_cycles.py:_one_by_attempt', 'line_writers.principal') ['the line writer for attempt {name_value(attempt_id)} generation {generation}']
+   ('adopted', 'review_cycles.py:_one_by_attempt', 'line_writers.revocation_reason') ['the line writer for attempt {name_value(attempt_id)} generation {generation}']
+   ('adopted', 'review_cycles.py:_one_by_attempt', 'line_writers.runtime_attempt_id') ['the line writer for attempt {name_value(attempt_id)} generation {generation}']
+   ('adopted', 'review_cycles.py:_one_by_attempt', 'line_writers.state') ['the line writer for attempt {name_value(attempt_id)} generation {generation}']
+   ('adopted', 'review_cycles.py:_one_by_attempt', 'line_writers.worker_id') ['the line writer for attempt {name_value(attempt_id)} generation {generation}']
+   ('adopted', 'review_cycles.py:_one_by_attempt', 'line_writers.writer_id') ['the line writer for attempt {name_value(attempt_id)} generation {generation}']
+   ('adopted', 'review_cycles.py:_one_by_attempt', 'review_attachments') ['the review attachment for attempt {name_value(attempt_id)} generation {generation}']
+   ('adopted', 'review_cycles.py:_one_by_attempt', 'review_attachments.assignment_generation') ['the review attachment for attempt {name_value(attempt_id)} generation {generation}']
+   ('adopted', 'review_cycles.py:_one_by_attempt', 'review_attachments.attachment_id') ['the review attachment for attempt {name_value(attempt_id)} generation {generation}']
+   ('adopted', 'review_cycles.py:_one_by_attempt', 'review_attachments.checkpoint_id') ['the review attachment for attempt {name_value(attempt_id)} generation {generation}']
+   ('adopted', 'review_cycles.py:_one_by_attempt', 'review_attachments.line_id') ['the review attachment for attempt {name_value(attempt_id)} generation {generation}']
+   ('adopted', 'review_cycles.py:_one_by_attempt', 'review_attachments.reviewer_participant') ['the review attachment for attempt {name_value(attempt_id)} generation {generation}']
+   ('adopted', 'review_cycles.py:_one_by_attempt', 'review_attachments.reviewer_principal') ['the review attachment for attempt {name_value(attempt_id)} generation {generation}']
+   ('adopted', 'review_cycles.py:_one_by_attempt', 'review_attachments.runtime_attempt_id') ['the review attachment for attempt {name_value(attempt_id)} generation {generation}']
+   ('caller', 'review_cycles.py:review_for_attempt', 'attempt_id') []
+   ('caller', 'review_cycles.py:review_for_attempt', 'generation') []
+   ('caller', 'review_cycles.py:review_for_attempt', 'store') []
+   ('caller', 'review_cycles.py:writer_for_attempt', 'attempt_id') []
+   ('caller', 'review_cycles.py:writer_for_attempt', 'generation') []
+   ('caller', 'review_cycles.py:writer_for_attempt', 'store') []
+=== owners recorded at review_cycles.py:writer_for_attempt
+   ('row', 'the line writer for attempt {name_value(attempt_id)} generation {generation}', 'read:review_cycles.py:_one_by_attempt|line_writers')
+=== owners recorded at review_cycles.py:review_for_attempt
+   ('row', 'the review attachment for attempt {name_value(attempt_id)} generation {generation}', 'read:review_cycles.py:_one_by_attempt|review_attachments')
+=== owners recorded at review_cycles.py:_one_by_attempt
+   ('row', '{what}', 'read:review_cycles.py:_one_by_attempt|{table}')
