@@ -1,0 +1,1100 @@
+entries 2580 unowned 646 orphans 77 residual records 77
+=== UNOWNED by domain
+   529 caller
+   90 adopted
+   27 injected
+=== UNOWNED by site
+   22 launch.py:launch_document
+   13 tokens.py:_document
+   12 handshake.py:settle_unsupported_version
+   10 failure_cause.py:record_and_raise_cessation_outcome
+   10 oci.py:OciAdapter.__init__
+   9 attempts.py:start_submission_returned
+   9 custody.py:clear_custody_hold
+   9 oci.py:run_vector
+   8 context_delivery.py:validate_generation
+   8 exchange.py:observed_activity
+   8 failure_cause.py:ensure_cessation_intent
+   8 provider_context.py:certify_production_profile
+   7 attempts.py:start_failure_operation_id
+   7 failure_cause.py:record_and_raise_cessation_intent
+   7 provider_context.py:finalize_context_use
+   7 workspaces.py:bind_token_container
+   7 workspaces.py:settle_cleanup
+   6 review_cycles.py:settle_restoration_execution
+   6 workspaces.py:_admitted_cleanup_document
+   6 authority_port.py:AuthorityPort.satisfy_gate
+   6 provider_context.py:bind_context_invocation
+   6 provider_context.py:context_output_declaration
+   6 provider_context.py:serving_argv
+   6 workspaces.py:admit_cleanup
+   5 intake.py:authorize_refused_session_cleanup
+   5 authority_port.py:AuthorityPort.claim
+   5 authority_port.py:AuthorityPort.settle_operation
+   5 failure_cause.py:cessation_outcome_operation_id
+   5 failure_cause.py:decode
+   5 failure_cause.py:record_cessation_outcome
+   5 handshake.py:unsupported_version_operation_id
+   5 launch.py:adopt
+   5 launch.py:materialize
+   5 launch.py:selected_transport
+   5 source_boundary.py:compose_verifier_layout
+   5 workspaces.py:refuse_if_held
+   4 intake.py:_authorize_deadline_cleanup
+   4 intake.py:abandon_attempt
+   4 attempt_logs.py:follow
+   4 attempt_logs.py:read
+   4 attempt_logs.py:record_capture
+   4 context_delivery.py:configure_context_storage
+   4 context_delivery.py:deliver_feedback
+   4 context_delivery.py:seal_generation
+   4 custody.py:surviving_helpers
+   4 failure_cause.py:answer_of
+   4 failure_cause.py:cessation_intent_operation_id
+   4 failure_cause.py:token_bound_runtime
+   4 oci.py:OciAdapter.normalize_directory
+   4 provider_context.py:ExecutionGrant.__init__
+   4 provider_context.py:admit_context_use
+   4 provider_context.py:authorize_qualification_run
+   4 provider_context.py:context_prompt
+   4 provider_context.py:revalidate_context_start
+   4 workspaces.py:AllocatedRoots.__init__
+   4 workspaces.py:copied_manifest
+   4 workspaces.py:discard_execution_roots
+   3 custody.py:normalize_directory
+   3 intake.py:authorize_cleanup
+   3 review_cycles.py:_settled_elsewhere
+   3 review_cycles.py:_sole_attachment
+   3 review_cycles.py:restore_abandoned_correction
+   3 workspaces.py:_recorded_document
+   3 workspaces.py:_restoration_lock_identity
+   3 attempt_logs.py:capture_state
+   3 context_delivery.py:adopt_context_use
+   3 context_delivery.py:context_mount_of
+   3 context_delivery.py:discard_context_use
+   3 context_delivery.py:materialize_context_use
+   3 context_delivery.py:read_context_receipt
+   3 failure_cause.py:absent_of
+   3 intake.py:proved_writer_cessation
+   3 launch.py:payload_of
+   3 oci.py:OciAdapter.seal
+   3 oci.py:OciAdapter.stop_expired
+   3 oci.py:OciAdapter.surviving_helpers
+   3 provider_context.py:hold_context_use
+   3 source_boundary.py:LayoutDelivery.__init__
+   3 store.py:reading_refusal
+   3 workspaces.py:WorkspaceGroup.__init__
+   3 workspaces.py:WorkspaceIdentity.__init__
+   3 workspaces.py:adopt_workspace_group
+   3 workspaces.py:establish_line_access
+   3 workspaces.py:hold_restoration_lock
+   3 workspaces.py:prove_line_integrity
+   3 workspaces.py:prove_workspace_group
+   3 workspaces.py:revoke_expired_token
+   3 workspaces.py:token_of
+   3 intake.py:_destroyed
+   3 intake.py:_destroyed_abandoned
+   3 intake.py:_destroyed_failed_start
+   3 intake.py:_destroyed_refused_session
+   2 custody.py:adopted_directory_custody
+   2 provider_context.py:_history
+   2 provider_context.py:_qualified
+   2 review_cycles.py:_correcting_verdict
+   2 review_cycles.py:release_writer
+   2 stopped_settlement.py:_read
+   2 workspaces.py:_configured_storage
+   2 workspaces.py:_current_cleanup_owner
+   2 workspaces.py:_durably_in_use
+   2 attempt_logs.py:adopt
+   2 attempt_logs.py:locators
+   2 attempt_logs.py:materialize
+   2 custody.py:allowed
+   2 exchange.py:activity_identities
+   2 exchange.py:adopt
+   2 exchange.py:materialize
+   2 failure_cause.py:attempt_cessation_intent_of
+   2 failure_cause.py:attempt_cessation_outcome_of
+   2 failure_cause.py:carry_degradation
+   2 intake.py:historical_writer_cessation
+   2 intake.py:settle_revoked_resource
+   2 launch.py:LaunchDelivery.__init__
+   2 launch.py:members_for
+   2 oci.py:OciAdapter.prove_line_consumable
+   2 provider_context.py:context_invocation_of
+   2 provider_context.py:context_profile_of
+   2 provider_context.py:context_use_of
+   2 provider_context.py:correction_feedback_of
+   2 provider_context.py:qualification_grant_of
+   2 provider_context.py:retire_context
+   2 store.py:ControlStore.__init__
+   2 workspaces.py:WorkspaceStorage.__init__
+   2 workspaces.py:adopted_assignment_workspace
+   2 workspaces.py:assignment_workspace
+   2 workspaces.py:check_workspace_group
+   2 workspaces.py:check_workspace_storage
+   2 workspaces.py:declared_identity_mapping
+   2 workspaces.py:line_assignment_workspace
+   2 workspaces.py:material_is_offered
+   2 workspaces.py:standing_adoption
+   2 workspaces.py:standing_allocation
+   2 workspaces.py:standing_cleanup
+   2 workspaces.py:standing_removal
+   2 intake.py:reclaim_expired_resource
+   1 attempts.py:_decide
+   1 attempts.py:_next_source_seq
+   1 attempts.py:activate_assignment
+   1 intake.py:authorize_failed_start_cleanup
+   1 intake.py:decide_retention
+   1 intake.py:record_intake
+   1 offers.py:issue_offer
+   1 output.py:record_frozen_result
+   1 review_cycles.py:_committed_fence
+   1 review_cycles.py:_completed_line
+   1 review_cycles.py:_launched_commands
+   1 review_cycles.py:_reserved_line
+   1 review_cycles.py:attach_review
+   1 review_cycles.py:freeze_checkpoint
+   1 review_cycles.py:grant_writer
+   1 review_cycles.py:record_progress
+   1 review_cycles.py:record_verdict
+   1 sessions.py:_next_epoch
+   1 stopped_settlement.py:settle_stopped
+   1 stopped_settlement.py:status
+   1 store.py:ControlStore.transact
+   1 tokens.py:_acting_record
+   1 tokens.py:_fence_settlement
+   1 workspaces.py:_completed_removal
+   1 attempt_logs.py:AttemptLogs.place
+   1 attempt_logs.py:named
+   1 attempt_logs.py:status_name
+   1 attempts.py:authorize_input_root
+   1 attempts.py:finalize_quiescent_assignment
+   1 attempts.py:observe_activity
+   1 attempts.py:request_runtime_start
+   1 context_delivery.py:configured_context_storage
+   1 credentials.py:CredentialHome.adopt
+   1 credentials.py:CredentialHome.materialize
+   1 credentials.py:OrphanTeardown.__init__
+   1 custody.py:custody_holds
+   1 documents.py:abandon_intent
+   1 documents.py:abandoned_destroy_command
+   1 documents.py:abandonment
+   1 documents.py:attempt_cessation_intent
+   1 documents.py:attempt_cessation_outcome
+   1 documents.py:directory_custody_settled
+   1 documents.py:failed_start_destroy_command
+   1 documents.py:fenced_before_start
+   1 documents.py:freeze_requested
+   1 documents.py:frozen_output
+   1 documents.py:manifest_retained
+   1 documents.py:operation
+   1 documents.py:output_answer
+   1 documents.py:output_artifact
+   1 documents.py:posture_slot
+   1 documents.py:provider_session_adopted
+   1 documents.py:refused_session_destroy_command
+   1 documents.py:result_frozen
+   1 documents.py:runtime_not_submitted
+   1 documents.py:runtime_preparation_failed
+   1 documents.py:runtime_start_failed
+   1 documents.py:session_closed
+   1 documents.py:session_observed
+   1 documents.py:session_opened
+   1 documents.py:session_quiescence_requested
+   1 documents.py:session_reconciled
+   1 documents.py:session_ref
+   1 documents.py:session_unsupported_version
+   1 documents.py:slot_moved
+   1 documents.py:transport_lost
+   1 exchange.py:observation
+   1 exchange.py:publish_command
+   1 exchange.py:state_document
+   1 exchange.py:worker_operation_id
+   1 failure_cause.py:attempt_failure_cause_of
+   1 failure_cause.py:degradation_of
+   1 failure_cause.py:recording_degraded
+   1 intake.py:inaccessible_output
+   1 intake.py:reclaim_operation_id
+   1 oci.py:OciAdapter.destroy_abandoned
+   1 oci.py:OciAdapter.integration_mounts_agree
+   1 oci.py:OciAdapter.list
+   1 oci.py:OciAdapter.observe
+   1 oci.py:OciAdapter.recover_credentials
+   1 oci.py:canonical_source
+   1 oci.py:canonical_target
+   1 provider_context.py:certify_context_profile
+   1 provider_context.py:context_of
+   1 provider_context.py:prove_context_execution
+   1 provider_context.py:qualification_deployment
+   1 review_cycles.py:review_boundary
+   1 review_cycles.py:writer_boundary
+   1 source_boundary.py:SourceBoundary.__init__
+   1 source_boundary.py:layout_bytes
+   1 workspaces.py:borrow_manager_instance
+   1 workspaces.py:borrowers_of
+   1 workspaces.py:configure_workspace_group
+   1 workspaces.py:configure_workspace_storage
+   1 workspaces.py:discard_tree
+   1 workspaces.py:discard_workspace
+   1 workspaces.py:held_manager_instance
+   1 workspaces.py:holders_of
+   1 workspaces.py:identity_for
+   1 workspaces.py:prepared_workspace_governance
+   1 workspaces.py:recorded_storage_place
+   1 workspaces.py:release_adopted_workspace
+   1 attempts.py:_observed
+   1 authority_port.py:AuthorityPort.project_work
+   1 intake.py:_surviving_writers
+   1 oci.py:OciAdapter._custody_runner
+=== UNOWNED rows
+   ('adopted', 'attempts.py:_decide', 'observations.next')
+   ('adopted', 'attempts.py:_next_source_seq', 'observations.next')
+   ('adopted', 'attempts.py:activate_assignment', 'replay')
+   ('adopted', 'attempts.py:start_submission_returned', 'replay')
+   ('adopted', 'custody.py:adopted_directory_custody', 'replay')
+   ('adopted', 'custody.py:normalize_directory', 'replay')
+   ('adopted', 'handshake.py:settle_unsupported_version', 'replay')
+   ('adopted', 'handshake.py:settle_unsupported_version', 'replay.attempt_id')
+   ('adopted', 'handshake.py:settle_unsupported_version', 'replay.why')
+   ('adopted', 'intake.py:_authorize_deadline_cleanup', 'replay')
+   ('adopted', 'intake.py:_authorize_deadline_cleanup', 'replay.cleanup')
+   ('adopted', 'intake.py:_authorize_deadline_cleanup', 'replay.cleanup.cleanup')
+   ('adopted', 'intake.py:abandon_attempt', 'replay.cleanup.directory_custody')
+   ('adopted', 'intake.py:abandon_attempt', 'replay.cleanup.state')
+   ('adopted', 'intake.py:authorize_cleanup', 'replay.cleanup')
+   ('adopted', 'intake.py:authorize_cleanup', 'replay.directory_custody')
+   ('adopted', 'intake.py:authorize_cleanup', 'replay.state')
+   ('adopted', 'intake.py:authorize_failed_start_cleanup', 'replay')
+   ('adopted', 'intake.py:authorize_refused_session_cleanup', 'replay')
+   ('adopted', 'intake.py:decide_retention', 'replay')
+   ('adopted', 'intake.py:record_intake', 'replay')
+   ('adopted', 'offers.py:issue_offer', 'replay')
+   ('adopted', 'output.py:record_frozen_result', 'replay')
+   ('adopted', 'provider_context.py:_history', 'operations')
+   ('adopted', 'provider_context.py:_history', 'operations.operation_id')
+   ('adopted', 'provider_context.py:_qualified', 'operations')
+   ('adopted', 'provider_context.py:_qualified', 'operations.operation_id')
+   ('adopted', 'review_cycles.py:_committed_fence', 'replay')
+   ('adopted', 'review_cycles.py:_completed_line', 'replay')
+   ('adopted', 'review_cycles.py:_correcting_verdict', 'checkpoint_verdicts')
+   ('adopted', 'review_cycles.py:_correcting_verdict', 'checkpoint_verdicts.verdict_id')
+   ('adopted', 'review_cycles.py:_launched_commands', 'replay')
+   ('adopted', 'review_cycles.py:_reserved_line', 'replay')
+   ('adopted', 'review_cycles.py:_settled_elsewhere', 'replay')
+   ('adopted', 'review_cycles.py:_settled_elsewhere', 'review_lines')
+   ('adopted', 'review_cycles.py:_settled_elsewhere', 'review_lines.state')
+   ('adopted', 'review_cycles.py:_sole_attachment', 'line_writers')
+   ('adopted', 'review_cycles.py:_sole_attachment', 'line_writers.writer_id')
+   ('adopted', 'review_cycles.py:_sole_attachment', 'review_attachments')
+   ('adopted', 'review_cycles.py:attach_review', 'replay')
+   ('adopted', 'review_cycles.py:freeze_checkpoint', 'replay')
+   ('adopted', 'review_cycles.py:grant_writer', 'replay')
+   ('adopted', 'review_cycles.py:record_progress', 'replay')
+   ('adopted', 'review_cycles.py:record_verdict', 'replay')
+   ('adopted', 'review_cycles.py:release_writer', 'replay')
+   ('adopted', 'review_cycles.py:restore_abandoned_correction', 'replay')
+   ('adopted', 'review_cycles.py:settle_restoration_execution', 'replay')
+   ('adopted', 'review_cycles.py:settle_restoration_execution', 'replay.checkpoint_id')
+   ('adopted', 'review_cycles.py:settle_restoration_execution', 'replay.executor')
+   ('adopted', 'review_cycles.py:settle_restoration_execution', 'replay.line_id')
+   ('adopted', 'sessions.py:_next_epoch', 'agent_sessions.next')
+   ('adopted', 'stopped_settlement.py:_read', 'replay')
+   ('adopted', 'stopped_settlement.py:_read', 'replay.operation_id')
+   ('adopted', 'stopped_settlement.py:settle_stopped', 'replay')
+   ('adopted', 'stopped_settlement.py:status', 'replay')
+   ('adopted', 'store.py:ControlStore.transact', 'replay')
+   ('adopted', 'tokens.py:_acting_record', 'replay')
+   ('adopted', 'tokens.py:_document', 'replay')
+   ('adopted', 'tokens.py:_document', 'replay.container')
+   ('adopted', 'tokens.py:_document', 'replay.decided_at')
+   ('adopted', 'tokens.py:_document', 'replay.execution')
+   ('adopted', 'tokens.py:_document', 'replay.expired_at')
+   ('adopted', 'tokens.py:_document', 'replay.expires_at')
+   ('adopted', 'tokens.py:_document', 'replay.generation')
+   ('adopted', 'tokens.py:_document', 'replay.launch')
+   ('adopted', 'tokens.py:_document', 'replay.observed_at')
+   ('adopted', 'tokens.py:_document', 'replay.operation')
+   ('adopted', 'tokens.py:_document', 'replay.owner')
+   ('adopted', 'tokens.py:_document', 'replay.permission')
+   ('adopted', 'tokens.py:_document', 'replay.started')
+   ('adopted', 'tokens.py:_fence_settlement', 'replay')
+   ('adopted', 'workspaces.py:_admitted_cleanup_document', 'replay')
+   ('adopted', 'workspaces.py:_admitted_cleanup_document', 'replay.attempt_id')
+   ('adopted', 'workspaces.py:_admitted_cleanup_document', 'replay.owner')
+   ('adopted', 'workspaces.py:_admitted_cleanup_document', 'replay.settlement')
+   ('adopted', 'workspaces.py:_admitted_cleanup_document', 'replay.settlement.operation')
+   ('adopted', 'workspaces.py:_admitted_cleanup_document', 'replay.settlement.signature')
+   ('adopted', 'workspaces.py:_completed_removal', 'replay')
+   ('adopted', 'workspaces.py:_configured_storage', 'meta')
+   ('adopted', 'workspaces.py:_configured_storage', 'meta.value')
+   ('adopted', 'workspaces.py:_current_cleanup_owner', 'replay')
+   ('adopted', 'workspaces.py:_current_cleanup_owner', 'replay.owner')
+   ('adopted', 'workspaces.py:_durably_in_use', 'line_writers')
+   ('adopted', 'workspaces.py:_durably_in_use', 'review_attachments')
+   ('adopted', 'workspaces.py:_recorded_document', 'replay')
+   ('adopted', 'workspaces.py:_recorded_document', 'replay.container')
+   ('adopted', 'workspaces.py:_recorded_document', 'replay.token')
+   ('adopted', 'workspaces.py:_restoration_lock_identity', 'replay')
+   ('adopted', 'workspaces.py:_restoration_lock_identity', 'replay.device')
+   ('adopted', 'workspaces.py:_restoration_lock_identity', 'replay.inode')
+   ('caller', 'attempt_logs.py:AttemptLogs.place', 'stream')
+   ('caller', 'attempt_logs.py:adopt', 'attempt_id')
+   ('caller', 'attempt_logs.py:adopt', 'workspace_group')
+   ('caller', 'attempt_logs.py:capture_state', 'delivery')
+   ('caller', 'attempt_logs.py:capture_state', 'reported')
+   ('caller', 'attempt_logs.py:capture_state', 'stream')
+   ('caller', 'attempt_logs.py:follow', 'bound')
+   ('caller', 'attempt_logs.py:follow', 'delivery')
+   ('caller', 'attempt_logs.py:follow', 'from_byte')
+   ('caller', 'attempt_logs.py:follow', 'stream')
+   ('caller', 'attempt_logs.py:locators', 'delivery')
+   ('caller', 'attempt_logs.py:locators', 'reported')
+   ('caller', 'attempt_logs.py:materialize', 'attempt_id')
+   ('caller', 'attempt_logs.py:materialize', 'workspace_group')
+   ('caller', 'attempt_logs.py:named', 'stream')
+   ('caller', 'attempt_logs.py:read', 'delivery')
+   ('caller', 'attempt_logs.py:read', 'from_byte')
+   ('caller', 'attempt_logs.py:read', 'limit')
+   ('caller', 'attempt_logs.py:read', 'stream')
+   ('caller', 'attempt_logs.py:record_capture', 'delivery')
+   ('caller', 'attempt_logs.py:record_capture', 'reason')
+   ('caller', 'attempt_logs.py:record_capture', 'state')
+   ('caller', 'attempt_logs.py:record_capture', 'stream')
+   ('caller', 'attempt_logs.py:status_name', 'stream')
+   ('caller', 'attempts.py:authorize_input_root', 'inputs')
+   ('caller', 'attempts.py:finalize_quiescent_assignment', 'cessation')
+   ('caller', 'attempts.py:observe_activity', 'bytes_observed')
+   ('caller', 'attempts.py:request_runtime_start', 'inputs')
+   ('caller', 'attempts.py:start_failure_operation_id', 'attempt')
+   ('caller', 'attempts.py:start_failure_operation_id', 'attempt.assignment_generation')
+   ('caller', 'attempts.py:start_failure_operation_id', 'attempt.assignment_participant')
+   ('caller', 'attempts.py:start_failure_operation_id', 'attempt.authority_uuid')
+   ('caller', 'attempts.py:start_failure_operation_id', 'attempt.profile_digest')
+   ('caller', 'attempts.py:start_failure_operation_id', 'attempt.runtime_attempt_id')
+   ('caller', 'attempts.py:start_failure_operation_id', 'attempt.work_id')
+   ('caller', 'attempts.py:start_submission_returned', 'attempt')
+   ('caller', 'attempts.py:start_submission_returned', 'attempt.assignment_generation')
+   ('caller', 'attempts.py:start_submission_returned', 'attempt.assignment_participant')
+   ('caller', 'attempts.py:start_submission_returned', 'attempt.authority_uuid')
+   ('caller', 'attempts.py:start_submission_returned', 'attempt.execution_runtime')
+   ('caller', 'attempts.py:start_submission_returned', 'attempt.profile_digest')
+   ('caller', 'attempts.py:start_submission_returned', 'attempt.runtime_attempt_id')
+   ('caller', 'attempts.py:start_submission_returned', 'attempt.work_id')
+   ('caller', 'authority_port.py:AuthorityPort.claim', 'role')
+   ('caller', 'authority_port.py:AuthorityPort.claim', 'scope')
+   ('caller', 'authority_port.py:AuthorityPort.satisfy_gate', 'evidence')
+   ('caller', 'authority_port.py:AuthorityPort.satisfy_gate', 'gate')
+   ('caller', 'authority_port.py:AuthorityPort.satisfy_gate', 'operation_id')
+   ('caller', 'authority_port.py:AuthorityPort.satisfy_gate', 'work_id')
+   ('caller', 'authority_port.py:AuthorityPort.settle_operation', 'role')
+   ('caller', 'authority_port.py:AuthorityPort.settle_operation', 'scope')
+   ('caller', 'context_delivery.py:adopt_context_use', 'attempt_id')
+   ('caller', 'context_delivery.py:adopt_context_use', 'control')
+   ('caller', 'context_delivery.py:adopt_context_use', 'storage')
+   ('caller', 'context_delivery.py:configure_context_storage', 'control')
+   ('caller', 'context_delivery.py:configure_context_storage', 'excluded_roots')
+   ('caller', 'context_delivery.py:configure_context_storage', 'path')
+   ('caller', 'context_delivery.py:configure_context_storage', 'runtime_uid')
+   ('caller', 'context_delivery.py:configured_context_storage', 'control')
+   ('caller', 'context_delivery.py:context_mount_of', 'attempt_id')
+   ('caller', 'context_delivery.py:context_mount_of', 'control')
+   ('caller', 'context_delivery.py:context_mount_of', 'storage')
+   ('caller', 'context_delivery.py:deliver_feedback', 'attempt_id')
+   ('caller', 'context_delivery.py:deliver_feedback', 'control')
+   ('caller', 'context_delivery.py:deliver_feedback', 'payload')
+   ('caller', 'context_delivery.py:deliver_feedback', 'storage')
+   ('caller', 'context_delivery.py:discard_context_use', 'attempt_id')
+   ('caller', 'context_delivery.py:discard_context_use', 'control')
+   ('caller', 'context_delivery.py:discard_context_use', 'storage')
+   ('caller', 'context_delivery.py:materialize_context_use', 'attempt_id')
+   ('caller', 'context_delivery.py:materialize_context_use', 'control')
+   ('caller', 'context_delivery.py:materialize_context_use', 'storage')
+   ('caller', 'context_delivery.py:read_context_receipt', 'artifact_id')
+   ('caller', 'context_delivery.py:read_context_receipt', 'attempt_id')
+   ('caller', 'context_delivery.py:read_context_receipt', 'control')
+   ('caller', 'context_delivery.py:seal_generation', 'attempt_id')
+   ('caller', 'context_delivery.py:seal_generation', 'control')
+   ('caller', 'context_delivery.py:seal_generation', 'exclusion')
+   ('caller', 'context_delivery.py:seal_generation', 'storage')
+   ('caller', 'context_delivery.py:validate_generation', 'context_id')
+   ('caller', 'context_delivery.py:validate_generation', 'control')
+   ('caller', 'context_delivery.py:validate_generation', 'expected')
+   ('caller', 'context_delivery.py:validate_generation', 'expected.exclusion_digest')
+   ('caller', 'context_delivery.py:validate_generation', 'expected.generation')
+   ('caller', 'context_delivery.py:validate_generation', 'expected.generation_pins')
+   ('caller', 'context_delivery.py:validate_generation', 'expected.manifest_digest')
+   ('caller', 'context_delivery.py:validate_generation', 'storage')
+   ('caller', 'credentials.py:CredentialHome.adopt', 'workspace_group')
+   ('caller', 'credentials.py:CredentialHome.materialize', 'workspace_group')
+   ('caller', 'credentials.py:OrphanTeardown.__init__', 'homes')
+   ('caller', 'custody.py:adopted_directory_custody', 'prepared_store')
+   ('caller', 'custody.py:allowed', 'most')
+   ('caller', 'custody.py:allowed', 'seconds')
+   ('caller', 'custody.py:clear_custody_hold', 'episode')
+   ('caller', 'custody.py:clear_custody_hold', 'settlement')
+   ('caller', 'custody.py:clear_custody_hold', 'settlement.document')
+   ('caller', 'custody.py:clear_custody_hold', 'settlement.document.custody')
+   ('caller', 'custody.py:clear_custody_hold', 'settlement.document.running_as')
+   ('caller', 'custody.py:clear_custody_hold', 'settlement.document.submission')
+   ('caller', 'custody.py:clear_custody_hold', 'settlement.source')
+   ('caller', 'custody.py:clear_custody_hold', 'settlement.status')
+   ('caller', 'custody.py:clear_custody_hold', 'which')
+   ('caller', 'custody.py:custody_holds', 'which')
+   ('caller', 'custody.py:normalize_directory', 'reclaim')
+   ('caller', 'custody.py:normalize_directory', 'seconds')
+   ('caller', 'custody.py:surviving_helpers', 'assignment_id')
+   ('caller', 'custody.py:surviving_helpers', 'engine')
+   ('caller', 'custody.py:surviving_helpers', 'image_digest')
+   ('caller', 'custody.py:surviving_helpers', 'run')
+   ('caller', 'documents.py:abandon_intent', 'members')
+   ('caller', 'documents.py:abandoned_destroy_command', 'members')
+   ('caller', 'documents.py:abandonment', 'members')
+   ('caller', 'documents.py:attempt_cessation_intent', 'members')
+   ('caller', 'documents.py:attempt_cessation_outcome', 'members')
+   ('caller', 'documents.py:directory_custody_settled', 'members')
+   ('caller', 'documents.py:failed_start_destroy_command', 'members')
+   ('caller', 'documents.py:fenced_before_start', 'members')
+   ('caller', 'documents.py:freeze_requested', 'members')
+   ('caller', 'documents.py:frozen_output', 'members')
+   ('caller', 'documents.py:manifest_retained', 'members')
+   ('caller', 'documents.py:operation', 'members')
+   ('caller', 'documents.py:output_answer', 'members')
+   ('caller', 'documents.py:output_artifact', 'members')
+   ('caller', 'documents.py:posture_slot', 'members')
+   ('caller', 'documents.py:provider_session_adopted', 'members')
+   ('caller', 'documents.py:refused_session_destroy_command', 'members')
+   ('caller', 'documents.py:result_frozen', 'members')
+   ('caller', 'documents.py:runtime_not_submitted', 'members')
+   ('caller', 'documents.py:runtime_preparation_failed', 'members')
+   ('caller', 'documents.py:runtime_start_failed', 'members')
+   ('caller', 'documents.py:session_closed', 'members')
+   ('caller', 'documents.py:session_observed', 'members')
+   ('caller', 'documents.py:session_opened', 'members')
+   ('caller', 'documents.py:session_quiescence_requested', 'members')
+   ('caller', 'documents.py:session_reconciled', 'members')
+   ('caller', 'documents.py:session_ref', 'members')
+   ('caller', 'documents.py:session_unsupported_version', 'members')
+   ('caller', 'documents.py:slot_moved', 'members')
+   ('caller', 'documents.py:transport_lost', 'members')
+   ('caller', 'exchange.py:activity_identities', 'delivery')
+   ('caller', 'exchange.py:activity_identities', 'session')
+   ('caller', 'exchange.py:adopt', 'attempt_id')
+   ('caller', 'exchange.py:adopt', 'workspace_group')
+   ('caller', 'exchange.py:materialize', 'attempt_id')
+   ('caller', 'exchange.py:materialize', 'workspace_group')
+   ('caller', 'exchange.py:observation', 'delivery')
+   ('caller', 'exchange.py:observed_activity', 'delivery')
+   ('caller', 'exchange.py:observed_activity', 'expected')
+   ('caller', 'exchange.py:observed_activity', 'expected.attempt_id')
+   ('caller', 'exchange.py:observed_activity', 'expected.command_digest')
+   ('caller', 'exchange.py:observed_activity', 'expected.operation')
+   ('caller', 'exchange.py:observed_activity', 'expected.operation_id')
+   ('caller', 'exchange.py:observed_activity', 'expected.sequence_id')
+   ('caller', 'exchange.py:observed_activity', 'expected.session')
+   ('caller', 'exchange.py:publish_command', 'delivery')
+   ('caller', 'exchange.py:state_document', 'operation')
+   ('caller', 'exchange.py:worker_operation_id', 'operation')
+   ('caller', 'failure_cause.py:absent_of', 'document')
+   ('caller', 'failure_cause.py:absent_of', 'document.absent_records')
+   ('caller', 'failure_cause.py:absent_of', 'document.schema')
+   ('caller', 'failure_cause.py:answer_of', 'document')
+   ('caller', 'failure_cause.py:answer_of', 'document.cause')
+   ('caller', 'failure_cause.py:answer_of', 'document.cause.outcome')
+   ('caller', 'failure_cause.py:answer_of', 'document.schema')
+   ('caller', 'failure_cause.py:attempt_cessation_intent_of', 'attempt_id')
+   ('caller', 'failure_cause.py:attempt_cessation_intent_of', 'component')
+   ('caller', 'failure_cause.py:attempt_cessation_outcome_of', 'attempt_id')
+   ('caller', 'failure_cause.py:attempt_cessation_outcome_of', 'component')
+   ('caller', 'failure_cause.py:attempt_failure_cause_of', 'attempt_id')
+   ('caller', 'failure_cause.py:carry_degradation', 'carrier')
+   ('caller', 'failure_cause.py:carry_degradation', 'reported')
+   ('caller', 'failure_cause.py:cessation_intent_operation_id', 'attempt')
+   ('caller', 'failure_cause.py:cessation_intent_operation_id', 'attempt.runtime_attempt_id')
+   ('caller', 'failure_cause.py:cessation_intent_operation_id', 'component')
+   ('caller', 'failure_cause.py:cessation_intent_operation_id', 'generation')
+   ('caller', 'failure_cause.py:cessation_outcome_operation_id', 'attempt')
+   ('caller', 'failure_cause.py:cessation_outcome_operation_id', 'attempt.runtime_attempt_id')
+   ('caller', 'failure_cause.py:cessation_outcome_operation_id', 'component')
+   ('caller', 'failure_cause.py:cessation_outcome_operation_id', 'generation')
+   ('caller', 'failure_cause.py:cessation_outcome_operation_id', 'revision')
+   ('caller', 'failure_cause.py:decode', 'member')
+   ('caller', 'failure_cause.py:decode', 'member.known')
+   ('caller', 'failure_cause.py:decode', 'member.source')
+   ('caller', 'failure_cause.py:decode', 'member.value')
+   ('caller', 'failure_cause.py:decode', 'member.why')
+   ('caller', 'failure_cause.py:degradation_of', 'carrier')
+   ('caller', 'failure_cause.py:ensure_cessation_intent', 'attempt_id')
+   ('caller', 'failure_cause.py:ensure_cessation_intent', 'facts')
+   ('caller', 'failure_cause.py:ensure_cessation_intent', 'facts.component')
+   ('caller', 'failure_cause.py:ensure_cessation_intent', 'facts.correlation_id')
+   ('caller', 'failure_cause.py:ensure_cessation_intent', 'facts.domain')
+   ('caller', 'failure_cause.py:ensure_cessation_intent', 'facts.generation')
+   ('caller', 'failure_cause.py:ensure_cessation_intent', 'facts.launched')
+   ('caller', 'failure_cause.py:ensure_cessation_intent', 'facts.runtime_id')
+   ('caller', 'failure_cause.py:record_and_raise_cessation_intent', 'attempt_id')
+   ('caller', 'failure_cause.py:record_and_raise_cessation_intent', 'component')
+   ('caller', 'failure_cause.py:record_and_raise_cessation_intent', 'correlation_id')
+   ('caller', 'failure_cause.py:record_and_raise_cessation_intent', 'domain')
+   ('caller', 'failure_cause.py:record_and_raise_cessation_intent', 'generation')
+   ('caller', 'failure_cause.py:record_and_raise_cessation_intent', 'launched')
+   ('caller', 'failure_cause.py:record_and_raise_cessation_intent', 'runtime_id')
+   ('caller', 'failure_cause.py:record_and_raise_cessation_outcome', 'attempt_id')
+   ('caller', 'failure_cause.py:record_and_raise_cessation_outcome', 'category')
+   ('caller', 'failure_cause.py:record_and_raise_cessation_outcome', 'code')
+   ('caller', 'failure_cause.py:record_and_raise_cessation_outcome', 'component')
+   ('caller', 'failure_cause.py:record_and_raise_cessation_outcome', 'correlation_id')
+   ('caller', 'failure_cause.py:record_and_raise_cessation_outcome', 'effects')
+   ('caller', 'failure_cause.py:record_and_raise_cessation_outcome', 'generation')
+   ('caller', 'failure_cause.py:record_and_raise_cessation_outcome', 'observed_after')
+   ('caller', 'failure_cause.py:record_and_raise_cessation_outcome', 'outcome')
+   ('caller', 'failure_cause.py:record_and_raise_cessation_outcome', 'runtime_id')
+   ('caller', 'failure_cause.py:record_cessation_outcome', 'attempt_id')
+   ('caller', 'failure_cause.py:record_cessation_outcome', 'facts')
+   ('caller', 'failure_cause.py:record_cessation_outcome', 'facts.component')
+   ('caller', 'failure_cause.py:record_cessation_outcome', 'facts.effects')
+   ('caller', 'failure_cause.py:record_cessation_outcome', 'facts.outcome')
+   ('caller', 'failure_cause.py:recording_degraded', 'reported')
+   ('caller', 'failure_cause.py:token_bound_runtime', 'attempt')
+   ('caller', 'failure_cause.py:token_bound_runtime', 'attempt.runtime_attempt_id')
+   ('caller', 'failure_cause.py:token_bound_runtime', 'attempt.workspace_device')
+   ('caller', 'failure_cause.py:token_bound_runtime', 'attempt.workspace_inode')
+   ('caller', 'handshake.py:settle_unsupported_version', 'adapter')
+   ('caller', 'handshake.py:settle_unsupported_version', 'agent')
+   ('caller', 'handshake.py:settle_unsupported_version', 'agent_protocol_version')
+   ('caller', 'handshake.py:settle_unsupported_version', 'agent_session_capabilities')
+   ('caller', 'handshake.py:settle_unsupported_version', 'session_ref')
+   ('caller', 'handshake.py:settle_unsupported_version', 'session_ref.posture')
+   ('caller', 'handshake.py:settle_unsupported_version', 'session_ref.provider_session_id')
+   ('caller', 'handshake.py:settle_unsupported_version', 'session_ref.runtime_attempt_id')
+   ('caller', 'handshake.py:settle_unsupported_version', 'session_ref.session_epoch')
+   ('caller', 'handshake.py:unsupported_version_operation_id', 'session_ref')
+   ('caller', 'handshake.py:unsupported_version_operation_id', 'session_ref.posture')
+   ('caller', 'handshake.py:unsupported_version_operation_id', 'session_ref.provider_session_id')
+   ('caller', 'handshake.py:unsupported_version_operation_id', 'session_ref.runtime_attempt_id')
+   ('caller', 'handshake.py:unsupported_version_operation_id', 'session_ref.session_epoch')
+   ('caller', 'intake.py:abandon_attempt', 'reclaim')
+   ('caller', 'intake.py:abandon_attempt', 'seconds')
+   ('caller', 'intake.py:authorize_refused_session_cleanup', 'session_ref')
+   ('caller', 'intake.py:authorize_refused_session_cleanup', 'session_ref.posture')
+   ('caller', 'intake.py:authorize_refused_session_cleanup', 'session_ref.provider_session_id')
+   ('caller', 'intake.py:authorize_refused_session_cleanup', 'session_ref.session_epoch')
+   ('caller', 'intake.py:historical_writer_cessation', 'operation')
+   ('caller', 'intake.py:historical_writer_cessation', 'operation.operation_id')
+   ('caller', 'intake.py:inaccessible_output', 'roots')
+   ('caller', 'intake.py:proved_writer_cessation', 'attempt_id')
+   ('caller', 'intake.py:proved_writer_cessation', 'operation')
+   ('caller', 'intake.py:proved_writer_cessation', 'what')
+   ('caller', 'intake.py:reclaim_operation_id', 'generation')
+   ('caller', 'intake.py:settle_revoked_resource', 'reclaim')
+   ('caller', 'intake.py:settle_revoked_resource', 'seconds')
+   ('caller', 'launch.py:LaunchDelivery.__init__', 'delivery')
+   ('caller', 'launch.py:LaunchDelivery.__init__', 'logs')
+   ('caller', 'launch.py:adopt', 'job_execution')
+   ('caller', 'launch.py:adopt', 'job_execution.attempt_id')
+   ('caller', 'launch.py:adopt', 'provider_context')
+   ('caller', 'launch.py:adopt', 'transport')
+   ('caller', 'launch.py:adopt', 'workspace_group')
+   ('caller', 'launch.py:launch_document', 'provider_context')
+   ('caller', 'launch.py:launch_document', 'provider_context.argv_digest')
+   ('caller', 'launch.py:launch_document', 'provider_context.argv_policy_digest')
+   ('caller', 'launch.py:launch_document', 'provider_context.attempt_id')
+   ('caller', 'launch.py:launch_document', 'provider_context.cli_build')
+   ('caller', 'launch.py:launch_document', 'provider_context.context_id')
+   ('caller', 'launch.py:launch_document', 'provider_context.conversation_id')
+   ('caller', 'launch.py:launch_document', 'provider_context.delivery_digest')
+   ('caller', 'launch.py:launch_document', 'provider_context.environment_policy_digest')
+   ('caller', 'launch.py:launch_document', 'provider_context.generation')
+   ('caller', 'launch.py:launch_document', 'provider_context.generation_digest')
+   ('caller', 'launch.py:launch_document', 'provider_context.invocation_binding_digest')
+   ('caller', 'launch.py:launch_document', 'provider_context.invocation_id')
+   ('caller', 'launch.py:launch_document', 'provider_context.mode')
+   ('caller', 'launch.py:launch_document', 'provider_context.model')
+   ('caller', 'launch.py:launch_document', 'provider_context.profile_digest')
+   ('caller', 'launch.py:launch_document', 'provider_context.prompt_digest')
+   ('caller', 'launch.py:launch_document', 'provider_context.reported_model')
+   ('caller', 'launch.py:launch_document', 'provider_context.schema')
+   ('caller', 'launch.py:launch_document', 'provider_context.task_digest')
+   ('caller', 'launch.py:launch_document', 'provider_context.use_id')
+   ('caller', 'launch.py:launch_document', 'transport')
+   ('caller', 'launch.py:materialize', 'job_execution')
+   ('caller', 'launch.py:materialize', 'job_execution.attempt_id')
+   ('caller', 'launch.py:materialize', 'provider_context')
+   ('caller', 'launch.py:materialize', 'transport')
+   ('caller', 'launch.py:materialize', 'workspace_group')
+   ('caller', 'launch.py:members_for', 'document')
+   ('caller', 'launch.py:members_for', 'document.schema')
+   ('caller', 'launch.py:payload_of', 'document')
+   ('caller', 'launch.py:payload_of', 'document.payload')
+   ('caller', 'launch.py:payload_of', 'document.schema')
+   ('caller', 'launch.py:selected_transport', 'document')
+   ('caller', 'launch.py:selected_transport', 'document.payload')
+   ('caller', 'launch.py:selected_transport', 'document.payload.transport')
+   ('caller', 'launch.py:selected_transport', 'document.schema')
+   ('caller', 'launch.py:selected_transport', 'document.transport')
+   ('caller', 'oci.py:OciAdapter.__init__', 'context_delivery')
+   ('caller', 'oci.py:OciAdapter.__init__', 'context_execution')
+   ('caller', 'oci.py:OciAdapter.__init__', 'credential_home')
+   ('caller', 'oci.py:OciAdapter.__init__', 'credential_orphan')
+   ('caller', 'oci.py:OciAdapter.__init__', 'integration_delivery')
+   ('caller', 'oci.py:OciAdapter.__init__', 'interactive')
+   ('caller', 'oci.py:OciAdapter.__init__', 'layout_delivery')
+   ('caller', 'oci.py:OciAdapter.__init__', 'network')
+   ('caller', 'oci.py:OciAdapter.__init__', 'scratch_delivery')
+   ('caller', 'oci.py:OciAdapter.__init__', 'workspace_group')
+   ('caller', 'oci.py:OciAdapter.destroy_abandoned', 'seconds')
+   ('caller', 'oci.py:OciAdapter.integration_mounts_agree', 'runtime_id')
+   ('caller', 'oci.py:OciAdapter.list', 'seconds')
+   ('caller', 'oci.py:OciAdapter.normalize_directory', 'assignment_id')
+   ('caller', 'oci.py:OciAdapter.normalize_directory', 'reclaim')
+   ('caller', 'oci.py:OciAdapter.normalize_directory', 'seconds')
+   ('caller', 'oci.py:OciAdapter.normalize_directory', 'which')
+   ('caller', 'oci.py:OciAdapter.observe', 'seconds')
+   ('caller', 'oci.py:OciAdapter.prove_line_consumable', 'assignment_id')
+   ('caller', 'oci.py:OciAdapter.prove_line_consumable', 'generation')
+   ('caller', 'oci.py:OciAdapter.recover_credentials', 'seconds')
+   ('caller', 'oci.py:OciAdapter.seal', 'request.context')
+   ('caller', 'oci.py:OciAdapter.seal', 'request.context.effective_scope')
+   ('caller', 'oci.py:OciAdapter.seal', 'request.context.principal')
+   ('caller', 'oci.py:OciAdapter.stop_expired', 'request')
+   ('caller', 'oci.py:OciAdapter.stop_expired', 'request.operation_id')
+   ('caller', 'oci.py:OciAdapter.stop_expired', 'request.runtime_id')
+   ('caller', 'oci.py:OciAdapter.surviving_helpers', 'assignment_id')
+   ('caller', 'oci.py:OciAdapter.surviving_helpers', 'reclaim')
+   ('caller', 'oci.py:OciAdapter.surviving_helpers', 'seconds')
+   ('caller', 'oci.py:canonical_source', 'what')
+   ('caller', 'oci.py:canonical_target', 'what')
+   ('caller', 'oci.py:run_vector', 'context_delivered')
+   ('caller', 'oci.py:run_vector', 'exchange_delivered')
+   ('caller', 'oci.py:run_vector', 'integration_delivered')
+   ('caller', 'oci.py:run_vector', 'interactive')
+   ('caller', 'oci.py:run_vector', 'layout_delivered')
+   ('caller', 'oci.py:run_vector', 'logs_delivered')
+   ('caller', 'oci.py:run_vector', 'scratch_delivered')
+   ('caller', 'oci.py:run_vector', 'source_delivered')
+   ('caller', 'oci.py:run_vector', 'workspace_group')
+   ('caller', 'provider_context.py:ExecutionGrant.__init__', 'context_id')
+   ('caller', 'provider_context.py:ExecutionGrant.__init__', 'mint')
+   ('caller', 'provider_context.py:ExecutionGrant.__init__', 'qualification')
+   ('caller', 'provider_context.py:ExecutionGrant.__init__', 'use_id')
+   ('caller', 'provider_context.py:admit_context_use', 'authority')
+   ('caller', 'provider_context.py:admit_context_use', 'control')
+   ('caller', 'provider_context.py:admit_context_use', 'jobs')
+   ('caller', 'provider_context.py:admit_context_use', 'profile_digest')
+   ('caller', 'provider_context.py:authorize_qualification_run', 'authority_uuid')
+   ('caller', 'provider_context.py:authorize_qualification_run', 'control')
+   ('caller', 'provider_context.py:authorize_qualification_run', 'note')
+   ('caller', 'provider_context.py:authorize_qualification_run', 'profile_digest')
+   ('caller', 'provider_context.py:bind_context_invocation', 'authority')
+   ('caller', 'provider_context.py:bind_context_invocation', 'control')
+   ('caller', 'provider_context.py:bind_context_invocation', 'jobs')
+   ('caller', 'provider_context.py:bind_context_invocation', 'profile_digest')
+   ('caller', 'provider_context.py:bind_context_invocation', 'task_bytes')
+   ('caller', 'provider_context.py:bind_context_invocation', 'writer_id')
+   ('caller', 'provider_context.py:certify_context_profile', 'control')
+   ('caller', 'provider_context.py:certify_production_profile', 'control')
+   ('caller', 'provider_context.py:certify_production_profile', 'evidence')
+   ('caller', 'provider_context.py:certify_production_profile', 'evidence.context_id')
+   ('caller', 'provider_context.py:certify_production_profile', 'evidence.continuity')
+   ('caller', 'provider_context.py:certify_production_profile', 'evidence.continuity.report_digest')
+   ('caller', 'provider_context.py:certify_production_profile', 'evidence.continuity.verdict_id')
+   ('caller', 'provider_context.py:certify_production_profile', 'evidence.evidence_refs')
+   ('caller', 'provider_context.py:certify_production_profile', 'evidence.run_id')
+   ('caller', 'provider_context.py:context_invocation_of', 'attempt_id')
+   ('caller', 'provider_context.py:context_invocation_of', 'control')
+   ('caller', 'provider_context.py:context_of', 'control')
+   ('caller', 'provider_context.py:context_output_declaration', 'outputs')
+   ('caller', 'provider_context.py:context_output_declaration', 'outputs.constraints')
+   ('caller', 'provider_context.py:context_output_declaration', 'outputs.name')
+   ('caller', 'provider_context.py:context_output_declaration', 'outputs.path')
+   ('caller', 'provider_context.py:context_output_declaration', 'outputs.required')
+   ('caller', 'provider_context.py:context_output_declaration', 'outputs.type')
+   ('caller', 'provider_context.py:context_profile_of', 'control')
+   ('caller', 'provider_context.py:context_profile_of', 'profile_digest')
+   ('caller', 'provider_context.py:context_prompt', 'feedback')
+   ('caller', 'provider_context.py:context_prompt', 'task')
+   ('caller', 'provider_context.py:context_prompt', 'task.instructions')
+   ('caller', 'provider_context.py:context_prompt', 'task.verification')
+   ('caller', 'provider_context.py:context_use_of', 'attempt_id')
+   ('caller', 'provider_context.py:context_use_of', 'control')
+   ('caller', 'provider_context.py:correction_feedback_of', 'control')
+   ('caller', 'provider_context.py:correction_feedback_of', 'jobs')
+   ('caller', 'provider_context.py:finalize_context_use', 'attempt_id')
+   ('caller', 'provider_context.py:finalize_context_use', 'authority')
+   ('caller', 'provider_context.py:finalize_context_use', 'checkpoint_reader')
+   ('caller', 'provider_context.py:finalize_context_use', 'control')
+   ('caller', 'provider_context.py:finalize_context_use', 'jobs')
+   ('caller', 'provider_context.py:finalize_context_use', 'receipt_reader')
+   ('caller', 'provider_context.py:finalize_context_use', 'storage')
+   ('caller', 'provider_context.py:hold_context_use', 'control')
+   ('caller', 'provider_context.py:hold_context_use', 'evidence_refs')
+   ('caller', 'provider_context.py:hold_context_use', 'reason')
+   ('caller', 'provider_context.py:prove_context_execution', 'control')
+   ('caller', 'provider_context.py:qualification_deployment', 'control')
+   ('caller', 'provider_context.py:qualification_grant_of', 'control')
+   ('caller', 'provider_context.py:qualification_grant_of', 'run_id')
+   ('caller', 'provider_context.py:retire_context', 'context_id')
+   ('caller', 'provider_context.py:retire_context', 'control')
+   ('caller', 'provider_context.py:revalidate_context_start', 'attempt_id')
+   ('caller', 'provider_context.py:revalidate_context_start', 'authority')
+   ('caller', 'provider_context.py:revalidate_context_start', 'control')
+   ('caller', 'provider_context.py:revalidate_context_start', 'jobs')
+   ('caller', 'provider_context.py:serving_argv', 'facts')
+   ('caller', 'provider_context.py:serving_argv', 'facts.conversation_id')
+   ('caller', 'provider_context.py:serving_argv', 'facts.mode')
+   ('caller', 'provider_context.py:serving_argv', 'profile')
+   ('caller', 'provider_context.py:serving_argv', 'profile.model')
+   ('caller', 'provider_context.py:serving_argv', 'prompt')
+   ('caller', 'review_cycles.py:release_writer', 'writer_id')
+   ('caller', 'review_cycles.py:restore_abandoned_correction', 'cessation')
+   ('caller', 'review_cycles.py:restore_abandoned_correction', 'launcher')
+   ('caller', 'review_cycles.py:review_boundary', 'preparing')
+   ('caller', 'review_cycles.py:settle_restoration_execution', 'cessation')
+   ('caller', 'review_cycles.py:settle_restoration_execution', 'launcher')
+   ('caller', 'review_cycles.py:writer_boundary', 'preparing')
+   ('caller', 'source_boundary.py:LayoutDelivery.__init__', 'document')
+   ('caller', 'source_boundary.py:LayoutDelivery.__init__', 'place')
+   ('caller', 'source_boundary.py:LayoutDelivery.__init__', 'root')
+   ('caller', 'source_boundary.py:SourceBoundary.__init__', 'guard')
+   ('caller', 'source_boundary.py:compose_verifier_layout', 'adapter_digest')
+   ('caller', 'source_boundary.py:compose_verifier_layout', 'identity')
+   ('caller', 'source_boundary.py:compose_verifier_layout', 'image_digest')
+   ('caller', 'source_boundary.py:compose_verifier_layout', 'policy_digest')
+   ('caller', 'source_boundary.py:compose_verifier_layout', 'profile_digest')
+   ('caller', 'source_boundary.py:layout_bytes', 'document')
+   ('caller', 'store.py:ControlStore.__init__', 'database')
+   ('caller', 'store.py:ControlStore.__init__', 'readonly')
+   ('caller', 'store.py:reading_refusal', 'failure')
+   ('caller', 'store.py:reading_refusal', 'path')
+   ('caller', 'store.py:reading_refusal', 'what')
+   ('caller', 'workspaces.py:AllocatedRoots.__init__', '_grant')
+   ('caller', 'workspaces.py:AllocatedRoots.__init__', '_grant_required')
+   ('caller', 'workspaces.py:AllocatedRoots.__init__', '_minted')
+   ('caller', 'workspaces.py:AllocatedRoots.__init__', 'made')
+   ('caller', 'workspaces.py:WorkspaceGroup.__init__', '_minted')
+   ('caller', 'workspaces.py:WorkspaceGroup.__init__', 'gid')
+   ('caller', 'workspaces.py:WorkspaceGroup.__init__', 'store_place')
+   ('caller', 'workspaces.py:WorkspaceIdentity.__init__', '_minted')
+   ('caller', 'workspaces.py:WorkspaceIdentity.__init__', 'gid')
+   ('caller', 'workspaces.py:WorkspaceIdentity.__init__', 'uid')
+   ('caller', 'workspaces.py:WorkspaceStorage.__init__', '_minted')
+   ('caller', 'workspaces.py:WorkspaceStorage.__init__', 'place')
+   ('caller', 'workspaces.py:admit_cleanup', 'assignment_id')
+   ('caller', 'workspaces.py:admit_cleanup', 'cessation')
+   ('caller', 'workspaces.py:admit_cleanup', 'control')
+   ('caller', 'workspaces.py:admit_cleanup', 'settlement')
+   ('caller', 'workspaces.py:admit_cleanup', 'settlement.operation')
+   ('caller', 'workspaces.py:admit_cleanup', 'what')
+   ('caller', 'workspaces.py:adopt_workspace_group', 'gid')
+   ('caller', 'workspaces.py:adopt_workspace_group', 'roots')
+   ('caller', 'workspaces.py:adopt_workspace_group', 'roots.workspace')
+   ('caller', 'workspaces.py:adopted_assignment_workspace', 'control')
+   ('caller', 'workspaces.py:adopted_assignment_workspace', 'preparing')
+   ('caller', 'workspaces.py:assignment_workspace', 'control')
+   ('caller', 'workspaces.py:assignment_workspace', 'workspace_group')
+   ('caller', 'workspaces.py:bind_token_container', 'assignment_id')
+   ('caller', 'workspaces.py:bind_token_container', 'control')
+   ('caller', 'workspaces.py:bind_token_container', 'ordinal')
+   ('caller', 'workspaces.py:bind_token_container', 'owned')
+   ('caller', 'workspaces.py:bind_token_container', 'owned.owner')
+   ('caller', 'workspaces.py:bind_token_container', 'owned.token')
+   ('caller', 'workspaces.py:bind_token_container', 'owned.token.generation')
+   ('caller', 'workspaces.py:borrow_manager_instance', 'place')
+   ('caller', 'workspaces.py:borrowers_of', 'place')
+   ('caller', 'workspaces.py:check_workspace_group', 'gid')
+   ('caller', 'workspaces.py:check_workspace_group', 'what')
+   ('caller', 'workspaces.py:check_workspace_storage', 'physical')
+   ('caller', 'workspaces.py:check_workspace_storage', 'what')
+   ('caller', 'workspaces.py:configure_workspace_group', 'gid')
+   ('caller', 'workspaces.py:configure_workspace_storage', 'place')
+   ('caller', 'workspaces.py:copied_manifest', 'admits')
+   ('caller', 'workspaces.py:copied_manifest', 'into')
+   ('caller', 'workspaces.py:copied_manifest', 'max_bytes')
+   ('caller', 'workspaces.py:copied_manifest', 'max_entries')
+   ('caller', 'workspaces.py:declared_identity_mapping', 'declared')
+   ('caller', 'workspaces.py:declared_identity_mapping', 'identity')
+   ('caller', 'workspaces.py:discard_execution_roots', 'control')
+   ('caller', 'workspaces.py:discard_execution_roots', 'under')
+   ('caller', 'workspaces.py:discard_execution_roots', 'under.ordinal')
+   ('caller', 'workspaces.py:discard_execution_roots', 'under.owner')
+   ('caller', 'workspaces.py:discard_tree', 'place')
+   ('caller', 'workspaces.py:discard_workspace', 'control')
+   ('caller', 'workspaces.py:establish_line_access', 'identity')
+   ('caller', 'workspaces.py:establish_line_access', 'pinned')
+   ('caller', 'workspaces.py:establish_line_access', 'place')
+   ('caller', 'workspaces.py:held_manager_instance', 'place')
+   ('caller', 'workspaces.py:hold_restoration_lock', 'control')
+   ('caller', 'workspaces.py:hold_restoration_lock', 'line_id')
+   ('caller', 'workspaces.py:hold_restoration_lock', 'storage')
+   ('caller', 'workspaces.py:holders_of', 'place')
+   ('caller', 'workspaces.py:identity_for', 'group')
+   ('caller', 'workspaces.py:line_assignment_workspace', 'control')
+   ('caller', 'workspaces.py:line_assignment_workspace', 'preparing')
+   ('caller', 'workspaces.py:material_is_offered', 'assignment_id')
+   ('caller', 'workspaces.py:material_is_offered', 'control')
+   ('caller', 'workspaces.py:prepared_workspace_governance', 'seconds')
+   ('caller', 'workspaces.py:prove_line_integrity', 'identity')
+   ('caller', 'workspaces.py:prove_line_integrity', 'pinned')
+   ('caller', 'workspaces.py:prove_line_integrity', 'place')
+   ('caller', 'workspaces.py:prove_workspace_group', 'gid')
+   ('caller', 'workspaces.py:prove_workspace_group', 'place')
+   ('caller', 'workspaces.py:prove_workspace_group', 'what')
+   ('caller', 'workspaces.py:recorded_storage_place', 'prepared')
+   ('caller', 'workspaces.py:refuse_if_held', 'control')
+   ('caller', 'workspaces.py:refuse_if_held', 'under')
+   ('caller', 'workspaces.py:refuse_if_held', 'under.ordinal')
+   ('caller', 'workspaces.py:refuse_if_held', 'under.owner')
+   ('caller', 'workspaces.py:refuse_if_held', 'what')
+   ('caller', 'workspaces.py:release_adopted_workspace', 'roots')
+   ('caller', 'workspaces.py:revoke_expired_token', 'assignment_id')
+   ('caller', 'workspaces.py:revoke_expired_token', 'control')
+   ('caller', 'workspaces.py:revoke_expired_token', 'ordinal')
+   ('caller', 'workspaces.py:settle_cleanup', 'admitted')
+   ('caller', 'workspaces.py:settle_cleanup', 'admitted.ordinal')
+   ('caller', 'workspaces.py:settle_cleanup', 'admitted.owner')
+   ('caller', 'workspaces.py:settle_cleanup', 'assignment_id')
+   ('caller', 'workspaces.py:settle_cleanup', 'connection')
+   ('caller', 'workspaces.py:settle_cleanup', 'control')
+   ('caller', 'workspaces.py:settle_cleanup', 'what')
+   ('caller', 'workspaces.py:standing_adoption', 'assignment_id')
+   ('caller', 'workspaces.py:standing_adoption', 'control')
+   ('caller', 'workspaces.py:standing_allocation', 'assignment_id')
+   ('caller', 'workspaces.py:standing_allocation', 'control')
+   ('caller', 'workspaces.py:standing_cleanup', 'assignment_id')
+   ('caller', 'workspaces.py:standing_cleanup', 'control')
+   ('caller', 'workspaces.py:standing_removal', 'assignment_id')
+   ('caller', 'workspaces.py:standing_removal', 'control')
+   ('caller', 'workspaces.py:token_of', 'assignment_id')
+   ('caller', 'workspaces.py:token_of', 'control')
+   ('caller', 'workspaces.py:token_of', 'ordinal')
+   ('injected', 'attempts.py:_observed', 'adapter.observe')
+   ('injected', 'authority_port.py:AuthorityPort.claim', 'claim.claim_event')
+   ('injected', 'authority_port.py:AuthorityPort.claim', 'claim.decision.grant')
+   ('injected', 'authority_port.py:AuthorityPort.claim', 'claim.decision.policy_generation')
+   ('injected', 'authority_port.py:AuthorityPort.project_work', 'project_work.fenced_generations.generation')
+   ('injected', 'authority_port.py:AuthorityPort.satisfy_gate', 'satisfy_gate.gate')
+   ('injected', 'authority_port.py:AuthorityPort.satisfy_gate', 'satisfy_gate.phase')
+   ('injected', 'authority_port.py:AuthorityPort.settle_operation', 'settle_operation.result.claim_event')
+   ('injected', 'authority_port.py:AuthorityPort.settle_operation', 'settle_operation.result.decision.grant')
+   ('injected', 'authority_port.py:AuthorityPort.settle_operation', 'settle_operation.result.decision.policy_generation')
+   ('injected', 'intake.py:_authorize_deadline_cleanup', 'adapter.destroy_deadline.exit_status')
+   ('injected', 'intake.py:_destroyed', 'adapter.destroy.credentials.why')
+   ('injected', 'intake.py:_destroyed', 'adapter.destroy.exit_status')
+   ('injected', 'intake.py:_destroyed', 'adapter.destroy.launch.why')
+   ('injected', 'intake.py:_destroyed_abandoned', 'adapter.destroy_abandoned.credentials.why')
+   ('injected', 'intake.py:_destroyed_abandoned', 'adapter.destroy_abandoned.exit_status')
+   ('injected', 'intake.py:_destroyed_abandoned', 'adapter.destroy_abandoned.launch.why')
+   ('injected', 'intake.py:_destroyed_failed_start', 'adapter.destroy_failed_start.credentials.why')
+   ('injected', 'intake.py:_destroyed_failed_start', 'adapter.destroy_failed_start.exit_status')
+   ('injected', 'intake.py:_destroyed_failed_start', 'adapter.destroy_failed_start.launch.why')
+   ('injected', 'intake.py:_destroyed_refused_session', 'adapter.destroy_refused_session.credentials.why')
+   ('injected', 'intake.py:_destroyed_refused_session', 'adapter.destroy_refused_session.exit_status')
+   ('injected', 'intake.py:_destroyed_refused_session', 'adapter.destroy_refused_session.launch.why')
+   ('injected', 'intake.py:_surviving_writers', 'adapter.surviving_helpers')
+   ('injected', 'intake.py:reclaim_expired_resource', 'adapter.remove')
+   ('injected', 'intake.py:reclaim_expired_resource', 'adapter.stop_expired')
+   ('injected', 'oci.py:OciAdapter._custody_runner', '_run')
+=== ORPHANS by site
+   8 review_cycles.py:_review_result
+   7 launch.py:_job_execution
+   5 intake.py:_compared
+   5 review_cycles.py:_committed_history
+   3 oci.py:OciAdapter.start
+   2 intake.py:_abandoned_destroy_operation
+   2 posture_slots.py:_occupy_slot
+   2 review_cycles.py:_profile
+   2 workspaces.py:_token_terms
+   2 workspaces.py:claimed_workspace_authority
+   1 custody.py:_reconciled
+   1 exchange.py:_instant
+   1 failure_cause.py:_identity
+   1 intake.py:_adopted_writer_cessation
+   1 intake.py:_chosen
+   1 intake.py:_ending_capable
+   1 intake.py:_kept_material
+   1 intake.py:historical_writer_cessation
+   1 interrogation.py:_diagnostics
+   1 maintenance.py:_created
+   1 maintenance.py:_prepared_name
+   1 oci.py:OciAdapter._bound_orphan
+   1 oci.py:OciAdapter._custodied
+   1 oci.py:OciAdapter._mounts_the_authorized_root
+   1 oci.py:OciAdapter._quiesced
+   1 oci.py:OciAdapter._removed
+   1 oci.py:OciAdapter.list
+   1 oci.py:_decoded
+   1 oci.py:_exchange_mounts
+   1 oci.py:_image_identity
+   1 oci.py:_label_value
+   1 oci.py:_layout_mount
+   1 oci.py:_log_mounts
+   1 oci.py:_mounts
+   1 oci.py:_whole
+   1 oci.py:exec_vector
+   1 posture_slots.py:_release_slot_in
+   1 posture_slots.py:_require_slot_recovery_in
+   1 provider_context.py:_finalize_context_use
+   1 provider_context.py:_receipt
+   1 review_cycles.py:_assignment_agrees
+   1 review_cycles.py:_line_place
+   1 review_cycles.py:_one_by_attempt
+   1 review_cycles.py:_reserved_line
+   1 sessions.py:_request_session_quiescence
+   1 source_boundary.py:compose_verifier_layout
+   1 worker_entry.py:converse
+   1 workspaces.py:_granted_roots
+   1 workspaces.py:revoke_expired_token
+=== ORPHAN rows (site, kind, label) + residual record fields
+   ('custody.py:_reconciled', 'identity', 'a listed runtime id')
+        {'call': ('custody.py:_reconciled', 905, 4, 905, 58), 'kind': 'identity', 'label': 'a listed runtime id', 'lexical_label': 'a listed runtime id', 'propagated': False, 'site': 'custody.py:_reconciled', 'subject': 'runtime_id'}
+   ('exchange.py:_instant', 'instant', "a worker document's {name}")
+        {'call': ('exchange.py:_instant', 813, 8, 813, 64), 'kind': 'instant', 'label': "a worker document's {name}", 'lexical_label': "a worker document's {name}", 'propagated': False, 'site': 'exchange.py:_instant', 'subject': 'caller:value'}
+   ('failure_cause.py:_identity', 'identity', 'an attempt identity')
+        {'call': ('failure_cause.py:_identity', 401, 4, 401, 77), 'kind': 'identity', 'label': 'an attempt identity', 'lexical_label': 'an attempt identity', 'propagated': False, 'site': 'failure_cause.py:_identity', 'subject': 'caller:attempt[runtime_attempt_id]'}
+   ('intake.py:_abandoned_destroy_operation', 'text', 'a retention policy digest')
+        {'call': ('intake.py:_abandoned_destroy_operation', 4104, 4, 4104, 73), 'kind': 'text', 'label': 'a retention policy digest', 'lexical_label': 'a retention policy digest', 'propagated': False, 'site': 'intake.py:_abandoned_destroy_operation', 'subject': 'caller:retention_policy_digest'}
+   ('intake.py:_abandoned_destroy_operation', 'text', 'an abandonment record digest')
+        {'call': ('intake.py:_abandoned_destroy_operation', 4103, 4, 4103, 78), 'kind': 'text', 'label': 'an abandonment record digest', 'lexical_label': 'an abandonment record digest', 'propagated': False, 'site': 'intake.py:_abandoned_destroy_operation', 'subject': 'caller:abandonment_record_digest'}
+   ('intake.py:_adopted_writer_cessation', 'document', "{what}'s writer cessation")
+        {'call': ('intake.py:_adopted_writer_cessation', 2280, 14, 2281, 60), 'kind': 'document', 'label': "{what}'s writer cessation", 'lexical_label': "{what}'s writer cessation", 'propagated': False, 'site': 'intake.py:_adopted_writer_cessation', 'subject': 'caller:ceased'}
+   ('intake.py:_chosen', 'identity', 'an artifact id')
+        {'call': ('intake.py:_chosen', 171, 19, 171, 62), 'kind': 'identity', 'label': 'an artifact id', 'lexical_label': 'an artifact id', 'propagated': False, 'site': 'intake.py:_chosen', 'subject': 'name'}
+   ('intake.py:_compared', 'document', 'a collected artifact')
+        {'call': ('intake.py:_compared', 683, 14, 686, 41), 'kind': 'document', 'label': 'a collected artifact', 'lexical_label': 'a collected artifact', 'propagated': False, 'site': 'intake.py:_compared', 'subject': 'caller:taken[artifacts]'}
+   ('intake.py:_compared', 'identity', 'a collected result id')
+        {'call': ('intake.py:_compared', 664, 4, 664, 68), 'kind': 'identity', 'label': 'a collected result id', 'lexical_label': 'a collected result id', 'propagated': False, 'site': 'intake.py:_compared', 'subject': 'caller:taken[result_id]'}
+   ('intake.py:_compared', 'identity', 'an artifact id')
+        {'call': ('intake.py:_compared', 687, 22, 687, 79), 'kind': 'identity', 'label': 'an artifact id', 'lexical_label': 'an artifact id', 'propagated': False, 'site': 'intake.py:_compared', 'subject': 'caller:taken[artifacts][artifact_id]'}
+   ('intake.py:_compared', 'text', 'a content digest')
+        {'call': ('intake.py:_compared', 715, 39, 716, 74), 'kind': 'text', 'label': 'a content digest', 'lexical_label': 'a content digest', 'propagated': False, 'site': 'intake.py:_compared', 'subject': 'caller:taken[artifacts][content_digest]'}
+   ('intake.py:_compared', 'text', 'a custody locator')
+        {'call': ('intake.py:_compared', 718, 40, 719, 69), 'kind': 'text', 'label': 'a custody locator', 'lexical_label': 'a custody locator', 'propagated': False, 'site': 'intake.py:_compared', 'subject': 'caller:taken[artifacts][custody_locator]'}
+   ('intake.py:_ending_capable', 'capability', "the runtime adapter's writer-listing act, which attempt {name_value(attempt_id)}'s ending asks when the deployment offers one")
+        {'call': ('intake.py:_ending_capable', 4305, 8, 4308, 85), 'kind': 'capability', 'label': "the runtime adapter's writer-listing act, which attempt {name_value(attempt_id)}'s ending asks when the deployment offers one", 'lexical_label': "the runtime adapter's writer-listing act, which attempt {name_value(attempt_id)}'s ending asks when the deployment offers one", 'propagated': False, 'site': 'intake.py:_ending_capable', 'subject': 'caller:adapter'}
+   ('intake.py:_kept_material', 'identity', "{what}'s kept artifact id")
+        {'call': ('intake.py:_kept_material', 2169, 8, 2169, 63), 'kind': 'identity', 'label': "{what}'s kept artifact id", 'lexical_label': "{what}'s kept artifact id", 'propagated': False, 'site': 'intake.py:_kept_material', 'subject': 'name'}
+   ('intake.py:historical_writer_cessation', 'document', 'a committed writer cessation')
+        {'call': ('intake.py:historical_writer_cessation', 4825, 11, 4826, 57), 'kind': 'document', 'label': 'a committed writer cessation', 'lexical_label': 'a committed writer cessation', 'propagated': False, 'site': 'intake.py:historical_writer_cessation', 'subject': 'recorded'}
+   ('interrogation.py:_diagnostics', 'text', 'a probe diagnostic name')
+        {'call': ('interrogation.py:_diagnostics', 388, 8, 388, 56), 'kind': 'text', 'label': 'a probe diagnostic name', 'lexical_label': 'a probe diagnostic name', 'propagated': False, 'site': 'interrogation.py:_diagnostics', 'subject': 'name'}
+   ('launch.py:_job_execution', 'identity', 'a Job id')
+        {'call': ('launch.py:_job_execution', 375, 22, 375, 70), 'kind': 'identity', 'label': 'a Job id', 'lexical_label': 'a Job id', 'propagated': False, 'site': 'launch.py:_job_execution', 'subject': 'caller:given[job_id]'}
+   ('launch.py:_job_execution', 'identity', 'a runtime attempt id')
+        {'call': ('launch.py:_job_execution', 376, 26, 377, 69), 'kind': 'identity', 'label': 'a runtime attempt id', 'lexical_label': 'a runtime attempt id', 'propagated': False, 'site': 'launch.py:_job_execution', 'subject': 'caller:given[attempt_id]'}
+   ('launch.py:_job_execution', 'text', "a launch document's execution limit digest")
+        {'call': ('launch.py:_job_execution', 383, 15, 384, 76), 'kind': 'text', 'label': "a launch document's execution limit digest", 'lexical_label': "a launch document's execution limit digest", 'propagated': False, 'site': 'launch.py:_job_execution', 'subject': 'caller:given[execution_limits_digest]'}
+   ('launch.py:_job_execution', 'text', "a launch document's job_input_digest")
+        {'call': ('launch.py:_job_execution', 380, 21, 380, 80), 'kind': 'text', 'label': "a launch document's job_input_digest", 'lexical_label': "a launch document's {name}", 'propagated': False, 'site': 'launch.py:_job_execution', 'subject': 'caller:given[job_input_digest]'}
+   ('launch.py:_job_execution', 'text', "a launch document's job_policy_digest")
+        {'call': ('launch.py:_job_execution', 380, 21, 380, 80), 'kind': 'text', 'label': "a launch document's job_policy_digest", 'lexical_label': "a launch document's {name}", 'propagated': False, 'site': 'launch.py:_job_execution', 'subject': 'caller:given[job_policy_digest]'}
+   ('launch.py:_job_execution', 'text', "a launch document's runtime_input_digest")
+        {'call': ('launch.py:_job_execution', 380, 21, 380, 80), 'kind': 'text', 'label': "a launch document's runtime_input_digest", 'lexical_label': "a launch document's {name}", 'propagated': False, 'site': 'launch.py:_job_execution', 'subject': 'caller:given[runtime_input_digest]'}
+   ('launch.py:_job_execution', 'text', "a launch document's runtime_policy_digest")
+        {'call': ('launch.py:_job_execution', 380, 21, 380, 80), 'kind': 'text', 'label': "a launch document's runtime_policy_digest", 'lexical_label': "a launch document's {name}", 'propagated': False, 'site': 'launch.py:_job_execution', 'subject': 'caller:given[runtime_policy_digest]'}
+   ('maintenance.py:_created', 'identity', 'a created runtime id')
+        {'call': ('maintenance.py:_created', 1052, 11, 1052, 64), 'kind': 'identity', 'label': 'a created runtime id', 'lexical_label': 'a created runtime id', 'propagated': False, 'site': 'maintenance.py:_created', 'subject': 'lines[]'}
+   ('maintenance.py:_prepared_name', 'identity', 'an assignment identity')
+        {'call': ('maintenance.py:_prepared_name', 759, 4, 759, 64), 'kind': 'identity', 'label': 'an assignment identity', 'lexical_label': 'an assignment identity', 'propagated': False, 'site': 'maintenance.py:_prepared_name', 'subject': 'caller:assignment_id'}
+   ('oci.py:OciAdapter._bound_orphan', 'identity', '{what} runtime attempt id')
+        {'call': ('oci.py:OciAdapter._bound_orphan', 3916, 16, 3916, 77), 'kind': 'identity', 'label': '{what} runtime attempt id', 'lexical_label': '{what} runtime attempt id', 'propagated': False, 'site': 'oci.py:OciAdapter._bound_orphan', 'subject': 'caller:attempt_id'}
+   ('oci.py:OciAdapter._custodied', 'text', 'a retained artifact id')
+        {'call': ('oci.py:OciAdapter._custodied', 4179, 23, 4179, 69), 'kind': 'text', 'label': 'a retained artifact id', 'lexical_label': 'a retained artifact id', 'propagated': False, 'site': 'oci.py:OciAdapter._custodied', 'subject': 'one'}
+   ('oci.py:OciAdapter._mounts_the_authorized_root', 'document', 'a runtime mount')
+        {'call': ('oci.py:OciAdapter._mounts_the_authorized_root', 2521, 18, 2522, 80), 'kind': 'document', 'label': 'a runtime mount', 'lexical_label': 'a runtime mount', 'propagated': False, 'site': 'oci.py:OciAdapter._mounts_the_authorized_root', 'subject': 'mount'}
+   ('oci.py:OciAdapter._quiesced', 'document', 'a seal authorization context')
+        {'call': ('oci.py:OciAdapter._quiesced', 4046, 18, 4048, 61), 'kind': 'document', 'label': 'a seal authorization context', 'lexical_label': 'a seal authorization context', 'propagated': False, 'site': 'oci.py:OciAdapter._quiesced', 'subject': 'caller:request[context]'}
+   ('oci.py:OciAdapter._removed', 'identity', '{what} runtime id')
+        {'call': ('oci.py:OciAdapter._removed', 3856, 21, 3856, 69), 'kind': 'identity', 'label': '{what} runtime id', 'lexical_label': '{what} runtime id', 'propagated': False, 'site': 'oci.py:OciAdapter._removed', 'subject': 'caller:named'}
+   ('oci.py:OciAdapter.list', 'identity', 'a listed runtime id')
+        {'call': ('oci.py:OciAdapter.list', 3432, 12, 3432, 66), 'kind': 'identity', 'label': 'a listed runtime id', 'lexical_label': 'a listed runtime id', 'propagated': False, 'site': 'oci.py:OciAdapter.list', 'subject': 'runtime_id'}
+   ('oci.py:OciAdapter.start', 'capability', 'an activation permission')
+        {'call': ('oci.py:OciAdapter.start', 2930, 16, 2930, 73), 'kind': 'capability', 'label': 'an activation permission', 'lexical_label': 'an activation permission', 'propagated': False, 'site': 'oci.py:OciAdapter.start', 'subject': 'permit'}
+   ('oci.py:OciAdapter.start', 'document', 'an activation admission')
+        {'call': ('oci.py:OciAdapter.start', 2931, 27, 2934, 40), 'kind': 'document', 'label': 'an activation admission', 'lexical_label': 'an activation admission', 'propagated': False, 'site': 'oci.py:OciAdapter.start', 'subject': '?'}
+   ('oci.py:OciAdapter.start', 'identity', 'a started runtime id')
+        {'call': ('oci.py:OciAdapter.start', 2871, 16, 2871, 71), 'kind': 'identity', 'label': 'a started runtime id', 'lexical_label': 'a started runtime id', 'propagated': False, 'site': 'oci.py:OciAdapter.start', 'subject': 'runtime_id'}
+   ('oci.py:_decoded', 'text', 'an engine document')
+        {'call': ('oci.py:_decoded', 2190, 4, 2190, 50), 'kind': 'text', 'label': 'an engine document', 'lexical_label': 'an engine document', 'propagated': False, 'site': 'oci.py:_decoded', 'subject': 'caller:payload'}
+   ('oci.py:_exchange_mounts', 'text', 'an exchange delivery target')
+        {'call': ('oci.py:_exchange_mounts', 1013, 11, 1013, 65), 'kind': 'text', 'label': 'an exchange delivery target', 'lexical_label': 'an exchange delivery target', 'propagated': False, 'site': 'oci.py:_exchange_mounts', 'subject': 'one[]'}
+   ('oci.py:_image_identity', 'text', 'a runtime image')
+        {'call': ('oci.py:_image_identity', 338, 11, 338, 52), 'kind': 'text', 'label': 'a runtime image', 'lexical_label': 'a runtime image', 'propagated': False, 'site': 'oci.py:_image_identity', 'subject': 'caller:value'}
+   ('oci.py:_label_value', 'text', 'a runtime label')
+        {'call': ('oci.py:_label_value', 4420, 11, 4420, 52), 'kind': 'text', 'label': 'a runtime label', 'lexical_label': 'a runtime label', 'propagated': False, 'site': 'oci.py:_label_value', 'subject': 'caller:value'}
+   ('oci.py:_layout_mount', 'text', 'a verifier-layout document target')
+        {'call': ('oci.py:_layout_mount', 964, 13, 964, 74), 'kind': 'text', 'label': 'a verifier-layout document target', 'lexical_label': 'a verifier-layout document target', 'propagated': False, 'site': 'oci.py:_layout_mount', 'subject': 'pair[]'}
+   ('oci.py:_log_mounts', 'text', 'an attempt-log delivery target')
+        {'call': ('oci.py:_log_mounts', 1066, 7, 1066, 64), 'kind': 'text', 'label': 'an attempt-log delivery target', 'lexical_label': 'an attempt-log delivery target', 'propagated': False, 'site': 'oci.py:_log_mounts', 'subject': 'caller:logs_delivered'}
+   ('oci.py:_mounts', 'document', 'a runtime mount')
+        {'call': ('oci.py:_mounts', 756, 14, 757, 76), 'kind': 'document', 'label': 'a runtime mount', 'lexical_label': 'a runtime mount', 'propagated': False, 'site': 'oci.py:_mounts', 'subject': 'caller:mounts'}
+   ('oci.py:_whole', 'text', 'a generation label')
+        {'call': ('oci.py:_whole', 4438, 4, 4438, 48), 'kind': 'text', 'label': 'a generation label', 'lexical_label': 'a generation label', 'propagated': False, 'site': 'oci.py:_whole', 'subject': 'caller:value'}
+   ('oci.py:exec_vector', 'text', 'an exec program word')
+        {'call': ('oci.py:exec_vector', 1873, 8, 1873, 52), 'kind': 'text', 'label': 'an exec program word', 'lexical_label': 'an exec program word', 'propagated': False, 'site': 'oci.py:exec_vector', 'subject': 'one'}
+   ('posture_slots.py:_occupy_slot', 'identity', 'a runtime attempt id')
+        {'call': ('posture_slots.py:_occupy_slot', 170, 4, 170, 59), 'kind': 'identity', 'label': 'a runtime attempt id', 'lexical_label': 'a runtime attempt id', 'propagated': False, 'site': 'posture_slots.py:_occupy_slot', 'subject': 'caller:attempt_id'}
+   ('posture_slots.py:_occupy_slot', 'instant', 'a slot movement instant')
+        {'call': ('posture_slots.py:_occupy_slot', 173, 4, 173, 53), 'kind': 'instant', 'label': 'a slot movement instant', 'lexical_label': 'a slot movement instant', 'propagated': False, 'site': 'posture_slots.py:_occupy_slot', 'subject': 'caller:at'}
+   ('posture_slots.py:_release_slot_in', 'instant', 'a slot movement instant')
+        {'call': ('posture_slots.py:_release_slot_in', 414, 4, 414, 53), 'kind': 'instant', 'label': 'a slot movement instant', 'lexical_label': 'a slot movement instant', 'propagated': False, 'site': 'posture_slots.py:_release_slot_in', 'subject': 'caller:at'}
+   ('posture_slots.py:_require_slot_recovery_in', 'instant', 'a slot movement instant')
+        {'call': ('posture_slots.py:_require_slot_recovery_in', 356, 4, 356, 53), 'kind': 'instant', 'label': 'a slot movement instant', 'lexical_label': 'a slot movement instant', 'propagated': False, 'site': 'posture_slots.py:_require_slot_recovery_in', 'subject': 'caller:at'}
+   ('provider_context.py:_finalize_context_use', 'capability', 'the historical checkpoint identity reader')
+        {'call': ('provider_context.py:_finalize_context_use', 1029, 4, 1029, 89), 'kind': 'capability', 'label': 'the historical checkpoint identity reader', 'lexical_label': 'the historical checkpoint identity reader', 'propagated': False, 'site': 'provider_context.py:_finalize_context_use', 'subject': 'caller:checkpoint_reader'}
+   ('provider_context.py:_receipt', 'capability', 'the retained context receipt byte reader')
+        {'call': ('provider_context.py:_receipt', 943, 4, 943, 77), 'kind': 'capability', 'label': 'the retained context receipt byte reader', 'lexical_label': 'the retained context receipt byte reader', 'propagated': False, 'site': 'provider_context.py:_receipt', 'subject': 'caller:reader'}
+   ('review_cycles.py:_assignment_agrees', 'generation', "{what}'s fixed assignment generation")
+        {'call': ('review_cycles.py:_assignment_agrees', 919, 4, 920, 66), 'kind': 'generation', 'label': "{what}'s fixed assignment generation", 'lexical_label': "{what}'s fixed assignment generation", 'propagated': False, 'site': 'review_cycles.py:_assignment_agrees', 'subject': 'assignment[generation]'}
+   ('review_cycles.py:_committed_history', 'document', 'the committed {kind} operands for {what}')
+        {'call': ('review_cycles.py:_committed_history', 869, 15, 871, 33), 'kind': 'document', 'label': 'the committed {kind} operands for {what}', 'lexical_label': 'the committed {kind} operands for {what}', 'propagated': False, 'site': 'review_cycles.py:_committed_history', 'subject': 'signature[operands]'}
+   ('review_cycles.py:_committed_history', 'document', 'the committed {kind} result for {what}')
+        {'call': ('review_cycles.py:_committed_history', 873, 13, 874, 67), 'kind': 'document', 'label': 'the committed {kind} result for {what}', 'lexical_label': '{answered}', 'propagated': False, 'site': 'review_cycles.py:_committed_history', 'subject': '?'}
+   ('review_cycles.py:_committed_history', 'document', 'the committed {kind} signature for {what}')
+        {'call': ('review_cycles.py:_committed_history', 863, 16, 864, 72), 'kind': 'document', 'label': 'the committed {kind} signature for {what}', 'lexical_label': '{signed}', 'propagated': False, 'site': 'review_cycles.py:_committed_history', 'subject': '?'}
+   ('review_cycles.py:_committed_history', 'generation', 'the committed {kind} generation for {what}')
+        {'call': ('review_cycles.py:_committed_history', 875, 4, 876, 72), 'kind': 'generation', 'label': 'the committed {kind} generation for {what}', 'lexical_label': 'the committed {kind} generation for {what}', 'propagated': False, 'site': 'review_cycles.py:_committed_history', 'subject': 'operands[generation]'}
+   ('review_cycles.py:_committed_history', 'generation', 'the committed {kind} result generation for {what}')
+        {'call': ('review_cycles.py:_committed_history', 878, 8, 880, 40), 'kind': 'generation', 'label': 'the committed {kind} result generation for {what}', 'lexical_label': 'the committed {kind} result generation for {what}', 'propagated': False, 'site': 'review_cycles.py:_committed_history', 'subject': 'result[generation]'}
+   ('review_cycles.py:_line_place', 'text', "the manager's workspace storage")
+        {'call': ('review_cycles.py:_line_place', 1217, 4, 1217, 63), 'kind': 'text', 'label': "the manager's workspace storage", 'lexical_label': "the manager's workspace storage", 'propagated': False, 'site': 'review_cycles.py:_line_place', 'subject': 'caller:storage'}
+   ('review_cycles.py:_one_by_attempt', 'row', '{what}')
+        {'call': ('review_cycles.py:_one_by_attempt', 804, 11, 804, 50), 'kind': 'row', 'label': '{what}', 'lexical_label': '{what}', 'propagated': False, 'site': 'review_cycles.py:_one_by_attempt', 'subject': 'read:review_cycles.py:_one_by_attempt|{table}'}
+   ('review_cycles.py:_profile', 'capability', "a checkpoint profile's {method} capability")
+        {'call': ('review_cycles.py:_profile', 528, 8, 529, 76), 'kind': 'capability', 'label': "a checkpoint profile's {method} capability", 'lexical_label': "a checkpoint profile's {method} capability", 'propagated': False, 'site': 'review_cycles.py:_profile', 'subject': 'caller:profile'}
+   ('review_cycles.py:_profile', 'text', 'a checkpoint profile name')
+        {'call': ('review_cycles.py:_profile', 526, 4, 526, 54), 'kind': 'text', 'label': 'a checkpoint profile name', 'lexical_label': 'a checkpoint profile name', 'propagated': False, 'site': 'review_cycles.py:_profile', 'subject': 'caller:profile'}
+   ('review_cycles.py:_reserved_line', 'text', 'a materialized line head')
+        {'call': ('review_cycles.py:_reserved_line', 1596, 4, 1596, 69), 'kind': 'text', 'label': 'a materialized line head', 'lexical_label': 'a materialized line head', 'propagated': False, 'site': 'review_cycles.py:_reserved_line', 'subject': 'materialized[head]'}
+   ('review_cycles.py:_review_result', 'document', 'a frozen review artifact')
+        {'call': ('review_cycles.py:_review_result', 1494, 15, 1497, 51), 'kind': 'document', 'label': 'a frozen review artifact', 'lexical_label': 'a frozen review artifact', 'propagated': False, 'site': 'review_cycles.py:_review_result', 'subject': 'caller:value[artifacts]'}
+   ('review_cycles.py:_review_result', 'document', 'a frozen review result')
+        {'call': ('review_cycles.py:_review_result', 1478, 12, 1481, 67), 'kind': 'document', 'label': 'a frozen review result', 'lexical_label': 'a frozen review result', 'propagated': False, 'site': 'review_cycles.py:_review_result', 'subject': 'caller:value'}
+   ('review_cycles.py:_review_result', 'identity', 'a frozen review output name')
+        {'call': ('review_cycles.py:_review_result', 1498, 8, 1498, 79), 'kind': 'identity', 'label': 'a frozen review output name', 'lexical_label': 'a frozen review output name', 'propagated': False, 'site': 'review_cycles.py:_review_result', 'subject': 'caller:value[artifacts][output_name]'}
+   ('review_cycles.py:_review_result', 'identity', "a frozen review result's attempt_id")
+        {'call': ('review_cycles.py:_review_result', 1484, 8, 1484, 80), 'kind': 'identity', 'label': "a frozen review result's attempt_id", 'lexical_label': "a frozen review result's {member}", 'propagated': False, 'site': 'review_cycles.py:_review_result', 'subject': 'caller:value[attempt_id]'}
+   ('review_cycles.py:_review_result', 'identity', "a frozen review result's freeze_operation_id")
+        {'call': ('review_cycles.py:_review_result', 1484, 8, 1484, 80), 'kind': 'identity', 'label': "a frozen review result's freeze_operation_id", 'lexical_label': "a frozen review result's {member}", 'propagated': False, 'site': 'review_cycles.py:_review_result', 'subject': 'caller:value[freeze_operation_id]'}
+   ('review_cycles.py:_review_result', 'identity', "a frozen review result's manifest_digest")
+        {'call': ('review_cycles.py:_review_result', 1484, 8, 1484, 80), 'kind': 'identity', 'label': "a frozen review result's manifest_digest", 'lexical_label': "a frozen review result's {member}", 'propagated': False, 'site': 'review_cycles.py:_review_result', 'subject': 'caller:value[manifest_digest]'}
+   ('review_cycles.py:_review_result', 'identity', "a frozen review result's result_id")
+        {'call': ('review_cycles.py:_review_result', 1484, 8, 1484, 80), 'kind': 'identity', 'label': "a frozen review result's result_id", 'lexical_label': "a frozen review result's {member}", 'propagated': False, 'site': 'review_cycles.py:_review_result', 'subject': 'caller:value[result_id]'}
+   ('review_cycles.py:_review_result', 'instant', "a frozen review result's frozen_at")
+        {'call': ('review_cycles.py:_review_result', 1485, 4, 1485, 80), 'kind': 'instant', 'label': "a frozen review result's frozen_at", 'lexical_label': "a frozen review result's frozen_at", 'propagated': False, 'site': 'review_cycles.py:_review_result', 'subject': 'caller:value[frozen_at]'}
+   ('sessions.py:_request_session_quiescence', 'identity', 'a runtime attempt id')
+        {'call': ('sessions.py:_request_session_quiescence', 838, 4, 838, 59), 'kind': 'identity', 'label': 'a runtime attempt id', 'lexical_label': 'a runtime attempt id', 'propagated': False, 'site': 'sessions.py:_request_session_quiescence', 'subject': 'caller:attempt_id'}
+   ('source_boundary.py:compose_verifier_layout', 'text', "a verifier layout's {name}")
+        {'call': ('source_boundary.py:compose_verifier_layout', 1212, 8, 1212, 61), 'kind': 'text', 'label': "a verifier layout's {name}", 'lexical_label': "a verifier layout's {name}", 'propagated': False, 'site': 'source_boundary.py:compose_verifier_layout', 'subject': 'value'}
+   ('worker_entry.py:converse', 'identity', 'a worker-entry operation identity')
+        {'call': ('worker_entry.py:converse', 382, 8, 382, 69), 'kind': 'identity', 'label': 'a worker-entry operation identity', 'lexical_label': 'a worker-entry operation identity', 'propagated': False, 'site': 'worker_entry.py:converse', 'subject': 'one'}
+   ('workspaces.py:_granted_roots', 'capability', 'an assignment roots live grant')
+        {'call': ('workspaces.py:_granted_roots', 6477, 4, 6477, 66), 'kind': 'capability', 'label': 'an assignment roots live grant', 'lexical_label': 'an assignment roots live grant', 'propagated': False, 'site': 'workspaces.py:_granted_roots', 'subject': 'caller:grant'}
+   ('workspaces.py:_token_terms', 'deadline', 'a removal token expiry')
+        {'call': ('workspaces.py:_token_terms', 3154, 26, 3155, 71), 'kind': 'deadline', 'label': 'a removal token expiry', 'lexical_label': 'a removal token expiry', 'propagated': False, 'site': 'workspaces.py:_token_terms', 'subject': 'caller:seconds'}
+   ('workspaces.py:_token_terms', 'text', 'a token execution identity')
+        {'call': ('workspaces.py:_token_terms', 3151, 25, 3151, 81), 'kind': 'text', 'label': 'a token execution identity', 'lexical_label': 'a token execution identity', 'propagated': False, 'site': 'workspaces.py:_token_terms', 'subject': 'caller:execution'}
+   ('workspaces.py:claimed_workspace_authority', 'document', 'a workspace authority marker')
+        {'call': ('workspaces.py:claimed_workspace_authority', 1362, 12, 1363, 68), 'kind': 'document', 'label': 'a workspace authority marker', 'lexical_label': 'a workspace authority marker', 'propagated': False, 'site': 'workspaces.py:claimed_workspace_authority', 'subject': 'taken'}
+   ('workspaces.py:claimed_workspace_authority', 'text', "a claimed workspace authority's control store")
+        {'call': ('workspaces.py:claimed_workspace_authority', 1368, 11, 1369, 75), 'kind': 'text', 'label': "a claimed workspace authority's control store", 'lexical_label': "a claimed workspace authority's control store", 'propagated': False, 'site': 'workspaces.py:claimed_workspace_authority', 'subject': 'taken[control_store]'}
+   ('workspaces.py:revoke_expired_token', 'document', 'a container cessation answer')
+        {'call': ('workspaces.py:revoke_expired_token', 3127, 13, 3129, 40), 'kind': 'document', 'label': 'a container cessation answer', 'lexical_label': 'a container cessation answer', 'propagated': False, 'site': 'workspaces.py:revoke_expired_token', 'subject': '?'}

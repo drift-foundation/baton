@@ -831,3 +831,41 @@ STRICT TEXT meta read, witnessed. The negative self-test now proves omission
 against the current baseline. Completion gate: 56 run, 54 OK, exactly the
 Stage C pair remaining. No product change, no scans rerun.
 Evidence/digest: evidence/stage-b-2026-10-30/STAGE-B.md, coverage-map.txt.
+
+## 2026-10-30 — Stage C delivered (K, copilot under owner claim E384905; K holds no claim)
+
+Answers M384939 / review 2026-10-31T00:30:29Z (CLOSURE-CHECKLIST C). Owner
+checkpoint a8cbc974 noted ("WIP: repair scans expectations and complete boundary
+probes through Stage B"). Evidence: `evidence/stage-c-2026-10-30/STAGE-C.md`,
+`disposition-map.md` (every one of the 663 entries and 165 calls with its rule),
+`lists-before.txt`, `lists-at-8876bf95.txt` (688 / 190 before this Work's
+inventory work: the debt predates it), `lists-after-discovery.txt`,
+`orphans-after-discovery.txt`, `audit-after.txt`, `product.diff`, `focused.log`,
+`product-modules.log`, `CANDIDATE-SHA256.txt`.
+
+- Both targets pass: unowned receiving entries 663 -> 0 (audit cut 833 -> 170,
+  preserved and explained), orphan boundary calls 165 -> 0; receiving entries
+  2545 -> 2580; the Stage B gates stay at zero missing/unmatched pairs with 1455
+  declared probes (1328 + 127 for every pair this stage made owned).
+- Dispositions, each supported by code and a witness: 56 missed attribution
+  (three discovery corrections with named rows -- claims anywhere a read/session
+  stem is owned, the session-stem owner fallback, tuple-returning helpers -- plus
+  STAGE_C_DELEGATED rows, every one probed, and S1's launch member rows re-keyed
+  to their member rules); 596 protected elsewhere (STAGE_C_STATED, reason per row,
+  families held by `StageCProtections`: forwarded targets owned through a real
+  call, pass-through replays read no member, mints package-private with pinned
+  minters, adopted-row doors and internally composed operands handed owned values
+  at every call site, outbound constructors without a caller outside the package,
+  a refusal table over the inline/helper rules); 11 genuine gaps repaired in the
+  product (attempt_logs typed delivery, exchange.discard root, custody_holds
+  identity/root, custody.allowed non-number, expiry attempt ids, the governor /
+  stop / bind capabilities typed before any effect, the three standalone workspace
+  admission doors' assignment id), each reproduced raw first and now owned at the
+  door and probed; 66 orphan calls declared in NOT_AN_ENTRY with the reason.
+- Open owner decision carried, not decided: settle_cleanup's unread
+  `connection` (B2 Case H).
+- Scans group: run 1 collected 477 = executed 477, passed 473, optional skipped 2,
+  failed 2 (two inventory housekeeping classes outside the focused set: the
+  stated-owner witness registry and one synthetic accounting case whose expectation
+  encoded the old claim path; both repaired, see STAGE-C.md "Scans group").
+  Run 2: collected 480 = executed 480, passed 478, optional skipped 2, required skipped 0, failed 0, errors 0, fixture skips/errors 0, duplicates 0, unaccounted 0 -> accounting OK (the three new witness tests are the +3 collected).

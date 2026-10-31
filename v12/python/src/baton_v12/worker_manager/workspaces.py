@@ -2239,8 +2239,10 @@ def _restoration_lock_identity(control, line_id, observed, what):
     if recorded is None:
         return control.transact(operation_id, RESTORATION_LOCK_KIND, signature,
                                 lambda connection: dict(document))
-    _, pinned = control.replay(operation_id, recorded["signature"],
-                               kind=RESTORATION_LOCK_KIND)
+    from .store import replayed_as_signed
+
+    pinned = replayed_as_signed(control, operation_id, RESTORATION_LOCK_KIND,
+                                what="a restoration lock record")
     if pinned is None:
         _refuse(f"{what} has a recorded lock identity with no answer to replay",
                 code="schema")
@@ -2520,9 +2522,10 @@ def _current_cleanup_owner(control, assignment_id, ordinal, admitted_owner):
             _cleanup_takeover_id(assignment_id, ordinal, generation))
         if record is None:
             return owner, generation
-        _, document = control.replay(
-            _cleanup_takeover_id(assignment_id, ordinal, generation),
-            record["signature"], kind=CLEANUP_TAKEOVER_KIND)
+        from .store import replayed_as_signed
+
+        document = replayed_as_signed(control, _cleanup_takeover_id(assignment_id, ordinal, generation),
+                                      CLEANUP_TAKEOVER_KIND, what="a cleanup takeover record")
         if document is not None and document.get("owner"):
             owner = document["owner"]
         generation += 1
@@ -2563,10 +2566,10 @@ def _admitted_cleanup_document(control, assignment_id, ordinal, record):
     Never the record's `result` column read raw: `replay` recomputes the signature,
     so an admission edited in place to name another operation no longer answers.
     """
-    _, document = control.replay(
-        _cleanup_admission_id(assignment_id, ordinal), record["signature"],
-        kind=CLEANUP_ADMISSION_KIND)
-    return document
+    from .store import replayed_as_signed
+
+    return replayed_as_signed(control, _cleanup_admission_id(assignment_id, ordinal),
+                              CLEANUP_ADMISSION_KIND, what="a cleanup admission record")
 
 
 def admit_cleanup(control, assignment_id, settlement, what, cessation=None):
@@ -2611,6 +2614,7 @@ def admit_cleanup(control, assignment_id, settlement, what, cessation=None):
     `_admitted_removal` are the precedent. `transact` replays by identity and so
     cannot make a fresh decision; this decision is fresh.
     """
+    _assignment_identity(assignment_id)
     # W285465 review 2026-09-28T07-26-54Z: A PRESENTED CESSATION IS REFUSED OUTRIGHT.
     #
     # The keyword stays because the reviewer's immutable probe names it, and because saying
@@ -3013,11 +3017,10 @@ def _token_ceased_id(assignment_id, ordinal):
 
 def _recorded_document(control, operation_id, kind):
     """A committed record's own document, read back through `replay`."""
-    found = control.operation_record(operation_id)
-    if found is None:
-        return None
-    _, document = control.replay(operation_id, found["signature"], kind=kind)
-    return document
+    # W384870 stage C: the record's own signed operands verify the document.
+    from .store import replayed_as_signed
+
+    return replayed_as_signed(control, operation_id, kind, what="a workspace journal record")
 
 
 def token_of(control, assignment_id, ordinal):
@@ -3058,6 +3061,7 @@ def bind_token_container(control, assignment_id, ordinal, owned, container):
     to a generation it no longer owns, which is what would otherwise let an expiry revocation
     stop somebody else's container.
     """
+    _assignment_identity(assignment_id)
     from .store import manager_signature
 
     container = boundaries.text(container, "a bound container identity")
@@ -3097,6 +3101,8 @@ def revoke_expired_token(control, assignment_id, ordinal, stop):
     refused, and an operator reconciles. Issuing a stop request is not cessation, and this
     function's answer is the record, not the request.
     """
+    _assignment_identity(assignment_id)
+    boundaries.capability(stop, "a container stop")
     from .store import manager_signature
 
     token = token_of(control, assignment_id, ordinal)
@@ -4655,9 +4661,10 @@ def _completed_removal(control, assignment_id, owned, value, what):
                 "integrity", "schema",
                 f"{what}'s removal ownership {ordinal} is no longer recorded, so this "
                 f"act cannot be attributed to the authority it was performed under")
-        _, held_by = control.replay(
-            _removal_ownership_id(assignment_id, ordinal), recorded["signature"],
-            kind=REMOVAL_OWNERSHIP_KIND)
+        from .store import replayed_as_signed
+
+        held_by = replayed_as_signed(control, _removal_ownership_id(assignment_id, ordinal),
+                                     REMOVAL_OWNERSHIP_KIND, what="a removal ownership record")
         if held_by is None or held_by.get("owner") != owned["owner"]:
             raise ContractRefusal(
                 "runtime-observation", "identity-mismatch",

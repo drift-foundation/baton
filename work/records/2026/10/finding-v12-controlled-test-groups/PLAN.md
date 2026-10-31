@@ -1,3 +1,82 @@
+## B4 initial-access allocation — 2026-10-31T02-39-14Z
+
+W384944 C4 integration-worker module independently accepted on isolated a8cbc974
+snapshot (83/83). Codexpc now owns test_private_line_access_engine.py for the four
+required Docker cases, reusing historically selected exact image 0697b659…17e4,
+verified dedicated group and unique run resources. K M384948 paths remain untouched.
+No live model/build/full run; final joined-tree acceptance still required. See child
+latest review for exact image/env/resource and execution boundaries.
+
+## B4 integration fixture checkpoint — 2026-10-31T02-33-07Z
+
+W384944's delivery fixture repair independently accepted: 60 setup errors cleared;
+81/83 cases pass on stable a8cbc974 snapshot, two pre-existing contract failures
+remain. Codexpc continues only test_integration_worker.py to make that module green.
+No Docker/product/shared path expansion; K M384948 ownership unchanged. Join on
+current source and final B4 acceptance remain pending.
+
+## B4 C4 allocation — 2026-10-31T02-24-00Z
+
+W384944 preflight accepted; codexpc exclusively edits test_integration_worker.py
+and child PROGRESS/evidence for the first fixture-only repair. Tests use the stable
+a8cbc974 snapshot recorded in child allocation-c4 evidence, not K's moving files.
+K retains M384948 ownership. No Docker/builds/full runs released. Shared-tree join
+verification follows stabilization. This replaces the read-only first-checkpoint
+restriction for this exact allocated file; all final acceptance gates remain.
+
+## B4 child created and ready — W384944
+
+Owner creation/containment/binding verified through children/detail: W384944 is
+queued and ready for baton.codxpc at baton.codx (route implpc). This supersedes
+pending child creation below. T384944 holds the child handoff. Codexpc claims that
+child before the read-only first B4 checkpoint; K continues M384941 Stage C.
+No B4 product edits/builds/engine runs until coordinated path/resource allocation.
+
+## 2026-10-31T02:13:08+00:00 — owner adds codexpc; parallel split and pending child creation
+
+Owner explicitly introduces a second developer, codexpc, alongside K and the main
+interactive coordinator. This supersedes K-only execution for the bounded B4 split.
+K retains M384941 Stage C correction; codexpc is baton.codxpc (role impl, kind codx,
+configured route implpc), owning B4 after its separate child claim. Coordinator
+baton.prompt independently reviews both and owns parent coordination docs. Slawomir
+retains Git/specification decisions and W384870's claim.
+
+Packet: findings/finding-b4-docker-readiness/FINDING.md. First checkpoint is only
+read-only prerequisite/test inventory, exact operator commands and proposed path/
+resource allocation. No product edits, engine runs or builds yet; K's current paths
+remain exclusive. K writes parent PROGRESS; codexpc writes child PROGRESS. No shared
+file writes until coordinator allocates them; no live models or background dispatch.
+Final integrated suite remains serial after independently accepted streams.
+
+Canonical child creation by baton.prompt was refused: only baton.slaw is a resolved
+handler of parent baton.decide and may attach its child. No child Work or graph edge
+exists yet. Owner runs findings/finding-b4-docker-readiness/owner-create-b4.py to
+atomically create, bind and attach it, then codexpc claims it. Packet is prepared;
+execution is not released before successful child creation and claim. No identity
+was borrowed. W384870 must remain open through B4 acceptance and final B5 evidence.
+
+
+## 2026-10-31T02-06-09Z — Stage C changes requested despite green scans
+
+Read review-2026-10-31T02-06-09Z.md. Forty-one focused tests pass (90.091s), but independent
+counterexamples establish two unsound protection witnesses and incomplete allowance
+validation. Raw unowned reads pass _handed_owned; forged replay expiry changes the
+token expiry decision; custody.allowed accepts a bad ceiling with None and leaks
+nonfinite conversion errors. K addresses these exact three findings. No Stage C
+acceptance or B4 release; unrelated fixes and closure/check-in gates preserved.
+
+# Stage C delivered — 2026-10-30 (CLOSURE-CHECKLIST C)
+
+Both ownership targets pass: unowned entries 663 -> 0 and orphan calls 165 -> 0
+(audit cut 833 -> 170, preserved), every row dispositioned in
+evidence/stage-c-2026-10-30/disposition-map.md: 56 missed attribution (three
+discovery corrections, delegated rows all probed), 596 protected elsewhere
+(stated rows held by StageCProtections), 11 genuine gaps repaired in the product
+and probed; Stage B gates stay at zero with 1455 probes. Open owner decision
+carried: settle_cleanup's unread connection (B2 Case H). Evidence:
+evidence/stage-c-2026-10-30/STAGE-C.md. Next per checklist: the one scans run,
+then B4, B5, final run, closure, owner check-in.
+
 ## 2026-10-31T00-30-29Z — Stage B accepted; Stage C then scans confirmation
 
 Read review-2026-10-31T00-30-29Z.md: 35 independent focused tests passed in 33.235s, including both

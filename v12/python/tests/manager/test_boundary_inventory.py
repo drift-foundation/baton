@@ -38,6 +38,7 @@ receiving domain and is not blanket-revalidated afterwards.
 """
 
 import ast
+import builtins
 import functools
 import json
 import os
@@ -731,6 +732,10 @@ def _source(value, origins, site=None, returns=None):
         summary = returns.get(_helper_site(value.func, site, returns))
         if summary is not None:
             returned, positional, keywords = summary
+            if isinstance(returned, _Elements):
+                # The whole tuple is not a crossing; `a, b = helper(...)` binds
+                # each element below, and `held = helper(...)` remembers them.
+                return None
             found = []
             for origin in _origin_values(returned):
                 if not origin.startswith("caller:"):
@@ -745,6 +750,37 @@ def _source(value, origins, site=None, returns=None):
                     found.append(_extend_origin(contextual, bracket + suffix if bracket else ""))
             return _join_origins(found)
     return None
+
+
+def _returned_elements(value, origins, site, returns):
+    """A tuple-returning helper's per-position origins for this expression, or None.
+
+    W384870 stage C. `held = _recorded_discharge(...)` remembers them under
+    the bound name so that `record, committed = held` a line later binds the
+    replayed document; a `caller:` position is resolved through the call's
+    own arguments, the way `_source` resolves a helper's single return.
+    """
+    if isinstance(value, ast.Name):
+        return _bindings_at(origins, value).get(("elements", value.id))
+    if not isinstance(value, ast.Call) or returns is None:
+        return None
+    summary = returns.get(_helper_site(value.func, site, returns))
+    if summary is None or not isinstance(summary[0], _Elements):
+        return None
+    returned, positional, keywords = summary
+    resolved = []
+    for element in returned:
+        found = []
+        for origin in _origin_values(element):
+            if not origin.startswith("caller:"):
+                found.append(origin)
+                continue
+            parameter, bracket, suffix = origin[len("caller:"):].partition("[")
+            actual = _argument_bindings(value, positional, keywords).get(parameter)
+            if actual is not None:
+                found.append(_extend_origin(_source(actual, origins, site, returns), bracket + suffix if bracket else ""))
+        resolved.append(_join_origins(found))
+    return _Elements(resolved)
 
 
 def _resolved_placeholders(origin, call, positional, keywords, origins):
@@ -831,13 +867,31 @@ def _returned_origins(sources):
         returns = Returns()
         node = nodes[site]
         local = _origins(node, site, returns)
-        origin = _join_origins(_source(piece.value, local, site, returns)
-                               for piece in _scope_nodes(node)
-                               if isinstance(piece, ast.Return) and piece.value is not None and id(piece) in local.returned)
+        returning = [piece.value for piece in _scope_nodes(node)
+                     if isinstance(piece, ast.Return) and piece.value is not None and id(piece) in local.returned]
+        positional = tuple(one.arg for one in node.args.posonlyargs + node.args.args)
+        keywords = tuple(one.arg for one in node.args.kwonlyargs)
+        origin = _join_origins(_source(value, local, site, returns) for value in returning)
         if origin is not None:
-            positional = tuple(one.arg for one in node.args.posonlyargs + node.args.args)
-            keywords = tuple(one.arg for one in node.args.kwonlyargs)
             return origin, positional, keywords
+        # W384870 stage C: A HELPER THAT HANDS BACK A TUPLE. `_recorded_discharge`
+        # returns `record, committed`, and `committed` is the replayed document
+        # its callers own through `_adopted_discharge`; a summary that saw only
+        # the whole saw no crossing, and the document's members were invisible.
+        # Every return is a tuple of one width, and each position's origin is
+        # the join over the returns; a position no return gives a crossing
+        # stays None, which keeps `record` (the journal row) out of it.
+        tuples = [value for value in returning if isinstance(value, ast.Tuple)]
+        widths = {len(value.elts) for value in tuples}
+        absent = all(isinstance(value, ast.Constant) and value.value is None
+                     for value in returning if not isinstance(value, ast.Tuple))
+        if tuples and len(widths) == 1 and absent:
+            # `return None` beside the tuple is ABSENCE (`_recorded_discharge`
+            # answers it for a record nobody wrote) and binds nothing.
+            elements = tuple(_join_origins(_source(value.elts[index], local, site, returns) for value in tuples)
+                             for index in range(widths.pop()))
+            if any(element is not None for element in elements):
+                return _Elements(elements), positional, keywords
         return None
 
     # Each summary resolves every dependency along finite simple call paths.
@@ -848,6 +902,10 @@ def _returned_origins(sources):
         if result is not None:
             found[site] = result
     return found
+
+
+class _Elements(tuple):
+    """The per-position origins of a tuple-returning helper (W384870 stage C)."""
 
 
 @functools.cache
@@ -1028,6 +1086,7 @@ def _origins(node, site, returns=None, seed=None, own_parameters=True):
         def visit_Assign(self, piece):
             self.visit(piece.value)
             origin = _source(piece.value, origins, site, returns)
+            elements = _returned_elements(piece.value, origins, site, returns)
             literal = _literal_text(piece.value, origins)
             callable_members = _join_origins(_callable_members(piece.value, origins))
             collection = None
@@ -1043,7 +1102,15 @@ def _origins(node, site, returns=None, seed=None, own_parameters=True):
                     # journal's answer about replay, the DOCUMENT is the read.
                     bind(target.elts[0], None)
                     bind(target.elts[1], origin)
+                if isinstance(target, ast.Tuple) and elements is not None and len(target.elts) == len(elements):
+                    # `record, committed = _recorded_discharge(...)` (W384870
+                    # stage C): each name takes its position's origin.
+                    for name, element in zip(target.elts, elements):
+                        bind(name, element)
                 if isinstance(target, ast.Name):
+                    origins.pop(("elements", target.id), None)
+                    if elements is not None:
+                        origins[("elements", target.id)] = elements
                     if callable_members is not None:
                         origins[("callable", target.id)] = callable_members
                     if literal is not None:
@@ -1773,8 +1840,11 @@ def _boundary_claims(records, entries, delegated):
     Select the matching occurrences themselves, not every call sharing a label.
     """
     by_site = {}
+    by_crossing = {}
     for record in records:
         by_site.setdefault(record.site, set()).add(record)
+        if record.subject.startswith(("read:", "session:")):
+            by_crossing.setdefault(record.subject.split("[", 1)[0], set()).add(record)
     relations = _column_check_relations(records, entries)
     result = {}
     for entry in entries:
@@ -1783,6 +1853,15 @@ def _boundary_claims(records, entries, delegated):
             places.append(delegated[entry])
         for site, stem in places:
             available = by_site.get(site, ())
+            if site == entry[1] and stem.startswith(("read:", "session:")):
+                # W384870 stage C: A READ'S STEM NAMES ITS READ SITE and a
+                # session stem names the one crossing, so the call that owns
+                # the value may sit wherever the value was consumed -- a
+                # helper's replayed document is owned by its public callers
+                # (`_owned_here`'s own cross-site rule), and a projection's
+                # member is owned where `attempts` reads it. The stem already
+                # carries the site, so no other read can answer for it.
+                available = by_crossing.get(stem.split("[", 1)[0], ())
             selected = {r for r in available if r.subject == stem or r.subject.startswith(stem + ".")}
             if entry in relations and site == entry[1] and stem == _claims(entry):
                 selected = {relations[entry][0]}
@@ -2013,8 +2092,13 @@ def _owned_here(site, stem, covering=False):
         return [row.label]
     owners = owning_validators().get(site, ())
     found = _labels_among(owners, stem, covering)
-    if found or not stem.startswith("read:"):
+    if found or not stem.startswith(("read:", "session:")):
         return found
+    # W384870 stage C: AND A SESSION ANSWER'S MEMBER is owned where this
+    # package consumes it. `project_work` crosses once, at the port, and
+    # `attempts.unstarted_cancellation_of` owns the projection's Work and
+    # its fenced generations; `_crossings` guarantees one capability member
+    # has one crossing, so the stem is as site-bound as a read's.
     # THE READ NAMES ITS OWN SITE, so when that site owns nothing for it the
     # owner may be recorded wherever the read was RESOLVED: `writer_for_attempt`
     # owns the `line_writers` row that `_one_by_attempt` read for it
@@ -3408,7 +3492,7 @@ SHADOWED = {
     # Members the pin alone carries cannot reach the second rule.
     **{(("adopted", "deadlines.py:_record", f"replay.{member}"), "a committed runtime deadline document"):
        ("a pinned runtime deadline", "test_the_pin_members_are_refused_by_the_pin_owner_first")
-       for member in ("deadline_at", "policy", "started_at")},
+       for member in ("deadline_at", "policy", "policy.action", "started_at")},
     # `cleanup_of` owns `taken["operation"]` under `{what}'s operation` with
     # required (operation_id, signature_digest) and NO optional member;
     # `_writer_cessation_of`'s `a cleanup's operation` (required operation_id,
@@ -3429,6 +3513,11 @@ SHADOWED = {
     # rule over the decoded value never sees a damaged member first.
     (("adopted", "review_cycles.py:checkpoint_of", "line_checkpoints.fence.intent"), "a persisted assignment fence"):
         ("a persisted line checkpoint's fence", "test_the_checkpoint_row_refuses_a_damaged_fence_before_the_fence_owner"),
+    # W384870 stage C: `_context_delivery` compares the delivery's attempt_id
+    # with the job's (`_denied`) before the `_text` loop reaches it, and a value
+    # equal to the job's text attempt id is text already.
+    (("caller", "launch.py:launch_document", "provider_context.attempt_id"), "provider context identity"):
+        ("context delivery names another schema or attempt", "test_the_context_delivery_attempt_is_compared_before_it_is_typed"),
 }
 
 # Entries whose owner NO WRITER CAN DRIVE, each with its reason. A column
@@ -4230,6 +4319,835 @@ DELEGATED.update({
     ("caller", "oci.py:OciAdapter.stop", "request.runtime_id"): ("oci.py:OciAdapter._stopped", "caller:request[runtime_id]"),
     ("caller", "oci.py:OciAdapter.stop", "request.operation_id"): ("oci.py:OciAdapter._stopped", "caller:request[operation_id]"),
     ("caller", "workspaces.py:line_assignment_workspace", "place"): ("workspaces.py:_composed_line_roots", "caller:place"),
+})
+
+# -- W384870 stage C: every remaining receiving entry, mapped to its rule --------
+#
+# `test_every_receiving_entry_has_an_owning_validator` listed 663 entries with
+# no owner and `test_every_boundary_call_belongs_to_an_entry_or_is_declared`
+# 165 boundary calls attributed to no entry (review 2026-10-31T00:30:29Z). Each
+# row below is one of them, read at its site, with the rule that protects it
+# and the witness that proves the rule. Three kinds of answer, and NO blanket
+# exemption: a row that names no concrete rule is not here.
+#
+#   MISSED ATTRIBUTION  -- the owner exists and the discovery could not place it:
+#     the three discovery corrections above (claims anywhere a read or session
+#     stem is owned; the session-stem owner fallback; tuple-returning helpers),
+#     and the DELEGATED rows in STAGE_C_DELEGATED
+#     (each with a probe in `stage_c_probes`).
+#   PROTECTED ELSEWHERE -- a rule that is not the boundary layer stands between the
+#     value and any effect: an inline exact-type or closed-set check, a private
+#     helper's refusal, a comparison against an owned fact, a constructor only
+#     this module can mint, a forwarding to another owned entry, a replayed
+#     answer handed back unread. Stated here with the rule, and witnessed by
+#     `StageCProtections`: the refusal is driven, the forwarding target is owned,
+#     the pass-through reads no member, the mint is module-private.
+#   GENUINE GAP          -- a malformed operand escaped raw or after an effect:
+#     repaired in the product under this stage (attempt_logs `_delivery`,
+#     exchange.discard, custody.custody_holds/allowed, the governor and stop and
+#     bind capabilities, the expiry attempt ids) and now owned by the layer.
+#
+# One open owner decision is carried, not decided: `workspaces.settle_cleanup`
+# never reads `connection` while its docstring states a transaction contract
+# (B2 Case H); the row states the fact that the operand is unread.
+
+_CONTROL = ("the control store capability, proven by use and never re-validated at a door "
+            "(the W275774 precedent for `tokens.py`: `test_a_token_control_capability_is_proven_by_use`); "
+            "`ControlStore.open` is the one minting site, CONSTRUCTED_BY owns the same object under `store`")
+STAGE_C_CONTROL_SITES = (
+    "context_delivery.py:adopt_context_use",
+    "context_delivery.py:configure_context_storage",
+    "context_delivery.py:configured_context_storage",
+    "context_delivery.py:context_mount_of",
+    "context_delivery.py:deliver_feedback",
+    "context_delivery.py:discard_context_use",
+    "context_delivery.py:materialize_context_use",
+    "context_delivery.py:read_context_receipt",
+    "context_delivery.py:seal_generation",
+    "context_delivery.py:validate_generation",
+    "provider_context.py:admit_context_use",
+    "provider_context.py:authorize_qualification_run",
+    "provider_context.py:bind_context_invocation",
+    "provider_context.py:certify_context_profile",
+    "provider_context.py:certify_production_profile",
+    "provider_context.py:context_invocation_of",
+    "provider_context.py:context_of",
+    "provider_context.py:context_profile_of",
+    "provider_context.py:context_use_of",
+    "provider_context.py:correction_feedback_of",
+    "provider_context.py:finalize_context_use",
+    "provider_context.py:hold_context_use",
+    "provider_context.py:prove_context_execution",
+    "provider_context.py:qualification_deployment",
+    "provider_context.py:qualification_grant_of",
+    "provider_context.py:retire_context",
+    "provider_context.py:revalidate_context_start",
+    "workspaces.py:admit_cleanup",
+    "workspaces.py:adopted_assignment_workspace",
+    "workspaces.py:assignment_workspace",
+    "workspaces.py:bind_token_container",
+    "workspaces.py:discard_execution_roots",
+    "workspaces.py:discard_workspace",
+    "workspaces.py:hold_restoration_lock",
+    "workspaces.py:line_assignment_workspace",
+    "workspaces.py:material_is_offered",
+    "workspaces.py:refuse_if_held",
+    "workspaces.py:revoke_expired_token",
+    "workspaces.py:settle_cleanup",
+    "workspaces.py:standing_adoption",
+    "workspaces.py:standing_allocation",
+    "workspaces.py:standing_cleanup",
+    "workspaces.py:standing_removal",
+    "workspaces.py:token_of",
+)
+
+_LABEL_OPERAND = ("a label operand: this manager's own noun for the refusal prose, "
+                  "composed by its caller; it selects no behaviour and reaches no effect")
+_OUTBOUND = ("PLAN 4bz closed canonical constructor: the members are this manager's own "
+             "composed values on their way OUT, `_emit` closes the member-name set against "
+             "the contract and the next receiver owns the values at its boundary (review "
+             "M384897: `_emit` is not a value owner); no caller outside the package")
+_PASSTHRU = ("the replayed committed answer is handed back unread: `if found: return "
+             "already` (or the flag alone is consulted); no member crosses into trusted "
+             "processing here, which `test_a_pass_through_replay_reads_no_member` holds")
+_STRICT_NEXT = ("`COALESCE(MAX(column), 0) + 1` over a STRICT INTEGER column is a whole "
+                "number by construction (the comment at `_next_source_seq`: a count rule "
+                "here could not be driven)")
+_STRICT_KEY = ("a STRICT TEXT primary-key listing; each key is re-read through the store's "
+               "own `operation_record` and the record is held to its journal signature "
+               "before any member is read")
+_MINTED = ("a mint-gated constructor (`_minted is not _MINT -> _denied`); only this package's "
+           "minting sites can construct it (its own module, plus custody/maintenance minting the "
+           "configured WorkspaceGroup from the deployment's record) and they compose the operand "
+           "from values they own -- `test_every_mint_is_package_private` pins the minters")
+_ADOPTED_ROW_DOOR = ("a public door over an attempts row its callers already own at the "
+                     "read (`_attempt_row`/`_require_attempt`, `a persisted attempt`); "
+                     "it derives identities from the row and performs no effect -- "
+                     "`test_every_adopted_row_door_is_handed_an_owned_row` holds every caller")
+_INTERNAL = ("composed by this package's own callers from values owned at their doors "
+             "(a derived journal key, an admission document or a root this manager "
+             "created); `test_every_internal_operand_arrives_owned` holds every call site")
+_GOVERNOR = ("the resource governor's acts are typed as capabilities at the door "
+             "(W384870 stage C repair); the remaining members are read through them")
+
+# -- forwarded whole to another owned entry -----------------------------------------
+STAGE_C_FORWARDED = {
+    **{("caller", f"attempt_logs.py:{site}", "stream"): ("caller", "attempt_logs.py:named", "stream")
+       for site in ("AttemptLogs.place", "capture_state", "follow", "read", "record_capture", "status_name")},
+    ("caller", "attempt_logs.py:follow", "bound"): ("caller", "attempt_logs.py:read", "limit"),
+    ("caller", "attempt_logs.py:follow", "from_byte"): ("caller", "attempt_logs.py:read", "from_byte"),
+    ("caller", "attempts.py:authorize_input_root", "inputs"): ("caller", "workspaces.py:read_input_root", "inputs"),
+    ("caller", "attempts.py:request_runtime_start", "inputs"): ("caller", "attempts.py:authorize_input_root", "inputs"),
+    **{("caller", "context_delivery.py:context_mount_of", name): ("caller", "context_delivery.py:adopt_context_use", name)
+       for name in ("attempt_id", "storage")},
+    ("caller", "custody.py:clear_custody_hold", "which"): ("caller", "custody.py:check_custody_root", "which"),
+    ("caller", "custody.py:custody_holds", "which"): ("caller", "custody.py:check_custody_root", "which"),
+    ("caller", "custody.py:surviving_helpers", "assignment_id"): ("caller", "custody.py:custody_holds", "assignment_id"),
+    ("caller", "custody.py:surviving_helpers", "run"): ("caller", "oci.py:EnginePort.__init__", "run"),
+    ("caller", "custody.py:adopted_directory_custody", "prepared_store"): ("caller", "workspaces.py:recorded_storage_place", "prepared"),
+    ("caller", "handshake.py:settle_unsupported_version", "agent"): ("caller", "attempts.py:request_cancellation", "agent"),
+    ("caller", "handshake.py:settle_unsupported_version", "adapter"): ("caller", "attempts.py:request_cancellation", "adapter"),
+    ("adopted", "handshake.py:settle_unsupported_version", "replay.attempt_id"): ("caller", "attempts.py:request_cancellation", "attempt_id"),
+    ("adopted", "handshake.py:settle_unsupported_version", "replay.why"): ("caller", "attempts.py:request_cancellation", "reason"),
+    ("caller", "intake.py:proved_writer_cessation", "operation"): ("caller", "intake.py:historical_writer_cessation", "operation"),
+    **{("caller", f"launch.py:{site}", "provider_context"): ("caller", "launch.py:launch_document", "provider_context")
+       for site in ("adopt", "materialize")},
+    **{("caller", f"launch.py:{site}", "transport"): ("caller", "launch.py:launch_document", "transport")
+       for site in ("adopt", "materialize")},
+    ("caller", "launch.py:adopt", "workspace_group"): ("caller", "exchange.py:adopt", "workspace_group"),
+    ("caller", "oci.py:OciAdapter.integration_mounts_agree", "runtime_id"): ("caller", "oci.py:OciAdapter.observe", "runtime_id"),
+    ("caller", "oci.py:OciAdapter.prove_line_consumable", "assignment_id"): ("caller", "review_cycles.py:consumption_subject", "attempt_id"),
+    ("caller", "oci.py:OciAdapter.prove_line_consumable", "generation"): ("caller", "review_cycles.py:consumption_subject", "generation"),
+    ("caller", "oci.py:OciAdapter.normalize_directory", "assignment_id"): ("caller", "custody.py:custody_act", "assignment_id"),
+    ("caller", "oci.py:OciAdapter.normalize_directory", "which"): ("caller", "custody.py:custody_act", "which"),
+    ("caller", "oci.py:OciAdapter.surviving_helpers", "assignment_id"): ("caller", "custody.py:surviving_helpers", "assignment_id"),
+    **{("caller", f"oci.py:OciAdapter.{site}", "seconds"): ("caller", "custody.py:allowed", "seconds")
+       for site in ("destroy_abandoned", "list", "observe")},
+    ("caller", "oci.py:OciAdapter.recover_credentials", "seconds"): ("caller", "oci.py:OciAdapter.list", "seconds"),
+    ("caller", "provider_context.py:authorize_qualification_run", "authority_uuid"): ("caller", "provider_context.py:qualification_deployment", "authority_uuid"),
+    ("caller", "provider_context.py:finalize_context_use", "storage"): ("caller", "context_delivery.py:validate_generation", "storage"),
+    ("caller", "review_cycles.py:review_boundary", "preparing"): ("caller", "workspaces.py:adopted_assignment_workspace", "preparing"),
+    ("caller", "review_cycles.py:writer_boundary", "preparing"): ("caller", "workspaces.py:line_assignment_workspace", "preparing"),
+    ("caller", "review_cycles.py:release_writer", "writer_id"): ("caller", "review_cycles.py:writer_of", "writer_id"),
+    **{("caller", f"workspaces.py:{site}", "gid"): ("caller", "workspaces.py:check_workspace_group", "gid")
+       for site in ("WorkspaceGroup.__init__", "WorkspaceIdentity.__init__", "adopt_workspace_group",
+                    "configure_workspace_group", "prove_workspace_group")},
+    **{("caller", f"workspaces.py:{site}", "place"): ("caller", "workspaces.py:check_workspace_storage", "place")
+       for site in ("WorkspaceStorage.__init__", "borrow_manager_instance", "borrowers_of",
+                    "configure_workspace_storage", "held_manager_instance", "holders_of")},
+    **{("adopted", "workspaces.py:_configured_storage", subject): ("caller", "workspaces.py:check_workspace_storage", "place")
+       for subject in ("meta", "meta.value")},
+    **{("caller", "workspaces.py:line_assignment_workspace", name): ("caller", "workspaces.py:adopted_assignment_workspace", name)
+       for name in ("preparing",)},
+    ("caller", "workspaces.py:hold_restoration_lock", "line_id"): ("caller", "workspaces.py:restoration_lock_path", "line_id"),
+    ("caller", "store.py:replayed_as_signed", "operation_id"): ("caller", "store.py:ControlStore.replay", "operation_id"),
+    ("caller", "workspaces.py:hold_restoration_lock", "storage"): ("caller", "workspaces.py:restoration_lock_path", "storage"),
+}
+
+# -- replays handed back unread -------------------------------------------------------
+STAGE_C_PASSTHRU = (
+    "attempts.py:activate_assignment", "attempts.py:start_submission_returned",
+    "custody.py:adopted_directory_custody", "custody.py:normalize_directory",
+    "intake.py:authorize_failed_start_cleanup", "intake.py:authorize_refused_session_cleanup",
+    "intake.py:decide_retention", "intake.py:record_intake",
+    "offers.py:issue_offer", "output.py:record_frozen_result",
+    "review_cycles.py:_completed_line", "review_cycles.py:_reserved_line", "review_cycles.py:_settled_elsewhere",
+    "review_cycles.py:attach_review", "review_cycles.py:freeze_checkpoint", "review_cycles.py:grant_writer",
+    "review_cycles.py:record_progress", "review_cycles.py:record_verdict", "review_cycles.py:release_writer",
+    "review_cycles.py:restore_abandoned_correction",
+    "stopped_settlement.py:settle_stopped", "stopped_settlement.py:status",
+    "store.py:ControlStore.transact", "tokens.py:_acting_record", "tokens.py:_fence_settlement",
+)
+
+# -- public doors over an attempts row the caller already owns ------------------------
+STAGE_C_ADOPTED_ROW_DOORS = {
+    "attempts.py:start_failure_operation_id": ("attempt", "attempt.assignment_generation", "attempt.assignment_participant",
+                                               "attempt.authority_uuid", "attempt.profile_digest", "attempt.runtime_attempt_id", "attempt.work_id"),
+    "attempts.py:start_submission_returned": ("attempt", "attempt.assignment_generation", "attempt.assignment_participant",
+                                              "attempt.authority_uuid", "attempt.execution_runtime", "attempt.profile_digest",
+                                              "attempt.runtime_attempt_id", "attempt.work_id"),
+    "failure_cause.py:token_bound_runtime": ("attempt", "attempt.runtime_attempt_id", "attempt.workspace_device", "attempt.workspace_inode"),
+    # the whole row; its `runtime_attempt_id` member is owned by `_identity` (DELEGATED)
+    "failure_cause.py:cessation_intent_operation_id": ("attempt",),
+    "failure_cause.py:cessation_outcome_operation_id": ("attempt",),
+}
+
+# -- operands composed by this package's own callers ----------------------------------
+STAGE_C_INTERNAL = {
+    "failure_cause.py:cessation_intent_operation_id": ("generation",),
+    "failure_cause.py:cessation_outcome_operation_id": ("generation",),
+    "intake.py:reclaim_operation_id": ("generation",),
+    "launch.py:LaunchDelivery.__init__": ("delivery", "logs"),
+    "provider_context.py:context_output_declaration": ("outputs", "outputs.constraints", "outputs.name", "outputs.path", "outputs.required", "outputs.type"),
+    "provider_context.py:serving_argv": ("facts", "facts.conversation_id", "facts.mode", "profile", "profile.model", "prompt"),
+    "provider_context.py:qualification_grant_of": ("run_id",),
+    "workspaces.py:adopt_workspace_group": ("roots", "roots.workspace"),
+    "workspaces.py:copied_manifest": ("into", "admits", "max_bytes", "max_entries"),
+    "workspaces.py:discard_tree": ("place",),
+    "workspaces.py:material_is_offered": ("assignment_id",),
+    "workspaces.py:settle_cleanup": ("assignment_id",),
+    "workspaces.py:standing_adoption": ("assignment_id",),
+    "workspaces.py:standing_allocation": ("assignment_id",),
+    "workspaces.py:standing_cleanup": ("assignment_id",),
+    "workspaces.py:standing_removal": ("assignment_id",),
+    "workspaces.py:token_of": ("assignment_id", "ordinal"),
+}
+
+# -- mint-gated constructors -----------------------------------------------------------
+STAGE_C_MINTED = {
+    "provider_context.py:ExecutionGrant.__init__": ("mint", "context_id", "use_id", "qualification"),
+    "source_boundary.py:SourceBoundary.__init__": ("guard",),
+    "workspaces.py:AllocatedRoots.__init__": ("_minted", "made", "_grant", "_grant_required"),
+    "workspaces.py:WorkspaceGroup.__init__": ("_minted", "store_place"),
+    "workspaces.py:WorkspaceIdentity.__init__": ("_minted",),
+    "workspaces.py:WorkspaceStorage.__init__": ("_minted",),
+}
+
+STAGE_C_STATED = {
+    # the control store at 44 doors
+    **{("caller", site, "control"): _CONTROL for site in STAGE_C_CONTROL_SITES},
+    # labels
+    **{("caller", site, "what"): _LABEL_OPERAND for site in (
+        "store.py:reading_refusal", "intake.py:proved_writer_cessation", "oci.py:canonical_source", "oci.py:canonical_target",
+        "workspaces.py:admit_cleanup", "workspaces.py:check_workspace_group", "workspaces.py:check_workspace_storage",
+        "workspaces.py:prove_workspace_group", "workspaces.py:refuse_if_held", "workspaces.py:settle_cleanup")},
+    # outbound constructors
+    **{("caller", f"documents.py:{name}", "members"): _OUTBOUND for name in (
+        "abandon_intent", "abandoned_destroy_command", "abandonment", "attempt_cessation_intent", "attempt_cessation_outcome",
+        "directory_custody_settled", "failed_start_destroy_command", "fenced_before_start", "freeze_requested", "frozen_output",
+        "manifest_retained", "operation", "output_answer", "output_artifact", "posture_slot", "provider_session_adopted",
+        "refused_session_destroy_command", "result_frozen", "runtime_not_submitted", "runtime_preparation_failed",
+        "runtime_start_failed", "session_closed", "session_observed", "session_opened", "session_quiescence_requested",
+        "session_reconciled", "session_ref", "session_unsupported_version", "slot_moved", "transport_lost")},
+    # replays handed back unread
+    **{("adopted", site, "replay"): _PASSTHRU for site in STAGE_C_PASSTHRU},
+    ("adopted", "handshake.py:settle_unsupported_version", "replay"):
+        "the committed refusal is handed back merged with the re-ordered ending; the two members it reads are forwarded to request_cancellation's owners (STAGE_C_FORWARDED)",
+    ("adopted", "review_cycles.py:_committed_fence", "replay"):
+        "compared for exact equality with the finalization intent already owned by `adopt_finalization_record` (`record != intent` refuses); nothing of it is read otherwise",
+    ("adopted", "review_cycles.py:_launched_commands", "replay"):
+        "handed to the caller's cessation observer as `group.get(\"observed\")` (a `.get` read, `None` holds); the observer owns what it reads",
+    # STRICT aggregates and key listings
+    **{("adopted", site, column): _STRICT_NEXT for site, column in (
+        ("attempts.py:_decide", "observations.next"), ("attempts.py:_next_source_seq", "observations.next"),
+        ("sessions.py:_next_epoch", "agent_sessions.next"))},
+    **{("adopted", site, subject): _STRICT_KEY for site in ("provider_context.py:_history", "provider_context.py:_qualified")
+       for subject in ("operations", "operations.operation_id")},
+    # mint-gated constructors
+    **{("caller", site, name): _MINTED for site, names in STAGE_C_MINTED.items() for name in names},
+    ("caller", "workspaces.py:WorkspaceIdentity.__init__", "uid"):
+        "mint-gated constructor; `type(uid) is not int or bool or uid <= 0 -> _denied` (uid 0 is not an execution identity)",
+    # adopted-row doors
+    **{("caller", site, subject): _ADOPTED_ROW_DOOR for site, subjects in STAGE_C_ADOPTED_ROW_DOORS.items() for subject in subjects},
+    # internal composition
+    **{("caller", site, subject): _INTERNAL for site, subjects in STAGE_C_INTERNAL.items() for subject in subjects},
+    # forwarded (reason generated from the target)
+    **{entry: f"forwarded whole to {target[1]}'s {target[2]}, whose owner stands for it (STAGE_C_FORWARDED; "
+              f"`test_every_forwarded_entry_reaches_an_owned_target` holds the call and the target)"
+       for entry, target in STAGE_C_FORWARDED.items()},
+
+    # -- attempt_logs ------------------------------------------------------------------
+    ("caller", "attempt_logs.py:named", "stream"):
+        "held to `attempt_log_format.named`'s closed stream vocabulary (outside this package); its FormatRefusal becomes `_denied` policy/denied here",
+    **{("caller", f"attempt_logs.py:{site}", "delivery"):
+       "typed by `_delivery` at the door: exactly this module's own AttemptLogs (W384870 stage C repair; `locators(7)` used to escape as AttributeError)"
+       for site in ("capture_state", "follow", "locators", "read", "record_capture")},
+    ("caller", "attempt_logs.py:capture_state", "reported"):
+        "inline closed set: `reported not in CAPTURE_STATES and not in DECLARABLE -> _denied`",
+    ("caller", "attempt_logs.py:locators", "reported"):
+        "a mapping from stream to state (`type(reported) is not dict -> _denied`, stage C repair) whose values each pass through capture_state's closed-set rule",
+    ("caller", "attempt_logs.py:read", "from_byte"): "inline: `type(from_byte) is not int or from_byte < 0 -> _denied`",
+    ("caller", "attempt_logs.py:read", "limit"): "inline: `type(limit) is not int or not 0 < limit <= MAX_READ -> _denied`",
+    **{("caller", "attempt_logs.py:record_capture", name):
+       "handed to `attempt_log_format.write_declaration` (outside this package), whose FormatRefusal on an unknown state or a non-text note becomes `_denied` here"
+       for name in ("reason", "state")},
+    **{("caller", f"attempt_logs.py:{site}", "workspace_group"):
+       "`_gid`: exactly the deployment's minted WorkspaceGroup or `_denied`"
+       for site in ("adopt", "materialize")},
+
+    # -- attempts ----------------------------------------------------------------------
+    ("injected", "attempts.py:_observed", "adapter.observe"):
+        "the whole answer is held inline to a document shape (dict with state and why) and every failure, including a refusal from the member owners, answers `uncertain` by design (docstring)",
+    ("caller", "attempts.py:finalize_quiescent_assignment", "cessation"):
+        "an operand of the governor's own `release` act (handed on, owned by the governor); required when governed (`refused/precondition` otherwise)",
+    ("caller", "attempts.py:observe_activity", "bytes_observed"):
+        "inline: `type(bytes_observed) is not int or bytes_observed < 0` refuses integrity/schema",
+
+    # -- authority_port ----------------------------------------------------------------
+    **{("caller", f"authority_port.py:AuthorityPort.{site}", name):
+       "compared in `_decided` for equality with the authority's decided role / effective scope (a mismatch refuses integrity/schema); the operands originate in this manager's owned Work projection"
+       for site in ("claim", "settle_operation") for name in ("role", "scope")},
+    **{("caller", "authority_port.py:AuthorityPort.satisfy_gate", name):
+       "an operand of the authority's own act, handed to the session which owns it at its boundary (PLAN 4bz); `gate` is also compared with the answer's gate"
+       for name in ("work_id", "operation_id", "gate", "evidence")},
+    **{("injected", "authority_port.py:AuthorityPort.claim", f"claim.{member}"):
+       "inline in `_decided`: claim_event is an int >= 1 and not a bool; grant is in GRANT_PROVENANCE; policy_generation is an int >= 1 (each refuses integrity/schema)"
+       for member in ("claim_event", "decision.grant", "decision.policy_generation")},
+    **{("injected", "authority_port.py:AuthorityPort.settle_operation", f"settle_operation.result.{member}"):
+       "the committed claim's result, owned by the same `_decided` rules as the claim answer's (int >= 1; GRANT_PROVENANCE; int >= 1)"
+       for member in ("claim_event", "decision.grant", "decision.policy_generation")},
+    ("injected", "authority_port.py:AuthorityPort.project_work", "project_work.fenced_generations.generation"):
+        "inline in `attempts._owned_fences`: `type(generation) is not int or bool or < 1` refuses, and a generation fenced twice refuses",
+    ("injected", "authority_port.py:AuthorityPort.satisfy_gate", "satisfy_gate.gate"):
+        "compared with the gate this discharge asked about (`answer[\"gate\"] != gate` refuses integrity/schema)",
+    ("injected", "authority_port.py:AuthorityPort.satisfy_gate", "satisfy_gate.phase"):
+        "compared with GATE_DISCHARGED_PHASE (`!=` refuses integrity/schema)",
+
+    # -- context_delivery --------------------------------------------------------------
+    **{("caller", f"context_delivery.py:{site}", "storage"):
+       "`_storage`: exactly a ContextStorage equal to `configured_context_storage(control)`, else `context._refuse`"
+       for site in ("adopt_context_use", "deliver_feedback", "discard_context_use", "materialize_context_use",
+                    "seal_generation", "validate_generation")},
+    ("caller", "context_delivery.py:read_context_receipt", "attempt_id"):
+        "the first read (`output.frozen_output_of`) answers absence for an unknown id before anything acts; a present use is then held to `_text` through `context._use`",
+    ("caller", "context_delivery.py:read_context_receipt", "artifact_id"):
+        "compared against the collected artifacts (`one[\"artifact_id\"] == artifact_id`): exactly one must match or `context._refuse`",
+    ("caller", "context_delivery.py:configure_context_storage", "path"):
+        "`_open_absolute`: a canonical absolute `str` (`type(path) is not str or not startswith('/') or != normpath -> context._refuse`)",
+    ("caller", "context_delivery.py:configure_context_storage", "excluded_roots"): "inline: `type(excluded_roots) is not list or empty -> context._refuse`",
+    ("caller", "context_delivery.py:configure_context_storage", "runtime_uid"): "inline: `type(runtime_uid) is not int or != os.getuid() -> context._refuse`",
+    ("caller", "context_delivery.py:deliver_feedback", "payload"): "inline: non-empty bytes bounded by MAX_FEEDBACK_BYTES, else `context._refuse`",
+    ("caller", "context_delivery.py:seal_generation", "exclusion"):
+        "compared for equality with `intake.cleanup_of`'s own answer (`actual != exclusion -> context._refuse`)",
+    **{("caller", "context_delivery.py:validate_generation", subject):
+       "must EQUAL a committed finalization's payload in the context's history (`one[\"payload\"] == expected`) before any member is read; otherwise `context._refuse`"
+       for subject in ("expected", "expected.exclusion_digest", "expected.generation", "expected.generation_pins", "expected.manifest_digest")},
+    ("caller", "context_delivery.py:validate_generation", "context_id"):
+        "a history key: `_history(control, context_id)` answers the empty chain for an unknown id and the finalization match then refuses",
+
+    # -- credentials -------------------------------------------------------------------
+    **{("caller", f"credentials.py:CredentialHome.{site}", "workspace_group"):
+       "`_reader_group`: exactly a WorkspaceGroup (`_refuse` refused/precondition) then `check_workspace_group(gid)`"
+       for site in ("adopt", "materialize")},
+    ("caller", "credentials.py:OrphanTeardown.__init__", "homes"):
+        "`_list` (list or tuple, else `_refuse`), non-empty, every element exactly a CredentialHome",
+
+    # -- custody -----------------------------------------------------------------------
+    ("caller", "custody.py:clear_custody_hold", "episode"):
+        "bound into the hold identity digest (canonical refuses an undigestible value) and compared with the recorded document's own episode",
+    **{("caller", "custody.py:clear_custody_hold", subject):
+       "`_settlement`: exactly the closed member set and types, source CUSTODY_ENGINE_ANSWER, helper and custodian identities equal to the recorded episode, status 0, the verb's own result shape (each refuses)"
+       for subject in ("settlement", "settlement.document", "settlement.document.custody", "settlement.document.running_as",
+                       "settlement.document.submission", "settlement.source", "settlement.status")},
+    ("caller", "custody.py:allowed", "seconds"):
+        "inline `_finite_seconds`: a remainder that is not a finite number refuses integrity/schema on every path (stage C; `allowed('abc', 120)` and `allowed(nan, 120)` escaped as conversion errors); a callable is asked first, None answers the ceiling",
+    ("caller", "custody.py:allowed", "most"):
+        "inline `_finite_seconds` on every path, the unbounded one included (stage C: `allowed(None, 'bad')` handed the ceiling back unchecked)",
+    ("caller", "custody.py:normalize_directory", "reclaim"): "handed to the custody capability's own act (`custody.normalize_directory(..., reclaim=)`), whose door owns it",
+    ("caller", "custody.py:normalize_directory", "seconds"): "handed to the custody capability's own act (`custody.normalize_directory(..., seconds=)`), whose door owns it; None means unbounded",
+    ("caller", "custody.py:surviving_helpers", "image_digest"):
+        "None is reported as 'not asked' (never absence); otherwise `_reconciled` compares it with the engine's inspected image identity",
+
+    # -- exchange ----------------------------------------------------------------------
+    **{("caller", f"exchange.py:{site}", "delivery"):
+       "inline: `type(delivery) is not ExchangeDelivery -> _denied`"
+       for site in ("activity_identities", "observation", "observed_activity", "publish_command")},
+    **{("caller", f"exchange.py:{site}", "workspace_group"): "`_gid`: exactly a WorkspaceGroup or `_denied`" for site in ("adopt", "materialize")},
+    ("caller", "exchange.py:activity_identities", "session"):
+        "compared with the command's recorded session (`command[\"session\"] != session -> _untrusted`)",
+    **{("caller", "exchange.py:observed_activity", subject):
+       "this manager's own expectation (`activity_identities`), compared member by member with the worker's activity document; a disagreement refuses `_untrusted`, nothing of it is stored"
+       for subject in ("expected", "expected.attempt_id", "expected.command_digest", "expected.operation", "expected.operation_id", "expected.sequence_id", "expected.session")},
+    **{("caller", f"exchange.py:{site}", "operation"): "inline closed set: `operation not in OPERATIONS -> _refuse`" for site in ("state_document", "worker_operation_id")},
+
+    # -- failure_cause -----------------------------------------------------------------
+    **{("caller", "failure_cause.py:absent_of", subject):
+       "`_supported`: a dict whose schema is in READ_SCHEMAS (refuses otherwise); `absent_records` is read with `.get` and tupled"
+       for subject in ("document", "document.absent_records", "document.schema")},
+    **{("caller", "failure_cause.py:answer_of", subject):
+       "`_supported` (dict, schema in READ_SCHEMAS) then `decode(cause[\"outcome\"])`'s wrapper rule and the closed ANSWER_OF_OUTCOME map"
+       for subject in ("document", "document.cause", "document.cause.outcome", "document.schema")},
+    **{("caller", f"failure_cause.py:{site}", "attempt_id"):
+       "`_read`: `_attempt_row` answers absence for an unknown id before anything else; `_committed` then compares the record's attempt_id"
+       for site in ("attempt_cessation_intent_of", "attempt_cessation_outcome_of")},
+    **{("caller", f"failure_cause.py:{site}", "component"):
+       "`_component`: closed set COMPONENTS, refuses integrity/schema"
+       for site in ("attempt_cessation_intent_of", "attempt_cessation_outcome_of", "cessation_intent_operation_id",
+                    "cessation_outcome_operation_id", "record_and_raise_cessation_intent", "record_and_raise_cessation_outcome")},
+    ("caller", "failure_cause.py:attempt_failure_cause_of", "attempt_id"):
+        "`_attempt_row` answers None for an unknown id before anything is composed",
+    ("caller", "failure_cause.py:carry_degradation", "carrier"):
+        "inline: a dict gets the member, anything else is `setattr`-ed inside `try` or left alone; never read",
+    ("caller", "failure_cause.py:carry_degradation", "reported"):
+        "`recording_degraded` (a str carrying DEGRADED) decides whether anything is carried; bounded to DEGRADATION_BOUND",
+    ("caller", "failure_cause.py:cessation_outcome_operation_id", "revision"): "inline: int, not bool, in 0..OUTCOME_REVISIONS-1, else integrity/schema",
+    **{("caller", "failure_cause.py:decode", subject):
+       "inline wrapper rule: a dict carrying a bool `known`, with `source` when known and `why` when not (each refuses integrity/schema)"
+       for subject in ("member", "member.known", "member.source", "member.value", "member.why")},
+    ("caller", "failure_cause.py:degradation_of", "carrier"): "inline: `.get`/`getattr` read; a non-str answer is None",
+    ("caller", "failure_cause.py:ensure_cessation_intent", "attempt_id"):
+        "`record_and_raise_cessation_intent` -> `_require_attempt` refuses an unknown id before the journal is touched",
+    **{("caller", "failure_cause.py:ensure_cessation_intent", subject):
+       "`_component(facts.get(\"component\"))` is proved before the journal is touched; the remaining facts are handed to `record_and_raise_cessation_intent`, whose own door owns them (same rows below)"
+       for subject in ("facts", "facts.component", "facts.correlation_id", "facts.domain", "facts.generation", "facts.launched", "facts.runtime_id")},
+    ("caller", "failure_cause.py:record_and_raise_cessation_intent", "attempt_id"):
+        "`_require_attempt` refuses an unknown id before the document is composed",
+    **{("caller", "failure_cause.py:record_and_raise_cessation_intent", name):
+       "a member of the outbound cessation-intent document (`documents.attempt_cessation_intent`, PLAN 4bz constructor); `launched` is coerced with `bool`"
+       for name in ("correlation_id", "domain", "generation", "launched", "runtime_id")},
+    ("caller", "failure_cause.py:record_and_raise_cessation_outcome", "attempt_id"):
+        "`_require_attempt` refuses an unknown id before the chain is read",
+    **{("caller", "failure_cause.py:record_and_raise_cessation_outcome", name):
+       "a member of the outbound cessation-outcome document (`documents.attempt_cessation_outcome`, PLAN 4bz constructor)"
+       for name in ("category", "code", "correlation_id", "generation", "runtime_id")},
+    ("caller", "failure_cause.py:record_and_raise_cessation_outcome", "effects"): "`_effects`: every name in EFFECTS, else integrity/schema",
+    ("caller", "failure_cause.py:record_and_raise_cessation_outcome", "outcome"): "`_outcome`: closed set OUTCOMES, else integrity/schema",
+    ("caller", "failure_cause.py:record_and_raise_cessation_outcome", "observed_after"):
+        "`_taken_after`: None, or non-empty str bounded by FIELD_BOUND (THE_CURRENT_ACCOUNT sentinel selects the tip)",
+    ("caller", "failure_cause.py:record_cessation_outcome", "attempt_id"):
+        "handed to `record_and_raise_cessation_outcome` inside the recording classifier; its `_require_attempt` refusal is reported, never raised",
+    **{("caller", "failure_cause.py:record_cessation_outcome", subject):
+       "`_component` / `_outcome` / `_effects` proved first and any refusal reported through the one classifier (W341357 R2); the rest hand to `record_and_raise_cessation_outcome`"
+       for subject in ("facts", "facts.component", "facts.effects", "facts.outcome")},
+    ("caller", "failure_cause.py:recording_degraded", "reported"): "inline: `isinstance(reported, str) and DEGRADED in reported`; a predicate, no effect",
+
+    # -- handshake ---------------------------------------------------------------------
+    ("caller", "handshake.py:settle_unsupported_version", "agent_protocol_version"):
+        "inline: `type(...) is not int or is bool` refuses integrity/schema, then `_negotiated_against` compares with the pinned wire version",
+    ("caller", "handshake.py:settle_unsupported_version", "agent_session_capabilities"):
+        "`list(...)` then `_negotiated_against` requires every SESSION_CAPABILITIES member offered (refused/capability)",
+
+    # -- intake ------------------------------------------------------------------------
+    **{("injected", f"intake.py:{site}", f"adapter.{member}.exit_status"):
+       "carried verbatim into this manager's own writer-cessation record as the observed exit (`observed.get(\"exit_status\")`; None means unknown by design); never branched on"
+       for site, member in (("_destroyed", "destroy"), ("_destroyed_abandoned", "destroy_abandoned"),
+                            ("_destroyed_failed_start", "destroy_failed_start"), ("_destroyed_refused_session", "destroy_refused_session"),
+                            ("_authorize_deadline_cleanup", "destroy_deadline"))},
+    **{("injected", f"intake.py:{site}", f"adapter.{member}.{provider}.why"):
+       "a member of the provider ending `_provider_ending` owns as a closed document (`a {provider} teardown ending`, optional why); read only into the unsettled-provider diagnostic prose (`ending.get(\"why\")`)"
+       for site, member in (("_destroyed", "destroy"), ("_destroyed_abandoned", "destroy_abandoned"),
+                            ("_destroyed_failed_start", "destroy_failed_start"), ("_destroyed_refused_session", "destroy_refused_session"))
+       for provider in ("credentials", "launch")},
+    ("injected", "intake.py:_surviving_writers", "adapter.surviving_helpers"):
+        "the answer's shape decides at the crossing: a list or tuple of mappings is an observation, anything else is unreadable and HOLDS (review 2026-09-28T06-23-25Z)",
+    **{("adopted", f"intake.py:{site}", f"replay.{member}"):
+       "read with `.get` by `_resource_cessation`: a release needs state absent AND evidence re-proved through its own owner -- the self-signed writer cessation (`_writer_cessation_of`) or the committed normalizations (`_custody_already_committed`; stage C correction: a forged `directory_custody` member released before); anything less answers None and the resource stays held"
+       for site, members in (("abandon_attempt", ("cleanup.directory_custody", "cleanup.state")),
+                             ("authorize_cleanup", ("cleanup", "directory_custody", "state")),
+                             ("_authorize_deadline_cleanup", ("replay", "cleanup", "cleanup.cleanup")))
+       for member in members if member != "replay"},
+    ("adopted", "intake.py:_authorize_deadline_cleanup", "replay"):
+        "handed back unread by this reader (`if found: return already`); `deadlines.advance_deadline` reads two members with `.get` into its own answer",
+    **{("caller", "intake.py:abandon_attempt", name):
+       "handed to the adapter's own abandoned destroy and writer-listing acts (`seconds=`, `reclaim=`), whose doors own them; None means unbounded"
+       for name in ("reclaim", "seconds")},
+    **{("caller", f"intake.py:{site}", f"session_ref.{member}"):
+       "typed by `sessions._session_ref` as the first statement (DELEGATED in STAGE_C_DELEGATED)"
+       for site in () for member in ()},
+    ("caller", "intake.py:historical_writer_cessation", "operation"):
+        "an operation document this manager composed (`destroy_operation`) or re-owned from the committed cleanup (`a cleanup's operation`) before it is handed here; only operation_id is read, to derive the cessation record key",
+    ("caller", "intake.py:historical_writer_cessation", "operation.operation_id"):
+        "read only to derive the writer-cessation record key (`_writer_cessation_id`); an unknown key answers None",
+    ("caller", "intake.py:inaccessible_output", "roots"):
+        "an EXPECTATION compared against the derived roots (`hasattr(roots, \"get\")`, realpath equality); a substituted or omitted root is answered as inaccessible, never trusted (review 2026-09-28T02-55-12Z)",
+    ("caller", "intake.py:proved_writer_cessation", "attempt_id"):
+        "compared with the committed cessation's attempt_id in `_adopted_writer_cessation` (`!=` refuses integrity/schema)",
+    **{("caller", "intake.py:settle_revoked_resource", name):
+       "handed to the adapter's writer-listing act (`surviving_helpers(seconds=, reclaim=)`), whose door owns them; None means unbounded"
+       for name in ("reclaim", "seconds")},
+
+    **{("injected", "intake.py:reclaim_expired_resource", f"adapter.{act}"):
+       "nothing is read from the answer: the act is appended to `issued` and the runtime's state is re-observed through `_observed` (the decide_retention `adapter.retain` precedent)"
+       for act in ("remove", "stop_expired")},
+    ("caller", "provider_context.py:certify_production_profile", "evidence.continuity"):
+        "`_document(evidence[\"continuity\"], ...)` after the grant, consumer, profile and history preconditions; the whole evidence document (DELEGATED, probed) requires the member present",
+
+    # -- launch ------------------------------------------------------------------------
+    **{("caller", f"launch.py:{site}", subject):
+       "`_same_attempt`: a dict whose attempt_id equals this delivery's attempt, else `_refuse`; then `launch_document`'s `_job_execution` owner (DELEGATED)"
+       for site in ("adopt", "materialize") for subject in ("job_execution", "job_execution.attempt_id")},
+    ("caller", "launch.py:materialize", "workspace_group"):
+        "`_exchange_materialized` refuses None when the exchange transport is selected; otherwise `exchange.materialize` -> `_gid` exact type",
+    **{("caller", "launch.py:launch_document", f"provider_context.{member}"):
+       "`_context_delivery` -> `provider_context._hash`: a `sha256:` + 64 lower hex str, else `_refuse`"
+       for member in ("profile_digest", "delivery_digest", "invocation_binding_digest", "task_digest", "prompt_digest",
+                      "argv_digest", "argv_policy_digest", "environment_policy_digest", "generation_digest")},
+    ("caller", "launch.py:launch_document", "provider_context.generation"): "`_context_delivery` -> `provider_context._integer`",
+    ("caller", "launch.py:launch_document", "transport"):
+        "compared with EXCHANGE_TRANSPORT (`_denied` for anything else) before `_value` sees it, so the layer call there can only ever see the one constant",
+    ("caller", "launch.py:launch_document", "provider_context.schema"): "compared with DELIVERY_SCHEMA in `_context_delivery` (`_denied`)",
+    ("caller", "launch.py:launch_document", "provider_context.mode"):
+        "compared in `_context_delivery` with the mode the generation implies (`restore` iff generation) -> `_denied`",
+    **{("caller", f"launch.py:{site}", subject):
+       "inline: a non-dict answers the default (None / {} / LAUNCH_MEMBERS); the schema selects a member set; nothing is acted on"
+       for site, subjects in (("members_for", ("document", "document.schema")),
+                              ("payload_of", ("document", "document.payload", "document.schema")),
+                              ("selected_transport", ("document", "document.payload", "document.payload.transport", "document.schema", "document.transport")))
+       for subject in subjects},
+
+    # -- oci ---------------------------------------------------------------------------
+    ("caller", "oci.py:OciAdapter.__init__", "context_delivery"):
+        "inline: paired with the context document (`(is None) != (is None)` refuses) and typed exactly at the vector (`_context_mounts`: ContextMount)",
+    ("caller", "oci.py:OciAdapter.__init__", "credential_home"): "inline: exactly credentials.CredentialHome when given (`_denied`)",
+    ("caller", "oci.py:OciAdapter.__init__", "context_execution"):
+        "proved at `start` by `_context_execution`: exactly an ExecutionGrant (mint-gated, minted only by `prove_context_execution`) whose identity matches the delivered context; a deterministic composition substitutes the seam explicitly",
+    ("caller", "oci.py:OciAdapter.__init__", "credential_orphan"): "inline: exactly credentials.OrphanTeardown when given (`_denied`)",
+    ("caller", "oci.py:OciAdapter.__init__", "integration_delivery"):
+        "posture rule at construction (`_denied` outside execution); exact type proved at the use point (`_integration_mounts`: IntegrationMountBoundary) because `integration` imports this package",
+    ("caller", "oci.py:OciAdapter.__init__", "interactive"): "inline: `type(interactive) is not bool -> _denied`; `run_vector` accepts exactly True or False",
+    ("caller", "oci.py:OciAdapter.__init__", "layout_delivery"): "inline: exactly source_boundary.LayoutDelivery when given (`_denied`)",
+    ("caller", "oci.py:OciAdapter.__init__", "scratch_delivery"):
+        "posture rule at construction; the path is owned at the vector (`_scratch_mount` -> `canonical_source`: `a host path`)",
+    ("caller", "oci.py:OciAdapter.__init__", "workspace_group"): "inline: exactly workspaces.WorkspaceGroup when given (`_denied`)",
+    **{("caller", f"oci.py:OciAdapter.{site}", name):
+       "clamped through `_custody_runner`'s bounded port (`custody.allowed(_work | _total, most)`, which refuses a non-number since the stage C repair); None means the unbounded port"
+       for site in ("normalize_directory", "surviving_helpers") for name in ("seconds", "reclaim")},
+    ("caller", "oci.py:run_vector", "context_delivered"): "`_context_mounts`: exactly a ContextMount in execution posture, else `_denied`; its root through `canonical_source`",
+    ("caller", "oci.py:run_vector", "exchange_delivered"):
+        "`_exchange_mounts`: exactly two (source, target, writable) binds; sources through `canonical_source`, targets through `boundaries.text` and compared with the fixed targets, directions fixed",
+    ("caller", "oci.py:run_vector", "integration_delivered"):
+        "`_integration_mounts`: exactly an IntegrationMountBoundary in execution posture; every mount through `canonical_source`/`canonical_target` and the fixed container paths",
+    ("caller", "oci.py:run_vector", "layout_delivered"):
+        "`_layout_mount`: exactly a LayoutDelivery; its source through `canonical_source`, its target through `boundaries.text` and compared with LAYOUT_TARGET",
+    ("caller", "oci.py:run_vector", "logs_delivered"):
+        "`_log_mounts`: exactly one (source, target, True) bind; the source through `canonical_source`, the target through `boundaries.text` and compared with LOG_TARGET",
+    ("caller", "oci.py:run_vector", "scratch_delivered"): "`_scratch_mount`: `canonical_source` then a directory, else `_refuse`",
+    ("caller", "oci.py:run_vector", "source_delivered"):
+        "`_source_mount`: exactly a SourceBoundary proved over this start's workspace and mountpoint; every mount through `canonical_source`/`canonical_target`",
+    ("caller", "oci.py:run_vector", "interactive"): "inline: exactly True (adds --interactive) or False, else `_refuse`",
+    ("caller", "oci.py:run_vector", "workspace_group"): "inline: exactly a WorkspaceGroup or None, else `_denied`",
+    ("injected", "oci.py:OciAdapter._custody_runner", "_run"):
+        "a closure around the adapter's own EnginePort (`_run=self.run`, typed at EnginePort.__init__); its answers are owned by the custody act's readers (`_settled` status, `_reconciled` entries)",
+
+    # -- provider_context --------------------------------------------------------------
+    **{("caller", f"provider_context.py:{site}", "profile_digest"): "`_hash`: a `sha256:` + 64 lower hex str, else `_refuse`"
+       for site in ("admit_context_use", "authorize_qualification_run", "context_profile_of")},
+    ("caller", "provider_context.py:bind_context_invocation", "profile_digest"):
+        "compared with the admitted use's own profile_digest (`facts[\"profile_digest\"] != profile_digest -> _refuse`)",
+    ("caller", "provider_context.py:bind_context_invocation", "writer_id"):
+        "compared with the admitted use's own writer_id (`facts[\"writer_id\"] != writer_id -> _refuse`)",
+    ("caller", "provider_context.py:bind_context_invocation", "task_bytes"): "inline: bytes bounded by 65536, else `_refuse`; then decoded as JSON or `_refuse`",
+    **{("caller", f"provider_context.py:{site}", name):
+       "a store capability proven by use (`jobs.authority_uuid`, `authority.assignment_of`, `jobs.operation_record`) before any transition; the W275774 precedent `test_a_token_control_capability_is_proven_by_use`"
+       for site, names in (("admit_context_use", ("authority", "jobs")), ("bind_context_invocation", ("authority", "jobs")),
+                           ("correction_feedback_of", ("jobs",)), ("finalize_context_use", ("authority", "jobs")),
+                           ("revalidate_context_start", ("authority", "jobs")))
+       for name in names},
+    ("caller", "provider_context.py:authorize_qualification_run", "note"): "inline: non-empty str bounded by 2000, else `_refuse`",
+    ("caller", "provider_context.py:certify_production_profile", "evidence.evidence_refs"):
+        "a named member of the closed evidence document (`_document` requires it); not consumed by this reader",
+    ("caller", "provider_context.py:certify_production_profile", "evidence.run_id"):
+        "a digest-keyed lookup (`qualification_grant_of`); an unknown run answers None and refuses `_refuse`",
+    ("caller", "provider_context.py:certify_production_profile", "evidence.context_id"):
+        "compared with the context that consumed the grant (`_grant_consumer`), else `_refuse`",
+    ("caller", "provider_context.py:certify_production_profile", "evidence.continuity.report_digest"): "`_hash` after the continuity `_document` (DELEGATED)",
+    ("caller", "provider_context.py:certify_production_profile", "evidence.continuity.verdict_id"):
+        "`review_cycles.verdict_of` reads the verdict row by this key (its row owner) and the disposition/checkpoint are compared",
+    ("caller", "provider_context.py:context_invocation_of", "attempt_id"):
+        "a derived journal key first (`operation_record(_id(..., attempt_id))`: an unknown id answers None); a present record is then held to `_text` through `_use`",
+    ("caller", "provider_context.py:revalidate_context_start", "attempt_id"):
+        "`context_invocation_of` answers None for an unknown id and this door refuses `serving use cannot start` before `_use` types a present one",
+    **{("caller", "provider_context.py:context_prompt", subject):
+       "inline: `type(task) is not dict`, non-str instructions or non-list verification refuse; feedback None or a bounded non-empty str"
+       for subject in ("task", "task.instructions", "task.verification", "feedback")},
+    ("caller", "provider_context.py:hold_context_use", "reason"): "inline closed set REASONS (str), else `_refuse`",
+    ("caller", "provider_context.py:hold_context_use", "evidence_refs"): "inline: a bounded list whose every member passes `_hash`",
+    ("caller", "provider_context.py:retire_context", "context_id"):
+        "a history key: `_history(control, context_id)` answers the empty chain for an unknown id and this door refuses `context is absent`",
+
+    # -- review_cycles -----------------------------------------------------------------
+    **{("adopted", "review_cycles.py:_correcting_verdict", subject):
+       "a key column read (`SELECT verdict_id`), re-read through `verdict_of`'s row owner before any member is used"
+       for subject in ("checkpoint_verdicts", "checkpoint_verdicts.verdict_id")},
+    **{("adopted", "review_cycles.py:_settled_elsewhere", subject):
+       "`SELECT state` compared with 'materializing' / None; any other value refuses operation-collision"
+       for subject in ("review_lines", "review_lines.state")},
+    **{("adopted", "review_cycles.py:_sole_attachment", subject):
+       "the active writer ids are compared for exact equality with the recovery's own writer (any stranger refuses); an active attachment's existence refuses"
+       for subject in ("line_writers", "line_writers.writer_id", "review_attachments")},
+    ("caller", "review_cycles.py:restore_abandoned_correction", "cessation"):
+        "a capability handed to `_effects_ended` (`cessation(group.get(\"observed\"))`); required together with the launcher when an episode must be settled (`launcher is None or cessation is None` refuses)",
+    ("caller", "review_cycles.py:restore_abandoned_correction", "launcher"):
+        "a capability: None is admitted only when no execution episode exists; otherwise required (`launcher is None or cessation is None` refuses)",
+    ("caller", "review_cycles.py:settle_restoration_execution", "cessation"): "inline: `not callable(cessation) -> refused/capability` before anything is read",
+    ("caller", "review_cycles.py:settle_restoration_execution", "launcher"): "inline: `not callable(launcher) -> refused/capability` before anything is read",
+    **{("adopted", "review_cycles.py:settle_restoration_execution", subject):
+       "the committed recovery intent: `line_id` and `checkpoint_id` are re-read through `line_of` / `checkpoint_of` (row owners); `executor` is carried into the settlement record"
+       for subject in ("replay", "replay.checkpoint_id", "replay.executor", "replay.line_id")},
+
+    # -- source_boundary ---------------------------------------------------------------
+    ("caller", "source_boundary.py:compose_verifier_layout", "identity"): "inline: exactly workspaces.WorkspaceIdentity, else `_denied`",
+    **{("caller", "source_boundary.py:compose_verifier_layout", name):
+       "`boundaries.text(value, f\"a verifier layout's {name}\")` inside a literal-table loop (W39666: the per-member call sits in a `for`, so the operand is stated and the call declared)"
+       for name in ("image_digest", "profile_digest", "policy_digest", "adapter_digest")},
+    ("caller", "source_boundary.py:layout_bytes", "document"):
+        "this manager's own composed layout (`compose_verifier_layout`) on its way out: canonical JSON bounded by MAX_LAYOUT_BYTES (`_denied`)",
+    **{("caller", "source_boundary.py:LayoutDelivery.__init__", name):
+       "an aggregate composed only by this module's own materialization/adoption of the layout document it wrote; `test_every_internal_operand_arrives_owned` holds the constructor calls"
+       for name in ("root", "place", "document")},
+
+    # -- store -------------------------------------------------------------------------
+    ("caller", "store.py:ControlStore.__init__", "database"): "set by `ControlStore.open`/`open_readonly` (CONSTRUCTED_BY store): provenance text for refusals only",
+    ("caller", "store.py:ControlStore.__init__", "readonly"): "set by `ControlStore.open`/`open_readonly` (CONSTRUCTED_BY store): a flag `transact` reads to refuse acting",
+    ("caller", "store.py:reading_refusal", "path"): "composes a refusal message only (`type(path) is str` guards every use); no effect",
+    ("caller", "store.py:reading_refusal", "failure"): "composes a refusal message only (`getattr`-read sqlite names); no effect",
+
+    # -- workspaces --------------------------------------------------------------------
+    **{("caller", "workspaces.py:admit_cleanup", subject):
+       "checked, not labelled (site comment): a dict whose operation/signature/incarnation are non-empty str, composed by `intake.authorize_cleanup`; `_refuse` otherwise"
+       for subject in ("settlement", "settlement.operation")},
+    ("caller", "workspaces.py:admit_cleanup", "cessation"): "refused outright when present (`_denied`): the authority is the committed record, never a presented account",
+    ("caller", "workspaces.py:adopted_assignment_workspace", "preparing"):
+        "inline: exactly a PreparationOwnership this store minted (`_minted_here`) for this attempt, else `_denied`",
+    ("caller", "workspaces.py:assignment_workspace", "workspace_group"): "inline: exactly a WorkspaceGroup, else `_denied`",
+    **{("caller", f"workspaces.py:{site}", "ordinal"):
+       "a journal ordinal: an unknown one answers absence through the derived key and the door refuses (no token to revoke; not the removal's owner)"
+       for site in ("bind_token_container", "revoke_expired_token")},
+    **{("caller", "workspaces.py:bind_token_container", subject):
+       "the admission document `_admitted_removal` answered; its owner is compared with the journal's removal ownership before the bind commits (identity-mismatch refuses)"
+       for subject in ("owned", "owned.owner", "owned.token", "owned.token.generation")},
+    ("caller", "workspaces.py:check_workspace_group", "gid"): "inline: int, not bool, >= 0, not root, held by this process (`_refuse` schema)",
+    ("caller", "workspaces.py:check_workspace_storage", "physical"): "a mode flag (truthiness) selecting the lexical-only path for the one caller under a lock",
+    ("caller", "workspaces.py:declared_identity_mapping", "declared"): "inline: a `uid:gid` str whose integers equal the minted identity's, else `_denied`",
+    ("caller", "workspaces.py:declared_identity_mapping", "identity"): "inline: isinstance WorkspaceIdentity, else `_denied`",
+    **{("caller", "workspaces.py:discard_execution_roots", subject):
+       "compared inside `_admitted_removal` with the journal's admitted removal (ordinal and current owner) before any deletion; a presented `under` nobody admitted refuses"
+       for subject in ("under", "under.ordinal", "under.owner")},
+    **{("caller", f"workspaces.py:{site}", "identity"): "inline: isinstance WorkspaceIdentity, else `_denied`"
+       for site in ("establish_line_access", "prove_line_integrity")},
+    **{("caller", f"workspaces.py:{site}", "place"): "inline: `os.path.realpath(place) != place -> _denied`, then measured (`_access_failure` names any OSError)"
+       for site in ("establish_line_access", "prove_line_integrity")},
+    **{("caller", f"workspaces.py:{site}", "pinned"): "compared with the measured (st_dev, st_ino) of the opened root; a mismatch refuses"
+       for site in ("establish_line_access", "prove_line_integrity")},
+    ("caller", "workspaces.py:identity_for", "group"): "inline: exactly a WorkspaceGroup, else `_denied`",
+    ("caller", "workspaces.py:prepared_workspace_governance", "seconds"):
+        "None, or handed to `tokens.acquire(seconds=)` inside the governance's own reserve, whose deadline owner refuses a bad duration",
+    ("caller", "workspaces.py:prove_workspace_group", "place"): "measured with `lstat` (an unmeasurable path refuses) then its group and mode compared",
+    ("caller", "workspaces.py:recorded_storage_place", "prepared"): "inline: isinstance WorkspaceStorage and equal to the recorded place, else `_refuse`",
+    **{("caller", "workspaces.py:refuse_if_held", subject):
+       "compared with the current cleanup owner (`_current_cleanup_owner`) to exempt only the owning act; anything else refuses"
+       for subject in ("under", "under.ordinal", "under.owner")},
+    ("caller", "workspaces.py:release_adopted_workspace", "roots"):
+        "`getattr(roots, \"_adoption\", None)`: only an AllocatedRoots this module minted carries one; anything else is a no-op",
+    **{("caller", "workspaces.py:settle_cleanup", subject):
+       "checked, not labelled (site comment): a dict with ordinal and owner; the owner is compared with the admission's current owner (identity-mismatch refuses)"
+       for subject in ("admitted", "admitted.ordinal", "admitted.owner")},
+    ("caller", "workspaces.py:settle_cleanup", "connection"):
+        "never read by the body (B2 Case H: the docstring states a transaction contract the parameter does not carry); an unread operand reaches no effect -- the contract question is an open owner decision",
+    **{("adopted", "workspaces.py:_durably_in_use", table): "an existence read (`LIMIT 1`); the id reaches only the refusal prose" for table in ("line_writers", "review_attachments")},
+
+    # -- tokens ------------------------------------------------------------------------
+    **{("adopted", "store.py:replayed_as_signed", subject):
+       "the one read of a self-signed journal record (resource tokens, removal ownership and binding, cleanup admission and takeover, restoration locks, the settlement selection): the replayed result is compared whole with the signature's own operands and any difference refuses (stage C correction after review 2026-10-31T02:06:09Z; a rewritten token expiry used to flip the expiry decision)"
+       for subject in ("replay", "replay.attempt_id", "replay.container", "replay.decided_at", "replay.device", "replay.execution",
+                       "replay.expired_at", "replay.expires_at", "replay.generation", "replay.inode", "replay.launch", "replay.observed_at",
+                       "replay.operation", "replay.operation_id", "replay.owner", "replay.permission", "replay.settlement",
+                       "replay.settlement.operation", "replay.settlement.signature", "replay.started", "replay.token")},
+    ("caller", "store.py:replayed_as_signed", "kind"): "compared by `replay(kind=kind)` with the recorded kind (a mismatch refuses)",
+    ("caller", "store.py:replayed_as_signed", "what"): _LABEL_OPERAND,
+
+    # -- stopped_settlement (W375444 REPLAY_DEBT, pinned by name in StoppedSettlementInventory) ----
+    **{("adopted", "stopped_settlement.py:_read", subject):
+       "the selection record is verified against its signed operands on read (stage C); the outcome and receipt record an observation beside a signature over the request and are NOT signature-bound -- W375444's REPLAY_DEBT, pinned in StoppedSettlementInventory and reported in STAGE-C.md"
+       for subject in ("replay", "replay.operation_id")},
+}
+STATED_OWNERS.update(STAGE_C_STATED)
+
+STAGE_C_DELEGATED = {
+    **{("caller", f"attempt_logs.py:{site}", "attempt_id"): ("attempt_logs.py:AttemptLogs.__init__", "caller:attempt_id")
+       for site in ("adopt", "materialize")},
+    **{("caller", f"exchange.py:{site}", "attempt_id"): ("exchange.py:ExchangeDelivery.__init__", "caller:attempt_id")
+       for site in ("adopt", "materialize")},
+    **{("caller", f"failure_cause.py:{site}", "attempt.runtime_attempt_id"): ("failure_cause.py:_identity", "caller:attempt[runtime_attempt_id]")
+       for site in ("cessation_intent_operation_id", "cessation_outcome_operation_id")},
+    **{("caller", f"handshake.py:{site}", subject): ("sessions.py:_session_ref", "caller:session_ref")
+       for site in ("settle_unsupported_version", "unsupported_version_operation_id")
+       for subject in ("session_ref", "session_ref.posture", "session_ref.provider_session_id", "session_ref.runtime_attempt_id", "session_ref.session_epoch")},
+    **{("caller", "intake.py:authorize_refused_session_cleanup", subject): ("sessions.py:_session_ref", "caller:session_ref")
+       for subject in ("session_ref", "session_ref.posture", "session_ref.provider_session_id", "session_ref.session_epoch")},
+    ("caller", "oci.py:OciAdapter.__init__", "network"): ("oci.py:_network", "caller:network"),
+    **{("caller", "oci.py:OciAdapter.seal", subject): ("oci.py:OciAdapter._quiesced", "caller:request[context]")
+       for subject in ("request.context", "request.context.effective_scope", "request.context.principal")},
+    **{("caller", "oci.py:OciAdapter.stop_expired", subject): ("oci.py:OciAdapter._stopped", "caller:request" + suffix)
+       for subject, suffix in (("request", ""), ("request.operation_id", "[operation_id]"), ("request.runtime_id", "[runtime_id]"))},
+    **{("caller", f"context_delivery.py:{site}", "attempt_id"): ("provider_context.py:_text", "caller:value")
+       for site in ("adopt_context_use", "deliver_feedback", "discard_context_use", "materialize_context_use", "seal_generation")},
+    **{("caller", f"provider_context.py:{site}", "attempt_id"): ("provider_context.py:_text", "caller:value")
+       for site in ("context_use_of", "finalize_context_use")},
+    ("caller", "provider_context.py:finalize_context_use", "checkpoint_reader"): ("provider_context.py:_finalize_context_use", "caller:checkpoint_reader"),
+    ("caller", "provider_context.py:finalize_context_use", "receipt_reader"): ("provider_context.py:_receipt", "caller:reader"),
+    ("caller", "provider_context.py:certify_production_profile", "evidence"): ("provider_context.py:_document", "caller:value"),
+    ("caller", "launch.py:launch_document", "provider_context"): ("provider_context.py:_document", "caller:value"),
+    **{("caller", "launch.py:launch_document", f"provider_context.{member}"): ("provider_context.py:_text", "caller:value")
+       for member in ("context_id", "use_id", "invocation_id", "attempt_id", "cli_build", "model", "reported_model", "conversation_id")},
+    ("caller", "custody.py:surviving_helpers", "engine"): ("oci.py:_engine", "caller:engine"),
+    # the three standalone admission doors (no caller inside the package) own
+    # the id the way the other workspace doors do (stage C repair)
+    **{("caller", f"workspaces.py:{site}", "assignment_id"): ("workspaces.py:_assignment_identity", "caller:assignment_id")
+       for site in ("admit_cleanup", "bind_token_container", "revoke_expired_token")},
+}
+DELEGATED.update(STAGE_C_DELEGATED)
+
+
+def _stage_c_witness(entry):
+    """The StageCProtections (or StatedRules) method that holds a stated row's claim."""
+    domain, site, subject = entry
+    if entry in STAGE_C_FORWARDED:
+        return "test_every_forwarded_entry_reaches_an_owned_target"
+    if subject == "replay" and site in STAGE_C_PASSTHRU:
+        return "test_a_pass_through_replay_reads_no_member"
+    if site in STAGE_C_MINTED and subject in STAGE_C_MINTED[site]:
+        return "test_every_mint_is_package_private"
+    if site in STAGE_C_ADOPTED_ROW_DOORS and subject in STAGE_C_ADOPTED_ROW_DOORS[site]:
+        return "test_every_adopted_row_door_is_handed_an_owned_row"
+    if site in STAGE_C_INTERNAL and subject in STAGE_C_INTERNAL[site] or site == "source_boundary.py:LayoutDelivery.__init__":
+        return "test_every_internal_operand_arrives_owned"
+    if site.startswith("documents.py:"):
+        return "test_outbound_constructors_have_no_caller_outside_the_package"
+    if subject == "control":
+        return "test_a_token_control_capability_is_proven_by_use"
+    if site == "intake.py:reclaim_expired_resource" and domain == "injected":
+        return "test_the_reclaim_answers_are_never_read"
+    if subject == "what":
+        return "test_label_operands_reach_only_the_refusal_prose"
+    if domain == "adopted" and (subject.endswith(".next") or site in ("provider_context.py:_history", "provider_context.py:_qualified")):
+        return "test_strict_columns_are_read_as_their_declared_type"
+    if site == "store.py:replayed_as_signed" and domain == "adopted":
+        return "test_a_corrupted_self_signed_record_refuses"
+    if site in ("intake.py:abandon_attempt", "intake.py:authorize_cleanup") and domain == "adopted":
+        return "test_a_forged_custody_member_releases_nothing"
+    if domain == "adopted":
+        return "test_replayed_or_keyed_members_are_compared_carried_or_re_read"
+    return "test_stated_rules_refuse_what_they_say"
+
+
+# S1's member rows pointed every launch job_execution member at the WHOLE
+# document's stem; the members with their own `_job_execution` rule are
+# re-keyed to it, so the seven member calls stop reading as orphans and the
+# member probes spoil the VALUE rather than the presence (stage C).
+DELEGATED.update({("caller", "launch.py:launch_document", f"job_execution.{member}"): ("launch.py:_job_execution", f"caller:given[{member}]")
+                  for member in ("attempt_id", "execution_limits_digest", "job_id", "job_input_digest", "job_policy_digest",
+                                 "runtime_input_digest", "runtime_policy_digest")})
+
+_SECOND_RULE = ("a second rule chained onto an already-owned value (the `_pin_of` precedent): ")
+_LOOP_MEMBER = ("W39666: the per-member call sits inside a `for` or indexes a tuple, so the inventory attributes it to the loop "
+                "variable; the sequence operand is stated and this call is its stated rule")
+_JOURNAL_ROW = ("decodes the journal row read through `store.operation_record` (a read the universe models only as `replay`); "
+                "the decoded document is owned here")
+NOT_AN_ENTRY.update({
+    ("custody.py:_reconciled", "identity", "a listed runtime id"): _LOOP_MEMBER + "; the lines are the engine's owned `run.stdout`",
+    ("exchange.py:_instant", "instant", "a worker document's {name}"):
+        "a member of the worker's receipt read from the exchange namespace (a filesystem read the universe does not model); owned here",
+    ("intake.py:_abandoned_destroy_operation", "text", "a retention policy digest"):
+        _SECOND_RULE + "abandon_attempt/abandonment_cleanup_of own the digest at the door under the same label",
+    ("intake.py:_abandoned_destroy_operation", "text", "an abandonment record digest"):
+        _SECOND_RULE + "the digest of this manager's own committed abandonment intent (`_abandon_intent`)",
+    ("intake.py:_adopted_writer_cessation", "document", "{what}'s writer cessation"):
+        _SECOND_RULE + "`historical_writer_cessation` owns the same document under `a committed writer cessation` before handing it here",
+    ("intake.py:_chosen", "identity", "an artifact id"): _LOOP_MEMBER,
+    **{("intake.py:_compared", kind, label): _SECOND_RULE + "`record_intake` owns `collected` and its members as `a collection observation` (covering) before `_compared` re-reads them"
+       for kind, label in (("document", "a collected artifact"), ("identity", "a collected result id"), ("identity", "an artifact id"),
+                           ("text", "a content digest"), ("text", "a custody locator"))},
+    ("intake.py:_ending_capable", "capability", "the runtime adapter's writer-listing act, which attempt {name_value(attempt_id)}'s ending asks when the deployment offers one"):
+        _SECOND_RULE + "an additional capability requirement on the adapter every ending door already owns (W285465)",
+    ("intake.py:_kept_material", "identity", "{what}'s kept artifact id"): _LOOP_MEMBER,
+    ("intake.py:historical_writer_cessation", "document", "a committed writer cessation"): _JOURNAL_ROW,
+    ("interrogation.py:_diagnostics", "text", "a probe diagnostic name"): _LOOP_MEMBER,
+    ("maintenance.py:_created", "identity", "a created runtime id"): _LOOP_MEMBER + "; the lines are the engine's owned answer",
+    ("maintenance.py:_prepared_name", "identity", "an assignment identity"): _SECOND_RULE + "every maintenance door owns `assignment_id` first",
+    ("oci.py:OciAdapter._bound_orphan", "identity", "{what} runtime attempt id"):
+        _SECOND_RULE + "the destroy command's `runtime_attempt_id`, owned by the destroy door's closed document",
+    ("oci.py:OciAdapter._custodied", "text", "a retained artifact id"): _LOOP_MEMBER,
+    ("oci.py:OciAdapter._mounts_the_authorized_root", "document", "a runtime mount"): _LOOP_MEMBER + " over the adapter's own declared mounts (owned at construction by `_mounts`)",
+    ("oci.py:OciAdapter._removed", "identity", "{what} runtime id"): _SECOND_RULE + "the destroy command's `runtime_id`, owned by the destroy door's closed document",
+    ("oci.py:OciAdapter.list", "identity", "a listed runtime id"): _LOOP_MEMBER + "; the lines are the engine's owned `run.stdout`",
+    ("oci.py:OciAdapter.start", "capability", "an activation permission"):
+        "the answer of the caller's `bind` capability (typed at the door, stage C); a per-call operand's answer is owned where it is asked",
+    ("oci.py:OciAdapter.start", "document", "an activation admission"):
+        "the admission the `bind` permission answers; owned here and compared with the created runtime",
+    ("oci.py:OciAdapter.start", "identity", "a started runtime id"): _SECOND_RULE + "derived from the engine's owned `run.stdout` answer",
+    ("oci.py:_decoded", "text", "an engine document"): _SECOND_RULE + "the engine's owned `run.stdout`/`run.stderr` text, decoded",
+    ("oci.py:_exchange_mounts", "text", "an exchange delivery target"): _LOOP_MEMBER,
+    ("oci.py:_image_identity", "text", "a runtime image"): _SECOND_RULE + "an image name taken from the engine's owned listing or this adapter's resolved identity",
+    ("oci.py:_label_value", "text", "a runtime label"): _SECOND_RULE + "a label value taken from the engine's owned listing entry",
+    ("oci.py:_layout_mount", "text", "a verifier-layout document target"): _LOOP_MEMBER,
+    ("oci.py:_log_mounts", "text", "an attempt-log delivery target"): _LOOP_MEMBER,
+    ("oci.py:_mounts", "document", "a runtime mount"): _LOOP_MEMBER + "; `run_vector`'s `mounts` is stated as iterated-only",
+    ("oci.py:_whole", "text", "a generation label"): _SECOND_RULE + "a label composed from the owned runtime labels",
+    ("oci.py:exec_vector", "text", "an exec program word"): _LOOP_MEMBER,
+    ("posture_slots.py:_occupy_slot", "identity", "a runtime attempt id"):
+        "private write check after `sessions` owns the attempt id at its door (the lanes precedent)",
+    **{(f"posture_slots.py:{site}", "instant", "a slot movement instant"):
+       "a private write check of this manager's own clock instant (`store._now()`), the lanes precedent"
+       for site in ("_occupy_slot", "_release_slot_in", "_require_slot_recovery_in")},
+    ("review_cycles.py:_assignment_agrees", "generation", "{what}'s fixed assignment generation"):
+        _SECOND_RULE + "`assignment_of`'s owned assignment, compared with the line",
+    **{("review_cycles.py:_committed_history", kind, label): _JOURNAL_ROW
+       for kind, label in (("document", "the committed {kind} operands for {what}"), ("document", "the committed {kind} result for {what}"),
+                           ("document", "the committed {kind} signature for {what}"), ("generation", "the committed {kind} generation for {what}"),
+                           ("generation", "the committed {kind} result generation for {what}"))},
+    ("review_cycles.py:_line_place", "text", "the manager's workspace storage"):
+        _SECOND_RULE + "the configured workspace storage this manager reads from its own record (`configured_workspace_storage`)",
+    ("review_cycles.py:_one_by_attempt", "row", "{what}"):
+        "the helper's own unresolved spelling (`{table}`) of the read its callers name; `writer_for_attempt`/`review_for_attempt` claim this same call under the resolved tables (W384870 S4)",
+    ("review_cycles.py:_profile", "capability", "a checkpoint profile's {method} capability"):
+        "the stated owner of every public `profile` operand (STATED_OWNERS: typed before use); these calls ARE the stated rule",
+    ("review_cycles.py:_profile", "text", "a checkpoint profile name"):
+        "the stated owner of every public `profile` operand (STATED_OWNERS: typed before use); these calls ARE the stated rule",
+    ("review_cycles.py:_reserved_line", "text", "a materialized line head"):
+        "the profile capability's materialization answer (the profile is a stated nominal capability, not a modelled crossing); owned here",
+    **{("review_cycles.py:_review_result", kind, label):
+       "the `review_result` JSON column of the adopted checkpoint_verdicts row (`_verdict_row`'s row rule holds JSON columns to closed member sets); the decoded value is re-owned here member by member"
+       for kind, label in (("document", "a frozen review artifact"), ("document", "a frozen review result"), ("identity", "a frozen review output name"),
+                           ("identity", "a frozen review result's attempt_id"), ("identity", "a frozen review result's freeze_operation_id"),
+                           ("identity", "a frozen review result's manifest_digest"), ("identity", "a frozen review result's result_id"),
+                           ("instant", "a frozen review result's frozen_at"))},
+    ("sessions.py:_request_session_quiescence", "identity", "a runtime attempt id"):
+        "private write check after the session doors own the attempt id (the lanes precedent)",
+    ("source_boundary.py:compose_verifier_layout", "text", "a verifier layout's {name}"): _LOOP_MEMBER,
+    ("worker_entry.py:converse", "identity", "a worker-entry operation identity"): _LOOP_MEMBER,
+    ("workspaces.py:_granted_roots", "capability", "an assignment roots live grant"):
+        "a closure this module's own callers compose (the grant act); typed as a capability where it is invoked",
+    ("workspaces.py:_token_terms", "deadline", "a removal token expiry"):
+        "the terms of the removal token this module composes for its own ownership record (`_admitted_removal`: TOKEN_SECONDS); not a caller crossing",
+    ("workspaces.py:_token_terms", "text", "a token execution identity"):
+        "the terms of the removal token this module composes for its own ownership record (`_admitted_removal`); not a caller crossing",
+    ("workspaces.py:claimed_workspace_authority", "document", "a workspace authority marker"):
+        "the workspace-authority marker file this manager wrote beside the store (a filesystem read the universe does not model); owned here",
+    ("workspaces.py:claimed_workspace_authority", "text", "a claimed workspace authority's control store"):
+        "the workspace-authority marker file this manager wrote beside the store (a filesystem read the universe does not model); owned here",
+    ("workspaces.py:revoke_expired_token", "document", "a container cessation answer"):
+        "the answer of the caller's `stop` capability (typed at the door, stage C); a per-call operand's answer is owned where it is asked",
 })
 
 
@@ -8850,7 +9768,8 @@ class EveryProbeProvesItArrived(BoundaryCase):
                 **self.token_probes(),
                 **self.w384870_probes(),
                 **self.dynamic_table_probes(),
-                **self.stage_b_probes()}
+                **self.stage_b_probes(),
+                **self.stage_c_probes()}
 
 
     # -- W384870 stage B: replayed journal documents, and the composed worlds --
@@ -8979,6 +9898,271 @@ class EveryProbeProvesItArrived(BoundaryCase):
         probe("custody.py:historical_directory_custody", "replay", label, spoiling(self.listed))
         for member in ("account", "attempt_id", "operation", "root", "verb"):
             probe("custody.py:historical_directory_custody", f"replay.{member}", label, spoiling(self.dropping(member)))
+
+    def stage_c_probes(self):
+        """W384870 stage C: one probe per pair the stage's attribution made owned.
+
+        The gate-discharge receipts (`_recorded_discharge` and its abandoned
+        twin, visible through the tuple-return correction), the projection's
+        fenced generations (the session-stem owner rule), every DELEGATED row of
+        STAGE_C_DELEGATED, and every door the stage repaired. Each probe spoils
+        exactly one thing and names the owner's own label.
+        """
+        import types
+        from . import test_execution_limits, test_intake, test_oci, test_provider_context, test_reconciliation_worker, test_runtime_deadlines
+        from baton_v12.worker_manager import (attempt_logs, attempts, context_delivery, custody, exchange, failure_cause,
+                                              handshake, intake, launch, provider_context, workspaces)
+        S, LIST = 7, ["not a document"]
+        found = {}
+
+        def probe(site, subject, label, run, domain="adopted"):
+            found[((domain, site, subject), label)] = (label, run)
+
+        # -- the committed gate-discharge receipts -------------------------------------
+        Gate = test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup
+        Abandoned = test_intake.TheAbandonedGateIsDischargedFromItsOwnCommittedEvidence
+
+        def gate(mutate, reader):
+            def run():
+                fixture = self.borrowed(Gate)
+                fixture.settled()
+                fixture.gated()
+                fixture.discharge()
+                self.corrupt_result(fixture.store, mutate, kind=intake.GATE_DISCHARGE_KIND)
+                if reader == "read":
+                    intake.gate_discharge_of(fixture.store, test_intake.ATTEMPT)
+                else:
+                    fixture.discharge()
+            return run
+
+        def abandoned(mutate, reader):
+            def run():
+                fixture = self.borrowed(Abandoned)
+                fixture.abandoned()
+                fixture.gated()
+                fixture.discharge()
+                self.corrupt_result(fixture.store, mutate, kind=intake.ABANDONED_GATE_DISCHARGE_KIND)
+                if reader == "read":
+                    intake.abandoned_gate_discharge_of(fixture.store, test_intake.ATTEMPT)
+                else:
+                    fixture.discharge()
+            return run
+
+        def receipts(site, world, committed, replayed, spoils):
+            # whole: the two readers' own document labels
+            probe(site, "replay", committed, world(self.listed, "read"))
+            probe(site, "replay", replayed, world(self.listed, "replay"))
+            for member, mutate, labels in spoils:
+                for label in labels:
+                    probe(site, f"replay.{member}", label, world(mutate, "replay" if label == replayed else "read"))
+        both = lambda *own: (committed_gate, replayed_gate) + own
+        committed_gate, replayed_gate = "committed gate discharge", "replayed gate discharge"
+        receipts("intake.py:_recorded_discharge", gate, committed_gate, replayed_gate, (
+            ("attempt_id", self.setting("attempt_id", S), ("'s attempt",)),
+            ("operation_id", self.setting("operation_id", S), ("'s operation identity",)),
+            ("cleanup_operation_id", self.setting("cleanup_operation_id", S), ("'s cleanup operation identity",)),
+            ("runtime_id", self.setting("runtime_id", S), ("'s runtime identity",)),
+            ("gate", self.setting("gate", S), ("'s gate",)),
+            ("assignment", self.setting("assignment", LIST), ("'s assignment",)),
+            ("assignment.work_ref", self.setting("assignment.work_ref", LIST), ("'s Work reference",)),
+            ("assignment.generation", self.setting("assignment", LIST), both("'s assignment")),
+            ("assignment.participant", self.setting("assignment", LIST), both("'s assignment")),
+            ("cleanup", self.dropping("cleanup"), both()),
+            ("kind", self.dropping("kind"), both()),
+            ("phase", self.dropping("phase"), both()),
+        ))
+        committed_gate, replayed_gate = "committed abandoned gate discharge", "replayed abandoned gate discharge"
+        receipts("intake.py:_recorded_abandoned_discharge", abandoned, committed_gate, replayed_gate, (
+            ("attempt_id", self.setting("attempt_id", S), ("'s attempt",)),
+            ("operation_id", self.setting("operation_id", S), ("'s operation identity",)),
+            ("runtime_id", self.setting("runtime_id", S), ("'s runtime identity",)),
+            ("gate", self.setting("gate", S), ("'s gate",)),
+            ("retention_policy_digest", self.setting("retention_policy_digest", S), ("'s retention policy digest",)),
+            ("cleanup_operation", self.setting("cleanup_operation", LIST), ("'s cleanup operation",)),
+            ("cleanup_operation.operation_id", self.setting("cleanup_operation.operation_id", S), ("'s cleanup operation identity",)),
+            ("cleanup_operation.signature_digest", self.setting("cleanup_operation.signature_digest", S), ("'s cleanup operation signature",)),
+            ("assignment", self.setting("assignment", LIST), ("'s assignment",)),
+            ("assignment.work_ref", self.setting("assignment.work_ref", LIST), ("'s Work reference",)),
+            ("assignment.generation", self.setting("assignment", LIST), both("'s assignment")),
+            ("assignment.participant", self.setting("assignment", LIST), both("'s assignment")),
+            ("evidence", self.setting("evidence", LIST), ("'s evidence",)),
+            ("evidence.kind", self.setting("evidence", LIST), both("'s evidence")),
+            ("evidence.runtime", self.setting("evidence", LIST), both("'s evidence")),
+            ("authority_receipt", self.setting("authority_receipt", LIST), ("'s authority answer",)),
+            ("authority_receipt.gate", self.setting("authority_receipt", LIST), both("'s authority answer")),
+            ("authority_receipt.kind", self.setting("authority_receipt", LIST), both("'s authority answer")),
+            ("authority_receipt.phase", self.setting("authority_receipt", LIST), both("'s authority answer")),
+            ("schema", self.dropping("schema"), both()),
+        ))
+
+        # -- the deadline family's members the tuple correction made visible ------------
+        def intent_missing(member):
+            def run():
+                fixture = self.borrowed(test_runtime_deadlines.Deadlines)
+                fixture.started()
+                fixture.reached()
+                fixture.advance()
+                self.corrupt_result(fixture.store, self.dropping(member), kind="attempt.cancel")
+                fixture.advance()
+            return run
+        probe("deadlines.py:_record", "replay.authority_operation_id", "a committed runtime deadline document", intent_missing("authority_operation_id"))
+        probe("review_cycles.py:_verdict_row", "checkpoint_verdicts.review_fence.intent.assignment", "a persisted checkpoint verdict",
+              self.spoiling_review_row("_verdict_row", "checkpoint_verdicts", "review_fence.intent.assignment"))
+
+        # -- the Work projection's members, owned where attempts consumes them ----------
+        Fenced = test_reconciliation_worker.TheFencedBeforeStartProof
+
+        def projecting(**changed):
+            def run():
+                fixture = self.borrowed(Fenced)
+                fixture.cancelled()
+                fixture.session._work = dict(fixture.session._work, **changed)
+                attempts.unstarted_cancellation_of(fixture.store, fixture.port, test_reconciliation_worker.ATTEMPT)
+            return run
+        site = "authority_port.py:AuthorityPort.project_work"
+        probe(site, "project_work.work_id", "the projection's Work", projecting(work_id=S), domain="injected")
+        probe(site, "project_work.fenced_generations", "a fenced generation of", projecting(fenced_generations=LIST), domain="injected")
+        probe(site, "project_work.fenced_generations.cause", "the cause fencing generation",
+              projecting(fenced_generations=[{"generation": 1, "cause": S, "reason": None}]), domain="injected")
+        probe(site, "project_work.fenced_generations.reason", "the reason fencing generation",
+              projecting(fenced_generations=[{"generation": 1, "cause": "cancelled", "reason": S}]), domain="injected")
+
+        # -- the delegated doors ---------------------------------------------------------
+        def caller(site, subject, label, run):
+            probe(site, subject, label, run, domain="caller")
+        root = os.path.join(self.root, "stage-c")
+        os.makedirs(root, exist_ok=True)
+        for name in ("adopt", "materialize"):
+            caller(f"attempt_logs.py:{name}", "attempt_id", "an attempt id",
+                   (lambda fn: lambda: fn(os.path.join(root, "logs"), attempt_id=S, workspace_group=None))(getattr(attempt_logs, name)))
+            caller(f"exchange.py:{name}", "attempt_id", "an exchange attempt id",
+                   (lambda fn: lambda: fn(os.path.join(root, "exchange"), attempt_id=S, workspace_group=None))(getattr(exchange, name)))
+        for name in ("cessation_intent_operation_id", "cessation_outcome_operation_id"):
+            caller(f"failure_cause.py:{name}", "attempt.runtime_attempt_id", "an attempt identity",
+                   (lambda fn: lambda: fn({"runtime_attempt_id": S}, "expiry-reclaim", 1))(getattr(failure_cause, name)))
+        reference = {"runtime_attempt_id": "attempt-1", "posture": "execution", "session_epoch": 1, "provider_session_id": None}
+        # `posture` and `session_epoch` are held by `_posture` and the generation
+        # rule under their own words, so the covering label is reached by
+        # DROPPING the member; the two identities refuse under the label itself.
+        spoiled_refs = {"session_ref": LIST, "session_ref.posture": {k: v for k, v in reference.items() if k != "posture"},
+                        "session_ref.provider_session_id": dict(reference, provider_session_id=S),
+                        "session_ref.runtime_attempt_id": dict(reference, runtime_attempt_id=S),
+                        "session_ref.session_epoch": {k: v for k, v in reference.items() if k != "session_epoch"}}
+        for subject, bad in spoiled_refs.items():
+            caller("handshake.py:unsupported_version_operation_id", subject, "an agent session reference",
+                   (lambda bad: lambda: handshake.unsupported_version_operation_id(bad))(bad))
+            caller("handshake.py:settle_unsupported_version", subject, "an agent session reference",
+                   (lambda bad: lambda: handshake.settle_unsupported_version(self.store, self.port, None, None, session_ref=bad, agent_protocol_version=1))(bad))
+            if subject != "session_ref.runtime_attempt_id":
+                caller("intake.py:authorize_refused_session_cleanup", subject, "an agent session reference",
+                       (lambda bad: lambda: intake.authorize_refused_session_cleanup(self.store, self.port, None, session_ref=bad, retention_policy_digest=RETENTION_POLICY))(bad))
+        Adapting = test_oci.Adapting
+
+        def adapter(**changed):
+            fixture = self.borrowed(Adapting)
+            return fixture.adapter(**changed)
+        caller("oci.py:OciAdapter.__init__", "network", "an engine network", lambda: adapter(network=SURROGATE))
+        assignment = {"work_ref": {"authority_uuid": UUID, "work_id": WORK}, "participant": WHO, "generation": 1}
+        seal_context = "a seal authorization context"
+        caller("oci.py:OciAdapter.seal", "request.context", seal_context,
+               lambda: adapter().seal({"assignment": assignment, "attempt_id": "attempt-1", "context": LIST}))
+        for member in ("effective_scope", "principal"):
+            caller("oci.py:OciAdapter.seal", f"request.context.{member}", seal_context,
+                   (lambda member: lambda: adapter().seal({"assignment": assignment, "attempt_id": "attempt-1",
+                                                            "context": {other: "x" for other in ("principal", "effective_scope") if other != member}}))(member))
+        caller("oci.py:OciAdapter.stop_expired", "request", "an expiry stop request", lambda: adapter().stop_expired(LIST))
+        caller("oci.py:OciAdapter.stop_expired", "request.runtime_id", "a runtime id",
+               lambda: adapter().stop_expired({"runtime_id": S, "operation_id": "op-1"}))
+        caller("oci.py:OciAdapter.stop_expired", "request.operation_id", "an operation identity",
+               lambda: adapter().stop_expired({"runtime_id": "runtime-1", "operation_id": S}))
+        caller("oci.py:OciAdapter.start", "bind", "an activation binding",
+               lambda: adapter().start({"labels": {}, "operation_id": "op-1"}, bind=S))
+        text = "provider context identity"
+        for name in ("adopt_context_use", "discard_context_use", "materialize_context_use"):
+            caller(f"context_delivery.py:{name}", "attempt_id", text,
+                   (lambda fn: lambda: fn(None, None, attempt_id=S))(getattr(context_delivery, name)))
+        caller("context_delivery.py:deliver_feedback", "attempt_id", text,
+               lambda: context_delivery.deliver_feedback(None, None, attempt_id=S, payload=b"x"))
+        caller("context_delivery.py:seal_generation", "attempt_id", text,
+               lambda: context_delivery.seal_generation(None, None, attempt_id=S, exclusion=None))
+        caller("provider_context.py:context_use_of", "attempt_id", text, lambda: provider_context.context_use_of(None, S))
+        caller("provider_context.py:finalize_context_use", "attempt_id", text,
+               lambda: provider_context.finalize_context_use(None, None, None, attempt_id=S, storage=None, receipt_reader=None, checkpoint_reader=None))
+        Context = test_provider_context.ContextCase
+
+        def finalizing(**readers):
+            def run():
+                fixture = self.borrowed(Context)
+                first, _state = fixture.state()
+                fixture.end_runtime(first)
+                given = {"receipt_reader": lambda *args: fixture.receipt_body,
+                         "checkpoint_reader": lambda *args: fixture.checkpoint["checkpoint_id"]}
+                given.update(readers)
+                provider_context.finalize_context_use(fixture.control, fixture.jobs, fixture.port, attempt_id=fixture.attempt_id,
+                                                      storage=fixture.custody, **given)
+            return run
+        caller("provider_context.py:finalize_context_use", "checkpoint_reader", "the historical checkpoint identity reader", finalizing(checkpoint_reader=S))
+        caller("provider_context.py:finalize_context_use", "receipt_reader", "the retained context receipt byte reader", finalizing(receipt_reader=S))
+        caller("provider_context.py:certify_production_profile", "evidence", "provider context metadata",
+               lambda: provider_context.certify_production_profile(None, test_provider_context.profile(qualification="production"), SURROGATE))
+        DIGEST = "sha256:" + "a" * 64
+        delivery = {"schema": provider_context.DELIVERY_SCHEMA, "context_id": "context-1", "use_id": "use-1", "invocation_id": "invocation-1",
+                    "attempt_id": "attempt-1", "generation": 0, "generation_digest": None, "mode": "open",
+                    "conversation_id": "00000000-0000-0000-0000-000000000001", "profile_digest": DIGEST, "delivery_digest": DIGEST,
+                    "invocation_binding_digest": DIGEST, "task_digest": DIGEST, "prompt_digest": DIGEST, "argv_digest": DIGEST,
+                    "cli_build": "build-1", "model": "model-1", "reported_model": "model-1", "argv_policy_digest": DIGEST,
+                    "environment_policy_digest": DIGEST}
+
+        def launching(provider_context):
+            return lambda: launch.launch_document(session="session-1", contract="contract-1", role="implementation",
+                                                  transport=exchange.EXCHANGE_TRANSPORT,
+                                                  job_execution=test_execution_limits.job_execution(), provider_context=provider_context)
+        caller("launch.py:launch_document", "provider_context", "provider context metadata", launching(SURROGATE))
+        for member in ("context_id", "use_id", "invocation_id", "cli_build", "model", "reported_model", "conversation_id"):
+            caller("launch.py:launch_document", f"provider_context.{member}", text, launching(dict(delivery, **{member: S})))
+        # (`provider_context.attempt_id` is SHADOWED: see the witness.)
+
+        def listing(argv, *, seconds=None):
+            return {"status": 0, "stdout": "", "stderr": ""}
+
+        def surviving():
+            place = os.path.join(root, "store")
+            os.makedirs(place, mode=0o700, exist_ok=True)
+            workspaces.configure_workspace_storage(self.store, place)
+            custody.surviving_helpers(SURROGATE, listing, self.store, "attempt-1", image_digest=DIGEST)
+        caller("custody.py:surviving_helpers", "engine", "an engine name", surviving)
+
+        # -- the doors this stage repaired ------------------------------------------------
+        caller("custody.py:custody_holds", "assignment_id", "an assignment identity", lambda: custody.custody_holds(self.store, S, "result"))
+        caller("exchange.py:discard", "root", "an exchange delivery root", lambda: exchange.discard(S))
+        caller("workspaces.py:revoke_expired_token", "stop", "a container stop",
+               lambda: workspaces.revoke_expired_token(self.store, "attempt-1", 1, S))
+        caller("workspaces.py:admit_cleanup", "assignment_id", "an assignment identity",
+               lambda: workspaces.admit_cleanup(self.store, SURROGATE, {}, "a probe"))
+        caller("workspaces.py:bind_token_container", "assignment_id", "an assignment identity",
+               lambda: workspaces.bind_token_container(self.store, SURROGATE, 1, {}, "runtime-1"))
+        caller("workspaces.py:revoke_expired_token", "assignment_id", "an assignment identity",
+               lambda: workspaces.revoke_expired_token(self.store, SURROGATE, 1, acting))
+        release = "the resource governor's release"
+        caller("attempts.py:finalize_quiescent_assignment", "govern", release,
+               lambda: attempts.finalize_quiescent_assignment(self.store, self.port, attempt_id="attempt-1", reason="r", govern=S))
+        caller("intake.py:abandon_attempt", "govern", release,
+               lambda: intake.abandon_attempt(self.store, self.port, None, attempt_id="attempt-1", reason="r", retention_policy_digest=RETENTION_POLICY, govern=S))
+        caller("intake.py:authorize_cleanup", "govern", release,
+               lambda: intake.authorize_cleanup(self.store, self.port, None, attempt_id="attempt-1", retention_policy_digest=RETENTION_POLICY, govern=S))
+        acting = lambda *arguments, **named: None
+        stopping, observing = types.SimpleNamespace(stop_expired=acting), types.SimpleNamespace(observe=acting)
+        caller("intake.py:reclaim_expired_resource", "attempt_id", "a runtime attempt id",
+               lambda: intake.reclaim_expired_resource(self.store, stopping, attempt_id=SURROGATE, govern=None))
+        caller("intake.py:settle_revoked_resource", "attempt_id", "a runtime attempt id",
+               lambda: intake.settle_revoked_resource(self.store, observing, attempt_id=SURROGATE, govern=None))
+        for act, given in (("overdue", {}), ("revoke", {"overdue": acting}), ("release", {"overdue": acting, "revoke": acting})):
+            caller("intake.py:reclaim_expired_resource", "govern", f"the resource governor's {act}",
+                   (lambda given: lambda: intake.reclaim_expired_resource(self.store, stopping, attempt_id="attempt-1", govern=types.SimpleNamespace(**given)))(given))
+        for act, given in (("identity", {}), ("release", {"identity": acting})):
+            caller("intake.py:settle_revoked_resource", "govern", f"the resource governor's {act}",
+                   (lambda given: lambda: intake.settle_revoked_resource(self.store, observing, attempt_id="attempt-1", govern=types.SimpleNamespace(**given)))(given))
+        return found
 
     def _replay_deadlines(self, probe, S, LIST):
         from . import test_runtime_deadlines as suite
@@ -9581,9 +10765,19 @@ class EveryProbeProvesItArrived(BoundaryCase):
             return lambda: launch.launch_document(**given)
         probe("launch.py:launch_document", "job_execution", job, launching())
         complete = {member: "x" for member in launch.JOB_EXECUTION_MEMBERS}
-        for member in launch.JOB_EXECUTION_MEMBERS:
-            lacking = {k: v for k, v in complete.items() if k != member}
-            probe("launch.py:launch_document", f"job_execution.{member}", job, launching(job_execution=lacking))
+        lacking = {k: v for k, v in complete.items() if k != "execution_limits"}
+        probe("launch.py:launch_document", "job_execution.execution_limits", job, launching(job_execution=lacking))
+        # W384870 stage C: the members with their own `_job_execution` rule are
+        # delegated to that rule's stem, so the probe spoils the VALUE.
+        from . import test_execution_limits
+        for member, label in (("job_id", "a Job id"), ("attempt_id", "a runtime attempt id"),
+                              ("execution_limits_digest", "a launch document's execution limit digest"),
+                              ("job_input_digest", "a launch document's job_input_digest"),
+                              ("job_policy_digest", "a launch document's job_policy_digest"),
+                              ("runtime_input_digest", "a launch document's runtime_input_digest"),
+                              ("runtime_policy_digest", "a launch document's runtime_policy_digest")):
+            probe("launch.py:launch_document", f"job_execution.{member}", label,
+                  launching(job_execution=test_execution_limits.job_execution(**{member: 7})))
         limits = "a launch document's execution limits"
         for member in ("compatibility_generation", "requested"):
             inner = {other: 1 for other in ("compatibility_generation", "requested") if other != member}
@@ -11151,6 +12345,16 @@ class EveryProbeProvesItArrived(BoundaryCase):
                 self.assertTrue(callable(getattr(type(self), witness, None)), f"no witness {witness}")
         self.assertEqual({witness for _, witness in SHADOWED.values()} - {name for name in dir(type(self)) if name.startswith("test_")}, set())
 
+    def test_the_context_delivery_attempt_is_compared_before_it_is_typed(self):
+        from . import test_execution_limits
+        from baton_v12.worker_manager import exchange, launch, provider_context
+        DIGEST = "sha256:" + "a" * 64
+        delivery = {member: DIGEST if member.endswith("digest") else "x" for member in provider_context.DELIVERY_MEMBERS}
+        delivery.update(schema=provider_context.DELIVERY_SCHEMA, attempt_id=7, generation=0, generation_digest=None, mode="open")
+        self.shadowed_by("context delivery names another schema or attempt", "provider context identity",
+                         lambda: launch.launch_document(session="s", contract="c", role="implementation", transport=exchange.EXCHANGE_TRANSPORT,
+                                                        job_execution=test_execution_limits.job_execution(), provider_context=delivery))
+
     def test_the_pin_members_are_refused_by_the_pin_owner_first(self):
         from . import test_runtime_deadlines as suite
         for mutate in (self.dropping("policy"), self.dropping("started_at"), self.dropping("deadline_at"), self.setting("extra", 1)):
@@ -11933,6 +13137,7 @@ WITNESSES[("adopted", "review_cycles.py:consumption_subject", "line_writers")] =
 # profile owner has its own negative witness that reaches the entry.
 WITNESSES[("caller", "review_cycles.py:restore_abandoned_correction", "profile")] = "test_restore_abandoned_correction_profile_owner"
 WITNESSES[("caller", "review_cycles.py:settle_restoration_execution", "profile")] = "test_settle_restoration_execution_profile_owner"
+WITNESSES.update({entry: _stage_c_witness(entry) for entry in STAGE_C_STATED})
 
 for _entry in DEADLINE_OWNERS:
     if _entry[1].startswith("documents.py:"):
@@ -11955,7 +13160,8 @@ class EveryStatedOwnerHasAWitness(BoundaryCase):
         self.assertEqual(sorted(WITNESSES), sorted(STATED_OWNERS))
         for entry, name in sorted(WITNESSES.items()):
             with self.subTest(entry=entry):
-                found = getattr(StatedRules, name, None)
+                # W384870 stage C: the stage's witnesses live on StageCProtections.
+                found = getattr(StatedRules, name, None) or getattr(StageCProtections, name, None)
                 self.assertTrue(callable(found), f"{name} is not a method")
                 self.assertTrue(name.startswith("test_"),
                                 f"{name} would never run")
@@ -12018,6 +13224,612 @@ class DeadlineForwardingInventory(unittest.TestCase):
         case = OptionalCapabilityAliasesKeepTheirCrossing()
         with self.assertRaisesRegex(AssertionError, "capability with two crossings"):
             case.model("def first(agent):\n    return agent.cancel({})\ndef second(agent):\n    return agent.cancel({})\n")
+
+
+class StageCProtections(BoundaryCase):
+    """W384870 stage C: every stated protection is held by something executable.
+
+    A stated owner is a claim about code; these hold the claims: a forwarded
+    entry reaches an owned target through a real call, a pass-through replay
+    reads no member, a mint is module-private, an adopted-row door and an
+    internally composed operand are handed owned values at every call site,
+    the outbound constructors have no caller outside the package, and the
+    inline and helper rules refuse what their rows say they refuse.
+    """
+
+    @staticmethod
+    def _function(site):
+        module, name = site.split(":")
+        for source, tree in _sources():
+            if source.name == module:
+                for found, node in _functions(tree, module):
+                    if found == site:
+                        return node
+        raise AssertionError(f"no function {site}")
+
+    @classmethod
+    def _calls_of(cls, target):
+        """(caller site, call, origins) for every package call of `target`."""
+        returns = _helper_returns()
+        module, name = target.split(":")
+        leaf = name.split(".")[-1]
+        constructor = leaf == "__init__"
+        wanted = name.rsplit(".", 1)[0] if constructor else name
+        found = []
+        for source, tree in _sources():
+            for site, node in _functions(tree, source.name):
+                if site == target:
+                    continue
+                origins = _origins(node, site, returns)
+                for piece in ast.walk(node):
+                    if not isinstance(piece, ast.Call):
+                        continue
+                    dotted = ast.unparse(piece.func)
+                    resolved = _helper_site(piece.func, site, returns)
+                    same_module = source.name == module
+                    sites = {target, f"{module}:{wanted}"} | ({f"{module}:{name.rsplit('.', 1)[0]}"} if constructor else set())
+                    if resolved is not None and resolved in sites or (same_module and dotted == wanted) \
+                            or dotted.endswith("." + wanted) and (same_module and dotted.startswith("self.") or module[:-3] in dotted or "_" + module[:-3] in dotted):
+                        found.append((site, piece, origins))
+        return found, returns
+
+    def _argument_origins(self, target, parameter):
+        node = self._function(target)
+        positional = tuple(one.arg for one in node.args.posonlyargs + node.args.args if one.arg not in NOT_INPUTS)
+        keywords = tuple(one.arg for one in node.args.kwonlyargs)
+        calls, returns = self._calls_of(target)
+        found = []
+        for site, piece, origins in calls:
+            bound = _argument_bindings(piece, positional, keywords)
+            argument = bound.get(parameter)
+            if argument is None:
+                continue
+            found.append((site, argument, _source(argument, origins, site, returns)))
+        return found
+
+    def _private_hops(self, site, head):
+        """The same-module private helpers `site` hands `head` to (one hop)."""
+        node = self._function(site)
+        module, name = site.split(":")
+        prefix = name.rsplit(".", 1)[0] + "." if "." in name else ""
+        hops = set()
+        for piece in ast.walk(node):
+            if not isinstance(piece, ast.Call):
+                continue
+            dotted = ast.unparse(piece.func)
+            arguments = [ast.unparse(one) for one in piece.args] + [ast.unparse(one.value) for one in piece.keywords]
+            if not any(re.search(r"\b" + re.escape(head) + r"\b", one) for one in arguments):
+                continue
+            if dotted.startswith("self._"):
+                hops.add(f"{module}:{prefix}{dotted[len('self.'):]}")
+            elif dotted.startswith("_") and "." not in dotted:
+                hops.add(f"{module}:{dotted}")
+        return hops
+
+    def test_every_forwarded_entry_reaches_an_owned_target(self):
+        entries = receiving_entries()
+        case = EveryReceivingEntryHasOneOwner()
+        for entry, target in sorted(STAGE_C_FORWARDED.items()):
+            with self.subTest(entry=entry):
+                self.assertIn(target, entries, "forwarding target is not a receiving entry")
+                self.assertIsNotNone(case.owner_of(target)[0], f"forwarding target {target} is unowned")
+                head, member = entry[2].split(".")[0], target[2].split(".")[0]
+                calls = self._argument_origins(target[1], member)
+                here = [argument for site, argument, _ in calls if site == entry[1]]
+                hops = self._private_hops(entry[1], head)
+                via = [argument for site, argument, _ in calls if site in hops]
+                self.assertTrue(here or via, f"{entry[1]} never calls {target[1]} binding {member}, directly or through its own helper")
+                if entry[0] == "caller" and here:
+                    self.assertTrue(any(re.search(r"\b" + re.escape(head) + r"\b", ast.unparse(argument)) for argument in here),
+                                    f"{entry[1]} does not hand {head} to {target[1]}'s {member}")
+
+    def test_a_pass_through_replay_reads_no_member(self):
+        entries = receiving_entries()
+        for site in STAGE_C_PASSTHRU:
+            with self.subTest(site=site):
+                self.assertIn(("adopted", site, "replay"), entries)
+                self.assertEqual(sorted(e for e in entries if e[0] == "adopted" and e[1] == site and e[2].startswith("replay.")), [])
+
+    # The modules outside a mint's own that reach it, each from the deployment's
+    # own record (custody and maintenance mint the configured WorkspaceGroup).
+    MINTERS = {"workspaces.py": {"custody.py", "maintenance.py"}}
+
+    def test_every_mint_is_package_private(self):
+        texts = {source.name: source.read_text(encoding="utf-8") for source, _ in _sources()}
+        outside = [path for path in PACKAGE.parent.rglob("*.py") if PACKAGE not in path.parents]
+        for site in sorted(STAGE_C_MINTED):
+            with self.subTest(site=site):
+                node = self._function(site)
+                names = sorted({piece.comparators[0].id for piece in ast.walk(node)
+                                if isinstance(piece, ast.Compare) and isinstance(piece.ops[0], ast.IsNot)
+                                and isinstance(piece.comparators[0], ast.Name) and piece.comparators[0].id.startswith("_")})
+                self.assertTrue(names, f"{site} has no `is not _MINT` gate")
+                module = site.split(":")[0]
+                for name in names:
+                    qualified = re.compile(r"\b" + re.escape(module[:-3]) + r"\." + re.escape(name) + r"\b|from [.\w]*" + re.escape(module[:-3]) + r" import[^\n]*\b" + re.escape(name) + r"\b")
+                    for path in outside:
+                        self.assertIsNone(qualified.search(path.read_text(encoding="utf-8")), f"{path} reaches {module}'s {name}")
+                    reaching = {other for other, text in texts.items() if other != module and qualified.search(text)}
+                    self.assertEqual(reaching, self.MINTERS.get(module, set()), f"unexpected minters of {module}'s {name}")
+
+    def test_every_adopted_row_door_is_handed_an_owned_row(self):
+        case = EveryReceivingEntryHasOneOwner()
+        for site, subjects in sorted(STAGE_C_ADOPTED_ROW_DOORS.items()):
+            self._handed_owned(site, subjects[0], case)
+
+    def test_every_internal_operand_arrives_owned(self):
+        case = EveryReceivingEntryHasOneOwner()
+        for site, subjects in sorted(STAGE_C_INTERNAL.items()):
+            for parameter in sorted({subject.split(".")[0] for subject in subjects}):
+                self._handed_owned(site, parameter, case)
+        for name in ("root", "place", "document"):
+            self._handed_owned("source_boundary.py:LayoutDelivery.__init__", name, case)
+
+    def test_outbound_constructors_have_no_caller_outside_the_package(self):
+        from baton_v12.worker_manager import documents
+        package = PACKAGE
+        outside = [path for path in package.parent.rglob("*.py") if package not in path.parents]
+        names = sorted(entry[1].split(":")[1] for entry in STAGE_C_STATED if entry[1].startswith("documents.py:"))
+        self.assertEqual(len(names), 30)
+        for path in outside:
+            text = path.read_text(encoding="utf-8")
+            if "worker_manager" not in text:
+                continue
+            for name in names:
+                self.assertIsNone(re.search(r"\bdocuments\." + name + r"\(", text), f"{path} constructs {name}")
+        required, optional = documents.CONTRACTS["session.ref"]
+        with self.assertRaises(ContractRefusal):
+            documents.session_ref()
+        with self.assertRaises(ContractRefusal):
+            documents.session_ref(**{member: "x" for member in required}, unexpected="x")
+
+    def test_the_reclaim_answers_are_never_read(self):
+        node = self._function("intake.py:reclaim_expired_resource")
+        statements = {id(piece.value) for piece in ast.walk(node) if isinstance(piece, ast.Expr)}
+        calls = [piece for piece in ast.walk(node) if isinstance(piece, ast.Call)
+                 and ast.unparse(piece.func) in ("adapter.stop_expired", "remove")]
+        self.assertEqual(len(calls), 2)
+        for piece in calls:
+            self.assertIn(id(piece), statements, f"{ast.unparse(piece)[:40]} is bound or read")
+
+    def test_label_operands_reach_only_the_refusal_prose(self):
+        """A `what` operand is this manager's own noun: it names the refusal and decides nothing."""
+        from baton_v12.worker_manager import workspaces
+        for run in (lambda: workspaces.check_workspace_group(True, what="the stage C noun"),
+                    lambda: workspaces.prove_workspace_group(os.path.join(self.root, "absent"), os.getgid(), what="the stage C noun"),
+                    lambda: workspaces.check_workspace_storage("relative", what="the stage C noun")):
+            with self.assertRaises(ContractRefusal) as caught:
+                run()
+            self.assertIn("the stage C noun", caught.exception.message)
+        for site in sorted(entry[1] for entry in STAGE_C_STATED if entry[2] == "what"):
+            with self.subTest(site=site):
+                node = self._function(site)
+                uses = [piece for piece in ast.walk(node) if isinstance(piece, ast.Name) and piece.id == "what" and isinstance(piece.ctx, ast.Load)]
+                self.assertTrue(uses)
+                # every use is inside a string composition, a label_of call, or handed on as `what`
+                for piece in uses:
+                    self.assertFalse(any(isinstance(parent, (ast.Compare, ast.Subscript)) and piece in ast.walk(parent)
+                                         for parent in ast.walk(node) if isinstance(parent, (ast.Compare, ast.Subscript)) and parent is not piece),
+                                     f"{site} branches or indexes on its label operand")
+
+    def test_strict_columns_are_read_as_their_declared_type(self):
+        """`COALESCE(MAX(c), 0) + 1` over a STRICT INTEGER and a STRICT TEXT key listing."""
+        from baton_v12.worker_manager import schema
+        ddl = "\n".join(str(value) for name, value in vars(schema).items() if isinstance(value, (str, tuple, list)))
+        for site, column in (("attempts.py:_decide", "source_seq"), ("attempts.py:_next_source_seq", "source_seq"), ("sessions.py:_next_epoch", "session_epoch")):
+            with self.subTest(site=site):
+                text = ast.unparse(self._function(site))
+                self.assertIn("COALESCE(MAX(", text)
+                self.assertRegex(ddl, column + r"\s+INTEGER")
+        self.assertRegex(ddl, r"operation_id\s+TEXT\s+(NOT NULL\s+)?PRIMARY KEY")
+        self.assertIn("STRICT", ddl)
+
+    # -- M384941 P1: owned input is TRACED, never assumed --------------------------------
+
+    def _bindings_at_callers(self, target, parameter):
+        node = self._function(target)
+        positional = tuple(one.arg for one in node.args.posonlyargs + node.args.args if one.arg not in NOT_INPUTS)
+        keywords = tuple(one.arg for one in node.args.kwonlyargs)
+        calls, returns = self._calls_of(target)
+        found = []
+        for site, piece, origins in calls:
+            argument = _argument_bindings(piece, positional, keywords).get(parameter)
+            if argument is not None:
+                found.append((site, argument, origins))
+        return found
+
+    def _owned_crossing(self, value, entries, case):
+        """A read or session origin answers for an OWNED receiving entry (a covering parent counts)."""
+        stem = value
+        while True:
+            answering = [entry for entry in entries if _claims(entry) == stem]
+            if answering:
+                if not any(case.owner_of(entry)[0] is not None for entry in answering):
+                    raise AssertionError(f"{value} is a read or crossing no owner answers for ({answering[0]})")
+                return
+            if "[" not in stem:
+                raise AssertionError(f"{value} is a read or crossing with no receiving entry")
+            stem = stem.rsplit("[", 1)[0]
+
+    def _owned_caller(self, value, site, case, trail):
+        head = value[len("caller:"):].split("[", 1)[0]
+        name = site.split(":")[1].split(".")[-1]
+        if not name.startswith("_") or name == "__init__":
+            owner = case.owner_of(("caller", site, head))[0]
+            if owner is None:
+                raise AssertionError(f"{site} hands its unowned {head} on")
+            return
+        # a private helper's parameter is whatever its callers hand it: every caller proves it
+        callers = self._bindings_at_callers(site, head)
+        if not callers:
+            raise AssertionError(f"private {site} binds {head} from no caller in the package")
+        for caller, argument, origins in callers:
+            self._owned_value(argument, caller, origins, case, trail + (site,))
+
+    def _owned_value(self, expression, site, origins, case, trail=()):
+        """Why `expression` at `site` is an owned value; an AssertionError names the first gap.
+
+        Review 2026-10-31T02:06:09Z P1: provenance is not validation. A read or a
+        crossing counts only when the entry it names is OWNED; a caller's operand
+        counts only when that entry is owned, or -- for a private helper -- when
+        every caller hands it something this trace proves in turn; a composed
+        expression counts when every leaf it is built from does.
+        """
+        if site in trail or len(trail) > 6:
+            raise AssertionError("provenance loops or runs deeper than six hops: " + " -> ".join(trail + (site,)))
+        returns = _helper_returns()
+        entries = receiving_entries()
+        origin = _source(expression, origins, site, returns)
+        if origin is not None:
+            for value in _origin_values(origin):
+                if value.startswith(("read:", "session:")):
+                    self._owned_crossing(value, entries, case)
+                elif value.startswith("caller:"):
+                    self._owned_caller(value, site, case, trail)
+                else:
+                    raise AssertionError(f"{site}: unresolved origin {value!r} for {ast.unparse(expression)[:60]}")
+            return
+        self._owned_construction(expression, site, origins, case, trail)
+
+    def _owned_construction(self, expression, site, origins, case, trail):
+        recurse = lambda piece: self._owned_value(piece, site, origins, case, trail)
+        if isinstance(expression, (ast.Constant, ast.Lambda)):
+            return
+        if isinstance(expression, ast.JoinedStr):
+            for piece in expression.values:
+                if isinstance(piece, ast.FormattedValue):
+                    recurse(piece.value)
+            return
+        if isinstance(expression, (ast.List, ast.Tuple, ast.Set)):
+            for piece in expression.elts:
+                recurse(piece)
+            return
+        if isinstance(expression, ast.Dict):
+            for piece in expression.keys + expression.values:
+                if piece is not None:
+                    recurse(piece)
+            return
+        if isinstance(expression, (ast.BinOp, ast.BoolOp, ast.IfExp, ast.UnaryOp, ast.Compare)):
+            for piece in ast.iter_child_nodes(expression):
+                if not isinstance(piece, (ast.operator, ast.boolop, ast.unaryop, ast.cmpop)):
+                    recurse(piece)
+            return
+        if isinstance(expression, ast.Attribute):
+            if isinstance(expression.value, ast.Name) and expression.value.id in ("self", "cls"):
+                return
+            recurse(expression.value)
+            return
+        if isinstance(expression, ast.Subscript):
+            recurse(expression.value)
+            if isinstance(expression.slice, ast.Name):
+                recurse(expression.slice)
+            return
+        if isinstance(expression, ast.Call):
+            function = expression.func
+            if isinstance(function, ast.Attribute) and not (isinstance(function.value, ast.Name) and (function.value.id in ("self", "cls") or self._is_module(function.value.id, site))):
+                recurse(function.value)
+            elif isinstance(function, ast.Name) and function.id not in dir(builtins) and _helper_site(function, site, _helper_returns()) is None and not self._module_binds(site, function.id):
+                raise AssertionError(f"{site}: {function.id} is not a package function, a builtin or a module binding")
+            for piece in expression.args:
+                recurse(piece.value if isinstance(piece, ast.Starred) else piece)
+            for piece in expression.keywords:
+                recurse(piece.value)
+            return
+        if isinstance(expression, ast.Name):
+            node = self._function(site)
+            assigned = [piece.value for piece in ast.walk(node) if isinstance(piece, ast.Assign)
+                        and any(isinstance(target, ast.Name) and target.id == expression.id for target in piece.targets)]
+            if assigned:
+                for value in assigned:
+                    recurse(value)
+                return
+            iterated = [piece.iter for piece in ast.walk(node) if isinstance(piece, (ast.For, ast.comprehension))
+                        and isinstance(piece.target, ast.Name) and piece.target.id == expression.id]
+            if iterated:
+                for value in iterated:
+                    recurse(value)
+                return
+            if self._module_binds(site, expression.id):
+                return
+            raise AssertionError(f"{site}: {expression.id} is bound by nothing this trace can follow")
+        raise AssertionError(f"{site}: cannot trace {type(expression).__name__} {ast.unparse(expression)[:60]}")
+
+    def _module_binds(self, site, name):
+        module = site.split(":")[0]
+        for source, tree in _sources():
+            if source.name == module:
+                for piece in tree.body:
+                    if isinstance(piece, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)) and piece.name == name:
+                        return True
+                    if isinstance(piece, (ast.Import, ast.ImportFrom)) and any((alias.asname or alias.name).split(".")[0] == name for alias in piece.names):
+                        return True
+                    if isinstance(piece, (ast.Assign, ast.AnnAssign)):
+                        targets = piece.targets if isinstance(piece, ast.Assign) else [piece.target]
+                        if any(isinstance(target, ast.Name) and target.id == name for target in targets):
+                            return True
+        return False
+
+    def _is_module(self, name, site):
+        return self._module_binds(site, name) and name not in dir(builtins)
+
+    def _handed_owned(self, target, parameter, case):
+        """Every call site hands a value this trace proves owned; the first gap is named."""
+        calls = self._bindings_at_callers(target, parameter)
+        self.assertTrue(calls, f"nothing in the package calls {target} with {parameter}")
+        for site, argument, origins in calls:
+            with self.subTest(target=target, parameter=parameter, caller=site):
+                self._owned_value(argument, site, origins, case, (target,))
+
+    def _synthetic(self, source):
+        """A one-module universe for the trace's own witnesses."""
+        sources = ((pathlib.Path("sample.py"), ast.parse(source)),)
+        _clear_boundary_projections()
+        self.addCleanup(_clear_boundary_projections)
+        patched = patch.object(sys.modules[__name__], "_sources", lambda: sources)
+        patched.start()
+        self.addCleanup(patched.stop)
+        return EveryReceivingEntryHasOneOwner()
+
+    def test_the_owned_input_trace_rejects_an_unowned_read(self):
+        """The reviewer's counterexample: a raw row handed to a helper, no validator anywhere."""
+        case = self._synthetic('''
+def _consume(record):
+    return record["state"]
+def door(store):
+    row = store._connection.execute("SELECT * FROM held").fetchone()
+    return _consume(row)
+''')
+        self.assertEqual(dict(owning_validators()), {})
+        with self.assertRaises(AssertionError) as caught:
+            self._handed_owned("sample.py:_consume", "record", case)
+        self.assertIn("no owner answers", str(caught.exception))
+
+    def test_the_owned_input_trace_rejects_an_unowned_public_operand_and_an_unresolved_name(self):
+        case = self._synthetic('''
+def _consume(record):
+    return record["state"]
+def door(store, value):
+    return _consume(value)
+def other(store):
+    return _consume(mystery)
+''')
+        with self.assertRaises(AssertionError) as caught:
+            self._handed_owned("sample.py:_consume", "record", case)
+        self.assertRegex(str(caught.exception), "hands its unowned value on|bound by nothing")
+
+    def test_the_owned_input_trace_accepts_an_owned_read_operand_and_composition(self):
+        case = self._synthetic('''
+def _consume(record):
+    return record["state"]
+def door(store):
+    row = store._connection.execute("SELECT * FROM held").fetchone()
+    held = boundaries.row(row, "a held row", HELD_COLUMNS)
+    return _consume(held)
+def typed(store, value):
+    boundaries.text(value, "a value")
+    return _consume(value)
+def composed(store, value):
+    boundaries.text(value, "a value")
+    return _consume({"state": value, "fixed": "x", "joined": f"{value}-1"})
+''')
+        self._handed_owned("sample.py:_consume", "record", case)
+
+    # -- M384941 P1: replay protection is DEMONSTRATED on corrupted records -----------------
+
+    @staticmethod
+    def _rewrite_result(store, kind, **changes):
+        row = store._connection.execute("SELECT operation_id, result FROM operations WHERE kind = ?", (kind,)).fetchone()
+        document = json.loads(row["result"])
+        document.update(changes)
+        store._connection.execute("UPDATE operations SET result = ? WHERE operation_id = ?",
+                                  (json.dumps(document, sort_keys=True), row["operation_id"]))
+        return row["operation_id"]
+
+    def test_a_corrupted_self_signed_record_refuses(self):
+        """The reviewer's token counterexample, and the same proof for every self-signed journal family."""
+        from .token_support import TokenFixture
+        from baton_v12.worker_manager import stopped_settlement, tokens, workspaces
+        from baton_v12.worker_manager.store import _recorded, manager_signature
+        fixture = TokenFixture(self)
+        held = fixture.held()
+        fixture.instant = "2030-01-01T00:00:00.000Z"
+        self.assertTrue(tokens.token_of(fixture.store, fixture.domain, held["generation"])["expired"])
+        self._rewrite_result(fixture.store, tokens.ACQUIRED_KIND, expires_at="2099-01-01T00:00:00.000Z")
+        with self.assertRaises(ContractRefusal) as caught:
+            tokens.token_of(fixture.store, fixture.domain, held["generation"])
+        self.assertIn("signed operands", caught.exception.message)
+        # the workspace journal and the settlement selection, written as their writers write them
+        store = self.store
+        terms = workspaces._token_terms(store, "attempt-1", 1, "execution-1", 60)
+        ownership = {"attempt_id": "attempt-1", "ordinal": 1, "owner": "owner-1", "act": "a probe", "token": terms}
+        admission = {"attempt_id": "attempt-1", "ordinal": 1, "act": "a probe", "owner": "owner-1",
+                     "settlement": {"operation": "op-1", "signature": "sig", "incarnation": "manager-1"}}
+        takeover = dict(admission, generation=1)
+        lock = {"line_id": "line-1", "device": 1, "inode": 2}
+        selection = {"operation_id": "op-1", "request_digest": "sha256:" + "a" * 64}
+        for kind, operation, document, read, spoil in (
+                (workspaces.REMOVAL_OWNERSHIP_KIND, workspaces._removal_ownership_id("attempt-1", 1), ownership,
+                 lambda: workspaces.token_of(store, "attempt-1", 1), {"token": dict(terms, expires_at="2099-01-01T00:00:00.000Z")}),
+                (workspaces.CLEANUP_ADMISSION_KIND, workspaces._cleanup_admission_id("attempt-1", 1), admission,
+                 lambda: workspaces._admitted_cleanup_document(store, "attempt-1", 1, store.operation_record(workspaces._cleanup_admission_id("attempt-1", 1))),
+                 {"owner": "somebody-else"}),
+                (workspaces.CLEANUP_TAKEOVER_KIND, workspaces._cleanup_takeover_id("attempt-1", 1, 1), takeover,
+                 lambda: workspaces._current_cleanup_owner(store, "attempt-1", 1, "owner-1"), {"owner": "somebody-else"}),
+                (workspaces.RESTORATION_LOCK_KIND, workspaces.RESTORATION_LOCK_KIND + ":line-1", lock,
+                 lambda: workspaces._restoration_lock_identity(store, "line-1", (1, 2), "a probe"), {"device": 9}),
+                (stopped_settlement.SELECTED, "stopped-settlement.selected:probe", selection,
+                 lambda: stopped_settlement._read(store, "stopped-settlement.selected:probe", stopped_settlement.SELECTED),
+                 {"operation_id": "op-2"})):
+            with self.subTest(kind=kind):
+                store._record(operation, kind, manager_signature(kind, document), "committed", _recorded(document), None)
+                answered = read()
+                self.assertEqual(answered if kind != workspaces.REMOVAL_OWNERSHIP_KIND else answered["expires_at"],
+                                 document if kind != workspaces.REMOVAL_OWNERSHIP_KIND else terms["expires_at"])
+                self._rewrite_result(store, kind, **spoil)
+                with self.assertRaises(ContractRefusal) as caught:
+                    read()
+                self.assertIn("signed operands", caught.exception.message)
+
+    def test_a_forged_custody_member_releases_nothing(self):
+        """A `directory_custody` member forged into a committed ending must not release the resource."""
+        from . import test_intake as suite
+        from baton_v12.worker_manager import intake
+        releases = []
+
+        class Govern:
+            def release(self, *arguments, **named):
+                releases.append(named)
+        fixture = self.borrowed(suite.TheCommittedCleanupIsReadableWithoutActing)
+        fixture.settled("retain")
+        intake.authorize_cleanup(fixture.store, fixture.port, suite.Custodian(), attempt_id=suite.ATTEMPT,
+                                 retention_policy_digest=suite.RETENTION, govern=Govern())
+        self.assertEqual(len(releases), 1, "the honest ending, with its committed writer cessation, releases")
+        fixture.store._connection.execute("DELETE FROM operations WHERE kind = 'cleanup.writer-cessation'")
+        releases.clear()
+        intake.authorize_cleanup(fixture.store, fixture.port, suite.Custodian(), attempt_id=suite.ATTEMPT,
+                                 retention_policy_digest=suite.RETENTION, govern=Govern())
+        self.assertEqual(releases, [], "without cessation evidence nothing is released")
+        self._rewrite_result(fixture.store, "runtime.destroy", directory_custody={"forged": True})
+        intake.authorize_cleanup(fixture.store, fixture.port, suite.Custodian(), attempt_id=suite.ATTEMPT,
+                                 retention_policy_digest=suite.RETENTION, govern=Govern())
+        self.assertEqual(releases, [], "a forged custody member is not the committed normalizations")
+
+    def test_replayed_or_keyed_members_are_compared_carried_or_re_read(self):
+        """Every remaining stated read of a journal or key column is used as a comparison operand,
+        carried into an answer, handed to a reader that owns it, or tested for presence -- never
+        branched on raw and never acted on as a bare value."""
+        rows = sorted(entry for entry, witness in WITNESSES.items()
+                      if witness == "test_replayed_or_keyed_members_are_compared_carried_or_re_read")
+        self.assertTrue(rows)
+        returns = _helper_returns()
+        uses = {}
+        for source, tree in _sources():
+            helpers = _helpers(tree, source.name)
+            for site, node in _functions(tree, source.name):
+                origins = _origins(node, site, returns)
+                for scope, bindings in ((node, origins),) + tuple((helper, inside) for _, helper, inside in _delegations(node, origins, helpers, site=site, returns=returns)):
+                    parents = {id(child): piece for piece in ast.walk(scope) for child in ast.iter_child_nodes(piece)}
+                    for piece in ast.walk(scope):
+                        for origin, member in _member_origins(piece, bindings):
+                            for value in _origin_values(origin):
+                                uses.setdefault(value + "[" + member + "]", []).append((site, piece, parents))
+                            if origin is None:
+                                continue
+        for entry in rows:
+            stem = _claims(entry)
+            found = [use for key, found in uses.items() for use in found if key == stem or key.startswith(stem + "[")]
+            with self.subTest(entry=entry):
+                if entry[2] in ("replay", "line_writers", "review_attachments", "review_lines", "checkpoint_verdicts") or not found:
+                    continue  # the whole document or row: its members are the rows below
+                for site, piece, parents in found:
+                    self.assertTrue(self._carried_or_compared(piece, parents), f"{site} acts on {entry[2]} as a bare value: {ast.unparse(piece)[:60]}")
+
+    @staticmethod
+    def _carried_or_compared(piece, parents):
+        current = piece
+        while True:
+            parent = parents.get(id(current))
+            if parent is None:
+                return False
+            if isinstance(parent, (ast.Compare, ast.Dict, ast.keyword, ast.Return, ast.JoinedStr, ast.Tuple, ast.List)):
+                return True
+            if isinstance(parent, ast.Call):
+                return current is not parent.func
+            if isinstance(parent, ast.Assign):
+                return True
+            if isinstance(parent, ast.Subscript) and current is parent.slice:
+                return True
+            if isinstance(parent, (ast.If, ast.While, ast.IfExp)) and current is parent.test:
+                return False
+            if isinstance(parent, (ast.BinOp, ast.UnaryOp)):
+                return False
+            current = parent
+
+    def test_stated_rules_refuse_what_they_say(self):
+        from baton_v12.worker_manager import (attempt_logs, context_delivery, credentials, custody, exchange,
+                                              failure_cause, launch, provider_context, workspaces)
+        store = self.store
+        rows = (
+            ("attempt_logs._gid", lambda: attempt_logs._gid(7)),
+            ("attempt_logs._delivery", lambda: attempt_logs.locators(7)),
+            ("attempt_logs.locators reported", lambda: attempt_logs.locators(attempt_logs.AttemptLogs(attempt_id="a", root=self.root), reported=7)),
+            ("attempt_logs.read from_byte", lambda: attempt_logs.read(attempt_logs.AttemptLogs(attempt_id="a", root=self.root), "worker.stdout", from_byte=-1)),
+            ("attempt_logs.named", lambda: attempt_logs.named("../x")),
+            ("exchange._gid", lambda: exchange._gid(7)),
+            ("exchange delivery type", lambda: exchange.observation(7)),
+            ("exchange.state_document", lambda: exchange.state_document("x")),
+            ("credentials._reader_group", lambda: credentials._reader_group(7)),
+            ("credentials._list", lambda: credentials.OrphanTeardown("attempt-1", homes=7)),
+            ("failure_cause._component", lambda: failure_cause._component("bad")),
+            ("failure_cause._outcome", lambda: failure_cause._outcome("bad")),
+            ("failure_cause._effects", lambda: failure_cause._effects(["bad"])),
+            ("failure_cause._taken_after", lambda: failure_cause._taken_after(7)),
+            ("failure_cause._supported", lambda: failure_cause.answer_of(7)),
+            ("failure_cause.decode", lambda: failure_cause.decode(7)),
+            ("failure_cause revision", lambda: failure_cause.cessation_outcome_operation_id({"runtime_attempt_id": "a"}, "expiry-reclaim", 1, revision=-1)),
+            ("provider_context._hash", lambda: provider_context.context_profile_of(None, "nope")),
+            ("provider_context.hold reason", lambda: provider_context.hold_context_use(None, attempt_id="a", reason="nope", evidence_refs=[])),
+            ("provider_context.context_prompt", lambda: provider_context.context_prompt(7)),
+            ("provider_context note", lambda: provider_context.authorize_qualification_run(None, run_id="r", profile_digest="sha256:" + "a" * 64, storage_path="/x", authority_uuid=UUID, job_id="j", note=7)),
+            ("context_delivery._open_absolute", lambda: context_delivery.configure_context_storage(None, "relative", excluded_roots=["/x"], runtime_uid=os.getuid())),
+            ("context_delivery excluded_roots", lambda: context_delivery.configure_context_storage(None, "/x", excluded_roots=7, runtime_uid=os.getuid())),
+            ("context_delivery payload", lambda: context_delivery.deliver_feedback(None, None, attempt_id="a", payload=7)),
+            ("custody.allowed remainder", lambda: custody.allowed("abc", 120)),
+            ("custody.allowed ceiling on the unbounded path", lambda: custody.allowed(None, "bad")),
+            ("custody.allowed infinite ceiling", lambda: custody.allowed(1, float("inf"))),
+            ("custody.allowed nan remainder", lambda: custody.allowed(float("nan"), 120)),
+            ("custody.allowed bool ceiling", lambda: custody.allowed(None, True)),
+            ("custody._settlement", lambda: custody.clear_custody_hold(store, attempt_id="attempt-1", which="result", episode=0, observed="seen", helper_identity="h", settlement=7)),
+            ("launch._same_attempt", lambda: launch.adopt(self.root, attempt_id="attempt-1", session="s", contract="c", role="r", job_execution={"attempt_id": "other"})),
+            ("workspaces.check_workspace_group", lambda: workspaces.check_workspace_group(True)),
+            ("workspaces.declared_identity_mapping", lambda: workspaces.declared_identity_mapping(7, "1:1")),
+            ("workspaces.identity_for", lambda: workspaces.identity_for(7)),
+            ("workspaces.recorded_storage_place", lambda: workspaces.recorded_storage_place(store, 7)),
+            ("workspaces.assignment_workspace group", lambda: workspaces.assignment_workspace(7, self.root, "attempt-1")),
+            ("workspaces.admit_cleanup settlement", lambda: workspaces.admit_cleanup(store, "attempt-1", 7, "a test")),
+            ("workspaces.admit_cleanup cessation", lambda: workspaces.admit_cleanup(store, "attempt-1", {}, "a test", cessation={})),
+            ("workspaces.settle_cleanup admitted", lambda: workspaces.settle_cleanup(store, None, "attempt-1", 7, "a test")),
+            ("workspaces mint", lambda: workspaces.WorkspaceGroup(1)),
+            ("workspaces.establish_line_access identity", lambda: workspaces.establish_line_access(self.root, (1, 1), 7)),
+            ("provider_context ExecutionGrant mint", lambda: provider_context.ExecutionGrant(7, "c", "u", "deterministic")),
+        )
+        for name, run in rows:
+            with self.subTest(rule=name):
+                with self.assertRaises(ContractRefusal):
+                    run()
+        # the allowance's valid paths are unchanged: None is the ceiling, floor, zero for a spent one
+        self.assertEqual(custody.allowed(None, 120), 120)
+        self.assertEqual(custody.allowed(lambda: None, 120), 120)
+        self.assertEqual(custody.allowed(lambda: 0.1, 120), 0)
+        self.assertEqual(custody.allowed(5.9, 3), 3)
+        self.assertEqual(custody.allowed(-4, 120), 0)
+        # readers that answer a default for a non-document, and never act
+        self.assertEqual(launch.payload_of(7), {})
+        self.assertIsNone(launch.selected_transport(7))
+        self.assertEqual(launch.members_for(7), launch.LAUNCH_MEMBERS)
+        self.assertIsNone(failure_cause.degradation_of(7))
+        self.assertFalse(failure_cause.recording_degraded(7))
+        self.assertEqual(failure_cause.carry_degradation(7, "fine"), 7)
 
 
 class StatedRules(BoundaryCase):
@@ -17156,11 +18968,16 @@ def public(connection):
 ''')
         resolved, residual = _account_boundary_calls(records, claimed, {})
         self.assertEqual(residual, frozenset())
-        self.assertEqual(len(resolved), 1)
-        copy, owners = next(iter(resolved.items()))
-        self.assertEqual(copy.site, "sample.py:public")
-        self.assertEqual({r.site for r in owners}, {"sample.py:_read"})
-        self.assertTrue(all((r.call, r.label, r.subject) == (copy.call, copy.label, copy.subject) for r in owners))
+        # W384870 stage C: the projection at `public` is CLAIMED by the read's
+        # own entry (a read stem names its read site, so the owner call may sit
+        # at any site), rather than resolved through an equivalent claimed copy;
+        # both occurrences of the one call answer for the same entry.
+        copy = next(r for r in records if r.site == "sample.py:public")
+        owner = next(r for r in records if r.site == "sample.py:_read")
+        self.assertEqual((owner.call, owner.label, owner.subject), (copy.call, copy.label, copy.subject))
+        self.assertIn(copy, claimed)
+        self.assertEqual(claimed[copy], claimed[owner])
+        self.assertEqual(resolved, {})
 
     def test_same_call_and_origin_with_another_label_cannot_borrow_claim(self):
         _, records, claimed = self.model()

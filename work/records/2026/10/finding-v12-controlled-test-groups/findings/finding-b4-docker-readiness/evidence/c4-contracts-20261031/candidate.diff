@@ -1,0 +1,34 @@
+--- accepted/v12/python/tests/manager/test_integration_worker.py
++++ candidate/v12/python/tests/manager/test_integration_worker.py
+@@ -118,8 +118,10 @@
+     def test_a_clean_turn_answers_the_closed_document(self):
+         answer = self.agent.invoke_provider(prompt=PROMPT, room=self.room)
+         self.assertEqual(set(answer),
+-                         {"ok", "status", "failure_reason", "why"})
++                         {"ok", "status", "failure_reason", "why", "seconds_bound", "seconds_bound_source"})
+         self.assertEqual((answer["ok"], answer["status"]), (True, 0))
++        self.assertEqual(answer["seconds_bound"], 3600)
++        self.assertEqual(answer["seconds_bound_source"], "worker-default")
+         # A CLEAN TURN PUBLISHES NO REASON, which is the private turn's rule
+         # and is not restated by the wrapper.
+         self.assertIsNone(answer["failure_reason"])
+@@ -1647,14 +1649,17 @@
+         return body
+ 
+     def test_a_generation_this_runtime_cannot_read_SAYS_SO(self):
++        unsupported = "baton.worker-launch/999"
++        self.assertNotIn(unsupported, baton_worker.SUPPORTED_LAUNCH_SCHEMAS)
+         status, said = self.ran(self.launched(
+-            self.valid(schema="baton.worker-launch/5")))
++            self.valid(schema=unsupported)))
+         self.assertEqual(status, 2, "the accepted status is unchanged")
+         self.assertIn("baton-worker: ", said)
+         self.assertIn("cannot read its launch", said)
+         # AND IT NAMES THE GENERATIONS, because the operator's next question is
+         # which image this is.
+-        self.assertIn("baton.worker-launch/5", said)
++        self.assertIn(unsupported, said)
++        self.assertIn("another generation", said)
+         for one in baton_worker.SUPPORTED_LAUNCH_SCHEMAS:
+             self.assertIn(one, said)
+ 

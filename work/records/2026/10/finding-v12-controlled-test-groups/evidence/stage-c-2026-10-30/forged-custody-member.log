@@ -1,0 +1,5 @@
+committed ending state/custody/cleanup: absent False retained
+writer-cessation record present: True
+releases with the honest record: 1
+releases with no cessation evidence and an honest record: 0
+releases with the forged record: 1 [{'operation': 'runtime.start:7242dc27c3829d22ec8aaa15936459bc6fcd2cf697b4e406d1292bb442aead0a', 'cessation': {'container': 'runtime-1', 'stopped': True, 'helpers': []}, 'reclaiming': True}]

@@ -1,0 +1,208 @@
+{
+  "observed_utc": "2026-10-31T02:17:14.525834+00:00",
+  "participant": "baton.codxpc",
+  "claim_event": 384947,
+  "commands": [
+    {
+      "argv": [
+        "id"
+      ],
+      "cwd": "/home/sl/src/baton",
+      "exit": 0,
+      "stdout": "uid=1000(sl) gid=1000(sl) groups=1000(sl),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),100(users),113(lpadmin),119(docker),1001(baton-workspace)\n",
+      "stderr": "",
+      "seconds": 0.001
+    },
+    {
+      "argv": [
+        "getent",
+        "group",
+        "baton-workspace"
+      ],
+      "cwd": "/home/sl/src/baton",
+      "exit": 0,
+      "stdout": "baton-workspace:x:1001:sl\n",
+      "stderr": "",
+      "seconds": 0.0017
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "-m",
+        "tools.environment",
+        "status"
+      ],
+      "cwd": "/home/sl/src/baton/v12/python",
+      "exit": 0,
+      "stdout": "environment ready\npath        /home/sl/.local/state/baton-v12-venv\ninterpreter /home/sl/.local/state/baton-v12-venv/bin/python\npython      3.13.7 (requires 3.13 or newer)\n",
+      "stderr": "",
+      "seconds": 0.0222
+    },
+    {
+      "argv": [
+        "/home/sl/.local/state/baton-v12-venv/bin/python",
+        "-B",
+        "-c",
+        "import sys,importlib.metadata; print(sys.version); print(\"jsonschema\",importlib.metadata.version(\"jsonschema\"))"
+      ],
+      "cwd": "/home/sl/src/baton",
+      "exit": 0,
+      "stdout": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]\njsonschema 4.26.0\n",
+      "stderr": "",
+      "seconds": 0.0257
+    },
+    {
+      "argv": [
+        "docker",
+        "version",
+        "--format",
+        "{{json .Server.Version}}"
+      ],
+      "cwd": "/home/sl/src/baton",
+      "exit": 0,
+      "stdout": "\"29.1.3\"\n",
+      "stderr": "",
+      "seconds": 0.0085
+    },
+    {
+      "argv": [
+        "docker",
+        "info",
+        "--format",
+        "{{json .SecurityOptions}}"
+      ],
+      "cwd": "/home/sl/src/baton",
+      "exit": 0,
+      "stdout": "[\"name=apparmor\",\"name=seccomp,profile=builtin\",\"name=cgroupns\"]\n",
+      "stderr": "",
+      "seconds": 0.0661
+    },
+    {
+      "argv": [
+        "findmnt",
+        "-T",
+        "/var/tmp",
+        "-no",
+        "TARGET,FSTYPE"
+      ],
+      "cwd": "/home/sl/src/baton",
+      "exit": 0,
+      "stdout": "/ ext4\n",
+      "stderr": "",
+      "seconds": 0.0008
+    },
+    {
+      "argv": [
+        "findmnt",
+        "-T",
+        "/home/sl/src/baton/work/scratch",
+        "-no",
+        "TARGET,FSTYPE"
+      ],
+      "cwd": "/home/sl/src/baton",
+      "exit": 0,
+      "stdout": "/ ext4\n",
+      "stderr": "",
+      "seconds": 0.0009
+    },
+    {
+      "argv": [
+        "df",
+        "-B1",
+        "/var/tmp",
+        "/home/sl/src/baton/work/scratch"
+      ],
+      "cwd": "/home/sl/src/baton",
+      "exit": 0,
+      "stdout": "Filesystem        1B-blocks         Used    Available Use% Mounted on\n/dev/nvme0n1p2 982240026624 310366666752 621902843904  34% /\n/dev/nvme0n1p2 982240026624 310366666752 621902843904  34% /\n",
+      "stderr": "",
+      "seconds": 0.0015
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/sl/src/baton",
+      "exit": 0,
+      "stdout": "a8cbc9745d1eff51bcfb04d2fe4bb96a5ea3b12d\n",
+      "stderr": "",
+      "seconds": 0.0006
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "--format",
+        "{\"Id\":{{json .Id}},\"RepoTags\":{{json .RepoTags}},\"Created\":{{json .Created}},\"Architecture\":{{json .Architecture}},\"Os\":{{json .Os}},\"User\":{{json .Config.User}},\"Volumes\":{{json .Config.Volumes}}}",
+        "sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4"
+      ],
+      "cwd": "/home/sl/src/baton",
+      "exit": 1,
+      "stdout": "\n",
+      "stderr": "template parsing error: template: :1:186: executing \"\" at <.Config.Volumes>: map has no entry for key \"Volumes\"\n",
+      "seconds": 0.0068
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "--format",
+        "{\"Id\":{{json .Id}},\"RepoTags\":{{json .RepoTags}},\"Created\":{{json .Created}},\"Architecture\":{{json .Architecture}},\"Os\":{{json .Os}},\"User\":{{json .Config.User}},\"Volumes\":{{json .Config.Volumes}}}",
+        "sha256:9b8c98820877e33d38d33352d86cc3810e5b72d4935a181b82b512b4d3291de8"
+      ],
+      "cwd": "/home/sl/src/baton",
+      "exit": 1,
+      "stdout": "\n",
+      "stderr": "template parsing error: template: :1:186: executing \"\" at <.Config.Volumes>: map has no entry for key \"Volumes\"\n",
+      "seconds": 0.0058
+    }
+  ],
+  "environment": {
+    "BATON_V12_INITIAL_ACCESS_ENGINE": null,
+    "BATON_V12_PRIVATE_LINE_IMAGE": null,
+    "BATON_V12_WORKSPACE_GROUP": null,
+    "BATON_V12_DISK_ROOT": null,
+    "BATON_V12_VENV": null,
+    "BATON_W32577_IMAGE_DIGEST": null,
+    "BATON_V12_STACK_DISTRO": null,
+    "BATON_V12_STACK_PACKAGING_REQUIRED": null,
+    "BATON_V12_STACK_TEST_ROOT": null,
+    "BATON_TEST_ENGINE": null,
+    "TMPDIR": null
+  },
+  "paths": [
+    {
+      "path": "/var/tmp",
+      "mode": "0o1777",
+      "uid": 0,
+      "gid": 0,
+      "readable": true,
+      "writable": true,
+      "searchable": true
+    },
+    {
+      "path": "/home/sl/src/baton/work/scratch",
+      "mode": "0o775",
+      "uid": 1000,
+      "gid": 1000,
+      "readable": true,
+      "writable": true,
+      "searchable": true
+    },
+    {
+      "path": "/home/sl/src/baton/v12/python/build/out/distro",
+      "mode": "0o775",
+      "uid": 1000,
+      "gid": 1000,
+      "readable": true,
+      "writable": true,
+      "searchable": true
+    }
+  ],
+  "scope": "Read-only preflight. No test, build, container or provider execution."
+}

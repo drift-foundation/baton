@@ -1,0 +1,111 @@
+[
+  {
+    "inventory": "intermediate-leftovers.json",
+    "root": "/var/tmp/baton-w384944-c4-owner-delivery-5qnsbglr",
+    "expected_count": 937,
+    "actual_count": 937,
+    "missing": [],
+    "unexpected": [],
+    "removed": true,
+    "inspection_notes": [],
+    "live_use_hits": [],
+    "protected_infrastructure": [
+      {
+        "pid": "2433",
+        "comm": "systemd"
+      },
+      {
+        "pid": "2435",
+        "comm": "(sd-pam)"
+      },
+      {
+        "pid": "2497",
+        "comm": "sshd-session"
+      },
+      {
+        "pid": "2770",
+        "comm": "ssh-agent"
+      },
+      {
+        "pid": "2830",
+        "comm": "sshd-session"
+      },
+      {
+        "pid": "4707",
+        "comm": "sshd-session"
+      },
+      {
+        "pid": "51957",
+        "comm": "sshd-session"
+      }
+    ],
+    "process_check_note": "No task executor references. Protected systemd/PAM/SSH infrastructure predates fixture creation; original runs have exited."
+  },
+  {
+    "inventory": "cleanup-attempt-leftovers.json",
+    "root": "/var/tmp/baton-w384944-c4-final-2n4qnheh",
+    "expected_count": 370,
+    "actual_count": 370,
+    "missing": [],
+    "unexpected": [],
+    "removed": true,
+    "inspection_notes": [
+      {
+        "path": "/var/tmp/baton-w384944-c4-final-2n4qnheh/v12-w110935-cp25xktg/agent/home/.claude/.credentials.json",
+        "symlink": true,
+        "uid": 1000,
+        "target": "/var/tmp/baton-w384944-c4-final-2n4qnheh/v12-w39357-4spbainh/credentials/claude"
+      },
+      {
+        "path": "/var/tmp/baton-w384944-c4-final-2n4qnheh/v12-w110935-j_3hmzjg/agent/home/.claude/.credentials.json",
+        "symlink": true,
+        "uid": 1000,
+        "target": "/var/tmp/baton-w384944-c4-final-2n4qnheh/v12-w39357-c8ldc0pb/credentials/claude"
+      },
+      {
+        "path": "/var/tmp/baton-w384944-c4-final-2n4qnheh/v12-w110935-tnp6li1l/agent/home/.claude/.credentials.json",
+        "symlink": true,
+        "uid": 1000,
+        "target": "/var/tmp/baton-w384944-c4-final-2n4qnheh/v12-w39357-s0jbmwgj/credentials/claude"
+      },
+      {
+        "path": "/var/tmp/baton-w384944-c4-final-2n4qnheh/v12-w110935-xhu3lyb6/agent/home/.claude/.credentials.json",
+        "symlink": true,
+        "uid": 1000,
+        "target": "/var/tmp/baton-w384944-c4-final-2n4qnheh/v12-w39357-xryncdfj/credentials/claude"
+      }
+    ],
+    "live_use_hits": [],
+    "protected_infrastructure": [
+      {
+        "pid": "2433",
+        "comm": "systemd"
+      },
+      {
+        "pid": "2435",
+        "comm": "(sd-pam)"
+      },
+      {
+        "pid": "2497",
+        "comm": "sshd-session"
+      },
+      {
+        "pid": "2770",
+        "comm": "ssh-agent"
+      },
+      {
+        "pid": "2830",
+        "comm": "sshd-session"
+      },
+      {
+        "pid": "4707",
+        "comm": "sshd-session"
+      },
+      {
+        "pid": "51957",
+        "comm": "sshd-session"
+      }
+    ],
+    "process_check_note": "No task executor references. Protected systemd/PAM/SSH infrastructure predates fixture creation; original runs have exited."
+  }
+]

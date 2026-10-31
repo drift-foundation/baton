@@ -1,0 +1,12 @@
+{
+  "path": "v12/python/tests/manager/test_integration_worker.py",
+  "base_sha256": "7f6664dc2e1668660fb517cfdb7a42e686b58666f706a5346c6f7ba81e71b1cd",
+  "candidate_sha256": "f5a443a9437992daaa7971209748c6f1edb0adb8982246216d99256614bb2a50",
+  "snapshot_changed_paths": [
+    "v12/python/tests/manager/test_integration_worker.py"
+  ],
+  "shared_before_matched": true,
+  "shared_after_matched": true,
+  "mode": "0o664",
+  "joined_tree_verification": "not run; K source remains moving"
+}

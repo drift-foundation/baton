@@ -121,6 +121,31 @@ def manager_signature(kind, operands):
     return canonical_text({"kind": kind, "operands": operands})
 
 
+def replayed_as_signed(store, operation_id, kind, *, what):
+    """The committed result of an operation whose result IS its signed operands, or None when absent.
+
+    W384870 stage C (review 2026-10-31T02:06:09Z): `replay` binds the SIGNATURE,
+    not the result bytes, so a record whose reader decides on a result member --
+    a token's `expires_at`, a removal owner, a lock's pinned object -- could be
+    changed in place without the signature noticing. For the journal families
+    whose writers record the signed operands themselves as the result, the
+    signature's own operands are the verifiable account: a result that differs
+    from them is refused rather than read.
+    """
+    record = store.operation_record(operation_id)
+    if record is None:
+        return None
+    _, document = store.replay(operation_id, record["signature"], kind=kind)
+    signed = json.loads(record["signature"])["operands"]
+    if document != signed:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"{what} at {name_value(operation_id)} records a result that differs from "
+            f"its signed operands; a committed record this manager cannot bind to its "
+            f"own act is not evidence about it")
+    return document
+
+
 def _recorded(value):
     """The exact text to journal for a committed result.
 

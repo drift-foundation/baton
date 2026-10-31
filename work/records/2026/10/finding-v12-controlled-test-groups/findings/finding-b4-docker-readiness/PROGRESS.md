@@ -1,0 +1,83 @@
+# Progress
+
+Writer: baton.codxpc after successful claim. No implementation or tests performed by coordinator.
+
+## 2026-10-31 — first B4 preflight checkpoint, baton.codxpc
+
+Identity baton.codxpc / impl; own child W384944 claimed at E384947 (episode
+384944), parent W384870 remains under baton.slaw. Read M384943/M384945 and
+creation handoff; last child discussion M384945, parent discussion M384948,
+child events through E384947. Canonical claim rechecked after server interruption;
+no duplicate claim or execution was started.
+
+Delivered evidence/preflight-20261031/PREFLIGHT.md with exact historical case
+inventory, all 38 outstanding engine ids (27 failed, 7 errors, four required
+initial-access skips), latest retained report blocks, read-only host/image/group/
+storage checks, exact proposed operator environment commands, file ownership and
+runtime-resource plan. Source reads identify likely fixture drift at delivery
+modes and the trusted shared-identity boundary; no current runtime result claimed.
+
+Observed: Docker 29.1.3 reachable; prepared Python 3.13.7/jsonschema 4.26.0 ready;
+actual process holds dedicated gid1001; installed historical Git-capable image
+0697b659…17e4 and supervised reference 9b8c9882…1de8 both inspect successfully.
+Initial-access selection variables are unset. Group/interpreter/image build is
+not a missing host prerequisite for the proposed initial-access slice. Image
+reuse still needs explicit selection in the coordinator's next allocation.
+One old lifecycle container and 44 runtime.start containers are exited and may
+pollute broad cleanup assertions; they were only listed, never removed.
+
+Proposed next milestone: allocate test_integration_worker.py's C4 fixture repair
+and focused module verification against stable source, then separately release
+shared-identity/access and serialized Docker batches. M384948 K-owned product
+paths remain untouched. Parent C8 acceptance reused; no packaged, supervised or
+full run. Child B4 and parent final acceptance remain open.
+
+Only this child PROGRESS and evidence were written. Zero tests, image builds,
+container starts, live provider calls, privilege changes or Git mutations.
+Read-only query durations are recorded individually in JSON; there is no test
+spending this checkpoint. First image metadata query had an optional-field
+format error; corrected read succeeded and both observations are preserved.
+
+Status: first checkpoint prepared for baton.decide; handoff publishes exact
+paths and releases the child claim. No product candidate or major accepted
+implementation milestone is claimed; owner Git checkpoint remains at the
+parent's selected acceptance boundary.
+
+## 2026-10-31 — allocated C4 delivery fixture corrected, baton.codxpc
+
+Claim E384955, episode384954 following reroute E384954/M384952 and independent
+review-2026-10-31T02-24-00Z.md. Last child discussion M384952, events E384955;
+parent ownership read through M384948. Preflight accepted; this is the separate
+released integration-worker fixture milestone.
+
+Verified coordinator snapshot's 1133 manifest files and shared target base.
+Changed only v12/python/tests/manager/test_integration_worker.py: use the real
+materialize_delivery owner with the composed world's configured group, and
+clean each exact case-owned read-only bundle root after its assertions. No
+product/expected-behavior/assertion changes. Existing repeated-setUp subtests
+exposed and then verified the cleanup callback's per-root capture.
+
+Final focused result: 83 collected/started, 81 passed, two unchanged pre-existing
+failures, zero errors/skips/unaccounted and zero source drift. All60 previous
+ancestor-mode setup errors now pass their intended positive/refusal paths. The
+two remaining failures concern a /5 launch diagnostic fixture and missing
+seconds_bound/seconds_bound_source expectations, outside this released mode
+repair. Complete module and B4 acceptance remain pending; do not call it green.
+
+Evidence: evidence/c4-fixture-20261031/RESULT.md, exact base/candidate/diff,
+corrected ledgers, logs, source manifests and candidate.json. Candidate SHA256
+f5a443a9437992daaa7971209748c6f1edb0adb8982246216d99256614bb2a50.
+Transferred that exact same-file correction to shared tree only after original
+bytes still matched; file mode retained. K product files remain untouched.
+Joined-tree verification still due after K stabilizes.
+
+Four focused runs, about68.477s command wall total, no timeouts. Baseline parser
+correction and intermediate cleanup error retained honestly in RESULT. Final run
+removed its empty owned root. Two intermediate disposable fixture roots remain,
+with exact paths and inventories in RESULT; no blanket deletion. No Docker,
+builds, live provider, full suite/group run or Git mutation. Status: bounded C4
+candidate awaiting independent review; return to baton.decide.
+
+## 2026-10-31T02:37:02.610653+00:00 — baton.codxpc / E384962: C4 contract corrections awaiting review
+
+Corrected exactly the two reviewed expectations in `v12/python/tests/manager/test_integration_worker.py`; unsupported /999 diagnostic and exact provider timeout-result fields/values. Affected 2/2 and full module 83/83 pass without errors/skips; stable allocated source, fresh roots clean, both inventoried intermediate roots removed. Shared file transferred only after accepted-base hash check. Candidate `a2ffd5dce0c41fb37c1f54f45589e992ad18bb3c9e2d9dd7df2e8a16a8c713f3`. Evidence: `evidence/c4-contracts-20261031/RESULT.md`, exact candidate/diff, run summaries/hashes and cleanup.json. No product edits or expanded execution. Return to baton.decide for independent review; B4 and joined acceptance remain pending.

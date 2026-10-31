@@ -1,0 +1,331 @@
+=== FAILURE: tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_it_copies_the_worker_modules_and_no_manager_package ===
+AssertionError: Lists differ: ['pyt[78 chars]s', 'python/src/baton_v12/verification_context[221 chars]son'] != ['pyt[78 chars]s', 'worker/adapter_refusal.py', 'worker/baton[173 chars]son']
+
+=== FAILURE: tests.manager.test_integration_worker.EveryIntegrationRefusalSAYSWHY.test_a_generation_this_runtime_cannot_read_SAYS_SO ===
+AssertionError: 'baton.worker-launch/5' not found in 'baton-worker: launch: the integration runtime cannot read its launch: /tmp/v12-w198667-kqkfoq5w/launch.json is exactly schema, wire_profile, payload; missing payload, wire_profile; unexpected contract, role, session\n'
+
+=== ERROR: tests.manager.test_integration_worker.TheAcceptedBundleIsCarriedThroughTheRealEntry.test_a_deletion_is_imported_as_an_absence ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheAcceptedBundleIsCarriedThroughTheRealEntry.test_a_mode_change_is_not_publishable_and_starts_no_provider ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheAcceptedBundleIsCarriedThroughTheRealEntry.test_a_terminal_result_never_earns_a_second_provider_turn ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheAcceptedBundleIsCarriedThroughTheRealEntry.test_an_addition_is_imported_verified_and_published ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheAcceptedBundleIsCarriedThroughTheRealEntry.test_an_edit_preserves_the_reviewed_mode ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheAcceptedBundleIsCarriedThroughTheRealEntry.test_an_unscheduled_existing_test_change_is_the_providers_to_refuse ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheAcceptedBundleIsCarriedThroughTheRealEntry.test_the_prompt_requires_whole_candidate_test_evaluation ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheAcceptedBundleIsCarriedThroughTheRealEntry.test_the_provider_ran_in_the_target_with_the_composed_environment ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheAcceptedBundleIsCarriedThroughTheRealEntry.test_the_version_control_metadata_is_untouched ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheBundleIdentityIsMeasuredAndNotRead.test_a_file_the_envelope_never_named_changes_the_identity ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheBundleIdentityIsMeasuredAndNotRead.test_a_link_or_a_device_in_the_bundle_refuses_the_measurement ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheBundleIdentityIsMeasuredAndNotRead.test_a_report_naming_another_bundle_is_held ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheBundleIdentityIsMeasuredAndNotRead.test_the_measured_identity_is_the_producers_own_answer ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEndingIsConservative.test_a_clean_provider_refusal_after_writable_work_is_still_held ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEndingIsConservative.test_a_failed_verification_after_a_complete_import_is_held ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEndingIsConservative.test_a_partial_import_is_held ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEndingIsConservative.test_a_provider_that_did_not_complete_is_held ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEndingIsConservative.test_a_provider_that_timed_out_is_held ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEndingIsConservative.test_a_report_claiming_a_path_outside_the_table_is_held ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEndingIsConservative.test_a_report_that_claims_an_import_it_did_not_reach_is_held ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEndingIsConservative.test_a_report_that_does_not_claim_an_import_is_held ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEndingIsConservative.test_a_turn_with_no_report_is_held ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEndingIsConservative.test_a_verification_that_cannot_run_is_held ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEndingIsConservative.test_a_verification_that_undoes_the_import_is_held ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEndingIsConservative.test_an_agent_that_answers_something_else_is_held ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEndingIsConservative.test_an_unchanged_verifier_still_integrates ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEndingIsConservative.test_an_unreadable_report_is_held ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEndingIsConservative.test_no_provider_text_reaches_a_held_result ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEndingIsConservative.test_no_provider_text_reaches_an_integrated_result ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEndingIsConservative.test_the_accepted_verification_is_the_one_that_runs ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEndingIsConservative.test_version_control_metadata_that_moved_is_held ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEntryIsTheOneShotComposition.test_a_result_above_the_delivery_bound_is_refused_not_truncated ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEntryIsTheOneShotComposition.test_a_writable_launch_document_is_refused ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEntryIsTheOneShotComposition.test_an_absent_result_file_in_a_proved_namespace_is_not_a_refusal ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEntryIsTheOneShotComposition.test_an_unreadable_result_namespace_starts_no_provider ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEntryIsTheOneShotComposition.test_no_assignment_writes_nothing_and_exits_two ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEntryIsTheOneShotComposition.test_no_launch_document_writes_nothing_and_exits_two ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEntryIsTheOneShotComposition.test_the_published_result_is_read_only_and_never_clobbered ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEvidenceMustBeThisCandidatesOwn.test_a_bundle_composed_for_another_assignment_refuses ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEvidenceMustBeThisCandidatesOwn.test_a_bundle_naming_another_launch_refuses ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEvidenceMustBeThisCandidatesOwn.test_a_bundle_with_no_accepted_verification_command_refuses ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEvidenceMustBeThisCandidatesOwn.test_a_bundle_with_no_readable_envelope_refuses ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEvidenceMustBeThisCandidatesOwn.test_a_container_launched_under_another_role_refuses ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEvidenceMustBeThisCandidatesOwn.test_a_review_that_did_not_accept_refuses ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEvidenceMustBeThisCandidatesOwn.test_a_scheduled_test_change_with_no_review_document_refuses ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEvidenceMustBeThisCandidatesOwn.test_an_added_test_needs_no_scheduled_scope ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEvidenceMustBeThisCandidatesOwn.test_an_authority_account_about_another_job_refuses ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEvidenceMustBeThisCandidatesOwn.test_evidence_about_another_checkpoint_refuses ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEvidenceMustBeThisCandidatesOwn.test_instructions_the_profile_does_not_name_refuse ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEvidenceMustBeThisCandidatesOwn.test_the_accepted_scope_is_the_enumeration_and_not_a_filename ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEvidenceMustBeThisCandidatesOwn.test_the_same_change_inside_the_scheduled_scope_is_admitted ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheWholePathSetIsProvedBeforeAnyImport.test_a_late_invalid_row_stops_the_whole_import ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheWholePathSetIsProvedBeforeAnyImport.test_a_link_or_a_directory_at_a_scheduled_path_refuses ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheWholePathSetIsProvedBeforeAnyImport.test_a_read_only_target_refuses_and_is_never_repaired ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheWholePathSetIsProvedBeforeAnyImport.test_a_result_published_before_the_turn_stops_it ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheWholePathSetIsProvedBeforeAnyImport.test_a_target_at_another_mode_than_the_reviewed_base_refuses ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheWholePathSetIsProvedBeforeAnyImport.test_a_target_at_another_revision_refuses ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheWholePathSetIsProvedBeforeAnyImport.test_a_target_that_is_not_at_the_reviewed_base_bytes_refuses ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheWholePathSetIsProvedBeforeAnyImport.test_an_addition_over_an_existing_path_refuses ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheWholePathSetIsProvedBeforeAnyImport.test_an_unreadable_target_revision_refuses ===
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== FAILURE: tests.manager.test_integration_worker.TheWrapperTakesTheAdaptersOwnProviderTurn.test_a_clean_turn_answers_the_closed_document ===
+AssertionError: Items in the first set but not the second:
+
+=== FAILURE: tests.manager.test_oci_integration.TheModulesImportInEitherOrder.test_neither_order_fails (first='baton_v12.worker_manager.oci') ===
+AssertionError: '' != 'ok'
+ImportError: cannot import name 'admit_candidate' from partially initialized module 'baton_v12.integration.admission' (most likely due to a circular import) (/home/sl/src/baton/v12/python/src/baton_v12/integration/admission.py)
+
+=== FAILURE: tests.manager.test_oci_integration.TheModulesImportInEitherOrder.test_neither_order_fails (first='baton_v12.integration.oci_delivery') ===
+AssertionError: '' != 'ok'
+ImportError: cannot import name 'admit_candidate' from partially initialized module 'baton_v12.integration.admission' (most likely due to a circular import) (/home/sl/src/baton/v12/python/src/baton_v12/integration/admission.py)
+
+=== FAILURE: tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches (schema='baton.worker-launch/2') ===
+AssertionError: 3 != 1
+
+=== FAILURE: tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches (schema='baton.worker-entry/1') ===
+AssertionError: 3 != 1
+
+=== FAILURE: tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches (schema='') ===
+AssertionError: 3 != 1
+
+=== FAILURE: tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches (schema='BATON.WORKER-LAUNCH/1') ===
+AssertionError: 3 != 1
+
+=== FAILURE: tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches (schema='baton.worker-launch/1 ') ===
+AssertionError: 3 != 1
+
+=== FAILURE: tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit (command_status=3, unrun=False) ===
+AssertionError: True is not false
+
+=== FAILURE: tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit (command_status=0, unrun=True) ===
+AssertionError: True is not false
+
+=== FAILURE: tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_exact_admission_replay_preserves_receipts_rank_and_retained_evidence ===
+AssertionError: True is not false
+
+=== FAILURE: tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_wrong_requirements_refuse_before_any_authority_receipt_or_admission ===
+AssertionError: True is not false
+
+=== FAILURE: tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_nothing_this_module_made_survives_it ===
+AssertionError: Lists differ: ['baton-runtime.start-461dcc1a00a0d0e01043[3825 chars]e29'] != []
+
+=== ERROR: tests.manager.test_custody_engine.DockerCustody.test_a_stranded_running_helper_is_reclaimed_and_the_act_completes ===
+PermissionError: [Errno 13] Permission denied: 'nested'
+
+=== ERROR: tests.manager.test_custody_engine.DockerCustody.test_it_holds_at_every_mode_the_worker_can_choose (mode='0o700') ===
+PermissionError: [Errno 13] Permission denied: 'nested'
+
+=== ERROR: tests.manager.test_custody_engine.DockerCustody.test_it_holds_at_every_mode_the_worker_can_choose (mode='0o500') ===
+baton_v12.contracts.errors.ContractRefusal: allocating attempt 'attempt-1''s execution roots is refused: removal 1 of this attempt's roots was admitted and has recorded no completion, so whether that removal is still running or stopped half way is unknown -- these roots are not reused, adopted or removed again until it is reconciled
+
+=== ERROR: tests.manager.test_custody_engine.DockerCustody.test_it_holds_at_every_mode_the_worker_can_choose (mode='0o0') ===
+baton_v12.contracts.errors.ContractRefusal: allocating attempt 'attempt-1''s execution roots is refused: removal 1 of this attempt's roots was admitted and has recorded no completion, so whether that removal is still running or stopped half way is unknown -- these roots are not reused, adopted or removed again until it is reconciled
+
+=== ERROR: tests.manager.test_custody_engine.DockerCustody.test_nested_hostile_modes_do_not_hide_objects_from_custody ===
+PermissionError: [Errno 13] Permission denied: 'outer'
+
+=== ERROR: tests.manager.test_custody_engine.DockerCustody.test_the_manager_removes_the_tree_only_after_the_custody_act ===
+PermissionError: [Errno 13] Permission denied: 'nested'
+
+=== FAILURE: tests.manager.test_ended_runtime_adoption.DockerEndedRuntimeAdoption.test_an_unrelated_attempts_runtime_survives_the_target_cleanup ===
+AssertionError: 'retained' != 'complete'
+
+=== FAILURE: tests.manager.test_ended_runtime_adoption.DockerEndedRuntimeAdoption.test_force_removal_absence_teardown_then_and_only_then_reuse ===
+AssertionError: 'retained' != 'complete'
+
+=== ERROR: tests.manager.test_input_delivery.TheInputRootIsFrozenAndNotOnlyItsFiles.test_cleanup_removes_a_frozen_root_and_thaws_nothing_else ===
+baton_v12.contracts.errors.ContractRefusal: this manager has no configured workspace store; the deployment records the one directory attempts are allocated under before any custody act, and a store taken from a caller's operand is not a deployment's decision
+
+=== ERROR: tests.manager.test_input_delivery.TheRootsOwnENTRYIsFrozenToo.test_cleanup_reaches_exactly_one_frozen_home ===
+baton_v12.contracts.errors.ContractRefusal: this manager has no configured workspace store; the deployment records the one directory attempts are allocated under before any custody act, and a store taken from a caller's operand is not a deployment's decision
+
+=== ERROR: tests.manager.test_input_delivery.TheRuledTrustModel.test_cleanup_reaches_one_attempt_and_retries_cleanly ===
+baton_v12.contracts.errors.ContractRefusal: this manager has no configured workspace store; the deployment records the one directory attempts are allocated under before any custody act, and a store taken from a caller's operand is not a deployment's decision
+
+=== FAILURE: tests.manager.test_input_delivery.DockerConfiguredGroup.test_a_restarted_manager_reuses_a_delivery_that_is_still_readable ===
+AssertionError: Lists differ: [1000, 1000] != [65532, 65532]
+
+=== FAILURE: tests.manager.test_input_delivery.DockerConfiguredGroup.test_an_owner_only_output_fails_closed_rather_than_widening ===
+AssertionError: Lists differ: [1000, 1000] != [65532, 65532]
+
+=== FAILURE: tests.manager.test_input_delivery.DockerConfiguredGroup.test_manager_cleanup_of_worker_content_is_measured_not_assumed ===
+AssertionError: Lists differ: [1000, 1000] != [65532, 65532]
+
+=== FAILURE: tests.manager.test_input_delivery.DockerConfiguredGroup.test_neither_document_is_writable_and_neither_is_the_root ===
+AssertionError: Lists differ: [1000, 1000] != [65532, 65532]
+
+=== FAILURE: tests.manager.test_input_delivery.DockerConfiguredGroup.test_one_assignment_workspace_reaches_no_other ===
+AssertionError: Lists differ: [1000, 1000] != [65532, 65532]
+
+=== FAILURE: tests.manager.test_input_delivery.DockerConfiguredGroup.test_one_runtime_reaches_no_other_assignments_input_root ===
+AssertionError: Lists differ: [1000, 1000] != [65532, 65532]
+
+=== FAILURE: tests.manager.test_input_delivery.DockerConfiguredGroup.test_the_applied_group_is_asked_of_the_engine_and_the_process ===
+AssertionError: '1000:1000' != '65532:65532'
+
+=== FAILURE: tests.manager.test_input_delivery.DockerConfiguredGroup.test_the_grant_reaches_no_surface_but_the_workspace ===
+AssertionError: Lists differ: [1000, 1000] != [65532, 65532]
+
+=== FAILURE: tests.manager.test_input_delivery.DockerConfiguredGroup.test_the_worker_creates_updates_and_removes_in_its_workspace ===
+AssertionError: Lists differ: [1000, 1000] != [65532, 65532]
+
+=== FAILURE: tests.manager.test_input_delivery.DockerConfiguredGroup.test_the_worker_identity_reads_both_delivered_documents ===
+AssertionError: Lists differ: [1000, 1000] != [65532, 65532]
+
+=== FAILURE: tests.manager.test_input_delivery.DockerConfiguredGroup.test_what_the_worker_creates_inherits_the_workspace_group ===
+AssertionError: Lists differ: [1000, 1000] != [65532, 65532]
+
+=== FAILURE: tests.manager.test_input_delivery.DockerDelivery.test_a_restarted_manager_reuses_a_delivery_that_is_still_readable ===
+AssertionError: Lists differ: [1000, 1000] != [65532, 65532]
+
+=== FAILURE: tests.manager.test_input_delivery.DockerDelivery.test_neither_document_is_writable_and_neither_is_the_root ===
+AssertionError: Lists differ: [1000, 1000] != [65532, 65532]
+
+=== FAILURE: tests.manager.test_input_delivery.DockerDelivery.test_one_runtime_reaches_no_other_assignments_input_root ===
+AssertionError: Lists differ: [1000, 1000] != [65532, 65532]
+
+=== FAILURE: tests.manager.test_input_delivery.DockerDelivery.test_the_worker_identity_reads_both_delivered_documents ===
+AssertionError: Lists differ: [1000, 1000] != [65532, 65532]
+
+=== FAILURE: tests.manager.test_input_delivery.TheRuledTrustModel.test_first_allocation_race_answers_or_refuses_in_contract ===
+AssertionError: [] is not true : [('refusal', ContractRefusal("allocating an execution workspace has to ask this manager's journal whether a cleanup, a removal or a custody hold owns these roots, and the control it was given cannot be used from this thread -- its connection is closed, or it belongs to another thread. The database at '/tmp/v12-w33935-trust-w8dok7j0/control.sqlite3' is not reopened on this caller's behalf: a reopened handle cannot be proved to be the journal that control was opened on, and accepting one that cannot be proved is how a replaced journal answered for the original three times over. A caller allocating from another thread passes a control it can use there")), ('refusal', ContractRefusal("allocating an execution workspace has to ask this manager's journal whether a cleanup, a removal or a custody hold owns these roots, and the control it was given cannot be used from this thread -- its connection is closed, or it belongs to another thread. The database at '/tmp/v12-w33935-trust-w8dok7j0/control.sqlite3' is not reopened on this caller's behalf: a reopened handle cannot be proved to be the journal that control was opened on, and accepting one that cannot be proved is how a replaced journal answered for the original three times over. A caller allocating from another thread passes a control it can use there"))]
+
+=== FAILURE: tests.manager.test_input_delivery.TheRuledTrustModel.test_the_child_create_race_answers_or_refuses_in_contract ===
+AssertionError: [] is not true : [('refusal', "allocating an execution workspace has to ask this manager's journal whether a cleanup, a removal or a custody hold owns these roots, and the control it was given cannot be used from this thread -- its connection is closed, or it belongs to another thread. The database at '/tmp/v12-w33935-trust-19ibvntn/control.sqlite3' is not reopened on this caller's behalf: a reopened handle cannot be proved to be the journal that control was opened on, and accepting one that cannot be proved is how a replaced journal answered for the original three times over. A caller allocating from another thread passes a control it can use there"), ('refusal', "allocating an execution workspace has to ask this manager's journal whether a cleanup, a removal or a custody hold owns these roots, and the control it was given cannot be used from this thread -- its connection is closed, or it belongs to another thread. The database at '/tmp/v12-w33935-trust-19ibvntn/control.sqlite3' is not reopened on this caller's behalf: a reopened handle cannot be proved to be the journal that control was opened on, and accepting one that cannot be proved is how a replaced journal answered for the original three times over. A caller allocating from another thread passes a control it can use there")]
+
+=== FAILURE: tests.manager.test_input_delivery.TheRuledTrustModel.test_the_home_create_race_answers_or_refuses_in_contract ===
+AssertionError: [] is not true : [('refusal', "allocating an execution workspace has to ask this manager's journal whether a cleanup, a removal or a custody hold owns these roots, and the control it was given cannot be used from this thread -- its connection is closed, or it belongs to another thread. The database at '/tmp/v12-w33935-trust-t0k5aqq9/control.sqlite3' is not reopened on this caller's behalf: a reopened handle cannot be proved to be the journal that control was opened on, and accepting one that cannot be proved is how a replaced journal answered for the original three times over. A caller allocating from another thread passes a control it can use there"), ('refusal', "allocating an execution workspace has to ask this manager's journal whether a cleanup, a removal or a custody hold owns these roots, and the control it was given cannot be used from this thread -- its connection is closed, or it belongs to another thread. The database at '/tmp/v12-w33935-trust-t0k5aqq9/control.sqlite3' is not reopened on this caller's behalf: a reopened handle cannot be proved to be the journal that control was opened on, and accepting one that cannot be proved is how a replaced journal answered for the original three times over. A caller allocating from another thread passes a control it can use there")]
+
+=== FAILURE: tests.manager.test_input_delivery.TheRuledTrustModel.test_the_loser_of_a_create_race_reopens_rather_than_refusing ===
+AssertionError: Lists differ: ['refusal', 'refusal'] != ['answer', 'answer']
+
+=== FAILURE: tests.manager.test_lifecycle_composition.DockerComposition.test_nothing_this_module_made_survives_it ===
+AssertionError: Lists differ: ['baton-w6636-lifecycle-sibling-runtime-a6042e8e'] != []
+
+=== FAILURE: tests.manager.test_lifecycle_composition.DockerComposition.test_the_whole_one_container_arc_reaches_a_clean_settlement ===
+AssertionError: 'retained' != 'complete'
+
+=== FAILURE: tests.manager.test_negative_race_endings.DockerNegativeEndings.test_no_ending_settles_before_every_required_one_is_established ===
+AssertionError: 'retained' != 'complete'
+
+=== FAILURE: tests.manager.test_negative_race_endings.DockerNegativeEndings.test_plan_rejected_takes_the_same_cleanup_crossing ===
+AssertionError: 'retained' != 'complete'
+
+=== FAILURE: tests.manager.test_worker_entry_engine.DockerWorkerEntry.test_a_real_container_answers_describe_and_work_through_exec ===
+AssertionError: 1000 == 1000 : the worker's material is not the manager's own; if it were, nothing would have crossed a container boundary

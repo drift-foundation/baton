@@ -1,0 +1,5 @@
+committed ending state/custody/cleanup: absent False retained
+writer-cessation record present: True
+releases with the honest record: 1
+releases with no cessation evidence and an honest record: 0
+releases with the forged record: 0 []

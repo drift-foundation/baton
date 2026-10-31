@@ -2595,6 +2595,8 @@ class OciAdapter:
         Without `bind` the historical single act is unchanged, because an
         assignment governed by no resource token has nothing to bind to.
         """
+        if bind is not None:
+            boundaries.capability(bind, "an activation binding")
         # W194457, owner decision 2026-09-17 (OWNER-TRUSTED-IDENTITY): THERE IS
         # NO RUNTIME PROBE HERE AND THERE IS NOTHING TO ACTIVATE.
         #

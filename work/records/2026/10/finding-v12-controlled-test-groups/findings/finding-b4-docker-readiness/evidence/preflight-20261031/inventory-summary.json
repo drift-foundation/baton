@@ -1,0 +1,229 @@
+[
+  {
+    "module": "tests.manager.test_worker_container",
+    "group": "manager-engine",
+    "baseline_cases": 51,
+    "baseline_outcomes": {
+      "passed": 51
+    },
+    "absent_classes": []
+  },
+  {
+    "module": "tests.manager.test_failed_start_destroy_engine",
+    "group": "manager-engine",
+    "baseline_cases": 4,
+    "baseline_outcomes": {
+      "passed": 4
+    },
+    "absent_classes": []
+  },
+  {
+    "module": "tests.manager.test_oci_engine",
+    "group": "manager-engine",
+    "baseline_cases": 14,
+    "baseline_outcomes": {
+      "passed": 9,
+      "required_skipped": 5
+    },
+    "absent_classes": [
+      "PodmanRunsWhatTheAdapterComposes"
+    ]
+  },
+  {
+    "module": "tests.manager.test_lifecycle_composition",
+    "group": "manager-engine",
+    "baseline_cases": 64,
+    "baseline_outcomes": {
+      "passed": 30,
+      "failed": 2,
+      "unaccounted": 32
+    },
+    "absent_classes": [
+      "PodmanComposition"
+    ]
+  },
+  {
+    "module": "tests.manager.test_negative_race_endings",
+    "group": "manager-engine",
+    "baseline_cases": 10,
+    "baseline_outcomes": {
+      "passed": 3,
+      "failed": 2,
+      "unaccounted": 5
+    },
+    "absent_classes": [
+      "PodmanNegativeEndings"
+    ]
+  },
+  {
+    "module": "tests.manager.test_ended_runtime_adoption",
+    "group": "manager-engine",
+    "baseline_cases": 16,
+    "baseline_outcomes": {
+      "passed": 6,
+      "failed": 2,
+      "unaccounted": 8
+    },
+    "absent_classes": [
+      "PodmanEndedRuntimeAdoption"
+    ]
+  },
+  {
+    "module": "tests.manager.test_output_custody_engine",
+    "group": "manager-engine",
+    "baseline_cases": 8,
+    "baseline_outcomes": {
+      "passed": 8
+    },
+    "absent_classes": []
+  },
+  {
+    "module": "tests.manager.test_credentials_engine",
+    "group": "manager-engine",
+    "baseline_cases": 9,
+    "baseline_outcomes": {
+      "passed": 8,
+      "failed": 1
+    },
+    "absent_classes": []
+  },
+  {
+    "module": "tests.manager.test_refused_session_engine",
+    "group": "manager-engine",
+    "baseline_cases": 16,
+    "baseline_outcomes": {
+      "passed": 8,
+      "unaccounted": 8
+    },
+    "absent_classes": [
+      "PodmanRefusedSession"
+    ]
+  },
+  {
+    "module": "tests.manager.test_custody_engine",
+    "group": "manager-engine",
+    "baseline_cases": 22,
+    "baseline_outcomes": {
+      "passed": 7,
+      "errors": 4,
+      "unaccounted": 11
+    },
+    "absent_classes": [
+      "PodmanCustody"
+    ]
+  },
+  {
+    "module": "tests.manager.test_input_delivery",
+    "group": "manager-engine",
+    "baseline_cases": 80,
+    "baseline_outcomes": {
+      "passed": 34,
+      "failed": 19,
+      "unaccounted": 24,
+      "errors": 3
+    },
+    "absent_classes": [
+      "PodmanConfiguredGroup",
+      "PodmanDelivery"
+    ]
+  },
+  {
+    "module": "tests.manager.test_worker_entry_engine",
+    "group": "manager-engine",
+    "baseline_cases": 10,
+    "baseline_outcomes": {
+      "passed": 4,
+      "failed": 1,
+      "unaccounted": 5
+    },
+    "absent_classes": [
+      "PodmanWorkerEntry"
+    ]
+  },
+  {
+    "module": "tests.manager.test_dogfood_image",
+    "group": "manager-engine",
+    "baseline_cases": 16,
+    "baseline_outcomes": {
+      "passed": 16
+    },
+    "absent_classes": []
+  },
+  {
+    "module": "tests.manager.test_abandoned_attempt_engine",
+    "group": "manager-engine",
+    "baseline_cases": 4,
+    "baseline_outcomes": {
+      "passed": 4
+    },
+    "absent_classes": []
+  },
+  {
+    "module": "tests.manager.test_private_line_access_engine",
+    "group": "manager-engine",
+    "baseline_cases": 4,
+    "baseline_outcomes": {
+      "required_skipped": 4
+    },
+    "absent_classes": []
+  },
+  {
+    "module": "tests.tools.test_dogfood_arc_engine",
+    "group": "manager-engine",
+    "baseline_cases": 2,
+    "baseline_outcomes": {
+      "passed": 2
+    },
+    "absent_classes": []
+  },
+  {
+    "module": "tests.tools.test_dogfood_retry_engine",
+    "group": "manager-engine",
+    "baseline_cases": 4,
+    "baseline_outcomes": {
+      "passed": 4
+    },
+    "absent_classes": []
+  },
+  {
+    "module": "tests.manager.test_integration_worker",
+    "group": "manager-pure",
+    "baseline_cases": 83,
+    "baseline_outcomes": {
+      "failed": 2,
+      "passed": 21,
+      "errors": 60
+    },
+    "absent_classes": []
+  },
+  {
+    "module": "tests.manager.test_worker_image",
+    "group": "manager-pure",
+    "baseline_cases": 106,
+    "baseline_outcomes": {
+      "passed": 105,
+      "failed": 1
+    },
+    "absent_classes": []
+  },
+  {
+    "module": "tests.manager.test_integration_image",
+    "group": "manager-pure",
+    "baseline_cases": 12,
+    "baseline_outcomes": {
+      "passed": 11,
+      "failed": 1
+    },
+    "absent_classes": []
+  },
+  {
+    "module": "tests.manager.test_oci_integration",
+    "group": "manager-pure",
+    "baseline_cases": 78,
+    "baseline_outcomes": {
+      "passed": 77,
+      "failed": 1
+    },
+    "absent_classes": []
+  }
+]

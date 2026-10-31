@@ -1152,6 +1152,13 @@ def _resource_cessation(store, settled, attempt, attempt_id):
             return None
         if _writer_cessation_of(store, settled) is None:
             return None
+    elif _custody_already_committed(store, attempt_id) is None:
+        # W384870 stage C (review 2026-10-31T02:06:09Z): THE MEMBER IS NOT THE
+        # EVIDENCE. The ending records `directory_custody` from
+        # `_custody_already_committed`, and `replay` does not bind result bytes,
+        # so a member forged into a committed ending must not release what the
+        # committed normalizations, read through their own owner, do not prove.
+        return None
     if attempt["runtime_id"] is None:
         return None
     return {"container": attempt["runtime_id"], "stopped": True, "helpers": []}
@@ -1217,6 +1224,8 @@ def authorize_cleanup(store, port, adapter, *, attempt_id,
     material cleaned up are different endings, and reporting retention as
     completion would erase the reason the material still exists.
     """
+    if govern is not None:
+        boundaries.capability(getattr(govern, "release", None), "the resource governor's release")
     boundaries.identity(attempt_id, "a runtime attempt id")
     boundaries.text(retention_policy_digest, "a retention policy digest")
     boundaries.capability(getattr(adapter, "destroy", None),
@@ -2703,6 +2712,8 @@ def abandon_attempt(store, port, adapter, *, attempt_id, reason,
     stays untrusted. This ends at `retained` and deletes nothing, freezes
     nothing, and admits not one byte to the proposal pipeline.
     """
+    if govern is not None:
+        boundaries.capability(getattr(govern, "release", None), "the resource governor's release")
     boundaries.identity(attempt_id, "a runtime attempt id")
     reason = boundaries.text(reason, "an abandonment reason")
     if not reason.strip():
@@ -5641,6 +5652,11 @@ def reclaim_expired_resource(store, adapter, *, attempt_id, govern):
     # is the shape this narrower verb exists to avoid.
     boundaries.capability(getattr(adapter, "stop_expired", None),
                           "the runtime adapter's expiry stop")
+    boundaries.identity(attempt_id, "a runtime attempt id")
+    # W384870 stage C: THE GOVERNOR IS A CAPABILITY, typed before anything is
+    # read or ordered; its three acts here are the ones this ending performs.
+    for act in ("overdue", "revoke", "release"):
+        boundaries.capability(getattr(govern, act, None), f"the resource governor's {act}")
     attempt = _attempt_of(store._connection, attempt_id)
     operation_id = attempts._start_operation_id(attempt)
     overdue = govern.overdue(store, attempt, operation=operation_id)
@@ -5952,6 +5968,10 @@ def settle_revoked_resource(store, adapter, *, attempt_id, govern,
 
     boundaries.capability(getattr(adapter, "observe", None),
                           "the runtime adapter's observe")
+    boundaries.identity(attempt_id, "a runtime attempt id")
+    # W384870 stage C: the governor's two acts here are typed before any read.
+    for act in ("identity", "release"):
+        boundaries.capability(getattr(govern, act, None), f"the resource governor's {act}")
     attempt = _attempt_of(store._connection, attempt_id)
     operation_id = attempts._start_operation_id(attempt)
     domain = tokens.domain_of(govern.resource_kind, govern.identity(attempt))

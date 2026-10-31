@@ -1455,6 +1455,8 @@ def custody_holds(store, assignment_id, which):
     answers is which episodes exist and which of them an operator has
     cleared, so a caller can refuse rather than guess.
     """
+    boundaries.identity(assignment_id, "an assignment identity")
+    check_custody_root(which)
     import json as _json
 
     held = []
@@ -2430,26 +2432,32 @@ def allowed(seconds, most):
     "do not start" rather than "wait forever" -- the caller checked before
     calling, and this is the second reading that makes the race harmless.
     """
+    # W384870 stage C (review 2026-10-31T02:06:09Z): THE CEILING IS A FINITE
+    # NUMBER ON EVERY PATH, including the unbounded one that hands it back, and
+    # a remainder that is not a finite number is refused through the declared
+    # vocabulary rather than escaping as `int()`'s ValueError or OverflowError.
+    # None stays today's unbounded answer; flooring and the non-positive-answers-
+    # zero rule are unchanged.
+    ceiling = _finite_seconds(most, "allowance ceiling")
     if seconds is None:
         return most
     left = seconds() if callable(seconds) else seconds
     if left is None:
         return most
-    # A WHOLE NUMBER, because `EnginePort` refuses anything else -- "an engine
-    # deadline is a positive whole number of seconds" -- and rounded DOWN.
-    #
-    # Review 2026-09-24T11:02:29Z [R1] reproduced the defect exactly:
-    # `allowed(lambda: 0.1, 120)` answered 1. Rounding UP hands a boundary
-    # MORE time than the caller has left, which is the one direction an
-    # allowance may never round. My reasoning for it -- that rounding down
-    # turns a real remainder into an immediate refusal -- was solving the
-    # wrong problem: a caller with a tenth of a second left should not be
-    # STARTING anything, and that is the admission reserve's job rather than
-    # this function's.
-    #
-    # SO A SUB-SECOND REMAINDER ANSWERS ZERO, and every boundary reads zero as
-    # "do not start". The allowance never exceeds what is left.
-    return max(0, min(int(left), int(most)))
+    return max(0, min(int(_finite_seconds(left, "remaining allowance")), int(ceiling)))
+
+
+def _finite_seconds(value, which):
+    """A finite int or float number of seconds, or a refusal in this module's words."""
+    import math
+
+    if type(value) is bool or type(value) not in (int, float) \
+            or (type(value) is float and not math.isfinite(value)):
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"an engine {which} is a finite number of seconds; this is "
+            f"{name_value(value)}")
+    return value
 
 
 def custody_act(engine, run, *, image_digest, store, assignment_id,

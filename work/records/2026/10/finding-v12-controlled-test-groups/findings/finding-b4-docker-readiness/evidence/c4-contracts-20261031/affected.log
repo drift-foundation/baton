@@ -1,0 +1,8 @@
+{"argv": ["just", "test-one", "tests.manager.test_integration_worker.EveryIntegrationRefusalSAYSWHY.test_a_generation_this_runtime_cannot_read_SAYS_SO", "tests.manager.test_integration_worker.TheWrapperTakesTheAdaptersOwnProviderTurn.test_a_clean_turn_answers_the_closed_document"], "cwd": "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12", "interpreter": "/home/sl/.local/state/baton-v12-venv/bin/python", "tmp_root": "/var/tmp/baton-w384944-c4-affected-_b3s1ub7", "snapshot_commit": "a8cbc9745d1eff51bcfb04d2fe4bb96a5ea3b12d"}
+test_a_generation_this_runtime_cannot_read_SAYS_SO (tests.manager.test_integration_worker.EveryIntegrationRefusalSAYSWHY.test_a_generation_this_runtime_cannot_read_SAYS_SO) ... ok
+test_a_clean_turn_answers_the_closed_document (tests.manager.test_integration_worker.TheWrapperTakesTheAdaptersOwnProviderTurn.test_a_clean_turn_answers_the_closed_document) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.010s
+
+OK

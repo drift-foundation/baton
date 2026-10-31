@@ -18,6 +18,8 @@ no container and stops none: it decides permission and records evidence. The
 governed effects belong behind a token-bound maintenance execution (TOK-7), which is
 G2, and the removal consumer is G3. Both are excluded from this Work by owner 275617.
 """
+import json
+
 from ..contracts import ContractRefusal
 from ..contracts.errors import name_value
 from . import boundaries
@@ -202,17 +204,61 @@ def _fence_settlement(control, token, selection):
     return document
 
 
-def _document(control, operation_id, kind):
-    """A committed record's own document, read back through `replay`.
+# The kinds whose writers record the signed operands themselves as the result,
+# so the signature's operands verify every member on read (W384870 stage C).
+# The three judgement kinds record a DECIDED instant the signature does not
+# cover (RENEWED's new deadline, EXPIRED's and TIMING_AMBIGUOUS's observation);
+# binding those needs the operands to carry the decided instant, which is a
+# W275775 identity/replay question for the owner -- recorded in the stage C
+# evidence, not decided here. Their shape is owned below.
+_SELF_SIGNED_KINDS = frozenset((
+    ACQUIRED_KIND, LAUNCH_KIND, BOUND_KIND, RETURNED_KIND, REVOKED_KIND,
+    ACTIVATING_KIND, ACTIVATION_SETTLED_KIND, SETTLEMENT_FENCE_KIND))
+# The members a judgement record DECIDES beside the operands it was signed for:
+# the renewal's new deadline and its instant; the expiry and ambiguity
+# judgements' observed deadline, revision and instants.
+_DECIDED_MEMBERS = {
+    RENEWED_KIND: ("renewed_at", "expires_at"),
+    EXPIRED_KIND: ("expires_at", "revision", "observed_at", "decided_at"),
+    TIMING_AMBIGUOUS_KIND: ("expires_at", "revision", "observed_at", "decided_at"),
+}
 
-    Never the `result` column read raw: `replay` recomputes the signature, so a row
-    edited in place to name another owner or container no longer answers.
+
+def _document(control, operation_id, kind):
+    """A committed record's own document, read back through `replay` and VERIFIED.
+
+    W384870 stage C (review 2026-10-31T02:06:09Z): `replay` binds the signature
+    and not the result bytes, so an acquisition whose `expires_at` was rewritten
+    in place still answered -- and `token_of` decided `expired` from it. The
+    acquisition, launch, binding, return, revocation, activation and settlement
+    records all record their signed operands as their result, so the signature's
+    operands verify them member by member here. A judgement record is owned by
+    its closed shape and its identity-bound members; its decided instant is not
+    signature-bound (see `_JUDGED_MEMBERS`).
     """
+    from .store import replayed_as_signed
+
+    if kind in _SELF_SIGNED_KINDS:
+        return replayed_as_signed(control, operation_id, kind, what="a resource-token record")
     found = control.operation_record(operation_id)
     if found is None:
         return None
     _, document = control.replay(operation_id, found["signature"], kind=kind)
-    return document
+    # THE SIGNED OPERANDS ARE A SUBSET OF THE RESULT and verify member by member;
+    # the decided instants beyond them are owned by shape (not signature-bound).
+    signed = json.loads(found["signature"])["operands"]
+    taken = boundaries.document(document, "a resource-token judgement record",
+                                required=tuple(signed) + _DECIDED_MEMBERS[kind])
+    for member, value in signed.items():
+        if taken[member] != value:
+            raise ContractRefusal(
+                "integrity", "schema",
+                f"a resource-token judgement record at {name_value(operation_id)} names "
+                f"{member} {name_value(taken[member])} and was signed for {name_value(value)}")
+    for member in _DECIDED_MEMBERS[kind]:
+        if member != "revision":
+            boundaries.instant(taken[member], f"a resource-token judgement record's {member}")
+    return taken
 
 
 def outstanding(control, domain):

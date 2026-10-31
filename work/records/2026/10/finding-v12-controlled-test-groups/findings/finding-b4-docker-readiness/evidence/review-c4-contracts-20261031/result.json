@@ -1,0 +1,9 @@
+{
+  "exit_code": 0,
+  "seconds": 18.225922279998485,
+  "root": "/var/tmp/baton-w384944-review-contracts-026gib8k",
+  "remaining": [],
+  "source_files_verified": 1133,
+  "candidate_sha256": "a2ffd5dce0c41fb37c1f54f45589e992ad18bb3c9e2d9dd7df2e8a16a8c713f3",
+  "root_removed": true
+}

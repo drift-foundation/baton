@@ -1,0 +1,77 @@
+custody.py:_reconciled | identity | a listed runtime id | runtime_id | custody.py:_reconciled:905 | -
+exchange.py:_instant | instant | a worker document's {name} | caller:value | exchange.py:_instant:813 | -
+failure_cause.py:_identity | identity | an attempt identity | caller:attempt[runtime_attempt_id] | failure_cause.py:_identity:401 | -
+intake.py:_abandoned_destroy_operation | text | a retention policy digest | caller:retention_policy_digest | intake.py:_abandoned_destroy_operation:4104 | -
+intake.py:_abandoned_destroy_operation | text | an abandonment record digest | caller:abandonment_record_digest | intake.py:_abandoned_destroy_operation:4103 | -
+intake.py:_adopted_writer_cessation | document | {what}'s writer cessation | caller:ceased | intake.py:_adopted_writer_cessation:2280 | -
+intake.py:_chosen | identity | an artifact id | name | intake.py:_chosen:171 | -
+intake.py:_compared | document | a collected artifact | caller:taken[artifacts] | intake.py:_compared:683 | -
+intake.py:_compared | identity | a collected result id | caller:taken[result_id] | intake.py:_compared:664 | -
+intake.py:_compared | identity | an artifact id | caller:taken[artifacts][artifact_id] | intake.py:_compared:687 | -
+intake.py:_compared | text | a content digest | caller:taken[artifacts][content_digest] | intake.py:_compared:715 | -
+intake.py:_compared | text | a custody locator | caller:taken[artifacts][custody_locator] | intake.py:_compared:718 | -
+intake.py:_ending_capable | capability | the runtime adapter's writer-listing act, which attempt {name_value(attempt_id)}'s ending asks when the deployment offers one | caller:adapter | intake.py:_ending_capable:4305 | -
+intake.py:_kept_material | identity | {what}'s kept artifact id | name | intake.py:_kept_material:2169 | -
+intake.py:historical_writer_cessation | document | a committed writer cessation | recorded | intake.py:historical_writer_cessation:4825 | -
+interrogation.py:_diagnostics | text | a probe diagnostic name | name | interrogation.py:_diagnostics:388 | -
+launch.py:_job_execution | identity | a Job id | caller:given[job_id] | launch.py:_job_execution:375 | -
+launch.py:_job_execution | identity | a runtime attempt id | caller:given[attempt_id] | launch.py:_job_execution:376 | -
+launch.py:_job_execution | text | a launch document's execution limit digest | caller:given[execution_limits_digest] | launch.py:_job_execution:383 | -
+launch.py:_job_execution | text | a launch document's job_input_digest | caller:given[job_input_digest] | launch.py:_job_execution:380 | -
+launch.py:_job_execution | text | a launch document's job_policy_digest | caller:given[job_policy_digest] | launch.py:_job_execution:380 | -
+launch.py:_job_execution | text | a launch document's runtime_input_digest | caller:given[runtime_input_digest] | launch.py:_job_execution:380 | -
+launch.py:_job_execution | text | a launch document's runtime_policy_digest | caller:given[runtime_policy_digest] | launch.py:_job_execution:380 | -
+maintenance.py:_created | identity | a created runtime id | lines[] | maintenance.py:_created:1052 | -
+maintenance.py:_prepared_name | identity | an assignment identity | caller:assignment_id | maintenance.py:_prepared_name:759 | -
+oci.py:OciAdapter._bound_orphan | identity | {what} runtime attempt id | caller:attempt_id | oci.py:OciAdapter._bound_orphan:3916 | -
+oci.py:OciAdapter._custodied | text | a retained artifact id | one | oci.py:OciAdapter._custodied:4179 | -
+oci.py:OciAdapter._mounts_the_authorized_root | document | a runtime mount | mount | oci.py:OciAdapter._mounts_the_authorized_root:2521 | -
+oci.py:OciAdapter._quiesced | document | a seal authorization context | caller:request[context] | oci.py:OciAdapter._quiesced:4046 | -
+oci.py:OciAdapter._removed | identity | {what} runtime id | caller:named | oci.py:OciAdapter._removed:3856 | -
+oci.py:OciAdapter.list | identity | a listed runtime id | runtime_id | oci.py:OciAdapter.list:3432 | -
+oci.py:OciAdapter.start | capability | an activation permission | permit | oci.py:OciAdapter.start:2930 | -
+oci.py:OciAdapter.start | document | an activation admission | ? | oci.py:OciAdapter.start:2931 | -
+oci.py:OciAdapter.start | identity | a started runtime id | runtime_id | oci.py:OciAdapter.start:2871 | -
+oci.py:_decoded | text | an engine document | caller:payload | oci.py:_decoded:2190 | -
+oci.py:_exchange_mounts | text | an exchange delivery target | one[] | oci.py:_exchange_mounts:1013 | -
+oci.py:_image_identity | text | a runtime image | caller:value | oci.py:_image_identity:338 | -
+oci.py:_label_value | text | a runtime label | caller:value | oci.py:_label_value:4420 | -
+oci.py:_layout_mount | text | a verifier-layout document target | pair[] | oci.py:_layout_mount:964 | -
+oci.py:_log_mounts | text | an attempt-log delivery target | caller:logs_delivered | oci.py:_log_mounts:1066 | -
+oci.py:_mounts | document | a runtime mount | caller:mounts | oci.py:_mounts:756 | -
+oci.py:_whole | text | a generation label | caller:value | oci.py:_whole:4438 | -
+oci.py:exec_vector | text | an exec program word | one | oci.py:exec_vector:1873 | -
+posture_slots.py:_occupy_slot | identity | a runtime attempt id | caller:attempt_id | posture_slots.py:_occupy_slot:170 | -
+posture_slots.py:_occupy_slot | instant | a slot movement instant | caller:at | posture_slots.py:_occupy_slot:173 | -
+posture_slots.py:_release_slot_in | instant | a slot movement instant | caller:at | posture_slots.py:_release_slot_in:414 | -
+posture_slots.py:_require_slot_recovery_in | instant | a slot movement instant | caller:at | posture_slots.py:_require_slot_recovery_in:356 | -
+provider_context.py:_finalize_context_use | capability | the historical checkpoint identity reader | caller:checkpoint_reader | provider_context.py:_finalize_context_use:1029 | -
+provider_context.py:_receipt | capability | the retained context receipt byte reader | caller:reader | provider_context.py:_receipt:943 | -
+review_cycles.py:_assignment_agrees | generation | {what}'s fixed assignment generation | assignment[generation] | review_cycles.py:_assignment_agrees:919 | -
+review_cycles.py:_committed_history | document | the committed {kind} operands for {what} | signature[operands] | review_cycles.py:_committed_history:869 | -
+review_cycles.py:_committed_history | document | the committed {kind} result for {what} | ? | review_cycles.py:_committed_history:873 | -
+review_cycles.py:_committed_history | document | the committed {kind} signature for {what} | ? | review_cycles.py:_committed_history:863 | -
+review_cycles.py:_committed_history | generation | the committed {kind} generation for {what} | operands[generation] | review_cycles.py:_committed_history:875 | -
+review_cycles.py:_committed_history | generation | the committed {kind} result generation for {what} | result[generation] | review_cycles.py:_committed_history:878 | -
+review_cycles.py:_line_place | text | the manager's workspace storage | caller:storage | review_cycles.py:_line_place:1217 | -
+review_cycles.py:_one_by_attempt | row | {what} | read:review_cycles.py:_one_by_attempt|{table} | review_cycles.py:_one_by_attempt:804 | -
+review_cycles.py:_profile | capability | a checkpoint profile's {method} capability | caller:profile | review_cycles.py:_profile:528 | -
+review_cycles.py:_profile | text | a checkpoint profile name | caller:profile | review_cycles.py:_profile:526 | -
+review_cycles.py:_reserved_line | text | a materialized line head | materialized[head] | review_cycles.py:_reserved_line:1596 | -
+review_cycles.py:_review_result | document | a frozen review artifact | caller:value[artifacts] | review_cycles.py:_review_result:1494 | -
+review_cycles.py:_review_result | document | a frozen review result | caller:value | review_cycles.py:_review_result:1478 | -
+review_cycles.py:_review_result | identity | a frozen review output name | caller:value[artifacts][output_name] | review_cycles.py:_review_result:1498 | -
+review_cycles.py:_review_result | identity | a frozen review result's attempt_id | caller:value[attempt_id] | review_cycles.py:_review_result:1484 | -
+review_cycles.py:_review_result | identity | a frozen review result's freeze_operation_id | caller:value[freeze_operation_id] | review_cycles.py:_review_result:1484 | -
+review_cycles.py:_review_result | identity | a frozen review result's manifest_digest | caller:value[manifest_digest] | review_cycles.py:_review_result:1484 | -
+review_cycles.py:_review_result | identity | a frozen review result's result_id | caller:value[result_id] | review_cycles.py:_review_result:1484 | -
+review_cycles.py:_review_result | instant | a frozen review result's frozen_at | caller:value[frozen_at] | review_cycles.py:_review_result:1485 | -
+sessions.py:_request_session_quiescence | identity | a runtime attempt id | caller:attempt_id | sessions.py:_request_session_quiescence:838 | -
+source_boundary.py:compose_verifier_layout | text | a verifier layout's {name} | value | source_boundary.py:compose_verifier_layout:1212 | -
+worker_entry.py:converse | identity | a worker-entry operation identity | one | worker_entry.py:converse:382 | -
+workspaces.py:_granted_roots | capability | an assignment roots live grant | caller:grant | workspaces.py:_granted_roots:6477 | -
+workspaces.py:_token_terms | deadline | a removal token expiry | caller:seconds | workspaces.py:_token_terms:3154 | -
+workspaces.py:_token_terms | text | a token execution identity | caller:execution | workspaces.py:_token_terms:3151 | -
+workspaces.py:claimed_workspace_authority | document | a workspace authority marker | taken | workspaces.py:claimed_workspace_authority:1362 | -
+workspaces.py:claimed_workspace_authority | text | a claimed workspace authority's control store | taken[control_store] | workspaces.py:claimed_workspace_authority:1368 | -
+workspaces.py:revoke_expired_token | document | a container cessation answer | ? | workspaces.py:revoke_expired_token:3127 | -

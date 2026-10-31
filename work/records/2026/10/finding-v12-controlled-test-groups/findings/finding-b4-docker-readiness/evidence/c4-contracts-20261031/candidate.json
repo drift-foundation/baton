@@ -1,0 +1,9 @@
+{
+  "path": "v12/python/tests/manager/test_integration_worker.py",
+  "accepted_base_sha256": "f5a443a9437992daaa7971209748c6f1edb0adb8982246216d99256614bb2a50",
+  "candidate_sha256": "a2ffd5dce0c41fb37c1f54f45589e992ad18bb3c9e2d9dd7df2e8a16a8c713f3",
+  "snapshot_commit": "a8cbc9745d1eff51bcfb04d2fe4bb96a5ea3b12d",
+  "shared_mode": "0o664",
+  "claim": "E384962",
+  "review": "review-2026-10-31T02-33-07Z.md"
+}

@@ -1,0 +1,6 @@
+allowed None 'bad' ContractRefusal integrity schema an engine allowance ceiling is a finite number of seconds; this is 'ba
+allowed 1 inf ContractRefusal integrity schema an engine allowance ceiling is a finite number of seconds; this is a f
+allowed nan 120 ContractRefusal integrity schema an engine remaining allowance is a finite number of seconds; this is a
+allowed None 120 returned 120
+allowed lambda: 0.1 120 returned 0
+allowed 5.9 3 returned 3

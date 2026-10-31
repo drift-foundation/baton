@@ -118,8 +118,10 @@ class TheWrapperTakesTheAdaptersOwnProviderTurn(ProviderTurnCase):
     def test_a_clean_turn_answers_the_closed_document(self):
         answer = self.agent.invoke_provider(prompt=PROMPT, room=self.room)
         self.assertEqual(set(answer),
-                         {"ok", "status", "failure_reason", "why"})
+                         {"ok", "status", "failure_reason", "why", "seconds_bound", "seconds_bound_source"})
         self.assertEqual((answer["ok"], answer["status"]), (True, 0))
+        self.assertEqual(answer["seconds_bound"], 3600)
+        self.assertEqual(answer["seconds_bound_source"], "worker-default")
         # A CLEAN TURN PUBLISHES NO REASON, which is the private turn's rule
         # and is not restated by the wrapper.
         self.assertIsNone(answer["failure_reason"])
@@ -409,7 +411,7 @@ class WorldCase(unittest.TestCase):
         self.addCleanup(self.producer.doCleanups)
 
         self.root = tempfile.mkdtemp(prefix="v12-w110935-")
-        self.addCleanup(shutil.rmtree, self.root, True)
+        self.addCleanup(self.remove_world, self.root)
         self.commands = []
         self.behaviour = "import"
         self.status = 0
@@ -431,14 +433,20 @@ class WorldCase(unittest.TestCase):
         # rewrite is one it could change between reading it and being held to
         # it, and the real deployment mounts it read-only.
         os.chmod(self.launch_place, 0o444)
-        self.delivery = runtime.IntegrationDelivery(
-            attempt_id=self.assignment["attempt_id"],
-            root=self.place("delivery"))
-        os.makedirs(self.delivery.assignment_root)
-        os.makedirs(self.delivery.result_root)
+        self.delivery = runtime.materialize_delivery(
+            self.place("delivery"), attempt_id=self.assignment["attempt_id"],
+            workspace_group=self.producer.world.owner.group)
         runtime.publish_assignment(self.delivery, self.assignment)
 
     # -- the world's own material -------------------------------------------
+
+    @staticmethod
+    def remove_world(root):
+        # Disposal only: published fixture bundles are read-only during the
+        # test. Thaw this case's own directories, never linked destinations.
+        for current, _directories, _files in os.walk(root):
+            os.chmod(current, 0o700)
+        shutil.rmtree(root)
 
     def place(self, *parts):
         made = os.path.join(self.root, *parts)
@@ -1641,14 +1649,17 @@ class EveryIntegrationRefusalSAYSWHY(unittest.TestCase):
         return body
 
     def test_a_generation_this_runtime_cannot_read_SAYS_SO(self):
+        unsupported = "baton.worker-launch/999"
+        self.assertNotIn(unsupported, baton_worker.SUPPORTED_LAUNCH_SCHEMAS)
         status, said = self.ran(self.launched(
-            self.valid(schema="baton.worker-launch/5")))
+            self.valid(schema=unsupported)))
         self.assertEqual(status, 2, "the accepted status is unchanged")
         self.assertIn("baton-worker: ", said)
         self.assertIn("cannot read its launch", said)
         # AND IT NAMES THE GENERATIONS, because the operator's next question is
         # which image this is.
-        self.assertIn("baton.worker-launch/5", said)
+        self.assertIn(unsupported, said)
+        self.assertIn("another generation", said)
         for one in baton_worker.SUPPORTED_LAUNCH_SCHEMAS:
             self.assertIn(one, said)
 

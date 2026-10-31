@@ -1,0 +1,34 @@
+{
+  "observed_utc": "2026-10-31T02:17:25.455669+00:00",
+  "note": "Corrected optional Volumes-key lookup after initial template refusal. No image changed.",
+  "commands": [
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "--format",
+        "{\"Id\":{{json .Id}},\"RepoTags\":{{json .RepoTags}},\"Created\":{{json .Created}},\"Architecture\":{{json .Architecture}},\"Os\":{{json .Os}},\"User\":{{json .Config.User}},\"Volumes\":{{json (index .Config \"Volumes\")}}}",
+        "sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4"
+      ],
+      "exit": 0,
+      "stdout": "{\"Id\":\"sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4\",\"RepoTags\":[\"baton-w71917-provider-gate:20260905\"],\"Created\":\"1970-01-01T00:00:00Z\",\"Architecture\":\"amd64\",\"Os\":\"linux\",\"User\":\"65532:65532\",\"Volumes\":null}\n",
+      "stderr": "",
+      "seconds": 0.005729888005589601
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "--format",
+        "{\"Id\":{{json .Id}},\"RepoTags\":{{json .RepoTags}},\"Created\":{{json .Created}},\"Architecture\":{{json .Architecture}},\"Os\":{{json .Os}},\"User\":{{json .Config.User}},\"Volumes\":{{json (index .Config \"Volumes\")}}}",
+        "sha256:9b8c98820877e33d38d33352d86cc3810e5b72d4935a181b82b512b4d3291de8"
+      ],
+      "exit": 0,
+      "stdout": "{\"Id\":\"sha256:9b8c98820877e33d38d33352d86cc3810e5b72d4935a181b82b512b4d3291de8\",\"RepoTags\":[\"baton-w32577-reference:20260913\",\"baton-w6636-lifecycle:e915e074308a\"],\"Created\":\"2026-09-13T22:50:48.487094177Z\",\"Architecture\":\"amd64\",\"Os\":\"linux\",\"User\":\"65532:65532\",\"Volumes\":null}\n",
+      "stderr": "",
+      "seconds": 0.0060201870001037605
+    }
+  ]
+}

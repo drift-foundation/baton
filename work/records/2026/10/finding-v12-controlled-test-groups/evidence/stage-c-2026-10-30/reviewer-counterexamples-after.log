@@ -1,0 +1,14 @@
+validators: {}
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/10/finding-v12-controlled-test-groups/evidence/review-stage-c-20261031/counterexamples.py", line 18, in <module>
+    m.StageCProtections()._handed_owned('sample.py:_consume','record',m.EveryReceivingEntryHasOneOwner())
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 13581, in _handed_owned
+    self._owned_value(argument, site, origins, case, (target,))
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 13486, in _owned_value
+    self._owned_crossing(value, entries, case)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 13448, in _owned_crossing
+    raise AssertionError(f"{value} is a read or crossing no owner answers for ({answering[0]})")
+AssertionError: read:sample.py:door|held is a read or crossing no owner answers for (('adopted', 'sample.py:door', 'held'))

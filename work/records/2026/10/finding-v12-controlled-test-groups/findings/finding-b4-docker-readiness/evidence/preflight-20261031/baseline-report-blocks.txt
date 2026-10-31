@@ -1,0 +1,2161 @@
+=== FAILURE: tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_it_copies_the_worker_modules_and_no_manager_package ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_image.py", line 120, in test_it_copies_the_worker_modules_and_no_manager_package
+    self.assertEqual(sorted(sources), [
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+        # W198667's shared capture format. THIS CASE WAS ALREADY RED for
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<17 lines>...
+        "worker/integration_workload.py",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "worker/worker-control-1.0.schema.json"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['pyt[78 chars]s', 'python/src/baton_v12/verification_context[221 chars]son'] != ['pyt[78 chars]s', 'worker/adapter_refusal.py', 'worker/baton[173 chars]son']
+
+First differing element 2:
+'python/src/baton_v12/verification_context.py'
+'worker/adapter_refusal.py'
+
+First list contains 1 additional elements.
+First extra element 9:
+'worker/worker-control-1.0.schema.json'
+
+  ['python/src/baton_v12/attempt_log_format.py',
+   'python/src/baton_v12/source_profiles',
+-  'python/src/baton_v12/verification_context.py',
+   'worker/adapter_refusal.py',
+   'worker/baton_worker.py',
+   'worker/claude_agent.py',
+   'worker/integration_contract.py',
+   'worker/integration_entry.py',
+   'worker/integration_workload.py',
+   'worker/worker-control-1.0.schema.json']
+
+=== FAILURE: tests.manager.test_integration_worker.EveryIntegrationRefusalSAYSWHY.test_a_generation_this_runtime_cannot_read_SAYS_SO ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 1651, in test_a_generation_this_runtime_cannot_read_SAYS_SO
+    self.assertIn("baton.worker-launch/5", said)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'baton.worker-launch/5' not found in 'baton-worker: launch: the integration runtime cannot read its launch: /tmp/v12-w198667-kqkfoq5w/launch.json is exactly schema, wire_profile, payload; missing payload, wire_profile; unexpected contract, role, session\n'
+
+=== ERROR: tests.manager.test_integration_worker.TheAcceptedBundleIsCarriedThroughTheRealEntry.test_a_deletion_is_imported_as_an_absence ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheAcceptedBundleIsCarriedThroughTheRealEntry.test_a_mode_change_is_not_publishable_and_starts_no_provider ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheAcceptedBundleIsCarriedThroughTheRealEntry.test_a_terminal_result_never_earns_a_second_provider_turn ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheAcceptedBundleIsCarriedThroughTheRealEntry.test_an_addition_is_imported_verified_and_published ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheAcceptedBundleIsCarriedThroughTheRealEntry.test_an_edit_preserves_the_reviewed_mode ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheAcceptedBundleIsCarriedThroughTheRealEntry.test_an_unscheduled_existing_test_change_is_the_providers_to_refuse ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheAcceptedBundleIsCarriedThroughTheRealEntry.test_the_prompt_requires_whole_candidate_test_evaluation ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheAcceptedBundleIsCarriedThroughTheRealEntry.test_the_provider_ran_in_the_target_with_the_composed_environment ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheAcceptedBundleIsCarriedThroughTheRealEntry.test_the_version_control_metadata_is_untouched ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheBundleIdentityIsMeasuredAndNotRead.test_a_file_the_envelope_never_named_changes_the_identity ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheBundleIdentityIsMeasuredAndNotRead.test_a_link_or_a_device_in_the_bundle_refuses_the_measurement ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheBundleIdentityIsMeasuredAndNotRead.test_a_report_naming_another_bundle_is_held ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheBundleIdentityIsMeasuredAndNotRead.test_the_measured_identity_is_the_producers_own_answer ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEndingIsConservative.test_a_clean_provider_refusal_after_writable_work_is_still_held ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEndingIsConservative.test_a_failed_verification_after_a_complete_import_is_held ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEndingIsConservative.test_a_partial_import_is_held ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEndingIsConservative.test_a_provider_that_did_not_complete_is_held ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEndingIsConservative.test_a_provider_that_timed_out_is_held ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEndingIsConservative.test_a_report_claiming_a_path_outside_the_table_is_held ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEndingIsConservative.test_a_report_that_claims_an_import_it_did_not_reach_is_held ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEndingIsConservative.test_a_report_that_does_not_claim_an_import_is_held ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEndingIsConservative.test_a_turn_with_no_report_is_held ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEndingIsConservative.test_a_verification_that_cannot_run_is_held ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEndingIsConservative.test_a_verification_that_undoes_the_import_is_held ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEndingIsConservative.test_an_agent_that_answers_something_else_is_held ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEndingIsConservative.test_an_unchanged_verifier_still_integrates ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEndingIsConservative.test_an_unreadable_report_is_held ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEndingIsConservative.test_no_provider_text_reaches_a_held_result ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEndingIsConservative.test_no_provider_text_reaches_an_integrated_result ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEndingIsConservative.test_the_accepted_verification_is_the_one_that_runs ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEndingIsConservative.test_version_control_metadata_that_moved_is_held ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEntryIsTheOneShotComposition.test_a_result_above_the_delivery_bound_is_refused_not_truncated ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEntryIsTheOneShotComposition.test_a_writable_launch_document_is_refused ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEntryIsTheOneShotComposition.test_an_absent_result_file_in_a_proved_namespace_is_not_a_refusal ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEntryIsTheOneShotComposition.test_an_unreadable_result_namespace_starts_no_provider ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEntryIsTheOneShotComposition.test_no_assignment_writes_nothing_and_exits_two ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEntryIsTheOneShotComposition.test_no_launch_document_writes_nothing_and_exits_two ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEntryIsTheOneShotComposition.test_the_published_result_is_read_only_and_never_clobbered ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEvidenceMustBeThisCandidatesOwn.test_a_bundle_composed_for_another_assignment_refuses ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEvidenceMustBeThisCandidatesOwn.test_a_bundle_naming_another_launch_refuses ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEvidenceMustBeThisCandidatesOwn.test_a_bundle_with_no_accepted_verification_command_refuses ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEvidenceMustBeThisCandidatesOwn.test_a_bundle_with_no_readable_envelope_refuses ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEvidenceMustBeThisCandidatesOwn.test_a_container_launched_under_another_role_refuses ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEvidenceMustBeThisCandidatesOwn.test_a_review_that_did_not_accept_refuses ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEvidenceMustBeThisCandidatesOwn.test_a_scheduled_test_change_with_no_review_document_refuses ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEvidenceMustBeThisCandidatesOwn.test_an_added_test_needs_no_scheduled_scope ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEvidenceMustBeThisCandidatesOwn.test_an_authority_account_about_another_job_refuses ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEvidenceMustBeThisCandidatesOwn.test_evidence_about_another_checkpoint_refuses ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEvidenceMustBeThisCandidatesOwn.test_instructions_the_profile_does_not_name_refuse ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEvidenceMustBeThisCandidatesOwn.test_the_accepted_scope_is_the_enumeration_and_not_a_filename ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheEvidenceMustBeThisCandidatesOwn.test_the_same_change_inside_the_scheduled_scope_is_admitted ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheWholePathSetIsProvedBeforeAnyImport.test_a_late_invalid_row_stops_the_whole_import ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheWholePathSetIsProvedBeforeAnyImport.test_a_link_or_a_directory_at_a_scheduled_path_refuses ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheWholePathSetIsProvedBeforeAnyImport.test_a_read_only_target_refuses_and_is_never_repaired ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheWholePathSetIsProvedBeforeAnyImport.test_a_result_published_before_the_turn_stops_it ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheWholePathSetIsProvedBeforeAnyImport.test_a_target_at_another_mode_than_the_reviewed_base_refuses ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheWholePathSetIsProvedBeforeAnyImport.test_a_target_at_another_revision_refuses ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheWholePathSetIsProvedBeforeAnyImport.test_a_target_that_is_not_at_the_reviewed_base_bytes_refuses ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheWholePathSetIsProvedBeforeAnyImport.test_an_addition_over_an_existing_path_refuses ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== ERROR: tests.manager.test_integration_worker.TheWholePathSetIsProvedBeforeAnyImport.test_an_unreadable_target_revision_refuses ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 439, in setUp
+    runtime.publish_assignment(self.delivery, self.assignment)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 1028, in publish_assignment
+    root_fd = _opened_root(delivery)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 812, in _opened_root
+    ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                              "the per-attempt delivery ancestor",
+                              within=base, absent_ok=absent_ok)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 860, in _own_directory
+    _denied(f"{what} is mode {oct(stat.S_IMODE(held.st_mode))} and this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"manager established {oct(mode)}; a delivery whose modes have "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"moved is not the one it wrote")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/runtime.py", line 185, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: the per-attempt delivery ancestor is mode 0o775 and this manager established 0o700; a delivery whose modes have moved is not the one it wrote
+
+=== FAILURE: tests.manager.test_integration_worker.TheWrapperTakesTheAdaptersOwnProviderTurn.test_a_clean_turn_answers_the_closed_document ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_integration_worker.py", line 120, in test_a_clean_turn_answers_the_closed_document
+    self.assertEqual(set(answer),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+                     {"ok", "status", "failure_reason", "why"})
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Items in the first set but not the second:
+'seconds_bound'
+'seconds_bound_source'
+
+=== FAILURE: tests.manager.test_oci_integration.TheModulesImportInEitherOrder.test_neither_order_fails (first='baton_v12.worker_manager.oci') ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_oci_integration.py", line 1034, in test_neither_order_fails
+    self.assertEqual(answer.stdout.strip(), "ok", answer.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '' != 'ok'
++ ok
+ : Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import baton_v12.worker_manager.oci; import baton_v12.integration.oci_delivery; print('ok')
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/__init__.py", line 17, in <module>
+    from .execution import INTEGRATION_PORT, OUTCOMES, integrate_next
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/execution.py", line 70, in <module>
+    from . import git_profile, reconciliation, runtime
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 38, in <module>
+    from . import admission, managed_execution, schema
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/admission.py", line 22, in <module>
+    from ..job_manager import documents as job_documents
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/__init__.py", line 54, in <module>
+    from .creation import (CREATE_KIND, DERIVATION_MEMBERS, INSTALLED_SOURCE,
+                           create_template_job, created_job_of,
+                           created_job_rows, resolution_of)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/creation.py", line 91, in <module>
+    from . import documents, execution_limits, submission, templates
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/templates.py", line 92, in <module>
+    from . import (documents, execution_limits, fresh_attempt,
+                   review_driver, role_contract)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/role_contract.py", line 514, in <module>
+    for _consumer, _namespace in zip(CONSUMERS, _namespaces()):
+                                                ~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/role_contract.py", line 510, in _namespaces
+    from ..integration.driver import CLAIM_NAMESPACE
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/driver.py", line 28, in <module>
+    from .admission import admit_candidate, resolved_account
+ImportError: cannot import name 'admit_candidate' from partially initialized module 'baton_v12.integration.admission' (most likely due to a circular import) (/home/sl/src/baton/v12/python/src/baton_v12/integration/admission.py)
+
+=== FAILURE: tests.manager.test_oci_integration.TheModulesImportInEitherOrder.test_neither_order_fails (first='baton_v12.integration.oci_delivery') ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_oci_integration.py", line 1034, in test_neither_order_fails
+    self.assertEqual(answer.stdout.strip(), "ok", answer.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '' != 'ok'
++ ok
+ : Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import baton_v12.integration.oci_delivery; import baton_v12.worker_manager.oci; print('ok')
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/__init__.py", line 17, in <module>
+    from .execution import INTEGRATION_PORT, OUTCOMES, integrate_next
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/execution.py", line 70, in <module>
+    from . import git_profile, reconciliation, runtime
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 38, in <module>
+    from . import admission, managed_execution, schema
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/admission.py", line 22, in <module>
+    from ..job_manager import documents as job_documents
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/__init__.py", line 54, in <module>
+    from .creation import (CREATE_KIND, DERIVATION_MEMBERS, INSTALLED_SOURCE,
+                           create_template_job, created_job_of,
+                           created_job_rows, resolution_of)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/creation.py", line 91, in <module>
+    from . import documents, execution_limits, submission, templates
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/templates.py", line 92, in <module>
+    from . import (documents, execution_limits, fresh_attempt,
+                   review_driver, role_contract)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/role_contract.py", line 514, in <module>
+    for _consumer, _namespace in zip(CONSUMERS, _namespaces()):
+                                                ~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/role_contract.py", line 510, in _namespaces
+    from ..integration.driver import CLAIM_NAMESPACE
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/driver.py", line 28, in <module>
+    from .admission import admit_candidate, resolved_account
+ImportError: cannot import name 'admit_candidate' from partially initialized module 'baton_v12.integration.admission' (most likely due to a circular import) (/home/sl/src/baton/v12/python/src/baton_v12/integration/admission.py)
+
+=== FAILURE: tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches (schema='baton.worker-launch/2') ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_worker_image.py", line 1420, in test_a_document_from_another_generation_latches
+    self.assertEqual(status, 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+AssertionError: 3 != 1
+
+=== FAILURE: tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches (schema='baton.worker-entry/1') ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_worker_image.py", line 1420, in test_a_document_from_another_generation_latches
+    self.assertEqual(status, 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+AssertionError: 3 != 1
+
+=== FAILURE: tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches (schema='') ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_worker_image.py", line 1420, in test_a_document_from_another_generation_latches
+    self.assertEqual(status, 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+AssertionError: 3 != 1
+
+=== FAILURE: tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches (schema='BATON.WORKER-LAUNCH/1') ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_worker_image.py", line 1420, in test_a_document_from_another_generation_latches
+    self.assertEqual(status, 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+AssertionError: 3 != 1
+
+=== FAILURE: tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches (schema='baton.worker-launch/1 ') ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_worker_image.py", line 1420, in test_a_document_from_another_generation_latches
+    self.assertEqual(status, 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+AssertionError: 3 != 1
+
+=== FAILURE: tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit (command_status=3, unrun=False) ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_driver.py", line 2107, in test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit
+    world.assert_retained_history()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_driver.py", line 2012, in assert_retained_history
+    case.assertFalse(os.path.exists(self.adapter.roots["workspace"]))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+=== FAILURE: tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit (command_status=0, unrun=True) ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_driver.py", line 2107, in test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit
+    world.assert_retained_history()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_driver.py", line 2012, in assert_retained_history
+    case.assertFalse(os.path.exists(self.adapter.roots["workspace"]))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+=== FAILURE: tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_exact_admission_replay_preserves_receipts_rank_and_retained_evidence ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_driver.py", line 2068, in test_exact_admission_replay_preserves_receipts_rank_and_retained_evidence
+    world.assert_retained_history()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_driver.py", line 2012, in assert_retained_history
+    case.assertFalse(os.path.exists(self.adapter.roots["workspace"]))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+=== FAILURE: tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_wrong_requirements_refuse_before_any_authority_receipt_or_admission ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_driver.py", line 2114, in test_wrong_requirements_refuse_before_any_authority_receipt_or_admission
+    world.assert_retained_history()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_driver.py", line 2012, in assert_retained_history
+    case.assertFalse(os.path.exists(self.adapter.roots["workspace"]))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+=== FAILURE: tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_nothing_this_module_made_survives_it ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_credentials_engine.py", line 424, in test_nothing_this_module_made_survives_it
+    self.assertEqual(found.stdout.decode("utf-8").split(), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['baton-runtime.start-461dcc1a00a0d0e01043[3825 chars]e29'] != []
+
+First list contains 44 additional elements.
+First extra element 0:
+'baton-runtime.start-461dcc1a00a0d0e010432d48a99ad049d148890aa8216e6cec67bca695107ec2'
+
+Diff is 4009 characters long. Set self.maxDiff to None to see it.
+
+=== ERROR: tests.manager.test_custody_engine.DockerCustody.test_a_stranded_running_helper_is_reclaimed_and_the_act_completes ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_custody_engine.py", line 204, in test_a_stranded_running_helper_is_reclaimed_and_the_act_completes
+    self.assertTrue(workspaces.discard_workspace(
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.storage, "attempt-1", control=self.store))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6246, in discard_workspace
+    return _serialized_removal(
+        control, storage, assignment_id,
+    ...<2 lines>...
+                                      what="removing this attempt's workspace home"),
+                 True)[1])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 4805, in _serialized_removal
+    value = removing()
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6249, in <lambda>
+    lambda: (_removed_pinned_home(root, assignment_id, pinned=authorized,
+             ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                  what="removing this attempt's workspace home"),
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6824, in _removed_pinned_home
+    _removed_through_handles(home, what)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6884, in _removed_through_handles
+    held = os.open(child, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                   dir_fd=handle)
+PermissionError: [Errno 13] Permission denied: 'nested'
+
+=== ERROR: tests.manager.test_custody_engine.DockerCustody.test_it_holds_at_every_mode_the_worker_can_choose (mode='0o700') ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_custody_engine.py", line 314, in test_it_holds_at_every_mode_the_worker_can_choose
+    workspaces.discard_workspace(self.storage, "attempt-1", control=self.store))
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6246, in discard_workspace
+    return _serialized_removal(
+        control, storage, assignment_id,
+    ...<2 lines>...
+                                      what="removing this attempt's workspace home"),
+                 True)[1])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 4805, in _serialized_removal
+    value = removing()
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6249, in <lambda>
+    lambda: (_removed_pinned_home(root, assignment_id, pinned=authorized,
+             ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                  what="removing this attempt's workspace home"),
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6824, in _removed_pinned_home
+    _removed_through_handles(home, what)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6884, in _removed_through_handles
+    held = os.open(child, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                   dir_fd=handle)
+PermissionError: [Errno 13] Permission denied: 'nested'
+
+=== ERROR: tests.manager.test_custody_engine.DockerCustody.test_it_holds_at_every_mode_the_worker_can_choose (mode='0o500') ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_custody_engine.py", line 308, in test_it_holds_at_every_mode_the_worker_can_choose
+    roots = self.allocated()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_custody_engine.py", line 71, in allocated
+    return workspaces.assignment_workspace(self.group, storage,
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+                                           "attempt-1")
+                                           ^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5606, in assignment_workspace
+    refuse_if_held(asking, storage, assignment_id, what,
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   preparing=preparing)
+                   ^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5016, in refuse_if_held
+    raise ContractRefusal(
+    ...<4 lines>...
+        f"reused, adopted or removed again until it is reconciled")
+baton_v12.contracts.errors.ContractRefusal: allocating attempt 'attempt-1''s execution roots is refused: removal 1 of this attempt's roots was admitted and has recorded no completion, so whether that removal is still running or stopped half way is unknown -- these roots are not reused, adopted or removed again until it is reconciled
+
+=== ERROR: tests.manager.test_custody_engine.DockerCustody.test_it_holds_at_every_mode_the_worker_can_choose (mode='0o0') ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_custody_engine.py", line 308, in test_it_holds_at_every_mode_the_worker_can_choose
+    roots = self.allocated()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_custody_engine.py", line 71, in allocated
+    return workspaces.assignment_workspace(self.group, storage,
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+                                           "attempt-1")
+                                           ^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5606, in assignment_workspace
+    refuse_if_held(asking, storage, assignment_id, what,
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   preparing=preparing)
+                   ^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5016, in refuse_if_held
+    raise ContractRefusal(
+    ...<4 lines>...
+        f"reused, adopted or removed again until it is reconciled")
+baton_v12.contracts.errors.ContractRefusal: allocating attempt 'attempt-1''s execution roots is refused: removal 1 of this attempt's roots was admitted and has recorded no completion, so whether that removal is still running or stopped half way is unknown -- these roots are not reused, adopted or removed again until it is reconciled
+
+=== ERROR: tests.manager.test_custody_engine.DockerCustody.test_nested_hostile_modes_do_not_hide_objects_from_custody ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_custody_engine.py", line 321, in test_nested_hostile_modes_do_not_hide_objects_from_custody
+    self.assertTrue(workspaces.discard_workspace(
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.storage, "attempt-1", control=self.store))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6246, in discard_workspace
+    return _serialized_removal(
+        control, storage, assignment_id,
+    ...<2 lines>...
+                                      what="removing this attempt's workspace home"),
+                 True)[1])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 4805, in _serialized_removal
+    value = removing()
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6249, in <lambda>
+    lambda: (_removed_pinned_home(root, assignment_id, pinned=authorized,
+             ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                  what="removing this attempt's workspace home"),
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6824, in _removed_pinned_home
+    _removed_through_handles(home, what)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6884, in _removed_through_handles
+    held = os.open(child, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                   dir_fd=handle)
+PermissionError: [Errno 13] Permission denied: 'outer'
+
+=== ERROR: tests.manager.test_custody_engine.DockerCustody.test_the_manager_removes_the_tree_only_after_the_custody_act ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_custody_engine.py", line 278, in test_the_manager_removes_the_tree_only_after_the_custody_act
+    workspaces.discard_workspace(self.storage, "attempt-1", control=self.store)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6246, in discard_workspace
+    return _serialized_removal(
+        control, storage, assignment_id,
+    ...<2 lines>...
+                                      what="removing this attempt's workspace home"),
+                 True)[1])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 4805, in _serialized_removal
+    value = removing()
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6249, in <lambda>
+    lambda: (_removed_pinned_home(root, assignment_id, pinned=authorized,
+             ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                  what="removing this attempt's workspace home"),
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6824, in _removed_pinned_home
+    _removed_through_handles(home, what)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6884, in _removed_through_handles
+    held = os.open(child, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                   dir_fd=handle)
+PermissionError: [Errno 13] Permission denied: 'nested'
+
+=== FAILURE: tests.manager.test_ended_runtime_adoption.DockerEndedRuntimeAdoption.test_an_unrelated_attempts_runtime_survives_the_target_cleanup ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_ended_runtime_adoption.py", line 353, in test_an_unrelated_attempts_runtime_survives_the_target_cleanup
+    self.assertEqual(settled["cleanup"], "complete", settled)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'retained' != 'complete'
+- retained
++ complete
+ : {'attempt_id': 'attempt-34377f74c5', 'cleanup': 'retained', 'state': 'absent', 'why': 'the engine answered that this exact identity does not exist', 'kept': [], 'operation': {'operation_id': 'runtime.destroy:b39e1e9bca0b0b6980e240850de327d156f159a9234fc56c5da5e7aea036cf2c', 'signature_digest': 'sha256:464154b1a7d6e82bb4b49c242aaf41cab3dcc2887ff0fb06cb2e5be590fbb143'}, 'directory_custody': None}
+
+=== FAILURE: tests.manager.test_ended_runtime_adoption.DockerEndedRuntimeAdoption.test_force_removal_absence_teardown_then_and_only_then_reuse ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_ended_runtime_adoption.py", line 222, in test_force_removal_absence_teardown_then_and_only_then_reuse
+    self.assertEqual(settled["cleanup"], "complete", settled)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'retained' != 'complete'
+- retained
++ complete
+ : {'attempt_id': 'attempt-2f59078b10', 'cleanup': 'retained', 'state': 'absent', 'why': 'the engine answered that this exact identity does not exist', 'kept': [], 'operation': {'operation_id': 'runtime.destroy:c9d169a3622cc512f18e36a9cbd86edb9503204ef7a7e63d2748c9bf8c4fd428', 'signature_digest': 'sha256:3ed551371fb2a1668c7acf0efb1bad2a89205a278dcfc0a0caa240e5743de133'}, 'directory_custody': None}
+
+=== ERROR: tests.manager.test_input_delivery.TheInputRootIsFrozenAndNotOnlyItsFiles.test_cleanup_removes_a_frozen_root_and_thaws_nothing_else ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_input_delivery.py", line 616, in test_cleanup_removes_a_frozen_root_and_thaws_nothing_else
+    workspaces.discard_workspace(self.storage, "assignment-going", control=self.store))
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6246, in discard_workspace
+    return _serialized_removal(
+        control, storage, assignment_id,
+    ...<2 lines>...
+                                      what="removing this attempt's workspace home"),
+                 True)[1])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 4786, in _serialized_removal
+    refuse_if_held(control, storage, assignment_id, what, under)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5055, in refuse_if_held
+    recorded = configured_workspace_storage(control).place
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 1475, in configured_workspace_storage
+    return WorkspaceStorage(_agreed_storage_place(store, physical=True), _MINT)
+                            ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 1491, in _agreed_storage_place
+    _denied("this manager has no configured workspace store; the "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "deployment records the one directory attempts are allocated "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "under before any custody act, and a store taken from a "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "caller's operand is not a deployment's decision")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5094, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: this manager has no configured workspace store; the deployment records the one directory attempts are allocated under before any custody act, and a store taken from a caller's operand is not a deployment's decision
+
+=== ERROR: tests.manager.test_input_delivery.TheRootsOwnENTRYIsFrozenToo.test_cleanup_reaches_exactly_one_frozen_home ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_input_delivery.py", line 892, in test_cleanup_reaches_exactly_one_frozen_home
+    workspaces.discard_workspace(self.storage, "assignment-going", control=self.store))
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6246, in discard_workspace
+    return _serialized_removal(
+        control, storage, assignment_id,
+    ...<2 lines>...
+                                      what="removing this attempt's workspace home"),
+                 True)[1])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 4786, in _serialized_removal
+    refuse_if_held(control, storage, assignment_id, what, under)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5055, in refuse_if_held
+    recorded = configured_workspace_storage(control).place
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 1475, in configured_workspace_storage
+    return WorkspaceStorage(_agreed_storage_place(store, physical=True), _MINT)
+                            ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 1491, in _agreed_storage_place
+    _denied("this manager has no configured workspace store; the "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "deployment records the one directory attempts are allocated "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "under before any custody act, and a store taken from a "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "caller's operand is not a deployment's decision")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5094, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: this manager has no configured workspace store; the deployment records the one directory attempts are allocated under before any custody act, and a store taken from a caller's operand is not a deployment's decision
+
+=== ERROR: tests.manager.test_input_delivery.TheRuledTrustModel.test_cleanup_reaches_one_attempt_and_retries_cleanly ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_input_delivery.py", line 1160, in test_cleanup_reaches_one_attempt_and_retries_cleanly
+    workspaces.discard_workspace(self.storage, "attempt-going", control=self.store))
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6246, in discard_workspace
+    return _serialized_removal(
+        control, storage, assignment_id,
+    ...<2 lines>...
+                                      what="removing this attempt's workspace home"),
+                 True)[1])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 4786, in _serialized_removal
+    refuse_if_held(control, storage, assignment_id, what, under)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5055, in refuse_if_held
+    recorded = configured_workspace_storage(control).place
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 1475, in configured_workspace_storage
+    return WorkspaceStorage(_agreed_storage_place(store, physical=True), _MINT)
+                            ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 1491, in _agreed_storage_place
+    _denied("this manager has no configured workspace store; the "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "deployment records the one directory attempts are allocated "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "under before any custody act, and a store taken from a "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "caller's operand is not a deployment's decision")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5094, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: this manager has no configured workspace store; the deployment records the one directory attempts are allocated under before any custody act, and a store taken from a caller's operand is not a deployment's decision
+
+=== FAILURE: tests.manager.test_input_delivery.DockerConfiguredGroup.test_a_restarted_manager_reuses_a_delivery_that_is_still_readable ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_input_delivery.py", line 345, in test_a_restarted_manager_reuses_a_delivery_that_is_still_readable
+    first = self.inside([f"/input/{name}" for name in INPUT_NAMES])
+  File "/home/sl/src/baton/v12/python/tests/manager/test_input_delivery.py", line 256, in inside
+    self.assertEqual(answered["running_as"], [WORKER_UID, WORKER_UID],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     answered)
+                     ^^^^^^^^^
+AssertionError: Lists differ: [1000, 1000] != [65532, 65532]
+
+First differing element 0:
+1000
+65532
+
+- [1000, 1000]
++ [65532, 65532] : {'running_as': [1000, 1000], '/input/input.json': {'mode': '0o444', 'uid': 1000, 'read': '{"assignment_contract":"v12-assignment-1","created_at":"2026-08-21T22:00:00.000Z","credential_policy_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","extensions":{},"human_contract":{"artifact_id":"human-contract-1","bytes":1200,"content_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","locator":"artifact://contracts/human-contract-1","media_type":"text/markdown"},"manifest_digest":"sha256:2c0ac468867539803d11be4fa82547acc7d593a6c1a95dda69182d4f539b2d86","manifest_id":"input-manifest-1","mount_policy_digest":"sha256:9999999999999999999999999999999999999999999999999999999999999999","network_policy_digest":"sha256:8888888888888888888888888888888888888888888888888888888888888888","outputs":[{"constraints":{"allowed_media_types":["application/octet-stream","text/plain"],"link_policy":"forbid","max_bytes":1048576,"max_entries":100,"validator_digest":null},"name":"proposal","path":"workspace/output","required":true,"type":"directory-result"}],"policy_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","record_binding":{"finding_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","path":"work/records/2026/08/finding-v12-isolated-agent-workers","plan_digest":"sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee","root":"baton-repository"},"resource_policy_digest":"sha256:7777777777777777777777777777777777777777777777777777777777777777","retention_policy_digest":"sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc","role_instructions_digest":"sha256:2222222222222222222222222222222222222222222222222222222222222222","runtime_profile_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","schema":"baton.worker-manifest/input","sources":[{"consumption":{"baton.directory/1":{"layout":"flat"}},"content_manifest":{"entries":[{"bytes":4,"content_digest":"sha256:1111111111111111111111111111111111111111111111111111111111111111","path":"README.md"}],"entry_count":1,"total_bytes":4,"tree_digest":"sha256:66dec02e679d6fdbedaff798548f2311e8554a0a2a548e3e21a794bab0640fa1"},"destination":"workspace/source","name":"source","required":true}],"tool_policy_digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","toolchain_digest":"sha256:4444444444444444444444444444444444444444444444444444444444444444","version":{"major":1,"minor":0},"work_ref":{"authority_uuid":"43c55d4b000000000000000000000000","work_id":"43c55d4b-W6636"},"worker_image_digest":"sha256:5555555555555555555555555555555555555555555555555555555555555555"}', 'wrote': False, 'write_error': 'PermissionError: 13'}, '/input/assignment.json': {'mode': '0o444', 'uid': 1000, 'read': '{"activated_at":"2026-08-21T22:05:00.000Z","assignment_contract":"v12-assignment-1","assignment_ref":{"generation":1,"participant":"baton.claude","work_ref":{"authority_uuid":"43c55d4b000000000000000000000000","work_id":"43c55d4b-W6636"}},"claim_event_seq":44,"claim_receipt_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","created_at":"2026-08-21T22:05:00.000Z","extensions":{},"input_manifest_digest":"sha256:2c0ac468867539803d11be4fa82547acc7d593a6c1a95dda69182d4f539b2d86","manifest_digest":"sha256:2c5be3d7e45a4d25033598549e88e334e448ac8d505fb9d284227f22fc94736b","manifest_id":"assignment-manifest-1","offer_id":"offer-1","policy_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","runtime_attempt_id":"attempt-0d716cf30c","runtime_profile_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","schema":"baton.worker-manifest/assignment","version":{"major":1,"minor":0}}', 'wrote': False, 'write_error': 'PermissionError: 13'}}
+
+=== FAILURE: tests.manager.test_input_delivery.DockerConfiguredGroup.test_an_owner_only_output_fails_closed_rather_than_widening ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_input_delivery.py", line 1521, in test_an_owner_only_output_fails_closed_rather_than_widening
+    self.inside(["/workspace"], program=workspace_program("/workspace"))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_input_delivery.py", line 256, in inside
+    self.assertEqual(answered["running_as"], [WORKER_UID, WORKER_UID],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     answered)
+                     ^^^^^^^^^
+AssertionError: Lists differ: [1000, 1000] != [65532, 65532]
+
+First differing element 0:
+1000
+65532
+
+- [1000, 1000]
++ [65532, 65532] : {'running_as': [1000, 1000], 'groups': [1000, 1000], 'root': {'mode': '0o2770', 'gid': 1000}, 'created': True, 'updated': True, 'made': {'gid': 1000, 'uid': 1000, 'mode': '0o644'}, 'inner': {'gid': 1000, 'mode': '0o2755', 'setgid': True}, 'removed': True}
+
+=== FAILURE: tests.manager.test_input_delivery.DockerConfiguredGroup.test_manager_cleanup_of_worker_content_is_measured_not_assumed ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_input_delivery.py", line 1662, in test_manager_cleanup_of_worker_content_is_measured_not_assumed
+    self.inside(["/workspace"], program=workspace_program("/workspace"))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_input_delivery.py", line 256, in inside
+    self.assertEqual(answered["running_as"], [WORKER_UID, WORKER_UID],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     answered)
+                     ^^^^^^^^^
+AssertionError: Lists differ: [1000, 1000] != [65532, 65532]
+
+First differing element 0:
+1000
+65532
+
+- [1000, 1000]
++ [65532, 65532] : {'running_as': [1000, 1000], 'groups': [1000, 1000], 'root': {'mode': '0o2770', 'gid': 1000}, 'created': True, 'updated': True, 'made': {'gid': 1000, 'uid': 1000, 'mode': '0o644'}, 'inner': {'gid': 1000, 'mode': '0o2755', 'setgid': True}, 'removed': True}
+
+=== FAILURE: tests.manager.test_input_delivery.DockerConfiguredGroup.test_neither_document_is_writable_and_neither_is_the_root ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_input_delivery.py", line 323, in test_neither_document_is_writable_and_neither_is_the_root
+    answered = self.inside(targets)
+  File "/home/sl/src/baton/v12/python/tests/manager/test_input_delivery.py", line 256, in inside
+    self.assertEqual(answered["running_as"], [WORKER_UID, WORKER_UID],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     answered)
+                     ^^^^^^^^^
+AssertionError: Lists differ: [1000, 1000] != [65532, 65532]
+
+First differing element 0:
+1000
+65532
+
+- [1000, 1000]
++ [65532, 65532] : {'running_as': [1000, 1000], '/input': {'mode': '0o555', 'uid': 1000, 'read': None, 'read_error': 'IsADirectoryError: 21', 'wrote': False, 'write_error': 'IsADirectoryError: 21'}, '/input/input.json': {'mode': '0o444', 'uid': 1000, 'read': '{"assignment_contract":"v12-assignment-1","created_at":"2026-08-21T22:00:00.000Z","credential_policy_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","extensions":{},"human_contract":{"artifact_id":"human-contract-1","bytes":1200,"content_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","locator":"artifact://contracts/human-contract-1","media_type":"text/markdown"},"manifest_digest":"sha256:2c0ac468867539803d11be4fa82547acc7d593a6c1a95dda69182d4f539b2d86","manifest_id":"input-manifest-1","mount_policy_digest":"sha256:9999999999999999999999999999999999999999999999999999999999999999","network_policy_digest":"sha256:8888888888888888888888888888888888888888888888888888888888888888","outputs":[{"constraints":{"allowed_media_types":["application/octet-stream","text/plain"],"link_policy":"forbid","max_bytes":1048576,"max_entries":100,"validator_digest":null},"name":"proposal","path":"workspace/output","required":true,"type":"directory-result"}],"policy_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","record_binding":{"finding_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","path":"work/records/2026/08/finding-v12-isolated-agent-workers","plan_digest":"sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee","root":"baton-repository"},"resource_policy_digest":"sha256:7777777777777777777777777777777777777777777777777777777777777777","retention_policy_digest":"sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc","role_instructions_digest":"sha256:2222222222222222222222222222222222222222222222222222222222222222","runtime_profile_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","schema":"baton.worker-manifest/input","sources":[{"consumption":{"baton.directory/1":{"layout":"flat"}},"content_manifest":{"entries":[{"bytes":4,"content_digest":"sha256:1111111111111111111111111111111111111111111111111111111111111111","path":"README.md"}],"entry_count":1,"total_bytes":4,"tree_digest":"sha256:66dec02e679d6fdbedaff798548f2311e8554a0a2a548e3e21a794bab0640fa1"},"destination":"workspace/source","name":"source","required":true}],"tool_policy_digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","toolchain_digest":"sha256:4444444444444444444444444444444444444444444444444444444444444444","version":{"major":1,"minor":0},"work_ref":{"authority_uuid":"43c55d4b000000000000000000000000","work_id":"43c55d4b-W6636"},"worker_image_digest":"sha256:5555555555555555555555555555555555555555555555555555555555555555"}', 'wrote': False, 'write_error': 'PermissionError: 13'}, '/input/assignment.json': {'mode': '0o444', 'uid': 1000, 'read': '{"activated_at":"2026-08-21T22:05:00.000Z","assignment_contract":"v12-assignment-1","assignment_ref":{"generation":1,"participant":"baton.claude","work_ref":{"authority_uuid":"43c55d4b000000000000000000000000","work_id":"43c55d4b-W6636"}},"claim_event_seq":44,"claim_receipt_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","created_at":"2026-08-21T22:05:00.000Z","extensions":{},"input_manifest_digest":"sha256:2c0ac468867539803d11be4fa82547acc7d593a6c1a95dda69182d4f539b2d86","manifest_digest":"sha256:5973b0365cc07e9ebb793666c7d86f26f7e9b1ce408dddaacc9f7b881b5656b3","manifest_id":"assignment-manifest-1","offer_id":"offer-1","policy_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","runtime_attempt_id":"attempt-de77c56de0","runtime_profile_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","schema":"baton.worker-manifest/assignment","version":{"major":1,"minor":0}}', 'wrote': False, 'write_error': 'PermissionError: 13'}}
+
+=== FAILURE: tests.manager.test_input_delivery.DockerConfiguredGroup.test_one_assignment_workspace_reaches_no_other ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_input_delivery.py", line 1705, in test_one_assignment_workspace_reaches_no_other
+    answered = self.inside([stranger])
+  File "/home/sl/src/baton/v12/python/tests/manager/test_input_delivery.py", line 256, in inside
+    self.assertEqual(answered["running_as"], [WORKER_UID, WORKER_UID],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     answered)
+                     ^^^^^^^^^
+AssertionError: Lists differ: [1000, 1000] != [65532, 65532]
+
+First differing element 0:
+1000
+65532
+
+- [1000, 1000]
++ [65532, 65532] : {'running_as': [1000, 1000], '/tmp/v12-w6636-oc4ts5ug/storage/another-assignment/workspace': {'stat': 'FileNotFoundError'}}
+
+=== FAILURE: tests.manager.test_input_delivery.DockerConfiguredGroup.test_one_runtime_reaches_no_other_assignments_input_root ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_input_delivery.py", line 390, in test_one_runtime_reaches_no_other_assignments_input_root
+    answered = self.inside(neighbour)
+  File "/home/sl/src/baton/v12/python/tests/manager/test_input_delivery.py", line 256, in inside
+    self.assertEqual(answered["running_as"], [WORKER_UID, WORKER_UID],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     answered)
+                     ^^^^^^^^^
+AssertionError: Lists differ: [1000, 1000] != [65532, 65532]
+
+First differing element 0:
+1000
+65532
+
+- [1000, 1000]
++ [65532, 65532] : {'running_as': [1000, 1000], '/tmp/v12-w6636-lpolb5qo/storage/attempt-a71b73d16d-stranger/inputs/input.json': {'stat': 'FileNotFoundError'}, '/tmp/v12-w6636-lpolb5qo/storage/attempt-a71b73d16d-stranger/inputs/assignment.json': {'stat': 'FileNotFoundError'}}
+
+=== FAILURE: tests.manager.test_input_delivery.DockerConfiguredGroup.test_the_applied_group_is_asked_of_the_engine_and_the_process ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_input_delivery.py", line 1544, in test_the_applied_group_is_asked_of_the_engine_and_the_process
+    self.assertEqual(argv[argv.index("--user") + 1], "65532:65532")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '1000:1000' != '65532:65532'
+- 1000:1000
++ 65532:65532
+
+=== FAILURE: tests.manager.test_input_delivery.DockerConfiguredGroup.test_the_grant_reaches_no_surface_but_the_workspace ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_input_delivery.py", line 1561, in test_the_grant_reaches_no_surface_but_the_workspace
+    answered = self.inside(["/input", "/input/input-manifest.json",
+                            "/run/baton/launch.json"])
+  File "/home/sl/src/baton/v12/python/tests/manager/test_input_delivery.py", line 256, in inside
+    self.assertEqual(answered["running_as"], [WORKER_UID, WORKER_UID],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     answered)
+                     ^^^^^^^^^
+AssertionError: Lists differ: [1000, 1000] != [65532, 65532]
+
+First differing element 0:
+1000
+65532
+
+- [1000, 1000]
++ [65532, 65532] : {'running_as': [1000, 1000], '/input': {'mode': '0o555', 'uid': 1000, 'read': None, 'read_error': 'IsADirectoryError: 21', 'wrote': False, 'write_error': 'IsADirectoryError: 21'}, '/input/input-manifest.json': {'stat': 'FileNotFoundError'}, '/run/baton/launch.json': {'mode': '0o444', 'uid': 1000, 'read': '{"contract":"compose the local OCI lifecycle","role":"implementer","schema":"baton.worker-launch/1","session":"session-attempt-e65d5a59c4"}', 'wrote': False, 'write_error': 'PermissionError: 13'}}
+
+=== FAILURE: tests.manager.test_input_delivery.DockerConfiguredGroup.test_the_worker_creates_updates_and_removes_in_its_workspace ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_input_delivery.py", line 1477, in test_the_worker_creates_updates_and_removes_in_its_workspace
+    answered = self.inside(["/workspace"],
+                           program=workspace_program("/workspace"))
+  File "/home/sl/src/baton/v12/python/tests/manager/test_input_delivery.py", line 256, in inside
+    self.assertEqual(answered["running_as"], [WORKER_UID, WORKER_UID],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     answered)
+                     ^^^^^^^^^
+AssertionError: Lists differ: [1000, 1000] != [65532, 65532]
+
+First differing element 0:
+1000
+65532
+
+- [1000, 1000]
++ [65532, 65532] : {'running_as': [1000, 1000], 'groups': [1000, 1000], 'root': {'mode': '0o2770', 'gid': 1000}, 'created': True, 'updated': True, 'made': {'gid': 1000, 'uid': 1000, 'mode': '0o644'}, 'inner': {'gid': 1000, 'mode': '0o2755', 'setgid': True}, 'removed': True}
+
+=== FAILURE: tests.manager.test_input_delivery.DockerConfiguredGroup.test_the_worker_identity_reads_both_delivered_documents ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_input_delivery.py", line 271, in test_the_worker_identity_reads_both_delivered_documents
+    answered = self.inside(targets)
+  File "/home/sl/src/baton/v12/python/tests/manager/test_input_delivery.py", line 256, in inside
+    self.assertEqual(answered["running_as"], [WORKER_UID, WORKER_UID],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     answered)
+                     ^^^^^^^^^
+AssertionError: Lists differ: [1000, 1000] != [65532, 65532]
+
+First differing element 0:
+1000
+65532
+
+- [1000, 1000]
++ [65532, 65532] : {'running_as': [1000, 1000], '/input/input.json': {'mode': '0o444', 'uid': 1000, 'read': '{"assignment_contract":"v12-assignment-1","created_at":"2026-08-21T22:00:00.000Z","credential_policy_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","extensions":{},"human_contract":{"artifact_id":"human-contract-1","bytes":1200,"content_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","locator":"artifact://contracts/human-contract-1","media_type":"text/markdown"},"manifest_digest":"sha256:2c0ac468867539803d11be4fa82547acc7d593a6c1a95dda69182d4f539b2d86","manifest_id":"input-manifest-1","mount_policy_digest":"sha256:9999999999999999999999999999999999999999999999999999999999999999","network_policy_digest":"sha256:8888888888888888888888888888888888888888888888888888888888888888","outputs":[{"constraints":{"allowed_media_types":["application/octet-stream","text/plain"],"link_policy":"forbid","max_bytes":1048576,"max_entries":100,"validator_digest":null},"name":"proposal","path":"workspace/output","required":true,"type":"directory-result"}],"policy_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","record_binding":{"finding_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","path":"work/records/2026/08/finding-v12-isolated-agent-workers","plan_digest":"sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee","root":"baton-repository"},"resource_policy_digest":"sha256:7777777777777777777777777777777777777777777777777777777777777777","retention_policy_digest":"sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc","role_instructions_digest":"sha256:2222222222222222222222222222222222222222222222222222222222222222","runtime_profile_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","schema":"baton.worker-manifest/input","sources":[{"consumption":{"baton.directory/1":{"layout":"flat"}},"content_manifest":{"entries":[{"bytes":4,"content_digest":"sha256:1111111111111111111111111111111111111111111111111111111111111111","path":"README.md"}],"entry_count":1,"total_bytes":4,"tree_digest":"sha256:66dec02e679d6fdbedaff798548f2311e8554a0a2a548e3e21a794bab0640fa1"},"destination":"workspace/source","name":"source","required":true}],"tool_policy_digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","toolchain_digest":"sha256:4444444444444444444444444444444444444444444444444444444444444444","version":{"major":1,"minor":0},"work_ref":{"authority_uuid":"43c55d4b000000000000000000000000","work_id":"43c55d4b-W6636"},"worker_image_digest":"sha256:5555555555555555555555555555555555555555555555555555555555555555"}', 'wrote': False, 'write_error': 'PermissionError: 13'}, '/input/assignment.json': {'mode': '0o444', 'uid': 1000, 'read': '{"activated_at":"2026-08-21T22:05:00.000Z","assignment_contract":"v12-assignment-1","assignment_ref":{"generation":1,"participant":"baton.claude","work_ref":{"authority_uuid":"43c55d4b000000000000000000000000","work_id":"43c55d4b-W6636"}},"claim_event_seq":44,"claim_receipt_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","created_at":"2026-08-21T22:05:00.000Z","extensions":{},"input_manifest_digest":"sha256:2c0ac468867539803d11be4fa82547acc7d593a6c1a95dda69182d4f539b2d86","manifest_digest":"sha256:4d995e4e58169260a3bf3019f5a148b6c721c9c6fd0bfa8c5fa122c7ffb4a542","manifest_id":"assignment-manifest-1","offer_id":"offer-1","policy_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","runtime_attempt_id":"attempt-aee6a69921","runtime_profile_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","schema":"baton.worker-manifest/assignment","version":{"major":1,"minor":0}}', 'wrote': False, 'write_error': 'PermissionError: 13'}}
+
+=== FAILURE: tests.manager.test_input_delivery.DockerConfiguredGroup.test_what_the_worker_creates_inherits_the_workspace_group ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_input_delivery.py", line 1497, in test_what_the_worker_creates_inherits_the_workspace_group
+    answered = self.inside(["/workspace"],
+                           program=workspace_program("/workspace"))
+  File "/home/sl/src/baton/v12/python/tests/manager/test_input_delivery.py", line 256, in inside
+    self.assertEqual(answered["running_as"], [WORKER_UID, WORKER_UID],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     answered)
+                     ^^^^^^^^^
+AssertionError: Lists differ: [1000, 1000] != [65532, 65532]
+
+First differing element 0:
+1000
+65532
+
+- [1000, 1000]
++ [65532, 65532] : {'running_as': [1000, 1000], 'groups': [1000, 1000], 'root': {'mode': '0o2770', 'gid': 1000}, 'created': True, 'updated': True, 'made': {'gid': 1000, 'uid': 1000, 'mode': '0o644'}, 'inner': {'gid': 1000, 'mode': '0o2755', 'setgid': True}, 'removed': True}
+
+=== FAILURE: tests.manager.test_input_delivery.DockerDelivery.test_a_restarted_manager_reuses_a_delivery_that_is_still_readable ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_input_delivery.py", line 345, in test_a_restarted_manager_reuses_a_delivery_that_is_still_readable
+    first = self.inside([f"/input/{name}" for name in INPUT_NAMES])
+  File "/home/sl/src/baton/v12/python/tests/manager/test_input_delivery.py", line 256, in inside
+    self.assertEqual(answered["running_as"], [WORKER_UID, WORKER_UID],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     answered)
+                     ^^^^^^^^^
+AssertionError: Lists differ: [1000, 1000] != [65532, 65532]
+
+First differing element 0:
+1000
+65532
+
+- [1000, 1000]
++ [65532, 65532] : {'running_as': [1000, 1000], '/input/input.json': {'mode': '0o444', 'uid': 1000, 'read': '{"assignment_contract":"v12-assignment-1","created_at":"2026-08-21T22:00:00.000Z","credential_policy_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","extensions":{},"human_contract":{"artifact_id":"human-contract-1","bytes":1200,"content_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","locator":"artifact://contracts/human-contract-1","media_type":"text/markdown"},"manifest_digest":"sha256:2c0ac468867539803d11be4fa82547acc7d593a6c1a95dda69182d4f539b2d86","manifest_id":"input-manifest-1","mount_policy_digest":"sha256:9999999999999999999999999999999999999999999999999999999999999999","network_policy_digest":"sha256:8888888888888888888888888888888888888888888888888888888888888888","outputs":[{"constraints":{"allowed_media_types":["application/octet-stream","text/plain"],"link_policy":"forbid","max_bytes":1048576,"max_entries":100,"validator_digest":null},"name":"proposal","path":"workspace/output","required":true,"type":"directory-result"}],"policy_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","record_binding":{"finding_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","path":"work/records/2026/08/finding-v12-isolated-agent-workers","plan_digest":"sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee","root":"baton-repository"},"resource_policy_digest":"sha256:7777777777777777777777777777777777777777777777777777777777777777","retention_policy_digest":"sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc","role_instructions_digest":"sha256:2222222222222222222222222222222222222222222222222222222222222222","runtime_profile_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","schema":"baton.worker-manifest/input","sources":[{"consumption":{"baton.directory/1":{"layout":"flat"}},"content_manifest":{"entries":[{"bytes":4,"content_digest":"sha256:1111111111111111111111111111111111111111111111111111111111111111","path":"README.md"}],"entry_count":1,"total_bytes":4,"tree_digest":"sha256:66dec02e679d6fdbedaff798548f2311e8554a0a2a548e3e21a794bab0640fa1"},"destination":"workspace/source","name":"source","required":true}],"tool_policy_digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","toolchain_digest":"sha256:4444444444444444444444444444444444444444444444444444444444444444","version":{"major":1,"minor":0},"work_ref":{"authority_uuid":"43c55d4b000000000000000000000000","work_id":"43c55d4b-W6636"},"worker_image_digest":"sha256:5555555555555555555555555555555555555555555555555555555555555555"}', 'wrote': False, 'write_error': 'PermissionError: 13'}, '/input/assignment.json': {'mode': '0o444', 'uid': 1000, 'read': '{"activated_at":"2026-08-21T22:05:00.000Z","assignment_contract":"v12-assignment-1","assignment_ref":{"generation":1,"participant":"baton.claude","work_ref":{"authority_uuid":"43c55d4b000000000000000000000000","work_id":"43c55d4b-W6636"}},"claim_event_seq":44,"claim_receipt_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","created_at":"2026-08-21T22:05:00.000Z","extensions":{},"input_manifest_digest":"sha256:2c0ac468867539803d11be4fa82547acc7d593a6c1a95dda69182d4f539b2d86","manifest_digest":"sha256:9ac741bda4f9cf3fcb15ef6f76eeb02e64e27b9d865f942e9607c0ceea0be8ba","manifest_id":"assignment-manifest-1","offer_id":"offer-1","policy_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","runtime_attempt_id":"attempt-a2eff1f4cd","runtime_profile_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","schema":"baton.worker-manifest/assignment","version":{"major":1,"minor":0}}', 'wrote': False, 'write_error': 'PermissionError: 13'}}
+
+=== FAILURE: tests.manager.test_input_delivery.DockerDelivery.test_neither_document_is_writable_and_neither_is_the_root ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_input_delivery.py", line 323, in test_neither_document_is_writable_and_neither_is_the_root
+    answered = self.inside(targets)
+  File "/home/sl/src/baton/v12/python/tests/manager/test_input_delivery.py", line 256, in inside
+    self.assertEqual(answered["running_as"], [WORKER_UID, WORKER_UID],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     answered)
+                     ^^^^^^^^^
+AssertionError: Lists differ: [1000, 1000] != [65532, 65532]
+
+First differing element 0:
+1000
+65532
+
+- [1000, 1000]
++ [65532, 65532] : {'running_as': [1000, 1000], '/input': {'mode': '0o555', 'uid': 1000, 'read': None, 'read_error': 'IsADirectoryError: 21', 'wrote': False, 'write_error': 'IsADirectoryError: 21'}, '/input/input.json': {'mode': '0o444', 'uid': 1000, 'read': '{"assignment_contract":"v12-assignment-1","created_at":"2026-08-21T22:00:00.000Z","credential_policy_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","extensions":{},"human_contract":{"artifact_id":"human-contract-1","bytes":1200,"content_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","locator":"artifact://contracts/human-contract-1","media_type":"text/markdown"},"manifest_digest":"sha256:2c0ac468867539803d11be4fa82547acc7d593a6c1a95dda69182d4f539b2d86","manifest_id":"input-manifest-1","mount_policy_digest":"sha256:9999999999999999999999999999999999999999999999999999999999999999","network_policy_digest":"sha256:8888888888888888888888888888888888888888888888888888888888888888","outputs":[{"constraints":{"allowed_media_types":["application/octet-stream","text/plain"],"link_policy":"forbid","max_bytes":1048576,"max_entries":100,"validator_digest":null},"name":"proposal","path":"workspace/output","required":true,"type":"directory-result"}],"policy_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","record_binding":{"finding_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","path":"work/records/2026/08/finding-v12-isolated-agent-workers","plan_digest":"sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee","root":"baton-repository"},"resource_policy_digest":"sha256:7777777777777777777777777777777777777777777777777777777777777777","retention_policy_digest":"sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc","role_instructions_digest":"sha256:2222222222222222222222222222222222222222222222222222222222222222","runtime_profile_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","schema":"baton.worker-manifest/input","sources":[{"consumption":{"baton.directory/1":{"layout":"flat"}},"content_manifest":{"entries":[{"bytes":4,"content_digest":"sha256:1111111111111111111111111111111111111111111111111111111111111111","path":"README.md"}],"entry_count":1,"total_bytes":4,"tree_digest":"sha256:66dec02e679d6fdbedaff798548f2311e8554a0a2a548e3e21a794bab0640fa1"},"destination":"workspace/source","name":"source","required":true}],"tool_policy_digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","toolchain_digest":"sha256:4444444444444444444444444444444444444444444444444444444444444444","version":{"major":1,"minor":0},"work_ref":{"authority_uuid":"43c55d4b000000000000000000000000","work_id":"43c55d4b-W6636"},"worker_image_digest":"sha256:5555555555555555555555555555555555555555555555555555555555555555"}', 'wrote': False, 'write_error': 'PermissionError: 13'}, '/input/assignment.json': {'mode': '0o444', 'uid': 1000, 'read': '{"activated_at":"2026-08-21T22:05:00.000Z","assignment_contract":"v12-assignment-1","assignment_ref":{"generation":1,"participant":"baton.claude","work_ref":{"authority_uuid":"43c55d4b000000000000000000000000","work_id":"43c55d4b-W6636"}},"claim_event_seq":44,"claim_receipt_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","created_at":"2026-08-21T22:05:00.000Z","extensions":{},"input_manifest_digest":"sha256:2c0ac468867539803d11be4fa82547acc7d593a6c1a95dda69182d4f539b2d86","manifest_digest":"sha256:7dd691ac82339797c71a7847e7f873a7e9985c6be487d45c18dcd0864e5f0282","manifest_id":"assignment-manifest-1","offer_id":"offer-1","policy_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","runtime_attempt_id":"attempt-49ec425a13","runtime_profile_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","schema":"baton.worker-manifest/assignment","version":{"major":1,"minor":0}}', 'wrote': False, 'write_error': 'PermissionError: 13'}}
+
+=== FAILURE: tests.manager.test_input_delivery.DockerDelivery.test_one_runtime_reaches_no_other_assignments_input_root ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_input_delivery.py", line 390, in test_one_runtime_reaches_no_other_assignments_input_root
+    answered = self.inside(neighbour)
+  File "/home/sl/src/baton/v12/python/tests/manager/test_input_delivery.py", line 256, in inside
+    self.assertEqual(answered["running_as"], [WORKER_UID, WORKER_UID],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     answered)
+                     ^^^^^^^^^
+AssertionError: Lists differ: [1000, 1000] != [65532, 65532]
+
+First differing element 0:
+1000
+65532
+
+- [1000, 1000]
++ [65532, 65532] : {'running_as': [1000, 1000], '/tmp/v12-w6636-rgfs8kek/storage/attempt-c576d27866-stranger/inputs/input.json': {'stat': 'FileNotFoundError'}, '/tmp/v12-w6636-rgfs8kek/storage/attempt-c576d27866-stranger/inputs/assignment.json': {'stat': 'FileNotFoundError'}}
+
+=== FAILURE: tests.manager.test_input_delivery.DockerDelivery.test_the_worker_identity_reads_both_delivered_documents ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_input_delivery.py", line 271, in test_the_worker_identity_reads_both_delivered_documents
+    answered = self.inside(targets)
+  File "/home/sl/src/baton/v12/python/tests/manager/test_input_delivery.py", line 256, in inside
+    self.assertEqual(answered["running_as"], [WORKER_UID, WORKER_UID],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     answered)
+                     ^^^^^^^^^
+AssertionError: Lists differ: [1000, 1000] != [65532, 65532]
+
+First differing element 0:
+1000
+65532
+
+- [1000, 1000]
++ [65532, 65532] : {'running_as': [1000, 1000], '/input/input.json': {'mode': '0o444', 'uid': 1000, 'read': '{"assignment_contract":"v12-assignment-1","created_at":"2026-08-21T22:00:00.000Z","credential_policy_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","extensions":{},"human_contract":{"artifact_id":"human-contract-1","bytes":1200,"content_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","locator":"artifact://contracts/human-contract-1","media_type":"text/markdown"},"manifest_digest":"sha256:2c0ac468867539803d11be4fa82547acc7d593a6c1a95dda69182d4f539b2d86","manifest_id":"input-manifest-1","mount_policy_digest":"sha256:9999999999999999999999999999999999999999999999999999999999999999","network_policy_digest":"sha256:8888888888888888888888888888888888888888888888888888888888888888","outputs":[{"constraints":{"allowed_media_types":["application/octet-stream","text/plain"],"link_policy":"forbid","max_bytes":1048576,"max_entries":100,"validator_digest":null},"name":"proposal","path":"workspace/output","required":true,"type":"directory-result"}],"policy_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","record_binding":{"finding_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","path":"work/records/2026/08/finding-v12-isolated-agent-workers","plan_digest":"sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee","root":"baton-repository"},"resource_policy_digest":"sha256:7777777777777777777777777777777777777777777777777777777777777777","retention_policy_digest":"sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc","role_instructions_digest":"sha256:2222222222222222222222222222222222222222222222222222222222222222","runtime_profile_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","schema":"baton.worker-manifest/input","sources":[{"consumption":{"baton.directory/1":{"layout":"flat"}},"content_manifest":{"entries":[{"bytes":4,"content_digest":"sha256:1111111111111111111111111111111111111111111111111111111111111111","path":"README.md"}],"entry_count":1,"total_bytes":4,"tree_digest":"sha256:66dec02e679d6fdbedaff798548f2311e8554a0a2a548e3e21a794bab0640fa1"},"destination":"workspace/source","name":"source","required":true}],"tool_policy_digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","toolchain_digest":"sha256:4444444444444444444444444444444444444444444444444444444444444444","version":{"major":1,"minor":0},"work_ref":{"authority_uuid":"43c55d4b000000000000000000000000","work_id":"43c55d4b-W6636"},"worker_image_digest":"sha256:5555555555555555555555555555555555555555555555555555555555555555"}', 'wrote': False, 'write_error': 'PermissionError: 13'}, '/input/assignment.json': {'mode': '0o444', 'uid': 1000, 'read': '{"activated_at":"2026-08-21T22:05:00.000Z","assignment_contract":"v12-assignment-1","assignment_ref":{"generation":1,"participant":"baton.claude","work_ref":{"authority_uuid":"43c55d4b000000000000000000000000","work_id":"43c55d4b-W6636"}},"claim_event_seq":44,"claim_receipt_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","created_at":"2026-08-21T22:05:00.000Z","extensions":{},"input_manifest_digest":"sha256:2c0ac468867539803d11be4fa82547acc7d593a6c1a95dda69182d4f539b2d86","manifest_digest":"sha256:906dc38a40211f42386696f3e148b780142621bb52184af9924ea11a4e557e50","manifest_id":"assignment-manifest-1","offer_id":"offer-1","policy_digest":"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","runtime_attempt_id":"attempt-310f86060b","runtime_profile_digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","schema":"baton.worker-manifest/assignment","version":{"major":1,"minor":0}}', 'wrote': False, 'write_error': 'PermissionError: 13'}}
+
+=== FAILURE: tests.manager.test_input_delivery.TheRuledTrustModel.test_first_allocation_race_answers_or_refuses_in_contract ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_input_delivery.py", line 1070, in test_first_allocation_race_answers_or_refuses_in_contract
+    self.assertTrue(answers, results)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true : [('refusal', ContractRefusal("allocating an execution workspace has to ask this manager's journal whether a cleanup, a removal or a custody hold owns these roots, and the control it was given cannot be used from this thread -- its connection is closed, or it belongs to another thread. The database at '/tmp/v12-w33935-trust-w8dok7j0/control.sqlite3' is not reopened on this caller's behalf: a reopened handle cannot be proved to be the journal that control was opened on, and accepting one that cannot be proved is how a replaced journal answered for the original three times over. A caller allocating from another thread passes a control it can use there")), ('refusal', ContractRefusal("allocating an execution workspace has to ask this manager's journal whether a cleanup, a removal or a custody hold owns these roots, and the control it was given cannot be used from this thread -- its connection is closed, or it belongs to another thread. The database at '/tmp/v12-w33935-trust-w8dok7j0/control.sqlite3' is not reopened on this caller's behalf: a reopened handle cannot be proved to be the journal that control was opened on, and accepting one that cannot be proved is how a replaced journal answered for the original three times over. A caller allocating from another thread passes a control it can use there"))]
+
+=== FAILURE: tests.manager.test_input_delivery.TheRuledTrustModel.test_the_child_create_race_answers_or_refuses_in_contract ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_input_delivery.py", line 1321, in test_the_child_create_race_answers_or_refuses_in_contract
+    self.assertTrue(answers, results)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true : [('refusal', "allocating an execution workspace has to ask this manager's journal whether a cleanup, a removal or a custody hold owns these roots, and the control it was given cannot be used from this thread -- its connection is closed, or it belongs to another thread. The database at '/tmp/v12-w33935-trust-19ibvntn/control.sqlite3' is not reopened on this caller's behalf: a reopened handle cannot be proved to be the journal that control was opened on, and accepting one that cannot be proved is how a replaced journal answered for the original three times over. A caller allocating from another thread passes a control it can use there"), ('refusal', "allocating an execution workspace has to ask this manager's journal whether a cleanup, a removal or a custody hold owns these roots, and the control it was given cannot be used from this thread -- its connection is closed, or it belongs to another thread. The database at '/tmp/v12-w33935-trust-19ibvntn/control.sqlite3' is not reopened on this caller's behalf: a reopened handle cannot be proved to be the journal that control was opened on, and accepting one that cannot be proved is how a replaced journal answered for the original three times over. A caller allocating from another thread passes a control it can use there")]
+
+=== FAILURE: tests.manager.test_input_delivery.TheRuledTrustModel.test_the_home_create_race_answers_or_refuses_in_contract ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_input_delivery.py", line 1303, in test_the_home_create_race_answers_or_refuses_in_contract
+    self.assertTrue(answers, results)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true : [('refusal', "allocating an execution workspace has to ask this manager's journal whether a cleanup, a removal or a custody hold owns these roots, and the control it was given cannot be used from this thread -- its connection is closed, or it belongs to another thread. The database at '/tmp/v12-w33935-trust-t0k5aqq9/control.sqlite3' is not reopened on this caller's behalf: a reopened handle cannot be proved to be the journal that control was opened on, and accepting one that cannot be proved is how a replaced journal answered for the original three times over. A caller allocating from another thread passes a control it can use there"), ('refusal', "allocating an execution workspace has to ask this manager's journal whether a cleanup, a removal or a custody hold owns these roots, and the control it was given cannot be used from this thread -- its connection is closed, or it belongs to another thread. The database at '/tmp/v12-w33935-trust-t0k5aqq9/control.sqlite3' is not reopened on this caller's behalf: a reopened handle cannot be proved to be the journal that control was opened on, and accepting one that cannot be proved is how a replaced journal answered for the original three times over. A caller allocating from another thread passes a control it can use there")]
+
+=== FAILURE: tests.manager.test_input_delivery.TheRuledTrustModel.test_the_loser_of_a_create_race_reopens_rather_than_refusing ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_input_delivery.py", line 1335, in test_the_loser_of_a_create_race_reopens_rather_than_refusing
+    self.assertEqual([kind for kind, _ in results], ["answer", "answer"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     results)
+                     ^^^^^^^^
+AssertionError: Lists differ: ['refusal', 'refusal'] != ['answer', 'answer']
+
+First differing element 0:
+'refusal'
+'answer'
+
+- ['refusal', 'refusal']
++ ['answer', 'answer'] : [('refusal', "allocating an execution workspace has to ask this manager's journal whether a cleanup, a removal or a custody hold owns these roots, and the control it was given cannot be used from this thread -- its connection is closed, or it belongs to another thread. The database at '/tmp/v12-w33935-trust-8oe_d0l6/control.sqlite3' is not reopened on this caller's behalf: a reopened handle cannot be proved to be the journal that control was opened on, and accepting one that cannot be proved is how a replaced journal answered for the original three times over. A caller allocating from another thread passes a control it can use there"), ('refusal', "allocating an execution workspace has to ask this manager's journal whether a cleanup, a removal or a custody hold owns these roots, and the control it was given cannot be used from this thread -- its connection is closed, or it belongs to another thread. The database at '/tmp/v12-w33935-trust-8oe_d0l6/control.sqlite3' is not reopened on this caller's behalf: a reopened handle cannot be proved to be the journal that control was opened on, and accepting one that cannot be proved is how a replaced journal answered for the original three times over. A caller allocating from another thread passes a control it can use there")]
+
+=== FAILURE: tests.manager.test_lifecycle_composition.DockerComposition.test_nothing_this_module_made_survives_it ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_lifecycle_composition.py", line 1894, in test_nothing_this_module_made_survives_it
+    self.assertEqual(found.stdout.decode("utf-8").split(), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['baton-w6636-lifecycle-sibling-runtime-a6042e8e'] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+'baton-w6636-lifecycle-sibling-runtime-a6042e8e'
+
+- ['baton-w6636-lifecycle-sibling-runtime-a6042e8e']
++ []
+
+=== FAILURE: tests.manager.test_lifecycle_composition.DockerComposition.test_the_whole_one_container_arc_reaches_a_clean_settlement ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_lifecycle_composition.py", line 1387, in test_the_whole_one_container_arc_reaches_a_clean_settlement
+    self.assertEqual(settled["cleanup"], "complete", settled)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'retained' != 'complete'
+- retained
++ complete
+ : {'attempt_id': 'attempt-cca1385da7', 'cleanup': 'retained', 'state': 'absent', 'why': 'the engine answered that this exact identity does not exist', 'kept': [], 'operation': {'operation_id': 'runtime.destroy:948e6512d7af1c9fcc604b3d66ae8549ba673cb9006be39a93216a35914dd200', 'signature_digest': 'sha256:1a61fd1e02b029130c427472aec9bcd933b1edc6e87f8878b0bf73bd6bb4a0f8'}, 'directory_custody': None}
+
+=== FAILURE: tests.manager.test_negative_race_endings.DockerNegativeEndings.test_no_ending_settles_before_every_required_one_is_established ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_negative_race_endings.py", line 515, in test_no_ending_settles_before_every_required_one_is_established
+    self.assertEqual(done["cleanup"], "complete", done)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'retained' != 'complete'
+- retained
++ complete
+ : {'attempt_id': 'attempt-908697fa1c', 'cleanup': 'retained', 'state': 'absent', 'why': 'the engine answered that this exact identity does not exist', 'kept': [], 'operation': {'operation_id': 'runtime.destroy:b6428745a5f47c8cab679b7be6713e0f3d5082934220d84666e2a4ecbdf27878', 'signature_digest': 'sha256:2312609ab2b8ddc8b13c82f48fd51635a69017b321b7671598a13bd82bfa6fb0'}, 'directory_custody': None}
+
+=== FAILURE: tests.manager.test_negative_race_endings.DockerNegativeEndings.test_plan_rejected_takes_the_same_cleanup_crossing ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_negative_race_endings.py", line 260, in test_plan_rejected_takes_the_same_cleanup_crossing
+    self.assertEqual(settled["cleanup"], "complete", settled)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'retained' != 'complete'
+- retained
++ complete
+ : {'attempt_id': 'attempt-cf02b5a344', 'cleanup': 'retained', 'state': 'absent', 'why': 'the engine answered that this exact identity does not exist', 'kept': [], 'operation': {'operation_id': 'runtime.destroy:817e6997f338e2829933c2c1efada631f30a9252e5a9ed7de144a5c33f615af1', 'signature_digest': 'sha256:1fa0c3eb0436a4bb427fae96f9526e3484033fc4c6d5fdf4d654f1a8f8169595'}, 'directory_custody': None}
+
+=== FAILURE: tests.manager.test_worker_entry_engine.DockerWorkerEntry.test_a_real_container_answers_describe_and_work_through_exec ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_worker_entry_engine.py", line 263, in test_a_real_container_answers_describe_and_work_through_exec
+    self.assertNotEqual(held.st_uid, os.getuid(),
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        "the worker's material is not the manager's own; "
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        "if it were, nothing would have crossed a "
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        "container boundary")
+                        ^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1000 == 1000 : the worker's material is not the manager's own; if it were, nothing would have crossed a container boundary
+[serial source] 19 shards, 516 tests, 31 failures, 9 errors, 17 skipped -> FAILED
+[supervised] tests.manager.test_runtime_deadline_engine via baton:work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/engine-gate.py (W32577)[supervised] done tests.manager.test_runtime_deadline_engine rc=0 in 30.62s

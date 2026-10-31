@@ -1487,6 +1487,7 @@ def discard(root):
     remove: this runs on the ending path, where the caller's next act depends
     on what is actually left rather than on an exception.
     """
+    boundaries.text(root, "an exchange delivery root")
     for name in (COMMAND_DIRECTORY, EVENT_DIRECTORY):
         place = os.path.join(root, name)
         if not os.path.lexists(place):

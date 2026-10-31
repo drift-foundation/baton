@@ -1,0 +1,172 @@
+diff --git a/v12/python/src/baton_v12/worker_manager/attempt_logs.py b/v12/python/src/baton_v12/worker_manager/attempt_logs.py
+index 87339393..bbd402df 100644
+--- a/v12/python/src/baton_v12/worker_manager/attempt_logs.py
++++ b/v12/python/src/baton_v12/worker_manager/attempt_logs.py
+@@ -251,4 +251,17 @@ def _gid(workspace_group):
+ 
+ 
++def _delivery(delivery):
++    """The public doors read only this module's own delivery (W384870 stage C).
++
++    `exchange.py` types its delivery at every door and this module did not,
++    so `locators(7)` escaped as an `AttributeError` from `_room` instead of
++    the refusal every other malformed operand gets here.
++    """
++    if type(delivery) is not AttemptLogs:
++        _denied(f"an attempt log is read through this module's own typed "
++                f"delivery; this is {name_value(delivery)}")
++    return delivery
++
++
+ def named(stream):
+     """The format's allowlist, in this manager's own refusal vocabulary.
+@@ -283,4 +296,5 @@ def record_capture(delivery, stream, state, *, reason=None):
+     the room, and the refusal vocabulary.
+     """
++    _delivery(delivery)
+     named(stream)
+     room = _room(delivery)
+@@ -339,4 +353,5 @@ def capture_state(delivery, stream, *, reported=None):
+     because file existence and a momentary end of file prove neither.
+     """
++    _delivery(delivery)
+     named(stream)
+     if reported is not None and reported not in CAPTURE_STATES \
+@@ -443,4 +458,8 @@ def locators(delivery, *, reported=None):
+     gone.
+     """
++    _delivery(delivery)
++    if reported is not None and type(reported) is not dict:
++        _denied(f"reported capture states are a mapping from stream to state; this is "
++                f"{name_value(reported)}")
+     said = dict(reported or {})
+     found = {"attempt_id": delivery.attempt_id,
+@@ -588,4 +607,5 @@ def read(delivery, stream, *, from_byte=0, limit=MAX_READ):
+     that promised to be bounded.
+     """
++    _delivery(delivery)
+     named(stream)
+     if type(from_byte) is not int or from_byte < 0:
+@@ -662,4 +682,5 @@ def follow(delivery, stream, *, from_byte=0, bound=MAX_FOLLOW):
+     spelled the way this package spells `from_instant`.
+     """
++    _delivery(delivery)
+     named(stream)
+     found = read(delivery, stream, from_byte=from_byte, limit=bound)
+diff --git a/v12/python/src/baton_v12/worker_manager/attempts.py b/v12/python/src/baton_v12/worker_manager/attempts.py
+index 7266c20d..58d351c1 100644
+--- a/v12/python/src/baton_v12/worker_manager/attempts.py
++++ b/v12/python/src/baton_v12/worker_manager/attempts.py
+@@ -3840,4 +3840,6 @@ def finalize_quiescent_assignment(store, port, *, attempt_id, reason,
+     where it is for the existing exact cleanup to prove absent.
+     """
++    if govern is not None:
++        boundaries.capability(getattr(govern, "release", None), "the resource governor's release")
+     boundaries.identity(attempt_id, "a runtime attempt id")
+     reason = boundaries.text(reason, "a finalization reason")
+diff --git a/v12/python/src/baton_v12/worker_manager/custody.py b/v12/python/src/baton_v12/worker_manager/custody.py
+index c9723eea..9fdec630 100644
+--- a/v12/python/src/baton_v12/worker_manager/custody.py
++++ b/v12/python/src/baton_v12/worker_manager/custody.py
+@@ -1456,4 +1456,6 @@ def custody_holds(store, assignment_id, which):
+     cleared, so a caller can refuse rather than guess.
+     """
++    boundaries.identity(assignment_id, "an assignment identity")
++    check_custody_root(which)
+     import json as _json
+ 
+@@ -2436,4 +2438,13 @@ def allowed(seconds, most):
+     if left is None:
+         return most
++    # W384870 stage C: A REMAINDER OR CEILING THAT IS NOT A NUMBER IS REFUSED
++    # rather than escaping as `int()`'s own `ValueError`; a whole number of
++    # seconds is what the engine port takes, and what this answers.
++    for value, which in ((left, "remaining allowance"), (most, "allowance ceiling")):
++        if type(value) is bool or type(value) not in (int, float):
++            raise ContractRefusal(
++                "integrity", "schema",
++                f"an engine {which} is a number of seconds; this is "
++                f"{name_value(value)}")
+     # A WHOLE NUMBER, because `EnginePort` refuses anything else -- "an engine
+     # deadline is a positive whole number of seconds" -- and rounded DOWN.
+diff --git a/v12/python/src/baton_v12/worker_manager/exchange.py b/v12/python/src/baton_v12/worker_manager/exchange.py
+index d85aa577..ace049c8 100644
+--- a/v12/python/src/baton_v12/worker_manager/exchange.py
++++ b/v12/python/src/baton_v12/worker_manager/exchange.py
+@@ -1488,4 +1488,5 @@ def discard(root):
+     on what is actually left rather than on an exception.
+     """
++    boundaries.text(root, "an exchange delivery root")
+     for name in (COMMAND_DIRECTORY, EVENT_DIRECTORY):
+         place = os.path.join(root, name)
+diff --git a/v12/python/src/baton_v12/worker_manager/intake.py b/v12/python/src/baton_v12/worker_manager/intake.py
+index ddf4eced..25d334b3 100644
+--- a/v12/python/src/baton_v12/worker_manager/intake.py
++++ b/v12/python/src/baton_v12/worker_manager/intake.py
+@@ -1218,4 +1218,6 @@ def authorize_cleanup(store, port, adapter, *, attempt_id,
+     completion would erase the reason the material still exists.
+     """
++    if govern is not None:
++        boundaries.capability(getattr(govern, "release", None), "the resource governor's release")
+     boundaries.identity(attempt_id, "a runtime attempt id")
+     boundaries.text(retention_policy_digest, "a retention policy digest")
+@@ -2704,4 +2706,6 @@ def abandon_attempt(store, port, adapter, *, attempt_id, reason,
+     nothing, and admits not one byte to the proposal pipeline.
+     """
++    if govern is not None:
++        boundaries.capability(getattr(govern, "release", None), "the resource governor's release")
+     boundaries.identity(attempt_id, "a runtime attempt id")
+     reason = boundaries.text(reason, "an abandonment reason")
+@@ -5642,4 +5646,9 @@ def reclaim_expired_resource(store, adapter, *, attempt_id, govern):
+     boundaries.capability(getattr(adapter, "stop_expired", None),
+                           "the runtime adapter's expiry stop")
++    boundaries.identity(attempt_id, "a runtime attempt id")
++    # W384870 stage C: THE GOVERNOR IS A CAPABILITY, typed before anything is
++    # read or ordered; its three acts here are the ones this ending performs.
++    for act in ("overdue", "revoke", "release"):
++        boundaries.capability(getattr(govern, act, None), f"the resource governor's {act}")
+     attempt = _attempt_of(store._connection, attempt_id)
+     operation_id = attempts._start_operation_id(attempt)
+@@ -5953,4 +5962,8 @@ def settle_revoked_resource(store, adapter, *, attempt_id, govern,
+     boundaries.capability(getattr(adapter, "observe", None),
+                           "the runtime adapter's observe")
++    boundaries.identity(attempt_id, "a runtime attempt id")
++    # W384870 stage C: the governor's two acts here are typed before any read.
++    for act in ("identity", "release"):
++        boundaries.capability(getattr(govern, act, None), f"the resource governor's {act}")
+     attempt = _attempt_of(store._connection, attempt_id)
+     operation_id = attempts._start_operation_id(attempt)
+diff --git a/v12/python/src/baton_v12/worker_manager/oci.py b/v12/python/src/baton_v12/worker_manager/oci.py
+index a5aadbe3..33784c8f 100644
+--- a/v12/python/src/baton_v12/worker_manager/oci.py
++++ b/v12/python/src/baton_v12/worker_manager/oci.py
+@@ -2596,4 +2596,6 @@ class OciAdapter:
+         assignment governed by no resource token has nothing to bind to.
+         """
++        if bind is not None:
++            boundaries.capability(bind, "an activation binding")
+         # W194457, owner decision 2026-09-17 (OWNER-TRUSTED-IDENTITY): THERE IS
+         # NO RUNTIME PROBE HERE AND THERE IS NOTHING TO ACTIVATE.
+diff --git a/v12/python/src/baton_v12/worker_manager/workspaces.py b/v12/python/src/baton_v12/worker_manager/workspaces.py
+index b56fbf20..375ea668 100644
+--- a/v12/python/src/baton_v12/worker_manager/workspaces.py
++++ b/v12/python/src/baton_v12/worker_manager/workspaces.py
+@@ -2612,4 +2612,5 @@ def admit_cleanup(control, assignment_id, settlement, what, cessation=None):
+     cannot make a fresh decision; this decision is fresh.
+     """
++    _assignment_identity(assignment_id)
+     # W285465 review 2026-09-28T07-26-54Z: A PRESENTED CESSATION IS REFUSED OUTRIGHT.
+     #
+@@ -3059,4 +3060,5 @@ def bind_token_container(control, assignment_id, ordinal, owned, container):
+     stop somebody else's container.
+     """
++    _assignment_identity(assignment_id)
+     from .store import manager_signature
+ 
+@@ -3098,4 +3100,6 @@ def revoke_expired_token(control, assignment_id, ordinal, stop):
+     function's answer is the record, not the request.
+     """
++    _assignment_identity(assignment_id)
++    boundaries.capability(stop, "a container stop")
+     from .store import manager_signature
+ 

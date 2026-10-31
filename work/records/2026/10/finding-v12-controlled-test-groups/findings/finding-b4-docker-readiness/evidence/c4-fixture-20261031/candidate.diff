@@ -1,0 +1,37 @@
+--- a/v12/python/tests/manager/test_integration_worker.py
++++ b/v12/python/tests/manager/test_integration_worker.py
+@@ -409,7 +409,7 @@
+         self.addCleanup(self.producer.doCleanups)
+ 
+         self.root = tempfile.mkdtemp(prefix="v12-w110935-")
+-        self.addCleanup(shutil.rmtree, self.root, True)
++        self.addCleanup(self.remove_world, self.root)
+         self.commands = []
+         self.behaviour = "import"
+         self.status = 0
+@@ -431,14 +431,20 @@
+         # rewrite is one it could change between reading it and being held to
+         # it, and the real deployment mounts it read-only.
+         os.chmod(self.launch_place, 0o444)
+-        self.delivery = runtime.IntegrationDelivery(
+-            attempt_id=self.assignment["attempt_id"],
+-            root=self.place("delivery"))
+-        os.makedirs(self.delivery.assignment_root)
+-        os.makedirs(self.delivery.result_root)
++        self.delivery = runtime.materialize_delivery(
++            self.place("delivery"), attempt_id=self.assignment["attempt_id"],
++            workspace_group=self.producer.world.owner.group)
+         runtime.publish_assignment(self.delivery, self.assignment)
+ 
+     # -- the world's own material -------------------------------------------
++
++    @staticmethod
++    def remove_world(root):
++        # Disposal only: published fixture bundles are read-only during the
++        # test. Thaw this case's own directories, never linked destinations.
++        for current, _directories, _files in os.walk(root):
++            os.chmod(current, 0o700)
++        shutil.rmtree(root)
+ 
+     def place(self, *parts):
+         made = os.path.join(self.root, *parts)

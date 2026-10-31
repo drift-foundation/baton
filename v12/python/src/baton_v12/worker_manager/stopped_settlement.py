@@ -23,6 +23,13 @@ def _id(kind, identity):
 
 
 def _read(store, operation, kind):
+    if kind == SELECTED:
+        # W384870 stage C: the selection records its signed operands, so they verify it.
+        from .store import replayed_as_signed
+
+        return replayed_as_signed(store, operation, kind, what="a settlement selection record")
+    # The outcome and receipt record this manager's own observation beside a
+    # signature over the request: not signature-bound (W375444 REPLAY_DEBT).
     record = store.operation_record(operation)
     if record is None:
         return None

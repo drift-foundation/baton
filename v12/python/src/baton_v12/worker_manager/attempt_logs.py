@@ -250,6 +250,19 @@ def _gid(workspace_group):
     return workspace_group.gid
 
 
+def _delivery(delivery):
+    """The public doors read only this module's own delivery (W384870 stage C).
+
+    `exchange.py` types its delivery at every door and this module did not,
+    so `locators(7)` escaped as an `AttributeError` from `_room` instead of
+    the refusal every other malformed operand gets here.
+    """
+    if type(delivery) is not AttemptLogs:
+        _denied(f"an attempt log is read through this module's own typed "
+                f"delivery; this is {name_value(delivery)}")
+    return delivery
+
+
 def named(stream):
     """The format's allowlist, in this manager's own refusal vocabulary.
 
@@ -282,6 +295,7 @@ def record_capture(delivery, stream, state, *, reason=None):
     whole. What this function owns is the manager's half -- the typed delivery,
     the room, and the refusal vocabulary.
     """
+    _delivery(delivery)
     named(stream)
     room = _room(delivery)
     try:
@@ -338,6 +352,7 @@ def capture_state(delivery, stream, *, reported=None):
     finished. `captured` is reached only when a writer declared `finished`,
     because file existence and a momentary end of file prove neither.
     """
+    _delivery(delivery)
     named(stream)
     if reported is not None and reported not in CAPTURE_STATES \
             and reported not in DECLARABLE:
@@ -442,6 +457,10 @@ def locators(delivery, *, reported=None):
     manager's own and are readable whether the container is running, stopped or
     gone.
     """
+    _delivery(delivery)
+    if reported is not None and type(reported) is not dict:
+        _denied(f"reported capture states are a mapping from stream to state; this is "
+                f"{name_value(reported)}")
     said = dict(reported or {})
     found = {"attempt_id": delivery.attempt_id,
              "log_root": delivery.log_root,
@@ -587,6 +606,7 @@ def read(delivery, stream, *, from_byte=0, limit=MAX_READ):
     opened, and `O_NONBLOCK` is what keeps a special file from wedging a reader
     that promised to be bounded.
     """
+    _delivery(delivery)
     named(stream)
     if type(from_byte) is not int or from_byte < 0:
         _denied("a log read starts at a whole number of bytes")
@@ -661,6 +681,7 @@ def follow(delivery, stream, *, from_byte=0, bound=MAX_FOLLOW):
     What crosses here is a position in a named file the caller already read,
     spelled the way this package spells `from_instant`.
     """
+    _delivery(delivery)
     named(stream)
     found = read(delivery, stream, from_byte=from_byte, limit=bound)
     return {**found, "next_from_byte": from_byte + found["bytes_read"],

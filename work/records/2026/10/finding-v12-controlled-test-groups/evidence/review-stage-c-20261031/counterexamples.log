@@ -1,0 +1,7 @@
+validators: {}
+UNSOUND WITNESS: passed with no validators
+before corruption expired: True
+after corruption expired: False
+allowed None 'bad' returned 'bad'
+allowed 1 inf OverflowError cannot convert float infinity to integer
+allowed nan 120 ValueError cannot convert float NaN to integer

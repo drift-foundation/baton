@@ -3839,6 +3839,8 @@ def finalize_quiescent_assignment(store, port, *, attempt_id, reason,
     in custody, pending an explicit retention decision, and the runtime stays
     where it is for the existing exact cleanup to prove absent.
     """
+    if govern is not None:
+        boundaries.capability(getattr(govern, "release", None), "the resource governor's release")
     boundaries.identity(attempt_id, "a runtime attempt id")
     reason = boundaries.text(reason, "a finalization reason")
     # A BLANK SENTENCE IS A DECISION NOBODY MADE, on the rule `abandon_attempt`

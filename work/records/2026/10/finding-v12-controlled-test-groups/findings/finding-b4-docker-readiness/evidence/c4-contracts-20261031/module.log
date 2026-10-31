@@ -1,0 +1,130 @@
+{"argv": ["just", "test-one", "tests.manager.test_integration_worker"], "cwd": "/home/sl/src/baton/work/scratch/w384944-c4-a8cbc974-20261031/v12", "interpreter": "/home/sl/.local/state/baton-v12-venv/bin/python", "tmp_root": "/var/tmp/baton-w384944-c4-module-9mc9m869", "snapshot_commit": "a8cbc9745d1eff51bcfb04d2fe4bb96a5ea3b12d"}
+test_a_generation_this_runtime_cannot_read_SAYS_SO (tests.manager.test_integration_worker.EveryIntegrationRefusalSAYSWHY.test_a_generation_this_runtime_cannot_read_SAYS_SO) ... ok
+test_an_unreadable_assignment_NAMES_THE_ROOT_IT_LOOKED_IN (tests.manager.test_integration_worker.EveryIntegrationRefusalSAYSWHY.test_an_unreadable_assignment_NAMES_THE_ROOT_IT_LOOKED_IN)
+A valid launch and no assignment beside it. The operator's next act ... ok
+test_an_unreadable_launch_document_SAYS_SO (tests.manager.test_integration_worker.EveryIntegrationRefusalSAYSWHY.test_an_unreadable_launch_document_SAYS_SO) ... ok
+test_no_frame_no_receipt_and_no_result_is_written_by_a_refusal (tests.manager.test_integration_worker.EveryIntegrationRefusalSAYSWHY.test_no_frame_no_receipt_and_no_result_is_written_by_a_refusal)
+The diagnostic is a DIAGNOSTIC. Nothing about it is a protocol ... ok
+test_the_diagnostic_is_ONE_BOUNDED_PRINTABLE_LINE (tests.manager.test_integration_worker.EveryIntegrationRefusalSAYSWHY.test_the_diagnostic_is_ONE_BOUNDED_PRINTABLE_LINE)
+It quotes a document this runtime has just refused to trust, so it ... ok
+test_the_status_vocabulary_is_this_entry_s_and_NOT_the_worker_s (tests.manager.test_integration_worker.EveryIntegrationRefusalSAYSWHY.test_the_status_vocabulary_is_this_entry_s_and_NOT_the_worker_s)
+`_startup_refusal` answers `baton_worker`'s own `3`, and this entry ... ok
+test_a_deletion_is_imported_as_an_absence (tests.manager.test_integration_worker.TheAcceptedBundleIsCarriedThroughTheRealEntry.test_a_deletion_is_imported_as_an_absence) ... ok
+test_a_mode_change_is_not_publishable_and_starts_no_provider (tests.manager.test_integration_worker.TheAcceptedBundleIsCarriedThroughTheRealEntry.test_a_mode_change_is_not_publishable_and_starts_no_provider)
+CANDIDATE MODE IS NOT PERMISSION, and there is nothing in this ... ok
+test_a_terminal_result_never_earns_a_second_provider_turn (tests.manager.test_integration_worker.TheAcceptedBundleIsCarriedThroughTheRealEntry.test_a_terminal_result_never_earns_a_second_provider_turn) ... ok
+test_an_addition_is_imported_verified_and_published (tests.manager.test_integration_worker.TheAcceptedBundleIsCarriedThroughTheRealEntry.test_an_addition_is_imported_verified_and_published) ... ok
+test_an_edit_preserves_the_reviewed_mode (tests.manager.test_integration_worker.TheAcceptedBundleIsCarriedThroughTheRealEntry.test_an_edit_preserves_the_reviewed_mode)
+PRESERVING a mode, which is what an edit does when the reviewed ... ok
+test_an_unscheduled_existing_test_change_is_the_providers_to_refuse (tests.manager.test_integration_worker.TheAcceptedBundleIsCarriedThroughTheRealEntry.test_an_unscheduled_existing_test_change_is_the_providers_to_refuse)
+AND WHEN THE PROVIDER DOES REFUSE IT, the ending is a hold. ... ok
+test_the_prompt_requires_whole_candidate_test_evaluation (tests.manager.test_integration_worker.TheAcceptedBundleIsCarriedThroughTheRealEntry.test_the_prompt_requires_whole_candidate_test_evaluation)
+THE INSTRUCTION GAP review 2026-09-08T00:01:58Z [P1] recorded. ... ok
+test_the_provider_ran_in_the_target_with_the_composed_environment (tests.manager.test_integration_worker.TheAcceptedBundleIsCarriedThroughTheRealEntry.test_the_provider_ran_in_the_target_with_the_composed_environment) ... ok
+test_the_version_control_metadata_is_untouched (tests.manager.test_integration_worker.TheAcceptedBundleIsCarriedThroughTheRealEntry.test_the_version_control_metadata_is_untouched)
+`.git/index` and `HEAD` are exactly what they were. ... ok
+test_a_file_the_envelope_never_named_changes_the_identity (tests.manager.test_integration_worker.TheBundleIdentityIsMeasuredAndNotRead.test_a_file_the_envelope_never_named_changes_the_identity)
+DERIVED: the producer will not publish one, which is the point. ... ok
+test_a_link_or_a_device_in_the_bundle_refuses_the_measurement (tests.manager.test_integration_worker.TheBundleIdentityIsMeasuredAndNotRead.test_a_link_or_a_device_in_the_bundle_refuses_the_measurement) ... ok
+test_a_report_naming_another_bundle_is_held (tests.manager.test_integration_worker.TheBundleIdentityIsMeasuredAndNotRead.test_a_report_naming_another_bundle_is_held) ... ok
+test_the_measured_identity_is_the_producers_own_answer (tests.manager.test_integration_worker.TheBundleIdentityIsMeasuredAndNotRead.test_the_measured_identity_is_the_producers_own_answer) ... ok
+test_a_clean_provider_refusal_after_writable_work_is_still_held (tests.manager.test_integration_worker.TheEndingIsConservative.test_a_clean_provider_refusal_after_writable_work_is_still_held)
+THE PINNED RULE, and the case that would catch its loss. ... ok
+test_a_failed_verification_after_a_complete_import_is_held (tests.manager.test_integration_worker.TheEndingIsConservative.test_a_failed_verification_after_a_complete_import_is_held)
+THE DEFECT REVIEW114048 FOUND, with a REAL failing process. ... ok
+test_a_partial_import_is_held (tests.manager.test_integration_worker.TheEndingIsConservative.test_a_partial_import_is_held)
+DERIVED: two rows, of which the provider imports one. ... ok
+test_a_provider_that_did_not_complete_is_held (tests.manager.test_integration_worker.TheEndingIsConservative.test_a_provider_that_did_not_complete_is_held) ... ok
+test_a_provider_that_timed_out_is_held (tests.manager.test_integration_worker.TheEndingIsConservative.test_a_provider_that_timed_out_is_held) ... ok
+test_a_report_claiming_a_path_outside_the_table_is_held (tests.manager.test_integration_worker.TheEndingIsConservative.test_a_report_claiming_a_path_outside_the_table_is_held) ... ok
+test_a_report_that_claims_an_import_it_did_not_reach_is_held (tests.manager.test_integration_worker.TheEndingIsConservative.test_a_report_that_claims_an_import_it_did_not_reach_is_held)
+`phase_and_paths_incomplete` in the reviewer's probe: a report ... ok
+test_a_report_that_does_not_claim_an_import_is_held (tests.manager.test_integration_worker.TheEndingIsConservative.test_a_report_that_does_not_claim_an_import_is_held) ... ok
+test_a_turn_with_no_report_is_held (tests.manager.test_integration_worker.TheEndingIsConservative.test_a_turn_with_no_report_is_held) ... ok
+test_a_verification_that_cannot_run_is_held (tests.manager.test_integration_worker.TheEndingIsConservative.test_a_verification_that_cannot_run_is_held)
+`verification=None` leaves the accepted command absent from the ... ok
+test_a_verification_that_undoes_the_import_is_held (tests.manager.test_integration_worker.TheEndingIsConservative.test_a_verification_that_undoes_the_import_is_held)
+THE FOUR FALSE SUCCESSES review 2026-09-08T00:01:58Z [P1] found. ... ok
+test_an_agent_that_answers_something_else_is_held (tests.manager.test_integration_worker.TheEndingIsConservative.test_an_agent_that_answers_something_else_is_held) ... ok
+test_an_unchanged_verifier_still_integrates (tests.manager.test_integration_worker.TheEndingIsConservative.test_an_unchanged_verifier_still_integrates)
+THE CONTROL. The repeated observation must not turn an ordinary ... ok
+test_an_unreadable_report_is_held (tests.manager.test_integration_worker.TheEndingIsConservative.test_an_unreadable_report_is_held) ... ok
+test_no_provider_text_reaches_a_held_result (tests.manager.test_integration_worker.TheEndingIsConservative.test_no_provider_text_reaches_a_held_result)
+THE HELD CANARY, on the other channel: out-of-scope paths the ... ok
+test_no_provider_text_reaches_an_integrated_result (tests.manager.test_integration_worker.TheEndingIsConservative.test_no_provider_text_reaches_an_integrated_result)
+THE SUCCESS CANARY. Review 2026-09-07T22:48:26Z [P1]: the report's ... ok
+test_the_accepted_verification_is_the_one_that_runs (tests.manager.test_integration_worker.TheEndingIsConservative.test_the_accepted_verification_is_the_one_that_runs)
+BOUND, not taken from the report. The published command is the ... ok
+test_version_control_metadata_that_moved_is_held (tests.manager.test_integration_worker.TheEndingIsConservative.test_version_control_metadata_that_moved_is_held) ... ok
+test_a_result_above_the_delivery_bound_is_refused_not_truncated (tests.manager.test_integration_worker.TheEntryIsTheOneShotComposition.test_a_result_above_the_delivery_bound_is_refused_not_truncated) ... ok
+test_a_writable_launch_document_is_refused (tests.manager.test_integration_worker.TheEntryIsTheOneShotComposition.test_a_writable_launch_document_is_refused)
+`read_launch`'s proof: a launch this worker could rewrite is not ... baton-worker: launch: the integration runtime cannot read its launch: /var/tmp/baton-w384944-c4-module-9mc9m869/v12-w110935-4rt_h5ou/run/launch.json is writable from inside this container; a launch document this worker could rewrite is not one the manager can hold it to
+ok
+test_an_absent_result_file_in_a_proved_namespace_is_not_a_refusal (tests.manager.test_integration_worker.TheEntryIsTheOneShotComposition.test_an_absent_result_file_in_a_proved_namespace_is_not_a_refusal)
+The one ordinary absence, kept ordinary: a namespace this runtime ... ok
+test_an_unreadable_result_namespace_starts_no_provider (tests.manager.test_integration_worker.TheEntryIsTheOneShotComposition.test_an_unreadable_result_namespace_starts_no_provider)
+THE P2, and the reviewer's own `terminal_result_behind_link`. ... baton-worker: launch: the integration runtime cannot read the result namespace under /var/tmp/baton-w384944-c4-module-9mc9m869/v12-w110935-0gj2h0it/linked-result: the integration result namespace is not a directory this runtime can open without following a link (20); whether this attempt has already answered is exactly the question that just went unanswered
+ok
+test_no_assignment_writes_nothing_and_exits_two (tests.manager.test_integration_worker.TheEntryIsTheOneShotComposition.test_no_assignment_writes_nothing_and_exits_two) ... baton-worker: launch: the integration runtime cannot read its assignment under /var/tmp/baton-w384944-c4-module-9mc9m869/v12-w110935-bn3t8enc/delivery/integration-deliveries/2ac6532485faeb0f63e42693169ec29172d78093dcd9d11b35dd80493986dd5d/assignment: the integration assignment is not readable as an ordinary file (2)
+ok
+test_no_launch_document_writes_nothing_and_exits_two (tests.manager.test_integration_worker.TheEntryIsTheOneShotComposition.test_no_launch_document_writes_nothing_and_exits_two) ... baton-worker: launch: the integration runtime cannot read its launch: this container has no readable /var/tmp/baton-w384944-c4-module-9mc9m869/v12-w110935-4_a3jjja/run/launch.json; the launch document is how a worker is told what it is
+ok
+test_the_published_result_is_read_only_and_never_clobbered (tests.manager.test_integration_worker.TheEntryIsTheOneShotComposition.test_the_published_result_is_read_only_and_never_clobbered) ... ok
+test_a_bundle_composed_for_another_assignment_refuses (tests.manager.test_integration_worker.TheEvidenceMustBeThisCandidatesOwn.test_a_bundle_composed_for_another_assignment_refuses)
+DERIVED: the producer refuses to compose one, which is correct. ... ok
+test_a_bundle_naming_another_launch_refuses (tests.manager.test_integration_worker.TheEvidenceMustBeThisCandidatesOwn.test_a_bundle_naming_another_launch_refuses) ... ok
+test_a_bundle_with_no_accepted_verification_command_refuses (tests.manager.test_integration_worker.TheEvidenceMustBeThisCandidatesOwn.test_a_bundle_with_no_accepted_verification_command_refuses)
+The command is resolved BEFORE the provider, so a bundle that ... ok
+test_a_bundle_with_no_readable_envelope_refuses (tests.manager.test_integration_worker.TheEvidenceMustBeThisCandidatesOwn.test_a_bundle_with_no_readable_envelope_refuses) ... ok
+test_a_container_launched_under_another_role_refuses (tests.manager.test_integration_worker.TheEvidenceMustBeThisCandidatesOwn.test_a_container_launched_under_another_role_refuses) ... ok
+test_a_review_that_did_not_accept_refuses (tests.manager.test_integration_worker.TheEvidenceMustBeThisCandidatesOwn.test_a_review_that_did_not_accept_refuses) ... ok
+test_a_scheduled_test_change_with_no_review_document_refuses (tests.manager.test_integration_worker.TheEvidenceMustBeThisCandidatesOwn.test_a_scheduled_test_change_with_no_review_document_refuses)
+A DECISION NEEDS SOMETHING TO HAVE DECIDED IT. ... ok
+test_an_added_test_needs_no_scheduled_scope (tests.manager.test_integration_worker.TheEvidenceMustBeThisCandidatesOwn.test_an_added_test_needs_no_scheduled_scope)
+Repository policy: adding tests never needs case-specific consent, ... ok
+test_an_authority_account_about_another_job_refuses (tests.manager.test_integration_worker.TheEvidenceMustBeThisCandidatesOwn.test_an_authority_account_about_another_job_refuses)
+ABSENT AND EMPTY ARE NOT ONE CLAIM, and neither is permission. ... ok
+test_evidence_about_another_checkpoint_refuses (tests.manager.test_integration_worker.TheEvidenceMustBeThisCandidatesOwn.test_evidence_about_another_checkpoint_refuses)
+DERIVED: one projection is replaced with a valid, unrelated one. ... ok
+test_instructions_the_profile_does_not_name_refuse (tests.manager.test_integration_worker.TheEvidenceMustBeThisCandidatesOwn.test_instructions_the_profile_does_not_name_refuse)
+DERIVED: the producer proves this equality before it publishes. ... ok
+test_the_accepted_scope_is_the_enumeration_and_not_a_filename (tests.manager.test_integration_worker.TheEvidenceMustBeThisCandidatesOwn.test_the_accepted_scope_is_the_enumeration_and_not_a_filename)
+WHAT THE ACCOUNT'S ROWS ARE: GRANTS, and not an inventory of the ... ok
+test_the_same_change_inside_the_scheduled_scope_is_admitted (tests.manager.test_integration_worker.TheEvidenceMustBeThisCandidatesOwn.test_the_same_change_inside_the_scheduled_scope_is_admitted)
+What makes the account above about AUTHORITY rather than about the ... ok
+test_a_tree_with_no_history_refuses_rather_than_inventing_one (tests.manager.test_integration_worker.TheRevisionReaderIsReadOnly.test_a_tree_with_no_history_refuses_rather_than_inventing_one) ... ok
+test_it_answers_the_repositorys_own_revision (tests.manager.test_integration_worker.TheRevisionReaderIsReadOnly.test_it_answers_the_repositorys_own_revision) ... ok
+test_the_query_is_read_only_and_lock_free (tests.manager.test_integration_worker.TheRevisionReaderIsReadOnly.test_the_query_is_read_only_and_lock_free) ... ok
+test_a_publication_manifest_digests_identically (tests.manager.test_integration_worker.TheTwoSpellingsOfCanonicalJsonAgree.test_a_publication_manifest_digests_identically) ... ok
+test_an_assignment_a_launch_and_a_path_list_digest_identically (tests.manager.test_integration_worker.TheTwoSpellingsOfCanonicalJsonAgree.test_an_assignment_a_launch_and_a_path_list_digest_identically) ... ok
+test_member_order_nesting_and_unicode_agree (tests.manager.test_integration_worker.TheTwoSpellingsOfCanonicalJsonAgree.test_member_order_nesting_and_unicode_agree) ... ok
+test_the_worker_and_the_manager_name_one_target_mount (tests.manager.test_integration_worker.TheTwoSpellingsOfCanonicalJsonAgree.test_the_worker_and_the_manager_name_one_target_mount)
+The fourth fixed container path, held equal across the boundary. ... ok
+test_what_neither_spelling_will_digest (tests.manager.test_integration_worker.TheTwoSpellingsOfCanonicalJsonAgree.test_what_neither_spelling_will_digest) ... ok
+test_a_late_invalid_row_stops_the_whole_import (tests.manager.test_integration_worker.TheWholePathSetIsProvedBeforeAnyImport.test_a_late_invalid_row_stops_the_whole_import)
+DERIVED: the accepted world carries one path and this needs two. ... ok
+test_a_link_or_a_directory_at_a_scheduled_path_refuses (tests.manager.test_integration_worker.TheWholePathSetIsProvedBeforeAnyImport.test_a_link_or_a_directory_at_a_scheduled_path_refuses) ... ok
+test_a_read_only_target_refuses_and_is_never_repaired (tests.manager.test_integration_worker.TheWholePathSetIsProvedBeforeAnyImport.test_a_read_only_target_refuses_and_is_never_repaired)
+The DIRECTORY is read-only, which an edit still needs. ... ok
+test_a_result_published_before_the_turn_stops_it (tests.manager.test_integration_worker.TheWholePathSetIsProvedBeforeAnyImport.test_a_result_published_before_the_turn_stops_it) ... ok
+test_a_target_at_another_mode_than_the_reviewed_base_refuses (tests.manager.test_integration_worker.TheWholePathSetIsProvedBeforeAnyImport.test_a_target_at_another_mode_than_the_reviewed_base_refuses) ... ok
+test_a_target_at_another_revision_refuses (tests.manager.test_integration_worker.TheWholePathSetIsProvedBeforeAnyImport.test_a_target_at_another_revision_refuses) ... ok
+test_a_target_that_is_not_at_the_reviewed_base_bytes_refuses (tests.manager.test_integration_worker.TheWholePathSetIsProvedBeforeAnyImport.test_a_target_that_is_not_at_the_reviewed_base_bytes_refuses) ... ok
+test_an_addition_over_an_existing_path_refuses (tests.manager.test_integration_worker.TheWholePathSetIsProvedBeforeAnyImport.test_an_addition_over_an_existing_path_refuses) ... ok
+test_an_unreadable_target_revision_refuses (tests.manager.test_integration_worker.TheWholePathSetIsProvedBeforeAnyImport.test_an_unreadable_target_revision_refuses)
+THROUGH THE DEFAULT READER, which is the one production uses. ... ok
+test_a_linked_or_noncanonical_room_refuses (tests.manager.test_integration_worker.TheWrapperRefusesWhatItCannotRunIn.test_a_linked_or_noncanonical_room_refuses) ... ok
+test_a_refusal_starts_no_provider (tests.manager.test_integration_worker.TheWrapperRefusesWhatItCannotRunIn.test_a_refusal_starts_no_provider) ... ok
+test_a_relative_or_absent_room_refuses (tests.manager.test_integration_worker.TheWrapperRefusesWhatItCannotRunIn.test_a_relative_or_absent_room_refuses) ... ok
+test_a_turn_without_a_prompt_refuses (tests.manager.test_integration_worker.TheWrapperRefusesWhatItCannotRunIn.test_a_turn_without_a_prompt_refuses) ... ok
+test_a_clean_turn_answers_the_closed_document (tests.manager.test_integration_worker.TheWrapperTakesTheAdaptersOwnProviderTurn.test_a_clean_turn_answers_the_closed_document) ... ok
+test_a_failing_turn_publishes_this_modules_word_and_not_the_providers (tests.manager.test_integration_worker.TheWrapperTakesTheAdaptersOwnProviderTurn.test_a_failing_turn_publishes_this_modules_word_and_not_the_providers) ... ok
+test_the_caller_s_prompt_is_the_one_the_provider_receives (tests.manager.test_integration_worker.TheWrapperTakesTheAdaptersOwnProviderTurn.test_the_caller_s_prompt_is_the_one_the_provider_receives) ... ok
+test_the_environment_is_composed_and_never_inherited (tests.manager.test_integration_worker.TheWrapperTakesTheAdaptersOwnProviderTurn.test_the_environment_is_composed_and_never_inherited)
+The credential rule this wrapper exists NOT to re-implement. ... ok
+test_the_turn_runs_in_the_room_it_was_given (tests.manager.test_integration_worker.TheWrapperTakesTheAdaptersOwnProviderTurn.test_the_turn_runs_in_the_room_it_was_given) ... ok
+
+----------------------------------------------------------------------
+Ran 83 tests in 17.885s
+
+OK
